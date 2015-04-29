@@ -1456,31 +1456,31 @@ actually a `diff' but a `diffstat' section."
     (magit-diff-paint-hunk section selection nil)
     t))
 
-(defun magit-diff-highlight (section siblings)
+(defun magit-diff-highlight (section selection)
   "Highlight the diff-related SECTION and return non-nil.
 If SECTION is not a diff-related section, then do nothing and
-return nil.  If SIBLINGS is non-nil then it is a list of siblings
+return nil.  If SELECTION is non-nil then it is a list of selection
 of SECTION including SECTION and all of them are highlighted."
   (-when-let (scope (magit-diff-scope section t))
     (cond ((eq scope 'region)
-           (magit-diff-paint-hunk section siblings t))
-          (siblings
-           (dolist (section siblings)
-             (magit-diff-highlight-recursive section siblings)))
+           (magit-diff-paint-hunk section selection t))
+          (selection
+           (dolist (section selection)
+             (magit-diff-highlight-recursive section selection)))
           (t
            (magit-diff-highlight-recursive section)))
     t))
 
-(defun magit-diff-highlight-recursive (section &optional siblings)
+(defun magit-diff-highlight-recursive (section &optional selection)
   (if (magit-section-match 'module-commit section)
       (magit-section-highlight section nil)
     (pcase (magit-diff-scope section)
-      (`list (magit-diff-highlight-list section siblings))
-      (`file (magit-diff-highlight-file section siblings))
-      (`hunk (magit-diff-highlight-heading section siblings)
-             (magit-diff-paint-hunk section siblings t)))))
+      (`list (magit-diff-highlight-list section selection))
+      (`file (magit-diff-highlight-file section selection))
+      (`hunk (magit-diff-highlight-heading section selection)
+             (magit-diff-paint-hunk section selection t)))))
 
-(defun magit-diff-highlight-list (section &optional siblings)
+(defun magit-diff-highlight-list (section &optional selection)
   (let ((beg (magit-section-start   section))
         (cnt (magit-section-content section))
         (end (magit-section-end     section)))
@@ -1490,21 +1490,21 @@ of SECTION including SECTION and all of them are highlighted."
       (magit-section-make-overlay   beg  cnt 'magit-section-highlight)
       (unless (magit-section-hidden section)
         (dolist (child (magit-section-children section))
-          (magit-diff-highlight-recursive child siblings))))))
+          (magit-diff-highlight-recursive child selection))))))
 
-(defun magit-diff-highlight-file (section &optional siblings)
-  (magit-diff-highlight-heading section siblings)
+(defun magit-diff-highlight-file (section &optional selection)
+  (magit-diff-highlight-heading section selection)
   (unless (magit-section-hidden section)
     (dolist (child (magit-section-children section))
-      (magit-diff-highlight-recursive child siblings))))
+      (magit-diff-highlight-recursive child selection))))
 
-(defun magit-diff-highlight-heading (section &optional siblings)
+(defun magit-diff-highlight-heading (section &optional selection)
   (magit-section-make-overlay
    (magit-section-start section)
    (or (magit-section-content section)
        (magit-section-end     section))
    (pcase (list (magit-section-type section)
-                (and (member section siblings) t))
+                (and (member section selection) t))
      (`(file   t) 'magit-diff-file-heading-selection)
      (`(file nil) 'magit-diff-file-heading-highlight)
      (`(hunk   t) 'magit-diff-hunk-heading-selection)
