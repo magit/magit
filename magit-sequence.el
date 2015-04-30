@@ -322,18 +322,20 @@ This discards all changes made since the sequence started."
               (?c "Lie about author date" "--committer-date-is-author-date")
               (?a "Autosquash" "--autosquash")
               (?A "Autostash" "--autostash"))
-  :actions  '((?r "Rebase"        magit-rebase)
-              (?e "Interactive"   magit-rebase-interactive)
-              (?s "Edit commit"   magit-rebase-edit-commit)
-              (?o "Rebase onto"   magit-rebase-onto)
-              (?f "Autosquash"    magit-rebase-autosquash)
-              (?w "Reword commit" magit-rebase-reword-commit))
+  :actions  '((?r "Rebase"             magit-rebase)
+              (?f "Autosquash"         magit-rebase-autosquash)
+              (?o "Rebase onto"        magit-rebase-onto)
+              nil
+              (?e "Rebase interactive" magit-rebase-interactive)
+              (?s "Edit commit"        magit-rebase-edit-commit)
+              (?l "Rebase unpushed"    magit-rebase-unpushed)
+              (?w "Reword commit"      magit-rebase-reword-commit))
   :sequence-actions '((?r "Continue" magit-rebase-continue)
                       (?s "Skip"     magit-rebase-skip)
                       (?e "Edit"     magit-rebase-edit)
                       (?a "Abort"    magit-rebase-abort))
   :sequence-predicate 'magit-rebase-in-progress-p
-  :max-action-columns 3)
+  :max-action-columns 2)
 
 ;;;###autoload
 (defun magit-rebase (upstream &optional args)
@@ -377,6 +379,17 @@ This discards all changes made since the sequence started."
   (interactive (let ((commit (magit-commit-at-point)))
                  (list (and commit (concat commit "^"))
                        (magit-rebase-arguments))))
+  (if (setq commit (magit-rebase-interactive-assert commit))
+      (magit-run-git-sequencer "rebase" "-i" commit args)
+    (magit-log-select
+      `(lambda (commit)
+         (magit-rebase-interactive (concat commit "^") (list ,@args))))))
+
+(defun magit-rebase-unpushed (commit &optional args)
+  "Start an interactive rebase sequence of all unpushed commits.
+\n(git rebase -i UPSTREAM [ARGS])"
+  (interactive (list (magit-get-tracked-branch)
+                     (magit-rebase-arguments)))
   (if (setq commit (magit-rebase-interactive-assert commit))
       (magit-run-git-sequencer "rebase" "-i" commit args)
     (magit-log-select
