@@ -324,7 +324,7 @@ This discards all changes made since the sequence started."
               (?A "Autostash" "--autostash"))
   :actions  '((?r "Rebase"             magit-rebase)
               (?f "Autosquash"         magit-rebase-autosquash)
-              (?o "Rebase onto"        magit-rebase-onto)
+              (?o "Rebase from"        magit-rebase-from)
               nil
               (?e "Rebase interactive" magit-rebase-interactive)
               (?s "Edit commit"        magit-rebase-edit-commit)
@@ -340,6 +340,7 @@ This discards all changes made since the sequence started."
 ;;;###autoload
 (defun magit-rebase (upstream &optional args)
   "Start a non-interactive rebase sequence.
+All commits not in UPSTREAM are rebased.
 \n(git rebase UPSTREAM[^] [ARGS])"
   (interactive (list (magit-read-other-branch-or-commit
                       "Rebase to"
@@ -355,22 +356,24 @@ This discards all changes made since the sequence started."
          (magit-rebase (concat commit "^") (list ,@args))))))
 
 ;;;###autoload
-(defun magit-rebase-onto (newbase upstream &optional args)
-  "Start a non-interactive rebase sequence, using `--onto'.
-\n(git rebase --onto NEWBASE UPSTREAM[^] [ARGS])"
+(defun magit-rebase-from (newbase start &optional args)
+  "Start a non-interactive rebase sequence.
+Commits from START to `HEAD' onto NEWBASE.  START has to be
+selected from a list of recent commits.
+\n(git rebase --onto NEWBASE START[^] [ARGS])"
   (interactive (list (magit-read-other-branch-or-commit
                       "Rebase to"
                       (magit-get-current-branch)
                       (magit-get-tracked-branch))
                      nil
                      (magit-rebase-arguments)))
-  (if upstream
+  (if start
       (progn (message "Rebasing...")
-             (magit-run-git-sequencer "rebase" "--onto" newbase upstream args)
+             (magit-run-git-sequencer "rebase" "--onto" newbase start args)
              (message "Rebasing...done"))
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-onto ,newbase (concat commit "^") (list ,@args))))))
+         (magit-rebase-from ,newbase (concat commit "^") (list ,@args))))))
 
 ;;;###autoload
 (defun magit-rebase-interactive (commit &optional args)
