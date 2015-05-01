@@ -209,61 +209,39 @@ The following `format'-like specs are supported:
   :group 'magit-log
   :type 'string)
 
-(defface magit-reflog-commit
-  '((t :background "LemonChiffon1"
-       :foreground "goldenrod4"))
+(defface magit-reflog-commit '((t :foreground "green"))
   "Face for commit commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-amend
-  '((t :inherit magit-reflog-commit))
+(defface magit-reflog-amend '((t :foreground "magenta"))
   "Face for amend commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-merge
-  '((t :inherit magit-reflog-commit))
+(defface magit-reflog-merge '((t :foreground "green"))
   "Face for merge, checkout and branch commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-checkout
-  '((((class color) (background light))
-     :background "grey85"
-     :foreground "LightSkyBlue4")
-    (((class color) (background dark))
-     :background "grey30"
-     :foreground "LightSkyBlue1"))
+(defface magit-reflog-checkout '((t :foreground "blue"))
   "Face for checkout commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-reset
-  '((t :background "IndianRed1"
-       :foreground "IndianRed4"))
+(defface magit-reflog-reset '((t :foreground "red"))
   "Face for reset commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-rebase
-  '((((class color) (background light))
-     :background "grey85"
-     :foreground "OliveDrab4")
-    (((class color) (background dark))
-     :background "grey30"
-     :foreground "DarkSeaGreen2"))
+(defface magit-reflog-rebase '((t :foreground "magenta"))
   "Face for rebase commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-cherry-pick
-  '((t :background "LightGreen"
-       :foreground "DarkOliveGreen"))
+(defface magit-reflog-cherry-pick '((t :foreground "green"))
   "Face for cherry-pick commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-remote
-  '((t :background "grey50"))
+(defface magit-reflog-remote '((t :foreground "cyan"))
   "Face for pull and clone commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-other
-  '((t :background "grey50"))
+(defface magit-reflog-other '((t :foreground "cyan"))
   "Face for other commands in reflogs."
   :group 'magit-faces)
 
