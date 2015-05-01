@@ -108,6 +108,27 @@ or might not be what you want."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-refresh-buffer-hook nil
+  "Normal hook for `magit-revert-buffer' to run after refreshing."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'hook)
+
+(defcustom magit-after-revert-hook nil
+  "Normal hook for `magit-revert-buffer' to run after reverting."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'hook)
+
+(defcustom magit-not-reverted-hook nil
+  "Normal hook for `magit-revert-buffer' to run instead of reverting.
+Run if the visited file has not changed on disk and the buffer
+therefor does not have to be reverted.  While Magit does not need
+to do anything in that case, some third-party extensions do."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'hook)
+
 (defcustom magit-save-repository-buffers t
   "Whether to save modified buffers when approriate.
 
@@ -465,9 +486,6 @@ tracked in the current repository."
     (with-current-buffer buffer (magit-refresh-buffer)))
   (magit-revert-buffers t))
 
-(defvar magit-refresh-buffer-hook nil
-  "Hook run after refreshing a file-visiting buffer.")
-
 (defvar magit-refresh-verbose nil)
 (defvar-local magit-refresh-start-time nil)
 
@@ -536,15 +554,6 @@ repository."
             (-when-let (buffer (find-buffer-visiting file))
               (with-current-buffer buffer
                 (magit-revert-buffer)))))))))
-
-(defvar magit-after-revert-hook nil
-  "Normal hook for `magit-revert-buffer' to run after reverting.")
-
-(defvar magit-not-reverted-hook nil
-  "Normal hook for `magit-revert-buffer' to run instead of reverting.
-Run if the visited file has not changed on disk and the buffer
-therefor does not have to be reverted.  While Magit does not need
-to do anything in that case, some third-party extensions do.")
 
 (defun magit-revert-buffer ()
   "Refresh the current file-visiting buffer."
