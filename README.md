@@ -53,7 +53,7 @@ Then compile the libraries:
 
 Finally add this to your init file:
 
-    (add-to-list 'load-path "~/emacs.d/site-lisp/magit")
+    (add-to-list 'load-path "~/.emacs.d/site-lisp/magit")
     (require 'magit)
 
 To update Magit use:
