@@ -453,6 +453,7 @@ the buffer.  Finally reset the window configuration to nil."
 ;;; Refresh Machinery
 
 (defvar inhibit-magit-refresh nil)
+(defvar inhibit-magit-revert nil)
 
 (defun magit-refresh ()
   "Refresh some buffers belonging to the current repository.
@@ -533,11 +534,11 @@ Uses the buffer-local `magit-refresh-function'."
 (defun magit-revert-buffers (&optional force)
   "Revert unmodified file-visiting buffers of the current repository.
 
-If, and only if, the global `magit-auto-revert-mode' is turned
-on, or if optional FORCE is non-nil, revert all unmodified
-buffers that visit files being tracked in the current
-repository."
-  (when (or force magit-auto-revert-mode)
+If, and only if, the global `magit-auto-revert-mode' is turned on
+and `inhibit-magit-revert' is nil; or if optional FORCE is non-nil,
+then revert all unmodified buffers that visit files being tracked
+in the current repository."
+  (when (or force (and magit-auto-revert-mode (not inhibit-magit-revert)))
     (-when-let (topdir (magit-toplevel-safe))
       (let ((tracked (magit-revision-files "HEAD"))
             (buffers (buffer-list)))

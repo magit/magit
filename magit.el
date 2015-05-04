@@ -1002,7 +1002,7 @@ changes.
   "Create BRANCH at branch or revision START-POINT.
 \n(git branch [ARGS] BRANCH START-POINT)."
   (interactive (magit-branch-read-args "Create branch"))
-  (magit-run-git "branch" args branch start-point))
+  (magit-run-git-no-revert "branch" args branch start-point))
 
 ;;;###autoload
 (defun magit-branch-and-checkout (branch start-point &optional args)
@@ -1097,13 +1097,14 @@ defaulting to the branch at point."
                    "Change upstream to branch"
                    (delete branch (magit-list-branch-names))
                    nil nil nil 'magit-revision-history))))
-  (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch))
+  (magit-run-git-no-revert "branch" (concat "--set-upstream-to=" upstream)
+                           branch))
 
 ;;;###autoload
 (defun magit-branch-unset-upstream (branch)
   "Unset the upstream branch of BRANCH."
   (interactive (list (magit-read-local-branch "Unset upstream of branch")))
-  (magit-run-git "branch" "--unset-upstream" branch))
+  (magit-run-git-no-revert "branch" "--unset-upstream" branch))
 
 ;;;###autoload
 (defun magit-branch-rename (old new &optional force)
@@ -1116,7 +1117,7 @@ With prefix, forces the rename even if NEW already exists.
            (magit-read-string (format "Rename branch '%s' to" branch))
            current-prefix-arg)))
   (unless (string= old new)
-    (magit-run-git "branch" (if force "-M" "-m") old new)))
+    (magit-run-git-no-revert "branch" (if force "-M" "-m") old new)))
 
 ;;;###autoload
 (defun magit-branch-edit-description (branch)
@@ -1185,7 +1186,9 @@ edit it.
   (interactive (list (magit-read-other-branch-or-commit "Merge")
                      (magit-merge-arguments)))
   (magit-merge-assert)
-  (magit-run-git-with-editor "merge" "--edit" args rev))
+  (with-editor "GIT_EDITOR"
+    (let ((magit-process-popup-time -1))
+      (magit-run-git-async "merge" "--edit" args rev))))
 
 ;;;###autoload
 (defun magit-merge-nocommit (rev &optional args)
@@ -1453,7 +1456,7 @@ defaulting to the tag at point.
   (interactive (list (--if-let (magit-region-values 'tag)
                          (magit-confirm t nil "Delete %i tags" it)
                        (magit-read-tag "Delete tag" t))))
-  (magit-run-git "tag" "-d" tags))
+  (magit-run-git-no-revert "tag" "-d" tags))
 
 (defun magit-tag-prune (tags remote-tags remote)
   "Offer to delete tags missing locally from REMOTE, and vice versa."
@@ -1475,9 +1478,10 @@ defaulting to the tag at point.
        (setq rtags nil))
      (list ltags rtags remote)))
   (when tags
-    (magit-run-git "tag" "-d" tags))
+    (magit-call-git "tag" "-d" tags))
   (when remote-tags
-    (magit-run-git-async "push" remote (--map (concat ":" it) remote-tags))))
+    (magit-run-git-async-no-revert
+     "push" remote (--map (concat ":" it) remote-tags))))
 
 ;;;; Notes
 
@@ -1573,12 +1577,12 @@ of Git's `note' command, default to operate on that ref."
                                     it)))
          current-prefix-arg))
   (if ref
-      (magit-run-git "config" (and global "--global") "core.notesRef"
-                     (if (string-prefix-p "refs/" ref)
-                         ref
-                       (concat "refs/notes/" ref)))
-    (magit-run-git "config" (and global "--global")
-                   "--unset" "core.notesRef")))
+      (magit-run-git-no-revert "config" (and global "--global") "core.notesRef"
+                               (if (string-prefix-p "refs/" ref)
+                                   ref
+                                 (concat "refs/notes/" ref)))
+    (magit-run-git-no-revert "config" (and global "--global")
+                             "--unset" "core.notesRef")))
 
 (defun magit-notes-set-display-refs (refs &optional global)
   "Set notes refs to be display in addition to \"core.notesRef\".
@@ -1602,7 +1606,8 @@ the current repository."
   (magit-git-success "config" "--unset-all" global "notes.displayRef")
   (dolist (ref refs)
     (magit-call-git "config" "--add" global "notes.displayRef" ref))
-  (magit-refresh))
+  (let ((inhibit-magit-revert t))
+    (magit-refresh)))
 
 (defun magit-notes-read-args (prompt)
  (list (magit-read-branch-or-commit prompt)

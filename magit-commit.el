@@ -246,7 +246,7 @@ depending on the value of option `magit-commit-squash-confirm'.
    ((and (magit-rebase-in-progress-p)
          (not (magit-anything-unstaged-p))
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
-    (magit-run-git-with-editor "rebase" "--continue")
+    (magit-run-git-sequencer "rebase" "--continue")
     nil)
    ((and (file-exists-p (magit-git-dir "MERGE_MSG"))
          (not (magit-anything-unstaged-p)))

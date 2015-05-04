@@ -110,20 +110,20 @@ then read the remote."
   (interactive (list (or (magit-get-remote)
                          (magit-read-remote "Fetch remote"))
                      (magit-fetch-arguments)))
-  (magit-run-git-async "fetch" remote args))
+  (magit-run-git-async-no-revert "fetch" remote args))
 
 ;;;###autoload
 (defun magit-fetch (remote &optional args)
   "Fetch from another repository."
   (interactive (list (magit-read-remote "Fetch remote")
                      (magit-fetch-arguments)))
-  (magit-run-git-async "fetch" remote args))
+  (magit-run-git-async-no-revert "fetch" remote args))
 
 ;;;###autoload
 (defun magit-fetch-all (&optional args)
   "Fetch from another repository."
   (interactive (list (magit-fetch-arguments)))
-  (magit-run-git-async "remote" "update" args))
+  (magit-run-git-async-no-revert "remote" "update" args))
 
 ;;; Pull
 
@@ -188,10 +188,11 @@ If the upstream isn't set, then read the remote branch."
   "Push a branch to its upstream branch.
 If the upstream isn't set, then read the remote branch."
   (interactive (magit-push-read-args t))
-  (magit-run-git-async "push" "-v" args remote
-                       (if remote-branch
-                           (format "%s:refs/heads/%s" branch remote-branch)
-                         branch)))
+  (magit-run-git-async-no-revert
+   "push" "-v" args remote
+   (if remote-branch
+       (format "%s:refs/heads/%s" branch remote-branch)
+     branch)))
 
 ;;;###autoload
 (defun magit-push-elsewhere (branch remote remote-branch &optional args)
@@ -234,7 +235,7 @@ for a remote, offering the remote configured for the current
 branch as default."
   (interactive (list (magit-read-remote "Push tags to remote" nil t)
                      (magit-push-arguments)))
-  (magit-run-git-async "push" remote "--tags" args))
+  (magit-run-git-async-no-revert "push" remote "--tags" args))
 
 ;;;###autoload
 (defun magit-push-tag (tag remote &optional args)
@@ -242,7 +243,7 @@ branch as default."
   (interactive
    (let  ((tag (magit-read-tag "Push tag")))
      (list tag (magit-read-remote (format "Push %s to remote" tag) nil t))))
-  (magit-run-git-async "push" remote tag))
+  (magit-run-git-async-no-revert "push" remote tag))
 
 
 ;;; Email
@@ -279,7 +280,7 @@ branch as default."
                  range
                (format "%s~..%s" range range))))
          (magit-patch-arguments)))
-  (magit-run-git "format-patch" range args))
+  (magit-run-git-no-revert "format-patch" range args))
 
 ;;;###autoload
 (defun magit-request-pull (url start end)
@@ -298,7 +299,8 @@ is asked to pull.  START has to be reachable from that commit."
     (compose-mail)
     (setq default-directory dir))
   (message-goto-body)
-  (magit-git-insert "request-pull" start url)
+  (let ((inhibit-magit-revert t))
+    (magit-git-insert "request-pull" start url))
   (set-buffer-modified-p nil))
 
 ;;; magit-remote.el ends soon

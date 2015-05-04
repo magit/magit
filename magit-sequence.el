@@ -76,37 +76,6 @@
 
 ;;; Common
 
-(defun magit-run-git-sequencer (&rest args)
-  "Call Git synchronously in a separate process, and refresh.
-This is like `magit-run-git-with-editor' (which see) except that
-the process sentinel is `magit-sequencer-process-sentinel'."
-  (apply #'magit-run-git-with-editor args)
-  (set-process-sentinel magit-this-process #'magit-sequencer-process-sentinel)
-  magit-this-process)
-
-(defun magit-sequencer-process-sentinel (process event)
-  "Process sentinel used when running sequence commands.
-Run the regular `magit-process-sentinel' and then, if the
-sequence stops at a commit, make the section representing
-that commit the current section by moving `point' there."
-  (when (memq (process-status process) '(exit signal))
-    (magit-process-sentinel process event)
-    (--when-let (magit-mode-get-buffer
-                 magit-status-buffer-name-format
-                 'magit-status-mode)
-      (with-current-buffer it
-        (--when-let
-            (magit-get-section
-             `((commit . ,(magit-rev-parse "HEAD"))
-               (,(pcase (car (cadr (-split-at
-                                    (1+ (length magit-git-standard-options))
-                                    (process-command process))))
-                   ((or "rebase" "am")   'rebase-sequence)
-                   ((or "cherry-pick" "revert") 'sequence)))
-               (status)))
-          (goto-char (magit-section-start it))
-          (magit-section-update-highlight))))))
-
 ;;;###autoload
 (defun magit-sequencer-continue ()
   "Resume the current cherry-pick or revert sequence."
