@@ -289,16 +289,9 @@ Magit is documented in info node `(magit)'."
   (hack-dir-local-variables-non-file-buffer)
   (make-local-variable 'text-property-default-nonsticky)
   (push (cons 'keymap t) text-property-default-nonsticky)
-  (push (cons 'invisible t) text-property-default-nonsticky)
-  (add-hook 'post-command-hook #'magit-post-command-adjust-point t t)
   (add-hook 'post-command-hook #'magit-section-update-highlight t t)
   (setq-local redisplay-highlight-region-function 'magit-highlight-region)
   (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region))
-
-(defun magit-post-command-adjust-point ()
-  (when (and (get-text-property (point) 'invisible)
-             (not (get-pos-property (point) 'invisible)))
-    (goto-char (next-single-char-property-change (point) 'invisible))))
 
 (defvar-local magit-region-overlays nil)
 
