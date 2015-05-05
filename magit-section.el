@@ -161,14 +161,21 @@ IDENT has to be a list as returned by `magit-section-ident'."
         (magit-section-goto 1)))))
 
 (defun magit-section-backward ()
-  "Move to the beginning of the previous visible section."
+  "Move to the beginning of the current or the previous visible section.
+When point is at the beginning of a section then move to the
+beginning of the previous visible section.  Otherwise move to
+the beginning of the current section."
   (interactive)
   (if (bobp)
       (user-error "No previous section")
     (let ((section (magit-current-section)) children)
-      (if (and (eq (point) (1- (magit-section-end section)))
-               (setq children (magit-section-children section)))
-          (magit-section-goto (car (last children)))
+      (cond
+       ((and (= (point) (1- (magit-section-end section)))
+             (setq children (magit-section-children section)))
+        (magit-section-goto (car (last children))))
+       ((not (= (point) (magit-section-start section)))
+        (magit-section-goto section))
+       (t
         (let ((prev (car (magit-section-siblings section 'prev))))
           (if prev
               (while (and (not (magit-section-hidden prev))
@@ -186,7 +193,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
                  (goto-char (previous-single-property-change
                              (1- (point)) 'invisible))
                  (forward-line -1)
-                 (magit-section-goto (magit-current-section)))))))))
+                 (magit-section-goto (magit-current-section))))))))))
 
 (defun magit-section-up ()
   "Move to the beginning of the parent section."
