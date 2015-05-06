@@ -306,7 +306,7 @@ With a prefix argument also expand it." title)
         (remove-overlays beg end 'invisible t)
         (let ((o (make-overlay beg end)))
           (overlay-put o 'evaporate t)
-          (overlay-put o 'invisible 'outline))))))
+          (overlay-put o 'invisible t))))))
 
 (defun magit-section-toggle (section)
   "Toggle visibility of the body of the current section."
