@@ -428,13 +428,19 @@ If the file is not inside a Git repository then return nil."
     (match-string 1 (car it))))
 
 (defun magit-expand-git-file-name (filename &optional localname)
-  (if (file-name-absolute-p filename)
-      (if localname
-          filename
-        (concat (file-remote-p default-directory) filename))
-    (expand-file-name filename
-                      (and localname
-                           (file-remote-p default-directory 'localname)))))
+  (setq filename
+        (if (file-name-absolute-p filename)
+            (if localname
+                filename
+              (concat (file-remote-p default-directory) filename))
+          (expand-file-name
+           filename
+           (and localname (file-remote-p default-directory 'localname)))))
+  (if (and (memq system-type '(cygwin windows-nt)) ; #1318
+           (string-match "^/\\(cygdrive/\\)?\\([a-z]\\)/\\(.*\\)" filename))
+      (concat (match-string 2 filename) ":/"
+              (match-string 3 filename))
+    filename))
 
 (defun magit-decode-git-path (path)
   (if (eq (aref path 0) ?\")
