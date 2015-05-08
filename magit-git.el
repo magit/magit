@@ -436,7 +436,7 @@ If the file is not inside a Git repository then return nil."
           (expand-file-name
            filename
            (and localname (file-remote-p default-directory 'localname)))))
-  (if (and (memq system-type '(cygwin windows-nt)) ; #1318
+  (if (and (eq system-type 'windows-nt) ; together with cygwin git, see #1318
            (string-match "^/\\(cygdrive/\\)?\\([a-z]\\)/\\(.*\\)" filename))
       (concat (match-string 2 filename) ":/"
               (match-string 3 filename))
