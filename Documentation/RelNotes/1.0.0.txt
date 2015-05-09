@@ -54,7 +54,7 @@ Authors
 -------
 
    197  Phil Jackson
-    27  Nathan Weizenbaum
+    27  Natalie Weizenbaum
     25  Óscar Fuentes
     22  Moritz Bunkus
     20  Rémi Vanicat

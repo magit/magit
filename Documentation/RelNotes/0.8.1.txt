@@ -22,7 +22,7 @@ Authors
     55  Phil Jackson
      7  Rémi Vanicat
      7  Ævar Arnfjörð Bjarmason
-     4  Nathan Weizenbaum
+     4  Natalie Weizenbaum
      2  Ramkumar Ramachandra
      1  Mark Hepburn
      1  Moritz Bunkus

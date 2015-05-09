@@ -16,7 +16,7 @@ Authors
 -------
 
     21  Phil Jackson
-    18  Nathan Weizenbaum
+    18  Natalie Weizenbaum
      2  Alan Falloon
      2  Moritz Bunkus
      2  Rémi Vanicat
