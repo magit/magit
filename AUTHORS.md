@@ -117,7 +117,7 @@ Contributors
 - Miles Bader <miles@gnu.org>
 - Mitchel Humpherys <mitch.special@gmail.com>
 - Moritz Bunkus <moritz@bunkus.org>
-- Nathan Weizenbaum <nex342@gmail.com>
+- Natalie Weizenbaum <nex342@gmail.com>
 - Nguyễn Tuấn Anh <ubolonton@gmail.com>
 - Nic Ferier <nic@ferrier.me.uk>
 - Nick Alcock <nick.alcock@oracle.com>
