@@ -10,14 +10,14 @@ statsdir    ?= ./stats
 ELPA_DIR    ?= $(HOME)/.emacs.d/elpa
 
 CL_LIB_DIR ?= $(shell \
-  find $(ELPA_DIR) -maxdepth 1 -regex '.*/cl-lib-[.0-9]*' 2> /dev/null | \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/cl-lib-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
 ifeq "$(CL_LIB_DIR)" ""
   CL_LIB_DIR = ../cl-lib
 endif
 
 DASH_DIR ?= $(shell \
-  find $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
 ifeq "$(DASH_DIR)" ""
   DASH_DIR = ../dash
