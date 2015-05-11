@@ -1543,6 +1543,8 @@ of SECTION including SECTION and all of them are highlighted."
     (section &optional selection
              (highlight (magit-section-selected-p section selection)))
   (let (paint)
+    (unless magit-diff-highlight-hunk-body
+      (setq highlight nil))
     (cond (highlight
            (unless (magit-section-hidden section)
              (add-to-list 'magit-section-highlighted-sections section)

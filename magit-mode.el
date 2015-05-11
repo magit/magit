@@ -1,12 +1,10 @@
 ;;; magit-mode.el --- create and refresh Magit buffers
 
-;; Copyright (C) 2010-2015  The Magit Project Developers
-;;
 ;; For a full list of contributors, see the AUTHORS.md file
 ;; at the top-level directory of this distribution and at
 ;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
-;; Author: Jonas Bernoulli <jonas@bernoul.li>
+;; Author: Jonas sdfdsf Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
 ;; Magit is free software; you can redistribute it and/or modify it
