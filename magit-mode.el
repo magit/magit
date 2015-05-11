@@ -88,6 +88,12 @@ or might not be what you want."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-refresh-verbose nil
+  "Whether to revert Magit buffers verbosely."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'boolean)
+
 (defcustom magit-refresh-buffer-hook nil
   "Normal hook for `magit-revert-buffer' to run after refreshing."
   :package-version '(magit . "2.1.0")
@@ -509,7 +515,6 @@ tracked in the current repository."
     (with-current-buffer buffer (magit-refresh-buffer)))
   (magit-revert-buffers t))
 
-(defvar magit-refresh-verbose nil)
 (defvar-local magit-refresh-start-time nil)
 
 (defun magit-refresh-buffer ()
