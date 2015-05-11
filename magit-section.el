@@ -888,12 +888,13 @@ highlighted using `magit-diff-highlight'."
 ;;; Utilities
 
 (cl-defun magit-section-selected-p (section &optional (selection nil sselection))
-  (or (eq section (magit-current-section))
-      (memq section (if sselection
-                        selection
-                      (setq selection (magit-region-sections))))
-      (--when-let (magit-section-parent section)
-        (magit-section-selected-p it selection))))
+  (and (not (eq section magit-root-section))
+       (or  (eq section (magit-current-section))
+            (memq section (if sselection
+                              selection
+                            (setq selection (magit-region-sections))))
+            (--when-let (magit-section-parent section)
+              (magit-section-selected-p it selection)))))
 
 (defun magit-section-parent-value (section)
   (setq section (magit-section-parent section))
