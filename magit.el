@@ -1927,7 +1927,7 @@ Git, and Emacs in the echo area.\n\n(fn)"
         (error "Cannot determine Magit's version")))
     magit-version))
 
-(defun magit-assert-satisfied-dependencies ()
+(defun magit-startup-asserts ()
   (let ((version (substring (magit-git-string "version") 12)))
     (when version
       (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" version)
@@ -1959,40 +1959,7 @@ always start Emacs from a shell, then that can be fixed in the
 shell's init file.  If you start Emacs by clicking on an icon,
 or using some sort of application launcher, then you probably
 have to adjust the environment as seen by graphical interface.
-For X11 something like ~/.xinitrc should work.\n" emacs-version))))
-
-(add-hook 'after-init-hook #'magit-assert-satisfied-dependencies)
-
-(defvar magit-last-seen-setup-instructions "0")
-
-(defun magit-maybe-show-setup-instructions ()
-  (when (version< magit-last-seen-setup-instructions "1.4.0")
-    (display-warning :warning "for Magit >= 1.4.0
-
-Before running Git, Magit by default reverts all unmodified
-buffers that visit files tracked in the current repository.
-This can potentially lead to data loss, so you might want to
-disable this by adding the following line to your init file:
-
-  (setq magit-auto-revert-mode nil)
-
-The risk is not as high as it might seem.  Snapshots on Melpa
-and Melpa-Stable have had this enabled for a long time, so if
-you have not experienced any data loss in the past, you should
-probably keep this enabled.
-
-Keeping this mode enabled is only problematic if you, for
-example, use `git reset --hard REV' or `magit-reset-head-hard'
-*and* expect Emacs to preserve the old state of some file in a
-buffer.  If you turn off this mode then file-visiting buffers and
-the Magit buffer will no longer be in sync, which can be confusing
-and would complicate many operations.  Note that it is possible
-to undo an automatic buffer reversion using `C-x u' (`undo').
-
-To prevent this message from being shown each time you start
-Emacs, you must add the following line to your init file:
-
-  (setq magit-last-seen-setup-instructions \"1.4.0\")\n"))
+For X11 something like ~/.xinitrc should work.\n" emacs-version)))
   (when (featurep 'magit-log-edit)
     (display-warning :error "magit-log-edit has to be removed
 
@@ -2004,7 +1971,7 @@ obsolete library getting in the way.  Then restart Emacs.
 You might also want to read:
 https://github.com/magit/magit/wiki/Emacsclient")))
 
-(add-hook 'after-init-hook #'magit-maybe-show-setup-instructions)
+(add-hook 'after-init-hook #'magit-startup-asserts)
 
 (provide 'magit)
 

@@ -41,7 +41,6 @@
 (require 'magit-git)
 (require 'magit-mode)
 
-(require 'autorevert)
 
 (defvar magit-status-buffer-name-format)
 
@@ -193,7 +192,7 @@ before use.
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
 Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-auto-revert-mode' is active.
+repository are reverted if `magit-revert-buffers' is non-nil.
 
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name-format'."
@@ -210,8 +209,6 @@ before use.
 
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
-File-visiting buffers are *not* reverted, regardless of whether
-`magit-auto-revert-mode' is active or not.
 
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name-format'."
@@ -260,7 +257,7 @@ flattened before use.
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
 Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-auto-revert-mode' is active.
+repository are reverted if `magit-revert-buffers' is non-nil.
 When INPUT is nil then do not refresh any buffers.
 
 This function actually starts a asynchronous process, but it then
@@ -294,7 +291,7 @@ After Git returns some buffers are refreshed: the buffer that was
 current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
 Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-auto-revert-mode' is active.
+repository are reverted if `magit-revert-buffers' is non-nil.
 
 See `magit-start-process' for more information."
   (message "Running %s %s" magit-git-executable
@@ -310,8 +307,6 @@ Display the command line arguments in the echo area.
 After Git returns some buffers are refreshed: the buffer that was
 current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
-File-visiting buffers are *not* reverted, regardless of whether
-`magit-auto-revert-mode' is active or not.
 
 See `magit-start-process' for more information."
   (let ((inhibit-magit-revert t))
@@ -327,8 +322,6 @@ Display the command line arguments in the echo area.
 After Git returns some buffers are refreshed: the buffer that was
 current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
-File-visiting buffers are *not* reverted, regardless of whether
-`magit-auto-revert-mode' is active or not.
 
 See `magit-start-process' and `with-editor' for more information."
   (with-editor "GIT_EDITOR"
@@ -350,7 +343,7 @@ If the sequence stops at a commit, make the section representing
 that commit the current section by moving `point' there.
 
 Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-auto-revert-mode' is active.
+repository are reverted if `magit-revert-buffers' is non-nil.
 
 See `magit-start-process' and `with-editor' for more information."
   (with-editor "GIT_EDITOR"
@@ -375,7 +368,7 @@ After Git returns some buffers are refreshed: the buffer that was
 current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
 Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-auto-revert-mode' is active.
+repository are reverted if `magit-revert-buffers' is non-nil.
 
 See `magit-start-process' for more information."
   (run-hooks 'magit-pre-start-git-hook)
@@ -401,7 +394,7 @@ buffer that was current when `magit-start-process' was called (if
 it is a Magit buffer and still alive), as well as the respective
 Magit status buffer.  Unmodified buffers visiting files that are
 tracked in the current repository are reverted if
-`magit-auto-revert-mode' is active."
+`magit-revert-buffers' is non-nil."
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
     (let* ((process-connection-type
