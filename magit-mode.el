@@ -45,7 +45,6 @@
 (declare-function magit-blame-mode 'magit-blame)
 (defvar magit-blame-mode)
 
-(require 'autorevert)
 (require 'format-spec)
 (require 'help-mode)
 

@@ -41,7 +41,6 @@
 (require 'magit-git)
 (require 'magit-mode)
 
-(require 'autorevert)
 
 (defvar magit-status-buffer-name-format)
 
