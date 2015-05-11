@@ -518,7 +518,7 @@ Uses the buffer-local `magit-refresh-function'."
   (setq magit-refresh-start-time (current-time))
   (when magit-refresh-function
     (when magit-refresh-verbose
-      (message "Refreshing %s..." (current-buffer)))
+      (message "Refreshing buffer `%s'..." (buffer-name)))
     (let* ((buffer (current-buffer))
            (windows
             (--mapcat (with-selected-window it
@@ -549,7 +549,7 @@ Uses the buffer-local `magit-refresh-function'."
       (magit-section-update-highlight)
       (set-buffer-modified-p nil))
     (when magit-refresh-verbose
-      (message "Refreshing %s...done (%.3fs)" (current-buffer)
+      (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
                (float-time (time-subtract (current-time)
                                           magit-refresh-start-time))))))
 
