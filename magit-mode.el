@@ -317,8 +317,9 @@ the user has to confirm each save."
 Magit is documented in info node `(magit)'."
   :group 'magit-modes
   (buffer-disable-undo)
-  (setq buffer-read-only t)
   (setq truncate-lines t)
+  (setq buffer-read-only t)
+  (setq-local line-move-visual t) ; see #1771
   (setq show-trailing-whitespace nil)
   (hack-dir-local-variables-non-file-buffer)
   (make-local-variable 'text-property-default-nonsticky)
