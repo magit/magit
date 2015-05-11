@@ -95,6 +95,17 @@ or might not be what you want."
   :group 'magit-modes
   :type 'hook)
 
+(defvar magit-revert-buffers-timer nil)
+
+(defun magit-revert-buffers-set-timer ()
+  (when (timerp magit-revert-buffers-timer)
+    (cancel-timer magit-revert-buffers-timer))
+  (setq magit-revert-buffers-timer
+        (and (boundp 'magit-revert-buffers)
+             (numberp magit-revert-buffers)
+             (run-with-timer 0 magit-revert-buffers
+                             'magit-revert-buffers-async))))
+
 (defcustom magit-revert-buffers 'usage
   "How file-visiting buffers in the current repository are reverted.
 
@@ -115,7 +126,12 @@ the current repository may optionally be reverted.
           This is the default so that users come here and pick
           what is right for them.
 
-`silent'  Revert the buffers synchronously and be quiet about it."
+`silent'  Revert the buffers synchronously and be quiet about it.
+
+NUMBER    An integer or float.  Revert the buffers asynchronously,
+          mentioning each one as it is being reverted.  If user
+          input arrives, then stop reverting.  After NUMBER
+          seconds resume reverting."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type '(choice
@@ -123,7 +139,11 @@ the current repository may optionally be reverted.
           (const :tag "Ask whether to revert" ask)
           (const :tag "Revert synchronously" t)
           (const :tag "Revert synchronously but in silence" silent)
-          (const :tag "Revert synchronously with usage information" usage)))
+          (const :tag "Revert synchronously with usage information" usage)
+          (integer :tag "Revert asynchronously (interval in seconds)"))
+  :set (lambda (var val)
+         (set-default var val)
+         (magit-revert-buffers-set-timer)))
 
 (defcustom magit-after-revert-hook nil
   "Normal hook for `magit-revert-buffer' to run after reverting."
@@ -457,7 +477,6 @@ the buffer.  Finally reset the window configuration to nil."
 ;;; Refresh Machinery
 
 (defvar inhibit-magit-refresh nil)
-(defvar inhibit-magit-revert nil)
 
 (defun magit-refresh ()
   "Refresh some buffers belonging to the current repository.
@@ -535,6 +554,9 @@ Uses the buffer-local `magit-refresh-function'."
                (float-time (time-subtract (current-time)
                                           magit-refresh-start-time))))))
 
+(defvar inhibit-magit-revert nil)
+(defvar magit-revert-buffers-backlog nil)
+
 (defun magit-revert-buffers (&optional force)
   "Revert unmodified file-visiting buffers of the current repository.
 
@@ -567,8 +589,12 @@ When called interactively then the revert is forced."
                          "Revert %s from visited file"
                          "Revert %i buffers from visited files"
                          (mapcar #'buffer-name buffers))))
-          (if (eq magit-revert-buffers 'silent)
-              (mapc #'magit-revert-buffer buffers)
+          (cond
+           ((numberp magit-revert-buffers)
+            (magit-revert-buffers-async buffers))
+           ((eq magit-revert-buffers 'silent)
+            (mapc #'magit-revert-buffer buffers))
+           (t
             (let ((cnt (length buffers)))
               (when (> cnt 0)
                 (message "Reverting (up to) %s file-visiting buffer(s)..." cnt)
@@ -588,7 +614,17 @@ When called interactively then the revert is forced."
                       ((or `nil `ask)
                        (message "Reverting %s file-visiting buffer(s)...done%s"
                                 cnt (if force " (forced)" ""))))
-                  (message "(No buffers need to be reverted)"))))))))))
+                  (message "(No buffers need to be reverted)")))))))))))
+
+(defun magit-revert-buffers-async (&optional buffers)
+  (setq buffers (nconc buffers (--filter (not (memq it buffers))
+                                         magit-revert-buffers-backlog)))
+  (while (and buffers (not (input-pending-p)))
+    (let ((buf (pop buffers)))
+      (when (buffer-live-p buf)
+        (with-current-buffer buf
+          (magit-revert-buffer buf)))))
+  (setq magit-revert-buffers-backlog buffers))
 
 (defun magit-revert-buffer (&optional buffer)
   "Revert the current file-visiting buffer."
