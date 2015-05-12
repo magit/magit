@@ -1512,13 +1512,14 @@ are highlighted."
   (let ((beg (magit-section-start   section))
         (cnt (magit-section-content section))
         (end (magit-section-end     section)))
-    (magit-section-make-overlay (1- end) end 'magit-section-highlight)
     (unless (and (region-active-p)
                  (= end (1+ (region-end))))
-      (magit-section-make-overlay   beg  cnt 'magit-section-highlight)
+      (magit-section-make-overlay beg cnt 'magit-section-highlight)
       (unless (magit-section-hidden section)
         (dolist (child (magit-section-children section))
-          (magit-diff-highlight-recursive child selection))))))
+          (magit-diff-highlight-recursive child selection))))
+    (when magit-diff-highlight-hunk-body
+      (magit-section-make-overlay (1- end) end 'magit-section-highlight))))
 
 (defun magit-diff-highlight-file (section &optional selection)
   (magit-diff-highlight-heading section selection)
