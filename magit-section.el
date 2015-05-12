@@ -48,14 +48,18 @@
   :type 'boolean)
 
 (defcustom magit-section-highlight-hook
-  '(magit-diff-highlight magit-section-highlight)
+  '(magit-diff-highlight
+    magit-section-highlight
+    magit-section-highlight-selection)
   "Functions used to highlight the current section.
 Each function is run with the current section as only argument
 until one of them returns non-nil."
   :package-version '(magit . "2.1.0")
   :group 'magit-section
   :type 'hook
-  :options '(magit-diff-highlight magit-section-highlight))
+  :options '(magit-diff-highlight
+             magit-section-highlight
+             magit-section-highlight-selection))
 
 (defcustom magit-section-unhighlight-hook
   '(magit-diff-unhighlight)
@@ -826,20 +830,38 @@ found in STRING."
   "Highlight SECTION and if non-nil all SELECTION.
 This function works for any section but produces undesirable
 effects for diff related sections, which by default are
-highlighted using `magit-diff-highlight'."
+highlighted using `magit-diff-highlight'.  Return t."
   (cond (selection
          (magit-section-make-overlay (magit-section-start     (car selection))
                                      (magit-section-end (car (last selection)))
                                      'magit-section-highlight)
-         (--each selection
-           (magit-section-make-overlay (magit-section-start it)
-                                       (or (magit-section-content it)
-                                           (magit-section-end it))
-                                       'magit-section-heading-selection)))
+         (magit-section-highlight-selection nil selection))
         (t
          (magit-section-make-overlay (magit-section-start section)
                                      (magit-section-end   section)
-                                     'magit-section-highlight))))
+                                     'magit-section-highlight)))
+  t)
+
+(defun magit-section-highlight-selection (_ selection)
+  "Highlight the section selection region.
+If SELECTION is non-nil then it is a list of sections selected by
+the region.  The headings of these sections are then highlighted.
+
+This is a fallback for people who don't want to highlight the
+current section and therefor removed `magit-section-highlight'
+from `magit-section-highlight-hook'.
+
+This function is necessary to ensure that a representation of
+such a region is visible.  If neither of these functions were
+part of the hook variable, then such a region would be
+invisible."
+  (when selection
+    (--each selection
+      (magit-section-make-overlay (magit-section-start it)
+                                  (or (magit-section-content it)
+                                      (magit-section-end it))
+                                  'magit-section-heading-selection))
+    t))
 
 (defun magit-section-make-overlay (start end face)
   (let ((ov (make-overlay start end nil t)))
