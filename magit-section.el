@@ -822,16 +822,16 @@ found in STRING."
           (setq magit-section-highlighted-section
                 (unless (magit-section-hidden section) section)))))))
 
-(defun magit-section-highlight (section siblings)
-  "Highlight SECTION and if non-nil all SIBLINGS.
+(defun magit-section-highlight (section selection)
+  "Highlight SECTION and if non-nil all SELECTION.
 This function works for any section but produces undesirable
 effects for diff related sections, which by default are
 highlighted using `magit-diff-highlight'."
-  (cond (siblings
-         (magit-section-make-overlay (magit-section-start     (car siblings))
-                                     (magit-section-end (car (last siblings)))
+  (cond (selection
+         (magit-section-make-overlay (magit-section-start     (car selection))
+                                     (magit-section-end (car (last selection)))
                                      'magit-section-highlight)
-         (--each siblings
+         (--each selection
            (magit-section-make-overlay (magit-section-start it)
                                        (or (magit-section-content it)
                                            (magit-section-end it))
