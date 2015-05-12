@@ -1705,7 +1705,9 @@ are highlighted."
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (let ((op (if (member "--reverse" args) "+" "-"))
         (sbeg (magit-section-start section))
-        (rbeg (region-beginning))
+        (rbeg (save-excursion
+                (goto-char (region-beginning))
+                (line-beginning-position)))
         (rend (region-end))
         (send (magit-section-end section))
         (patch (list (magit-diff-file-header section))))
