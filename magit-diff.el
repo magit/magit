@@ -1484,10 +1484,11 @@ actually a `diff' but a `diffstat' section."
     t))
 
 (defun magit-diff-highlight (section selection)
-  "Highlight the diff-related SECTION and return non-nil.
+  "Highlight the diff-related SECTION and return t.
 If SECTION is not a diff-related section, then do nothing and
-return nil.  If SELECTION is non-nil then it is a list of selection
-of SECTION including SECTION and all of them are highlighted."
+return nil.  If SELECTION is non-nil then it is a list of sections
+selected by the region, including SECTION.  All of these sections
+are highlighted."
   (-when-let (scope (magit-diff-scope section t))
     (cond ((eq scope 'region)
            (magit-diff-paint-hunk section selection t))
