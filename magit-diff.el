@@ -152,6 +152,8 @@ t      show fine differences for the current diff hunk only.
                  (const :tag "Current" t)
                  (const :tag "All" all)))
 
+(put 'magit-diff-refine-hunk 'permanent-local t)
+
 (defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.
 See `magit-highlight-trailing-whitespace',
