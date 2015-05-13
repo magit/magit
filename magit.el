@@ -3622,9 +3622,11 @@ tracked in the current repository are reverted if
       (process-send-string
        proc
        (downcase
-        (concat (match-string (if (yes-or-no-p (substring string 0 beg)) 1 2)
-                              string)
-                "\n"))))))
+        (concat
+         (match-string
+          (if (save-match-data (yes-or-no-p (substring string 0 beg))) 1 2)
+          string)
+         "\n"))))))
 
 (defun magit-process-password-prompt (proc string)
   "Forward password prompts to the user."
