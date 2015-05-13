@@ -407,25 +407,24 @@ If the file is not inside a Git repository then return nil."
   (let ((default-directory (magit-get-top-dir)))
     (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
 
-(defun magit-file-status (&optional file status)
-  (if file
-      (cdr (--first (or (string-equal (car it) file)
-                        (string-match-p (format " -> %s$" (regexp-quote file))
-                                        (car it)))
-                    (or status (magit-file-status))))
-    (--map (list (substring it 3)
-                 (aref it 0)
-                 (aref it 1))
-           (magit-git-items "status" "-z" "--porcelain" "-u" "--ignored"))))
-
-(defun magit-rename-source (file &optional status)
-  (--when-let (--first (and (string-match (format "^\\(.+\\) -> %s$"
-                                                  (regexp-quote file))
-                                          (car it))
-                            (=    (nth 1 it) ?R)
-                            (memq (nth 2 it) '(?\s ?M ?D)))
-                       (or status (magit-file-status)))
-    (match-string 1 (car it))))
+(defun magit-file-status (&rest args)
+  (with-temp-buffer
+    (save-excursion (magit-git-insert "status" "-z" args))
+    (let ((pos (point)) status)
+      (while (> (skip-chars-forward "[:print:]") 0)
+        (let ((x (char-after     pos))
+              (y (char-after (1+ pos)))
+              (file (buffer-substring (+ pos 3) (point))))
+          (forward-char)
+          (if (memq x '(?R ?C))
+              (progn
+                (setq pos (point))
+                (skip-chars-forward "[:print:]")
+                (push (list file (buffer-substring pos (point)) x y) status)
+                (forward-char))
+            (push (list file nil x y) status)))
+        (setq pos (point)))
+      status)))
 
 (defun magit-expand-git-file-name (filename &optional localname)
   (setq filename
