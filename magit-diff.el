@@ -1103,7 +1103,7 @@ section or a child thereof."
             (setq status (if (equal (match-string 1) "copy") "new file" "renamed")))
            ((looking-at "^\\(new file\\|deleted\\)")
             (setq status (match-string 1)))
-           ((looking-at "^index \\([^ ]+\\)")
+           ((looking-at "^index \\([^\s\n]+\\)")
             (setq blobs (match-string 1))))
           (magit-delete-line)))
       (setq orig (magit-decode-git-path orig))
