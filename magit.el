@@ -909,19 +909,19 @@ is done using `magit-find-index-noselect'."
   (let ((file (magit-file-relative-name)))
     (unless (equal magit-buffer-refname "{index}")
       (user-error "%s isn't visiting the index" file))
-    (unless (y-or-n-p (format "Update index with contents of %s" (buffer-name)))
-      (user-error "Abort"))
-    (let ((index (make-temp-file "index"))
-          (buffer (current-buffer)))
-      (with-temp-file index
-        (insert-buffer-substring buffer))
-      (magit-call-git "update-index" "--cacheinfo"
-                      (substring (magit-git-string "ls-files" "-s" file) 0 6)
-                      (magit-git-string "hash-object" "-t" "blob" "-w"
-                                        (concat "--path=" file)
-                                        "--" index)
-                      file))
-    (set-buffer-modified-p nil))
+    (if (y-or-n-p (format "Update index with contents of %s" (buffer-name)))
+        (let ((index (make-temp-file "index"))
+              (buffer (current-buffer)))
+          (with-temp-file index
+            (insert-buffer-substring buffer))
+          (magit-call-git "update-index" "--cacheinfo"
+                          (substring (magit-git-string "ls-files" "-s" file) 0 6)
+                          (magit-git-string "hash-object" "-t" "blob" "-w"
+                                            (concat "--path=" file)
+                                            "--" index)
+                          file)
+          (set-buffer-modified-p nil))
+      (message "Abort")))
   (--when-let (magit-mode-get-buffer
                magit-status-buffer-name-format 'magit-status-mode)
     (with-current-buffer it (magit-refresh)))
