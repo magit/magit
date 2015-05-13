@@ -1673,7 +1673,7 @@ are highlighted."
                     ov)))
         (ov sbeg cbeg 'face 'magit-diff-lines-heading
             'display (concat (magit-diff-hunk-region-header section) "\n"))
-        (ov cbeg rbeg 'face face)
+        (ov cbeg rbeg 'face face 'priority 2)
         (ov rbeg (1+ rbeg) 'before-string
             (propertize (concat (propertize "\s" 'display '(space :height (1)))
                                 (propertize "\n" 'line-height t))
@@ -1682,7 +1682,7 @@ are highlighted."
             (propertize (concat (propertize "\s" 'display '(space :height (1)))
                                 (propertize "\n" 'line-height t))
                         'face 'magit-diff-lines-boundary))
-        (ov (1+ rend) send 'face face)))))
+        (ov (1+ rend) send 'face face 'priority 2)))))
 
 ;;; Diff Extract
 
