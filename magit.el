@@ -876,12 +876,12 @@ existing one."
         (run-hooks 'magit-find-file-hook)
         (current-buffer))))
 
-(defun magit-find-file-index-noselect (file)
+(defun magit-find-file-index-noselect (file &optional revert)
   "Read FILE from the index into a buffer and return the buffer."
   (let* ((bufname (concat file ".~{index}~"))
          (origbuf (get-buffer bufname)))
     (with-current-buffer (get-buffer-create bufname)
-      (when (or (not origbuf)
+      (when (or (not origbuf) revert
                 (y-or-n-p (format "%s already exists; revert it? " bufname)))
         (let ((inhibit-read-only t)
               (temp (car (split-string

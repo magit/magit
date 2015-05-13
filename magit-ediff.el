@@ -71,13 +71,13 @@ FILE has to be relative to the top directory of the repository."
   (let* ((conf (current-window-configuration))
          (bufA (magit-get-revision-buffer "HEAD" file))
          (bufB (get-buffer (concat file ".~{index}~")))
-         (bufBrw (and bufB (with-current-buffer bufB
-                             (prog1 (not buffer-read-only)
-                               (setq buffer-read-only nil)))))
+         (bufBrw (and bufB (with-current-buffer bufB (not buffer-read-only))))
          (bufC (get-file-buffer file)))
     (ediff-buffers3
      (or bufA (magit-find-file-noselect "HEAD" file))
-     (or bufB (magit-find-file-index-noselect  file))
+     (with-current-buffer (magit-find-file-index-noselect file t)
+       (setq buffer-read-only nil)
+       (current-buffer))
      (or bufC (find-file-noselect file))
      `((lambda ()
          (add-hook
