@@ -1972,8 +1972,6 @@ Magit can use the successor `%s' without the obsolete
 library getting in the way.  Then restart Emacs."
                                       (car it)  (car it) (cdr it))))))
 
-(add-hook 'after-init-hook #'magit-startup-asserts)
-
 (provide 'magit)
 
 (cl-eval-when (load eval)
@@ -1990,6 +1988,10 @@ library getting in the way.  Then restart Emacs."
     (require 'magit-backup)
     (require 'magit-extras)
     (require 'git-rebase)))
+
+(if after-init-time
+    (magit-startup-asserts)
+  (add-hook 'after-init-hook #'magit-startup-asserts))
 
 ;; Local Variables:
 ;; coding: utf-8
