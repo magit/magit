@@ -1960,16 +1960,17 @@ shell's init file.  If you start Emacs by clicking on an icon,
 or using some sort of application launcher, then you probably
 have to adjust the environment as seen by graphical interface.
 For X11 something like ~/.xinitrc should work.\n" emacs-version)))
-  (when (featurep 'magit-log-edit)
-    (display-warning :error "magit-log-edit has to be removed
+  (--each '((magit-log-edit  . git-commit)
+            (git-commit-mode . git-commit)
+            (git-rebase-mode . git-rebase))
+    (when (or (featurep (car it)) (locate-library (symbol-name (car it))))
+      (display-warning :error (format "%s has to be removed
 
-Magit is no longer compatible with the library `magit-log-edit',
+Magit is no longer compatible with the library `%s',
 which was used in earlier releases.  Please remove it, so that
-Magit can use the successor `git-commit-mode' without the
-obsolete library getting in the way.  Then restart Emacs.
-
-You might also want to read:
-https://github.com/magit/magit/wiki/Emacsclient")))
+Magit can use the successor `%s' without the obsolete
+library getting in the way.  Then restart Emacs."
+                                      (car it)  (car it) (cdr it))))))
 
 (add-hook 'after-init-hook #'magit-startup-asserts)
 
