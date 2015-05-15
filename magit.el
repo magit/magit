@@ -4068,11 +4068,12 @@ the current repository."
                    (not (string-prefix-p gitdir file))
                    (member (file-relative-name file topdir) tracked)
                    (let ((remote-file-name-inhibit-cache t))
-                     (setq auto-revert-notify-modified-p nil)
-                     (when auto-revert-verbose
-                       (message "Reverting buffer `%s'." (buffer-name)))
-                     (let ((buffer-read-only buffer-read-only))
-                       (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes))
+                     (when (funcall buffer-stale--default-function)
+                       (setq auto-revert-notify-modified-p nil)
+                       (when auto-revert-verbose
+                         (message "Reverting buffer `%s'." (buffer-name)))
+                       (let ((buffer-read-only buffer-read-only))
+                         (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)))
                      (vc-find-file-hook)
                      (run-hooks 'magit-revert-buffer-hook))))))))))
 
