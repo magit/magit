@@ -1,8 +1,6 @@
 Authors
 =======
 
-May (the history of) the source be with you!
-
 For statistics see http://magit.vc/stats/authors.html.
 
 Names below are sorted alphabetically.
@@ -29,7 +27,6 @@ Retired Maintainers
 Contributors
 ------------
 
-- aaa707 <aaa707b@gmail.com>
 - Aaron Culich <aculich@gmail.com>
 - Abdo Roig-Maranges <abdo.roig@gmail.com>
 - acple <silentsphere110@gmail.com>
@@ -90,8 +87,8 @@ Contributors
 - Guillaume Martres <smarter@ubuntu.com>
 - Hannu Koivisto <azure@iki.fi>
 - Hans-Peter Deifel <hpdeifel@gmx.de>
-- HUANG Wei <weih@opera.com>
 - Ian Eure <ian.eure@gmail.com>
+- Ingo Lohmar <i.lohmar@gmail.com>
 - Jan Tatarik <jan.tatarik@xing.com>
 - Jasper St. Pierre <jstpierre@mecheye.net>
 - Jeff Bellegarde <jbellegarde@whitepages.com>
@@ -112,6 +109,7 @@ Contributors
 - Lele Gaifax <lele@metapensiero.it>
 - Leo Liu <sdl.web@gmail.com>
 - Leonardo Etcheverry <leo@kalio.net>
+- Lingchao Xin <douglarek@users.noreply.github.com>
 - Lluís Vilanova <vilanova@ac.upc.edu>
 - Loic Dachary <loic@dachary.org>
 - Luís Borges de Oliveira <lbo@siscog.pt>
@@ -148,6 +146,7 @@ Contributors
 - Pekka Pessi <nospam@pessi.fi>
 - Peter Eisentraut <peter@eisentraut.org>
 - Peter J. Weisberg <pj@irregularexpressions.net>
+- Peter Vasil <mail@petervasil.net>
 - Philippe Vaucher <philippe.vaucher@gmail.com>
 - Philipp Haselwarter <philipp@haselwarter.org>
 - Philip Weaver <philip.weaver@gmail.com>
@@ -180,23 +179,28 @@ Contributors
 - Servilio Afre Puentes <afrepues@mcmaster.ca>
 - Štěpán Němec <stepnem@gmail.com>
 - Steven Chow <steve@myfreestuffapp.com>
+- Steven E. Harris <seh@panix.com>
 - Steven Thomas <sthomas314@gmail.com>
 - Steve Purcell <steve@sanityinc.com>
 - Suhail Shergill <suhailshergill@gmail.com>
-- Syohei YOSHIDA <syohex@gmail.com>
+- Syohei Yoshida <syohex@gmail.com>
 - Takafumi Arakaki <aka.tkf@gmail.com>
 - Teemu Likonen <tlikonen@iki.fi>
 - Teruki Shigitani <teruki.shigitani@gmail.com>
 - Thierry Volpiatto <thierry.volpiatto@gmail.com>
+- Thomas A Caswell <tcaswell@gmail.com>
 - Thomas Frössman <thomasf@jossystem.se>
 - Thomas Jost <thomas.jost@gmail.com>
 - Thomas Riccardi <riccardi.thomas@gmail.com>
 - Tibor Simko <tibor.simko@cern.ch>
 - Timo Juhani Lindfors <timo.lindfors@iki.fi>
+- Tim Perkins <tprk77@gmail.com>
 - Tim Wraight <tim@wraight.net>
 - Ting-Yu Lin <aethanyc@gmail.com>
 - Tom Feist <shabble@metavore.org>
+- Wei Huang <weih@opera.com>
 - Wilfred Hughes <me@wilfred.me.uk>
 - Win Treese <treese@acm.org>
 - Yann Hodique <yann.hodique@gmail.com>
 - York Zhao <gtdplatform@gmail.com>
+- Yuichi Higashi <aaa707b@gmail.com>
