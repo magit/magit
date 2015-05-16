@@ -4068,7 +4068,7 @@ the current repository."
                    (not (string-prefix-p gitdir file))
                    (member (file-relative-name file topdir) tracked)
                    (let ((remote-file-name-inhibit-cache t))
-                     (when (funcall buffer-stale--default-function)
+                     (when (buffer-stale--default-function)
                        (setq auto-revert-notify-modified-p nil)
                        (when auto-revert-verbose
                          (message "Reverting buffer `%s'." (buffer-name)))
