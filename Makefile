@@ -27,10 +27,8 @@ CYGPATH := $(shell cygpath --version 2>/dev/null)
 
 ifdef CYGPATH
   LOAD_PATH ?= -L . -L $(shell cygpath --mixed $(CL_LIB_DIR)) -L $(shell cygpath --mixed $(DASH_DIR))
-  CURDIR_SANE = $(shell cygpath --mixed $(CURDIR))
 else
   LOAD_PATH ?= -L . -L $(CL_LIB_DIR) -L $(DASH_DIR)
-  CURDIR_SANE = $(CURDIR)
 endif
 
 EMACSBIN ?= emacs
@@ -184,11 +182,12 @@ magit-autoloads.el: $(ELS)
 	@printf "Generating magit-autoloads.el\n"
 	@$(BATCH) --eval "(progn\
 	(fset 'message (lambda (&rest _)))\
+	(setq make-backup-files nil)\
 	(setq vc-handled-backends nil)\
-	(defvar generated-autoload-file nil)\
-	(let ((generated-autoload-file \"$(CURDIR_SANE)/magit-autoloads.el\")\
-	      (make-backup-files nil))\
-	  (update-directory-autoloads \".\")))"
+	(setq default-directory (file-truename default-directory))\
+	(setq generated-autoload-file (expand-file-name \"magit-autoloads.el\"))\
+	(setq find-file-visit-truename t)\
+	(update-directory-autoloads default-directory)))"
 
 docs: Documentation/magit.info Documentation/dir
 
