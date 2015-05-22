@@ -161,7 +161,6 @@ lisp: $(ELCS) magit-version.el magit-autoloads.el
 	(when (file-exists-p \"$@\")\
 	  (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
-	(setq magit-last-seen-setup-instructions \"9999\")\
 	(fset 'message* (symbol-function 'message))\
 	(fset 'message  (lambda (f &rest a)\
 	                  (unless (equal f \"Wrote %s\")\
@@ -186,7 +185,6 @@ magit-autoloads.el: $(ELS)
 	@$(BATCH) --eval "(progn\
 	(fset 'message (lambda (&rest _)))\
 	(setq vc-handled-backends nil)\
-	(setq magit-last-seen-setup-instructions \"9999\")\
 	(defvar generated-autoload-file nil)\
 	(let ((generated-autoload-file \"$(CURDIR_SANE)/magit-autoloads.el\")\
 	      (make-backup-files nil))\
@@ -256,7 +254,6 @@ install-docs: docs
 
 test:
 	@$(BATCH) --eval "(progn\
-	(setq magit-last-seen-setup-instructions \"9999\")\
 	(load-file \"t/magit-tests.el\")\
 	(ert-run-tests-batch-and-exit))"
 
