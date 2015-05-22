@@ -894,7 +894,7 @@ Return a list of two integers: (A>B B>A)."
                              default (magit-get-current-branch))))
 
 (defun magit-read-branch-or-commit (prompt &optional secondary-default)
-  (or (magit-completing-read prompt (magit-list-refnames)
+  (or (magit-completing-read prompt (cons "HEAD" (magit-list-refnames))
                              nil nil nil 'magit-revision-history
                              (or (magit-branch-or-commit-at-point)
                                  secondary-default
