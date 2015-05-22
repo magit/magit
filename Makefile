@@ -23,7 +23,15 @@ ifeq "$(DASH_DIR)" ""
   DASH_DIR = ../dash
 endif
 
-LOAD_PATH ?= -L . -L $(CL_LIB_DIR) -L $(DASH_DIR)
+CYGPATH := $(shell cygpath --version 2>/dev/null)
+
+ifdef CYGPATH
+  LOAD_PATH ?= -L . -L $(shell cygpath --mixed $(CL_LIB_DIR)) -L $(shell cygpath --mixed $(DASH_DIR))
+  CURDIR_SANE = $(shell cygpath --mixed $(CURDIR))
+else
+  LOAD_PATH ?= -L . -L $(CL_LIB_DIR) -L $(DASH_DIR)
+  CURDIR_SANE = $(CURDIR)
+endif
 
 EMACSBIN ?= emacs
 BATCH     = $(EMACSBIN) -batch -Q $(LOAD_PATH)
@@ -180,7 +188,7 @@ magit-autoloads.el: $(ELS)
 	(setq vc-handled-backends nil)\
 	(setq magit-last-seen-setup-instructions \"9999\")\
 	(defvar generated-autoload-file nil)\
-	(let ((generated-autoload-file \"$(CURDIR)/magit-autoloads.el\")\
+	(let ((generated-autoload-file \"$(CURDIR_SANE)/magit-autoloads.el\")\
 	      (make-backup-files nil))\
 	  (update-directory-autoloads \".\")))"
 
