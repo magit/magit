@@ -182,10 +182,7 @@ ignored) files.
         (`(staged      hunk) (magit-apply-hunk   it "--reverse" "--cached"))
         (`(staged      file) (magit-unstage-1 (magit-section-value it)))
         (`(staged     files) (magit-unstage-1 (magit-region-values)))
-        (`(staged      list) (when (or (and (not (magit-anything-unstaged-p))
-                                            (not (magit-untracked-files)))
-                                       (magit-confirm 'unstage-all-changes))
-                               (magit-run-git "reset" "HEAD" "--")))
+        (`(staged      list) (magit-unstage-all))
         (`(committed     ,_) (user-error "Cannot unstage committed changes"))
         (`(undefined     ,_) (user-error "Cannot unstage this change"))))))
 
@@ -212,6 +209,15 @@ without requiring confirmation."
   (if (magit-no-commit-p)
       (magit-run-git "rm" "--cached" "--" args)
     (magit-run-git "reset" "HEAD" "--" args)))
+
+;;;###autoload
+(defun magit-unstage-all ()
+  "Remove all changes from the staging area."
+  (interactive)
+  (when (or (and (not (magit-anything-unstaged-p))
+                 (not (magit-untracked-files)))
+            (magit-confirm 'unstage-all-changes))
+    (magit-run-git "reset" "HEAD" "--")))
 
 ;;;; Discard
 
