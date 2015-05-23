@@ -218,7 +218,7 @@ results in additional differences."
 
 Unfortunately `ido-completing-read' is not suitable as a
 drop-in replacement for `completing-read', instead we use
-`ido-completing-read+' from third-party the package by the
+`ido-completing-read+' from the third-party package by the
 same name."
   (if (require 'ido-completing-read+ nil t)
       (ido-completing-read+ prompt choices predicate require-match
