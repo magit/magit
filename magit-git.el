@@ -292,8 +292,9 @@ is non-nil return only the local part of tramp paths."
       (setq default-directory
             (file-name-directory
              (directory-file-name default-directory))))
-    (--if-let (magit-rev-parse-safe "--show-toplevel")
-        (file-name-as-directory (magit-expand-git-file-name it))
+    (-if-let (cdup (magit-rev-parse-safe "--show-cdup"))
+        (magit-expand-git-file-name
+         (file-name-as-directory (expand-file-name cdup)))
       (unless strict
         (-when-let (gitdir (magit-git-dir))
           (if (magit-bare-repo-p)
@@ -345,9 +346,8 @@ If the file is not inside a Git repository then return nil."
                              (current-buffer))
       (setq file (or magit-buffer-file-name buffer-file-name))))
   (when file
-    (setq file (file-truename file))
     (--when-let (magit-toplevel file)
-      (substring file (length (expand-file-name it))))))
+      (file-relative-name file it))))
 
 (defun magit-file-tracked-p (file)
   (magit-git-success "ls-files" "--error-unmatch" file))

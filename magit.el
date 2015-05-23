@@ -377,7 +377,7 @@ then offer to initialize it as a new repository."
   (if directory
       (let ((toplevel (magit-toplevel directory)))
         (setq directory (file-name-as-directory (expand-file-name directory)))
-        (if (and toplevel (string-equal (file-truename directory) toplevel))
+        (if (and toplevel (string-equal directory toplevel))
             (magit-status-internal directory)
           (when (y-or-n-p
                  (if toplevel
@@ -933,8 +933,7 @@ is done using `magit-find-index-noselect'."
 With a prefix argument, visit in other window.  If there
 is no file at point then instead visit `default-directory'."
   (interactive "P")
-  (dired-jump other-window
-              (file-truename (or (magit-file-at-point) default-directory))))
+  (dired-jump other-window (or (magit-file-at-point) default-directory)))
 
 ;;; Manipulate
 ;;;; Init

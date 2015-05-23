@@ -372,6 +372,8 @@ before switching to BUFFER."
             (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
             (,sbuf  (magit-mode-display-buffer ,buffer ,smode ,switch-func)))
+       (when find-file-visit-truename
+         (setq ,sroot (file-truename ,sroot)))
        (if ,sroot
            (with-current-buffer ,sbuf
              (setq default-directory ,sroot
@@ -580,7 +582,7 @@ When called interactively then the revert is forced."
               (if (> (length tracked)
                      (length (buffer-list)))
                   (--filter
-                   (let ((file (with-current-buffer it buffer-file-truename)))
+                   (let ((file (buffer-file-name it)))
                      (and file
                           (file-in-directory-p file topdir)
                           (member (file-relative-name file topdir) tracked)))
