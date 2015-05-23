@@ -386,22 +386,27 @@ completion candidates."
 (defun magit-log-branches (&optional args files)
   "Show log for all local branches and `HEAD'."
   (interactive (magit-log-read-args nil t))
-  (magit-log `(,(unless (magit-get-current-branch) "HEAD") "--branches")
+  (magit-log (if (magit-get-current-branch)
+                 (list "--branches")
+               (list "HEAD" "--branches"))
              args files))
 
 ;;;###autoload
 (defun magit-log-all-branches (&optional args files)
   "Show log for all local and remote branches and `HEAD'."
   (interactive (magit-log-read-args nil t))
-  (magit-log `(,(unless (magit-get-current-branch) "HEAD")
-               "--branches" "--remotes")
+  (magit-log (if (magit-get-current-branch)
+                 (list "--branches" "--remotes")
+               (list "HEAD" "--branches" "--remotes"))
              args files))
 
 ;;;###autoload
 (defun magit-log-all (&optional args files)
   "Show log for all references and `HEAD'."
   (interactive (magit-log-read-args nil t))
-  (magit-log `(,(unless (magit-get-current-branch) "HEAD") "--all")
+  (magit-log (if (magit-get-current-branch)
+                 (list "--all")
+               (list "HEAD" "--all"))
              args files))
 
 ;;;###autoload
