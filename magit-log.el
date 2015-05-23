@@ -1042,16 +1042,16 @@ This sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (unpulled-modules)
       (magit-insert-heading "Unpulled modules:")
-      (dolist (module modules)
-        (let ((default-directory
-                (file-name-as-directory
-                 (expand-file-name module (magit-get-top-dir)))))
-          (-when-let (tracked (magit-get-tracked-ref))
-            (magit-insert-section sec (file module t)
-              (magit-insert-heading
-                (concat (propertize module 'face 'magit-diff-file-heading) ":"))
-              (magit-insert-submodule-commits
-               section (concat "HEAD.." tracked))))))
+      (let ((topdir (magit-get-top-dir)))
+        (dolist (module modules)
+          (let ((default-directory
+                  (expand-file-name (file-name-as-directory module) topdir)))
+            (-when-let (tracked (magit-get-tracked-ref))
+              (magit-insert-section sec (file module t)
+                (magit-insert-heading
+                  (concat (propertize module 'face 'magit-diff-file-heading) ":"))
+                (magit-insert-submodule-commits
+                 section (concat "HEAD.." tracked)))))))
       (if (> (point) (magit-section-content section))
           (insert ?\n)
         (magit-cancel-section)))))
@@ -1099,16 +1099,16 @@ These sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (unpushed-modules)
       (magit-insert-heading "Unpushed modules:")
-      (dolist (module modules)
-        (let ((default-directory
-                (file-name-as-directory
-                 (expand-file-name module (magit-get-top-dir)))))
-          (-when-let (tracked (magit-get-tracked-ref))
-            (magit-insert-section sec (file module t)
-              (magit-insert-heading
-                (concat (propertize module 'face 'magit-diff-file-heading) ":"))
-              (magit-insert-submodule-commits
-               section (concat tracked "..HEAD"))))))
+      (let ((topdir (magit-get-top-dir)))
+        (dolist (module modules)
+          (let ((default-directory
+                  (expand-file-name (file-name-as-directory module) topdir)))
+            (-when-let (tracked (magit-get-tracked-ref))
+              (magit-insert-section sec (file module t)
+                (magit-insert-heading
+                  (concat (propertize module 'face 'magit-diff-file-heading) ":"))
+                (magit-insert-submodule-commits
+                 section (concat tracked "..HEAD")))))))
       (if (> (point) (magit-section-content section))
           (insert ?\n)
         (magit-cancel-section)))))
