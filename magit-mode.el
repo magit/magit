@@ -683,16 +683,17 @@ is saved without asking, the user is asked about each modified
 buffer which visits a file in the current repository.  Optional
 argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
-  (save-some-buffers
-   arg `(lambda ()
-          (and buffer-file-name
-               (-when-let (topdir ,(magit-get-top-dir default-directory))
-                 (and (string-prefix-p topdir buffer-file-name)
-                      ;; ^ Avoid needlessly connecting to unrelated remotes.
-                      (equal (ignore-errors
-                               (magit-get-top-dir default-directory))
-                             topdir)
-                      (magit-inside-worktree-p)))))))
+  (-when-let (topdir (magit-get-top-dir default-directory))
+    (save-some-buffers
+     arg (-partial (lambda (topdir)
+                     (and buffer-file-name
+                          ;; Avoid needlessly connecting to unrelated remotes.
+                          (string-prefix-p topdir buffer-file-name)
+                          (equal (ignore-errors
+                                   (magit-get-top-dir default-directory))
+                                 topdir)
+                          (magit-inside-worktree-p)))
+                   topdir))))
 
 ;;; Buffer History
 
