@@ -316,13 +316,9 @@ All commits not in UPSTREAM are rebased.
                       (magit-get-current-branch)
                       (magit-get-tracked-branch))
                      (magit-rebase-arguments)))
-  (if upstream
-      (progn (message "Rebasing...")
-             (magit-run-git-sequencer "rebase" upstream args)
-             (message "Rebasing...done"))
-    (magit-log-select
-      `(lambda (commit)
-         (magit-rebase (concat commit "^") (list ,@args))))))
+  (message "Rebasing...")
+  (magit-run-git-sequencer "rebase" upstream args)
+  (message "Rebasing...done"))
 
 ;;;###autoload
 (defun magit-rebase-from (newbase start &optional args)
@@ -342,7 +338,9 @@ selected from a list of recent commits.
              (message "Rebasing...done"))
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-from ,newbase (concat commit "^") (list ,@args))))))
+         (magit-rebase-from ,newbase (concat commit "^") (list ,@args)))
+      (concat "Type %p on a commit to rebase it and"
+              "and commits above it onto " newbase ","))))
 
 ;;;###autoload
 (defun magit-rebase-interactive (commit &optional args)
@@ -355,7 +353,8 @@ selected from a list of recent commits.
       (magit-run-git-sequencer "rebase" "-i" commit args)
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-interactive (concat commit "^") (list ,@args))))))
+         (magit-rebase-interactive (concat commit "^") (list ,@args)))
+      "Type %p on a commit to interactively rebase it and all commits above it,")))
 
 (defun magit-rebase-unpushed (commit &optional args)
   "Start an interactive rebase sequence of all unpushed commits.
@@ -366,7 +365,8 @@ selected from a list of recent commits.
       (magit-run-git-sequencer "rebase" "-i" commit args)
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-interactive (concat commit "^") (list ,@args))))))
+         (magit-rebase-interactive (concat commit "^") (list ,@args)))
+      "Type %p on a commit to interactively rebase it and all commits above it,")))
 
 ;;;###autoload
 (defun magit-rebase-autosquash (commit &optional args)
@@ -379,7 +379,8 @@ selected from a list of recent commits.
         (magit-run-git-sequencer "rebase" "-i" commit "--autosquash" args))
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-autosquash (concat commit "^") (list ,@args))))))
+         (magit-rebase-autosquash (concat commit "^") (list ,@args)))
+      "Type %p on a commit to squash into it and commits above it,")))
 
 ;;;###autoload
 (defun magit-rebase-edit-commit (commit &optional args)
@@ -393,7 +394,8 @@ selected from a list of recent commits.
         (magit-run-git-sequencer "rebase" "-i" (concat commit "^") args))
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-edit-commit commit (list ,@args))))))
+         (magit-rebase-edit-commit commit (list ,@args)))
+      "Type %p on a commit to edit it,")))
 
 ;;;###autoload
 (defun magit-rebase-reword-commit (commit &optional args)
@@ -407,7 +409,8 @@ selected from a list of recent commits.
         (magit-run-git-sequencer "rebase" "-i" (concat commit "^") args))
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-reword-commit commit (list ,@args))))))
+         (magit-rebase-reword-commit commit (list ,@args)))
+      "Type %p on a commit to reword its message,")))
 
 (defun magit-rebase-interactive-assert (commit)
   (when commit

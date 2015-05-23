@@ -178,6 +178,20 @@ units, in what language, are being used."
   "Face for the date part of the log output."
   :group 'magit-faces)
 
+;;;; Select Mode
+
+(defcustom magit-log-select-show-usage 'both
+  "Whether to show usage information when selecting a commit from a log.
+The message can be shown in the `echo-area' or the `header-line', or in
+`both' places.  If the value isn't one of these symbols, then it should
+be nil, in which case no usage information is shown."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-log
+  :type '(choice (const :tag "in echo-area" echo-area)
+                 (const :tag "in header-line" header-line)
+                 (const :tag "in both places" both)
+                 (const :tag "nowhere")))
+
 ;;;; Cherry Mode
 
 (defcustom magit-cherry-buffer-name-format "*magit-cherry: %a*"
@@ -848,7 +862,7 @@ another window, using `magit-show-commit'."
 (defvar-local magit-log-select-pick-function nil)
 (defvar-local magit-log-select-quit-function nil)
 
-(defun magit-log-select (pick &optional quit desc branch args)
+(defun magit-log-select (pick &optional msg quit branch args)
   (declare (indent defun))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-select-mode
@@ -858,11 +872,20 @@ another window, using `magit-show-commit'."
   (magit-log-goto-same-commit)
   (setq magit-log-select-pick-function pick)
   (setq magit-log-select-quit-function quit)
-  (message
-   (substitute-command-keys
-    (format "Type \\[%s] to select commit at point%s, or \\[%s] to abort"
-            'magit-log-select-pick (if desc (concat " " desc) "")
-            'magit-log-select-quit))))
+  (when magit-log-select-show-usage
+    (setq msg (substitute-command-keys
+               (format-spec
+                (if msg
+                    (if (string-suffix-p "," msg)
+                        (concat msg " or %q to abort")
+                      msg)
+                  "Type %p to select commit at point, or %q to abort")
+                '((?p . "\\[magit-log-select-pick]")
+                  (?q . "\\[magit-log-select-quit]")))))
+    (when (memq magit-log-select-show-usage '(both header-line))
+      (setq header-line-format (concat " " msg)))
+    (when (memq magit-log-select-show-usage '(both echo-area))
+      (message "%s" msg))))
 
 (defun magit-log-select-pick ()
   "Select the commit at point and act on it.

@@ -227,7 +227,8 @@ depending on the value of option `magit-commit-squash-confirm'.
                                      (concat option "=" commit) args)
           commit)
       (magit-log-select
-        `(lambda (commit) (,fn commit (list ,@args))))
+        `(lambda (commit) (,fn commit (list ,@args)))
+        "Type %p on the commit to squash/fixup into it,")
       (when (magit-diff-auto-show-p 'log-select)
         (let ((magit-diff-switch-buffer-function 'display-buffer))
           (magit-diff-staged))))))
