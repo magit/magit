@@ -453,8 +453,7 @@ derives from Magit mode; or else use `switch-to-buffer'."
                      (and (or (not topdir)
                               (equal (expand-file-name default-directory)
                                      topdir))
-                          (string-match-p (format "^%s\\(?:<[0-9]+>\\)?$"
-                                                  (regexp-quote name))
+                          (string-match-p (format "^%s$" (regexp-quote name))
                                           (buffer-name))))
                    (buffer-list))
           (and create (generate-new-buffer name))))))
@@ -483,6 +482,30 @@ the buffer.  Finally reset the window configuration to nil."
           (with-current-buffer buffer
             (setq magit-previous-window-configuration nil)))))
     (run-hook-with-args 'magit-mode-bury-buffer-hook buffer)))
+
+(defun magit-rename-buffer (&optional newname)
+  "Rename the current buffer, so that Magit won't reuse it.
+
+By default there is only one buffer with a certain Magit mode
+per repository.  Displaying e.g. some diff will reuse the buffer
+previously used to display another diff.  If you want to have
+two buffers displaying different diffs belonging to the same
+repository, then you have to create a buffer whose name differs
+from the default name.
+
+The easiest way to do that is to use this command.  It appends
+\"<N>\" to the name of the current buffer, where N is the lowest
+available number, starting with 2, which is still available.
+
+With a prefix argument, the user can pick an arbitrary name."
+  (interactive
+   (list (and current-prefix-arg
+              (read-buffer "Rename buffer to: " (current-buffer)))))
+  (unless newname
+    (setq newname (buffer-name)))
+  (when (string-match "<[0-9]+>\\'" newname)
+    (setq newname (substring newname 0 (match-beginning 0))))
+  (rename-buffer (generate-new-buffer-name newname)))
 
 ;;; Refresh Machinery
 
