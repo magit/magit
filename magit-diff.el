@@ -631,7 +631,7 @@ for a commit."
                                (file-name-as-directory
                                 (expand-file-name module (magit-get-top-dir)))
                              default-directory)))
-    (when (magit-git-failure "cat-file" "commit" commit)
+    (unless (magit-rev-verify "master")
       (user-error "%s is not a commit" commit))
     (-when-let (buffer (magit-mode-get-buffer
                         magit-revision-buffer-name-format
