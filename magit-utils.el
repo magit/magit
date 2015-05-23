@@ -45,8 +45,7 @@
 (eval-when-compile (require 'ido))
 (declare-function ido-completing-read+ 'ido-completing-read+)
 
-(defvar magit-backup-mode)
-(defvar magit-backup-untracked)
+(defvar magit-wip-before-change-mode)
 
 ;;; Options
 
@@ -65,8 +64,8 @@ Many potentially dangerous commands by default ask the user for
 confirmation.  Each of the below symbols stands for an action
 which, when invoked unintentionally or without being fully aware
 of the consequences, could lead to tears.  In many cases there
-are more than one command which performs a certain action, so
-we don't use the command names but more generic symbols.
+are several commands that perform variations of a certain action,
+so we don't use the command names but more generic symbols.
 
 Applying changes:
 
@@ -141,14 +140,11 @@ Global settings:
   for confirmation for any of these actions, you are still better
   of adding all of the respective symbols individually.
 
-  `safe-with-backup' When `magit-backup-mode' is enabled then
-  some of the above actions can be fairly easily undone.  Adding
-  this symbol to the value has the same effect as adding `discard',
-  `reverse', `stage-all-changes', and `unstage-all-changes', but
-  only if the mode is enabled in the current buffer.  When the
-  option `magit-backup-untracked' is non-nil, then that extends
-  to `delete' and `trash'.  Before you add this symbol you should
-  practice restoring a backup stash from `magit-backup-list'."
+  When `magit-wip-before-change-mode' is enabled then these actions
+  can fairly easily be undone: `discard', `reverse',
+  `stage-all-changes', and `unstage-all-changes'.  If and only if
+  this mode is enabled then `safe-with-wip' has the same effect
+  as adding all of these symbols individually."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type '(choice (const :tag "No confirmation needed" t)
@@ -159,7 +155,7 @@ Global settings:
                       (const drop-stashes)      (const resect-bisect)
                       (const kill-process)      (const delete-unmerged-branch)
                       (const stage-all-changes) (const unstage-all-changes)
-                      (const safe-with-backup))))
+                      (const safe-with-wip))))
 
 (defcustom magit-ellipsis ?…
   "Character used to abreviate text."
@@ -268,13 +264,11 @@ which case that is returned.  Also append \": \" to PROMPT."
               (or (eq magit-no-confirm t)
                   (memq action
                         `(,@magit-no-confirm
-                          ,@(and magit-backup-mode
-                                 (memq 'safe-with-backup magit-no-confirm)
+                          ,@(and magit-wip-before-change-mode
+                                 (memq 'safe-with-wip magit-no-confirm)
                                  `(discard reverse
-                                           stage-all-changes
-                                           unstage-all-changes
-                                           ,@(and magit-backup-untracked
-                                                  `(delete trash))))))))
+                                   stage-all-changes
+                                   unstage-all-changes))))))
          (or (not sitems) items))
         ((not sitems)
          (y-or-n-p prompt))

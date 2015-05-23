@@ -107,6 +107,7 @@ ELS += magit-mode.el
 ELS += magit-process.el
 ELS += magit-core.el
 ELS += magit-diff.el
+ELS += magit-wip.el
 ELS += magit-apply.el
 ELS += magit-log.el
 ELS += magit.el
@@ -117,8 +118,6 @@ ELS += magit-bisect.el
 ELS += magit-stash.el
 ELS += magit-blame.el
 ELS += magit-ediff.el
-ELS += magit-wip.el
-ELS += magit-backup.el
 ELS += magit-extras.el
 ELS += git-rebase.el
 ELCS = $(ELS:.el=.elc)
@@ -135,7 +134,8 @@ magit-process.elc:	with-editor.elc magit-utils.elc magit-section.elc \
 magit-core.elc:		magit-utils.elc magit-section.elc magit-git.elc \
 			magit-mode.elc magit-popup.elc magit-process.elc
 magit-diff.elc:		git-commit.elc magit-core.elc
-magit-apply.elc:	magit-core.elc magit-diff.elc
+magit-wip.elc:		magit-core.elc
+magit-apply.elc:	magit-core.elc magit-diff.elc magit-wip.elc
 magit-log.elc:		magit-core.elc magit-diff.elc
 magit.elc:		with-editor.elc git-commit.elc \
 			magit-core.elc magit-diff.elc magit-apply.elc magit-log.elc
@@ -146,9 +146,7 @@ magit-bisect.elc:	magit.elc
 magit-stash.elc:	magit.elc
 magit-blame.elc:	magit.elc
 magit-ediff.elc:	magit.elc
-magit-wip.elc:		magit-core.elc
-magit-backup.elc:	magit.elc magit-stash.elc
-magit-extras.elc:	magit.elc magit-backup.elc
+magit-extras.elc:	magit.elc
 git-rebase.elc:		magit.elc with-editor.elc
 
 lisp: $(ELCS) magit-version.el magit-autoloads.el

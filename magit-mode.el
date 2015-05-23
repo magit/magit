@@ -312,8 +312,7 @@ the user has to confirm each save."
   "Load Magit extensions that are defined at the Git config layer."
   (dolist (ext (magit-get-all "magit.extension"))
     (let ((sym (intern (format "magit-%s-mode" ext))))
-      (when (and (fboundp sym)
-                 (not (eq sym 'magit-wip-save-mode)))
+      (when (fboundp sym)
         (funcall sym 1)))))
 
 (define-derived-mode magit-mode special-mode "Magit"

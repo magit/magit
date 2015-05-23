@@ -49,9 +49,10 @@
               (?W "Snapshot worktree"  magit-snapshot-worktree)
               (?l "List"               magit-stash-list)
               (?x "Save keeping index" magit-stash-keep-index)
-              (?k "Drop"               magit-stash-drop)
+              (?r "Snapshot to wipref" magit-wip-save)
               (?v "Show"               magit-stash-show)
-              (?b "Branch"             magit-stash-branch))
+              (?b "Branch"             magit-stash-branch)
+              (?k "Drop"               magit-stash-drop))
   :default-action 'magit-stash
   :max-action-columns 3)
 

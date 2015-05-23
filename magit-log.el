@@ -309,8 +309,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?h "Log HEAD"                magit-log-head)
               (?a "Log all references"      magit-log-all)
               (?H "Reflog HEAD"             magit-reflog-head)
-              nil nil (?S "List stashes"    magit-stash-list)
-              nil nil (?B "List backups"    magit-backup-list))
+              nil nil (?S "List stashes"    magit-stash-list))
   :default-arguments '("--graph" "--decorate")
   :default-action 'magit-log-current
   :max-action-columns 3)

@@ -1014,7 +1014,7 @@ changes.
 \n(git checkout [ARGS] -b BRANCH START-POINT)."
   (interactive (magit-branch-read-args "Create and checkout branch"
                                        (magit-stash-at-point)))
-  (if (string-match-p "^\\(stash\\|backup\\)@{[0-9]+}$" start-point)
+  (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
     (magit-run-git "checkout" args "-b" branch start-point)))
 
@@ -1309,9 +1309,9 @@ If no merge is in progress, do nothing."
   "Reset the index to COMMIT.
 Keep the head and working tree as-is, so if COMMIT refers to the
 head this effectivley unstages all changes.
-\n(git reset --mixed COMMIT)"
+\n(git reset COMMIT)"
   (interactive (list (magit-read-branch-or-commit "Reset index to")))
-  (magit-run-git "reset" commit "--"))
+  (magit-reset-internal nil commit))
 
 ;;;###autoload
 (defun magit-reset (commit &optional hard)
@@ -1323,42 +1323,41 @@ With a prefix argument also reset the working tree.
                           "Hard reset to"
                         "Reset head to"))
                      current-prefix-arg))
-  (unless hard
-    (magit-maybe-save-head-message commit))
-  (magit-run-git "reset" (if hard "--hard" "--mixed") commit "--"))
+  (magit-reset-internal (if hard "--hard" "--mixed") commit))
 
 ;;;###autoload
 (defun magit-reset-head (commit)
   "Reset the head and index to COMMIT, but not the working tree.
 \n(git reset --mixed COMMIT)"
   (interactive (list (magit-read-branch-or-commit "Reset head to")))
-  (magit-maybe-save-head-message commit)
-  (magit-run-git "reset" "--mixed" commit "--"))
+  (magit-reset-internal "--mixed" commit))
 
 ;;;###autoload
 (defun magit-reset-soft (commit)
   "Reset the head to COMMIT, but not the index and working tree.
 \n(git reset --soft REVISION)"
   (interactive (list (magit-read-branch-or-commit "Soft reset to")))
-  (magit-maybe-save-head-message commit)
-  (magit-run-git "reset" "--soft" commit "--"))
+  (magit-reset-internal "--soft" commit))
 
 ;;;###autoload
 (defun magit-reset-hard (commit)
   "Reset the head, index, and working tree to COMMIT.
 \n(git reset --hard REVISION)"
   (interactive (list (magit-read-branch-or-commit "Hard reset to")))
-  (magit-run-git "reset" "--hard" commit "--"))
+  (magit-reset-internal "--hard" commit))
 
-(defun magit-maybe-save-head-message (commit)
-  (when (equal (magit-rev-parse commit)
-               (magit-rev-parse "HEAD~"))
+(defun magit-reset-internal (arg commit)
+  (when (and (not (member arg '("--hard" nil)))
+             (equal (magit-rev-parse commit)
+                    (magit-rev-parse "HEAD~")))
     (with-temp-buffer
       (magit-git-insert "show" "-s" "--format=%B" "HEAD")
       (when git-commit-major-mode
         (funcall git-commit-major-mode))
       (git-commit-setup-font-lock)
-      (git-commit-save-message))))
+      (git-commit-save-message)))
+  (magit-wip-commit-before-change nil " before reset")
+  (magit-run-git "reset" arg commit "--"))
 
 ;;;; Files
 
@@ -1989,8 +1988,6 @@ library getting in the way.  Then restart Emacs."
   (require 'magit-blame)
   (unless (load "magit-autoloads" t t)
     (require 'magit-ediff)
-    (require 'magit-wip)
-    (require 'magit-backup)
     (require 'magit-extras)
     (require 'git-rebase)))
 
