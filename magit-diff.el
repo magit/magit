@@ -75,6 +75,26 @@ The following `format'-like specs are supported:
   :group 'magit-diff
   :type 'string)
 
+(defcustom magit-diff-switch-buffer-function 'pop-to-buffer
+  "Function used to display and possibly select a diff buffer.
+
+By default `pop-to-buffer' is used to display the diff buffer in
+another window.  If the value is nil, then that function is also
+used, except when the current buffer is another Magit buffer.
+Then the window is reused; the diff buffer replaces the buffer
+which was previously shown.  Another function can be used, but
+that's not recommended, e.g. `switch-to-buffer' likely is not
+what you want.
+
+Note that the value of this variable is ignored when the diff
+buffer is automatically shown along side a buffer used to write
+a commit message."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-diff
+  :type '(choice (function-item pop-to-buffer)
+                 (function nil)
+                 (const :tag "Context sensitive (nil)" nil)))
+
 (defcustom magit-diff-expansion-threshold 1.0
   "After how many seconds not to expand anymore diffs.
 
@@ -484,12 +504,6 @@ The following `format'-like specs are supported:
     (?m "[m]inimal"   "minimal")
     (?p "[p]atience"  "patience")
     (?h "[h]istogram" "histogram")))
-
-(defvar magit-diff-switch-buffer-function 'pop-to-buffer
-  "Function used to display and possibly select a diff buffer.
-This variable is mainly intended for internal use, allowing a
-different function to be used under certain circumstances.
-If you do change the global value this might lead to problems.")
 
 ;;;###autoload
 (defun magit-diff-dwim (&optional args files)
