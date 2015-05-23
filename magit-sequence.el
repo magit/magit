@@ -293,7 +293,7 @@ This discards all changes made since the sequence started."
               (?A "Autostash" "--autostash"))
   :actions  '((?r "Rebase"             magit-rebase)
               (?f "Autosquash"         magit-rebase-autosquash)
-              (?o "Rebase from"        magit-rebase-from)
+              (?o "Rebase subset"      magit-rebase-from)
               nil
               (?e "Rebase interactive" magit-rebase-interactive)
               (?s "Edit commit"        magit-rebase-edit-commit)
@@ -312,7 +312,7 @@ This discards all changes made since the sequence started."
 All commits not in UPSTREAM are rebased.
 \n(git rebase UPSTREAM[^] [ARGS])"
   (interactive (list (magit-read-other-branch-or-commit
-                      "Rebase to"
+                      "Rebase onto"
                       (magit-get-current-branch)
                       (magit-get-tracked-branch))
                      (magit-rebase-arguments)))
@@ -327,7 +327,7 @@ Commits from START to `HEAD' onto NEWBASE.  START has to be
 selected from a list of recent commits.
 \n(git rebase --onto NEWBASE START[^] [ARGS])"
   (interactive (list (magit-read-other-branch-or-commit
-                      "Rebase to"
+                      "Rebase subset onto"
                       (magit-get-current-branch)
                       (magit-get-tracked-branch))
                      nil
