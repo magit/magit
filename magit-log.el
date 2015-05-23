@@ -528,9 +528,13 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-log-refresh-buffer (style revs args &optional files)
+  (setq header-line-format
+        (propertize
+         (concat " Commits in " (mapconcat 'identity revs  " ")
+                 (and files (concat " touching "
+                                    (mapconcat 'identity files " "))))
+         'face 'magit-header-line))
   (magit-insert-section (logbuf)
-    (magit-insert-heading "Commits in " (mapconcat 'identity revs  " ")
-      (and files (concat " touching "   (mapconcat 'identity files " "))))
     (if (eq style 'oneline)
         (magit-insert-log revs args files)
       (magit-insert-log-verbose revs args files)))

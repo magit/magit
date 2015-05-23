@@ -942,24 +942,27 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-diff-refresh-buffer (range &optional args files)
-  (magit-insert-section (diffbuf)
-    (magit-insert-heading
-      (if (member "--no-index" args)
-          (apply #'format "Differences between %s and %s" files)
-        (concat (if range
-                    (if (string-match-p "\\.\\." range)
-                        (format "Changes in %s" range)
-                      (format "Changes from %s to working tree" range))
-                  (if (member "--cached" args)
-                      "Staged changes"
-                    "Unstaged changes"))
-                (pcase (length files)
-                  (0)
-                  (1 (concat " in file " (car files)))
-                  (_ (concat " in files " (mapconcat #'identity files ", ")))))))
-    (magit-git-wash #'magit-diff-wash-diffs
-      "diff" range "-p" (and magit-diff-show-diffstat "--stat")
-      "--no-prefix" args "--" files)))
+  (setq header-line-format
+        (propertize
+         (if (member "--no-index" args)
+             (apply #'format " Differences between %s and %s" files)
+           (concat (if range
+                       (if (string-match-p "\\.\\." range)
+                           (format " Changes in %s" range)
+                         (format " Changes from %s to working tree" range))
+                     (if (member "--cached" args)
+                         " Staged changes"
+                       " Unstaged changes"))
+                   (pcase (length files)
+                     (0)
+                     (1 (concat " in file " (car files)))
+                     (_ (concat " in files "
+                                (mapconcat #'identity files ", "))))))
+         'face 'magit-header-line))
+    (magit-insert-section (diffbuf)
+      (magit-git-wash #'magit-diff-wash-diffs
+        "diff" range "-p" (and magit-diff-show-diffstat "--stat")
+        "--no-prefix" args "--" files)))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
@@ -1235,10 +1238,10 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
     (magit-bind-match-strings (rev refs) nil
       (magit-delete-line)
+      (setq header-line-format
+            (propertize (concat " Commit " rev) 'face 'magit-header-line))
       (magit-insert-section (headers)
-        (magit-insert-heading
-          (propertize "Commit " 'face 'magit-section-heading)
-          (propertize rev 'face 'magit-hash))
+        (magit-insert-heading (char-to-string magit-ellipsis))
         (when refs
           (magit-insert (format "References: %s\n"
                                 (magit-format-ref-labels refs))))
@@ -1269,7 +1272,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (forward-line)
         (when magit-revision-insert-related-refs
           (magit-revision-insert-related-refs rev))
-        (setq children (magit-diff-wash-diffstat))))
+        (setq children (magit-diff-wash-diffstat))
+        (forward-line)))
     (magit-diff-wash-diffs args children)))
 
 (defun magit-diff-wash-tag ()

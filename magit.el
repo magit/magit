@@ -225,6 +225,11 @@ deep."
 
 ;;;; Faces
 
+(defface magit-header-line
+  '((t :inherit magit-section-heading))
+  "Face for the `header-line'."
+  :group 'magit-faces)
+
 (defface magit-dimmed
   '((((class color) (background light)) :foreground "grey50")
     (((class color) (background  dark)) :foreground "grey50"))
