@@ -118,10 +118,10 @@ to test.  This command lets Git choose a different one."
 (defun magit-bisect-async (subcommand &optional args no-assert)
   (unless (or no-assert (magit-bisect-in-progress-p))
     (user-error "Not bisecting"))
-  (let ((file (magit-git-dir "BISECT_CMD_OUTPUT"))
-        (default-directory (magit-get-top-dir)))
-    (ignore-errors (delete-file file))
-    (magit-run-git-with-logfile file "bisect" subcommand args)
+  (magit-with-toplevel
+    (let ((file (magit-git-dir "BISECT_CMD_OUTPUT")))
+      (ignore-errors (delete-file file))
+      (magit-run-git-with-logfile file "bisect" subcommand args))
     (magit-process-wait)
     (magit-refresh)))
 

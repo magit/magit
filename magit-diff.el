@@ -574,7 +574,7 @@ While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
 be commited."
   (interactive (magit-diff-read-args t))
-  (let* ((toplevel (magit-get-top-dir))
+  (let* ((toplevel (magit-toplevel))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
                                           'magit-diff-mode toplevel)))
     (if (magit-commit-message-buffer)
@@ -585,7 +585,7 @@ be commited."
                  (or (not diff-buf)
                      (with-current-buffer diff-buf
                        (or ;; default to include last commit
-                           (not (equal (magit-get-top-dir) toplevel))
+                           (not (equal (magit-toplevel) toplevel))
                            ;; toggle to include last commit
                            (not (car magit-refresh-args))))))
             (magit-diff-while-amending args)
@@ -629,7 +629,7 @@ for a commit."
             (magit-diff-read-args t))))
   (let ((default-directory (if module
                                (file-name-as-directory
-                                (expand-file-name module (magit-get-top-dir)))
+                                (expand-file-name module (magit-toplevel)))
                              default-directory)))
     (unless (magit-rev-verify "master")
       (user-error "%s is not a commit" commit))
@@ -836,9 +836,8 @@ the index, or HEAD."
               (length (magit-section-value section))))))
 
 (defun magit-diff-visit-directory (directory &optional other-window)
-  (setq directory (file-name-as-directory (expand-file-name directory)))
-  (if (equal (magit-get-top-dir (file-name-directory directory))
-             (magit-get-top-dir))
+  (if (equal (magit-toplevel directory)
+             (magit-toplevel))
       (magit-dired-jump other-window)
     (magit-status-internal directory (if other-window
                                          'pop-to-buffer
@@ -1143,7 +1142,7 @@ section or a child thereof."
     (if range
         (let ((default-directory
                 (file-name-as-directory
-                 (expand-file-name module (magit-get-top-dir)))))
+                 (expand-file-name module (magit-toplevel)))))
           (setf (magit-section-value
                  (magit-insert-section (file module t)
                    (magit-insert-heading

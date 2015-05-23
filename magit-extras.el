@@ -49,7 +49,7 @@
 (defun magit-run-git-gui ()
   "Run `git gui' for the current git repository."
   (interactive)
-  (let ((default-directory (magit-get-top-dir)))
+  (magit-with-toplevel
     (call-process magit-git-executable nil 0 nil "gui")))
 
 ;;;###autoload
@@ -71,7 +71,7 @@ blame to center around the line point is on."
                        (ignore-errors
                          (magit-file-relative-name (buffer-file-name))))
                 (line-number-at-pos)))))
-  (let ((default-directory (magit-get-top-dir)))
+  (let ((default-directory (magit-toplevel)))
     (apply #'call-process magit-git-executable nil 0 nil "gui" "blame"
            `(,@(and linenum (list (format "--line=%d" linenum)))
              ,commit
@@ -115,7 +115,7 @@ With a prefix argument only ignore locally."
   (let ((gitignore
          (if local
              (magit-git-dir (convert-standard-filename "info/exclude"))
-           (expand-file-name ".gitignore" (magit-get-top-dir)))))
+           (expand-file-name ".gitignore" (magit-toplevel)))))
     (make-directory (file-name-directory gitignore) t)
     (with-temp-buffer
       (when (file-exists-p gitignore)

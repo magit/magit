@@ -368,7 +368,7 @@ before switching to BUFFER."
         (sargs (cl-gensym "args"))
         (sbuf  (cl-gensym "buffer")))
     `(let* ((,smode ,mode)
-            (,sroot (magit-get-top-dir))
+            (,sroot (magit-toplevel))
             (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
             (,sbuf  (magit-mode-display-buffer ,buffer ,smode ,switch-func)))
@@ -430,7 +430,7 @@ derives from Magit mode; or else use `switch-to-buffer'."
 
 (defun magit-mode-get-buffers (&optional topdir)
   (unless topdir
-    (setq topdir (magit-get-top-dir)))
+    (setq topdir (magit-toplevel)))
   (--filter (with-current-buffer it
               (and (derived-mode-p 'magit-mode)
                    (equal default-directory topdir)))
@@ -440,7 +440,7 @@ derives from Magit mode; or else use `switch-to-buffer'."
   (if (not (string-match-p "%[ab]" format))
       (funcall (if create #'get-buffer-create #'get-buffer) format)
     (unless topdir
-      (setq topdir (magit-get-top-dir)))
+      (setq topdir (magit-toplevel)))
     (let ((name (format-spec format
                              `((?a . ,(abbreviate-file-name (or topdir "-")))
                                (?b . ,(if topdir
@@ -574,7 +574,7 @@ buffers that visit files being tracked in the current repository.
 When called interactively then the revert is forced."
   (interactive (list t))
   (when (or force (and magit-revert-buffers (not inhibit-magit-revert)))
-    (-when-let (topdir (magit-toplevel-safe))
+    (-when-let (topdir (magit-toplevel))
       (let* ((tracked (magit-revision-files "HEAD"))
              (buffers
               (if (> (length tracked)
@@ -683,16 +683,13 @@ is saved without asking, the user is asked about each modified
 buffer which visits a file in the current repository.  Optional
 argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
-  (-when-let (topdir (magit-get-top-dir default-directory))
+  (-when-let (topdir (magit-toplevel))
     (save-some-buffers
      arg (-partial (lambda (topdir)
                      (and buffer-file-name
                           ;; Avoid needlessly connecting to unrelated remotes.
                           (string-prefix-p topdir buffer-file-name)
-                          (equal (ignore-errors
-                                   (magit-get-top-dir default-directory))
-                                 topdir)
-                          (magit-inside-worktree-p)))
+                          (equal (ignore-errors (magit-toplevel nil t)) topdir)))
                    topdir))))
 
 ;;; Buffer History

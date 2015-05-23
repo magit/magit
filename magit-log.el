@@ -1042,7 +1042,7 @@ This sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (unpulled-modules)
       (magit-insert-heading "Unpulled modules:")
-      (let ((topdir (magit-get-top-dir)))
+      (let ((topdir (magit-toplevel)))
         (dolist (module modules)
           (let ((default-directory
                   (expand-file-name (file-name-as-directory module) topdir)))
@@ -1099,7 +1099,7 @@ These sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (unpushed-modules)
       (magit-insert-heading "Unpushed modules:")
-      (let ((topdir (magit-get-top-dir)))
+      (let ((topdir (magit-toplevel)))
         (dolist (module modules)
           (let ((default-directory
                   (expand-file-name (file-name-as-directory module) topdir)))

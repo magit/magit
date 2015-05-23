@@ -201,7 +201,7 @@ When the region is active offer to drop all contained stashes."
   (if (or (and index     (magit-staged-files t))
           (and worktree  (magit-modified-files t))
           (and untracked (magit-untracked-files (eq untracked 'all))))
-      (let ((default-directory (magit-get-top-dir)))
+      (magit-with-toplevel
         (magit-stash-store message (or ref "refs/stash")
                            (magit-stash-create message index worktree untracked))
         (if (eq keep 'worktree)
@@ -235,7 +235,7 @@ When the region is active offer to drop all contained stashes."
     (error "You do not have the initial commit yet"))
   (let ((magit-git-standard-options (nconc (list "-c" "commit.gpgsign=false")
                                            magit-git-standard-options))
-        (default-directory (magit-get-top-dir))
+        (default-directory (magit-toplevel))
         (conflicts (magit-anything-unmerged-p))
         (summary (magit-stash-summary))
         (head "HEAD"))

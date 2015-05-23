@@ -102,9 +102,9 @@ an error while using those is harder to recover from."
   :default-action 'magit-commit))
 
 (defun magit-commit-message-buffer ()
-  (let ((topdir (magit-get-top-dir)))
+  (let ((topdir (magit-toplevel)))
     (--first (equal topdir (with-current-buffer it
-                             (and git-commit-mode (magit-get-top-dir))))
+                             (and git-commit-mode (magit-toplevel))))
              (append (buffer-list (selected-frame))
                      (buffer-list)))))
 
@@ -318,7 +318,7 @@ actually insert the entry."
       (with-current-buffer buf
         (goto-char pos)
         (funcall magit-commit-add-log-insert-function log
-                 (file-relative-name buffer-file-name (magit-get-top-dir))
+                 (file-relative-name buffer-file-name (magit-toplevel))
                  (add-log-current-defun))))))
 
 (defun magit-commit-add-log-insert (buffer file defun)

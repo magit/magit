@@ -213,10 +213,10 @@ only arguments available from `magit-blame-popup' should be used.
          (if buffer-file-name
              (user-error "Buffer isn't visiting a tracked file")
            (user-error "Buffer isn't visiting a file"))))))
-  (let ((default-directory (magit-get-top-dir)))
+  (magit-with-toplevel
     (if revision
         (magit-find-file revision file)
-      (find-file (expand-file-name file (magit-get-top-dir))))
+      (find-file (expand-file-name file)))
     (when line
       (setq magit-blame-recursive-p t)
       (goto-char (point-min))

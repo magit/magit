@@ -371,11 +371,11 @@ With two prefix arguments prompt for an arbitrary directory.
 If that directory isn't the root of an existing repository
 then offer to initialize it as a new repository."
   (interactive
-   (list (and (or current-prefix-arg (not (magit-get-top-dir)))
+   (list (and (or current-prefix-arg (not (magit-toplevel)))
               (magit-read-repository
                (>= (prefix-numeric-value current-prefix-arg) 16)))))
   (if directory
-      (let ((toplevel (magit-toplevel-safe directory)))
+      (let ((toplevel (magit-toplevel directory)))
         (setq directory (file-name-as-directory (expand-file-name directory)))
         (if (and toplevel (string-equal (file-truename directory) toplevel))
             (magit-status-internal directory)
@@ -390,7 +390,7 @@ then offer to initialize it as a new repository."
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
 (defun magit-status-internal (directory &optional switch-function)
-  (let ((default-directory directory))
+  (let ((default-directory (file-name-as-directory directory)))
     (magit-mode-setup magit-status-buffer-name-format
                       (or switch-function
                           magit-status-buffer-switch-function)
@@ -867,7 +867,7 @@ existing one."
           (magit-git-insert "cat-file" "-p" (concat rev ":" file)))
         (setq magit-buffer-revision  (magit-rev-format "%H" rev)
               magit-buffer-refname   rev
-              magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
+              magit-buffer-file-name (expand-file-name file (magit-toplevel)))
         (let ((buffer-file-name magit-buffer-file-name))
           (normal-mode t))
         (setq buffer-read-only t)
@@ -892,7 +892,7 @@ existing one."
           (delete-file temp)))
       (setq magit-buffer-revision  "{index}"
             magit-buffer-refname   "{index}"
-            magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
+            magit-buffer-file-name (expand-file-name file (magit-toplevel)))
       (let ((buffer-file-name magit-buffer-file-name))
         (normal-mode t))
       (setq buffer-read-only t)
@@ -953,7 +953,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
    (let ((directory (file-name-as-directory
                      (expand-file-name
                       (read-directory-name "Create repository in: ")))))
-     (-when-let (toplevel (magit-toplevel-safe directory))
+     (-when-let (toplevel (magit-toplevel directory))
        (setq toplevel (expand-file-name toplevel))
        (unless (y-or-n-p (if (string-equal toplevel directory)
                              (format "Reinitialize existing repository %s? "
@@ -1232,7 +1232,7 @@ inspect the merge and change the commit message.
 (defun magit-checkout-stage (file arg &optional restore-conflict)
   "During a conflict checkout and stage side, or restore conflict."
   (interactive
-   (let ((default-directory (magit-get-top-dir))
+   (let ((default-directory (magit-toplevel))
          (file (magit-completing-read "Checkout file"
                                       (magit-tracked-files) nil nil nil
                                       'magit-read-file-hist
@@ -1674,7 +1674,7 @@ based on URL."
 (defun magit-submodule-init ()
   "Register submodules listed in .gitmodules into .git/config."
   (interactive)
-  (let ((default-directory (magit-get-top-dir)))
+  (magit-with-toplevel
     (magit-run-git-async "submodule" "init")))
 
 ;;;###autoload
@@ -1682,14 +1682,14 @@ based on URL."
   "Clone missing submodules and checkout appropriate commits.
 With a prefix argument also register submodules in .git/config."
   (interactive "P")
-  (let ((default-directory (magit-get-top-dir)))
+  (magit-with-toplevel
     (magit-run-git-async "submodule" "update" (and init "--init"))))
 
 ;;;###autoload
 (defun magit-submodule-sync ()
   "Update each submodule's remote URL according to .gitmodules."
   (interactive)
-  (let ((default-directory (magit-get-top-dir)))
+  (magit-with-toplevel
     (magit-run-git-async "submodule" "sync")))
 
 ;;;###autoload
@@ -1697,7 +1697,7 @@ With a prefix argument also register submodules in .git/config."
   "Fetch submodule.
 With a prefix argument fetch all remotes."
   (interactive "P")
-  (let ((default-directory (magit-get-top-dir)))
+  (magit-with-toplevel
     (magit-run-git-async "submodule" "foreach"
                          (format "git fetch %s || true" (if all "--all" "")))))
 
@@ -1774,7 +1774,7 @@ Run Git in the root of the current repository.
 
 (defun magit-git-command-read-args (&optional root)
   (let ((dir (if (or root current-prefix-arg)
-                 (or (magit-get-top-dir)
+                 (or (magit-toplevel)
                      (user-error "Not inside a Git repository"))
                default-directory)))
     (list (magit-read-string (format "Git subcommand (in %s)"
@@ -1808,7 +1808,7 @@ With prefix argument simply read a directory name using
                (user-error "Not a repository or a directory: %s" reply)))))
     (file-name-as-directory
      (read-directory-name "Git repository: "
-                          (or (magit-get-top-dir) default-directory)))))
+                          (or (magit-toplevel) default-directory)))))
 
 (defun magit-list-repos ()
   (--mapcat (magit-list-repos-1 it magit-repository-directories-depth)
@@ -1860,7 +1860,7 @@ a prefix argument is used, otherwise save the branch name."
                                (file-name-as-directory
                                 (expand-file-name
                                  (magit-section-parent-value section)
-                                 (magit-get-top-dir)))))
+                                 (magit-toplevel)))))
                          (setq value (magit-rev-parse value))))
         (t value))
       (kill-new (message "%s" value)))))
@@ -1879,7 +1879,8 @@ a prefix argument is used, otherwise save the branch name."
                                   "magit-section-when"
                                   "magit-bind-match-strings"
                                   "magit-with-temp-index"
-                                  "magit-with-blob") t)
+                                  "magit-with-blob"
+                                  "magit-with-toplevel") t)
                 "\\_>")
        . 1))))
 
