@@ -422,9 +422,6 @@ If the file is not inside a Git repository then return nil."
       (string-as-multibyte (read path))
     path))
 
-(defun magit-decode-git-paths (paths)
-  (mapcar #'magit-decode-git-path paths))
-
 (defun magit-file-at-point ()
   (magit-section-case
     (file (magit-section-value it))
