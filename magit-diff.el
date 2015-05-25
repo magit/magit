@@ -645,7 +645,7 @@ for a commit."
                                (file-name-as-directory
                                 (expand-file-name module (magit-toplevel)))
                              default-directory)))
-    (unless (magit-rev-verify "master")
+    (unless (magit-rev-verify commit)
       (user-error "%s is not a commit" commit))
     (-when-let (buffer (magit-mode-get-buffer
                         magit-revision-buffer-name-format
