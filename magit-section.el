@@ -877,7 +877,7 @@ invisible."
           (goto-char start)
           (unless (eq section magit-root-section)
             (ignore-errors
-              (forward-line (1- line))
+              (forward-line line)
               (forward-char char))
             (unless (eq (magit-current-section) it)
               (goto-char start))))
