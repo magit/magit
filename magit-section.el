@@ -875,7 +875,7 @@ invisible."
     (--if-let (magit-get-section ident)
         (let ((start (magit-section-start it)))
           (goto-char start)
-          (unless (eq section magit-root-section)
+          (unless (eq it magit-root-section)
             (ignore-errors
               (forward-line line)
               (forward-char char))
