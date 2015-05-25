@@ -339,7 +339,7 @@ selected from a list of recent commits.
     (magit-log-select
       `(lambda (commit)
          (magit-rebase-from ,newbase (concat commit "^") (list ,@args)))
-      (concat "Type %p on a commit to rebase it and"
+      (concat "Type %p on a commit to rebase it "
               "and commits above it onto " newbase ","))))
 
 ;;;###autoload
