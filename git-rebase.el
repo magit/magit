@@ -370,10 +370,10 @@ By default, this is the same except for the \"pick\" command."
                 "^#\\(  ?\\)\\([^,]\\)\\(,\\) \\([^ ]+\\) = " nil t)
           (replace-match " "       t t nil 1)
           (replace-match "       " t t nil 3)
-          (let ((command (intern (concat "git-rebase-" (match-string 4)))))
-            (when (fboundp command)
-              (replace-match (key-description (where-is-internal command nil t))
-                             t t nil 2))))))))
+          (let* ((cmd (intern (concat "git-rebase-" (match-string 4))))
+                 (key (where-is-internal cmd nil t)))
+            (when (and (fboundp cmd) key) ; see #1875
+              (replace-match (key-description key) t t nil 2))))))))
 
 (add-hook 'git-rebase-mode-hook 'git-rebase-mode-show-keybindings t)
 
