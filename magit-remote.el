@@ -162,8 +162,7 @@ then read the remote."
   "Popup console for push commands."
   'magit-commands
   :man-page "git-push"
-  :switches '((?f "Force safely"  "--force-with-lease") ; >= 1.8.5
-              (?F "Force"         "--force")
+  :switches '((?f "Force"         "--force-with-lease")
               (?h "Disable hooks" "--no-verify")
               (?d "Dry run"       "--dry-run")
               (?u "Set upstream"  "--set-upstream"))
