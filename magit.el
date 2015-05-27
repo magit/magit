@@ -395,7 +395,8 @@ then offer to initialize it as a new repository."
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
 (defun magit-status-internal (directory &optional switch-function)
-  (let ((default-directory (file-name-as-directory directory)))
+  (let ((default-directory (file-name-as-directory
+                            (expand-file-name directory))))
     (magit-mode-setup magit-status-buffer-name-format
                       (or switch-function
                           magit-status-buffer-switch-function)
