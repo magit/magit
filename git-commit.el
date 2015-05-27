@@ -371,7 +371,8 @@ usually honor this wish and return non-nil."
     (when (= (line-beginning-position)
              (line-end-position))
       (open-line 1)))
-  (run-hooks 'git-commit-setup-hook))
+  (run-hooks 'git-commit-setup-hook)
+  (set-buffer-modified-p nil))
 
 (defun git-commit-setup-font-lock ()
   (let ((table (make-syntax-table (syntax-table))))
