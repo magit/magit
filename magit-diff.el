@@ -1096,9 +1096,9 @@ section or a child thereof."
       (magit-diff-insert-file-section file orig status modes
                                       (concat blobA ".." blobB))))
    ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
-    (let ((status (cond ((equal (match-string 1) "git")        "modified")
-                        ((derived-mode-p 'magit-revision-mode) "resolved")
-                        (t                                     "unmerged")))
+    (let ((status (cond ((equal (match-string 1) "git")        "Modified")
+                        ((derived-mode-p 'magit-revision-mode) "Resolved")
+                        (t                                     "Unmerged")))
           (orig (match-string 2))
           (file (match-string 2))
           modes blobs)
@@ -1132,7 +1132,7 @@ section or a child thereof."
   (magit-insert-section section
     (file file (or (equal status "deleted")
                    (derived-mode-p 'magit-status-mode)))
-    (insert (propertize (format "%-10s %s\n" status
+    (insert (propertize (format "\t%-10s %s\n" status
                                 (if (equal orig file)
                                     file
                                   (format "%s -> %s" orig file)))
