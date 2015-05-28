@@ -488,9 +488,7 @@ To make this command available use something like:
 (defun magit-format-status-tag-sentence (tag count next)
   (concat (propertize tag 'face 'magit-tag)
           (and (> count 0)
-               (format " (%s)"
-                       (propertize (format "%s" count) 'face
-                                   (if next 'magit-tag 'magit-branch-local))))))
+               (format " (%s ahead)" count))))
 
 (magit-define-section-jumper tracked "Tracked files")
 
