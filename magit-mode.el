@@ -150,20 +150,21 @@ NUMBER    An integer or float.  Revert the buffers asynchronously,
          (set-default var val)
          (magit-revert-buffers-set-timer)))
 
-(defcustom magit-after-revert-hook nil
+(defcustom magit-after-revert-hook '(magit-refresh-vc-mode-line)
   "Normal hook for `magit-revert-buffer' to run after reverting."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
-  :type 'hook)
+  :type 'hook
+  :options '(magit-refresh-vc-mode-line))
 
-(defcustom magit-not-reverted-hook nil
+(defcustom magit-not-reverted-hook '(magit-refresh-vc-mode-line)
   "Normal hook for `magit-revert-buffer' to run instead of reverting.
 Run if the visited file has not changed on disk and the buffer
-therefor does not have to be reverted.  While Magit does not need
-to do anything in that case, some third-party extensions do."
+therefor does not have to be reverted."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
-  :type 'hook)
+  :type 'hook
+  :options '(magit-refresh-vc-mode-line))
 
 (defcustom magit-save-repository-buffers t
   "Whether to save modified buffers when approriate.
@@ -674,11 +675,30 @@ When called interactively then the revert is forced."
               (message "Reverting buffer `%s'...done" (buffer-name)))
             (run-hooks 'magit-after-revert-hook)
             (setq ret t))
-        (run-hooks 'magit-not-reverted-hook))
-      (vc-find-file-hook))
+        (run-hooks 'magit-not-reverted-hook)))
     ret))
 
-(add-hook 'git-commit-setup-hook 'magit-revert-buffers)
+(add-hook 'git-commit-setup-hook #'magit-revert-buffers)
+
+(defun magit-refresh-vc-mode-line ()
+  "Update `vc-mode' which is displayed in the mode-line.
+Like `vc-mode-line' but simpler, more efficient, and less buggy."
+  (setq vc-mode
+        (if vc-display-status
+            (let* ((rev (or (magit-get-current-branch)
+                            (magit-rev-parse "--short" "HEAD")))
+                   (msg (cl-letf (((symbol-function #'vc-working-revision)
+                                   (lambda (&rest _) rev)))
+                          (vc-default-mode-line-string 'Git buffer-file-name))))
+              (propertize
+               (concat " " msg)
+               'mouse-face 'mode-line-highlight
+               'help-echo (concat (get-text-property 0 'help-echo msg)
+                                  "\nCurrent revision: " rev
+                                  "\nmouse-1: Version Control menu")
+               'local-map vc-mode-line-map))
+          " Git"))
+  (force-mode-line-update))
 
 (defvar disable-magit-save-buffers nil)
 
