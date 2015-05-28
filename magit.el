@@ -528,7 +528,7 @@ Do so depending on the value of `status.showUntrackedFiles'."
             (magit-insert-heading "Untracked files:")
             (dolist (file files)
               (magit-insert-section (file file)
-                (insert (propertize file 'face 'magit-filename) ?\n))))
+                  (insert "\t" (propertize file 'face 'magit-filename) ?\n))))
           (insert ?\n))))))
 
 (defun magit-insert-un/tracked-files-1 (files directory)
