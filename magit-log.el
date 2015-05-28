@@ -1180,7 +1180,8 @@ These sections can be expanded to show the respective commits."
       (set-window-margins nil (car (window-margins)) magit-show-margin))))
 
 (defun magit-make-margin-overlay (&rest strings)
-  (let ((o (make-overlay (point) (line-end-position) nil t)))
+  ;; Don't put the overlay on the complete line to work around #1880.
+  (let ((o (make-overlay (1+ (point)) (line-end-position) nil t)))
     (overlay-put o 'evaporate t)
     (overlay-put o 'before-string
                  (propertize "o" 'display
