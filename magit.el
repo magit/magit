@@ -440,14 +440,14 @@ To make this command available use something like:
   "Insert a header line showing the path to the repository top-level."
   (let ((topdir (magit-toplevel)))
     (magit-insert-section (repo topdir)
-      (magit-insert (concat (magit-string-pad "Repo: " 10) topdir)))))
+      (magit-insert (format "%-10s%s" "Repo: " topdir)))))
 
 (defun magit-insert-remote-header ()
   "Insert a header line about the remote of the current branch."
   (-when-let (remote (magit-get-remote))
     (magit-insert-section (remote remote)
       (magit-insert
-       (concat (magit-string-pad "Remote: " 10)
+       (concat (format "%-10" "Remote: ")
                (propertize remote 'face 'magit-branch-remote) " "
                (magit-get "remote" remote "url") "\n")))))
 
@@ -462,7 +462,7 @@ To make this command available use something like:
           (setf (magit-section-type it) 'commit))
         (magit-insert
          (concat
-          (magit-string-pad "Head: " 10)
+          (format "%-10s" "Head: ")
           (propertize hash 'face 'magit-hash) " "
           (and branch
                (concat (propertize branch 'face 'magit-branch-local) " "))
@@ -478,7 +478,7 @@ To make this command available use something like:
       (magit-insert-section (branch upstream)
         (magit-insert
          (concat
-          (magit-string-pad "Upstream: " 10)
+          (format "%-10s" "Upstream: ")
           (if hash (propertize hash 'face 'magit-hash) "missing") " "
           (and (magit-get-boolean "branch" branch "rebase") "onto ")
           (propertize upstream 'face
@@ -487,7 +487,7 @@ To make this command available use something like:
                         'magit-branch-remote))
           " " msg "\n"))))))
 
-(defun magit-insert-tags-header (&optional pad)
+(defun magit-insert-tags-header ()
   "Insert a header line about the current and/or next tag."
   (let* ((this-tag (magit-get-current-tag nil t))
          (next-tag (magit-get-next-tag nil t))
@@ -500,7 +500,7 @@ To make this command available use something like:
       (magit-insert-section (tag (or this-tag next-tag))
         (magit-insert
          (concat
-          (magit-string-pad (if both-tags "Tags: " "Tag: ") (or pad 10))
+          (format "%-10s" (if both-tags "Tags: " "Tag: "))
           (and this-tag (magit-format-status-tag-sentence this-tag this-cnt nil))
           (and both-tags ", ")
           (and next-tag (magit-format-status-tag-sentence next-tag next-cnt t))

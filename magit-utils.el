@@ -318,9 +318,6 @@ as STRING."
                (--map (list it (list 'match-string (cl-incf i) s)) varlist))
          ,@body))))
 
-(defun magit-string-pad (string width)
-  (concat string (make-string (max 0 (- width (length string))) ?\s)))
-
 (defun magit-delete-line ()
   "Delete the rest of the current line."
   (delete-region (point) (1+ (line-end-position))))
