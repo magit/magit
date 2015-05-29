@@ -177,7 +177,8 @@ the beginning of the current section."
        ((and (= (point) (1- (magit-section-end section)))
              (setq children (magit-section-children section)))
         (magit-section-goto (car (last children))))
-       ((not (= (point) (magit-section-start section)))
+       ((and (magit-section-parent section)
+             (not (= (point) (magit-section-start section))))
         (magit-section-goto section))
        (t
         (let ((prev (car (magit-section-siblings section 'prev))))
