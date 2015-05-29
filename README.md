@@ -1,6 +1,8 @@
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/magit/magit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Support](https://img.shields.io/badge/get-help-blue.svg)](#getting-help)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)][gitter]
 [![Build Status](https://travis-ci.org/magit/magit.svg?branch=master)](https://travis-ci.org/magit/magit)
 [![Gratipay](http://img.shields.io/gratipay/magit.png)](https://www.gratipay.com/magit)
+[![Donations](https://img.shields.io/badge/please-donate-ff69b4.svg)][donations]
 
 It's Magit!  A Git Porcelain inside Emacs
 =========================================
@@ -112,6 +114,7 @@ Thanks to all of you, may (the history of) the source be with you!
 [manual]:       http://magit.vc/manual/next
 
 [emacsstack]:   http://emacs.stackexchange.com/questions/tagged/magit
+[gitter]:       https://gitter.im/magit/magit
 [group]:        https://groups.google.com/forum/?fromgroups#!forum/magit
 
 [emacs]: http://www.gnu.org/software/emacs
