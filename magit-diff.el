@@ -245,6 +245,12 @@ The following `format'-like specs are supported:
   :safe 'booleanp
   :type 'boolean)
 
+(defcustom magit-revision-show-fuller nil
+  "Whether to show 4 fields instead of just Author and Date."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-revision
+  :type 'boolean)
+
 (defcustom magit-revision-show-xref-buttons t
   "Whether to show buffer history buttons in commit buffers."
   :package-version '(magit . "2.1.0")
@@ -1225,7 +1231,9 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 (defun magit-revision-refresh-buffer (commit args)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-diff-wash-revision
-      "show" "-p" "--cc" "--decorate=full" "--format=fuller" "--no-prefix"
+      "show" "-p" "--cc" "--decorate=full"
+      (and magit-revision-show-fuller "--format=fuller")
+      "--no-prefix"
       (and magit-revision-show-diffstat "--stat")
       (and magit-revision-show-notes "--notes")
       args commit "--")))
