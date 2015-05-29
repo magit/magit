@@ -427,7 +427,7 @@ To make this command available use something like:
   "Insert headers appropriate for `magit-status-mode' buffers."
   (unless branch
     (setq branch (magit-get-current-branch)))
-  (-if-let  (hash (magit-rev-verify "HEAD"))
+  (-if-let (hash (magit-rev-verify "HEAD"))
       (let ((line (magit-rev-format "%h %s" "HEAD")))
         (string-match "^\\([^ ]+\\) \\(.*\\)" line)
         (magit-bind-match-strings (hash msg) line
@@ -435,28 +435,33 @@ To make this command available use something like:
             (unless branch
               (setf (magit-section-type it) 'commit))
             (magit-insert-heading
-              (magit-string-pad "Head: " 10)
-              (propertize hash 'face 'magit-hash) " "
-              (and branch
-                   (concat (propertize branch 'face 'magit-branch-local) " "))
-              msg "\n")
+                (magit-string-pad "Local: " 10)
+                (and branch
+                 (concat (propertize branch 'face 'magit-branch-local) " "))
+              (abbreviate-file-name default-directory)
+              "\n")
             (when (and (or upstream
                            (setq upstream (magit-get-tracked-branch branch)))
                        (setq line (magit-rev-format "%h %s" upstream)))
               (string-match "^\\([^ ]+\\) \\(.*\\)" line)
               (magit-bind-match-strings (hash msg) line
                 (magit-insert-section (branch upstream)
-                  (magit-insert
-                   (concat
-                    (magit-string-pad "Upstream: " 10)
-                    (if hash (propertize hash 'face 'magit-hash) "missing") " "
-                    (and (magit-get-boolean "branch" branch "rebase") "onto ")
-                    (propertize
-                     upstream 'face
-                     (if (string= (magit-get "branch" branch "remote") ".")
-                         'magit-branch-local
-                       'magit-branch-remote))
-                    " " msg "\n")))))
+                    (magit-insert
+                     (concat
+                      (magit-string-pad "Remote: " 10)
+                      (and (magit-get-boolean "branch" branch "rebase") "onto ")
+                      (propertize
+                       upstream 'face
+                       (if (string= (magit-get "branch" branch "remote") ".")
+                           'magit-branch-local
+                         'magit-branch-remote))
+                      " (" (magit-get "remote" (magit-get "branch" branch "remote") "url") ")\n")))))
+            (magit-insert-heading
+                (magit-string-pad "Head: " 10)
+                (propertize hash 'face 'magit-hash) " "
+                (and branch
+                     (concat (propertize branch 'face 'magit-branch-local) " "))
+                msg "\n")
             (run-hooks 'magit-status-headers-hook)
             (insert "\n"))))
     (insert "In the beginning there was darkness\n\n")))
@@ -483,9 +488,7 @@ To make this command available use something like:
 (defun magit-format-status-tag-sentence (tag count next)
   (concat (propertize tag 'face 'magit-tag)
           (and (> count 0)
-               (format " (%s)"
-                       (propertize (format "%s" count) 'face
-                                   (if next 'magit-tag 'magit-branch-local))))))
+               (format " (%s ahead)" count))))
 
 (magit-define-section-jumper tracked "Tracked files")
 
@@ -525,7 +528,7 @@ Do so depending on the value of `status.showUntrackedFiles'."
             (magit-insert-heading "Untracked files:")
             (dolist (file files)
               (magit-insert-section (file file)
-                (insert (propertize file 'face 'magit-filename) ?\n))))
+                  (insert "\t" (propertize file 'face 'magit-filename) ?\n))))
           (insert ?\n))))))
 
 (defun magit-insert-un/tracked-files-1 (files directory)

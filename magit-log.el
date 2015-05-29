@@ -693,7 +693,9 @@ For internal use; don't add to a hook."
     (magit-delete-match)
     (magit-insert-section section (commit hash)
       (pcase style
-        (`stash      (setf (magit-section-type section) 'stash))
+        (`stash      (when (string-match "stash@{\\([0-9]+\\)}" hash)
+                       (setq hash (format "%s:" (match-string 1 hash))))
+                     (setf (magit-section-type section) 'stash))
         (`module     (setf (magit-section-type section) 'module-commit))
         (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
       (when cherry
