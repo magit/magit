@@ -252,6 +252,8 @@ depending on the value of option `magit-commit-squash-confirm'.
    ((and (file-exists-p (magit-git-dir "MERGE_MSG"))
          (not (magit-anything-unstaged-p)))
     (or args (list "--")))
+   ((not (magit-anything-unstaged-p))
+    (user-error "Nothing staged (or unstaged)"))
    (magit-commit-ask-to-stage
     (when (magit-diff-auto-show-p 'stage-all)
       (magit-diff-unstaged))
