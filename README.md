@@ -1,3 +1,4 @@
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/magit/magit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Build Status](https://travis-ci.org/magit/magit.svg?branch=master)](https://travis-ci.org/magit/magit)
 [![Gratipay](http://img.shields.io/gratipay/magit.png)](https://www.gratipay.com/magit)
 
@@ -69,8 +70,11 @@ Getting Help
 When something doesn't work as expected please see the [FAQ][faq], and
 the list of [open issues][issues], and use the search box at the top
 of the latter to find older related issues.  If everything else fails
-ask for help on the [Emacs Stackexchange][emacsstack] site or the
-[mailing list][group].
+ask for help on the [Magit Gitter channel][gitter], the
+[Emacs Stackexchange][emacsstack] site or the [mailing list][group].
+
+**Please only use the Github issue tracker for feature requests and bug
+reports - not for support requests.**
 
 Contributions
 =============
