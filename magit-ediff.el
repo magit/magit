@@ -221,11 +221,15 @@ mind at all, then it asks the user for a command to run."
                 (unpulled (setq revA (magit-get-current-branch)
                                 revB (magit-get-tracked-branch)
                                 range (concat revA ".." revB)))
-                (t (setq command
-                         (cond ((not file) nil)
-                               ((magit-anything-unmerged-p file)
-                                'magit-ediff-resolve)
-                               (t 'magit-ediff-stage)))))))
+                ((staged unstaged)
+                 (setq command (if (magit-anything-unmerged-p)
+                                   'magit-ediff-resolve
+                                 'magit-ediff-stage)))
+                (t
+                 (setq command (cond ((not file) nil)
+                                     ((magit-anything-unmerged-p file)
+                                      'magit-ediff-resolve)
+                                     (t 'magit-ediff-stage)))))))
        (cond ((not command)
               (call-interactively
                (magit-read-char-case
