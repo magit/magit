@@ -591,6 +591,11 @@ at point."
 (defvar magit-insert-section--parent  nil "For internal use only.")
 (defvar magit-insert-section--oldroot nil "For internal use only.")
 
+(defvar magit-insert-section-hook nil
+  "Hook run after `magit-insert-section's BODY.
+Avoid using this hook and only ever do so if you know
+what you are doing and are sure there is no other way.")
+
 (defmacro magit-insert-section (&rest args)
   "Insert a section at point.
 
@@ -657,6 +662,7 @@ anything this time around.
                       (setq magit-root-section ,s))))))
          (catch 'cancel-section
            ,@(cdr args)
+           (run-hooks 'magit-insert-section-hook)
            (magit-insert-child-count ,s)
            (set-marker-insertion-type (magit-section-start ,s) t)
            (let* ((end (setf (magit-section-end ,s) (point-marker)))
@@ -727,6 +733,28 @@ insert a newline character if necessary."
   (unless (bolp)
     (insert ?\n))
   (setf (magit-section-content magit-insert-section--current) (point-marker)))
+
+(defvar magit-insert-headers-hook nil "For internal use only.")
+
+(defun magit-insert-headers (hooks)
+  (let ((magit-insert-section-hook
+         (cons 'magit-insert-remaining-headers
+               (if (listp magit-insert-section-hook)
+                   magit-insert-section-hook
+                 (list magit-insert-section-hook))))
+        (magit-insert-headers-hook hooks)
+        wrapper)
+    (while (and (setq wrapper (pop magit-insert-headers-hook))
+                (= (point) (point-min)))
+      (funcall wrapper))))
+
+(defun magit-insert-remaining-headers ()
+  (if (= (point) (point-min))
+      (magit-cancel-section)
+    (magit-insert-heading)
+    (remove-hook 'magit-insert-section-hook 'magit-insert-remaining-headers)
+    (mapc #'funcall magit-insert-headers-hook)
+    (insert "\n")))
 
 (defun magit-insert-child-count (section)
   "Modify SECTION's heading to contain number of child sections.

@@ -33,9 +33,10 @@
 (require 'magit-core)
 (require 'magit-diff)
 
-(declare-function magit-read-file-from-rev 'magit)
 (declare-function magit-blame-chunk-get 'magit-blame)
-(declare-function magit-insert-status-headers 'magit)
+(declare-function magit-insert-head-header 'magit)
+(declare-function magit-insert-upstream-header 'magit)
+(declare-function magit-read-file-from-rev 'magit)
 (declare-function magit-show-commit 'magit)
 (defvar magit-blame-mode)
 (defvar magit-refs-indent-cherry-lines)
@@ -943,8 +944,10 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 
 (defun magit-insert-cherry-headers ()
   "Insert headers appropriate for `magit-cherry-mode' buffers."
-  (magit-insert-status-headers (nth 1 magit-refresh-args)
-                               (nth 0 magit-refresh-args)))
+  (magit-insert-head-header (nth 1 magit-refresh-args))
+  (magit-insert-upstream-header (nth 1 magit-refresh-args)
+                                (nth 0 magit-refresh-args))
+  (insert ?\n))
 
 (defun magit-insert-cherry-commits ()
   "Insert commit sections into a `magit-cherry-mode' buffer."
