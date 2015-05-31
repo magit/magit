@@ -440,14 +440,15 @@ To make this command available use something like:
   "Insert a header line showing the path to the repository top-level."
   (let ((topdir (magit-toplevel)))
     (magit-insert-section (repo topdir)
-      (magit-insert (format "%-10s%s" "Repo: " topdir)))))
+        (magit-insert (format "%-10s%s" "Repo: "
+                              (abbreviate-file-name topdir))))))
 
 (defun magit-insert-remote-header ()
   "Insert a header line about the remote of the current branch."
   (-when-let (remote (magit-get-remote))
     (magit-insert-section (remote remote)
       (magit-insert
-       (concat (format "%-10" "Remote: ")
+       (concat (format "%-10s" "Remote: ")
                (propertize remote 'face 'magit-branch-remote) " "
                (magit-get "remote" remote "url") "\n")))))
 
