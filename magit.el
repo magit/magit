@@ -112,23 +112,13 @@ at all."
     magit-insert-stashes
     magit-insert-unpulled-commits
     magit-insert-unpushed-commits)
-  "Hook run to insert sections into a status buffer.
-
-This option allows reordering the sections and adding sections
-that are by default displayed in other Magit buffers.  Doing the
-latter is currently not recommended because not all functions
-that insert sections have been adapted yet.  Only inserters that
-take no argument can be used and some functions exist that begin
-with the `magit-insert-' prefix but do not insert a section.
-
-Note that there are already plans to improve this and to add
-similar hooks for other Magit modes."
+  "Hook run to insert sections into a status buffer."
   :package-version '(magit . "2.1.0")
   :group 'magit-status
   :type 'hook)
 
 (defcustom magit-status-refresh-hook nil
-  "Hook run after the status buffer has been refreshed."
+  "Hook run after a status buffer has been refreshed."
   :package-version '(magit . "2.1.0")
   :group 'magit-status
   :type 'hook)
@@ -431,7 +421,9 @@ To make this command available use something like:
   (run-hooks 'magit-status-refresh-hook))
 
 (defun magit-insert-status-headers ()
-  "Insert headers appropriate for `magit-status-mode' buffers."
+  "Insert header sections appropriate for `magit-status-mode' buffers.
+The sections are inserted by running the functions on the hook
+`magit-status-headers-hook'."
   (if (magit-rev-verify "HEAD")
       (magit-insert-headers magit-status-headers-hook)
     (insert "In the beginning there was darkness\n\n")))

@@ -1038,7 +1038,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 If an upstream is configured for the current branch and it is
 ahead of the current branch, then show the missing commits,
 otherwise show the last `magit-log-section-commit-count'
-commits. "
+commits."
   (let ((tracked (magit-get-tracked-ref)))
     (if (and tracked (not (equal (magit-rev-parse "HEAD")
                                  (magit-rev-parse tracked))))
@@ -1067,7 +1067,7 @@ with \"-\"."
 
 (defun magit-insert-unpulled-module-commits ()
   "Insert sections for all submodules with unpulled commits.
-This sections can be expanded to show the respective commits."
+These sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (unpulled-modules)
       (magit-insert-heading "Unpulled modules:")
