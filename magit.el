@@ -1081,7 +1081,13 @@ defaulting to the branch at point."
                    (user-error "Abort")))))
        (user-error "Abort"))
      (list branches force)))
-  (let ((ref (magit-ref-fullname (car branches))))
+  (let ((ref (car (-filter #'magit-ref-fullname branches))))
+    (unless ref
+      (magit-read-char-case "Ambigious ref(s).  Do you want to delete " nil
+        (?r "[r]emote branch(es)"
+            (setq ref (concat "refs/remotes/" (car branches))))
+        (?l "or [l]ocal branch(es)"
+            (setq ref (concat "refs/heads/" (car branches))))))
     (cond
      ((string-match "^refs/remotes/\\([^/]+\\)" ref)
       (let* ((remote (match-string 1 ref))
