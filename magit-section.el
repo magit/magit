@@ -878,7 +878,7 @@ If SELECTION is non-nil then it is a list of sections selected by
 the region.  The headings of these sections are then highlighted.
 
 This is a fallback for people who don't want to highlight the
-current section and therefor removed `magit-section-highlight'
+current section and therefore removed `magit-section-highlight'
 from `magit-section-highlight-hook'.
 
 This function is necessary to ensure that a representation of

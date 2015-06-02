@@ -200,7 +200,7 @@ The value is a list of cons cells.  The car is a regular
 expression, and the cdr is the value that applies to repositories
 whose directory matches the regular expression.  If more than one
 element matches, then the *last* element in the list applies.
-The default value should therefor come first in the list.
+The default value should therefore come first in the list.
 
 If the value is `tabs', highlight indentation with tabs.  If the
 value is an integer, highlight indentation with at least that
