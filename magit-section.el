@@ -853,7 +853,8 @@ found in STRING."
         (restore-buffer-modified-p nil)
         (unless (eq magit-section-highlighted-section section)
           (setq magit-section-highlighted-section
-                (unless (magit-section-hidden section) section)))))))
+                (unless (magit-section-hidden section) section))))
+      (setq deactivate-mark nil))))
 
 (defun magit-section-highlight (section selection)
   "Highlight SECTION and if non-nil all SELECTION.
