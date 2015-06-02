@@ -160,7 +160,7 @@ NUMBER    An integer or float.  Revert the buffers asynchronously,
 (defcustom magit-not-reverted-hook '(magit-refresh-vc-mode-line)
   "Normal hook for `magit-revert-buffer' to run instead of reverting.
 Run if the visited file has not changed on disk and the buffer
-therefor does not have to be reverted."
+therefore does not have to be reverted."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'hook
