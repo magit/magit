@@ -71,13 +71,27 @@
   :group 'magit-process
   :type 'string)
 
-(defcustom magit-git-standard-options
+(defcustom magit-git-global-arguments
   '("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true")
-  "Standard options when running Git.
-Be careful what you add here, especially if you are using
-Tramp to connect to servers with ancient Git versions."
-  :group 'magit-process
+  "Global git arguments.
+
+The arguments set here are used every time the git executable is
+run as a subprocess.  They are placed right after the executable
+itself and before the git command - as in `git HERE... COMMAND
+REST'.  See the manpage `git(1)' for valid arguments.
+
+Be careful what you add here, especially if you are using Tramp
+to connect to servers with ancient Git versions.  Never remove
+anything that is part of the default value, unless you really
+know what you are doing.  And think very hard before adding
+something; it will be used every time Magit runs Git for any
+purpose."
+  :package-version '(magit . "2.1.0")
+  :group 'magit
   :type '(repeat string))
+
+(define-obsolete-variable-alias 'magit-git-standard-options
+  'magit-git-global-arguments "2.1.0")
 
 (defcustom magit-git-debug nil
   "Whether to enable additional reporting of Git errors.
@@ -139,7 +153,7 @@ pass arguments through this function before handing them to Git,
 to do the following.
 
 * Flatten ARGS, removing nil arguments.
-* Prepend `magit-git-standard-options' to ARGS.
+* Prepend `magit-git-global-arguments' to ARGS.
 * Quote arguments as required when using Powershell together
   with Cygwin Git.  See #816."
   (setq args (-flatten args))
@@ -149,7 +163,7 @@ to do the following.
     (setq args (--map (replace-regexp-in-string
                        "{\\([0-9]+\\)}" "\\\\{\\1\\\\}" it)
                       args)))
-  (append magit-git-standard-options args))
+  (append magit-git-global-arguments args))
 
 (defun magit-git-exit-code (&rest args)
   "Execute Git with ARGS, returning its exit code."

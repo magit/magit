@@ -185,7 +185,7 @@ a non-zero status, then raise an error."
   "Call Git synchronously in a separate process, and refresh.
 
 Option `magit-git-executable' specifies the Git executable and
-option `magit-git-standard-options' specifies constant arguments.
+option `magit-git-global-arguments' specifies constant arguments.
 The arguments ARGS specify arguments to Git, they are flattened
 before use.
 
@@ -203,7 +203,7 @@ variable `magit-process-buffer-name-format'."
   "Call Git synchronously in a separate process, and refresh.
 
 Option `magit-git-executable' specifies the Git executable and
-option `magit-git-standard-options' specifies constant arguments.
+option `magit-git-global-arguments' specifies constant arguments.
 The arguments ARGS specify arguments to Git, they are flattened
 before use.
 
@@ -219,7 +219,7 @@ variable `magit-process-buffer-name-format'."
   "Call Git synchronously in a separate process.
 
 Option `magit-git-executable' specifies the Git executable and
-option `magit-git-standard-options' specifies constant arguments.
+option `magit-git-global-arguments' specifies constant arguments.
 The arguments ARGS specify arguments to Git, they are flattened
 before use.
 
@@ -250,7 +250,7 @@ process' standard input.  It may also be nil in which case the
 current buffer is used.
 
 Option `magit-git-executable' specifies the Git executable and
-option `magit-git-standard-options' specifies constant arguments.
+option `magit-git-global-arguments' specifies constant arguments.
 The remaining arguments ARGS specify arguments to Git, they are
 flattened before use.
 
@@ -360,7 +360,7 @@ existing buffer.  The buffer content becomes the processes
 standard input.
 
 Option `magit-git-executable' specifies the Git executable and
-option `magit-git-standard-options' specifies constant arguments.
+option `magit-git-global-arguments' specifies constant arguments.
 The remaining arguments ARGS specify arguments to Git, they are
 flattened before use.
 
@@ -450,7 +450,7 @@ tracked in the current repository are reverted if
       (insert (propertize program 'face 'magit-section-heading))
       (insert " ")
       (when (and args (equal program magit-git-executable))
-        (setq args (-split-at (length magit-git-standard-options) args))
+        (setq args (-split-at (length magit-git-global-arguments) args))
         (insert (propertize (char-to-string magit-ellipsis)
                             'face 'magit-section-heading
                             'help-echo (mapconcat #'identity (car args) " ")))
@@ -517,7 +517,7 @@ tracked in the current repository are reverted if
             (magit-get-section
              `((commit . ,(magit-rev-parse "HEAD"))
                (,(pcase (car (cadr (-split-at
-                                    (1+ (length magit-git-standard-options))
+                                    (1+ (length magit-git-global-arguments))
                                     (process-command process))))
                    ((or "rebase" "am")   'rebase-sequence)
                    ((or "cherry-pick" "revert") 'sequence)))
@@ -631,7 +631,7 @@ tracked in the current repository are reverted if
 
 (defun magit-process-set-mode-line (program args)
   (when (equal program magit-git-executable)
-    (setq args (nthcdr (length magit-git-standard-options) args)))
+    (setq args (nthcdr (length magit-git-global-arguments) args)))
   (let ((str (concat " " program (and args (concat " " (car args))))))
     (dolist (buf (magit-mode-get-buffers))
       (with-current-buffer buf (setq mode-line-process str)))))
