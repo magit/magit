@@ -121,6 +121,18 @@ member of `magit-section-highlight-hook', which see."
   :group 'magit-diff
   :type 'boolean)
 
+(defcustom magit-diff-show-lines-boundary t
+  "Whether to delimit hunk-internal region with thin lines.
+
+When a hunk-internal region (used to stage just the lines that
+fall into the region instead of the complete hunk) only covers
+context lines, then these lines are the only visual indicator
+for the region.  In character-only terminals it's not possible
+to draw thin lines."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 (defcustom magit-diff-show-diffstat t
   "Whether to show diffstat in diff buffers."
   :package-version '(magit . "2.1.0")
@@ -1693,14 +1705,15 @@ are highlighted."
         (ov sbeg cbeg 'face 'magit-diff-lines-heading
             'display (concat (magit-diff-hunk-region-header section) "\n"))
         (ov cbeg rbeg 'face face 'priority 2)
-        (ov rbeg (1+ rbeg) 'before-string
-            (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                                (propertize "\n" 'line-height t))
-                        'face 'magit-diff-lines-boundary))
-        (ov rend (1+ rend) 'after-string
-            (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                                (propertize "\n" 'line-height t))
-                        'face 'magit-diff-lines-boundary))
+        (when (and (window-system) magit-diff-show-lines-boundary)
+          (ov rbeg (1+ rbeg) 'before-string
+              (propertize (concat (propertize "\s" 'display '(space :height (1)))
+                                  (propertize "\n" 'line-height t))
+                          'face 'magit-diff-lines-boundary))
+          (ov rend (1+ rend) 'after-string
+              (propertize (concat (propertize "\s" 'display '(space :height (1)))
+                                  (propertize "\n" 'line-height t))
+                          'face 'magit-diff-lines-boundary)))
         (ov (1+ rend) send 'face face 'priority 2)))))
 
 ;;; Diff Extract
