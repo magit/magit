@@ -1095,8 +1095,8 @@ defaulting to the branch at point."
           (t
            (format "%s of these names are" len))))))
     (cond
-     ((string-match "^refs/remotes/\\([^/]+\\)" ref)
-      (let* ((remote (match-string 1 ref))
+     ((string-match "^refs/remotes/\\([^/]+\\)" (car refs))
+      (let* ((remote (match-string 1 (car refs)))
              (offset (1+ (length remote))))
         (magit-run-git-async
          "push" remote (--map (concat ":" (substring it offset)) branches))))
