@@ -532,11 +532,7 @@ string \"true\", otherwise return nil."
       rev)))
 
 (defun magit-ref-fullname (name)
-  "Return the symbolic full name of NAME.
-If name is ambiguous return nil."
-  (let ((full (magit-rev-parse "--symbolic-full-name" name)))
-    (unless (string-match-p " " full)
-      full)))
+  (magit-rev-parse "--symbolic-full-name" name))
 
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))
