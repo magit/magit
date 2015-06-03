@@ -1683,7 +1683,9 @@ are highlighted."
 (defvar magit-diff-unmarked-lines-keep-foreground t)
 
 (defun magit-diff-update-hunk-region (section)
-  (when (eq (magit-diff-scope section t) 'region)
+  (when (and (eq (magit-diff-scope section t) 'region)
+             (not (and (eq this-command 'mouse-drag-region)
+                       (eq (mark) (point)))))
     (let ((sbeg (magit-section-start section))
           (cbeg (magit-section-content section))
           (rbeg (save-excursion (goto-char (region-beginning))
