@@ -1081,7 +1081,19 @@ defaulting to the branch at point."
                    (user-error "Abort")))))
        (user-error "Abort"))
      (list branches force)))
-  (let ((ref (magit-ref-fullname (car branches))))
+  (let* ((refs (-map #'magit-ref-fullname branches))
+         (ambiguous (--filter (not it) refs)))
+    (when ambiguous
+      (user-error
+       "%s ambiguous.  Please cleanup using git directly."
+       (let ((len (length ambiguous)))
+         (cond
+          ((= len 1)
+           (format "%s is" (--first (not (magit-ref-fullname it)) branches)))
+          ((= len (length refs))
+           (format "These %s names are" len))
+          (t
+           (format "%s of these names are" len))))))
     (cond
      ((string-match "^refs/remotes/\\([^/]+\\)" ref)
       (let* ((remote (match-string 1 ref))
