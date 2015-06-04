@@ -167,13 +167,14 @@ therefore does not have to be reverted."
   :options '(magit-refresh-vc-mode-line))
 
 (defcustom magit-save-repository-buffers t
-  "Whether to save modified buffers when approriate.
+  "Whether to save file-visiting buffers when appropriate.
 
-If this is non-nil then modified buffers belonging to the current
-repository may be saved when the status buffer is being refreshed
-and before a checkout is performed.  When the value is `dontask'
-then this is done without user intervention, when it is t then
-the user has to confirm each save."
+If this is non-nil then all modified file-visiting buffers
+belonging to the current repository may be saved before running
+commands, before creating new Magit buffers, and before
+explicitly refreshing such buffers.  It this is `dontask' then
+this is done without user intervention, if it is t then the user
+has to confirm each save."
   :group 'magit
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Ask" t)
@@ -468,7 +469,7 @@ With a prefix argument, kill the buffer instead.
 If `magit-restore-window-configuration' is non-nil and the last
 configuration stored by `magit-mode-display-buffer' originates
 from the selected frame then restore it after burying/killing
-the buffer.  Finally reset the window configuration to nil."
+the buffer."
   (interactive "P")
   (let ((winconf magit-previous-window-configuration)
         (buffer (current-buffer))
@@ -516,9 +517,10 @@ With a prefix argument, the user can pick an arbitrary name."
 
 Refresh the current buffer if its major mode derives from
 `magit-mode', and refresh the corresponding status buffer.
-If the `magit-revert-buffers' is in non-nil, then also
-revert all unmodified buffers that visit files being
-tracked in the current repository."
+
+If option `magit-revert-buffers' call for it, then also revert
+all unmodified buffers that visit files being tracked in the
+current repository."
   (interactive)
   (unless inhibit-magit-refresh
     (when (derived-mode-p 'magit-mode)
@@ -536,6 +538,7 @@ tracked in the current repository."
   "Refresh all buffers belonging to the current repository.
 
 Refresh all Magit buffers belonging to the current repository.
+
 Also always revert all unmodified buffers that visit files being
 tracked in the current repository."
   (interactive)

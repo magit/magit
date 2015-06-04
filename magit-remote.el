@@ -121,7 +121,7 @@ then read the remote."
 
 ;;;###autoload
 (defun magit-fetch-all (&optional args)
-  "Fetch from another repository."
+  "Fetch from all configured remotes."
   (interactive (list (magit-fetch-arguments)))
   (magit-run-git-async-no-revert "remote" "update" args))
 
@@ -139,7 +139,7 @@ then read the remote."
 
 ;;;###autoload
 (defun magit-pull-current (remote branch &optional args)
-  "Fetch from another repository and merge into current branch."
+  "Fetch and merge into current branch."
   (interactive (magit-pull-read-args t))
   (magit-run-git-async "pull" args remote branch))
 

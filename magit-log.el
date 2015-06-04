@@ -362,8 +362,8 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 ;;;###autoload
 (defun magit-log-current (revs &optional args files)
   "Show log for the current branch.
-When HEAD is detached or with a prefix argument show log for one
-or more revs read from the minibuffer."
+When `HEAD' is detached or with a prefix argument show log for
+one or more revs read from the minibuffer."
   (interactive (magit-log-read-args t))
   (magit-log revs args files))
 
@@ -392,7 +392,7 @@ completion candidates."
 
 ;;;###autoload
 (defun magit-log-head (&optional args files)
-  "Show log for HEAD."
+  "Show log for `HEAD'."
   (interactive (magit-log-read-args nil t))
   (magit-log (list "HEAD") args files))
 
@@ -455,7 +455,7 @@ completion candidates."
 
 ;;;###autoload
 (defun magit-reflog-head ()
-  "Display the HEAD reflog."
+  "Display the `HEAD' reflog."
   (interactive)
   (magit-reflog "HEAD"))
 

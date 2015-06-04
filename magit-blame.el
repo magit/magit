@@ -188,6 +188,7 @@ See #1731."
 ;;;###autoload
 (defun magit-blame (revision file &optional args line)
   "Display edit history of FILE up to REVISION.
+
 Interactively blame the file being visited in the current buffer.
 If the buffer visits a revision of that file, then blame up to
 that revision, otherwise blame the file's full history, including

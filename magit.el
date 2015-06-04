@@ -1707,7 +1707,7 @@ based on URL."
 
 ;;;###autoload
 (defun magit-submodule-init ()
-  "Register submodules listed in .gitmodules into .git/config."
+  "Register submodules listed in \".gitmodules\" into \".git/config\"."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "init")))
@@ -1715,21 +1715,21 @@ based on URL."
 ;;;###autoload
 (defun magit-submodule-update (&optional init)
   "Clone missing submodules and checkout appropriate commits.
-With a prefix argument also register submodules in .git/config."
+With a prefix argument also register submodules in \".git/config\"."
   (interactive "P")
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" (and init "--init"))))
 
 ;;;###autoload
 (defun magit-submodule-sync ()
-  "Update each submodule's remote URL according to .gitmodules."
+  "Update each submodule's remote URL according to \".gitmodules\"."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "sync")))
 
 ;;;###autoload
 (defun magit-submodule-fetch (&optional all)
-  "Fetch submodule.
+  "Fetch all submodules.
 With a prefix argument fetch all remotes."
   (interactive "P")
   (magit-with-toplevel
@@ -1787,7 +1787,9 @@ With a prefix argument fetch all remotes."
 (defun magit-git-command (args directory)
   "Execute a Git subcommand asynchronously, displaying the output.
 With a prefix argument run Git in the root of the current
-repository.  Non-interactively run Git in DIRECTORY with ARGS."
+repository, otherwise in `default-directory'.
+
+Non-interactively run Git in DIRECTORY with ARGS."
   (interactive (magit-git-command-read-args))
   (require 'eshell)
   (magit-mode-display-buffer (magit-process-buffer nil t)
@@ -1802,7 +1804,7 @@ repository.  Non-interactively run Git in DIRECTORY with ARGS."
 
 (defun magit-git-command-topdir (args directory)
   "Execute a Git subcommand asynchronously, displaying the output.
-Run Git in the root of the current repository.
+Run Git in the top-level directory of the current repository.
 \n(fn)" ; arguments are for internal use
   (interactive (magit-git-command-read-args t))
   (magit-git-command args directory))
