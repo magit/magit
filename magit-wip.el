@@ -41,7 +41,7 @@
   :group 'magit-extensions)
 
 (defcustom magit-wip-after-save-local-mode-lighter " sWip"
-  "Lighter for Magit-Wip-Save mode."
+  "Lighter for Magit-Wip-After-Save-Local mode."
   :package-version '(magit . "2.1.0")
   :group 'magit-wip
   :type 'string)
