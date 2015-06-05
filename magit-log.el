@@ -823,8 +823,7 @@ another window, using `magit-show-commit'."
                (or (and (magit-diff-auto-show-p 'log-follow)
                         (get-buffer-window magit-revision-buffer-name-format))
                    (and (magit-diff-auto-show-p 'log-oneline)
-                        (derived-mode-p 'magit-log-mode)
-                        (eq (car magit-refresh-args) 'oneline)))
+                        (derived-mode-p 'magit-log-mode)))
                (magit-section-value section))
           (and magit-blame-mode
                (magit-diff-auto-show-p 'blame-follow)
