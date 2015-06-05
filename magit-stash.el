@@ -295,7 +295,6 @@ instead of \"Stashes:\"."
     (magit-insert-section (stashes ref)
       (magit-insert-heading heading)
       (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-        "-c" "log.date=default" ; kludge for <1.7.10.3, see #1427
         "reflog" "--format=%gd %at %gs" ref))))
 
 ;;; List Stashes
@@ -328,7 +327,6 @@ The following `format'-like specs are supported:
   (magit-insert-section (stashesbuf)
     (magit-insert-heading heading)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-      "-c" "log.date=default" ; kludge for <1.7.10.3, see #1427
       "reflog" "--format=%gd %at %gs" ref)))
 
 ;;; Show Stash
