@@ -620,7 +620,7 @@ For internal use; don't add to a hook."
           "\\[\\(?5:[^]]*\\)\\] "                  ; author
           "\\(?6:[^ ]*\\) "                        ; date
           "\\(?:\\(?:[^@]+@{\\(?9:[^}]+\\)} "      ; refsel
-          "\\(?10:merge\\|[^:]+\\)?:? ?"           ; refsub
+          "\\(?10:merge \\|autosave \\|restart \\|[^:]+: \\)?" ; refsub
           "\\(?2:.*\\)?\\)\\| \\)$"))              ; msg
 
 (defconst magit-reflog-subject-re
@@ -714,7 +714,9 @@ For internal use; don't add to a hook."
         (magit-insert (magit-format-ref-labels refs) nil ?\s))
       (when refsub
         (insert (format "%-2s " refsel))
-        (magit-insert (magit-reflog-format-subject refsub)))
+        (magit-insert
+         (magit-reflog-format-subject
+          (substring refsub 0 (if (string-match-p ":" refsub) -2 -1)))))
       (when msg
         (magit-insert msg (pcase (and gpg (aref gpg 0))
                             (?G 'magit-signature-good)
@@ -995,7 +997,9 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     ("cherry-pick" . magit-reflog-cherry-pick)
     ("initial"     . magit-reflog-commit)
     ("pull"        . magit-reflog-remote)
-    ("clone"       . magit-reflog-remote)))
+    ("clone"       . magit-reflog-remote)
+    ("autosave"    . magit-reflog-commit)
+    ("restart"     . magit-reflog-reset)))
 
 (defun magit-reflog-format-subject (subject)
   (let* ((match (string-match magit-reflog-subject-re subject))
