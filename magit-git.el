@@ -924,6 +924,14 @@ Return a list of two integers: (A>B B>A)."
                              secondary-default
                              (magit-get-current-branch))))
 
+(defun magit-read-local-branch-or-ref (prompt &optional secondary-default)
+  (magit-completing-read prompt (nconc (magit-list-local-branch-names)
+                                       (magit-list-refs "refs/"))
+                         nil t nil 'magit-revision-history
+                         (or (magit-branch-at-point)
+                             secondary-default
+                             (magit-get-current-branch))))
+
 (defun magit-read-other-branch (prompt &optional exclude secondary-default)
   (let* ((current (magit-get-current-branch))
          (atpoint (magit-branch-at-point))

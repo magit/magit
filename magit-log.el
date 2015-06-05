@@ -447,7 +447,7 @@ completion candidates."
 ;;;###autoload
 (defun magit-reflog (ref)
   "Display the reflog of a branch."
-  (interactive (list (magit-read-local-branch "Show reflog for branch")))
+  (interactive (list (magit-read-local-branch-or-ref "Show reflog for")))
   (magit-mode-setup magit-reflog-buffer-name-format nil
                     #'magit-reflog-mode
                     #'magit-reflog-refresh-buffer ref))
@@ -979,7 +979,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (defun magit-reflog-refresh-buffer (ref)
   (magit-insert-section (reflogbuf)
-    (magit-insert-heading "Local history of branch " ref)
+    (magit-insert-heading "Reflog for " ref)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
       "reflog" "show" "--format=%h [%an] %ct %gd %gs"
       (magit-log-format-max-count) ref)))
