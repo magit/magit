@@ -980,8 +980,9 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-reflog-refresh-buffer (ref)
+  (setq header-line-format
+        (propertize (concat " Reflog for " ref) 'face 'magit-header-line))
   (magit-insert-section (reflogbuf)
-    (magit-insert-heading "Reflog for " ref)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
       "reflog" "show" "--format=%h [%an] %ct %gd %gs"
       (magit-log-format-max-count) ref)))
