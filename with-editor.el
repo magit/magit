@@ -87,7 +87,8 @@
 (eval-when-compile
   (progn (require 'dired nil t)
          (require 'eshell nil t)
-         (require 'term nil t)))
+         (require 'term nil t)
+         (require 'warnings nil t)))
 (declare-function dired-get-filename 'dired)
 (declare-function term-emulate-terminal 'term)
 (defvar eshell-preoutput-filter-functions)
@@ -101,31 +102,15 @@
 
 (defun with-editor-locate-emacsclient ()
   "Search for a suitable Emacsclient executable."
-  (let ((path exec-path))
-    (when invocation-directory
-      (push (directory-file-name invocation-directory) path)
-      (let* ((linkname (expand-file-name invocation-name invocation-directory))
-             (truename (file-chase-links linkname)))
-        (unless (equal truename linkname)
-          (push (directory-file-name (file-name-directory truename)) path)))
-      (when (eq system-type 'darwin)
-        (let ((dir (expand-file-name "bin" invocation-directory)))
-          (when (file-directory-p dir)
-            (push dir path)))
-        (when (string-match-p "Cellar" invocation-directory)
-          (let ((dir (expand-file-name "../../../bin" invocation-directory)))
-            (when (file-directory-p dir)
-              (push dir path))))))
-    (--if-let (with-editor-locate-emacsclient-1
-               (cl-remove-duplicates path :test 'equal) 3)
-        (shell-quote-argument it)
-      (display-warning 'with-editor (format "\
+  (--if-let (with-editor-locate-emacsclient-1 (with-editor-emacsclient-path) 3)
+      (shell-quote-argument it)
+    (display-warning 'with-editor (format "\
 Cannot determine a suitable Emacsclient
 
 Determining an Emacsclient executable suitable for the
 current Emacs instance failed.  For more information
 please see https://github.com/magit/magit/wiki/Emacsclient."))
-      nil)))
+    nil))
 
 (defun with-editor-locate-emacsclient-1 (path depth)
   (let* ((version-lst (-take depth (split-string emacs-version "\\.")))
@@ -145,6 +130,27 @@ please see https://github.com/magit/magit/wiki/Emacsclient."))
                              (with-editor-emacsclient-version exec)))))
         (and (> depth 1)
              (with-editor-locate-emacsclient-1 path (1- depth))))))
+
+(defun with-editor-emacsclient-version (exec)
+  (cadr (split-string (car (process-lines exec "--version")))))
+
+(defun with-editor-emacsclient-path ()
+  (let ((path exec-path))
+    (when invocation-directory
+      (push (directory-file-name invocation-directory) path)
+      (let* ((linkname (expand-file-name invocation-name invocation-directory))
+             (truename (file-chase-links linkname)))
+        (unless (equal truename linkname)
+          (push (directory-file-name (file-name-directory truename)) path)))
+      (when (eq system-type 'darwin)
+        (let ((dir (expand-file-name "bin" invocation-directory)))
+          (when (file-directory-p dir)
+            (push dir path)))
+        (when (string-match-p "Cellar" invocation-directory)
+          (let ((dir (expand-file-name "../../../bin" invocation-directory)))
+            (when (file-directory-p dir)
+              (push dir path))))))
+    (cl-remove-duplicates path :test 'equal)))
 
 (defcustom with-editor-emacsclient-executable (with-editor-locate-emacsclient)
   "The Emacsclient executable used by the `with-editor' macro."
@@ -615,6 +621,63 @@ else like the former."
            process))))
 
 ;;; with-editor.el ends soon
+
+(defun with-editor-debug ()
+  "Debug configuration issues.
+See `with-editor.info' for instructions."
+  (interactive)
+  (with-current-buffer (get-buffer-create "*with-editor-debug*")
+    (pop-to-buffer (current-buffer))
+    (erase-buffer)
+    (ignore-errors (with-editor))
+    (insert
+     (format "with-editor: %s\n" (locate-library "with-editor.el"))
+     (format "emacs: %s (%s)\n"
+             (expand-file-name invocation-name invocation-directory)
+             emacs-version)
+     "system:\n"
+     (format "  system-type: %s\n" system-type)
+     (format "  system-configuration: %s\n" system-configuration)
+     (format "  system-configuration-options: %s\n" system-configuration-options)
+     "server:\n"
+     (format "  server-running-p: %s\n" (server-running-p))
+     (format "  server-process: %S\n" server-process)
+     (format "  server-use-tcp: %s\n" server-use-tcp)
+     (format "  server-name: %s\n" server-name)
+     (format "  server-socket-dir: %s\n" server-socket-dir))
+    (if (file-accessible-directory-p server-socket-dir)
+        (--each (directory-files server-socket-dir nil "^[^.]")
+          (insert (format "    %s\n" it)))
+      (insert (format "    %s: not an accessible directory\n"
+                      (if server-use-tcp "WARNING" "ERROR"))))
+    (insert (format "  server-auth-dir: %s\n" server-auth-dir))
+    (if (file-accessible-directory-p server-auth-dir)
+        (--each (directory-files server-auth-dir nil "^[^.]")
+          (insert (format "    %s\n" it)))
+      (insert (format "    %s: not an accessible directory\n"
+                      (if server-use-tcp "ERROR" "WARNING"))))
+    (let ((val with-editor-emacsclient-executable)
+          (def (default-value 'with-editor-emacsclient-executable))
+          (fun (let ((warning-minimum-level :error)
+                     (warning-minimum-log-level :error))
+                 (with-editor-locate-emacsclient))))
+      (insert "magit-emacsclient-executable:\n"
+              (format " value:   %s (%s)\n" val
+                      (and val (with-editor-emacsclient-version val)))
+              (format " default: %s (%s)\n" def
+                      (and def (with-editor-emacsclient-version def)))
+              (format " funcall: %s (%s)\n" fun
+                      (and fun (with-editor-emacsclient-version fun)))))
+    (insert "path:\n"
+            (format "  $PATH: %S\n" (getenv "PATH"))
+            (format "  exec-path: %s\n" exec-path))
+    (insert (format "  with-editor-emacsclient-path:\n"))
+    (--each (with-editor-emacsclient-path)
+      (insert (format "    %s (%s)\n" it (car (file-attributes it))))
+      (when (file-directory-p it)
+        (dolist (exec (directory-files it nil "emacsclient"))
+          (insert (format "      %s (%s)\n" exec
+                          (with-editor-emacsclient-version exec))))))))
 
 (defconst with-editor-font-lock-keywords
   '(("(\\(with-\\(?:git-\\)?editor\\)\\_>" (1 'font-lock-keyword-face))))
