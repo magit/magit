@@ -140,12 +140,9 @@ please see https://github.com/magit/magit/wiki/Emacsclient."))
                             (reverse version-lst))
                  (list "")))
          (lambda (exec)
-           (and (ignore-errors
-                  (string-match-p
-                   version-reg
-                   (cadr (split-string
-                          (car (process-lines exec "--version"))))))
-                (file-executable-p exec))))
+           (ignore-errors
+             (string-match-p version-reg
+                             (with-editor-emacsclient-version exec)))))
         (and (> depth 1)
              (with-editor-locate-emacsclient-1 path (1- depth))))))
 
