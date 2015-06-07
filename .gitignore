@@ -2,7 +2,7 @@
 *~
 /.dir-locals.el
 /Documentation/dir
-/Documentation/magit.info
+/Documentation/*.info
 /config.mk
 /magit-*.tar
 /magit-*.tar.gz
