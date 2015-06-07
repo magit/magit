@@ -1,13 +1,7 @@
 -include config.mk
+include .common.mk
 
-PREFIX      ?= /usr/local
-datarootdir ?= $(PREFIX)/share
-lispdir     ?= $(datarootdir)/emacs/site-lisp/magit
-infodir     ?= $(datarootdir)/info
-docdir      ?= $(datarootdir)/doc/magit
-statsdir    ?= ./stats
-
-ELPA_DIR    ?= $(HOME)/.emacs.d/elpa
+ELPA_DIR ?= $(HOME)/.emacs.d/elpa
 
 DASH_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
@@ -24,19 +18,7 @@ else
   LOAD_PATH ?= -L . -L $(DASH_DIR)
 endif
 
-EMACSBIN ?= emacs
-BATCH     = $(EMACSBIN) -batch -Q $(LOAD_PATH)
-
-CP    ?= install -p -m 644
-MKDIR ?= install -p -m 755 -d
-RMDIR ?= rm -rf
-TAR   ?= tar
-
-MAKEINFO     ?= makeinfo
-INSTALL_INFO ?= $(shell \
-  hash ginstall-info 2> /dev/null\
-  && printf ginstall-info\
-  || printf install-info)
+BATCH = $(EMACSBIN) -batch -Q $(LOAD_PATH)
 
 VERSION=$(shell \
   test -e .git\
@@ -47,7 +29,7 @@ VERSION=$(shell \
   (princ magit-version))")
 
 .PHONY: help magit-version.el AUTHORS.md \
-	install-lisp install-docs test test-interactive clean \
+	install-lisp install-docs test test-interactive clean clean-docs \
 	dist magit-$(VERSION).tar magit-$(VERSION).tar.gz genstats
 
 all: lisp docs
@@ -180,14 +162,8 @@ magit-autoloads.el: $(ELS)
 	(setq find-file-visit-truename t)\
 	(update-directory-autoloads default-directory)))"
 
-docs: Documentation/magit.info Documentation/dir
-
-Documentation/dir: Documentation/magit.info
-	@$(INSTALL_INFO) --dir=$@ $<
-
-%.info: %.texi
-	@printf "Generating magit.info\n"
-	@$(MAKEINFO) $< -o $@
+docs:
+	@$(MAKE) -C Documentation all
 
 AUTHORS_URL = http://magit.vc/stats/authors.html
 define AUTHORS_HEADER
@@ -235,12 +211,15 @@ AUTHORS.md: .mailmap
 install: install-lisp install-docs
 
 install-lisp: lisp
-	$(MKDIR) $(DESTDIR)$(lispdir)
+	@$(MKDIR) $(DESTDIR)$(lispdir)
 	$(CP) $(ELS) $(ELCS) magit-autoloads.el magit-version.el $(DESTDIR)$(lispdir)
 
-install-docs: docs
-	$(MKDIR) $(DESTDIR)$(docdir)
+install-docs: install-info
+	@$(MKDIR) $(DESTDIR)$(docdir)
 	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
+
+install-info: docs
+	@$(MAKE) -C Documentation install
 
 test:
 	@$(BATCH) --eval "(progn\
@@ -253,11 +232,12 @@ test-interactive:
 	(load-file \"t/magit-tests.el\")\
 	(ert t))"
 
-clean:
-	@printf "Cleaning...\n"
+clean: clean-docs
 	@$(RM) $(ELCS) magit-autoloads.el magit-version.el *.tar.gz *.tar
-	@$(RM) dir Documentation/dir Documentation/magit.info
 	@$(RMDIR) magit-$(VERSION)
+
+clean-docs:
+	@$(MAKE) -C Documentation clean
 
 DIST_FILES = $(ELS) magit-version.el Makefile \
 	AUTHORS.md README.md COPYING Documentation/magit.texi
