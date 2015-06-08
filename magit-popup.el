@@ -190,14 +190,11 @@ make it impossible to invoke certain actions.")
 
 (defvar magit-popup-common-commands
   '(("Set defaults"          magit-popup-set-default-arguments)
-    ("Goto previous button"  backward-button)
     ("View popup manual"     magit-popup-info)
+    ("Toggle this section"   magit-popup-toggle-show-common-commands)
     ("Save defaults"         magit-popup-save-default-arguments)
-    ("Goto next button"      forward-button)
-    ("  Toggle help section" magit-popup-toggle-show-common-commands)
-    ("    Abort"             magit-popup-quit)
-    ("Push button"           push-button)
-    ("    Popup help prefix" magit-popup-help)))
+    ("    Popup help prefix" magit-popup-help)
+    ("Abort"                 magit-popup-quit)))
 
 ;;;; Buttons
 
