@@ -350,7 +350,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
                             (magit-get-previous-branch))))
              (input (read-from-minibuffer
                      (format "Log rev,s%s: "
-                             (and default (format " (%s)" default)))
+                             (if default (format " (%s)" default) ""))
                      nil magit-log-read-revs-map
                      nil 'magit-revision-history default)))
         (when (string-equal input "")
