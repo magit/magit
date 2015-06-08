@@ -46,14 +46,6 @@
 ;; console popup does limit the selection to the commands defined for
 ;; that popup, and so we use the term "infix" instead of "prefix".
 
-;; Note: This library is developed in the `next' branch of the Magit
-;;       repository and replaces the older library `magit-key-mode.el'
-;;       from the `master' branch.  If you get Magit from Melpa or
-;;       Melpa-Stable, then you are using its `master' version/branch.
-;;       Because this new library can be used independently of Magit
-;;       I am making it available as a separate package.  It can be
-;;       installed in parallel to Magit's `master' version.
-
 ;;; Code:
 
 (require 'button)
@@ -113,12 +105,6 @@ that without users being aware of it could lead to tears.
 `default'  With a prefix argument directly invoke the popup's
            default action (an Emacs command), instead of bringing
            up the popup.
-
-           When the default action is invoked like this, then the
-           prefix and infix arguments might be passed on verbatim
-           or modified.  How exactly this happens is still subject
-           to change.  If it seems too dangerous that the behavior
-           might change at any time, then use `nil' for now.
 
 `popup'    With a prefix argument bring up the popup, otherwise
            directly invoke the popup's default action.
