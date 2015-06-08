@@ -158,11 +158,6 @@ that without users being aware of it could lead to tears.
   "Face used to display option values in popups."
   :group 'magit-popup-faces)
 
-(define-obsolete-face-alias 'magit-popup-header         'magit-popup-heading  "2.1.0")
-(define-obsolete-face-alias 'magit-key-mode-header-face 'magit-popup-heading  "2.1.0")
-(define-obsolete-face-alias 'magit-key-mode-button-face 'magit-popup-key      "2.1.0")
-(define-obsolete-face-alias 'magit-key-mode-switch-face 'magit-popup-argument "2.1.0")
-
 ;;;; Keymap
 
 (defvar magit-popup-mode-map
@@ -990,7 +985,7 @@ in the popup."
           (keyword (setq maxcols (magit-popup-get maxcols)))
           (symbol  (setq maxcols (symbol-value maxcols)))))
       (when items
-        (insert (propertize heading 'face 'magit-popup-header))
+        (insert (propertize heading 'face 'magit-popup-heading))
         (unless (string-match "\n$" heading)
           (insert "\n"))
         (let ((colwidth
