@@ -348,10 +348,16 @@ Magit is documented in info node `(magit)'."
   (mapc #'delete-overlay magit-region-overlays)
   (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
-(defvar-local magit-refresh-function nil)
+(defvar-local magit-refresh-function nil
+  "The function used to refresh the current buffer.
+This is called with `magit-refresh-args' as arguments.
+The value is usually set using `magit-mode-setup'.")
 (put 'magit-refresh-function 'permanent-local t)
 
-(defvar-local magit-refresh-args nil)
+(defvar-local magit-refresh-args nil
+  "The arguments used to refresh the current buffer.
+`magit-refresh-function' is called with these arguments.
+The value is usually set using `magit-mode-setup'.")
 (put 'magit-refresh-args 'permanent-local t)
 
 (defmacro magit-mode-setup
