@@ -132,6 +132,7 @@ Contributors
 - Pavel Holejsovsky <pavel.holejsovsky@upek.com>
 - Pekka Pessi <nospam@pessi.fi>
 - Peter J. Weisberg <pj@irregularexpressions.net>
+- Peter Vasil <mail@petervasil.net>
 - Philippe Vaucher <philippe.vaucher@gmail.com>
 - Philipp Haselwarter <philipp@haselwarter.org>
 - Philip Weaver <philip.weaver@gmail.com>
@@ -165,6 +166,7 @@ Contributors
 - Servilio Afre Puentes <afrepues@mcmaster.ca>
 - Štěpán Němec <stepnem@gmail.com>
 - Steven Chow <steve@myfreestuffapp.com>
+- Steven E. Harris <seh@panix.com>
 - Steven Thomas <sthomas314@gmail.com>
 - Steve Purcell <steve@sanityinc.com>
 - Suhail Shergill <suhailshergill@gmail.com>
