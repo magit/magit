@@ -12,7 +12,7 @@ DOC_LOAD_PATH ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
 
 .PHONY: install clean
 
-all: magit.info with-editor.info dir
+all: magit.info magit-popup.info with-editor.info dir
 
 %.texi: %.org
 	@printf "Generating $<\n"
@@ -24,12 +24,12 @@ all: magit.info with-editor.info dir
 	@printf "Generating $<\n"
 	@$(MAKEINFO) $< -o $@
 
-dir: magit.info with-editor.info
+dir: magit.info magit-popup.info with-editor.info
 	@printf "Generating dir\n"
 	@$(INSTALL_INFO) --dir=$@ $<
 
 install: all
 	@$(MKDIR) $(DESTDIR)$(infodir)
-	$(CP) magit.info with-editor.info $(DESTDIR)$(infodir)
+	$(CP) magit.info magit-popup.info with-editor.info $(DESTDIR)$(infodir)
 clean:
-	@$(RM) dir magit.info
+	@$(RM) magit.info magit-popup.info with-editor.info dir

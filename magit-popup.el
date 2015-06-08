@@ -838,11 +838,10 @@ and are defined in `magit-popup-mode-map' (which see)."
 (defun magit-popup-info ()
   "Show the popup manual."
   (interactive)
-  (user-error "The manual does not exist yet, I'm afraid")
   (let ((winconf (current-window-configuration)))
     (delete-other-windows)
     (split-window-below)
-    (info "(magit.info)Popups")
+    (info "(magit-popup.info)Usage")
     (magit-popup-help-mode)
     (setq magit-popup-previous-winconf winconf))
   (magit-popup-help-mode)
