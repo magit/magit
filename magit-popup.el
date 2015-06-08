@@ -82,12 +82,15 @@ One of `man' or `woman'."
   :group 'magit-popup
   :type 'boolean)
 
-(defcustom magit-popup-show-help-section t
+(defcustom magit-popup-show-common-commands t
   "Initially show section with commands common to all popups.
 This section can also be toggled temporarily using \
-\\<magit-popup-mode-map>\\[magit-popup-toggle-show-popup-commands]."
+\\<magit-popup-mode-map>\\[magit-popup-toggle-show-common-commands]."
   :group 'magit-popup
   :type 'boolean)
+
+(define-obsolete-variable-alias 'magit-popup-show-help-section
+  'magit-popup-show-common-commands "2.1.0")
 
 (defcustom magit-popup-use-prefix-argument 'disabled
   "Control how prefix arguments affect infix argument popups.
@@ -156,7 +159,7 @@ that without users being aware of it could lead to tears.
     (define-key map [?\C-g]       'magit-popup-quit)
     (define-key map [??]          'magit-popup-help)
     (define-key map [?\C-h ?i]    'magit-popup-info)
-    (define-key map [?\C-t]       'magit-popup-toggle-show-popup-commands)
+    (define-key map [?\C-t]       'magit-popup-toggle-show-common-commands)
     (define-key map [?\d]         'backward-button)
     (define-key map [?\C-p]       'backward-button)
     (define-key map [?\t]         'forward-button)
@@ -168,7 +171,7 @@ that without users being aware of it could lead to tears.
 \\<magit-popup-mode-map>\
 This keymap contains bindings common to all popups.  A section
 listing these commands can be shown or hidden using \
-\\[magit-popup-toggle-show-popup-commands].
+\\[magit-popup-toggle-show-common-commands].
 
 The prefix used to toggle any switch can be changed by binding
 another key to `magit-invoke-popup-switch'.  Likewise binding
@@ -179,19 +182,19 @@ property of the button types `magit-popup-switch-button' and
 `magit-popup-option-button'.
 
 If you change any other binding, then you might have to also edit
-`magit-popup-internal-commands' for things to align correctly in
+`magit-popup-common-commands' for things to align correctly in
 the section listing these commands.
 
 Never bind an alphabetic character in this keymap or you might
 make it impossible to invoke certain actions.")
 
-(defvar magit-popup-internal-commands
+(defvar magit-popup-common-commands
   '(("Set defaults"          magit-popup-set-default-arguments)
     ("Goto previous button"  backward-button)
     ("View popup manual"     magit-popup-info)
     ("Save defaults"         magit-popup-save-default-arguments)
     ("Goto next button"      forward-button)
-    ("  Toggle help section" magit-popup-toggle-show-popup-commands)
+    ("  Toggle help section" magit-popup-toggle-show-common-commands)
     ("    Abort"             magit-popup-quit)
     ("Push button"           push-button)
     ("    Popup help prefix" magit-popup-help)))
@@ -244,7 +247,7 @@ make it impossible to invoke certain actions.")
 
 (define-button-type 'magit-popup-internal-command-button
   'supertype 'magit-popup-command-button
-  'heading   "Popup Commands\n"
+  'heading   "Common Commands\n"
   'maxcols   3)
 
 ;;; Events
@@ -751,13 +754,13 @@ value of the custom option `NAME-arguments'."
 
 ;;; Help
 
-(defun magit-popup-toggle-show-popup-commands ()
+(defun magit-popup-toggle-show-common-commands ()
   "Show or hide an additional section with common commands.
 The commands listed in this section are common to all popups
 and are defined in `magit-popup-mode-map' (which see)."
   (interactive)
-  (setq magit-popup-show-help-section
-        (not magit-popup-show-help-section))
+  (setq magit-popup-show-common-commands
+        (not magit-popup-show-common-commands))
   (magit-refresh-popup-buffer)
   (fit-window-to-buffer))
 
@@ -864,7 +867,7 @@ restored."
   "Major mode for infix argument popups."
   (setq buffer-read-only t)
   (setq-local scroll-margin 0)
-  (setq-local magit-popup-show-help-section magit-popup-show-help-section)
+  (setq-local magit-popup-show-common-commands magit-popup-show-common-commands)
   (add-hook 'magit-popup-setup-hook 'magit-popup-default-setup nil t)
   (hack-dir-local-variables-non-file-buffer))
 
@@ -930,10 +933,10 @@ in the popup."
       (magit-popup-insert-section 'magit-popup-option-button)
       (magit-popup-insert-section 'magit-popup-action-button)
       (run-hooks 'magit-refresh-popup-buffer-hook)
-      (when magit-popup-show-help-section
+      (when magit-popup-show-common-commands
         (magit-popup-insert-command-section
          'magit-popup-internal-command-button
-         magit-popup-internal-commands)))
+         magit-popup-common-commands)))
     (set-buffer-modified-p nil)
     (if event
         (while (and (forward-button 1)
