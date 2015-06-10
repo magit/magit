@@ -263,6 +263,12 @@ The following `format'-like specs are supported:
   :group 'magit-revision
   :type 'boolean)
 
+(defcustom magit-revision-insert-related-refs t
+  "Whether to show related refs in revision buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-revision
+  :type 'boolean)
+
 ;;; Faces
 
 (defface magit-diff-file-heading
@@ -1244,8 +1250,6 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
       (and magit-revision-show-diffstat "--stat")
       (and magit-revision-show-notes "--notes")
       args commit "--")))
-
-(defvar magit-revision-insert-related-refs t)
 
 (defun magit-diff-wash-revision (args)
   (magit-diff-wash-tag)
