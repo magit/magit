@@ -688,6 +688,7 @@ for a commit."
          magit-diff-section-arguments)))
 
 (defun magit-diff-refresh (args)
+  "Set the local diff arguments for the current buffer."
   (interactive (list (magit-diff-refresh-arguments)))
   (cond ((derived-mode-p 'magit-diff-mode)
          (setq magit-refresh-args (list (car magit-refresh-args) args)))
@@ -696,6 +697,7 @@ for a commit."
   (magit-refresh))
 
 (defun magit-diff-set-default-arguments (args)
+  "Set the global diff arguments for the current buffer."
   (interactive (list (magit-diff-refresh-arguments)))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-set-variable 'magit-diff-arguments args)
@@ -706,6 +708,7 @@ for a commit."
   (magit-refresh))
 
 (defun magit-diff-save-default-arguments (args)
+  "Set and save the global diff arguments for the current buffer."
   (interactive (list (magit-diff-refresh-arguments)))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-save-variable 'magit-diff-arguments args)
