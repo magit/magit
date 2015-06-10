@@ -655,10 +655,14 @@ Refs are compared with a branch read form the user."
           "\\] \\)?"
           "\\(?3:.*\\)"))                   ; message
 
-(defvar magit-refs-local-branch-format "%4c %-25n %U%m\n")
-(defvar magit-refs-remote-branch-format "%4c %-25n %m\n")
-(defvar magit-refs-tags-format "%4c %-25n %m\n")
-(defvar magit-refs-indent-cherry-lines 3)
+(defvar magit-refs-local-branch-format "%4c %-25n %U%m\n"
+  "Format used for local branches in refs buffers.")
+(defvar magit-refs-remote-branch-format "%4c %-25n %m\n"
+  "Format used for remote branches in refs buffers.")
+(defvar magit-refs-tags-format "%4c %-25n %m\n"
+  "Format used for tags in refs buffers.")
+(defvar magit-refs-indent-cherry-lines 3
+  "Indentation of cherries in refs buffers.")
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
