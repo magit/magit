@@ -26,7 +26,7 @@ all: magit.info magit-popup.info with-editor.info dir
 
 dir: magit.info magit-popup.info with-editor.info
 	@printf "Generating dir\n"
-	@$(INSTALL_INFO) --dir=$@ $<
+	@echo $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
 
 install: all
 	@$(MKDIR) $(DESTDIR)$(infodir)
