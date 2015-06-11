@@ -87,9 +87,8 @@
   :group 'git-rebase
   :type 'boolean)
 
-(defcustom git-rebase-remove-instructions nil
-  "Whether to remove the instructions from the rebase buffer.
-Because you have seen them before and can still remember."
+(defcustom git-rebase-show-instructions nil
+  "Whether to show usage instructions inside the rebase buffer."
   :group 'git-rebase
   :type 'boolean)
 
@@ -315,7 +314,7 @@ Rebase files are generated when you run 'git rebase -i' or run
 the rebase.  See the documentation for git-rebase (e.g., by
 running 'man git-rebase' at the command line) for details."
   (setq font-lock-defaults '(git-rebase-mode-font-lock-keywords t t))
-  (when git-rebase-remove-instructions
+  (unless git-rebase-show-instructions
     (let ((inhibit-read-only t))
       (flush-lines "^\\($\\|#\\)")))
   (with-editor-mode 1)
@@ -356,7 +355,8 @@ By default, this is the same except for the \"pick\" command."
   (let ((inhibit-read-only t))
     (save-excursion
       (goto-char (point-min))
-      (when (re-search-forward "^# Commands:\n" nil t)
+      (when (and git-rebase-show-instructions
+                 (re-search-forward "^# Commands:\n" nil t))
         (insert "# C-c C-c  tell Git to make it happen\n")
         (insert "# C-c C-k  tell Git that you changed your mind, i.e. abort\n")
         (insert "# p        move point to previous line\n")
