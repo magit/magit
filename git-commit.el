@@ -434,6 +434,10 @@ finally check current non-comment text."
    'git-commit-finish-query-functions force))
 
 (defun git-commit-check-style-conventions (force)
+  "Check for violations of certain basic style conventions.
+For each violation ask the user if she wants to proceed anyway.
+This makes sure the summary line isn't to long and that the
+second line is empty."
   (or force
       (save-excursion
         (goto-char (point-min))
