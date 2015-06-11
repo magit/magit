@@ -73,8 +73,6 @@ and then turned on again when turning on the latter."
   :type 'hook
   :options '(magit-log-maybe-show-commit))
 
-(defvar magit-blame-log t)
-
 (defface magit-blame-heading
   '((((class color) (background light))
      :background "grey80"
@@ -273,6 +271,10 @@ only arguments available from `magit-blame-popup' should be used.
         (with-current-buffer (process-get process 'command-buf)
           (magit-blame-mode -1))
         (message "Blaming...failed")))))
+
+(defvar magit-blame-log nil
+  "Whether to log blame output to the process buffer.
+This is intended for debugging purposes.")
 
 (defun magit-blame-process-filter (process string)
   (when magit-blame-log
