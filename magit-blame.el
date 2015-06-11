@@ -66,6 +66,13 @@ and then turned on again when turning on the latter."
   :group 'magit-blame
   :type '(choice (const :tag "No lighter" "") string))
 
+(defcustom magit-blame-goto-chunk-hook '(magit-log-maybe-show-commit)
+  "Hook run by `magit-blame-next-chunk' and `magit-blame-previous-chunk'."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-blame
+  :type 'hook
+  :options '(magit-log-maybe-show-commit))
+
 (defvar magit-blame-log t)
 
 (defface magit-blame-heading
@@ -388,10 +395,6 @@ then also kill the buffer."
   (if magit-blame-recursive-p
       (kill-buffer)
     (magit-blame-mode -1)))
-
-(defvar magit-blame-goto-chunk-hook
-  '(magit-log-maybe-show-commit)
-  "Hook run by `magit-blame-next-chunk' and `magit-blame-previous-chunk'.")
 
 (defun magit-blame-next-chunk ()
   "Move to the next chunk."
