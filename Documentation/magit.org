@@ -1,0 +1,28 @@
+#+TITLE: Ceci n'est pa un manuel
+#+AUTHOR: Jonas Bernoulli
+#+EMAIL: jonas@bernoul.li
+#+DATE: 2015
+#+LANGUAGE: en
+
+#+OPTIONS: H:4 num:3 toc:2
+#+TEXINFO_DIR_CATEGORY: Emacs
+#+TEXINFO_DIR_TITLE: Magit: (magit).
+#+TEXINFO_DIR_DESC: Ceci n'est pa un manuel.
+
+#+STARTUP: indent
+
+* Ceci n’est pa un manuel
+:PROPERTIES:
+:COPYING:    t
+:END:
+
+Magit is an interface to the version control system Git, implemented
+as an Emacs package.
+
+This manual is only a stub, not even a draft.  The draft for what will
+become the manual for the upcoming ~2.1.0~ release is currently
+maintained in the webpage repository.  It will be moved into the
+source repository once it is mostly finished.  You can read the draft
+online at http://magit.vc/manual.  The draft and earlier versions of
+the manual can also be downloaded in various formats from that same
+page.
