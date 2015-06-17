@@ -239,7 +239,8 @@ without prompting."
 (defun magit-am-apply-patches (&optional files args)
   "Apply the patches FILES."
   (interactive (list (or (magit-region-values 'file)
-                         (list (read-file-name "Apply patch: ")))
+                         (list (read-file-name "Apply patch: " nil
+                                               (magit-file-at-point))))
                      (magit-am-arguments)))
   (magit-run-git-sequencer "am" args "--" (mapcar 'expand-file-name files)))
 
