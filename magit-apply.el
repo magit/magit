@@ -35,6 +35,8 @@
 (require 'magit-diff)
 (require 'magit-wip)
 
+;; For `magit-apply'
+(declare-function magit-am-popup 'magit-sequence)
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage 'magit)
 (declare-function magit-checkout-read-stage 'magit)
@@ -60,9 +62,10 @@ With a prefix argument and if necessary, attempt a 3-way merge."
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
-      (`(,_ region) (magit-apply-region it args))
-      (`(,_   hunk) (magit-apply-hunk it args))
-      (`(,_   file) (magit-apply-diff it args)))))
+      (`(untracked file) (magit-am-popup))
+      (`(,_      region) (magit-apply-region it args))
+      (`(,_        hunk) (magit-apply-hunk it args))
+      (`(,_        file) (magit-apply-diff it args)))))
 
 (defun magit-apply-diff (section &rest args)
   (magit-apply-patch section args
