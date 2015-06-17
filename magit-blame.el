@@ -184,8 +184,10 @@ See #1731."
   :man-page "git-blame"
   :switches '((?w "Ignore whitespace" "-w")
               (?r "Do not treat root commits as boundaries" "--root"))
-  :options  '((?C "Detect lines moved or copied within a file" "-C" read-number)
-              (?M "Detect lines moved or copied between files" "-M" read-number))
+  :options  '((?C "Detect lines moved or copied within a file" "-C"
+                  magit-popup-read-number)
+              (?M "Detect lines moved or copied between files" "-M"
+                  magit-popup-read-number))
   :actions  '((?b "Blame" magit-blame))
   :default-arguments '("-w")
   :default-action 'magit-blame)

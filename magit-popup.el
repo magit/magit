@@ -723,6 +723,12 @@ KEY is the character which is to be unbound."
     (when winconf
       (set-window-configuration winconf))))
 
+(defun magit-popup-read-number (prompt &optional default)
+  "Like `read-number' but DEFAULT may be a numeric string."
+  (read-number prompt (if (stringp default)
+                          (string-to-number default)
+                        default)))
+
 ;;; Save
 
 (defun magit-popup-set-default-arguments (arg)

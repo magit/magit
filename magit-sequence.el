@@ -224,7 +224,8 @@ without prompting."
               (?d "Use author date as committer date"
                   "--committer-date-is-author-date")
               (?D "Use committer date as author date" "--ignore-date"))
-  :options  '((?p "Remove leading slashes from paths" "-p" read-number))
+  :options  '((?p "Remove leading slashes from paths" "-p"
+                  magit-popup-read-number))
   :actions  '((?w "Apply patches" magit-am-apply-patches)
               (?m "Apply maildir" magit-am-apply-maildir))
   :default-arguments '("--3way")
