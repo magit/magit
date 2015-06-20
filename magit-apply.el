@@ -405,14 +405,15 @@ without requiring confirmation."
                section "--reverse"))))
 
 (defun magit-reverse-files (sections)
-  (cl-destructuring-bind (binaries files)
+  (cl-destructuring-bind (binaries sections)
       (let ((binaries (magit-staged-binary-files)))
         (--separate (member (magit-section-value it) binaries) sections))
-    (when (magit-confirm-files 'reverse (mapcar #'magit-section-value files))
-      (magit-wip-commit-before-change files " before reverse")
-      (let ((magit-apply-inhibit-wip t))
-        (mapc #'magit-reverse-apply files))
-      (magit-wip-commit-after-apply files " after reverse"))
+    (let ((files (mapcar #'magit-section-value sections)))
+      (when (magit-confirm-files 'reverse files)
+        (magit-wip-commit-before-change files " before reverse")
+        (let ((magit-apply-inhibit-wip t))
+          (mapc #'magit-reverse-apply sections))
+        (magit-wip-commit-after-apply files " after reverse")))
     (when binaries
       (user-error "Cannot reverse binary files"))))
 
