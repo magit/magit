@@ -158,7 +158,7 @@ please see https://github.com/magit/magit/wiki/Emacsclient."))
   :type '(choice (string :tag "Executable")
                  (const  :tag "Don't use Emacsclient" nil)))
 
-(defcustom with-editor-looping-editor "\
+(defcustom with-editor-sleeping-editor "\
 sh -c '\
 echo \"WITH-EDITOR: $$ OPEN $0\"; \
 sleep 604800 & sleep=$!; \
@@ -362,7 +362,7 @@ ENVVAR is provided then bind that environment variable instead.
          (process-environment process-environment))
      (if (or (not with-editor-emacsclient-executable)
              (file-remote-p default-directory))
-         (setenv with-editor--envvar with-editor-looping-editor)
+         (setenv with-editor--envvar with-editor-sleeping-editor)
        ;; Make sure server-use-tcp's value is valid.
        (unless (featurep 'make-network-process '(:family local))
          (setq server-use-tcp t))
@@ -385,7 +385,7 @@ ENVVAR is provided then bind that environment variable instead.
          (setenv "EMACS_SERVER_FILE"
                  (expand-file-name server-name server-auth-dir)))
        ;; As last resort fallback to the looping editor.
-       (setenv "ALTERNATE_EDITOR" with-editor-looping-editor))
+       (setenv "ALTERNATE_EDITOR" with-editor-sleeping-editor))
      ,@body))
 
 (defun with-editor-server-window ()
@@ -420,7 +420,7 @@ the appropriate editor environment variable."
         (unless (equal program "env")
           (push prog args)
           (setq prog "env"))
-        (push (concat with-editor--envvar "=" with-editor-looping-editor) args)
+        (push (concat with-editor--envvar "=" with-editor-sleeping-editor) args)
         (ad-set-arg  2 prog)
         (ad-set-args 3 args)))
     (let ((process ad-do-it))
@@ -494,7 +494,7 @@ This works in `shell-mode', `term-mode' and `eshell-mode'."
       (goto-char (process-mark process))
       (process-send-string
        process (format "export %s=%s\n" envvar
-                       (shell-quote-argument with-editor-looping-editor)))
+                       (shell-quote-argument with-editor-sleeping-editor)))
       (while (accept-process-output process 0.1))
       (set-process-filter process filter)
       (if (derived-mode-p 'term-mode)
@@ -504,7 +504,7 @@ This works in `shell-mode', `term-mode' and `eshell-mode'."
    ((derived-mode-p 'eshell-mode)
     (add-to-list 'eshell-preoutput-filter-functions
                  'with-editor-output-filter)
-    (setenv envvar with-editor-looping-editor))
+    (setenv envvar with-editor-sleeping-editor))
    (t
     (error "Cannot export environment variables in this buffer")))
   (message "Successfully exported %s" envvar))
@@ -611,7 +611,7 @@ else like the former."
          (ad-set-arg
           0 (format "%s=%s %s"
                     (or with-editor--envvar "EDITOR")
-                    (shell-quote-argument with-editor-looping-editor)
+                    (shell-quote-argument with-editor-sleeping-editor)
                     (ad-get-arg 0)))
          (let ((process ad-do-it))
            (set-process-filter
