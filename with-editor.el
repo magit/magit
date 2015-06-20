@@ -223,10 +223,7 @@ REGEXP are selected using FUNCTION instead of the default in
 
 Note that when a package adds an entry here then it probably
 has a reason to disrespect `server-window' and it likely is
-not a good idea to change such entries.  The `git-commit' and
-`git-rebase' packages do no add entries themselves but loading
-`magit' does add entries for the files handled by these packages.
-Don't change these, or Magit will get confused.")
+not a good idea to change such entries.")
 
 ;;; Mode Commands
 
