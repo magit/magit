@@ -110,7 +110,7 @@ emacsclient executable.  This alternative is known as the "sleeping
 editor" because it is implemented as a shell script which sleeps until
 it receives a signal.
 
-- User Option: with-editor-looping-editor
+- User Option: with-editor-sleeping-editor
 
   The sleeping editor is a shell script used as the editor of child
   processes when the emacsclient executable cannot be used.

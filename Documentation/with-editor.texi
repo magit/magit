@@ -59,6 +59,7 @@ General Public License for more details.
 @insertcopying
 @end ifnottex
 
+
 @menu
 * Using the With-Editor package::
 * Using With-Editor as a library::
@@ -87,6 +88,7 @@ Magit.
 
 For information about using this library in you own package, see @ref{Using With-Editor as a library,Using
 With-Editor as a library}.
+
 @menu
 * Configuring With-Editor::
 * Using With-Editor commands::
@@ -148,7 +150,7 @@ emacsclient executable.  This alternative is known as the "sleeping
 editor" because it is implemented as a shell script which sleeps until
 it receives a signal.
 
-@defopt with-editor-looping-editor
+@defopt with-editor-sleeping-editor
 
 The sleeping editor is a shell script used as the editor of child
 processes when the emacsclient executable cannot be used.
