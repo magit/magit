@@ -7,10 +7,12 @@
 @c %**end of header
 
 @copying
+@ifnottex
 Taking inspiration from regular prefix commands and prefix arguments,
 this library implements a similar abstraction; a new kind of prefix
 command that is associated with a specific set of infix arguments and
 suffix commands.
+@end ifnottex
 
 @quotation
 Copyright (C) 2015 Jonas Bernoulli <jonas@@bernoul.li>
@@ -35,6 +37,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit-Popup User Manual
+@subtitle for version 2.1
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,6 +51,7 @@ General Public License for more details.
 @top Magit-Popup User Manual
 @insertcopying
 @end ifnottex
+
 
 @menu
 * Introduction::
@@ -80,7 +84,7 @@ this library implements a similar abstraction; a new kind of prefix
 command that is associated with a specific set of infix arguments and
 suffix commands.
 
-Invoking such a prefix command displays a popup buffer wihch lists the
+Invoking such a prefix command displays a popup buffer which lists the
 associated infix arguments and suffix commands.  In that buffer each
 argument is prefixes with the key sequence that can be used to toggle
 it or change its value.  Likewise each suffix command is prefixed with
@@ -278,6 +282,7 @@ buffer using @code{C-p} and @code{C-n}, and to invoke the argument or command at
 point using @code{RET}.  But it is much more efficient to use the dedicated
 key bindings instead, so these commands are not listed in popup
 buffers along with the other common commands.
+
 @menu
 * Customizing existing popups::
 * Other options::
@@ -460,6 +465,7 @@ infix arguments, and then also one of its suffix commands.
                      (magit-tag-arguments)))
   (magit-run-git-with-editor "tag" args name rev))
 @end lisp
+
 @menu
 * Defining prefix commands::
 * Defining suffix commands::
@@ -502,12 +508,12 @@ value of the variable by the same name.  See below for more
 information.
 
 The optional argument GROUP specifies the Custom group in which the
-option is placed.  If ommitted then the option is placed in some
+option is placed.  If omitted then the option is placed in some
 group the same way it is done when directly using @code{defcustom} and
-ommitting the group.
+omitting the group.
 
 The optional argument MODE specifies the mode used by the popup
-buffer.  If it is ommitted or @code{nil} then @code{magit-popup-mode} is used.
+buffer.  If it is omitted or @code{nil} then @code{magit-popup-mode} is used.
 
 The remaining arguments should have the form @code{[KEYWORD VALUE]...}.
 
@@ -569,7 +575,7 @@ specified, should be one of @code{default} or @code{prefix}.
 
 The popup arguments which can be toggled on and off.  VALUE is a
 list whose members have the form @code{(KEY DESC SWITCH)}, see
-@code{magit-define-popup-switch} for defails.
+@code{magit-define-popup-switch} for details.
 
 
 @item
@@ -666,22 +672,5 @@ first element of FILTER may also be @code{:not} in which case only
 arguments that don't match any of the regexps are returned, or @code{:only}
 which doesn't change the behavior.
 @end defun
-
-TRASH
-
-Such a prefix command are a regular interactive command.  Invoking it
-shows the available suffix commands and infix arguments in a popup
-buffer.  The user can then change the values of the arguments and
-finally invoke one of the suffix arguments.  This causes the popup
-buffer to disappear and the command to be invoked interactively with
-the buffer that was current before the popup buffer was shown current
-again and dynamic bindings for @code{magit-current-popup} and
-@code{magit-current-popup-args} in affect.
-
-Suffix commands also are regular interactive commands.  Usually these
-commands use the value of @code{magit-current-popup-args} or preferably the
-popup specific @code{SHORTNAME-arguments} inside their @code{interactive} form, but
-it is also possible to use existing commands that are not
-"popup-aware" as suffix commands.
 
 @bye

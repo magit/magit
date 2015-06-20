@@ -7,10 +7,11 @@
 @c %**end of header
 
 @copying
-The library @code{with-editor} makes it easy to use the Emacsclient as the
-@code{$EDITOR} of child processes, making sure they know how to call home.
-For remote processes a substitute is provided, which communicates with
-Emacs on standard output instead of using a socket as the Emacsclient
+@ifnottex
+The library @code{with-editor} makes it easy to use the Emacsclient as
+the @code{$EDITOR} of child processes, making sure they know how to call
+home.  For remote processes a substitute is provided, which communicates
+with Emacs on standard output instead of using a socket as the Emacsclient
 does.
 
 This library was written because Magit has to be able to do the above
@@ -21,6 +22,7 @@ Because other packages can benefit from such functionality, this
 library is made available as a separate package.  It also defines some
 additional functionality which makes it useful even for end-users, who
 don't use Magit or another package which uses it internally.
+@end ifnottex
 
 @quotation
 Copyright (C) 2015 Jonas Bernoulli <jonas@@bernoul.li>
@@ -45,6 +47,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title With-Editor User Manual
+@subtitle for version 2.1
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -234,7 +237,7 @@ Some variants of this function exist; these two forms are equivalent:
 
 @lisp
 (add-hook 'shell-mode-hook
-	  (apply-partially 'with-editor-export-editor "GIT_EDITOR"))
+          (apply-partially 'with-editor-export-editor "GIT_EDITOR"))
 (add-hook 'shell-mode-hook 'with-editor-export-git-editor)
 @end lisp
 
@@ -274,7 +277,7 @@ package}.
 @defmac with-editor &rest body
 
 This macro arranges for the emacsclient or the sleeping editor to be
-used as the editor of child processes, effectivly teaching them to
+used as the editor of child processes, effectively teaching them to
 call home to the current emacs instance when they require that the
 user edits a file.
 

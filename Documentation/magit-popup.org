@@ -4,11 +4,12 @@
 #+DATE: 2015
 #+LANGUAGE: en
 
-#+OPTIONS: H:4 num:3 toc:2
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit-Popup: (magit-popup).
 #+TEXINFO_DIR_DESC: Infix arguments with feedback
+#+SUBTITLE: for version 2.1
 
+#+OPTIONS: H:4 num:3 toc:2
 #+STARTUP: indent
 
 * Copying
@@ -16,12 +17,14 @@
 :COPYING:    t
 :END:
 
+#+BEGIN_TEXINFO
+@ifnottex
 Taking inspiration from regular prefix commands and prefix arguments,
 this library implements a similar abstraction; a new kind of prefix
 command that is associated with a specific set of infix arguments and
 suffix commands.
+@end ifnottex
 
-#+BEGIN_TEXINFO
 @quotation
 Copyright (C) 2015 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -44,7 +47,7 @@ this library implements a similar abstraction; a new kind of prefix
 command that is associated with a specific set of infix arguments and
 suffix commands.
 
-Invoking such a prefix command displays a popup buffer wihch lists the
+Invoking such a prefix command displays a popup buffer which lists the
 associated infix arguments and suffix commands.  In that buffer each
 argument is prefixes with the key sequence that can be used to toggle
 it or change its value.  Likewise each suffix command is prefixed with
@@ -411,12 +414,12 @@ commands have to be defined separately using plain ~defun~.
   information.
 
   The optional argument GROUP specifies the Custom group in which the
-  option is placed.  If ommitted then the option is placed in some
+  option is placed.  If omitted then the option is placed in some
   group the same way it is done when directly using ~defcustom~ and
-  ommitting the group.
+  omitting the group.
 
   The optional argument MODE specifies the mode used by the popup
-  buffer.  If it is ommitted or ~nil~ then ~magit-popup-mode~ is used.
+  buffer.  If it is omitted or ~nil~ then ~magit-popup-mode~ is used.
 
   The remaining arguments should have the form ~[KEYWORD VALUE]...~.
 
@@ -470,7 +473,7 @@ commands have to be defined separately using plain ~defun~.
 
     The popup arguments which can be toggled on and off.  VALUE is a
     list whose members have the form ~(KEY DESC SWITCH)~, see
-    ~magit-define-popup-switch~ for defails.
+    ~magit-define-popup-switch~ for details.
 
   - ~:options~
 
@@ -552,19 +555,6 @@ Except when redefining the former, you should not use these directly.
   arguments that don't match any of the regexps are returned, or ~:only~
   which doesn't change the behavior.
 
-TRASH
-
-Such a prefix command are a regular interactive command.  Invoking it
-shows the available suffix commands and infix arguments in a popup
-buffer.  The user can then change the values of the arguments and
-finally invoke one of the suffix arguments.  This causes the popup
-buffer to disappear and the command to be invoked interactively with
-the buffer that was current before the popup buffer was shown current
-again and dynamic bindings for ~magit-current-popup~ and
-~magit-current-popup-args~ in affect.
-
-Suffix commands also are regular interactive commands.  Usually these
-commands use the value of ~magit-current-popup-args~ or preferably the
-popup specific ~SHORTNAME-arguments~ inside their ~interactive~ form, but
-it is also possible to use existing commands that are not
-"popup-aware" as suffix commands.
+#  LocalWords:  ARG DESC KEY's LocalWords Magit OPTVAL POPUP PREPEND
+#  LocalWords:  Popup SHORTNAME args desc magit manpage popup popup's
+#  LocalWords:  popups pre prepend

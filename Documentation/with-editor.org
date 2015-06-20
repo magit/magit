@@ -4,11 +4,12 @@
 #+DATE: 2015
 #+LANGUAGE: en
 
-#+OPTIONS: H:4 num:3 toc:2
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: With-Editor: (with-editor).
 #+TEXINFO_DIR_DESC: Using the Emacsclient as $EDITOR
+#+SUBTITLE: for version 2.1
 
+#+OPTIONS: H:4 num:3 toc:2
 #+STARTUP: indent
 
 * Copying
@@ -16,10 +17,12 @@
 :COPYING:    t
 :END:
 
-The library ~with-editor~ makes it easy to use the Emacsclient as the
-~$EDITOR~ of child processes, making sure they know how to call home.
-For remote processes a substitute is provided, which communicates with
-Emacs on standard output instead of using a socket as the Emacsclient
+#+BEGIN_TEXINFO
+@ifnottex
+The library @code{with-editor} makes it easy to use the Emacsclient as
+the @code{$EDITOR} of child processes, making sure they know how to call
+home.  For remote processes a substitute is provided, which communicates
+with Emacs on standard output instead of using a socket as the Emacsclient
 does.
 
 This library was written because Magit has to be able to do the above
@@ -30,8 +33,8 @@ Because other packages can benefit from such functionality, this
 library is made available as a separate package.  It also defines some
 additional functionality which makes it useful even for end-users, who
 don't use Magit or another package which uses it internally.
+@end ifnottex
 
-#+BEGIN_TEXINFO
 @quotation
 Copyright (C) 2015 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -220,7 +223,7 @@ package]].
 - Macro: with-editor &rest body
 
   This macro arranges for the emacsclient or the sleeping editor to be
-  used as the editor of child processes, effectivly teaching them to
+  used as the editor of child processes, effectively teaching them to
   call home to the current emacs instance when they require that the
   user edits a file.
 
@@ -251,3 +254,6 @@ in Magit, then please open a new issue at
 https://github.com/magit/magit/issues and provide information about
 your Emacs installation.  Most importantly how did you install Emacs
 and what is the output of ~M-x with-editor-debug~?
+
+#  LocalWords:  Emacsclient LocalWords Magit async emacs emacsclient
+#  LocalWords:  hg init rebase startup
