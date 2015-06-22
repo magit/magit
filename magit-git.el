@@ -286,25 +286,33 @@ call function WASHER with no argument."
 
 ;;; Files
 
+(defmacro magit--with-safe-default-directory (file &rest body)
+  (declare (indent 1))
+  `(catch 'unsafe-default-dir
+     (let ((default-directory
+             (let ((file ,file))
+               (file-name-as-directory (if file
+                                           (expand-file-name file)
+                                         default-directory)))))
+       (while (not (file-accessible-directory-p default-directory))
+         (when (string-equal default-directory "/")
+           (throw 'unsafe-default-dir nil))
+         (setq default-directory
+               (file-name-directory
+                (directory-file-name default-directory))))
+       ,@body)))
+
 (defun magit-git-dir (&optional path)
   "Return absolute path to the GIT_DIR for the current repository.
 If optional PATH is non-nil it has to be a path relative to the
 GIT_DIR and its absolute path is returned."
-  (--when-let (magit-rev-parse-safe "--git-dir")
-    (setq it (file-name-as-directory (magit-expand-git-file-name it)))
-    (if path (expand-file-name (convert-standard-filename path) it) it)))
+  (magit--with-safe-default-directory nil
+    (--when-let (magit-rev-parse-safe "--git-dir")
+      (setq it (file-name-as-directory (magit-expand-git-file-name it)))
+      (if path (expand-file-name (convert-standard-filename path) it) it))))
 
-(cl-defun magit-toplevel (&optional file strict)
-  (let ((default-directory
-          (file-name-as-directory (if file
-                                      (expand-file-name file)
-                                    default-directory))))
-    (while (not (file-accessible-directory-p default-directory))
-      (when (string-equal default-directory "/")
-        (cl-return-from magit-toplevel nil))
-      (setq default-directory
-            (file-name-directory
-             (directory-file-name default-directory))))
+(defun magit-toplevel (&optional file strict)
+  (magit--with-safe-default-directory file
     (-if-let (cdup (magit-rev-parse-safe "--show-cdup"))
         (magit-expand-git-file-name
          (file-name-as-directory (expand-file-name cdup)))
