@@ -324,8 +324,12 @@ GIT_DIR and its absolute path is returned."
 
 (defmacro magit-with-toplevel (&rest body)
   (declare (indent defun))
-  `(let ((default-directory (magit-toplevel)))
-     ,@body))
+  (let ((toplevel (cl-gensym "toplevel")))
+    `(let ((,toplevel (magit-toplevel)))
+       (if ,toplevel
+           (let ((default-directory ,toplevel))
+             ,@body)
+         (error "Not inside a Git repository: %s" default-directory)))))
 
 (defun magit-inside-gitdir-p ()
   "Return t if `default-directory' is below a repository directory."
