@@ -286,13 +286,12 @@ call function WASHER with no argument."
 
 ;;; Files
 
-(defun magit-git-dir (&optional path localname)
+(defun magit-git-dir (&optional path)
   "Return absolute path to the GIT_DIR for the current repository.
 If optional PATH is non-nil it has to be a path relative to the
-GIT_DIR and its absolute path is returned.  If optional LOCALNAME
-is non-nil return only the local part of tramp paths."
+GIT_DIR and its absolute path is returned."
   (--when-let (magit-rev-parse-safe "--git-dir")
-    (setq it (file-name-as-directory (magit-expand-git-file-name it localname)))
+    (setq it (file-name-as-directory (magit-expand-git-file-name it)))
     (if path (expand-file-name (convert-standard-filename path) it) it)))
 
 (cl-defun magit-toplevel (&optional file strict)
@@ -416,15 +415,9 @@ If the file is not inside a Git repository then return nil."
         (setq pos (point)))
       status)))
 
-(defun magit-expand-git-file-name (filename &optional localname)
-  (setq filename
-        (if (file-name-absolute-p filename)
-            (if localname
-                filename
-              (concat (file-remote-p default-directory) filename))
-          (expand-file-name
-           filename
-           (and localname (file-remote-p default-directory 'localname)))))
+(defun magit-expand-git-file-name (filename)
+  (unless (file-name-absolute-p filename)
+    (setq filename (expand-file-name filename)))
   (if (and (eq system-type 'windows-nt) ; together with cygwin git, see #1318
            (string-match "^/\\(cygdrive/\\)?\\([a-z]\\)/\\(.*\\)" filename))
       (concat (match-string 2 filename) ":/"
@@ -837,7 +830,8 @@ Return a list of two integers: (A>B B>A)."
 (defmacro magit-with-temp-index (tree &rest body)
   (declare (indent 1) (debug (form body)))
   (let ((file (cl-gensym "file")))
-    `(let ((,file (magit-git-dir (make-temp-name "index.magit.") t)))
+    `(let ((,file (magit-git-dir (make-temp-name "index.magit."))))
+       (setq ,file (or (file-remote-p ,file 'localname) ,file))
        (unwind-protect
            (progn ,@(--when-let tree
                       `((or (magit-git-success
