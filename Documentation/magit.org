@@ -248,6 +248,11 @@ Finally add this to your init file:
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path "~/.emacs.d/site-lisp/magit/lisp")
   (require 'magit)
+
+  (with-eval-after-load 'info
+    (info-initialize)
+    (add-to-list 'Info-directory-list
+                 "~/.emacs.d/lib/magit/Documentation/"))
 #+END_SRC
 
 Note that you have to add the ~lisp/~ subdirectory to the ~load-path~,
