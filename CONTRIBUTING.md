@@ -30,12 +30,14 @@ Donations
 =========
 
 Please also consider to contribute by making a
-[monetary donation][donation].
+[monetary donation][donations].
 
 
 [chat]:      https://gitter.im/magit/magit
 [donations]: http://magit.vc/donations.html
 [faq]:       http://magit.vc/manual/magit/FAQ.html
 [forum]:     http://emacs.stackexchange.com/questions/tagged/magit
+[issues]:    https://github.com/magit/magit/issues
 [list]:      https://groups.google.com/forum/?fromgroups#!forum/magit
-[manual]:    http://magit.vc/manual
+[manual]:    http://magit.vc/manualm
+[pulls]:     https://github.com/magit/magit/pulls
