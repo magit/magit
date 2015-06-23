@@ -2,9 +2,8 @@
 
 ;; Copyright (C) 2008-2015  The Magit Project Developers
 ;;
-;; For a full list of contributors, see the AUTHORS.md file
-;; at the top-level directory of this distribution and at
-;; https://raw.github.com/magit/magit/master/AUTHORS.md
+;; You should have received a copy of the AUTHORS.md file which
+;; lists all contributors.  If not, see http://magit.vc/authors.
 
 ;; Author: Marius Vollmer <marius.vollmer@gmail.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
@@ -1943,20 +1942,22 @@ Git, and Emacs in the echo area.\n\n(fn)"
     (when toplib
       (let* ((dir (file-name-directory toplib))
              (static (expand-file-name "magit-version.el" dir))
-             (gitdir (expand-file-name ".git" dir)))
+             (gitdir (expand-file-name
+                      ".git" (file-name-directory (directory-file-name dir)))))
         (cond ((file-exists-p gitdir)
                (setq magit-version
                      (let ((default-directory dir))
                        (magit-git-string "describe" "--tags" "--dirty")))
-               (ignore-errors (delete-file static)))
+               (unless noninteractive
+                 (ignore-errors (delete-file static))))
               ((file-exists-p static)
                (load-file static))
               ((featurep 'package)
-               (setq magit-version
-                     (and (fboundp 'package-desc-version)
-                          (package-version-join
-                           (package-desc-version
-                            (cadr (assq 'magit package-alist))))))))))
+               (--when-let (assq 'magit package-alist)
+                 (setq magit-version
+                       (and (fboundp 'package-desc-version)
+                            (package-version-join
+                             (package-desc-version (cadr it))))))))))
     (if (stringp magit-version)
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"

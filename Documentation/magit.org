@@ -246,12 +246,15 @@ Then compile the libraries and generate the info manuals:
 Finally add this to your init file:
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/site-lisp/magit")
+  (add-to-list 'load-path "~/.emacs.d/site-lisp/magit/lisp")
   (require 'magit)
 #+END_SRC
 
-Instead of requiring the feature ~magit~, you could instead load the
-autoloads only, by loading the file ~magit-autoloads.el~.
+Note that you have to add the ~lisp/~ subdirectory to the ~load-path~,
+not the top-level of the repository.
+
+Instead of requiring the feature ~magit~, you could only load the
+autoloads, by loading the file ~magit-autoloads.el~.
 
 Instead of running Magit directly the repository by adding that to
 the ~load-path~, you might want to instead install it in some other

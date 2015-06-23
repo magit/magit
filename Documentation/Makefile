@@ -1,5 +1,5 @@
 -include ../config.mk
-include ../.common.mk
+include ../default.mk
 
 MAKEINFO ?= makeinfo
 
@@ -10,26 +10,88 @@ INSTALL_INFO ?= $(shell \
 
 DOC_LOAD_PATH ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
 
-.PHONY: install clean
+.PHONY: texi install clean AUTHORS.md
 
-all: magit.info magit-popup.info with-editor.info dir
+all: info
 
-%.texi: %.org
-	@printf "Generating $<\n"
+# Because most users don't have the necessary tools we cannot
+# use "%.texi: %.org".  Instead we have to hardcode each file
+# using a shared target.
+texi: $(TEXIPAGES)
+	@printf "Generating magit.texi\n"
 	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
-	-l ox-texinfo+.el $< -f org-texinfo+export-to-texinfo
-	@echo >> $@
+	-l ox-texinfo+.el magit.org -f org-texinfo+export-to-texinfo
+	@echo >> magit.texi
+	@printf "Generating magit-popup.texi\n"
+	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
+	-l ox-texinfo+.el magit-popup.org -f org-texinfo+export-to-texinfo
+	@echo >> magit-popup.texi
+	@printf "Generating with-editor.texi\n"
+	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
+	-l ox-texinfo+.el with-editor.org -f org-texinfo+export-to-texinfo
+	@echo >> with-editor.texi
+
+info: $(INFOPAGES) dir
 
 %.info: %.texi
-	@printf "Generating $<\n"
+	@printf "Generating $@\n"
 	@$(MAKEINFO) $< -o $@
 
 dir: magit.info magit-popup.info with-editor.info
 	@printf "Generating dir\n"
 	@echo $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
 
-install: all
+install: install-info install-docs
+
+install-docs: install-info
+	@$(MKDIR) $(DESTDIR)$(docdir)
+	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
+
+install-info: info
 	@$(MKDIR) $(DESTDIR)$(infodir)
-	$(CP) magit.info magit-popup.info with-editor.info $(DESTDIR)$(infodir)
+	$(CP) $(INFOPAGES) $(DESTDIR)$(infodir)
+
 clean:
-	@$(RM) magit.info magit-popup.info with-editor.info dir
+	@$(RM) $(INFOPAGES) dir
+
+authors: AUTHORS.md
+AUTHORS.md:
+	@printf "Generating AUTHORS.md..."
+	@test -d $(TOP).git \
+	&& (printf "$$AUTHORS_HEADER\n" > $@ \
+	&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
+	&& printf "done\n" ; ) \
+	|| printf "FAILED (non-fatal)\n"
+
+define AUTHORS_HEADER
+Authors
+=======
+
+For statistics see http://magit.vc/stats/authors.html.
+
+Names below are sorted alphabetically.
+
+Author
+------
+
+- Marius Vollmer <marius.vollmer@gmail.com>
+
+Maintainer
+----------
+
+- Jonas Bernoulli <jonas@bernoul.li>
+
+Retired Maintainers
+-------------------
+
+- Nicolas Dudebout <nicolas.dudebout@gatech.edu>
+- Peter J. Weisberg <pj@irregularexpressions.net>
+- Phil Jackson <phil@shellarchive.co.uk>
+- Rémi Vanicat <vanicat@debian.org>
+- Yann Hodique <yann.hodique@gmail.com>
+
+Contributors
+------------
+
+endef
+export AUTHORS_HEADER

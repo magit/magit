@@ -6,5 +6,5 @@
 /config.mk
 /magit-*.tar
 /magit-*.tar.gz
-/magit-autoloads.el
-/magit-version.el
+/lisp/magit-autoloads.el
+/lisp/magit-version.el

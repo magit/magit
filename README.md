@@ -21,50 +21,17 @@ provide a unified interface to various version control systems, Magit
 only supports Git and can therefore better take advantage of its
 native features.
 
-*Magit 2.0.50 requires at least GNU Emacs 24.4 and Git 1.9.4.*
-
 Installation
 ============
 
-You are looking at the `README.md` of the development branch.  For
-instructions on how to install the stable version of Magit see the
-extended [installation instructions][install] instead.
+*Magit 2.0.50 requires at least GNU Emacs 24.4 and Git 1.9.4.*
 
-First **uninstall** all instances of `magit`, `git-commit-mode` and
-`git-rebase-mode` that you have currently installed.  Doing this,
-and doing it carefully (e.g. did you also install Magit using your
-distributions package manager at some point?), is **very important**.
-It only takes a few minutes to do this, but if everyone does it, then
-that will save me hours of investigating "impossible" issues, which I
-cannot actually reproduce myself.
+Instructions on how to install the `2.0.50` pre-release can be found
+[here](http://magit.vc/manual/magit/Installation.html).  `2.1.0` will
+be released on the 1th of July.
 
-Then install package `dash` using `install-package`.  This is now
-the only external dependency; the libraries `git-commit.el` and
-`git-rebase.el` are now part of the Magit repository.  (These
-libraries were previously part of the Git-Modes repository and their
-names used to end with `-mode.el`).
-
-Then clone the Magit repository and check out the "next" branch:
-
-    $ git clone git://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
-    $ cd ~/.emacs.d/site-lisp/magit
-    $ git checkout next
-
-Then compile the libraries:
-
-    $ make lisp
-
-Finally add this to your init file:
-
-    (add-to-list 'load-path "~/.emacs.d/site-lisp/magit")
-    (require 'magit)
-
-To update Magit use:
-
-    $ git pull
-    $ make clean lisp
-
-To view all available targets use `make help`.
+Instructions on how to install the `1.4.2` release can be found
+[here](https://github.com/magit/magit/wiki/Installation).
 
 Getting Help
 ============

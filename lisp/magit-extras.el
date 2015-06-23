@@ -2,9 +2,8 @@
 
 ;; Copyright (C) 2008-2015  The Magit Project Developers
 ;;
-;; For a full list of contributors, see the AUTHORS.md file
-;; at the top-level directory of this distribution and at
-;; https://raw.github.com/magit/magit/master/AUTHORS.md
+;; You should have received a copy of the AUTHORS.md file which
+;; lists all contributors.  If not, see http://magit.vc/authors.
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by

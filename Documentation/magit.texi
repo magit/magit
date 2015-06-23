@@ -470,12 +470,15 @@ $ make
 Finally add this to your init file:
 
 @lisp
-(add-to-list 'load-path "~/.emacs.d/site-lisp/magit")
+(add-to-list 'load-path "~/.emacs.d/site-lisp/magit/lisp")
 (require 'magit)
 @end lisp
 
-Instead of requiring the feature @code{magit}, you could instead load the
-autoloads only, by loading the file @code{magit-autoloads.el}.
+Note that you have to add the @code{lisp/} subdirectory to the @code{load-path},
+not the top-level of the repository.
+
+Instead of requiring the feature @code{magit}, you could only load the
+autoloads, by loading the file @code{magit-autoloads.el}.
 
 Instead of running Magit directly the repository by adding that to
 the @code{load-path}, you might want to instead install it in some other
