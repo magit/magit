@@ -8,7 +8,7 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "24.4") (cl-lib "0.5") (dash "2.10.0"))
+;; Package-Requires: ((emacs "24.4") (dash "2.10.0"))
 ;; Homepage: https://github.com/magit/magit
 
 ;; This file is not part of GNU Emacs.
