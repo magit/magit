@@ -219,11 +219,11 @@ same name."
   (if (require 'ido-completing-read+ nil t)
       (ido-completing-read+ prompt choices predicate require-match
                             initial-input hist def)
-    (display-warning :error "ido-completing-read+ is not installed
+    (display-warning 'magit "ido-completing-read+ is not installed
 
 To use Ido completion with Magit you need to install the
 third-party `ido-completing-read+' packages.  Falling
-back to built-in `completing-read' for now.")
+back to built-in `completing-read' for now." :error)
     (magit-builtin-completing-read prompt choices predicate require-match
                                    initial-input hist def)))
 
