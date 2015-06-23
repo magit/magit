@@ -1,4 +1,4 @@
-;;; with-editor.el --- use the Emacsclient as $EDITOR -*- lexical-binding: t -*-
+;;; with-editor.el --- Use the Emacsclient as $EDITOR -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014-2015  The Magit Project Contributors
 ;;

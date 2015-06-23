@@ -1,4 +1,4 @@
-;;; magit-popup.el --- infix arguments with feedback
+;;; magit-popup.el --- Define prefix-infix-suffix command combos
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;

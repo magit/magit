@@ -1,4 +1,4 @@
-;;; magit.el --- control Git from Emacs
+;;; magit.el --- A Git porcelain inside Emacs
 
 ;; Copyright (C) 2008-2015  The Magit Project Contributors
 ;;
@@ -34,15 +34,13 @@
 ;;; Commentary:
 
 ;; Magit is an interface to the version control system Git,
-;; or as they call it a Git porcelain.
-
-;; Unlike the VC package which is part of Emacs and strives to provide
-;; a unified interface to various version control systems, Magit only
-;; supports Git and can therefore better take advantage of its native
-;; features.
-
-;; The main entry point is `magit-status'.
-;; See the Magit User Manual for more information.
+;; implemented as an Emacs package.  Magit aspires to be a complete
+;; Git porcelain.  While we cannot (yet) claim, that Magit wraps and
+;; improves upon each and every Git command, it is complete enough to
+;; allow even experienced Git users to perform almost all of their
+;; daily version control tasks directly from within Emacs.  While many
+;; fine Git clients exist, only Magit and Git itself deserve to be
+;; called porcelains.
 
 ;;; Code:
 

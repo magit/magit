@@ -1,4 +1,4 @@
-;;; git-rebase.el --- Major mode for editing Git rebase files
+;;; git-rebase.el --- Edit Git rebase files
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;
