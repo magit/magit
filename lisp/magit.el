@@ -1974,7 +1974,7 @@ Git, and Emacs in the echo area.\n\n(fn)"
       (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" version)
         (setq version (match-string 1 version)))
       (when (version< version "1.9.4")
-        (display-warning :error (format "\
+        (display-warning 'magit (format "\
 Magit requires Git >= 1.9.4, you are using %s.
 
 If this comes as a surprise to you, because you do actually have
@@ -1988,9 +1988,9 @@ For X11 something like ~/.xinitrc should work.
 
 If you use Tramp to work inside remote Git repositories, then you
 have to make sure a suitable Git is used on the remote machines
-too.\n" version)))))
+too.\n" version) :error))))
   (when (version< emacs-version "24.4")
-    (display-warning :error (format "\
+    (display-warning 'magit (format "\
 Magit requires Emacs >= 24.4, you are using %s.
 
 If this comes as a surprise to you, because you do actually have
@@ -2000,18 +2000,18 @@ always start Emacs from a shell, then that can be fixed in the
 shell's init file.  If you start Emacs by clicking on an icon,
 or using some sort of application launcher, then you probably
 have to adjust the environment as seen by graphical interface.
-For X11 something like ~/.xinitrc should work.\n" emacs-version)))
+For X11 something like ~/.xinitrc should work.\n" emacs-version) :error))
   (--each '((magit-log-edit  . git-commit)
             (git-commit-mode . git-commit)
             (git-rebase-mode . git-rebase))
     (when (or (featurep (car it)) (locate-library (symbol-name (car it))))
-      (display-warning :error (format "%s has to be removed
+      (display-warning 'magit (format "%s has to be removed
 
 Magit is no longer compatible with the library `%s',
 which was used in earlier releases.  Please remove it, so that
 Magit can use the successor `%s' without the obsolete
 library getting in the way.  Then restart Emacs."
-                                      (car it)  (car it) (cdr it))))))
+                                      (car it)  (car it) (cdr it)) :error))))
 
 (provide 'magit)
 
