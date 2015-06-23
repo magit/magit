@@ -61,7 +61,7 @@ Support
 **When something doesn't work as expected then please first see the
 [FAQ][faq].** Then also try the list of [open issues][issues] and use
 the search box at the top of that page to find older related issues.
-You should also consult the [manual][manual] ask a general-purpose
+You should also consult the [manual][manual] and ask a general-purpose
 search engine.
 
 If everything else fails then ask for help on the
