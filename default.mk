@@ -11,13 +11,13 @@ CP    ?= install -p -m 644
 MKDIR ?= install -p -m 755 -d
 RMDIR ?= rm -rf
 TAR   ?= tar
+GZIP  ?= gzip
 
-PACKAGES = magit magit-popup with-editor
+PACKAGES = with-editor git-commit magit-popup magit
 PACKAGE_VERSIONS = $(addsuffix -$(VERSION),$(PACKAGES))
-PACKAGE_TARBALLS = $(addsuffix .tar,$(PACKAGE_VERSIONS))
 
-INFOPAGES = $(addsuffix .info,$(PACKAGES))
-TEXIPAGES = $(addsuffix .texi,$(PACKAGES))
+INFOPAGES = $(addsuffix .info,$(filter-out git-commit,$(PACKAGES)))
+TEXIPAGES = $(addsuffix .texi,$(filter-out git-commit,$(PACKAGES)))
 
 ELS  = with-editor.el
 ELS += git-commit.el
@@ -43,6 +43,7 @@ ELS += magit-ediff.el
 ELS += magit-extras.el
 ELS += git-rebase.el
 ELCS = $(ELS:.el=.elc)
+ELMS = $(filter-out $(addsuffix .el,$(PACKAGES)),$(ELS))
 ELGS = magit-autoloads.el magit-version.el
 
 EMACSBIN ?= emacs

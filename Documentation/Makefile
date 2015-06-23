@@ -71,6 +71,10 @@ define AUTHORS_HEADER
 Authors
 =======
 
+The following people have contributed to Magit, including the
+libraries \`git-commit.el\`, \`magit-popup.el\`, and \`with-editor.el\`
+which are distributed as separate Elpa packages.
+
 For statistics see http://magit.vc/stats/authors.html.
 
 Names below are sorted alphabetically.

@@ -1,10 +1,11 @@
 *.elc
 *~
+/*.gz
+/*.tar
+/*.tar.gz
 /.dir-locals.el
-/Documentation/dir
 /Documentation/*.info
+/Documentation/dir
 /config.mk
-/magit-*.tar
-/magit-*.tar.gz
 /lisp/magit-autoloads.el
 /lisp/magit-version.el

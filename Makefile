@@ -6,7 +6,7 @@ include default.mk
 	test test-interactive \
 	clean clean-lisp clean-docs \
 	genstats \
-	dist magit-$(VERSION).tar.gz elpa magit-$(VERSION).tar
+	dist magit-$(VERSION).tar.gz elpa $(ELPA_ARCHIVES)
 
 all: lisp docs
 
@@ -83,7 +83,7 @@ test-interactive:
 
 clean: clean-lisp clean-docs
 	@$(RM) $(ELCS) $(ELGS) # temporary cleanup kludge
-	@$(RM) *.tar.gz *.tar Documentation/*.texi~
+	@$(RM) *.gz *.tar.gz *.tar Documentation/*.texi~
 	@$(RMDIR) magit-$(VERSION)
 
 clean-lisp:
@@ -110,7 +110,7 @@ ifneq ("$(wildcard RelNotes/$(VERSION).txt)","")
   DIST_DOCS_FILES += RelNotes/$(VERSION).txt
 endif
 
-magit-$(VERSION).tar.gz:
+magit-$(VERSION).tar.gz: lisp info
 	@printf "Packing $@\n"
 	@$(MKDIR) magit-$(VERSION)
 	@$(CP) $(DIST_ROOT_FILES) magit-$(VERSION)
@@ -122,18 +122,82 @@ magit-$(VERSION).tar.gz:
 	@$(RMDIR) magit-$(VERSION)
 
 marmalade: elpa
+	@printf "Uploading with-editor-$(VERSION)\n"
+	@marmalade-upload with-editor-$(VERSION).tar
+	@printf "Uploading git-commit-$(VERSION)\n"
+	@marmalade-upload git-commit-$(VERSION).tar
+	@printf "Uploading magit-popup-$(VERSION)\n"
+	@marmalade-upload magit-popup-$(VERSION).tar
 	@printf "Uploading magit-$(VERSION)\n"
 	@marmalade-upload magit-$(VERSION).tar
 
-elpa: magit-$(VERSION).tar
+ELPA_ARCHIVES  = with-editor-$(VERSION).tar
+ELPA_ARCHIVES += git-commit-$(VERSION).el.gz
+ELPA_ARCHIVES += magit-popup-$(VERSION).tar
+ELPA_ARCHIVES += magit-$(VERSION).tar
 
-ELPA_ROOT_FILES = COPYING README.md magit-pkg.el
-ELPA_LISP_FILES = $(addprefix lisp/,$(ELS) magit-version.el)
-ELPA_DOCS_FILES = $(addprefix Documentation/,$(INFOPAGES) AUTHORS.md dir)
+elpa: $(ELPA_ARCHIVES)
 
-magit-$(VERSION).tar: info
+define with_editor_pkg
+(define-package "with-editor" "$(VERSION)"
+  "Use the Emacsclient as $$EDITOR"
+  '((emacs \"24.4\")
+    (dash \"2.10.0\")))
+endef
+# '
+export with_editor_pkg
+with-editor-$(VERSION).tar: info
+	@printf "Packing $@\n"
+	@$(MKDIR) with-editor-$(VERSION)
+	@printf "$$with_editor_pkg\n" > with-editor-$(VERSION)/with-editor-pkg.el
+	@$(CP) lisp/with-editor.el with-editor-$(VERSION)
+	@$(CP) Documentation/with-editor.info Documentation/dir with-editor-$(VERSION)
+	@$(TAR) c --mtime=./with-editor-$(VERSION) \
+	  -f with-editor-$(VERSION).tar with-editor-$(VERSION)
+	@$(RMDIR) with-editor-$(VERSION)
+
+git-commit-$(VERSION).el.gz:
+	@printf "Packing $@\n"
+	@$(CP) lisp/git-commit.el git-commit-$(VERSION).el
+	@$(GZIP) git-commit-$(VERSION).el
+
+define magit_popup_pkg
+(define-package "magit-popup" "$(VERSION)"
+  "Define prefix-infix-suffix command combos"
+  '((emacs \"24.4\")
+    (dash \"2.10.0\")))
+endef
+# '
+export magit_popup_pkg
+magit-popup-$(VERSION).tar: info
+	@printf "Packing $@\n"
+	@$(MKDIR) magit-popup-$(VERSION)
+	@printf "$$magit_popup_pkg\n" > magit-popup-$(VERSION)/magit-popup-pkg.el
+	@$(CP) lisp/magit-popup.el magit-popup-$(VERSION)
+	@$(CP) Documentation/magit-popup.info Documentation/dir magit-popup-$(VERSION)
+	@$(TAR) c --mtime=./magit-popup-$(VERSION) \
+	  -f magit-popup-$(VERSION).tar magit-popup-$(VERSION)
+	@$(RMDIR) magit-popup-$(VERSION)
+
+ELPA_ROOT_FILES = COPYING README.md
+ELPA_LISP_FILES = $(addprefix lisp/,$(ELMS) magit-version.el)
+ELPA_DOCS_FILES = $(addprefix Documentation/,AUTHORS.md dir magit.info)
+
+define magit_pkg
+(define-package "magit" "$(VERSION)"
+  "A Git porcelain inside Emacs"
+  '((emacs \"24.4\")
+    (dash \"2.10.0\")
+    (with-editor \"2.0.50\")
+    (git-commit \"2.0.50\")
+    (magit-popup \"2.0.50\")))
+endef
+# '
+export magit_pkg
+magit-$(VERSION).tar: lisp info
 	@printf "Packing $@\n"
 	@$(MKDIR) magit-$(VERSION)
+	@printf "$$magit_pkg\n" > magit-$(VERSION)/magit-pkg.el
 	@$(CP) $(ELPA_ROOT_FILES) magit-$(VERSION)
 	@$(CP) $(ELPA_LISP_FILES) magit-$(VERSION)
 	@$(CP) $(ELPA_DOCS_FILES) magit-$(VERSION)
