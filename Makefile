@@ -83,7 +83,7 @@ test-interactive:
 
 clean: clean-lisp clean-docs
 	@$(RM) $(ELCS) $(ELGS) # temporary cleanup kludge
-	@$(RM) *.tar.gz *.tar
+	@$(RM) *.tar.gz *.tar Documentation/*.texi~
 	@$(RMDIR) magit-$(VERSION)
 
 clean-lisp:
