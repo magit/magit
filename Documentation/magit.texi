@@ -467,6 +467,15 @@ Then compile the libraries and generate the info manuals:
 $ make
 @end example
 
+If you haven't installed @code{dash} using Elpa or at @code{/path/to/magit/../dash},
+then you have to tell @code{make} where to find it.  To do so create
+@code{/path/to/magit/config.mk} with the following content before running
+@code{make}:
+
+@example
+LOAD_PATH = -L /path/to/magit/lisp -L /path/to/dash
+@end example
+
 Finally add this to your init file:
 
 @lisp

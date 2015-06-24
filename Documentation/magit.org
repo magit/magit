@@ -243,6 +243,15 @@ Then compile the libraries and generate the info manuals:
   $ make
 #+END_SRC
 
+If you haven't installed ~dash~ using Elpa or at ~/path/to/magit/../dash~,
+then you have to tell ~make~ where to find it.  To do so create
+~/path/to/magit/config.mk~ with the following content before running
+~make~:
+
+#+BEGIN_SRC makefile
+  LOAD_PATH = -L /path/to/magit/lisp -L /path/to/dash
+#+END_SRC
+
 Finally add this to your init file:
 
 #+BEGIN_SRC emacs-lisp
