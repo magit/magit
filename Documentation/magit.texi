@@ -476,7 +476,7 @@ Finally add this to your init file:
 (with-eval-after-load 'info
   (info-initialize)
   (add-to-list 'Info-directory-list
-	       "~/.emacs.d/lib/magit/Documentation/"))
+               "~/.emacs.d/site-lisp/magit/Documentation/"))
 @end lisp
 
 Note that you have to add the @code{lisp/} subdirectory to the @code{load-path},
@@ -485,8 +485,8 @@ not the top-level of the repository.
 Instead of requiring the feature @code{magit}, you could only load the
 autoloads, by loading the file @code{magit-autoloads.el}.
 
-Instead of running Magit directly the repository by adding that to
-the @code{load-path}, you might want to instead install it in some other
+Instead of running Magit directly from the repository by adding that
+to the @code{load-path}, you might want to instead install it in some other
 directory using @code{sudo make install} and setting @code{load-path} accordingly.
 
 To update Magit use:
@@ -495,6 +495,8 @@ To update Magit use:
 $ git pull
 $ make
 @end example
+
+At times it might be necessary to run @code{make clean all} instead.
 
 To view all available targets use @code{make help}.
 
