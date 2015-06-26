@@ -86,7 +86,7 @@
   :group 'git-rebase
   :type 'boolean)
 
-(defcustom git-rebase-show-instructions nil
+(defcustom git-rebase-show-instructions t
   "Whether to show usage instructions inside the rebase buffer."
   :group 'git-rebase
   :type 'boolean)
