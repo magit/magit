@@ -40,7 +40,7 @@ Magit 2.1.0 will be released on the 1th of July
   [these](https://github.com/magit/magit/wiki/Installation) old
   instructions.
 
-- To install the `2.0.50` pre-release now, follow [these](install)
+- To install the `2.0.50` pre-release now, follow [these][install]
   instructions.  Note that until `2.1.0` has been released you have
   to install directly from the development repository.
 
