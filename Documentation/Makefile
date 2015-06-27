@@ -56,6 +56,7 @@ install-info: info
 	$(CP) $(INFOPAGES) $(DESTDIR)$(infodir)
 
 clean:
+	@printf "Cleaning Documentation/*...\n"
 	@$(RM) $(INFOPAGES) dir
 
 authors: AUTHORS.md

@@ -75,4 +75,5 @@ install: lisp
 	$(CP) $(ELS) magit-autoloads.el magit-version.el $(ELCS) $(DESTDIR)$(lispdir)
 
 clean:
+	@printf "Cleaning lisp/*...\n"
 	@$(RM) $(ELCS) $(ELGS)
