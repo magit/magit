@@ -1903,6 +1903,27 @@ a prefix argument is used, otherwise save the branch name."
         (t value))
       (kill-new (message "%s" value)))))
 
+(defun magit-copy-buffer-thing-as-kill ()
+  "Save the thing displayed in the current buffer to the kill ring."
+  (interactive "P")
+  (--when-let (cond ((derived-mode-p 'magit-diff-mode
+                                     'magit-cherry-mode
+                                     'magit-reflog-mode
+                                     'magit-refs-mode
+                                     'magit-revision-mode
+                                     'magit-stash-mode)
+                     (car magit-refresh-args))
+                    ((derived-mode-p 'magit-log-mode)
+                     (if magit-log-select-pick-function
+                         (car magit-refresh-args)
+                       (cadr magit-refresh-args)))
+                    ((derived-mode-p 'magit-status-mode)
+                     (or (magit-get-current-branch) "HEAD"))
+                    ((derived-mode-p 'magit-stashes-mode)
+                     "refs/stash")
+                    (t nil))
+    (message "%s" it)))
+
 ;;; magit.el ends soon
 
 (defconst magit-font-lock-keywords
