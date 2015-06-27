@@ -73,7 +73,7 @@ ifeq "$(EMACSOLD)" "true"
   $(error At least version 24.4 of Emacs is required)
 endif
 
-VERSION = $(shell \
+VERSION := $(shell \
   test -e $(TOP).git\
   && git describe --tags --dirty 2> /dev/null\
   || $(BATCH) --eval "(progn\
