@@ -1905,7 +1905,7 @@ a prefix argument is used, otherwise save the branch name."
 
 (defun magit-copy-buffer-thing-as-kill ()
   "Save the thing displayed in the current buffer to the kill ring."
-  (interactive "P")
+  (interactive)
   (--when-let (cond ((derived-mode-p 'magit-diff-mode
                                      'magit-cherry-mode
                                      'magit-reflog-mode
@@ -1922,7 +1922,7 @@ a prefix argument is used, otherwise save the branch name."
                     ((derived-mode-p 'magit-stashes-mode)
                      "refs/stash")
                     (t nil))
-    (message "%s" it)))
+    (kill-new (message "%s" it))))
 
 ;;; magit.el ends soon
 
