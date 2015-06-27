@@ -67,6 +67,12 @@ endif
 
 BATCH = $(EMACSBIN) -batch -Q $(LOAD_PATH)
 
+EMACSOLD := $(shell $(BATCH) --eval \
+  "(and (version< emacs-version \"24.4\") (princ \"true\"))")
+ifeq "$(EMACSOLD)" "true"
+  $(error At least version 24.4 of Emacs is required)
+endif
+
 VERSION = $(shell \
   test -e $(TOP).git\
   && git describe --tags --dirty 2> /dev/null\
