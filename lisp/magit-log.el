@@ -650,8 +650,8 @@ For internal use; don't add to a hook."
   (when (member "--color" args)
     (let ((ansi-color-apply-face-function
            (lambda (beg end face)
-             (when face
-               (put-text-property beg end 'font-lock-face face)))))
+             (put-text-property beg end 'font-lock-face
+                                (or face 'magit-log-graph)))))
       (ansi-color-apply-on-region (point-min) (point-max))))
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
