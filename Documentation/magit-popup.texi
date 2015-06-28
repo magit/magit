@@ -195,7 +195,7 @@ a change to notice them.
 
 This option controls whether the section which lists the commands
 that are common to all popups is initially show.  We recommend you
-set this to @code{nil} - after you have memorized that it can be shown on
+set this to @code{nil} – after you have memorized that it can be shown on
 demand using @code{C-t}.
 @end defopt
 

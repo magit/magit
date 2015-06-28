@@ -150,7 +150,7 @@ a change to notice them.
 
   This option controls whether the section which lists the commands
   that are common to all popups is initially show.  We recommend you
-  set this to ~nil~ - after you have memorized that it can be shown on
+  set this to ~nil~ – after you have memorized that it can be shown on
   demand using ~C-t~.
 
 - Key: C-t, magit-popup-toggle-show-common-commands

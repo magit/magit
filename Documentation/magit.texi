@@ -274,7 +274,7 @@ To stage or unstage a change one places the cursor on the change and
 then types @code{s} or @code{u}.  The change can be a file or a hunk, or when the
 region is active (i.e. when there is a selection) several files or
 hunks, or even just part of a hunk.  The change or changes that these
-commands - and many others - would act on are highlighted.
+commands – and many others – would act on are highlighted.
 
 Magit also implements several other "apply variants" in addition to
 staging and unstaging.  One can also discard or reverse a change, or
@@ -329,7 +329,7 @@ implemented on top of Git plumbing commands.
 Magit can be installed using Emacs' package manager or manually from
 its development repository.
 
-[These instructions assume that @code{2.1.0} has already been released - but
+[These instructions assume that @code{2.1.0} has already been released – but
 that's not the case.  Currently you have to install what will become
 the @code{2.1.0} release from Magit's development repository, installing from
 an Elpa archive would install an older release.]
@@ -378,7 +378,7 @@ recent enough Git version on these hosts.
 @node Installing from an Elpa archive
 @section Installing from an Elpa archive
 
-[These instructions assume that @code{2.1.0} has already been released - but
+[These instructions assume that @code{2.1.0} has already been released – but
 that's not the case.  Currently you have to install what will become
 the @code{2.1.0} release from Magit's development repository, installing from
 an Elpa archive would install an older release.]
@@ -843,7 +843,7 @@ The file-visiting buffers are always reverted, even if
 @defopt magit-refresh-buffer-hook
 
 This hook is run in each Magit buffer that was refreshed during the
-current refresh - normally the current buffer and the status buffer.
+current refresh – normally the current buffer and the status buffer.
 @end defopt
 
 @defopt magit-after-revert-hook
@@ -1440,7 +1440,7 @@ itself, using the standard mechanism for doing such things.
 
 The arguments set here are used every time the git executable is run
 as a subprocess.  They are placed right after the executable itself
-and before the git command - as in `git HERE@dots{} COMMAND REST'.  For
+and before the git command – as in `git HERE@dots{} COMMAND REST'.  For
 valid arguments see 
 @ifinfo
 @ref{git,,,gitman,}
@@ -3063,7 +3063,7 @@ reversed, instead discard them.
 
 @item
 Apply.  Apply a change to the working tree.  Both committed and staged
-changes can be applied.  Unstaged changes cannot be applied - as
+changes can be applied.  Unstaged changes cannot be applied – as
 they already have been applied.
 @end itemize
 
@@ -3234,7 +3234,7 @@ while the other is used to write the message.  All regular editing
 commands are available in the commit message buffer.  This section
 only describes the additional commands.
 
-Commit messages are edited in an edit session - in the background Git
+Commit messages are edited in an edit session – in the background Git
 is waiting for the editor, in our case the Emacsclient, to save the
 commit message in a file (in most cases @code{.git/COMMIT_EDITMSG}) and then
 return.  If the Emacsclient returns with a non-zero exit status then
@@ -5056,10 +5056,10 @@ disabled by adding a symbol to @code{magit-no-confirm} (see @ref{Completion and 
 add @code{safe-with-wip} to this list.
 
 Similarly it isn't necessary to require confirmation before moving a
-file to the system trash - if you trashed a file by mistake then you
+file to the system trash – if you trashed a file by mistake then you
 can recover it from the there.  Option @code{magit-delete-by-moving-to-trash}
 controls whether the system trash is used, by default that is the
-case.  Never-the-less @code{trash} isn't a member of @code{magit-no-confirm} - you
+case.  Never-the-less @code{trash} isn't a member of @code{magit-no-confirm} – you
 might want to change that.
 
 Buffers visiting files tracked in the current repository are being
@@ -5131,7 +5131,7 @@ compute the whole history and the max-count only affects the output
 phase after @code{--graph} does its computation".
 
 In other words, it's not that Git is slow at outputting the
-differences, or that Magit is slow at parsing the output - the
+differences, or that Magit is slow at parsing the output – the
 problem is that Git first goes outside and has a smoke.  This has to
 be fixed in Git but so far nobody volunteered to do it.  Maybe you
 could do that?
@@ -5141,7 +5141,7 @@ could do that?
 Whenever "something changes" Magit "refreshes" the status buffer and
 the current Magit buffer by recreating them from scratch.  This is
 an old design decision which we couldn't depart from easily.  And it
-has its benefits too - most importantly it's much simpler and less
+has its benefits too – most importantly it's much simpler and less
 error prone to do it this way than to only refreshing "what actually
 has changed" (that would basically be a huge collection of special
 cases).  So for now at least, we don't avoid recreating the buffer
@@ -5844,7 +5844,7 @@ it differs in some other way from the latter.
 
 The most difficult faces to theme are those related to diffs,
 headings, highlighting, and the region.  There are faces that fall
-into all four groups - expect to spend some time getting this right.
+into all four groups – expect to spend some time getting this right.
 
 The @code{region} face in the default theme, in both the light and dark
 variants, as well as in many other themes, distributed with Emacs or
@@ -5915,7 +5915,7 @@ from the regular highlight variants, otherwise there would be no
 explicit visual indication that the region is active.
 
 When theming diff related faces, start by setting the option
-@code{magit-diff-refine-hunk} to @code{all} - you might personally prefer to only
+@code{magit-diff-refine-hunk} to @code{all} – you might personally prefer to only
 refine the current hunk or not use hunk refinement at all, but some of
 the users of your theme want all hunks to be refined, so you have to
 cater for that.
@@ -5956,7 +5956,7 @@ Otherwise it would be impossible to make the diffs look good in each
 and every variation.  Actually you might want to just stick to the
 default definitions for these faces.  You have been warned.  Also
 please note that if you do not get this right, this will in some cases
-look to users like bugs in Magit - so please do it right or not at
+look to users like bugs in Magit – so please do it right or not at
 all.
 
 @node FAQ
@@ -6147,7 +6147,7 @@ These commands only delegate the task of populating buffers with
 certain revisions to the "internal" functions, the equally important
 task of determining which revisions are to be compared/merged is not
 delegated.  Instead this is done without any support whatsoever, from
-the version control package/system - meaning that the user has to
+the version control package/system – meaning that the user has to
 enter the revisions explicitly.  Instead of implementing
 @code{ediff-magit-internal} we provide @code{magit-ediff-compare}, which handles
 both tasks like it is 2005.
