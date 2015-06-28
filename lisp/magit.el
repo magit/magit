@@ -315,11 +315,13 @@ deep."
 
 (defface magit-cherry-unmatched
   '((t :foreground "cyan"))
-  "Face for unmatched cherry commits.")
+  "Face for unmatched cherry commits."
+  :group 'magit-faces)
 
 (defface magit-cherry-equivalent
   '((t :foreground "magenta"))
-  "Face for equivalent cherry commits.")
+  "Face for equivalent cherry commits."
+  :group 'magit-faces)
 
 (defface magit-filename
   '((t :weight normal))
