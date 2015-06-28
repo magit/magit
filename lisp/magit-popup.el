@@ -13,6 +13,7 @@
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
 ;; Package-Requires: ((emacs "24.4") (dash "2.10.0"))
+;; Keywords: bindings
 ;; Homepage: https://github.com/magit/magit
 
 ;; Magit is free software; you can redistribute it and/or modify it

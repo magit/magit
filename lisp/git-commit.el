@@ -12,8 +12,8 @@
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
 ;; Package-Requires: ((emacs "24.4") (dash "2.10.0") (with-editor "2.0.50"))
+;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
-;; Keywords: convenience vc git
 
 ;; This file is not part of GNU Emacs.
 
