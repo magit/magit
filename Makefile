@@ -142,8 +142,8 @@ elpa: $(ELPA_ARCHIVES)
 define with_editor_pkg
 (define-package "with-editor" "$(VERSION)"
   "Use the Emacsclient as $$EDITOR"
-  '((emacs \"24.4\")
-    (dash \"2.10.0\")))
+  '((emacs "24.4")
+    (dash "2.10.0")))
 endef
 # '
 export with_editor_pkg
@@ -160,13 +160,12 @@ with-editor-$(VERSION).tar: info
 git-commit-$(VERSION).el.gz:
 	@printf "Packing $@\n"
 	@$(CP) lisp/git-commit.el git-commit-$(VERSION).el
-	@$(GZIP) git-commit-$(VERSION).el
 
 define magit_popup_pkg
 (define-package "magit-popup" "$(VERSION)"
   "Define prefix-infix-suffix command combos"
-  '((emacs \"24.4\")
-    (dash \"2.10.0\")))
+  '((emacs "24.4")
+    (dash "2.10.0")))
 endef
 # '
 export magit_popup_pkg
@@ -180,18 +179,18 @@ magit-popup-$(VERSION).tar: info
 	  -f magit-popup-$(VERSION).tar magit-popup-$(VERSION)
 	@$(RMDIR) magit-popup-$(VERSION)
 
-ELPA_ROOT_FILES = COPYING README.md
+ELPA_ROOT_FILES = COPYING
 ELPA_LISP_FILES = $(addprefix lisp/,$(ELMS) magit-version.el)
 ELPA_DOCS_FILES = $(addprefix Documentation/,AUTHORS.md dir magit.info)
 
 define magit_pkg
 (define-package "magit" "$(VERSION)"
   "A Git porcelain inside Emacs"
-  '((emacs \"24.4\")
-    (dash \"2.10.0\")
-    (with-editor \"2.0.50\")
-    (git-commit \"2.0.50\")
-    (magit-popup \"2.0.50\")))
+  '((emacs "24.4")
+    (dash "2.10.0")
+    (with-editor "2.0.50")
+    (git-commit "2.0.50")
+    (magit-popup "2.0.50")))
 endef
 # '
 export magit_pkg
