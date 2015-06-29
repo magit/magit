@@ -63,7 +63,7 @@ is so cumbersome that many users only use it in exceptional cases.
 In Magit staging a hunk or even just part of a hunk is as trivial as
 staging all changes made to a file.
 
-The most visible part of Magit's interface is the status buffer which
+The most visible part of Magit's interface is the status buffer, which
 displays information about the current repository.  Its content is
 created by running several Git commands and making their output
 actionable.  Among other things, it displays information about the
@@ -78,7 +78,7 @@ hunks, or even just part of a hunk.  The change or changes that these
 commands - and many others - would act on are highlighted.
 
 Magit also implements several other "apply variants" in addition to
-staging and unstaging.  One can also discard or reverse a change, or
+staging and unstaging.  One can discard or reverse a change, or
 apply it to the working tree.  Git's own porcelain only supports this
 for staging and unstaging and you would have to do something like ~git
 diff ... | ??? | git apply ...~ to discard, revert, or apply a single
@@ -99,7 +99,7 @@ users are advised to give Evil, the "Extensible VI Layer for Emacs",
 and Spacemacs, an "Emacs starter-kit focused on Evil", a try.
 
 Magit provides a consistent and efficient Git porcelain.  After a
-short learning period you will be able to perform most of your daily
+short learning period, you will be able to perform most of your daily
 version control tasks faster than you would on the command line.  You
 will likely also start using features that seemed too daunting in the
 past.
@@ -107,7 +107,7 @@ past.
 Magit fully embraces Git.  It exposes many advanced features using a
 simple but flexible interface instead of only wrapping the trivial
 ones like many GUI clients do.  Of course Magit supports logging,
-cloning and pushing and other commands that usually don't fail in
+cloning, pushing, and other commands that usually don't fail in
 spectacular ways; but it also supports tasks that often cannot be
 completed in a single step.  Magit fully supports tasks such as
 merging, rebasing, cherry-picking, reverting, and blaming by not only
@@ -308,7 +308,7 @@ Then you might also want to read about options that many users likely
 want to customize.  See [[*Essential settings]].
 
 To be able to follow cross references to Git manpages found in this
-manual you might also have to manually install the ~gitman~ info manual,
+manual, you might also have to manually install the ~gitman~ info manual,
 or advice ~Info-follow-nearest-node~ to instead open the actual manpage.
 See [[*How to install the gitman info manual?]].
 
@@ -324,7 +324,7 @@ for various donation options.
 
 * Getting started
 
-This section describes the most essential features which many
+This section describes the most essential features that many
 Magitians use on a daily basis.  It only scratches the surface but
 should be enough to get you started.
 
@@ -332,7 +332,7 @@ should be enough to get you started.
 e.g. by cloning an existing repository.  If you don't use a separate
 repository then make sure you create a snapshot as described below).
 
-To display information about the current Git repository type ~M-x
+To display information about the current Git repository, type ~M-x
 magit-status~.  You will be doing that so often that it is best to bind
 this command globally:
 
@@ -342,7 +342,7 @@ this command globally:
 
 Most Magit commands are commonly invoked from this buffer.  It should
 be considered the primary interface to interact with Git using Magit.
-There are many other Magit buffers but they are usually created from
+There are many other Magit buffers, but they are usually created from
 this buffer.
 
 Depending on what state your repository is in, this buffer contains
@@ -387,10 +387,10 @@ headings of sibling sections for this to work.  If the region looks
 like it does in other buffers, then it doesn't select Magit sections
 that can be acted on as a unit.
 
-And then of course you want to commit your changes.  Type ~c~, this
+And then of course you want to commit your changes.  Type ~c~.  This
 shows the committing popup buffer featuring various commit variants
 and arguments that can be passed to ~git commit~.  Do not worry about
-those for now, we want to create a "normal" commit, which is done by
+those for now.  We want to create a "normal" commit, which is done by
 typing ~c~ again.
 
 Now two new buffers appear.  One is for writing the commit message,
@@ -400,13 +400,13 @@ Write a message and then type ~C-c C-c~ to actually create the commit.
 You probably don't want to push the commit you just created because
 you just committed some random changes, but if that is not the case
 you could push it by typing ~p~ to bring up the push popup and then ~p~
-again to push to the configured upstream (if the upstream is not
-configured then you would be prompted for the push target instead).
+again to push to the configured upstream.  (If the upstream is not
+configured, then you would be prompted for the push target instead.)
 
 Instead we are going to undo the changes made so far.  Bring up the
 log for the current branch by typing ~l l~, move to the last commit
 created before starting with this walk through using ~n~, and do a hard
-reset using ~C-u x~.  WARNING: this discards all uncommitted changes.
+reset using ~C-u x~.  *WARNING*: this discards all uncommitted changes.
 If you did not follow the advice about using a separate repository for
 these experiments and did not create a snapshot of uncommitted changes
 before starting to try out Magit, then don't do this.
@@ -414,7 +414,7 @@ before starting to try out Magit, then don't do this.
 So far we have mentioned the commit, push, and log popups.  These are
 probably among the popups you will be using the most, but many others
 exist.  To show a popup with all other popups (and some other commands
-which are not popups) type ~h~.  Try a few.
+which are not popups), type ~h~.  Try a few.
 
 In most cases the key bindings in that popup correspond to the
 bindings in Magit buffers, including but not limited to the status
@@ -460,7 +460,7 @@ the user invokes Git commands, or creates or visits other buffers.
 
 While it often is enough to have one buffer of a certain Magit mode
 per repository, this is not always the case.  You might, for example,
-want to view the diffs for two commits at the same time.  To do so
+want to view the diffs for two commits at the same time.  To do so,
 first rename the existing revision buffer.  Then show another commit.
 Usually that would reuse the existing buffer, but because its name no
 longer matches the default name, a new buffer is created instead.  The
@@ -478,10 +478,10 @@ other commits as usual.
 ** Automatic save
 
 File-visiting buffers are by default saved at certain points in time.
-This doesn't guarantee that Magit buffers are always up-to-date but
+This doesn't guarantee that Magit buffers are always up-to-date, but,
 provided one only edits files by editing them in Emacs and uses only
 Magit to interact with Git, one can be fairly confident.  When in
-doubt, or after outside changes, type ~g~ (~magit-refresh~) to save and
+doubt or after outside changes, type ~g~ (~magit-refresh~) to save and
 refresh explicitly.
 
 - User Option: magit-save-repository-buffers
@@ -560,7 +560,7 @@ made to the repository outside of Magit.
 - Key: G, magit-refresh-all
 
   This command refreshes all Magit buffers belonging to the current
-  repository, and also reverts all unmodified buffers that visit files
+  repository and also reverts all unmodified buffers that visit files
   being tracked in the current repository.
 
   The file-visiting buffers are always reverted, even if
@@ -647,14 +647,14 @@ that hook's default value.
 - Function: magit-hunk-set-window-start
 
   This hook function ensures that the beginning of the current section
-  is visible, provided it is a ~hunk~ section, otherwise it does
+  is visible, provided it is a ~hunk~ section.  Otherwise, it does
   nothing.
 
 - Function: magit-section-set-window-start
 
   This hook function ensures that the beginning of the current section
   is visible, regardless of the section's type.  If you add this to
-  ~magit-section-movement-hook~ then you must remove the hunk-only
+  ~magit-section-movement-hook~, then you must remove the hunk-only
   variant in turn.
 
 - Function: magit-log-maybe-show-commit
@@ -700,7 +700,7 @@ but all you need to get started are the next two.
 - Command, magit-section-level-3
 - Command) magit-section-level-4
 
-  To show sections surrounding the current section, up to level N
+  To show sections surrounding the current section, up to level N,
   press the respective number key (~1~, ~2~, ~3~, or ~4~).
 
 #+KINDEX: M-1
@@ -712,7 +712,7 @@ but all you need to get started are the next two.
 - Command, magit-section-level-3-all
 - Command) magit-section-level-4-all
 
-  To show all sections up to level N press the respective number key
+  To show all sections up to level N, press the respective number key
   and meta (~M-1~, ~M-2~, ~M-3~, or ~M-4~).
 
 Some functions, which are used to implement the above commands, are
@@ -731,7 +731,7 @@ useful.  But your mileage may vary.
 - Command: magit-section-show-headings
 
   Recursively show headings of children of the current section.  Only
-  show the headings, previously shown text-only bodies are hidden.
+  show the headings.  Previously shown text-only bodies are hidden.
 
 - Command: magit-section-show-children
 
@@ -748,7 +748,7 @@ useful.  But your mileage may vary.
   Toggle visibility of bodies of children of the current section.
 
 When a buffer is first created then some sections are shown expanded
-while others are not, this is hard coded.  When a buffer is refreshed
+while others are not.  This is hard coded.  When a buffer is refreshed
 then the previous visibility is preserved. The initial visibility of
 certain sections can also be overwritten using the hook
 ~magit-section-set-visibility-hook~.
@@ -808,13 +808,13 @@ this manual along with the appropriate "section inserter functions".
   to insert its section(s), when doing so would not make sense.  It
   should not be abused for other side-effects.
 
-To remove a function from a section hook use ~remove-hook~.
+To remove a function from a section hook, use ~remove-hook~.
 
 *** Section types and values
 
 Each section has a type, for example ~hunk~, ~file~, and ~commit~.
-Instances of certain section types also have a value, the value of a
-section of type ~file~ for example is a file name.
+Instances of certain section types also have a value.  The value of a
+section of type ~file~, for example, is a file name.
 
 Users usually do not have to worry about a section's type and value,
 but knowing them can be handy at times.
@@ -833,7 +833,7 @@ Additionally for each section type a keymap *might* be defined, named
 ~magit-TYPE-section-map~.  That keymap is used as text property keymap
 of all text belonging to any section of the respective type.  If such
 a map does not exist for a certain type, then you can define it
-yourself, it will automatically be used.
+yourself, and it will automatically be used.
 
 *** Section options
 
@@ -843,12 +843,12 @@ certain type of sections.  As you can see there are not many of those.
 - User Option: magit-section-show-child-count
 
   Whether to append the number of children to section headings.  This
-  only affects sections which could benefit from this information.
+  only affects sections that could benefit from this information.
 
 ** Popup buffers and prefix commands
 
 Many Magit commands are implemented using *popup buffers*.  First the
-user invokes a *popup* or *prefix* command which causes a popup buffer
+user invokes a *popup* or *prefix* command, which causes a popup buffer
 with the available *infix* arguments and *suffix* commands to be
 displayed.  The user then optionally toggles/sets some arguments and
 finally invokes one of the suffix commands.
@@ -864,7 +864,7 @@ to depend on all of Magit, it is documented in its own manual.  See
 - Key: C-c C-c, magit-dispatch-popup
 
   This popup command shows a buffer featuring all other Magit popup
-  commands as well as some other commands which are not popup commands
+  commands as well as some other commands that are not popup commands
   themselves.
 
 This command is also, or especially, useful outside Magit buffers, so
@@ -904,7 +904,7 @@ More frameworks will be supported in the future.
   that has too many deficits to serve our needs.
 
 By default many commands that could potentially lead to data loss have
-to be confirmed.  This includes many very common commands and so this
+to be confirmed.  This includes many very common commands, so this
 can become annoying quickly.  Many of these actions can be undone,
 provided ~magit-wip-before-change-mode~ is turned on (which it is not by
 default, due to performance concerns).
@@ -929,8 +929,8 @@ default, due to performance concerns).
 
 Note that there are commands that ignore this option and always
 require confirmation, or which can be told not to do so using another
-dedicated option.  Also most commands when acting on multiple sections
-at once always require confirmation, even when they do respect this
+dedicated option.  Also most commands, when acting on multiple sections
+at once always, require confirmation, even when they do respect this
 option when acting on a single section.
 
 ** Running Git
@@ -946,7 +946,7 @@ which can be consulted when things don't go as expected.
   This commands displays the process buffer for the current
   repository.
 
-Inside that buffer the usual key bindings for navigating and showing
+Inside that buffer, the usual key bindings for navigating and showing
 sections are available.  There is one additional command.
 
 - Key: k, magit-process-kill
@@ -993,8 +993,8 @@ This popup also features some commands that start external gui tools.
 
   Run Gitk for the current git repository.
 
-  Without a prefix argument run ~gitk --all~, with a prefix argument
-  run gitk without any arguments.
+  Run ~gitk --all~.  With a prefix argument run gitk without any
+  arguments.
 
 *** Git executable
 
@@ -1006,7 +1006,7 @@ value of the environment variable ~$PATH~ when Emacs was started).
 This has the advantage that it continues to work even when using Tramp
 to connect to a remote machine on which the executable is found in a
 different place.  The downside is that if you have multiple versions
-of Git installed then you might end up using another version than the
+of Git installed, then you might end up using another version than the
 one you think you are using.
 
 - Key: M-x magit-version, magit-version
@@ -1023,7 +1023,7 @@ horribly.
 
 If Magit doesn't find the correct executable then you *can* work around
 that by setting ~magit-git-executable~ to an absolute path.  But note
-that doing so is a kludge, it is better to make sure the order in the
+that doing so is a kludge.  It is better to make sure the order in the
 environment variable ~$PATH~ is correct, and that Emacs is started with
 that environment in effect.  If you have to connect from Windows to a
 non-Windows machine, then you must change the value to "git".
@@ -1054,7 +1054,7 @@ non-Windows machine, then you must change the value to "git".
 The functionality provided by Magit can be roughly divided into three
 groups: inspecting existing data, manipulating existing data or adding
 new data, and transferring data.  Of course that is a rather crude
-distinction which often falls short, but it's more useful than no
+distinction that often falls short, but it's more useful than no
 distinction at all.  This section is concerned with inspecting data,
 the next two with manipulating and transferring it.  Then follows a
 section about miscellaneous functionality, which cannot easily be fit
@@ -1076,12 +1076,12 @@ stashes and untracked files, and information related to the current
 branch.
 
 During certain incomplete operations -- for example when a merge
-resulted in a conflict -- additional information is displayed which
-helps proceeding with that operation, or to abort it.
+resulted in a conflict -- additional information is displayed that
+helps proceeding with or aborting the operation.
 
 The command ~magit-status~ displays the status buffer belonging to the
 current repository in another window.  This command is used so often
-that it should be bound globally, we recommend using ~C-x g~:
+that it should be bound globally.  We recommend using ~C-x g~:
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x g") 'magit-status)
@@ -1092,7 +1092,7 @@ that it should be bound globally, we recommend using ~C-x g~:
   Show the status of the current Git repository in a buffer.
   With a prefix argument prompt for a repository to be shown.
   With two prefix arguments prompt for an arbitrary directory.
-  If that directory isn't the root of an existing repository
+  If that directory isn't the root of an existing repository,
   then offer to initialize it as a new repository.
 
 - User Option: magit-repository-directories
@@ -1110,10 +1110,10 @@ that it should be bound globally, we recommend using ~C-x g~:
 - Command: ido-enter-magit-status
 
   From an Ido prompt used to open a file, instead drop into
-  ~magit-status~.  This is similar to ~ido-magic-delete-char~ which,
+  ~magit-status~.  This is similar to ~ido-magic-delete-char~, which,
   despite its name, usually causes a Dired buffer to be created.
 
-  To make this command available use something like:
+  To make this command available, use something like:
 
   #+BEGIN_SRC emacs-lisp
     (add-hook 'ido-setup-hook
@@ -1214,8 +1214,8 @@ The following functions can also be added to the above hook:
 
   Insert section showing unpulled or recent commits.
   If an upstream is configured for the current branch and it is
-  ahead of the current branch, then show the missing commits,
-  otherwise show the last ~magit-log-section-commit-count~
+  ahead of the current branch, then show the missing commits.
+  Otherwise, show the last ~magit-log-section-commit-count~
   commits.
 
 - Function: magit-insert-recent-commits
@@ -1345,15 +1345,15 @@ Also see [[info:gitman#git-log]].
 - Key: l l, magit-log-current
 
   Show log for the current branch.  When ~HEAD~ is detached or with a
-  prefix argument show log for one or more revs read from the
+  prefix argument, show log for one or more revs read from the
   minibuffer.
 
 - Key: l o, magit-log
 
   Show log for one or more revs read from the minibuffer.  The user
   can input any revision or revisions separated by a space, or even
-  ranges, but only branches and tags, and a representation of the
-  commit at point, are available as completion candidates.
+  ranges, but only branches, tags, and a representation of the
+  commit at point are available as completion candidates.
 
 - Key: l h, magit-log-head
 
@@ -1461,8 +1461,8 @@ The following related commands are not available from the popup.
 *** Select from log
 
 When the user has to select a recent commit that is reachable from
-~HEAD~ using regular completion would be inconvenient (because most
-humans cannot remember hashes or "HEAD~5", at least not with double
+~HEAD~, using regular completion would be inconvenient (because most
+humans cannot remember hashes or "HEAD~5", at least not without double
 checking).  Instead a log buffer is used to select the commit, which
 has the advantage that commits are presented in order and with the
 commit message.  The following additional key bindings are available
@@ -1484,7 +1484,7 @@ This feature is used by rebase and squash commands.
 
 Also see [[info:gitman#git-reflog]].
 
-These reflog commands are available from the log popup, see [[*Logging]].
+These reflog commands are available from the log popup.  See [[*Logging]].
 
 - Key: l r, magit-reflog-current
 
@@ -1543,7 +1543,7 @@ Also see [[info:gitman#git-diff]].
 - Key: d c, magit-show-commit
 
   Show the commit at point.  If there is no commit at point or with a
-  prefix argument prompt for a commit.
+  prefix argument, prompt for a commit.
 
 - Key: d t, magit-stash-show
 
@@ -1565,7 +1565,7 @@ popup is used to change the arguments used to generate the diff or
 diffs in the current buffer, the status buffer or the diff buffer.
 
 In the diff buffer you can of course just use ~magit-diff-popup~, but
-~magit-diff-refresh-popup~ is more convenient, because you don't have to
+~magit-diff-refresh-popup~ is more convenient because you don't have to
 again specify which differences to show.  In the status buffer this
 popup is the only way to change certain arguments.
 
@@ -1608,7 +1608,7 @@ particular argument.
 
 While all of the above commands change *how* some change is being
 displayed without changing *what* change is being displayed, the
-following commands do the opposite, they change what is being
+following commands do the opposite: they change what is being
 displayed but not how.
 
 - Key: C-c C-d, magit-diff-while-committing
@@ -1642,7 +1642,7 @@ displayed but not how.
   If the diff shows changes in the worktree, the index, or ~HEAD~, then
   visit the actual file.  Otherwise when the diff is about an older
   commit, then visit the respective blob using ~magit-find-file~.  Also
-  see ~magit-diff-visit-file-worktree~ which, as the name suggests
+  see ~magit-diff-visit-file-worktree~, which, as the name suggests,
   always visits the actual file.
 
 - Key: C-<return>, magit-diff-visit-file-worktree
@@ -1657,15 +1657,15 @@ displayed but not how.
   hunk headers get less useful the "older" the changes are, and as a
   result, jumping to the appropriate position gets less reliable.
 
-  Also see ~magit-diff-visit-file-worktree~ which visits the respective
+  Also see ~magit-diff-visit-file-worktree~, which visits the respective
   blob, unless the diff shows changes in the worktree, the index, or
   ~HEAD~.
 
 - Key: j, magit-jump-to-diffstat-or-diff
 
   Jump to the diffstat or diff.  When point is on a file inside the
-  diffstat section, then jump to the respective diff section,
-  otherwise jump to the diffstat section or a child thereof.
+  diffstat section, then jump to the respective diff section.
+  Otherwise, jump to the diffstat section or a child thereof.
 
 - Key: SPC, scroll-up
 
@@ -1970,7 +1970,7 @@ Also see [[info:gitman#git-blame]].
 
   Interactively blame the file being visited in the current buffer.
   If the buffer visits a revision of that file, then blame up to that
-  revision, otherwise blame the file's full history, including
+  revision.  Otherwise, blame the file's full history, including
   uncommitted changes.
 
   If Magit-Blame mode is already turned on then blame recursively, by
@@ -2078,7 +2078,7 @@ individual hunks and even just part of a hunk.  To stage individual
 hunks and parts of hunks using Git directly, one has to use the very
 modal and rather clumsy interface of a ~git add --interactive~ session.
 
-With Magit on the other hand one can un-/stage individual hunks by
+With Magit, on the other hand, one can un-/stage individual hunks by
 just moving point into the respective section inside a diff displayed
 in the status buffer or a separate diff buffer and typing ~s~/~u~.  To
 operate on just parts of a hunk, mark the changes that should be
@@ -2088,7 +2088,7 @@ region that starts inside the heading of such a section and ends
 inside the heading of a sibling section of the same type.
 
 Besides staging and unstaging, Magit also provides several other
-"apply variants" which can also operate on a file, multiple files at
+"apply variants" that can also operate on a file, multiple files at
 once, a hunk, multiple hunks at once, and on parts of a hunk.  These
 apply variants are described in the next section.
 
@@ -2162,7 +2162,7 @@ are all implemented using ~git apply~, which is why they are called
 
 - Reverse.  Reverse a change in the working tree.  Both committed and
   staged changes can be reversed.  Unstaged changes cannot be
-  reversed, instead discard them.
+  reversed.  Discard them instead.
 
 - Apply.  Apply a change to the working tree.  Both committed and staged
   changes can be applied.  Unstaged changes cannot be applied - as
@@ -2191,7 +2191,7 @@ When the user initiates a commit, Magit calls ~git commit~ without any
 arguments, so Git has to get it from the user.  It creates the file
 ~.git/COMMIT_EDITMSG~ and then opens that file in an editor.  Magit
 arranges for that editor to be the Emacsclient.  Once the user
-finishes the editing session the Emacsclient exits Git creates the
+finishes the editing session, the Emacsclient exits and Git creates the
 commit using the file's content as message.
 
 *** Initiating a commit
@@ -2215,7 +2215,7 @@ Also see [[info:gitman#git-commit]].
 - Key: c e, magit-commit-extend
 
   Amend the last commit, without editing the message.  With a prefix
-  argument do change the committer date, otherwise don't.  The option
+  argument change the committer date.  The option
   ~magit-commit-extend-override-date~ can be used to inverse the
   meaning of the prefix argument.
 
@@ -2223,8 +2223,8 @@ Also see [[info:gitman#git-commit]].
 
   Reword the last commit, ignoring staged changes.
 
-  With a prefix argument do change the committer date, otherwise
-  don't.  The option ~magit-commit-rewrite-override-date~ can be used to
+  With a prefix argument change the committer date.
+  The option ~magit-commit-rewrite-override-date~ can be used to
   inverse the meaning of the prefix argument.
 
   Non-interactively respect the optional OVERRIDE-DATE argument and
@@ -2269,7 +2269,7 @@ Also see [[info:gitman#git-commit]].
 
   Whether the commit targeted by squash and fixup has to be confirmed.
   When non-nil then the commit at point (if any) is used as default
-  choice, otherwise it has to be confirmed.  This option only affects
+  choice.  Otherwise it has to be confirmed.  This option only affects
   ~magit-commit-squash~ and ~magit-commit-fixup~.  The "instant" variants
   always require confirmation because making an error while using
   those is harder to recover from.
@@ -2324,7 +2324,7 @@ sometimes useful to bring back messages from that ring.
 By default the diff for the changes that are about to be committed are
 automatically shown when invoking the commit.  When amending to an
 existing commit it may be useful to show either the changes that are
-about to be added to that commit, or to show those changes together
+about to be added to that commit or to show those changes together
 with those that are already committed.
 
 - Key: C-c C-d, magit-diff-while-committing
@@ -2369,7 +2369,7 @@ such headers and provides some commands to insert such headers.
 
   Insert a header mentioning the person who suggested the change.
 
-The ~git-commit-mode~ is a minor mode which is only used to establish
+~git-commit-mode~ is a minor mode that is only used to establish
 the above key bindings.  This allows using an arbitrary major mode
 when editing the commit message.  It's even possible to use a
 different major mode in different repositories, which is useful when
@@ -2382,7 +2382,7 @@ different projects impose different commit message conventions.
 
 Because ~git-commit-mode~ is a minor mode, we don't use its mode hook
 to setup the buffer, except for the key bindings.  All other setup
-happens in the function ~git-commit-setup~ which among other things runs
+happens in the function ~git-commit-setup~, which among other things runs
 the hook ~git-commit-setup-hook~.  The following functions are suitable
 for that hook.
 
@@ -2501,7 +2501,7 @@ Also see [[info:gitman#git-branch]] and [[info:gitman#git-checkout]].
 - Key: b d, magit-branch-delete
 
   Delete one or multiple branches.  If the region marks multiple
-  branches, then offer to delete those, otherwise prompt for a single
+  branches, then offer to delete those.  Otherwise, prompt for a single
   branch to be deleted, defaulting to the branch at point.
 
 - Key: b u, magit-branch-set-upstream
@@ -2545,9 +2545,9 @@ following commands.
   branch.  The branch or revision to be merged is read in the
   minibuffer and defaults to the one at point.
 
-  Unless there are conflicts or a prefix argument is used the
-  resulting merge commit uses a generic commit message and the user
-  does not get a change to inspect or change it before the commit is
+  Unless there are conflicts or a prefix argument is used, the
+  resulting merge commit uses a generic commit message, and the user
+  does not get a chance to inspect or change it before the commit is
   created.  With a prefix argument this does not actually create the
   merge commit, which makes it possible to inspect how conflicts were
   resolved and to adjust the commit message.
@@ -2562,7 +2562,7 @@ following commands.
 - Key: m n, magit-merge-nocommit
 
   Merge another branch or an arbitrary revision into the current
-  branch but do not actually create the commit.  The user can then
+  branch, but do not actually create the commit.  The user can then
   further adjust the merge, even when automatic conflict resolution
   succeeded and/or adjust the commit message.
 
@@ -2748,12 +2748,12 @@ features the following commands.
 
 - Key: A a, magit-cherry-apply
 
-  Apply the changes in a commit to the working tree but do not commit
+  Apply the changes in a commit to the working tree, but do not commit
   them.  Prompt for a commit, defaulting to the commit at point.  If
   the region selects multiple commits, then apply all of them, without
   prompting.
 
-  This command also has a top-level binding, it can be invoked without
+  This command also has a top-level binding, which can be invoked without
   using the popup by typing ~a~ at the top-level.
 
 When a cherry-pick or revert is in progress, then the popup buffer
@@ -2913,7 +2913,7 @@ Also see [[info:gitman#git-stash]].
 
 - Key: z d, magit-stash-drop
 
-  Remove a stash from the stash list.  When the region is active offer
+  Remove a stash from the stash list.  When the region is active, offer
   to drop all contained stashes.
 
 - Key: z l, magit-stash-list
@@ -3113,7 +3113,7 @@ Also see [[info:gitman#git-tag]].
 - Key: t k, magit-tag-delete
 
   Delete one or more tags.  If the region marks multiple tags (and
-  nothing else), then offer to delete those, otherwise prompt for a
+  nothing else), then offer to delete those.  Otherwise, prompt for a
   single tag to be deleted, defaulting to the tag at point.
 
 - Key: t p, magit-tag-prune
@@ -3239,7 +3239,7 @@ and not even the index (the staging area).  Because Magit makes it so
 convenient to modify uncommitted changes, it also makes it easy to
 shoot yourself in the foot in the process.
 
-For that reason Magit provides three global modes which save *tracked*
+For that reason Magit provides three global modes that save *tracked*
 files to work-in-progress references after or before certain actions.
 (Untracked files are never saved and these modes also only work after
 the first commit has been created).
@@ -3256,7 +3256,7 @@ deleted.
 
 Creating a commit and then making a change causes the wip refs to be
 recreated to fork from the new commit.  But the old commits on the wip
-refs are not lost, they are still available from the reflog.  To make
+refs are not lost.  They are still available from the reflog.  To make
 it easier to see when the fork point of a wip ref was changed, an
 additional commit with the message "restart autosaving" is created on
 it (~xxO~ commits below are such boundary commits).
@@ -3290,13 +3290,13 @@ commit does not change the fork-point of the working tree wip ref.  The
 fork-points are not adjusted until there actually is a change that
 should be committed to the respective wip ref.
 
-To recover a lost change from a wip ref use the reflog.  To show the
-reflog use e.g. ~lO refs/wip/index/refs/heads/master RET~ and then move
+To recover a lost change from a wip ref, use the reflog.  To show the
+reflog, use e.g. ~lO refs/wip/index/refs/heads/master RET~ and then move
 around until you find the commit which has the lost change.  You might
 then be able to simply apply it using ~a~ (~magit-apply~).
 
-There exists a total of three global modes which save to the wip refs,
-which might seem excessive, but allows fine tuning when exactly
+There exists a total of three global modes that save to the wip refs,
+which might seem excessive, but allows fine tuning of when exactly
 changes are being committed to the wip refs.  Enabling all modes makes
 it less likely that a change slips through the cracks.
 
@@ -3316,7 +3316,7 @@ it less likely that a change slips through the cracks.
 If you only ever edit files using Emacs and only ever interact with
 Git using Magit, then the above two modes should be enough to protect
 each and every change from accidental loss.  In practice nobody does
-that.  So an additional mode exists which does commit to the wip refs
+that.  So an additional mode exists that does commit to the wip refs
 before making changes that could cause the loss of earlier changes.
 
 - User Option: magit-wip-before-change-mode
@@ -3338,7 +3338,7 @@ are being committed.
 - Key: M-x magit-wip-commit, magit-wip-commit
 
   This command commits all changes to all tracked files to the index
-  and working tree work-in-progress refs.  Like the modes described above
+  and working tree work-in-progress refs.  Like the modes described above,
   it does not commit untracked files, but it does check all tracked
   files for changes.  Use this command when you suspect that the modes
   might have overlooked a change made outside Emacs/Magit.
@@ -3357,7 +3357,7 @@ are being committed.
 
 - User Option: magit-wip-namespace
 
-  The namespace used for work-in-progress refs, it has to end with a
+  The namespace used for work-in-progress refs.  It has to end with a
   slash.  The wip refs are named "<namespace>index/<branchref>" and
   "<namespace>wtree/<branchref>".  When snapshots are created while
   the ~HEAD~ is detached then "HEAD" is used in place of ~<branchref>~.
@@ -3371,8 +3371,8 @@ flexibility doesn't come without problems, including but not limited
 to the following.
 
 - Some Git variables automatically have an effect in Magit without
-  requiring any explicit support.  Sometimes that is desirable, in
-  other cases it breaks Magit.
+  requiring any explicit support.  Sometimes that is desirable, and,
+  in other cases, it breaks Magit.
 
   When a certain Git setting breaks Magit but you want to keep using
   that setting on the command line, then that can be accomplished by
@@ -3445,12 +3445,12 @@ For example:
 
 ** Essential settings
 
-The next two sections list and discuss several variables which many
+The next two sections list and discuss several variables that many
 users might want to customize, for safety and/or performance reasons.
 
 *** Safety
 
-This section discusses various variables which you might want to
+This section discusses various variables that you might want to
 change (or *not* change) for safety reasons.
 
 Git keeps *committed* changes around long enough for users to recover
@@ -3458,7 +3458,7 @@ changes they have accidentally deleted.  It does not do the same for
 *uncommitted* changes in the working tree and not even the index (the
 staging area).  Because Magit makes it so easy to modify uncommitted
 changes, it also makes it easy to shoot yourself in the foot in the
-process.  For that reason Magit provides three global modes which save
+process.  For that reason Magit provides three global modes that save
 *tracked* files to work-in-progress references after or before certain
 actions.  See [[*Wip Modes]].
 
@@ -3508,16 +3508,16 @@ and instead configure it to be less verbose by setting
 Magit is slower than raw Git because it does more.  For example ~git
 commit~ creates a commit and that's it.  ~magit-commit~ also updates the
 current Magit buffer to make sure you are not looking at outdated
-information without noticing it.  To refresh the status buffer Magit
+information without noticing it.  To refresh the status buffer, Magit
 has to run Git a dozen times or more, making it slower than ~git
 status~, but also much more informative.  Magit also optionally reverts
 file-visiting buffers, creates backups, runs hooks where third-party
 extensions can do their slow thing, etc.
 
 I do care about performance and over the last few months have been
-constantly tweaking but many features do come with an inherent
+constantly tweaking, but many features do come with an inherent
 performance penalty.  When a feature is just too slow given certain
-usage and repository characteristics then it often can be disabled,
+usage and repository characteristics, then it often can be disabled,
 globally or on a per-repository basis.
 
 But first a short list of performance issues that cannot easily be
@@ -3545,9 +3545,9 @@ worked around:
   be fixed in Git but so far nobody volunteered to do it.  Maybe you
   could do that?
 
-- Whenever "something changes" Magit "refreshes" the status buffer and
+- Whenever "something changes", Magit "refreshes" the status buffer and
   the current Magit buffer by recreating them from scratch.  This is
-  an old design decision which we couldn't depart from easily.  And it
+  an old design decision that we couldn't depart from easily.  And it
   has its benefits too - most importantly it's much simpler and less
   error prone to do it this way than to only refreshing "what actually
   has changed" (that would basically be a huge collection of special
@@ -3658,13 +3658,13 @@ they occur we need to be able to debug them.
 
   Whether to report errors that occur when using ~magit-git-insert~,
   ~magit-git-string~, ~magit-git-lines~, or ~magit-git-items~.  This does
-  not actually raise an error, instead a message is shown in the echo
-  area and git's standard error is insert into a new section in the
+  not actually raise an error.  Instead a message is shown in the echo
+  area, and git's standard error is insert into a new section in the
   current repository's process buffer.
 
 - Function: magit-git-str &rest args
 
-  This is a variant of ~magit-git-string~ which ignores the option
+  This is a variant of ~magit-git-string~ that ignores the option
   ~magit-git-debug~.  It is mainly intended to be used while handling
   errors in functions that do respect that option.  Using such a
   function while handing an error could cause yet another error and
@@ -3677,8 +3677,8 @@ These functions are used to run git to produce some effect.  Most
 Magit commands that actually run git do so by using such a function.
 
 Because we do not need to consume git's output when using these
-functions, their output is instead logged into a per-repository
-buffer, which can be shown using ~$~ from a Magit buffer, or ~M-x
+functions.  Their output is instead logged into a per-repository
+buffer, which can be shown using ~$~ from a Magit buffer or ~M-x
 magit-process~ elsewhere.
 
 These functions can have an effect in two distinct ways.  Firstly
@@ -3782,7 +3782,7 @@ And now for the asynchronous variants.
 
   Option ~magit-git-executable~ specifies the Git executable and option
   ~magit-git-global-arguments~ specifies constant arguments.  The
-  remaining arguments ARGS specify arguments to Git, they are
+  remaining arguments ARGS specify arguments to Git.  They are
   flattened before use.
 
   After Git returns some buffers are refreshed: the buffer that was
@@ -3841,7 +3841,7 @@ And now for the asynchronous variants.
 
   When optional HIDE is non-nil collapse the section body by default,
   i.e. when first creating the section, but not when refreshing the
-  buffer.  Else expand it by default.  This can be overwritten using
+  buffer.  Otherwise, expand it by default.  This can be overwritten using
   ~magit-section-set-visibility-hook~.  When a section is recreated
   during a refresh, then the visibility of predecessor is inherited
   and HIDE is ignored (but the hook is still honored).
@@ -3884,7 +3884,7 @@ And now for the asynchronous variants.
   (which lasts from ~content~ to ~end~).  If the value of ~content~ is nil,
   then the section has no heading and its body cannot be collapsed.
   If a section does have a heading then its height must be exactly one
-  line, including a trailing newline character.  This isn't enforced,
+  line, including a trailing newline character.  This isn't enforced;
   you are responsible for getting it right.  The only exception is
   that this function does insert a newline character if necessary.
 
@@ -4002,7 +4002,7 @@ And now for the asynchronous variants.
   section at point return nil.
 
   See ~magit-section-match~ for the forms CONDITION can take.
-  Additionally a CONDITION of t is allowed in the final clause, and
+  Additionally a CONDITION of t is allowed in the final clause and
   matches if no other CONDITION match, even if there is no section at
   point.
 
@@ -4146,7 +4146,7 @@ color and a box around them.  The basic default faces no longer do so,
 to make Magit buffers much less noisy, and you should follow that
 example at least with regards to boxes.  (Boxes were used in the past
 to work around a conflict between the highlighting overlay and text
-property backgrounds.  That's no longer necessary, highlighting no
+property backgrounds.  That's no longer necessary because highlighting no
 longer causes other background colors to disappear).  Alternatively
 you can keep the background color and/or box, but then have to take
 special care to adjust ~magit-branch-current~ accordingly.  By default
@@ -4162,7 +4162,7 @@ into all four groups - expect to spend some time getting this right.
 The ~region~ face in the default theme, in both the light and dark
 variants, as well as in many other themes, distributed with Emacs or
 by third-parties, is very ugly.  It is common to use a background
-color which really sticks out, which is ugly but if that were the only
+color that really sticks out, which is ugly but if that were the only
 problem then it would be acceptable.  Unfortunately many themes also
 set the foreground color, which ensures that all text within the
 region is readable.  Without doing that there might be cases where
@@ -4176,7 +4176,7 @@ recommendation for the ~region~ face is this: use a background color
 slightly different from the background color of the ~default~ face, and
 do not set the foreground color at all.  So for a light theme you
 might use a light (possibly tinted) gray as the background color of
-~default~, and a somewhat darker gray for the background of ~region~.
+~default~ and a somewhat darker gray for the background of ~region~.
 That should usually be enough to not collide with the foreground color
 of any other face.  But if some other faces also set a light gray as
 background color, then you should also make sure it doesn't collide
@@ -4189,10 +4189,10 @@ all of these sections instead of just the current section, or to
 select lines within a single hunk section.  In all other cases, the
 section is considered invalid and Magit won't act on it.  But such
 invalid sections happen, either because the user has not moved point
-enough yet to make it valid, or because she wants to use a non-magit
+enough yet to make it valid or because she wants to use a non-magit
 command to act on the region, e.g. ~kill-region~.
 
-So using the regular ~region~ face for invalid sections is a feature, it
+So using the regular ~region~ face for invalid sections is a feature.  It
 tells the user that Magit won't be able to act on it.  It's acceptable
 if that face looks a bit odd and even (but less so) if it collides
 with the background colors of section headings and other things that
@@ -4200,7 +4200,7 @@ have a background color.
 
 Magit highlights the current section.  If a section has subsections,
 then all of them are highlighted.  This is done using faces that have
-"highlight" in their names, for most sections ~magit-section-highlight~
+"highlight" in their names.  For most sections, ~magit-section-highlight~
 is used for both the body and the heading.  Like the ~region~ face it
 should only set the background color to something similar to that of
 ~default~.  The highlight background color must be different from the
@@ -4224,8 +4224,8 @@ i.e. multiple files or hunks, then the bodies of all these sections
 use the respective highlight faces, but additionally the headings
 instead use one of two faces, ~magit-diff-file-heading-selection~ or
 ~magit-diff-hunk-heading-selection~.  These faces have to be different
-from the regular highlight variants, otherwise there would be no
-explicit visual indication that the region is active.
+from the regular highlight variants to provide explicit visual
+indication that the region is active.
 
 When theming diff related faces, start by setting the option
 ~magit-diff-refine-hunk~ to ~all~ - you might personally prefer to only
@@ -4255,7 +4255,7 @@ unhighlighted variants are the same, so you will need to have to find
 a color that works well on the highlight and unhighlighted background,
 the refine background, and the highlight context background.  When
 there is an hunk internal region, then the added and removed lines
-background color is used only within that region, outside the region
+background color is used only within that region.  Outside the region
 the highlighted context background color is used.  This makes it
 easier to see what is being staged.  With an hunk internal region the
 hunk heading is shown using ~magit-diff-hunk-heading-selection~, and so
@@ -4293,7 +4293,7 @@ and [[info:with-editor#Debugging]].
 
 ** I am using an Emacs release older than 24.4
 
-At least version 24.4 is required, there is no way around it.
+At least version 24.4 is required.  There is no way around it.
 
 If you own the machine you work on, then consider updating to the
 latest release provided by your distribution.  If it doesn't feature a
@@ -4318,7 +4318,7 @@ can post a link here.  That way those coming after you have it easier.
 
 ** I am using a Git release older than 1.9.4
 
-At least version 1.9.4 is required, there is no way around it.
+At least version 1.9.4 is required.  There is no way around it.
 
 If you own the machine, then consider updating to the latest release
 provided by your distribution.  If it doesn't feature a recent enough
@@ -4396,7 +4396,7 @@ just one of many issues).
 
 ** How can I show Git's output?
 
-To show the output of recently run git commands press ~$~ (or, if that
+To show the output of recently run git commands, press ~$~ (or, if that
 isn't available, ~M-x magit-process-buffer~).  This will show a buffer
 containing a section per git invocation; as always press ~TAB~ to expand
 or collapse them.
@@ -4434,7 +4434,7 @@ are not.  These two functions are only used by the three commands:
 ~ediff-merge-revisions~.
 
 These commands only delegate the task of populating buffers with
-certain revisions to the "internal" functions, the equally important
+certain revisions to the "internal" functions.  The equally important
 task of determining which revisions are to be compared/merged is not
 delegated.  Instead this is done without any support whatsoever, from
 the version control package/system - meaning that the user has to
@@ -4470,7 +4470,7 @@ also affects the diffs displayed inside Magit.
 
 ** Emacs 24.5 hangs when loading Magit
 
-This is actually triggered by loading Tramp, see
+This is actually triggered by loading Tramp.  See
 https://debbugs.gnu.org/cgi/bugreport.cgi?bug~20015 for details. You
 can work around the problem by setting
 ~tramp-ssh-controlmaster-options~. Changing your DNS server (e.g. to
