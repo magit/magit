@@ -89,9 +89,6 @@ This section can also be toggled temporarily using \
   :group 'magit-popup
   :type 'boolean)
 
-(define-obsolete-variable-alias 'magit-popup-show-help-section
-  'magit-popup-show-common-commands "2.1.0")
-
 (defcustom magit-popup-use-prefix-argument 'disabled
   "Control how prefix arguments affect infix argument popups.
 
