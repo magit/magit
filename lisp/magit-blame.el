@@ -141,9 +141,7 @@ and then turned on again when turning on the latter."
   :lighter magit-blame-mode-lighter
   (cond (magit-blame-mode
          (setq magit-blame-buffer-read-only buffer-read-only)
-         (if (fboundp 'read-only-mode)
-             (read-only-mode 1)
-           (setq buffer-read-only t))
+         (read-only-mode 1)
          (dolist (mode magit-blame-disable-modes)
            (when (and (boundp mode) (symbol-value mode))
              (funcall mode -1)
@@ -156,9 +154,7 @@ and then turned on again when turning on the latter."
              (call-interactively 'magit-blame))))
         (t
          (unless magit-blame-buffer-read-only
-           (if (fboundp 'read-only-mode)
-               (read-only-mode -1)
-             (setq buffer-read-only nil)))
+           (read-only-mode -1))
          (dolist (mode magit-blame-disabled-modes)
            (funcall mode 1))
          (when (process-live-p magit-blame-process)
