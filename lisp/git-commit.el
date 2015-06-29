@@ -132,6 +132,7 @@
   :prefix "git-commit-"
   :group 'tools)
 
+;;;###autoload
 (define-minor-mode global-git-commit-mode
   "Edit Git commit messages.
 This global mode arranges for `git-commit-setup' to be called
