@@ -1233,7 +1233,7 @@ The following functions can also be added to the above hook:
 
   Insert section showing unpulled commits.
   Like ~magit-insert-unpulled-commits~ but prefix each commit
-  which has not been applied yet (i.e. a commit with a patch-id
+  that has not been applied yet (i.e. a commit with a patch-id
   not shared with any local commit) with "+", and all others
   with "-".
 
@@ -1766,7 +1766,7 @@ displayed but not how.
 
   This command tries to guess what file, and what commit or range the
   user wants to compare, stage, or resolve using Ediff.  It might only
-  be able to guess either the file, or range or commit, in which case
+  be able to guess either the file, or range/commit, in which case
   the user is asked about the other.  It might not always guess right,
   in which case the appropriate ~magit-ediff-*~ command has to be used
   explicitly.  If it cannot read the user's mind at all, then it asks
@@ -2395,7 +2395,7 @@ for that hook.
   Revert unmodified file-visiting buffers of the current repository.
 
   If either ~magit-revert-buffers~ is non-nil and ~inhibit-magit-revert~
-  is nil, or if optional FORCE is non-nil; then revert all unmodified
+  is nil, or if optional FORCE is non-nil, then revert all unmodified
   buffers that visit files being tracked in the current repository.
 
 - Function: git-commit-save-message
@@ -3482,7 +3482,7 @@ This isn't as risky as it might seem.  If a buffer is modified
 (i.e. it contains changes that haven't been saved yet), then
 Emacs/Magit would refuse to revert it.  If the buffer has been saved
 resulting in what is seen by Git as an uncommitted change, then Git in
-turn would refuse to carry out the action which would cause these
+turn would refuse to carry out the action that would cause these
 changes to be lost.  Since Git doesn't do anything, the file doesn't
 change on disk, and Emacs/Magit has nothing to revert.
 
@@ -3570,9 +3570,9 @@ described in separate manuals, see [[info:with-editor]] and
 ** Calling Git
 
 Magit provides many specialized functions for calling Git.  All of
-these functions have one of the prefixes ~magit-run-~, ~magit-call-~,
-~magit-start-~, and ~magit-git-~ (which is also used for other things);
-and are defined in either ~magit-git.el~ or ~magit-process.el~.
+these functions are defined in either ~magit-git.el~ or ~magit-process.el~
+and have one of the prefixes ~magit-run-~, ~magit-call-~, ~magit-start-~,
+and ~magit-git-~ (which is also used for other things).
 
 All of these functions accept an indefinite number of arguments, which
 are strings that specify command line arguments for git (or in some
@@ -4093,8 +4093,8 @@ where ~*~ may be something like ~diff~) with the value of
   can later be restored by ~magit-mode-bury-buffer~.
 
   The buffer is displayed and selected using SWITCH-FUNCTION.  If that
-  is ~nil~ then ~pop-to-buffer~ is used provided the current buffer's
-  major mode derives from ~magit-mode~; else ~switch-to-buffer~ is used.
+  is ~nil~ then ~pop-to-buffer~ is used if the current buffer's major mode
+  derives from ~magit-mode~.  Otherwise ~switch-to-buffer~ is used.
 
 - Variable: magit-refresh-function
 
@@ -4120,9 +4120,9 @@ where ~*~ may be something like ~diff~) with the value of
 ** Conventions
 *** Confirmation and completion
 
-Dangerous operations which may lead to data loss, by default have to
-be confirmed.  With a multi-section selection this is done using
-questions which can be answered with yes or no.  When the region isn't
+Dangerous operations that may lead to data loss have to be confirmed
+by default.  With a multi-section selection, this is done using
+questions that can be answered with yes or no.  When the region isn't
 active or if it doesn't constitute a valid section selection, then
 such commands instead read a single item in the minibuffer.  When the
 value of the current section is among the possible choices, then that
@@ -4200,7 +4200,7 @@ Magit highlights the current section.  If a section has subsections,
 then all of them are highlighted.  This is done using faces that have
 "highlight" in their names, for most sections ~magit-section-highlight~
 is used for both the body and the heading.  Like the ~region~ face it
-should only set the background color, to something similar to that of
+should only set the background color to something similar to that of
 ~default~.  The highlight background color must be different from the
 ~region~ background color, not only the ~default~ background color.
 
