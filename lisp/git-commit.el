@@ -647,19 +647,6 @@ With a numeric prefix ARG, go forward ARG comments."
            (buffer-string)))))))
 
 ;;; git-commit.el ends soon
-
-(define-obsolete-face-alias 'git-commit-summary-face 'git-commit-summary "1.1.0")
-(define-obsolete-face-alias 'git-commit-overlong-summary-face 'git-commit-overlong-summary "1.1.0")
-(define-obsolete-face-alias 'git-commit-nonempty-second-line-face 'git-commit-nonempty-second-line "1.1.0")
-(define-obsolete-face-alias 'git-commit-note-face 'git-commit-note "1.1.0")
-(define-obsolete-face-alias 'git-commit-pseudo-header-face 'git-commit-pseudo-header "1.1.0")
-(define-obsolete-face-alias 'git-commit-known-pseudo-header-face 'git-commit-known-pseudo-header "1.1.0")
-(define-obsolete-face-alias 'git-commit-branch-face 'git-commit-comment-branch "1.1.0")
-(define-obsolete-face-alias 'git-commit-no-branch-face 'git-commit-comment-detached "1.1.0")
-(define-obsolete-face-alias 'git-commit-comment-heading-face 'git-commit-comment-heading "1.1.0")
-(define-obsolete-face-alias 'git-commit-comment-file-face 'git-commit-comment-file "1.1.0")
-(define-obsolete-face-alias 'git-commit-comment-action-face 'git-commit-comment-action "1.1.0")
-
 (provide 'git-commit)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

@@ -115,11 +115,6 @@
   "Face for commented action and exec lines."
   :group 'git-rebase-faces)
 
-(define-obsolete-face-alias 'git-rebase-description-face
-  'git-rebase-description "1.0.0")
-(define-obsolete-face-alias 'git-rebase-killed-action-face
-  'git-rebase-killed-action "1.0.0")
-
 ;;; Keymaps
 
 (defvar git-rebase-mode-map
