@@ -73,7 +73,7 @@ Only considered when moving past the last entry with
   :group 'magit-log
   :type 'boolean)
 
-(defcustom magit-log-cutoff-length 100
+(defcustom magit-log-cutoff-length 256
   "The maximum number of commits to show in log and reflog buffers."
   :group 'magit-log
   :type '(choice (const :tag "no limit") integer))
@@ -84,7 +84,7 @@ Only considered when moving past the last entry with
 The function is called with one argument, the graph of a single
 line as a propertized string.  It has to return the formatted
 string.  Use `identity' to forgo changing the graph."
-  :package-version '(magit . "1.4.0")
+  :package-version '(magit . "2.1.0")
   :group 'magit-log
   :type '(choice (function-item identity)
                  (function-item magit-log-format-unicode-graph)
