@@ -3401,7 +3401,7 @@ To set a Git variable for one repository only, simply set it in
 ~/path/to/repo/.git/config~ instead of ~$HOME/.gitconfig~ or
 ~/etc/gitconfig~.  See [[info:gitman#git-config]].
 
-Similarly Emacs options can be set for one repository only by editing
+Similarly, Emacs options can be set for one repository only by editing
 ~/path/to/repo/.dir-locals.el~.  See [[info:emacs#Directory Variables]].
 For example to disable automatic refreshes of file-visiting buffers in
 just one huge repository use this:
@@ -3680,14 +3680,14 @@ functions.  Their output is instead logged into a per-repository
 buffer, which can be shown using ~$~ from a Magit buffer or ~M-x
 magit-process~ elsewhere.
 
-These functions can have an effect in two distinct ways.  Firstly
+These functions can have an effect in two distinct ways.  Firstly,
 running git may change something, i.e. create or push a new commit.
-Secondly that change may require that Magit buffers are refreshed to
+Secondly, that change may require that Magit buffers are refreshed to
 reflect the changed state of the repository.  But refreshing isn't
 always desirable, so only some of these functions do perform such a
 refresh after git has returned.
 
-Sometimes it is useful to run git asynchronously.  For example when
+Sometimes it is useful to run git asynchronously.  For example, when
 the user has just initiated a push, then there is no reason to make
 her wait until that has completed.  In other cases it makes sense to
 wait for git to complete before letting the user do something else.
@@ -3784,7 +3784,7 @@ And now for the asynchronous variants.
   remaining arguments ARGS specify arguments to Git.  They are
   flattened before use.
 
-  After Git returns some buffers are refreshed: the buffer that was
+  After Git returns, some buffers are refreshed: the buffer that was
   current when this function was called (if it is a Magit buffer and
   still alive), as well as the respective Magit status buffer.
   Unmodified buffers visiting files that are tracked in the current
@@ -4024,9 +4024,9 @@ For diff related sections a few additional tools exist.
   into account.  When the SECTION isn't related to diffs and the
   buffer containing it also isn't a diff-only buffer, then return nil.
 
-  Currently the type can also be one of ~tracked~ and ~untracked~ but
-  these values are not handled explicitly everywhere they should be
-  and a possible fix could be to just return nil here.
+  Currently the type can also be one of ~tracked~ and ~untracked~, but
+  these values are not handled explicitly in every place they should
+  be.  A possible fix could be to just return nil here.
 
   The section has to be a ~diff~ or ~hunk~ section, or a section whose
   children are of type ~diff~.  If optional SECTION is nil, return the
@@ -4059,7 +4059,7 @@ For diff related sections a few additional tools exist.
 
 All commands that create a new Magit buffer or change what is being
 displayed in an existing buffer do so by calling ~magit-mode-setup~.
-Among other things that function sets the buffer local values of
+Among other things, that function sets the buffer local values of
 ~default-directory~ (to the top-level of the repository),
 ~magit-refresh-function~, and ~magit-refresh-args~.
 
@@ -4127,7 +4127,7 @@ active or if it doesn't constitute a valid section selection, then
 such commands instead read a single item in the minibuffer.  When the
 value of the current section is among the possible choices, then that
 is presented as default choice.  To confirm the action on a single
-item the user has to answer ~RET~ (instead of "yes") and to abort ~C-g~
+item, the user has to answer ~RET~ (instead of "yes"), and to abort, ~C-g~
 (instead of "no").  But alternatively the user may also select another
 item, just like if the command had been invoked with no suitable
 section at point at all.
@@ -4199,7 +4199,7 @@ have a background color.
 Magit highlights the current section.  If a section has subsections,
 then all of them are highlighted.  This is done using faces that have
 "highlight" in their names.  For most sections, ~magit-section-highlight~
-is used for both the body and the heading.  Like the ~region~ face it
+is used for both the body and the heading.  Like the ~region~ face, it
 should only set the background color to something similar to that of
 ~default~.  The highlight background color must be different from the
 ~region~ background color, not only the ~default~ background color.
@@ -4245,7 +4245,7 @@ and context faces use approximately the same saturation for both the
 highlighted and unhighlighted variants.  Also make sure the file and
 diff headings work nicely with context lines (e.g. make them look
 different).  Line faces should set both the foreground and the
-background color.  For example for added lines use two different
+background color.  For example, for added lines use two different
 greens.
 
 It's best if the foreground color of both the highlighted and the
