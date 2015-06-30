@@ -2035,7 +2035,7 @@ For X11 something like ~/.xinitrc should work.\n" emacs-version) :error))
 Magit is no longer compatible with the library `%s',
 which was used in earlier releases.  Please remove it, so that
 Magit can use the successor `%s' without the obsolete
-library getting in the way.  Then restart Emacs."
+library getting in the way.  Then restart Emacs.\n"
                                       (car it)  (car it) (cdr it)) :error))))
 
 (provide 'magit)
