@@ -91,8 +91,8 @@ section specific default (see `magit-insert-section')."
   :group 'magit-faces)
 
 (defface magit-section-heading
-  '((((class color) (background light)) :background "grey80" :weight bold)
-    (((class color) (background  dark)) :background "grey25" :weight bold))
+  '((((class color) (background light)) :foreground "DarkGoldenrod4" :weight bold)
+    (((class color) (background  dark)) :foreground "LightGoldenrod2" :weight bold))
   "Face for section headings."
   :group 'magit-faces)
 

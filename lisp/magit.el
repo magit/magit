@@ -239,54 +239,38 @@ deep."
   :group 'magit-faces)
 
 (defface magit-tag
-  '((((class color) (background light))
-     :background "grey80"
-     :foreground "Goldenrod4")
-    (((class color) (background dark))
-     :background "grey30"
-     :foreground "LightGoldenrod2"))
+  '((((class color) (background light)) :foreground "Goldenrod4")
+    (((class color) (background  dark)) :foreground "LightGoldenrod2"))
   "Face for tag labels shown in log buffer."
   :group 'magit-faces)
 
 (defface magit-branch-remote
-  '((((class color) (background light))
-     :background "grey80"
-     :foreground "DarkOliveGreen4")
-    (((class color) (background dark))
-     :background "grey30"
-     :foreground "DarkSeaGreen2"))
+  '((((class color) (background light)) :foreground "DarkOliveGreen4")
+    (((class color) (background  dark)) :foreground "DarkSeaGreen2"))
   "Face for remote branch head labels shown in log buffer."
   :group 'magit-faces)
 
 (defface magit-branch-local
-  '((((class color) (background light))
-     :background "grey80"
-     :foreground "SkyBlue4")
-    (((class color) (background dark))
-     :background "grey30"
-     :foreground "LightSkyBlue1"))
+  '((((class color) (background light)) :foreground "SkyBlue4")
+    (((class color) (background  dark)) :foreground "LightSkyBlue1"))
   "Face for local branches."
   :group 'magit-faces)
 
 (defface magit-branch-current
   '((((class color) (background light)) :inherit magit-branch-local :box t)
-    (((class color) (background dark))  :inherit magit-branch-local :box t))
+    (((class color) (background  dark)) :inherit magit-branch-local :box t))
   "Face for local branches."
   :group 'magit-faces)
 
 (defface magit-head
   '((((class color) (background light)) :inherit magit-branch-local)
-    (((class color) (background dark))  :inherit magit-branch-local))
+    (((class color) (background  dark)) :inherit magit-branch-local))
   "Face for the symbolic ref \"HEAD\"."
   :group 'magit-faces)
 
 (defface magit-refname
-  '((((class color) (background light))
-     :background "grey75"
-     :foreground "grey30")
-    (((class color) (background  dark))
-     :background "grey30"
-     :foreground "grey80"))
+  '((((class color) (background light)) :foreground "grey30")
+    (((class color) (background  dark)) :foreground "grey80"))
   "Face for refnames without a dedicated face."
   :group 'magit-faces)
 
