@@ -331,7 +331,9 @@ Magit is documented in info node `(magit)'."
   (push (cons 'keymap t) text-property-default-nonsticky)
   (add-hook 'post-command-hook #'magit-section-update-highlight t t)
   (setq-local redisplay-highlight-region-function 'magit-highlight-region)
-  (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region))
+  (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region)
+  (when (fboundp 'linum-mode)
+    (linum-mode -1)))
 
 (defvar-local magit-region-overlays nil)
 
