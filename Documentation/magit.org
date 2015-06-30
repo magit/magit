@@ -4315,6 +4315,18 @@ to do that yourself, then consider informing me about the resources
 that helped you figure what to do for your specific setup, so that I
 can post a link here.  That way those coming after you have it easier.
 
+*** Installing Emacs on Mac OS X
+
+The easiest way to get an up-to-date installation of Emacs on OS X is
+probably with the [[http://brew.sh][Homebrew]] package manager:
+
+#+BEGIN_SRC shell-script
+  brew update && brew install emacs
+#+END_SRC
+
+Other Mac package managers, including [[http://www.macports.org][MacPorts]] and [[http://www.finkproject.org][Fink]], also make
+installing Emacs relatively straightforward.
+
 ** I am using a Git release older than 1.9.4
 
 At least version 1.9.4 is required.  There is no way around it.
@@ -4328,6 +4340,18 @@ Installing Git from source is quite simple. See the instructions at
 https://github.com/git/git/blob/master/INSTALL to get an idea of that
 this involves.  But when you perform the installation then use the
 instructions for the release you are actually installing.
+
+*** Installing Git on Mac OS X
+
+The easiest way to get an up-to-date installation of Git on OS X is
+probably with the [[http://brew.sh][Homebrew]] package manager:
+
+#+BEGIN_SRC shell-script
+  brew update && brew install git
+#+END_SRC
+
+Other Mac package managers, including [[http://www.macports.org][MacPorts]] and [[http://www.finkproject.org][Fink]], also make
+installing Git relatively straightforward.
 
 ** I am using MS Windows and cannot push with Magit
 
