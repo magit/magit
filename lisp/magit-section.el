@@ -40,7 +40,7 @@
   "Expandable sections."
   :group 'magit)
 
-(defcustom magit-section-show-child-count nil
+(defcustom magit-section-show-child-count t
   "Whether to append the number of childen to section headings."
   :package-version '(magit . "2.1.0")
   :group 'magit-section
