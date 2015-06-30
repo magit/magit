@@ -179,6 +179,13 @@ has to confirm each save."
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
 
+(defcustom magit-kill-aux-buffers t
+  "If non-nil, `q' kills auxiliary buffers instead of burying.
+This does not affect the main *magit:...* buffer."
+  :type 'boolean
+  :group 'magit
+  :package-version '(magit . "2.1.0"))
+
 ;;; Magit Mode
 
 (defvar magit-mode-map
@@ -482,7 +489,10 @@ the buffer."
   (let ((winconf magit-previous-window-configuration)
         (buffer (current-buffer))
         (frame (selected-frame)))
-    (quit-window kill-buffer (selected-window))
+    (quit-window (or (and magit-kill-aux-buffers
+                          (not (string-match "\\`\\*magit:" (buffer-name))))
+                     kill-buffer)
+                 (selected-window))
     (when winconf
       (when (and magit-restore-window-configuration
                  (equal frame (window-configuration-frame winconf)))
