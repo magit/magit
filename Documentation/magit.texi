@@ -316,11 +316,12 @@ that are useful for resolving conflicts and resuming the sequence
 after doing so.
 
 Magit wraps and in many cases improves upon at least the following Git
-porcelain commands: add, am, bisect, blame, branch, checkout, cherry,
-cherry-pick, clean, clone, commit, config, describe, diff, fetch,
-format-patch, init, log, merge, merge-tree, mv, notes, pull, rebase,
-reflog, remote, request-pull, reset, revert, rm, show, stash,
-submodule, and tag.  Many more Magit porcelain commands are
+porcelain commands: @code{add}, @code{am}, @code{bisect}, @code{blame}, @code{branch},
+@code{checkout}, @code{cherry}, @code{cherry-pick}, @code{clean}, @code{clone}, @code{commit},
+@code{config}, @code{describe}, @code{diff}, @code{fetch}, @code{format-patch}, @code{init}, @code{log},
+@code{merge}, @code{merge-tree}, @code{mv}, @code{notes}, @code{pull}, @code{rebase}, @code{reflog},
+@code{remote}, @code{request-pull}, @code{reset}, @code{revert}, @code{rm}, @code{show}, @code{stash},
+@code{submodule}, and @code{tag}.  Many more Magit porcelain commands are
 implemented on top of Git plumbing commands.
 
 @node Installation
@@ -571,9 +572,9 @@ be considered the primary interface to interact with Git using Magit.
 There are many other Magit buffers, but they are usually created from
 this buffer.
 
-Depending on what state your repository is in, this buffer contains
-sections titled "Staged changes", "Unstaged changes", "Unpulled
-commits", "Unpushed commits", and some others.
+Depending on what state your repository is in, this buffer will
+contain sections titled "Staged changes", "Unstaged changes",
+"Unpulled commits", "Unpushed commits", and/or some others.
 
 If some staged and/or unstaged changes exist, you should back them up
 now.  Type @code{z} to show the stashing popup buffer featuring various stash
@@ -582,7 +583,7 @@ worry about those for now, just type @code{Z} (uppercase) to create a stash
 while also keeping the index and work tree intact.  The status buffer
 should now also contain a section titled "Stashes".
 
-Otherwise, if there are no uncommitted changes, you have to create some
+Otherwise, if there are no uncommitted changes, you should create some
 now by editing and saving some of the tracked files.  Then go back to
 the status buffer, while at the same time refreshing it, by typing @code{C-x
 g}.  (When the status buffer, or any Magit buffer for that matter, is
@@ -863,7 +864,7 @@ This hook is run in each file-visiting buffer belonging to the
 current repository that was reverted during a refresh.  The file
 was not reverted because it did not change, and so Magit does not
 have to do anything.  This hook is intended for third-party
-extensions with need to run some function even for such files.
+extensions that need to run some functions even on such files.
 @end defopt
 
 @node Sections
@@ -1068,8 +1069,8 @@ show the headings.  Previously shown text-only bodies are hidden.
 @deffn Command magit-section-show-children
 
 Recursively show the bodies of children of the current section.
-With a prefix argument show children that deep and hide deeper
-children.
+With a prefix argument show children down to the level of the
+currect section, and hide deeper children.
 @end deffn
 
 @cindex magit-section-hide-children
@@ -1202,7 +1203,7 @@ displayed.  The user then optionally toggles/sets some arguments and
 finally invokes one of the suffix commands.
 
 This is implemented in the library @code{magit-popup}.  Earlier releases used
-the library @code{magit-key-mode}.  Some future releases will switch to a
+the library @code{magit-key-mode}.  A future release will switch to a
 yet-to-be-written successor, which will likely be named @code{transient}.
 
 Because @code{magit-popup} can also be used by other packages without having
@@ -1479,7 +1480,7 @@ between porcelain and plumbing commands, which for the most part is
 equivalent to Emacs' distinction between interactive commands and
 non-interactive functions.  All of the sections mentioned before are
 mainly concerned with the porcelain -- Magit's plumbing layer is
-describe later.
+described later.
 
 @menu
 * Status buffer::
@@ -1801,7 +1802,7 @@ The following @code{format}-like specs are supported:
 
 Additional Git arguments used when creating log sections.  Only
 @code{--graph}, @code{--decorate}, and @code{--show-signature} are supported.  This
-option is only a temporary kludge and will be removed again.
+option is only a temporary kludge and will be removed.
 
 Note that due to an issue in Git the use of @code{--graph} is very slow
 with long histories, so you probably don't want to add this here.
@@ -2585,7 +2586,7 @@ it is the current branch, or "#" otherwise.
 is the current branch, or "#" otherwise.  For all other refs " ".
 
 @item
-@code{%h} Hash of this refs tip.
+@code{%h} Hash of this ref's tip.
 
 @item
 @code{%m} Commit summary of the tip of this ref.
@@ -5100,22 +5101,22 @@ status}, but also much more informative.  Magit also optionally reverts
 file-visiting buffers, creates backups, runs hooks where third-party
 extensions can do their slow thing, etc.
 
-I do care about performance and over the last few months have been
-constantly tweaking, but many features do come with an inherent
-performance penalty.  When a feature is just too slow given certain
-usage and repository characteristics, then it often can be disabled,
-globally or on a per-repository basis.
+I do care about performance and try to optimize for it as much as
+possible, but many features simply come with an inherent performance
+penalty.  When a feature is just too slow given certain usage and
+repository characteristics, then it often can be disabled, globally or
+on a per-repository basis.
 
 But first a short list of performance issues that cannot easily be
 worked around:
 
 @itemize
 @item
-Creating a new process on MS Windows is much slower than on posix
-compatible systems.  This is a problem because Magit creates a lot
-of child processes to retrieve information from Git.  In the short
-run, only switching to a posix system can fix this.  Of course this
-could also be fixed in Windows itself, but I am just one unpaid
+Creating a new process on MS Windows is much slower than on
+POSIX-compatible systems.  This is a problem because Magit creates a
+lot of child processes to retrieve information from Git.  In the
+short run, only switching to a POSIX system can fix this.  Of course
+this could also be fixed in Windows itself, but I am just one unpaid
 person while Microsoft is a billion dollar company, so I will leave
 it to them to fix this grave flaw in their OS.
 
@@ -5174,7 +5175,7 @@ described in separate manuals, see @ref{Top,,,with-editor,} and
 Magit provides many specialized functions for calling Git.  All of
 these functions are defined in either @code{magit-git.el} or @code{magit-process.el}
 and have one of the prefixes @code{magit-run-}, @code{magit-call-}, @code{magit-start-},
-and @code{magit-git-} (which is also used for other things).
+or @code{magit-git-} (which is also used for other things).
 
 All of these functions accept an indefinite number of arguments, which
 are strings that specify command line arguments for git (or in some
@@ -5296,7 +5297,7 @@ These functions are used to run git to produce some effect.  Most
 Magit commands that actually run git do so by using such a function.
 
 Because we do not need to consume git's output when using these
-functions.  Their output is instead logged into a per-repository
+functions, their output is instead logged into a per-repository
 buffer, which can be shown using @code{$} from a Magit buffer or @code{M-x
 magit-process} elsewhere.
 
@@ -5786,10 +5787,10 @@ current buffer.  @code{magit-refresh-function} is called with these
 arguments.
 
 The value is usually set using @code{magit-mode-setup}, but in some cases
-its also useful to provide commands which can change the value.  For
-example the @code{magit-diff-refresh-popup} can be used to change any of
+it's also useful to provide commands which can change the value.  For
+example, the @code{magit-diff-refresh-popup} can be used to change any of
 the arguments used to display the diff, without having to specify
-again which differences should be shown, and @code{magit-diff-more-context},
+again which differences should be shown.  @code{magit-diff-more-context},
 @code{magit-diff-less-context}, and @code{magit-diff-default-context} change just
 the @code{-U<N>} argument.  In both case this is done by changing the value
 of this variable and then calling this @code{magit-refresh-function}.
@@ -5809,8 +5810,8 @@ of this variable and then calling this @code{magit-refresh-function}.
 
 Dangerous operations that may lead to data loss have to be confirmed
 by default.  With a multi-section selection, this is done using
-questions that can be answered with yes or no.  When the region isn't
-active or if it doesn't constitute a valid section selection, then
+questions that can be answered with "yes" or "no".  When the region isn't
+active, or if it doesn't constitute a valid section selection, then
 such commands instead read a single item in the minibuffer.  When the
 value of the current section is among the possible choices, then that
 is presented as default choice.  To confirm the action on a single
@@ -5833,7 +5834,7 @@ to make Magit buffers much less noisy, and you should follow that
 example at least with regards to boxes.  (Boxes were used in the past
 to work around a conflict between the highlighting overlay and text
 property backgrounds.  That's no longer necessary because highlighting no
-longer causes other background colors to disappear).  Alternatively
+longer causes other background colors to disappear.)  Alternatively
 you can keep the background color and/or box, but then have to take
 special care to adjust @code{magit-branch-current} accordingly.  By default
 it looks mostly like @code{magit-branch-local}, but with a box (by default
@@ -5889,10 +5890,10 @@ then all of them are highlighted.  This is done using faces that have
 "highlight" in their names.  For most sections, @code{magit-section-highlight}
 is used for both the body and the heading.  Like the @code{region} face, it
 should only set the background color to something similar to that of
-@code{default}.  The highlight background color must be different from the
-@code{region} background color, not only the @code{default} background color.
+@code{default}.  The highlight background color must be different from both
+the @code{region} background color and the @code{default} background color.
 
-For diff related sections Magit uses various different faces to
+For diff related sections Magit uses various faces to
 highlight different parts of the selected section(s).  Note that hunk
 headings, unlike all other section headings, by default have a
 background color, because it is useful to have very visible separators
@@ -5914,14 +5915,14 @@ from the regular highlight variants to provide explicit visual
 indication that the region is active.
 
 When theming diff related faces, start by setting the option
-@code{magit-diff-refine-hunk} to @code{all} - you might personally prefer to only
+@code{magit-diff-refine-hunk} to @code{all}.  You might personally prefer to only
 refine the current hunk or not use hunk refinement at all, but some of
 the users of your theme want all hunks to be refined, so you have to
 cater to that.
 
 (Also turn on @code{magit-diff-highlight-indentation},
 @code{magit-diff-highlight-trailing}, and @code{magit-diff-paint-whitespace}; and
-insert some whitespace errors into the code you use for testing).
+insert some whitespace errors into the code you use for testing.)
 
 For e.g. "added lines" you have to adjust three faces:
 @code{magit-diff-added}, @code{magit-diff-added-highlight}, and
@@ -5940,7 +5941,7 @@ It's best if the foreground color of both the highlighted and the
 unhighlighted variants are the same, so you will need to have to find
 a color that works well on the highlight and unhighlighted background,
 the refine background, and the highlight context background.  When
-there is an hunk internal region, then the added and removed lines
+there is an hunk internal region, then the added- and removed-lines
 background color is used only within that region.  Outside the region
 the highlighted context background color is used.  This makes it
 easier to see what is being staged.  With an hunk internal region the
@@ -6097,7 +6098,7 @@ the actual manpage using the function `woman'."
 @end lisp
 
 Did I mention that texinfo cross reference are just awful?  (This is
-just one of many issues).
+just one of many issues.)
 
 @node How can I show Git's output?
 @section How can I show Git's output?
@@ -6117,7 +6118,7 @@ debugging purposes it's possible to do so anyway by setting
 @section Expanding a file to show the diff causes it to disappear
 
 This is probably caused by a change of a @code{diff.*} Git variable.  You
-probably have a reason to have set that variable, and should therefore
+probably set that variable for a reason, and should therefore
 only undo that setting in Magit by customizing
 @code{magit-git-global-arguments}.
 
