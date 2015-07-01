@@ -1,27 +1,43 @@
-Magit is currently in feature freeze.  Please keep that in mind
-when suggesting new features or submitting code contributions.
+Getting help
+============
 
-No new features will be implemented on the `master` branch, even
-if they are "obviously not going to cause any problems" (this has
-frequently turned out not to be true after all).  Even for bugfixes
-the threshold is fairly high now; if fixing a bug which has existed
-for years seems risky, then it won't be fixed now.
+**When something doesn't work as expected then please first see the
+[FAQ][faq].** Then also try the list of [open issues][issues] and use
+the search box at the top of that page to find older related issues.
+You should also consult the [manual][manual] and ask a general-purpose
+search engine.
 
-Very few new features will be implemented on the `next` branch.
-Basically only features that help *fixing* existing features might
-be implemented despite the feature freeze.
+If everything else fails then ask for help on the
+**[Emacs Stackexchange site][forum]**, the
+[mailing list][list], or the
+[Gitter chat][chat].
 
-If you feel that your issue or new feature is important enough to
-violate the above restrictions, then please explicitly note that you
-have read this and explain in your initial post why you feel an
-exception should be made.  That way I at least do not have to repeat
-the above yet once more.
+Reporting issues and suggesting features
+========================================
 
-Please also consider whether your feature really is important enough
-that implementing it now is justification enough to further delay the
-release of the many new and many more improved features in `next`.
+To report bugs and suggest new feature use the [issue tracker][issues].
 
-Also see the [Roadmap toward 2.1.0](https://github.com/magit/magit/issues/1645).
+Never use the phrase "at the very least".
 
-Report issues [here](https://github.com/magit/magit/issues),
-and open pull requests [here](https://github.com/magit/magit/pulls).
+Code contributions
+==================
+
+If you have some code which you would like to be merged, then open a
+[pull requests][pulls].  Please create atomic commits with descriptive
+commit messages.
+
+Donations
+=========
+
+Please also consider to contribute by making a
+[monetary donation][donations].
+
+
+[chat]:      https://gitter.im/magit/magit
+[donations]: http://magit.vc/donations.html
+[faq]:       http://magit.vc/manual/magit/FAQ.html
+[forum]:     http://emacs.stackexchange.com/questions/tagged/magit
+[issues]:    https://github.com/magit/magit/issues
+[list]:      https://groups.google.com/forum/?fromgroups#!forum/magit
+[manual]:    http://magit.vc/manualm
+[pulls]:     https://github.com/magit/magit/pulls

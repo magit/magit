@@ -1,0 +1,51 @@
+It's Magit!  A Git Porcelain inside Emacs
+=========================================
+
+Magit is an interface to the version control system Git, implemented
+as an Emacs package.  For more information see http://magit.vc.
+
+Magit v2.1.0 Release Notes
+==========================
+
+UNRELEASED
+
+Changes since v1.4.0
+--------------------
+
+Authors
+-------
+
+  1913  Jonas Bernoulli
+    28  Sebastian Wiesner
+    19  Kyle Meyer
+    17  Pieter Praet
+    16  Noam Postavsky
+    12  Rémi Vanicat
+     9  Florian Ragwitz
+     5  Ramkumar Ramachandra
+     4  Cornelius Mika
+     4  Kan-Ru Chen
+     4  Philippe Vaucher
+     3  Nicolas Richard
+     2  Alex Kost
+     2  Eric Schulte
+     2  Mitchel Humpherys
+     2  Peter Eisentraut
+     2  Ryan C. Thompson
+     2  Syohei YOSHIDA
+     1  Adeodato Simó
+     1  Andrew Schwartzmeyer
+     1  Andy Sawyer
+     1  Bradley Wright
+     1  Guillaume Martres
+     1  HUANG Wei
+     1  John Mastro
+     1  John Wiegley
+     1  Julien Danjou
+     1  Mark Oteiza
+     1  Michael Fogleman
+     1  Michael Griffiths
+     1  Michal Sojka
+     1  Rüdiger Sonderfeld
+     1  Teemu Likonen
+     1  Tim Wraight

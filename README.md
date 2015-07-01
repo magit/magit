@@ -1,123 +1,95 @@
-It's Magit!  A Git Porcelain inside Emacs
-=========================================
+<a href="#readme"></a>
+<p align="center"><img src="http://magit.vc/img/magit.png"/></p>
+<h1 align="center">It's Magit!</h1>
+<h2 align="center">A Git Porcelain inside Emacs</h2>
+<p align="center">
+  <a href="http://magit.vc"><b>homepage</b></a> |
+  <a href="http://magit.vc/manual"><b>manual</b></a> |
+  <a href="http://magit.vc/manual/magit/FAQ.html"><b>faq</b></a> |
+  <a href="https://github.com/magit/magit/wiki"><b>wiki</b></a> |
+  <a href="https://groups.google.com/forum/?fromgroups#!forum/magit"><b>mailing list</b></a> |
+  <a href="http://emacs.stackexchange.com/questions/tagged/magit"><b>forum</b></a> |
+  <a href="https://gitter.im/magit/magit"><b>chat</b></a> |
+  <a href="https://twitter.com/magit_emacs"><b>news</b></a>
+</p>
+***
 
-Magit is an interface to the version control system [Git][git],
-implemented as an [Emacs][emacs] package.
+<p align="justify">
+  Magit is an interface to the version control system
+  <a href="http://git-scm.com">Git</a>, implemented as an
+  <a href="http://www.gnu.org/software/emacs">Emacs</a> package.
+  Magit aspires to be a complete Git porcelain.  While we cannot
+  (yet) claim that Magit wraps and improves upon each and every Git
+  command, it is complete enough to allow even experienced Git users
+  to perform almost all of their daily version control tasks directly
+  from within Emacs.  While many fine Git clients exist, only Magit
+  and Git itself deserve to be called porcelains.
+  <a href="http://magit.vc/about.html">(more)</a>
+</p>
+***
 
-Unlike the [VC][vc] package which is part of Emacs and strives to
-provide a unified interface to various version control systems, Magit
-only supports Git and can therefore better take advantage of its
-native features.
+<p align="center">
+  Please consider supporting development by making a
+  <a href="http://magit.vc/donations.html">donation</a>.
+</p>
+***
 
-*Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.*
-*Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.*
+Support
+=======
 
-### Table of Contents
+**When something doesn't work as expected then please first see the
+[FAQ][faq].** Then also try the list of [open issues][issues] and use
+the search box at the top of that page to find older related issues.
+You should also consult the [manual][manual] and ask a general-purpose
+search engine.
 
-* [Installation](#installation)
-* [Getting Started](#getting-started)
-* [Getting Help](#getting-help)
-* [Contributions](#contributions)
-* [Dependencies](#dependencies)
+If everything else fails then ask for help on the
+**[Emacs Stackexchange site][forum]**, the
+[mailing list][list], or the
+[Gitter chat][chat].
 
-Installation
+**Please do NOT use the Github issue tracker for support requests.**
+**We only use it for feature requests and bug reports.**
+
+Contributing
 ============
 
-We recommend that you use Emacs' package manager (`package.el`),
-to install Magit from your preferred Elpa archive ([Melpa][melpa],
-[Melpa-Stable][melpa-stable], or [Marmalade][marmalade]).  If you
-haven't used the package manager before, or would like to install
-directly from Magit's Git repository, then consult the detailed
-[installation instructions][install].
+To report bugs and suggest new feature use the
+[issue tracker][issues].  If you have some code which you would like
+to be merged, then open a [pull requests][pulls]. Please also see
+[CONTRIBUTING.md][contrib].
 
-Getting Started
+Acknowledgments
 ===============
 
-To get started with Magit show a summary of its status in a
-new buffer using <kbd>M-x magit-status RET</kbd>.  Navigate the
-buffer using <kbd>n</kbd> and <kbd>p</kbd>, and toggle sections using
-<kbd>TAB</kbd>.  Edit and save some files, refresh the status buffer
-using <kbd>g</kbd>, stage files or individual hunks using <kbd>s</kbd>
-and initiate a commit using <kbd>c c</kbd> the staged changes.  When
-done writing the commit message use <kbd>C-c C-c</kbd> to actually
-create the commit.
-
-For more details consult the user manual.  You can read it with
-<kbd>C-u C-h i magit.info RET</kbd> or [on the web][manual].  Magit
-also has a [website][website].
-
-Getting Help
-============
-
-When something doesn't work as expected please see the [FAQ][faq], and
-the list of [open issues][issues], and use the search box at the top
-of the latter to find older related issues.  If everything else fails
-ask for help on the [Emacs Stackexchange][emacsstack] site or the
-[mailing list][group].
-
-Contributions
-=============
-
-Magit is [hosted on Github][development].  Please contribute by
-reporting bugs and suggesting features on the [issue tracker][issues]
-or by making code contributions using [pull requests][pulls].  Before
-opening a pull request read the brief
-[contribution guidelines][contributing].
-
-Please also consider supporting development by making a
-[monetary donation][donations].  Thank you!
-
 Magit was started by [Marius Vollmer][marius] and is now maintained
-by [Jonas Bernoulli][jonas].  Other Magitians (former maintainers)
-are [Nicolas Dudebout][nicolas], [Peter J. Weisberg][peter],
+by [Jonas Bernoulli][jonas].  Other former maintainers are
+[Nicolas Dudebout][nicolas], [Peter J. Weisberg][peter],
 [Phil Jackson][phil], [Rémi Vanicat][remi], and [Yann Hodique][yann].
-
-Many more people have [contributed code][stats-authors] and suggested
+Many more people have [contributed code][authors] and suggested
 features.
 
 Thanks to all of you, may (the history of) the source be with you!
 
-Dependencies
-============
+***
+[![Build Status](https://travis-ci.org/magit/magit.svg?branch=master)](https://travis-ci.org/magit/magit)
 
-If you install Magit using Emacs' package manager then dependencies
-are automatically being taken care of.  Otherwise you have to track
-down dependencies and install them manually.
+[contrib]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
+[issues]:  https://github.com/magit/magit/issues
+[pulls]:   https://github.com/magit/magit/pulls
 
-Magit requires the libraries `git-commit-mode` and `git-rebase-mode`
-which are part of the [magit/git-modes][git-modes] repository and are
-distributed as separate packages.
+[authors]: http://magit.vc/stats/authors.html
+[faq]:     http://magit.vc/manual/magit/FAQ.html
+[manual]:  http://magit.vc/manual
 
-The library `magit-wip` additionally requires the [`git-wip`][git-wip]
-script, which you have to install manually.
+[chat]:    https://gitter.im/magit/magit
+[forum]:   http://emacs.stackexchange.com/questions/tagged/magit
+[list]:    https://groups.google.com/forum/?fromgroups#!forum/magit
 
-
-[contributing]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
-[development]: http://github.com/magit/magit
-[donations]: http://magit.vc/donations.html
-[emacsstack]: http://emacs.stackexchange.com/questions/tagged/magit
-[faq]: https://github.com/magit/magit/wiki/FAQ
-[group]: https://groups.google.com/forum/?fromgroups#!forum/magit
-[install]: https://github.com/magit/magit/wiki/Installation
-[issues]: https://github.com/magit/magit/issues
-[manual]: http://magit.vc/manual/master
-[pulls]: https://github.com/magit/magit/pulls
-[stats-authors]: http://magit.vc/stats/authors.html
-[website]: http://magit.vc
-
-[jonas]: http://emacsair.me
-[marius]: https://github.com/mvollmer
+[jonas]:   http://emacsair.me
+[marius]:  https://github.com/mvollmer
 [nicolas]: http://dudebout.com
-[peter]: https://github.com/pjweisberg
-[phil]: https://github.com/philjackson
-[remi]: https://github.com/vanicat
-[yann]: http://www.hodique.info
-
-[emacs]: http://www.gnu.org/software/emacs
-[git-wip]: https://github.com/bartman/git-wip
-[git]: http://git-scm.com
-[git-modes]: https://github.com/magit/git-modes
-[marmalade]: http://marmalade-repo.org
-[melpa]: http://melpa.org
-[melpa-stable]: http://stable.melpa.org
-[vc]: http://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html
+[peter]:   https://github.com/pjweisberg
+[phil]:    https://github.com/philjackson
+[remi]:    https://github.com/vanicat
+[yann]:    http://www.hodique.info
