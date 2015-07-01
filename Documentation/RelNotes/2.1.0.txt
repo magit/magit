@@ -24,11 +24,11 @@ under old leadership.  Version 1.4.0, which I released earlier this
 year, for the most part consisted of changes that prepared for this
 release (so you might want to read the respective release notes too).
 
-This release comes with many new and exiting features, but the most
+This release comes with many new and exciting features, but the most
 important change is the massive increase in consistency both in the
 user interface and the internal abstractions.
 
-Magit always provided the most intuitive staging interface, which is
+Magit always provided a very intuitive staging interface, which is
 vastly superior to `git add --interactive'.  This release extends this
 to other apply variants.  Starting with this release, other areas have
 also begun to contain more than just incremental improvements over what Git
