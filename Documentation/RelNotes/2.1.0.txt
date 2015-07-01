@@ -29,9 +29,9 @@ important change is the massive increase in consistency both in the
 user interface and the internal abstractions.
 
 Magit always provided the most intuitive staging interface, which is
-vastly superior to `git add --interactive'.  This release extents this
-to other apply variants.  Starting with this release other areas have
-also begun to be more than just incremental improvements over what Git
+vastly superior to `git add --interactive'.  This release extends this
+to other apply variants.  Starting with this release, other areas have
+also begun to contain more than just incremental improvements over what Git
 itself provides.  But this is still limited to certain features which
 have gotten more attention than others (most prominently rebasing).
 
@@ -41,7 +41,7 @@ Interlude
 Finally the code base is in a state that allows me to concentrate on
 implementing my vision of what version control could be like.  But
 this will only be possible if, unlike during the last two and a half
-years, I am being payed for my work.
+years, I am being paid for my work.
 
 I intend to run a fund-raising campaign.  But you can already donate
 now, see http://magit.vc/donations.html.  I am also looking for
@@ -107,7 +107,7 @@ Changes since v1.4.0
    Future renames will be performed at well defined times and obsolete
    function/variable definitions will be provided for backward
    compatibility.  No renames are planned at present.
-   
+
  * The external libraries `git-commit-mode.el' and `git-rebase-mode.el'
    are no longer required and actually have to be removed because they
    conflict with their successors `git-commit.el' and `git-rebase.el',
@@ -232,7 +232,7 @@ Changes since v1.4.0
    not calculated until the expansion happens, making it vastly more
    efficient.  Besides local and remote branches, the buffer now also
    lists tags, and users can add additional sections listing other
-   refs, e.g. stashes.  The format of refs headers is now
+   refs, e.g., stashes.  The format of refs headers is now
    customizable.
 
  * File-visiting buffers are now reverted without using code from the
@@ -258,7 +258,7 @@ Changes since v1.4.0
  * The header sections in status buffers can now be customized using
    the new `magit-status-headers-hook'.  This is an additional section
    insertion hook; separating it from `magit-status-sections-hook'
-   allows giving users complete control over what information is
+   gives users complete control over what information is
    displayed in the headers, while still making the first header the
    parent section of all the other header lines.
 
@@ -302,7 +302,7 @@ Changes since v1.4.0
    Several rebasing variants exist, of course including basic "rebase
    onto something" and interactive rebase.  Other variants
    automatically combine detect and squash and fixup commits with
-   their intended targets.  Yet others let the user edit or reword a
+   their intended targets.  Others let the user edit or reword a
    single commit, without having to go through the steps which are
    irrelevant in these cases.
 
@@ -322,7 +322,7 @@ Changes since v1.4.0
    the relevant commits.
 
  * The magit-specific "rewriting" feature has been removed because it
-   was a bastard to "rebasing" and "cherry-picking" and vastly
+   was a hybrid of "rebasing" and "cherry-picking" and vastly
    inferior to both of them.
 
  * The merging prefix features several new convenient merge variants.
@@ -349,7 +349,7 @@ Changes since v1.4.0
    buffer, and the description can be edited using a suffix command
    from the branching prefix.
 
- * The url of a remote can now be changed from the remoting prefix.
+ * The URL of a remote can now be changed from the remoting prefix.
 
  * A new pulling prefix command was added which features several new
    pulling variants.  Previously only one pulling command existed and
@@ -373,7 +373,7 @@ Changes since v1.4.0
    used instead of `git stash'.  This allows creating snapshot stashes
    without touching any files in the working tree.
 
- * The submoduling prefix now features new suffix commands for adding,
+ * The submodule prefix now features new suffix commands for adding,
    setting up, and fetching modules.
 
  * Submodules with unmerged commits can now be displayed in the status
@@ -383,23 +383,23 @@ Changes since v1.4.0
 
  * Support for displaying diffs inside the log buffer instead of in a
    separate diff buffer has been removed.  It might come back one day
-   but the old implementation had just fallen behind regular one-line
-   log to much.
+   but the old implementation had just fallen too far behind the
+   regular one-line log.
 
  * The logging prefix features many new infix arguments and suffix
    commands, which can now be combined in more flexible ways than
    before.
 
  * Many commands which previously read a single commit, branch, or
-   file in the minibuffer, now can read multiple comma separated items
+   file in the minibuffer, now can read multiple comma-separated items
    from the user, while providing completion candidates for all of
-   them.  Likewise when selecting a range, completion is available
-   when inserting the second commit too.
+   them.  Likewise when selecting a range, completion is also available
+   when inserting the second commit.
 
  * All of Git's reset variants are now exposed as individual commands.
    But not all of them have a key binding by default.
 
-This was just the tip of the iceberg.  If you thing that I should have
+This was just the tip of the iceberg.  If you think I should have
 spend more time structuring and proofreading these release notes, then
 please note that I have also written a manual.
 
