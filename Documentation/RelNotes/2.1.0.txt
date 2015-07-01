@@ -70,7 +70,7 @@ Changes since v1.4.0
    The manuals are written in Org-mode and then exported to Texinfo.
 
  * Performance is much better now.  In most cases this was achieved by
-   delaying work with might turn out not to be necessary after all.
+   delaying work that might turn out not to be necessary after all.
    Most importantly diffs are only partially washed until being fully
    expanded.  Some features come in a fancy and in a fast variant;
    when that is the case we now usually default to the fast variant.
@@ -135,12 +135,12 @@ Changes since v1.4.0
    is used which communicates over standard output instead of a socket
    like the emacsclient does.
 
-   The `1.4.0` release already supported this, but this release splits
+   The `1.4.0' release already supported this, but this release splits
    this feature into a separate library.  And now that it is a separate
    library, it can also be used by packages that are not related to
    Magit.  `with-editor.el' is distributed as a separate Elpa package.
 
- * All libraries are now located in the new `lisp/` subdirectory.
+ * All libraries are now located in the new `lisp/' subdirectory.
 
  * The library `magit.el' has been split into many new libraries.
    The code base is now much better organized.  Together with the
@@ -169,7 +169,7 @@ Changes since v1.4.0
 
  * The popular third-party library `dash.el' is now required.  This
    is the only mandatory external dependency now, except for Git and
-   Emacs themselves of course.
+   Emacs themselves, of course.
 
  * When using Ido inside Magit, users now have to install the
    third-party library `ido-completing-read+.el'.  This is necessary
@@ -183,15 +183,15 @@ Changes since v1.4.0
 
  * The new functions `magit-insert' and `magit-put-face-property' take
    care of working around the fact that negative overlay priorities
-   are not supported, i.e. that overlays always take precedence
+   are not supported, i.e., that overlays always take precedence
    against text properties.  Previously this was done in various
-   places, and not always correctly, e.g. in some cases overlays did
+   places, and not always correctly, e.g., in some cases overlays did
    not evaporate.
 
  * The section visibility and movement commands were rewritten from
    scratch.  All those commands now share the prefix `magit-section-'
    and edge cases are handled better.  New commands were added that
-   allow cycling the visibility of (a) section(s) and its/their
+   allow cycling the visibility of sections and their
    children.  From a user perspective Magit's section handling is
    now quite similar to that of Org-mode.
 
@@ -236,24 +236,24 @@ Changes since v1.4.0
    customizable.
 
  * File-visiting buffers are now reverted without using code from the
-   built-in `autorevert.el' library.  The function we previously used
+   built-in `autorevert.el` library.  The function we previously used
    was intended for internal use only and indeed, changes made there
    broke Magit in the past.
 
- * The new option `magit-revert-buffers' controls whether and how
+ * The new option `magit-revert-buffers` controls whether and how
    buffers visiting tracked files are reverted.  As before such
    buffers are by default reverted.  But by default this is now done
    rather noisily, to encourage users to read the doc-string and
    pick what is right for them.  It's now also possible to revert
    asynchronously and for the user to be asked every time there are
    buffers that could be reverted.  This option replaces
-   `magit-auto-revert-mode'.
+   `magit-auto-revert-mode`.
 
  * Many new section inserters are available.  Some are variations of
-   default inserters; `magit-insert-unpulled-cherries' for example is
-   like `magit-insert-unpulled-commits' but prefixes each commit with
+   default inserters; `magit-insert-unpulled-cherries` for example is
+   like `magit-insert-unpulled-commits` but prefixes each commit with
    "+" or "-" to indicate its "cherry state". Other inserters are
-   completely new, e.g. `magit-insert-unpulled-module-commits'.
+   completely new, e.g. `magit-insert-unpulled-module-commits`.
 
  * The header sections in status buffers can now be customized using
    the new `magit-status-headers-hook'.  This is an additional section
