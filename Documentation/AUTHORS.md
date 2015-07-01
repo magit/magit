@@ -38,6 +38,7 @@ Contributors
 - Adeodato Simó <dato@net.com.org.es>
 - Ævar Arnfjörð Bjarmason <avarab@gmail.com>
 - Alan Falloon <alan.falloon@gmail.com>
+- Alex Dunn <dunn.alex@gmail.com>
 - Alexey Voinov <alexey.v.voinov@gmail.com>
 - Alex Kost <alezost@gmail.com>
 - Alex Ott <alexott@gmail.com>
