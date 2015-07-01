@@ -30,8 +30,8 @@ user interface and the internal abstractions.
 
 Magit always provided the most intuitive staging interface, which is
 vastly superior to `git add --interactive'.  This release extends this
-to other apply variants.  Starting with this release, other areas have
-also begun to contain more than just incremental improvements over what Git
+to other apply variants.  Starting with this release other areas have
+also begun to be more than just incremental improvements over what Git
 itself provides.  But this is still limited to certain features which
 have gotten more attention than others (most prominently rebasing).
 
@@ -59,9 +59,9 @@ technical challenges that arise when running a popular project.
 Changes since v1.4.0
 --------------------
 
- * A new manual has been added.  Its much more comprehensive than the
-   old manual and instead of just documenting the various commands
-   and options, it also explains concepts and plumbing functions, and
+ * A new manual has been added.  It's much more comprehensive than the
+   old manual and instead of just documenting the various commands and
+   options, it also explains concepts and plumbing functions, and
    comes with extensive indices for commands, functions, and options.
 
    Actually three new manuals were added; the packages `magit-popup'
@@ -78,11 +78,11 @@ Changes since v1.4.0
  * Many options can now be set on a per-repository basis and the
    manual describes how to do so (actually this was always possible
    but because it was undocumented, nobody did it).  It's possible to
-   define "repository classes", like e.g. "huge repositories", and
-   then add the respective repositories to that class.  This is very
-   useful in order to turn of certain features only in repositories
-   where they would have a negative impact on performance, without
-   having to do it for each repository individually.
+   define "repository classes", e.g. "huge repositories", and then add
+   the respective repositories to that class.  This is very useful in
+   order to turn off certain features only in repositories where they
+   would have a negative impact on performance, without having to do
+   it for each repository individually.
 
  * Many faces have been simplified.  Most importantly, section heading
    faces no longer set a background color (except for hunk headings)
@@ -163,9 +163,9 @@ Changes since v1.4.0
    new implementation can blame recursively and it's now possible to
    jump to the next/previous chunk from the same commit, the headings
    can be replaced with separator lines, the revision buffer for the
-   chunk at point can be scrolled like from log buffers, and there now
-   is a blaming popup which can be used to fine-tune the arguments for
-   `git blame'.
+   chunk at point can be scrolled like from log buffers, and there is
+   now a blaming popup which can be used to fine-tune the arguments
+   for `git blame'.
 
  * The popular third-party library `dash.el' is now required.  This
    is the only mandatory external dependency now, except for Git and
@@ -222,7 +222,7 @@ Changes since v1.4.0
    confirm potentially dangerous actions.  Many of these actions are
    only dangerous for users who don't know how to undo them.  When the
    wip modes are turned on then many more previously fatal actions can
-   be easily undone.  Adding `safe-with-wip' here, makes it
+   be easily undone.  A setting of `safe-with-wip' makes it
    unnecessary to confirm these actions.
 
  * The new Refs buffer combines the features of the old Wazzup and
@@ -258,13 +258,9 @@ Changes since v1.4.0
  * The header sections in status buffers can now be customized using
    the new `magit-status-headers-hook'.  This is an additional section
    insertion hook; separating it from `magit-status-sections-hook'
-   gives users complete control over what information is
-   displayed in the headers, while still making the first header the
-   parent section of all the other header lines.
-
- * Many commands which previously could only act on the section at
-   point now act on all sections which are selected by a region,
-   which spans sibling sections of the same type.
+   gives users complete control over what information is displayed in
+   the headers, while still making the first header the parent section
+   of all the other header lines.
 
  * Many commands now more intelligently dwim based on the section at
    point.
@@ -298,7 +294,7 @@ Changes since v1.4.0
    new variants do that and then also instantly perform a rebase to
    actually combine these commits with their intended target commits.
 
- * Rebase sequence are now initiated from the new rebasing prefix.
+ * Rebase sequences are now initiated from the new rebasing prefix.
    Several rebasing variants exist, of course including basic "rebase
    onto something" and interactive rebase.  Other variants
    automatically combine detect and squash and fixup commits with
@@ -308,9 +304,9 @@ Changes since v1.4.0
 
  * When a rebase sequence stops at a commit then the rebasing prefix
    instead features suffix commands for continuing, editing, or
-   aborting the sequence, or to skip the current commit.
+   aborting the sequence; or skipping the current commit.
 
- * When a rebase sequence stops the status buffer displays a list of
+ * When a rebase sequence stops, the status buffer displays a list of
    the already applied and yet-to-be applied commits.  These commits
    can be acted on like those in logs.
 
@@ -329,17 +325,16 @@ Changes since v1.4.0
 
  * Merges can now be previewed before actually carrying them out.
 
- * When a merge results in conflicts then the commits that are being
-   merged are listed in the status buffer, making it easier to review
-   conflicting changes in the context they were created.
+ * When a merge results in conflicts then the commits being merged are
+   listed in the status buffer, making it easier to review conflicting
+   changes in the context they were created.
 
  * Its now possible to discard one side of a conflict directly from
    the hunk containing the conflict, using the regular discard key
    `k'.  It's also possible to restore a conflict.
 
  * When using an existing branch as the starting-point of a new
-   branch, then that is now automatically configured as the upstream
-   branch.
+   branch, it is now automatically configured as the upstream branch.
 
  * The branching prefix now features suffix commands for un-/setting
    the upstream branch.  Previously this was coupled with pushing in
@@ -353,12 +348,12 @@ Changes since v1.4.0
 
  * A new pulling prefix command was added which features several new
    pulling variants.  Previously only one pulling command existed and
-   it had to be controlled using prefix commands, which was very
+   it had to be controlled using prefix arguments, which was very
    cumbersome.
 
  * A new pushing prefix command was added which features several new
    pushing variants.  Previously only one pushing command existed and
-   it had to be controlled using prefix commands, which was very
+   it had to be controlled using prefix arguments, which was very
    cumbersome.
 
  * The various tagging commands are now suffix commands of the new
@@ -391,7 +386,7 @@ Changes since v1.4.0
    before.
 
  * Many commands which previously read a single commit, branch, or
-   file in the minibuffer, now can read multiple comma-separated items
+   file in the minibuffer, can now read multiple comma-separated items
    from the user, while providing completion candidates for all of
    them.  Likewise when selecting a range, completion is also available
    when inserting the second commit.
