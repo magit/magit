@@ -26,6 +26,7 @@ and every Git command, it is complete enough to allow even experienced
 Git users to perform almost all of their daily version control tasks
 directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
+@end ifnottex
 
 [This manual assumes that @code{2.1.0} has already been released, but
 while the release is eminent, it has not actually happened yet.]
@@ -3556,6 +3557,34 @@ worked around:
   content and instead focus on making doing so faster.
 
 Now for the things that you can do to improve performance:
+
+Most optional features which can have a negative effect on performance
+are disabled by default.  So start by checking the options you have
+customized.  Even the potentially slow features are expected to only
+lead to barely noticeable delays, but your mileage may vary.  Also
+note that it is now possible to set options on a per-repository or
+per-repository-class basis.  See [[*Per-repository configuration]].
+
+You should check the values of at least the following variables:
+
+- ~magit-after-revert-hook~
+- ~magit-diff-auto-show~
+- ~magit-diff-highlight-hunk-body~
+- ~magit-diff-highlight-indentation~
+- ~magit-diff-highlight-whitespace~
+- ~magit-diff-paint-whitespace~
+- ~magit-diff-refine-hunk~
+- ~magit-not-reverted-hook~
+- ~magit-refresh-buffer-hook~
+- ~magit-status-refresh-hook~
+- ~magit-wip-after-apply-mode~
+- ~magit-wip-after-save-mode~
+- ~magit-wip-before-change-mode~
+
+Also note that everything involving "cherry commits" is slow.
+
+If nothing helps, then feel free to open a new issue.  Please provide
+benchmarks.
 
 * Plumbing
 

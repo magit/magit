@@ -15,6 +15,7 @@ and every Git command, it is complete enough to allow even experienced
 Git users to perform almost all of their daily version control tasks
 directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
+@end ifnottex
 
 [This manual assumes that @code{2.1.0} has already been released, but
 while the release is eminent, it has not actually happened yet.]
@@ -5149,6 +5150,61 @@ content and instead focus on making doing so faster.
 @end itemize
 
 Now for the things that you can do to improve performance:
+
+Most optional features which can have a negative effect on performance
+are disabled by default.  So start by checking the options you have
+customized.  Even the potentially slow features are expected to only
+lead to barely noticeable delays, but your mileage may vary.  Also
+note that it is now possible to set options on a per-repository or
+per-repository-class basis.  See @ref{Per-repository configuration,Per-repository configuration}.
+
+You should check the values of at least the following variables:
+
+@itemize
+@item
+@code{magit-after-revert-hook}
+
+@item
+@code{magit-diff-auto-show}
+
+@item
+@code{magit-diff-highlight-hunk-body}
+
+@item
+@code{magit-diff-highlight-indentation}
+
+@item
+@code{magit-diff-highlight-whitespace}
+
+@item
+@code{magit-diff-paint-whitespace}
+
+@item
+@code{magit-diff-refine-hunk}
+
+@item
+@code{magit-not-reverted-hook}
+
+@item
+@code{magit-refresh-buffer-hook}
+
+@item
+@code{magit-status-refresh-hook}
+
+@item
+@code{magit-wip-after-apply-mode}
+
+@item
+@code{magit-wip-after-save-mode}
+
+@item
+@code{magit-wip-before-change-mode}
+@end itemize
+
+Also note that everything involving "cherry commits" is slow.
+
+If nothing helps, then feel free to open a new issue.  Please provide
+benchmarks.
 
 @node Plumbing
 @chapter Plumbing
