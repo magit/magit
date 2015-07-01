@@ -12,8 +12,8 @@
   <a href="https://gitter.im/magit/magit"><b>chat</b></a> |
   <a href="https://twitter.com/magit_emacs"><b>news</b></a>
 </p>
-
 ***
+
 <p align="justify">
   Magit is an interface to the version control system
   <a href="http://git-scm.com">Git</a>, implemented as an
@@ -32,28 +32,6 @@
   <a href="http://magit.vc/donations.html">donation</a>.
 </p>
 ***
-
-Magit 2.1.0 will be released on the 1th of July
-===============================================
-
-- To install the soon to be obsolete `1.4.2` release, follow
-  [these](https://github.com/magit/magit/wiki/Installation) old
-  instructions.
-
-- To install the `2.0.50` pre-release now, follow [these][install]
-  instructions.  Note that until `2.1.0` has been released you have
-  to install directly from the development repository.
-
-- If you are the maintainer of a package that depends on Magit, then
-  please start using `2.0.50` now and try to adapt your package before
-  the 1th of July.  Thanks.
-
-- For more information see [this][roadmap] issue.
-
-Before you install the new version (regardless of whether you install
-the `2.0.50` pre-release now, or the `2.1.0` release once that has
-arrived) you have to **first uninstall `1.4.0`**.  See [this][update]
-page for more information.
 
 Support
 =======
@@ -87,7 +65,7 @@ Magit was started by [Marius Vollmer][marius] and is now maintained
 by [Jonas Bernoulli][jonas].  Other former maintainers are
 [Nicolas Dudebout][nicolas], [Peter J. Weisberg][peter],
 [Phil Jackson][phil], [Rémi Vanicat][remi], and [Yann Hodique][yann].
-Many more people have [contributed code][contributors] and suggested
+Many more people have [contributed code][authors] and suggested
 features.
 
 Thanks to all of you, may (the history of) the source be with you!
@@ -95,25 +73,17 @@ Thanks to all of you, may (the history of) the source be with you!
 ***
 [![Build Status](https://travis-ci.org/magit/magit.svg?branch=master)](https://travis-ci.org/magit/magit)
 
-
-[contrib]: https://github.com/magit/magit/blob/next/CONTRIBUTING.md
+[contrib]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
 [issues]:  https://github.com/magit/magit/issues
 [pulls]:   https://github.com/magit/magit/pulls
-[roadmap]: https://github.com/magit/magit/issues/1645
 
-[contributors]: http://magit.vc/stats/authors.html
-[donations]:    http://magit.vc/donations.html
-[faq]:          http://magit.vc/manual/magit/FAQ.html
-[install]:      http://magit.vc/manual/magit/Installation.html
-[manual]:       http://magit.vc/manual
-[update]:       http://magit.vc/manual/magit/Updating-from-an-older-release.html
+[authors]: http://magit.vc/stats/authors.html
+[faq]:     http://magit.vc/manual/magit/FAQ.html
+[manual]:  http://magit.vc/manual
 
-[forum]: http://emacs.stackexchange.com/questions/tagged/magit
-[chat]:  https://gitter.im/magit/magit
-[list]:  https://groups.google.com/forum/?fromgroups#!forum/magit
-
-[emacs]: http://www.gnu.org/software/emacs
-[git]:   http://git-scm.com
+[chat]:    https://gitter.im/magit/magit
+[forum]:   http://emacs.stackexchange.com/questions/tagged/magit
+[list]:    https://groups.google.com/forum/?fromgroups#!forum/magit
 
 [jonas]:   http://emacsair.me
 [marius]:  https://github.com/mvollmer

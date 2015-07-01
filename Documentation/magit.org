@@ -28,10 +28,6 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 @end ifnottex
 
-[This manual assumes that @code{2.1.0} has already been released, but
-while the release is eminent, it has not actually happened yet.]
-@end ifnottex
-
 @quotation
 Copyright (C) 2015 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -131,11 +127,6 @@ implemented on top of Git plumbing commands.
 Magit can be installed using Emacs' package manager or manually from
 its development repository.
 
-[These instructions assume that ~2.1.0~ has already been released - but
-that's not the case.  Currently you have to install what will become
-the ~2.1.0~ release from Magit's development repository, installing from
-an Elpa archive would install an older release.]
-
 ** Updating from an older release
 
 When updating from ~1.2.*~ or ~1.4.*~, you should first uninstall Magit
@@ -230,13 +221,11 @@ popular third-party Elpa archives.  Install it using ~M-x
 install-package RET dash RET~.  Of course you may also install it
 manually from its development repository, but I won't cover that here.
 
-After installing the dependency, clone the Magit repository and check
-out the ~next~ branch:
+Then clone the Magit repository:
 
 #+BEGIN_SRC shell
   $ git clone git://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
   $ cd ~/.emacs.d/site-lisp/magit
-  $ git checkout next
 #+END_SRC
 
 Then compile the libraries and generate the info manuals:
