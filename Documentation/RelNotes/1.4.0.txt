@@ -4,7 +4,7 @@ Magit v1.4.0 Release Notes
 Released 1 April 2015 by Jonas Bernoulli.
 
 This release sits in the middle of a commit marathon that lasted for
-more than 4400 commits.
+more than 4700 commits.
 
 When I became Magit's new maintainer during the summer of 2013 Magit
 was already a big success, but underneath its shiny surface it was
