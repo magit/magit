@@ -84,7 +84,7 @@ test-interactive:
 clean: clean-lisp clean-docs
 	@printf "Cleaning...\n"
 	@$(RM) $(ELCS) $(ELGS) # temporary cleanup kludge
-	@$(RM) *.gz *.tar.gz *.tar Documentation/*.texi~
+	@$(RM) git-commit-*.el *.tar.gz *.tar Documentation/*.texi~
 	@$(RMDIR) magit-$(VERSION)
 
 clean-lisp:
@@ -133,7 +133,7 @@ marmalade: elpa
 	@marmalade-upload magit-$(VERSION).tar
 
 ELPA_ARCHIVES  = with-editor-$(VERSION).tar
-ELPA_ARCHIVES += git-commit-$(VERSION).el.gz
+ELPA_ARCHIVES += git-commit-$(VERSION).el
 ELPA_ARCHIVES += magit-popup-$(VERSION).tar
 ELPA_ARCHIVES += magit-$(VERSION).tar
 
@@ -157,7 +157,7 @@ with-editor-$(VERSION).tar: info
 	  -f with-editor-$(VERSION).tar with-editor-$(VERSION)
 	@$(RMDIR) with-editor-$(VERSION)
 
-git-commit-$(VERSION).el.gz:
+git-commit-$(VERSION).el:
 	@printf "Packing $@\n"
 	@$(CP) lisp/git-commit.el git-commit-$(VERSION).el
 
