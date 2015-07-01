@@ -89,7 +89,7 @@ variant `magit-wip-after-save-mode'."
 
 (defun magit-wip-after-save-local-mode-turn-on ()
   (and buffer-file-name
-       (magit-inside-worktree-p)
+       (ignore-errors (magit-inside-worktree-p))
        (magit-file-tracked-p buffer-file-name)
        (magit-wip-after-save-local-mode)))
 
