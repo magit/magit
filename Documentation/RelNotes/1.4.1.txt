@@ -1,9 +1,3 @@
-It's Magit!  A Git Porcelain inside Emacs
-=========================================
-
-Magit is an interface to the version control system Git, implemented
-as an Emacs package.  For more information see http://magit.vc.
-
 Magit v1.4.1 Release Notes
 ==========================
 
