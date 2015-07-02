@@ -585,7 +585,7 @@ For internal use; don't add to a hook."
 
 (defconst magit-log-oneline-re
   (concat "^"
-          "\\(?4:\\(?: *[-_/|\\*o.] *\\)+ *\\)?"   ; graph
+          "\\(?4:[-_/|\\*o. ]*\\)"                 ; graph
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
           "\\(?7:[BGUN]\\)?"                       ; gpg
