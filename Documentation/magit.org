@@ -157,11 +157,6 @@ recent enough Git version on these hosts.
 
 ** Installing from an Elpa archive
 
-[These instructions assume that ~2.1.0~ has already been released - but
-that's not the case.  Currently you have to install what will become
-the ~2.1.0~ release from Magit's development repository, installing from
-an Elpa archive would install an older release.]
-
 If you are updating from a release older than ~2.1.0~, then you have to
 first uninstall the old version.  See [[*Updating from an older release]].
 
@@ -390,7 +385,7 @@ Write a message and then type ~C-c C-c~ to actually create the commit.
 
 You probably don't want to push the commit you just created because
 you just committed some random changes, but if that is not the case
-you could push it by typing ~p~ to bring up the push popup and then ~p~
+you could push it by typing ~P~ to bring up the push popup and then ~P~
 again to push to the configured upstream.  (If the upstream is not
 configured, then you would be prompted for the push target instead.)
 
