@@ -148,7 +148,7 @@ that without users being aware of it could lead to tears.
 
 (defvar magit-popup-mode-map
   (let ((map (make-sparse-keymap)))
-    (cl-loop for key from ?a to ?z
+    (cl-loop for key from ?A to ?z
              do (define-key map (char-to-string key) 'magit-invoke-popup-action))
     (define-key map [?$] 'magit-invoke-popup-action)
     (define-key map [?!] 'magit-invoke-popup-action)
