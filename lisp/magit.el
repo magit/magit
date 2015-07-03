@@ -491,6 +491,17 @@ The sections are inserted by running the functions on the hook
                        (propertize (format "%s" count) 'face
                                    (if next 'magit-tag 'magit-branch-local))))))
 
+(defun magit-insert-user-header ()
+  "Insert a header line about the current user."
+  (let ((name  (magit-get "user.name"))
+        (email (magit-get "user.email")))
+    (when (and name email)
+      (magit-insert-section (user name)
+        (magit-insert
+         (concat (format "%-10s" "User: ")
+                 (propertize name 'face 'magit-log-author)
+                 " <" email ">" "\n"))))))
+
 (magit-define-section-jumper tracked "Tracked files")
 
 (defun magit-insert-tracked-files ()
