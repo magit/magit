@@ -417,8 +417,8 @@ The sections are inserted by running the functions on the hook
   "Insert a header line showing the path to the repository top-level."
   (let ((topdir (magit-toplevel)))
     (magit-insert-section (repo topdir)
-        (magit-insert (format "%-10s%s" "Repo: "
-                              (abbreviate-file-name topdir))))))
+      (magit-insert (format "%-10s%s\n" "Repo: "
+                            (abbreviate-file-name topdir))))))
 
 (defun magit-insert-remote-header ()
   "Insert a header line about the remote of the current branch."
