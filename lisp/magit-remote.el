@@ -166,6 +166,7 @@ then read the remote."
               (?d "Dry run"       "--dry-run")
               (?u "Set upstream"  "--set-upstream"))
   :actions  '((?P "Current"   magit-push-current)
+              (?p "Current elsewhere"   magit-push-current-elsewhere)
               (?e "Elsewhere" magit-push-elsewhere)
               (?t "Tags"      magit-push-tags)
               (?o "Other"     magit-push)
@@ -179,6 +180,13 @@ then read the remote."
   "Push the current branch to its upstream branch.
 If the upstream isn't set, then read the remote branch."
   (interactive (magit-push-read-args t t))
+  (magit-push branch remote remote-branch args))
+
+;;;###autoload
+(defun magit-push-current-elsewhere (branch remote &optional remote-branch args)
+  "Push the current branch to some remote.
+Read the remote."
+  (interactive (magit-push-read-args nil t t))
   (magit-push branch remote remote-branch args))
 
 ;;;###autoload
