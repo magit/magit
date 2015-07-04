@@ -158,7 +158,8 @@ to test.  This command lets Git choose a different one."
   (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-log)
       (magit-insert-heading "Bisect Log:")
-      (magit-git-wash #'magit-wash-bisect-log "bisect" "log"))))
+      (magit-git-wash #'magit-wash-bisect-log "bisect" "log")
+      (insert ?\n))))
 
 (defun magit-wash-bisect-log (args)
   (let (beg)
