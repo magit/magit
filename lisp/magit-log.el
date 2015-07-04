@@ -1044,13 +1044,27 @@ commits."
         (magit-insert-unpulled-commits)
       (magit-insert-recent-commits t))))
 
+(defun magit-commit-count-limiting-args (num-args)
+  "Returns a list of arguments for `git log' that limit the
+number of commits as efficiently as possible using a combination
+of git revisions and -NUM-ARGS."
+  (let ((args (list (format "-%d" num-args))))
+    ;; `git rev-list HEAD' doesn't work if there aren't any commits yet. If
+    ;; `git rev-parse HEAD' fails then there aren't any commits.
+    (when (= 0 (call-process "git" nil nil nil "rev-parse" "HEAD"))
+      (let ((revs (magit-git-lines "rev-list"
+                                   (format "--max-count=%d" (1+ num-args))
+                                   "HEAD")))
+        (setq args (cons (format "%s.." (car (last revs))) args))))
+    args))
+
 (defun magit-insert-recent-commits (&optional collapse)
   "Insert section showing recent commits.
 Show the last `magit-log-section-commit-count' commits."
   (magit-insert-section (recent nil collapse)
     (magit-insert-heading "Recent commits:")
-    (magit-insert-log nil (cons (format "-%d" magit-log-section-commit-count)
-                                magit-log-section-args))))
+    (magit-insert-log nil (append (magit-commit-count-limiting-args magit-log-section-commit-count)
+                                  magit-log-section-args))))
 
 (defun magit-insert-recent-commits-graph (&optional collapse)
   "Insert section showing recent commits, with decorations and
@@ -1060,7 +1074,7 @@ commits."
     (magit-insert-heading "Recent commits:")
     (magit-insert-log nil (list "--graph"
                                 "--decorate"
-                                (format "-%d" magit-log-section-commit-count)
+                                (magit-commit-count-limiting-args magit-log-section-commit-count)
                                 magit-log-section-args))))
 
 (defun magit-insert-unpulled-cherries ()
