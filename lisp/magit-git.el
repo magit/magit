@@ -668,7 +668,7 @@ where COMMITS is the number of commits in TAG but not in REV."
             it))))))
 
 (defvar magit-list-refs-namespaces
-  '("refs/heads" "refs/remotes" "refs/tags"))
+  '("refs/heads" "refs/remotes" "refs/tags" "refs/pull"))
 
 (defun magit-list-refs (&rest args)
   (magit-git-lines "for-each-ref" "--format=%(refname)"
