@@ -896,7 +896,7 @@ Return a list of two integers: (A>B B>A)."
           '(crm--choose-completion-string))
          (minibuffer-completion-table #'crm--collection-fn)
          (minibuffer-completion-confirm t)
-         (crm-completion-table (magit-list-branch-names))
+         (crm-completion-table (magit-list-refnames))
          (crm-separator "\\.\\.\\.?")
          (default (or (--when-let (magit-region-values 'commit 'branch)
                         (deactivate-mark)
