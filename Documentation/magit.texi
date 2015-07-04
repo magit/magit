@@ -996,14 +996,14 @@ Cycle the visibility of all sections in the current buffer.
 @kindex 2
 @kindex 3
 @kindex 4
-@cindex magit-section-level-1
-@deffn Command magit-section-level-1
-@cindex magit-section-level-2
-@deffnx Command magit-section-level-2
-@cindex magit-section-level-3
-@deffnx Command magit-section-level-3
-@cindex magit-section-level-4
-@deffnx Command magit-section-level-4
+@cindex magit-section-show-level-1
+@deffn Command magit-section-show-level-1
+@cindex magit-section-show-level-2
+@deffnx Command magit-section-show-level-2
+@cindex magit-section-show-level-3
+@deffnx Command magit-section-show-level-3
+@cindex magit-section-show-level-4
+@deffnx Command magit-section-show-level-4
 
 To show sections surrounding the current section, up to level N,
 press the respective number key (@code{1}, @code{2}, @code{3}, or @code{4}).
@@ -1013,14 +1013,14 @@ press the respective number key (@code{1}, @code{2}, @code{3}, or @code{4}).
 @kindex M-2
 @kindex M-3
 @kindex M-4
-@cindex magit-section-level-1-all
-@deffn Command magit-section-level-1-all
-@cindex magit-section-level-2-all
-@deffnx Command magit-section-level-2-all
-@cindex magit-section-level-3-all
-@deffnx Command magit-section-level-3-all
-@cindex magit-section-level-4-all
-@deffnx Command magit-section-level-4-all
+@cindex magit-section-show-level-1-all
+@deffn Command magit-section-show-level-1-all
+@cindex magit-section-show-level-2-all
+@deffnx Command magit-section-show-level-2-all
+@cindex magit-section-show-level-3-all
+@deffnx Command magit-section-show-level-3-all
+@cindex magit-section-show-level-4-all
+@deffnx Command magit-section-show-level-4-all
 
 To show all sections up to level N, press the respective number key
 and meta (@code{M-1}, @code{M-2}, @code{M-3}, or @code{M-4}).

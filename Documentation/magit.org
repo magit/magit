@@ -681,10 +681,10 @@ but all you need to get started are the next two.
 #+KINDEX: 2
 #+KINDEX: 3
 #+KINDEX: 4
-- Command( magit-section-level-1
-- Command, magit-section-level-2
-- Command, magit-section-level-3
-- Command) magit-section-level-4
+- Command( magit-section-show-level-1
+- Command, magit-section-show-level-2
+- Command, magit-section-show-level-3
+- Command) magit-section-show-level-4
 
   To show sections surrounding the current section, up to level N,
   press the respective number key (~1~, ~2~, ~3~, or ~4~).
@@ -693,10 +693,10 @@ but all you need to get started are the next two.
 #+KINDEX: M-2
 #+KINDEX: M-3
 #+KINDEX: M-4
-- Command( magit-section-level-1-all
-- Command, magit-section-level-2-all
-- Command, magit-section-level-3-all
-- Command) magit-section-level-4-all
+- Command( magit-section-show-level-1-all
+- Command, magit-section-show-level-2-all
+- Command, magit-section-show-level-3-all
+- Command) magit-section-show-level-4-all
 
   To show all sections up to level N, press the respective number key
   and meta (~M-1~, ~M-2~, ~M-3~, or ~M-4~).
