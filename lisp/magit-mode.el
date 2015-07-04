@@ -253,7 +253,6 @@ has to confirm each save."
     (define-key map "\C-xa"  'magit-add-change-log-entry)
     (define-key map "\C-x4a" 'magit-add-change-log-entry-other-window)
     (define-key map "\C-w"   'magit-copy-as-kill)
-    (define-key map "\M-w"   'magit-copy-buffer-thing-as-kill)
     (define-key map [remap evil-previous-line] 'evil-previous-visual-line)
     (define-key map [remap evil-next-line] 'evil-next-visual-line)
     map)
