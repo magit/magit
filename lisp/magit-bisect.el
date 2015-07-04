@@ -171,7 +171,9 @@ to test.  This command lets Git choose a different one."
           (narrow-to-region beg (point))
           (goto-char (point-min))
           (magit-insert-section (bisect-log nil t)
-            (magit-insert-heading heading)
+            (magit-insert (propertize heading 'face
+                                      'magit-section-secondary-heading))
+            (magit-insert-heading)
             (magit-wash-sequence
              (apply-partially 'magit-log-wash-line 'bisect-log
                               (magit-abbrev-length)))
