@@ -1052,6 +1052,17 @@ Show the last `magit-log-section-commit-count' commits."
     (magit-insert-log nil (cons (format "-%d" magit-log-section-commit-count)
                                 magit-log-section-args))))
 
+(defun magit-insert-recent-commits-graph (&optional collapse)
+  "Insert section showing recent commits, with decorations and
+graph annotations. Show the last `magit-log-section-commit-count'
+commits."
+  (magit-insert-section (recent nil collapse)
+    (magit-insert-heading "Recent commits:")
+    (magit-insert-log nil (list "--graph"
+                                "--decorate"
+                                (format "-%d" magit-log-section-commit-count)
+                                magit-log-section-args))))
+
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
 Like `magit-insert-unpulled-commits' but prefix each commit
