@@ -28,5 +28,5 @@ install:
   - $CURL https://raw.githubusercontent.com/magnars/dash.el/master/dash.el -o dash.el
   - $EMACS --version
 script:
-  - make lisp EMACSBIN=$EMACS
-  - make test EMACSBIN=$EMACS
+  - make lisp EMACSBIN=$EMACS DASH_DIR=$PWD
+  - make test EMACSBIN=$EMACS DASH_DIR=$PWD
