@@ -110,7 +110,8 @@ at all."
     magit-insert-staged-changes
     magit-insert-stashes
     magit-insert-unpulled-commits
-    magit-insert-unpushed-commits)
+    magit-insert-unpushed-commits
+    magit-insert-recent-commits)
   "Hook run to insert sections into a status buffer."
   :package-version '(magit . "2.1.0")
   :group 'magit-status
