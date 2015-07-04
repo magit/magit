@@ -667,10 +667,12 @@ where COMMITS is the number of commits in TAG but not in REV."
               (list it (car (magit-rev-diff-count it rev)))
             it))))))
 
+(defvar magit-list-refs-namespaces
+  '("refs/heads" "refs/remotes" "refs/tags"))
+
 (defun magit-list-refs (&rest args)
-  (magit-git-lines
-   "for-each-ref" "--format=%(refname)"
-   (or args (list "refs/heads" "refs/remotes" "refs/tags"))))
+  (magit-git-lines "for-each-ref" "--format=%(refname)"
+                   (or args magit-list-refs-namespaces)))
 
 (defun magit-list-branches ()
   (magit-list-refs "refs/heads" "refs/remotes"))
@@ -696,9 +698,8 @@ where COMMITS is the number of commits in TAG but not in REV."
             (magit-list-local-branch-names)))
 
 (defun magit-list-refnames (&rest args)
-  (magit-git-lines
-   "for-each-ref" "--format=%(refname:short)"
-   (or args (list "refs/heads" "refs/remotes" "refs/tags"))))
+  (magit-git-lines "for-each-ref" "--format=%(refname:short)"
+                   (or args magit-list-refs-namespaces)))
 
 (defun magit-list-branch-names ()
   (magit-list-refnames "refs/heads" "refs/remotes"))
