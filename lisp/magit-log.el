@@ -160,6 +160,13 @@ units, in what language, are being used."
                                   :tag "show full name" 7))
                (variable :tag "Duration spec variable")))
 
+(defcustom magit-log-show-refname-after-summary nil
+  "Whether to show refnames after commit summaries.
+This is useful if you use really long branch names."
+  :package-version '(magit . "2.1.1")
+  :group 'magit-log
+  :type 'boolean)
+
 (defface magit-log-graph
   '((((class color) (background light)) :foreground "grey30")
     (((class color) (background  dark)) :foreground "grey80"))
@@ -706,7 +713,7 @@ For internal use; don't add to a hook."
       (insert (propertize hash 'face 'magit-hash) ?\s)
       (when graph
         (insert (funcall magit-log-format-graph-function graph)))
-      (when refs
+      (when (and refs (not magit-log-show-refname-after-summary))
         (magit-insert (magit-format-ref-labels refs) nil ?\s))
       (when refsub
         (insert (format "%-2s " refsel))
@@ -718,6 +725,9 @@ For internal use; don't add to a hook."
                             (?G 'magit-signature-good)
                             (?B 'magit-signature-bad)
                             (?U 'magit-signature-untrusted))))
+      (when (and refs magit-log-show-refname-after-summary)
+        (insert ?\s)
+        (magit-insert (magit-format-ref-labels refs)))
       (when (memq style '(oneline reflog stash))
         (goto-char (line-beginning-position))
         (magit-format-log-margin author date))
