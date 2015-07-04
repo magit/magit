@@ -535,10 +535,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (magit-insert-section (logbuf)
     (if (eq style 'oneline)
         (magit-insert-log revs args files)
-      (magit-insert-log-verbose revs args files)))
-  (save-excursion
-    (goto-char (point-min))
-    (magit-format-log-margin)))
+      (magit-insert-log-verbose revs args files))))
 
 (defun magit-insert-log (revs &optional args files)
   "Insert a oneline log section.
