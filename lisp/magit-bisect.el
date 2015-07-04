@@ -170,7 +170,7 @@ to test.  This command lets Git choose a different one."
         (save-restriction
           (narrow-to-region beg (point))
           (goto-char (point-min))
-          (magit-insert-section (bisect-log nil t)
+          (magit-insert-section (bisect-log heading t)
             (magit-insert (propertize heading 'face
                                       'magit-section-secondary-heading))
             (magit-insert-heading)
