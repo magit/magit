@@ -160,6 +160,8 @@ with-editor-$(VERSION).tar: info
 git-commit-$(VERSION).el:
 	@printf "Packing $@\n"
 	@$(CP) lisp/git-commit.el git-commit-$(VERSION).el
+	@$(SED) -i git-commit-$(VERSION).el \
+	  -e "s/^;; Keywords:/;; Package-Version: $(VERSION)\n;; Keywords:/"
 
 define magit_popup_pkg
 (define-package "magit-popup" "$(VERSION)"

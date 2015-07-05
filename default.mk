@@ -11,6 +11,7 @@ CP    ?= install -p -m 644
 MKDIR ?= install -p -m 755 -d
 RMDIR ?= rm -rf
 TAR   ?= tar
+SED   ?= sed
 
 PACKAGES = with-editor git-commit magit-popup magit
 PACKAGE_VERSIONS = $(addsuffix -$(VERSION),$(PACKAGES))
