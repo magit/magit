@@ -259,7 +259,7 @@ deep."
 (defface magit-branch-current
   '((((class color) (background light)) :inherit magit-branch-local :box t)
     (((class color) (background  dark)) :inherit magit-branch-local :box t))
-  "Face for local branches."
+  "Face for current branch."
   :group 'magit-faces)
 
 (defface magit-head
