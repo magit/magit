@@ -1145,7 +1145,8 @@ section or a child thereof."
            ((looking-at "^index \\([^\s\n]+\\)")
             (setq blobs (match-string 1))))
           (magit-delete-line)))
-      (setq orig (magit-decode-git-path orig))
+      (when orig
+        (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
       (when diffstat
         (setf (magit-section-value diffstat) file))
@@ -1156,7 +1157,7 @@ section or a child thereof."
     (file file (or (equal status "deleted")
                    (derived-mode-p 'magit-status-mode)))
     (insert (propertize (format "%-10s %s\n" status
-                                (if (equal orig file)
+                                (if (or (not orig) (equal orig file))
                                     file
                                   (format "%s -> %s" orig file)))
                         'face 'magit-diff-file-heading))
