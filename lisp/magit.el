@@ -1885,43 +1885,49 @@ With prefix argument simply read a directory name using
 (defun magit-copy-as-kill ()
   "Save the value of the current section to the kill ring.
 For commits save the full hash.  For branches do so only when
-a prefix argument is used, otherwise save the branch name."
+a prefix argument is used, otherwise save the branch name.
+When the region is active, then behave like `kill-ring-save'."
   (interactive)
-  (-when-let (section (magit-current-section))
-    (let ((value (magit-section-value section)))
-      (magit-section-case
-        (branch (when current-prefix-arg
-                  (setq value (magit-rev-parse value))))
-        (commit (setq value (magit-rev-parse value)))
-        (module-commit (let ((default-directory
-                               (file-name-as-directory
-                                (expand-file-name
-                                 (magit-section-parent-value section)
-                                 (magit-toplevel)))))
-                         (setq value (magit-rev-parse value))))
-        (t value))
-      (kill-new (message "%s" value)))))
+  (if (region-active-p)
+      (copy-region-as-kill (mark) (point) 'region)
+    (-when-let (section (magit-current-section))
+      (let ((value (magit-section-value section)))
+        (magit-section-case
+          (branch (when current-prefix-arg
+                    (setq value (magit-rev-parse value))))
+          (commit (setq value (magit-rev-parse value)))
+          (module-commit (let ((default-directory
+                                 (file-name-as-directory
+                                  (expand-file-name
+                                   (magit-section-parent-value section)
+                                   (magit-toplevel)))))
+                           (setq value (magit-rev-parse value))))
+          (t value))
+        (kill-new (message "%s" value))))))
 
 (defun magit-copy-buffer-thing-as-kill ()
-  "Save the thing displayed in the current buffer to the kill ring."
+  "Save the thing displayed in the current buffer to the kill ring.
+When the region is active, then behave like `kill-ring-save'."
   (interactive)
-  (--when-let (cond ((derived-mode-p 'magit-diff-mode
-                                     'magit-cherry-mode
-                                     'magit-reflog-mode
-                                     'magit-refs-mode
-                                     'magit-revision-mode
-                                     'magit-stash-mode)
-                     (car magit-refresh-args))
-                    ((derived-mode-p 'magit-log-mode)
-                     (if magit-log-select-pick-function
-                         (car magit-refresh-args)
-                       (cadr magit-refresh-args)))
-                    ((derived-mode-p 'magit-status-mode)
-                     (or (magit-get-current-branch) "HEAD"))
-                    ((derived-mode-p 'magit-stashes-mode)
-                     "refs/stash")
-                    (t nil))
-    (kill-new (message "%s" it))))
+  (if (region-active-p)
+      (copy-region-as-kill (mark) (point) 'region)
+    (--when-let (cond ((derived-mode-p 'magit-diff-mode
+                                       'magit-cherry-mode
+                                       'magit-reflog-mode
+                                       'magit-refs-mode
+                                       'magit-revision-mode
+                                       'magit-stash-mode)
+                       (car magit-refresh-args))
+                      ((derived-mode-p 'magit-log-mode)
+                       (if magit-log-select-pick-function
+                           (car magit-refresh-args)
+                         (cadr magit-refresh-args)))
+                      ((derived-mode-p 'magit-status-mode)
+                       (or (magit-get-current-branch) "HEAD"))
+                      ((derived-mode-p 'magit-stashes-mode)
+                       "refs/stash")
+                      (t nil))
+      (kill-new (message "%s" it)))))
 
 ;;; magit.el ends soon
 
