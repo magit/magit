@@ -1911,11 +1911,12 @@ When the region is active, then behave like `kill-ring-save'."
   (interactive)
   (if (region-active-p)
       (copy-region-as-kill (mark) (point) 'region)
-    (--when-let (cond ((derived-mode-p 'magit-diff-mode
+    (--when-let (cond ((derived-mode-p 'magit-revision-mode)
+                       (magit-rev-parse (car magit-refresh-args)))
+                      ((derived-mode-p 'magit-diff-mode
                                        'magit-cherry-mode
                                        'magit-reflog-mode
                                        'magit-refs-mode
-                                       'magit-revision-mode
                                        'magit-stash-mode)
                        (car magit-refresh-args))
                       ((derived-mode-p 'magit-log-mode)
