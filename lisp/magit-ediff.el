@@ -32,6 +32,29 @@
 (require 'ediff)
 (require 'smerge-mode)
 
+(defvar smerge-ediff-buf)
+(defvar smerge-ediff-windows)
+
+(defgroup magit-ediff nil
+  "Ediff support for Magit."
+  :group 'magit-extensions)
+
+(defcustom magit-ediff-quit-hook
+  '(magit-ediff-cleanup-auxiliary-buffers
+    magit-ediff-restore-previous-winconf)
+  "Hooks to run after finishing Ediff, when that was invoked using Magit.
+The hooks are run in the Ediff control buffer.  This is similar
+to `ediff-quit-hook' but takes the needs of Magit into account.
+The `ediff-quit-hook' is ignored by Ediff sessions which were
+invoked using Magit."
+  :package-version '(magit . "2.1.1")
+  :group 'magit-ediff
+  :type 'hook
+  :options '(magit-ediff-cleanup-auxiliary-buffers
+             magit-ediff-restore-previous-winconf))
+
+(defvar magit-ediff-previous-winconf nil)
+
 ;;;###autoload (autoload 'magit-ediff-popup "magit-ediff" nil t)
 (magit-define-popup magit-ediff-popup
   "Popup console for ediff commands."
@@ -57,7 +80,23 @@ conflicts, including those already resolved by Git, use
      (list (magit-completing-read "Resolve file" unmerged nil t nil nil
                                   (car (member current unmerged))))))
   (with-current-buffer (find-file-noselect file)
-    (smerge-ediff)))
+    (smerge-ediff)
+    (setq-local
+     ediff-quit-hook
+     (lambda ()
+       (let ((bufC ediff-buffer-C)
+             (bufS smerge-ediff-buf))
+         (with-current-buffer bufS
+           (erase-buffer)
+           (insert-buffer-substring bufC)))
+       (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
+       (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
+       (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
+       (when (buffer-live-p ediff-ancestor-buffer)
+         (kill-buffer ediff-ancestor-buffer))
+       (let ((magit-ediff-previous-winconf smerge-ediff-windows))
+         (run-hooks 'magit-ediff-quit-hook))
+       (message "Conflict resolution finished; you may save the buffer")))))
 
 ;;;###autoload
 (defun magit-ediff-stage (file)
@@ -98,8 +137,8 @@ FILE has to be relative to the top directory of the repository."
                                      (setq buffer-read-only t))))
                 '((ediff-kill-buffer-carefully ediff-buffer-B)))
             ,@(unless bufC '((ediff-kill-buffer-carefully ediff-buffer-C)))
-            (magit-ediff-cleanup-auxiliary-buffers)
-            (set-window-configuration ,conf)))))
+            (let ((magit-ediff-previous-winconf ,conf))
+              (run-hooks 'magit-ediff-quit-hook))))))
      'ediff-buffers3)))
 
 ;;;###autoload
@@ -132,8 +171,8 @@ working tree state."
           (lambda ()
             ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
             ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
-            (magit-ediff-cleanup-auxiliary-buffers)
-            (set-window-configuration ,conf)))))
+            (let ((magit-ediff-previous-winconf ,conf))
+              (run-hooks 'magit-ediff-quit-hook))))))
      'ediff-revision)))
 
 (defun magit-ediff-compare--read-revisions (&optional arg)
@@ -265,8 +304,8 @@ and discard changes using Ediff, use `magit-ediff-stage'."
           (lambda ()
             ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
             ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
-            (magit-ediff-cleanup-auxiliary-buffers)
-            (set-window-configuration ,conf)))))
+            (let ((magit-ediff-previous-winconf ,conf))
+              (run-hooks 'magit-ediff-quit-hook))))))
      'ediff-buffers)))
 
 ;;;###autoload
@@ -290,8 +329,8 @@ and discard changes using Ediff, use `magit-ediff-stage'."
           (lambda ()
             ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
             ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
-            (magit-ediff-cleanup-auxiliary-buffers)
-            (set-window-configuration ,conf)))))
+            (let ((magit-ediff-previous-winconf ,conf))
+              (run-hooks 'magit-ediff-quit-hook))))))
      'ediff-buffers)))
 
 (defun magit-ediff-cleanup-auxiliary-buffers ()
@@ -321,6 +360,9 @@ and discard changes using Ediff, use `magit-ediff-stage'."
     (ediff-kill-buffer-carefully ctl-buf)
     (when (frame-live-p main-frame)
       (select-frame main-frame))))
+
+(defun magit-ediff-restore-previous-winconf ()
+  (set-window-configuration magit-ediff-previous-winconf))
 
 ;;; magit-ediff.el ends soon
 (provide 'magit-ediff)
