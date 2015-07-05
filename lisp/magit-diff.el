@@ -347,7 +347,7 @@ The following `format'-like specs are supported:
      :foreground "#22aa22")
     (((class color) (background dark))
      :background "#335533"
-     :foreground "#aaccaa"))
+     :foreground "#ddffdd"))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
@@ -357,7 +357,7 @@ The following `format'-like specs are supported:
      :foreground "#aa2222")
     (((class color) (background dark))
      :background "#553333"
-     :foreground "#ccaaaa"))
+     :foreground "#ffdddd"))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
@@ -372,7 +372,7 @@ The following `format'-like specs are supported:
      :foreground "#aaaa11")
     (((class color) (background dark))
      :background "#555522"
-     :foreground "#ccccbb"))
+     :foreground "#ffffcc"))
   "Face for lines in a diff for the base side in a conflict."
   :group 'magit-faces)
 
@@ -393,7 +393,7 @@ The following `format'-like specs are supported:
      :foreground "#22aa22")
     (((class color) (background dark))
      :background "#336633"
-     :foreground "#bbddbb"))
+     :foreground "#cceecc"))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
@@ -403,7 +403,7 @@ The following `format'-like specs are supported:
      :foreground "#aa2222")
     (((class color) (background dark))
      :background "#663333"
-     :foreground "#ddbbbb"))
+     :foreground "#eecccc"))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
@@ -418,7 +418,7 @@ The following `format'-like specs are supported:
      :foreground "#aaaa11")
     (((class color) (background dark))
      :background "#666622"
-     :foreground "#ddddaa"))
+     :foreground "#eeeebb"))
   "Face for lines in a diff for the base side in a conflict."
   :group 'magit-faces)
 
