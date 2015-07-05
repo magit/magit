@@ -140,18 +140,18 @@ and then turned on again when turning on the latter."
   "Display blame information inline."
   :lighter magit-blame-mode-lighter
   (cond (magit-blame-mode
+         (when (called-interactively-p 'any)
+           (setq magit-blame-mode nil)
+           (user-error
+            (concat "Don't call `magit-blame-mode' directly; "
+                    "instead use `magit-blame' or `magit-blame-popup'")))
          (setq magit-blame-buffer-read-only buffer-read-only)
          (read-only-mode 1)
          (dolist (mode magit-blame-disable-modes)
            (when (and (boundp mode) (symbol-value mode))
              (funcall mode -1)
              (push mode magit-blame-disabled-modes)))
-         (setq magit-blame-separator (magit-blame-format-separator))
-         (unless (eq this-command 'magit-blame)
-           (unless (magit-file-relative-name)
-             (user-error "Current buffer has no associated file"))
-           (let ((magit-blame-mode nil))
-             (call-interactively 'magit-blame))))
+         (setq magit-blame-separator (magit-blame-format-separator)))
         (t
          (unless magit-blame-buffer-read-only
            (read-only-mode -1))
@@ -226,7 +226,6 @@ only arguments available from `magit-blame-popup' should be used.
       (forward-line (1- line)))
     (unless magit-blame-mode
       (setq magit-blame-cache (make-hash-table :test 'equal))
-      (setq this-command 'magit-blame)
       (let ((show-headings magit-blame-show-headings))
         (magit-blame-mode 1)
         (setq-local magit-blame-show-headings show-headings))
