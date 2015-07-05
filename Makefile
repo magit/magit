@@ -126,7 +126,7 @@ marmalade: elpa
 	@printf "Uploading with-editor-$(VERSION)\n"
 	@marmalade-upload with-editor-$(VERSION).tar
 	@printf "Uploading git-commit-$(VERSION)\n"
-	@marmalade-upload git-commit-$(VERSION).tar
+	@marmalade-upload git-commit-$(VERSION).el
 	@printf "Uploading magit-popup-$(VERSION)\n"
 	@marmalade-upload magit-popup-$(VERSION).tar
 	@printf "Uploading magit-$(VERSION)\n"
