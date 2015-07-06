@@ -1116,8 +1116,19 @@ section or a child thereof."
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
         (magit-insert-section (file file)
-          (magit-insert (propertize (format "unmerged   %s" file)
-                                    'face 'magit-diff-file-heading) nil ?\n))))
+          (magit-insert
+           (propertize
+            (format "unmerged   %s%s" file
+                    (pcase (substring (magit-git-string
+                                       "status" "--porcelain" file) 0 2)
+                      ("DD" " (both deleted)")
+                      ("DU" " (deleted by us)")
+                      ("UD" " (deleted by them)")
+                      ("AA" " (both added)")
+                      ("AU" " (added by us)")
+                      ("UA" " (added by them)")
+                      ("UU" "")))
+            'face 'magit-diff-file-heading) nil ?\n))))
     t)
    ((looking-at "^\\(merged\\|changed in both\\)")
     (let ((status (if (equal (match-string 1) "merged") 'merged 'conflict))
