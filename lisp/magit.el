@@ -1996,7 +1996,8 @@ Git, and Emacs in the echo area."
     magit-version))
 
 (defun magit-startup-asserts ()
-  (let ((version (substring (magit-git-string "version") 12)))
+  (let* ((magit-git-global-arguments nil)
+         (version (ignore-errors (substring (magit-git-string "version") 12))))
     (when version
       (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" version)
         (setq version (match-string 1 version)))
