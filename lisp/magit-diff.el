@@ -904,11 +904,23 @@ commit or stash at point, then prompt for a commit."
 
 (defun magit-diff-show-or-scroll (fn)
   (let (rev cmd buf win)
-    (if magit-blame-mode
-        (setq rev (magit-blame-chunk-get :hash)
-              cmd 'magit-show-commit
-              buf (magit-mode-get-buffer
-                   magit-revision-buffer-name-format 'magit-revision-mode))
+    (cond
+     (magit-blame-mode
+      (setq rev (magit-blame-chunk-get :hash)
+            cmd 'magit-show-commit
+            buf (magit-mode-get-buffer
+                 magit-revision-buffer-name-format 'magit-revision-mode)))
+     ((derived-mode-p 'git-rebase-mode)
+      (save-excursion
+        (goto-char (line-beginning-position))
+        (--if-let (and (looking-at git-rebase-line)
+                       (match-string 2))
+            (setq rev it
+                  cmd 'magit-show-commit
+                  buf (magit-mode-get-buffer
+                       magit-revision-buffer-name-format 'magit-revision-mode))
+          (user-error "No commit on this line"))))
+     (t
       (magit-section-case
         (commit (setq rev (magit-section-value it)
                       cmd 'magit-show-commit
@@ -917,7 +929,7 @@ commit or stash at point, then prompt for a commit."
         (stash  (setq rev (magit-section-value it)
                       cmd 'magit-stash-show
                       buf (magit-mode-get-buffer
-                           magit-diff-buffer-name-format 'magit-diff-mode)))))
+                           magit-diff-buffer-name-format 'magit-diff-mode))))))
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))
