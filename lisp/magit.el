@@ -1978,11 +1978,12 @@ Git, and Emacs in the echo area.\n\n(fn)"
               ((file-exists-p static)
                (load-file static))
               ((featurep 'package)
-               (--when-let (assq 'magit package-alist)
-                 (setq magit-version
-                       (and (fboundp 'package-desc-version)
-                            (package-version-join
-                             (package-desc-version (cadr it))))))))))
+               (ignore-errors
+                 (--when-let (assq 'magit package-alist)
+                   (setq magit-version
+                         (and (fboundp 'package-desc-version)
+                              (package-version-join
+                               (package-desc-version (cadr it)))))))))))
     (if (stringp magit-version)
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"
