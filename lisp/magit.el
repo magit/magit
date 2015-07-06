@@ -1989,7 +1989,8 @@ Git, and Emacs in the echo area."
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"
                    magit-version
-                   (ignore-errors (substring (magit-git-string "version") 12))
+                   (let ((git-version-string (magit-git-string "version")))
+                     (if git-version-string git-version-string "Unknown"))
                    emacs-version))
       (setq magit-version 'error)
       (message "Cannot determine Magit's version"))
