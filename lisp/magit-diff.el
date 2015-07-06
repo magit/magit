@@ -757,7 +757,9 @@ for a commit."
 
 (defun magit-diff-context-p ()
   (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it)
-                     (magit-diff-arguments))
+                     (if (derived-mode-p 'magit-diff-mode)
+                         (magit-diff-arguments)
+                       (magit-diff-section-arguments)))
       (not (equal "-U0" it))
     t))
 
