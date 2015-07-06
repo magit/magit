@@ -550,8 +550,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   "Insert a oneline log section.
 For internal use; don't add to a hook."
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
-    "log" (magit-log-format-max-count)
-    (format "--format=%%h%s %s[%%an][%%at]%%s"
+    "log" (magit-log-format-max-count) "--use-mailmap"
+    (format "--format=%%h%s %s[%%aN][%%at]%%s"
             (if (member "--decorate" args) "%d" "")
             (if (member "--show-signature" args)
                 (progn (setq args (remove "--show-signature" args)) "%G?")
@@ -993,7 +993,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
         (propertize (concat " Reflog for " ref) 'face 'magit-header-line))
   (magit-insert-section (reflogbuf)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
-      "reflog" "show" "--format=%h [%an] %ct %gd %gs"
+      "reflog" "show" "--format=%h [%aN] %ct %gd %gs"
       (magit-log-format-max-count) ref)))
 
 (defvar magit-reflog-labels
