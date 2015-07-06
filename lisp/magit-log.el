@@ -279,14 +279,12 @@ are no unpulled commits) show."
 
 (defcustom magit-log-section-args nil
   "Additional Git arguments used when creating log sections.
-Only `--graph', `--decorate', and `--show-signature' are
-supported.  This option is only a temporary kludge and will
-be removed again.  Note that due to an issue in Git the
-use of `--graph' is very slow with long histories.  See
-http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
-  :package-version '(magit . "2.1.0")
+Only `--graph', `--color', `--decorate', and `--show-signature'
+are currently supported."
+  :package-version '(magit . "2.1.1")
   :group 'magit-status
   :type '(repeat (choice (const "--graph")
+                         (const "--color")
                          (const "--decorate")
                          (const "--show-signature"))))
 
@@ -298,6 +296,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   'magit-log
   :man-page "git-log"
   :switches '((?g "Show graph"              "--graph")
+              (?c "Show graph in color"     "--color")
               (?d "Show refnames"           "--decorate")
               (?S "Show signatures"         "--show-signature")
               (?u "Show diffs"              "--patch")
@@ -548,7 +547,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   "Insert a oneline log section.
 For internal use; don't add to a hook."
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
-    "log" (magit-log-format-max-count) "--color"
+    "log" (magit-log-format-max-count)
     (format "--format=%%h%s %s[%%an][%%at]%%s"
             (if (member "--decorate" args) "%d" "")
             (if (member "--show-signature" args)
@@ -563,7 +562,7 @@ For internal use; don't add to a hook."
   "Insert a multiline log section.
 For internal use; don't add to a hook."
   (magit-git-wash (apply-partially 'magit-log-wash-log 'verbose)
-    "log" (magit-log-format-max-count) "--color"
+    "log" (magit-log-format-max-count)
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
       args)
@@ -651,7 +650,9 @@ For internal use; don't add to a hook."
        (format "-%d" magit-log-cutoff-length)))
 
 (defun magit-log-wash-log (style args)
-  (when (member "--color" args)
+  (setq args (-flatten args))
+  (when (and (member "--graph" args)
+             (member "--color" args))
     (let ((ansi-color-apply-face-function
            (lambda (beg end face)
              (put-text-property beg end 'font-lock-face
