@@ -638,7 +638,10 @@ With a numeric prefix ARG, go forward ARG comments."
                 (delete-region (point) (point-max)))))
            (diff-mode)
            (let (font-lock-verbose font-lock-support-mode)
-             (font-lock-fontify-buffer))
+             (if (fboundp 'font-lock-ensure)
+                 (font-lock-ensure)
+               (with-no-warnings
+                 (font-lock-fontify-buffer))))
            (let (next (pos (point-min)))
              (while (setq next (next-single-property-change pos 'face))
                (put-text-property pos next 'font-lock-face
