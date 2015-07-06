@@ -45,6 +45,7 @@
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-blame-mode 'magit-blame)
 (defvar magit-blame-mode)
+(defvar git-rebase-line)
 
 (require 'diff-mode)
 (require 'smerge-mode)
