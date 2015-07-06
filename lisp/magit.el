@@ -1989,14 +1989,17 @@ Git, and Emacs in the echo area."
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"
                    magit-version
-                   (ignore-errors (substring (magit-git-string "version") 12))
+                   (let ((git-version-string (magit-git-string "version")))
+                     (if git-version-string git-version-string "Unknown"))
                    emacs-version))
       (setq magit-version 'error)
       (message "Cannot determine Magit's version"))
     magit-version))
 
 (defun magit-startup-asserts ()
-  (let ((version (substring (magit-git-string "version") 12)))
+  (let ((version (substring (shell-command-to-string 
+                              (concatenate 'string (executable-find "git") "version")) 
+                            12)))
     (when version
       (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" version)
         (setq version (match-string 1 version)))
