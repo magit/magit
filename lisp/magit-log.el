@@ -277,16 +277,19 @@ are no unpulled commits) show."
   :group 'magit-status
   :type 'number)
 
-(defcustom magit-log-section-args nil
+(defcustom magit-log-section-arguments nil
   "Additional Git arguments used when creating log sections.
 Only `--graph', `--color', `--decorate', and `--show-signature'
-are currently supported."
+are currently supported.  This option has no associated popup."
   :package-version '(magit . "2.1.1")
   :group 'magit-status
   :type '(repeat (choice (const "--graph")
                          (const "--color")
                          (const "--decorate")
                          (const "--show-signature"))))
+
+(define-obsolete-variable-alias 'magit-log-section-args
+  'magit-log-section-arguments "2.1.1")
 
 ;;; Commands
 
@@ -1041,7 +1044,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (-when-let (tracked (magit-get-tracked-ref))
     (magit-insert-section (unpulled)
       (magit-insert-heading "Unpulled commits:")
-      (magit-insert-log (concat "HEAD.." tracked) magit-log-section-args))))
+      (magit-insert-log (concat "HEAD.." tracked)
+                        magit-log-section-arguments))))
 
 (defun magit-insert-unpulled-or-recent-commits ()
   "Insert section showing unpulled or recent commits.
@@ -1061,7 +1065,7 @@ Show the last `magit-log-section-commit-count' commits."
   (magit-insert-section (recent nil collapse)
     (magit-insert-heading "Recent commits:")
     (magit-insert-log nil (cons (format "-%d" magit-log-section-commit-count)
-                                magit-log-section-args))))
+                                magit-log-section-arguments))))
 
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
@@ -1118,7 +1122,8 @@ These sections can be expanded to show the respective commits."
   (-when-let (tracked (magit-get-tracked-ref))
     (magit-insert-section (unpushed)
       (magit-insert-heading "Unpushed commits:")
-      (magit-insert-log (concat tracked "..HEAD") magit-log-section-args))))
+      (magit-insert-log (concat tracked "..HEAD")
+                        magit-log-section-arguments))))
 
 (defun magit-insert-unpushed-cherries ()
   "Insert section showing unpushed commits.
