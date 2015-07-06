@@ -1955,12 +1955,13 @@ When the region is active, then behave like `kill-ring-save'."
   "The version of Magit that you're using.
 Use the function by the same name instead of this variable.")
 
-(defun magit-version (&optional noerror)
+(defun magit-version ()
   "Return the version of Magit currently in use.
 When called interactive also show the used versions of Magit,
-Git, and Emacs in the echo area.\n\n(fn)"
+Git, and Emacs in the echo area."
   (interactive)
-  (let ((toplib (or load-file-name buffer-file-name)))
+  (let ((magit-git-global-arguments nil)
+        (toplib (or load-file-name buffer-file-name)))
     (unless (and toplib
                  (equal (file-name-nondirectory toplib) "magit.el"))
       (setq toplib (locate-library "magit.el")))
@@ -1988,12 +1989,10 @@ Git, and Emacs in the echo area.\n\n(fn)"
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"
                    magit-version
-                   (substring (magit-git-string "version") 12)
+                   (ignore-errors (substring (magit-git-string "version") 12))
                    emacs-version))
-      (if noerror
-          (progn (setq magit-version 'error)
-                 (message "Cannot determine Magit's version"))
-        (error "Cannot determine Magit's version")))
+      (setq magit-version 'error)
+      (message "Cannot determine Magit's version"))
     magit-version))
 
 (defun magit-startup-asserts ()
@@ -2044,7 +2043,6 @@ library getting in the way.  Then restart Emacs.\n"
 (provide 'magit)
 
 (cl-eval-when (load eval)
-  (magit-version t)
   (require 'magit-sequence)
   (require 'magit-commit)
   (require 'magit-remote)
@@ -2057,8 +2055,10 @@ library getting in the way.  Then restart Emacs.\n"
     (require 'git-rebase)))
 
 (if after-init-time
-    (magit-startup-asserts)
-  (add-hook 'after-init-hook #'magit-startup-asserts))
+    (progn (magit-startup-asserts)
+           (magit-version))
+  (add-hook 'after-init-hook #'magit-startup-asserts t)
+  (add-hook 'after-init-hook #'magit-version t))
 
 ;; Local Variables:
 ;; coding: utf-8
