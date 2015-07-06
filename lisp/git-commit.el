@@ -569,7 +569,7 @@ With a numeric prefix ARG, go forward ARG comments."
              (insert ?\n)))
           (t
            (while (re-search-backward (concat "^" comment-start) nil t))
-           (unless (looking-back "\n\n")
+           (unless (looking-back "\n\n" nil)
              (insert ?\n))
            (insert header ?\n)))
     (unless (or (eobp) (= (char-after) ?\n))

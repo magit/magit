@@ -331,7 +331,7 @@ actually insert the entry."
            ;; No entry for file, create it.
            (goto-char (point-max))
            (forward-comment -1000)
-           (unless (or (bobp) (looking-back "\\(\\*[^\n]+\\|\n\\)"))
+           (unless (or (bobp) (looking-back "\\(\\*[^\n]+\\|\n\\)" nil))
              (insert "\n"))
            (insert (format "\n* %s" file))
            (when defun
