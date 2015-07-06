@@ -1329,8 +1329,8 @@ If no merge is in progress, do nothing."
       (magit-insert-log
        (concat (magit-git-string "merge-base" "--octopus" "HEAD" (car heads))
                ".." (car heads))
-       (let ((args magit-log-section-args))
-         (unless (member "--decorate=full" magit-log-section-args)
+       (let ((args magit-log-section-arguments))
+         (unless (member "--decorate=full" magit-log-section-arguments)
            (push "--decorate=full" args))
          args)))))
 

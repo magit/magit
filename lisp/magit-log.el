@@ -277,18 +277,19 @@ are no unpulled commits) show."
   :group 'magit-status
   :type 'number)
 
-(defcustom magit-log-section-args nil
+(defcustom magit-log-section-arguments nil
   "Additional Git arguments used when creating log sections.
-Only `--graph', `--decorate', and `--show-signature' are
-supported.  This option is only a temporary kludge and will
-be removed again.  Note that due to an issue in Git the
-use of `--graph' is very slow with long histories.  See
-http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
-  :package-version '(magit . "2.1.0")
+Only `--graph', `--color', `--decorate', and `--show-signature'
+are currently supported.  This option has no associated popup."
+  :package-version '(magit . "2.1.1")
   :group 'magit-status
   :type '(repeat (choice (const "--graph")
+                         (const "--color")
                          (const "--decorate")
                          (const "--show-signature"))))
+
+(define-obsolete-variable-alias 'magit-log-section-args
+  'magit-log-section-arguments "2.1.1")
 
 ;;; Commands
 
@@ -298,6 +299,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   'magit-log
   :man-page "git-log"
   :switches '((?g "Show graph"              "--graph")
+              (?c "Show graph in color"     "--color")
               (?d "Show refnames"           "--decorate")
               (?S "Show signatures"         "--show-signature")
               (?u "Show diffs"              "--patch")
@@ -548,7 +550,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   "Insert a oneline log section.
 For internal use; don't add to a hook."
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
-    "log" (magit-log-format-max-count) "--color"
+    "log" (magit-log-format-max-count)
     (format "--format=%%h%s %s[%%an][%%at]%%s"
             (if (member "--decorate" args) "%d" "")
             (if (member "--show-signature" args)
@@ -563,7 +565,7 @@ For internal use; don't add to a hook."
   "Insert a multiline log section.
 For internal use; don't add to a hook."
   (magit-git-wash (apply-partially 'magit-log-wash-log 'verbose)
-    "log" (magit-log-format-max-count) "--color"
+    "log" (magit-log-format-max-count)
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
       args)
@@ -585,7 +587,7 @@ For internal use; don't add to a hook."
 
 (defconst magit-log-oneline-re
   (concat "^"
-          "\\(?4:\\(?: *[-_/|\\*o.] *\\)+ *\\)?"   ; graph
+          "\\(?4:[-_/|\\*o. ]*\\)"                 ; graph
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
           "\\(?7:[BGUN]\\)?"                       ; gpg
@@ -651,7 +653,9 @@ For internal use; don't add to a hook."
        (format "-%d" magit-log-cutoff-length)))
 
 (defun magit-log-wash-log (style args)
-  (when (member "--color" args)
+  (setq args (-flatten args))
+  (when (and (member "--graph" args)
+             (member "--color" args))
     (let ((ansi-color-apply-face-function
            (lambda (beg end face)
              (put-text-property beg end 'font-lock-face
@@ -1040,7 +1044,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (-when-let (tracked (magit-get-tracked-ref))
     (magit-insert-section (unpulled)
       (magit-insert-heading "Unpulled commits:")
-      (magit-insert-log (concat "HEAD.." tracked) magit-log-section-args))))
+      (magit-insert-log (concat "HEAD.." tracked)
+                        magit-log-section-arguments))))
 
 (defun magit-insert-unpulled-or-recent-commits ()
   "Insert section showing unpulled or recent commits.
@@ -1060,7 +1065,7 @@ Show the last `magit-log-section-commit-count' commits."
   (magit-insert-section (recent nil collapse)
     (magit-insert-heading "Recent commits:")
     (magit-insert-log nil (cons (format "-%d" magit-log-section-commit-count)
-                                magit-log-section-args))))
+                                magit-log-section-arguments))))
 
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
@@ -1117,7 +1122,8 @@ These sections can be expanded to show the respective commits."
   (-when-let (tracked (magit-get-tracked-ref))
     (magit-insert-section (unpushed)
       (magit-insert-heading "Unpushed commits:")
-      (magit-insert-log (concat tracked "..HEAD") magit-log-section-args))))
+      (magit-insert-log (concat tracked "..HEAD")
+                        magit-log-section-arguments))))
 
 (defun magit-insert-unpushed-cherries ()
   "Insert section showing unpushed commits.
