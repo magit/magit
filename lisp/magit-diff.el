@@ -1481,7 +1481,8 @@ buffers the type is always `committed'.
 
 Do not confuse this with `magit-diff-scope' (which see)."
   (--when-let (or section (magit-current-section))
-    (cond ((derived-mode-p 'magit-diff-mode)
+    (cond ((derived-mode-p 'magit-revision-mode 'magit-stash-mode) 'committed)
+          ((derived-mode-p 'magit-diff-mode)
            (let ((range (car magit-refresh-args))
                  (args (cadr magit-refresh-args)))
              (cond ((member "--no-index" args) 'undefined)
@@ -1494,7 +1495,6 @@ Do not confuse this with `magit-diff-scope' (which see)."
                         'staged
                       'undefined)) ; i.e. committed and staged
                    (t 'committed))))
-          ((derived-mode-p 'magit-revision-mode 'magit-stash-mode) 'committed)
           ((derived-mode-p 'magit-status-mode)
            (let ((stype (magit-section-type it)))
              (if (memq stype '(staged unstaged tracked untracked))
