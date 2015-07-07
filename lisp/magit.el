@@ -842,7 +842,7 @@ Refs are compared with a branch read form the user."
 (defun magit-refs-format-margin (commit)
   (save-excursion
     (goto-char (line-beginning-position 0))
-    (let ((line (magit-rev-format "%ct%cn" commit)))
+    (let ((line (magit-rev-format "%ct%cN" commit)))
       (magit-format-log-margin (substring line 10)
                                (substring line 0 10)))))
 
