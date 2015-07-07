@@ -513,8 +513,10 @@ string \"true\", otherwise return nil."
 
 (defun magit-rev-head-p (rev)
   (or (equal rev "HEAD")
-      (equal (magit-rev-parse rev)
-             (magit-rev-parse "HEAD"))))
+      (and rev
+           (not (string-match-p "\\.\\." rev))
+           (equal (magit-rev-parse rev)
+                  (magit-rev-parse "HEAD")))))
 
 (defun magit-rev-name (rev &optional pattern)
   (magit-git-string "name-rev" "--name-only" "--no-undefined"
