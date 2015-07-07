@@ -230,7 +230,8 @@ message and add a section in the respective process buffer."
                     (message "%s" msg)))
                 exit))
           (ignore-errors (delete-file log))))
-    (apply #'process-file magit-git-executable nil (list t nil) nil args)))
+    (let ((default-directory (magit-toplevel)))
+      (apply #'process-file magit-git-executable nil (list t nil) nil args))))
 
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
