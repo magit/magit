@@ -150,7 +150,9 @@ FILEA and FILEB have to be relative to the top directory of the
 repository.  If REVA or REVB is nil then this stands for the
 working tree state."
   (interactive (cl-destructuring-bind (range revA revB)
-                   (magit-ediff-compare--read-revisions)
+                   (magit-ediff-compare--read-revisions
+                    (--when-let (magit-region-values 'commit 'branch)
+                      (concat (car (last it)) ".." (car it))))
                  (nconc (list revA revB)
                         (magit-ediff-compare--read-files range revA revB))))
   (let ((conf (current-window-configuration))
