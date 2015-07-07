@@ -979,9 +979,9 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-read-stash (prompt &optional use-at-point)
   (let ((atpoint (magit-stash-at-point)))
     (or (and use-at-point atpoint)
-        (magit-completing-read prompt
-                               (magit-git-lines "stash" "list" "--format=%gd")
-                               nil t nil nil atpoint))))
+        (let ((stashes (magit-git-lines "stash" "list" "--format=%gd")))
+          (magit-completing-read prompt stashes nil t nil nil
+                                 (or atpoint (car stashes)))))))
 
 (defun magit-read-remote (prompt &optional default use-only)
   (let ((remotes (magit-list-remotes)))
