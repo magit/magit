@@ -696,18 +696,20 @@ When called interactively then the revert is forced."
 Like `vc-mode-line' but simpler, more efficient, and less buggy."
   (setq vc-mode
         (if vc-display-status
-            (let* ((rev (or (magit-get-current-branch)
-                            (magit-rev-parse "--short" "HEAD")))
-                   (msg (cl-letf (((symbol-function #'vc-working-revision)
-                                   (lambda (&rest _) rev)))
-                          (vc-default-mode-line-string 'Git buffer-file-name))))
-              (propertize
-               (concat " " msg)
-               'mouse-face 'mode-line-highlight
-               'help-echo (concat (get-text-property 0 'help-echo msg)
-                                  "\nCurrent revision: " rev
-                                  "\nmouse-1: Version Control menu")
-               'local-map vc-mode-line-map))
+            (magit-with-toplevel
+              (let* ((rev (or (magit-get-current-branch)
+                              (magit-rev-parse "--short" "HEAD")))
+                     (msg (cl-letf (((symbol-function #'vc-working-revision)
+                                     (lambda (&rest _) rev)))
+                            (vc-default-mode-line-string
+                             'Git buffer-file-name))))
+                (propertize
+                 (concat " " msg)
+                 'mouse-face 'mode-line-highlight
+                 'help-echo (concat (get-text-property 0 'help-echo msg)
+                                    "\nCurrent revision: " rev
+                                    "\nmouse-1: Version Control menu")
+                 'local-map vc-mode-line-map)))
           " Git"))
   (force-mode-line-update))
 
