@@ -4433,6 +4433,14 @@ only undo that setting in Magit by customizing
 Magit requires at least version ~1.9.4~.  When connecting to a remote
 machine using Tramp it requires that same version on that remote.
 
+By default Tramp searches for programs in the directories given by the
+output of ~getconf PATH~ on the remote host.  Therefore, if the remote
+git version that you intend to use lives in a non-standard location,
+you may need to alter ~tramp-remote-path~.  Consult the Tramp
+documentation on remote programs
+http://www.gnu.org/software/emacs/manual/html_node/tramp/Remote-Programs.html
+for details.
+
 There are others reasons why Magit/Git might think that there is no
 repository where there actually is one, but when this is being
 reported then it's usually the above.
