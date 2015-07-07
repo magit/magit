@@ -977,8 +977,7 @@ Return a list of two integers: (A>B B>A)."
   (let ((atpoint (magit-stash-at-point)))
     (or (and use-at-point atpoint)
         (magit-completing-read prompt
-                               (--map (car (split-string it ":"))
-                                      (magit-git-lines "stash" "list"))
+                               (magit-git-lines "stash" "list" "--format=%gd")
                                nil t nil nil atpoint))))
 
 (defun magit-read-remote (prompt &optional default use-only)
