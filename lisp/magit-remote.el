@@ -140,7 +140,10 @@ then read the remote."
 (defun magit-pull-current (remote branch &optional args)
   "Fetch and merge into current branch."
   (interactive (magit-pull-read-args t))
-  (magit-run-git-async "pull" args remote branch))
+  (magit-run-git-async "pull" args
+                       (and (not (equal remote (magit-get-remote)))
+                            (not (equal branch (magit-get-remote-branch)))
+                            (list remote branch))))
 
 ;;;###autoload
 (defun magit-pull (remote branch &optional args)
