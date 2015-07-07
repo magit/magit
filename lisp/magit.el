@@ -958,8 +958,9 @@ is done using `magit-find-index-noselect'."
 With a prefix argument, visit in other window.  If there
 is no file at point then instead visit `default-directory'."
   (interactive "P")
-  (dired-jump other-window (or (expand-file-name (magit-file-at-point))
-                               default-directory)))
+  (dired-jump other-window (--if-let (magit-file-at-point)
+                               (expand-file-name it)
+                             default-directory)))
 
 ;;; Manipulate
 ;;;; Init
