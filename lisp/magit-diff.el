@@ -935,7 +935,6 @@ commit or stash at point, then prompt for a commit."
                cmd 'magit-stash-show
                buf (magit-mode-get-buffer
                     magit-diff-buffer-name-format 'magit-diff-mode))))))
-    (message "--- %s %s" rev buf)
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))
