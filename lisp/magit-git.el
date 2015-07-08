@@ -407,6 +407,13 @@ If the file is not inside a Git repository then return nil."
   (let ((default-directory (magit-toplevel)))
     (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
 
+(defun magit-changed-files (rev-or-range)
+  (let ((default-directory (magit-toplevel)))
+    (magit-git-items "diff" "-z" "--name-only"
+                     (if (string-match-p "\\.\\." rev-or-range)
+                         rev-or-range
+                       (format "%s~..%s" rev-or-range rev-or-range)))))
+
 (defun magit-file-status (&rest args)
   (with-temp-buffer
     (save-excursion (magit-git-insert "status" "-z" args))

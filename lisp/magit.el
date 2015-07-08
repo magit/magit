@@ -876,6 +876,12 @@ existing one."
      prompt files nil t nil 'magit-read-file-hist
      (car (member (or default (magit-current-file)) files)))))
 
+(defun magit-read-changed-file (rev-or-range prompt &optional default)
+  (let ((files (magit-changed-files rev-or-range)))
+    (magit-completing-read
+     prompt files nil t nil 'magit-read-file-hist
+     (car (member (or default (magit-current-file)) files)))))
+
 (defun magit-get-revision-buffer (rev file &optional create)
   (funcall (if create 'get-buffer-create 'get-buffer)
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))

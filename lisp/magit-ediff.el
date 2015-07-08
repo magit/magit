@@ -195,10 +195,10 @@ working tree state."
 
 (defun magit-ediff-compare--read-files (range revA revB &optional fileB)
   (unless fileB
-    (setq fileB (magit-read-file-from-rev
-                 revB (if range
-                          (format "In range %s compare file" range)
-                        (format "Show changes in %s to file" revB)))))
+    (setq fileB (magit-read-changed-file
+                 range (if range
+                           (format "In range %s compare file" range)
+                         (format "Show changes in %s to file" revB)))))
   (list (or (car (member fileB (magit-revision-files revA)))
             (car (rassoc fileB
                          (cl-mapcan
@@ -208,8 +208,8 @@ working tree state."
                               (list (cons (nth 1 elt) (nth 2 elt)))))
                           (magit-git-items
                            "diff-tree" "-z" "-M" "HEAD^" "HEAD"))))
-            (magit-read-file-from-rev
-             revA (format "Compare %s:%s with file in %s" revB fileB revA)))
+            (magit-read-changed-file
+             range (format "Compare %s:%s with file in %s" revB fileB revA)))
         fileB))
 
 ;;;###autoload
