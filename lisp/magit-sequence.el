@@ -430,7 +430,7 @@ selected from a list of recent commits.
   (interactive)
   (if (magit-rebase-in-progress-p)
       (if (magit-anything-unstaged-p)
-          (error "Cannot continue rebase with unstaged changes")
+          (user-error "Cannot continue rebase with unstaged changes")
         (magit-run-git-sequencer "rebase" "--continue"))
     (user-error "No rebase in progress")))
 
