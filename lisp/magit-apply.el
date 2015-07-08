@@ -81,7 +81,13 @@ With a prefix argument and if necessary, attempt a 3-way merge."
                                                (magit-section-end section)))))
 
 (defun magit-apply-region (section &rest args)
-  (magit-apply-patch section args (magit-diff-hunk-region-patch section args)))
+  (unless (magit-diff-context-p)
+    (user-error "Not enough context to apply region.  Increase the context"))
+  (when (string-match "^diff --cc" (magit-section-parent-value section))
+    (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
+  (magit-apply-patch section args
+                     (concat (magit-diff-file-header section)
+                             (magit-diff-hunk-region-patch section args))))
 
 (defvar magit-apply-inhibit-wip nil)
 
