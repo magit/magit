@@ -104,7 +104,7 @@ With a prefix argument and if necessary, attempt a 3-way merge."
     (with-temp-buffer
       (insert patch)
       (magit-run-git-with-input nil
-        "apply" args
+        "apply" args "-p0"
         (unless (magit-diff-context-p) "--unidiff-zero")
         "--ignore-space-change" "-"))
     (when (and magit-wip-after-apply-mode (not magit-apply-inhibit-wip))

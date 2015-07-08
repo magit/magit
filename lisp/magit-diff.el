@@ -1132,27 +1132,33 @@ section or a child thereof."
     t)
    ((looking-at "^\\(merged\\|changed in both\\)")
     (let ((status (if (equal (match-string 1) "merged") 'merged 'conflict))
-          file orig modes blobs blobA blobB)
+          file orig modes)
       (magit-delete-line)
       (while (looking-at
               "^  \\([^ ]+\\) +[0-9]\\{6\\} \\([a-z0-9]\\{40\\}\\) \\(.+\\)$")
         (magit-bind-match-strings (side blob name) nil
           (pcase side
-            ("result" (setq file name blobB blob))
-            ("our"    (setq orig name blobA blob))
-            ("their"  (setq file name blobB blob))))
+            ("result" (setq file name))
+            ("our"    (setq orig name))
+            ("their"  (setq file name))))
         (magit-delete-line))
       (setq orig (magit-decode-git-path orig))
       (setq file (magit-decode-git-path file))
-      (magit-diff-insert-file-section file orig status modes
-                                      (concat blobA ".." blobB))))
+      (magit-diff-insert-file-section file orig status modes nil)))
    ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
                         (t                                     "unmerged")))
           (orig (match-string 2))
           (file (match-string 2))
-          modes blobs)
+          (beg (point))
+          header modes)
+      (save-excursion
+        (forward-line 1)
+        (setq header (buffer-substring
+                      beg (if (re-search-forward magit-diff-headline-re nil t)
+                              (match-beginning 0)
+                            (point-max)))))
       (magit-delete-line)
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
         (if (looking-at "^old mode \\([^\n]+\\)\nnew mode \\([^\n]+\\)\n")
@@ -1169,18 +1175,16 @@ section or a child thereof."
             (setq file (match-string 2))
             (setq status (if (equal (match-string 1) "copy") "new file" "renamed")))
            ((looking-at "^\\(new file\\|deleted\\)")
-            (setq status (match-string 1)))
-           ((looking-at "^index \\([^\s\n]+\\)")
-            (setq blobs (match-string 1))))
+            (setq status (match-string 1))))
           (magit-delete-line)))
       (when orig
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
       (when diffstat
         (setf (magit-section-value diffstat) file))
-      (magit-diff-insert-file-section file orig status modes blobs)))))
+      (magit-diff-insert-file-section file orig status modes header)))))
 
-(defun magit-diff-insert-file-section (file orig status modes blobs)
+(defun magit-diff-insert-file-section (file orig status modes header)
   (magit-insert-section section
     (file file (or (equal status "deleted")
                    (derived-mode-p 'magit-status-mode)))
@@ -1192,7 +1196,7 @@ section or a child thereof."
     (magit-insert-heading)
     (unless (equal orig file)
       (setf (magit-section-source section) orig))
-    (setf (magit-section-blobs section) blobs)
+    (setf (magit-section-diff-header section) header)
     (when modes
       (magit-insert-section (hunk)
         (insert modes)))
@@ -1769,10 +1773,7 @@ are highlighted."
   (when (eq (magit-section-type section) 'hunk)
     (setq section (magit-section-parent section)))
   (when (eq (magit-section-type section) 'file)
-    (let* ((file (magit-section-value section))
-           (orig (or (magit-section-source section) file)))
-      (format "diff --git a/%s b/%s\nindex %s\n--- a/%s\n+++ b/%s\n"
-              orig file (magit-section-blobs section) orig file))))
+    (magit-section-diff-header section)))
 
 (defun magit-diff-hunk-region-header (section)
   (let ((patch (magit-diff-hunk-region-patch section)))
