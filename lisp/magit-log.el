@@ -351,7 +351,10 @@ are currently supported.  This option has no associated popup."
               '(crm--choose-completion-string))
              (minibuffer-completion-table #'crm--collection-fn)
              (minibuffer-completion-confirm t)
-             (crm-completion-table (magit-list-branch-names))
+             (crm-completion-table
+              `(,@(and (file-exists-p (magit-git-dir "FETCH_HEAD"))
+                       (list "FETCH_HEAD"))
+                (magit-list-branch-names)))
              (crm-separator "\\(\\.\\.\\.?\\|[, ]\\)")
              (default (or (magit-branch-or-commit-at-point)
                           (unless use-current
