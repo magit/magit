@@ -1775,13 +1775,11 @@ are highlighted."
               orig file (magit-section-blobs section) orig file))))
 
 (defun magit-diff-hunk-region-header (section)
-  (nth 4 (split-string (magit-diff-hunk-region-patch section) "\n")))
+  (let ((patch (magit-diff-hunk-region-patch section)))
+    (string-match "\n" patch)
+    (substring patch 0 (1- (match-end 0)))))
 
 (defun magit-diff-hunk-region-patch (section &optional args)
-  (unless (magit-diff-context-p)
-    (user-error "Not enough context to apply region.  Increase the context"))
-  (when (string-match "^diff --cc" (magit-section-parent-value section))
-    (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (let ((op (if (member "--reverse" args) "+" "-"))
         (sbeg (magit-section-start section))
         (rbeg (save-excursion
@@ -1789,7 +1787,7 @@ are highlighted."
                 (line-beginning-position)))
         (rend (region-end))
         (send (magit-section-end section))
-        (patch (list (magit-diff-file-header section))))
+        (patch nil))
     (save-excursion
       (goto-char sbeg)
       (while (< (point) send)
