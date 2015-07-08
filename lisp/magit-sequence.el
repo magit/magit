@@ -373,7 +373,9 @@ selected from a list of recent commits.
 (defun magit-rebase-autosquash (commit &optional args)
   "Combine squash and fixup commits with their intended targets.
 \n(git rebase -i COMMIT[^] --autosquash [ARGS])"
-  (interactive (list (magit-get-tracked-branch) (magit-rebase-arguments)))
+  (interactive (list (--when-let (magit-get-tracked-branch)
+                       (magit-git-string "merge-base" it "HEAD"))
+                     (magit-rebase-arguments)))
   (if (setq commit (magit-rebase-interactive-assert commit))
       (let ((process-environment process-environment))
         (setenv "GIT_SEQUENCE_EDITOR" "true")
