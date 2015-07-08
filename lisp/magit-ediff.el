@@ -47,7 +47,7 @@ The hooks are run in the Ediff control buffer.  This is similar
 to `ediff-quit-hook' but takes the needs of Magit into account.
 The `ediff-quit-hook' is ignored by Ediff sessions which were
 invoked using Magit."
-  :package-version '(magit . "2.1.1")
+  :package-version '(magit . "2.2.0")
   :group 'magit-ediff
   :type 'hook
   :options '(magit-ediff-cleanup-auxiliary-buffers

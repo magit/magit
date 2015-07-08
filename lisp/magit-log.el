@@ -163,7 +163,7 @@ units, in what language, are being used."
 (defcustom magit-log-show-refname-after-summary nil
   "Whether to show refnames after commit summaries.
 This is useful if you use really long branch names."
-  :package-version '(magit . "2.1.1")
+  :package-version '(magit . "2.2.0")
   :group 'magit-log
   :type 'boolean)
 
@@ -281,7 +281,7 @@ are no unpulled commits) show."
   "Additional Git arguments used when creating log sections.
 Only `--graph', `--color', `--decorate', and `--show-signature'
 are currently supported.  This option has no associated popup."
-  :package-version '(magit . "2.1.1")
+  :package-version '(magit . "2.2.0")
   :group 'magit-status
   :type '(repeat (choice (const "--graph")
                          (const "--color")
@@ -289,7 +289,7 @@ are currently supported.  This option has no associated popup."
                          (const "--show-signature"))))
 
 (define-obsolete-variable-alias 'magit-log-section-args
-  'magit-log-section-arguments "2.1.1")
+  'magit-log-section-arguments "2.2.0")
 
 ;;; Commands
 
