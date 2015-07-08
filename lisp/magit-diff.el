@@ -592,7 +592,7 @@ a commit read from the minibuffer."
   (interactive (magit-diff-read-args))
   (-if-let (tracked (magit-get-tracked-ref))
       (magit-diff (concat tracked "...") args files)
-    (error "Detached HEAD or upstream unset")))
+    (user-error "No upstream set")))
 
 ;;;###autoload
 (defun magit-diff-unpulled (&optional args files)
@@ -600,7 +600,7 @@ a commit read from the minibuffer."
   (interactive (magit-diff-read-args))
   (-if-let (tracked (magit-get-tracked-ref))
       (magit-diff (concat "..." tracked) args files)
-    (error "Detached HEAD or upstream unset")))
+    (user-error "No upstream set")))
 
 ;;;###autoload
 (defun magit-diff-while-committing (&optional args)
