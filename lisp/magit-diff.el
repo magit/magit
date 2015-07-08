@@ -509,6 +509,7 @@ The following `format'-like specs are supported:
                 (?s "Set defaults"  magit-diff-set-default-arguments)
                 (?w "Save defaults" magit-diff-save-default-arguments)
                 (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+                (?f "Flip revisions" magit-diff-flip-revs)
                 (?r "Switch range type" magit-diff-switch-range-type))))
 
 (defadvice magit-diff-refresh-popup (around get-current-arguments activate)
@@ -749,6 +750,22 @@ Change \"revA..revB\" to \"revB...revA\", or vice versa."
                           (match-string 3 range)))
           (magit-refresh))
       (user-error "No range to change"))))
+
+(defun magit-diff-flip-revs (args)
+  "Swap revisions in diff range.
+Change \"revA..revB\" to \"revB..revA\"."
+  (interactive (list (magit-diff-refresh-arguments)))
+  (let ((range (car magit-refresh-args)))
+    (if (and range
+             (derived-mode-p 'magit-diff-mode)
+             (string-match magit-diff-range-re range))
+        (progn
+          (setcar magit-refresh-args
+                  (concat (match-string 3 range)
+                          (match-string 2 range)
+                          (match-string 1 range)))
+          (magit-refresh))
+      (user-error "No range to swap"))))
 
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
