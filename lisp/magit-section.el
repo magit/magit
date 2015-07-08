@@ -110,7 +110,7 @@ section specific default (see `magit-insert-section')."
 
 (cl-defstruct magit-section
   type value start content end hidden washer refined
-  source blobs process parent children)
+  source diff-header process parent children)
 
 (defvar-local magit-root-section nil
   "The root section in the current buffer.
