@@ -298,7 +298,7 @@ has to confirm each save."
     "---"
     ["Push" magit-push t]
     ["Pull" magit-pull t]
-    ["Remote update" magit-remote-update t]
+    ["Remote update" magit-fetch-all t]
     ("Submodule"
      ["Submodule update" magit-submodule-update t]
      ["Submodule update and init" magit-submodule-update-init t]
