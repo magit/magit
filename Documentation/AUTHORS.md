@@ -88,6 +88,7 @@ Contributors
 - George Kadianakis <desnacked@gmail.com>
 - Graham Clark <grclark@gmail.com>
 - Greg A. Woods <woods@planix.com>
+- Greg Lucas <greg@glucas.net>
 - Greg Sexton <gregsexton@gmail.com>
 - Guillaume Martres <smarter@ubuntu.com>
 - Hannu Koivisto <azure@iki.fi>
@@ -104,6 +105,7 @@ Contributors
 - Jonas Bernoulli <jonas@bernoul.li>
 - Jonathan Roes <jroes@jroes.net>
 - Jordan Greenberg <jordan@softwareslave.com>
+- Josiah Schwab <jschwab@gmail.com>
 - Julien Danjou <julien@danjou.info>
 - Justin Caratzas <justin.caratzas@gmail.com>
 - Kan-Ru Chen <koster@debian.org>
@@ -187,6 +189,7 @@ Contributors
 - Steven Chow <steve@myfreestuffapp.com>
 - Steven E. Harris <seh@panix.com>
 - Steven Thomas <sthomas314@gmail.com>
+- Steven Vancoillie <steven.vancoillie@runbox.com>
 - Steve Purcell <steve@sanityinc.com>
 - Suhail Shergill <suhailshergill@gmail.com>
 - Syohei Yoshida <syohex@gmail.com>
@@ -204,6 +207,7 @@ Contributors
 - Tim Wraight <tim@wraight.net>
 - Ting-Yu Lin <aethanyc@gmail.com>
 - Tom Feist <shabble@metavore.org>
+- Vineet Naik <vineet@helpshift.com>
 - Wei Huang <weih@opera.com>
 - Wilfred Hughes <me@wilfred.me.uk>
 - Win Treese <treese@acm.org>
