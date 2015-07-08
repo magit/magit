@@ -508,7 +508,8 @@ The following `format'-like specs are supported:
     :actions  '((?g "Refresh"       magit-diff-refresh)
                 (?s "Set defaults"  magit-diff-set-default-arguments)
                 (?w "Save defaults" magit-diff-save-default-arguments)
-                (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk))))
+                (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+                (?r "Switch range type" magit-diff-switch-range-type))))
 
 (defadvice magit-diff-refresh-popup (around get-current-arguments activate)
   (if (derived-mode-p 'magit-diff-mode)
@@ -726,6 +727,28 @@ for a commit."
          (customize-save-variable 'magit-diff-section-arguments args)
          (kill-local-variable 'magit-diff-section-arguments)))
   (magit-refresh))
+
+(defconst magit-diff-range-re
+  (concat "\\`\\([^ \t]*[^.]\\)?"       ; revA
+          "\\(\\.\\.\\.?\\)"            ; range marker
+          "\\([^.][^ \t]*\\)?\\'"))     ; revB
+
+(defun magit-diff-switch-range-type (args)
+  "Convert diff range type.
+Change \"revA..revB\" to \"revB...revA\", or vice versa."
+  (interactive (list (magit-diff-refresh-arguments)))
+  (let ((range (car magit-refresh-args)))
+    (if (and (derived-mode-p 'magit-diff-mode)
+             (string-match magit-diff-range-re range))
+        (progn
+          (setcar magit-refresh-args
+                  (concat (match-string 1 range)
+                          (if (string= (match-string 2 range) "..")
+                              "..."
+                            "..")
+                          (match-string 3 range)))
+          (magit-refresh))
+      (user-error "No range to change"))))
 
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
