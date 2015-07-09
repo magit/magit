@@ -2066,7 +2066,7 @@ modal and rather clumsy interface of a ~git add --interactive~ session.
 
 With Magit, on the other hand, one can un-/stage individual hunks by
 just moving point into the respective section inside a diff displayed
-in the status buffer or a separate diff buffer and typing ~s~/~u~.  To
+in the status buffer or a separate diff buffer and typing ~s~ or ~u~.  To
 operate on just parts of a hunk, mark the changes that should be
 un-/staged using the region and then press the same key that would be
 used to un-/stage.  To stage multiple files or hunks at once use a
