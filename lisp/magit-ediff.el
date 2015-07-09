@@ -190,7 +190,8 @@ working tree state."
                (when (match-string 2 input)
                  (setq revA (magit-git-string "merge-base" revA revB))))
       (setq revA (concat input "^")
-            revB input))
+            revB input
+            range (concat revA ".." revB)))
     (list range revA revB)))
 
 (defun magit-ediff-compare--read-files (range revA revB &optional fileB)
