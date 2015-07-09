@@ -1123,15 +1123,14 @@ section or a child thereof."
           (magit-insert
            (propertize
             (format "unmerged   %s%s" file
-                    (pcase (substring (magit-git-string
-                                       "status" "--porcelain" file) 0 2)
-                      ("DD" " (both deleted)")
-                      ("DU" " (deleted by us)")
-                      ("UD" " (deleted by them)")
-                      ("AA" " (both added)")
-                      ("AU" " (added by us)")
-                      ("UA" " (added by them)")
-                      ("UU" "")))
+                    (pcase (cddr (car (magit-file-status file)))
+                      (`(?D ?D) " (both deleted)")
+                      (`(?D ?U) " (deleted by us)")
+                      (`(?U ?D) " (deleted by them)")
+                      (`(?A ?A) " (both added)")
+                      (`(?A ?U) " (added by us)")
+                      (`(?U ?A) " (added by them)")
+                      (`(?U ?U) "")))
             'face 'magit-diff-file-heading) nil ?\n))))
     t)
    ((looking-at "^\\(merged\\|changed in both\\)")
