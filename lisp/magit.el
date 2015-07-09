@@ -1286,10 +1286,16 @@ inspect the merge and change the commit message.
             (list file "--merge"))
            (t
             (user-error "Quit")))))
-  (magit-call-git "checkout" arg file)
-  (if (string= arg "--merge")
-      (magit-refresh)
-    (magit-run-git "add" file)))
+  (pcase (cons arg (cddr (car (magit-file-status file))))
+    ((or `("--ours"   ?D ,_)
+         `("--theirs" ,_ ?D))
+     (magit-run-git "rm" "--" file))
+    (_ (if (equal arg "--merge")
+           ;; This fails if the file was deleted on one
+           ;; side.  And we cannot do anything about it.
+           (magit-run-git "checkout" "--merge" "--" file)
+         (magit-call-git "checkout" arg "--" file)
+         (magit-run-git "add" "-u" "--" file)))))
 
 (defun magit-merge-state ()
   (file-exists-p (magit-git-dir "MERGE_HEAD")))
