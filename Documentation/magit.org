@@ -1580,11 +1580,11 @@ In addition to the above popup, which allow changing any of the
 supported arguments, there also exist some commands which change a
 particular argument.
 
-- Key: +, magit-diff-less-context
+- Key: -, magit-diff-less-context
 
   Decrease the context for diff hunks by COUNT lines.
 
-- Key: -, magit-diff-more-context
+- Key: +, magit-diff-more-context
 
   Increase the context for diff hunks by COUNT lines.
 
