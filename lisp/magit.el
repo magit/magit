@@ -1273,7 +1273,7 @@ inspect the merge and change the commit message.
         (magit-run-git-async "merge" "--abort"))
     (user-error "No merge in progress")))
 
-(defun magit-checkout-stage (file arg &optional restore-conflict)
+(defun magit-checkout-stage (file arg)
   "During a conflict checkout and stage side, or restore conflict."
   (interactive
    (let ((file (magit-completing-read "Checkout file"
@@ -1283,30 +1283,13 @@ inspect the merge and change the commit message.
      (cond ((member file (magit-unmerged-files))
             (list file (magit-checkout-read-stage file)))
            ((yes-or-no-p (format "Restore conflicts in %s? " file))
-            (list file "--merge" t))
+            (list file "--merge"))
            (t
             (user-error "Quit")))))
-  (if restore-conflict
-      (progn
-        (with-temp-buffer
-          (insert "0 0000000000000000000000000000000000000000\t" file "\n")
-          (--> (magit-git-string "ls-tree" (magit-git-string
-                                            "merge-base" "MERGE_HEAD" "HEAD")
-                                 file)
-               (replace-regexp-in-string "\t" " 1\t" it)
-               (insert it "\n"))
-          (--> (magit-git-string "ls-tree" "HEAD" file)
-               (replace-regexp-in-string "\t" " 2\t" it)
-               (insert it "\n"))
-          (--> (magit-git-string "ls-tree" "MERGE_HEAD" file)
-               (replace-regexp-in-string "\t" " 3\t" it)
-               (insert it "\n"))
-          (magit-run-git-with-input nil "checkout" arg file))
-        (magit-refresh))
-    (magit-call-git "checkout" arg file)
-    (if (string= arg "--merge")
-        (magit-refresh)
-      (magit-run-git "add" file))))
+  (magit-call-git "checkout" arg file)
+  (if (string= arg "--merge")
+      (magit-refresh)
+    (magit-run-git "add" file)))
 
 (defun magit-merge-state ()
   (file-exists-p (magit-git-dir "MERGE_HEAD")))
