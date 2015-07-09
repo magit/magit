@@ -1922,7 +1922,7 @@ When the region is active, then behave like `kill-ring-save'."
                        (or (magit-get-current-branch) "HEAD"))
                       ((derived-mode-p 'magit-stashes-mode)
                        "refs/stash")
-                      (t nil))
+                      (t (magit-copy-as-kill)))
       (kill-new (message "%s" it)))))
 
 ;;; magit.el ends soon
