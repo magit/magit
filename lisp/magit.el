@@ -852,7 +852,7 @@ Refs are compared with a branch read form the user."
 (defun magit-find-file (rev file)
   "View FILE from REV.
 Switch to a buffer visiting blob REV:FILE,
-creating one if non already exists."
+creating one if none already exists."
   (interactive (magit-find-file-read-args "Find file"))
   (switch-to-buffer (magit-find-file-noselect rev file)))
 
