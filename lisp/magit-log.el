@@ -354,7 +354,7 @@ are currently supported.  This option has no associated popup."
              (crm-completion-table
               `(,@(and (file-exists-p (magit-git-dir "FETCH_HEAD"))
                        (list "FETCH_HEAD"))
-                (magit-list-branch-names)))
+                ,@(magit-list-branch-names)))
              (crm-separator "\\(\\.\\.\\.?\\|[, ]\\)")
              (default (or (magit-branch-or-commit-at-point)
                           (unless use-current
