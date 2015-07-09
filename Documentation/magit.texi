@@ -2211,15 +2211,15 @@ supported arguments, there also exist some commands which change a
 particular argument.
 
 @table @asis
-@kindex +
+@kindex -
 @cindex magit-diff-less-context
-@item @kbd{+} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-less-context})
+@item @kbd{-} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-less-context})
 
 Decrease the context for diff hunks by COUNT lines.
 
-@kindex -
+@kindex +
 @cindex magit-diff-more-context
-@item @kbd{-} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-more-context})
+@item @kbd{+} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-more-context})
 
 Increase the context for diff hunks by COUNT lines.
 
