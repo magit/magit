@@ -1276,18 +1276,16 @@ inspect the merge and change the commit message.
 (defun magit-checkout-stage (file arg &optional restore-conflict)
   "During a conflict checkout and stage side, or restore conflict."
   (interactive
-   (let ((default-directory (magit-toplevel))
-         (file (magit-completing-read "Checkout file"
+   (let ((file (magit-completing-read "Checkout file"
                                       (magit-tracked-files) nil nil nil
                                       'magit-read-file-hist
                                       (magit-current-file))))
-     (cond
-      ((member file (magit-unmerged-files))
-       (list file (magit-checkout-read-stage file)))
-      ((yes-or-no-p (format "Restore conflicts in %s? " file))
-       (list file "--merge" t))
-      (t
-       (user-error "Quit")))))
+     (cond ((member file (magit-unmerged-files))
+            (list file (magit-checkout-read-stage file)))
+           ((yes-or-no-p (format "Restore conflicts in %s? " file))
+            (list file "--merge" t))
+           (t
+            (user-error "Quit")))))
   (if restore-conflict
       (progn
         (with-temp-buffer
