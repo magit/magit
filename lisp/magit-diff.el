@@ -505,12 +505,13 @@ The following `format'-like specs are supported:
                 (?c "Detect copies"  "-C" read-from-minibuffer)
                 (?a "Diff algorithm" "--diff-algorithm="
                     magit-diff-select-algorithm))
-    :actions  '((?g "Refresh"       magit-diff-refresh)
-                (?s "Set defaults"  magit-diff-set-default-arguments)
-                (?w "Save defaults" magit-diff-save-default-arguments)
+    :actions  '((?g "Refresh"                magit-diff-refresh)
                 (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-                (?f "Flip revisions" magit-diff-flip-revs)
-                (?r "Switch range type" magit-diff-switch-range-type))))
+                (?s "Set defaults"           magit-diff-set-default-arguments)
+                (?r "Switch range type"      magit-diff-switch-range-type)
+                (?w "Save defaults"          magit-diff-save-default-arguments)
+                (?f "Flip revisions"         magit-diff-flip-revs))
+    :max-action-columns 2))
 
 (defadvice magit-diff-refresh-popup (around get-current-arguments activate)
   (if (derived-mode-p 'magit-diff-mode)
