@@ -614,7 +614,7 @@ It's better to use one of the specialized functions
 
 (defun magit-change-popup-key (popup type from to)
   "In POPUP, bind TO to what FROM was bound to.
-TYPE is one of `:action', `:switch', or `:option'.
+TYPE is one of `:actions', `:switches', or `:options'.
 Bind TO and unbind FROM, both are characters."
   (--if-let (assoc from (plist-get (symbol-value popup) type))
       (setcar it to)
@@ -623,7 +623,7 @@ Bind TO and unbind FROM, both are characters."
 (defun magit-remove-popup-key (popup type key)
   "In POPUP, remove KEY's binding of TYPE.
 POPUP is a popup command defined using `magit-define-popup'.
-TYPE is one of `:action', `:switch', or `:option'.
+TYPE is one of `:actions', `:switches', or `:options'.
 KEY is the character which is to be unbound."
   (let* ((plist (symbol-value popup))
          (alist (plist-get plist type))
