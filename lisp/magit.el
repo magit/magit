@@ -203,6 +203,12 @@ in the current buffer using the command `magit-toggle-margin'."
 
 ;;;; Miscellaneous
 
+(defcustom magit-branch-read-upstream-first nil
+  "When creating a branch, read upstream before name of new branch."
+  :package-version '(magit . "2.2.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 (defcustom magit-repository-directories nil
   "Directories containing Git repositories.
 Magit checks these directories for Git repositories and offers
@@ -1047,14 +1053,20 @@ changes.
     (magit-run-git "checkout" args "-b" branch start-point)))
 
 (defun magit-branch-read-args (prompt &optional secondary-default)
-  (let* ((args (magit-branch-arguments))
-         (start (magit-read-branch-or-commit (concat prompt " starting at")
-                                             secondary-default))
-         (branch
-          (magit-read-string
-           "Branch name"
-           (and (member start (magit-list-remote-branch-names))
-                (mapconcat #'identity (cdr (split-string start "/")) "/")))))
+  (let ((args (magit-branch-arguments)) start branch)
+    (cond
+     (magit-branch-read-upstream-first
+      (setq start  (magit-read-branch-or-commit (concat prompt " starting at")
+                                                secondary-default))
+      (setq branch (magit-read-string
+                    "Branch name"
+                    (and (member start (magit-list-remote-branch-names))
+                         (mapconcat #'identity
+                                    (cdr (split-string start "/")) "/")))))
+     (t
+      (setq branch (magit-read-string "Branch name"))
+      (setq start  (magit-read-branch-or-commit (concat prompt " starting at")
+                                                secondary-default))))
     (when (and (member "--track" args)
                (not (magit-branch-p start)))
       (setq args (delete "--track" args)))
