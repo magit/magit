@@ -1031,7 +1031,11 @@ in the popup."
          (button-type-get type 'format)
          `((?k . ,(propertize (magit-popup-event-keydsc ev)
                               'face 'magit-popup-key))
-           (?d . ,(magit-popup-event-dsc ev))))
+           (?d . ,(magit-popup-event-dsc ev))
+           (?D . ,(if (eq (magit-popup-event-fun ev)
+                          (magit-popup-get :default-action))
+                      (propertize (magit-popup-event-dsc ev) 'face 'bold)
+                    (magit-popup-event-dsc ev)))))
         'type type 'event (magit-popup-event-key ev)))
 
 (defun magit-popup-insert-command-section (type spec)
