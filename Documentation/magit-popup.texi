@@ -374,6 +374,15 @@ defined using @code{magit-define-popup}.  TYPE is one of @code{:action}, @code{:
 or @code{:option}.  KEY is the character which is to be unbound.
 @end defun
 
+It is also possible to change other aspects of a popup by setting a
+property using @code{plist-put}.  See @ref{Defining prefix commands,Defining prefix commands} for valid
+properties.  The most likely change Magit users might want to make
+is:
+
+@lisp
+(plist-put magit-show-refs-popup :use-prefix nil)
+@end lisp
+
 @node Other options
 @section Other options
 
@@ -414,6 +423,10 @@ directly invoke the popup's default action.
 
 Ignore prefix arguments.
 @end itemize
+This option can be overriden for individual popups.
+@code{magit-show-refs-popup} for example default to invoking the default
+action directly.  It only shows the popup buffer when a prefix
+argument is used.  See @ref{Customizing existing popups,Customizing existing popups}.
 @end defopt
 
 @defopt magit-popup-manpage-package

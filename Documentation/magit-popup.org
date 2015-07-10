@@ -299,6 +299,15 @@ commands to an existing popup using the following functions.
   defined using ~magit-define-popup~.  TYPE is one of ~:action~, ~:switch~,
   or ~:option~.  KEY is the character which is to be unbound.
 
+It is also possible to change other aspects of a popup by setting a
+property using ~plist-put~.  See [[*Defining prefix commands]] for valid
+properties.  The most likely change Magit users might want to make
+is:
+
+#+BEGIN_SRC emacs-lisp
+  (plist-put magit-show-refs-popup :use-prefix nil)
+#+END_SRC
+
 ** Other options
 
 - User Option: magit-popup-use-prefix-argument
@@ -329,6 +338,11 @@ commands to an existing popup using the following functions.
   - ~nil~
 
     Ignore prefix arguments.
+
+  This option can be overriden for individual popups.
+  ~magit-show-refs-popup~ for example default to invoking the default
+  action directly.  It only shows the popup buffer when a prefix
+  argument is used.  See [[*Customizing existing popups][Customizing existing popups]].
 
 - User Option: magit-popup-manpage-package
 
