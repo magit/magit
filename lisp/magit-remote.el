@@ -168,12 +168,13 @@ then read the remote."
               (?h "Disable hooks" "--no-verify")
               (?d "Dry run"       "--dry-run")
               (?u "Set upstream"  "--set-upstream"))
-  :actions  '((?P "Current"   magit-push-current)
-              (?e "Elsewhere" magit-push-elsewhere)
-              (?t "Tags"      magit-push-tags)
-              (?o "Other"     magit-push)
-              (?m "Matching"  magit-push-matching)
-              (?T "Tag"       magit-push-tag))
+  :actions  '((?P "Current"    magit-push-current)
+              (?i "Implicitly" magit-push-implicitly)
+              (?t "Tags"       magit-push-tags)
+              (?o "Other"      magit-push)
+              (?m "Matching"   magit-push-matching)
+              (?T "Tag"        magit-push-tag)
+              (?e "Elsewhere"  magit-push-elsewhere))
   :default-action 'magit-push-current
   :max-action-columns 3)
 
@@ -221,6 +222,15 @@ Read the local and remote branch."
     (list local (car remote) (cdr remote) (magit-push-arguments))))
 
 ;;;###autoload
+(defun magit-push-implicitly (&optional args)
+  "Push without explicitly specifing what to push.
+This runs `git push -v'.  What is being pushed depends on various
+Git variables as described in the `git-push(1)' and `git-config(1)'
+manpages."
+  (interactive (list (magit-push-arguments)))
+  (magit-run-git-async-no-revert "push" "-v" args))
+
+;;;###autoload
 (defun magit-push-matching (remote &optional args)
   "Push all matching branches to another repository.
 If multiple remotes exit, then read one from the user.
@@ -228,7 +238,6 @@ If just one exists, use that without requiring confirmation."
   (interactive (list (magit-read-remote "Push matching branches to" nil t)))
   (magit-run-git-async-no-revert "push" "-v" args remote ":"))
 
-;;;###autoload
 (defun magit-push-tags (remote &optional args)
   "Push all tags to another repository.
 If only one remote exists, then push to that.  Otherwise prompt
