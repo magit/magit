@@ -89,8 +89,8 @@ commit messages and rebase sequences.  It also provides some commands
 and features which are useful by themselves, even if you don't use
 Magit.
 
-For information about using this library in you own package, see @ref{Using With-Editor as a library,Using
-With-Editor as a library}.
+For information about using this library in you own package, see
+@ref{Using With-Editor as a library,Using With-Editor as a library}.
 
 @menu
 * Configuring With-Editor::
@@ -271,8 +271,7 @@ to create commits using Magit.  You can also ignore this if you use
 @verb{~with-editor~} outside of Magit, but only as an end-user.
 
 For information about interactive use and options which affect both
-interactive and non-interactive use, see @ref{Using the With-Editor package,Using the With-Editor
-package}.
+interactive and non-interactive use, see @ref{Using the With-Editor package,Using the With-Editor package}.
 
 @defmac with-editor &rest body
 

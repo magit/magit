@@ -187,7 +187,7 @@ interface, it is better to do so directly from the popup buffer.
 
 It is also possible to add additional arguments and commands to an
 existing popup, but that cannot be done directly from the popup (or
-the Custom interface).  See [[*Customizing existing popups][Customizing existing popups]].
+the Custom interface).  See [[*Customizing existing popups]].
 
 Documentation about a popup's arguments and commands can be shown
 directly from the popup.
@@ -342,7 +342,7 @@ is:
   This option can be overriden for individual popups.
   ~magit-show-refs-popup~ for example default to invoking the default
   action directly.  It only shows the popup buffer when a prefix
-  argument is used.  See [[*Customizing existing popups][Customizing existing popups]].
+  argument is used.  See [[*Customizing existing popups]].
 
 - User Option: magit-popup-manpage-package
 
