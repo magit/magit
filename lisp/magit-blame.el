@@ -116,6 +116,7 @@ and then turned on again when turning on the latter."
     (define-key map "P"  'magit-blame-previous-chunk-same-commit)
     (define-key map "q"  'magit-blame-quit)
     (define-key map "t"  'magit-blame-toggle-headings)
+    (define-key map "\M-w" 'magit-blame-copy-hash)
     map)
   "Keymap for `magit-blame-mode'.")
 
@@ -452,6 +453,11 @@ then also kill the buffer."
                              (overlay-get it 'magit-blame-heading)
                            magit-blame-separator)))
           (goto-char (or next (point-max))))))))
+
+(defun magit-blame-copy-hash ()
+  "Save hash of the current chunk's commit to the kill ring."
+  (interactive)
+  (kill-new (message "%s" (magit-blame-chunk-get :hash))))
 
 (defun magit-blame-chunk-get (key &optional pos)
   (--when-let (magit-blame-overlay-at pos)
