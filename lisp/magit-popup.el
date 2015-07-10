@@ -582,6 +582,15 @@ is then placed before or after AT, depending on PREPEND."
   (magit-define-popup-key popup :actions key
     (list desc command) at prepend))
 
+(defconst magit-popup-type-plural-alist
+  '((:switch . :switches)
+    (:option . :options)
+    (:action . :actions)))
+
+(defun magit-popup-pluralize-type (type)
+  (or (cdr (assq type magit-popup-type-plural-alist))
+      type))
+
 (defun magit-define-popup-key (popup type key def
                                      &optional at prepend)
   "In POPUP, define KEY as an action, switch, or option.
@@ -590,6 +599,7 @@ It's better to use one of the specialized functions
   `magit-define-popup-switch', or
   `magit-define-popup-option'."
   (declare (indent defun))
+  (setq type (magit-popup-pluralize-type type))
   (if (memq type '(:switches :options :actions))
       (let* ((plist (symbol-value popup))
              (value (plist-get plist type))
@@ -616,7 +626,8 @@ It's better to use one of the specialized functions
   "In POPUP, bind TO to what FROM was bound to.
 TYPE is one of `:action', `:switch', or `:option'.
 Bind TO and unbind FROM, both are characters."
-  (--if-let (assoc from (plist-get (symbol-value popup) type))
+  (--if-let (assoc from (plist-get (symbol-value popup)
+                                   (magit-popup-pluralize-type type)))
       (setcar it to)
     (message "magit-change-popup-key: FROM key %c is unbound" from)))
 
@@ -625,6 +636,7 @@ Bind TO and unbind FROM, both are characters."
 POPUP is a popup command defined using `magit-define-popup'.
 TYPE is one of `:action', `:switch', or `:option'.
 KEY is the character which is to be unbound."
+  (setq type (magit-popup-pluralize-type type))
   (let* ((plist (symbol-value popup))
          (alist (plist-get plist type))
          (value (assoc key alist)))
