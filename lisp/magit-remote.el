@@ -226,7 +226,7 @@ Read the local and remote branch."
 If multiple remotes exit, then read one from the user.
 If just one exists, use that without requiring confirmation."
   (interactive (list (magit-read-remote "Push matching branches to" nil t)))
-  (magit-run-git-async "push" "-v" args remote ":"))
+  (magit-run-git-async-no-revert "push" "-v" args remote ":"))
 
 ;;;###autoload
 (defun magit-push-tags (remote &optional args)
