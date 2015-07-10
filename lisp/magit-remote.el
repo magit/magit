@@ -169,12 +169,13 @@ then read the remote."
               (?d "Dry run"       "--dry-run")
               (?u "Set upstream"  "--set-upstream"))
   :actions  '((?P "Current"    magit-push-current)
-              (?i "Implicitly" magit-push-implicitly)
+              (?q "Quickly"    magit-push-quickly)
               (?t "Tags"       magit-push-tags)
               (?o "Other"      magit-push)
-              (?m "Matching"   magit-push-matching)
+              (?i "Implicitly" magit-push-implicitly)
               (?T "Tag"        magit-push-tag)
-              (?e "Elsewhere"  magit-push-elsewhere))
+              (?e "Elsewhere"  magit-push-elsewhere)
+              (?m "Matching"   magit-push-matching))
   :default-action 'magit-push-current
   :max-action-columns 3)
 
@@ -220,6 +221,22 @@ Read the local and remote branch."
       (setq remote (magit-read-remote-branch (format "Push %s to" local)
                                              nil remote local 'confirm)))
     (list local (car remote) (cdr remote) (magit-push-arguments))))
+
+;;;###autoload
+(defun magit-push-quickly (&optional args)
+  "Push the current branch to some remote.
+When the Git variable `magit.pushRemote' is set, then push to
+that remote.  If that variable is undefined or the branch does
+not exist, then push to \"origin\".  If that also doesn't exist
+then raise an error.  The local branch is pushed to the remote
+branch with the same name."
+  (interactive (list (magit-push-arguments)))
+  (-if-let (branch (magit-get-current-branch))
+      (-if-let (remote (or (magit-remote-p (magit-get "magit.pushRemote"))
+                           (magit-remote-p "origin")))
+          (magit-run-git-async-no-revert "push" "-v" args remote branch)
+        (user-error "Cannot determine remote to push to"))
+    (user-error "No branch is checked out")))
 
 ;;;###autoload
 (defun magit-push-implicitly (&optional args)

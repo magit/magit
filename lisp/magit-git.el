@@ -756,6 +756,9 @@ where COMMITS is the number of commits in TAG but not in REV."
   (and (or (member string (magit-list-branches))
            (member string (magit-list-branch-names))) t))
 
+(defun magit-remote-p (string)
+  (car (member string (magit-list-remotes))))
+
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
 Return a list of two integers: (A>B B>A)."
