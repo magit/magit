@@ -340,7 +340,7 @@ is:
     Ignore prefix arguments.
 
   This option can be overriden for individual popups.
-  ~magit-show-refs-popup~ for example default to invoking the default
+  ~magit-show-refs-popup~ for example defaults to invoking the default
   action directly.  It only shows the popup buffer when a prefix
   argument is used.  See [[*Customizing existing popups]].
 
