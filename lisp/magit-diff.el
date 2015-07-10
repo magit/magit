@@ -1330,6 +1330,9 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
       (and magit-revision-show-notes "--notes")
       args commit "--")))
 
+;; FIXME Don't blow up on empty commit and or empty commit message
+;; This is wasn't caused by the below changes, but should be address
+;; first.
 (defun magit-diff-wash-revision (args)
   (magit-diff-wash-tag)
   (let (children)
@@ -1347,6 +1350,10 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           (when (string-equal (match-string 1) "Merge")
             (magit-delete-line))
           (forward-line 1))
+        ;; FIXME Code below looks like a bunch of monkeys banged on
+        ;; it until it kind of worked (actually it was me, and that's
+        ;; exactly what I did).  That was so even before the latest
+        ;; wip changes (but those certainly don't make it better).
         (re-search-forward "^\\(\\(---\\)\\|    .\\)")
         (goto-char (line-beginning-position))
         (if (match-string 2)
@@ -1361,12 +1368,23 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                           (point) (line-end-position))))
             (magit-delete-line)
             (magit-insert-section (message)
-              (insert summary ?\n)
+              ;; TODO use decicated faces
+              (insert (propertize
+                       (substring summary 4) 'face
+                       (if (save-excursion (re-search-forward "^    " bound t))
+                           'bold
+                         'italic))
+                      ?\n)
               (magit-insert-heading)
-              (cond ((re-search-forward "^---" bound t)
-                     (magit-delete-match))
-                    ((re-search-forward "^.[^ ]" bound t)
-                     (goto-char (1- (match-beginning 0))))))))
+              (let ((beg (point)))
+                (while (re-search-forward "^    " bound t)
+                  (replace-match ""))
+                (cond ((re-search-forward "^---" bound t)
+                       (magit-delete-match))
+                      ((re-search-forward "^.[^ ]" bound t)
+                       (goto-char (1- (match-beginning 0)))))
+                ;; TODO use decicated face magit-revision-summary-face
+                (put-text-property beg (point) 'face 'italic)))))
         (forward-line)
         (when magit-revision-insert-related-refs
           (magit-revision-insert-related-refs rev))
