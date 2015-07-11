@@ -77,7 +77,7 @@
 (defun magit-remote-set-url (remote url)
   "Change the url of the remote named REMOTE to URL."
   (interactive
-   (let  ((remote (magit-read-remote "Rename remote")))
+   (let  ((remote (magit-read-remote "Set url of remote")))
      (list remote (magit-read-string "Url" (magit-get "remote" remote "url")))))
   (magit-set url "remote" remote "url"))
 
