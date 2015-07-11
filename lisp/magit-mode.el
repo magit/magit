@@ -447,6 +447,8 @@ derives from Magit mode; or else use `switch-to-buffer'."
                    (equal default-directory topdir)))
             (buffer-list)))
 
+(add-to-list 'uniquify-list-buffers-directory-modes 'magit-status-mode)
+
 (defun magit-mode-get-buffer (format mode &optional topdir create)
   (if (not (string-match-p "%[ab]" format))
       (funcall (if create #'get-buffer-create #'get-buffer) format)
@@ -465,7 +467,12 @@ derives from Magit mode; or else use `switch-to-buffer'."
                           (string-match-p (format "^%s$" (regexp-quote name))
                                           (buffer-name))))
                    (buffer-list))
-          (and create (generate-new-buffer name))))))
+          (and create (let ((buf (generate-new-buffer name)))
+                        (with-current-buffer buf
+                          (setq list-buffers-directory default-directory))
+                        (uniquify-rationalize-file-buffer-names
+                         name (file-name-directory (directory-file-name topdir)) buf)
+                        buf))))))
 
 (defun magit-mode-get-buffer-create (format mode &optional topdir)
   (magit-mode-get-buffer format mode topdir t))
