@@ -1025,13 +1025,13 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   'magit-commands
   :man-page "git-branch"
   :switches '((?t "Set upstream configuration" "--track"))
-  :actions  '((?b "Checkout"          magit-checkout)
+  :actions  '((?c "Create"            magit-branch)
               (?u "Set upstream"      magit-branch-set-upstream)
               (?k "Delete"            magit-branch-delete)
-              (?c "Create"            magit-branch)
+              (?b "Checkout"          magit-checkout)
               (?U "Unset upstream"    magit-branch-unset-upstream)
               (?r "Rename"            magit-branch-rename)
-              (?B "Create & Checkout" magit-branch-and-checkout)
+              (?B "Create & checkout" magit-branch-and-checkout)
               (?e "Set description"   magit-branch-edit-description)
               (?v "(Branch Manager)"  magit-branch-manager)
               (?s "Spin off"          magit-branch-spinoff) nil nil
