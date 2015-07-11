@@ -1315,7 +1315,7 @@ section or a child thereof."
 
 ;;; Revision Mode
 
-(define-derived-mode magit-revision-mode magit-diff-mode "Magit"
+(define-derived-mode magit-revision-mode magit-diff-mode "Magit Rev"
   "Mode for looking at a Git commit.
 This mode is documented in info node `(magit)Commit Buffer'.
 
