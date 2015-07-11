@@ -479,12 +479,15 @@ the function `magit-toplevel'."
                           (string-match-p (format "^%s$" (regexp-quote name))
                                           (buffer-name))))
                    (buffer-list))
-          (and create (let ((buf (generate-new-buffer name)))
-                        (with-current-buffer buf
-                          (setq list-buffers-directory default-directory))
-                        (uniquify-rationalize-file-buffer-names
-                         name (file-name-directory (directory-file-name topdir)) buf)
-                        buf))))))
+          (and create
+               (let ((buf (generate-new-buffer name)))
+                 (when topdir
+                   (with-current-buffer buf
+                     (setq list-buffers-directory default-directory))
+                   (uniquify-rationalize-file-buffer-names
+                    name (file-name-directory (directory-file-name topdir))
+                    buf))
+                 buf))))))
 
 (defun magit-mode-get-buffer-create (format mode &optional topdir)
   (magit-mode-get-buffer format mode topdir t))
