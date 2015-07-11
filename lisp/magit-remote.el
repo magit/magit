@@ -226,7 +226,7 @@ Read the local and remote branch."
 (defun magit-push-quickly (&optional args)
   "Push the current branch to some remote.
 When the Git variable `magit.pushRemote' is set, then push to
-that remote.  If that variable is undefined or the branch does
+that remote.  If that variable is undefined or the remote does
 not exist, then push to \"origin\".  If that also doesn't exist
 then raise an error.  The local branch is pushed to the remote
 branch with the same name."
