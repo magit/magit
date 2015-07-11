@@ -442,7 +442,7 @@ usually specified in that order):
   Controls when to display the popup buffer and when to invoke
   the default action (if any) directly.  This overrides the
   global default set using `magit-popup-use-prefix-argument'.
-  The value, if specified, should be one of `default' or `prefix'.
+  The value, if specified, should be one of `default' or `popup'.
 
 `:max-action-columns'
   The maximum number of actions to display on a single line.
