@@ -1034,6 +1034,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
               (?B "Create & Checkout" magit-branch-and-checkout)
               (?e "Set description"   magit-branch-edit-description)
               (?v "(Branch Manager)"  magit-branch-manager)
+              (?s "Spin off"          magit-branch-spinoff) nil nil
               (?x "Reset"             magit-branch-reset))
   :default-arguments '("--track")
   :default-action 'magit-checkout
@@ -1101,6 +1102,25 @@ To reset the current branch, instead use \
            (magit-read-other-branch-or-commit "to" branch)
            (magit-branch-arguments))))
   (magit-branch branch to (cl-adjoin "--force" args :test #'equal)))
+
+(defun magit-branch-spinoff (branch)
+  "Create new branch from the unpushed commits.
+
+Create and checkout a new branch starting at and tracking the
+current branch.  That branch in turn is reset to the last commit
+it shares with its upstream.  If the current branch has no
+upstream or no unpushed commits, then the new branch is created
+anyway and the previously current branch is not touched.
+
+This is useful to create a feature branch after work has already
+began on the old branch (likely but not necessarily \"master\")."
+  (interactive (list (magit-read-string "Spin off branch")))
+  (let* ((current (magit-get-current-branch))
+         (tracked (and current (magit-get-tracked-branch)))
+         (base (and tracked (magit-git-string "merge-base" current tracked))))
+    (magit-call-git "checkout" "-b" branch current)
+    (when (and current (not (magit-rev-equal base current)))
+      (magit-branch-reset current tracked))))
 
 ;;;###autoload
 (defun magit-branch-delete (branches &optional force)
