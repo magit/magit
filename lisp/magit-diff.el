@@ -1334,7 +1334,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (and (> window-start-pos 48)
              (concat
               (propertize " " 'display
-                          `((space :width (,(+ (car (window-fringes)) 2)))))
+                          `((space :width (,(+ (car (window-fringes))
+                                               2))))) ; FIXME get from face :box
               (propertize (concat "Commit "
                                   (magit-rev-parse (car magit-refresh-args)))
                           'face 'magit-header-line)))))
@@ -1355,8 +1356,9 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
       (magit-delete-line)
       (magit-insert-section (headers)
         (magit-insert-heading
-          (propertize (concat "Commit " rev)
-                      'face '(magit-header-line header-line)))
+          (propertize (concat "Commit " rev
+                              "\n") ; FIXME underline display line
+                      'face 'magit-header-line))
         (when refs
           (magit-insert (format "References: %s\n"
                                 (magit-format-ref-labels refs))))
