@@ -92,11 +92,12 @@ an error while using those is harder to recover from."
   :actions  '((?c "Commit"         magit-commit)
               (?e "Extend"         magit-commit-extend)
               (?f "Fixup"          magit-commit-fixup)
-              (?F "Instant Fixup"  magit-commit-instant-fixup)
-              (?a "Amend"          magit-commit-amend)
+              (?F "Instant Fixup"  magit-commit-instant-fixup) nil
               (?w "Reword"         magit-commit-reword)
               (?s "Squash"         magit-commit-squash)
-              (?S "Instant Squash" magit-commit-instant-squash))
+              (?S "Instant Squash" magit-commit-instant-squash) nil
+              (?a "Amend"          magit-commit-amend)
+              (?A "Augment"        magit-commit-augment))
   :max-action-columns 4
   :default-action 'magit-commit))
 
@@ -178,7 +179,7 @@ depending on the value of option `magit-commit-squash-confirm'.
 
 ;;;###autoload
 (defun magit-commit-squash (&optional commit args confirm)
-  "Create a squash commit.
+  "Create a squash commit, without editing the squash message.
 With a prefix argument the target commit has to be confirmed.
 Otherwise the commit at point may be used without confirmation
 depending on the value of option `magit-commit-squash-confirm'.
@@ -186,6 +187,17 @@ depending on the value of option `magit-commit-squash-confirm'.
   (interactive (magit-commit-squash-read-args))
   (magit-commit-squash-internal 'magit-commit-squash "--squash"
                                 commit args confirm))
+
+;;;###autoload
+(defun magit-commit-augment (&optional commit args confirm)
+  "Create a squash commit, editing the squash message.
+With a prefix argument the target commit has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option `magit-commit-squash-confirm'.
+\n(git commit --squash=COMMIT [ARGS])"
+  (interactive (magit-commit-squash-read-args))
+  (magit-commit-squash-internal 'magit-commit-augment "--squash"
+                                commit args confirm t))
 
 ;;;###autoload
 (defun magit-commit-instant-fixup (&optional commit args)
@@ -218,11 +230,13 @@ depending on the value of option `magit-commit-squash-confirm'.
         (magit-commit-arguments)
         (or current-prefix-arg magit-commit-squash-confirm)))
 
-(defun magit-commit-squash-internal (fn option commit args confirm)
+(defun magit-commit-squash-internal
+    (fn option commit args confirm &optional edit)
   (when (setq args (magit-commit-assert args t))
     (if (and commit (not confirm))
         (let ((magit-diff-auto-show nil))
-          (magit-run-git-with-editor "commit" "--no-edit"
+          (magit-run-git-with-editor "commit"
+                                     (unless edit "--no-edit")
                                      (concat option "=" commit) args)
           commit)
       (magit-log-select
