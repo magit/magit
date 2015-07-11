@@ -1307,7 +1307,7 @@ section or a child thereof."
 
 
 (defun magit-diff-expansion-threshold (section)
-  "Keep new diff sections collapsed if washing takes to long."
+  "Keep new diff sections collapsed if washing takes too long."
   (and (memq (magit-section-type section) '(file))
        (> (float-time (time-subtract (current-time) magit-refresh-start-time))
           magit-diff-expansion-threshold)
