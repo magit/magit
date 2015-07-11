@@ -1326,12 +1326,12 @@ Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-revision-mode-map}"
   :group 'magit-revision
-  (add-hook 'post-command-hook 'magit-revision-hideshow-header-line nil t)
+  (add-hook 'window-scroll-functions #'magit-revision-hideshow-header-line nil t)
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-revision-hideshow-header-line ()
+(defun magit-revision-hideshow-header-line (window window-start-pos)
   (setq header-line-format
-        (and (not (pos-visible-in-window-p 1))
+        (and (> window-start-pos 48)
              (concat
               (propertize " " 'display
                           `((space :width (,(+ (car (window-fringes)) 2)))))
