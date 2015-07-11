@@ -446,7 +446,7 @@ completion candidates."
                                   (magit-get-current-branch) "HEAD"))
                         (magit-log-arguments)
                         (list (file-relative-name file (magit-toplevel))))
-    (user-error "Buffer does not visit a file"))
+    (user-error "Buffer isn't visiting a file"))
   (magit-log-goto-same-commit))
 
 ;;;###autoload
