@@ -437,7 +437,8 @@ completion candidates."
 (defun magit-log-buffer-file ()
   "Show log for the file visited in the current buffer."
   (interactive)
-  (-if-let (file (or buffer-file-name magit-buffer-file-name))
+  (-if-let (file (or (buffer-file-name (buffer-base-buffer))
+                     magit-buffer-file-name))
       (magit-mode-setup magit-log-buffer-name-format nil
                         #'magit-log-mode
                         #'magit-log-refresh-buffer
