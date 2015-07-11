@@ -1023,7 +1023,9 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   "Popup console for branch commands."
   'magit-commands
   :man-page "git-branch"
-  :switches '((?t "Set upstream configuration" "--track"))
+  :switches '((?t "Set upstream configuration" "--track")
+              (?f "Force"                      "--force"))
+
   :actions  '((?b "Checkout"          magit-checkout)
               (?u "Set upstream"      magit-branch-set-upstream)
               (?k "Delete"            magit-branch-delete)
