@@ -1033,7 +1033,8 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
               (?r "Rename"            magit-branch-rename)
               (?B "Create & Checkout" magit-branch-and-checkout)
               (?e "Set description"   magit-branch-edit-description)
-              (?v "(Branch Manager)"  magit-branch-manager))
+              (?v "(Branch Manager)"  magit-branch-manager)
+              (?x "Reset"             magit-branch-reset))
   :default-arguments '("--track")
   :default-action 'magit-checkout
   :max-action-columns 3)
@@ -1084,6 +1085,22 @@ changes.
                (not (magit-branch-p start)))
       (setq args (delete "--track" args)))
     (list branch start args)))
+
+;;;###autoload
+(defun magit-branch-reset (branch to &optional args)
+  "Reset a branch to the tip of another branch or any other commit.
+
+To reset the current branch, instead use \
+\\<global-map>\\[universal-argument] \
+\\<magit-mode-map>\\[magit-reset] (`magit-reset')."
+  (interactive
+   (let ((branch (magit-read-branch "Reset branch"
+                                    (or (magit-branch-at-point)
+                                        (magit-get-current-branch)))))
+     (list branch
+           (magit-read-other-branch-or-commit "to" branch)
+           (magit-branch-arguments))))
+  (magit-branch branch to (cl-adjoin "--force" args :test #'equal)))
 
 ;;;###autoload
 (defun magit-branch-delete (branches &optional force)
