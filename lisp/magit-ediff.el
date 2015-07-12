@@ -261,7 +261,7 @@ mind at all, then it asks the user for a command to run."
                               (--if-let (magit-get-tracked-branch)
                                   (setq revA (magit-git-string "merge-base"
                                                                current it)
-                                        revB it)
+                                        revB current)
                                 (setq revA current))
                             (setq revA atpoint
                                   revB current))))
