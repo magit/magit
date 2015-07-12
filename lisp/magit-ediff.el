@@ -234,10 +234,10 @@ mind at all, then it asks the user for a command to run."
                       revB (car it))))
              (magit-buffer-refname
               (setq revB magit-buffer-refname
-                    revA (concat revB "^")))
+                    command 'magit-ediff-show-commit))
              ((derived-mode-p 'magit-revision-mode)
               (setq revB (car magit-refresh-args)
-                    revA (concat revB "^")))
+                    command 'magit-ediff-show-commit))
              ((derived-mode-p 'magit-diff-mode)
               (pcase (magit-diff-type)
                 (`committed (cl-destructuring-bind (a b)
@@ -248,8 +248,8 @@ mind at all, then it asks the user for a command to run."
                 (_          (setq command 'magit-ediff-stage))))
              (t
               (magit-section-case
-                (commit (setq revA (concat (magit-section-value it) "^")
-                              revB (magit-section-value it)))
+                (commit (setq revB (magit-section-value it)
+                              command 'magit-ediff-show-commit))
                 (branch (let ((current (magit-get-current-branch))
                               (atpoint (magit-section-value it)))
                           (if (equal atpoint current)
@@ -277,12 +277,15 @@ mind at all, then it asks the user for a command to run."
               (call-interactively
                (magit-read-char-case
                    "Failed to read your mind; do you want to " t
-                 (?c "[c]ompare" 'magit-ediff-compare)
-                 (?r "[r]esolve" 'magit-ediff-resolve)
-                 (?s "[s]tage"   'magit-ediff-stage))))
+                 (?c "[c]ommit"  'magit-ediff-show-commit)
+                 (?r "[r]ange"   'magit-ediff-compare)
+                 (?s "[s]tage"   'magit-ediff-stage)
+                 (?v "resol[v]e" 'magit-ediff-resolve))))
              ((eq command 'magit-ediff-compare)
               (apply 'magit-ediff-compare revA revB
                      (magit-ediff-compare--read-files revA revB file)))
+             ((eq command 'magit-ediff-show-commit)
+              (magit-ediff-show-commit revB))
              (file
               (funcall command file))
              (t
@@ -343,6 +346,16 @@ FILE must be relative to the top directory of the repository."
             (let ((magit-ediff-previous-winconf ,conf))
               (run-hooks 'magit-ediff-quit-hook))))))
      'ediff-buffers)))
+
+;;;###autoload
+(defun magit-ediff-show-commit (commit)
+  "Show changes introduced by COMMIT using Ediff."
+  (interactive (list (magit-read-branch-or-commit "Revision")))
+  (let ((revA (concat commit "^"))
+        (revB commit))
+    (apply #'magit-ediff-compare
+           revA revB
+           (magit-ediff-compare--read-files revA revB (magit-current-file)))))
 
 (defun magit-ediff-cleanup-auxiliary-buffers ()
   (let* ((ctl-buf ediff-control-buffer)
