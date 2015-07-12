@@ -348,6 +348,30 @@ FILE must be relative to the top directory of the repository."
      'ediff-buffers)))
 
 ;;;###autoload
+(defun magit-ediff-show-working-tree (file)
+  "Show changes between HEAD and working tree using Ediff.
+FILE must be relative to the top directory of the repository."
+  (interactive
+   (list (magit-read-file-choice "Show changes in file"
+                                 (magit-changed-files "HEAD")
+                                 "No changed files")))
+  (let ((conf (current-window-configuration))
+        (bufA (magit-get-revision-buffer "HEAD" file))
+        (bufB (get-file-buffer file)))
+    (ediff-buffers
+     (or bufA (magit-find-file-noselect "HEAD" file))
+     (or bufB (find-file-noselect file))
+     `((lambda ()
+         (setq-local
+          ediff-quit-hook
+          (lambda ()
+            ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
+            ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
+            (let ((magit-ediff-previous-winconf ,conf))
+              (run-hooks 'magit-ediff-quit-hook))))))
+     'ediff-buffers)))
+
+;;;###autoload
 (defun magit-ediff-show-commit (commit)
   "Show changes introduced by COMMIT using Ediff."
   (interactive (list (magit-read-branch-or-commit "Revision")))
