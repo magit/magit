@@ -1115,12 +1115,15 @@ anyway and the previously current branch is not touched.
 This is useful to create a feature branch after work has already
 began on the old branch (likely but not necessarily \"master\")."
   (interactive (list (magit-read-string "Spin off branch")))
-  (let* ((current (magit-get-current-branch))
-         (tracked (and current (magit-get-tracked-branch)))
-         (base (and tracked (magit-git-string "merge-base" current tracked))))
-    (magit-call-git "checkout" "-b" branch current)
-    (when (and current (not (magit-rev-equal base current)))
-      (magit-branch-reset current tracked))))
+  (-if-let (current (magit-get-current-branch))
+      (let (tracked base)
+        (magit-call-git "checkout" "--track" "-b" branch current)
+        (if (and (setq tracked (magit-get-tracked-branch current))
+                 (setq base (magit-git-string "merge-base" current tracked))
+                 (not (magit-rev-equal base current)))
+            (magit-branch-reset current tracked)
+          (magit-refresh)))
+    (magit-run-git "checkout" "-b" branch)))
 
 ;;;###autoload
 (defun magit-branch-delete (branches &optional force)
