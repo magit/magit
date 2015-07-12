@@ -536,22 +536,65 @@ The following `format'-like specs are supported:
 (defun magit-diff-dwim (&optional args files)
   "Show changes for the thing at point."
   (interactive (magit-diff-read-args))
-  (--if-let (magit-region-values 'commit 'branch)
-      (progn (deactivate-mark)
-             (magit-diff (concat (car (last it)) ".." (car it))))
-    (--when-let (magit-current-section)
-      (let ((value (magit-section-value it)))
-        (magit-section-case
-          ([* unstaged] (magit-diff-unstaged args))
-          ([* staged] (magit-diff-staged nil args))
-          (unpushed (magit-diff-unpushed args))
-          (unpulled (magit-diff-unpulled args))
-          (branch   (-if-let (tracked (magit-get-tracked-ref value))
-                        (magit-diff (format "%s...%s" tracked value) args)
-                      (call-interactively 'magit-diff)))
-          (commit   (magit-show-commit value nil nil args))
-          (stash    (magit-stash-show  value nil args))
-          (t        (call-interactively 'magit-diff)))))))
+  (pcase (magit-diff--dwim)
+    (`unstaged
+     (magit-diff-unstaged args))
+    (`staged
+     (magit-diff-staged nil args))
+    (`(commit . ,value)
+     (magit-show-commit value nil nil args))
+    (`(stash . ,value)
+     (magit-stash-show value nil args))
+    ((and range (pred stringp))
+     (magit-diff range args))
+    (_
+     (call-interactively #'magit-diff))))
+
+(defun magit-diff--dwim ()
+  "Return information for performing DWIM diff.
+
+The information can be in three forms:
+1. TYPE
+   A symbol describing a type of diff where no additional information
+   is needed to generate the diff.  Currently, this includes `staged'
+   and `unstaged'.
+2. (TYPE . VALUE)
+   Like #1 but the diff requires additional information, which is
+   given by VALUE.  Currently, this includes `commit' and `stash',
+   where VALUE is the given commit or stash, respectively.
+3. RANGE
+   A string indicating a diff range.
+
+If no DWIM context is found, nil is returned."
+  (cond
+   ((--when-let (magit-region-values 'commit 'branch)
+      (deactivate-mark)
+      (concat (car (last it)) ".." (car it))))
+   (magit-buffer-refname
+    (cons 'commit magit-buffer-refname))
+   ((derived-mode-p 'magit-revision-mode)
+    (cons 'commit (car magit-refresh-args)))
+   (t
+    (magit-section-case
+      ([* unstaged] 'unstaged)
+      ([* staged] 'staged)
+      (unpushed (format "%s...%s"
+                        (magit-get-tracked-branch)
+                        (magit-get-current-branch)))
+      (unpulled (format "%s...%s"
+                        (magit-get-current-branch)
+                        (magit-get-tracked-branch)))
+      (branch (let ((current (magit-get-current-branch))
+                    (atpoint (magit-section-value it)))
+                (if (equal atpoint current)
+                    (--if-let (magit-get-tracked-branch)
+                        (format "%s...%s" it current)
+                      (if (magit-anything-modified-p)
+                          current
+                        (cons 'commit current)))
+                  (format "%s..%s" atpoint current))))
+      (commit (cons 'commit (magit-section-value it)))
+      (stash (cons 'stash (magit-section-value it)))))))
 
 ;;;###autoload
 (defun magit-diff (range &optional args files)
