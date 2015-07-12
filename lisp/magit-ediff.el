@@ -59,10 +59,15 @@ invoked using Magit."
 (magit-define-popup magit-ediff-popup
   "Popup console for ediff commands."
   'magit-diff nil nil
-  :actions '((?E "Dwim"    magit-ediff-dwim)
-             (?d "Compare" magit-ediff-compare)
-             (?m "Resolve" magit-ediff-resolve)
-             (?s "Stage"   magit-ediff-stage)))
+  :actions '((?E "Dwim"          magit-ediff-dwim)
+             (?u "Show unstaged" magit-ediff-show-unstaged)
+             (?i "Show staged"   magit-ediff-show-staged)
+             (?c "Show commit"   magit-ediff-show-commit)
+             (?d "Compare range" magit-ediff-compare)
+             (?m "Resolve"       magit-ediff-resolve)
+             (?s "Stage"         magit-ediff-stage)
+             (?w "Show worktree" magit-ediff-show-working-tree))
+  :max-action-columns 3)
 
 ;;;###autoload
 (defun magit-ediff-resolve (file)
