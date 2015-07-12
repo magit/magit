@@ -923,10 +923,11 @@ existing one."
      (car (member (or default (magit-current-file)) files)))))
 
 (defun magit-read-changed-file (rev-or-range prompt &optional default)
-  (let ((files (magit-changed-files rev-or-range)))
-    (magit-completing-read
-     prompt files nil t nil 'magit-read-file-hist
-     (car (member (or default (magit-current-file)) files)))))
+  (magit-read-file-choice
+   prompt
+   (magit-changed-files rev-or-range)
+   default
+   (concat "No file changed in" rev-or-range)))
 
 (defun magit-get-revision-buffer (rev file &optional create)
   (funcall (if create 'get-buffer-create 'get-buffer)
@@ -1544,6 +1545,23 @@ If FILE isn't tracked in Git fallback to using `delete-file'."
              (completing-read-multiple (or prompt "File,s: ")
                                        (magit-list-files)
                                        nil nil initial-contents) ","))
+
+(defun magit-read-file-choice (prompt files &optional error default)
+  "Read file from FILES.
+
+If FILES has only one member, return that instead of prompting.
+If FILES has no members, give a user error.  ERROR can be given
+to provide a more informative error.
+
+If DEFAULT is non-nil, use this as the default value instead of
+`magit-current-file'."
+  (cl-case (length files)
+    (0 (user-error (or error "No file choices")))
+    (1 (car files))
+    (t
+     (magit-completing-read
+      prompt files nil t nil 'magit-read-file-hist
+      (car (member (or default (magit-current-file)) files))))))
 
 ;;; Miscellaneous
 ;;;; Tag
