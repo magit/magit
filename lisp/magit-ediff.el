@@ -299,9 +299,9 @@ and discard changes using Ediff, use `magit-ediff-stage'.
 
 FILE must be relative to the top directory of the repository."
   (interactive
-   (list (magit-completing-read "Show staged changes for file" nil
-                                (magit-tracked-files) nil nil nil
-                                (magit-current-file))))
+   (list (magit-read-file-choice "Show staged changes for file"
+                                 (magit-staged-files)
+                                 "No staged files")))
   (let ((conf (current-window-configuration))
         (bufA (magit-get-revision-buffer "HEAD" file))
         (bufB (get-buffer (concat file ".~{index}~"))))
@@ -327,9 +327,9 @@ and discard changes using Ediff, use `magit-ediff-stage'.
 
 FILE must be relative to the top directory of the repository."
   (interactive
-   (list (magit-completing-read "Show unstaged changes for file" nil
-                                (magit-tracked-files) nil nil nil
-                                (magit-current-file))))
+   (list (magit-read-file-choice "Show unstaged changes for file"
+                                 (magit-modified-files)
+                                 "No unstaged files")))
   (let ((conf (current-window-configuration))
         (bufA (get-buffer (concat file ".~{index}~")))
         (bufB (get-file-buffer file)))
