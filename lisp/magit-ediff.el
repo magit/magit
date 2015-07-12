@@ -267,10 +267,14 @@ mind at all, then it asks the user for a command to run."
                                 (setq revA current))
                             (setq revA atpoint
                                   revB current))))
-                (unpushed (setq revA (magit-get-tracked-branch)
-                                revB (magit-get-current-branch)))
-                (unpulled (setq revA (magit-get-current-branch)
-                                revB (magit-get-tracked-branch)))
+                (unpushed (setq revB (magit-get-current-branch)
+                                revA (magit-git-string
+                                      "merge-base"
+                                      revB (magit-get-tracked-branch))))
+                (unpulled (setq revB (magit-get-tracked-branch)
+                                revA (magit-git-string
+                                      "merge-base"
+                                      revB (magit-get-current-branch))))
                 ((staged unstaged)
                  (setq command (if (magit-anything-unmerged-p)
                                    'magit-ediff-resolve
