@@ -383,14 +383,19 @@ then offer to initialize it as a new repository."
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
 (defun magit-status-internal (directory &optional switch-function)
-  (with-temp-buffer ; don't let-bind status buffer's `default-directory', #2054
-    (let ((default-directory (file-name-as-directory
-                              (expand-file-name directory))))
-      (magit-mode-setup magit-status-buffer-name-format
-                        (or switch-function
-                            magit-status-buffer-switch-function)
-                        #'magit-status-mode
-                        #'magit-status-refresh-buffer))))
+  (let ((temp-buffer (generate-new-buffer " *temp*")))
+    (unwind-protect
+        (progn ; let-bind `default-directory' in temp buffer, see #2054
+          (set-buffer temp-buffer)
+          (let ((default-directory (file-name-as-directory
+                                    (expand-file-name directory))))
+            (magit-mode-setup magit-status-buffer-name-format
+                              (or switch-function
+                                  magit-status-buffer-switch-function)
+                              #'magit-status-mode
+                              #'magit-status-refresh-buffer)))
+      (and (buffer-name temp-buffer)
+           (kill-buffer temp-buffer)))))
 
 (defun ido-enter-magit-status ()
   "Drop into `magit-status' from file switching.
