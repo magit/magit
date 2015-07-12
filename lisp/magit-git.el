@@ -407,12 +407,19 @@ If the file is not inside a Git repository then return nil."
   (let ((default-directory (magit-toplevel)))
     (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
 
-(defun magit-changed-files (rev-or-range)
+(defun magit-changed-files (rev-or-range &optional other-rev)
+  "Return list of files the have changed between two revisions.
+If OTHER-REV is non-nil, REV-OR-RANGE should be a revision, not a
+range.  Otherwise, it can be any revision or range accepted by
+\"git diff\" (i.e., <rev>, <revA>..<revB>, or <revA>...<revB>)."
   (let ((default-directory (magit-toplevel)))
-    (magit-git-items "diff" "-z" "--name-only"
-                     (if (string-match-p "\\.\\." rev-or-range)
-                         rev-or-range
-                       (format "%s~..%s" rev-or-range rev-or-range)))))
+    (magit-git-items "diff" "-z" "--name-only" rev-or-range other-rev)))
+
+(defun magit-renamed-files (revA revB)
+  (--map (cons (nth 1 it) (nth 2 it))
+         (-partition 3 (magit-git-items
+                        "diff-tree" "--diff-filter=R" "-z" "-M"
+                        revA revB))))
 
 (defun magit-file-status (&rest args)
   (with-temp-buffer
