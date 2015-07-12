@@ -459,7 +459,10 @@ the function `magit-toplevel'."
                    (equal default-directory topdir)))
             (buffer-list)))
 
-(add-to-list 'uniquify-list-buffers-directory-modes 'magit-status-mode)
+(mapcar (apply-partially #'add-to-list 'uniquify-list-buffers-directory-modes)
+        (list 'magit-cherry-mode 'magit-diff-mode 'magit-log-mode
+              'magit-reflog-mode 'magit-refs-mode 'magit-revision-mode
+              'magit-stash-mode 'magit-stashes-mode 'magit-status-mode ))
 
 (defun magit-mode-get-buffer (format mode &optional topdir create)
   (if (not (string-match-p "%[ab]" format))
