@@ -736,18 +736,13 @@ for a commit."
          (kill-local-variable 'magit-diff-section-arguments)))
   (magit-refresh))
 
-(defconst magit-diff-range-re
-  (concat "\\`\\([^ \t]*[^.]\\)?"       ; revA
-          "\\(\\.\\.\\.?\\)"            ; range marker
-          "\\([^.][^ \t]*\\)?\\'"))     ; revB
-
 (defun magit-diff-switch-range-type (args)
   "Convert diff range type.
 Change \"revA..revB\" to \"revB...revA\", or vice versa."
   (interactive (list (magit-diff-refresh-arguments)))
   (let ((range (car magit-refresh-args)))
     (if (and (derived-mode-p 'magit-diff-mode)
-             (string-match magit-diff-range-re range))
+             (string-match magit-range-re range))
         (progn
           (setcar magit-refresh-args
                   (concat (match-string 1 range)
@@ -765,7 +760,7 @@ Change \"revA..revB\" to \"revB..revA\"."
   (let ((range (car magit-refresh-args)))
     (if (and range
              (derived-mode-p 'magit-diff-mode)
-             (string-match magit-diff-range-re range))
+             (string-match magit-range-re range))
         (progn
           (setcar magit-refresh-args
                   (concat (match-string 3 range)

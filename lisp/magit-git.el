@@ -886,6 +886,11 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-update-files (files)
   (magit-git-success "update-index" "--add" "--remove" "--" files))
 
+(defconst magit-range-re
+  (concat "\\`\\([^ \t]*[^.]\\)?"       ; revA
+          "\\(\\.\\.\\.?\\)"            ; range marker
+          "\\([^.][^ \t]*\\)?\\'"))     ; revB
+
 ;;; Completion
 
 (defvar magit-revision-history nil)
