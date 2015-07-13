@@ -166,11 +166,16 @@ FILE has to be relative to the top directory of the repository."
 
 FILEA and FILEB have to be relative to the top directory of the
 repository.  If REVA or REVB is nil then this stands for the
-working tree state."
+working tree state.
+
+If the region is active, use the revisions on the first and last
+line of the region.  With a prefix argument, instead of diffing
+the revisions, choose a revision to view changes along, starting
+at the common ancestor of both revisions (i.e., use a \"...\"
+range)."
   (interactive (cl-destructuring-bind (revA revB)
                    (magit-ediff-compare--read-revisions
-                    (--when-let (magit-region-values 'commit 'branch)
-                      (concat (car (last it)) ".." (car it))))
+                    nil current-prefix-arg)
                  (nconc (list revA revB)
                         (magit-ediff-compare--read-files revA revB))))
   (let ((conf (current-window-configuration))
@@ -197,8 +202,9 @@ working tree state."
               (run-hooks 'magit-ediff-quit-hook))))))
      'ediff-revision)))
 
-(defun magit-ediff-compare--read-revisions (&optional arg)
-  (let ((input (or arg (magit-read-range-or-commit "Compare range or commit")))
+(defun magit-ediff-compare--read-revisions (&optional arg mbase)
+  (let ((input (or arg (magit-diff-read-range-or-commit "Compare range or commit"
+                                                        nil mbase)))
         revA revB)
     (if (string-match magit-range-re input)
         (progn (setq revA (or (match-string 1 input) "HEAD")

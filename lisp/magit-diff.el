@@ -612,14 +612,49 @@ If no DWIM context is found, nil is returned."
       (commit (cons 'commit (magit-section-value it)))
       (stash (cons 'stash (magit-section-value it)))))))
 
+(defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
+  "Read range or commit with special diff range treatment.
+If MBASE is non-nil, prompt for which rev to place at the end of
+a \"revA...revB\" range.  Otherwise, always construct
+\"revA..revB\" range."
+  (--if-let (magit-region-values 'commit 'branch)
+      (let ((revA (car it))
+            (revB (car (last it))))
+        (deactivate-mark)
+        (if mbase
+            (let* ((revA-full (magit-rev-parse revA))
+                   (revB-full (magit-rev-parse revB))
+                   (base (magit-git-string "merge-base" revA revB)))
+              (cond
+               ((string= revA-full base)
+                (format "%s..%s" revA revB))
+               ((string= revB-full base)
+                (format "%s..%s" revB revA))
+               (t
+                (let ((main (magit-completing-read "View changes along"
+                                                   (list revA revB)
+                                                   nil t nil nil revB)))
+                  (format "%s...%s"
+                          (if (string= main revB) revA revB) main)))))
+          (format "%s..%s" revA revB)))
+    (magit-read-range-or-commit prompt secondary-default)))
+
 ;;;###autoload
 (defun magit-diff (range &optional args files)
   "Show differences between two commits.
+
 RANGE should be a range (A..B or A...B) but can also be a single
 commit.  If one side of the range is omitted, then it defaults
 to HEAD.  If just a commit is given, then changes in the working
-tree relative to that commit are shown."
-  (interactive (cons (magit-read-range-or-commit "Diff for range")
+tree relative to that commit are shown.
+
+If the region is active, use the revisions on the first and last
+line of the region.  With a prefix argument, instead of diffing
+the revisions, choose a revision to view changes along, starting
+at the common ancestor of both revisions (i.e., use a \"...\"
+range)."
+  (interactive (cons (magit-diff-read-range-or-commit "Diff for range"
+                                                      nil current-prefix-arg)
                      (magit-diff-read-args)))
   (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
