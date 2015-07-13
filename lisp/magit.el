@@ -820,13 +820,14 @@ The old binding `b v' will be removed soon."
           (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
           (let* ((message (match-string 2 tag))
                  (tag     (match-string 1 tag))
-                 (count   (magit-refs-format-commit-count
-                           tag head format t)))
+                 (count   (magit-refs-format-commit-count tag head format t))
+                 (mark    (and (equal tag head)
+                               (propertize "#" 'face 'magit-tag))))
             (magit-insert-section section (tag tag t)
               (magit-insert-heading
                (format-spec format
                             `((?n . ,(propertize tag 'face 'magit-tag))
-                              (?c . ,(or count ""))
+                              (?c . ,(or mark count ""))
                               (?m . ,(or message "")))))
               (when (and magit-show-margin
                          (eq magit-refs-show-margin 'all))
