@@ -759,11 +759,13 @@ The old binding `b v' will be removed soon."
   (let* ((head  (or (car magit-refresh-args) current "HEAD"))
          (count (and branch
                      (magit-refs-format-commit-count branch head format)))
-         (mark  (and (or (equal branch head)
-                         (and (not branch) (equal head "HEAD")))
-                     (if (equal branch current)
-                         (propertize "@" 'face 'magit-head)
-                       (propertize "#" 'face 'magit-tag)))))
+         (mark  (cond ((or (equal branch head)
+                           (and (not branch) (equal head "HEAD")))
+                       (if (equal branch current)
+                           (propertize "@" 'face 'magit-head)
+                         (propertize "#" 'face 'magit-tag)))
+                      ((equal branch current)
+                       (propertize "." 'face 'magit-head)))))
     (when upstream
       (setq upstream (propertize upstream 'face
                                  (if (member upstream branches)
