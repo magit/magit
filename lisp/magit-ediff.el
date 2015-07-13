@@ -190,16 +190,16 @@ working tree state."
                (when (match-string 2 input)
                  (setq revA (magit-git-string "merge-base" revA revB))))
       (setq revA (concat input "^")
-            revB input
-            range (concat revA ".." revB)))
+            revB input))
     (list range revA revB)))
 
 (defun magit-ediff-compare--read-files (range revA revB &optional fileB)
   (unless fileB
     (setq fileB (magit-read-changed-file
-                 range (if range
-                           (format "In range %s compare file" range)
-                         (format "Show changes in %s to file" revB)))))
+                 (or range (concat revA ".." revB))
+                 (if range
+                     (format "In range %s compare file" range)
+                   (format "Show changes in %s to file" revB)))))
   (list (or (car (member fileB (magit-revision-files revA)))
             (car (rassoc fileB
                          (cl-mapcan
@@ -210,6 +210,7 @@ working tree state."
                           (magit-git-items
                            "diff-tree" "-z" "-M" "HEAD^" "HEAD"))))
             (magit-read-changed-file
+             (or range (concat revA ".." revB))
              range (format "Compare %s:%s with file in %s" revB fileB revA)))
         fileB))
 
