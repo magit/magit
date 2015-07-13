@@ -680,7 +680,7 @@ The old binding `b v' will be removed soon."
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-show-commit)
+    (define-key map "\r" 'magit-visit-ref)
     (define-key map "k"  'magit-branch-delete)
     (define-key map "R"  'magit-branch-rename)
     map)
@@ -702,6 +702,32 @@ The old binding `b v' will be removed soon."
                 (?b "[b]ranches only" t)
                 (?n "[n]othing" nil)))
   (magit-refresh))
+
+(defun magit-visit-ref ()
+  "Visit the reference or revision at point.
+
+In most places use `magit-show-commit' to visit the reference or
+revision at point.
+
+In `magit-refs-mode', when there is a reference at point, instead
+checkout that reference.  With a prefix argument instead focus on
+the reference at point, i.e. the commit counts and cherries are
+updated to be relative to that reference, but it is not checked
+out."
+  (interactive)
+  (if (derived-mode-p 'magit-refs-mode)
+      (magit-section-case
+        (([branch * branchbuf]
+          [tag    * branchbuf])
+         (let ((ref (magit-section-value (magit-current-section))))
+           (if current-prefix-arg
+               (magit-show-refs ref)
+             (setcar magit-refresh-args ref)
+             (magit-run-git "checkout" ref)
+             (magit-refresh))))
+        ([commit * branchbuf]
+         (call-interactively #'magit-show-commit)))
+    (call-interactively #'magit-show-commit)))
 
 (defun magit-insert-local-branches ()
   "Insert sections showing all local branches."
@@ -801,7 +827,7 @@ The old binding `b v' will be removed soon."
 
 (defvar magit-tag-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-show-commit)
+    (define-key map "\r" 'magit-visit-ref)
     (define-key map "k"  'magit-tag-delete)
     map)
   "Keymap for `tag' sections.")
