@@ -362,6 +362,11 @@ The value is usually set using `magit-mode-setup'.")
 The value is usually set using `magit-mode-setup'.")
 (put 'magit-refresh-args 'permanent-local t)
 
+;; Kludge.  We use this instead of adding a new, optional argument to
+;; `magit-setup-mode' in order to avoid breaking third-party packages.
+;; See #2054 and #2060.
+(defvar magit-mode-setup--topdir nil)
+
 (defmacro magit-mode-setup
   (buffer switch-func mode refresh-func &rest refresh-args)
   "Display and select BUFFER, turn on MODE, and refresh a first time.
@@ -377,10 +382,13 @@ before switching to BUFFER."
         (sargs (cl-gensym "args"))
         (sbuf  (cl-gensym "buffer")))
     `(let* ((,smode ,mode)
-            (,sroot (magit-toplevel))
+            (,sroot (let ((default-directory (or magit-mode-setup--topdir
+                                                 default-directory)))
+                      (magit-toplevel)))
             (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
-            (,sbuf  (magit-mode-display-buffer ,buffer ,smode ,switch-func)))
+            (,sbuf  (magit-mode-display-buffer
+                     ,buffer ,smode ,switch-func ,sroot)))
        (when find-file-visit-truename
          (setq ,sroot (file-truename ,sroot)))
        (if ,sroot
@@ -407,7 +415,7 @@ before switching to BUFFER."
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
 
-(defun magit-mode-display-buffer (buffer mode &optional switch-function)
+(defun magit-mode-display-buffer (buffer mode &optional switch-function topdir)
   "Display BUFFER in some window and select it.
 BUFFER may be a buffer or a string, the name of a buffer.  Return
 the buffer.
@@ -418,13 +426,17 @@ can later be restored by `magit-mode-bury-buffer'.
 
 Then display and select BUFFER using SWITCH-FUNCTION.  If that is
 nil either use `pop-to-buffer' if the current buffer's major mode
-derives from Magit mode; or else use `switch-to-buffer'."
+derives from Magit mode; or else use `switch-to-buffer'.
+
+When optional TOPDIR is specified, then it has to be the top-level
+directory of the repository.  Otherwise that is determined using
+the function `magit-toplevel'."
   (cond ((stringp buffer)
-         (setq buffer (magit-mode-get-buffer-create buffer mode)))
+         (setq buffer (magit-mode-get-buffer-create buffer mode topdir)))
         ((not (bufferp buffer))
          (signal 'wrong-type-argument (list 'bufferp nil))))
   (let ((section (magit-current-section)))
-    (with-current-buffer (get-buffer-create buffer)
+    (with-current-buffer buffer
       (setq magit-previous-section section)
       (if magit-inhibit-save-previous-winconf
           (when (eq magit-inhibit-save-previous-winconf 'unset)
