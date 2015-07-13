@@ -221,7 +221,7 @@ the user wants to compare, stage, or resolve using Ediff.  It
 might only be able to guess either the file, or range or commit,
 in which case the user is asked about the other.  It might not
 always guess right, in which case the appropriate `magit-ediff-*'
-command has to be used explicitly.  If it cannot read the users
+command has to be used explicitly.  If it cannot read the user's
 mind at all, then it asks the user for a command to run."
   (interactive)
   (magit-section-case
