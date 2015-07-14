@@ -637,7 +637,14 @@ a \"revA...revB\" range.  Otherwise, always construct
                   (format "%s...%s"
                           (if (string= main revB) revA revB) main)))))
           (format "%s..%s" revA revB)))
-    (magit-read-range-or-commit prompt secondary-default)))
+    (magit-read-range prompt
+                      (or (pcase (magit-diff--dwim)
+                            (`(commit . ,value)
+                             (format "%s^..%s" value value))
+                            ((and range (pred stringp))
+                             range))
+                          secondary-default
+                          (magit-get-current-branch)))))
 
 ;;;###autoload
 (defun magit-diff (range &optional args files)
