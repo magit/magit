@@ -936,7 +936,8 @@ existing one."
   (magit-get-revision-buffer rev file t))
 
 (defun magit-find-file-noselect (rev file)
-  "Read FILE from REV into a buffer and return the buffer."
+  "Read FILE from REV into a buffer and return the buffer.
+FILE must be relative to the top directory of the repository."
   (or (magit-get-revision-buffer rev file)
       (with-current-buffer (magit-get-revision-buffer-create rev file)
         (let ((inhibit-read-only t))

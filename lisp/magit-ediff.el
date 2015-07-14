@@ -146,6 +146,7 @@ FILE has to be relative to the top directory of the repository."
 ;;;###autoload
 (defun magit-ediff-compare (revA revB fileA fileB)
   "Compare REVA:FILEA with REVB:FILEB using Ediff.
+
 FILEA and FILEB have to be relative to the top directory of the
 repository.  If REVA or REVB is nil then this stands for the
 working tree state."
@@ -293,8 +294,11 @@ mind at all, then it asks the user for a command to run."
 ;;;###autoload
 (defun magit-ediff-show-staged (file)
   "Show staged changes using Ediff.
+
 This only allows looking at the changes; to stage, unstage,
-and discard changes using Ediff, use `magit-ediff-stage'."
+and discard changes using Ediff, use `magit-ediff-stage'.
+
+FILE must be relative to the top directory of the repository."
   (interactive
    (list (magit-completing-read "Show staged changes for file" nil
                                 (magit-tracked-files) nil nil nil
@@ -318,8 +322,11 @@ and discard changes using Ediff, use `magit-ediff-stage'."
 ;;;###autoload
 (defun magit-ediff-show-unstaged (file)
   "Show unstaged changes using Ediff.
+
 This only allows looking at the changes; to stage, unstage,
-and discard changes using Ediff, use `magit-ediff-stage'."
+and discard changes using Ediff, use `magit-ediff-stage'.
+
+FILE must be relative to the top directory of the repository."
   (interactive
    (list (magit-completing-read "Show unstaged changes for file" nil
                                 (magit-tracked-files) nil nil nil
