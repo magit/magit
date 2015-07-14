@@ -232,58 +232,32 @@ mind at all, then it asks the user for a command to run."
             (goto-char (magit-section-start (magit-section-parent it)))
             (magit-ediff-dwim)))
     (t
-     (let ((command 'magit-ediff-compare)
+     (let ((range (magit-diff--dwim))
            (file (magit-current-file))
-           revA revB)
-       (cond ((--when-let (magit-region-values 'commit 'branch)
-                (deactivate-mark)
-                (setq revA (car (last it))
-                      revB (car it))))
-             (magit-buffer-refname
-              (setq revB magit-buffer-refname
-                    command 'magit-ediff-show-commit))
-             ((derived-mode-p 'magit-revision-mode)
-              (setq revB (car magit-refresh-args)
-                    command 'magit-ediff-show-commit))
-             ((derived-mode-p 'magit-diff-mode)
-              (pcase (magit-diff-type)
-                (`committed (cl-destructuring-bind (a b)
-                                (magit-ediff-compare--read-revisions
-                                 (car magit-refresh-args))
-                              (setq revA a revB b)))
-                (`undefined (setq command nil))
-                (_          (setq command 'magit-ediff-stage))))
-             (t
-              (magit-section-case
-                (commit (setq revB (magit-section-value it)
-                              command 'magit-ediff-show-commit))
-                (branch (let ((current (magit-get-current-branch))
-                              (atpoint (magit-section-value it)))
-                          (if (equal atpoint current)
-                              (--if-let (magit-get-tracked-branch)
-                                  (setq revA (magit-git-string "merge-base"
-                                                               current it)
-                                        revB current)
-                                (setq revA current))
-                            (setq revA atpoint
-                                  revB current))))
-                (unpushed (setq revB (magit-get-current-branch)
-                                revA (magit-git-string
-                                      "merge-base"
-                                      revB (magit-get-tracked-branch))))
-                (unpulled (setq revB (magit-get-tracked-branch)
-                                revA (magit-git-string
-                                      "merge-base"
-                                      revB (magit-get-current-branch))))
-                ((staged unstaged)
-                 (setq command (if (magit-anything-unmerged-p)
-                                   'magit-ediff-resolve
-                                 'magit-ediff-stage)))
-                (t
-                 (setq command (cond ((not file) nil)
-                                     ((magit-anything-unmerged-p file)
-                                      'magit-ediff-resolve)
-                                     (t 'magit-ediff-stage)))))))
+           command revA revB)
+       (pcase range
+         ((or `unstaged `staged)
+          (setq command (if (magit-anything-unmerged-p)
+                            #'magit-ediff-resolve
+                          #'magit-ediff-stage)))
+         (`(commit . ,value)
+          (setq command #'magit-ediff-show-commit
+                revB value))
+         ((pred stringp)
+          (cl-destructuring-bind (a b)
+              (magit-ediff-compare--read-revisions range)
+            (setq command #'magit-ediff-compare
+                  revA a
+                  revB b)))
+         (_
+          (when (derived-mode-p 'magit-diff-mode)
+            (pcase (magit-diff-type)
+              (`committed (cl-destructuring-bind (a b)
+                              (magit-ediff-compare--read-revisions
+                               (car magit-refresh-args))
+                            (setq revA a revB b)))
+              (`undefined (setq command nil))
+              (_          (setq command #'magit-ediff-stage))))))
        (cond ((not command)
               (call-interactively
                (magit-read-char-case
