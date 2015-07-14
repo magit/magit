@@ -29,9 +29,25 @@
 ***
 
 <p align="center">
-  Please consider supporting development by making a
-  <a href="http://magit.vc/donations.html">donation</a>.
+  <b>
+    Please consider supporting development by making a
+    <a href="http://magit.vc/donations.html">donation</a>.
+  </b>
 </p>
+***
+
+<p align="center">
+  <img src="http://magit.vc/img/r.png" align="top">
+  User who haven't read the
+  <a href="http://magit.vc/manual/magit/FAQ.html"><b>FAQ</b></a>
+  are frequently surprised that:
+  <img src="http://magit.vc/img/l.png" align="top">
+</p>
+
+- Magit 2.1 and later (aka > 20150701) requires at least
+  Emacs 24.4 and Git 1.9.4.
+- The branch manager has moved to <kbd>y</kbd>.
+
 ***
 
 Support
