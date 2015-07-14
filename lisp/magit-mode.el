@@ -469,12 +469,13 @@ the function `magit-toplevel'."
       (funcall (if create #'get-buffer-create #'get-buffer) format)
     (unless topdir
       (setq topdir (magit-toplevel)))
-    (let ((name (format-spec format
-                             `((?a . ,(abbreviate-file-name (or topdir "-")))
-                               (?b . ,(if topdir
-                                          (file-name-nondirectory
-                                           (directory-file-name topdir))
-                                        "-"))))))
+    (let* ((dirname (if topdir
+                        (file-name-nondirectory
+                         (directory-file-name topdir))
+                      "-"))
+           (specs `((?a . ,(abbreviate-file-name (or topdir "-")))
+                    (?b . ,dirname)))
+           (name (format-spec format specs)))
       (or (--first (with-current-buffer it
                      (and (or (not topdir)
                               (equal (expand-file-name default-directory)
@@ -489,7 +490,13 @@ the function `magit-toplevel'."
                      (setq list-buffers-directory default-directory))
                    (uniquify-rationalize-file-buffer-names
                     name (file-name-directory (directory-file-name topdir))
-                    buf))
+                    buf)
+                   (unless (string= (buffer-name buf) name)
+                     (setcdr (assq ?b specs)
+                             (replace-regexp-in-string (regexp-quote name)
+                                                       dirname (buffer-name buf)))
+                     (with-current-buffer buf
+                       (rename-buffer (format-spec format specs) t))))
                  buf))))))
 
 (defun magit-mode-get-buffer-create (format mode &optional topdir)
