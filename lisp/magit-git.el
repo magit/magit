@@ -917,20 +917,24 @@ Return a list of two integers: (A>B B>A)."
       (user-error "Nothing selected")))
 
 (defun magit-read-range-or-commit (prompt &optional secondary-default)
+  (magit-read-range
+   prompt
+   (or (--when-let (magit-region-values 'commit 'branch)
+         (deactivate-mark)
+         (concat (car (last it)) ".." (car it)))
+       (magit-branch-or-commit-at-point)
+       secondary-default
+       (magit-get-current-branch))))
+
+(defun magit-read-range (prompt &optional default)
   (let* ((choose-completion-string-functions
           '(crm--choose-completion-string))
          (minibuffer-completion-table #'crm--collection-fn)
          (minibuffer-completion-confirm t)
          (crm-completion-table (magit-list-refnames))
          (crm-separator "\\.\\.\\.?")
-         (default (or (--when-let (magit-region-values 'commit 'branch)
-                        (deactivate-mark)
-                        (concat (car (last it)) ".." (car it)))
-                      (magit-branch-or-commit-at-point)
-                      secondary-default
-                      (magit-get-current-branch)))
          (input (read-from-minibuffer
-                 (format "%s (%s): " prompt default)
+                 (concat prompt (and default (format " (%s)" default)) ": ")
                  nil crm-local-completion-map
                  nil 'magit-revision-history
                  default)))
