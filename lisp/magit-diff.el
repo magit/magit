@@ -480,7 +480,7 @@ The following `format'-like specs are supported:
   :actions  '((?d "Dwim"          magit-diff-dwim)
               (?u "Diff unstaged" magit-diff-unstaged)
               (?c "Show commit"   magit-show-commit)
-              (?r "Diff commits"  magit-diff)
+              (?r "Diff range"    magit-diff)
               (?s "Diff staged"   magit-diff-staged)
               (?t "Show stash"    magit-stash-show)
               (?p "Diff paths"    magit-diff-paths)

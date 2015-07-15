@@ -63,7 +63,7 @@ invoked using Magit."
              (?u "Show unstaged" magit-ediff-show-unstaged)
              (?i "Show staged"   magit-ediff-show-staged)
              (?c "Show commit"   magit-ediff-show-commit)
-             (?d "Compare range" magit-ediff-compare)
+             (?r "Diff range"    magit-ediff-compare)
              (?m "Resolve"       magit-ediff-resolve)
              (?s "Stage"         magit-ediff-stage)
              (?w "Show worktree" magit-ediff-show-working-tree))
