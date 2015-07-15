@@ -736,7 +736,7 @@ intervention.  If it is @code{t} then the user has to confirm each save.
 @node Automatic refresh and revert
 @section Automatic refresh and revert
 
-After running a commands which may change the state of the current
+After running a command which may change the state of the current
 repository, the current Magit buffer and the corresponding status
 buffer are refreshed.  This ensures that the displayed information is
 up-to-date but can lead to a noticeable delay in big repositories.
