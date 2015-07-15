@@ -483,7 +483,7 @@ refresh explicitly.
 
 ** Automatic refresh and revert
 
-After running a commands which may change the state of the current
+After running a command which may change the state of the current
 repository, the current Magit buffer and the corresponding status
 buffer are refreshed.  This ensures that the displayed information is
 up-to-date but can lead to a noticeable delay in big repositories.
@@ -798,9 +798,9 @@ To remove a function from a section hook, use ~remove-hook~.
 
 *** Section types and values
 
-Each section has a type, for example ~hunk~, ~file~, and ~commit~.
-Instances of certain section types also have a value.  The value of a
-section of type ~file~, for example, is a file name.
+Each section has a type, for example ~hunk~, ~file~, ~stash~, and
+~commit~.  Instances of certain section types also have a value.  The
+value of a section of type ~file~, for example, is a file name.
 
 Users usually do not have to worry about a section's type and value,
 but knowing them can be handy at times.
