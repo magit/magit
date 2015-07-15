@@ -203,7 +203,7 @@ in the current buffer using the command `magit-toggle-margin'."
 
 ;;;; Miscellaneous
 
-(defcustom magit-branch-read-upstream-first nil
+(defcustom magit-branch-read-upstream-first t
   "When creating a branch, read upstream before name of new branch."
   :package-version '(magit . "2.2.0")
   :group 'magit-commands
