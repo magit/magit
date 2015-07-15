@@ -981,6 +981,11 @@ Return a list of two integers: (A>B B>A)."
                                nil nil nil 'magit-revision-history default)
         (user-error "Nothing selected"))))
 
+(defun magit-read-another-local-branch (prompt)
+  (magit-completing-read prompt (magit-list-local-branch-names)
+                         nil t nil 'magit-revision-history
+                         (magit-branch-at-point)))
+
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-list-tags) nil
                          require-match nil 'magit-revision-history

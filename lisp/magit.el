@@ -2093,12 +2093,14 @@ Git, and Emacs in the echo area."
       (message "Cannot determine Magit's version"))
     magit-version))
 
+(defun magit-git-version ()
+  (let ((output (substring (magit-git-string "version") 12)))
+    (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" output)
+    (match-string 1 output)))
+
 (defun magit-startup-asserts ()
-  (let* ((magit-git-global-arguments nil)
-         (version (ignore-errors (substring (magit-git-string "version") 12))))
-    (when version
-      (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" version)
-        (setq version (match-string 1 version)))
+  (let ((magit-git-global-arguments nil))
+    (-when-let (version (ignore-errors (magit-git-version)))
       (when (version< version "1.9.4")
         (display-warning 'magit (format "\
 Magit requires Git >= 1.9.4, you are using %s.
