@@ -1114,8 +1114,7 @@ changes.
       (setq branch (magit-read-string "Branch name"))
       (setq start  (magit-read-branch-or-commit (concat prompt " starting at")
                                                 secondary-default))))
-    (when (and (member "--track" args)
-               (not (magit-branch-p start)))
+    (unless (magit-branch-p start)
       (setq args (delete "--track" args)))
     (list branch start args)))
 
@@ -1133,7 +1132,11 @@ To reset the current branch, instead use \
      (list branch
            (magit-read-other-branch-or-commit "to" branch)
            (magit-branch-arguments))))
-  (magit-branch branch to (cl-adjoin "--force" args :test #'equal)))
+  (unless (member "--force" args)
+    (setq args (cons "--force" args)))
+  (unless (magit-branch-p to)
+    (setq args (delete "--track" args)))
+  (magit-branch branch to args))
 
 (defun magit-branch-spinoff (branch &rest args)
   "Create new branch from the unpushed commits.
