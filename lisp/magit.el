@@ -1127,8 +1127,7 @@ To reset the current branch, instead use \
 \\<magit-mode-map>\\[magit-reset] (`magit-reset')."
   (interactive
    (let* ((atpoint (magit-branch-at-point))
-          (branch  (magit-read-branch "Reset branch"
-                                      (or atpoint (magit-get-current-branch)))))
+          (branch  (magit-read-local-branch "Reset branch" atpoint)))
      (list branch
            (magit-completing-read "to" (delete branch (magit-list-branch-names))
                                   nil nil nil 'magit-revision-history
