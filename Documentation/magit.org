@@ -1576,7 +1576,7 @@ popup is the only way to change certain arguments.
 
   Toggle hunk refinement on or off.
 
-In addition to the above popup, which allow changing any of the
+In addition to the above popup, which allows changing any of the
 supported arguments, there also exist some commands which change a
 particular argument.
 
