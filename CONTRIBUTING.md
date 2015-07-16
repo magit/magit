@@ -39,5 +39,5 @@ Please also consider to contribute by making a
 [forum]:     http://emacs.stackexchange.com/questions/tagged/magit
 [issues]:    https://github.com/magit/magit/issues
 [list]:      https://groups.google.com/forum/?fromgroups#!forum/magit
-[manual]:    http://magit.vc/manualm
+[manual]:    http://magit.vc/manual
 [pulls]:     https://github.com/magit/magit/pulls
