@@ -168,10 +168,30 @@ changes to be displayed automatically.
 In the event that expanding very large patches takes a long time
 \\<global-map>\\[keyboard-quit] can be used to abort that step.
 This is especially useful when you would normally not look at the
-changes, e.g. because you are committing some binary files."
+changes, e.g. because you are committing some binary files.
+
+Also see `magit-log-show-commit-delay'."
   :package-version '(magit . "2.1.0")
   :group 'magit-diff
   :type 'sexp)
+
+(defcustom magit-diff-auto-show-delay 0.2
+  "Delay before automatically showing or updating the revision buffer.
+
+Depending on the value of `magit-diff-auto-show' (which see),
+moving in a log buffer, or with blame information active in
+a file-visiting buffer, may automatically show the commit at
+point in the revision.
+
+When holding down a key to move by several lines/chunks, then
+that would update that buffer for each line/chunk on the way.
+To prevent that, updating the revision buffer is delayed, and
+this option controls for how long.  For optiomal experience you
+might have to adjust this delay and/or the keyboard repeat rate
+and delay of your graphical environment or operating system."
+  :package-version '(magit . "2.2.0")
+  :group 'magit-diff
+  :type 'number)
 
 (defun magit-diff-auto-show-p (op)
   (if (eq (car magit-diff-auto-show) 'not)
