@@ -844,15 +844,17 @@ another window, using `magit-show-commit'."
                     (or (and section
                              (eq (magit-section-type section) 'commit)
                              (or (and (magit-diff-auto-show-p 'log-follow)
-                                      (get-buffer-window
-                                       magit-revision-buffer-name-format))
+                                      (magit-mode-get-buffer
+                                       magit-revision-buffer-name-format
+                                       'magit-revision-mode))
                                  (and (magit-diff-auto-show-p 'log-oneline)
                                       (derived-mode-p 'magit-log-mode)))
                              (magit-section-value section))
                         (and magit-blame-mode
                              (magit-diff-auto-show-p 'blame-follow)
-                             (get-buffer-window
-                              magit-revision-buffer-name-format)
+                             (magit-mode-get-buffer
+                              magit-revision-buffer-name-format
+                              'magit-revision-mode)
                              (magit-blame-chunk-get :hash)))
                   (magit-show-commit it t))
                 (setq magit-log-show-commit-timer nil))
