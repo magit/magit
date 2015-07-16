@@ -170,7 +170,7 @@ In the event that expanding very large patches takes a long time
 This is especially useful when you would normally not look at the
 changes, e.g. because you are committing some binary files.
 
-Also see `magit-log-show-commit-delay'."
+Also see `magit-diff-auto-show-delay'."
   :package-version '(magit . "2.1.0")
   :group 'magit-diff
   :type 'sexp)
