@@ -80,7 +80,7 @@
   "Resume the current cherry-pick or revert sequence."
   (interactive)
   (if (magit-sequencer-in-progress-p)
-      (if (magit-anything-unstaged-p)
+      (if (magit-anything-unstaged-p t)
           (user-error "Cannot continue due to unstaged changes")
         (magit-run-git-sequencer
          (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--continue"))
@@ -255,7 +255,7 @@ without prompting."
   "Resume the current patch applying sequence."
   (interactive)
   (if (magit-am-in-progress-p)
-      (if (magit-anything-unstaged-p)
+      (if (magit-anything-unstaged-p t)
           (error "Cannot continue due to unstaged changes")
         (magit-run-git-sequencer "am" "--continue"))
     (user-error "Not applying any patches")))
@@ -430,7 +430,7 @@ selected from a list of recent commits.
   "Restart the current rebasing operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (if (magit-anything-unstaged-p)
+      (if (magit-anything-unstaged-p t)
           (user-error "Cannot continue rebase with unstaged changes")
         (magit-run-git-sequencer "rebase" "--continue"))
     (user-error "No rebase in progress")))
