@@ -213,7 +213,8 @@ Read the local and remote branch."
                               (magit-list-local-branch-names))
                      nil nil nil 'magit-revision-history
                      (or (and default-current current)
-                         (magit-local-branch-at-point)))
+                         (magit-local-branch-at-point)
+                         (magit-commit-at-point)))
                     (user-error "Nothing selected")))
          (remote (and (magit-branch-p local)
                       (magit-get-remote-branch local))))
