@@ -126,6 +126,7 @@
     (define-key map (kbd "x")   'git-rebase-exec)
     (define-key map (kbd "c")   'git-rebase-pick)
     (define-key map (kbd "r")   'git-rebase-reword)
+    (define-key map (kbd "w")   'git-rebase-reword)
     (define-key map (kbd "e")   'git-rebase-edit)
     (define-key map (kbd "s")   'git-rebase-squash)
     (define-key map (kbd "f")   'git-rebase-fixup)
@@ -141,6 +142,8 @@
     (define-key map (kbd "C-x C-t")  'git-rebase-move-line-up)
     map)
   "Keymap for Git-Rebase mode.")
+
+(put 'git-rebase-reword :advertised-binding "r")
 
 (easy-menu-define git-rebase-mode-menu git-rebase-mode-map
   "Git-Rebase mode menu"
@@ -361,11 +364,17 @@ By default, this is the same except for the \"pick\" command."
         (while (re-search-forward
                 "^#\\(  ?\\)\\([^,]\\)\\(,\\) \\([^ ]+\\) = " nil t)
           (replace-match " "       t t nil 1)
-          (replace-match "       " t t nil 3)
           (let* ((cmd (intern (concat "git-rebase-" (match-string 4))))
-                 (key (where-is-internal cmd nil t)))
-            (when (and (fboundp cmd) key) ; see #1875
-              (replace-match (key-description key) t t nil 2))))))))
+                 (keys (reverse (-select (lambda (k)
+                                           (and (fboundp cmd) k ; see #1875
+                                                (not (eq (elt k 0)
+                                                         'menu-bar))))
+                                         (where-is-internal cmd nil))))
+                 (keystring (mapconcat (lambda (k) (key-description k))
+                                       keys
+                                       ", ")))
+            (replace-match (make-string (- 8 (length keystring)) ?\s) t t nil 3)
+            (replace-match keystring t t nil 2)))))))
 
 (add-hook 'git-rebase-mode-hook 'git-rebase-mode-show-keybindings t)
 

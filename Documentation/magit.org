@@ -2205,7 +2205,7 @@ Also see [[info:gitman#git-commit]].
   ~magit-commit-extend-override-date~ can be used to inverse the
   meaning of the prefix argument.
 
-- Key: c r, magit-commit-reword
+- Key: c w, magit-commit-reword
 
   Reword the last commit, ignoring staged changes.
 
