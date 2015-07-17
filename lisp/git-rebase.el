@@ -361,20 +361,16 @@ By default, this is the same except for the \"pick\" command."
         (insert "# RET      show the commit at point in another buffer\n")
         (insert "# C-/      undo last change\n")
         (insert "# k        drop the commit at point\n")
-        (while (re-search-forward
-                "^#\\(  ?\\)\\([^,]\\)\\(,\\) \\([^ ]+\\) = " nil t)
-          (replace-match " "       t t nil 1)
-          (let* ((cmd (intern (concat "git-rebase-" (match-string 4))))
-                 (keys (reverse (-select (lambda (k)
-                                           (and (fboundp cmd) k ; see #1875
-                                                (not (eq (elt k 0)
-                                                         'menu-bar))))
-                                         (where-is-internal cmd nil))))
-                 (keystring (mapconcat (lambda (k) (key-description k))
-                                       keys
-                                       ", ")))
-            (replace-match (make-string (- 8 (length keystring)) ?\s) t t nil 3)
-            (replace-match keystring t t nil 2)))))))
+        (while (re-search-forward "^#\\(  ?\\)\\([^,],\\) \\([^ ]+\\) = " nil t)
+          (replace-match " " t t nil 1)
+          (let ((cmd (intern (concat "git-rebase-" (match-string 3)))))
+            (replace-match
+             (format "%-8s"
+                     (mapconcat #'key-description
+                                (--filter (not (eq (elt it 0) 'menu-bar))
+                                          (reverse (where-is-internal cmd)))
+                                ", "))
+             t t nil 2)))))))
 
 (add-hook 'git-rebase-mode-hook 'git-rebase-mode-show-keybindings t)
 
