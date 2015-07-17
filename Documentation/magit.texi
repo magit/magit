@@ -3139,9 +3139,9 @@ argument change the committer date.  The option
 @code{magit-commit-extend-override-date} can be used to inverse the
 meaning of the prefix argument.
 
-@kindex c r
+@kindex c w
 @cindex magit-commit-reword
-@item @kbd{c r} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-reword})
+@item @kbd{c w} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-reword})
 
 Reword the last commit, ignoring staged changes.
 
