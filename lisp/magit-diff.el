@@ -877,6 +877,7 @@ which, as the name suggests always visits the actual file."
                       (-when-let (range (car magit-refresh-args))
                         (and (string-match "\\.\\.\\([^.].*\\)?[ \t]*\\'" range)
                              (match-string 1 range))))))
+          (unmerged-p (magit-anything-unmerged-p file))
           diff hunk line col buffer)
       (when (and rev (magit-rev-head-p rev))
         (setq rev nil))
@@ -900,9 +901,9 @@ which, as the name suggests always visits the actual file."
         (goto-char (point-min))
         (forward-line (1- line))
         (when col
-          (move-to-column col)))))
-  (when (magit-anything-unmerged-p file)
-    (smerge-start-session)))
+          (move-to-column col)))
+      (when unmerged-p
+        (smerge-start-session)))))
 
 (defun magit-diff-visit-file-worktree (file &optional other-window)
   "From a diff, visit the corresponding file at the appropriate position.
