@@ -86,5 +86,10 @@ THIS IS NOT COMPLETE.
   the same index as the previous hunk, but that often was very far
   away from where point was before the refresh.  #2227
 
+* New option `magit-keep-region-overlay' allows displaying the region
+  overlay together with the visualization of a valid Magit selection.
+  See the doc-string for why you don't want to do that, but if you
+  disagree then you can now have it your way.  #2091
+
 Authors
 -------

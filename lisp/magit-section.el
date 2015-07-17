@@ -902,6 +902,13 @@ invisible."
     t))
 
 (defun magit-section-make-overlay (start end face)
+  ;; Yes, this doesn't belong here.  But the alternative of
+  ;; spreading this hack across the code base is even worse.
+  (when (and magit-keep-region-overlay
+             (memq face '(magit-section-heading-selection
+                          magit-diff-file-heading-selection
+                          magit-diff-hunk-heading-selection)))
+    (setq face (list :foreground (face-foreground face))))
   (let ((ov (make-overlay start end nil t)))
     (overlay-put ov 'face face)
     (overlay-put ov 'evaporate t)
