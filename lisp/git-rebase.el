@@ -364,11 +364,17 @@ By default, this is the same except for the \"pick\" command."
         (while (re-search-forward
                 "^#\\(  ?\\)\\([^,]\\)\\(,\\) \\([^ ]+\\) = " nil t)
           (replace-match " "       t t nil 1)
-          (replace-match "       " t t nil 3)
           (let* ((cmd (intern (concat "git-rebase-" (match-string 4))))
-                 (key (where-is-internal cmd nil t)))
-            (when (and (fboundp cmd) key) ; see #1875
-              (replace-match (key-description key) t t nil 2))))))))
+                 (keys (reverse (-select (lambda (k)
+                                           (and (fboundp cmd) k ; see #1875
+                                                (not (eq (elt k 0)
+                                                         'menu-bar))))
+                                         (where-is-internal cmd nil))))
+                 (keystring (mapconcat (lambda (k) (key-description k))
+                                       keys
+                                       ", ")))
+            (replace-match (make-string (- 8 (length keystring)) ?\s) t t nil 3)
+            (replace-match keystring t t nil 2)))))))
 
 (add-hook 'git-rebase-mode-hook 'git-rebase-mode-show-keybindings t)
 
