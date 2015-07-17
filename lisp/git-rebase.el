@@ -126,6 +126,7 @@
     (define-key map (kbd "x")   'git-rebase-exec)
     (define-key map (kbd "c")   'git-rebase-pick)
     (define-key map (kbd "r")   'git-rebase-reword)
+    (define-key map (kbd "w")   'git-rebase-reword)
     (define-key map (kbd "e")   'git-rebase-edit)
     (define-key map (kbd "s")   'git-rebase-squash)
     (define-key map (kbd "f")   'git-rebase-fixup)
@@ -141,6 +142,8 @@
     (define-key map (kbd "C-x C-t")  'git-rebase-move-line-up)
     map)
   "Keymap for Git-Rebase mode.")
+
+(put 'git-rebase-reword :advertised-binding "r")
 
 (easy-menu-define git-rebase-mode-menu git-rebase-mode-map
   "Git-Rebase mode menu"
