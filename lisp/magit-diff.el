@@ -917,9 +917,9 @@ hunk headers get less useful the \"older\" the changes are, and
 as a result, jumping to the appropriate position gets less
 reliable.
 
-Also see `magit-diff-visit-file-worktree' which visits the
-respective blob, unless the diff shows changes in the worktree,
-the index, or `HEAD'."
+Also see `magit-diff-visit-file' which visits the respective
+blob, unless the diff shows changes in the worktree, the index,
+or `HEAD'."
   (interactive (list (or (magit-file-at-point)
                          (user-error "No file at point"))
                      current-prefix-arg))
