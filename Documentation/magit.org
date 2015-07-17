@@ -3555,7 +3555,7 @@ You should check the values of at least the following variables:
 - ~magit-diff-auto-show~
 - ~magit-diff-highlight-hunk-body~
 - ~magit-diff-highlight-indentation~
-- ~magit-diff-highlight-whitespace~
+- ~magit-diff-highlight-trailing~
 - ~magit-diff-paint-whitespace~
 - ~magit-diff-refine-hunk~
 - ~magit-not-reverted-hook~
@@ -4491,7 +4491,7 @@ also affects the diffs displayed inside Magit.
 ** Emacs 24.5 hangs when loading Magit
 
 This is actually triggered by loading Tramp.  See
-https://debbugs.gnu.org/cgi/bugreport.cgi?bug~20015 for details. You
+https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015 for details. You
 can work around the problem by setting
 ~tramp-ssh-controlmaster-options~. Changing your DNS server (e.g. to
 Google's ~8.8.8.8~) may also be sufficient to work around the issue.

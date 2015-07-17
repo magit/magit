@@ -5158,7 +5158,7 @@ You should check the values of at least the following variables:
 @code{magit-diff-highlight-indentation}
 
 @item
-@code{magit-diff-highlight-whitespace}
+@code{magit-diff-highlight-trailing}
 
 @item
 @code{magit-diff-paint-whitespace}
@@ -6231,7 +6231,7 @@ echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 @section Emacs 24.5 hangs when loading Magit
 
 This is actually triggered by loading Tramp.  See
-@uref{https://debbugs.gnu.org/cgi/bugreport.cgi?bug~20015} for details. You
+@uref{https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015} for details. You
 can work around the problem by setting
 @code{tramp-ssh-controlmaster-options}. Changing your DNS server (e.g. to
 Google's @code{8.8.8.8}) may also be sufficient to work around the issue.
