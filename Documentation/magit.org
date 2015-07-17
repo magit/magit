@@ -4491,9 +4491,9 @@ also affects the diffs displayed inside Magit.
 ** Emacs 24.5 hangs when loading Magit
 
 This is actually triggered by loading Tramp.  See
-https://debbugs.gnu.org/cgi/bugreport.cgi?bug~20015 for details. You
-can work around the problem by setting
-~tramp-ssh-controlmaster-options~. Changing your DNS server (e.g. to
+https://lists.gnu.org/archive/html/bug-gnu-emacs/2015-03/msg00203.html
+for details. You can work around the problem by setting
+~tramp-ssh-controlmaster-options~.  Changing your DNS server (e.g. to
 Google's ~8.8.8.8~) may also be sufficient to work around the issue.
 
 * Keystroke Index
