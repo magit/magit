@@ -171,7 +171,7 @@ therefore does not have to be reverted."
 If this is non-nil then all modified file-visiting buffers
 belonging to the current repository may be saved before running
 commands, before creating new Magit buffers, and before
-explicitly refreshing such buffers.  It this is `dontask' then
+explicitly refreshing such buffers.  If this is `dontask' then
 this is done without user intervention, if it is t then the user
 has to confirm each save."
   :group 'magit
