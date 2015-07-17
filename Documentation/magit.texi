@@ -5158,9 +5158,6 @@ You should check the values of at least the following variables:
 @code{magit-diff-highlight-indentation}
 
 @item
-@code{magit-diff-highlight-whitespace}
-
-@item
 @code{magit-diff-paint-whitespace}
 
 @item
