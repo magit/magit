@@ -161,6 +161,17 @@
     ["Cancel" with-editor-cancel t]
     ["Finish" with-editor-finish t]))
 
+(defvar git-rebase-command-descriptions
+  '((with-editor-finish        . "tell Git to make it happen")
+    (with-editor-cancel        . "tell Git that you changed your mind, i.e. abort")
+    (previous-line             . "move point to previous line")
+    (next-line                 . "move point to next line")
+    (git-rebase-move-line-up   . "move the commit at point up")
+    (git-rebase-move-line-down . "move the commit at point down")
+    (git-rebase-show-commit    . "show the commit at point in another buffer")
+    (undo                      . "undo last change")
+    (git-rebase-kill-line      . "drop the commit at point")))
+
 ;;; Commands
 
 (defun git-rebase-pick ()
@@ -352,15 +363,10 @@ By default, this is the same except for the \"pick\" command."
       (goto-char (point-min))
       (when (and git-rebase-show-instructions
                  (re-search-forward "^# Commands:\n" nil t))
-        (insert "# C-c C-c  tell Git to make it happen\n")
-        (insert "# C-c C-k  tell Git that you changed your mind, i.e. abort\n")
-        (insert "# p        move point to previous line\n")
-        (insert "# n        move point to next line\n")
-        (insert "# M-p      move the commit at point up\n")
-        (insert "# M-n      move the commit at point down\n")
-        (insert "# RET      show the commit at point in another buffer\n")
-        (insert "# C-/      undo last change\n")
-        (insert "# k        drop the commit at point\n")
+        (--each git-rebase-command-descriptions
+          (insert (format "# %-8s %s\n"
+                          (substitute-command-keys (format "\\[%s]" (car it)))
+                          (cdr it))))
         (while (re-search-forward "^#\\(  ?\\)\\([^,],\\) \\([^ ]+\\) = " nil t)
           (replace-match " " t t nil 1)
           (let ((cmd (intern (concat "git-rebase-" (match-string 3)))))
