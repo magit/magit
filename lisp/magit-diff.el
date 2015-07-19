@@ -942,7 +942,8 @@ or `HEAD'."
     line))
 
 (defun magit-diff-hunk-column (section)
-  (if (looking-at "-")
+  (if (or (< (point) (magit-section-content section))
+          (save-excursion (beginning-of-line) (looking-at-p "-")))
       0
     (max 0 (- (+ (current-column) 2)
               (length (magit-section-value section))))))
