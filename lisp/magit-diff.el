@@ -928,12 +928,19 @@ or `HEAD'."
 (defun magit-diff-hunk-line (section)
   (let* ((value  (magit-section-value section))
          (prefix (- (length value) 2))
+         (cpos   (marker-position (magit-section-content section)))
          (stop   (line-number-at-pos))
+         (cstart (save-excursion (goto-char cpos) (line-number-at-pos)))
          (line   (car (last value))))
     (string-match "^\\+\\([0-9]+\\)" line)
     (setq line (string-to-number (match-string 1 line)))
+    (when (> cstart stop)
+      (save-excursion
+        (goto-char cpos)
+        (re-search-forward "^[-+]")
+        (setq stop (line-number-at-pos))))
     (save-excursion
-      (goto-char (magit-section-content section))
+      (goto-char cpos)
       (while (< (line-number-at-pos) stop)
         (unless (string-match-p
                  "-" (buffer-substring (point) (+ (point) prefix)))
