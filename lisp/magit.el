@@ -428,7 +428,10 @@ The sections are inserted by running the functions on the hook
 
 (defun magit-insert-remote-header ()
   "Insert a header line about the remote of the current branch."
-  (-when-let (remote (magit-get-remote))
+  (-when-let (remote (or (magit-get-remote)
+                         (let ((remotes (magit-list-remotes)))
+                           (or (car (member "origin" remotes))
+                               (car remotes)))))
     (magit-insert-section (remote remote)
       (magit-insert
        (concat (format "%-10s" "Remote: ")
