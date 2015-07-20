@@ -1864,7 +1864,7 @@ Run Git in the top-level directory of the current repository.
   (let ((dir (if (or root current-prefix-arg)
                  (or (magit-toplevel)
                      (user-error "Not inside a Git repository"))
-               default-directory)))
+               (expand-file-name default-directory))))
     (list (magit-read-string (format "Git subcommand (in %s)"
                                      (abbreviate-file-name dir))
                              nil 'magit-git-command-history)
