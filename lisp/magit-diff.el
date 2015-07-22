@@ -112,7 +112,7 @@ defined here are instead displayed with their bodies collapsed.
 Note that this can cause sections that were previously expanded
 to be collapsed.  So you should not pick a very low value here.
 
-The hook function `magit-diff-expansion-treshold' has to be a
+The hook function `magit-diff-expansion-threshold' has to be a
 member of `magit-section-set-visibility-hook' for this option
 to have any effect"
   :package-version '(magit . "2.1.0")
