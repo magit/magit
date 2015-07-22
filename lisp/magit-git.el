@@ -99,13 +99,13 @@ Magit basically calls Git for one of these two reasons: for
 side-effects or to do something with its standard output.
 
 When Git is run for side-effects then its output, including error
-messages go into the process buffer which is shown when using \
+messages, go into the process buffer which is shown when using \
 \\<magit-status-mode-map>\\[magit-process].
 
-When Git's output is consumed in some way, then it would be to
+When Git's output is consumed in some way, then it would be too
 expensive to also insert it into this buffer, but when this
 option is non-nil and Git returns with a non-zero exit status,
-then at least its standart error is inserted into this buffer."
+then at least its standard error is inserted into this buffer."
   :group 'magit
   :group 'magit-process
   :type 'boolean)
