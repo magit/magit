@@ -500,7 +500,7 @@ The following `format'-like specs are supported:
   :actions  '((?d "Dwim"          magit-diff-dwim)
               (?u "Diff unstaged" magit-diff-unstaged)
               (?c "Show commit"   magit-show-commit)
-              (?r "Diff commits"  magit-diff)
+              (?r "Diff range"    magit-diff)
               (?s "Diff staged"   magit-diff-staged)
               (?t "Show stash"    magit-stash-show)
               (?p "Diff paths"    magit-diff-paths)
@@ -556,31 +556,116 @@ The following `format'-like specs are supported:
 (defun magit-diff-dwim (&optional args files)
   "Show changes for the thing at point."
   (interactive (magit-diff-read-args))
+  (pcase (magit-diff--dwim)
+    (`unstaged
+     (magit-diff-unstaged args))
+    (`staged
+     (magit-diff-staged nil args))
+    (`(commit . ,value)
+     (magit-show-commit value nil nil args))
+    (`(stash . ,value)
+     (magit-stash-show value nil args))
+    ((and range (pred stringp))
+     (magit-diff range args))
+    (_
+     (call-interactively #'magit-diff))))
+
+(defun magit-diff--dwim ()
+  "Return information for performing DWIM diff.
+
+The information can be in three forms:
+1. TYPE
+   A symbol describing a type of diff where no additional information
+   is needed to generate the diff.  Currently, this includes `staged'
+   and `unstaged'.
+2. (TYPE . VALUE)
+   Like #1 but the diff requires additional information, which is
+   given by VALUE.  Currently, this includes `commit' and `stash',
+   where VALUE is the given commit or stash, respectively.
+3. RANGE
+   A string indicating a diff range.
+
+If no DWIM context is found, nil is returned."
+  (cond
+   ((--when-let (magit-region-values 'commit 'branch)
+      (deactivate-mark)
+      (concat (car (last it)) ".." (car it))))
+   (magit-buffer-refname
+    (cons 'commit magit-buffer-refname))
+   ((derived-mode-p 'magit-revision-mode)
+    (cons 'commit (car magit-refresh-args)))
+   (t
+    (magit-section-case
+      ([* unstaged] 'unstaged)
+      ([* staged] 'staged)
+      (unpushed (format "%s...%s"
+                        (magit-get-tracked-branch)
+                        (magit-get-current-branch)))
+      (unpulled (format "%s...%s"
+                        (magit-get-current-branch)
+                        (magit-get-tracked-branch)))
+      (branch (let ((current (magit-get-current-branch))
+                    (atpoint (magit-section-value it)))
+                (if (equal atpoint current)
+                    (--if-let (magit-get-tracked-branch)
+                        (format "%s...%s" it current)
+                      (if (magit-anything-modified-p)
+                          current
+                        (cons 'commit current)))
+                  (format "%s..%s" atpoint current))))
+      (commit (cons 'commit (magit-section-value it)))
+      (stash (cons 'stash (magit-section-value it)))))))
+
+(defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
+  "Read range or commit with special diff range treatment.
+If MBASE is non-nil, prompt for which rev to place at the end of
+a \"revA...revB\" range.  Otherwise, always construct
+\"revA..revB\" range."
   (--if-let (magit-region-values 'commit 'branch)
-      (progn (deactivate-mark)
-             (magit-diff (concat (car (last it)) ".." (car it))))
-    (--when-let (magit-current-section)
-      (let ((value (magit-section-value it)))
-        (magit-section-case
-          ([* unstaged] (magit-diff-unstaged args))
-          ([* staged] (magit-diff-staged nil args))
-          (unpushed (magit-diff-unpushed args))
-          (unpulled (magit-diff-unpulled args))
-          (branch   (-if-let (tracked (magit-get-tracked-ref value))
-                        (magit-diff (format "%s...%s" tracked value) args)
-                      (call-interactively 'magit-diff)))
-          (commit   (magit-show-commit value nil nil args))
-          (stash    (magit-stash-show  value nil args))
-          (t        (call-interactively 'magit-diff)))))))
+      (let ((revA (car it))
+            (revB (car (last it))))
+        (deactivate-mark)
+        (if mbase
+            (let* ((revA-full (magit-rev-parse revA))
+                   (revB-full (magit-rev-parse revB))
+                   (base (magit-git-string "merge-base" revA revB)))
+              (cond
+               ((string= revA-full base)
+                (format "%s..%s" revA revB))
+               ((string= revB-full base)
+                (format "%s..%s" revB revA))
+               (t
+                (let ((main (magit-completing-read "View changes along"
+                                                   (list revA revB)
+                                                   nil t nil nil revB)))
+                  (format "%s...%s"
+                          (if (string= main revB) revA revB) main)))))
+          (format "%s..%s" revA revB)))
+    (magit-read-range prompt
+                      (or (pcase (magit-diff--dwim)
+                            (`(commit . ,value)
+                             (format "%s^..%s" value value))
+                            ((and range (pred stringp))
+                             range))
+                          secondary-default
+                          (magit-get-current-branch)))))
 
 ;;;###autoload
 (defun magit-diff (range &optional args files)
   "Show differences between two commits.
+
 RANGE should be a range (A..B or A...B) but can also be a single
 commit.  If one side of the range is omitted, then it defaults
 to HEAD.  If just a commit is given, then changes in the working
-tree relative to that commit are shown."
-  (interactive (cons (magit-read-range-or-commit "Diff for range")
+tree relative to that commit are shown.
+
+If the region is active, use the revisions on the first and last
+line of the region.  With a prefix argument, instead of diffing
+the revisions, choose a revision to view changes along, starting
+at the common ancestor of both revisions (i.e., use a \"...\"
+range)."
+  (interactive (cons (magit-diff-read-range-or-commit "Diff for range"
+                                                      nil current-prefix-arg)
                      (magit-diff-read-args)))
   (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
@@ -756,18 +841,13 @@ for a commit."
          (kill-local-variable 'magit-diff-section-arguments)))
   (magit-refresh))
 
-(defconst magit-diff-range-re
-  (concat "\\`\\([^ \t]*[^.]\\)?"       ; revA
-          "\\(\\.\\.\\.?\\)"            ; range marker
-          "\\([^.][^ \t]*\\)?\\'"))     ; revB
-
 (defun magit-diff-switch-range-type (args)
   "Convert diff range type.
 Change \"revA..revB\" to \"revB...revA\", or vice versa."
   (interactive (list (magit-diff-refresh-arguments)))
   (let ((range (car magit-refresh-args)))
     (if (and (derived-mode-p 'magit-diff-mode)
-             (string-match magit-diff-range-re range))
+             (string-match magit-range-re range))
         (progn
           (setcar magit-refresh-args
                   (concat (match-string 1 range)
@@ -785,7 +865,7 @@ Change \"revA..revB\" to \"revB..revA\"."
   (let ((range (car magit-refresh-args)))
     (if (and range
              (derived-mode-p 'magit-diff-mode)
-             (string-match magit-diff-range-re range))
+             (string-match magit-range-re range))
         (progn
           (setcar magit-refresh-args
                   (concat (match-string 3 range)
