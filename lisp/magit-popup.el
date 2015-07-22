@@ -498,6 +498,13 @@ keywords are also meaningful:
          (magit-invoke-popup ',name ,mode arg))
        (defvar ,name
          (list :variable ',opt ,@args))
+       (cl-loop for args in (get ',name 'magit-popup-deferred)
+                do (condition-case err
+                       (apply #'magit-define-popup-key ',name args)
+                     ((debug error)
+                      (display-warning
+                       'magit (error-message-string err) :error)))
+                finally (put ',name 'magit-popup-deferred nil))
        ,@(when opt
            `((defcustom ,opt (plist-get ,name :default-arguments)
                ""
@@ -601,25 +608,27 @@ It's better to use one of the specialized functions
   (declare (indent defun))
   (setq type (magit-popup-pluralize-type type))
   (if (memq type '(:switches :options :actions))
-      (let* ((plist (symbol-value popup))
-             (value (plist-get plist type))
-             (elt   (assoc key value)))
-        (if elt
-            (setcdr elt def)
-          (setq elt (cons key def)))
-        (if at
-            (when (setq at (cl-member at value :key 'car :test 'equal))
-              (setq value (cl-delete key value :key 'car :test 'equal))
-              (if prepend
-                  (progn (push (car at) (cdr at))
-                         (setcar at elt))
-                (push elt (cdr at))))
-          (setq value (cl-delete key value :key 'car :test 'equal)))
-        (unless (assoc key value)
-          (setq value (if prepend
-                          (cons elt value)
-                        (append value (list elt)))))
-        (set popup (plist-put plist type value)))
+      (if (boundp popup)
+          (let* ((plist (symbol-value popup))
+                 (value (plist-get plist type))
+                 (elt   (assoc key value)))
+            (if elt
+                (setcdr elt def)
+              (setq elt (cons key def)))
+            (if at
+                (when (setq at (cl-member at value :key 'car :test 'equal))
+                  (setq value (cl-delete key value :key 'car :test 'equal))
+                  (if prepend
+                      (progn (push (car at) (cdr at))
+                             (setcar at elt))
+                    (push elt (cdr at))))
+              (setq value (cl-delete key value :key 'car :test 'equal)))
+            (unless (assoc key value)
+              (setq value (if prepend
+                              (cons elt value)
+                            (append value (list elt)))))
+            (set popup (plist-put plist type value)))
+        (push (list type key def at prepend) (get popup 'magit-popup-deferred)))
     (error "Unknown popup event type: %s" type)))
 
 (defun magit-change-popup-key (popup type from to)
