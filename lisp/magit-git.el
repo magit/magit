@@ -407,12 +407,19 @@ If the file is not inside a Git repository then return nil."
   (let ((default-directory (magit-toplevel)))
     (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
 
-(defun magit-changed-files (rev-or-range)
+(defun magit-changed-files (rev-or-range &optional other-rev)
+  "Return list of files the have changed between two revisions.
+If OTHER-REV is non-nil, REV-OR-RANGE should be a revision, not a
+range.  Otherwise, it can be any revision or range accepted by
+\"git diff\" (i.e., <rev>, <revA>..<revB>, or <revA>...<revB>)."
   (let ((default-directory (magit-toplevel)))
-    (magit-git-items "diff" "-z" "--name-only"
-                     (if (string-match-p "\\.\\." rev-or-range)
-                         rev-or-range
-                       (format "%s~..%s" rev-or-range rev-or-range)))))
+    (magit-git-items "diff" "-z" "--name-only" rev-or-range other-rev)))
+
+(defun magit-renamed-files (revA revB)
+  (--map (cons (nth 1 it) (nth 2 it))
+         (-partition 3 (magit-git-items
+                        "diff-tree" "--diff-filter=R" "-z" "-M"
+                        revA revB))))
 
 (defun magit-file-status (&rest args)
   (with-temp-buffer
@@ -886,6 +893,11 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-update-files (files)
   (magit-git-success "update-index" "--add" "--remove" "--" files))
 
+(defconst magit-range-re
+  (concat "\\`\\([^ \t]*[^.]\\)?"       ; revA
+          "\\(\\.\\.\\.?\\)"            ; range marker
+          "\\([^.][^ \t]*\\)?\\'"))     ; revB
+
 ;;; Completion
 
 (defvar magit-revision-history nil)
@@ -905,20 +917,24 @@ Return a list of two integers: (A>B B>A)."
       (user-error "Nothing selected")))
 
 (defun magit-read-range-or-commit (prompt &optional secondary-default)
+  (magit-read-range
+   prompt
+   (or (--when-let (magit-region-values 'commit 'branch)
+         (deactivate-mark)
+         (concat (car (last it)) ".." (car it)))
+       (magit-branch-or-commit-at-point)
+       secondary-default
+       (magit-get-current-branch))))
+
+(defun magit-read-range (prompt &optional default)
   (let* ((choose-completion-string-functions
           '(crm--choose-completion-string))
          (minibuffer-completion-table #'crm--collection-fn)
          (minibuffer-completion-confirm t)
          (crm-completion-table (magit-list-refnames))
          (crm-separator "\\.\\.\\.?")
-         (default (or (--when-let (magit-region-values 'commit 'branch)
-                        (deactivate-mark)
-                        (concat (car (last it)) ".." (car it)))
-                      (magit-branch-or-commit-at-point)
-                      secondary-default
-                      (magit-get-current-branch)))
          (input (read-from-minibuffer
-                 (format "%s (%s): " prompt default)
+                 (concat prompt (and default (format " (%s)" default)) ": ")
                  nil crm-local-completion-map
                  nil 'magit-revision-history
                  default)))
