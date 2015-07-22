@@ -873,7 +873,7 @@ for a commit."
     (when module
       (setq default-directory
             (expand-file-name (file-name-as-directory module))))
-    (unless (magit-rev-verify commit)
+    (unless (magit-rev-verify-commit commit)
       (user-error "%s is not a commit" commit))
     (-when-let (buffer (magit-mode-get-buffer nil 'magit-revision-mode))
       (with-current-buffer buffer
