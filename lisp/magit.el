@@ -2033,38 +2033,58 @@ When called interactive also show the used versions of Magit,
 Git, and Emacs in the echo area."
   (interactive)
   (let ((magit-git-global-arguments nil)
-        (toplib (or load-file-name buffer-file-name)))
+        (toplib (or load-file-name buffer-file-name))
+        debug)
     (unless (and toplib
                  (equal (file-name-nondirectory toplib) "magit.el"))
       (setq toplib (locate-library "magit.el")))
+    (push toplib debug)
     (when toplib
-      (let* ((dir (file-name-directory toplib))
-             (static (expand-file-name "magit-version.el" dir))
+      (let* ((topdir (file-name-directory toplib))
              (gitdir (expand-file-name
-                      ".git" (file-name-directory (directory-file-name dir)))))
-        (cond ((file-exists-p gitdir)
-               (setq magit-version
-                     (let ((default-directory dir))
-                       (magit-git-string "describe" "--tags" "--dirty")))
-               (unless noninteractive
-                 (ignore-errors (delete-file static))))
-              ((file-exists-p static)
-               (load-file static))
-              ((featurep 'package)
-               (ignore-errors
-                 (--when-let (assq 'magit package-alist)
-                   (setq magit-version
-                         (and (fboundp 'package-desc-version)
-                              (package-version-join
-                               (package-desc-version (cadr it)))))))))))
+                      ".git" (file-name-directory
+                              (directory-file-name topdir))))
+             (static (expand-file-name "magit-version.el" topdir)))
+        (or (progn
+              (push 'repo debug)
+              (when (and (file-exists-p gitdir)
+                         ;; It is a repo, but is it the Magit repo?
+                         (file-exists-p
+                          (expand-file-name "../lisp/magit.el" gitdir)))
+                (push t debug)
+                ;; Inside the repo the version file should only exist
+                ;; while running make.
+                (unless noninteractive
+                  (ignore-errors (delete-file static)))
+                (setq magit-version
+                      (let ((default-directory topdir))
+                        (magit-git-string "describe" "--tags" "--dirty")))))
+            (progn
+              (push 'static debug)
+              (when (file-exists-p static)
+                (push t debug)
+                (load-file static)
+                magit-version))
+            (when (featurep 'package)
+              (push 'elpa debug)
+              (ignore-errors
+                (--when-let (assq 'magit package-alist)
+                  (push t debug)
+                  (setq magit-version
+                        (and (fboundp 'package-desc-version)
+                             (package-version-join
+                              (package-desc-version (cadr it)))))))))))
     (if (stringp magit-version)
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"
                    magit-version
                    (ignore-errors (substring (magit-git-string "version") 12))
                    emacs-version))
+      (setq debug (reverse debug))
       (setq magit-version 'error)
-      (message "Cannot determine Magit's version"))
+      (when magit-version
+        (push magit-version debug))
+      (message "Cannot determine Magit's version %S" debug))
     magit-version))
 
 (defun magit-startup-asserts ()
