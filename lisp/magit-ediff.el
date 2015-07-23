@@ -73,8 +73,6 @@ hunk is in.  Otherwise, `magit-ediff-dwim' runs
              (?u "Show unstaged" magit-ediff-show-unstaged)
              (?s "Stage"         magit-ediff-stage)
              (?i "Show staged"   magit-ediff-show-staged)
-             (?c "Show commit"   magit-ediff-show-commit)
-             (?r "Diff range"    magit-ediff-compare)
              (?m "Resolve"       magit-ediff-resolve)
              (?w "Show worktree" magit-ediff-show-working-tree)
              (?r "Diff range"    magit-ediff-compare)
