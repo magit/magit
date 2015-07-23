@@ -356,16 +356,16 @@ This is intended for debugging purposes.")
              (concat magit-blame-heading-format "\n")
              `((?H . ,(propertize (or (plist-get chunk :hash) "")
                                   'face 'magit-blame-hash))
-               (?s . ,(propertize (plist-get chunk :summary)
+               (?s . ,(propertize (or (plist-get chunk :summary) "")
                                   'face 'magit-blame-summary))
-               (?a . ,(propertize (plist-get chunk :author)
+               (?a . ,(propertize (or (plist-get chunk :author) "")
                                   'face 'magit-blame-name))
                (?A . ,(propertize (magit-blame-format-time-string
                                    magit-blame-time-format
                                    (plist-get chunk :author-time)
                                    (plist-get chunk :author-tz))
                                   'face 'magit-blame-date))
-               (?c . ,(propertize (plist-get chunk :committer)
+               (?c . ,(propertize (or (plist-get chunk :committer) "")
                                   'face 'magit-blame-name))
                (?C . ,(propertize (magit-blame-format-time-string
                                    magit-blame-time-format
