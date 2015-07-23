@@ -59,9 +59,7 @@
 (defcustom magit-log-buffer-name-format "*magit-log: %a*"
   "Name format for buffers used to display log entries.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :package-version '(magit . "2.1.0")
   :group 'magit-log
   :type 'string)
@@ -204,9 +202,7 @@ be nil, in which case no usage information is shown."
 (defcustom magit-cherry-buffer-name-format "*magit-cherry: %a*"
   "Name format for buffers used to display commits not merged upstream.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :group 'magit-log
   :type 'string)
 
@@ -223,9 +219,7 @@ The following `format'-like specs are supported:
 (defcustom magit-reflog-buffer-name-format "*magit-reflog: %a*"
   "Name format for buffers used to display reflog entries.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :package-version '(magit . "2.1.0")
   :group 'magit-log
   :type 'string)

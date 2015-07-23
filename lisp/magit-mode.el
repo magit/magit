@@ -465,6 +465,18 @@ the function `magit-toplevel'."
               'magit-stash-mode 'magit-stashes-mode 'magit-status-mode ))
 
 (defun magit-mode-get-buffer (format mode &optional topdir create)
+  "Get or create new MODE buffer with name chosen based on FORMAT.
+
+FORMAT may contain one of the following `format'-like specs in
+order to create per-repository buffers:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel.
+
+If two repositories have the same basename, then it will be made
+unique according to `uniquify-buffer-name-style'.
+
+If FORMAT contains no specs, then magit will use a single buffer
+of this type for all repositories."
   (if (not (string-match-p "%[ab]" format))
       (funcall (if create #'get-buffer-create #'get-buffer) format)
     (unless topdir

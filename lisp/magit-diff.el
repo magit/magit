@@ -74,9 +74,7 @@
 (defcustom magit-diff-buffer-name-format "*magit-diff: %a*"
   "Name format for buffers used to display a diff.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :package-version '(magit . "2.1.0")
   :group 'magit-diff
   :type 'string)
@@ -243,9 +241,7 @@ many spaces.  Otherwise, highlight neither."
 (defcustom magit-revision-buffer-name-format "*magit-rev: %a*"
   "Name format for buffers used to display a commit.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :package-version '(magit . "2.1.0")
   :group 'magit-revision
   :type 'string)
