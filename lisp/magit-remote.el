@@ -207,9 +207,9 @@ Read the local and remote branch."
 (defcustom magit-push-always-verify 'nag
   "Whether certain commands require verification before pushing.
 
-Starting with v2.1.0 some of Magit's push commands are supposed
-to push to the configured upstream branch without requiring
-user confirmation or offering to push somewhere else.
+Starting with v2.1.0 some of the push commands are supposed to
+push to the configured upstream branch without requiring user
+confirmation or offering to push somewhere else.
 
 This has taken a few users by surprise, and they suggested that
 we force users to opt-in to this behavior.  Unfortunately adding
@@ -222,14 +222,14 @@ You should set the value of this option to nil, causing all push
 commands to behave as intended:
 
 `PP' Push the current branch to its upstream branch, no questions
-     asked.  If it has no upstream branch is configured or if
-     that is another local branch, then prompt for the remote and
-     branch to push to.
+     asked.  If no upstream branch is configured or if that is
+     another local branch, then prompt for the remote and branch
+     to push to.
 
 `Po' Push another local branch (not the current branch) to its
-     upstream branch.  If it no upstream branch is configured or
-     if that is another local branch, then prompt for the remote
-     and branch to push to.
+     upstream branch.  If no upstream branch is configured or if
+     that is another local branch, then prompt for the remote and
+     branch to push to.
 
 `Pe' Push any local branch to any remote branch.  This command
      isn't affected by this option.  It always asks which branch
@@ -254,7 +254,7 @@ doing that, then you should probably just use `Pe' instead of
 `PP' or `Po'."
   :package-version '(magit . "2.2.0")
   :group 'magit-commands
-  :type '(choice (const :tag "require verification and mention this option" 'nag)
+  :type '(choice (const :tag "require verification and mention this option" nag)
                  (const :tag "require verification" t)
                  (const :tag "don't require verification" nil)))
 
