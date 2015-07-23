@@ -1744,7 +1744,8 @@ the current repository."
               (?i "Init"   magit-submodule-init)
               (?u "Update" magit-submodule-update)
               (?s "Sync"   magit-submodule-sync)
-              (?f "Fetch"  magit-submodule-fetch)))
+              (?f "Fetch"  magit-submodule-fetch)
+              (?d "Deinit" magit-submodule-deinit)))
 
 ;;;###autoload
 (defun magit-submodule-add (url &optional path)
@@ -1807,6 +1808,15 @@ With a prefix argument fetch all remotes."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "foreach"
                          (format "git fetch %s || true" (if all "--all" "")))))
+
+;;;###autoload
+(defun magit-submodule-deinit (path)
+  "Unregister the submodule at PATH."
+  (interactive
+   (list (magit-completing-read "Deinit module" (magit-get-submodules)
+                                nil t nil nil (magit-section-when module))))
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "deinit" path)))
 
 ;;;; Dispatch Popup
 
