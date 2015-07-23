@@ -139,6 +139,22 @@
      (should (equal nil (magit-get-next-tag)))
      (magit-call-git "tag" "-d" "FIRST"))))
 
+(ert-deftest magit-uniquified-buffer-names ()
+  "Test magit buffer name handling."
+  (magit-tests--with-temp-dir
+    (magit-call-git "init" "sub1/repo")
+    (magit-call-git "init" "sub2/repo")
+    (let ((dir default-directory)
+          (magit-status-buffer-name-format "*magit-status: %b*"))
+      (magit-status (concat dir "sub1/repo"))
+      (should (equal (buffer-name) "*magit-status: repo*"))
+      (magit-status (concat dir "sub2/repo")) ; should be uniquified
+      (should-not (equal (buffer-name) "*magit-status: repo*"))
+      ;; Buffer should be reused despite uniquifiying.
+      (let ((sub2-status (current-buffer)))
+        (magit-status (concat dir "sub2/repo"))
+        (should (equal (current-buffer) sub2-status))))))
+
 ;;;; config
 
 (ert-deftest magit-config-get-boolean ()
