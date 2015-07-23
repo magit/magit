@@ -201,6 +201,17 @@ in the current buffer using the command `magit-toggle-margin'."
                  (const branch :tag "For branches only")
                  (const nil    :tag "Never")))
 
+(defcustom magit-visit-ref-create nil
+  "Whether `magit-visit-ref' may create new branches.
+
+When this is non-nil, then \"visiting\" a remote branch in a
+refs buffer works by creating a new local branch with tracks
+the remote branch and then checking it out the local branch."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-refs
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;;; Miscellaneous
 
 (defcustom magit-branch-read-upstream-first t
@@ -713,10 +724,13 @@ In most places use `magit-show-commit' to visit the reference or
 revision at point.
 
 In `magit-refs-mode', when there is a reference at point, instead
-checkout that reference.  With a prefix argument instead focus on
-the reference at point, i.e. the commit counts and cherries are
-updated to be relative to that reference, but it is not checked
-out."
+checkout that reference.  When option `magit-visit-ref-create' is
+non-nil and point is on remote branch, then create a local branch
+with the same name and check it out.
+
+With a prefix argument only focus on the reference at point, i.e.
+the commit counts and cherries are updated to be relative to that
+reference, but it is not checked out."
   (interactive)
   (if (derived-mode-p 'magit-refs-mode)
       (magit-section-case
@@ -725,8 +739,19 @@ out."
          (let ((ref (magit-section-value (magit-current-section))))
            (if current-prefix-arg
                (magit-show-refs ref)
+             (if (magit-section-when [branch remote])
+                 (let ((start ref)
+                       (arg "-b"))
+                   (string-match "^[^/]+/\\(.+\\)" ref)
+                   (setq ref (match-string 1 ref))
+                   (when (magit-branch-p ref)
+                     (if (yes-or-no-p
+                          (format "Branch %s already exists.  Recreate it?" ref))
+                         (setq arg "-B")
+                       (user-error "Abort")))
+                   (magit-run-git "checkout" arg ref start))
+               (magit-run-git "checkout" ref))
              (setcar magit-refresh-args ref)
-             (magit-run-git "checkout" ref)
              (magit-refresh))))
         ([commit * branchbuf]
          (call-interactively #'magit-show-commit)))
