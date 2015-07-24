@@ -108,6 +108,7 @@ Contributors
 - Josiah Schwab <jschwab@gmail.com>
 - Julien Danjou <julien@danjou.info>
 - Justin Caratzas <justin.caratzas@gmail.com>
+- Kan-Ru Chen <kanru@kanru.info>
 - Kan-Ru Chen <koster@debian.org>
 - Kimberly Wolk <kimwolk@hotmail.com>
 - Kyle Meyer <kyle@kyleam.com>
@@ -129,6 +130,7 @@ Contributors
 - Marian Schubert <marian.schubert@gooddata.com>
 - Marius Vollmer <marius.vollmer@gmail.com>
 - Mark Hepburn <Mark.Hepburn@csiro.au>
+- Mark Karpov <markkarpov@opmbx.org>
 - Mark Oteiza <mvoteiza@udel.edu>
 - Matus Goljer <dota.keys@gmail.com>
 - Michael Fogleman <michaelwfogleman@gmail.com>
@@ -159,6 +161,7 @@ Contributors
 - Philipp Haselwarter <philipp@haselwarter.org>
 - Philip Weaver <philip.weaver@gmail.com>
 - Phil Jackson <phil@shellarchive.co.uk>
+- Phil Sainty <phil@catalyst.net.nz>
 - Pieter Praet <pieter@praet.org>
 - Prathamesh Sonpatki <csonpatki@gmail.com>
 - rabio <rabiodev@o2.pl>
