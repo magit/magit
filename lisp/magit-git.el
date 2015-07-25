@@ -418,7 +418,7 @@ range.  Otherwise, it can be any revision or range accepted by
 (defun magit-renamed-files (revA revB)
   (--map (cons (nth 1 it) (nth 2 it))
          (-partition 3 (magit-git-items
-                        "diff-tree" "--diff-filter=R" "-z" "-M"
+                        "diff-tree" "-r" "--diff-filter=R" "-z" "-M"
                         revA revB))))
 
 (defun magit-file-status (&rest args)
