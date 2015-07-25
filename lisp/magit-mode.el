@@ -181,6 +181,24 @@ has to confirm each save."
 
 ;;; Magit Mode
 
+(defmacro magit-define-stub-at-point-function (op)
+  `(defun ,(intern (format "magit-%s-thing-at-point" op)) ()
+     "This is a placeholder command.
+
+Section-specific keymaps will bind a different command instead,
+where applicable."
+     (interactive)
+     (user-error "There is nothing to %s at point." ,(symbol-name op))))
+
+(magit-define-stub-at-point-function apply)
+(magit-define-stub-at-point-function add-log-of)
+(magit-define-stub-at-point-function delete)
+(magit-define-stub-at-point-function untrack)
+(magit-define-stub-at-point-function rename)
+(magit-define-stub-at-point-function visit)
+(magit-define-stub-at-point-function visit-worktree-of)
+(magit-define-stub-at-point-function reverse)
+
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
@@ -209,9 +227,11 @@ has to confirm each save."
     (define-key map "q" 'magit-mode-bury-buffer)
     (define-key map "$" 'magit-process)
     (define-key map "A" 'magit-cherry-pick-popup)
+    (define-key map "a" 'magit-apply-thing-at-point)
     (define-key map "b" 'magit-branch-popup)
     (define-key map "B" 'magit-bisect-popup)
     (define-key map "c" 'magit-commit-popup)
+    (define-key map "C" 'magit-add-log-of-thing-at-point)
     (define-key map "d" 'magit-diff-popup)
     (define-key map "D" 'magit-diff-refresh-popup)
     (define-key map "h" 'magit-dispatch-popup)
@@ -224,6 +244,8 @@ has to confirm each save."
     (define-key map "F" 'magit-pull-popup)
     (define-key map "i" 'magit-gitignore)
     (define-key map "I" 'magit-gitignore-locally)
+    (define-key map "k" 'magit-delete-thing-at-point)
+    (define-key map "K" 'magit-untrack-thing-at-point)
     (define-key map "l" 'magit-log-popup)
     (define-key map "L" 'magit-toggle-margin)
     (define-key map "m" 'magit-merge-popup)
@@ -231,15 +253,19 @@ has to confirm each save."
     (define-key map "o" 'magit-submodule-popup)
     (define-key map "P" 'magit-push-popup)
     (define-key map "r" 'magit-rebase-popup)
+    (define-key map "R" 'magit-rename-thing-at-point)
     (define-key map "t" 'magit-tag-popup)
     (define-key map "T" 'magit-notes-popup)
+    (define-key map "\r" 'magit-visit-thing-at-point)
     (define-key map [M-return] 'magit-dired-jump)
+    (define-key map [C-return] 'magit-visit-worktree-of-thing-at-point)
     (define-key map "\s"       'magit-diff-show-or-scroll-up)
     (define-key map "\d"       'magit-diff-show-or-scroll-down)
     (define-key map "s" 'magit-stage-file)
     (define-key map "S" 'magit-stage-modified)
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-reset-index)
+    (define-key map "v" 'magit-reverse-thing-at-point)
     (define-key map "V" 'magit-revert-popup)
     (define-key map "w" 'magit-am-popup)
     (define-key map "W" 'magit-patch-popup)
