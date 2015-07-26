@@ -361,7 +361,7 @@ selected from a list of recent commits.
   "Start an interactive rebase sequence of all unpushed commits.
 \n(git rebase -i UPSTREAM [ARGS])"
   (interactive (list (--when-let (magit-get-tracked-branch)
-                       (magit-git-string "merge-base" it "HEAD")) 
+                       (magit-git-string "merge-base" it "HEAD"))
                      (magit-rebase-arguments)))
   (if (setq commit (magit-rebase-interactive-assert commit))
       (magit-run-git-sequencer "rebase" "-i" commit args)
