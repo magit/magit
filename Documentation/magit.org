@@ -85,7 +85,7 @@ internally (which is what lead to the term "apply variants").
 Magit isn't just for Git experts, but it does assume some prior
 experience with Git as well as Emacs.  That being said, many users
 have reported that using Magit was what finally taught them what Git
-it is capable off and how to use it to its fullest.  Other users
+is capable off and how to use it to its fullest.  Other users
 wished they had switched to Emacs sooner so that they would have
 gotten their hands on Magit earlier.
 
@@ -606,13 +606,13 @@ the following commands.
 
   Move to the beginning of the next visible section.
 
-- Key: P, magit-section-backward-siblings
+- Key: M-p, magit-section-backward-siblings
 
   Move to the beginning of the previous sibling section.  If there is
   no previous sibling section, then move to the parent section
   instead.
 
-- Key: N, magit-section-forward-siblings
+- Key: M-n, magit-section-forward-siblings
 
   Move to the beginning of the next sibling section.  If there is no
   next sibling section, then move to the parent section instead.
