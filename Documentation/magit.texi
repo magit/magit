@@ -284,7 +284,7 @@ internally (which is what lead to the term "apply variants").
 Magit isn't just for Git experts, but it does assume some prior
 experience with Git as well as Emacs.  That being said, many users
 have reported that using Magit was what finally taught them what Git
-it is capable off and how to use it to its fullest.  Other users
+is capable of and how to use it to its fullest.  Other users
 wished they had switched to Emacs sooner so that they would have
 gotten their hands on Magit earlier.
 
@@ -898,17 +898,17 @@ to the beginning of the previous visible section.
 
 Move to the beginning of the next visible section.
 
-@kindex P
+@kindex M-p
 @cindex magit-section-backward-siblings
-@item @kbd{P} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-backward-siblings})
+@item @kbd{M-p} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-backward-siblings})
 
 Move to the beginning of the previous sibling section.  If there is
 no previous sibling section, then move to the parent section
 instead.
 
-@kindex N
+@kindex M-n
 @cindex magit-section-forward-siblings
-@item @kbd{N} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-forward-siblings})
+@item @kbd{M-n} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-forward-siblings})
 
 Move to the beginning of the next sibling section.  If there is no
 next sibling section, then move to the parent section instead.
