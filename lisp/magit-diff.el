@@ -1431,7 +1431,19 @@ Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-revision-mode-map}"
   :group 'magit-revision
+  (add-hook 'window-scroll-functions #'magit-revision-hideshow-header-line nil t)
   (hack-dir-local-variables-non-file-buffer))
+
+(defun magit-revision-hideshow-header-line (window window-start-pos)
+  (setq header-line-format
+        (and (> window-start-pos 48)
+             (concat
+              (propertize " " 'display
+                          `((space :width (,(+ (car (window-fringes))
+                                               2))))) ; FIXME get from face :box
+              (propertize (concat "Commit "
+                                  (magit-rev-parse (car magit-refresh-args)))
+                          'face 'magit-header-line)))))
 
 (defun magit-revision-refresh-buffer (commit args)
   (magit-insert-section (commitbuf)
@@ -1447,10 +1459,11 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
     (magit-bind-match-strings (rev refs) nil
       (magit-delete-line)
-      (setq header-line-format
-            (propertize (concat " Commit " rev) 'face 'magit-header-line))
       (magit-insert-section (headers)
-        (magit-insert-heading (char-to-string magit-ellipsis))
+        (magit-insert-heading
+          (propertize (concat "Commit " rev
+                              "\n") ; FIXME underline display line
+                      'face 'magit-header-line))
         (when refs
           (magit-insert (format "References: %s\n"
                                 (magit-format-ref-labels refs))))

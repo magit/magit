@@ -239,7 +239,7 @@ deep."
 ;;;; Faces
 
 (defface magit-header-line
-  '((t :inherit magit-section-heading))
+  '((t :inherit (magit-section-heading magit-header-line)))
   "Face for the `header-line'."
   :group 'magit-faces)
 
