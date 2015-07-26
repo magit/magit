@@ -45,7 +45,10 @@
                   (and (string-match "\\([^./]+\\)\\(\\.git\\)?$" url)
                        (match-string 1 url))))))))
   (make-directory directory t)
-  (magit-run-git "clone" repository directory))
+  (message "Cloning %s..." repository)
+  (magit-call-git "clone" repository directory)
+  (message "Cloning %s...done" repository)
+  (magit-status-internal directory))
 
 ;;; Setup
 
