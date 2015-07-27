@@ -58,7 +58,7 @@ invoked using Magit."
 If non-nil, `magit-ediff-show-staged' or
 `magit-ediff-show-unstaged' are called based on what section the
 hunk is in.  Otherwise, `magit-ediff-dwim' runs
-`magit-ediff-stage' when point is on an uncommited hunk."
+`magit-ediff-stage' when point is on an uncommitted hunk."
   :package-version '(magit . "2.2.0")
   :group 'magit-ediff
   :type 'boolean)
