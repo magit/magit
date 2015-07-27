@@ -174,7 +174,7 @@ then read the remote."
               (?d "Dry run"       "--dry-run")
               (?u "Set upstream"  "--set-upstream"))
   :actions  '((?P "Current"    magit-push-current)
-              (?q "Quickly"    magit-push-quickly)
+              (?Q "Quickly"    magit-push-quickly)
               (?t "Tags"       magit-push-tags)
               (?o "Other"      magit-push)
               (?i "Implicitly" magit-push-implicitly)
