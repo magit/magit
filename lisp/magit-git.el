@@ -1013,7 +1013,7 @@ Return a list of two integers: (A>B B>A)."
   (let ((remotes (magit-list-remotes)))
     (if (and use-only (= (length remotes) 1))
         (car remotes)
-      (magit-completing-read prompt (magit-list-remotes)
+      (magit-completing-read prompt remotes
                              nil t nil nil
                              (or default
                                  (magit-remote-at-point)
