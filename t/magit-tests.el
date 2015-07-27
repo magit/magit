@@ -19,7 +19,7 @@
     `(let ((,orig (symbol-function 'message)))
        (fset 'message (lambda (&rest silentio)))
        (prog1 (progn ,@body)
-	 (fset 'message ,orig)))))
+         (fset 'message ,orig)))))
 
 (defmacro magit-tests--with-temp-dir (&rest body)
   (declare (indent 0) (debug t))

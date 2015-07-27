@@ -911,8 +911,8 @@ reference, but it is not checked out."
            (eq magit-refs-show-commit-count 'all)
          magit-refs-show-commit-count)
        (let ((count (cadr (magit-rev-diff-count head ref))))
-	 (and (> count 0)
-	      (propertize (number-to-string count) 'face 'magit-dimmed)))))
+         (and (> count 0)
+              (propertize (number-to-string count) 'face 'magit-dimmed)))))
 
 (defun magit-refs-format-margin (commit)
   (save-excursion
