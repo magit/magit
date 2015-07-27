@@ -331,9 +331,8 @@ without requiring confirmation."
     (let ((delete-by-moving-to-trash magit-delete-by-moving-to-trash))
       (dolist (file files)
         (if (memq (magit-diff-type) '(unstaged untracked))
-            (with-no-warnings ; #1933
-              (dired-delete-file file dired-recursive-deletes
-                                 magit-delete-by-moving-to-trash))
+            (dired-delete-file file dired-recursive-deletes
+                               magit-delete-by-moving-to-trash)
           (pcase (nth 3 (assoc file status))
             (?  (delete-file file t)
                 (magit-call-git "rm" "--cached" "--" file))
