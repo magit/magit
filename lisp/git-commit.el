@@ -159,6 +159,12 @@ The major mode configured here is turned on by the minor mode
   :type '(choice (function-item text-mode)
                  (const :tag "No major mode")))
 
+(unless (find-lisp-object-file-name 'git-commit-setup-hook 'defvar)
+  (add-hook 'git-commit-setup-hook 'with-editor-usage-message)
+  (add-hook 'git-commit-setup-hook 'git-commit-propertize-diff)
+  (add-hook 'git-commit-setup-hook 'git-commit-turn-on-auto-fill)
+  (add-hook 'git-commit-setup-hook 'git-commit-setup-changelog-support)
+  (add-hook 'git-commit-setup-hook 'git-commit-save-message))
 (defcustom git-commit-setup-hook
   '(git-commit-save-message
     git-commit-setup-changelog-support

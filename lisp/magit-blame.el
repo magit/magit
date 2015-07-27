@@ -65,6 +65,8 @@ and then turned on again when turning on the latter."
   :group 'magit-blame
   :type '(choice (const :tag "No lighter" "") string))
 
+(unless (find-lisp-object-file-name 'magit-blame-goto-chunk-hook 'defvar)
+  (add-hook 'magit-blame-goto-chunk-hook 'magit-log-maybe-show-commit))
 (defcustom magit-blame-goto-chunk-hook '(magit-log-maybe-show-commit)
   "Hook run by `magit-blame-next-chunk' and `magit-blame-previous-chunk'."
   :package-version '(magit . "2.1.0")
