@@ -1506,6 +1506,11 @@ Also see [[info:gitman#git-diff]].
   HEAD.  If just a commit is given, then changes in the working tree
   relative to that commit are shown.
 
+  If the region is active, use the revisions on the first and last
+  line of the region.  With a prefix argument, instead of diffing the
+  revisions, choose a revision to view changes along, starting at the
+  common ancestor of both revisions (i.e., use a "..."  range).
+
 - Key: d w, magit-diff-worktree
 
   Show changes between the current working tree and the ~HEAD~ commit.
@@ -1575,6 +1580,15 @@ popup is the only way to change certain arguments.
 - Key: D t, magit-diff-toggle-refine-hunk
 
   Toggle hunk refinement on or off.
+
+- Key: D r, magit-diff-switch-range-type
+
+  Convert diff range type from "revA..revB" to "revB...revA", or vice
+  versa.
+
+- Key: D f, magit-diff-flip-revs
+
+  Swap revisions in diff range from "revA..revB" to "revB..revA".
 
 In addition to the above popup, which allows changing any of the
 supported arguments, there also exist some commands which change a
@@ -1763,10 +1777,14 @@ displayed but not how.
   This prefix commands shows the following suffix commands in a popup
   buffer.
 
-- Key: E d, magit-ediff-compare
+- Key: E r, magit-ediff-compare
 
-  Compare two revisions of a file using Ediff, defaulting to the file
-  at point.
+  Compare two revisions of a file using Ediff.
+
+  If the region is active, use the revisions on the first and last
+  line of the region.  With a prefix argument, instead of diffing the
+  revisions, choose a revision to view changes along, starting at the
+  common ancestor of both revisions (i.e., use a "..."  range).
 
 - Key: E m, magit-ediff-resolve
 
@@ -1781,6 +1799,30 @@ displayed but not how.
 
   Stage and unstage changes to a file using Ediff, defaulting to the
   file at point.
+
+- Key: E u, magit-ediff-show-unstaged
+
+  Show unstaged changes to a file using Ediff.
+
+- Key: E i, magit-ediff-show-staged
+
+  Show staged changes to a file using Ediff.
+
+- Key: E w, magit-ediff-show-working-tree
+
+  Show changes in a file between HEAD and working tree using Ediff.
+
+- Key: E c, magit-ediff-show-commit
+
+  Show changes to a file introduced by a commit using Ediff.
+
+- User Option: magit-ediff-dwim-show-on-hunks
+
+  This option controls what command ~magit-ediff-dwim~ calls when
+  point is on uncommitted hunks.  When nil, always run
+  ~magit-ediff-stage~.  Otherwise, use ~magit-ediff-show-staged~ and
+  ~magit-ediff-show-unstaged~ to show staged and unstaged changes,
+  respectively.
 
 ** References buffer
 
