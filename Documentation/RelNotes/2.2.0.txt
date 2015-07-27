@@ -21,5 +21,43 @@ Changes since v2.1.0
 
 THIS IS NOT COMPLETE.
 
+* Two new commands have been added to the diff refresh popup that
+  allow the range of the previous diff to be manipulated.
+  `magit-diff-flip-revs' swaps the revisions of the range, and
+  `magit-diff-switch-range-type' toggles between ".." and "..." range
+  types.
+
+* The commands `magit-ediff-show-unstaged', `magit-ediff-show-staged',
+  `magit-ediff-show-commit', and `magit-ediff-show-working-tree' have
+  been added to the Ediff popup.
+
+* A new option, `magit-ediff-dwim-show-on-hunks', controls whether
+  calling `magit-ediff-dwim' runs a show variant
+  (`magit-ediff-show-unstaged' or `magit-ediff-show-staged') rather
+  than `magit-ediff-stage' when point is on an uncommitted hunk.
+
+* `magit-diff' and `magit-ediff-compare' no longer prompt the user for
+  confirmation when constructing a range from the last and first
+  commits selected by a region.  A prefix argument can now be used to
+  specify that the diff is between the second revision and the common
+  ancestor of both revisions (i.e., the "..." range type is used).
+
+* `magit-ediff-*' variants now limit file chocies to those that have
+  changed between the revisions of interest.  If only one file has
+  changed, this file is used without prompting.
+
+* `magit-diff' and `magit-ediff-compare' now consider the location at
+  point when choosing the default for the prompt, and this default
+  value usually corresponds with the actions of their DWIM
+  counterparts.
+
+* The key in Ediff popup for `magit-ediff-compare' has changed from
+  "d" to "r" to be consistent with the key in the diff popup for the
+  similarly behaved `magit-diff`.
+
+* Entering a single commit for the range to `magit-ediff-compare' now
+  compares the commit with the working tree (like `magit-diff' and
+  `git diff') rather than the previous commit.
+
 Authors
 -------
