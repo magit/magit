@@ -154,7 +154,7 @@ without prompting."
 Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then apply all of them,
 without prompting."
-  (interactive (magit-cherry-pick-read-args "Apply commit"))
+  (interactive (magit-cherry-pick-read-args "Apply changes from commit"))
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git-sequencer "cherry-pick" "--no-commit"
                            (remove "--ff" args) commit))

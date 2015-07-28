@@ -208,6 +208,7 @@ has to confirm each save."
     (define-key map "G" 'magit-refresh-all)
     (define-key map "q" 'magit-mode-bury-buffer)
     (define-key map "$" 'magit-process)
+    (define-key map "a" 'magit-cherry-apply)
     (define-key map "A" 'magit-cherry-pick-popup)
     (define-key map "b" 'magit-branch-popup)
     (define-key map "B" 'magit-bisect-popup)
@@ -224,6 +225,7 @@ has to confirm each save."
     (define-key map "F" 'magit-pull-popup)
     (define-key map "i" 'magit-gitignore)
     (define-key map "I" 'magit-gitignore-locally)
+    (define-key map "k" 'magit-delete-thing)
     (define-key map "l" 'magit-log-popup)
     (define-key map "L" 'magit-toggle-margin)
     (define-key map "m" 'magit-merge-popup)
@@ -231,8 +233,11 @@ has to confirm each save."
     (define-key map "o" 'magit-submodule-popup)
     (define-key map "P" 'magit-push-popup)
     (define-key map "r" 'magit-rebase-popup)
+    (define-key map "R" 'magit-rename-thing)
     (define-key map "t" 'magit-tag-popup)
     (define-key map "T" 'magit-notes-popup)
+    (define-key map "\r"       'magit-visit-thing)
+    (define-key map [C-return] 'magit-visit-thing)
     (define-key map [M-return] 'magit-dired-jump)
     (define-key map "\s"       'magit-diff-show-or-scroll-up)
     (define-key map "\d"       'magit-diff-show-or-scroll-down)
@@ -240,6 +245,7 @@ has to confirm each save."
     (define-key map "S" 'magit-stage-modified)
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-reset-index)
+    (define-key map "v" 'magit-revert-no-commit)
     (define-key map "V" 'magit-revert-popup)
     (define-key map "w" 'magit-am-popup)
     (define-key map "W" 'magit-patch-popup)
@@ -258,6 +264,25 @@ has to confirm each save."
     (define-key map [remap evil-next-line] 'evil-next-visual-line)
     map)
   "Parent keymap for all keymaps of modes derived from `magit-mode'.")
+
+(defun magit-delete-thing ()
+  "This is a placeholder command.
+Where applicable, section-specific keymaps bind another command
+which deletes the thing at point."
+  (user-error "There is no thing at point that could be deleted"))
+
+(defun magit-rename-thing ()
+  "This is a placeholder command.
+Where applicable, section-specific keymaps bind another command
+which renames the thing at point."
+  (user-error "There is no thing at point that could be renamed"))
+
+(defun magit-visit-thing ()
+  "This is a placeholder command.
+Where applicable, section-specific keymaps bind another command
+which visits the thing at point."
+  (user-error "There is no thing at point that could be visited"))
+
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
