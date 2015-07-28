@@ -439,13 +439,16 @@ tracked in the current repository are reverted if
 
 (defun magit-process-insert-section (program args &optional errcode errlog)
   (let ((inhibit-read-only t)
-        (magit-insert-section--parent magit-root-section))
+        (magit-insert-section--parent magit-root-section)
+        (topdir (magit-toplevel)))
     (goto-char (1- (point-max)))
     (magit-insert-section (process)
       (insert (if errcode
                   (format "%3s " (propertize (number-to-string errcode)
                                              'face 'magit-process-ng))
                 "run "))
+      (unless (equal default-directory topdir)
+        (insert (file-relative-name default-directory topdir) ?\s))
       (insert (propertize program 'face 'magit-section-heading))
       (insert " ")
       (when (and args (equal program magit-git-executable))
