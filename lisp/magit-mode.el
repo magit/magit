@@ -484,25 +484,30 @@ the function `magit-toplevel'."
                    (equal default-directory topdir)))
             (buffer-list)))
 
-(defun magit-mode-get-buffer (format mode &optional topdir create)
+(defun magit-mode-get-buffer (format mode &optional directory create)
+  "Return a buffer whose name matches FORMAT and whose major mode is MODE.
+Return the buffer for the repository containing DIRECTORY, or if
+that is nil `default-directory'.  If optional CREATE is non-nil,
+then create the buffer if it does not yet exist."
   (if (not (string-match-p "%[ab]" format))
       (funcall (if create #'get-buffer-create #'get-buffer) format)
-    (unless topdir
-      (setq topdir (magit-toplevel)))
-    (let ((name (format-spec format
-                             `((?a . ,(abbreviate-file-name (or topdir "-")))
-                               (?b . ,(if topdir
-                                          (file-name-nondirectory
-                                           (directory-file-name topdir))
-                                        "-"))))))
-      (or (--first (with-current-buffer it
-                     (and (or (not topdir)
-                              (equal (expand-file-name default-directory)
-                                     topdir))
-                          (string-match-p (format "^%s$" (regexp-quote name))
-                                          (buffer-name))))
-                   (buffer-list))
-          (and create (generate-new-buffer name))))))
+    (let ((topdir (magit-toplevel)))
+      (unless directory
+        (setq directory topdir))
+      (let ((name (format-spec
+                   format `((?a . ,(abbreviate-file-name (or directory "-")))
+                            (?b . ,(if directory
+                                       (file-name-nondirectory
+                                        (directory-file-name directory))
+                                     "-"))))))
+        (or (--first (with-current-buffer it
+                       (and (member directory (list topdir nil))
+                            (string-match-p (format "^%s$" (regexp-quote name))
+                                            (buffer-name))))
+                     (buffer-list))
+            (and create
+                 (let ((default-directory topdir))
+                   (generate-new-buffer name))))))))
 
 (defun magit-mode-get-buffer-create (format mode &optional topdir)
   (magit-mode-get-buffer format mode topdir t))
