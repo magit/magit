@@ -1956,7 +1956,7 @@ repository, otherwise in `default-directory'.
 Non-interactively run Git in DIRECTORY with ARGS."
   (interactive (magit-git-command-read-args))
   (require 'eshell)
-  (magit-mode-display-buffer (magit-process-buffer nil t)
+  (magit-mode-display-buffer (magit-process-buffer directory t)
                              'magit-process-mode 'pop-to-buffer)
   (goto-char (point-max))
   (let ((default-directory directory))

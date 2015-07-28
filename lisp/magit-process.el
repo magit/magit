@@ -233,7 +233,7 @@ variable `magit-process-buffer-name-format'."
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name-format'."
   (cl-destructuring-bind (process-buf . section)
-      (magit-process-setup program args)
+      (magit-process-setup program args default-directory)
     (magit-process-finish
      (let ((inhibit-read-only t))
        (apply #'process-file program nil process-buf nil args))
@@ -395,7 +395,7 @@ Magit status buffer.  Unmodified buffers visiting files that are
 tracked in the current repository are reverted if
 `magit-revert-buffers' is non-nil."
   (cl-destructuring-bind (process-buf . section)
-      (magit-process-setup program args)
+      (magit-process-setup program args default-directory)
     (let* ((process-connection-type
             ;; Don't use a pty, because it would set icrnl
             ;; which would modify the input (issue #20).
@@ -427,12 +427,12 @@ tracked in the current repository are reverted if
 
 ;;; Process Internals
 
-(defun magit-process-setup (program args)
+(defun magit-process-setup (program args default-dir)
   (magit-process-set-mode-line program args)
-  (let ((buf (magit-process-buffer)))
+  (let ((buf (magit-process-buffer default-dir)))
     (if  buf
         (magit-process-truncate-log buf)
-      (setq buf (magit-process-buffer nil t)))
+      (setq buf (magit-process-buffer default-dir t)))
     (cons buf (with-current-buffer buf
                 (prog1 (magit-process-insert-section program args)
                   (backward-char 1))))))
