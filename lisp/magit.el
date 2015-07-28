@@ -1890,31 +1890,48 @@ Currently this only adds the following key bindings.
 (magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
   'magit-commands nil nil
-  :actions '((?b "Branching"       magit-branch-popup)
+  :actions '("Popup and dwim commands"
+             (?A "Cherry-picking"  magit-cherry-pick-popup)
+             (?b "Branching"       magit-branch-popup)
              (?B "Bisecting"       magit-bisect-popup)
              (?c "Committing"      magit-commit-popup)
              (?d "Diffing"         magit-diff-popup)
+             (?D "Change diffs"    magit-diff-refresh-popup)
+             (?e "Ediff dwimming"  magit-ediff-dwim)
+             (?E "Ediffing"        magit-ediff-popup)
              (?f "Fetching"        magit-fetch-popup)
              (?F "Pulling"         magit-pull-popup)
-             (?g "Refresh Buffers" magit-refresh-all)
              (?l "Logging"         magit-log-popup)
              (?m "Merging"         magit-merge-popup)
              (?M "Remoting"        magit-remote-popup)
+             (?o "Submodules"      magit-submodule-popup)
              (?P "Pushing"         magit-push-popup)
-             (?o "Submoduling"     magit-submodule-popup)
              (?r "Rebasing"        magit-rebase-popup)
+             (?t "Tagging"         magit-tag-popup)
+             (?T "Notes"           magit-notes-popup)
+             (?V "Reverting"       magit-revert-popup)
              (?w "Apply patches"   magit-am-popup)
              (?W "Format patches"  magit-patch-popup)
-             (?s "Show Status"     magit-status)
-             (?S "Stage all"       magit-stage-modified)
-             (?t "Tagging"         magit-tag-popup)
-             (?U "Reset Index"     magit-reset-index)
-             (?V "Reverting"       magit-revert-popup)
              (?y "Show Refs"       magit-show-refs-popup)
-             (?Y "Cherry"          magit-cherry)
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)
-             (?$ "Show Process"    magit-process)))
+             "Applying changes"
+             (?a "Apply"           magit-apply)
+             (?s "Stage"           magit-stage)
+             (?u "Unstage"         magit-unstage)
+             nil
+             (?v "Reverse"         magit-reverse)
+             (?S "Stage all"       magit-stage-modified)
+             (?U "Unstage all"     magit-unstage-all)
+             nil
+             (?k "Discard"         magit-discard)
+             "\
+ g      refresh current buffer
+ TAB    toggle section at point
+ RET    visit thing at point
+
+ C-h m  show all key bindings" nil)
+  :max-action-columns 4)
 
 ;;;; Git Popup
 
