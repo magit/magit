@@ -399,21 +399,23 @@ before starting to try out Magit, then don't do this.
 
 So far we have mentioned the commit, push, and log popups.  These are
 probably among the popups you will be using the most, but many others
-exist.  To show a popup with all other popups (and some other commands
-which are not popups), type ~h~.  Try a few.
+exist.  To show a popup with all other popups (as well as the various
+apply commands), type ~h~.  Try a few.
 
-In most cases the key bindings in that popup correspond to the
-bindings in Magit buffers, including but not limited to the status
-buffer.  So you could type ~h d~ to bring up the diff popup, but once
-you remember that "d" stands for "diff", you would usually do so by
-just typing ~d~.  But the "popup of popups" is useful even once you have
-memorized all the bindings, as it can provide easy access to Magit
-commands from non-Magit buffers.  So you should bind this globally
-too:
+The key bindings in that popup correspond to the bindings in Magit
+buffers, including but not limited to the status buffer.  So you could
+type ~h d~ to bring up the diff popup, but once you remember that "d"
+stands for "diff", you would usually do so by just typing ~d~.  But the
+"popup of popups" is useful even once you have memorized all the
+bindings, as it can provide easy access to Magit commands from
+non-Magit buffers.  So you should bind this globally too:
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 #+END_SRC
+
+You might also want to enable ~global-magit-file-buffer-mode~ (see
+[[*File-buffer mode]]).
 
 * Interface concepts
 ** Modes and Buffers
@@ -3255,7 +3257,7 @@ Also see [[info:gitman#git-submodule]].
 
   Fetch submodule.  With a prefix argument fetch all remotes.
 
-** Wip Modes
+** Wip modes
 
 Git keeps *committed* changes around long enough for users to recover
 changes they have accidentally deleted.  It does so by not garbage
@@ -3390,6 +3392,26 @@ are being committed.
   "<namespace>wtree/<branchref>".  When snapshots are created while
   the ~HEAD~ is detached then "HEAD" is used in place of ~<branchref>~.
 
+** File-buffer mode
+
+The ~magit-file-buffer-mode~ enables certain Magit features in
+file-visiting buffers belonging to a Git repository.  It should be
+enabled globally using ~global-magit-file-buffer-mode~.  Currently this
+mode only establishes a few key bindings, but this might be extended
+in the future.
+
+- User Option: global-magit-file-buffer-mode
+
+  Whether to establish certain Magit key bindings in all file-visiting
+  buffers belonging to a Git repository.  This establishes the bindings
+  suggested in [[*Getting started]] (but only for file-visiting buffers),
+  and additionally binds ~C-c M-g~ to ~magit-file-buffer-popup~.
+
+- Command: magit-file-buffer-popup
+
+  This prefix command shows a popup buffer featuring suffix commands
+  that operate on the file being visited in the current buffer.
+
 * Customizing
 
 Both Git and Emacs are highly customizable.  Magit is both a Git
@@ -3488,7 +3510,7 @@ staging area).  Because Magit makes it so easy to modify uncommitted
 changes, it also makes it easy to shoot yourself in the foot in the
 process.  For that reason Magit provides three global modes that save
 *tracked* files to work-in-progress references after or before certain
-actions.  See [[*Wip Modes]].
+actions.  See [[*Wip modes]].
 
 These modes are not enabled by default because of performance
 concerns.  Instead a lot of potentially destructive commands require

@@ -186,7 +186,8 @@ Miscellaneous
 * Tagging::
 * Notes::
 * Submodules::
-* Wip Modes::
+* Wip modes::
+* File-buffer mode::
 
 Customizing
 
@@ -625,21 +626,23 @@ before starting to try out Magit, then don't do this.
 
 So far we have mentioned the commit, push, and log popups.  These are
 probably among the popups you will be using the most, but many others
-exist.  To show a popup with all other popups (and some other commands
-which are not popups), type @code{h}.  Try a few.
+exist.  To show a popup with all other popups (as well as the various
+apply commands), type @code{h}.  Try a few.
 
-In most cases the key bindings in that popup correspond to the
-bindings in Magit buffers, including but not limited to the status
-buffer.  So you could type @code{h d} to bring up the diff popup, but once
-you remember that "d" stands for "diff", you would usually do so by
-just typing @code{d}.  But the "popup of popups" is useful even once you have
-memorized all the bindings, as it can provide easy access to Magit
-commands from non-Magit buffers.  So you should bind this globally
-too:
+The key bindings in that popup correspond to the bindings in Magit
+buffers, including but not limited to the status buffer.  So you could
+type @code{h d} to bring up the diff popup, but once you remember that "d"
+stands for "diff", you would usually do so by just typing @code{d}.  But the
+"popup of popups" is useful even once you have memorized all the
+bindings, as it can provide easy access to Magit commands from
+non-Magit buffers.  So you should bind this globally too:
 
 @lisp
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 @end lisp
+
+You might also want to enable @code{global-magit-file-buffer-mode} (see
+@ref{File-buffer mode,File-buffer mode}).
 
 @node Interface concepts
 @chapter Interface concepts
@@ -2099,6 +2102,11 @@ commit.  If one side of the range is omitted, then it defaults to
 HEAD.  If just a commit is given, then changes in the working tree
 relative to that commit are shown.
 
+If the region is active, use the revisions on the first and last
+line of the region.  With a prefix argument, instead of diffing the
+revisions, choose a revision to view changes along, starting at the
+common ancestor of both revisions (i.e., use a "@dots{}"  range).
+
 @kindex d w
 @cindex magit-diff-worktree
 @item @kbd{d w} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-worktree})
@@ -2204,6 +2212,19 @@ Set and save the global diff arguments for the current buffer.
 @item @kbd{D t} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-toggle-refine-hunk})
 
 Toggle hunk refinement on or off.
+
+@kindex D r
+@cindex magit-diff-switch-range-type
+@item @kbd{D r} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-switch-range-type})
+
+Convert diff range type from "revA..revB" to "revB@dots{}revA", or vice
+versa.
+
+@kindex D f
+@cindex magit-diff-flip-revs
+@item @kbd{D f} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-flip-revs})
+
+Swap revisions in diff range from "revA..revB" to "revB..revA".
 @end table
 
 In addition to the above popup, which allows changing any of the
@@ -2460,12 +2481,16 @@ the user for a command to run.
 This prefix commands shows the following suffix commands in a popup
 buffer.
 
-@kindex E d
+@kindex E r
 @cindex magit-ediff-compare
-@item @kbd{E d} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-compare})
+@item @kbd{E r} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-compare})
 
-Compare two revisions of a file using Ediff, defaulting to the file
-at point.
+Compare two revisions of a file using Ediff.
+
+If the region is active, use the revisions on the first and last
+line of the region.  With a prefix argument, instead of diffing the
+revisions, choose a revision to view changes along, starting at the
+common ancestor of both revisions (i.e., use a "@dots{}"  range).
 
 @kindex E m
 @cindex magit-ediff-resolve
@@ -2484,7 +2509,41 @@ including those already resolved by Git, use
 
 Stage and unstage changes to a file using Ediff, defaulting to the
 file at point.
+
+@kindex E u
+@cindex magit-ediff-show-unstaged
+@item @kbd{E u} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-show-unstaged})
+
+Show unstaged changes to a file using Ediff.
+
+@kindex E i
+@cindex magit-ediff-show-staged
+@item @kbd{E i} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-show-staged})
+
+Show staged changes to a file using Ediff.
+
+@kindex E w
+@cindex magit-ediff-show-working-tree
+@item @kbd{E w} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-show-working-tree})
+
+Show changes in a file between HEAD and working tree using Ediff.
+
+@kindex E c
+@cindex magit-ediff-show-commit
+@item @kbd{E c} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-show-commit})
+
+Show changes to a file introduced by a commit using Ediff.
+
 @end table
+
+@defopt magit-ediff-dwim-show-on-hunks
+
+This option controls what command @code{magit-ediff-dwim} calls when
+point is on uncommitted hunks.  When nil, always run
+@code{magit-ediff-stage}.  Otherwise, use @code{magit-ediff-show-staged} and
+@code{magit-ediff-show-unstaged} to show staged and unstaged changes,
+respectively.
+@end defopt
 
 @node References buffer
 @section References buffer
@@ -4522,7 +4581,8 @@ changes made since the sequence started.
 * Tagging::
 * Notes::
 * Submodules::
-* Wip Modes::
+* Wip modes::
+* File-buffer mode::
 @end menu
 
 @node Tagging
@@ -4745,8 +4805,8 @@ Update each submodule's remote URL according to ".gitmodules".
 Fetch submodule.  With a prefix argument fetch all remotes.
 @end table
 
-@node Wip Modes
-@section Wip Modes
+@node Wip modes
+@section Wip modes
 
 Git keeps @strong{committed} changes around long enough for users to recover
 changes they have accidentally deleted.  It does so by not garbage
@@ -4893,6 +4953,30 @@ slash.  The wip refs are named "<namespace>index/<branchref>" and
 the @code{HEAD} is detached then "HEAD" is used in place of @code{<branchref>}.
 @end defopt
 
+@node File-buffer mode
+@section File-buffer mode
+
+The @code{magit-file-buffer-mode} enables certain Magit features in
+file-visiting buffers belonging to a Git repository.  It should be
+enabled globally using @code{global-magit-file-buffer-mode}.  Currently this
+mode only establishes a few key bindings, but this might be extended
+in the future.
+
+@defopt global-magit-file-buffer-mode
+
+Whether to establish certain Magit key bindings in all file-visiting
+buffers belonging to a Git repository.  This establishes the bindings
+suggested in @ref{Getting started,Getting started} (but only for file-visiting buffers),
+and additionally binds @code{C-c M-g} to @code{magit-file-buffer-popup}.
+@end defopt
+
+@cindex magit-file-buffer-popup
+@deffn Command magit-file-buffer-popup
+
+This prefix command shows a popup buffer featuring suffix commands
+that operate on the file being visited in the current buffer.
+@end deffn
+
 @node Customizing
 @chapter Customizing
 
@@ -5032,7 +5116,7 @@ staging area).  Because Magit makes it so easy to modify uncommitted
 changes, it also makes it easy to shoot yourself in the foot in the
 process.  For that reason Magit provides three global modes that save
 @strong{tracked} files to work-in-progress references after or before certain
-actions.  See @ref{Wip Modes,Wip Modes}.
+actions.  See @ref{Wip modes,Wip modes}.
 
 These modes are not enabled by default because of performance
 concerns.  Instead a lot of potentially destructive commands require
