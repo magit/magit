@@ -616,13 +616,13 @@ It's better to use one of the specialized functions
                 (setcdr elt def)
               (setq elt (cons key def)))
             (if at
-                (when (setq at (cl-member at value :key 'car :test 'equal))
-                  (setq value (cl-delete key value :key 'car :test 'equal))
+                (when (setq at (cl-member at value :key 'car-safe :test 'equal))
+                  (setq value (cl-delete key value :key 'car-safe :test 'equal))
                   (if prepend
                       (progn (push (car at) (cdr at))
                              (setcar at elt))
                     (push elt (cdr at))))
-              (setq value (cl-delete key value :key 'car :test 'equal)))
+              (setq value (cl-delete key value :key 'car-safe :test 'equal)))
             (unless (assoc key value)
               (setq value (if prepend
                               (cons elt value)
