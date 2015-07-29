@@ -288,7 +288,8 @@ depending on the value of option `magit-commit-squash-confirm'.
                      (`magit-commit-reword 'magit-diff-while-amending)))
     (setq with-editor-previous-winconf (current-window-configuration))
     (let ((magit-inhibit-save-previous-winconf 'unset)
-          (magit-diff-switch-buffer-function 'display-buffer))
+          (magit-diff-switch-buffer-function
+           (lambda (buffer) (display-buffer buffer t))))
       (funcall it))))
 
 (add-hook 'server-switch-hook 'magit-commit-diff)
