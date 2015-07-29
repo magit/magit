@@ -301,9 +301,7 @@ instead of \"Stashes:\"."
 (defcustom magit-stashes-buffer-name-format "*magit-stashes: %a*"
   "Name format for buffers used to list stashes.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'string)
@@ -343,9 +341,7 @@ The following `format'-like specs are supported:
 (defcustom magit-stash-buffer-name-format "*magit-stash: %a*"
   "Name format for buffers used to show stash diffs.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'string)

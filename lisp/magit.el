@@ -134,9 +134,7 @@ The function is given one argument, the status buffer."
 (defcustom magit-status-buffer-name-format "*magit: %a*"
   "Name format for buffers used to display a repository's status.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :package-version '(magit . "2.1.0")
   :group 'magit-status
   :type 'string)
@@ -166,9 +164,7 @@ The following `format'-like specs are supported:
 (defcustom magit-refs-buffer-name-format "*magit-refs: %a*"
   "Name format for buffers used to display and manage refs.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :package-version '(magit . "2.1.0")
   :group 'magit-refs
   :type 'string)

@@ -51,9 +51,7 @@
 (defcustom magit-process-buffer-name-format "*magit-process: %a*"
   "Name format for buffers where output of processes is put.
 
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
+See `magit-mode-get-buffer' for an explanation of formats."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
   :type 'string)
