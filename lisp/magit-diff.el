@@ -622,13 +622,11 @@ a \"revA...revB\" range.  Otherwise, always construct
             (revB (car it)))
         (deactivate-mark)
         (if mbase
-            (let* ((revA-full (magit-rev-parse revA))
-                   (revB-full (magit-rev-parse revB))
-                   (base (magit-git-string "merge-base" revA revB)))
+            (let ((base (magit-git-string "merge-base" revA revB)))
               (cond
-               ((string= revA-full base)
+               ((string= (magit-rev-parse revA) base)
                 (format "%s..%s" revA revB))
-               ((string= revB-full base)
+               ((string= (magit-rev-parse revB) base)
                 (format "%s..%s" revB revA))
                (t
                 (let ((main (magit-completing-read "View changes along"
