@@ -1956,15 +1956,13 @@ repository, otherwise in `default-directory'.
 Non-interactively run Git in DIRECTORY with ARGS."
   (interactive (magit-git-command-read-args))
   (require 'eshell)
-  (magit-mode-display-buffer (magit-process-buffer nil t)
-                             'magit-process-mode 'pop-to-buffer)
-  (goto-char (point-max))
-  (let ((default-directory directory))
-    (magit-run-git-async
-     (with-temp-buffer
-       (insert args)
-       (mapcar 'eval (eshell-parse-arguments (point-min)
-                                             (point-max)))))))
+  (with-temp-buffer
+    (insert args)
+    (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
+                                                     (point-max)))))
+  (magit-run-git-async args)
+  (magit-mode-display-buffer (magit-process-buffer directory t)
+                             'magit-process-mode 'pop-to-buffer))
 
 (defun magit-git-command-topdir (args directory)
   "Execute a Git subcommand asynchronously, displaying the output.
