@@ -507,7 +507,7 @@ The following `format'-like specs are supported:
     :max-action-columns 3))
 
 (defvar magit-diff-refresh-popup
-  '(:variable magit-diff-section-arguments
+  '(:variable magit-diff-arguments
     :man-page "git-diff"
     :switches ((?f "Show surrounding functions" "--function-context")
                (?b "Ignore whitespace changes"  "--ignore-space-change")
@@ -535,6 +535,8 @@ The following `format'-like specs are supported:
   :group 'magit-diff
   :type '(repeat (string :tag "Argument")))
 
+(put 'magit-diff-section-arguments 'permanent-local t)
+
 (defun magit-diff-arguments ()
   (magit-popup-export-file-args
    (if (eq magit-current-popup 'magit-diff-popup)
@@ -554,9 +556,10 @@ The following `format'-like specs are supported:
 (defun magit-diff-refresh-popup (arg)
   "Popup console for changing diff arguments in the current buffer."
   (interactive "P")
-  (if (derived-mode-p 'magit-diff-mode)
-      (let ((magit-diff-section-arguments (nth 2 magit-refresh-args)))
-        (magit-invoke-popup 'magit-diff-refresh-popup nil arg))
+  (let ((magit-diff-arguments
+         (if (derived-mode-p 'magit-diff-mode)
+             (nth 2 magit-refresh-args)
+           magit-diff-section-arguments)))
     (magit-invoke-popup 'magit-diff-refresh-popup nil arg)))
 
 (defun magit-diff-select-algorithm (&rest _ignore)
@@ -828,7 +831,7 @@ for a commit."
   (cond ((derived-mode-p 'magit-diff-mode)
          (setcdr (cdr magit-refresh-args) (list args files)))
         (t
-         (setq magit-diff-section-arguments args)))
+         (setq-local magit-diff-section-arguments args)))
   (magit-refresh))
 
 (defun magit-diff-set-default-arguments (args files)
