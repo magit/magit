@@ -187,6 +187,21 @@ This is useful if you use really long branch names."
 
 ;;;; Select Mode
 
+(defcustom magit-log-select-buffer-name-format "*magit-select: %a*"
+  "Name format for buffers used to select a commit from a log.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.2.0")
+  :group 'magit-log
+  :type 'string)
+
+(defcustom magit-log-select-arguments '("--decorate")
+  ""
+  :group 'magit-log
+  :type '(repeat (string :tag "Argument")))
+
 (defcustom magit-log-select-show-usage 'both
   "Whether to show usage information when selecting a commit from a log.
 The message can be shown in the `echo-area' or the `header-line', or in
@@ -535,7 +550,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (magit-set-buffer-margin magit-log-show-margin)
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-log-refresh-buffer (style revs args &optional files)
+(defun magit-log-refresh-buffer (style revs args files)
   (setq header-line-format
         (propertize
          (concat " Commits in " (mapconcat 'identity revs  " ")
@@ -889,16 +904,20 @@ another window, using `magit-show-commit'."
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
 
+(defun magit-log-select-refresh-buffer (rev args)
+  (magit-insert-section (logbuf)
+    (magit-insert-log rev args)))
+
 (defvar-local magit-log-select-pick-function nil)
 (defvar-local magit-log-select-quit-function nil)
 
-(defun magit-log-select (pick &optional msg quit branch args)
+(defun magit-log-select (pick &optional msg quit branch)
   (declare (indent defun))
-  (magit-mode-setup magit-log-buffer-name-format nil
+  (magit-mode-setup magit-log-select-buffer-name-format nil
                     #'magit-log-select-mode
-                    #'magit-log-refresh-buffer 'oneline
-                    (list (or branch (magit-get-current-branch) "HEAD"))
-                    args)
+                    #'magit-log-select-refresh-buffer
+                    (or branch (magit-get-current-branch) "HEAD")
+                    magit-log-select-arguments)
   (magit-log-goto-same-commit)
   (setq magit-log-select-pick-function pick)
   (setq magit-log-select-quit-function quit)
