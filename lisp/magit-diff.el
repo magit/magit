@@ -531,11 +531,13 @@ The following `format'-like specs are supported:
 (defcustom magit-diff-arguments '("--no-ext-diff")
   ""
   :group 'magit-diff
+  :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-diff-section-arguments '("--no-ext-diff")
   ""
   :group 'magit-diff
+  :group 'magit-status
   :type '(repeat (string :tag "Argument")))
 
 (defvar magit-diff-section-file-args nil)

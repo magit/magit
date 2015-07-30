@@ -69,6 +69,7 @@ The following `format'-like specs are supported:
 (defcustom magit-log-arguments '("--graph" "--decorate")
   ""
   :group 'magit-log
+  :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-log-auto-more nil
@@ -300,6 +301,7 @@ are no unpulled commits) show."
 (defcustom magit-log-section-arguments '("--decorate")
   ""
   :package-version '(magit . "2.2.0")
+  :group 'magit-log
   :group 'magit-status
   :type '(repeat (string :tag "Argument")))
 
