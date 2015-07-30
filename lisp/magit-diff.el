@@ -535,13 +535,10 @@ The following `format'-like specs are supported:
   :group 'magit-diff
   :type '(repeat (string :tag "Argument")))
 
-(defun magit-diff-arguments ()
-  (if (eq magit-current-popup 'magit-diff-popup)
-      magit-current-popup-args
-    magit-diff-arguments))
-
-(defun magit-diff-read-args (&optional no-files)
-  (let* ((args  (magit-diff-arguments))
+(defun magit-diff-arguments (&optional no-files)
+  (let* ((args (if (eq magit-current-popup 'magit-diff-popup)
+                   magit-current-popup-args
+                 magit-diff-arguments))
          (files (--first (string-prefix-p "-- " it) args)))
     (when files
       (setq args  (delete files args)
@@ -578,7 +575,7 @@ The following `format'-like specs are supported:
 ;;;###autoload
 (defun magit-diff-dwim (&optional args files)
   "Show changes for the thing at point."
-  (interactive (magit-diff-read-args))
+  (interactive (magit-diff-arguments))
   (pcase (magit-diff--dwim)
     (`unstaged (magit-diff-unstaged args files))
     (`staged (magit-diff-staged nil args files))
@@ -689,7 +686,7 @@ at the common ancestor of both revisions (i.e., use a \"...\"
 range)."
   (interactive (cons (magit-diff-read-range-or-commit "Diff for range"
                                                       nil current-prefix-arg)
-                     (magit-diff-read-args)))
+                     (magit-diff-arguments)))
   (magit-diff-setup range args files))
 
 ;;;###autoload
@@ -700,7 +697,7 @@ a commit read from the minibuffer."
   (interactive
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff working tree and commit"))
-         (magit-diff-read-args)))
+         (magit-diff-arguments)))
   (magit-diff-setup (or rev "HEAD") args files))
 
 ;;;###autoload
@@ -711,19 +708,19 @@ a commit read from the minibuffer."
   (interactive
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff index and commit"))
-         (magit-diff-read-args)))
+         (magit-diff-arguments)))
   (magit-diff-setup rev (cons "--cached" args) files))
 
 ;;;###autoload
 (defun magit-diff-unstaged (&optional args files)
   "Show changes between the working tree and the index."
-  (interactive (magit-diff-read-args))
+  (interactive (magit-diff-arguments))
   (magit-diff-setup nil args files))
 
 ;;;###autoload
 (defun magit-diff-unpushed (&optional args files)
   "Show unpushed changes."
-  (interactive (magit-diff-read-args))
+  (interactive (magit-diff-arguments))
   (-if-let (tracked (magit-get-tracked-ref))
       (magit-diff-setup (concat tracked "...") args files)
     (user-error "No upstream set")))
@@ -731,7 +728,7 @@ a commit read from the minibuffer."
 ;;;###autoload
 (defun magit-diff-unpulled (&optional args files)
   "Show unpulled changes."
-  (interactive (magit-diff-read-args))
+  (interactive (magit-diff-arguments))
   (-if-let (tracked (magit-get-tracked-ref))
       (magit-diff-setup (concat "..." tracked) args files)
     (user-error "No upstream set")))
@@ -742,7 +739,7 @@ a commit read from the minibuffer."
 While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
 be commited."
-  (interactive (magit-diff-read-args t))
+  (interactive (magit-diff-arguments t))
   (let* ((toplevel (magit-toplevel))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
                                           'magit-diff-mode toplevel)))
@@ -795,7 +792,7 @@ for a commit."
                       (magit-read-branch-or-commit "Show commit" atpoint))
                   nil (and mcommit (magit-section-parent-value
                                     (magit-current-section))))
-            (magit-diff-read-args t))))
+            (magit-diff-arguments t))))
   (let ((default-directory (if module
                                (file-name-as-directory
                                 (expand-file-name module (magit-toplevel)))
@@ -926,7 +923,7 @@ Change \"revA..revB\" to \"revB..revA\"."
 (defun magit-diff-context-p ()
   (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it)
                      (if (derived-mode-p 'magit-diff-mode)
-                         (magit-diff-arguments)
+                         (car (magit-diff-arguments))
                        (magit-diff-section-arguments)))
       (not (equal "-U0" it))
     t))

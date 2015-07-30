@@ -357,7 +357,7 @@ The following `format'-like specs are supported:
                                      (magit-stash-at-point))
                                 (magit-read-stash "Show stash"))
                             nil)
-                      (magit-diff-read-args t)))
+                      (magit-diff-arguments t)))
   (magit-mode-setup magit-stash-buffer-name-format
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-stash-mode
