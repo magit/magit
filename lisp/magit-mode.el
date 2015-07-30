@@ -486,12 +486,12 @@ the function `magit-toplevel'."
 (defun magit-mode-get-buffer (format mode &optional topdir create)
   (unless topdir
     (setq topdir (magit-toplevel)))
-  (let ((name (format-spec format
-                           `((?a . ,(abbreviate-file-name (or topdir "-")))
-                             (?b . ,(if topdir
-                                        (file-name-nondirectory
-                                         (directory-file-name topdir))
-                                      "-"))))))
+  (let ((name (format-spec
+               format (if topdir
+                          `((?a . ,(abbreviate-file-name topdir))
+                            (?b . ,(file-name-nondirectory
+                                    (directory-file-name topdir))))
+                        '((?a . "-") (?b . "-"))))))
     (or (--first (with-current-buffer it
                    (and (equal (buffer-name) name)
                         (or (not topdir)
