@@ -538,15 +538,14 @@ The following `format'-like specs are supported:
 (put 'magit-diff-section-arguments 'permanent-local t)
 
 (defun magit-diff-arguments ()
-  (magit-popup-export-file-args
-   (if (eq magit-current-popup 'magit-diff-popup)
-       magit-current-popup-args
-     magit-diff-arguments)))
-
-(defun magit-diff-section-arguments ()
-  (if (eq magit-current-popup 'magit-diff-refresh-popup)
-      magit-current-popup-args
-    magit-diff-section-arguments))
+  (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
+         (magit-popup-export-file-args magit-current-popup-args))
+        ((derived-mode-p 'magit-diff-mode)
+         (list (nth 2 magit-refresh-args)
+               (nth 3 magit-refresh-args)))
+        (t
+         (list magit-diff-section-arguments
+               nil))))
 
 (defun magit-diff-popup (arg)
   "Popup console for diff commands."
@@ -814,20 +813,9 @@ for a commit."
                       #'magit-revision-refresh-buffer
                       commit nil args files)))
 
-(defun magit-diff-refresh-arguments ()
-  (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
-         (list magit-current-popup-args
-               (and (derived-mode-p 'magit-diff-mode)
-                    (nth 3 magit-refresh-args))))
-        ((derived-mode-p 'magit-diff-mode)
-         (list (nth 2 magit-refresh-args)
-               (nth 3 magit-refresh-args)))
-        (t
-         (list magit-diff-section-arguments nil))))
-
 (defun magit-diff-refresh (args files)
   "Set the local diff arguments for the current buffer."
-  (interactive (magit-diff-refresh-arguments))
+  (interactive (magit-diff-arguments))
   (cond ((derived-mode-p 'magit-diff-mode)
          (setcdr (cdr magit-refresh-args) (list args files)))
         (t
@@ -836,7 +824,7 @@ for a commit."
 
 (defun magit-diff-set-default-arguments (args files)
   "Set the global diff arguments for the current buffer."
-  (interactive (magit-diff-refresh-arguments))
+  (interactive (magit-diff-arguments))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-set-variable 'magit-diff-arguments args)
          (setcdr (cdr magit-refresh-args) (list args files)))
@@ -847,7 +835,7 @@ for a commit."
 
 (defun magit-diff-save-default-arguments (args files)
   "Set and save the global diff arguments for the current buffer."
-  (interactive (magit-diff-refresh-arguments))
+  (interactive (magit-diff-arguments))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-save-variable 'magit-diff-arguments args)
          (setcdr (cdr magit-refresh-args) (list args files)))
@@ -906,7 +894,7 @@ Change \"revA..revB\" to \"revB..revA\"."
 
 (defun magit-diff-set-context (fn)
   (let* ((def (--if-let (magit-get "diff.context") (string-to-number it) 3))
-         (val (car (magit-diff-refresh-arguments)))
+         (val (car (magit-diff-arguments)))
          (arg (--first (string-match "^-U\\([0-9]+\\)?$" it) val))
          (num (--if-let (and arg (match-string 1 arg)) (string-to-number it) def))
          (val (delete arg val))
@@ -920,9 +908,7 @@ Change \"revA..revB\" to \"revB..revA\"."
 
 (defun magit-diff-context-p ()
   (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it)
-                     (if (derived-mode-p 'magit-diff-mode)
-                         (car (magit-diff-arguments))
-                       (magit-diff-section-arguments)))
+                     (car (magit-diff-arguments)))
       (not (equal "-U0" it))
     t))
 
