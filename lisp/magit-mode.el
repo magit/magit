@@ -484,24 +484,22 @@ the function `magit-toplevel'."
               (buffer-list))))
 
 (defun magit-mode-get-buffer (format mode &optional topdir create)
-  (if (not (string-match-p "%[ab]" format))
-      (funcall (if create #'get-buffer-create #'get-buffer) format)
-    (unless topdir
-      (setq topdir (magit-toplevel)))
-    (let ((name (format-spec format
-                             `((?a . ,(abbreviate-file-name (or topdir "-")))
-                               (?b . ,(if topdir
-                                          (file-name-nondirectory
-                                           (directory-file-name topdir))
-                                        "-"))))))
-      (or (--first (with-current-buffer it
-                     (and (or (not topdir)
-                              (equal (expand-file-name default-directory)
-                                     topdir))
-                          (string-match-p (format "^%s$" (regexp-quote name))
-                                          (buffer-name))))
-                   (buffer-list))
-          (and create (generate-new-buffer name))))))
+  (unless topdir
+    (setq topdir (magit-toplevel)))
+  (let ((name (format-spec format
+                           `((?a . ,(abbreviate-file-name (or topdir "-")))
+                             (?b . ,(if topdir
+                                        (file-name-nondirectory
+                                         (directory-file-name topdir))
+                                      "-"))))))
+    (or (--first (with-current-buffer it
+                   (and (or (not topdir)
+                            (equal (expand-file-name default-directory)
+                                   topdir))
+                        (string-match-p (format "^%s$" (regexp-quote name))
+                                        (buffer-name))))
+                 (buffer-list))
+        (and create (generate-new-buffer name)))))
 
 (defun magit-mode-get-buffer-create (format mode &optional topdir)
   (magit-mode-get-buffer format mode topdir t))
