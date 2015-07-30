@@ -483,30 +483,62 @@ The following `format'-like specs are supported:
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-diff-popup "magit-diff" nil t)
-(magit-define-popup magit-diff-popup
-  "Popup console for diff commands."
-  'magit-diff
-  :man-page "git-diff"
-  :switches '((?f "Show surrounding functions" "--function-context")
-              (?b "Ignore whitespace changes"  "--ignore-space-change")
-              (?w "Ignore all whitespace"      "--ignore-all-space"))
-  :options  '((?f "Limit to files" "-- " magit-read-files)
-              (?u "Context lines"  "-U"  read-from-minibuffer)
-              (?m "Detect renames" "-M"  read-from-minibuffer)
-              (?c "Detect copies"  "-C"  read-from-minibuffer)
-              (?a "Diff algorithm" "--diff-algorithm="
-                  magit-diff-select-algorithm))
-  :actions  '((?d "Dwim"          magit-diff-dwim)
-              (?u "Diff unstaged" magit-diff-unstaged)
-              (?c "Show commit"   magit-show-commit)
-              (?r "Diff range"    magit-diff)
-              (?s "Diff staged"   magit-diff-staged)
-              (?t "Show stash"    magit-stash-show)
-              (?p "Diff paths"    magit-diff-paths)
-              (?w "Diff worktree" magit-diff-working-tree))
-  :default-action 'magit-diff-dwim
-  :max-action-columns 3)
+(defvar magit-diff-popup
+  '(:variable magit-diff-arguments
+    :man-page "git-diff"
+    :switches ((?f "Show surrounding functions" "--function-context")
+               (?b "Ignore whitespace changes"  "--ignore-space-change")
+               (?w "Ignore all whitespace"      "--ignore-all-space"))
+    :options  ((?f "Limit to files" "-- " magit-read-files)
+               (?u "Context lines"  "-U"  read-from-minibuffer)
+               (?m "Detect renames" "-M"  read-from-minibuffer)
+               (?c "Detect copies"  "-C"  read-from-minibuffer)
+               (?a "Diff algorithm" "--diff-algorithm="
+                   magit-diff-select-algorithm))
+    :actions  ((?d "Dwim"          magit-diff-dwim)
+               (?u "Diff unstaged" magit-diff-unstaged)
+               (?c "Show commit"   magit-show-commit)
+               (?r "Diff range"    magit-diff)
+               (?s "Diff staged"   magit-diff-staged)
+               (?t "Show stash"    magit-stash-show)
+               (?p "Diff paths"    magit-diff-paths)
+               (?w "Diff worktree" magit-diff-working-tree))
+    :default-action magit-diff-dwim
+    :max-action-columns 3))
+
+(defvar magit-diff-refresh-popup
+  '(:variable magit-diff-section-arguments
+    :man-page "git-diff"
+    :switches ((?f "Show surrounding functions" "--function-context")
+               (?b "Ignore whitespace changes"  "--ignore-space-change")
+               (?w "Ignore all whitespace"      "--ignore-all-space"))
+    :options  ((?u "Context lines"  "-U" read-from-minibuffer)
+               (?m "Detect renames" "-M" read-from-minibuffer)
+               (?c "Detect copies"  "-C" read-from-minibuffer)
+               (?a "Diff algorithm" "--diff-algorithm="
+                   magit-diff-select-algorithm))
+    :actions  ((?g "Refresh"                magit-diff-refresh)
+               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+               (?s "Set defaults"           magit-diff-set-default-arguments)
+               (?r "Switch range type"      magit-diff-switch-range-type)
+               (?w "Save defaults"          magit-diff-save-default-arguments)
+               (?f "Flip revisions"         magit-diff-flip-revs))
+    :max-action-columns 2))
+
+(defcustom magit-diff-arguments nil
+  ""
+  :group 'magit-diff
+  :type '(repeat (string :tag "Argument")))
+
+(defcustom magit-diff-section-arguments nil
+  ""
+  :group 'magit-diff
+  :type '(repeat (string :tag "Argument")))
+
+(defun magit-diff-arguments ()
+  (if (eq magit-current-popup 'magit-diff-popup)
+      magit-current-popup-args
+    magit-diff-arguments))
 
 (defun magit-diff-read-args (&optional no-files)
   (let* ((args  (magit-diff-arguments))
@@ -518,32 +550,23 @@ The following `format'-like specs are supported:
         (list args)
       (list args files))))
 
-(with-no-warnings
-  (magit-define-popup magit-diff-refresh-popup
-    "Popup console for changing diff arguments in the current buffer."
-    'magit-diff nil 'magit-diff-section-arguments
-    :man-page "git-diff"
-    :switches '((?f "Show surrounding functions" "--function-context")
-                (?b "Ignore whitespace changes"  "--ignore-space-change")
-                (?w "Ignore all whitespace"      "--ignore-all-space"))
-    :options  '((?u "Context lines"  "-U" read-from-minibuffer)
-                (?m "Detect renames" "-M" read-from-minibuffer)
-                (?c "Detect copies"  "-C" read-from-minibuffer)
-                (?a "Diff algorithm" "--diff-algorithm="
-                    magit-diff-select-algorithm))
-    :actions  '((?g "Refresh"                magit-diff-refresh)
-                (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-                (?s "Set defaults"           magit-diff-set-default-arguments)
-                (?r "Switch range type"      magit-diff-switch-range-type)
-                (?w "Save defaults"          magit-diff-save-default-arguments)
-                (?f "Flip revisions"         magit-diff-flip-revs))
-    :max-action-columns 2))
+(defun magit-diff-section-arguments ()
+  (if (eq magit-current-popup 'magit-diff-refresh-popup)
+      magit-current-popup-args
+    magit-diff-section-arguments))
 
-(defadvice magit-diff-refresh-popup (around get-current-arguments activate)
+(defun magit-diff-popup (arg)
+  "Popup console for diff commands."
+  (interactive "P")
+  (magit-invoke-popup 'magit-diff-popup nil arg))
+
+(defun magit-diff-refresh-popup (arg)
+  "Popup console for changing diff arguments in the current buffer."
+  (interactive "P")
   (if (derived-mode-p 'magit-diff-mode)
       (let ((magit-diff-section-arguments (cadr magit-refresh-args)))
-        ad-do-it)
-    ad-do-it))
+        (magit-invoke-popup 'magit-diff-refresh-popup nil arg))
+    (magit-invoke-popup 'magit-diff-refresh-popup nil arg)))
 
 (defun magit-diff-select-algorithm (&rest _ignore)
   (magit-read-char-case nil t
