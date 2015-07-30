@@ -817,38 +817,41 @@ for a commit."
 
 (defun magit-diff-refresh-arguments ()
   (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
-         magit-current-popup-args)
+         (list magit-current-popup-args
+               (and (derived-mode-p 'magit-diff-mode)
+                    (nth 3 magit-refresh-args))))
         ((derived-mode-p 'magit-diff-mode)
-         (nth 2 magit-refresh-args))
+         (list (nth 2 magit-refresh-args)
+               (nth 3 magit-refresh-args)))
         (t
-         magit-diff-section-arguments)))
+         (list magit-diff-section-arguments nil))))
 
-(defun magit-diff-refresh (args)
+(defun magit-diff-refresh (args files)
   "Set the local diff arguments for the current buffer."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive (magit-diff-refresh-arguments))
   (cond ((derived-mode-p 'magit-diff-mode)
-         (setcdr (cdr magit-refresh-args) (list args nil)))
+         (setcdr (cdr magit-refresh-args) (list args files)))
         (t
          (setq magit-diff-section-arguments args)))
   (magit-refresh))
 
-(defun magit-diff-set-default-arguments (args)
+(defun magit-diff-set-default-arguments (args files)
   "Set the global diff arguments for the current buffer."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive (magit-diff-refresh-arguments))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-set-variable 'magit-diff-arguments args)
-         (setcdr (cdr magit-refresh-args) (list args nil)))
+         (setcdr (cdr magit-refresh-args) (list args files)))
         (t
          (customize-set-variable 'magit-diff-section-arguments args)
          (kill-local-variable 'magit-diff-section-arguments)))
   (magit-refresh))
 
-(defun magit-diff-save-default-arguments (args)
+(defun magit-diff-save-default-arguments (args files)
   "Set and save the global diff arguments for the current buffer."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive (magit-diff-refresh-arguments))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-save-variable 'magit-diff-arguments args)
-         (setcdr (cdr magit-refresh-args) (list args nil)))
+         (setcdr (cdr magit-refresh-args) (list args files)))
         (t
          (customize-save-variable 'magit-diff-section-arguments args)
          (kill-local-variable 'magit-diff-section-arguments)))
