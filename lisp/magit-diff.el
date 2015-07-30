@@ -887,7 +887,7 @@ Change \"revA..revB\" to \"revB..revA\"."
   (let* ((def (--if-let (magit-get "diff.context") (string-to-number it) 3))
          (val (magit-diff-refresh-arguments))
          (arg (--first (string-match "^-U\\([0-9]+\\)?$" it) val))
-         (num (--if-let (match-string 1 arg) (string-to-number it) def))
+         (num (--if-let (and arg (match-string 1 arg)) (string-to-number it) def))
          (val (delete arg val))
          (num (funcall fn num))
          (arg (and num (not (= num def)) (format "-U%i" num)))
