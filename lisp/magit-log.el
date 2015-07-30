@@ -297,7 +297,7 @@ are no unpulled commits) show."
   :group 'magit-status
   :type 'number)
 
-(defcustom magit-log-section-arguments nil
+(defcustom magit-log-section-arguments '("--decorate")
   ""
   :package-version '(magit . "2.2.0")
   :group 'magit-status
