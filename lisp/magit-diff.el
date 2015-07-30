@@ -513,6 +513,14 @@ The following `format'-like specs are supported:
   `(,@magit-diff-popup-common
     :actions ((?g "Refresh"                magit-diff-refresh)
               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+              (?s "Set defaults"           magit-diff-set-default-arguments) nil
+              (?w "Save defaults"          magit-diff-save-default-arguments))
+    :max-action-columns 2))
+
+(defvar magit-diff-mode-refresh-popup
+  `(,@magit-diff-popup-common
+    :actions ((?g "Refresh"                magit-diff-refresh)
+              (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
               (?s "Set defaults"           magit-diff-set-default-arguments)
               (?r "Switch range type"      magit-diff-switch-range-type)
               (?w "Save defaults"          magit-diff-save-default-arguments)
@@ -562,7 +570,11 @@ The following `format'-like specs are supported:
 (defun magit-diff-refresh-popup (arg)
   "Popup console for changing diff arguments in the current buffer."
   (interactive "P")
-  (let ((magit-diff-arguments
+  (let ((magit-diff-refresh-popup
+         (if (eq major-mode 'magit-diff-mode)
+             magit-diff-mode-refresh-popup
+           magit-diff-refresh-popup))
+        (magit-diff-arguments
          (if (derived-mode-p 'magit-diff-mode)
              (magit-popup-import-file-args (nth 2 magit-refresh-args)
                                            (nth 3 magit-refresh-args))
