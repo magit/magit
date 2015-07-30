@@ -1986,8 +1986,9 @@ Non-interactively run Git in DIRECTORY with ARGS."
   (with-temp-buffer
     (insert args)
     (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
-                                                     (point-max)))))
-  (magit-run-git-async args)
+                                                     (point-max))))
+    (setq default-directory directory)
+    (magit-run-git-async args))
   (magit-mode-display-buffer (magit-process-buffer directory t)
                              'magit-process-mode 'pop-to-buffer))
 
