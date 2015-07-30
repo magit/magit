@@ -337,10 +337,6 @@ are currently supported.  This option has no associated popup."
   :default-action 'magit-log-current
   :max-action-columns 3)
 
-(defvar magit-log-use-verbose-re
-  (concat "^" (regexp-opt '("--patch" "--stat")))
-  "Regexp matching arguments which trigger the use of verbose log.")
-
 (defvar magit-log-remove-graph-re
   (concat "^" (regexp-opt '("-G" "--grep")))
   "Regexp matching arguments which are not compatible with `--graph'.")
@@ -400,10 +396,6 @@ completion candidates."
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
                     #'magit-log-refresh-buffer
-                    (if (--any? (string-match-p magit-log-use-verbose-re it)
-                                args)
-                        'verbose
-                      'oneline)
                     revs
                     (if (--any? (string-match-p magit-log-remove-graph-re it)
                                 args)
@@ -454,7 +446,6 @@ completion candidates."
       (magit-mode-setup magit-log-buffer-name-format nil
                         #'magit-log-mode
                         #'magit-log-refresh-buffer
-                        'oneline
                         (list (or magit-buffer-refname
                                   (magit-get-current-branch) "HEAD"))
                         (magit-log-arguments)
@@ -550,7 +541,11 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (magit-set-buffer-margin magit-log-show-margin)
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-log-refresh-buffer (style revs args files)
+(defvar magit-log-use-verbose-re
+  (concat "^" (regexp-opt '("--patch" "--stat")))
+  "Regexp matching arguments which trigger the use of verbose log.")
+
+(defun magit-log-refresh-buffer (revs args files)
   (setq header-line-format
         (propertize
          (concat " Commits in " (mapconcat 'identity revs  " ")
@@ -558,9 +553,9 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                                     (mapconcat 'identity files " "))))
          'face 'magit-header-line))
   (magit-insert-section (logbuf)
-    (if (eq style 'oneline)
-        (magit-insert-log revs args files)
-      (magit-insert-log-verbose revs args files))))
+    (if (--any-p (string-match-p magit-log-use-verbose-re it) args)
+        (magit-insert-log-verbose revs args files)
+      (magit-insert-log revs args files))))
 
 (defun magit-insert-log (revs &optional args files)
   "Insert a oneline log section.
