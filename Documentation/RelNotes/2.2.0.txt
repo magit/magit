@@ -59,5 +59,71 @@ THIS IS NOT COMPLETE.
   compares the commit with the working tree (like `magit-diff' and
   `git diff') rather than the previous commit.
 
+* TODO (Jonas) describe diff and log argument improvements
+
+* Log graphs are no longer shown in color by default, because turning
+  the control sequences into faces is very inefficient.  To allow
+  users to get back the colorful graphs, the `--color' switch was
+  added to the log popup.
+
+* In the refs manager, `RET' on a local branch again "visits" that
+  branch by checking it out (like in v1.4), with a prefix argument it
+  instead "visits" the branch by showing information about other refs
+  relative to the visited one (like it was the case v2.1 even without
+  a prefix argument).
+
+  When the new option `magit-visit-ref-create' is non-nil, then a
+  remote branch is "visited" by creating a new local branch that
+  tracks that remote branch, and checking out that local branch.
+
+* To avoid losing any standard functionality, `C-w' and `M-w' now
+  fallback to `kill-ring-save' when the region is active.  They also
+  work in more places and in some cases copy more useful information
+  than before.
+
+* The new option `magit-push-always-verify' was added because changes
+  in v2.1 caused many users to accidentally push to `master' instead
+  of a remote feature branch as intended.  All users should set this
+  option to `nil', but only after having read the documentation.  The
+  commands that respect this option, instruct users to consult its
+  documentation.
+
+* Moving through a log using `n' and `p' is now much faster because
+  the revision buffer is no longer recreated for each commit along the
+  way.  Because Emacs does not support key-down-events this had to be
+  implemented using a timer, which has the unfortunate effect that it
+  leads to a delay even when only pressing one of these keys briefly
+  to move by a single line.  This delay can be adjusted using the new
+  option `magit-diff-auto-show-delay'.
+
+* When creating a new branch, first reading the starting point and
+  only then the name of the new branch, has advantages.  But many
+  users disagree, so the option `magit-branch-read-upstream-first'
+  was added.  It defaults to `t'.
+
+* The new commands `magit-submodule-deinit', `magit-commit-augment',
+  `magit-push-implicitly', and `magit-push-quickly' were added.
+
+* When reading user input many commands now offer a better default
+  choice and better completion candidates.
+
+* All apply variants now use `--3way' when called with a prefix
+  argument.
+
+* Log commands now respect the entries in the .mailmap file.
+
+* The command `magit-pull-current' now also fetches tags by default.
+
+* When a file has conflicts then the type of conflict is shown now.
+
+* The option `magit-log-show-refname-after-summary' was added.
+
+* The section inserter `magit-insert-user-header' was added.
+
+* The face `magit-section-secondary-heading' was added.
+
+Also contains various documentation fixes, code clean-ups, bug fixes,
+and other small to medium improvements.
+
 Authors
 -------
