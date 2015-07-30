@@ -429,26 +429,26 @@ tracked in the current repository are reverted if
 
 (defun magit-process-setup (program args)
   (magit-process-set-mode-line program args)
-  (let ((buf (magit-process-buffer)))
+  (let ((pwd default-directory)
+        (buf (magit-process-buffer)))
     (if  buf
         (magit-process-truncate-log buf)
       (setq buf (magit-process-buffer nil t)))
     (cons buf (with-current-buffer buf
-                (prog1 (magit-process-insert-section program args)
+                (prog1 (magit-process-insert-section pwd program args nil nil)
                   (backward-char 1))))))
 
-(defun magit-process-insert-section (program args &optional errcode errlog)
+(defun magit-process-insert-section (pwd program args &optional errcode errlog)
   (let ((inhibit-read-only t)
-        (magit-insert-section--parent magit-root-section)
-        (topdir (magit-toplevel)))
+        (magit-insert-section--parent magit-root-section))
     (goto-char (1- (point-max)))
     (magit-insert-section (process)
       (insert (if errcode
                   (format "%3s " (propertize (number-to-string errcode)
                                              'face 'magit-process-ng))
                 "run "))
-      (unless (equal default-directory topdir)
-        (insert (file-relative-name default-directory topdir) ?\s))
+      (unless (equal pwd default-directory)
+        (insert (file-relative-name pwd default-directory) ?\s))
       (insert (propertize program 'face 'magit-section-heading))
       (insert " ")
       (when (and args (equal program magit-git-executable))
