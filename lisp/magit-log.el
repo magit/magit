@@ -438,12 +438,6 @@ are no unpulled commits) show."
         ((derived-mode-p 'magit-cherry-mode)
          (user-error "Cannot change log arguments in cherry buffers"))))
 
-(defun magit-log-read-args (&optional use-current norev)
-  (if norev
-      (magit-log-arguments)
-    (cons (magit-log-read-revs use-current)
-          (magit-log-arguments))))
-
 (defvar magit-log-read-revs-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map crm-local-completion-map)
@@ -479,7 +473,8 @@ are no unpulled commits) show."
   "Show log for the current branch.
 When `HEAD' is detached or with a prefix argument show log for
 one or more revs read from the minibuffer."
-  (interactive (magit-log-read-args t))
+  (interactive (cons (magit-log-read-revs t)
+                     (magit-log-arguments)))
   (magit-log revs args files))
 
 ;;;###autoload
@@ -489,7 +484,8 @@ The user can input any revision or revisions separated by a
 space, or even ranges, but only branches and tags, and a
 representation of the commit at point, are available as
 completion candidates."
-  (interactive (magit-log-read-args nil))
+  (interactive (cons (magit-log-read-revs)
+                     (magit-log-arguments)))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
                     #'magit-log-refresh-buffer
@@ -499,13 +495,13 @@ completion candidates."
 ;;;###autoload
 (defun magit-log-head (&optional args files)
   "Show log for `HEAD'."
-  (interactive (magit-log-read-args nil t))
+  (interactive (magit-log-arguments))
   (magit-log (list "HEAD") args files))
 
 ;;;###autoload
 (defun magit-log-branches (&optional args files)
   "Show log for all local branches and `HEAD'."
-  (interactive (magit-log-read-args nil t))
+  (interactive (magit-log-arguments))
   (magit-log (if (magit-get-current-branch)
                  (list "--branches")
                (list "HEAD" "--branches"))
@@ -514,7 +510,7 @@ completion candidates."
 ;;;###autoload
 (defun magit-log-all-branches (&optional args files)
   "Show log for all local and remote branches and `HEAD'."
-  (interactive (magit-log-read-args nil t))
+  (interactive (magit-log-arguments))
   (magit-log (if (magit-get-current-branch)
                  (list "--branches" "--remotes")
                (list "HEAD" "--branches" "--remotes"))
@@ -523,7 +519,7 @@ completion candidates."
 ;;;###autoload
 (defun magit-log-all (&optional args files)
   "Show log for all references and `HEAD'."
-  (interactive (magit-log-read-args nil t))
+  (interactive (magit-log-arguments))
   (magit-log (if (magit-get-current-branch)
                  (list "--all")
                (list "HEAD" "--all"))
