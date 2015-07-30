@@ -488,7 +488,8 @@ The following `format'-like specs are supported:
     :man-page "git-diff"
     :switches ((?f "Show surrounding functions" "--function-context")
                (?b "Ignore whitespace changes"  "--ignore-space-change")
-               (?w "Ignore all whitespace"      "--ignore-all-space"))
+               (?w "Ignore all whitespace"      "--ignore-all-space")
+               (?x "Disallow external diff drivers" "--no-ext-diff"))
     :options  ((?f "Limit to files" "-- " magit-read-files)
                (?u "Context lines"  "-U"  read-from-minibuffer)
                (?m "Detect renames" "-M"  read-from-minibuffer)
@@ -527,12 +528,12 @@ The following `format'-like specs are supported:
               (?f "Flip revisions"         magit-diff-flip-revs))
     :max-action-columns 2))
 
-(defcustom magit-diff-arguments nil
+(defcustom magit-diff-arguments '("--no-ext-diff")
   ""
   :group 'magit-diff
   :type '(repeat (string :tag "Argument")))
 
-(defcustom magit-diff-section-arguments nil
+(defcustom magit-diff-section-arguments '("--no-ext-diff")
   ""
   :group 'magit-diff
   :type '(repeat (string :tag "Argument")))
