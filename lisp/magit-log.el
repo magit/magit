@@ -939,6 +939,7 @@ commit as argument."
 (defvar magit-cherry-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map "q" 'magit-log-bury-buffer)
     map)
   "Keymap for `magit-cherry-mode'.")
 
