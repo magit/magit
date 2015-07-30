@@ -623,16 +623,20 @@ is displayed in the current frame."
 
 (define-derived-mode magit-log-mode magit-mode "Magit Log"
   "Mode for looking at Git log.
-This mode is documented in info node `(magit)History'.
 
-\\<magit-log-mode-map>\
+This mode is documented in info node `(magit)Log Buffer'.
+
+\\<magit-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
- to visit the commit at point.
-Type \\[magit-merge-popup] to merge the commit at point.
-Type \\[magit-cherry-pick] to cherry-pick the commit at point.
-Type \\[magit-reset-head] to reset HEAD to the commit at point.
-\n\\{magit-log-mode-map}"
+Type \\[magit-visit-thing] or \\[magit-diff-show-or-scroll-up] \
+to visit the commit at point.
+
+Type \\[magit-branch-popup] to see available branch commands.
+Type \\[magit-merge-popup] to merge the branch or commit at point.
+Type \\[magit-cherry-pick-popup] to apply the commit at point.
+Type \\[magit-reset] to reset HEAD to the commit at point.
+
+\\{magit-log-mode-map}"
   :group 'magit-log
   (magit-set-buffer-margin magit-log-show-margin)
   (hack-dir-local-variables-non-file-buffer))
@@ -990,7 +994,18 @@ another window, using `magit-show-commit'."
 (put 'magit-log-select-quit :advertised-binding [?\C-c ?\C-k])
 
 (define-derived-mode magit-log-select-mode magit-log-mode "Magit Select"
-  "Mode for selecting a commit from history."
+  "Mode for selecting a commit from history.
+
+This mode is documented in info node `(magit)Select from log'.
+
+\\<magit-mode-map>\
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-visit-thing] or \\[magit-diff-show-or-scroll-up] \
+to visit the commit at point.
+
+\\<magit-log-select-mode-map>\
+Type \\[magit-log-select-pick] to select the commit at point.
+Type \\[magit-log-select-quit] to abort without selecting a commit."
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
 
@@ -1056,11 +1071,14 @@ commit as argument."
 (define-derived-mode magit-cherry-mode magit-mode "Magit Cherry"
   "Mode for looking at commits not merged upstream.
 
-\\<magit-cherry-mode-map>\
-Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
- to visit the commit at point.
-Type \\[magit-cherry-pick] to cherry-pick the commit at point.
-\n\\{magit-cherry-mode-map}"
+\\<magit-mode-map>\
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-visit-thing] or \\[magit-diff-show-or-scroll-up] \
+to visit the commit at point.
+
+Type \\[magit-cherry-pick-popup] to apply the commit at point.
+
+\\{magit-cherry-mode-map}"
   :group 'magit-modes
   (hack-dir-local-variables-non-file-buffer))
 
@@ -1104,15 +1122,18 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at Git reflog.
-This mode is documented in info node `(magit)Reflogs'.
 
-\\<magit-reflog-mode-map>\
+This mode is documented in info node `(magit)Reflog'.
+
+\\<magit-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
- to visit the commit at point.
-Type \\[magit-cherry-pick] to cherry-pick the commit at point.
-Type \\[magit-reset-head] to reset HEAD to the commit at point.
-\n\\{magit-reflog-mode-map}"
+Type \\[magit-visit-thing] or \\[magit-diff-show-or-scroll-up] \
+to visit the commit at point.
+
+Type \\[magit-cherry-pick-popup] to apply the commit at point.
+Type \\[magit-reset] to reset HEAD to the commit at point.
+
+\\{magit-reflog-mode-map}"
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
 

@@ -338,6 +338,7 @@ which visits the thing at point."
 
 (define-derived-mode magit-mode special-mode "Magit"
   "Parent major mode from which Magit major modes inherit.
+
 Magit is documented in info node `(magit)'."
   :group 'magit-modes
   (buffer-disable-undo)

@@ -354,19 +354,30 @@ deep."
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at Git status.
-This mode is documented in info node `(magit)Status'.
+
+This mode is documented in info node `(magit)Status buffer'.
+
+\\<magit-mode-map>\
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-section-toggle] to expand or hide the section at point.
+Type \\[magit-visit-thing] to visit the change or commit at point.
+
+Type \\[magit-dispatch-popup] to see available prefix popups.
+
+Staging and applying changes is documented in info node
+`(magit)Staging and unstaging' and info node `(magit)Applying'.
+
+\\<magit-hunk-section-map>Type \
+\\[magit-apply] to apply the change at point, \
+\\[magit-stage] to stage,
+\\[magit-unstage] to unstage, \
+\\[magit-discard] to discard, or \
+\\[magit-reverse] to reverse it.
 
 \\<magit-status-mode-map>\
-Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-dispatch-popup] to see available action popups.
-Type \\[magit-section-toggle] to expand or hide the section at point.
-\\<magit-hunk-section-map>\
-Type \\[magit-diff-visit-file] to visit the change at point.
-Type \\[magit-stage] to stage the change at point,
-\\[magit-unstage] to unstage, or \\[magit-discard] to discard it.
-\\<magit-status-mode-map>\
 Type \\[magit-commit-popup] to create a commit.
-\n\\{magit-status-mode-map}"
+
+\\{magit-status-mode-map}"
   :group 'magit-status
   (hack-dir-local-variables-non-file-buffer))
 
@@ -600,17 +611,21 @@ Do so depending on the value of `status.showUntrackedFiles'."
 
 (define-derived-mode magit-refs-mode magit-mode "Magit Refs"
   "Mode which lists and compares references.
-This mode is documented in info node `(magit)Branches and Remotes'.
 
-\\<magit-refs-mode-map>\
+This mode is documented in info node `(magit)References buffer'.
+
+\\<magit-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-section-toggle] to expand or hide the section at point.
+Type \\[magit-visit-thing] or \\[magit-diff-show-or-scroll-up] \
+to visit the commit or branch at point.
+
 Type \\[magit-branch-popup] to see available branch commands.
-Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
- to visit the commit at point.
 Type \\[magit-merge-popup] to merge the branch or commit at point.
-Type \\[magit-cherry-pick] to cherry-pick the commit at point.
-Type \\[magit-reset-head] to reset HEAD to the commit at point.
-\n\\{magit-refs-mode-map}"
+Type \\[magit-cherry-pick-popup] to apply the commit at point.
+Type \\[magit-reset] to reset HEAD to the commit at point.
+
+\\{magit-refs-mode-map}"
   :group 'magit-modes
   (hack-dir-local-variables-non-file-buffer))
 

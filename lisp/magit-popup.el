@@ -905,6 +905,7 @@ restored."
 
 (define-derived-mode magit-popup-sequence-mode magit-popup-mode "MagitPopup"
   "Major mode for infix argument popups, which are affected by state.
+
 Used for popups that display different actions depending on some
 external state.  Within Magit this is used for sequence commands
 such as rebase.  The function `:sequence-predicate', which takes

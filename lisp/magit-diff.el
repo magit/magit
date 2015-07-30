@@ -1157,15 +1157,25 @@ commit or stash at point, then prompt for a commit."
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a Git diff.
-This mode is documented in info node `(magit)Diffing'.
 
-\\<magit-diff-mode-map>\
+This mode is documented in info node `(magit)Diff buffer'.
+
+\\<magit-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-section-toggle] to expand or hide the section at point.
-Type \\[magit-diff-visit-file] to visit the file at point.
-Type \\[magit-apply] to apply the change at point to the worktree.
-Type \\[magit-reverse] to reverse the change at point in the worktree.
-\n\\{magit-diff-mode-map}"
+Type \\[magit-visit-thing] to visit the hunk or file at point.
+
+Staging and applying changes is documented in info node
+`(magit)Staging and unstaging' and info node `(magit)Applying'.
+
+\\<magit-hunk-section-map>Type \
+\\[magit-apply] to apply the change at point, \
+\\[magit-stage] to stage,
+\\[magit-unstage] to unstage, \
+\\[magit-discard] to discard, or \
+\\[magit-reverse] to reverse it.
+
+\\{magit-diff-mode-map}"
   :group 'magit-diff
   (hack-dir-local-variables-non-file-buffer))
 
@@ -1454,14 +1464,25 @@ section or a child thereof."
 
 (define-derived-mode magit-revision-mode magit-diff-mode "Magit Rev"
   "Mode for looking at a Git commit.
-This mode is documented in info node `(magit)Commit Buffer'.
 
-\\<magit-revision-mode-map>\
+This mode is documented in info node `(magit)Revision buffer'.
+
+\\<magit-mode-map>\
+Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-section-toggle] to expand or hide the section at point.
-Type \\[magit-diff-visit-file] to visit the hunk or file at point.
-Type \\[magit-apply] to apply the change at point to the worktree.
-Type \\[magit-reverse] to reverse the change at point in the worktree.
-\n\\{magit-revision-mode-map}"
+Type \\[magit-visit-thing] to visit the hunk or file at point.
+
+Staging and applying changes is documented in info node
+`(magit)Staging and unstaging' and info node `(magit)Applying'.
+
+\\<magit-hunk-section-map>Type \
+\\[magit-apply] to apply the change at point, \
+\\[magit-stage] to stage,
+\\[magit-unstage] to unstage, \
+\\[magit-discard] to discard, or \
+\\[magit-reverse] to reverse it.
+
+\\{magit-revision-mode-map}"
   :group 'magit-revision
   (hack-dir-local-variables-non-file-buffer))
 
