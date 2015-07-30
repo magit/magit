@@ -476,13 +476,12 @@ the function `magit-toplevel'."
            buffer)
   buffer)
 
-(defun magit-mode-get-buffers (&optional topdir)
-  (unless topdir
-    (setq topdir (magit-toplevel)))
-  (--filter (with-current-buffer it
-              (and (derived-mode-p 'magit-mode)
-                   (equal default-directory topdir)))
-            (buffer-list)))
+(defun magit-mode-get-buffers ()
+  (let ((topdir (magit-toplevel)))
+    (--filter (with-current-buffer it
+                (and (derived-mode-p 'magit-mode)
+                     (equal default-directory topdir)))
+              (buffer-list))))
 
 (defun magit-mode-get-buffer (format mode &optional topdir create)
   (if (not (string-match-p "%[ab]" format))
