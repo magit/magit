@@ -676,7 +676,10 @@ tracked in the current repository are reverted if
               (goto-char (1+ (line-end-position)))
               (delete-char -1)
               (setf (magit-section-content section) nil))
-          (when (= arg 0)
+          (when (and (= arg 0)
+                     (not (--any-p (eq (window-buffer it)
+                                       (magit-process-buffer))
+                                   (window-list))))
             (magit-section-hide section))))))
   (unless (= arg 0)
     (funcall
