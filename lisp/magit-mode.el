@@ -493,11 +493,10 @@ the function `magit-toplevel'."
                                          (directory-file-name topdir))
                                       "-"))))))
     (or (--first (with-current-buffer it
-                   (and (or (not topdir)
+                   (and (equal (buffer-name) name)
+                        (or (not topdir)
                             (equal (expand-file-name default-directory)
-                                   topdir))
-                        (string-match-p (format "^%s$" (regexp-quote name))
-                                        (buffer-name))))
+                                   topdir))))
                  (buffer-list))
         (and create (generate-new-buffer name)))))
 
