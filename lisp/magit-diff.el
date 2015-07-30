@@ -550,7 +550,17 @@ The following `format'-like specs are supported:
 (defun magit-diff-popup (arg)
   "Popup console for diff commands."
   (interactive "P")
-  (magit-invoke-popup 'magit-diff-popup nil arg))
+  (let ((magit-diff-arguments
+         ;; We cannot possibly know what suffix command the user is
+         ;; about to invoke, so we also don't know from which buffer
+         ;; we should get the current values.  However it is much
+         ;; more likely that we will end up updating the diff buffer,
+         ;; and we therefore use the value from that buffer.
+         (-if-let (buffer (magit-mode-get-buffer nil 'magit-diff-mode))
+             (with-current-buffer buffer
+               (nth 2 magit-refresh-args))
+           (default-value 'magit-diff-arguments))))
+    (magit-invoke-popup 'magit-diff-popup nil arg)))
 
 (defun magit-diff-refresh-popup (arg)
   "Popup console for changing diff arguments in the current buffer."
