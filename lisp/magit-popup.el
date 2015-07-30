@@ -1063,6 +1063,11 @@ in the popup."
 
 ;;; Utilities
 
+(defun magit-popup-import-file-args (args files)
+  (if files
+      (cons (concat "-- " (mapconcat #'identity files ",")) args)
+    args))
+
 (defun magit-popup-export-file-args (args)
   (let ((files (--first (string-prefix-p "-- " it) args)))
     (when files
