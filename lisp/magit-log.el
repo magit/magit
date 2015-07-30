@@ -337,10 +337,6 @@ are currently supported.  This option has no associated popup."
   :default-action 'magit-log-current
   :max-action-columns 3)
 
-(defvar magit-log-remove-graph-re
-  (concat "^" (regexp-opt '("-G" "--grep")))
-  "Regexp matching arguments which are not compatible with `--graph'.")
-
 (defun magit-log-read-args (&optional use-current norev)
   (if norev
       (magit-popup-export-file-args (magit-log-arguments))
@@ -396,12 +392,7 @@ completion candidates."
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
                     #'magit-log-refresh-buffer
-                    revs
-                    (if (--any? (string-match-p magit-log-remove-graph-re it)
-                                args)
-                        (delete "--graph" args)
-                      args)
-                    files)
+                    revs args files)
   (magit-log-goto-same-commit))
 
 ;;;###autoload
@@ -541,6 +532,10 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (magit-set-buffer-margin magit-log-show-margin)
   (hack-dir-local-variables-non-file-buffer))
 
+(defvar magit-log-remove-graph-re
+  (concat "^" (regexp-opt '("-G" "--grep")))
+  "Regexp matching arguments which are not compatible with `--graph'.")
+
 (defvar magit-log-use-verbose-re
   (concat "^" (regexp-opt '("--patch" "--stat")))
   "Regexp matching arguments which trigger the use of verbose log.")
@@ -552,6 +547,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                  (and files (concat " touching "
                                     (mapconcat 'identity files " "))))
          'face 'magit-header-line))
+  (when (--any-p (string-match-p magit-log-remove-graph-re it) args)
+    (setq args (remove "--graph" args)))
   (magit-insert-section (logbuf)
     (if (--any-p (string-match-p magit-log-use-verbose-re it) args)
         (magit-insert-log-verbose revs args files)
