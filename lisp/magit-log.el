@@ -319,7 +319,8 @@ are no unpulled commits) show."
                (?S "Show signatures"         "--show-signature")
                (?u "Show diffs"              "--patch")
                (?s "Show diffstats"          "--stat")
-               (?D "Simplify by decoration"  "--simplify-by-decoration"))
+               (?D "Simplify by decoration"  "--simplify-by-decoration")
+               (?f "Follow renames when showing single-file log" "--follow"))
     :options  ((?f "Limit to files"          "-- "       magit-read-files)
                (?a "Limit to author"         "--author=" read-from-minibuffer)
                (?m "Search messages"         "--grep="   read-from-minibuffer)
@@ -632,7 +633,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (hack-dir-local-variables-non-file-buffer))
 
 (defvar magit-log-remove-graph-re
-  (concat "^" (regexp-opt '("-G" "--grep")))
+  (concat "^" (regexp-opt '("-G" "--grep" "--follow")))
   "Regexp matching arguments which are not compatible with `--graph'.")
 
 (defvar magit-log-use-verbose-re
@@ -646,6 +647,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                  (and files (concat " touching "
                                     (mapconcat 'identity files " "))))
          'face 'magit-header-line))
+  (unless (= (length files) 1)
+    (setq args (remove "--follow" args)))
   (when (--any-p (string-match-p magit-log-remove-graph-re it) args)
     (setq args (remove "--graph" args)))
   (magit-insert-section (logbuf)
