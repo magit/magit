@@ -618,8 +618,8 @@ If MBASE is non-nil, prompt for which rev to place at the end of
 a \"revA...revB\" range.  Otherwise, always construct
 \"revA..revB\" range."
   (--if-let (magit-region-values 'commit 'branch)
-      (let ((revA (car it))
-            (revB (car (last it))))
+      (let ((revA (car (last it)))
+            (revB (car it)))
         (deactivate-mark)
         (if mbase
             (let* ((revA-full (magit-rev-parse revA))
