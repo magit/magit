@@ -835,10 +835,10 @@ for a commit."
          (kill-local-variable 'magit-diff-section-arguments)))
   (magit-refresh))
 
-(defun magit-diff-switch-range-type (args)
+(defun magit-diff-switch-range-type ()
   "Convert diff range type.
 Change \"revA..revB\" to \"revB...revA\", or vice versa."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive)
   (let ((range (car magit-refresh-args)))
     (if (and (derived-mode-p 'magit-diff-mode)
              (string-match magit-range-re range))
@@ -852,10 +852,10 @@ Change \"revA..revB\" to \"revB...revA\", or vice versa."
           (magit-refresh))
       (user-error "No range to change"))))
 
-(defun magit-diff-flip-revs (args)
+(defun magit-diff-flip-revs ()
   "Swap revisions in diff range.
 Change \"revA..revB\" to \"revB..revA\"."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive)
   (let ((range (car magit-refresh-args)))
     (if (and range
              (derived-mode-p 'magit-diff-mode)
