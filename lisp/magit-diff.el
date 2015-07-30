@@ -644,6 +644,12 @@ a \"revA...revB\" range.  Otherwise, always construct
                           secondary-default
                           (magit-get-current-branch)))))
 
+(defun magit-diff-setup (range args files)
+  (magit-mode-setup magit-diff-buffer-name-format
+                    magit-diff-switch-buffer-function
+                    #'magit-diff-mode
+                    #'magit-diff-refresh-buffer range args files))
+
 ;;;###autoload
 (defun magit-diff (range &optional args files)
   "Show differences between two commits.
@@ -661,10 +667,7 @@ range)."
   (interactive (cons (magit-diff-read-range-or-commit "Diff for range"
                                                       nil current-prefix-arg)
                      (magit-diff-read-args)))
-  (magit-mode-setup magit-diff-buffer-name-format
-                    magit-diff-switch-buffer-function
-                    #'magit-diff-mode
-                    #'magit-diff-refresh-buffer range args files))
+  (magit-diff-setup range args files))
 
 ;;;###autoload
 (defun magit-diff-working-tree (&optional rev args files)
@@ -675,7 +678,7 @@ a commit read from the minibuffer."
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff working tree and commit"))
          (magit-diff-read-args)))
-  (magit-diff (or rev "HEAD") args files))
+  (magit-diff-setup (or rev "HEAD") args files))
 
 ;;;###autoload
 (defun magit-diff-staged (&optional rev args files)
@@ -686,20 +689,20 @@ a commit read from the minibuffer."
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff index and commit"))
          (magit-diff-read-args)))
-  (magit-diff rev (cons "--cached" args) files))
+  (magit-diff-setup rev (cons "--cached" args) files))
 
 ;;;###autoload
 (defun magit-diff-unstaged (&optional args files)
   "Show changes between the working tree and the index."
   (interactive (magit-diff-read-args))
-  (magit-diff nil args files))
+  (magit-diff-setup nil args files))
 
 ;;;###autoload
 (defun magit-diff-unpushed (&optional args files)
   "Show unpushed changes."
   (interactive (magit-diff-read-args))
   (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff (concat tracked "...") args files)
+      (magit-diff-setup (concat tracked "...") args files)
     (user-error "No upstream set")))
 
 ;;;###autoload
@@ -707,7 +710,7 @@ a commit read from the minibuffer."
   "Show unpulled changes."
   (interactive (magit-diff-read-args))
   (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff (concat "..." tracked) args files)
+      (magit-diff-setup (concat "..." tracked) args files)
     (user-error "No upstream set")))
 
 ;;;###autoload
@@ -739,17 +742,17 @@ be commited."
   (kbd "C-c C-d") 'magit-diff-while-committing)
 
 (defun magit-diff-while-amending (&optional args)
-  (magit-diff "HEAD^" (cons "--cached" args)))
+  (magit-diff-setup "HEAD^" (cons "--cached" args) nil))
 
 ;;;###autoload
 (defun magit-diff-paths (a b)
   "Show changes between any two files on disk."
   (interactive (list (read-file-name "First file: " nil nil t)
                      (read-file-name "Second file: " nil nil t)))
-  (magit-diff nil
-              (list "--no-index")
-              (list (expand-file-name a)
-                    (expand-file-name b))))
+  (magit-diff-setup nil
+                    (list "--no-index")
+                    (list (expand-file-name a)
+                          (expand-file-name b))))
 
 (defvar-local magit-diff-hidden-files nil)
 (put 'magit-diff-hidden-files 'permanent-local t)
