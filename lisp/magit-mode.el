@@ -227,7 +227,7 @@ has to confirm each save."
     (define-key map "I" 'magit-gitignore-locally)
     (define-key map "k" 'magit-delete-thing)
     (define-key map "l" 'magit-log-popup)
-    (define-key map "L" 'magit-toggle-margin)
+    (define-key map "L" 'magit-log-refresh-popup)
     (define-key map "m" 'magit-merge-popup)
     (define-key map "M" 'magit-remote-popup)
     (define-key map "o" 'magit-submodule-popup)

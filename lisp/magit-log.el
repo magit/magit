@@ -298,15 +298,10 @@ are no unpulled commits) show."
   :type 'number)
 
 (defcustom magit-log-section-arguments nil
-  "Additional Git arguments used when creating log sections.
-Only `--graph', `--color', `--decorate', and `--show-signature'
-are currently supported.  This option has no associated popup."
+  ""
   :package-version '(magit . "2.2.0")
   :group 'magit-status
-  :type '(repeat (choice (const "--graph")
-                         (const "--color")
-                         (const "--decorate")
-                         (const "--show-signature"))))
+  :type '(repeat (string :tag "Argument")))
 
 (define-obsolete-variable-alias 'magit-log-section-args
   'magit-log-section-arguments "2.2.0")
@@ -339,21 +334,115 @@ are currently supported.  This option has no associated popup."
     :default-action magit-log-current
     :max-action-columns 3))
 
+(defvar magit-log-refresh-popup
+  '(:variable magit-log-arguments
+    :man-page "git-log"
+    :switches ((?g "Show graph"          "--graph")
+               (?c "Show graph in color" "--color")
+               (?d "Show refnames"       "--decorate"))
+    :actions  ((?g "Refresh"       magit-log-refresh)
+               (?t "Toggle margin" magit-toggle-margin)
+               (?s "Set defaults"  magit-log-set-default-arguments) nil
+               (?w "Save defaults" magit-log-save-default-arguments))
+    :max-action-columns 2))
+
 (defun magit-log-arguments ()
-  (if (eq magit-current-popup 'magit-log-popup)
-      magit-current-popup-args
-    magit-log-arguments))
+  (cond ((memq magit-current-popup '(magit-log-popup magit-log-refresh-popup))
+         (magit-popup-export-file-args magit-current-popup-args))
+        ((derived-mode-p 'magit-log-mode)
+         (list (nth 1 magit-refresh-args)
+               (nth 2 magit-refresh-args)))
+        (t
+         (list magit-log-section-arguments nil))))
 
 (defun magit-log-popup (arg)
   "Popup console for log commands."
   (interactive "P")
-  (magit-invoke-popup 'magit-log-popup nil arg))
+  (let ((magit-log-arguments
+         (-if-let (buffer (magit-mode-get-buffer nil 'magit-log-mode))
+             (with-current-buffer buffer
+               (magit-popup-import-file-args (nth 1 magit-refresh-args)
+                                             (nth 2 magit-refresh-args)))
+           (default-value 'magit-log-arguments))))
+    (magit-invoke-popup 'magit-log-popup nil arg)))
+
+(defun magit-log-refresh-popup (arg)
+  "Popup console for changing log arguments in the current buffer."
+  (interactive "P")
+  (magit-log-refresh-assert)
+  (let ((magit-log-refresh-popup
+         (cond ((derived-mode-p 'magit-log-select-mode)
+                magit-log-refresh-popup)
+               ((derived-mode-p 'magit-log-mode)
+                (let ((def (copy-sequence magit-log-refresh-popup)))
+                  (plist-put def :switches (plist-get magit-log-popup :switches))
+                  (plist-put def :options  (plist-get magit-log-popup :options))
+                  def))
+               (t
+                magit-log-refresh-popup)))
+        (magit-log-arguments
+         (cond ((derived-mode-p 'magit-log-select-mode)
+                (cadr magit-refresh-args))
+               ((derived-mode-p 'magit-log-mode)
+                (magit-popup-import-file-args (nth 1 magit-refresh-args)
+                                              (nth 2 magit-refresh-args)))
+               (t
+                magit-log-section-arguments))))
+    (magit-invoke-popup 'magit-log-refresh-popup nil arg)))
+
+(defun magit-log-refresh (args files)
+  "Set the local log arguments for the current buffer."
+  (interactive (magit-log-arguments))
+  (magit-log-refresh-assert)
+  (cond ((derived-mode-p 'magit-log-select-mode)
+         (setcar (cdr magit-refresh-args) args))
+        ((derived-mode-p 'magit-log-mode)
+         (setcdr magit-refresh-args (list args files)))
+        (t
+         (setq-local magit-log-section-arguments args)))
+  (magit-refresh))
+
+(defun magit-log-set-default-arguments (args files)
+  "Set the global log arguments for the current buffer."
+  (interactive (magit-log-arguments))
+  (magit-log-refresh-assert)
+  (cond ((derived-mode-p 'magit-log-select-mode)
+         (customize-set-variable 'magit-log-select-arguments args)
+         (setcar (cdr magit-refresh-args) args))
+        ((derived-mode-p 'magit-log-mode)
+         (customize-set-variable 'magit-log-arguments args)
+         (setcdr magit-refresh-args (list args files)))
+        (t
+         (customize-set-variable 'magit-log-section-arguments args)
+         (kill-local-variable    'magit-log-section-arguments)))
+  (magit-refresh))
+
+(defun magit-log-save-default-arguments (args files)
+  "Set and save the global log arguments for the current buffer."
+  (interactive (magit-log-arguments))
+  (magit-log-refresh-assert)
+  (cond ((derived-mode-p 'magit-log-select-mode)
+         (customize-save-variable 'magit-log-select-arguments args)
+         (setcar (cdr magit-refresh-args) args))
+        ((derived-mode-p 'magit-log-mode)
+         (customize-save-variable 'magit-log-arguments args)
+         (setcdr magit-refresh-args (list args files)))
+        (t
+         (customize-save-variable 'magit-log-section-arguments args)
+         (kill-local-variable     'magit-log-section-arguments)))
+  (magit-refresh))
+
+(defun magit-log-refresh-assert ()
+  (cond ((derived-mode-p 'magit-reflog-mode)
+         (user-error "Cannot change log arguments in reflog buffers"))
+        ((derived-mode-p 'magit-cherry-mode)
+         (user-error "Cannot change log arguments in cherry buffers"))))
 
 (defun magit-log-read-args (&optional use-current norev)
   (if norev
-      (magit-popup-export-file-args (magit-log-arguments))
+      (magit-log-arguments)
     (cons (magit-log-read-revs use-current)
-          (magit-popup-export-file-args (magit-log-arguments)))))
+          (magit-log-arguments))))
 
 (defvar magit-log-read-revs-map
   (let ((map (make-sparse-keymap)))
@@ -954,6 +1043,7 @@ commit as argument."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map "q" 'magit-log-bury-buffer)
+    (define-key map "L" 'magit-toggle-margin)
     map)
   "Keymap for `magit-cherry-mode'.")
 
@@ -1002,6 +1092,7 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
+    (define-key map "L" 'magit-toggle-margin)
     map)
   "Keymap for `magit-reflog-mode'.")
 
