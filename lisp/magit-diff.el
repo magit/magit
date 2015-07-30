@@ -535,7 +535,7 @@ The following `format'-like specs are supported:
   :group 'magit-diff
   :type '(repeat (string :tag "Argument")))
 
-(defun magit-diff-arguments (&optional no-files)
+(defun magit-diff-arguments ()
   (let* ((args (if (eq magit-current-popup 'magit-diff-popup)
                    magit-current-popup-args
                  magit-diff-arguments))
@@ -543,9 +543,7 @@ The following `format'-like specs are supported:
     (when files
       (setq args  (delete files args)
             files (split-string (substring files 3) ",")))
-    (if no-files
-        (list args)
-      (list args files))))
+    (list args files)))
 
 (defun magit-diff-section-arguments ()
   (if (eq magit-current-popup 'magit-diff-refresh-popup)
@@ -734,12 +732,12 @@ a commit read from the minibuffer."
     (user-error "No upstream set")))
 
 ;;;###autoload
-(defun magit-diff-while-committing (&optional args)
+(defun magit-diff-while-committing (&optional args files)
   "While committing, show the changes that are about to be committed.
 While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
 be commited."
-  (interactive (magit-diff-arguments t))
+  (interactive (magit-diff-arguments))
   (let* ((toplevel (magit-toplevel))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
                                           'magit-diff-mode toplevel)))
@@ -754,15 +752,15 @@ be commited."
                            (not (equal (magit-toplevel) toplevel))
                            ;; toggle to include last commit
                            (not (car magit-refresh-args))))))
-            (magit-diff-while-amending args)
-          (magit-diff-staged nil args))
+            (magit-diff-while-amending args files)
+          (magit-diff-staged nil args files))
       (user-error "No commit in progress"))))
 
 (define-key git-commit-mode-map
   (kbd "C-c C-d") 'magit-diff-while-committing)
 
-(defun magit-diff-while-amending (&optional args)
-  (magit-diff-setup "HEAD^" (cons "--cached" args) nil))
+(defun magit-diff-while-amending (&optional args files)
+  (magit-diff-setup "HEAD^" (cons "--cached" args) files))
 
 ;;;###autoload
 (defun magit-diff-paths (a b)
@@ -778,7 +776,7 @@ be commited."
 (put 'magit-diff-hidden-files 'permanent-local t)
 
 ;;;###autoload
-(defun magit-show-commit (commit &optional noselect module args)
+(defun magit-show-commit (commit &optional noselect module args files)
   "Show the commit at point.
 If there is no commit at point or with a prefix argument prompt
 for a commit."
@@ -792,7 +790,7 @@ for a commit."
                       (magit-read-branch-or-commit "Show commit" atpoint))
                   nil (and mcommit (magit-section-parent-value
                                     (magit-current-section))))
-            (magit-diff-arguments t))))
+            (magit-diff-arguments))))
   (let ((default-directory (if module
                                (file-name-as-directory
                                 (expand-file-name module (magit-toplevel)))
@@ -816,7 +814,7 @@ for a commit."
                       (if noselect 'display-buffer 'pop-to-buffer)
                       #'magit-revision-mode
                       #'magit-revision-refresh-buffer
-                      commit args)))
+                      commit args files)))
 
 (defun magit-diff-refresh-arguments ()
   (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
@@ -1454,13 +1452,13 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   :group 'magit-revision
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-revision-refresh-buffer (commit args)
+(defun magit-revision-refresh-buffer (commit args files)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-diff-wash-revision
       "show" "-p" "--cc" "--decorate=full" "--format=fuller" "--no-prefix"
       (and magit-revision-show-diffstat "--stat")
       (and magit-revision-show-notes "--notes")
-      args commit "--")))
+      args commit "--" files)))
 
 (defun magit-diff-wash-revision (args)
   (magit-diff-wash-tag)
