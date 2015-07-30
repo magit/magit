@@ -557,12 +557,12 @@ The following `format'-like specs are supported:
   "Show changes for the thing at point."
   (interactive (magit-diff-read-args))
   (pcase (magit-diff--dwim)
-    (`unstaged (magit-diff-unstaged args))
-    (`staged   (magit-diff-staged nil args))
+    (`unstaged (magit-diff-unstaged args files))
+    (`staged (magit-diff-staged nil args files))
     (`(commit . ,value) (magit-show-commit value nil nil args))
     (`(stash  . ,value) (magit-stash-show value nil args))
     ((and range (pred stringp))
-     (magit-diff range args))
+     (magit-diff range args files))
     (_
      (call-interactively #'magit-diff))))
 
@@ -686,7 +686,7 @@ a commit read from the minibuffer."
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff index and commit"))
          (magit-diff-read-args)))
-  (magit-diff rev (cons "--cached" args)))
+  (magit-diff rev (cons "--cached" args) files))
 
 ;;;###autoload
 (defun magit-diff-unstaged (&optional args files)
