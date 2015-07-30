@@ -964,7 +964,7 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
                     #'magit-cherry-mode
                     #'magit-cherry-refresh-buffer upstream head))
 
-(defun magit-cherry-refresh-buffer (upstream head)
+(defun magit-cherry-refresh-buffer (_upstream _head)
   (magit-insert-section (cherry)
     (run-hooks 'magit-cherry-sections-hook)))
 
