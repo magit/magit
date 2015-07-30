@@ -355,7 +355,7 @@ selected from a list of recent commits.
     (magit-log-select
       `(lambda (commit)
          (magit-rebase-interactive (concat commit "^") (list ,@args)))
-      "Type %p on a commit to interactively rebase it and all commits above it,")))
+      "Type %p on a commit to rebase it and all commits above it,")))
 
 (defun magit-rebase-unpushed (commit &optional args)
   "Start an interactive rebase sequence of all unpushed commits.
@@ -368,7 +368,7 @@ selected from a list of recent commits.
     (magit-log-select
       `(lambda (commit)
          (magit-rebase-interactive (concat commit "^") (list ,@args)))
-      "Type %p on a commit to interactively rebase it and all commits above it,")))
+      "Type %p on a commit to rebase it and all commits above it,")))
 
 ;;;###autoload
 (defun magit-rebase-autosquash (commit &optional args)
