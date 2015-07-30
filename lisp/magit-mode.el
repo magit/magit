@@ -226,6 +226,7 @@ has to confirm each save."
     (define-key map "i" 'magit-gitignore)
     (define-key map "I" 'magit-gitignore-locally)
     (define-key map "k" 'magit-delete-thing)
+    (define-key map "K" 'magit-file-untrack)
     (define-key map "l" 'magit-log-popup)
     (define-key map "L" 'magit-log-refresh-popup)
     (define-key map "m" 'magit-merge-popup)
@@ -233,7 +234,7 @@ has to confirm each save."
     (define-key map "o" 'magit-submodule-popup)
     (define-key map "P" 'magit-push-popup)
     (define-key map "r" 'magit-rebase-popup)
-    (define-key map "R" 'magit-rename-thing)
+    (define-key map "R" 'magit-file-rename)
     (define-key map "t" 'magit-tag-popup)
     (define-key map "T" 'magit-notes-popup)
     (define-key map "\r"       'magit-visit-thing)
@@ -271,18 +272,11 @@ Where applicable, section-specific keymaps bind another command
 which deletes the thing at point."
   (user-error "There is no thing at point that could be deleted"))
 
-(defun magit-rename-thing ()
-  "This is a placeholder command.
-Where applicable, section-specific keymaps bind another command
-which renames the thing at point."
-  (user-error "There is no thing at point that could be renamed"))
-
 (defun magit-visit-thing ()
   "This is a placeholder command.
 Where applicable, section-specific keymaps bind another command
 which visits the thing at point."
   (user-error "There is no thing at point that could be visited"))
-
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
