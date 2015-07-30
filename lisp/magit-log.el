@@ -331,13 +331,10 @@ are currently supported.  This option has no associated popup."
   "Regexp matching arguments which are not compatible with `--graph'.")
 
 (defun magit-log-read-args (&optional use-current norev)
-  (let* ((args  (magit-log-arguments))
-         (files (--first (string-match-p "^-- " it) args)))
-    (when files
-      (setq args  (remove files args)
-            files (split-string (substring files 3) ",")))
-    `(,@(unless norev (list (magit-log-read-revs use-current)))
-      ,args ,files)))
+  (if norev
+      (magit-popup-export-file-args (magit-log-arguments))
+    (cons (magit-log-read-revs use-current)
+          (magit-popup-export-file-args (magit-log-arguments)))))
 
 (defvar magit-log-read-revs-map
   (let ((map (make-sparse-keymap)))

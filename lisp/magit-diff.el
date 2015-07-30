@@ -536,14 +536,10 @@ The following `format'-like specs are supported:
   :type '(repeat (string :tag "Argument")))
 
 (defun magit-diff-arguments ()
-  (let* ((args (if (eq magit-current-popup 'magit-diff-popup)
-                   magit-current-popup-args
-                 magit-diff-arguments))
-         (files (--first (string-prefix-p "-- " it) args)))
-    (when files
-      (setq args  (delete files args)
-            files (split-string (substring files 3) ",")))
-    (list args files)))
+  (magit-popup-export-file-args
+   (if (eq magit-current-popup 'magit-diff-popup)
+       magit-current-popup-args
+     magit-diff-arguments)))
 
 (defun magit-diff-section-arguments ()
   (if (eq magit-current-popup 'magit-diff-refresh-popup)
