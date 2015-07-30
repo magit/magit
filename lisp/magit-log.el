@@ -529,9 +529,11 @@ completion candidates."
              args files))
 
 ;;;###autoload
-(defun magit-log-buffer-file ()
-  "Show log for the file visited in the current buffer."
-  (interactive)
+(defun magit-log-buffer-file (&optional follow)
+  "Show log for the file visited in the current buffer.
+With a prefix argument or when `--follow' is part of
+`magit-log-arguments', then follow renames."
+  (interactive )
   (-if-let (file (or (buffer-file-name (buffer-base-buffer))
                      magit-buffer-file-name))
       (magit-mode-setup magit-log-buffer-name-format nil
@@ -539,7 +541,10 @@ completion candidates."
                         #'magit-log-refresh-buffer
                         (list (or magit-buffer-refname
                                   (magit-get-current-branch) "HEAD"))
-                        (magit-log-arguments)
+                        (let ((args (magit-log-arguments)))
+                          (if (and follow (not (member "--follow" args)))
+                              (cons "--follow" args)
+                            args))
                         (list (file-relative-name file (magit-toplevel))))
     (user-error "Buffer isn't visiting a file"))
   (magit-log-goto-same-commit))
