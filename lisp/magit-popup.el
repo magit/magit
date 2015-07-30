@@ -1061,6 +1061,20 @@ in the popup."
                                        :dsc (cadr elt)))
          (list 'function (lookup-key (current-local-map) (car elt)))))
 
+;;; Utilities
+
+(defun magit-popup-import-file-args (args files)
+  (if files
+      (cons (concat "-- " (mapconcat #'identity files ",")) args)
+    args))
+
+(defun magit-popup-export-file-args (args)
+  (let ((files (--first (string-prefix-p "-- " it) args)))
+    (when files
+      (setq args  (remove files args)
+            files (split-string (substring files 3) ",")))
+    (list args files)))
+
 ;;; magit-popup.el ends soon
 
 (defconst magit-popup-font-lock-keywords

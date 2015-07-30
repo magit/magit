@@ -351,24 +351,24 @@ The following `format'-like specs are supported:
   :type 'string)
 
 ;;;###autoload
-(defun magit-stash-show (stash &optional noselect args)
+(defun magit-stash-show (stash &optional noselect args files)
   "Show all diffs of a stash in a buffer."
   (interactive (nconc (list (or (and (not current-prefix-arg)
                                      (magit-stash-at-point))
                                 (magit-read-stash "Show stash"))
                             nil)
-                      (magit-diff-read-args t)))
+                      (magit-diff-arguments)))
   (magit-mode-setup magit-stash-buffer-name-format
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-stash-mode
-                    #'magit-stash-refresh-buffer stash args))
+                    #'magit-stash-refresh-buffer stash nil args files))
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
   :group 'magit
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-stash-refresh-buffer (stash args)
+(defun magit-stash-refresh-buffer (stash _const args files)
   (magit-insert-section (stash)
     (run-hooks 'magit-stash-sections-hook)))
 

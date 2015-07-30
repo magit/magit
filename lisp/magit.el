@@ -79,7 +79,8 @@
   :type 'hook)
 
 (defcustom magit-status-headers-hook
-  '(magit-insert-head-header
+  '(magit-insert-diff-filter-header
+    magit-insert-head-header
     magit-insert-upstream-header
     magit-insert-tags-header)
   "Hook run to insert headers into the status buffer.
@@ -90,7 +91,8 @@ at all."
   :package-version '(magit . "2.1.0")
   :group 'magit-status
   :type 'hook
-  :options '(magit-insert-repo-header
+  :options '(magit-insert-diff-filter-header
+             magit-insert-repo-header
              magit-insert-remote-header
              magit-insert-head-header
              magit-insert-upstream-header
@@ -522,6 +524,16 @@ The sections are inserted by running the functions on the hook
          (concat (format "%-10s" "User: ")
                  (propertize name 'face 'magit-log-author)
                  " <" email ">" "\n"))))))
+
+(defun magit-insert-diff-filter-header ()
+  "Insert a header line showing the effective diff filters."
+  (when magit-diff-section-file-args
+    (magit-insert-section (filter 'diff)
+      (magit-insert
+       (concat (propertize (format "%-10s" "Filter! ")
+                           'face 'magit-section-heading)
+               (mapconcat #'identity magit-diff-section-file-args " ")
+               "\n")))))
 
 (magit-define-section-jumper tracked "Tracked files")
 

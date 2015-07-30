@@ -483,21 +483,23 @@ The following `format'-like specs are supported:
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-diff-popup "magit-diff" nil t)
-(magit-define-popup magit-diff-popup
-  "Popup console for diff commands."
-  'magit-diff
-  :man-page "git-diff"
-  :switches '((?f "Show surrounding functions" "--function-context")
-              (?b "Ignore whitespace changes"  "--ignore-space-change")
-              (?w "Ignore all whitespace"      "--ignore-all-space"))
-  :options  '((?f "Limit to files" "-- " magit-read-files)
-              (?u "Context lines"  "-U"  read-from-minibuffer)
-              (?m "Detect renames" "-M"  read-from-minibuffer)
-              (?c "Detect copies"  "-C"  read-from-minibuffer)
-              (?a "Diff algorithm" "--diff-algorithm="
-                  magit-diff-select-algorithm))
-  :actions  '((?d "Dwim"          magit-diff-dwim)
+(defconst magit-diff-popup-common
+  '(:variable magit-diff-arguments
+    :man-page "git-diff"
+    :switches ((?f "Show surrounding functions" "--function-context")
+               (?b "Ignore whitespace changes"  "--ignore-space-change")
+               (?w "Ignore all whitespace"      "--ignore-all-space")
+               (?x "Disallow external diff drivers" "--no-ext-diff"))
+    :options  ((?f "Limit to files" "-- " magit-read-files)
+               (?u "Context lines"  "-U"  read-from-minibuffer)
+               (?m "Detect renames" "-M"  read-from-minibuffer)
+               (?c "Detect copies"  "-C"  read-from-minibuffer)
+               (?a "Diff algorithm" "--diff-algorithm="
+                   magit-diff-select-algorithm))))
+
+(defvar magit-diff-popup
+  `(,@magit-diff-popup-common
+    :actions ((?d "Dwim"          magit-diff-dwim)
               (?u "Diff unstaged" magit-diff-unstaged)
               (?c "Show commit"   magit-show-commit)
               (?r "Diff range"    magit-diff)
@@ -505,45 +507,83 @@ The following `format'-like specs are supported:
               (?t "Show stash"    magit-stash-show)
               (?p "Diff paths"    magit-diff-paths)
               (?w "Diff worktree" magit-diff-working-tree))
-  :default-action 'magit-diff-dwim
-  :max-action-columns 3)
+    :default-action magit-diff-dwim
+    :max-action-columns 3))
 
-(defun magit-diff-read-args (&optional no-files)
-  (let* ((args  (magit-diff-arguments))
-         (files (--first (string-prefix-p "-- " it) args)))
-    (when files
-      (setq args  (delete files args)
-            files (split-string (substring files 3) ",")))
-    (if no-files
-        (list args)
-      (list args files))))
-
-(with-no-warnings
-  (magit-define-popup magit-diff-refresh-popup
-    "Popup console for changing diff arguments in the current buffer."
-    'magit-diff nil 'magit-diff-section-arguments
-    :man-page "git-diff"
-    :switches '((?f "Show surrounding functions" "--function-context")
-                (?b "Ignore whitespace changes"  "--ignore-space-change")
-                (?w "Ignore all whitespace"      "--ignore-all-space"))
-    :options  '((?u "Context lines"  "-U" read-from-minibuffer)
-                (?m "Detect renames" "-M" read-from-minibuffer)
-                (?c "Detect copies"  "-C" read-from-minibuffer)
-                (?a "Diff algorithm" "--diff-algorithm="
-                    magit-diff-select-algorithm))
-    :actions  '((?g "Refresh"                magit-diff-refresh)
-                (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-                (?s "Set defaults"           magit-diff-set-default-arguments)
-                (?r "Switch range type"      magit-diff-switch-range-type)
-                (?w "Save defaults"          magit-diff-save-default-arguments)
-                (?f "Flip revisions"         magit-diff-flip-revs))
+(defvar magit-diff-refresh-popup
+  `(,@magit-diff-popup-common
+    :actions ((?g "Refresh"                magit-diff-refresh)
+              (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+              (?s "Set defaults"           magit-diff-set-default-arguments) nil
+              (?w "Save defaults"          magit-diff-save-default-arguments))
     :max-action-columns 2))
 
-(defadvice magit-diff-refresh-popup (around get-current-arguments activate)
-  (if (derived-mode-p 'magit-diff-mode)
-      (let ((magit-diff-section-arguments (cadr magit-refresh-args)))
-        ad-do-it)
-    ad-do-it))
+(defvar magit-diff-mode-refresh-popup
+  `(,@magit-diff-popup-common
+    :actions ((?g "Refresh"                magit-diff-refresh)
+              (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+              (?s "Set defaults"           magit-diff-set-default-arguments)
+              (?r "Switch range type"      magit-diff-switch-range-type)
+              (?w "Save defaults"          magit-diff-save-default-arguments)
+              (?f "Flip revisions"         magit-diff-flip-revs))
+    :max-action-columns 2))
+
+(defcustom magit-diff-arguments '("--no-ext-diff")
+  ""
+  :group 'magit-diff
+  :group 'magit-commands
+  :type '(repeat (string :tag "Argument")))
+
+(defcustom magit-diff-section-arguments '("--no-ext-diff")
+  ""
+  :group 'magit-diff
+  :group 'magit-status
+  :type '(repeat (string :tag "Argument")))
+
+(defvar magit-diff-section-file-args nil)
+(put 'magit-diff-section-file-args 'permanent-local t)
+(put 'magit-diff-section-arguments 'permanent-local t)
+
+(defun magit-diff-arguments ()
+  (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
+         (magit-popup-export-file-args magit-current-popup-args))
+        ((derived-mode-p 'magit-diff-mode)
+         (list (nth 2 magit-refresh-args)
+               (nth 3 magit-refresh-args)))
+        (t
+         (list magit-diff-section-arguments
+               magit-diff-section-file-args))))
+
+(defun magit-diff-popup (arg)
+  "Popup console for diff commands."
+  (interactive "P")
+  (let ((magit-diff-arguments
+         ;; We cannot possibly know what suffix command the user is
+         ;; about to invoke, so we also don't know from which buffer
+         ;; we should get the current values.  However it is much
+         ;; more likely that we will end up updating the diff buffer,
+         ;; and we therefore use the value from that buffer.
+         (-if-let (buffer (magit-mode-get-buffer nil 'magit-diff-mode))
+             (with-current-buffer buffer
+               (magit-popup-import-file-args (nth 2 magit-refresh-args)
+                                             (nth 3 magit-refresh-args)))
+           (default-value 'magit-diff-arguments))))
+    (magit-invoke-popup 'magit-diff-popup nil arg)))
+
+(defun magit-diff-refresh-popup (arg)
+  "Popup console for changing diff arguments in the current buffer."
+  (interactive "P")
+  (let ((magit-diff-refresh-popup
+         (if (eq major-mode 'magit-diff-mode)
+             magit-diff-mode-refresh-popup
+           magit-diff-refresh-popup))
+        (magit-diff-arguments
+         (if (derived-mode-p 'magit-diff-mode)
+             (magit-popup-import-file-args (nth 2 magit-refresh-args)
+                                           (nth 3 magit-refresh-args))
+           (magit-popup-import-file-args magit-diff-section-arguments
+                                         magit-diff-section-file-args))))
+    (magit-invoke-popup 'magit-diff-refresh-popup nil arg)))
 
 (defun magit-diff-select-algorithm (&rest _ignore)
   (magit-read-char-case nil t
@@ -555,14 +595,14 @@ The following `format'-like specs are supported:
 ;;;###autoload
 (defun magit-diff-dwim (&optional args files)
   "Show changes for the thing at point."
-  (interactive (magit-diff-read-args))
+  (interactive (magit-diff-arguments))
   (pcase (magit-diff--dwim)
-    (`unstaged (magit-diff-unstaged args))
-    (`staged   (magit-diff-staged nil args))
+    (`unstaged (magit-diff-unstaged args files))
+    (`staged (magit-diff-staged nil args files))
     (`(commit . ,value) (magit-show-commit value nil nil args))
     (`(stash  . ,value) (magit-stash-show value nil args))
     ((and range (pred stringp))
-     (magit-diff range args))
+     (magit-diff range args files))
     (_
      (call-interactively #'magit-diff))))
 
@@ -644,6 +684,12 @@ a \"revA...revB\" range.  Otherwise, always construct
                           secondary-default
                           (magit-get-current-branch)))))
 
+(defun magit-diff-setup (range const args files)
+  (magit-mode-setup magit-diff-buffer-name-format
+                    magit-diff-switch-buffer-function
+                    #'magit-diff-mode
+                    #'magit-diff-refresh-buffer range const args files))
+
 ;;;###autoload
 (defun magit-diff (range &optional args files)
   "Show differences between two commits.
@@ -660,11 +706,8 @@ at the common ancestor of both revisions (i.e., use a \"...\"
 range)."
   (interactive (cons (magit-diff-read-range-or-commit "Diff for range"
                                                       nil current-prefix-arg)
-                     (magit-diff-read-args)))
-  (magit-mode-setup magit-diff-buffer-name-format
-                    magit-diff-switch-buffer-function
-                    #'magit-diff-mode
-                    #'magit-diff-refresh-buffer range args files))
+                     (magit-diff-arguments)))
+  (magit-diff-setup range nil args files))
 
 ;;;###autoload
 (defun magit-diff-working-tree (&optional rev args files)
@@ -674,8 +717,8 @@ a commit read from the minibuffer."
   (interactive
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff working tree and commit"))
-         (magit-diff-read-args)))
-  (magit-diff (or rev "HEAD") args files))
+         (magit-diff-arguments)))
+  (magit-diff-setup (or rev "HEAD") nil args files))
 
 ;;;###autoload
 (defun magit-diff-staged (&optional rev args files)
@@ -685,38 +728,38 @@ a commit read from the minibuffer."
   (interactive
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff index and commit"))
-         (magit-diff-read-args)))
-  (magit-diff rev (cons "--cached" args)))
+         (magit-diff-arguments)))
+  (magit-diff-setup rev (list "--cached") args files))
 
 ;;;###autoload
 (defun magit-diff-unstaged (&optional args files)
   "Show changes between the working tree and the index."
-  (interactive (magit-diff-read-args))
-  (magit-diff nil args files))
+  (interactive (magit-diff-arguments))
+  (magit-diff-setup nil nil args files))
 
 ;;;###autoload
 (defun magit-diff-unpushed (&optional args files)
   "Show unpushed changes."
-  (interactive (magit-diff-read-args))
+  (interactive (magit-diff-arguments))
   (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff (concat tracked "...") args files)
+      (magit-diff-setup (concat tracked "...") nil args files)
     (user-error "No upstream set")))
 
 ;;;###autoload
 (defun magit-diff-unpulled (&optional args files)
   "Show unpulled changes."
-  (interactive (magit-diff-read-args))
+  (interactive (magit-diff-arguments))
   (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff (concat "..." tracked) args files)
+      (magit-diff-setup (concat "..." tracked) nil args files)
     (user-error "No upstream set")))
 
 ;;;###autoload
-(defun magit-diff-while-committing (&optional args)
+(defun magit-diff-while-committing (&optional args files)
   "While committing, show the changes that are about to be committed.
 While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
 be commited."
-  (interactive (magit-diff-read-args t))
+  (interactive (magit-diff-arguments))
   (let* ((toplevel (magit-toplevel))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
                                           'magit-diff-mode toplevel)))
@@ -731,31 +774,30 @@ be commited."
                            (not (equal (magit-toplevel) toplevel))
                            ;; toggle to include last commit
                            (not (car magit-refresh-args))))))
-            (magit-diff-while-amending args)
-          (magit-diff-staged nil args))
+            (magit-diff-while-amending args files)
+          (magit-diff-staged nil args files))
       (user-error "No commit in progress"))))
 
 (define-key git-commit-mode-map
   (kbd "C-c C-d") 'magit-diff-while-committing)
 
-(defun magit-diff-while-amending (&optional args)
-  (magit-diff "HEAD^" (cons "--cached" args)))
+(defun magit-diff-while-amending (&optional args files)
+  (magit-diff-setup "HEAD^" (list "--cached") args files))
 
 ;;;###autoload
 (defun magit-diff-paths (a b)
   "Show changes between any two files on disk."
   (interactive (list (read-file-name "First file: " nil nil t)
                      (read-file-name "Second file: " nil nil t)))
-  (magit-diff nil
-              (list "--no-index")
-              (list (expand-file-name a)
-                    (expand-file-name b))))
+  (magit-diff-setup nil (list "--no-index")
+                    nil (list (expand-file-name a)
+                              (expand-file-name b))))
 
 (defvar-local magit-diff-hidden-files nil)
 (put 'magit-diff-hidden-files 'permanent-local t)
 
 ;;;###autoload
-(defun magit-show-commit (commit &optional noselect module args)
+(defun magit-show-commit (commit &optional noselect module args files)
   "Show the commit at point.
 If there is no commit at point or with a prefix argument prompt
 for a commit."
@@ -769,7 +811,7 @@ for a commit."
                       (magit-read-branch-or-commit "Show commit" atpoint))
                   nil (and mcommit (magit-section-parent-value
                                     (magit-current-section))))
-            (magit-diff-read-args t))))
+            (magit-diff-arguments))))
   (let ((default-directory (if module
                                (file-name-as-directory
                                 (expand-file-name module (magit-toplevel)))
@@ -793,52 +835,46 @@ for a commit."
                       (if noselect 'display-buffer 'pop-to-buffer)
                       #'magit-revision-mode
                       #'magit-revision-refresh-buffer
-                      commit args)))
+                      commit nil args files)))
 
-(defun magit-diff-refresh-arguments ()
-  (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
-         magit-current-popup-args)
-        ((derived-mode-p 'magit-diff-mode)
-         (--filter (not (member it '("--cached" "--no-index" "--")))
-                   (cadr magit-refresh-args)))
-        (t
-         magit-diff-section-arguments)))
-
-(defun magit-diff-refresh (args)
+(defun magit-diff-refresh (args files)
   "Set the local diff arguments for the current buffer."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive (magit-diff-arguments))
   (cond ((derived-mode-p 'magit-diff-mode)
-         (setq magit-refresh-args (list (car magit-refresh-args) args)))
+         (setcdr (cdr magit-refresh-args) (list args files)))
         (t
-         (setq magit-diff-section-arguments args)))
+         (setq-local magit-diff-section-arguments args)
+         (setq-local magit-diff-section-file-args files)))
   (magit-refresh))
 
-(defun magit-diff-set-default-arguments (args)
+(defun magit-diff-set-default-arguments (args files)
   "Set the global diff arguments for the current buffer."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive (magit-diff-arguments))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-set-variable 'magit-diff-arguments args)
-         (setq magit-refresh-args (list (car magit-refresh-args) args)))
+         (setcdr (cdr magit-refresh-args) (list args files)))
         (t
          (customize-set-variable 'magit-diff-section-arguments args)
-         (kill-local-variable 'magit-diff-section-arguments)))
+         (kill-local-variable 'magit-diff-section-arguments)
+         (kill-local-variable 'magit-diff-section-file-args)))
   (magit-refresh))
 
-(defun magit-diff-save-default-arguments (args)
+(defun magit-diff-save-default-arguments (args files)
   "Set and save the global diff arguments for the current buffer."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive (magit-diff-arguments))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-save-variable 'magit-diff-arguments args)
-         (setq magit-refresh-args (list (car magit-refresh-args) args)))
+         (setcdr (cdr magit-refresh-args) (list args files)))
         (t
          (customize-save-variable 'magit-diff-section-arguments args)
-         (kill-local-variable 'magit-diff-section-arguments)))
+         (kill-local-variable 'magit-diff-section-arguments)
+         (kill-local-variable 'magit-diff-section-file-args)))
   (magit-refresh))
 
-(defun magit-diff-switch-range-type (args)
+(defun magit-diff-switch-range-type ()
   "Convert diff range type.
 Change \"revA..revB\" to \"revB...revA\", or vice versa."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive)
   (let ((range (car magit-refresh-args)))
     (if (and (derived-mode-p 'magit-diff-mode)
              (string-match magit-range-re range))
@@ -852,10 +888,10 @@ Change \"revA..revB\" to \"revB...revA\", or vice versa."
           (magit-refresh))
       (user-error "No range to change"))))
 
-(defun magit-diff-flip-revs (args)
+(defun magit-diff-flip-revs ()
   "Swap revisions in diff range.
 Change \"revA..revB\" to \"revB..revA\"."
-  (interactive (list (magit-diff-refresh-arguments)))
+  (interactive)
   (let ((range (car magit-refresh-args)))
     (if (and range
              (derived-mode-p 'magit-diff-mode)
@@ -885,23 +921,21 @@ Change \"revA..revB\" to \"revB..revA\"."
 
 (defun magit-diff-set-context (fn)
   (let* ((def (--if-let (magit-get "diff.context") (string-to-number it) 3))
-         (val (magit-diff-refresh-arguments))
+         (val (car (magit-diff-arguments)))
          (arg (--first (string-match "^-U\\([0-9]+\\)?$" it) val))
-         (num (--if-let (match-string 1 arg) (string-to-number it) def))
+         (num (--if-let (and arg (match-string 1 arg)) (string-to-number it) def))
          (val (delete arg val))
          (num (funcall fn num))
          (arg (and num (not (= num def)) (format "-U%i" num)))
          (val (if arg (cons arg val) val)))
     (if (derived-mode-p 'magit-diff-mode)
-        (setq magit-refresh-args (list (car magit-refresh-args) val))
+        (setcar (cddr magit-refresh-args) val)
       (setq magit-diff-section-arguments val)))
   (magit-refresh))
 
 (defun magit-diff-context-p ()
   (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it)
-                     (if (derived-mode-p 'magit-diff-mode)
-                         (magit-diff-arguments)
-                       (magit-diff-section-arguments)))
+                     (car (magit-diff-arguments)))
       (not (equal "-U0" it))
     t))
 
@@ -946,7 +980,7 @@ which, as the name suggests always visits the actual file."
     (let ((current (magit-current-section))
           (rev (cond (force-worktree nil)
                      ((derived-mode-p 'magit-revision-mode)
-                      (car (last magit-refresh-args 2)))
+                      (car magit-refresh-args))
                      ((derived-mode-p 'magit-diff-mode)
                       (-when-let (range (car magit-refresh-args))
                         (and (string-match "\\.\\.\\([^.].*\\)?[ \t]*\\'" range)
@@ -1135,16 +1169,16 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   :group 'magit-diff
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-diff-refresh-buffer (range &optional args files)
+(defun magit-diff-refresh-buffer (range const args files)
   (setq header-line-format
         (propertize
-         (if (member "--no-index" args)
+         (if (member "--no-index" const)
              (apply #'format " Differences between %s and %s" files)
            (concat (if range
                        (if (string-match-p "\\.\\." range)
                            (format " Changes in %s" range)
                          (format " Changes from %s to working tree" range))
-                     (if (member "--cached" args)
+                     (if (member "--cached" const)
                          " Staged changes"
                        " Unstaged changes"))
                    (pcase (length files)
@@ -1156,7 +1190,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     (magit-insert-section (diffbuf)
       (magit-git-wash #'magit-diff-wash-diffs
         "diff" range "-p" (and magit-diff-show-diffstat "--stat")
-        "--no-prefix" args "--" files)))
+        "--no-prefix" const args "--" files)))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
@@ -1431,13 +1465,13 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   :group 'magit-revision
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-revision-refresh-buffer (commit args)
+(defun magit-revision-refresh-buffer (commit _const args files)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-diff-wash-revision
       "show" "-p" "--cc" "--decorate=full" "--format=fuller" "--no-prefix"
       (and magit-revision-show-diffstat "--stat")
       (and magit-revision-show-notes "--notes")
-      args commit "--")))
+      args commit "--" files)))
 
 (defun magit-diff-wash-revision (args)
   (magit-diff-wash-tag)
@@ -1591,7 +1625,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" magit-diff-section-arguments "--no-prefix")))
+      "diff" magit-diff-section-arguments "--no-prefix"
+      "--" magit-diff-section-file-args)))
 
 (defvar magit-staged-section-map
   (let ((map (make-sparse-keymap)))
@@ -1610,7 +1645,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (magit-insert-section (staged)
     (magit-insert-heading "Staged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" "--cached" magit-diff-section-arguments "--no-prefix")))
+      "diff" "--cached" magit-diff-section-arguments "--no-prefix"
+      "--" magit-diff-section-file-args)))
 
 ;;; Diff Type
 
@@ -1640,14 +1676,14 @@ Do not confuse this with `magit-diff-scope' (which see)."
   (--when-let (or section (magit-current-section))
     (cond ((derived-mode-p 'magit-revision-mode 'magit-stash-mode) 'committed)
           ((derived-mode-p 'magit-diff-mode)
-           (let ((range (car magit-refresh-args))
-                 (args (cadr magit-refresh-args)))
-             (cond ((member "--no-index" args) 'undefined)
+           (let ((range (nth 0 magit-refresh-args))
+                 (const (nth 1 magit-refresh-args)))
+             (cond ((member "--no-index" const) 'undefined)
                    ((not range)
-                    (if (member "--cached" args)
+                    (if (member "--cached" const)
                         'staged
                       'unstaged))
-                   ((member "--cached" args)
+                   ((member "--cached" const)
                     (if (magit-rev-head-p range)
                         'staged
                       'undefined)) ; i.e. committed and staged

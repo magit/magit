@@ -227,7 +227,7 @@ has to confirm each save."
     (define-key map "I" 'magit-gitignore-locally)
     (define-key map "k" 'magit-delete-thing)
     (define-key map "l" 'magit-log-popup)
-    (define-key map "L" 'magit-toggle-margin)
+    (define-key map "L" 'magit-log-refresh-popup)
     (define-key map "m" 'magit-merge-popup)
     (define-key map "M" 'magit-remote-popup)
     (define-key map "o" 'magit-submodule-popup)
@@ -484,6 +484,10 @@ the function `magit-toplevel'."
               (buffer-list))))
 
 (defun magit-mode-get-buffer (format mode &optional pwd create)
+  (unless format
+    (setq format (symbol-value
+                  (intern (format "%s-buffer-name-format"
+                                  (substring (symbol-name mode) 0 -5))))))
   (setq pwd (expand-file-name (or pwd default-directory)))
   (let* ((topdir (let ((default-directory pwd))
                    (magit-toplevel)))
