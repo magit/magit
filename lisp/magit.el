@@ -357,16 +357,26 @@ deep."
 This mode is documented in info node `(magit)Status'.
 
 \\<magit-status-mode-map>\
-Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-dispatch-popup] to see available action popups.
-Type \\[magit-section-toggle] to expand or hide the section at point.
-\\<magit-hunk-section-map>\
-Type \\[magit-diff-visit-file] to visit the change at point.
-Type \\[magit-stage] to stage the change at point,
-\\[magit-unstage] to unstage, or \\[magit-discard] to discard it.
-\\<magit-status-mode-map>\
-Type \\[magit-commit-popup] to create a commit.
-\n\\{magit-status-mode-map}"
+key             binding
+---             -------
+
+?               show all popups
+g               refresh current buffer
+
+TAB             toggle section at point
+RET             visit thing at point
+
+a               apply change/commit at point
+k               discard change at point
+s               stage change at point
+u               unstage change at point
+v               reverse/revert change/commit at point
+
+c               create a commit
+
+\\{magit-status-mode-map}"
+  ;; TODO use \\[command] above
+  ;; TODO do this for other major-modes also, obviously
   :group 'magit-status
   (hack-dir-local-variables-non-file-buffer))
 
