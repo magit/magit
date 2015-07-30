@@ -66,6 +66,11 @@ The following `format'-like specs are supported:
   :group 'magit-log
   :type 'string)
 
+(defcustom magit-log-arguments '("--graph" "--decorate")
+  ""
+  :group 'magit-log
+  :type '(repeat (string :tag "Argument")))
+
 (defcustom magit-log-auto-more nil
   "Insert more log entries automatically when moving past the last entry.
 Only considered when moving past the last entry with
@@ -308,34 +313,41 @@ are currently supported.  This option has no associated popup."
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-log-popup "magit-log" nil t)
-(magit-define-popup magit-log-popup
+(defvar magit-log-popup
+  '(:variable magit-log-arguments
+    :man-page "git-log"
+    :switches ((?g "Show graph"              "--graph")
+               (?c "Show graph in color"     "--color")
+               (?d "Show refnames"           "--decorate")
+               (?S "Show signatures"         "--show-signature")
+               (?u "Show diffs"              "--patch")
+               (?s "Show diffstats"          "--stat")
+               (?D "Simplify by decoration"  "--simplify-by-decoration"))
+    :options  ((?f "Limit to files"          "-- "       magit-read-files)
+               (?a "Limit to author"         "--author=" read-from-minibuffer)
+               (?m "Search messages"         "--grep="   read-from-minibuffer)
+               (?p "Search patches"          "-G"        read-from-minibuffer))
+    :actions  ((?l "Log current"             magit-log-current)
+               (?L "Log local branches"      magit-log-branches)
+               (?r "Reflog current"          magit-reflog-current)
+               (?o "Log other"               magit-log)
+               (?b "Log all branches"        magit-log-all-branches)
+               (?O "Reflog other"            magit-reflog)
+               (?h "Log HEAD"                magit-log-head)
+               (?a "Log all references"      magit-log-all)
+               (?H "Reflog HEAD"             magit-reflog-head))
+    :default-action magit-log-current
+    :max-action-columns 3))
+
+(defun magit-log-arguments ()
+  (if (eq magit-current-popup 'magit-log-popup)
+      magit-current-popup-args
+    magit-log-arguments))
+
+(defun magit-log-popup (arg)
   "Popup console for log commands."
-  'magit-log
-  :man-page "git-log"
-  :switches '((?g "Show graph"              "--graph")
-              (?c "Show graph in color"     "--color")
-              (?d "Show refnames"           "--decorate")
-              (?S "Show signatures"         "--show-signature")
-              (?u "Show diffs"              "--patch")
-              (?s "Show diffstats"          "--stat")
-              (?D "Simplify by decoration"  "--simplify-by-decoration"))
-  :options  '((?f "Limit to files"          "-- "       magit-read-files)
-              (?a "Limit to author"         "--author=" read-from-minibuffer)
-              (?m "Search messages"         "--grep="   read-from-minibuffer)
-              (?p "Search patches"          "-G"        read-from-minibuffer))
-  :actions  '((?l "Log current"             magit-log-current)
-              (?L "Log local branches"      magit-log-branches)
-              (?r "Reflog current"          magit-reflog-current)
-              (?o "Log other"               magit-log)
-              (?b "Log all branches"        magit-log-all-branches)
-              (?O "Reflog other"            magit-reflog)
-              (?h "Log HEAD"                magit-log-head)
-              (?a "Log all references"      magit-log-all)
-              (?H "Reflog HEAD"             magit-reflog-head))
-  :default-arguments '("--graph" "--decorate")
-  :default-action 'magit-log-current
-  :max-action-columns 3)
+  (interactive "P")
+  (magit-invoke-popup 'magit-log-popup nil arg))
 
 (defun magit-log-read-args (&optional use-current norev)
   (if norev
