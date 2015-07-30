@@ -946,7 +946,7 @@ which, as the name suggests always visits the actual file."
     (let ((current (magit-current-section))
           (rev (cond (force-worktree nil)
                      ((derived-mode-p 'magit-revision-mode)
-                      (car (last magit-refresh-args 2)))
+                      (car magit-refresh-args))
                      ((derived-mode-p 'magit-diff-mode)
                       (-when-let (range (car magit-refresh-args))
                         (and (string-match "\\.\\.\\([^.].*\\)?[ \t]*\\'" range)
