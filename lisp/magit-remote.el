@@ -365,14 +365,23 @@ branch as default."
 (defun magit-format-patch (range args)
   "Create patches for the commits in RANGE."
   (interactive
-   (list (-if-let (revs (magit-region-values 'commit))
-             (concat (car (last revs)) "^.." (car revs))
-           (let ((range (magit-read-range-or-commit "Format range or commit")))
-             (if (string-match-p "\\.\\." range)
-                 range
-               (format "%s~..%s" range range))))
+   (list (magit-read-patch-range "Format range or commit")
          (magit-patch-arguments)))
   (magit-run-git-no-revert "format-patch" range args))
+
+(defun magit-read-patch-range (prompt &optional secondary-default)
+  (--if-let (magit-region-values 'commit 'branch)
+      (format "%s^..%s" (car (last it)) (car it))
+    (let ((tracked (magit-get-tracked-branch))
+          (atpoint (magit-branch-or-commit-at-point)))
+      (magit-read-range
+       prompt
+       (cond ((and atpoint (not (equal tracked atpoint)))
+              (format "%s^..%s" atpoint atpoint))
+             ((and tracked (not (magit-rev-equal tracked "HEAD")))
+              (format "%s.." tracked))
+             (secondary-default)
+             (t "HEAD^.."))))))
 
 ;;;###autoload
 (defun magit-request-pull (url start end)
