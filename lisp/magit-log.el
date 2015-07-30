@@ -913,7 +913,7 @@ another window, using `magit-show-commit'."
                 '((?p . "\\[magit-log-select-pick]")
                   (?q . "\\[magit-log-select-quit]")))))
     (when (memq magit-log-select-show-usage '(both header-line))
-      (setq header-line-format (concat " " msg)))
+      (setq header-line-format (propertize (concat " " msg) 'face 'bold)))
     (when (memq magit-log-select-show-usage '(both echo-area))
       (message "%s" msg))))
 
