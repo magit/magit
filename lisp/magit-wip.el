@@ -145,7 +145,8 @@ command which is about to be called are committed."
 
 (defun magit-wip-commit-before-change (&optional files msg)
   (when magit-wip-before-change-mode
-    (magit-wip-commit files msg)))
+    (let ((default-directory (magit-toplevel)))
+      (magit-wip-commit files msg))))
 
 ;;; Core
 
