@@ -483,25 +483,28 @@ the function `magit-toplevel'."
                      (equal default-directory topdir)))
               (buffer-list))))
 
-(defun magit-mode-get-buffer (format mode &optional topdir create)
-  (unless topdir
-    (setq topdir (magit-toplevel)))
-  (let ((name (format-spec
-               format (if topdir
-                          `((?a . ,(abbreviate-file-name topdir))
-                            (?b . ,(file-name-nondirectory
-                                    (directory-file-name topdir))))
-                        '((?a . "-") (?b . "-"))))))
+(defun magit-mode-get-buffer (format mode &optional pwd create)
+  (setq pwd (expand-file-name (or pwd default-directory)))
+  (let* ((topdir (let ((default-directory pwd))
+                   (magit-toplevel)))
+         (name (format-spec
+                format (if topdir
+                           `((?a . ,(abbreviate-file-name topdir))
+                             (?b . ,(file-name-nondirectory
+                                     (directory-file-name topdir))))
+                         '((?a . "-") (?b . "-"))))))
     (or (--first (with-current-buffer it
                    (and (equal (buffer-name) name)
                         (or (not topdir)
                             (equal (expand-file-name default-directory)
                                    topdir))))
                  (buffer-list))
-        (and create (generate-new-buffer name)))))
+        (and create
+             (let ((default-directory (or topdir pwd)))
+               (generate-new-buffer name))))))
 
-(defun magit-mode-get-buffer-create (format mode &optional topdir)
-  (magit-mode-get-buffer format mode topdir t))
+(defun magit-mode-get-buffer-create (format mode &optional directory)
+  (magit-mode-get-buffer format mode directory t))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.

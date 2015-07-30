@@ -131,13 +131,13 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-process-buffer (&optional topdir create)
+(defun magit-process-buffer (&optional pwd create)
   (or (magit-mode-get-buffer magit-process-buffer-name-format
-                             'magit-process-mode topdir)
+                             'magit-process-mode pwd)
       (and create
            (with-current-buffer (magit-mode-get-buffer-create
                                  magit-process-buffer-name-format
-                                 'magit-process-mode topdir)
+                                 'magit-process-mode pwd)
              (magit-process-mode)
              (let ((inhibit-read-only t))
                (make-local-variable 'text-property-default-nonsticky)
