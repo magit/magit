@@ -270,12 +270,14 @@ has to confirm each save."
   "This is a placeholder command.
 Where applicable, section-specific keymaps bind another command
 which deletes the thing at point."
+  (interactive)
   (user-error "There is no thing at point that could be deleted"))
 
 (defun magit-visit-thing ()
   "This is a placeholder command.
 Where applicable, section-specific keymaps bind another command
 which visits the thing at point."
+  (interactive)
   (user-error "There is no thing at point that could be visited"))
 
 (easy-menu-define magit-mode-menu magit-mode-map
