@@ -31,10 +31,10 @@ THIS IS NOT COMPLETE.
   `magit-ediff-show-commit', and `magit-ediff-show-working-tree' have
   been added to the Ediff popup.
 
-* A new option, `magit-ediff-dwim-show-on-hunks', controls whether
-  calling `magit-ediff-dwim' runs a show variant
-  (`magit-ediff-show-unstaged' or `magit-ediff-show-staged') rather
-  than `magit-ediff-stage' when point is on an uncommitted hunk.
+* New option `magit-ediff-dwim-show-on-hunks' controls whether calling
+  `magit-ediff-dwim' runs a show variant (`magit-ediff-show-unstaged'
+  or `magit-ediff-show-staged') rather than `magit-ediff-stage' when
+  point is on an uncommitted hunk.
 
 * `magit-diff' and `magit-ediff-compare' no longer prompt the user for
   confirmation when constructing a range from the last and first
@@ -63,14 +63,14 @@ THIS IS NOT COMPLETE.
 
 * Log graphs are no longer shown in color by default, because turning
   the control sequences into faces is very inefficient.  To allow
-  users to get back the colorful graphs, the `--color' switch was
+  users to get back the colorful graphs, the `--color' switch has been
   added to the log popup.
 
 * In the refs manager, `RET' on a local branch again "visits" that
-  branch by checking it out (like in v1.4), with a prefix argument it
+  branch by checking it out (like in v1.4).  With a prefix argument it
   instead "visits" the branch by showing information about other refs
-  relative to the visited one (like it was the case v2.1 even without
-  a prefix argument).
+  relative to the visited one (like in v2.1 even without a prefix
+  argument).
 
   When the new option `magit-visit-ref-create' is non-nil, then a
   remote branch is "visited" by creating a new local branch that
@@ -81,11 +81,11 @@ THIS IS NOT COMPLETE.
   work in more places and in some cases copy more useful information
   than before.
 
-* The new option `magit-push-always-verify' was added because changes
+* New option `magit-push-always-verify' has been added because changes
   in v2.1 caused many users to accidentally push to `master' instead
   of a remote feature branch as intended.  All users should set this
-  option to `nil', but only after having read the documentation.  The
-  commands that respect this option, instruct users to consult its
+  option to nil, but only after having read the documentation.  The
+  commands that respect this option instruct users to consult its
   documentation.
 
 * Moving through a log using `n' and `p' is now much faster because
@@ -97,14 +97,18 @@ THIS IS NOT COMPLETE.
   option `magit-diff-auto-show-delay'.
 
 * When creating a new branch, first reading the starting point and
-  only then the name of the new branch, has advantages.  But many
-  users disagree, so the option `magit-branch-read-upstream-first'
-  was added.  It defaults to `t'.
+  only then the name of the new branch has advantages.  But many users
+  disagree, so the option `magit-branch-read-upstream-first' has been
+  added.  It defaults to t.
 
-* The new commands `magit-submodule-deinit', `magit-commit-augment',
-  `magit-push-implicitly', and `magit-push-quickly' were added.
+* New command `magit-submodule-deinit'.
 
-* When reading user input many commands now offer a better default
+* New command `magit-commit-augment' allows the user to pick a commit
+  to squash into and edit the squash commit message.
+
+* New push commands `magit-push-implicitly' and `magit-push-quickly'.
+
+* When reading user input, many commands now offer a better default
   choice and better completion candidates.
 
 * All apply variants now use `--3way' when called with a prefix
@@ -116,14 +120,14 @@ THIS IS NOT COMPLETE.
 
 * When a file has conflicts then the type of conflict is shown now.
 
-* The option `magit-log-show-refname-after-summary' was added.
+* New option `magit-log-show-refname-after-summary'.
 
-* The section inserter `magit-insert-user-header' was added.
+* New section inserter `magit-insert-user-header'.
 
-* The face `magit-section-secondary-heading' was added.
+* New face `magit-section-secondary-heading'.
 
-Also contains various documentation fixes, code clean-ups, bug fixes,
-and other small to medium improvements.
+This release also contains various documentation fixes, code
+clean-ups, bug fixes, and other small to medium improvements.
 
 Authors
 -------
