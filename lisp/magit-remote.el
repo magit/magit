@@ -363,7 +363,11 @@ branch as default."
 
 ;;;###autoload
 (defun magit-format-patch (range args)
-  "Create patches for the commits in RANGE."
+  "Create patches for the commits in RANGE.
+When a single commit is given for RANGE, create a patch for the
+changes introduced by that commit (unlike 'git format-patch'
+which creates patches for all commits that are reachable from
+HEAD but not from the specified commit)."
   (interactive
    (list (-if-let (revs (magit-region-values 'commit))
              (concat (car (last revs)) "^.." (car revs))
