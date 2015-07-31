@@ -138,8 +138,8 @@ used to inverse the meaning of the prefix argument.
 \n(git commit --amend --no-edit)"
   (interactive (list (magit-commit-arguments)
                      (if current-prefix-arg
-                         (not magit-commit-reword-override-date)
-                       magit-commit-reword-override-date)))
+                         (not magit-commit-extend-override-date)
+                       magit-commit-extend-override-date)))
   (when (setq args (magit-commit-assert args (not override-date)))
     (let ((process-environment process-environment))
       (unless override-date
