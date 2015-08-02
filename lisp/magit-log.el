@@ -541,7 +541,7 @@ With a prefix argument or when `--follow' is part of
                         #'magit-log-refresh-buffer
                         (list (or magit-buffer-refname
                                   (magit-get-current-branch) "HEAD"))
-                        (let ((args (magit-log-arguments)))
+                        (let ((args (car (magit-log-arguments))))
                           (if (and follow (not (member "--follow" args)))
                               (cons "--follow" args)
                             args))
