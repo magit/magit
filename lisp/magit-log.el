@@ -533,7 +533,7 @@ completion candidates."
   "Show log for the file visited in the current buffer.
 With a prefix argument or when `--follow' is part of
 `magit-log-arguments', then follow renames."
-  (interactive )
+  (interactive "P")
   (-if-let (file (or (buffer-file-name (buffer-base-buffer))
                      magit-buffer-file-name))
       (magit-mode-setup magit-log-buffer-name-format nil
