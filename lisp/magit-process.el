@@ -645,6 +645,8 @@ tracked in the current repository are reverted if
 (defvar magit-process-error-message-re
   (concat "^\\(?:error\\|fatal\\|git\\): \\(.*\\)" paragraph-separate))
 
+(define-error 'magit-git-error "Git error")
+
 (defun magit-process-finish (arg &optional process-buf command-buf
                                  default-dir section)
   (unless (integerp arg)
@@ -682,25 +684,25 @@ tracked in the current repository are reverted if
                                    (window-list))))
             (magit-section-hide section))))))
   (unless (= arg 0)
-    (funcall
-     (if magit-process-raise-error #'error #'message)
-     "%s ... [%s buffer %s for details]"
-     (or (and (buffer-live-p process-buf)
-              (with-current-buffer process-buf
-                (save-excursion
-                  (goto-char (magit-section-end section))
-                  (--when-let (magit-section-content section)
-                    (when (re-search-backward
-                           magit-process-error-message-re it t)
-                      (match-string 1))))))
-         "Git failed")
-     (-if-let (key (and (buffer-live-p command-buf)
-                        (with-current-buffer command-buf
-                          (car (where-is-internal
-                                'magit-process-display-buffer)))))
-         (format "Hit %s to see" (key-description key))
-       "See")
-     (buffer-name process-buf)))
+    (let ((msg (or (and (buffer-live-p process-buf)
+                        (with-current-buffer process-buf
+                          (save-excursion
+                            (goto-char (magit-section-end section))
+                            (--when-let (magit-section-content section)
+                              (when (re-search-backward
+                                     magit-process-error-message-re it t)
+                                (match-string 1))))))
+                   "Git failed")))
+      (if magit-process-raise-error
+          (signal 'magit-git-error msg)
+        (message "%s ... [%s buffer %s for details]" msg
+                 (-if-let (key (and (buffer-live-p command-buf)
+                                    (with-current-buffer command-buf
+                                      (car (where-is-internal
+                                            'magit-process-display-buffer)))))
+                     (format "Hit %s to see" (key-description key))
+                   "See")
+                 (buffer-name process-buf)))))
   arg)
 
 (defun magit-process-display-buffer (process)
