@@ -2027,7 +2027,7 @@ With prefix argument simply read a directory name using
       (let* ((repos (magit-list-repos-uniquify
                      (--map (cons (file-name-nondirectory it) it)
                             (magit-list-repos))))
-             (reply (magit-completing-read "Git repository" repos)))
+             (reply (magit-completing-read "Git repository" repos nil t)))
         (file-name-as-directory
          (or (cdr (assoc reply repos))
              (if (file-directory-p reply)
