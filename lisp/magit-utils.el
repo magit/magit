@@ -119,11 +119,12 @@ References:
   not been merged yet, also make sure the user is aware of that.
 
   `drop-stashes' Dropping a stash is dangerous because Git stores
-  them in the reflog, once it is removed there is no going back
-  without using low-level recovery tools provided by Git.  When a
-  single stash is dropped, then the user always has to confirm by
-  accepting the default (or selecting another).  This action only
-  concerns the deletion of multiple stages at once.
+  stashes in the reflog.  Once a stash is removed, there is no
+  going back without using low-level recovery tools provided by
+  Git.  When a single stash is dropped, then the user always has
+  to confirm by accepting the default (or selecting another).
+  This action only concerns the deletion of multiple stashes at
+  once.
 
 Various:
 
