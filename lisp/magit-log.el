@@ -67,7 +67,7 @@ The following `format'-like specs are supported:
   :type 'string)
 
 (defcustom magit-log-arguments '("--graph" "--decorate")
-  ""
+  "The log arguments used in `magit-log-mode' buffers."
   :group 'magit-log
   :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
@@ -204,7 +204,7 @@ The following `format'-like specs are supported:
   :type 'string)
 
 (defcustom magit-log-select-arguments '("--decorate")
-  ""
+  "The log arguments used in `magit-log-select-mode' buffers."
   :group 'magit-log
   :type '(repeat (string :tag "Argument")))
 
@@ -299,7 +299,7 @@ are no unpulled commits) show."
   :type 'number)
 
 (defcustom magit-log-section-arguments '("--decorate")
-  ""
+  "The log arguments used in buffers that show other things besides logs."
   :package-version '(magit . "2.2.0")
   :group 'magit-log
   :group 'magit-status
