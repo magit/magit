@@ -529,13 +529,13 @@ The following `format'-like specs are supported:
     :max-action-columns 2))
 
 (defcustom magit-diff-arguments '("--no-ext-diff")
-  ""
+  "The diff arguments used in buffers whose mode derives from `magit-diff-mode'."
   :group 'magit-diff
   :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-diff-section-arguments '("--no-ext-diff")
-  ""
+  "The diff arguments used in buffers that show other things besides diffs."
   :group 'magit-diff
   :group 'magit-status
   :type '(repeat (string :tag "Argument")))

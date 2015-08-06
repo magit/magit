@@ -35,7 +35,8 @@
 
 ;;;###autoload
 (defun magit-clone (repository directory)
-  "Clone the REPOSITORY to DIRECTORY."
+  "Clone the REPOSITORY to DIRECTORY.
+Then show the status buffer for the new repository."
   (interactive
    (let  ((url (magit-read-string "Clone repository")))
      (list url (file-name-as-directory

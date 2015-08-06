@@ -452,7 +452,11 @@ The sections are inserted by running the functions on the hook
                             (abbreviate-file-name topdir))))))
 
 (defun magit-insert-remote-header ()
-  "Insert a header line about the remote of the current branch."
+  "Insert a header line about the remote of the current branch.
+
+If no remote is configured for the current branch, then fall back
+showing the \"origin\" remote, or if that does not exist the first
+remote in alphabetic order."
   (-when-let (remote (or (magit-get-remote)
                          (let ((remotes (magit-list-remotes)))
                            (or (car (member "origin" remotes))
