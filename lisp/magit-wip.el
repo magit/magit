@@ -115,7 +115,14 @@ automatically whenever a buffer visiting a tracked file is saved."
 
 ;;;###autoload
 (define-minor-mode magit-wip-after-apply-mode
-  "Commit to work-in-progress refs"
+  "Commit to work-in-progress refs.
+
+After applying a change using any \"apply variant\"
+command (apply, stage, unstage, discard, and reverse) commit the
+affected files to the current wip refs.  For each branch there
+may be two wip refs; one contains snapshots of the files as found
+in the worktree and the other contains snapshots of the entries
+in the index."
   :package-version '(magit . "2.1.0")
   :group 'magit-wip
   :lighter magit-wip-after-change-mode-lighter
