@@ -348,6 +348,12 @@ is:
 
   The Emacs package used to display man-pages, one of ~man~ or ~woman~.
 
+To emphasize the default action by making it bold use this:
+
+#+BEGIN_SRC emacs-lisp
+  (button-type-put 'magit-popup-action-button 'format " %k %D")
+#+END_SRC
+
 * Defining prefix and suffix commands
 
 If you write an extension for Magit then you should use this library
