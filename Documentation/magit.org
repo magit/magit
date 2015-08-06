@@ -3330,6 +3330,9 @@ which might seem excessive, but allows fine tuning of when exactly
 changes are being committed to the wip refs.  Enabling all modes makes
 it less likely that a change slips through the cracks.
 
+Setting the below variable directly does not take effect; either
+customize them or call the respective mode function.
+
 - User Option: magit-wip-after-save-mode
 
   When this mode is enabled, then saving a buffer that visits a file
