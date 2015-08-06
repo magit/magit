@@ -171,7 +171,8 @@ ignored) files.
 
 (defun magit-stage-1 (arg &optional files)
   (magit-wip-commit-before-change files " before stage")
-  (magit-run-git-no-revert "add" arg (if files (cons "--" files) ".")))
+  (magit-run-git-no-revert "add" arg (if files (cons "--" files) "."))
+  (magit-wip-commit-after-apply files " after stage"))
 
 (defun magit-stage-untracked ()
   (let* ((section (magit-current-section))
@@ -193,7 +194,8 @@ ignored) files.
           (goto-char (magit-section-start
                       (magit-get-section
                        `((file . ,repo) (untracked) (status)))))
-          (call-interactively 'magit-submodule-add))))))
+          (call-interactively 'magit-submodule-add))))
+    (magit-wip-commit-after-apply files " after stage")))
 
 ;;;; Unstage
 
@@ -235,7 +237,8 @@ without requiring confirmation."
   (magit-wip-commit-before-change files " before unstage")
   (if (magit-no-commit-p)
       (magit-run-git "rm" "--cached" "--" files)
-    (magit-run-git "reset" "HEAD" "--" files)))
+    (magit-run-git "reset" "HEAD" "--" files))
+  (magit-wip-commit-after-apply files " after unstage"))
 
 ;;;###autoload
 (defun magit-unstage-all ()
@@ -245,7 +248,8 @@ without requiring confirmation."
                  (not (magit-untracked-files)))
             (magit-confirm 'unstage-all-changes))
     (magit-wip-commit-before-change nil " before unstage")
-    (magit-run-git "reset" "HEAD" "--")))
+    (magit-run-git "reset" "HEAD" "--")
+    (magit-wip-commit-after-apply nil " after unstage")))
 
 ;;;; Discard
 

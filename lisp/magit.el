@@ -1500,8 +1500,11 @@ With a prefix argument also reset the working tree.
         (funcall git-commit-major-mode))
       (git-commit-setup-font-lock)
       (git-commit-save-message)))
-  (magit-wip-commit-before-change nil " before reset")
-  (magit-run-git "reset" arg commit "--"))
+  (let ((cmd (if (and (equal commit "HEAD") (not arg)) "unstage" "reset")))
+    (magit-wip-commit-before-change nil (concat " before " cmd))
+    (magit-run-git "reset" arg commit "--")
+    (when (equal cmd "unstage")
+      (magit-wip-commit-after-apply nil " after unstage"))))
 
 ;;;; Files
 
