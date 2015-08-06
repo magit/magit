@@ -67,6 +67,12 @@ With a prefix argument and if necessary, attempt a 3-way merge."
       (`(,_        file) (magit-apply-diff it args)))))
 
 (defun magit-apply-diff (section &rest args)
+  (magit-section-when [file diffstat]
+    (--if-let (magit-get-section
+               (append `((file . ,(magit-section-value section)))
+                       (magit-section-ident magit-root-section)))
+        (setq section it)
+      (error "Cannot get required diff headers")))
   (magit-apply-patch section args
                      (concat (magit-diff-file-header section)
                              (buffer-substring (magit-section-content section)
