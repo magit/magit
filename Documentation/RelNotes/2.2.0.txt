@@ -42,7 +42,7 @@ THIS IS NOT COMPLETE.
   specify that the diff is between the second revision and the common
   ancestor of both revisions (i.e., the "..." range type is used).
 
-* `magit-ediff-*' variants now limit file chocies to those that have
+* `magit-ediff-*' variants now limit file choices to those that have
   changed between the revisions of interest.  If only one file has
   changed, this file is used without prompting.
 
