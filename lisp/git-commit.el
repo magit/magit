@@ -443,7 +443,7 @@ finally check current non-comment text."
 (defun git-commit-check-style-conventions (force)
   "Check for violations of certain basic style conventions.
 For each violation ask the user if she wants to proceed anyway.
-This makes sure the summary line isn't to long and that the
+This makes sure the summary line isn't too long and that the
 second line is empty."
   (or force
       (save-excursion
