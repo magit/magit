@@ -233,16 +233,54 @@ back to built-in `completing-read' for now." :error)
       (format "%s (default %s): " (substring prompt 0 -2) def)
     prompt))
 
-(defun magit-read-string (prompt &optional initial-input history default-value)
-  "Like `read-string' but require non-empty input.
-Empty input is only allowed if DEFAULT-VALUE is non-nil in
-which case that is returned.  Also append \": \" to PROMPT."
-  (let ((reply (read-string (magit-prompt-with-default
-                             (concat prompt ": ") default-value)
-                            initial-input history default-value)))
-    (if (string= reply "")
-        (user-error "Need non-empty input")
-      reply)))
+(defvar magit-minibuffer-local-ns-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map minibuffer-local-map)
+    (define-key map "\s" 'magit-whitespace-disallowed)
+    (define-key map "\t" 'magit-whitespace-disallowed)
+    map))
+
+(defun magit-whitespace-disallowed ()
+  "Beep to tell the user that whitespace is not allowed."
+  (interactive)
+  (ding)
+  (message "Whitespace isn't allowed here")
+  (setq defining-kbd-macro nil)
+  (force-mode-line-update))
+
+(defun magit-read-string (prompt &optional initial-input history default-value
+                                 inherit-input-method no-whitespace)
+  "Read a string from the minibuffer, prompting with string PROMPT.
+
+This is similar to `read-string', but
+* empty input is only allowed if DEFAULT-VALUE is non-nil in
+  which case that is returned,
+* whitespace is not allowed if NO-WHITESPACE is non-nil,
+* \": \" is appended to PROMPT, and
+* an invalid DEFAULT-VALUE is silently ignored."
+  (when default-value
+    (when (consp default-value)
+      (setq default-value (car default-value)))
+    (unless (stringp default-value)
+      (setq default-value nil)))
+  (let* ((minibuffer-completion-table nil)
+         (val (read-from-minibuffer
+               (magit-prompt-with-default (concat prompt ": ") default-value)
+               initial-input (and no-whitespace magit-minibuffer-local-ns-map)
+               nil history default-value inherit-input-method)))
+    (when (and (string= val "") default-value)
+      (setq val default-value))
+    (cond ((string= val "")
+           (user-error "Need non-empty input"))
+          ((and no-whitespace (string-match-p "[\s\t\n]" val))
+           (user-error "Input contains whitespace"))
+          (t val))))
+
+(defun magit-read-string-ns (prompt &optional initial-input history
+                                    default-value inherit-input-method)
+  "Call `magit-read-string' with non-nil NO-WHITESPACE."
+  (magit-read-string prompt initial-input history default-value
+                     inherit-input-method t))
 
 (defmacro magit-read-char-case (prompt verbose &rest clauses)
   (declare (indent 2)

@@ -38,7 +38,7 @@
   "Clone the REPOSITORY to DIRECTORY.
 Then show the status buffer for the new repository."
   (interactive
-   (let  ((url (magit-read-string "Clone repository")))
+   (let  ((url (magit-read-string-ns "Clone repository")))
      (list url (file-name-as-directory
                 (expand-file-name
                  (read-directory-name
@@ -66,8 +66,8 @@ Then show the status buffer for the new repository."
 ;;;###autoload
 (defun magit-remote-add (remote url)
   "Add a remote named REMOTE and fetch it."
-  (interactive (list (magit-read-string "Remote name")
-                     (magit-read-string "Remote url")))
+  (interactive (list (magit-read-string-ns "Remote name")
+                     (magit-read-string-ns "Remote url")))
   (magit-run-git-async "remote" "add" "-f" remote url))
 
 ;;;###autoload
@@ -75,7 +75,7 @@ Then show the status buffer for the new repository."
   "Rename the remote named OLD to NEW."
   (interactive
    (let  ((remote (magit-read-remote "Rename remote")))
-     (list remote (magit-read-string (format "Rename %s to" remote)))))
+     (list remote (magit-read-string-ns (format "Rename %s to" remote)))))
   (unless (string= old new)
     (magit-run-git "remote" "rename" old new)))
 
@@ -84,7 +84,8 @@ Then show the status buffer for the new repository."
   "Change the url of the remote named REMOTE to URL."
   (interactive
    (let  ((remote (magit-read-remote "Set url of remote")))
-     (list remote (magit-read-string "Url" (magit-get "remote" remote "url")))))
+     (list remote (magit-read-string-ns
+                   "Url" (magit-get "remote" remote "url")))))
   (magit-set url "remote" remote "url"))
 
 ;;;###autoload

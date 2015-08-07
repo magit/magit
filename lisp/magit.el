@@ -1164,13 +1164,13 @@ changes.
      (magit-branch-read-upstream-first
       (setq start  (magit-read-branch-or-commit (concat prompt " starting at")
                                                 secondary-default))
-      (setq branch (magit-read-string
+      (setq branch (magit-read-string-ns
                     "Branch name"
                     (and (member start (magit-list-remote-branch-names))
                          (mapconcat #'identity
                                     (cdr (split-string start "/")) "/")))))
      (t
-      (setq branch (magit-read-string "Branch name"))
+      (setq branch (magit-read-string-ns "Branch name"))
       (setq start  (magit-read-branch-or-commit (concat prompt " starting at")
                                                 secondary-default))))
     (unless (magit-branch-p start)
@@ -1275,7 +1275,7 @@ With prefix, forces the rename even if NEW already exists.
   (interactive
    (let ((branch (magit-read-local-branch "Rename branch")))
      (list branch
-           (magit-read-string (format "Rename branch '%s' to" branch))
+           (magit-read-string-ns (format "Rename branch '%s' to" branch))
            current-prefix-arg)))
   (unless (string= old new)
     (magit-run-git-no-revert "branch" (if force "-M" "-m") old new)))
@@ -1701,7 +1701,7 @@ When there are conflict, then they have to resolved in the
 temporary worktree \".git/NOTES_MERGE_WORKTREE\".  When
 done use `magit-notes-merge-commit' to finish.  To abort
 use `magit-notes-merge-abort'."
-  (interactive (list (magit-read-string "Merge reference")))
+  (interactive (list (magit-read-string-ns "Merge reference")))
   (magit-run-git-with-editor "notes" "merge" ref))
 
 (defun magit-notes-merge-commit ()
@@ -1822,7 +1822,7 @@ based on URL."
        (setq path (file-name-as-directory (expand-file-name path)))
        (when (member path (list "" default-directory))
          (setq path nil)))
-     (list (magit-read-string
+     (list (magit-read-string-ns
             "Remote url"
             (and path (magit-git-repo-p path t)
                  (let ((default-directory path))

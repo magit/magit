@@ -190,8 +190,8 @@ When the region is active offer to drop all contained stashes."
 ;;;###autoload
 (defun magit-stash-branch (stash branch)
   "Create and checkout a new BRANCH from STASH."
-  (interactive (list (magit-read-stash  "Branch stash" t)
-                     (magit-read-string "Branch name")))
+  (interactive (list (magit-read-stash "Branch stash" t)
+                     (magit-read-string-ns "Branch name")))
   (magit-run-git "stash" "branch" branch stash))
 
 ;;; Plumbing
