@@ -1619,6 +1619,30 @@ you should setup a global binding:
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 @end lisp
 
+Most popups set their initial arguments according to the corresponding
+@code{magit-*-arguments} variable.  Two popups, the log and diff popups
+(see @ref{Logging,Logging} and @ref{Diffing,Diffing}), may behave a bit differently, depending
+on the value of @code{magit-use-sticky-arguments}.
+
+@defopt magit-use-sticky-arguments
+
+This option controls how diff and log commands reuse arguments from
+existing buffers.
+
+When @code{t} (the default value), the log or diff popup reuses the
+arguments from the current repository's log or diff buffer,
+respectively.  When no log or diff buffer exists for the current
+repository, these popups use the default value of
+@code{magit-log-arguments} or @code{magit-diff-arguments}.
+
+When @code{current}, log and diff popups will only reuse the arguments if
+the current buffer is derived from @code{magit-log-mode} or
+@code{magit-diff-mode}, respectively.
+
+When @code{nil}, the default value of @code{magit-log-arguments} or
+@code{magit-diff-arguments} is always used.
+@end defopt
+
 @node Completion and Confirmation
 @section Completion and Confirmation
 
@@ -2435,11 +2459,10 @@ on @code{l}, features several suffix commands, which show a specific log in a
 separate log buffer.
 
 Like other popups, the log popup also features several arguments that
-can be changed before invoking one of the suffix commands.  However in
-case of the log popup these arguments correspond to those currently in
-use in the current repository's log buffer.  When the log popup is
-invoked while no log buffer exists for the current repository yet,
-then the default value of @code{magit-log-arguments} is used instead.
+can be changed before invoking one of the suffix commands.  However,
+in the case of the log popup, these arguments may be taken from those
+currently in use in the current repository's log buffer, depending on
+the value of @code{magit-use-sticky-arguments} (see @ref{Popup Buffers and Prefix Commands,Popup Buffers and Prefix Commands}).
 
 For information about the various arguments, see 
 @ifinfo
@@ -2964,11 +2987,10 @@ on @code{d}, features several suffix commands, which show a specific diff in
 a separate diff buffer.
 
 Like other popups, the diff popup also features several arguments that
-can be changed before invoking one of the suffix commands.  However in
-case of the diff popup these arguments correspond to those currently
-in use in the current repository's diff buffer.  When the diff popup
-is invoked while no diff buffer exists for the current repository yet,
-then the default value of @code{magit-diff-arguments} is used instead.
+can be changed before invoking one of the suffix commands.  However,
+in the case of the diff popup, these arguments may be taken from those
+currently in use in the current repository's log buffer, depending on
+the value of @code{magit-use-sticky-arguments} (see @ref{Popup Buffers and Prefix Commands,Popup Buffers and Prefix Commands}).
 
 Also see 
 @ifinfo

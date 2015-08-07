@@ -1168,6 +1168,29 @@ you should setup a global binding:
   (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 #+END_SRC
 
+Most popups set their initial arguments according to the corresponding
+~magit-*-arguments~ variable.  Two popups, the log and diff popups
+(see [[*Logging]] and [[*Diffing]]), may behave a bit differently, depending
+on the value of ~magit-use-sticky-arguments~.
+
+- User Option: magit-use-sticky-arguments
+
+  This option controls how diff and log commands reuse arguments from
+  existing buffers.
+
+  When ~t~ (the default value), the log or diff popup reuses the
+  arguments from the current repository's log or diff buffer,
+  respectively.  When no log or diff buffer exists for the current
+  repository, these popups use the default value of
+  ~magit-log-arguments~ or ~magit-diff-arguments~.
+
+  When ~current~, log and diff popups will only reuse the arguments if
+  the current buffer is derived from ~magit-log-mode~ or
+  ~magit-diff-mode~, respectively.
+
+  When ~nil~, the default value of ~magit-log-arguments~ or
+  ~magit-diff-arguments~ is always used.
+
 ** Completion and Confirmation
 
 Many commands read a value from the user.  By default this is done
@@ -1817,11 +1840,11 @@ on ~l~, features several suffix commands, which show a specific log in a
 separate log buffer.
 
 Like other popups, the log popup also features several arguments that
-can be changed before invoking one of the suffix commands.  However in
-case of the log popup these arguments correspond to those currently in
-use in the current repository's log buffer.  When the log popup is
-invoked while no log buffer exists for the current repository yet,
-then the default value of ~magit-log-arguments~ is used instead.
+can be changed before invoking one of the suffix commands.  However,
+in the case of the log popup, these arguments may be taken from those
+currently in use in the current repository's log buffer, depending on
+the value of ~magit-use-sticky-arguments~ (see [[*Popup Buffers and
+Prefix Commands]]).
 
 For information about the various arguments, see [[man:git-log]]
 The switch ~++order=VALUE~ is converted to one of ~--author-date-order~,
@@ -2165,11 +2188,11 @@ on ~d~, features several suffix commands, which show a specific diff in
 a separate diff buffer.
 
 Like other popups, the diff popup also features several arguments that
-can be changed before invoking one of the suffix commands.  However in
-case of the diff popup these arguments correspond to those currently
-in use in the current repository's diff buffer.  When the diff popup
-is invoked while no diff buffer exists for the current repository yet,
-then the default value of ~magit-diff-arguments~ is used instead.
+can be changed before invoking one of the suffix commands.  However,
+in the case of the diff popup, these arguments may be taken from those
+currently in use in the current repository's log buffer, depending on
+the value of ~magit-use-sticky-arguments~ (see [[*Popup Buffers and
+Prefix Commands]]).
 
 Also see [[man:git-diff]]
 

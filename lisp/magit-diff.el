@@ -608,13 +608,15 @@ and `:slant'."
 (put 'magit-diff-section-arguments 'permanent-local t)
 
 (defun magit-diff-get-buffer-args ()
-  (cond ((derived-mode-p 'magit-diff-mode)
+  (cond ((and magit-use-sticky-arguments
+              (derived-mode-p 'magit-diff-mode))
          (list (nth 2 magit-refresh-args)
                (nth 3 magit-refresh-args)))
-        ((--when-let (magit-mode-get-buffer 'magit-diff-mode)
-           (with-current-buffer it
-             (list (nth 2 magit-refresh-args)
-                   (nth 3 magit-refresh-args)))))
+        ((and (eq magit-use-sticky-arguments t)
+              (--when-let (magit-mode-get-buffer 'magit-diff-mode)
+                (with-current-buffer it
+                  (list (nth 2 magit-refresh-args)
+                        (nth 3 magit-refresh-args))))))
         (t
          (list (default-value 'magit-diff-arguments) nil))))
 

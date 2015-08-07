@@ -51,6 +51,10 @@ Changes since v2.10.3
 
 * Add new command `magit-revision-toggle-file-filter'.  #3062
 
+* Add new option `magit-use-sticky-arguments' that provides more
+  control over how diff and log commands reuse arguments from existing
+  buffers.  #3074
+
 Fixes since v2.10.3
 -------------------
 

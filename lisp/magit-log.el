@@ -426,13 +426,15 @@ the upstream isn't ahead of the current branch) show."
     (?c "[c]ommitter date" "date")))
 
 (defun magit-log-get-buffer-args ()
-  (cond ((derived-mode-p 'magit-log-mode)
+  (cond ((and magit-use-sticky-arguments
+              (derived-mode-p 'magit-log-mode))
          (list (nth 1 magit-refresh-args)
                (nth 2 magit-refresh-args)))
-        ((--when-let (magit-mode-get-buffer 'magit-log-mode)
-           (with-current-buffer it
-             (list (nth 1 magit-refresh-args)
-                   (nth 2 magit-refresh-args)))))
+        ((and (eq magit-use-sticky-arguments t)
+              (--when-let (magit-mode-get-buffer 'magit-log-mode)
+                (with-current-buffer it
+                  (list (nth 1 magit-refresh-args)
+                        (nth 2 magit-refresh-args))))))
         (t
          (list (default-value 'magit-log-arguments) nil))))
 
