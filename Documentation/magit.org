@@ -463,6 +463,28 @@ other commits as usual.
 
   With a prefix argument, the user can pick an arbitrary name.
 
+- Key: M-w, magit-copy-buffer-thing-as-kill
+
+  This command saves a representation of the thing that is being
+  displayed in the current buffer to the kill ring.
+
+  In buffers in which it is undefined what this "buffer thing" is,
+  this command instead saves the value of the current section, as
+  ~magit-copy-as-kill~ would.
+
+  When the region is active, then this command behaves like
+  ~kill-ring-save~.
+
+- Key: C-w, magit-copy-as-kill
+
+  This commands saves the value of the current section to the kill
+  ring.  For commits it saves the full hash.  For branches it saves
+  the branch name, except when a prefix argument is used, then it
+  saves the full hash.
+
+  When the region is active, then this command behaves like
+  ~kill-ring-save~.
+
 ** Automatic save
 
 File-visiting buffers are by default saved at certain points in time.
@@ -1290,6 +1312,14 @@ The following functions can also be added to the above hook:
 
   Insert a header line about the remote of the current branch.
 
+  If no remote is configured for the current branch, then fall back
+  showing the "origin" remote, or if that does not exist the first
+  remote in alphabetic order.
+
+- Function: magit-insert-user-header
+
+  Insert a header line about the current user.
+
 *** Status options
 
 - User Option: magit-status-refresh-hook
@@ -1445,6 +1475,11 @@ The following related commands are not available from the popup.
 - User Option: magit-log-cutoff-length
 
   The maximum number of commits to show in log and reflog buffers.
+
+- User Option: magit-log-show-refname-after-summary
+
+  Whether to show the refnames after the commit summaries.  This is
+  useful if you use really long branch names.
 
 *** Select from log
 
@@ -1706,6 +1741,18 @@ displayed but not how.
   would normally not look at the changes, e.g. because you are
   committing some binary files.
 
+- User Option: magit-diff-auto-show-delay
+
+  How long to delay showing or updating the revision buffer, when
+  that happens automatically (according to ~magit-diff-auto-show~).
+
+  When holding down a key to move by several lines, then that would
+  update that buffer for each line on the way.  To prevent that,
+  updating the revision buffer is delayed, and this option controls
+  for how long it is delayed.  For optimal experience you might have
+  to adjust this delay and/or the keyboard repeat rate and delay of
+  your graphical environment or operating system.
+
 - User Option: magit-diff-refine-hunk
 
   Whether to show word-granularity differences within diff hunks.
@@ -1830,6 +1877,16 @@ displayed but not how.
   ~magit-ediff-show-unstaged~ to show staged and unstaged changes,
   respectively.
 
+- User Option: magit-ediff-quit-hook
+
+  This hook is run after quitting an Ediff session that was created
+  using a Magit command.  The hook functions are run inside the Ediff
+  control buffer, and should not change the current buffer.
+
+  This is similar to ~ediff-quit-hook~ but takes the needs of Magit into
+  account.  The regular ~ediff-quit-hook~ is ignored by Ediff sessions
+  that were created using a Magit command.
+
 ** References buffer
 
 - Key: y, magit-show-refs-popup
@@ -1908,6 +1965,39 @@ should also change the others to keep things aligned.  The following
 
   Indentation of cherries in refs buffers.  This should be N-1 where N
   is taken from "%Nc" in the above format strings.
+
+Everywhere in Magit ~RET~ visits the thing represented by the section
+at point.  In almost all cases visiting is done by showing some
+information in another buffer and *not* doing anything else.  In refs
+buffers ~RET~ behaves differently, and because many users have grown
+accustomed to that inconsistency we are keeping it that way.
+
+- Key: RET, magit-visit-ref
+
+  Everywhere except in refs buffers this command behaves exactly like
+  ~magit-show-commit~; it shows the commit at point in another buffer.
+
+  In refs buffers, when there is a local branch at point, then this
+  command instead checks out that branch.  When there is a remote
+  branch or a tag at point then the respective commit is checked out
+  causing ~HEAD~ to be detached.
+
+  When a prefix argument it used, then this command only *focuses* on
+  the reference at point, i.e. the commit counts and cherries are
+  updated to be relative to that reference, but nothing is checked
+  out.
+
+- User Option: magit-visit-ref-create
+
+  When this is non-nil and ~magit-visit-ref~ is called inside a refs
+  buffer, then it "visits" the remote branch at point by creating a
+  new local branch which tracks that remote branch and then checking
+  out the newly created branch.
+
+  This is not enabled by default because one has to use an extremely
+  loose definition of the verb "to visit" to be able to argue that
+  creating and then checking out a new local branch is a form of
+  visiting a remote branch.
 
 *** References sections
 
@@ -2066,6 +2156,10 @@ Also see [[info:gitman#git-blame]].
   Turn off Magit-Blame mode.  If the buffer was created during a
   recursive blame, then also kill the buffer.
 
+- Key: M-w, magit-blame-copy-hash
+
+  Save the hash of the current chunk's commit to the kill ring.
+
 - Key: t, magit-blame-toggle-headings
 
   Show or hide blame chunk headings.
@@ -2092,7 +2186,8 @@ Also see [[info:gitman#git-blame]].
 
 - Key: M-x magit-init, magit-init
 
-  Initialize a Git repository, then show its status.
+  This command initializes a repository and then shows the status
+  buffer for the new repository.
 
   If the directory is below an existing repository, then the user has
   to confirm that a new one should be created inside.  If the
@@ -2101,8 +2196,10 @@ Also see [[info:gitman#git-blame]].
 
 - Key: M-x magit-clone, magit-clone
 
-  Clone a repository.  The user is queried for a remote url and a
-  local directory.
+  This command clones a repository and then shows the status buffer
+  for the new repository.
+
+  The user is queried for a remote url and a local directory.
 
 ** Staging and unstaging
 
@@ -2208,8 +2305,7 @@ variants.
 
 - Key: a, magit-apply
 
-  Apply the change at point to the working tree.  With a prefix argument
-  and if necessary, attempt a 3-way merge.
+  Apply the change at point to the working tree.
 
 - Key: k, magit-discard
 
@@ -2218,6 +2314,9 @@ variants.
 - Key: v, magit-reverse
 
   Reverse the change at point in the working tree.
+
+With a prefix argument all apply variants attempt a 3-way merge when
+appropriate (i.e. when ~git apply~ is used internally).
 
 ** Committing
 
@@ -2266,10 +2365,11 @@ Also see [[info:gitman#git-commit]].
 
 - Key: c f, magit-commit-fixup
 
-  Create a fixup commit.  With a prefix argument the target commit has
-  to be confirmed.  Otherwise the commit at point may be used without
-  confirmation depending on the value of option
-  ~magit-commit-squash-confirm~.
+  Create a fixup commit.
+
+  With a prefix argument the target commit has to be confirmed.
+  Otherwise the commit at point may be used without confirmation
+  depending on the value of option ~magit-commit-squash-confirm~.
 
 - Key: c F, magit-commit-instant-fixup
 
@@ -2277,14 +2377,23 @@ Also see [[info:gitman#git-commit]].
 
 - Key: c s, magit-commit-squash
 
-  Create a squash commit.  With a prefix argument the target commit
-  has to be confirmed.  Otherwise the commit at point may be used
-  without confirmation depending on the value of option
-  ~magit-commit-squash-confirm~.
+  Create a squash commit, without editing the squash message.
+
+  With a prefix argument the target commit has to be confirmed.
+  Otherwise the commit at point may be used without confirmation
+  depending on the value of option ~magit-commit-squash-confirm~.
 
 - Key: c S, magit-commit-instant-squash
 
   Create a squash commit and instantly rebase.
+
+- Key: c A, magit-commit-augment
+
+  Create a squash commit, editing the squash message.
+
+  With a prefix argument the target commit has to be confirmed.
+  Otherwise the commit at point may be used without confirmation
+  depending on the value of option ~magit-commit-squash-confirm~.
 
 - User Option: magit-commit-ask-to-stage
 
@@ -2561,6 +2670,11 @@ Also see [[info:gitman#git-branch]] and [[info:gitman#git-checkout]].
   The description is edited in a regular buffer similar to how commit
   messages are edited.
 
+- User Option: magit-branch-read-upstream-first
+
+  When creating a branch, whether to read the upstream branch before
+  the name of the branch that is to be created.
+
 ** Merging
 
 Also see [[info:gitman#git-merge]].
@@ -2689,7 +2803,22 @@ commands instead.
 
 - Key: RET, git-rebase-show-commit
 
-  Show the commit on the current line if any.
+  Show the commit on the current line in another buffer and select
+  that buffer.
+
+- Key: SPC, magit-diff-show-or-scroll-up
+
+  Show the commit on the current line in another buffer without
+  selecting that buffer.  If the revision buffer is already visible in
+  another window of the current frame, then instead scroll that window
+  up.
+
+- Key: DEL, magit-diff-show-or-scroll-down
+
+  Show the commit on the current line in another buffer without
+  selecting that buffer.  If the revision buffer is already visible in
+  another window of the current frame, then instead scroll that window
+  down.
 
 - Key: p, git-rebase-backward-line
 
@@ -3064,6 +3193,21 @@ Also see [[info:gitman#git-push]].
   Push a branch or commit to some remote branch.  Read the local and
   remote branch.
 
+- Key: P Q, magit-push-quickly
+
+  Push the current branch to some remote.  When the Git variable
+  ~magit.pushRemote~ is set, then push to that remote.  If that variable
+  is undefined or the remote does not exist, then push to "origin".
+  If that also doesn't exist then raise an error.  The local branch is
+  pushed to the remote branch with the same name.
+
+- Key: P i, magit-push-implicitly
+
+  Push without explicitly specifing what to push.  This runs ~git push
+  -v~.  What is being pushed depends on various Git variables as
+  described in the info:gitman#git-push and info:gitman#git-config
+  manpages.
+
 - Key: P m, magit-push-matching
 
   Push all matching branches to another repository.  If multiple
@@ -3079,6 +3223,26 @@ Also see [[info:gitman#git-push]].
 - Key: P T, magit-push-tag
 
   Push a tag to another repository.
+
+- User Option: magit-push-always-verify
+
+  Whether certain commands require verification before pushing.
+
+  Starting with ~v2.1.0~ some of the push commands are supposed to
+  push to the configured upstream branch without requiring user
+  confirmation or offering to push somewhere else.
+
+  This has taken a few users by surprise, and they suggested that we
+  force users to opt-in to this behavior.  Unfortunately adding this
+  option means that now other users will complain about us needlessly
+  forcing them to set an option.  This is an attempt to make everyone
+  happy and like all such attempts it is prone to fail.  Before
+  complaining about having to set this option, please consider that
+  other users are less experienced than you and have different needs.
+
+  You should set the value of this option to nil, causing all push
+  commands to behave as intended.  But first read the description of
+  each command above.
 
 ** Creating and sending patches
 
@@ -3260,6 +3424,10 @@ Also see [[info:gitman#git-submodule]].
 - Key: o f, magit-submodule-fetch
 
   Fetch submodule.  With a prefix argument fetch all remotes.
+
+- Key: o i, magit-submodule-init
+
+  Unregister the submodule at PATH.
 
 ** Wip modes
 
