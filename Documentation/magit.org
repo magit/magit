@@ -1793,6 +1793,10 @@ displayed but not how.
   Resolve outstanding conflicts in a file using Ediff, defaulting to
   the file at point.
 
+  Provided that the value of ~merge.conflictstyle~ is ~diff3~, you can
+  view the file's merge-base revision using ~/~ in the Ediff control
+  buffer.
+
   In the rare event that you want to manually resolve all conflicts,
   including those already resolved by Git, use
   ~ediff-merge-revisions-with-ancestor~.
