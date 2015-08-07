@@ -349,14 +349,21 @@ are no unpulled commits) show."
                (?w "Save defaults" magit-log-save-default-arguments))
     :max-action-columns 2))
 
-(defun magit-log-arguments ()
-  (cond ((memq magit-current-popup '(magit-log-popup magit-log-refresh-popup))
+(defun magit-log-arguments (&optional refresh)
+  (cond ((memq magit-current-popup
+               '(magit-log-popup magit-log-refresh-popup))
          (magit-popup-export-file-args magit-current-popup-args))
         ((derived-mode-p 'magit-log-mode)
          (list (nth 1 magit-refresh-args)
                (nth 2 magit-refresh-args)))
+        (refresh
+         (list magit-log-section-arguments nil))
         (t
-         (list magit-log-section-arguments nil))))
+         (-if-let (buffer (magit-mode-get-buffer nil 'magit-log-mode))
+             (with-current-buffer buffer
+               (list (nth 1 magit-refresh-args)
+                     (nth 2 magit-refresh-args)))
+           (list (default-value 'magit-log-arguments) nil)))))
 
 (defun magit-log-popup (arg)
   "Popup console for log commands."
@@ -395,7 +402,7 @@ are no unpulled commits) show."
 
 (defun magit-log-refresh (args files)
   "Set the local log arguments for the current buffer."
-  (interactive (magit-log-arguments))
+  (interactive (magit-log-arguments t))
   (magit-log-refresh-assert)
   (cond ((derived-mode-p 'magit-log-select-mode)
          (setcar (cdr magit-refresh-args) args))
@@ -407,7 +414,7 @@ are no unpulled commits) show."
 
 (defun magit-log-set-default-arguments (args files)
   "Set the global log arguments for the current buffer."
-  (interactive (magit-log-arguments))
+  (interactive (magit-log-arguments t))
   (magit-log-refresh-assert)
   (cond ((derived-mode-p 'magit-log-select-mode)
          (customize-set-variable 'magit-log-select-arguments args)
@@ -422,7 +429,7 @@ are no unpulled commits) show."
 
 (defun magit-log-save-default-arguments (args files)
   "Set and save the global log arguments for the current buffer."
-  (interactive (magit-log-arguments))
+  (interactive (magit-log-arguments t))
   (magit-log-refresh-assert)
   (cond ((derived-mode-p 'magit-log-select-mode)
          (customize-save-variable 'magit-log-select-arguments args)
