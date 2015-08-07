@@ -207,8 +207,8 @@ in the current buffer using the command `magit-toggle-margin'."
   "Whether `magit-visit-ref' may create new branches.
 
 When this is non-nil, then \"visiting\" a remote branch in a
-refs buffer works by creating a new local branch with tracks
-the remote branch and then checking it out the local branch."
+refs buffer works by creating a new local branch which tracks
+the remote branch and then checking out the new local branch."
   :package-version '(magit . "2.1.0")
   :group 'magit-refs
   :group 'magit-commands
