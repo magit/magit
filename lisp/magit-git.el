@@ -294,7 +294,8 @@ call function WASHER with no argument."
                (file-name-as-directory (if file
                                            (expand-file-name file)
                                          default-directory)))))
-       (while (not (file-accessible-directory-p default-directory))
+       (while (not (and (file-accessible-directory-p default-directory)
+                        (file-directory-p default-directory)))
          (when (string-equal default-directory "/")
            (throw 'unsafe-default-dir nil))
          (setq default-directory
