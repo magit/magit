@@ -186,7 +186,7 @@ point in the revision.
 When holding down a key to move by several lines/chunks, then
 that would update that buffer for each line/chunk on the way.
 To prevent that, updating the revision buffer is delayed, and
-this option controls for how long.  For optiomal experience you
+this option controls for how long.  For optimal experience you
 might have to adjust this delay and/or the keyboard repeat rate
 and delay of your graphical environment or operating system."
   :package-version '(magit . "2.2.0")
