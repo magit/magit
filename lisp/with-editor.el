@@ -8,7 +8,7 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "24.4") (dash "2.10.0"))
+;; Package-Requires: ((emacs "24.4") (async "20150807") (dash "2.11.0"))
 ;; Keywords: tools
 ;; Homepage: https://github.com/magit/magit
 
@@ -83,6 +83,10 @@
 (require 'server)
 (require 'tramp)
 (require 'tramp-sh nil t)
+
+(and (require 'async-bytecomp nil t)
+     (fboundp 'async-bytecomp-package-mode)
+     (async-bytecomp-package-mode 1))
 
 (eval-when-compile
   (progn (require 'dired nil t)

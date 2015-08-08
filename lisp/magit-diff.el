@@ -47,12 +47,6 @@
 (defvar magit-blame-mode)
 (defvar git-rebase-line)
 
-;; Work around the dreaded Elpa issue.
-(cl-eval-when (compile)
-  (cl-defstruct magit-section
-    type value start content end hidden washer refined
-    source diff-header process parent children))
-
 (require 'diff-mode)
 (require 'smerge-mode)
 
