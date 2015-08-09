@@ -526,8 +526,7 @@ the buffer."
         (set-window-configuration winconf)
         (when (buffer-live-p buffer)
           (with-current-buffer buffer
-            (setq magit-previous-window-configuration nil)))))
-    (run-hook-with-args 'magit-mode-bury-buffer-hook buffer)))
+            (setq magit-previous-window-configuration nil)))))))
 
 (defun magit-rename-buffer (&optional newname)
   "Rename the current buffer, so that Magit won't reuse it.
