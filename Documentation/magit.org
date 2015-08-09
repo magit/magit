@@ -1353,7 +1353,21 @@ buffers.
 
 ** Logging
 
-Also see [[info:gitman#git-log]].
+The status buffer contains logs for the unpushed and unpulled commits,
+but that obviously isn't enough.  The prefix command ~magit-log-popup~,
+on ~l~, features several suffix commands, which show a specific log in a
+separate log buffer.
+
+Like other popups, the log popup also features several arguments that
+can be changed before invoking one of the suffix commands.  However in
+case of the log popup these arguments correspond to those currently in
+use in the current repository's log buffer.  When the log popup is
+invoked while no log buffer exists for the current repository yet,
+then the default value of ~magit-log-arguments~ is used instead.
+
+For information about the various arguments, see [[info:gitman#git-log]].
+
+The log popup also features several reflog commands.  See [[*Reflog]].
 
 - Key: l, magit-log-popup
 
@@ -1398,6 +1412,41 @@ The following related commands are not available from the popup.
 - Key: M-x magit-log-buffer-file, magit-log-buffer-file
 
   Show log for the file visited in the current buffer.
+
+*** Refreshing logs
+
+The prefix command ~magit-log-refresh-popup~, on ~L~, can be used to
+change the log arguments used in the current buffer, without changing
+which log is shown.  This works in dedicated log buffers, but also in
+the status buffer.
+
+- Key: L, magit-log-refresh-buffer
+
+  This prefix command shows the following suffix commands along with
+  the appropriate infix arguments in a popup buffer.
+
+- Key: L g, magit-log-refresh
+
+  This suffix command sets the local log arguments for the current
+  buffer.
+
+- Key: L s, magit-log-set-default-arguments
+
+  This suffix command sets the default log arguments for buffers of
+  the same type as that of the current buffer.  Other existing buffers
+  of the same type are not affected because their local values have
+  already been initialized.
+
+- Key: L w, magit-log-save-default-arguments
+
+  This suffix command sets the default log arguments for buffers of
+  the same type as that of the current buffer, and saves the value for
+  future sessions.  Other existing buffers of the same type are not
+  affected because their local values have already been initialized.
+
+- Key: L t, magit-toggle-margin
+
+  Show or hide the margin.
 
 *** Log Buffer
 
@@ -1468,9 +1517,11 @@ The following related commands are not available from the popup.
   displayed.  In status buffers this option is ignored, but it is
   possible to show the margin using the mentioned command.
 
-- Key: L, magit-toggle-margin
+- Key: L, magit-log-refresh-popup
 
-  Show or hide the Magit margin.
+  This prefix command shows the following suffix commands along with
+  the appropriate infix arguments in a popup buffer.  See [[*Refreshing
+  logs]].
 
 - User Option: magit-log-cutoff-length
 
@@ -1523,6 +1574,18 @@ These reflog commands are available from the log popup.  See [[*Logging]].
 
 ** Diffing
 
+The status buffer contains diffs for the staged and unstaged commits,
+but that obviously isn't enough.  The prefix command ~magit-diff-popup~,
+on ~d~, features several suffix commands, which show a specific diff in
+a separate diff buffer.
+
+Like other popups, the diff popup also features several arguments that
+can be changed before invoking one of the suffix commands.  However in
+case of the diff popup these arguments correspond to those currently
+in use in the current repository's diff buffer.  When the diff popup
+is invoked while no diff buffer exists for the current repository yet,
+then the default value of ~magit-diff-arguments~ is used instead.
+
 Also see [[info:gitman#git-diff]].
 
 - Key: d, magit-diff-popup
@@ -1568,6 +1631,18 @@ Also see [[info:gitman#git-diff]].
 
   Show changes between any two files on disk.
 
+- Key: M-x magit-diff-unpushed, magit-diff-unpushed
+
+  Show unpushed changes.
+
+- Key: M-x magit-diff-unpulled, magit-diff-unpulled
+
+  Show unpulled changes.
+
+All of the above suffix commands update the repository's diff buffer.
+The diff popup also features two commands which show differences in
+another buffer:
+
 - Key: d c, magit-show-commit
 
   Show the commit at point.  If there is no commit at point or with a
@@ -1577,25 +1652,12 @@ Also see [[info:gitman#git-diff]].
 
   Show all diffs of a stash in a buffer.
 
-- Key: M-x magit-diff-unpushed, magit-diff-unpushed
-
-  Show unpushed changes.
-
-- Key: M-x magit-diff-unpulled, magit-diff-unpulled
-
-  Show unpulled changes.
-
 *** Refreshing diffs
 
-The ~magit-diff-popup~ described in the previous section is used to
-display a log in the current repositories diff buffer.  The following
-popup is used to change the arguments used to generate the diff or
-diffs in the current buffer, the status buffer or the diff buffer.
-
-In the diff buffer you can of course just use ~magit-diff-popup~, but
-~magit-diff-refresh-popup~ is more convenient because you don't have to
-again specify which differences to show.  In the status buffer this
-popup is the only way to change certain arguments.
+The prefix command ~magit-diff-refresh-popup~, on ~D~, can be used to
+change the diff arguments used in the current buffer, without changing
+which diff is shown.  This works in dedicated diff buffers, but also
+in the status buffer.
 
 - Key: D, magit-diff-refresh-popup
 
@@ -1604,28 +1666,36 @@ popup is the only way to change certain arguments.
 
 - Key: D g, magit-diff-refresh
 
-  Set the local diff arguments for the current buffer.
+  This suffix command sets the local diff arguments for the current
+  buffer.
 
 - Key: D s, magit-diff-set-default-arguments
 
-  Set the global diff arguments for the current buffer.
+  This suffix command sets the default diff arguments for buffers of
+  the same type as that of the current buffer.  Other existing buffers
+  of the same type are not affected because their local values have
+  already been initialized.
 
 - Key: D w, magit-diff-save-default-arguments
 
-  Set and save the global diff arguments for the current buffer.
+  This suffix command sets the default diff arguments for buffers of
+  the same type as that of the current buffer, and saves the value for
+  future sessions.  Other existing buffers of the same type are not
+  affected because their local values have already been initialized.
 
 - Key: D t, magit-diff-toggle-refine-hunk
 
-  Toggle hunk refinement on or off.
+  This command toggles hunk refinement on or off.
 
 - Key: D r, magit-diff-switch-range-type
 
-  Convert diff range type from "revA..revB" to "revB...revA", or vice
-  versa.
+  This command converts the diff range type from "revA..revB" to
+  "revB...revA", or vice versa.
 
 - Key: D f, magit-diff-flip-revs
 
-  Swap revisions in diff range from "revA..revB" to "revB..revA".
+  This command swaps revisions in the diff range from "revA..revB"
+  to "revB..revA", or vice versa.
 
 In addition to the above popup, which allows changing any of the
 supported arguments, there also exist some commands which change a
@@ -1633,37 +1703,36 @@ particular argument.
 
 - Key: -, magit-diff-less-context
 
-  Decrease the context for diff hunks by COUNT lines.
+  This command decreases the context for diff hunks by COUNT lines.
 
 - Key: +, magit-diff-more-context
 
-  Increase the context for diff hunks by COUNT lines.
+  This command increase the context for diff hunks by COUNT lines.
 
 - Key: 0, magit-diff-default-context
 
-  Reset context for diff hunks to the default height.
+  This command reset context for diff hunks to the default height.
 
-While all of the above commands change *how* some change is being
-displayed without changing *what* change is being displayed, the
-following commands do the opposite: they change what is being
-displayed but not how.
+The following commands quicky change what diff is being displayed
+without having to using one of the diff popups.
 
 - Key: C-c C-d, magit-diff-while-committing
 
-  While committing, show the changes that are about to be committed.
-  While amending, invoking the command again toggles between showing
-  just the new changes or all the changes that will be committed.
+  While committing, this command shows the changes that are about to
+  be committed.  While amending, invoking the command again toggles
+  between showing just the new changes or all the changes that will be
+  committed.
 
   This binding is available in the diff buffer as well as the commit
   message buffer.
 
 - Key: C-c C-b, magit-go-backward
 
-  Move backward in current buffer's history.
+  This command moves backward in current buffer's history.
 
 - Key: C-c C-f, magit-go-forward
 
-  Move forward in current buffer's history.
+  This command Moves forward in current buffer's history.
 
 *** Diff buffer
 

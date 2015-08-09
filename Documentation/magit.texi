@@ -127,6 +127,7 @@ Status buffer
 
 Logging
 
+* Refreshing logs::
 * Log Buffer::
 * Select from log::
 * Reflog::
@@ -1837,7 +1838,19 @@ buffers.
 @node Logging
 @section Logging
 
-Also see 
+The status buffer contains logs for the unpushed and unpulled commits,
+but that obviously isn't enough.  The prefix command @code{magit-log-popup},
+on @code{l}, features several suffix commands, which show a specific log in a
+separate log buffer.
+
+Like other popups, the log popup also features several arguments that
+can be changed before invoking one of the suffix commands.  However in
+case of the log popup these arguments correspond to those currently in
+use in the current repository's log buffer.  When the log popup is
+invoked while no log buffer exists for the current repository yet,
+then the default value of @code{magit-log-arguments} is used instead.
+
+For information about the various arguments, see 
 @ifinfo
 @ref{git-log,,,gitman,}
 @end ifinfo
@@ -1850,6 +1863,8 @@ the <a href="http://git-scm.com/docs/git-log">git-log(1)</a> manpage
 the git-log(1) manpage
 @end iftex
 .
+
+The log popup also features several reflog commands.  See @ref{Reflog,Reflog}.
 
 @table @asis
 @kindex l
@@ -1918,10 +1933,59 @@ Show log for the file visited in the current buffer.
 @end table
 
 @menu
+* Refreshing logs::
 * Log Buffer::
 * Select from log::
 * Reflog::
 @end menu
+
+@node Refreshing logs
+@subsection Refreshing logs
+
+The prefix command @code{magit-log-refresh-popup}, on @code{L}, can be used to
+change the log arguments used in the current buffer, without changing
+which log is shown.  This works in dedicated log buffers, but also in
+the status buffer.
+
+@table @asis
+@kindex L
+@cindex magit-log-refresh-buffer
+@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-buffer})
+
+This prefix command shows the following suffix commands along with
+the appropriate infix arguments in a popup buffer.
+
+@kindex L g
+@cindex magit-log-refresh
+@item @kbd{L g} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh})
+
+This suffix command sets the local log arguments for the current
+buffer.
+
+@kindex L s
+@cindex magit-log-set-default-arguments
+@item @kbd{L s} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-set-default-arguments})
+
+This suffix command sets the default log arguments for buffers of
+the same type as that of the current buffer.  Other existing buffers
+of the same type are not affected because their local values have
+already been initialized.
+
+@kindex L w
+@cindex magit-log-save-default-arguments
+@item @kbd{L w} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-save-default-arguments})
+
+This suffix command sets the default log arguments for buffers of
+the same type as that of the current buffer, and saves the value for
+future sessions.  Other existing buffers of the same type are not
+affected because their local values have already been initialized.
+
+@kindex L t
+@cindex magit-toggle-margin
+@item @kbd{L t} @tie{}@tie{}@tie{}@tie{}(@code{magit-toggle-margin})
+
+Show or hide the margin.
+@end table
 
 @node Log Buffer
 @subsection Log Buffer
@@ -2015,10 +2079,11 @@ possible to show the margin using the mentioned command.
 
 @table @asis
 @kindex L
-@cindex magit-toggle-margin
-@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-toggle-margin})
+@cindex magit-log-refresh-popup
+@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-popup})
 
-Show or hide the Magit margin.
+This prefix command shows the following suffix commands along with
+the appropriate infix arguments in a popup buffer.  See @ref{Refreshing logs,Refreshing logs}.
 
 @end table
 
@@ -2104,6 +2169,18 @@ Display the @code{HEAD} reflog.
 @node Diffing
 @section Diffing
 
+The status buffer contains diffs for the staged and unstaged commits,
+but that obviously isn't enough.  The prefix command @code{magit-diff-popup},
+on @code{d}, features several suffix commands, which show a specific diff in
+a separate diff buffer.
+
+Like other popups, the diff popup also features several arguments that
+can be changed before invoking one of the suffix commands.  However in
+case of the diff popup these arguments correspond to those currently
+in use in the current repository's diff buffer.  When the diff popup
+is invoked while no diff buffer exists for the current repository yet,
+then the default value of @code{magit-diff-arguments} is used instead.
+
 Also see 
 @ifinfo
 @ref{git-diff,,,gitman,}
@@ -2176,19 +2253,6 @@ Show changes between the working tree and the index.
 
 Show changes between any two files on disk.
 
-@kindex d c
-@cindex magit-show-commit
-@item @kbd{d c} @tie{}@tie{}@tie{}@tie{}(@code{magit-show-commit})
-
-Show the commit at point.  If there is no commit at point or with a
-prefix argument, prompt for a commit.
-
-@kindex d t
-@cindex magit-stash-show
-@item @kbd{d t} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-show})
-
-Show all diffs of a stash in a buffer.
-
 @kindex M-x magit-diff-unpushed
 @cindex magit-diff-unpushed
 @item @kbd{M-x magit-diff-unpushed} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-unpushed})
@@ -2202,6 +2266,25 @@ Show unpushed changes.
 Show unpulled changes.
 @end table
 
+All of the above suffix commands update the repository's diff buffer.
+The diff popup also features two commands which show differences in
+another buffer:
+
+@table @asis
+@kindex d c
+@cindex magit-show-commit
+@item @kbd{d c} @tie{}@tie{}@tie{}@tie{}(@code{magit-show-commit})
+
+Show the commit at point.  If there is no commit at point or with a
+prefix argument, prompt for a commit.
+
+@kindex d t
+@cindex magit-stash-show
+@item @kbd{d t} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-show})
+
+Show all diffs of a stash in a buffer.
+@end table
+
 @menu
 * Refreshing diffs::
 * Diff buffer::
@@ -2212,15 +2295,10 @@ Show unpulled changes.
 @node Refreshing diffs
 @subsection Refreshing diffs
 
-The @code{magit-diff-popup} described in the previous section is used to
-display a log in the current repositories diff buffer.  The following
-popup is used to change the arguments used to generate the diff or
-diffs in the current buffer, the status buffer or the diff buffer.
-
-In the diff buffer you can of course just use @code{magit-diff-popup}, but
-@code{magit-diff-refresh-popup} is more convenient because you don't have to
-again specify which differences to show.  In the status buffer this
-popup is the only way to change certain arguments.
+The prefix command @code{magit-diff-refresh-popup}, on @code{D}, can be used to
+change the diff arguments used in the current buffer, without changing
+which diff is shown.  This works in dedicated diff buffers, but also
+in the status buffer.
 
 @table @asis
 @kindex D
@@ -2234,38 +2312,46 @@ the appropriate infix arguments in a popup buffer.
 @cindex magit-diff-refresh
 @item @kbd{D g} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-refresh})
 
-Set the local diff arguments for the current buffer.
+This suffix command sets the local diff arguments for the current
+buffer.
 
 @kindex D s
 @cindex magit-diff-set-default-arguments
 @item @kbd{D s} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-set-default-arguments})
 
-Set the global diff arguments for the current buffer.
+This suffix command sets the default diff arguments for buffers of
+the same type as that of the current buffer.  Other existing buffers
+of the same type are not affected because their local values have
+already been initialized.
 
 @kindex D w
 @cindex magit-diff-save-default-arguments
 @item @kbd{D w} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-save-default-arguments})
 
-Set and save the global diff arguments for the current buffer.
+This suffix command sets the default diff arguments for buffers of
+the same type as that of the current buffer, and saves the value for
+future sessions.  Other existing buffers of the same type are not
+affected because their local values have already been initialized.
 
 @kindex D t
 @cindex magit-diff-toggle-refine-hunk
 @item @kbd{D t} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-toggle-refine-hunk})
 
-Toggle hunk refinement on or off.
+This command toggles hunk refinement on or off.
 
 @kindex D r
 @cindex magit-diff-switch-range-type
 @item @kbd{D r} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-switch-range-type})
 
-Convert diff range type from "revA..revB" to "revB@dots{}revA", or vice
-versa.
+This command converts the diff range type from "revA..revB" to
+"revB@dots{}revA", or vice versa.
 
 @kindex D f
 @cindex magit-diff-flip-revs
 @item @kbd{D f} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-flip-revs})
 
-Swap revisions in diff range from "revA..revB" to "revB..revA".
+This command swaps revisions in the diff range from "revA..revB"
+to "revB..revA", or vice versa.
 @end table
 
 In addition to the above popup, which allows changing any of the
@@ -2277,34 +2363,33 @@ particular argument.
 @cindex magit-diff-less-context
 @item @kbd{-} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-less-context})
 
-Decrease the context for diff hunks by COUNT lines.
+This command decreases the context for diff hunks by COUNT lines.
 
 @kindex +
 @cindex magit-diff-more-context
 @item @kbd{+} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-more-context})
 
-Increase the context for diff hunks by COUNT lines.
+This command increase the context for diff hunks by COUNT lines.
 
 @kindex 0
 @cindex magit-diff-default-context
 @item @kbd{0} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-default-context})
 
-Reset context for diff hunks to the default height.
+This command reset context for diff hunks to the default height.
 @end table
 
-While all of the above commands change @strong{how} some change is being
-displayed without changing @strong{what} change is being displayed, the
-following commands do the opposite: they change what is being
-displayed but not how.
+The following commands quicky change what diff is being displayed
+without having to using one of the diff popups.
 
 @table @asis
 @kindex C-c C-d
 @cindex magit-diff-while-committing
 @item @kbd{C-c C-d} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-while-committing})
 
-While committing, show the changes that are about to be committed.
-While amending, invoking the command again toggles between showing
-just the new changes or all the changes that will be committed.
+While committing, this command shows the changes that are about to
+be committed.  While amending, invoking the command again toggles
+between showing just the new changes or all the changes that will be
+committed.
 
 This binding is available in the diff buffer as well as the commit
 message buffer.
@@ -2313,13 +2398,13 @@ message buffer.
 @cindex magit-go-backward
 @item @kbd{C-c C-b} @tie{}@tie{}@tie{}@tie{}(@code{magit-go-backward})
 
-Move backward in current buffer's history.
+This command moves backward in current buffer's history.
 
 @kindex C-c C-f
 @cindex magit-go-forward
 @item @kbd{C-c C-f} @tie{}@tie{}@tie{}@tie{}(@code{magit-go-forward})
 
-Move forward in current buffer's history.
+This command Moves forward in current buffer's history.
 @end table
 
 @node Diff buffer
