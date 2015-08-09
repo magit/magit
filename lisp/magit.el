@@ -407,6 +407,7 @@ then offer to initialize it as a new repository."
 
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
+;;;###autoload
 (defun magit-status-internal (directory &optional switch-function)
   (let ((magit-mode-setup--topdir (file-name-as-directory
                                    (expand-file-name directory))))
