@@ -141,6 +141,12 @@ The following `format'-like specs are supported:
   :group 'magit-status
   :type 'string)
 
+(defcustom magit-status-prompt-for-init nil
+  "Prompt for initializing a git repo when current directory is not a git repo."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-status
+  :type 'boolean)
+
 ;;;; Refs Mode
 
 (defgroup magit-refs nil
@@ -366,12 +372,14 @@ then offer to initialize it as a new repository."
         (setq directory (file-name-as-directory (expand-file-name directory)))
         (if (and toplevel (string-equal directory toplevel))
             (magit-status-internal directory)
-          (when (y-or-n-p
-                 (if toplevel
-                     (format "%s is a repository.  Create another in %s? "
-                             toplevel directory)
-                   (format "Create repository in %s? " directory)))
-            (magit-init directory))))
+          (if (and magit-status-prompt-for-init
+                   (y-or-n-p
+                    (if toplevel
+                        (format "%s is a repository.  Create another in %s? "
+                                toplevel directory)
+                        (format "Create repository in %s? " directory))))
+              (magit-init directory)
+              (magit-status-internal toplevel))))
     (magit-status-internal default-directory)))
 
 (put 'magit-status 'interactive-only 'magit-status-internal)
