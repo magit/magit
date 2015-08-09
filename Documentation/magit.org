@@ -1357,7 +1357,7 @@ Also see [[info:gitman#git-log]].
 
 - Key: l, magit-log-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: l l, magit-log-current
@@ -1527,7 +1527,7 @@ Also see [[info:gitman#git-diff]].
 
 - Key: d, magit-diff-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: d d, magit-diff-dwim
@@ -1599,7 +1599,7 @@ popup is the only way to change certain arguments.
 
 - Key: D, magit-diff-refresh-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: D g, magit-diff-refresh
@@ -1823,7 +1823,7 @@ displayed but not how.
 
 - Key: E, magit-ediff-popup
 
-  This prefix commands shows the following suffix commands in a popup
+  This prefix command shows the following suffix commands in a popup
   buffer.
 
 - Key: E r, magit-ediff-compare
@@ -2030,7 +2030,7 @@ Also see [[info:gitman#git-bisect]].
 
 - Key: B, magit-bisect-popup
 
-  This prefix commands shows the following suffix commands in a
+  This prefix command shows the following suffix commands in a
   popup buffer.
 
 When bisecting is not in progress, then the popup buffer features the
@@ -2333,7 +2333,7 @@ Also see [[info:gitman#git-commit]].
 
 - Key: c, magit-commit-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: c c, magit-commit
@@ -2617,7 +2617,7 @@ Also see [[info:gitman#git-branch]] and [[info:gitman#git-checkout]].
 
 - Key: b, magit-branch-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: b b, magit-checkout
@@ -2681,7 +2681,7 @@ Also see [[info:gitman#git-merge]].
 
 - Key: m, magit-merge-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 When no merge is in progress, then the popup buffer features the
@@ -2737,7 +2737,7 @@ Also see [[info:gitman#git-rebase]].
 
 - Key: r, magit-rebase-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 When no rebase is in progress, then the popup buffer features the
@@ -2897,7 +2897,7 @@ Also see [[info:gitman#git-cherry-pick]].
 
 - Key: A, magit-cherry-pick-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 When no cherry-pick or revert is in progress, then the popup buffer
@@ -2939,7 +2939,7 @@ features these commands instead.
 
 - Key: V, magit-revert-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 When no cherry-pick or revert is in progress, then the popup buffer
@@ -3013,7 +3013,7 @@ Also see [[info:gitman#git-stash]].
 
 - Key: z, magit-stash-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: z z, magit-stash
@@ -3102,7 +3102,7 @@ Also see [[info:gitman#git-remote]].
 
 - Key: M, magit-remote-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: M a, magit-remote-add
@@ -3130,7 +3130,7 @@ Also see [[info:gitman#git-fetch]].
 
 - Key: f, magit-fetch-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: f f, magit-fetch-current
@@ -3158,7 +3158,7 @@ Also see [[info:gitman#git-pull]].
 
 - Key: F, magit-pull-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: F F, magit-pull-current
@@ -3175,7 +3175,7 @@ Also see [[info:gitman#git-push]].
 
 - Key: P, magit-push-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: P P, magit-push-current
@@ -3248,7 +3248,7 @@ Also see [[info:gitman#git-push]].
 
 - Key: W, magit-patch-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: W p, magit-format-patch
@@ -3267,7 +3267,7 @@ Also see [[info:gitman#git-am]].
 
 - Key: w, magit-am-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: w w, magit-am-apply-patches
@@ -3300,7 +3300,7 @@ Also see [[info:gitman#git-tag]].
 
 - Key: t, magit-tag-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: t t, magit-tag
@@ -3324,7 +3324,7 @@ Also see [[info:gitman#git-notes]].
 
 - Key: T, magit-notes-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: T T, magit-notes-edit
@@ -3394,7 +3394,7 @@ Also see [[info:gitman#git-submodule]].
 
 - Key: o, magit-submodule-popup
 
-  This prefix commands shows the following suffix commands along with
+  This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
 - Key: o a, magit-submodule-add

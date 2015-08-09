@@ -1856,7 +1856,7 @@ the git-log(1) manpage
 @cindex magit-log-popup
 @item @kbd{l} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex l l
@@ -2123,7 +2123,7 @@ the git-diff(1) manpage
 @cindex magit-diff-popup
 @item @kbd{d} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex d d
@@ -2227,7 +2227,7 @@ popup is the only way to change certain arguments.
 @cindex magit-diff-refresh-popup
 @item @kbd{D} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-refresh-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex D g
@@ -2532,7 +2532,7 @@ the user for a command to run.
 @cindex magit-ediff-popup
 @item @kbd{E} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-popup})
 
-This prefix commands shows the following suffix commands in a popup
+This prefix command shows the following suffix commands in a popup
 buffer.
 
 @kindex E r
@@ -2832,7 +2832,7 @@ the git-bisect(1) manpage
 @cindex magit-bisect-popup
 @item @kbd{B} @tie{}@tie{}@tie{}@tie{}(@code{magit-bisect-popup})
 
-This prefix commands shows the following suffix commands in a
+This prefix command shows the following suffix commands in a
 popup buffer.
 @end table
 
@@ -3292,7 +3292,7 @@ the git-commit(1) manpage
 @cindex magit-commit-popup
 @item @kbd{c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex c c
@@ -3677,7 +3677,7 @@ the git-checkout(1) manpage
 @cindex magit-branch-popup
 @item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex b b
@@ -3776,7 +3776,7 @@ the git-merge(1) manpage
 @cindex magit-merge-popup
 @item @kbd{m} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 @end table
 
@@ -3865,7 +3865,7 @@ the git-rebase(1) manpage
 @cindex magit-rebase-popup
 @item @kbd{r} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 @end table
 
@@ -4113,7 +4113,7 @@ the git-cherry-pick(1) manpage
 @cindex magit-cherry-pick-popup
 @item @kbd{A} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-pick-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 @end table
 
@@ -4178,7 +4178,7 @@ changes made since the sequence started.
 @cindex magit-revert-popup
 @item @kbd{V} @tie{}@tie{}@tie{}@tie{}(@code{magit-revert-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 @end table
 
@@ -4308,7 +4308,7 @@ the git-stash(1) manpage
 @cindex magit-stash-popup
 @item @kbd{z} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex z z
@@ -4454,7 +4454,7 @@ the git-remote(1) manpage
 @cindex magit-remote-popup
 @item @kbd{M} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex M a
@@ -4507,7 +4507,7 @@ the git-fetch(1) manpage
 @cindex magit-fetch-popup
 @item @kbd{f} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex f f
@@ -4560,7 +4560,7 @@ the git-pull(1) manpage
 @cindex magit-pull-popup
 @item @kbd{F} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex F F
@@ -4598,7 +4598,7 @@ the git-push(1) manpage
 @cindex magit-push-popup
 @item @kbd{P} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex P P
@@ -4718,7 +4718,7 @@ each command above.
 @cindex magit-patch-popup
 @item @kbd{W} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex W p
@@ -4758,7 +4758,7 @@ the git-am(1) manpage
 @cindex magit-am-popup
 @item @kbd{w} @tie{}@tie{}@tie{}@tie{}(@code{magit-am-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex w w
@@ -4829,7 +4829,7 @@ the git-tag(1) manpage
 @cindex magit-tag-popup
 @item @kbd{t} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex t t
@@ -4876,7 +4876,7 @@ the git-notes(1) manpage
 @cindex magit-notes-popup
 @item @kbd{T} @tie{}@tie{}@tie{}@tie{}(@code{magit-notes-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex T T
@@ -4983,7 +4983,7 @@ the git-submodule(1) manpage
 @cindex magit-submodule-popup
 @item @kbd{o} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-popup})
 
-This prefix commands shows the following suffix commands along with
+This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex o a
