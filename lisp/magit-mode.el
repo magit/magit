@@ -82,7 +82,12 @@ frame.  If this isn't the case setting then the default value
 might lead to undesirable behaviour.  Also quitting a Magit
 buffer while another Magit buffer that was created earlier is
 still displayed will cause that buffer to be hidden, which might
-or might not be what you want."
+or might not be what you want.
+
+Note that if this was previously disabled, then setting it to t
+does not effect Magit buffers that already exist, because the
+previous window configurations are only stored if and only if
+this option is non-nil."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type 'boolean)
@@ -455,7 +460,8 @@ the function `magit-toplevel'."
   (let ((section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
-      (magit-save-window-configuration)))
+      (when magit-restore-window-configuration
+        (magit-save-window-configuration))))
   (funcall (or switch-function
                (if (derived-mode-p 'magit-mode)
                    'switch-to-buffer
