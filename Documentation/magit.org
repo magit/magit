@@ -1420,7 +1420,7 @@ change the log arguments used in the current buffer, without changing
 which log is shown.  This works in dedicated log buffers, but also in
 the status buffer.
 
-- Key: L, magit-log-refresh-buffer
+- Key: L, magit-log-refresh-popup
 
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
@@ -1707,11 +1707,11 @@ particular argument.
 
 - Key: +, magit-diff-more-context
 
-  This command increase the context for diff hunks by COUNT lines.
+  This command increases the context for diff hunks by COUNT lines.
 
 - Key: 0, magit-diff-default-context
 
-  This command reset context for diff hunks to the default height.
+  This command resets the context for diff hunks to the default height.
 
 The following commands quicky change what diff is being displayed
 without having to using one of the diff popups.
@@ -1732,7 +1732,7 @@ without having to using one of the diff popups.
 
 - Key: C-c C-f, magit-go-forward
 
-  This command Moves forward in current buffer's history.
+  This command moves forward in current buffer's history.
 
 *** Diff buffer
 
