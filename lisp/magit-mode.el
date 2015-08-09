@@ -429,11 +429,6 @@ before switching to BUFFER."
              (magit-refresh-buffer))
          (user-error "Not inside a Git repository")))))
 
-(defvar magit-inhibit-save-previous-winconf nil)
-
-(defvar-local magit-previous-window-configuration nil)
-(put 'magit-previous-window-configuration 'permanent-local t)
-
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
 
@@ -460,12 +455,7 @@ the function `magit-toplevel'."
   (let ((section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
-      (if magit-inhibit-save-previous-winconf
-          (when (eq magit-inhibit-save-previous-winconf 'unset)
-            (setq magit-previous-window-configuration nil))
-        (unless (get-buffer-window buffer (selected-frame))
-          (setq magit-previous-window-configuration
-                (current-window-configuration))))))
+      (magit-save-window-configuration)))
   (funcall (or switch-function
                (if (derived-mode-p 'magit-mode)
                    'switch-to-buffer
@@ -516,17 +506,9 @@ configuration stored by `magit-mode-display-buffer' originates
 from the selected frame then restore it after burying/killing
 the buffer."
   (interactive "P")
-  (let ((winconf magit-previous-window-configuration)
-        (buffer (current-buffer))
-        (frame (selected-frame)))
-    (quit-window kill-buffer (selected-window))
-    (when winconf
-      (when (and magit-restore-window-configuration
-                 (equal frame (window-configuration-frame winconf)))
-        (set-window-configuration winconf)
-        (when (buffer-live-p buffer)
-          (with-current-buffer buffer
-            (setq magit-previous-window-configuration nil)))))))
+  (if magit-restore-window-configuration
+      (magit-restore-window-configuration kill-buffer)
+    (quit-window kill-buffer)))
 
 (defun magit-rename-buffer (&optional newname)
   "Rename the current buffer, so that Magit won't reuse it.
@@ -784,6 +766,32 @@ argument (the prefix) non-nil means save all with no questions."
                           (string-prefix-p topdir buffer-file-name)
                           (equal (ignore-errors (magit-toplevel nil t)) topdir)))
                    topdir))))
+
+;;; Restore Window Configuration
+
+(defvar magit-inhibit-save-previous-winconf nil)
+
+(defvar-local magit-previous-window-configuration nil)
+(put 'magit-previous-window-configuration 'permanent-local t)
+
+(defun magit-save-window-configuration ()
+  (if magit-inhibit-save-previous-winconf
+      (when (eq magit-inhibit-save-previous-winconf 'unset)
+        (setq magit-previous-window-configuration nil))
+    (unless (get-buffer-window (current-buffer) (selected-frame))
+      (setq magit-previous-window-configuration
+            (current-window-configuration)))))
+
+(defun magit-restore-window-configuration (&optional kill-buffer)
+  (let ((winconf magit-previous-window-configuration)
+        (buffer (current-buffer))
+        (frame (selected-frame)))
+    (quit-window kill-buffer (selected-window))
+    (when (and winconf (equal frame (window-configuration-frame winconf)))
+      (set-window-configuration winconf)
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer
+          (setq magit-previous-window-configuration nil))))))
 
 ;;; Buffer History
 
