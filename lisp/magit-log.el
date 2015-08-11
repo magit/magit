@@ -942,7 +942,7 @@ and `magit-log-auto-more' is non-nil."
 
 (defvar magit-log-show-commit-timer nil)
 
-(defun magit-log-maybe-show-commit (&optional section)
+(defun magit-log-maybe-show-commit (&optional _)
   "Automatically show commit at point in another window.
 If the section at point is a `commit' section and the value of
 `magit-diff-auto-show-p' calls for it, then show that commit in
@@ -951,27 +951,24 @@ another window, using `magit-show-commit'."
     (setq magit-log-show-commit-timer
           (run-with-idle-timer
            magit-diff-auto-show-delay nil
-           (-partial
-              (lambda (section)
-                (--when-let
-                    (or (and section
-                             (eq (magit-section-type section) 'commit)
-                             (or (and (magit-diff-auto-show-p 'log-follow)
-                                      (magit-mode-get-buffer
-                                       magit-revision-buffer-name-format
-                                       'magit-revision-mode))
-                                 (and (magit-diff-auto-show-p 'log-oneline)
-                                      (derived-mode-p 'magit-log-mode)))
-                             (magit-section-value section))
-                        (and magit-blame-mode
-                             (magit-diff-auto-show-p 'blame-follow)
-                             (magit-mode-get-buffer
-                              magit-revision-buffer-name-format
-                              'magit-revision-mode)
-                             (magit-blame-chunk-get :hash)))
-                  (magit-show-commit it t))
-                (setq magit-log-show-commit-timer nil))
-              section)))))
+           (lambda ()
+             (--when-let
+                 (or (magit-section-when commit
+                       (and (or (and (magit-diff-auto-show-p 'log-follow)
+                                     (magit-mode-get-buffer
+                                      magit-revision-buffer-name-format
+                                      'magit-revision-mode))
+                                (and (magit-diff-auto-show-p 'log-oneline)
+                                     (derived-mode-p 'magit-log-mode)))
+                            (magit-section-value it)))
+                     (and magit-blame-mode
+                          (magit-diff-auto-show-p 'blame-follow)
+                          (magit-mode-get-buffer
+                           magit-revision-buffer-name-format
+                           'magit-revision-mode)
+                          (magit-blame-chunk-get :hash)))
+               (magit-show-commit it t))
+             (setq magit-log-show-commit-timer nil))))))
 
 (defun magit-log-goto-same-commit ()
   (--when-let
