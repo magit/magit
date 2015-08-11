@@ -1949,8 +1949,8 @@ the status buffer.
 
 @table @asis
 @kindex L
-@cindex magit-log-refresh-buffer
-@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-buffer})
+@cindex magit-log-refresh-popup
+@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-popup})
 
 This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
@@ -2369,13 +2369,13 @@ This command decreases the context for diff hunks by COUNT lines.
 @cindex magit-diff-more-context
 @item @kbd{+} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-more-context})
 
-This command increase the context for diff hunks by COUNT lines.
+This command increases the context for diff hunks by COUNT lines.
 
 @kindex 0
 @cindex magit-diff-default-context
 @item @kbd{0} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-default-context})
 
-This command reset context for diff hunks to the default height.
+This command resets the context for diff hunks to the default height.
 @end table
 
 The following commands quicky change what diff is being displayed
@@ -2404,7 +2404,7 @@ This command moves backward in current buffer's history.
 @cindex magit-go-forward
 @item @kbd{C-c C-f} @tie{}@tie{}@tie{}@tie{}(@code{magit-go-forward})
 
-This command Moves forward in current buffer's history.
+This command moves forward in current buffer's history.
 @end table
 
 @node Diff buffer
@@ -5182,10 +5182,31 @@ commit does not change the fork-point of the working tree wip ref.  The
 fork-points are not adjusted until there actually is a change that
 should be committed to the respective wip ref.
 
-To recover a lost change from a wip ref, use the reflog.  To show the
-reflog, use e.g. @code{lO refs/wip/index/refs/heads/master RET} and then move
-around until you find the commit which has the lost change.  You might
-then be able to simply apply it using @code{a} (@code{magit-apply}).
+To view the log for the a branch and its wip refs use the commands
+@code{magit-wip-log} and @code{magit-wip-log-current}.  You should use @code{--graph} when
+using these commands.  Alternatively you can use the reflog to show
+all commits that ever existed on a wip ref.  You can then recover lost
+changes from the commits shown in the log or reflog.
+
+@cindex magit-wip-log
+@deffn Command magit-wip-log
+
+This command shows the log for a branch and its wip refs.
+
+With a negative prefix argument only the worktree wip ref is shown.
+The absolute numeric value of the prefix argument controls how many
+"branches" of each wip ref are shown.
+@end deffn
+
+@cindex magit-wip-log-current
+@deffn Command magit-wip-log-current
+
+This command shows the log for the current branch and its wip refs.
+
+With a negative prefix argument only the worktree wip ref is shown.
+The absolute numeric value of the prefix argument controls how many
+"branches" of each wip ref are shown.
+@end deffn
 
 There exists a total of three global modes that save to the wip refs,
 which might seem excessive, but allows fine tuning of when exactly
