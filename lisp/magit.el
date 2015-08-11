@@ -1055,6 +1055,8 @@ is done using `magit-find-index-noselect'."
     (if (y-or-n-p (format "Update index with contents of %s" (buffer-name)))
         (let ((index (make-temp-file "index"))
               (buffer (current-buffer)))
+          (when magit-wip-before-change-mode
+            (magit-wip-commit-before-change (list file) " before un-/stage"))
           (with-temp-file index
             (insert-buffer-substring buffer))
           (magit-call-git "update-index" "--cacheinfo"
@@ -1063,7 +1065,9 @@ is done using `magit-find-index-noselect'."
                                             (concat "--path=" file)
                                             "--" index)
                           file)
-          (set-buffer-modified-p nil))
+          (set-buffer-modified-p nil)
+          (when magit-wip-after-apply-mode
+            (magit-wip-commit-after-apply (list file) " after un-/stage")))
       (message "Abort")))
   (--when-let (magit-mode-get-buffer
                magit-status-buffer-name-format 'magit-status-mode)
