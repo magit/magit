@@ -101,6 +101,10 @@ THIS IS NOT COMPLETE.
   disagree, so the option `magit-branch-read-upstream-first' has been
   added.  It defaults to t.
 
+* New commands `magit-wip-log' and `magit-wip-log-current' allow
+  showing log for a branch and its wip refs (which the various wip
+  modes commit to).
+
 * New command `magit-submodule-deinit'.
 
 * New command `magit-commit-augment' allows the user to pick a commit

@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'magit-core)
+(require 'magit-log)
 (require 'format-spec)
 
 ;;; Options
@@ -227,6 +228,58 @@ only commit changes to FILES using MSG as commit message."
                   (magit-rev-verify ref)))
       wipref
     ref))
+
+;;; Log
+
+(defun magit-wip-log-current (branch args files count)
+  "Show log for the current branch and its wip refs.
+With a negative prefix argument only show the worktree wip ref.
+The absolute numeric value of the prefix argument controls how
+many \"branches\" of each wip ref are shown."
+  (interactive
+   (nconc (list (or (magit-get-current-branch) "HEAD"))
+          (magit-log-arguments)
+          (list (prefix-numeric-value current-prefix-arg))))
+  (magit-wip-log branch args files count))
+
+(defun magit-wip-log (branch args files count)
+  "Show log for a branch and its wip refs.
+With a negative prefix argument only show the worktree wip ref.
+The absolute numeric value of the prefix argument controls how
+many \"branches\" of each wip ref are shown."
+  (interactive
+   (nconc (list (magit-completing-read
+                 "Log branch and its wip refs"
+                 (-snoc (magit-list-local-branch-names) "HEAD")
+                 nil t nil 'magit-revision-history
+                 (or (magit-branch-at-point)
+                     (magit-get-current-branch)
+                     "HEAD")))
+          (magit-log-arguments)
+          (list (prefix-numeric-value current-prefix-arg))))
+  (unless (equal branch "HEAD")
+    (setq branch (concat "refs/heads/" branch)))
+  (magit-log (nconc (list branch)
+                    (magit-wip-log-get-tips
+                     (concat magit-wip-namespace "wtree/" branch)
+                     (abs count))
+                    (and (>= count 0)
+                         (magit-wip-log-get-tips
+                          (concat magit-wip-namespace "index/" branch)
+                          (abs count))))
+             args files))
+
+(defun magit-wip-log-get-tips (wipref count)
+  (let ((reflog (magit-git-lines "reflog" wipref)) tips)
+    (while (and reflog (> count 1))
+      (setq reflog (cl-member "^[^ ]+ [^:]+: restart autosaving"
+                              reflog :test #'string-match-p))
+      (when (and (cadr reflog)
+                 (string-match "^[^ ]+ \\([^:]+\\)" (cadr reflog)))
+        (push (match-string 1 (cadr reflog)) tips))
+      (setq reflog (cddr reflog))
+      (cl-decf count))
+    (cons wipref (nreverse tips))))
 
 ;;; magit-wip.el ends soon
 (provide 'magit-wip)

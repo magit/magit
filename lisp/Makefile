@@ -17,9 +17,9 @@ magit-process.elc:	with-editor.elc magit-utils.elc magit-section.elc \
 magit-core.elc:		magit-utils.elc magit-section.elc magit-git.elc \
 			magit-mode.elc magit-popup.elc magit-process.elc
 magit-diff.elc:		git-commit.elc magit-core.elc
-magit-wip.elc:		magit-core.elc
-magit-apply.elc:	magit-core.elc magit-diff.elc magit-wip.elc
 magit-log.elc:		magit-core.elc magit-diff.elc
+magit-wip.elc:		magit-core.elc magit-log.elc
+magit-apply.elc:	magit-core.elc magit-diff.elc magit-wip.elc
 magit.elc:		with-editor.elc git-commit.elc \
 			magit-core.elc magit-diff.elc magit-apply.elc magit-log.elc
 magit-sequence.elc:	magit.elc

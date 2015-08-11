@@ -3561,10 +3561,27 @@ commit does not change the fork-point of the working tree wip ref.  The
 fork-points are not adjusted until there actually is a change that
 should be committed to the respective wip ref.
 
-To recover a lost change from a wip ref, use the reflog.  To show the
-reflog, use e.g. ~lO refs/wip/index/refs/heads/master RET~ and then move
-around until you find the commit which has the lost change.  You might
-then be able to simply apply it using ~a~ (~magit-apply~).
+To view the log for the a branch and its wip refs use the commands
+~magit-wip-log~ and ~magit-wip-log-current~.  You should use ~--graph~ when
+using these commands.  Alternatively you can use the reflog to show
+all commits that ever existed on a wip ref.  You can then recover lost
+changes from the commits shown in the log or reflog.
+
+- Command: magit-wip-log
+
+  This command shows the log for a branch and its wip refs.
+
+  With a negative prefix argument only the worktree wip ref is shown.
+  The absolute numeric value of the prefix argument controls how many
+  "branches" of each wip ref are shown.
+
+- Command: magit-wip-log-current
+
+  This command shows the log for the current branch and its wip refs.
+
+  With a negative prefix argument only the worktree wip ref is shown.
+  The absolute numeric value of the prefix argument controls how many
+  "branches" of each wip ref are shown.
 
 There exists a total of three global modes that save to the wip refs,
 which might seem excessive, but allows fine tuning of when exactly
