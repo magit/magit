@@ -180,7 +180,7 @@ only commit changes to FILES using MSG as commit message."
                              (and cached-only "--cached")
                              parent "--" files)
       (magit-wip-update-wipref wipref (magit-git-string "write-tree")
-                               parent files msg))))
+                               parent files msg "index"))))
 
 (defun magit-wip-commit-worktree (ref files msg)
   (let* ((wipref (concat magit-wip-namespace "wtree/" ref))
@@ -192,9 +192,9 @@ only commit changes to FILES using MSG as commit message."
                      (magit-call-git "add" "-u" ".")))
                  (magit-git-string "write-tree"))))
     (when (magit-git-failure "diff-tree" "--quiet" parent tree "--" files)
-      (magit-wip-update-wipref wipref tree parent files msg))))
+      (magit-wip-update-wipref wipref tree parent files msg "worktree"))))
 
-(defun magit-wip-update-wipref (wipref tree parent files msg)
+(defun magit-wip-update-wipref (wipref tree parent files msg start-msg)
   (let ((len (length files)))
     (unless (and msg (not (= (aref msg 0) ?\s)))
       (setq msg (concat
@@ -206,9 +206,10 @@ only commit changes to FILES using MSG as commit message."
                  msg)))
     (magit-reflog-enable wipref)
     (unless (equal parent wipref)
-      (magit-call-git "update-ref" wipref "-m" "restart autosaving"
+      (setq start-msg (concat "restart autosaving " start-msg))
+      (magit-call-git "update-ref" wipref "-m" start-msg
                       (magit-git-string "commit-tree" "-p" parent
-                                        "-m" "restart autosaving"
+                                        "-m" start-msg
                                         (concat parent "^{tree}")))
       (setq parent wipref))
     (magit-call-git "update-ref" wipref "-m" msg
