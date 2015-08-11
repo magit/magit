@@ -168,6 +168,7 @@ Committing
 Rebasing
 
 * Editing rebase sequences::
+* Rebase sequence log::
 
 Cherry picking
 
@@ -4029,6 +4030,7 @@ Abort the current rebase operation, restoring the original branch.
 
 @menu
 * Editing rebase sequences::
+* Rebase sequence log::
 @end menu
 
 @node Editing rebase sequences
@@ -4175,6 +4177,169 @@ Whether to show usage instructions inside the rebase buffer.
 
 Whether confirmation is required to cancel.
 @end defopt
+
+@node Rebase sequence log
+@subsection Rebase sequence log
+
+While a rebase sequence is in progress, the status buffer features a
+section which lists the commits that have already been applied as well
+as the commits that still have to be applied.
+
+The commits are split in two halves.  When rebase stops at a commit,
+either because the user has to deal with a conflict or explicitly
+requested that rebase stops at that commit, then point is placed on
+the commit that separates the two groups, i.e. on @code{HEAD}.  The commits
+above it have not been applied yet, while it and the commits below it
+have already been applied.  In between these two groups or applied and
+yet-to-be applied commits there sometimes is a commit which has been
+dropped.
+
+Each commit is prefixed with a word and these words are additionally
+shown in different colors to indicate the status of the commits.
+
+The following colors are used:
+
+@itemize
+@item
+Yellow commits have not been applied yet.
+
+
+@item
+Gray commits have already been applied.
+
+
+@item
+The blue commit is the @code{HEAD} commit.
+
+
+@item
+The green commit is the commit the rebase sequence stopped at.  If
+this is the same commit as @code{HEAD} (e.g. because you haven't done
+anything yet after rebase stopped at the commit, then this commit is
+shown in blue, not green.  There can only be a green and a blue
+commit at the same time, if you create one or more new commits after
+rebase stops at a commit.
+
+
+@item
+Red commits have been dropped.  They are shown for reference only,
+e.g. to make it easier to diff.
+@end itemize
+
+Of course these colors are subject to the color-theme in use.
+
+The following words are used:
+
+@itemize
+@item
+Commits prefixed with @code{pick}, @code{reword}, @code{edit}, @code{squash}, and @code{fixup} have not
+been applied yet.  These words have the same meaning here as they do
+in the buffer used to edit the rebase sequence.  See @ref{Editing rebase sequences,Editing rebase sequences}.
+
+
+@item
+The commit prefixed with @code{onto} is the commit on top of which all the
+other commits are being re-applied.  Like the commits that have
+already been re-applied, it is reachable from @code{HEAD}, but unlike those
+it has not actually been re-applied during the current session - it
+wasn't touched at all.
+
+
+@item
+Commits prefixed with @code{done} have already been re-applied.  Not all
+commits that have already been applied are prefixed with this word,
+though.
+
+
+@item
+When a commit is prefixed with @code{void}, then that indicates that Magit
+knows for sure that all the changes in that commit have been applied
+using several new commits.  This commit is no longer reachable from
+@code{HEAD} and it also isn't one of the commits that will be applied when
+resuming the session.
+
+
+@item
+When a commit is prefixed with @code{join}, then that indicates that the
+rebase sequence stopped at that commit due to a conflict - you now
+have to join (merge) the changes, with what has already been
+applied.  In a sense this is the commit rebase stopped at, but while
+its effect is already in the index and in the worktree (with
+conflict markers), the commit itself has not actually been applied
+yet (it isn't the @code{HEAD}).  So it is shown in yellow, like the other
+commits that still have to be applied.
+
+
+@item
+When a commit is prefixed with @code{goal}, @code{same}, or @code{work}, then that
+indicates that you reset to an earlier commit (and that this commit
+therefore is no longer reachable from @code{HEAD}), but that it might still
+be possible to create a new commit with the exact same tree or at
+least the same patch-id, without manually editing any file.  Or at
+the very least that there are some uncommitted remaining, which
+might, or might, not originate from that commit.
+
+@itemize
+@item
+When a commit is prefixed with @code{goal}, then that indicates that it
+is still be possible to create a commit with the exact same tree
+(the "goal") without manually editing a file, by simply committing
+the index (or, provided nothing is already staged, by staging all
+unstaged changes and then committing that).  This is the case when
+the original tree exists in the index or worktree in untainted
+form.
+
+
+@item
+When a commit is prefixed with @code{same}, then that indicates that it
+is no longer possible to create a commit with the exact same tree,
+but that it is still possible to create a commit with the same
+patch-id.  This would be the case if you created a new commit with
+other changes, but the changes from the original commit still
+exist in the index and/or working tree in untainted form.
+
+
+@item
+When a commit is prefixed with @code{work}, then that indicates that you
+are working with the changes from that commit after resetting to
+an earlier commit.  There are changes in the index and/or working
+tree and some of them likely originate from that commit.
+@end itemize
+
+
+@item
+When a commit is prefixed with @code{poof} or @code{gone}, then that indicates
+that you reset to an earlier commit (and that this commit therefore
+is no longer reachable from @code{HEAD}), and that there are no uncommitted
+changes remaining which might or might not allow you to create a new
+commit with the same tree or at least the same patch-id.
+
+@itemize
+@item
+When a commit is prefixed with @code{poof}, then that indicates that it
+is no longer reachable from @code{HEAD} but that it has been replaced
+with one or more commits, which together have the exact same
+effect.
+
+
+@item
+When a commit is prefixed with @code{gone}, then that indicates that it
+is no longer reachable from @code{HEAD} and that we also cannot determine
+whether its changes are still in effect in one or more new
+commits.  They might be, but if so, then there must also be other
+changes which makes it impossible to know for sure.
+@end itemize
+@end itemize
+
+Do not worry if you do not fully understand the above.  That's okay,
+you will acquire a good enough understanding through practice.
+
+For other sequence operations such as cherry-picking a similar section
+is displayed, but they lack some of the features described below, due
+to limitations in the git commands used to implement them.  Most
+importantly these sequences only support "picking" a commit but not
+other actions such as "rewording", and they do not keep track of the
+commits which have already been applied.
 
 @node Cherry picking
 @section Cherry picking
