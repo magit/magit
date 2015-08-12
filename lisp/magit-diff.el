@@ -1967,7 +1967,9 @@ are highlighted."
         (ov sbeg cbeg 'face 'magit-diff-lines-heading
             'display (concat (magit-diff-hunk-region-header section) "\n"))
         (ov cbeg rbeg 'face face 'priority 2)
-        (when (and (window-system) magit-diff-show-lines-boundary)
+        (when (and (window-system) magit-diff-show-lines-boundary
+                   ;; FIXME http://debbugs.gnu.org/cgi/bugreport.cgi?bug=21243
+                   (version< emacs-version "25.0.50"))
           (ov rbeg (1+ rbeg) 'before-string
               (propertize (concat (propertize "\s" 'display '(space :height (1)))
                                   (propertize "\n" 'line-height t))
