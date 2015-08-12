@@ -920,7 +920,9 @@ invisible."
             (unless (eq (magit-current-section) it)
               (goto-char start))))
       (goto-char (--if-let (magit-section-goto-successor-1 section)
-                     (magit-section-start it)
+                     (if (eq (magit-section-type it) 'button)
+                         (point-min)
+                       (magit-section-start it))
                    (point-min))))))
 
 (defun magit-section-goto-successor-1 (section)
