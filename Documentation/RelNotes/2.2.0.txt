@@ -19,8 +19,6 @@ UNRELEASED.
 Changes since v2.1.0
 --------------------
 
-THIS IS NOT COMPLETE.
-
 * Two new commands have been added to the diff refresh popup that
   allow the range of the previous diff to be manipulated.
   `magit-diff-flip-revs' swaps the revisions of the range, and
@@ -59,7 +57,43 @@ THIS IS NOT COMPLETE.
   compares the commit with the working tree (like `magit-diff' and
   `git diff') rather than the previous commit.
 
-* TODO (Jonas) describe diff and log argument improvements
+* The popup `magit-diff-refresh-popup' and its suffix commands and
+  helper functions were fixed.  Most importantly file arguments and
+  diff-type arguments are no longer lost when this popup is used -
+  it only changes those arguments it is supposed to change.  Also
+  the popup only lists the arguments which can actually be used in
+  the current buffer (in status buffers fewer are supported than in
+  diff-only buffers).
+
+* The popup `magit-diff-popup' and its suffix commands now use the
+  arguments currently in the `magit-diff-mode' buffer of the current
+  repository.  Previously the arguments were always reset to the
+  default value of `magit-diff-arguments'.
+
+* The default values of `magit-diff-section-arguments' and
+  `magit-diff-arguments' now contain the `--no-ext-diff' switch.
+
+* New popup `magit-log-refresh-popup' allows changing the log
+  arguments used in the current buffer.  This allows changing the
+  arguments used in a diff buffer without having to specify the
+  reference(s) again.  And it makes it possible to change the log
+  arguments used in the status buffer, which previously required that
+  option `magit-log-section-arguments' was customized manually.
+
+* When a log is displayed for the purpose of having the user select
+  a commit, then this is now displayed in a buffer separate from the
+  regular log buffer.  New option `magit-log-select-buffer-name-format'
+  controls the name of that buffer and new option
+  `magit-log-select-arguments' controls the arguments.
+
+* The default value of `magit-log-section-arguments' now contains the
+  `--decorate' switch.
+
+* `magit-log-buffer-file' respects the log arguments currently in
+  effect in the repositories log buffer, or if that doesn't exist the
+  default value of `magit-log-arguments'.  Because this command is not
+  invoked from the log popup, it's now also possible to turn on the
+  `--follow' using a prefix argument.
 
 * Log graphs are no longer shown in color by default, because turning
   the control sequences into faces is very inefficient.  To allow
