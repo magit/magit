@@ -471,7 +471,7 @@ remote in alphabetic order."
 (cl-defun magit-insert-head-header
     (&optional (branch (magit-get-current-branch)))
   "Insert a header line about the `HEAD' commit."
-  (let ((output (magit-rev-format "%h %s" "HEAD")))
+  (let ((output (magit-rev-format "%h %s" (or branch "HEAD"))))
     (string-match "^\\([^ ]+\\) \\(.*\\)" output)
     (magit-bind-match-strings (hash msg) output
       (magit-insert-section it (branch (or branch hash))
