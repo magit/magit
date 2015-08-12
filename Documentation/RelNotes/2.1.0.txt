@@ -278,10 +278,9 @@ Changes since v1.4.0
  * The distinction between the various "apply variants" has been
    clearly worked out, and they now all provide the same feature set.
    The variants are: stage, unstage, discard, reverse, and "regular
-   apply".  In all cases, it is possible to act on a file, a hunk,
-   files, hunks, and part of a hunk.  When acting on the hunk level,
-   all variants are implemented on top of `git apply', thus the name
-   "apply variants".
+   apply".  In all cases, it is possible to act on a file or hunk, or
+   part of a hunk.  When acting on the hunk level, all variants are
+   implemented on top of `git apply', thus the name "apply variants".
 
    Un-/staging has always been one of Magit's most beloved features,
    and this release takes it to the next level by making the other
