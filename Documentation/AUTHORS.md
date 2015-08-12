@@ -100,6 +100,7 @@ Contributors
 - Jeff Bellegarde <jbellegarde@whitepages.com>
 - Jeff Dairiki <dairiki@dairiki.org>
 - Jesse Alama <jesse.alama@gmail.com>
+- Johann Klähn <kljohann@gmail.com>
 - John Mastro <john.b.mastro@gmail.com>
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
@@ -171,6 +172,7 @@ Contributors
 - Remco van 't Veer <rwvtveer@xs4all.nl>
 - Rémi Vanicat <vanicat@debian.org>
 - René Stadler <mail@renestadler.de>
+- Richard Kim <emacs18@gmail.com>
 - Robert Boone <robo4288@gmail.com>
 - Robin Green <greenrd@greenrd.org>
 - Roger Crew <crew@cs.stanford.edu>
