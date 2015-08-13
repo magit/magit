@@ -213,7 +213,7 @@ first uninstall the old version.  See [[*Updating from an older release]].
 
 Magit depends on the ~dash~ library, available from all three of the
 popular third-party Elpa archives.  Install it using ~M-x
-install-package RET dash RET~.  Of course you may also install it
+package-install RET dash RET~.  Of course you may also install it
 manually from its development repository, but I won't cover that here.
 
 Then clone the Magit repository:
