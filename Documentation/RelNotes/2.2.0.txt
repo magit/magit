@@ -75,7 +75,7 @@ Changes since v2.1.0
 
 * New popup `magit-log-refresh-popup' allows changing the log
   arguments used in the current buffer.  This allows changing the
-  arguments used in a diff buffer without having to specify the
+  arguments used in a log buffer without having to specify the
   reference(s) again.  And it makes it possible to change the log
   arguments used in the status buffer, which previously required that
   option `magit-log-section-arguments' was customized manually.
