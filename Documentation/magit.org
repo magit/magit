@@ -4007,8 +4007,39 @@ You should check the values of at least the following variables:
 - ~magit-diff-highlight-trailing~
 - ~magit-diff-paint-whitespace~
 - ~magit-diff-refine-hunk~
+- ~magit-log-arguments~, ~magit-log-select-arguments~, and
+  ~magit-log-section-arguments~
+
+  In repositories with more than a few thousand commits ~--graph~ should
+  never be a member of ~magit-log-section-arguments~.  That variable is
+  in the status buffer which is refreshed every time you run any Magit
+  command.
+
+  Using ~--color --graph~ is even slower.  Magit uses code that is part
+  of Emacs to turn control characters into faces.  That code is pretty
+  slow and this is quite noticeable when showing a log with many
+  branches and merges.  For that reason ~--color~ is not enabled by
+  default anymore.  Consider leaving it at that.
+
 - ~magit-not-reverted-hook~
 - ~magit-refresh-buffer-hook~
+- ~magit-refs-sections-hook~
+
+  When refreshing the "references buffer" is slow, then that's usually
+  because several hundred refs are being displayed.  The best way to
+  address that is to display fewer refs, obviously.
+
+  If you are not, or only mildly, interested in seeing the list of
+  tags, then start by not displaying them:
+
+  #+BEGIN_SRC emacs-lisp
+    (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
+  #+END_SRC
+
+  Then you should also make sure that the listed remote branches
+  actually all exist.  You can do so by pruning branches which no
+  longer exist using ~f-pa~.
+
 - ~magit-status-refresh-hook~
 - ~magit-wip-after-apply-mode~
 - ~magit-wip-after-save-mode~
@@ -4016,8 +4047,14 @@ You should check the values of at least the following variables:
 
 Also note that everything involving "cherry commits" is slow.
 
-If nothing helps, then feel free to open a new issue.  Please provide
-benchmarks.
+If, after actually trying the above suggestions, performance is still
+bad, and the above does not contain a statement explaining why that is
+so in that particular case and that there is nothing that we can
+currently do about it, then comment on the appropriate existing issue
+(see https://github.com/magit/magit/labels/performance), or if
+necessary open a new issue.  Note that "something is slow, I am using
+v2.1" is not helpful, you have to be a bit more specific.  Benchmarks
+are a start.
 
 * Plumbing
 
