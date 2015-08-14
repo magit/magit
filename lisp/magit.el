@@ -427,9 +427,9 @@ To make this command available use something like:
               (define-key ido-completion-map
                 (kbd \"C-x g\") 'ido-enter-magit-status)))
 
-Starting with Emacs 25.1 that keymap is defined just once
-instead of every time Ido is invoked, so now you can modify
-it like pretty much every other keymap:
+Starting with Emacs 25.1 the Ido keymaps are defined just once
+instead of every time Ido is invoked, so now you can modify it
+like pretty much every other keymap:
 
   (define-key ido-common-completion-map
     (kbd \"C-x g\") 'ido-enter-magit-status)"
