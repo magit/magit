@@ -425,7 +425,14 @@ To make this command available use something like:
   (add-hook 'ido-setup-hook
             (lambda ()
               (define-key ido-completion-map
-                (kbd \"C-x g\") 'ido-enter-magit-status)))"
+                (kbd \"C-x g\") 'ido-enter-magit-status)))
+
+Starting with Emacs 25.1 that keymap is defined just once
+instead of every time Ido is invoked, so now you can modify
+it like pretty much every other keymap:
+
+  (define-key ido-common-completion-map
+    (kbd \"C-x g\") 'ido-enter-magit-status)"
   (interactive)
   (with-no-warnings ; FIXME these are internal variables
     (setq ido-exit 'fallback fallback 'magit-status))

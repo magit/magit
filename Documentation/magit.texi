@@ -1573,12 +1573,13 @@ To make this command available, use something like:
               (kbd \"C-x g\") 'ido-enter-magit-status)))
 @end lisp
 
-Starting with Emacs 25.1 that keymap can also be customized in a
-sane fashion:
+Starting with Emacs 25.1 that keymap is defined just once instead of
+every time Ido is invoked, so now you can modify it like pretty much
+every other keymap:
 
 @lisp
-(define-key ido-completion-map
-   (kbd \"C-x g\") 'ido-enter-magit-status)))
+(define-key ido-common-completion-map
+  (kbd \"C-x g\") 'ido-enter-magit-status)
 @end lisp
 @end deffn
 
