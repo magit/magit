@@ -241,8 +241,11 @@ deep."
 ;;;; Faces
 
 (defface magit-header-line
-  '((t :inherit magit-section-heading))
-  "Face for the `header-line'."
+  '((t ;; FIXME Doesn't work: :inherit '(magit-section-heading header-line)
+       :inherit magit-section-heading
+       :underline (:color "#eee8d5" :style line)
+       :box (:line-width 2 :color "#fdf6e3" :style unspecified)))
+  "Face for the `header-line' in Magit buffers."
   :group 'magit-faces)
 
 (defface magit-dimmed
