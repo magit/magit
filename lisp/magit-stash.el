@@ -48,7 +48,7 @@
               (?W "Snapshot worktree"  magit-snapshot-worktree)
               (?l "List"               magit-stash-list)
               (?x "Save keeping index" magit-stash-keep-index)
-              (?r "Snapshot to wipref" magit-wip-save)
+              (?r "Snapshot to wipref" magit-wip-commit)
               (?v "Show"               magit-stash-show)
               (?b "Branch"             magit-stash-branch)
               (?k "Drop"               magit-stash-drop))
