@@ -1490,7 +1490,7 @@ Staging and applying changes is documented in info node
 
 (defun magit-revision-hideshow-header-line (window window-start-pos)
   (setq header-line-format
-        (and (> window-start-pos 48)
+        (and (> window-start-pos 49)
              (concat
               (propertize " " 'display
                           `((space :width (,(+ (car (window-fringes))
@@ -1514,10 +1514,21 @@ Staging and applying changes is documented in info node
     (magit-bind-match-strings (rev refs) nil
       (magit-delete-line)
       (magit-insert-section (headers)
-        (magit-insert-heading
-          (propertize (concat "Commit " rev
-                              "\n") ; FIXME underline display line
-                      'face 'magit-header-line))
+        (insert (propertize (concat "Commit " rev)
+                            'face 'magit-header-line)
+                (propertize " "
+                            'face 'underline
+                            ;; FIXME Why does `underline' work but not this?
+                            ;; 'face 'magit-header-line (or any other face)
+                            'display `((space :align-to
+                                              ;; TODO
+                                              ;;(,(- (window-pixel-width)
+                                              ;;     fringe etc.))
+                                              ,(window-width)
+                                              )))
+                "\n")
+        ;; TODO make the fringe look like there is no fring
+        (magit-insert-heading)
         (when refs
           (magit-insert (format "References: %s\n"
                                 (magit-format-ref-labels refs))))
