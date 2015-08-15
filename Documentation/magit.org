@@ -979,31 +979,46 @@ switch to a shell.
 
 - Key: !, magit-run-popup
 
-  Show the popup buffer featuring the below suffix commands.
+  Shows the popup buffer featuring the below suffix commands.
+
+These suffix commands run a Git subcommand.  The user input has to
+begin with the subcommand, "git" is assumed.
 
 - Key: ! !, magit-git-command-topdir
 
-  Execute a Git subcommand asynchronously, displaying the output.
+  This command reads a Git subcommand from the user and executes it in
+  the top-level directory of the current repository.
 
-  With a prefix argument run Git in the root of the current
-  repository.
+- Key: ! p, magit-git-command
 
-- Key: ! :, magit-git-command
+  This command reads a Git subcommand from the user and executes it in
+  ~default-directory~.  With a prefix argument the command is executed
+  in the top-level directory of the current repository instead.
 
-  Execute a Git subcommand asynchronously, displaying the output.
-  Run Git in the top-level directory of the current repository.
+These suffix commands run arbitrary shell commands.
 
-This popup also features some commands that start external gui tools.
+- Key: ! !, magit-shell-command-topdir
+
+  This command reads a shell command from the user and executes it in
+  the top-level directory of the current repository.
+
+- Key: ! p, magit-shell-command
+
+  This command reads a shell command from the user and executes it in
+  ~default-directory~.  With a prefix argument the command is executed
+  in the top-level directory of the current repository instead.
+
+These suffix commands start external gui tools.
 
 - Key: ! g, magit-run-git-gui
 
-  Run ~git gui~ for the current git repository.
+  Runs ~git gui~ for the current git repository.
 
 - Key: ! k, magit-run-gitk
 
-  Run Gitk for the current git repository.
+  Runs Gitk for the current git repository.
 
-  Run ~gitk --all~.  With a prefix argument run gitk without any
+  Runs ~gitk --all~.  With a prefix argument run gitk without any
   arguments.
 
 *** Git executable
