@@ -43,6 +43,11 @@
 
 ;;; Options
 
+(defcustom magit-commit-arguments nil
+  "The arguments used when committing."
+  :group 'magit-commands
+  :type '(repeat (string :tag "Argument")))
+
 (defcustom magit-commit-ask-to-stage t
   "Whether to ask to stage everything when committing and nothing is staged."
   :package-version '(magit . "2.1.0")
@@ -74,32 +79,41 @@ an error while using those is harder to recover from."
 
 ;;; Code
 
-;;;###autoload (autoload 'magit-commit-popup "magit-commit" nil t)
-(with-no-warnings ; quiet byte-compiler
-(magit-define-popup magit-commit-popup
+(defun magit-commit-popup (&optional arg)
   "Popup console for commit commands."
-  'magit-commands
-  :man-page "git-commit"
-  :switches '((?a "Stage all modified and deleted files"   "--all")
-              (?e "Allow empty commit"                     "--allow-empty")
-              (?v "Show diff of changes to be committed"   "--verbose")
-              (?n "Bypass git hooks"                       "--no-verify")
-              (?s "Add Signed-off-by line"                 "--signoff")
-              (?R "Claim authorship and reset author date" "--reset-author"))
-  :options  '((?A "Override the author"  "--author="        read-from-minibuffer)
-              (?S "Sign using gpg"       "--gpg-sign="      magit-read-gpg-secret-key)
-              (?C "Reuse commit message" "--reuse-message=" read-from-minibuffer))
-  :actions  '((?c "Commit"         magit-commit)
-              (?e "Extend"         magit-commit-extend)
-              (?f "Fixup"          magit-commit-fixup)
-              (?F "Instant Fixup"  magit-commit-instant-fixup) nil
-              (?w "Reword"         magit-commit-reword)
-              (?s "Squash"         magit-commit-squash)
-              (?S "Instant Squash" magit-commit-instant-squash) nil
-              (?a "Amend"          magit-commit-amend)
-              (?A "Augment"        magit-commit-augment))
-  :max-action-columns 4
-  :default-action 'magit-commit))
+  (interactive "P")
+  (--if-let (magit-commit-message-buffer)
+      (switch-to-buffer it)
+    (magit-invoke-popup 'magit-commit-popup nil arg)))
+
+(defvar magit-commit-popup
+  '(:variable 'magit-commit-arguments
+    :man-page "git-commit"
+    :switches ((?a "Stage all modified and deleted files"   "--all")
+               (?e "Allow empty commit"                     "--allow-empty")
+               (?v "Show diff of changes to be committed"   "--verbose")
+               (?n "Bypass git hooks"                       "--no-verify")
+               (?s "Add Signed-off-by line"                 "--signoff")
+               (?R "Claim authorship and reset author date" "--reset-author"))
+    :options  ((?A "Override the author"  "--author="        read-from-minibuffer)
+               (?S "Sign using gpg"       "--gpg-sign="      magit-read-gpg-secret-key)
+               (?C "Reuse commit message" "--reuse-message=" read-from-minibuffer))
+    :actions  ((?c "Commit"         magit-commit)
+               (?e "Extend"         magit-commit-extend)
+               (?f "Fixup"          magit-commit-fixup)
+               (?F "Instant Fixup"  magit-commit-instant-fixup) nil
+               (?w "Reword"         magit-commit-reword)
+               (?s "Squash"         magit-commit-squash)
+               (?S "Instant Squash" magit-commit-instant-squash) nil
+               (?a "Amend"          magit-commit-amend)
+               (?A "Augment"        magit-commit-augment))
+    :max-action-columns 4
+    :default-action 'magit-commit))
+
+(defun magit-commit-arguments nil
+  (if (eq magit-current-popup 'magit-commit-popup)
+      magit-current-popup-args
+    magit-commit-arguments))
 
 (defun magit-commit-message-buffer ()
   (let ((topdir (magit-toplevel)))
@@ -107,9 +121,6 @@ an error while using those is harder to recover from."
                              (and git-commit-mode (magit-toplevel))))
              (append (buffer-list (selected-frame))
                      (buffer-list)))))
-
-(defadvice magit-commit-popup (around pop-to-ongoing activate)
-  (--if-let (magit-commit-message-buffer) (switch-to-buffer it) ad-do-it))
 
 ;;;###autoload
 (defun magit-commit (&optional args)
