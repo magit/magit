@@ -2828,6 +2828,15 @@ following commands.
 
   Start an interactive rebase sequence.
 
+- Key: r l, magit-rebase-unpushed
+
+  Start an interactive rebase sequence of unpushed commits.  This is
+  like ~magit-rebase-interactive~, but if the upstream of the current
+  branch is configured, then all commits since the merge-base are
+  rebased.  If there is no upstream or no merge-base, then the user
+  has to select the first commit to be rebased like for
+  ~magit-rebase-interactive~.
+
 - Key: r f, magit-rebase-autosquash
 
   Combine squash and fixup commits with their intended targets.

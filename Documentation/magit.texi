@@ -3981,6 +3981,17 @@ commits.
 
 Start an interactive rebase sequence.
 
+@kindex r l
+@cindex magit-rebase-unpushed
+@item @kbd{r l} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-unpushed})
+
+Start an interactive rebase sequence of unpushed commits.  This is
+like @code{magit-rebase-interactive}, but if the upstream of the current
+branch is configured, then all commits since the merge-base are
+rebased.  If there is no upstream or no merge-base, then the user
+has to select the first commit to be rebased like for
+@code{magit-rebase-interactive}.
+
 @kindex r f
 @cindex magit-rebase-autosquash
 @item @kbd{r f} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-autosquash})
