@@ -1010,16 +1010,21 @@ These suffix commands run arbitrary shell commands.
 
 These suffix commands start external gui tools.
 
-- Key: ! g, magit-run-git-gui
-
-  Runs ~git gui~ for the current git repository.
-
 - Key: ! k, magit-run-gitk
 
-  Runs Gitk for the current git repository.
+  This command runs ~gitk~ in the current repository.
 
-  Runs ~gitk --all~.  With a prefix argument run gitk without any
-  arguments.
+- Key: ! a, magit-run-gitk-all
+
+  This command runs ~gitk --all~ in the current repository.
+
+- Key: ! b, magit-run-gitk-branches
+
+  This command runs ~gitk --branches~ in the current repository.
+
+- Key: ! g, magit-run-git-gui
+
+  This command runs ~git gui~ in the current repository.
 
 *** Git executable
 

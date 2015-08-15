@@ -76,13 +76,22 @@ blame to center around the line point is on."
              ,filename))))
 
 ;;;###autoload
-(defun magit-run-gitk (arg)
-  "Run Gitk for the current git repository.
-Without a prefix argument run `gitk --all', with
-a prefix argument run gitk without any arguments."
-  (interactive "P")
-  (apply #'call-process magit-gitk-executable nil 0 nil
-         (if arg nil (list "--all"))))
+(defun magit-run-gitk ()
+  "Run `gitk' in the current repository."
+  (interactive)
+  (call-process magit-gitk-executable nil 0))
+
+;;;###autoload
+(defun magit-run-gitk-branches ()
+  "Run `gitk --branches' in the current repository."
+  (interactive)
+  (call-process magit-gitk-executable nil 0 nil "--branches"))
+
+;;;###autoload
+(defun magit-run-gitk-all ()
+  "Run `gitk --all' in the current repository."
+  (interactive)
+  (call-process magit-gitk-executable nil 0 nil "--all"))
 
 ;;; Clean
 

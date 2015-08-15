@@ -1990,10 +1990,11 @@ Currently this only adds the following key bindings.
   :actions '((?! "Git Subcommand (in topdir)" magit-git-command-topdir)
              (?k "Gitk"                       magit-run-gitk)
              (?p "Git Subcommand (in pwd)"    magit-git-command)
-             (?g "Git Gui"                    magit-run-git-gui)
+             (?a "Gitk --all"                 magit-run-gitk-all)
              (?s "Shell command (in topdir)"  magit-shell-command-topdir)
-             nil
-             (?S "Shell command (in pwd)"     magit-shell-command))
+             (?b "Gitk --branches"            magit-run-gitk-branches)
+             (?S "Shell command (in pwd)"     magit-shell-command)
+             (?g "Git Gui"                    magit-run-git-gui))
   :default-action 'magit-git-command
   :max-action-columns 2)
 

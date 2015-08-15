@@ -1413,20 +1413,29 @@ in the top-level directory of the current repository instead.
 These suffix commands start external gui tools.
 
 @table @asis
-@kindex ! g
-@cindex magit-run-git-gui
-@item @kbd{! g} @tie{}@tie{}@tie{}@tie{}(@code{magit-run-git-gui})
-
-Runs @code{git gui} for the current git repository.
-
 @kindex ! k
 @cindex magit-run-gitk
 @item @kbd{! k} @tie{}@tie{}@tie{}@tie{}(@code{magit-run-gitk})
 
-Runs Gitk for the current git repository.
+This command runs @code{gitk} in the current repository.
 
-Runs @code{gitk --all}.  With a prefix argument run gitk without any
-arguments.
+@kindex ! a
+@cindex magit-run-gitk-all
+@item @kbd{! a} @tie{}@tie{}@tie{}@tie{}(@code{magit-run-gitk-all})
+
+This command runs @code{gitk --all} in the current repository.
+
+@kindex ! b
+@cindex magit-run-gitk-branches
+@item @kbd{! b} @tie{}@tie{}@tie{}@tie{}(@code{magit-run-gitk-branches})
+
+This command runs @code{gitk --branches} in the current repository.
+
+@kindex ! g
+@cindex magit-run-git-gui
+@item @kbd{! g} @tie{}@tie{}@tie{}@tie{}(@code{magit-run-git-gui})
+
+This command runs @code{git gui} in the current repository.
 @end table
 
 @node Git executable
