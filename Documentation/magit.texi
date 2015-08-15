@@ -3968,8 +3968,8 @@ Start a non-interactive rebase sequence.  All commits not in
 UPSTREAM are rebased.
 
 @kindex r o
-@cindex magit-rebase-from
-@item @kbd{r o} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-from})
+@cindex magit-rebase-subset
+@item @kbd{r o} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-subset})
 
 Start a non-interactive rebase sequence with commits from START to
 @code{HEAD} onto NEWBASE.  START has to be selected from a list of recent

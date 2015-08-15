@@ -294,7 +294,7 @@ This discards all changes made since the sequence started."
               (?A "Autostash" "--autostash"))
   :actions  '((?r "Rebase"             magit-rebase)
               (?f "Autosquash"         magit-rebase-autosquash)
-              (?o "Rebase subset"      magit-rebase-from)
+              (?o "Rebase subset"      magit-rebase-subset)
               nil
               (?e "Rebase interactive" magit-rebase-interactive)
               (?s "Edit commit"        magit-rebase-edit-commit)
@@ -322,7 +322,7 @@ All commits not in UPSTREAM are rebased.
   (message "Rebasing...done"))
 
 ;;;###autoload
-(defun magit-rebase-from (newbase start &optional args)
+(defun magit-rebase-subset (newbase start &optional args)
   "Start a non-interactive rebase sequence.
 Commits from START to `HEAD' onto NEWBASE.  START has to be
 selected from a list of recent commits.
@@ -339,7 +339,7 @@ selected from a list of recent commits.
              (message "Rebasing...done"))
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-from ,newbase (concat commit "^") (list ,@args)))
+         (magit-rebase-subset ,newbase (concat commit "^") (list ,@args)))
       (concat "Type %p on a commit to rebase it "
               "and commits above it onto " newbase ","))))
 

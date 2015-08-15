@@ -2818,7 +2818,7 @@ following commands.
   Start a non-interactive rebase sequence.  All commits not in
   UPSTREAM are rebased.
 
-- Key: r o, magit-rebase-from
+- Key: r o, magit-rebase-subset
 
   Start a non-interactive rebase sequence with commits from START to
   ~HEAD~ onto NEWBASE.  START has to be selected from a list of recent
