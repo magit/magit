@@ -1249,14 +1249,12 @@ Staging and applying changes is documented in info node
           "\\(contains \\(?:modified\\|untracked\\) content\\)\\|"
           "\\([^ :]+\\)\\( (rewind)\\)?:\\)$"))
 
-(defun magit-diff-wash-diffs (args &optional diffstats)
-  (unless diffstats
-    (setq diffstats (magit-diff-wash-diffstat)))
+(defun magit-diff-wash-diffs (args)
+  (when (member "--stat" args)
+    (magit-diff-wash-diffstat))
   (when (re-search-forward magit-diff-headline-re nil t)
     (goto-char (line-beginning-position))
-    (magit-wash-sequence
-     (lambda ()
-       (magit-diff-wash-diff args (pop diffstats))))
+    (magit-wash-sequence (apply-partially 'magit-diff-wash-diff args))
     (insert ?\n))
   (goto-char (point-max))
   (magit-xref-insert-buttons))
@@ -1294,6 +1292,10 @@ section or a child thereof."
            (when (looking-at magit-diff-statline-re)
              (magit-bind-match-strings (file sep cnt add del) nil
                (magit-delete-line)
+               (when (string-match " +$" file)
+                 (setq sep (concat (match-string 0 file) sep))
+                 (setq file (substring file 0 (match-beginning 0))))
+               (setq file (magit-decode-git-path file))
                (magit-insert-section (file file)
                  (insert " " (propertize file 'face 'magit-filename) sep cnt
                          " ")
@@ -1305,7 +1307,7 @@ section or a child thereof."
         (setq children (magit-section-children it))))
     children))
 
-(defun magit-diff-wash-diff (args diffstat)
+(defun magit-diff-wash-diff (args)
   (cond
    ((looking-at magit-diff-submodule-re)
     (magit-diff-wash-submodule))
@@ -1378,8 +1380,6 @@ section or a child thereof."
       (when orig
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
-      (when diffstat
-        (setf (magit-section-value diffstat) file))
       (magit-diff-insert-file-section file orig status modes header)))))
 
 (defun magit-diff-insert-file-section (file orig status modes header)
@@ -1497,47 +1497,47 @@ Staging and applying changes is documented in info node
 
 (defun magit-diff-wash-revision (args)
   (magit-diff-wash-tag)
-  (let (children)
-    (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
-    (magit-bind-match-strings (rev refs) nil
-      (magit-delete-line)
-      (setq header-line-format
-            (propertize (concat " Commit " rev) 'face 'magit-header-line))
-      (magit-insert-section (headers)
-        (magit-insert-heading (char-to-string magit-ellipsis))
-        (when refs
-          (magit-insert (format "References: %s\n"
-                                (magit-format-ref-labels refs))))
-        (while (looking-at "^\\([a-z]+\\):")
-          (when (string-equal (match-string 1) "Merge")
-            (magit-delete-line))
-          (forward-line 1))
-        (re-search-forward "^\\(\\(---\\)\\|    .\\)")
-        (goto-char (line-beginning-position))
-        (if (match-string 2)
-            (progn (magit-delete-match)
-                   (insert ?\n)
-                   (magit-insert-section (message)
-                     (insert "    (no message)\n")))
-          (let ((bound (save-excursion
-                         (when (re-search-forward "^diff" nil t)
-                           (copy-marker (match-beginning 0)))))
-                (summary (buffer-substring-no-properties
-                          (point) (line-end-position))))
-            (magit-delete-line)
-            (magit-insert-section (message)
-              (insert summary ?\n)
-              (magit-insert-heading)
-              (cond ((re-search-forward "^---" bound t)
-                     (magit-delete-match))
-                    ((re-search-forward "^.[^ ]" bound t)
-                     (goto-char (1- (match-beginning 0))))))))
-        (forward-line)
-        (when magit-revision-insert-related-refs
-          (magit-revision-insert-related-refs rev))
-        (setq children (magit-diff-wash-diffstat))
-        (forward-line)))
-    (magit-diff-wash-diffs args children)))
+  (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
+  (magit-bind-match-strings (rev refs) nil
+    (magit-delete-line)
+    (setq header-line-format
+          (propertize (concat " Commit " rev) 'face 'magit-header-line))
+    (magit-insert-section (headers)
+      (magit-insert-heading (char-to-string magit-ellipsis))
+      (when refs
+        (magit-insert (format "References: %s\n"
+                              (magit-format-ref-labels refs))))
+      (while (looking-at "^\\([a-z]+\\):")
+        (when (string-equal (match-string 1) "Merge")
+          (magit-delete-line))
+        (forward-line 1))
+      (re-search-forward "^\\(\\(---\\)\\|    .\\)")
+      (goto-char (line-beginning-position))
+      (if (match-string 2)
+          (progn (magit-delete-match)
+                 (insert ?\n)
+                 (magit-insert-section (message)
+                   (insert "    (no message)\n")))
+        (let ((bound (save-excursion
+                       (when (re-search-forward "^diff" nil t)
+                         (copy-marker (match-beginning 0)))))
+              (summary (buffer-substring-no-properties
+                        (point) (line-end-position))))
+          (magit-delete-line)
+          (magit-insert-section (message)
+            (insert summary ?\n)
+            (magit-insert-heading)
+            (cond ((re-search-forward "^---" bound t)
+                   (magit-delete-match))
+                  ((re-search-forward "^.[^ ]" bound t)
+                   (goto-char (1- (match-beginning 0))))))))
+      (forward-line)
+      (when magit-revision-insert-related-refs
+        (magit-revision-insert-related-refs rev))
+      (when (member "--stat" args)
+        (magit-diff-wash-diffstat))
+      (forward-line)))
+  (magit-diff-wash-diffs args))
 
 (defun magit-diff-wash-tag ()
   (when (looking-at "^tag \\(.+\\)$")
