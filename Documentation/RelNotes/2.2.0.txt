@@ -165,7 +165,7 @@ Changes since v2.1.0
 * New face `magit-section-secondary-heading'.
 
 * New commands `magit-run-gitk-all' and `magit-run-gitk-branches'.
-  The existing command `magit-run-gitk' now alwyas calls `gitk'
+  The existing command `magit-run-gitk' now always calls `gitk'
   without any arguments.
 
 * New commands `magit-shell-command' and `magit-shell-command-topdir'.
