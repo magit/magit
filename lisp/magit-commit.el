@@ -87,7 +87,7 @@ an error while using those is harder to recover from."
     (magit-invoke-popup 'magit-commit-popup nil arg)))
 
 (defvar magit-commit-popup
-  '(:variable 'magit-commit-arguments
+  '(:variable magit-commit-arguments
     :man-page "git-commit"
     :switches ((?a "Stage all modified and deleted files"   "--all")
                (?e "Allow empty commit"                     "--allow-empty")
