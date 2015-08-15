@@ -1198,10 +1198,10 @@ Staging and applying changes is documented in info node
                      (_ (concat " in files "
                                 (mapconcat #'identity files ", "))))))
          'face 'magit-header-line))
-    (magit-insert-section (diffbuf)
-      (magit-git-wash #'magit-diff-wash-diffs
-        "diff" range "-p" (and magit-diff-show-diffstat "--stat")
-        "--no-prefix" const args "--" files)))
+  (magit-insert-section (diffbuf)
+    (magit-git-wash #'magit-diff-wash-diffs
+      "diff" range "-p" (and magit-diff-show-diffstat "--stat")
+      "--no-prefix" const args "--" files)))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
