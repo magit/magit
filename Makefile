@@ -4,7 +4,7 @@ include default.mk
 .PHONY: lisp \
 	install install-lisp install-docs install-info \
 	test test-interactive \
-	clean clean-lisp clean-docs \
+	clean clean-lisp clean-docs clean-archives \
 	genstats \
 	dist magit-$(VERSION).tar.gz elpa $(ELPA_ARCHIVES)
 
@@ -81,17 +81,20 @@ test-interactive:
 	(load-file \"t/magit-tests.el\")\
 	(ert t))"
 
-clean: clean-lisp clean-docs
+clean: clean-lisp clean-docs clean-archives
 	@printf "Cleaning...\n"
 	@$(RM) $(ELCS) $(ELGS) # temporary cleanup kludge
-	@$(RM) git-commit-*.el *.tar.gz *.tar Documentation/*.texi~
-	@$(RMDIR) magit-$(VERSION)
+	@$(RM) Documentation/*.texi~
 
 clean-lisp:
 	@$(MAKE) -C lisp clean
 
 clean-docs:
 	@$(MAKE) -C Documentation clean
+
+clean-archives:
+	@$(RM) git-commit-*.el *.tar.gz *.tar
+	@$(RMDIR) magit-$(VERSION)
 
 # Release management
 
