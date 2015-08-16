@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.1
+#+SUBTITLE: for version 2.2
 
 #+OPTIONS: H:4 num:3 toc:2
 #+STARTUP: indent
@@ -142,8 +142,8 @@ latest release.
 
 - Furthermore the old dependencies ~git-commit-mode~ and ~git-rebase-mode~
   have to be removed because they are no longer used by the ~2.1.0~
-  release and get in the way of their successors ~git-commit~ and
-  ~git-rebase~.
+  release and later, and get in the way of their successors ~git-commit~
+  and ~git-rebase~.
 
 So please uninstall the packages ~magit~, ~git-commit-mode~, and
 ~git-rebase-mode~.  Then quit Emacs and start a new instance.  Only then
@@ -287,7 +287,7 @@ outdated value for ~load-path~.
 should display something like
 
 #+BEGIN_SRC undefined
-  Magit 2.1.0, Git 2.4.2, Emacs 24.5.1
+  Magit 2.2.0, Git 2.4.2, Emacs 24.5.1
 #+END_SRC
 
 Then you might also want to read about options that many users likely
@@ -302,7 +302,9 @@ If you are completely new to Magit then see [[*Getting started]].
 
 If you have used an older Magit release before, then you should have a
 look at the release notes
-https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.1.0.txt.
+https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.1.0.txt
+and
+https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.2.0.txt
 
 And last but not least please consider making a donation, to ensure
 that I can keep working on Magit.  See http://magit.vc/donations.html
@@ -4083,7 +4085,7 @@ so in that particular case and that there is nothing that we can
 currently do about it, then comment on the appropriate existing issue
 (see https://github.com/magit/magit/labels/performance), or if
 necessary open a new issue.  Note that "something is slow, I am using
-v2.1" is not helpful, you have to be a bit more specific.  Benchmarks
+v2.2" is not helpful, you have to be a bit more specific.  Benchmarks
 are a start.
 
 * Plumbing

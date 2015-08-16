@@ -40,7 +40,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.1
+@subtitle for version 2.2
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -357,8 +357,8 @@ or even all features belonging to a package.
 @item
 Furthermore the old dependencies @code{git-commit-mode} and @code{git-rebase-mode}
 have to be removed because they are no longer used by the @code{2.1.0}
-release and get in the way of their successors @code{git-commit} and
-@code{git-rebase}.
+release and later, and get in the way of their successors @code{git-commit}
+and @code{git-rebase}.
 @end itemize
 
 So please uninstall the packages @code{magit}, @code{git-commit-mode}, and
@@ -515,7 +515,7 @@ M-x magit-version RET
 should display something like
 
 @example
-Magit 2.1.0, Git 2.4.2, Emacs 24.5.1
+Magit 2.2.0, Git 2.4.2, Emacs 24.5.1
 @end example
 
 Then you might also want to read about options that many users likely
@@ -530,7 +530,9 @@ If you are completely new to Magit then see @ref{Getting started,Getting started
 
 If you have used an older Magit release before, then you should have a
 look at the release notes
-@uref{https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.1.0.txt}.
+@uref{https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.1.0.txt}
+and
+@uref{https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.2.0.txt}
 
 And last but not least please consider making a donation, to ensure
 that I can keep working on Magit.  See @uref{http://magit.vc/donations.html}
@@ -5858,7 +5860,7 @@ so in that particular case and that there is nothing that we can
 currently do about it, then comment on the appropriate existing issue
 (see @uref{https://github.com/magit/magit/labels/performance}), or if
 necessary open a new issue.  Note that "something is slow, I am using
-v2.1" is not helpful, you have to be a bit more specific.  Benchmarks
+v2.2" is not helpful, you have to be a bit more specific.  Benchmarks
 are a start.
 
 @node Plumbing

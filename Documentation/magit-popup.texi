@@ -37,7 +37,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit-Popup User Manual
-@subtitle for version 2.1
+@subtitle for version 2.2
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -433,6 +433,12 @@ argument is used.  See @ref{Customizing existing popups,Customizing existing pop
 
 The Emacs package used to display man-pages, one of @code{man} or @code{woman}.
 @end defopt
+
+To emphasize the default action by making it bold use this:
+
+@lisp
+(button-type-put 'magit-popup-action-button 'format " %k %D")
+@end lisp
 
 @node Defining prefix and suffix commands
 @chapter Defining prefix and suffix commands
