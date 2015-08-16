@@ -560,7 +560,7 @@ tracked in the current repository are reverted if
       (write-region (point-min) (point-max) file))))
 
 (defmacro magit-process-kill-on-abort (proc &rest body)
-  (declare (indent 1))
+  (declare (indent 1) (debug (form body)))
   (let ((map (cl-gensym)))
     `(let ((,map (make-sparse-keymap)))
        (set-keymap-parent ,map minibuffer-local-map)

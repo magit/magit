@@ -287,7 +287,7 @@ call function WASHER with no argument."
 ;;; Files
 
 (defmacro magit--with-safe-default-directory (file &rest body)
-  (declare (indent 1))
+  (declare (indent 1) (debug (form body)))
   `(catch 'unsafe-default-dir
      (let ((default-directory
              (let ((file ,file))
@@ -323,7 +323,7 @@ GIT_DIR and its absolute path is returned."
             (file-name-directory (directory-file-name gitdir))))))))
 
 (defmacro magit-with-toplevel (&rest body)
-  (declare (indent defun))
+  (declare (indent defun) (debug (body)))
   (let ((toplevel (cl-gensym "toplevel")))
     `(let ((,toplevel (magit-toplevel)))
        (if ,toplevel

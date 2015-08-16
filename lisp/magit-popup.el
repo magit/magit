@@ -342,7 +342,7 @@ or `:only' which doesn't change the behaviour."
                     (magit-popup-get :options))))
 
 (defmacro magit-popup-convert-events (def form)
-  (declare (indent 1))
+  (declare (indent 1) (debug (form form)))
   `(--map (if (or (null it) (stringp it)) it ,form) ,def))
 
 (defun magit-popup-convert-switches (val def)
