@@ -146,6 +146,7 @@ Contributors
 - Nick Alcock <nick.alcock@oracle.com>
 - Nick Alexander <nalexander@mozilla.com>
 - Nick Dimiduk <ndimiduk@gmail.com>
+- Nicklas Lindgren <nili@gulmohar.se>
 - Nicolas Dudebout <nicolas.dudebout@gatech.edu>
 - Nicolas Richard <theonewiththeevillook@yahoo.fr>
 - Noam Postavsky <npostavs@users.sourceforge.net>
