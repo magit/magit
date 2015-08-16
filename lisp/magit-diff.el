@@ -522,6 +522,10 @@ The following `format'-like specs are supported:
               (?f "Flip revisions"         magit-diff-flip-revs))
     :max-action-columns 2))
 
+(magit-define-popup-keys-deferred 'magit-diff-popup)
+(magit-define-popup-keys-deferred 'magit-diff-refresh-popup)
+(magit-define-popup-keys-deferred 'magit-diff-mode-refresh-popup)
+
 (defcustom magit-diff-arguments '("--no-ext-diff")
   "The diff arguments used in buffers whose mode derives from `magit-diff-mode'."
   :group 'magit-diff

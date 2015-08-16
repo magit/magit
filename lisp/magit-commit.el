@@ -110,6 +110,8 @@ an error while using those is harder to recover from."
     :max-action-columns 4
     :default-action 'magit-commit))
 
+(magit-define-popup-keys-deferred 'magit-commit-popup)
+
 (defun magit-commit-arguments nil
   (if (eq magit-current-popup 'magit-commit-popup)
       magit-current-popup-args

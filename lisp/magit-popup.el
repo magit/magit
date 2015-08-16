@@ -502,13 +502,7 @@ keywords are also meaningful:
          (magit-invoke-popup ',name ,mode arg))
        (defvar ,name
          (list :variable ',opt ,@args))
-       (cl-loop for args in (get ',name 'magit-popup-deferred)
-                do (condition-case err
-                       (apply #'magit-define-popup-key ',name args)
-                     ((debug error)
-                      (display-warning
-                       'magit (error-message-string err) :error)))
-                finally (put ',name 'magit-popup-deferred nil))
+       (magit-define-popup-keys-deferred ',name)
        ,@(when opt
            `((defcustom ,opt (plist-get ,name :default-arguments)
                ""
@@ -632,8 +626,17 @@ It's better to use one of the specialized functions
                               (cons elt value)
                             (append value (list elt)))))
             (set popup (plist-put plist type value)))
-        (push (list type key def at prepend) (get popup 'magit-popup-deferred)))
+        (push (list type key def at prepend)
+              (get popup 'magit-popup-deferred)))
     (error "Unknown popup event type: %s" type)))
+
+(defun magit-define-popup-keys-deferred (popup)
+  (dolist (args (get popup 'magit-popup-deferred))
+    (condition-case err
+        (apply #'magit-define-popup-key popup args)
+      ((debug error)
+       (display-warning 'magit (error-message-string err) :error))))
+  (put popup 'magit-popup-deferred nil))
 
 (defun magit-change-popup-key (popup type from to)
   "In POPUP, bind TO to what FROM was bound to.

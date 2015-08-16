@@ -349,6 +349,9 @@ are no unpulled commits) show."
                (?w "Save defaults" magit-log-save-default-arguments))
     :max-action-columns 2))
 
+(magit-define-popup-keys-deferred 'magit-log-popup)
+(magit-define-popup-keys-deferred 'magit-log-refresh-popup)
+
 (defun magit-log-arguments (&optional refresh)
   (cond ((memq magit-current-popup
                '(magit-log-popup magit-log-refresh-popup))
