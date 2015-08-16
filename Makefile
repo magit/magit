@@ -110,8 +110,8 @@ dist: magit-$(VERSION).tar.gz
 DIST_ROOT_FILES = COPYING default.mk Makefile README.md
 DIST_LISP_FILES = $(addprefix lisp/,$(ELS) magit-version.el Makefile)
 DIST_DOCS_FILES = $(addprefix Documentation/,$(TEXIPAGES) AUTHORS.md Makefile)
-ifneq ("$(wildcard RelNotes/$(VERSION).txt)","")
-  DIST_DOCS_FILES += RelNotes/$(VERSION).txt
+ifneq ("$(wildcard Documentation/RelNotes/$(VERSION).txt)","")
+  DIST_DOCS_FILES += Documentation/RelNotes/$(VERSION).txt
 endif
 
 magit-$(VERSION).tar.gz: lisp info
