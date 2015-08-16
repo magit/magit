@@ -11,13 +11,51 @@ Magit and Git itself deserve to be called porcelains.
 
 For more information about Magit, see http://magit.vc.
 
+Please consider supporting development by making a donation.
+See http://magit.vc/donations.html.
+
 Magit v2.2.0 Release Notes
 ==========================
 
-UNRELEASED.
+Released 16 August 2015 by Jonas Bernoulli.
+
+We are pleased to announce the release of Magit version 2.2.0,
+representing 321 commits by 19 people over 6 weeks.
+
+I would like to thank Kyle Meyer and Noam Postavsky for joining
+the developer team and helping me with this release. -- Jonas
 
 Changes since v2.1.0
 --------------------
+
+* The Elpa packages `with-editor' and `magit-popup' now depend on the
+  package `async' and turn on the mode `async-bytecomp-package-mode'.
+  If available, the mode is turned on even when these packages have
+  not been installed from an Elpa archive.  It is being turned on in
+  both of these libraries because any one of them might be the first
+  package from the Magit repository that is being updated.
+
+  It is possible to prevent the mode from being turned on when loading
+  these libraries by setting `async-bytecomp-allowed-packages' to nil
+  before loading them.  If you do that, then you must mention that you
+  have done so when reporting a bug (which might therefore be due to
+  miscompiled files).
+
+  Turning on `async-bytecomp-package-mode' advises `package--compile',
+  instructing it to compile Magit and its dependencies (as well as
+  others packages listed in `async-bytecomp-allowed-packages' and
+  their dependencies) in a separate Emacs instance.
+
+  Unfortunately it is necessary that we do this because when an old
+  version of a package is already loaded when a new version is being
+  installed, then the old version sometimes interferes during
+  compilation of the new version, leading to miscompiled files.
+
+  This usually does not happen very often, but when updating from
+  Magit v1 to v2 then it is expected, which is why users were
+  instructed to uninstall the old version before installing v2.1.0.
+  Unfortunately many users never saw those instructions, so we have
+  no choice but to use this approach to get rid of miscompiled files.
 
 * Two new commands have been added to the diff refresh popup that
   allow the range of the previous diff to be manipulated.
@@ -175,3 +213,23 @@ clean-ups, bug fixes, and other small to medium improvements.
 
 Authors
 -------
+
+   225  Jonas Bernoulli
+    67  Kyle Meyer
+     8  Noam Postavsky
+     3  Mitchel Humpherys
+     2  Greg Lucas
+     2  Mark Karpov
+     2  Yuichi Higashi
+     1  Johann Klähn
+     1  Josiah Schwab
+     1  Kan-Ru Chen
+     1  Nicklas Lindgren
+     1  Phil Sainty
+     1  Richard Kim
+     1  Robin Green
+     1  Rémi Vanicat
+     1  Steven Vancoillie
+     1  Thomas Frössman
+     1  Ting-Yu Lin
+     1  Vineet Naik

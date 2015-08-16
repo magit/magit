@@ -145,8 +145,9 @@ elpa: $(ELPA_ARCHIVES)
 define with_editor_pkg
 (define-package "with-editor" "$(VERSION)"
   "Use the Emacsclient as $$EDITOR"
-  '((emacs "24.4")
-    (dash "2.10.0")))
+  '((emacs "$(EMACS_VERSION)")
+    (async "$(ASYNC_VERSION)")
+    (dash "$(DASH_VERSION)")))
 endef
 # '
 export with_editor_pkg
@@ -169,8 +170,9 @@ git-commit-$(VERSION).el:
 define magit_popup_pkg
 (define-package "magit-popup" "$(VERSION)"
   "Define prefix-infix-suffix command combos"
-  '((emacs "24.4")
-    (dash "2.10.0")))
+  '((emacs "$(EMACS_VERSION)")
+    (async "$(ASYNC_VERSION)")
+    (dash "$(DASH_VERSION)")))
 endef
 # '
 export magit_popup_pkg
@@ -191,11 +193,12 @@ ELPA_DOCS_FILES = $(addprefix Documentation/,AUTHORS.md dir magit.info)
 define magit_pkg
 (define-package "magit" "$(VERSION)"
   "A Git porcelain inside Emacs"
-  '((emacs "24.4")
-    (dash "2.10.0")
-    (with-editor "2.1.0")
-    (git-commit "2.1.0")
-    (magit-popup "2.1.0")))
+  '((emacs "$(EMACS_VERSION)")
+    (async "$(ASYNC_VERSION)")
+    (dash "$(DASH_VERSION)")
+    (with-editor "$(VERSION)")
+    (git-commit "$(VERSION)")
+    (magit-popup "$(VERSION)")))
 endef
 # '
 export magit_pkg
