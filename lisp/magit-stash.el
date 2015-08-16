@@ -381,6 +381,7 @@ The following `format'-like specs are supported:
                (magit-rev-format "%s" stash) "\n")))))
 
 (defmacro magit-stash-insert-section (subtype format &optional files)
+  (declare (debug (sexp form &optional form)))
   `(let ((stash (car magit-refresh-args)))
      (magit-insert-section (,(intern (format "stashed-%s" subtype)))
        (magit-insert-heading (format "%s %s:" (capitalize stash) ',subtype))
