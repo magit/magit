@@ -117,8 +117,8 @@ that without users being aware of it could lead to tears.
 `nil'      Ignore prefix arguments."
   :group 'magit-popup
   :type '(choice
-          (const :tag "Use default action, else show popup" default)
-          (const :tag "Show popup, else use default action" popup)
+          (const :tag "With prefix use default action, else show popup" default)
+          (const :tag "With prefix show popup, else use default action" popup)
           (const :tag "Ignore prefix argument" nil)
           (const :tag "Abort and show usage information" disabled)))
 
