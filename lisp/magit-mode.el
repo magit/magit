@@ -315,7 +315,7 @@ which visits the thing at point."
     ["Discard" magit-discard t]
     ["Reset head" magit-reset-head t]
     ["Stash" magit-stash t]
-    ["Snapshot" magit-stash-snapshot t]
+    ["Snapshot" magit-snapshot t]
     "---"
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
@@ -327,7 +327,7 @@ which visits the thing at point."
     ["Remote update" magit-fetch-all t]
     ("Submodule"
      ["Submodule update" magit-submodule-update t]
-     ["Submodule update and init" magit-submodule-update-init t]
+     ["Submodule update and init" magit-submodule-setup t]
      ["Submodule init" magit-submodule-init t]
      ["Submodule sync" magit-submodule-sync t])
     "---"
