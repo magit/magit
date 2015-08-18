@@ -203,8 +203,8 @@ string \"false\", otherwise return nil."
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point.
-If Git exits with a non-zero exit status, then report show a
-message and add a section in the respective process buffer."
+If Git exits with a non-zero exit status, then show a message and
+add a section in the respective process buffer."
   (setq args (magit-process-git-arguments args))
   (if magit-git-debug
       (let (log)
