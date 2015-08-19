@@ -349,6 +349,8 @@ START has to be selected from a list of recent commits."
         (setq commit (--if-let (magit-get-tracked-branch)
                          (magit-git-string "merge-base" it "HEAD")
                        nil))
+      (when (magit-git-failure "merge-base" "--is-ancestor" commit "HEAD")
+        (user-error "%s isn't an ancestor of HEAD" commit))
       (setq commit (concat commit "^"))))
   (when (and commit
              (magit-git-lines "rev-list" "--merges" (concat commit "..HEAD")))
