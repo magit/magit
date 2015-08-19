@@ -311,8 +311,7 @@ This discards all changes made since the sequence started."
 ;;;###autoload
 (defun magit-rebase (upstream &optional args)
   "Start a non-interactive rebase sequence.
-All commits not in UPSTREAM are rebased.
-\n(git rebase UPSTREAM[^] [ARGS])"
+All commits not in UPSTREAM are rebased."
   (interactive (list (magit-read-other-branch-or-commit
                       "Rebase onto"
                       (magit-get-current-branch)
@@ -325,9 +324,8 @@ All commits not in UPSTREAM are rebased.
 ;;;###autoload
 (defun magit-rebase-subset (newbase start &optional args)
   "Start a non-interactive rebase sequence.
-Commits from START to `HEAD' onto NEWBASE.  START has to be
-selected from a list of recent commits.
-\n(git rebase --onto NEWBASE START[^] [ARGS])"
+Rebase commits from START to `HEAD' onto NEWBASE.
+START has to be selected from a list of recent commits."
   (interactive (list (magit-read-other-branch-or-commit
                       "Rebase subset onto"
                       (magit-get-current-branch)
@@ -346,8 +344,7 @@ selected from a list of recent commits.
 
 ;;;###autoload
 (defun magit-rebase-interactive (commit &optional args)
-  "Start an interactive rebase sequence.
-\n(git rebase -i COMMIT[^] [ARGS])"
+  "Start an interactive rebase sequence."
   (interactive (let ((commit (magit-commit-at-point)))
                  (list (and commit (concat commit "^"))
                        (magit-rebase-arguments))))
@@ -359,8 +356,7 @@ selected from a list of recent commits.
       "Type %p on a commit to rebase it and all commits above it,")))
 
 (defun magit-rebase-unpushed (commit &optional args)
-  "Start an interactive rebase sequence of all unpushed commits.
-\n(git rebase -i UPSTREAM [ARGS])"
+  "Start an interactive rebase sequence of all unpushed commits."
   (interactive (list (--when-let (magit-get-tracked-branch)
                        (magit-git-string "merge-base" it "HEAD"))
                      (magit-rebase-arguments)))
@@ -373,8 +369,7 @@ selected from a list of recent commits.
 
 ;;;###autoload
 (defun magit-rebase-autosquash (commit &optional args)
-  "Combine squash and fixup commits with their intended targets.
-\n(git rebase -i COMMIT[^] --autosquash [ARGS])"
+  "Combine squash and fixup commits with their intended targets."
   (interactive (list (--when-let (magit-get-tracked-branch)
                        (magit-git-string "merge-base" it "HEAD"))
                      (magit-rebase-arguments)))
