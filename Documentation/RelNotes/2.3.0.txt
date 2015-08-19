@@ -25,5 +25,8 @@ THIS IS NOT COMPLETE.
   variants which normally perform a non-interactive rebase can be used
   interactively too.  #2186
 
+* Commands that perform an interactive rebase should no longer be used
+  non-interactively.  #2187
+
 Authors
 -------

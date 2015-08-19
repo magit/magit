@@ -342,84 +342,73 @@ START has to be selected from a list of recent commits."
       (concat "Type %p on a commit to rebase it "
               "and commits above it onto " newbase ","))))
 
-;;;###autoload
-(defun magit-rebase-interactive (commit &optional args)
-  "Start an interactive rebase sequence."
-  (interactive (let ((commit (magit-commit-at-point)))
-                 (list (and commit (concat commit "^"))
-                       (magit-rebase-arguments))))
-  (if (setq commit (magit-rebase-interactive-assert commit))
-      (magit-run-git-sequencer "rebase" "-i" commit args)
-    (magit-log-select
-      `(lambda (commit)
-         (magit-rebase-interactive (concat commit "^") (list ,@args)))
-      "Type %p on a commit to rebase it and all commits above it,")))
-
-(defun magit-rebase-unpushed (commit &optional args)
-  "Start an interactive rebase sequence of all unpushed commits."
-  (interactive (list (--when-let (magit-get-tracked-branch)
-                       (magit-git-string "merge-base" it "HEAD"))
-                     (magit-rebase-arguments)))
-  (if (setq commit (magit-rebase-interactive-assert commit))
-      (magit-run-git-sequencer "rebase" "-i" commit args)
-    (magit-log-select
-      `(lambda (commit)
-         (magit-rebase-interactive (concat commit "^") (list ,@args)))
-      "Type %p on a commit to rebase it and all commits above it,")))
-
-;;;###autoload
-(defun magit-rebase-autosquash (commit &optional args)
-  "Combine squash and fixup commits with their intended targets."
-  (interactive (list (--when-let (magit-get-tracked-branch)
-                       (magit-git-string "merge-base" it "HEAD"))
-                     (magit-rebase-arguments)))
-  (if (setq commit (magit-rebase-interactive-assert commit))
-      (let ((process-environment process-environment))
-        (setenv "GIT_SEQUENCE_EDITOR" "true")
-        (magit-run-git-sequencer "rebase" "-i" commit "--autosquash" args))
-    (magit-log-select
-      `(lambda (commit)
-         (magit-rebase-autosquash (concat commit "^") (list ,@args)))
-      "Type %p on a commit to squash into it and commits above it,")))
-
-;;;###autoload
-(defun magit-rebase-edit-commit (commit &optional args)
-  "Edit a single older commit using rebase."
-  (interactive (list (magit-commit-at-point)
-                     (magit-rebase-arguments)))
-  (if (setq commit (magit-rebase-interactive-assert commit))
-      (let ((process-environment process-environment))
-        (setenv "GIT_SEQUENCE_EDITOR"
-                "perl -i -p -e '++$x if not $x and s/^pick/edit/'")
-        (magit-run-git-sequencer "rebase" "-i" (concat commit "^") args))
-    (magit-log-select
-      `(lambda (commit)
-         (magit-rebase-edit-commit commit (list ,@args)))
-      "Type %p on a commit to edit it,")))
-
-;;;###autoload
-(defun magit-rebase-reword-commit (commit &optional args)
-  "Reword a single older commit using rebase."
-  (interactive (list (magit-commit-at-point)
-                     (magit-rebase-arguments)))
-  (if (setq commit (magit-rebase-interactive-assert commit))
-      (let ((process-environment process-environment))
-        (setenv "GIT_SEQUENCE_EDITOR"
-                "perl -i -p -e '++$x if not $x and s/^pick/reword/'")
-        (magit-run-git-sequencer "rebase" "-i" (concat commit "^") args))
-    (magit-log-select
-      `(lambda (commit)
-         (magit-rebase-reword-commit commit (list ,@args)))
-      "Type %p on a commit to reword its message,")))
-
-(defun magit-rebase-interactive-assert (commit)
+(defun magit-rebase-interactive-1 (commit message &optional editor args)
+  (declare (indent 1))
   (when commit
-    (if (magit-git-lines "rev-list" "--merges" (concat commit "..HEAD"))
-        (magit-read-char-case "Proceed despite merge in rebase range?  " nil
-          (?c "[c]ontinue" commit)
-          (?s "[s]elect other" nil)
-          (?a "[a]bort" (user-error "Quit")))
-      commit)))
+    (if (eq commit :merge-base)
+        (setq commit (--if-let (magit-get-tracked-branch)
+                         (magit-git-string "merge-base" it "HEAD")
+                       nil))
+      (setq commit (concat commit "^"))))
+  (when (and commit
+             (magit-git-lines "rev-list" "--merges" (concat commit "..HEAD")))
+    (magit-read-char-case "Proceed despite merge in rebase range?  " nil
+      (?c "[c]ontinue")
+      (?s "[s]elect other" (setq commit nil))
+      (?a "[a]bort" (user-error "Quit"))))
+  (if commit
+      (let ((process-environment process-environment))
+        (when editor
+          (setenv "GIT_SEQUENCE_EDITOR" editor))
+        (magit-run-git-sequencer "rebase" "-i" args commit
+                                 (magit-rebase-arguments)))
+    (magit-log-select
+      `(lambda (commit) (magit-rebase-interactive-1 commit ,message ,editor ,args))
+      message)))
+
+;;;###autoload
+(defun magit-rebase-interactive (commit)
+  "Start an interactive rebase sequence."
+  (interactive (list (magit-commit-at-point)))
+  (magit-rebase-interactive-1 commit
+    "Type %p on a commit to rebase it and all commits above it,"))
+
+;;;###autoload
+(defun magit-rebase-unpushed ()
+  "Start an interactive rebase sequence of all unpushed commits."
+  (interactive)
+  (magit-rebase-interactive-1 :merge-base
+    "Type %p on a commit to rebase it and all commits above it,"))
+
+;;;###autoload
+(defun magit-rebase-autosquash ()
+  "Combine squash and fixup commits with their intended targets."
+  (interactive)
+  (magit-rebase-interactive-1 :merge-base
+    "Type %p on a commit to squash into it and the commits above it,"
+    "true" (list "--autosquash")))
+
+;;;###autoload
+(defun magit-rebase-edit-commit (commit)
+  "Edit a single older commit using rebase."
+  (interactive (list (magit-commit-at-point)))
+  (magit-rebase-interactive-1 commit
+    "Type %p on a commit to edit it,"
+    "perl -i -p -e '++$x if not $x and s/^pick/edit/'"))
+
+;;;###autoload
+(defun magit-rebase-reword-commit (commit)
+  "Reword a single older commit using rebase."
+  (interactive (list (magit-commit-at-point)))
+  (magit-rebase-interactive-1 commit
+    "Type %p on a commit to reword its message,"
+    "perl -i -p -e '++$x if not $x and s/^pick/reword/'"))
+
+(put 'magit-rebase-interactive   'interactive-only t)
+(put 'magit-rebase-unpushed      'interactive-only t)
+(put 'magit-rebase-autosquash    'interactive-only t)
+(put 'magit-rebase-edit-commit   'interactive-only t)
+(put 'magit-rebase-reword-commit 'interactive-only t)
 
 ;;;###autoload
 (defun magit-rebase-continue ()
