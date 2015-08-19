@@ -21,5 +21,7 @@ Changes since v2.2.0
 
 THIS IS NOT COMPLETE.
 
+* New command `magit-checkout-file'.
+
 Authors
 -------
