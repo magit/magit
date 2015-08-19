@@ -351,7 +351,9 @@ START has to be selected from a list of recent commits."
                        nil))
       (when (magit-git-failure "merge-base" "--is-ancestor" commit "HEAD")
         (user-error "%s isn't an ancestor of HEAD" commit))
-      (setq commit (concat commit "^"))))
+      (if (magit-commit-parents commit)
+          (setq commit (concat commit "^"))
+        (setq args (cons "--root" args)))))
   (when (and commit
              (magit-git-lines "rev-list" "--merges" (concat commit "..HEAD")))
     (magit-read-char-case "Proceed despite merge in rebase range?  " nil
@@ -362,7 +364,8 @@ START has to be selected from a list of recent commits."
       (let ((process-environment process-environment))
         (when editor
           (setenv "GIT_SEQUENCE_EDITOR" editor))
-        (magit-run-git-sequencer "rebase" "-i" args commit
+        (magit-run-git-sequencer "rebase" "-i" args
+                                 (unless (member "--root" args) commit)
                                  (magit-rebase-arguments)))
     (magit-log-select
       `(lambda (commit) (magit-rebase-interactive-1 commit ,message ,editor ,args))

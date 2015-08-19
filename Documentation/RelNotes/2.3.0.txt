@@ -28,5 +28,7 @@ THIS IS NOT COMPLETE.
 * Commands that perform an interactive rebase should no longer be used
   non-interactively.  #2187
 
+* Rebasing commands now can start with a root commit.  #2187
+
 Authors
 -------
