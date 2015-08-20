@@ -2044,7 +2044,7 @@ repository, otherwise in `default-directory'."
 Run the command in the top-level directory of the current repository.
 \n(fn)" ; arguments are for internal use
   (interactive (magit-read-shell-command "Shell command (pwd: %s)" t))
-  (magit-git-command args directory))
+  (magit-shell-command args directory))
 
 (defun magit-read-shell-command (prompt &optional root)
   (let ((dir (if (or root current-prefix-arg)
