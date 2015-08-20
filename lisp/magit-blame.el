@@ -248,6 +248,7 @@ only arguments available from `magit-blame-popup' should be used.
        `(lambda (process event)
           (when (memq (process-status process) '(exit signal))
             (magit-process-sentinel process event)
+            (magit-blame-assert-buffer process)
             (with-current-buffer (process-get process 'command-buf)
               (when magit-blame-mode
                 (let ((magit-process-popup-time -1)
@@ -267,6 +268,7 @@ only arguments available from `magit-blame-popup' should be used.
       (magit-process-sentinel process event)
       (if (eq status 'exit)
           (message "Blaming...done")
+        (magit-blame-assert-buffer process)
         (with-current-buffer (process-get process 'command-buf)
           (magit-blame-mode -1))
         (message "Blaming...failed")))))
@@ -281,6 +283,7 @@ This is intended for debugging purposes.")
   (--when-let (process-get process 'partial-line)
     (setq string (concat it string))
     (setf (process-get process 'partial-line) nil))
+  (magit-blame-assert-buffer process)
   (with-current-buffer (process-get process 'command-buf)
     (when magit-blame-mode
       (let ((chunk (process-get process 'chunk))
@@ -324,6 +327,11 @@ This is intended for debugging purposes.")
             (plist-put chunk (intern (concat ":" (match-string 1 line)))
                        (match-string 2 line))))
           (process-put process 'chunk chunk))))))
+
+(defun magit-blame-assert-buffer (process)
+  (unless (buffer-live-p (process-get process 'command-buf))
+    (kill-process process)
+    (user-error "Buffer being blamed has been killed")))
 
 (defun magit-blame-make-overlay (chunk)
   (let ((ov (save-excursion
