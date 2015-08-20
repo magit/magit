@@ -21,5 +21,10 @@ Changes since v2.2.0
 
 THIS IS NOT COMPLETE.
 
+* Added new option `magit-bury-buffer-function' to give users more
+  control over how Magit buffers are buried, replacing the old binary
+  option `magit-restore-window-configuration'.  The default is still
+  the same, i.e. `magit-restore-window-configuration' is used.  #2193
+
 Authors
 -------
