@@ -2345,6 +2345,10 @@ apply variants are described in the next section.
 
   Remove all changes from the staging area.
 
+To stage a smaller unit than a range of lines, similar to ~git add
+--patch~ followed by ~e~ would do, then you can use ~magit-ediff-stage~ to
+do so.
+
 *** Staging from file-visiting buffers
 
 Fine-grained un-/staging has to be done from the status or a diff

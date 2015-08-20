@@ -3280,6 +3280,10 @@ use a command which always does just that, then rebind @code{U} to
 Remove all changes from the staging area.
 @end table
 
+To stage a smaller unit than a range of lines, similar to @code{git add
+--patch} followed by @code{e} would do, then you can use @code{magit-ediff-stage} to
+do so.
+
 @menu
 * Staging from file-visiting buffers::
 @end menu
