@@ -3071,9 +3071,8 @@ arguments available from @code{magit-blame-popup} should be used.
 @cindex magit-blame-popup
 @item @kbd{M-x magit-blame-popup} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
 
-By default this behaves just like @code{magit-blame}.  With a prefix
-argument instead show a popup buffer featuring a few infix arguments
-and a single suffix command (@code{magit-blame}).
+This prefix command shows the following suffix commands along with
+the appropriate infix arguments in a popup buffer.
 
 @kindex RET
 @cindex magit-show-commit
