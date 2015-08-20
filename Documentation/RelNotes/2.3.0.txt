@@ -26,5 +26,8 @@ THIS IS NOT COMPLETE.
   option `magit-restore-window-configuration'.  The default is still
   the same, i.e. `magit-restore-window-configuration' is used.  #2193
 
+* Added new function `magit-mode-quit-window' as a simpler variant to
+  `magit-restore-window-configuration'.  #2193
+
 Authors
 -------

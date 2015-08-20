@@ -72,6 +72,7 @@ displayed.  Otherwise fall back to regular region highlighting."
   :package-version '(magit . "2.3.0")
   :group 'magit
   :type '(radio (function-item quit-window)
+                (function-item magit-mode-quit-window)
                 (function-item magit-restore-window-configuration)
                 (function :tag "Function")))
 
@@ -452,6 +453,11 @@ the function `magit-toplevel'."
                    'switch-to-buffer
                  'pop-to-buffer))
            buffer)
+  (when (eq magit-bury-buffer-function 'magit-mode-quit-window)
+    (let ((window (get-buffer-window buffer)))
+      (when (and (window-live-p window)
+                 (not (window-prev-buffers window)))
+        (set-window-parameter window 'magit-dedicated t))))
   buffer)
 
 (defun magit-mode-get-buffers ()
@@ -494,6 +500,29 @@ With a prefix argument, kill the buffer instead.
 This is done using `magit-bury-buffer-function'."
   (interactive "P")
   (funcall magit-bury-buffer-function kill-buffer))
+
+(defun magit-mode-quit-window (kill-buffer)
+  "Quit the selected window and bury its buffer.
+
+This behaves similar to `quit-window', but when the window
+was originally created to display a Magit buffer and the
+current buffer is the last remaining Magit buffer that was
+ever displayed in the selected window, then delete that
+window."
+  (if (or (one-window-p)
+          (--first (let ((buffer (car it)))
+                     (and (not (eq buffer (current-buffer)))
+                          (buffer-live-p buffer)
+                          (or (not (window-parameter nil 'magit-dedicated))
+                              (with-current-buffer buffer
+                                (derived-mode-p 'magit-mode
+                                                'magit-process-mode)))))
+                   (window-prev-buffers)))
+      (quit-window kill-buffer)
+    (let ((window (selected-window)))
+      (quit-window kill-buffer)
+      (when (window-live-p window)
+        (delete-window window)))))
 
 (defun magit-rename-buffer (&optional newname)
   "Rename the current buffer, so that Magit won't reuse it.
