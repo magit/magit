@@ -1022,6 +1022,7 @@ FILE must be relative to the top directory of the repository."
         (setq buffer-read-only t)
         (set-buffer-modified-p nil)
         (goto-char (point-min))
+        (magit-blob-mode 1)
         (run-hooks 'magit-find-file-hook)
         (current-buffer))))
 
@@ -1946,6 +1947,26 @@ Currently this only adds the following key bindings.
 
 (define-obsolete-function-alias 'global-magit-file-buffer-mode
   'global-magit-file-mode "2.3.0")
+
+;;;; Blob Mode
+
+(defvar magit-blob-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "q" 'magit-kill-this-buffer)
+    map)
+  "Keymap for `magit-blob-mode'.")
+
+(define-minor-mode magit-blob-mode
+  "Enable some Magit features in blob-visiting buffers.
+
+Currently this only adds the following key bindings.
+\n\\{magit-blob-mode-map}"
+  :package-version '(magit . "2.3.0"))
+
+(defun magit-kill-this-buffer ()
+  "Kill the current buffer."
+  (interactive)
+  (kill-buffer (current-buffer)))
 
 ;;;; Dispatch Popup
 

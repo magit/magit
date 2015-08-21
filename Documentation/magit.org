@@ -3875,6 +3875,17 @@ few key bindings, but this might be extended in the future.
   This prefix command shows suffix commands along with the appropriate
   infix arguments in a popup buffer.  See [[*Initiating a commit]].
 
+** Minor mode for buffers visiting blobs
+
+The ~magit-blob-mode~ enables certain Magit features in blob-visiting
+buffers.  Such buffers can be created using ~magit-find-file~ and some
+of the commands mentioned below, which also take care of turning on
+this minor mode.  Currently this mode only establishes a few key
+bindings, but this might be e
+
+- Key: q, magit-kill-this-buffer
+
+  Kill the current buffer.
 
 * Customizing
 

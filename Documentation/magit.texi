@@ -190,6 +190,7 @@ Miscellaneous
 * Submodules::
 * Wip modes::
 * Minor mode for buffers visiting files::
+* Minor mode for buffers visiting blobs::
 
 Customizing
 
@@ -5122,6 +5123,7 @@ changes made since the sequence started.
 * Submodules::
 * Wip modes::
 * Minor mode for buffers visiting files::
+* Minor mode for buffers visiting blobs::
 @end menu
 
 @node Tagging
@@ -5579,6 +5581,23 @@ the appropriate infix arguments in a popup buffer.  See @ref{Initiating a commit
 
 This prefix command shows suffix commands along with the appropriate
 infix arguments in a popup buffer.  See @ref{Initiating a commit,Initiating a commit}.
+@end table
+
+@node Minor mode for buffers visiting blobs
+@section Minor mode for buffers visiting blobs
+
+The @code{magit-blob-mode} enables certain Magit features in blob-visiting
+buffers.  Such buffers can be created using @code{magit-find-file} and some
+of the commands mentioned below, which also take care of turning on
+this minor mode.  Currently this mode only establishes a few key
+bindings, but this might be e
+
+@table @asis
+@kindex q
+@cindex magit-kill-this-buffer
+@item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-kill-this-buffer})
+
+Kill the current buffer.
 @end table
 
 @node Customizing

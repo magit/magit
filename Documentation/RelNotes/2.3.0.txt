@@ -98,5 +98,7 @@ THIS IS NOT COMPLETE.
 * Renamed `magit-file-buffer-mode' to `magit-file-mode'.  Related
   symbols were renamed accordingly.
 
+* Added new minor mode `magit-blob-mode'.  #2195
+
 Authors
 -------
