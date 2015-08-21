@@ -2126,20 +2126,19 @@ When the region is active, then behave like `kill-ring-save'."
   (interactive)
   (if (region-active-p)
       (copy-region-as-kill (mark) (point) 'region)
-    (-when-let (section (magit-current-section))
-      (let ((value (magit-section-value section)))
-        (magit-section-case
-          (branch (when current-prefix-arg
-                    (setq value (magit-rev-parse value))))
-          (commit (setq value (magit-rev-parse value)))
-          (module-commit (let ((default-directory
-                                 (file-name-as-directory
-                                  (expand-file-name
-                                   (magit-section-parent-value section)
-                                   (magit-toplevel)))))
-                           (setq value (magit-rev-parse value))))
-          (t value))
-        (kill-new (message "%s" value))))))
+    (-when-let* ((section (magit-current-section))
+                 (value (magit-section-value section)))
+      (magit-section-case
+        (branch (when current-prefix-arg
+                  (setq value (magit-rev-parse value))))
+        (commit (setq value (magit-rev-parse value)))
+        (module-commit (let ((default-directory
+                               (file-name-as-directory
+                                (expand-file-name
+                                 (magit-section-parent-value section)
+                                 (magit-toplevel)))))
+                         (setq value (magit-rev-parse value)))))
+      (kill-new (message "%s" value)))))
 
 (defun magit-copy-buffer-thing-as-kill ()
   "Save the thing displayed in the current buffer to the kill ring.
