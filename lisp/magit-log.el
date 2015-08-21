@@ -929,18 +929,17 @@ alist in `magit-log-format-unicode-graph-alist'."
        (propertize (make-string (1- width) ?\s) 'face 'default)
        (propertize " " 'face 'fringe)))))
 
-(defun magit-format-duration (duration spec width)
+(defun magit-format-duration (duration spec &optional width)
   (cl-destructuring-bind (char unit units weight)
       (car spec)
     (let ((cnt (round (/ duration weight 1.0))))
       (if (or (not (cdr spec))
               (>= (/ duration weight) 1))
-          (if (= width 1)
+          (if (eq width 1)
               (format "%3i%c" cnt char)
-            (format (format "%%3i %%-%is" width) cnt
-                    (if (= cnt 1) unit units)))
+            (format (if width (format "%%3i %%-%is" width) "%i %s")
+                    cnt (if (= cnt 1) unit units)))
         (magit-format-duration duration (cdr spec) width)))))
-
 
 (defun magit-log-maybe-show-more-commits (section)
   "Automatically insert more commit sections in a log.
