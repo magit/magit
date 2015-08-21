@@ -5541,6 +5541,12 @@ buffers), and additionally binds @code{C-c M-g} to @code{magit-file-popup}.
 @end defopt
 
 @table @asis
+@kindex p
+@cindex magit-blob-previous
+@item @kbd{p} @tie{}@tie{}@tie{}@tie{}(@code{magit-blob-previous})
+
+Visit the previous blob which modified the current file.
+
 @kindex C-c M-g
 @cindex magit-file-popup
 @item @kbd{C-c M-g} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-popup})
@@ -5593,6 +5599,18 @@ this minor mode.  Currently this mode only establishes a few key
 bindings, but this might be e
 
 @table @asis
+@kindex p
+@cindex magit-blob-previous
+@item @kbd{p} @tie{}@tie{}@tie{}@tie{}(@code{magit-blob-previous})
+
+Visit the previous blob which modified the current file.
+
+@kindex n
+@cindex magit-blob-next
+@item @kbd{n} @tie{}@tie{}@tie{}@tie{}(@code{magit-blob-next})
+
+Visit the next blob which modified the current file.
+
 @kindex q
 @cindex magit-kill-this-buffer
 @item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-kill-this-buffer})

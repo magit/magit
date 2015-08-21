@@ -1911,6 +1911,7 @@ With a prefix argument fetch all remotes."
     (define-key map "\C-xg"    'magit-status)
     (define-key map "\C-x\M-g" 'magit-dispatch-popup)
     (define-key map "\C-c\M-g" 'magit-file-popup)
+    (define-key map "\C-cp"    'magit-blob-previous)
     map)
   "Keymap for `magit-file-mode'.")
 
@@ -1952,6 +1953,8 @@ Currently this only adds the following key bindings.
 
 (defvar magit-blob-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "n" 'magit-blob-next)
+    (define-key map "p" 'magit-blob-previous)
     (define-key map "q" 'magit-kill-this-buffer)
     map)
   "Keymap for `magit-blob-mode'.")
@@ -1962,6 +1965,59 @@ Currently this only adds the following key bindings.
 Currently this only adds the following key bindings.
 \n\\{magit-blob-mode-map}"
   :package-version '(magit . "2.3.0"))
+
+(defun magit-blob-next ()
+  "Visit the next blob which modified the current file."
+  (interactive)
+  (if magit-buffer-file-name
+      (magit-blob-visit (or (magit-blob-successor magit-buffer-revision
+                                                  magit-buffer-file-name)
+                            magit-buffer-file-name)
+                        (line-number-at-pos))
+    (if (buffer-file-name (buffer-base-buffer))
+        (user-error "You have reached the end of time")
+      (user-error "Buffer isn't visiting a file or blob"))))
+
+(defun magit-blob-previous ()
+  "Visit the previous blob which modified the current file."
+  (interactive)
+  (-if-let (file (or magit-buffer-file-name
+                     (buffer-file-name (buffer-base-buffer))))
+      (--if-let (magit-blob-ancestor magit-buffer-revision file)
+          (magit-blob-visit it (line-number-at-pos))
+        (user-error "You have reached the beginning of time"))
+    (user-error "Buffer isn't visiting a file or blob")))
+
+(defun magit-blob-visit (blob-or-file line)
+  (if (stringp blob-or-file)
+      (find-file blob-or-file)
+    (cl-destructuring-bind (rev file) blob-or-file
+      (magit-find-file rev file)
+      (let ((str (magit-rev-format "%ct%s" rev)))
+        (message "%s (%s ago)" (substring str 10)
+                 (magit-format-duration
+                  (abs (truncate (- (float-time)
+                                    (string-to-number
+                                     (substring str 0 10)))))
+                  magit-duration-spec)))))
+  (goto-char (point-min))
+  (forward-line (1- line)))
+
+(defun magit-blob-ancestor (rev file)
+  (let ((lines (magit-with-toplevel
+                 (magit-git-lines "log" "-2" "--format=%H" "--name-only"
+                                  "--follow" (or rev "HEAD") "--" file))))
+    (if rev (cddr lines) (butlast lines 2))))
+
+(defun magit-blob-successor (rev file)
+  (let ((lines (magit-with-toplevel
+                 (magit-git-lines "log" "--format=%H" "--name-only" "--follow"
+                                  "HEAD" "--" "lisp/magit-blame.el"))))
+    (catch 'found
+      (while lines
+        (if (equal (nth 2 lines) rev)
+            (throw 'found (list (nth 0 lines) (nth 1 lines)))
+          (setq lines (nthcdr 2 lines)))))))
 
 (defun magit-kill-this-buffer ()
   "Kill the current buffer."

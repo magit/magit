@@ -3845,6 +3845,10 @@ few key bindings, but this might be extended in the future.
   bindings suggested in [[*Getting started]] (but only for file-visiting
   buffers), and additionally binds ~C-c M-g~ to ~magit-file-popup~.
 
+- Key: p, magit-blob-previous
+
+  Visit the previous blob which modified the current file.
+
 - Key: C-c M-g, magit-file-popup
 
   This prefix command shows a popup buffer featuring suffix commands
@@ -3882,6 +3886,14 @@ buffers.  Such buffers can be created using ~magit-find-file~ and some
 of the commands mentioned below, which also take care of turning on
 this minor mode.  Currently this mode only establishes a few key
 bindings, but this might be e
+
+- Key: p, magit-blob-previous
+
+  Visit the previous blob which modified the current file.
+
+- Key: n, magit-blob-next
+
+  Visit the next blob which modified the current file.
 
 - Key: q, magit-kill-this-buffer
 
