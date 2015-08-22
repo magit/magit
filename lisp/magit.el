@@ -1004,6 +1004,8 @@ existing one."
 (defun magit-get-revision-buffer-create (rev file)
   (magit-get-revision-buffer rev file t))
 
+(defvar magit-find-file-hook nil)
+
 (defun magit-find-file-noselect (rev file)
   "Read FILE from REV into a buffer and return the buffer.
 FILE must be relative to the top directory of the repository."
@@ -1022,6 +1024,8 @@ FILE must be relative to the top directory of the repository."
         (goto-char (point-min))
         (run-hooks 'magit-find-file-hook)
         (current-buffer))))
+
+(defvar magit-find-index-hook nil)
 
 (defun magit-find-file-index-noselect (file &optional revert)
   "Read FILE from the index into a buffer and return the buffer.
