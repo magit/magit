@@ -951,6 +951,12 @@ in the popup."
     (funcall mode)
     (setq magit-popup-previous-winconf winconf)))
 
+(defvar magit-refresh-popup-buffer-hook nil
+  "Hook run by `magit-refresh-popup-buffer'.
+The hook is run right after inserting the representation of the
+popup events but before optionally inserting the representation
+of events shared by all popups and before point is adjusted.")
+
 (defun magit-refresh-popup-buffer ()
   (let* ((inhibit-read-only t)
          (button (button-at (point)))
