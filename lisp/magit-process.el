@@ -131,25 +131,17 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-process-buffer (&optional pwd create)
-  (or (magit-mode-get-buffer nil 'magit-process-mode pwd)
-      (and create
-           (with-current-buffer
-               (magit-mode-get-buffer-create nil 'magit-process-mode pwd)
-             (magit-process-mode)
-             (let ((inhibit-read-only t))
-               (make-local-variable 'text-property-default-nonsticky)
-               (magit-insert-section (processbuf)
-                 (insert "\n")))
-             (current-buffer)))))
+(defun magit-process-buffer (&optional no-display)
+  "Select the current repository's process buffer in another window.
 
-(defun magit-process ()
-  "Display Magit process buffer."
+If that buffer does not exist yet, then create it.  When optional
+NO-DISPLAY is non-nil, then return the buffer without displaying
+it."
   (interactive)
-  (let ((buf (magit-process-buffer)))
-    (if (buffer-live-p buf)
-        (pop-to-buffer buf)
-      (user-error "Process buffer doesn't exist"))))
+  (magit-mode-setup magit-process-buffer-name-format
+                    (if no-display #'identity #'pop-to-buffer)
+                    #'magit-process-mode nil)
+  (magit-mode-get-buffer #'magit-process-mode))
 
 (defun magit-process-kill ()
   "Kill the process at point."
@@ -432,12 +424,15 @@ tracked in the current repository are reverted if
 (defun magit-process-setup (program args)
   (magit-process-set-mode-line program args)
   (let ((pwd default-directory)
-        (buf (magit-process-buffer)))
-    (if  buf
-        (magit-process-truncate-log buf)
-      (setq buf (magit-process-buffer nil t)))
+        (buf (magit-process-buffer t)))
+    (magit-process-truncate-log buf)
     (cons buf (with-current-buffer buf
-                (prog1 (magit-process-insert-section pwd program args nil nil)
+                (prog2 (unless magit-root-section
+                         (let ((inhibit-read-only t))
+                           (make-local-variable 'text-property-default-nonsticky)
+                           (magit-insert-section (processbuf)
+                             (insert "\n"))))
+                    (magit-process-insert-section pwd program args nil nil)
                   (backward-char 1))))))
 
 (defun magit-process-insert-section (pwd program args &optional errcode errlog)
@@ -471,25 +466,26 @@ tracked in the current repository are reverted if
 (defun magit-process-truncate-log (buffer)
   (when magit-process-log-max
     (with-current-buffer buffer
-      (let* ((head nil)
-             (tail (magit-section-children magit-root-section))
-             (count (length tail)))
-        (when (> (1+ count) magit-process-log-max)
-          (while (and (cdr tail)
-                      (> count (/ magit-process-log-max 2)))
-            (let* ((inhibit-read-only t)
-                   (section (car tail))
-                   (process (magit-section-process section)))
-              (cond ((not process))
-                    ((memq (process-status process) '(exit signal))
-                     (delete-region (magit-section-start section)
-                                    (1+ (magit-section-end section)))
-                     (cl-decf count))
-                    (t
-                     (push section head))))
-            (pop tail))
-          (setf (magit-section-children magit-root-section)
-                (nconc (reverse head) tail)))))))
+      (when magit-root-section
+        (let* ((head nil)
+               (tail (magit-section-children magit-root-section))
+               (count (length tail)))
+          (when (> (1+ count) magit-process-log-max)
+            (while (and (cdr tail)
+                        (> count (/ magit-process-log-max 2)))
+              (let* ((inhibit-read-only t)
+                     (section (car tail))
+                     (process (magit-section-process section)))
+                (cond ((not process))
+                      ((memq (process-status process) '(exit signal))
+                       (delete-region (magit-section-start section)
+                                      (1+ (magit-section-end section)))
+                       (cl-decf count))
+                      (t
+                       (push section head))))
+              (pop tail))
+            (setf (magit-section-children magit-root-section)
+                  (nconc (reverse head) tail))))))))
 
 (defun magit-process-sentinel (process event)
   "Default sentinel used by `magit-start-process'."
@@ -680,7 +676,7 @@ tracked in the current repository are reverted if
               (setf (magit-section-content section) nil))
           (when (and (= arg 0)
                      (not (--any-p (eq (window-buffer it)
-                                       (magit-process-buffer))
+                                       (magit-process-buffer t))
                                    (window-list))))
             (magit-section-hide section))))))
   (unless (= arg 0)

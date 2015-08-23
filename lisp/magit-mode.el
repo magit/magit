@@ -212,7 +212,7 @@ has to confirm each save."
     (define-key map "g" 'magit-refresh)
     (define-key map "G" 'magit-refresh-all)
     (define-key map "q" 'magit-mode-bury-buffer)
-    (define-key map "$" 'magit-process)
+    (define-key map "$" 'magit-process-buffer)
     (define-key map "a" 'magit-cherry-apply)
     (define-key map "A" 'magit-cherry-pick-popup)
     (define-key map "b" 'magit-branch-popup)

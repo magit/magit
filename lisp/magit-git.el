@@ -224,7 +224,7 @@ add a section in the respective process buffer."
                                         magit-process-error-message-re nil t)
                                        (match-string 1))))
                       (let ((magit-git-debug nil))
-                        (with-current-buffer (magit-process-buffer nil t)
+                        (with-current-buffer (magit-process-buffer t)
                           (magit-process-insert-section default-directory
                                                         magit-git-executable
                                                         args exit log))))

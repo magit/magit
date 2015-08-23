@@ -1736,7 +1736,7 @@ Also see `magit-notes-merge'."
   "Remove notes about unreachable commits."
   (interactive (list (and (member "--dry-run" (magit-notes-arguments)) t)))
   (when dry-run
-    (magit-process))
+    (magit-process-buffer))
   (magit-run-git-with-editor "notes" "prune" (and dry-run "--dry-run")))
 
 (defun magit-notes-set-ref (ref &optional global)
@@ -2014,9 +2014,8 @@ repository, otherwise in `default-directory'."
     (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
                                                      (point-max))))
     (setq default-directory directory)
-    (magit-run-git-async args))
-  (magit-mode-display-buffer (magit-process-buffer directory t)
-                             'magit-process-mode 'pop-to-buffer))
+    (magit-run-git-async args)
+    (magit-process-buffer)))
 
 ;;;###autoload
 (defun magit-git-command-topdir (args directory)
@@ -2038,9 +2037,8 @@ repository, otherwise in `default-directory'."
     (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
                                                      (point-max))))
     (setq default-directory directory)
-    (apply #'magit-start-process (car args) nil (cdr args)))
-  (magit-mode-display-buffer (magit-process-buffer directory t)
-                             'magit-process-mode 'pop-to-buffer))
+    (apply #'magit-start-process (car args) nil (cdr args))
+    (magit-process-buffer)))
 
 ;;;###autoload
 (defun magit-shell-command-topdir (args directory)
