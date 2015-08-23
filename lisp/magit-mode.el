@@ -406,35 +406,34 @@ and finally \"refresh\" a first time.  All arguments are evaluated
 before switching to BUFFER."
   (declare (debug (form form form form &rest form)))
   (let ((smode (cl-gensym "mode"))
-        (sroot (cl-gensym "root"))
         (sfunc (cl-gensym "func"))
         (sargs (cl-gensym "args"))
         (sbuf  (cl-gensym "buffer")))
     `(let* ((,smode ,mode)
-            (,sroot (let ((default-directory (or magit-mode-setup--topdir
-                                                 default-directory)))
-                      (magit-toplevel)))
             (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
             (,sbuf  (magit-mode-display-buffer
-                     ,buffer ,smode ,switch-func ,sroot)))
-       (when find-file-visit-truename
-         (setq ,sroot (file-truename ,sroot)))
-       (if ,sroot
-           (with-current-buffer ,sbuf
-             (setq default-directory ,sroot
-                   magit-refresh-function ,sfunc
-                   magit-refresh-args ,sargs)
-             (run-hooks 'magit-mode-setup-hook)
-             (pcase ,smode
-               ((or `magit-log-mode `magit-reflog-mode)
-                (magit-xref-setup ,sargs))
-               ((or `magit-diff-mode `magit-revision-mode)
-                (magit-xref-setup ,sargs)
-                (goto-char (point-min))))
-             (funcall ,smode)
-             (magit-refresh-buffer))
-         (user-error "Not inside a Git repository")))))
+                     ,buffer ,smode ,switch-func
+                     (let ((default-directory
+                             (or magit-mode-setup--topdir
+                                 default-directory)))
+                       (--if-let (magit-toplevel)
+                           (if find-file-visit-truename
+                               (file-truename it)
+                             it)
+                         (user-error "Not inside a Git repository"))))))
+       (with-current-buffer ,sbuf
+         (setq magit-refresh-function ,sfunc)
+         (setq magit-refresh-args     ,sargs)
+         (run-hooks 'magit-mode-setup-hook)
+         (pcase ,smode
+           ((or `magit-log-mode `magit-reflog-mode)
+            (magit-xref-setup ,sargs))
+           ((or `magit-diff-mode `magit-revision-mode)
+            (magit-xref-setup ,sargs)
+            (goto-char (point-min))))
+         (funcall ,smode)
+         (magit-refresh-buffer)))))
 
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
