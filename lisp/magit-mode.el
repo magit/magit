@@ -413,7 +413,7 @@ before switching to BUFFER."
             (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
             (,sbuf  (magit-mode-display-buffer
-                     ,buffer ,smode ,switch-func
+                     ,buffer ,smode ,sargs ,switch-func
                      (let ((default-directory
                              (or magit-mode-setup--topdir
                                  default-directory)))
@@ -438,7 +438,7 @@ before switching to BUFFER."
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
 
-(defun magit-mode-display-buffer (buffer mode &optional switch-function topdir)
+(defun magit-mode-display-buffer (buffer mode args &optional switch-function topdir)
   "Display BUFFER in some window and select it.
 BUFFER may be a buffer or a string, the name of a buffer.  Return
 the buffer.
@@ -477,32 +477,73 @@ the function `magit-toplevel'."
                      (equal default-directory topdir)))
               (buffer-list))))
 
-(defun magit-mode-get-buffer (format mode &optional pwd create)
-  (unless format
-    (setq format (symbol-value
-                  (intern (format "%s-buffer-name-format"
-                                  (substring (symbol-name mode) 0 -5))))))
-  (setq pwd (expand-file-name (or pwd default-directory)))
-  (let* ((topdir (let ((default-directory pwd))
-                   (magit-toplevel)))
-         (name (format-spec
-                format (if topdir
-                           `((?a . ,(abbreviate-file-name topdir))
-                             (?b . ,(file-name-nondirectory
-                                     (directory-file-name topdir))))
-                         '((?a . "-") (?b . "-"))))))
-    (or (--first (with-current-buffer it
-                   (and (equal (buffer-name) name)
-                        (or (not topdir)
-                            (equal (expand-file-name default-directory)
-                                   topdir))))
-                 (buffer-list))
-        (and create
-             (let ((default-directory (or topdir pwd)))
-               (generate-new-buffer name))))))
+(defvar-local magit-buffer-dedicated nil)
 
-(defun magit-mode-get-buffer-create (format mode &optional directory)
-  (magit-mode-get-buffer format mode directory t))
+(cl-defun magit-mode-buffer-id
+    (&optional (mode major-mode smode)
+               (args magit-refresh-args))
+  (if (or smode magit-buffer-dedicated)
+      (pcase mode
+        (`magit-diff-mode (list (nth 0 args)
+                                (nth 1 args))))
+    nil)) ; only dedicated buffers have an id
+
+(defun magit-mode-format-id (args)
+  (format "(%s)" (mapconcat #'identity (-flatten args) " ")))
+
+(defun magit-mode-get-buffer (mode &optional pwd args create)
+  (setq pwd (expand-file-name (or pwd default-directory)))
+  (let ((topdir (let ((default-directory pwd))
+                   (magit-toplevel))))
+    (if (magit-mode-match-buffer (current-buffer) mode topdir nil t)
+        (magit-set-buffer-name-or-replace)
+      (or (--first (magit-mode-match-buffer it mode topdir args)
+                   (buffer-list))
+          (and create
+               (let ((default-directory (or topdir pwd)))
+                 (generate-new-buffer
+                  (magit-mode-generate-buffer-name mode topdir args))))))))
+
+(defun magit-mode-get-buffer-create (mode &optional pwd args)
+  (magit-mode-get-buffer mode pwd args t))
+
+(defun magit-mode-match-buffer (buffer mode topdir args &optional lax)
+  (with-current-buffer buffer
+    (and (eq major-mode mode)
+         (if topdir
+             (and (equal (expand-file-name default-directory) topdir)
+                  (or lax (equal (magit-mode-buffer-id args)
+                                 (magit-mode-buffer-id))))
+           t) ; the global process buffer
+         buffer)))
+
+(cl-defun magit-mode-generate-buffer-name
+    (&optional (mode major-mode)
+               (topdir (magit-toplevel))
+               (args)) ; TODO
+  (concat (substring (symbol-name mode) 0 -5)
+          (and args (magit-mode-format-id args))
+          ": "
+          (if topdir
+              (file-name-nondirectory (directory-file-name topdir))
+            "-")))
+
+(defun magit-toggle-buffer-dedication ()
+  (interactive)
+  (magit-set-buffer-dedication)
+  (magit-set-buffer-name-or-replace))
+
+(defun magit-set-buffer-dedication ()
+  (setq magit-buffer-dedicated (not magit-buffer-dedicated)))
+
+(defun magit-set-buffer-name-or-replace ()
+  (let ((name (magit-mode-generate-buffer-name major-mode default-directory)))
+    (condition-case nil
+        (rename-buffer name)
+      ;; Another buffer with the same dedication already exists.
+      (error (let ((buffer (current-buffer)))
+               (display-buffer (get-buffer name))
+               (delete-buffer buffer))))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
@@ -516,30 +557,6 @@ the buffer."
   (if magit-restore-window-configuration
       (magit-restore-window-configuration kill-buffer)
     (quit-window kill-buffer)))
-
-(defun magit-rename-buffer (&optional newname)
-  "Rename the current buffer, so that Magit won't reuse it.
-
-By default there is only one buffer with a certain Magit mode
-per repository.  Displaying e.g. some diff will reuse the buffer
-previously used to display another diff.  If you want to have
-two buffers displaying different diffs belonging to the same
-repository, then you have to create a buffer whose name differs
-from the default name.
-
-The easiest way to do that is to use this command.  It appends
-\"<N>\" to the name of the current buffer, where N is the lowest
-available number, starting with 2, which is still available.
-
-With a prefix argument, the user can pick an arbitrary name."
-  (interactive
-   (list (and current-prefix-arg
-              (read-buffer "Rename buffer to: " (current-buffer)))))
-  (unless newname
-    (setq newname (buffer-name)))
-  (when (string-match "<[0-9]+>\\'" newname)
-    (setq newname (substring newname 0 (match-beginning 0))))
-  (rename-buffer (generate-new-buffer-name newname)))
 
 ;;; Refresh Machinery
 
