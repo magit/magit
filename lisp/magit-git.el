@@ -830,7 +830,7 @@ Return a list of two integers: (A>B B>A)."
   (save-match-data
     (let ((regexp "\\(, \\|tag: \\| -> \\|[()]\\)") head names)
       (if (and (derived-mode-p 'magit-log-mode)
-               (member "--simplify-by-decoration" (nth 2 magit-refresh-args)))
+               (member "--simplify-by-decoration" (cadr magit-refresh-args)))
           (let ((branches (magit-list-local-branch-names))
                 (re (format "^%s/.+" (regexp-opt (magit-list-remotes)))))
             (setq names
