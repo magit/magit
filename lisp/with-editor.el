@@ -447,6 +447,8 @@ which may or may not insert the text into the PROCESS' buffer."
           (with-editor-process-filter proc str t))
      filter)))
 
+(defvar with-editor-filter-visit-hook nil)
+
 (defun with-editor-output-filter (string)
   (save-match-data
     (if (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+?\\)\r?$" string)

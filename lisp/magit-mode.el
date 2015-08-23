@@ -389,6 +389,8 @@ The value is usually set using `magit-mode-setup'.")
 The value is usually set using `magit-mode-setup'.")
 (put 'magit-refresh-args 'permanent-local t)
 
+(defvar magit-mode-setup-hook nil)
+
 ;; Kludge.  We use this instead of adding a new, optional argument to
 ;; `magit-setup-mode' in order to avoid breaking third-party packages.
 ;; See #2054 and #2060.
@@ -543,6 +545,8 @@ With a prefix argument, the user can pick an arbitrary name."
 ;;; Refresh Machinery
 
 (defvar inhibit-magit-refresh nil)
+
+(defvar magit-pre-refresh-hook nil)
 
 (defun magit-refresh ()
   "Refresh some buffers belonging to the current repository.

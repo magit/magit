@@ -214,6 +214,8 @@ variable `magit-process-buffer-name-format'."
   (let ((inhibit-magit-revert t))
     (magit-run-git args)))
 
+(defvar magit-pre-call-git-hook nil)
+
 (defun magit-call-git (&rest args)
   "Call Git synchronously in a separate process.
 
@@ -350,6 +352,8 @@ See `magit-start-process' and `with-editor' for more information."
       (magit-run-git-async args)))
   (set-process-sentinel magit-this-process #'magit-sequencer-process-sentinel)
   magit-this-process)
+
+(defvar magit-pre-start-git-hook nil)
 
 (defun magit-start-git (input &rest args)
   "Start Git, prepare for refresh, and return the process object.
