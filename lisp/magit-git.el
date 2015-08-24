@@ -361,16 +361,21 @@ a bare repositories."
 (put 'magit-buffer-refname   'permanent-local t)
 (put 'magit-buffer-file-name 'permanent-local t)
 
-(defun magit-file-relative-name (&optional file)
+(defun magit-file-relative-name (&optional file tracked)
   "Return the path of FILE relative to the repository root.
+
 If optional FILE is nil or omitted return the relative path of
 the file being visited in the current buffer, if any, else nil.
-If the file is not inside a Git repository then return nil."
+If the file is not inside a Git repository then return nil.
+
+If TRACKED is non-nil, return the path only if it matches a
+tracked file."
   (unless file
     (with-current-buffer (or (buffer-base-buffer)
                              (current-buffer))
       (setq file (or magit-buffer-file-name buffer-file-name))))
-  (when file
+  (when (and file (or (not tracked)
+                      (magit-file-tracked-p file)))
     (--when-let (magit-toplevel file)
       (file-relative-name file it))))
 
