@@ -61,7 +61,7 @@ blame to center around the line point is on."
    (let (revision filename)
      (when (or current-prefix-arg
                (not (setq revision "HEAD"
-                          filename (magit-file-relative-name))))
+                          filename (magit-file-relative-name nil 'tracked))))
        (setq revision (magit-read-branch-or-commit "Blame from revision")
              filename (magit-read-file-from-rev revision "Blame file")))
      (list revision filename
