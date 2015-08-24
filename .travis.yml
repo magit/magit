@@ -28,5 +28,7 @@ install:
   - $CURL https://raw.githubusercontent.com/magnars/dash.el/master/dash.el -o dash.el
   - $EMACS --version
 script:
+  - git config --global user.name "A U Thor"
+  - git config --global user.email a.u.thor@example.com
   - make lisp EMACSBIN=$EMACS DASH_DIR=$PWD
   - make test EMACSBIN=$EMACS DASH_DIR=$PWD
