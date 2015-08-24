@@ -2261,7 +2261,8 @@ Git, and Emacs in the echo area."
     (when version
       (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" version)
         (setq version (match-string 1 version)))
-      (when (version< version "1.9.4")
+      (when (and (not (equal (getenv "TRAVIS") "true"))
+                 (version< version "1.9.4"))
         (display-warning 'magit (format "\
 Magit requires Git >= 1.9.4, you are using %s.
 
