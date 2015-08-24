@@ -223,6 +223,7 @@ only arguments available from `magit-blame-popup' should be used.
     (if revision
         (magit-find-file revision file)
       (find-file (expand-file-name file)))
+    (widen)
     (when line
       (setq magit-blame-recursive-p t)
       (goto-char (point-min))
