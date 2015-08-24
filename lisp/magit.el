@@ -1574,7 +1574,8 @@ If FILE isn't tracked in Git fallback to using `delete-file'."
                         (unless tracked-only (magit-untracked-files)))))
     (magit-completing-read prompt choices nil t nil nil
                            (car (member (or (magit-section-when (file))
-                                            (magit-file-relative-name))
+                                            (magit-file-relative-name
+                                             nil tracked-only))
                                         choices)))))
 
 (defun magit-read-files (prompt initial-contents)
