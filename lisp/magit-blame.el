@@ -243,7 +243,7 @@ only arguments available from `magit-blame-popup' should be used.
            "blame" "--incremental" args
            "-L" (format "%s,%s"
                         (line-number-at-pos (window-start))
-                        (line-number-at-pos (1- (window-end))))
+                        (line-number-at-pos (1- (window-end nil t))))
            revision "--" file))
         (setq magit-blame-process magit-this-process)
         (set-process-filter magit-this-process 'magit-blame-process-filter)
