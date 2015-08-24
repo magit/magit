@@ -237,9 +237,11 @@ only arguments available from `magit-blame-popup' should be used.
             (inhibit-magit-refresh t))
         (magit-run-git-async
          "blame" "--incremental" args
-         "-L" (format "%s,%s"
-                      (line-number-at-pos (window-start))
-                      (line-number-at-pos (1- (window-end))))
+         "-L" (save-restriction
+                (widen)
+                (format "%s,%s"
+                        (line-number-at-pos (window-start))
+                        (line-number-at-pos (1- (window-end)))))
          revision "--" file))
       (setq magit-blame-process magit-this-process)
       (set-process-filter magit-this-process 'magit-blame-process-filter)
