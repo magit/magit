@@ -41,5 +41,5 @@ This release also contains various documentation fixes.
 Authors
 -------
 
-    15  Jonas Bernoulli
+    16  Jonas Bernoulli
     11  Kyle Meyer
