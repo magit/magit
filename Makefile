@@ -3,7 +3,7 @@ include default.mk
 
 .PHONY: lisp \
 	install install-lisp install-docs install-info \
-	test test-interactive \
+	test test-interactive magit \
 	clean clean-lisp clean-docs clean-archives \
 	genstats \
 	dist magit-$(VERSION).tar.gz elpa $(ELPA_ARCHIVES)
@@ -35,6 +35,7 @@ help:
 	$(info )
 	$(info make test             - run tests)
 	$(info make test-interactive - run tests interactively)
+	$(info make magit            - run emacs -Q plus Magit)
 	$(info )
 	$(info Release Managment)
 	$(info =================)
@@ -80,6 +81,14 @@ test-interactive:
 	@$(EMACSBIN) -Q $(LOAD_PATH) --eval "(progn\
 	(load-file \"t/magit-tests.el\")\
 	(ert t))"
+
+magit: clean-lisp
+	@$(EMACSBIN) -Q $(LOAD_PATH) --eval "(progn\
+	(require 'magit)\
+	(global-set-key \"\\C-xg\" 'magit-status)\
+	(tool-bar-mode 0)\
+	(menu-bar-mode 0)\
+	(scroll-bar-mode 0))"
 
 clean: clean-lisp clean-docs clean-archives
 	@printf "Cleaning...\n"
