@@ -47,9 +47,9 @@ Then show the status buffer for the new repository."
                        (match-string 1 url))))))))
   (make-directory directory t)
   (message "Cloning %s..." repository)
-  (magit-call-git "clone" repository directory)
-  (message "Cloning %s...done" repository)
-  (magit-status-internal directory))
+  (when (= (magit-call-git "clone" repository directory) 0)
+    (message "Cloning %s...done" repository)
+    (magit-status-internal directory)))
 
 ;;; Setup
 
