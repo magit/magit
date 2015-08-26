@@ -271,6 +271,7 @@ the buffer to the inserted text, move to its beginning, and then
 call function WASHER with no argument."
   (declare (indent 1))
   (let ((beg (point)))
+    (setq args (-flatten args))
     (magit-git-insert args)
     (if (= (point) beg)
         (magit-cancel-section)
