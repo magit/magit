@@ -375,7 +375,7 @@ tracked file."
                              (current-buffer))
       (setq file (or magit-buffer-file-name buffer-file-name))))
   (when (and file (or (not tracked)
-                      (magit-file-tracked-p file)))
+                      (magit-file-tracked-p (file-relative-name file))))
     (--when-let (magit-toplevel file)
       (file-relative-name file it))))
 
