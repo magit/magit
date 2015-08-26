@@ -295,7 +295,11 @@ not a good idea to change such entries.")
              (kill-buffer)))
           (t
            (save-buffer)
-           (if clients (server-edit) (kill-buffer))))
+           (if clients
+               ;; Don't use `server-edit' because we do not want to show
+               ;; another buffer belonging to another client.  See #2197.
+               (server-done)
+             (kill-buffer))))
     (when pid
       (let ((default-directory dir))
         (process-file "kill" nil nil nil
