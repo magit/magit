@@ -290,10 +290,9 @@ call function WASHER with no argument."
   (declare (indent 1) (debug (form body)))
   `(catch 'unsafe-default-dir
      (let ((default-directory
-             (let ((file ,file))
-               (file-name-as-directory (if file
-                                           (expand-file-name file)
-                                         default-directory)))))
+             (file-name-as-directory (--if-let ,file
+                                         (expand-file-name it)
+                                       default-directory))))
        (while (not (file-accessible-directory-p default-directory))
          (when (string-equal default-directory "/")
            (throw 'unsafe-default-dir nil))
