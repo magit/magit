@@ -1204,7 +1204,8 @@ Staging and applying changes is documented in info node
          'face 'magit-header-line))
   (magit-insert-section (diffbuf)
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" range "-p" (and magit-diff-show-diffstat "--stat")
+      "diff" range "-p"
+      (and magit-diff-show-diffstat (list "--numstat" "--stat"))
       "--no-prefix" const args "--" files)))
 
 (defvar magit-file-section-map
@@ -1291,23 +1292,30 @@ section or a child thereof."
       (magit-insert-section it (diffstat)
         (insert heading)
         (magit-insert-heading)
-        (magit-wash-sequence
-         (lambda ()
-           (when (looking-at magit-diff-statline-re)
-             (magit-bind-match-strings (file sep cnt add del) nil
-               (magit-delete-line)
-               (when (string-match " +$" file)
-                 (setq sep (concat (match-string 0 file) sep))
-                 (setq file (substring file 0 (match-beginning 0))))
-               (setq file (magit-decode-git-path file))
-               (magit-insert-section (file file)
-                 (insert " " (propertize file 'face 'magit-filename) sep cnt
-                         " ")
-                 (when add
-                   (insert (propertize add 'face 'magit-diffstat-added)))
-                 (when del
-                   (insert (propertize del 'face 'magit-diffstat-removed)))
-                 (insert "\n"))))))
+        (let (files)
+          (while (looking-at "^[-0-9]+\t[-0-9]+\t\\(.+\\)$")
+            (push (magit-decode-git-path (match-string 1)) files)
+            (magit-delete-line))
+          (setq files (nreverse files))
+          (while (looking-at magit-diff-statline-re)
+            (magit-bind-match-strings (file sep cnt add del) nil
+              (magit-delete-line)
+              (when (string-match " +$" file)
+                (setq sep (concat (match-string 0 file) sep))
+                (setq file (substring file 0 (match-beginning 0))))
+              (let ((le (length file)) ld)
+                (setq file (magit-decode-git-path file))
+                (setq ld (length file))
+                (when (> le ld)
+                  (setq sep (concat (make-string (- le ld) ?\s) sep))))
+              (magit-insert-section (file (pop files))
+                (insert " " (propertize file 'face 'magit-filename) sep cnt
+                        " ")
+                (when add
+                  (insert (propertize add 'face 'magit-diffstat-added)))
+                (when del
+                  (insert (propertize del 'face 'magit-diffstat-removed)))
+                (insert "\n")))))
         (setq children (magit-section-children it))))
     children))
 
@@ -1495,7 +1503,7 @@ Staging and applying changes is documented in info node
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-diff-wash-revision
       "show" "-p" "--cc" "--decorate=full" "--format=fuller" "--no-prefix"
-      (and magit-revision-show-diffstat "--stat")
+      (and magit-revision-show-diffstat (list "--numstat" "--stat"))
       (and magit-revision-show-notes "--notes")
       args commit "--" files)))
 
