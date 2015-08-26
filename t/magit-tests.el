@@ -30,6 +30,59 @@
 
 ;;; Git
 
+(ert-deftest magit-toplevel ()
+  (magit-with-test-directory
+    (let ((find-file-visit-truename nil))
+      (magit-git "init" "repo")
+      ;; magit--with-safe-default-directory
+      (should (equal (magit-toplevel "repo/")
+                     (magit-toplevel (expand-file-name "repo/"))))
+      (should (equal (magit-toplevel "repo")
+                     (magit-toplevel (expand-file-name "repo/"))))
+      ;; repo
+      (make-directory "repo/subdir/subsubdir" t)
+      (should (equal (magit-toplevel   "repo/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo/subdir/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo/subdir/subsubdir/")
+                     (expand-file-name "repo/")))
+      ;; repo-link
+      (make-symbolic-link "repo" "repo-link")
+      (should (equal (magit-toplevel   "repo-link/")
+                     (expand-file-name "repo-link/")))
+      (should (equal (magit-toplevel   "repo-link/subdir/")
+                     (expand-file-name "repo-link/")))
+      (should (equal (magit-toplevel   "repo-link/subdir/subsubdir/")
+                     (expand-file-name "repo-link/")))
+      ;; *subdir-link
+      (make-symbolic-link "repo/subdir"           "subdir-link")
+      (make-symbolic-link "repo/subdir/subsubdir" "subsubdir-link")
+      (should (equal (magit-toplevel   "subdir-link/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "subdir-link/subsubdir/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "subsubdir-link")
+                     (expand-file-name "repo/")))
+      ;; subdir-link-indirect
+      (make-symbolic-link "subdir-link" "subdir-link-indirect")
+      (should (equal (magit-toplevel   "subdir-link-indirect")
+                     (expand-file-name "repo/")))
+      ;; wrap/*link
+      (magit-git "init" "wrap")
+      (make-symbolic-link "../repo"                  "wrap/repo-link")
+      (make-symbolic-link "../repo/subdir"           "wrap/subdir-link")
+      (make-symbolic-link "../repo/subdir/subsubdir" "wrap/subsubdir-link")
+      (should (equal (magit-toplevel   "wrap/repo-link/")
+                     (expand-file-name "wrap/repo-link/")))
+      (should (equal (magit-toplevel   "wrap/subdir-link")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "wrap/subsubdir-link")
+                     (expand-file-name "repo/")))
+      )))
+
 (ert-deftest magit-get-boolean ()
   (magit-with-test-repository
     (magit-git "config" "a.b" "true")
