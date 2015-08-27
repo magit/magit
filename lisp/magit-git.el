@@ -815,9 +815,12 @@ Return a list of two integers: (A>B B>A)."
       (when (and oldrev (not stashish))
         (magit-git-success "update-ref" "-m" "enable reflog" ref oldrev "")))))
 
-(defun magit-rev-format (format &optional rev)
-  "Return output of `git show -s --format=FORMAT [REV]' --."
-  (magit-git-string "show" "-s" (concat "--format=" format) rev "--"))
+(defun magit-rev-format (format &optional rev args)
+  (let ((str (magit-git-string "show" "--no-patch"
+                               (concat "--format=" format) args
+                               (concat rev "^{commit}") "--")))
+    (unless (string-equal str "")
+      str)))
 
 (defun magit-format-rev-summary (rev)
   (--when-let (magit-rev-format "%h %s" rev)
