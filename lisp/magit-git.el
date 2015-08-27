@@ -855,6 +855,9 @@ Return a list of two integers: (A>B B>A)."
               names (cons (or head "@") (delete head (delete "HEAD" names)))))
       (mapconcat (lambda (it) (magit-format-ref-label it head)) names " "))))
 
+(defun magit-object-type (object)
+  (magit-git-string "cat-file" "-t" object))
+
 (defmacro magit-with-blob (commit file &rest body)
   (declare (indent 2)
            (debug (form form body)))
