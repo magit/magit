@@ -822,6 +822,11 @@ Return a list of two integers: (A>B B>A)."
     (unless (string-equal str "")
       str)))
 
+(defun magit-rev-insert-format (format &optional rev args)
+  (magit-git-insert "show" "--no-patch"
+                    (concat "--format=" format) args
+                    (concat rev "^{commit}") "--"))
+
 (defun magit-format-rev-summary (rev)
   (--when-let (magit-rev-format "%h %s" rev)
     (string-match " " it)
