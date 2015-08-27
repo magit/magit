@@ -2616,11 +2616,6 @@ Otherwise, highlight neither.
 Whether to show diffstat in revision buffers.
 @end defopt
 
-@defopt magit-revision-show-notes
-
-Whether to show notes in revision buffers.
-@end defopt
-
 @defopt magit-revision-show-xref-buttons
 
 Whether to show buffer history buttons in revision buffers.

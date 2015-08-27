@@ -1887,10 +1887,6 @@ without having to using one of the diff popups.
 
   Whether to show diffstat in revision buffers.
 
-- User Option: magit-revision-show-notes
-
-  Whether to show notes in revision buffers.
-
 - User Option: magit-revision-show-xref-buttons
 
   Whether to show buffer history buttons in revision buffers.

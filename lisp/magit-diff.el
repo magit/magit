@@ -254,6 +254,17 @@ many spaces.  Otherwise, highlight neither."
   :group 'magit-revision
   :type 'hook)
 
+(defcustom magit-revision-sections-hook
+  '(magit-insert-revision-tag
+    magit-insert-revision-headers
+    magit-insert-revision-message
+    magit-insert-revision-notes
+    magit-insert-revision-diff)
+  "Hook run to insert sections into a `magit-revision-mode' buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-revision
+  :type 'hook)
+
 (defcustom magit-revision-buffer-name-format "*magit-rev: %a*"
   "Name format for buffers used to display a commit.
 
@@ -264,17 +275,27 @@ The following `format'-like specs are supported:
   :group 'magit-revision
   :type 'string)
 
+(defcustom magit-revision-headers-format "\
+Author:     %aN <%aE>
+AuthorDate: %ad
+Commit:     %cN <%cE>
+CommitDate: %cd
+"
+  "Format string used to insert headers in revision buffers.
+
+All headers in revision buffers are inserted by the section
+inserter `magit-insert-revision-headers'.  Some of the headers
+are created by calling `git show --format=FORMAT' where FORMAT
+is the format specified here.  Other headers are hard coded or
+subject to option `magit-revision-insert-related-refs'."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-revision
+  :type 'string)
+
 (defcustom magit-revision-show-diffstat t
   "Whether to show diffstat in revision buffers."
   :package-version '(magit . "2.1.0")
   :group 'magit-revision
-  :type 'boolean)
-
-(defcustom magit-revision-show-notes t
-  "Whether to show notes in revision buffers."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-revision
-  :safe 'booleanp
   :type 'boolean)
 
 (defcustom magit-revision-show-xref-buttons t
@@ -1266,12 +1287,8 @@ section or a child thereof."
   (--if-let (magit-get-section
              (append (magit-section-case
                        ([file diffstat] `((file . ,(magit-section-value it))))
-                       (file `((file . ,(magit-section-value it)) (diffstat)
-                               ,@(and (derived-mode-p 'magit-revision-mode)
-                                      '((headers)))))
-                       (t (if (derived-mode-p 'magit-revision-mode)
-                              '((diffstat) (headers))
-                            '((diffstat)))))
+                       (file `((file . ,(magit-section-value it)) (diffstat)))
+                       (t '((diffstat))))
                      (magit-section-ident magit-root-section)))
       (magit-section-goto it)
     (user-error "No diffstat in this buffer")))
@@ -1283,7 +1300,7 @@ section or a child thereof."
       (magit-delete-match)
       (goto-char beg)
       (magit-insert-section it (diffstat)
-        (insert heading)
+        (insert (propertize heading 'face 'magit-diff-file-heading))
         (magit-insert-heading)
         (let (files)
           (while (looking-at "^[-0-9]+\t[-0-9]+\t\\(.+\\)$")
@@ -1302,13 +1319,15 @@ section or a child thereof."
                 (when (> le ld)
                   (setq sep (concat (make-string (- le ld) ?\s) sep))))
               (magit-insert-section (file (pop files))
-                (insert " " (propertize file 'face 'magit-filename) sep cnt
-                        " ")
+                (insert (propertize file 'face 'magit-filename) sep cnt " ")
                 (when add
                   (insert (propertize add 'face 'magit-diffstat-added)))
                 (when del
                   (insert (propertize del 'face 'magit-diffstat-removed)))
-                (insert "\n")))))))))
+                (insert "\n")))))
+        (insert "\n"))
+      (unless (eobp)
+        (delete-char 1)))))
 
 (defun magit-diff-wash-diff (args)
   (cond
@@ -1490,79 +1509,80 @@ Staging and applying changes is documented in info node
   :group 'magit-revision
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-revision-refresh-buffer (commit _const args files)
+(defun magit-revision-refresh-buffer (rev __const _args _files)
+  (setq header-line-format
+        (propertize (format " %s %s" (capitalize (magit-object-type rev)) rev)
+                    'face 'magit-header-line))
   (magit-insert-section (commitbuf)
-    (magit-git-wash #'magit-diff-wash-revision
-      "show" "-p" "--cc" "--decorate=full" "--format=fuller" "--no-prefix"
-      (and magit-revision-show-diffstat (list "--numstat" "--stat"))
-      (and magit-revision-show-notes "--notes")
-      args commit "--" files)))
+    (run-hook-with-args 'magit-revision-sections-hook rev)))
 
-(defun magit-diff-wash-revision (args)
-  (magit-diff-wash-tag)
-  (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
-  (magit-bind-match-strings (rev refs) nil
-    (magit-delete-line)
-    (setq header-line-format
-          (propertize (concat " Commit " rev) 'face 'magit-header-line))
-    (magit-insert-section (headers)
-      (magit-insert-heading (char-to-string magit-ellipsis))
-      (when refs
-        (magit-insert (format "References: %s\n"
-                              (magit-format-ref-labels refs))))
-      (while (looking-at "^\\([a-z]+\\):")
-        (when (string-equal (match-string 1) "Merge")
-          (magit-delete-line))
-        (forward-line 1))
-      (when magit-revision-insert-related-refs
-        (magit-revision-insert-related-refs rev))
-      (re-search-forward "^\\(\\(---\\)\\|    .\\)")
-      (goto-char (line-beginning-position))
-      (if (match-string 2)
-          (progn (magit-delete-match)
-                 (insert ?\n)
-                 (magit-insert-section (message)
-                   (insert "    (no message)\n")))
-        (let ((bound (save-excursion
-                       (when (re-search-forward "^diff" nil t)
-                         (copy-marker (match-beginning 0)))))
-              (summary (buffer-substring-no-properties
-                        (point) (line-end-position))))
-          (magit-delete-line)
-          (magit-insert-section (message)
-            (insert summary ?\n)
-            (magit-insert-heading)
-            (cond ((re-search-forward "^---" bound t)
-                   (magit-delete-match))
-                  ((re-search-forward "^.[^ ]" bound t)
-                   (goto-char (1- (match-beginning 0))))))))
-      (forward-line)
-      (when (member "--stat" args)
-        (magit-diff-wash-diffstat))
-      (forward-line)))
-  (magit-diff-wash-diffs args))
+(defun magit-insert-revision-diff (rev)
+  "Insert the diff into this `magit-revision-mode' buffer."
+  (magit-git-wash #'magit-diff-wash-diffs
+    "show" "-p" "--cc" "--format=" "--no-prefix"
+    (and magit-revision-show-diffstat (list "--numstat" "--stat"))
+    (nth 2 magit-refresh-args) (concat rev "^{commit}") "--"
+    (nth 3 magit-refresh-args)))
 
-(defun magit-diff-wash-tag ()
-  (when (looking-at "^tag \\(.+\\)$")
-    (let ((tag (match-string 1)))
-      (magit-delete-line)
-      (magit-insert-section (tag tag)
-        (magit-insert-heading
-          (propertize "Tag " 'face 'magit-section-heading)
-          (propertize  tag   'face 'magit-tag))
-        (while (looking-at "^\\([a-z]+\\):")
-          (forward-line))
+(defun magit-insert-revision-tag (rev)
+  "Insert tag message and headers into a revision buffer.
+This function only inserts anything when `magit-show-commit' is
+called with a tag as argument, when that is called with a commit
+or a ref which is not a branch, then it inserts nothing."
+  (when (equal (magit-object-type rev) "tag")
+    (magit-insert-section (taginfo)
+      (let ((beg (point)))
+        (magit-git-insert "cat-file" "tag" rev)
+        (goto-char beg)
+        (forward-line 3)
+        (delete-region beg (point)))
+      (looking-at "^tagger \\([^<]+\\) <\\([^>]+\\)")
+      (let ((heading (format "Tagger: %s <%s>"
+                             (match-string 1)
+                             (match-string 2))))
+        (magit-delete-line)
+        (insert (propertize heading 'face 'magit-section-secondary-heading)))
+      (magit-insert-heading)
+      (goto-char (point-max))
+      (insert ?\n))))
+
+(defun magit-insert-revision-message (rev)
+  "Insert the commit message into a revision buffer."
+  (magit-insert-section (message)
+    (let ((beg (point)))
+      (magit-rev-insert-format "%B" rev)
+      (if (= (point) (+ beg 2))
+          (progn (backward-delete-char 2)
+                 (insert "(no message)\n"))
+        (goto-char beg)
         (forward-line)
-        (magit-insert-section (message)
-          (forward-line)
-          (magit-insert-heading)
-          (while (not (looking-at "\ncommit [a-z0-9]\\{40\\}"))
-            (forward-line)))
-        (forward-line)))))
+        (put-text-property beg (point) 'face 'magit-section-secondary-heading)
+        (magit-insert-heading)
+        (goto-char (point-max))))))
 
-(defun magit-revision-insert-related-refs (rev)
-  (progn
-    (insert "\n")
+(defun magit-insert-revision-notes (rev)
+  "Insert commit notes into a revision buffer."
+  (magit-insert-section (notes)
+    (let ((beg (point)))
+      (magit-git-insert "notes" "show" rev)
+      (if (= (point) beg)
+          (magit-cancel-section)
+        (goto-char beg)
+        (forward-line)
+        (put-text-property beg (point) 'face 'magit-section-secondary-heading)
+        (magit-insert-heading)
+        (goto-char (point-max))
+        (insert ?\n)))))
+
+(defun magit-insert-revision-headers (rev)
+  "Insert headers about the commit into a revision buffer."
+  (magit-insert-section (headers)
+    (--when-let (magit-rev-format "%D" rev "--decorate=full")
+      (insert (magit-format-ref-labels it) ?\s))
+    (insert (propertize (magit-rev-parse (concat rev "^{commit}"))
+                        'face 'magit-hash))
+    (magit-insert-heading)
+    (magit-rev-insert-format magit-revision-headers-format rev)
     (when magit-revision-insert-related-refs
       (dolist (parent (magit-commit-parents rev))
         (magit-insert-section (commit parent)
