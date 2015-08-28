@@ -165,7 +165,7 @@ Interactively, commit all changes to all tracked files using
 a generic commit message.  With a prefix-argument the commit
 message is read in the minibuffer.
 
-Non-interactivly, only commit changes to FILES using MSG as
+Non-interactively, only commit changes to FILES using MSG as
 commit message."
   (interactive (list nil (if current-prefix-arg
                              (magit-read-string "Wip commit message")
