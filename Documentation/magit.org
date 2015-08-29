@@ -1879,6 +1879,22 @@ without having to using one of the diff popups.
 
   Whether to show related refs in revision buffers.
 
+- User Option: magit-revision-show-gravatar
+
+  Whether to show gravatar images in revision buffers.
+
+  If non-nil, then the value has to be a cons-cell which specifies
+  where the gravatar images for the author and/or the committer are
+  inserted inside the text that was previously inserted according
+  to =magit-revision-header-format=.
+
+  Both cells are regular expressions.  The car specifies where to
+  insert the author gravatar image.  The top halve of the image is
+  inserted right after the matched text, the bottom halve on the
+  next line at the same offset.  The cdr specifies where to insert
+  the committer image, accordingly.  Either the car or the cdr may
+  be nil.
+
 ** Ediffing
 
 - Key: e, magit-ediff-dwim

@@ -295,6 +295,28 @@ subject to option `magit-revision-insert-related-refs'."
   :group 'magit-revision
   :type 'boolean)
 
+(defcustom magit-revision-show-gravatars
+  '("^Author:     " . "^Commit:     ")
+  "Whether to show gravatar images in revision buffers.
+
+If non-nil, then the value has to be a cons-cell which specifies
+where the gravatar images for the author and/or the committer are
+inserted inside the text that was previously inserted according
+to `magit-revision-header-format'.
+
+Both cells are regular expressions.  The car specifies where to
+insert the author gravatar image.  The top halve of the image is
+inserted right after the matched text, the bottom halve on the
+next line at the same offset.  The cdr specifies where to insert
+the committer image, accordingly.  Either the car or the cdr may
+be nil."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-revision
+  :type '(choice (const :tag "Don't show gravatars" nil)
+                 (cons  :tag "Show gravatars"
+                        (regexp :tag "Author regexp"    "^Author:     ")
+                        (regexp :tag "Committer regexp" "^Commit:     "))))
+
 ;;; Faces
 
 (defface magit-diff-file-heading
@@ -1598,7 +1620,9 @@ or a ref which is not a branch, then it inserts nothing."
     (insert (propertize (magit-rev-parse (concat rev "^{commit}"))
                         'face 'magit-hash))
     (magit-insert-heading)
-    (magit-rev-insert-format magit-revision-headers-format rev)
+    (let ((beg (point)))
+      (magit-rev-insert-format magit-revision-headers-format rev)
+      (magit-insert-revision-gravatars rev beg))
     (when magit-revision-insert-related-refs
       (dolist (parent (magit-commit-parents rev))
         (magit-insert-section (commit parent)
@@ -1651,6 +1675,37 @@ or a ref which is not a branch, then it inserts nothing."
                                   (propertize (number-to-string cnt)
                                               'face 'magit-tag))))))
       (insert ?\n))))
+
+(defun magit-insert-revision-gravatars (rev beg)
+  (when magit-revision-show-gravatars
+    (require 'gravatar)
+    (magit-insert-revision-gravatar beg (magit-rev-format "%aE" rev)
+                                    (car magit-revision-show-gravatars))
+    (magit-insert-revision-gravatar beg (magit-rev-format "%cE" rev)
+                                    (cdr magit-revision-show-gravatars))
+    (goto-char (point-max))))
+
+(defun magit-insert-revision-gravatar (beg email regexp)
+  (when (and email (goto-char beg) (re-search-forward regexp nil t))
+    (let* ((offset    (length (match-string 0)))
+           (font-info (font-info (face-font 'default)))
+           (size      (* 2 (aref font-info 3)))
+           (align-to  (+ offset (ceiling (/ size (aref font-info 10) 1.0))))
+           (gravatar-size (- size 2)))
+      (ignore-errors
+        (gravatar-retrieve
+         email
+         (lambda (image offset align-to)
+           (unless (eq image 'error)
+             (insert (propertize " " 'display `((,@image :ascent center :relief 1)
+                                                (slice .0 .0 1.0 0.5))))
+             (insert (propertize " " 'display `((space :align-to ,align-to))))
+             (forward-line)
+             (forward-char offset)
+             (insert (propertize " " 'display `((,@image :ascent center :relief 1)
+                                                (slice .0 .5 1.0 1.0))))
+             (insert (propertize " " 'display `((space :align-to ,align-to))))))
+         (list offset align-to))))))
 
 (defun magit-revision-set-visibility (section)
   "Preserve section visibility when displaying another commit."

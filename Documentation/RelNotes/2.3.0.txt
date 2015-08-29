@@ -56,5 +56,10 @@ THIS IS NOT COMPLETE.
   hooks `magit-diff-section-hook' and `magit-revision-section-hook'.
   #2216
 
+* Gravatar images are now shown in `magit-revision-buffers' be
+  default.  New option `magit-revision-show-gravatars' controls
+  whether these images should be inserted and can also be used to
+  adjust to customization of `magit-revision-headers-format'.  #2216
+
 Authors
 -------
