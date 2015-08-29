@@ -1357,7 +1357,7 @@ section or a child thereof."
       (setq orig (magit-decode-git-path orig))
       (setq file (magit-decode-git-path file))
       (magit-diff-insert-file-section file orig status modes nil)))
-   ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
+   ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(.+\\)")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
                         (t                                     "unmerged")))
