@@ -1,0 +1,37 @@
+Magit v2.2.2 Release Notes
+==========================
+
+UNRELEASED.
+
+This is a bugfix release.
+
+* `magit-toplevel' did not follow symlinks to subdirectories of
+  repositories.  #2135 #2209
+
+* `magit-diff-wash-diff' choked on unmerged binary files.  #2211
+
+* `magit-blame-popup' did not allow empty input when reading a value
+  for "-C" or "-M".  #2208
+
+* The `emacsclient' executables belonging to non-current alternative
+  installations of Emacs on Debian were not considered when setting
+  the default value of `with-editor-emacsclient-executable'.  #2217
+
+* `server-edit', which switches to a buffer preferably one with
+  another client, was used when finishing or aborting a `with-editor'
+  session.  When `emacsclient' was used to connect to a server and
+  then a commit or rebase was invoked, then there would be another
+  client and switching to its buffer after finishing the commit or
+  rebase would be undesirable.  Now we use `server-done' instead.
+  #2197
+
+* When `--stat' abbreviates the name of a file, then that name was
+  stored in the section object instead of the full name.  #2199
+
+* `magit-file-relative-name' with non-nil TRACKED failed in Tramp
+  repositories.  #2206
+
+* After failing to clone, `magit-clone' also tried to show the status
+  of the non-existent clone.  #2203
+
+This release also contains various documentation fixes.
