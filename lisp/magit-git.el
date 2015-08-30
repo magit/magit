@@ -314,36 +314,10 @@ absolute path is returned."
       (if path (expand-file-name (convert-standard-filename path) it) it))))
 
 (defun magit-toplevel (&optional file strict)
-  "Return absolute path to the toplevel of the current repository.
-
-The option `find-file-visit-truename' is respected.  The only
-exception is a symlink to a sub-directory of a repository; if
-such a link is involved, then we have no choice but to follow
-it in order to end up inside a repository."
   (magit--with-safe-default-directory file
-    (-if-let (topdir (magit-rev-parse-safe "--show-toplevel"))
-        (let (cdup)
-          (setq topdir (file-name-as-directory topdir))
-          (if (or find-file-visit-truename
-                  ;; ^ User wants to follow all links.
-                  ;; v There are no relevant links.
-                  (and (setq cdup (magit-rev-parse-safe "--show-cdup"))
-                       (equal (expand-file-name cdup) topdir)))
-              topdir
-            (if (equal cdup "")
-                ;; `default-directory' links to toplevel, don't follow.
-                default-directory
-              ;; A directory above `default-directory' is a link...
-              (while (not (file-symlink-p
-                           (directory-file-name default-directory)))
-                (when (string-equal default-directory "/")
-                  (error "Unexpected error while determining toplevel"))
-                (setq default-directory
-                      (file-name-directory
-                       (directory-file-name default-directory))))
-              (if (equal (magit-rev-parse-safe "--show-cdup") "")
-                  default-directory ; ...don't follow link to toplevel.
-                topdir))))          ; ...follow link to subdirectory.
+    (-if-let (cdup (magit-rev-parse-safe "--show-cdup"))
+        (magit-expand-git-file-name
+         (file-name-as-directory (expand-file-name cdup)))
       (unless strict
         (-when-let (gitdir (magit-git-dir))
           (if (magit-bare-repo-p)
