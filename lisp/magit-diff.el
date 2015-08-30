@@ -1357,14 +1357,14 @@ section or a child thereof."
       (setq orig (magit-decode-git-path orig))
       (setq file (magit-decode-git-path file))
       (magit-diff-insert-file-section file orig status modes nil)))
-   ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(.+\\)")
+   ((looking-at
+     "^diff --\\(?:\\(git\\) \\(?:\\(.+?\\) \\2\\)?\\|\\(cc\\|combined\\) \\(.+\\)\\)")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
                         (t                                     "unmerged")))
-          (orig (match-string 2))
-          (file (match-string 2))
+          (file (or (match-string 2) (match-string 4)))
           (beg (point))
-          header modes)
+          orig header modes)
       (save-excursion
         (forward-line 1)
         (setq header (buffer-substring
