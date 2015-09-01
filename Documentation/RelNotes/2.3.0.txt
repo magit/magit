@@ -21,5 +21,11 @@ Changes since v2.2.0
 
 THIS IS NOT COMPLETE.
 
+* After using the region to stage or discard parts of a hunk, point is
+  now placed on the beginning of the next or previous block of changed
+  lines.  Previously we just jumped to the beginning of the hunk at
+  the same index as the previous hunk, but that often was very far
+  away from where point was before the refresh.  #2227
+
 Authors
 -------
