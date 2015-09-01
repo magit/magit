@@ -315,13 +315,41 @@ absolute path is returned."
 
 (defun magit-toplevel (&optional file strict)
   (magit--with-safe-default-directory file
-    (-if-let (cdup (magit-rev-parse-safe "--show-cdup"))
-        (magit-expand-git-file-name
-         (file-name-as-directory (expand-file-name cdup)))
+    (-if-let (topdir (magit-rev-parse-safe "--show-toplevel"))
+        (let (updir)
+          (if (and
+               ;; Always honor these settings.
+               (not find-file-visit-truename)
+               (not (getenv "GIT_WORK_TREE"))
+               ;; `--show-cdup' is the relative path to the toplevel
+               ;; from `(file-truename default-directory)'.  Here we
+               ;; pretend it is relative to `default-directory', and
+               ;; go to that directory.  Then we check whether
+               ;; `--show-toplevel' still returns the same value and
+               ;; whether `--show-cdup' now is the empty string.  If
+               ;; both is the case, then we are at the toplevel of
+               ;; the same working tree, but also avoided needlessly
+               ;; following any symlinks.
+               (let ((default-directory
+                       (setq updir (file-name-as-directory
+                                    (expand-file-name
+                                     (magit-rev-parse-safe "--show-cdup"))))))
+                 (and (string-equal (magit-rev-parse-safe "--show-cdup") "")
+                      (string-equal (magit-rev-parse-safe "--show-toplevel")
+                                    topdir))))
+              updir
+            (concat (file-remote-p default-directory)
+                    (file-name-as-directory topdir))))
       (unless strict
-        (-when-let (gitdir (magit-git-dir))
+        (-when-let (gitdir (magit-rev-parse-safe "--git-dir"))
+          (setq gitdir (file-name-as-directory
+                        (if (file-name-absolute-p gitdir)
+                            ;; We might have followed a symlink.
+                            (concat (file-remote-p default-directory) gitdir)
+                          (expand-file-name gitdir))))
           (if (magit-bare-repo-p)
               gitdir
+            ;; Step outside the control directory to enter the working tree.
             (file-name-directory (directory-file-name gitdir))))))))
 
 (defmacro magit-with-toplevel (&rest body)
