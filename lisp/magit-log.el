@@ -952,33 +952,28 @@ and `magit-log-auto-more' is non-nil."
     (forward-line -1)
     (magit-section-forward)))
 
-(defvar magit-log-show-commit-timer nil)
+(defvar magit-update-other-window-timer nil)
 
 (defun magit-log-maybe-show-commit (&optional _)
   "Automatically show commit at point in another window.
 If the section at point is a `commit' section and the value of
 `magit-diff-auto-show-p' calls for it, then show that commit in
 another window, using `magit-show-commit'."
-  (unless magit-log-show-commit-timer
-    (setq magit-log-show-commit-timer
+  (unless magit-update-other-window-timer
+    (setq magit-update-other-window-timer
           (run-with-idle-timer
            magit-diff-auto-show-delay nil
            (lambda ()
-             (--when-let
-                 (or (magit-section-when commit
-                       (and (or (and (magit-diff-auto-show-p 'log-follow)
-                                     (magit-mode-get-buffer
-                                      nil 'magit-revision-mode))
-                                (and (magit-diff-auto-show-p 'log-oneline)
-                                     (derived-mode-p 'magit-log-mode)))
-                            (magit-section-value it)))
-                     (and magit-blame-mode
-                          (magit-diff-auto-show-p 'blame-follow)
-                          (magit-mode-get-buffer
-                           nil 'magit-revision-mode)
-                          (magit-blame-chunk-get :hash)))
-               (apply #'magit-show-commit it t nil (magit-diff-arguments)))
-             (setq magit-log-show-commit-timer nil))))))
+             (magit-section-when commit
+               (when (or (and (magit-diff-auto-show-p 'log-follow)
+                              (magit-mode-get-buffer
+                               nil 'magit-revision-mode))
+                         (and (magit-diff-auto-show-p 'log-oneline)
+                              (derived-mode-p 'magit-log-mode)))
+                 (apply #'magit-show-commit
+                        (magit-section-value it) t nil
+                        (magit-diff-arguments))))
+             (setq magit-update-other-window-timer nil))))))
 
 (defun magit-log-goto-same-commit ()
   (-when-let* ((prev magit-previous-section)

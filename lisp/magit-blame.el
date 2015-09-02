@@ -68,13 +68,13 @@ and then turned on again when turning off the latter."
   :type '(choice (const :tag "No lighter" "") string))
 
 (unless (find-lisp-object-file-name 'magit-blame-goto-chunk-hook 'defvar)
-  (add-hook 'magit-blame-goto-chunk-hook 'magit-log-maybe-show-commit))
-(defcustom magit-blame-goto-chunk-hook '(magit-log-maybe-show-commit)
+  (add-hook 'magit-blame-goto-chunk-hook 'magit-blame-update-other-window))
+(defcustom magit-blame-goto-chunk-hook '(magit-blame-update-other-window)
   "Hook run by `magit-blame-next-chunk' and `magit-blame-previous-chunk'."
   :package-version '(magit . "2.1.0")
   :group 'magit-blame
   :type 'hook
-  :options '(magit-log-maybe-show-commit))
+  :options '(magit-blame-update-other-window))
 
 (defface magit-blame-heading
   '((((class color) (background light))
@@ -478,6 +478,18 @@ then also kill the buffer."
 (defun magit-blame-overlay-at (&optional pos)
   (--first (overlay-get it 'magit-blame)
            (overlays-at (or pos (point)))))
+
+(defun magit-blame-update-other-window ()
+  (unless magit-update-other-window-timer
+    (setq magit-update-other-window-timer
+          (run-with-idle-timer
+           magit-diff-auto-show-delay nil
+           (lambda ()
+             (--when-let (and (magit-diff-auto-show-p 'blame-follow)
+                              (magit-mode-get-buffer nil 'magit-revision-mode)
+                              (magit-blame-chunk-get :hash))
+               (apply #'magit-show-commit it t nil (magit-diff-arguments)))
+             (setq magit-update-other-window-timer nil))))))
 
 ;;; magit-blame.el ends soon
 (provide 'magit-blame)
