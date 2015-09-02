@@ -609,8 +609,7 @@ prefix argument instead bury the revision buffer, provided it
 is displayed in the current frame."
   (interactive "p")
   (if (< arg 0)
-      (let* ((buf (magit-mode-get-buffer magit-revision-buffer-name-format
-                                         'magit-revision-mode))
+      (let* ((buf (magit-mode-get-buffer nil 'magit-revision-mode))
              (win (and buf (get-buffer-window buf (selected-frame)))))
         (if win
             (with-selected-window win
@@ -959,16 +958,14 @@ another window, using `magit-show-commit'."
                  (or (magit-section-when commit
                        (and (or (and (magit-diff-auto-show-p 'log-follow)
                                      (magit-mode-get-buffer
-                                      magit-revision-buffer-name-format
-                                      'magit-revision-mode))
+                                      nil 'magit-revision-mode))
                                 (and (magit-diff-auto-show-p 'log-oneline)
                                      (derived-mode-p 'magit-log-mode)))
                             (magit-section-value it)))
                      (and magit-blame-mode
                           (magit-diff-auto-show-p 'blame-follow)
                           (magit-mode-get-buffer
-                           magit-revision-buffer-name-format
-                           'magit-revision-mode)
+                           nil 'magit-revision-mode)
                           (magit-blame-chunk-get :hash)))
                (magit-show-commit it t))
              (setq magit-log-show-commit-timer nil))))))

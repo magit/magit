@@ -1080,8 +1080,7 @@ is done using `magit-find-index-noselect'."
           (when magit-wip-after-apply-mode
             (magit-wip-commit-after-apply (list file) " after un-/stage")))
       (message "Abort")))
-  (--when-let (magit-mode-get-buffer
-               magit-status-buffer-name-format 'magit-status-mode)
+  (--when-let (magit-mode-get-buffer nil 'magit-status-mode)
     (with-current-buffer it (magit-refresh)))
   t)
 

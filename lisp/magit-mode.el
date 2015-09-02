@@ -563,9 +563,7 @@ current repository."
       (run-hooks 'magit-pre-refresh-hook)
       (magit-refresh-buffer)
       (unless (derived-mode-p 'magit-status-mode)
-        (--when-let (magit-mode-get-buffer
-                     magit-status-buffer-name-format
-                     'magit-status-mode)
+        (--when-let (magit-mode-get-buffer nil 'magit-status-mode)
           (with-current-buffer it
             (magit-refresh-buffer)))))
     (magit-revert-buffers)))

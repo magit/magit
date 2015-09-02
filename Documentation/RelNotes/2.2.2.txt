@@ -37,4 +37,5 @@ This is a bugfix release.
 * `magit-wip-log' did not display a log if the working tree or index
   ref did not exist.
 
-This release also contains various documentation fixes.
+This release also contains various documentation fixes and code
+clean-ups.
