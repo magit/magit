@@ -1806,10 +1806,6 @@ without having to using one of the diff popups.
 
 *** Diff options
 
-- User Option: magit-diff-show-diffstat
-
-  Whether to show diffstat in diff buffers.
-
 - User Option: magit-diff-auto-show
 
   Whether to automatically show the relevant diff or commit.
@@ -1878,10 +1874,6 @@ without having to using one of the diff popups.
   Otherwise, highlight neither.
 
 *** Revision buffer
-
-- User Option: magit-revision-show-diffstat
-
-  Whether to show diffstat in revision buffers.
 
 - User Option: magit-revision-insert-related-refs
 

@@ -141,12 +141,6 @@ to draw thin lines."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-show-diffstat t
-  "Whether to show diffstat in diff buffers."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-diff
-  :type 'boolean)
-
 (defcustom magit-diff-auto-show
   '(commit stage-all log-oneline log-select blame-follow)
   "Whether to automatically show relevant diff or commit.
@@ -294,12 +288,6 @@ subject to option `magit-revision-insert-related-refs'."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
   :type 'string)
-
-(defcustom magit-revision-show-diffstat t
-  "Whether to show diffstat in revision buffers."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-revision
-  :type 'boolean)
 
 (defcustom magit-revision-insert-related-refs t
   "Whether to show related refs in revision buffers."
@@ -498,10 +486,6 @@ subject to option `magit-revision-insert-related-refs'."
 (defconst magit-diff-popup-common
   '(:variable magit-diff-arguments
     :man-page "git-diff"
-    :switches ((?f "Show surrounding functions" "--function-context")
-               (?b "Ignore whitespace changes"  "--ignore-space-change")
-               (?w "Ignore all whitespace"      "--ignore-all-space")
-               (?x "Disallow external diff drivers" "--no-ext-diff"))
     :options  ((?f "Limit to files" "-- " magit-read-files)
                (?u "Context lines"  "-U"  read-from-minibuffer)
                (?m "Detect renames" "-M"  read-from-minibuffer)
@@ -511,40 +495,68 @@ subject to option `magit-revision-insert-related-refs'."
 
 (defvar magit-diff-popup
   `(,@magit-diff-popup-common
-    :actions ((?d "Dwim"          magit-diff-dwim)
-              (?u "Diff unstaged" magit-diff-unstaged)
-              (?c "Show commit"   magit-show-commit)
-              (?r "Diff range"    magit-diff)
-              (?s "Diff staged"   magit-diff-staged)
-              (?t "Show stash"    magit-stash-show)
-              (?p "Diff paths"    magit-diff-paths)
-              (?w "Diff worktree" magit-diff-working-tree))
+    :switches ((?f "Show surrounding functions"     "--function-context")
+               (?b "Ignore whitespace changes"      "--ignore-space-change")
+               (?w "Ignore all whitespace"          "--ignore-all-space")
+               (?x "Disallow external diff drivers" "--no-ext-diff")
+               (?s "Show stats"                     "--stat"))
+    :actions  ((?d "Dwim"          magit-diff-dwim)
+               (?u "Diff unstaged" magit-diff-unstaged)
+               (?c "Show commit"   magit-show-commit)
+               (?r "Diff range"    magit-diff)
+               (?s "Diff staged"   magit-diff-staged)
+               (?t "Show stash"    magit-stash-show)
+               (?p "Diff paths"    magit-diff-paths)
+               (?w "Diff worktree" magit-diff-working-tree))
     :default-action magit-diff-dwim
     :max-action-columns 3))
 
 (defvar magit-diff-refresh-popup
   `(,@magit-diff-popup-common
-    :actions ((?g "Refresh"                magit-diff-refresh)
-              (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-              (?s "Set defaults"           magit-diff-set-default-arguments) nil
-              (?w "Save defaults"          magit-diff-save-default-arguments))
+    :switches ((?f "Show surrounding functions"     "--function-context")
+               (?b "Ignore whitespace changes"      "--ignore-space-change")
+               (?w "Ignore all whitespace"          "--ignore-all-space")
+               (?x "Disallow external diff drivers" "--no-ext-diff"))
+    :actions  ((?g "Refresh"                magit-diff-refresh)
+               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+               (?s "Set defaults"           magit-diff-set-default-arguments) nil
+               (?w "Save defaults"          magit-diff-save-default-arguments))
     :max-action-columns 2))
 
 (defvar magit-diff-mode-refresh-popup
   `(,@magit-diff-popup-common
-    :actions ((?g "Refresh"                magit-diff-refresh)
-              (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-              (?s "Set defaults"           magit-diff-set-default-arguments)
-              (?r "Switch range type"      magit-diff-switch-range-type)
-              (?w "Save defaults"          magit-diff-save-default-arguments)
-              (?f "Flip revisions"         magit-diff-flip-revs))
+    :switches ((?f "Show surrounding functions"     "--function-context")
+               (?b "Ignore whitespace changes"      "--ignore-space-change")
+               (?w "Ignore all whitespace"          "--ignore-all-space")
+               (?x "Disallow external diff drivers" "--no-ext-diff")
+               (?s "Show stats"                     "--stat"))
+    :actions  ((?g "Refresh"                magit-diff-refresh)
+               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+               (?s "Set defaults"           magit-diff-set-default-arguments)
+               (?r "Switch range type"      magit-diff-switch-range-type)
+               (?w "Save defaults"          magit-diff-save-default-arguments)
+               (?f "Flip revisions"         magit-diff-flip-revs))
+    :max-action-columns 2))
+
+(defvar magit-revision-mode-refresh-popup
+  `(,@magit-diff-popup-common
+    :switches ((?f "Show surrounding functions"     "--function-context")
+               (?b "Ignore whitespace changes"      "--ignore-space-change")
+               (?w "Ignore all whitespace"          "--ignore-all-space")
+               (?x "Disallow external diff drivers" "--no-ext-diff")
+               (?s "Show stats"                     "--stat"))
+    :actions  ((?g "Refresh"                magit-diff-refresh)
+               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+               (?s "Set defaults"           magit-diff-set-default-arguments) nil
+               (?w "Save defaults"          magit-diff-save-default-arguments))
     :max-action-columns 2))
 
 (magit-define-popup-keys-deferred 'magit-diff-popup)
 (magit-define-popup-keys-deferred 'magit-diff-refresh-popup)
 (magit-define-popup-keys-deferred 'magit-diff-mode-refresh-popup)
+(magit-define-popup-keys-deferred 'magit-revision-mode-refresh-popup)
 
-(defcustom magit-diff-arguments '("--no-ext-diff")
+(defcustom magit-diff-arguments '("--stat" "--no-ext-diff")
   "The diff arguments used in buffers whose mode derives from `magit-diff-mode'."
   :group 'magit-diff
   :group 'magit-commands
@@ -596,9 +608,10 @@ subject to option `magit-revision-insert-related-refs'."
   "Popup console for changing diff arguments in the current buffer."
   (interactive "P")
   (let ((magit-diff-refresh-popup
-         (if (eq major-mode 'magit-diff-mode)
-             magit-diff-mode-refresh-popup
-           magit-diff-refresh-popup))
+         (pcase major-mode
+           (`magit-revision-mode magit-revision-mode-refresh-popup)
+           (`magit-diff-mode     magit-diff-mode-refresh-popup)
+           (_                    magit-diff-refresh-popup)))
         (magit-diff-arguments
          (if (derived-mode-p 'magit-diff-mode)
              (magit-popup-import-file-args (nth 2 magit-refresh-args)
@@ -1154,8 +1167,10 @@ commit or stash at point, then prompt for a commit."
                  (goto-char (pcase fn
                               (`scroll-up   (point-min))
                               (`scroll-down (point-max)))))))
-          (funcall cmd rev t))
-      (call-interactively 'magit-show-commit))))
+          (if (eq cmd 'magit-show-commit)
+              (apply #'magit-show-commit rev t nil (magit-diff-arguments))
+            (funcall cmd rev t)))
+      (call-interactively #'magit-show-commit))))
 
 ;;; Diff Mode
 
@@ -1220,7 +1235,7 @@ Staging and applying changes is documented in info node
   "Insert the diff into this `magit-diff-mode' buffer."
   (magit-git-wash #'magit-diff-wash-diffs
     "diff" range "-p" "--no-prefix"
-    (and magit-diff-show-diffstat (list "--numstat" "--stat"))
+    (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
     (nth 1 magit-refresh-args)
     (nth 2 magit-refresh-args) "--"
     (nth 3 magit-refresh-args)))
@@ -1521,7 +1536,7 @@ Staging and applying changes is documented in info node
   "Insert the diff into this `magit-revision-mode' buffer."
   (magit-git-wash #'magit-diff-wash-diffs
     "show" "-p" "--cc" "--format=" "--no-prefix"
-    (and magit-revision-show-diffstat (list "--numstat" "--stat"))
+    (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
     (nth 2 magit-refresh-args) (concat rev "^{commit}") "--"
     (nth 3 magit-refresh-args)))
 

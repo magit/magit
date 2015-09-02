@@ -967,7 +967,7 @@ another window, using `magit-show-commit'."
                           (magit-mode-get-buffer
                            nil 'magit-revision-mode)
                           (magit-blame-chunk-get :hash)))
-               (magit-show-commit it t))
+               (apply #'magit-show-commit it t nil (magit-diff-arguments)))
              (setq magit-log-show-commit-timer nil))))))
 
 (defun magit-log-goto-same-commit ()

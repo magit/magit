@@ -300,7 +300,7 @@ Like `undo' but works in read-only buffers."
     (goto-char (line-beginning-position))
     (--if-let (and (looking-at git-rebase-line)
                    (match-string 2))
-        (magit-show-commit it)
+        (apply #'magit-show-commit it nil nil (magit-diff-arguments))
       (ding))))
 
 (defun git-rebase-backward-line (&optional n)

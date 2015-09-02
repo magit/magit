@@ -2506,11 +2506,6 @@ Scroll text downward.
 @node Diff options
 @subsection Diff options
 
-@defopt magit-diff-show-diffstat
-
-Whether to show diffstat in diff buffers.
-@end defopt
-
 @defopt magit-diff-auto-show
 
 Whether to automatically show the relevant diff or commit.
@@ -2605,11 +2600,6 @@ Otherwise, highlight neither.
 
 @node Revision buffer
 @subsection Revision buffer
-
-@defopt magit-revision-show-diffstat
-
-Whether to show diffstat in revision buffers.
-@end defopt
 
 @defopt magit-revision-insert-related-refs
 

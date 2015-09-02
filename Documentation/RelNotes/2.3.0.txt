@@ -50,7 +50,8 @@ THIS IS NOT COMPLETE.
   #2216
 
 * Removed options `magit-revision-show-notes',
-  `magit-diff-show-xref-buttons' and `magit-revision-show-xref-buttons'.
+  `magit-diff-show-xref-buttons', `magit-revision-show-xref-buttons',
+  `magit-diff-show-diffstat', and `magit-revision-show-diffstat'.
   Whether these sections are inserted is now controlled using the
   hooks `magit-diff-section-hook' and `magit-revision-section-hook'.
   #2216
