@@ -513,7 +513,7 @@ the function `magit-toplevel'."
                      (equal default-directory topdir)))
               (buffer-list))))
 
-(defun magit-mode-get-buffer (format mode &optional pwd create)
+(defun magit-mode-get-buffer (format mode &optional pwd create frame)
   (unless format
     (setq format (symbol-value
                   (intern (format "%s-buffer-name-format"
@@ -534,7 +534,10 @@ the function `magit-toplevel'."
                           (or (not topdir)
                               (equal (expand-file-name default-directory)
                                      topdir))))
-                   (buffer-list))
+                   (if frame
+                       (-map #'window-buffer
+                             (window-list (unless (eq frame t) frame)))
+                     (buffer-list)))
           (and create
                (let ((default-directory (or topdir pwd)))
                  (generate-new-buffer name)))))))

@@ -156,9 +156,10 @@ changes to be displayed automatically.
 `blame-follow'
 
 In the event that expanding very large patches takes a long time
-\\<global-map>\\[keyboard-quit] can be used to abort that step.
-This is especially useful when you would normally not look at the
-changes, e.g. because you are committing some binary files.
+\\<global-map>\\[keyboard-quit] \
+can be used to abort that step. This is especially useful when
+you would normally not look at the changes, e.g. because you are
+committing some binary files.
 
 Also see `magit-diff-auto-show-delay'."
   :package-version '(magit . "2.1.0")

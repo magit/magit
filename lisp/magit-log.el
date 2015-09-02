@@ -967,7 +967,7 @@ another window, using `magit-show-commit'."
              (magit-section-when commit
                (when (or (and (magit-diff-auto-show-p 'log-follow)
                               (magit-mode-get-buffer
-                               nil 'magit-revision-mode))
+                               nil 'magit-revision-mode nil nil t))
                          (and (magit-diff-auto-show-p 'log-oneline)
                               (derived-mode-p 'magit-log-mode)))
                  (apply #'magit-show-commit
