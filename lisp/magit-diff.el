@@ -1277,7 +1277,7 @@ section or a child thereof."
     (user-error "No diffstat in this buffer")))
 
 (defun magit-diff-wash-diffstat ()
-  (let (heading children (beg (point)))
+  (let (heading (beg (point)))
     (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
       (setq heading (match-string 1))
       (magit-delete-match)
@@ -1308,9 +1308,7 @@ section or a child thereof."
                   (insert (propertize add 'face 'magit-diffstat-added)))
                 (when del
                   (insert (propertize del 'face 'magit-diffstat-removed)))
-                (insert "\n")))))
-        (setq children (magit-section-children it))))
-    children))
+                (insert "\n")))))))))
 
 (defun magit-diff-wash-diff (args)
   (cond
