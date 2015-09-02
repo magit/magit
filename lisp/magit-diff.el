@@ -65,6 +65,13 @@
   :group 'magit-diff
   :type 'hook)
 
+(defcustom magit-diff-sections-hook
+  '(magit-insert-diff)
+  "Hook run to insert sections into a `magit-diff-mode' buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-revision
+  :type 'hook)
+
 (defcustom magit-diff-buffer-name-format "*magit-diff: %a*"
   "Name format for buffers used to display a diff.
 
@@ -1198,7 +1205,7 @@ Staging and applying changes is documented in info node
   :group 'magit-diff
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-diff-refresh-buffer (range const args files)
+(defun magit-diff-refresh-buffer (range const _args files)
   (setq header-line-format
         (propertize
          (if (member "--no-index" const)
@@ -1217,10 +1224,16 @@ Staging and applying changes is documented in info node
                                 (mapconcat #'identity files ", "))))))
          'face 'magit-header-line))
   (magit-insert-section (diffbuf)
-    (magit-git-wash #'magit-diff-wash-diffs
-      "diff" range "-p"
-      (and magit-diff-show-diffstat (list "--numstat" "--stat"))
-      "--no-prefix" const args "--" files)))
+    (run-hook-with-args 'magit-diff-sections-hook range)))
+
+(defun magit-insert-diff (range)
+  "Insert the diff into this `magit-diff-mode' buffer."
+  (magit-git-wash #'magit-diff-wash-diffs
+    "diff" range "-p" "--no-prefix"
+    (and magit-diff-show-diffstat (list "--numstat" "--stat"))
+    (nth 1 magit-refresh-args)
+    (nth 2 magit-refresh-args) "--"
+    (nth 3 magit-refresh-args)))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))

@@ -39,6 +39,10 @@ THIS IS NOT COMPLETE.
   are part of the default value of `magit-revision-sections-hook'.
   #2216
 
+* The various sections in diff buffers are now inserted using new
+  section inserters named `magit-insert-diff-{*}', all of which are
+  part of the default value of `magit-diff-sections-hook'.  #2216
+
 * Added new option `magit-revision-headers-format' whose value is
   passed to `git show --format=' to insert most of the headers,
   excluding the related-refs headers.  The default value now uses
