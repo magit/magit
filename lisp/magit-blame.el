@@ -56,7 +56,7 @@ The headings can also be toggled locally using command
 (defcustom magit-blame-disable-modes '(fci-mode yascroll-bar-mode)
   "List of modes not compatible with Magit-Blame mode.
 This modes are turned off when Magit-Blame mode is turned on,
-and then turned on again when turning on the latter."
+and then turned on again when turning off the latter."
   :group 'magit-blame
   :type '(repeat function))
 
