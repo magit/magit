@@ -21,5 +21,12 @@ Changes since v2.2.0
 
 THIS IS NOT COMPLETE.
 
+* Information about related refs in `magit-revision-mode' buffers are
+  now grouped in the same section as other headers and are formatted
+  like those other headers instead of like diffstats.  The redundant
+  header which previously grouped the related refs section is gone.
+  All headers are inserted by the new `magit-insert-revision-headers'
+  section inserter.  #2216
+
 Authors
 -------
