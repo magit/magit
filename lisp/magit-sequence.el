@@ -484,24 +484,31 @@ If no such sequence is in progress, do nothing."
   (when (magit-am-in-progress-p)
     (magit-insert-section (rebase-sequence)
       (magit-insert-heading "Applying patches")
-      (let* ((patches (magit-rebase-patches))
-             (stop (magit-file-line (car patches))))
-        (if (string-match "^From \\([^ ]\\{40\\}\\)" stop)
-            (progn (setq stop (match-string 1 stop))
-                   (magit-rebase-insert-apply-sequence)
-                   (magit-sequence-insert-sequence stop "ORIG_HEAD"))
-          (setq  patches (nreverse patches))
-          (while patches
-            (let ((patch (pop patches)))
-              (magit-insert-section (file patch)
-                (insert (if patches
-                            (propertize "pick" 'face 'magit-sequence-pick)
-                          (propertize "stop" 'face 'magit-sequence-stop))
-                        ?\s (propertize (file-name-nondirectory patch)
-                                        'face 'magit-hash)
-                        ?\n))))
-          (magit-sequence-insert-sequence nil "ORIG_HEAD")))
+      (let ((patches (nreverse (magit-rebase-patches)))
+            patch commit)
+        (while patches
+          (setq patch (pop patches)
+                commit (magit-rev-verify-commit
+                        (cadr (split-string (magit-file-line patch)))))
+          (cond ((and commit patches)
+                 (magit-sequence-insert-commit
+                  "pick" commit 'magit-sequence-pick))
+                (patches
+                 (magit-sequence-insert-am-patch
+                  "pick" patch 'magit-sequence-pick))
+                (commit
+                 (magit-sequence-insert-sequence commit "ORIG_HEAD"))
+                (t
+                 (magit-sequence-insert-am-patch
+                  "stop" patch 'magit-sequence-stop)
+                 (magit-sequence-insert-sequence nil "ORIG_HEAD")))))
       (insert ?\n))))
+
+(defun magit-sequence-insert-am-patch (type patch face)
+  (magit-insert-section (file patch)
+    (insert (propertize type 'face face)
+            ?\s (propertize (file-name-nondirectory patch) 'face 'magit-hash)
+            ?\n)))
 
 (defun magit-insert-rebase-sequence ()
   "Insert section for the on-going rebase sequence.
