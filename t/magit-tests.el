@@ -15,7 +15,10 @@
 (defmacro magit-with-test-directory (&rest body)
   (declare (indent 0) (debug t))
   (let ((dir (make-symbol "dir")))
-    `(let ((,dir (file-name-as-directory (make-temp-file "magit-" t))))
+    `(let ((,dir (file-name-as-directory (make-temp-file "magit-" t)))
+           (process-environment process-environment))
+       (setenv "GIT_AUTHOR_NAME" "A U Thor")
+       (setenv "GIT_AUTHOR_EMAIL" "a.u.thor@example.com")
        (condition-case err
            (cl-letf (((symbol-function #'message) (lambda (&rest _))))
              (let ((default-directory ,dir))
