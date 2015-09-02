@@ -817,13 +817,9 @@ argument (the prefix) non-nil means save all with no questions."
       (help-xref-go-forward (current-buffer))
     (user-error "No next entry in buffer's history")))
 
-(defun magit-xref-insert-buttons ()
-  (when (and (or (and magit-revision-show-xref-buttons
-                      (derived-mode-p 'magit-revision-mode))
-                 (and magit-diff-show-xref-buttons
-                      (derived-mode-p 'magit-diff-mode)))
-             (or help-xref-stack help-xref-forward-stack))
-    (insert "\n")
+(defun magit-insert-xref-buttons (&optional _)
+  "Insert xref buttons."
+  (when (or help-xref-stack help-xref-forward-stack)
     (when help-xref-stack
       (magit-xref-insert-button help-back-label 'magit-xref-backward))
     (when help-xref-forward-stack

@@ -66,7 +66,8 @@
   :type 'hook)
 
 (defcustom magit-diff-sections-hook
-  '(magit-insert-diff)
+  '(magit-insert-diff
+    magit-insert-xref-buttons)
   "Hook run to insert sections into a `magit-diff-mode' buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
@@ -142,12 +143,6 @@ to draw thin lines."
 
 (defcustom magit-diff-show-diffstat t
   "Whether to show diffstat in diff buffers."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-diff
-  :type 'boolean)
-
-(defcustom magit-diff-show-xref-buttons t
-  "Whether to show buffer history buttons in diff buffers."
   :package-version '(magit . "2.1.0")
   :group 'magit-diff
   :type 'boolean)
@@ -266,7 +261,8 @@ many spaces.  Otherwise, highlight neither."
     magit-insert-revision-headers
     magit-insert-revision-message
     magit-insert-revision-notes
-    magit-insert-revision-diff)
+    magit-insert-revision-diff
+    magit-insert-xref-buttons)
   "Hook run to insert sections into a `magit-revision-mode' buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
@@ -301,12 +297,6 @@ subject to option `magit-revision-insert-related-refs'."
 
 (defcustom magit-revision-show-diffstat t
   "Whether to show diffstat in revision buffers."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-revision
-  :type 'boolean)
-
-(defcustom magit-revision-show-xref-buttons t
-  "Whether to show buffer history buttons in revision buffers."
   :package-version '(magit . "2.1.0")
   :group 'magit-revision
   :type 'boolean)
@@ -1287,9 +1277,7 @@ Staging and applying changes is documented in info node
   (when (re-search-forward magit-diff-headline-re nil t)
     (goto-char (line-beginning-position))
     (magit-wash-sequence (apply-partially 'magit-diff-wash-diff args))
-    (insert ?\n))
-  (goto-char (point-max))
-  (magit-xref-insert-buttons))
+    (insert ?\n)))
 
 (defun magit-jump-to-diffstat-or-diff ()
   "Jump to the diffstat or diff.

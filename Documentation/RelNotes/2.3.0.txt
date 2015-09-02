@@ -49,9 +49,10 @@ THIS IS NOT COMPLETE.
   placeholders which respect information in the file ".mailmap".
   #2216
 
-* Removed option `magit-revision-show-notes'.
-  Whether this sections is inserted is now controlled using the
-  hook `magit-revision-section-hook'.
+* Removed options `magit-revision-show-notes',
+  `magit-diff-show-xref-buttons' and `magit-revision-show-xref-buttons'.
+  Whether these sections are inserted is now controlled using the
+  hooks `magit-diff-section-hook' and `magit-revision-section-hook'.
   #2216
 
 Authors

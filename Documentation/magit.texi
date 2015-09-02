@@ -2511,11 +2511,6 @@ Scroll text downward.
 Whether to show diffstat in diff buffers.
 @end defopt
 
-@defopt magit-diff-show-xref-buttons
-
-Whether to show buffer history buttons in diff buffers.
-@end defopt
-
 @defopt magit-diff-auto-show
 
 Whether to automatically show the relevant diff or commit.
@@ -2614,11 +2609,6 @@ Otherwise, highlight neither.
 @defopt magit-revision-show-diffstat
 
 Whether to show diffstat in revision buffers.
-@end defopt
-
-@defopt magit-revision-show-xref-buttons
-
-Whether to show buffer history buttons in revision buffers.
 @end defopt
 
 @defopt magit-revision-insert-related-refs
