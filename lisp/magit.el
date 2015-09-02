@@ -454,10 +454,10 @@ The sections are inserted by running the functions on the hook
 
 (defun magit-insert-repo-header ()
   "Insert a header line showing the path to the repository top-level."
-  (let ((topdir (magit-toplevel)))
-    (magit-insert-section (repo topdir)
+  (magit-with-toplevel
+    (magit-insert-section (repo default-directory)
       (magit-insert (format "%-10s%s\n" "Repo: "
-                            (abbreviate-file-name topdir))))))
+                            (abbreviate-file-name default-directory))))))
 
 (defun magit-insert-remote-header ()
   "Insert a header line about the remote of the current branch.
@@ -1839,22 +1839,22 @@ Optional PATH is the path to the submodule relative to the root
 of the superproject. If it is nil then the path is determined
 based on URL."
   (interactive
-   (let* ((default-directory (magit-toplevel))
-          (path (read-file-name
-                 "Add submodule: " nil nil nil
-                 (magit-section-when [file untracked]
-                   (directory-file-name (magit-section-value it))))))
-     (when path
-       (setq path (file-name-as-directory (expand-file-name path)))
-       (when (member path (list "" default-directory))
-         (setq path nil)))
-     (list (magit-read-string-ns
-            "Remote url"
-            (and path (magit-git-repo-p path t)
-                 (let ((default-directory path))
-                   (magit-get "remote" (or (magit-get-remote) "origin")
-                              "url"))))
-           (and path (directory-file-name (file-relative-name path))))))
+   (magit-with-toplevel
+     (let ((path (read-file-name
+                  "Add submodule: " nil nil nil
+                  (magit-section-when [file untracked]
+                    (directory-file-name (magit-section-value it))))))
+       (when path
+         (setq path (file-name-as-directory (expand-file-name path)))
+         (when (member path (list "" default-directory))
+           (setq path nil)))
+       (list (magit-read-string-ns
+              "Remote url"
+              (and path (magit-git-repo-p path t)
+                   (let ((default-directory path))
+                     (magit-get "remote" (or (magit-get-remote) "origin")
+                                "url"))))
+             (and path (directory-file-name (file-relative-name path)))))))
   (magit-run-git "submodule" "add" url path))
 
 ;;;###autoload

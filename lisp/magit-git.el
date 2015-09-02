@@ -440,7 +440,7 @@ tracked file."
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))
 
 (defun magit-revision-files (rev)
-  (let ((default-directory (magit-toplevel)))
+  (magit-with-toplevel
     (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
 
 (defun magit-changed-files (rev-or-range &optional other-rev)
@@ -448,7 +448,7 @@ tracked file."
 If OTHER-REV is non-nil, REV-OR-RANGE should be a revision, not a
 range.  Otherwise, it can be any revision or range accepted by
 \"git diff\" (i.e., <rev>, <revA>..<revB>, or <revA>...<revB>)."
-  (let ((default-directory (magit-toplevel)))
+  (magit-with-toplevel
     (magit-git-items "diff" "-z" "--name-only" rev-or-range other-rev)))
 
 (defun magit-renamed-files (revA revB)

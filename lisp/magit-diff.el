@@ -869,10 +869,10 @@ for a commit."
                   nil (and mcommit (magit-section-parent-value
                                     (magit-current-section))))
             (magit-diff-arguments))))
-  (let ((default-directory (if module
-                               (file-name-as-directory
-                                (expand-file-name module (magit-toplevel)))
-                             default-directory)))
+  (magit-with-toplevel
+    (when module
+      (setq default-directory
+            (expand-file-name (file-name-as-directory module))))
     (unless (magit-rev-verify commit)
       (user-error "%s is not a commit" commit))
     (-when-let (buffer (magit-mode-get-buffer nil 'magit-revision-mode))

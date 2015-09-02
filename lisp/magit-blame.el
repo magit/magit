@@ -218,52 +218,51 @@ only arguments available from `magit-blame-popup' should be used.
          (if buffer-file-name
              (user-error "Buffer isn't visiting a tracked file")
            (user-error "Buffer isn't visiting a file"))))))
-  (let ((toplevel (or (magit-toplevel)
-                      (user-error "Not in git repository"))))
+  (magit-with-toplevel
     (if revision
         (magit-find-file revision file)
-      (let ((default-directory toplevel))
+      (let ((default-directory default-directory))
         (find-file file)))
+    ;; ^ Make sure this doesn't affect the value used below.  b640c6f
     (widen)
-    (let ((default-directory toplevel))
-      (when line
-        (setq magit-blame-recursive-p t)
-        (goto-char (point-min))
-        (forward-line (1- line)))
-      (unless magit-blame-mode
-        (setq magit-blame-cache (make-hash-table :test 'equal))
-        (let ((show-headings magit-blame-show-headings))
-          (magit-blame-mode 1)
-          (setq-local magit-blame-show-headings show-headings))
-        (message "Blaming...")
-        (let ((magit-process-popup-time -1)
-              (inhibit-magit-refresh t))
-          (magit-run-git-async
-           "blame" "--incremental" args
-           "-L" (format "%s,%s"
-                        (line-number-at-pos (window-start))
-                        (line-number-at-pos (1- (window-end nil t))))
-           revision "--" file))
-        (setq magit-blame-process magit-this-process)
-        (set-process-filter magit-this-process 'magit-blame-process-filter)
-        (set-process-sentinel
-         magit-this-process
-         `(lambda (process event)
-            (when (memq (process-status process) '(exit signal))
-              (magit-process-sentinel process event)
-              (magit-blame-assert-buffer process)
-              (with-current-buffer (process-get process 'command-buf)
-                (when magit-blame-mode
-                  (let ((magit-process-popup-time -1)
-                        (inhibit-magit-refresh t)
-                        (default-directory ,default-directory))
-                    (magit-run-git-async "blame" "--incremental" ,@args
-                                         ,revision "--" ,file))
-                  (setq magit-blame-process magit-this-process)
-                  (set-process-filter
-                   magit-this-process 'magit-blame-process-filter)
-                  (set-process-sentinel
-                   magit-this-process 'magit-blame-process-sentinel))))))))))
+    (when line
+      (setq magit-blame-recursive-p t)
+      (goto-char (point-min))
+      (forward-line (1- line)))
+    (unless magit-blame-mode
+      (setq magit-blame-cache (make-hash-table :test 'equal))
+      (let ((show-headings magit-blame-show-headings))
+        (magit-blame-mode 1)
+        (setq-local magit-blame-show-headings show-headings))
+      (message "Blaming...")
+      (let ((magit-process-popup-time -1)
+            (inhibit-magit-refresh t))
+        (magit-run-git-async
+         "blame" "--incremental" args
+         "-L" (format "%s,%s"
+                      (line-number-at-pos (window-start))
+                      (line-number-at-pos (1- (window-end nil t))))
+         revision "--" file))
+      (setq magit-blame-process magit-this-process)
+      (set-process-filter magit-this-process 'magit-blame-process-filter)
+      (set-process-sentinel
+       magit-this-process
+       `(lambda (process event)
+          (when (memq (process-status process) '(exit signal))
+            (magit-process-sentinel process event)
+            (magit-blame-assert-buffer process)
+            (with-current-buffer (process-get process 'command-buf)
+              (when magit-blame-mode
+                (let ((magit-process-popup-time -1)
+                      (inhibit-magit-refresh t)
+                      (default-directory ,default-directory))
+                  (magit-run-git-async "blame" "--incremental" ,@args
+                                       ,revision "--" ,file))
+                (setq magit-blame-process magit-this-process)
+                (set-process-filter
+                 magit-this-process 'magit-blame-process-filter)
+                (set-process-sentinel
+                 magit-this-process 'magit-blame-process-sentinel)))))))))
 
 (defun magit-blame-process-sentinel (process event)
   (let ((status (process-status process)))

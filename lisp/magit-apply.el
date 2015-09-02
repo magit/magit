@@ -151,7 +151,7 @@ requiring confirmation."
                (magit-completing-read "Stage file" choices
                                       nil t nil nil default)
              default))))
-  (let ((default-directory (magit-toplevel)))
+  (magit-with-toplevel
     (magit-stage-1 nil (list file))))
 
 ;;;###autoload
@@ -166,7 +166,7 @@ ignored) files.
                                   (magit-confirm 'stage-all-changes))
                         (user-error "Abort"))
                       (list current-prefix-arg)))
-  (let ((default-directory (magit-toplevel)))
+  (magit-with-toplevel
     (magit-stage-1 (if all "--all" "-u"))))
 
 (defun magit-stage-1 (arg &optional files)
@@ -230,7 +230,7 @@ without requiring confirmation."
                (magit-completing-read "Unstage file" choices
                                       nil t nil nil default)
              default))))
-  (let ((default-directory (magit-toplevel)))
+  (magit-with-toplevel
     (magit-unstage-1 (list file))))
 
 (defun magit-unstage-1 (files)
