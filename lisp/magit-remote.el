@@ -347,6 +347,7 @@ branch as default."
   "Popup console for patch commands."
   'magit-commands
   :man-page "git-format-patch"
+  :switches '((?c "Cover letter"     "--cover-letter"))
   :options  '((?f "From"             "--from=")
               (?t "To"               "--to=")
               (?c "CC"               "--cc=")
