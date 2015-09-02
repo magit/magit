@@ -270,16 +270,17 @@ many \"branches\" of each wip ref are shown."
              args files))
 
 (defun magit-wip-log-get-tips (wipref count)
-  (let ((reflog (magit-git-lines "reflog" wipref)) tips)
-    (while (and reflog (> count 1))
-      (setq reflog (cl-member "^[^ ]+ [^:]+: restart autosaving"
-                              reflog :test #'string-match-p))
-      (when (and (cadr reflog)
-                 (string-match "^[^ ]+ \\([^:]+\\)" (cadr reflog)))
-        (push (match-string 1 (cadr reflog)) tips))
-      (setq reflog (cddr reflog))
-      (cl-decf count))
-    (cons wipref (nreverse tips))))
+  (-when-let (reflog (magit-git-lines "reflog" wipref))
+    (let (tips)
+      (while (and reflog (> count 1))
+        (setq reflog (cl-member "^[^ ]+ [^:]+: restart autosaving"
+                                reflog :test #'string-match-p))
+        (when (and (cadr reflog)
+                   (string-match "^[^ ]+ \\([^:]+\\)" (cadr reflog)))
+          (push (match-string 1 (cadr reflog)) tips))
+        (setq reflog (cddr reflog))
+        (cl-decf count))
+      (cons wipref (nreverse tips)))))
 
 ;;; magit-wip.el ends soon
 (provide 'magit-wip)

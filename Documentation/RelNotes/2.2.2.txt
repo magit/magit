@@ -34,4 +34,7 @@ This is a bugfix release.
 * After failing to clone, `magit-clone' also tried to show the status
   of the non-existent clone.  #2203
 
+* `magit-wip-log' did not display a log if the working tree or index
+  ref did not exist.
+
 This release also contains various documentation fixes.
