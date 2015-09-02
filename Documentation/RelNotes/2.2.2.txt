@@ -5,9 +5,6 @@ UNRELEASED.
 
 This is a bugfix release.
 
-* `magit-toplevel' did not follow symlinks to subdirectories of
-  repositories.  #2135 #2209
-
 * `magit-diff-wash-diff' choked on unmerged binary files.  #2211
 
 * `magit-blame-popup' did not allow empty input when reading a value
