@@ -151,7 +151,7 @@ FILE has to be relative to the top directory of the repository."
                    (buffer-modified-p ediff-buffer-C)
                    (with-current-buffer ediff-buffer-C
                      (when (y-or-n-p
-                            (format "Save file %s? " (buffer-file-name)))
+                            (format "Save file %s? " buffer-file-name))
                        (save-buffer))))
               ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
               ,@(if bufB
