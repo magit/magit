@@ -1628,7 +1628,7 @@ Staging and applying changes is documented in info node
       (insert ?\n))))
 
 (defun magit-revision-set-visibility (section)
-  "Preserve section visibility when displaying another commit in."
+  "Preserve section visibility when displaying another commit."
   (and (derived-mode-p 'magit-revision-mode)
        (eq (magit-section-type section) 'file)
        (member (magit-section-value section) magit-diff-hidden-files)
