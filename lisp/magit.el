@@ -2054,7 +2054,7 @@ Run the command in the top-level directory of the current repository.
   (let ((dir (if (or root current-prefix-arg)
                  (or (magit-toplevel)
                      (user-error "Not inside a Git repository"))
-               (expand-file-name default-directory))))
+               default-directory)))
     (list (magit-read-string (format prompt (abbreviate-file-name dir))
                              nil 'magit-git-command-history)
           dir)))
