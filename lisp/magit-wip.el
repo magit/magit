@@ -32,7 +32,6 @@
 
 (require 'magit-core)
 (require 'magit-log)
-(require 'format-spec)
 
 ;;; Options
 
