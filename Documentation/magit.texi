@@ -356,9 +356,9 @@ or even all features belonging to a package.
 
 @item
 Furthermore the old dependencies @code{git-commit-mode} and @code{git-rebase-mode}
-have to be removed because they are no longer used by the @code{2.1.0}
-release and later, and get in the way of their successors @code{git-commit}
-and @code{git-rebase}.
+  have to be removed because they are no longer used by the @code{2.1.0}
+  release and later, and get in the way of their successors @code{git-commit}
+  and @code{git-rebase}.
 @end itemize
 
 So please uninstall the packages @code{magit}, @code{git-commit-mode}, and
