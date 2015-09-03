@@ -58,7 +58,9 @@ The headings can also be toggled locally using command
 This modes are turned off when Magit-Blame mode is turned on,
 and then turned on again when turning off the latter."
   :group 'magit-blame
-  :type '(repeat function))
+  :type '(repeat (symbol :tag "Mode")))
+
+(make-variable-buffer-local 'magit-blame-disabled-modes)
 
 (defcustom magit-blame-mode-lighter " Blame"
   "The mode-line lighter of the Magit-Blame mode."
@@ -134,7 +136,6 @@ and then turned on again when turning off the latter."
 
 (defvar-local magit-blame-buffer-read-only nil)
 (defvar-local magit-blame-cache nil)
-(defvar-local magit-blame-disabled-modes nil)
 (defvar-local magit-blame-process nil)
 (defvar-local magit-blame-recursive-p nil)
 (defvar-local magit-blame-separator nil)
