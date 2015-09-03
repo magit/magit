@@ -57,6 +57,7 @@ Contributors
 - Andrew Schwartzmeyer <andrew@schwartzmeyer.com>
 - Andrey Smirnov <andrew.smirnov@gmail.com>
 - Andy Sawyer <git@pureabstract.org>
+- Barak A. Pearlmutter <barak+git@pearlmutter.net>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
 - Ben Walton <bwalton@artsci.utoronto.ca>
 - Bradley Wright <brad@intranation.com>
