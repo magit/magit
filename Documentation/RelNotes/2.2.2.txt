@@ -1,7 +1,7 @@
 Magit v2.2.2 Release Notes
 ==========================
 
-UNRELEASED.
+Released 3 September 2015 by Jonas Bernoulli.
 
 This is a bugfix release.
 
@@ -36,3 +36,10 @@ This is a bugfix release.
 
 This release also contains various documentation fixes and code
 clean-ups.
+
+Authors
+-------
+
+    29  Jonas Bernoulli
+     5  Kyle Meyer
+     1  Barak A. Pearlmutter
