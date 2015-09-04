@@ -67,30 +67,14 @@ displayed.  Otherwise fall back to regular region highlighting."
   :type 'hook
   :options '(magit-section-update-region magit-diff-update-hunk-region))
 
-(defcustom magit-restore-window-configuration t
-  "Whether quitting a Magit buffer restores previous window configuration.
-
-Function `magit-mode-display-buffer' is used to display and
-select Magit buffers.  Unless the buffer was already displayed in
-a window of the selected frame it also stores the previous window
-configuration.  If this option is non-nil that configuration will
-later be restored by `magit-mode-bury-buffer', provided the
-buffer has not since been displayed in another frame.
-
-This works best when only two windows are usually displayed in a
-frame.  If this isn't the case setting then the default value
-might lead to undesirable behaviour.  Also quitting a Magit
-buffer while another Magit buffer that was created earlier is
-still displayed will cause that buffer to be hidden, which might
-or might not be what you want.
-
-Note that if this was previously disabled, then setting it to t
-does not effect Magit buffers that already exist, because the
-previous window configurations are only stored if and only if
-this option is non-nil."
-  :package-version '(magit . "2.1.0")
+(defcustom magit-bury-buffer-function 'magit-restore-window-configuration
+  "The function used to bury or kill the current Magit buffer."
+  :package-version '(magit . "2.3.0")
   :group 'magit
-  :type 'boolean)
+  :type '(radio (function-item quit-window)
+                (function-item magit-mode-quit-window)
+                (function-item magit-restore-window-configuration)
+                (function :tag "Function")))
 
 (defcustom magit-refresh-verbose nil
   "Whether to revert Magit buffers verbosely."
@@ -462,13 +446,18 @@ the function `magit-toplevel'."
   (let ((section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
-      (when magit-restore-window-configuration
+      (when (eq magit-bury-buffer-function 'magit-restore-window-configuration)
         (magit-save-window-configuration))))
   (funcall (or switch-function
                (if (derived-mode-p 'magit-mode)
                    'switch-to-buffer
                  'pop-to-buffer))
            buffer)
+  (when (eq magit-bury-buffer-function 'magit-mode-quit-window)
+    (let ((window (get-buffer-window buffer)))
+      (when (and (window-live-p window)
+                 (not (window-prev-buffers window)))
+        (set-window-parameter window 'magit-dedicated t))))
   buffer)
 
 (defun magit-mode-get-buffers ()
@@ -508,15 +497,32 @@ the function `magit-toplevel'."
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
 With a prefix argument, kill the buffer instead.
-
-If `magit-restore-window-configuration' is non-nil and the last
-configuration stored by `magit-mode-display-buffer' originates
-from the selected frame then restore it after burying/killing
-the buffer."
+This is done using `magit-bury-buffer-function'."
   (interactive "P")
-  (if magit-restore-window-configuration
-      (magit-restore-window-configuration kill-buffer)
-    (quit-window kill-buffer)))
+  (funcall magit-bury-buffer-function kill-buffer))
+
+(defun magit-mode-quit-window (kill-buffer)
+  "Quit the selected window and bury its buffer.
+
+This behaves similar to `quit-window', but when the window
+was originally created to display a Magit buffer and the
+current buffer is the last remaining Magit buffer that was
+ever displayed in the selected window, then delete that
+window."
+  (if (or (one-window-p)
+          (--first (let ((buffer (car it)))
+                     (and (not (eq buffer (current-buffer)))
+                          (buffer-live-p buffer)
+                          (or (not (window-parameter nil 'magit-dedicated))
+                              (with-current-buffer buffer
+                                (derived-mode-p 'magit-mode
+                                                'magit-process-mode)))))
+                   (window-prev-buffers)))
+      (quit-window kill-buffer)
+    (let ((window (selected-window)))
+      (quit-window kill-buffer)
+      (when (window-live-p window)
+        (delete-window window)))))
 
 (defun magit-rename-buffer (&optional newname)
   "Rename the current buffer, so that Magit won't reuse it.
