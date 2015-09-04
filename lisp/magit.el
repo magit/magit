@@ -1094,6 +1094,16 @@ is no file at point then instead visit `default-directory'."
                                (expand-file-name it)
                              default-directory)))
 
+;;;###autoload
+(defun magit-checkout-file (rev file)
+  "Checkout FILE from REV."
+  (interactive
+   (let ((rev (magit-read-branch-or-commit
+               "Checkout from revision" magit-buffer-revision)))
+     (list rev (magit-read-file-from-rev rev "Checkout file"))))
+  (magit-with-toplevel
+    (magit-run-git "checkout" rev "--" file)))
+
 ;;; Manipulate
 ;;;; Init
 

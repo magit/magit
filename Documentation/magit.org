@@ -3251,6 +3251,13 @@ Also see [[info:gitman#git-reset]].
   Reset the ~HEAD~, index, and working tree to some commit read from the
   user and defaulting to the commit at point.
 
+- Key: M-x magit-checkout-file, magit-checkout-file
+
+  Update file in the working tree and index to the contents from a
+  revision.
+
+  Both the revision and file are read from the user.
+
 ** Stashing
 
 Also see [[info:gitman#git-stash]].

@@ -30,5 +30,7 @@ THIS IS NOT COMPLETE.
 
 * Rebasing commands now can start with a root commit.  #2187
 
+* New command `magit-checkout-file'.
+
 Authors
 -------
