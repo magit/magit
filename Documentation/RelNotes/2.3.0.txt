@@ -21,5 +21,9 @@ Changes since v2.2.0
 
 THIS IS NOT COMPLETE.
 
+* Added `--interactive' switch to `magit-rebase-popup' so that rebase
+  variants which normally perform a non-interactive rebase can be used
+  interactively too.  #2186
+
 Authors
 -------

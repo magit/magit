@@ -180,81 +180,67 @@ and ignore the option.
     (magit-run-git-with-editor "commit" "--amend" "--only" args)))
 
 ;;;###autoload
-(defun magit-commit-fixup (&optional commit args confirm)
+(defun magit-commit-fixup (&optional commit)
   "Create a fixup commit.
-With a prefix argument the target commit has to be confirmed.
+
+With a prefix argument the target COMMIT has to be confirmed.
 Otherwise the commit at point may be used without confirmation
-depending on the value of option `magit-commit-squash-confirm'.
-\n(git commit --no-edit --fixup=COMMIT [ARGS])"
-  (interactive (magit-commit-squash-read-args))
-  (magit-commit-squash-internal 'magit-commit-fixup "--fixup"
-                                commit args confirm))
+depending on the value of option `magit-commit-squash-confirm'."
+  (interactive (list (magit-commit-at-point)))
+  (magit-commit-squash-internal "--fixup" commit))
 
 ;;;###autoload
-(defun magit-commit-squash (&optional commit args confirm)
+(defun magit-commit-squash (&optional commit)
   "Create a squash commit, without editing the squash message.
-With a prefix argument the target commit has to be confirmed.
+
+With a prefix argument the target COMMIT has to be confirmed.
 Otherwise the commit at point may be used without confirmation
-depending on the value of option `magit-commit-squash-confirm'.
-\n(git commit --no-edit --squash=COMMIT [ARGS])"
-  (interactive (magit-commit-squash-read-args))
-  (magit-commit-squash-internal 'magit-commit-squash "--squash"
-                                commit args confirm))
+depending on the value of option `magit-commit-squash-confirm'."
+  (interactive (list (magit-commit-at-point)))
+  (magit-commit-squash-internal "--squash" commit))
 
 ;;;###autoload
-(defun magit-commit-augment (&optional commit args confirm)
+(defun magit-commit-augment (&optional commit)
   "Create a squash commit, editing the squash message.
-With a prefix argument the target commit has to be confirmed.
+
+With a prefix argument the target COMMIT has to be confirmed.
 Otherwise the commit at point may be used without confirmation
-depending on the value of option `magit-commit-squash-confirm'.
-\n(git commit --squash=COMMIT [ARGS])"
-  (interactive (magit-commit-squash-read-args))
-  (magit-commit-squash-internal 'magit-commit-augment "--squash"
-                                commit args confirm t))
+depending on the value of option `magit-commit-squash-confirm'."
+  (interactive (list (magit-commit-at-point)))
+  (magit-commit-squash-internal "--squash" commit nil t))
 
 ;;;###autoload
-(defun magit-commit-instant-fixup (&optional commit args)
-  "Create a fixup commit and instantly rebase.
-\n(git commit --no-edit --fixup=COMMIT ARGS;
- git rebase -i COMMIT^ --autosquash --autostash)"
-  (interactive (list (magit-commit-at-point)
-                     (magit-commit-arguments)))
-  (magit-commit-squash-internal
-   (lambda (c a)
-     (when (setq c (magit-commit-fixup c a))
-       (magit-rebase-autosquash (concat c "^") (list "--autostash"))))
-   "--fixup" commit args t))
+(defun magit-commit-instant-fixup (&optional commit)
+  "Create a fixup commit targeting COMMIT and instantly rebase."
+  (interactive (list (magit-commit-at-point)))
+  (magit-commit-squash-internal "--fixup" commit t))
 
 ;;;###autoload
-(defun magit-commit-instant-squash (&optional commit args)
-  "Create a squash commit and instantly rebase.
-\n(git commit --no-edit --squash=COMMIT ARGS;
- git rebase -i COMMIT^ --autosquash --autostash)"
-  (interactive (list (magit-commit-at-point)
-                     (magit-commit-arguments)))
-  (magit-commit-squash-internal
-   (lambda (c a)
-     (when (setq c (magit-commit-squash c a))
-       (magit-rebase-autosquash (concat c "^") (list "--autostash"))))
-   "--squash" commit args t))
+(defun magit-commit-instant-squash (&optional commit)
+  "Create a squash commit targeting COMMIT and instantly rebase."
+  (interactive (list (magit-commit-at-point)))
+  (magit-commit-squash-internal "--squash" commit t))
 
-(defun magit-commit-squash-read-args ()
-  (list (magit-commit-at-point)
-        (magit-commit-arguments)
-        (or current-prefix-arg magit-commit-squash-confirm)))
-
-(defun magit-commit-squash-internal
-    (fn option commit args confirm &optional edit)
-  (when (setq args (magit-commit-assert args t))
-    (if (and commit (not confirm))
+(defun magit-commit-squash-internal (option commit &optional rebase edit confirmed)
+  (-when-let (args (magit-commit-assert (magit-commit-arguments) t))
+    (if (and commit
+             (or confirmed
+                 (not (or rebase
+                          current-prefix-arg
+                          magit-commit-squash-confirm))))
         (let ((magit-diff-auto-show nil))
           (magit-run-git-with-editor "commit"
                                      (unless edit "--no-edit")
-                                     (concat option "=" commit) args)
-          commit)
+                                     (concat option "=" commit)
+                                     args))
       (magit-log-select
-        `(lambda (commit) (,fn commit (list ,@args)))
-        "Type %p on the commit to squash/fixup into it,")
+        `(lambda (commit)
+           (magit-commit-squash-internal ,option commit ,rebase ,edit t)
+           ,@(when rebase
+               `((magit-rebase-autosquash (concat commit "^")
+                                          (list "--autostash")))))
+        (format "Type %%p on a commit to %s into it,"
+                (substring option 2)))
       (when (magit-diff-auto-show-p 'log-select)
         (let ((magit-diff-switch-buffer-function 'display-buffer))
           (magit-diff-staged))))))

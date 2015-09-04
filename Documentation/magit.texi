@@ -4011,7 +4011,25 @@ UPSTREAM are rebased.
 Start a non-interactive rebase sequence with commits from START to
 @code{HEAD} onto NEWBASE.  START has to be selected from a list of recent
 commits.
+@end table
 
+Note that the popup also features the infix argument @code{--interactive}.
+This can be used to turn one of the above non-interactive rebase
+variants into an interactive rebase.
+
+For example if you want to clean up a feature branch and at the same
+time rebase it onto @code{master}, then you could use @code{r-ir}.  But we recommend
+that you instead do that in two steps.  First use @code{rs} to cleanup the
+feature branch, and then in a second step @code{rl} to rebase it onto @code{master}.
+That way if things turn out to be more complicated than you thought
+and/or you make a mistake and have to start over, then you only have
+to redo half the work.
+
+Explicitly enabling @code{--interactive} won't have an effect on the
+following commands as they always use that argument anyway, even if it
+is not enabled in the popup.
+
+@table @asis
 @kindex r e
 @cindex magit-rebase-interactive
 @item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-interactive})

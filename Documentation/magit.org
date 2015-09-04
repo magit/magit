@@ -2849,6 +2849,22 @@ following commands.
   ~HEAD~ onto NEWBASE.  START has to be selected from a list of recent
   commits.
 
+Note that the popup also features the infix argument ~--interactive~.
+This can be used to turn one of the above non-interactive rebase
+variants into an interactive rebase.
+
+For example if you want to clean up a feature branch and at the same
+time rebase it onto ~master~, then you could use ~r-ir~.  But we recommend
+that you instead do that in two steps.  First use ~rs~ to cleanup the
+feature branch, and then in a second step ~rl~ to rebase it onto ~master~.
+That way if things turn out to be more complicated than you thought
+and/or you make a mistake and have to start over, then you only have
+to redo half the work.
+
+Explicitly enabling ~--interactive~ won't have an effect on the
+following commands as they always use that argument anyway, even if it
+is not enabled in the popup.
+
 - Key: r e, magit-rebase-interactive
 
   Start an interactive rebase sequence.
