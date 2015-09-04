@@ -1806,14 +1806,6 @@ without having to using one of the diff popups.
 
 *** Diff options
 
-- User Option: magit-diff-show-diffstat
-
-  Whether to show diffstat in diff buffers.
-
-- User Option: magit-diff-show-xref-buttons
-
-  Whether to show buffer history buttons in diff buffers.
-
 - User Option: magit-diff-auto-show
 
   Whether to automatically show the relevant diff or commit.
@@ -1883,21 +1875,25 @@ without having to using one of the diff popups.
 
 *** Revision buffer
 
-- User Option: magit-revision-show-diffstat
-
-  Whether to show diffstat in revision buffers.
-
-- User Option: magit-revision-show-notes
-
-  Whether to show notes in revision buffers.
-
-- User Option: magit-revision-show-xref-buttons
-
-  Whether to show buffer history buttons in revision buffers.
-
 - User Option: magit-revision-insert-related-refs
 
   Whether to show related refs in revision buffers.
+
+- User Option: magit-revision-show-gravatar
+
+  Whether to show gravatar images in revision buffers.
+
+  If non-nil, then the value has to be a cons-cell which specifies
+  where the gravatar images for the author and/or the committer are
+  inserted inside the text that was previously inserted according
+  to =magit-revision-header-format=.
+
+  Both cells are regular expressions.  The car specifies where to
+  insert the author gravatar image.  The top halve of the image is
+  inserted right after the matched text, the bottom halve on the
+  next line at the same offset.  The cdr specifies where to insert
+  the committer image, accordingly.  Either the car or the cdr may
+  be nil.
 
 ** Ediffing
 

@@ -40,5 +40,45 @@ THIS IS NOT COMPLETE.
 * Added new function `magit-mode-quit-window' as a simpler variant to
   `magit-restore-window-configuration'.  #2193
 
+* Information about related refs in `magit-revision-mode' buffers are
+  now grouped in the same section as other headers and are formatted
+  like those other headers instead of like diffstats.  The redundant
+  header which previously grouped the related refs section is gone.
+  All headers are inserted by the new `magit-insert-revision-headers'
+  section inserter.  #2216
+
+* No longer avoid calling git more than absolutely necessary when
+  creating a `magit-revision-mode' buffer.  This simplifies parsing,
+  makes it simpler to prettify how information is presented, allows
+  users to customize how and in what order information is presented,
+  and prepares for faster, asynchronously created diffs.  #2216
+
+* The various sections in revision buffers are now inserted using new
+  section inserters named `magit-insert-revision-{*}', all of which
+  are part of the default value of `magit-revision-sections-hook'.
+  #2216
+
+* The various sections in diff buffers are now inserted using new
+  section inserters named `magit-insert-diff-{*}', all of which are
+  part of the default value of `magit-diff-sections-hook'.  #2216
+
+* Added new option `magit-revision-headers-format' whose value is
+  passed to `git show --format=' to insert most of the headers,
+  excluding the related-refs headers.  The default value now uses
+  placeholders which respect information in the file ".mailmap".
+  #2216
+
+* Removed options `magit-revision-show-notes',
+  `magit-diff-show-xref-buttons', `magit-revision-show-xref-buttons',
+  `magit-diff-show-diffstat', and `magit-revision-show-diffstat'.
+  Whether these sections are inserted is now controlled using the
+  hooks `magit-diff-section-hook' and `magit-revision-section-hook'.
+  #2216
+
+* Gravatar images are now shown in `magit-revision-buffers' be
+  default.  New option `magit-revision-show-gravatars' controls
+  whether these images should be inserted and can also be used to
+  adjust to customization of `magit-revision-headers-format'.  #2216
+
 Authors
 -------

@@ -815,9 +815,17 @@ Return a list of two integers: (A>B B>A)."
       (when (and oldrev (not stashish))
         (magit-git-success "update-ref" "-m" "enable reflog" ref oldrev "")))))
 
-(defun magit-rev-format (format &optional rev)
-  "Return output of `git show -s --format=FORMAT [REV]' --."
-  (magit-git-string "show" "-s" (concat "--format=" format) rev "--"))
+(defun magit-rev-format (format &optional rev args)
+  (let ((str (magit-git-string "show" "--no-patch"
+                               (concat "--format=" format) args
+                               (concat rev "^{commit}") "--")))
+    (unless (string-equal str "")
+      str)))
+
+(defun magit-rev-insert-format (format &optional rev args)
+  (magit-git-insert "show" "--no-patch"
+                    (concat "--format=" format) args
+                    (concat rev "^{commit}") "--"))
 
 (defun magit-format-rev-summary (rev)
   (--when-let (magit-rev-format "%h %s" rev)
@@ -854,6 +862,9 @@ Return a list of two integers: (A>B B>A)."
         (setq head  (magit-git-string "symbolic-ref" "HEAD")
               names (cons (or head "@") (delete head (delete "HEAD" names)))))
       (mapconcat (lambda (it) (magit-format-ref-label it head)) names " "))))
+
+(defun magit-object-type (object)
+  (magit-git-string "cat-file" "-t" object))
 
 (defmacro magit-with-blob (commit file &rest body)
   (declare (indent 2)
