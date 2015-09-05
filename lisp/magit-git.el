@@ -313,7 +313,7 @@ absolute path is returned."
       (setq it (file-name-as-directory (magit-expand-git-file-name it)))
       (if path (expand-file-name (convert-standard-filename path) it) it))))
 
-(defun magit-toplevel (&optional file strict)
+(defun magit-toplevel (&optional file)
   (magit--with-safe-default-directory file
     (-if-let (topdir (magit-rev-parse-safe "--show-toplevel"))
         (let (updir)
@@ -340,17 +340,16 @@ absolute path is returned."
               updir
             (concat (file-remote-p default-directory)
                     (file-name-as-directory topdir))))
-      (unless strict
-        (-when-let (gitdir (magit-rev-parse-safe "--git-dir"))
-          (setq gitdir (file-name-as-directory
-                        (if (file-name-absolute-p gitdir)
-                            ;; We might have followed a symlink.
-                            (concat (file-remote-p default-directory) gitdir)
-                          (expand-file-name gitdir))))
-          (if (magit-bare-repo-p)
-              gitdir
-            ;; Step outside the control directory to enter the working tree.
-            (file-name-directory (directory-file-name gitdir))))))))
+      (-when-let (gitdir (magit-rev-parse-safe "--git-dir"))
+        (setq gitdir (file-name-as-directory
+                      (if (file-name-absolute-p gitdir)
+                          ;; We might have followed a symlink.
+                          (concat (file-remote-p default-directory) gitdir)
+                        (expand-file-name gitdir))))
+        (if (magit-bare-repo-p)
+            gitdir
+          ;; Step outside the control directory to enter the working tree.
+          (file-name-directory (directory-file-name gitdir)))))))
 
 (defmacro magit-with-toplevel (&rest body)
   (declare (indent defun) (debug (body)))
