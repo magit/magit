@@ -1677,7 +1677,7 @@ or a ref which is not a branch, then it inserts nothing."
       (insert ?\n))))
 
 (defun magit-insert-revision-gravatars (rev beg)
-  (when magit-revision-show-gravatars
+  (when (and magit-revision-show-gravatars (window-system))
     (require 'gravatar)
     (magit-insert-revision-gravatar beg (magit-rev-format "%aE" rev)
                                     (car magit-revision-show-gravatars))
