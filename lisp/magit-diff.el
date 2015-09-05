@@ -1688,7 +1688,7 @@ or a ref which is not a branch, then it inserts nothing."
 (defun magit-insert-revision-gravatar (beg email regexp)
   (when (and email (goto-char beg) (re-search-forward regexp nil t))
     (let* ((offset   (length (match-string 0)))
-           (font-obj (query-font (font-at (point))))
+           (font-obj (query-font (font-at (point) (get-buffer-window))))
            (size     (* 2 (+ (aref font-obj 4) (aref font-obj 5))))
            (align-to (+ offset (ceiling (/ size (aref font-obj 7) 1.0))))
            (gravatar-size (- size 2)))
