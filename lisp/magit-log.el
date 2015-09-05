@@ -540,7 +540,7 @@ completion candidates."
 
 ;;;###autoload
 (defun magit-log-buffer-file (&optional follow)
-  "Show log for the file visited in the current buffer.
+  "Show log for the blob or file visited in the current buffer.
 With a prefix argument or when `--follow' is part of
 `magit-log-arguments', then follow renames."
   (interactive "P")
@@ -555,7 +555,7 @@ With a prefix argument or when `--follow' is part of
                               (cons "--follow" args)
                             args))
                         (list (file-relative-name file (magit-toplevel))))
-    (user-error "Buffer isn't visiting a blob or a file in a Git repository"))
+    (user-error "Buffer isn't visiting a file"))
   (magit-log-goto-same-commit))
 
 ;;;###autoload
