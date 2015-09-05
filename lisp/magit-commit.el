@@ -334,7 +334,7 @@ actually insert the entry."
       (with-current-buffer buf
         (goto-char pos)
         (funcall magit-commit-add-log-insert-function log
-                 (file-relative-name buffer-file-name (magit-toplevel))
+                 (magit-file-relative-name)
                  (add-log-current-defun))))))
 
 (defun magit-commit-add-log-insert (buffer file defun)

@@ -544,8 +544,7 @@ completion candidates."
 With a prefix argument or when `--follow' is part of
 `magit-log-arguments', then follow renames."
   (interactive "P")
-  (-if-let (file (or (buffer-file-name (buffer-base-buffer))
-                     magit-buffer-file-name))
+  (-if-let (file (magit-file-relative-name))
       (magit-mode-setup magit-log-buffer-name-format nil
                         #'magit-log-mode
                         #'magit-log-refresh-buffer
@@ -556,7 +555,7 @@ With a prefix argument or when `--follow' is part of
                               (cons "--follow" args)
                             args))
                         (list (file-relative-name file (magit-toplevel))))
-    (user-error "Buffer isn't visiting a file"))
+    (user-error "Buffer isn't visiting a blob or a file in a Git repository"))
   (magit-log-goto-same-commit))
 
 ;;;###autoload
