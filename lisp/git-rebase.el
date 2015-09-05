@@ -120,6 +120,7 @@
 (defvar git-rebase-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map special-mode-map)
+    (define-key map (kbd "q")    'undefined)
     (define-key map [remap undo] 'git-rebase-undo)
     (define-key map (kbd "RET") 'git-rebase-show-commit)
     (define-key map (kbd "SPC") 'magit-diff-show-or-scroll-up)
