@@ -357,7 +357,7 @@ The following `format'-like specs are supported:
                                      (magit-stash-at-point))
                                 (magit-read-stash "Show stash"))
                             nil)
-                      (magit-diff-arguments)))
+                      (delete "--stat" (magit-diff-arguments))))
   (magit-mode-setup magit-stash-buffer-name-format
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-stash-mode
@@ -386,7 +386,7 @@ The following `format'-like specs are supported:
      (magit-insert-section (,(intern (format "stashed-%s" subtype)))
        (magit-insert-heading (format "%s %s:" (capitalize stash) ',subtype))
        (magit-git-wash #'magit-diff-wash-diffs
-         "diff" (cdr magit-refresh-args) "--no-prefix"
+         "diff" (cdr magit-refresh-args) "--no-prefix" "-u"
          (format ,format stash stash) "--" ,files))))
 
 (defun magit-insert-stash-index ()
