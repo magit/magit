@@ -313,8 +313,8 @@ absolute path is returned."
       (setq it (file-name-as-directory (magit-expand-git-file-name it)))
       (if path (expand-file-name (convert-standard-filename path) it) it))))
 
-(defun magit-toplevel (&optional file)
-  (magit--with-safe-default-directory file
+(defun magit-toplevel (&optional directory)
+  (magit--with-safe-default-directory directory
     (-if-let (topdir (magit-rev-parse-safe "--show-toplevel"))
         (let (updir)
           (if (and
@@ -405,7 +405,8 @@ tracked file."
       (setq file (or magit-buffer-file-name buffer-file-name))))
   (when (and file (or (not tracked)
                       (magit-file-tracked-p (file-relative-name file))))
-    (--when-let (magit-toplevel file)
+    (--when-let (magit-toplevel (magit--with-safe-default-directory file
+                                  default-directory))
       (file-relative-name file it))))
 
 (defun magit-file-tracked-p (file)
