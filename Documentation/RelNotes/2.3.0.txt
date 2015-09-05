@@ -86,5 +86,9 @@ THIS IS NOT COMPLETE.
   the same index as the previous hunk, but that often was very far
   away from where point was before the refresh.  #2227
 
+* The function `magit-toplevel' was refactored and many tests were
+  added.  It now returns the correct value when a symlink to a
+  sub-directory of a working tree is involved.  #2242
+
 Authors
 -------

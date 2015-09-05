@@ -314,6 +314,24 @@ absolute path is returned."
       (if path (expand-file-name (convert-standard-filename path) it) it))))
 
 (defun magit-toplevel (&optional directory)
+  "Return the absolute path to the toplevel of the current repository.
+
+From within the working tree or control directory of a repository
+return the absolute path to the toplevel directory of the working
+tree.  As a special case, from within a bare repository return
+the control directory instead.  When called outside a repository
+then return nil.
+
+When optional DIRECTORY is non-nil then return the toplevel for
+that directory instead of the one for `default-directory'.
+
+Try to respect the option `find-file-visit-truename', i.e.  when
+the value of that option is nil, then avoid needlessly returning
+the truename.  When a symlink to a sub-directory of the working
+tree is involved, or when called from within a sub-directory of
+the gitdir or from the toplevel of a gitdir, which itself is not
+located within the working tree, then it is not possible to avoid
+returning the truename."
   (magit--with-safe-default-directory directory
     (-if-let (topdir (magit-rev-parse-safe "--show-toplevel"))
         (let (updir)

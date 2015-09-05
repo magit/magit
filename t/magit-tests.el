@@ -53,6 +53,11 @@
       (should (equal (magit-toplevel   "repo-link/.git/")
                      (expand-file-name "repo-link/")))
       (should (equal (magit-toplevel   "repo-link/.git/objects/")
+                     ;; We could theoretically return "repo-link/"
+                     ;; here by going up until `--git-dir' gives us
+                     ;; "." .  But that would be a bit risky and Magit
+                     ;; never goes there anyway, so it's not worth it.
+                     ;; But in the doc-string we say we cannot do it.
                      (expand-file-name "repo/"))))))
 
 (ert-deftest magit-toplevel:tramp ()
