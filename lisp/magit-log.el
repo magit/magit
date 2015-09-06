@@ -1211,13 +1211,28 @@ commits."
         (magit-insert-unpulled-commits)
       (magit-insert-recent-commits t))))
 
+(defun magit-commit-count-limiting-args (num-args)
+  "Returns a list of arguments for `git log' that limit the
+number of commits as efficiently as possible using a combination
+of git revisions and -NUM-ARGS."
+  (let ((args (list (format "-%d" num-args))))
+    (-when-let (nrevs (magit-git-string "rev-list"
+                                        (format "--max-count=%d" (1+ num-args))
+                                        "--count"
+                                        "HEAD"))
+      (setq nrevs (string-to-number nrevs))
+      (when (> nrevs num-args)
+        (setq args (cons (format "HEAD~%d.." (1- nrevs))
+                         args))))
+    args))
+
 (defun magit-insert-recent-commits (&optional collapse)
   "Insert section showing recent commits.
 Show the last `magit-log-section-commit-count' commits."
   (magit-insert-section (recent nil collapse)
     (magit-insert-heading "Recent commits:")
-    (magit-insert-log nil (cons (format "-%d" magit-log-section-commit-count)
-                                magit-log-section-arguments))))
+    (magit-insert-log nil (nconc (magit-commit-count-limiting-args magit-log-section-commit-count)
+                                 magit-log-section-arguments))))
 
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
