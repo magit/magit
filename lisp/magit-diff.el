@@ -594,21 +594,56 @@ be nil."
 (put 'magit-diff-section-file-args 'permanent-local t)
 (put 'magit-diff-section-arguments 'permanent-local t)
 
+(defcustom magit-diff-use-sticky-arguments t
+  "How to re-use arguments from the previous diff command call.
+
+nil       Always use the default value for `magit-diff-arguments'
+          for all diff command calls.  Previous calls can still
+          be adjusted using `magit-diff-refresh-popup'.
+
+current   If the mode of the current buffer is derived from
+          `magit-diff-mode', use the arguments from that buffer.
+          Otherwise, use the default value for
+          `magit-diff-arguments'.
+
+t          If the mode of the current buffer is not derived from
+          `magit-diff-mode', use the values from the
+          `magit-diff-mode' buffer for the current repository, if
+          it exists.  Otherwise, use the default value for
+          `magit-diff-arguments'.
+
+          Note that the arguments are taken from the
+          `magit-diff-mode' buffer even if the to-be-selected
+          action does not generate a `magit-diff-mode' buffer (as
+          is the case for `magit-show-commit' and
+          `magit-stash-show').
+
+If the command is called using `magit-diff-popup', these
+arguments can be tweaked further before making the call."
+  :package-version '(magit . "2.2.0")
+  :group 'magit-diff
+  :type '(choice (const :tag "Use default" nil)
+                 (const :tag "Use current" current)
+                 (const :tag "Use existing" t)))
+
 (defun magit-diff-arguments (&optional refresh)
   (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
          (magit-popup-export-file-args magit-current-popup-args))
-        ((derived-mode-p 'magit-diff-mode)
-         (list (nth 2 magit-refresh-args)
-               (nth 3 magit-refresh-args)))
-        (refresh
-         (list magit-diff-section-arguments
-               magit-diff-section-file-args))
+        ((and refresh (not (derived-mode-p 'magit-diff-mode)))
+         (list magit-diff-section-arguments magit-diff-section-file-args))
         (t
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-diff-mode))
-             (with-current-buffer buffer
-               (list (nth 2 magit-refresh-args)
-                     (nth 3 magit-refresh-args)))
-           (list (default-value 'magit-diff-arguments) nil)))))
+         (magit-diff-get-buffer-args))))
+
+(defun magit-diff-get-buffer-args ()
+  (cond ((and magit-diff-use-sticky-arguments
+              (derived-mode-p 'magit-diff-mode))
+         (list (nth 2 magit-refresh-args) (nth 3 magit-refresh-args)))
+        ((and (eq magit-diff-use-sticky-arguments t)
+              (--when-let (magit-mode-get-buffer nil 'magit-diff-mode)
+                (with-current-buffer it
+                  (list (nth 2 magit-refresh-args) (nth 3 magit-refresh-args))))))
+        (t
+         (list (default-value 'magit-diff-arguments) nil))))
 
 (defun magit-diff-popup (arg)
   "Popup console for diff commands."
@@ -619,11 +654,7 @@ be nil."
          ;; we should get the current values.  However it is much
          ;; more likely that we will end up updating the diff buffer,
          ;; and we therefore use the value from that buffer.
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-diff-mode))
-             (with-current-buffer buffer
-               (magit-popup-import-file-args (nth 2 magit-refresh-args)
-                                             (nth 3 magit-refresh-args)))
-           (default-value 'magit-diff-arguments))))
+         (apply #'magit-popup-import-file-args (magit-diff-get-buffer-args))))
     (magit-invoke-popup 'magit-diff-popup nil arg)))
 
 (defun magit-diff-refresh-popup (arg)

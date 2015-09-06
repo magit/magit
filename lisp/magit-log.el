@@ -173,6 +173,35 @@ This is useful if you use really long branch names."
   :group 'magit-log
   :type 'boolean)
 
+(defcustom magit-log-use-sticky-arguments t
+  "How to re-use arguments from the previous log command call.
+
+Log commands can look in a number of places to determine what
+arguments to use.
+
+nil       Use the default value for `magit-log-arguments' for all
+          log command calls.  Previous calls can still
+          be adjusted using `magit-log-refresh-popup'.
+
+current   If the mode of the current buffer is derived from
+          `magit-log-mode', use the arguments from that buffer.
+          Otherwise, use the default value for
+          `magit-log-arguments'.
+
+t          If the mode of the current buffer is not derived from
+          `magit-log-mode', use the values from the
+          `magit-log-mode' buffer for the current repository, if
+          it exists.  Otherwise, use the default value for
+          `magit-log-arguments'.
+
+If the command is called using `magit-log-popup', these arguments
+can be tweaked further before making the call."
+  :package-version '(magit . "2.2.0")
+  :group 'magit-log
+  :type '(choice (const :tag "Use default" nil)
+                 (const :tag "Use current" current)
+                 (const :tag "Use existing" t)))
+
 (defface magit-log-graph
   '((((class color) (background light)) :foreground "grey30")
     (((class color) (background  dark)) :foreground "grey80"))
@@ -356,27 +385,26 @@ are no unpulled commits) show."
   (cond ((memq magit-current-popup
                '(magit-log-popup magit-log-refresh-popup))
          (magit-popup-export-file-args magit-current-popup-args))
-        ((derived-mode-p 'magit-log-mode)
-         (list (nth 1 magit-refresh-args)
-               (nth 2 magit-refresh-args)))
-        (refresh
+        ((and refresh (not (derived-mode-p 'magit-log-mode)))
          (list magit-log-section-arguments nil))
         (t
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-log-mode))
-             (with-current-buffer buffer
-               (list (nth 1 magit-refresh-args)
-                     (nth 2 magit-refresh-args)))
-           (list (default-value 'magit-log-arguments) nil)))))
+         (magit-log-get-buffer-args))))
+
+(defun magit-log-get-buffer-args ()
+  (cond ((and magit-log-use-sticky-arguments (derived-mode-p 'magit-log-mode))
+         (list (nth 1 magit-refresh-args) (nth 2 magit-refresh-args)))
+        ((and (eq magit-log-use-sticky-arguments t)
+              (--when-let (magit-mode-get-buffer nil 'magit-log-mode)
+                (with-current-buffer it
+                  (list (nth 1 magit-refresh-args) (nth 2 magit-refresh-args))))))
+        (t
+         (list (default-value 'magit-log-arguments) nil))))
 
 (defun magit-log-popup (arg)
   "Popup console for log commands."
   (interactive "P")
   (let ((magit-log-arguments
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-log-mode))
-             (with-current-buffer buffer
-               (magit-popup-import-file-args (nth 1 magit-refresh-args)
-                                             (nth 2 magit-refresh-args)))
-           (default-value 'magit-log-arguments))))
+         (apply #'magit-popup-import-file-args (magit-log-get-buffer-args))))
     (magit-invoke-popup 'magit-log-popup nil arg)))
 
 (defun magit-log-refresh-popup (arg)
