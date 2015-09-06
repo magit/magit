@@ -668,6 +668,16 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
     (setq args (remove "--follow" args)))
   (when (--any-p (string-match-p magit-log-remove-graph-re it) args)
     (setq args (remove "--graph" args)))
+  (when (and magit-log-cutoff-length
+             (= (length revs) 1)
+             (setq revs (car revs))
+             (not (string-match-p "\\.\\." revs))
+             (not (member revs '("--all" "--branches"))))
+    (setq revs (format "%s~%s..%s" revs
+                       (min (1- (string-to-number
+                                 (magit-git-string "rev-list" "--count" revs)))
+                            (max 1024 (* 2 magit-log-cutoff-length)))
+                       revs)))
   (magit-insert-section (logbuf)
     (magit-insert-log revs args files)))
 
@@ -1216,8 +1226,12 @@ commits."
 Show the last `magit-log-section-commit-count' commits."
   (magit-insert-section (recent nil collapse)
     (magit-insert-heading "Recent commits:")
-    (magit-insert-log nil (cons (format "-%d" magit-log-section-commit-count)
-                                magit-log-section-arguments))))
+    (magit-insert-log
+     (let ((beg (format "HEAD~%s" magit-log-section-commit-count)))
+       (and (magit-rev-verify beg)
+            (concat beg "..HEAD")))
+     (cons (format "-%d" magit-log-section-commit-count)
+           magit-log-section-arguments))))
 
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
