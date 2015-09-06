@@ -540,12 +540,11 @@ completion candidates."
 
 ;;;###autoload
 (defun magit-log-buffer-file (&optional follow)
-  "Show log for the file visited in the current buffer.
+  "Show log for the blob or file visited in the current buffer.
 With a prefix argument or when `--follow' is part of
 `magit-log-arguments', then follow renames."
   (interactive "P")
-  (-if-let (file (or (buffer-file-name (buffer-base-buffer))
-                     magit-buffer-file-name))
+  (-if-let (file (magit-file-relative-name))
       (magit-mode-setup magit-log-buffer-name-format nil
                         #'magit-log-mode
                         #'magit-log-refresh-buffer
@@ -1238,10 +1237,10 @@ These sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (unpulled-modules)
       (magit-insert-heading "Unpulled modules:")
-      (let ((topdir (magit-toplevel)))
+      (magit-with-toplevel
         (dolist (module modules)
           (let ((default-directory
-                  (expand-file-name (file-name-as-directory module) topdir)))
+                  (expand-file-name (file-name-as-directory module))))
             (-when-let (tracked (magit-get-tracked-ref))
               (magit-insert-section sec (file module t)
                 (magit-insert-heading
@@ -1296,10 +1295,10 @@ These sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (unpushed-modules)
       (magit-insert-heading "Unpushed modules:")
-      (let ((topdir (magit-toplevel)))
+      (magit-with-toplevel
         (dolist (module modules)
           (let ((default-directory
-                  (expand-file-name (file-name-as-directory module) topdir)))
+                  (expand-file-name (file-name-as-directory module))))
             (-when-let (tracked (magit-get-tracked-ref))
               (magit-insert-section sec (file module t)
                 (magit-insert-heading

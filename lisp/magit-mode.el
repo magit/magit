@@ -790,13 +790,14 @@ is saved without asking, the user is asked about each modified
 buffer which visits a file in the current repository.  Optional
 argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
-  (-when-let (topdir (magit-toplevel))
+  (-when-let (topdir (magit-rev-parse-safe "--show-toplevel"))
     (save-some-buffers
      arg (-partial (lambda (topdir)
                      (and buffer-file-name
                           ;; Avoid needlessly connecting to unrelated remotes.
                           (string-prefix-p topdir buffer-file-name)
-                          (equal (ignore-errors (magit-toplevel nil t)) topdir)))
+                          (equal (magit-rev-parse-safe "--show-toplevel")
+                                 topdir)))
                    topdir))))
 
 ;;; Restore Window Configuration

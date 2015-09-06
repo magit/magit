@@ -313,16 +313,61 @@ absolute path is returned."
       (setq it (file-name-as-directory (magit-expand-git-file-name it)))
       (if path (expand-file-name (convert-standard-filename path) it) it))))
 
-(defun magit-toplevel (&optional file strict)
-  (magit--with-safe-default-directory file
-    (-if-let (cdup (magit-rev-parse-safe "--show-cdup"))
-        (magit-expand-git-file-name
-         (file-name-as-directory (expand-file-name cdup)))
-      (unless strict
-        (-when-let (gitdir (magit-git-dir))
-          (if (magit-bare-repo-p)
-              gitdir
-            (file-name-directory (directory-file-name gitdir))))))))
+(defun magit-toplevel (&optional directory)
+  "Return the absolute path to the toplevel of the current repository.
+
+From within the working tree or control directory of a repository
+return the absolute path to the toplevel directory of the working
+tree.  As a special case, from within a bare repository return
+the control directory instead.  When called outside a repository
+then return nil.
+
+When optional DIRECTORY is non-nil then return the toplevel for
+that directory instead of the one for `default-directory'.
+
+Try to respect the option `find-file-visit-truename', i.e.  when
+the value of that option is nil, then avoid needlessly returning
+the truename.  When a symlink to a sub-directory of the working
+tree is involved, or when called from within a sub-directory of
+the gitdir or from the toplevel of a gitdir, which itself is not
+located within the working tree, then it is not possible to avoid
+returning the truename."
+  (magit--with-safe-default-directory directory
+    (-if-let (topdir (magit-rev-parse-safe "--show-toplevel"))
+        (let (updir)
+          (if (and
+               ;; Always honor these settings.
+               (not find-file-visit-truename)
+               (not (getenv "GIT_WORK_TREE"))
+               ;; `--show-cdup' is the relative path to the toplevel
+               ;; from `(file-truename default-directory)'.  Here we
+               ;; pretend it is relative to `default-directory', and
+               ;; go to that directory.  Then we check whether
+               ;; `--show-toplevel' still returns the same value and
+               ;; whether `--show-cdup' now is the empty string.  If
+               ;; both is the case, then we are at the toplevel of
+               ;; the same working tree, but also avoided needlessly
+               ;; following any symlinks.
+               (let ((default-directory
+                       (setq updir (file-name-as-directory
+                                    (expand-file-name
+                                     (magit-rev-parse-safe "--show-cdup"))))))
+                 (and (string-equal (magit-rev-parse-safe "--show-cdup") "")
+                      (string-equal (magit-rev-parse-safe "--show-toplevel")
+                                    topdir))))
+              updir
+            (concat (file-remote-p default-directory)
+                    (file-name-as-directory topdir))))
+      (-when-let (gitdir (magit-rev-parse-safe "--git-dir"))
+        (setq gitdir (file-name-as-directory
+                      (if (file-name-absolute-p gitdir)
+                          ;; We might have followed a symlink.
+                          (concat (file-remote-p default-directory) gitdir)
+                        (expand-file-name gitdir))))
+        (if (magit-bare-repo-p)
+            gitdir
+          ;; Step outside the control directory to enter the working tree.
+          (file-name-directory (directory-file-name gitdir)))))))
 
 (defmacro magit-with-toplevel (&rest body)
   (declare (indent defun) (debug (body)))
@@ -378,7 +423,8 @@ tracked file."
       (setq file (or magit-buffer-file-name buffer-file-name))))
   (when (and file (or (not tracked)
                       (magit-file-tracked-p (file-relative-name file))))
-    (--when-let (magit-toplevel file)
+    (--when-let (magit-toplevel (magit--with-safe-default-directory file
+                                  default-directory))
       (file-relative-name file it))))
 
 (defun magit-file-tracked-p (file)
@@ -412,7 +458,7 @@ tracked file."
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))
 
 (defun magit-revision-files (rev)
-  (let ((default-directory (magit-toplevel)))
+  (magit-with-toplevel
     (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
 
 (defun magit-changed-files (rev-or-range &optional other-rev)
@@ -420,7 +466,7 @@ tracked file."
 If OTHER-REV is non-nil, REV-OR-RANGE should be a revision, not a
 range.  Otherwise, it can be any revision or range accepted by
 \"git diff\" (i.e., <rev>, <revA>..<revB>, or <revA>...<revB>)."
-  (let ((default-directory (magit-toplevel)))
+  (magit-with-toplevel
     (magit-git-items "diff" "-z" "--name-only" rev-or-range other-rev)))
 
 (defun magit-renamed-files (revA revB)

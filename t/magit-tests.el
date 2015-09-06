@@ -33,6 +33,109 @@
 
 ;;; Git
 
+(ert-deftest magit--with-safe-default-directory ()
+  (magit-with-test-directory
+    (let ((find-file-visit-truename nil))
+      (should (equal (magit-toplevel "repo/")
+                     (magit-toplevel (expand-file-name "repo/"))))
+      (should (equal (magit-toplevel "repo")
+                     (magit-toplevel (expand-file-name "repo/")))))))
+
+(ert-deftest magit-toplevel:basic ()
+  (let ((find-file-visit-truename nil))
+    (magit-with-test-directory
+      (magit-git "init" "repo")
+      (magit-test-magit-toplevel)
+      (should (equal (magit-toplevel   "repo/.git/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo/.git/objects/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo-link/.git/")
+                     (expand-file-name "repo-link/")))
+      (should (equal (magit-toplevel   "repo-link/.git/objects/")
+                     ;; We could theoretically return "repo-link/"
+                     ;; here by going up until `--git-dir' gives us
+                     ;; "." .  But that would be a bit risky and Magit
+                     ;; never goes there anyway, so it's not worth it.
+                     ;; But in the doc-string we say we cannot do it.
+                     (expand-file-name "repo/"))))))
+
+(ert-deftest magit-toplevel:tramp ()
+  (let ((find-file-visit-truename nil))
+    (magit-with-test-directory
+      (setq default-directory
+            (concat (format "/sudo:%s@localhost:" (user-login-name))
+                    default-directory))
+      (magit-git "init" "repo")
+      (magit-test-magit-toplevel)
+      (should (equal (magit-toplevel   "repo/.git/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo/.git/objects/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo-link/.git/")
+                     (expand-file-name "repo-link/")))
+      (should (equal (magit-toplevel   "repo-link/.git/objects/")
+                     (expand-file-name "repo/"))))))
+
+(ert-deftest magit-toplevel:submodule ()
+  (let ((find-file-visit-truename nil))
+    (magit-with-test-directory
+      (magit-git "init" "remote")
+      (let ((default-directory (expand-file-name "remote/")))
+        (magit-git "commit" "-m" "init" "--allow-empty"))
+      (magit-git "init" "super")
+      (setq default-directory (expand-file-name "super/"))
+      (magit-git "submodule" "add" "../remote" "repo/")
+      (magit-test-magit-toplevel)
+      (should (equal (magit-toplevel   ".git/modules/repo/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   ".git/modules/repo/objects/")
+                     (expand-file-name "repo/"))))))
+
+(defun magit-test-magit-toplevel ()
+  ;; repo
+  (make-directory "repo/subdir/subsubdir" t)
+  (should (equal (magit-toplevel   "repo/")
+                 (expand-file-name "repo/")))
+  (should (equal (magit-toplevel   "repo/")
+                 (expand-file-name "repo/")))
+  (should (equal (magit-toplevel   "repo/subdir/")
+                 (expand-file-name "repo/")))
+  (should (equal (magit-toplevel   "repo/subdir/subsubdir/")
+                 (expand-file-name "repo/")))
+  ;; repo-link
+  (make-symbolic-link "repo" "repo-link")
+  (should (equal (magit-toplevel   "repo-link/")
+                 (expand-file-name "repo-link/")))
+  (should (equal (magit-toplevel   "repo-link/subdir/")
+                 (expand-file-name "repo-link/")))
+  (should (equal (magit-toplevel   "repo-link/subdir/subsubdir/")
+                 (expand-file-name "repo-link/")))
+  ;; *subdir-link
+  (make-symbolic-link "repo/subdir"           "subdir-link")
+  (make-symbolic-link "repo/subdir/subsubdir" "subsubdir-link")
+  (should (equal (magit-toplevel   "subdir-link/")
+                 (expand-file-name "repo/")))
+  (should (equal (magit-toplevel   "subdir-link/subsubdir/")
+                 (expand-file-name "repo/")))
+  (should (equal (magit-toplevel   "subsubdir-link")
+                 (expand-file-name "repo/")))
+  ;; subdir-link-indirect
+  (make-symbolic-link "subdir-link" "subdir-link-indirect")
+  (should (equal (magit-toplevel   "subdir-link-indirect")
+                 (expand-file-name "repo/")))
+  ;; wrap/*link
+  (magit-git "init" "wrap")
+  (make-symbolic-link "../repo"                  "wrap/repo-link")
+  (make-symbolic-link "../repo/subdir"           "wrap/subdir-link")
+  (make-symbolic-link "../repo/subdir/subsubdir" "wrap/subsubdir-link")
+  (should (equal (magit-toplevel   "wrap/repo-link/")
+                 (expand-file-name "wrap/repo-link/")))
+  (should (equal (magit-toplevel   "wrap/subdir-link")
+                 (expand-file-name "repo/")))
+  (should (equal (magit-toplevel   "wrap/subsubdir-link")
+                 (expand-file-name "repo/"))))
+
 (ert-deftest magit-get-boolean ()
   (magit-with-test-repository
     (magit-git "config" "a.b" "true")
