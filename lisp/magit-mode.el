@@ -168,6 +168,53 @@ has to confirm each save."
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
 
+(defcustom magit-keep-region-overlay nil
+  "Whether to keep the region overlay when there is a valid selection.
+
+By default Magit removes the regular region overlay if, and only
+if, that region constitutes a valid selection as understood by
+Magit commands.  Otherwise it does not remove that overlay, and
+the region looks like it would in other buffers.
+
+There are two types of such valid selections: hunk-internal
+regions and regions that select two or more sibling sections.
+In such cases Magit removes the region overlay and instead
+highlights a slightly larger range.  All text (for hunk-internal
+regions) or the headings of all sections (for sibling selections)
+that are inside that range (not just inside the region) are acted
+on by commands such as the staging command.  This buffer range
+begins at the beginning of the line on which the region begins
+and ends at the end of the line on which the region ends.
+
+Because Magit acts on this larger range and not the region, it is
+actually quite important to visualize that larger range.  If we
+don't do that, then one might think that these commands act on
+the region instead.  If you want to *also* visualize the region,
+then set this option to t.  But please note that when the region
+does *not* constitute a valid selection, then the region is
+*always* visualized as usual, and that it is usually under such
+circumstances that you want to use a non-magit command to act on
+the region.
+
+Besides keeping the region overlay, setting this option to t also
+causes all face properties, except for `:foreground', to be
+ignored for the faces used to highlight headings of selected
+sections.  This avoids the worst conflicts that result from
+displaying the region and the selection overlays at the same
+time.  We are not interested in dealing with other conflicts.
+In fact we *already* provide a way to avoid all of these
+conflicts: *not* changing the value of this option.
+
+It should be clear by now that we consider it a mistake to set
+this to display the region when the Magit selection is also
+visualized, but since it has been requested a few times and
+because it doesn't cost much to offer this option we do so.
+However that might change.  If the existance of this option
+starts complicating other things, then it will be removed."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'boolean)
+
 ;;; Magit Mode
 
 (defvar magit-mode-map
@@ -350,8 +397,9 @@ Magit is documented in info node `(magit)'."
 
 (defun magit-highlight-region (start end window rol)
   (mapc #'delete-overlay magit-region-overlays)
-  (if (run-hook-with-args-until-success 'magit-region-highlight-hook
-                                        (magit-current-section))
+  (if (and (run-hook-with-args-until-success 'magit-region-highlight-hook
+                                             (magit-current-section))
+           (not magit-keep-region-overlay))
       (funcall (default-value 'redisplay-unhighlight-region-function) rol)
     (funcall (default-value 'redisplay-highlight-region-function)
              start end window rol)))
