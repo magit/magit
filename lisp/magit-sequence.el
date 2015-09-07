@@ -545,9 +545,9 @@ If no such sequence is in progress, do nothing."
   (directory-files (magit-git-dir "rebase-apply") t "^[0-9]\\{4\\}$"))
 
 (defun magit-sequence-insert-sequence (stop onto &optional orig)
-  (setq  onto (magit-rev-parse onto))
-  (let ((head (magit-rev-parse "HEAD"))
-        (done (magit-git-lines "log" "--format=%H" (concat onto "..HEAD"))))
+  (let ((head (magit-rev-parse "HEAD") done))
+    (setq onto (if onto (magit-rev-parse onto) head))
+    (setq done (magit-git-lines "log" "--format=%H" (concat onto "..HEAD")))
     (when (and stop (not (member stop done)))
       (let ((id (magit-patch-id stop)))
         (--if-let (--first (equal (magit-patch-id it) id) done)
