@@ -515,12 +515,12 @@ the function `magit-toplevel'."
               (buffer-list))))
 
 (defun magit-mode-get-buffer (format mode &optional pwd create)
+  (unless format
+    (setq format (symbol-value
+                  (intern (format "%s-buffer-name-format"
+                                  (substring (symbol-name mode) 0 -5))))))
   (if (not (string-match-p "%[ab]" format))
       (funcall (if create #'get-buffer-create #'get-buffer) format)
-    (unless format
-      (setq format (symbol-value
-                    (intern (format "%s-buffer-name-format"
-                                    (substring (symbol-name mode) 0 -5))))))
     (setq pwd (expand-file-name (or pwd default-directory)))
     (let* ((topdir (let ((default-directory pwd))
                      (magit-toplevel)))
