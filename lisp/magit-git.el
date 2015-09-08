@@ -576,6 +576,10 @@ string \"true\", otherwise return nil."
 (defun magit-rev-verify (rev)
   (magit-rev-parse-safe "--verify" rev))
 
+(defun magit-rev-verify-commit (rev)
+  "Return full hash for REV if it names an existing commit."
+  (magit-rev-verify (concat rev "^{commit}")))
+
 (defun magit-rev-equal (a b)
   (magit-git-success "diff" "--quiet" a b))
 
