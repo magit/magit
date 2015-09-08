@@ -368,8 +368,8 @@ START has to be selected from a list of recent commits."
                                  (unless (member "--root" args) commit)
                                  (magit-rebase-arguments)))
     (magit-log-select
-      `(lambda (commit) (magit-rebase-interactive-1 commit ,message ,editor
-                                                    (list ,@args)))
+      `(lambda (commit)
+         (magit-rebase-interactive-1 commit ,message ,editor (list ,@args)))
       message)))
 
 ;;;###autoload
