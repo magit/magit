@@ -339,44 +339,37 @@ actually insert the entry."
 
 (defun magit-commit-add-log-insert (buffer file defun)
   (with-current-buffer buffer
-    (goto-char (point-min))
-    (cond ((not (re-search-forward (format "^\\* %s" (regexp-quote file))
-                                   nil t))
-           ;; No entry for file, create it.
-           (goto-char (point-max))
-           (forward-comment -1000)
-           (unless (or (bobp) (looking-back "\\(\\*[^\n]+\\|\n\\)" nil))
-             (insert "\n"))
-           (insert (format "\n* %s" file))
-           (when defun
-             (insert (format " (%s)" defun)))
-           (insert ": "))
-          (defun
-           ;; found entry for file, look for defun
-           (let ((limit (save-excursion
-                          (or (and (re-search-forward "^\\* " nil t)
-                                   (match-beginning 0))
-                              (progn (goto-char (point-max))
-                                     (forward-comment -1000)
-                                     (point))))))
-             (cond ((re-search-forward
-                     (format "(.*\\_<%s\\_>.*):" (regexp-quote defun))
-                     limit t)
-                    ;; found it, goto end of current entry
-                    (if (re-search-forward "^(" limit t)
-                        (backward-char 2)
-                      (goto-char limit)))
-                   (t
-                    ;; not found, insert new entry
-                    (goto-char limit)
-                    (if (bolp)
-                        (open-line 1)
-                      (newline))
-                    (insert (format "(%s): " defun))))))
+    (undo-boundary)
+    (goto-char (point-max))
+    (while (re-search-backward (concat "^" comment-start) nil t))
+    (cond ((re-search-backward (format "* %s\\(?: (\\([^)]+\\))\\)?: " file)
+                               nil t)
+           (when (equal (match-string 1) defun)
+             (setq defun nil))
+           (re-search-forward ": "))
           (t
-           ;; found entry for file, look for its beginning
-           (when (looking-at ":")
-             (forward-char 2))))))
+           (when (re-search-backward "^[\\*(].+\n" nil t)
+             (goto-char (match-end 0)))
+           (while (re-search-forward "^[^\\*#\n].*\n" nil t))
+           (if defun
+               (progn (insert (format "* %s (%s): \n" file defun))
+                      (setq defun nil))
+             (insert (format "* %s: \n" file)))
+           (backward-char)
+           (unless (looking-at "\n[\n\\']")
+             (insert ?\n)
+             (backward-char))))
+    (when defun
+      (forward-line)
+      (let ((limit (save-excursion
+                     (and (re-search-forward "^\\*" nil t)
+                          (point)))))
+        (unless (or (looking-back (format "(%s): " defun)
+                                  (line-beginning-position))
+                    (re-search-forward (format "^(%s): " defun) limit t))
+          (while (re-search-forward "^[^\\*#\n].*\n" limit t))
+          (insert (format "(%s): \n" defun))
+          (backward-char))))))
 
 ;;; magit-commit.el ends soon
 (provide 'magit-commit)
