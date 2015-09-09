@@ -935,7 +935,7 @@ Return a list of two integers: (A>B B>A)."
        (setq ,file (or (file-remote-p ,file 'localname) ,file))
        (unwind-protect
            (progn (--when-let ,tree
-                    (or (magit-git-success "read-tree" "-m" it
+                    (or (magit-git-success "read-tree" it
                                            (concat "--index-output=" ,file))
                         (error "Cannot read tree %s" it)))
                   (if (file-remote-p default-directory)
