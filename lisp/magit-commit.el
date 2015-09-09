@@ -314,12 +314,13 @@ depending on the value of option `magit-commit-squash-confirm'."
   "Used by `magit-commit-add-log' to insert a single entry.")
 
 (defun magit-commit-add-log ()
-  "Add a stub for the current hunk into the commit message buffer.
+  "Add a stub for the current change into the commit message buffer.
 If no commit is in progress, then initiate it.  Use the function
 specified by variable `magit-commit-add-log-insert-function' to
 actually insert the entry."
   (interactive)
-  (let ((log (magit-commit-message-buffer)) buf pos)
+  (let ((hunk (magit-section-when 'hunk it))
+        (log (magit-commit-message-buffer)) buf pos)
     (save-window-excursion
       (call-interactively #'magit-diff-visit-file)
       (setq buf (current-buffer)
@@ -335,7 +336,7 @@ actually insert the entry."
         (goto-char pos)
         (funcall magit-commit-add-log-insert-function log
                  (magit-file-relative-name)
-                 (add-log-current-defun))))))
+                 (and hunk (add-log-current-defun)))))))
 
 (defun magit-commit-add-log-insert (buffer file defun)
   (with-current-buffer buffer

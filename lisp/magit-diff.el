@@ -1267,6 +1267,7 @@ Staging and applying changes is documented in info node
     (define-key map [C-return] 'magit-diff-visit-file-worktree)
     (define-key map "\r" 'magit-diff-visit-file)
     (define-key map "a"  'magit-apply)
+    (define-key map "C"  'magit-commit-add-log)
     (define-key map "k"  'magit-discard)
     (define-key map "K"  'magit-file-untrack)
     (define-key map "R"  'magit-file-rename)
