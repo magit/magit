@@ -333,8 +333,7 @@ which visits the thing at point."
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
     ("Log"
-     ["Oneline Log" magit-log t]
-     ["Verbose Log" magit-log-verbose t]
+     ["Log" magit-log t]
      ["Reflog" magit-reflog t]
      ["Extended..." magit-log-popup t])
     "---"
