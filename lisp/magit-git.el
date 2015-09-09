@@ -934,11 +934,10 @@ Return a list of two integers: (A>B B>A)."
     `(let ((,file (magit-git-dir (make-temp-name "index.magit."))))
        (setq ,file (or (file-remote-p ,file 'localname) ,file))
        (unwind-protect
-           (progn ,@(--when-let tree
-                      `((or (magit-git-success
-                             "read-tree" "-m" it
-                             (concat "--index-output=" ,file))
-                            (error "Cannot read tree %s" ,it))))
+           (progn (--when-let ,tree
+                    (or (magit-git-success "read-tree" "-m" it
+                                           (concat "--index-output=" ,file))
+                        (error "Cannot read tree %s" it)))
                   (if (file-remote-p default-directory)
                       (let ((magit-tramp-process-environment
                              (setenv-internal magit-tramp-process-environment
