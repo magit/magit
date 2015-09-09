@@ -254,12 +254,13 @@ When the region is active offer to drop all contained stashes."
                                     (magit-commit-tree
                                      (concat "untracked files on " summary)))
                                (error "Cannot save the untracked files")))))
-    (magit-with-temp-index index
-      (when worktree
-        (or (magit-update-files (magit-git-items "diff" "-z" "--name-only" head))
-            (error "Cannot save the current worktree state")))
-      (or (magit-commit-tree message nil head index untracked)
-          (error "Cannot save the current worktree state")))))
+    (let ((changed (magit-changed-files head)))
+      (magit-with-temp-index index
+        (when worktree
+          (or (magit-update-files changed)
+              (error "Cannot save the current worktree state")))
+        (or (magit-commit-tree message nil head index untracked)
+            (error "Cannot save the current worktree state"))))))
 
 (defun magit-stash-summary ()
   (concat (or (magit-get-current-branch) "(no branch)")
