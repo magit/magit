@@ -344,6 +344,8 @@ START has to be selected from a list of recent commits."
 
 (defun magit-rebase-interactive-1 (commit message &optional editor args)
   (declare (indent 1))
+  (when magit-current-popup
+    (setq args (nconc (magit-rebase-arguments) args)))
   (when commit
     (if (eq commit :merge-base)
         (setq commit (--if-let (magit-get-tracked-branch)
@@ -365,8 +367,7 @@ START has to be selected from a list of recent commits."
         (when editor
           (setenv "GIT_SEQUENCE_EDITOR" editor))
         (magit-run-git-sequencer "rebase" "-i" args
-                                 (unless (member "--root" args) commit)
-                                 (magit-rebase-arguments)))
+                                 (unless (member "--root" args) commit)))
     (magit-log-select
       `(lambda (commit)
          (magit-rebase-interactive-1 commit ,message ,editor (list ,@args)))
