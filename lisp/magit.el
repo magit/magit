@@ -1903,17 +1903,17 @@ With a prefix argument fetch all remotes."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "deinit" path)))
 
-;;;; File-buffer Mode
+;;;; File Mode
 
-(defvar magit-file-buffer-mode-map
+(defvar magit-file-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-xg"    'magit-status)
     (define-key map "\C-x\M-g" 'magit-dispatch-popup)
-    (define-key map "\C-c\M-g" 'magit-file-buffer-popup)
+    (define-key map "\C-c\M-g" 'magit-file-popup)
     map)
-  "Keymap for `magit-file-buffer-mode'.")
+  "Keymap for `magit-file-mode'.")
 
-(magit-define-popup magit-file-buffer-popup
+(magit-define-popup magit-file-popup
   "Popup consule for Magit commands in file-visiting buffers."
   :actions '((?s "Stage"   magit-stage-file)
              (?l "Log"     magit-log-buffer-file)
@@ -1922,27 +1922,30 @@ With a prefix argument fetch all remotes."
              (?b "Blame"   magit-blame-popup))
   :max-action-columns 3)
 
-(defvar magit-file-buffer-mode-lighter "")
+(defvar magit-file-mode-lighter "")
 
-(define-minor-mode magit-file-buffer-mode
+(define-minor-mode magit-file-mode
   "Enable some Magit features in file-visiting buffers.
 
 Currently this only adds the following key bindings.
-\n\\{magit-file-buffer-mode-map}"
+\n\\{magit-file-mode-map}"
   :package-version '(magit . "2.2.0")
-  :lighter magit-file-buffer-mode-lighter
-  :keymap  magit-file-buffer-mode-map)
+  :lighter magit-file-mode-lighter
+  :keymap  magit-file-mode-map)
 
-(defun magit-file-buffer-mode-turn-on ()
+(defun magit-file-mode-turn-on ()
   (and buffer-file-name
        (ignore-errors (magit-inside-worktree-p))
-       (magit-file-buffer-mode)))
+       (magit-file-mode)))
 
 ;;;###autoload
-(define-globalized-minor-mode global-magit-file-buffer-mode
-  magit-file-buffer-mode magit-file-buffer-mode-turn-on
+(define-globalized-minor-mode global-magit-file-mode
+  magit-file-mode magit-file-mode-turn-on
   :package-version '(magit . "2.2.0")
   :group 'magit)
+
+(define-obsolete-function-alias 'global-magit-file-buffer-mode
+  'global-magit-file-mode "2.3.0")
 
 ;;;; Dispatch Popup
 

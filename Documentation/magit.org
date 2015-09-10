@@ -416,8 +416,8 @@ non-Magit buffers.  So you should bind this globally too:
   (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 #+END_SRC
 
-You might also want to enable ~global-magit-file-buffer-mode~ (see
-[[*File-buffer mode]]).
+You might also want to enable ~global-magit-file-mode~ (see [[*Minor mode
+for buffers visiting files]]).
 
 * Interface concepts
 ** Modes and Buffers
@@ -3831,22 +3831,21 @@ are being committed.
   "<namespace>wtree/<branchref>".  When snapshots are created while
   the ~HEAD~ is detached then "HEAD" is used in place of ~<branchref>~.
 
-** File-buffer mode
+** Minor mode for buffers visiting files
 
-The ~magit-file-buffer-mode~ enables certain Magit features in
-file-visiting buffers belonging to a Git repository.  It should be
-enabled globally using ~global-magit-file-buffer-mode~.  Currently this
-mode only establishes a few key bindings, but this might be extended
-in the future.
+The ~magit-file-mode~ enables certain Magit features in file-visiting
+buffers belonging to a Git repository.  It should be enabled globally
+using ~global-magit-file-mode~.  Currently this mode only establishes a
+few key bindings, but this might be extended in the future.
 
-- User Option: global-magit-file-buffer-mode
+- User Option: global-magit-file-mode
 
   Whether to establish certain Magit key bindings in all file-visiting
-  buffers belonging to a Git repository.  This establishes the bindings
-  suggested in [[*Getting started]] (but only for file-visiting buffers),
-  and additionally binds ~C-c M-g~ to ~magit-file-buffer-popup~.
+  buffers belonging to a Git repository.  This establishes the
+  bindings suggested in [[*Getting started]] (but only for file-visiting
+  buffers), and additionally binds ~C-c M-g~ to ~magit-file-popup~.
 
-- Command: magit-file-buffer-popup
+- Command: magit-file-popup
 
   This prefix command shows a popup buffer featuring suffix commands
   that operate on the file being visited in the current buffer.

@@ -95,5 +95,8 @@ THIS IS NOT COMPLETE.
   See the doc-string for why you don't want to do that, but if you
   disagree then you can now have it your way.  #2091
 
+* Renamed `magit-file-buffer-mode' to `magit-file-mode'.  Related
+  symbols were renamed accordingly.
+
 Authors
 -------
