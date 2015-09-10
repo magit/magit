@@ -3062,8 +3062,8 @@ arguments available from @code{magit-blame-popup} should be used.
 @cindex magit-blame-popup
 @item @kbd{M-x magit-blame-popup} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This prefix command shows the above suffix command along with the
+appropriate infix arguments in a popup buffer.
 
 @kindex RET
 @cindex magit-show-commit
@@ -5538,12 +5538,48 @@ bindings suggested in @ref{Getting started,Getting started} (but only for file-v
 buffers), and additionally binds @code{C-c M-g} to @code{magit-file-popup}.
 @end defopt
 
+@table @asis
+@kindex C-c M-g
 @cindex magit-file-popup
-@deffn Command magit-file-popup
+@item @kbd{C-c M-g} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-popup})
 
 This prefix command shows a popup buffer featuring suffix commands
 that operate on the file being visited in the current buffer.
-@end deffn
+
+@kindex C-c M-g s
+@cindex magit-stage-file
+@item @kbd{C-c M-g s} @tie{}@tie{}@tie{}@tie{}(@code{magit-stage-file})
+
+Stage all changes to the file being visited in the current buffer.
+
+@kindex C-c M-g u
+@cindex magit-unstage-file
+@item @kbd{C-c M-g u} @tie{}@tie{}@tie{}@tie{}(@code{magit-unstage-file})
+
+Untage all changes to the file being visited in the current buffer.
+
+@kindex C-c M-g l
+@cindex magit-log-buffer-file
+@item @kbd{C-c M-g l} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-buffer-file})
+
+This command shows the log for the file of blob that the current
+buffer visits.  Renames are followed when a prefix argument is used
+or when @code{--follow} is part of @code{magit-log-arguments}.
+
+@kindex C-c M-g b
+@cindex magit-blame-popup
+@item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
+
+This prefix command shows the @code{magit-blame} suffix command along with
+the appropriate infix arguments in a popup buffer.  See @ref{Initiating a commit,Initiating a commit}.
+
+@kindex C-c M-g c
+@cindex magit-commit-popup
+@item @kbd{C-c M-g c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-popup})
+
+This prefix command shows suffix commands along with the appropriate
+infix arguments in a popup buffer.  See @ref{Initiating a commit,Initiating a commit}.
+@end table
 
 @node Customizing
 @chapter Customizing
