@@ -3823,6 +3823,36 @@ minibuffer.
 This command creates a new branch like @code{magit-branch}, but then also
 checks it out.
 
+@kindex b s
+@cindex magit-branch-spinoff
+@item @kbd{b s} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-spinoff})
+
+This command creates and checks out a new branch starting at and
+tracking the current branch.  That branch in turn is reset to the
+last commit it shares with its upstream.  If the current branch has
+no upstream or no unpushed commits, then the new branch is created
+anyway and the previously current branch is not touched.
+
+This is useful to create a feature branch after work has already
+began on the old branch (likely but not necessarily "master").
+
+@kindex b x
+@cindex magit-branch-reset
+@item @kbd{b x} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-reset})
+
+This command resets a branch, defaulting to the branch at point, to
+the tip of another branch or any other commit.
+
+When resetting to another branch, then that branch is also set as
+the upstream of the branch being reset.
+
+When the branch being reset is the current branch, then a hard reset
+is performed.  If there are any uncommitted changes, then the user
+has to confirming the reset because those changes would be lost.
+
+This is useful when you have started work on a feature branch but
+realize it's all crap and want to start over.
+
 @kindex b d
 @cindex magit-branch-delete
 @item @kbd{b d} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-delete})

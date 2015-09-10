@@ -1152,7 +1152,9 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
               (?r "Rename"            magit-branch-rename)
               (?B "Create & checkout" magit-branch-and-checkout)
               (?e "Set description"   magit-branch-edit-description)
-              (?v "(Branch Manager)"  magit-branch-manager))
+              (?v "(Branch Manager)"  magit-branch-manager)
+              (?s "Spin off"          magit-branch-spinoff) nil nil
+              (?x "Reset"             magit-branch-reset))
   :default-arguments '("--track")
   :default-action 'magit-checkout
   :max-action-columns 3)
@@ -1202,6 +1204,69 @@ changes.
     (unless (magit-branch-p start)
       (setq args (delete "--track" args)))
     (list branch start args)))
+
+;;;###autoload
+(defun magit-branch-spinoff (branch &rest args)
+  "Create new branch from the unpushed commits.
+
+Create and checkout a new branch starting at and tracking the
+current branch.  That branch in turn is reset to the last commit
+it shares with its upstream.  If the current branch has no
+upstream or no unpushed commits, then the new branch is created
+anyway and the previously current branch is not touched.
+
+This is useful to create a feature branch after work has already
+began on the old branch (likely but not necessarily \"master\")."
+  (interactive (list (magit-read-string "Spin off branch")
+                     (magit-branch-arguments)))
+  (-if-let (current (magit-get-current-branch))
+      (let (tracked base)
+        (magit-call-git "checkout" args "-b" branch current)
+        (if (and (setq tracked (magit-get-tracked-branch current))
+                 (setq base (magit-git-string "merge-base" current tracked))
+                 (not (magit-rev-equal base current)))
+            (magit-run-git "update-ref" "-m"
+                           (format "reset: moving to %s" base)
+                           (concat "refs/heads/" current) base)
+          (magit-refresh)))
+    (magit-run-git "checkout" "-b" branch)))
+
+;;;###autoload
+(defun magit-branch-reset (branch to &optional args)
+  "Reset a branch to the tip of another branch or any other commit.
+
+When resetting to another branch, then also set that branch as
+the upstream of the branch being reset.
+
+When the branch being reset is the current branch, then do a
+hard reset.  If there are any uncommitted changes, then the user
+has to confirming the reset because those changes would be lost.
+
+This is useful when you have started work on a feature branch but
+realize it's all crap and want to start over."
+  (interactive
+   (let* ((atpoint (magit-branch-at-point))
+          (branch  (magit-read-local-branch "Reset branch" atpoint)))
+     (list branch
+           (magit-completing-read "Reset %s to"
+                                  (delete branch (magit-list-branch-names))
+                                  nil nil nil 'magit-revision-history
+                                  (or (and (not (equal branch atpoint)) atpoint)
+                                      (magit-get-tracked-branch branch)))
+           (magit-branch-arguments))))
+  (unless (member "--force" args)
+    (setq args (cons "--force" args)))
+  (if (magit-branch-p to)
+      (unless (member "--track" args)
+        (setq args (cons "--track" args)))
+    (setq args (delete "--track" args)))
+  (if (equal branch (magit-get-current-branch))
+      (if (and (magit-anything-modified-p)
+               (not (yes-or-no-p "Uncommitted changes will be lost.  Proceed?")))
+          (user-error "Abort")
+        (magit-reset-hard to)
+        (magit-branch-set-upstream branch to))
+    (magit-branch branch to args)))
 
 ;;;###autoload
 (defun magit-branch-delete (branches &optional force)
