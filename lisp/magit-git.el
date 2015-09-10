@@ -868,14 +868,14 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-rev-format (format &optional rev args)
   (let ((str (magit-git-string "show" "--no-patch"
                                (concat "--format=" format) args
-                               (concat rev "^{commit}") "--")))
+                               (if rev (concat rev "^{commit}") "HEAD") "--")))
     (unless (string-equal str "")
       str)))
 
 (defun magit-rev-insert-format (format &optional rev args)
   (magit-git-insert "show" "--no-patch"
                     (concat "--format=" format) args
-                    (concat rev "^{commit}") "--"))
+                    (if rev (concat rev "^{commit}") "HEAD") "--"))
 
 (defun magit-format-rev-summary (rev)
   (--when-let (magit-rev-format "%h %s" rev)
