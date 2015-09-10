@@ -190,6 +190,7 @@ Miscellaneous
 * Submodules::
 * Wip modes::
 * Minor mode for buffers visiting files::
+* Minor mode for buffers visiting blobs::
 
 Customizing
 
@@ -5122,6 +5123,7 @@ changes made since the sequence started.
 * Submodules::
 * Wip modes::
 * Minor mode for buffers visiting files::
+* Minor mode for buffers visiting blobs::
 @end menu
 
 @node Tagging
@@ -5539,6 +5541,12 @@ buffers), and additionally binds @code{C-c M-g} to @code{magit-file-popup}.
 @end defopt
 
 @table @asis
+@kindex p
+@cindex magit-blob-previous
+@item @kbd{p} @tie{}@tie{}@tie{}@tie{}(@code{magit-blob-previous})
+
+Visit the previous blob which modified the current file.
+
 @kindex C-c M-g
 @cindex magit-file-popup
 @item @kbd{C-c M-g} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-popup})
@@ -5579,6 +5587,35 @@ the appropriate infix arguments in a popup buffer.  See @ref{Initiating a commit
 
 This prefix command shows suffix commands along with the appropriate
 infix arguments in a popup buffer.  See @ref{Initiating a commit,Initiating a commit}.
+@end table
+
+@node Minor mode for buffers visiting blobs
+@section Minor mode for buffers visiting blobs
+
+The @code{magit-blob-mode} enables certain Magit features in blob-visiting
+buffers.  Such buffers can be created using @code{magit-find-file} and some
+of the commands mentioned below, which also take care of turning on
+this minor mode.  Currently this mode only establishes a few key
+bindings, but this might be e
+
+@table @asis
+@kindex p
+@cindex magit-blob-previous
+@item @kbd{p} @tie{}@tie{}@tie{}@tie{}(@code{magit-blob-previous})
+
+Visit the previous blob which modified the current file.
+
+@kindex n
+@cindex magit-blob-next
+@item @kbd{n} @tie{}@tie{}@tie{}@tie{}(@code{magit-blob-next})
+
+Visit the next blob which modified the current file.
+
+@kindex q
+@cindex magit-kill-this-buffer
+@item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-kill-this-buffer})
+
+Kill the current buffer.
 @end table
 
 @node Customizing
