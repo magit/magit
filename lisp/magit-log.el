@@ -554,7 +554,7 @@ With a prefix argument or when `--follow' is part of
                           (if (and follow (not (member "--follow" args)))
                               (cons "--follow" args)
                             args))
-                        (list (file-relative-name file (magit-toplevel))))
+                        (list file))
     (user-error "Buffer isn't visiting a file"))
   (magit-log-goto-same-commit))
 
