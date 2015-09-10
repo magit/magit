@@ -2612,7 +2612,7 @@ Whether to show gravatar images in revision buffers.
 If non-nil, then the value has to be a cons-cell which specifies
 where the gravatar images for the author and/or the committer are
 inserted inside the text that was previously inserted according
-to @verb{~magit-revision-header-format~}.
+to @code{magit-revision-header-format}.
 
 Both cells are regular expressions.  The car specifies where to
 insert the author gravatar image.  The top halve of the image is
@@ -2769,7 +2769,7 @@ Whether to show commit counts in Magit-Refs mode buffers.
 
 @itemize
 @item
-@verb{~all~} Show counts for branches and tags.
+@code{all} Show counts for branches and tags.
 
 @item
 @code{branch} Show counts for branches only.
@@ -3154,7 +3154,7 @@ Format string used for time strings in blame headings.
 @defopt magit-blame-show-headings
 
 Whether to initially show blame block headings.  The headings can
-also be toggled locally using command @verb{~magit-blame-toggle-headings~}.
+also be toggled locally using command @code{magit-blame-toggle-headings}.
 @end defopt
 
 @defopt magit-blame-goto-chunk-hook

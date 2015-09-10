@@ -132,7 +132,7 @@ it receives a signal.
 
 ** Using With-Editor commands
 
-This section describes how to use the =with-editor= library /outside/ of
+This section describes how to use the ~with-editor~ library /outside/ of
 Magit.  You don't need to know any of this just to create commits
 using Magit.
 
@@ -214,7 +214,7 @@ This section describes how to use the =with-editor= library /outside/ of
 Magit to teach another package how to have its child processes call
 home, just like Magit does.  You don't need to know any of this just
 to create commits using Magit.  You can also ignore this if you use
-=with-editor= outside of Magit, but only as an end-user.
+~with-editor~ outside of Magit, but only as an end-user.
 
 For information about interactive use and options which affect both
 interactive and non-interactive use, see [[*Using the With-Editor

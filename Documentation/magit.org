@@ -1886,7 +1886,7 @@ without having to using one of the diff popups.
   If non-nil, then the value has to be a cons-cell which specifies
   where the gravatar images for the author and/or the committer are
   inserted inside the text that was previously inserted according
-  to =magit-revision-header-format=.
+  to ~magit-revision-header-format~.
 
   Both cells are regular expressions.  The car specifies where to
   insert the author gravatar image.  The top halve of the image is
@@ -2004,7 +2004,7 @@ without having to using one of the diff popups.
 
   Whether to show commit counts in Magit-Refs mode buffers.
 
-  - =all= Show counts for branches and tags.
+  - ~all~ Show counts for branches and tags.
   - ~branch~ Show counts for branches only.
   - ~nil~ Never show counts.
 
@@ -2262,7 +2262,7 @@ Also see [[info:gitman#git-blame]].
 - User Option: magit-blame-show-headings
 
   Whether to initially show blame block headings.  The headings can
-  also be toggled locally using command =magit-blame-toggle-headings=.
+  also be toggled locally using command ~magit-blame-toggle-headings~.
 
 - User Option: magit-blame-goto-chunk-hook
 
