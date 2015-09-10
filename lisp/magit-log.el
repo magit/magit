@@ -981,13 +981,15 @@ another window, using `magit-show-commit'."
              (setq magit-log-show-commit-timer nil))))))
 
 (defun magit-log-goto-same-commit ()
-  (--when-let
-      (and magit-previous-section
-           (derived-mode-p 'magit-log-mode)
-           (-when-let (value (magit-section-value magit-previous-section))
-             (--first (equal (magit-section-value it) value)
-                      (magit-section-children magit-root-section))))
-    (goto-char (magit-section-start it))))
+  (-when-let* ((prev magit-previous-section)
+               (rev  (cond ((magit-section-match 'commit prev)
+                            (magit-section-value prev))
+                           ((magit-section-match 'branch prev)
+                            (magit-rev-format
+                             "%h" (magit-section-value prev)))))
+               (same (--first (equal (magit-section-value it) rev)
+                              (magit-section-children magit-root-section))))
+    (goto-char (magit-section-start same))))
 
 ;;; Select Mode
 
