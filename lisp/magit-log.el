@@ -33,6 +33,7 @@
 (require 'magit-diff)
 
 (declare-function magit-blame-chunk-get 'magit-blame)
+(declare-function magit-blob-visit 'magit)
 (declare-function magit-find-file-noselect 'magit)
 (declare-function magit-insert-head-header 'magit)
 (declare-function magit-insert-upstream-header 'magit)
