@@ -185,7 +185,7 @@ commit message."
 (defun magit-wip-commit-worktree (ref files msg)
   (let* ((wipref (concat magit-wip-namespace "wtree/" ref))
          (parent (magit-wip-get-parent ref wipref))
-         (tree (magit-with-temp-index parent
+         (tree (magit-with-temp-index parent "--reset"
                  (if files
                      (magit-call-git "add" "--" files)
                    (magit-with-toplevel

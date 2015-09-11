@@ -937,14 +937,14 @@ Return a list of two integers: (A>B B>A)."
         (point-min) (point-max) buffer-file-name t nil nil t)
        ,@body)))
 
-(defmacro magit-with-temp-index (tree &rest body)
-  (declare (indent 1) (debug (form body)))
+(defmacro magit-with-temp-index (tree arg &rest body)
+  (declare (indent 2) (debug (form form body)))
   (let ((file (cl-gensym "file")))
     `(let ((,file (magit-git-dir (make-temp-name "index.magit."))))
        (setq ,file (or (file-remote-p ,file 'localname) ,file))
        (unwind-protect
            (progn (--when-let ,tree
-                    (or (magit-git-success "read-tree" it
+                    (or (magit-git-success "read-tree" ,arg it
                                            (concat "--index-output=" ,file))
                         (error "Cannot read tree %s" it)))
                   (if (file-remote-p default-directory)
@@ -963,8 +963,8 @@ Return a list of two integers: (A>B B>A)."
                     (--mapcat (list "-p" it) (delq nil parents))
                     (or tree (magit-git-string "write-tree"))))
 
-(defun magit-commit-worktree (message &rest other-parents)
-  (magit-with-temp-index "HEAD"
+(defun magit-commit-worktree (message &optional arg &rest other-parents)
+  (magit-with-temp-index "HEAD" arg
     (and (magit-update-files (magit-modified-files))
          (apply #'magit-commit-tree message nil "HEAD" other-parents))))
 

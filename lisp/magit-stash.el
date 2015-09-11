@@ -244,12 +244,12 @@ When the region is active offer to drop all contained stashes."
         (error "Cannot save the current index state"))
     (and untracked
          (setq untracked (magit-untracked-files (eq untracked 'all)))
-         (setq untracked (magit-with-temp-index nil
+         (setq untracked (magit-with-temp-index nil nil
                            (or (and (magit-update-files untracked)
                                     (magit-commit-tree
                                      (concat "untracked files on " summary)))
                                (error "Cannot save the untracked files")))))
-    (magit-with-temp-index index
+    (magit-with-temp-index index "-m"
       (when worktree
         (or (magit-update-files (magit-git-items "diff" "-z" "--name-only" head))
             (error "Cannot save the current worktree state")))
