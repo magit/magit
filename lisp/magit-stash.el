@@ -286,7 +286,7 @@ If optional REF is non-nil show reflog for that instead.
 If optional HEADING is non-nil use that as section heading
 instead of \"Stashes:\"."
   (when (magit-rev-verify ref)
-    (magit-insert-section (stashes ref)
+    (magit-insert-section (stashes ref (not magit-status-expand-stashes))
       (magit-insert-heading heading)
       (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
         "reflog" "--format=%gd %at %gs" ref))))

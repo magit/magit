@@ -143,6 +143,12 @@ The following `format'-like specs are supported:
   :group 'magit-status
   :type 'string)
 
+(defcustom magit-status-expand-stashes t
+  "Whether the list of stashes is expanded initially."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-status
+  :type 'boolean)
+
 ;;;; Refs Mode
 
 (defgroup magit-refs nil
