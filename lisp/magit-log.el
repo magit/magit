@@ -669,15 +669,15 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
     (setq args (remove "--follow" args)))
   (when (--any-p (string-match-p magit-log-remove-graph-re it) args)
     (setq args (remove "--graph" args)))
-  (when (and magit-log-cutoff-length
-             (= (length revs) 1)
-             (setq revs (car revs))
-             (not (string-match-p "\\.\\." revs))
-             (not (member revs '("--all" "--branches"))))
+  (--when-let (and magit-log-cutoff-length
+                   (= (length revs) 1)
+                   (setq revs (car revs))
+                   (not (string-match-p "\\.\\." revs))
+                   (not (member revs '("--all" "--branches")))
+                   (magit-git-string "rev-list" "--count"
+                                     "--first-parent" revs))
     (setq revs (format "%s~%s..%s" revs
-                       (min (1- (string-to-number
-                                 (magit-git-string "rev-list" "--count"
-                                                   "--first-parent" revs)))
+                       (min (1- (string-to-number it))
                             (max 1024 (* 2 magit-log-cutoff-length)))
                        revs)))
   (magit-insert-section (logbuf)
