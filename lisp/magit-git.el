@@ -152,21 +152,12 @@ pass arguments through this function before handing them to Git,
 to do the following.
 
 * Flatten ARGS, removing nil arguments.
-* Prepend `magit-git-global-arguments' to ARGS.
-* Quote arguments as required when using Powershell together
-  with Cygwin Git.  See #816."
-  (setq args (-flatten args))
-  (when (and (eq system-type 'windows-nt)
-             (let ((case-fold-search t))
-               (string-match-p "cygwin" magit-git-executable)))
-    (setq args (--map (replace-regexp-in-string
-                       "{\\([0-9]+\\)}" "\\\\{\\1\\\\}" it)
-                      args)))
-  (append magit-git-global-arguments args))
+* Prepend `magit-git-global-arguments' to ARGS."
+  (append magit-git-global-arguments (-flatten args)))
 
 (defun magit-git-exit-code (&rest args)
   "Execute Git with ARGS, returning its exit code."
-  (apply #'process-file magit-git-executable nil nil nil
+  (apply #'magit-process-file magit-git-executable nil nil nil
          (magit-process-git-arguments args)))
 
 (defun magit-git-success (&rest args)
@@ -183,7 +174,7 @@ If there is no output return nil.  If the output begins with a
 newline return an empty string.  Like `magit-git-string' but
 ignore `magit-git-debug'."
   (with-temp-buffer
-    (apply #'process-file magit-git-executable nil (list t nil) nil
+    (apply #'magit-process-file magit-git-executable nil (list t nil) nil
            (magit-process-git-arguments args))
     (unless (bobp)
       (goto-char (point-min))
@@ -212,7 +203,7 @@ add a section in the respective process buffer."
             (progn
               (setq log (make-temp-file "magit-stderr"))
               (delete-file log)
-              (let ((exit (apply #'process-file magit-git-executable
+              (let ((exit (apply #'magit-process-file magit-git-executable
                                  nil (list t log) nil args)))
                 (when (> exit 0)
                   (let ((msg "Git failed"))
@@ -231,7 +222,8 @@ add a section in the respective process buffer."
                     (message "%s" msg)))
                 exit))
           (ignore-errors (delete-file log))))
-    (apply #'process-file magit-git-executable nil (list t nil) nil args)))
+    (apply #'magit-process-file magit-git-executable
+           nil (list t nil) nil args)))
 
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
@@ -858,9 +850,10 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-patch-id (rev)
   (with-temp-buffer
-    (process-file shell-file-name nil '(t nil) nil shell-command-switch
-                  (let ((exec (shell-quote-argument magit-git-executable)))
-                    (format "%s diff-tree -u %s | %s patch-id" exec rev exec)))
+    (magit-process-file
+     shell-file-name nil '(t nil) nil shell-command-switch
+     (let ((exec (shell-quote-argument magit-git-executable)))
+       (format "%s diff-tree -u %s | %s patch-id" exec rev exec)))
     (car (split-string (buffer-string)))))
 
 (defun magit-reflog-enable (ref &optional stashish)
