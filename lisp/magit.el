@@ -108,6 +108,7 @@ at all."
     magit-insert-bisect-rest
     magit-insert-bisect-log
     magit-insert-untracked-files
+    magit-insert-unmerged-changes
     magit-insert-unstaged-changes
     magit-insert-staged-changes
     magit-insert-stashes
