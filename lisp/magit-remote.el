@@ -189,14 +189,20 @@ then read the remote."
 ;;;###autoload
 (defun magit-push-current (branch remote &optional remote-branch args)
   "Push the current branch to its upstream branch.
-If the upstream isn't set, then read the remote branch."
+If the upstream isn't set, then read the remote branch.
+
+If `magit-push-always-verify' is not nil, however, always read
+the remote branch."
   (interactive (magit-push-read-args t t))
   (magit-push branch remote remote-branch args))
 
 ;;;###autoload
 (defun magit-push (branch remote &optional remote-branch args)
   "Push a branch to its upstream branch.
-If the upstream isn't set, then read the remote branch."
+If the upstream isn't set, then read the remote branch.
+
+If `magit-push-always-verify' is not nil, however, always read
+the remote branch."
   (interactive (magit-push-read-args t))
   (magit-run-git-async-no-revert
    "push" "-v" args remote
