@@ -1266,6 +1266,7 @@ Staging and applying changes is documented in info node
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [C-return] 'magit-diff-visit-file-worktree)
+    (define-key map "\C-j"     'magit-diff-visit-file-worktree)
     (define-key map "\r" 'magit-diff-visit-file)
     (define-key map "a"  'magit-apply)
     (define-key map "C"  'magit-commit-add-log)
@@ -1281,6 +1282,7 @@ Staging and applying changes is documented in info node
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [C-return] 'magit-diff-visit-file-worktree)
+    (define-key map "\C-j"     'magit-diff-visit-file-worktree)
     (define-key map "\r" 'magit-diff-visit-file)
     (define-key map "a"  'magit-apply)
     (define-key map "C"  'magit-commit-add-log)
