@@ -5594,7 +5594,7 @@ Stage all changes to the file being visited in the current buffer.
 @cindex magit-unstage-file
 @item @kbd{C-c M-g u} @tie{}@tie{}@tie{}@tie{}(@code{magit-unstage-file})
 
-Untage all changes to the file being visited in the current buffer.
+Unstage all changes to the file being visited in the current buffer.
 
 @kindex C-c M-g l
 @cindex magit-log-buffer-file

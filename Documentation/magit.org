@@ -3886,7 +3886,7 @@ few key bindings, but this might be extended in the future.
 
 - Key: C-c M-g u, magit-unstage-file
 
-  Untage all changes to the file being visited in the current buffer.
+  Unstage all changes to the file being visited in the current buffer.
 
 - Key: C-c M-g l, magit-log-buffer-file
 
