@@ -986,7 +986,7 @@ invisible."
 If optional DIRECTION is `prev' then return siblings that come
 before SECTION, if it is `next' then return siblings that come
 after SECTION.  For all other values return all siblings
-including SECTION itself."
+excluding SECTION itself."
   (-when-let (parent (magit-section-parent section))
     (let ((siblings  (magit-section-children parent)))
       (pcase direction
