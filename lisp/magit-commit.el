@@ -238,7 +238,8 @@ depending on the value of option `magit-commit-squash-confirm'."
            (magit-commit-squash-internal ,option commit ,rebase ,edit t)
            ,@(when rebase
                `((magit-rebase-interactive-1 commit
-                   "" "true" (list "--autosquash" "--autostash")))))
+                     (list "--autosquash" "--autostash")
+                   "" "true"))))
         (format "Type %%p on a commit to %s into it,"
                 (substring option 2)))
       (when (magit-diff-auto-show-p 'log-select)
