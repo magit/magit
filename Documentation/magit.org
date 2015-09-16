@@ -3871,10 +3871,6 @@ few key bindings, but this might be extended in the future.
   bindings suggested in [[*Getting started]] (but only for file-visiting
   buffers), and additionally binds ~C-c M-g~ to ~magit-file-popup~.
 
-- Key: p, magit-blob-previous
-
-  Visit the previous blob which modified the current file.
-
 - Key: C-c M-g, magit-file-popup
 
   This prefix command shows a popup buffer featuring suffix commands
@@ -3899,6 +3895,10 @@ few key bindings, but this might be extended in the future.
   This prefix command shows the ~magit-blame~ suffix command along with
   the appropriate infix arguments in a popup buffer.  See [[*Initiating
   a commit]].
+
+- Key: C-c M-g p, magit-blob-previous
+
+  Visit the previous blob which modified the current file.
 
 - Key: C-c M-g c, magit-commit-popup
 

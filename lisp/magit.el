@@ -1982,7 +1982,6 @@ With a prefix argument fetch all remotes."
     (define-key map "\C-xg"    'magit-status)
     (define-key map "\C-x\M-g" 'magit-dispatch-popup)
     (define-key map "\C-c\M-g" 'magit-file-popup)
-    (define-key map "\C-cp"    'magit-blob-previous)
     map)
   "Keymap for `magit-file-mode'.")
 
@@ -1992,7 +1991,8 @@ With a prefix argument fetch all remotes."
              (?l "Log"     magit-log-buffer-file)
              (?c "Commit"  magit-commit-popup)
              (?u "Unstage" magit-unstage-file)
-             (?b "Blame"   magit-blame-popup))
+             (?b "Blame"   magit-blame-popup) nil nil
+             (?p "Find blob" magit-blob-previous))
   :max-action-columns 3)
 
 (defvar magit-file-mode-lighter "")

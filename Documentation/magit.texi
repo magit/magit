@@ -5571,12 +5571,6 @@ buffers), and additionally binds @code{C-c M-g} to @code{magit-file-popup}.
 @end defopt
 
 @table @asis
-@kindex p
-@cindex magit-blob-previous
-@item @kbd{p} @tie{}@tie{}@tie{}@tie{}(@code{magit-blob-previous})
-
-Visit the previous blob which modified the current file.
-
 @kindex C-c M-g
 @cindex magit-file-popup
 @item @kbd{C-c M-g} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-popup})
@@ -5610,6 +5604,12 @@ or when @code{--follow} is part of @code{magit-log-arguments}.
 
 This prefix command shows the @code{magit-blame} suffix command along with
 the appropriate infix arguments in a popup buffer.  See @ref{Initiating a commit,Initiating a commit}.
+
+@kindex C-c M-g p
+@cindex magit-blob-previous
+@item @kbd{C-c M-g p} @tie{}@tie{}@tie{}@tie{}(@code{magit-blob-previous})
+
+Visit the previous blob which modified the current file.
 
 @kindex C-c M-g c
 @cindex magit-commit-popup
