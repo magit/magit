@@ -297,8 +297,8 @@ This discards all changes made since the sequence started."
               (?f "Autosquash"         magit-rebase-autosquash)
               (?o "Rebase subset"      magit-rebase-subset)
               nil
-              (?e "Rebase interactive" magit-rebase-interactive)
-              (?s "Edit commit"        magit-rebase-edit-commit)
+              (?i "Rebase interactive" magit-rebase-interactive)
+              (?e "Edit commit"        magit-rebase-edit-commit)
               (?l "Rebase unpushed"    magit-rebase-unpushed)
               (?w "Reword commit"      magit-rebase-reword-commit))
   :sequence-actions '((?r "Continue" magit-rebase-continue)
