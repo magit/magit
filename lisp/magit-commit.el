@@ -283,14 +283,15 @@ depending on the value of option `magit-commit-squash-confirm'."
   (--when-let (and git-commit-mode
                    (magit-diff-auto-show-p 'commit)
                    (pcase last-command
-                     (`magit-commit        'magit-diff-staged)
+                     (`magit-commit
+                      (apply-partially 'magit-diff-staged nil))
                      (`magit-commit-amend  'magit-diff-while-amending)
                      (`magit-commit-reword 'magit-diff-while-amending)))
     (setq with-editor-previous-winconf (current-window-configuration))
     (let ((magit-inhibit-save-previous-winconf 'unset)
           (magit-diff-switch-buffer-function
            (lambda (buffer) (display-buffer buffer t))))
-      (funcall it))))
+      (funcall it (car (magit-diff-arguments))))))
 
 (add-hook 'server-switch-hook 'magit-commit-diff)
 
