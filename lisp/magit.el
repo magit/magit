@@ -1404,9 +1404,10 @@ line is inserted at all."
   "Popup console for merge commands."
   'magit-commands 'magit-popup-sequence-mode
   :man-page "git-merge"
-  :switches '((?f "Fast-forward only" "--ff-only")
-              (?n "No fast-forward"   "--no-ff")
-              (?s "Squash"            "--squash"))
+  :switches '((?f "Fast-forward only"  "--ff-only")
+              (?n "No fast-forward"    "--no-ff")
+              (?s "Squash"             "--squash")
+              (?w "Ignore whitespaces" "-Xignore-space-change"))
   :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
   :actions  '((?m "Merge"                  magit-merge)
               (?e "Merge and edit message" magit-merge-editmsg)
