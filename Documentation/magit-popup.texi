@@ -294,6 +294,9 @@ buffers along with the other common commands.
 It is possible to define additional infix arguments and suffix
 commands to an existing popup using the following functions.
 
+You can find some examples which use the below commands at
+@uref{https://github.com/magit/magit/wiki/Additional-proposed-infix-arguments-and-suffix-commands}.
+
 @defun magit-define-popup-switch popup key desc switch &optional enable at prepend
 
 In POPUP, define KEY as SWITCH.
