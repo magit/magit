@@ -67,6 +67,23 @@ If t, use ptys: this enables Magit to prompt for passphrases when needed."
   :type '(choice (const :tag "pipe" nil)
                  (const :tag "pty" t)))
 
+(defcustom magit-need-cygwin-noglob
+  (equal "x0\n" (with-temp-buffer
+                  (process-file magit-git-executable
+                                nil (current-buffer) nil
+                                "-c" "alias.echo=!echo" "echo" "x{0}")
+                  (buffer-string)))
+  "Whether to use a workaround for Cygwin's globbing behavior.
+
+If non-nil, add environment variables to `process-environment' to
+prevent the git.exe distributed by Cygwin and MSYS2 from
+attempting to perform glob expansion when called from a native
+Windows build of Emacs.  See #2246."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-process
+  :type '(choice (const :tag "Yes" t)
+                 (const :tag "No" nil)))
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit-process
@@ -236,8 +253,24 @@ variable `magit-process-buffer-name-format'."
       (magit-process-setup program args)
     (magit-process-finish
      (let ((inhibit-read-only t))
-       (apply #'process-file program nil process-buf nil args))
+       (apply #'magit-process-file program nil process-buf nil args))
      process-buf (current-buffer) default-directory section)))
+
+(defun magit-process-file (&rest args)
+  "Process files synchronously in a separate process.
+Identical to `process-file' but temporarily enable Cygwin's
+\"noglob\" option during the call."
+  (let ((process-environment (append (magit-cygwin-env-vars)
+                                     process-environment)))
+    (apply #'process-file args)))
+
+(defun magit-cygwin-env-vars ()
+  (when magit-need-cygwin-noglob
+    (mapcar (lambda (var)
+              (concat var "=" (--if-let (getenv var)
+                                  (concat it " noglob")
+                                "noglob")))
+            '("CYGWIN" "MSYS"))))
 
 (defun magit-run-git-with-input (input &rest args)
   "Call Git in a separate process.
@@ -398,13 +431,16 @@ tracked in the current repository are reverted if
 `magit-revert-buffers' is non-nil."
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
-    (let* ((process-connection-type
-            ;; Don't use a pty, because it would set icrnl
-            ;; which would modify the input (issue #20).
-            (and (not input) magit-process-connection-type))
-           (process (apply #'start-file-process
-                           (file-name-nondirectory program)
-                           process-buf program args)))
+    (let ((process
+           (let ((process-connection-type
+                  ;; Don't use a pty, because it would set icrnl
+                  ;; which would modify the input (issue #20).
+                  (and (not input) magit-process-connection-type))
+                 (process-environment (append (magit-cygwin-env-vars)
+                                              process-environment)))
+             (apply #'start-file-process
+                    (file-name-nondirectory program)
+                    process-buf program args))))
       (with-editor-set-process-filter process #'magit-process-filter)
       (set-process-sentinel process #'magit-process-sentinel)
       (set-process-buffer   process process-buf)
