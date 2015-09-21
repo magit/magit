@@ -309,17 +309,18 @@ The following `format'-like specs are supported:
   (interactive)
   (magit-mode-setup magit-stashes-buffer-name-format nil
                     #'magit-stashes-mode
-                    #'magit-stashes-refresh-buffer))
+                    #'magit-stashes-refresh-buffer "refs/stash"))
 
 (define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
   "Mode for looking at lists of stashes."
   :group 'magit
   (hack-dir-local-variables-non-file-buffer))
 
-(cl-defun magit-stashes-refresh-buffer (&optional (ref   "refs/stash")
-                                                  (heading "Stashes:"))
+(cl-defun magit-stashes-refresh-buffer (ref)
   (magit-insert-section (stashesbuf)
-    (magit-insert-heading heading)
+    (magit-insert-heading (if (equal ref "refs/stash")
+                              "Stashes:"
+                            (format "Stashes [%s]:" ref)))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
       "reflog" "--format=%gd %at %gs" ref)))
 
