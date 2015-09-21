@@ -511,7 +511,7 @@ the function `magit-toplevel'."
   (let ((topdir (magit-toplevel)))
     (--filter (with-current-buffer it
                 (and (derived-mode-p 'magit-mode)
-                     (equal default-directory topdir)))
+                     (equal (expand-file-name default-directory) topdir)))
               (buffer-list))))
 
 (defun magit-mode-get-buffer (format mode &optional pwd create frame)
