@@ -34,6 +34,7 @@
 (require 'magit-section)
 
 (declare-function magit-process-buffer 'magit-process)
+(declare-function magit-process-file 'magit-process)
 (declare-function magit-process-insert-section 'magit-process)
 (defvar magit-process-error-message-re)
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
