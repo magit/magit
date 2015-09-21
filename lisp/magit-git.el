@@ -293,13 +293,15 @@ call function WASHER with no argument."
      (let ((default-directory
              (file-name-as-directory (--if-let ,file
                                          (expand-file-name it)
-                                       default-directory))))
+                                       default-directory)))
+           previous)
        (while (not (file-accessible-directory-p default-directory))
-         (when (string-equal default-directory "/")
-           (throw 'unsafe-default-dir nil))
          (setq default-directory
                (file-name-directory
-                (directory-file-name default-directory))))
+                (directory-file-name default-directory)))
+         (when (equal default-directory previous)
+           (throw 'unsafe-default-dir nil))
+         (setq previous default-directory))
        ,@body)))
 
 (defun magit-git-dir (&optional path)
