@@ -352,7 +352,10 @@ The following `format'-like specs are supported:
                                      (magit-stash-at-point))
                                 (magit-read-stash "Show stash"))
                             nil)
-                      (delete "--stat" (magit-diff-arguments))))
+                      (cl-destructuring-bind (args files)
+                          (magit-diff-arguments)
+                        (list (delete "--stat" args)
+                              files))))
   (magit-mode-setup magit-stash-buffer-name-format
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-stash-mode
