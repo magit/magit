@@ -292,6 +292,9 @@ not a good idea to change such entries.")
                  (ignore-errors
                    (server-send-string client "-error Canceled by user"))
                  (delete-process client))
+             ;; Fallback for when emacs was used as $EDITOR instead
+             ;; of emacsclient or the sleeping editor.  See #2258.
+             (ignore-errors (delete-file buffer-file-name))
              (kill-buffer)))
           (t
            (save-buffer)
