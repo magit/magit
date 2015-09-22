@@ -188,6 +188,7 @@ Miscellaneous
 * Tagging::
 * Notes::
 * Submodules::
+* Common commands::
 * Wip modes::
 * Minor mode for buffers visiting files::
 * Minor mode for buffers visiting blobs::
@@ -716,32 +717,6 @@ appending @code{<N>} and thereby keeping Magit from re-using it to display
 other information of the same kind.
 
 With a prefix argument, the user can pick an arbitrary name.
-
-@kindex M-w
-@cindex magit-copy-buffer-thing-as-kill
-@item @kbd{M-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-copy-buffer-thing-as-kill})
-
-This command saves a representation of the thing that is being
-displayed in the current buffer to the kill ring.
-
-In buffers in which it is undefined what this "buffer thing" is,
-this command instead saves the value of the current section, as
-@code{magit-copy-as-kill} would.
-
-When the region is active, then this command behaves like
-@code{kill-ring-save}.
-
-@kindex C-w
-@cindex magit-copy-as-kill
-@item @kbd{C-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-copy-as-kill})
-
-This commands saves the value of the current section to the kill
-ring.  For commits it saves the full hash.  For branches it saves
-the branch name, except when a prefix argument is used, then it
-saves the full hash.
-
-When the region is active, then this command behaves like
-@code{kill-ring-save}.
 @end table
 
 @node Automatic save
@@ -3592,7 +3567,68 @@ with those that are already committed.
 While committing, show the changes that are about to be committed.
 While amending, invoking the command again toggles between showing
 just the new changes or all the changes that will be committed.
+
+@kindex C-c C-w
+@cindex magit-pop-revision-stack
+@item @kbd{C-c C-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-pop-revision-stack})
+
+This command insert a representation of a revision into the current
+buffer.  It can be used inside buffers used to write commit messages
+but also in other buffers such as buffers used to edit emails or
+ChangeLog files.
+
+By default this command pops the revision which was last added to
+the @code{magit-revision-stack} and insert it into the current buffer
+according to @code{magit-pop-revision-stack-format}.  Revisions can be put
+on the stack using @code{magit-copy-section-value} and
+@code{magit-copy-buffer-revision}.
+
+If the stack is empty or with a prefix argument it instead reads a
+revision in the minibuffer.  By using the minibuffer history this
+allows selecting an item which was popped earlier or to insert an
+arbitrary reference or revision without first pushing it onto the
+stack.
+
+When reading the revision from the minibuffer, then it might not
+be possible to guess the correct repository.  When this command
+is called inside a repository (e.g. while composing a commit
+message), then that repository is used.  Otherwise (e.g. while
+composing an email) then the repository recorded for the top
+element of the stack is used (even though we insert another
+revision).  If not called inside a repository and with an empty
+stack, or with two prefix arguments, then read the repository in
+the minibuffer too.
+
 @end table
+
+@defopt magit-pop-revision-stack-format
+
+This option controls how the command @code{magit-pop-revision-stack}
+inserts a revision into the current buffer.
+
+The entries on the stack have the format @code{(HASH TOPLEVEL)} and this
+option has the format @code{(POINT-FORMAT EOB-FORMAT INDEX-REGEXP)}, all
+of which may be nil or a string (though either one of EOB-FORMAT
+or POINT-FORMAT should be a string, and if POINT-FORMAT is
+non-nil, then the the two formats should be too).
+
+First INDEX-REGEXP is used to find the previously inserted entry,
+by searching backward from point.  The first submatch must match
+the index number.  That number is incremented by one, and becomes
+the index number of the entry to be inserted.  If you don't want
+to number the inserted revisions, then us nil for INDEX-REGEXP.
+
+If INDEX-REGEXP is non-nil then both POINT-FORMAT and EOB-FORMAT
+should contain \"%N\", which is replaced with the number that was
+determined in the previous step.
+
+Both formats, if non-nil and after removing %N, are then expanded
+using `git show --format=FORMAT @dots{}' inside TOPLEVEL.
+
+The expansion of POINT-FORMAT is inserted at point, and the
+expansion of EOB-FORMAT is inserted at the end of the buffer (if the
+buffer ends with a comment, then it is inserted right before that).
+@end defopt
 
 Some projects use pseudo headers in commit messages.  Magit colorizes
 such headers and provides some commands to insert such headers.
@@ -5151,6 +5187,7 @@ changes made since the sequence started.
 * Tagging::
 * Notes::
 * Submodules::
+* Common commands::
 * Wip modes::
 * Minor mode for buffers visiting files::
 * Minor mode for buffers visiting blobs::
@@ -5381,6 +5418,48 @@ Fetch submodule.  With a prefix argument fetch all remotes.
 
 Unregister the submodule at PATH.
 @end table
+
+@node Common commands
+@section Common commands
+
+These are some of the commands that can be used in all buffers whose
+major-modes derive from @code{magit-mode}.  There are other common commands
+beside the ones below, but these didn't fit well anywhere else.
+
+@table @asis
+@kindex M-w
+@cindex magit-copy-section-value
+@item @kbd{M-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-copy-section-value})
+
+This command saves the value of the current section to the
+@code{kill-ring}, and, provided that the current section is a commit,
+branch, or tag section, it also pushes the (referenced) revision to
+the @code{magit-revision-stack}.
+
+When the current section is a branch or a tag, and a prefix argument
+is used, then it saves the revision at its tip to the @code{kill-ring}
+instead of the reference name.
+
+@kindex C-w
+@cindex magit-copy-buffer-revision
+@item @kbd{C-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-copy-buffer-revision})
+
+This command save the revision being displayed in the current buffer
+to the @code{kill-ring} and also pushes it to the @code{magit-revision-stack}.  It
+is mainly intended for use in @code{magit-revision-mode} buffers, the only
+buffers where it is always unambiguous exactly which revision should
+be saved.
+
+Most other Magit buffers usually show more than one revision, in
+some way or another, so this command has to select one of them, and
+that choice might not always be the one you think would have been
+the best pick.
+@end table
+
+Outside of Magit @code{M-w} and @code{C-w} are usually bound to @code{kill-ring-save} and
+@code{kill-region}, and these commands would also be useful in Magit buffers.
+Therefore when the region is active, then both of these commands
+behave like @code{kill-ring-save} instead of as described above.
 
 @node Wip modes
 @section Wip modes

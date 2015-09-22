@@ -101,5 +101,14 @@ THIS IS NOT COMPLETE.
 * Added new minor mode `magit-blob-mode' and new commands
   `magit-blob-previous' and `magit-blob-next'.  #2195
 
+* Added a revision stack.  The new commands `magit-copy-section-value'
+  and `magit-copy-buffer-revision', which are intended for use inside
+  Magit buffers, push an entry to the stack, and the new command
+  `magit-pop-revision-stack' inserts a representation into an editable
+  buffer.  New option `magit-pop-revision-stack-format' controls how
+  the representation of the revision is formatted.  The old commands
+  `magit-copy-as-kill' and `magit-copy-buffer-thing-as-kill' have been
+  removed.  #2225
+
 Authors
 -------
