@@ -1254,7 +1254,7 @@ realize it's all crap and want to start over."
    (let* ((atpoint (magit-branch-at-point))
           (branch  (magit-read-local-branch "Reset branch" atpoint)))
      (list branch
-           (magit-completing-read "Reset %s to"
+           (magit-completing-read (format "Reset %s to" branch)
                                   (delete branch (magit-list-branch-names))
                                   nil nil nil 'magit-revision-history
                                   (or (and (not (equal branch atpoint)) atpoint)
