@@ -2030,14 +2030,16 @@ are highlighted."
             'display (concat (magit-diff-hunk-region-header section) "\n"))
         (ov cbeg rbeg 'face face 'priority 2)
         (when (and (window-system) magit-diff-show-lines-boundary)
-          (ov rbeg (1+ rbeg) 'before-string
-              (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                                  (propertize "\n" 'line-height t))
-                          'face 'magit-diff-lines-boundary))
-          (ov rend (1+ rend) 'after-string
-              (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                                  (propertize "\n" 'line-height t))
-                          'face 'magit-diff-lines-boundary)))
+          (ov rbeg (save-excursion (goto-char rbeg) (line-end-position))
+              'face `(:overline ,(face-background 'magit-diff-lines-boundary nil t))
+              'after-string
+              (propertize (propertize "\s" 'display `(space :align-to ,(window-width)))
+                          'face `(:overline ,(face-background 'magit-diff-lines-boundary nil t))))
+          (ov (save-excursion (goto-char rend) (line-beginning-position)) rend
+              'face `(:underline ,(face-background 'magit-diff-lines-boundary nil t))
+              'after-string
+              (propertize (propertize "\s" 'display `(space :align-to ,(window-width)))
+                          'face `(:underline ,(face-background 'magit-diff-lines-boundary nil t)))))
         (ov (1+ rend) send 'face face 'priority 2)))))
 
 ;;; Diff Extract
