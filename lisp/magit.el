@@ -2498,6 +2498,7 @@ above."
   "The version of Magit that you're using.
 Use the function by the same name instead of this variable.")
 
+;;;###autoload
 (defun magit-version ()
   "Return the version of Magit currently in use.
 When called interactive also show the used versions of Magit,
