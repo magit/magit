@@ -2281,54 +2281,197 @@ With prefix argument simply read a directory name using
      dict)
     result))
 
-;;;; Various
+;;;; Revision Stack
 
-(defun magit-copy-as-kill ()
-  "Save the value of the current section to the kill ring.
-For commits save the full hash.  For branches do so only when
-a prefix argument is used, otherwise save the branch name.
-When the region is active, then behave like `kill-ring-save'."
+(defvar magit-revision-stack nil)
+
+(defcustom magit-pop-revision-stack-format
+  '("[%N: %h] " "%N: %H\n   %s\n" "\\[\\([0-9]+\\)[]:]")
+  "Control how `magit-pop-revision-stack' inserts a revision.
+
+The command `magit-pop-revision-stack' inserts a representation
+of the revision last pushed to the `magit-revision-stack' into
+the current buffer.  It inserts text at point and/or near the end
+of the buffer, and removes the consumed revision from the stack.
+
+The entries on the stack have the format (HASH TOPLEVEL) and this
+option has the format (POINT-FORMAT EOB-FORMAT INDEX-REGEXP), all
+of which may be nil or a string (though either one of EOB-FORMAT
+or POINT-FORMAT should be a string, and if POINT-FORMAT is
+non-nil, then the the two formats should be too).
+
+First INDEX-REGEXP is used to find the previously inserted entry,
+by searching backward from point.  The first submatch must match
+the index number.  That number is incremented by one, and becomes
+the index number of the entry to be inserted.  If you don't want
+to number the inserted revisions, then us nil for INDEX-REGEXP.
+
+If INDEX-REGEXP is non-nil then both POINT-FORMAT and EOB-FORMAT
+should contain \"%N\", which is replaced with the number that was
+determined in the previous step.
+
+Both formats, if non-nil and after removing %N, are then expanded
+using `git show --format=FORMAT ...' inside TOPLEVEL.
+
+The expansion of POINT-FORMAT is inserted at point, and the
+expansion of EOB-FORMAT is inserted at the end of the buffer (if
+the buffer ends with a comment, then it is inserted right before
+that)."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-status
+  :type '(list (or (string :tag "Insert at point format")
+                   (const  :tag "Don't insert at point" nil))
+               (or (string :tag "Insert at eob format")
+                   (const  :tag "Don't insert at eob" nil))
+               (or (regexp :tag "Find index regexp")
+                   (const  :tag "Don't number entries" nil))))
+
+(defun magit-pop-revision-stack (rev toplevel)
+  "Insert a representation of a revision into the current buffer.
+
+Pop a revision from the `magit-revision-stack' and insert it into
+the current buffer according to `magit-pop-revision-stack-format'.
+Revisions can be put on the stack using `magit-copy-section-value'
+and `magit-copy-buffer-revision'.
+
+If the stack is empty or with a prefix argument instead read a
+revision in the minibuffer.  By using the minibuffer history this
+allows selecting an item which was popped earlier or to insert an
+arbitrary reference or revision without first pushing it onto the
+stack.
+
+When reading the revision from the minibuffer, then it might not
+be possible to guess the correct repository.  When this command
+is called inside a repository (e.g. while composing a commit
+message), then that repository is used.  Otherwise (e.g. while
+composing an email) then the repository recorded for the top
+element of the stack is used (even though we insert another
+revision).  If not called inside a repository and with an empty
+stack, or with two prefix arguments, then read the repository in
+the minibuffer too."
+  (interactive
+   (if (or current-prefix-arg (not magit-revision-stack))
+       (let ((default-directory
+               (or (and (not (= (prefix-numeric-value current-prefix-arg) 16))
+                        (or (magit-toplevel)
+                            (cadr (car magit-revision-stack))))
+                   (magit-read-repository))))
+         (list (magit-read-branch-or-commit "Insert revision")
+               default-directory))
+     (push (caar magit-revision-stack) magit-revision-history)
+     (pop magit-revision-stack)))
+  (if rev
+      (cl-destructuring-bind (pnt-format eob-format idx-format)
+          magit-pop-revision-stack-format
+        (let ((default-directory toplevel)
+              (idx (and idx-format
+                        (save-excursion
+                          (if (re-search-backward idx-format nil t)
+                              (number-to-string
+                               (1+ (string-to-number (match-string 1))))
+                            "1")))))
+          (when pnt-format
+            (when idx-format
+              (setq pnt-format
+                    (replace-regexp-in-string "%N" idx pnt-format t t)))
+            (magit-rev-insert-format pnt-format rev)
+            (backward-delete-char 1))
+          (when eob-format
+            (when idx-format
+              (setq eob-format
+                    (replace-regexp-in-string "%N" idx eob-format t t)))
+            (save-excursion
+              (goto-char (point-max))
+              (when comment-start
+                (while (re-search-backward (concat "^" comment-start) nil t)))
+              (magit-rev-insert-format eob-format rev)
+              (backward-delete-char 1)
+              (when (and comment-start (looking-at (concat "^" comment-start)))
+                (insert "\n"))))))
+    (user-error "Revision stack is empty")))
+
+(define-key git-commit-mode-map
+  (kbd "C-c C-w") 'magit-pop-revision-stack)
+
+(defun magit-copy-section-value ()
+  "Save the value of the current section for later use.
+
+Save the section value to the `kill-ring', and, provided that
+the current section is a commit, branch, or tag section, push
+the (referenced) revision to the `magit-revision-stack'.
+
+When the current section is a branch or a tag, and a prefix
+argument is used, then save the revision at its tip to the
+`kill-ring' instead of the reference name.
+
+When the region is active, then save that to the `kill-ring',
+like `kill-ring-save' would, instead of behaving as described
+above."
   (interactive)
   (if (region-active-p)
       (copy-region-as-kill (mark) (point) 'region)
     (-when-let* ((section (magit-current-section))
                  (value (magit-section-value section)))
       (magit-section-case
-        (branch (when current-prefix-arg
-                  (setq value (magit-rev-parse value))))
-        (commit (setq value (magit-rev-parse value)))
-        (module-commit (let ((default-directory
-                               (file-name-as-directory
-                                (expand-file-name
-                                 (magit-section-parent-value section)
-                                 (magit-toplevel)))))
-                         (setq value (magit-rev-parse value)))))
-      (kill-new (message "%s" value)))))
+        ((branch commit module-commit tag)
+         (let ((default-directory default-directory) ref)
+           (magit-section-case
+             ((branch tag)
+              (setq ref value))
+             (module-commit
+              (setq default-directory
+                    (file-name-as-directory
+                     (expand-file-name (magit-section-parent-value section)
+                                       (magit-toplevel))))))
+           (setq value (magit-rev-parse value))
+           (push (list value default-directory) magit-revision-stack)
+           (kill-new (message "%s" (or (and current-prefix-arg ref)
+                                       value)))))
+        (t (kill-new (message "%s" value)))))))
 
-(defun magit-copy-buffer-thing-as-kill ()
-  "Save the thing displayed in the current buffer to the kill ring.
-When the region is active, then behave like `kill-ring-save'."
+(defun magit-copy-buffer-revision ()
+  "Save the revision of the current buffer for later use.
+
+Save the revision shown in the current buffer to the `kill-ring'
+and push it to the `magit-revision-stack'.
+
+This command is mainly intended for use in `magit-revision-mode'
+buffers, the only buffers where it is always unambiguous exactly
+which revision should be saved.
+
+Most other Magit buffers usually show more than one revision, in
+some way or another, so this command has to select one of them,
+and that choice might not always be the one you think would have
+been the best pick.
+
+In such buffers it is often more useful to save the value of
+the current section instead, using `magit-copy-section-value'.
+
+When the region is active, then save that to the `kill-ring',
+like `kill-ring-save' would, instead of behaving as described
+above."
   (interactive)
   (if (region-active-p)
       (copy-region-as-kill (mark) (point) 'region)
-    (--when-let (cond ((derived-mode-p 'magit-revision-mode)
-                       (magit-rev-parse (car magit-refresh-args)))
-                      ((derived-mode-p 'magit-diff-mode
-                                       'magit-cherry-mode
-                                       'magit-reflog-mode
-                                       'magit-refs-mode
-                                       'magit-stash-mode)
-                       (car magit-refresh-args))
-                      ((derived-mode-p 'magit-log-mode)
-                       (if magit-log-select-pick-function
-                           (car magit-refresh-args)
-                         (cadr magit-refresh-args)))
-                      ((derived-mode-p 'magit-status-mode)
-                       (or (magit-get-current-branch) "HEAD"))
-                      ((derived-mode-p 'magit-stashes-mode)
-                       "refs/stash")
-                      (t (magit-copy-as-kill)))
-      (kill-new (message "%s" it)))))
+    (-when-let (rev (cond ((memq major-mode '(magit-cherry-mode
+                                              magit-log-select-mode
+                                              magit-reflog-mode
+                                              magit-refs-mode
+                                              magit-revision-mode
+                                              magit-stash-mode
+                                              magit-stashes-mode))
+                           (car magit-refresh-args))
+                          ((memq major-mode '(magit-diff-mode
+                                              magit-log-mode))
+                           (let ((r (caar magit-refresh-args)))
+                             (if (string-match "\\.\\.\\.?\\(.+\\)" r)
+                                 (match-string 1 r)
+                               r)))
+                          ((eq major-mode 'magit-status-mode) "HEAD")))
+      (when (magit-rev-verify-commit rev)
+        (setq rev (magit-rev-parse rev))
+        (push (list rev default-directory) magit-revision-stack)
+        (kill-new (message "%s" rev))))))
 
 ;;; magit.el ends soon
 
