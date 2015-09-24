@@ -677,10 +677,10 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
                    (not (member revs '("--all" "--branches")))
                    (magit-git-string "rev-list" "--count"
                                      "--first-parent" revs))
-    (setq revs (format "%s~%s..%s" revs
-                       (min (1- (string-to-number it))
-                            (max 1024 (* 2 magit-log-cutoff-length)))
-                       revs)))
+    (setq revs (let ((cutoff (max 1024 (* 2 magit-log-cutoff-length))))
+                 (if (< (string-to-number it) cutoff)
+                     revs
+                   (format "%s~%s..%s" revs cutoff revs)))))
   (magit-insert-section (logbuf)
     (magit-insert-log revs args files)))
 
