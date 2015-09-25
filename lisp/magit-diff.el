@@ -2017,7 +2017,8 @@ are highlighted."
           (send (magit-section-end section))
           (face (if magit-diff-highlight-hunk-body
                     'magit-diff-context-highlight
-                  'magit-diff-context)))
+                  'magit-diff-context))
+          (align (list 'space :align-to (list (window-body-width nil t)))))
       (when magit-diff-unmarked-lines-keep-foreground
         (setq face (list :background (face-attribute face :background))))
       (cl-flet ((ov (start end &rest args)
@@ -2027,18 +2028,16 @@ are highlighted."
                       (push ov magit-region-overlays)
                       ov)))
         (ov sbeg cbeg 'face 'magit-diff-lines-heading
-            'display (concat (magit-diff-hunk-region-header section) "\n"))
+            'display (magit-diff-hunk-region-header section)
+            'after-string (propertize "\s" 'face 'magit-diff-lines-heading
+                                      'display align))
         (ov cbeg rbeg 'face face 'priority 2)
         (when (and magit-diff-show-lines-boundary
-                   ;; TODO when was that added?
-                   ;; TODO use old approach for older Emacsen
-                   (fboundp 'window-body-width)
                    (window-system))
-          (let* ((eol (save-excursion (goto-char rbeg) (line-end-position)))
-                 (bol (save-excursion (goto-char rend) (line-beginning-position)))
-                 (color (face-background 'magit-diff-lines-boundary nil t))
-                 (face  (list :overline color :underline color))
-                 (align (list 'space :align-to (list (window-body-width nil t)))))
+          (let ((eol (save-excursion (goto-char rbeg) (line-end-position)))
+                (bol (save-excursion (goto-char rend) (line-beginning-position)))
+                (color (face-background 'magit-diff-lines-boundary nil t))
+                (face  (list :overline color :underline color)))
             (if (= rbeg bol)
                 (ov rbeg eol 'face face
                     'after-string (propertize "\s" 'face face 'display align))
