@@ -265,12 +265,13 @@ Identical to `process-file' but temporarily enable Cygwin's
     (apply #'process-file args)))
 
 (defun magit-cygwin-env-vars ()
-  (when magit-need-cygwin-noglob
-    (mapcar (lambda (var)
-              (concat var "=" (--if-let (getenv var)
-                                  (concat it " noglob")
-                                "noglob")))
-            '("CYGWIN" "MSYS"))))
+  (append magit-git-environment
+          (when magit-need-cygwin-noglob
+            (mapcar (lambda (var)
+                      (concat var "=" (--if-let (getenv var)
+                                          (concat it " noglob")
+                                        "noglob")))
+                    '("CYGWIN" "MSYS")))))
 
 (defun magit-run-git-with-input (input &rest args)
   "Call Git in a separate process.

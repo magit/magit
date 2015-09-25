@@ -50,6 +50,9 @@
   "Git and other external processes used by Magit."
   :group 'magit)
 
+(defvar magit-git-environment nil
+  "Prepended to `process-environment' while running git.")
+
 (defcustom magit-git-executable
   ;; Git might be installed in a different location on a remote, so
   ;; it is better not to use the full path to the executable, except
@@ -58,14 +61,28 @@
   ;; than using "bin/git.exe" directly.
   (or (and (eq system-type 'windows-nt)
            (--when-let (executable-find "git.exe")
-             (let ((alt (directory-file-name (file-name-directory it))))
-               (if (and (equal (file-name-nondirectory alt) "cmd")
-                        (setq alt (expand-file-name
-                                   (convert-standard-filename "bin/git.exe")
-                                   (file-name-directory alt)))
-                        (file-executable-p alt))
-                   alt
-                 it))))
+             (or (with-temp-buffer
+                   (when (save-excursion
+                           (= (call-process
+                              it nil '(t t) nil "-c"
+                              "alias.exe=!which git | cygpath -wf -" "exe") 0))
+                     (prog1 (delete-and-extract-region 1 (line-end-position))
+                       (save-excursion
+                         (insert "PATH=")
+                         (call-process
+                          it nil '(t t) nil "-c"
+                          "alias.path=!cygpath -wp \"$PATH\"" "path"))
+                       (setq magit-git-environment
+                             (buffer-substring-no-properties
+                              (point) (line-end-position))))))
+                 (let ((alt (directory-file-name (file-name-directory it))))
+                   (if (and (equal (file-name-nondirectory alt) "cmd")
+                            (setq alt (expand-file-name
+                                       (convert-standard-filename "bin/git.exe")
+                                       (file-name-directory alt)))
+                            (file-executable-p alt))
+                       alt
+                     it)))))
       "git")
   "The Git executable used by Magit."
   :group 'magit-process
