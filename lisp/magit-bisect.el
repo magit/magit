@@ -50,11 +50,12 @@
   'magit-commands 'magit-popup-sequence-mode
   :man-page "git-bisect"
   :actions            '((?B "Start" magit-bisect-start)
-                        (?a "Run"   magit-bisect-run))
+                        (?R "Start & Run" magit-bisect-start-and-run))
   :sequence-actions   '((?r "Reset" magit-bisect-reset)
                         (?b "Bad"   magit-bisect-bad)
                         (?g "Good"  magit-bisect-good)
-                        (?k "Skip"  magit-bisect-skip))
+                        (?k "Skip"  magit-bisect-skip)
+                        (?a "Run"   magit-bisect-run))
   :sequence-predicate 'magit-bisect-in-progress-p)
 
 ;;;###autoload
@@ -72,6 +73,13 @@ other actions from the bisect popup (\
      (let ((b (magit-read-branch-or-commit "Start bisect with bad revision")))
        (list b (magit-read-other-branch-or-commit "Good revision" b)))))
   (magit-bisect-async "start" (list bad good) t))
+
+;;;###autoload
+(defun magit-bisect-start-and-run ()
+  "Calls `magit-bisect-start' followed by `magit-bisect-run'."
+  (interactive)
+  (call-interactively 'magit-bisect-start)
+  (call-interactively 'magit-bisect-run))
 
 ;;;###autoload
 (defun magit-bisect-reset ()
