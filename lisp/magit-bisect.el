@@ -49,12 +49,13 @@
   "Popup console for bisect commands."
   'magit-commands 'magit-popup-sequence-mode
   :man-page "git-bisect"
-  :actions            '((?B "Start" magit-bisect-start)
-                        (?a "Run"   magit-bisect-run))
-  :sequence-actions   '((?r "Reset" magit-bisect-reset)
-                        (?b "Bad"   magit-bisect-bad)
-                        (?g "Good"  magit-bisect-good)
-                        (?k "Skip"  magit-bisect-skip))
+  :actions            '((?B "Start"        magit-bisect-start)
+                        (?s "Start script" magit-bisect-run))
+  :sequence-actions   '((?b "Bad"          magit-bisect-bad)
+                        (?g "Good"         magit-bisect-good)
+                        (?k "Skip"         magit-bisect-skip)
+                        (?r "Reset"        magit-bisect-reset)
+                        (?s "Run script"   magit-bisect-run))
   :sequence-predicate 'magit-bisect-in-progress-p)
 
 ;;;###autoload
@@ -66,12 +67,14 @@ This command starts such a bisect session by asking for a know
 good and a bad commit.  To move the session forward use the
 other actions from the bisect popup (\
 \\<magit-status-mode-map>\\[magit-bisect-popup])."
-  (interactive
-   (if (magit-bisect-in-progress-p)
-       (user-error "Already bisecting")
-     (let ((b (magit-read-branch-or-commit "Start bisect with bad revision")))
-       (list b (magit-read-other-branch-or-commit "Good revision" b)))))
+  (interactive (if (magit-bisect-in-progress-p)
+                   (user-error "Already bisecting")
+                 (magit-bisect-start-read-args)))
   (magit-bisect-async "start" (list bad good) t))
+
+(defun magit-bisect-start-read-args ()
+  (let  ((b (magit-read-branch-or-commit "Start bisect with bad revision")))
+    (list b (magit-read-other-branch-or-commit "Good revision" b))))
 
 ;;;###autoload
 (defun magit-bisect-reset ()
@@ -106,9 +109,17 @@ to test.  This command lets Git choose a different one."
   (magit-bisect-async "skip"))
 
 ;;;###autoload
-(defun magit-bisect-run (cmdline)
-  "Bisect automatically by running commands after each step."
-  (interactive (list (read-shell-command "Bisect shell command: ")))
+(defun magit-bisect-run (cmdline &optional bad good)
+  "Bisect automatically by running commands after each step.
+
+Unlike `git bisect run' this can be used before bisecting has
+begun.  In that case it behaves like `git bisect start; git
+bisect run'."
+  (interactive (let ((args (and (not (magit-bisect-in-progress-p))
+                                (magit-bisect-start-read-args))))
+                 (cons (read-shell-command "Bisect shell command: ") args)))
+  (when (and bad good)
+    (magit-bisect-start bad good))
   (magit-bisect-async "run" (list cmdline)))
 
 (defun magit-bisect-async (subcommand &optional args no-assert)
