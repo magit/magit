@@ -2029,17 +2029,23 @@ are highlighted."
         (ov sbeg cbeg 'face 'magit-diff-lines-heading
             'display (concat (magit-diff-hunk-region-header section) "\n"))
         (ov cbeg rbeg 'face face 'priority 2)
-        (when (and (window-system) magit-diff-show-lines-boundary)
-          (ov rbeg (save-excursion (goto-char rbeg) (line-end-position))
-              'face `(:overline ,(face-background 'magit-diff-lines-boundary nil t))
-              'after-string
-              (propertize (propertize "\s" 'display `(space :align-to ,(window-width)))
-                          'face `(:overline ,(face-background 'magit-diff-lines-boundary nil t))))
-          (ov (save-excursion (goto-char rend) (line-beginning-position)) rend
-              'face `(:underline ,(face-background 'magit-diff-lines-boundary nil t))
-              'after-string
-              (propertize (propertize "\s" 'display `(space :align-to ,(window-width)))
-                          'face `(:underline ,(face-background 'magit-diff-lines-boundary nil t)))))
+        (when (and magit-diff-show-lines-boundary
+                   ;; TODO when was that added?
+                   ;; TODO use old approach for older Emacsen
+                   (fboundp 'window-body-width)
+                   (window-system))
+          (let* ((eol (save-excursion (goto-char rbeg) (line-end-position)))
+                 (bol (save-excursion (goto-char rend) (line-beginning-position)))
+                 (color (face-background 'magit-diff-lines-boundary nil t))
+                 (face  (list :overline color :underline color))
+                 (align (list 'space :align-to (list (window-body-width nil t)))))
+            (if (= rbeg bol)
+                (ov rbeg eol 'face face
+                    'after-string (propertize "\s" 'face face 'display align))
+              (ov rbeg eol 'face (setq face (list :overline color))
+                  'after-string (propertize "\s" 'face face 'display align))
+              (ov bol rend 'face (setq face (list :underline color))
+                  'after-string (propertize "\s\n" 'face face 'display align)))))
         (ov (1+ rend) send 'face face 'priority 2)))))
 
 ;;; Diff Extract
