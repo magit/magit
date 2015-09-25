@@ -106,10 +106,10 @@ conflicts, including those already resolved by Git, use
          (let ((bufC ediff-buffer-C)
                (bufS smerge-ediff-buf))
            (with-current-buffer bufS
-             (erase-buffer)
-             (insert-buffer-substring bufC)
              (when (yes-or-no-p (format "Conflict resolution finished; save %s?"
                                         buffer-file-name))
+               (erase-buffer)
+               (insert-buffer-substring bufC)
                (save-buffer))))
          (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
          (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
