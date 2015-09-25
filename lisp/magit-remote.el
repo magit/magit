@@ -147,16 +147,16 @@ then read the remote."
 (defun magit-pull-current (remote branch &optional args)
   "Fetch and merge into current branch."
   (interactive (magit-pull-read-args t))
-  (magit-run-git-async "pull" args
-                       (and (not (equal remote (magit-get-remote)))
-                            (not (equal branch (magit-get-remote-branch)))
-                            (list remote branch))))
+  (magit-run-git-with-editor "pull" args
+                             (and (not (equal remote (magit-get-remote)))
+                                  (not (equal branch (magit-get-remote-branch)))
+                                  (list remote branch))))
 
 ;;;###autoload
 (defun magit-pull (remote branch &optional args)
   "Fetch from another repository and merge a fetched branch."
   (interactive (magit-pull-read-args))
-  (magit-run-git-async "pull" args remote branch))
+  (magit-run-git-with-editor "pull" args remote branch))
 
 (defun magit-pull-read-args (&optional use-upstream)
   (let ((remote (magit-get-remote-branch)))
