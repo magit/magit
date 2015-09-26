@@ -2027,7 +2027,7 @@ are highlighted."
                       (while args (overlay-put ov (pop args) (pop args)))
                       (push ov magit-region-overlays)
                       ov)))
-        (ov sbeg cbeg 'face 'magit-diff-lines-heading
+        (ov sbeg (1- cbeg) 'face 'magit-diff-lines-heading
             'display (magit-diff-hunk-region-header section)
             'after-string (propertize "\s" 'face 'magit-diff-lines-heading
                                       'display align))
