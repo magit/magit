@@ -2018,7 +2018,8 @@ are highlighted."
           (face (if magit-diff-highlight-hunk-body
                     'magit-diff-context-highlight
                   'magit-diff-context))
-          (align (list 'space :align-to (list (window-body-width nil t)))))
+          (align (list 'space :align-to `(+ (,(window-body-width nil t))
+                                            ,(window-hscroll)))))
       (when magit-diff-unmarked-lines-keep-foreground
         (setq face (list :background (face-attribute face :background))))
       (cl-flet ((ov (start end &rest args)
