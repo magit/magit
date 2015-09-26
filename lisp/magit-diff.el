@@ -2034,10 +2034,10 @@ are highlighted."
         (ov cbeg rbeg 'face face 'priority 2)
         (when (and magit-diff-show-lines-boundary
                    (window-system))
-          (let ((eol (save-excursion (goto-char rbeg) (line-end-position)))
-                (bol (save-excursion (goto-char rend) (line-beginning-position)))
-                (color (face-background 'magit-diff-lines-boundary nil t))
-                (face  (list :overline color :underline color)))
+          (let* ((eol (save-excursion (goto-char rbeg) (line-end-position)))
+                 (bol (save-excursion (goto-char rend) (line-beginning-position)))
+                 (color (face-background 'magit-diff-lines-boundary nil t))
+                 (face  (list :overline color :underline color)))
             (if (= rbeg bol)
                 (ov rbeg eol 'face face
                     'after-string (propertize "\s" 'face face 'display align))
