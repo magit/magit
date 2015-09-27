@@ -1624,7 +1624,10 @@ If FILE isn't tracked in Git fallback to using `rename-file'."
           (with-current-buffer oldbuf
             (let ((buffer-read-only buffer-read-only))
               (set-visited-file-name newname))
-            (vc-find-file-hook))))
+            (if (fboundp 'vc-refresh-state)
+                (vc-refresh-state)
+              (with-no-warnings
+                (vc-find-file-hook))))))
     (rename-file file newname current-prefix-arg)
     (magit-refresh)))
 
