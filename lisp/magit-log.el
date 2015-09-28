@@ -922,12 +922,13 @@ alist in `magit-log-format-unicode-graph-alist'."
 (defun magit-format-log-margin (&optional author date)
   (cl-destructuring-bind (width unit-width duration-spec)
       magit-log-margin-spec
-    (if author
+    (if date
         (magit-make-margin-overlay
          (propertize (truncate-string-to-width
-                      author (- width 1 3 ; gap, digits
-                                (if (= unit-width 1) 1 (1+ unit-width))
-                                (if (derived-mode-p 'magit-log-mode) 1 0))
+                      (or author "")
+                      (- width 1 3 ; gap, digits
+                         (if (= unit-width 1) 1 (1+ unit-width))
+                         (if (derived-mode-p 'magit-log-mode) 1 0))
                       nil ?\s (make-string 1 magit-ellipsis))
                      'face 'magit-log-author)
          " "
