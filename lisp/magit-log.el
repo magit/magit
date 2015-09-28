@@ -763,8 +763,7 @@ Do not add this to a hook variable."
   (concat "^"
           "\\(?1:[^ ]+\\) "                        ; sha1
           "\\[\\(?5:[^]]*\\)\\] "                  ; author
-          "\\(?6:[^ ]*\\) "                        ; date
-          "\\(?:\\(?:[^@]+@{\\(?9:[^}]+\\)} "      ; refsel
+          "\\(?:\\(?:[^@]+@{\\(?6:[^}]+\\)} "      ; date
           "\\(?10:merge \\|autosave \\|restart \\|[^:]+: \\)?" ; refsub
           "\\(?2:.*\\)?\\)\\| \\)$"))              ; msg
 
@@ -836,7 +835,7 @@ Do not add this to a hook variable."
                 (`bisect-vis magit-log-bisect-vis-re)
                 (`bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
-      (hash msg refs graph author date gpg cherry refsel refsub side) nil
+      (hash msg refs graph author date gpg cherry _ refsub side) nil
     (magit-delete-match)
     (magit-insert-section section (commit hash)
       (pcase style
@@ -860,7 +859,7 @@ Do not add this to a hook variable."
       (when (and refs (not magit-log-show-refname-after-summary))
         (magit-insert (magit-format-ref-labels refs) nil ?\s))
       (when refsub
-        (insert (format "%-2s " refsel))
+        (insert (format "%-2s " (1- magit-log-count)))
         (magit-insert
          (magit-reflog-format-subject
           (substring refsub 0 (if (string-match-p ":" refsub) -2 -1)))))
@@ -874,6 +873,11 @@ Do not add this to a hook variable."
         (magit-insert (magit-format-ref-labels refs)))
       (when (memq style '(oneline reflog stash))
         (goto-char (line-beginning-position))
+        (when (and refsub
+                   (string-match "\\`\\([^ ]\\) \\+\\(..\\)\\(..\\)" date))
+          (setq date (+ (string-to-number (match-string 1 date))
+                        (* (string-to-number (match-string 2 date)) 60 60)
+                        (* (string-to-number (match-string 3 date)) 60))))
         (magit-format-log-margin author date))
       (forward-line)))
   (when (eq style 'oneline)
@@ -1176,7 +1180,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
         (propertize (concat " Reflog for " ref) 'face 'magit-header-line))
   (magit-insert-section (reflogbuf)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
-      "reflog" "show" "--format=%h [%aN] %ct %gd %gs"
+      "reflog" "show" "--format=%h [%aN] %gd %gs" "--date=raw"
       (magit-log-format-max-count) ref)))
 
 (defvar magit-reflog-labels
