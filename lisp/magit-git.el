@@ -330,6 +330,7 @@ returning the truename."
   (magit--with-safe-default-directory directory
     (-if-let (topdir (magit-rev-parse-safe "--show-toplevel"))
         (let (updir)
+          (setq topdir (magit-expand-git-file-name topdir))
           (if (and
                ;; Always honor these settings.
                (not find-file-visit-truename)
@@ -348,8 +349,9 @@ returning the truename."
                                     (expand-file-name
                                      (magit-rev-parse-safe "--show-cdup"))))))
                  (and (string-equal (magit-rev-parse-safe "--show-cdup") "")
-                      (string-equal (magit-rev-parse-safe "--show-toplevel")
-                                    topdir))))
+                      (--when-let (magit-rev-parse-safe "--show-toplevel")
+                        (string-equal (magit-expand-git-file-name it)
+                                      topdir)))))
               updir
             (concat (file-remote-p default-directory)
                     (file-name-as-directory topdir))))
@@ -357,7 +359,8 @@ returning the truename."
         (setq gitdir (file-name-as-directory
                       (if (file-name-absolute-p gitdir)
                           ;; We might have followed a symlink.
-                          (concat (file-remote-p default-directory) gitdir)
+                          (concat (file-remote-p default-directory)
+                                  (magit-expand-git-file-name gitdir))
                         (expand-file-name gitdir))))
         (if (magit-bare-repo-p)
             gitdir
