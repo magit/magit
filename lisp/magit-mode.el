@@ -281,7 +281,7 @@ starts complicating other things, then it will be removed."
     (define-key map "s" 'magit-stage-file)
     (define-key map "S" 'magit-stage-modified)
     (define-key map "u" 'magit-unstage-file)
-    (define-key map "U" 'magit-reset-index)
+    (define-key map "U" 'magit-unstage-all)
     (define-key map "v" 'magit-revert-no-commit)
     (define-key map "V" 'magit-revert-popup)
     (define-key map "w" 'magit-am-popup)
