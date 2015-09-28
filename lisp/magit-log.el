@@ -762,7 +762,6 @@ Do not add this to a hook variable."
 (defconst magit-log-reflog-re
   (concat "^"
           "\\(?1:[^ ]+\\) "                        ; sha1
-          "\\[\\(?5:[^]]*\\)\\] "                  ; author
           "\\(?:\\(?:[^@]+@{\\(?6:[^}]+\\)} "      ; date
           "\\(?10:merge \\|autosave \\|restart \\|[^:]+: \\)?" ; refsub
           "\\(?2:.*\\)?\\)\\| \\)$"))              ; msg
@@ -922,16 +921,20 @@ alist in `magit-log-format-unicode-graph-alist'."
 (defun magit-format-log-margin (&optional author date)
   (cl-destructuring-bind (width unit-width duration-spec)
       magit-log-margin-spec
+    (when (and date (not author))
+      (setq width (+ (if (= unit-width 1) 1 (1+ unit-width))
+                     (if (derived-mode-p 'magit-log-mode) 1 0))))
     (if date
         (magit-make-margin-overlay
-         (propertize (truncate-string-to-width
-                      (or author "")
-                      (- width 1 3 ; gap, digits
-                         (if (= unit-width 1) 1 (1+ unit-width))
-                         (if (derived-mode-p 'magit-log-mode) 1 0))
-                      nil ?\s (make-string 1 magit-ellipsis))
-                     'face 'magit-log-author)
-         " "
+         (and author
+              (concat (propertize (truncate-string-to-width
+                                   (or author "")
+                                   (- width 1 3 ; gap, digits
+                                      (if (= unit-width 1) 1 (1+ unit-width))
+                                      (if (derived-mode-p 'magit-log-mode) 1 0))
+                                   nil ?\s (make-string 1 magit-ellipsis))
+                                  'face 'magit-log-author)
+                      " "))
          (propertize (magit-format-duration
                       (abs (truncate (- (float-time)
                                         (string-to-number date))))
@@ -1181,7 +1184,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
         (propertize (concat " Reflog for " ref) 'face 'magit-header-line))
   (magit-insert-section (reflogbuf)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
-      "reflog" "show" "--format=%h [%aN] %gd %gs" "--date=raw"
+      "reflog" "show" "--format=%h %gd %gs" "--date=raw"
       (magit-log-format-max-count) ref)))
 
 (defvar magit-reflog-labels
@@ -1367,11 +1370,13 @@ These sections can be expanded to show the respective commits."
   (magit-set-buffer-margin (not (cdr (window-margins)))))
 
 (defun magit-set-buffer-margin (enable)
-  (let ((width (and enable
-                    (if (and (derived-mode-p 'magit-log-mode)
-                             (eq (car magit-refresh-args) 'verbose))
-                        0 ; temporarily hide redundant margin
-                      (car magit-log-margin-spec)))))
+  (let ((width (cond ((not enable) nil)
+                     ((derived-mode-p 'magit-reflog-mode)
+                      (+ (cadr magit-log-margin-spec) 5))
+                     ((and (derived-mode-p 'magit-log-mode)
+                           (eq (car magit-refresh-args) 'verbose))
+                      0) ; temporarily hide redundant margin
+                     (t (car magit-log-margin-spec)))))
     (setq magit-show-margin width)
     (when (and enable magit-set-buffer-margin-refresh)
       (magit-refresh))
