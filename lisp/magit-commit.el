@@ -54,15 +54,15 @@
   :group 'magit-commands
   :type 'boolean)
 
-(defcustom magit-commit-extend-override-date nil
+(defcustom magit-commit-extend-override-date t
   "Whether using `magit-commit-extend' changes the committer date."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.3.0")
   :group 'magit-commands
   :type 'boolean)
 
-(defcustom magit-commit-reword-override-date nil
+(defcustom magit-commit-reword-override-date t
   "Whether using `magit-commit-reword' changes the committer date."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.3.0")
   :group 'magit-commands
   :type 'boolean)
 
