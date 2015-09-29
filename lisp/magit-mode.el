@@ -519,29 +519,33 @@ the function `magit-toplevel'."
     (setq format (symbol-value
                   (intern (format "%s-buffer-name-format"
                                   (substring (symbol-name mode) 0 -5))))))
-  (if (not (string-match-p "%[ab]" format))
-      (funcall (if create #'get-buffer-create #'get-buffer) format)
-    (setq pwd (expand-file-name (or pwd default-directory)))
-    (let* ((topdir (let ((default-directory pwd))
-                     (magit-toplevel)))
-           (name (format-spec
-                  format (if topdir
-                             `((?a . ,(abbreviate-file-name topdir))
-                               (?b . ,(file-name-nondirectory
-                                       (directory-file-name topdir))))
-                           '((?a . "-") (?b . "-"))))))
-      (or (--first (with-current-buffer it
-                     (and (equal (buffer-name) name)
-                          (or (not topdir)
-                              (equal (expand-file-name default-directory)
-                                     topdir))))
-                   (if frame
-                       (-map #'window-buffer
-                             (window-list (unless (eq frame t) frame)))
-                     (buffer-list)))
-          (and create
-               (let ((default-directory (or topdir pwd)))
-                 (generate-new-buffer name)))))))
+  (setq pwd (expand-file-name (or pwd default-directory)))
+  (let* ((topdir (let ((default-directory pwd))
+                   (magit-toplevel)))
+         (bufdir (or topdir pwd)))
+    (if (not (string-match-p "%[ab]" format))
+        (-when-let (buf (funcall (if create #'get-buffer-create #'get-buffer) format))
+         (with-current-buffer buf
+           (cd-absolute bufdir))
+         buf)
+      (let ((name (format-spec
+                   format (if topdir
+                              `((?a . ,(abbreviate-file-name topdir))
+                                (?b . ,(file-name-nondirectory
+                                        (directory-file-name topdir))))
+                            '((?a . "-") (?b . "-"))))))
+        (or (--first (with-current-buffer it
+                       (and (equal (buffer-name) name)
+                            (or (not topdir)
+                                (equal (expand-file-name default-directory)
+                                       topdir))))
+                     (if frame
+                         (-map #'window-buffer
+                               (window-list (unless (eq frame t) frame)))
+                       (buffer-list)))
+            (and create
+                 (let ((default-directory bufdir))
+                   (generate-new-buffer name))))))))
 
 (defun magit-mode-get-buffer-create (format mode &optional directory)
   (magit-mode-get-buffer format mode directory t))
