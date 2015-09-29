@@ -690,7 +690,7 @@ See `with-editor.info' for instructions."
     (--each (with-editor-emacsclient-path)
       (insert (format "    %s (%s)\n" it (car (file-attributes it))))
       (when (file-directory-p it)
-        (dolist (exec (directory-files it nil "emacsclient"))
+        (dolist (exec (directory-files it t "emacsclient"))
           (insert (format "      %s (%s)\n" exec
                           (with-editor-emacsclient-version exec))))))))
 
