@@ -660,7 +660,7 @@ See `with-editor.info' for instructions."
      (format "  server-use-tcp: %s\n" server-use-tcp)
      (format "  server-name: %s\n" server-name)
      (format "  server-socket-dir: %s\n" server-socket-dir))
-    (if (file-accessible-directory-p server-socket-dir)
+    (if (and server-socket-dir (file-accessible-directory-p server-socket-dir))
         (--each (directory-files server-socket-dir nil "^[^.]")
           (insert (format "    %s\n" it)))
       (insert (format "    %s: not an accessible directory\n"
