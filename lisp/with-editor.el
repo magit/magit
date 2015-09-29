@@ -108,7 +108,7 @@
 (defun with-editor-locate-emacsclient ()
   "Search for a suitable Emacsclient executable."
   (--if-let (with-editor-locate-emacsclient-1 (with-editor-emacsclient-path) 3)
-      (shell-quote-argument it)
+      it
     (display-warning 'with-editor (format "\
 Cannot determine a suitable Emacsclient
 
@@ -384,12 +384,13 @@ ENVVAR is provided then bind that environment variable instead.
          (server-start))
        ;; Tell $EDITOR to use the Emacsclient.
        (setenv with-editor--envvar
-               (concat with-editor-emacsclient-executable
+               (concat (shell-quote-argument with-editor-emacsclient-executable)
        ;; Tell the process where the server file is.
                        (and (not server-use-tcp)
                             (concat " --socket-name="
-                                    (expand-file-name server-name
-                                                      server-socket-dir)))))
+                                    (shell-quote-argument
+                                     (expand-file-name server-name
+                                                       server-socket-dir))))))
        (when server-use-tcp
          (setenv "EMACS_SERVER_FILE"
                  (expand-file-name server-name server-auth-dir)))
