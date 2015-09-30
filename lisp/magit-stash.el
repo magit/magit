@@ -327,8 +327,7 @@ The following `format'-like specs are supported:
 ;;; Show Stash
 
 (defcustom magit-stash-sections-hook
-  '(magit-insert-stash-message
-    magit-insert-stash-index
+  '(magit-insert-stash-index
     magit-insert-stash-worktree
     magit-insert-stash-untracked)
   "Hook run to insert sections into stash buffers."
@@ -368,16 +367,12 @@ The following `format'-like specs are supported:
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-stash-refresh-buffer (stash _const args files)
+  (setq header-line-format
+        (concat
+         "\s" (propertize (capitalize stash) 'face 'magit-section-heading)
+         "\s" (magit-rev-format "%s" stash)))
   (magit-insert-section (stash)
     (run-hooks 'magit-stash-sections-hook)))
-
-(defun magit-insert-stash-message ()
-  "Insert section showing the message of the stash."
-  (let ((stash (car magit-refresh-args)))
-    (magit-insert-section (stash-message)
-      (magit-insert
-       (concat (propertize (capitalize stash) 'face 'magit-section-heading) "\s"
-               (magit-rev-format "%s" stash) "\n")))))
 
 (defmacro magit-stash-insert-section (subtype format &optional files)
   (declare (debug (sexp form &optional form)))
