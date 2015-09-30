@@ -327,8 +327,7 @@ The following `format'-like specs are supported:
 ;;; Show Stash
 
 (defcustom magit-stash-sections-hook
-  '(magit-insert-stash-message
-    magit-insert-stash-index
+  '(magit-insert-stash-index
     magit-insert-stash-worktree
     magit-insert-stash-untracked)
   "Hook run to insert sections into stash buffers."
@@ -368,41 +367,43 @@ The following `format'-like specs are supported:
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-stash-refresh-buffer (stash _const args files)
+  (setq header-line-format
+        (concat
+         "\s" (propertize (capitalize stash) 'face 'magit-section-heading)
+         "\s" (magit-rev-format "%s" stash)))
   (magit-insert-section (stash)
     (run-hooks 'magit-stash-sections-hook)))
 
-(defun magit-insert-stash-message ()
-  "Insert section showing the message of the stash."
-  (let ((stash (car magit-refresh-args)))
-    (magit-insert-section (stash-message)
-      (magit-insert
-       (concat (propertize (capitalize stash) 'face 'magit-section-heading) "\s"
-               (magit-rev-format "%s" stash) "\n")))))
-
-(defmacro magit-stash-insert-section (subtype format &optional files)
-  (declare (debug (sexp form &optional form)))
-  `(let ((stash (car magit-refresh-args)))
-     (magit-insert-section (,(intern (format "stashed-%s" subtype)))
-       (magit-insert-heading (format "%s %s:" (capitalize stash) ',subtype))
-       (magit-git-wash #'magit-diff-wash-diffs
-         "diff" (cdr magit-refresh-args) "--no-prefix" "-u"
-         (format ,format stash stash) "--" ,files))))
+(defun magit-stash-insert-section (commit range message &optional files)
+  (magit-insert-section (commit commit)
+    (magit-insert-heading message)
+    (magit-git-wash #'magit-diff-wash-diffs
+      "diff" (cdr magit-refresh-args) "--no-prefix" "-u" range "--" files)))
 
 (defun magit-insert-stash-index ()
   "Insert section showing the index commit of the stash."
-  (magit-stash-insert-section index "%s^..%s^2"))
+  (let ((stash (car magit-refresh-args)))
+    (magit-stash-insert-section (format "%s^2" stash)
+                                (format "%s^..%s^2" stash stash)
+                                "Index")))
 
 (defun magit-insert-stash-worktree ()
   "Insert section showing the worktree commit of the stash."
-  (magit-stash-insert-section worktree "%s^2..%s"))
+  (let ((stash (car magit-refresh-args)))
+    (magit-stash-insert-section stash
+                                (format "%s^2..%s" stash stash)
+                                "Working tree")))
 
 (defun magit-insert-stash-untracked ()
   "Insert section showing the untracked files commit of the stash."
-  (let ((rev (concat (car magit-refresh-args) "^3")))
+  (let ((stash (car magit-refresh-args))
+        (rev   (concat (car magit-refresh-args) "^3")))
     (when (magit-rev-verify rev)
-      (magit-stash-insert-section
-       untracked "%s^..%s^3"
-       (magit-git-items "ls-tree" "-z" "--name-only" "--full-tree" rev)))))
+      (magit-stash-insert-section (format "%s^3" stash)
+                                  (format "%s^..%s^3" stash stash)
+                                  "Untracked files"
+                                  (magit-git-items "ls-tree" "-z" "--name-only"
+                                                   "--full-tree" rev)))))
 
 ;;; magit-stash.el ends soon
 (provide 'magit-stash)

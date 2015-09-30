@@ -2002,6 +2002,22 @@ Show or hide the margin.
 @subsection Log Buffer
 
 @table @asis
+@kindex L
+@cindex magit-log-refresh-popup
+@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-popup})
+
+This prefix command shows the following suffix commands along with
+the appropriate infix arguments in a popup buffer.  See @ref{Refreshing logs,Refreshing logs}.
+
+@kindex q
+@cindex magit-log-bury-buffer
+@item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-bury-buffer})
+
+Bury the current buffer or the revision buffer in the same frame.
+Like @code{magit-mode-bury-buffer} (which see) but with a negative prefix
+argument instead bury the revision buffer, provided it is displayed
+in the current frame.
+
 @kindex C-c C-b
 @cindex magit-go-backward
 @item @kbd{C-c C-b} @tie{}@tie{}@tie{}@tie{}(@code{magit-go-backward})
@@ -2038,14 +2054,25 @@ and contains information about that commit or stash, then instead
 scroll the buffer down.  If there is no commit or stash at point,
 then prompt for a commit.
 
-@kindex q
-@cindex magit-log-bury-buffer
-@item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-bury-buffer})
+@kindex =
+@cindex magit-log-toggle-commit-limit
+@item @kbd{=} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-toggle-commit-limit})
 
-Bury the current buffer or the revision buffer in the same frame.
-Like @code{magit-mode-bury-buffer} (which see) but with a negative prefix
-argument instead bury the revision buffer, provided it is displayed
-in the current frame.
+Toggle the number of commits the current log buffer is limited to.
+If the number of commits is currently limited, then remove that
+limit.  Otherwise set it to 256.
+
+@kindex +
+@cindex magit-log-double-commit-limit
+@item @kbd{+} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-double-commit-limit})
+
+Double the number of commits the current log buffer is limited to.
+
+@kindex =
+@cindex magit-log-half-commit-limit
+@item @kbd{=} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-half-commit-limit})
+
+Half the number of commits the current log buffer is limited to.
 
 @end table
 
@@ -2055,25 +2082,6 @@ Insert more log entries automatically when moving past the last
 entry.  Only considered when moving past the last entry with
 @code{magit-goto-*-section} commands.
 @end defopt
-
-@table @asis
-@kindex +
-@cindex magit-log-show-more-commits
-@item @kbd{+} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-show-more-commits})
-
-Increase the number of commits shown in current log.
-
-With no prefix argument, show twice as many commits as before.
-With a numerical prefix argument, show this many additional
-commits.  With a non-numeric prefix argument, show all commits.
-
-When no limit was previously imposed in the current buffer, set the
-local limit to the default limit instead (or if that is nil then
-100), regardless of the prefix argument.
-
-By default @code{magit-log-cutoff-length} commits are shown.
-
-@end table
 
 @defopt magit-log-show-margin
 
@@ -2086,21 +2094,6 @@ current buffer using the command @code{magit-toggle-margin}.
 When a log buffer contains a verbose log, then the margin is never
 displayed.  In status buffers this option is ignored, but it is
 possible to show the margin using the mentioned command.
-@end defopt
-
-@table @asis
-@kindex L
-@cindex magit-log-refresh-popup
-@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-popup})
-
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.  See @ref{Refreshing logs,Refreshing logs}.
-
-@end table
-
-@defopt magit-log-cutoff-length
-
-The maximum number of commits to show in log and reflog buffers.
 @end defopt
 
 @defopt magit-log-show-refname-after-summary

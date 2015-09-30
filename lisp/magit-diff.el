@@ -1444,6 +1444,11 @@ section or a child thereof."
       (when orig
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
+      ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
+      (when (derived-mode-p 'magit-log-mode)
+        (setq file (substring file 2))
+        (when orig
+          (setq orig (substring orig 2))))
       (magit-diff-insert-file-section file orig status modes header)))))
 
 (defun magit-diff-insert-file-section (file orig status modes header)
@@ -1511,7 +1516,7 @@ section or a child thereof."
       (magit-insert-section it (hunk value)
         (insert (propertize (concat heading "\n") 'face 'magit-diff-hunk-heading))
         (magit-insert-heading)
-        (while (not (or (eobp) (looking-at magit-diff-headline-re)))
+        (while (not (or (eobp) (looking-at "^[^-+\s\\]")))
           (forward-line))
         (setf (magit-section-end it) (point))
         (setf (magit-section-washer it) #'magit-diff-paint-hunk)))
@@ -1811,6 +1816,12 @@ Do not confuse this with `magit-diff-scope' (which see)."
                             type)))
                  (`hunk (-> it magit-section-parent magit-section-parent
                             magit-section-type))))))
+          ((derived-mode-p 'magit-log-mode)
+           (if (or (and (magit-section-match 'commit section)
+                        (magit-section-children section))
+                   (magit-section-match [* file commit] section))
+               'committed
+           'undefined))
           (t 'undefined))))
 
 (cl-defun magit-diff-scope (&optional (section nil ssection) strict)
@@ -1851,8 +1862,7 @@ actually a `diff' but a `diffstat' section."
         (`(hunk  ,_  ,_  ,_) 'hunk)
         (`(file   t   t nil) 'files)
         (`(file  ,_  ,_  ,_) 'file)
-        (`(,(or `staged `unstaged `untracked
-                `stashed-index `stashed-worktree `stashed-untracked)
+        (`(,(or `staged `unstaged `untracked)
            nil ,_ ,_) 'list)))))
 
 ;;; Diff Highlight
@@ -1869,18 +1879,25 @@ If SECTION is not a diff-related section, then do nothing and
 return nil.  If SELECTION is non-nil then it is a list of sections
 selected by the region, including SECTION.  All of these sections
 are highlighted."
-  (-when-let (scope (magit-diff-scope section t))
-    (cond ((eq scope 'region)
-           (magit-diff-paint-hunk section selection t))
-          (selection
-           (dolist (section selection)
-             (magit-diff-highlight-recursive section selection)))
-          (t
-           (magit-diff-highlight-recursive section)))
-    t))
+  (if (and (magit-section-match 'commit section)
+           (magit-section-children section))
+      (progn (if selection
+                 (dolist (section selection)
+                   (magit-diff-highlight-list section selection))
+               (magit-diff-highlight-list section))
+             t)
+    (-when-let (scope (magit-diff-scope section t))
+      (cond ((eq scope 'region)
+             (magit-diff-paint-hunk section selection t))
+            (selection
+             (dolist (section selection)
+               (magit-diff-highlight-recursive section selection)))
+            (t
+             (magit-diff-highlight-recursive section)))
+      t)))
 
 (defun magit-diff-highlight-recursive (section &optional selection)
-  (if (magit-section-match 'module-commit section)
+  (if (magit-section-match '(module-commit diffstat commit-header) section)
       (magit-section-highlight section nil)
     (pcase (magit-diff-scope section)
       (`list (magit-diff-highlight-list section selection))

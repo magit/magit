@@ -186,7 +186,7 @@ bisect run'."
                                       'magit-section-secondary-heading))
             (magit-insert-heading)
             (magit-wash-sequence
-             (apply-partially 'magit-log-wash-line 'bisect-log
+             (apply-partially 'magit-log-wash-rev 'bisect-log
                               (magit-abbrev-length)))
             (insert ?\n)))))
     (when (re-search-forward
