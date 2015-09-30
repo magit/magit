@@ -112,5 +112,7 @@ THIS IS NOT COMPLETE.
 
 * Added new option `magit-log-remove-graph-args'.  #2226
 
+* Added support for showing actionable diffs inside logs.  #2226
+
 Authors
 -------

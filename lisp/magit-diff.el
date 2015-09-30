@@ -1893,7 +1893,7 @@ are highlighted."
       t)))
 
 (defun magit-diff-highlight-recursive (section &optional selection)
-  (if (magit-section-match '(module-commit diffstat) section)
+  (if (magit-section-match '(module-commit diffstat commit-header) section)
       (magit-section-highlight section nil)
     (pcase (magit-diff-scope section)
       (`list (magit-diff-highlight-list section selection))

@@ -81,6 +81,15 @@ The following `format'-like specs are supported:
   :type '(repeat (string :tag "Argument"))
   :options '("--follow" "--grep" "-G"))
 
+(defcustom magit-log-revision-headers-format "\
+%+b
+Author:    %aN <%aE>
+Committer: %cN <%cE>"
+  "Additional format string used with the `++header' argument."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-log
+  :type 'string)
+
 (defcustom magit-log-auto-more nil
   "Insert more log entries automatically when moving past the last entry.
 Only considered when moving past the last entry with
@@ -336,6 +345,7 @@ are no unpulled commits) show."
                (?S "Show signatures"         "--show-signature")
                (?u "Show diffs"              "--patch")
                (?s "Show diffstats"          "--stat")
+               (?h "Show header"             "++header")
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
     :options  ((?f "Limit to files"          "-- "       magit-read-files)
@@ -734,11 +744,15 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 Do not add this to a hook variable."
   (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
     "log" (magit-log-format-max-count)
-    (format "--format=%%h%s %s[%%aN][%%at]%%s"
+    (format "--format=%%h%s %s[%%aN][%%at]%%s%s"
             (if (member "--decorate" args) "%d" "")
             (if (member "--show-signature" args)
-                (progn (setq args (remove "--show-signature" args))
-                       "%G?")
+                (progn (setq args (remove "--show-signature" args)) "%G?")
+              "")
+            (if (member "++header" args)
+                (if (member "--graph" (setq args (delete "++header" args)))
+                    (concat "\n" magit-log-revision-headers-format "\n")
+                  (concat "\n" magit-log-revision-headers-format "\n"))
               ""))
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
@@ -912,26 +926,41 @@ Do not add this to a hook variable."
             (magit-format-log-margin author date)))
         (when (and (eq style 'log)
                    (not (or (eobp) (looking-at magit-log-heading-re))))
+          (when (looking-at "")
+            (magit-insert-heading)
+            (delete-char 1)
+            (magit-insert-section (commit-header)
+              (forward-line)
+              (magit-insert-heading)
+              (re-search-forward "")
+              (backward-delete-char 1)
+              (forward-char)
+              (insert ?\n))
+            (delete-char 1))
           (if (looking-at "^\\(---\\|\n\s\\|\ndiff\\)")
-              (progn (magit-insert-heading)
+              (progn (unless (magit-section-content magit-insert-section--current)
+                       (magit-insert-heading))
                      (delete-char (if (looking-at "\n") 1 4))
                      (magit-diff-wash-diffs (list "--stat")))
             (when align
               (setq align (make-string (1+ abbrev) ? )))
             (while (and (not (eobp)) (not (looking-at magit-log-heading-re)))
               (when align
-                (save-excursion (insert align)))
-              (magit-format-log-margin)
-              (forward-line))
-            ;; When `--format' is used and its value isn't one of the
-            ;; predefined formats, then `git-log' does not insert a
-            ;; separator line.
-            (save-excursion
-              (forward-line -1)
-              (looking-at "[-_/|\\*o. ]*"))
-            (setq graph (match-string 0))
-            (unless (string-match-p "[/\\]" graph)
-              (insert graph ?\n)))))))
+                (setq align (make-string (1+ abbrev) ? )))
+              (while (and (not (eobp)) (not (looking-at magit-log-heading-re)))
+                (when align
+                  (save-excursion (insert align)))
+                (magit-format-log-margin)
+                (forward-line))
+              ;; When `--format' is used and its value isn't one of the
+              ;; predefined formats, then `git-log' does not insert a
+              ;; separator line.
+              (save-excursion
+                (forward-line -1)
+                (looking-at "[-_/|\\*o. ]*"))
+              (setq graph (match-string 0))
+              (unless (string-match-p "[/\\]" graph)
+                (insert graph ?\n))))))))
   t)
 
 (defun magit-log-format-unicode-graph (string)
