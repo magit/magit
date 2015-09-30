@@ -1451,6 +1451,19 @@ the status buffer.
 
 *** Log Buffer
 
+- Key: L, magit-log-refresh-popup
+
+  This prefix command shows the following suffix commands along with
+  the appropriate infix arguments in a popup buffer.  See [[*Refreshing
+  logs]].
+
+- Key: q, magit-log-bury-buffer
+
+  Bury the current buffer or the revision buffer in the same frame.
+  Like ~magit-mode-bury-buffer~ (which see) but with a negative prefix
+  argument instead bury the revision buffer, provided it is displayed
+  in the current frame.
+
 - Key: C-c C-b, magit-go-backward
 
   Move backward in current buffer's history.
@@ -1479,32 +1492,25 @@ the status buffer.
   scroll the buffer down.  If there is no commit or stash at point,
   then prompt for a commit.
 
-- Key: q, magit-log-bury-buffer
+- Key: =, magit-log-toggle-commit-limit
 
-  Bury the current buffer or the revision buffer in the same frame.
-  Like ~magit-mode-bury-buffer~ (which see) but with a negative prefix
-  argument instead bury the revision buffer, provided it is displayed
-  in the current frame.
+  Toggle the number of commits the current log buffer is limited to.
+  If the number of commits is currently limited, then remove that
+  limit.  Otherwise set it to 256.
+
+- Key: +, magit-log-double-commit-limit
+
+  Double the number of commits the current log buffer is limited to.
+
+- Key: =, magit-log-half-commit-limit
+
+  Half the number of commits the current log buffer is limited to.
 
 - User Option: magit-log-auto-more
 
   Insert more log entries automatically when moving past the last
   entry.  Only considered when moving past the last entry with
   ~magit-goto-*-section~ commands.
-
-- Key: +, magit-log-show-more-commits
-
-  Increase the number of commits shown in current log.
-
-  With no prefix argument, show twice as many commits as before.
-  With a numerical prefix argument, show this many additional
-  commits.  With a non-numeric prefix argument, show all commits.
-
-  When no limit was previously imposed in the current buffer, set the
-  local limit to the default limit instead (or if that is nil then
-  100), regardless of the prefix argument.
-
-  By default ~magit-log-cutoff-length~ commits are shown.
 
 - User Option: magit-log-show-margin
 
@@ -1517,16 +1523,6 @@ the status buffer.
   When a log buffer contains a verbose log, then the margin is never
   displayed.  In status buffers this option is ignored, but it is
   possible to show the margin using the mentioned command.
-
-- Key: L, magit-log-refresh-popup
-
-  This prefix command shows the following suffix commands along with
-  the appropriate infix arguments in a popup buffer.  See [[*Refreshing
-  logs]].
-
-- User Option: magit-log-cutoff-length
-
-  The maximum number of commits to show in log and reflog buffers.
 
 - User Option: magit-log-show-refname-after-summary
 

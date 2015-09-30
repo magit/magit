@@ -68,7 +68,7 @@ The following `format'-like specs are supported:
   :group 'magit-log
   :type 'string)
 
-(defcustom magit-log-arguments '("--graph" "--decorate")
+(defcustom magit-log-arguments '("-n256" "--graph" "--decorate")
   "The log arguments used in `magit-log-mode' buffers."
   :group 'magit-log
   :group 'magit-commands
@@ -96,12 +96,6 @@ Only considered when moving past the last entry with
 `magit-goto-*-section' commands."
   :group 'magit-log
   :type 'boolean)
-
-(defcustom magit-log-cutoff-length 256
-  "The maximum number of commits to show in log and reflog buffers."
-  :group 'magit-log
-  :type '(choice (const :tag "no limit") integer))
-(make-variable-buffer-local 'magit-log-cutoff-length)
 
 (defcustom magit-log-format-graph-function 'identity
   "Function used to format graphs in log buffers.
@@ -348,7 +342,8 @@ are no unpulled commits) show."
                (?h "Show header"             "++header")
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
-    :options  ((?f "Limit to files"          "-- "       magit-read-files)
+    :options  ((?n "Limit number of commits" "-n"        read-from-minibuffer)
+               (?f "Limit to files"          "-- "       magit-read-files)
                (?a "Limit to author"         "--author=" read-from-minibuffer)
                (?m "Search messages"         "--grep="   read-from-minibuffer)
                (?p "Search patches"          "-G"        read-from-minibuffer))
@@ -375,7 +370,8 @@ are no unpulled commits) show."
                (?s "Show diffstats"          "--stat")
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
-    :options  ((?f "Limit to files"          "-- "       magit-read-files)
+    :options  ((?n "Limit number of commits" "-n"        read-from-minibuffer)
+               (?f "Limit to files"          "-- "       magit-read-files)
                (?a "Limit to author"         "--author=" read-from-minibuffer)
                (?m "Search messages"         "--grep="   read-from-minibuffer)
                (?p "Search patches"          "-G"        read-from-minibuffer))
@@ -631,28 +627,39 @@ With a prefix argument or when `--follow' is part of
   (interactive)
   (magit-reflog "HEAD"))
 
-(defun magit-log-show-more-commits (&optional arg)
-  "Increase the number of commits shown in current log.
+(defun magit-log-toggle-commit-limit ()
+  "Toggle the number of commits the current log buffer is limited to.
+If the number of commits is currently limited, then remove that
+limit.  Otherwise set it to 256."
+  (interactive)
+  (magit-log-set-commit-limit (lambda (&rest _) nil)))
 
-With no prefix argument, show twice as many commits as before.
-With a numerical prefix argument, show this many additional
-commits.  With a non-numeric prefix argument, show all commits.
+(defun magit-log-double-commit-limit ()
+  "Double the number of commits the current log buffer is limited to."
+  (interactive)
+  (magit-log-set-commit-limit '*))
 
-When no limit was previously imposed in the current buffer, set
-the local limit to the default limit instead (or if that is nil
-then 100), regardless of the prefix argument.
+(defun magit-log-half-commit-limit ()
+  "Half the number of commits the current log buffer is limited to."
+  (interactive)
+  (magit-log-set-commit-limit '/))
 
-By default `magit-log-cutoff-length' commits are shown."
-  (interactive "P")
-  (setq magit-log-cutoff-length
-        (if magit-log-cutoff-length
-            (if arg
-                (and (numberp arg) (+ magit-log-cutoff-length arg))
-              (* magit-log-cutoff-length 2))
-          (or (default-value 'magit-log-cutoff-length) 100)))
-  (let ((old-point (point)))
-    (magit-refresh)
-    (goto-char old-point)))
+(defun magit-log-set-commit-limit (fn)
+  (let* ((val (car (magit-log-arguments t)))
+         (arg (--first (string-match "^-n\\([0-9]+\\)?$" it) val))
+         (num (and arg (string-to-number (match-string 1 arg))))
+         (num (if num (funcall fn num 2) 256)))
+    (setq val (delete arg val))
+    (setcar (cdr magit-refresh-args)
+            (if (and num (> num 0))
+                (cons (format "-n%i" num) val)
+              val)))
+  (magit-refresh))
+
+(defun magit-log-get-commit-limit ()
+  (--when-let (--first (string-match "^-n\\([0-9]+\\)?$" it)
+                       (car (magit-log-arguments t)))
+    (string-to-number (match-string 1 it))))
 
 (defun magit-log-bury-buffer (&optional arg)
   "Bury the current buffer or the revision buffer in the same frame.
@@ -677,7 +684,9 @@ is displayed in the current frame."
     (set-keymap-parent map magit-mode-map)
     (define-key map "\C-c\C-b" 'magit-go-backward)
     (define-key map "\C-c\C-f" 'magit-go-forward)
-    (define-key map "+" 'magit-log-show-more-commits)
+    (define-key map "=" 'magit-log-toggle-commit-limit)
+    (define-key map "+" 'magit-log-double-commit-limit)
+    (define-key map "-" 'magit-log-half-commit-limit)
     (define-key map "q" 'magit-log-bury-buffer)
     map)
   "Keymap for `magit-log-mode'.")
@@ -721,21 +730,22 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
     (setq args (remove "--graph" args)))
   (unless (member "--graph" args)
     (setq args (remove "--color" args)))
-  (--when-let (and magit-log-cutoff-length
-                   (= (length revs) 1)
-                   (setq revs (car revs))
-                   (not (string-match-p "\\.\\." revs))
-                   (not (member revs '("--all" "--branches")))
-                   (-none-p (lambda (arg)
-                              (--any-p (string-prefix-p it arg)
-                                       magit-log-disable-graph-hack-args))
-                            args)
-                   (magit-git-string "rev-list" "--count" "--first-parent"
-                                     args revs))
-    (setq revs (let ((cutoff (max 1024 (* 2 magit-log-cutoff-length))))
-                 (if (< (string-to-number it) cutoff)
-                     revs
-                   (format "%s~%s..%s" revs cutoff revs)))))
+  (-when-let* ((limit (magit-log-get-commit-limit))
+               (limit (* 2 limit)) ; increase odds for complete graph
+               (count (and (= (length revs) 1)
+                           (> limit 1024) ; otherwise it's fast enough
+                           (setq revs (car revs))
+                           (not (string-match-p "\\.\\." revs))
+                           (not (member revs '("--all" "--branches")))
+                           (-none-p (lambda (arg)
+                                      (--any-p (string-prefix-p it arg)
+                                               magit-log-disable-graph-hack-args))
+                                    args)
+                           (magit-git-string "rev-list" "--count"
+                                             "--first-parent" args revs))))
+    (setq revs (if (< (string-to-number count) limit)
+                   revs
+                 (format "%s~%s..%s" revs limit revs))))
   (magit-insert-section (logbuf)
     (magit-insert-log revs args files)))
 
@@ -743,7 +753,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
   "Insert a log section.
 Do not add this to a hook variable."
   (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
-    "log" (magit-log-format-max-count)
+    "log"
     (format "--format=%%h%s %s[%%aN][%%at]%%s%s"
             (if (member "--decorate" args) "%d" "")
             (if (member "--show-signature" args)
@@ -828,10 +838,6 @@ Do not add this to a hook variable."
 
 (defvar magit-log-count nil)
 
-(defun magit-log-format-max-count ()
-  (and magit-log-cutoff-length
-       (format "-%d" magit-log-cutoff-length)))
-
 (defun magit-log-wash-log (style args)
   (setq args (-flatten args))
   (when (and (member "--graph" args)
@@ -847,15 +853,15 @@ Do not add this to a hook variable."
         (abbrev (magit-abbrev-length)))
     (magit-wash-sequence (apply-partially 'magit-log-wash-rev style abbrev))
     (if (derived-mode-p 'magit-log-mode)
-        (when (= magit-log-count magit-log-cutoff-length)
+        (when (eq magit-log-count (magit-log-get-commit-limit))
           (magit-insert-section (longer)
             (insert-text-button
              (substitute-command-keys
               (format "Type \\<%s>\\[%s] to show more history"
                       'magit-log-mode-map
-                      'magit-log-show-more-commits))
+                      'magit-log-double-commit-limit))
              'action (lambda (button)
-                       (magit-log-show-more-commits))
+                       (magit-log-double-commit-limit))
              'follow-link t
              'mouse-face 'magit-section-highlight)))
       (unless (equal (car args) "cherry")
@@ -1025,7 +1031,7 @@ Only do so if `point' is on the \"show more\" section,
 and `magit-log-auto-more' is non-nil."
   (when (and (eq (magit-section-type section) 'longer)
              magit-log-auto-more)
-    (magit-log-show-more-commits)
+    (magit-log-double-commit-limit)
     (forward-line -1)
     (magit-section-forward)))
 
@@ -1247,8 +1253,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
         (propertize (concat " Reflog for " ref) 'face 'magit-header-line))
   (magit-insert-section (reflogbuf)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
-      "reflog" "show" "--format=%h %gd %gs" "--date=raw"
-      (magit-log-format-max-count) ref)))
+      "reflog" "show" "--format=%h %gd %gs" "--date=raw" ref)))
 
 (defvar magit-reflog-labels
   '(("commit"      . magit-reflog-commit)
