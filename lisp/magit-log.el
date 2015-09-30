@@ -119,11 +119,9 @@ string.  Use `identity' to forgo changing the graph."
 
 When non-nil the author name and date are initially displayed in
 the margin of log buffers.  The margin can be shown or hidden in
-the current buffer using the command `magit-toggle-margin'.
-
-When a log buffer contains a verbose log, then the margin is
-never displayed.  In status buffers this option is ignored but
-it is possible to show the margin using the mentioned command."
+the current buffer using the command `magit-toggle-margin'.  In
+status buffers this option is ignored but it is possible to show
+the margin using the mentioned command."
   :package-version '(magit . "2.1.0")
   :group 'magit-log
   :type 'boolean)
@@ -698,10 +696,6 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
   '("-G" "--grep" "--author")
   "Arguments which disable the graph speedup hack.")
 
-(defvar magit-log-use-verbose-re
-  (concat "^" (regexp-opt '("--patch" "--stat")))
-  "Regexp matching arguments which trigger the use of verbose log.")
-
 (defun magit-log-refresh-buffer (revs args files)
   (setq header-line-format
         (propertize
@@ -736,21 +730,18 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 (defun magit-insert-log (revs &optional args files)
   "Insert a log section.
 Do not add this to a hook variable."
-  (let ((verbose (--any-p (string-match-p magit-log-use-verbose-re it) args)))
-    (magit-git-wash (apply-partially 'magit-log-wash-log
-                                     (if verbose 'verbose 'oneline))
-      "log" (magit-log-format-max-count)
-      (and (not verbose)
-           (format "--format=%%h%s %s[%%aN][%%at]%%s"
-                   (if (member "--decorate" args) "%d" "")
-                   (if (member "--show-signature" args)
-                       (progn (setq args (remove "--show-signature" args))
-                              "%G?")
-                     "")))
-      (if (member "--decorate" args)
-          (cons "--decorate=full" (remove "--decorate" args))
-        args)
-      "--use-mailmap" revs "--" files)))
+  (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
+    "log" (magit-log-format-max-count)
+    (format "--format=%%h%s %s[%%aN][%%at]%%s"
+            (if (member "--decorate" args) "%d" "")
+            (if (member "--show-signature" args)
+                (progn (setq args (remove "--show-signature" args))
+                       "%G?")
+              ""))
+    (if (member "--decorate" args)
+        (cons "--decorate=full" (remove "--decorate" args))
+      args)
+    "--use-mailmap" "--no-prefix" revs "--" files))
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
@@ -766,7 +757,7 @@ Do not add this to a hook variable."
     map)
   "Keymap for `module-commit' sections.")
 
-(defconst magit-log-oneline-re
+(defconst magit-log-heading-re
   (concat "^"
           "\\(?4:[-_/|\\*o. ]*\\)"                 ; graph
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
@@ -819,12 +810,6 @@ Do not add this to a hook variable."
           "\\(?6:[^ ]+\\) "                        ; date
           "\\(?2:.*\\)$"))                         ; msg
 
-(defconst magit-log-verbose-re
-  (concat "^"
-          "\\(\\(?:[-_/|\\*o.] *\\)+ *\\)?"
-          "commit \\([0-9a-fA-F]+\\)"
-          "\\(?: \\(([^()]+)\\)\\)?"))
-
 (defvar magit-log-count nil)
 
 (defun magit-log-format-max-count ()
@@ -844,10 +829,7 @@ Do not add this to a hook variable."
     (reverse-region (point-min) (point-max)))
   (let ((magit-log-count 0)
         (abbrev (magit-abbrev-length)))
-    (magit-wash-sequence
-     (if (eq style 'verbose)
-         (apply-partially 'magit-log-wash-verbose abbrev)
-       (apply-partially 'magit-log-wash-line style abbrev)))
+    (magit-wash-sequence (apply-partially 'magit-log-wash-rev style abbrev))
     (if (derived-mode-p 'magit-log-mode)
         (when (= magit-log-count magit-log-cutoff-length)
           (magit-insert-section (longer)
@@ -863,11 +845,11 @@ Do not add this to a hook variable."
       (unless (equal (car args) "cherry")
         (insert ?\n)))))
 
-(defun magit-log-wash-line (style abbrev)
+(defun magit-log-wash-rev (style abbrev)
   (when (derived-mode-p 'magit-log-mode)
     (cl-incf magit-log-count))
   (looking-at (pcase style
-                (`oneline    magit-log-oneline-re)
+                (`log        magit-log-heading-re)
                 (`cherry     magit-log-cherry-re)
                 (`module     magit-log-module-re)
                 (`reflog     magit-log-reflog-re)
@@ -876,72 +858,74 @@ Do not add this to a hook variable."
                 (`bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry _ refsub side) nil
-    (magit-delete-match)
-    (magit-insert-section section (commit hash)
-      (pcase style
-        (`stash      (setf (magit-section-type section) 'stash))
-        (`module     (setf (magit-section-type section) 'module-commit))
-        (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
-      (when cherry
-        (when (and (derived-mode-p 'magit-refs-mode)
-                   magit-refs-show-commit-count)
-          (insert (make-string magit-refs-indent-cherry-lines ?\s)))
-        (magit-insert cherry (if (string= cherry "-")
-                                 'magit-cherry-equivalent
-                               'magit-cherry-unmatched) ?\s))
-      (when side
-        (magit-insert side (if (string= side "<")
-                               'magit-diff-removed
-                             'magit-diff-added) ?\s))
-      (insert (propertize hash 'face 'magit-hash) ?\s)
-      (when graph
-        (insert (funcall magit-log-format-graph-function graph)))
-      (when (and refs (not magit-log-show-refname-after-summary))
-        (magit-insert (magit-format-ref-labels refs) nil ?\s))
-      (when refsub
-        (insert (format "%-2s " (1- magit-log-count)))
-        (magit-insert
-         (magit-reflog-format-subject
-          (substring refsub 0 (if (string-match-p ":" refsub) -2 -1)))))
-      (when msg
-        (magit-insert msg (pcase (and gpg (aref gpg 0))
-                            (?G 'magit-signature-good)
-                            (?B 'magit-signature-bad)
-                            (?U 'magit-signature-untrusted))))
-      (when (and refs magit-log-show-refname-after-summary)
-        (insert ?\s)
-        (magit-insert (magit-format-ref-labels refs)))
-      (when (memq style '(oneline reflog stash))
-        (goto-char (line-beginning-position))
-        (when (and refsub
-                   (string-match "\\`\\([^ ]\\) \\+\\(..\\)\\(..\\)" date))
-          (setq date (+ (string-to-number (match-string 1 date))
-                        (* (string-to-number (match-string 2 date)) 60 60)
-                        (* (string-to-number (match-string 3 date)) 60))))
-        (magit-format-log-margin author date))
-      (forward-line)))
-  (when (eq style 'oneline)
-    (let ((align (make-string (1+ abbrev) ? )))
-      (while (and (not (eobp)) (not (looking-at magit-log-oneline-re)))
-        (insert align)
-        (goto-char (line-beginning-position))
-        (magit-format-log-margin)
-        (forward-line))))
-  t)
-
-(defun magit-log-wash-verbose (abbrev)
-  (cl-incf magit-log-count)
-  (looking-at magit-log-verbose-re)
-  (magit-bind-match-strings (graph hash refs) nil
-    (magit-delete-match)
-    (magit-insert-section (commit hash)
-      (when graph (insert graph))
-      (when refs
-        (magit-insert (magit-format-ref-labels refs) nil ?\s))
-      (magit-insert hash 'magit-hash ?\s)
-      (forward-line)
-      (while (and (not (eobp)) (not (looking-at magit-log-verbose-re)))
-        (forward-line))))
+    (let ((align (not (member "--stat" (cadr magit-refresh-args)))))
+      (magit-delete-line)
+      (magit-insert-section section (commit hash)
+        (pcase style
+          (`stash      (setf (magit-section-type section) 'stash))
+          (`module     (setf (magit-section-type section) 'module-commit))
+          (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
+        (when cherry
+          (when (and (derived-mode-p 'magit-refs-mode)
+                     magit-refs-show-commit-count)
+            (insert (make-string magit-refs-indent-cherry-lines ?\s)))
+          (magit-insert cherry (if (string= cherry "-")
+                                   'magit-cherry-equivalent
+                                 'magit-cherry-unmatched) ?\s))
+        (when side
+          (magit-insert side (if (string= side "<")
+                                 'magit-diff-removed
+                               'magit-diff-added) ?\s))
+        (when align
+          (insert (propertize hash 'face 'magit-hash) ?\s))
+        (when graph
+          (insert (funcall magit-log-format-graph-function graph)))
+        (unless align
+          (insert (propertize hash 'face 'magit-hash) ?\s))
+        (when (and refs (not magit-log-show-refname-after-summary))
+          (magit-insert (magit-format-ref-labels refs) nil ?\s))
+        (when refsub
+          (insert (format "%-2s " (1- magit-log-count)))
+          (magit-insert
+           (magit-reflog-format-subject
+            (substring refsub 0 (if (string-match-p ":" refsub) -2 -1)))))
+        (when msg
+          (magit-insert (concat msg "\n")
+                        (pcase (and gpg (aref gpg 0))
+                          (?G 'magit-signature-good)
+                          (?B 'magit-signature-bad)
+                          (?U 'magit-signature-untrusted))))
+        (when (and refs magit-log-show-refname-after-summary)
+          (insert ?\s)
+          (magit-insert (magit-format-ref-labels refs)))
+        (when (memq style '(log reflog stash))
+          (goto-char (line-beginning-position))
+          (when (and refsub
+                     (string-match "\\`\\([^ ]\\) \\+\\(..\\)\\(..\\)" date))
+            (setq date (+ (string-to-number (match-string 1 date))
+                          (* (string-to-number (match-string 2 date)) 60 60)
+                          (* (string-to-number (match-string 3 date)) 60))))
+          (save-excursion
+            (backward-char)
+            (magit-format-log-margin author date)))
+        (when (and (eq style 'log)
+                   (not (or (eobp) (looking-at magit-log-heading-re))))
+          (when align
+            (setq align (make-string (1+ abbrev) ? )))
+          (while (and (not (eobp)) (not (looking-at magit-log-heading-re)))
+            (when align
+              (save-excursion (insert align)))
+            (magit-format-log-margin)
+            (forward-line))
+          ;; When `--format' is used and its value isn't one of the
+          ;; predefined formats, then `git-log' does not insert a
+          ;; separator line.
+          (save-excursion
+            (forward-line -1)
+            (looking-at "[-_/|\\*o. ]*"))
+          (setq graph (match-string 0))
+          (unless (string-match-p "[/\\]" graph)
+            (insert graph ?\n))))))
   t)
 
 (defun magit-log-format-unicode-graph (string)
@@ -1406,18 +1390,12 @@ These sections can be expanded to show the respective commits."
   (interactive)
   (unless (derived-mode-p 'magit-log-mode 'magit-status-mode 'magit-refs-mode)
     (user-error "Buffer doesn't contain any logs"))
-  (when (and (derived-mode-p 'magit-log-mode)
-             (eq (car magit-refresh-args) 'verbose))
-    (user-error "Log margin is redundant when showing verbose logs"))
   (magit-set-buffer-margin (not (cdr (window-margins)))))
 
 (defun magit-set-buffer-margin (enable)
   (let ((width (cond ((not enable) nil)
                      ((derived-mode-p 'magit-reflog-mode)
                       (+ (cadr magit-log-margin-spec) 5))
-                     ((and (derived-mode-p 'magit-log-mode)
-                           (eq (car magit-refresh-args) 'verbose))
-                      0) ; temporarily hide redundant margin
                      (t (car magit-log-margin-spec)))))
     (setq magit-show-margin width)
     (when (and enable magit-set-buffer-margin-refresh)
@@ -1438,7 +1416,9 @@ These sections can be expanded to show the respective commits."
 
 (defun magit-make-margin-overlay (&rest strings)
   ;; Don't put the overlay on the complete line to work around #1880.
-  (let ((o (make-overlay (1+ (point)) (line-end-position) nil t)))
+  (let ((o (make-overlay (1+ (line-beginning-position))
+                         (line-end-position)
+                         nil t)))
     (overlay-put o 'evaporate t)
     (overlay-put o 'before-string
                  (propertize "o" 'display
