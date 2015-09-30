@@ -1862,8 +1862,7 @@ actually a `diff' but a `diffstat' section."
         (`(hunk  ,_  ,_  ,_) 'hunk)
         (`(file   t   t nil) 'files)
         (`(file  ,_  ,_  ,_) 'file)
-        (`(,(or `staged `unstaged `untracked
-                `stashed-index `stashed-worktree `stashed-untracked)
+        (`(,(or `staged `unstaged `untracked)
            nil ,_ ,_) 'list)))))
 
 ;;; Diff Highlight
