@@ -74,12 +74,12 @@ The following `format'-like specs are supported:
   :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
 
-(defcustom magit-log-remove-graph-args '("--follow" "--grep" "-G")
+(defcustom magit-log-remove-graph-args '("--follow" "--grep" "-G" "-S")
   "The log arguments that cause the `--graph' argument to be dropped."
   :package-version '(magit . "2.3.0")
   :group 'magit-log
   :type '(repeat (string :tag "Argument"))
-  :options '("--follow" "--grep" "-G"))
+  :options '("--follow" "--grep" "-G" "-S"))
 
 (defcustom magit-log-revision-headers-format "\
 %+b
@@ -345,8 +345,9 @@ are no unpulled commits) show."
     :options  ((?n "Limit number of commits" "-n"        read-from-minibuffer)
                (?f "Limit to files"          "-- "       magit-read-files)
                (?a "Limit to author"         "--author=" read-from-minibuffer)
-               (?m "Search messages"         "--grep="   read-from-minibuffer)
-               (?p "Search patches"          "-G"        read-from-minibuffer))
+               (?g "Search messages"         "--grep="   read-from-minibuffer)
+               (?G "Search changes"          "-G"        read-from-minibuffer)
+               (?S "Search occurences"       "-S"        read-from-minibuffer))
     :actions  ((?l "Log current"             magit-log-current)
                (?L "Log local branches"      magit-log-branches)
                (?r "Reflog current"          magit-reflog-current)
@@ -373,8 +374,9 @@ are no unpulled commits) show."
     :options  ((?n "Limit number of commits" "-n"        read-from-minibuffer)
                (?f "Limit to files"          "-- "       magit-read-files)
                (?a "Limit to author"         "--author=" read-from-minibuffer)
-               (?m "Search messages"         "--grep="   read-from-minibuffer)
-               (?p "Search patches"          "-G"        read-from-minibuffer))
+               (?g "Search messages"         "--grep="   read-from-minibuffer)
+               (?G "Search changes"          "-G"        read-from-minibuffer)
+               (?S "Search occurences"       "-S"        read-from-minibuffer))
     :actions  ((?g "Refresh"       magit-log-refresh)
                (?t "Toggle margin" magit-toggle-margin)
                (?s "Set defaults"  magit-log-set-default-arguments) nil
