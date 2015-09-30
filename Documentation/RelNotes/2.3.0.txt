@@ -114,5 +114,7 @@ THIS IS NOT COMPLETE.
 
 * Added support for showing actionable diffs inside logs.  #2226
 
+* Added basic support for tracing the evolution of a region.  #2226
+
 Authors
 -------

@@ -1444,6 +1444,11 @@ section or a child thereof."
       (when orig
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
+      ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
+      (when (derived-mode-p 'magit-log-mode)
+        (setq file (substring file 2))
+        (when orig
+          (setq orig (substring orig 2))))
       (magit-diff-insert-file-section file orig status modes header)))))
 
 (defun magit-diff-insert-file-section (file orig status modes header)

@@ -74,12 +74,12 @@ The following `format'-like specs are supported:
   :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
 
-(defcustom magit-log-remove-graph-args '("--follow" "--grep" "-G" "-S")
+(defcustom magit-log-remove-graph-args '("--follow" "--grep" "-G" "-S" "-L")
   "The log arguments that cause the `--graph' argument to be dropped."
   :package-version '(magit . "2.3.0")
   :group 'magit-log
   :type '(repeat (string :tag "Argument"))
-  :options '("--follow" "--grep" "-G" "-S"))
+  :options '("--follow" "--grep" "-G" "-S" "-L"))
 
 (defcustom magit-log-revision-headers-format "\
 %+b
@@ -347,7 +347,8 @@ are no unpulled commits) show."
                (?a "Limit to author"         "--author=" read-from-minibuffer)
                (?g "Search messages"         "--grep="   read-from-minibuffer)
                (?G "Search changes"          "-G"        read-from-minibuffer)
-               (?S "Search occurences"       "-S"        read-from-minibuffer))
+               (?S "Search occurences"       "-S"        read-from-minibuffer)
+               (?L "Trace line evolution"    "-L"        magit-read-file-trace))
     :actions  ((?l "Log current"             magit-log-current)
                (?L "Log local branches"      magit-log-branches)
                (?r "Reflog current"          magit-reflog-current)
@@ -376,7 +377,8 @@ are no unpulled commits) show."
                (?a "Limit to author"         "--author=" read-from-minibuffer)
                (?g "Search messages"         "--grep="   read-from-minibuffer)
                (?G "Search changes"          "-G"        read-from-minibuffer)
-               (?S "Search occurences"       "-S"        read-from-minibuffer))
+               (?S "Search occurences"       "-S"        read-from-minibuffer)
+               (?L "Trace line evolution"    "-L"        magit-read-file-trace))
     :actions  ((?g "Refresh"       magit-log-refresh)
                (?t "Toggle margin" magit-toggle-margin)
                (?s "Set defaults"  magit-log-set-default-arguments) nil
@@ -398,6 +400,14 @@ are no unpulled commits) show."
 (magit-define-popup-keys-deferred 'magit-log-popup)
 (magit-define-popup-keys-deferred 'magit-log-mode-refresh-popup)
 (magit-define-popup-keys-deferred 'magit-log-refresh-popup)
+
+(defun magit-read-file-trace (&rest ignored)
+  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
+        (trace (magit-read-string "Trace")))
+    (if (string-match
+         "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
+        (concat trace (or (match-string 2 trace) ":") file)
+      (user-error "Trace is invalid, see man git-log"))))
 
 (defun magit-log-arguments (&optional refresh)
   (cond ((memq magit-current-popup
@@ -590,11 +600,15 @@ completion candidates."
              args files))
 
 ;;;###autoload
-(defun magit-log-buffer-file (&optional follow)
+(defun magit-log-buffer-file (&optional follow beg end)
   "Show log for the blob or file visited in the current buffer.
 With a prefix argument or when `--follow' is part of
 `magit-log-arguments', then follow renames."
-  (interactive "P")
+  (interactive (if (region-active-p)
+                   (list current-prefix-arg
+                         (1- (line-number-at-pos (region-beginning)))
+                         (1- (line-number-at-pos (region-end))))
+                 (list current-prefix-arg)))
   (-if-let (file (magit-file-relative-name))
       (magit-mode-setup magit-log-buffer-name-format nil
                         #'magit-log-mode
@@ -602,10 +616,15 @@ With a prefix argument or when `--follow' is part of
                         (list (or magit-buffer-refname
                                   (magit-get-current-branch) "HEAD"))
                         (let ((args (car (magit-log-arguments))))
-                          (if (and follow (not (member "--follow" args)))
-                              (cons "--follow" args)
-                            args))
-                        (list file))
+                          (when (and follow (not (member "--follow" args)))
+                            (push "--follow" args))
+                          (when (and beg end)
+                            (setq args (cons (format "-L%s,%s:%s" beg end file)
+                                             (cl-delete "-L" args :test
+                                                        'string-prefix-p)))
+                            (setq file nil))
+                          args)
+                        (and file (list file)))
     (user-error "Buffer isn't visiting a file"))
   (magit-log-goto-same-commit))
 
