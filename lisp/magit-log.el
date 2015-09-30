@@ -339,6 +339,27 @@ are no unpulled commits) show."
     :default-action magit-log-current
     :max-action-columns 3))
 
+(defvar magit-log-mode-refresh-popup
+  '(:variable magit-log-arguments
+    :man-page "git-log"
+    :switches ((?g "Show graph"              "--graph")
+               (?c "Show graph in color"     "--color")
+               (?d "Show refnames"           "--decorate")
+               (?S "Show signatures"         "--show-signature")
+               (?u "Show diffs"              "--patch")
+               (?s "Show diffstats"          "--stat")
+               (?D "Simplify by decoration"  "--simplify-by-decoration")
+               (?f "Follow renames when showing single-file log" "--follow"))
+    :options  ((?f "Limit to files"          "-- "       magit-read-files)
+               (?a "Limit to author"         "--author=" read-from-minibuffer)
+               (?m "Search messages"         "--grep="   read-from-minibuffer)
+               (?p "Search patches"          "-G"        read-from-minibuffer))
+    :actions  ((?g "Refresh"       magit-log-refresh)
+               (?t "Toggle margin" magit-toggle-margin)
+               (?s "Set defaults"  magit-log-set-default-arguments) nil
+               (?w "Save defaults" magit-log-save-default-arguments))
+    :max-action-columns 2))
+
 (defvar magit-log-refresh-popup
   '(:variable magit-log-arguments
     :man-page "git-log"
@@ -352,6 +373,7 @@ are no unpulled commits) show."
     :max-action-columns 2))
 
 (magit-define-popup-keys-deferred 'magit-log-popup)
+(magit-define-popup-keys-deferred 'magit-log-mode-refresh-popup)
 (magit-define-popup-keys-deferred 'magit-log-refresh-popup)
 
 (defun magit-log-arguments (&optional refresh)
@@ -373,7 +395,11 @@ are no unpulled commits) show."
 (defun magit-log-popup (arg)
   "Popup console for log commands."
   (interactive "P")
-  (let ((magit-log-arguments
+  (let ((magit-log-refresh-popup
+         (pcase major-mode
+           (`magit-log-mode magit-log-mode-refresh-popup)
+           (_               magit-log-refresh-popup)))
+        (magit-log-arguments
          (-if-let (buffer (magit-mode-get-buffer nil 'magit-log-mode))
              (with-current-buffer buffer
                (magit-popup-import-file-args (nth 1 magit-refresh-args)
