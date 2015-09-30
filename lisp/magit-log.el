@@ -74,6 +74,13 @@ The following `format'-like specs are supported:
   :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
 
+(defcustom magit-log-remove-graph-args '("--follow" "--grep" "-G")
+  "The log arguments that cause the `--graph' argument to be dropped."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-log
+  :type '(repeat (string :tag "Argument"))
+  :options '("--follow" "--grep" "-G"))
+
 (defcustom magit-log-auto-more nil
   "Insert more log entries automatically when moving past the last entry.
 Only considered when moving past the last entry with
@@ -687,10 +694,6 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
   (magit-set-buffer-margin magit-log-show-margin)
   (hack-dir-local-variables-non-file-buffer))
 
-(defvar magit-log-remove-graph-re
-  (concat "^" (regexp-opt '("-G" "--grep" "--follow")))
-  "Regexp matching arguments which are not compatible with `--graph'.")
-
 (defvar magit-log-disable-graph-hack-args
   '("-G" "--grep" "--author")
   "Arguments which disable the graph speedup hack.")
@@ -708,7 +711,9 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
          'face 'magit-header-line))
   (unless (= (length files) 1)
     (setq args (remove "--follow" args)))
-  (when (--any-p (string-match-p magit-log-remove-graph-re it) args)
+  (when (--any-p (string-match-p
+                  (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
+                 args)
     (setq args (remove "--graph" args)))
   (--when-let (and magit-log-cutoff-length
                    (= (length revs) 1)

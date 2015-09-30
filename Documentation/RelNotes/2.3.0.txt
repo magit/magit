@@ -110,5 +110,7 @@ THIS IS NOT COMPLETE.
   `magit-copy-as-kill' and `magit-copy-buffer-thing-as-kill' have been
   removed.  #2225
 
+* Added new option `magit-log-remove-graph-args'.  #2226
+
 Authors
 -------
