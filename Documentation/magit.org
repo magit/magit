@@ -2417,17 +2417,19 @@ Also see [[info:gitman#git-commit]].
 - Key: c e, magit-commit-extend
 
   Amend the last commit, without editing the message.  With a prefix
-  argument change the committer date.  The option
-  ~magit-commit-extend-override-date~ can be used to inverse the
-  meaning of the prefix argument.
+  argument keep the committer date, otherwise change it.  The option
+  ~magit-commit-extend-override-date~ can be used to inverse the meaning
+  of the prefix argument.
+
+  Non-interactively respect the optional OVERRIDE-DATE argument and
+  ignore the option.
 
 - Key: c w, magit-commit-reword
 
-  Reword the last commit, ignoring staged changes.
-
-  With a prefix argument change the committer date.  The option
-  ~magit-commit-rewrite-override-date~ can be used to inverse the
-  meaning of the prefix argument.
+  Reword the last commit, ignoring staged changes.  With a prefix
+  argument keep the committer date, otherwise change it.  The option
+  ~magit-commit-reword-override-date~ can be used to inverse the meaning
+  of the prefix argument.
 
   Non-interactively respect the optional OVERRIDE-DATE argument and
   ignore the option.

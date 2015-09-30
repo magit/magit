@@ -145,10 +145,11 @@ With a prefix argument amend to the commit at HEAD instead.
 ;;;###autoload
 (defun magit-commit-extend (&optional args override-date)
   "Amend the last commit, without editing the message.
-With a prefix argument do change the committer date, otherwise
-don't.  The option `magit-commit-extend-override-date' can be
-used to inverse the meaning of the prefix argument.
-\n(git commit --amend --no-edit)"
+
+With a prefix argument keep the committer date, otherwise change
+it.  The option `magit-commit-extend-override-date' can be used
+to inverse the meaning of the prefix argument.  \n(git commit
+--amend --no-edit)"
   (interactive (list (magit-commit-arguments)
                      (if current-prefix-arg
                          (not magit-commit-extend-override-date)
@@ -163,9 +164,9 @@ used to inverse the meaning of the prefix argument.
 (defun magit-commit-reword (&optional args override-date)
   "Reword the last commit, ignoring staged changes.
 
-With a prefix argument do change the committer date, otherwise
-don't.  The option `magit-commit-rewrite-override-date' can be
-used to inverse the meaning of the prefix argument.
+With a prefix argument keep the committer date, otherwise change
+it.  The option `magit-commit-reword-override-date' can be used
+to inverse the meaning of the prefix argument.
 
 Non-interactively respect the optional OVERRIDE-DATE argument
 and ignore the option.

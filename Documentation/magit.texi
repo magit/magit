@@ -3404,19 +3404,21 @@ Amend the last commit.
 @item @kbd{c e} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-extend})
 
 Amend the last commit, without editing the message.  With a prefix
-argument change the committer date.  The option
-@code{magit-commit-extend-override-date} can be used to inverse the
-meaning of the prefix argument.
+argument keep the committer date, otherwise change it.  The option
+@code{magit-commit-extend-override-date} can be used to inverse the meaning
+of the prefix argument.
+
+Non-interactively respect the optional OVERRIDE-DATE argument and
+ignore the option.
 
 @kindex c w
 @cindex magit-commit-reword
 @item @kbd{c w} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-reword})
 
-Reword the last commit, ignoring staged changes.
-
-With a prefix argument change the committer date.  The option
-@code{magit-commit-rewrite-override-date} can be used to inverse the
-meaning of the prefix argument.
+Reword the last commit, ignoring staged changes.  With a prefix
+argument keep the committer date, otherwise change it.  The option
+@code{magit-commit-reword-override-date} can be used to inverse the meaning
+of the prefix argument.
 
 Non-interactively respect the optional OVERRIDE-DATE argument and
 ignore the option.
