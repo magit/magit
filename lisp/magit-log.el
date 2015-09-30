@@ -253,6 +253,16 @@ The following `format'-like specs are supported:
   :group 'magit-log
   :type 'string)
 
+(defcustom magit-reflog-show-margin t
+  "Whether to initially show the margin in reflog buffers.
+
+When non-nil the author name and date are initially displayed in
+the margin of reflog buffers.  The margin can be shown or hidden
+in the current buffer using the command `magit-toggle-margin'."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-log
+  :type 'boolean)
+
 (defface magit-reflog-commit '((t :foreground "green"))
   "Face for commit commands in reflogs."
   :group 'magit-faces)
@@ -1203,6 +1213,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 
 \\{magit-reflog-mode-map}"
   :group 'magit-log
+  (magit-set-buffer-margin magit-reflog-show-margin)
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-reflog-refresh-buffer (ref)
