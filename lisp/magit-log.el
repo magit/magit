@@ -709,6 +709,8 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
                   (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
                  args)
     (setq args (remove "--graph" args)))
+  (unless (member "--graph" args)
+    (setq args (remove "--color" args)))
   (--when-let (and magit-log-cutoff-length
                    (= (length revs) 1)
                    (setq revs (car revs))
@@ -910,22 +912,26 @@ Do not add this to a hook variable."
             (magit-format-log-margin author date)))
         (when (and (eq style 'log)
                    (not (or (eobp) (looking-at magit-log-heading-re))))
-          (when align
-            (setq align (make-string (1+ abbrev) ? )))
-          (while (and (not (eobp)) (not (looking-at magit-log-heading-re)))
+          (if (looking-at "^\\(---\\|\n\s\\|\ndiff\\)")
+              (progn (magit-insert-heading)
+                     (delete-char (if (looking-at "\n") 1 4))
+                     (magit-diff-wash-diffs (list "--stat")))
             (when align
-              (save-excursion (insert align)))
-            (magit-format-log-margin)
-            (forward-line))
-          ;; When `--format' is used and its value isn't one of the
-          ;; predefined formats, then `git-log' does not insert a
-          ;; separator line.
-          (save-excursion
-            (forward-line -1)
-            (looking-at "[-_/|\\*o. ]*"))
-          (setq graph (match-string 0))
-          (unless (string-match-p "[/\\]" graph)
-            (insert graph ?\n))))))
+              (setq align (make-string (1+ abbrev) ? )))
+            (while (and (not (eobp)) (not (looking-at magit-log-heading-re)))
+              (when align
+                (save-excursion (insert align)))
+              (magit-format-log-margin)
+              (forward-line))
+            ;; When `--format' is used and its value isn't one of the
+            ;; predefined formats, then `git-log' does not insert a
+            ;; separator line.
+            (save-excursion
+              (forward-line -1)
+              (looking-at "[-_/|\\*o. ]*"))
+            (setq graph (match-string 0))
+            (unless (string-match-p "[/\\]" graph)
+              (insert graph ?\n)))))))
   t)
 
 (defun magit-log-format-unicode-graph (string)
