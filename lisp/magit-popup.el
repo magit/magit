@@ -941,7 +941,7 @@ in the popup."
     (setq magit-this-popup popup)
     (run-hook-with-args 'magit-popup-setup-hook val def))
   (magit-refresh-popup-buffer)
-  (fit-window-to-buffer))
+  (fit-window-to-buffer nil nil (line-number-at-pos (point-max))))
 
 (defun magit-popup-mode-display-buffer (buffer mode)
   (let ((winconf (current-window-configuration)))
