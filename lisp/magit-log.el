@@ -1022,11 +1022,13 @@ another window, using `magit-show-commit'."
                                                    (magit-file-relative-name
                                                     magit-buffer-file-name))
                                              (line-number-at-pos)))))
-                   (when (or (and (magit-diff-auto-show-p 'log-follow)
-                                  (magit-mode-get-buffer
-                                   nil 'magit-revision-mode nil nil t))
-                             (and (magit-diff-auto-show-p 'log-oneline)
-                                  (derived-mode-p 'magit-log-mode)))
+                   (when (and (not (magit-section-children
+                                    (magit-current-section)))
+                              (or (and (magit-diff-auto-show-p 'log-follow)
+                                       (magit-mode-get-buffer
+                                        nil 'magit-revision-mode nil nil t))
+                                  (and (magit-diff-auto-show-p 'log-oneline)
+                                       (derived-mode-p 'magit-log-mode))))
                      (apply #'magit-show-commit rev t nil
                             (magit-diff-arguments))))))
              (setq magit-update-other-window-timer nil))))))

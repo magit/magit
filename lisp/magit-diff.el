@@ -1511,7 +1511,7 @@ section or a child thereof."
       (magit-insert-section it (hunk value)
         (insert (propertize (concat heading "\n") 'face 'magit-diff-hunk-heading))
         (magit-insert-heading)
-        (while (not (or (eobp) (looking-at magit-diff-headline-re)))
+        (while (not (or (eobp) (looking-at "^[^-+\s\\]")))
           (forward-line))
         (setf (magit-section-end it) (point))
         (setf (magit-section-washer it) #'magit-diff-paint-hunk)))
@@ -1811,6 +1811,12 @@ Do not confuse this with `magit-diff-scope' (which see)."
                             type)))
                  (`hunk (-> it magit-section-parent magit-section-parent
                             magit-section-type))))))
+          ((derived-mode-p 'magit-log-mode)
+           (if (or (and (magit-section-match 'commit section)
+                        (magit-section-children section))
+                   (magit-section-match [* file commit] section))
+               'committed
+           'undefined))
           (t 'undefined))))
 
 (cl-defun magit-diff-scope (&optional (section nil ssection) strict)
@@ -1869,18 +1875,25 @@ If SECTION is not a diff-related section, then do nothing and
 return nil.  If SELECTION is non-nil then it is a list of sections
 selected by the region, including SECTION.  All of these sections
 are highlighted."
-  (-when-let (scope (magit-diff-scope section t))
-    (cond ((eq scope 'region)
-           (magit-diff-paint-hunk section selection t))
-          (selection
-           (dolist (section selection)
-             (magit-diff-highlight-recursive section selection)))
-          (t
-           (magit-diff-highlight-recursive section)))
-    t))
+  (if (and (magit-section-match 'commit section)
+           (magit-section-children section))
+      (progn (if selection
+                 (dolist (section selection)
+                   (magit-diff-highlight-list section selection))
+               (magit-diff-highlight-list section))
+             t)
+    (-when-let (scope (magit-diff-scope section t))
+      (cond ((eq scope 'region)
+             (magit-diff-paint-hunk section selection t))
+            (selection
+             (dolist (section selection)
+               (magit-diff-highlight-recursive section selection)))
+            (t
+             (magit-diff-highlight-recursive section)))
+      t)))
 
 (defun magit-diff-highlight-recursive (section &optional selection)
-  (if (magit-section-match 'module-commit section)
+  (if (magit-section-match '(module-commit diffstat) section)
       (magit-section-highlight section nil)
     (pcase (magit-diff-scope section)
       (`list (magit-diff-highlight-list section selection))
