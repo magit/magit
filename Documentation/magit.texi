@@ -4791,6 +4791,12 @@ Show all diffs of a stash in a buffer.
 
 Create and checkout a new BRANCH from STASH.
 
+@kindex z f
+@cindex magit-stash-format-patch
+@item @kbd{z f} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-format-patch})
+
+Create a patch from STASH.
+
 @kindex k
 @cindex magit-stash-clear
 @item @kbd{k} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-clear})

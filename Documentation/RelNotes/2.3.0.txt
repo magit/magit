@@ -116,5 +116,7 @@ THIS IS NOT COMPLETE.
 
 * Added basic support for tracing the evolution of a region.  #2226
 
+* Added new command `magit-stash-format-patch'.
+
 Authors
 -------

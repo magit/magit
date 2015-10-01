@@ -51,7 +51,8 @@
               (?r "Snapshot to wipref" magit-wip-commit)
               (?v "Show"               magit-stash-show)
               (?b "Branch"             magit-stash-branch)
-              (?k "Drop"               magit-stash-drop))
+              (?k "Drop"               magit-stash-drop) nil
+              (?f "Format patch"       magit-stash-format-patch))
   :default-action 'magit-stash
   :max-action-columns 3)
 
@@ -193,6 +194,14 @@ When the region is active offer to drop all contained stashes."
   (interactive (list (magit-read-stash "Branch stash" t)
                      (magit-read-string-ns "Branch name")))
   (magit-run-git "stash" "branch" branch stash))
+
+;;;###autoload
+(defun magit-stash-format-patch (stash)
+  "Create a patch from STASH"
+  (interactive (list (magit-read-stash "Create patch from stash" t)))
+  (with-temp-file (magit-rev-format "0001-%f.patch" stash)
+    (magit-git-insert "stash" "show" "-p" stash))
+  (magit-refresh))
 
 ;;; Plumbing
 

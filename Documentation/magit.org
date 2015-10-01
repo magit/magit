@@ -3397,6 +3397,10 @@ Also see [[info:gitman#git-stash]].
 
   Create and checkout a new BRANCH from STASH.
 
+- Key: z f, magit-stash-format-patch
+
+  Create a patch from STASH.
+
 - Key: k, magit-stash-clear
   
   Remove all stashes saved in REF's reflog by deleting REF.
