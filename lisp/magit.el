@@ -1552,7 +1552,7 @@ Keep the head and working tree as-is, so if COMMIT refers to the
 head this effectivley unstages all changes.
 \n(git reset COMMIT)"
   (interactive (list (magit-read-branch-or-commit "Reset index to")))
-  (magit-reset-internal nil commit))
+  (magit-reset-internal nil commit "."))
 
 ;;;###autoload
 (defun magit-reset (commit &optional hard)
@@ -1587,7 +1587,7 @@ With a prefix argument also reset the working tree.
   (interactive (list (magit-read-branch-or-commit "Hard reset to")))
   (magit-reset-internal "--hard" commit))
 
-(defun magit-reset-internal (arg commit)
+(defun magit-reset-internal (arg commit &optional path)
   (when (and (not (member arg '("--hard" nil)))
              (equal (magit-rev-parse commit)
                     (magit-rev-parse "HEAD~")))
@@ -1599,7 +1599,7 @@ With a prefix argument also reset the working tree.
       (git-commit-save-message)))
   (let ((cmd (if (and (equal commit "HEAD") (not arg)) "unstage" "reset")))
     (magit-wip-commit-before-change nil (concat " before " cmd))
-    (magit-run-git "reset" arg commit "--")
+    (magit-run-git "reset" arg commit "--" path)
     (when (equal cmd "unstage")
       (magit-wip-commit-after-apply nil " after unstage"))))
 
