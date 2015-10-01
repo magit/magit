@@ -356,6 +356,17 @@ usually honor this wish and return non-nil."
        (git-commit-setup)))
 
 (defun git-commit-setup ()
+  ;; cygwin git will pass a cygwin path (/cygdrive/c/foo/.git/...),
+  ;; try to handle this in window-nt Emacs.
+  (when (and (eq system-type 'windows-nt)
+             (not (file-accessible-directory-p default-directory))
+             ;; Emacs prepends a "c:".
+             (string-match "\\`[a-z]:/\\(cygdrive/\\)?\\([a-z]\\)/\\(.*\\)"
+                           buffer-file-name))
+    (let ((w32name (concat (match-string 2 buffer-file-name) ":/"
+                           (match-string 3 buffer-file-name))))
+      (when (file-accessible-directory-p (file-name-directory w32name))
+        (find-alternate-file w32name))))
   (when git-commit-major-mode
     (funcall git-commit-major-mode))
   (setq with-editor-show-usage nil)
