@@ -2041,11 +2041,11 @@ are highlighted."
                  (face  (list :overline color :underline color)))
             (if (= rbeg bol)
                 (ov rbeg eol 'face face
-                    'after-string (propertize "\s" 'face face 'display align))
+                    'after-string (propertize "\s" 'face face 'display align 'cursor t))
               (ov rbeg eol 'face (setq face (list :overline color))
-                  'after-string (propertize "\s" 'face face 'display align))
+                  'after-string (propertize "\s" 'face face 'display align 'cursor t))
               (ov bol rend 'face (setq face (list :underline color))
-                  'after-string (propertize "\s\n" 'face face 'display align)))))
+                  'after-string (propertize "\s\n" 'face face 'display align 'cursor t)))))
         (ov (1+ rend) send 'face face 'priority 2)))))
 
 ;;; Diff Extract
