@@ -70,12 +70,7 @@ With a prefix argument and if necessary, attempt a 3-way merge."
       (`(,_  files) (magit-apply-diff   it args)))))
 
 (defun magit-apply-diff (section &rest args)
-  (magit-section-when [file diffstat]
-    (--if-let (magit-get-section
-               (append `((file . ,(magit-section-value section)))
-                       (magit-section-ident magit-root-section)))
-        (setq section it)
-      (error "Cannot get required diff headers")))
+  (setq section (car (magit-apply--get-diffs (list section))))
   (magit-apply-patch section args
                      (concat (magit-diff-file-header section)
                              (buffer-substring (magit-section-content section)
@@ -118,6 +113,16 @@ With a prefix argument and if necessary, attempt a 3-way merge."
       (when magit-wip-after-apply-mode
         (magit-wip-commit-after-apply (list file) (concat " after " command)))
       (magit-refresh))))
+
+(defun magit-apply--get-diffs (sections)
+  (magit-section-case
+    ([file diffstat]
+     (--map (or (magit-get-section
+                 (append `((file . ,(magit-section-value it)))
+                         (magit-section-ident magit-root-section)))
+                (error "Cannot get required diff headers"))
+            sections))
+    (t sections)))
 
 ;;;; Stage
 
