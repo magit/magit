@@ -297,16 +297,16 @@ without requiring confirmation."
 (defun magit-discard ()
   "Remove the change at point."
   (interactive)
-  (--when-let (magit-current-section)
+  (--when-let (magit-apply--get-selection)
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(committed ,_) (user-error "Cannot discard committed changes"))
       (`(undefined ,_) (user-error "Cannot discard this change"))
       (`(,_    region) (magit-discard-region it))
       (`(,_      hunk) (magit-discard-hunk   it))
-      (`(,_     hunks) (magit-discard-hunk   it))
-      (`(,_      file) (magit-discard-file   it)))
-      (`(,_     files) (magit-discard-files  (magit-region-sections)))
-      (`(,_      list) (magit-discard-files  (magit-section-children it)))))
+      (`(,_     hunks) (magit-discard-hunks  it))
+      (`(,_      file) (magit-discard-file   it))
+      (`(,_     files) (magit-discard-files  it))
+      (`(,_      list) (magit-discard-files  it)))))
 
 (defun magit-discard-region (section)
   (when (magit-confirm 'discard "Discard region")
@@ -328,6 +328,13 @@ without requiring confirmation."
                  (funcall apply section "--reverse"))
                (magit-refresh))
       (funcall apply section "--reverse" "--index"))))
+
+(defun magit-discard-hunks (sections)
+  (when (magit-confirm 'discard
+          (format "Discard %s hunks from %s"
+                  (length sections)
+                  (magit-section-parent-value (car sections))))
+    (magit-discard-apply-n sections 'magit-apply-hunks)))
 
 (defun magit-discard-apply-n (sections apply)
   (let ((section (car sections)))
