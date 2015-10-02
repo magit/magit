@@ -93,14 +93,16 @@ With a prefix argument and if necessary, attempt a 3-way merge."
                      (concat (magit-diff-file-header section)
                              (magit-diff-hunk-region-patch section args))))
 
-(defun magit-apply-patch (section args patch)
-  (let* ((file (magit-section-value section))
+(defun magit-apply-patch (section:s args patch)
+  (let* ((files (if (atom section:s)
+                    (list (magit-section-value section:s))
+                  (mapcar 'magit-section-value section:s)))
          (command (symbol-name this-command))
          (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
                       (match-string 1 command)
                     "apply")))
     (when (and magit-wip-before-change-mode (not inhibit-magit-refresh))
-      (magit-wip-commit-before-change (list file) (concat " before " command)))
+      (magit-wip-commit-before-change files (concat " before " command)))
     (with-temp-buffer
       (insert patch)
       (magit-run-git-with-input nil
@@ -109,7 +111,7 @@ With a prefix argument and if necessary, attempt a 3-way merge."
         "--ignore-space-change" "-"))
     (unless inhibit-magit-refresh
       (when magit-wip-after-apply-mode
-        (magit-wip-commit-after-apply (list file) (concat " after " command)))
+        (magit-wip-commit-after-apply files (concat " after " command)))
       (magit-refresh))))
 
 (defun magit-apply--get-diffs (sections)
