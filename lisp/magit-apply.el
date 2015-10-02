@@ -79,7 +79,7 @@ With a prefix argument and if necessary, attempt a 3-way merge."
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (magit-apply-patch section args
+  (magit-apply-patch (magit-section-parent section) args
                      (concat (magit-diff-file-header section)
                              (buffer-substring (magit-section-start section)
                                                (magit-section-end section)))))
@@ -94,9 +94,7 @@ With a prefix argument and if necessary, attempt a 3-way merge."
                              (magit-diff-hunk-region-patch section args))))
 
 (defun magit-apply-patch (section args patch)
-  (let* ((file (if (eq (magit-section-type section) 'file)
-                   (magit-section-value section)
-                 (magit-section-parent-value section)))
+  (let* ((file (magit-section-value section))
          (command (symbol-name this-command))
          (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
                       (match-string 1 command)
