@@ -1008,13 +1008,9 @@ or is not a valid section selection, then return nil.  If optional
 TYPES is non-nil then the selection not only has to be valid; the
 types of all selected sections additionally have to match one of
 TYPES, or nil is returned."
-  (when (use-region-p)
-    (let ((sections (magit-region-sections)))
-      (when (or (not types)
-                (--all-p (memq (magit-section-type it) types) sections))
-        (mapcar 'magit-section-value sections)))))
+  (mapcar 'magit-section-value (apply 'magit-region-sections types)))
 
-(defun magit-region-sections ()
+(defun magit-region-sections (&rest types)
   "Return a list of the selected sections.
 
 When the region is active and constitutes a valid section
@@ -1030,7 +1026,11 @@ the selection is invalid.  When the selection is valid then the
 region uses the `magit-section-highlight'.  This does not apply
 to diffs were things get a bit more complicated, but even here
 if the region looks like it usually does, then that's not a
-valid selection as far as this function is concerned."
+valid selection as far as this function is concerned.
+
+If optional TYPES is non-nil then the selection not only has to
+be valid; the types of all selected sections additionally have to
+match one of TYPES, or nil is returned."
   (when (use-region-p)
     (let* ((rbeg (region-beginning))
            (rend (region-end))
@@ -1045,7 +1045,10 @@ valid selection as far as this function is concerned."
               (push (car siblings) sections)
               (when (eq (pop siblings) send)
                 (setq siblings nil)))
-            (cons sbeg (nreverse sections))))))))
+            (setq sections (cons sbeg (nreverse sections)))
+            (when (or (not types)
+                      (--all-p (memq (magit-section-type it) types) sections))
+              sections)))))))
 
 (defun magit-section-position-in-heading-p (section pos)
   "Return t if POSITION is inside the heading of SECTION."
