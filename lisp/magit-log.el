@@ -70,6 +70,7 @@ The following `format'-like specs are supported:
 
 (defcustom magit-log-arguments '("-n256" "--graph" "--decorate")
   "The log arguments used in `magit-log-mode' buffers."
+  :package-version '(magit . "2.3.0")
   :group 'magit-log
   :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
@@ -213,8 +214,9 @@ The following `format'-like specs are supported:
   :group 'magit-log
   :type 'string)
 
-(defcustom magit-log-select-arguments '("--decorate")
+(defcustom magit-log-select-arguments '("-n256" "--decorate")
   "The log arguments used in `magit-log-select-mode' buffers."
+  :package-version '(magit . "2.3.0")
   :group 'magit-log
   :type '(repeat (string :tag "Argument")))
 
@@ -260,6 +262,13 @@ The following `format'-like specs are supported:
   :package-version '(magit . "2.1.0")
   :group 'magit-log
   :type 'string)
+
+(defcustom magit-reflog-arguments '("-n256")
+  "The log arguments used in `magit-reflog-mode' buffers."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-log
+  :group 'magit-commands
+  :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-reflog-show-margin t
   "Whether to initially show the margin in reflog buffers.
@@ -384,6 +393,11 @@ are no unpulled commits) show."
                (?s "Set defaults"  magit-log-set-default-arguments) nil
                (?w "Save defaults" magit-log-save-default-arguments))
     :max-action-columns 2))
+
+(defvar magit-reflog-mode-refresh-popup
+  '(:variable magit-reflog-arguments
+    :man-page "git-reflog"
+    :options  ((?n "Limit number of commits" "-n" read-from-minibuffer))))
 
 (defvar magit-log-refresh-popup
   '(:variable magit-log-arguments
@@ -640,7 +654,8 @@ With a prefix argument or when `--follow' is part of
   (interactive (list (magit-read-local-branch-or-ref "Show reflog for")))
   (magit-mode-setup magit-reflog-buffer-name-format nil
                     #'magit-reflog-mode
-                    #'magit-reflog-refresh-buffer ref))
+                    #'magit-reflog-refresh-buffer
+                    ref magit-reflog-arguments))
 
 ;;;###autoload
 (defun magit-reflog-head ()
@@ -1269,12 +1284,12 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
   (magit-set-buffer-margin magit-reflog-show-margin)
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-reflog-refresh-buffer (ref)
+(defun magit-reflog-refresh-buffer (ref args)
   (setq header-line-format
         (propertize (concat " Reflog for " ref) 'face 'magit-header-line))
   (magit-insert-section (reflogbuf)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
-      "reflog" "show" "--format=%h %gd %gs" "--date=raw" ref)))
+      "reflog" "show" "--format=%h %gd %gs" "--date=raw" args ref)))
 
 (defvar magit-reflog-labels
   '(("commit"      . magit-reflog-commit)
