@@ -57,7 +57,7 @@
   "Apply the change at point.
 With a prefix argument and if necessary, attempt a 3-way merge."
   (interactive (and current-prefix-arg (list "--3way")))
-  (--when-let (magit-current-section)
+  (--when-let (magit-apply--get-selection)
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
@@ -65,9 +65,19 @@ With a prefix argument and if necessary, attempt a 3-way merge."
        (magit-am-popup))
       (`(,_ region) (magit-apply-region it args))
       (`(,_   hunk) (magit-apply-hunk   it args))
-      (`(,_  hunks) (magit-apply-hunk   it args))
+      (`(,_  hunks) (magit-apply-hunks  it args))
       (`(,_   file) (magit-apply-diff   it args))
-      (`(,_  files) (magit-apply-diff   it args)))))
+      (`(,_  files) (magit-apply-diffs  it args)))))
+
+(defun magit-apply-diffs (sections &rest args)
+  (setq sections (magit-apply--get-diffs sections))
+  (magit-apply-patch sections args
+                     (mapconcat
+                      (lambda (s)
+                        (concat (magit-diff-file-header s)
+                                (buffer-substring (magit-section-content s)
+                                                  (magit-section-end s))))
+                      sections "")))
 
 (defun magit-apply-diff (section &rest args)
   (setq section (car (magit-apply--get-diffs (list section))))
@@ -75,6 +85,18 @@ With a prefix argument and if necessary, attempt a 3-way merge."
                      (concat (magit-diff-file-header section)
                              (buffer-substring (magit-section-content section)
                                                (magit-section-end section)))))
+
+(defun magit-apply-hunks (sections &rest args)
+  (let ((section (magit-section-parent (car sections))))
+    (when (string-match "^diff --cc" (magit-section-value section))
+      (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
+    (magit-apply-patch section args
+                       (concat (magit-section-diff-header section)
+                               (mapconcat
+                                (lambda (s)
+                                  (buffer-substring (magit-section-start s)
+                                                    (magit-section-end s)))
+                                sections "")))))
 
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
@@ -114,6 +136,16 @@ With a prefix argument and if necessary, attempt a 3-way merge."
         (magit-wip-commit-after-apply files (concat " after " command)))
       (magit-refresh))))
 
+(defun magit-apply--get-selection ()
+  (or (magit-region-sections 'hunk 'file)
+      (let ((section (magit-current-section)))
+        (pcase (magit-section-type section)
+          ((or `hunk `file) section)
+          ((or `staged `unstaged `untracked
+               `stashed-index `stashed-worktree `stashed-untracked)
+           (magit-section-children section))
+          (_ (user-error "Cannot apply this, it's not a change"))))))
+
 (defun magit-apply--get-diffs (sections)
   (magit-section-case
     ([file diffstat]
@@ -129,13 +161,13 @@ With a prefix argument and if necessary, attempt a 3-way merge."
 (defun magit-stage ()
   "Add the change at point to the staging area."
   (interactive)
-  (--when-let (magit-current-section)
+  (--when-let (magit-apply--get-selection)
     (let ((inhibit-magit-revert t))
       (pcase (list (magit-diff-type) (magit-diff-scope))
         (`(untracked     ,_) (magit-stage-untracked))
         (`(unstaged  region) (magit-apply-region it "--cached"))
         (`(unstaged    hunk) (magit-apply-hunk   it "--cached"))
-        (`(unstaged   hunks) (magit-apply-hunk   it "--cached"))
+        (`(unstaged   hunks) (magit-apply-hunks  it "--cached"))
         (`(unstaged    file) (magit-stage-1 "-u" (list (magit-section-value it))))
         (`(unstaged   files) (magit-stage-1 "-u" (magit-region-values)))
         (`(unstaged    list) (magit-stage-1 "-u"))
@@ -210,14 +242,14 @@ ignored) files.
 (defun magit-unstage ()
   "Remove the change at point from the staging area."
   (interactive)
-  (--when-let (magit-current-section)
+  (--when-let (magit-apply--get-selection)
     (let ((inhibit-magit-revert t))
       (pcase (list (magit-diff-type) (magit-diff-scope))
         (`(untracked     ,_) (user-error "Cannot unstage untracked changes"))
         (`(unstaged      ,_) (user-error "Already unstaged"))
         (`(staged    region) (magit-apply-region it "--reverse" "--cached"))
         (`(staged      hunk) (magit-apply-hunk   it "--reverse" "--cached"))
-        (`(staged     hunks) (magit-apply-hunk   it "--reverse" "--cached"))
+        (`(staged     hunks) (magit-apply-hunks  it "--reverse" "--cached"))
         (`(staged      file) (magit-unstage-1 (list (magit-section-value it))))
         (`(staged     files) (magit-unstage-1 (magit-region-values)))
         (`(staged      list) (magit-unstage-all))
