@@ -443,16 +443,16 @@ without requiring confirmation."
 (defun magit-reverse (&rest args)
   "Reverse the change at point in the working tree."
   (interactive (and current-prefix-arg (list "--3way")))
-  (--when-let (magit-current-section)
+  (--when-let (magit-apply--get-selection)
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(untracked ,_) (user-error "Cannot reverse untracked changes"))
       (`(unstaged  ,_) (user-error "Cannot reverse unstaged changes"))
       (`(,_    region) (magit-reverse-region it args))
       (`(,_      hunk) (magit-reverse-hunk   it args))
-      (`(,_     hunks) (magit-reverse-hunk   it args))
+      (`(,_     hunks) (magit-reverse-hunks  it args))
       (`(,_      file) (magit-reverse-file   it args))
-      (`(,_     files) (magit-reverse-files  (magit-region-sections) args))
-      (`(,_      list) (magit-reverse-files  (magit-section-children it) args)))))
+      (`(,_     files) (magit-reverse-files  it args))
+      (`(,_      list) (magit-reverse-files  it args)))))
 
 (defun magit-reverse-region (section args)
   (when (magit-confirm 'reverse "Reverse region")
@@ -461,6 +461,13 @@ without requiring confirmation."
 (defun magit-reverse-hunk (section args)
   (when (magit-confirm 'reverse "Reverse hunk")
     (apply 'magit-apply-hunk section "--reverse" args)))
+
+(defun magit-reverse-hunks (sections args)
+  (when (magit-confirm 'reverse
+          (format "Reverse %s hunks from %s"
+                  (length sections)
+                  (magit-section-parent-value (car sections))))
+    (magit-apply-hunks sections "--reverse" args)))
 
 (defun magit-reverse-file (section args)
   (magit-reverse-files (list section) args))
