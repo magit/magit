@@ -424,20 +424,22 @@ without requiring confirmation."
         (when new-files
           (magit-call-git "add"   "--" new-files)
           (magit-call-git "reset" "--" new-files))
-        (-if-let (binaries (magit-staged-binary-files))
-            (let ((text (--filter (not (member (magit-section-value it) binaries))
-                                  sections)))
-              (cl-destructuring-bind (unsafe safe)
-                  (let ((modified (magit-modified-files t)))
-                    (--separate (member it modified) binaries))
-                (mapc #'magit-discard-apply text)
-                (when safe
-                  (magit-call-git "reset" "--" safe))
-                (when unsafe
-                  (user-error
-                   (concat "Cannot discard staged changes to binary files, "
-                           "which also have unstaged changes.  Unstage instead.")))))
-          (mapc #'magit-discard-apply sections))))))
+        (let ((binaries (magit-staged-binary-files)))
+          (when binaries
+            (setq sections
+                  (--filter (not (member (magit-section-value it) binaries))
+                            sections)))
+          (mapc #'magit-discard-apply sections)
+          (when binaries
+            (let ((modified (magit-modified-files t)))
+              (setq binaries (--separate (member it modified) binaries)))
+            (when (cadr binaries)
+              (magit-call-git "reset" "--" (cadr binaries)))
+            (when (car binaries)
+              (user-error
+               (concat
+                "Cannot discard staged changes to binary files, "
+                "which also have unstaged changes.  Unstage instead.")))))))))
 
 ;;;; Reverse
 
