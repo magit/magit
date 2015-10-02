@@ -95,8 +95,6 @@ With a prefix argument and if necessary, attempt a 3-way merge."
                      (concat (magit-diff-file-header section)
                              (magit-diff-hunk-region-patch section args))))
 
-(defvar magit-apply-inhibit-wip nil)
-
 (defun magit-apply-patch (section args patch)
   (let* ((file (if (eq (magit-section-type section) 'file)
                    (magit-section-value section)
@@ -105,7 +103,7 @@ With a prefix argument and if necessary, attempt a 3-way merge."
          (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
                       (match-string 1 command)
                     "apply")))
-    (when (and magit-wip-before-change-mode (not magit-apply-inhibit-wip))
+    (when (and magit-wip-before-change-mode (not inhibit-magit-refresh))
       (magit-wip-commit-before-change (list file) (concat " before " command)))
     (with-temp-buffer
       (insert patch)
@@ -113,9 +111,10 @@ With a prefix argument and if necessary, attempt a 3-way merge."
         "apply" args "-p0"
         (unless (magit-diff-context-p) "--unidiff-zero")
         "--ignore-space-change" "-"))
-    (when (and magit-wip-after-apply-mode (not magit-apply-inhibit-wip))
-      (magit-wip-commit-after-apply (list file) (concat " after " command)))
-    (magit-refresh)))
+    (unless inhibit-magit-refresh
+      (when magit-wip-after-apply-mode
+        (magit-wip-commit-after-apply (list file) (concat " after " command)))
+      (magit-refresh))))
 
 ;;;; Stage
 
@@ -380,20 +379,19 @@ without requiring confirmation."
         (when new-files
           (magit-call-git "add"   "--" new-files)
           (magit-call-git "reset" "--" new-files))
-        (let ((magit-apply-inhibit-wip t))
-          (-if-let (binaries (magit-staged-binary-files))
-              (let ((text (--filter (not (member (magit-section-value it) binaries))
-                                    sections)))
-                (cl-destructuring-bind (unsafe safe)
-                    (let ((modified (magit-modified-files t)))
-                      (--separate (member it modified) binaries))
-                  (mapc #'magit-discard-apply text)
-                  (when safe
-                    (magit-call-git "reset" "--" safe))
-                  (user-error
-                   (concat "Cannot discard staged changes to binary files, "
-                           "which also have unstaged changes.  Unstage instead."))))
-            (mapc #'magit-discard-apply sections)))))))
+        (-if-let (binaries (magit-staged-binary-files))
+            (let ((text (--filter (not (member (magit-section-value it) binaries))
+                                  sections)))
+              (cl-destructuring-bind (unsafe safe)
+                  (let ((modified (magit-modified-files t)))
+                    (--separate (member it modified) binaries))
+                (mapc #'magit-discard-apply text)
+                (when safe
+                  (magit-call-git "reset" "--" safe))
+                (user-error
+                 (concat "Cannot discard staged changes to binary files, "
+                         "which also have unstaged changes.  Unstage instead."))))
+          (mapc #'magit-discard-apply sections))))))
 
 ;;;; Reverse
 
@@ -426,9 +424,10 @@ without requiring confirmation."
     (let ((files (mapcar #'magit-section-value sections)))
       (when (magit-confirm-files 'reverse files)
         (magit-wip-commit-before-change files " before reverse")
-        (let ((magit-apply-inhibit-wip t))
+        (let ((inhibit-magit-refresh t))
           (--each sections (magit-reverse-apply it args)))
-        (magit-wip-commit-after-apply files " after reverse")))
+        (magit-wip-commit-after-apply files " after reverse")
+        (magit-refresh)))
     (when binaries
       (user-error "Cannot reverse binary files"))))
 
