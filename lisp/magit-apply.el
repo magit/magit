@@ -456,13 +456,11 @@ without requiring confirmation."
 
 (defun magit-reverse-apply (section args)
   (let ((scope (magit-diff-scope section)))
-    (when (or (eq scope 'file)
-              (magit-confirm 'reverse (format "Reverse %s" scope)))
+    (when (magit-confirm 'reverse (format "Reverse %s" scope))
       (apply (pcase scope
                (`region 'magit-apply-region)
                (`hunk   'magit-apply-hunk)
-               (`hunks  'magit-apply-hunk)
-               (`file   'magit-apply-diff))
+               (`hunks  'magit-apply-hunk))
              section "--reverse" args))))
 
 (defun magit-reverse-files (sections args)
@@ -471,11 +469,9 @@ without requiring confirmation."
         (--separate (member (magit-section-value it) binaries) sections))
     (let ((files (mapcar #'magit-section-value sections)))
       (when (magit-confirm-files 'reverse files)
-        (magit-wip-commit-before-change files " before reverse")
-        (let ((inhibit-magit-refresh t))
-          (--each sections (magit-reverse-apply it args)))
-        (magit-wip-commit-after-apply files " after reverse")
-        (magit-refresh)))
+        (if (= (length sections) 1)
+            (magit-apply-diff (car sections) "--reverse" args)
+          (magit-apply-diffs sections "--reverse" args))))
     (when binaries
       (user-error "Cannot reverse binary files"))))
 
