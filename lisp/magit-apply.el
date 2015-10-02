@@ -433,9 +433,10 @@ without requiring confirmation."
                 (mapc #'magit-discard-apply text)
                 (when safe
                   (magit-call-git "reset" "--" safe))
-                (user-error
-                 (concat "Cannot discard staged changes to binary files, "
-                         "which also have unstaged changes.  Unstage instead."))))
+                (when unsafe
+                  (user-error
+                   (concat "Cannot discard staged changes to binary files, "
+                           "which also have unstaged changes.  Unstage instead.")))))
           (mapc #'magit-discard-apply sections))))))
 
 ;;;; Reverse
