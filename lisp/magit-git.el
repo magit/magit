@@ -73,8 +73,8 @@
                           it nil '(t t) nil "-c"
                           "alias.path=!cygpath -wp \"$PATH\"" "path"))
                        (setq magit-git-environment
-                             (buffer-substring-no-properties
-                              (point) (line-end-position))))))
+                             (list (buffer-substring-no-properties
+                                    (point) (line-end-position)))))))
                  (let ((alt (directory-file-name (file-name-directory it))))
                    (if (and (equal (file-name-nondirectory alt) "cmd")
                             (setq alt (expand-file-name
