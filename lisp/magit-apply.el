@@ -111,7 +111,7 @@ With a prefix argument and if necessary, attempt a 3-way merge."
     (user-error "Not enough context to apply region.  Increase the context"))
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (magit-apply-patch section args
+  (magit-apply-patch (magit-section-parent section) args
                      (concat (magit-diff-file-header section)
                              (magit-diff-hunk-region-patch section args))))
 
@@ -452,8 +452,8 @@ without requiring confirmation."
                   (--filter (not (member (magit-section-value it) binaries))
                             sections)))
           (if (= (length sections) 1)
-              (magit-discard-apply (car sections) 'magit-apply-file)
-            (magit-discard-apply-n sections 'magit-apply-files))
+              (magit-discard-apply (car sections) 'magit-apply-diff)
+            (magit-discard-apply-n sections 'magit-apply-diffs))
           (when binaries
             (let ((modified (magit-modified-files t)))
               (setq binaries (--separate (member it modified) binaries)))
