@@ -2385,12 +2385,17 @@ the minibuffer too."
                     (replace-regexp-in-string "%N" idx eob-format t t)))
             (save-excursion
               (goto-char (point-max))
-              (when comment-start
-                (while (re-search-backward (concat "^" comment-start) nil t)))
+              (skip-syntax-backward ">s-")
+              (beginning-of-line)
+              (if (and comment-start (looking-at comment-start))
+                  (while (looking-at comment-start)
+                    (forward-line -1))
+                (forward-line)
+                (unless (= (current-column) 0)
+                  (insert ?\n)))
+              (insert ?\n)
               (magit-rev-insert-format eob-format rev)
-              (backward-delete-char 1)
-              (when (and comment-start (looking-at (concat "^" comment-start)))
-                (insert "\n"))))))
+              (backward-delete-char 1)))))
     (user-error "Revision stack is empty")))
 
 (define-key git-commit-mode-map
