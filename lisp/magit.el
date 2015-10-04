@@ -2401,7 +2401,8 @@ the minibuffer too."
 
 Save the section value to the `kill-ring', and, provided that
 the current section is a commit, branch, or tag section, push
-the (referenced) revision to the `magit-revision-stack'.
+the (referenced) revision to the `magit-revision-stack' for use
+with `magit-pop-revision-stack'.
 
 When the current section is a branch or a tag, and a prefix
 argument is used, then save the revision at its tip to the
