@@ -2300,14 +2300,14 @@ of the buffer, and removes the consumed revision from the stack.
 The entries on the stack have the format (HASH TOPLEVEL) and this
 option has the format (POINT-FORMAT EOB-FORMAT INDEX-REGEXP), all
 of which may be nil or a string (though either one of EOB-FORMAT
-or POINT-FORMAT should be a string, and if POINT-FORMAT is
-non-nil, then the the two formats should be too).
+or POINT-FORMAT should be a string, and if INDEX-REGEXP is
+non-nil, then the two formats should be too).
 
 First INDEX-REGEXP is used to find the previously inserted entry,
 by searching backward from point.  The first submatch must match
 the index number.  That number is incremented by one, and becomes
 the index number of the entry to be inserted.  If you don't want
-to number the inserted revisions, then us nil for INDEX-REGEXP.
+to number the inserted revisions, then use nil for INDEX-REGEXP.
 
 If INDEX-REGEXP is non-nil then both POINT-FORMAT and EOB-FORMAT
 should contain \"%N\", which is replaced with the number that was

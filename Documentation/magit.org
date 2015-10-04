@@ -2545,13 +2545,13 @@ with those that are already committed.
 
 - Key: C-c C-w, magit-pop-revision-stack
 
-  This command insert a representation of a revision into the current
+  This command inserts a representation of a revision into the current
   buffer.  It can be used inside buffers used to write commit messages
   but also in other buffers such as buffers used to edit emails or
   ChangeLog files.
 
   By default this command pops the revision which was last added to
-  the ~magit-revision-stack~ and insert it into the current buffer
+  the ~magit-revision-stack~ and inserts it into the current buffer
   according to ~magit-pop-revision-stack-format~.  Revisions can be put
   on the stack using ~magit-copy-section-value~ and
   ~magit-copy-buffer-revision~.
@@ -2580,14 +2580,14 @@ with those that are already committed.
   The entries on the stack have the format ~(HASH TOPLEVEL)~ and this
   option has the format ~(POINT-FORMAT EOB-FORMAT INDEX-REGEXP)~, all
   of which may be nil or a string (though either one of EOB-FORMAT
-  or POINT-FORMAT should be a string, and if POINT-FORMAT is
-  non-nil, then the the two formats should be too).
+  or POINT-FORMAT should be a string, and if INDEX-REGEXP is
+  non-nil, then the two formats should be too).
 
   First INDEX-REGEXP is used to find the previously inserted entry,
   by searching backward from point.  The first submatch must match
   the index number.  That number is incremented by one, and becomes
   the index number of the entry to be inserted.  If you don't want
-  to number the inserted revisions, then us nil for INDEX-REGEXP.
+  to number the inserted revisions, then use nil for INDEX-REGEXP.
 
   If INDEX-REGEXP is non-nil then both POINT-FORMAT and EOB-FORMAT
   should contain \"%N\", which is replaced with the number that was
