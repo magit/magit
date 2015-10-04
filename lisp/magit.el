@@ -2323,8 +2323,12 @@ that)."
   :package-version '(magit . "2.3.0")
   :group 'magit-status
   :type '(list (choice (string :tag "Insert at point format")
-                       (const  :tag "Don't insert at point" nil))
+                       (cons (string :tag "Insert at point format")
+                             (repeat (string :tag "Argument to git show")))
+                       (const :tag "Don't insert at point" nil))
                (choice (string :tag "Insert at eob format")
+                       (cons (string :tag "Insert at eob format")
+                             (repeat (string :tag "Argument to git show")))
                        (const :tag "Don't insert at eob" nil))
                (choice (regexp :tag "Find index regexp")
                        (const :tag "Don't number entries" nil))))
@@ -2372,12 +2376,19 @@ the minibuffer too."
                           (if (re-search-backward idx-format nil t)
                               (number-to-string
                                (1+ (string-to-number (match-string 1))))
-                            "1")))))
+                            "1"))))
+              pnt-args eob-args)
+          (when (listp pnt-format)
+            (setq pnt-args (cdr pnt-format)
+                  pnt-format (car pnt-format)))
+          (when (listp eob-format)
+            (setq eob-args (cdr eob-format)
+                  eob-format (car eob-format)))
           (when pnt-format
             (when idx-format
               (setq pnt-format
                     (replace-regexp-in-string "%N" idx pnt-format t t)))
-            (magit-rev-insert-format pnt-format rev)
+            (magit-rev-insert-format pnt-format rev pnt-args)
             (backward-delete-char 1))
           (when eob-format
             (when idx-format
@@ -2394,7 +2405,7 @@ the minibuffer too."
                 (unless (= (current-column) 0)
                   (insert ?\n)))
               (insert ?\n)
-              (magit-rev-insert-format eob-format rev)
+              (magit-rev-insert-format eob-format rev eob-args)
               (backward-delete-char 1)))))
     (user-error "Revision stack is empty")))
 
