@@ -97,7 +97,8 @@ When this is nil, no sections are ever removed."
 
 (defcustom magit-process-password-prompt-regexps
   '("^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
-    "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
+    ;; match-group 99 is used to identify a host
+    "^\\(Enter \\)?[Pp]assword\\( for '\\(?99:.*\\)'\\)?: ?$"
     "^.*'s password: ?$"
     "^Yubikey for .*: ?$")
   "List of regexps matching password prompts of Git and its subprocesses."
@@ -622,13 +623,31 @@ tracked in the current repository are reverted if
           string)
          "\n"))))))
 
+(defun magit-process-password-auth-source (host)
+  "Use `auth-source-search' to get a password for HOST.
+If found, return the password.  Otherwise, return nil."
+  (require 'auth-source)
+  (let ((secret (plist-get (car (auth-source-search :max 1 :host host))
+                           :secret)))
+    (if (functionp secret)
+        (funcall secret)
+      secret)))
+
 (defun magit-process-password-prompt (process string)
-  "Forward password prompts to the user."
+  "Find a password based on prompt STRING and send it to git.
+If STRING corresponds to a password prompt, get a suitable
+password with `magit-process-password-auth-source' and send it to the
+git process."
   (--when-let (magit-process-match-prompt
                magit-process-password-prompt-regexps string)
     (process-send-string
      process (magit-process-kill-on-abort process
-               (concat (read-passwd it) "\n")))))
+               (concat
+                ;; 99 is a match-group in magit-process-password-prompt-regexps
+                (or (--when-let (match-string 99 string)
+                      (magit-process-password-auth-source it))
+                    (read-passwd it))
+                "\n")))))
 
 (defun magit-process-username-prompt (process string)
   "Forward username prompts to the user."
@@ -639,11 +658,13 @@ tracked in the current repository are reverted if
                (concat (read-string it nil nil (user-login-name)) "\n")))))
 
 (defun magit-process-match-prompt (prompts string)
+  "Match STRING against PROMPTS and set match data.
+Return the matched string suffixed with \": \", if needed."
   (when (--any? (string-match it string) prompts)
     (let ((prompt (match-string 0 string)))
-      (cond ((string-match ": $" prompt) prompt)
-            ((string-match ":$"  prompt) (concat prompt " "))
-            (t                           (concat prompt ": "))))))
+      (cond ((string-suffix-p ": " prompt) prompt)
+            ((string-suffix-p ":"  prompt) (concat prompt " "))
+            (t                             (concat prompt ": "))))))
 
 (defun magit-process-wait ()
   (while (and magit-this-process
