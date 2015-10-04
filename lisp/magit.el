@@ -2322,12 +2322,12 @@ the buffer ends with a comment, then it is inserted right before
 that)."
   :package-version '(magit . "2.3.0")
   :group 'magit-status
-  :type '(list (or (string :tag "Insert at point format")
-                   (const  :tag "Don't insert at point" nil))
-               (or (string :tag "Insert at eob format")
-                   (const  :tag "Don't insert at eob" nil))
-               (or (regexp :tag "Find index regexp")
-                   (const  :tag "Don't number entries" nil))))
+  :type '(list (choice (string :tag "Insert at point format")
+                       (const  :tag "Don't insert at point" nil))
+               (choice (string :tag "Insert at eob format")
+                       (const :tag "Don't insert at eob" nil))
+               (choice (regexp :tag "Find index regexp")
+                       (const :tag "Don't number entries" nil))))
 
 (defun magit-pop-revision-stack (rev toplevel)
   "Insert a representation of a revision into the current buffer.
