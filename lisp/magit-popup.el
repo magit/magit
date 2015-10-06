@@ -893,6 +893,7 @@ restored."
 
 (define-derived-mode magit-popup-mode fundamental-mode "MagitPopup"
   "Major mode for infix argument popups."
+  :mode 'magit-popup
   (setq buffer-read-only t)
   (setq-local scroll-margin 0)
   (setq-local magit-popup-show-common-commands magit-popup-show-common-commands)
@@ -921,6 +922,7 @@ no arguments, is used to determine whether to use the actions
 defined with regular `:actions' or those in `:sequence-actions'.
 When a sequence is in progress the arguments are not available
 in the popup."
+  :mode 'magit-popup
   (remove-hook 'magit-popup-setup-hook 'magit-popup-default-setup t)
   (add-hook    'magit-popup-setup-hook
                (lambda (val def)
