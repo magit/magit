@@ -877,6 +877,7 @@ argument (the prefix) non-nil means save all with no questions."
             (current-window-configuration)))))
 
 (defun magit-restore-window-configuration (&optional kill-buffer)
+  "Bury or kill the current buffer and restore previous window configuration."
   (let ((winconf magit-previous-window-configuration)
         (buffer (current-buffer))
         (frame (selected-frame)))

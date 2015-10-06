@@ -93,6 +93,11 @@ Interface concepts
 * Completion and confirmation::
 * Running Git::
 
+Modes and Buffers
+
+* Naming Buffers::
+* Quitting Windows::
+
 Sections
 
 * Section movement::
@@ -677,26 +682,13 @@ Besides these special purpose buffers, there also exists an overview
 buffer, called the @strong{status buffer}.  Its usually from this buffer that
 the user invokes Git commands, or creates or visits other buffers.
 
-@table @asis
-@kindex q
-@cindex magit-mode-bury-buffer
-@item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-mode-bury-buffer})
+@menu
+* Naming Buffers::
+* Quitting Windows::
+@end menu
 
-This command buries the current Magit buffer.  With a prefix
-argument, it instead kills the buffer.
-
-If @code{magit-restore-window-configuration} is non-nil and the last
-configuration stored by @code{magit-mode-display-buffer} originates from
-the selected frame (which usually is the case), then that is restored
-after burying or killing the buffer.
-
-@end table
-
-@defopt magit-restore-window-configuration
-
-This option controls whether quitting a Magit buffer restores the
-previous window configuration.
-@end defopt
+@node Naming Buffers
+@subsection Naming Buffers
 
 While it often is enough to have one buffer of a certain Magit mode
 per repository, this is not always the case.  You might, for example,
@@ -718,6 +710,52 @@ other information of the same kind.
 
 With a prefix argument, the user can pick an arbitrary name.
 @end table
+
+@node Quitting Windows
+@subsection Quitting Windows
+
+@table @asis
+@kindex q
+@cindex magit-mode-bury-buffer
+@item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-mode-bury-buffer})
+
+This command buries the current Magit buffer.  With a prefix
+argument, it instead kills the buffer.
+
+@end table
+
+@defopt magit-bury-buffer-function
+
+The function used to actually bury or kill the current buffer.
+
+@code{magit-mode-bury-buffer} calls this function with one argument.  If
+the argument is non-nil, then the function has to kill the current
+buffer.  Otherwise it has to bury it alive.  The default value
+currently is @code{magit-restore-window-configuration}.
+@end defopt
+
+@defun magit-restore-window-configuration kill-buffer
+
+Bury or kill the current buffer using @code{quit-window}, which is called
+with KILL-BUFFER as first and the selected window as second
+argument.
+
+Then restore the window configuration that existed right before the
+current buffer was displayed in the selected frame.  Unfortunately
+that also means that point gets adjusted in all the buffers, which
+are being displayed in the selected frame.
+@end defun
+
+@defun magit-mode-quit-window kill-buffer
+
+Bury or kill the current buffer using @code{quit-window}, which is called
+with KILL-BUFFER as first and the selected window as second
+argument.
+
+Then, if the window was originally created to display a Magit buffer
+and the buried buffer was the last remaining Magit buffer that was
+ever displayed in the window, then that is deleted.
+@end defun
 
 @node Automatic save
 @section Automatic save
