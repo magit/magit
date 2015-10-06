@@ -948,7 +948,7 @@ Do not add this to a hook variable."
            (magit-reflog-format-subject
             (substring refsub 0 (if (string-match-p ":" refsub) -2 -1)))))
         (when msg
-          (magit-insert (concat msg "\n")
+          (magit-insert msg
                         (pcase (and gpg (aref gpg 0))
                           (?G 'magit-signature-good)
                           (?B 'magit-signature-bad)
@@ -956,6 +956,7 @@ Do not add this to a hook variable."
         (when (and refs magit-log-show-refname-after-summary)
           (insert ?\s)
           (magit-insert (magit-format-ref-labels refs)))
+        (insert ?\n)
         (when (memq style '(log reflog stash))
           (goto-char (line-beginning-position))
           (when (and refsub
