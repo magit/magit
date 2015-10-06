@@ -83,7 +83,7 @@ displayed.  Otherwise fall back to regular region highlighting."
   :type 'boolean)
 
 (defcustom magit-refresh-buffer-hook nil
-  "Normal hook for `magit-revert-buffer' to run after refreshing."
+  "Normal hook for `magit-refresh-buffer' to run after refreshing."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'hook)
