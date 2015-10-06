@@ -166,7 +166,7 @@ belonging to the current repository may be saved before running
 commands, before creating new Magit buffers, and before
 explicitly refreshing such buffers.  If this is `dontask' then
 this is done without user intervention, if it is t then the user
-has to confirm each save."
+has to confirm each save.  `dontask' is the recommended setting."
   :group 'magit
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Ask" t)
