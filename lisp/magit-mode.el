@@ -143,7 +143,10 @@ NUMBER    An integer or float.  Revert the buffers asynchronously,
          (magit-revert-buffers-set-timer)))
 
 (defcustom magit-after-revert-hook '(magit-refresh-vc-mode-line)
-  "Normal hook for `magit-revert-buffer' to run after reverting."
+  "Normal hook for `magit-revert-buffer' to run after reverting.
+
+This hook is only run for buffers that were actually reverted.
+For other buffers `magit-not-reverted-hook' is run instead."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'hook
@@ -151,8 +154,10 @@ NUMBER    An integer or float.  Revert the buffers asynchronously,
 
 (defcustom magit-not-reverted-hook '(magit-refresh-vc-mode-line)
   "Normal hook for `magit-revert-buffer' to run instead of reverting.
-Run if the visited file has not changed on disk and the buffer
-therefore does not have to be reverted."
+
+This hook is only run for buffers which might have been reverted
+but were not actually reverted, because that was not necessary.
+For other buffers `magit-after-revert-hook' is run instead."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'hook
