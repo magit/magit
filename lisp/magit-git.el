@@ -111,19 +111,22 @@ purpose."
   'magit-git-global-arguments "2.1.0")
 
 (defcustom magit-git-debug nil
-  "Whether to enable additional reporting of Git errors.
+  "Whether to enable additional reporting of git errors.
 
-Magit basically calls Git for one of these two reasons: for
+Magit basically calls git for one of these two reasons: for
 side-effects or to do something with its standard output.
 
-When Git is run for side-effects then its output, including error
+When git is run for side-effects then its output, including error
 messages, go into the process buffer which is shown when using \
 \\<magit-status-mode-map>\\[magit-process].
 
-When Git's output is consumed in some way, then it would be too
+When git's output is consumed in some way, then it would be too
 expensive to also insert it into this buffer, but when this
-option is non-nil and Git returns with a non-zero exit status,
-then at least its standard error is inserted into this buffer."
+option is non-nil and git returns with a non-zero exit status,
+then at least its standard error is inserted into this buffer.
+
+This is only intended for debugging purposes.  Do not enable this
+permanently, that would negatively affect performance"
   :group 'magit
   :group 'magit-process
   :type 'boolean)
