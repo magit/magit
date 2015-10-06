@@ -1226,7 +1226,7 @@ to visit the commit at point.
 Type \\[magit-cherry-pick-popup] to apply the commit at point.
 
 \\{magit-cherry-mode-map}"
-  :group 'magit-modes
+  :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
 
 ;;;###autoload

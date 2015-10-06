@@ -310,7 +310,7 @@ The following `format'-like specs are supported:
 %a the absolute filename of the repository toplevel.
 %b the basename of the repository toplevel."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-log
   :type 'string)
 
 ;;;###autoload
@@ -323,7 +323,7 @@ The following `format'-like specs are supported:
 
 (define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
   "Mode for looking at lists of stashes."
-  :group 'magit
+  :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
 
 (cl-defun magit-stashes-refresh-buffer (ref)
@@ -342,7 +342,7 @@ The following `format'-like specs are supported:
     magit-insert-stash-untracked)
   "Hook run to insert sections into stash buffers."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-log
   :type 'hook)
 
 (defcustom magit-stash-buffer-name-format "*magit-stash: %a*"
@@ -373,7 +373,7 @@ The following `format'-like specs are supported:
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
-  :group 'magit
+  :group 'magit-diff
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-stash-refresh-buffer (stash _const args files)

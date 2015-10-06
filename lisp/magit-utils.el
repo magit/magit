@@ -160,7 +160,7 @@ Global settings:
 (defcustom magit-ellipsis ?…
   "Character used to abreviate text."
   :package-version '(magit . "2.1.0")
-  :group 'magit
+  :group 'magit-modes
   :type 'character)
 
 ;;; User Input

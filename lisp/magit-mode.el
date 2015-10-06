@@ -70,7 +70,7 @@ displayed.  Otherwise fall back to regular region highlighting."
 (defcustom magit-bury-buffer-function 'magit-restore-window-configuration
   "The function used to bury or kill the current Magit buffer."
   :package-version '(magit . "2.3.0")
-  :group 'magit
+  :group 'magit-modes
   :type '(radio (function-item quit-window)
                 (function-item magit-mode-quit-window)
                 (function-item magit-restore-window-configuration)

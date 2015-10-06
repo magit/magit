@@ -188,7 +188,7 @@ all    Show counts for branches and tags.
 branch Show counts for branches only.
 nil    Never show counts."
   :package-version '(magit . "2.1.0")
-  :group 'magit
+  :group 'magit-refs
   :safe (lambda (val) (memq val '(all branch nil)))
   :type '(choice (const all    :tag "For branches and tags")
                  (const branch :tag "For branches only")
@@ -644,7 +644,7 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
 Type \\[magit-reset] to reset HEAD to the commit at point.
 
 \\{magit-refs-mode-map}"
-  :group 'magit-modes
+  :group 'magit-refs
   (hack-dir-local-variables-non-file-buffer))
 
 ;;;###autoload (autoload 'magit-show-refs-popup "magit" nil t)
@@ -2018,7 +2018,7 @@ Currently this only adds the following key bindings.
 (define-globalized-minor-mode global-magit-file-mode
   magit-file-mode magit-file-mode-turn-on
   :package-version '(magit . "2.2.0")
-  :group 'magit)
+  :group 'magit-modes)
 
 (define-obsolete-function-alias 'global-magit-file-buffer-mode
   'global-magit-file-mode "2.3.0")
