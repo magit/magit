@@ -145,7 +145,7 @@ permanently, that would negatively affect performance"
     ("^\\(skip\\):"              magit-bisect-skip nil)
     ("^\\(good\\):"              magit-bisect-good nil)
     ("\\(.+\\)"                  magit-refname nil))
-  "How different refs should be formatted for display.
+  "How refs are formatted for display.
 
 Each entry controls how a certain type of ref is displayed, and
 has the form (REGEXP FACE FORMATTER).  REGEXP is a regular
