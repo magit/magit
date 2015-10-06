@@ -509,11 +509,23 @@ range.  Otherwise, it can be any revision or range accepted by
         (setq pos (point)))
       status)))
 
+(defcustom magit-cygwin-prefix
+  (when (eq system-type 'windows-nt)
+    (ignore-errors
+      (--when-let (process-lines "mount" "--show-cygdrive-prefix")
+        (car (split-string (cadr it))))))
+  "Prefix used for \"/cygdrive/X/\" style Cygwin paths.
+The result is either \"/\", \"/<string>\" or nil if not on a
+`windowws-nt' system."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-process
+  :type '(choice (const :tag "None" nil) string))
+
 (defun magit-expand-git-file-name (filename)
   (unless (file-name-absolute-p filename)
     (setq filename (expand-file-name filename)))
   (if (and (eq system-type 'windows-nt) ; together with cygwin git, see #1318
-           (string-match "^/\\(cygdrive/\\)?\\([a-z]\\)/\\(.*\\)" filename))
+           (string-match (concat "^\\(" magit-cygwin-prefix "/\\)?\\([a-z]\\)/\\(.*\\)") filename))
       (concat (match-string 2 filename) ":/"
               (match-string 3 filename))
     filename))
