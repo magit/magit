@@ -527,6 +527,10 @@ and also because doing so can sometimes be undesirable.
 
     Revert the buffers synchronously and be quiet about it.
 
+    This is the recommended setting, because for the other values the
+    revert messages might prevent you from seeing other, more
+    important, messages in the echo area.
+
   - NUMBER
 
     An integer or float.  Revert the buffers asynchronously,

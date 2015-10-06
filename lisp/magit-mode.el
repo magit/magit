@@ -120,6 +120,10 @@ the current repository may optionally be reverted.
           what is right for them.
 
 `silent'  Revert the buffers synchronously and be quiet about it.
+          This is the recommended setting, because for the other
+          values the revert messages might prevent you from
+          seeing other, more important, messages in the echo
+          area.
 
 NUMBER    An integer or float.  Revert the buffers asynchronously,
           mentioning each one as it is being reverted.  If user
