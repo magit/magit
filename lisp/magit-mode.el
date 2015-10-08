@@ -416,16 +416,8 @@ Magit is documented in info node `(magit)'."
   (mapc #'delete-overlay magit-region-overlays)
   (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
-(defvar-local magit-refresh-function nil
-  "The function used to refresh the current buffer.
-This is called with `magit-refresh-args' as arguments.
-The value is usually set using `magit-mode-setup'.")
-(put 'magit-refresh-function 'permanent-local t)
-
 (defvar-local magit-refresh-args nil
-  "The arguments used to refresh the current buffer.
-`magit-refresh-function' is called with these arguments.
-The value is usually set using `magit-mode-setup'.")
+  "The arguments used to refresh the current buffer.")
 (put 'magit-refresh-args 'permanent-local t)
 
 (defvar magit-mode-setup-hook nil)
@@ -435,19 +427,16 @@ The value is usually set using `magit-mode-setup'.")
 ;; See #2054 and #2060.
 (defvar magit-mode-setup--topdir nil)
 
-(defmacro magit-mode-setup (mode switch-func refresh-func &rest refresh-args)
-  (declare (debug (form form form &rest form)))
+(defmacro magit-mode-setup (mode switch-func &rest refresh-args)
+  (declare (debug (form form &rest form)))
   (let ((smode (cl-gensym "mode"))
-        (sfunc (cl-gensym "func"))
         (sargs (cl-gensym "args"))
         (sbuf  (cl-gensym "buffer")))
     `(let* ((,smode ,mode)
-            (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
             (,sbuf  (magit-mode-get-buffer-create ,smode)))
        (magit-mode-display-buffer ,sbuf ,switch-func)
        (with-current-buffer ,sbuf
-         (setq magit-refresh-function ,sfunc)
          (setq magit-refresh-args     ,sargs)
          (run-hooks 'magit-mode-setup-hook)
          (pcase ,smode
@@ -607,43 +596,43 @@ tracked in the current repository."
 (defvar-local magit-refresh-start-time nil)
 
 (defun magit-refresh-buffer ()
-  "Refresh the current Magit buffer.
-Uses the buffer-local `magit-refresh-function'."
+  "Refresh the current Magit buffer."
   (setq magit-refresh-start-time (current-time))
-  (when magit-refresh-function
-    (when magit-refresh-verbose
-      (message "Refreshing buffer `%s'..." (buffer-name)))
-    (let* ((buffer (current-buffer))
-           (windows
-            (--mapcat (with-selected-window it
-                        (with-current-buffer buffer
-                          (-when-let (section (magit-current-section))
-                            (list
-                             (nconc (list it section)
-                                    (magit-refresh-get-relative-position))))))
-                      (or (get-buffer-window-list buffer nil t)
-                          (list (selected-window))))))
-      (deactivate-mark)
-      (setq magit-section-highlight-overlays nil
-            magit-section-highlighted-section nil
-            magit-section-highlighted-sections nil
-            magit-section-unhighlight-sections nil)
-      (let ((inhibit-read-only t))
-        (erase-buffer)
-        (save-excursion
-          (apply magit-refresh-function
-                 magit-refresh-args)))
-      (dolist (window windows)
-        (with-selected-window (car window)
-          (with-current-buffer buffer
-            (apply #'magit-section-goto-successor (cdr window)))))
-      (run-hooks 'magit-refresh-buffer-hook)
-      (magit-section-update-highlight)
-      (set-buffer-modified-p nil))
-    (when magit-refresh-verbose
-      (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
-               (float-time (time-subtract (current-time)
-                                          magit-refresh-start-time))))))
+  (let ((refresh (intern (format "%s-refresh-buffer"
+                                 (substring (symbol-name major-mode) 0 -5)))))
+    (when (functionp refresh)
+      (when magit-refresh-verbose
+        (message "Refreshing buffer `%s'..." (buffer-name)))
+      (let* ((buffer (current-buffer))
+             (windows
+              (--mapcat (with-selected-window it
+                          (with-current-buffer buffer
+                            (-when-let (section (magit-current-section))
+                              (list
+                               (nconc (list it section)
+                                      (magit-refresh-get-relative-position))))))
+                        (or (get-buffer-window-list buffer nil t)
+                            (list (selected-window))))))
+        (deactivate-mark)
+        (setq magit-section-highlight-overlays nil
+              magit-section-highlighted-section nil
+              magit-section-highlighted-sections nil
+              magit-section-unhighlight-sections nil)
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (save-excursion
+            (apply refresh magit-refresh-args)))
+        (dolist (window windows)
+          (with-selected-window (car window)
+            (with-current-buffer buffer
+              (apply #'magit-section-goto-successor (cdr window)))))
+        (run-hooks 'magit-refresh-buffer-hook)
+        (magit-section-update-highlight)
+        (set-buffer-modified-p nil))
+      (when magit-refresh-verbose
+        (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
+                 (float-time (time-subtract (current-time)
+                                            magit-refresh-start-time)))))))
 
 (defun magit-refresh-get-relative-position ()
   (-when-let (section (magit-current-section))

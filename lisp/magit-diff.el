@@ -725,7 +725,7 @@ a \"revA...revB\" range.  Otherwise, always construct
 
 (defun magit-diff-setup (range const args files)
   (magit-mode-setup #'magit-diff-mode magit-diff-switch-buffer-function
-                    #'magit-diff-refresh-buffer range const args files))
+                    range const args files))
 
 ;;;###autoload
 (defun magit-diff (range &optional args files)
@@ -867,7 +867,6 @@ for a commit."
                           (delete file magit-diff-hidden-files))))))))))
     (magit-mode-setup #'magit-revision-mode
                       (if noselect 'display-buffer 'pop-to-buffer)
-                      #'magit-revision-refresh-buffer
                       commit nil args files)))
 
 (defun magit-diff-refresh (args files)

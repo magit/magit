@@ -399,8 +399,7 @@ then offer to initialize it as a new repository."
                                    (expand-file-name directory))))
     (magit-mode-setup #'magit-status-mode
                       (or switch-function
-                          magit-status-buffer-switch-function)
-                      #'magit-status-refresh-buffer)))
+                          magit-status-buffer-switch-function))))
 
 (defun ido-enter-magit-status ()
   "Drop into `magit-status' from file switching.
@@ -668,8 +667,7 @@ it is detached."
 Refs are compared with a branch read form the user."
   (interactive (list (magit-read-other-branch "Compare with")
                      (magit-show-refs-arguments)))
-  (magit-mode-setup #'magit-refs-mode nil
-                    #'magit-refs-refresh-buffer ref args))
+  (magit-mode-setup #'magit-refs-mode nil ref args))
 
 (defun magit-branch-manager ()
   "The Branch Manager is dead, long live the Branch Manager.
@@ -1441,8 +1439,7 @@ inspect the merge and change the commit message.
 (defun magit-merge-preview (rev)
   "Preview result of merging REV into the current branch."
   (interactive (list (magit-read-other-branch-or-commit "Preview merge")))
-  (magit-mode-setup #'magit-diff-mode magit-diff-switch-buffer-function
-                    #'magit-merge-refresh-preview-buffer rev))
+  (magit-mode-setup #'magit-diff-mode magit-diff-switch-buffer-function rev))
 
 (defun magit-merge-refresh-preview-buffer (rev)
   (magit-insert-section (diffbuf)
