@@ -3060,7 +3060,7 @@ Explicitly enabling ~--interactive~ won't have an effect on the
 following commands as they always use that argument anyway, even if it
 is not enabled in the popup.
 
-- Key: r e, magit-rebase-interactive
+- Key: r i, magit-rebase-interactive
 
   Start an interactive rebase sequence.
 
@@ -3077,7 +3077,7 @@ is not enabled in the popup.
 
   Combine squash and fixup commits with their intended targets.
 
-- Key: r s, magit-rebase-edit-commit
+- Key: r e, magit-rebase-edit-commit
 
   Edit a single older commit using rebase.
 
