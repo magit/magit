@@ -452,11 +452,8 @@ The value is usually set using `magit-mode-setup'.")
                      (let ((default-directory
                              (or magit-mode-setup--topdir
                                  default-directory)))
-                       (--if-let (magit-toplevel)
-                           (if find-file-visit-truename
-                               (file-truename it)
-                             it)
-                         (user-error "Not inside a Git repository"))))))
+                       (or (magit-toplevel)
+                           (user-error "Not inside a Git repository"))))))
        (magit-mode-display-buffer ,sbuf ,switch-func)
        (with-current-buffer ,sbuf
          (setq magit-refresh-function ,sfunc)
