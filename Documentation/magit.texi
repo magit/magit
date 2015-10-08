@@ -95,6 +95,7 @@ Interface concepts
 
 Modes and Buffers
 
+* Switching Buffers::
 * Naming Buffers::
 * Quitting Windows::
 
@@ -683,9 +684,43 @@ buffer, called the @strong{status buffer}.  Its usually from this buffer that
 the user invokes Git commands, or creates or visits other buffers.
 
 @menu
+* Switching Buffers::
 * Naming Buffers::
 * Quitting Windows::
 @end menu
+
+@node Switching Buffers
+@subsection Switching Buffers
+
+@defun magit-display-buffer buffer switch-function
+@end defun
+
+@defopt magit-pre-display-buffer-hook
+
+This hook is run by @code{magit-display-buffer} before displaying the
+buffer.
+@end defopt
+
+@defun magit-save-window-configuration
+
+This function saves the current window configuration.  Later when
+the buffer is buried, it may be restored by
+@code{magit-restore-window-configuration}.
+@end defun
+
+@defopt magit-post-display-buffer-hook
+
+This hook is run by @code{magit-display-buffer} after displaying the
+buffer.
+@end defopt
+
+@defun magit-maybe-set-dedicated
+
+This function remembers when a new window was created to display the
+buffer.  That information is used by @code{magit-mode-quit-window}, to
+determine whether the window should be deleted when its last Magit
+buffer is buried.
+@end defun
 
 @node Naming Buffers
 @subsection Naming Buffers

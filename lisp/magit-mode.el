@@ -57,6 +57,24 @@
              magit-xref-setup
              bug-reference-mode))
 
+(unless (find-lisp-object-file-name 'magit-pre-display-buffer-hook 'defvar)
+  (add-hook 'magit-pre-display-buffer-hook 'magit-save-window-configuration))
+(defcustom magit-pre-display-buffer-hook '(magit-save-window-configuration)
+  "Hook run by `magit-display-buffer' before displaying the buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'hook
+  :options '(magit-save-window-configuration))
+
+(unless (find-lisp-object-file-name 'magit-post-display-buffer-hook 'defvar)
+  (add-hook 'magit-post-display-buffer-hook 'magit-maybe-set-dedicated))
+(defcustom magit-post-display-buffer-hook '(magit-maybe-set-dedicated)
+  "Hook run by `magit-display-buffer' after displaying the buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'hook
+  :options '(magit-maybe-set-dedicated))
+
 (defcustom magit-region-highlight-hook
   '(magit-section-update-region magit-diff-update-hunk-region)
   "Functions used to highlight the region.
@@ -433,7 +451,7 @@ Magit is documented in info node `(magit)'."
 
 (defun magit-mode-setup (mode switch-func &rest refresh-args)
   (let ((buffer (magit-mode-get-buffer-create mode)))
-    (magit-mode-display-buffer buffer switch-func)
+    (magit-display-buffer buffer switch-func)
     (with-current-buffer buffer
       (setq magit-refresh-args refresh-args)
       (run-hooks 'magit-mode-setup-hook)
@@ -443,22 +461,30 @@ Magit is documented in info node `(magit)'."
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
 
-(defun magit-mode-display-buffer (buffer &optional switch-function)
+(defun magit-display-buffer (buffer &optional switch-function)
   (let ((section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
-      (when (eq magit-bury-buffer-function 'magit-restore-window-configuration)
-        (magit-save-window-configuration))))
+      (run-hooks 'magit-pre-display-buffer-hook)))
   (funcall (or switch-function
                (if (derived-mode-p 'magit-mode)
                    'switch-to-buffer
                  'pop-to-buffer))
            buffer)
-  (when (eq magit-bury-buffer-function 'magit-mode-quit-window)
-    (let ((window (get-buffer-window buffer)))
-      (when (and (window-live-p window)
-                 (not (window-prev-buffers window)))
-        (set-window-parameter window 'magit-dedicated t)))))
+  (with-current-buffer buffer
+    (run-hooks 'magit-post-display-buffer-hook)))
+
+(defun magit-maybe-set-dedicated ()
+  "Mark the selected window as dedicated if appropriate.
+
+If a new window was created to display the buffer, then remember
+that fact.  That information is used by `magit-mode-quit-window',
+to determine whether the window should be deleted when its last
+Magit buffer is buried."
+  (let ((window (get-buffer-window (current-buffer))))
+    (when (and (window-live-p window)
+               (not (window-prev-buffers window)))
+      (set-window-parameter window 'magit-dedicated t))))
 
 (defun magit-mode-get-buffers ()
   (let ((topdir (magit-toplevel)))
@@ -807,6 +833,10 @@ argument (the prefix) non-nil means save all with no questions."
 (put 'magit-previous-window-configuration 'permanent-local t)
 
 (defun magit-save-window-configuration ()
+  "Save the current window configuration.
+
+Later, when the buffer is buried, it may be restored by
+`magit-restore-window-configuration'."
   (if magit-inhibit-save-previous-winconf
       (when (eq magit-inhibit-save-previous-winconf 'unset)
         (setq magit-previous-window-configuration nil))

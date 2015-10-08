@@ -433,6 +433,33 @@ Besides these special purpose buffers, there also exists an overview
 buffer, called the *status buffer*.  Its usually from this buffer that
 the user invokes Git commands, or creates or visits other buffers.
 
+*** Switching Buffers
+
+- Function: magit-display-buffer buffer switch-function
+
+- User Option: magit-pre-display-buffer-hook
+
+  This hook is run by ~magit-display-buffer~ before displaying the
+  buffer.
+
+- Function: magit-save-window-configuration
+
+  This function saves the current window configuration.  Later when
+  the buffer is buried, it may be restored by
+  ~magit-restore-window-configuration~.
+
+- User Option: magit-post-display-buffer-hook
+
+  This hook is run by ~magit-display-buffer~ after displaying the
+  buffer.
+
+- Function: magit-maybe-set-dedicated
+
+  This function remembers when a new window was created to display the
+  buffer.  That information is used by ~magit-mode-quit-window~, to
+  determine whether the window should be deleted when its last Magit
+  buffer is buried.
+
 *** Naming Buffers
 
 While it often is enough to have one buffer of a certain Magit mode
