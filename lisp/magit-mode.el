@@ -438,7 +438,7 @@ The value is usually set using `magit-mode-setup'.")
 (defvar magit-mode-setup--topdir nil)
 
 (defmacro magit-mode-setup
-    (buffer switch-func mode refresh-func &rest refresh-args)
+    (format switch-func mode refresh-func &rest refresh-args)
   (declare (debug (form form form form &rest form)))
   (let ((smode (cl-gensym "mode"))
         (sfunc (cl-gensym "func"))
@@ -447,8 +447,8 @@ The value is usually set using `magit-mode-setup'.")
     `(let* ((,smode ,mode)
             (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
-            (,sbuf  (magit-mode-display-buffer
-                     ,buffer ,smode ,switch-func
+            (,sbuf  (magit-mode-get-buffer-create
+                     ,format ,smode
                      (let ((default-directory
                              (or magit-mode-setup--topdir
                                  default-directory)))
@@ -457,6 +457,7 @@ The value is usually set using `magit-mode-setup'.")
                                (file-truename it)
                              it)
                          (user-error "Not inside a Git repository"))))))
+       (magit-mode-display-buffer ,sbuf ,switch-func)
        (with-current-buffer ,sbuf
          (setq magit-refresh-function ,sfunc)
          (setq magit-refresh-args     ,sargs)
@@ -473,11 +474,7 @@ The value is usually set using `magit-mode-setup'.")
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
 
-(defun magit-mode-display-buffer (buffer mode &optional switch-function topdir)
-  (cond ((stringp buffer)
-         (setq buffer (magit-mode-get-buffer-create buffer mode topdir)))
-        ((not (bufferp buffer))
-         (signal 'wrong-type-argument (list 'bufferp nil))))
+(defun magit-mode-display-buffer (buffer &optional switch-function)
   (let ((section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
@@ -492,8 +489,7 @@ The value is usually set using `magit-mode-setup'.")
     (let ((window (get-buffer-window buffer)))
       (when (and (window-live-p window)
                  (not (window-prev-buffers window)))
-        (set-window-parameter window 'magit-dedicated t))))
-  buffer)
+        (set-window-parameter window 'magit-dedicated t)))))
 
 (defun magit-mode-get-buffers ()
   (let ((topdir (magit-toplevel)))

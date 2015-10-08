@@ -2179,8 +2179,7 @@ repository, otherwise in `default-directory'."
                                                      (point-max))))
     (setq default-directory directory)
     (magit-run-git-async args))
-  (magit-mode-display-buffer (magit-process-buffer directory t)
-                             'magit-process-mode 'pop-to-buffer))
+  (magit-mode-display-buffer (magit-process-buffer directory t) 'pop-to-buffer))
 
 ;;;###autoload
 (defun magit-git-command-topdir (args directory)
@@ -2203,8 +2202,7 @@ repository, otherwise in `default-directory'."
                                                      (point-max))))
     (setq default-directory directory)
     (apply #'magit-start-process (car args) nil (cdr args)))
-  (magit-mode-display-buffer (magit-process-buffer directory t)
-                             'magit-process-mode 'pop-to-buffer))
+  (magit-mode-display-buffer (magit-process-buffer directory t) 'pop-to-buffer))
 
 ;;;###autoload
 (defun magit-shell-command-topdir (args directory)
