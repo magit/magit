@@ -512,11 +512,20 @@ range.  Otherwise, it can be any revision or range accepted by
         (setq pos (point)))
       status)))
 
+(defconst magit-cygwin-prefix
+  (with-temp-buffer
+    (call-process-shell-command "mount -p | tail -1 | cut -d ' ' -f1" nil t)
+    (forward-line -1)
+    (setq cygwin-prefix (buffer-substring-no-properties
+                         (+ 1 (point)) (line-end-position)))))
+
 (defun magit-expand-git-file-name (filename)
   (unless (file-name-absolute-p filename)
     (setq filename (expand-file-name filename)))
   (if (and (eq system-type 'windows-nt) ; together with cygwin git, see #1318
-           (string-match "^/\\(cygdrive/\\)?\\([a-z]\\)/\\(.*\\)" filename))
+           (string-match
+            (concat "^/\\(" magit-cygwin-prefix "/\\)?\\([a-z]\\)/\\(.*\\)")
+            filename))
       (concat (match-string 2 filename) ":/"
               (match-string 3 filename))
     filename))
