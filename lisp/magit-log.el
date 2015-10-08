@@ -574,8 +574,7 @@ representation of the commit at point, are available as
 completion candidates."
   (interactive (cons (magit-log-read-revs)
                      (magit-log-arguments)))
-  (magit-mode-setup magit-log-buffer-name-format nil
-                    #'magit-log-mode
+  (magit-mode-setup #'magit-log-mode nil
                     #'magit-log-refresh-buffer
                     revs args files)
   (magit-log-goto-same-commit))
@@ -624,8 +623,7 @@ With a prefix argument or when `--follow' is part of
                          (1- (line-number-at-pos (region-end))))
                  (list current-prefix-arg)))
   (-if-let (file (magit-file-relative-name))
-      (magit-mode-setup magit-log-buffer-name-format nil
-                        #'magit-log-mode
+      (magit-mode-setup #'magit-log-mode nil
                         #'magit-log-refresh-buffer
                         (list (or magit-buffer-refname
                                   (magit-get-current-branch) "HEAD"))
@@ -652,8 +650,7 @@ With a prefix argument or when `--follow' is part of
 (defun magit-reflog (ref)
   "Display the reflog of a branch."
   (interactive (list (magit-read-local-branch-or-ref "Show reflog for")))
-  (magit-mode-setup magit-reflog-buffer-name-format nil
-                    #'magit-reflog-mode
+  (magit-mode-setup #'magit-reflog-mode nil
                     #'magit-reflog-refresh-buffer
                     ref magit-reflog-arguments))
 
@@ -1165,8 +1162,7 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
 
 (defun magit-log-select (pick &optional msg quit branch)
   (declare (indent defun))
-  (magit-mode-setup magit-log-select-buffer-name-format nil
-                    #'magit-log-select-mode
+  (magit-mode-setup #'magit-log-select-mode nil
                     #'magit-log-select-refresh-buffer
                     (or branch (magit-get-current-branch) "HEAD")
                     magit-log-select-arguments)
@@ -1236,8 +1232,7 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
    (let  ((head (magit-read-branch "Cherry head")))
      (list head (magit-read-other-branch "Cherry upstream" head
                                          (magit-get-tracked-branch head)))))
-  (magit-mode-setup magit-cherry-buffer-name-format nil
-                    #'magit-cherry-mode
+  (magit-mode-setup #'magit-cherry-mode nil
                     #'magit-cherry-refresh-buffer upstream head))
 
 (defun magit-cherry-refresh-buffer (_upstream _head)

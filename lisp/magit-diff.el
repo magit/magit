@@ -744,9 +744,7 @@ a \"revA...revB\" range.  Otherwise, always construct
                           (magit-get-current-branch)))))
 
 (defun magit-diff-setup (range const args files)
-  (magit-mode-setup magit-diff-buffer-name-format
-                    magit-diff-switch-buffer-function
-                    #'magit-diff-mode
+  (magit-mode-setup #'magit-diff-mode magit-diff-switch-buffer-function
                     #'magit-diff-refresh-buffer range const args files))
 
 ;;;###autoload
@@ -887,9 +885,8 @@ for a commit."
                       (add-to-list 'magit-diff-hidden-files file)
                     (setq magit-diff-hidden-files
                           (delete file magit-diff-hidden-files))))))))))
-    (magit-mode-setup magit-revision-buffer-name-format
+    (magit-mode-setup #'magit-revision-mode
                       (if noselect 'display-buffer 'pop-to-buffer)
-                      #'magit-revision-mode
                       #'magit-revision-refresh-buffer
                       commit nil args files)))
 

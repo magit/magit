@@ -437,9 +437,8 @@ The value is usually set using `magit-mode-setup'.")
 ;; See #2054 and #2060.
 (defvar magit-mode-setup--topdir nil)
 
-(defmacro magit-mode-setup
-    (format switch-func mode refresh-func &rest refresh-args)
-  (declare (debug (form form form form &rest form)))
+(defmacro magit-mode-setup (mode switch-func refresh-func &rest refresh-args)
+  (declare (debug (form form form &rest form)))
   (let ((smode (cl-gensym "mode"))
         (sfunc (cl-gensym "func"))
         (sargs (cl-gensym "args"))
@@ -448,7 +447,7 @@ The value is usually set using `magit-mode-setup'.")
             (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
             (,sbuf  (magit-mode-get-buffer-create
-                     ,format ,smode
+                     nil ,smode
                      (let ((default-directory
                              (or magit-mode-setup--topdir
                                  default-directory)))

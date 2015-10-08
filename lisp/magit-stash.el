@@ -317,8 +317,7 @@ The following `format'-like specs are supported:
 (defun magit-stash-list ()
   "List all stashes in a buffer."
   (interactive)
-  (magit-mode-setup magit-stashes-buffer-name-format nil
-                    #'magit-stashes-mode
+  (magit-mode-setup #'magit-stashes-mode nil
                     #'magit-stashes-refresh-buffer "refs/stash"))
 
 (define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
@@ -366,9 +365,8 @@ The following `format'-like specs are supported:
                           (magit-diff-arguments)
                         (list (delete "--stat" args)
                               files))))
-  (magit-mode-setup magit-stash-buffer-name-format
+  (magit-mode-setup #'magit-stash-mode
                     (if noselect 'display-buffer 'pop-to-buffer)
-                    #'magit-stash-mode
                     #'magit-stash-refresh-buffer stash nil args files))
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
