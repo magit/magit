@@ -250,7 +250,7 @@ starts complicating other things, then it will be removed."
     (define-key map "g" 'magit-refresh)
     (define-key map "G" 'magit-refresh-all)
     (define-key map "q" 'magit-mode-bury-buffer)
-    (define-key map "$" 'magit-process)
+    (define-key map "$" 'magit-process-buffer)
     (define-key map "a" 'magit-cherry-apply)
     (define-key map "A" 'magit-cherry-pick-popup)
     (define-key map "b" 'magit-branch-popup)
@@ -370,7 +370,7 @@ which visits the thing at point."
     "---"
     ("Extensions")
     "---"
-    ["Display Git output" magit-process t]
+    ["Display Git output" magit-process-buffer t]
     ["Quit Magit" magit-mode-bury-buffer t]))
 
 (defun magit-load-config-extensions ()

@@ -135,9 +135,15 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-process-buffer ()
-  (let ((buf (magit-mode-get-buffer-create 'magit-process-mode)))
-    (with-current-buffer buf
+(defun magit-process-buffer (&optional nodisplay)
+  "Display the current repository's process buffer.
+
+If that buffer doesn't exist yet, then create it.
+Non-interactively return the buffer and unless
+optional NODISPLAY is non-nil also display it."
+  (interactive)
+  (let ((buffer (magit-mode-get-buffer-create 'magit-process-mode)))
+    (with-current-buffer buffer
       (if magit-root-section
           (when magit-process-log-max
             (magit-process-truncate-log))
@@ -146,12 +152,9 @@ When this is nil, no sections are ever removed."
           (make-local-variable 'text-property-default-nonsticky)
           (magit-insert-section (processbuf)
             (insert "\n")))))
-    buf))
-
-(defun magit-process ()
-  "Display Magit process buffer."
-  (interactive)
-  (pop-to-buffer (magit-process-buffer)))
+    (unless nodisplay
+      (pop-to-buffer buffer))
+    buffer))
 
 (defun magit-process-kill ()
   "Kill the process at point."
@@ -454,7 +457,7 @@ tracked in the current repository are reverted if
 (defun magit-process-setup (program args)
   (magit-process-set-mode-line program args)
   (let ((pwd default-directory)
-        (buf (magit-process-buffer)))
+        (buf (magit-process-buffer t)))
     (cons buf (with-current-buffer buf
                 (prog1 (magit-process-insert-section pwd program args nil nil)
                   (backward-char 1))))))
@@ -696,7 +699,7 @@ tracked in the current repository are reverted if
               (goto-char (1+ (line-end-position)))
               (delete-char -1)
               (setf (magit-section-content section) nil))
-          (let ((buf (magit-process-buffer)))
+          (let ((buf (magit-process-buffer t)))
             (when (and (= arg 0)
                        (not (--any-p (eq (window-buffer it) buf)
                                      (window-list))))
