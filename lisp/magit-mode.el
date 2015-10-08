@@ -533,21 +533,17 @@ Magit buffer is buried."
                           (or magit-mode-setup--topdir
                               default-directory))))
                    (or (magit-toplevel)
-                       (unless (eq mode 'magit-process-mode)
-                         (user-error "Not inside a Git repository")))))
-         (name (format "*%s: %s*" (substring (symbol-name mode) 0 -5)
-                       (if topdir (abbreviate-file-name topdir) "-"))))
+                       (user-error "Not inside a Git repository"))))
+         (name (format "*%s: %s*" (substring (symbol-name mode) 0 -5) topdir)))
     (or (--first (with-current-buffer it
                    (and (equal (buffer-name) name)
-                        (or (not topdir)
-                            (equal (expand-file-name default-directory)
-                                   topdir))))
+                        (equal (expand-file-name default-directory) topdir)))
                  (if frame
                      (-map #'window-buffer
                            (window-list (unless (eq frame t) frame)))
                    (buffer-list)))
         (and create
-             (let ((default-directory (or topdir default-directory)))
+             (let ((default-directory topdir))
                (generate-new-buffer name))))))
 
 (defun magit-mode-get-buffer-create (mode)

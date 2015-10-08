@@ -142,19 +142,32 @@ If that buffer doesn't exist yet, then create it.
 Non-interactively return the buffer and unless
 optional NODISPLAY is non-nil also display it."
   (interactive)
-  (let ((buffer (magit-mode-get-buffer-create 'magit-process-mode)))
-    (with-current-buffer buffer
-      (if magit-root-section
-          (when magit-process-log-max
-            (magit-process-truncate-log))
-        (magit-process-mode)
-        (let ((inhibit-read-only t))
-          (make-local-variable 'text-property-default-nonsticky)
-          (magit-insert-section (processbuf)
-            (insert "\n")))))
-    (unless nodisplay
-      (magit-display-buffer buffer))
-    buffer))
+  (let ((topdir (magit-toplevel)))
+    (unless topdir
+      (setq topdir default-directory)
+      (let (prev)
+        (while (not (equal topdir prev))
+          (setq prev topdir)
+          (setq topdir (file-name-directory (directory-file-name topdir))))))
+    (let ((buffer (or (--first (with-current-buffer it
+                                 (and (eq major-mode 'magit-process-mode)
+                                      (equal default-directory topdir)))
+                               (buffer-list))
+                      (let ((default-directory topdir))
+                        (generate-new-buffer
+                         (format "*magit-process: %s" topdir))))))
+      (with-current-buffer buffer
+        (if magit-root-section
+            (when magit-process-log-max
+              (magit-process-truncate-log))
+          (magit-process-mode)
+          (let ((inhibit-read-only t))
+            (make-local-variable 'text-property-default-nonsticky)
+            (magit-insert-section (processbuf)
+              (insert "\n")))))
+      (unless nodisplay
+        (magit-display-buffer buffer))
+      buffer)))
 
 (defun magit-process-kill ()
   "Kill the process at point."
