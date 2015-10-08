@@ -459,11 +459,6 @@ Magit is documented in info node `(magit)'."
 
 (defvar magit-mode-setup-hook nil)
 
-;; Kludge.  We use this instead of adding a new, optional argument to
-;; `magit-setup-mode' in order to avoid breaking third-party packages.
-;; See #2054 and #2060.
-(defvar magit-mode-setup--topdir nil)
-
 (defun magit-mode-setup (mode &rest args)
   "Setup up a MODE buffer using ARGS to generate its content."
   (let ((buffer (magit-mode-get-buffer mode t))
@@ -527,10 +522,12 @@ Magit buffer is buried."
                      (equal (expand-file-name default-directory) topdir)))
               (buffer-list))))
 
+(defvar magit-mode-get-buffer--topdir nil) ; see #2054 and #2060
+
 (defun magit-mode-get-buffer (mode &optional create frame)
   (let* ((topdir (let ((default-directory
                          (expand-file-name
-                          (or magit-mode-setup--topdir
+                          (or magit-mode-get-buffer--topdir
                               default-directory))))
                    (or (magit-toplevel)
                        (user-error "Not inside a Git repository"))))
