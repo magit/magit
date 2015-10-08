@@ -508,14 +508,39 @@ the user invokes Git commands, or creates or visits other buffers.
 
   The function used to generate the names of Magit buffers.
 
+  Such a function should take ~magit-uniquify-buffer-names~ as well as
+  ~magit-buffer-name-format~ into account.  If it doesn't, then its
+  doc-string should say so.  If it supports %-sequences not mentioned
+  in the doc-string of ~magit-buffer-name-format~, then its own
+  doc-string should describe them.
+
 - Function: magit-generate-buffer-name-default-function mode
 
   This function returns a buffer name suitable for a buffer whose
   major-mode is MODE and which shows information about the repository
   in which ~default-directory~ is located.
 
-  It used the value of the option ~magit-uniquify-buffer-names~ to do
-  so.
+  This function uses ~magit-buffer-name-format~, supporting the
+  %-sequences mentioned the documentation of that option.  It also
+  respects ~magit-uniquify-buffer-names~.
+
+- User Option: magit-buffer-name-format
+
+  The format string used to name Magit buffers.
+
+  At least the following %-sequences are supported:
+
+  - ~%m~ The name of the major-mode, but with the ~-mode~ suffix removed.
+
+  - ~%M~ Like ~%m~ but abbreviate ~magit-status-mode~ as ~magit~.
+
+  - ~%t~ The top-level directory of the working tree of the repository,
+    or if ~magit-uniquify-buffer-name~ is non-nil an abbreviation of
+    that.
+
+  The value should always contain either ~%m~ or ~%M~ as well as ~%t~.  If
+  ~magit-uniquify-buffer-name~ is non-nil, then the value must end with
+  ~%t~.
 
 - User Option: magit-uniquify-buffer-names
 

@@ -95,6 +95,32 @@ which in turn used the function specified here."
   :type '(radio (function-item magit-generate-buffer-name-default-function)
                 (function :tag "Function")))
 
+(defcustom magit-buffer-name-format "*%M: %t"
+  "The format string used to name Magit buffers.
+
+The following %-sequences are supported:
+
+`%m' The name of the major-mode, but with the `-mode' suffix
+     removed.
+
+`%M' Like \"%m\" but abbreviate `magit-status-mode' as `magit'.
+
+`%t' The top-level directory of the working tree of the
+     repository, or if `magit-uniquify-buffer-name' is non-nil
+     an abbreviation of that.
+
+The value should always contain either \"%m\" or \"%M\" as well as
+\"%t\".  If `magit-uniquify-buffer-name' is non-nil, then the
+value must end with \"%t\".
+
+This is used by `magit-generate-buffer-name-default-function'.
+If another `magit-generate-buffer-name-function' is used, then
+it may not be respected this option, or on the contrary it may
+support additional %-sequences."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'string)
+
 (defcustom magit-uniquify-buffer-names t
   "Whether to uniquify the names of Magit buffers."
   :package-version '(magit . "2.3.0")
@@ -565,13 +591,15 @@ Magit buffer is buried."
     buffer))
 
 (defun magit-generate-buffer-name-default-function (mode &optional value)
-  (concat (if (eq mode 'magit-status-mode)
-              "magit"
-            (substring (symbol-name mode) 0 -5))
-          ": "
-          (if magit-uniquify-buffer-names
-              (file-name-nondirectory (directory-file-name default-directory))
-            default-directory)))
+  (let ((m (substring (symbol-name mode) 0 -5)))
+    (format-spec
+     magit-buffer-name-format
+     `((?m . ,m)
+       (?M . ,(if (eq mode 'magit-status-mode) "magit" m))
+       (?t . ,(if magit-uniquify-buffer-names
+                  (file-name-nondirectory
+                   (directory-file-name default-directory))
+                default-directory))))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.

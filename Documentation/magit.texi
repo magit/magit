@@ -772,6 +772,12 @@ buffer is buried.
 @defopt magit-generate-buffer-name-function
 
 The function used to generate the names of Magit buffers.
+
+Such a function should take @code{magit-uniquify-buffer-names} as well as
+@code{magit-buffer-name-format} into account.  If it doesn't, then its
+doc-string should say so.  If it supports %-sequences not mentioned
+in the doc-string of @code{magit-buffer-name-format}, then its own
+doc-string should describe them.
 @end defopt
 
 @defun magit-generate-buffer-name-default-function mode
@@ -780,9 +786,35 @@ This function returns a buffer name suitable for a buffer whose
 major-mode is MODE and which shows information about the repository
 in which @code{default-directory} is located.
 
-It used the value of the option @code{magit-uniquify-buffer-names} to do
-so.
+This function uses @code{magit-buffer-name-format}, supporting the
+%-sequences mentioned the documentation of that option.  It also
+respects @code{magit-uniquify-buffer-names}.
 @end defun
+
+@defopt magit-buffer-name-format
+
+The format string used to name Magit buffers.
+
+At least the following %-sequences are supported:
+
+@itemize
+@item
+@code{%m} The name of the major-mode, but with the @code{-mode} suffix removed.
+
+
+@item
+@code{%M} Like @code{%m} but abbreviate @code{magit-status-mode} as @code{magit}.
+
+
+@item
+@code{%t} The top-level directory of the working tree of the repository,
+or if @code{magit-uniquify-buffer-name} is non-nil an abbreviation of
+that.
+@end itemize
+The value should always contain either @code{%m} or @code{%M} as well as @code{%t}.  If
+@code{magit-uniquify-buffer-name} is non-nil, then the value must end with
+@code{%t}.
+@end defopt
 
 @defopt magit-uniquify-buffer-names
 
