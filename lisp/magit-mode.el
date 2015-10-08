@@ -525,23 +525,19 @@ Magit buffer is buried."
 (defvar magit-mode-get-buffer--topdir nil) ; see #2054 and #2060
 
 (defun magit-mode-get-buffer (mode &optional create frame)
-  (let* ((topdir (let ((default-directory
-                         (expand-file-name
-                          (or magit-mode-get-buffer--topdir
-                              default-directory))))
-                   (or (magit-toplevel)
-                       (user-error "Not inside a Git repository"))))
-         (name (format "*%s: %s*" (substring (symbol-name mode) 0 -5) topdir)))
-    (or (--first (with-current-buffer it
-                   (and (equal (buffer-name) name)
-                        (equal (expand-file-name default-directory) topdir)))
-                 (if frame
-                     (-map #'window-buffer
-                           (window-list (unless (eq frame t) frame)))
-                   (buffer-list)))
-        (and create
-             (let ((default-directory topdir))
-               (generate-new-buffer name))))))
+  (-if-let (topdir (magit-toplevel magit-mode-get-buffer--topdir))
+      (let ((name (format "*%s: %s*" (substring (symbol-name mode) 0 -5) topdir)))
+        (or (--first (with-current-buffer it
+                       (and (equal (buffer-name) name)
+                            (equal (expand-file-name default-directory) topdir)))
+                     (if frame
+                         (-map #'window-buffer
+                               (window-list (unless (eq frame t) frame)))
+                       (buffer-list)))
+            (and create
+                 (let ((default-directory topdir))
+                   (generate-new-buffer name)))))
+    (user-error "Not inside a Git repository")))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
