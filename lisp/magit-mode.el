@@ -438,13 +438,7 @@ The value is usually set using `magit-mode-setup'.")
 (defvar magit-mode-setup--topdir nil)
 
 (defmacro magit-mode-setup
-  (buffer switch-func mode refresh-func &rest refresh-args)
-  "Display and select BUFFER, turn on MODE, and refresh a first time.
-Display BUFFER using `magit-mode-display-buffer', then turn on
-MODE in BUFFER, set the local value of `magit-refresh-function'
-to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
-and finally \"refresh\" a first time.  All arguments are evaluated
-before switching to BUFFER."
+    (buffer switch-func mode refresh-func &rest refresh-args)
   (declare (debug (form form form form &rest form)))
   (let ((smode (cl-gensym "mode"))
         (sfunc (cl-gensym "func"))
@@ -480,21 +474,6 @@ before switching to BUFFER."
 (put 'magit-previous-section 'permanent-local t)
 
 (defun magit-mode-display-buffer (buffer mode &optional switch-function topdir)
-  "Display BUFFER in some window and select it.
-BUFFER may be a buffer or a string, the name of a buffer.  Return
-the buffer.
-
-Unless BUFFER is already displayed in the selected frame store the
-previous window configuration as a buffer local value, so that it
-can later be restored by `magit-mode-bury-buffer'.
-
-Then display and select BUFFER using SWITCH-FUNCTION.  If that is
-nil either use `pop-to-buffer' if the current buffer's major mode
-derives from Magit mode; or else use `switch-to-buffer'.
-
-When optional TOPDIR is specified, then it has to be the top-level
-directory of the repository.  Otherwise that is determined using
-the function `magit-toplevel'."
   (cond ((stringp buffer)
          (setq buffer (magit-mode-get-buffer-create buffer mode topdir)))
         ((not (bufferp buffer))
