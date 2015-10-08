@@ -535,7 +535,7 @@ representation of the commit at point, are available as
 completion candidates."
   (interactive (cons (magit-log-read-revs)
                      (magit-log-arguments)))
-  (magit-mode-setup #'magit-log-mode nil revs args files)
+  (magit-mode-setup #'magit-log-mode revs args files)
   (magit-log-goto-same-commit))
 
 ;;;###autoload
@@ -582,7 +582,7 @@ With a prefix argument or when `--follow' is part of
                          (1- (line-number-at-pos (region-end))))
                  (list current-prefix-arg)))
   (-if-let (file (magit-file-relative-name))
-      (magit-mode-setup #'magit-log-mode nil
+      (magit-mode-setup #'magit-log-mode
                         (list (or magit-buffer-refname
                                   (magit-get-current-branch) "HEAD"))
                         (let ((args (car (magit-log-arguments))))
@@ -608,7 +608,7 @@ With a prefix argument or when `--follow' is part of
 (defun magit-reflog (ref)
   "Display the reflog of a branch."
   (interactive (list (magit-read-local-branch-or-ref "Show reflog for")))
-  (magit-mode-setup #'magit-reflog-mode nil ref magit-reflog-arguments))
+  (magit-mode-setup #'magit-reflog-mode ref magit-reflog-arguments))
 
 ;;;###autoload
 (defun magit-reflog-head ()
@@ -1118,7 +1118,7 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
 
 (defun magit-log-select (pick &optional msg quit branch)
   (declare (indent defun))
-  (magit-mode-setup #'magit-log-select-mode nil
+  (magit-mode-setup #'magit-log-select-mode
                     (or branch (magit-get-current-branch) "HEAD")
                     magit-log-select-arguments)
   (magit-log-goto-same-commit)
@@ -1187,7 +1187,7 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
    (let  ((head (magit-read-branch "Cherry head")))
      (list head (magit-read-other-branch "Cherry upstream" head
                                          (magit-get-tracked-branch head)))))
-  (magit-mode-setup #'magit-cherry-mode nil upstream head))
+  (magit-mode-setup #'magit-cherry-mode upstream head))
 
 (defun magit-cherry-refresh-buffer (_upstream _head)
   (magit-insert-section (cherry)

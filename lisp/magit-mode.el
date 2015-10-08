@@ -57,6 +57,18 @@
              magit-xref-setup
              bug-reference-mode))
 
+(defcustom magit-display-buffer-function 'magit-display-buffer-traditional
+  "The function used display a Magit buffer.
+
+All Magit buffers (buffers whose major-modes derive from
+`magit-mode') are displayed using `magit-display-buffer',
+which in turn used the function specified here."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type '(radio (function-item magit-display-buffer-traditional)
+                (function-item display-buffer)
+                (function :tag "Function")))
+
 (unless (find-lisp-object-file-name 'magit-pre-display-buffer-hook 'defvar)
   (add-hook 'magit-pre-display-buffer-hook 'magit-save-window-configuration))
 (defcustom magit-pre-display-buffer-hook '(magit-save-window-configuration)
@@ -442,6 +454,9 @@ Magit is documented in info node `(magit)'."
   "The arguments used to refresh the current buffer.")
 (put 'magit-refresh-args 'permanent-local t)
 
+(defvar-local magit-previous-section nil)
+(put 'magit-previous-section 'permanent-local t)
+
 (defvar magit-mode-setup-hook nil)
 
 ;; Kludge.  We use this instead of adding a new, optional argument to
@@ -449,30 +464,49 @@ Magit is documented in info node `(magit)'."
 ;; See #2054 and #2060.
 (defvar magit-mode-setup--topdir nil)
 
-(defun magit-mode-setup (mode switch-func &rest refresh-args)
-  (let ((buffer (magit-mode-get-buffer-create mode)))
-    (magit-display-buffer buffer switch-func)
-    (with-current-buffer buffer
-      (setq magit-refresh-args refresh-args)
-      (run-hooks 'magit-mode-setup-hook)
-      (funcall mode)
-      (magit-refresh-buffer))))
-
-(defvar-local magit-previous-section nil)
-(put 'magit-previous-section 'permanent-local t)
-
-(defun magit-display-buffer (buffer &optional switch-function)
-  (let ((section (magit-current-section)))
+(defun magit-mode-setup (mode &rest args)
+  "Setup up a MODE buffer using ARGS to generate its content."
+  (let ((buffer (magit-mode-get-buffer-create mode))
+        (section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
-      (run-hooks 'magit-pre-display-buffer-hook)))
-  (funcall (or switch-function
-               (if (derived-mode-p 'magit-mode)
-                   'switch-to-buffer
-                 'pop-to-buffer))
-           buffer)
+      (setq magit-refresh-args args)
+      (run-hooks 'magit-mode-setup-hook)
+      (funcall mode))
+    (magit-display-buffer buffer)
+    (with-current-buffer buffer (magit-refresh-buffer))))
+
+(defvar magit-display-buffer-noselect nil
+  "If non-nil, then `magit-display-buffer' doesn't call `select-window'.")
+
+(defun magit-display-buffer (buffer)
+  "Display BUFFER in some window and maybe select it.
+
+Display the buffer using `magit-display-buffer-function' and
+then, unless `magit-display-buffer-noselect' is non-nil, select
+the window which was used to display the buffer.
+
+Also run the hooks `magit-pre-display-buffer-hook'
+and `magit-post-display-buffer-hook'."
+  (with-current-buffer buffer
+    (run-hooks 'magit-pre-display-buffer-hook))
+  (let ((window (funcall magit-display-buffer-function buffer)))
+    (unless magit-display-buffer-noselect
+      (select-window window)))
   (with-current-buffer buffer
     (run-hooks 'magit-post-display-buffer-hook)))
+
+(defun magit-display-buffer-traditional (buffer)
+  "Display BUFFER the way this has traditionally been done."
+  (display-buffer
+   buffer (if (and (derived-mode-p 'magit-mode)
+                   (not (memq (with-current-buffer buffer major-mode)
+                              '(magit-process-mode
+                                magit-revision-mode
+                                magit-diff-mode
+                                magit-status-mode))))
+              '(display-buffer-same-window)
+            nil))) ; display in another window
 
 (defun magit-maybe-set-dedicated ()
   "Mark the selected window as dedicated if appropriate.

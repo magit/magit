@@ -435,7 +435,49 @@ the user invokes Git commands, or creates or visits other buffers.
 
 *** Switching Buffers
 
-- Function: magit-display-buffer buffer switch-function
+- Function: magit-display-buffer buffer
+
+  This function is a wrapper around ~display-buffer~ and is used to
+  display any Magit buffer. It displays BUFFER in some window and,
+  unlike ~display-buffer~, also selects that window, provided
+  ~magit-display-buffer-noselect~ is nil.  It also runs the hooks
+  mentioned below.
+
+- Variable: magit-display-buffer-noselect
+
+  When this is non-nil, then ~magit-display-buffer~ only displays the
+  buffer but forgoes also selecting the window.  This variable should
+  not be set globally, it is only intended to be let-bound, by code
+  that automatically updates "the other window".  This is used for
+  example when the revision buffer is updated when you move inside the
+  log buffer.
+
+- User Option: magit-display-buffer-function
+
+  The function specified here is called by ~magit-display-buffer~ with
+  one argument, a buffer, to actually display that buffer.  This
+  function should call ~display-buffer~ with that buffer as first and a
+  list of display actions as second argument.
+
+  Instead of using a wrapper around ~display-buffer~, that function
+  itself can be used here, in which case the display actions have to
+  be specified by adding them to ~display-buffer-alist~ instead.
+
+  To learn about display actions, see [[info:elisp#Choosing a Window for
+  Display]].
+
+- Function: magit-display-buffer-traditional buffer
+
+  This function is the current default value of option
+  ~magit-display-buffer-function~.  Before that option and this function
+  were added, the behavior was hard-coded in many places all over the
+  code base but now all the rules are contained in this one function
+  (except for the "noselect" special case mentioned above).
+
+  If you want to use different rules, then a good way of doing that is
+  to start with a copy of this function and then adjust it to your
+  needs.  More functions to choose from will be added in the future,
+  and eventually the default will change.
 
 - User Option: magit-pre-display-buffer-hook
 
@@ -1381,11 +1423,6 @@ The following functions can also be added to the above hook:
 - User Option: magit-status-refresh-hook
 
   Hook run after a status buffer has been refreshed.
-
-- User Option: magit-status-buffer-switch-function
-
-  Function used by ~magit-status~ to switch to a status buffer.
-  The function is given one argument, the status buffer.
 
 - User Option: magit-log-section-args
 

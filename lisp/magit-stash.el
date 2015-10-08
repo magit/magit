@@ -307,7 +307,7 @@ instead of \"Stashes:\"."
 (defun magit-stash-list ()
   "List all stashes in a buffer."
   (interactive)
-  (magit-mode-setup #'magit-stashes-mode nil "refs/stash"))
+  (magit-mode-setup #'magit-stashes-mode "refs/stash"))
 
 (define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
   "Mode for looking at lists of stashes."
@@ -344,9 +344,8 @@ instead of \"Stashes:\"."
                           (magit-diff-arguments)
                         (list (delete "--stat" args)
                               files))))
-  (magit-mode-setup #'magit-stash-mode
-                    (if noselect 'display-buffer 'pop-to-buffer)
-                    stash nil args files))
+  (let ((magit-display-buffer-noselect noselect))
+    (magit-mode-setup #'magit-stash-mode stash nil args files)))
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."

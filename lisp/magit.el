@@ -124,15 +124,6 @@ at all."
   :group 'magit-status
   :type 'hook)
 
-(defcustom magit-status-buffer-switch-function 'pop-to-buffer
-  "Function used by `magit-status' to switch to a status buffer.
-
-The function is given one argument, the status buffer."
-  :group 'magit-status
-  :type '(radio (function-item switch-to-buffer)
-                (function-item pop-to-buffer)
-                (function :tag "Other")))
-
 (defcustom magit-status-expand-stashes t
   "Whether the list of stashes is expanded initially."
   :package-version '(magit . "2.3.0")
@@ -394,12 +385,10 @@ then offer to initialize it as a new repository."
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
 ;;;###autoload
-(defun magit-status-internal (directory &optional switch-function)
+(defun magit-status-internal (directory)
   (let ((magit-mode-setup--topdir (file-name-as-directory
                                    (expand-file-name directory))))
-    (magit-mode-setup #'magit-status-mode
-                      (or switch-function
-                          magit-status-buffer-switch-function))))
+    (magit-mode-setup #'magit-status-mode)))
 
 (defun ido-enter-magit-status ()
   "Drop into `magit-status' from file switching.
@@ -667,7 +656,7 @@ it is detached."
 Refs are compared with a branch read form the user."
   (interactive (list (magit-read-other-branch "Compare with")
                      (magit-show-refs-arguments)))
-  (magit-mode-setup #'magit-refs-mode nil ref args))
+  (magit-mode-setup #'magit-refs-mode ref args))
 
 (defun magit-branch-manager ()
   "The Branch Manager is dead, long live the Branch Manager.
@@ -1439,7 +1428,7 @@ inspect the merge and change the commit message.
 (defun magit-merge-preview (rev)
   "Preview result of merging REV into the current branch."
   (interactive (list (magit-read-other-branch-or-commit "Preview merge")))
-  (magit-mode-setup #'magit-diff-mode magit-diff-switch-buffer-function rev))
+  (magit-mode-setup #'magit-diff-mode rev))
 
 (defun magit-merge-refresh-preview-buffer (rev)
   (magit-insert-section (diffbuf)

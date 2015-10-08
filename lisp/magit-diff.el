@@ -73,26 +73,6 @@
   :group 'magit-revision
   :type 'hook)
 
-(defcustom magit-diff-switch-buffer-function 'pop-to-buffer
-  "Function used to display and possibly select a diff buffer.
-
-By default `pop-to-buffer' is used to display the diff buffer in
-another window.  If the value is nil, then that function is also
-used, except when the current buffer is another Magit buffer.
-Then the window is reused; the diff buffer replaces the buffer
-which was previously shown.  Another function can be used, but
-that's not recommended, e.g. `switch-to-buffer' likely is not
-what you want.
-
-Note that the value of this variable is ignored when the diff
-buffer is automatically shown along side a buffer used to write
-a commit message."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-diff
-  :type '(choice (function-item pop-to-buffer)
-                 (function nil)
-                 (const :tag "Context sensitive (nil)" nil)))
-
 (defcustom magit-diff-expansion-threshold 1.0
   "After how many seconds not to expand anymore diffs.
 
@@ -724,8 +704,7 @@ a \"revA...revB\" range.  Otherwise, always construct
                           (magit-get-current-branch)))))
 
 (defun magit-diff-setup (range const args files)
-  (magit-mode-setup #'magit-diff-mode magit-diff-switch-buffer-function
-                    range const args files))
+  (magit-mode-setup #'magit-diff-mode range const args files))
 
 ;;;###autoload
 (defun magit-diff (range &optional args files)
@@ -865,9 +844,8 @@ for a commit."
                       (add-to-list 'magit-diff-hidden-files file)
                     (setq magit-diff-hidden-files
                           (delete file magit-diff-hidden-files))))))))))
-    (magit-mode-setup #'magit-revision-mode
-                      (if noselect 'display-buffer 'pop-to-buffer)
-                      commit nil args files)))
+    (let ((magit-display-buffer-noselect noselect))
+      (magit-mode-setup #'magit-revision-mode commit nil args files))))
 
 (defun magit-diff-refresh (args files)
   "Set the local diff arguments for the current buffer."
@@ -1099,9 +1077,11 @@ or `HEAD'."
   (if (equal (magit-toplevel directory)
              (magit-toplevel))
       (magit-dired-jump other-window)
-    (magit-status-internal directory (if other-window
-                                         'pop-to-buffer
-                                       'switch-to-buffer))))
+    (let ((display-buffer-overriding-action
+           (if other-window
+               '(nil (inhibit-same-window t))
+             '(display-buffer-same-window))))
+      (magit-status-internal directory))))
 
 (defun magit-diff-show-or-scroll-up ()
   "Update the commit or diff buffer for the thing at point.

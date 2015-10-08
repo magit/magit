@@ -153,7 +153,7 @@ optional NODISPLAY is non-nil also display it."
           (magit-insert-section (processbuf)
             (insert "\n")))))
     (unless nodisplay
-      (pop-to-buffer buffer))
+      (magit-display-buffer buffer))
     buffer))
 
 (defun magit-process-kill ()
