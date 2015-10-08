@@ -1866,15 +1866,6 @@ Function used by @code{magit-status} to switch to a status buffer.
 The function is given one argument, the status buffer.
 @end defopt
 
-@defopt magit-status-buffer-name-format
-
-Name format for buffers used to display a repository's status.
-
-The following @code{format}-like specs are supported:
-@code{%a} the absolute filename of the repository top-level.
-@code{%b} the basename of the repository top-level.
-@end defopt
-
 @defopt magit-log-section-args
 
 Additional Git arguments used when creating log sections.  Only

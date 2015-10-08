@@ -133,16 +133,6 @@ The function is given one argument, the status buffer."
                 (function-item pop-to-buffer)
                 (function :tag "Other")))
 
-(defcustom magit-status-buffer-name-format "*magit: %a*"
-  "Name format for buffers used to display a repository's status.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-status
-  :type 'string)
-
 (defcustom magit-status-expand-stashes t
   "Whether the list of stashes is expanded initially."
   :package-version '(magit . "2.3.0")
@@ -170,16 +160,6 @@ The following `format'-like specs are supported:
   :package-version '(magit . "2.1.0")
   :group 'magit-refs
   :type 'hook)
-
-(defcustom magit-refs-buffer-name-format "*magit-refs: %a*"
-  "Name format for buffers used to display and manage refs.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-refs
-  :type 'string)
 
 (defcustom magit-refs-show-commit-count nil
   "Whether to show commit counts in Magit-Refs mode buffers.

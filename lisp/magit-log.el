@@ -58,16 +58,6 @@
   :group 'magit-log
   :type 'hook)
 
-(defcustom magit-log-buffer-name-format "*magit-log: %a*"
-  "Name format for buffers used to display log entries.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-log
-  :type 'string)
-
 (defcustom magit-log-arguments '("-n256" "--graph" "--decorate")
   "The log arguments used in `magit-log-mode' buffers."
   :package-version '(magit . "2.3.0")
@@ -204,16 +194,6 @@ This is useful if you use really long branch names."
 
 ;;;; Select Mode
 
-(defcustom magit-log-select-buffer-name-format "*magit-select: %a*"
-  "Name format for buffers used to select a commit from a log.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.2.0")
-  :group 'magit-log
-  :type 'string)
-
 (defcustom magit-log-select-arguments '("-n256" "--decorate")
   "The log arguments used in `magit-log-select-mode' buffers."
   :package-version '(magit . "2.3.0")
@@ -234,15 +214,6 @@ be nil, in which case no usage information is shown."
 
 ;;;; Cherry Mode
 
-(defcustom magit-cherry-buffer-name-format "*magit-cherry: %a*"
-  "Name format for buffers used to display commits not merged upstream.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :group 'magit-log
-  :type 'string)
-
 (defcustom magit-cherry-sections-hook
   '(magit-insert-cherry-headers
     magit-insert-cherry-commits)
@@ -252,16 +223,6 @@ The following `format'-like specs are supported:
   :type 'hook)
 
 ;;;; Reflog Mode
-
-(defcustom magit-reflog-buffer-name-format "*magit-reflog: %a*"
-  "Name format for buffers used to display reflog entries.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-log
-  :type 'string)
 
 (defcustom magit-reflog-arguments '("-n256")
   "The log arguments used in `magit-reflog-mode' buffers."

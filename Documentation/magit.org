@@ -1360,14 +1360,6 @@ The following functions can also be added to the above hook:
   Function used by ~magit-status~ to switch to a status buffer.
   The function is given one argument, the status buffer.
 
-- User Option: magit-status-buffer-name-format
-
-  Name format for buffers used to display a repository's status.
-
-  The following ~format~-like specs are supported:
-  ~%a~ the absolute filename of the repository top-level.
-  ~%b~ the basename of the repository top-level.
-
 - User Option: magit-log-section-args
 
   Additional Git arguments used when creating log sections.  Only

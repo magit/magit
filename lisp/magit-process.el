@@ -40,23 +40,10 @@
 (require 'magit-git)
 (require 'magit-mode)
 
-
-(defvar magit-status-buffer-name-format)
-
 (eval-when-compile (require 'dired))
 (declare-function dired-uncache 'dired)
 
 ;;; Options
-
-(defcustom magit-process-buffer-name-format "*magit-process: %a*"
-  "Name format for buffers where output of processes is put.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-process
-  :type 'string)
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
   "Connection type used for the Git process.
@@ -189,9 +176,9 @@ Option `magit-git-executable' specifies the Git executable.
 The arguments ARGS specify arguments to Git, they are flattened
 before use.
 
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'.  If Git exits with
-a non-zero status, then raise an error."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'.  If Git exits with a non-zero status,
+then raise an error."
   (let ((magit-process-raise-error t))
     (magit-call-git args)))
 
@@ -208,8 +195,8 @@ as well as the current repository's status buffer are refreshed.
 Unmodified buffers visiting files that are tracked in the current
 repository are reverted if `magit-revert-buffers' is non-nil.
 
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'."
   (magit-call-git args)
   (magit-refresh))
 
@@ -224,8 +211,8 @@ before use.
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
 
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'."
   (let ((inhibit-magit-revert t))
     (magit-run-git args)))
 
@@ -239,16 +226,16 @@ option `magit-git-global-arguments' specifies constant arguments.
 The arguments ARGS specify arguments to Git, they are flattened
 before use.
 
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'."
   (run-hooks 'magit-pre-call-git-hook)
   (apply #'magit-call-process magit-git-executable
          (magit-process-git-arguments args)))
 
 (defun magit-call-process (program &rest args)
   "Call PROGRAM synchronously in a separate process.
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'."
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
     (magit-process-finish
