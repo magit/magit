@@ -3400,18 +3400,23 @@ argument also stage previously untracked (but not ignored) files.
 Remove the change at point from the staging area.
 
 @kindex U
-@cindex magit-unstage-all
-@item @kbd{U} @tie{}@tie{}@tie{}@tie{}(@code{magit-unstage-all})
-
-Remove all changes from the staging area.
-
-@kindex M-x magit-reset-index
 @cindex magit-reset-index
-@item @kbd{M-x magit-reset-index} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-index})
+@item @kbd{U} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-index})
 
 Reset the index to some commit.  The commit is read from the user
 and defaults to the commit at point.  If there is no commit at
 point, then it defaults to @code{HEAD}.
+
+So @code{U RET} with no commit at point does the inverse of @code{S} (or actually
+@code{S yes RET}), i.e. "unstage all staged changes".  If you would rather
+use a command which always does just that, then rebind @code{U} to
+@code{magit-unstage-all}.
+
+@kindex M-x magit-unstage-all
+@cindex magit-unstage-all
+@item @kbd{M-x magit-unstage-all} @tie{}@tie{}@tie{}@tie{}(@code{magit-unstage-all})
+
+Remove all changes from the staging area.
 @end table
 
 To stage a smaller unit than a range of lines, similar to @code{git add
@@ -4799,9 +4804,9 @@ Reset the head and index to some commit read from the user and
 defaulting to the commit at point.  The working tree is kept as-is.
 With a prefix argument also reset the working tree.
 
-@kindex M-x magit-reset-index
+@kindex U
 @cindex magit-reset-index
-@item @kbd{M-x magit-reset-index} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-index})
+@item @kbd{U} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-index})
 
 Reset the index to some commit read from the user and defaulting to
 the commit at point.  Keep the @code{HEAD} and working tree as-is, so if
