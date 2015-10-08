@@ -244,7 +244,7 @@ depending on the value of option `magit-commit-squash-confirm'."
         (format "Type %%p on a commit to %s into it,"
                 (substring option 2)))
       (when (magit-diff-auto-show-p 'log-select)
-        (let ((magit-diff-switch-buffer-function 'display-buffer))
+        (let ((magit-display-buffer-noselect t))
           (magit-diff-staged))))))
 
 (defun magit-commit-assert (args &optional strict)
@@ -289,8 +289,7 @@ depending on the value of option `magit-commit-squash-confirm'."
                      (`magit-commit-amend  'magit-diff-while-amending)
                      (`magit-commit-reword 'magit-diff-while-amending)))
     (let ((magit-inhibit-save-previous-winconf 'unset)
-          (magit-diff-switch-buffer-function
-           (lambda (buffer) (display-buffer buffer t))))
+          (magit-display-buffer-noselect t))
       (funcall it (car (magit-diff-arguments))))))
 
 (add-hook 'server-switch-hook 'magit-commit-diff)

@@ -73,36 +73,6 @@
   :group 'magit-revision
   :type 'hook)
 
-(defcustom magit-diff-buffer-name-format "*magit-diff: %a*"
-  "Name format for buffers used to display a diff.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-diff
-  :type 'string)
-
-(defcustom magit-diff-switch-buffer-function 'pop-to-buffer
-  "Function used to display and possibly select a diff buffer.
-
-By default `pop-to-buffer' is used to display the diff buffer in
-another window.  If the value is nil, then that function is also
-used, except when the current buffer is another Magit buffer.
-Then the window is reused; the diff buffer replaces the buffer
-which was previously shown.  Another function can be used, but
-that's not recommended, e.g. `switch-to-buffer' likely is not
-what you want.
-
-Note that the value of this variable is ignored when the diff
-buffer is automatically shown along side a buffer used to write
-a commit message."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-diff
-  :type '(choice (function-item pop-to-buffer)
-                 (function nil)
-                 (const :tag "Context sensitive (nil)" nil)))
-
 (defcustom magit-diff-expansion-threshold 1.0
   "After how many seconds not to expand anymore diffs.
 
@@ -262,16 +232,6 @@ many spaces.  Otherwise, highlight neither."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
   :type 'hook)
-
-(defcustom magit-revision-buffer-name-format "*magit-rev: %a*"
-  "Name format for buffers used to display a commit.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-revision
-  :type 'string)
 
 (defcustom magit-revision-headers-format "\
 Author:     %aN <%aE>
@@ -605,7 +565,7 @@ be nil."
          (list magit-diff-section-arguments
                magit-diff-section-file-args))
         (t
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-diff-mode))
+         (-if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
              (with-current-buffer buffer
                (list (nth 2 magit-refresh-args)
                      (nth 3 magit-refresh-args)))
@@ -620,7 +580,7 @@ be nil."
          ;; we should get the current values.  However it is much
          ;; more likely that we will end up updating the diff buffer,
          ;; and we therefore use the value from that buffer.
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-diff-mode))
+         (-if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
              (with-current-buffer buffer
                (magit-popup-import-file-args (nth 2 magit-refresh-args)
                                              (nth 3 magit-refresh-args)))
@@ -659,7 +619,7 @@ be nil."
     (`staged (magit-diff-staged nil args files))
     (`(commit . ,value)
      (magit-diff (format "%s^..%s" value value) args files))
-    (`(stash  . ,value) (magit-stash-show value nil args))
+    (`(stash  . ,value) (magit-stash-show value args))
     ((and range (pred stringp))
      (magit-diff range args files))
     (_
@@ -744,10 +704,7 @@ a \"revA...revB\" range.  Otherwise, always construct
                           (magit-get-current-branch)))))
 
 (defun magit-diff-setup (range const args files)
-  (magit-mode-setup magit-diff-buffer-name-format
-                    magit-diff-switch-buffer-function
-                    #'magit-diff-mode
-                    #'magit-diff-refresh-buffer range const args files))
+  (magit-mode-setup #'magit-diff-mode range const args files))
 
 ;;;###autoload
 (defun magit-diff (range &optional args files)
@@ -819,8 +776,8 @@ While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
 be commited."
   (interactive (magit-diff-arguments))
-  (let* ((toplevel (magit-toplevel))
-         (diff-buf (magit-mode-get-buffer nil 'magit-diff-mode toplevel)))
+  (let ((toplevel (magit-toplevel))
+        (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))
     (if (magit-commit-message-buffer)
         (if (and (or ;; most likely an explicit amend
                      (not (magit-anything-staged-p))
@@ -855,7 +812,7 @@ be commited."
 (put 'magit-diff-hidden-files 'permanent-local t)
 
 ;;;###autoload
-(defun magit-show-commit (commit &optional noselect module args files)
+(defun magit-show-commit (commit &optional args files module)
   "Show the commit at point.
 If there is no commit at point or with a prefix argument prompt
 for a commit."
@@ -865,18 +822,18 @@ for a commit."
                        mcommit
                        (magit-branch-or-commit-at-point)
                        (magit-tag-at-point))))
-     (nconc (list (or (and (not current-prefix-arg) atpoint)
+     (nconc (cons (or (and (not current-prefix-arg) atpoint)
                       (magit-read-branch-or-commit "Show commit" atpoint))
-                  nil (and mcommit (magit-section-parent-value
-                                    (magit-current-section))))
-            (magit-diff-arguments))))
+                  (magit-diff-arguments))
+            (and mcommit (list (magit-section-parent-value
+                                (magit-current-section)))))))
   (magit-with-toplevel
     (when module
       (setq default-directory
             (expand-file-name (file-name-as-directory module))))
     (unless (magit-rev-verify-commit commit)
       (user-error "%s is not a commit" commit))
-    (-when-let (buffer (magit-mode-get-buffer nil 'magit-revision-mode))
+    (-when-let (buffer (magit-mode-get-buffer 'magit-revision-mode))
       (with-current-buffer buffer
         (let ((prev (car magit-refresh-args)))
           (unless (equal commit prev)
@@ -887,11 +844,7 @@ for a commit."
                       (add-to-list 'magit-diff-hidden-files file)
                     (setq magit-diff-hidden-files
                           (delete file magit-diff-hidden-files))))))))))
-    (magit-mode-setup magit-revision-buffer-name-format
-                      (if noselect 'display-buffer 'pop-to-buffer)
-                      #'magit-revision-mode
-                      #'magit-revision-refresh-buffer
-                      commit nil args files)))
+    (magit-mode-setup #'magit-revision-mode commit nil args files)))
 
 (defun magit-diff-refresh (args files)
   "Set the local diff arguments for the current buffer."
@@ -1123,9 +1076,11 @@ or `HEAD'."
   (if (equal (magit-toplevel directory)
              (magit-toplevel))
       (magit-dired-jump other-window)
-    (magit-status-internal directory (if other-window
-                                         'pop-to-buffer
-                                       'switch-to-buffer))))
+    (let ((display-buffer-overriding-action
+           (if other-window
+               '(nil (inhibit-same-window t))
+             '(display-buffer-same-window))))
+      (magit-status-internal directory))))
 
 (defun magit-diff-show-or-scroll-up ()
   "Update the commit or diff buffer for the thing at point.
@@ -1155,7 +1110,7 @@ commit or stash at point, then prompt for a commit."
      (magit-blame-mode
       (setq rev (magit-blame-chunk-get :hash)
             cmd 'magit-show-commit
-            buf (magit-mode-get-buffer nil 'magit-revision-mode)))
+            buf (magit-mode-get-buffer 'magit-revision-mode)))
      ((derived-mode-p 'git-rebase-mode)
       (save-excursion
         (goto-char (line-beginning-position))
@@ -1163,18 +1118,18 @@ commit or stash at point, then prompt for a commit."
                        (match-string 2))
             (setq rev it
                   cmd 'magit-show-commit
-                  buf (magit-mode-get-buffer nil 'magit-revision-mode))
+                  buf (magit-mode-get-buffer 'magit-revision-mode))
           (user-error "No commit on this line"))))
      (t
       (magit-section-case
         ((commit branch)
          (setq rev (magit-section-value it)
                cmd 'magit-show-commit
-               buf (magit-mode-get-buffer nil 'magit-revision-mode)))
+               buf (magit-mode-get-buffer 'magit-revision-mode)))
         (stash
          (setq rev (magit-section-value it)
                cmd 'magit-stash-show
-               buf (magit-mode-get-buffer nil 'magit-diff-mode))))))
+               buf (magit-mode-get-buffer 'magit-diff-mode))))))
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))
@@ -1190,9 +1145,10 @@ commit or stash at point, then prompt for a commit."
                  (goto-char (pcase fn
                               (`scroll-up   (point-min))
                               (`scroll-down (point-max)))))))
-          (if (eq cmd 'magit-show-commit)
-              (apply #'magit-show-commit rev t nil (magit-diff-arguments))
-            (funcall cmd rev t)))
+          (let ((magit-display-buffer-noselect t))
+            (if (eq cmd 'magit-show-commit)
+                (apply #'magit-show-commit rev (magit-diff-arguments))
+              (funcall cmd rev))))
       (call-interactively #'magit-show-commit))))
 
 ;;; Diff Mode

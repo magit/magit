@@ -38,8 +38,6 @@
 ;; For `magit-xref-insert-buttons' from `magit'
 (defvar magit-diff-show-xref-buttons)
 (defvar magit-revision-show-xref-buttons)
-;; For `magit-refresh' from `magit'
-(defvar magit-status-buffer-name-format)
 ;; For `magit-revert-buffers'
 (declare-function magit-blame-mode 'magit-blame)
 (defvar magit-blame-mode)
@@ -49,11 +47,94 @@
 
 ;;; Options
 
-(defcustom magit-mode-hook '(magit-load-config-extensions)
+(defcustom magit-mode-hook
+  '(magit-load-config-extensions
+    magit-xref-setup)
   "Hook run when entering a mode derived from Magit mode."
   :group 'magit-modes
   :type 'hook
-  :options '(magit-load-config-extensions bug-reference-mode))
+  :options '(magit-load-config-extensions
+             magit-xref-setup
+             bug-reference-mode))
+
+(defcustom magit-display-buffer-function 'magit-display-buffer-traditional
+  "The function used display a Magit buffer.
+
+All Magit buffers (buffers whose major-modes derive from
+`magit-mode') are displayed using `magit-display-buffer',
+which in turn used the function specified here."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type '(radio (function-item magit-display-buffer-traditional)
+                (function-item display-buffer)
+                (function :tag "Function")))
+
+(unless (find-lisp-object-file-name 'magit-pre-display-buffer-hook 'defvar)
+  (add-hook 'magit-pre-display-buffer-hook 'magit-save-window-configuration))
+(defcustom magit-pre-display-buffer-hook '(magit-save-window-configuration)
+  "Hook run by `magit-display-buffer' before displaying the buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'hook
+  :options '(magit-save-window-configuration))
+
+(unless (find-lisp-object-file-name 'magit-post-display-buffer-hook 'defvar)
+  (add-hook 'magit-post-display-buffer-hook 'magit-maybe-set-dedicated))
+(defcustom magit-post-display-buffer-hook '(magit-maybe-set-dedicated)
+  "Hook run by `magit-display-buffer' after displaying the buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'hook
+  :options '(magit-maybe-set-dedicated))
+
+(defcustom magit-generate-buffer-name-function
+  'magit-generate-buffer-name-default-function
+  "The function used to generate the name for a Magit buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type '(radio (function-item magit-generate-buffer-name-default-function)
+                (function :tag "Function")))
+
+(defcustom magit-buffer-name-format "*%M%v: %t"
+  "The format string used to name Magit buffers.
+
+The following %-sequences are supported:
+
+`%m' The name of the major-mode, but with the `-mode' suffix
+     removed.
+
+`%M' Like \"%m\" but abbreviate `magit-status-mode' as `magit'.
+
+`%t' The top-level directory of the working tree of the
+     repository, or if `magit-uniquify-buffer-name' is non-nil
+     an abbreviation of that.
+
+The value should always contain either \"%m\" or \"%M\" as well as
+\"%t\".  If `magit-uniquify-buffer-name' is non-nil, then the
+value must end with \"%t\".
+
+This is used by `magit-generate-buffer-name-default-function'.
+If another `magit-generate-buffer-name-function' is used, then
+it may not be respected this option, or on the contrary it may
+support additional %-sequences."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'string)
+
+(defcustom magit-uniquify-buffer-names t
+  "Whether to uniquify the names of Magit buffers."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'boolean)
+
+(defcustom magit-bury-buffer-function 'magit-restore-window-configuration
+  "The function used to bury or kill the current Magit buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type '(radio (function-item quit-window)
+                (function-item magit-mode-quit-window)
+                (function-item magit-restore-window-configuration)
+                (function :tag "Function")))
 
 (defcustom magit-region-highlight-hook
   '(magit-section-update-region magit-diff-update-hunk-region)
@@ -66,15 +147,6 @@ displayed.  Otherwise fall back to regular region highlighting."
   :group 'magit-modes
   :type 'hook
   :options '(magit-section-update-region magit-diff-update-hunk-region))
-
-(defcustom magit-bury-buffer-function 'magit-restore-window-configuration
-  "The function used to bury or kill the current Magit buffer."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-modes
-  :type '(radio (function-item quit-window)
-                (function-item magit-mode-quit-window)
-                (function-item magit-restore-window-configuration)
-                (function :tag "Function")))
 
 (defcustom magit-refresh-verbose nil
   "Whether to revert Magit buffers verbosely."
@@ -252,7 +324,7 @@ starts complicating other things, then it will be removed."
     (define-key map "g" 'magit-refresh)
     (define-key map "G" 'magit-refresh-all)
     (define-key map "q" 'magit-mode-bury-buffer)
-    (define-key map "$" 'magit-process)
+    (define-key map "$" 'magit-process-buffer)
     (define-key map "a" 'magit-cherry-apply)
     (define-key map "A" 'magit-cherry-pick-popup)
     (define-key map "b" 'magit-branch-popup)
@@ -372,7 +444,7 @@ which visits the thing at point."
     "---"
     ("Extensions")
     "---"
-    ["Display Git output" magit-process t]
+    ["Display Git output" magit-process-buffer t]
     ["Quit Magit" magit-mode-bury-buffer t]))
 
 (defun magit-load-config-extensions ()
@@ -418,103 +490,70 @@ Magit is documented in info node `(magit)'."
   (mapc #'delete-overlay magit-region-overlays)
   (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
-(defvar-local magit-refresh-function nil
-  "The function used to refresh the current buffer.
-This is called with `magit-refresh-args' as arguments.
-The value is usually set using `magit-mode-setup'.")
-(put 'magit-refresh-function 'permanent-local t)
-
 (defvar-local magit-refresh-args nil
-  "The arguments used to refresh the current buffer.
-`magit-refresh-function' is called with these arguments.
-The value is usually set using `magit-mode-setup'.")
+  "The arguments used to refresh the current buffer.")
 (put 'magit-refresh-args 'permanent-local t)
-
-(defvar magit-mode-setup-hook nil)
-
-;; Kludge.  We use this instead of adding a new, optional argument to
-;; `magit-setup-mode' in order to avoid breaking third-party packages.
-;; See #2054 and #2060.
-(defvar magit-mode-setup--topdir nil)
-
-(defmacro magit-mode-setup
-  (buffer switch-func mode refresh-func &rest refresh-args)
-  "Display and select BUFFER, turn on MODE, and refresh a first time.
-Display BUFFER using `magit-mode-display-buffer', then turn on
-MODE in BUFFER, set the local value of `magit-refresh-function'
-to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
-and finally \"refresh\" a first time.  All arguments are evaluated
-before switching to BUFFER."
-  (declare (debug (form form form form &rest form)))
-  (let ((smode (cl-gensym "mode"))
-        (sfunc (cl-gensym "func"))
-        (sargs (cl-gensym "args"))
-        (sbuf  (cl-gensym "buffer")))
-    `(let* ((,smode ,mode)
-            (,sfunc ,refresh-func)
-            (,sargs (list ,@refresh-args))
-            (,sbuf  (magit-mode-display-buffer
-                     ,buffer ,smode ,switch-func
-                     (let ((default-directory
-                             (or magit-mode-setup--topdir
-                                 default-directory)))
-                       (--if-let (magit-toplevel)
-                           (if find-file-visit-truename
-                               (file-truename it)
-                             it)
-                         (user-error "Not inside a Git repository"))))))
-       (with-current-buffer ,sbuf
-         (setq magit-refresh-function ,sfunc)
-         (setq magit-refresh-args     ,sargs)
-         (run-hooks 'magit-mode-setup-hook)
-         (pcase ,smode
-           ((or `magit-log-mode `magit-reflog-mode)
-            (magit-xref-setup ,sargs))
-           ((or `magit-diff-mode `magit-revision-mode)
-            (magit-xref-setup ,sargs)
-            (goto-char (point-min))))
-         (funcall ,smode)
-         (magit-refresh-buffer)))))
 
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
 
-(defun magit-mode-display-buffer (buffer mode &optional switch-function topdir)
-  "Display BUFFER in some window and select it.
-BUFFER may be a buffer or a string, the name of a buffer.  Return
-the buffer.
+(defvar magit-mode-setup-hook nil)
 
-Unless BUFFER is already displayed in the selected frame store the
-previous window configuration as a buffer local value, so that it
-can later be restored by `magit-mode-bury-buffer'.
-
-Then display and select BUFFER using SWITCH-FUNCTION.  If that is
-nil either use `pop-to-buffer' if the current buffer's major mode
-derives from Magit mode; or else use `switch-to-buffer'.
-
-When optional TOPDIR is specified, then it has to be the top-level
-directory of the repository.  Otherwise that is determined using
-the function `magit-toplevel'."
-  (cond ((stringp buffer)
-         (setq buffer (magit-mode-get-buffer-create buffer mode topdir)))
-        ((not (bufferp buffer))
-         (signal 'wrong-type-argument (list 'bufferp nil))))
-  (let ((section (magit-current-section)))
+(defun magit-mode-setup (mode &rest args)
+  "Setup up a MODE buffer using ARGS to generate its content."
+  (let ((buffer (magit-mode-get-buffer mode t))
+        (section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
-      (when (eq magit-bury-buffer-function 'magit-restore-window-configuration)
-        (magit-save-window-configuration))))
-  (funcall (or switch-function
-               (if (derived-mode-p 'magit-mode)
-                   'switch-to-buffer
-                 'pop-to-buffer))
-           buffer)
-  (when (eq magit-bury-buffer-function 'magit-mode-quit-window)
-    (let ((window (get-buffer-window buffer)))
-      (when (and (window-live-p window)
-                 (not (window-prev-buffers window)))
-        (set-window-parameter window 'magit-dedicated t))))
-  buffer)
+      (setq magit-refresh-args args)
+      (run-hooks 'magit-mode-setup-hook)
+      (funcall mode))
+    (magit-display-buffer buffer)
+    (with-current-buffer buffer (magit-refresh-buffer))))
+
+(defvar magit-display-buffer-noselect nil
+  "If non-nil, then `magit-display-buffer' doesn't call `select-window'.")
+
+(defun magit-display-buffer (buffer)
+  "Display BUFFER in some window and maybe select it.
+
+Display the buffer using `magit-display-buffer-function' and
+then, unless `magit-display-buffer-noselect' is non-nil, select
+the window which was used to display the buffer.
+
+Also run the hooks `magit-pre-display-buffer-hook'
+and `magit-post-display-buffer-hook'."
+  (with-current-buffer buffer
+    (run-hooks 'magit-pre-display-buffer-hook))
+  (let ((window (funcall magit-display-buffer-function buffer)))
+    (unless magit-display-buffer-noselect
+      (select-window window)))
+  (with-current-buffer buffer
+    (run-hooks 'magit-post-display-buffer-hook)))
+
+(defun magit-display-buffer-traditional (buffer)
+  "Display BUFFER the way this has traditionally been done."
+  (display-buffer
+   buffer (if (and (derived-mode-p 'magit-mode)
+                   (not (memq (with-current-buffer buffer major-mode)
+                              '(magit-process-mode
+                                magit-revision-mode
+                                magit-diff-mode
+                                magit-status-mode))))
+              '(display-buffer-same-window)
+            nil))) ; display in another window
+
+(defun magit-maybe-set-dedicated ()
+  "Mark the selected window as dedicated if appropriate.
+
+If a new window was created to display the buffer, then remember
+that fact.  That information is used by `magit-mode-quit-window',
+to determine whether the window should be deleted when its last
+Magit buffer is buried."
+  (let ((window (get-buffer-window (current-buffer))))
+    (when (and (window-live-p window)
+               (not (window-prev-buffers window)))
+      (set-window-parameter window 'magit-dedicated t))))
 
 (defun magit-mode-get-buffers ()
   (let ((topdir (magit-toplevel)))
@@ -523,37 +562,93 @@ the function `magit-toplevel'."
                      (equal (expand-file-name default-directory) topdir)))
               (buffer-list))))
 
-(defun magit-mode-get-buffer (format mode &optional pwd create frame)
-  (unless format
-    (setq format (symbol-value
-                  (intern (format "%s-buffer-name-format"
-                                  (substring (symbol-name mode) 0 -5))))))
-  (if (not (string-match-p "%[ab]" format))
-      (funcall (if create #'get-buffer-create #'get-buffer) format)
-    (setq pwd (expand-file-name (or pwd default-directory)))
-    (let* ((topdir (let ((default-directory pwd))
-                     (magit-toplevel)))
-           (name (format-spec
-                  format (if topdir
-                             `((?a . ,(abbreviate-file-name topdir))
-                               (?b . ,(file-name-nondirectory
-                                       (directory-file-name topdir))))
-                           '((?a . "-") (?b . "-"))))))
+(defvar magit-mode-get-buffer--topdir nil) ; see #2054 and #2060
+
+(defvar-local magit-buffer-locked-p nil)
+(put 'magit-buffer-locked-p 'permanent-local t)
+
+(defun magit-mode-get-buffer (mode &optional create frame)
+  (-if-let (topdir (magit-toplevel magit-mode-get-buffer--topdir))
       (or (--first (with-current-buffer it
-                     (and (equal (buffer-name) name)
-                          (or (not topdir)
-                              (equal (expand-file-name default-directory)
-                                     topdir))))
+                     (and (eq major-mode mode)
+                          (equal (expand-file-name default-directory) topdir)
+                          (not magit-buffer-locked-p)))
                    (if frame
                        (-map #'window-buffer
                              (window-list (unless (eq frame t) frame)))
                      (buffer-list)))
           (and create
-               (let ((default-directory (or topdir pwd)))
-                 (generate-new-buffer name)))))))
+               (let ((default-directory topdir))
+                 (magit-generate-new-buffer mode))))
+    (user-error "Not inside a Git repository")))
 
-(defun magit-mode-get-buffer-create (format mode &optional directory)
-  (magit-mode-get-buffer format mode directory t))
+(defun magit-generate-new-buffer (mode)
+  (let* ((name (funcall magit-generate-buffer-name-function mode))
+         (buffer (generate-new-buffer name)))
+    (when magit-uniquify-buffer-names
+      (add-to-list 'uniquify-list-buffers-directory-modes mode)
+      (with-current-buffer buffer
+        (setq list-buffers-directory default-directory))
+      (uniquify-rationalize-file-buffer-names
+       name (file-name-directory (directory-file-name default-directory))
+       buffer))
+    buffer))
+
+(defun magit-generate-buffer-name-default-function (mode &optional value)
+  (let ((m (substring (symbol-name mode) 0 -5))
+        (v (and value (format "%s" (if (listp value) value (list value))))))
+    (format-spec
+     magit-buffer-name-format
+     `((?m . ,m)
+       (?M . ,(if (eq mode 'magit-status-mode) "magit" m))
+       (?v . ,(or v ""))
+       (?V . ,(if v (concat " " v) ""))
+       (?t . ,(if magit-uniquify-buffer-names
+                  (file-name-nondirectory
+                   (directory-file-name default-directory))
+                default-directory))))))
+
+(defun magit-toggle-buffer-lock ()
+  "Lock the current buffer to its value or unlock it.
+
+Locking a buffer to its value, prevents it from being reused to
+display another value.  The name of a locked buffer contains its
+value, which allows telling it apart from other locked buffers
+and the unlocked buffer.
+
+Not all Magit buffers can be locked to their values, for example
+it wouldn't make sense to lock a status buffer.
+
+There can only be a single unlocked buffer using a certain
+major-mode per repository.  So when a buffer is being unlocked
+and another unlocked buffer already exists for that mode and
+repository, then the former buffer is instead deleted and the
+latter is displayed in its place."
+  (interactive)
+  (if magit-buffer-locked-p
+      (-if-let (unlocked (magit-mode-get-buffer major-mode))
+          (let ((locked (current-buffer)))
+            (set-buffer unlocked)
+            (kill-buffer locked))
+        (setq magit-buffer-locked-p nil)
+        (rename-buffer (funcall magit-generate-buffer-name-function
+                                major-mode)))
+    (setq magit-buffer-locked-p
+          (cond ((memq major-mode '(magit-cherry-mode
+                                    magit-log-mode
+                                    magit-reflog-mode
+                                    magit-refs-mode
+                                    magit-revision-mode
+                                    magit-stash-mode
+                                    magit-stashes-mode))
+                 (car magit-refresh-args))
+                ((eq major-mode 'magit-diff-mode)
+                 (append (or (car magit-refresh-args) '(unstaged))
+                         (cadr magit-refresh-args)))))
+    (if magit-buffer-locked-p
+        (rename-buffer (funcall magit-generate-buffer-name-function
+                                major-mode magit-buffer-locked-p))
+      (user-error "Buffer has no value it could be locked to"))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
@@ -585,30 +680,6 @@ window."
       (when (window-live-p window)
         (delete-window window)))))
 
-(defun magit-rename-buffer (&optional newname)
-  "Rename the current buffer, so that Magit won't reuse it.
-
-By default there is only one buffer with a certain Magit mode
-per repository.  Displaying e.g. some diff will reuse the buffer
-previously used to display another diff.  If you want to have
-two buffers displaying different diffs belonging to the same
-repository, then you have to create a buffer whose name differs
-from the default name.
-
-The easiest way to do that is to use this command.  It appends
-\"<N>\" to the name of the current buffer, where N is the lowest
-available number, starting with 2, which is still available.
-
-With a prefix argument, the user can pick an arbitrary name."
-  (interactive
-   (list (and current-prefix-arg
-              (read-buffer "Rename buffer to: " (current-buffer)))))
-  (unless newname
-    (setq newname (buffer-name)))
-  (when (string-match "<[0-9]+>\\'" newname)
-    (setq newname (substring newname 0 (match-beginning 0))))
-  (rename-buffer (generate-new-buffer-name newname)))
-
 ;;; Refresh Machinery
 
 (defvar inhibit-magit-refresh nil)
@@ -630,7 +701,7 @@ current repository."
       (run-hooks 'magit-pre-refresh-hook)
       (magit-refresh-buffer)
       (unless (derived-mode-p 'magit-status-mode)
-        (--when-let (magit-mode-get-buffer nil 'magit-status-mode)
+        (--when-let (magit-mode-get-buffer 'magit-status-mode)
           (with-current-buffer it
             (magit-refresh-buffer)))))
     (magit-revert-buffers)))
@@ -650,43 +721,43 @@ tracked in the current repository."
 (defvar-local magit-refresh-start-time nil)
 
 (defun magit-refresh-buffer ()
-  "Refresh the current Magit buffer.
-Uses the buffer-local `magit-refresh-function'."
+  "Refresh the current Magit buffer."
   (setq magit-refresh-start-time (current-time))
-  (when magit-refresh-function
-    (when magit-refresh-verbose
-      (message "Refreshing buffer `%s'..." (buffer-name)))
-    (let* ((buffer (current-buffer))
-           (windows
-            (--mapcat (with-selected-window it
-                        (with-current-buffer buffer
-                          (-when-let (section (magit-current-section))
-                            (list
-                             (nconc (list it section)
-                                    (magit-refresh-get-relative-position))))))
-                      (or (get-buffer-window-list buffer nil t)
-                          (list (selected-window))))))
-      (deactivate-mark)
-      (setq magit-section-highlight-overlays nil
-            magit-section-highlighted-section nil
-            magit-section-highlighted-sections nil
-            magit-section-unhighlight-sections nil)
-      (let ((inhibit-read-only t))
-        (erase-buffer)
-        (save-excursion
-          (apply magit-refresh-function
-                 magit-refresh-args)))
-      (dolist (window windows)
-        (with-selected-window (car window)
-          (with-current-buffer buffer
-            (apply #'magit-section-goto-successor (cdr window)))))
-      (run-hooks 'magit-refresh-buffer-hook)
-      (magit-section-update-highlight)
-      (set-buffer-modified-p nil))
-    (when magit-refresh-verbose
-      (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
-               (float-time (time-subtract (current-time)
-                                          magit-refresh-start-time))))))
+  (let ((refresh (intern (format "%s-refresh-buffer"
+                                 (substring (symbol-name major-mode) 0 -5)))))
+    (when (functionp refresh)
+      (when magit-refresh-verbose
+        (message "Refreshing buffer `%s'..." (buffer-name)))
+      (let* ((buffer (current-buffer))
+             (windows
+              (--mapcat (with-selected-window it
+                          (with-current-buffer buffer
+                            (-when-let (section (magit-current-section))
+                              (list
+                               (nconc (list it section)
+                                      (magit-refresh-get-relative-position))))))
+                        (or (get-buffer-window-list buffer nil t)
+                            (list (selected-window))))))
+        (deactivate-mark)
+        (setq magit-section-highlight-overlays nil
+              magit-section-highlighted-section nil
+              magit-section-highlighted-sections nil
+              magit-section-unhighlight-sections nil)
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (save-excursion
+            (apply refresh magit-refresh-args)))
+        (dolist (window windows)
+          (with-selected-window (car window)
+            (with-current-buffer buffer
+              (apply #'magit-section-goto-successor (cdr window)))))
+        (run-hooks 'magit-refresh-buffer-hook)
+        (magit-section-update-highlight)
+        (set-buffer-modified-p nil))
+      (when magit-refresh-verbose
+        (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
+                 (float-time (time-subtract (current-time)
+                                            magit-refresh-start-time)))))))
 
 (defun magit-refresh-get-relative-position ()
   (-when-let (section (magit-current-section))
@@ -869,6 +940,10 @@ argument (the prefix) non-nil means save all with no questions."
 (put 'magit-previous-window-configuration 'permanent-local t)
 
 (defun magit-save-window-configuration ()
+  "Save the current window configuration.
+
+Later, when the buffer is buried, it may be restored by
+`magit-restore-window-configuration'."
   (if magit-inhibit-save-previous-winconf
       (when (eq magit-inhibit-save-previous-winconf 'unset)
         (setq magit-previous-window-configuration nil))
@@ -929,18 +1004,25 @@ argument (the prefix) non-nil means save all with no questions."
   'mouse-face 'magit-section-highlight
   'help-echo (purecopy "mouse-2, RET: go back to next history entry"))
 
-(defun magit-xref-setup (refresh-args)
-  (when help-xref-stack-item
-    (push (cons (point) help-xref-stack-item) help-xref-stack)
-    (setq help-xref-forward-stack nil))
-  (when (called-interactively-p 'interactive)
-    (--when-let (nthcdr 10 help-xref-stack)
-      (setcdr it nil)))
-  (setq help-xref-stack-item
-        `(magit-xref-restore ,default-directory ,@refresh-args)))
+(defun magit-xref-setup ()
+  "Insert backward/forward buttons if the major-mode supports it.
+Currently `magit-log-mode', `magit-reflog-mode',
+`magit-diff-mode', and `magit-revision-mode' support it"
+  (when (memq major-mode '(magit-log-mode
+                           magit-reflog-mode
+                           magit-diff-mode
+                           magit-revision-mode))
+    (when help-xref-stack-item
+      (push (cons (point) help-xref-stack-item) help-xref-stack)
+      (setq help-xref-forward-stack nil))
+    (when (called-interactively-p 'interactive)
+      (--when-let (nthcdr 10 help-xref-stack)
+        (setcdr it nil)))
+    (setq help-xref-stack-item
+          `(magit-xref-restore ,default-directory ,@magit-refresh-args))))
 
 (defun magit-xref-restore (&rest args)
-  (magit-xref-setup magit-refresh-args)
+  (magit-xref-setup)
   (setq default-directory  (car args))
   (setq magit-refresh-args (cdr args))
   (magit-refresh-buffer))

@@ -124,25 +124,6 @@ at all."
   :group 'magit-status
   :type 'hook)
 
-(defcustom magit-status-buffer-switch-function 'pop-to-buffer
-  "Function used by `magit-status' to switch to a status buffer.
-
-The function is given one argument, the status buffer."
-  :group 'magit-status
-  :type '(radio (function-item switch-to-buffer)
-                (function-item pop-to-buffer)
-                (function :tag "Other")))
-
-(defcustom magit-status-buffer-name-format "*magit: %a*"
-  "Name format for buffers used to display a repository's status.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-status
-  :type 'string)
-
 (defcustom magit-status-expand-stashes t
   "Whether the list of stashes is expanded initially."
   :package-version '(magit . "2.3.0")
@@ -170,16 +151,6 @@ The following `format'-like specs are supported:
   :package-version '(magit . "2.1.0")
   :group 'magit-refs
   :type 'hook)
-
-(defcustom magit-refs-buffer-name-format "*magit-refs: %a*"
-  "Name format for buffers used to display and manage refs.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-refs
-  :type 'string)
 
 (defcustom magit-refs-show-commit-count nil
   "Whether to show commit counts in Magit-Refs mode buffers.
@@ -414,14 +385,9 @@ then offer to initialize it as a new repository."
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
 ;;;###autoload
-(defun magit-status-internal (directory &optional switch-function)
-  (let ((magit-mode-setup--topdir (file-name-as-directory
-                                   (expand-file-name directory))))
-    (magit-mode-setup magit-status-buffer-name-format
-                      (or switch-function
-                          magit-status-buffer-switch-function)
-                      #'magit-status-mode
-                      #'magit-status-refresh-buffer)))
+(defun magit-status-internal (directory)
+  (let ((magit-mode-get-buffer--topdir directory))
+    (magit-mode-setup #'magit-status-mode)))
 
 (defun ido-enter-magit-status ()
   "Drop into `magit-status' from file switching.
@@ -689,9 +655,7 @@ it is detached."
 Refs are compared with a branch read form the user."
   (interactive (list (magit-read-other-branch "Compare with")
                      (magit-show-refs-arguments)))
-  (magit-mode-setup magit-refs-buffer-name-format nil
-                    #'magit-refs-mode
-                    #'magit-refs-refresh-buffer ref args))
+  (magit-mode-setup #'magit-refs-mode ref args))
 
 (defun magit-branch-manager ()
   "The Branch Manager is dead, long live the Branch Manager.
@@ -1087,7 +1051,7 @@ is done using `magit-find-index-noselect'."
           (when magit-wip-after-apply-mode
             (magit-wip-commit-after-apply (list file) " after un-/stage")))
       (message "Abort")))
-  (--when-let (magit-mode-get-buffer nil 'magit-status-mode)
+  (--when-let (magit-mode-get-buffer 'magit-status-mode)
     (with-current-buffer it (magit-refresh)))
   t)
 
@@ -1463,10 +1427,7 @@ inspect the merge and change the commit message.
 (defun magit-merge-preview (rev)
   "Preview result of merging REV into the current branch."
   (interactive (list (magit-read-other-branch-or-commit "Preview merge")))
-  (magit-mode-setup magit-diff-buffer-name-format
-                    magit-diff-switch-buffer-function
-                    #'magit-diff-mode
-                    #'magit-merge-refresh-preview-buffer rev))
+  (magit-mode-setup #'magit-diff-mode rev))
 
 (defun magit-merge-refresh-preview-buffer (rev)
   (magit-insert-section (diffbuf)
@@ -1821,7 +1782,7 @@ Also see `magit-notes-merge'."
   "Remove notes about unreachable commits."
   (interactive (list (and (member "--dry-run" (magit-notes-arguments)) t)))
   (when dry-run
-    (magit-process))
+    (magit-process-buffer))
   (magit-run-git-with-editor "notes" "prune" (and dry-run "--dry-run")))
 
 (defun magit-notes-set-ref (ref &optional global)
@@ -2179,8 +2140,7 @@ repository, otherwise in `default-directory'."
                                                      (point-max))))
     (setq default-directory directory)
     (magit-run-git-async args))
-  (magit-mode-display-buffer (magit-process-buffer directory t)
-                             'magit-process-mode 'pop-to-buffer))
+  (magit-process-buffer))
 
 ;;;###autoload
 (defun magit-git-command-topdir (args directory)
@@ -2203,8 +2163,7 @@ repository, otherwise in `default-directory'."
                                                      (point-max))))
     (setq default-directory directory)
     (apply #'magit-start-process (car args) nil (cdr args)))
-  (magit-mode-display-buffer (magit-process-buffer directory t)
-                             'magit-process-mode 'pop-to-buffer))
+  (magit-process-buffer))
 
 ;;;###autoload
 (defun magit-shell-command-topdir (args directory)

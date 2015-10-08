@@ -58,16 +58,6 @@
   :group 'magit-log
   :type 'hook)
 
-(defcustom magit-log-buffer-name-format "*magit-log: %a*"
-  "Name format for buffers used to display log entries.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-log
-  :type 'string)
-
 (defcustom magit-log-arguments '("-n256" "--graph" "--decorate")
   "The log arguments used in `magit-log-mode' buffers."
   :package-version '(magit . "2.3.0")
@@ -204,16 +194,6 @@ This is useful if you use really long branch names."
 
 ;;;; Select Mode
 
-(defcustom magit-log-select-buffer-name-format "*magit-select: %a*"
-  "Name format for buffers used to select a commit from a log.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.2.0")
-  :group 'magit-log
-  :type 'string)
-
 (defcustom magit-log-select-arguments '("-n256" "--decorate")
   "The log arguments used in `magit-log-select-mode' buffers."
   :package-version '(magit . "2.3.0")
@@ -234,15 +214,6 @@ be nil, in which case no usage information is shown."
 
 ;;;; Cherry Mode
 
-(defcustom magit-cherry-buffer-name-format "*magit-cherry: %a*"
-  "Name format for buffers used to display commits not merged upstream.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :group 'magit-log
-  :type 'string)
-
 (defcustom magit-cherry-sections-hook
   '(magit-insert-cherry-headers
     magit-insert-cherry-commits)
@@ -252,16 +223,6 @@ The following `format'-like specs are supported:
   :type 'hook)
 
 ;;;; Reflog Mode
-
-(defcustom magit-reflog-buffer-name-format "*magit-reflog: %a*"
-  "Name format for buffers used to display reflog entries.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-log
-  :type 'string)
 
 (defcustom magit-reflog-arguments '("-n256")
   "The log arguments used in `magit-reflog-mode' buffers."
@@ -433,7 +394,7 @@ are no unpulled commits) show."
         (refresh
          (list magit-log-section-arguments nil))
         (t
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-log-mode))
+         (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
              (with-current-buffer buffer
                (list (nth 1 magit-refresh-args)
                      (nth 2 magit-refresh-args)))
@@ -447,7 +408,7 @@ are no unpulled commits) show."
            (`magit-log-mode magit-log-mode-refresh-popup)
            (_               magit-log-refresh-popup)))
         (magit-log-arguments
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-log-mode))
+         (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
              (with-current-buffer buffer
                (magit-popup-import-file-args (nth 1 magit-refresh-args)
                                              (nth 2 magit-refresh-args)))
@@ -574,10 +535,7 @@ representation of the commit at point, are available as
 completion candidates."
   (interactive (cons (magit-log-read-revs)
                      (magit-log-arguments)))
-  (magit-mode-setup magit-log-buffer-name-format nil
-                    #'magit-log-mode
-                    #'magit-log-refresh-buffer
-                    revs args files)
+  (magit-mode-setup #'magit-log-mode revs args files)
   (magit-log-goto-same-commit))
 
 ;;;###autoload
@@ -624,9 +582,7 @@ With a prefix argument or when `--follow' is part of
                          (1- (line-number-at-pos (region-end))))
                  (list current-prefix-arg)))
   (-if-let (file (magit-file-relative-name))
-      (magit-mode-setup magit-log-buffer-name-format nil
-                        #'magit-log-mode
-                        #'magit-log-refresh-buffer
+      (magit-mode-setup #'magit-log-mode
                         (list (or magit-buffer-refname
                                   (magit-get-current-branch) "HEAD"))
                         (let ((args (car (magit-log-arguments))))
@@ -652,10 +608,7 @@ With a prefix argument or when `--follow' is part of
 (defun magit-reflog (ref)
   "Display the reflog of a branch."
   (interactive (list (magit-read-local-branch-or-ref "Show reflog for")))
-  (magit-mode-setup magit-reflog-buffer-name-format nil
-                    #'magit-reflog-mode
-                    #'magit-reflog-refresh-buffer
-                    ref magit-reflog-arguments))
+  (magit-mode-setup #'magit-reflog-mode ref magit-reflog-arguments))
 
 ;;;###autoload
 (defun magit-reflog-head ()
@@ -704,7 +657,7 @@ prefix argument instead bury the revision buffer, provided it
 is displayed in the current frame."
   (interactive "p")
   (if (< arg 0)
-      (let* ((buf (magit-mode-get-buffer nil 'magit-revision-mode))
+      (let* ((buf (magit-mode-get-buffer 'magit-revision-mode))
              (win (and buf (get-buffer-window buf (selected-frame)))))
         (if win
             (with-selected-window win
@@ -1104,11 +1057,11 @@ another window, using `magit-show-commit'."
                                     (magit-current-section)))
                               (or (and (magit-diff-auto-show-p 'log-follow)
                                        (magit-mode-get-buffer
-                                        nil 'magit-revision-mode nil nil t))
+                                        'magit-revision-mode nil t))
                                   (and (magit-diff-auto-show-p 'log-oneline)
                                        (derived-mode-p 'magit-log-mode))))
-                     (apply #'magit-show-commit rev t nil
-                            (magit-diff-arguments))))))
+                     (let ((magit-display-buffer-noselect t))
+                       (apply #'magit-show-commit rev (magit-diff-arguments)))))))
              (setq magit-update-other-window-timer nil))))))
 
 (defun magit-log-goto-same-commit ()
@@ -1165,9 +1118,7 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
 
 (defun magit-log-select (pick &optional msg quit branch)
   (declare (indent defun))
-  (magit-mode-setup magit-log-select-buffer-name-format nil
-                    #'magit-log-select-mode
-                    #'magit-log-select-refresh-buffer
+  (magit-mode-setup #'magit-log-select-mode
                     (or branch (magit-get-current-branch) "HEAD")
                     magit-log-select-arguments)
   (magit-log-goto-same-commit)
@@ -1236,9 +1187,7 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
    (let  ((head (magit-read-branch "Cherry head")))
      (list head (magit-read-other-branch "Cherry upstream" head
                                          (magit-get-tracked-branch head)))))
-  (magit-mode-setup magit-cherry-buffer-name-format nil
-                    #'magit-cherry-mode
-                    #'magit-cherry-refresh-buffer upstream head))
+  (magit-mode-setup #'magit-cherry-mode upstream head))
 
 (defun magit-cherry-refresh-buffer (_upstream _head)
   (magit-insert-section (cherry)

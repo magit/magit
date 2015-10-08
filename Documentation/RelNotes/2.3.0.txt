@@ -118,5 +118,34 @@ THIS IS NOT COMPLETE.
 
 * Added new command `magit-stash-format-patch'.
 
+* The signatures of `magit-mode-setup' and `magit-mode-get-buffer'
+  have changed, and `magit-mode-get-buffer-create' has been removed.
+  Extensions have to be adjusted accordingly.  #2282.
+
+* All Magit-Mode buffers (including process buffers, but excluding
+  popup, blob-visiting, and file-visiting buffers, whose major-modes
+  do not derive from `magit-mode' and therefore aren't "Magit-Mode
+  buffers") are now displayed using `magit-display-buffer', which is a
+  wrapper around the low-level `display-buffer'.  High-level functions
+  such as `pop-to-buffer' and `switch-to-buffer' are no longer used to
+  display Magit buffers.
+
+  `magit-display-buffer' uses the function specified by the new option
+  `magit-display-buffer-function' to actually display the buffer in
+  some window.  The default value is `magit-display-buffer-traditional'.
+  By implementing their own variant to wrap around `display-buffer',
+  users can take complete control over how Magit buffers are displayed.
+  It's also possible to use `display-buffer' directly and specify the
+  display actions in `display-buffer-alist'.
+
+  Added new options `magit-pre-display-buffer-hook' and
+  `magit-post-display-buffer-hook', and removed the options
+  `magit-status-buffer-switch-function' and
+  `magit-diff-switch-buffer-function'.  #2282
+
+* Added new options `magit-generate-buffer-name-function',
+  `magit-buffer-name-format', and `magit-uniquify-buffer-names',
+  replacing the various `magit-{*}-buffer-name-format' options.  #2282
+
 Authors
 -------

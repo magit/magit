@@ -40,23 +40,10 @@
 (require 'magit-git)
 (require 'magit-mode)
 
-
-(defvar magit-status-buffer-name-format)
-
 (eval-when-compile (require 'dired))
 (declare-function dired-uncache 'dired)
 
 ;;; Options
-
-(defcustom magit-process-buffer-name-format "*magit-process: %a*"
-  "Name format for buffers where output of processes is put.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-process
-  :type 'string)
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
   "Connection type used for the Git process.
@@ -148,25 +135,38 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-process-buffer (&optional pwd create)
-  (or (magit-mode-get-buffer nil 'magit-process-mode pwd)
-      (and create
-           (with-current-buffer
-               (magit-mode-get-buffer-create nil 'magit-process-mode pwd)
-             (magit-process-mode)
-             (let ((inhibit-read-only t))
-               (make-local-variable 'text-property-default-nonsticky)
-               (magit-insert-section (processbuf)
-                 (insert "\n")))
-             (current-buffer)))))
+(defun magit-process-buffer (&optional nodisplay)
+  "Display the current repository's process buffer.
 
-(defun magit-process ()
-  "Display Magit process buffer."
+If that buffer doesn't exist yet, then create it.
+Non-interactively return the buffer and unless
+optional NODISPLAY is non-nil also display it."
   (interactive)
-  (let ((buf (magit-process-buffer)))
-    (if (buffer-live-p buf)
-        (pop-to-buffer buf)
-      (user-error "Process buffer doesn't exist"))))
+  (let ((topdir (magit-toplevel)))
+    (unless topdir
+      (setq topdir default-directory)
+      (let (prev)
+        (while (not (equal topdir prev))
+          (setq prev topdir)
+          (setq topdir (file-name-directory (directory-file-name topdir))))))
+    (let ((buffer (or (--first (with-current-buffer it
+                                 (and (eq major-mode 'magit-process-mode)
+                                      (equal default-directory topdir)))
+                               (buffer-list))
+                      (let ((default-directory topdir))
+                        (magit-generate-new-buffer 'magit-process-mode)))))
+      (with-current-buffer buffer
+        (if magit-root-section
+            (when magit-process-log-max
+              (magit-process-truncate-log))
+          (magit-process-mode)
+          (let ((inhibit-read-only t))
+            (make-local-variable 'text-property-default-nonsticky)
+            (magit-insert-section (processbuf)
+              (insert "\n")))))
+      (unless nodisplay
+        (magit-display-buffer buffer))
+      buffer)))
 
 (defun magit-process-kill ()
   "Kill the process at point."
@@ -189,9 +189,9 @@ Option `magit-git-executable' specifies the Git executable.
 The arguments ARGS specify arguments to Git, they are flattened
 before use.
 
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'.  If Git exits with
-a non-zero status, then raise an error."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'.  If Git exits with a non-zero status,
+then raise an error."
   (let ((magit-process-raise-error t))
     (magit-call-git args)))
 
@@ -208,8 +208,8 @@ as well as the current repository's status buffer are refreshed.
 Unmodified buffers visiting files that are tracked in the current
 repository are reverted if `magit-revert-buffers' is non-nil.
 
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'."
   (magit-call-git args)
   (magit-refresh))
 
@@ -224,8 +224,8 @@ before use.
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
 
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'."
   (let ((inhibit-magit-revert t))
     (magit-run-git args)))
 
@@ -239,16 +239,16 @@ option `magit-git-global-arguments' specifies constant arguments.
 The arguments ARGS specify arguments to Git, they are flattened
 before use.
 
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'."
   (run-hooks 'magit-pre-call-git-hook)
   (apply #'magit-call-process magit-git-executable
          (magit-process-git-arguments args)))
 
 (defun magit-call-process (program &rest args)
   "Call PROGRAM synchronously in a separate process.
-Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name-format'."
+Process output goes into a new section in the buffer returned by
+`magit-process-buffer'."
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
     (magit-process-finish
@@ -469,10 +469,7 @@ tracked in the current repository are reverted if
 (defun magit-process-setup (program args)
   (magit-process-set-mode-line program args)
   (let ((pwd default-directory)
-        (buf (magit-process-buffer)))
-    (if  buf
-        (magit-process-truncate-log buf)
-      (setq buf (magit-process-buffer nil t)))
+        (buf (magit-process-buffer t)))
     (cons buf (with-current-buffer buf
                 (prog1 (magit-process-insert-section pwd program args nil nil)
                   (backward-char 1))))))
@@ -486,7 +483,8 @@ tracked in the current repository are reverted if
                   (format "%3s " (propertize (number-to-string errcode)
                                              'face 'magit-process-ng))
                 "run "))
-      (unless (equal pwd default-directory)
+      (unless (equal (expand-file-name pwd)
+                     (expand-file-name default-directory))
         (insert (file-relative-name pwd default-directory) ?\s))
       (insert (propertize program 'face 'magit-section-heading))
       (insert " ")
@@ -505,28 +503,26 @@ tracked in the current repository are reverted if
         (goto-char (1- (point-max))))
       (insert "\n"))))
 
-(defun magit-process-truncate-log (buffer)
-  (when magit-process-log-max
-    (with-current-buffer buffer
-      (let* ((head nil)
-             (tail (magit-section-children magit-root-section))
-             (count (length tail)))
-        (when (> (1+ count) magit-process-log-max)
-          (while (and (cdr tail)
-                      (> count (/ magit-process-log-max 2)))
-            (let* ((inhibit-read-only t)
-                   (section (car tail))
-                   (process (magit-section-process section)))
-              (cond ((not process))
-                    ((memq (process-status process) '(exit signal))
-                     (delete-region (magit-section-start section)
-                                    (1+ (magit-section-end section)))
-                     (cl-decf count))
-                    (t
-                     (push section head))))
-            (pop tail))
-          (setf (magit-section-children magit-root-section)
-                (nconc (reverse head) tail)))))))
+(defun magit-process-truncate-log ()
+  (let* ((head nil)
+         (tail (magit-section-children magit-root-section))
+         (count (length tail)))
+    (when (> (1+ count) magit-process-log-max)
+      (while (and (cdr tail)
+                  (> count (/ magit-process-log-max 2)))
+        (let* ((inhibit-read-only t)
+               (section (car tail))
+               (process (magit-section-process section)))
+          (cond ((not process))
+                ((memq (process-status process) '(exit signal))
+                 (delete-region (magit-section-start section)
+                                (1+ (magit-section-end section)))
+                 (cl-decf count))
+                (t
+                 (push section head))))
+        (pop tail))
+      (setf (magit-section-children magit-root-section)
+            (nconc (reverse head) tail)))))
 
 (defun magit-process-sentinel (process event)
   "Default sentinel used by `magit-start-process'."
@@ -550,7 +546,7 @@ tracked in the current repository are reverted if
   "Special sentinel used by `magit-run-git-sequencer'."
   (when (memq (process-status process) '(exit signal))
     (magit-process-sentinel process event)
-    (--when-let (magit-mode-get-buffer nil 'magit-status-mode)
+    (--when-let (magit-mode-get-buffer 'magit-status-mode)
       (with-current-buffer it
         (--when-let
             (magit-get-section
@@ -715,11 +711,11 @@ tracked in the current repository are reverted if
               (goto-char (1+ (line-end-position)))
               (delete-char -1)
               (setf (magit-section-content section) nil))
-          (when (and (= arg 0)
-                     (not (--any-p (eq (window-buffer it)
-                                       (magit-process-buffer))
-                                   (window-list))))
-            (magit-section-hide section))))))
+          (let ((buf (magit-process-buffer t)))
+            (when (and (= arg 0)
+                       (not (--any-p (eq (window-buffer it) buf)
+                                     (window-list))))
+              (magit-section-hide section)))))))
   (unless (= arg 0)
     (let ((msg (or (and (buffer-live-p process-buf)
                         (with-current-buffer process-buf

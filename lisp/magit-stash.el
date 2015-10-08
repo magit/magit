@@ -303,23 +303,11 @@ instead of \"Stashes:\"."
 
 ;;; List Stashes
 
-(defcustom magit-stashes-buffer-name-format "*magit-stashes: %a*"
-  "Name format for buffers used to list stashes.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-log
-  :type 'string)
-
 ;;;###autoload
 (defun magit-stash-list ()
   "List all stashes in a buffer."
   (interactive)
-  (magit-mode-setup magit-stashes-buffer-name-format nil
-                    #'magit-stashes-mode
-                    #'magit-stashes-refresh-buffer "refs/stash"))
+  (magit-mode-setup #'magit-stashes-mode "refs/stash"))
 
 (define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
   "Mode for looking at lists of stashes."
@@ -345,31 +333,16 @@ The following `format'-like specs are supported:
   :group 'magit-log
   :type 'hook)
 
-(defcustom magit-stash-buffer-name-format "*magit-stash: %a*"
-  "Name format for buffers used to show stash diffs.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-modes
-  :type 'string)
-
 ;;;###autoload
-(defun magit-stash-show (stash &optional noselect args files)
+(defun magit-stash-show (stash &optional args files)
   "Show all diffs of a stash in a buffer."
-  (interactive (nconc (list (or (and (not current-prefix-arg)
-                                     (magit-stash-at-point))
-                                (magit-read-stash "Show stash"))
-                            nil)
-                      (cl-destructuring-bind (args files)
-                          (magit-diff-arguments)
-                        (list (delete "--stat" args)
-                              files))))
-  (magit-mode-setup magit-stash-buffer-name-format
-                    (if noselect 'display-buffer 'pop-to-buffer)
-                    #'magit-stash-mode
-                    #'magit-stash-refresh-buffer stash nil args files))
+  (interactive (cons (or (and (not current-prefix-arg)
+                              (magit-stash-at-point))
+                         (magit-read-stash "Show stash"))
+                     (cl-destructuring-bind (args files)
+                         (magit-diff-arguments)
+                       (list (delete "--stat" args) files))))
+  (magit-mode-setup #'magit-stash-mode stash nil args files))
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
