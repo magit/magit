@@ -127,6 +127,15 @@ support additional %-sequences."
   :group 'magit-modes
   :type 'boolean)
 
+(defcustom magit-bury-buffer-function 'magit-restore-window-configuration
+  "The function used to bury or kill the current Magit buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type '(radio (function-item quit-window)
+                (function-item magit-mode-quit-window)
+                (function-item magit-restore-window-configuration)
+                (function :tag "Function")))
+
 (defcustom magit-region-highlight-hook
   '(magit-section-update-region magit-diff-update-hunk-region)
   "Functions used to highlight the region.
@@ -138,15 +147,6 @@ displayed.  Otherwise fall back to regular region highlighting."
   :group 'magit-modes
   :type 'hook
   :options '(magit-section-update-region magit-diff-update-hunk-region))
-
-(defcustom magit-bury-buffer-function 'magit-restore-window-configuration
-  "The function used to bury or kill the current Magit buffer."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-modes
-  :type '(radio (function-item quit-window)
-                (function-item magit-mode-quit-window)
-                (function-item magit-restore-window-configuration)
-                (function :tag "Function")))
 
 (defcustom magit-refresh-verbose nil
   "Whether to revert Magit buffers verbosely."
