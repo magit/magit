@@ -2443,20 +2443,16 @@ apply variants are described in the next section.
 
   Remove the change at point from the staging area.
 
-- Key: U, magit-reset-index
+- Key: U, magit-unstage-all
+
+  Remove all changes from the staging area.
+
+- Key: M-x magit-reset-index, magit-reset-index
 
   Reset the index to some commit.  The commit is read from the user
   and defaults to the commit at point.  If there is no commit at
   point, then it defaults to ~HEAD~.
 
-  So ~U RET~ with no commit at point does the inverse of ~S~ (or actually
-  ~S yes RET~), i.e. "unstage all staged changes".  If you would rather
-  use a command which always does just that, then rebind ~U~ to
-  ~magit-unstage-all~.
-
-- Key: M-x magit-unstage-all, magit-unstage-all
-
-  Remove all changes from the staging area.
 
 To stage a smaller unit than a range of lines, similar to ~git add
 --patch~ followed by ~e~ would do, then you can use ~magit-ediff-stage~ to
@@ -3064,7 +3060,7 @@ Explicitly enabling ~--interactive~ won't have an effect on the
 following commands as they always use that argument anyway, even if it
 is not enabled in the popup.
 
-- Key: r e, magit-rebase-interactive
+- Key: r i, magit-rebase-interactive
 
   Start an interactive rebase sequence.
 
@@ -3081,7 +3077,7 @@ is not enabled in the popup.
 
   Combine squash and fixup commits with their intended targets.
 
-- Key: r s, magit-rebase-edit-commit
+- Key: r e, magit-rebase-edit-commit
 
   Edit a single older commit using rebase.
 
@@ -3427,7 +3423,7 @@ Also see [[info:gitman#git-reset]].
   defaulting to the commit at point.  The working tree is kept as-is.
   With a prefix argument also reset the working tree.
 
-- Key: U, magit-reset-index
+- Key: M-x magit-reset-index, magit-reset-index
 
   Reset the index to some commit read from the user and defaulting to
   the commit at point.  Keep the ~HEAD~ and working tree as-is, so if
