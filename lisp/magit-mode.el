@@ -534,18 +534,16 @@ Magit buffer is buried."
 
 (defun magit-mode-get-buffer (mode &optional create frame)
   (-if-let (topdir (magit-toplevel magit-mode-get-buffer--topdir))
-      (let ((name (let ((default-directory topdir))
-                    (funcall magit-generate-buffer-name-function mode))))
-        (or (--first (with-current-buffer it
-                       (and (equal (buffer-name) name)
-                            (equal (expand-file-name default-directory) topdir)))
-                     (if frame
-                         (-map #'window-buffer
-                               (window-list (unless (eq frame t) frame)))
-                       (buffer-list)))
-            (and create
-                 (let ((default-directory topdir))
-                   (generate-new-buffer name)))))
+      (or (--first (with-current-buffer it
+                     (and (eq major-mode mode)
+                          (equal (expand-file-name default-directory) topdir)))
+                   (if frame
+                       (-map #'window-buffer
+                             (window-list (unless (eq frame t) frame)))
+                     (buffer-list)))
+          (and create
+               (let ((default-directory topdir))
+                 (magit-generate-new-buffer mode))))
     (user-error "Not inside a Git repository")))
 
 (defun magit-generate-new-buffer (mode)
@@ -587,30 +585,6 @@ window."
       (quit-window kill-buffer)
       (when (window-live-p window)
         (delete-window window)))))
-
-(defun magit-rename-buffer (&optional newname)
-  "Rename the current buffer, so that Magit won't reuse it.
-
-By default there is only one buffer with a certain Magit mode
-per repository.  Displaying e.g. some diff will reuse the buffer
-previously used to display another diff.  If you want to have
-two buffers displaying different diffs belonging to the same
-repository, then you have to create a buffer whose name differs
-from the default name.
-
-The easiest way to do that is to use this command.  It appends
-\"<N>\" to the name of the current buffer, where N is the lowest
-available number, starting with 2, which is still available.
-
-With a prefix argument, the user can pick an arbitrary name."
-  (interactive
-   (list (and current-prefix-arg
-              (read-buffer "Rename buffer to: " (current-buffer)))))
-  (unless newname
-    (setq newname (buffer-name)))
-  (when (string-match "<[0-9]+>\\'" newname)
-    (setq newname (substring newname 0 (match-beginning 0))))
-  (rename-buffer (generate-new-buffer-name newname)))
 
 ;;; Refresh Machinery
 

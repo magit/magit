@@ -514,23 +514,6 @@ the user invokes Git commands, or creates or visits other buffers.
   major-mode is MODE and which shows information about the repository
   in which ~default-directory~ is located.
 
-While it often is enough to have one buffer of a certain Magit mode
-per repository, this is not always the case.  You might, for example,
-want to view the diffs for two commits at the same time.  To do so,
-first rename the existing revision buffer.  Then show another commit.
-Usually that would reuse the existing buffer, but because its name no
-longer matches the default name, a new buffer is created instead.  The
-new buffer uses the default name, and therefore will be reused to show
-other commits as usual.
-
-- Key: M-x magit-rename-buffer, magit-rename-buffer
-
-  This command changes the name of the current Magit buffer by
-  appending ~<N>~ and thereby keeping Magit from re-using it to display
-  other information of the same kind.
-
-  With a prefix argument, the user can pick an arbitrary name.
-
 *** Quitting Windows
 
 - Key: q, magit-mode-bury-buffer
