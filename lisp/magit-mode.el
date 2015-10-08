@@ -431,20 +431,14 @@ Magit is documented in info node `(magit)'."
 ;; See #2054 and #2060.
 (defvar magit-mode-setup--topdir nil)
 
-(defmacro magit-mode-setup (mode switch-func &rest refresh-args)
-  (declare (debug (form form &rest form)))
-  (let ((smode (cl-gensym "mode"))
-        (sargs (cl-gensym "args"))
-        (sbuf  (cl-gensym "buffer")))
-    `(let* ((,smode ,mode)
-            (,sargs (list ,@refresh-args))
-            (,sbuf  (magit-mode-get-buffer-create ,smode)))
-       (magit-mode-display-buffer ,sbuf ,switch-func)
-       (with-current-buffer ,sbuf
-         (setq magit-refresh-args     ,sargs)
-         (run-hooks 'magit-mode-setup-hook)
-         (funcall ,smode)
-         (magit-refresh-buffer)))))
+(defun magit-mode-setup (mode switch-func &rest refresh-args)
+  (let ((buffer (magit-mode-get-buffer-create mode)))
+    (magit-mode-display-buffer buffer switch-func)
+    (with-current-buffer buffer
+      (setq magit-refresh-args refresh-args)
+      (run-hooks 'magit-mode-setup-hook)
+      (funcall mode)
+      (magit-refresh-buffer))))
 
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
