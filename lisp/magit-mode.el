@@ -47,11 +47,15 @@
 
 ;;; Options
 
-(defcustom magit-mode-hook '(magit-load-config-extensions)
+(defcustom magit-mode-hook
+  '(magit-load-config-extensions
+    magit-xref-setup)
   "Hook run when entering a mode derived from Magit mode."
   :group 'magit-modes
   :type 'hook
-  :options '(magit-load-config-extensions bug-reference-mode))
+  :options '(magit-load-config-extensions
+             magit-xref-setup
+             bug-reference-mode))
 
 (defcustom magit-region-highlight-hook
   '(magit-section-update-region magit-diff-update-hunk-region)
@@ -439,12 +443,6 @@ Magit is documented in info node `(magit)'."
        (with-current-buffer ,sbuf
          (setq magit-refresh-args     ,sargs)
          (run-hooks 'magit-mode-setup-hook)
-         (pcase ,smode
-           ((or `magit-log-mode `magit-reflog-mode)
-            (magit-xref-setup ,sargs))
-           ((or `magit-diff-mode `magit-revision-mode)
-            (magit-xref-setup ,sargs)
-            (goto-char (point-min))))
          (funcall ,smode)
          (magit-refresh-buffer)))))
 
@@ -875,18 +873,25 @@ argument (the prefix) non-nil means save all with no questions."
   'mouse-face 'magit-section-highlight
   'help-echo (purecopy "mouse-2, RET: go back to next history entry"))
 
-(defun magit-xref-setup (refresh-args)
-  (when help-xref-stack-item
-    (push (cons (point) help-xref-stack-item) help-xref-stack)
-    (setq help-xref-forward-stack nil))
-  (when (called-interactively-p 'interactive)
-    (--when-let (nthcdr 10 help-xref-stack)
-      (setcdr it nil)))
-  (setq help-xref-stack-item
-        `(magit-xref-restore ,default-directory ,@refresh-args)))
+(defun magit-xref-setup ()
+  "Insert backward/forward buttons if the major-mode supports it.
+Currently `magit-log-mode', `magit-reflog-mode',
+`magit-diff-mode', and `magit-revision-mode' support it"
+  (when (memq major-mode '(magit-log-mode
+                           magit-reflog-mode
+                           magit-diff-mode
+                           magit-revision-mode))
+    (when help-xref-stack-item
+      (push (cons (point) help-xref-stack-item) help-xref-stack)
+      (setq help-xref-forward-stack nil))
+    (when (called-interactively-p 'interactive)
+      (--when-let (nthcdr 10 help-xref-stack)
+        (setcdr it nil)))
+    (setq help-xref-stack-item
+          `(magit-xref-restore ,default-directory ,@magit-refresh-args))))
 
 (defun magit-xref-restore (&rest args)
-  (magit-xref-setup magit-refresh-args)
+  (magit-xref-setup)
   (setq default-directory  (car args))
   (setq magit-refresh-args (cdr args))
   (magit-refresh-buffer))
