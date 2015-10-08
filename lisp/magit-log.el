@@ -1060,8 +1060,8 @@ another window, using `magit-show-commit'."
                                         'magit-revision-mode nil t))
                                   (and (magit-diff-auto-show-p 'log-oneline)
                                        (derived-mode-p 'magit-log-mode))))
-                     (apply #'magit-show-commit rev t nil
-                            (magit-diff-arguments))))))
+                     (let ((magit-display-buffer-noselect t))
+                       (apply #'magit-show-commit rev (magit-diff-arguments)))))))
              (setq magit-update-other-window-timer nil))))))
 
 (defun magit-log-goto-same-commit ()

@@ -619,7 +619,7 @@ be nil."
     (`staged (magit-diff-staged nil args files))
     (`(commit . ,value)
      (magit-diff (format "%s^..%s" value value) args files))
-    (`(stash  . ,value) (magit-stash-show value nil args))
+    (`(stash  . ,value) (magit-stash-show value args))
     ((and range (pred stringp))
      (magit-diff range args files))
     (_
@@ -812,7 +812,7 @@ be commited."
 (put 'magit-diff-hidden-files 'permanent-local t)
 
 ;;;###autoload
-(defun magit-show-commit (commit &optional noselect module args files)
+(defun magit-show-commit (commit &optional args files module)
   "Show the commit at point.
 If there is no commit at point or with a prefix argument prompt
 for a commit."
@@ -822,11 +822,11 @@ for a commit."
                        mcommit
                        (magit-branch-or-commit-at-point)
                        (magit-tag-at-point))))
-     (nconc (list (or (and (not current-prefix-arg) atpoint)
+     (nconc (cons (or (and (not current-prefix-arg) atpoint)
                       (magit-read-branch-or-commit "Show commit" atpoint))
-                  nil (and mcommit (magit-section-parent-value
-                                    (magit-current-section))))
-            (magit-diff-arguments))))
+                  (magit-diff-arguments))
+            (and mcommit (list (magit-section-parent-value
+                                (magit-current-section)))))))
   (magit-with-toplevel
     (when module
       (setq default-directory
@@ -844,8 +844,7 @@ for a commit."
                       (add-to-list 'magit-diff-hidden-files file)
                     (setq magit-diff-hidden-files
                           (delete file magit-diff-hidden-files))))))))))
-    (let ((magit-display-buffer-noselect noselect))
-      (magit-mode-setup #'magit-revision-mode commit nil args files))))
+    (magit-mode-setup #'magit-revision-mode commit nil args files)))
 
 (defun magit-diff-refresh (args files)
   "Set the local diff arguments for the current buffer."
@@ -1146,9 +1145,10 @@ commit or stash at point, then prompt for a commit."
                  (goto-char (pcase fn
                               (`scroll-up   (point-min))
                               (`scroll-down (point-max)))))))
-          (if (eq cmd 'magit-show-commit)
-              (apply #'magit-show-commit rev t nil (magit-diff-arguments))
-            (funcall cmd rev t)))
+          (let ((magit-display-buffer-noselect t))
+            (if (eq cmd 'magit-show-commit)
+                (apply #'magit-show-commit rev (magit-diff-arguments))
+              (funcall cmd rev))))
       (call-interactively #'magit-show-commit))))
 
 ;;; Diff Mode

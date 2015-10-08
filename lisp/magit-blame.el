@@ -488,7 +488,8 @@ then also kill the buffer."
              (--when-let (and (magit-diff-auto-show-p 'blame-follow)
                               (magit-mode-get-buffer 'magit-revision-mode)
                               (magit-blame-chunk-get :hash))
-               (apply #'magit-show-commit it t nil (magit-diff-arguments)))
+               (let ((magit-display-buffer-noselect t))
+                 (apply #'magit-show-commit it (magit-diff-arguments))))
              (setq magit-update-other-window-timer nil))))))
 
 ;;; magit-blame.el ends soon

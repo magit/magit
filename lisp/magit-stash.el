@@ -334,18 +334,15 @@ instead of \"Stashes:\"."
   :type 'hook)
 
 ;;;###autoload
-(defun magit-stash-show (stash &optional noselect args files)
+(defun magit-stash-show (stash &optional args files)
   "Show all diffs of a stash in a buffer."
-  (interactive (nconc (list (or (and (not current-prefix-arg)
-                                     (magit-stash-at-point))
-                                (magit-read-stash "Show stash"))
-                            nil)
-                      (cl-destructuring-bind (args files)
-                          (magit-diff-arguments)
-                        (list (delete "--stat" args)
-                              files))))
-  (let ((magit-display-buffer-noselect noselect))
-    (magit-mode-setup #'magit-stash-mode stash nil args files)))
+  (interactive (cons (or (and (not current-prefix-arg)
+                              (magit-stash-at-point))
+                         (magit-read-stash "Show stash"))
+                     (cl-destructuring-bind (args files)
+                         (magit-diff-arguments)
+                       (list (delete "--stat" args) files))))
+  (magit-mode-setup #'magit-stash-mode stash nil args files))
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
