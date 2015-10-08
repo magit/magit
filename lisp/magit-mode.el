@@ -466,7 +466,7 @@ Magit is documented in info node `(magit)'."
 
 (defun magit-mode-setup (mode &rest args)
   "Setup up a MODE buffer using ARGS to generate its content."
-  (let ((buffer (magit-mode-get-buffer-create mode))
+  (let ((buffer (magit-mode-get-buffer mode t))
         (section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
@@ -545,9 +545,6 @@ Magit buffer is buried."
         (and create
              (let ((default-directory topdir))
                (generate-new-buffer name))))))
-
-(defun magit-mode-get-buffer-create (mode)
-  (magit-mode-get-buffer mode t))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
