@@ -135,25 +135,21 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-process-buffer (&optional create)
+(defun magit-process-buffer ()
   (or (magit-mode-get-buffer 'magit-process-mode)
-      (and create
-           (with-current-buffer
-               (magit-mode-get-buffer-create 'magit-process-mode)
-             (magit-process-mode)
-             (let ((inhibit-read-only t))
-               (make-local-variable 'text-property-default-nonsticky)
-               (magit-insert-section (processbuf)
-                 (insert "\n")))
-             (current-buffer)))))
+      (with-current-buffer
+          (magit-mode-get-buffer-create 'magit-process-mode)
+        (magit-process-mode)
+        (let ((inhibit-read-only t))
+          (make-local-variable 'text-property-default-nonsticky)
+          (magit-insert-section (processbuf)
+            (insert "\n")))
+        (current-buffer))))
 
 (defun magit-process ()
   "Display Magit process buffer."
   (interactive)
-  (let ((buf (magit-process-buffer)))
-    (if (buffer-live-p buf)
-        (pop-to-buffer buf)
-      (user-error "Process buffer doesn't exist"))))
+  (pop-to-buffer (magit-process-buffer)))
 
 (defun magit-process-kill ()
   "Kill the process at point."
@@ -457,10 +453,8 @@ tracked in the current repository are reverted if
   (magit-process-set-mode-line program args)
   (let ((pwd default-directory)
         (buf (magit-process-buffer)))
-    (if  buf
-        (magit-process-truncate-log buf)
-      (setq buf (magit-process-buffer t)))
     (cons buf (with-current-buffer buf
+                (magit-process-truncate-log buf)
                 (prog1 (magit-process-insert-section pwd program args nil nil)
                   (backward-char 1))))))
 
