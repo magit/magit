@@ -504,6 +504,16 @@ the user invokes Git commands, or creates or visits other buffers.
 
 *** Naming Buffers
 
+- User Option: magit-generate-buffer-name-function
+
+  The function used to generate the names of Magit buffers.
+
+- Function: magit-generate-buffer-name-default-function mode
+
+  This function returns a buffer name suitable for a buffer whose
+  major-mode is MODE and which shows information about the repository
+  in which ~default-directory~ is located.
+
 While it often is enough to have one buffer of a certain Magit mode
 per repository, this is not always the case.  You might, for example,
 want to view the diffs for two commits at the same time.  To do so,

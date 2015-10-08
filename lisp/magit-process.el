@@ -154,8 +154,7 @@ optional NODISPLAY is non-nil also display it."
                                       (equal default-directory topdir)))
                                (buffer-list))
                       (let ((default-directory topdir))
-                        (generate-new-buffer
-                         (format "*magit-process: %s" topdir))))))
+                        (magit-generate-new-buffer 'magit-process-mode)))))
       (with-current-buffer buffer
         (if magit-root-section
             (when magit-process-log-max

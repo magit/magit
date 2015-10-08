@@ -87,6 +87,14 @@ which in turn used the function specified here."
   :type 'hook
   :options '(magit-maybe-set-dedicated))
 
+(defcustom magit-generate-buffer-name-function
+  'magit-generate-buffer-name-default-function
+  "The function used to generate the name for a Magit buffer."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type '(radio (function-item magit-generate-buffer-name-default-function)
+                (function :tag "Function")))
+
 (defcustom magit-region-highlight-hook
   '(magit-section-update-region magit-diff-update-hunk-region)
   "Functions used to highlight the region.
@@ -526,7 +534,8 @@ Magit buffer is buried."
 
 (defun magit-mode-get-buffer (mode &optional create frame)
   (-if-let (topdir (magit-toplevel magit-mode-get-buffer--topdir))
-      (let ((name (format "*%s: %s*" (substring (symbol-name mode) 0 -5) topdir)))
+      (let ((name (let ((default-directory topdir))
+                    (funcall magit-generate-buffer-name-function mode))))
         (or (--first (with-current-buffer it
                        (and (equal (buffer-name) name)
                             (equal (expand-file-name default-directory) topdir)))
@@ -538,6 +547,16 @@ Magit buffer is buried."
                  (let ((default-directory topdir))
                    (generate-new-buffer name)))))
     (user-error "Not inside a Git repository")))
+
+(defun magit-generate-new-buffer (mode)
+  (generate-new-buffer (funcall magit-generate-buffer-name-function mode)))
+
+(defun magit-generate-buffer-name-default-function (mode)
+  (format "*%s: %s*"
+          (if (eq mode 'magit-status-mode)
+              "magit"
+            (substring (symbol-name mode) 0 -5))
+          default-directory))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.

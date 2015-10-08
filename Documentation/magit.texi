@@ -769,6 +769,18 @@ buffer is buried.
 @node Naming Buffers
 @subsection Naming Buffers
 
+@defopt magit-generate-buffer-name-function
+
+The function used to generate the names of Magit buffers.
+@end defopt
+
+@defun magit-generate-buffer-name-default-function mode
+
+This function returns a buffer name suitable for a buffer whose
+major-mode is MODE and which shows information about the repository
+in which @code{default-directory} is located.
+@end defun
+
 While it often is enough to have one buffer of a certain Magit mode
 per repository, this is not always the case.  You might, for example,
 want to view the diffs for two commits at the same time.  To do so,
