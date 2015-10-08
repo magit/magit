@@ -447,7 +447,7 @@ The value is usually set using `magit-mode-setup'.")
             (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
             (,sbuf  (magit-mode-get-buffer-create
-                     nil ,smode
+                     ,smode
                      (let ((default-directory
                              (or magit-mode-setup--topdir
                                  default-directory)))
@@ -494,37 +494,36 @@ The value is usually set using `magit-mode-setup'.")
                      (equal (expand-file-name default-directory) topdir)))
               (buffer-list))))
 
-(defun magit-mode-get-buffer (format mode &optional pwd create frame)
-  (unless format
-    (setq format (symbol-value
-                  (intern (format "%s-buffer-name-format"
-                                  (substring (symbol-name mode) 0 -5))))))
-  (if (not (string-match-p "%[ab]" format))
-      (funcall (if create #'get-buffer-create #'get-buffer) format)
-    (setq pwd (expand-file-name (or pwd default-directory)))
-    (let* ((topdir (let ((default-directory pwd))
-                     (magit-toplevel)))
-           (name (format-spec
-                  format (if topdir
-                             `((?a . ,(abbreviate-file-name topdir))
-                               (?b . ,(file-name-nondirectory
-                                       (directory-file-name topdir))))
-                           '((?a . "-") (?b . "-"))))))
-      (or (--first (with-current-buffer it
-                     (and (equal (buffer-name) name)
-                          (or (not topdir)
-                              (equal (expand-file-name default-directory)
-                                     topdir))))
-                   (if frame
-                       (-map #'window-buffer
-                             (window-list (unless (eq frame t) frame)))
-                     (buffer-list)))
-          (and create
-               (let ((default-directory (or topdir pwd)))
-                 (generate-new-buffer name)))))))
+(defun magit-mode-get-buffer (mode &optional pwd create frame)
+  (let ((format (symbol-value
+                 (intern (format "%s-buffer-name-format"
+                                 (substring (symbol-name mode) 0 -5))))))
+    (if (not (string-match-p "%[ab]" format))
+        (funcall (if create #'get-buffer-create #'get-buffer) format)
+      (setq pwd (expand-file-name (or pwd default-directory)))
+      (let* ((topdir (let ((default-directory pwd))
+                       (magit-toplevel)))
+             (name (format-spec
+                    format (if topdir
+                               `((?a . ,(abbreviate-file-name topdir))
+                                 (?b . ,(file-name-nondirectory
+                                         (directory-file-name topdir))))
+                             '((?a . "-") (?b . "-"))))))
+        (or (--first (with-current-buffer it
+                       (and (equal (buffer-name) name)
+                            (or (not topdir)
+                                (equal (expand-file-name default-directory)
+                                       topdir))))
+                     (if frame
+                         (-map #'window-buffer
+                               (window-list (unless (eq frame t) frame)))
+                       (buffer-list)))
+            (and create
+                 (let ((default-directory (or topdir pwd)))
+                   (generate-new-buffer name))))))))
 
-(defun magit-mode-get-buffer-create (format mode &optional directory)
-  (magit-mode-get-buffer format mode directory t))
+(defun magit-mode-get-buffer-create (mode &optional directory)
+  (magit-mode-get-buffer mode directory t))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
@@ -601,7 +600,7 @@ current repository."
       (run-hooks 'magit-pre-refresh-hook)
       (magit-refresh-buffer)
       (unless (derived-mode-p 'magit-status-mode)
-        (--when-let (magit-mode-get-buffer nil 'magit-status-mode)
+        (--when-let (magit-mode-get-buffer 'magit-status-mode)
           (with-current-buffer it
             (magit-refresh-buffer)))))
     (magit-revert-buffers)))

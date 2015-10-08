@@ -605,7 +605,7 @@ be nil."
          (list magit-diff-section-arguments
                magit-diff-section-file-args))
         (t
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-diff-mode))
+         (-if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
              (with-current-buffer buffer
                (list (nth 2 magit-refresh-args)
                      (nth 3 magit-refresh-args)))
@@ -620,7 +620,7 @@ be nil."
          ;; we should get the current values.  However it is much
          ;; more likely that we will end up updating the diff buffer,
          ;; and we therefore use the value from that buffer.
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-diff-mode))
+         (-if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
              (with-current-buffer buffer
                (magit-popup-import-file-args (nth 2 magit-refresh-args)
                                              (nth 3 magit-refresh-args)))
@@ -818,7 +818,7 @@ showing just the new changes or all the changes that will
 be commited."
   (interactive (magit-diff-arguments))
   (let* ((toplevel (magit-toplevel))
-         (diff-buf (magit-mode-get-buffer nil 'magit-diff-mode toplevel)))
+         (diff-buf (magit-mode-get-buffer 'magit-diff-mode toplevel)))
     (if (magit-commit-message-buffer)
         (if (and (or ;; most likely an explicit amend
                      (not (magit-anything-staged-p))
@@ -874,7 +874,7 @@ for a commit."
             (expand-file-name (file-name-as-directory module))))
     (unless (magit-rev-verify-commit commit)
       (user-error "%s is not a commit" commit))
-    (-when-let (buffer (magit-mode-get-buffer nil 'magit-revision-mode))
+    (-when-let (buffer (magit-mode-get-buffer 'magit-revision-mode))
       (with-current-buffer buffer
         (let ((prev (car magit-refresh-args)))
           (unless (equal commit prev)
@@ -1152,7 +1152,7 @@ commit or stash at point, then prompt for a commit."
      (magit-blame-mode
       (setq rev (magit-blame-chunk-get :hash)
             cmd 'magit-show-commit
-            buf (magit-mode-get-buffer nil 'magit-revision-mode)))
+            buf (magit-mode-get-buffer 'magit-revision-mode)))
      ((derived-mode-p 'git-rebase-mode)
       (save-excursion
         (goto-char (line-beginning-position))
@@ -1160,18 +1160,18 @@ commit or stash at point, then prompt for a commit."
                        (match-string 2))
             (setq rev it
                   cmd 'magit-show-commit
-                  buf (magit-mode-get-buffer nil 'magit-revision-mode))
+                  buf (magit-mode-get-buffer 'magit-revision-mode))
           (user-error "No commit on this line"))))
      (t
       (magit-section-case
         ((commit branch)
          (setq rev (magit-section-value it)
                cmd 'magit-show-commit
-               buf (magit-mode-get-buffer nil 'magit-revision-mode)))
+               buf (magit-mode-get-buffer 'magit-revision-mode)))
         (stash
          (setq rev (magit-section-value it)
                cmd 'magit-stash-show
-               buf (magit-mode-get-buffer nil 'magit-diff-mode))))))
+               buf (magit-mode-get-buffer 'magit-diff-mode))))))
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))

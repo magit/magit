@@ -433,7 +433,7 @@ are no unpulled commits) show."
         (refresh
          (list magit-log-section-arguments nil))
         (t
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-log-mode))
+         (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
              (with-current-buffer buffer
                (list (nth 1 magit-refresh-args)
                      (nth 2 magit-refresh-args)))
@@ -447,7 +447,7 @@ are no unpulled commits) show."
            (`magit-log-mode magit-log-mode-refresh-popup)
            (_               magit-log-refresh-popup)))
         (magit-log-arguments
-         (-if-let (buffer (magit-mode-get-buffer nil 'magit-log-mode))
+         (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
              (with-current-buffer buffer
                (magit-popup-import-file-args (nth 1 magit-refresh-args)
                                              (nth 2 magit-refresh-args)))
@@ -701,7 +701,7 @@ prefix argument instead bury the revision buffer, provided it
 is displayed in the current frame."
   (interactive "p")
   (if (< arg 0)
-      (let* ((buf (magit-mode-get-buffer nil 'magit-revision-mode))
+      (let* ((buf (magit-mode-get-buffer 'magit-revision-mode))
              (win (and buf (get-buffer-window buf (selected-frame)))))
         (if win
             (with-selected-window win
@@ -1101,7 +1101,7 @@ another window, using `magit-show-commit'."
                                     (magit-current-section)))
                               (or (and (magit-diff-auto-show-p 'log-follow)
                                        (magit-mode-get-buffer
-                                        nil 'magit-revision-mode nil nil t))
+                                        'magit-revision-mode nil nil t))
                                   (and (magit-diff-auto-show-p 'log-oneline)
                                        (derived-mode-p 'magit-log-mode))))
                      (apply #'magit-show-commit rev t nil

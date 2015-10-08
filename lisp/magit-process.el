@@ -149,10 +149,10 @@ When this is nil, no sections are ever removed."
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-process-buffer (&optional pwd create)
-  (or (magit-mode-get-buffer nil 'magit-process-mode pwd)
+  (or (magit-mode-get-buffer 'magit-process-mode pwd)
       (and create
            (with-current-buffer
-               (magit-mode-get-buffer-create nil 'magit-process-mode pwd)
+               (magit-mode-get-buffer-create 'magit-process-mode pwd)
              (magit-process-mode)
              (let ((inhibit-read-only t))
                (make-local-variable 'text-property-default-nonsticky)
@@ -550,7 +550,7 @@ tracked in the current repository are reverted if
   "Special sentinel used by `magit-run-git-sequencer'."
   (when (memq (process-status process) '(exit signal))
     (magit-process-sentinel process event)
-    (--when-let (magit-mode-get-buffer nil 'magit-status-mode)
+    (--when-let (magit-mode-get-buffer 'magit-status-mode)
       (with-current-buffer it
         (--when-let
             (magit-get-section
