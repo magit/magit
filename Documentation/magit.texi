@@ -779,7 +779,24 @@ The function used to generate the names of Magit buffers.
 This function returns a buffer name suitable for a buffer whose
 major-mode is MODE and which shows information about the repository
 in which @code{default-directory} is located.
+
+It used the value of the option @code{magit-uniquify-buffer-names} to do
+so.
 @end defun
+
+@defopt magit-uniquify-buffer-names
+
+This option controls whether the names of Magit buffers are
+uniquified.  If the names are not being uniquified, then they
+contain the full name to the top-level of the working tree of the
+corresponding repository.  If they are being uniquified, then they
+end with the basename of the top-level, or if that would conflict
+with the name used for other buffers, then the names of all these
+buffers are adjusted until they no longer conflict.
+
+This is done using the @code{uniquify} package; custoize its options to
+control how buffer names are uniquified.
+@end defopt
 
 @node Quitting Windows
 @subsection Quitting Windows
