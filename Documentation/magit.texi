@@ -3407,7 +3407,7 @@ Remove all changes from the staging area.
 
 @kindex M-x magit-reset-index
 @cindex magit-reset-index
-@item @kbd{M-x magit-unstage-all} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-index})
+@item @kbd{M-x magit-reset-index} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-index})
 
 Reset the index to some commit.  The commit is read from the user
 and defaults to the commit at point.  If there is no commit at
