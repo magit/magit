@@ -1062,7 +1062,7 @@ another window, using `magit-show-commit'."
                                     (magit-current-section)))
                               (or (and (magit-diff-auto-show-p 'log-follow)
                                        (magit-mode-get-buffer
-                                        'magit-revision-mode nil nil t))
+                                        'magit-revision-mode nil t))
                                   (and (magit-diff-auto-show-p 'log-oneline)
                                        (derived-mode-p 'magit-log-mode))))
                      (apply #'magit-show-commit rev t nil

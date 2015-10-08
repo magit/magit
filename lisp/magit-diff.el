@@ -797,8 +797,8 @@ While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
 be commited."
   (interactive (magit-diff-arguments))
-  (let* ((toplevel (magit-toplevel))
-         (diff-buf (magit-mode-get-buffer 'magit-diff-mode toplevel)))
+  (let ((toplevel (magit-toplevel))
+        (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))
     (if (magit-commit-message-buffer)
         (if (and (or ;; most likely an explicit amend
                      (not (magit-anything-staged-p))

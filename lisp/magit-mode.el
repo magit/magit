@@ -444,13 +444,7 @@ The value is usually set using `magit-mode-setup'.")
     `(let* ((,smode ,mode)
             (,sfunc ,refresh-func)
             (,sargs (list ,@refresh-args))
-            (,sbuf  (magit-mode-get-buffer-create
-                     ,smode
-                     (let ((default-directory
-                             (or magit-mode-setup--topdir
-                                 default-directory)))
-                       (or (magit-toplevel)
-                           (user-error "Not inside a Git repository"))))))
+            (,sbuf  (magit-mode-get-buffer-create ,smode)))
        (magit-mode-display-buffer ,sbuf ,switch-func)
        (with-current-buffer ,sbuf
          (setq magit-refresh-function ,sfunc)
@@ -492,10 +486,14 @@ The value is usually set using `magit-mode-setup'.")
                      (equal (expand-file-name default-directory) topdir)))
               (buffer-list))))
 
-(defun magit-mode-get-buffer (mode &optional pwd create frame)
-  (setq pwd (expand-file-name (or pwd default-directory)))
-  (let* ((topdir (let ((default-directory pwd))
-                   (magit-toplevel)))
+(defun magit-mode-get-buffer (mode &optional create frame)
+  (let* ((topdir (let ((default-directory
+                         (expand-file-name
+                          (or magit-mode-setup--topdir
+                              default-directory))))
+                   (or (magit-toplevel)
+                       (unless (eq mode 'magit-process-mode)
+                         (user-error "Not inside a Git repository")))))
          (name (format "*%s: %s*" (substring (symbol-name mode) 0 -5)
                        (if topdir (abbreviate-file-name topdir) "-"))))
     (or (--first (with-current-buffer it
@@ -508,11 +506,11 @@ The value is usually set using `magit-mode-setup'.")
                            (window-list (unless (eq frame t) frame)))
                    (buffer-list)))
         (and create
-             (let ((default-directory (or topdir pwd)))
+             (let ((default-directory (or topdir default-directory)))
                (generate-new-buffer name))))))
 
-(defun magit-mode-get-buffer-create (mode &optional directory)
-  (magit-mode-get-buffer mode directory t))
+(defun magit-mode-get-buffer-create (mode)
+  (magit-mode-get-buffer mode t))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.

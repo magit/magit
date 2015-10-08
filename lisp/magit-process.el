@@ -135,11 +135,11 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-process-buffer (&optional pwd create)
-  (or (magit-mode-get-buffer 'magit-process-mode pwd)
+(defun magit-process-buffer (&optional create)
+  (or (magit-mode-get-buffer 'magit-process-mode)
       (and create
            (with-current-buffer
-               (magit-mode-get-buffer-create 'magit-process-mode pwd)
+               (magit-mode-get-buffer-create 'magit-process-mode)
              (magit-process-mode)
              (let ((inhibit-read-only t))
                (make-local-variable 'text-property-default-nonsticky)
@@ -459,7 +459,7 @@ tracked in the current repository are reverted if
         (buf (magit-process-buffer)))
     (if  buf
         (magit-process-truncate-log buf)
-      (setq buf (magit-process-buffer nil t)))
+      (setq buf (magit-process-buffer t)))
     (cons buf (with-current-buffer buf
                 (prog1 (magit-process-insert-section pwd program args nil nil)
                   (backward-char 1))))))
@@ -473,7 +473,8 @@ tracked in the current repository are reverted if
                   (format "%3s " (propertize (number-to-string errcode)
                                              'face 'magit-process-ng))
                 "run "))
-      (unless (equal pwd default-directory)
+      (unless (equal (expand-file-name pwd)
+                     (expand-file-name default-directory))
         (insert (file-relative-name pwd default-directory) ?\s))
       (insert (propertize program 'face 'magit-section-heading))
       (insert " ")
