@@ -683,6 +683,29 @@ Besides these special purpose buffers, there also exists an overview
 buffer, called the @strong{status buffer}.  Its usually from this buffer that
 the user invokes Git commands, or creates or visits other buffers.
 
+@table @asis
+@kindex M-x magit-toggle-buffer-lock
+@cindex magit-toggle-buffer-lock
+@item @kbd{M-x magit-toggle-buffer-lock} @tie{}@tie{}@tie{}@tie{}(@code{magit-toggle-buffer-lock})
+
+This command locks the current buffer to its value or if the buffer
+is already locked, then it unlocks it.
+
+Locking a buffer to its value, prevents it from being reused to
+display another value.  The name of a locked buffer contains its
+value, which allows telling it apart from other locked buffers and
+the unlocked buffer.
+
+Not all Magit buffers can be locked to their values, for example it
+wouldn't make sense to lock a status buffer.
+
+There can only be a single unlocked buffer using a certain
+major-mode per repository.  So when a buffer is being unlocked and
+another unlocked buffer already exists for that mode and repository,
+then the former buffer is instead deleted and the latter is
+displayed in its place.
+@end table
+
 @menu
 * Switching Buffers::
 * Naming Buffers::
@@ -804,6 +827,17 @@ At least the following %-sequences are supported:
 
 @item
 @code{%M} Like @code{%m} but abbreviate @code{magit-status-mode} as @code{magit}.
+
+
+@item
+@code{%v} The value the buffer is locked to, in parentheses, if it is the
+buffer is actually locked to its value.  An empty string
+otherwise.
+
+
+@item
+@code{%V} Like @code{%v}, but the string is prefixed with a space, unless it is
+an empty string.
 
 
 @item

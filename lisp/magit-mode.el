@@ -95,7 +95,7 @@ which in turn used the function specified here."
   :type '(radio (function-item magit-generate-buffer-name-default-function)
                 (function :tag "Function")))
 
-(defcustom magit-buffer-name-format "*%M: %t"
+(defcustom magit-buffer-name-format "*%M%v: %t"
   "The format string used to name Magit buffers.
 
 The following %-sequences are supported:
@@ -564,11 +564,15 @@ Magit buffer is buried."
 
 (defvar magit-mode-get-buffer--topdir nil) ; see #2054 and #2060
 
+(defvar-local magit-buffer-locked-p nil)
+(put 'magit-buffer-locked-p 'permanent-local t)
+
 (defun magit-mode-get-buffer (mode &optional create frame)
   (-if-let (topdir (magit-toplevel magit-mode-get-buffer--topdir))
       (or (--first (with-current-buffer it
                      (and (eq major-mode mode)
-                          (equal (expand-file-name default-directory) topdir)))
+                          (equal (expand-file-name default-directory) topdir)
+                          (not magit-buffer-locked-p)))
                    (if frame
                        (-map #'window-buffer
                              (window-list (unless (eq frame t) frame)))
@@ -591,15 +595,60 @@ Magit buffer is buried."
     buffer))
 
 (defun magit-generate-buffer-name-default-function (mode &optional value)
-  (let ((m (substring (symbol-name mode) 0 -5)))
+  (let ((m (substring (symbol-name mode) 0 -5))
+        (v (and value (format "%s" (if (listp value) value (list value))))))
     (format-spec
      magit-buffer-name-format
      `((?m . ,m)
        (?M . ,(if (eq mode 'magit-status-mode) "magit" m))
+       (?v . ,(or v ""))
+       (?V . ,(if v (concat " " v) ""))
        (?t . ,(if magit-uniquify-buffer-names
                   (file-name-nondirectory
                    (directory-file-name default-directory))
                 default-directory))))))
+
+(defun magit-toggle-buffer-lock ()
+  "Lock the current buffer to its value or unlock it.
+
+Locking a buffer to its value, prevents it from being reused to
+display another value.  The name of a locked buffer contains its
+value, which allows telling it apart from other locked buffers
+and the unlocked buffer.
+
+Not all Magit buffers can be locked to their values, for example
+it wouldn't make sense to lock a status buffer.
+
+There can only be a single unlocked buffer using a certain
+major-mode per repository.  So when a buffer is being unlocked
+and another unlocked buffer already exists for that mode and
+repository, then the former buffer is instead deleted and the
+latter is displayed in its place."
+  (interactive)
+  (if magit-buffer-locked-p
+      (-if-let (unlocked (magit-mode-get-buffer major-mode))
+          (let ((locked (current-buffer)))
+            (set-buffer unlocked)
+            (kill-buffer locked))
+        (setq magit-buffer-locked-p nil)
+        (rename-buffer (funcall magit-generate-buffer-name-function
+                                major-mode)))
+    (setq magit-buffer-locked-p
+          (cond ((memq major-mode '(magit-cherry-mode
+                                    magit-log-mode
+                                    magit-reflog-mode
+                                    magit-refs-mode
+                                    magit-revision-mode
+                                    magit-stash-mode
+                                    magit-stashes-mode))
+                 (car magit-refresh-args))
+                ((eq major-mode 'magit-diff-mode)
+                 (append (or (car magit-refresh-args) '(unstaged))
+                         (cadr magit-refresh-args)))))
+    (if magit-buffer-locked-p
+        (rename-buffer (funcall magit-generate-buffer-name-function
+                                major-mode magit-buffer-locked-p))
+      (user-error "Buffer has no value it could be locked to"))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
