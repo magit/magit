@@ -526,7 +526,6 @@ tracked in the current repository are reverted if
 
 (defun magit-process-sentinel (process event)
   "Default sentinel used by `magit-start-process'."
-  (let ((debug-on-error t)) ; temporary
   (when (memq (process-status process) '(exit signal))
     (setq event (substring event 0 -1))
     (when (string-match "^finished" event)
@@ -542,7 +541,7 @@ tracked in the current repository are reverted if
               (magit-refresh))
           (with-temp-buffer
             (setq default-directory (process-get process 'default-dir))
-            (magit-refresh))))))))
+            (magit-refresh)))))))
 
 (defun magit-sequencer-process-sentinel (process event)
   "Special sentinel used by `magit-run-git-sequencer'."
