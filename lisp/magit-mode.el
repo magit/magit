@@ -788,6 +788,22 @@ tracked in the current repository."
                                                 beg (line-end-position))))
                                 (t t)))))))))
 
+(defun magit-refresh-status ()
+  "Refresh the status buffer of the current repository.
+
+This function is intended to be added to `after-save-hook'.
+
+If the status buffer does not exist or the file being visited in
+the current buffer isn't inside a repository, then do nothing.
+
+Note that refreshing a Magit buffer is done by re-creating its
+contents from scratch, which can be slow in large repositories.
+If you are not satisfied with Magit's performance, then you
+should obviously not add this function to that hook."
+  (--when-let (ignore-errors (magit-mode-get-buffer 'magit-status-mode))
+    (with-current-buffer it
+      (magit-refresh-buffer))))
+
 (defvar inhibit-magit-revert nil)
 (defvar magit-revert-buffers-backlog nil)
 

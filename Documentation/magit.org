@@ -642,10 +642,15 @@ refresh explicitly.
 
 After running a command which may change the state of the current
 repository, the current Magit buffer and the corresponding status
-buffer are refreshed.  This ensures that the displayed information is
-up-to-date but can lead to a noticeable delay in big repositories.
-Other Magit buffers are not refreshed to keep the delay to a minimum
-and also because doing so can sometimes be undesirable.
+buffer are refreshed.  Status buffer may optionally be automatically
+refreshed whenever a buffer is saved to a file inside the respective
+repository (see ~magit-refresh-status~ below).
+
+Automatically refreshing Magit buffers ensures that the displayed
+information is up-to-date most of the time but can lead to a
+noticeable delay in big repositories.  Other Magit buffers are not
+refreshed to keep the delay to a minimum and also because doing so can
+sometimes be undesirable.
 
 - User Option: magit-revert-buffers
 
@@ -712,6 +717,17 @@ made to the repository outside of Magit.
 
   The file-visiting buffers are always reverted, even if
   ~magit-revert-buffers~ is nil.
+
+- Function: magit-refresh-status
+
+  This function is intended to be added to ~after-save-hook~.  After
+  doing that the corresponding status buffer is refreshed whenever a
+  buffer is saved to a file inside a repository.
+
+  Note that refreshing a Magit buffer is done by re-creating its
+  contents from scratch, which can be slow in large repositories.  If
+  you are not satisfied with Magit's performance, then you should
+  obviously not add this function to that hook.
   
 - User Option: magit-refresh-buffer-hook
 
