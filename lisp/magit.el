@@ -7,6 +7,8 @@
 
 ;; Author: Marius Vollmer <marius.vollmer@gmail.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;;	Kyle Meyer        <kyle@kyleam.com>
+;;	Noam Postavsky    <npostavs@users.sourceforge.net>
 ;; Former-Maintainers:
 ;;	Nicolas Dudebout  <nicolas.dudebout@gatech.edu>
 ;;	Peter J. Weisberg <pj@irregularexpressions.net>
