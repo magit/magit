@@ -697,13 +697,13 @@ all unmodified buffers that visit files being tracked in the
 current repository."
   (interactive)
   (unless inhibit-magit-refresh
-    (when (derived-mode-p 'magit-mode)
-      (run-hooks 'magit-pre-refresh-hook)
-      (magit-refresh-buffer)
-      (unless (derived-mode-p 'magit-status-mode)
-        (--when-let (magit-mode-get-buffer 'magit-status-mode)
-          (with-current-buffer it
-            (magit-refresh-buffer)))))
+    (run-hooks 'magit-pre-refresh-hook)
+    (unless (when (derived-mode-p 'magit-mode)
+              (magit-refresh-buffer)
+              (derived-mode-p 'magit-status-mode))
+      (--when-let (magit-mode-get-buffer 'magit-status-mode)
+        (with-current-buffer it
+          (magit-refresh-buffer))))
     (magit-revert-buffers)))
 
 (defun magit-refresh-all ()
