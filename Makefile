@@ -95,7 +95,7 @@ magit: clean-lisp
 clean: clean-lisp clean-docs clean-archives
 	@printf "Cleaning...\n"
 	@$(RM) $(ELCS) $(ELGS) # temporary cleanup kludge
-	@$(RM) Documentation/*.texi~
+	@$(RM) Documentation/*.texi~ magit-pkg.el t/magit-tests.elc
 
 clean-lisp:
 	@$(MAKE) -C lisp clean
