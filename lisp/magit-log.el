@@ -697,7 +697,6 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 
 \\{magit-log-mode-map}"
   :group 'magit-log
-  (magit-set-buffer-margin magit-log-show-margin)
   (hack-dir-local-variables-non-file-buffer))
 
 (defvar magit-log-disable-graph-hack-args
@@ -1231,7 +1230,6 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 
 \\{magit-reflog-mode-map}"
   :group 'magit-log
-  (magit-set-buffer-margin magit-reflog-show-margin)
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-reflog-refresh-buffer (ref args)
@@ -1419,6 +1417,15 @@ These sections can be expanded to show the respective commits."
   (unless (derived-mode-p 'magit-log-mode 'magit-status-mode 'magit-refs-mode)
     (user-error "Buffer doesn't contain any logs"))
   (magit-set-buffer-margin (not (cdr (window-margins)))))
+
+(defun magit-maybe-show-margin ()
+  "Maybe show the margin, depending on the major-mode and an option.
+Supported modes are `magit-log-mode' and `magit-reflog-mode',
+and the respective options are `magit-log-show-margin' and
+`magit-reflog-show-margin'."
+  (pcase major-mode
+    (`magit-log-mode    (magit-set-buffer-margin magit-log-show-margin))
+    (`magit-reflog-mode (magit-set-buffer-margin magit-reflog-show-margin))))
 
 (defun magit-set-buffer-margin (enable)
   (let ((width (cond ((not enable) nil)

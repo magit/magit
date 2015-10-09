@@ -57,11 +57,15 @@
              magit-xref-setup
              bug-reference-mode))
 
-(defcustom magit-mode-setup-hook nil
+(defcustom magit-mode-setup-hook
+  '(magit-maybe-save-repository-buffers
+    magit-maybe-show-margin)
   "Hook run by `magit-mode-setup'."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
-  :type 'hook)
+  :type 'hook
+  :options '(magit-maybe-save-repository-buffers
+             magit-maybe-show-margin))
 
 (defcustom magit-display-buffer-function 'magit-display-buffer-traditional
   "The function used display a Magit buffer.
@@ -907,6 +911,8 @@ Like `vc-mode-line' but simpler, more efficient, and less buggy."
 (add-hook 'pre-command-hook #'magit-pre-command-hook)
 
 (defun magit-maybe-save-repository-buffers ()
+  "Maybe save file-visiting buffers belonging to the current repository.
+Do so if `magit-save-repository-buffers' is non-nil."
   (when (and magit-save-repository-buffers
              (not disable-magit-save-buffers))
     (setq disable-magit-save-buffers t)
@@ -915,7 +921,6 @@ Like `vc-mode-line' but simpler, more efficient, and less buggy."
        (eq magit-save-repository-buffers 'dontask))
       (when msg (message "%s" msg)))))
 
-(add-hook 'magit-mode-setup-hook #'magit-maybe-save-repository-buffers)
 (add-hook 'magit-pre-refresh-hook #'magit-maybe-save-repository-buffers)
 (add-hook 'magit-pre-call-git-hook #'magit-maybe-save-repository-buffers)
 (add-hook 'magit-pre-start-git-hook #'magit-maybe-save-repository-buffers)
