@@ -57,6 +57,12 @@
              magit-xref-setup
              bug-reference-mode))
 
+(defcustom magit-mode-setup-hook nil
+  "Hook run by `magit-mode-setup'."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'hook)
+
 (defcustom magit-display-buffer-function 'magit-display-buffer-traditional
   "The function used display a Magit buffer.
 
@@ -497,8 +503,6 @@ Magit is documented in info node `(magit)'."
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
 
-(defvar magit-mode-setup-hook nil)
-
 (defun magit-mode-setup (mode &rest args)
   "Setup up a MODE buffer using ARGS to generate its content."
   (let ((buffer (magit-mode-get-buffer mode t))
@@ -506,10 +510,11 @@ Magit is documented in info node `(magit)'."
     (with-current-buffer buffer
       (setq magit-previous-section section)
       (setq magit-refresh-args args)
-      (run-hooks 'magit-mode-setup-hook)
       (funcall mode))
     (magit-display-buffer buffer)
-    (with-current-buffer buffer (magit-refresh-buffer))))
+    (with-current-buffer buffer
+      (run-hooks 'magit-mode-setup-hook)
+      (magit-refresh-buffer))))
 
 (defvar magit-display-buffer-noselect nil
   "If non-nil, then `magit-display-buffer' doesn't call `select-window'.")
