@@ -2534,7 +2534,7 @@ Git, and Emacs in the echo area."
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"
                    magit-version
-                   (ignore-errors (substring (magit-git-string "version") 12))
+                   (magit-git-version)
                    emacs-version))
       (setq debug (reverse debug))
       (setq magit-version 'error)
@@ -2543,15 +2543,20 @@ Git, and Emacs in the echo area."
       (message "Cannot determine Magit's version %S" debug))
     magit-version))
 
+(defun magit-git-version (&optional numeric)
+  (--when-let (let (magit-git-global-arguments)
+                (ignore-errors (substring (magit-git-string "version") 12)))
+    (if numeric
+        (and (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" it)
+             (match-string 1 it))
+      it)))
+
 (defun magit-startup-asserts ()
-  (let* ((magit-git-global-arguments nil)
-         (version (ignore-errors (substring (magit-git-string "version") 12))))
-    (when version
-      (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" version)
-        (setq version (match-string 1 version)))
-      (when (and (not (equal (getenv "TRAVIS") "true"))
-                 (version< version magit--minimal-git))
-        (display-warning 'magit (format "\
+  (let ((version (magit-git-version t)))
+    (when (and version
+               (version< version magit--minimal-git)
+               (not (equal (getenv "TRAVIS") "true")))
+      (display-warning 'magit (format "\
 Magit requires Git >= %s, you are using %s.
 
 If this comes as a surprise to you, because you do actually have
