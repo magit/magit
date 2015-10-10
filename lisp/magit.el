@@ -68,6 +68,9 @@
 (eval-when-compile (require 'message))
 (declare-function message-goto-body 'message)
 
+(defconst magit--minimal-git "1.9.4")
+(defconst magit--minimal-emacs "24.4")
+
 ;;; Options
 ;;;; Status Mode
 
@@ -2547,9 +2550,9 @@ Git, and Emacs in the echo area."
       (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" version)
         (setq version (match-string 1 version)))
       (when (and (not (equal (getenv "TRAVIS") "true"))
-                 (version< version "1.9.4"))
+                 (version< version magit--minimal-git))
         (display-warning 'magit (format "\
-Magit requires Git >= 1.9.4, you are using %s.
+Magit requires Git >= %s, you are using %s.
 
 If this comes as a surprise to you, because you do actually have
 a newer version installed, then that probably means that the
@@ -2562,10 +2565,10 @@ For X11 something like ~/.xinitrc should work.
 
 If you use Tramp to work inside remote Git repositories, then you
 have to make sure a suitable Git is used on the remote machines
-too.\n" version) :error))))
-  (when (version< emacs-version "24.4")
+too.\n" magit--minimal-git version) :error)))
+  (when (version< emacs-version magit--minimal-emacs)
     (display-warning 'magit (format "\
-Magit requires Emacs >= 24.4, you are using %s.
+Magit requires Emacs >= %s, you are using %s.
 
 If this comes as a surprise to you, because you do actually have
 a newer version installed, then that probably means that the
@@ -2574,7 +2577,9 @@ always start Emacs from a shell, then that can be fixed in the
 shell's init file.  If you start Emacs by clicking on an icon,
 or using some sort of application launcher, then you probably
 have to adjust the environment as seen by graphical interface.
-For X11 something like ~/.xinitrc should work.\n" emacs-version) :error))
+For X11 something like ~/.xinitrc should work.\n"
+                                    magit--minimal-emacs emacs-version)
+                     :error))
   (--each '((magit-log-edit  . git-commit)
             (git-commit-mode . git-commit)
             (git-rebase-mode . git-rebase))
