@@ -325,8 +325,8 @@ instead of \"Stashes:\"."
 ;;; Show Stash
 
 (defcustom magit-stash-sections-hook
-  '(magit-insert-stash-index
-    magit-insert-stash-worktree
+  '(magit-insert-stash-worktree
+    magit-insert-stash-index
     magit-insert-stash-untracked)
   "Hook run to insert sections into stash buffers."
   :package-version '(magit . "2.1.0")
