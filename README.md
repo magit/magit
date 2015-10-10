@@ -78,8 +78,9 @@ to be merged, then open a [pull requests][pulls]. Please also see
 Acknowledgments
 ===============
 
-Magit was started by [Marius Vollmer][marius] and is now maintained
-by [Jonas Bernoulli][jonas].  Other former maintainers are
+Magit was started by [Marius Vollmer][marius], and is now maintained
+by [Jonas Bernoulli][jonas], [Kyle Meyer][kyle], and
+[Noam Postavsky][noam].  Other former maintainers are
 [Nicolas Dudebout][nicolas], [Peter J. Weisberg][peter],
 [Phil Jackson][phil], [Rémi Vanicat][remi], and [Yann Hodique][yann].
 Many more people have [contributed code][authors] and suggested
@@ -103,8 +104,10 @@ Thanks to all of you, may (the history of) the source be with you!
 [list]:    https://groups.google.com/forum/?fromgroups#!forum/magit
 
 [jonas]:   http://emacsair.me
+[kyle]:    https://github.com/kyleam
 [marius]:  https://github.com/mvollmer
 [nicolas]: http://dudebout.com
+[noam]:    https://github.com/npostavs
 [peter]:   https://github.com/pjweisberg
 [phil]:    https://github.com/philjackson
 [remi]:    https://github.com/vanicat
