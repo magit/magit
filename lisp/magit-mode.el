@@ -565,23 +565,28 @@ Magit buffer is buried."
                (not (window-prev-buffers window)))
       (set-window-parameter window 'magit-dedicated t))))
 
+(defvar-local magit--default-directory nil
+  "Value of `default-directory' when buffer is generated.
+This exists to prevent a let-bound `default-directory' from
+tricking `magit-mode-get-buffer' or `magit-mode-get-buffers' into
+thinking a buffer belongs to a repo that it doesn't.")
+(put 'magit--default-directory 'permanent-local t)
+
 (defun magit-mode-get-buffers ()
   (let ((topdir (magit-toplevel)))
     (--filter (with-current-buffer it
                 (and (derived-mode-p 'magit-mode)
-                     (equal (expand-file-name default-directory) topdir)))
+                     (equal magit--default-directory topdir)))
               (buffer-list))))
-
-(defvar magit-mode-get-buffer--topdir nil) ; see #2054 and #2060
 
 (defvar-local magit-buffer-locked-p nil)
 (put 'magit-buffer-locked-p 'permanent-local t)
 
 (defun magit-mode-get-buffer (mode &optional create frame)
-  (-if-let (topdir (magit-toplevel magit-mode-get-buffer--topdir))
+  (-if-let (topdir (magit-toplevel))
       (or (--first (with-current-buffer it
                      (and (eq major-mode mode)
-                          (equal (expand-file-name default-directory) topdir)
+                          (equal magit--default-directory topdir)
                           (not magit-buffer-locked-p)))
                    (if frame
                        (-map #'window-buffer
@@ -595,6 +600,8 @@ Magit buffer is buried."
 (defun magit-generate-new-buffer (mode)
   (let* ((name (funcall magit-generate-buffer-name-function mode))
          (buffer (generate-new-buffer name)))
+    (with-current-buffer buffer
+      (setq magit--default-directory default-directory))
     (when magit-uniquify-buffer-names
       (add-to-list 'uniquify-list-buffers-directory-modes mode)
       (with-current-buffer buffer

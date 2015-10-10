@@ -392,7 +392,7 @@ then offer to initialize it as a new repository."
 ;;;###autoload
 (defun magit-status-internal (directory)
   (magit-tramp-asserts directory)
-  (let ((magit-mode-get-buffer--topdir directory))
+  (let ((default-directory directory))
     (magit-mode-setup #'magit-status-mode)))
 
 (defun ido-enter-magit-status ()
