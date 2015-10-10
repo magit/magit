@@ -2533,8 +2533,8 @@ Git, and Emacs in the echo area."
     (if (stringp magit-version)
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"
-                   magit-version
-                   (magit-git-version)
+                   (or magit-version "(unknown)")
+                   (or (magit-git-version) "(unknown)")
                    emacs-version))
       (setq debug (reverse debug))
       (setq magit-version 'error)
