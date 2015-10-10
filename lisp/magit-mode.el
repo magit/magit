@@ -548,6 +548,7 @@ and `magit-post-display-buffer-hook'."
                               '(magit-process-mode
                                 magit-revision-mode
                                 magit-diff-mode
+                                magit-stash-mode
                                 magit-status-mode))))
               '(display-buffer-same-window)
             nil))) ; display in another window
