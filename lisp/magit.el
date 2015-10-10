@@ -391,6 +391,7 @@ then offer to initialize it as a new repository."
 
 ;;;###autoload
 (defun magit-status-internal (directory)
+  (magit-tramp-asserts directory)
   (let ((magit-mode-get-buffer--topdir directory))
     (magit-mode-setup #'magit-status-mode)))
 
@@ -2596,6 +2597,41 @@ which was used in earlier releases.  Please remove it, so that
 Magit can use the successor `%s' without the obsolete
 library getting in the way.  Then restart Emacs.\n"
                                       (car it)  (car it) (cdr it)) :error))))
+
+(defvar magit--remotes-using-recent-git nil)
+
+(defun magit-tramp-asserts (directory)
+  (-when-let (remote (file-remote-p directory))
+    (unless (member remote magit--remotes-using-recent-git)
+      (-if-let (version (let ((default-directory directory))
+                          (magit-git-version t)))
+          (if (version<= magit--minimal-git version)
+              (push version magit--remotes-using-recent-git)
+            (display-warning 'magit (format "\
+Magit requires Git >= %s, but on %s the version is %s.
+
+If multiple Git versions are installed on the host then the
+problem might be that TRAMP uses the wrong executable.
+
+First check the value of `magit-git-executable'.  Its value is
+used when running git locally as well as when running it on a
+remote host.  The default value is \"git\", except on Windows
+where an absolute path is used for performance reasons.
+
+If the value already is just \"git\" but TRAMP never-the-less
+doesn't use the correct executable, then consult the info node
+`(tramp)Remote programs'.\n" magit--minimal-git remote version) :error))
+        (display-warning 'magit (format "\
+Magit cannot find Git on %s.
+
+First check the value of `magit-git-executable'.  Its value is
+used when running git locally as well as when running it on a
+remote host.  The default value is \"git\", except on Windows
+where an absolute path is used for performance reasons.
+
+If the value already is just \"git\" but TRAMP never-the-less
+doesn't find the executable, then consult the info node
+`(tramp)Remote programs'.\n" remote) :error)))))
 
 (provide 'magit)
 
