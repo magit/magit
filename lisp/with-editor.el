@@ -171,7 +171,7 @@ sleep 604800 & sleep=$!; \
 trap \"kill $sleep; exit 0\" USR1; \
 trap \"kill $sleep; exit 1\" USR2; \
 wait $sleep'"
-  "The looping editor, used when the Emacsclient cannot be used.
+  "The sleeping editor, used when the Emacsclient cannot be used.
 
 This fallback is used for asynchronous process started inside the
 macro `with-editor', when the process runs on a remote machine or
@@ -395,7 +395,7 @@ ENVVAR is provided then bind that environment variable instead.
        (when server-use-tcp
          (setenv "EMACS_SERVER_FILE"
                  (expand-file-name server-name server-auth-dir)))
-       ;; As last resort fallback to the looping editor.
+       ;; As last resort fallback to the sleeping editor.
        (setenv "ALTERNATE_EDITOR" with-editor-sleeping-editor))
      ,@body))
 
