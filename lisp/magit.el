@@ -546,8 +546,8 @@ remote in alphabetic order."
 
 (defvar magit-untracked-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "k"  'magit-discard)
-    (define-key map "s"  'magit-stage)
+    (define-key map [remap magit-delete-thing] 'magit-discard)
+    (define-key map "s" 'magit-stage)
     map)
   "Keymap for the `untracked' section.")
 
@@ -705,16 +705,16 @@ The old binding `b v' will be removed soon."
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-visit-ref)
-    (define-key map "k"  'magit-branch-delete)
-    (define-key map "R"  'magit-branch-rename)
+    (define-key map [remap magit-visit-thing]  'magit-visit-ref)
+    (define-key map [remap magit-delete-thing] 'magit-branch-delete)
+    (define-key map "R" 'magit-branch-rename)
     map)
   "Keymap for `branch' sections.")
 
 (defvar magit-remote-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "k"  'magit-remote-remove)
-    (define-key map "R"  'magit-remote-rename)
+    (define-key map [remap magit-delete-thing] 'magit-remote-remove)
+    (define-key map "R" 'magit-remote-rename)
     map)
   "Keymap for `remote' sections.")
 
@@ -866,8 +866,8 @@ reference, but it is not checked out."
 
 (defvar magit-tag-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-visit-ref)
-    (define-key map "k"  'magit-tag-delete)
+    (define-key map [remap magit-visit-thing]  'magit-visit-ref)
+    (define-key map [remap magit-delete-thing] 'magit-tag-delete)
     map)
   "Keymap for `tag' sections.")
 

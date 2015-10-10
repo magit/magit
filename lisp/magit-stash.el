@@ -274,16 +274,16 @@ When the region is active offer to drop all contained stashes."
 
 (defvar magit-stashes-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "k"  'magit-stash-clear)
+    (define-key map [remap magit-delete-thing] 'magit-stash-clear)
     map)
   "Keymap for `stashes' section.")
 
 (defvar magit-stash-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-stash-show)
+    (define-key map [remap magit-visit-thing]  'magit-stash-show)
+    (define-key map [remap magit-delete-thing] 'magit-stash-drop)
     (define-key map "a"  'magit-stash-apply)
     (define-key map "A"  'magit-stash-pop)
-    (define-key map "k"  'magit-stash-drop)
     map)
   "Keymap for `stash' sections.")
 

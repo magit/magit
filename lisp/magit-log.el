@@ -759,15 +759,15 @@ Do not add this to a hook variable."
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-show-commit)
-    (define-key map "a"  'magit-cherry-apply)
-    (define-key map "v"  'magit-revert-no-commit)
+    (define-key map [remap magit-visit-thing] 'magit-show-commit)
+    (define-key map "a" 'magit-cherry-apply)
+    (define-key map "v" 'magit-revert-no-commit)
     map)
   "Keymap for `commit' sections.")
 
 (defvar magit-module-commit-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-show-commit)
+    (define-key map [remap magit-visit-thing] 'magit-show-commit)
     map)
   "Keymap for `module-commit' sections.")
 
@@ -1276,7 +1276,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 
 (defvar magit-unpulled-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-diff-unpulled)
+    (define-key map [remap magit-visit-thing] 'magit-diff-unpulled)
     map)
   "Keymap for the `unpulled' section.")
 
@@ -1358,7 +1358,7 @@ These sections can be expanded to show the respective commits."
 
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-diff-unpushed)
+    (define-key map [remap magit-visit-thing] 'magit-diff-unpushed)
     map)
   "Keymap for the `unpushed' section.")
 
