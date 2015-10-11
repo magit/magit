@@ -454,8 +454,8 @@ tracked file."
 (defun magit-tracked-files ()
   (magit-list-files "--cached"))
 
-(defun magit-untracked-files (&optional all)
-  (magit-list-files "--other" (unless all "--exclude-standard")))
+(defun magit-untracked-files (&optional all files)
+  (magit-list-files "--other" (unless all "--exclude-standard") "--" files))
 
 (defun magit-modified-files (&optional nomodules)
   (magit-git-items "diff-files" "-z" "--name-only"
