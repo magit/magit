@@ -2027,13 +2027,7 @@ are highlighted."
                       (overlay-put ov 'evaporate t)
                       (while args (overlay-put ov (pop args) (pop args)))
                       (push ov magit-region-overlays)
-                      ov))
-                (need-after (pos)
-                            (save-excursion
-                              (goto-char pos)
-                              (> (+ (line-beginning-position)
-                                    (window-body-width) (window-hscroll))
-                                 (line-end-position)))))
+                      ov)))
         (ov sbeg (1- cbeg) 'face 'magit-diff-lines-heading
             'display (magit-diff-hunk-region-header section)
             'after-string (propertize "\s" 'face 'magit-diff-lines-heading
@@ -2046,15 +2040,12 @@ are highlighted."
                  (color (face-background 'magit-diff-lines-boundary nil t))
                  (face  (list :overline color :underline color)))
             (if (= rbeg bol)
-                (apply #'ov rbeg eol 'face face
-                       (when (need-after rbeg)
-                         (list 'after-string (propertize "\s" 'face face 'display align 'cursor t))))
-              (apply #' ov rbeg eol 'face (setq face (list :overline color))
-                        (when (need-after rbeg)
-                          (list 'after-string (propertize "\s" 'face face 'display align 'cursor t))))
-              (apply #'ov bol rend 'face (setq face (list :underline color))
-                     (when (need-after rend)
-                       (list 'after-string (propertize "\s\n" 'face face 'display align 'cursor t)))))))
+                (ov rbeg eol 'face face
+                    'after-string (propertize "\s" 'face face 'display align 'cursor t))
+              (ov rbeg eol 'face (setq face (list :overline color))
+                  'after-string (propertize "\s" 'face face 'display align 'cursor t))
+              (ov bol rend 'face (setq face (list :underline color))
+                  'after-string (propertize "\s\n" 'face face 'display align 'cursor t)))))
         (ov (1+ rend) send 'face face 'priority 2)))))
 
 ;;; Diff Extract
