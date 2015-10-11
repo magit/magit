@@ -599,9 +599,13 @@ Magit buffer is buried."
       (add-to-list 'uniquify-list-buffers-directory-modes mode)
       (with-current-buffer buffer
         (setq list-buffers-directory default-directory))
-      (uniquify-rationalize-file-buffer-names
-       name (file-name-directory (directory-file-name default-directory))
-       buffer))
+      (let ((uniquify-buffer-name-style
+             (if (eq uniquify-buffer-name-style 'forward)
+                 'post-forward-angle-brackets
+               uniquify-buffer-name-style)))
+        (uniquify-rationalize-file-buffer-names
+         name (file-name-directory (directory-file-name default-directory))
+         buffer)))
     buffer))
 
 (defun magit-generate-buffer-name-default-function (mode &optional value)
