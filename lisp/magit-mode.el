@@ -951,7 +951,8 @@ Do so if `magit-save-repository-buffers' is non-nil."
     (let ((msg (current-message)))
       (magit-save-repository-buffers
        (eq magit-save-repository-buffers 'dontask))
-      (when msg (message "%s" msg)))))
+      (when (and msg (not (equal msg (current-message))))
+        (message "%s" msg)))))
 
 (add-hook 'magit-pre-refresh-hook #'magit-maybe-save-repository-buffers)
 (add-hook 'magit-pre-call-git-hook #'magit-maybe-save-repository-buffers)
