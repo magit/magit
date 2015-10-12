@@ -482,6 +482,11 @@ without requiring confirmation."
       (`(,_     files) (magit-reverse-files  it args))
       (`(,_      list) (magit-reverse-files  it args)))))
 
+(defun magit-reverse-index (&rest args)
+  "Reverse the change at point in the index."
+  (interactive (and current-prefix-arg (list "--3way")))
+  (magit-reverse (cons "--cached" args)))
+
 (defun magit-reverse-region (section args)
   (when (magit-confirm 'reverse "Reverse region")
     (apply 'magit-apply-region section "--reverse" args)))
