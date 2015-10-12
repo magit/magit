@@ -253,7 +253,7 @@ ignored) files.
         (`(staged      file) (magit-unstage-1 (list (magit-section-value it))))
         (`(staged     files) (magit-unstage-1 (magit-region-values)))
         (`(staged      list) (magit-unstage-all))
-        (`(committed     ,_) (user-error "Cannot unstage committed changes"))
+        (`(committed     ,_) (magit-reverse-index))
         (`(undefined     ,_) (user-error "Cannot unstage this change"))))))
 
 ;;;###autoload
