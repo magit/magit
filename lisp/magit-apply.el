@@ -253,7 +253,7 @@ ignored) files.
         (`(staged      file) (magit-unstage-1 (list (magit-section-value it))))
         (`(staged     files) (magit-unstage-1 (magit-region-values)))
         (`(staged      list) (magit-unstage-all))
-        (`(committed     ,_) (magit-reverse-index))
+        (`(committed     ,_) (magit-anti-stage))
         (`(undefined     ,_) (user-error "Cannot unstage this change"))))))
 
 ;;;###autoload
@@ -482,7 +482,7 @@ without requiring confirmation."
       (`(,_     files) (magit-reverse-files  it args))
       (`(,_      list) (magit-reverse-files  it args)))))
 
-(defun magit-reverse-index (&rest args)
+(defun magit-anti-stage (&rest args)
   "Reverse the change at point in the index."
   (interactive)
   (magit-reverse (cons "--cached" args)))

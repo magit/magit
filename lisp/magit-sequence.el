@@ -174,7 +174,7 @@ without prompting."
   :options  '((?s "Strategy" "--strategy="  read-from-minibuffer))
   :actions  '((?V "Revert commit(s)" magit-revert)
               (?v "Revert changes"   magit-revert-no-commit)
-              (?e "Extract changes"  magit-reverse-index))
+              (?e "Extract changes"  magit-anti-stage))
   :sequence-actions '((?V "Continue" magit-sequencer-continue)
                       (?s "Skip"     magit-sequencer-skip)
                       (?a "Abort"    magit-sequencer-abort))
