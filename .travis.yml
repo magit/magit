@@ -32,3 +32,8 @@ script:
   - git config --global user.email a.u.thor@example.com
   - make lisp EMACSBIN=$EMACS DASH_DIR=$PWD
   - make test EMACSBIN=$EMACS DASH_DIR=$PWD
+notifications:
+  email:
+    # Default is change, but that includes a new branch's 1st success.
+    on_success: never
+    on_failure: always # The default.
