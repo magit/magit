@@ -482,6 +482,13 @@ without requiring confirmation."
       (`(,_     files) (magit-reverse-files  it args))
       (`(,_      list) (magit-reverse-files  it args)))))
 
+(defun magit-uncommit-extend (&rest args)
+  "Reverse the change at point in HEAD."
+  (interactive)
+  (let ((inhibit-magit-refresh t))
+    (magit-anti-stage args))
+  (magit-commit-extend))
+
 (defun magit-anti-stage (&rest args)
   "Reverse the change at point in the index."
   (interactive)
