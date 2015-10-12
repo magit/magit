@@ -484,7 +484,7 @@ without requiring confirmation."
 
 (defun magit-reverse-index (&rest args)
   "Reverse the change at point in the index."
-  (interactive (and current-prefix-arg (list "--3way")))
+  (interactive)
   (magit-reverse (cons "--cached" args)))
 
 (defun magit-reverse-region (section args)
