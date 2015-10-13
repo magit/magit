@@ -1291,9 +1291,7 @@ section or a child thereof."
                 (when del
                   (insert (propertize del 'face 'magit-diffstat-removed)))
                 (insert "\n")))))
-        (insert "\n"))
-      (unless (eobp)
-        (delete-char 1)))))
+        (if (looking-at "^$") (forward-line) (insert "\n"))))))
 
 (defun magit-diff-wash-diff (args)
   (cond
