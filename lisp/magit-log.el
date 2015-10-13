@@ -933,10 +933,13 @@ Do not add this to a hook variable."
               (insert ?\n))
             (delete-char 1))
           (if (looking-at "^\\(---\\|\n\s\\|\ndiff\\)")
-              (progn (unless (magit-section-content magit-insert-section--current)
-                       (magit-insert-heading))
-                     (delete-char (if (looking-at "\n") 1 4))
-                     (magit-diff-wash-diffs (list "--stat")))
+              (let ((limit (save-excursion
+                             (and (re-search-forward magit-log-heading-re nil t)
+                                  (match-beginning 0)))))
+                (unless (magit-section-content magit-insert-section--current)
+                  (magit-insert-heading))
+                (delete-char (if (looking-at "\n") 1 4))
+                (magit-diff-wash-diffs (list "--stat") limit))
             (when align
               (setq align (make-string (1+ abbrev) ? )))
             (while (and (not (eobp)) (not (looking-at magit-log-heading-re)))
