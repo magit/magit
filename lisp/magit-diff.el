@@ -963,9 +963,7 @@ which, as the name suggests always visits the actual file."
                        (magit-find-file-noselect rev file)
                      (or (get-file-buffer file)
                          (find-file-noselect file))))
-      (if (or other-window (get-buffer-window buffer))
-          (pop-to-buffer buffer)
-        (switch-to-buffer buffer))
+      (magit-display-file-buffer buffer)
       (when line
         (goto-char (point-min))
         (forward-line (1- line))
@@ -973,6 +971,24 @@ which, as the name suggests always visits the actual file."
           (move-to-column col)))
       (when unmerged-p
         (smerge-start-session)))))
+
+(defvar magit-display-file-buffer-function
+  'magit-display-file-buffer-traditional
+  "The function used by `magit-diff-visit-file' to display blob buffers.
+
+Other commands such as `magit-find-file' do not use this
+function.  Instead they use high-leverl functions to select the
+window to be used to display the buffer.  This variable and the
+related functions are an experimental feature and should be
+treated as such.")
+
+(defun magit-display-file-buffer (buffer)
+  (funcall magit-display-file-buffer-function buffer))
+
+(defun magit-display-file-buffer-traditional (buffer)
+  (if (or current-prefix-arg (get-buffer-window buffer))
+      (pop-to-buffer buffer)
+    (switch-to-buffer buffer)))
 
 (defun magit-diff-visit-file-worktree (file &optional other-window)
   "From a diff, visit the corresponding file at the appropriate position.
