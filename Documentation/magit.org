@@ -820,18 +820,50 @@ that hook's default value.
   ~magit-section-movement-hook~, then you must remove the hunk-only
   variant in turn.
 
-- Function: magit-log-maybe-show-commit
-
-  This hook function shows the commit at point in another window.  If
-  the section at point is a ~commit~ section and the value of
-  ~magit-diff-auto-show-p~ calls for it, then the commit is shown in
-  another window, using ~magit-show-commit~.
-
 - Function: magit-log-maybe-show-more-commits
 
   This hook function only has an effect in log buffers, and ~point~ is
   on the "show more" section.  If that is the case, then it doubles
   the number of commits that are being shown.
+
+- Function: magit-log-maybe-update-revision-buffer
+
+  When moving inside a log buffer, then this function updates the
+  revision buffer, provided it is already being displayed in another
+  window of the same frame.
+
+- Function: magit-log-maybe-update-blob-buffer
+
+  When moving inside a log buffer and another window of the same frame
+  displays a blob buffer, then this function instead displays the blob
+  buffer for the commit at point in that window.
+
+- Function: magit-status-maybe-update-revision-buffer
+
+  When moving inside a status buffer, then this function updates the
+  revision buffer, provided it is already being displayed in another
+  window of the same frame.
+
+- Function: magit-status-maybe-update-blob-buffer
+
+  When moving inside a status buffer and another window of the same
+  frame displays a blob buffer, then this function instead displays
+  the blob buffer for the commit at point in that window.
+
+- User Option: magit-update-other-window-delay
+
+  Delay before automatically updating the other window.
+
+  When moving around in certain buffers certain other buffers, which
+  are being displayed in another window, may optionally be updated to
+  display information about the section at point.
+
+  When holding down a key to move by more than just one section, then
+  that would update that buffer for each section on the way.  To
+  prevent that, updating the revision buffer is delayed, and this
+  option controls for how long.  For optimal experience you might have
+  to adjust this delay and/or the keyboard repeat rate and delay of
+  your graphical environment or operating system.
 
 *** Section visibility
 
@@ -1939,37 +1971,6 @@ without having to using one of the diff popups.
   Scroll text downward.
 
 *** Diff options
-
-- User Option: magit-diff-auto-show
-
-  Whether to automatically show the relevant diff or commit.
-
-  When this option is non-nil certain operations cause the relevant
-  changes to be displayed automatically.
-
-  - ~commit~
-  - ~stage-all~
-  - ~log-oneline~
-  - ~log-follow~
-  - ~log-select~
-  - ~blame-follow~
-
-  In the event that expanding very large patches takes a long time, ~C-g~
-  can be used to abort that step.  This is especially useful when you
-  would normally not look at the changes, e.g. because you are
-  committing some binary files.
-
-- User Option: magit-diff-auto-show-delay
-
-  How long to delay showing or updating the revision buffer, when
-  that happens automatically (according to ~magit-diff-auto-show~).
-
-  When holding down a key to move by several lines, then that would
-  update that buffer for each line on the way.  To prevent that,
-  updating the revision buffer is delayed, and this option controls
-  for how long it is delayed.  For optimal experience you might have
-  to adjust this delay and/or the keyboard repeat rate and delay of
-  your graphical environment or operating system.
 
 - User Option: magit-diff-refine-hunk
 

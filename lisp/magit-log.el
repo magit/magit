@@ -1024,44 +1024,56 @@ and `magit-log-auto-more' is non-nil."
     (forward-line -1)
     (magit-section-forward)))
 
-(defvar magit-update-other-window-timer nil)
+(defvar magit--update-revision-buffer nil)
 
-(defun magit-log-maybe-show-commit (&optional _)
-  "Automatically show commit at point in another window.
-If the section at point is a `commit' section and the value of
-`magit-diff-auto-show-p' calls for it, then show that commit in
-another window, using `magit-show-commit'."
-  (when (and (or (derived-mode-p 'magit-log-mode)
-                 (derived-mode-p 'magit-status-mode))
-             (not magit-update-other-window-timer))
-    (setq magit-update-other-window-timer
-          (run-with-idle-timer
-           magit-diff-auto-show-delay nil
-           (lambda ()
-             (magit-section-when commit
-               (let ((rev (magit-section-value it)))
-                 (--if-let (and (magit-diff-auto-show-p 'blob-follow)
-                                (derived-mode-p 'magit-log-mode)
-                                (--first (with-current-buffer it
-                                           magit-buffer-revision)
-                                         (-map #'window-buffer (window-list))))
-                     (save-excursion
-                       (with-selected-window (get-buffer-window it)
-                         (with-current-buffer it
-                           (magit-blob-visit (list (magit-rev-parse rev)
-                                                   (magit-file-relative-name
-                                                    magit-buffer-file-name))
-                                             (line-number-at-pos)))))
-                   (when (and (not (magit-section-children
-                                    (magit-current-section)))
-                              (or (and (magit-diff-auto-show-p 'log-follow)
-                                       (magit-mode-get-buffer
-                                        'magit-revision-mode nil t))
-                                  (and (magit-diff-auto-show-p 'log-oneline)
-                                       (derived-mode-p 'magit-log-mode))))
-                     (let ((magit-display-buffer-noselect t))
-                       (apply #'magit-show-commit rev (magit-diff-arguments)))))))
-             (setq magit-update-other-window-timer nil))))))
+(defun magit-log-maybe-update-revision-buffer (&optional _)
+  "When moving in the log buffer, update the revision buffer.
+If there is no revision buffer in the same frame, then do nothing."
+  (when (derived-mode-p 'magit-log-mode)
+    (magit-log-maybe-update-revision-buffer-1)))
+
+(defun magit-log-maybe-update-revision-buffer-1 ()
+  (unless magit--update-revision-buffer
+    (-when-let* ((commit (magit-section-when 'commit))
+                 (buffer (magit-mode-get-buffer 'magit-revision-mode nil t)))
+      (setq magit--update-revision-buffer (list commit buffer))
+      (run-with-idle-timer
+       magit-update-other-window-delay nil
+       (lambda ()
+         (cl-destructuring-bind (rev buf) magit--update-revision-buffer
+           (setq magit--update-revision-buffer nil)
+           (when (buffer-live-p buf)
+             (let ((magit-display-buffer-noselect t))
+               (apply #'magit-show-commit rev (magit-diff-arguments)))))
+         (setq magit--update-revision-buffer nil))))))
+
+(defvar magit--update-blob-buffer nil)
+
+(defun magit-log-maybe-update-blob-buffer (&optional _)
+  "When moving in the log buffer, update the blob buffer.
+If there is no blob buffer in the same frame, then do nothing."
+  (when (derived-mode-p 'magit-log-mode)
+    (magit-log-maybe-update-blob-buffer-1)))
+
+(defun magit-log-maybe-update-blob-buffer-1 ()
+  (unless magit--update-revision-buffer
+    (-when-let* ((commit (magit-section-when 'commit))
+                 (buffer (--first (with-current-buffer it magit-buffer-revision)
+                                  (-map #'window-buffer (window-list)))))
+        (setq magit--update-blob-buffer (list commit buffer))
+        (run-with-idle-timer
+         magit-update-other-window-delay nil
+         (lambda ()
+           (cl-destructuring-bind (rev buf) magit--update-blob-buffer
+             (setq magit--update-blob-buffer nil)
+             (when (buffer-live-p buf)
+               (save-excursion
+                 (with-selected-window (get-buffer-window buf)
+                   (with-current-buffer buf
+                     (magit-blob-visit (list (magit-rev-parse rev)
+                                             (magit-file-relative-name
+                                              magit-buffer-file-name))
+                                       (line-number-at-pos))))))))))))
 
 (defun magit-log-goto-same-commit ()
   (-when-let* ((prev magit-previous-section)

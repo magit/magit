@@ -48,6 +48,22 @@
   :group 'magit-section
   :type 'boolean)
 
+(defcustom magit-section-movement-hook
+  '(magit-hunk-set-window-start
+    magit-log-maybe-update-revision-buffer
+    magit-log-maybe-show-more-commits)
+  "Hook run by `magit-section-goto'.
+That function in turn is used by all section movement commands."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-section
+  :type 'hook
+  :options '(magit-hunk-set-window-start
+             magit-status-maybe-update-revision-buffer
+             magit-status-maybe-update-blob-buffer
+             magit-log-maybe-update-revision-buffer
+             magit-log-maybe-update-blob-buffer
+             magit-log-maybe-show-more-commits))
+
 (defcustom magit-section-highlight-hook
   '(magit-diff-highlight
     magit-section-highlight
@@ -240,13 +256,6 @@ If there is no previous sibling section, then move to the parent."
              (setq arg (magit-current-section)))
     (goto-char (magit-section-start arg)))
   (run-hook-with-args 'magit-section-movement-hook arg))
-
-(defvar magit-section-movement-hook
-  '(magit-hunk-set-window-start
-    magit-log-maybe-show-commit
-    magit-log-maybe-show-more-commits)
-  "Hook run by `magit-section-goto'.
-That function in turn is used by all section movement commands.")
 
 (defun magit-section-set-window-start (section)
   "Ensure the beginning of SECTION is visible."

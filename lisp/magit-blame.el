@@ -68,13 +68,13 @@ and then turned on again when turning off the latter."
   :type '(choice (const :tag "No lighter" "") string))
 
 (unless (find-lisp-object-file-name 'magit-blame-goto-chunk-hook 'defvar)
-  (add-hook 'magit-blame-goto-chunk-hook 'magit-blame-update-other-window))
-(defcustom magit-blame-goto-chunk-hook '(magit-blame-update-other-window)
+  (add-hook 'magit-blame-goto-chunk-hook 'magit-blame-maybe-update-revision-buffer))
+(defcustom magit-blame-goto-chunk-hook '(magit-blame-maybe-update-revision-buffer)
   "Hook run by `magit-blame-next-chunk' and `magit-blame-previous-chunk'."
   :package-version '(magit . "2.1.0")
   :group 'magit-blame
   :type 'hook
-  :options '(magit-blame-update-other-window))
+  :options '(magit-blame-maybe-update-revision-buffer))
 
 (defface magit-blame-heading
   '((((class color) (background light))
@@ -479,18 +479,20 @@ then also kill the buffer."
   (--first (overlay-get it 'magit-blame)
            (overlays-at (or pos (point)))))
 
-(defun magit-blame-update-other-window ()
-  (unless magit-update-other-window-timer
-    (setq magit-update-other-window-timer
-          (run-with-idle-timer
-           magit-diff-auto-show-delay nil
-           (lambda ()
-             (--when-let (and (magit-diff-auto-show-p 'blame-follow)
-                              (magit-mode-get-buffer 'magit-revision-mode)
-                              (magit-blame-chunk-get :hash))
-               (let ((magit-display-buffer-noselect t))
-                 (apply #'magit-show-commit it (magit-diff-arguments))))
-             (setq magit-update-other-window-timer nil))))))
+(defun magit-blame-maybe-update-revision-buffer ()
+  (unless magit--update-revision-buffer
+    (setq magit--update-revision-buffer nil)
+    (-when-let* ((commit (magit-blame-chunk-get :hash))
+                 (buffer (magit-mode-get-buffer 'magit-revision-mode nil t)))
+      (setq magit--update-revision-buffer (list commit buffer))
+      (run-with-idle-timer
+       magit-update-other-window-delay nil
+       (lambda ()
+         (cl-destructuring-bind (rev buf) magit--update-revision-buffer
+           (setq magit--update-revision-buffer nil)
+           (when (buffer-live-p buf)
+             (let ((magit-display-buffer-noselect t))
+               (apply #'magit-show-commit rev (magit-diff-arguments))))))))))
 
 ;;; magit-blame.el ends soon
 (provide 'magit-blame)

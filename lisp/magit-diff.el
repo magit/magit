@@ -111,54 +111,6 @@ to draw thin lines."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-auto-show
-  '(commit stage-all log-oneline log-select blame-follow)
-  "Whether to automatically show relevant diff or commit.
-
-When this option is non-nil certain operations cause the relevant
-changes to be displayed automatically.
-
-`commit'
-`stage-all'
-`log-oneline'
-`log-follow'
-`log-select'
-`blame-follow'
-
-In the event that expanding very large patches takes a long time
-\\<global-map>\\[keyboard-quit] \
-can be used to abort that step. This is especially useful when
-you would normally not look at the changes, e.g. because you are
-committing some binary files.
-
-Also see `magit-diff-auto-show-delay'."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-diff
-  :type 'sexp)
-
-(defcustom magit-diff-auto-show-delay 0.2
-  "Delay before automatically showing or updating the revision buffer.
-
-Depending on the value of `magit-diff-auto-show' (which see),
-moving in a log buffer, or with blame information active in
-a file-visiting buffer, may automatically show the commit at
-point in the revision.
-
-When holding down a key to move by several lines/chunks, then
-that would update that buffer for each line/chunk on the way.
-To prevent that, updating the revision buffer is delayed, and
-this option controls for how long.  For optimal experience you
-might have to adjust this delay and/or the keyboard repeat rate
-and delay of your graphical environment or operating system."
-  :package-version '(magit . "2.2.0")
-  :group 'magit-diff
-  :type 'number)
-
-(defun magit-diff-auto-show-p (op)
-  (if (eq (car magit-diff-auto-show) 'not)
-      (not (memq op (cdr magit-diff-auto-show)))
-    (memq op magit-diff-auto-show)))
-
 (defcustom magit-diff-refine-hunk nil
   "Whether to show word-granularity differences within diff hunks.
 
