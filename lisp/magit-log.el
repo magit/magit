@@ -1036,7 +1036,7 @@ another window, using `magit-show-commit'."
              (not magit-update-other-window-timer))
     (setq magit-update-other-window-timer
           (run-with-idle-timer
-           magit-diff-auto-show-delay nil
+           magit-update-other-window-delay nil
            (lambda ()
              (magit-section-when commit
                (let ((rev (magit-section-value it)))

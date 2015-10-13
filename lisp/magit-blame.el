@@ -483,7 +483,7 @@ then also kill the buffer."
   (unless magit-update-other-window-timer
     (setq magit-update-other-window-timer
           (run-with-idle-timer
-           magit-diff-auto-show-delay nil
+           magit-update-other-window-delay nil
            (lambda ()
              (--when-let (and (magit-diff-auto-show-p 'blame-follow)
                               (magit-mode-get-buffer 'magit-revision-mode)

@@ -163,6 +163,23 @@ Global settings:
   :group 'magit-modes
   :type 'character)
 
+(defcustom magit-update-other-window-delay 0.2
+  "Delay before automatically updating the other window.
+
+When moving around in certain buffers certain other buffers,
+which are being displayed in another window, may optionally be
+updated to display information about the section at point.
+
+When holding down a key to move by more than just one section,
+then that would update that buffer for each section on the way.
+To prevent that, updating the revision buffer is delayed, and
+this option controls for how long.  For optimal experience you
+might have to adjust this delay and/or the keyboard repeat rate
+and delay of your graphical environment or operating system."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-modes
+  :type 'number)
+
 ;;; User Input
 
 (defun magit-completing-read
