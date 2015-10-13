@@ -485,8 +485,7 @@ then also kill the buffer."
           (run-with-idle-timer
            magit-update-other-window-delay nil
            (lambda ()
-             (--when-let (and (magit-diff-auto-show-p 'blame-follow)
-                              (magit-mode-get-buffer 'magit-revision-mode)
+             (--when-let (and (magit-mode-get-buffer 'magit-revision-mode)
                               (magit-blame-chunk-get :hash))
                (let ((magit-display-buffer-noselect t))
                  (apply #'magit-show-commit it (magit-diff-arguments))))

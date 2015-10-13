@@ -2700,9 +2700,6 @@ changes to be displayed automatically.
 
 @item
 @code{log-follow}
-
-@item
-@code{blame-follow}
 @end itemize
 In the event that expanding very large patches takes a long time, @code{C-g}
 can be used to abort that step.  This is especially useful when you
