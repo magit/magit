@@ -1029,8 +1029,11 @@ and `magit-log-auto-more' is non-nil."
 (defun magit-log-maybe-update-revision-buffer (&optional _)
   "When moving in the log buffer, update the revision buffer.
 If there is no revision buffer in the same frame, then do nothing."
-  (when (and (derived-mode-p 'magit-log-mode)
-             (not magit--update-revision-buffer))
+  (when (derived-mode-p 'magit-log-mode)
+    (magit-log-maybe-update-revision-buffer-1)))
+
+(defun magit-log-maybe-update-revision-buffer-1 ()
+  (unless magit--update-revision-buffer
     (-when-let* ((commit (magit-section-when 'commit))
                  (buffer (magit-mode-get-buffer 'magit-revision-mode nil t)))
       (setq magit--update-revision-buffer (list commit buffer))
@@ -1049,8 +1052,11 @@ If there is no revision buffer in the same frame, then do nothing."
 (defun magit-log-maybe-update-blob-buffer (&optional _)
   "When moving in the log buffer, update the blob buffer.
 If there is no blob buffer in the same frame, then do nothing."
-  (when (and (derived-mode-p 'magit-log-mode)
-             (not magit--update-revision-buffer))
+  (when (derived-mode-p 'magit-log-mode)
+    (magit-log-maybe-update-blob-buffer-1)))
+
+(defun magit-log-maybe-update-blob-buffer-1 ()
+  (unless magit--update-revision-buffer
     (-when-let* ((commit (magit-section-when 'commit))
                  (buffer (--first (with-current-buffer it magit-buffer-revision)
                                   (-map #'window-buffer (window-list)))))

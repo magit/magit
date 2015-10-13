@@ -1186,6 +1186,20 @@ displays a blob buffer, then this function instead displays the blob
 buffer for the commit at point in that window.
 @end defun
 
+@defun magit-status-maybe-update-revision-buffer
+
+When moving inside a status buffer, then this function updates the
+revision buffer, provided it is already being displayed in another
+window of the same frame.
+@end defun
+
+@defun magit-status-maybe-update-blob-buffer
+
+When moving inside a status buffer and another window of the same
+frame displays a blob buffer, then this function instead displays
+the blob buffer for the commit at point in that window.
+@end defun
+
 @defopt magit-update-other-window-delay
 
 Delay before automatically updating the other window.
