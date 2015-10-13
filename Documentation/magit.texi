@@ -1172,12 +1172,18 @@ on the "show more" section.  If that is the case, then it doubles
 the number of commits that are being shown.
 @end defun
 
-@defun magit-log-maybe-show-commit
+@defun magit-log-maybe-update-revision-buffer
 
-This hook function shows the commit at point in another window.  If
-the section at point is a @code{commit} section and the value of
-@code{magit-diff-auto-show-p} calls for it, then the commit is shown in
-another window, using @code{magit-show-commit}.
+When moving inside a log buffer, then this function updates the
+revision buffer, provided it is already being displayed in another
+window of the same frame.
+@end defun
+
+@defun magit-log-maybe-update-blob-buffer
+
+When moving inside a log buffer and another window of the same frame
+displays a blob buffer, then this function instead displays the blob
+buffer for the commit at point in that window.
 @end defun
 
 @defopt magit-update-other-window-delay
@@ -2686,23 +2692,6 @@ Scroll text downward.
 
 @node Diff options
 @subsection Diff options
-
-@defopt magit-diff-auto-show
-
-Whether to automatically show the relevant diff or commit.
-
-When this option is non-nil certain operations cause the relevant
-changes to be displayed automatically.
-
-@itemize
-@item
-@code{log-follow}
-@end itemize
-In the event that expanding very large patches takes a long time, @code{C-g}
-can be used to abort that step.  This is especially useful when you
-would normally not look at the changes, e.g. because you are
-committing some binary files.
-@end defopt
 
 @defopt magit-diff-refine-hunk
 

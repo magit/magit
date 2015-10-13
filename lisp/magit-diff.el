@@ -111,30 +111,6 @@ to draw thin lines."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-auto-show '(log-follow)
-  "Whether to automatically show relevant diff or commit.
-
-When this option is non-nil certain operations cause the relevant
-changes to be displayed automatically.
-
-`log-follow'
-
-In the event that expanding very large patches takes a long time
-\\<global-map>\\[keyboard-quit] \
-can be used to abort that step. This is especially useful when
-you would normally not look at the changes, e.g. because you are
-committing some binary files.
-
-Also see `magit-update-other-window-delay'."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-diff
-  :type 'sexp)
-
-(defun magit-diff-auto-show-p (op)
-  (if (eq (car magit-diff-auto-show) 'not)
-      (not (memq op (cdr magit-diff-auto-show)))
-    (memq op magit-diff-auto-show)))
-
 (defcustom magit-diff-refine-hunk nil
   "Whether to show word-granularity differences within diff hunks.
 
