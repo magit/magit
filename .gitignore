@@ -5,6 +5,8 @@
 /*.tar.gz
 /.dir-locals.el
 /Documentation/*.info
+/Documentation/*.info-1
+/Documentation/*.info-2
 /Documentation/dir
 /config.mk
 /lisp/magit-autoloads.el
