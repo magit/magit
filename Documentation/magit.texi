@@ -2696,9 +2696,6 @@ changes to be displayed automatically.
 
 @itemize
 @item
-@code{log-oneline}
-
-@item
 @code{log-follow}
 @end itemize
 In the event that expanding very large patches takes a long time, @code{C-g}

@@ -111,13 +111,12 @@ to draw thin lines."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-auto-show '(log-oneline)
+(defcustom magit-diff-auto-show '(log-follow)
   "Whether to automatically show relevant diff or commit.
 
 When this option is non-nil certain operations cause the relevant
 changes to be displayed automatically.
 
-`log-oneline'
 `log-follow'
 
 In the event that expanding very large patches takes a long time

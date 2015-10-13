@@ -1054,11 +1054,9 @@ another window, using `magit-show-commit'."
                                              (line-number-at-pos)))))
                    (when (and (not (magit-section-children
                                     (magit-current-section)))
-                              (or (and (magit-diff-auto-show-p 'log-follow)
-                                       (magit-mode-get-buffer
-                                        'magit-revision-mode nil t))
-                                  (and (magit-diff-auto-show-p 'log-oneline)
-                                       (derived-mode-p 'magit-log-mode))))
+                              (and (magit-diff-auto-show-p 'log-follow)
+                                   (magit-mode-get-buffer
+                                    'magit-revision-mode nil t)))
                      (let ((magit-display-buffer-noselect t))
                        (apply #'magit-show-commit rev (magit-diff-arguments)))))))
              (setq magit-update-other-window-timer nil))))))
