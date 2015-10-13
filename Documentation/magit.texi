@@ -1583,16 +1583,16 @@ in the top-level directory of the current repository instead.
 These suffix commands run arbitrary shell commands.
 
 @table @asis
-@kindex ! !
+@kindex ! s
 @cindex magit-shell-command-topdir
-@item @kbd{! !} @tie{}@tie{}@tie{}@tie{}(@code{magit-shell-command-topdir})
+@item @kbd{! s} @tie{}@tie{}@tie{}@tie{}(@code{magit-shell-command-topdir})
 
 This command reads a shell command from the user and executes it in
 the top-level directory of the current repository.
 
-@kindex ! p
+@kindex ! S
 @cindex magit-shell-command
-@item @kbd{! p} @tie{}@tie{}@tie{}@tie{}(@code{magit-shell-command})
+@item @kbd{! S} @tie{}@tie{}@tie{}@tie{}(@code{magit-shell-command})
 
 This command reads a shell command from the user and executes it in
 @code{default-directory}.  With a prefix argument the command is executed

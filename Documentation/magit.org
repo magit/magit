@@ -1150,12 +1150,12 @@ begin with the subcommand, "git" is assumed.
 
 These suffix commands run arbitrary shell commands.
 
-- Key: ! !, magit-shell-command-topdir
+- Key: ! s, magit-shell-command-topdir
 
   This command reads a shell command from the user and executes it in
   the top-level directory of the current repository.
 
-- Key: ! p, magit-shell-command
+- Key: ! S, magit-shell-command
 
   This command reads a shell command from the user and executes it in
   ~default-directory~.  With a prefix argument the command is executed
