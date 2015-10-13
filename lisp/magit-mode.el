@@ -72,7 +72,7 @@
 
 All Magit buffers (buffers whose major-modes derive from
 `magit-mode') are displayed using `magit-display-buffer',
-which in turn used the function specified here."
+which in turn uses the function specified here."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
   :type '(radio (function-item magit-display-buffer-traditional)
