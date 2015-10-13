@@ -1268,10 +1268,10 @@ Staging and applying changes is documented in info node
           "\\(contains \\(?:modified\\|untracked\\) content\\)\\|"
           "\\([^ :]+\\)\\( (rewind)\\)?:\\)$"))
 
-(defun magit-diff-wash-diffs (args)
+(defun magit-diff-wash-diffs (args &optional limit)
   (when (member "--stat" args)
     (magit-diff-wash-diffstat))
-  (when (re-search-forward magit-diff-headline-re nil t)
+  (when (re-search-forward magit-diff-headline-re limit t)
     (goto-char (line-beginning-position))
     (magit-wash-sequence (apply-partially 'magit-diff-wash-diff args))
     (insert ?\n)))
