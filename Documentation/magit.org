@@ -1947,11 +1947,8 @@ without having to using one of the diff popups.
   When this option is non-nil certain operations cause the relevant
   changes to be displayed automatically.
 
-  - ~commit~
-  - ~stage-all~
   - ~log-oneline~
   - ~log-follow~
-  - ~log-select~
   - ~blame-follow~
 
   In the event that expanding very large patches takes a long time, ~C-g~

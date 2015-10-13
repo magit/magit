@@ -2680,19 +2680,10 @@ changes to be displayed automatically.
 
 @itemize
 @item
-@code{commit}
-
-@item
-@code{stage-all}
-
-@item
 @code{log-oneline}
 
 @item
 @code{log-follow}
-
-@item
-@code{log-select}
 
 @item
 @code{blame-follow}

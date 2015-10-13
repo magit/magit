@@ -48,9 +48,17 @@
   :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
 
-(defcustom magit-commit-ask-to-stage t
+(defcustom magit-commit-ask-to-stage 'verbose
   "Whether to ask to stage everything when committing and nothing is staged."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.3.0")
+  :group 'magit-commands
+  :type '(choice (const :tag "Ask showing diff" verbose)
+                 (const :tag "Ask" t)
+                 (const :tag "Don't ask" nil)))
+
+(defcustom magit-commit-show-diff t
+  "Whether the relevant diff is automatically shown when committing."
+  :package-version '(magit . "2.3.0")
   :group 'magit-commands
   :type 'boolean)
 
@@ -229,7 +237,7 @@ depending on the value of option `magit-commit-squash-confirm'."
                  (not (or rebase
                           current-prefix-arg
                           magit-commit-squash-confirm))))
-        (let ((magit-diff-auto-show nil))
+        (let ((magit-commit-show-diff nil))
           (magit-run-git-with-editor "commit"
                                      (unless edit "--no-edit")
                                      (concat option "=" commit)
@@ -243,7 +251,7 @@ depending on the value of option `magit-commit-squash-confirm'."
                    "" "true"))))
         (format "Type %%p on a commit to %s into it,"
                 (substring option 2)))
-      (when (magit-diff-auto-show-p 'log-select)
+      (when magit-commit-show-diff
         (let ((magit-display-buffer-noselect t))
           (magit-diff-staged))))))
 
@@ -269,12 +277,12 @@ depending on the value of option `magit-commit-squash-confirm'."
    ((not (magit-anything-unstaged-p))
     (user-error "Nothing staged (or unstaged)"))
    (magit-commit-ask-to-stage
-    (when (magit-diff-auto-show-p 'stage-all)
+    (when (eq magit-commit-ask-to-stage 'verbose)
       (magit-diff-unstaged))
     (prog1 (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
              (magit-run-git "add" "-u" ".")
              (or args (list "--")))
-      (when (and (magit-diff-auto-show-p 'stage-all)
+      (when (and (eq magit-commit-ask-to-stage 'verbose)
                  (derived-mode-p 'magit-diff-mode))
         (magit-mode-bury-buffer))))
    (t
@@ -282,7 +290,7 @@ depending on the value of option `magit-commit-squash-confirm'."
 
 (defun magit-commit-diff ()
   (--when-let (and git-commit-mode
-                   (magit-diff-auto-show-p 'commit)
+                   magit-commit-show-diff
                    (pcase last-command
                      (`magit-commit
                       (apply-partially 'magit-diff-staged nil))
