@@ -364,14 +364,17 @@ returning the truename."
                ;; both is the case, then we are at the toplevel of
                ;; the same working tree, but also avoided needlessly
                ;; following any symlinks.
-               (let ((default-directory
-                       (setq updir (file-name-as-directory
-                                    (expand-file-name
-                                     (magit-rev-parse-safe "--show-cdup"))))))
-                 (and (string-equal (magit-rev-parse-safe "--show-cdup") "")
-                      (--when-let (magit-rev-parse-safe "--show-toplevel")
-                        (string-equal (magit-expand-git-file-name it)
-                                      topdir)))))
+               (progn
+                 (setq updir (file-name-as-directory
+                              (magit-rev-parse-safe "--show-cdup")))
+                 (setq updir (if (file-name-absolute-p updir)
+                                 (concat (file-remote-p default-directory) updir)
+                               (expand-file-name updir)))
+                 (let ((default-directory updir))
+                   (and (string-equal (magit-rev-parse-safe "--show-cdup") "")
+                        (--when-let (magit-rev-parse-safe "--show-toplevel")
+                          (string-equal (magit-expand-git-file-name it)
+                                        topdir))))))
               updir
             (concat (file-remote-p default-directory)
                     (file-name-as-directory topdir))))
