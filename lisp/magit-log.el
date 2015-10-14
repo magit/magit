@@ -942,7 +942,7 @@ Do not add this to a hook variable."
                 (magit-diff-wash-diffs (list "--stat") limit))
             (when align
               (setq align (make-string (1+ abbrev) ? )))
-            (while (and (not (eobp)) (not (looking-at magit-log-heading-re)))
+            (when (and (not (eobp)) (not (looking-at magit-log-heading-re)))
               (when align
                 (setq align (make-string (1+ abbrev) ? )))
               (while (and (not (eobp)) (not (looking-at magit-log-heading-re)))
