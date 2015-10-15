@@ -387,8 +387,12 @@ returning the truename."
                         (expand-file-name gitdir))))
         (if (magit-bare-repo-p)
             gitdir
-          ;; Step outside the control directory to enter the working tree.
-          (file-name-directory (directory-file-name gitdir)))))))
+          (let ((link (expand-file-name "gitdir" gitdir)))
+            (if (file-exists-p link)
+                ;; Return the linked working tree.
+                (file-name-directory (magit-file-line link))
+              ;; Step outside the control directory to enter the working tree.
+              (file-name-directory (directory-file-name gitdir)))))))))
 
 (defmacro magit-with-toplevel (&rest body)
   (declare (indent defun) (debug (body)))
