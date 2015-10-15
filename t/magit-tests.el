@@ -203,13 +203,13 @@
     (should (equal (match-string 99 "foo 'bar':") "bar"))))
 
 (ert-deftest magit-process:password-prompt ()
-  (cl-letf (((symbol-function 'magit-process-password-auth-source)
-             (lambda (host) (when (string= host "www.host.com") "mypasswd")))
-            ((symbol-function 'process-send-string)
-             (lambda (process string) string)))
-    (should (string-equal (magit-process-password-prompt
-                           nil "Password for 'www.host.com':")
-                          "mypasswd\n"))))
+  (let ((magit-process-find-password-functions
+         (list (lambda (host) (when (string= host "www.host.com") "mypasswd")))))
+    (cl-letf (((symbol-function 'process-send-string)
+               (lambda (process string) string)))
+      (should (string-equal (magit-process-password-prompt
+                             nil "Password for 'www.host.com':")
+                            "mypasswd\n")))))
 
 ;;; Status
 
