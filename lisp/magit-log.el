@@ -39,7 +39,6 @@
 (declare-function magit-insert-upstream-header 'magit)
 (declare-function magit-read-file-from-rev 'magit)
 (declare-function magit-show-commit 'magit)
-(defvar magit-blame-mode)
 (defvar magit-refs-indent-cherry-lines)
 (defvar magit-refs-show-commit-count)
 
