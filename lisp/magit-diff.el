@@ -1643,12 +1643,9 @@ or a ref which is not a branch, then it inserts nothing."
              (gravatar-size (- size 2))
              (slice1  '(slice .0 .0 1.0 0.5))
              (slice2  '(slice .0 .5 1.0 1.0)))
-        (when magit-revision-use-gravatar-kludge
-          (let ((s slice1))
-            (setq slice1 slice2 slice2 s)))
         (gravatar-retrieve
          email
-         (lambda (image offset align-to)
+         (lambda (image offset align-to slice1 slice2)
            (unless (eq image 'error)
              (insert (propertize " " 'display `((,@image :ascent center :relief 1)
                                                 ,slice1)))
@@ -1658,7 +1655,9 @@ or a ref which is not a branch, then it inserts nothing."
              (insert (propertize " " 'display `((,@image :ascent center :relief 1)
                                                 ,slice2)))
              (insert (propertize " " 'display `((space :align-to ,align-to))))))
-         (list offset align-to))))))
+         (list offset align-to
+               (if magit-revision-use-gravatar-kludge slice2 slice1)
+               (if magit-revision-use-gravatar-kludge slice1 slice2)))))))
 
 (defun magit-revision-set-visibility (section)
   "Preserve section visibility when displaying another commit."
