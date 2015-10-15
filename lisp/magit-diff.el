@@ -949,8 +949,9 @@ then visit the actual file.  Otherwise when the diff is about
 an older commit, then visit the respective blob using
 `magit-find-file'.  Also see `magit-diff-visit-file-worktree'
 which, as the name suggests always visits the actual file."
-  (interactive (list (or (magit-file-at-point)
-                         (user-error "No file at point"))
+  (interactive (list (--if-let (magit-file-at-point)
+                         (expand-file-name it)
+                       (user-error "No file at point"))
                      current-prefix-arg))
   (if (file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
