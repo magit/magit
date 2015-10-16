@@ -144,11 +144,12 @@ optional NODISPLAY is non-nil also display it."
   (interactive)
   (let ((topdir (magit-toplevel)))
     (unless topdir
-      (setq topdir default-directory)
-      (let (prev)
-        (while (not (equal topdir prev))
-          (setq prev topdir)
-          (setq topdir (file-name-directory (directory-file-name topdir))))))
+      (magit--with-safe-default-directory nil
+        (setq topdir default-directory)
+        (let (prev)
+          (while (not (equal topdir prev))
+            (setq prev topdir)
+            (setq topdir (file-name-directory (directory-file-name topdir)))))))
     (let ((buffer (or (--first (with-current-buffer it
                                  (and (eq major-mode 'magit-process-mode)
                                       (equal default-directory topdir)))
