@@ -97,13 +97,34 @@ When this is nil, no sections are ever removed."
 
 (defcustom magit-process-password-prompt-regexps
   '("^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
-    "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
+    ;; match-group 99 is used to identify a host
+    "^\\(Enter \\)?[Pp]assword\\( for '\\(?99:.*\\)'\\)?: ?$"
     "^.*'s password: ?$"
     "^Yubikey for .*: ?$")
-  "List of regexps matching password prompts of Git and its subprocesses."
+  "List of regexps matching password prompts of Git and its subprocesses.
+Also see `magit-process-find-password-functions'."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
   :type '(repeat (regexp)))
+
+(defcustom magit-process-find-password-functions nil
+  "List of functions to try in sequence to get a password.
+
+These functions may be called when git asks for a password, which
+is detected using `magit-process-password-prompt-regexps'.  They
+are called if and only if matching the prompt resulted in the
+value of the 99th submatch to be non-nil.  Therefore users can
+control for which prompts these functions should be called by
+putting the host name in the 99th submatch, or not.
+
+If the functions are called, then they are called in the order
+given, with the host name as only argument, until one of them
+returns non-nil.  If they are not called or none of them returns
+non-nil, then the password is read from the user instead."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-process
+  :type 'hook
+  :options '(magit-process-password-auth-source))
 
 (defcustom magit-process-username-prompt-regexps
   '("^Username for '.*': ?$")
@@ -622,13 +643,30 @@ tracked in the current repository are reverted if
           string)
          "\n"))))))
 
+(defun magit-process-password-auth-source (key)
+  "Use `auth-source-search' to get a password.
+If found, return the password.  Otherwise, return nil."
+  (require 'auth-source)
+  (let ((secret (plist-get (car (auth-source-search :max 1 :host key))
+                           :secret)))
+    (if (functionp secret)
+        (funcall secret)
+      secret)))
+
 (defun magit-process-password-prompt (process string)
-  "Forward password prompts to the user."
+  "Find a password based on prompt STRING and send it to git.
+First try the functions in `magit-process-find-password-functions'.
+If none of them returns a password, then read it from the user
+instead."
   (--when-let (magit-process-match-prompt
                magit-process-password-prompt-regexps string)
     (process-send-string
      process (magit-process-kill-on-abort process
-               (concat (read-passwd it) "\n")))))
+               (concat (or (--when-let (match-string 99 string)
+                             (run-hook-with-args-until-success
+                              'magit-process-find-password-functions it))
+                           (read-passwd it))
+                       "\n")))))
 
 (defun magit-process-username-prompt (process string)
   "Forward username prompts to the user."
@@ -639,11 +677,13 @@ tracked in the current repository are reverted if
                (concat (read-string it nil nil (user-login-name)) "\n")))))
 
 (defun magit-process-match-prompt (prompts string)
+  "Match STRING against PROMPTS and set match data.
+Return the matched string suffixed with \": \", if needed."
   (when (--any? (string-match it string) prompts)
     (let ((prompt (match-string 0 string)))
-      (cond ((string-match ": $" prompt) prompt)
-            ((string-match ":$"  prompt) (concat prompt " "))
-            (t                           (concat prompt ": "))))))
+      (cond ((string-suffix-p ": " prompt) prompt)
+            ((string-suffix-p ":"  prompt) (concat prompt " "))
+            (t                             (concat prompt ": "))))))
 
 (defun magit-process-wait ()
   (while (and magit-this-process

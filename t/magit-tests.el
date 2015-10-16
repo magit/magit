@@ -182,6 +182,35 @@
     (should (equal (magit-list-remote-branch-names "origin" t)
                    (list "master")))))
 
+(ert-deftest magit-process:match-prompt-nil-when-no-match ()
+  (should (null (magit-process-match-prompt '("^foo: ?$") "bar: "))))
+
+(ert-deftest magit-process:match-prompt-non-nil-when-match ()
+  (should (magit-process-match-prompt '("^foo: ?$") "foo: ")))
+
+(ert-deftest magit-process:match-prompt-match-non-first-prompt ()
+  (should (magit-process-match-prompt '("^bar: ?$ " "^foo: ?$") "foo: ")))
+
+(ert-deftest magit-process:match-prompt-suffixes-prompt ()
+  (let ((prompts '("^foo: ?$")))
+    (should (equal (magit-process-match-prompt prompts "foo:")  "foo: "))
+    (should (equal (magit-process-match-prompt prompts "foo: ") "foo: "))))
+
+(ert-deftest magit-process:match-prompt-preserves-match-group ()
+  (let* ((prompts '("^foo '\\(?99:.*\\)': ?$"))
+         (prompt (magit-process-match-prompt prompts "foo 'bar':")))
+    (should (equal prompt "foo 'bar': "))
+    (should (equal (match-string 99 "foo 'bar':") "bar"))))
+
+(ert-deftest magit-process:password-prompt ()
+  (let ((magit-process-find-password-functions
+         (list (lambda (host) (when (string= host "www.host.com") "mypasswd")))))
+    (cl-letf (((symbol-function 'process-send-string)
+               (lambda (process string) string)))
+      (should (string-equal (magit-process-password-prompt
+                             nil "Password for 'www.host.com':")
+                            "mypasswd\n")))))
+
 ;;; Status
 
 (defun magit-test-get-section (type info)
