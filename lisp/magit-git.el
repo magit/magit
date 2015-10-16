@@ -303,10 +303,9 @@ call function WASHER with no argument."
 (defmacro magit--with-safe-default-directory (file &rest body)
   (declare (indent 1) (debug (form body)))
   `(catch 'unsafe-default-dir
-     (let ((default-directory
-             (file-name-as-directory (--if-let ,file
-                                         (expand-file-name it)
-                                       default-directory)))
+     (let ((default-directory (file-name-as-directory
+                               (expand-file-name
+                                (or ,file default-directory))))
            previous)
        (while (not (file-accessible-directory-p default-directory))
          (setq default-directory
