@@ -87,26 +87,6 @@ Only considered when moving past the last entry with
   :group 'magit-log
   :type 'boolean)
 
-(defcustom magit-log-format-graph-function 'identity
-  "Function used to format graphs in log buffers.
-The function is called with one argument, the graph of a single
-line as a propertized string.  It has to return the formatted
-string.  Use `identity' to forgo changing the graph."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-log
-  :type '(choice (function-item identity)
-                 (function-item magit-log-format-unicode-graph)
-                 function))
-
-(defcustom magit-log-format-unicode-graph-alist
-  '((?/ . ?╱) (?| . ?│) (?\\ . ?╲) (?* . ?◆) (?o . ?◇))
-  "Alist used by `magit-log-format-unicode-graph' to translate chars."
-  :package-version '(magit . "1.4.0")
-  :group 'magit-log
-  :type '(repeat (cons :format "%v\n"
-                       (character :format "replace %v ")
-                       (character :format "with %v"))))
-
 (defcustom magit-log-show-margin t
   "Whether to initially show the margin in log buffers.
 
@@ -888,7 +868,7 @@ Do not add this to a hook variable."
         (when align
           (insert (propertize hash 'face 'magit-hash) ?\s))
         (when graph
-          (insert (funcall magit-log-format-graph-function graph)))
+          (insert graph))
         (unless align
           (insert (propertize hash 'face 'magit-hash) ?\s))
         (when (and refs (not magit-log-show-refname-after-summary))
@@ -959,21 +939,6 @@ Do not add this to a hook variable."
               (unless (string-match-p "[/\\]" graph)
                 (insert graph ?\n))))))))
   t)
-
-(defun magit-log-format-unicode-graph (string)
-  "Translate ascii characters to unicode characters.
-Whether that actually is an improvment depends on the unicode
-support of the font in use.  The translation is done using the
-alist in `magit-log-format-unicode-graph-alist'."
-  (replace-regexp-in-string
-   "[/|\\*o ]"
-   (lambda (str)
-     (propertize
-      (string (or (cdr (assq (aref str 0)
-                             magit-log-format-unicode-graph-alist))
-                  (aref str 0)))
-      'face (get-text-property 0 'face str)))
-   string))
 
 (defun magit-format-log-margin (&optional author date)
   (cl-destructuring-bind (width unit-width duration-spec)
