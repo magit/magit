@@ -1210,6 +1210,8 @@ This is useful to create a feature branch after work has already
 began on the old branch (likely but not necessarily \"master\")."
   (interactive (list (magit-read-string "Spin off branch")
                      (magit-branch-arguments)))
+  (when (magit-branch-p branch)
+    (user-error "Branch %s already exists" branch))
   (-if-let (current (magit-get-current-branch))
       (let (tracked base)
         (magit-call-git "checkout" args "-b" branch current)
