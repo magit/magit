@@ -37,9 +37,21 @@
   :group 'magit-extensions)
 
 (defcustom magit-blame-heading-format "%-20a %C %s"
-  "Format used for blame headings."
+  "Format string used for blame headings.
+
+The following placeholders are recognized:
+
+  %H    hash
+  %s    summary
+  %a    author
+  %A    author time
+  %c    committer
+  %C    committer time
+
+The author and committer time formats can be specified with
+`magit-blame-time-format'."
   :group 'magit-blame
-  :type 'regexp)
+  :type 'string)
 
 (defcustom magit-blame-time-format "%F %H:%M"
   "Format for time strings in blame headings."
