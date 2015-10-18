@@ -1450,9 +1450,14 @@ inspect the merge and change the commit message.
 (defun magit-merge-preview (rev)
   "Preview result of merging REV into the current branch."
   (interactive (list (magit-read-other-branch-or-commit "Preview merge")))
-  (magit-mode-setup #'magit-diff-mode rev))
+  (magit-mode-setup #'magit-merge-preview-mode rev))
 
-(defun magit-merge-refresh-preview-buffer (rev)
+(define-derived-mode magit-merge-preview-mode magit-diff-mode "Magit Merge"
+  "Mode for previewing a merge."
+  :group 'magit-diff
+  (hack-dir-local-variables-non-file-buffer))
+
+(defun magit-merge-preview-refresh-buffer (rev)
   (magit-insert-section (diffbuf)
     (let* ((branch (magit-get-current-branch))
            (head (or branch (magit-rev-verify "HEAD"))))
