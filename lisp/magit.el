@@ -1458,11 +1458,13 @@ inspect the merge and change the commit message.
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-merge-preview-refresh-buffer (rev)
-  (magit-insert-section (diffbuf)
-    (let* ((branch (magit-get-current-branch))
-           (head (or branch (magit-rev-verify "HEAD"))))
-      (magit-insert-heading (format "Preview merge of %s into %s"
-                                    rev (or branch "HEAD")))
+  (let* ((branch (magit-get-current-branch))
+         (head (or branch (magit-rev-verify "HEAD"))))
+    (setq header-line-format
+          (propertize (format "Preview merge of %s into %s"
+                              rev (or branch "HEAD"))
+                      'face 'magit-header-line))
+    (magit-insert-section (diffbuf)
       (magit-git-wash #'magit-diff-wash-diffs
         "merge-tree" (magit-git-string "merge-base" head rev) head rev))))
 
