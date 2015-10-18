@@ -685,6 +685,9 @@ Return the matched string suffixed with \": \", if needed."
             ((string-suffix-p ":"  prompt) (concat prompt " "))
             (t                             (concat prompt ": "))))))
 
+(defvar magit-credential-hook nil
+  "Hook run before Git needs credentials.")
+
 (defun magit-process-wait ()
   (while (and magit-this-process
               (eq (process-status magit-this-process) 'run))
