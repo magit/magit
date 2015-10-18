@@ -19,8 +19,6 @@ UNRELEASED.
 Changes since v2.2.0
 --------------------
 
-THIS IS NOT COMPLETE.
-
 * Added `--interactive' switch to `magit-rebase-popup' so that rebase
   variants which normally perform a non-interactive rebase can be used
   interactively too.  #2186
@@ -146,6 +144,29 @@ THIS IS NOT COMPLETE.
 * Added new options `magit-generate-buffer-name-function',
   `magit-buffer-name-format', and `magit-uniquify-buffer-names',
   replacing the various `magit-{*}-buffer-name-format' options.  #2282
+
+* Added new functions `magit-log-maybe-update-revision-buffer',
+  `magit-log-maybe-update-blob-buffer',
+  `magit-status-maybe-update-revision-buffer', and
+  `magit-status-maybe-update-blob-buffer', and added some of them to
+  `magit-section-movement-hook'.  Removed the function
+  `magit-log-maybe-show-commit', which served about the same purpose
+  as these new functions.  Previously one had to customize the option
+  `magit-diff-auto-show' to control when the other buffer was updated,
+  now one does so by adding or removing the above functions to or from
+  `magit-section-movement-hook'.  The other window is only ever
+  updated now, to create it use `SPC'.  #2338
+
+* Added new hook `magit-process-find-password-functions', with no
+  default members.  These functions, if any, are run when git requests
+  a password from the user, if there are no such functions, or if they
+  fail, then the user has to type the password as before.  Added new
+  function `magit-process-password-auth-source'.  It can be added to
+  that hook and uses `auth-source' to get the password from one of the
+  sources it supports.  #2311
+
+This release also contains various documentation fixes, code
+clean-ups, bug fixes, and other small to medium improvements.
 
 Authors
 -------
