@@ -407,7 +407,7 @@ and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847."
 
 (defface magit-diff-context-highlight
   '((((class color) (background light))
-     :background "grey85"
+     :background "grey95"
      :foreground "grey50")
     (((class color) (background dark))
      :background "grey20"
