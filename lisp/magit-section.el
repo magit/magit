@@ -103,7 +103,7 @@ section specific default (see `magit-insert-section')."
   :options '(magit-diff-expansion-threshold magit-revision-set-visibility))
 
 (defface magit-section-highlight
-  '((((class color) (background light)) :background "grey85")
+  '((((class color) (background light)) :background "grey95")
     (((class color) (background  dark)) :background "grey20"))
   "Face for highlighting the current section."
   :group 'magit-faces)
