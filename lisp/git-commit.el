@@ -124,6 +124,8 @@
 
 (defvar flyspell-generic-check-word-predicate)
 
+(declare-function magit-expand-git-file-name 'magit-git)
+
 ;;; Options
 ;;;; Variables
 
