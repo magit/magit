@@ -44,8 +44,11 @@
   <img src="http://magit.vc/img/l.png" align="top">
 </p>
 
-- Magit 2.1 and later (aka > 20150701) requires at least
-  Emacs 24.4 and Git 1.9.4.
+- Magit v2.1 and later (aka > 20150701) requires at least
+  Emacs v24.4 and Git v1.9.4.
+- Branching and pushing in v2.1 no longer behaves like it did in v1.
+  This has caused many complains, so branching and pushing will change
+  again in v2.4.
 - The branch manager has moved to <kbd>y</kbd>.
 
 ***
