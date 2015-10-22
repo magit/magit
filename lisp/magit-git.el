@@ -521,13 +521,14 @@ range.  Otherwise, it can be any revision or range accepted by
 (defcustom magit-cygwin-mount-points
   (when (eq system-type 'windows-nt)
     (cl-sort (--map (if (string-match "^\\(.*\\) on \\(.*\\) type" it)
-                        (cons (match-string 2 it) (match-string 1 it))
+                        (cons (file-name-as-directory (match-string 2 it))
+                              (file-name-as-directory (match-string 1 it)))
                       (lwarn '(magit) :error
                              "Failed to parse Cygwin mount: %S" it))
                     (ignore-errors (process-lines "mount")))
              #'> :key (-lambda ((cyg . win)) (length cyg))))
-  "Alist of (CYGWIN . WIN32) paths.
-Sorted from longest to shortest Cygwin path."
+  "Alist of (CYGWIN . WIN32) directory names.
+Sorted from longest to shortest CYGWIN name."
   :package-version '(magit . "2.3.0")
   :group 'magit-process
   :type '(alist :key-type string :value-type directory))
