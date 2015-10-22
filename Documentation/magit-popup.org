@@ -290,17 +290,23 @@ https://github.com/magit/magit/wiki/Additional-proposed-infix-arguments-and-suff
   of another command already defined for POPUP, the command is then
   placed before or after AT, depending on PREPEND.
 
+- Function: magit-define-popup-sequence-action popup key desc command &optional at prepend
+
+  Like ~magit-define-popup-action~, but modifies the value of the
+  ~:sequence-actions~ property instead of ~:actions~.
+
 - Function: magit-change-popup-key popup type from to
 
   In POPUP, bind TO to what FROM was bound to.  TYPE is one of
-  ~:action~, ~:switch~, or ~:option~.  Bind TO and unbind FROM, both are
-  characters.
+  ~:action~, ~:sequence-action~, ~:switch~, or ~:option~.  Bind TO and unbind
+  FROM, both are characters.
 
 - Function: magit-remove-popup-key popup type key
 
   In POPUP, remove KEY's binding of TYPE.  POPUP is a popup command
-  defined using ~magit-define-popup~.  TYPE is one of ~:action~, ~:switch~,
-  or ~:option~.  KEY is the character which is to be unbound.
+  defined using ~magit-define-popup~.  TYPE is one of ~:action~,
+  ~:sequence-action~, ~:switch~, or ~:option~.  KEY is the character which
+  is to be unbound.
 
 It is also possible to change other aspects of a popup by setting a
 property using ~plist-put~.  See [[*Defining prefix commands]] for valid

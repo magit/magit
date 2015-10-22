@@ -588,25 +588,34 @@ is then placed before or after AT, depending on PREPEND."
   (magit-define-popup-key popup :actions key
     (list desc command) at prepend))
 
+(defun magit-define-popup-sequence-action
+    (popup key desc command &optional at prepend)
+  "Like `magit-define-popup-action' but for `:sequence-action'."
+  (declare (indent defun))
+  (magit-define-popup-key popup :sequence-actions key
+    (list desc command) at prepend))
+
 (defconst magit-popup-type-plural-alist
   '((:switch . :switches)
     (:option . :options)
-    (:action . :actions)))
+    (:action . :actions)
+    (:sequence-action . :sequence-actions)))
 
 (defun magit-popup-pluralize-type (type)
   (or (cdr (assq type magit-popup-type-plural-alist))
       type))
 
-(defun magit-define-popup-key (popup type key def
-                                     &optional at prepend)
+(defun magit-define-popup-key
+    (popup type key def &optional at prepend)
   "In POPUP, define KEY as an action, switch, or option.
 It's better to use one of the specialized functions
   `magit-define-popup-action',
+  `magit-define-popup-sequence-action',
   `magit-define-popup-switch', or
   `magit-define-popup-option'."
   (declare (indent defun))
   (setq type (magit-popup-pluralize-type type))
-  (if (memq type '(:switches :options :actions))
+  (if (memq type '(:switches :options :actions :sequence-actions))
       (if (boundp popup)
           (let* ((plist (symbol-value popup))
                  (value (plist-get plist type))
@@ -641,8 +650,8 @@ It's better to use one of the specialized functions
 
 (defun magit-change-popup-key (popup type from to)
   "In POPUP, bind TO to what FROM was bound to.
-TYPE is one of `:action', `:switch', or `:option'.
-Bind TO and unbind FROM, both are characters."
+TYPE is one of `:action', `:sequence-action', `:switch', or
+`:option'.  Bind TO and unbind FROM, both are characters."
   (--if-let (assoc from (plist-get (symbol-value popup)
                                    (magit-popup-pluralize-type type)))
       (setcar it to)
@@ -651,8 +660,8 @@ Bind TO and unbind FROM, both are characters."
 (defun magit-remove-popup-key (popup type key)
   "In POPUP, remove KEY's binding of TYPE.
 POPUP is a popup command defined using `magit-define-popup'.
-TYPE is one of `:action', `:switch', or `:option'.
-KEY is the character which is to be unbound."
+TYPE is one of `:action', `:sequence-action', `:switch', or
+`:option'.  KEY is the character which is to be unbound."
   (setq type (magit-popup-pluralize-type type))
   (let* ((plist (symbol-value popup))
          (alist (plist-get plist type))
