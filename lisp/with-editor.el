@@ -8,7 +8,7 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "24.4") (async "20150812") (dash "2.11.0"))
+;; Package-Requires: ((emacs "24.4") (async "20150909.2257") (dash "20151021.113"))
 ;; Keywords: tools
 ;; Homepage: https://github.com/magit/magit
 

@@ -231,6 +231,7 @@ define set_package_requires
     (re-search-forward "^;; Package-Requires: ")
     (let ((s (read (buffer-substring (point) (line-end-position)))))
       (--when-let (assq 'async       s) (setcdr it (list async-version)))
+      (--when-let (assq 'dash        s) (setcdr it (list dash-version)))
       (--when-let (assq 'with-editor s) (setcdr it (list "$(VERSION)")))
       (--when-let (assq 'git-commit  s) (setcdr it (list "$(VERSION)")))
       (--when-let (assq 'magit-popup s) (setcdr it (list "$(VERSION)")))
@@ -244,9 +245,11 @@ export set_package_requires
 melpa-pre-release:
 	@$(BATCH) --eval "(progn\
         (setq async-version \"$(ASYNC_VERSION)\")\
+        (setq dash-version \"$(DASH_VERSION)\")\
         $$set_package_requires)"
 
 melpa-post-release:
 	@$(BATCH) --eval "(progn\
-        (setq async-version \"20150812\")\
+        (setq async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
+        (setq dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         $$set_package_requires)"
