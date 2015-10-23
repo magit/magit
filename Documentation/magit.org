@@ -422,16 +422,16 @@ for buffers visiting files]]).
 * Interface concepts
 ** Modes and Buffers
 
-Magit provides several major modes.  For each of these modes there
+Magit provides several major-modes.  For each of these modes there
 usually exists only one buffer per repository.  Separate modes and
 thus buffers exist for commits, diffs, logs, and some other things.
-
-In this manual we often speak about "Magit buffers".  By that we mean
-buffers whose major-modes derive from ~magit-mode~.
 
 Besides these special purpose buffers, there also exists an overview
 buffer, called the *status buffer*.  Its usually from this buffer that
 the user invokes Git commands, or creates or visits other buffers.
+
+In this manual we often speak about "Magit buffers".  By that we mean
+buffers whose major-modes derive from ~magit-mode~.
 
 - Key: M-x magit-toggle-buffer-lock, magit-toggle-buffer-lock
 
@@ -457,9 +457,9 @@ the user invokes Git commands, or creates or visits other buffers.
 - Function: magit-display-buffer buffer
 
   This function is a wrapper around ~display-buffer~ and is used to
-  display any Magit buffer. It displays BUFFER in some window and,
+  display any Magit buffer.  It displays BUFFER in some window and,
   unlike ~display-buffer~, also selects that window, provided
-  ~magit-display-buffer-noselect~ is nil.  It also runs the hooks
+  ~magit-display-buffer-noselect~ is ~nil~.  It also runs the hooks
   mentioned below.
 
 - Variable: magit-display-buffer-noselect
@@ -487,7 +487,7 @@ the user invokes Git commands, or creates or visits other buffers.
 
 - Function: magit-display-buffer-traditional buffer
 
-  This function is the current default value of option
+  This function is the current default value of the option
   ~magit-display-buffer-function~.  Before that option and this function
   were added, the behavior was hard-coded in many places all over the
   code base but now all the rules are contained in this one function
@@ -516,10 +516,11 @@ the user invokes Git commands, or creates or visits other buffers.
 
 - Function: magit-maybe-set-dedicated
 
-  This function remembers when a new window was created to display the
-  buffer.  That information is used by ~magit-mode-quit-window~, to
-  determine whether the window should be deleted when its last Magit
-  buffer is buried.
+  This function remembers if a new window had to be created to display
+  the buffer, or whether an existing window was reused.  This
+  information is later used by ~magit-mode-quit-window~, to determine
+  whether the window should be deleted when its last Magit buffer is
+  buried.
 
 *** Naming Buffers
 
@@ -527,11 +528,12 @@ the user invokes Git commands, or creates or visits other buffers.
 
   The function used to generate the names of Magit buffers.
 
-  Such a function should take ~magit-uniquify-buffer-names~ as well as
-  ~magit-buffer-name-format~ into account.  If it doesn't, then its
-  doc-string should say so.  If it supports %-sequences not mentioned
-  in the doc-string of ~magit-buffer-name-format~, then its own
-  doc-string should describe them.
+  Such a function should take the options ~magit-uniquify-buffer-names~
+  as well as ~magit-buffer-name-format~ into account.  If it doesn't,
+  then should be clearly stated in the doc-string.  And if it supports
+  %-sequences beyond those mentioned in the doc-string of the option
+  ~magit-buffer-name-format~, then its own doc-string should describe
+  the additions.
 
 - Function: magit-generate-buffer-name-default-function mode
 
@@ -539,9 +541,9 @@ the user invokes Git commands, or creates or visits other buffers.
   major-mode is MODE and which shows information about the repository
   in which ~default-directory~ is located.
 
-  This function uses ~magit-buffer-name-format~, supporting the
-  %-sequences mentioned the documentation of that option.  It also
-  respects ~magit-uniquify-buffer-names~.
+  This function uses ~magit-buffer-name-format~ and supporting all of
+  the %-sequences mentioned the documentation of that option.  It also
+  respects the option ~magit-uniquify-buffer-names~.
 
 - User Option: magit-buffer-name-format
 
@@ -549,36 +551,45 @@ the user invokes Git commands, or creates or visits other buffers.
 
   At least the following %-sequences are supported:
 
-  - ~%m~ The name of the major-mode, but with the ~-mode~ suffix removed.
+  - ~%m~
 
-  - ~%M~ Like ~%m~ but abbreviate ~magit-status-mode~ as ~magit~.
+    The name of the major-mode, but with the ~-mode~ suffix removed.
 
-  - ~%v~ The value the buffer is locked to, in parentheses, if it is the
+  - ~%M~
+
+    Like ~%m~ but abbreviate ~magit-status-mode~ as ~magit~.
+
+  - ~%v~
+
+    The value the buffer is locked to, in parentheses, if it is the
     buffer is actually locked to its value.  An empty string
     otherwise.
 
-  - ~%V~ Like ~%v~, but the string is prefixed with a space, unless it is
-    an empty string.
+  - ~%V~
 
-  - ~%t~ The top-level directory of the working tree of the repository,
-    or if ~magit-uniquify-buffer-name~ is non-nil an abbreviation of
-    that.
+    Like ~%v~, but the string is prefixed with a space, unless it is an
+    empty string.
 
-  The value should always contain either ~%m~ or ~%M~ as well as ~%t~.  If
-  ~magit-uniquify-buffer-name~ is non-nil, then the value must end with
-  ~%t~.
+  - ~%t~
+
+    The top-level directory of the working tree of the repository, or
+    if ~magit-uniquify-buffer-name~ is non-nil an abbreviation of that.
+
+  The value should always contain either ~%m~ or ~%M~, ~%v~ or ~%V~, and ~%t~.
+  If ~magit-uniquify-buffer-name~ is non-nil, then the value must end
+  with ~%t~.
 
 - User Option: magit-uniquify-buffer-names
 
   This option controls whether the names of Magit buffers are
   uniquified.  If the names are not being uniquified, then they
-  contain the full name to the top-level of the working tree of the
+  contain the full path of the top-level of the working tree of the
   corresponding repository.  If they are being uniquified, then they
   end with the basename of the top-level, or if that would conflict
   with the name used for other buffers, then the names of all these
   buffers are adjusted until they no longer conflict.
 
-  This is done using the ~uniquify~ package; custoize its options to
+  This is done using the ~uniquify~ package; customize its options to
   control how buffer names are uniquified.
 
 *** Quitting Windows
@@ -760,7 +771,7 @@ mode.  Each section also has a type, and some sections also have a
 value.  For each section type there can also be a local keymap, shared
 by all sections of that type.
 
-Taking advantage the section value and type, many commands operate on
+Taking advantage of the section value and type, many commands operate on
 the current section, or when the region is active and selects sections
 of the same type, all of the selected sections.  Commands that only
 make sense for a particular section type (as opposed to just behaving

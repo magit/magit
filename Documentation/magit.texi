@@ -672,16 +672,16 @@ You might also want to enable @code{global-magit-file-mode} (see @ref{Minor mode
 @node Modes and Buffers
 @section Modes and Buffers
 
-Magit provides several major modes.  For each of these modes there
+Magit provides several major-modes.  For each of these modes there
 usually exists only one buffer per repository.  Separate modes and
 thus buffers exist for commits, diffs, logs, and some other things.
-
-In this manual we often speak about "Magit buffers".  By that we mean
-buffers whose major-modes derive from @code{magit-mode}.
 
 Besides these special purpose buffers, there also exists an overview
 buffer, called the @strong{status buffer}.  Its usually from this buffer that
 the user invokes Git commands, or creates or visits other buffers.
+
+In this manual we often speak about "Magit buffers".  By that we mean
+buffers whose major-modes derive from @code{magit-mode}.
 
 @table @asis
 @kindex M-x magit-toggle-buffer-lock
@@ -718,9 +718,9 @@ displayed in its place.
 @defun magit-display-buffer buffer
 
 This function is a wrapper around @code{display-buffer} and is used to
-display any Magit buffer. It displays BUFFER in some window and,
+display any Magit buffer.  It displays BUFFER in some window and,
 unlike @code{display-buffer}, also selects that window, provided
-@code{magit-display-buffer-noselect} is nil.  It also runs the hooks
+@code{magit-display-buffer-noselect} is @code{nil}.  It also runs the hooks
 mentioned below.
 @end defun
 
@@ -750,7 +750,7 @@ To learn about display actions, see @ref{Choosing a Window for Display,,,elisp,}
 
 @defun magit-display-buffer-traditional buffer
 
-This function is the current default value of option
+This function is the current default value of the option
 @code{magit-display-buffer-function}.  Before that option and this function
 were added, the behavior was hard-coded in many places all over the
 code base but now all the rules are contained in this one function
@@ -783,10 +783,11 @@ buffer.
 
 @defun magit-maybe-set-dedicated
 
-This function remembers when a new window was created to display the
-buffer.  That information is used by @code{magit-mode-quit-window}, to
-determine whether the window should be deleted when its last Magit
-buffer is buried.
+This function remembers if a new window had to be created to display
+the buffer, or whether an existing window was reused.  This
+information is later used by @code{magit-mode-quit-window}, to determine
+whether the window should be deleted when its last Magit buffer is
+buried.
 @end defun
 
 @node Naming Buffers
@@ -796,11 +797,12 @@ buffer is buried.
 
 The function used to generate the names of Magit buffers.
 
-Such a function should take @code{magit-uniquify-buffer-names} as well as
-@code{magit-buffer-name-format} into account.  If it doesn't, then its
-doc-string should say so.  If it supports %-sequences not mentioned
-in the doc-string of @code{magit-buffer-name-format}, then its own
-doc-string should describe them.
+Such a function should take the options @code{magit-uniquify-buffer-names}
+as well as @code{magit-buffer-name-format} into account.  If it doesn't,
+then should be clearly stated in the doc-string.  And if it supports
+%-sequences beyond those mentioned in the doc-string of the option
+@code{magit-buffer-name-format}, then its own doc-string should describe
+the additions.
 @end defopt
 
 @defun magit-generate-buffer-name-default-function mode
@@ -809,9 +811,9 @@ This function returns a buffer name suitable for a buffer whose
 major-mode is MODE and which shows information about the repository
 in which @code{default-directory} is located.
 
-This function uses @code{magit-buffer-name-format}, supporting the
-%-sequences mentioned the documentation of that option.  It also
-respects @code{magit-uniquify-buffer-names}.
+This function uses @code{magit-buffer-name-format} and supporting all of
+the %-sequences mentioned the documentation of that option.  It also
+respects the option @code{magit-uniquify-buffer-names}.
 @end defun
 
 @defopt magit-buffer-name-format
@@ -822,45 +824,54 @@ At least the following %-sequences are supported:
 
 @itemize
 @item
-@code{%m} The name of the major-mode, but with the @code{-mode} suffix removed.
+@code{%m}
+
+The name of the major-mode, but with the @code{-mode} suffix removed.
 
 
 @item
-@code{%M} Like @code{%m} but abbreviate @code{magit-status-mode} as @code{magit}.
+@code{%M}
+
+Like @code{%m} but abbreviate @code{magit-status-mode} as @code{magit}.
 
 
 @item
-@code{%v} The value the buffer is locked to, in parentheses, if it is the
+@code{%v}
+
+The value the buffer is locked to, in parentheses, if it is the
 buffer is actually locked to its value.  An empty string
 otherwise.
 
 
 @item
-@code{%V} Like @code{%v}, but the string is prefixed with a space, unless it is
-an empty string.
+@code{%V}
+
+Like @code{%v}, but the string is prefixed with a space, unless it is an
+empty string.
 
 
 @item
-@code{%t} The top-level directory of the working tree of the repository,
-or if @code{magit-uniquify-buffer-name} is non-nil an abbreviation of
-that.
+@code{%t}
+
+The top-level directory of the working tree of the repository, or
+if @code{magit-uniquify-buffer-name} is non-nil an abbreviation of that.
 @end itemize
-The value should always contain either @code{%m} or @code{%M} as well as @code{%t}.  If
-@code{magit-uniquify-buffer-name} is non-nil, then the value must end with
-@code{%t}.
+The value should always contain either @code{%m} or @code{%M}, @code{%v} or @code{%V}, and @code{%t}.
+If @code{magit-uniquify-buffer-name} is non-nil, then the value must end
+with @code{%t}.
 @end defopt
 
 @defopt magit-uniquify-buffer-names
 
 This option controls whether the names of Magit buffers are
 uniquified.  If the names are not being uniquified, then they
-contain the full name to the top-level of the working tree of the
+contain the full path of the top-level of the working tree of the
 corresponding repository.  If they are being uniquified, then they
 end with the basename of the top-level, or if that would conflict
 with the name used for other buffers, then the names of all these
 buffers are adjusted until they no longer conflict.
 
-This is done using the @code{uniquify} package; custoize its options to
+This is done using the @code{uniquify} package; customize its options to
 control how buffer names are uniquified.
 @end defopt
 
@@ -1081,7 +1092,7 @@ mode.  Each section also has a type, and some sections also have a
 value.  For each section type there can also be a local keymap, shared
 by all sections of that type.
 
-Taking advantage the section value and type, many commands operate on
+Taking advantage of the section value and type, many commands operate on
 the current section, or when the region is active and selects sections
 of the same type, all of the selected sections.  Commands that only
 make sense for a particular section type (as opposed to just behaving
