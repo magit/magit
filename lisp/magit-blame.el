@@ -234,7 +234,10 @@ only arguments available from `magit-blame-popup' should be used.
     (if revision
         (magit-find-file revision file)
       (let ((default-directory default-directory))
-        (find-file file)))
+        (--if-let (find-buffer-visiting file)
+            (progn (switch-to-buffer it)
+                   (save-buffer))
+          (find-file file))))
     ;; ^ Make sure this doesn't affect the value used below.  b640c6f
     (widen)
     (when line
