@@ -88,6 +88,41 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   :type '(choice (const :tag "Never remove old sections" nil) integer))
 
+(defcustom magit-credential-cache-daemon-socket
+  (--some (-let [(prog . args) (split-string it)]
+            (if (string-match-p
+                 "\\`\\(?:\\(?:/.*/\\)?git-credential-\\)?cache\\'" prog)
+                (or (cl-loop for (opt val) on args
+                             if (string= opt "--socket")
+                             return val)
+                    (expand-file-name "~/.git-credential-cache/socket"))))
+          ;; Note: `magit-process-file' is not yet defined when
+          ;; evaluating this form, so we use `process-lines'.
+          (ignore-errors
+            (process-lines magit-git-executable
+                           "config" "--get-all" "credential.helper")))
+  "If non-nil, start a credential cache daemon using this socket.
+
+When using Git's cache credential helper in the normal way, Emacs
+sends a SIGHUP to the credential daemon after the git subprocess
+has exited, causing the daemon to also quit.  This can be avoided
+by starting the `git-credential-cache--daemon' process directly
+from Emacs.
+
+The function `magit-maybe-start-credential-cache-daemon' takes
+care of starting the daemon if necessary, using the value of this
+option as the socket.  If this option is nil, then it does not
+start any daemon.  Likewise if another daemon is already running,
+then it starts no new daemon.  This function has to be a member
+of the hook variable `magit-credential-hook' for this to work.
+If an error occurs while starting the daemon, most likely because
+the necessary executable is missing, then the function removes
+itself from the hook, to avoid further futile attempts."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-process
+  :type '(choice (file  :tag "Socket")
+                 (const :tag "Don't start a cache daemon" nil)))
+
 (defcustom magit-process-yes-or-no-prompt-regexp
   " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])] ?[?:] ?$"
   "Regexp matching Yes-or-No prompts of Git and its subprocesses."
@@ -684,6 +719,42 @@ Return the matched string suffixed with \": \", if needed."
       (cond ((string-suffix-p ": " prompt) prompt)
             ((string-suffix-p ":"  prompt) (concat prompt " "))
             (t                             (concat prompt ": "))))))
+
+(defvar magit-credential-hook nil
+  "Hook run before Git needs credentials.")
+
+(defvar magit-credential-cache-daemon-process nil)
+
+(defun magit-maybe-start-credential-cache-daemon ()
+  "Maybe start a `git-credential-cache--daemon' process.
+
+If such a process is already running or if the value of option
+`magit-credential-cache-daemon-socket' is nil, then do nothing.
+Otherwise start the process passing the value of that options
+as argument."
+  (unless (or (not magit-credential-cache-daemon-socket)
+              (process-live-p magit-credential-cache-daemon-process)
+              (memq magit-credential-cache-daemon-process
+                    (list-system-processes)))
+    (setq magit-credential-cache-daemon-process
+          (or (--first (-let (((&alist 'comm comm 'user user)
+                               (process-attributes it)))
+                         (and (string= comm "git-credential-cache--daemon")
+                              (string= user user-login-name)))
+                       (list-system-processes))
+              (condition-case err
+                  (start-process "git-credential-cache--daemon"
+                                 " *git-credential-cache--daemon*"
+                                 magit-git-executable
+                                 "credential-cache--daemon"
+                                 magit-credential-cache-daemon-socket)
+                ;; Some Git implementations (e.g. Windows) won't have
+                ;; this program; if we fail the first time, stop trying.
+                ((debug error)
+                 (remove-hook 'magit-credential-hook
+                              #'magit-maybe-start-credential-cache-daemon)))))))
+
+(add-hook 'magit-credential-hook #'magit-maybe-start-credential-cache-daemon)
 
 (defun magit-process-wait ()
   (while (and magit-this-process
