@@ -1176,6 +1176,11 @@ Staging and applying changes is documented in info node
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-diff-refresh-buffer (rev-or-range const _args files)
+  "Refresh the current `magit-diff-mode' buffer.
+
+In such buffer the buffer-local value of `magit-refresh-args',
+has the same form as the arguments of this function.  The value
+is set in `magit-mode-setup'."
   (setq header-line-format
         (propertize
          (if (member "--no-index" const)
