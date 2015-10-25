@@ -2169,7 +2169,11 @@ repository, otherwise in `default-directory'."
     (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
                                                      (point-max))))
     (setq default-directory directory)
-    (magit-run-git-async args))
+    (let ((magit-git-global-arguments
+           ;; A human will want globbing by default.
+           (remove "--literal-pathspecs"
+                   magit-git-global-arguments)))
+     (magit-run-git-async args)))
   (magit-process-buffer))
 
 ;;;###autoload
