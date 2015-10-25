@@ -664,8 +664,8 @@ latter is displayed in its place."
                                     magit-stashes-mode))
                  (car magit-refresh-args))
                 ((eq major-mode 'magit-diff-mode)
-                 (append (or (car magit-refresh-args) '(unstaged))
-                         (cadr magit-refresh-args)))))
+                 (-let [(from to . _) (-flatten magit-refresh-args)]
+                   (list (or from 'unstaged) to)))))
     (if magit-buffer-locked-p
         (rename-buffer (funcall magit-generate-buffer-name-function
                                 major-mode magit-buffer-locked-p))
