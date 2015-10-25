@@ -666,9 +666,11 @@ latter is displayed in its place."
                 ((eq major-mode 'magit-diff-mode)
                  (let ((rev  (nth 0 magit-refresh-args))
                        (args (nth 1 magit-refresh-args)))
-                   (if rev
-                       (if args (cons rev args) rev)
-                     (if (member "--cached" args) "staged" "unstaged"))))))
+                   (cond
+                    ((member "--no-index" args)
+                     (nth 3 magit-refresh-args))
+                    (rev (if args (cons rev args) rev))
+                    (t   (if (member "--cached" args) "staged" "unstaged")))))))
     (if magit-buffer-locked-p
         (rename-buffer (funcall magit-generate-buffer-name-function
                                 major-mode magit-buffer-locked-p))
