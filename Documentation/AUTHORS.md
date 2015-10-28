@@ -56,6 +56,7 @@ Contributors
 - Andrew Kirkpatrick <andrew.kirkpatrick@adelaide.edu.au>
 - Andrew Schwartzmeyer <andrew@schwartzmeyer.com>
 - Andrey Smirnov <andrew.smirnov@gmail.com>
+- Andriy Kmit' <dev@madand.net>
 - Andy Sawyer <git@pureabstract.org>
 - Barak A. Pearlmutter <barak+git@pearlmutter.net>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
@@ -74,7 +75,7 @@ Contributors
 - Cornelius Mika <cornelius.mika@gmail.com>
 - Craig Andera <candera@wangdera.com>
 - Dale Hagglund <dale.hagglund@gmail.com>
-- Damien Cassou <damien.cassou@gmail.com>
+- Damien Cassou <damien@cassou.me>
 - Daniel Brockman <daniel@gointeractive.se>
 - Daniel Farina <drfarina@acm.org>
 - Daniel Hackney <dan@haxney.org>
@@ -156,7 +157,9 @@ Contributors
 - Nick Dimiduk <ndimiduk@gmail.com>
 - Nicklas Lindgren <nili@gulmohar.se>
 - Nicolas Dudebout <nicolas.dudebout@gatech.edu>
+- Nicolas Petton <nicolas@petton.fr>
 - Nicolas Richard <theonewiththeevillook@yahoo.fr>
+- Nikolay Martynov <mar.kolya@gmail.com>
 - Noam Postavsky <npostavs@users.sourceforge.net>
 - Ole Arndt <oliver.arndt@cegedim.com>
 - Oleh Krehel <ohwoeowho@gmail.com>
@@ -165,6 +168,7 @@ Contributors
 - Pavel Holejsovsky <pavel.holejsovsky@upek.com>
 - Pekka Pessi <nospam@pessi.fi>
 - Peter Eisentraut <peter@eisentraut.org>
+- Peter Jaros <peter.a.jaros@gmail.com>
 - Peter J. Weisberg <pj@irregularexpressions.net>
 - Peter Vasil <mail@petervasil.net>
 - Philippe Vaucher <philippe.vaucher@gmail.com>
