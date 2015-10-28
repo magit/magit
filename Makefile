@@ -5,7 +5,7 @@ include default.mk
 	install install-lisp install-docs install-info \
 	test test-interactive magit \
 	clean clean-lisp clean-docs clean-archives \
-	genstats melpa-pre-release melpa-post-release \
+	genstats bump-version melpa-post-release \
 	dist magit-$(VERSION).tar.gz elpa $(ELPA_ARCHIVES)
 
 all: lisp docs
@@ -47,7 +47,7 @@ help:
 	$(info make authors          - regenerate AUTHORS.md)
 	$(info make dist             - create tarballs)
 	$(info make elpa             - create elpa tarballs)
-	$(info make VERSION=... melpa-pre-release)
+	$(info make VERSION=... bump-version)
 	$(info make VERSION=... melpa-post-release)
 	$(info -                     - fixup version strings)
 	@printf "\n"
@@ -245,11 +245,26 @@ endef
 # '
 export set_package_requires
 
-melpa-pre-release:
+define set_manual_version
+(let ((version (split-string "$(VERSION)" "\\.")))
+  (setq version (concat (car version) "." (cadr version)))
+  (dolist (file (list "with-editor" "magit-popup" "magit"))
+    (with-current-buffer (find-file-noselect (format "Documentation/%s.org" file))
+      (goto-char (point-min))
+      (re-search-forward "^#\\+SUBTITLE: for version ")
+      (delete-region (point) (line-end-position))
+      (insert version)
+      (save-buffer))))
+endef
+#'
+export set_manual_version
+
+bump-version:
 	@$(BATCH) --eval "(progn\
         (setq async-version \"$(ASYNC_VERSION)\")\
         (setq dash-version \"$(DASH_VERSION)\")\
-        $$set_package_requires)"
+        $$set_package_requires\
+        $$set_manual_version)"
 
 melpa-post-release:
 	@$(BATCH) --eval "(progn\
