@@ -47,7 +47,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title With-Editor User Manual
-@subtitle for version 2.2
+@subtitle for version 2.3
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll

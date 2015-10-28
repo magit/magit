@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: With-Editor: (with-editor).
 #+TEXINFO_DIR_DESC: Using the Emacsclient as $EDITOR
-#+SUBTITLE: for version 2.2
+#+SUBTITLE: for version 2.3
 
 #+OPTIONS: H:4 num:3 toc:2
 #+STARTUP: indent
