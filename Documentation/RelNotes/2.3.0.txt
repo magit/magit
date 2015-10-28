@@ -75,10 +75,12 @@ Changes since v2.2.0
   hooks `magit-diff-section-hook' and `magit-revision-section-hook'.
   #2216
 
-* Gravatar images are now shown in `magit-revision-buffers' by
-  default.  New option `magit-revision-show-gravatars' controls
-  whether these images should be inserted and can also be used to
-  adjust to customization of `magit-revision-headers-format'.
+* Gravatar images can now be shown in `magit-revision-buffers'.  New
+  option `magit-revision-show-gravatars' controls whether these images
+  should be inserted and can also be used to adjust to customizations
+  of `magit-revision-headers-format'.
+
+  This feature is not enabled by default due to privacy concerns.
 
   Gravatar images are spliced into two halves which are then displayed
   on separate lines.  On OS X the splicing has a bug in some Emacs

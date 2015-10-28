@@ -208,8 +208,7 @@ subject to option `magit-revision-insert-related-refs'."
   :group 'magit-revision
   :type 'boolean)
 
-(defcustom magit-revision-show-gravatars
-  '("^Author:     " . "^Commit:     ")
+(defcustom magit-revision-show-gravatars nil
   "Whether to show gravatar images in revision buffers.
 
 If non-nil, then the value has to be a cons-cell which specifies
