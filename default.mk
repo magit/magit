@@ -7,6 +7,11 @@ infodir  ?= $(sharedir)/info
 docdir   ?= $(sharedir)/doc/magit
 statsdir ?= ./stats
 
+# You might also want to set LOAD_PATH.  If you do, then it must
+# contain "-L .".  If you don't then the default is set, assuming
+# that all dependencies are installed either at ../<DEPENDENCY>,
+# or using package.el at ELPA_DIR/<DEPENDENCY>-<HIGHEST-VERSION>.
+
 CP    ?= install -p -m 644
 MKDIR ?= install -p -m 755 -d
 RMDIR ?= rm -rf
@@ -55,6 +60,8 @@ DASH_MELPA_SNAPSHOT = 20151021.113
 
 EMACSBIN ?= emacs
 
+ifndef LOAD_PATH
+
 ELPA_DIR ?= $(HOME)/.emacs.d/elpa
 
 DASH_DIR ?= $(shell \
@@ -71,6 +78,8 @@ ifdef CYGPATH
 else
   LOAD_PATH ?= -L $(TOP)/lisp -L $(DASH_DIR)
 endif
+
+endif # ifndef LOAD_PATH
 
 BATCH = $(EMACSBIN) -batch -Q $(LOAD_PATH)
 
