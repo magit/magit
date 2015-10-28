@@ -265,9 +265,9 @@ from what you expected.  For example inside the push popup type
 all push commands at once, consult the manual.
 
 While I have your attention, I would also like to warn you that
-pushing will be further improved in a later release (probably
-v2.3.0), and that you might be surprised by some of these
-changes, unless you read the documentation.
+pushing will be further improved in the v2.4.0 release, and that
+you might be surprised by some of these changes, unless you read
+the documentation.
 
 Setting this option to t makes little sense.  If you consider
 doing that, then you should probably just use `Pe' instead of
