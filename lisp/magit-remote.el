@@ -45,9 +45,10 @@ Then show the status buffer for the new repository."
                   "Clone to: " nil nil nil
                   (and (string-match "\\([^./]+\\)\\(\\.git\\)?$" url)
                        (match-string 1 url))))))))
-  (make-directory directory t)
   (message "Cloning %s..." repository)
-  (when (= (magit-call-git "clone" repository directory) 0)
+  (when (= (magit-call-git "clone" repository
+                           ;; Stop cygwin git making a "c:" directory.
+                           (magit-convert-git-file-name directory)) 0)
     (message "Cloning %s...done" repository)
     (magit-status-internal directory)))
 
