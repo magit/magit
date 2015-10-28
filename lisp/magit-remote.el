@@ -39,17 +39,15 @@
 Then show the status buffer for the new repository."
   (interactive
    (let  ((url (magit-read-string-ns "Clone repository")))
-     (list url (file-name-as-directory
-                (expand-file-name
-                 (read-directory-name
-                  "Clone to: " nil nil nil
-                  (and (string-match "\\([^./]+\\)\\(\\.git\\)?$" url)
-                       (match-string 1 url))))))))
+     (list url (read-directory-name
+                "Clone to: " nil nil nil
+                (and (string-match "\\([^./]+\\)\\(\\.git\\)?$" url)
+                     (match-string 1 url))))))
+  (setq directory (file-name-as-directory (expand-file-name directory)))
   (message "Cloning %s..." repository)
   (when (= (magit-call-git "clone" repository
                            ;; Stop cygwin git making a "c:" directory.
-                           (magit-convert-git-filename
-                            (expand-file-name directory)))
+                           (magit-convert-git-filename directory))
            0)
     (message "Cloning %s...done" repository)
     (magit-status-internal directory)))
