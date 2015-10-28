@@ -542,6 +542,13 @@ Sorted from longest to shortest CYGWIN name."
       (concat win (substring filename (length cyg)))
     filename))
 
+(defun magit-convert-git-filename (filename)
+  (-if-let ((cyg . win)
+            (cl-rassoc filename magit-cygwin-mount-points
+                       :test (lambda (f win) (string-prefix-p win f))))
+      (concat cyg (substring filename (length win)))
+    filename))
+
 (defun magit-decode-git-path (path)
   (if (eq (aref path 0) ?\")
       (string-as-multibyte (read path))
