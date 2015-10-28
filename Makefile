@@ -14,6 +14,8 @@ help:
 	$(info )
 	$(info Current version: magit-$(VERSION))
 	$(info )
+	$(info See default.mk for variables you might want to set.)
+	$(info )
 	$(info Build)
 	$(info =====)
 	$(info )
