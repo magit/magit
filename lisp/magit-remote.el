@@ -48,7 +48,9 @@ Then show the status buffer for the new repository."
   (message "Cloning %s..." repository)
   (when (= (magit-call-git "clone" repository
                            ;; Stop cygwin git making a "c:" directory.
-                           (magit-convert-git-filename directory)) 0)
+                           (magit-convert-git-filename
+                            (expand-file-name directory)))
+           0)
     (message "Cloning %s...done" repository)
     (magit-status-internal directory)))
 
