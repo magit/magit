@@ -1124,7 +1124,8 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
      (list directory)))
   (make-directory directory t)
   ;; `git init' does not understand the meaning of "~"!
-  (magit-call-git "init" (expand-file-name directory))
+  (magit-call-git "init" (magit-convert-git-filename
+                          (expand-file-name directory)))
   (magit-status-internal directory))
 
 ;;;; Branch
