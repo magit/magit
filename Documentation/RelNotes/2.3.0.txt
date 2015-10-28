@@ -24,11 +24,13 @@ Changes since v2.2.0
   interactively too.  #2186
 
 * Commands that perform an interactive rebase should no longer be used
-  non-interactively.  #2187
+  non-interactively (i.e. the should only be used as commands).  #2187
 
-* Rebasing commands now can start with a root commit.  #2187
+* Rebasing commands now can start with a root commit.  Root commits
+  are detected automatically, so users don't have to use the `--root'
+  switch explicitly.  #2187
 
-* New command `magit-checkout-file'.
+* Added new command `magit-checkout-file'.
 
 * Added new option `magit-bury-buffer-function' to give users more
   control over how Magit buffers are buried, replacing the old binary
@@ -73,10 +75,16 @@ Changes since v2.2.0
   hooks `magit-diff-section-hook' and `magit-revision-section-hook'.
   #2216
 
-* Gravatar images are now shown in `magit-revision-buffers' be
+* Gravatar images are now shown in `magit-revision-buffers' by
   default.  New option `magit-revision-show-gravatars' controls
   whether these images should be inserted and can also be used to
-  adjust to customization of `magit-revision-headers-format'.  #2216
+  adjust to customization of `magit-revision-headers-format'.
+
+  Gravatar images are spliced into two halves which are then displayed
+  on separate lines.  On OS X the splicing has a bug in some Emacs
+  builds, which causes the top and bottom halves to be interchanged.
+  Setting the new option `magit-revision-use-gravatar-kludge' to `t'
+  works around this issue.  #2216
 
 * After using the region to stage or discard parts of a hunk, point is
   now placed on the beginning of the next or previous block of changed
@@ -90,14 +98,32 @@ Changes since v2.2.0
 
 * New option `magit-keep-region-overlay' allows displaying the region
   overlay together with the visualization of a valid Magit selection.
-  See the doc-string for why you don't want to do that, but if you
-  disagree then you can now have it your way.  #2091
+  See the doc-string for why we think you shouldn't do that, but if
+  you disagree then you can now have it your way.  #2091
+
+* Avoid the inefficiency of `git log --graph --max-count=N REV' (it
+  calculates the graph for all reachable commits, not just the N
+  commits), by additionally limiting the history using a range
+  calculated from REV and N, when possible.  #2243
 
 * Renamed `magit-file-buffer-mode' to `magit-file-mode'.  Related
   symbols were renamed accordingly.
 
 * Added new minor mode `magit-blob-mode' and new commands
   `magit-blob-previous' and `magit-blob-next'.  #2195
+
+* Added new commands `magit-branch-spinoff' and `magit-branch-reset'.
+  #2191
+
+* Added new option `magit-status-expand-stashes'.
+
+* In addition to `default-directory' also set `list-buffers-directory'
+  to the top-level of the working tree in Magit buffers, causing that
+  directory to be displayed in the "File" column of the *Buffer List*
+  buffer.
+
+* Added a kludge to keep Cygwin and MYSYS2 executables from expanding
+  globs when called from a native Windows Emacs executable.  #2281
 
 * Added a revision stack.  The new commands `magit-copy-section-value'
   and `magit-copy-buffer-revision', which are intended for use inside
@@ -108,6 +134,11 @@ Changes since v2.2.0
   `magit-copy-as-kill' and `magit-copy-buffer-thing-as-kill' have been
   removed.  #2225
 
+* The default values of options `magit-commit-extend-override-date'
+  and `magit-commit-extend-override-date' changed to `t'.
+
+* Added new option `magit-log-show-margin'.
+
 * Added new option `magit-log-remove-graph-args'.  #2226
 
 * Added support for showing actionable diffs inside logs.  #2226
@@ -115,6 +146,15 @@ Changes since v2.2.0
 * Added basic support for tracing the evolution of a region.  #2226
 
 * Added new command `magit-stash-format-patch'.
+
+* All apply variants learned how to apply multiple hunks at once. #2271
+
+* Regular apply learned how to apply multiple files at once. #2271
+
+* `git-commit-setup' learned to handle Cygwin paths.  It had to be
+  taught about that separately from the rest of Magit, because, for
+  historic reasons, we try to keep the `git-commit' package usable
+  without Magit.
 
 * The signatures of `magit-mode-setup' and `magit-mode-get-buffer'
   have changed, and `magit-mode-get-buffer-create' has been removed.
@@ -145,6 +185,21 @@ Changes since v2.2.0
   `magit-buffer-name-format', and `magit-uniquify-buffer-names',
   replacing the various `magit-{*}-buffer-name-format' options.  #2282
 
+* Added new command `magit-toggle-buffer-lock'.  Previously it was
+  possible to prevent Magit from reusing an existing buffer to display
+  something else, using the command `magit-rename-buffer' (which was
+  removed).  Now this is done by locking the buffer to its value.
+  #2282
+
+* The status buffer is now always refreshed after running a Magit
+  command triggers a refresh.  Previously that was only the case if
+  the buffer in which the command was invoked was a Magit buffer too.
+
+* Added optional support for refreshing the status buffer every time a
+  buffer visiting a file, which is tracked in the current repository,
+  is saved.  To enable this add `magit-after-save-refresh-buffers' to
+  `after-save-hook'.
+
 * Added new functions `magit-log-maybe-update-revision-buffer',
   `magit-log-maybe-update-blob-buffer',
   `magit-status-maybe-update-revision-buffer', and
@@ -155,7 +210,7 @@ Changes since v2.2.0
   `magit-diff-auto-show' to control when the other buffer was updated,
   now one does so by adding or removing the above functions to or from
   `magit-section-movement-hook'.  The other window is only ever
-  updated now, to create it use `SPC'.  #2338
+  updated now, to initially create it, use `SPC'.  #2338
 
 * Added new hook `magit-process-find-password-functions', with no
   default members.  These functions, if any, are run when git requests
@@ -164,6 +219,24 @@ Changes since v2.2.0
   function `magit-process-password-auth-source'.  It can be added to
   that hook and uses `auth-source' to get the password from one of the
   sources it supports.  #2311
+
+* Removed broken support for unicode log graphs.
+
+* `magit-expand-git-file-name' learned to use the output of `mount' to
+  map Cygwin paths into native Windows paths.  `git-commit-setup' now
+  uses `magit-expand-git-file-name' if available.  #2348
+
+* Added new function `magit-define-popup-sequence-action' and taught
+  related functions about `:sequence-actions'.
+
+* Added new hook `magit-credential-hook' and added new hook function
+  `magit-maybe-start-credential-cache-daemon' to it.  This allows
+  starting Git's credential daemon separately, which is necessary
+  because Emacs sends SIGHUP and closes the pty when e.g `git push'
+  (which started the daemon) finishes.  Upon receiving that signal
+  the daemon terminates.  We work around this by starting the daemon
+  directly before invoking the git subcommand which might need
+  credentials.  #2360
 
 This release also contains various documentation fixes, code
 clean-ups, bug fixes, and other small to medium improvements.
