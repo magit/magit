@@ -1,4 +1,17 @@
 <a href="#readme"></a>
+
+<p align="center">
+  <img src="http://magit.vc/img/L.png" align="left">
+  <img src="http://magit.vc/img/R.png" align="right">
+  <b>
+    When something doesn't work as expected, then please first consult the
+    <a href="http://magit.vc/manual/magit/FAQ.html">FAQ</a> and ask a
+	search engine.   If that doesn't solve your problem, then please ask for help on
+    <a href="http://emacs.stackexchange.com/questions/tagged/magit"> Emacs.Stackexchange</a>.
+  </b>
+</p>
+***
+
 <p align="center"><img src="http://magit.vc/img/magit.png"/></p>
 <h1 align="center">It's Magit!</h1>
 <h2 align="center">A Git Porcelain inside Emacs</h2>
@@ -29,28 +42,13 @@
 ***
 
 <p align="center">
+  <img src="http://magit.vc/img/L.png" align="left">
+  <img src="http://magit.vc/img/R.png" align="right">
   <b>
     Please consider supporting development by making a
     <a href="http://magit.vc/donations.html">donation</a>.
   </b>
 </p>
-***
-
-<p align="center">
-  <img src="http://magit.vc/img/r.png" align="top">
-  User who haven't read the
-  <a href="http://magit.vc/manual/magit/FAQ.html"><b>FAQ</b></a>
-  are frequently surprised that:
-  <img src="http://magit.vc/img/l.png" align="top">
-</p>
-
-- Magit v2.1 and later (aka > 20150701) requires at least
-  Emacs v24.4 and Git v1.9.4.
-- Branching and pushing in v2.1 no longer behaves like it did in v1.
-  This has caused many complains, so branching and pushing will change
-  again in v2.4.
-- The branch manager has moved to <kbd>y</kbd>.
-
 ***
 
 Support
