@@ -433,7 +433,7 @@ directly invoke the popup's default action.
 
 Ignore prefix arguments.
 @end itemize
-This option can be overriden for individual popups.
+This option can be overridden for individual popups.
 @code{magit-show-refs-popup} for example defaults to invoking the default
 action directly.  It only shows the popup buffer when a prefix
 argument is used.  See @ref{Customizing existing popups,Customizing existing popups}.
