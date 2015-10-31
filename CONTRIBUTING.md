@@ -23,7 +23,7 @@ Code contributions
 ==================
 
 If you have some code which you would like to be merged, then open a
-[pull requests][pulls].  Please create atomic commits with descriptive
+[pull request][pulls].  Please create atomic commits with descriptive
 commit messages.
 
 Donations
