@@ -42,8 +42,6 @@
 ***
 
 <p align="center">
-  <img src="http://magit.vc/img/L.png" align="left">
-  <img src="http://magit.vc/img/R.png" align="right">
   <b>
     Please consider supporting development by making a
     <a href="http://magit.vc/donations.html">donation</a>.
