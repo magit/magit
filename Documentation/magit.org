@@ -943,7 +943,7 @@ useful.  But your mileage may vary.
 
   Recursively show the bodies of children of the current section.
   With a prefix argument show children down to the level of the
-  currect section, and hide deeper children.
+  current section, and hide deeper children.
 
 - Command: magit-section-hide-children
 
@@ -1913,7 +1913,7 @@ particular argument.
 
   This command resets the context for diff hunks to the default height.
 
-The following commands quicky change what diff is being displayed
+The following commands quickly change what diff is being displayed
 without having to using one of the diff popups.
 
 - Key: C-c C-d, magit-diff-while-committing
@@ -2677,7 +2677,7 @@ those for finishing and aborting the commit.
   Cancel the current editing session by returning with exit code 1.
   Git then cancels the commit, but leaves the file untouched.
 
-In additon to being used by Git, these messages may also be stored in
+In addition to being used by Git, these messages may also be stored in
 a ring that persists until Emacs is closed.  By default the message is
 stored at the beginning and the end of an edit session (regardless of
 whether the session is finished successfully or was canceled).  It is
@@ -3681,7 +3681,7 @@ Also see [[info:gitman#git-push]].
 
 - Key: P i, magit-push-implicitly
 
-  Push without explicitly specifing what to push.  This runs ~git push
+  Push without explicitly specifying what to push.  This runs ~git push
   -v~.  What is being pushed depends on various Git variables as
   described in the info:gitman#git-push and info:gitman#git-config
   manpages.
