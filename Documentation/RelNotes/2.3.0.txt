@@ -24,10 +24,10 @@ Changes since v2.2.0
 
 * Added `--interactive' switch to `magit-rebase-popup' so that rebase
   variants which normally perform a non-interactive rebase can be used
-  interactively too.  #2186
+  to perform an interactive rebase too.  #2186
 
 * Commands that perform an interactive rebase should no longer be used
-  non-interactively (i.e. the should only be used as commands).  #2187
+  non-interactively (i.e. they should only be used as commands).  #2187
 
 * Rebasing commands now can start with a root commit.  Root commits
   are detected automatically, so users don't have to use the `--root'
