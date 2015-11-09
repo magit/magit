@@ -856,10 +856,10 @@ empty string.
 @code{%t}
 
 The top-level directory of the working tree of the repository, or
-if @code{magit-uniquify-buffer-name} is non-nil an abbreviation of that.
+if @code{magit-uniquify-buffer-names} is non-nil an abbreviation of that.
 @end itemize
 The value should always contain either @code{%m} or @code{%M}, @code{%v} or @code{%V}, and @code{%t}.
-If @code{magit-uniquify-buffer-name} is non-nil, then the value must end
+If @code{magit-uniquify-buffer-names} is non-nil, then the value must end
 with @code{%t}.
 @end defopt
 
