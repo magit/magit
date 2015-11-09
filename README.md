@@ -71,7 +71,7 @@ Contributing
 
 To report bugs and suggest new feature use the
 [issue tracker][issues].  If you have some code which you would like
-to be merged, then open a [pull requests][pulls]. Please also see
+to be merged, then open a [pull request][pulls]. Please also see
 [CONTRIBUTING.md][contrib].
 
 Acknowledgments
