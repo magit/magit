@@ -170,6 +170,8 @@ When the region is active offer to drop all contained stashes."
   (dolist (stash (if (listp stash)
                      (nreverse (prog1 stash (setq stash (car stash))))
                    (list stash)))
+    (message "Deleted refs/%s (was %s)" stash
+             (magit-rev-parse "--short" stash))
     (magit-call-git "reflog" "delete" "--updateref" "--rewrite" stash))
   (-when-let (ref (and (string-match "\\(.+\\)@{[0-9]+}$" stash)
                        (match-string 1 stash)))
