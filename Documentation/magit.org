@@ -561,9 +561,8 @@ buffers whose major-modes derive from ~magit-mode~.
 
   - ~%v~
 
-    The value the buffer is locked to, in parentheses, if it is the
-    buffer is actually locked to its value.  An empty string
-    otherwise.
+    The value the buffer is locked to, in parentheses, or an empty
+    string if the buffer is not locked to a value.
 
   - ~%V~
 

@@ -115,6 +115,12 @@ The following %-sequences are supported:
 
 `%M' Like \"%m\" but abbreviate `magit-status-mode' as `magit'.
 
+`%v' The value the buffer is locked to, in parentheses, or an empty
+     string if the buffer is not locked to a value.
+
+`%V' Like \"%v\", but the string is prefixed with a space, unless it
+     is an empty string.
+
 `%t' The top-level directory of the working tree of the
      repository, or if `magit-uniquify-buffer-name' is non-nil
      an abbreviation of that.
@@ -125,7 +131,7 @@ value must end with \"%t\".
 
 This is used by `magit-generate-buffer-name-default-function'.
 If another `magit-generate-buffer-name-function' is used, then
-it may not be respected this option, or on the contrary it may
+it may not respect this option, or on the contrary it may
 support additional %-sequences."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
