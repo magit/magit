@@ -637,7 +637,8 @@ are also meaningful:
 @code{:sequence-predicate}
 
 When this function returns non-nil, then the popup uses
-@code{:sequence-actions} instead of @code{:actions}.
+@code{:sequence-actions} instead of @code{:actions}, and does not show the
+@code{:switches} and @code{:options}.
 
 
 @item

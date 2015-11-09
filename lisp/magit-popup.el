@@ -426,11 +426,10 @@ usually specified in that order):
   `SHORTNAME-arguments'.  This is usually done by calling the
   function `SHORTNAME-arguments'.
 
-  Members of VALUE may also be strings may, assuming the first
-  member is also a string.  Instead of just one action section
-  with the heading \"Actions\", multiple sections are then
-  inserted into the popup buffer, using these strings as
-  headings.
+  Members of VALUE may also be strings, assuming the first member
+  is also a string.  Instead of just one action section with the
+  heading \"Actions\", multiple sections are then inserted into
+  the popup buffer, using these strings as headings.
 
   Members of VALUE may also be nil.  This should only be used
   together with `:max-action-columns' and allows having gaps in
@@ -479,7 +478,8 @@ keywords are also meaningful:
 
 `:sequence-predicate'
   When this function returns non-nil, then the popup uses
-  `:sequence-actions' instead of `:actions'.
+  `:sequence-actions' instead of `:actions', and does not show
+  the `:switches' and `:options'.
 
 `:sequence-actions'
   The actions which can be invoked from the popup, when
