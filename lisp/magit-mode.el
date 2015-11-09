@@ -833,6 +833,8 @@ When called interactively then the revert is forced."
                   (--filter
                    (let ((file (buffer-file-name it)))
                      (and file
+                          (equal (file-remote-p file)
+                                 (file-remote-p topdir))
                           (file-in-directory-p file topdir)
                           (member (file-relative-name file topdir) tracked)))
                    (buffer-list))
