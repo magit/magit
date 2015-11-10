@@ -126,7 +126,8 @@ an error while using those is harder to recover from."
     magit-commit-arguments))
 
 (defun magit-commit-message-buffer ()
-  (let ((topdir (magit-toplevel)))
+  (let* ((find-file-visit-truename t) ; git uses truename of COMMIT_EDITMSG
+         (topdir (magit-toplevel)))
     (--first (equal topdir (with-current-buffer it
                              (and git-commit-mode (magit-toplevel))))
              (append (buffer-list (selected-frame))
