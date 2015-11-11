@@ -442,14 +442,14 @@ The sections are inserted by running the functions on the hook
 If no remote is configured for the current branch, then fall back
 showing the \"origin\" remote, or if that does not exist the first
 remote in alphabetic order."
-  (-when-let (remote (or (magit-get-remote)
-                         (let ((remotes (magit-list-remotes)))
-                           (or (car (member "origin" remotes))
-                               (car remotes)))))
-    (magit-insert-section (remote remote)
+  (--when-let (or (magit-get-remote)
+                  (let ((remotes (magit-list-remotes)))
+                    (or (car (member "origin" remotes))
+                        (car remotes))))
+    (magit-insert-section (remote it)
       (insert (format "%-10s" "Remote: "))
-      (insert (propertize remote 'face 'magit-branch-remote) ?\s)
-      (insert (magit-get "remote" remote "url") ?\n))))
+      (insert (propertize it 'face 'magit-branch-remote) ?\s)
+      (insert (magit-get "remote" it "url") ?\n))))
 
 (cl-defun magit-insert-head-header
     (&optional (branch (magit-get-current-branch)))
