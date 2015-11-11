@@ -61,6 +61,18 @@ magit-version.el:
 
 magit-autoloads.el: $(ELS)
 	@printf "Generating $@\n"
+	@$(RM) $@
+	@printf ";;; $@ --- automatically extracted autoloads\n" >> $@
+	@printf ";;\n" >> $@
+	@printf ";;; Code:\n" >> $@ >> $@
+	@printf "(add-to-list 'load-path (directory-file-name (or (file-name-directory #$$) (car load-path))))\n" >> $@
+	@printf "\n" >> $@
+	@printf ";; Local Variables:\n" >> $@
+	@printf ";; version-control: never\n" >> $@
+	@printf ";; no-byte-compile: t\n" >> $@
+	@printf ";; no-update-autoloads: t\n" >> $@
+	@printf ";; End:\n" >> $@
+	@printf ";;; $@ ends here\n" >> $@
 	@$(BATCH) --eval "(progn\
 	(fset 'message (lambda (&rest _)))\
 	(setq make-backup-files nil)\
