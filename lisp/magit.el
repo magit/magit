@@ -444,7 +444,11 @@ The sections are inserted by running the functions on the hook
                           (if (string= (magit-get "branch" branch "remote") ".")
                               'magit-branch-local
                             'magit-branch-remote)))
-      (insert ?\s (magit-rev-format "%s" pull) ?\n))))
+      (insert ?\s)
+      (if (magit-rev-verify pull)
+          (insert (magit-rev-format "%s" pull))
+        (insert (propertize "is missing" 'face 'font-lock-warning-face)))
+      (insert ?\n))))
 
 (defun magit-insert-tags-header ()
   "Insert a header line about the current and/or next tag."
