@@ -85,8 +85,9 @@
 
 (defcustom magit-status-headers-hook
   '(magit-insert-diff-filter-header
-    magit-insert-head-header
-    magit-insert-upstream-header
+    magit-insert-head-branch-header
+    magit-insert-pull-branch-header
+    magit-insert-push-branch-header
     magit-insert-tags-header)
   "Hook run to insert headers into the status buffer.
 
@@ -99,8 +100,9 @@ at all."
   :options '(magit-insert-diff-filter-header
              magit-insert-repo-header
              magit-insert-remote-header
-             magit-insert-head-header
-             magit-insert-upstream-header
+             magit-insert-head-branch-header
+             magit-insert-pull-branch-header
+             magit-insert-push-branch-header
              magit-insert-tags-header))
 
 (defcustom magit-status-sections-hook
@@ -412,7 +414,7 @@ The sections are inserted by running the functions on the hook
       (magit-insert-headers magit-status-headers-hook)
     (insert "In the beginning there was darkness\n\n")))
 
-(cl-defun magit-insert-head-header
+(cl-defun magit-insert-head-branch-header
     (&optional (branch (magit-get-current-branch)))
   "Insert a header line about the current branch or detached `HEAD'."
   (let ((output (magit-rev-format "%h %s" "HEAD")))
@@ -421,7 +423,6 @@ The sections are inserted by running the functions on the hook
       (if branch
           (magit-insert-section (branch branch)
             (insert (format "%-10s" "Head: "))
-            (insert (propertize commit 'face 'magit-hash) ?\s)
             (insert (propertize branch 'face 'magit-branch-local))
             (insert ?\s summary ?\n))
         (magit-insert-section (commit commit)
@@ -429,25 +430,40 @@ The sections are inserted by running the functions on the hook
           (insert (propertize commit 'face 'magit-hash))
           (insert ?\s summary ?\n))))))
 
-(cl-defun magit-insert-upstream-header
-    (&optional (branch   (magit-get-current-branch))
-               (upstream (magit-get-tracked-branch branch)))
-  "Insert a header line about the upstream branch and its tip."
-  (-when-let (output (and upstream (magit-rev-format "%h %s" upstream)))
-    (string-match "^\\([^ ]+\\) \\(.*\\)" output)
-    (magit-bind-match-strings (commit summary) output
-      (magit-insert-section (branch upstream)
-        (insert (format "%-10s" "Upstream: "))
-        (when commit
-          (insert (propertize commit 'face 'magit-hash) ?\s))
-        (when (magit-get-boolean "branch" branch "rebase")
-          (insert "onto "))
-        (insert
-         (propertize upstream 'face
-                     (if (string= (magit-get "branch" branch "remote") ".")
-                         'magit-branch-local
-                       'magit-branch-remote)))
-        (insert ?\s summary ?\n)))))
+(cl-defun magit-insert-pull-branch-header
+    (&optional (branch (magit-get-current-branch))
+               (pull   (magit-get-tracked-branch branch))
+               keyword)
+  "Insert a header line about branch normally pulled into the current branch."
+  (when pull
+    (magit-insert-section (branch pull)
+      (insert (format "%-10s"
+                      (or keyword
+                          (if (magit-get-boolean "branch" branch "rebase")
+                              "Rebase: "
+                            "Merge: "))))
+      (insert (propertize pull 'face
+                          (if (string= (magit-get "branch" branch "remote") ".")
+                              'magit-branch-local
+                            'magit-branch-remote)))
+      (insert ?\s)
+      (if (magit-rev-verify pull)
+          (insert (magit-rev-format "%s" pull))
+        (insert (propertize "is missing" 'face 'font-lock-warning-face)))
+      (insert ?\n))))
+
+(cl-defun magit-insert-push-branch-header
+    (&optional (branch (magit-get-current-branch))
+               (push   (magit-get-push-branch branch)))
+  "Insert a header line about the branch the current branch is pushed to"
+  (when push
+    (magit-insert-section (branch push)
+      (insert (format "%-10s" "Push: "))
+      (insert (propertize push 'face 'magit-branch-remote) ?\s)
+      (if (magit-rev-verify push)
+          (insert (magit-rev-format "%s" push))
+        (insert (propertize "is missing" 'face 'font-lock-warning-face)))
+      (insert ?\n))))
 
 (defun magit-insert-tags-header ()
   "Insert a header line about the current and/or next tag."
@@ -2664,6 +2680,12 @@ where an absolute path is used for performance reasons.
 If the value already is just \"git\" but TRAMP never-the-less
 doesn't find the executable, then consult the info node
 `(tramp)Remote programs'.\n" remote) :error)))))
+
+(define-obsolete-function-alias 'magit-insert-head-header
+  'magit-insert-head-branch-header "Magit 2.4.0")
+
+(define-obsolete-function-alias 'magit-insert-upstream-header
+  'magit-insert-pull-branch-header "Magit 2.4.0")
 
 (provide 'magit)
 
