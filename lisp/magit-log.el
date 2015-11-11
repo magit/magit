@@ -1252,6 +1252,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
                             'magit-reflog-other)))))
 
 ;;; Log Sections
+;;;; Standard Log Sections
 
 (defvar magit-unpulled-section-map
   (let ((map (make-sparse-keymap)))
@@ -1269,17 +1270,23 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
       (magit-insert-log (concat "HEAD.." tracked)
                         magit-log-section-arguments))))
 
-(defun magit-insert-unpulled-or-recent-commits ()
-  "Insert section showing unpulled or recent commits.
-If an upstream is configured for the current branch and it is
-ahead of the current branch, then show the missing commits,
-otherwise show the last `magit-log-section-commit-count'
-commits."
-  (let ((tracked (magit-get-tracked-ref)))
-    (if (and tracked (not (equal (magit-rev-parse "HEAD")
-                                 (magit-rev-parse tracked))))
-        (magit-insert-unpulled-commits)
-      (magit-insert-recent-commits t))))
+(defvar magit-unpushed-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-visit-thing] 'magit-diff-unpushed)
+    map)
+  "Keymap for the `unpushed' section.")
+
+(magit-define-section-jumper unpushed "Unpushed commits")
+
+(defun magit-insert-unpushed-commits ()
+  "Insert section showing unpushed commits."
+  (-when-let (tracked (magit-get-tracked-ref))
+    (magit-insert-section (unpushed)
+      (magit-insert-heading "Unpushed commits:")
+      (magit-insert-log (concat tracked "..HEAD")
+                        magit-log-section-arguments))))
+
+;;;; Auxiliary Log Sections
 
 (defun magit-insert-recent-commits (&optional collapse)
   "Insert section showing recent commits.
@@ -1293,6 +1300,18 @@ Show the last `magit-log-section-commit-count' commits."
      (cons (format "-%d" magit-log-section-commit-count)
            magit-log-section-arguments))))
 
+(defun magit-insert-unpulled-or-recent-commits ()
+  "Insert section showing unpulled or recent commits.
+If an upstream is configured for the current branch and it is
+ahead of the current branch, then show the missing commits,
+otherwise show the last `magit-log-section-commit-count'
+commits."
+  (let ((tracked (magit-get-tracked-ref)))
+    (if (and tracked (not (equal (magit-rev-parse "HEAD")
+                                 (magit-rev-parse tracked))))
+        (magit-insert-unpulled-commits)
+      (magit-insert-recent-commits t))))
+
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
 Like `magit-insert-unpulled-commits' but prefix each commit
@@ -1304,6 +1323,30 @@ with \"-\"."
       (magit-insert-heading "Unpulled commits:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) (magit-get-current-branch) tracked))))
+
+(defun magit-insert-unpushed-cherries ()
+  "Insert section showing unpushed commits.
+Like `magit-insert-unpushed-commits' but prefix each commit
+which has not been applied to upstream yet (i.e. a commit with
+a patch-id not shared with any upstream commit) with \"+\", and
+all others with \"-\"."
+  (-when-let (tracked (magit-get-tracked-ref))
+    (magit-insert-section (unpushed)
+      (magit-insert-heading "Unpushed commits:")
+      (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
+        "cherry" "-v" (magit-abbrev-arg) tracked))))
+
+;;;; Submodule Sections
+
+(defun magit-insert-submodule-commits (section range)
+  "For internal use, don't add to a hook."
+  (if (magit-section-hidden section)
+      (setf (magit-section-washer section)
+            (apply-partially #'magit-insert-submodule-commits section range))
+    (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
+      "log" "--oneline" range)
+    (when (> (point) (magit-section-content section))
+      (delete-char -1))))
 
 (defun magit-insert-unpulled-module-commits ()
   "Insert sections for all submodules with unpulled commits.
@@ -1324,44 +1367,6 @@ These sections can be expanded to show the respective commits."
       (if (> (point) (magit-section-content section))
           (insert ?\n)
         (magit-cancel-section)))))
-
-(defun magit-insert-submodule-commits (section range)
-  "For internal use, don't add to a hook."
-  (if (magit-section-hidden section)
-      (setf (magit-section-washer section)
-            (apply-partially #'magit-insert-submodule-commits section range))
-    (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
-      "log" "--oneline" range)
-    (when (> (point) (magit-section-content section))
-      (delete-char -1))))
-
-(defvar magit-unpushed-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-diff-unpushed)
-    map)
-  "Keymap for the `unpushed' section.")
-
-(magit-define-section-jumper unpushed "Unpushed commits")
-
-(defun magit-insert-unpushed-commits ()
-  "Insert section showing unpushed commits."
-  (-when-let (tracked (magit-get-tracked-ref))
-    (magit-insert-section (unpushed)
-      (magit-insert-heading "Unpushed commits:")
-      (magit-insert-log (concat tracked "..HEAD")
-                        magit-log-section-arguments))))
-
-(defun magit-insert-unpushed-cherries ()
-  "Insert section showing unpushed commits.
-Like `magit-insert-unpushed-commits' but prefix each commit
-which has not been applied to upstream yet (i.e. a commit with
-a patch-id not shared with any upstream commit) with \"+\", and
-all others with \"-\"."
-  (-when-let (tracked (magit-get-tracked-ref))
-    (magit-insert-section (unpushed)
-      (magit-insert-heading "Unpushed commits:")
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
-        "cherry" "-v" (magit-abbrev-arg) tracked))))
 
 (defun magit-insert-unpushed-module-commits ()
   "Insert sections for all submodules with unpushed commits.
