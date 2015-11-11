@@ -744,6 +744,13 @@ which is different from the current branch and still exists."
             merge
           (concat remote "/" merge))))))
 
+(cl-defun magit-get-push-branch
+    (&optional (branch (magit-get-current-branch)))
+  (when branch
+    (-when-let (remote (or (magit-get "branch" branch "pushRemote")
+                           (magit-get "remote.pushDefault")))
+      (concat remote "/" branch))))
+
 (defun magit-get-remote (&optional branch)
   (when (or branch (setq branch (magit-get-current-branch)))
     (let ((remote (magit-get "branch" branch "remote")))
