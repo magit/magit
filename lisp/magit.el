@@ -317,6 +317,7 @@ deep."
 
 ;;; Inspect
 ;;;; Status Mode
+;;;;; Status Core
 
 (defvar magit-status-mode-map
   (let ((map (make-sparse-keymap)))
@@ -395,26 +396,7 @@ then offer to initialize it as a new repository."
   (let ((default-directory directory))
     (magit-mode-setup #'magit-status-mode)))
 
-(defun ido-enter-magit-status ()
-  "Drop into `magit-status' from file switching.
-
-To make this command available use something like:
-
-  (add-hook 'ido-setup-hook
-            (lambda ()
-              (define-key ido-completion-map
-                (kbd \"C-x g\") 'ido-enter-magit-status)))
-
-Starting with Emacs 25.1 the Ido keymaps are defined just once
-instead of every time Ido is invoked, so now you can modify it
-like pretty much every other keymap:
-
-  (define-key ido-common-completion-map
-    (kbd \"C-x g\") 'ido-enter-magit-status)"
-  (interactive)
-  (with-no-warnings ; FIXME these are internal variables
-    (setq ido-exit 'fallback fallback 'magit-status))
-  (exit-minibuffer))
+;;;;; Standard Status Sections
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
@@ -429,27 +411,6 @@ The sections are inserted by running the functions on the hook
   (if (magit-rev-verify "HEAD")
       (magit-insert-headers magit-status-headers-hook)
     (insert "In the beginning there was darkness\n\n")))
-
-(defun magit-insert-repo-header ()
-  "Insert a header line showing the path to the repository top-level."
-  (let ((topdir (magit-toplevel)))
-    (magit-insert-section (repo topdir)
-      (insert (format "%-10s%s\n" "Repo: " (abbreviate-file-name topdir))))))
-
-(defun magit-insert-remote-header ()
-  "Insert a header line about the remote of the current branch.
-
-If no remote is configured for the current branch, then fall back
-showing the \"origin\" remote, or if that does not exist the first
-remote in alphabetic order."
-  (--when-let (or (magit-get-remote)
-                  (let ((remotes (magit-list-remotes)))
-                    (or (car (member "origin" remotes))
-                        (car remotes))))
-    (magit-insert-section (remote it)
-      (insert (format "%-10s" "Remote: "))
-      (insert (propertize it 'face 'magit-branch-remote) ?\s)
-      (insert (magit-get "remote" it "url") ?\n))))
 
 (cl-defun magit-insert-head-header
     (&optional (branch (magit-get-current-branch)))
@@ -515,16 +476,6 @@ remote in alphabetic order."
                        (propertize (format "%s" count) 'face
                                    (if next 'magit-tag 'magit-branch-local))))))
 
-(defun magit-insert-user-header ()
-  "Insert a header line about the current user."
-  (let ((name  (magit-get "user.name"))
-        (email (magit-get "user.email")))
-    (when (and name email)
-      (magit-insert-section (user name)
-        (insert (format "%-10s" "User: "))
-        (insert (propertize name 'face 'magit-log-author))
-        (insert " <" email ">\n")))))
-
 (defun magit-insert-diff-filter-header ()
   "Insert a header line showing the effective diff filters."
   (when magit-diff-section-file-args
@@ -532,16 +483,6 @@ remote in alphabetic order."
       (insert (propertize (format "%-10s" "Filter! ")
                           'face 'magit-section-heading))
       (insert (mapconcat #'identity magit-diff-section-file-args " "))
-      (insert ?\n))))
-
-(magit-define-section-jumper tracked "Tracked files")
-
-(defun magit-insert-tracked-files ()
-  "Insert a tree of tracked files."
-  (-when-let (files (magit-list-files))
-    (magit-insert-section (tracked nil t)
-      (magit-insert-heading "Tracked files:")
-      (magit-insert-un/tracked-files-1 files nil)
       (insert ?\n))))
 
 (magit-define-section-jumper untracked "Untracked files")
@@ -587,6 +528,72 @@ Do so depending on the value of `status.showUntrackedFiles'."
           (magit-insert-heading)
           (setq files (magit-insert-un/tracked-files-1 files dir))))))
   files)
+
+;;;;; Auxiliary Status Sections
+
+(magit-define-section-jumper tracked "Tracked files")
+
+(defun magit-insert-tracked-files ()
+  "Insert a tree of tracked files."
+  (-when-let (files (magit-list-files))
+    (magit-insert-section (tracked nil t)
+      (magit-insert-heading "Tracked files:")
+      (magit-insert-un/tracked-files-1 files nil)
+      (insert ?\n))))
+
+(defun magit-insert-user-header ()
+  "Insert a header line about the current user."
+  (let ((name  (magit-get "user.name"))
+        (email (magit-get "user.email")))
+    (when (and name email)
+      (magit-insert-section (user name)
+        (insert (format "%-10s" "User: "))
+        (insert (propertize name 'face 'magit-log-author))
+        (insert " <" email ">\n")))))
+
+(defun magit-insert-repo-header ()
+  "Insert a header line showing the path to the repository top-level."
+  (let ((topdir (magit-toplevel)))
+    (magit-insert-section (repo topdir)
+      (insert (format "%-10s%s\n" "Repo: " (abbreviate-file-name topdir))))))
+
+(defun magit-insert-remote-header ()
+  "Insert a header line about the remote of the current branch.
+
+If no remote is configured for the current branch, then fall back
+showing the \"origin\" remote, or if that does not exist the first
+remote in alphabetic order."
+  (--when-let (or (magit-get-remote)
+                  (let ((remotes (magit-list-remotes)))
+                    (or (car (member "origin" remotes))
+                        (car remotes))))
+    (magit-insert-section (remote it)
+      (insert (format "%-10s" "Remote: "))
+      (insert (propertize it 'face 'magit-branch-remote) ?\s)
+      (insert (magit-get "remote" it "url") ?\n))))
+
+;;;;; Status Miscellaneous
+
+(defun ido-enter-magit-status ()
+  "Drop into `magit-status' from file switching.
+
+To make this command available use something like:
+
+  (add-hook 'ido-setup-hook
+            (lambda ()
+              (define-key ido-completion-map
+                (kbd \"C-x g\") 'ido-enter-magit-status)))
+
+Starting with Emacs 25.1 the Ido keymaps are defined just once
+instead of every time Ido is invoked, so now you can modify it
+like pretty much every other keymap:
+
+  (define-key ido-common-completion-map
+    (kbd \"C-x g\") 'ido-enter-magit-status)"
+  (interactive)
+  (with-no-warnings ; FIXME these are internal variables
+    (setq ido-exit 'fallback fallback 'magit-status))
+  (exit-minibuffer))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
   "When moving in the status buffer, update the revision buffer.
