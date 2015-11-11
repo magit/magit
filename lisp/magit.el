@@ -421,7 +421,6 @@ The sections are inserted by running the functions on the hook
       (if branch
           (magit-insert-section (branch branch)
             (insert (format "%-10s" "Head: "))
-            (insert (propertize commit 'face 'magit-hash) ?\s)
             (insert (propertize branch 'face 'magit-branch-local))
             (insert ?\s summary ?\n))
         (magit-insert-section (commit commit)
@@ -433,21 +432,16 @@ The sections are inserted by running the functions on the hook
     (&optional (branch   (magit-get-current-branch))
                (upstream (magit-get-tracked-branch branch)))
   "Insert a header line about the upstream branch and its tip."
-  (-when-let (output (and upstream (magit-rev-format "%h %s" upstream)))
-    (string-match "^\\([^ ]+\\) \\(.*\\)" output)
-    (magit-bind-match-strings (commit summary) output
-      (magit-insert-section (branch upstream)
-        (insert (format "%-10s" "Upstream: "))
-        (when commit
-          (insert (propertize commit 'face 'magit-hash) ?\s))
-        (when (magit-get-boolean "branch" branch "rebase")
-          (insert "onto "))
-        (insert
-         (propertize upstream 'face
-                     (if (string= (magit-get "branch" branch "remote") ".")
-                         'magit-branch-local
-                       'magit-branch-remote)))
-        (insert ?\s summary ?\n)))))
+  (when upstream
+    (magit-insert-section (branch upstream)
+      (insert (format "%-10s" "Upstream: "))
+      (when (magit-get-boolean "branch" branch "rebase")
+        (insert "onto "))
+      (insert (propertize upstream 'face
+                          (if (string= (magit-get "branch" branch "remote") ".")
+                              'magit-branch-local
+                            'magit-branch-remote)))
+      (insert ?\s (magit-rev-format "%s" upstream) ?\n))))
 
 (defun magit-insert-tags-header ()
   "Insert a header line about the current and/or next tag."
