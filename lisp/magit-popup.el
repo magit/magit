@@ -469,13 +469,6 @@ usually specified in that order):
   enabled by default) and options with there default values, as
   in \"--OPT=OPTVAL\".
 
-`:man-page'
-  The name of the manpage to be displayed when the user requests
-  help for a switch or argument.
-
-When MODE is `magit-popup-sequence-mode', then the following
-keywords are also meaningful:
-
 `:sequence-predicate'
   When this function returns non-nil, then the popup uses
   `:sequence-actions' instead of `:actions', and does not show
@@ -485,8 +478,11 @@ keywords are also meaningful:
   The actions which can be invoked from the popup, when
   `:sequence-predicate' returns non-nil.
 
+`:man-page'
+  The name of the manpage to be displayed when the user requests
+  help for a switch or argument.
+
 \(fn NAME DOC [GROUP [MODE [OPTION]]] :KEYWORD VALUE...)"
-  ;; TODO document keywords
   (declare (indent defun) (doc-string 2))
   (let* ((grp  (unless (keywordp (car args)) (pop args)))
          (mode (unless (keywordp (car args)) (pop args)))
@@ -914,34 +910,16 @@ restored."
 (defvar magit-popup-setup-hook nil "For internal use.")
 
 (defun magit-popup-default-setup (val def)
-  (magit-popup-put :switches (magit-popup-convert-switches
-                              val (plist-get def :switches)))
-  (magit-popup-put :options  (magit-popup-convert-options
-                              val (plist-get def :options)))
-  (magit-popup-put :actions  (magit-popup-convert-actions
-                              val (plist-get def :actions))))
-
-(define-derived-mode magit-popup-sequence-mode magit-popup-mode "MagitPopup"
-  "Major mode for infix argument popups, which are affected by state.
-
-Used for popups that display different actions depending on some
-external state.  Within Magit this is used for sequence commands
-such as rebase.  The function `:sequence-predicate', which takes
-no arguments, is used to determine whether to use the actions
-defined with regular `:actions' or those in `:sequence-actions'.
-When a sequence is in progress the arguments are not available
-in the popup."
-  :mode 'magit-popup
-  (remove-hook 'magit-popup-setup-hook 'magit-popup-default-setup t)
-  (add-hook    'magit-popup-setup-hook
-               (lambda (val def)
-                 (if (funcall (magit-popup-get :sequence-predicate))
-                     (magit-popup-put
-                      :actions (magit-popup-convert-actions
-                                val (magit-popup-get :sequence-actions)))
-                   (magit-popup-default-setup val def)))
-               t t)
-  (hack-dir-local-variables-non-file-buffer))
+  (if (--when-let (magit-popup-get :sequence-predicate)
+        (funcall it))
+      (magit-popup-put :actions (magit-popup-convert-actions
+                                 val (magit-popup-get :sequence-actions)))
+    (magit-popup-put :switches (magit-popup-convert-switches
+                                val (plist-get def :switches)))
+    (magit-popup-put :options (magit-popup-convert-options
+                               val (plist-get def :options)))
+    (magit-popup-put :actions (magit-popup-convert-actions
+                               val (plist-get def :actions)))))
 
 (defun magit-popup-mode-setup (popup mode)
   (let ((val (symbol-value (plist-get (symbol-value popup) :variable)))

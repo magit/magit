@@ -516,14 +516,6 @@ commands have to be defined separately using plain ~defun~.
     by default) and options with there default values, as in
     "--OPT~OPTVAL\".
 
-  - ~:man-page~
-
-    The name of the manpage to be displayed when the user requests
-    help for an argument.
-
-  When MODE is ~magit-popup-sequence-mode~, then the following keywords
-  are also meaningful:
-
   - ~:sequence-predicate~
 
     When this function returns non-nil, then the popup uses
@@ -534,6 +526,11 @@ commands have to be defined separately using plain ~defun~.
 
     The actions which can be invoked from the popup, when
     ~:sequence-predicate~ returns non-nil.
+
+  - ~:man-page~
+
+    The name of the manpage to be displayed when the user requests
+    help for an argument.
 
 ** Defining suffix commands
 

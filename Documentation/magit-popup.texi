@@ -624,16 +624,6 @@ by default) and options with there default values, as in
 
 
 @item
-@code{:man-page}
-
-The name of the manpage to be displayed when the user requests
-help for an argument.
-@end itemize
-When MODE is @code{magit-popup-sequence-mode}, then the following keywords
-are also meaningful:
-
-@itemize
-@item
 @code{:sequence-predicate}
 
 When this function returns non-nil, then the popup uses
@@ -646,6 +636,13 @@ When this function returns non-nil, then the popup uses
 
 The actions which can be invoked from the popup, when
 @code{:sequence-predicate} returns non-nil.
+
+
+@item
+@code{:man-page}
+
+The name of the manpage to be displayed when the user requests
+help for an argument.
 @end itemize
 @end defmac
 
