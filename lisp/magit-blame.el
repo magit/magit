@@ -503,7 +503,7 @@ then also kill the buffer."
       (run-with-idle-timer
        magit-update-other-window-delay nil
        (lambda ()
-         (cl-destructuring-bind (rev buf) magit--update-revision-buffer
+         (-let [(rev buf) magit--update-revision-buffer]
            (setq magit--update-revision-buffer nil)
            (when (buffer-live-p buf)
              (let ((magit-display-buffer-noselect t))

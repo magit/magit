@@ -2054,7 +2054,7 @@ Currently this only adds the following key bindings.
 (defun magit-blob-visit (blob-or-file line)
   (if (stringp blob-or-file)
       (find-file blob-or-file)
-    (cl-destructuring-bind (rev file) blob-or-file
+    (-let [(rev file) blob-or-file]
       (magit-find-file rev file)
       (let ((str (magit-rev-format "%ct%s" rev)))
         (message "%s (%s ago)" (substring str 10)
@@ -2359,8 +2359,7 @@ the minibuffer too."
      (push (caar magit-revision-stack) magit-revision-history)
      (pop magit-revision-stack)))
   (if rev
-      (cl-destructuring-bind (pnt-format eob-format idx-format)
-          magit-pop-revision-stack-format
+      (-let [(pnt-format eob-format idx-format) magit-pop-revision-stack-format]
         (let ((default-directory toplevel)
               (idx (and idx-format
                         (save-excursion

@@ -341,8 +341,7 @@ instead of \"Stashes:\"."
   (interactive (cons (or (and (not current-prefix-arg)
                               (magit-stash-at-point))
                          (magit-read-stash "Show stash"))
-                     (cl-destructuring-bind (args files)
-                         (magit-diff-arguments)
+                     (-let [(args files) (magit-diff-arguments)]
                        (list (delete "--stat" args) files))))
   (magit-mode-setup #'magit-stash-mode stash nil args files))
 

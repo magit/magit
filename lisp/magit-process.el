@@ -306,8 +306,7 @@ Process output goes into a new section in the buffer returned by
   "Call PROGRAM synchronously in a separate process.
 Process output goes into a new section in the buffer returned by
 `magit-process-buffer'."
-  (cl-destructuring-bind (process-buf . section)
-      (magit-process-setup program args)
+  (-let [(process-buf . section) (magit-process-setup program args)]
     (magit-process-finish
      (let ((inhibit-read-only t))
        (apply #'magit-process-file program nil process-buf nil args))
@@ -487,9 +486,9 @@ it is a Magit buffer and still alive), as well as the respective
 Magit status buffer.  Unmodified buffers visiting files that are
 tracked in the current repository are reverted if
 `magit-revert-buffers' is non-nil."
-  (cl-destructuring-bind (process-buf . section)
-      (magit-process-setup program args)
-    (let ((process
+  (-let* (((process-buf . section)
+           (magit-process-setup program args))
+          (process
            (let ((process-connection-type
                   ;; Don't use a pty, because it would set icrnl
                   ;; which would modify the input (issue #20).
@@ -499,27 +498,27 @@ tracked in the current repository are reverted if
              (apply #'start-file-process
                     (file-name-nondirectory program)
                     process-buf program args))))
-      (with-editor-set-process-filter process #'magit-process-filter)
-      (set-process-sentinel process #'magit-process-sentinel)
-      (set-process-buffer   process process-buf)
-      (process-put process 'section section)
-      (process-put process 'command-buf (current-buffer))
-      (process-put process 'default-dir default-directory)
-      (when inhibit-magit-refresh
-        (process-put process 'inhibit-refresh t))
-      (when inhibit-magit-revert
-        (process-put process 'inhibit-revert t))
-      (setf (magit-section-process section) process)
-      (with-current-buffer process-buf
-        (set-marker (process-mark process) (point)))
-      (when input
-        (with-current-buffer input
-          (process-send-region process (point-min) (point-max))
-          (process-send-eof    process)))
-      (setq magit-this-process process)
-      (setf (magit-section-value section) process)
-      (magit-process-display-buffer process)
-      process)))
+    (with-editor-set-process-filter process #'magit-process-filter)
+    (set-process-sentinel process #'magit-process-sentinel)
+    (set-process-buffer   process process-buf)
+    (process-put process 'section section)
+    (process-put process 'command-buf (current-buffer))
+    (process-put process 'default-dir default-directory)
+    (when inhibit-magit-refresh
+      (process-put process 'inhibit-refresh t))
+    (when inhibit-magit-revert
+      (process-put process 'inhibit-revert t))
+    (setf (magit-section-process section) process)
+    (with-current-buffer process-buf
+      (set-marker (process-mark process) (point)))
+    (when input
+      (with-current-buffer input
+        (process-send-region process (point-min) (point-max))
+        (process-send-eof    process)))
+    (setq magit-this-process process)
+    (setf (magit-section-value section) process)
+    (magit-process-display-buffer process)
+    process))
 
 ;;; Process Internals
 

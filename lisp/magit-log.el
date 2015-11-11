@@ -943,8 +943,7 @@ Do not add this to a hook variable."
   t)
 
 (defun magit-format-log-margin (&optional author date)
-  (cl-destructuring-bind (width unit-width duration-spec)
-      magit-log-margin-spec
+  (-let [(width unit-width duration-spec) magit-log-margin-spec]
     (when (and date (not author))
       (setq width (+ (if (= unit-width 1) 1 (1+ unit-width))
                      (if (derived-mode-p 'magit-log-mode) 1 0))))
@@ -972,8 +971,7 @@ Do not add this to a hook variable."
        (propertize " " 'face 'fringe)))))
 
 (defun magit-format-duration (duration spec &optional width)
-  (cl-destructuring-bind (char unit units weight)
-      (car spec)
+  (-let [(char unit units weight) (car spec)]
     (let ((cnt (round (/ duration weight 1.0))))
       (if (or (not (cdr spec))
               (>= (/ duration weight) 1))
@@ -1009,7 +1007,7 @@ If there is no revision buffer in the same frame, then do nothing."
       (run-with-idle-timer
        magit-update-other-window-delay nil
        (lambda ()
-         (cl-destructuring-bind (rev buf) magit--update-revision-buffer
+         (-let [(rev buf) magit--update-revision-buffer]
            (setq magit--update-revision-buffer nil)
            (when (buffer-live-p buf)
              (let ((magit-display-buffer-noselect t))
@@ -1033,7 +1031,7 @@ If there is no blob buffer in the same frame, then do nothing."
         (run-with-idle-timer
          magit-update-other-window-delay nil
          (lambda ()
-           (cl-destructuring-bind (rev buf) magit--update-blob-buffer
+           (-let [(rev buf) magit--update-blob-buffer]
              (setq magit--update-blob-buffer nil)
              (when (buffer-live-p buf)
                (save-excursion
