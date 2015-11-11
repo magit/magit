@@ -36,7 +36,7 @@
 (declare-function magit-blob-visit 'magit)
 (declare-function magit-find-file-noselect 'magit)
 (declare-function magit-insert-head-header 'magit)
-(declare-function magit-insert-upstream-header 'magit)
+(declare-function magit-insert-pull-branch-header 'magit)
 (declare-function magit-read-file-from-rev 'magit)
 (declare-function magit-show-commit 'magit)
 (defvar magit-refs-indent-cherry-lines)
@@ -1174,8 +1174,8 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
 (defun magit-insert-cherry-headers ()
   "Insert headers appropriate for `magit-cherry-mode' buffers."
   (magit-insert-head-header (nth 1 magit-refresh-args))
-  (magit-insert-upstream-header (nth 1 magit-refresh-args)
-                                (nth 0 magit-refresh-args))
+  (magit-insert-pull-branch-header (nth 1 magit-refresh-args)
+                                   (nth 0 magit-refresh-args))
   (insert ?\n))
 
 (defun magit-insert-cherry-commits ()
