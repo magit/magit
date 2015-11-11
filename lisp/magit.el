@@ -1388,7 +1388,7 @@ line is inserted at all."
 ;;;###autoload (autoload 'magit-merge-popup "magit" nil t)
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
-  'magit-commands 'magit-popup-sequence-mode
+  'magit-commands
   :man-page "git-merge"
   :switches '((?f "Fast-forward only" "--ff-only")
               (?n "No fast-forward"   "--no-ff")
@@ -1745,7 +1745,7 @@ defaulting to the tag at point.
 ;;;###autoload (autoload 'magit-notes-popup "magit" nil t)
 (magit-define-popup magit-notes-popup
   "Popup console for notes commands."
-  'magit-commands 'magit-popup-sequence-mode
+  'magit-commands
   :man-page "git-tag"
   :switches '((?n "Dry run"          "--dry-run"))
   :options  '((?r "Manipulate ref"   "--ref="      magit-notes-popup-read-ref)
