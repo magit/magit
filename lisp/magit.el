@@ -479,7 +479,7 @@ remote in alphabetic order."
       (magit-insert-section (branch upstream)
         (insert (format "%-10s" "Upstream: "))
         (when commit
-          (insert (propertize commit 'face 'magit-hash) "missing") ?\s)
+          (insert (propertize commit 'face 'magit-hash) ?\s))
         (when (magit-get-boolean "branch" branch "rebase")
           (insert "onto "))
         (insert
