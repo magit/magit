@@ -402,9 +402,10 @@ Optional argument GROUP specifies the Custom group in which the
 option is placed.  If ommitted then the option is placed in some
 group the same way it is done when directly using `defcustom'.
 
-Optional argument MODE specifies the mode used by the popup
-buffer.  If it is ommitted or nil then `magit-popup-mode' is
-used.
+Optional argument MODE is deprecated, instead use the keyword
+arguments `:setup-function' and/or `:refresh-function'.  If MODE
+is non-nil, then it specifies the mode used by the popup buffer,
+instead of the default, which is `magit-popup-mode'.
 
 The remaining arguments should have the form
 
@@ -477,6 +478,16 @@ usually specified in that order):
 `:sequence-actions'
   The actions which can be invoked from the popup, when
   `:sequence-predicate' returns non-nil.
+
+`:setup-function'
+  When this function is specified, then it is used instead of
+  `magit-popup-default-setup'.
+
+`:refresh-function'
+  When this function is specified, then it is used instead of
+  calling `magit-popup-insert-section' three times with symbols
+  `magit-popup-switch-button', `magit-popup-option-button', and
+  finally `magit-popup-action-button' as argument.
 
 `:man-page'
   The name of the manpage to be displayed when the user requests
@@ -902,12 +913,9 @@ restored."
   (setq buffer-read-only t)
   (setq-local scroll-margin 0)
   (setq-local magit-popup-show-common-commands magit-popup-show-common-commands)
-  (add-hook 'magit-popup-setup-hook 'magit-popup-default-setup nil t)
   (hack-dir-local-variables-non-file-buffer))
 
 (put 'magit-popup-mode 'mode-class 'special)
-
-(defvar magit-popup-setup-hook nil "For internal use.")
 
 (defun magit-popup-default-setup (val def)
   (if (--when-let (magit-popup-get :sequence-predicate)
@@ -928,7 +936,11 @@ restored."
                                       (format "*%s*" popup))
                                      (or mode 'magit-popup-mode))
     (setq magit-this-popup popup)
-    (run-hook-with-args 'magit-popup-setup-hook val def))
+    (if (bound-and-true-p magit-popup-setup-hook) ; obsolete
+        (run-hook-with-args 'magit-popup-setup-hook val def)
+      (funcall (or (magit-popup-get :setup-function)
+                   'magit-popup-default-setup)
+               val def)))
   (magit-refresh-popup-buffer)
   (fit-window-to-buffer nil nil (line-number-at-pos (point-max))))
 
@@ -942,6 +954,7 @@ restored."
 
 (defvar magit-refresh-popup-buffer-hook nil
   "Hook run by `magit-refresh-popup-buffer'.
+
 The hook is run right after inserting the representation of the
 popup events but before optionally inserting the representation
 of events shared by all popups and before point is adjusted.")
@@ -953,9 +966,11 @@ of events shared by all popups and before point is adjusted.")
          (event  (and button (button-get button 'event))))
     (erase-buffer)
     (save-excursion
-      (magit-popup-insert-section 'magit-popup-switch-button)
-      (magit-popup-insert-section 'magit-popup-option-button)
-      (magit-popup-insert-section 'magit-popup-action-button)
+      (--if-let (magit-popup-get :refresh-function)
+          (funcall it)
+        (magit-popup-insert-section 'magit-popup-switch-button)
+        (magit-popup-insert-section 'magit-popup-option-button)
+        (magit-popup-insert-section 'magit-popup-action-button))
       (run-hooks 'magit-refresh-popup-buffer-hook)
       (when magit-popup-show-common-commands
         (magit-popup-insert-command-section

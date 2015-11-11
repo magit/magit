@@ -639,6 +639,22 @@ The actions which can be invoked from the popup, when
 
 
 @item
+@code{:setup-function}
+
+When this function is specified, then it is used instead of
+@code{magit-popup-default-setup}.
+
+
+@item
+@code{:refresh-function}
+
+When this function is specified, then it is used instead of
+calling @code{magit-popup-insert-section} three times with symbols
+@code{magit-popup-switch-button}, @code{magit-popup-option-button}, and finally
+@code{magit-popup-action-button} as argument.
+
+
+@item
 @code{:man-page}
 
 The name of the manpage to be displayed when the user requests
