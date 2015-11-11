@@ -434,8 +434,8 @@ The sections are inserted by running the functions on the hook
   "Insert a header line showing the path to the repository top-level."
   (magit-with-toplevel
     (magit-insert-section (repo default-directory)
-      (magit-insert (format "%-10s%s\n" "Repo: "
-                            (abbreviate-file-name default-directory))))))
+      (insert (format "%-10s%s\n" "Repo: "
+                      (abbreviate-file-name default-directory))))))
 
 (defun magit-insert-remote-header ()
   "Insert a header line about the remote of the current branch.
@@ -448,46 +448,46 @@ remote in alphabetic order."
                            (or (car (member "origin" remotes))
                                (car remotes)))))
     (magit-insert-section (remote remote)
-      (magit-insert
-       (concat (format "%-10s" "Remote: ")
-               (propertize remote 'face 'magit-branch-remote) " "
-               (magit-get "remote" remote "url") "\n")))))
+      (insert (format "%-10s" "Remote: "))
+      (insert (propertize remote 'face 'magit-branch-remote) ?\s)
+      (insert (magit-get "remote" remote "url") ?\n))))
 
 (cl-defun magit-insert-head-header
     (&optional (branch (magit-get-current-branch)))
-  "Insert a header line about the `HEAD' commit."
-  (let ((output (magit-rev-format "%h %s" (or branch "HEAD"))))
+  "Insert a header line about the current branch or detached `HEAD'."
+  (let ((output (magit-rev-format "%h %s" "HEAD")))
     (string-match "^\\([^ ]+\\) \\(.*\\)" output)
-    (magit-bind-match-strings (hash msg) output
-      (magit-insert-section it (branch (or branch hash))
-        (unless branch
-          (setf (magit-section-type it) 'commit))
-        (magit-insert
-         (concat
-          (format "%-10s" "Head: ")
-          (propertize hash 'face 'magit-hash) " "
-          (and branch
-               (concat (propertize branch 'face 'magit-branch-local) " "))
-          msg "\n"))))))
+    (magit-bind-match-strings (commit summary) output
+      (if branch
+          (magit-insert-section (branch branch)
+            (insert (format "%-10s" "Head: "))
+            (insert (propertize commit 'face 'magit-hash) ?\s)
+            (insert (propertize branch 'face 'magit-branch-local))
+            (insert ?\s summary ?\n))
+        (magit-insert-section (commit commit)
+          (insert (format "%-10s" "Head: "))
+          (insert (propertize commit 'face 'magit-hash))
+          (insert ?\s summary ?\n))))))
 
 (cl-defun magit-insert-upstream-header
     (&optional (branch   (magit-get-current-branch))
                (upstream (magit-get-tracked-branch branch)))
   "Insert a header line about the upstream branch and its tip."
-  (-when-let (string (and upstream (magit-rev-format "%h %s" upstream)))
-    (string-match "^\\([^ ]+\\) \\(.*\\)" string)
-    (magit-bind-match-strings (hash msg) string
+  (-when-let (output (and upstream (magit-rev-format "%h %s" upstream)))
+    (string-match "^\\([^ ]+\\) \\(.*\\)" output)
+    (magit-bind-match-strings (commit summary) output
       (magit-insert-section (branch upstream)
-        (magit-insert
-         (concat
-          (format "%-10s" "Upstream: ")
-          (if hash (propertize hash 'face 'magit-hash) "missing") " "
-          (and (magit-get-boolean "branch" branch "rebase") "onto ")
-          (propertize upstream 'face
-                      (if (string= (magit-get "branch" branch "remote") ".")
-                          'magit-branch-local
-                        'magit-branch-remote))
-          " " msg "\n"))))))
+        (insert (format "%-10s" "Upstream: "))
+        (when commit
+          (insert (propertize commit 'face 'magit-hash) "missing") ?\s)
+        (when (magit-get-boolean "branch" branch "rebase")
+          (insert "onto "))
+        (insert
+         (propertize upstream 'face
+                     (if (string= (magit-get "branch" branch "remote") ".")
+                         'magit-branch-local
+                       'magit-branch-remote)))
+        (insert ?\s summary ?\n)))))
 
 (defun magit-insert-tags-header ()
   "Insert a header line about the current and/or next tag."
@@ -500,13 +500,14 @@ remote in alphabetic order."
          (both-tags (and this-tag next-tag t)))
     (when (or this-tag next-tag)
       (magit-insert-section (tag (or this-tag next-tag))
-        (magit-insert
-         (concat
-          (format "%-10s" (if both-tags "Tags: " "Tag: "))
-          (and this-tag (magit-format-status-tag-sentence this-tag this-cnt nil))
-          (and both-tags ", ")
-          (and next-tag (magit-format-status-tag-sentence next-tag next-cnt t))
-          "\n"))))))
+        (insert (format "%-10s" (if both-tags "Tags: " "Tag: ")))
+        (when this-tag
+          (insert (magit-format-status-tag-sentence this-tag this-cnt nil)))
+        (when both-tags
+          (insert ", "))
+        (when next-tag
+          (insert (magit-format-status-tag-sentence next-tag next-cnt t)))
+        (insert ?\n)))))
 
 (defun magit-format-status-tag-sentence (tag count next)
   (concat (propertize tag 'face 'magit-tag)
@@ -521,20 +522,18 @@ remote in alphabetic order."
         (email (magit-get "user.email")))
     (when (and name email)
       (magit-insert-section (user name)
-        (magit-insert
-         (concat (format "%-10s" "User: ")
-                 (propertize name 'face 'magit-log-author)
-                 " <" email ">" "\n"))))))
+        (insert (format "%-10s" "User: "))
+        (insert (propertize name 'face 'magit-log-author))
+        (insert " <" email ">\n")))))
 
 (defun magit-insert-diff-filter-header ()
   "Insert a header line showing the effective diff filters."
   (when magit-diff-section-file-args
     (magit-insert-section (filter 'diff)
-      (magit-insert
-       (concat (propertize (format "%-10s" "Filter! ")
-                           'face 'magit-section-heading)
-               (mapconcat #'identity magit-diff-section-file-args " ")
-               "\n")))))
+      (insert (propertize (format "%-10s" "Filter! ")
+                          'face 'magit-section-heading))
+      (insert (mapconcat #'identity magit-diff-section-file-args " "))
+      (insert ?\n))))
 
 (magit-define-section-jumper tracked "Tracked files")
 

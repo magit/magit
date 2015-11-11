@@ -1325,18 +1325,18 @@ section or a child thereof."
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
         (magit-insert-section (file file)
-          (magit-insert
-           (propertize
-            (format "unmerged   %s%s" file
-                    (pcase (cddr (car (magit-file-status file)))
-                      (`(?D ?D) " (both deleted)")
-                      (`(?D ?U) " (deleted by us)")
-                      (`(?U ?D) " (deleted by them)")
-                      (`(?A ?A) " (both added)")
-                      (`(?A ?U) " (added by us)")
-                      (`(?U ?A) " (added by them)")
-                      (`(?U ?U) "")))
-            'face 'magit-diff-file-heading) nil ?\n))))
+          (insert (propertize
+                   (format "unmerged   %s%s" file
+                           (pcase (cddr (car (magit-file-status file)))
+                             (`(?D ?D) " (both deleted)")
+                             (`(?D ?U) " (deleted by us)")
+                             (`(?U ?D) " (deleted by them)")
+                             (`(?A ?A) " (both added)")
+                             (`(?A ?U) " (added by us)")
+                             (`(?U ?A) " (added by them)")
+                             (`(?U ?U) "")))
+                   'face 'magit-diff-file-heading))
+          (insert ?\n))))
     t)
    ((looking-at "^\\(merged\\|changed in both\\)")
     (let ((status (if (equal (match-string 1) "merged") 'merged 'conflict))
@@ -1443,14 +1443,13 @@ section or a child thereof."
                      (delete-char -1))))
                 module))
       (magit-insert-section (file module)
-        (magit-insert
-         (concat (propertize (if new
-                                 (concat "new module " module)
-                               (concat "modified   " module))
-                             'face 'magit-diff-file-heading)
-                 (cond (dirty   " (modified content)")
-                       (deleted " (deleted submodule)")))
-         nil ?\n)))))
+        (insert (propertize (if new
+                                (concat "new module " module)
+                              (concat "modified   " module))
+                            'face 'magit-diff-file-heading)
+                (cond (dirty   " (modified content)")
+                      (deleted " (deleted submodule)")))
+        (insert ?\n)))))
 
 (defun magit-diff-wash-hunk ()
   (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
@@ -1593,7 +1592,7 @@ or a ref which is not a branch, then it inserts nothing."
                       (setq branch (pop merged)))
             (insert ?\s)
             (magit-insert-section (branch branch)
-              (magit-insert branch 'magit-branch-local))))
+              (insert (propertize branch 'face 'magit-branch-local)))))
         (when merged
           (insert (format " (%s more)" (length merged))))
         (insert ?\n))
@@ -1606,7 +1605,7 @@ or a ref which is not a branch, then it inserts nothing."
                       (setq branch (pop containing)))
             (insert ?\s)
             (magit-insert-section (branch branch)
-              (magit-insert branch 'magit-branch-local))))
+              (insert (propertize branch 'face 'magit-branch-local)))))
         (when containing
           (insert (format " (%s more)" (length containing))))
         (insert ?\n))
@@ -1614,18 +1613,18 @@ or a ref which is not a branch, then it inserts nothing."
         (let ((tag (car  follows))
               (cnt (cadr follows)))
           (magit-insert-section (tag tag)
-            (magit-insert (format "Follows:    %s (%s)\n"
-                                  (propertize tag 'face 'magit-tag)
-                                  (propertize (number-to-string cnt)
-                                              'face 'magit-branch-local))))))
+            (insert (format "Follows:    %s (%s)\n"
+                            (propertize tag 'face 'magit-tag)
+                            (propertize (number-to-string cnt)
+                                        'face 'magit-branch-local))))))
       (-when-let (precedes (magit-get-next-tag rev t))
         (let ((tag (car  precedes))
               (cnt (cadr precedes)))
           (magit-insert-section (tag tag)
-            (magit-insert (format "Precedes:   %s (%s)\n"
-                                  (propertize tag 'face 'magit-tag)
-                                  (propertize (number-to-string cnt)
-                                              'face 'magit-tag))))))
+            (insert (format "Precedes:   %s (%s)\n"
+                            (propertize tag 'face 'magit-tag)
+                            (propertize (number-to-string cnt)
+                                        'face 'magit-tag))))))
       (insert ?\n))))
 
 (defun magit-insert-revision-gravatars (rev beg)
@@ -1955,15 +1954,17 @@ are highlighted."
                                'magit-diff-highlight-indentation))))))))
       (when (and magit-diff-highlight-trailing
                  (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
-        (magit-put-face-property (match-beginning 1) (match-end 1)
-                                 'magit-diff-whitespace-warning))
+        (let ((ov (make-overlay (match-beginning 1) (match-end 1) nil t)))
+          (overlay-put ov 'face 'magit-diff-whitespace-warning)
+          (overlay-put ov 'evaporate t)))
       (when (or (and (eq indent 'tabs)
                      (looking-at (concat prefix "\\( *\t[ \t]*\\)")))
                 (and (integerp indent)
                      (looking-at (format "%s\\([ \t]* \\{%s,\\}[ \t]*\\)"
                                          prefix indent))))
-        (magit-put-face-property (match-beginning 1) (match-end 1)
-                                 'magit-diff-whitespace-warning)))))
+        (let ((ov (make-overlay (match-beginning 1) (match-end 1) nil t)))
+          (overlay-put ov 'face 'magit-diff-whitespace-warning)
+          (overlay-put ov 'evaporate t))))))
 
 (defun magit-diff-update-hunk-refinement (&optional section)
   (if section

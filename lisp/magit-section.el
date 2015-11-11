@@ -745,10 +745,9 @@ insert a newline character if necessary."
   (declare (indent defun))
   (when args
     (let ((heading (apply #'concat args)))
-      (magit-insert
-       (if (next-single-property-change 0 'face (concat "0" heading))
-           heading
-         (propertize heading 'face 'magit-section-heading)))))
+      (insert (if (next-single-property-change 0 'face (concat "0" heading))
+                  heading
+                (propertize heading 'face 'magit-section-heading)))))
   (unless (bolp)
     (insert ?\n))
   (setf (magit-section-content magit-insert-section--current) (point-marker)))
@@ -795,52 +794,6 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (goto-char (- content 2))
         (insert (format " (%s)" count))
         (delete-char 1)))))
-
-(defun magit-insert (string &optional face &rest args)
-  "Insert the strings STRING and ARGS at point.
-
-First insert STRING, possibly doing some crazy things as
-described below; then insert ARGS as is, in a totally sane
-fashion.
-
-This function owes its existence to the fact that Emacs does
-not implement negative overlay priorities, and that some time
-in the past it was decided that this is not acceptable and that
-such negative prioritize have to be faked.  I wish we had shown
-some restrain, but here we are.  At least this madness is now
-contained in this function and `magit-put-face-property'.
-
-Insert STRING and then create an overlay on the inserted text,
-which sets the `face' property.  If optional FACE is non-nil,
-then use that face.  Otherwise use the first `face' property
-found in STRING."
-  (if face
-      (let ((start (point)))
-        (insert string)
-        (magit-put-face-property start (point) face))
-    (let ((buf (current-buffer))
-          (offset (1- (point))))
-      (with-temp-buffer
-        (save-excursion (insert string))
-        (while (not (eobp))
-          (let* ((beg (point))
-                 (end (or (next-single-property-change beg 'face)
-                          (point-max)))
-                 (face (get-text-property beg 'face))
-                 (text (buffer-substring-no-properties beg end)))
-            (with-current-buffer buf
-              (insert text)
-              (when face
-                (magit-put-face-property (+ beg offset)
-                                         (+ end offset) face)))
-            (goto-char end))))))
-  (apply #'insert args))
-
-(defun magit-put-face-property (start end face)
-  (let ((ov (make-overlay start end nil t)))
-    (overlay-put ov 'face face)
-    (overlay-put ov 'evaporate t)
-    ov))
 
 ;;; Update
 
