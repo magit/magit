@@ -429,19 +429,22 @@ The sections are inserted by running the functions on the hook
           (insert ?\s summary ?\n))))))
 
 (cl-defun magit-insert-pull-branch-header
-    (&optional (branch   (magit-get-current-branch))
-               (upstream (magit-get-tracked-branch branch)))
+    (&optional (branch (magit-get-current-branch))
+               (pull   (magit-get-tracked-branch branch))
+               keyword)
   "Insert a header line about branch normally pulled into the current branch."
-  (when upstream
-    (magit-insert-section (branch upstream)
-      (insert (format "%-10s" "Upstream: "))
-      (when (magit-get-boolean "branch" branch "rebase")
-        (insert "onto "))
-      (insert (propertize upstream 'face
+  (when pull
+    (magit-insert-section (branch pull)
+      (insert (format "%-10s"
+                      (or keyword
+                          (if (magit-get-boolean "branch" branch "rebase")
+                              "Rebase: "
+                            "Merge: "))))
+      (insert (propertize pull 'face
                           (if (string= (magit-get "branch" branch "remote") ".")
                               'magit-branch-local
                             'magit-branch-remote)))
-      (insert ?\s (magit-rev-format "%s" upstream) ?\n))))
+      (insert ?\s (magit-rev-format "%s" pull) ?\n))))
 
 (defun magit-insert-tags-header ()
   "Insert a header line about the current and/or next tag."
