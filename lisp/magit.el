@@ -85,7 +85,7 @@
 
 (defcustom magit-status-headers-hook
   '(magit-insert-diff-filter-header
-    magit-insert-head-header
+    magit-insert-head-branch-header
     magit-insert-pull-branch-header
     magit-insert-tags-header)
   "Hook run to insert headers into the status buffer.
@@ -99,7 +99,7 @@ at all."
   :options '(magit-insert-diff-filter-header
              magit-insert-repo-header
              magit-insert-remote-header
-             magit-insert-head-header
+             magit-insert-head-branch-header
              magit-insert-pull-branch-header
              magit-insert-tags-header))
 
@@ -412,7 +412,7 @@ The sections are inserted by running the functions on the hook
       (magit-insert-headers magit-status-headers-hook)
     (insert "In the beginning there was darkness\n\n")))
 
-(cl-defun magit-insert-head-header
+(cl-defun magit-insert-head-branch-header
     (&optional (branch (magit-get-current-branch)))
   "Insert a header line about the current branch or detached `HEAD'."
   (let ((output (magit-rev-format "%h %s" "HEAD")))
@@ -2658,6 +2658,9 @@ where an absolute path is used for performance reasons.
 If the value already is just \"git\" but TRAMP never-the-less
 doesn't find the executable, then consult the info node
 `(tramp)Remote programs'.\n" remote) :error)))))
+
+(define-obsolete-function-alias 'magit-insert-head-header
+  'magit-insert-head-branch-header "Magit 2.4.0")
 
 (define-obsolete-function-alias 'magit-insert-upstream-header
   'magit-insert-pull-branch-header "Magit 2.4.0")
