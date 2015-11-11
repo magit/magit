@@ -812,12 +812,12 @@ as argument."
         (save-excursion
           (delete-char 3)
           (set-marker-insertion-type marker nil)
-          (insert (propertize (format "%3s" arg) 'magit-section section))
-          (set-marker-insertion-type marker t)
-          (magit-put-face-property (- (point) 3) (point)
-                                   (if (= arg 0)
-                                       'magit-process-ok
-                                     'magit-process-ng)))
+          (insert (propertize (format "%3s" arg)
+                              'magit-section section
+                              'face (if (= arg 0)
+                                        'magit-process-ok
+                                      'magit-process-ng)))
+          (set-marker-insertion-type marker t))
         (if (= (magit-section-end section)
                (+ (line-end-position) 2))
             (save-excursion

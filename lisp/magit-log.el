@@ -858,13 +858,15 @@ Do not add this to a hook variable."
           (when (and (derived-mode-p 'magit-refs-mode)
                      magit-refs-show-commit-count)
             (insert (make-string magit-refs-indent-cherry-lines ?\s)))
-          (magit-insert cherry (if (string= cherry "-")
-                                   'magit-cherry-equivalent
-                                 'magit-cherry-unmatched) ?\s))
+          (insert (propertize cherry 'face (if (string= cherry "-")
+                                               'magit-cherry-equivalent
+                                             'magit-cherry-unmatched)))
+          (insert ?\s))
         (when side
-          (magit-insert side (if (string= side "<")
-                                 'magit-diff-removed
-                               'magit-diff-added) ?\s))
+          (insert (propertize side 'face (if (string= side "<")
+                                             'magit-diff-removed
+                                           'magit-diff-added)))
+          (insert ?\s))
         (when align
           (insert (propertize hash 'face 'magit-hash) ?\s))
         (when graph
@@ -872,21 +874,21 @@ Do not add this to a hook variable."
         (unless align
           (insert (propertize hash 'face 'magit-hash) ?\s))
         (when (and refs (not magit-log-show-refname-after-summary))
-          (magit-insert (magit-format-ref-labels refs) nil ?\s))
+          (insert (magit-format-ref-labels refs) ?\s))
         (when refsub
           (insert (format "%-2s " (1- magit-log-count)))
-          (magit-insert
-           (magit-reflog-format-subject
-            (substring refsub 0 (if (string-match-p ":" refsub) -2 -1)))))
+          (insert (magit-reflog-format-subject
+                   (substring refsub 0 (if (string-match-p ":" refsub) -2 -1)))))
         (when msg
-          (magit-insert msg
-                        (pcase (and gpg (aref gpg 0))
-                          (?G 'magit-signature-good)
-                          (?B 'magit-signature-bad)
-                          (?U 'magit-signature-untrusted))))
+          (insert (propertize msg 'face
+                              (pcase (and gpg (aref gpg 0))
+                                (?G 'magit-signature-good)
+                                (?B 'magit-signature-bad)
+                                (?U 'magit-signature-untrusted))))
+          (insert ?\s))
         (when (and refs magit-log-show-refname-after-summary)
           (insert ?\s)
-          (magit-insert (magit-format-ref-labels refs)))
+          (insert (magit-format-ref-labels refs)))
         (insert ?\n)
         (when (memq style '(log reflog stash))
           (goto-char (line-beginning-position))
