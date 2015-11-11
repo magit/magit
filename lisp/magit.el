@@ -87,6 +87,7 @@
   '(magit-insert-diff-filter-header
     magit-insert-head-branch-header
     magit-insert-pull-branch-header
+    magit-insert-push-branch-header
     magit-insert-tags-header)
   "Hook run to insert headers into the status buffer.
 
@@ -101,6 +102,7 @@ at all."
              magit-insert-remote-header
              magit-insert-head-branch-header
              magit-insert-pull-branch-header
+             magit-insert-push-branch-header
              magit-insert-tags-header))
 
 (defcustom magit-status-sections-hook
@@ -447,6 +449,19 @@ The sections are inserted by running the functions on the hook
       (insert ?\s)
       (if (magit-rev-verify pull)
           (insert (magit-rev-format "%s" pull))
+        (insert (propertize "is missing" 'face 'font-lock-warning-face)))
+      (insert ?\n))))
+
+(cl-defun magit-insert-push-branch-header
+    (&optional (branch (magit-get-current-branch))
+               (push   (magit-get-push-branch branch)))
+  "Insert a header line about the branch the current branch is pushed to"
+  (when push
+    (magit-insert-section (branch push)
+      (insert (format "%-10s" "Push: "))
+      (insert (propertize push 'face 'magit-branch-remote) ?\s)
+      (if (magit-rev-verify push)
+          (insert (magit-rev-format "%s" push))
         (insert (propertize "is missing" 'face 'font-lock-warning-face)))
       (insert ?\n))))
 
