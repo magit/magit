@@ -1,0 +1,31 @@
+Magit v2.3.1 Release Notes
+==========================
+
+Released 11 November 2015 by Jonas Bernoulli.
+
+This is a bugfix release.
+
+* `magit-stash-drop' now shows a message with the hash of the dropped
+  stash to make it easier to recover from dropping the wrong stash.
+
+* `magit-revert-buffers' now avoids needlessly connecting to unrelated
+  hosts.  It first checks whether a given file is on the same host as
+  the repository, and only if that is so it checks whether the file is
+  located inside the repository, using `file-in-directory-p', which,
+  for Tramp files, requires connecting to the remote host.
+
+* `magit-commit-message-buffer' no longer hangs when a symlink to the
+  repository is involved.
+
+This release also contains various documentation fixes and code
+clean-ups.
+
+Authors
+-------
+
+    10  Jonas Bernoulli
+     3  Noam Postavsky
+     2  Kyle Meyer
+     1  Carl Lieberman
+     1  David L. Rager
+     1  Syohei Yoshida
