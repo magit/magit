@@ -994,7 +994,7 @@ which, as the name suggests always visits the actual file."
   "The function used by `magit-diff-visit-file' to display blob buffers.
 
 Other commands such as `magit-find-file' do not use this
-function.  Instead they use high-leverl functions to select the
+function.  Instead they use high-level functions to select the
 window to be used to display the buffer.  This variable and the
 related functions are an experimental feature and should be
 treated as such.")
