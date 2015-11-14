@@ -64,11 +64,17 @@ Then show the status buffer for the new repository."
               (?k "Remove"  magit-remote-remove)
               (?u "Set url" magit-remote-set-url)))
 
+(defun magit-read-url (prompt &optional initial-input)
+  (let ((url (magit-read-string-ns prompt initial-input)))
+    (if (string-prefix-p "~" url)
+        (expand-file-name url)
+      url)))
+
 ;;;###autoload
 (defun magit-remote-add (remote url)
   "Add a remote named REMOTE and fetch it."
   (interactive (list (magit-read-string-ns "Remote name")
-                     (magit-read-string-ns "Remote url")))
+                     (magit-read-url "Remote url")))
   (magit-run-git-async "remote" "add" "-f" remote url))
 
 ;;;###autoload
@@ -85,7 +91,7 @@ Then show the status buffer for the new repository."
   "Change the url of the remote named REMOTE to URL."
   (interactive
    (let  ((remote (magit-read-remote "Set url of remote")))
-     (list remote (magit-read-string-ns
+     (list remote (magit-read-url
                    "Url" (magit-get "remote" remote "url")))))
   (magit-run-git "remote" "set-url" remote url))
 
