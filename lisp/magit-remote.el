@@ -87,7 +87,7 @@ Then show the status buffer for the new repository."
    (let  ((remote (magit-read-remote "Set url of remote")))
      (list remote (magit-read-string-ns
                    "Url" (magit-get "remote" remote "url")))))
-  (magit-set url "remote" remote "url"))
+  (magit-run-git "remote" "set-url" remote url))
 
 ;;;###autoload
 (defun magit-remote-remove (remote)
