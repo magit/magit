@@ -448,7 +448,7 @@ The sections are inserted by running the functions on the hook
                             'magit-branch-remote)))
       (insert ?\s)
       (if (magit-rev-verify pull)
-          (insert (magit-rev-format "%s" pull))
+          (insert (or (magit-rev-format "%s" pull) ""))
         (insert (propertize "is missing" 'face 'font-lock-warning-face)))
       (insert ?\n))))
 
@@ -461,7 +461,7 @@ The sections are inserted by running the functions on the hook
       (insert (format "%-10s" "Push: "))
       (insert (propertize push 'face 'magit-branch-remote) ?\s)
       (if (magit-rev-verify push)
-          (insert (magit-rev-format "%s" push))
+          (insert (or (magit-rev-format "%s" push) ""))
         (insert (propertize "is missing" 'face 'font-lock-warning-face)))
       (insert ?\n))))
 
