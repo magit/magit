@@ -78,7 +78,7 @@
 
 Except in status buffers, diffs are usually start out fully
 expanded.  Because that can take a long time, all diffs that
-haven't been fontified during a refresh before the treshold
+haven't been fontified during a refresh before the threshold
 defined here are instead displayed with their bodies collapsed.
 
 Note that this can cause sections that were previously expanded
