@@ -1182,6 +1182,7 @@ changes.
   (interactive (list (magit-read-other-branch-or-commit "Checkout")))
   (magit-run-git "checkout" revision))
 
+;;;###autoload
 (defun magit-branch (branch start-point &optional args)
   "Create BRANCH at branch or revision START-POINT.
 \n(git branch [ARGS] BRANCH START-POINT)."
