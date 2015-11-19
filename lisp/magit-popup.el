@@ -978,12 +978,12 @@ of events shared by all popups and before point is adjusted.")
          magit-popup-common-commands)))
     (set-buffer-modified-p nil)
     (if event
-        (while (and (forward-button 1)
+        (while (and (ignore-errors (forward-button 1))
                     (let ((b (button-at (point))))
                       (or (not (equal (button-get b 'prefix) prefix))
                           (not (equal (button-get b 'event)  event))))))
       (re-search-forward "^Actions" nil t)
-      (forward-button 1))))
+      (ignore-errors (forward-button 1)))))
 
 ;;; Draw
 
