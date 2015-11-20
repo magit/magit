@@ -1003,18 +1003,19 @@ default so that users come here and pick what is right for them.
 
 Revert the buffers synchronously and be quiet about it.
 
-This is the recommended setting, because for the other values the
-revert messages might prevent you from seeing other, more
-important, messages in the echo area.
+This (or a negative number) is the recommended setting, because
+for the other values the revert messages might prevent you from
+seeing other, more important, messages in the echo area.
 
 
 @item
 NUMBER
 
-An integer or float.  Revert the buffers asynchronously,
-mentioning each one as it is being reverted.  If user input
-arrives, then stop reverting.  After NUMBER seconds resume
-reverting.
+An integer or float.  Revert the buffers asynchronously.  If
+NUMBER is positive, then mention each buffer as it is being
+reverted.  If it is negative, then be quiet about it.  If user
+input arrives, then stop reverting.  After (the absolute value of)
+NUMBER seconds resume reverting.
 @end itemize
 @end defopt
 
@@ -6104,7 +6105,8 @@ quite verbosely, allowing these few users to undo the reverts using
 the @code{undo} command and then disabling the automatic reverts for the
 future.  Most users should however keep automatic reverts turned on
 and instead configure it to be less verbose by setting
-@code{magit-revert-buffers} to @code{t} or even @code{silent}.
+@code{magit-revert-buffers} to @code{t} or even @code{silent}.  This option is mentioned
+again in the next section.
 
 @node Performance
 @subsection Performance
@@ -6217,10 +6219,27 @@ default anymore.  Consider leaving it at that.
 
 
 @item
+@code{magit-revert-buffers}
+
+After running certain commands, after refreshing the current Magit
+buffer, unmodified buffers visiting files belonging to the current
+repository are reverted.  By default that happens synchronously,
+which can be an issue if you visit many buffers.  Set this variable
+to a number to revert asynchronously.  It's best to use a negative
+number because that causes the reverts to happen silently (which is
+desirable because the revert messages would otherwise shadow other,
+more important messages).
+
+
+@item
 @code{magit-not-reverted-hook}
 
 @item
 @code{magit-refresh-buffer-hook}
+
+If third-party packages add functions to these hooks, then you might
+want to consider removing them again.
+
 
 @item
 @code{magit-refs-sections-hook}

@@ -184,7 +184,7 @@ displayed.  Otherwise fall back to regular region highlighting."
   (setq magit-revert-buffers-timer
         (and (boundp 'magit-revert-buffers)
              (numberp magit-revert-buffers)
-             (run-with-timer 0 magit-revert-buffers
+             (run-with-timer 0 (abs magit-revert-buffers)
                              'magit-revert-buffers-async))))
 
 (defcustom magit-revert-buffers 'usage
@@ -208,15 +208,16 @@ the current repository may optionally be reverted.
           what is right for them.
 
 `silent'  Revert the buffers synchronously and be quiet about it.
-          This is the recommended setting, because for the other
-          values the revert messages might prevent you from
-          seeing other, more important, messages in the echo
-          area.
+          This (or a negative number) is the recommended setting,
+          because for the other values the revert messages might
+          prevent you from seeing other, more important, messages
+          in the echo area.
 
-NUMBER    An integer or float.  Revert the buffers asynchronously,
-          mentioning each one as it is being reverted.  If user
-          input arrives, then stop reverting.  After NUMBER
-          seconds resume reverting."
+NUMBER    An integer or float.  Revert the buffers asynchronously.
+          If NUMBER is positive, then mention each buffer as it is
+          being reverted.  If it is negative, then be quiet about
+          it.  If user input arrives, then stop reverting.  After
+          (the absolute value of) NUMBER seconds resume reverting."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type '(choice
@@ -896,7 +897,9 @@ When called interactively then the revert is forced."
               (progn (message "Reverting %s inhibited due to magit-blame-mode"
                               buffer-file-name)
                      (run-hooks 'magit-not-reverted-hook))
-            (if (eq magit-revert-buffers 'silent)
+            (if (or (eq magit-revert-buffers 'silent)
+                    (and (numberp magit-revert-buffers)
+                         (< magit-revert-buffers 0)))
                 (revert-buffer 'ignore-auto t t)
               (message "Reverting buffer `%s'..." (buffer-name))
               (revert-buffer 'ignore-auto t t)
