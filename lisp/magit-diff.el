@@ -987,7 +987,9 @@ which, as the name suggests always visits the actual file."
         (when col
           (move-to-column col)))
       (when unmerged-p
-        (smerge-start-session)))))
+        (smerge-start-session))
+      (with-current-buffer buffer
+        (run-hooks 'magit-diff-visit-file-hook)))))
 
 (defvar magit-display-file-buffer-function
   'magit-display-file-buffer-traditional
