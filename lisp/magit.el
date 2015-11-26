@@ -696,17 +696,6 @@ Refs are compared with a branch read form the user."
                      (magit-show-refs-arguments)))
   (magit-mode-setup #'magit-refs-mode ref args))
 
-(defun magit-branch-manager ()
-  "The Branch Manager is dead, long live the Branch Manager.
-
-\\<magit-mode-map>\
-Please use the new top-level binding `\\[magit-show-refs-popup]'.
-The old binding `b v' will be removed soon."
-  (interactive)
-  (magit-show-refs-head)
-  (message (documentation 'magit-branch-manager))
-  (sit-for 3))
-
 (defun magit-refs-refresh-buffer (&rest ignore)
   (setq magit-set-buffer-margin-refresh (not magit-show-margin))
   (unless (magit-rev-verify (or (car magit-refresh-args) "HEAD"))
@@ -1163,8 +1152,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
               (?U "Unset upstream"    magit-branch-unset-upstream)
               (?r "Rename"            magit-branch-rename)
               (?B "Create & checkout" magit-branch-and-checkout)
-              (?e "Set description"   magit-branch-edit-description)
-              (?v "(Branch Manager)"  magit-branch-manager)
+              (?e "Set description"   magit-branch-edit-description) nil
               (?s "Spin off"          magit-branch-spinoff) nil nil
               (?x "Reset"             magit-branch-reset))
   :default-arguments '("--track")
