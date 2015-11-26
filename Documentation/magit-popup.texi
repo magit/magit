@@ -369,6 +369,28 @@ Like @code{magit-define-popup-action}, but modifies the value of the
 @code{:sequence-actions} property instead of @code{:actions}.
 @end defun
 
+@defun magit-define-popup-variable popup key desc command formatter &optional at prepend
+
+In POPUP, define KEY as COMMAND.
+
+POPUP is a popup command defined using @code{magit-define-popup}.  COMMAND
+is a command which calls @code{magit-popup-set-variable}.  FORMATTER is a
+function which calls @code{magit-popup-format-variable}.  These two
+functions have to be called with the same arguments.
+
+KEY is a character representing the event used interactively call
+the COMMAND.
+
+DESC is the variable or a representation thereof.  It's not actually
+used for anything.
+
+COMMAND is inserted after all other commands already defined for
+POPUP, unless optional PREPEND is non-nil, in which case it is
+placed first.  If optional AT is non-nil then it should be the KEY
+of another command already defined for POPUP, the command is then
+placed before or after AT, depending on PREPEND."
+@end defun
+
 @defun magit-change-popup-key popup type from to
 
 In POPUP, bind TO to what FROM was bound to.  TYPE is one of
@@ -613,6 +635,14 @@ list whose members have the form @code{(KEY DESC SWITCH)}, see
 The popup arguments which take a value, as in "--opt~OPTVAL".
 VALUE is a list whose members have the form (KEY DESC OPTION
 READER), see @code{magit-define-popup-option} for details.
+
+
+@item
+@code{:variables}
+
+Git variables which can be set from the popup.  VALUE is a list
+whose members have the form (KEY DESC COMMAND FORMATTER), see
+@code{magit-define-popup-variable} for details.
 
 
 @item
