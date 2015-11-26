@@ -235,11 +235,14 @@ not a good idea to change such entries.")
 
 (defvar with-editor-pre-finish-hook nil)
 (defvar with-editor-pre-cancel-hook nil)
+(defvar with-editor-post-finish-hook nil)
+(defvar with-editor-post-finish-hook-1 nil)
 (defvar with-editor-post-cancel-hook nil)
 (defvar with-editor-post-cancel-hook-1 nil)
 (defvar with-editor-cancel-alist nil)
 (put 'with-editor-pre-finish-hook 'permanent-local t)
 (put 'with-editor-pre-cancel-hook 'permanent-local t)
+(put 'with-editor-post-finish-hook 'permanent-local t)
 (put 'with-editor-post-cancel-hook 'permanent-local t)
 
 (defvar with-editor-show-usage t)
@@ -259,8 +262,12 @@ not a good idea to change such entries.")
   (interactive "P")
   (when (run-hook-with-args-until-failure
          'with-editor-finish-query-functions force)
-    (run-hooks 'with-editor-pre-finish-hook)
-    (with-editor-return nil)))
+    (let ((with-editor-post-finish-hook-1
+           (ignore-errors (delq t with-editor-post-finish-hook))))
+      (run-hooks 'with-editor-pre-finish-hook)
+      (with-editor-return nil)
+      (accept-process-output nil 0.1)
+      (run-hooks 'with-editor-post-finish-hook-1))))
 
 (defun with-editor-cancel (force)
   "Cancel the current edit session."
