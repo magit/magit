@@ -322,6 +322,7 @@ starts complicating other things, then it will be removed."
     (define-key map [C-tab] 'magit-section-cycle)
     (define-key map [M-tab] 'magit-section-cycle-diffs)
     (define-key map [s-tab] 'magit-section-cycle-global)
+    (define-key map [backtab] 'magit-section-cycle-global)
     (define-key map "^"    'magit-section-up)
     (define-key map "n"    'magit-section-forward)
     (define-key map "p"    'magit-section-backward)
