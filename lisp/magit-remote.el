@@ -340,7 +340,8 @@ manpages."
   "Push all matching branches to another repository.
 If multiple remotes exit, then read one from the user.
 If just one exists, use that without requiring confirmation."
-  (interactive (list (magit-read-remote "Push matching branches to" nil t)))
+  (interactive (list (magit-read-remote "Push matching branches to" nil t)
+                     (magit-push-arguments)))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async-no-revert "push" "-v" args remote ":"))
 
@@ -360,7 +361,8 @@ branch as default."
   "Push a tag to another repository."
   (interactive
    (let  ((tag (magit-read-tag "Push tag")))
-     (list tag (magit-read-remote (format "Push %s to remote" tag) nil t))))
+     (list tag (magit-read-remote (format "Push %s to remote" tag) nil t)
+           (magit-push-arguments))))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async-no-revert "push" remote tag))
 
