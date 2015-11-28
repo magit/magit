@@ -237,11 +237,17 @@ Read the local and remote branch."
   (magit-git-push branch target args))
 
 ;;;###autoload
-(defun magit-push (branch target args)
-  "Push a branch to its upstream branch.
-If the upstream isn't set, then read the remote branch."
-  (interactive (magit-push-read-args t))
-  (magit-git-push branch target args))
+(defun magit-push (source target args)
+  "Push an arbitrary branch or commit somewhere.
+Both the source and the target are read in the minibuffer."
+  (interactive
+   (let ((source (magit-read-local-branch-or-commit "Push")))
+     (list source
+           (magit-read-remote-branch (format "Push %s to" source) nil
+                                     (magit-get-tracked-branch source)
+                                     source 'confirm)
+           (magit-push-arguments))))
+  (magit-git-push source target args))
 
 (defun magit-push-read-args (&optional use-upstream use-current default-current)
   (let* ((current (magit-get-current-branch))

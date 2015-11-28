@@ -5233,8 +5233,8 @@ remote branch.
 @cindex magit-push
 @item @kbd{P o} @tie{}@tie{}@tie{}@tie{}(@code{magit-push})
 
-Push a branch to its upstream branch.  If the upstream isn't set,
-then read the remote branch.
+Push an arbitrary branch or commit somewhere.  Both the source and
+the target are read in the minibuffer.
 
 @kindex P m
 @cindex magit-push-matching
