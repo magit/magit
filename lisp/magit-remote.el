@@ -309,19 +309,18 @@ doing that, then you should probably just use `Pe' instead of
 
 ;;;###autoload
 (defun magit-push-quickly (&optional args)
-  "Push the current branch to some remote.
-When the Git variable `magit.pushRemote' is set, then push to
-that remote.  If that variable is undefined or the remote does
-not exist, then push to \"origin\".  If that also doesn't exist
-then raise an error.  The local branch is pushed to the remote
-branch with the same name."
+  "Push the current branch to `branch.<name>.pushRemote'.
+If that variable is unset, then push to `remote.pushDefault'.
+If that variable is unset too, then raise an error."
   (interactive (list (magit-push-arguments)))
-  (run-hooks 'magit-credential-hook)
-  (-if-let (branch (magit-get-current-branch))
-      (-if-let (remote (or (magit-remote-p (magit-get "magit.pushRemote"))
-                           (magit-remote-p "origin")))
-          (magit-run-git-async-no-revert "push" "-v" args remote branch)
-        (user-error "Cannot determine remote to push to"))
+  (--if-let (magit-get-current-branch)
+      (-if-let (remote (magit-get-push-remote it))
+          (if (member remote (magit-list-remotes))
+              (progn
+                (run-hooks 'magit-credential-hook)
+                (magit-run-git-async-no-revert "push" "-v" args remote it))
+            (user-error "Remote `%s' doesn't exist" remote))
+        (user-error "No push-remote is configured for %s" it))
     (user-error "No branch is checked out")))
 
 ;;;###autoload

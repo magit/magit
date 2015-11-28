@@ -3693,11 +3693,9 @@ Also see [[info:gitman#git-push]].
 
 - Key: P Q, magit-push-quickly
 
-  Push the current branch to some remote.  When the Git variable
-  ~magit.pushRemote~ is set, then push to that remote.  If that variable
-  is undefined or the remote does not exist, then push to "origin".
-  If that also doesn't exist then raise an error.  The local branch is
-  pushed to the remote branch with the same name.
+  Push the current branch to ~branch.<name>.pushRemote~.  If that
+  variable is unset, then push to ~remote.pushDefault~.  If that
+  variable is unset too, then raise an error.
 
 - Key: P m, magit-push-matching
 
