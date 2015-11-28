@@ -1863,14 +1863,6 @@ Also see [[info:gitman#git-diff]].
 
   Show changes between any two files on disk.
 
-- Key: M-x magit-diff-unpushed, magit-diff-unpushed
-
-  Show unpushed changes.
-
-- Key: M-x magit-diff-unpulled, magit-diff-unpulled
-
-  Show unpulled changes.
-
 All of the above suffix commands update the repository's diff buffer.
 The diff popup also features two commands which show differences in
 another buffer:

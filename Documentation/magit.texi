@@ -2540,18 +2540,6 @@ Show changes between the working tree and the index.
 @item @kbd{d p} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-paths})
 
 Show changes between any two files on disk.
-
-@kindex M-x magit-diff-unpushed
-@cindex magit-diff-unpushed
-@item @kbd{M-x magit-diff-unpushed} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-unpushed})
-
-Show unpushed changes.
-
-@kindex M-x magit-diff-unpulled
-@cindex magit-diff-unpulled
-@item @kbd{M-x magit-diff-unpulled} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-unpulled})
-
-Show unpulled changes.
 @end table
 
 All of the above suffix commands update the repository's diff buffer.

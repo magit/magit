@@ -717,22 +717,6 @@ a commit read from the minibuffer."
   (magit-diff-setup nil nil args files))
 
 ;;;###autoload
-(defun magit-diff-unpushed (&optional args files)
-  "Show unpushed changes."
-  (interactive (magit-diff-arguments))
-  (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff-setup (concat tracked "...") nil args files)
-    (user-error "No upstream set")))
-
-;;;###autoload
-(defun magit-diff-unpulled (&optional args files)
-  "Show unpulled changes."
-  (interactive (magit-diff-arguments))
-  (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff-setup (concat "..." tracked) nil args files)
-    (user-error "No upstream set")))
-
-;;;###autoload
 (defun magit-diff-while-committing (&optional args files)
   "While committing, show the changes that are about to be committed.
 While amending, invoking the command again toggles between

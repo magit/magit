@@ -1256,7 +1256,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 
 (defvar magit-unpulled-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-diff-unpulled)
+    (define-key map [remap magit-visit-thing] 'magit-diff-dwim)
     map)
   "Keymap for `unpulled' sections.")
 
@@ -1289,7 +1289,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-diff-unpushed)
+    (define-key map [remap magit-visit-thing] 'magit-diff-dwim)
     map)
   "Keymap for `unpushed' sections.")
 
