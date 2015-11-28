@@ -5257,29 +5257,7 @@ remote configured for the current branch as default.
 @item @kbd{P T} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-tag})
 
 Push a tag to another repository.
-
 @end table
-
-@defopt magit-push-always-verify
-
-Whether certain commands require verification before pushing.
-
-Starting with @code{v2.1.0} some of the push commands are supposed to
-push to the configured upstream branch without requiring user
-confirmation or offering to push somewhere else.
-
-This has taken a few users by surprise, and they suggested that we
-force users to opt-in to this behavior.  Unfortunately adding this
-option means that now other users will complain about us needlessly
-forcing them to set an option.  This is an attempt to make everyone
-happy and like all such attempts it is prone to fail.  Before
-complaining about having to set this option, please consider that
-other users are less experienced than you and have different needs.
-
-You should set the value of this option to nil, causing all push
-commands to behave as intended.  But first read the description of
-each command above.
-@end defopt
 
 @node Creating and sending patches
 @section Creating and sending patches

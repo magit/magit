@@ -216,10 +216,7 @@ If that variable is unset too, then raise an error."
 ;;;###autoload
 (defun magit-push-current (branch remote &optional remote-branch args)
   "Push the current branch to its upstream branch.
-If the upstream isn't set, then read the remote branch.
-
-If `magit-push-always-verify' is not nil, however, always read
-the remote branch."
+If the upstream isn't set, then read the remote branch."
   (interactive (magit-push-read-args t t))
   (magit-push branch remote remote-branch args))
 
@@ -233,10 +230,7 @@ Read the local and remote branch."
 ;;;###autoload
 (defun magit-push (branch remote &optional remote-branch args)
   "Push a branch to its upstream branch.
-If the upstream isn't set, then read the remote branch.
-
-If `magit-push-always-verify' is not nil, however, always read
-the remote branch."
+If the upstream isn't set, then read the remote branch."
   (interactive (magit-push-read-args t))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async-no-revert
@@ -244,60 +238,6 @@ the remote branch."
    (if remote-branch
        (format "%s:refs/heads/%s" branch remote-branch)
      branch)))
-
-(defcustom magit-push-always-verify 'nag
-  "Whether certain commands require verification before pushing.
-
-Starting with v2.1.0 some of the push commands are supposed to
-push to the configured upstream branch without requiring user
-confirmation or offering to push somewhere else.
-
-This has taken a few users by surprise, and they suggested that
-we force users to opt-in to this behavior.  Unfortunately adding
-this option means that now other users will complain about us
-needlessly forcing them to set an option.  But what can you do?
-\(I am not making this up.  This has happened in the past and it
-is very frustrating.)
-
-You should set the value of this option to nil, causing all push
-commands to behave as intended:
-
-`PP' Push the current branch to its upstream branch, no questions
-     asked.  If no upstream branch is configured or if that is
-     another local branch, then prompt for the remote and branch
-     to push to.
-
-`Po' Push another local branch (not the current branch) to its
-     upstream branch.  If no upstream branch is configured or if
-     that is another local branch, then prompt for the remote and
-     branch to push to.
-
-`Pe' Push any local branch to any remote branch.  This command
-     isn't affected by this option.  It always asks which branch
-     should be pushed (defaulting to the current branch) and then
-     where that should be pushed (defaulting to the upstream
-     branch of the previously selected branch).
-
-There are other push commands besides these.  You should read
-their doc-strings instead of blindly trying them out and then
-being surprised if it turns out that they do something different
-from what you expected.  For example inside the push popup type
-`?i' to learn what \"implicitly\" means here.  Or to learn about
-all push commands at once, consult the manual.
-
-While I have your attention, I would also like to warn you that
-pushing will be further improved in the v2.4.0 release, and that
-you might be surprised by some of these changes, unless you read
-the documentation.
-
-Setting this option to t makes little sense.  If you consider
-doing that, then you should probably just use `Pe' instead of
-`PP' or `Po'."
-  :package-version '(magit . "2.2.0")
-  :group 'magit-commands
-  :type '(choice (const :tag "require verification and mention this option" nag)
-                 (const :tag "require verification" t)
-                 (const :tag "don't require verification" nil)))
 
 (defun magit-push-read-args (&optional use-upstream use-current default-current)
   (let* ((current (magit-get-current-branch))
@@ -313,14 +253,9 @@ doing that, then you should probably just use `Pe' instead of
                     (user-error "Nothing selected")))
          (remote (and (magit-branch-p local)
                       (magit-get-remote-branch local))))
-    (unless (and use-upstream remote (not magit-push-always-verify))
-      (setq remote (magit-read-remote-branch
-                    (concat
-                     (format "Push %s to" local)
-                     (and use-upstream remote
-                          (eq magit-push-always-verify 'nag)
-                          " [also see option magit-push-always-verify]"))
-                    nil remote local 'confirm)))
+    (unless (and use-upstream remote)
+      (setq remote (magit-read-remote-branch (format "Push %s to" local)
+                                             nil remote local 'confirm)))
     (list local (car remote) (cdr remote) (magit-push-arguments))))
 
 ;;;###autoload
