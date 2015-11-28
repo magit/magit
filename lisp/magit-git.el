@@ -1110,6 +1110,14 @@ Return a list of two integers: (A>B B>A)."
                              secondary-default
                              (magit-get-current-branch))))
 
+(defun magit-read-local-branch-or-commit (prompt)
+  (let ((branches (magit-list-local-branch-names))
+        (commit (magit-commit-at-point)))
+    (or (magit-completing-read "Push" (if commit (cons commit branches) branches)
+                               nil nil nil 'magit-revision-history
+                               (or (magit-local-branch-at-point) commit))
+                     (user-error "Nothing selected"))))
+
 (defun magit-read-local-branch-or-ref (prompt &optional secondary-default)
   (magit-completing-read prompt (nconc (magit-list-local-branch-names)
                                        (magit-list-refs "refs/"))
