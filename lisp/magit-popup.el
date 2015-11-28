@@ -806,7 +806,7 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
         (user-error "%c isn't bound to any action" event)))))
 
 (defun magit-popup-set-variable
-    (variable choices &optional default other global)
+    (variable choices &optional default other)
   (--if-let (--if-let (magit-git-string "config" "--local" variable)
                 (cadr (member it choices))
               (car choices))
@@ -814,8 +814,7 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
     (magit-call-git "config" "--unset" variable))
   (magit-refresh)
   (message "%s %s" variable
-           (magit-popup-format-variable-1
-            variable choices default other global)))
+           (magit-popup-format-variable-1 variable choices default other)))
 
 (defun magit-popup-quit ()
   "Quit the current popup command without invoking an action."
@@ -1128,18 +1127,15 @@ of events shared by all popups and before point is adjusted.")
         'type type 'event (magit-popup-event-key ev)))
 
 (defun magit-popup-format-variable
-    (variable choices &optional default other global width)
+    (variable choices &optional default other width)
   (concat variable
           (if width (make-string (- width (length variable)) ?\s) " ")
-          (magit-popup-format-variable-1
-           variable choices default other global)))
+          (magit-popup-format-variable-1 variable choices default other)))
 
 (defun magit-popup-format-variable-1
-    (variable choices &optional default other global)
-  (let ((local (magit-git-string "config" "--local"  variable)))
-    (when global
-      (setq global (magit-git-string "config" "--global"
-                                     (if (stringp global) global variable))))
+    (variable choices &optional default other)
+  (let ((local  (magit-git-string "config" "--local"  variable))
+        (global (magit-git-string "config" "--global" variable)))
     (when other
       (--if-let (magit-git-string "config" other)
           (setq other (concat other ":" it))
