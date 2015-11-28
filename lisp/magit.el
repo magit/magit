@@ -734,6 +734,20 @@ Refs are compared with a branch read form the user."
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-refs-sections-hook)))
 
+(defun magit-insert-branch-description ()
+  "Insert header containing the description of the current branch.
+Insert a header line with the name and description of the
+current branch.  The description is taken from the Git variable
+`branch.<NAME>.description'; if that is undefined then no header
+line is inserted at all."
+  (let ((branch (magit-get-current-branch)))
+    (--when-let (magit-git-lines
+                 "config" (format "branch.%s.description" branch))
+      (magit-insert-section (branchdesc branch t)
+        (magit-insert-heading branch ": " (car it))
+        (insert (mapconcat 'identity (cdr it) "\n"))
+        (insert "\n\n")))))
+
 (defconst magit-refs-branch-line-re
   (concat "^"
           "\\(?:[ \\*]\\) "
@@ -1388,6 +1402,12 @@ With prefix, forces the rename even if NEW already exists.
     (magit-run-git-no-revert "branch" (if force "-M" "-m") old new)))
 
 ;;;###autoload
+(defun magit-branch-edit-description (branch)
+  "Edit the description of BRANCH."
+  (interactive (list (magit-read-local-branch "Edit branch description")))
+  (magit-run-git-with-editor "branch" "--edit-description"))
+
+;;;###autoload
 (defun magit-branch-set-upstream (branch upstream)
   "Change the UPSTREAM branch of BRANCH."
   (interactive
@@ -1404,26 +1424,6 @@ With prefix, forces the rename even if NEW already exists.
   "Unset the upstream branch of BRANCH."
   (interactive (list (magit-read-local-branch "Unset upstream of branch")))
   (magit-run-git-no-revert "branch" "--unset-upstream" branch))
-
-;;;###autoload
-(defun magit-branch-edit-description (branch)
-  "Edit the description of BRANCH."
-  (interactive (list (magit-read-local-branch "Edit branch description")))
-  (magit-run-git-with-editor "branch" "--edit-description"))
-
-(defun magit-insert-branch-description ()
-  "Insert header containing the description of the current branch.
-Insert a header line with the name and description of the
-current branch.  The description is taken from the Git variable
-`branch.<NAME>.description'; if that is undefined then no header
-line is inserted at all."
-  (let ((branch (magit-get-current-branch)))
-    (--when-let (magit-git-lines
-                 "config" (format "branch.%s.description" branch))
-      (magit-insert-section (branchdesc branch t)
-        (magit-insert-heading branch ": " (car it))
-        (insert (mapconcat 'identity (cdr it) "\n"))
-        (insert "\n\n")))))
 
 ;;;; Merge
 
