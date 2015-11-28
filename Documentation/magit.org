@@ -3085,10 +3085,20 @@ Also see [[info:gitman#git-rebase]].
 When no rebase is in progress, then the popup buffer features the
 following commands.
 
-- Key: r r, magit-rebase
+- Key: r p, magit-rebase-onto-pushremote
 
-  Start a non-interactive rebase sequence.  All commits not in
-  UPSTREAM are rebased.
+  Rebase the current branch onto ~branch.<name>.pushRemote~.  If that
+  variable is unset, then rebase onto ~remote.pushDefault~.
+
+- Key: r u, magit-rebase-onto-upstream
+
+  Rebase the current branch onto its upstream branch.
+
+- Key: r e, magit-rebase
+
+  Rebase the current branch onto a branch read in the minibuffer.  All
+  commits that are reachable from head but not from the selected
+  branch TARGET are being rebased."
 
 - Key: r o, magit-rebase-subset
 
@@ -3101,9 +3111,9 @@ This can be used to turn one of the above non-interactive rebase
 variants into an interactive rebase.
 
 For example if you want to clean up a feature branch and at the same
-time rebase it onto ~master~, then you could use ~r-ir~.  But we recommend
-that you instead do that in two steps.  First use ~rs~ to cleanup the
-feature branch, and then in a second step ~rl~ to rebase it onto ~master~.
+time rebase it onto ~master~, then you could use ~r-iu~.  But we recommend
+that you instead do that in two steps.  First use ~ri~ to cleanup the
+feature branch, and then in a second step ~ru~ to rebase it onto ~master~.
 That way if things turn out to be more complicated than you thought
 and/or you make a mistake and have to start over, then you only have
 to redo half the work.
@@ -3116,20 +3126,11 @@ is not enabled in the popup.
 
   Start an interactive rebase sequence.
 
-- Key: r l, magit-rebase-unpushed
-
-  Start an interactive rebase sequence of unpushed commits.  This is
-  like ~magit-rebase-interactive~, but if the upstream of the current
-  branch is configured, then all commits since the merge-base are
-  rebased.  If there is no upstream or no merge-base, then the user
-  has to select the first commit to be rebased like for
-  ~magit-rebase-interactive~.
-
 - Key: r f, magit-rebase-autosquash
 
   Combine squash and fixup commits with their intended targets.
 
-- Key: r e, magit-rebase-edit-commit
+- Key: r m, magit-rebase-edit-commit
 
   Edit a single older commit using rebase.
 
@@ -3635,23 +3636,25 @@ Also see [[info:gitman#git-fetch]].
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
-- Key: f f, magit-fetch-current
+- Key: f p, magit-fetch-from-pushremote
 
-  Fetch from the upstream repository of the current branch.  If ~HEAD~
-  is detached or if the upstream is not configured, then read the
-  remote.
+  Fetch from the push-remote of the current branch.
 
-- Key: f o, magit-fetch
+- Key: f u, magit-fetch-from-upstream
+
+  Fetch from the push-remote of the current branch.
+
+- Key: f e, magit-fetch
 
   Fetch from another repository.
 
 - Key: f a, magit-fetch-all
 
-  Fetch from all configured remotes.
+  Fetch from all remotes.
 
 - Key: f m, magit-submodule-fetch
 
-  Fetch all submodules.  With a prefix argument fetch all remotes or
+  Fetch all submodules.  With a prefix argument fetch all remotes of
   all submodules.
 
 ** Pulling
@@ -3660,16 +3663,20 @@ Also see [[info:gitman#git-pull]].
 
 - Key: F, magit-pull-popup
 
-  This prefix command shows the following suffix commands along with
-  the appropriate infix arguments in a popup buffer.
+  This prefix command shows the following suffix commands in a popup
+  buffer.
 
-- Key: F F, magit-pull-current
+- Key: F p, magit-pull-from-pushremote
 
-  Fetch and merge into current branch.
+  Pull from the push-remote of the current branch.
 
-- Key: F o, magit-pull
+- Key: F u, magit-pull-from-upstream
 
-  Fetch from another repository and merge a fetched branch.
+  Pull from the upstream of the current branch.
+
+- Key: F e, magit-pull
+
+  Pull from a branch read in the minibuffer.
 
 ** Pushing
 
@@ -3680,18 +3687,16 @@ Also see [[info:gitman#git-push]].
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
-- Key: P Q, magit-push-quickly
+- Key: P p, magit-push-current-to-pushremote
 
-  Push the current branch to ~branch.<name>.pushRemote~.  If that
-  variable is unset, then push to ~remote.pushDefault~.  If that
-  variable is unset too, then raise an error.
+  Push the current branch to ~branch.<name>.pushRemote~ or if that
+  is unset to ~remote.pushDefault~.
 
-- Key: P P, magit-push-current
+- Key: P u, magit-push-current-to-upstream
 
-  Push the current branch to its upstream branch.  If the upstream
-  isn't set, then read the remote branch.
+  Push the current branch to its upstream branch.
 
-- Key: P e, magit-push-elsewhere
+- Key: P e, magit-push-current
 
   Push the current branch to a branch read in the minibuffer.
 

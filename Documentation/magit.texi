@@ -4273,12 +4273,26 @@ When no rebase is in progress, then the popup buffer features the
 following commands.
 
 @table @asis
-@kindex r r
-@cindex magit-rebase
-@item @kbd{r r} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase})
+@kindex r p
+@cindex magit-rebase-onto-pushremote
+@item @kbd{r p} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-onto-pushremote})
 
-Start a non-interactive rebase sequence.  All commits not in
-UPSTREAM are rebased.
+Rebase the current branch onto @code{branch.<name>.pushRemote}.  If that
+variable is unset, then rebase onto @code{remote.pushDefault}.
+
+@kindex r u
+@cindex magit-rebase-onto-upstream
+@item @kbd{r u} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-onto-upstream})
+
+Rebase the current branch onto its upstream branch.
+
+@kindex r e
+@cindex magit-rebase
+@item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase})
+
+Rebase the current branch onto a branch read in the minibuffer.  All
+commits that are reachable from head but not from the selected
+branch TARGET are being rebased."
 
 @kindex r o
 @cindex magit-rebase-subset
@@ -4294,9 +4308,9 @@ This can be used to turn one of the above non-interactive rebase
 variants into an interactive rebase.
 
 For example if you want to clean up a feature branch and at the same
-time rebase it onto @code{master}, then you could use @code{r-ir}.  But we recommend
-that you instead do that in two steps.  First use @code{rs} to cleanup the
-feature branch, and then in a second step @code{rl} to rebase it onto @code{master}.
+time rebase it onto @code{master}, then you could use @code{r-iu}.  But we recommend
+that you instead do that in two steps.  First use @code{ri} to cleanup the
+feature branch, and then in a second step @code{ru} to rebase it onto @code{master}.
 That way if things turn out to be more complicated than you thought
 and/or you make a mistake and have to start over, then you only have
 to redo half the work.
@@ -4312,26 +4326,15 @@ is not enabled in the popup.
 
 Start an interactive rebase sequence.
 
-@kindex r l
-@cindex magit-rebase-unpushed
-@item @kbd{r l} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-unpushed})
-
-Start an interactive rebase sequence of unpushed commits.  This is
-like @code{magit-rebase-interactive}, but if the upstream of the current
-branch is configured, then all commits since the merge-base are
-rebased.  If there is no upstream or no merge-base, then the user
-has to select the first commit to be rebased like for
-@code{magit-rebase-interactive}.
-
 @kindex r f
 @cindex magit-rebase-autosquash
 @item @kbd{r f} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-autosquash})
 
 Combine squash and fixup commits with their intended targets.
 
-@kindex r e
+@kindex r m
 @cindex magit-rebase-edit-commit
-@item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-edit-commit})
+@item @kbd{r m} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-edit-commit})
 
 Edit a single older commit using rebase.
 
@@ -5118,17 +5121,21 @@ the git-fetch(1) manpage
 This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
-@kindex f f
-@cindex magit-fetch-current
-@item @kbd{f f} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-current})
+@kindex f p
+@cindex magit-fetch-from-pushremote
+@item @kbd{f p} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-from-pushremote})
 
-Fetch from the upstream repository of the current branch.  If @code{HEAD}
-is detached or if the upstream is not configured, then read the
-remote.
+Fetch from the push-remote of the current branch.
 
-@kindex f o
+@kindex f u
+@cindex magit-fetch-from-upstream
+@item @kbd{f u} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-from-upstream})
+
+Fetch from the push-remote of the current branch.
+
+@kindex f e
 @cindex magit-fetch
-@item @kbd{f o} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch})
+@item @kbd{f e} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch})
 
 Fetch from another repository.
 
@@ -5136,13 +5143,13 @@ Fetch from another repository.
 @cindex magit-fetch-all
 @item @kbd{f a} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-all})
 
-Fetch from all configured remotes.
+Fetch from all remotes.
 
 @kindex f m
 @cindex magit-submodule-fetch
 @item @kbd{f m} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-fetch})
 
-Fetch all submodules.  With a prefix argument fetch all remotes or
+Fetch all submodules.  With a prefix argument fetch all remotes of
 all submodules.
 @end table
 
@@ -5168,20 +5175,26 @@ the git-pull(1) manpage
 @cindex magit-pull-popup
 @item @kbd{F} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-popup})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This prefix command shows the following suffix commands in a popup
+buffer.
 
-@kindex F F
-@cindex magit-pull-current
-@item @kbd{F F} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-current})
+@kindex F p
+@cindex magit-pull-from-pushremote
+@item @kbd{F p} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-from-pushremote})
 
-Fetch and merge into current branch.
+Pull from the push-remote of the current branch.
 
-@kindex F o
+@kindex F u
+@cindex magit-pull-from-upstream
+@item @kbd{F u} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-from-upstream})
+
+Pull from the upstream of the current branch.
+
+@kindex F e
 @cindex magit-pull
-@item @kbd{F o} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull})
+@item @kbd{F e} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull})
 
-Fetch from another repository and merge a fetched branch.
+Pull from a branch read in the minibuffer.
 @end table
 
 @node Pushing
@@ -5209,24 +5222,22 @@ the git-push(1) manpage
 This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
-@kindex P Q
-@cindex magit-push-quickly
-@item @kbd{P Q} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-quickly})
+@kindex P p
+@cindex magit-push-current-to-pushremote
+@item @kbd{P p} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current-to-pushremote})
 
-Push the current branch to @code{branch.<name>.pushRemote}.  If that
-variable is unset, then push to @code{remote.pushDefault}.  If that
-variable is unset too, then raise an error.
+Push the current branch to @code{branch.<name>.pushRemote} or if that
+is unset to @code{remote.pushDefault}.
 
-@kindex P P
-@cindex magit-push-current
-@item @kbd{P P} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current})
+@kindex P u
+@cindex magit-push-current-to-upstream
+@item @kbd{P u} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current-to-upstream})
 
-Push the current branch to its upstream branch.  If the upstream
-isn't set, then read the remote branch.
+Push the current branch to its upstream branch.
 
 @kindex P e
-@cindex magit-push-elsewhere
-@item @kbd{P e} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-elsewhere})
+@cindex magit-push-current
+@item @kbd{P e} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current})
 
 Push the current branch to a branch read in the minibuffer.
 
