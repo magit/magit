@@ -191,10 +191,9 @@ then read the remote."
               (?Q "Quickly"    magit-push-quickly)
               (?t "Tags"       magit-push-tags)
               (?o "Other"      magit-push)
-              (?i "Implicitly" magit-push-implicitly)
+              (?m "Matching"   magit-push-matching)
               (?T "Tag"        magit-push-tag)
-              (?e "Elsewhere"  magit-push-elsewhere)
-              (?m "Matching"   magit-push-matching))
+              (?e "Elsewhere"  magit-push-elsewhere))
   :default-action 'magit-push-current
   :max-action-columns 3)
 
@@ -324,16 +323,6 @@ branch with the same name."
           (magit-run-git-async-no-revert "push" "-v" args remote branch)
         (user-error "Cannot determine remote to push to"))
     (user-error "No branch is checked out")))
-
-;;;###autoload
-(defun magit-push-implicitly (&optional args)
-  "Push without explicitly specifing what to push.
-This runs `git push -v'.  What is being pushed depends on various
-Git variables as described in the `git-push(1)' and `git-config(1)'
-manpages."
-  (interactive (list (magit-push-arguments)))
-  (run-hooks 'magit-credential-hook)
-  (magit-run-git-async-no-revert "push" "-v" args))
 
 ;;;###autoload
 (defun magit-push-matching (remote &optional args)

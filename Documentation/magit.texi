@@ -5238,39 +5238,6 @@ is undefined or the remote does not exist, then push to "origin".
 If that also doesn't exist then raise an error.  The local branch is
 pushed to the remote branch with the same name.
 
-@kindex P i
-@cindex magit-push-implicitly
-@item @kbd{P i} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-implicitly})
-
-Push without explicitly specifying what to push.  This runs @code{git push
-  -v}.  What is being pushed depends on various Git variables as
-described in the 
-@ifinfo
-@ref{git-push,,,gitman,}
-@end ifinfo
-@ifhtml
-@html
-the <a href="http://git-scm.com/docs/git-push">git-push(1)</a> manpage
-@end html
-@end ifhtml
-@iftex
-the git-push(1) manpage
-@end iftex
- and 
-@ifinfo
-@ref{git-config,,,gitman,}
-@end ifinfo
-@ifhtml
-@html
-the <a href="http://git-scm.com/docs/git-config">git-config(1)</a> manpage
-@end html
-@end ifhtml
-@iftex
-the git-config(1) manpage
-@end iftex
-
-manpages.
-
 @kindex P m
 @cindex magit-push-matching
 @item @kbd{P m} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-matching})

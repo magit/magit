@@ -3699,13 +3699,6 @@ Also see [[info:gitman#git-push]].
   If that also doesn't exist then raise an error.  The local branch is
   pushed to the remote branch with the same name.
 
-- Key: P i, magit-push-implicitly
-
-  Push without explicitly specifying what to push.  This runs ~git push
-  -v~.  What is being pushed depends on various Git variables as
-  described in the info:gitman#git-push and info:gitman#git-config
-  manpages.
-
 - Key: P m, magit-push-matching
 
   Push all matching branches to another repository.  If multiple
