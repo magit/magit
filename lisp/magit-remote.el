@@ -164,7 +164,9 @@ Then show the status buffer for the new repository."
   "Popup console for pull commands."
   'magit-commands
   :man-page "git-pull"
-  :switches '((?r "Rebase" "--rebase"))
+  :variables '((?r "branch.%s.rebase"
+                   magit-cycle-branch*rebase
+                   magit-pull-format-branch*rebase))
   :actions '((lambda ()
                (--if-let (magit-get-current-branch)
                    (concat
@@ -177,6 +179,12 @@ Then show the status buffer for the new repository."
              (?e "elsewhere"              magit-pull))
   :default-action 'magit-pull
   :max-action-columns 1)
+
+(defun magit-pull-format-branch*rebase ()
+  (magit-popup-format-variable (format "branch.%s.rebase"
+                                       (or (magit-get-current-branch) "<name>"))
+                               '("true" "false")
+                               "false" "pull.rebase"))
 
 (defun magit-git-pull (source args)
   (run-hooks 'magit-credential-hook)
