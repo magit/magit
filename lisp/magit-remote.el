@@ -115,27 +115,29 @@ Then show the status buffer for the new repository."
               (?m "Submodules" magit-submodule-fetch))
   :default-action 'magit-fetch-current)
 
+(defun magit-git-fetch (remote args)
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async-no-revert "fetch" remote args))
+
 ;;;###autoload
-(defun magit-fetch-current (remote &optional args)
+(defun magit-fetch-current (remote args)
   "Fetch from the upstream repository of the current branch.
 If `HEAD' is detached or if the upstream is not configured,
 then read the remote."
   (interactive (list (or (magit-get-remote)
                          (magit-read-remote "Fetch remote"))
                      (magit-fetch-arguments)))
-  (run-hooks 'magit-credential-hook)
-  (magit-run-git-async-no-revert "fetch" remote args))
+  (magit-git-fetch remote args))
 
 ;;;###autoload
-(defun magit-fetch (remote &optional args)
+(defun magit-fetch (remote args)
   "Fetch from another repository."
   (interactive (list (magit-read-remote "Fetch remote")
                      (magit-fetch-arguments)))
-  (run-hooks 'magit-credential-hook)
-  (magit-run-git-async-no-revert "fetch" remote args))
+  (magit-git-fetch remote args))
 
 ;;;###autoload
-(defun magit-fetch-all (&optional args)
+(defun magit-fetch-all (args)
   "Fetch from all configured remotes."
   (interactive (list (magit-fetch-arguments)))
   (run-hooks 'magit-credential-hook)
@@ -153,22 +155,21 @@ then read the remote."
               (?o "Other"   magit-pull))
   :default-action 'magit-pull-current)
 
-;;;###autoload
-(defun magit-pull-current (remote branch &optional args)
-  "Fetch and merge into current branch."
-  (interactive (magit-pull-read-args t))
-  (run-hooks 'magit-credential-hook)
-  (magit-run-git-with-editor "pull" args
-                             (and (not (equal remote (magit-get-remote)))
-                                  (not (equal branch (magit-get-remote-branch)))
-                                  (list remote branch))))
-
-;;;###autoload
-(defun magit-pull (remote branch &optional args)
-  "Fetch from another repository and merge a fetched branch."
-  (interactive (magit-pull-read-args))
+(defun magit-git-pull (remote branch args)
   (run-hooks 'magit-credential-hook)
   (magit-run-git-with-editor "pull" args remote branch))
+
+;;;###autoload
+(defun magit-pull-current (remote branch args)
+  "Fetch and merge into current branch."
+  (interactive (magit-pull-read-args t))
+  (magit-git-pull remote branch args))
+
+;;;###autoload
+(defun magit-pull (remote branch args)
+  "Fetch from another repository and merge a fetched branch."
+  (interactive (magit-pull-read-args))
+  (magit-git-pull remote branch args))
 
 (defun magit-pull-read-args (&optional use-upstream)
   (let ((remote (magit-get-remote-branch)))
@@ -197,8 +198,14 @@ then read the remote."
   :default-action 'magit-push-current
   :max-action-columns 3)
 
+(defun magit-git-push (branch remote remote-branch args)
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async-no-revert "push" "-v" args remote
+                                 (format "%s:refs/heads/%s"
+                                         branch remote-branch)))
+
 ;;;###autoload
-(defun magit-push-quickly (&optional args)
+(defun magit-push-quickly (args)
   "Push the current branch to `branch.<name>.pushRemote'.
 If that variable is unset, then push to `remote.pushDefault'.
 If that variable is unset too, then raise an error."
@@ -206,38 +213,31 @@ If that variable is unset too, then raise an error."
   (--if-let (magit-get-current-branch)
       (-if-let (remote (magit-get-push-remote it))
           (if (member remote (magit-list-remotes))
-              (progn
-                (run-hooks 'magit-credential-hook)
-                (magit-run-git-async-no-revert "push" "-v" args remote it))
+              (magit-git-push it remote it args)
             (user-error "Remote `%s' doesn't exist" remote))
         (user-error "No push-remote is configured for %s" it))
     (user-error "No branch is checked out")))
 
 ;;;###autoload
-(defun magit-push-current (branch remote &optional remote-branch args)
+(defun magit-push-current (branch remote remote-branch args)
   "Push the current branch to its upstream branch.
 If the upstream isn't set, then read the remote branch."
   (interactive (magit-push-read-args t t))
-  (magit-push branch remote remote-branch args))
+  (magit-git-push branch remote remote-branch args))
 
 ;;;###autoload
-(defun magit-push-elsewhere (branch remote remote-branch &optional args)
+(defun magit-push-elsewhere (branch remote remote-branch args)
   "Push a branch or commit to some remote branch.
 Read the local and remote branch."
   (interactive (magit-push-read-args nil nil t))
-  (magit-push branch remote remote-branch args))
+  (magit-git-push branch remote remote-branch args))
 
 ;;;###autoload
-(defun magit-push (branch remote &optional remote-branch args)
+(defun magit-push (branch remote remote-branch args)
   "Push a branch to its upstream branch.
 If the upstream isn't set, then read the remote branch."
   (interactive (magit-push-read-args t))
-  (run-hooks 'magit-credential-hook)
-  (magit-run-git-async-no-revert
-   "push" "-v" args remote
-   (if remote-branch
-       (format "%s:refs/heads/%s" branch remote-branch)
-     branch)))
+  (magit-git-push branch remote remote-branch args))
 
 (defun magit-push-read-args (&optional use-upstream use-current default-current)
   (let* ((current (magit-get-current-branch))

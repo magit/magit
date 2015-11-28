@@ -312,8 +312,11 @@ This discards all changes made since the sequence started."
   :sequence-predicate 'magit-rebase-in-progress-p
   :max-action-columns 2)
 
+(defun magit-git-rebase (target args)
+  (magit-run-git-sequencer "rebase" target args))
+
 ;;;###autoload
-(defun magit-rebase (upstream &optional args)
+(defun magit-rebase (upstream args)
   "Start a non-interactive rebase sequence.
 All commits not in UPSTREAM are rebased."
   (interactive (list (magit-read-other-branch-or-commit
@@ -322,11 +325,11 @@ All commits not in UPSTREAM are rebased."
                       (magit-get-tracked-branch))
                      (magit-rebase-arguments)))
   (message "Rebasing...")
-  (magit-run-git-sequencer "rebase" upstream args)
+  (magit-git-rebase upstream args)
   (message "Rebasing...done"))
 
 ;;;###autoload
-(defun magit-rebase-subset (newbase start &optional args)
+(defun magit-rebase-subset (newbase start args)
   "Start a non-interactive rebase sequence.
 Rebase commits from START to `HEAD' onto NEWBASE.
 START has to be selected from a list of recent commits."
@@ -376,7 +379,7 @@ START has to be selected from a list of recent commits."
       message)))
 
 ;;;###autoload
-(defun magit-rebase-interactive (commit &optional args)
+(defun magit-rebase-interactive (commit args)
   "Start an interactive rebase sequence."
   (interactive (list (magit-commit-at-point)
                      (magit-rebase-arguments)))
@@ -384,14 +387,14 @@ START has to be selected from a list of recent commits."
     "Type %p on a commit to rebase it and all commits above it,"))
 
 ;;;###autoload
-(defun magit-rebase-unpushed (&optional args)
+(defun magit-rebase-unpushed (args)
   "Start an interactive rebase sequence of all unpushed commits."
   (interactive (list (magit-rebase-arguments)))
   (magit-rebase-interactive-1 :merge-base args
     "Type %p on a commit to rebase it and all commits above it,"))
 
 ;;;###autoload
-(defun magit-rebase-autosquash (&optional args)
+(defun magit-rebase-autosquash (args)
   "Combine squash and fixup commits with their intended targets."
   (interactive (list (magit-rebase-arguments)))
   (magit-rebase-interactive-1 :merge-base (cons "--autosquash" args)
@@ -399,7 +402,7 @@ START has to be selected from a list of recent commits."
     "true"))
 
 ;;;###autoload
-(defun magit-rebase-edit-commit (commit &optional args)
+(defun magit-rebase-edit-commit (commit args)
   "Edit a single older commit using rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-rebase-arguments)))
@@ -408,7 +411,7 @@ START has to be selected from a list of recent commits."
     "perl -i -p -e '++$x if not $x and s/^pick/edit/'"))
 
 ;;;###autoload
-(defun magit-rebase-reword-commit (commit &optional args)
+(defun magit-rebase-reword-commit (commit args)
   "Reword a single older commit using rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-rebase-arguments)))
