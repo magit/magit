@@ -3676,26 +3676,26 @@ Also see [[info:gitman#git-push]].
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
+- Key: P Q, magit-push-quickly
+
+  Push the current branch to ~branch.<name>.pushRemote~.  If that
+  variable is unset, then push to ~remote.pushDefault~.  If that
+  variable is unset too, then raise an error.
+
 - Key: P P, magit-push-current
 
   Push the current branch to its upstream branch.  If the upstream
   isn't set, then read the remote branch.
-
-- Key: P o, magit-push
-
-  Push a branch to its upstream branch.  If the upstream isn't set,
-  then read the remote branch.
 
 - Key: P e, magit-push-elsewhere
 
   Push a branch or commit to some remote branch.  Read the local and
   remote branch.
 
-- Key: P Q, magit-push-quickly
+- Key: P o, magit-push
 
-  Push the current branch to ~branch.<name>.pushRemote~.  If that
-  variable is unset, then push to ~remote.pushDefault~.  If that
-  variable is unset too, then raise an error.
+  Push a branch to its upstream branch.  If the upstream isn't set,
+  then read the remote branch.
 
 - Key: P m, magit-push-matching
 

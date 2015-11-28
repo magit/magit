@@ -198,6 +198,22 @@ then read the remote."
   :max-action-columns 3)
 
 ;;;###autoload
+(defun magit-push-quickly (&optional args)
+  "Push the current branch to `branch.<name>.pushRemote'.
+If that variable is unset, then push to `remote.pushDefault'.
+If that variable is unset too, then raise an error."
+  (interactive (list (magit-push-arguments)))
+  (--if-let (magit-get-current-branch)
+      (-if-let (remote (magit-get-push-remote it))
+          (if (member remote (magit-list-remotes))
+              (progn
+                (run-hooks 'magit-credential-hook)
+                (magit-run-git-async-no-revert "push" "-v" args remote it))
+            (user-error "Remote `%s' doesn't exist" remote))
+        (user-error "No push-remote is configured for %s" it))
+    (user-error "No branch is checked out")))
+
+;;;###autoload
 (defun magit-push-current (branch remote &optional remote-branch args)
   "Push the current branch to its upstream branch.
 If the upstream isn't set, then read the remote branch.
@@ -205,6 +221,13 @@ If the upstream isn't set, then read the remote branch.
 If `magit-push-always-verify' is not nil, however, always read
 the remote branch."
   (interactive (magit-push-read-args t t))
+  (magit-push branch remote remote-branch args))
+
+;;;###autoload
+(defun magit-push-elsewhere (branch remote remote-branch &optional args)
+  "Push a branch or commit to some remote branch.
+Read the local and remote branch."
+  (interactive (magit-push-read-args nil nil t))
   (magit-push branch remote remote-branch args))
 
 ;;;###autoload
@@ -221,13 +244,6 @@ the remote branch."
    (if remote-branch
        (format "%s:refs/heads/%s" branch remote-branch)
      branch)))
-
-;;;###autoload
-(defun magit-push-elsewhere (branch remote remote-branch &optional args)
-  "Push a branch or commit to some remote branch.
-Read the local and remote branch."
-  (interactive (magit-push-read-args nil nil t))
-  (magit-push branch remote remote-branch args))
 
 (defcustom magit-push-always-verify 'nag
   "Whether certain commands require verification before pushing.
@@ -306,22 +322,6 @@ doing that, then you should probably just use `Pe' instead of
                           " [also see option magit-push-always-verify]"))
                     nil remote local 'confirm)))
     (list local (car remote) (cdr remote) (magit-push-arguments))))
-
-;;;###autoload
-(defun magit-push-quickly (&optional args)
-  "Push the current branch to `branch.<name>.pushRemote'.
-If that variable is unset, then push to `remote.pushDefault'.
-If that variable is unset too, then raise an error."
-  (interactive (list (magit-push-arguments)))
-  (--if-let (magit-get-current-branch)
-      (-if-let (remote (magit-get-push-remote it))
-          (if (member remote (magit-list-remotes))
-              (progn
-                (run-hooks 'magit-credential-hook)
-                (magit-run-git-async-no-revert "push" "-v" args remote it))
-            (user-error "Remote `%s' doesn't exist" remote))
-        (user-error "No push-remote is configured for %s" it))
-    (user-error "No branch is checked out")))
 
 ;;;###autoload
 (defun magit-push-matching (remote &optional args)

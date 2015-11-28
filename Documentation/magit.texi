@@ -5207,19 +5207,20 @@ the git-push(1) manpage
 This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
+@kindex P Q
+@cindex magit-push-quickly
+@item @kbd{P Q} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-quickly})
+
+Push the current branch to @code{branch.<name>.pushRemote}.  If that
+variable is unset, then push to @code{remote.pushDefault}.  If that
+variable is unset too, then raise an error.
+
 @kindex P P
 @cindex magit-push-current
 @item @kbd{P P} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current})
 
 Push the current branch to its upstream branch.  If the upstream
 isn't set, then read the remote branch.
-
-@kindex P o
-@cindex magit-push
-@item @kbd{P o} @tie{}@tie{}@tie{}@tie{}(@code{magit-push})
-
-Push a branch to its upstream branch.  If the upstream isn't set,
-then read the remote branch.
 
 @kindex P e
 @cindex magit-push-elsewhere
@@ -5228,13 +5229,12 @@ then read the remote branch.
 Push a branch or commit to some remote branch.  Read the local and
 remote branch.
 
-@kindex P Q
-@cindex magit-push-quickly
-@item @kbd{P Q} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-quickly})
+@kindex P o
+@cindex magit-push
+@item @kbd{P o} @tie{}@tie{}@tie{}@tie{}(@code{magit-push})
 
-Push the current branch to @code{branch.<name>.pushRemote}.  If that
-variable is unset, then push to @code{remote.pushDefault}.  If that
-variable is unset too, then raise an error.
+Push a branch to its upstream branch.  If the upstream isn't set,
+then read the remote branch.
 
 @kindex P m
 @cindex magit-push-matching
