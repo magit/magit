@@ -896,6 +896,10 @@ where COMMITS is the number of commits in TAG but not in REV."
   (and (or (member string (magit-list-branches))
            (member string (magit-list-branch-names))) t))
 
+(defun magit-local-branch-p (branch)
+  (and (or (member branch (magit-list-local-branches))
+           (member branch (magit-list-local-branch-names))) t))
+
 (defun magit-remote-p (string)
   (car (member string (magit-list-remotes))))
 
