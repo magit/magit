@@ -521,7 +521,7 @@ the status buffer causes this section to disappear again."
       (insert (mapconcat #'identity magit-diff-section-file-args " "))
       (insert ?\n))))
 
-(magit-define-section-jumper untracked "Untracked files")
+(magit-define-section-jumper magit-jump-to-untracked "Untracked files" untracked)
 
 (defvar magit-untracked-section-map
   (let ((map (make-sparse-keymap)))
@@ -567,7 +567,7 @@ Do so depending on the value of `status.showUntrackedFiles'."
 
 ;;;;; Auxiliary Status Sections
 
-(magit-define-section-jumper tracked "Tracked files")
+(magit-define-section-jumper magit-jump-to-tracked "Tracked files" tracked)
 
 (defun magit-insert-tracked-files ()
   "Insert a tree of tracked files."

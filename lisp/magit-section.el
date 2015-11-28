@@ -268,23 +268,23 @@ It the SECTION has a different type, then do nothing."
   (when (eq (magit-section-type section) 'hunk)
     (magit-section-set-window-start section)))
 
-(defmacro magit-define-section-jumper (sym title &optional value)
-  "Define an interactive function to go to section SYM.
-TITLE is the displayed title of the section."
-  (let ((fun (intern (format "magit-jump-to-%s" sym))))
-    `(progn
-       (defun ,fun (&optional expand) ,(format "\
-Jump to section '%s'.
-With a prefix argument also expand it." title)
-         (interactive "P")
-         (--if-let (magit-get-section
-                    (cons '(,sym . ,value) (magit-section-ident magit-root-section)))
-             (progn (goto-char (magit-section-start it))
-                    (when expand
-                      (with-local-quit (magit-section-show it))
-                      (recenter 0)))
-           (message ,(format "Section '%s' wasn't found" title))))
-       (put ',fun 'definition-name ',sym))))
+(defmacro magit-define-section-jumper (name heading type &optional value)
+  "Define an interactive function to go some section.
+Together TYPE and VALUE identify the section.
+HEADING is the displayed heading of the section."
+  (declare (indent defun))
+  `(defun ,name (&optional expand) ,(format "\
+Jump to the section \"%s\".
+With a prefix argument also expand it." heading)
+     (interactive "P")
+     (--if-let (magit-get-section
+                (cons (cons ',type ,value)
+                      (magit-section-ident magit-root-section)))
+         (progn (goto-char (magit-section-start it))
+                (when expand
+                  (with-local-quit (magit-section-show it))
+                  (recenter 0)))
+       (message ,(format "Section \"%s\" wasn't found" heading)))))
 
 ;;;; Visibility
 

@@ -1680,7 +1680,7 @@ or a ref which is not a branch, then it inserts nothing."
     map)
   "Keymap for the `unstaged' section.")
 
-(magit-define-section-jumper unstaged "Unstaged changes")
+(magit-define-section-jumper magit-jump-to-unstaged "Unstaged changes" unstaged)
 
 (defun magit-insert-unstaged-changes ()
   "Insert section showing unstaged changes."
@@ -1700,7 +1700,7 @@ or a ref which is not a branch, then it inserts nothing."
     map)
   "Keymap for the `staged' section.")
 
-(magit-define-section-jumper staged "Staged changes")
+(magit-define-section-jumper magit-jump-to-staged "Staged changes" staged)
 
 (defun magit-insert-staged-changes ()
   "Insert section showing staged changes."

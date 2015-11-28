@@ -1260,7 +1260,8 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
     map)
   "Keymap for the `unpulled' section.")
 
-(magit-define-section-jumper unpulled "Unpulled commits")
+(magit-define-section-jumper magit-jump-to-unpulled
+  "Unpulled commits" unpulled)
 
 (defun magit-insert-unpulled-commits ()
   "Insert section showing unpulled commits."
@@ -1275,7 +1276,8 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
     map)
   "Keymap for the `unpushed' section.")
 
-(magit-define-section-jumper unpushed "Unpushed commits")
+(magit-define-section-jumper magit-jump-to-unpushed
+  "Unpushed commits" unpushed)
 
 (defun magit-insert-unpushed-commits ()
   "Insert section showing unpushed commits."
