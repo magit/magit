@@ -1258,33 +1258,67 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing] 'magit-diff-unpulled)
     map)
-  "Keymap for the `unpulled' section.")
+  "Keymap for `unpulled' sections.")
 
-(magit-define-section-jumper magit-jump-to-unpulled
-  "Unpulled commits" unpulled)
+(magit-define-section-jumper magit-jump-to-unpulled-from-upstream
+  "Unpulled from @{upstream}" unpulled "..@{upstream}")
 
-(defun magit-insert-unpulled-commits ()
-  "Insert section showing unpulled commits."
+(defun magit-insert-unpulled-from-upstream ()
+  "Insert commits that haven't been pulled from the upstream yet."
   (when (magit-git-success "rev-parse" "@{upstream}")
     (magit-insert-section (unpulled "..@{upstream}")
-      (magit-insert-heading "Unpulled commits:")
+      (magit-insert-heading
+        (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
+                (magit-get-tracked-branch)))
       (magit-insert-log "..@{upstream}" magit-log-section-arguments))))
+
+(magit-define-section-jumper magit-jump-to-unpulled-from-pushremote
+  "Unpulled from <push-remote>" unpulled
+  (concat ".." (magit-get-push-branch)))
+
+(defun magit-insert-unpulled-from-pushremote ()
+  "Insert commits that haven't been pulled from the push-remote yet."
+  (--when-let (magit-get-push-branch)
+    (unless (equal (magit-rev-name it)
+                   (magit-rev-name "@{upstream}"))
+      (magit-insert-section (unpulled (concat ".." it))
+        (magit-insert-heading
+          (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
+                  (propertize it 'face 'magit-branch-remote)))
+        (magit-insert-log (concat ".." it) magit-log-section-arguments)))))
 
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing] 'magit-diff-unpushed)
     map)
-  "Keymap for the `unpushed' section.")
+  "Keymap for `unpushed' sections.")
 
-(magit-define-section-jumper magit-jump-to-unpushed
-  "Unpushed commits" unpushed)
+(magit-define-section-jumper magit-jump-to-unpushed-to-upstream
+  "Unpushed to @{upstream}" unpushed "@{upstream}..")
 
-(defun magit-insert-unpushed-commits ()
-  "Insert section showing unpushed commits."
+(defun magit-insert-unpushed-to-upstream ()
+  "Insert commits that haven't been pushed to the upstream yet."
   (when (magit-git-success "rev-parse" "@{upstream}")
     (magit-insert-section (unpushed "@{upstream}..")
-      (magit-insert-heading "Unpushed commits:")
+      (magit-insert-heading
+        (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
+                (magit-get-tracked-branch)))
       (magit-insert-log "@{upstream}.." magit-log-section-arguments))))
+
+(magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
+  "Unpushed to <push-remote>" unpushed
+  (concat (magit-get-push-branch) ".."))
+
+(defun magit-insert-unpushed-to-pushremote ()
+  "Insert commits that haven't been pushed to the push-remote yet."
+  (--when-let (magit-get-push-branch)
+    (unless (equal (magit-rev-name it)
+                   (magit-rev-name "@{upstream}"))
+      (magit-insert-section (unpushed (concat it ".."))
+        (magit-insert-heading
+          (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
+                  (propertize it 'face 'magit-branch-remote)))
+        (magit-insert-log (concat it "..") magit-log-section-arguments)))))
 
 ;;;; Auxiliary Log Sections
 
@@ -1309,14 +1343,14 @@ commits."
   (if (equal (magit-rev-parse "HEAD")
              (magit-rev-parse "@{upstream}"))
       (magit-insert-recent-commits t)
-    (magit-insert-unpulled-commits)))
+    (magit-insert-unpulled-from-pushremote)))
 
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
-Like `magit-insert-unpulled-commits' but prefix each commit
+Like `magit-insert-unpulled-to-upstream' but prefix each commit
 which has not been applied yet (i.e. a commit with a patch-id
-not shared with any local commit) with \"+\", and all others
-with \"-\"."
+not shared with any local commit) with \"+\", and all others with
+\"-\"."
   (when (magit-git-success "rev-parse" "@{upstream}")
     (magit-insert-section (unpulled "..@{upstream}")
       (magit-insert-heading "Unpulled commits:")
@@ -1326,7 +1360,7 @@ with \"-\"."
 
 (defun magit-insert-unpushed-cherries ()
   "Insert section showing unpushed commits.
-Like `magit-insert-unpushed-commits' but prefix each commit
+Like `magit-insert-unpushed-to-upstream' but prefix each commit
 which has not been applied to upstream yet (i.e. a commit with
 a patch-id not shared with any upstream commit) with \"+\", and
 all others with \"-\"."

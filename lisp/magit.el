@@ -120,10 +120,12 @@ at all."
     magit-insert-unstaged-changes
     magit-insert-staged-changes
     magit-insert-stashes
-    magit-insert-unpulled-commits
-    magit-insert-unpushed-commits)
+    magit-insert-unpulled-from-upstream
+    magit-insert-unpulled-from-pushremote
+    magit-insert-unpushed-to-upstream
+    magit-insert-unpushed-to-pushremote)
   "Hook run to insert sections into a status buffer."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.4.0")
   :group 'magit-status
   :type 'hook)
 
@@ -332,8 +334,10 @@ deep."
     (define-key map "jn" 'magit-jump-to-untracked)
     (define-key map "ju" 'magit-jump-to-unstaged)
     (define-key map "js" 'magit-jump-to-staged)
-    (define-key map "jf" 'magit-jump-to-unpulled)
-    (define-key map "jp" 'magit-jump-to-unpushed)
+    (define-key map "jfu" 'magit-jump-to-unpulled-from-upstream)
+    (define-key map "jfp" 'magit-jump-to-unpulled-from-pushremote)
+    (define-key map "jpu" 'magit-jump-to-unpushed-to-upstream)
+    (define-key map "jpp" 'magit-jump-to-unpushed-to-pushremote)
     map)
   "Keymap for `magit-status-mode'.")
 
@@ -406,7 +410,14 @@ then offer to initialize it as a new repository."
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
-    (run-hooks 'magit-status-sections-hook))
+    (if (--all-p #'functionp magit-status-sections-hook)
+        (run-hooks 'magit-status-sections-hook)
+      (message "`magit-status-sections-hook' contains entries that are \
+no longer valid.\nUsing standard value instead.  Please re-configure")
+      (sit-for 5)
+      (let ((magit-status-sections-hook-1
+             (eval (car (get 'magit-status-sections-hook 'standard-value)))))
+        (run-hooks 'magit-status-sections-hook-1))))
   (run-hooks 'magit-status-refresh-hook))
 
 (defun magit-insert-status-headers ()

@@ -1423,13 +1423,25 @@ By default the following functions are also members of that hook:
   If optional HEADING is non-nil use that as section heading
   instead of "Stashes:".
 
-- Function: magit-insert-unpulled-commits
+- Function: magit-insert-unpulled-from-upstream
 
-  Insert section showing unpulled commits.
+  Insert section showing commits that haven't been pulled from the
+  upstream branch yet.
 
-- Function: magit-insert-unpushed-commits
+- Function: magit-insert-unpulled-from-pushremote
 
-  Insert section showing unpushed commits.
+  Insert section showing commits that haven't been pulled from the
+  push-remote branch yet.
+
+- Function: magit-insert-unpushed-to-upstream
+
+  Insert section showing commits that haven't been pushed to the
+  upstream yet.
+
+- Function: magit-insert-unpushed-to-pushremote
+
+  Insert section showing commits that haven't been pushed to the
+  push-remote yet.
 
 The following functions can also be added to the above hook:
 

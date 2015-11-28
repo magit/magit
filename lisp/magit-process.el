@@ -384,7 +384,9 @@ repository are reverted if `magit-revert-buffers' is non-nil.
 
 See `magit-start-process' for more information."
   (message "Running %s %s" magit-git-executable
-           (mapconcat 'identity (-flatten args) " "))
+           (let ((m (mapconcat #'identity (-flatten args) " ")))
+             (remove-list-of-text-properties 0 (length m) '(face) m)
+             m))
   (magit-start-git nil args))
 
 (defun magit-run-git-async-no-revert (&rest args)

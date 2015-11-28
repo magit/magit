@@ -742,8 +742,13 @@ which is different from the current branch and still exists."
       (when (and remote merge (string-prefix-p "refs/heads/" merge))
         (setq merge (substring merge 11))
         (if (string-equal remote ".")
-            merge
-          (concat remote "/" merge))))))
+            (propertize merge 'face 'magit-branch-local)
+          (propertize (concat remote "/" merge) 'face 'magit-branch-remote))))))
+
+(cl-defun magit-get-tracked-remote
+    (&optional (branch (magit-get-current-branch)))
+  (when branch
+    (magit-get "branch" branch "remote")))
 
 (cl-defun magit-get-push-remote
     (&optional (branch (magit-get-current-branch)))
