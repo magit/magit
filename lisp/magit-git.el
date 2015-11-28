@@ -1090,7 +1090,7 @@ Return a list of two integers: (A>B B>A)."
     (prompt &optional remote default local-branch require-match)
   (when (consp default)
     (setq default (concat (car default) "/" (cdr default))))
-  (let ((branch (magit-completing-read
+  (let ((choice (magit-completing-read
                  prompt
                  (nconc (and local-branch
                              (if remote
@@ -1099,9 +1099,10 @@ Return a list of two integers: (A>B B>A)."
                                       (magit-list-remotes))))
                         (magit-list-remote-branch-names remote t))
                  nil require-match nil 'magit-revision-history default)))
-    (string-match "^\\([^/]+\\)/\\(.+\\)" branch)
-    (cons (match-string 1 branch)
-          (match-string 2 branch))))
+    (if (string-match "\\`\\([^/]+\\)/\\(.+\\)" choice)
+        (cons (match-string 1 choice)
+              (match-string 2 choice))
+      (user-error "`%s' doesn't have the form REMOTE/BRANCH" choice))))
 
 (defun magit-read-local-branch (prompt &optional secondary-default)
   (magit-completing-read prompt (magit-list-local-branch-names)
