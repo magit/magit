@@ -758,12 +758,14 @@ which is different from the current branch and still exists."
       (unless (equal remote ".")
         remote))))
 
-(defun magit-get-remote-branch (&optional branch)
-  (-when-let (local (or branch (magit-get-current-branch)))
-    (let ((remote (magit-get-remote local))
-          (branch (magit-get "branch" local "merge")))
-      (when (and remote branch (string-match "^refs/heads/\\(.+\\)" branch))
-        (cons remote (match-string 1 branch))))))
+(defun magit-split-branch-name (branch)
+  (cond ((member branch (magit-list-local-branch-names))
+         (cons "." branch))
+        ((string-match "/" branch)
+         (let ((remote (substring branch 0 (match-beginning 0))))
+           (if (save-match-data (member remote (magit-list-remotes)))
+               (cons remote (substring branch (match-end 0)))
+             (error "Invalid branch name %s" branch))))))
 
 (defun magit-get-current-tag (&optional rev with-distance)
   "Return the closest tag reachable from REV.
@@ -1088,8 +1090,6 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-read-remote-branch
     (prompt &optional remote default local-branch require-match)
-  (when (consp default)
-    (setq default (concat (car default) "/" (cdr default))))
   (let ((choice (magit-completing-read
                  prompt
                  (nconc (and local-branch
@@ -1100,8 +1100,7 @@ Return a list of two integers: (A>B B>A)."
                         (magit-list-remote-branch-names remote t))
                  nil require-match nil 'magit-revision-history default)))
     (if (string-match "\\`\\([^/]+\\)/\\(.+\\)" choice)
-        (cons (match-string 1 choice)
-              (match-string 2 choice))
+        choice
       (user-error "`%s' doesn't have the form REMOTE/BRANCH" choice))))
 
 (defun magit-read-local-branch (prompt &optional secondary-default)

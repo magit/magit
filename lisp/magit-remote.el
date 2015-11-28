@@ -155,27 +155,29 @@ then read the remote."
               (?o "Other"   magit-pull))
   :default-action 'magit-pull-current)
 
-(defun magit-git-pull (remote branch args)
+(defun magit-git-pull (source args)
   (run-hooks 'magit-credential-hook)
-  (magit-run-git-with-editor "pull" args remote branch))
+  (-let [(remote . branch)
+         (magit-split-branch-name source)]
+    (magit-run-git-with-editor "pull" args remote branch)))
 
 ;;;###autoload
-(defun magit-pull-current (remote branch args)
+(defun magit-pull-current (source args)
   "Fetch and merge into current branch."
   (interactive (magit-pull-read-args t))
-  (magit-git-pull remote branch args))
+  (magit-git-pull source args))
 
 ;;;###autoload
-(defun magit-pull (remote branch args)
+(defun magit-pull (source args)
   "Fetch from another repository and merge a fetched branch."
   (interactive (magit-pull-read-args))
-  (magit-git-pull remote branch args))
+  (magit-git-pull source args))
 
 (defun magit-pull-read-args (&optional use-upstream)
-  (let ((remote (magit-get-remote-branch)))
-    (unless (and use-upstream remote)
-      (setq remote (magit-read-remote-branch "Pull" nil remote nil t)))
-    (list (car remote) (cdr remote) (magit-pull-arguments))))
+  (list (let ((source (magit-get-tracked-branch)))
+          (or (and use-upstream source)
+              (magit-read-remote-branch "Pull" nil source nil t)))
+        (magit-pull-arguments)))
 
 ;;; Push
 
@@ -198,11 +200,13 @@ then read the remote."
   :default-action 'magit-push-current
   :max-action-columns 3)
 
-(defun magit-git-push (branch remote remote-branch args)
+(defun magit-git-push (branch target args)
   (run-hooks 'magit-credential-hook)
-  (magit-run-git-async-no-revert "push" "-v" args remote
-                                 (format "%s:refs/heads/%s"
-                                         branch remote-branch)))
+  (-let [(remote . target)
+         (magit-split-branch-name target)]
+    (magit-run-git-async-no-revert "push" "-v" args remote
+                                   (format "%s:refs/heads/%s"
+                                           branch target))))
 
 ;;;###autoload
 (defun magit-push-quickly (args)
@@ -213,31 +217,31 @@ If that variable is unset too, then raise an error."
   (--if-let (magit-get-current-branch)
       (-if-let (remote (magit-get-push-remote it))
           (if (member remote (magit-list-remotes))
-              (magit-git-push it remote it args)
+              (magit-git-push it (concat remote "/" it) args)
             (user-error "Remote `%s' doesn't exist" remote))
         (user-error "No push-remote is configured for %s" it))
     (user-error "No branch is checked out")))
 
 ;;;###autoload
-(defun magit-push-current (branch remote remote-branch args)
+(defun magit-push-current (branch target args)
   "Push the current branch to its upstream branch.
 If the upstream isn't set, then read the remote branch."
   (interactive (magit-push-read-args t t))
-  (magit-git-push branch remote remote-branch args))
+  (magit-git-push branch target args))
 
 ;;;###autoload
-(defun magit-push-elsewhere (branch remote remote-branch args)
+(defun magit-push-elsewhere (branch target args)
   "Push a branch or commit to some remote branch.
 Read the local and remote branch."
   (interactive (magit-push-read-args nil nil t))
-  (magit-git-push branch remote remote-branch args))
+  (magit-git-push branch target args))
 
 ;;;###autoload
-(defun magit-push (branch remote remote-branch args)
+(defun magit-push (branch target args)
   "Push a branch to its upstream branch.
 If the upstream isn't set, then read the remote branch."
   (interactive (magit-push-read-args t))
-  (magit-git-push branch remote remote-branch args))
+  (magit-git-push branch target args))
 
 (defun magit-push-read-args (&optional use-upstream use-current default-current)
   (let* ((current (magit-get-current-branch))
@@ -251,12 +255,12 @@ If the upstream isn't set, then read the remote branch."
                          (magit-local-branch-at-point)
                          (magit-commit-at-point)))
                     (user-error "Nothing selected")))
-         (remote (and (magit-branch-p local)
-                      (magit-get-remote-branch local))))
-    (unless (and use-upstream remote)
-      (setq remote (magit-read-remote-branch (format "Push %s to" local)
-                                             nil remote local 'confirm)))
-    (list local (car remote) (cdr remote) (magit-push-arguments))))
+         (target (and (magit-branch-p local)
+                      (magit-get-tracked-branch local))))
+    (unless (and use-upstream target)
+      (setq target (magit-read-remote-branch (format "Push %s to" local)
+                                             nil target local 'confirm)))
+    (list local target (magit-push-arguments))))
 
 ;;;###autoload
 (defun magit-push-matching (remote &optional args)
