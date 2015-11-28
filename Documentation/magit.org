@@ -3689,8 +3689,7 @@ Also see [[info:gitman#git-push]].
 
 - Key: P e, magit-push-elsewhere
 
-  Push a branch or commit to some remote branch.  Read the local and
-  remote branch.
+  Push the current branch to a branch read in the minibuffer.
 
 - Key: P o, magit-push
 

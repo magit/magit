@@ -5226,8 +5226,7 @@ isn't set, then read the remote branch.
 @cindex magit-push-elsewhere
 @item @kbd{P e} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-elsewhere})
 
-Push a branch or commit to some remote branch.  Read the local and
-remote branch.
+Push the current branch to a branch read in the minibuffer.
 
 @kindex P o
 @cindex magit-push

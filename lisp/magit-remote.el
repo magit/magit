@@ -231,10 +231,17 @@ If the upstream isn't set, then read the remote branch."
 
 ;;;###autoload
 (defun magit-push-elsewhere (branch target args)
-  "Push a branch or commit to some remote branch.
-Read the local and remote branch."
-  (interactive (magit-push-read-args nil nil t))
-  (magit-git-push branch target args))
+  "Push the current branch to a branch read in the minibuffer."
+  (interactive
+   (-if-let (branch (magit-get-current-branch))
+       (list branch
+             (magit-read-remote-branch (format "Push %s to" branch)
+                                       nil nil branch 'confirm)
+             (magit-push-arguments))
+     (list nil nil nil)))
+  (if (and branch target)
+      (magit-git-push branch target args)
+    (call-interactively 'magit-push)))
 
 ;;;###autoload
 (defun magit-push (source target args)
