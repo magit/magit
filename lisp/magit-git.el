@@ -1106,7 +1106,7 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-read-local-branch (prompt &optional secondary-default)
   (magit-completing-read prompt (magit-list-local-branch-names)
                          nil t nil 'magit-revision-history
-                         (or (magit-branch-at-point)
+                         (or (magit-local-branch-at-point)
                              secondary-default
                              (magit-get-current-branch))))
 
@@ -1114,7 +1114,7 @@ Return a list of two integers: (A>B B>A)."
   (magit-completing-read prompt (nconc (magit-list-local-branch-names)
                                        (magit-list-refs "refs/"))
                          nil t nil 'magit-revision-history
-                         (or (magit-branch-at-point)
+                         (or (magit-local-branch-at-point)
                              secondary-default
                              (magit-get-current-branch))))
 
