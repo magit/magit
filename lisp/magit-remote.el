@@ -226,8 +226,15 @@ If that variable is unset too, then raise an error."
 (defun magit-push-current (branch target args)
   "Push the current branch to its upstream branch.
 If the upstream isn't set, then read the remote branch."
-  (interactive (magit-push-read-args t t))
-  (magit-git-push branch target args))
+  (interactive (list (magit-get-current-branch)
+                     (magit-get-tracked-branch)
+                     (magit-push-arguments)))
+  (cond ((and branch target)
+         (magit-git-push branch target args))
+        (branch
+         (call-interactively 'magit-push-elsewhere))
+        (t
+         (call-interactively 'magit-push))))
 
 ;;;###autoload
 (defun magit-push-elsewhere (branch target args)
@@ -255,25 +262,6 @@ Both the source and the target are read in the minibuffer."
                                      source 'confirm)
            (magit-push-arguments))))
   (magit-git-push source target args))
-
-(defun magit-push-read-args (&optional use-upstream use-current default-current)
-  (let* ((current (magit-get-current-branch))
-         (local (or (and use-current current)
-                    (magit-completing-read
-                     "Push" (--if-let (magit-commit-at-point)
-                                (cons it (magit-list-local-branch-names))
-                              (magit-list-local-branch-names))
-                     nil nil nil 'magit-revision-history
-                     (or (and default-current current)
-                         (magit-local-branch-at-point)
-                         (magit-commit-at-point)))
-                    (user-error "Nothing selected")))
-         (target (and (magit-branch-p local)
-                      (magit-get-tracked-branch local))))
-    (unless (and use-upstream target)
-      (setq target (magit-read-remote-branch (format "Push %s to" local)
-                                             nil target local 'confirm)))
-    (list local target (magit-push-arguments))))
 
 ;;;###autoload
 (defun magit-push-matching (remote &optional args)
