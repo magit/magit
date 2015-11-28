@@ -360,7 +360,7 @@ or `:only' which doesn't change the behaviour."
 
 (defmacro magit-popup-convert-events (def form)
   (declare (indent 1) (debug (form form)))
-  `(--map (if (or (null it) (stringp it)) it ,form) ,def))
+  `(--map (if (or (null it) (stringp it) (functionp it)) it ,form) ,def))
 
 (defun magit-popup-convert-switches (val def)
   (magit-popup-convert-events def
@@ -1060,15 +1060,16 @@ of events shared by all popups and before point is adjusted.")
   (if (not spec)
       (progn (setq spec (magit-popup-get (button-type-get type 'property)))
              (when spec
-               (if (stringp (car spec))
-                   (--each (-partition-by-header 'stringp spec)
+               (if (or (stringp (car spec))
+                       (functionp (car spec)))
+                   (--each (--partition-by-header
+                            (or (stringp it) (functionp it))
+                            spec)
                      (magit-popup-insert-section type (cdr it) (car it)))
                  (magit-popup-insert-section type spec))))
-    (unless heading
-      (setq heading (button-type-get type 'heading)))
     (let* ((formatter (button-type-get type 'formatter))
            (items (mapcar (lambda (ev)
-                            (and ev (funcall formatter type ev)))
+                            (and ev (or (funcall formatter type ev) '(""))))
                           (or spec (magit-popup-get
                                     (button-type-get type 'property)))))
            (maxcols (button-type-get type 'maxcols))
@@ -1079,25 +1080,31 @@ of events shared by all popups and before point is adjusted.")
           (keyword (setq maxcols (magit-popup-get maxcols)))
           (symbol  (setq maxcols (symbol-value maxcols)))))
       (when items
-        (insert (propertize heading 'face 'magit-popup-heading))
-        (unless (string-match "\n$" heading)
-          (insert "\n"))
-        (let ((colwidth
-               (+ (apply 'max (mapcar (lambda (e) (length (car e))) items))
-                  magit-popup-min-padding)))
-          (dolist (item items)
-            (unless (bolp)
-              (let ((padding (- colwidth (% (current-column) colwidth))))
-                (if (and (< (+ (current-column) padding colwidth)
-                            (window-width))
-                         (< (ceiling (/ (current-column) (* colwidth 1.0)))
-                            (or maxcols 1000)))
-                    (insert (make-string padding ?\s))
-                  (insert "\n"))))
-            (if item
-                (apply 'insert-button item)
-              (insert ?\s))))
-        (insert (if (= (char-before) ?\n) "\n" "\n\n"))))))
+        (if (functionp heading)
+            (when (setq heading (funcall heading))
+              (insert heading ?\n))
+          (unless heading
+            (setq heading (button-type-get type 'heading)))
+          (insert (propertize heading 'face 'magit-popup-heading))
+          (unless (string-match "\n$" heading)
+            (insert "\n")))
+        (when heading
+          (let ((colwidth
+                 (+ (apply 'max (mapcar (lambda (e) (length (car e))) items))
+                    magit-popup-min-padding)))
+            (dolist (item items)
+              (unless (bolp)
+                (let ((padding (- colwidth (% (current-column) colwidth))))
+                  (if (and (< (+ (current-column) padding colwidth)
+                              (window-width))
+                           (< (ceiling (/ (current-column) (* colwidth 1.0)))
+                              (or maxcols 1000)))
+                      (insert (make-string padding ?\s))
+                    (insert "\n"))))
+              (if item
+                  (apply 'insert-button item)
+                (insert ?\s))))
+          (insert (if (= (char-before) ?\n) "\n" "\n\n")))))))
 
 (defun magit-popup-format-argument-button (type ev)
   (list (format-spec
