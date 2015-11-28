@@ -1265,7 +1265,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 (defun magit-insert-unpulled-commits ()
   "Insert section showing unpulled commits."
   (when (magit-git-success "rev-parse" "@{upstream}")
-    (magit-insert-section (unpulled)
+    (magit-insert-section (unpulled "..@{upstream}")
       (magit-insert-heading "Unpulled commits:")
       (magit-insert-log "..@{upstream}" magit-log-section-arguments))))
 
@@ -1280,7 +1280,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 (defun magit-insert-unpushed-commits ()
   "Insert section showing unpushed commits."
   (when (magit-git-success "rev-parse" "@{upstream}")
-    (magit-insert-section (unpushed)
+    (magit-insert-section (unpushed "@{upstream}..")
       (magit-insert-heading "Unpushed commits:")
       (magit-insert-log "@{upstream}.." magit-log-section-arguments))))
 
@@ -1289,14 +1289,14 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 (defun magit-insert-recent-commits (&optional collapse)
   "Insert section showing recent commits.
 Show the last `magit-log-section-commit-count' commits."
-  (magit-insert-section (recent nil collapse)
-    (magit-insert-heading "Recent commits:")
-    (magit-insert-log
-     (let ((beg (format "HEAD~%s" magit-log-section-commit-count)))
-       (and (magit-rev-verify beg)
-            (concat beg "..HEAD")))
-     (cons (format "-%d" magit-log-section-commit-count)
-           magit-log-section-arguments))))
+  (let* ((start (format "HEAD~%s" magit-log-section-commit-count))
+         (range (and (magit-rev-verify start)
+                     (concat start "..HEAD"))))
+    (magit-insert-section (recent range collapse)
+      (magit-insert-heading "Recent commits:")
+      (magit-insert-log range
+                        (cons (format "-%d" magit-log-section-commit-count)
+                              magit-log-section-arguments)))))
 
 (defun magit-insert-unpulled-or-recent-commits ()
   "Insert section showing unpulled or recent commits.
@@ -1316,7 +1316,7 @@ which has not been applied yet (i.e. a commit with a patch-id
 not shared with any local commit) with \"+\", and all others
 with \"-\"."
   (when (magit-git-success "rev-parse" "@{upstream}")
-    (magit-insert-section (unpulled)
+    (magit-insert-section (unpulled "..@{upstream}")
       (magit-insert-heading "Unpulled commits:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg)
@@ -1329,7 +1329,7 @@ which has not been applied to upstream yet (i.e. a commit with
 a patch-id not shared with any upstream commit) with \"+\", and
 all others with \"-\"."
   (when (magit-git-success "rev-parse" "@{upstream}")
-    (magit-insert-section (unpushed)
+    (magit-insert-section (unpushed "@{upstream}..")
       (magit-insert-heading "Unpushed commits:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) "@{upstream}"))))

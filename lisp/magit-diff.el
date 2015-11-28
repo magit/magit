@@ -620,12 +620,8 @@ If no DWIM context is found, nil is returned."
     (magit-section-case
       ([* unstaged] 'unstaged)
       ([* staged] 'staged)
-      (unpushed (format "%s...%s"
-                        (magit-get-tracked-branch)
-                        (magit-get-current-branch)))
-      (unpulled (format "%s...%s"
-                        (magit-get-current-branch)
-                        (magit-get-tracked-branch)))
+      (unpushed (magit-section-value it))
+      (unpulled (magit-section-value it))
       (branch (let ((current (magit-get-current-branch))
                     (atpoint (magit-section-value it)))
                 (if (equal atpoint current)
