@@ -4274,9 +4274,9 @@ branch then that becomes the current branch.  If it is something
 else then @code{HEAD} becomes detached.  Checkout fails if the working tree
 or the staging area contain changes.
 
-@kindex b c
+@kindex b n
 @cindex magit-branch
-@item @kbd{b c} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch})
+@item @kbd{b n} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch})
 
 Create a new branch.  The user is asked for a branch or arbitrary
 revision to use as the starting point of the new branch.  When a
@@ -4284,9 +4284,9 @@ branch name is provided, then that becomes the upstream branch of
 the new branch.  The name of the new branch is also read in the
 minibuffer.
 
-@kindex b B
+@kindex b c
 @cindex magit-branch-and-checkout
-@item @kbd{b B} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-and-checkout})
+@item @kbd{b c} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-and-checkout})
 
 This command creates a new branch like @code{magit-branch}, but then also
 checks it out.

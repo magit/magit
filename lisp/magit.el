@@ -1220,9 +1220,9 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
                (?P "branch.autoSetupPush"
                    magit-cycle-branch*autoSetupPush
                    magit-format-branch*autoSetupPush))
-  :actions '((?B "Create and checkout" magit-branch-and-checkout)
+  :actions '((?c "Create and checkout" magit-branch-and-checkout)
              (?b "Checkout"            magit-checkout)
-             (?c "Create"              magit-branch)
+             (?n "Create"              magit-branch)
              (?m "Rename"              magit-branch-rename)
              (?s "Create spin-off"     magit-branch-spinoff)
              (?x "Reset"               magit-branch-reset) nil

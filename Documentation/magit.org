@@ -3107,7 +3107,7 @@ info:gitman#git-config.  Also see [[info:gitman#git-branch]],
   else then ~HEAD~ becomes detached.  Checkout fails if the working tree
   or the staging area contain changes.
 
-- Key: b c, magit-branch
+- Key: b n, magit-branch
 
   Create a new branch.  The user is asked for a branch or arbitrary
   revision to use as the starting point of the new branch.  When a
@@ -3115,7 +3115,7 @@ info:gitman#git-config.  Also see [[info:gitman#git-branch]],
   the new branch.  The name of the new branch is also read in the
   minibuffer.
 
-- Key: b B, magit-branch-and-checkout
+- Key: b c, magit-branch-and-checkout
 
   This command creates a new branch like ~magit-branch~, but then also
   checks it out.
