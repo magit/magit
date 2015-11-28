@@ -4016,7 +4016,227 @@ To show no diff while committing remove @code{magit-commit-diff} from
 @node Branching
 @section Branching
 
-Also see 
+The upstream branch of some local branch is the branch into which the
+commits on that local branch should eventually be merged, usually
+something like @code{origin/master}.  For the @code{master} branch itself the
+upstream branch and the branch it is being pushed to, are usually the
+same remote branch.  But for a feature branch the upstream branch and
+the branch it is being pushed to should differ.
+
+Feature branches too should @emph{eventually} end up in a remote branch such
+as @code{origin/master} or @code{origin/maint}.  Such a branch should therefore be
+used as the upstream.  But feature branches shouldn't be pushed
+directly to such branches.  Instead a feature branch @code{my-feature} is
+usually pushed to @code{my-fork/my-feature} or @code{origin/my-feature}.  After the
+new feature has been reviewed, the maintainer merges the feature into
+@code{master}.  And finally @code{master} (not @code{my-feature} itself) is pushed to
+@code{origin/master}.
+
+But new features seldom are perfect on the first try, and so feature
+branches usually have to be improved and re-pushed many times.
+Pushing should therefore be easy to do, and for that reason some users
+have concluded that the remote branch to which a feature branch is
+being pushed should be set as the upstream.  Luckily Git has long ago
+gained support for a push-remote which can be configured separately
+from the upstream branch, using the variables @code{branch.<name>.pushRemote}
+and @code{remote.pushDefault}, so we no longer have to choose which of the
+two remotes should be used as "the remote".
+
+Each of the fetching, pulling, and pushing popups features three
+commands which act on the current branch and some other branch.  Of
+these, @code{p} is bound to command which acts on the push-remote, @code{u} is bound
+to the command which acts on the upstream, and @code{e} is bound to a command
+which acts on any other branch.  The status buffer shows unpushed and
+unpulled for both the push-remote and the upstream.  In other words;
+embrace the fact that two remotes can be configure for any local
+branch.
+
+It's also easy to configure these two remotes.  The values of all the
+variables that are related to fetching, pulling, and pushing (as well
+as some other branch-related variables) can be inspected and changed
+in the branching popup.
+
+@table @asis
+@kindex b
+@cindex magit-branch-popup
+@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-popup})
+
+This prefix command shows the following suffix commands in a popup
+buffer.  It also displays the values of the following variables and
+allows changing their values.
+@end table
+
+The following variables are used to configure a specific branch.  The
+values are being displayed for the current branch (if any).  To change
+the value for another branch use a prefix argument.
+
+@defvar branch.NAME.merge
+
+Together with @code{branch.NAME.remote} this variable defines the upstream
+branch of the local branch named NAME.  The value of this variable
+is the full reference of the upstream @emph{branch}.
+@end defvar
+
+@defvar branch.NAME.remote
+
+Together with @code{branch.NAME.merge} this variable defines the upstream
+branch of the local branch named NAME.  The value of this variable
+is the name of the upstream @emph{remote}.
+@end defvar
+
+@defvar branch.NAME.rebase
+
+This variable controls whether pulling into the branch named NAME is
+done by rebasing or by merging the fetched branch.
+
+@itemize
+@item
+When @code{true} then pulling is done by rebasing.
+
+@item
+When @code{false} then pulling is done by merging.
+
+@item
+When undefined then the value of @code{pull.rebase} is used.  The default
+of that variable is @code{false}.
+@end itemize
+@end defvar
+
+@defvar branch.NAME.pushRemote
+
+This variable specifies the remote that the branch named NAME is
+usually pushed to.  The value has to be the name of an existing
+remote.
+
+It is not possible to specify the name of @emph{branch} to push the local
+branch to.  The name of the remote branch is always the same as the
+name of the local branch.
+
+If this variable is undefined but @code{remote.pushDefault} is defined,
+then the value of the latter is used.  By default @code{remote.pushDefault}
+is undefined.
+@end defvar
+
+@defvar branch.NAME.description
+
+This variable can be used to describe the branch named NAME.  That
+description is used e.g. when turning the branch into a series of
+patches.
+@end defvar
+
+The following variables specify defaults which are used if the above
+branch-specific variables are not set.
+
+@defvar pull.rebase
+
+This variable specifies whether pulling is done by rebasing or by
+merging.  It can be overwritten using @code{branch.NAME.rebase}.
+
+@itemize
+@item
+When @code{true} then pulling is done by rebasing.
+
+@item
+When @code{false} (the default) then pulling is done by merging.
+@end itemize
+Since it is never a good idea to merge the upstream branch into a
+feature or hotfix branch and most branches are such branches, you
+should consider setting this to @code{true}, and @code{branch.master.rebase} to
+@code{false}.
+@end defvar
+
+@defvar remote.pushDefault
+
+This variable specifies what remote the local branches are usually
+pushed to.  This can be overwritten per branch using
+@code{branch.NAME.pushRemote}.
+@end defvar
+
+The following variables are used during the creation of a branch and
+control whether the various branch-specific variables are
+automatically set at this time.
+
+@defvar remote.autoSetupMerge
+
+This variable specifies under what circumstances creating a branch
+NAME should result in the variables @code{branch.NAME.merge} and
+@code{branch.NAME.remote} being set according to the starting point used to
+create the branch.  If the starting point isn't a branch, then these
+variables are never set.
+
+@itemize
+@item
+When @code{always} then the variables are set regardless of whether the
+starting point is a local or a remote branch.
+
+@item
+When @code{true} (the default) then the variable are set when the staring
+point is a remote branch, but not when it is a local branch.
+
+@item
+When @code{false} then the variables are never set.
+@end itemize
+@end defvar
+
+@defvar remote.autoSetupRebase
+
+This variable specifies whether creating a branch NAME should result
+in the variable @code{branch.NAME.rebase} being set to @code{true}.
+
+@itemize
+@item
+When @code{always} then the variable is set regardless of whether the
+starting point is a local or a remote branch.
+
+@item
+When @code{local} then the variable are set when the starting point is a
+local branch, but not when it is a remote branch.
+
+@item
+When @code{remote} then the variable are set when the starting point is a
+remote branch, but not when it is a local branch.
+
+@item
+When @code{never} (the default) then the variable is never set.
+@end itemize
+@end defvar
+
+@defvar remote.autoSetupPush
+
+This variable specifies whether creating a branch NAME should result
+in the variable @code{branch.NAME.pushRemote} being set to what value.
+
+This variable should either be undefined, or it should be the name
+of an existing branch, in which case @code{branch.NAME.pushRemote} is set
+to the same value.  Any other value, i.e. a non-existend remote, is
+ignored.
+
+This variable is only used by Magit, Git knows nothing about it.
+@end defvar
+
+Note that the respective commands always change the repository-local
+values.  If you want to change the global value which is used when the
+local value is undefined, then you have to do so on the command line,
+e.g.:
+
+@example
+git config --global remote.autoSetupMerge always
+@end example
+
+For more information about these variables you should also see
+
+@ifinfo
+@ref{git-config,,,gitman,}
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-config">git-config(1)</a> manpage
+@end html
+@end ifhtml
+@iftex
+the git-config(1) manpage
+@end iftex
+.  Also see 
 @ifinfo
 @ref{git-branch,,,gitman,}
 @end ifinfo
@@ -4028,7 +4248,8 @@ the <a href="http://git-scm.com/docs/git-branch">git-branch(1)</a> manpage
 @iftex
 the git-branch(1) manpage
 @end iftex
- and 
+,
+
 @ifinfo
 @ref{git-checkout,,,gitman,}
 @end ifinfo
@@ -4040,16 +4261,9 @@ the <a href="http://git-scm.com/docs/git-checkout">git-checkout(1)</a> manpage
 @iftex
 the git-checkout(1) manpage
 @end iftex
-.
+, and @ref{Pushing,Pushing}.
 
 @table @asis
-@kindex b
-@cindex magit-branch-popup
-@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-popup})
-
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
-
 @kindex b b
 @cindex magit-checkout
 @item @kbd{b b} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout})
@@ -4115,20 +4329,6 @@ Delete one or multiple branches.  If the region marks multiple
 branches, then offer to delete those.  Otherwise, prompt for a single
 branch to be deleted, defaulting to the branch at point.
 
-@kindex b u
-@cindex magit-branch-set-upstream
-@item @kbd{b u} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-set-upstream})
-
-Change the upstream branch of a branch.  Both branches are read in
-the minibuffer, while providing reasonable defaults.
-
-@kindex b U
-@cindex magit-branch-unset-upstream
-@item @kbd{b U} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-unset-upstream})
-
-Unset the upstream branch of a branch read in the minibuffer and
-defaulting to the branch at point or the current branch.
-
 @kindex b r
 @cindex magit-branch-rename
 @item @kbd{b r} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-rename})
@@ -4137,21 +4337,13 @@ Rename a branch.  The branch and the new name are read in the
 minibuffer.  With prefix argument the branch is renamed even if that
 name conflicts with an existing branch.
 
-@kindex b e
-@cindex magit-branch-edit-description
-@item @kbd{b e} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-edit-description})
-
-Edit the description of a branch.  The branch is read in the
-minibuffer defaulting to the branch at point or the current branch.
-The description is edited in a regular buffer similar to how commit
-messages are edited.
-
 @end table
 
 @defopt magit-branch-read-upstream-first
 
 When creating a branch, whether to read the upstream branch before
-the name of the branch that is to be created.
+the name of the branch that is to be created.  The default is @code{nil},
+and I recommend you leave it at that.
 @end defopt
 
 @node Merging
