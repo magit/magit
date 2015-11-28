@@ -1220,7 +1220,9 @@ changes.
   "Create BRANCH at branch or revision START-POINT.
 \n(git branch [ARGS] BRANCH START-POINT)."
   (interactive (magit-branch-read-args "Create branch"))
-  (magit-run-git-no-revert "branch" args branch start-point))
+  (magit-call-git "branch" args branch start-point)
+  (magit-maybe-set-branch*pushRemote branch)
+  (magit-refresh))
 
 ;;;###autoload
 (defun magit-branch-and-checkout (branch start-point &optional args)
@@ -1230,7 +1232,15 @@ changes.
                                        (magit-stash-at-point)))
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
-    (magit-run-git "checkout" args "-b" branch start-point)))
+    (magit-call-git "checkout" args "-b" branch start-point)
+    (magit-maybe-set-branch*pushRemote branch)
+    (magit-refresh)))
+
+(defun magit-maybe-set-branch*pushRemote (branch)
+  (-when-let (remote (magit-get "branch.autoSetupPush"))
+    (when (member remote (magit-list-remotes))
+      (magit-call-git "config" (concat "branch." branch ".pushRemote")
+                      remote))))
 
 (defun magit-branch-read-args (prompt &optional secondary-default)
   (let ((args (magit-branch-arguments)) start branch)
@@ -1270,14 +1280,15 @@ began on the old branch (likely but not necessarily \"master\")."
   (-if-let (current (magit-get-current-branch))
       (let (tracked base)
         (magit-call-git "checkout" args "-b" branch current)
-        (if (and (setq tracked (magit-get-tracked-branch current))
-                 (setq base (magit-git-string "merge-base" current tracked))
-                 (not (magit-rev-equal base current)))
-            (magit-run-git "update-ref" "-m"
-                           (format "reset: moving to %s" base)
-                           (concat "refs/heads/" current) base)
-          (magit-refresh)))
-    (magit-run-git "checkout" "-b" branch)))
+        (when (and (setq tracked (magit-get-tracked-branch current))
+                   (setq base (magit-git-string "merge-base" current tracked))
+                   (not (magit-rev-equal base current)))
+          (magit-call-git "update-ref" "-m"
+                          (format "reset: moving to %s" base)
+                          (concat "refs/heads/" current) base)))
+    (magit-call-git "checkout" "-b" branch))
+  (magit-maybe-set-branch*pushRemote branch)
+  (magit-refresh))
 
 ;;;###autoload
 (defun magit-branch-reset (branch to &optional args)
