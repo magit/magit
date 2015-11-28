@@ -1451,12 +1451,26 @@ With prefix, forces the rename even if NEW already exists.
 ;;;###autoload
 (defun magit-edit-branch*description (branch)
   "Edit the description of the current branch.
-With a prefix argument edit the description of another branch."
+With a prefix argument edit the description of another branch.
+
+The description for the branch named NAME is stored in the Git
+variable `branch.<name>.description'."
   (interactive
    (list (or (and (not current-prefix-arg)
                   (magit-get-current-branch))
              (magit-read-local-branch "Edit branch description"))))
   (magit-run-git-with-editor "branch" "--edit-description"))
+
+(defun magit-edit-branch*description-check-buffers ()
+  (and buffer-file-name
+       (string-match-p "/BRANCH_DESCRIPTION\\'" buffer-file-name)
+       (add-hook 'with-editor-post-finish-hook
+                 (lambda ()
+                   (when (derived-mode-p 'magit-popup-mode)
+                     (magit-refresh-popup-buffer)))
+                 nil t)))
+
+(add-hook 'find-file-hook 'magit-edit-branch*description-check-buffers)
 
 (defun magit-format-branch*description ()
   (let* ((branch (or (magit-get-current-branch) "<name>"))
