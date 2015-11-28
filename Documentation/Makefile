@@ -39,7 +39,7 @@ info: $(INFOPAGES) dir
 
 %.info: %.texi
 	@printf "Generating $@\n"
-	@$(MAKEINFO) $< -o $@
+	@$(MAKEINFO) --no-split $< -o $@
 
 dir: magit.info magit-popup.info with-editor.info
 	@printf "Generating dir\n"
