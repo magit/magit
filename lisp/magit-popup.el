@@ -68,6 +68,9 @@
 (declare-function magit-refresh 'magit-mode)
 (declare-function magit-set 'magit-git)
 
+;; For branch actions.
+(declare-function magit-local-branch-p 'magit-git)
+
 ;;; Settings
 ;;;; Custom Groups
 
@@ -1101,9 +1104,13 @@ of events shared by all popups and before point is adjusted.")
                               (or maxcols 1000)))
                       (insert (make-string padding ?\s))
                     (insert "\n"))))
-              (if item
-                  (apply 'insert-button item)
-                (insert ?\s))))
+              (unless (equal item '(""))
+                (if item
+                    (progn (apply 'insert-button item)
+                           (unless (memq (get-text-property 4 'face (car item))
+                                         '(bold nil))
+                             (insert ?\n)))
+                  (insert ?\s)))))
           (insert (if (= (char-before) ?\n) "\n" "\n\n")))))))
 
 (defun magit-popup-format-argument-button (type ev)
@@ -1182,16 +1189,26 @@ of events shared by all popups and before point is adjusted.")
      (propertize "]" 'face 'magit-popup-disabled-argument))))
 
 (defun magit-popup-format-action-button (type ev)
-  (list (format-spec
-         (button-type-get type 'format)
-         `((?k . ,(propertize (magit-popup-event-keydsc ev)
-                              'face 'magit-popup-key))
-           (?d . ,(magit-popup-event-dsc ev))
-           (?D . ,(if (eq (magit-popup-event-fun ev)
-                          (magit-popup-get :default-action))
-                      (propertize (magit-popup-event-dsc ev) 'face 'bold)
-                    (magit-popup-event-dsc ev)))))
-        'type type 'event (magit-popup-event-key ev)))
+  (let* ((dsc (magit-popup-event-dsc ev))
+         (fun (and (functionp dsc) dsc)))
+    (when fun
+      (setq dsc
+            (-when-let (branch (funcall fun))
+              (propertize branch 'face (if (magit-local-branch-p branch)
+                                           'magit-branch-local
+                                         'magit-branch-remote)))))
+    (when dsc
+      (list (format-spec
+             (button-type-get type 'format)
+             `((?k . ,(propertize (magit-popup-event-keydsc ev)
+                                  'face 'magit-popup-key))
+               (?d . ,dsc)
+               (?D . ,(if (and (not fun)
+                               (eq (magit-popup-event-fun ev)
+                                   (magit-popup-get :default-action)))
+                          (propertize dsc 'face 'bold)
+                        dsc))))
+            'type type 'event (magit-popup-event-key ev)))))
 
 (defun magit-popup-insert-command-section (type spec)
   (magit-popup-insert-section
