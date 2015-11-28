@@ -1375,6 +1375,19 @@ defaulting to the branch at point."
 (put 'magit-branch-delete 'interactive-only t)
 
 ;;;###autoload
+(defun magit-branch-rename (old new &optional force)
+  "Rename branch OLD to NEW.
+With prefix, forces the rename even if NEW already exists.
+\n(git branch -m|-M OLD NEW)."
+  (interactive
+   (let ((branch (magit-read-local-branch "Rename branch")))
+     (list branch
+           (magit-read-string-ns (format "Rename branch '%s' to" branch))
+           current-prefix-arg)))
+  (unless (string= old new)
+    (magit-run-git-no-revert "branch" (if force "-M" "-m") old new)))
+
+;;;###autoload
 (defun magit-branch-set-upstream (branch upstream)
   "Change the UPSTREAM branch of BRANCH."
   (interactive
@@ -1391,19 +1404,6 @@ defaulting to the branch at point."
   "Unset the upstream branch of BRANCH."
   (interactive (list (magit-read-local-branch "Unset upstream of branch")))
   (magit-run-git-no-revert "branch" "--unset-upstream" branch))
-
-;;;###autoload
-(defun magit-branch-rename (old new &optional force)
-  "Rename branch OLD to NEW.
-With prefix, forces the rename even if NEW already exists.
-\n(git branch -m|-M OLD NEW)."
-  (interactive
-   (let ((branch (magit-read-local-branch "Rename branch")))
-     (list branch
-           (magit-read-string-ns (format "Rename branch '%s' to" branch))
-           current-prefix-arg)))
-  (unless (string= old new)
-    (magit-run-git-no-revert "branch" (if force "-M" "-m") old new)))
 
 ;;;###autoload
 (defun magit-branch-edit-description (branch)
