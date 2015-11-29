@@ -202,7 +202,7 @@ magit-popup-$(VERSION).tar: info
 
 ELPA_ROOT_FILES = COPYING
 ELPA_LISP_FILES = $(addprefix lisp/,$(ELMS) magit-version.el)
-ELPA_DOCS_FILES = $(addprefix Documentation/,AUTHORS.md dir magit.info)
+ELPA_DOCS_FILES = $(addprefix Documentation/,AUTHORS.md dir magit.info*)
 
 define magit_pkg
 (define-package "magit" "$(VERSION)"
