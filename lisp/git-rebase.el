@@ -370,15 +370,17 @@ By default, this is the same except for the \"pick\" command."
                           (substitute-command-keys (format "\\[%s]" (car it)))
                           (cdr it))))
         (while (re-search-forward "^#\\(  ?\\)\\([^,],\\) \\([^ ]+\\) = " nil t)
-          (replace-match " " t t nil 1)
           (let ((cmd (intern (concat "git-rebase-" (match-string 3)))))
-            (replace-match
-             (format "%-8s"
-                     (mapconcat #'key-description
-                                (--filter (not (eq (elt it 0) 'menu-bar))
-                                          (reverse (where-is-internal cmd)))
-                                ", "))
-             t t nil 2)))))))
+            (if (not (fboundp cmd))
+                (delete-region (line-beginning-position) (1+ (line-end-position)))
+              (replace-match " " t t nil 1)
+              (replace-match
+               (format "%-8s"
+                       (mapconcat #'key-description
+                                  (--filter (not (eq (elt it 0) 'menu-bar))
+                                            (reverse (where-is-internal cmd)))
+                                  ", "))
+               t t nil 2))))))))
 
 (add-hook 'git-rebase-mode-hook 'git-rebase-mode-show-keybindings t)
 
