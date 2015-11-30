@@ -215,29 +215,34 @@
           (forward-line)))
     (ding)))
 
-(defun git-rebase-move-line-up ()
-  "Move the current commit (or command) up."
-  (interactive)
-  (goto-char (line-beginning-position))
-  (if (bobp)
-      (ding)
-    (when (looking-at git-rebase-line)
-      (let ((inhibit-read-only t))
-        (transpose-lines 1))
-      (forward-line -2))))
+(defun git-rebase-move-line-down (n)
+  "Move the current commit (or command) N lines down.
+If N is negative, move the commit up instead."
+  (interactive "p")
+  (let ((beg (line-beginning-position))
+        (end (1+ (line-end-position))))
+    (save-restriction
+      (narrow-to-region
+       (point-min)
+       (1+ (save-excursion
+             (goto-char (point-min))
+             (while (re-search-forward git-rebase-line nil t))
+             (point))))
+      (if (or (and (< n 0) (= beg (point-min)))
+              (and (> n 0) (>= end (point-max))))
+          (ding)
+        (goto-char (if (< n 0) beg end))
+        (forward-line n)
+        (atomic-change-group
+          (let ((inhibit-read-only t))
+            (insert (delete-and-extract-region beg end)))
+          (backward-char (- end beg)))))))
 
-(defun git-rebase-move-line-down ()
-  "Move the current commit (or command) down."
-  (interactive)
-  (goto-char (line-beginning-position))
-  (when (and (looking-at git-rebase-line)
-             (save-excursion
-               (forward-line)
-               (looking-at git-rebase-line)))
-    (forward-line)
-    (let ((inhibit-read-only t))
-      (transpose-lines 1))
-    (forward-line -1)))
+(defun git-rebase-move-line-up (n)
+  "Move the current commit (or command) N lines up.
+If N is negative, move the commit down instead."
+  (interactive "p")
+  (git-rebase-move-line-down (- n)))
 
 (defun git-rebase-kill-line ()
   "Kill the current action line."
