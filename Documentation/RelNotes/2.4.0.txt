@@ -101,6 +101,12 @@ Changes since v2.3.0
   apply to diff-related faces because diff sections are highlighted
   differently from other sections.  #2387
 
+* The commands `git-rebase-move-line-up' and `git-rebase-move-line-down'
+  have been extended.  When a region is active, they now operate on
+  all lines touched by the region, not just the current line.  In
+  addition, a numeric prefix can now be given to specify how many
+  lines the current line or selection is moved across.
+
 This release also contains the changes described in the v2.3.1 release
 notes, as well as various other documentation fixes, code clean-ups,
 bug fixes, and other small to medium improvements.
