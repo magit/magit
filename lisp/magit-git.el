@@ -452,8 +452,10 @@ tracked file."
       (setq file (or magit-buffer-file-name buffer-file-name))))
   (when (and file (or (not tracked)
                       (magit-file-tracked-p (file-relative-name file))))
-    (--when-let (magit-toplevel (magit--with-safe-default-directory file
-                                  default-directory))
+    (--when-let (magit-toplevel
+                 (magit--with-safe-default-directory
+                     (directory-file-name (file-name-directory file))
+                   default-directory))
       (file-relative-name file it))))
 
 (defun magit-file-tracked-p (file)
