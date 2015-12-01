@@ -300,21 +300,22 @@ call function WASHER with no argument."
 
 ;;; Files
 
+(defun magit--safe-default-directory (&optional file)
+  (catch 'unsafe-default-dir
+    (let ((dir (file-name-as-directory
+                (expand-file-name (or file default-directory))))
+          (previous nil))
+      (while (not (file-accessible-directory-p dir))
+        (setq dir (file-name-directory (directory-file-name dir)))
+        (when (equal dir previous)
+          (throw 'unsafe-default-dir nil))
+        (setq previous dir))
+      dir)))
+
 (defmacro magit--with-safe-default-directory (file &rest body)
   (declare (indent 1) (debug (form body)))
-  `(catch 'unsafe-default-dir
-     (let ((default-directory (file-name-as-directory
-                               (expand-file-name
-                                (or ,file default-directory))))
-           previous)
-       (while (not (file-accessible-directory-p default-directory))
-         (setq default-directory
-               (file-name-directory
-                (directory-file-name default-directory)))
-         (when (equal default-directory previous)
-           (throw 'unsafe-default-dir nil))
-         (setq previous default-directory))
-       ,@body)))
+  `(-when-let (default-directory (magit--safe-default-directory ,file))
+     ,@body))
 
 (defun magit-git-dir (&optional path)
   "Return absolute path to the control directory of the current repository.
@@ -453,9 +454,8 @@ tracked file."
   (when (and file (or (not tracked)
                       (magit-file-tracked-p (file-relative-name file))))
     (--when-let (magit-toplevel
-                 (magit--with-safe-default-directory
-                     (directory-file-name (file-name-directory file))
-                   default-directory))
+                 (magit--safe-default-directory
+                  (directory-file-name (file-name-directory file))))
       (file-relative-name file it))))
 
 (defun magit-file-tracked-p (file)
