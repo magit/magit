@@ -83,7 +83,7 @@ until one of them returns non-nil."
   "Functions used to unhighlight the previously current section.
 Each function is run with the current section as only argument
 until one of them returns non-nil.  Most sections are properly
-unhighlighted without requiring a specialized unhighligher,
+unhighlighted without requiring a specialized unhighlighter,
 diff-related sections being the only exception."
   :package-version '(magit . "2.1.0")
   :group 'magit-section
