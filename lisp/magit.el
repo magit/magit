@@ -805,7 +805,7 @@ reference, but it is not checked out."
         (string-match magit-refs-branch-line-re line)
         (magit-bind-match-strings
             (branch hash message upstream ahead behind gone) line
-          (when (string-match-p "(" branch)
+          (when (string-match-p "(HEAD detached" branch)
             (setq branch nil))
           (magit-insert-branch
            branch magit-refs-local-branch-format current branches
