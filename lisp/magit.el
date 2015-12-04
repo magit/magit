@@ -87,7 +87,7 @@
   '(magit-insert-error-header
     magit-insert-diff-filter-header
     magit-insert-head-branch-header
-    magit-insert-pull-branch-header
+    magit-insert-upstream-branch-header
     magit-insert-push-branch-header
     magit-insert-tags-header)
   "Hook run to insert headers into the status buffer.
@@ -103,7 +103,7 @@ at all."
              magit-insert-repo-header
              magit-insert-remote-header
              magit-insert-head-branch-header
-             magit-insert-pull-branch-header
+             magit-insert-upstream-branch-header
              magit-insert-push-branch-header
              magit-insert-tags-header))
 
@@ -450,7 +450,7 @@ the status buffer causes this section to disappear again."
           (insert (propertize commit 'face 'magit-hash))
           (insert ?\s summary ?\n))))))
 
-(cl-defun magit-insert-pull-branch-header
+(cl-defun magit-insert-upstream-branch-header
     (&optional (branch (magit-get-current-branch))
                (pull   (magit-get-tracked-branch branch))
                keyword)
@@ -2041,9 +2041,6 @@ Currently this only adds the following key bindings.
   :package-version '(magit . "2.2.0")
   :group 'magit-modes)
 
-(define-obsolete-function-alias 'global-magit-file-buffer-mode
-  'global-magit-file-mode "2.3.0")
-
 ;;;; Blob Mode
 
 (defvar magit-blob-mode-map
@@ -2690,11 +2687,17 @@ If the value already is just \"git\" but TRAMP never-the-less
 doesn't find the executable, then consult the info node
 `(tramp)Remote programs'.\n" remote) :error)))))
 
+(define-obsolete-function-alias 'global-magit-file-buffer-mode
+  'global-magit-file-mode "Magit 2.3.0")
+
 (define-obsolete-function-alias 'magit-insert-head-header
   'magit-insert-head-branch-header "Magit 2.4.0")
 
 (define-obsolete-function-alias 'magit-insert-upstream-header
-  'magit-insert-pull-branch-header "Magit 2.4.0")
+  'magit-insert-upstream-branch-header "Magit 2.4.0")
+
+(define-obsolete-function-alias 'magit-insert-pull-branch-header
+  'magit-insert-upstream-branch-header "Magit 2.4.0")
 
 (provide 'magit)
 
