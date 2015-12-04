@@ -844,7 +844,7 @@ as argument."
                  (-if-let (key (and (buffer-live-p command-buf)
                                     (with-current-buffer command-buf
                                       (car (where-is-internal
-                                            'magit-process-display-buffer)))))
+                                            'magit-process-buffer)))))
                      (format "Hit %s to see" (key-description key))
                    "See")
                  (buffer-name process-buf)))))
