@@ -19,6 +19,43 @@ UNRELEASED.
 Changes since v2.3.0
 --------------------
 
+* All of Git's push-related variables are now honored.  #2414
+
+* In addition to the upstream branch, the push-remote (configured
+  using `branch.<name>.pushRemote' or `remote.pushDefault') is now
+  also fully supported.  #2414
+
+* The branching popup now shows the most important Git variables that
+  are in some way related to branches.  The values of these variables
+  can now be conveniently changed from that popup.  #2414
+
+* The fetching, pulling, pushing, and rebasing popups now feature an
+  action which acts on the push-remote, another which acts on the
+  upstream, and yet another which acts on any other source or target.
+  For each of these actions the respective branch is shown in the
+  popup.  If an action isn't currently usable, then it is omitted from
+  the popup.
+
+  Many key bindings were changed for consistency and safety reasons.
+  Likewise many commands were renamed and their behavior was adjusted.
+  Some new commands, related to the push-remote, were added.  #2414
+
+* The status buffer now features up to four logs listing unpulled and
+  unpushed commits.  Two for the upstream and two for the push-remote.
+  #2414
+
+* A new Git variable `branch.autoSetupPush' was added.  But Git itself
+  unfortunately does not know about this variable, so it only takes
+  effect when branches are created using Magit.  #2414
+
+* The option `magit-push-always-verify' was removed.  That was only a
+  temporary kludge to keep users from shooting themselves in the foot.
+  This is no longer necessary because one now always sees were one is
+  about to push to.  #2414
+
+* The command `magit-push-implicitly', Magit's equivalent of `git
+  push', was removed.  #2414
+
 * When Git is run for side-effects and exits with a non-zero status,
   then the respective error message is now inserted into the status
   buffer.  This should help those users who do not see that message
