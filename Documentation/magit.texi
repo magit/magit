@@ -2036,6 +2036,22 @@ to be a member of @code{magit-insert-status-sections} to be used at all.
 
 By default the following functions are members of the above hook:
 
+@defun magit-insert-error-header
+
+Insert a header line showing the message about the Git error that
+just occured.
+
+This function is only aware of the last error that occur when Git
+was run for side-effects.  If, for example, an error occurs while
+generating a diff, then that error won't be inserted.  Refreshing
+the status buffer causes this section to disappear again.
+@end defun
+
+@defun magit-insert-diff-filter-header
+
+Insert a header line showing the effective diff filters.
+@end defun
+
 @defun magit-insert-head-header
 
 Insert a header line about the @code{HEAD} commit.

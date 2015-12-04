@@ -84,7 +84,8 @@
   :type 'hook)
 
 (defcustom magit-status-headers-hook
-  '(magit-insert-diff-filter-header
+  '(magit-insert-error-header
+    magit-insert-diff-filter-header
     magit-insert-head-branch-header
     magit-insert-pull-branch-header
     magit-insert-push-branch-header
@@ -97,7 +98,8 @@ at all."
   :package-version '(magit . "2.1.0")
   :group 'magit-status
   :type 'hook
-  :options '(magit-insert-diff-filter-header
+  :options '(magit-insert-error-header
+             magit-insert-diff-filter-header
              magit-insert-repo-header
              magit-insert-remote-header
              magit-insert-head-branch-header
@@ -150,7 +152,8 @@ at all."
   :type 'hook)
 
 (defcustom magit-refs-sections-hook
-  '(magit-insert-branch-description
+  '(magit-insert-error-header
+    magit-insert-branch-description
     magit-insert-local-branches
     magit-insert-remote-branches
     magit-insert-tags)
@@ -413,6 +416,23 @@ The sections are inserted by running the functions on the hook
   (if (magit-rev-verify "HEAD")
       (magit-insert-headers magit-status-headers-hook)
     (insert "In the beginning there was darkness\n\n")))
+
+(defun magit-insert-error-header ()
+  "Insert the message about the Git error that just occured.
+
+This function is only aware of the last error that occur when Git
+was run for side-effects.  If, for example, an error occurs while
+generating a diff, then that error won't be inserted.  Refreshing
+the status buffer causes this section to disappear again."
+  (when magit-this-error
+    (magit-insert-section (error 'git)
+      (insert (propertize (format "%-10s" "GitError! ")
+                          'face 'magit-section-heading))
+      (insert (propertize magit-this-error 'face 'font-lock-warning-face))
+      (-when-let (key (car (where-is-internal 'magit-process-buffer)))
+        (insert (format "  [Type `%s' for details]" (key-description key))))
+      (insert ?\n))
+    (setq magit-this-error nil)))
 
 (cl-defun magit-insert-head-branch-header
     (&optional (branch (magit-get-current-branch)))

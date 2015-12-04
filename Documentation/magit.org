@@ -1507,6 +1507,20 @@ hook variable.
 
 By default the following functions are members of the above hook:
 
+- Function: magit-insert-error-header
+
+  Insert a header line showing the message about the Git error that
+  just occured.
+
+  This function is only aware of the last error that occur when Git
+  was run for side-effects.  If, for example, an error occurs while
+  generating a diff, then that error won't be inserted.  Refreshing
+  the status buffer causes this section to disappear again.
+
+- Function: magit-insert-diff-filter-header
+
+  Insert a header line showing the effective diff filters.
+
 - Function: magit-insert-head-header
 
   Insert a header line about the ~HEAD~ commit.
