@@ -1521,13 +1521,19 @@ By default the following functions are members of the above hook:
 
   Insert a header line showing the effective diff filters.
 
-- Function: magit-insert-head-header
+- Function: magit-insert-head-branch-header
 
-  Insert a header line about the ~HEAD~ commit.
+  Insert a header line about the current branch or detached ~HEAD~.
 
-- Function: magit-insert-upstream-header
+- Function: magit-insert-upstream-branch-header
 
-  Insert a header line about the upstream branch and its tip.
+  Insert a header line about the branch that is usually pulled into
+  the current branch.
+
+- Function: magit-insert-push-branch-header
+
+  Insert a header line about the branch that the current branch is
+  usually pushed to.
 
 - Function: magit-insert-tags-header
 

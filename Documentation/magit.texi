@@ -2052,14 +2052,21 @@ the status buffer causes this section to disappear again.
 Insert a header line showing the effective diff filters.
 @end defun
 
-@defun magit-insert-head-header
+@defun magit-insert-head-branch-header
 
-Insert a header line about the @code{HEAD} commit.
+Insert a header line about the current branch or detached @code{HEAD}.
 @end defun
 
-@defun magit-insert-upstream-header
+@defun magit-insert-upstream-branch-header
 
-Insert a header line about the upstream branch and its tip.
+Insert a header line about the branch that is usually pulled into
+the current branch.
+@end defun
+
+@defun magit-insert-push-branch-header
+
+Insert a header line about the branch that the current branch is
+usually pushed to.
 @end defun
 
 @defun magit-insert-tags-header

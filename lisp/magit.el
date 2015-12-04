@@ -454,7 +454,7 @@ the status buffer causes this section to disappear again."
     (&optional (branch (magit-get-current-branch))
                (pull   (magit-get-tracked-branch branch))
                keyword)
-  "Insert a header line about branch normally pulled into the current branch."
+  "Insert a header line about branch usually pulled into current branch."
   (when pull
     (magit-insert-section (branch pull)
       (insert (format "%-10s"
@@ -475,7 +475,7 @@ the status buffer causes this section to disappear again."
 (cl-defun magit-insert-push-branch-header
     (&optional (branch (magit-get-current-branch))
                (push   (magit-get-push-branch branch)))
-  "Insert a header line about the branch the current branch is pushed to"
+  "Insert a header line about the branch the current branch is pushed to."
   (when push
     (magit-insert-section (branch push)
       (insert (format "%-10s" "Push: "))
