@@ -1,0 +1,72 @@
+It's Magit!  A Git Porcelain inside Emacs
+=========================================
+
+Magit is an interface to the version control system Git, implemented
+as an Emacs package.  Magit aspires to be a complete Git porcelain.
+While we cannot (yet) claim that Magit wraps and improves upon each
+and every Git command, it is complete enough to allow even experienced
+Git users to perform almost all of their daily version control tasks
+directly from within Emacs.  While many fine Git clients exist, only
+Magit and Git itself deserve to be called porcelains.
+
+For more information about Magit, see http://magit.vc.
+
+Magit v2.4.0 Release Notes
+==========================
+
+UNRELEASED.
+
+Changes since v2.3.0
+--------------------
+
+* When Git is run for side-effects and exits with a non-zero status,
+  then the respective error message is now inserted into the status
+  buffer.  This should help those users who do not see that message
+  when it is being displayed in the echo area.
+
+* Popups gained support for a new event type `:variable', which can be
+  used to change the value of Git variables.  This can only be used in
+  combination with Magit (just `magit-popup.el' by itself is not
+  sufficient).  #2409
+
+* The backward-compatibility kludge `magit-branch-manager' has been
+  removed.  The one and only binding to show the refs buffer now is
+  "y"; the "b v" binding has been removed.
+
+* The command `with-editor-finish' now runs the new hook
+  `with-editor-post-finish-hook'.
+
+* It is now possible to revert file-visiting buffers both silently and
+  asynchronously at the same time (by setting `magit-revert-buffers' to
+  a negative number).
+
+* The command `magit-diff-visit-file' now runs the new hook
+  `magit-diff-visit-file-hook'.
+
+* When the upstream branch or push remote is configured but the
+  respective branch does not actually exist, then that is now reported
+  in the header of the status buffer.  #2390
+
+* The header line about the upstream branch in the status buffer, is
+  now prefixed with either "Merge" or "Rebase", depending on the value
+  of `branch.<current-branch>.rebase'. #2390
+
+* `magit-define-popup' learned two new arguments `:setup-function' and
+  `:refresh-function'.  These arguments should be used instead of the
+  MODE argument, which is now deprecated.  #2389
+
+* Negative text properties are no longer faked, that was just too ugly
+  and inefficient.  Since v2.1.0 Magit no longer sets the background
+  color for any faces except for those related to diffs.  Third-party
+  themes which still set the background color of non-diff faces, have
+  to be adjusted, because the background color of these faces would be
+  shadowed by the highlighting of the current section.  This does not
+  apply to diff-related faces because diff sections are highlighted
+  differently from other sections.  #2387
+
+This release also contains the changes described in the v2.3.1 release
+notes, as well as various other documentation fixes, code clean-ups,
+bug fixes, and other small to medium improvements.
+
+Authors
+-------
