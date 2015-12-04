@@ -681,7 +681,8 @@ tracked in the current repository are reverted if
   "Use `auth-source-search' to get a password.
 If found, return the password.  Otherwise, return nil."
   (require 'auth-source)
-  (let ((secret (plist-get (car (auth-source-search :max 1 :host key))
+  (let ((secret (plist-get (car (auth-source-search :max 1 :host key
+                                                    :require '(:host)))
                            :secret)))
     (if (functionp secret)
         (funcall secret)
