@@ -785,7 +785,8 @@ If there is no revision at point or with a prefix argument prompt
 for a revision."
   (interactive
    (let* ((mcommit (magit-section-when module-commit))
-          (atpoint (or (and magit-blame-mode (magit-blame-chunk-get :hash))
+          (atpoint (or (and (bound-and-true-p magit-blame-mode)
+                            (magit-blame-chunk-get :hash))
                        mcommit
                        (magit-branch-or-commit-at-point)
                        (magit-tag-at-point))))
