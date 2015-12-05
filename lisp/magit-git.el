@@ -696,7 +696,6 @@ string \"true\", otherwise return nil."
       (and (derived-mode-p 'magit-revision-mode)
            (car magit-refresh-args))))
 
-
 (defun magit-tag-at-point ()
   (magit-section-when tag))
 
