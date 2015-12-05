@@ -795,6 +795,7 @@ for a revision."
                   (magit-diff-arguments))
             (and mcommit (list (magit-section-parent-value
                                 (magit-current-section)))))))
+  (require 'magit)
   (magit-with-toplevel
     (when module
       (setq default-directory
