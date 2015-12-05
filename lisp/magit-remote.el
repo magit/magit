@@ -344,6 +344,7 @@ If just one exists, use that without requiring confirmation."
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async-no-revert "push" "-v" args remote ":"))
 
+;;;###autoload
 (defun magit-push-tags (remote &optional args)
   "Push all tags to another repository.
 If only one remote exists, then push to that.  Otherwise prompt
