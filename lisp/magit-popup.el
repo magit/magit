@@ -888,8 +888,10 @@ and are defined in `magit-popup-mode-map' (which see)."
        (magit-popup-manpage man (magit-popup-lookup int :options)))
       (`magit-popup-help
        (magit-popup-manpage man nil))
-      (`self-insert-command
-       (setq def (magit-popup-lookup int :actions))
+      ((or `self-insert-command
+           `magit-invoke-popup-action)
+       (setq def (or (magit-popup-lookup int :actions)
+                     (magit-popup-lookup int :variables)))
        (if def
            (magit-popup-describe-function (magit-popup-event-fun def))
          (ding)
