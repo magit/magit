@@ -1829,7 +1829,8 @@ return nil.  If SELECTION is non-nil then it is a list of sections
 selected by the region, including SECTION.  All of these sections
 are highlighted."
   (if (and (magit-section-match 'commit section)
-           (magit-section-children section))
+           (--any-p (eq (magit-section-type it) 'hunk)
+                    (magit-section-children section)))
       (progn (if selection
                  (dolist (section selection)
                    (magit-diff-highlight-list section selection))
