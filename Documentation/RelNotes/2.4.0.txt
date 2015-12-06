@@ -47,18 +47,18 @@ Changes since v2.3.0
   respective branch does not actually exist, then that is now reported
   in the header of the status buffer.  #2390
 
-* The header line about the upstream branch in the status buffer, is
+* The header line about the upstream branch in the status buffer is
   now prefixed with either "Merge" or "Rebase", depending on the value
   of `branch.<current-branch>.rebase'. #2390
 
-* `magit-define-popup' learned two new arguments `:setup-function' and
+* `magit-define-popup' learned two new arguments, `:setup-function' and
   `:refresh-function'.  These arguments should be used instead of the
   MODE argument, which is now deprecated.  #2389
 
-* Negative text properties are no longer faked, that was just too ugly
+* Negative text properties are no longer faked; that was just too ugly
   and inefficient.  Since v2.1.0 Magit no longer sets the background
   color for any faces except for those related to diffs.  Third-party
-  themes which still set the background color of non-diff faces, have
+  themes which still set the background color of non-diff faces have
   to be adjusted, because the background color of these faces would be
   shadowed by the highlighting of the current section.  This does not
   apply to diff-related faces because diff sections are highlighted
