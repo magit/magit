@@ -68,6 +68,9 @@
 (declare-function magit-refresh 'magit-mode)
 (declare-function magit-set 'magit-git)
 
+;; For branch actions.
+(declare-function magit-local-branch-p 'magit-git)
+
 ;;; Settings
 ;;;; Custom Groups
 
@@ -360,7 +363,7 @@ or `:only' which doesn't change the behaviour."
 
 (defmacro magit-popup-convert-events (def form)
   (declare (indent 1) (debug (form form)))
-  `(--map (if (or (null it) (stringp it)) it ,form) ,def))
+  `(--map (if (or (null it) (stringp it) (functionp it)) it ,form) ,def))
 
 (defun magit-popup-convert-switches (val def)
   (magit-popup-convert-events def
@@ -806,7 +809,7 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
         (user-error "%c isn't bound to any action" event)))))
 
 (defun magit-popup-set-variable
-    (variable choices &optional default other global)
+    (variable choices &optional default other)
   (--if-let (--if-let (magit-git-string "config" "--local" variable)
                 (cadr (member it choices))
               (car choices))
@@ -814,8 +817,7 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
     (magit-call-git "config" "--unset" variable))
   (magit-refresh)
   (message "%s %s" variable
-           (magit-popup-format-variable-1
-            variable choices default other global)))
+           (magit-popup-format-variable-1 variable choices default other)))
 
 (defun magit-popup-quit ()
   "Quit the current popup command without invoking an action."
@@ -889,8 +891,10 @@ and are defined in `magit-popup-mode-map' (which see)."
        (magit-popup-manpage man (magit-popup-lookup int :options)))
       (`magit-popup-help
        (magit-popup-manpage man nil))
-      (`self-insert-command
-       (setq def (magit-popup-lookup int :actions))
+      ((or `self-insert-command
+           `magit-invoke-popup-action)
+       (setq def (or (magit-popup-lookup int :actions)
+                     (magit-popup-lookup int :variables)))
        (if def
            (magit-popup-describe-function (magit-popup-event-fun def))
          (ding)
@@ -1059,15 +1063,16 @@ of events shared by all popups and before point is adjusted.")
   (if (not spec)
       (progn (setq spec (magit-popup-get (button-type-get type 'property)))
              (when spec
-               (if (stringp (car spec))
-                   (--each (-partition-by-header 'stringp spec)
+               (if (or (stringp (car spec))
+                       (functionp (car spec)))
+                   (--each (--partition-by-header
+                            (or (stringp it) (functionp it))
+                            spec)
                      (magit-popup-insert-section type (cdr it) (car it)))
                  (magit-popup-insert-section type spec))))
-    (unless heading
-      (setq heading (button-type-get type 'heading)))
     (let* ((formatter (button-type-get type 'formatter))
            (items (mapcar (lambda (ev)
-                            (and ev (funcall formatter type ev)))
+                            (and ev (or (funcall formatter type ev) '(""))))
                           (or spec (magit-popup-get
                                     (button-type-get type 'property)))))
            (maxcols (button-type-get type 'maxcols))
@@ -1078,25 +1083,35 @@ of events shared by all popups and before point is adjusted.")
           (keyword (setq maxcols (magit-popup-get maxcols)))
           (symbol  (setq maxcols (symbol-value maxcols)))))
       (when items
-        (insert (propertize heading 'face 'magit-popup-heading))
-        (unless (string-match "\n$" heading)
-          (insert "\n"))
-        (let ((colwidth
-               (+ (apply 'max (mapcar (lambda (e) (length (car e))) items))
-                  magit-popup-min-padding)))
-          (dolist (item items)
-            (unless (bolp)
-              (let ((padding (- colwidth (% (current-column) colwidth))))
-                (if (and (< (+ (current-column) padding colwidth)
-                            (window-width))
-                         (< (ceiling (/ (current-column) (* colwidth 1.0)))
-                            (or maxcols 1000)))
-                    (insert (make-string padding ?\s))
-                  (insert "\n"))))
-            (if item
-                (apply 'insert-button item)
-              (insert ?\s))))
-        (insert (if (= (char-before) ?\n) "\n" "\n\n"))))))
+        (if (functionp heading)
+            (when (setq heading (funcall heading))
+              (insert heading ?\n))
+          (unless heading
+            (setq heading (button-type-get type 'heading)))
+          (insert (propertize heading 'face 'magit-popup-heading))
+          (unless (string-match "\n$" heading)
+            (insert "\n")))
+        (when heading
+          (let ((colwidth
+                 (+ (apply 'max (mapcar (lambda (e) (length (car e))) items))
+                    magit-popup-min-padding)))
+            (dolist (item items)
+              (unless (bolp)
+                (let ((padding (- colwidth (% (current-column) colwidth))))
+                  (if (and (< (+ (current-column) padding colwidth)
+                              (window-width))
+                           (< (ceiling (/ (current-column) (* colwidth 1.0)))
+                              (or maxcols 1000)))
+                      (insert (make-string padding ?\s))
+                    (insert "\n"))))
+              (unless (equal item '(""))
+                (if item
+                    (progn (apply 'insert-button item)
+                           (unless (memq (get-text-property 4 'face (car item))
+                                         '(bold nil))
+                             (insert ?\n)))
+                  (insert ?\s)))))
+          (insert (if (= (char-before) ?\n) "\n" "\n\n")))))))
 
 (defun magit-popup-format-argument-button (type ev)
   (list (format-spec
@@ -1128,18 +1143,15 @@ of events shared by all popups and before point is adjusted.")
         'type type 'event (magit-popup-event-key ev)))
 
 (defun magit-popup-format-variable
-    (variable choices &optional default other global width)
+    (variable choices &optional default other width)
   (concat variable
           (if width (make-string (- width (length variable)) ?\s) " ")
-          (magit-popup-format-variable-1
-           variable choices default other global)))
+          (magit-popup-format-variable-1 variable choices default other)))
 
 (defun magit-popup-format-variable-1
-    (variable choices &optional default other global)
-  (let ((local (magit-git-string "config" "--local"  variable)))
-    (when global
-      (setq global (magit-git-string "config" "--global"
-                                     (if (stringp global) global variable))))
+    (variable choices &optional default other)
+  (let ((local  (magit-git-string "config" "--local"  variable))
+        (global (magit-git-string "config" "--global" variable)))
     (when other
       (--if-let (magit-git-string "config" other)
           (setq other (concat other ":" it))
@@ -1177,16 +1189,26 @@ of events shared by all popups and before point is adjusted.")
      (propertize "]" 'face 'magit-popup-disabled-argument))))
 
 (defun magit-popup-format-action-button (type ev)
-  (list (format-spec
-         (button-type-get type 'format)
-         `((?k . ,(propertize (magit-popup-event-keydsc ev)
-                              'face 'magit-popup-key))
-           (?d . ,(magit-popup-event-dsc ev))
-           (?D . ,(if (eq (magit-popup-event-fun ev)
-                          (magit-popup-get :default-action))
-                      (propertize (magit-popup-event-dsc ev) 'face 'bold)
-                    (magit-popup-event-dsc ev)))))
-        'type type 'event (magit-popup-event-key ev)))
+  (let* ((dsc (magit-popup-event-dsc ev))
+         (fun (and (functionp dsc) dsc)))
+    (when fun
+      (setq dsc
+            (-when-let (branch (funcall fun))
+              (propertize branch 'face (if (magit-local-branch-p branch)
+                                           'magit-branch-local
+                                         'magit-branch-remote)))))
+    (when dsc
+      (list (format-spec
+             (button-type-get type 'format)
+             `((?k . ,(propertize (magit-popup-event-keydsc ev)
+                                  'face 'magit-popup-key))
+               (?d . ,dsc)
+               (?D . ,(if (and (not fun)
+                               (eq (magit-popup-event-fun ev)
+                                   (magit-popup-get :default-action)))
+                          (propertize dsc 'face 'bold)
+                        dsc))))
+            'type type 'event (magit-popup-event-key ev)))))
 
 (defun magit-popup-insert-command-section (type spec)
   (magit-popup-insert-section

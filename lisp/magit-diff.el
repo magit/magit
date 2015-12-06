@@ -620,12 +620,8 @@ If no DWIM context is found, nil is returned."
     (magit-section-case
       ([* unstaged] 'unstaged)
       ([* staged] 'staged)
-      (unpushed (format "%s...%s"
-                        (magit-get-tracked-branch)
-                        (magit-get-current-branch)))
-      (unpulled (format "%s...%s"
-                        (magit-get-current-branch)
-                        (magit-get-tracked-branch)))
+      (unpushed (magit-section-value it))
+      (unpulled (magit-section-value it))
       (branch (let ((current (magit-get-current-branch))
                     (atpoint (magit-section-value it)))
                 (if (equal atpoint current)
@@ -719,22 +715,6 @@ a commit read from the minibuffer."
   "Show changes between the working tree and the index."
   (interactive (magit-diff-arguments))
   (magit-diff-setup nil nil args files))
-
-;;;###autoload
-(defun magit-diff-unpushed (&optional args files)
-  "Show unpushed changes."
-  (interactive (magit-diff-arguments))
-  (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff-setup (concat tracked "...") nil args files)
-    (user-error "No upstream set")))
-
-;;;###autoload
-(defun magit-diff-unpulled (&optional args files)
-  "Show unpulled changes."
-  (interactive (magit-diff-arguments))
-  (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff-setup (concat "..." tracked) nil args files)
-    (user-error "No upstream set")))
 
 ;;;###autoload
 (defun magit-diff-while-committing (&optional args files)
@@ -1684,7 +1664,7 @@ or a ref which is not a branch, then it inserts nothing."
     map)
   "Keymap for the `unstaged' section.")
 
-(magit-define-section-jumper unstaged "Unstaged changes")
+(magit-define-section-jumper magit-jump-to-unstaged "Unstaged changes" unstaged)
 
 (defun magit-insert-unstaged-changes ()
   "Insert section showing unstaged changes."
@@ -1704,7 +1684,7 @@ or a ref which is not a branch, then it inserts nothing."
     map)
   "Keymap for the `staged' section.")
 
-(magit-define-section-jumper staged "Staged changes")
+(magit-define-section-jumper magit-jump-to-staged "Staged changes" staged)
 
 (defun magit-insert-staged-changes ()
   "Insert section showing staged changes."

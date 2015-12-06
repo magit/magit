@@ -1939,14 +1939,28 @@ If optional HEADING is non-nil use that as section heading
 instead of "Stashes:".
 @end defun
 
-@defun magit-insert-unpulled-commits
+@defun magit-insert-unpulled-from-upstream
 
-Insert section showing unpulled commits.
+Insert section showing commits that haven't been pulled from the
+upstream branch yet.
 @end defun
 
-@defun magit-insert-unpushed-commits
+@defun magit-insert-unpulled-from-pushremote
 
-Insert section showing unpushed commits.
+Insert section showing commits that haven't been pulled from the
+push-remote branch yet.
+@end defun
+
+@defun magit-insert-unpushed-to-upstream
+
+Insert section showing commits that haven't been pushed to the
+upstream yet.
+@end defun
+
+@defun magit-insert-unpushed-to-pushremote
+
+Insert section showing commits that haven't been pushed to the
+push-remote yet.
 @end defun
 
 The following functions can also be added to the above hook:
@@ -2526,18 +2540,6 @@ Show changes between the working tree and the index.
 @item @kbd{d p} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-paths})
 
 Show changes between any two files on disk.
-
-@kindex M-x magit-diff-unpushed
-@cindex magit-diff-unpushed
-@item @kbd{M-x magit-diff-unpushed} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-unpushed})
-
-Show unpushed changes.
-
-@kindex M-x magit-diff-unpulled
-@cindex magit-diff-unpulled
-@item @kbd{M-x magit-diff-unpulled} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-unpulled})
-
-Show unpulled changes.
 @end table
 
 All of the above suffix commands update the repository's diff buffer.
@@ -4014,7 +4016,227 @@ To show no diff while committing remove @code{magit-commit-diff} from
 @node Branching
 @section Branching
 
-Also see 
+The upstream branch of some local branch is the branch into which the
+commits on that local branch should eventually be merged, usually
+something like @code{origin/master}.  For the @code{master} branch itself the
+upstream branch and the branch it is being pushed to, are usually the
+same remote branch.  But for a feature branch the upstream branch and
+the branch it is being pushed to should differ.
+
+Feature branches too should @emph{eventually} end up in a remote branch such
+as @code{origin/master} or @code{origin/maint}.  Such a branch should therefore be
+used as the upstream.  But feature branches shouldn't be pushed
+directly to such branches.  Instead a feature branch @code{my-feature} is
+usually pushed to @code{my-fork/my-feature} or @code{origin/my-feature}.  After the
+new feature has been reviewed, the maintainer merges the feature into
+@code{master}.  And finally @code{master} (not @code{my-feature} itself) is pushed to
+@code{origin/master}.
+
+But new features seldom are perfect on the first try, and so feature
+branches usually have to be improved and re-pushed many times.
+Pushing should therefore be easy to do, and for that reason some users
+have concluded that the remote branch to which a feature branch is
+being pushed should be set as the upstream.  Luckily Git has long ago
+gained support for a push-remote which can be configured separately
+from the upstream branch, using the variables @code{branch.<name>.pushRemote}
+and @code{remote.pushDefault}, so we no longer have to choose which of the
+two remotes should be used as "the remote".
+
+Each of the fetching, pulling, and pushing popups features three
+commands which act on the current branch and some other branch.  Of
+these, @code{p} is bound to command which acts on the push-remote, @code{u} is bound
+to the command which acts on the upstream, and @code{e} is bound to a command
+which acts on any other branch.  The status buffer shows unpushed and
+unpulled for both the push-remote and the upstream.  In other words;
+embrace the fact that two remotes can be configure for any local
+branch.
+
+It's also easy to configure these two remotes.  The values of all the
+variables that are related to fetching, pulling, and pushing (as well
+as some other branch-related variables) can be inspected and changed
+in the branching popup.
+
+@table @asis
+@kindex b
+@cindex magit-branch-popup
+@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-popup})
+
+This prefix command shows the following suffix commands in a popup
+buffer.  It also displays the values of the following variables and
+allows changing their values.
+@end table
+
+The following variables are used to configure a specific branch.  The
+values are being displayed for the current branch (if any).  To change
+the value for another branch use a prefix argument.
+
+@defvar branch.NAME.merge
+
+Together with @code{branch.NAME.remote} this variable defines the upstream
+branch of the local branch named NAME.  The value of this variable
+is the full reference of the upstream @emph{branch}.
+@end defvar
+
+@defvar branch.NAME.remote
+
+Together with @code{branch.NAME.merge} this variable defines the upstream
+branch of the local branch named NAME.  The value of this variable
+is the name of the upstream @emph{remote}.
+@end defvar
+
+@defvar branch.NAME.rebase
+
+This variable controls whether pulling into the branch named NAME is
+done by rebasing or by merging the fetched branch.
+
+@itemize
+@item
+When @code{true} then pulling is done by rebasing.
+
+@item
+When @code{false} then pulling is done by merging.
+
+@item
+When undefined then the value of @code{pull.rebase} is used.  The default
+of that variable is @code{false}.
+@end itemize
+@end defvar
+
+@defvar branch.NAME.pushRemote
+
+This variable specifies the remote that the branch named NAME is
+usually pushed to.  The value has to be the name of an existing
+remote.
+
+It is not possible to specify the name of @emph{branch} to push the local
+branch to.  The name of the remote branch is always the same as the
+name of the local branch.
+
+If this variable is undefined but @code{remote.pushDefault} is defined,
+then the value of the latter is used.  By default @code{remote.pushDefault}
+is undefined.
+@end defvar
+
+@defvar branch.NAME.description
+
+This variable can be used to describe the branch named NAME.  That
+description is used e.g. when turning the branch into a series of
+patches.
+@end defvar
+
+The following variables specify defaults which are used if the above
+branch-specific variables are not set.
+
+@defvar pull.rebase
+
+This variable specifies whether pulling is done by rebasing or by
+merging.  It can be overwritten using @code{branch.NAME.rebase}.
+
+@itemize
+@item
+When @code{true} then pulling is done by rebasing.
+
+@item
+When @code{false} (the default) then pulling is done by merging.
+@end itemize
+Since it is never a good idea to merge the upstream branch into a
+feature or hotfix branch and most branches are such branches, you
+should consider setting this to @code{true}, and @code{branch.master.rebase} to
+@code{false}.
+@end defvar
+
+@defvar remote.pushDefault
+
+This variable specifies what remote the local branches are usually
+pushed to.  This can be overwritten per branch using
+@code{branch.NAME.pushRemote}.
+@end defvar
+
+The following variables are used during the creation of a branch and
+control whether the various branch-specific variables are
+automatically set at this time.
+
+@defvar remote.autoSetupMerge
+
+This variable specifies under what circumstances creating a branch
+NAME should result in the variables @code{branch.NAME.merge} and
+@code{branch.NAME.remote} being set according to the starting point used to
+create the branch.  If the starting point isn't a branch, then these
+variables are never set.
+
+@itemize
+@item
+When @code{always} then the variables are set regardless of whether the
+starting point is a local or a remote branch.
+
+@item
+When @code{true} (the default) then the variable are set when the staring
+point is a remote branch, but not when it is a local branch.
+
+@item
+When @code{false} then the variables are never set.
+@end itemize
+@end defvar
+
+@defvar remote.autoSetupRebase
+
+This variable specifies whether creating a branch NAME should result
+in the variable @code{branch.NAME.rebase} being set to @code{true}.
+
+@itemize
+@item
+When @code{always} then the variable is set regardless of whether the
+starting point is a local or a remote branch.
+
+@item
+When @code{local} then the variable are set when the starting point is a
+local branch, but not when it is a remote branch.
+
+@item
+When @code{remote} then the variable are set when the starting point is a
+remote branch, but not when it is a local branch.
+
+@item
+When @code{never} (the default) then the variable is never set.
+@end itemize
+@end defvar
+
+@defvar remote.autoSetupPush
+
+This variable specifies whether creating a branch NAME should result
+in the variable @code{branch.NAME.pushRemote} being set to what value.
+
+This variable should either be undefined, or it should be the name
+of an existing branch, in which case @code{branch.NAME.pushRemote} is set
+to the same value.  Any other value, i.e. a non-existend remote, is
+ignored.
+
+This variable is only used by Magit, Git knows nothing about it.
+@end defvar
+
+Note that the respective commands always change the repository-local
+values.  If you want to change the global value which is used when the
+local value is undefined, then you have to do so on the command line,
+e.g.:
+
+@example
+git config --global remote.autoSetupMerge always
+@end example
+
+For more information about these variables you should also see
+
+@ifinfo
+@ref{git-config,,,gitman,}
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-config">git-config(1)</a> manpage
+@end html
+@end ifhtml
+@iftex
+the git-config(1) manpage
+@end iftex
+.  Also see 
 @ifinfo
 @ref{git-branch,,,gitman,}
 @end ifinfo
@@ -4026,7 +4248,8 @@ the <a href="http://git-scm.com/docs/git-branch">git-branch(1)</a> manpage
 @iftex
 the git-branch(1) manpage
 @end iftex
- and 
+,
+
 @ifinfo
 @ref{git-checkout,,,gitman,}
 @end ifinfo
@@ -4038,16 +4261,9 @@ the <a href="http://git-scm.com/docs/git-checkout">git-checkout(1)</a> manpage
 @iftex
 the git-checkout(1) manpage
 @end iftex
-.
+, and @ref{Pushing,Pushing}.
 
 @table @asis
-@kindex b
-@cindex magit-branch-popup
-@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-popup})
-
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
-
 @kindex b b
 @cindex magit-checkout
 @item @kbd{b b} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout})
@@ -4058,9 +4274,9 @@ branch then that becomes the current branch.  If it is something
 else then @code{HEAD} becomes detached.  Checkout fails if the working tree
 or the staging area contain changes.
 
-@kindex b c
+@kindex b n
 @cindex magit-branch
-@item @kbd{b c} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch})
+@item @kbd{b n} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch})
 
 Create a new branch.  The user is asked for a branch or arbitrary
 revision to use as the starting point of the new branch.  When a
@@ -4068,9 +4284,9 @@ branch name is provided, then that becomes the upstream branch of
 the new branch.  The name of the new branch is also read in the
 minibuffer.
 
-@kindex b B
+@kindex b c
 @cindex magit-branch-and-checkout
-@item @kbd{b B} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-and-checkout})
+@item @kbd{b c} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-and-checkout})
 
 This command creates a new branch like @code{magit-branch}, but then also
 checks it out.
@@ -4113,20 +4329,6 @@ Delete one or multiple branches.  If the region marks multiple
 branches, then offer to delete those.  Otherwise, prompt for a single
 branch to be deleted, defaulting to the branch at point.
 
-@kindex b u
-@cindex magit-branch-set-upstream
-@item @kbd{b u} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-set-upstream})
-
-Change the upstream branch of a branch.  Both branches are read in
-the minibuffer, while providing reasonable defaults.
-
-@kindex b U
-@cindex magit-branch-unset-upstream
-@item @kbd{b U} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-unset-upstream})
-
-Unset the upstream branch of a branch read in the minibuffer and
-defaulting to the branch at point or the current branch.
-
 @kindex b r
 @cindex magit-branch-rename
 @item @kbd{b r} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-rename})
@@ -4135,21 +4337,13 @@ Rename a branch.  The branch and the new name are read in the
 minibuffer.  With prefix argument the branch is renamed even if that
 name conflicts with an existing branch.
 
-@kindex b e
-@cindex magit-branch-edit-description
-@item @kbd{b e} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-edit-description})
-
-Edit the description of a branch.  The branch is read in the
-minibuffer defaulting to the branch at point or the current branch.
-The description is edited in a regular buffer similar to how commit
-messages are edited.
-
 @end table
 
 @defopt magit-branch-read-upstream-first
 
 When creating a branch, whether to read the upstream branch before
-the name of the branch that is to be created.
+the name of the branch that is to be created.  The default is @code{nil},
+and I recommend you leave it at that.
 @end defopt
 
 @node Merging
@@ -4271,12 +4465,26 @@ When no rebase is in progress, then the popup buffer features the
 following commands.
 
 @table @asis
-@kindex r r
-@cindex magit-rebase
-@item @kbd{r r} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase})
+@kindex r p
+@cindex magit-rebase-onto-pushremote
+@item @kbd{r p} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-onto-pushremote})
 
-Start a non-interactive rebase sequence.  All commits not in
-UPSTREAM are rebased.
+Rebase the current branch onto @code{branch.<name>.pushRemote}.  If that
+variable is unset, then rebase onto @code{remote.pushDefault}.
+
+@kindex r u
+@cindex magit-rebase-onto-upstream
+@item @kbd{r u} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-onto-upstream})
+
+Rebase the current branch onto its upstream branch.
+
+@kindex r e
+@cindex magit-rebase
+@item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase})
+
+Rebase the current branch onto a branch read in the minibuffer.  All
+commits that are reachable from head but not from the selected
+branch TARGET are being rebased."
 
 @kindex r o
 @cindex magit-rebase-subset
@@ -4292,9 +4500,9 @@ This can be used to turn one of the above non-interactive rebase
 variants into an interactive rebase.
 
 For example if you want to clean up a feature branch and at the same
-time rebase it onto @code{master}, then you could use @code{r-ir}.  But we recommend
-that you instead do that in two steps.  First use @code{rs} to cleanup the
-feature branch, and then in a second step @code{rl} to rebase it onto @code{master}.
+time rebase it onto @code{master}, then you could use @code{r-iu}.  But we recommend
+that you instead do that in two steps.  First use @code{ri} to cleanup the
+feature branch, and then in a second step @code{ru} to rebase it onto @code{master}.
 That way if things turn out to be more complicated than you thought
 and/or you make a mistake and have to start over, then you only have
 to redo half the work.
@@ -4310,26 +4518,15 @@ is not enabled in the popup.
 
 Start an interactive rebase sequence.
 
-@kindex r l
-@cindex magit-rebase-unpushed
-@item @kbd{r l} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-unpushed})
-
-Start an interactive rebase sequence of unpushed commits.  This is
-like @code{magit-rebase-interactive}, but if the upstream of the current
-branch is configured, then all commits since the merge-base are
-rebased.  If there is no upstream or no merge-base, then the user
-has to select the first commit to be rebased like for
-@code{magit-rebase-interactive}.
-
 @kindex r f
 @cindex magit-rebase-autosquash
 @item @kbd{r f} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-autosquash})
 
 Combine squash and fixup commits with their intended targets.
 
-@kindex r e
+@kindex r m
 @cindex magit-rebase-edit-commit
-@item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-edit-commit})
+@item @kbd{r m} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-edit-commit})
 
 Edit a single older commit using rebase.
 
@@ -5116,17 +5313,21 @@ the git-fetch(1) manpage
 This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
-@kindex f f
-@cindex magit-fetch-current
-@item @kbd{f f} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-current})
+@kindex f p
+@cindex magit-fetch-from-pushremote
+@item @kbd{f p} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-from-pushremote})
 
-Fetch from the upstream repository of the current branch.  If @code{HEAD}
-is detached or if the upstream is not configured, then read the
-remote.
+Fetch from the push-remote of the current branch.
 
-@kindex f o
+@kindex f u
+@cindex magit-fetch-from-upstream
+@item @kbd{f u} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-from-upstream})
+
+Fetch from the push-remote of the current branch.
+
+@kindex f e
 @cindex magit-fetch
-@item @kbd{f o} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch})
+@item @kbd{f e} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch})
 
 Fetch from another repository.
 
@@ -5134,13 +5335,13 @@ Fetch from another repository.
 @cindex magit-fetch-all
 @item @kbd{f a} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-all})
 
-Fetch from all configured remotes.
+Fetch from all remotes.
 
 @kindex f m
 @cindex magit-submodule-fetch
 @item @kbd{f m} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-fetch})
 
-Fetch all submodules.  With a prefix argument fetch all remotes or
+Fetch all submodules.  With a prefix argument fetch all remotes of
 all submodules.
 @end table
 
@@ -5166,20 +5367,26 @@ the git-pull(1) manpage
 @cindex magit-pull-popup
 @item @kbd{F} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-popup})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This prefix command shows the following suffix commands in a popup
+buffer.
 
-@kindex F F
-@cindex magit-pull-current
-@item @kbd{F F} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-current})
+@kindex F p
+@cindex magit-pull-from-pushremote
+@item @kbd{F p} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-from-pushremote})
 
-Fetch and merge into current branch.
+Pull from the push-remote of the current branch.
 
-@kindex F o
+@kindex F u
+@cindex magit-pull-from-upstream
+@item @kbd{F u} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-from-upstream})
+
+Pull from the upstream of the current branch.
+
+@kindex F e
 @cindex magit-pull
-@item @kbd{F o} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull})
+@item @kbd{F e} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull})
 
-Fetch from another repository and merge a fetched branch.
+Pull from a branch read in the minibuffer.
 @end table
 
 @node Pushing
@@ -5207,69 +5414,31 @@ the git-push(1) manpage
 This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
-@kindex P P
-@cindex magit-push-current
-@item @kbd{P P} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current})
+@kindex P p
+@cindex magit-push-current-to-pushremote
+@item @kbd{P p} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current-to-pushremote})
 
-Push the current branch to its upstream branch.  If the upstream
-isn't set, then read the remote branch.
+Push the current branch to @code{branch.<name>.pushRemote} or if that
+is unset to @code{remote.pushDefault}.
+
+@kindex P u
+@cindex magit-push-current-to-upstream
+@item @kbd{P u} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current-to-upstream})
+
+Push the current branch to its upstream branch.
+
+@kindex P e
+@cindex magit-push-current
+@item @kbd{P e} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current})
+
+Push the current branch to a branch read in the minibuffer.
 
 @kindex P o
 @cindex magit-push
 @item @kbd{P o} @tie{}@tie{}@tie{}@tie{}(@code{magit-push})
 
-Push a branch to its upstream branch.  If the upstream isn't set,
-then read the remote branch.
-
-@kindex P e
-@cindex magit-push-elsewhere
-@item @kbd{P e} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-elsewhere})
-
-Push a branch or commit to some remote branch.  Read the local and
-remote branch.
-
-@kindex P Q
-@cindex magit-push-quickly
-@item @kbd{P Q} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-quickly})
-
-Push the current branch to some remote.  When the Git variable
-@code{magit.pushRemote} is set, then push to that remote.  If that variable
-is undefined or the remote does not exist, then push to "origin".
-If that also doesn't exist then raise an error.  The local branch is
-pushed to the remote branch with the same name.
-
-@kindex P i
-@cindex magit-push-implicitly
-@item @kbd{P i} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-implicitly})
-
-Push without explicitly specifying what to push.  This runs @code{git push
-  -v}.  What is being pushed depends on various Git variables as
-described in the 
-@ifinfo
-@ref{git-push,,,gitman,}
-@end ifinfo
-@ifhtml
-@html
-the <a href="http://git-scm.com/docs/git-push">git-push(1)</a> manpage
-@end html
-@end ifhtml
-@iftex
-the git-push(1) manpage
-@end iftex
- and 
-@ifinfo
-@ref{git-config,,,gitman,}
-@end ifinfo
-@ifhtml
-@html
-the <a href="http://git-scm.com/docs/git-config">git-config(1)</a> manpage
-@end html
-@end ifhtml
-@iftex
-the git-config(1) manpage
-@end iftex
-
-manpages.
+Push an arbitrary branch or commit somewhere.  Both the source and
+the target are read in the minibuffer.
 
 @kindex P m
 @cindex magit-push-matching
@@ -5292,29 +5461,7 @@ remote configured for the current branch as default.
 @item @kbd{P T} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-tag})
 
 Push a tag to another repository.
-
 @end table
-
-@defopt magit-push-always-verify
-
-Whether certain commands require verification before pushing.
-
-Starting with @code{v2.1.0} some of the push commands are supposed to
-push to the configured upstream branch without requiring user
-confirmation or offering to push somewhere else.
-
-This has taken a few users by surprise, and they suggested that we
-force users to opt-in to this behavior.  Unfortunately adding this
-option means that now other users will complain about us needlessly
-forcing them to set an option.  This is an attempt to make everyone
-happy and like all such attempts it is prone to fail.  Before
-complaining about having to set this option, please consider that
-other users are less experienced than you and have different needs.
-
-You should set the value of this option to nil, causing all push
-commands to behave as intended.  But first read the description of
-each command above.
-@end defopt
 
 @node Creating and sending patches
 @section Creating and sending patches

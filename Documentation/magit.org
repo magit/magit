@@ -1423,13 +1423,25 @@ By default the following functions are also members of that hook:
   If optional HEADING is non-nil use that as section heading
   instead of "Stashes:".
 
-- Function: magit-insert-unpulled-commits
+- Function: magit-insert-unpulled-from-upstream
 
-  Insert section showing unpulled commits.
+  Insert section showing commits that haven't been pulled from the
+  upstream branch yet.
 
-- Function: magit-insert-unpushed-commits
+- Function: magit-insert-unpulled-from-pushremote
 
-  Insert section showing unpushed commits.
+  Insert section showing commits that haven't been pulled from the
+  push-remote branch yet.
+
+- Function: magit-insert-unpushed-to-upstream
+
+  Insert section showing commits that haven't been pushed to the
+  upstream yet.
+
+- Function: magit-insert-unpushed-to-pushremote
+
+  Insert section showing commits that haven't been pushed to the
+  push-remote yet.
 
 The following functions can also be added to the above hook:
 
@@ -1850,14 +1862,6 @@ Also see [[info:gitman#git-diff]].
 - Key: d p, magit-diff-paths
 
   Show changes between any two files on disk.
-
-- Key: M-x magit-diff-unpushed, magit-diff-unpushed
-
-  Show unpushed changes.
-
-- Key: M-x magit-diff-unpulled, magit-diff-unpulled
-
-  Show unpulled changes.
 
 All of the above suffix commands update the repository's diff buffer.
 The diff popup also features two commands which show differences in
@@ -2925,12 +2929,175 @@ To show no diff while committing remove ~magit-commit-diff~ from
 
 ** Branching
 
-Also see [[info:gitman#git-branch]] and [[info:gitman#git-checkout]].
+The upstream branch of some local branch is the branch into which the
+commits on that local branch should eventually be merged, usually
+something like ~origin/master~.  For the ~master~ branch itself the
+upstream branch and the branch it is being pushed to, are usually the
+same remote branch.  But for a feature branch the upstream branch and
+the branch it is being pushed to should differ.
+
+Feature branches too should /eventually/ end up in a remote branch such
+as ~origin/master~ or ~origin/maint~.  Such a branch should therefore be
+used as the upstream.  But feature branches shouldn't be pushed
+directly to such branches.  Instead a feature branch ~my-feature~ is
+usually pushed to ~my-fork/my-feature~ or ~origin/my-feature~.  After the
+new feature has been reviewed, the maintainer merges the feature into
+~master~.  And finally ~master~ (not ~my-feature~ itself) is pushed to
+~origin/master~.
+
+But new features seldom are perfect on the first try, and so feature
+branches usually have to be improved and re-pushed many times.
+Pushing should therefore be easy to do, and for that reason some users
+have concluded that the remote branch to which a feature branch is
+being pushed should be set as the upstream.  Luckily Git has long ago
+gained support for a push-remote which can be configured separately
+from the upstream branch, using the variables ~branch.<name>.pushRemote~
+and ~remote.pushDefault~, so we no longer have to choose which of the
+two remotes should be used as "the remote".
+
+Each of the fetching, pulling, and pushing popups features three
+commands which act on the current branch and some other branch.  Of
+these, ~p~ is bound to command which acts on the push-remote, ~u~ is bound
+to the command which acts on the upstream, and ~e~ is bound to a command
+which acts on any other branch.  The status buffer shows unpushed and
+unpulled for both the push-remote and the upstream.  In other words;
+embrace the fact that two remotes can be configure for any local
+branch.
+
+It's also easy to configure these two remotes.  The values of all the
+variables that are related to fetching, pulling, and pushing (as well
+as some other branch-related variables) can be inspected and changed
+in the branching popup.
 
 - Key: b, magit-branch-popup
 
-  This prefix command shows the following suffix commands along with
-  the appropriate infix arguments in a popup buffer.
+  This prefix command shows the following suffix commands in a popup
+  buffer.  It also displays the values of the following variables and
+  allows changing their values.
+
+The following variables are used to configure a specific branch.  The
+values are being displayed for the current branch (if any).  To change
+the value for another branch use a prefix argument.
+
+- Variable: branch.NAME.merge
+
+  Together with ~branch.NAME.remote~ this variable defines the upstream
+  branch of the local branch named NAME.  The value of this variable
+  is the full reference of the upstream /branch/.
+
+- Variable: branch.NAME.remote
+
+  Together with ~branch.NAME.merge~ this variable defines the upstream
+  branch of the local branch named NAME.  The value of this variable
+  is the name of the upstream /remote/.
+
+- Variable: branch.NAME.rebase
+
+  This variable controls whether pulling into the branch named NAME is
+  done by rebasing or by merging the fetched branch.
+
+  - When ~true~ then pulling is done by rebasing.
+  - When ~false~ then pulling is done by merging.
+  - When undefined then the value of ~pull.rebase~ is used.  The default
+    of that variable is ~false~.
+
+- Variable: branch.NAME.pushRemote
+
+  This variable specifies the remote that the branch named NAME is
+  usually pushed to.  The value has to be the name of an existing
+  remote.
+
+  It is not possible to specify the name of /branch/ to push the local
+  branch to.  The name of the remote branch is always the same as the
+  name of the local branch.
+
+  If this variable is undefined but ~remote.pushDefault~ is defined,
+  then the value of the latter is used.  By default ~remote.pushDefault~
+  is undefined.
+
+- Variable: branch.NAME.description
+
+  This variable can be used to describe the branch named NAME.  That
+  description is used e.g. when turning the branch into a series of
+  patches.
+
+The following variables specify defaults which are used if the above
+branch-specific variables are not set.
+
+- Variable: pull.rebase
+
+  This variable specifies whether pulling is done by rebasing or by
+  merging.  It can be overwritten using ~branch.NAME.rebase~.
+
+  - When ~true~ then pulling is done by rebasing.
+  - When ~false~ (the default) then pulling is done by merging.
+
+  Since it is never a good idea to merge the upstream branch into a
+  feature or hotfix branch and most branches are such branches, you
+  should consider setting this to ~true~, and ~branch.master.rebase~ to
+  ~false~.
+
+- Variable: remote.pushDefault
+
+  This variable specifies what remote the local branches are usually
+  pushed to.  This can be overwritten per branch using
+  ~branch.NAME.pushRemote~.
+
+The following variables are used during the creation of a branch and
+control whether the various branch-specific variables are
+automatically set at this time.
+
+- Variable: remote.autoSetupMerge
+
+  This variable specifies under what circumstances creating a branch
+  NAME should result in the variables ~branch.NAME.merge~ and
+  ~branch.NAME.remote~ being set according to the starting point used to
+  create the branch.  If the starting point isn't a branch, then these
+  variables are never set.
+
+  - When ~always~ then the variables are set regardless of whether the
+    starting point is a local or a remote branch.
+  - When ~true~ (the default) then the variable are set when the staring
+    point is a remote branch, but not when it is a local branch.
+  - When ~false~ then the variables are never set.
+
+- Variable: remote.autoSetupRebase
+
+  This variable specifies whether creating a branch NAME should result
+  in the variable ~branch.NAME.rebase~ being set to ~true~.
+
+  - When ~always~ then the variable is set regardless of whether the
+    starting point is a local or a remote branch.
+  - When ~local~ then the variable are set when the starting point is a
+    local branch, but not when it is a remote branch.
+  - When ~remote~ then the variable are set when the starting point is a
+    remote branch, but not when it is a local branch.
+  - When ~never~ (the default) then the variable is never set.
+
+- Variable: remote.autoSetupPush
+
+  This variable specifies whether creating a branch NAME should result
+  in the variable ~branch.NAME.pushRemote~ being set to what value.
+
+  This variable should either be undefined, or it should be the name
+  of an existing branch, in which case ~branch.NAME.pushRemote~ is set
+  to the same value.  Any other value, i.e. a non-existend remote, is
+  ignored.
+
+  This variable is only used by Magit, Git knows nothing about it.
+
+Note that the respective commands always change the repository-local
+values.  If you want to change the global value which is used when the
+local value is undefined, then you have to do so on the command line,
+e.g.:
+
+#+BEGIN_SRC shell
+  git config --global remote.autoSetupMerge always
+#+END_SRC
+
+For more information about these variables you should also see
+info:gitman#git-config.  Also see [[info:gitman#git-branch]],
+[[info:gitman#git-checkout]], and [[*Pushing]].
 
 - Key: b b, magit-checkout
 
@@ -2940,7 +3107,7 @@ Also see [[info:gitman#git-branch]] and [[info:gitman#git-checkout]].
   else then ~HEAD~ becomes detached.  Checkout fails if the working tree
   or the staging area contain changes.
 
-- Key: b c, magit-branch
+- Key: b n, magit-branch
 
   Create a new branch.  The user is asked for a branch or arbitrary
   revision to use as the starting point of the new branch.  When a
@@ -2948,7 +3115,7 @@ Also see [[info:gitman#git-branch]] and [[info:gitman#git-checkout]].
   the new branch.  The name of the new branch is also read in the
   minibuffer.
 
-- Key: b B, magit-branch-and-checkout
+- Key: b c, magit-branch-and-checkout
 
   This command creates a new branch like ~magit-branch~, but then also
   checks it out.
@@ -2985,33 +3152,17 @@ Also see [[info:gitman#git-branch]] and [[info:gitman#git-checkout]].
   branches, then offer to delete those.  Otherwise, prompt for a single
   branch to be deleted, defaulting to the branch at point.
 
-- Key: b u, magit-branch-set-upstream
-
-  Change the upstream branch of a branch.  Both branches are read in
-  the minibuffer, while providing reasonable defaults.
-
-- Key: b U, magit-branch-unset-upstream
-
-  Unset the upstream branch of a branch read in the minibuffer and
-  defaulting to the branch at point or the current branch.
-
 - Key: b r, magit-branch-rename
 
   Rename a branch.  The branch and the new name are read in the
   minibuffer.  With prefix argument the branch is renamed even if that
   name conflicts with an existing branch.
 
-- Key: b e, magit-branch-edit-description
-
-  Edit the description of a branch.  The branch is read in the
-  minibuffer defaulting to the branch at point or the current branch.
-  The description is edited in a regular buffer similar to how commit
-  messages are edited.
-
 - User Option: magit-branch-read-upstream-first
 
   When creating a branch, whether to read the upstream branch before
-  the name of the branch that is to be created.
+  the name of the branch that is to be created.  The default is ~nil~,
+  and I recommend you leave it at that.
 
 ** Merging
 
@@ -3081,10 +3232,20 @@ Also see [[info:gitman#git-rebase]].
 When no rebase is in progress, then the popup buffer features the
 following commands.
 
-- Key: r r, magit-rebase
+- Key: r p, magit-rebase-onto-pushremote
 
-  Start a non-interactive rebase sequence.  All commits not in
-  UPSTREAM are rebased.
+  Rebase the current branch onto ~branch.<name>.pushRemote~.  If that
+  variable is unset, then rebase onto ~remote.pushDefault~.
+
+- Key: r u, magit-rebase-onto-upstream
+
+  Rebase the current branch onto its upstream branch.
+
+- Key: r e, magit-rebase
+
+  Rebase the current branch onto a branch read in the minibuffer.  All
+  commits that are reachable from head but not from the selected
+  branch TARGET are being rebased."
 
 - Key: r o, magit-rebase-subset
 
@@ -3097,9 +3258,9 @@ This can be used to turn one of the above non-interactive rebase
 variants into an interactive rebase.
 
 For example if you want to clean up a feature branch and at the same
-time rebase it onto ~master~, then you could use ~r-ir~.  But we recommend
-that you instead do that in two steps.  First use ~rs~ to cleanup the
-feature branch, and then in a second step ~rl~ to rebase it onto ~master~.
+time rebase it onto ~master~, then you could use ~r-iu~.  But we recommend
+that you instead do that in two steps.  First use ~ri~ to cleanup the
+feature branch, and then in a second step ~ru~ to rebase it onto ~master~.
 That way if things turn out to be more complicated than you thought
 and/or you make a mistake and have to start over, then you only have
 to redo half the work.
@@ -3112,20 +3273,11 @@ is not enabled in the popup.
 
   Start an interactive rebase sequence.
 
-- Key: r l, magit-rebase-unpushed
-
-  Start an interactive rebase sequence of unpushed commits.  This is
-  like ~magit-rebase-interactive~, but if the upstream of the current
-  branch is configured, then all commits since the merge-base are
-  rebased.  If there is no upstream or no merge-base, then the user
-  has to select the first commit to be rebased like for
-  ~magit-rebase-interactive~.
-
 - Key: r f, magit-rebase-autosquash
 
   Combine squash and fixup commits with their intended targets.
 
-- Key: r e, magit-rebase-edit-commit
+- Key: r m, magit-rebase-edit-commit
 
   Edit a single older commit using rebase.
 
@@ -3631,23 +3783,25 @@ Also see [[info:gitman#git-fetch]].
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
-- Key: f f, magit-fetch-current
+- Key: f p, magit-fetch-from-pushremote
 
-  Fetch from the upstream repository of the current branch.  If ~HEAD~
-  is detached or if the upstream is not configured, then read the
-  remote.
+  Fetch from the push-remote of the current branch.
 
-- Key: f o, magit-fetch
+- Key: f u, magit-fetch-from-upstream
+
+  Fetch from the push-remote of the current branch.
+
+- Key: f e, magit-fetch
 
   Fetch from another repository.
 
 - Key: f a, magit-fetch-all
 
-  Fetch from all configured remotes.
+  Fetch from all remotes.
 
 - Key: f m, magit-submodule-fetch
 
-  Fetch all submodules.  With a prefix argument fetch all remotes or
+  Fetch all submodules.  With a prefix argument fetch all remotes of
   all submodules.
 
 ** Pulling
@@ -3656,16 +3810,20 @@ Also see [[info:gitman#git-pull]].
 
 - Key: F, magit-pull-popup
 
-  This prefix command shows the following suffix commands along with
-  the appropriate infix arguments in a popup buffer.
+  This prefix command shows the following suffix commands in a popup
+  buffer.
 
-- Key: F F, magit-pull-current
+- Key: F p, magit-pull-from-pushremote
 
-  Fetch and merge into current branch.
+  Pull from the push-remote of the current branch.
 
-- Key: F o, magit-pull
+- Key: F u, magit-pull-from-upstream
 
-  Fetch from another repository and merge a fetched branch.
+  Pull from the upstream of the current branch.
+
+- Key: F e, magit-pull
+
+  Pull from a branch read in the minibuffer.
 
 ** Pushing
 
@@ -3676,35 +3834,23 @@ Also see [[info:gitman#git-push]].
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
-- Key: P P, magit-push-current
+- Key: P p, magit-push-current-to-pushremote
 
-  Push the current branch to its upstream branch.  If the upstream
-  isn't set, then read the remote branch.
+  Push the current branch to ~branch.<name>.pushRemote~ or if that
+  is unset to ~remote.pushDefault~.
+
+- Key: P u, magit-push-current-to-upstream
+
+  Push the current branch to its upstream branch.
+
+- Key: P e, magit-push-current
+
+  Push the current branch to a branch read in the minibuffer.
 
 - Key: P o, magit-push
 
-  Push a branch to its upstream branch.  If the upstream isn't set,
-  then read the remote branch.
-
-- Key: P e, magit-push-elsewhere
-
-  Push a branch or commit to some remote branch.  Read the local and
-  remote branch.
-
-- Key: P Q, magit-push-quickly
-
-  Push the current branch to some remote.  When the Git variable
-  ~magit.pushRemote~ is set, then push to that remote.  If that variable
-  is undefined or the remote does not exist, then push to "origin".
-  If that also doesn't exist then raise an error.  The local branch is
-  pushed to the remote branch with the same name.
-
-- Key: P i, magit-push-implicitly
-
-  Push without explicitly specifying what to push.  This runs ~git push
-  -v~.  What is being pushed depends on various Git variables as
-  described in the info:gitman#git-push and info:gitman#git-config
-  manpages.
+  Push an arbitrary branch or commit somewhere.  Both the source and
+  the target are read in the minibuffer.
 
 - Key: P m, magit-push-matching
 
@@ -3721,26 +3867,6 @@ Also see [[info:gitman#git-push]].
 - Key: P T, magit-push-tag
 
   Push a tag to another repository.
-
-- User Option: magit-push-always-verify
-
-  Whether certain commands require verification before pushing.
-
-  Starting with ~v2.1.0~ some of the push commands are supposed to
-  push to the configured upstream branch without requiring user
-  confirmation or offering to push somewhere else.
-
-  This has taken a few users by surprise, and they suggested that we
-  force users to opt-in to this behavior.  Unfortunately adding this
-  option means that now other users will complain about us needlessly
-  forcing them to set an option.  This is an attempt to make everyone
-  happy and like all such attempts it is prone to fail.  Before
-  complaining about having to set this option, please consider that
-  other users are less experienced than you and have different needs.
-
-  You should set the value of this option to nil, causing all push
-  commands to behave as intended.  But first read the description of
-  each command above.
 
 ** Creating and sending patches
 

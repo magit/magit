@@ -292,7 +292,8 @@ When the region is active offer to drop all contained stashes."
     map)
   "Keymap for `stash' sections.")
 
-(magit-define-section-jumper stashes "Stashes" "refs/stash")
+(magit-define-section-jumper magit-jump-to-stashes
+  "Stashes" stashes "refs/stash")
 
 (cl-defun magit-insert-stashes (&optional (ref   "refs/stash")
                                           (heading "Stashes:"))

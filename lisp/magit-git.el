@@ -742,15 +742,23 @@ which is different from the current branch and still exists."
       (when (and remote merge (string-prefix-p "refs/heads/" merge))
         (setq merge (substring merge 11))
         (if (string-equal remote ".")
-            merge
-          (concat remote "/" merge))))))
+            (propertize merge 'face 'magit-branch-local)
+          (propertize (concat remote "/" merge) 'face 'magit-branch-remote))))))
+
+(cl-defun magit-get-tracked-remote
+    (&optional (branch (magit-get-current-branch)))
+  (when branch
+    (magit-get "branch" branch "remote")))
+
+(cl-defun magit-get-push-remote
+    (&optional (branch (magit-get-current-branch)))
+  (or (and branch (magit-get "branch" branch "pushRemote"))
+      (magit-get "remote.pushDefault")))
 
 (cl-defun magit-get-push-branch
     (&optional (branch (magit-get-current-branch)))
-  (when branch
-    (-when-let (remote (or (magit-get "branch" branch "pushRemote")
-                           (magit-get "remote.pushDefault")))
-      (concat remote "/" branch))))
+  (-when-let (remote (and branch (magit-get-push-remote branch)))
+    (concat remote "/" branch)))
 
 (defun magit-get-remote (&optional branch)
   (when (or branch (setq branch (magit-get-current-branch)))
@@ -758,12 +766,14 @@ which is different from the current branch and still exists."
       (unless (equal remote ".")
         remote))))
 
-(defun magit-get-remote-branch (&optional branch)
-  (-when-let (local (or branch (magit-get-current-branch)))
-    (let ((remote (magit-get-remote local))
-          (branch (magit-get "branch" local "merge")))
-      (when (and remote branch (string-match "^refs/heads/\\(.+\\)" branch))
-        (cons remote (match-string 1 branch))))))
+(defun magit-split-branch-name (branch)
+  (cond ((member branch (magit-list-local-branch-names))
+         (cons "." branch))
+        ((string-match "/" branch)
+         (let ((remote (substring branch 0 (match-beginning 0))))
+           (if (save-match-data (member remote (magit-list-remotes)))
+               (cons remote (substring branch (match-end 0)))
+             (error "Invalid branch name %s" branch))))))
 
 (defun magit-get-current-tag (&optional rev with-distance)
   "Return the closest tag reachable from REV.
@@ -885,6 +895,10 @@ where COMMITS is the number of commits in TAG but not in REV."
 (defun magit-branch-p (string)
   (and (or (member string (magit-list-branches))
            (member string (magit-list-branch-names))) t))
+
+(defun magit-local-branch-p (branch)
+  (and (or (member branch (magit-list-local-branches))
+           (member branch (magit-list-local-branch-names))) t))
 
 (defun magit-remote-p (string)
   (car (member string (magit-list-remotes))))
@@ -1088,9 +1102,7 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-read-remote-branch
     (prompt &optional remote default local-branch require-match)
-  (when (consp default)
-    (setq default (concat (car default) "/" (cdr default))))
-  (let ((branch (magit-completing-read
+  (let ((choice (magit-completing-read
                  prompt
                  (nconc (and local-branch
                              (if remote
@@ -1099,22 +1111,30 @@ Return a list of two integers: (A>B B>A)."
                                       (magit-list-remotes))))
                         (magit-list-remote-branch-names remote t))
                  nil require-match nil 'magit-revision-history default)))
-    (string-match "^\\([^/]+\\)/\\(.+\\)" branch)
-    (cons (match-string 1 branch)
-          (match-string 2 branch))))
+    (if (string-match "\\`\\([^/]+\\)/\\(.+\\)" choice)
+        choice
+      (user-error "`%s' doesn't have the form REMOTE/BRANCH" choice))))
 
 (defun magit-read-local-branch (prompt &optional secondary-default)
   (magit-completing-read prompt (magit-list-local-branch-names)
                          nil t nil 'magit-revision-history
-                         (or (magit-branch-at-point)
+                         (or (magit-local-branch-at-point)
                              secondary-default
                              (magit-get-current-branch))))
+
+(defun magit-read-local-branch-or-commit (prompt)
+  (let ((branches (magit-list-local-branch-names))
+        (commit (magit-commit-at-point)))
+    (or (magit-completing-read "Push" (if commit (cons commit branches) branches)
+                               nil nil nil 'magit-revision-history
+                               (or (magit-local-branch-at-point) commit))
+                     (user-error "Nothing selected"))))
 
 (defun magit-read-local-branch-or-ref (prompt &optional secondary-default)
   (magit-completing-read prompt (nconc (magit-list-local-branch-names)
                                        (magit-list-refs "refs/"))
                          nil t nil 'magit-revision-history
-                         (or (magit-branch-at-point)
+                         (or (magit-local-branch-at-point)
                              secondary-default
                              (magit-get-current-branch))))
 
