@@ -31,7 +31,12 @@
 
 (require 'magit)
 
-(defvar magit-add-project-to-projectile-after-clone)
+(defcustom magit-add-project-to-projectile-after-clone nil
+  "when non-nil, automatically adds magit-cloned repos
+to projectile's known project list"
+  :group 'magit-clone
+  :options '(nil t)
+  :type 'boolean)
 
 ;;; Clone
 
