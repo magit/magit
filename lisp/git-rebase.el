@@ -145,6 +145,7 @@
   "Keymap for Git-Rebase mode.")
 
 (put 'git-rebase-reword :advertised-binding "r")
+(put 'git-rebase-move-line-up :advertised-binding (kbd "M-p"))
 
 (easy-menu-define git-rebase-mode-menu git-rebase-mode-map
   "Git-Rebase mode menu"
