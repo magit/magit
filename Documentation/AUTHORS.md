@@ -65,6 +65,7 @@ Contributors
 - Brandon W Maister <quodlibetor@gmail.com>
 - Brian Warner <warner@lothar.com>
 - Bryan Shell <bryan.shell@orbitz.com>
+- Carl Lieberman <liebermancarl@gmail.com>
 - Chris Bernard <cebernard@gmail.com>
 - Chris Done <chrisdone@gmail.com>
 - Chris Moore <dooglus@gmail.com>
@@ -82,6 +83,7 @@ Contributors
 - Dan LaManna <dan.lamanna@gmail.com>
 - David Abrahams <dave@boostpro.com>
 - David Hull <david.hull@openx.com>
+- David L. Rager <ragerdl@gmail.com>
 - David Wallin <david.wallin@gmail.com>
 - Dennis Paskorz <dennis@walltowall.com>
 - Divye Kapoor <divye@google.com>
@@ -145,8 +147,10 @@ Contributors
 - Matus Goljer <dota.keys@gmail.com>
 - Michael Fogleman <michaelwfogleman@gmail.com>
 - Michael Griffiths <mikey@cich.li>
+- Michael Heerdegen <michael_heerdegen@web.de>
 - Michal Sojka <sojkam1@fel.cvut.cz>
 - Miles Bader <miles@gnu.org>
+- Miloš Mošić <mosic.milos@gmail.com>
 - Mitchel Humpherys <mitch.special@gmail.com>
 - Moritz Bunkus <moritz@bunkus.org>
 - Natalie Weizenbaum <nex342@gmail.com>
@@ -210,6 +214,7 @@ Contributors
 - Steven Vancoillie <steven.vancoillie@runbox.com>
 - Steve Purcell <steve@sanityinc.com>
 - Suhail Shergill <suhailshergill@gmail.com>
+- Sylvain Rousseau <thisirs@gmail.com>
 - Syohei Yoshida <syohex@gmail.com>
 - Takafumi Arakaki <aka.tkf@gmail.com>
 - Teemu Likonen <tlikonen@iki.fi>

@@ -62,7 +62,7 @@ clean:
 authors: AUTHORS.md
 AUTHORS.md:
 	@printf "Generating AUTHORS.md..."
-	@test -d $(TOP).git \
+	@test -e $(TOP).git \
 	&& (printf "$$AUTHORS_HEADER\n" > $@ \
 	&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
 	&& printf "done\n" ; ) \
