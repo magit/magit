@@ -4588,6 +4588,9 @@ necessary open a new issue.  Note that "something is slow, I am using
 v2.2" is not helpful, you have to be a bit more specific.  Benchmarks
 are a start.
 
+*** Convenience
+To automatically add projects to projectile after a ~magit-clone~,
+set ~magit-add-project-to-projectile-after-clone~ to ~t~.
 * Plumbing
 
 The following sections describe how to use several of Magit's core
