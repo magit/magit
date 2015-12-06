@@ -4590,7 +4590,7 @@ are a start.
 
 *** Convenience
 To automatically add projects to projectile after a ~magit-clone~,
-set ~magit-add-project-to-projectile-after-clone~ to ~t~.
+set ~magit-add-project-to-projectile-after-clone~.
 * Plumbing
 
 The following sections describe how to use several of Magit's core

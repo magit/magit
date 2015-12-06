@@ -52,7 +52,7 @@ Then show the status buffer for the new repository."
                            (magit-convert-git-filename directory))
            0)
     ;; Automatically add project to projectile
-    (when (eq (magit-add-project-to-projectile-after-clone) t)
+    (when magit-add-project-to-projectile-after-clone
       (if (eq (fboundp 'projectile-add-known-project) t)
           (projectile-add-known-project directory)
         (message "projectile-add-known-project is not defined")))
