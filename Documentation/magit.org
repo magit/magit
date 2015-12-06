@@ -3047,7 +3047,7 @@ The following variables are used during the creation of a branch and
 control whether the various branch-specific variables are
 automatically set at this time.
 
-- Variable: remote.autoSetupMerge
+- Variable: branch.autoSetupMerge
 
   This variable specifies under what circumstances creating a branch
   NAME should result in the variables ~branch.NAME.merge~ and
@@ -3061,7 +3061,7 @@ automatically set at this time.
     point is a remote branch, but not when it is a local branch.
   - When ~false~ then the variables are never set.
 
-- Variable: remote.autoSetupRebase
+- Variable: branch.autoSetupRebase
 
   This variable specifies whether creating a branch NAME should result
   in the variable ~branch.NAME.rebase~ being set to ~true~.
@@ -3074,7 +3074,7 @@ automatically set at this time.
     remote branch, but not when it is a local branch.
   - When ~never~ (the default) then the variable is never set.
 
-- Variable: remote.autoSetupPush
+- Variable: branch.autoSetupPush
 
   This variable specifies whether creating a branch NAME should result
   in the variable ~branch.NAME.pushRemote~ being set to what value.

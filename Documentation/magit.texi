@@ -4156,7 +4156,7 @@ The following variables are used during the creation of a branch and
 control whether the various branch-specific variables are
 automatically set at this time.
 
-@defvar remote.autoSetupMerge
+@defvar branch.autoSetupMerge
 
 This variable specifies under what circumstances creating a branch
 NAME should result in the variables @code{branch.NAME.merge} and
@@ -4178,7 +4178,7 @@ When @code{false} then the variables are never set.
 @end itemize
 @end defvar
 
-@defvar remote.autoSetupRebase
+@defvar branch.autoSetupRebase
 
 This variable specifies whether creating a branch NAME should result
 in the variable @code{branch.NAME.rebase} being set to @code{true}.
@@ -4201,7 +4201,7 @@ When @code{never} (the default) then the variable is never set.
 @end itemize
 @end defvar
 
-@defvar remote.autoSetupPush
+@defvar branch.autoSetupPush
 
 This variable specifies whether creating a branch NAME should result
 in the variable @code{branch.NAME.pushRemote} being set to what value.
