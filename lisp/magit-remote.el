@@ -31,6 +31,13 @@
 
 (require 'magit)
 
+(defcustom magit-add-project-to-projectile-after-clone nil
+  "when non-nil, automatically adds magit-cloned repos
+to projectile's known project list"
+  :group 'magit-clone
+  :options '(nil t)
+  :type 'boolean)
+
 ;;; Clone
 
 ;;;###autoload
@@ -49,6 +56,11 @@ Then show the status buffer for the new repository."
                            ;; Stop cygwin git making a "c:" directory.
                            (magit-convert-git-filename directory))
            0)
+    ;; Automatically add project to projectile
+    (when magit-add-project-to-projectile-after-clone
+      (if (eq (fboundp 'projectile-add-known-project) t)
+          (projectile-add-known-project directory)
+        (message "projectile-add-known-project is not defined")))
     (message "Cloning %s...done" repository)
     (magit-status-internal directory)))
 
