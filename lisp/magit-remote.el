@@ -129,7 +129,7 @@ Then show the status buffer for the new repository."
   (interactive (list (magit-fetch-arguments)))
   (--if-let (magit-get-remote)
       (magit-git-fetch it args)
-    (-if-let (magit-get-current-branch)
+    (--if-let (magit-get-current-branch)
         (user-error "No push-remote is configured for %s" it)
       (user-error "No branch is checked out"))))
 
@@ -139,7 +139,7 @@ Then show the status buffer for the new repository."
   (interactive (list (magit-fetch-arguments)))
   (--if-let (magit-get-remote)
       (magit-git-fetch it args)
-    (-if-let (magit-get-current-branch)
+    (--if-let (magit-get-current-branch)
         (user-error "No upstream is configured for %s" it)
       (user-error "No branch is checked out"))))
 
@@ -208,7 +208,7 @@ Then show the status buffer for the new repository."
   (interactive (list (magit-pull-arguments)))
   (--if-let (magit-get-tracked-branch)
       (magit-git-pull it args)
-    (-if-let (magit-get-current-branch)
+    (--if-let (magit-get-current-branch)
         (user-error "No upstream is configured for %s" it)
       (user-error "No branch is checked out"))))
 
