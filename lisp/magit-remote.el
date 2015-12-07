@@ -127,7 +127,7 @@ Then show the status buffer for the new repository."
 (defun magit-fetch-from-pushremote (args)
   "Fetch from the push-remote of the current branch."
   (interactive (list (magit-fetch-arguments)))
-  (--if-let (magit-get-remote)
+  (--if-let (magit-get-push-remote)
       (magit-git-fetch it args)
     (--if-let (magit-get-current-branch)
         (user-error "No push-remote is configured for %s" it)
