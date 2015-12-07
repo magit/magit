@@ -978,7 +978,7 @@ restored."
 (define-derived-mode magit-popup-mode fundamental-mode "MagitPopup"
   "Major mode for infix argument popups."
   :mode 'magit-popup
-  (toggle-truncate-lines 1)
+  (setq truncate-lines t)
   (setq buffer-read-only t)
   (setq-local scroll-margin 0)
   (setq-local magit-popup-show-common-commands magit-popup-show-common-commands)
