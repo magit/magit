@@ -111,7 +111,7 @@ Then show the status buffer for the new repository."
   :switches '((?p "Prune deleted branches" "--prune"))
   :actions  '("Fetch from"
               (?p magit-get-push-remote    magit-fetch-from-pushremote)
-              (?u magit-get-tracked-remote magit-fetch-from-upstream)
+              (?u magit-get-remote         magit-fetch-from-upstream)
               (?e "elsewhere"              magit-fetch)
               (?a "all remotes"            magit-fetch-all)
               "Fetch"
