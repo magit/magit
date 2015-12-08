@@ -215,29 +215,79 @@
           (forward-line)))
     (ding)))
 
-(defun git-rebase-move-line-up ()
-  "Move the current commit (or command) up."
-  (interactive)
-  (goto-char (line-beginning-position))
-  (if (bobp)
-      (ding)
-    (when (looking-at git-rebase-line)
-      (let ((inhibit-read-only t))
-        (transpose-lines 1))
-      (forward-line -2))))
+(defun git-rebase-line-p (&optional pos)
+  (save-excursion
+    (when pos (goto-char pos))
+    (goto-char (line-beginning-position))
+    (looking-at-p git-rebase-line)))
 
-(defun git-rebase-move-line-down ()
-  "Move the current commit (or command) down."
-  (interactive)
-  (goto-char (line-beginning-position))
-  (when (and (looking-at git-rebase-line)
-             (save-excursion
-               (forward-line)
-               (looking-at git-rebase-line)))
-    (forward-line)
-    (let ((inhibit-read-only t))
-      (transpose-lines 1))
-    (forward-line -1)))
+(defun git-rebase-region-bounds ()
+  (when (use-region-p)
+    (let ((beg (save-excursion (goto-char (region-beginning))
+                               (line-beginning-position)))
+          (end (save-excursion (goto-char (region-end))
+                               (line-end-position))))
+      (when (and (git-rebase-line-p beg)
+                 (git-rebase-line-p end))
+        (list beg (1+ end))))))
+
+(defun git-rebase-move-line-down (n)
+  "Move the current commit (or command) N lines down.
+If N is negative, move the commit up instead.  With an active
+region, move all the lines that the region touches, not just the
+current line."
+  (interactive "p")
+  (-let* (((beg end) (or (git-rebase-region-bounds)
+                         (list (line-beginning-position)
+                               (1+ (line-end-position)))))
+          (pt-offset (- (point) beg))
+          (mark-offset (and mark-active (- (mark) beg))))
+    (save-restriction
+      (narrow-to-region
+       (point-min)
+       (1+ (save-excursion
+             (goto-char (point-min))
+             (while (re-search-forward git-rebase-line nil t))
+             (point))))
+      (if (or (and (< n 0) (= beg (point-min)))
+              (and (> n 0) (= end (point-max)))
+              (> end (point-max)))
+          (ding)
+        (goto-char (if (< n 0) beg end))
+        (forward-line n)
+        (atomic-change-group
+          (let ((inhibit-read-only t))
+            (insert (delete-and-extract-region beg end)))
+          (let ((new-beg (- (point) (- end beg))))
+            (when (use-region-p)
+              (setq deactivate-mark nil)
+              (set-mark (+ new-beg mark-offset)))
+            (goto-char (+ new-beg pt-offset))))))))
+
+(defun git-rebase-move-line-up (n)
+  "Move the current commit (or command) N lines up.
+If N is negative, move the commit down instead.  With an active
+region, move all the lines that the region touches, not just the
+current line."
+  (interactive "p")
+  (git-rebase-move-line-down (- n)))
+
+(defun git-rebase-highlight-region (start end window rol)
+  (let ((inhibit-read-only t)
+        (deactivate-mark nil)
+        (bounds (git-rebase-region-bounds)))
+    (mapc #'delete-overlay magit-section-highlight-overlays)
+    (when bounds
+      (magit-section-make-overlay (car bounds) (cadr bounds)
+                                  'magit-section-heading-selection))
+    (if (and bounds (not magit-keep-region-overlay))
+        (funcall (default-value 'redisplay-unhighlight-region-function) rol)
+      (funcall (default-value 'redisplay-highlight-region-function)
+               start end window rol))))
+
+(defun git-rebase-unhighlight-region (rol)
+  (mapc #'delete-overlay magit-section-highlight-overlays)
+  (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
 (defun git-rebase-kill-line ()
   "Kill the current action line."
@@ -330,6 +380,8 @@ running 'man git-rebase' at the command line) for details."
   (when git-rebase-confirm-cancel
     (add-hook 'with-editor-cancel-query-functions
               'git-rebase-cancel-confirm nil t))
+  (setq-local redisplay-highlight-region-function 'git-rebase-highlight-region)
+  (setq-local redisplay-unhighlight-region-function 'git-rebase-unhighlight-region)
   (add-hook 'with-editor-pre-cancel-hook  'git-rebase-autostash-save  nil t)
   (add-hook 'with-editor-post-cancel-hook 'git-rebase-autostash-apply nil t))
 
