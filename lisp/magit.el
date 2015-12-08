@@ -410,7 +410,7 @@ then offer to initialize it as a new repository."
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
-    (if (--all-p #'functionp magit-status-sections-hook)
+    (if (-all-p #'functionp magit-status-sections-hook)
         (run-hooks 'magit-status-sections-hook)
       (message "`magit-status-sections-hook' contains entries that are \
 no longer valid.\nUsing standard value instead.  Please re-configure")
