@@ -1459,7 +1459,7 @@ variable `branch.<name>.description'."
    (list (or (and (not current-prefix-arg)
                   (magit-get-current-branch))
              (magit-read-local-branch "Edit branch description"))))
-  (magit-run-git-with-editor "branch" "--edit-description"))
+  (magit-run-git-with-editor "branch" "--edit-description" branch))
 
 (defun magit-edit-branch*description-check-buffers ()
   (and buffer-file-name
