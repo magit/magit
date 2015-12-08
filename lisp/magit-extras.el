@@ -138,9 +138,8 @@ With a prefix argument only ignore locally."
       (magit-run-git "add" ".gitignore"))))
 
 ;;;###autoload
-(defun magit-gitignore-locally (file-or-pattern &optional local)
-  "Instruct Git to locally ignore FILE-OR-PATTERN.
-\n(fn FILE-OR-PATTERN)"
+(defun magit-gitignore-locally (file-or-pattern)
+  "Instruct Git to locally ignore FILE-OR-PATTERN."
   (interactive (magit-gitignore-read-args t))
   (magit-gitignore file-or-pattern t))
 
@@ -160,10 +159,11 @@ With a prefix argument only ignore locally."
         (setq default (concat "*." (file-name-extension default)))
         (unless (member default choices)
           (setq default nil))))
-    (list (magit-completing-read
-           (concat "File or pattern to ignore" (and local " locally"))
-           choices nil nil nil nil default)
-          local)))
+    (let ((file-or-pattern
+           (magit-completing-read (concat "File or pattern to ignore"
+                                          (and local " locally"))
+                                  choices nil nil nil nil default)))
+      (if local (list file-or-pattern t) file-or-pattern))))
 
 ;;; ChangeLog
 
