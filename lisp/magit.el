@@ -2051,8 +2051,11 @@ defaulting to the tag at point.
   "Popup console for notes commands."
   'magit-commands
   :man-page "git-tag"
-  :switches '((?n "Dry run"          "--dry-run"))
-  :options  '((?r "Manipulate ref"   "--ref="      magit-notes-popup-read-ref)
+  :switches '("Switch for prune"
+              (?n "Dry run"          "--dry-run"))
+  :options  '("Option for edit and remove"
+              (?r "Manipulate ref"   "--ref="      magit-notes-popup-read-ref)
+              "Option for merge"
               (?s "Merge strategy"   "--strategy=" read-from-minibuffer))
   :actions  '((?T "Edit"             magit-notes-edit)
               (?r "Remove"           magit-notes-remove)
