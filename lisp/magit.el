@@ -1699,7 +1699,7 @@ This variable is only used by Magit, Git knows nothing about it."
   :switches '((?f "Fast-forward only" "--ff-only")
               (?n "No fast-forward"   "--no-ff")
               (?s "Squash"            "--squash"))
-  :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
+  :options  '((?s "Strategy" "--strategy="))
   :actions  '((?m "Merge"                  magit-merge)
               (?e "Merge and edit message" magit-merge-editmsg)
               (?p "Preview merge"          magit-merge-preview)
@@ -2058,7 +2058,7 @@ defaulting to the tag at point.
   :options  '("Option for edit and remove"
               (?r "Manipulate ref"   "--ref="      magit-notes-popup-read-ref)
               "Option for merge"
-              (?s "Merge strategy"   "--strategy=" read-from-minibuffer))
+              (?s "Merge strategy"   "--strategy="))
   :actions  '((?T "Edit"             magit-notes-edit)
               (?r "Remove"           magit-notes-remove)
               (?m "Merge"            magit-notes-merge)

@@ -121,7 +121,7 @@ This discards all changes made since the sequence started."
               (?x "Reference cherry in commit message" "-x")
               (?F "Attempt fast-forward"               "--ff")
               (?m "Reply merge relative to parent"     "--mainline="))
-  :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
+  :options  '((?s "Strategy" "--strategy="))
   :actions  '((?A "Cherry Pick"  magit-cherry-pick)
               (?a "Cherry Apply" magit-cherry-apply))
   :sequence-actions '((?A "Continue" magit-sequencer-continue)
@@ -171,7 +171,7 @@ without prompting."
   'magit-commands
   :man-page "git-revert"
   :switches '((?s "Add Signed-off-by lines" "--signoff"))
-  :options  '((?s "Strategy" "--strategy="  read-from-minibuffer))
+  :options  '((?s "Strategy" "--strategy="))
   :actions  '((?V "Revert commit(s)" magit-revert)
               (?v "Revert changes"   magit-revert-no-commit))
   :sequence-actions '((?V "Continue" magit-sequencer-continue)

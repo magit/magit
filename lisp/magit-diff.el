@@ -439,9 +439,9 @@ and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847."
   '(:variable magit-diff-arguments
     :man-page "git-diff"
     :options  ((?f "Limit to files" "-- " magit-read-files)
-               (?u "Context lines"  "-U"  read-from-minibuffer)
-               (?m "Detect renames" "-M"  read-from-minibuffer)
-               (?c "Detect copies"  "-C"  read-from-minibuffer)
+               (?u "Context lines"  "-U")
+               (?m "Detect renames" "-M")
+               (?c "Detect copies"  "-C")
                (?a "Diff algorithm" "--diff-algorithm="
                    magit-diff-select-algorithm))))
 

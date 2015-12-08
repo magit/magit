@@ -291,13 +291,13 @@ are no unpulled commits) show."
                (?h "Show header"             "++header")
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
-    :options  ((?n "Limit number of commits" "-n"        read-from-minibuffer)
-               (?f "Limit to files"          "-- "       magit-read-files)
-               (?a "Limit to author"         "--author=" read-from-minibuffer)
-               (?g "Search messages"         "--grep="   read-from-minibuffer)
-               (?G "Search changes"          "-G"        read-from-minibuffer)
-               (?S "Search occurences"       "-S"        read-from-minibuffer)
-               (?L "Trace line evolution"    "-L"        magit-read-file-trace))
+    :options  ((?n "Limit number of commits" "-n")
+               (?f "Limit to files"          "-- " magit-read-files)
+               (?a "Limit to author"         "--author=")
+               (?g "Search messages"         "--grep=")
+               (?G "Search changes"          "-G")
+               (?S "Search occurences"       "-S")
+               (?L "Trace line evolution"    "-L" magit-read-file-trace))
     :actions  ((?l "Log current"             magit-log-current)
                (?L "Log local branches"      magit-log-branches)
                (?r "Reflog current"          magit-reflog-current)
@@ -321,13 +321,13 @@ are no unpulled commits) show."
                (?s "Show diffstats"          "--stat")
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
-    :options  ((?n "Limit number of commits" "-n"        read-from-minibuffer)
-               (?f "Limit to files"          "-- "       magit-read-files)
-               (?a "Limit to author"         "--author=" read-from-minibuffer)
-               (?g "Search messages"         "--grep="   read-from-minibuffer)
-               (?G "Search changes"          "-G"        read-from-minibuffer)
-               (?S "Search occurences"       "-S"        read-from-minibuffer)
-               (?L "Trace line evolution"    "-L"        magit-read-file-trace))
+    :options  ((?n "Limit number of commits" "-n")
+               (?f "Limit to files"          "-- " magit-read-files)
+               (?a "Limit to author"         "--author=")
+               (?g "Search messages"         "--grep=")
+               (?G "Search changes"          "-G")
+               (?S "Search occurences"       "-S")
+               (?L "Trace line evolution"    "-L" magit-read-file-trace))
     :actions  ((?g "Refresh"       magit-log-refresh)
                (?t "Toggle margin" magit-toggle-margin)
                (?s "Set defaults"  magit-log-set-default-arguments) nil
@@ -337,7 +337,7 @@ are no unpulled commits) show."
 (defvar magit-reflog-mode-refresh-popup
   '(:variable magit-reflog-arguments
     :man-page "git-reflog"
-    :options  ((?n "Limit number of commits" "-n" read-from-minibuffer))))
+    :options  ((?n "Limit number of commits" "-n"))))
 
 (defvar magit-log-refresh-popup
   '(:variable magit-log-arguments
