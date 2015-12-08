@@ -329,7 +329,7 @@ branch as default."
      (list tag (magit-read-remote (format "Push %s to remote" tag) nil t)
            (magit-push-arguments))))
   (run-hooks 'magit-credential-hook)
-  (magit-run-git-async-no-revert "push" remote tag))
+  (magit-run-git-async-no-revert "push" remote tag args))
 
 ;;; Email
 
