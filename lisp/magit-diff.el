@@ -1,4 +1,4 @@
-;;; magit-diff.el --- inspect Git diffs
+;;; magit-diff.el --- inspect Git diffs  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;
@@ -41,6 +41,8 @@
 (declare-function magit-insert-tags-header 'magit)
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer 'magit)
+;; For `magit-insert-revision-gravatar'
+(defvar gravatar-size)
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-blame-mode 'magit-blame)
@@ -946,7 +948,7 @@ which, as the name suggests always visits the actual file."
                         (and (string-match "\\.\\.\\([^.].*\\)?[ \t]*\\'" it)
                              (match-string 1 it))))))
           (unmerged-p (magit-anything-unmerged-p file))
-          diff hunk line col buffer)
+          hunk line col buffer)
       (when (and rev (magit-rev-head-p rev))
         (setq rev nil))
       (setq hunk
@@ -1108,7 +1110,7 @@ commit or stash at point, then prompt for a commit."
                             rev)
                           (car magit-refresh-args))))
             (with-selected-window win
-              (condition-case err
+              (condition-case nil
                   (funcall fn)
                 (error
                  (goto-char (pcase fn
@@ -1328,7 +1330,7 @@ section or a child thereof."
       (magit-delete-line)
       (while (looking-at
               "^  \\([^ ]+\\) +[0-9]\\{6\\} \\([a-z0-9]\\{40\\}\\) \\(.+\\)$")
-        (magit-bind-match-strings (side blob name) nil
+        (magit-bind-match-strings (side _blob name) nil
           (pcase side
             ("result" (setq file name))
             ("our"    (setq orig name))

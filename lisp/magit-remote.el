@@ -1,4 +1,4 @@
-;;; magit-remote.el --- transfer Git commits
+;;; magit-remote.el --- transfer Git commits  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2008-2015  The Magit Project Contributors
 ;;

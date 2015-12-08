@@ -1,4 +1,4 @@
-;;; magit-log.el --- inspect Git history
+;;; magit-log.el --- inspect Git history  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;
@@ -827,7 +827,7 @@ Do not add this to a hook variable."
               (format "Type \\<%s>\\[%s] to show more history"
                       'magit-log-mode-map
                       'magit-log-double-commit-limit))
-             'action (lambda (button)
+             'action (lambda (_button)
                        (magit-log-double-commit-limit))
              'follow-link t
              'mouse-face 'magit-section-highlight)))

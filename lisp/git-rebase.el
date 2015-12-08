@@ -1,4 +1,4 @@
-;;; git-rebase.el --- Edit Git rebase files
+;;; git-rebase.el --- Edit Git rebase files  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;

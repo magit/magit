@@ -1,4 +1,4 @@
-;;; magit-commit.el --- create Git commits
+;;; magit-commit.el --- create Git commits  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2008-2015  The Magit Project Contributors
 ;;
@@ -314,7 +314,7 @@ depending on the value of option `magit-commit-squash-confirm'."
 
 (defvar magit-gpg-secret-key-hist nil)
 
-(defun magit-read-gpg-secret-key (prompt &optional initial-input)
+(defun magit-read-gpg-secret-key (prompt &optional _initial-input)
   (require 'epa)
   (let ((keys (--map (list (epg-sub-key-id (car (epg-key-sub-key-list it)))
                            (-when-let (id-obj (car (epg-key-user-id-list it)))

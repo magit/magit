@@ -1,4 +1,4 @@
-;;; magit-bisect.el --- bisect support for Magit
+;;; magit-bisect.el --- bisect support for Magit  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2011-2015  The Magit Project Contributors
 ;;
@@ -172,7 +172,7 @@ bisect run'."
       (magit-git-wash #'magit-wash-bisect-log "bisect" "log")
       (insert ?\n))))
 
-(defun magit-wash-bisect-log (args)
+(defun magit-wash-bisect-log (_args)
   (let (beg)
     (while (progn (setq beg (point-marker))
                   (re-search-forward "^\\(git bisect [^\n]+\n\\)" nil t))

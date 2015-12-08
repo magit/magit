@@ -1,4 +1,4 @@
-;;; magit-section.el --- section functionality
+;;; magit-section.el --- section functionality  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;
@@ -163,6 +163,10 @@ IDENT has to be a list as returned by `magit-section-ident'."
                          (magit-section-children section))))
         (pop ident))
       section)))
+
+(defvar magit-insert-section--current nil "For internal use only.")
+(defvar magit-insert-section--parent  nil "For internal use only.")
+(defvar magit-insert-section--oldroot nil "For internal use only.")
 
 ;;; Commands
 ;;;; Movement
@@ -605,10 +609,6 @@ at point."
                            ,@(cdr clause)))
                        clauses)))))
 ;;; Create
-
-(defvar magit-insert-section--current nil "For internal use only.")
-(defvar magit-insert-section--parent  nil "For internal use only.")
-(defvar magit-insert-section--oldroot nil "For internal use only.")
 
 (defvar magit-insert-section-hook nil
   "Hook run after `magit-insert-section's BODY.

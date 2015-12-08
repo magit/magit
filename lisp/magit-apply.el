@@ -1,4 +1,4 @@
-;;; magit-apply.el --- apply Git diffs
+;;; magit-apply.el --- apply Git diffs  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;
@@ -39,6 +39,7 @@
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage 'magit)
 (declare-function magit-checkout-read-stage 'magit)
+(defvar auto-revert-verbose)
 
 (require 'dired)
 

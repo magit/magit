@@ -1,4 +1,4 @@
-;;; magit-process.el --- process functionality
+;;; magit-process.el --- process functionality  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;
@@ -744,7 +744,7 @@ as argument."
                          (and (string= comm "git-credential-cache--daemon")
                               (string= user user-login-name)))
                        (list-system-processes))
-              (condition-case err
+              (condition-case nil
                   (start-process "git-credential-cache--daemon"
                                  " *git-credential-cache--daemon*"
                                  magit-git-executable

@@ -1,4 +1,4 @@
-;;; magit-ediff.el --- Ediff extension for Magit
+;;; magit-ediff.el --- Ediff extension for Magit  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;

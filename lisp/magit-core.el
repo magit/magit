@@ -1,4 +1,4 @@
-;;; magit-core.el --- core functionality
+;;; magit-core.el --- core functionality  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;

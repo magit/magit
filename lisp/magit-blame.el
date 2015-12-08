@@ -1,4 +1,4 @@
-;;; magit-blame.el --- blame support for Magit
+;;; magit-blame.el --- blame support for Magit  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2012-2015  The Magit Project Contributors
 ;;

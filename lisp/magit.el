@@ -1,4 +1,4 @@
-;;; magit.el --- A Git porcelain inside Emacs
+;;; magit.el --- A Git porcelain inside Emacs  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2008-2015  The Magit Project Contributors
 ;;
@@ -407,6 +407,8 @@ then offer to initialize it as a new repository."
 
 ;;;;; Standard Status Sections
 
+(defvar magit-status-sections-hook-1 nil)
+
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
@@ -727,7 +729,7 @@ Refs are compared with a branch read form the user."
                      (magit-show-refs-arguments)))
   (magit-mode-setup #'magit-refs-mode ref args))
 
-(defun magit-refs-refresh-buffer (&rest ignore)
+(defun magit-refs-refresh-buffer (&rest _ignore)
   (setq magit-set-buffer-margin-refresh (not magit-show-margin))
   (unless (magit-rev-verify (or (car magit-refresh-args) "HEAD"))
     (setq magit-refs-show-commit-count nil))
@@ -2003,7 +2005,7 @@ With a prefix argument annotate the tag.
                      (magit-read-branch-or-commit "Place tag on")
                      (let ((args (magit-tag-arguments)))
                        (when current-prefix-arg
-                         (add-to-list 'args "--annotate"))
+                         (cl-pushnew "--annotate" args))
                        args)))
   (magit-run-git-with-editor "tag" args name rev))
 

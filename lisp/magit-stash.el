@@ -1,4 +1,4 @@
-;;; magit-stash.el --- stash support for Magit
+;;; magit-stash.el --- stash support for Magit  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2008-2015  The Magit Project Contributors
 ;;
@@ -354,7 +354,7 @@ instead of \"Stashes:\"."
   :group 'magit-diff
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-stash-refresh-buffer (stash _const args files)
+(defun magit-stash-refresh-buffer (stash _const _args _files)
   (setq header-line-format
         (concat
          "\s" (propertize (capitalize stash) 'face 'magit-section-heading)

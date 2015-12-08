@@ -1,4 +1,4 @@
-;;; magit-mode.el --- create and refresh Magit buffers
+;;; magit-mode.el --- create and refresh Magit buffers  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;

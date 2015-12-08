@@ -1,4 +1,4 @@
-;;; magit-popup.el --- Define prefix-infix-suffix command combos
+;;; magit-popup.el --- Define prefix-infix-suffix command combos  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  The Magit Project Contributors
 ;;
@@ -382,12 +382,12 @@ or `:only' which doesn't change the behaviour."
        :use (and v t) :val (and v (match-string 1 v))
        :fun (or (nth 3 it) 'read-from-minibuffer)))))
 
-(defun magit-popup-convert-variables (val def)
+(defun magit-popup-convert-variables (_val def)
   (magit-popup-convert-events def
     (make-magit-popup-event
      :key (car it) :dsc (cadr it) :fun (nth 2 it) :arg (nth 3 it))))
 
-(defun magit-popup-convert-actions (val def)
+(defun magit-popup-convert-actions (_val def)
   (magit-popup-convert-events def
     (make-magit-popup-event
      :key (car it) :dsc (cadr it) :fun (nth 2 it))))
@@ -822,8 +822,7 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
 (defun magit-popup-quit ()
   "Quit the current popup command without invoking an action."
   (interactive)
-  (let ((buf (current-buffer))
-        (winconf magit-popup-previous-winconf))
+  (let ((winconf magit-popup-previous-winconf))
     (if (derived-mode-p 'magit-popup-mode)
         (kill-buffer)
       (magit-popup-help-mode -1)

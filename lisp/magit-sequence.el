@@ -1,4 +1,4 @@
-;;; magit-sequence.el --- history manipulation in Magit
+;;; magit-sequence.el --- history manipulation in Magit  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2011-2015  The Magit Project Contributors
 ;;
