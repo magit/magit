@@ -260,7 +260,7 @@ depending on the value of option `magit-commit-squash-confirm'."
                 (substring option 2)))
       (when magit-commit-show-diff
         (let ((magit-display-buffer-noselect t))
-          (magit-diff-staged))))))
+          (apply #'magit-diff-staged nil (magit-diff-arguments)))))))
 
 (defun magit-commit-assert (args &optional strict)
   (cond
