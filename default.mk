@@ -44,6 +44,7 @@ ELS += magit-remote.el
 ELS += magit-bisect.el
 ELS += magit-stash.el
 ELS += magit-blame.el
+ELS += magit-submodule.el
 ELS += magit-ediff.el
 ELS += magit-extras.el
 ELS += git-rebase.el
