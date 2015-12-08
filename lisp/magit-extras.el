@@ -118,7 +118,8 @@ with two prefix arguments remove ignored files only.
 (defun magit-gitignore (file-or-pattern &optional local)
   "Instruct Git to ignore FILE-OR-PATTERN.
 With a prefix argument only ignore locally."
-  (interactive (magit-gitignore-read-args current-prefix-arg))
+  (interactive (list (magit-gitignore-read-pattern current-prefix-arg)
+                     current-prefix-arg))
   (let ((gitignore
          (if local
              (magit-git-dir (convert-standard-filename "info/exclude"))
@@ -140,10 +141,10 @@ With a prefix argument only ignore locally."
 ;;;###autoload
 (defun magit-gitignore-locally (file-or-pattern)
   "Instruct Git to locally ignore FILE-OR-PATTERN."
-  (interactive (magit-gitignore-read-args t))
+  (interactive (list (magit-gitignore-read-pattern t)))
   (magit-gitignore file-or-pattern t))
 
-(defun magit-gitignore-read-args (local)
+(defun magit-gitignore-read-pattern (local)
   (let* ((default (magit-current-file))
          (choices
           (delete-dups
@@ -159,11 +160,9 @@ With a prefix argument only ignore locally."
         (setq default (concat "*." (file-name-extension default)))
         (unless (member default choices)
           (setq default nil))))
-    (let ((file-or-pattern
-           (magit-completing-read (concat "File or pattern to ignore"
-                                          (and local " locally"))
-                                  choices nil nil nil nil default)))
-      (if local (list file-or-pattern t) file-or-pattern))))
+    (magit-completing-read (concat "File or pattern to ignore"
+                                   (and local " locally"))
+                           choices nil nil nil nil default)))
 
 ;;; ChangeLog
 
