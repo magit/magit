@@ -338,7 +338,8 @@ branch as default."
   "Popup console for patch commands."
   'magit-commands
   :man-page "git-format-patch"
-  :options  '((?f "From"             "--from=")
+  :options  '("Options for formatting patches"
+              (?f "From"             "--from=")
               (?t "To"               "--to=")
               (?c "CC"               "--cc=")
               (?r "In reply to"      "--in-reply-to=")
