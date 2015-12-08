@@ -389,7 +389,7 @@ is asked to pull.  START has to be reachable from that commit."
     (setq default-directory dir))
   (message-goto-body)
   (let ((inhibit-magit-revert t))
-    (magit-git-insert "request-pull" start url))
+    (magit-git-insert "request-pull" start url end))
   (set-buffer-modified-p nil))
 
 ;;; magit-remote.el ends soon
