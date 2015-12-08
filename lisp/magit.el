@@ -2084,7 +2084,8 @@ Interactively or when optional REF is nil use the value of Git
 variable `core.notesRef' or \"refs/notes/commits\" if that is
 undefined."
   (interactive (magit-notes-read-args "Remove notes"))
-  (magit-run-git-with-editor "notes" "remove" commit))
+  (magit-run-git-with-editor "notes" (and ref (concat "--ref=" ref))
+                             "remove" commit))
 
 (defun magit-notes-merge (ref)
   "Merge the notes ref REF into the current notes ref.
