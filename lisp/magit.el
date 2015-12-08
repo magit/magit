@@ -2377,7 +2377,7 @@ Currently this only adds the following key bindings.
 (defun magit-blob-successor (rev file)
   (let ((lines (magit-with-toplevel
                  (magit-git-lines "log" "--format=%H" "--name-only" "--follow"
-                                  "HEAD" "--" "lisp/magit-blame.el"))))
+                                  "HEAD" "--" file))))
     (catch 'found
       (while lines
         (if (equal (nth 2 lines) rev)
