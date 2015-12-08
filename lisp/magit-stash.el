@@ -366,7 +366,9 @@ instead of \"Stashes:\"."
   (magit-insert-section (commit commit)
     (magit-insert-heading message)
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" (cdr magit-refresh-args) "--no-prefix" "-u" range "--" files)))
+      "diff" range "-p" "--no-prefix"
+      (nth 2 magit-refresh-args)
+      "--" (or files (nth 3 magit-refresh-args)))))
 
 (defun magit-insert-stash-index ()
   "Insert section showing the index commit of the stash."
