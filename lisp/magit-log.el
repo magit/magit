@@ -740,7 +740,6 @@ Do not add this to a hook variable."
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing] 'magit-show-commit)
     (define-key map "a" 'magit-cherry-apply)
-    (define-key map "v" 'magit-revert-no-commit)
     map)
   "Keymap for `commit' sections.")
 
