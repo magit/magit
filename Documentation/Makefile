@@ -3,10 +3,7 @@ include ../default.mk
 
 MAKEINFO ?= makeinfo
 
-INSTALL_INFO ?= $(shell \
-  hash ginstall-info 2> /dev/null\
-  && printf ginstall-info\
-  || printf install-info)
+INSTALL_INFO ?= $(shell command -v ginstall-info || printf install-info)
 
 DOC_LOAD_PATH ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
 
