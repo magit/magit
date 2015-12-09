@@ -627,26 +627,29 @@ else like the former."
           shell-command-default-error-buffer
           (and async current-prefix-arg (with-editor-read-envvar)))))
 
-(defun shell-command--shell-command-with-editor-mode (fn &rest args)
+(defun shell-command--shell-command-with-editor-mode
+    (fn command &optional output-buffer error-buffer)
   (cond ((or (not (or with-editor--envvar shell-command-with-editor-mode))
-             (not (string-match-p "&$" (car args))))
-         (apply fn args))
+             (not (string-match-p "&\\'" command)))
+         (funcall fn command output-buffer error-buffer))
         ((and with-editor-emacsclient-executable
               (not (file-remote-p default-directory)))
-         (with-editor (apply fn args)))
+         (with-editor (funcall fn command output-buffer error-buffer)))
         (t
-         (let ((process (apply fn
-                               (format "%s=%s %s"
-                                       (or with-editor--envvar "EDITOR")
-                                       (shell-quote-argument
-                                        with-editor-sleeping-editor)
-                                       (car args))
-                               (cdr args))))
-           (set-process-filter
-            process (lambda (proc str)
-                      (comint-output-filter proc str)
-                      (with-editor-process-filter proc str t)))
-           process))))
+         (apply fn (format "%s=%s %s"
+                           (or with-editor--envvar "EDITOR")
+                           (shell-quote-argument with-editor-sleeping-editor)
+                           command)
+                output-buffer error-buffer)
+         (ignore-errors
+           (let ((process (get-buffer-process
+                           (or output-buffer
+                               (get-buffer "*Async Shell Command*")))))
+             (set-process-filter
+              process (lambda (proc str)
+                        (comint-output-filter proc str)
+                        (with-editor-process-filter proc str t)))
+             process)))))
 
 (advice-add 'shell-command :around
             'shell-command--shell-command-with-editor-mode)
