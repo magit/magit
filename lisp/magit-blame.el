@@ -182,11 +182,12 @@ and then turned on again when turning off the latter."
                (when (overlay-get ov 'magit-blame)
                  (delete-overlay ov))))))))
 
-(defadvice auto-revert-handler (around magit-blame activate)
-  "If Magit-Blame mode is on, then do nothing.
-See #1731."
-  (unless magit-blame-mode
-    ad-do-it))
+(defun auto-revert-handler--unless-magit-blame-mode ()
+  "If Magit-Blame mode is on, then do nothing.  See #1731."
+  magit-blame-mode)
+
+(advice-add 'auto-revert-handler :before-until
+            'auto-revert-handler--unless-magit-blame-mode)
 
 ;;;###autoload (autoload 'magit-blame-popup "magit-blame" nil t)
 (magit-define-popup magit-blame-popup

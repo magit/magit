@@ -412,7 +412,8 @@ ENVVAR is provided then bind that environment variable instead.
                          with-editor-server-window-alist)))
       server-window))
 
-(defadvice server-switch-buffer (around with-editor activate)
+(defun server-switch-buffer--with-editor-server-window-alist
+    (fn &optional next-buffer killed-one filepos)
   "Honor `with-editor-server-window-alist' (which see)."
   (let ((server-window (with-current-buffer
                            (or next-buffer (current-buffer))
@@ -420,9 +421,13 @@ ENVVAR is provided then bind that environment variable instead.
                            (setq with-editor-previous-winconf
                                  (current-window-configuration)))
                          (with-editor-server-window))))
-    ad-do-it))
+    (funcall fn next-buffer killed-one filepos)))
 
-(defadvice start-file-process (around with-editor activate)
+(advice-add 'server-switch-buffer :around
+            'server-switch-buffer--with-editor-server-window-alist)
+
+(defun start-file-process--with-editor-process-filter
+    (fn name buffer program &rest program-args)
   "When called inside a `with-editor' form and the Emacsclient
 cannot be used, then give the process the filter function
 `with-editor-process-filter'.  To avoid overriding the filter
@@ -432,22 +437,21 @@ instead of `set-process-filter' inside `with-editor' forms.
 When the `default-directory' is located on a remote machine,
 then also manipulate PROGRAM and PROGRAM-ARGS in order to set
 the appropriate editor environment variable."
-  ;; (fn NAME BUFFER PROGRAM &rest PROGRAM-ARGS)
   (if (not with-editor--envvar)
-      ad-do-it
+      (apply fn name buffer program program-args)
     (when (file-remote-p default-directory)
-      (let ((prog (ad-get-arg  2))
-            (args (ad-get-args 3)))
-        (unless (equal program "env")
-          (push prog args)
-          (setq prog "env"))
-        (push (concat with-editor--envvar "=" with-editor-sleeping-editor) args)
-        (ad-set-arg  2 prog)
-        (ad-set-args 3 args)))
-    (let ((process ad-do-it))
+      (unless (equal program "env")
+        (push program program-args)
+        (setq program "env"))
+      (push (concat with-editor--envvar "=" with-editor-sleeping-editor)
+            program-args))
+    (let ((process (apply fn name buffer program program-args)))
       (set-process-filter process 'with-editor-process-filter)
       (process-put process 'default-dir default-directory)
       process)))
+
+(advice-add 'start-file-process :around
+            'start-file-process--with-editor-process-filter)
 
 (defun with-editor-set-process-filter (process filter)
   "Like `set-process-filter' but keep `with-editor-process-filter'.
@@ -623,25 +627,29 @@ else like the former."
           shell-command-default-error-buffer
           (and async current-prefix-arg (with-editor-read-envvar)))))
 
-(defadvice shell-command (around with-editor activate)
+(defun shell-command--shell-command-with-editor-mode (fn &rest args)
   (cond ((or (not (or with-editor--envvar shell-command-with-editor-mode))
-             (not (string-match-p "&$" (ad-get-arg 0))))
-         ad-do-it)
+             (not (string-match-p "&$" (car args))))
+         (apply fn args))
         ((and with-editor-emacsclient-executable
               (not (file-remote-p default-directory)))
-         (with-editor ad-do-it))
+         (with-editor (apply fn args)))
         (t
-         (ad-set-arg
-          0 (format "%s=%s %s"
-                    (or with-editor--envvar "EDITOR")
-                    (shell-quote-argument with-editor-sleeping-editor)
-                    (ad-get-arg 0)))
-         (let ((process ad-do-it))
+         (let ((process (apply fn
+                               (format "%s=%s %s"
+                                       (or with-editor--envvar "EDITOR")
+                                       (shell-quote-argument
+                                        with-editor-sleeping-editor)
+                                       (car args))
+                               (cdr args))))
            (set-process-filter
             process (lambda (proc str)
                       (comint-output-filter proc str)
                       (with-editor-process-filter proc str t)))
            process))))
+
+(advice-add 'shell-command :around
+            'shell-command--shell-command-with-editor-mode)
 
 ;;; with-editor.el ends soon
 
