@@ -354,7 +354,8 @@ or `:only' which doesn't change the behaviour."
            (-filter 'magit-popup-event-p (magit-popup-get type))))
 
 (defun magit-popup-get-args ()
-  (--mapcat (when (magit-popup-event-use it)
+  (--mapcat (when (and (magit-popup-event-p it)
+                       (magit-popup-event-use it))
               (list (format "%s%s"
                             (magit-popup-event-arg it)
                             (or (magit-popup-event-val it) ""))))
