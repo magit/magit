@@ -618,6 +618,8 @@ If no DWIM context is found, nil is returned."
     (cons 'commit magit-buffer-refname))
    ((derived-mode-p 'magit-revision-mode)
     (cons 'commit (car magit-refresh-args)))
+   ((derived-mode-p 'magit-diff-mode)
+    (nth 0 magit-refresh-args))
    (t
     (magit-section-case
       ([* unstaged] 'unstaged)
