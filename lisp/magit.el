@@ -449,8 +449,10 @@ the status buffer causes this section to disappear again."
 
 (cl-defun magit-insert-head-branch-header
     (&optional (branch (magit-get-current-branch)))
-  "Insert a header line about the current branch or detached `HEAD'."
-  (let ((output (magit-rev-format "%h %s" "HEAD")))
+  "Insert a header line about BRANCH.
+When BRANCH is nil, use the current branch or, if none, the
+detached `HEAD'."
+  (let ((output (magit-rev-format "%h %s" (or branch "HEAD"))))
     (string-match "^\\([^ ]+\\) \\(.*\\)" output)
     (magit-bind-match-strings (commit summary) output
       (if branch
