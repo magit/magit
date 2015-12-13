@@ -43,7 +43,7 @@
   :group 'magit)
 
 (defcustom magit-section-show-child-count t
-  "Whether to append the number of childen to section headings."
+  "Whether to append the number of children to section headings."
   :package-version '(magit . "2.1.0")
   :group 'magit-section
   :type 'boolean)
@@ -594,7 +594,7 @@ section at point.  If no clause succeeds or if there is no
 section at point return nil.
 
 See `magit-section-match' for the forms CONDITION can take.
-Additionall a CONDITION of t is allowed in the final clause, and
+Additionally a CONDITION of t is allowed in the final clause, and
 matches if no other CONDITION match, even if there is no section
 at point."
   (declare (indent 0)
@@ -733,7 +733,7 @@ inside any of these strings, then insert all of them unchanged.
 Otherwise use the `magit-section-heading' face for all inserted
 text.
 
-The `content' property of the secton struct is the end of the
+The `content' property of the section struct is the end of the
 heading (which lasts from `start' to `content') and the beginning
 of the the body (which lasts from `content' to `end').  If the
 value of `content' is nil, then the section has no heading and

@@ -1680,7 +1680,7 @@ creating a branch (named NAME) should result in the variable
 
 It should either be undefined, or it should be the name of an
 existing branch, in which case `branch.<name>.pushRemote' is set
-to the same value.  Any other value, i.e. a non-existend remote,
+to the same value.  Any other value, i.e. a non-existent remote,
 is ignored.
 
 This variable is only used by Magit, Git knows nothing about it."
@@ -1847,7 +1847,7 @@ If no merge is in progress, do nothing."
 (defun magit-reset-index (commit)
   "Reset the index to COMMIT.
 Keep the head and working tree as-is, so if COMMIT refers to the
-head this effectivley unstages all changes.
+head this effectively unstages all changes.
 \n(git reset COMMIT)"
   (interactive (list (magit-read-branch-or-commit "Reset index to")))
   (magit-reset-internal nil commit "."))
@@ -2291,7 +2291,7 @@ With a prefix argument fetch all remotes."
   "Keymap for `magit-file-mode'.")
 
 (magit-define-popup magit-file-popup
-  "Popup consule for Magit commands in file-visiting buffers."
+  "Popup console for Magit commands in file-visiting buffers."
   :actions '((?s "Stage"   magit-stage-file)
              (?l "Log"     magit-log-buffer-file)
              (?c "Commit"  magit-commit-popup)

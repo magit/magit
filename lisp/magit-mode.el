@@ -307,7 +307,7 @@ It should be clear by now that we consider it a mistake to set
 this to display the region when the Magit selection is also
 visualized, but since it has been requested a few times and
 because it doesn't cost much to offer this option we do so.
-However that might change.  If the existance of this option
+However that might change.  If the existence of this option
 starts complicating other things, then it will be removed."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
