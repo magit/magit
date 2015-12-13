@@ -158,7 +158,7 @@ Global settings:
                       (const safe-with-wip))))
 
 (defcustom magit-ellipsis ?…
-  "Character used to abreviate text."
+  "Character used to abbreviate text."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'character)
@@ -360,7 +360,7 @@ This is similar to `read-string', but
 ;;; Text Utilities
 
 (defmacro magit-bind-match-strings (varlist string &rest body)
-  "Bind varibles to submatches accoring to VARLIST then evaluate BODY.
+  "Bind variables to submatches according to VARLIST then evaluate BODY.
 Bind the symbols in VARLIST to submatches of the current match
 data, starting with 1 and incrementing by 1 for each symbol.  If
 the last match was against a string then that has to be provided

@@ -424,7 +424,7 @@ when the command is invoked directly, then it returns the default
 value of the variable `SHORTNAME-arguments'.
 
 Optional argument GROUP specifies the Custom group in which the
-option is placed.  If ommitted then the option is placed in some
+option is placed.  If omitted then the option is placed in some
 group the same way it is done when directly using `defcustom'.
 
 Optional argument MODE is deprecated, instead use the keyword
@@ -483,7 +483,7 @@ usually specified in that order):
 `:switches'
   The popup arguments which can be toggled on and off.  VALUE
   is a list whose members have the form (KEY DESC SWITCH), see
-  `magit-define-popup-switch' for defails.
+  `magit-define-popup-switch' for details.
 
 `:options'
   The popup arguments which take a value, as in \"--opt=OPTVAL\".
