@@ -725,7 +725,7 @@ a commit read from the minibuffer."
   "While committing, show the changes that are about to be committed.
 While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
-be commited."
+be committed."
   (interactive (magit-diff-arguments))
   (let ((toplevel (magit-toplevel))
         (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))

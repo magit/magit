@@ -341,7 +341,7 @@ not a good idea to change such entries.")
     (error "With-Editor mode cannot be turned off"))
   (add-hook 'kill-buffer-query-functions
             'with-editor-kill-buffer-noop nil t)
-  ;; `server-excecute' displays a message which is not
+  ;; `server-execute' displays a message which is not
   ;; correct when using this mode.
   (when with-editor-show-usage
     (with-editor-usage-message)))

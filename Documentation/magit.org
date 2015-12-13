@@ -1522,7 +1522,7 @@ By default the following functions are members of the above hook:
 - Function: magit-insert-error-header
 
   Insert a header line showing the message about the Git error that
-  just occured.
+  just occurred.
 
   This function is only aware of the last error that occur when Git
   was run for side-effects.  If, for example, an error occurs while
@@ -3081,7 +3081,7 @@ automatically set at this time.
 
   This variable should either be undefined, or it should be the name
   of an existing branch, in which case ~branch.NAME.pushRemote~ is set
-  to the same value.  Any other value, i.e. a non-existend remote, is
+  to the same value.  Any other value, i.e. a non-existent remote, is
   ignored.
 
   This variable is only used by Magit, Git knows nothing about it.
@@ -5337,7 +5337,7 @@ In v2.1 the default behavior of the branch and push commands changed,
 which has taken a few users by surprise and left more unsatisfied.
 The next release, v2.4, will try to address these concerns.
 
-** I cannot install the pre-requisits for Magit v2
+** I cannot install the pre-requisites for Magit v2
 
 An Elpa archive featuring obsolete Magit v1.4.2 and its dependencies
 is available from http://magit.vc/elpa/v1.  But note that v1.4.2 is
