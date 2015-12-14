@@ -1550,8 +1550,7 @@ With a prefix argument cycle the value for another branch.
 
 The Git variable `branch.<name>.pushRemote' specifies the remote
 that the branch named NAME is usually pushed to.  The value has
-to be the name of an existing remote.  The value has to be the
-name of an existing remote.
+to be the name of an existing remote.
 
 If that variable is undefined, then the value of the Git variable
 `remote.pushDefault' is used instead, provided that it is defined,
