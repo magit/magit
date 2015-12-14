@@ -402,7 +402,7 @@ To use Melpa:
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
+	     '("melpa" . "http://melpa.org/packages/") t)
 @end lisp
 
 @itemize
@@ -413,7 +413,7 @@ To use Melpa-Stable:
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 @end lisp
 
 @itemize
@@ -424,7 +424,7 @@ To use Marmalade:
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/") t)
+	     '("marmalade" . "http://marmalade-repo.org/packages/") t)
 @end lisp
 
 Once you have added your preferred archive, you need to update the
@@ -485,7 +485,7 @@ Finally add this to your init file:
 (with-eval-after-load 'info
   (info-initialize)
   (add-to-list 'Info-directory-list
-               "~/.emacs.d/site-lisp/magit/Documentation/"))
+	       "~/.emacs.d/site-lisp/magit/Documentation/"))
 @end lisp
 
 Note that you have to add the @code{lisp/} subdirectory to the @code{load-path},
@@ -1839,9 +1839,9 @@ To make this command available, use something like:
 
 @lisp
 (add-hook 'ido-setup-hook
-          (lambda ()
-            (define-key ido-completion-map
-              (kbd \"C-x g\") 'ido-enter-magit-status)))
+	  (lambda ()
+	    (define-key ido-completion-map
+	      (kbd \"C-x g\") 'ido-enter-magit-status)))
 @end lisp
 
 Starting with Emacs 25.1 the Ido keymaps are defined just once
@@ -4201,19 +4201,6 @@ When @code{never} (the default) then the variable is never set.
 @end itemize
 @end defvar
 
-@defvar branch.autoSetupPush
-
-This variable specifies whether creating a branch NAME should result
-in the variable @code{branch.NAME.pushRemote} being set to what value.
-
-This variable should either be undefined, or it should be the name
-of an existing branch, in which case @code{branch.NAME.pushRemote} is set
-to the same value.  Any other value, i.e. a non-existend remote, is
-ignored.
-
-This variable is only used by Magit, Git knows nothing about it.
-@end defvar
-
 Note that the respective commands always change the repository-local
 values.  If you want to change the global value which is used when the
 local value is undefined, then you have to do so on the command line,
@@ -6186,7 +6173,7 @@ For example:
 
 @example
 [include]
-        path = /path/to/huge-gitconfig
+	path = /path/to/huge-gitconfig
 @end example
 
 
@@ -6195,7 +6182,7 @@ For example:
 
 @example
 [status]
-        showUntrackedFiles = no
+	showUntrackedFiles = no
 @end example
 
 
@@ -7411,11 +7398,11 @@ Alternatively you may add this advice to your @code{init.el} file.
 manual, then instead of following that cross reference show
 the actual manpage using the function `man'."
   (let ((node (Info-get-token
-               (point) "\\*note[ \n\t]+"
-               "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
+	       (point) "\\*note[ \n\t]+"
+	       "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
     (if (and node (string-match "^(gitman)\\(.+\\)" node))
-        (progn (require 'man)
-               (man (match-string 1 node)))
+	(progn (require 'man)
+	       (man (match-string 1 node)))
       ad-do-it)))
 @end lisp
 
@@ -7429,11 +7416,11 @@ variation with used the Emacs Lisp implementation provided by the
 manual, then instead of following that cross reference show
 the actual manpage using the function `woman'."
   (let ((node (Info-get-token
-               (point) "\\*note[ \n\t]+"
-               "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
+	       (point) "\\*note[ \n\t]+"
+	       "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
     (if (and node (string-match "^(gitman)\\(.+\\)" node))
-        (progn (require 'woman)
-               (woman (match-string 1 node)))
+	(progn (require 'woman)
+	       (woman (match-string 1 node)))
       ad-do-it)))
 @end lisp
 

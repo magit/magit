@@ -3074,18 +3074,6 @@ automatically set at this time.
     remote branch, but not when it is a local branch.
   - When ~never~ (the default) then the variable is never set.
 
-- Variable: branch.autoSetupPush
-
-  This variable specifies whether creating a branch NAME should result
-  in the variable ~branch.NAME.pushRemote~ being set to what value.
-
-  This variable should either be undefined, or it should be the name
-  of an existing branch, in which case ~branch.NAME.pushRemote~ is set
-  to the same value.  Any other value, i.e. a non-existend remote, is
-  ignored.
-
-  This variable is only used by Magit, Git knows nothing about it.
-
 Note that the respective commands always change the repository-local
 values.  If you want to change the global value which is used when the
 local value is undefined, then you have to do so on the command line,

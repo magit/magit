@@ -44,10 +44,6 @@ Changes since v2.3.0
   unpushed commits.  Two for the upstream and two for the push-remote.
   #2414
 
-* A new Git variable `branch.autoSetupPush' was added.  But Git itself
-  unfortunately does not know about this variable, so it only takes
-  effect when branches are created using Magit.  #2414
-
 * The option `magit-push-always-verify' was removed.  That was only a
   temporary kludge to keep users from shooting themselves in the foot.
   This is no longer necessary because one now always sees were one is
