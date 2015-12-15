@@ -474,10 +474,10 @@ tracked file."
   (magit-git-items "diff-files" "-z" "--name-only"
                    (and nomodules "--ignore-submodules")))
 
-(defun magit-staged-files (&optional nomodules)
+(defun magit-staged-files (&optional nomodules files)
   (magit-git-items "diff-index" "-z" "--name-only" "--cached"
                    (and nomodules "--ignore-submodules")
-                   (magit-headish)))
+                   (magit-headish) "--" files))
 
 (defun magit-staged-binary-files ()
   (--mapcat (and (string-match "^-\t-\t\\(.+\\)" it)
