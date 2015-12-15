@@ -1992,7 +1992,7 @@ defaulting to the tag at point.
    (let* ((remote (magit-read-remote "Prune tags using remote"))
           (tags   (magit-list-tags))
           (rtags  (prog2 (message "Determining remote tags...")
-                      (magit-list-remote-tags remote)
+                      (magit-remote-list-tags remote)
                     (message "Determining remote tags...done")))
           (ltags  (-difference tags rtags))
           (rtags  (-difference rtags tags)))
