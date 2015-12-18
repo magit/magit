@@ -303,7 +303,7 @@ Both the source and the target are read in the minibuffer."
 ;;;###autoload
 (defun magit-push-matching (remote &optional args)
   "Push all matching branches to another repository.
-If multiple remotes exit, then read one from the user.
+If multiple remotes exist, then read one from the user.
 If just one exists, use that without requiring confirmation."
   (interactive (list (magit-read-remote "Push matching branches to" nil t)
                      (magit-push-arguments)))
