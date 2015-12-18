@@ -1263,27 +1263,36 @@ changes.
 (defun magit-branch-and-checkout (branch start-point &optional args)
   "Create and checkout BRANCH at branch or revision START-POINT.
 \n(git checkout [ARGS] -b BRANCH START-POINT)."
-  (interactive (magit-branch-read-args "Create and checkout branch"
-                                       (magit-stash-at-point)))
+  (interactive (magit-branch-read-args "Create and checkout branch"))
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
     (magit-run-git "checkout" args "-b" branch start-point)))
 
-(defun magit-branch-read-args (prompt &optional secondary-default)
+(defun magit-branch-read-starting-point (prompt)
+  (or (magit-completing-read
+       (concat prompt " starting at")
+       (cons "HEAD" (magit-list-refnames))
+       nil nil nil 'magit-revision-history
+       (or (magit-remote-branch-at-point)
+           (magit-local-branch-at-point)
+           (magit-commit-at-point)
+           (magit-stash-at-point)
+           (magit-get-current-branch)))
+      (user-error "Nothing selected")))
+
+(defun magit-branch-read-args (prompt)
   (let ((args (magit-branch-arguments)) start branch)
-    (cond
-     (magit-branch-read-upstream-first
-      (setq start  (magit-read-branch-or-commit (concat prompt " starting at")
-                                                secondary-default))
-      (setq branch (magit-read-string-ns
-                    "Branch name"
-                    (and (member start (magit-list-remote-branch-names))
-                         (mapconcat #'identity
-                                    (cdr (split-string start "/")) "/")))))
-     (t
-      (setq branch (magit-read-string-ns "Branch name"))
-      (setq start  (magit-read-branch-or-commit (concat prompt " starting at")
-                                                secondary-default))))
+    (cond (magit-branch-read-upstream-first
+           (setq start  (magit-branch-read-starting-point prompt))
+           (setq branch (magit-read-string-ns
+                         "Branch name"
+                         (and (member start (magit-list-remote-branch-names))
+                              (mapconcat #'identity
+                                         (cdr (split-string start "/"))
+                                         "/")))))
+          (t
+           (setq branch (magit-read-string-ns "Branch name"))
+           (setq start  (magit-branch-read-starting-point prompt))))
     (list branch start args)))
 
 ;;;###autoload
