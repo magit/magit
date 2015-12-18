@@ -641,6 +641,10 @@ string \"true\", otherwise return nil."
 (defun magit-rev-equal (a b)
   (magit-git-success "diff" "--quiet" a b))
 
+(defun magit-rev-ancestor-p (a b)
+  "Return non-nil if commit A is an ancestor of commit B."
+  (magit-git-success "merge-base" "--is-ancestor" a b))
+
 (defun magit-rev-head-p (rev)
   (or (equal rev "HEAD")
       (and rev
