@@ -174,9 +174,9 @@ Then show the status buffer for the new repository."
                     (propertize it           'face 'magit-branch-local)
                     (propertize " from"      'face 'magit-popup-heading))
                  (propertize "Pull from" 'face 'magit-popup-heading)))
-             (?p magit-get-push-branch    magit-pull-from-pushremote)
-             (?u magit-get-tracked-branch magit-pull-from-upstream)
-             (?e "elsewhere"              magit-pull))
+             (?p magit-get-push-branch     magit-pull-from-pushremote)
+             (?u magit-get-upstream-branch magit-pull-from-upstream)
+             (?e "elsewhere"               magit-pull))
   :default-action 'magit-pull
   :max-action-columns 1)
 
@@ -206,7 +206,7 @@ Then show the status buffer for the new repository."
 (defun magit-pull-from-upstream (args)
   "Pull from the upstream of the current branch."
   (interactive (list (magit-pull-arguments)))
-  (--if-let (magit-get-tracked-branch)
+  (--if-let (magit-get-upstream-branch)
       (magit-git-pull it args)
     (--if-let (magit-get-current-branch)
         (user-error "No upstream is configured for %s" it)
@@ -235,9 +235,9 @@ Then show the status buffer for the new repository."
                  (concat (propertize "Push " 'face 'magit-popup-heading)
                          (propertize it      'face 'magit-branch-local)
                          (propertize " to"   'face 'magit-popup-heading))))
-             (?p magit-get-push-branch    magit-push-current-to-pushremote)
-             (?u magit-get-tracked-branch magit-push-current-to-upstream)
-             (?e "elsewhere"              magit-push-current)
+             (?p magit-get-push-branch     magit-push-current-to-pushremote)
+             (?u magit-get-upstream-branch magit-push-current-to-upstream)
+             (?e "elsewhere"               magit-push-current)
              "Push"
              (?o "another branch"         magit-push)
              (?T "a tag"                  magit-push-tag)
@@ -271,7 +271,7 @@ If that variable is unset, then push to `remote.pushDefault'."
   "Push the current branch to its upstream branch."
   (interactive (list (magit-push-arguments)))
   (--if-let (magit-get-current-branch)
-      (-if-let (target (magit-get-tracked-branch it))
+      (-if-let (target (magit-get-upstream-branch it))
           (magit-git-push it target args)
         (user-error "No upstream is configured for %s" it))
     (user-error "No branch is checked out")))
@@ -295,7 +295,7 @@ Both the source and the target are read in the minibuffer."
    (let ((source (magit-read-local-branch-or-commit "Push")))
      (list source
            (magit-read-remote-branch (format "Push %s to" source) nil
-                                     (magit-get-tracked-branch source)
+                                     (magit-get-upstream-branch source)
                                      source 'confirm)
            (magit-push-arguments))))
   (magit-git-push source target args))
@@ -382,7 +382,7 @@ END is the last commit, usually a branch name, which upstream
 is asked to pull.  START has to be reachable from that commit."
   (interactive
    (list (magit-get "remote" (magit-read-remote "Remote") "url")
-         (magit-read-branch-or-commit "Start" (magit-get-tracked-branch))
+         (magit-read-branch-or-commit "Start" (magit-get-upstream-branch))
          (magit-read-branch-or-commit "End")))
   (let ((dir default-directory))
     ;; mu4e changes default-directory

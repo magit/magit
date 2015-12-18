@@ -467,7 +467,7 @@ detached `HEAD'."
 
 (cl-defun magit-insert-upstream-branch-header
     (&optional (branch (magit-get-current-branch))
-               (pull   (magit-get-tracked-branch branch))
+               (pull   (magit-get-upstream-branch branch))
                keyword)
   "Insert a header line about branch usually pulled into current branch."
   (when pull
@@ -1305,7 +1305,7 @@ began on the old branch (likely but not necessarily \"master\")."
   (-if-let (current (magit-get-current-branch))
       (let (tracked base)
         (magit-call-git "checkout" args "-b" branch current)
-        (when (and (setq tracked (magit-get-tracked-branch current))
+        (when (and (setq tracked (magit-get-upstream-branch current))
                    (setq base (magit-git-string "merge-base" current tracked))
                    (not (magit-rev-equal base current)))
           (magit-run-git "update-ref" "-m"
@@ -1334,7 +1334,7 @@ realize it's all crap and want to start over."
                                   (delete branch (magit-list-branch-names))
                                   nil nil nil 'magit-revision-history
                                   (or (and (not (equal branch atpoint)) atpoint)
-                                      (magit-get-tracked-branch branch)))
+                                      (magit-get-upstream-branch branch)))
            (magit-branch-arguments))))
   (unless (member "--force" args)
     (setq args (cons "--force" args)))
@@ -1487,7 +1487,7 @@ is the full reference of the upstream branch, on the remote."
    (let ((branch (or (and (not current-prefix-arg)
                           (magit-get-current-branch))
                      (magit-read-local-branch "Change upstream of branch"))))
-     (list branch (and (not (magit-get-tracked-branch branch))
+     (list branch (and (not (magit-get-upstream-branch branch))
                        (magit-completing-read
                         (format "Change upstream of %s to" branch)
                         (delete branch (magit-list-branch-names))

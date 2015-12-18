@@ -1162,7 +1162,7 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
   (interactive
    (let  ((head (magit-read-branch "Cherry head")))
      (list head (magit-read-other-branch "Cherry upstream" head
-                                         (magit-get-tracked-branch head)))))
+                                         (magit-get-upstream-branch head)))))
   (magit-mode-setup #'magit-cherry-mode upstream head))
 
 (defun magit-cherry-refresh-buffer (_upstream _head)
@@ -1268,7 +1268,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
     (magit-insert-section (unpulled "..@{upstream}")
       (magit-insert-heading
         (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
-                (magit-get-tracked-branch)))
+                (magit-get-upstream-branch)))
       (magit-insert-log "..@{upstream}" magit-log-section-arguments))))
 
 (magit-define-section-jumper magit-jump-to-unpulled-from-pushremote
@@ -1301,7 +1301,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
     (magit-insert-section (unpushed "@{upstream}..")
       (magit-insert-heading
         (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
-                (magit-get-tracked-branch)))
+                (magit-get-upstream-branch)))
       (magit-insert-log "@{upstream}.." magit-log-section-arguments))))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
@@ -1391,7 +1391,7 @@ These sections can be expanded to show the respective commits."
         (dolist (module modules)
           (let ((default-directory
                   (expand-file-name (file-name-as-directory module))))
-            (-when-let (tracked (magit-get-tracked-ref))
+            (-when-let (tracked (magit-get-upstream-ref))
               (magit-insert-section sec (file module t)
                 (magit-insert-heading
                   (concat (propertize module 'face 'magit-diff-file-heading) ":"))
@@ -1411,7 +1411,7 @@ These sections can be expanded to show the respective commits."
         (dolist (module modules)
           (let ((default-directory
                   (expand-file-name (file-name-as-directory module))))
-            (-when-let (tracked (magit-get-tracked-ref))
+            (-when-let (tracked (magit-get-upstream-ref))
               (magit-insert-section sec (file module t)
                 (magit-insert-heading
                   (concat (propertize module 'face 'magit-diff-file-heading) ":"))

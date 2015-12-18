@@ -729,7 +729,7 @@ which is different from the current branch and still exists."
       (cl-incf i))
     prev))
 
-(cl-defun magit-get-tracked-ref
+(cl-defun magit-get-upstream-ref
     (&optional (branch (magit-get-current-branch)))
   (when branch
     (let ((remote (magit-get "branch" branch "remote"))
@@ -739,7 +739,7 @@ which is different from the current branch and still exists."
               ((string-prefix-p "refs/heads/" merge)
                (concat "refs/remotes/" remote "/" (substring merge 11))))))))
 
-(cl-defun magit-get-tracked-branch
+(cl-defun magit-get-upstream-branch
     (&optional (branch (magit-get-current-branch)))
   (when branch
     (let ((remote (magit-get "branch" branch "remote"))
@@ -750,7 +750,7 @@ which is different from the current branch and still exists."
             (propertize merge 'face 'magit-branch-local)
           (propertize (concat remote "/" merge) 'face 'magit-branch-remote))))))
 
-(cl-defun magit-get-tracked-remote
+(cl-defun magit-get-upstream-remote
     (&optional (branch (magit-get-current-branch)))
   (when branch
     (magit-get "branch" branch "remote")))
@@ -848,7 +848,7 @@ where COMMITS is the number of commits in TAG but not in REV."
                    (magit-git-lines "branch" "--no-merged" commit))))
 
 (defun magit-list-unmerged-to-upstream-branches ()
-  (--filter (-when-let (upstream (magit-get-tracked-branch it))
+  (--filter (-when-let (upstream (magit-get-upstream-branch it))
               (member it (magit-list-unmerged-branches upstream)))
             (magit-list-local-branch-names)))
 
@@ -1221,6 +1221,14 @@ Return a list of two integers: (A>B B>A)."
     (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
 
 ;;; magit-git.el ends soon
+
+(define-obsolete-function-alias 'magit-get-tracked-ref
+  'magit-get-upstream-ref "Magit 2.4.0")
+(define-obsolete-function-alias 'magit-get-tracked-branch
+  'magit-get-upstream-branch "Magit 2.4.0")
+(define-obsolete-function-alias 'magit-get-tracked-remote
+  'magit-get-upstream-remote "Magit 2.4.0")
+
 (provide 'magit-git)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

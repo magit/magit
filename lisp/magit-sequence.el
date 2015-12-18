@@ -302,9 +302,9 @@ This discards all changes made since the sequence started."
                         (propertize (or (magit-get-current-branch) "HEAD")
                                     'face 'magit-branch-local)
                         (propertize " onto" 'face 'magit-popup-heading)))
-              (?p magit-get-push-branch    magit-rebase-onto-pushremote)
-              (?u magit-get-tracked-branch magit-rebase-onto-upstream)
-              (?e "elsewhere"              magit-rebase)
+              (?p magit-get-push-branch     magit-rebase-onto-pushremote)
+              (?u magit-get-upstream-branch magit-rebase-onto-upstream)
+              (?e "elsewhere"               magit-rebase)
               "Rebase"
               (?i "interactively"      magit-rebase-interactive)
               (?m "to edit a commit"   magit-rebase-edit-commit)
@@ -339,7 +339,7 @@ If that variable is unset, then rebase onto `remote.pushDefault'."
   "Rebase the current branch onto its upstream branch."
   (interactive (list (magit-rebase-arguments)))
   (--if-let (magit-get-current-branch)
-      (-if-let (target (magit-get-tracked-branch it))
+      (-if-let (target (magit-get-upstream-branch it))
           (magit-git-rebase target args)
         (user-error "No upstream is configured for %s" it))
     (user-error "No branch is checked out")))
@@ -365,7 +365,7 @@ START has to be selected from a list of recent commits."
   (interactive (list (magit-read-other-branch-or-commit
                       "Rebase subset onto"
                       (magit-get-current-branch)
-                      (magit-get-tracked-branch))
+                      (magit-get-upstream-branch))
                      nil
                      (magit-rebase-arguments)))
   (if start
@@ -382,7 +382,7 @@ START has to be selected from a list of recent commits."
   (declare (indent 2))
   (when commit
     (if (eq commit :merge-base)
-        (setq commit (--if-let (magit-get-tracked-branch)
+        (setq commit (--if-let (magit-get-upstream-branch)
                          (magit-git-string "merge-base" it "HEAD")
                        nil))
       (when (magit-git-failure "merge-base" "--is-ancestor" commit "HEAD")

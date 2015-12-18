@@ -629,7 +629,7 @@ If no DWIM context is found, nil is returned."
       (branch (let ((current (magit-get-current-branch))
                     (atpoint (magit-section-value it)))
                 (if (equal atpoint current)
-                    (--if-let (magit-get-tracked-branch)
+                    (--if-let (magit-get-upstream-branch)
                         (format "%s...%s" it current)
                       (if (magit-anything-modified-p)
                           current
