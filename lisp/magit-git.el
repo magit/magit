@@ -775,6 +775,12 @@ which is different from the current branch and still exists."
   (-when-let (remote (and branch (magit-get-push-remote branch)))
     (concat remote "/" branch)))
 
+(defun magit-get-@{push}-branch (&optional branch)
+  (let ((ref (magit-rev-parse "--symbolic-full-name"
+                              (concat branch "@{push}"))))
+    (when (and ref (string-prefix-p "refs/remotes/" ref))
+      (substring ref 13))))
+
 (defun magit-get-remote (&optional branch)
   (when (or branch (setq branch (magit-get-current-branch)))
     (let ((remote (magit-get "branch" branch "remote")))
