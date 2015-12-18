@@ -69,6 +69,7 @@
 (declare-function magit-set 'magit-git)
 
 ;; For branch actions.
+(declare-function magit-branch-set-face 'magit-git)
 (declare-function magit-local-branch-p 'magit-git)
 
 ;;; Settings
@@ -1195,9 +1196,9 @@ of events shared by all popups and before point is adjusted.")
     (when fun
       (setq dsc
             (-when-let (branch (funcall fun))
-              (propertize branch 'face (if (magit-local-branch-p branch)
-                                           'magit-branch-local
-                                         'magit-branch-remote)))))
+              (if (next-single-property-change 0 'face (concat "0" branch))
+                  branch
+                (magit-branch-set-face branch)))))
     (when dsc
       (list (format-spec
              (button-type-get type 'format)
