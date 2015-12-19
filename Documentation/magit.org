@@ -2957,17 +2957,16 @@ two remotes should be used as "the remote".
 
 Each of the fetching, pulling, and pushing popups features three
 commands which act on the current branch and some other branch.  Of
-these, ~p~ is bound to command which acts on the push-remote, ~u~ is bound
-to the command which acts on the upstream, and ~e~ is bound to a command
-which acts on any other branch.  The status buffer shows unpushed and
-unpulled for both the push-remote and the upstream.  In other words;
-embrace the fact that two remotes can be configure for any local
-branch.
+these, ~p~ is bound to a command which acts on the push-remote, ~u~ is
+bound to a command which acts on the upstream, and ~e~ is bound to a
+command which acts on any other branch.  The status buffer shows
+unpushed and unpulled for both the push-remote and the upstream.
 
-It's also easy to configure these two remotes.  The values of all the
-variables that are related to fetching, pulling, and pushing (as well
-as some other branch-related variables) can be inspected and changed
-in the branching popup.
+It's fairly simple to configure these two remotes.  The values of all
+the variables that are related to fetching, pulling, and pushing (as
+well as some other branch-related variables) can be inspected and
+changed in the branching popup.  It is also possible to set the
+push-remote and/or upstream while pushing (see [[*Pushing]]).
 
 - Key: b, magit-branch-popup
 
@@ -3075,9 +3074,9 @@ automatically set at this time.
   - When ~never~ (the default) then the variable is never set.
 
 Note that the respective commands always change the repository-local
-values.  If you want to change the global value which is used when the
-local value is undefined, then you have to do so on the command line,
-e.g.:
+values.  If you want to change the global value, which is used when
+the local value is undefined, then you have to do so on the command
+line, e.g.:
 
 #+BEGIN_SRC shell
   git config --global remote.autoSetupMerge always
