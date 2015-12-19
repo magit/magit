@@ -10,7 +10,6 @@
 #+SUBTITLE: for version 2.3
 
 #+OPTIONS: H:4 num:3 toc:2
-#+STARTUP: indent
 
 * Copying
 :PROPERTIES:
