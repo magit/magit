@@ -3813,6 +3813,17 @@ Also see [[info:gitman#git-remote]].
 
   Delete a remote, read from the minibuffer.
 
+- User Option: magit-remote-add-set-branch.pushDefault
+
+  Whether to set the value of ~branch.pushDefault~ after adding a
+  remote.
+
+  If ~ask~, then always ask.  If ~ask-if-unset~, then ask, but only if the
+  variable isn't set already.  If ~nil~, then don't ever set.  If the
+  value is a string, then set without asking, provided the name of the
+  name of the added remote is equal to that string and the variable
+  isn't already set.
+
 ** Fetching
 
 Also see [[info:gitman#git-fetch]].

@@ -5328,7 +5328,20 @@ read in the minibuffer.
 @item @kbd{M k} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-remove})
 
 Delete a remote, read from the minibuffer.
+
 @end table
+
+@defopt magit-remote-add-set-branch.pushDefault
+
+Whether to set the value of @code{branch.pushDefault} after adding a
+remote.
+
+If @code{ask}, then always ask.  If @code{ask-if-unset}, then ask, but only if the
+variable isn't set already.  If @code{nil}, then don't ever set.  If the
+value is a string, then set without asking, provided the name of the
+name of the added remote is equal to that string and the variable
+isn't already set.
+@end defopt
 
 @node Fetching
 @section Fetching

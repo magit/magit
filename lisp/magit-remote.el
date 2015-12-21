@@ -69,6 +69,21 @@ Then show the status buffer for the new repository."
 
 ;;; Setup
 
+(defcustom magit-remote-add-set-branch.pushDefault 'ask-if-unset
+  "Whether to set the value of `branch.pushDefault' after adding a remote.
+
+If `ask', then always ask.  If `ask-if-unset', then ask, but only
+if the variable isn't set already.  If nil, then don't ever set.
+If the value is a string, then set without asking, provided the
+name of the name of the added remote is equal to that string and
+the variable isn't already set."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-commands
+  :type '(choice (const  "ask if unset" ask-if-unset)
+                 (const  "always ask" ask)
+                 (string "set if named")
+                 (const  "don't set")))
+
 ;;;###autoload (autoload 'magit-remote-popup "magit-remote" nil t)
 (magit-define-popup magit-remote-popup
   "Popup console for remote commands."
@@ -90,7 +105,15 @@ Then show the status buffer for the new repository."
   "Add a remote named REMOTE and fetch it."
   (interactive (list (magit-read-string-ns "Remote name")
                      (magit-read-url "Remote url")))
-  (magit-run-git-async "remote" "add" "-f" remote url))
+  (if (pcase (list magit-remote-add-set-branch.pushDefault
+                   (magit-get "branch.defaultPush"))
+        (`(,(pred stringp) ,_) t)
+        ((or `(ask ,_) `(ask-if-unset nil))
+         (y-or-n-p (format "Set `branch.pushDefault' to \"%s\"? " remote))))
+      (progn (magit-call-git "remote" "add" "-f" remote url)
+             (magit-call-git "config" "branch.pushDefault" remote)
+             (magit-refresh))
+    (magit-run-git-async "remote" "add" "-f" remote url)))
 
 ;;;###autoload
 (defun magit-remote-rename (old new)
