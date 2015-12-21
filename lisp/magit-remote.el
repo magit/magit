@@ -354,7 +354,7 @@ the push-remote can be changed before pushed to it."
   (--if-let (magit-get-push-branch)
       (concat (magit-branch-set-face it) "\n")
     (and (magit--push-current-set-pushremote-p)
-         (concat (propertize "@{push}" 'face 'bold)
+         (concat (propertize "pushRemote" 'face 'bold)
                  ", after setting that\n"))))
 
 ;;;###autoload
