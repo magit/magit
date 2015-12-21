@@ -58,6 +58,8 @@ Changes since v2.3.0
 * The option `magit-branch-prefer-remote-upstream' was added for users
   who prefer to always use remote branches as upstreams.  #2447
 
+* The option `magit-clone-set-branch.pushDefault' was added.  #2447
+
 * The command `magit-push-implicitly', Magit's equivalent of `git
   push', was removed.  #2414
 

@@ -33,6 +33,17 @@
 
 ;;; Clone
 
+(defcustom magit-clone-set-branch.pushDefault 'ask
+  "Whether to set the value of `branch.pushDefault' after cloning.
+
+If t, then set without asking.  If nil, then don't set.  If
+`ask', then ask."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-commands
+  :type '(choice (const "set" t)
+                 (const "ask" ask)
+                 (const "don't set" nil)))
+
 ;;;###autoload
 (defun magit-clone (repository directory)
   "Clone the REPOSITORY to DIRECTORY.
@@ -49,6 +60,10 @@ Then show the status buffer for the new repository."
                            ;; Stop cygwin git making a "c:" directory.
                            (magit-convert-git-filename directory))
            0)
+    (when (or (eq  magit-clone-set-branch.pushDefault t)
+              (and magit-clone-set-branch.pushDefault
+                   (y-or-n-p "Set `branch.pushDefault' to \"origin\"? ")))
+      (magit-call-git "config" "branch.pushDefault" "origin"))
     (message "Cloning %s...done" repository)
     (magit-status-internal directory)))
 

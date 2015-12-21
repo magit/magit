@@ -3399,7 +3399,16 @@ This command clones a repository and then shows the status buffer
 for the new repository.
 
 The user is queried for a remote url and a local directory.
+
 @end table
+
+@defopt magit-clone-set-branch.pushDefault
+
+Whether to set the value of @code{branch.pushDefault} after cloning.
+
+If @code{t}, then set without asking.  If @code{nil}, then don't set.  If @code{ask},
+then ask the user every time she clones a repository.
+@end defopt
 
 @node Staging and unstaging
 @section Staging and unstaging

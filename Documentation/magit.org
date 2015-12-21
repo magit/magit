@@ -2457,6 +2457,13 @@ Also see [[info:gitman#git-blame]].
 
   The user is queried for a remote url and a local directory.
 
+- User Option: magit-clone-set-branch.pushDefault
+
+  Whether to set the value of ~branch.pushDefault~ after cloning.
+
+  If ~t~, then set without asking.  If ~nil~, then don't set.  If ~ask~,
+  then ask the user every time she clones a repository.
+
 ** Staging and unstaging
 
 Like Git, Magit can of course stage and unstage complete files.
