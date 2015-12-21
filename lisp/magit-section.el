@@ -959,8 +959,19 @@ invisible."
                 magit-section-visibility-cache)))
 
 (defun magit-section-visibility-ident (section)
-  (cons (magit-section-type  section)
-        (magit-section-value section)))
+  (let ((type  (magit-section-type  section))
+        (value (magit-section-value section)))
+    (cons type
+          (cond ((not (memq type '(unpulled unpushed))) value)
+                ((string-match-p "@{upstream}" value) value)
+                ;; Unfortunately Git chokes on "@{push}" when the
+                ;; value of `push.default' does not allow a 1:1
+                ;; mapping.  But collapsed logs of unpushed and
+                ;; unpulled commits in the status buffer should
+                ;; remain invisible after changing branches.
+                ;; So we have to pretend the value is constant.
+                ((string-match-p "\\`\\.\\." value) "..@{push}")
+                (t "@{push}..")))))
 
 ;;; Utilities
 
