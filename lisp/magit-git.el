@@ -760,6 +760,19 @@ which is different from the current branch and still exists."
             (propertize merge 'face 'magit-branch-local)
           (propertize (concat remote "/" merge) 'face 'magit-branch-remote))))))
 
+(defun magit-get-indirect-upstream-branch (branch)
+  (let ((remote (magit-get "branch" branch "remote")))
+    (and remote (not (equal remote "."))
+         ;; The local BRANCH tracks a remote branch...
+         (let ((upstream (magit-get-upstream-branch branch)))
+           ;; whose upstream...
+           (and upstream
+                ;; has the same name as BRANCH and...
+                (equal (substring upstream (1+ (length remote))) branch)
+                ;; and can be fast-forwarded to BRANCH.
+                (magit-rev-ancestor-p upstream branch)
+                upstream)))))
+
 (cl-defun magit-get-upstream-remote
     (&optional (branch (magit-get-current-branch)))
   (when branch
