@@ -211,6 +211,43 @@ the remote branch and then checking out the new local branch."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-branch-prefer-remote-upstream nil
+  "Whether to favor remote upstreams when creating new branches.
+
+When a new branch is created, Magit offer the branch, commit, or
+stash as the default starting-point as the starting point of the
+new branch.  If there is no such thing at point, then it falls
+back to offer the current branch as starting-point.  The user may
+then accept that default or pick something else.
+
+If the chosen starting-point is a branch, then it may also be set
+as the upstream of the new branch, depending on the value of the
+Git variable `branch.autoSetupMerge'.  By default this is done
+for remote branches, but not for local branches.
+
+You might prefer to always use some remote branch as upstream.
+If the default starting-point is (1) a local branch, (2) whose
+name is a member of the value of this option, (3) the upstream of
+that local branch is a remote branch with the same name, and (4)
+that remote branch can be fast-forwarded to the local branch,
+then instead of offering the local branch as starting-point, the
+remote branch is offered as such.
+
+Assuming you accept the default you would then end up with e.g.:
+
+  feature --upstream--> origin/master
+
+instead of
+
+  feature --upstream--> master --upstream--> origin/master
+
+Which you prefer is a matter of personal preference.  If you do
+prefer the former, then you should add branches such as \"master\",
+\"next\", and \"maint\" to the value of this options."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-commands
+  :type '(repeat string))
+
 (defcustom magit-repository-directories nil
   "Directories containing Git repositories.
 Magit checks these directories for Git repositories and offers
@@ -1274,10 +1311,12 @@ changes.
        (cons "HEAD" (magit-list-refnames))
        nil nil nil 'magit-revision-history
        (or (magit-remote-branch-at-point)
-           (magit-local-branch-at-point)
+           (--when-let (magit-local-branch-at-point)
+             (or (magit-get-indirect-upstream-branch it) it))
            (magit-commit-at-point)
            (magit-stash-at-point)
-           (magit-get-current-branch)))
+           (--when-let (magit-get-current-branch)
+             (or (magit-get-indirect-upstream-branch it) it))))
       (user-error "Nothing selected")))
 
 (defun magit-branch-read-args (prompt)
@@ -1306,7 +1345,13 @@ upstream or no unpushed commits, then the new branch is created
 anyway and the previously current branch is not touched.
 
 This is useful to create a feature branch after work has already
-began on the old branch (likely but not necessarily \"master\")."
+began on the old branch (likely but not necessarily \"master\").
+
+If the current branch is a member of the value of option
+`magit-branch-prefer-remote-upstream' (which see), then the
+current branch will be used as the starting point as usual, but
+the upstream of the starting-point may be used as the upstream
+of the new branch, instead of the starting-point itself."
   (interactive (list (magit-read-string "Spin off branch")
                      (magit-branch-arguments)))
   (when (magit-branch-p branch)
@@ -1314,6 +1359,8 @@ began on the old branch (likely but not necessarily \"master\")."
   (-if-let (current (magit-get-current-branch))
       (let (tracked base)
         (magit-call-git "checkout" args "-b" branch current)
+        (--when-let (magit-get-indirect-upstream-branch current)
+          (magit-call-git "branch" "--set-upstream-to" it branch))
         (when (and (setq tracked (magit-get-upstream-branch current))
                    (setq base (magit-git-string "merge-base" current tracked))
                    (not (magit-rev-equal base current)))

@@ -33,6 +33,17 @@
 
 ;;; Clone
 
+(defcustom magit-clone-set-branch.pushDefault 'ask
+  "Whether to set the value of `branch.pushDefault' after cloning.
+
+If t, then set without asking.  If nil, then don't set.  If
+`ask', then ask."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-commands
+  :type '(choice (const "set" t)
+                 (const "ask" ask)
+                 (const "don't set" nil)))
+
 ;;;###autoload
 (defun magit-clone (repository directory)
   "Clone the REPOSITORY to DIRECTORY.
@@ -49,10 +60,29 @@ Then show the status buffer for the new repository."
                            ;; Stop cygwin git making a "c:" directory.
                            (magit-convert-git-filename directory))
            0)
+    (when (or (eq  magit-clone-set-branch.pushDefault t)
+              (and magit-clone-set-branch.pushDefault
+                   (y-or-n-p "Set `branch.pushDefault' to \"origin\"? ")))
+      (magit-call-git "config" "branch.pushDefault" "origin"))
     (message "Cloning %s...done" repository)
     (magit-status-internal directory)))
 
 ;;; Setup
+
+(defcustom magit-remote-add-set-branch.pushDefault 'ask-if-unset
+  "Whether to set the value of `branch.pushDefault' after adding a remote.
+
+If `ask', then always ask.  If `ask-if-unset', then ask, but only
+if the variable isn't set already.  If nil, then don't ever set.
+If the value is a string, then set without asking, provided the
+name of the name of the added remote is equal to that string and
+the variable isn't already set."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-commands
+  :type '(choice (const  "ask if unset" ask-if-unset)
+                 (const  "always ask" ask)
+                 (string "set if named")
+                 (const  "don't set")))
 
 ;;;###autoload (autoload 'magit-remote-popup "magit-remote" nil t)
 (magit-define-popup magit-remote-popup
@@ -75,7 +105,15 @@ Then show the status buffer for the new repository."
   "Add a remote named REMOTE and fetch it."
   (interactive (list (magit-read-string-ns "Remote name")
                      (magit-read-url "Remote url")))
-  (magit-run-git-async "remote" "add" "-f" remote url))
+  (if (pcase (list magit-remote-add-set-branch.pushDefault
+                   (magit-get "branch.defaultPush"))
+        (`(,(pred stringp) ,_) t)
+        ((or `(ask ,_) `(ask-if-unset nil))
+         (y-or-n-p (format "Set `branch.pushDefault' to \"%s\"? " remote))))
+      (progn (magit-call-git "remote" "add" "-f" remote url)
+             (magit-call-git "config" "branch.pushDefault" remote)
+             (magit-refresh))
+    (magit-run-git-async "remote" "add" "-f" remote url)))
 
 ;;;###autoload
 (defun magit-remote-rename (old new)
@@ -221,28 +259,55 @@ Then show the status buffer for the new repository."
 
 ;;; Push
 
+(defcustom magit-push-current-set-remote-if-missing t
+  "Whether to configure missing remotes before pushing.
+
+When nil, then the command `magit-push-current-to-pushremote' and
+`magit-push-current-to-upstream' do not appear in the push popup
+if the push-remote resp. upstream is not configured.  If the user
+invokes one of these commands anyway, then it raises an error.
+
+When non-nil, then these commands always appear in the push
+popup.  But if the required configuration is missing, then they
+do appear in a way that indicates that this is the case.  If the
+user invokes one of them, then it asks for the necessary
+configuration, stores the configuration, and then uses it to push
+a first time.
+
+This option also affects whether the argument `--set-upstream' is
+available in the popup.  If the value is t, then that argument is
+redundant.  But note that changing the value of this options here
+does not take affect immediately, the argument will only be added
+or removed after restarting Emacs."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;;###autoload (autoload 'magit-push-popup "magit-remote" nil t)
 (magit-define-popup magit-push-popup
   "Popup console for push commands."
   'magit-commands
   :man-page "git-push"
-  :switches '((?f "Force"         "--force-with-lease")
+  :switches `((?f "Force"         "--force-with-lease")
               (?h "Disable hooks" "--no-verify")
               (?d "Dry run"       "--dry-run")
-              (?u "Set upstream"  "--set-upstream"))
+              ,@(and (not magit-push-current-set-remote-if-missing)
+                     '((?u "Set upstream"  "--set-upstream"))))
   :actions '((lambda ()
                (--when-let (magit-get-current-branch)
                  (concat (propertize "Push " 'face 'magit-popup-heading)
                          (propertize it      'face 'magit-branch-local)
                          (propertize " to"   'face 'magit-popup-heading))))
-             (?p magit-get-push-branch     magit-push-current-to-pushremote)
-             (?u magit-get-upstream-branch magit-push-current-to-upstream)
-             (?e "elsewhere"               magit-push-current)
+             (?p magit--push-current-to-pushremote-desc
+                 magit-push-current-to-pushremote)
+             (?u magit--push-current-to-upstream-desc
+                 magit-push-current-to-upstream)
+             (?e "elsewhere\n"       magit-push-current)
              "Push"
-             (?o "another branch"         magit-push)
-             (?T "a tag"                  magit-push-tag)
-             (?m "matching branches"      magit-push-matching)
-             (?t "all tags"               magit-push-tags))
+             (?o "another branch"    magit-push)
+             (?T "a tag"             magit-push-tag)
+             (?m "matching branches" magit-push-matching)
+             (?t "all tags"          magit-push-tags))
   :max-action-columns 2)
 
 (defun magit-git-push (branch target args)
@@ -254,27 +319,76 @@ Then show the status buffer for the new repository."
                                            branch target))))
 
 ;;;###autoload
-(defun magit-push-current-to-pushremote (args)
+(defun magit-push-current-to-pushremote (args &optional push-remote)
   "Push the current branch to `branch.<name>.pushRemote'.
-If that variable is unset, then push to `remote.pushDefault'."
-  (interactive (list (magit-push-arguments)))
+If that variable is unset, then push to `remote.pushDefault'.
+
+When `magit-push-current-set-remote-if-missing' is non-nil and
+the push-remote is not configured, then read the push-remote from
+the user, set it, and then push to it.  With a prefix argument
+the push-remote can be changed before pushed to it."
+  (interactive
+   (list (magit-push-arguments)
+         (and (magit--push-current-set-pushremote-p current-prefix-arg)
+              (magit-read-remote (format "Set push-remote of %s and push there"
+                                         (magit-get-current-branch))))))
   (--if-let (magit-get-current-branch)
-      (-if-let (remote (magit-get-push-remote it))
-          (if (member remote (magit-list-remotes))
-              (magit-git-push it (concat remote "/" it) args)
-            (user-error "Remote `%s' doesn't exist" remote))
-        (user-error "No push-remote is configured for %s" it))
+      (progn (when push-remote
+               (magit-call-git "config"
+                               (format "branch.%s.pushRemote"
+                                       (magit-get-current-branch))
+                               push-remote))
+             (-if-let (remote (magit-get-push-remote it))
+                 (if (member remote (magit-list-remotes))
+                     (magit-git-push it (concat remote "/" it) args)
+                   (user-error "Remote `%s' doesn't exist" remote))
+               (user-error "No push-remote is configured for %s" it)))
     (user-error "No branch is checked out")))
 
+(defun magit--push-current-set-pushremote-p (&optional change)
+  (and (or change magit-push-current-set-remote-if-missing)
+       (magit-get-current-branch)
+       (not (magit-get-push-remote))))
+
+(defun magit--push-current-to-pushremote-desc ()
+  (--if-let (magit-get-push-branch)
+      (concat (magit-branch-set-face it) "\n")
+    (and (magit--push-current-set-pushremote-p)
+         (concat (propertize "@{push}" 'face 'bold)
+                 ", after setting that\n"))))
+
 ;;;###autoload
-(defun magit-push-current-to-upstream (args)
-  "Push the current branch to its upstream branch."
-  (interactive (list (magit-push-arguments)))
+(defun magit-push-current-to-upstream (args &optional upstream)
+  "Push the current branch to its upstream branch.
+
+When `magit-push-current-set-remote-if-missing' is non-nil and
+the upstream is not configured, then read the upstream from the
+user, set it, and then push to it.  With a prefix argument the
+upstream can be changed before pushed to it."
+  (interactive
+   (list (magit-push-arguments)
+         (and (magit--push-current-set-upstream-p current-prefix-arg)
+              (magit-read-remote (format "Set upstream of %s and push there"
+                                         (magit-get-current-branch))))))
   (--if-let (magit-get-current-branch)
-      (-if-let (target (magit-get-upstream-branch it))
-          (magit-git-push it target args)
-        (user-error "No upstream is configured for %s" it))
+      (progn (when upstream
+               (magit-call-git "branch" (concat "--set-upstream-to=" upstream)))
+             (-if-let (target (magit-get-upstream-branch it))
+                 (magit-git-push it target args)
+               (user-error "No upstream is configured for %s" it)))
     (user-error "No branch is checked out")))
+
+(defun magit--push-current-set-upstream-p (&optional change)
+  (and (or change magit-push-current-set-remote-if-missing)
+       (magit-get-current-branch)
+       (not (magit-get-upstream-branch))))
+
+(defun magit--push-current-to-upstream-desc ()
+  (--if-let (magit-get-upstream-branch)
+      (concat (magit-branch-set-face it) "\n")
+    (and (magit--push-current-set-upstream-p)
+         (concat (propertize "@{upstream}" 'face 'bold)
+                 ", after setting that\n"))))
 
 ;;;###autoload
 (defun magit-push-current (target args)

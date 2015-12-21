@@ -3399,7 +3399,16 @@ This command clones a repository and then shows the status buffer
 for the new repository.
 
 The user is queried for a remote url and a local directory.
+
 @end table
+
+@defopt magit-clone-set-branch.pushDefault
+
+Whether to set the value of @code{branch.pushDefault} after cloning.
+
+If @code{t}, then set without asking.  If @code{nil}, then don't set.  If @code{ask},
+then ask the user every time she clones a repository.
+@end defopt
 
 @node Staging and unstaging
 @section Staging and unstaging
@@ -4290,6 +4299,12 @@ anyway and the previously current branch is not touched.
 This is useful to create a feature branch after work has already
 began on the old branch (likely but not necessarily "master").
 
+If the current branch is a member of the value of option
+@code{magit-branch-prefer-remote-upstream} (which see), then the current
+branch will be used as the starting point as usual, but the upstream
+of the starting-point may be used as the upstream of the new branch,
+instead of the starting-point itself.
+
 @kindex b x
 @cindex magit-branch-reset
 @item @kbd{b x} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-reset})
@@ -4330,6 +4345,47 @@ name conflicts with an existing branch.
 When creating a branch, whether to read the upstream branch before
 the name of the branch that is to be created.  The default is @code{nil},
 and I recommend you leave it at that.
+@end defopt
+
+@defopt magit-branch-prefer-remote-upstream
+
+This option specifies whether remote upstreams are favored over
+local upstreams when creating new branches.
+
+When a new branch is created, Magit offer the branch, commit, or
+stash as the default starting-point as the starting point of the
+new branch.  If there is no such thing at point, then it falls
+back to offer the current branch as starting-point.  The user may
+then accept that default or pick something else.
+
+If the chosen starting-point is a branch, then it may also be set
+as the upstream of the new branch, depending on the value of the
+Git variable `branch.autoSetupMerge'.  By default this is done
+for remote branches, but not for local branches.
+
+You might prefer to always use some remote branch as upstream.
+If the default starting-point is (1) a local branch, (2) whose
+name is a member of the value of this option, (3) the upstream of
+that local branch is a remote branch with the same name, and (4)
+that remote branch can be fast-forwarded to the local branch,
+then instead of offering the local branch as starting-point, the
+remote branch is offered as such.
+
+Assuming you accept the default you would then end up with e.g.:
+
+@example
+feature --upstream--> origin/master
+@end example
+
+instead of
+
+@example
+feature --upstream--> master --upstream--> origin/master
+@end example
+
+Which you prefer is a matter of personal preference.  If you do
+prefer the former, then you should add branches such as @code{master},
+@code{next}, and @code{maint} to the value of this options.
 @end defopt
 
 @node Merging
@@ -5272,7 +5328,20 @@ read in the minibuffer.
 @item @kbd{M k} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-remove})
 
 Delete a remote, read from the minibuffer.
+
 @end table
+
+@defopt magit-remote-add-set-branch.pushDefault
+
+Whether to set the value of @code{branch.pushDefault} after adding a
+remote.
+
+If @code{ask}, then always ask.  If @code{ask-if-unset}, then ask, but only if the
+variable isn't set already.  If @code{nil}, then don't ever set.  If the
+value is a string, then set without asking, provided the name of the
+name of the added remote is equal to that string and the variable
+isn't already set.
+@end defopt
 
 @node Fetching
 @section Fetching
@@ -5407,11 +5476,21 @@ the appropriate infix arguments in a popup buffer.
 Push the current branch to @code{branch.<name>.pushRemote} or if that
 is unset to @code{remote.pushDefault}.
 
+When @code{magit-push-current-set-remote-if-missing} is non-nil and the
+push-remote is not configured, then read the push-remote from the
+user, set it, and then push to it.  With a prefix argument the
+push-remote can be changed before pushed to it.
+
 @kindex P u
 @cindex magit-push-current-to-upstream
 @item @kbd{P u} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current-to-upstream})
 
 Push the current branch to its upstream branch.
+
+When @code{magit-push-current-set-remote-if-missing} is non-nil and the
+push-remote is not configured, then read the upstram from the
+user, set it, and then push to it.  With a prefix argument the
+push-remote can be changed before pushed to it.
 
 @kindex P e
 @cindex magit-push-current
@@ -5447,7 +5526,31 @@ remote configured for the current branch as default.
 @item @kbd{P T} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-tag})
 
 Push a tag to another repository.
+
 @end table
+
+@defopt magit-push-current-set-remote-if-missing
+
+This option controls whether missing remotes are configured before
+pushing.
+
+When @code{nil}, then the command @code{magit-push-current-to-pushremote} and
+@code{magit-push-current-to-upstream} do not appear in the push popup if
+the push-remote resp. upstream is not configured.  If the user
+invokes one of these commands anyway, then it raises an error.
+
+When @code{non-nil}, then these commands always appear in the push popup.
+But if the required configuration is missing, then they do appear in
+a way that indicates that this is the case.  If the user invokes one
+of them, then it asks for the necessary configuration, stores the
+configuration, and then uses it to push a first time.
+
+This option also affects whether the argument @code{--set-upstream} is
+available in the popup.  If the value is @code{non-nil}, then that argument
+is redundant.  But note that changing the value of this options here
+does not take affect immediately, the argument8 will only be added
+or removed after restarting Emacs.
+@end defopt
 
 @node Creating and sending patches
 @section Creating and sending patches

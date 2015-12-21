@@ -2457,6 +2457,13 @@ Also see [[info:gitman#git-blame]].
 
   The user is queried for a remote url and a local directory.
 
+- User Option: magit-clone-set-branch.pushDefault
+
+  Whether to set the value of ~branch.pushDefault~ after cloning.
+
+  If ~t~, then set without asking.  If ~nil~, then don't set.  If ~ask~,
+  then ask the user every time she clones a repository.
+
 ** Staging and unstaging
 
 Like Git, Magit can of course stage and unstage complete files.
@@ -3117,6 +3124,12 @@ info:gitman#git-config.  Also see [[info:gitman#git-branch]],
   This is useful to create a feature branch after work has already
   began on the old branch (likely but not necessarily "master").
 
+  If the current branch is a member of the value of option
+  ~magit-branch-prefer-remote-upstream~ (which see), then the current
+  branch will be used as the starting point as usual, but the upstream
+  of the starting-point may be used as the upstream of the new branch,
+  instead of the starting-point itself.
+
 - Key: b x, magit-branch-reset
 
   This command resets a branch, defaulting to the branch at point, to
@@ -3149,6 +3162,46 @@ info:gitman#git-config.  Also see [[info:gitman#git-branch]],
   When creating a branch, whether to read the upstream branch before
   the name of the branch that is to be created.  The default is ~nil~,
   and I recommend you leave it at that.
+
+- User Option: magit-branch-prefer-remote-upstream
+
+  This option specifies whether remote upstreams are favored over
+  local upstreams when creating new branches.
+
+  When a new branch is created, Magit offer the branch, commit, or
+  stash as the default starting-point as the starting point of the
+  new branch.  If there is no such thing at point, then it falls
+  back to offer the current branch as starting-point.  The user may
+  then accept that default or pick something else.
+
+  If the chosen starting-point is a branch, then it may also be set
+  as the upstream of the new branch, depending on the value of the
+  Git variable `branch.autoSetupMerge'.  By default this is done
+  for remote branches, but not for local branches.
+
+  You might prefer to always use some remote branch as upstream.
+  If the default starting-point is (1) a local branch, (2) whose
+  name is a member of the value of this option, (3) the upstream of
+  that local branch is a remote branch with the same name, and (4)
+  that remote branch can be fast-forwarded to the local branch,
+  then instead of offering the local branch as starting-point, the
+  remote branch is offered as such.
+
+  Assuming you accept the default you would then end up with e.g.:
+
+  #+BEGIN_SRC text
+    feature --upstream--> origin/master
+  #+END_SRC
+
+  instead of
+
+  #+BEGIN_SRC text
+    feature --upstream--> master --upstream--> origin/master
+  #+END_SRC
+
+  Which you prefer is a matter of personal preference.  If you do
+  prefer the former, then you should add branches such as ~master~,
+  ~next~, and ~maint~ to the value of this options.
 
 ** Merging
 
@@ -3760,6 +3813,17 @@ Also see [[info:gitman#git-remote]].
 
   Delete a remote, read from the minibuffer.
 
+- User Option: magit-remote-add-set-branch.pushDefault
+
+  Whether to set the value of ~branch.pushDefault~ after adding a
+  remote.
+
+  If ~ask~, then always ask.  If ~ask-if-unset~, then ask, but only if the
+  variable isn't set already.  If ~nil~, then don't ever set.  If the
+  value is a string, then set without asking, provided the name of the
+  name of the added remote is equal to that string and the variable
+  isn't already set.
+
 ** Fetching
 
 Also see [[info:gitman#git-fetch]].
@@ -3825,9 +3889,19 @@ Also see [[info:gitman#git-push]].
   Push the current branch to ~branch.<name>.pushRemote~ or if that
   is unset to ~remote.pushDefault~.
 
+  When ~magit-push-current-set-remote-if-missing~ is non-nil and the
+  push-remote is not configured, then read the push-remote from the
+  user, set it, and then push to it.  With a prefix argument the
+  push-remote can be changed before pushed to it.
+
 - Key: P u, magit-push-current-to-upstream
 
   Push the current branch to its upstream branch.
+
+  When ~magit-push-current-set-remote-if-missing~ is non-nil and the
+  push-remote is not configured, then read the upstram from the
+  user, set it, and then push to it.  With a prefix argument the
+  push-remote can be changed before pushed to it.
 
 - Key: P e, magit-push-current
 
@@ -3853,6 +3927,28 @@ Also see [[info:gitman#git-push]].
 - Key: P T, magit-push-tag
 
   Push a tag to another repository.
+
+- User Option: magit-push-current-set-remote-if-missing
+
+  This option controls whether missing remotes are configured before
+  pushing.
+
+  When ~nil~, then the command ~magit-push-current-to-pushremote~ and
+  ~magit-push-current-to-upstream~ do not appear in the push popup if
+  the push-remote resp. upstream is not configured.  If the user
+  invokes one of these commands anyway, then it raises an error.
+
+  When ~non-nil~, then these commands always appear in the push popup.
+  But if the required configuration is missing, then they do appear in
+  a way that indicates that this is the case.  If the user invokes one
+  of them, then it asks for the necessary configuration, stores the
+  configuration, and then uses it to push a first time.
+
+  This option also affects whether the argument ~--set-upstream~ is
+  available in the popup.  If the value is ~non-nil~, then that argument
+  is redundant.  But note that changing the value of this options here
+  does not take affect immediately, the argument8 will only be added
+  or removed after restarting Emacs.
 
 ** Creating and sending patches
 
