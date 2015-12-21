@@ -29,12 +29,18 @@ Changes since v2.3.0
   are in some way related to branches.  The values of these variables
   can now be conveniently changed from that popup.  #2414
 
-* The fetching, pulling, pushing, and rebasing popups now feature an
-  action which acts on the push-remote, another which acts on the
-  upstream, and yet another which acts on any other source or target.
-  For each of these actions the respective branch is shown in the
-  popup.  If an action isn't currently usable, then it is omitted from
-  the popup.
+* The fetch, pull, push, and rebase popups now feature an action which
+  acts on the push-remote, another which acts on the upstream, and yet
+  another which acts on any other source or target.  For each of these
+  actions the respective branch is shown in the popup.
+
+  Each of these actions depends on certain Git variables being set.
+  When they are not set, then the action is omitted from the popup.
+
+  The actions in the push popup are displayed even if the respective
+  variables are unset - they then offer to set these variables before
+  pushing.  Setting `magit-push-current-set-remote-if-missing' to nil
+  disables this.
 
   Many key bindings were changed for consistency and safety reasons.
   Likewise many commands were renamed and their behavior was adjusted.

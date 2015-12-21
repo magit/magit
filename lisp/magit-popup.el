@@ -1108,10 +1108,7 @@ of events shared by all popups and before point is adjusted.")
                     (insert "\n"))))
               (unless (equal item '(""))
                 (if item
-                    (progn (apply 'insert-button item)
-                           (unless (memq (get-text-property 4 'face (car item))
-                                         '(bold nil))
-                             (insert ?\n)))
+                    (apply 'insert-button item)
                   (insert ?\s)))))
           (insert (if (= (char-before) ?\n) "\n" "\n\n")))))))
 
