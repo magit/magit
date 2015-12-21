@@ -445,6 +445,82 @@ branch as default."
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async-no-revert "push" remote tag args))
 
+;;;###autoload
+(defun magit-push-dwim (args)
+  "Push something according to various Git variables.
+
+This command simply runs \"git push -v [ARGS]\" where ARGS are the
+arguments specified in the popup buffer.  No other arguments are
+used - specifically no arguments are used that explicitly specify
+which branch(es) are to be pushed to which remote(s) and under
+which name(s).
+
+Instead the behavior depends on at least these Git variables:
+`push.default', `branch.pushDefault', `branch.<name>.pushRemote',
+`branch.<name>.remote', `branch.<name>.merge', and
+`remote.<name>.push'.
+
+To add this command to the push popup do this:
+
+  (with-eval-after-load 'magit-remote
+    (magit-define-popup-action 'magit-push-popup ?P
+      'magit-push-dwim--desc
+      'magit-push-dwim ?p t))
+
+Function `magit-push-dwim--desc' *attempts* to describe what will
+happen.  But I am not promising that it will always get it right.
+Use at your own risk."
+  (interactive (list (magit-push-arguments)))
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async-no-revert "push" "-v" args))
+
+(defun magit-push-dwim--desc ()
+  (let ((default (magit-get "push.default")))
+    (unless (equal default "nothing")
+      (or (-when-let* ((remote (or (magit-get-remote)
+                                   (magit-remote-p "origin")))
+                       (refspec (magit-get "remote" remote "push")))
+            (format "%s using %s"
+                    (propertize remote  'face 'magit-branch-remote)
+                    (propertize refspec 'face 'bold)))
+          (--when-let (and (not (magit-get-push-branch))
+                           (magit-get-upstream-branch))
+            (format "%s aka %s\n"
+                    (magit-branch-set-face it)
+                    (propertize "@{upstream}" 'face 'bold)))
+          (--when-let (magit-get-@{push}-branch)
+            (format "%s aka %s\n"
+                    (magit-branch-set-face it)
+                    (propertize "@{push}" 'face 'bold)))
+          (format "using %s (%s is %s)\n"
+                  (propertize "git push"     'face 'bold)
+                  (propertize "push.default" 'face 'bold)
+                  (propertize default        'face 'bold))))))
+
+;;;###autoload
+(defun magit-push-to-remote-dwim (remote args)
+  "Push something to REMOTE according to various Git variables.
+The REMOTE is read in the minibuffer.
+
+This command simply runs \"git push -v [ARGS] REMOTE\" where ARGS
+are the arguments specified in the popup buffer.  No refspec
+arguments are used.  Instead the behavior depends on various Git
+variables.  Also see `magit-push-dwim'.
+
+To add this command to the push popup do this:
+
+  (with-eval-after-load 'magit-remote
+    (magit-define-popup-action 'magit-push-popup ?r
+      'magit-push-to-remote-dwim--desc
+      'magit-push-to-remote-dwim ?p t))"
+  (interactive (list (magit-read-remote "Push to remote")
+                     (magit-push-arguments)))
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async-no-revert "push" "-v" args remote))
+
+(defun magit-push-to-remote-dwim--desc ()
+  (format "using %s\n" (propertize "git push <remote>" 'face 'bold)))
+
 ;;; Email
 
 ;;;###autoload (autoload 'magit-patch-popup "magit-remote" nil t)
