@@ -4290,6 +4290,12 @@ anyway and the previously current branch is not touched.
 This is useful to create a feature branch after work has already
 began on the old branch (likely but not necessarily "master").
 
+If the current branch is a member of the value of option
+@code{magit-branch-prefer-remote-upstream} (which see), then the current
+branch will be used as the starting point as usual, but the upstream
+of the starting-point may be used as the upstream of the new branch,
+instead of the starting-point itself.
+
 @kindex b x
 @cindex magit-branch-reset
 @item @kbd{b x} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-reset})
@@ -4330,6 +4336,47 @@ name conflicts with an existing branch.
 When creating a branch, whether to read the upstream branch before
 the name of the branch that is to be created.  The default is @code{nil},
 and I recommend you leave it at that.
+@end defopt
+
+@defopt magit-branch-prefer-remote-upstream
+
+This option specifies whether remote upstreams are favored over
+local upstreams when creating new branches.
+
+When a new branch is created, Magit offer the branch, commit, or
+stash as the default starting-point as the starting point of the
+new branch.  If there is no such thing at point, then it falls
+back to offer the current branch as starting-point.  The user may
+then accept that default or pick something else.
+
+If the chosen starting-point is a branch, then it may also be set
+as the upstream of the new branch, depending on the value of the
+Git variable `branch.autoSetupMerge'.  By default this is done
+for remote branches, but not for local branches.
+
+You might prefer to always use some remote branch as upstream.
+If the default starting-point is (1) a local branch, (2) whose
+name is a member of the value of this option, (3) the upstream of
+that local branch is a remote branch with the same name, and (4)
+that remote branch can be fast-forwarded to the local branch,
+then instead of offering the local branch as starting-point, the
+remote branch is offered as such.
+
+Assuming you accept the default you would then end up with e.g.:
+
+@example
+feature --upstream--> origin/master
+@end example
+
+instead of
+
+@example
+feature --upstream--> master --upstream--> origin/master
+@end example
+
+Which you prefer is a matter of personal preference.  If you do
+prefer the former, then you should add branches such as @code{master},
+@code{next}, and @code{maint} to the value of this options.
 @end defopt
 
 @node Merging

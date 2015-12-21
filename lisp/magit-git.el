@@ -38,6 +38,7 @@
 (declare-function magit-process-insert-section 'magit-process)
 (defvar magit-process-error-message-re)
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
+(defvar magit-branch-prefer-remote-upstream)
 
 (defvar magit-tramp-process-environment nil)
 
@@ -760,10 +761,12 @@ which is different from the current branch and still exists."
             (propertize merge 'face 'magit-branch-local)
           (propertize (concat remote "/" merge) 'face 'magit-branch-remote))))))
 
-(defun magit-get-indirect-upstream-branch (branch)
+(defun magit-get-indirect-upstream-branch (branch &optional force)
   (let ((remote (magit-get "branch" branch "remote")))
     (and remote (not (equal remote "."))
-         ;; The local BRANCH tracks a remote branch...
+         ;; The user has opted in...
+         (or force (member branch magit-branch-prefer-remote-upstream))
+         ;; and local BRANCH tracks a remote branch...
          (let ((upstream (magit-get-upstream-branch branch)))
            ;; whose upstream...
            (and upstream
