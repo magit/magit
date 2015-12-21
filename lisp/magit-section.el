@@ -91,16 +91,18 @@ diff-related sections being the only exception."
   :options '(magit-diff-unhighlight))
 
 (defcustom magit-section-set-visibility-hook
-  '(magit-diff-expansion-threshold magit-revision-set-visibility)
+  '(magit-diff-expansion-threshold
+    magit-section-set-visibility-from-cache)
   "Hook used to set the initial visibility of a section.
 Stop at the first function that returns non-nil.  The value
 should be `show' or `hide'.  If no function returns non-nil
 determine the visibility as usual, i.e. use the hardcoded
 section specific default (see `magit-insert-section')."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.4.0")
   :group 'magit-section
   :type 'hook
-  :options '(magit-diff-expansion-threshold magit-revision-set-visibility))
+  :options '(magit-diff-expansion-threshold
+             magit-section-set-visibility-from-cache))
 
 (defface magit-section-highlight
   '((((class color) (background light)) :background "grey95")
@@ -311,6 +313,7 @@ With a prefix argument also expand it." heading)
     (magit-section-update-highlight))
   (-when-let (beg (magit-section-content section))
     (remove-overlays beg (magit-section-end section) 'invisible t))
+  (magit-section-update-visibility-cache section)
   (dolist (child (magit-section-children section))
     (if (magit-section-hidden child)
         (magit-section-hide child)
@@ -931,6 +934,44 @@ invisible."
       (--when-let (magit-section-parent section)
         (or (magit-get-section (magit-section-ident it))
             (magit-section-goto-successor-1 it)))))
+
+;;; Visibility
+
+(defvar-local magit-section-visibility-cache nil)
+(put 'magit-section-visibility-cache 'permanent-local t)
+
+(defun magit-section-set-visibility-from-cache (section)
+  (and (member (magit-section-visibility-ident section)
+               magit-section-visibility-cache)
+       'hide))
+
+(cl-defun magit-section-cache-visibility
+    (&optional (section magit-insert-section--current))
+  (let ((ident (magit-section-visibility-ident section)))
+    (if (magit-section-hidden section)
+        (cl-pushnew ident magit-section-visibility-cache :test #'equal)
+      (setq magit-section-visibility-cache
+            (delete ident magit-section-visibility-cache)))))
+
+(defun magit-section-update-visibility-cache (section)
+  (setq magit-section-visibility-cache
+        (delete (magit-section-visibility-ident section)
+                magit-section-visibility-cache)))
+
+(defun magit-section-visibility-ident (section)
+  (let ((type  (magit-section-type  section))
+        (value (magit-section-value section)))
+    (cons type
+          (cond ((not (memq type '(unpulled unpushed))) value)
+                ((string-match-p "@{upstream}" value) value)
+                ;; Unfortunately Git chokes on "@{push}" when the
+                ;; value of `push.default' does not allow a 1:1
+                ;; mapping.  But collapsed logs of unpushed and
+                ;; unpulled commits in the status buffer should
+                ;; remain invisible after changing branches.
+                ;; So we have to pretend the value is constant.
+                ((string-match-p "\\`\\.\\." value) "..@{push}")
+                (t "@{push}..")))))
 
 ;;; Utilities
 

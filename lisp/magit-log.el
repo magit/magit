@@ -1269,7 +1269,8 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
       (magit-insert-heading
         (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
                 (magit-get-upstream-branch)))
-      (magit-insert-log "..@{upstream}" magit-log-section-arguments))))
+      (magit-insert-log "..@{upstream}" magit-log-section-arguments)
+      (magit-section-cache-visibility))))
 
 (magit-define-section-jumper magit-jump-to-unpulled-from-pushremote
   "Unpulled from <push-remote>" unpulled
@@ -1284,7 +1285,8 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
         (magit-insert-heading
           (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
                   (propertize it 'face 'magit-branch-remote)))
-        (magit-insert-log (concat ".." it) magit-log-section-arguments)))))
+        (magit-insert-log (concat ".." it) magit-log-section-arguments)
+        (magit-section-cache-visibility)))))
 
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
@@ -1302,7 +1304,8 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
       (magit-insert-heading
         (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
                 (magit-get-upstream-branch)))
-      (magit-insert-log "@{upstream}.." magit-log-section-arguments))))
+      (magit-insert-log "@{upstream}.." magit-log-section-arguments)
+      (magit-section-cache-visibility))))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
   "Unpushed to <push-remote>" unpushed
@@ -1317,7 +1320,8 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
         (magit-insert-heading
           (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
                   (propertize it 'face 'magit-branch-remote)))
-        (magit-insert-log (concat it "..") magit-log-section-arguments)))))
+        (magit-insert-log (concat it "..") magit-log-section-arguments)
+        (magit-section-cache-visibility)))))
 
 ;;;; Auxiliary Log Sections
 

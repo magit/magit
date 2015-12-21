@@ -759,9 +759,6 @@ be committed."
                     nil (list (expand-file-name a)
                               (expand-file-name b))))
 
-(defvar-local magit-diff-hidden-files nil)
-(put 'magit-diff-hidden-files 'permanent-local t)
-
 ;;;###autoload
 (defun magit-show-commit (rev &optional args files module)
   "Show the revision at point.
@@ -792,11 +789,7 @@ for a revision."
           (unless (equal rev prev)
             (dolist (child (cdr (magit-section-children magit-root-section)))
               (when (eq (magit-section-type child) 'file)
-                (let ((file (magit-section-value child)))
-                  (if (magit-section-hidden child)
-                      (add-to-list 'magit-diff-hidden-files file)
-                    (setq magit-diff-hidden-files
-                          (delete file magit-diff-hidden-files))))))))))
+                (magit-section-cache-visibility child)))))))
     (magit-mode-setup #'magit-revision-mode rev nil args files)))
 
 (defun magit-diff-refresh (args files)
@@ -1655,13 +1648,6 @@ or a ref which is not a branch, then it inserts nothing."
          (list offset align-to
                (if magit-revision-use-gravatar-kludge slice2 slice1)
                (if magit-revision-use-gravatar-kludge slice1 slice2)))))))
-
-(defun magit-revision-set-visibility (section)
-  "Preserve section visibility when displaying another commit."
-  (and (derived-mode-p 'magit-revision-mode)
-       (eq (magit-section-type section) 'file)
-       (member (magit-section-value section) magit-diff-hidden-files)
-       'hide))
 
 ;;; Diff Sections
 
