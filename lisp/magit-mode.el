@@ -813,7 +813,6 @@ tracked in the current repository."
                                                 beg (line-end-position))))
                                 (t t)))))))))
 
-
 (defvar inhibit-magit-revert nil)
 (defvar magit-revert-buffers-backlog nil)
 
@@ -826,57 +825,43 @@ buffers that visit files being tracked in the current repository.
 
 When called interactively then the revert is forced."
   (interactive (list t))
-  (when (or force (and magit-revert-buffers (not inhibit-magit-revert)))
-    (-when-let (topdir (magit-toplevel))
-      (let* ((tracked (magit-revision-files "HEAD"))
-             (buffers
-              (if (> (length tracked)
-                     (length (buffer-list)))
-                  (--filter
-                   (let ((file (buffer-file-name it)))
-                     (and file
-                          (equal (file-remote-p file)
-                                 (file-remote-p topdir))
-                          (file-in-directory-p file topdir)
-                          (member (file-relative-name file topdir) tracked)))
-                   (buffer-list))
-                (--mapcat
-                 (--when-let (find-buffer-visiting (expand-file-name it topdir))
-                   (list it))
-                 tracked))))
-        (when (and buffers
-                   (or force
-                       (not (eq magit-revert-buffers 'ask))
-                       (magit-confirm 'revert-buffer
-                         "Revert %s from visited file"
-                         "Revert %i buffers from visited files"
-                         (mapcar #'buffer-name buffers))))
-          (cond
-           ((numberp magit-revert-buffers)
-            (magit-revert-buffers-async buffers))
-           ((eq magit-revert-buffers 'silent)
-            (mapc #'magit-revert-buffer buffers))
-           (t
-            (let ((cnt (length buffers)))
-              (when (> cnt 0)
-                (message "Reverting (up to) %s file-visiting buffer(s)..." cnt)
-                (setq cnt (length (-non-nil (mapcar #'magit-revert-buffer
-                                                    buffers))))
-                (if (> cnt 0)
-                    (pcase magit-revert-buffers
-                      (`t
-                       (message "Reverting %s file-visiting buffer(s)...done" cnt))
-                      (`usage
-                       (message
-                        "Reverting %s file-visiting buffer(s)...done%s%s%s" cnt
-                        (substitute-command-keys
-                         "\n  This can be undone using `\\[undo]' in the ")
-                        "affected buffers\n  Customize behavior using `M-x "
-                        "customize-option RET magit-revert-buffers RET'"))
-                      ((or `nil `ask)
-                       (message "Reverting %s file-visiting buffer(s)...done%s"
-                                cnt (if force " (forced)" ""))))
-                  (message "(No buffers need to be reverted)")))))))))))
+  (-when-let* ((- (or force
+                      (and magit-revert-buffers
+                           (not inhibit-magit-revert))))
+               (topdir (magit-toplevel))
+               (buffers (magit-revert-list-modified-buffers topdir))
+               (- (or force
+                      (not (eq magit-revert-buffers 'ask))
+                      (magit-confirm 'revert-buffer
+                        "Revert %s from visited file"
+                        "Revert %i buffers from visited files"
+                        (mapcar #'buffer-name buffers)))))
+    (if (numberp magit-revert-buffers)
+        (magit-revert-buffers-async buffers)
+      (magit-revert-buffers-sync buffers force))))
+
+(add-hook 'git-commit-setup-hook #'magit-revert-buffers)
+
+(defun magit-revert-buffers-sync (buffers force)
+  (if (eq magit-revert-buffers 'silent)
+      (mapc #'magit-revert-buffer buffers)
+    (let ((cnt (length buffers)))
+      (message "Reverting (up to) %s file-visiting buffer(s)..." cnt)
+      (setq cnt (length (-non-nil (mapcar #'magit-revert-buffer buffers))))
+      (if (> cnt 0)
+          (pcase magit-revert-buffers
+            (`t
+             (message "Reverting %s file-visiting buffer(s)...done" cnt))
+            (`usage
+             (message "Reverting %s file-visiting buffer(s)...done%s%s%s" cnt
+                      (substitute-command-keys
+                       "\n  This can be undone using `\\[undo]' in the ")
+                      "affected buffers\n  Customize behavior using `M-x "
+                      "customize-option RET magit-revert-buffers RET'"))
+            ((or `nil `ask)
+             (message "Reverting %s file-visiting buffer(s)...done%s"
+                      cnt (if force " (forced)" ""))))
+        (message "(No buffers need to be reverted)")))))
 
 (defun magit-revert-buffers-async (&optional buffers)
   (setq buffers (nconc buffers (--filter (not (memq it buffers))
@@ -910,7 +895,18 @@ When called interactively then the revert is forced."
         (run-hooks 'magit-not-reverted-hook)))
     ret))
 
-(add-hook 'git-commit-setup-hook #'magit-revert-buffers)
+(defun magit-revert-list-modified-buffers (topdir)
+  (let ((tracked (magit-revision-files "HEAD")))
+    (if (> (length tracked)
+           (length (buffer-list)))
+        (--filter (let ((file (buffer-file-name it)))
+                    (and file
+                         (equal (file-remote-p file)
+                                (file-remote-p topdir))
+                         (file-in-directory-p file topdir)
+                         (member (file-relative-name file topdir) tracked)))
+                  (buffer-list))
+      (--keep (find-buffer-visiting (expand-file-name it topdir)) tracked))))
 
 (defun magit-refresh-vc-mode-line ()
   "Update `vc-mode' which is displayed in the mode-line.
