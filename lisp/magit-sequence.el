@@ -353,9 +353,7 @@ If that variable is unset, then rebase onto `remote.pushDefault'."
   "Rebase the current branch onto a branch read in the minibuffer.
 All commits that are reachable from head but not from the
 selected branch TARGET are being rebased."
-  (interactive (list (magit-read-other-branch-or-commit
-                      "Rebase onto"
-                      (magit-get-current-branch))
+  (interactive (list (magit-read-other-branch-or-commit "Rebase onto")
                      (magit-rebase-arguments)))
   (message "Rebasing...")
   (magit-git-rebase target args)
@@ -367,8 +365,7 @@ selected branch TARGET are being rebased."
 Rebase commits from START to `HEAD' onto NEWBASE.
 START has to be selected from a list of recent commits."
   (interactive (list (magit-read-other-branch-or-commit
-                      "Rebase subset onto"
-                      (magit-get-current-branch)
+                      "Rebase subset onto" nil
                       (magit-get-upstream-branch))
                      nil
                      (magit-rebase-arguments)))
