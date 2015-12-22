@@ -673,6 +673,29 @@ string \"true\", otherwise return nil."
         (match-string 1 rev)
       rev)))
 
+(defun magit-name-branch (rev &optional lax)
+  (or (magit-name-local-branch rev)
+      (magit-name-remote-branch rev)
+      (and lax (or (magit-name-local-branch rev t)
+                   (magit-name-remote-branch rev t)))))
+
+(defun magit-name-local-branch (rev &optional lax)
+  (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
+                                "--refs=refs/heads/*" rev)
+    (and (or lax (not (string-match-p "~" it))) it)))
+
+(defun magit-name-remote-branch (rev &optional lax)
+  (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
+                                "--refs=refs/remotes/*" rev)
+    (and (or lax (not (string-match-p "~" it)))
+         (substring it 8))))
+
+(defun magit-name-tag (rev &optional lax)
+  (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
+                                "--refs=refs/tags/*" rev)
+    (and (or lax (not (string-match-p "~" it)))
+         (substring it 5))))
+
 (defun magit-ref-fullname (name)
   (magit-rev-parse "--symbolic-full-name" name))
 
@@ -686,19 +709,23 @@ string \"true\", otherwise return nil."
     "HEAD"))
 
 (defun magit-branch-at-point ()
-  (magit-section-when branch))
+  (magit-section-case
+    (branch (magit-section-value it))
+    (commit (magit-name-branch (magit-section-value it)))))
 
 (defun magit-local-branch-at-point ()
-  (magit-section-when branch
-    (let ((branch (magit-section-value it)))
-      (when (member branch (magit-list-local-branch-names))
-        branch))))
+  (magit-section-case
+    (branch (let ((branch (magit-section-value it)))
+              (when (member branch (magit-list-local-branch-names))
+                branch)))
+    (commit (magit-name-local-branch (magit-section-value it)))))
 
 (defun magit-remote-branch-at-point ()
-  (magit-section-when branch
-    (let ((branch (magit-section-value it)))
-      (when (member branch (magit-list-remote-branch-names))
-        branch))))
+  (magit-section-case
+    (branch (let ((branch (magit-section-value it)))
+              (when (member branch (magit-list-remote-branch-names))
+                branch)))
+    (commit (magit-name-remote-branch (magit-section-value it)))))
 
 (defun magit-commit-at-point ()
   (or (magit-section-when commit)
@@ -708,12 +735,15 @@ string \"true\", otherwise return nil."
 (defun magit-branch-or-commit-at-point ()
   (or (magit-section-case
         (branch (magit-section-value it))
-        (commit (magit-get-shortname (magit-section-value it))))
+        (commit (let ((rev (magit-section-value it)))
+                  (or (magit-get-shortname rev) rev))))
       (and (derived-mode-p 'magit-revision-mode)
            (car magit-refresh-args))))
 
 (defun magit-tag-at-point ()
-  (magit-section-when tag))
+  (magit-section-case
+    (tag    (magit-section-value it))
+    (commit (magit-name-tag (magit-section-value it)))))
 
 (defun magit-stash-at-point ()
   (magit-section-when stash))
