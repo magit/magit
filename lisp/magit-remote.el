@@ -195,6 +195,22 @@ the variable isn't already set."
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async-no-revert "remote" "update" args))
 
+;;;###autoload
+(defun magit-fetch-all-prune ()
+  "Fetch from all remotes, and prune.
+Prune remote tracking branches for branches that have been
+removed on the respective remote."
+  (interactive)
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async-no-revert "remote" "update" "--prune"))
+
+;;;###autoload
+(defun magit-fetch-all-no-prune ()
+  "Fetch from all remotes."
+  (interactive)
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async-no-revert "remote" "update"))
+
 ;;; Pull
 
 ;;;###autoload (autoload 'magit-pull-popup "magit-remote" nil t)
@@ -202,7 +218,8 @@ the variable isn't already set."
   "Popup console for pull commands."
   'magit-commands
   :man-page "git-pull"
-  :variables '((?r "branch.%s.rebase"
+  :variables '("Variables"
+               (?r "branch.%s.rebase"
                    magit-cycle-branch*rebase
                    magit-pull-format-branch*rebase))
   :actions '((lambda ()
@@ -216,6 +233,56 @@ the variable isn't already set."
              (?u magit-get-upstream-branch magit-pull-from-upstream)
              (?e "elsewhere"               magit-pull))
   :default-action 'magit-pull
+  :max-action-columns 1)
+
+;;;###autoload (autoload 'magit-pull-and-fetch-popup "magit-remote" nil t)
+(magit-define-popup magit-pull-and-fetch-popup
+  "Popup console for pull and fetch commands.
+
+This popup is intended as a replacement for the separate popups
+`magit-pull-popup' and `magit-fetch-popup'.  To use it, add this
+to you init file:
+
+  (with-eval-after-load 'magit-remote
+    (define-key magit-mode-map \"f\" 'magit-pull-and-fetch-popup)
+    (define-key magit-mode-map \"F\" nil))
+
+The combined popup does not offer all commands and arguments
+available from the individual popups.  Instead of the argument
+`--prune' and the command `magit-fetch-all' it uses two commands
+`magit-fetch-prune' and `magit-fetch-no-prune'.  And the commands
+`magit-fetch-from-pushremote' and `magit-fetch-from-upstream' are
+missing.  To add them use something like:
+
+  (with-eval-after-load 'magit-remote
+    (magit-define-popup-action 'magit-pull-and-fetch-popup ?U
+      'magit-get-upstream-branch
+      'magit-fetch-from-upstream-remote ?F)
+    (magit-define-popup-action 'magit-pull-and-fetch-popup ?P
+      'magit-get-push-branch
+      'magit-fetch-from-push-remote ?F))"
+  'magit-commands
+  :man-page "git-pull"
+  :variables '("Pull variables"
+               (?r "branch.%s.rebase"
+                   magit-cycle-branch*rebase
+                   magit-pull-format-branch*rebase))
+  :actions '((lambda ()
+               (--if-let (magit-get-current-branch)
+                   (concat
+                    (propertize "Pull into " 'face 'magit-popup-heading)
+                    (propertize it           'face 'magit-branch-local)
+                    (propertize " from"      'face 'magit-popup-heading))
+                 (propertize "Pull from" 'face 'magit-popup-heading)))
+             (?p magit-get-push-branch     magit-pull-from-pushremote)
+             (?u magit-get-upstream-branch magit-pull-from-upstream)
+             (?e "elsewhere"               magit-pull)
+             "Fetch from"
+             (?f "remotes"           magit-fetch-all-no-prune)
+             (?F "remotes and prune" magit-fetch-all-prune)
+             "Fetch"
+             (?m "submodules"        magit-submodule-fetch))
+  :default-action 'magit-fetch
   :max-action-columns 1)
 
 (defun magit-pull-format-branch*rebase ()

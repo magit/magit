@@ -3859,6 +3859,10 @@ Also see [[info:gitman#git-fetch]].
   Fetch all submodules.  With a prefix argument fetch all remotes of
   all submodules.
 
+Instead of using one popup for fetching and another for pulling, you
+could also use ~magit-pull-and-fetch-popup~.  See its doc-string for
+more information.
+
 ** Pulling
 
 Also see [[info:gitman#git-pull]].
@@ -3879,6 +3883,10 @@ Also see [[info:gitman#git-pull]].
 - Key: F e, magit-pull
 
   Pull from a branch read in the minibuffer.
+
+Instead of using one popup for fetching and another for pulling, you
+could also use ~magit-pull-and-fetch-popup~.  See its doc-string for
+more information.
 
 ** Pushing
 
