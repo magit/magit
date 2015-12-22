@@ -226,14 +226,15 @@ Git variable `branch.autoSetupMerge'.  By default this is done
 for remote branches, but not for local branches.
 
 You might prefer to always use some remote branch as upstream.
-If the default starting-point is (1) a local branch, (2) whose
+If the chosen starting-point is (1) a local branch, (2) whose
 name is a member of the value of this option, (3) the upstream of
 that local branch is a remote branch with the same name, and (4)
 that remote branch can be fast-forwarded to the local branch,
-then instead of offering the local branch as starting-point, the
-remote branch is offered as such.
+then the chosen branch is used as starting-point, but its own
+upstream is used as the upstream of the new branch.
 
-Assuming you accept the default you would then end up with e.g.:
+Assuming the chosen branch matches these conditions you would end
+up with with e.g.:
 
   feature --upstream--> origin/master
 
@@ -1294,7 +1295,11 @@ changes.
   "Create BRANCH at branch or revision START-POINT.
 \n(git branch [ARGS] BRANCH START-POINT)."
   (interactive (magit-branch-read-args "Create branch"))
-  (magit-run-git "branch" args branch start-point))
+  (magit-call-git "branch" args branch start-point)
+  (--when-let (and (magit-get-upstream-branch branch)
+                   (magit-get-indirect-upstream-branch start-point))
+    (magit-call-git "branch" (concat "--set-upstream-to=" it) branch))
+  (magit-refresh))
 
 ;;;###autoload
 (defun magit-branch-and-checkout (branch start-point &optional args)
@@ -1303,20 +1308,21 @@ changes.
   (interactive (magit-branch-read-args "Create and checkout branch"))
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
-    (magit-run-git "checkout" args "-b" branch start-point)))
+    (magit-call-git "checkout" args "-b" branch start-point)
+    (--when-let (and (magit-get-upstream-branch branch)
+                     (magit-get-indirect-upstream-branch start-point))
+      (magit-call-git "branch" (concat "--set-upstream-to=" it) branch))
+    (magit-refresh)))
 
 (defun magit-branch-read-starting-point (prompt)
-  (or (magit-completing-read
-       (concat prompt " starting at")
-       (cons "HEAD" (magit-list-refnames))
-       nil nil nil 'magit-revision-history
-       (or (magit-remote-branch-at-point)
-           (--when-let (magit-local-branch-at-point)
-             (or (magit-get-indirect-upstream-branch it) it))
-           (magit-commit-at-point)
-           (magit-stash-at-point)
-           (--when-let (magit-get-current-branch)
-             (or (magit-get-indirect-upstream-branch it) it))))
+  (or (magit-completing-read (concat prompt " starting at")
+                             (cons "HEAD" (magit-list-refnames))
+                             nil nil nil 'magit-revision-history
+                             (or (magit-remote-branch-at-point)
+                                 (magit-local-branch-at-point)
+                                 (magit-commit-at-point)
+                                 (magit-stash-at-point)
+                                 (magit-get-current-branch)))
       (user-error "Nothing selected")))
 
 (defun magit-branch-read-args (prompt)

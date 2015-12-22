@@ -3108,10 +3108,14 @@ info:gitman#git-config.  Also see [[info:gitman#git-branch]],
   the new branch.  The name of the new branch is also read in the
   minibuffer.
 
+  Also see option ~magit-branch-prefer-remote-upstream~.
+
 - Key: b c, magit-branch-and-checkout
 
   This command creates a new branch like ~magit-branch~, but then also
   checks it out.
+
+  Also see option ~magit-branch-prefer-remote-upstream~.
 
 - Key: b s, magit-branch-spinoff
 
@@ -3180,14 +3184,15 @@ info:gitman#git-config.  Also see [[info:gitman#git-branch]],
   for remote branches, but not for local branches.
 
   You might prefer to always use some remote branch as upstream.
-  If the default starting-point is (1) a local branch, (2) whose
+  If the chosen starting-point is (1) a local branch, (2) whose
   name is a member of the value of this option, (3) the upstream of
   that local branch is a remote branch with the same name, and (4)
   that remote branch can be fast-forwarded to the local branch,
-  then instead of offering the local branch as starting-point, the
-  remote branch is offered as such.
+  then the chosen branch is used as starting-point, but its own
+  upstream is used as the upstream of the new branch.
 
-  Assuming you accept the default you would then end up with e.g.:
+  Assuming the chosen branch matches these conditions you would end
+  up with with e.g.:
 
   #+BEGIN_SRC text
     feature --upstream--> origin/master
