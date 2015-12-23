@@ -1370,9 +1370,10 @@ of the new branch, instead of the starting-point itself."
         (when (and (setq tracked (magit-get-upstream-branch current))
                    (setq base (magit-git-string "merge-base" current tracked))
                    (not (magit-rev-equal base current)))
-          (magit-run-git "update-ref" "-m"
-                         (format "reset: moving to %s" base)
-                         (concat "refs/heads/" current) base)))
+          (magit-call-git "update-ref" "-m"
+                          (format "reset: moving to %s" base)
+                          (concat "refs/heads/" current) base))
+        (magit-refresh))
     (magit-run-git "checkout" "-b" branch)))
 
 ;;;###autoload
