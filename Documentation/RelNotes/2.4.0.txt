@@ -25,9 +25,13 @@ Changes since v2.3.0
   using `branch.<name>.pushRemote' or `remote.pushDefault') is now
   also fully supported.  #2414
 
-* The branching popup now shows the most important Git variables that
-  are in some way related to branches.  The values of these variables
-  can now be conveniently changed from that popup.  #2414
+* The status buffer now features up to four logs listing unpulled and
+  unpushed commits.  Two for the upstream and two for the push-remote.
+  #2414
+
+* The branch popup now shows the most important Git variables that are
+  in some way related to branches.  The values of these variables can
+  now be conveniently changed from that popup.  #2414
 
 * The fetch, pull, push, and rebase popups now feature an action which
   acts on the push-remote, another which acts on the upstream, and yet
@@ -43,18 +47,14 @@ Changes since v2.3.0
   Likewise many commands were renamed and their behavior was adjusted.
   Some new commands, related to the push-remote, were added.  #2414
 
-* The popup command `magit-pull-and-fetch-popup' was added as a
-  possible replacement for the separate `magit-push-popup' and
-  `magit-fetch-popup'.  #2452
-
-* The status buffer now features up to four logs listing unpulled and
-  unpushed commits.  Two for the upstream and two for the push-remote.
-  #2414
-
 * The option `magit-push-always-verify' was removed.  That was only a
   temporary kludge to keep users from shooting themselves in the foot.
   This is no longer necessary because one now always sees were one is
   about to push to.  #2414
+
+* The popup command `magit-pull-and-fetch-popup' was added as a
+  possible replacement for the separate `magit-push-popup' and
+  `magit-fetch-popup'.  #2452
 
 * The option `magit-branch-prefer-remote-upstream' was added for users
   who prefer to always use remote branches as upstreams.  #2447
