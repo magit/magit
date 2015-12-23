@@ -5407,6 +5407,10 @@ Fetch all submodules.  With a prefix argument fetch all remotes of
 all submodules.
 @end table
 
+Instead of using one popup for fetching and another for pulling, you
+could also use @code{magit-pull-and-fetch-popup}.  See its doc-string for
+more information.
+
 @node Pulling
 @section Pulling
 
@@ -5450,6 +5454,10 @@ Pull from the upstream of the current branch.
 
 Pull from a branch read in the minibuffer.
 @end table
+
+Instead of using one popup for fetching and another for pulling, you
+could also use @code{magit-pull-and-fetch-popup}.  See its doc-string for
+more information.
 
 @node Pushing
 @section Pushing
