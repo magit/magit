@@ -572,6 +572,32 @@ the popup buffer."
                   (propertize "push.default" 'face 'bold)
                   (propertize default        'face 'bold))))))
 
+;;;###autoload
+(defun magit-push-to-remote (remote args)
+  "Push to REMOTE without using an explicit refspec.
+The REMOTE is read in the minibuffer.
+
+This command simply runs \"git push -v [ARGS] REMOTE\".  ARGS
+are the arguments specified in the popup buffer.  No refspec
+arguments are used.  Instead the behavior depends on at least
+these Git variables: `push.default', `branch.pushDefault',
+`branch.<branch>.pushRemote', `branch.<branch>.remote',
+`branch.<branch>.merge', and `remote.<remote>.push'.
+
+To add this command to the push popup add this to your init file:
+
+  (with-eval-after-load \\='magit-remote
+    (magit-define-popup-action \\='magit-push-popup ?r
+      'magit-push-to-remote--desc
+      'magit-push-to-remote ?p t))"
+  (interactive (list (magit-read-remote "Push to remote")
+                     (magit-push-arguments)))
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async-no-revert "push" "-v" args remote))
+
+(defun magit-push-to-remote--desc ()
+  (format "using %s\n" (propertize "git push <remote>" 'face 'bold)))
+
 ;;; Email
 
 ;;;###autoload (autoload 'magit-patch-popup "magit-remote" nil t)

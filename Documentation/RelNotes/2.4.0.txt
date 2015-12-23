@@ -52,6 +52,9 @@ Changes since v2.3.0
   instructions are followed, then the popup shows what will happen if
   the command is used.  #2453
 
+* The command `magit-push-to-remote' was added.  The command's
+  doc-string explains how to add it to the push popup.  #2453
+
 * The option `magit-push-always-verify' was removed.  That was only a
   temporary kludge to keep users from shooting themselves in the foot.
   This is no longer necessary because one now always sees were one is

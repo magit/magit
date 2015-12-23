@@ -3941,12 +3941,28 @@ Also see [[info:gitman#git-push]].
 
   Push a tag to another repository.
 
+Two more push commands exist, which by default are not available from
+the push popup.  See their doc-strings for instructions on how to add
+them to the popup.
+
 - Command: magit-push-implicitly args
 
   Push somewhere without using an explicit refspec.
 
   This command simply runs ~git push -v [ARGS]~.  ARGS are the arguments
   specified in the popup buffer.  No explicit refspec arguments are
+  used.  Instead the behavior depends on at least these Git variables:
+  ~push.default~, ~branch.pushDefault~, ~branch.<branch>.pushRemote~,
+  ~branch.<branch>.remote~, ~branch.<branch>.merge~, and
+  ~remote.<remote>.push~.
+
+- Command: magit-push-to-remote remote args
+
+  Push to the remote REMOTE without using an explicit refspec.  The
+  remote is read in the minibuffer.
+
+  This command simply runs ~git push -v [ARGS] REMOTE~.  ARGS are the
+  arguments specified in the popup buffer.  No refspec arguments are
   used.  Instead the behavior depends on at least these Git variables:
   ~push.default~, ~branch.pushDefault~, ~branch.<branch>.pushRemote~,
   ~branch.<branch>.remote~, ~branch.<branch>.merge~, and

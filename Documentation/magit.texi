@@ -5539,8 +5539,11 @@ remote configured for the current branch as default.
 @item @kbd{P T} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-tag})
 
 Push a tag to another repository.
-
 @end table
+
+Two more push commands exist, which by default are not available from
+the push popup.  See their doc-strings for instructions on how to add
+them to the popup.
 
 @cindex magit-push-implicitly args
 @deffn Command magit-push-implicitly args
@@ -5549,6 +5552,20 @@ Push somewhere without using an explicit refspec.
 
 This command simply runs @code{git push -v [ARGS]}.  ARGS are the arguments
 specified in the popup buffer.  No explicit refspec arguments are
+used.  Instead the behavior depends on at least these Git variables:
+@code{push.default}, @code{branch.pushDefault}, @code{branch.<branch>.pushRemote},
+@code{branch.<branch>.remote}, @code{branch.<branch>.merge}, and
+@code{remote.<remote>.push}.
+@end deffn
+
+@cindex magit-push-to-remote remote args
+@deffn Command magit-push-to-remote remote args
+
+Push to the remote REMOTE without using an explicit refspec.  The
+remote is read in the minibuffer.
+
+This command simply runs @code{git push -v [ARGS] REMOTE}.  ARGS are the
+arguments specified in the popup buffer.  No refspec arguments are
 used.  Instead the behavior depends on at least these Git variables:
 @code{push.default}, @code{branch.pushDefault}, @code{branch.<branch>.pushRemote},
 @code{branch.<branch>.remote}, @code{branch.<branch>.merge}, and
