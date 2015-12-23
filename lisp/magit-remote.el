@@ -520,6 +520,58 @@ branch as default."
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async-no-revert "push" remote tag args))
 
+;;;###autoload
+(defun magit-push-implicitly (args)
+  "Push somewhere without using an explicit refspec.
+
+This command simply runs \"git push -v [ARGS]\".  ARGS are the
+arguments specified in the popup buffer.  No explicit refspec
+arguments are used.  Instead the behavior depends on at least
+these Git variables: `push.default', `branch.pushDefault',
+`branch.<branch>.pushRemote', `branch.<branch>.remote',
+`branch.<branch>.merge', and `remote.<remote>.push'.
+
+To add this command to the push popup add this to your init file:
+
+  (with-eval-after-load \\='magit-remote
+    (magit-define-popup-action \\='magit-push-popup ?P
+      'magit-push-implicitly--desc
+      'magit-push-implicitly ?p t))
+
+The function `magit-push-implicitly--desc' attempts to predict
+what this command will do, the value it returns is displayed in
+the popup buffer."
+  (interactive (list (magit-push-arguments)))
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async-no-revert "push" "-v" args))
+
+(defun magit-push-implicitly--desc ()
+  (let ((default (magit-get "push.default")))
+    (unless (equal default "nothing")
+      (or (-when-let* ((remote (or (magit-get-remote)
+                                   (magit-remote-p "origin")))
+                       (refspec (magit-get "remote" remote "push")))
+            (format "%s using %s"
+                    (propertize remote  'face 'magit-branch-remote)
+                    (propertize refspec 'face 'bold)))
+          (--when-let (and (not (magit-get-push-branch))
+                           (magit-get-upstream-branch))
+            (format "%s aka %s\n"
+                    (magit-branch-set-face it)
+                    (propertize "@{upstream}" 'face 'bold)))
+          (--when-let (magit-get-push-branch)
+            (format "%s aka %s\n"
+                    (magit-branch-set-face it)
+                    (propertize "pushRemote" 'face 'bold)))
+          (--when-let (magit-get-@{push}-branch)
+            (format "%s aka %s\n"
+                    (magit-branch-set-face it)
+                    (propertize "@{push}" 'face 'bold)))
+          (format "using %s (%s is %s)\n"
+                  (propertize "git push"     'face 'bold)
+                  (propertize "push.default" 'face 'bold)
+                  (propertize default        'face 'bold))))))
+
 ;;; Email
 
 ;;;###autoload (autoload 'magit-patch-popup "magit-remote" nil t)

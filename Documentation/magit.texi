@@ -5542,6 +5542,19 @@ Push a tag to another repository.
 
 @end table
 
+@cindex magit-push-implicitly args
+@deffn Command magit-push-implicitly args
+
+Push somewhere without using an explicit refspec.
+
+This command simply runs @code{git push -v [ARGS]}.  ARGS are the arguments
+specified in the popup buffer.  No explicit refspec arguments are
+used.  Instead the behavior depends on at least these Git variables:
+@code{push.default}, @code{branch.pushDefault}, @code{branch.<branch>.pushRemote},
+@code{branch.<branch>.remote}, @code{branch.<branch>.merge}, and
+@code{remote.<remote>.push}.
+@end deffn
+
 @defopt magit-push-current-set-remote-if-missing
 
 This option controls whether missing remotes are configured before

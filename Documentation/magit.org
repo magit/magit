@@ -3941,6 +3941,17 @@ Also see [[info:gitman#git-push]].
 
   Push a tag to another repository.
 
+- Command: magit-push-implicitly args
+
+  Push somewhere without using an explicit refspec.
+
+  This command simply runs ~git push -v [ARGS]~.  ARGS are the arguments
+  specified in the popup buffer.  No explicit refspec arguments are
+  used.  Instead the behavior depends on at least these Git variables:
+  ~push.default~, ~branch.pushDefault~, ~branch.<branch>.pushRemote~,
+  ~branch.<branch>.remote~, ~branch.<branch>.merge~, and
+  ~remote.<remote>.push~.
+
 - User Option: magit-push-current-set-remote-if-missing
 
   This option controls whether missing remotes are configured before

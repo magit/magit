@@ -47,6 +47,11 @@ Changes since v2.3.0
   Likewise many commands were renamed and their behavior was adjusted.
   Some new commands, related to the push-remote, were added.  #2414
 
+* The command `magit-push-implicitly' was removed from the push popup.
+  The command's doc-string explains how to put it back.  If these
+  instructions are followed, then the popup shows what will happen if
+  the command is used.  #2453
+
 * The option `magit-push-always-verify' was removed.  That was only a
   temporary kludge to keep users from shooting themselves in the foot.
   This is no longer necessary because one now always sees were one is
@@ -61,9 +66,6 @@ Changes since v2.3.0
 
 * The options `magit-clone-set-branch.pushDefault' and
   `magit-remote-add-set-branch.pushDefault' were added.  #2447
-
-* The command `magit-push-implicitly', Magit's equivalent of `git
-  push', was removed.  #2414
 
 * When Git is run for side-effects and exits with a non-zero status,
   then the respective error message is now inserted into the status
