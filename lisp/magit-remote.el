@@ -413,9 +413,10 @@ the push-remote can be changed before pushed to it."
     (user-error "No branch is checked out")))
 
 (defun magit--push-current-set-pushremote-p (&optional change)
-  (and (or change magit-push-current-set-remote-if-missing)
-       (magit-get-current-branch)
-       (not (magit-get-push-remote))))
+  (and (or change
+           (and magit-push-current-set-remote-if-missing
+                (not (magit-get-push-remote))))
+       (magit-get-current-branch)))
 
 (defun magit--push-current-to-pushremote-desc ()
   (--if-let (magit-get-push-branch)
@@ -452,9 +453,10 @@ upstream can be changed before pushed to it."
     (user-error "No branch is checked out")))
 
 (defun magit--push-current-set-upstream-p (&optional change)
-  (and (or change magit-push-current-set-remote-if-missing)
-       (magit-get-current-branch)
-       (not (magit-get-upstream-branch))))
+  (and (or change
+           (and magit-push-current-set-remote-if-missing
+                (not (magit-get-upstream-branch))))
+       (magit-get-current-branch)))
 
 (defun magit--push-current-to-upstream-desc ()
   (--if-let (magit-get-upstream-branch)
