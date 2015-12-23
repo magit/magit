@@ -435,14 +435,20 @@ upstream can be changed before pushed to it."
   (interactive
    (list (magit-push-arguments)
          (and (magit--push-current-set-upstream-p current-prefix-arg)
-              (magit-read-remote (format "Set upstream of %s and push there"
-                                         (magit-get-current-branch))))))
+              (magit-read-remote-branch
+               (format "Set upstream of %s and push there"
+                       (magit-get-current-branch))))))
   (--if-let (magit-get-current-branch)
-      (progn (when upstream
-               (magit-call-git "branch" (concat "--set-upstream-to=" upstream)))
-             (-if-let (target (magit-get-upstream-branch it))
-                 (magit-git-push it target args)
-               (user-error "No upstream is configured for %s" it)))
+      (progn
+        (when upstream
+          (-let (((remote . merge) (magit-split-branch-name upstream))
+                 (branch (magit-get-current-branch)))
+            (magit-call-git "config" (format "branch.%s.remote" branch) remote)
+            (magit-call-git "config" (format "branch.%s.merge"  branch)
+                            (concat "refs/heads/" merge))))
+        (-if-let (target (magit-get-upstream-branch it))
+            (magit-git-push it target args)
+          (user-error "No upstream is configured for %s" it)))
     (user-error "No branch is checked out")))
 
 (defun magit--push-current-set-upstream-p (&optional change)
