@@ -237,7 +237,7 @@ Some variants of this function exist; these two forms are equivalent:
 
 @lisp
 (add-hook 'shell-mode-hook
-          (apply-partially 'with-editor-export-editor "GIT_EDITOR"))
+	  (apply-partially 'with-editor-export-editor "GIT_EDITOR"))
 (add-hook 'shell-mode-hook 'with-editor-export-git-editor)
 @end lisp
 
