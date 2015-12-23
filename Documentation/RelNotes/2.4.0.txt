@@ -11,8 +11,8 @@ Magit and Git itself deserve to be called porcelains.
 
 For more information about Magit, see http://magit.vc.
 
-Magit v2.4.0 Release Notes
-==========================
+Magit v2.4.0 Release Notes (draft)
+==================================
 
 UNRELEASED.
 
@@ -33,9 +33,6 @@ Changes since v2.3.0
   acts on the push-remote, another which acts on the upstream, and yet
   another which acts on any other source or target.  For each of these
   actions the respective branch is shown in the popup.
-
-  Each of these actions depends on certain Git variables being set.
-  When they are not set, then the action is omitted from the popup.
 
   The actions in the push popup are displayed even if the respective
   variables are unset - they then offer to set these variables before
