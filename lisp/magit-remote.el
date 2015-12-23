@@ -343,9 +343,9 @@ a first time.
 
 This option also affects whether the argument `--set-upstream' is
 available in the popup.  If the value is t, then that argument is
-redundant.  But note that changing the value of this options here
-does not take affect immediately, the argument will only be added
-or removed after restarting Emacs."
+redundant.  But note that changing the value of this option does
+not take affect immediately, the argument will only be added or
+removed after restarting Emacs."
   :package-version '(magit . "2.4.0")
   :group 'magit-commands
   :type 'boolean)
