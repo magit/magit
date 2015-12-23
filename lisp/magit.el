@@ -214,11 +214,11 @@ the remote branch and then checking out the new local branch."
 (defcustom magit-branch-prefer-remote-upstream nil
   "Whether to favor remote upstreams when creating new branches.
 
-When a new branch is created, Magit offer the branch, commit, or
-stash as the default starting-point as the starting point of the
-new branch.  If there is no such thing at point, then it falls
-back to offer the current branch as starting-point.  The user may
-then accept that default or pick something else.
+When a new branch is created, Magit offers the branch, commit, or
+stash as the default starting point of the new branch.  If there
+is no such thing at point, then it falls back to offer the
+current branch as starting-point.  The user may then accept that
+default or pick something else.
 
 If the chosen starting-point is a branch, then it may also be set
 as the upstream of the new branch, depending on the value of the

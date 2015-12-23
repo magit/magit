@@ -241,7 +241,7 @@ removed on the respective remote."
 
 This popup is intended as a replacement for the separate popups
 `magit-pull-popup' and `magit-fetch-popup'.  To use it, add this
-to you init file:
+to your init file:
 
   (with-eval-after-load 'magit-remote
     (define-key magit-mode-map \"f\" 'magit-pull-and-fetch-popup)
