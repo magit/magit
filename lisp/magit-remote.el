@@ -243,8 +243,8 @@ This popup is intended as a replacement for the separate popups
 `magit-pull-popup' and `magit-fetch-popup'.  To use it, add this
 to your init file:
 
-  (with-eval-after-load 'magit-remote
-    (define-key magit-mode-map \"f\" 'magit-pull-and-fetch-popup)
+  (with-eval-after-load \\='magit-remote
+    (define-key magit-mode-map \"f\" \\='magit-pull-and-fetch-popup)
     (define-key magit-mode-map \"F\" nil))
 
 The combined popup does not offer all commands and arguments
@@ -254,13 +254,13 @@ available from the individual popups.  Instead of the argument
 `magit-fetch-from-pushremote' and `magit-fetch-from-upstream' are
 missing.  To add them use something like:
 
-  (with-eval-after-load 'magit-remote
-    (magit-define-popup-action 'magit-pull-and-fetch-popup ?U
-      'magit-get-upstream-branch
-      'magit-fetch-from-upstream-remote ?F)
-    (magit-define-popup-action 'magit-pull-and-fetch-popup ?P
-      'magit-get-push-branch
-      'magit-fetch-from-push-remote ?F))"
+  (with-eval-after-load \\='magit-remote
+    (magit-define-popup-action \\='magit-pull-and-fetch-popup ?U
+      \\='magit-get-upstream-branch
+      \\='magit-fetch-from-upstream-remote ?F)
+    (magit-define-popup-action \\='magit-pull-and-fetch-popup ?P
+      \\='magit-get-push-branch
+      \\='magit-fetch-from-push-remote ?F))"
   'magit-commands
   :man-page "git-pull"
   :variables '("Pull variables"

@@ -668,10 +668,10 @@ remote in alphabetic order."
 
 To make this command available use something like:
 
-  (add-hook 'ido-setup-hook
+  (add-hook \\='ido-setup-hook
             (lambda ()
               (define-key ido-completion-map
-                (kbd \"C-x g\") 'ido-enter-magit-status)))
+                (kbd \"C-x g\") \\='ido-enter-magit-status)))
 
 Starting with Emacs 25.1 the Ido keymaps are defined just once
 instead of every time Ido is invoked, so now you can modify it
