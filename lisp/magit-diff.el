@@ -960,14 +960,14 @@ which, as the name suggests always visits the actual file."
                      (or (get-file-buffer file)
                          (find-file-noselect file))))
       (magit-display-file-buffer buffer)
-      (when line
-        (goto-char (point-min))
-        (forward-line (1- line))
-        (when col
-          (move-to-column col)))
-      (when unmerged-p
-        (smerge-start-session))
       (with-current-buffer buffer
+        (when line
+          (goto-char (point-min))
+          (forward-line (1- line))
+          (when col
+            (move-to-column col)))
+        (when unmerged-p
+          (smerge-start-session))
         (run-hooks 'magit-diff-visit-file-hook)))))
 
 (defvar magit-display-file-buffer-function
