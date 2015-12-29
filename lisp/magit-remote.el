@@ -40,9 +40,9 @@ If t, then set without asking.  If nil, then don't set.  If
 `ask', then ask."
   :package-version '(magit . "2.4.0")
   :group 'magit-commands
-  :type '(choice (const "set" t)
-                 (const "ask" ask)
-                 (const "don't set" nil)))
+  :type '(choice (const :tag "set" t)
+                 (const :tag "ask" ask)
+                 (const :tag "don't set" nil)))
 
 ;;;###autoload
 (defun magit-clone (repository directory)
@@ -79,10 +79,10 @@ name of the name of the added remote is equal to that string and
 the variable isn't already set."
   :package-version '(magit . "2.4.0")
   :group 'magit-commands
-  :type '(choice (const  "ask if unset" ask-if-unset)
-                 (const  "always ask" ask)
-                 (string "set if named")
-                 (const  "don't set")))
+  :type '(choice (const  :tag "ask if unset" ask-if-unset)
+                 (const  :tag "always ask" ask)
+                 (string :tag "set if named")
+                 (const  :tag "don't set")))
 
 ;;;###autoload (autoload 'magit-remote-popup "magit-remote" nil t)
 (magit-define-popup magit-remote-popup
