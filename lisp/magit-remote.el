@@ -436,9 +436,10 @@ upstream can be changed before pushed to it."
   (interactive
    (list (magit-push-arguments)
          (and (magit--push-current-set-upstream-p current-prefix-arg)
-              (magit-read-remote-branch
-               (format "Set upstream of %s and push there"
-                       (magit-get-current-branch))))))
+              (let ((branch (magit-get-current-branch)))
+                (magit-read-remote-branch
+                 (format "Set upstream of %s and push there" branch)
+                 nil nil branch)))))
   (--if-let (magit-get-current-branch)
       (progn
         (when upstream
