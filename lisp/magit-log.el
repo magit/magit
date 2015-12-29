@@ -1346,7 +1346,7 @@ commits."
   (if (equal (magit-rev-parse "HEAD")
              (magit-rev-parse "@{upstream}"))
       (magit-insert-recent-commits t)
-    (magit-insert-unpulled-from-pushremote)))
+    (magit-insert-unpulled-from-upstream)))
 
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
