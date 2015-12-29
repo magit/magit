@@ -944,8 +944,9 @@ Like `vc-mode-line' but simpler, more efficient, and less buggy."
 
 (defun magit-after-save-refresh-buffers ()
   (dolist (buffer magit-after-save-refresh-buffers)
-    (with-current-buffer buffer
-      (magit-refresh-buffer)))
+    (when (buffer-live-p buffer)
+      (with-current-buffer buffer
+        (magit-refresh-buffer))))
   (setq magit-after-save-refresh-buffers nil)
   (remove-hook 'post-command-hook 'magit-after-save-refresh-buffers))
 
