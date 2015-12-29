@@ -67,8 +67,8 @@ Changes since v2.3.0
 * The option `magit-branch-prefer-remote-upstream' was added for users
   who prefer to always use remote branches as upstreams.  #2447
 
-* The options `magit-clone-set-branch.pushDefault' and
-  `magit-remote-add-set-branch.pushDefault' were added.  #2447
+* The options `magit-clone-set-remote.pushDefault' and
+  `magit-remote-add-set-remote.pushDefault' were added.  #2447
 
 * When Git is run for side-effects and exits with a non-zero status,
   then the respective error message is now inserted into the status

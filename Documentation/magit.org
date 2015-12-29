@@ -2457,9 +2457,9 @@ Also see [[info:gitman#git-blame]].
 
   The user is queried for a remote url and a local directory.
 
-- User Option: magit-clone-set-branch.pushDefault
+- User Option: magit-clone-set-remote.pushDefault
 
-  Whether to set the value of ~branch.pushDefault~ after cloning.
+  Whether to set the value of ~remote.pushDefault~ after cloning.
 
   If ~t~, then set without asking.  If ~nil~, then don't set.  If ~ask~,
   then ask the user every time she clones a repository.
@@ -3818,9 +3818,9 @@ Also see [[info:gitman#git-remote]].
 
   Delete a remote, read from the minibuffer.
 
-- User Option: magit-remote-add-set-branch.pushDefault
+- User Option: magit-remote-add-set-remote.pushDefault
 
-  Whether to set the value of ~branch.pushDefault~ after adding a
+  Whether to set the value of ~remote.pushDefault~ after adding a
   remote.
 
   If ~ask~, then always ask.  If ~ask-if-unset~, then ask, but only if the
@@ -3952,7 +3952,7 @@ them to the popup.
   This command simply runs ~git push -v [ARGS]~.  ARGS are the arguments
   specified in the popup buffer.  No explicit refspec arguments are
   used.  Instead the behavior depends on at least these Git variables:
-  ~push.default~, ~branch.pushDefault~, ~branch.<branch>.pushRemote~,
+  ~push.default~, ~remote.pushDefault~, ~branch.<branch>.pushRemote~,
   ~branch.<branch>.remote~, ~branch.<branch>.merge~, and
   ~remote.<remote>.push~.
 
@@ -3964,7 +3964,7 @@ them to the popup.
   This command simply runs ~git push -v [ARGS] REMOTE~.  ARGS are the
   arguments specified in the popup buffer.  No refspec arguments are
   used.  Instead the behavior depends on at least these Git variables:
-  ~push.default~, ~branch.pushDefault~, ~branch.<branch>.pushRemote~,
+  ~push.default~, ~remote.pushDefault~, ~branch.<branch>.pushRemote~,
   ~branch.<branch>.remote~, ~branch.<branch>.merge~, and
   ~remote.<remote>.push~.
 

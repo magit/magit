@@ -1084,10 +1084,13 @@ Add FUNCTION at the beginning of the hook list unless optional
 APPEND is non-nil, in which case FUNCTION is added at the end.
 If FUNCTION already is a member then move it to the new location.
 
-If optional AT is non-nil and a member of the hook list, then add
-FUNCTION next to that instead.  Add before or after AT depending
-on APPEND.  If only FUNCTION is a member of the list, then leave
-it where ever it already is.
+If optional AT is non-nil and a member of the hook list, then
+add FUNCTION next to that instead.  Add before or after AT, or
+replace AT with FUNCTION depending on APPEND.  If APPEND is the
+symbol `replace', then replace AT with FUNCTION.  For any other
+non-nil value place FUNCTION right after AT.  If nil, then place
+FUNCTION right before AT.  If FUNCTION already is a member of the
+list but AT is not, then leave FUNCTION where ever it already is.
 
 If optional LOCAL is non-nil, then modify the hook's buffer-local
 value rather than its global value.  This makes the hook local by
@@ -1122,6 +1125,8 @@ again use `remove-hook'."
       (setq value (if append
                       (append value (list function))
                     (cons function value))))
+    (when (eq append 'replace)
+      (setq value (delq at value)))
     (if local
         (set hook value)
       (set-default hook value))))

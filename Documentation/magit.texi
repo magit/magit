@@ -3402,9 +3402,9 @@ The user is queried for a remote url and a local directory.
 
 @end table
 
-@defopt magit-clone-set-branch.pushDefault
+@defopt magit-clone-set-remote.pushDefault
 
-Whether to set the value of @code{branch.pushDefault} after cloning.
+Whether to set the value of @code{remote.pushDefault} after cloning.
 
 If @code{t}, then set without asking.  If @code{nil}, then don't set.  If @code{ask},
 then ask the user every time she clones a repository.
@@ -5336,9 +5336,9 @@ Delete a remote, read from the minibuffer.
 
 @end table
 
-@defopt magit-remote-add-set-branch.pushDefault
+@defopt magit-remote-add-set-remote.pushDefault
 
-Whether to set the value of @code{branch.pushDefault} after adding a
+Whether to set the value of @code{remote.pushDefault} after adding a
 remote.
 
 If @code{ask}, then always ask.  If @code{ask-if-unset}, then ask, but only if the
@@ -5553,7 +5553,7 @@ Push somewhere without using an explicit refspec.
 This command simply runs @code{git push -v [ARGS]}.  ARGS are the arguments
 specified in the popup buffer.  No explicit refspec arguments are
 used.  Instead the behavior depends on at least these Git variables:
-@code{push.default}, @code{branch.pushDefault}, @code{branch.<branch>.pushRemote},
+@code{push.default}, @code{remote.pushDefault}, @code{branch.<branch>.pushRemote},
 @code{branch.<branch>.remote}, @code{branch.<branch>.merge}, and
 @code{remote.<remote>.push}.
 @end deffn
@@ -5567,7 +5567,7 @@ remote is read in the minibuffer.
 This command simply runs @code{git push -v [ARGS] REMOTE}.  ARGS are the
 arguments specified in the popup buffer.  No refspec arguments are
 used.  Instead the behavior depends on at least these Git variables:
-@code{push.default}, @code{branch.pushDefault}, @code{branch.<branch>.pushRemote},
+@code{push.default}, @code{remote.pushDefault}, @code{branch.<branch>.pushRemote},
 @code{branch.<branch>.remote}, @code{branch.<branch>.merge}, and
 @code{remote.<remote>.push}.
 @end deffn
