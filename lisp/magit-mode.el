@@ -879,7 +879,7 @@ When called interactively then the revert is forced."
 If optional BUFFER is non-nil, then revert that instead.
 The buffer is expected to visit a file.  Return t if the
 buffer had to be reverted, nil otherwise."
-  (let (ret)
+  (let (reverted)
     (with-current-buffer (or buffer (current-buffer))
       (if (and (file-readable-p buffer-file-name)
                (not (verify-visited-file-modtime (current-buffer))))
@@ -895,9 +895,9 @@ buffer had to be reverted, nil otherwise."
               (revert-buffer 'ignore-auto t t)
               (message "Reverting buffer `%s'...done" (buffer-name)))
             (run-hooks 'magit-after-revert-hook)
-            (setq ret t))
+            (setq reverted t))
         (run-hooks 'magit-not-reverted-hook)))
-    ret))
+    reverted))
 
 (defun magit-revert-list-modified-buffers (topdir)
   (let ((tracked (magit-revision-files "HEAD")))
