@@ -879,25 +879,25 @@ When called interactively then the revert is forced."
 If optional BUFFER is non-nil, then revert that instead.
 The buffer is expected to visit a file.  Return t if the
 buffer had to be reverted, nil otherwise."
-  (let (reverted)
-    (with-current-buffer (or buffer (current-buffer))
-      (if (and (file-readable-p buffer-file-name)
-               (not (verify-visited-file-modtime (current-buffer))))
-          (if magit-blame-mode
-              (progn (message "Reverting %s inhibited due to magit-blame-mode"
-                              buffer-file-name)
-                     (run-hooks 'magit-not-reverted-hook))
-            (if (or (eq magit-revert-buffers 'silent)
-                    (and (numberp magit-revert-buffers)
-                         (< magit-revert-buffers 0)))
-                (revert-buffer 'ignore-auto t t)
-              (message "Reverting buffer `%s'..." (buffer-name))
+  (with-current-buffer (or buffer (current-buffer))
+    (if (and (file-readable-p buffer-file-name)
+             (not (verify-visited-file-modtime (current-buffer))))
+        (if magit-blame-mode
+            (progn (message "Reverting %s inhibited due to magit-blame-mode"
+                            buffer-file-name)
+                   (run-hooks 'magit-not-reverted-hook)
+                   nil)
+          (if (or (eq magit-revert-buffers 'silent)
+                  (and (numberp magit-revert-buffers)
+                       (< magit-revert-buffers 0)))
               (revert-buffer 'ignore-auto t t)
-              (message "Reverting buffer `%s'...done" (buffer-name)))
-            (run-hooks 'magit-after-revert-hook)
-            (setq reverted t))
-        (run-hooks 'magit-not-reverted-hook)))
-    reverted))
+            (message "Reverting buffer `%s'..." (buffer-name))
+            (revert-buffer 'ignore-auto t t)
+            (message "Reverting buffer `%s'...done" (buffer-name)))
+          (run-hooks 'magit-after-revert-hook)
+          t)
+      (run-hooks 'magit-not-reverted-hook)
+      nil)))
 
 (defun magit-revert-list-modified-buffers (topdir)
   (let ((tracked (magit-revision-files "HEAD")))
