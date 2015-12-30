@@ -706,6 +706,16 @@ sometimes be undesirable.
     input arrives, then stop reverting.  After (the absolute value of)
     NUMBER seconds resume reverting.
 
+- User Option: magit-revert-buffers-only-for-tracked-files
+
+  This option controls whether only buffers that visit tracked files
+
+  If non-nil, then only tracked files may be reverted.  If nil, then
+  all files in the current repository may potentially be reverted.
+  Reverting untracked files should be safe and limiting to only
+  tracked files has the potential of causing very noticable delays, so
+  the default is to revert all buffers.
+
 Buffers can also be refreshed explicitly, which is useful in buffers
 that weren't current during the last refresh and after changes were
 made to the repository outside of Magit.

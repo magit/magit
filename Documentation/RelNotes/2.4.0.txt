@@ -87,6 +87,13 @@ Changes since v2.3.0
 * The command `with-editor-finish' now runs the new hook
   `with-editor-post-finish-hook'.
 
+* By default all files inside a repository are now reverted when the
+  file on disk changes, not just tracked files, as was the case
+  before.  This change was necessary because determining the tracked
+  files can be very slow depending on the number of tracked files and
+  buffers.  Setting `magit-revert-buffers-only-for-tracked-files' to
+  `t' restores the old behavior.  #2458
+
 * It is now possible to revert file-visiting buffers both silently and
   asynchronously at the same time (by setting `magit-revert-buffers' to
   a negative number).
