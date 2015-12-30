@@ -1551,10 +1551,11 @@ is the full reference of the upstream branch, on the remote."
                           (magit-get-current-branch))
                      (magit-read-local-branch "Change upstream of branch"))))
      (list branch (and (not (magit-get-upstream-branch branch))
-                       (magit-completing-read
+                       (magit-read-other-branch
                         (format "Change upstream of %s to" branch)
-                        (delete branch (magit-list-branch-names))
-                        nil nil nil 'magit-revision-history)))))
+                        nil (or (magit-branch-p "origin/master")
+                                (and (not (equal branch "master"))
+                                     (magit-branch-p "master"))))))))
   (if upstream
       (magit-run-git-no-revert
        "branch" (concat "--set-upstream-to=" upstream) branch)
