@@ -849,18 +849,19 @@ When called interactively then the revert is forced."
       (message "Reverting (up to) %s file-visiting buffer(s)..." cnt)
       (setq cnt (length (-non-nil (mapcar #'magit-revert-buffer buffers))))
       (if (> cnt 0)
-          (pcase magit-revert-buffers
-            (`t
-             (message "Reverting %s file-visiting buffer(s)...done" cnt))
-            (`usage
-             (message "Reverting %s file-visiting buffer(s)...done%s%s%s" cnt
-                      (substitute-command-keys
-                       "\n  This can be undone using `\\[undo]' in the ")
-                      "affected buffers\n  Customize behavior using `M-x "
-                      "customize-option RET magit-revert-buffers RET'"))
-            ((or `nil `ask)
-             (message "Reverting %s file-visiting buffer(s)...done%s"
-                      cnt (if force " (forced)" ""))))
+          (let ((s (if (> cnt 1) "s" "")))
+            (pcase magit-revert-buffers
+              (`t
+               (message "Reverting %s file-visiting buffer%s...done" cnt s))
+              (`usage
+               (message "Reverting %s file-visiting buffer%s...done%s%s%s" cnt s
+                        (substitute-command-keys
+                         "\n  This can be undone using `\\[undo]' in the ")
+                        "affected buffers\n  Customize behavior using `M-x "
+                        "customize-option RET magit-revert-buffers RET'"))
+              ((or `nil `ask)
+               (message "Reverting %s file-visiting buffer%s...done%s"
+                        cnt s (if force " (forced)" "")))))
         (message "(No buffers need to be reverted)")))))
 
 (defun magit-revert-buffers-async (&optional buffers)
