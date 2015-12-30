@@ -217,7 +217,9 @@ NUMBER    An integer or float.  Revert the buffers asynchronously.
           If NUMBER is positive, then mention each buffer as it is
           being reverted.  If it is negative, then be quiet about
           it.  If user input arrives, then stop reverting.  After
-          (the absolute value of) NUMBER seconds resume reverting."
+          (the absolute value of) NUMBER seconds resume reverting.
+
+Also see option `magit-revert-buffers-only-for-tracked-files'."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type '(choice
@@ -230,6 +232,20 @@ NUMBER    An integer or float.  Revert the buffers asynchronously.
   :set (lambda (var val)
          (set-default var val)
          (magit-revert-buffers-set-timer)))
+
+(defcustom magit-revert-buffers-only-for-tracked-files nil
+  "Whether to revert only buffers that visit tracked files.
+
+If non-nil, then only tracked files may be reverted.  If nil,
+then all files in the current repository may potentially be
+reverted.  Reverting untracked files should be safe and limiting
+to only tracked files has the potential of causing very noticable
+delays, so the default is to revert all buffers.
+
+Also see option `magit-revert-buffers'."
+  :package-version '(magit . "2.4.0")
+  :group 'magit
+  :type 'boolean)
 
 (defcustom magit-after-revert-hook '(magit-refresh-vc-mode-line)
   "Normal hook for `magit-revert-buffer' to run after reverting.
@@ -900,17 +916,24 @@ buffer had to be reverted, nil otherwise."
       nil)))
 
 (defun magit-revert-list-modified-buffers (topdir)
-  (let ((tracked (magit-revision-files "HEAD")))
-    (if (> (length tracked)
-           (length (buffer-list)))
-        (--filter (let ((file (buffer-file-name it)))
-                    (and file
-                         (equal (file-remote-p file)
-                                (file-remote-p topdir))
-                         (file-in-directory-p file topdir)
-                         (member (file-relative-name file topdir) tracked)))
-                  (buffer-list))
-      (--keep (find-buffer-visiting (expand-file-name it topdir)) tracked))))
+  (if magit-revert-buffers-only-for-tracked-files
+      (let ((tracked (magit-revision-files "HEAD")))
+        (if (> (length tracked)
+               (length (buffer-list)))
+            (--filter (magit-revert-buffer-p it topdir tracked)
+                      (buffer-list))
+          (--keep (find-buffer-visiting (expand-file-name it topdir)) tracked)))
+    (--filter (magit-revert-buffer-p it topdir)
+              (buffer-list))))
+
+(defun magit-revert-buffer-p (buffer topdir &optional tracked)
+  (let ((file (buffer-file-name buffer)))
+    (and file
+         (equal (file-remote-p file)
+                (file-remote-p topdir))
+         (file-in-directory-p file topdir)
+         (or (not tracked)
+             (member (file-relative-name file topdir) tracked)))))
 
 (defun magit-refresh-vc-mode-line ()
   "Update `vc-mode' which is displayed in the mode-line.
