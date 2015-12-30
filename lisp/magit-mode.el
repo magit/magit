@@ -828,22 +828,15 @@ When called interactively then the revert is forced."
   (interactive (list t))
   (when (or force (and magit-revert-buffers (not inhibit-magit-revert)))
     (-when-let (topdir (magit-toplevel))
-      (let* ((tracked (magit-revision-files "HEAD"))
-             (buffers
-              (if (> (length tracked)
-                     (length (buffer-list)))
-                  (--filter
+      (let* ((buffers
+              (--filter
                    (let ((file (buffer-file-name it)))
                      (and file
                           (equal (file-remote-p file)
                                  (file-remote-p topdir))
                           (file-in-directory-p file topdir)
-                          (member (file-relative-name file topdir) tracked)))
-                   (buffer-list))
-                (--mapcat
-                 (--when-let (find-buffer-visiting (expand-file-name it topdir))
-                   (list it))
-                 tracked))))
+                          (magit-file-relative-name file t)))
+                   (buffer-list))))
         (when (and buffers
                    (or force
                        (not (eq magit-revert-buffers 'ask))
