@@ -875,7 +875,10 @@ When called interactively then the revert is forced."
   (setq magit-revert-buffers-backlog buffers))
 
 (defun magit-revert-buffer (&optional buffer)
-  "Revert the current file-visiting buffer."
+  "Revert the current buffer.
+If optional BUFFER is non-nil, then revert that instead.
+The buffer is expected to visit a file.  Return t if the
+buffer had to be reverted, nil otherwise."
   (let (ret)
     (with-current-buffer (or buffer (current-buffer))
       (if (and (file-readable-p buffer-file-name)
