@@ -184,7 +184,7 @@ Contributors
 - Prathamesh Sonpatki <csonpatki@gmail.com>
 - rabio <rabiodev@o2.pl>
 - Rafael Laboissiere <rafael@laboissiere.net>
-- Raimon Grau <raimonster@gmail.com>
+- Raimon Grau <raimon@3scale.net>
 - Ramkumar Ramachandra <artagnon@gmail.com>
 - Remco van 't Veer <rwvtveer@xs4all.nl>
 - Rémi Vanicat <vanicat@debian.org>
