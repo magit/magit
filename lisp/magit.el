@@ -2649,7 +2649,7 @@ expansion of EOB-FORMAT is inserted at the end of the buffer (if
 the buffer ends with a comment, then it is inserted right before
 that)."
   :package-version '(magit . "2.3.0")
-  :group 'magit-status
+  :group 'magit-commands
   :type '(list (choice (string :tag "Insert at point format")
                        (cons (string :tag "Insert at point format")
                              (repeat (string :tag "Argument to git show")))
