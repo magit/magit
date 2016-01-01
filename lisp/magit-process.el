@@ -761,7 +761,7 @@ as argument."
 (defun magit-process-wait ()
   (while (and magit-this-process
               (eq (process-status magit-this-process) 'run))
-    (sleep-for 0.005 t)))
+    (sleep-for 0.005)))
 
 (defun tramp-sh-handle-start-file-process--magit-tramp-process-environment
     (fn name buffer program &rest args)
