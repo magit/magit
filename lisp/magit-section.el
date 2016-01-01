@@ -941,6 +941,10 @@ invisible."
 (put 'magit-section-visibility-cache 'permanent-local t)
 
 (defun magit-section-set-visibility-from-cache (section)
+  "Set SECTION's visibility to the cached value.
+Currently the cache can only be used to remember that a section's
+body should be collapsed, not that it should be expanded.  Return
+either `hide' or nil."
   (and (member (magit-section-visibility-ident section)
                magit-section-visibility-cache)
        'hide))
