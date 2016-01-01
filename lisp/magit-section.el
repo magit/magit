@@ -1116,10 +1116,13 @@ again use `remove-hook'."
     (if at
         (when (setq at (member at value))
           (setq value (delq function value))
-          (if append
-              (push function (cdr at))
-            (push (car at) (cdr at))
-            (setcar at function)))
+          (cond ((eq append 'replace)
+                 (setcar at function))
+                (append
+                 (push function (cdr at)))
+                (t
+                 (push (car at) (cdr at))
+                 (setcar at function))))
       (setq value (delq function value)))
     (unless (member function value)
       (setq value (if append
