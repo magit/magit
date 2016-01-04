@@ -63,7 +63,7 @@ If everything else fails then ask for help on the
 [mailing list][list], or the
 [Gitter chat][chat].
 
-**Please do NOT use the Github issue tracker for support requests.**
+**Please do NOT use the GitHub issue tracker for support requests.**
 **We only use it for feature requests and bug reports.**
 
 Contributing
