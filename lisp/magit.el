@@ -1545,7 +1545,11 @@ Together the Git variables `branch.<name>.remote' and
 `branch.<name>.merge' define the upstream branch of the local
 branch named NAME.  The value of `branch.<name>.remote' is the
 name of the upstream remote.  The value of `branch.<name>.merge'
-is the full reference of the upstream branch, on the remote."
+is the full reference of the upstream branch, on the remote.
+
+Non-interactively, when UPSTREAM is non-nil, the always set it
+as the new upstream, regardless of whether another upstream was
+already set.  When nil, then always unset."
   (interactive
    (let ((branch (or (and (not current-prefix-arg)
                           (magit-get-current-branch))
@@ -1555,11 +1559,18 @@ is the full reference of the upstream branch, on the remote."
                         (format "Change upstream of %s to" branch)
                         nil (or (magit-branch-p "origin/master")
                                 (and (not (equal branch "master"))
-                                     (magit-branch-p "master"))))))))
+                                     (magit-branch-p "master")))
+                        t)))))
   (if upstream
-      (magit-run-git-no-revert
-       "branch" (concat "--set-upstream-to=" upstream) branch)
-    (magit-run-git-no-revert "branch" "--unset-upstream" branch)))
+      (-let (((remote . merge) (magit-split-branch-name upstream))
+             (branch (magit-get-current-branch)))
+        (magit-call-git "config" (format "branch.%s.remote" branch) remote)
+        (magit-call-git "config" (format "branch.%s.merge"  branch)
+                        (concat "refs/heads/" merge)))
+    (magit-call-git "branch" "--unset-upstream" branch))
+  (when (called-interactively-p 'any)
+    (let ((inhibit-magit-revert t))
+      (magit-refresh))))
 
 (defun magit-format-branch*merge/remote ()
   (let* ((branch (or (magit-get-current-branch) "<name>"))
