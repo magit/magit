@@ -1244,6 +1244,21 @@ Return a list of two integers: (A>B B>A)."
                                nil nil nil 'magit-revision-history default)
         (user-error "Nothing selected"))))
 
+(cl-defun magit-read-upstream-branch
+    (&optional (branch (magit-get-current-branch)) prompt)
+  (magit-completing-read (or prompt (format "Change upstream of %s to" branch))
+                         (nconc (--map (concat it "/" branch)
+                                       (magit-list-remotes))
+                                (delete branch (magit-list-branch-names)))
+                         nil nil nil 'magit-revision-history
+                         (or (let ((atpoint (magit-branch-at-point)))
+                               (and (not (equal atpoint branch)) atpoint))
+                             (magit-branch-p "origin/master")
+                             (and (not (equal branch "master"))
+                                  (magit-branch-p "master"))
+                             (let ((previous (magit-get-previous-branch)))
+                               (and (not (equal previous branch)) previous)))))
+
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-list-tags) nil
                          require-match nil 'magit-revision-history

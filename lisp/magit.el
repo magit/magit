@@ -1555,12 +1555,7 @@ already set.  When nil, then always unset."
                           (magit-get-current-branch))
                      (magit-read-local-branch "Change upstream of branch"))))
      (list branch (and (not (magit-get-upstream-branch branch))
-                       (magit-read-other-branch
-                        (format "Change upstream of %s to" branch)
-                        nil (or (magit-branch-p "origin/master")
-                                (and (not (equal branch "master"))
-                                     (magit-branch-p "master")))
-                        t)))))
+                       (magit-read-upstream-branch)))))
   (if upstream
       (-let (((remote . merge) (magit-split-branch-name upstream))
              (branch (magit-get-current-branch)))
