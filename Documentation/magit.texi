@@ -4192,7 +4192,7 @@ When @code{always} then the variables are set regardless of whether the
 starting point is a local or a remote branch.
 
 @item
-When @code{true} (the default) then the variable are set when the staring
+When @code{true} (the default) then the variables are set when the starting
 point is a remote branch, but not when it is a local branch.
 
 @item
