@@ -1547,7 +1547,7 @@ branch named NAME.  The value of `branch.<name>.remote' is the
 name of the upstream remote.  The value of `branch.<name>.merge'
 is the full reference of the upstream branch, on the remote.
 
-Non-interactively, when UPSTREAM is non-nil, the always set it
+Non-interactively, when UPSTREAM is non-nil, then always set it
 as the new upstream, regardless of whether another upstream was
 already set.  When nil, then always unset."
   (interactive
