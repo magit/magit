@@ -1218,7 +1218,8 @@ Return a list of two integers: (A>B B>A)."
                              secondary-default
                              (magit-get-current-branch))))
 
-(defun magit-read-other-branch (prompt &optional exclude secondary-default)
+(defun magit-read-other-branch
+    (prompt &optional exclude secondary-default no-require-match)
   (let* ((current (magit-get-current-branch))
          (atpoint (magit-branch-at-point))
          (exclude (or exclude current))
@@ -1227,7 +1228,8 @@ Return a list of two integers: (A>B B>A)."
                       secondary-default
                       (magit-get-previous-branch))))
     (magit-completing-read prompt (delete exclude (magit-list-branch-names))
-                           nil t nil 'magit-revision-history default)))
+                           nil (not no-require-match)
+                           nil 'magit-revision-history default)))
 
 (defun magit-read-other-branch-or-commit
     (prompt &optional exclude secondary-default)
