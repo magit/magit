@@ -466,6 +466,14 @@ argument is used.  See @ref{Customizing existing popups,Customizing existing pop
 The Emacs package used to display man-pages, one of @code{man} or @code{woman}.
 @end defopt
 
+@defopt magit-popup-display-buffer-action
+
+The option controls how the window used to display a popup buffer is
+created.  Popup buffers are displayed using @code{display-buffer} with the
+value of this option as ACTION argument.  You can also set this to
+nil and instead add an entry to @code{display-buffer-alist}.
+@end defopt
+
 To emphasize the default action by making it bold use this:
 
 @lisp

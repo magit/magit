@@ -85,6 +85,16 @@
 
 ;;;; Custom Options
 
+(defcustom magit-popup-display-buffer-action '((display-buffer-below-selected))
+  "The action used to display a popup buffer.
+
+Popup buffers are displayed using `display-buffer' with the value
+of this option as ACTION argument.  You can also set this to nil
+and instead add an entry to `display-buffer-alist'."
+  :package-version '(magit-popup . "2.4.0")
+  :group 'magit-popup
+  :type 'sexp)
+
 (defcustom magit-popup-manpage-package
   (if (memq system-type '(windows-nt ms-dos)) 'woman 'man)
   "The package used to display manpages.
@@ -1018,9 +1028,7 @@ restored."
 
 (defun magit-popup-mode-display-buffer (buffer mode)
   (let ((winconf (current-window-configuration)))
-    (split-window-vertically)
-    (other-window 1)
-    (switch-to-buffer buffer)
+    (select-window (display-buffer buffer magit-popup-display-buffer-action))
     (funcall mode)
     (setq magit-popup-previous-winconf winconf)))
 
