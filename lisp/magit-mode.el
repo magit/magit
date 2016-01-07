@@ -233,14 +233,14 @@ Also see option `magit-revert-buffers-only-for-tracked-files'."
          (set-default var val)
          (magit-revert-buffers-set-timer)))
 
-(defcustom magit-revert-buffers-only-for-tracked-files nil
+(defcustom magit-revert-buffers-only-for-tracked-files t
   "Whether to revert only buffers that visit tracked files.
 
 If non-nil, then only tracked files may be reverted.  If nil,
 then all files in the current repository may potentially be
 reverted.  Reverting untracked files should be safe and limiting
 to only tracked files has the potential of causing very noticable
-delays, so the default is to revert all buffers.
+delays.
 
 Also see option `magit-revert-buffers'."
   :package-version '(magit . "2.4.0")

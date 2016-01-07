@@ -1026,8 +1026,7 @@ This option controls whether only buffers that visit tracked files
 If non-nil, then only tracked files may be reverted.  If nil, then
 all files in the current repository may potentially be reverted.
 Reverting untracked files should be safe and limiting to only
-tracked files has the potential of causing very noticable delays, so
-the default is to revert all buffers.
+tracked files has the potential of causing very noticable delays.
 @end defopt
 
 Buffers can also be refreshed explicitly, which is useful in buffers
