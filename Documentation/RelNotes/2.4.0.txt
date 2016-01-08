@@ -87,21 +87,24 @@ Changes since v2.3.0
 * The command `with-editor-finish' now runs the new hook
   `with-editor-post-finish-hook'.
 
-* By default all files inside a repository are now reverted when the
-  file on disk changes, not just tracked files, as was the case
-  before.  This change was necessary because determining the tracked
-  files can be very slow depending on the number of tracked files and
-  buffers.  Setting `magit-revert-buffers-only-for-tracked-files' to
-  `t' restores the old behavior.  #2458
+* The mode `magit-auto-revert-mode' was added as an alternative to the
+  old implementation (`magit-revert-buffers').  Unfortunately the old
+  implementation has to be preserved because the new one only behaves
+  as intended if file notifications are supported.  All users should
+  investigate whether they can switch to the new implementation. #2470
 
-* It is now possible to revert file-visiting buffers both silently and
-  asynchronously at the same time (by setting `magit-revert-buffers' to
-  a negative number).
+* The option `magit-revert-buffers-only-for-tracked-files' was added
+  for users who are forced to use the old auto-revert implementation,
+  but who would still like to see performance improved.  #2458 et al.
+
+* The old auto-revert implementation now reverts both silently and
+  asynchronously at the same time if `magit-revert-buffers' is set to
+  a negative number.
 
 * The command `magit-diff-visit-file' now runs the new hook
   `magit-diff-visit-file-hook'.
 
-* When the upstream branch or push remote is configured but the
+* When the upstream branch or push-remote is configured but the
   respective branch does not actually exist, then that is now reported
   in the header of the status buffer.  #2390
 

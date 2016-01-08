@@ -86,11 +86,12 @@ Installation
 Interface concepts
 
 * Modes and Buffers::
-* Automatic save::
-* Automatic refresh and revert::
+* Refreshing of Magit Buffers::
+* Saving of File-Visiting Buffers::
+* Reverting of File-Visiting Buffers::
 * Sections::
-* Popup buffers and prefix commands::
-* Completion and confirmation::
+* Popup Buffers and Prefix Commands::
+* Completion and Confirmation::
 * Running Git::
 
 Modes and Buffers
@@ -98,6 +99,12 @@ Modes and Buffers
 * Switching Buffers::
 * Naming Buffers::
 * Quitting Windows::
+
+Reverting of File-Visiting Buffers
+
+* New Auto-Revert Implementation::
+* Old Auto-Revert Implementation::
+* Risk of Reverting Automatically::
 
 Sections
 
@@ -664,11 +671,12 @@ You might also want to enable @code{global-magit-file-mode} (see @ref{Minor mode
 
 @menu
 * Modes and Buffers::
-* Automatic save::
-* Automatic refresh and revert::
+* Refreshing of Magit Buffers::
+* Saving of File-Visiting Buffers::
+* Reverting of File-Visiting Buffers::
 * Sections::
-* Popup buffers and prefix commands::
-* Completion and confirmation::
+* Popup Buffers and Prefix Commands::
+* Completion and Confirmation::
 * Running Git::
 @end menu
 
@@ -923,15 +931,77 @@ and the buried buffer was the last remaining Magit buffer that was
 ever displayed in the window, then that is deleted.
 @end defun
 
-@node Automatic save
-@section Automatic save
+@node Refreshing of Magit Buffers
+@section Refreshing of Magit Buffers
+
+After running a command which may change the state of the current
+repository, the current Magit buffer and the corresponding status
+buffer are refreshed.  Status buffer may optionally be automatically
+refreshed whenever a buffer is saved to a file inside the respective
+repository.
+
+Automatically refreshing Magit buffers ensures that the displayed
+information is up-to-date most of the time but can lead to a
+noticeable delay in big repositories.  Other Magit buffers are not
+refreshed to keep the delay to a minimum and also because doing so can
+sometimes be undesirable.
+
+Buffers can also be refreshed explicitly, which is useful in buffers
+that weren't current during the last refresh and after changes were
+made to the repository outside of Magit.
+
+@table @asis
+@kindex g
+@cindex magit-refresh
+@item @kbd{g} @tie{}@tie{}@tie{}@tie{}(@code{magit-refresh})
+
+This command refreshes the current buffer if its major mode derives
+from @code{magit-mode} as well as the corresponding status buffer.
+
+If the option @code{magit-revert-buffers} calls for it, then it also
+reverts all unmodified buffers that visit files being tracked in the
+current repository.
+
+@kindex G
+@cindex magit-refresh-all
+@item @kbd{G} @tie{}@tie{}@tie{}@tie{}(@code{magit-refresh-all})
+
+This command refreshes all Magit buffers belonging to the current
+repository and also reverts all unmodified buffers that visit files
+being tracked in the current repository.
+
+The file-visiting buffers are always reverted, even if
+@code{magit-revert-buffers} is @code{nil}.
+
+@end table
+
+@defun magit-after-save-refresh-status
+
+This function is intended to be added to @code{after-save-hook}.  After
+doing that, the corresponding status buffer is refreshed whenever a
+buffer is saved to a file inside a repository.
+
+Note that refreshing a Magit buffer is done by re-creating its
+contents from scratch, which can be slow in large repositories.  If
+you are not satisfied with Magit's performance, then you should
+obviously not make it worse by adding this function to that hook.
+@end defun
+
+@defopt magit-refresh-buffer-hook
+
+This hook is run in each Magit buffer that was refreshed during the
+current refresh - normally the current buffer and the status buffer.
+@end defopt
+
+@node Saving of File-Visiting Buffers
+@section Saving of File-Visiting Buffers
 
 File-visiting buffers are by default saved at certain points in time.
 This doesn't guarantee that Magit buffers are always up-to-date, but,
 provided one only edits files by editing them in Emacs and uses only
 Magit to interact with Git, one can be fairly confident.  When in
-doubt or after outside changes, type @code{g} (@code{magit-refresh}) to save and
-refresh explicitly.
+doubt or after making outside changes, type @code{g} (@code{magit-refresh}) to save
+and refresh explicitly.
 
 @defopt magit-save-repository-buffers
 
@@ -945,20 +1015,124 @@ such buffers.  If this is @code{dontask} then this is done without user
 intervention.  If it is @code{t} then the user has to confirm each save.
 @end defopt
 
-@node Automatic refresh and revert
-@section Automatic refresh and revert
+@node Reverting of File-Visiting Buffers
+@section Reverting of File-Visiting Buffers
 
-After running a command which may change the state of the current
-repository, the current Magit buffer and the corresponding status
-buffer are refreshed.  Status buffer may optionally be automatically
-refreshed whenever a buffer is saved to a file inside the respective
-repository.
+Magit can automatically revert buffers that are visiting files that
+are being tracked in the current Git repository, after running a Git
+command changed the file on disk.  This is useful because it makes it
+possible to continue editing a buffer after e.g.  performing a merge,
+without having to first answer the question "<file> changed on disk;
+really edit the buffer?" and then later also "<file> has changed since
+visited or saved.  Save anyway?".
 
-Automatically refreshing Magit buffers ensures that the displayed
-information is up-to-date most of the time but can lead to a
-noticeable delay in big repositories.  Other Magit buffers are not
-refreshed to keep the delay to a minimum and also because doing so can
-sometimes be undesirable.
+In the past this feature was enabled by default, but beginning with
+the v2.4 release, Magit provides two competing implementations which
+all user have to choose from.  Neither of the implementations is
+enabled by default, but for users who have previously set the option
+@code{magit-revert-buffers} to a non-nil value, the old implementation
+continues to be used.
+
+The new implementation is both faster and simpler but unfortunately it
+can only be used if the operating system supports file notifications
+and if Emacs supports the file notification implementation of the
+operating system.
+
+You should determine whether you want file-visiting buffers to be
+automatically reverted at all (see @ref{Risk of Reverting Automatically,Risk of Reverting Automatically}),
+and if so whether you can use the new implementation.  You should also
+consider using the generic implementation, which comes with Emacs.
+
+@menu
+* New Auto-Revert Implementation::
+* Old Auto-Revert Implementation::
+* Risk of Reverting Automatically::
+@end menu
+
+@node New Auto-Revert Implementation
+@subsection New Auto-Revert Implementation
+
+Magit's new auto-revert implementation is built on top of the generic
+implementation, which is part of Emacs itself.  It implements as a
+global minor mode named @code{magit-auto-revert-mode}.  This mode works by
+turning on Emacs' local minor mode @code{auto-revert-mode} in all buffers
+which are visiting tracked files located inside any Git repository at
+the time a buffer is first created.
+
+By default this global mode only turns on the local mode in buffers
+that visit @emph{tracked} files.  If you create a new file, visit it in a
+buffer, and then stage it using a Magit command, then the local mode
+is also automatically turned on.  But if you stage the file from
+outside Magit, then Magit won't notice that and you have to turn on
+the local mode manually.  Magit also doesn't notice if a previously
+tracked file is no longer tracked.  In other words, the new
+implementation uses a cache.  The old implementation doesn't use a
+cache and that is the main reason for it's slowness.
+
+If you set the option @code{magit-auto-revert-tracked-only} to @code{nil}, then the
+local mode is enabled in all buffer that visit any file inside Git
+repositories, including files which are not being tracked by Git and
+files inside Git's control directory.
+
+Emacs itself provides a global minor mode (@code{global-auto-revert-mode}),
+which you might want to turn on @emph{instead of} @code{magit-auto-revert-mode}.
+That mode is agnostic to Git, it affects all file-visiting buffers,
+but if you do like files inside Git repositories to be automatically
+reverted, then you might very well like @emph{all} files to be automatically
+reverted.
+
+Unfortunately both @code{magit-auto-revert-mode} and @code{global-auto-revert-mode}
+are only suitable for use by Magit if it is possible to use file
+notifications.  If that is so, then the operating system immediately
+informs Emacs when a file changed on disk, and Emacs then immediately
+reverts the respective buffers.
+
+If @code{auto-revert-use-notify} is @code{nil}, then file notifications are never
+used, so make sure the value is @code{t}.  Also do not forget to set
+@code{magit-revert-buffers} to @code{nil} if you use @code{magit-auto-revert-mode} or
+@code{global-auto-revert-mode}.
+
+If the operating system does not support file notifications, or Emacs
+does not support that particular implementation, then the reverts do
+@emph{not} happen immediately.  Instead they happen after the user was
+inactive for (by default) five seconds.  But we want the reverts to
+happen immediately, because otherwise you would have to wait five
+seconds after e.g. checking out another branch until you could start
+editing an affected buffer.  This would be undesirable because simply
+saying @emph{yes} when asked "<file> changed on disk; really edit the
+buffer?"  would be faster than counting to five.  So we might as well
+not automatically revert at all.
+
+On GNU/Linux file notifications are expected to be supported.  On OS X
+and Windows this likely isn't the case.  If file notifications are not
+fully supported, then you unfortunately have to use the old
+implementation instead.
+
+@defopt magit-auto-revert-mode
+
+When this mode is enabled, then all unmodified buffers that visit
+files that are being tracked by a Git repository are automatically
+reverted as soon as the respective file changes on disk.
+@end defopt
+
+@defopt magit-auto-revert-tracked-only
+
+When this option is @code{nil}, then @code{magit-auto-revert-mode} also reverts
+untracked files and files inside Git's control directory.
+@end defopt
+
+@node Old Auto-Revert Implementation
+@subsection Old Auto-Revert Implementation
+
+Magit's old auto-revert implementation is too slow because, among
+other issues, it does not cache whether a file is being tracked in its
+Git repository or not.  Magit now provides a new implementation which
+does cache that information, and you should investigate whether you
+can use that.
+
+If it turns out that you cannot use the new implementation, then you
+should consider setting @code{magit-revert-buffers-only-for-tracked-files} to
+@code{nil} instead.  Doing that should also improve performace.
 
 @defopt magit-revert-buffers
 
@@ -992,13 +1166,6 @@ being reverted and then also show a summary in the echo area.
 
 
 @item
-@code{usage}
-
-Like @code{t} but include usage information in the summary.  This is the
-default so that users come here and pick what is right for them.
-
-
-@item
 @code{silent}
 
 Revert the buffers synchronously and be quiet about it.
@@ -1022,58 +1189,12 @@ NUMBER seconds resume reverting.
 @defopt magit-revert-buffers-only-for-tracked-files
 
 This option controls whether only buffers that visit tracked files
+are reverted.
 
 If non-nil, then only tracked files may be reverted.  If nil, then
 all files in the current repository may potentially be reverted.
 Reverting untracked files should be safe and limiting to only
 tracked files has the potential of causing very noticable delays.
-@end defopt
-
-Buffers can also be refreshed explicitly, which is useful in buffers
-that weren't current during the last refresh and after changes were
-made to the repository outside of Magit.
-
-@table @asis
-@kindex g
-@cindex magit-refresh
-@item @kbd{g} @tie{}@tie{}@tie{}@tie{}(@code{magit-refresh})
-
-This command refreshes the current buffer if its major mode derives
-from @code{magit-mode} as well as the corresponding status buffer.
-
-If the option @code{magit-revert-buffers} calls for it, then it also
-reverts all unmodified buffers that visit files being tracked in the
-current repository.
-
-@kindex G
-@cindex magit-refresh-all
-@item @kbd{G} @tie{}@tie{}@tie{}@tie{}(@code{magit-refresh-all})
-
-This command refreshes all Magit buffers belonging to the current
-repository and also reverts all unmodified buffers that visit files
-being tracked in the current repository.
-
-The file-visiting buffers are always reverted, even if
-@code{magit-revert-buffers} is nil.
-
-@end table
-
-@defun magit-after-save-refresh-status
-
-This function is intended to be added to @code{after-save-hook}.  After
-doing that the corresponding status buffer is refreshed whenever a
-buffer is saved to a file inside a repository.
-
-Note that refreshing a Magit buffer is done by re-creating its
-contents from scratch, which can be slow in large repositories.  If
-you are not satisfied with Magit's performance, then you should
-obviously not add this function to that hook.
-@end defun
-
-@defopt magit-refresh-buffer-hook
-
-This hook is run in each Magit buffer that was refreshed during the
-current refresh - normally the current buffer and the status buffer.
 @end defopt
 
 @defopt magit-after-revert-hook
@@ -1095,6 +1216,37 @@ was not reverted because it did not change, and so Magit does not
 have to do anything.  This hook is intended for third-party
 extensions that need to run some functions even on such files.
 @end defopt
+
+@node Risk of Reverting Automatically
+@subsection Risk of Reverting Automatically
+
+For most users, automatically reverting file-visiting buffers isn't as
+risky as it might sound.
+
+If a buffer is modified (i.e. it contains changes that haven't been
+saved yet), then Emacs never automatically reverts it.  If the buffer
+is unmodified, resulting in what is seen by Git as an uncommitted
+change, then Git in turn would refuse to carry out any commands that
+would cause these changes to be lost.  Since Git doesn't do anything,
+the file doesn't change on disk, and Emacs has no reason to revert it.
+
+But if you do use file-visiting buffers as a sort of "staging area",
+then the automatic reverts could be harmful.  An example: You visit
+some file in Emacs, edit it, and save the changes.  Then, outside of
+Emacs (or at least not using Magit) you change the file on disk.  At
+this point the automatic revert would kick in because the buffer has
+no unsaved changes (i.e. the buffer is unmodified).  If your work flow
+depends on that not happening, then you cannot use any of the
+auto-revert modes, because that's exactly what they do.
+
+So far I have only heard from one user who uses such a workflow.  But
+because there might be some other users doing such things, and I don't
+want to be responsible for data loss, Magit does not turn on any of
+the available auto-revert modes by default.
+
+Depending on your work flow, setting @code{magit-auto-revert-tracked-only}
+resp.  @code{magit-revert-buffers-only-for-tracked-files} to @code{nil} might, or
+might not, increase the risk of data loss.
 
 @node Sections
 @section Sections
@@ -1461,8 +1613,8 @@ Whether to append the number of children to section headings.  This
 only affects sections that could benefit from this information.
 @end defopt
 
-@node Popup buffers and prefix commands
-@section Popup buffers and prefix commands
+@node Popup Buffers and Prefix Commands
+@section Popup Buffers and Prefix Commands
 
 Many Magit commands are implemented using @strong{popup buffers}.  First the
 user invokes a @strong{popup} or @strong{prefix} command, which causes a popup buffer
@@ -1495,8 +1647,8 @@ you should setup a global binding:
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 @end lisp
 
-@node Completion and confirmation
-@section Completion and confirmation
+@node Completion and Confirmation
+@section Completion and Confirmation
 
 Many commands read a value from the user.  By default this is done
 using the built-in function @code{completing-read}, but Magit can instead use
@@ -6385,7 +6537,7 @@ actions.  See @ref{Wip modes,Wip modes}.
 These modes are not enabled by default because of performance
 concerns.  Instead a lot of potentially destructive commands require
 confirmation every time they are used.  In many cases this can be
-disabled by adding a symbol to @code{magit-no-confirm} (see @ref{Completion and confirmation,Completion and confirmation}).  If you enable the various wip modes then you should
+disabled by adding a symbol to @code{magit-no-confirm} (see @ref{Completion and Confirmation,Completion and Confirmation}).  If you enable the various wip modes then you should
 add @code{safe-with-wip} to this list.
 
 Similarly it isn't necessary to require confirmation before moving a
@@ -6395,33 +6547,11 @@ controls whether the system trash is used, which is the case by default.
 Nevertheless, @code{trash} isn't a member of @code{magit-no-confirm} - you
 might want to change that.
 
-Buffers visiting files tracked in the current repository are being
-refreshed before certain actions.  See @ref{Automatic refresh and revert,Automatic refresh and revert}.
-This isn't as risky as it might seem.  If a buffer is modified
-(i.e. it contains changes that haven't been saved yet), then
-Emacs/Magit would refuse to revert it.  If the buffer has been saved
-resulting in what is seen by Git as an uncommitted change, then Git in
-turn would refuse to carry out the action that would cause these
-changes to be lost.  Since Git doesn't do anything, the file doesn't
-change on disk, and Emacs/Magit has nothing to revert.
-
-However if you do modify some files, visit the respective files in
-Emacs, somehow discard the changes (not using Magit and probably even
-outside Emacs), and then expect the respective file-visiting buffers
-to retain the uncommitted changes, then the automatic reverting would
-actually be harmful.  In other words if you use file-visiting buffers
-as a sort of "staging area", then you should set @code{magit-revert-buffers}
-to @code{nil}.
-
-So far I have only heard from one user who uses such a workflow.  But
-because there might be some other users doing such things, and I don't
-want to be responsible for data loss, these reverts by default happen
-quite verbosely, allowing these few users to undo the reverts using
-the @code{undo} command and then disabling the automatic reverts for the
-future.  Most users should however keep automatic reverts turned on
-and instead configure it to be less verbose by setting
-@code{magit-revert-buffers} to @code{t} or even @code{silent}.  This option is mentioned
-again in the next section.
+By default buffers visiting files tracked in the current repository
+are being reverted after certain actions.  This isn't as risky as it
+might sound, but you have to be aware that this is happening because
+if you are using an unusual work flow, then you might be at risk.  See
+@ref{Reverting of File-Visiting Buffers,Reverting of File-Visiting Buffers} for an in-depth discussion.
 
 @node Performance
 @subsection Performance
@@ -6497,9 +6627,6 @@ You should check the values of at least the following variables:
 
 @itemize
 @item
-@code{magit-after-revert-hook}
-
-@item
 @code{magit-diff-auto-show}
 
 @item
@@ -6536,18 +6663,16 @@ default anymore.  Consider leaving it at that.
 @item
 @code{magit-revert-buffers}
 
-After running certain commands, after refreshing the current Magit
-buffer, unmodified buffers visiting files belonging to the current
-repository are reverted.  By default that happens synchronously,
-which can be an issue if you visit many buffers.  Set this variable
-to a number to revert asynchronously.  It's best to use a negative
-number because that causes the reverts to happen silently (which is
-desirable because the revert messages would otherwise shadow other,
-more important messages).
+If this is non-nil, then the old auto-revert implementation is used.
+There also exists a new implementation which is much faster.  The
+latter isn't used by default because it is only suitable if file
+notifications are fully supported.  See @ref{Reverting of File-Visiting Buffers,Reverting of File-Visiting Buffers} to figure out whether you can use the new implementation.
 
+If you are forced to stick with the old implementation, then also
+consider setting @code{magit-revert-buffers-only-for-tracked-files} to @code{nil},
+and check whether a third-party package has added something slow to
+@code{magit-after-revert-hook} and/or @code{magit-not-reverted-hook}.
 
-@item
-@code{magit-not-reverted-hook}
 
 @item
 @code{magit-refresh-buffer-hook}
