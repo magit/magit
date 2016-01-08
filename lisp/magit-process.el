@@ -39,6 +39,7 @@
 (require 'magit-section)
 (require 'magit-git)
 (require 'magit-mode)
+(require 'magit-revert)
 
 (eval-when-compile (require 'dired))
 (declare-function dired-uncache 'dired)

@@ -34,6 +34,7 @@
 (require 'magit-section)
 (require 'magit-git)
 (require 'magit-mode)
+(require 'magit-revert)
 (require 'magit-popup)
 (require 'magit-process)
 

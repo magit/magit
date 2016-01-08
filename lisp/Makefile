@@ -11,11 +11,13 @@ magit-utils.elc:
 magit-section.elc:	magit-utils.elc
 magit-git.elc:		magit-utils.elc magit-section.elc
 magit-mode.elc:		magit-section.elc magit-git.elc
+magit-revert.elc:	magit-git.elc
 magit-popup.elc:
 magit-process.elc:	with-editor.elc magit-utils.elc magit-section.elc \
-			magit-git.elc magit-mode.elc
+			magit-git.elc magit-mode.elc magit-revert.elc
 magit-core.elc:		magit-utils.elc magit-section.elc magit-git.elc \
-			magit-mode.elc magit-popup.elc magit-process.elc
+			magit-mode.elc magit-revert.elc \
+			magit-popup.elc magit-process.elc
 magit-diff.elc:		git-commit.elc magit-core.elc
 magit-log.elc:		magit-core.elc magit-diff.elc
 magit-wip.elc:		magit-core.elc magit-log.elc
