@@ -45,7 +45,7 @@
              (run-with-timer 0 (abs magit-revert-buffers)
                              'magit-revert-buffers-async))))
 
-(defcustom magit-revert-buffers 'usage
+(defcustom magit-revert-buffers nil
   "How file-visiting buffers in the current repository are reverted.
 
 After running certain commands, after refreshing the current
@@ -61,10 +61,6 @@ the current repository may optionally be reverted.
 `t'       Revert the buffers synchronously, mentioning each one
           as it is being reverted and then also show a summary.
 
-`usage'   Like `t' but include usage information in the summary.
-          This is the default so that users come here and pick
-          what is right for them.
-
 `silent'  Revert the buffers synchronously and be quiet about it.
           This (or a negative number) is the recommended setting,
           because for the other values the revert messages might
@@ -78,14 +74,13 @@ NUMBER    An integer or float.  Revert the buffers asynchronously.
           (the absolute value of) NUMBER seconds resume reverting.
 
 Also see option `magit-revert-buffers-only-for-tracked-files'."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.4.0")
   :group 'magit
   :type '(choice
           (const :tag "Don't revert" nil)
           (const :tag "Ask whether to revert" ask)
           (const :tag "Revert synchronously" t)
           (const :tag "Revert synchronously but in silence" silent)
-          (const :tag "Revert synchronously with usage information" usage)
           (integer :tag "Revert asynchronously (interval in seconds)"))
   :set (lambda (var val)
          (set-default var val)
@@ -171,23 +166,16 @@ When called interactively then the revert is forced."
   (if (eq magit-revert-buffers 'silent)
       (mapc #'magit-revert-buffer buffers)
     (let ((cnt (length buffers)))
-      (message "Reverting (up to) %s file-visiting buffer(s)..." cnt)
-      (setq cnt (length (-non-nil (mapcar #'magit-revert-buffer buffers))))
-      (if (> cnt 0)
-          (let ((s (if (> cnt 1) "s" "")))
-            (pcase magit-revert-buffers
-              (`t
-               (message "Reverting %s file-visiting buffer%s...done" cnt s))
-              (`usage
-               (message "Reverting %s file-visiting buffer%s...done%s%s%s" cnt s
-                        (substitute-command-keys
-                         "\n  This can be undone using `\\[undo]' in the ")
-                        "affected buffers\n  Customize behavior using `M-x "
-                        "customize-option RET magit-revert-buffers RET'"))
-              ((or `nil `ask)
-               (message "Reverting %s file-visiting buffer%s...done%s"
-                        cnt s (if force " (forced)" "")))))
-        (message "(No buffers need to be reverted)")))))
+      (when (> cnt 0)
+        (message "Reverting (up to) %s file-visiting buffer%s..."
+                 cnt (if (> cnt 1) "s" ""))
+        (setq cnt (length (-non-nil (mapcar #'magit-revert-buffer buffers))))
+        (if (> cnt 0)
+            (message "Reverting %s file-visiting buffer%s...done%s"
+                     cnt
+                     (if (> cnt 1) "s" "")
+                     (if force " (forced)" ""))
+          (message "(No buffers need to be reverted)"))))))
 
 (defun magit-revert-buffers-async (&optional buffers)
   (setq buffers (nconc buffers (--filter (not (memq it buffers))
