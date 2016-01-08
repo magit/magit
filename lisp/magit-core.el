@@ -35,6 +35,7 @@
 (require 'magit-git)
 (require 'magit-mode)
 (require 'magit-revert)
+(require 'magit-autorevert)
 (require 'magit-popup)
 (require 'magit-process)
 

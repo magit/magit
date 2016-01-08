@@ -214,8 +214,10 @@ ignored) files.
 (defun magit-stage-1 (arg &optional files)
   (magit-wip-commit-before-change files " before stage")
   (magit-run-git-no-revert "add" arg (if files (cons "--" files) "."))
-  (when (and magit-revert-buffers magit-revert-buffers-use-cache)
-    (magit-revert-buffer-cache-files files))
+  (cond ((and magit-revert-buffers magit-revert-buffers-use-cache)
+         (magit-revert-buffer-cache-files files))
+        ((and magit-auto-revert-mode magit-auto-revert-tracked-only)
+         (mapc #'magit-turn-on-auto-revert-mode-if-desired files)))
   (magit-wip-commit-after-apply files " after stage"))
 
 (defun magit-stage-untracked ()
@@ -232,8 +234,10 @@ ignored) files.
     (magit-wip-commit-before-change files " before stage")
     (when plain
       (magit-run-git-no-revert "add" "--" plain)
-      (when (and magit-revert-buffers magit-revert-buffers-use-cache)
-        (magit-revert-buffer-cache-files files)))
+      (cond ((and magit-revert-buffers magit-revert-buffers-use-cache)
+             (magit-revert-buffer-cache-files files))
+            ((and magit-auto-revert-mode magit-auto-revert-tracked-only)
+             (mapc #'magit-turn-on-auto-revert-mode-if-desired files))))
     (dolist (repo repos)
       (let ((inhibit-magit-revert t))
         (save-excursion
