@@ -1991,27 +1991,37 @@ are highlighted."
           (send (magit-section-end section))
           (face (if magit-diff-highlight-hunk-body
                     'magit-diff-context-highlight
-                  'magit-diff-context)))
+                  'magit-diff-context))
+          (align (list 'space :align-to `(+ (,(window-body-width nil t))
+                                            ,(window-hscroll)))))
       (when magit-diff-unmarked-lines-keep-foreground
         (setq face (list :background (face-attribute face :background))))
       (cl-flet ((ov (start end &rest args)
-                  (let ((ov (make-overlay start end nil t)))
-                    (overlay-put ov 'evaporate t)
-                    (while args (overlay-put ov (pop args) (pop args)))
-                    (push ov magit-region-overlays)
-                    ov)))
-        (ov sbeg cbeg 'face 'magit-diff-lines-heading
-            'display (concat (magit-diff-hunk-region-header section) "\n"))
+                    (let ((ov (make-overlay start end nil t)))
+                      (overlay-put ov 'evaporate t)
+                      (while args (overlay-put ov (pop args) (pop args)))
+                      (push ov magit-region-overlays)
+                      ov)))
+        (ov sbeg (1- cbeg) 'face 'magit-diff-lines-heading
+            'display (magit-diff-hunk-region-header section)
+            'after-string (propertize "\s" 'face 'magit-diff-lines-heading
+                                      'display align))
         (ov cbeg rbeg 'face face 'priority 2)
-        (when (and (window-system) magit-diff-show-lines-boundary)
-          (ov rbeg (1+ rbeg) 'before-string
-              (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                                  (propertize "\n" 'line-height t))
-                          'face 'magit-diff-lines-boundary))
-          (ov rend (1+ rend) 'after-string
-              (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                                  (propertize "\n" 'line-height t))
-                          'face 'magit-diff-lines-boundary)))
+        (when (and magit-diff-show-lines-boundary
+                   (window-system))
+          (let* ((eol (save-excursion (goto-char rbeg)
+                                      (end-of-visual-line) (point)))
+                 (bol (save-excursion (goto-char rend)
+                                      (beginning-of-visual-line) (point)))
+                 (color (face-background 'magit-diff-lines-boundary nil t))
+                 (face  (list :overline color :underline color)))
+            (if (= rbeg bol)
+                (ov rbeg eol 'face face
+                    'after-string (propertize "\s" 'face face 'display align 'cursor t))
+              (ov rbeg eol 'face (setq face (list :overline color))
+                  'after-string (propertize "\s" 'face face 'display align 'cursor t))
+              (ov bol rend 'face (setq face (list :underline color))
+                  'after-string (propertize "\s\n" 'face face 'display align 'cursor t)))))
         (ov (1+ rend) send 'face face 'priority 2)))))
 
 ;;; Diff Extract
