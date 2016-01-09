@@ -952,7 +952,10 @@ which, as the name suggests always visits the actual file."
               ((or `file `files)  (car (magit-section-children current)))
               (`list (car (magit-section-children
                            (car (magit-section-children current)))))))
-      (when hunk
+      (when (and hunk
+                 ;; Currently the `hunk' type is also abused for file
+                 ;; mode changes.  Luckily such sections have no value.
+                 (magit-section-value hunk))
         (setq line (magit-diff-hunk-line   hunk)
               col  (magit-diff-hunk-column hunk)))
       (setq buffer (if rev
