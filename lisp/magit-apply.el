@@ -35,6 +35,7 @@
 (require 'magit-wip)
 
 ;; For `magit-apply'
+(declare-function magit-anti-stage 'magit-rockstar)
 (declare-function magit-am-popup 'magit-sequence)
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage 'magit)
@@ -254,7 +255,9 @@ ignored) files.
         (`(staged      file) (magit-unstage-1 (list (magit-section-value it))))
         (`(staged     files) (magit-unstage-1 (magit-region-values)))
         (`(staged      list) (magit-unstage-all))
-        (`(committed     ,_) (user-error "Cannot unstage committed changes"))
+        (`(committed     ,_) (if (bound-and-true-p magit-unstage-use-anti-stage)
+                                 (magit-anti-stage)
+                               (user-error "Cannot unstage committed changes")))
         (`(undefined     ,_) (user-error "Cannot unstage this change"))))))
 
 ;;;###autoload
