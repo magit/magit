@@ -247,23 +247,23 @@ Also see option `magit-revert-buffers'."
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-after-revert-hook '(magit-refresh-vc-mode-line)
+(defcustom magit-after-revert-hook nil
   "Normal hook for `magit-revert-buffer' to run after reverting.
 
 This hook is only run for buffers that were actually reverted.
 For other buffers `magit-not-reverted-hook' is run instead."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.4.0")
   :group 'magit-modes
   :type 'hook
   :options '(magit-refresh-vc-mode-line))
 
-(defcustom magit-not-reverted-hook '(magit-refresh-vc-mode-line)
+(defcustom magit-not-reverted-hook nil
   "Normal hook for `magit-revert-buffer' to run instead of reverting.
 
 This hook is only run for buffers which might have been reverted
 but were not actually reverted, because that was not necessary.
 For other buffers `magit-after-revert-hook' is run instead."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.4.0")
   :group 'magit-modes
   :type 'hook
   :options '(magit-refresh-vc-mode-line))
@@ -936,7 +936,7 @@ buffer had to be reverted, nil otherwise."
              (member (file-relative-name file topdir) tracked)))))
 
 (defun magit-refresh-vc-mode-line ()
-  "Update `vc-mode' which is displayed in the mode-line.
+  "Update the information displayed by `vc-mode' in the mode-line.
 Like `vc-mode-line' but simpler, more efficient, and less buggy."
   (setq vc-mode
         (if vc-display-status

@@ -1108,6 +1108,18 @@ have to do anything.  This hook is intended for third-party
 extensions that need to run some functions even on such files.
 @end defopt
 
+@defun magit-refresh-vc-mode-line
+
+This function updates the information displayed by @code{vc-mode} in the
+mode-line.  This is a simpler, more efficient, and less buggy
+substitute for @code{vc-mode-line}.
+
+This function is intended to be added to @code{magit-after-revert-hook} and
+@code{magit-not-reverted-hook}.  It isn't part of the default value of these
+hooks because, even though it is faster than, VC's variant it is still
+to slow if many file-visiting buffers are open.
+@end defun
+
 @node Sections
 @section Sections
 

@@ -780,6 +780,17 @@ in each of the affected buffers.
   have to do anything.  This hook is intended for third-party
   extensions that need to run some functions even on such files.
 
+- Function: magit-refresh-vc-mode-line
+
+  This function updates the information displayed by ~vc-mode~ in the
+  mode-line.  This is a simpler, more efficient, and less buggy
+  substitute for ~vc-mode-line~.
+
+  This function is intended to be added to ~magit-after-revert-hook~ and
+  ~magit-not-reverted-hook~.  It isn't part of the default value of these
+  hooks because, even though it is faster than, VC's variant it is still
+  to slow if many file-visiting buffers are open.
+
 ** Sections
 
 Magit buffers are organized into nested sections, which can be
