@@ -37,7 +37,8 @@
   :type 'boolean
   :set (lambda (var val)
          (set var val)
-         (when (bound-and-true-p magit-auto-revert-mode)
+         (when (and (bound-and-true-p magit-auto-revert-mode)
+                    (featurep 'magit-autorevert))
            (magit-auto-revert-mode -1)
            (magit-auto-revert-mode))))
 
@@ -71,6 +72,7 @@ seconds of user inactivity.  That is not desirable."
                    (magit-file-tracked-p buffer-file-name)))
       (auto-revert-mode))))
 
+;;;###autoload
 (defvar magit-revert-buffers t)
 (make-obsolete-variable 'magit-revert-buffers 'magit-auto-revert-mode
                         "Magit 2.4.0")
