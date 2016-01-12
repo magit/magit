@@ -702,94 +702,127 @@ refresh explicitly.
 *** Automatic Reverting of File-Visiting Buffers
 
 By default Magit automatically reverts buffers that are visiting files
-that are being tracked in the current Git repository, after running a
-Git command changed the visited file on disk.  This is useful because
-it makes it possible to continue editing a buffer after e.g.
-performing a merge, without having to type ~M-x revert-buffer RET RET~,
-in each of the affected buffers.
+that are being tracked in a Git repository, after they have changed on
+disk.  When using Magit one often changes files on disk by running
+git, i.e. "outside Emacs", making this a rather important feature.
 
-- User Option: magit-revert-buffers
+For example, if you discard a change in the status buffer, then that
+is done by running ~git apply --reverse ...~, and Emacs considers the
+file to have "change on disk".  If Magit did not automaticallyrevert
+the buffer, then you would have to type ~M-x revert-buffer RET RET~ in
+the visiting buffer before you could continue making changes.
 
-  This option controls if and how file-visiting buffers in the current
-  repository are reverted.
+- User Option: magit-auto-revert-mode
 
-  Unmodified buffers visiting files belonging to the current
-  repository may be reverted after refreshing the current Magit buffer
-  and after running certain other commands.
+  When this mode is enabled, then buffers that visit tracked files,
+  are automatically reverted after the visited files changed on disk.
 
-  - ~nil~
+- User Option: global-auto-revert-mode
 
-    Don't revert any buffers.
+  When this mode is enabled, then any file-visiting buffer is
+  automatically reverted after the visited file changed on disk.
 
-  - ~ask~
+  If you like buffers that visit tracked files to be automatically
+  reverted, then you might also like any buffer to be reverted, not
+  just those visiting tracked files.  If that is the case, then enable
+  this mode /instead of/ ~magit-auto-revert-mode~.
 
-    List the buffers which might potentially have to be reverted and
-    ask the user whether she wants to revert them.  If so, then do it
-    synchronously.
+- User Option: magit-auto-revert-immediately
 
-  - ~t~
+  This option controls whether Magit reverts buffers immediately.
 
-    Revert the buffers synchronously, mentioning each one as it is
-    being reverted and then also show a summary in the echo area.
+  If this is non-nil and either ~global-auto-revert-mode~ or
+  ~magit-auto-revert-mode~ is enabled, then Magit immediately reverts
+  buffers by explicitly calling ~auto-revert-buffers~ after running git
+  for side-effects.
 
-  - ~usage~
+  If ~auto-revert-use-notify~ is non-nil (and file notifications are
+  actually supported), then ~magit-auto-revert-immediately~ should be
+  set to nil, because the reverts happen immediately anyway.
 
-    Like ~t~ but include usage information in the summary.  This is the
-    default so that users come here and pick what is right for them.
+  If ~magit-auto-revert-immediately~ and ~auto-revert-use-notify~ are both
+  nil, then reverts happen after ~auto-revert-interval~ seconds of user
+  inactivity.  That is not desirable.
 
-  - ~silent~
+- User Option: auto-revert-use-notify
 
-    Revert the buffers synchronously and be quiet about it.
+  This option controls whether file notification functions should be
+  used.  Note that this variable unfortunately defaults to ~t~ even on
+  systems on which file notifications cannot be used.
 
-    This (or a negative number) is the recommended setting, because
-    for the other values the revert messages might prevent you from
-    seeing other, more important, messages in the echo area.
+- User Option: magit-auto-revert-tracked-only
 
-  - NUMBER
+  This option controls whether ~magit-auto-revert-mode~ only reverts
+  tracked files or all files that are located inside Git repositories,
+  including untracked files and files located inside Git's control
+  directory.
 
-    An integer or float.  Revert the buffers asynchronously.  If
-    NUMBER is positive, then mention each buffer as it is being
-    reverted.  If it is negative, then be quiet about it.  If user
-    input arrives, then stop reverting.  After (the absolute value of)
-    NUMBER seconds resume reverting.
+- Command: auto-revert-mode
 
-- User Option: magit-revert-buffers-only-for-tracked-files
+  The global mode ~magit-auto-revert-mode~ works by turning on this
+  local mode in the appropriate buffers.  You can also turn it on or
+  off manually, which might be necessary if Magit does not notice that
+  a previously untracked file now is being tracked or vice-versa.
 
-  This option controls whether only buffers that visit tracked files
+- User Option: auto-revert-stop-on-user-input
 
-  If non-nil, then only tracked files may be reverted.  If nil, then
-  all files in the current repository may potentially be reverted.
-  Reverting untracked files should be safe and limiting to only
-  tracked files has the potential of causing very noticable delays.
+  This option controls whether the arrival of user input suspends the
+  automatic reverts for ~auto-revert-interval~ seconds.
 
-- User Option: magit-after-revert-hook
+- User Option: auto-revert-interval
 
-  This hook is run in each file-visiting buffer belonging to the
-  current repository that was actually reverted during a refresh.
+  This option controls for how many seconds Emacs waits before
+  resuming suspended reverts.
 
-  Note that adding something here is very expensive.  If you
-  experience performance issues, you might want to check this hook, as
-  well as ~magit-not-reverted-hook~ and, if possible, remove some of the
-  functions added by third-party packages.
+- User Option: auto-revert-verbose
 
-- User Option: magit-not-reverted-hook
+  This option controls whether Emacs reports when a buffer has been
+  reverted.
 
-  This hook is run in each file-visiting buffer belonging to the
-  current repository that was _not_ reverted during a refresh.  The file
-  was not reverted because it did not change, and so Magit does not
-  have to do anything.  This hook is intended for third-party
-  extensions that need to run some functions even on such files.
+The options with the ~auto-revert-~ prefix are located in the Custom
+group named ~auto-revert~.  The other, magit-specific, options are
+located in the ~magit~ group.
 
-- Function: magit-refresh-vc-mode-line
+**** Risk of Reverting Automatically
 
-  This function updates the information displayed by ~vc-mode~ in the
-  mode-line.  This is a simpler, more efficient, and less buggy
-  substitute for ~vc-mode-line~.
+For the vast majority users automatically reverting file-visiting
+buffers after they have changed on disk is harmless.
 
-  This function is intended to be added to ~magit-after-revert-hook~ and
-  ~magit-not-reverted-hook~.  It isn't part of the default value of these
-  hooks because, even though it is faster than, VC's variant it is still
-  to slow if many file-visiting buffers are open.
+If a buffer is modified (i.e. it contains changes that haven't been
+saved yet), then Emacs would refuse to automatically revert it.  If
+you safe a previously modified buffer, then that results in what is
+seen by Git as an uncommitted change.  Git would then refuse to carry
+out any commands that would cause these changes to be lost.  In other
+words, if there is anything that could be lost, then either Git or
+Emacs would refuse to discard the changes.
+
+However if you do use file-visiting buffers as a sort of ad hoc
+"staging area", then the automatic reverts could potentially cause
+data loss.  So far I have only heard from one user who uses such a
+workflow.
+
+An example: You visit some file in a buffer, edit it, and save the
+changes.  Then, outside of Emacs (or at least not using Magit or by
+saving the buffer) you change the file on disk again.  At this point
+the buffer is the only place where the intermediate version still
+exists.  You have saved the changes to disk, but that has since been
+overwritten.  Meanwhile Emacs considers the buffer to be unmodified
+(because you have not made any changes to it since you last saved it
+to the visited file) and therefore would not object to it being
+automatically reverted.  At this point an Auto-Revert mode would kick
+in.  It would check whether the buffer is modified and since that is
+not the case it would revert it.  The intermediate version would be
+lost.  (Actually you could still get it back using the ~undo~ command.)
+
+If your work flow depends on Emacs preserving the intermediate version
+in the buffer, then you have to disable all Auto-Revert modes.  But
+please consider that such a work flow would be dangerous even without
+using an Auto-Revert mode, and should therefore be avoided.  If Emacs
+crashed or if you quit Emacs by mistake, then you would also lose the
+buffer content.  There would be no autosave file still containing the
+intermediate version (because that was deleted when you saved the
+buffer) and you would not be asked whether you want to safe the buffer
+(because it isn't modified).
 
 ** Sections
 
@@ -4557,13 +4590,13 @@ This section discusses various variables that you might want to
 change (or *not* change) for safety reasons.
 
 Git keeps *committed* changes around long enough for users to recover
-changes they have accidentally deleted.  It does not do the same for
-*uncommitted* changes in the working tree and not even the index (the
-staging area).  Because Magit makes it so easy to modify uncommitted
-changes, it also makes it easy to shoot yourself in the foot in the
-process.  For that reason Magit provides three global modes that save
-*tracked* files to work-in-progress references after or before certain
-actions.  See [[*Wip modes]].
+changes they have accidentally been deleted.  It does not do the same
+for *uncommitted* changes in the working tree and not even the index
+(the staging area).  Because Magit makes it so easy to modify
+uncommitted changes, it also makes it easy to shoot yourself in the
+foot in the process.  For that reason Magit provides three global
+modes that save *tracked* files to work-in-progress references after or
+before certain actions.  See [[*Wip modes]].
 
 These modes are not enabled by default because of performance
 concerns.  Instead a lot of potentially destructive commands require
@@ -4579,33 +4612,10 @@ controls whether the system trash is used, which is the case by default.
 Nevertheless, ~trash~ isn't a member of ~magit-no-confirm~ - you
 might want to change that.
 
-Buffers visiting files tracked in the current repository are being
-reverted after certain actions.  See [[*Automatic Reverting of
-File-Visiting Buffers]].  This isn't as risky as it might seem.  If a
-buffer is modified (i.e. it contains changes that haven't been saved
-yet), then Emacs/Magit would refuse to revert it.  If the buffer has
-been saved resulting in what is seen by Git as an uncommitted change,
-then Git in turn would refuse to carry out the action that would cause
-these changes to be lost.  Since Git doesn't do anything, the file
-doesn't change on disk, and Emacs/Magit has nothing to revert.
-
-However if you do modify some files, visit the respective files in
-Emacs, somehow discard the changes (not using Magit and probably even
-outside Emacs), and then expect the respective file-visiting buffers
-to retain the uncommitted changes, then the automatic reverting would
-actually be harmful.  In other words if you use file-visiting buffers
-as a sort of "staging area", then you should set ~magit-revert-buffers~
-to ~nil~.
-
-So far I have only heard from one user who uses such a workflow.  But
-because there might be some other users doing such things, and I don't
-want to be responsible for data loss, these reverts by default happen
-quite verbosely, allowing these few users to undo the reverts using
-the ~undo~ command and then disabling the automatic reverts for the
-future.  Most users should however keep automatic reverts turned on
-and instead configure it to be less verbose by setting
-~magit-revert-buffers~ to ~t~ or even ~silent~.  This option is mentioned
-again in the next section.
+By default buffers visiting files are automatically reverted when the
+visited file changes on disk.  This isn't as risky as it might seem,
+but to make an informed decision you should see [[*Risk of Reverting
+Automatically]].
 
 *** Performance
 

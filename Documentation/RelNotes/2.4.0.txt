@@ -19,6 +19,13 @@ UNRELEASED.
 Changes since v2.3.0
 --------------------
 
+* The new mode `magit-auto-revert-mode', a magit-specific globalized
+  variant of `auto-revert-mode', replace the old implementation, which
+  was configured using the option `magit-revert-buffers'.  The new
+  mode is enabled for all users by default, except for those who have
+  set `magit-revert-buffers' to nil while the old implementation was
+  still in use.  #2474
+
 * All of Git's push-related variables are now honored.  #2414
 
 * In addition to the upstream branch, the push-remote (configured
@@ -86,17 +93,6 @@ Changes since v2.3.0
 
 * The command `with-editor-finish' now runs the new hook
   `with-editor-post-finish-hook'.
-
-* By default all files inside a repository are now reverted when the
-  file on disk changes, not just tracked files, as was the case
-  before.  This change was necessary because determining the tracked
-  files can be very slow depending on the number of tracked files and
-  buffers.  Setting `magit-revert-buffers-only-for-tracked-files' to
-  `t' restores the old behavior.  #2458
-
-* It is now possible to revert file-visiting buffers both silently and
-  asynchronously at the same time (by setting `magit-revert-buffers' to
-  a negative number).
 
 * The command `magit-diff-visit-file' now runs the new hook
   `magit-diff-visit-file-hook'.

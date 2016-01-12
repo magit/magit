@@ -164,18 +164,17 @@ With a prefix argument and if necessary, attempt a 3-way merge."
   "Add the change at point to the staging area."
   (interactive)
   (--when-let (magit-apply--get-selection)
-    (let ((inhibit-magit-revert t))
-      (pcase (list (magit-diff-type) (magit-diff-scope))
-        (`(untracked     ,_) (magit-stage-untracked))
-        (`(unstaged  region) (magit-apply-region it "--cached"))
-        (`(unstaged    hunk) (magit-apply-hunk   it "--cached"))
-        (`(unstaged   hunks) (magit-apply-hunks  it "--cached"))
-        (`(unstaged    file) (magit-stage-1 "-u" (list (magit-section-value it))))
-        (`(unstaged   files) (magit-stage-1 "-u" (magit-region-values)))
-        (`(unstaged    list) (magit-stage-1 "-u"))
-        (`(staged        ,_) (user-error "Already staged"))
-        (`(committed     ,_) (user-error "Cannot stage committed changes"))
-        (`(undefined     ,_) (user-error "Cannot stage this change"))))))
+    (pcase (list (magit-diff-type) (magit-diff-scope))
+      (`(untracked     ,_) (magit-stage-untracked))
+      (`(unstaged  region) (magit-apply-region it "--cached"))
+      (`(unstaged    hunk) (magit-apply-hunk   it "--cached"))
+      (`(unstaged   hunks) (magit-apply-hunks  it "--cached"))
+      (`(unstaged    file) (magit-stage-1 "-u" (list (magit-section-value it))))
+      (`(unstaged   files) (magit-stage-1 "-u" (magit-region-values)))
+      (`(unstaged    list) (magit-stage-1 "-u"))
+      (`(staged        ,_) (user-error "Already staged"))
+      (`(committed     ,_) (user-error "Cannot stage committed changes"))
+      (`(undefined     ,_) (user-error "Cannot stage this change")))))
 
 ;;;###autoload
 (defun magit-stage-file (file)
@@ -213,7 +212,9 @@ ignored) files.
 
 (defun magit-stage-1 (arg &optional files)
   (magit-wip-commit-before-change files " before stage")
-  (magit-run-git-no-revert "add" arg (if files (cons "--" files) "."))
+  (magit-run-git "add" arg (if files (cons "--" files) "."))
+  (when magit-auto-revert-mode
+    (mapc #'magit-turn-on-auto-revert-mode-if-desired files))
   (magit-wip-commit-after-apply files " after stage"))
 
 (defun magit-stage-untracked ()
@@ -229,14 +230,15 @@ ignored) files.
         (push file plain)))
     (magit-wip-commit-before-change files " before stage")
     (when plain
-      (magit-run-git-no-revert "add" "--" plain))
+      (magit-run-git "add" "--" plain)
+      (when magit-auto-revert-mode
+        (mapc #'magit-turn-on-auto-revert-mode-if-desired plain)))
     (dolist (repo repos)
-      (let ((inhibit-magit-revert t))
-        (save-excursion
-          (goto-char (magit-section-start
-                      (magit-get-section
-                       `((file . ,repo) (untracked) (status)))))
-          (call-interactively 'magit-submodule-add))))
+      (save-excursion
+        (goto-char (magit-section-start
+                    (magit-get-section
+                     `((file . ,repo) (untracked) (status)))))
+        (call-interactively 'magit-submodule-add)))
     (magit-wip-commit-after-apply files " after stage")))
 
 ;;;; Unstage
@@ -245,20 +247,19 @@ ignored) files.
   "Remove the change at point from the staging area."
   (interactive)
   (--when-let (magit-apply--get-selection)
-    (let ((inhibit-magit-revert t))
-      (pcase (list (magit-diff-type) (magit-diff-scope))
-        (`(untracked     ,_) (user-error "Cannot unstage untracked changes"))
-        (`(unstaged      ,_) (user-error "Already unstaged"))
-        (`(staged    region) (magit-apply-region it "--reverse" "--cached"))
-        (`(staged      hunk) (magit-apply-hunk   it "--reverse" "--cached"))
-        (`(staged     hunks) (magit-apply-hunks  it "--reverse" "--cached"))
-        (`(staged      file) (magit-unstage-1 (list (magit-section-value it))))
-        (`(staged     files) (magit-unstage-1 (magit-region-values)))
-        (`(staged      list) (magit-unstage-all))
-        (`(committed     ,_) (if (bound-and-true-p magit-unstage-use-anti-stage)
-                                 (magit-anti-stage)
-                               (user-error "Cannot unstage committed changes")))
-        (`(undefined     ,_) (user-error "Cannot unstage this change"))))))
+    (pcase (list (magit-diff-type) (magit-diff-scope))
+      (`(untracked     ,_) (user-error "Cannot unstage untracked changes"))
+      (`(unstaged      ,_) (user-error "Already unstaged"))
+      (`(staged    region) (magit-apply-region it "--reverse" "--cached"))
+      (`(staged      hunk) (magit-apply-hunk   it "--reverse" "--cached"))
+      (`(staged     hunks) (magit-apply-hunks  it "--reverse" "--cached"))
+      (`(staged      file) (magit-unstage-1 (list (magit-section-value it))))
+      (`(staged     files) (magit-unstage-1 (magit-region-values)))
+      (`(staged      list) (magit-unstage-all))
+      (`(committed     ,_) (if (bound-and-true-p magit-unstage-use-anti-stage)
+                               (magit-anti-stage)
+                             (user-error "Cannot unstage committed changes")))
+      (`(undefined     ,_) (user-error "Cannot unstage this change")))))
 
 ;;;###autoload
 (defun magit-unstage-file (file)
