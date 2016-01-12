@@ -87,7 +87,7 @@ test-interactive:
 	(ert t))"
 
 magit: clean-lisp
-	@$(EMACSBIN) -Q $(LOAD_PATH) --eval "(progn\
+	@$(EMACSBIN) -Q $(LOAD_PATH) --debug-init --eval "(progn\
 	(require 'magit)\
 	(global-set-key \"\\C-xg\" 'magit-status)\
 	(tool-bar-mode 0)\

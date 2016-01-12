@@ -14,6 +14,7 @@ magit-mode.elc:		magit-section.elc magit-git.elc
 magit-popup.elc:
 magit-process.elc:	with-editor.elc magit-utils.elc magit-section.elc \
 			magit-git.elc magit-mode.elc
+magit-autorevert.elc:	magit-git.elc magit-process.elc
 magit-core.elc:		magit-utils.elc magit-section.elc magit-git.elc \
 			magit-mode.elc magit-popup.elc magit-process.elc
 magit-diff.elc:		git-commit.elc magit-core.elc

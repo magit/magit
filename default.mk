@@ -30,6 +30,7 @@ ELS += magit-popup.el
 ELS += magit-utils.el
 ELS += magit-section.el
 ELS += magit-git.el
+ELS += magit-autorevert.el
 ELS += magit-mode.el
 ELS += magit-process.el
 ELS += magit-core.el

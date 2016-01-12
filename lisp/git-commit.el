@@ -176,7 +176,7 @@ The major mode configured here is turned on by the minor mode
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
   :type 'hook
-  :options '(magit-revert-buffers
+  :options '(
              git-commit-save-message
              git-commit-setup-changelog-support
              git-commit-turn-on-auto-fill

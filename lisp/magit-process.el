@@ -262,29 +262,11 @@ before use.
 
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
-Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-revert-buffers' is non-nil.
 
 Process output goes into a new section in the buffer returned by
 `magit-process-buffer'."
   (magit-call-git args)
   (magit-refresh))
-
-(defun magit-run-git-no-revert (&rest args)
-  "Call Git synchronously in a separate process, and refresh.
-
-Option `magit-git-executable' specifies the Git executable and
-option `magit-git-global-arguments' specifies constant arguments.
-The arguments ARGS specify arguments to Git, they are flattened
-before use.
-
-After Git returns, the current buffer (if it is a Magit buffer)
-as well as the current repository's status buffer are refreshed.
-
-Process output goes into a new section in the buffer returned by
-`magit-process-buffer'."
-  (let ((inhibit-magit-revert t))
-    (magit-run-git args)))
 
 (defvar magit-pre-call-git-hook nil)
 
@@ -345,8 +327,6 @@ flattened before use.
 
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
-Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-revert-buffers' is non-nil.
 When INPUT is nil then do not refresh any buffers.
 
 This function actually starts a asynchronous process, but it then
@@ -379,8 +359,6 @@ Display the command line arguments in the echo area.
 After Git returns some buffers are refreshed: the buffer that was
 current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
-Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-revert-buffers' is non-nil.
 
 See `magit-start-process' for more information."
   (message "Running %s %s" magit-git-executable
@@ -388,20 +366,6 @@ See `magit-start-process' for more information."
              (remove-list-of-text-properties 0 (length m) '(face) m)
              m))
   (magit-start-git nil args))
-
-(defun magit-run-git-async-no-revert (&rest args)
-  "Start Git, prepare for refresh, and return the process object.
-ARGS is flattened and then used as arguments to Git.
-
-Display the command line arguments in the echo area.
-
-After Git returns some buffers are refreshed: the buffer that was
-current when this function was called (if it is a Magit buffer
-and still alive), as well as the respective Magit status buffer.
-
-See `magit-start-process' for more information."
-  (let ((inhibit-magit-revert t))
-    (magit-run-git-async args)))
 
 (defun magit-run-git-with-editor (&rest args)
   "Export GIT_EDITOR and start Git.
@@ -416,8 +380,7 @@ and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' and `with-editor' for more information."
   (with-editor "GIT_EDITOR"
-    (let ((magit-process-popup-time -1)
-          (inhibit-magit-revert nil))
+    (let ((magit-process-popup-time -1))
       (magit-run-git-async args))))
 
 (defun magit-run-git-sequencer (&rest args)
@@ -432,9 +395,6 @@ current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
 If the sequence stops at a commit, make the section representing
 that commit the current section by moving `point' there.
-
-Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-revert-buffers' is non-nil.
 
 See `magit-start-process' and `with-editor' for more information."
   (with-editor "GIT_EDITOR"
@@ -460,8 +420,6 @@ flattened before use.
 After Git returns some buffers are refreshed: the buffer that was
 current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
-Unmodified buffers visiting files that are tracked in the current
-repository are reverted if `magit-revert-buffers' is non-nil.
 
 See `magit-start-process' for more information."
   (run-hooks 'magit-pre-start-git-hook)
@@ -485,9 +443,7 @@ the sentinel and filter.
 After the process returns, `magit-process-sentinel' refreshes the
 buffer that was current when `magit-start-process' was called (if
 it is a Magit buffer and still alive), as well as the respective
-Magit status buffer.  Unmodified buffers visiting files that are
-tracked in the current repository are reverted if
-`magit-revert-buffers' is non-nil."
+Magit status buffer."
   (-let* (((process-buf . section)
            (magit-process-setup program args))
           (process
@@ -508,8 +464,6 @@ tracked in the current repository are reverted if
     (process-put process 'default-dir default-directory)
     (when inhibit-magit-refresh
       (process-put process 'inhibit-refresh t))
-    (when inhibit-magit-revert
-      (process-put process 'inhibit-revert t))
     (setf (magit-section-process section) process)
     (with-current-buffer process-buf
       (set-marker (process-mark process) (point)))
@@ -592,8 +546,7 @@ tracked in the current repository are reverted if
     (when (eq process magit-this-process)
       (setq magit-this-process nil))
     (unless (process-get process 'inhibit-refresh)
-      (let ((inhibit-magit-revert (process-get process 'inhibit-revert))
-            (command-buf (process-get process 'command-buf)))
+      (let ((command-buf (process-get process 'command-buf)))
         (if (buffer-live-p command-buf)
             (with-current-buffer command-buf
               (magit-refresh))

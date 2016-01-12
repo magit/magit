@@ -36,6 +36,7 @@
 (require 'magit-mode)
 (require 'magit-popup)
 (require 'magit-process)
+(require 'magit-autorevert)
 
 (defgroup magit nil
   "Controlling Git from Emacs."
