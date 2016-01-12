@@ -238,3 +238,4 @@ Contributors
 - Yann Hodique <yann.hodique@gmail.com>
 - York Zhao <gtdplatform@gmail.com>
 - Yuichi Higashi <aaa707b@gmail.com>
+- Zach Latta <zach@zachlatta.com>
