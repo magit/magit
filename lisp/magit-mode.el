@@ -34,7 +34,6 @@
 
 (require 'magit-section)
 (require 'magit-git)
-;; (require 'magit-autorevert)
 
 ;; For `magit-xref-insert-buttons' from `magit'
 (defvar magit-diff-show-xref-buttons)
