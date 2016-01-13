@@ -514,6 +514,7 @@ representation of the commit at point, are available as
 completion candidates."
   (interactive (cons (magit-log-read-revs)
                      (magit-log-arguments)))
+  (require 'magit)
   (magit-mode-setup #'magit-log-mode revs args files)
   (magit-log-goto-same-commit))
 

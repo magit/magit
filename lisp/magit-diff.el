@@ -671,6 +671,7 @@ a \"revA...revB\" range.  Otherwise, always construct
                           (magit-get-current-branch)))))
 
 (defun magit-diff-setup (rev-or-range const args files)
+  (require 'magit)
   (magit-mode-setup #'magit-diff-mode rev-or-range const args files))
 
 ;;;###autoload
