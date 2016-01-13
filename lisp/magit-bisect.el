@@ -126,11 +126,8 @@ bisect run'."
   (unless (or no-assert (magit-bisect-in-progress-p))
     (user-error "Not bisecting"))
   (magit-with-toplevel
-    (let ((file (magit-git-dir "BISECT_CMD_OUTPUT")))
-      (ignore-errors (delete-file file))
-      (magit-run-git-with-logfile file "bisect" subcommand args))
-    (magit-process-wait)
-    (magit-refresh)))
+    (magit-run-git-with-logfile
+     (magit-git-dir "BISECT_CMD_OUTPUT") "bisect" subcommand args)))
 
 (defun magit-bisect-in-progress-p ()
   (file-exists-p (magit-git-dir "BISECT_LOG")))

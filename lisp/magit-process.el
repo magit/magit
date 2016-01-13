@@ -344,12 +344,9 @@ waits for that process to return."
 
 (defun magit-run-git-with-logfile (file &rest args)
   "Call Git in a separate process and log its output to FILE.
-See `magit-run-git' for more information.
 This function might have a short halflive."
-  (magit-start-git nil args)
-  (process-put magit-this-process 'logfile file)
-  (set-process-filter magit-this-process 'magit-process-logfile-filter)
-  (magit-process-wait)
+  (apply #'magit-process-file magit-git-executable nil `(:file ,file) nil
+         (magit-process-git-arguments args))
   (magit-refresh))
 
 ;;; Asynchronous Processes
@@ -596,17 +593,6 @@ Magit status buffer."
           (delete-region (line-beginning-position) (point))
           (insert (substring string (1+ ret-pos)))))
       (set-marker (process-mark proc) (point)))))
-
-(defun magit-process-logfile-filter (process string)
-  "Special filter used by `magit-run-git-with-logfile'."
-  (magit-process-filter process string)
-  (let ((file (process-get process 'logfile)))
-    (with-temp-file file
-      (when (file-exists-p file)
-        (insert-file-contents file)
-        (goto-char (point-max)))
-      (insert string)
-      (write-region (point-min) (point-max) file))))
 
 (defmacro magit-process-kill-on-abort (proc &rest body)
   (declare (indent 1) (debug (form body)))
