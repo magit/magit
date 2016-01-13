@@ -7,8 +7,8 @@
     When something doesn't work as expected, then please first consult the
     <a href="http://magit.vc/manual/magit/FAQ.html">FAQ</a> and ask a
 	search engine.   If that doesn't solve your problem, then please ask for help on the
-    <a href="http://emacs.stackexchange.com/questions/tagged/magit">Emacs.Stackexchange</a>
-	or the <a href="http://emacs.stackexchange.com/questions/tagged/magit">Gitter chat</a>.
+    <a href="http://emacs.stackexchange.com/questions/tagged/magit">Emacs Stackexchange site</a>
+	or the <a href="https://gitter.im/magit/magit">Gitter chat</a>.
   </b>
 </p>
 ***
