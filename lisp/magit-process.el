@@ -331,13 +331,22 @@ flattened before use.
 
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
-When INPUT is nil then do not refresh any buffers.
-
-This function actually starts a asynchronous process, but it then
-waits for that process to return."
+When INPUT is nil then do not refresh any buffers."
   (declare (indent 1))
-  (magit-start-git (or input (current-buffer)) args)
-  (magit-process-wait)
+  (if (file-remote-p default-directory)
+      ;; We lack `process-file-region', so fall back to asynch +
+      ;; waiting in remote case.
+      (progn
+        (magit-start-git (or input (current-buffer)) args)
+        (while (and magit-this-process
+                    (eq (process-status magit-this-process) 'run))
+          (sleep-for 0.005)))
+    (with-current-buffer (or input (current-buffer))
+      (let ((process-environment (append (magit-cygwin-env-vars)
+                                         process-environment)))
+        (apply #'call-process-region (point-min) (point-max)
+               magit-git-executable nil nil nil
+               (magit-process-git-arguments args)))))
   (when input (magit-refresh)))
 
 (defvar magit-this-process nil)
@@ -700,11 +709,6 @@ as argument."
                               #'magit-maybe-start-credential-cache-daemon)))))))
 
 (add-hook 'magit-credential-hook #'magit-maybe-start-credential-cache-daemon)
-
-(defun magit-process-wait ()
-  (while (and magit-this-process
-              (eq (process-status magit-this-process) 'run))
-    (sleep-for 0.005)))
 
 (defun tramp-sh-handle-start-file-process--magit-tramp-process-environment
     (fn name buffer program &rest args)
