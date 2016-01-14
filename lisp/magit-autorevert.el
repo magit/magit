@@ -135,7 +135,8 @@ This function calls the hook `magit-auto-revert-mode-hook'.")
 
 (defun magit-auto-revert-buffers ()
   (when (and magit-auto-revert-immediately
-             (or magit-auto-revert-mode global-auto-revert-mode))
+             (or global-auto-revert-mode
+                 (and magit-auto-revert-mode auto-revert-buffer-list)))
     (auto-revert-buffers)))
 
 (custom-add-to-group 'magit 'auto-revert-check-vc-info 'custom-variable)
