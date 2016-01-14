@@ -26,6 +26,10 @@ Changes since v2.3.0
   set `magit-revert-buffers' to nil while the old implementation was
   still in use.  #2474
 
+* The option `magit-refresh-status-buffer' was added, allowing users
+  to prevent automatic refreshes of the status buffer for performance
+  reasons.
+
 * All of Git's push-related variables are now honored.  #2414
 
 * In addition to the upstream branch, the push-remote (configured

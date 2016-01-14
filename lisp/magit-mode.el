@@ -175,6 +175,19 @@ displayed.  Otherwise fall back to regular region highlighting."
   :group 'magit-modes
   :type 'hook)
 
+(defcustom magit-refresh-status-buffer t
+  "Whether the status buffer is refreshed after running git.
+
+When this is non-nil, then the status buffer is automatically
+refreshed after running git for side-effects, in addition to the
+current Magit buffer, which is always refreshed automatically.
+
+Only set this to nil after exhausting all other options to
+improve performance."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-status
+  :type 'boolean)
+
 (defcustom magit-save-repository-buffers t
   "Whether to save file-visiting buffers when appropriate.
 
@@ -651,12 +664,13 @@ Refresh the current buffer if its major mode derives from
   (interactive)
   (unless inhibit-magit-refresh
     (run-hooks 'magit-pre-refresh-hook)
-    (unless (when (derived-mode-p 'magit-mode)
-              (magit-refresh-buffer)
-              (derived-mode-p 'magit-status-mode))
-      (--when-let (magit-mode-get-buffer 'magit-status-mode)
-        (with-current-buffer it
-          (magit-refresh-buffer))))
+    (when (derived-mode-p 'magit-mode)
+      (magit-refresh-buffer))
+    (--when-let (and magit-refresh-status-buffer
+                     (not (derived-mode-p 'magit-status-mode))
+                     (magit-mode-get-buffer 'magit-status-mode))
+      (with-current-buffer it
+        (magit-refresh-buffer)))
     (magit-auto-revert-buffers)))
 
 (defun magit-refresh-all ()
