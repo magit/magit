@@ -267,9 +267,9 @@ the upstream isn't ahead of the current branch) show."
   :group 'magit-status
   :type 'number)
 
-(defcustom magit-log-section-arguments '("--decorate")
+(defcustom magit-log-section-arguments '("-n256" "--decorate")
   "The log arguments used in buffers that show other things besides logs."
-  :package-version '(magit . "2.2.0")
+  :package-version '(magit . "2.4.0")
   :group 'magit-log
   :group 'magit-status
   :type '(repeat (string :tag "Argument")))
@@ -345,6 +345,7 @@ the upstream isn't ahead of the current branch) show."
     :switches ((?g "Show graph"          "--graph")
                (?c "Show graph in color" "--color")
                (?d "Show refnames"       "--decorate"))
+    :options  ((?n "Limit number of commits" "-n"))
     :actions  ((?g "Refresh"       magit-log-refresh)
                (?t "Toggle margin" magit-toggle-margin)
                (?s "Set defaults"  magit-log-set-default-arguments) nil
