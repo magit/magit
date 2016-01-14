@@ -218,7 +218,7 @@ manually from its development repository, but I won't cover that here.
 Then clone the Magit repository:
 
 #+BEGIN_SRC shell
-  $ git clone git://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
+  $ git clone https://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
   $ cd ~/.emacs.d/site-lisp/magit
 #+END_SRC
 
@@ -4628,138 +4628,135 @@ Automatically]].
 
 *** Performance
 
-Magit is slower than raw Git because it does more.  For example ~git
-commit~ creates a commit and that's it.  ~magit-commit~ also updates the
-current Magit buffer to make sure you are not looking at outdated
-information without noticing it.  To refresh the status buffer, Magit
-has to run Git a dozen times or more, making it slower than ~git
-status~, but also much more informative.  Magit also optionally reverts
-file-visiting buffers, creates backups, runs hooks where third-party
-extensions can do their slow thing, etc.
+After Magit has run ~git~ for side-effects, it also refreshes the
+current Magit buffer and the respective status buffer.  This is
+necessary because otherwise outdated information might be displayed
+without the user noticing.  Magit buffers are updated by recreating
+their content from scratch, which makes updating simpler and less
+error-prone, but also more costly.  Keeping it simple and just
+re-creating everything from scratch is an old design decision and
+departing from that will require major refactoring.
 
-I do care about performance and try to optimize for it as much as
-possible, but many features simply come with an inherent performance
-penalty.  When a feature is just too slow given certain usage and
-repository characteristics, then it often can be disabled, globally or
-on a per-repository basis.
+I plan to do that in time for the next major release.  I also intend
+to create logs and diffs asynchronously, which should also help a lot
+but also requires major refactoring.
 
-But first a short list of performance issues that cannot easily be
-worked around:
+Meanwhile you can tell Magit to only automatically refresh the current
+Magit buffer, but not the status buffer.  If you do that, then the
+status buffer is only refreshed automatically if it itself is the
+current buffer.
 
-- Creating a new process on MS Windows is much slower than on
-  POSIX-compatible systems.  This is a problem because Magit creates a
-  lot of child processes to retrieve information from Git.  In the
-  short run, only switching to a POSIX system can fix this.  Of course
-  this could also be fixed in Windows itself, but I am just one unpaid
-  person while Microsoft is a billion dollar company, so I will leave
-  it to them to fix this grave flaw in their OS.
+#+BEGIN_SRC emacs-lisp
+  (setq magit-refresh-status-buffer nil)
+#+END_SRC
 
-- When showing logs, Magit limits the number of commits initially
-  shown in the hope that this avoids unnecessary work.  When using
-  ~--graph~ this unfortunately does not have the desired effect for
-  large histories.  Junio said on the git mailing list
-  (http://www.spinics.net/lists/git/msg232230.html): "~--graph~ wants to
-  compute the whole history and the max-count only affects the output
-  phase after ~--graph~ does its computation".
+You should also check whether any third-party packages have added
+anything to ~magit-refresh-buffer-hook~ and ~magit-status-refresh-hook~,
+and if so whether those additions impacts performance significantly.
 
-  In other words, it's not that Git is slow at outputting the
-  differences, or that Magit is slow at parsing the output - the
-  problem is that Git first goes outside and has a smoke.
+If you have enabled any features that are disabled by default, then
+you should check whether they impact performance significantly.  It's
+likely that they were not enabled by default because it is known that
+they reduce performance at least in large repositories.
 
-  We actually work around this issue by limiting the commit not only
-  using ~-<N>~ but also using a range.  But unfortunately that's not
-  always possible.
+If performance is only slow inside certain unusually large
+repositories, then you might want to disable certain features on a
+per-repository or per-repository-class basis only.  See
+[[*Per-repository configuration]].
 
-- Whenever "something changes", Magit "refreshes" the status buffer and
-  the current Magit buffer by recreating them from scratch.  This is
-  an old design decision that we couldn't depart from easily.  And it
-  has its benefits too - most importantly it's much simpler and less
-  error prone to do it this way than to only refreshing "what actually
-  has changed" (that would basically be a huge collection of special
-  cases).  So for now at least, we don't avoid recreating the buffer
-  content and instead focus on making doing so faster.
+**** Microsoft Windows Performance
+:PROPERTIES:
+:NONODE:     t
+:END:
 
-Now for the things that you can do to improve performance:
+In order to update the status buffer, ~git~ has to be run a few dozen
+times.  That is only problematic on Microsoft Windows, because that
+operating system is exceptionally slow at starting processes.  Sadly
+this is an issue that can only be fixed by Microsoft itself, and they
+don't appear to particularly interested in doing so.
 
-Most optional features which can have a negative effect on performance
-are disabled by default.  So start by checking the options you have
-explicitly enabled.  Even the potentially slow features are expected
-to only lead to barely noticeable delays, but your mileage may vary.
-Also note that it is now possible to set options on a per-repository
-or per-repository-class basis.  See [[*Per-repository configuration]].
+Beside the subprocess issue, there also exist other Window-specific
+performance issues, some of which can be worked around.  The
+maintainers of "Git for Windows" try to reduce their effect, and in
+order to benefit from the latest performance tweaks, should always
+use the latest release.  Magit too tries to work around some
+Windows-specific issues.
 
-You should check the values of at least the following variables:
+But all these efforts might not be enough, forcing users to make some
+changes themselves.  For example, according to
+http://stackoverflow.com/questions/4485059, setting the following Git
+variables might also help:
 
-- ~magit-after-revert-hook~
-- ~magit-diff-auto-show~
-- ~magit-diff-highlight-hunk-body~
-- ~magit-diff-highlight-indentation~
-- ~magit-diff-highlight-trailing~
-- ~magit-diff-paint-whitespace~
+#+BEGIN_SRC shell-script
+  git config --global core.preloadindex true
+  git config --global core.fscache true
+  git config --global gc.auto 256
+#+END_SRC
+
+You should also check whether an anti-virus program is slowing things
+down.
+
+**** Log Performance
+:PROPERTIES:
+:NONODE:     t
+:END:
+
+When showing logs, Magit limits the number of commits initially shown
+in the hope that this avoids unnecessary work.  When using ~--graph~ is
+used, then this unfortunately does not have the desired effect for
+large histories.  Junio, Git's maintainer, said on the git mailing
+list (http://www.spinics.net/lists/git/msg232230.html): "~--graph~ wants
+to compute the whole history and the max-count only affects the output
+phase after ~--graph~ does its computation".
+
+In other words, it's not that Git is slow at outputting the
+differences, or that Magit is slow at parsing the output - the problem
+is that Git first goes outside and has a smoke.
+
+We actually work around this issue by limiting the number of commits
+not only by using ~-<N>~ but by also using a range.  But unfortunately
+that's not always possible.
+
+In repositories with more than a few thousand commits ~--graph~ should
+never be a member of ~magit-log-section-arguments~.  That variable is
+used in the status buffer which is refreshed every time you run any
+Magit command.
+
+Using ~--color --graph~ is even slower.  Magit uses code that is part of
+Emacs to turn control characters into faces.  That code is pretty slow
+and this is quite noticeable when showing a log with many branches and
+merges.  For that reason ~--color~ is not enabled by default anymore.
+Consider leaving it at that.
+
+**** Diff Performance
+:PROPERTIES:
+:NONODE:     t
+:END:
+
+- ~magit-diff-highlight-hunk-body~, ~magit-diff-highlight-indentation~,
+  ~magit-diff-highlight-trailing~, and ~magit-diff-paint-whitespace~
+
 - ~magit-diff-refine-hunk~
-- ~magit-log-arguments~, ~magit-log-select-arguments~, and
-  ~magit-log-section-arguments~
 
-  In repositories with more than a few thousand commits ~--graph~ should
-  never be a member of ~magit-log-section-arguments~.  That variable is
-  in the status buffer which is refreshed every time you run any Magit
-  command.
+**** Refs Buffer Performance
+:PROPERTIES:
+:NONODE:     t
+:END:
 
-  Using ~--color --graph~ is even slower.  Magit uses code that is part
-  of Emacs to turn control characters into faces.  That code is pretty
-  slow and this is quite noticeable when showing a log with many
-  branches and merges.  For that reason ~--color~ is not enabled by
-  default anymore.  Consider leaving it at that.
+When refreshing the "references buffer" is slow, then that's usually
+because several hundred refs are being displayed.  The best way to
+address that is to display fewer refs, obviously.
 
-- ~magit-revert-buffers~
+If you are not, or only mildly, interested in seeing the list of tags,
+then start by not displaying them:
 
-  After running certain commands, after refreshing the current Magit
-  buffer, unmodified buffers visiting files belonging to the current
-  repository are reverted.  By default that happens synchronously,
-  which can be an issue if you visit many buffers.  Set this variable
-  to a number to revert asynchronously.  It's best to use a negative
-  number because that causes the reverts to happen silently (which is
-  desirable because the revert messages would otherwise shadow other,
-  more important messages).
+#+BEGIN_SRC emacs-lisp
+  (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
+#+END_SRC
 
-- ~magit-not-reverted-hook~
-- ~magit-refresh-buffer-hook~
-
-  If third-party packages add functions to these hooks, then you might
-  want to consider removing them again.
-
-- ~magit-refs-sections-hook~
-
-  When refreshing the "references buffer" is slow, then that's usually
-  because several hundred refs are being displayed.  The best way to
-  address that is to display fewer refs, obviously.
-
-  If you are not, or only mildly, interested in seeing the list of
-  tags, then start by not displaying them:
-
-  #+BEGIN_SRC emacs-lisp
-    (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
-  #+END_SRC
-
-  Then you should also make sure that the listed remote branches
-  actually all exist.  You can do so by pruning branches which no
-  longer exist using ~f-pa~.
-
-- ~magit-status-refresh-hook~
-- ~magit-wip-after-apply-mode~
-- ~magit-wip-after-save-mode~
-- ~magit-wip-before-change-mode~
-
-Also note that everything involving "cherry commits" is slow.
-
-If, after actually trying the above suggestions, performance is still
-bad, and the above does not contain a statement explaining why that is
-so in that particular case and that there is nothing that we can
-currently do about it, then comment on the appropriate existing issue
-(see https://github.com/magit/magit/labels/performance), or if
-necessary open a new issue.  Note that "something is slow, I am using
-v2.2" is not helpful, you have to be a bit more specific.  Benchmarks
-are a start.
+Then you should also make sure that the listed remote branches
+actually all exist.  You can do so by pruning branches which no longer
+exist using ~f-pa~.
 
 * Plumbing
 
@@ -5719,6 +5716,15 @@ https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015 for details. You
 can work around the problem by setting
 ~tramp-ssh-controlmaster-options~. Changing your DNS server (e.g. to
 Google's ~8.8.8.8~) may also be sufficient to work around the issue.
+
+** Symbol's value as function is void --some
+
+Update ~dash~, restart Emacs, and then it will be defined.
+
+** Where is the branch manager
+
+~y~ is bound to the command that shows the "refs buffer", the successor
+of the "branch manager".
 
 * Keystroke Index
 :PROPERTIES:
