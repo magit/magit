@@ -56,9 +56,11 @@ If t, use ptys: this enables Magit to prompt for passphrases when needed."
 
 (defcustom magit-need-cygwin-noglob
   (equal "x0\n" (with-temp-buffer
-                  (process-file magit-git-executable
-                                nil (current-buffer) nil
-                                "-c" "alias.echo=!echo" "echo" "x{0}")
+                  (let ((process-environment
+                         (append magit-git-environment process-environment)))
+                    (process-file magit-git-executable
+                                  nil (current-buffer) nil
+                                  "-c" "alias.echo=!echo" "echo" "x{0}"))
                   (buffer-string)))
   "Whether to use a workaround for Cygwin's globbing behavior.
 
@@ -99,8 +101,10 @@ When this is nil, no sections are ever removed."
           ;; Note: `magit-process-file' is not yet defined when
           ;; evaluating this form, so we use `process-lines'.
           (ignore-errors
-            (process-lines magit-git-executable
-                           "config" "--get-all" "credential.helper")))
+            (let ((process-environment
+                   (append magit-git-environment process-environment)))
+              (process-lines magit-git-executable
+                             "config" "--get-all" "credential.helper"))))
   "If non-nil, start a credential cache daemon using this socket.
 
 When using Git's cache credential helper in the normal way, Emacs
