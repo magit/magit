@@ -139,13 +139,6 @@ This function calls the hook `magit-auto-revert-mode-hook'.")
                  (and magit-auto-revert-mode auto-revert-buffer-list)))
     (auto-revert-buffers)))
 
-(defun auto-revert-handler--if-file-readable-p ()
-  (or (not buffer-file-name)
-      (file-readable-p buffer-file-name)))
-
-(advice-add 'auto-revert-handler :before-while
-            'auto-revert-handler--if-file-readable-p)
-
 (custom-add-to-group 'magit 'auto-revert-check-vc-info 'custom-variable)
 
 ;;; magit-autorevert.el ends soon
