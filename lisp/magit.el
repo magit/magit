@@ -129,11 +129,8 @@ at all."
   :group 'magit-status
   :type 'hook)
 
-(defcustom magit-status-refresh-hook nil
-  "Hook run after a status buffer has been refreshed."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-status
-  :type 'hook)
+(defvar magit-status-refresh-hook nil
+  "Hook run after a status buffer has been refreshed.")
 
 (make-obsolete-variable 'magit-status-refresh-hook "\
 use `magit-pre-refresh-hook', `magit-post-refresh-hook',
