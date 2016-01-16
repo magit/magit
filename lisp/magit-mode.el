@@ -80,6 +80,19 @@ inside your function."
   :type 'hook
   :options '(magit-maybe-save-repository-buffers))
 
+(defcustom magit-post-refresh-hook nil
+  "Hook run after refreshing in `magit-refresh'.
+
+This hook, or `magit-pre-refresh-hook', should be used
+for functions that are not tied to a particular buffer.
+
+To run a function with a particular buffer current, use
+`magit-refresh-buffer-hook' and use `derived-mode-p'
+inside your function."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-modes
+  :type 'hook)
+
 (defcustom magit-display-buffer-function 'magit-display-buffer-traditional
   "The function used display a Magit buffer.
 
@@ -683,7 +696,8 @@ Refresh the current buffer if its major mode derives from
                      (magit-mode-get-buffer 'magit-status-mode))
       (with-current-buffer it
         (magit-refresh-buffer)))
-    (magit-auto-revert-buffers)))
+    (magit-auto-revert-buffers)
+    (run-hooks 'magit-post-refresh-hook)))
 
 (defun magit-refresh-all ()
   "Refresh all buffers belonging to the current repository.
