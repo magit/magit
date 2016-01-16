@@ -141,6 +141,16 @@ at all."
   :group 'magit-status
   :type 'boolean)
 
+(defcustom magit-status-show-hashes-in-headers t
+  "Whether headers in the status buffer show hashes.
+The functions which respect this option are
+`magit-insert-head-branch-header',
+`magit-insert-upstream-branch-header', and
+`magit-insert-push-branch-header'."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-status
+  :type 'boolean)
+
 ;;;; Refs Mode
 
 (defgroup magit-refs nil
@@ -496,6 +506,8 @@ detached `HEAD'."
       (if branch
           (magit-insert-section (branch branch)
             (insert (format "%-10s" "Head: "))
+            (when magit-status-show-hashes-in-headers
+              (insert (propertize commit 'face 'magit-hash) ?\s))
             (insert (propertize branch 'face 'magit-branch-local))
             (insert ?\s summary ?\n))
         (magit-insert-section (commit commit)
@@ -515,6 +527,8 @@ detached `HEAD'."
                           (if (magit-get-boolean "branch" branch "rebase")
                               "Rebase: "
                             "Merge: "))))
+      (when magit-status-show-hashes-in-headers
+        (insert (propertize (magit-rev-format "%h" pull) 'face 'magit-hash) ?\s))
       (insert (propertize pull 'face
                           (if (string= (magit-get "branch" branch "remote") ".")
                               'magit-branch-local
@@ -532,6 +546,8 @@ detached `HEAD'."
   (when push
     (magit-insert-section (branch push)
       (insert (format "%-10s" "Push: "))
+      (when magit-status-show-hashes-in-headers
+        (insert (propertize (magit-rev-format "%h" push) 'face 'magit-hash) ?\s))
       (insert (propertize push 'face 'magit-branch-remote) ?\s)
       (if (magit-rev-verify push)
           (insert (or (magit-rev-format "%s" push) ""))
