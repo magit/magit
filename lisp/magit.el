@@ -134,7 +134,7 @@ at all."
 
 (make-obsolete-variable 'magit-status-refresh-hook "\
 use `magit-pre-refresh-hook', `magit-post-refresh-hook',
-  `magit-refresh-buffer-hook', or a major-mode hook instead.
+  `magit-refresh-buffer-hook', or `magit-status-mode-hook' instead.
 
   If you want to run a function every time the status buffer is
   refreshed, in order to do something with that buffer, then use:
@@ -149,7 +149,7 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
   or `magit-post-refresh-hook'.
 
   If your hook function only has to be run once, when the buffer
-  is first created, then use the appropriate mode hook instead.
+  is first created, then `magit-status-mode-hook' instead.
 " "Magit 2.4.0")
 
 (defcustom magit-status-expand-stashes t
