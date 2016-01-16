@@ -66,6 +66,20 @@
   :options '(magit-maybe-save-repository-buffers
              magit-maybe-show-margin))
 
+(defcustom magit-pre-refresh-hook '(magit-maybe-save-repository-buffers)
+  "Hook run before refreshing in `magit-refresh'.
+
+This hook, or `magit-post-refresh-hook', should be used
+for functions that are not tied to a particular buffer.
+
+To run a function with a particular buffer current, use
+`magit-refresh-buffer-hook' and use `derived-mode-p'
+inside your function."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-modes
+  :type 'hook
+  :options '(magit-maybe-save-repository-buffers))
+
 (defcustom magit-display-buffer-function 'magit-display-buffer-traditional
   "The function used display a Magit buffer.
 
@@ -654,8 +668,6 @@ window."
 
 (defvar inhibit-magit-refresh nil)
 
-(defvar magit-pre-refresh-hook nil)
-
 (defun magit-refresh ()
   "Refresh some buffers belonging to the current repository.
 
@@ -783,7 +795,9 @@ should obviously not add this function to that hook."
 
 (defun magit-maybe-save-repository-buffers ()
   "Maybe save file-visiting buffers belonging to the current repository.
-Do so if `magit-save-repository-buffers' is non-nil."
+Do so if `magit-save-repository-buffers' is non-nil.  You should
+not remove this from any hooks, instead set that variable to nil
+if you so desire."
   (when (and magit-save-repository-buffers
              (not disable-magit-save-buffers))
     (setq disable-magit-save-buffers t)
