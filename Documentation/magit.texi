@@ -1128,7 +1128,7 @@ buffers after they have changed on disk is harmless.
 
 If a buffer is modified (i.e. it contains changes that haven't been
 saved yet), then Emacs would refuse to automatically revert it.  If
-you safe a previously modified buffer, then that results in what is
+you save a previously modified buffer, then that results in what is
 seen by Git as an uncommitted change.  Git would then refuse to carry
 out any commands that would cause these changes to be lost.  In other
 words, if there is anything that could be lost, then either Git or
@@ -1152,9 +1152,9 @@ in.  It would check whether the buffer is modified and since that is
 not the case it would revert it.  The intermediate version would be
 lost.  (Actually you could still get it back using the @code{undo} command.)
 
-If your work flow depends on Emacs preserving the intermediate version
+If your workflow depends on Emacs preserving the intermediate version
 in the buffer, then you have to disable all Auto-Revert modes.  But
-please consider that such a work flow would be dangerous even without
+please consider that such a workflow would be dangerous even without
 using an Auto-Revert mode, and should therefore be avoided.  If Emacs
 crashed or if you quit Emacs by mistake, then you would also lose the
 buffer content.  There would be no autosave file still containing the
