@@ -67,6 +67,7 @@ seconds of user inactivity.  That is not desirable."
         (with-current-buffer it
           (magit-turn-on-auto-revert-mode-if-desired)))
     (when (and buffer-file-name
+               (file-readable-p buffer-file-name)
                (magit-toplevel)
                (or (not magit-auto-revert-tracked-only)
                    (magit-file-tracked-p buffer-file-name)))
