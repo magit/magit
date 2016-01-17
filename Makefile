@@ -47,6 +47,7 @@ help:
 	$(info make authors          - regenerate AUTHORS.md)
 	$(info make dist             - create tarballs)
 	$(info make elpa             - create elpa tarballs)
+	$(info make marmalade        - upload to marmalade)
 	$(info make VERSION=... bump-version)
 	$(info make VERSION=... melpa-post-release)
 	$(info -                     - fixup version strings)
