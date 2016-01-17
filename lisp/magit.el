@@ -1402,7 +1402,7 @@ of the new branch, instead of the starting-point itself."
           (magit-call-git "branch" "--set-upstream-to" it branch))
         (when (and (setq tracked (magit-get-upstream-branch current))
                    (setq base (magit-git-string "merge-base" current tracked))
-                   (not (magit-rev-equal base current)))
+                   (not (magit-rev-eq base current)))
           (magit-call-git "update-ref" "-m"
                           (format "reset: moving to %s" base)
                           (concat "refs/heads/" current) base))
