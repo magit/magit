@@ -11,10 +11,13 @@ Magit and Git itself deserve to be called porcelains.
 
 For more information about Magit, see http://magit.vc.
 
-Magit v2.4.0 Release Notes (draft)
-==================================
+Magit v2.4.0 Release Notes
+==========================
 
-UNRELEASED.
+Released 18 January 2016 by Jonas Bernoulli.
+
+We are pleased to announce the release of Magit version 2.4.0,
+representing 269 commits by 14 people over 12 weeks.
 
 Changes since v2.3.0
 --------------------
@@ -136,3 +139,18 @@ bug fixes, and other small to medium improvements.
 
 Authors
 -------
+
+   226  Jonas Bernoulli
+    22  Kyle Meyer
+    10  Noam Postavsky
+     1  Carl Lieberman
+     1  Damien Cassou
+     1  David L. Rager
+     1  John Mastro
+     1  Lele Gaifax
+     1  Michael Heerdegen
+     1  Miloš Mošić
+     1  Raimon Grau
+     1  Sylvain Rousseau
+     1  Syohei Yoshida
+     1  Zach Latta

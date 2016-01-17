@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.3
+#+SUBTITLE: for version 2.4
 
 #+OPTIONS: H:4 num:3 toc:2
 
@@ -286,7 +286,7 @@ outdated value for ~load-path~.
 should display something like
 
 #+BEGIN_SRC undefined
-  Magit 2.2.0, Git 2.4.2, Emacs 24.5.1
+  Magit 2.4.0, Git 2.7.0, Emacs 24.5.1
 #+END_SRC
 
 Then you might also want to read about options that many users likely
@@ -300,10 +300,7 @@ See [[*How to install the gitman info manual?]].
 If you are completely new to Magit then see [[*Getting started]].
 
 If you have used an older Magit release before, then you should have a
-look at the release notes
-https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.1.0.txt
-and
-https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.2.0.txt
+look at the release notes https://github.com/magit/magit/releases.
 
 And last but not least please consider making a donation, to ensure
 that I can keep working on Magit.  See http://magit.vc/donations.html
@@ -5503,11 +5500,11 @@ and [[info:with-editor#Debugging]].
 
 ** I don't understand how branching and pushing work
 
-Please see [[*Branching]] and http://emacsair.me/2016/01/17/magit-2.4
+Please see [[*Branching]] and http://emacsair.me/2016/01/18/magit-2.4
 
 ** I don't like the key binding in v2.4
 
-Please see http://emacsair.me/2016/01/17/restore-old-bindings.
+Please see http://emacsair.me/2016/01/1/restore-old-bindings.
 
 ** I cannot install the pre-requisites for Magit v2
 

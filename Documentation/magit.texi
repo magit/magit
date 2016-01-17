@@ -40,7 +40,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.3
+@subtitle for version 2.4
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -238,7 +238,8 @@ FAQ
 * Magit is slow::
 * I changed several thousand files at once and now Magit is unusable::
 * I am having problems committing::
-* I don't like how branching and pushing works::
+* I don't understand how branching and pushing work::
+* I don't like the key binding in v2.4: I don't like the key binding in v24. 
 * I cannot install the pre-requisites for Magit v2::
 * I am using an Emacs release older than v24.4: I am using an Emacs release older than v244. 
 * I am using a Git release older than v1.9.4: I am using a Git release older than v194. 
@@ -529,7 +530,7 @@ M-x magit-version RET
 should display something like
 
 @example
-Magit 2.2.0, Git 2.4.2, Emacs 24.5.1
+Magit 2.4.0, Git 2.7.0, Emacs 24.5.1
 @end example
 
 Then you might also want to read about options that many users likely
@@ -543,10 +544,7 @@ See @ref{How to install the gitman info manual?,How to install the gitman info m
 If you are completely new to Magit then see @ref{Getting started,Getting started}.
 
 If you have used an older Magit release before, then you should have a
-look at the release notes
-@uref{https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.1.0.txt}
-and
-@uref{https://raw.githubusercontent.com/magit/magit/master/Documentation/RelNotes/2.2.0.txt}
+look at the release notes @uref{https://github.com/magit/magit/releases}.
 
 And last but not least please consider making a donation, to ensure
 that I can keep working on Magit.  See @uref{http://magit.vc/donations.html}
@@ -7411,7 +7409,8 @@ made it into the manual yet, see @uref{https://github.com/magit/magit/wiki/FAQ}.
 * Magit is slow::
 * I changed several thousand files at once and now Magit is unusable::
 * I am having problems committing::
-* I don't like how branching and pushing works::
+* I don't understand how branching and pushing work::
+* I don't like the key binding in v2.4: I don't like the key binding in v24. 
 * I cannot install the pre-requisites for Magit v2::
 * I am using an Emacs release older than v24.4: I am using an Emacs release older than v244. 
 * I am using a Git release older than v1.9.4: I am using a Git release older than v194. 
@@ -7450,12 +7449,15 @@ That likely means that Magit is having problems finding an appropriate
 emacsclient executable.  See @ref{Configuring With-Editor,,,with-editor,}
 and @ref{Debugging,,,with-editor,}.
 
-@node I don't like how branching and pushing works
-@section I don't like how branching and pushing works
+@node I don't understand how branching and pushing work
+@section I don't understand how branching and pushing work
 
-In v2.1 the default behavior of the branch and push commands changed,
-which has taken a few users by surprise and left more unsatisfied.
-The next release, v2.4, will try to address these concerns.
+Please see @ref{Branching,Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
+
+@node I don't like the key binding in v24
+@section I don't like the key binding in v2.4
+
+Please see @uref{http://emacsair.me/2016/01/1/restore-old-bindings}.
 
 @node I cannot install the pre-requisites for Magit v2
 @section I cannot install the pre-requisites for Magit v2
