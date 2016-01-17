@@ -5501,11 +5501,13 @@ That likely means that Magit is having problems finding an appropriate
 emacsclient executable.  See [[info:with-editor#Configuring With-Editor]]
 and [[info:with-editor#Debugging]].
 
-** I don't like how branching and pushing works
+** I don't understand how branching and pushing work
 
-In v2.1 the default behavior of the branch and push commands changed,
-which has taken a few users by surprise and left more unsatisfied.
-The next release, v2.4, will try to address these concerns.
+Please see [[*Branching]] and http://emacsair.me/2016/01/17/magit-2.4
+
+** I don't like the key binding in v2.4
+
+Please see http://emacsair.me/2016/01/17/restore-old-bindings.
 
 ** I cannot install the pre-requisites for Magit v2
 
