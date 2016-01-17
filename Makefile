@@ -259,7 +259,8 @@ endef
 #'
 export set_manual_version
 
-bump-version:
+bump-version: bump-version-1 texi
+bump-version-1:
 	@$(BATCH) --eval "(progn\
         (setq async-version \"$(ASYNC_VERSION)\")\
         (setq dash-version \"$(DASH_VERSION)\")\
