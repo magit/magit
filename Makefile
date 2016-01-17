@@ -273,3 +273,4 @@ melpa-post-release:
         (setq async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
         (setq dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         $$set_package_requires)"
+	git commit -a -m "reset Package-Requires for Melpa"
