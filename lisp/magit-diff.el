@@ -1431,9 +1431,9 @@ section or a child thereof."
         (insert (propertize (if new
                                 (concat "new module " module)
                               (concat "modified   " module))
-                            'face 'magit-diff-file-heading)
-                (cond (dirty   " (modified content)")
-                      (deleted " (deleted submodule)")))
+                            'face 'magit-diff-file-heading))
+        (cond (dirty   (insert " (modified content)"))
+              (deleted (insert " (deleted submodule)")))
         (insert ?\n)))))
 
 (defun magit-diff-wash-hunk ()
