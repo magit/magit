@@ -71,7 +71,7 @@ Changes since v2.3.0
 
 * The option `magit-push-always-verify' was removed.  That was only a
   temporary kludge to keep users from shooting themselves in the foot.
-  This is no longer necessary because one now always sees were one is
+  This is no longer necessary because one now always sees where one is
   about to push to.  #2414
 
 * The popup command `magit-pull-and-fetch-popup' was added as a
