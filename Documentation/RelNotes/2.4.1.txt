@@ -1,0 +1,13 @@
+Magit v2.4.1 Release Notes (draft)
+==================================
+
+This is a bugfix release.
+
+* When determining the emacsclient executable most suitable for the
+  current emacs instance, With-Editor ignored any executable that is
+  actually named "emacsclient-snapshot".
+
+This release also contains typofixes.
+
+Authors
+-------
