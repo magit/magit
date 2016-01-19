@@ -1,0 +1,11 @@
+Magit v2.4.2 Release Notes (draft)
+==================================
+
+Updates since v2.4.1
+--------------------
+
+Fixes since v2.4.1
+------------------
+
+Authors
+-------
