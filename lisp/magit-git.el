@@ -62,20 +62,24 @@
   ;; than using "bin/git.exe" directly.
   (or (and (eq system-type 'windows-nt)
            (--when-let (executable-find "git.exe")
-             (or (with-temp-buffer
-                   (when (save-excursion
-                           (= (call-process
-                              it nil '(t t) nil "-c"
-                              "alias.exe=!which git | cygpath -wf -" "exe") 0))
-                     (prog1 (delete-and-extract-region 1 (line-end-position))
-                       (save-excursion
-                         (insert "PATH=")
-                         (call-process
-                          it nil '(t t) nil "-c"
-                          "alias.path=!cygpath -wp \"$PATH\"" "path"))
-                       (setq magit-git-environment
-                             (list (buffer-substring-no-properties
-                                    (point) (line-end-position)))))))
+             (or (ignore-errors
+                   ;; Git for Windows 2.x provides cygpath so we can
+                   ;; ask it for native paths.  Using an upper case
+                   ;; alias makes this fail on 1.x (which is good,
+                   ;; because we would not want to end up using some
+                   ;; other cygpath).
+                   (prog1 (car
+                           (process-lines
+                            it "-c"
+                            "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
+                            "X" "git"))
+                     (setq magit-git-environment
+                           (list (concat "PATH="
+                                         (car (process-lines
+                                               it "-c"
+                                               "alias.P=!cygpath -wp \"$PATH\""
+                                               "P")))))))
+                 ;; For 1.x, we search for bin/ next to cmd/.
                  (let ((alt (directory-file-name (file-name-directory it))))
                    (if (and (equal (file-name-nondirectory alt) "cmd")
                             (setq alt (expand-file-name
