@@ -1,7 +1,13 @@
 Magit v2.4.1 Release Notes (draft)
 ==================================
 
-This is a bugfix release.
+Updates since v2.4.0
+--------------------
+
+* Added new utility function `magit-rev-abbrev'.
+
+Fixes since v2.4.0
+------------------
 
 * When determining the emacsclient executable most suitable for the
   current emacs instance, With-Editor ignored any executable that is

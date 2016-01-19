@@ -1000,8 +1000,11 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-abbrev-length ()
   (string-to-number (or (magit-get "core.abbrev") "7")))
 
-(defun magit-abbrev-arg ()
-  (format "--abbrev=%d" (magit-abbrev-length)))
+(defun magit-abbrev-arg (&optional arg)
+  (format "--%s=%d" (or arg "abbrev") (magit-abbrev-length)))
+
+(defun magit-rev-abbrev (rev)
+  (magit-rev-parse (magit-abbrev-arg "short") rev))
 
 (defun magit-commit-children (commit &optional args)
   (-map #'car
