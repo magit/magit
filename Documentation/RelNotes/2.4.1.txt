@@ -1,5 +1,5 @@
-Magit v2.4.1 Release Notes (draft)
-==================================
+Magit v2.4.1 Release Notes
+==========================
 
 Updates since v2.4.0
 --------------------
@@ -25,3 +25,7 @@ This release also contains typofixes.
 
 Authors
 -------
+
+     9  Jonas Bernoulli
+     4  Kyle Meyer
+     1  Noam Postavsky
