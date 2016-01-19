@@ -972,6 +972,10 @@ where COMMITS is the number of commits in TAG but not in REV."
                  (list (match-string 1 it)))
             (magit-git-items "ls-files" "-z" "--stage")))
 
+(defun magit-ref-p (rev)
+  (or (car (member rev (magit-list-refs)))
+      (car (member rev (magit-list-refnames)))))
+
 (defun magit-branch-p (rev)
   (or (car (member rev (magit-list-branches)))
       (car (member rev (magit-list-branch-names)))))
@@ -984,6 +988,9 @@ where COMMITS is the number of commits in TAG but not in REV."
   (propertize branch 'face (if (magit-local-branch-p branch)
                                'magit-branch-local
                              'magit-branch-remote)))
+
+(defun magit-tag-p (rev)
+  (car (member rev (magit-list-tags))))
 
 (defun magit-remote-p (string)
   (car (member string (magit-list-remotes))))

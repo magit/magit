@@ -4,7 +4,8 @@ Magit v2.4.1 Release Notes (draft)
 Updates since v2.4.0
 --------------------
 
-* Added new utility function `magit-rev-abbrev'.
+* Added new utility function `magit-rev-abbrev', `magit-ref-p', and
+  `magit-tag-p'.
 
 Fixes since v2.4.0
 ------------------
