@@ -7,8 +7,12 @@ This is a bugfix release.
   current emacs instance, With-Editor ignored any executable that is
   actually named "emacsclient-snapshot".
 
-* An error occured when refreshing the status buffer after adding, but
-  not committing, a new submodule.
+* When determining the most suitable git executable, an error occured
+  if "Git for Windows 1.x" is used and an cygpath executable is
+  available.
+
+* An error occured when refreshing the status buffer when there is a
+  new, staged but not yet committed, submodule.
 
 This release also contains typofixes.
 
