@@ -292,6 +292,7 @@ the upstream isn't ahead of the current branch) show."
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
     :options  ((?n "Limit number of commits" "-n")
+               (?o "Ordered by commit date"  "--*-order" magit-log-read-order)
                (?f "Limit to files"          "-- " magit-read-files)
                (?a "Limit to author"         "--author=")
                (?g "Search messages"         "--grep=")
@@ -322,6 +323,7 @@ the upstream isn't ahead of the current branch) show."
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
     :options  ((?n "Limit number of commits" "-n")
+               (?o "Ordered by commit date"  "--*-order" magit-log-read-order)
                (?f "Limit to files"          "-- " magit-read-files)
                (?a "Limit to author"         "--author=")
                (?g "Search messages"         "--grep=")
@@ -345,7 +347,8 @@ the upstream isn't ahead of the current branch) show."
     :switches ((?g "Show graph"          "--graph")
                (?c "Show graph in color" "--color")
                (?d "Show refnames"       "--decorate"))
-    :options  ((?n "Limit number of commits" "-n"))
+    :options  ((?n "Limit number of commits" "-n")
+               (?o "Ordered by commit date"  "--*-order" magit-log-read-order))
     :actions  ((?g "Refresh"       magit-log-refresh)
                (?t "Toggle margin" magit-toggle-margin)
                (?s "Set defaults"  magit-log-set-default-arguments) nil
@@ -355,6 +358,10 @@ the upstream isn't ahead of the current branch) show."
 (magit-define-popup-keys-deferred 'magit-log-popup)
 (magit-define-popup-keys-deferred 'magit-log-mode-refresh-popup)
 (magit-define-popup-keys-deferred 'magit-log-refresh-popup)
+
+(defun magit-log-read-order (prompt &optional other)
+  (magit-completing-read "order" '("topo" "date" "author-date") nil t nil nil
+                         "date"))
 
 (defun magit-read-file-trace (&rest ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
@@ -733,8 +740,18 @@ Do not add this to a hook variable."
                     (concat "\n" magit-log-revision-headers-format "\n")
                   (concat "\n" magit-log-revision-headers-format "\n"))
               ""))
-    (if (member "--decorate" args)
-        (cons "--decorate=full" (remove "--decorate" args))
+    (let* ((args
+            (if (member "--decorate" args)
+                (cons "--decorate=full" (remove "--decorate" args))
+              args))
+           (args
+            (--if-let (position-if (lambda (x) (string-match "--\\\*-order\\(.*\\)" x))
+                                   args)
+                (cons (concat "--" (subseq (elt args it)
+                                           (match-beginning 1) (match-end 1))
+                              "-order")
+                      (remq (elt args it) args))
+              args)))
       args)
     "--use-mailmap" "--no-prefix" revs "--" files))
 
