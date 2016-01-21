@@ -745,10 +745,11 @@ Do not add this to a hook variable."
                 (cons "--decorate=full" (remove "--decorate" args))
               args))
            (args
-            (--if-let (position-if (lambda (x) (string-match "--\\\*-order\\(.*\\)" x))
-                                   args)
-                (cons (concat "--" (subseq (elt args it)
-                                           (match-beginning 1) (match-end 1))
+            (--if-let (cl-position "--\\\*-order\\(.*\\)" args
+                                   :test 'string-match)
+                (cons (concat "--" (cl-subseq (elt args it)
+                                              (match-beginning 1)
+                                              (match-end 1))
                               "-order")
                       (remq (elt args it) args))
               args)))
