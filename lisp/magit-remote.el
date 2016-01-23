@@ -599,6 +599,7 @@ To add this command to the push popup add this to your init file:
   "Popup console for patch commands."
   'magit-commands
   :man-page "git-format-patch"
+  :switches '((?C "Cover letter"     "--cover-letter"))
   :options  '("Options for formatting patches"
               (?f "From"             "--from=")
               (?t "To"               "--to=")
@@ -611,7 +612,8 @@ To add this command to the push popup add this to your init file:
               (?C "Detect copies"    "-C")
               (?A "Diff algorithm"   "--diff-algorithm="
                   magit-diff-select-algorithm)
-              (?o "Output directory" "--output-directory="))
+              (?o "Output directory" "--output-directory=")
+              (?S "Subject prefix"   "--subject-prefix="))
   :actions  '((?p "Format patches"   magit-format-patch)
               (?r "Request pull"     magit-request-pull))
   :default-action 'magit-format-patch)
