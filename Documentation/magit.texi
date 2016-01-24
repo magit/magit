@@ -1029,7 +1029,7 @@ git, i.e. "outside Emacs", making this a rather important feature.
 
 For example, if you discard a change in the status buffer, then that
 is done by running @code{git apply --reverse ...}, and Emacs considers the
-file to have "change on disk".  If Magit did not automaticallyrevert
+file to have "changed on disk".  If Magit did not automatically revert
 the buffer, then you would have to type @code{M-x revert-buffer RET RET} in
 the visiting buffer before you could continue making changes.
 
@@ -1060,11 +1060,11 @@ buffers by explicitly calling @code{auto-revert-buffers} after running git
 for side-effects.
 
 If @code{auto-revert-use-notify} is non-nil (and file notifications are
-actually supported), then @code{magit-auto-revert-immediately} should be
-set to nil, because the reverts happen immediately anyway.
+actually supported), then @code{magit-auto-revert-immediately} does not
+have to be non-nil, because the reverts happen immediately anyway.
 
 If @code{magit-auto-revert-immediately} and @code{auto-revert-use-notify} are both
-nil, then reverts happen after @code{auto-revert-interval} seconds of user
+@code{nil}, then reverts happen after @code{auto-revert-interval} seconds of user
 inactivity.  That is not desirable.
 @end defopt
 
@@ -1087,9 +1087,10 @@ directory.
 @deffn Command auto-revert-mode
 
 The global mode @code{magit-auto-revert-mode} works by turning on this
-local mode in the appropriate buffers.  You can also turn it on or
-off manually, which might be necessary if Magit does not notice that
-a previously untracked file now is being tracked or vice-versa.
+local mode in the appropriate buffers (but @code{global-auto-revert-mode}
+is implemented differently).  You can also turn it on or off
+manually, which might be necessary if Magit does not notice that a
+previously untracked file now is being tracked or vice-versa.
 @end deffn
 
 @defopt auto-revert-stop-on-user-input
@@ -6498,8 +6499,11 @@ current buffer.
 @end lisp
 
 You should also check whether any third-party packages have added
-anything to @code{magit-refresh-buffer-hook} and @code{magit-status-refresh-hook},
-and if so whether those additions impacts performance significantly.
+anything to @code{magit-refresh-buffer-hook}, @code{magit-status-refresh-hook},
+@code{magit-pre-refresh-hook}, and @code{magit-post-refresh-hook}.  If so, then
+check whether those additions impacts performance significantly.
+Setting @code{magit-refresh-verbose} and then inspecting the output in the
+@code{*Messages*} buffer, should help doing so.
 
 If you have enabled any features that are disabled by default, then
 you should check whether they impact performance significantly.  It's

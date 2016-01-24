@@ -52,7 +52,8 @@ after running git for side-effects.
 
 If `auto-revert-use-notify' is non-nil (and file notifications
 are actually supported), then `magit-auto-revert-immediately'
-should be nil, because the reverts happen immediately anyway.
+does not have to be non-nil, because the reverts happen
+immediately anyway.
 
 If `magit-auto-revert-immediately' and `auto-revert-use-notify'
 are both nil, then reverts happen after `auto-revert-interval'
