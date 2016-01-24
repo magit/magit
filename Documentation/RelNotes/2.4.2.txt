@@ -4,6 +4,11 @@ Magit v2.4.2 Release Notes (draft)
 Updates since v2.4.1
 --------------------
 
+* The heading of the section which lists commits that exist in the
+  current branch but not in its upstream, was changed from "Unpushed
+  to <upstream>" to "Unmerged into <upstream>", because one usually
+  should merge into that branch instead of pushing to it.
+
 Fixes since v2.4.1
 ------------------
 

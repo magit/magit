@@ -1304,7 +1304,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
   (when (magit-git-success "rev-parse" "@{upstream}")
     (magit-insert-section (unpushed "@{upstream}..")
       (magit-insert-heading
-        (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
+        (format (propertize "Unmerged into %s:" 'face 'magit-section-heading)
                 (magit-get-upstream-branch)))
       (magit-insert-log "@{upstream}.." magit-log-section-arguments)
       (magit-section-cache-visibility))))
