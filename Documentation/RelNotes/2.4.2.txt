@@ -12,5 +12,7 @@ Updates since v2.4.1
 Fixes since v2.4.1
 ------------------
 
+This release also contains typofixes and documentation updates.
+
 Authors
 -------

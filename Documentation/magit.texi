@@ -5428,6 +5428,9 @@ isn't already set.
 @node Fetching
 @section Fetching
 
+For information about the differences between the @emph{upstream} and the
+@emph{push-remote}, see @ref{Branching,Branching}.
+
 Also see 
 @ifinfo
 @ref{git-fetch,,,gitman,}
@@ -5489,6 +5492,9 @@ more information.
 @node Pulling
 @section Pulling
 
+For information about the differences between the @emph{upstream} and the
+@emph{push-remote}, see @ref{Branching,Branching}.
+
 Also see 
 @ifinfo
 @ref{git-pull,,,gitman,}
@@ -5536,6 +5542,9 @@ more information.
 
 @node Pushing
 @section Pushing
+
+For information about the differences between the @emph{upstream} and the
+@emph{push-remote}, see @ref{Branching,Branching}.
 
 Also see 
 @ifinfo

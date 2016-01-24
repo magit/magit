@@ -3902,6 +3902,9 @@ Also see [[info:gitman#git-remote]].
 
 ** Fetching
 
+For information about the differences between the /upstream/ and the
+/push-remote/, see [[*Branching]].
+
 Also see [[info:gitman#git-fetch]].
 
 - Key: f, magit-fetch-popup
@@ -3936,6 +3939,9 @@ more information.
 
 ** Pulling
 
+For information about the differences between the /upstream/ and the
+/push-remote/, see [[*Branching]].
+
 Also see [[info:gitman#git-pull]].
 
 - Key: F, magit-pull-popup
@@ -3960,6 +3966,9 @@ could also use ~magit-pull-and-fetch-popup~.  See its doc-string for
 more information.
 
 ** Pushing
+
+For information about the differences between the /upstream/ and the
+/push-remote/, see [[*Branching]].
 
 Also see [[info:gitman#git-push]].
 
