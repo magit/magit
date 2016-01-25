@@ -204,17 +204,16 @@ commit message."
                                   (file-relative-name (car files)
                                                       (magit-toplevel)))))
                  msg)))
-    (magit-reflog-enable wipref)
     (unless (equal parent wipref)
       (setq start-msg (concat "restart autosaving " start-msg))
-      (magit-call-git "update-ref" wipref "-m" start-msg
-                      (magit-git-string "commit-tree" "-p" parent
-                                        "-m" start-msg
-                                        (concat parent "^{tree}")))
+      (magit-update-ref wipref start-msg
+                        (magit-git-string "commit-tree" "-p" parent
+                                          "-m" start-msg
+                                          (concat parent "^{tree}")))
       (setq parent wipref))
-    (magit-call-git "update-ref" wipref "-m" msg
-                    (magit-git-string "commit-tree" tree
-                                      "-p" parent "-m" msg))))
+    (magit-update-ref wipref msg
+                      (magit-git-string "commit-tree" tree
+                                        "-p" parent "-m" msg))))
 
 (defun magit-wip-get-ref ()
   (let ((ref (or (magit-git-string "symbolic-ref" "HEAD") "HEAD")))

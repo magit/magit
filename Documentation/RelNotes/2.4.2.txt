@@ -12,6 +12,9 @@ Updates since v2.4.1
 Fixes since v2.4.1
 ------------------
 
+* Creating a stash in a secondary working tree failed if no other
+  stash already existed in the repository.
+
 * The manually set state of the margin in log and reflog buffers was
   not preserved and instead reset to the default state, when a command
   was invoked which changes what log/reflog is being displayed.

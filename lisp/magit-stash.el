@@ -240,10 +240,7 @@ When the region is active offer to drop all contained stashes."
                                                 (t "local"))))))
 
 (defun magit-stash-store (message ref commit)
-  (magit-reflog-enable ref t)
-  (unless (magit-git-success "update-ref" "-m" message ref commit
-                             (or (magit-rev-verify ref) ""))
-    (error "Cannot update %s with %s" ref commit)))
+  (magit-update-ref ref message commit t))
 
 (defun magit-stash-create (message index worktree untracked)
   (unless (magit-rev-parse "--verify" "HEAD")
