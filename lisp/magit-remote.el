@@ -33,6 +33,12 @@
 
 ;;; Clone
 
+(defcustom magit-clone-set-remote-head nil
+  "Whether cloning creates the symbolic-ref `<remote>/HEAD'."
+  :package-version '(magit . "2.4.2")
+  :group 'magit-commands
+  :type 'boolean)
+
 (defcustom magit-clone-set-remote.pushDefault 'ask
   "Whether to set the value of `remote.pushDefault' after cloning.
 
@@ -65,6 +71,8 @@ Then show the status buffer for the new repository."
                    (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
       (let ((default-directory directory))
         (magit-call-git "config" "remote.pushDefault" "origin")))
+    (unless magit-clone-set-remote-head
+      (magit-remote-unset-head "origin"))
     (message "Cloning %s...done" repository)
     (magit-status-internal directory)))
 
@@ -151,7 +159,8 @@ doing that."
    (let  ((remote (magit-read-remote "Set HEAD for remote")))
      (list remote
            (and current-prefix-arg
-                (magit-read-remote-branch (format "Set %s/HEAD to" remote))))))
+                (magit-read-remote-branch (format "Set %s/HEAD to" remote)
+                                          remote nil nil t)))))
   (magit-run-git "remote" "set-head" remote (or branch "--auto")))
 
 ;;;###autoload

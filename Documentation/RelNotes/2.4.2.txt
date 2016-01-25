@@ -12,6 +12,14 @@ Updates since v2.4.1
 * Added new commands `magit-remote-set-head' and
   `magit-remote-unset-head'.
 
+* By default `magit-clone' now deletes the symbolic-ref "origin/HEAD"
+  right after running `git clone', which insists on creating it.
+
+  The new option `magit-clone-set-remote-head' can be set to `t' go
+  back to keeping that symbolic-ref.  We default to removing it,
+  because it does not actually get automatically updated when the
+  HEAD of the remote changes, and that makes it rather pointless.
+
 Fixes since v2.4.1
 ------------------
 
