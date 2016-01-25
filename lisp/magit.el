@@ -1445,7 +1445,8 @@ realize it's all crap and want to start over."
                (not (yes-or-no-p "Uncommitted changes will be lost.  Proceed?")))
           (user-error "Abort")
         (magit-reset-hard to)
-        (magit-set-branch*merge/remote branch to))
+        (when (magit-branch-p to)
+          (magit-set-branch*merge/remote branch to)))
     (magit-branch branch to args)))
 
 ;;;###autoload
