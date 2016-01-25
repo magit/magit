@@ -140,6 +140,27 @@ the variable isn't already set."
   (interactive (list (magit-read-remote "Delete remote")))
   (magit-run-git "remote" "rm" remote))
 
+;;;###autoload
+(defun magit-remote-set-head (remote &optional branch)
+  "Set the local representation of REMOTE's default branch.
+Query REMOTE and set the symbolic-ref refs/remotes/<remote>/HEAD
+accordingly.  With a prefix argument query for the branch to be
+used, which allows you to select an incorrect value if you fancy
+doing that."
+  (interactive
+   (let  ((remote (magit-read-remote "Set HEAD for remote")))
+     (list remote
+           (and current-prefix-arg
+                (magit-read-remote-branch (format "Set %s/HEAD to" remote))))))
+  (magit-run-git "remote" "set-head" remote (or branch "--auto")))
+
+;;;###autoload
+(defun magit-remote-unset-head (remote)
+  "Unset the local representation of REMOTE's default branch.
+Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
+  (interactive (list (magit-read-remote "Unset HEAD for remote")))
+  (magit-run-git "remote" "set-head" remote "--delete"))
+
 ;;; Fetch
 
 ;;;###autoload (autoload 'magit-fetch-popup "magit-remote" nil t)

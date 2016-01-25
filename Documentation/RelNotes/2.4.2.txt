@@ -9,6 +9,9 @@ Updates since v2.4.1
   to <upstream>" to "Unmerged into <upstream>", because one usually
   should merge into that branch instead of pushing to it.
 
+* Added new commands `magit-remote-set-head' and
+  `magit-remote-unset-head'.
+
 Fixes since v2.4.1
 ------------------
 
