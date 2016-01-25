@@ -578,7 +578,7 @@ thinking a buffer belongs to a repo that it doesn't.")
       (with-current-buffer buffer
         (setq list-buffers-directory default-directory))
       (let ((uniquify-buffer-name-style
-             (if (eq uniquify-buffer-name-style 'forward)
+             (if (memq uniquify-buffer-name-style '(nil forward))
                  'post-forward-angle-brackets
                uniquify-buffer-name-style)))
         (uniquify-rationalize-file-buffer-names
