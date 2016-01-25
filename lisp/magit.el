@@ -1412,18 +1412,19 @@ of the new branch, instead of the starting-point itself."
     (magit-run-git "checkout" "-b" branch)))
 
 ;;;###autoload
-(defun magit-branch-reset (branch to &optional args)
+(defun magit-branch-reset (branch to &optional args set-upstream)
   "Reset a branch to the tip of another branch or any other commit.
-
-When resetting to another branch, then also set that branch as
-the upstream of the branch being reset.
 
 When the branch being reset is the current branch, then do a
 hard reset.  If there are any uncommitted changes, then the user
 has to confirming the reset because those changes would be lost.
 
 This is useful when you have started work on a feature branch but
-realize it's all crap and want to start over."
+realize it's all crap and want to start over.
+
+When resetting to another branch and a prefix argument is used,
+then also set the target branch as the upstream of the branch
+that is being reset."
   (interactive
    (let* ((atpoint (magit-branch-at-point))
           (branch  (magit-read-local-branch "Reset branch" atpoint)))
@@ -1433,19 +1434,16 @@ realize it's all crap and want to start over."
                                   nil nil nil 'magit-revision-history
                                   (or (and (not (equal branch atpoint)) atpoint)
                                       (magit-get-upstream-branch branch)))
-           (magit-branch-arguments))))
+           (magit-branch-arguments)
+           current-prefix-arg)))
   (unless (member "--force" args)
     (setq args (cons "--force" args)))
-  (if (magit-branch-p to)
-      (unless (member "--track" args)
-        (setq args (cons "--track" args)))
-    (setq args (delete "--track" args)))
   (if (equal branch (magit-get-current-branch))
       (if (and (magit-anything-modified-p)
                (not (yes-or-no-p "Uncommitted changes will be lost.  Proceed?")))
           (user-error "Abort")
         (magit-reset-hard to)
-        (when (magit-branch-p to)
+        (when (and set-upstream (magit-branch-p to))
           (magit-set-branch*merge/remote branch to)))
     (magit-branch branch to args)))
 

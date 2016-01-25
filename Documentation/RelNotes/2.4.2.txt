@@ -18,8 +18,15 @@ Fixes since v2.4.1
 * Creating a Magit buffer failed if `uniquify-buffer-name-style's
   value is `nil'.
 
-* Resetting a branch to an arbitrary commit (not another branch),
-  caused its upstream configuration to be mangled.
+* Resetting a branch to an arbitrary commit, caused its upstream
+  configuration to be mangled.
+
+* Resetting a branch to another branch, caused the former to be
+  configured as the upstream of the latter.  That behavior was
+  introduced by accident when the argument `--track' was replaced with
+  the variable `branch.autoSetupMerge' in the popup.  Because it would
+  be undesirable to restore the `--track' argument in the popup, one
+  now has to use a prefix argument to set the upstream while resetting.
 
 * The manually set state of the margin in log and reflog buffers was
   not preserved and instead reset to the default state, when a command
