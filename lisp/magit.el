@@ -1349,21 +1349,10 @@ changes.
       (magit-call-git "branch" (concat "--set-upstream-to=" it) branch))
     (magit-refresh)))
 
-(defun magit-branch-read-starting-point (prompt)
-  (or (magit-completing-read (concat prompt " starting at")
-                             (cons "HEAD" (magit-list-refnames))
-                             nil nil nil 'magit-revision-history
-                             (or (magit-remote-branch-at-point)
-                                 (magit-local-branch-at-point)
-                                 (magit-commit-at-point)
-                                 (magit-stash-at-point)
-                                 (magit-get-current-branch)))
-      (user-error "Nothing selected")))
-
 (defun magit-branch-read-args (prompt)
   (let ((args (magit-branch-arguments)) start branch)
     (cond (magit-branch-read-upstream-first
-           (setq start  (magit-branch-read-starting-point prompt))
+           (setq start  (magit-read-starting-point prompt))
            (setq branch (magit-read-string-ns
                          "Branch name"
                          (and (member start (magit-list-remote-branch-names))
@@ -1372,7 +1361,7 @@ changes.
                                          "/")))))
           (t
            (setq branch (magit-read-string-ns "Branch name"))
-           (setq start  (magit-branch-read-starting-point prompt))))
+           (setq start  (magit-read-starting-point prompt))))
     (list branch start args)))
 
 ;;;###autoload

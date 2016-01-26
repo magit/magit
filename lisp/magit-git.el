@@ -1294,6 +1294,18 @@ Return a list of two integers: (A>B B>A)."
                              (let ((previous (magit-get-previous-branch)))
                                (and (not (equal previous branch)) previous)))))
 
+(defun magit-read-starting-point (prompt)
+  (or (magit-completing-read
+       (concat prompt " starting at")
+       (cons "HEAD" (magit-list-refnames))
+       nil nil nil 'magit-revision-history
+       (or (magit-remote-branch-at-point)
+           (magit-local-branch-at-point)
+           (magit-commit-at-point)
+           (magit-stash-at-point)
+           (magit-get-current-branch)))
+      (user-error "Nothing selected")))
+
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-list-tags) nil
                          require-match nil 'magit-revision-history
