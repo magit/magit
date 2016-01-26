@@ -6625,15 +6625,11 @@ Consider leaving it at that.
 
 @unnumberedsubsubsec Diff Performance
 
-@itemize
-@item
-@code{magit-diff-highlight-hunk-body}, @code{magit-diff-highlight-indentation},
-@code{magit-diff-highlight-trailing}, and @code{magit-diff-paint-whitespace}
-
-
-@item
-@code{magit-diff-refine-hunk}
-@end itemize
+If diffs are slow, then consider turning off some optional diff
+features by setting all or some of the following variables to @code{nil}:
+@code{magit-diff-highlight-indentation}, @code{magit-diff-highlight-trailing},
+@code{magit-diff-paint-whitespace}, @code{magit-diff-highlight-hunk-body}, and
+@code{magit-diff-refine-hunk}.
 
 @unnumberedsubsubsec Refs Buffer Performance
 

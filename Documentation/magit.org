@@ -4792,10 +4792,11 @@ Consider leaving it at that.
 :NONODE:     t
 :END:
 
-- ~magit-diff-highlight-hunk-body~, ~magit-diff-highlight-indentation~,
-  ~magit-diff-highlight-trailing~, and ~magit-diff-paint-whitespace~
-
-- ~magit-diff-refine-hunk~
+If diffs are slow, then consider turning off some optional diff
+features by setting all or some of the following variables to ~nil~:
+~magit-diff-highlight-indentation~, ~magit-diff-highlight-trailing~,
+~magit-diff-paint-whitespace~, ~magit-diff-highlight-hunk-body~, and
+~magit-diff-refine-hunk~.
 
 **** Refs Buffer Performance
 :PROPERTIES:
