@@ -19,6 +19,15 @@ Updates since v2.4.1
   Users who use Tramp and experience delays, should consider setting
   the option to `magit-auto-revert-repository-buffer-p'.
 
+* By default, invoking `magit-unstage' on a committed change how
+  performs an action which is somewhat similar to unstaging.  The
+  change is reverted in the index, but not the working tree.  This
+  allows extracting changes from HEAD.
+
+  Setting the new option `magit-unstage-committed' to nil, disables
+  this behavior.  Attempting to unstage a committed change would then
+  result in an error again.
+
 * The heading of the section which lists commits that exist in the
   current branch but not in its upstream was changed from "Unpushed
   to <upstream>" to "Unmerged into <upstream>", because one usually

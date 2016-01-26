@@ -3533,6 +3533,8 @@ Besides staging and unstaging, Magit also provides several other
 once, a hunk, multiple hunks at once, and on parts of a hunk.  These
 apply variants are described in the next section.
 
+You can also use Ediff to stage and unstage.  See @ref{Ediffing,Ediffing}.
+
 @table @asis
 @kindex s
 @cindex magit-stage
@@ -3555,11 +3557,60 @@ argument also stage previously untracked (but not ignored) files.
 
 Remove the change at point from the staging area.
 
+Only staged changes can be unstaged.  But by default this command
+performs an action that is somewhat similar to unstaging, when it is
+called on a committed change: it reverses the change in the index
+but not in the working tree.
+
 @kindex U
 @cindex magit-unstage-all
 @item @kbd{U} @tie{}@tie{}@tie{}@tie{}(@code{magit-unstage-all})
 
 Remove all changes from the staging area.
+
+@end table
+
+@defopt magit-unstage-committed
+
+This option controls whether @code{magit-unstage} "unstages" committed
+changes by reversing them in the index but not the working tree.
+The alternative is to raise an error.
+@end defopt
+
+@table @asis
+@kindex M-x magit-reverse-in-index
+@cindex magit-reverse-in-index
+@item @kbd{M-x magit-reverse-in-index} @tie{}@tie{}@tie{}@tie{}(@code{magit-reverse-in-index})
+
+This command reverses the committed change at point in the index but
+not the working tree.  By default no key is bound directly to this
+command, but it is indirectly called when @code{u} (@code{magit-unstage}) is
+pressed on a committed change.
+
+This allows extracting a change from @code{HEAD}, while leaving it in the
+working tree, so that it can later be committed using a separate
+commit.  A typical workflow would be:
+
+@itemize
+@item
+Optionally make sure that there are no uncommitted changes.
+
+@item
+Visit the @code{HEAD} commit and navigate to the change that should
+not have been included in that commit.
+
+@item
+Type @code{u} (@code{magit-unstage}) to reverse it in the index.
+This assumes that @code{magit-unstage-committed-changes} is non-nil.
+
+@item
+Type @code{c e} to extend @code{HEAD} with the staged changes,
+including those that were already staged before.
+
+@item
+Optionally stage the remaining changes using @code{s} or @code{S} and then
+type @code{c c} to create a new commit.
+@end itemize
 
 @kindex M-x magit-reset-index
 @cindex magit-reset-index
@@ -3569,11 +3620,6 @@ Reset the index to some commit.  The commit is read from the user
 and defaults to the commit at point.  If there is no commit at
 point, then it defaults to @code{HEAD}.
 @end table
-
-
-To stage a smaller unit than a range of lines, similar to @code{git add
---patch} followed by @code{e} would do, then you can use @code{magit-ediff-stage} to
-do so.
 
 @menu
 * Staging from file-visiting buffers::

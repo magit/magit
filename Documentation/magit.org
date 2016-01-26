@@ -2579,6 +2579,8 @@ Besides staging and unstaging, Magit also provides several other
 once, a hunk, multiple hunks at once, and on parts of a hunk.  These
 apply variants are described in the next section.
 
+You can also use Ediff to stage and unstage.  See [[*Ediffing]].
+
 - Key: s, magit-stage
 
   Add the change at point to the staging area.
@@ -2594,20 +2596,47 @@ apply variants are described in the next section.
 
   Remove the change at point from the staging area.
 
+  Only staged changes can be unstaged.  But by default this command
+  performs an action that is somewhat similar to unstaging, when it is
+  called on a committed change: it reverses the change in the index
+  but not in the working tree.
+
 - Key: U, magit-unstage-all
 
   Remove all changes from the staging area.
+
+- User Option: magit-unstage-committed
+
+  This option controls whether ~magit-unstage~ "unstages" committed
+  changes by reversing them in the index but not the working tree.
+  The alternative is to raise an error.
+
+- Key: M-x magit-reverse-in-index, magit-reverse-in-index
+
+  This command reverses the committed change at point in the index but
+  not the working tree.  By default no key is bound directly to this
+  command, but it is indirectly called when ~u~ (~magit-unstage~) is
+  pressed on a committed change.
+
+  This allows extracting a change from ~HEAD~, while leaving it in the
+  working tree, so that it can later be committed using a separate
+  commit.  A typical workflow would be:
+
+  0. Optionally make sure that there are no uncommitted changes.
+  1. Visit the ~HEAD~ commit and navigate to the change that should
+     not have been included in that commit.
+  2. Type ~u~ (~magit-unstage~) to reverse it in the index.
+     This assumes that ~magit-unstage-committed-changes~ is non-nil.
+  3. Type ~c e~ to extend ~HEAD~ with the staged changes,
+     including those that were already staged before.
+  4. Optionally stage the remaining changes using ~s~ or ~S~ and then
+     type ~c c~ to create a new commit.
 
 - Key: M-x magit-reset-index, magit-reset-index
 
   Reset the index to some commit.  The commit is read from the user
   and defaults to the commit at point.  If there is no commit at
   point, then it defaults to ~HEAD~.
-
-
-To stage a smaller unit than a range of lines, similar to ~git add
---patch~ followed by ~e~ would do, then you can use ~magit-ediff-stage~ to
-do so.
 
 *** Staging from file-visiting buffers
 

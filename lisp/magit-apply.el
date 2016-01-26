@@ -52,6 +52,22 @@
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-unstage-committed t
+  "Whether unstaging a committed change reverts it instead.
+
+A committed change cannot be unstaged, because staging and
+unstaging are actions that are concern with the differences
+between the index and the working tree, not with committed
+changes.
+
+If this option is non-nil (the default), then typing \"u\"
+(`magit-unstage') on a committed change, causes it to be
+reversed in the index but not the working tree.  For more
+information see command `magit-reverse-in-index'."
+  :package-version '(magit . "2.4.1")
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;; Commands
 ;;;; Apply
 
@@ -256,8 +272,8 @@ ignored) files.
       (`(staged      file) (magit-unstage-1 (list (magit-section-value it))))
       (`(staged     files) (magit-unstage-1 (magit-region-values)))
       (`(staged      list) (magit-unstage-all))
-      (`(committed     ,_) (if (bound-and-true-p magit-unstage-use-anti-stage)
-                               (magit-anti-stage)
+      (`(committed     ,_) (if magit-unstage-committed
+                               (magit-reverse-in-index)
                              (user-error "Cannot unstage committed changes")))
       (`(undefined     ,_) (user-error "Cannot unstage this change")))))
 
@@ -515,6 +531,25 @@ without requiring confirmation."
         (magit-apply-diffs sections "--reverse" args)))
     (when binaries
       (user-error "Cannot reverse binary files"))))
+
+(defun magit-reverse-in-index (&rest args)
+  "Reverse the change at point in the index but not the working tree.
+
+Use this command to extract a change from `HEAD', while leaving
+it in the working tree, so that it can later be committed using
+a separate commit.  A typical workflow would be:
+
+0. Optionally make sure that there are no uncommitted changes.
+1. Visit the `HEAD' commit and navigate to the change that should
+   not have been included in that commit.
+2. Type \"u\" (`magit-unstage') to reverse it in the index.
+   This assumes that `magit-unstage-committed-changes' is non-nil.
+3. Type \"c e\" to extend `HEAD' with the staged changes,
+   including those that were already staged before.
+4. Optionally stage the remaining changes using \"s\" or \"S\"
+   and then type \"c c\" to create a new commit."
+  (interactive)
+  (magit-reverse (cons "--cached" args)))
 
 ;;; magit-apply.el ends soon
 (provide 'magit-apply)
