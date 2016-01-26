@@ -629,6 +629,8 @@ To add this command to the push popup add this to your init file:
   "Popup console for patch commands."
   'magit-commands
   :man-page "git-format-patch"
+  :switches '("Switches for formatting patches"
+              (?l "Add cover letter" "--cover-letter"))
   :options  '("Options for formatting patches"
               (?f "From"             "--from=")
               (?t "To"               "--to=")

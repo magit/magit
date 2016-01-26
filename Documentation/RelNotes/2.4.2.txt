@@ -49,6 +49,8 @@ Updates since v2.4.1
   the user would rather offer a local or a remote branch as default
   completion candidate.
 
+* Added the switch `--cover-letter' to `magit-patch-popup'.
+
 Fixes since v2.4.1
 ------------------
 
