@@ -179,34 +179,24 @@ Auto-Revert mode from `auto-revert-buffer-list', and for canceling
 the timer when no buffers need to be checked."
   (cl-incf auto-revert-buffers-counter)
   (save-match-data
-    (let ((bufs (if global-auto-revert-mode
-		    (buffer-list)
-		  auto-revert-buffer-list))
-	  remaining new)
-      ;; Partition `bufs' into two halves depending on whether or not
-      ;; the buffers are in `auto-revert-remaining-buffers'.  The two
-      ;; halves are then re-joined with the "remaining" buffers at the
-      ;; head of the list.
-      (dolist (buf auto-revert-remaining-buffers)
-	(if (memq buf bufs)
-	    (push buf remaining)))
-      (dolist (buf bufs)
-	(if (not (memq buf remaining))
-	    (push buf new)))
-      (setq bufs (nreverse (nconc new remaining)))
+    (let ((bufs (nconc auto-revert-remaining-buffers
+                       (--filter (not (memq it auto-revert-remaining-buffers))
+                                 (if global-auto-revert-mode
+                                     (buffer-list)
+                                   auto-revert-buffer-list)))))
       (while (and bufs
 		  (not (and auto-revert-stop-on-user-input
 			    (input-pending-p))))
-	(let ((buf (car bufs)))
+	(let ((buf (pop bufs)))
           (if (buffer-live-p buf)
 	      (with-current-buffer buf
 		;; Test if someone has turned off Auto-Revert Mode in a
 		;; non-standard way, for example by changing major mode.
-		(if (and (not auto-revert-mode)
-			 (not auto-revert-tail-mode)
-			 (memq buf auto-revert-buffer-list))
-		    (setq auto-revert-buffer-list
-			  (delq buf auto-revert-buffer-list)))
+		(when (and (not auto-revert-mode)
+                           (not auto-revert-tail-mode)
+                           (memq buf auto-revert-buffer-list))
+                  (setq auto-revert-buffer-list
+                        (delq buf auto-revert-buffer-list)))
 		(when (auto-revert-active-p)
 		  ;; Enable file notification.
 		  (when (and auto-revert-use-notify buffer-file-name
@@ -215,8 +205,7 @@ the timer when no buffers need to be checked."
 		  (auto-revert-handler)))
 	    ;; Remove dead buffer from `auto-revert-buffer-list'.
 	    (setq auto-revert-buffer-list
-		  (delq buf auto-revert-buffer-list))))
-	(setq bufs (cdr bufs)))
+		  (delq buf auto-revert-buffer-list)))))
       (setq auto-revert-remaining-buffers bufs)
       ;; Check if we should cancel the timer.
       (when (and (not global-auto-revert-mode)
