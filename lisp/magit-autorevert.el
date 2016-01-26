@@ -150,6 +150,10 @@ This function calls the hook `magit-auto-revert-mode-hook'.")
                  (and magit-auto-revert-mode auto-revert-buffer-list)))
     (auto-revert-buffers)))
 
+(when (version< emacs-version "25")
+  (defvar auto-revert-buffers-counter 1
+    "Incremented each time `auto-revert-buffers' is called"))
+
 (defun auto-revert-buffers ()
   "Revert buffers as specified by Auto-Revert and Global Auto-Revert Mode.
 
@@ -173,6 +177,7 @@ are checked first the next time this function is called.
 This function is also responsible for removing buffers no longer in
 Auto-Revert mode from `auto-revert-buffer-list', and for canceling
 the timer when no buffers need to be checked."
+  (cl-incf auto-revert-buffers-counter)
   (save-match-data
     (let ((bufs (if global-auto-revert-mode
 		    (buffer-list)
