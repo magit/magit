@@ -49,7 +49,8 @@ Updates since v2.4.1
   the user would rather offer a local or a remote branch as default
   completion candidate.
 
-* Added the switch `--cover-letter' to `magit-patch-popup'.
+* Added the switch `--cover-letter' to `magit-patch-popup', and taught
+  `magit-format-patch' to immediately open the letter in a buffer.
 
 Fixes since v2.4.1
 ------------------

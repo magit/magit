@@ -663,7 +663,9 @@ HEAD but not from the specified commit)."
                  range
                (format "%s~..%s" range range))))
          (magit-patch-arguments)))
-  (magit-run-git "format-patch" range args))
+  (magit-call-git "format-patch" range args)
+  (when (member "--cover-letter" args)
+    (find-file (expand-file-name "0000-cover-letter.patch" (magit-toplevel)))))
 
 ;;;###autoload
 (defun magit-request-pull (url start end)
