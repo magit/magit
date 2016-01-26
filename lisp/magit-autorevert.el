@@ -181,6 +181,10 @@ This function calls the hook `magit-auto-revert-mode-hook'.")
 
 (defvar magit-auto-revert-toplevel nil)
 
+(when (< emacs-major-version 25)
+  (defvar auto-revert-buffers-counter 1
+    "Incremented each time `auto-revert-buffers' is called"))
+
 (defun magit-auto-revert-buffer-p (buffer)
   "Return t if BUFFER visits a file inside the current repository.
 The current repository is the one in which `default-directory' is
@@ -208,10 +212,6 @@ located.  If there is no current repository, then return FALLBACK
                     (file-remote-p top))
              ;; ^ `tramp-handle-file-in-directory-p' lacks this optimization.
              (file-in-directory-p dir top))))))
-
-(when (version< emacs-version "25")
-  (defvar auto-revert-buffers-counter 1
-    "Incremented each time `auto-revert-buffers' is called"))
 
 (defun auto-revert-buffers ()
   "Revert buffers as specified by Auto-Revert and Global Auto-Revert Mode.
