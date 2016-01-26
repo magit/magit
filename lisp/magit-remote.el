@@ -665,7 +665,14 @@ HEAD but not from the specified commit)."
          (magit-patch-arguments)))
   (magit-call-git "format-patch" range args)
   (when (member "--cover-letter" args)
-    (find-file (expand-file-name "0000-cover-letter.patch" (magit-toplevel)))))
+    (find-file
+     (expand-file-name
+      "0000-cover-letter.patch"
+      (let ((topdir (magit-toplevel)))
+        (or (--some (and (string-match "--output-directory=\\(.+\\)" it)
+                         (expand-file-name (match-string 1 it) topdir))
+                    args)
+            topdir))))))
 
 ;;;###autoload
 (defun magit-request-pull (url start end)
