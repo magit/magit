@@ -46,8 +46,8 @@ help:
 	$(info make genstats         - regenerate statistics)
 	$(info make authors          - regenerate AUTHORS.md)
 	$(info make dist             - create tarballs)
-	$(info make VERSION=... bump-version)
-	$(info make VERSION=... melpa-post-release)
+	$(info make bump-version)
+	$(info make melpa-post-release)
 	$(info -                     - fixup version strings)
 	@printf "\n"
 
@@ -147,9 +147,9 @@ define set_package_requires
     (let ((s (read (buffer-substring (point) (line-end-position)))))
       (--when-let (assq 'async       s) (setcdr it (list async-version)))
       (--when-let (assq 'dash        s) (setcdr it (list dash-version)))
-      (--when-let (assq 'with-editor s) (setcdr it (list "$(VERSION)")))
-      (--when-let (assq 'git-commit  s) (setcdr it (list "$(VERSION)")))
-      (--when-let (assq 'magit-popup s) (setcdr it (list "$(VERSION)")))
+      (--when-let (assq 'with-editor s) (setcdr it (list with-editor-version)))
+      (--when-let (assq 'git-commit  s) (setcdr it (list git-commit-version)))
+      (--when-let (assq 'magit-popup s) (setcdr it (list magit-popup-version)))
       (delete-region (point) (line-end-position))
       (insert (format "%S" s))
       (save-buffer))))
@@ -174,6 +174,9 @@ bump-version-1:
 	@$(BATCH) --eval "(progn\
         (setq async-version \"$(ASYNC_VERSION)\")\
         (setq dash-version \"$(DASH_VERSION)\")\
+        (setq with-editor-version \"$(WITH_EDITOR_VERSION)\")\
+        (setq git-commit-version \"$(GIT_COMMIT_VERSION)\")\
+        (setq magit-popup-version \"$(MAGIT_POPUP_VERSION)\")\
         $$set_package_requires\
         $$set_manual_version)"
 
@@ -181,5 +184,8 @@ melpa-post-release:
 	@$(BATCH) --eval "(progn\
         (setq async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
         (setq dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
+        (setq with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\")\
+        (setq git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
+        (setq magit-popup-version \"$(MAGIT_POPUP_MELPA_SNAPSHOT)\")\
         $$set_package_requires)"
 	git commit -a -m "reset Package-Requires for Melpa"
