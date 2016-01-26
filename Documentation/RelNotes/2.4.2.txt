@@ -20,6 +20,11 @@ Updates since v2.4.1
   because it does not actually get automatically updated when the
   HEAD of the remote changes, and that makes it rather pointless.
 
+* Added new option `magit-prefer-remote-upstream' which controls
+  whether commands which read the upstream or starting-point from
+  the user would rather offer a local or a remote branch as default
+  completion candidate.
+
 Fixes since v2.4.1
 ------------------
 

@@ -3164,6 +3164,17 @@ For more information about these variables you should also see
 info:gitman#git-config.  Also see [[info:gitman#git-branch]],
 [[info:gitman#git-checkout]], and [[*Pushing]].
 
+- User Option: magit-prefer-remote-upstream
+
+  This option controls whether commands that read a branch from the
+  user and then set it as the upstream branch, offer a local or a
+  remote branch as default completion candidate, when they have the
+  choice.
+
+  This affects all commands that use ~magit-read-upstream-branch~ or
+  ~magit-read-starting-point~, which includes all commands that change
+  the upstream and many which create new branches.
+
 - Key: b b, magit-checkout
 
   Checkout a revision read in the minibuffer and defaulting to the

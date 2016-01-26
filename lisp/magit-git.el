@@ -168,6 +168,20 @@ to return a propertized label that represents the ref."
                 (choice (const :tag "first submatch is label" nil)
                         (function :tag "format using function")))))
 
+(defcustom magit-prefer-remote-upstream nil
+  "Whether to favor remote branches when reading the upstream branch.
+
+This controls whether commands that read a branch from the user
+and then set it as the upstream branch, offer a local or a remote
+branch as default completion candidate, when they have the choice.
+
+This affects all commands that use `magit-read-upstream-branch'
+or `magit-read-starting-point', which includes all commands that
+change the upstream and many which create new branches."
+  :package-version '(magit . "2.4.2")
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;; Git
 
 (defun magit-process-git-arguments (args)
@@ -1281,26 +1295,32 @@ Return a list of two integers: (A>B B>A)."
 
 (cl-defun magit-read-upstream-branch
     (&optional (branch (magit-get-current-branch)) prompt)
-  (magit-completing-read (or prompt (format "Change upstream of %s to" branch))
-                         (nconc (--map (concat it "/" branch)
-                                       (magit-list-remotes))
-                                (delete branch (magit-list-branch-names)))
-                         nil nil nil 'magit-revision-history
-                         (or (let ((atpoint (magit-branch-at-point)))
-                               (and (not (equal atpoint branch)) atpoint))
-                             (magit-branch-p "origin/master")
-                             (and (not (equal branch "master"))
-                                  (magit-branch-p "master"))
-                             (let ((previous (magit-get-previous-branch)))
-                               (and (not (equal previous branch)) previous)))))
+  (magit-completing-read
+   (or prompt (format "Change upstream of %s to" branch))
+   (nconc (--map (concat it "/" branch)
+                 (magit-list-remotes))
+          (delete branch (magit-list-branch-names)))
+   nil nil nil 'magit-revision-history
+   (or (let ((r (magit-remote-branch-at-point))
+             (l (magit-branch-at-point)))
+         (when (and l (equal l branch))
+           (setq l nil))
+         (if magit-prefer-remote-upstream (or r l) (or l r)))
+       (let ((r (magit-branch-p "origin/master"))
+             (l (and (not (equal branch "master"))
+                     (magit-branch-p "master"))))
+         (if magit-prefer-remote-upstream (or r l) (or l r)))
+       (let ((previous (magit-get-previous-branch)))
+         (and (not (equal previous branch)) previous)))))
 
 (defun magit-read-starting-point (prompt)
   (or (magit-completing-read
        (concat prompt " starting at")
        (cons "HEAD" (magit-list-refnames))
        nil nil nil 'magit-revision-history
-       (or (magit-remote-branch-at-point)
-           (magit-local-branch-at-point)
+       (or (let ((r (magit-remote-branch-at-point))
+                 (l (magit-local-branch-at-point)))
+             (if magit-prefer-remote-upstream (or r l) (or l r)))
            (magit-commit-at-point)
            (magit-stash-at-point)
            (magit-get-current-branch)))

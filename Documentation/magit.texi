@@ -4336,6 +4336,18 @@ the git-checkout(1) manpage
 @end iftex
 , and @ref{Pushing,Pushing}.
 
+@defopt magit-prefer-remote-upstream
+
+This option controls whether commands that read a branch from the
+user and then set it as the upstream branch, offer a local or a
+remote branch as default completion candidate, when they have the
+choice.
+
+This affects all commands that use @code{magit-read-upstream-branch} or
+@code{magit-read-starting-point}, which includes all commands that change
+the upstream and many which create new branches.
+@end defopt
+
 @table @asis
 @kindex b b
 @cindex magit-checkout
