@@ -1,4 +1,4 @@
-;;; magit-autorevert.el --- revert buffers when files in Git repositories change  -*- lexical-binding: t -*-
+;;; magit-autorevert.el --- revert buffers when files in repository change  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2016  The Magit Project Contributors
 ;;
@@ -30,10 +30,15 @@
 
 (require 'autorevert)
 
+(defgroup magit-auto-revert nil
+  "Revert buffers when files in repository change."
+  :group 'auto-revert
+  :group 'magit-extensions)
+
 (defcustom magit-auto-revert-tracked-only t
   "Whether `magit-auto-revert-mode' only reverts tracked files."
   :package-version '(magit . "2.4.0")
-  :group 'magit
+  :group 'magit-auto-revert
   :type 'boolean
   :set (lambda (var val)
          (set var val)
@@ -59,7 +64,7 @@ If `magit-auto-revert-immediately' and `auto-revert-use-notify'
 are both nil, then reverts happen after `auto-revert-interval'
 seconds of user inactivity.  That is not desirable."
   :package-version '(magit . "2.4.0")
-  :group 'magit
+  :group 'magit-auto-revert
   :type 'boolean)
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
@@ -84,6 +89,7 @@ seconds of user inactivity.  That is not desirable."
   magit-turn-on-auto-revert-mode-if-desired
   :package-version '(magit . "2.4.0")
   :group 'magit
+  :group 'magit-auto-revert
   ;; When `global-auto-revert-mode' is enabled, then this mode is
   ;; redundant.  When `magit-revert-buffers' is nil, then the user has
   ;; opted out of the automatic reverts while the old implementation
@@ -132,6 +138,9 @@ notices that.
 
 Unlike `global-auto-revert-mode', this mode never reverts any
 buffers that are not visiting files.
+
+The behavior of this mode can be customized using the options
+in the `autorevert' and `magit-autorevert' groups.
 
 This function calls the hook `magit-auto-revert-mode-hook'.")
 
