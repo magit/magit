@@ -4,6 +4,21 @@ Magit v2.4.2 Release Notes (draft)
 Updates since v2.4.1
 --------------------
 
+* Added new option `auto-revert-buffer-list-filter' and redefined
+  `auto-revert-buffers' from `autorevert.el' to use it.  Added new
+  predicates `magit-auto-revert-buffer-p' and the more restrictive
+  `magit-auto-revert-repository-buffer-p', which are both intended
+  to be used as potential value of the option.
+
+  For now the option defaults to `nil', but that might change in a
+  future release.  When Magit explicitly calls `auto-revert-buffers'
+  (as opposed to when that is called due to a file notification event
+  or by a timer), and `auto-revert-buffer-list-filter' is `nil', then
+  it is let-bound to `magit-auto-revert-repository-buffer-p'.
+
+  Users who use Tramp and experience delays, should consider setting
+  the option to `magit-auto-revert-repository-buffer-p'.
+
 * The heading of the section which lists commits that exist in the
   current branch but not in its upstream was changed from "Unpushed
   to <upstream>" to "Unmerged into <upstream>", because one usually

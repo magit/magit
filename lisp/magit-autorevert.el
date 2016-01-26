@@ -35,6 +35,32 @@
   :group 'auto-revert
   :group 'magit-extensions)
 
+(defcustom auto-revert-buffer-list-filter nil
+  "Filter that determines which buffers `auto-revert-buffers' reverts.
+
+This option is provided by `magit', which also redefines
+`auto-revert-buffers' to respect it.  Magit users who do not turn
+on the local mode `auto-revert-mode' themselves, are best served
+by setting the value to `magit-auto-revert-repository-buffers-p'.
+
+However the default is nil, to not disturb users who do use the
+local mode directly.  If you experience delays when running Magit
+commands, then you should consider using one of the predicates
+provided by Magit - especially if you also use Tramp.
+
+Users who do turn on `auto-revert-mode' in buffers in which Magit
+doesn't do that for them, should likely not use any filter.
+Users who turn on `global-auto-revert-mode', do not have to worry
+about this option, because it is disregarded if the global mode
+is enabled."
+  :package-version '(magit . "2.4.2")
+  :group 'auto-revert
+  :group 'magit-auto-revert
+  :type '(radio (const :tag "no filter" nil)
+                (function-item magit-auto-revert-buffer-p)
+                (function-item magit-auto-revert-repository-buffer-p)
+                function))
+
 (defcustom magit-auto-revert-tracked-only t
   "Whether `magit-auto-revert-mode' only reverts tracked files."
   :package-version '(magit . "2.4.0")
@@ -148,7 +174,40 @@ This function calls the hook `magit-auto-revert-mode-hook'.")
   (when (and magit-auto-revert-immediately
              (or global-auto-revert-mode
                  (and magit-auto-revert-mode auto-revert-buffer-list)))
-    (auto-revert-buffers)))
+    (let ((auto-revert-buffer-list-filter
+           (or auto-revert-buffer-list-filter
+               'magit-auto-revert-repository-buffer-p)))
+      (auto-revert-buffers))))
+
+(defvar magit-auto-revert-toplevel nil)
+
+(defun magit-auto-revert-buffer-p (buffer)
+  "Return t if BUFFER visits a file inside the current repository.
+The current repository is the one in which `default-directory' is
+located.  If there is no current repository, then return t for
+any BUFFER."
+  (magit-auto-revert-repository-buffer-p buffer t))
+
+(defun magit-auto-revert-repository-buffer-p (buffer &optional fallback)
+  "Return t if BUFFER visits a file inside the current repository.
+The current repository is the one in which `default-directory' is
+located.  If there is no current repository, then return FALLBACK
+\(which defaults to nil) for any BUFFER."
+  ;; Call `magit-toplevel' just once per cycle.
+  (unless (and magit-auto-revert-toplevel
+               (= (cdr magit-auto-revert-toplevel)
+                  auto-revert-buffers-counter))
+    (setq magit-auto-revert-toplevel
+          (cons (or (magit-toplevel) 'no-repo)
+                auto-revert-buffers-counter)))
+  (let ((top (car magit-auto-revert-toplevel)))
+    (if (eq top 'no-repo)
+        fallback
+      (let ((dir (with-current-buffer buffer default-directory)))
+        (and (equal (file-remote-p dir)
+                    (file-remote-p top))
+             ;; ^ `tramp-handle-file-in-directory-p' lacks this optimization.
+             (file-in-directory-p dir top))))))
 
 (when (version< emacs-version "25")
   (defvar auto-revert-buffers-counter 1
@@ -181,9 +240,13 @@ the timer when no buffers need to be checked."
   (save-match-data
     (let ((bufs (nconc auto-revert-remaining-buffers
                        (--filter (not (memq it auto-revert-remaining-buffers))
-                                 (if global-auto-revert-mode
-                                     (buffer-list)
-                                   auto-revert-buffer-list)))))
+                                 (cond (global-auto-revert-mode
+                                        (buffer-list))
+                                       (auto-revert-buffer-list-filter
+                                        (--filter auto-revert-buffer-list-filter
+                                                  auto-revert-buffer-list))
+                                       (t
+                                        auto-revert-buffer-list))))))
       (while (and bufs
 		  (not (and auto-revert-stop-on-user-input
 			    (input-pending-p))))

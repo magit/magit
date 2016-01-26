@@ -1105,6 +1105,28 @@ This option controls for how many seconds Emacs waits before
 resuming suspended reverts.
 @end defopt
 
+@defopt auto-revert-buffer-list-filter
+
+This option specifies an additional filter used by
+@code{auto-revert-buffers} to determine whether a buffer should be reverted
+or not.
+
+This option is provided by @code{magit}, which also redefines
+@code{auto-revert-buffers} to respect it.  Magit users who do not turn on
+the local mode @code{auto-revert-mode} themselves, are best served by
+setting the value to @code{magit-auto-revert-repository-buffers-p}.
+
+However the default is nil, to not disturb users who do use the
+local mode directly.  If you experience delays when running Magit
+commands, then you should consider using one of the predicates
+provided by Magit - especially if you also use Tramp.
+
+Users who do turn on @code{auto-revert-mode} in buffers in which Magit
+doesn't do that for them, should likely not use any filter.  Users
+who turn on @code{global-auto-revert-mode}, do not have to worry about this
+option, because it is disregarded if the global mode is enabled.
+@end defopt
+
 @defopt auto-revert-verbose
 
 This option controls whether Emacs reports when a buffer has been
@@ -6517,6 +6539,21 @@ anything to @code{magit-refresh-buffer-hook}, @code{magit-status-refresh-hook},
 check whether those additions impacts performance significantly.
 Setting @code{magit-refresh-verbose} and then inspecting the output in the
 @code{*Messages*} buffer, should help doing so.
+
+Magit also reverts buffers which visit files located inside the
+current repository, when the visited file changes on disk.  That is
+implemented on top of @code{auto-revert-mode} from the built-in library
+@code{autorevert}.  To figure out whether that impacts performance, check
+whether performance is significantly worse, when many buffers exist
+and/or when some buffers visit files using Tramp.  If so, then this
+should help.
+
+@lisp
+(setq auto-revert-buffer-list-filter
+      'magit-auto-revert-repository-buffers-p)
+@end lisp
+
+For alternative approaches see @ref{Automatic Reverting of File-Visiting Buffers,Automatic Reverting of File-Visiting Buffers}.
 
 If you have enabled any features that are disabled by default, then
 you should check whether they impact performance significantly.  It's
