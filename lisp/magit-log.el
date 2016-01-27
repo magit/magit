@@ -729,7 +729,7 @@ Do not add this to a hook variable."
                 (progn (setq args (remove "--show-signature" args)) "%G?")
               "")
             (if (member "++header" args)
-                (if (member "--graph" (setq args (delete "++header" args)))
+                (if (member "--graph" (setq args (remove "++header" args)))
                     (concat "\n" magit-log-revision-headers-format "\n")
                   (concat "\n" magit-log-revision-headers-format "\n"))
               ""))
