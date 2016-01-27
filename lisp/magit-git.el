@@ -1159,7 +1159,7 @@ Return a list of two integers: (A>B B>A)."
   (magit-git-success "update-index" "--add" "--remove" "--" files))
 
 (defun magit-update-ref (ref message rev &optional stashish)
-  (or (if (not (version< (magit-git-version) "2.6.0"))
+  (or (if (not (version< (magit-git-version t) "2.6.0"))
           (magit-git-success "update-ref" "--create-reflog"
                              "-m" message ref rev
                              (or (magit-rev-verify ref) ""))
