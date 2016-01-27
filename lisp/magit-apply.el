@@ -145,10 +145,10 @@ With a prefix argument and if necessary, attempt a 3-way merge."
       (magit-wip-commit-before-change files (concat " before " command)))
     (with-temp-buffer
       (insert patch)
-      (magit-run-git-with-input nil
-        "apply" args "-p0"
-        (unless (magit-diff-context-p) "--unidiff-zero")
-        "--ignore-space-change" "-"))
+      (magit-run-git-with-input
+       "apply" args "-p0"
+       (unless (magit-diff-context-p) "--unidiff-zero")
+       "--ignore-space-change" "-"))
     (unless inhibit-magit-refresh
       (when magit-wip-after-apply-mode
         (magit-wip-commit-after-apply files (concat " after " command)))

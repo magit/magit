@@ -222,10 +222,10 @@ When the region is active offer to drop all contained stashes."
         (if (eq keep 'worktree)
             (with-temp-buffer
               (magit-git-insert "diff" "--cached")
-              (magit-run-git-with-input nil
-                "apply" "--reverse" "--cached" "--ignore-space-change" "-")
-              (magit-run-git-with-input nil
-                "apply" "--reverse" "--ignore-space-change" "-"))
+              (magit-run-git-with-input
+               "apply" "--reverse" "--cached" "--ignore-space-change" "-")
+              (magit-run-git-with-input
+               "apply" "--reverse" "--ignore-space-change" "-"))
           (unless (eq keep t)
             (if (eq keep 'index)
                 (magit-call-git "checkout" "--" ".")

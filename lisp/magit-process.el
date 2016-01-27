@@ -315,39 +315,31 @@ Identical to `process-file' but temporarily enable Cygwin's
                                         "noglob")))
                     '("CYGWIN" "MSYS")))))
 
-(defun magit-run-git-with-input (input &rest args)
+(defun magit-run-git-with-input (&rest args)
   "Call Git in a separate process.
 ARGS is flattened and then used as arguments to Git.
 
-The first argument, INPUT, should be a buffer or the name of
-an existing buffer.  The content of that buffer is used as the
-process' standard input.  It may also be nil in which case the
-current buffer is used.
+The current buffer's content is used as the process' standard
+input.
 
 Option `magit-git-executable' specifies the Git executable and
 option `magit-git-global-arguments' specifies constant arguments.
 The remaining arguments ARGS specify arguments to Git, they are
-flattened before use.
-
-After Git returns, the current buffer (if it is a Magit buffer)
-as well as the current repository's status buffer are refreshed.
-When INPUT is nil then do not refresh any buffers."
+flattened before use."
   (declare (indent 1))
   (if (file-remote-p default-directory)
       ;; We lack `process-file-region', so fall back to asynch +
       ;; waiting in remote case.
       (progn
-        (magit-start-git (or input (current-buffer)) args)
+        (magit-start-git (current-buffer) args)
         (while (and magit-this-process
                     (eq (process-status magit-this-process) 'run))
           (sleep-for 0.005)))
-    (with-current-buffer (or input (current-buffer))
-      (let ((process-environment (append (magit-cygwin-env-vars)
-                                         process-environment)))
-        (apply #'call-process-region (point-min) (point-max)
-               magit-git-executable nil nil nil
-               (magit-process-git-arguments args)))))
-  (when input (magit-refresh)))
+    (let ((process-environment (append (magit-cygwin-env-vars)
+                                       process-environment)))
+      (apply #'call-process-region (point-min) (point-max)
+             magit-git-executable nil nil nil
+             (magit-process-git-arguments args)))))
 
 (defvar magit-this-process nil)
 
