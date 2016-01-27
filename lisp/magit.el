@@ -2923,7 +2923,7 @@ Git, and Emacs in the echo area."
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"
                    (or magit-version "(unknown)")
-                   (or (magit-git-version) "(unknown)")
+                   (or (magit-git-version t) "(unknown)")
                    emacs-version))
       (setq debug (reverse debug))
       (setq magit-version 'error)
@@ -2933,7 +2933,7 @@ Git, and Emacs in the echo area."
     magit-version))
 
 (defun magit-startup-asserts ()
-  (let ((version (magit-git-version t)))
+  (let ((version (magit-git-version)))
     (when (and version
                (version< version magit--minimal-git)
                (not (equal (getenv "TRAVIS") "true")))
@@ -2984,7 +2984,7 @@ library getting in the way.  Then restart Emacs.\n"
   (-when-let (remote (file-remote-p directory))
     (unless (member remote magit--remotes-using-recent-git)
       (-if-let (version (let ((default-directory directory))
-                          (magit-git-version t)))
+                          (magit-git-version)))
           (if (version<= magit--minimal-git version)
               (push version magit--remotes-using-recent-git)
             (display-warning 'magit (format "\

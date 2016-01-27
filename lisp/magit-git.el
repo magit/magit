@@ -317,13 +317,11 @@ call function WASHER with no argument."
                 (= (point) (1+ beg)))
         (magit-cancel-section)))))
 
-(defun magit-git-version (&optional numeric)
+(defun magit-git-version (&optional raw)
   (--when-let (let (magit-git-global-arguments)
                 (ignore-errors (substring (magit-git-string "version") 12)))
-    (if numeric
-        (and (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" it)
-             (match-string 1 it))
-      it)))
+    (if raw it (and (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" it)
+                    (match-string 1 it)))))
 
 ;;; Files
 
@@ -1159,7 +1157,7 @@ Return a list of two integers: (A>B B>A)."
   (magit-git-success "update-index" "--add" "--remove" "--" files))
 
 (defun magit-update-ref (ref message rev &optional stashish)
-  (or (if (not (version< (magit-git-version t) "2.6.0"))
+  (or (if (not (version< (magit-git-version) "2.6.0"))
           (magit-git-success "update-ref" "--create-reflog"
                              "-m" message ref rev
                              (or (magit-rev-verify ref) ""))
