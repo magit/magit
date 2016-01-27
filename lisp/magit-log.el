@@ -294,6 +294,7 @@ the upstream isn't ahead of the current branch) show."
     :options  ((?n "Limit number of commits" "-n")
                (?f "Limit to files"          "-- " magit-read-files)
                (?a "Limit to author"         "--author=")
+               (?o "Order commits by"        "++order=" magit-log-select-order)
                (?g "Search messages"         "--grep=")
                (?G "Search changes"          "-G")
                (?S "Search occurences"       "-S")
@@ -324,6 +325,7 @@ the upstream isn't ahead of the current branch) show."
     :options  ((?n "Limit number of commits" "-n")
                (?f "Limit to files"          "-- " magit-read-files)
                (?a "Limit to author"         "--author=")
+               (?o "Order commits by"        "++order=" magit-log-select-order)
                (?g "Search messages"         "--grep=")
                (?G "Search changes"          "-G")
                (?S "Search occurences"       "-S")
@@ -345,7 +347,8 @@ the upstream isn't ahead of the current branch) show."
     :switches ((?g "Show graph"          "--graph")
                (?c "Show graph in color" "--color")
                (?d "Show refnames"       "--decorate"))
-    :options  ((?n "Limit number of commits" "-n"))
+    :options  ((?n "Limit number of commits" "-n")
+               (?o "Order commits by"        "++order=" magit-log-select-order))
     :actions  ((?g "Refresh"       magit-log-refresh)
                (?t "Toggle margin" magit-toggle-margin)
                (?s "Set defaults"  magit-log-set-default-arguments) nil
@@ -363,6 +366,12 @@ the upstream isn't ahead of the current branch) show."
          "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
         (concat trace (or (match-string 2 trace) ":") file)
       (user-error "Trace is invalid, see man git-log"))))
+
+(defun magit-log-select-order (&rest _ignored)
+  (magit-read-char-case "Order commits by " t
+    (?t "[t]opography"     "topo")
+    (?a "[a]uthor date"    "author-date")
+    (?c "[c]ommitter date" "date")))
 
 (defun magit-log-arguments (&optional refresh)
   (cond ((memq magit-current-popup
@@ -733,9 +742,13 @@ Do not add this to a hook variable."
                     (concat "\n" magit-log-revision-headers-format "\n")
                   (concat "\n" magit-log-revision-headers-format "\n"))
               ""))
-    (if (member "--decorate" args)
-        (cons "--decorate=full" (remove "--decorate" args))
-      args)
+    (progn
+      (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
+        (setq args (cons (format "--%s-order" (match-string 1 it))
+                         (remove it args))))
+      (if (member "--decorate" args)
+          (cons "--decorate=full" (remove "--decorate" args))
+        args))
     "--use-mailmap" "--no-prefix" revs "--" files))
 
 (defvar magit-commit-section-map
