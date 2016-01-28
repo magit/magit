@@ -392,11 +392,11 @@ recent enough Git version on these hosts.
 If you are updating from a release older than @code{2.1.0}, then you have to
 first uninstall the old version.  See @ref{Updating from an older release,Updating from an older release}.
 
-Magit is available from all three of the popular unofficial Elpa
-archives: Melpa, Melpa-Stable, and Marmalade.  If you haven't used
+Magit is available from Melpa and Melpa-Stable.  If you haven't used
 Emacs' package manager before, then it is high time you familiarize
-yourself with it by reading the documentation in the Emacs manual,
-see @ref{Packages,,,emacs,}.  Then add one of the archives to @code{package-archives}:
+yourself with it by reading the documentation in the Emacs manual, see
+@ref{Packages,,,emacs,}.  Then add one of the archives to
+@code{package-archives}:
 
 @itemize
 @item
@@ -418,17 +418,6 @@ To use Melpa-Stable:
 (require 'package)
 (add-to-list 'package-archives
 	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-@end lisp
-
-@itemize
-@item
-To use Marmalade:
-@end itemize
-
-@lisp
-(require 'package)
-(add-to-list 'package-archives
-	     '("marmalade" . "http://marmalade-repo.org/packages/") t)
 @end lisp
 
 Once you have added your preferred archive, you need to update the
@@ -453,10 +442,16 @@ Now see @ref{Post-installation tasks,Post-installation tasks}.
 If you are updating from a release older than @code{2.1.0}, then you have to
 first uninstall the old version.  See @ref{Updating from an older release,Updating from an older release}.
 
-Magit depends on the @code{dash} library, available from all three of the
-popular third-party Elpa archives.  Install it using @code{M-x
-package-install RET dash RET}.  Of course you may also install it
-manually from its development repository, but I won't cover that here.
+Magit depends on the @code{dash} library which is available from Melpa and
+Melpa-Stable.  Install it using @code{M-x package-install RET dash RET}.  Of
+course you may also install it manually from its development
+repository, but I won't cover that here.
+
+(An older release of Magit is also available from Marmalade, but no
+new versions will be uploaded in the future.  Marmalade's maintainer
+has stopped responding to requests from package maintainers who are
+having difficulties or require him to create an account so that they
+can upload their packages in the first place.)
 
 Then clone the Magit repository:
 
