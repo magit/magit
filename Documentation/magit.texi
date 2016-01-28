@@ -2258,6 +2258,8 @@ the <a href="http://git-scm.com/docs/git-log">git-log(1)</a> manpage
 the git-log(1) manpage
 @end iftex
 .
+The switch @code{++order=VALUE} is converted to one of @code{--author-date-order},
+@code{--date-order}, or @code{--topo-order} before being passed to @code{git log}.
 
 The log popup also features several reflog commands.  See @ref{Reflog,Reflog}.
 

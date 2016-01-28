@@ -1694,6 +1694,8 @@ invoked while no log buffer exists for the current repository yet,
 then the default value of ~magit-log-arguments~ is used instead.
 
 For information about the various arguments, see [[info:gitman#git-log]].
+The switch ~++order=VALUE~ is converted to one of ~--author-date-order~,
+~--date-order~, or ~--topo-order~ before being passed to ~git log~.
 
 The log popup also features several reflog commands.  See [[*Reflog]].
 

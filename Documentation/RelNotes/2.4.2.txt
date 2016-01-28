@@ -52,6 +52,12 @@ Updates since v2.4.1
 * Added the switch `--cover-letter' to `magit-patch-popup', and taught
   `magit-format-patch' to immediately open the letter in a buffer.
 
+* Added new option `++order' to the various log popups.  This option
+  and its value is converted to `--VALUE-order' before calling `git'.
+  This option was added instead of the switches `--author-date-order',
+  `--date-order', and `--topo-order' because adding all three would be
+  to noisy and because they are mutually exclusive.
+
 Fixes since v2.4.1
 ------------------
 
