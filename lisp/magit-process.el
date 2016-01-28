@@ -269,8 +269,9 @@ as well as the current repository's status buffer are refreshed.
 
 Process output goes into a new section in the buffer returned by
 `magit-process-buffer'."
-  (magit-call-git args)
-  (magit-refresh))
+  (let ((head (magit-rev-parse "HEAD")))
+    (magit-call-git args)
+    (magit-refresh head)))
 
 (defvar magit-pre-call-git-hook nil)
 
@@ -464,6 +465,7 @@ Magit status buffer."
     (process-put process 'section section)
     (process-put process 'command-buf (current-buffer))
     (process-put process 'default-dir default-directory)
+    (process-put process 'head (magit-git-str "rev-parse" "HEAD"))
     (when inhibit-magit-refresh
       (process-put process 'inhibit-refresh t))
     (setf (magit-section-process section) process)
@@ -548,13 +550,14 @@ Magit status buffer."
     (when (eq process magit-this-process)
       (setq magit-this-process nil))
     (unless (process-get process 'inhibit-refresh)
-      (let ((command-buf (process-get process 'command-buf)))
+      (let ((command-buf (process-get process 'command-buf))
+            (head        (process-get process 'head)))
         (if (buffer-live-p command-buf)
             (with-current-buffer command-buf
-              (magit-refresh))
+              (magit-refresh head))
           (with-temp-buffer
             (setq default-directory (process-get process 'default-dir))
-            (magit-refresh)))))))
+            (magit-refresh head)))))))
 
 (defun magit-sequencer-process-sentinel (process event)
   "Special sentinel used by `magit-run-git-sequencer'."
