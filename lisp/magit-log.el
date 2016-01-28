@@ -356,7 +356,7 @@ the upstream isn't ahead of the current branch) show."
 (magit-define-popup-keys-deferred 'magit-log-mode-refresh-popup)
 (magit-define-popup-keys-deferred 'magit-log-refresh-popup)
 
-(defun magit-read-file-trace (&rest ignored)
+(defun magit-read-file-trace (&rest _ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
         (trace (magit-read-string "Trace")))
     (if (string-match
