@@ -248,7 +248,7 @@ make it impossible to invoke certain actions.")
 
 (define-button-type 'magit-popup-variable-button
   'supertype 'magit-popup-button
-  'function  'magit-invoke-popup-variable
+  'function  'magit-invoke-popup-action
   'property  :variables
   'heading   "Variables\n"
   'formatter 'magit-popup-format-variable-button

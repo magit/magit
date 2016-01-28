@@ -75,6 +75,8 @@ Fixes since v2.4.1
   not preserved and instead reset to the default state when a command
   was invoked which changes what log/reflog is being displayed.
 
+* Pressing RET on a variable in a popup causes an error.
+
 This release also contains typofixes and documentation updates.
 
 Authors
