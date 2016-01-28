@@ -53,7 +53,7 @@
   :group 'magit
   :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
-                (function-item helm-completing-read-with-cands-in-buffer)
+                (function-item helm--completing-read-default)
                 (function :tag "Other")))
 
 (defcustom magit-no-confirm nil
