@@ -18,14 +18,13 @@ RMDIR ?= rm -rf
 TAR   ?= tar
 SED   ?= sed
 
-PACKAGES = with-editor git-commit magit-popup magit
+PACKAGES = git-commit magit-popup magit
 PACKAGE_VERSIONS = $(addsuffix -$(VERSION),$(PACKAGES))
 
 INFOPAGES = $(addsuffix .info,$(filter-out git-commit,$(PACKAGES)))
 TEXIPAGES = $(addsuffix .texi,$(filter-out git-commit,$(PACKAGES)))
 
-ELS  = with-editor.el
-ELS += git-commit.el
+ELS  = git-commit.el
 ELS += magit-popup.el
 ELS += magit-utils.el
 ELS += magit-section.el

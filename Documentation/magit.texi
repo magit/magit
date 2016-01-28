@@ -442,10 +442,10 @@ Now see @ref{Post-installation tasks,Post-installation tasks}.
 If you are updating from a release older than @code{2.1.0}, then you have to
 first uninstall the old version.  See @ref{Updating from an older release,Updating from an older release}.
 
-Magit depends on the @code{dash} library which is available from Melpa and
-Melpa-Stable.  Install it using @code{M-x package-install RET dash RET}.  Of
-course you may also install it manually from its development
-repository, but I won't cover that here.
+Magit depends on the @code{dash} and @code{with-editor} library which are available
+from Melpa and Melpa-Stable.  Install them using @code{M-x package-install
+RET <package> RET}.  Of course you may also install them manually from
+their development repository, but I won't cover that here.
 
 (An older release of Magit is also available from Marmalade, but no
 new versions will be uploaded in the future.  Marmalade's maintainer
@@ -466,13 +466,15 @@ Then compile the libraries and generate the info manuals:
 $ make
 @end example
 
-If you haven't installed @code{dash} using Elpa or at @code{/path/to/magit/../dash},
-then you have to tell @code{make} where to find it.  To do so create
-@code{/path/to/magit/config.mk} with the following content before running
-@code{make}:
+If you haven't installed @code{dash} and @code{with-editor} using Elpa or at
+@code{/path/to/magit/../<package>}, then you have to tell @code{make} where to find
+them.  To do so create @code{/path/to/magit/config.mk} with the following
+content before running @code{make}:
 
 @example
-LOAD_PATH = -L /path/to/magit/lisp -L /path/to/dash
+LOAD_PATH  = -L /path/to/magit/lisp
+LOAD_PATH += -L /path/to/dash
+LOAD_PATH += -L /path/to/with-editor
 @end example
 
 Finally add this to your init file:
@@ -487,11 +489,12 @@ Finally add this to your init file:
 	       "~/.emacs.d/site-lisp/magit/Documentation/"))
 @end lisp
 
-Note that you have to add the @code{lisp/} subdirectory to the @code{load-path},
-not the top-level of the repository.
+Note that you have to add the @code{lisp} subdirectory to the @code{load-path}, not
+the top-level of the repository, and that elements of @code{load-path} should
+not end with a slash, while those of @code{Info-directory-list} should.
 
-Instead of requiring the feature @code{magit}, you could only load the
-autoloads, by loading the file @code{magit-autoloads.el}.
+Instead of requiring the feature @code{magit}, you could load just the
+autoload definitions, by loading the file @code{magit-autoloads.el}.
 
 Instead of running Magit directly from the repository by adding that
 to the @code{load-path}, you might want to instead install it in some other

@@ -140,14 +140,13 @@ magit-$(VERSION).tar.gz: lisp info
 
 define set_package_requires
 (require 'dash)
-(dolist (lib (list "with-editor" "git-commit" "magit-popup" "magit"))
+(dolist (lib (list "git-commit" "magit-popup" "magit"))
   (with-current-buffer (find-file-noselect (format "lisp/%s.el" lib))
     (goto-char (point-min))
     (re-search-forward "^;; Package-Requires: ")
     (let ((s (read (buffer-substring (point) (line-end-position)))))
       (--when-let (assq 'async       s) (setcdr it (list async-version)))
       (--when-let (assq 'dash        s) (setcdr it (list dash-version)))
-      (--when-let (assq 'with-editor s) (setcdr it (list with-editor-version)))
       (--when-let (assq 'git-commit  s) (setcdr it (list git-commit-version)))
       (--when-let (assq 'magit-popup s) (setcdr it (list magit-popup-version)))
       (delete-region (point) (line-end-position))
@@ -159,7 +158,7 @@ export set_package_requires
 define set_manual_version
 (let ((version (split-string "$(VERSION)" "\\.")))
   (setq version (concat (car version) "." (cadr version)))
-  (dolist (file (list "with-editor" "magit-popup" "magit"))
+  (dolist (file (list "magit-popup" "magit"))
     (with-current-buffer (find-file-noselect (format "Documentation/%s.org" file))
       (goto-char (point-min))
       (re-search-forward "^#\\+SUBTITLE: for version ")

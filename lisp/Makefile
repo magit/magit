@@ -5,14 +5,13 @@ include ../default.mk
 
 all: lisp
 
-with-editor.elc:
-git-commit.elc:		with-editor.elc
+git-commit.elc:
 magit-utils.elc:
 magit-section.elc:	magit-utils.elc
 magit-git.elc:		magit-utils.elc magit-section.elc
 magit-mode.elc:		magit-section.elc magit-git.elc
 magit-popup.elc:
-magit-process.elc:	with-editor.elc magit-utils.elc magit-section.elc \
+magit-process.elc:	magit-utils.elc magit-section.elc \
 			magit-git.elc magit-mode.elc
 magit-autorevert.elc:	magit-git.elc magit-process.elc
 magit-core.elc:		magit-utils.elc magit-section.elc magit-git.elc \
@@ -21,8 +20,8 @@ magit-diff.elc:		git-commit.elc magit-core.elc
 magit-log.elc:		magit-core.elc magit-diff.elc
 magit-wip.elc:		magit-core.elc magit-log.elc
 magit-apply.elc:	magit-core.elc magit-diff.elc magit-wip.elc
-magit.elc:		with-editor.elc git-commit.elc \
-			magit-core.elc magit-diff.elc magit-apply.elc magit-log.elc
+magit.elc:		git-commit.elc magit-core.elc magit-diff.elc \
+			magit-apply.elc magit-log.elc
 magit-sequence.elc:	magit.elc
 magit-commit.elc:	magit.elc magit-sequence.elc
 magit-remote.elc:	magit.elc
@@ -32,7 +31,7 @@ magit-blame.elc:	magit.elc
 magit-submodule.elc:	magit.elc
 magit-ediff.elc:	magit.elc
 magit-extras.elc:	magit.elc
-git-rebase.elc:		magit.elc with-editor.elc
+git-rebase.elc:		magit.elc
 
 lisp: $(ELCS) magit-version.el magit-autoloads.el
 
