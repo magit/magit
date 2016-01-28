@@ -19,7 +19,7 @@ Updates since v2.4.1
   Users who use Tramp and experience delays, should consider setting
   the option to `magit-auto-revert-repository-buffer-p'.
 
-* By default, invoking `magit-unstage' on a committed change how
+* By default, invoking `magit-unstage' on a committed change now
   performs an action which is somewhat similar to unstaging.  The
   change is reverted in the index, but not the working tree.  This
   allows extracting changes from HEAD.
@@ -39,8 +39,8 @@ Updates since v2.4.1
 * By default `magit-clone' now deletes the symbolic-ref "origin/HEAD"
   right after running `git clone', which insists on creating it.
 
-  The new option `magit-clone-set-remote-head' can be set to `t' to go
-  back to keeping that symbolic-ref.  We default to removing it,
+  The new option `magit-clone-set-remote-head' can be set to `t' to
+  go back to keeping that symbolic-ref.  We default to removing it,
   because it does not actually get automatically updated when the
   HEAD of the remote changes, and that makes it rather pointless.
 
