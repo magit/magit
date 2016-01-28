@@ -49,7 +49,13 @@
 ;;; Options
 
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
-  "Function to be called when requesting input from the user."
+  "Function to be called when requesting input from the user.
+
+For Helm users, the simplest way to get Helm completion is to
+turn on `helm-mode' and leave this option set to the default
+value.  However, if you prefer to not use `helm-mode' but still
+want Magit to use Helm for completion, you can set this option to
+`helm--completing-read-default'."
   :group 'magit
   :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
