@@ -315,6 +315,8 @@ Identical to `process-file' but temporarily enable Cygwin's
                                         "noglob")))
                     '("CYGWIN" "MSYS")))))
 
+(defvar magit-this-process nil)
+
 (defun magit-run-git-with-input (&rest args)
   "Call Git in a separate process.
 ARGS is flattened and then used as arguments to Git.
@@ -340,8 +342,6 @@ flattened before use."
       (apply #'call-process-region (point-min) (point-max)
              magit-git-executable nil nil nil
              (magit-process-git-arguments args)))))
-
-(defvar magit-this-process nil)
 
 (defun magit-run-git-with-logfile (file &rest args)
   "Call Git in a separate process and log its output to FILE.
