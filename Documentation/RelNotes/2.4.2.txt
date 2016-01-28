@@ -4,6 +4,9 @@ Magit v2.4.2 Release Notes (draft)
 Updates since v2.4.1
 --------------------
 
+* Added new library `magit-submodule.el'.  It contains code that was
+  previously spread across various libraries.
+
 * Added new option `auto-revert-buffer-list-filter' and redefined
   `auto-revert-buffers' from `autorevert.el' to use it.  Added new
   predicates `magit-auto-revert-buffer-p' and the more restrictive

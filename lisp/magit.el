@@ -2247,92 +2247,6 @@ the current repository."
     (and (file-directory-p dir)
          (directory-files dir nil "^[^.]"))))
 
-;;;; Submodules
-
-;;;###autoload (autoload 'magit-submodule-popup "magit" nil t)
-(magit-define-popup magit-submodule-popup
-  "Popup console for submodule commands."
-  'magit-commands nil nil
-  :man-page "git-submodule"
-  :actions  '((?a "Add"    magit-submodule-add)
-              (?b "Setup"  magit-submodule-setup)
-              (?i "Init"   magit-submodule-init)
-              (?u "Update" magit-submodule-update)
-              (?s "Sync"   magit-submodule-sync)
-              (?f "Fetch"  magit-submodule-fetch)
-              (?d "Deinit" magit-submodule-deinit)))
-
-;;;###autoload
-(defun magit-submodule-add (url &optional path)
-  "Add the repository at URL as a submodule.
-Optional PATH is the path to the submodule relative to the root
-of the superproject. If it is nil then the path is determined
-based on URL."
-  (interactive
-   (magit-with-toplevel
-     (let ((path (read-file-name
-                  "Add submodule: " nil nil nil
-                  (magit-section-when [file untracked]
-                    (directory-file-name (magit-section-value it))))))
-       (when path
-         (setq path (file-name-as-directory (expand-file-name path)))
-         (when (member path (list "" default-directory))
-           (setq path nil)))
-       (list (magit-read-string-ns
-              "Remote url"
-              (and path (magit-git-repo-p path t)
-                   (let ((default-directory path))
-                     (magit-get "remote" (or (magit-get-remote) "origin")
-                                "url"))))
-             (and path (directory-file-name (file-relative-name path)))))))
-  (magit-run-git "submodule" "add" url path))
-
-;;;###autoload
-(defun magit-submodule-setup ()
-  "Clone and register missing submodules and checkout appropriate commits."
-  (interactive)
-  (magit-submodule-update t))
-
-;;;###autoload
-(defun magit-submodule-init ()
-  "Register submodules listed in \".gitmodules\" into \".git/config\"."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "init")))
-
-;;;###autoload
-(defun magit-submodule-update (&optional init)
-  "Clone missing submodules and checkout appropriate commits.
-With a prefix argument also register submodules in \".git/config\"."
-  (interactive "P")
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "update" (and init "--init"))))
-
-;;;###autoload
-(defun magit-submodule-sync ()
-  "Update each submodule's remote URL according to \".gitmodules\"."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "sync")))
-
-;;;###autoload
-(defun magit-submodule-fetch (&optional all)
-  "Fetch all submodules.
-With a prefix argument fetch all remotes."
-  (interactive "P")
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "foreach"
-                         (format "git fetch %s || true" (if all "--all" "")))))
-
-;;;###autoload
-(defun magit-submodule-deinit (path)
-  "Unregister the submodule at PATH."
-  (interactive
-   (list (magit-completing-read "Deinit module" (magit-get-submodules)
-                                nil t nil nil (magit-section-when module))))
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "deinit" path)))
-
 ;;;; File Mode
 
 (defvar magit-file-mode-map
@@ -3035,6 +2949,7 @@ doesn't find the executable, then consult the info node
   (require 'magit-stash)
   (require 'magit-blame)
   (unless (load "magit-autoloads" t t)
+    (require 'magit-submodule)
     (require 'magit-ediff)
     (require 'magit-extras)
     (require 'git-rebase)))
