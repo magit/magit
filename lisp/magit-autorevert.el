@@ -73,7 +73,7 @@ is enabled."
            (magit-auto-revert-mode -1)
            (magit-auto-revert-mode))))
 
-(defcustom magit-auto-revert-immediately (not file-notify--library)
+(defcustom magit-auto-revert-immediately t
   "Whether Magit reverts buffers immediately.
 
 If this is non-nil and either `global-auto-revert-mode' or
