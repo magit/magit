@@ -1,7 +1,7 @@
 language: generic
 env:
   global:
-    - CURL=curl -fsSkL --retry 9 --retry-delay 9
+    - CURL="curl -fsSkL --retry 9 --retry-delay 9"
   matrix:
     # - EMACS=emacs24 ## This is 24.3 which is too old to run magit
     - EMACS=emacs-snapshot
