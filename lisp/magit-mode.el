@@ -685,7 +685,9 @@ window."
   "Refresh some buffers belonging to the current repository.
 
 Refresh the current buffer if its major mode derives from
-`magit-mode', and refresh the corresponding status buffer."
+`magit-mode', and refresh the corresponding status buffer.
+
+Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (interactive)
   (unless inhibit-magit-refresh
     (magit-run-hook-with-benchmark 'magit-pre-refresh-hook)
@@ -702,14 +704,17 @@ Refresh the current buffer if its major mode derives from
 (defun magit-refresh-all ()
   "Refresh all buffers belonging to the current repository.
 
-Refresh all Magit buffers belonging to the current repository.
+Refresh all Magit buffers belonging to the current repository,
+and revert buffers that visit files located inside the current
+repository.
 
-Also always revert all unmodified buffers that visit files being
-tracked in the current repository."
+Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (interactive)
+  (magit-run-hook-with-benchmark 'magit-pre-refresh-hook)
   (dolist (buffer (magit-mode-get-buffers))
     (with-current-buffer buffer (magit-refresh-buffer)))
-  (magit-auto-revert-buffers))
+  (magit-auto-revert-buffers)
+  (magit-run-hook-with-benchmark 'magit-post-refresh-hook))
 
 (defvar-local magit-refresh-start-time nil)
 

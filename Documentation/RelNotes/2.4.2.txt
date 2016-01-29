@@ -40,6 +40,9 @@ Updates since v2.4.1
   this behavior.  Attempting to unstage a committed change would then
   result in an error again.
 
+* Like `magit-refresh' already did, `magit-refresh-all' now runs the
+  hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'.
+
 * The heading of the section which lists commits that exist in the
   current branch but not in its upstream was changed from "Unpushed
   to <upstream>" to "Unmerged into <upstream>", because one usually
