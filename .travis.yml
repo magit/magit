@@ -1,7 +1,7 @@
 language: generic
 env:
   global:
-    - CURL=curl -fsSkL --retry 9 --retry-delay 9
+    - CURL="curl -fsSkL --retry 9 --retry-delay 9"
   matrix:
     # - EMACS=emacs24 ## This is 24.3 which is too old to run magit
     - EMACS=emacs-snapshot
@@ -26,6 +26,7 @@ install:
         sudo apt-get -qq install emacs-snapshot-el;
     fi
   - $CURL https://raw.githubusercontent.com/magnars/dash.el/master/dash.el -o dash.el
+  - $CURL https://raw.githubusercontent.com/magit/with-editor/master/with-editor.el -o with-editor.el
   - $EMACS --version
 script:
   - git config --global user.name "A U Thor"
