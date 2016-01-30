@@ -46,9 +46,8 @@ help:
 	$(info make genstats         - regenerate statistics)
 	$(info make authors          - regenerate AUTHORS.md)
 	$(info make dist             - create tarballs)
-	$(info make bump-version)
-	$(info make melpa-post-release)
-	$(info -                     - fixup version strings)
+	$(info make VERSION=N.M bump-versions - bump versions for release)
+	$(info make bump-snapshots   - bump versions after release)
 	@printf "\n"
 
 lisp:
@@ -147,6 +146,7 @@ define set_package_requires
     (let ((s (read (buffer-substring (point) (line-end-position)))))
       (--when-let (assq 'async       s) (setcdr it (list async-version)))
       (--when-let (assq 'dash        s) (setcdr it (list dash-version)))
+      (--when-let (assq 'with-editor s) (setcdr it (list with-editor-version)))
       (--when-let (assq 'git-commit  s) (setcdr it (list git-commit-version)))
       (--when-let (assq 'magit-popup s) (setcdr it (list magit-popup-version)))
       (delete-region (point) (line-end-position))
@@ -168,8 +168,8 @@ define set_manual_version
 endef
 export set_manual_version
 
-bump-version: bump-version-1 texi
-bump-version-1:
+bump-versions: bump-versions-1 texi
+bump-versions-1:
 	@$(BATCH) --eval "(progn\
         (setq async-version \"$(ASYNC_VERSION)\")\
         (setq dash-version \"$(DASH_VERSION)\")\
@@ -179,7 +179,7 @@ bump-version-1:
         $$set_package_requires\
         $$set_manual_version)"
 
-melpa-post-release:
+bump-snapshots:
 	@$(BATCH) --eval "(progn\
         (setq async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
         (setq dash-version \"$(DASH_MELPA_SNAPSHOT)\")\

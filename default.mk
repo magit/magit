@@ -79,15 +79,26 @@ ifeq "$(DASH_DIR)" ""
   DASH_DIR = $(TOP)../dash
 endif
 
+WITH_EDITOR_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/with-editor-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(WITH_EDITOR_DIR)" ""
+  WITH_EDITOR_DIR = $(TOP)../with-editor
+endif
+
 SYSTYPE := $(shell $(EMACSBIN) -Q --batch --eval "(princ system-type)")
 ifeq ($(SYSTYPE), windows-nt)
   CYGPATH := $(shell cygpath --version 2>/dev/null)
 endif
 
+LOAD_PATH = -L $(TOP)/lisp
+
 ifdef CYGPATH
-  LOAD_PATH ?= -L $(TOP)/lisp -L $(shell cygpath --mixed $(DASH_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
 else
-  LOAD_PATH ?= -L $(TOP)/lisp -L $(DASH_DIR)
+  LOAD_PATH += -L $(DASH_DIR)
+  LOAD_PATH += -L $(WITH_EDITOR_DIR)
 endif
 
 endif # ifndef LOAD_PATH
