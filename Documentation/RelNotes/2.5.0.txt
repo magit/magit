@@ -1,7 +1,25 @@
-Magit v2.4.2 Release Notes (draft)
-==================================
+It's Magit!  A Git Porcelain inside Emacs
+=========================================
 
-Updates since v2.4.1
+Magit is an interface to the version control system Git, implemented
+as an Emacs package.  Magit aspires to be a complete Git porcelain.
+While we cannot (yet) claim that Magit wraps and improves upon each
+and every Git command, it is complete enough to allow even experienced
+Git users to perform almost all of their daily version control tasks
+directly from within Emacs.  While many fine Git clients exist, only
+Magit and Git itself deserve to be called porcelains.
+
+For more information about Magit, see http://magit.vc.
+
+Magit v2.5.0 Release Notes
+==========================
+
+Released 30 January 2016 by Jonas Bernoulli.
+
+We are pleased to announce the release of Magit version 2.5.0,
+representing 78 commits by 4 contributors over 2 weeks.
+
+Changes since v2.4.0
 --------------------
 
 * The library `with-editor.el' reincarnated as a separate repository.
@@ -61,7 +79,7 @@ Updates since v2.4.1
   The new option `magit-clone-set-remote-head' can be set to `t' to
   go back to keeping that symbolic-ref.  We default to removing it,
   because it does not actually get automatically updated when the
-  HEAD of the remote changes, and that makes it rather pointless.
+  HEAD of the remote changes, which makes it rather pointless.
 
 * Added new option `magit-prefer-remote-upstream' which controls
   whether commands which read the upstream or starting-point from
@@ -75,7 +93,7 @@ Updates since v2.4.1
   and its value are converted to `--VALUE-order' before calling `git'.
   This option was added instead of the switches `--author-date-order',
   `--date-order', and `--topo-order' because adding all three would be
-  to noisy and because they are mutually exclusive.
+  too noisy and because they are mutually exclusive.
 
 Fixes since v2.4.1
 ------------------
@@ -102,7 +120,14 @@ Fixes since v2.4.1
 
 * Pressing RET on a variable in a popup causes an error.
 
-This release also contains typofixes and documentation updates.
+This release also contains the fixes described in the v2.4.1 release
+notes, as well as various typofixes, documentation updates, code
+clean-ups, bug fixes, and other small improvements.
 
 Authors
 -------
+
+    62  Jonas Bernoulli
+     9  Kyle Meyer
+     4  Noam Postavsky
+     3  Alex Dunn
