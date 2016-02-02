@@ -562,7 +562,12 @@ range.  Otherwise, it can be any revision or range accepted by
                               (file-name-as-directory (match-string 1 it)))
                       (lwarn '(magit) :error
                              "Failed to parse Cygwin mount: %S" it))
-                    (ignore-errors (process-lines "mount")))
+                    ;; If --exec-path is not a native Windows path,
+                    ;; then we probably have a cygwin git.
+                    (and (not (string-match-p
+                               "\\`[a-zA-Z]:"
+                               (car (process-lines "git" "--exec-path"))))
+                         (ignore-errors (process-lines "mount"))))
              #'> :key (-lambda ((cyg . _win)) (length cyg))))
   "Alist of (CYGWIN . WIN32) directory names.
 Sorted from longest to shortest CYGWIN name."
