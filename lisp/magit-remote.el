@@ -183,6 +183,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
               (?u magit-get-remote         magit-fetch-from-upstream)
               (?e "elsewhere"              magit-fetch)
               (?a "all remotes"            magit-fetch-all)
+              (?b "specific branch"        magit-fetch-branch)
               "Fetch"
               (?m "submodules"             magit-submodule-fetch))
   :default-action 'magit-fetch
@@ -225,6 +226,15 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (interactive (list (magit-fetch-arguments)))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "remote" "update" args))
+
+;;;###autoload
+(defun magit-fetch-branch (remote branch args)
+  "Fetch from the specific branch."
+  (interactive (list (magit-read-url "Fetch remote or url")
+                     (magit-read-branch-or-commit "Branch" "master")
+                     (magit-fetch-arguments)))
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async "fetch" remote branch args))
 
 ;;;###autoload
 (defun magit-fetch-all-prune ()
