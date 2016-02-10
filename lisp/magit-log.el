@@ -1294,8 +1294,10 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 (defun magit-insert-unpulled-from-pushremote ()
   "Insert commits that haven't been pulled from the push-remote yet."
   (--when-let (magit-get-push-branch)
-    (unless (equal (magit-rev-name it)
-                   (magit-rev-name "@{upstream}"))
+    (unless (and (equal (magit-rev-name it)
+                        (magit-rev-name "@{upstream}"))
+                 (memq 'magit-insert-unpulled-from-upstream
+                       magit-status-sections-hook))
       (magit-insert-section (unpulled (concat ".." it))
         (magit-insert-heading
           (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
@@ -1329,8 +1331,10 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 (defun magit-insert-unpushed-to-pushremote ()
   "Insert commits that haven't been pushed to the push-remote yet."
   (--when-let (magit-get-push-branch)
-    (unless (equal (magit-rev-name it)
-                   (magit-rev-name "@{upstream}"))
+    (unless (and (equal (magit-rev-name it)
+                        (magit-rev-name "@{upstream}"))
+                 (memq 'magit-insert-unpushed-to-upstream
+                       magit-status-sections-hook))
       (magit-insert-section (unpushed (concat it ".."))
         (magit-insert-heading
           (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
