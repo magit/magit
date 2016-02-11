@@ -1226,7 +1226,8 @@ is set in `magit-mode-setup'."
 
 (defconst magit-diff-headline-re
   (concat "^\\(@@@?\\|diff\\|Submodule\\|"
-          "\\* Unmerged path\\|merged\\|changed in both\\)"))
+          "\\* Unmerged path\\|merged\\|changed in both\\|"
+          "added in remote\\|removed in remote\\)"))
 
 (defconst magit-diff-statline-re
   (concat "^ ?"
@@ -1323,21 +1324,27 @@ section or a child thereof."
                    'face 'magit-diff-file-heading))
           (insert ?\n))))
     t)
-   ((looking-at "^\\(merged\\|changed in both\\)")
-    (let ((status (if (equal (match-string 1) "merged") 'merged 'conflict))
-          file orig modes)
+   ((looking-at (concat "^\\(merged\\|changed in both\\|"
+                        "added in remote\\|removed in remote\\)"))
+    (let ((status (pcase (match-string 1)
+                    ("merged" "merged")
+                    ("changed in both" "conflict")
+                    ("added in remote" "new file")
+                    ("removed in remote" "deleted")))
+          file orig base modes)
       (magit-delete-line)
       (while (looking-at
               "^  \\([^ ]+\\) +[0-9]\\{6\\} \\([a-z0-9]\\{40\\}\\) \\(.+\\)$")
         (magit-bind-match-strings (side _blob name) nil
           (pcase side
             ("result" (setq file name))
-            ("our"    (setq orig name))
-            ("their"  (setq file name))))
+            ("our" (setq orig name))
+            ("their" (setq file name))
+            ("base" (setq base name))))
         (magit-delete-line))
-      (setq orig (magit-decode-git-path orig))
-      (setq file (magit-decode-git-path file))
-      (magit-diff-insert-file-section file orig status modes nil)))
+      (when orig (setq orig (magit-decode-git-path orig)))
+      (when file (setq file (magit-decode-git-path file)))
+      (magit-diff-insert-file-section (or file base) orig status modes nil)))
    ((looking-at
      "^diff --\\(?:\\(git\\) \\(?:\\(.+?\\) \\2\\)?\\|\\(cc\\|combined\\) \\(.+\\)\\)")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
