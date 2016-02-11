@@ -3984,7 +3984,7 @@ Also see [[info:gitman#git-fetch]].
 
 - Key: f u, magit-fetch-from-upstream
 
-  Fetch from the push-remote of the current branch.
+  Fetch from the upstream of the current branch.
 
 - Key: f e, magit-fetch
 

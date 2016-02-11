@@ -5545,7 +5545,7 @@ Fetch from the push-remote of the current branch.
 @cindex magit-fetch-from-upstream
 @item @kbd{f u} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-from-upstream})
 
-Fetch from the push-remote of the current branch.
+Fetch from the upstream of the current branch.
 
 @kindex f e
 @cindex magit-fetch
