@@ -66,13 +66,13 @@ Then show the status buffer for the new repository."
                            ;; Stop cygwin git making a "c:" directory.
                            (magit-convert-git-filename directory))
            0)
-    (when (or (eq  magit-clone-set-remote.pushDefault t)
-              (and magit-clone-set-remote.pushDefault
-                   (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
-      (let ((default-directory directory))
-        (magit-call-git "config" "remote.pushDefault" "origin")))
-    (unless magit-clone-set-remote-head
-      (magit-remote-unset-head "origin"))
+    (let ((default-directory directory))
+      (when (or (eq  magit-clone-set-remote.pushDefault t)
+                (and magit-clone-set-remote.pushDefault
+                     (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
+        (magit-call-git "config" "remote.pushDefault" "origin"))
+      (unless magit-clone-set-remote-head
+        (magit-remote-unset-head "origin")))
     (message "Cloning %s...done" repository)
     (magit-status-internal directory)))
 
