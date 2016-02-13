@@ -1,0 +1,11 @@
+Magit v2.5.1 Release Notes (draft)
+==================================
+
+Updates since v2.5.0
+--------------------
+
+Fixes since v2.5.0
+------------------
+
+Authors
+-------
