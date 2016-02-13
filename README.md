@@ -47,6 +47,12 @@
     Please consider supporting development by making a
     <a href="http://magit.vc/donations.html">donation</a>.
   </b>
+  </br></br>
+  <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TGDUK5VGB78XA">
+    <img alt="Donate" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">
+  </a>
+  </br>
+  <a class="small" href="http://magit.vc/donations.html">(other donation methods)</a>
 </p>
 ***
 
