@@ -7,5 +7,16 @@ Updates since v2.5.0
 Fixes since v2.5.0
 ------------------
 
+* `magit-insert-unpulled-from-pushremote' and
+  `magit-insert-unpushed-to-pushremote' missed an edge case when
+  checking whether their section should be inserted into the status
+  buffer.
+
+* `magit-clone' did not switch to the cloned repo before trying to
+  delete the symbolic-ref "origin/HEAD".
+
+* `magit-merge-preview' did not recognize sections for added or
+  deleted files.
+
 Authors
 -------
