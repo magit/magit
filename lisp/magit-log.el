@@ -41,6 +41,7 @@
 (declare-function magit-show-commit 'magit)
 (defvar magit-refs-indent-cherry-lines)
 (defvar magit-refs-show-commit-count)
+(defvar magit-status-sections-hook)
 
 (require 'ansi-color)
 (require 'crm)
@@ -1296,8 +1297,10 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
   (--when-let (magit-get-push-branch)
     (unless (and (equal (magit-rev-name it)
                         (magit-rev-name "@{upstream}"))
-                 (memq 'magit-insert-unpulled-from-upstream
-                       magit-status-sections-hook))
+                 (or (memq 'magit-insert-unpulled-from-upstream
+                           magit-status-sections-hook)
+                     (memq 'magit-insert-unpulled-from-upstream-or-recent
+                           magit-status-sections-hook)))
       (magit-insert-section (unpulled (concat ".." it))
         (magit-insert-heading
           (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
