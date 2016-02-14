@@ -4,6 +4,10 @@ Magit v2.5.1 Release Notes (draft)
 Updates since v2.5.0
 --------------------
 
+* When washing the diff that is to be displayed while writing a
+  commit message takes to long, then it is now possible to abort that
+  by pressing `C-g'.  Previously that would have aborted the commit.
+
 Fixes since v2.5.0
 ------------------
 
