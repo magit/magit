@@ -902,7 +902,7 @@ If no such tag can be found or if the distance is 0 (in which
 case it is the current tag, not the next) return nil instead.
 If optional WITH-DISTANCE is non-nil then return (TAG COMMITS)
 where COMMITS is the number of commits in TAG but not in REV."
-  (--when-let (magit-git-string "describe" "--contains" (or rev "HEAD"))
+  (--when-let (magit-git-str "describe" "--contains" (or rev "HEAD"))
     (save-match-data
       (when (string-match "^[^^~]+" it)
         (setq it (match-string 0 it))
