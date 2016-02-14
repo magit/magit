@@ -18,5 +18,12 @@ Fixes since v2.5.0
 * `magit-merge-preview' did not recognize sections for added or
   deleted files.
 
+* `magit-run-git-with-input' had stopped calling
+  `magit-pre-call-git-hook' and logging its git command to the
+  magit-process buffer.
+
+* On `windows-nt' systems, having `mount' in `exec-path' caused Magit
+  to assume that git is from Cygwin.
+
 Authors
 -------
