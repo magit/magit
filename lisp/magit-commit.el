@@ -166,7 +166,7 @@ to inverse the meaning of the prefix argument.  \n(git commit
   (when (setq args (magit-commit-assert args (not override-date)))
     (let ((process-environment process-environment))
       (unless override-date
-        (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cD")))
+        (push (magit-rev-format "GIT_COMMITTER_DATE=%cD") process-environment))
       (magit-run-git-with-editor "commit" "--amend" "--no-edit" args))))
 
 ;;;###autoload
@@ -186,7 +186,7 @@ and ignore the option.
                        magit-commit-reword-override-date)))
   (let ((process-environment process-environment))
     (unless override-date
-      (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cD")))
+      (push (magit-rev-format "GIT_COMMITTER_DATE=%cD") process-environment))
     (magit-run-git-with-editor "commit" "--amend" "--only" args)))
 
 ;;;###autoload

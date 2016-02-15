@@ -400,7 +400,7 @@ START has to be selected from a list of recent commits."
   (if commit
       (let ((process-environment process-environment))
         (when editor
-          (setenv "GIT_SEQUENCE_EDITOR" editor))
+          (push (concat "GIT_SEQUENCE_EDITOR=" editor) process-environment))
         (magit-run-git-sequencer "rebase" "-i" args
                                  (unless (member "--root" args) commit)))
     (magit-log-select
