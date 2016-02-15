@@ -1139,11 +1139,12 @@ Return a list of two integers: (A>B B>A)."
                         (error "Cannot read tree %s" it)))
                   (if (file-remote-p default-directory)
                       (let ((magit-tramp-process-environment
-                             (setenv-internal magit-tramp-process-environment
-                                              "GIT_INDEX_FILE" ,file t)))
+                             (cons (concat "GIT_INDEX_FILE=" ,file)
+                                   magit-tramp-process-environment)))
                         ,@body)
-                    (let ((process-environment process-environment))
-                      (setenv "GIT_INDEX_FILE" ,file)
+                    (let ((process-environment
+                           (cons (concat "GIT_INDEX_FILE=" ,file)
+                                 process-environment)))
                       ,@body)))
          (ignore-errors
            (delete-file (concat (file-remote-p default-directory) ,file)))))))
