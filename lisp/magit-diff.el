@@ -761,6 +761,20 @@ be committed."
                               (expand-file-name b))))
 
 ;;;###autoload
+(defun magit-diff-buffer-file (rev-or-range)
+  "Show changes between commits for current file
+
+REV-OR-RANGE should be a range or a single revision.  If it is a
+revision, then show changes in the working tree relative to that
+revision.  If it is a range, but one side is omitted, then show
+changes relative to `HEAD'."
+  (interactive
+   (list (magit-diff-read-range-or-commit "File diff for range" nil current-prefix-arg)))
+  (-if-let (file (magit-file-relative-name))
+      (magit-diff-setup rev-or-range nil magit-diff-arguments (list file))
+    (user-error "Buffer isn't visiting a file")))
+
+;;;###autoload
 (defun magit-show-commit (rev &optional args files module)
   "Show the revision at point.
 If there is no revision at point or with a prefix argument prompt
