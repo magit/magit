@@ -796,7 +796,7 @@ as argument."
                                 (match-string 1))))))
                    "Git failed")))
       (if magit-process-raise-error
-          (signal 'magit-git-error msg)
+          (signal 'magit-git-error (format "%s (in %s)" msg default-dir))
         (--when-let (magit-mode-get-buffer 'magit-status-mode)
           (setq magit-this-error msg))
         (message "%s ... [%s buffer %s for details]" msg
