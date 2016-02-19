@@ -116,7 +116,7 @@ an error while using those is harder to recover from."
                (?a "Amend"          magit-commit-amend)
                (?A "Augment"        magit-commit-augment))
     :max-action-columns 4
-    :default-action 'magit-commit))
+    :default-action magit-commit))
 
 (magit-define-popup-keys-deferred 'magit-commit-popup)
 
