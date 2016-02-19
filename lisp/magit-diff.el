@@ -678,7 +678,7 @@ a \"revA...revB\" range.  Otherwise, always construct
 (defun magit-diff (rev-or-range &optional args files)
   "Show differences between two commits.
 
-REV-OR-RANGE should be a RANGE or a single revision.  If it is a
+REV-OR-RANGE should be a range or a single revision.  If it is a
 revision, then show changes in the working tree relative to that
 revision.  If it is a range, but one side is omitted, then show
 changes relative to `HEAD'.
