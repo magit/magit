@@ -2264,6 +2264,7 @@ the current repository."
   "Popup console for Magit commands in file-visiting buffers."
   :actions '((?s "Stage"   magit-stage-file)
              (?l "Log"     magit-log-buffer-file)
+             (?d "Diff"    magit-diff-buffer-file)
              (?c "Commit"  magit-commit-popup)
              (?u "Unstage" magit-unstage-file)
              (?b "Blame"   magit-blame-popup) nil nil
