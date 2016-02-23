@@ -123,21 +123,47 @@ seconds of user inactivity.  That is not desirable."
   ;; buffers are not automatically reverted that would make many very
   ;; common tasks much more cumbersome.
   :init-value (and (not global-auto-revert-mode) magit-revert-buffers))
-
-;; `:init-value t' only sets the value of the mode variable
-;; but does not cause the mode function to be called.
-(cl-eval-when (load eval)
-  (when magit-auto-revert-mode
-    (magit-auto-revert-mode)))
-
-;; If the user has set the obsolete `magit-revert-buffers' to nil
-;; after loading magit, then we should still respect that setting.
-(defun magit-auto-revert-mode--maybe-turn-off-after-init ()
-  (unless magit-revert-buffers
+;; - Unfortunately `:init-value t' only sets the value of the mode
+;;   variable but does not cause the mode function to be called.
+;; - I don't think it works like this on purpose, but since one usually
+;;   should not enable global modes by default, it is understandable.
+;; - If the user has set the variable `magit-auto-revert-mode' to nil
+;;   after loading magit (instead of doing so before loading magit or
+;;   by using the function), then we should still respect that setting.
+;; - If the user has set the obsolete variable `magit-revert-buffers'
+;;   to nil before or after loading magit, then we should still respect
+;;   that setting.
+;; - If the user sets one of these variables after loading magit and
+;;   after `after-init-hook' has run, then that won't have an effect
+;;   and there is nothing we can do about it.
+(defun magit-auto-revert-mode--init-kludge ()
+  "This is an internal kludge to be used on `after-init-hook'.
+Do not use this function elsewhere, and don't remove it from
+the `after-init-hook'.  For more information see the comments
+and code surrounding the definition of this function."
+  ;; `magit-revert-buffers' may have been set to nil before the alias
+  ;; had been established, so consult the value of both variables.
+  (if (and magit-auto-revert-mode magit-revert-buffers)
+      (let ((start (current-time)))
+        (message "Turning on magit-auto-revert-mode...")
+        (magit-auto-revert-mode 1)
+        (message
+         "Turning on magit-auto-revert-mode...done%s"
+         (let ((elapsed (float-time (time-subtract (current-time) start))))
+           (if (> elapsed 0.2)
+               (format " (%.3fs, %s buffers checked)" elapsed
+                       (length (buffer-list)))
+             ""))))
     (magit-auto-revert-mode -1)))
-(unless after-init-time
-  (add-hook 'after-init-hook
-            #'magit-auto-revert-mode--maybe-turn-off-after-init t))
+(cl-eval-when (load eval)
+  ;; Don't do this when compiling.
+  (if after-init-time
+      ;; Since `after-init-hook' has already been
+      ;; run, turn the mode on or off right now.
+      (magit-auto-revert-mode--init-kludge)
+    ;; By the time the init file has been fully loaded the
+    ;; values of the relevant variables might have changed.
+    (add-hook 'after-init-hook #'magit-auto-revert-mode--init-kludge t)))
 
 (put 'magit-auto-revert-mode 'function-documentation
      "Toggle Magit Auto Revert mode.

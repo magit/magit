@@ -15,6 +15,11 @@ Updates since v2.5.0
 Fixes since v2.5.0
 ------------------
 
+* If the user sets the variable `magit-auto-revert-mode' or the
+  obsolete alias `magit-revert-buffers' to nil anytime during startup,
+  before or after `magit-autorevert' is loaded, then the mode is not
+  turned on (actually it is explicitly turned off).
+
 * `magit-insert-unpulled-from-pushremote' and
   `magit-insert-unpushed-to-pushremote' missed an edge case when
   checking whether their section should be inserted into the status
