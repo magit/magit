@@ -155,15 +155,13 @@ and code surrounding the definition of this function."
                        (length (buffer-list)))
              ""))))
     (magit-auto-revert-mode -1)))
-(cl-eval-when (load eval)
-  ;; Don't do this when compiling.
-  (if after-init-time
-      ;; Since `after-init-hook' has already been
-      ;; run, turn the mode on or off right now.
-      (magit-auto-revert-mode--init-kludge)
-    ;; By the time the init file has been fully loaded the
-    ;; values of the relevant variables might have changed.
-    (add-hook 'after-init-hook #'magit-auto-revert-mode--init-kludge t)))
+(if after-init-time
+    ;; Since `after-init-hook' has already been
+    ;; run, turn the mode on or off right now.
+    (magit-auto-revert-mode--init-kludge)
+  ;; By the time the init file has been fully loaded the
+  ;; values of the relevant variables might have changed.
+  (add-hook 'after-init-hook #'magit-auto-revert-mode--init-kludge t))
 
 (put 'magit-auto-revert-mode 'function-documentation
      "Toggle Magit Auto Revert mode.
