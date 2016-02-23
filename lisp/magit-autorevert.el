@@ -122,7 +122,9 @@ seconds of user inactivity.  That is not desirable."
   ;; was still in use.  In all other cases enable the mode because if
   ;; buffers are not automatically reverted that would make many very
   ;; common tasks much more cumbersome.
-  :init-value (and (not global-auto-revert-mode) magit-revert-buffers))
+  :init-value (and magit-revert-buffers
+                   (not global-auto-revert-mode)
+                   (not noninteractive)))
 ;; - Unfortunately `:init-value t' only sets the value of the mode
 ;;   variable but does not cause the mode function to be called.
 ;; - I don't think it works like this on purpose, but since one usually
