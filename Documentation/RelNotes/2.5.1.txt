@@ -4,6 +4,10 @@ Magit v2.5.1 Release Notes (draft)
 Updates since v2.5.0
 --------------------
 
+* Added new command `magit-push-refspecs', which allows pushing using
+  one or more comma-separated and refspecs, which are explicitly typed
+  in the minibuffer.
+
 * When washing the diff that is to be displayed while writing a
   commit message takes too long, then it is now possible to abort that
   by pressing `C-g'.  Previously that would have aborted the commit.

@@ -404,8 +404,9 @@ removed after restarting Emacs."
              "Push"
              (?o "another branch"    magit-push)
              (?T "a tag"             magit-push-tag)
-             (?m "matching branches" magit-push-matching)
-             (?t "all tags"          magit-push-tags))
+             (?r "explicit refspecs" magit-push-refspecs)
+             (?t "all tags"          magit-push-tags)
+             (?m "matching branches" magit-push-matching))
   :max-action-columns 2)
 
 (defun magit-git-push (branch target args)
@@ -512,6 +513,22 @@ Both the source and the target are read in the minibuffer."
                                      source 'confirm)
            (magit-push-arguments))))
   (magit-git-push source target args))
+
+;;;###autoload
+(defun magit-push-refspecs (remote refspecs args)
+  "Push one or multiple REFSPECS to a REMOTE.
+Both the REMOTE and the REFSPECS are read in the minibuffer.  To
+use multiple REFSPECS, separate them with commas.  Completion is
+only available for the part before the colon, or when no colon
+is used."
+  (interactive
+   (list (magit-read-remote "Push to remote")
+         (completing-read-multiple
+          "Push refspec,s: "
+          (cons "HEAD" (magit-list-local-branch-names)))
+         (magit-push-arguments)))
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async "push" "-v" args remote refspecs))
 
 ;;;###autoload
 (defun magit-push-matching (remote &optional args)
