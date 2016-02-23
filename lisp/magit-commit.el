@@ -311,6 +311,8 @@ depending on the value of option `magit-commit-squash-confirm'."
           (funcall it (car (magit-diff-arguments))))
       (quit))))
 
+;; Mention `magit-diff-while-committing' because that's
+;; always what I search for when I try to find this line.
 (add-hook 'server-switch-hook 'magit-commit-diff)
 
 (add-to-list 'with-editor-server-window-alist

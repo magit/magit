@@ -4830,6 +4830,13 @@ features by setting all or some of the following variables to ~nil~:
 ~magit-diff-paint-whitespace~, ~magit-diff-highlight-hunk-body~, and
 ~magit-diff-refine-hunk~.
 
+When showing a commit instead of some arbitrary diff, then some
+additional information is displayed.  Calculating this information
+can be quite expensive given certain circumstances.  If looking at
+a commit using ~magit-revision-mode~ takes considerably more time than
+looking at the same commit in ~magit-diff-mode~, then consider setting
+~magit-revision-insert-related-refs~ to ~nil~.
+
 **** Refs Buffer Performance
 :PROPERTIES:
 :NONODE:     t
@@ -4849,6 +4856,27 @@ then start by not displaying them:
 Then you should also make sure that the listed remote branches
 actually all exist.  You can do so by pruning branches which no longer
 exist using ~f-pa~.
+
+**** Committing Performance
+
+When you initiate a commit, then Magit by default automatically shows
+a diff of the changes you are about to commit.  For large commits this
+can take a long time, which is especially distracting when you are
+committing large amounts of generated data which you don't actually
+intend to inspect before committing.  This behavior can be turned off
+using:
+
+#+BEGIN_SRC emacs-lisp
+  (remove-hook 'server-switch-hook 'magit-commit-diff)
+#+END_SRC
+
+Then you can type ~C-c C-d~ to show the diff when you actually want to
+see it, but only then.  Alternatively you can leave the hook alone and
+just type ~C-g~ in those cases when it takes to long to generate the
+diff.  If you do that, then you will end up with a broken diff buffer,
+but doing it this way has the advantage that you usually get to see
+the diff, which is useful because it increases the odds that you spot
+potential issues.
 
 * Plumbing
 
