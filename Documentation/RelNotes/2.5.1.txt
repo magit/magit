@@ -7,6 +7,10 @@ Updates since v2.5.0
 * Added a cache, which memorizes the values of some function calls for
   the duration of a refresh.  This cuts the calls to git in half.
 
+* Added new command `magit-diff-buffer-file-popup' intended for use in
+  file-visiting buffers.  It shows the same popup as `magit-diff-popup'
+  but starts out already limited to the visited file.
+
 * Added new command `magit-push-refspecs', which allows pushing using
   one or more comma-separated and refspecs, which are explicitly typed
   in the minibuffer.

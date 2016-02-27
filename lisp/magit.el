@@ -2262,12 +2262,13 @@ the current repository."
 
 (magit-define-popup magit-file-popup
   "Popup console for Magit commands in file-visiting buffers."
-  :actions '((?s "Stage"   magit-stage-file)
-             (?l "Log"     magit-log-buffer-file)
-             (?c "Commit"  magit-commit-popup)
-             (?u "Unstage" magit-unstage-file)
-             (?b "Blame"   magit-blame-popup) nil nil
-             (?p "Find blob" magit-blob-previous))
+  :actions '((?s "Stage"     magit-stage-file)
+             (?d "Diff"      magit-diff-buffer-file-popup)
+             (?b "Blame"     magit-blame-popup)
+             (?u "Unstage"   magit-unstage-file)
+             (?l "Log"       magit-log-buffer-file)
+             (?p "Find blob" magit-blob-previous)
+             (?c "Commit"    magit-commit-popup))
   :max-action-columns 3)
 
 (defvar magit-file-mode-lighter "")
