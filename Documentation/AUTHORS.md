@@ -77,10 +77,12 @@ Contributors
 - Craig Andera <candera@wangdera.com>
 - Dale Hagglund <dale.hagglund@gmail.com>
 - Damien Cassou <damien@cassou.me>
+- Dan Erikson <derikson3@gmail.com>
 - Daniel Brockman <daniel@gointeractive.se>
 - Daniel Farina <drfarina@acm.org>
 - Daniel Hackney <dan@haxney.org>
 - Dan LaManna <dan.lamanna@gmail.com>
+- Dato Simó <dato@net.com.org.es>
 - David Abrahams <dave@boostpro.com>
 - David Hull <david.hull@openx.com>
 - David L. Rager <ragerdl@gmail.com>
