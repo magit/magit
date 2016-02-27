@@ -35,7 +35,6 @@
 (require 'magit-wip)
 
 ;; For `magit-apply'
-(declare-function magit-anti-stage 'magit-rockstar)
 (declare-function magit-am-popup 'magit-sequence)
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage 'magit)
