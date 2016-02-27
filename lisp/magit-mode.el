@@ -690,16 +690,26 @@ Refresh the current buffer if its major mode derives from
 Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (interactive)
   (unless inhibit-magit-refresh
-    (magit-run-hook-with-benchmark 'magit-pre-refresh-hook)
-    (when (derived-mode-p 'magit-mode)
-      (magit-refresh-buffer))
-    (--when-let (and magit-refresh-status-buffer
-                     (not (derived-mode-p 'magit-status-mode))
-                     (magit-mode-get-buffer 'magit-status-mode))
-      (with-current-buffer it
-        (magit-refresh-buffer)))
-    (magit-auto-revert-buffers)
-    (magit-run-hook-with-benchmark 'magit-post-refresh-hook)))
+    (let ((start (current-time))
+          (magit--refresh-cache (list (cons 0 0))))
+      (when magit-refresh-verbose
+        (message "Refreshing magit..."))
+      (magit-run-hook-with-benchmark 'magit-pre-refresh-hook)
+      (when (derived-mode-p 'magit-mode)
+        (magit-refresh-buffer))
+      (--when-let (and magit-refresh-status-buffer
+                       (not (derived-mode-p 'magit-status-mode))
+                       (magit-mode-get-buffer 'magit-status-mode))
+        (with-current-buffer it
+          (magit-refresh-buffer)))
+      (magit-auto-revert-buffers)
+      (magit-run-hook-with-benchmark 'magit-post-refresh-hook)
+      (when magit-refresh-verbose
+        (message "Refreshing magit...done (%.3fs, cached %s/%s)"
+                 (float-time (time-subtract (current-time) start))
+                 (caar magit--refresh-cache)
+                 (+ (caar magit--refresh-cache)
+                    (cdar magit--refresh-cache)))))))
 
 (defun magit-refresh-all ()
   "Refresh all buffers belonging to the current repository.
@@ -722,7 +732,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   "Refresh the current Magit buffer."
   (setq magit-refresh-start-time (current-time))
   (let ((refresh (intern (format "%s-refresh-buffer"
-                                 (substring (symbol-name major-mode) 0 -5)))))
+                                 (substring (symbol-name major-mode) 0 -5))))
+        (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0)))))
     (when (functionp refresh)
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'..." (buffer-name)))
