@@ -1508,9 +1508,15 @@ Staging and applying changes is documented in info node
   :group 'magit-revision
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-revision-refresh-buffer (rev __const _args _files)
+(defun magit-revision-refresh-buffer (rev __const _args files)
   (setq header-line-format
-        (propertize (format " %s %s" (capitalize (magit-object-type rev)) rev)
+        (propertize (concat " " (capitalize (magit-object-type rev))
+                            " " rev
+                            (pcase (length files)
+                              (0)
+                              (1 (concat " in file " (car files)))
+                              (_ (concat " in files "
+                                         (mapconcat #'identity files ", ")))))
                     'face 'magit-header-line))
   (magit-insert-section (commitbuf)
     (run-hook-with-args 'magit-revision-sections-hook rev)))

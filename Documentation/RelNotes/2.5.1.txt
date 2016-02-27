@@ -42,6 +42,9 @@ Fixes since v2.5.0
   `magit-pre-call-git-hook' and logging its git command to the
   magit-process buffer.
 
+* When a revision buffer was limited to a set of files, its header
+  line did not say so.
+
 * On `windows-nt' systems, having `mount' in `exec-path' caused Magit
   to assume that git is from Cygwin.
 
