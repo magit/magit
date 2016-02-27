@@ -19,6 +19,11 @@ Updates since v2.5.0
   commit message takes too long, then it is now possible to abort that
   by pressing `C-g'.  Previously that would have aborted the commit.
 
+* When `magit-process-raise-error' is non-nil, then the displayed
+  error message now also mentions the `default-directory', which is
+  useful when using Magit as a library in another packages that runs
+  git in many different repositories.
+
 Fixes since v2.5.0
 ------------------
 
@@ -47,6 +52,10 @@ Fixes since v2.5.0
 
 * On `windows-nt' systems, having `mount' in `exec-path' caused Magit
   to assume that git is from Cygwin.
+
+* Invoking `magit-commit-popup's default action failed due to a typo.
+
+This release also contains documentation updates.
 
 Authors
 -------
