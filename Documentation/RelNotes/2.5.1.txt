@@ -15,6 +15,9 @@ Updates since v2.5.0
   one or more comma-separated and refspecs, which are explicitly typed
   in the minibuffer.
 
+* Added new command `magit-reset-popup' featuring all the available
+  reset variants.
+
 * When washing the diff that is to be displayed while writing a
   commit message takes too long, then it is now possible to abort that
   by pressing `C-g'.  Previously that would have aborted the commit.

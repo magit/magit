@@ -349,6 +349,7 @@ starts complicating other things, then it will be removed."
     (define-key map "w" 'magit-am-popup)
     (define-key map "W" 'magit-patch-popup)
     (define-key map "x" 'magit-reset)
+    (define-key map "X" 'magit-reset-popup)
     (define-key map "y" 'magit-show-refs-popup)
     (define-key map "Y" 'magit-cherry)
     (define-key map "z" 'magit-stash-popup)

@@ -1901,6 +1901,17 @@ If no merge is in progress, do nothing."
 
 ;;;; Reset
 
+;;;###autoload (autoload 'magit-reset-popup "magit" nil t)
+(magit-define-popup magit-reset-popup
+  "Popup console for reset commands."
+  'magit-commands
+  :man-page "git-reset"
+  :actions '((?m "reset mixed  (HEAD and index)"         magit-reset-head)
+             (?s "reset soft   (HEAD only)"              magit-reset-soft)
+             (?h "reset hard   (HEAD, index, and files)" magit-reset-hard)
+             (?i "reset index  (index only)"             magit-reset-index))
+  :max-action-columns 1)
+
 ;;;###autoload
 (defun magit-reset-index (commit)
   "Reset the index to COMMIT.
@@ -2397,6 +2408,7 @@ Currently this only adds the following key bindings.
              (?V "Reverting"       magit-revert-popup)
              (?w "Apply patches"   magit-am-popup)
              (?W "Format patches"  magit-patch-popup)
+             (?X "Resetting"       magit-reset-popup)
              (?y "Show Refs"       magit-show-refs-popup)
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)
