@@ -1007,14 +1007,14 @@ where COMMITS is the number of commits in TAG but not in REV."
   (--map (substring it 6) (magit-list-refnames "refs/notes")))
 
 (defun magit-remote-list-tags (remote)
-  (--map (substring it 51)
-         (--filter (not (string-match-p "\\^{}$" it))
-                   (magit-git-lines "ls-remote" "--tags" remote))))
+  (--keep (and (not (string-match-p "\\^{}$" it))
+               (substring it 51))
+          (magit-git-lines "ls-remote" "--tags" remote)))
 
 (defun magit-remote-list-branches (remote)
-  (--map (substring it 52)
-         (--filter (not (string-match-p "\\^{}$" it))
-                   (magit-git-lines "ls-remote" "--heads" remote))))
+  (--keep (and (not (string-match-p "\\^{}$" it))
+               (substring it 52))
+          (magit-git-lines "ls-remote" "--heads" remote)))
 
 (defun magit-get-submodules ()
   (--mapcat (and (string-match "^160000 [0-9a-z]\\{40\\} 0\t\\(.+\\)$" it)
