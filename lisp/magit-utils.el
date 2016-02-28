@@ -231,17 +231,35 @@ results in additional differences."
                    choices predicate require-match
                    initial-input hist def))
 
+(defvar magit-ido-use-fallback nil)
+
+(defvar magit-ido-completion-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-x\C-b" 'magit-ido-fallback)
+    (define-key map "\C-x\C-f" 'magit-ido-fallback)
+    map)
+  "Keymap used by `magit-ido-completing-read'.
+`ido-common-completion-map' is used as parent.")
+
 (defun magit-ido-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
-  "Ido-based `completing-read' almost-replacement.
+  "Magit wrapper for `ido-completing-read+' function.
 
 Unfortunately `ido-completing-read' is not suitable as a
-drop-in replacement for `completing-read', instead we use
+drop-in replacement for `completing-read', instead we wrap
 `ido-completing-read+' from the third-party package by the
 same name."
   (if (require 'ido-completing-read+ nil t)
-      (ido-completing-read+ prompt choices predicate require-match
-                            initial-input hist def)
+      (if magit-ido-use-fallback
+          (progn (setq magit-ido-use-fallback nil)
+                 (magit-builtin-completing-read
+                  prompt choices predicate require-match
+                  initial-input hist def))
+        (let ((ido-common-completion-map
+               (make-composed-keymap magit-ido-completion-map
+                                     ido-common-completion-map)))
+          (ido-completing-read+ prompt choices predicate require-match
+                                initial-input hist def)))
     (display-warning 'magit "ido-completing-read+ is not installed
 
 To use Ido completion with Magit you need to install the
@@ -249,6 +267,14 @@ third-party `ido-completing-read+' packages.  Falling
 back to built-in `completing-read' for now." :error)
     (magit-builtin-completing-read prompt choices predicate require-match
                                    initial-input hist def)))
+
+(defun magit-ido-fallback ()
+  "Fallback to regular `completing-read' for this invocation."
+  (interactive)
+  (with-no-warnings
+    ;; There is no public interface to do this.
+    (setq fallback this-command))
+  (ido-fallback-command))
 
 (defun magit-prompt-with-default (prompt def)
   (if (and def (> (length prompt) 2)

@@ -718,8 +718,10 @@ like pretty much every other keymap:
   (define-key ido-common-completion-map
     (kbd \"C-x g\") 'ido-enter-magit-status)"
   (interactive)
-  (with-no-warnings ; FIXME these are internal variables
-    (setq ido-exit 'fallback fallback 'magit-status))
+  (with-no-warnings
+    ;; There is no public interface to do this.
+    (setq ido-exit 'fallback)
+    (setq fallback 'magit-status))
   (exit-minibuffer))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)

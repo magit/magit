@@ -20,6 +20,9 @@ Updates since v2.5.0
 * Added new command `magit-reset-popup' featuring all the available
   reset variants.
 
+* When using Ido completion, then it's now possible to fall back to
+  regular completion using `C-x C-f' or `C-x C-b' if necessary.
+
 * When washing the diff that is to be displayed while writing a
   commit message takes too long, then it is now possible to abort that
   by pressing `C-g'.  Previously that would have aborted the commit.
