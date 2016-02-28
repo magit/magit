@@ -629,7 +629,7 @@ Sorted from longest to shortest CYGWIN name."
   (or (magit-file-relative-name)
       (magit-file-at-point)
       (and (derived-mode-p 'magit-log-mode)
-           (nth 3 magit-refresh-args))))
+           (car (nth 2 magit-refresh-args)))))
 
 ;;; Predicates
 
