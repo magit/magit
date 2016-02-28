@@ -1917,7 +1917,7 @@ If no merge is in progress, do nothing."
   "Reset the index to COMMIT.
 Keep the head and working tree as-is, so if COMMIT refers to the
 head this effectively unstages all changes.
-\n(git reset COMMIT)"
+\n(git reset COMMIT .)"
   (interactive (list (magit-read-branch-or-commit "Reset index to")))
   (magit-reset-internal nil commit "."))
 
