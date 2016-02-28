@@ -15,6 +15,8 @@ Updates since v2.5.0
   one or more comma-separated and refspecs, which are explicitly typed
   in the minibuffer.
 
+* Added new commands `magit-fetch-refspec' and `magit-fetch-branch'.
+
 * Added new command `magit-reset-popup' featuring all the available
   reset variants.
 

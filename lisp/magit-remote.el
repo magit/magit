@@ -184,6 +184,8 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
               (?e "elsewhere"              magit-fetch)
               (?a "all remotes"            magit-fetch-all)
               "Fetch"
+              (?o "another branch"         magit-fetch-branch)
+              (?r "explicit refspec"       magit-fetch-refspec)
               (?m "submodules"             magit-submodule-fetch))
   :default-action 'magit-fetch
   :max-action-columns 1)
@@ -218,6 +220,26 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (interactive (list (magit-read-remote "Fetch remote")
                      (magit-fetch-arguments)))
   (magit-git-fetch remote args))
+
+;;;###autoload
+(defun magit-fetch-branch (remote branch args)
+  "Fetch a BRANCH from a REMOTE."
+  (interactive
+   (let ((remote (magit-read-remote-or-url "Fetch from remote or url")))
+     (list remote
+           (magit-read-remote-branch "Fetch branch" remote)
+           (magit-fetch-arguments))))
+  (magit-git-fetch remote (cons branch args)))
+
+;;;###autoload
+(defun magit-fetch-refspec (remote refspec args)
+  "Fetch a REFSPEC from a REMOTE."
+  (interactive
+   (let ((remote (magit-read-remote-or-url "Fetch from remote or url")))
+     (list remote
+           (magit-read-refspec "Fetch using refspec" remote)
+           (magit-fetch-arguments))))
+  (magit-git-fetch remote (cons refspec args)))
 
 ;;;###autoload
 (defun magit-fetch-all (args)
@@ -312,6 +334,8 @@ missing.  To add them use something like:
              (?f "remotes"           magit-fetch-all-no-prune)
              (?F "remotes and prune" magit-fetch-all-prune)
              "Fetch"
+             (?o "another branch"    magit-fetch-branch)
+             (?r "explicit refspec"  magit-fetch-refspec)
              (?m "submodules"        magit-submodule-fetch))
   :default-action 'magit-fetch
   :max-action-columns 1)
