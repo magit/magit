@@ -2386,6 +2386,7 @@ Currently this only adds the following key bindings.
              (?f "Fetching"        magit-fetch-popup)
              (?F "Pulling"         magit-pull-popup)
              (?l "Logging"         magit-log-popup)
+             (?L "Change logs"     magit-log-refresh-popup)
              (?m "Merging"         magit-merge-popup)
              (?M "Remoting"        magit-remote-popup)
              (?o "Submodules"      magit-submodule-popup)
