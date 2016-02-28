@@ -54,6 +54,8 @@ Fixes since v2.5.0
 * `magit-clone' did not switch to the cloned repo before trying to
   delete the symbolic-ref "origin/HEAD".
 
+* `magit-diff-wash-submodule did not handle some less common cases.
+
 * `magit-merge-preview' did not recognize sections for added or
   deleted files.
 
