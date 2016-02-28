@@ -3990,6 +3990,16 @@ Also see [[info:gitman#git-fetch]].
 
   Fetch from another repository.
 
+- Key: f o, magit-fetch-branch
+
+  Fetch a branch from a remote, both of which are read from the
+  minibuffer.
+
+- Key: f r, magit-fetch-refspec
+
+  Fetch from a remote using an explicit refspec, both of which are
+  read from the minibuffer.
+
 - Key: f a, magit-fetch-all
 
   Fetch from all remotes.
@@ -4070,6 +4080,15 @@ Also see [[info:gitman#git-push]].
 
   Push an arbitrary branch or commit somewhere.  Both the source and
   the target are read in the minibuffer.
+
+- Key: P r, magit-push-refspecs
+
+  Push one or multiple refspecs to a remote, both of which are read
+  in the minibuffer.
+
+  To use multiple refspecs, separate them with commas.  Completion is
+  only available for the part before the colon, or when no colon is
+  used.
 
 - Key: P m, magit-push-matching
 
@@ -4538,6 +4557,18 @@ few key bindings, but this might be extended in the future.
 
   Unstage all changes to the file being visited in the current buffer.
 
+- Key: C-c M-g c, magit-commit-popup
+
+  This prefix command shows suffix commands along with the appropriate
+  infix arguments in a popup buffer.  See [[*Initiating a commit]].
+
+- Key: C-c M-g d, magit-diff-buffer-file-popup
+
+  This prefix command shows the same suffix commands and infix
+  arguments in a popup buffer as ~magit-diff-popup~.  But this variant
+  has to be called from a file-visiting buffer and the visited file
+  is automatically used in the popup to limit the diff to that file.
+
 - Key: C-c M-g l, magit-log-buffer-file
 
   This command shows the log for the file of blob that the current
@@ -4553,11 +4584,6 @@ few key bindings, but this might be extended in the future.
 - Key: C-c M-g p, magit-blob-previous
 
   Visit the previous blob which modified the current file.
-
-- Key: C-c M-g c, magit-commit-popup
-
-  This prefix command shows suffix commands along with the appropriate
-  infix arguments in a popup buffer.  See [[*Initiating a commit]].
 
 ** Minor mode for buffers visiting blobs
 
