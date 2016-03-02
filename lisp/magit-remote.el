@@ -401,9 +401,11 @@ available in the popup.  If the value is t, then that argument is
 redundant.  But note that changing the value of this option does
 not take affect immediately, the argument will only be added or
 removed after restarting Emacs."
-  :package-version '(magit . "2.4.0")
+  :package-version '(magit . "2.5.1")
   :group 'magit-commands
-  :type 'boolean)
+  :type '(choice (const :tag "don't set" nil)
+                 (const :tag "set branch.<name>.pushRemote" t)
+                 (const :tag "set remote.pushDefault" default)))
 
 ;;;###autoload (autoload 'magit-push-popup "magit-remote" nil t)
 (magit-define-popup magit-push-popup
@@ -452,14 +454,20 @@ the push-remote can be changed before pushed to it."
   (interactive
    (list (magit-push-arguments)
          (and (magit--push-current-set-pushremote-p current-prefix-arg)
-              (magit-read-remote (format "Set push-remote of %s and push there"
-                                         (magit-get-current-branch))))))
+              (magit-read-remote
+               (if (eq magit-push-current-set-remote-if-missing 'default)
+                   "Set `remote.pushDefault' and push there"
+                 (format "Set `branch.%s.pushRemote' and push there"
+                         (magit-get-current-branch)))))))
   (--if-let (magit-get-current-branch)
       (progn (when push-remote
-               (magit-call-git "config"
-                               (format "branch.%s.pushRemote"
-                                       (magit-get-current-branch))
-                               push-remote))
+               (magit-call-git
+                "config"
+                (if (eq magit-push-current-set-remote-if-missing 'default)
+                    "remote.pushDefault"
+                  (format "branch.%s.pushRemote"
+                          (magit-get-current-branch)))
+                push-remote))
              (-if-let (remote (magit-get-push-remote it))
                  (if (member remote (magit-list-remotes))
                      (magit-git-push it (concat remote "/" it) args)
@@ -477,8 +485,12 @@ the push-remote can be changed before pushed to it."
   (--if-let (magit-get-push-branch)
       (concat (magit-branch-set-face it) "\n")
     (and (magit--push-current-set-pushremote-p)
-         (concat (propertize "pushRemote" 'face 'bold)
-                 ", after setting that\n"))))
+         (concat
+          (propertize (if (eq magit-push-current-set-remote-if-missing 'default)
+                          "pushDefault"
+                        "pushRemote")
+                      'face 'bold)
+          ", after setting that\n"))))
 
 ;;;###autoload
 (defun magit-push-current-to-upstream (args &optional upstream)

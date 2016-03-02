@@ -20,6 +20,12 @@ Updates since v2.5.0
 * Added new command `magit-reset-popup' featuring all the available
   reset variants.
 
+* If `magit-push-current-set-remote-if-missing's value is `default',
+  then the command `magit-push-current-to-pushremote' now offers to
+  set `remote.pushDefault' unless the push-remote is already set in
+  some way.  Previously this command offered to set the local value
+  `branch.NAME.pushRemote' for all non-nil values of the option.
+
 * When washing the diff that is to be displayed while writing a
   commit message takes too long, then it is now possible to abort that
   by pressing `C-g'.  Previously that would have aborted the commit.
