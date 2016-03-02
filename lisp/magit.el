@@ -1503,9 +1503,9 @@ defaulting to the branch at point."
                      (?d "[d]etach HEAD & delete"     'detach)
                      (?c "[c]heckout master & delete" 'master)
                      (?a "[a]bort"                    'abort)))
-            ('detach (magit-call-git "checkout" "--detach"))
-            ('master (magit-call-git "checkout" "master"))
-            ('abort  (user-error "Abort")))
+            (`detach (magit-call-git "checkout" "--detach"))
+            (`master (magit-call-git "checkout" "master"))
+            (`abort  (user-error "Abort")))
           (setq force t))
         (magit-run-git "branch" (if force "-D" "-d") branch))))))
 

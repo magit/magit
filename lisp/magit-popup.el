@@ -896,21 +896,21 @@ and are defined in `magit-popup-mode-map' (which see)."
          (def (or (lookup-key (current-local-map)  key t)
                   (lookup-key (current-global-map) key))))
     (pcase def
-      ('magit-invoke-popup-switch
+      (`magit-invoke-popup-switch
        (magit-popup-manpage man (magit-popup-lookup int :switches)))
-      ('magit-invoke-popup-option
+      (`magit-invoke-popup-option
        (magit-popup-manpage man (magit-popup-lookup int :options)))
-      ('magit-popup-help
+      (`magit-popup-help
        (magit-popup-manpage man nil))
-      ((or 'self-insert-command
-           'magit-invoke-popup-action)
+      ((or `self-insert-command
+           `magit-invoke-popup-action)
        (setq def (or (magit-popup-lookup int :actions)
                      (magit-popup-lookup int :variables)))
        (if def
            (magit-popup-describe-function (magit-popup-event-fun def))
          (ding)
          (message nil)))
-      ('nil (ding)
+      (`nil (ding)
             (message nil))
       (_    (magit-popup-describe-function def)))))
 
@@ -922,14 +922,14 @@ and are defined in `magit-popup-mode-map' (which see)."
     (setq arg (magit-popup-event-arg arg)))
   (let ((winconf (current-window-configuration)) buffer)
     (pcase magit-popup-manpage-package
-      ('woman (delete-other-windows)
+      (`woman (delete-other-windows)
               (split-window-below)
               (with-no-warnings ; display-buffer-function is obsolete
                 (let ((display-buffer-alist nil)
                       (display-buffer-function nil))
                   (woman topic)))
               (setq buffer (current-buffer)))
-      ('man   (cl-letf (((symbol-function #'fboundp) (lambda (_) nil)))
+      (`man   (cl-letf (((symbol-function #'fboundp) (lambda (_) nil)))
                 (setq buffer (man topic)))
               (delete-other-windows)
               (split-window-below)

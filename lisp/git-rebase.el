@@ -324,7 +324,7 @@ remove the command on the current line, if any."
         (setq initial (match-string-no-properties 2))))
     (setq command (read-shell-command "Execute: " initial))
     (pcase (list command initial)
-      ('("" nil) (ding))
+      (`("" nil) (ding))
       (`(""  ,_)
        (delete-region (match-beginning 0) (1+ (match-end 0))))
       (`(,_ nil)

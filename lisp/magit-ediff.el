@@ -256,12 +256,12 @@ mind at all, then it asks the user for a command to run."
            command revA revB)
        (pcase range
          ((and (guard (not magit-ediff-dwim-show-on-hunks))
-               (or 'unstaged 'staged))
+               (or `unstaged `staged))
           (setq command (if (magit-anything-unmerged-p)
                             #'magit-ediff-resolve
                           #'magit-ediff-stage)))
-         ('unstaged (setq command #'magit-ediff-show-unstaged))
-         ('staged (setq command #'magit-ediff-show-staged))
+         (`unstaged (setq command #'magit-ediff-show-unstaged))
+         (`staged (setq command #'magit-ediff-show-staged))
          (`(commit . ,value)
           (setq command #'magit-ediff-show-commit
                 revB value))
@@ -273,14 +273,14 @@ mind at all, then it asks the user for a command to run."
          (_
           (when (derived-mode-p 'magit-diff-mode)
             (pcase (magit-diff-type)
-              ('committed (-let [(a b) (magit-ediff-compare--read-revisions
+              (`committed (-let [(a b) (magit-ediff-compare--read-revisions
                                         (car magit-refresh-args))]
                             (setq revA a revB b)))
               ((guard (not magit-ediff-dwim-show-on-hunks))
                (setq command #'magit-ediff-stage))
-              ('unstaged  (setq command #'magit-ediff-show-unstaged))
-              ('staged    (setq command #'magit-ediff-show-staged))
-              ('undefined (setq command nil))
+              (`unstaged  (setq command #'magit-ediff-show-unstaged))
+              (`staged    (setq command #'magit-ediff-show-staged))
+              (`undefined (setq command nil))
               (_          (setq command nil))))))
        (cond ((not command)
               (call-interactively

@@ -299,10 +299,10 @@ depending on the value of option `magit-commit-squash-confirm'."
   (--when-let (and git-commit-mode
                    magit-commit-show-diff
                    (pcase last-command
-                     ('magit-commit
+                     (`magit-commit
                       (apply-partially 'magit-diff-staged nil))
-                     ('magit-commit-amend  'magit-diff-while-amending)
-                     ('magit-commit-reword 'magit-diff-while-amending)))
+                     (`magit-commit-amend  'magit-diff-while-amending)
+                     (`magit-commit-reword 'magit-diff-while-amending)))
     (condition-case nil
         (let ((magit-inhibit-save-previous-winconf 'unset)
               (magit-display-buffer-noselect t)

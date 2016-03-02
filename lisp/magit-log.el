@@ -395,7 +395,7 @@ the upstream isn't ahead of the current branch) show."
   (interactive "P")
   (let ((magit-log-refresh-popup
          (pcase major-mode
-           ('magit-log-mode magit-log-mode-refresh-popup)
+           (`magit-log-mode magit-log-mode-refresh-popup)
            (_               magit-log-refresh-popup)))
         (magit-log-arguments
          (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
@@ -853,22 +853,22 @@ Do not add this to a hook variable."
   (when (derived-mode-p 'magit-log-mode)
     (cl-incf magit-log-count))
   (looking-at (pcase style
-                ('log        magit-log-heading-re)
-                ('cherry     magit-log-cherry-re)
-                ('module     magit-log-module-re)
-                ('reflog     magit-log-reflog-re)
-                ('stash      magit-log-stash-re)
-                ('bisect-vis magit-log-bisect-vis-re)
-                ('bisect-log magit-log-bisect-log-re)))
+                (`log        magit-log-heading-re)
+                (`cherry     magit-log-cherry-re)
+                (`module     magit-log-module-re)
+                (`reflog     magit-log-reflog-re)
+                (`stash      magit-log-stash-re)
+                (`bisect-vis magit-log-bisect-vis-re)
+                (`bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry _ refsub side) nil
     (let ((align (not (member "--stat" (cadr magit-refresh-args)))))
       (magit-delete-line)
       (magit-insert-section section (commit hash)
         (pcase style
-          ('stash      (setf (magit-section-type section) 'stash))
-          ('module     (setf (magit-section-type section) 'module-commit))
-          ('bisect-log (setq hash (magit-rev-parse "--short" hash))))
+          (`stash      (setf (magit-section-type section) 'stash))
+          (`module     (setf (magit-section-type section) 'module-commit))
+          (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
         (when cherry
           (when (and (derived-mode-p 'magit-refs-mode)
                      magit-refs-show-commit-count)
@@ -1418,8 +1418,8 @@ and the respective options are `magit-log-show-margin' and
   (if (local-variable-p 'magit-show-margin)
       (magit-set-buffer-margin magit-show-margin)
     (pcase major-mode
-      ('magit-log-mode    (magit-set-buffer-margin magit-log-show-margin))
-      ('magit-reflog-mode (magit-set-buffer-margin magit-reflog-show-margin)))))
+      (`magit-log-mode    (magit-set-buffer-margin magit-log-show-margin))
+      (`magit-reflog-mode (magit-set-buffer-margin magit-reflog-show-margin)))))
 
 (defun magit-set-buffer-margin (enable)
   (let ((width (cond ((not enable) nil)
