@@ -401,7 +401,7 @@ available in the popup.  If the value is t, then that argument is
 redundant.  But note that changing the value of this option does
 not take affect immediately, the argument will only be added or
 removed after restarting Emacs."
-  :package-version '(magit . "2.5.1")
+  :package-version '(magit . "2.6.0")
   :group 'magit-commands
   :type '(choice (const :tag "don't set" nil)
                  (const :tag "set branch.<name>.pushRemote" t)

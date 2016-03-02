@@ -19,6 +19,8 @@ Released 18 January 2016 by Jonas Bernoulli.
 We are pleased to announce the release of Magit version 2.4.0,
 representing 269 commits by 14 people over 12 weeks.
 
+Also see http://emacsair.me/2016/01/18/magit-2.4.
+
 Changes since v2.3.0
 --------------------
 
