@@ -117,7 +117,7 @@ the variable isn't already set."
   (if (pcase (list magit-remote-add-set-remote.pushDefault
                    (magit-get "remote.defaultPush"))
         (`(,(pred stringp) ,_) t)
-        ((or `(ask ,_) `(ask-if-unset nil))
+        ((or `(ask ,_) '(ask-if-unset nil))
          (y-or-n-p (format "Set `remote.pushDefault' to \"%s\"? " remote))))
       (progn (magit-call-git "remote" "add" "-f" remote url)
              (magit-call-git "config" "remote.pushDefault" remote)
