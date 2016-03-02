@@ -26,6 +26,9 @@ Updates since v2.5.0
   some way.  Previously this command offered to set the local value
   `branch.NAME.pushRemote' for all non-nil values of the option.
 
+* Command `magit-submodule-add' now allows using a module name
+  different from the path of the module.
+
 * When washing the diff that is to be displayed while writing a
   commit message takes too long, then it is now possible to abort that
   by pressing `C-g'.  Previously that would have aborted the commit.

@@ -41,11 +41,15 @@
               (?d "Deinit" magit-submodule-deinit)))
 
 ;;;###autoload
-(defun magit-submodule-add (url &optional path)
+(defun magit-submodule-add (url &optional path name)
   "Add the repository at URL as a submodule.
+
 Optional PATH is the path to the submodule relative to the root
-of the superproject. If it is nil then the path is determined
-based on URL."
+of the superproject.  If it is nil, then the path is determined
+based on URL.
+
+Optional NAME is the name of the submodule.  If it is nil, then
+PATH also becomes the name."
   (interactive
    (magit-with-toplevel
      (let ((path (read-file-name
@@ -62,8 +66,9 @@ based on URL."
                    (let ((default-directory path))
                      (magit-get "remote" (or (magit-get-remote) "origin")
                                 "url"))))
-             (and path (directory-file-name (file-relative-name path)))))))
-  (magit-run-git "submodule" "add" url path))
+             (and path (directory-file-name (file-relative-name path)))
+             (magit-read-string-ns "Name submodule" path)))))
+  (magit-run-git "submodule" "add" (and name (list "--name" name)) url path))
 
 ;;;###autoload
 (defun magit-submodule-setup ()
