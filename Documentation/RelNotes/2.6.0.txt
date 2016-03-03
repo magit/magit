@@ -33,6 +33,14 @@ Updates since v2.5.0
 * Added new command `magit-reset-popup' featuring all the available
   reset variants.
 
+* Added new section inserters
+  `magit-insert-modules-unpulled-from-pushremote' and
+  `magit-insert-modules-unpushed-to-pushremote', and renamed
+  `magit-insert-unpulled-module-commits' to
+  `magit-insert-modules-unpulled-from-upstream' and
+  `magit-insert-unpushed-module-commits' to
+  `magit-insert-modules-unpushed-to-upstream'.
+
 * If `magit-push-current-set-remote-if-missing's value is `default',
   then the command `magit-push-current-to-pushremote' now offers to
   set `remote.pushDefault' unless the push-remote is already set in

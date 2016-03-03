@@ -119,59 +119,65 @@ With a prefix argument fetch all remotes."
 ;;; Sections
 
 ;;;###autoload
-(defun magit-insert-submodule-commits (section range)
+(defun magit-insert-modules-unpulled-from-upstream ()
+  "Insert sections for modules that haven't been pulled from the upstream.
+These sections can be expanded to show the respective commits."
+  (magit-insert-submodules "Modules unpulled from @{upstream}"
+                           'magit-get-upstream-ref "HEAD..%s"))
+
+;;;###autoload
+(defun magit-insert-modules-unpulled-from-pushremote ()
+  "Insert sections for modules that haven't been pulled from the push-remote.
+These sections can be expanded to show the respective commits."
+  (magit-insert-submodules "Modules unpulled from <push-remote>"
+                           'magit-get-push-branch "HEAD..%s"))
+
+;;;###autoload
+(defun magit-insert-modules-unpushed-to-upstream ()
+  "Insert sections for modules that haven't been pushed to the upstream.
+These sections can be expanded to show the respective commits."
+  (magit-insert-submodules "Modules unmerged into @{upstream}"
+                           'magit-get-upstream-ref "%s..HEAD"))
+
+;;;###autoload
+(defun magit-insert-modules-unpushed-to-pushremote ()
+  "Insert sections for modules that haven't been pushed to the push-remote.
+These sections can be expanded to show the respective commits."
+  (magit-insert-submodules "Modules unpushed to <push-remote>"
+                           'magit-get-push-branch "%s..HEAD"))
+
+(defun magit-insert-submodules (heading fn format)
   "For internal use, don't add to a hook."
-  (if (magit-section-hidden section)
-      (setf (magit-section-washer section)
-            (apply-partially #'magit-insert-submodule-commits section range))
-    (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
-      "log" "--oneline" range)
-    (when (> (point) (magit-section-content section))
-      (delete-char -1))))
-
-;;;###autoload
-(defun magit-insert-unpulled-module-commits ()
-  "Insert sections for all submodules with unpulled commits.
-These sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
-    (magit-insert-section section (unpulled-modules)
-      (magit-insert-heading "Unpulled modules:")
+    (magit-insert-section section (unpulled-modules fn t)
+      (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
+      (magit-insert-heading
+        (concat
+         (propertize (match-string 1 heading) 'face 'magit-section-heading) " "
+         (propertize (match-string 2 heading) 'face 'magit-branch-remote) ":"))
       (magit-with-toplevel
         (dolist (module modules)
           (let ((default-directory
                   (expand-file-name (file-name-as-directory module))))
-            (-when-let (tracked (magit-get-upstream-ref))
+            (--when-let (funcall fn)
               (magit-insert-section sec (file module t)
                 (magit-insert-heading
                   (concat (propertize module 'face 'magit-diff-file-heading) ":"))
-                (magit-insert-submodule-commits
-                 section (concat "HEAD.." tracked)))))))
-      (if (> (point) (magit-section-content section))
-          (insert ?\n)
-        (magit-cancel-section)))))
-
-;;;###autoload
-(defun magit-insert-unpushed-module-commits ()
-  "Insert sections for all submodules with unpushed commits.
-These sections can be expanded to show the respective commits."
-  (-when-let (modules (magit-get-submodules))
-    (magit-insert-section section (unpushed-modules)
-      (magit-insert-heading "Unpushed modules:")
-      (magit-with-toplevel
-        (dolist (module modules)
-          (let ((default-directory
-                  (expand-file-name (file-name-as-directory module))))
-            (-when-let (tracked (magit-get-upstream-ref))
-              (magit-insert-section sec (file module t)
-                (magit-insert-heading
-                  (concat (propertize module 'face 'magit-diff-file-heading) ":"))
-                (magit-insert-submodule-commits
-                 section (concat tracked "..HEAD")))))))
+                (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
+                  "log" "--oneline" (format format it))
+                (when (> (point) (magit-section-content sec))
+                  (delete-char -1)))))))
       (if (> (point) (magit-section-content section))
           (insert ?\n)
         (magit-cancel-section)))))
 
 ;;; magit-submodule.el ends soon
+
+(define-obsolete-function-alias 'magit-insert-unpulled-module-commits
+  'magit-insert-modules-unpulled-from-upstream "Magit 2.6.0")
+(define-obsolete-function-alias 'magit-insert-unpushed-module-commits
+  'magit-insert-modules-unpushed-to-upstream "Magit 2.6.0")
+
 (provide 'magit-submodule)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

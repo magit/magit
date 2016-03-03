@@ -2090,6 +2090,33 @@ How many recent commits @code{magit-insert-recent-commits} and
 unpulled commits) show.
 @end defopt
 
+@defun magit-insert-modules-unpulled-from-upstream
+
+Insert sections for modules that haven't been pulled from the
+upstream yet.  These sections can be expanded to show the respective
+commits.
+@end defun
+
+@defun magit-insert-modules-unpulled-from-pushremote
+
+Insert sections for modules that haven't been pulled from the
+push-remote yet.  These sections can be expanded to show the
+respective commits.
+@end defun
+
+@defun magit-insert-modules-unpushed-to-upstream
+
+Insert sections for modules that haven't been pushed to the upstream
+yet.  These sections can be expanded to show the respective commits.
+@end defun
+
+@defun magit-insert-modules-unpushed-to-pushremote
+
+Insert sections for modules that haven't been pushed to the
+push-remote yet. These sections can be expanded to show the
+respective commits.
+@end defun
+
 @defun magit-insert-unpulled-cherries
 
 Insert section showing unpulled commits.
@@ -2099,12 +2126,6 @@ not shared with any local commit) with "+", and all others
 with "-".
 @end defun
 
-@defun magit-insert-unpulled-module-commits
-
-Insert sections for all submodules with unpulled commits.
-These sections can be expanded to show the respective commits.
-@end defun
-
 @defun magit-insert-unpushed-cherries
 
 Insert section showing unpushed commits.
@@ -2112,12 +2133,6 @@ Like @code{magit-insert-unpushed-commits} but prefix each commit
 which has not been applied to upstream yet (i.e. a commit with
 a patch-id not shared with any upstream commit) with "+" and
 all others with "-".
-@end defun
-
-@defun magit-insert-unpushed-module-commits
-
-Insert sections for all submodules with unpushed commits.
-These sections can be expanded to show the respective commits.
 @end defun
 
 See @ref{References buffer,References buffer} for some more section inserters, which could be

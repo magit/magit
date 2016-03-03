@@ -1561,6 +1561,29 @@ The following functions can also be added to the above hook:
   ~magit-insert-unpulled-or-recent-commits~ (provided there are no
   unpulled commits) show.
 
+- Function: magit-insert-modules-unpulled-from-upstream
+
+  Insert sections for modules that haven't been pulled from the
+  upstream yet.  These sections can be expanded to show the respective
+  commits.
+
+- Function: magit-insert-modules-unpulled-from-pushremote
+
+  Insert sections for modules that haven't been pulled from the
+  push-remote yet.  These sections can be expanded to show the
+  respective commits.
+
+- Function: magit-insert-modules-unpushed-to-upstream
+
+  Insert sections for modules that haven't been pushed to the upstream
+  yet.  These sections can be expanded to show the respective commits.
+
+- Function: magit-insert-modules-unpushed-to-pushremote
+
+  Insert sections for modules that haven't been pushed to the
+  push-remote yet. These sections can be expanded to show the
+  respective commits.
+
 - Function: magit-insert-unpulled-cherries
 
   Insert section showing unpulled commits.
@@ -1569,11 +1592,6 @@ The following functions can also be added to the above hook:
   not shared with any local commit) with "+", and all others
   with "-".
 
-- Function: magit-insert-unpulled-module-commits
-
-  Insert sections for all submodules with unpulled commits.
-  These sections can be expanded to show the respective commits.
-
 - Function: magit-insert-unpushed-cherries
 
   Insert section showing unpushed commits.
@@ -1581,11 +1599,6 @@ The following functions can also be added to the above hook:
   which has not been applied to upstream yet (i.e. a commit with
   a patch-id not shared with any upstream commit) with "+" and
   all others with "-".
-
-- Function: magit-insert-unpushed-module-commits
-
-  Insert sections for all submodules with unpushed commits.
-  These sections can be expanded to show the respective commits.
 
 See [[*References buffer]] for some more section inserters, which could be
 used here.
