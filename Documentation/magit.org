@@ -2247,6 +2247,13 @@ without having to using one of the diff popups.
   ~magit-ediff-show-unstaged~ to show staged and unstaged changes,
   respectively.
 
+- User Option: magit-ediff-show-stash-with-index
+
+  This option controls whether ~magit-ediff-show-stash~ includes a
+  buffer containing the file's state in the index at the time the
+  stash was created.  This makes it possible to tell which changes in
+  the stash were staged.
+
 - User Option: magit-ediff-quit-hook
 
   This hook is run after quitting an Ediff session that was created

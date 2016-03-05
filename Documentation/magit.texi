@@ -3032,6 +3032,14 @@ point is on uncommitted hunks.  When nil, always run
 respectively.
 @end defopt
 
+@defopt magit-ediff-show-stash-with-index
+
+This option controls whether @code{magit-ediff-show-stash} includes a
+buffer containing the file's state in the index at the time the
+stash was created.  This makes it possible to tell which changes in
+the stash were staged.
+@end defopt
+
 @defopt magit-ediff-quit-hook
 
 This hook is run after quitting an Ediff session that was created
