@@ -179,7 +179,7 @@ range)."
   (interactive (-let [(revA revB) (magit-ediff-compare--read-revisions
                                    nil current-prefix-arg)]
                  (nconc (list revA revB)
-                        (magit-ediff-compare--read-files revA revB))))
+                        (magit-ediff-read-files revA revB))))
   (magit-with-toplevel
     (let ((conf (current-window-configuration))
           (bufA (if revA
@@ -217,7 +217,10 @@ range)."
       (setq revA input))
     (list revA revB)))
 
-(defun magit-ediff-compare--read-files (revA revB &optional fileB)
+(defun magit-ediff-read-files (revA revB &optional fileB)
+  "Read file in REVB, return it and the corresponding file in REVA.
+When FILEB is non-nil, use this as REVB's file instead of
+prompting for it."
   (unless fileB
     (setq fileB (magit-read-file-choice
                  (format "File to compare between %s and %s"
@@ -292,7 +295,7 @@ mind at all, then it asks the user for a command to run."
                  (?v "resol[v]e" 'magit-ediff-resolve))))
              ((eq command 'magit-ediff-compare)
               (apply 'magit-ediff-compare revA revB
-                     (magit-ediff-compare--read-files revA revB file)))
+                     (magit-ediff-read-files revA revB file)))
              ((eq command 'magit-ediff-show-commit)
               (magit-ediff-show-commit revB))
              (file
@@ -390,7 +393,7 @@ FILE must be relative to the top directory of the repository."
         (revB commit))
     (apply #'magit-ediff-compare
            revA revB
-           (magit-ediff-compare--read-files revA revB (magit-current-file)))))
+           (magit-ediff-read-files revA revB (magit-current-file)))))
 
 (defun magit-ediff-cleanup-auxiliary-buffers ()
   (let* ((ctl-buf ediff-control-buffer)
