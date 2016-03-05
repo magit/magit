@@ -3015,6 +3015,12 @@ Show changes in a file between HEAD and working tree using Ediff.
 
 Show changes to a file introduced by a commit using Ediff.
 
+@kindex E z
+@cindex magit-ediff-show-stash
+@item @kbd{E z} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-show-stash})
+
+Show changes to a file introduced by a stash using Ediff.
+
 @end table
 
 @defopt magit-ediff-dwim-show-on-hunks

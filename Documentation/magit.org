@@ -2235,6 +2235,10 @@ without having to using one of the diff popups.
 
   Show changes to a file introduced by a commit using Ediff.
 
+- Key: E z, magit-ediff-show-stash
+
+  Show changes to a file introduced by a stash using Ediff.
+
 - User Option: magit-ediff-dwim-show-on-hunks
 
   This option controls what command ~magit-ediff-dwim~ calls when

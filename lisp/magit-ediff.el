@@ -79,7 +79,8 @@ hunk is in.  Otherwise, `magit-ediff-dwim' runs
              (?m "Resolve"       magit-ediff-resolve)
              (?w "Show worktree" magit-ediff-show-working-tree)
              (?r "Diff range"    magit-ediff-compare)
-             (?c "Show commit"   magit-ediff-show-commit))
+             (?c "Show commit"   magit-ediff-show-commit) nil
+             (?z "Show stash"    magit-ediff-show-stash))
   :max-action-columns 2)
 
 ;;;###autoload
@@ -268,6 +269,9 @@ mind at all, then it asks the user for a command to run."
          (`(commit . ,value)
           (setq command #'magit-ediff-show-commit
                 revB value))
+         (`(stash . ,value)
+          (setq command #'magit-ediff-show-stash
+                revB value))
          ((pred stringp)
           (-let [(a b) (magit-ediff-compare--read-revisions range)]
             (setq command #'magit-ediff-compare
@@ -298,6 +302,8 @@ mind at all, then it asks the user for a command to run."
                      (magit-ediff-read-files revA revB file)))
              ((eq command 'magit-ediff-show-commit)
               (magit-ediff-show-commit revB))
+             ((eq command 'magit-ediff-show-stash)
+              (magit-ediff-show-stash revB))
              (file
               (funcall command file))
              (t
@@ -394,6 +400,34 @@ FILE must be relative to the top directory of the repository."
     (apply #'magit-ediff-compare
            revA revB
            (magit-ediff-read-files revA revB (magit-current-file)))))
+
+;;;###autoload
+(defun magit-ediff-show-stash (stash)
+  "Show changes introduced by STASH using Ediff."
+  (interactive (list (magit-read-stash "Stash")))
+  (-let* ((conf (current-window-configuration))
+          (revA (concat stash "^1"))
+          (revB (concat stash "^2"))
+          (revC stash)
+          ((fileA fileC) (magit-ediff-read-files revA revC))
+          (fileB fileC)
+          (bufA (magit-get-revision-buffer revA fileA))
+          (bufB (magit-get-revision-buffer revB fileB))
+          (bufC (magit-get-revision-buffer revC fileC)))
+    (ediff-buffers3
+     (or bufA (magit-find-file-noselect revA fileA))
+     (or bufB (magit-find-file-noselect revB fileB))
+     (or bufC (magit-find-file-noselect revC fileC))
+     `((lambda ()
+         (setq-local
+          ediff-quit-hook
+          (lambda ()
+            ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
+            ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
+            ,@(unless bufC '((ediff-kill-buffer-carefully ediff-buffer-C)))
+            (let ((magit-ediff-previous-winconf ,conf))
+              (run-hooks 'magit-ediff-quit-hook))))))
+     'ediff-buffers3)))
 
 (defun magit-ediff-cleanup-auxiliary-buffers ()
   (let* ((ctl-buf ediff-control-buffer)

@@ -33,6 +33,10 @@ Updates since v2.5.0
 * Added new command `magit-reset-popup' featuring all the available
   reset variants.
 
+* Added new `magit-ediff-show-stash', which is available in the Ediff
+  popup and will be used when `magit-ediff-dwim' is called with point
+  on a stash.
+
 * Added new section inserters
   `magit-insert-modules-unpulled-from-pushremote' and
   `magit-insert-modules-unpushed-to-pushremote', and renamed
