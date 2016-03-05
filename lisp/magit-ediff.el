@@ -231,8 +231,8 @@ range)."
              (format "File in %s to compare with %s in %s"
                      revA fileB (or revB "the working tree"))
              (magit-changed-files revB revA)
-             (format "File in %s to compare with %s in %s"
-                     revA fileB (or revB "the working tree"))))
+             (format "No files have changed between %s and %s"
+                     revA revB)))
         fileB))
 
 ;;;###autoload
