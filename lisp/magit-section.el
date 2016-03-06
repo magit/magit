@@ -436,7 +436,7 @@ hidden."
         (dolist (s sections)
           (magit-section-show s)
           (magit-section-hide-children s))
-      (let ((children (cl-mapcan 'magit-section-children sections)))
+      (let ((children (-mapcat 'magit-section-children sections)))
         (cond ((and (-any? 'magit-section-hidden   children)
                     (-any? 'magit-section-children children))
                (mapc 'magit-section-show-headings sections))

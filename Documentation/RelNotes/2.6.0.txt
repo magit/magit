@@ -92,6 +92,8 @@ Fixes since v2.5.0
 
 * Invoking `magit-commit-popup's default action failed due to a typo.
 
+* `magit-section-cycle-diffs' hung when hiding sections.
+
 This release also contains documentation updates.
 
 Authors
