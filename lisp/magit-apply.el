@@ -86,22 +86,24 @@ With a prefix argument and if necessary, attempt a 3-way merge."
       (`(,_   file) (magit-apply-diff   it args))
       (`(,_  files) (magit-apply-diffs  it args)))))
 
+(defun magit-apply--section-content (section)
+  (buffer-substring (magit-section-start section)
+                    (magit-section-end section)))
+
 (defun magit-apply-diffs (sections &rest args)
   (setq sections (magit-apply--get-diffs sections))
   (magit-apply-patch sections args
                      (mapconcat
                       (lambda (s)
                         (concat (magit-diff-file-header s)
-                                (buffer-substring (magit-section-content s)
-                                                  (magit-section-end s))))
+                                (magit-apply--section-content s)))
                       sections "")))
 
 (defun magit-apply-diff (section &rest args)
   (setq section (car (magit-apply--get-diffs (list section))))
   (magit-apply-patch section args
                      (concat (magit-diff-file-header section)
-                             (buffer-substring (magit-section-content section)
-                                               (magit-section-end section)))))
+                             (magit-apply--section-content section))))
 
 (defun magit-apply-hunks (sections &rest args)
   (let ((section (magit-section-parent (car sections))))
@@ -109,19 +111,15 @@ With a prefix argument and if necessary, attempt a 3-way merge."
       (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
     (magit-apply-patch section args
                        (concat (magit-section-diff-header section)
-                               (mapconcat
-                                (lambda (s)
-                                  (buffer-substring (magit-section-start s)
-                                                    (magit-section-end s)))
-                                sections "")))))
+                               (mapconcat 'magit-apply--section-content
+                                          sections "")))))
 
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (magit-apply-patch (magit-section-parent section) args
                      (concat (magit-diff-file-header section)
-                             (buffer-substring (magit-section-start section)
-                                               (magit-section-end section)))))
+                             (magit-apply--section-content section))))
 
 (defun magit-apply-region (section &rest args)
   (unless (magit-diff-context-p)
