@@ -67,6 +67,38 @@ information see command `magit-reverse-in-index'."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-preserve-crlf-line-endings t
+  "Whether to try harder to preserve CRLF line endings.
+
+Magit buffers may contain diffs for more than one file and these
+files might use different line ending types, but Emacs normalizes
+file endings in a buffer to a single newline character. When the
+Magit buffer has a `buffer-file-coding-system' with a LF
+`coding-system-eol-type', no information is lost: each sequence
+of CR and LF bytes in a diff is converted into a sequence of ?\r
+and ?\n characters; but, when the buffer's eol type is CRLF, each
+CRLF sequence in the diff is converted into a single ?\n
+character. Because both LF and CRLF sequences are normalized into
+a single ?\n character, ambiguity ensues.
+
+This isn't an issue when staging (or otherwise applying) complete
+files, because the buffer contents are not used in that case.
+But when applying hunks, then a patch has to be built from parts
+of the buffer contents.
+
+If this option is non-nil (the default), then Magit peeks the
+file that is being changed to determine whether its line ending
+style is CRLF.  If so, then CR characters are inserted into the
+patch that is being sent to git.
+
+Only Windows users are likely to be affected by this variable.
+
+Also see the Git variables `core.eol', `core.safecrlf', and
+`core.autocrlf' for an alternative approach."
+  :package-version '(magit . "2.6.0")
+  :group 'magit
+  :type 'boolean)
+
 ;;; Commands
 ;;;; Apply
 
@@ -86,9 +118,25 @@ With a prefix argument and if necessary, attempt a 3-way merge."
       (`(,_   file) (magit-apply-diff   it args))
       (`(,_  files) (magit-apply-diffs  it args)))))
 
+(defun magit-apply--maybe-fix-up-eols (section string)
+  (if (and magit-preserve-crlf-line-endings
+           ;; buffer has CRLF eol type
+           (eql 1 (coding-system-eol-type buffer-file-coding-system))
+           ;; file has CRLF eol type, too
+           (with-temp-buffer
+             (insert-file-contents-literally (magit-section-value section)
+                                             nil 0 500)
+             (search-forward "\r" nil t)))
+      (replace-regexp-in-string "\n" "\r\n" string)
+      string))
+
 (defun magit-apply--section-content (section)
-  (buffer-substring-no-properties (magit-section-start section)
-                                  (magit-section-end section)))
+  (magit-apply--maybe-fix-up-eols
+   (case (magit-section-type section)
+     (file section)
+     (hunk (magit-section-parent section)))
+   (buffer-substring-no-properties (magit-section-start section)
+                                   (magit-section-end section))))
 
 (defun magit-apply-diffs (sections &rest args)
   (setq sections (magit-apply--get-diffs sections))
@@ -126,9 +174,11 @@ With a prefix argument and if necessary, attempt a 3-way merge."
     (user-error "Not enough context to apply region.  Increase the context"))
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (magit-apply-patch (magit-section-parent section) args
-                     (concat (magit-diff-file-header section)
-                             (magit-diff-hunk-region-patch section args))))
+  (let ((parent (magit-section-parent section))
+        (patch (magit-diff-hunk-region-patch section args)))
+    (magit-apply-patch parent args
+                       (concat (magit-diff-file-header section)
+                               (magit-apply--maybe-fix-up-eols parent patch)))))
 
 (defun magit-apply-patch (section:s args patch)
   (let* ((files (if (atom section:s)
