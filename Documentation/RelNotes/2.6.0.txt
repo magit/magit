@@ -94,6 +94,13 @@ Fixes since v2.5.0
 
 * `magit-section-cycle-diffs' hung when hiding sections.
 
+* Staging hunks/regions belonging to files with CRLF line endings on
+  Windows (or, to be precise, when the Magit status buffer uses CRLF
+  end-of-line style) ended up erroneously staging changes with LF line
+  endings. Magit now tries harder to not mangle line endings. A new
+  variable `magit-preserve-crlf-line-endings' has been added to allow
+  disabling the new behavior, should it cause unforseen troubles.
+
 This release also contains documentation updates.
 
 Authors

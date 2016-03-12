@@ -405,6 +405,14 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
+(defun magit--buffer-has-crlf-eol-style-p ()
+  (eql 1 (coding-system-eol-type buffer-file-coding-system)))
+
+(defun magit--file-has-crlf-eol-style-p (file)
+  (with-temp-buffer
+    (insert-file-contents-literally file nil 0 500)
+    (search-forward "\r" nil t)))
+
 ;;; magit-utils.el ends soon
 (provide 'magit-utils)
 ;; Local Variables:
