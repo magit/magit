@@ -3015,6 +3015,12 @@ Show changes in a file between HEAD and working tree using Ediff.
 
 Show changes to a file introduced by a commit using Ediff.
 
+@kindex E z
+@cindex magit-ediff-show-stash
+@item @kbd{E z} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-show-stash})
+
+Show changes to a file introduced by a stash using Ediff.
+
 @end table
 
 @defopt magit-ediff-dwim-show-on-hunks
@@ -3024,6 +3030,14 @@ point is on uncommitted hunks.  When nil, always run
 @code{magit-ediff-stage}.  Otherwise, use @code{magit-ediff-show-staged} and
 @code{magit-ediff-show-unstaged} to show staged and unstaged changes,
 respectively.
+@end defopt
+
+@defopt magit-ediff-show-stash-with-index
+
+This option controls whether @code{magit-ediff-show-stash} includes a
+buffer containing the file's state in the index at the time the
+stash was created.  This makes it possible to tell which changes in
+the stash were staged.
 @end defopt
 
 @defopt magit-ediff-quit-hook
