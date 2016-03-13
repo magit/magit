@@ -66,6 +66,14 @@ Updates since v2.5.0
 Fixes since v2.5.0
 ------------------
 
+* Staging hunks/regions belonging to files with CRLF line endings on
+  Windows (or, to be precise, when `default-process-coding-system' had
+  CRLF end-of-line conversion) ended up erroneously staging changes
+  with LF line endings.  Magit now ensures line endings are preserved
+  by enforcing a `process-coding-system' with LF end-of-line
+  conversion.  The new behavior may be disabled by setting the option
+  `magit-process-ensure-unix-line-ending' to `nil'.
+
 * If the user sets the variable `magit-auto-revert-mode' or the
   obsolete alias `magit-revert-buffers' to nil anytime during startup,
   before or after `magit-autorevert' is loaded, then the mode is not

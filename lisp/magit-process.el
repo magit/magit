@@ -172,6 +172,12 @@ non-nil, then the password is read from the user instead."
   :group 'magit-process
   :type '(repeat (regexp)))
 
+(defcustom magit-process-ensure-unix-line-ending t
+  "Whether Magit should ensure a unix coding system when talking to Git."
+  :package-version '(magit . "2.6.0")
+  :group 'magit-process
+  :type 'boolean)
+
 (defface magit-process-ok
   '((t :inherit magit-section-heading :foreground "green"))
   "Face for zero exit-status."
@@ -301,9 +307,11 @@ Process output goes into a new section in the buffer returned by
 (defun magit-process-file (&rest args)
   "Process files synchronously in a separate process.
 Identical to `process-file' but temporarily enable Cygwin's
-\"noglob\" option during the call."
+\"noglob\" option during the call and ensure unix eol
+conversion."
   (let ((process-environment (append (magit-cygwin-env-vars)
-                                     process-environment)))
+                                     process-environment))
+        (default-process-coding-system (magit--process-coding-system)))
     (apply #'process-file args)))
 
 (defun magit-cygwin-env-vars ()
@@ -340,6 +348,7 @@ flattened before use."
     (run-hooks 'magit-pre-call-git-hook)
     (-let* ((process-environment (append (magit-cygwin-env-vars)
                                          process-environment))
+            (default-process-coding-system (magit--process-coding-system))
             (flat-args (magit-process-git-arguments args))
             ((process-buf . section)
              (magit-process-setup magit-git-executable flat-args))
@@ -460,7 +469,8 @@ Magit status buffer."
                   ;; which would modify the input (issue #20).
                   (and (not input) magit-process-connection-type))
                  (process-environment (append (magit-cygwin-env-vars)
-                                              process-environment)))
+                                              process-environment))
+                 (default-process-coding-system (magit--process-coding-system)))
              (apply #'start-file-process
                     (file-name-nondirectory program)
                     process-buf program args))))
@@ -671,6 +681,14 @@ Return the matched string suffixed with \": \", if needed."
       (cond ((string-suffix-p ": " prompt) prompt)
             ((string-suffix-p ":"  prompt) (concat prompt " "))
             (t                             (concat prompt ": "))))))
+
+(defun magit--process-coding-system ()
+  (if magit-process-ensure-unix-line-ending
+      (cons (coding-system-change-eol-conversion
+             (car default-process-coding-system) 'unix)
+            (coding-system-change-eol-conversion
+             (cdr default-process-coding-system) 'unix))
+      default-process-coding-system))
 
 (defvar magit-credential-hook nil
   "Hook run before Git needs credentials.")
