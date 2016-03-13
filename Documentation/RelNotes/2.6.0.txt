@@ -98,6 +98,9 @@ Fixes since v2.5.0
 
 * `magit-section-cycle-diffs' hung when hiding sections.
 
+* `magit-show-stash' did not properly handle untracked files that were
+  within subdirectories.
+
 This release also contains documentation updates.
 
 Authors

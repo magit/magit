@@ -390,7 +390,7 @@ instead of \"Stashes:\"."
                                   (format "%s^..%s^3" stash stash)
                                   "Untracked files"
                                   (magit-git-items "ls-tree" "-z" "--name-only"
-                                                   "--full-tree" rev)))))
+                                                   "-r" "--full-tree" rev)))))
 
 ;;; magit-stash.el ends soon
 (provide 'magit-stash)
