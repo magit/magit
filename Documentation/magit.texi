@@ -2908,6 +2908,11 @@ is an integer, highlight indentation with at least that many spaces.
 Otherwise, highlight neither.
 @end defopt
 
+@defopt magit-diff-hide-trailing-cr-characters
+
+Whether to hide ^M characters at the end of a line in diffs.
+@end defopt
+
 @node Revision buffer
 @subsection Revision buffer
 

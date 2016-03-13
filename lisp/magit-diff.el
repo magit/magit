@@ -164,6 +164,13 @@ many spaces.  Otherwise, highlight neither."
                                (integer :tag "Spaces" :value ,tab-width)
                                (const :tag "Neither" nil)))))
 
+(defcustom magit-diff-hide-trailing-cr-characters
+  (and (memq system-type '(ms-dos windows-nt)) t)
+  "Whether to hide ^M characters at the end of a line in diffs."
+  :package-version '(magit . "2.6.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 ;;;; Revision Mode
 
 (defgroup magit-revision nil
@@ -1940,6 +1947,10 @@ are highlighted."
               (stage nil))
           (forward-line)
           (while (< (point) end)
+            (when (and magit-diff-hide-trailing-cr-characters
+                       (char-equal ?\r (char-before (line-end-position))))
+              (put-text-property (1- (line-end-position)) (line-end-position)
+                                 'invisible t))
             (put-text-property
              (point) (1+ (line-end-position)) 'face
              (cond
