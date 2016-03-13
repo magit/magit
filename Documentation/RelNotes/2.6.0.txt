@@ -101,6 +101,14 @@ Fixes since v2.5.0
 * `magit-show-stash' did not properly handle untracked files that were
   within subdirectories.
 
+* Staging hunks/regions belonging to files with CRLF line endings on
+  Windows (or, to be precise, when `default-process-coding-system' had
+  CRLF end-of-line conversion) ended up erroneously staging changes
+  with LF line endings. Magit now ensures line endings are preserved
+  by enforcing a `process-coding-system' with LF end-of-line
+  conversion. The new behavior may be disabled by setting
+  `magit-process-ensure-unix-coding-system' to nil.
+
 This release also contains documentation updates.
 
 Authors
