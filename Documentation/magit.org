@@ -3245,6 +3245,12 @@ For more information about these variables you should also see
 info:gitman#git-config.  Also see [[info:gitman#git-branch]],
 [[info:gitman#git-checkout]], and [[*Pushing]].
 
+- User Option: magit-branch-separate-config-popup
+
+  This option controls whether to put the git variables mentioned
+  above into a separate popup.  This options must set to t *before*
+  loading magit in order to take effect.
+
 - User Option: magit-prefer-remote-upstream
 
   This option controls whether commands that read a branch from the

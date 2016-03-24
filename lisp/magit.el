@@ -279,6 +279,15 @@ prefer the former, then you should add branches such as \"master\",
   :group 'magit-commands
   :type '(repeat string))
 
+(defcustom magit-branch-separate-config-popup nil
+  "Whether to have a separate popup for branch config options.
+
+This must be set to t before loading magit in order to have
+effect."
+  :package-version '(magit . "2.6.0")
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-repository-directories nil
   "Directories containing Git repositories.
 Magit checks these directories for Git repositories and offers
@@ -1270,6 +1279,21 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   "Popup console for branch commands."
   'magit-commands
   :man-page "git-branch"
+  :actions '((?c "Create and checkout" magit-branch-and-checkout)
+             (?b "Checkout"            magit-checkout)
+             (?n "Create"              magit-branch)
+             (?m "Rename"              magit-branch-rename)
+             (?s "Create spin-off"     magit-branch-spinoff)
+             (?x "Reset"               magit-branch-reset) nil
+             (?k "Delete"              magit-branch-delete))
+  :default-action 'magit-checkout
+  :max-action-columns 2
+  :setup-function 'magit-branch-popup-setup)
+
+(magit-define-popup magit-branch-config-popup
+  "Popup console for branch commands."
+  'magit-commands
+  :man-page "git-branch"
   :variables '("Configure existing branches"
                (?d "branch.%s.description"
                    magit-edit-branch*description
@@ -1297,13 +1321,6 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
                (?R "branch.autoSetupRebase"
                    magit-cycle-branch*autoSetupRebase
                    magit-format-branch*autoSetupRebase))
-  :actions '((?c "Create and checkout" magit-branch-and-checkout)
-             (?b "Checkout"            magit-checkout)
-             (?n "Create"              magit-branch)
-             (?m "Rename"              magit-branch-rename)
-             (?s "Create spin-off"     magit-branch-spinoff)
-             (?x "Reset"               magit-branch-reset) nil
-             (?k "Delete"              magit-branch-delete))
   :default-action 'magit-checkout
   :max-action-columns 2
   :setup-function 'magit-branch-popup-setup)
@@ -1314,6 +1331,17 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
     (local-set-key (vector (magit-popup-event-key ev))
                    'magit-invoke-popup-action)))
+
+(if magit-branch-separate-config-popup
+    (progn
+      (magit-define-popup-action 'magit-branch-popup
+        ?C "Configure" 'magit-branch-config-popup)
+      (magit-define-popup-action 'magit-push-popup
+        ?C "Configure" 'magit-branch-config-popup))
+  (setq magit-branch-popup
+        (plist-put magit-branch-popup :variables
+                   (append (plist-get magit-branch-popup :variables)
+                           (plist-get magit-branch-config-popup :variables)))))
 
 ;;;;; Branch Actions
 

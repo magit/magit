@@ -17,6 +17,10 @@ Magit v2.6.0 Release Notes (draft)
 Updates since v2.5.0
 --------------------
 
+* Moved the branch configuration variables to a new popup
+  `magit-branch-config-popup'.  This is off by default, controlled by
+  the new user option `magit-branch-separate-config-popup'.
+
 * Added a cache, which memorizes the values of some function calls for
   the duration of a refresh.  This cuts the calls to git in half.
 
