@@ -339,11 +339,11 @@ and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847."
 
 (defface magit-diff-removed
  '((((class color) (background light))
-     :background "#ffdddd"
-     :foreground "#aa2222")
-    (((class color) (background dark))
-     :background "#553333"
-     :foreground "#ffdddd"))
+    :background "#ffdddd"
+    :foreground "#aa2222")
+   (((class color) (background dark))
+    :background "#553333"
+    :foreground "#ffdddd"))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
