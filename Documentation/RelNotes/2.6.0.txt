@@ -63,6 +63,10 @@ Updates since v2.5.0
   useful when using Magit as a library in another packages that runs
   git in many different repositories.
 
+* The `magit-insert-section' marco's TYPE argument can now have the
+  form `(eval FORM)' instead of a symbol.  An atomic TYPE is never
+  evaluated, but FORM is evaluated at run-time.
+
 * Added new option `magit-diff-hide-trailing-cr-characters'.  When it
   is non-nil (the default on Windows), then ^M characters at the end
   of diff lines are hidden.

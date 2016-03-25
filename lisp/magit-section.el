@@ -625,7 +625,9 @@ TYPE is the section type, a symbol.  Many commands that act on
 the current section behave differently depending on that type.
 Also if a variable `magit-TYPE-section-map' exists, then use
 that as the text-property `keymap' of all text belonging to the
-section (but this may be overwritten in subsections).
+section (but this may be overwritten in subsections).  TYPE can
+also have the form `(eval FORM)' in which case FORM is evaluated
+at runtime.
 
 Optional VALUE is the value of the section, usually a string
 that is required when acting on the section.
@@ -656,12 +658,18 @@ anything this time around.
 
 \(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
   (declare (indent defun)
-           (debug ([&optional symbolp] (symbolp &optional form form) body)))
+           (debug ([&optional symbolp]
+                   (&or [("eval" symbolp) &optional form form]
+                        [symbolp &optional form form])
+                   body)))
   (let ((s (if (symbolp (car args))
                (pop args)
              (cl-gensym "section"))))
     `(let* ((,s (make-magit-section
-                 :type ',(nth 0 (car args))
+                 :type ,(let ((type (nth 0 (car args))))
+                          (if (eq (car-safe type) 'eval)
+                              (cadr type)
+                            `',type))
                  :value ,(nth 1 (car args))
                  :start (point-marker)
                  :parent magit-insert-section--parent)))
