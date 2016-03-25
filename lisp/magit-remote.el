@@ -271,8 +271,7 @@ removed on the respective remote."
   "Popup console for pull commands."
   'magit-commands
   :man-page "git-pull"
-  :variables '("Variables"
-               (?r "branch.%s.rebase"
+  :variables '((?r "branch.%s.rebase"
                    magit-cycle-branch*rebase
                    magit-pull-format-branch*rebase))
   :actions '((lambda ()
