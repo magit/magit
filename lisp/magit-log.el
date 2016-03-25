@@ -879,8 +879,8 @@ Do not add this to a hook variable."
           (insert ?\s))
         (when side
           (insert (propertize side 'face (if (string= side "<")
-                                             'magit-diff-removed
-                                           'magit-diff-added)))
+                                             'magit-cherry-equivalent
+                                           'magit-cherry-unmatched)))
           (insert ?\s))
         (when align
           (insert (propertize hash 'face 'magit-hash) ?\s))
