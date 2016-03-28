@@ -37,7 +37,7 @@ help:
 	$(info )
 	$(info make test             - run tests)
 	$(info make test-interactive - run tests interactively)
-	$(info make magit            - run emacs -Q plus Magit)
+	$(info make emacs-Q          - run emacs -Q plus Magit)
 	$(info )
 	$(info Release Managment)
 	$(info =================)
@@ -84,13 +84,11 @@ test-interactive:
 	(load-file \"t/magit-tests.el\")\
 	(ert t))"
 
-magit: clean-lisp
+emacs-Q: clean-lisp
 	@$(EMACSBIN) -Q $(LOAD_PATH) --debug-init --eval "(progn\
+	(setq debug-on-error t)\
 	(require 'magit)\
-	(global-set-key \"\\C-xg\" 'magit-status)\
-	(tool-bar-mode 0)\
-	(menu-bar-mode 0)\
-	(scroll-bar-mode 0))"
+	(global-set-key \"\\C-xg\" 'magit-status))"
 
 clean: clean-lisp clean-docs clean-archives
 	@printf "Cleaning...\n"
