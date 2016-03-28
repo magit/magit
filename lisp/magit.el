@@ -2852,10 +2852,11 @@ Git, and Emacs in the echo area."
                               (package-desc-version (cadr it)))))))))))
     (if (stringp magit-version)
         (when (called-interactively-p 'any)
-          (message "Magit %s, Git %s, Emacs %s"
+          (message "Magit %s, Git %s, Emacs %s, %s"
                    (or magit-version "(unknown)")
                    (or (magit-git-version t) "(unknown)")
-                   emacs-version))
+                   emacs-version
+                   system-type))
       (setq debug (reverse debug))
       (setq magit-version 'error)
       (when magit-version
