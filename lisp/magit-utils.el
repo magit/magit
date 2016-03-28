@@ -405,6 +405,15 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
+;;; Kludges
+
+(defun magit-file-accessible-directory-p (filename)
+  "Like `file-accessible-directory-p' but work around an Apple bug.
+See http://debbugs.gnu.org/cgi/bugreport.cgi?bug=21573#17
+and https://github.com/magit/magit/issues/2295."
+  (and (file-directory-p filename)
+       (file-accessible-directory-p filename)))
+
 ;;; magit-utils.el ends soon
 (provide 'magit-utils)
 ;; Local Variables:

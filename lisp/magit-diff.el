@@ -958,7 +958,7 @@ which, as the name suggests always visits the actual file."
                          (expand-file-name it)
                        (user-error "No file at point"))
                      current-prefix-arg))
-  (if (file-accessible-directory-p file)
+  (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (let ((current (magit-current-section))
           (rev (cond (force-worktree nil)
