@@ -33,9 +33,9 @@ Updates since v2.5.0
 * Added new command `magit-reset-popup' featuring all the available
   reset variants.
 
-* Added new `magit-ediff-show-stash', which is available in the Ediff
-  popup and will be used when `magit-ediff-dwim' is called with point
-  on a stash.
+* Added new command `magit-ediff-show-stash', which is available in
+  the Ediff popup and will be used when `magit-ediff-dwim' is called
+  with point on a stash.
 
 * Added new section inserters
   `magit-insert-modules-unpulled-from-pushremote' and
@@ -63,7 +63,7 @@ Updates since v2.5.0
   useful when using Magit as a library in another packages that runs
   git in many different repositories.
 
-* The `magit-insert-section' marco's TYPE argument can now have the
+* The `magit-insert-section' macro's TYPE argument can now have the
   form `(eval FORM)' instead of a symbol.  An atomic TYPE is never
   evaluated, but FORM is evaluated at run-time.
 
@@ -92,8 +92,8 @@ Fixes since v2.5.0
   checking whether their section should be inserted into the status
   buffer.
 
-* `magit-clone' did not switch to the cloned repo before trying to
-  delete the symbolic-ref "origin/HEAD".
+* `magit-clone' did not switch to the cloned repository before trying
+  to delete the symbolic-ref "origin/HEAD".
 
 * `magit-diff-wash-submodule did not handle some less common cases.
 
