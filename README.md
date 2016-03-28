@@ -1,18 +1,3 @@
-<a href="#readme"></a>
-
-<p align="center">
-  <img src="http://magit.vc/img/L.png" align="left">
-  <img src="http://magit.vc/img/R.png" align="right">
-  <b>
-    When something doesn't work as expected, then please first consult the
-    <a href="http://magit.vc/manual/magit/FAQ.html">FAQ</a> and ask a
-	search engine.   If that doesn't solve your problem, then please ask for help on the
-    <a href="http://emacs.stackexchange.com/questions/tagged/magit">Emacs Stackexchange site</a>
-	or the <a href="https://gitter.im/magit/magit">Gitter chat</a>.
-  </b>
-</p>
-***
-
 <p align="center"><img src="http://magit.vc/img/magit.png"/></p>
 <h1 align="center">It's Magit!</h1>
 <h2 align="center">A Git Porcelain inside Emacs</h2>

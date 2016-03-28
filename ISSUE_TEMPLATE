@@ -1,0 +1,65 @@
+==================================================
+DO NOT use this issue tracker for support requests
+==================================================
+
+Please use the Emacs Stackexchange site [1] or the Gitter chat [2]
+for support requests.  But before you do that please read the list
+of frequently asked questions [3] and consult the manual [4].
+
+We only use this issue tracker for feature requests and for defects.
+
+  [1]: https://emacs.stackexchange.com
+  [2]: https://gitter.im/magit/magit
+  [3]: https://magit.vc/manual/magit/FAQ.html
+  [4]: https://magit.vc/manual/magit/#Top
+
+
+=====================================
+How to ask for a new feature requests
+=====================================
+
+Before you ask for a new feature to be added to Magit please make
+sure that the feature does not in fact already exist by consulting
+the manual [5].
+
+Then explain what new feature you would like to see in Magit and
+why that is useful.
+
+  [5]: https://magit.vc/manual/magit/#Top
+
+
+=====================
+How to report defects
+=====================
+
+Please explain
+  (1) what behavior you expected
+  (2) what behavior you observed
+  (3) and how we can reproduce that issue.
+
+Also post the output of
+
+  M-x magit-version RET
+
+Before reporting an issue please try to reproduce it using an Emacs
+instance in which only Magit and its dependencies have been loaded.
+Other packages or your configuration should not be loaded.  This makes
+it easier to determine whether the issue lays with Magit or something
+else.
+
+If you run Magit from its Git repository, then you can do so using:
+
+  $ cd /path/to/magit
+  $ make magit
+
+If you installed it using package.el, then run commands similar to the
+ones below, but use tab completion to replace the various Ns with the
+correct numbers:
+
+  $ cd ~/.emacs.d/elpa/magit-N
+  $ emacs -Q --debug-init --eval '(setq debug-on-error t)' \
+      -L ../dash-N -L with-editor-N -L lisp -l magit
+
+
+---- now delete this line and everything above ----
+
