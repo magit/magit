@@ -927,14 +927,14 @@ reference, but it is not checked out."
           (branches (magit-list-local-branch-names)))
       (dolist (line (magit-git-lines "branch" "-vv"
                                      (cadr magit-refresh-args)))
-        (string-match magit-refs-branch-line-re line)
-        (magit-bind-match-strings
-            (branch hash message upstream ahead behind gone) line
-          (when (string-match-p "(HEAD detached" branch)
-            (setq branch nil))
-          (magit-insert-branch
-           branch magit-refs-local-branch-format current branches
-           'magit-branch-local hash message upstream ahead behind gone))))
+        (when (string-match magit-refs-branch-line-re line)
+          (magit-bind-match-strings
+              (branch hash message upstream ahead behind gone) line
+            (when (string-match-p "(HEAD detached" branch)
+              (setq branch nil))
+            (magit-insert-branch
+             branch magit-refs-local-branch-format current branches
+             'magit-branch-local hash message upstream ahead behind gone)))))
     (insert ?\n)))
 
 (defun magit-insert-remote-branches ()
