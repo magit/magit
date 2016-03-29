@@ -644,8 +644,13 @@ latter is displayed in its place."
                     (rev (if args (cons rev args) rev))
                     (t   (if (member "--cached" args) "staged" "unstaged")))))))
     (if magit-buffer-locked-p
-        (rename-buffer (funcall magit-generate-buffer-name-function
-                                major-mode magit-buffer-locked-p))
+        (let ((name (funcall magit-generate-buffer-name-function
+                             major-mode magit-buffer-locked-p)))
+          (-if-let (locked (get-buffer name))
+              (let ((unlocked (current-buffer)))
+                (set-buffer locked)
+                (kill-buffer unlocked))
+            (rename-buffer name)))
       (user-error "Buffer has no value it could be locked to"))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)

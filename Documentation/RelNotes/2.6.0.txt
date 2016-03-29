@@ -117,6 +117,9 @@ Fixes since v2.5.0
 * `magit-show-stash' did not properly handle untracked files that were
   within subdirectories.
 
+* `magit-toggle-buffer-lock' failed if another buffer is already
+  locked to the same value.
+
 * Added a kludge to work around a bug in Apple's OS X which causes
   `file-accessible-directory-p' to return incorrect results.
 
