@@ -87,7 +87,9 @@ With a prefix argument and if necessary, attempt a 3-way merge."
       (`(,_  files) (magit-apply-diffs  it args)))))
 
 (defun magit-apply--section-content (section)
-  (buffer-substring-no-properties (magit-section-start section)
+  (buffer-substring-no-properties (if (eq (magit-section-type section) 'hunk)
+                                      (magit-section-start section)
+                                    (magit-section-content section))
                                   (magit-section-end section)))
 
 (defun magit-apply-diffs (sections &rest args)
