@@ -246,6 +246,7 @@ FAQ
 * I am using MS Windows and cannot push with Magit::
 * How to install the gitman info manual?::
 * How can I show Git's output?::
+* Diffs contain control sequences::
 * Expanding a file to show the diff causes it to disappear::
 * Point is wrong in the COMMIT@math{_EDITMSG} buffer::
 * Can Magit be used as ediff-version-control-package?::
@@ -7624,6 +7625,7 @@ made it into the manual yet, see @uref{https://github.com/magit/magit/wiki/FAQ}.
 * I am using MS Windows and cannot push with Magit::
 * How to install the gitman info manual?::
 * How can I show Git's output?::
+* Diffs contain control sequences::
 * Expanding a file to show the diff causes it to disappear::
 * Point is wrong in the COMMIT@math{_EDITMSG} buffer::
 * Can Magit be used as ediff-version-control-package?::
@@ -7801,6 +7803,27 @@ is run for side-effects.  When the output is consumed in some way then
 also inserting it into the process buffer would be to expensive.  For
 debugging purposes it's possible to do so anyway by setting
 @code{magit-git-debug} to @code{t}.
+
+@node Diffs contain control sequences
+@section Diffs contain control sequences
+
+This happens when you configure Git to always color diffs and/or all
+of its output.  The valid values for relevant Git variables @code{color.ui}
+and @code{color.diff} are @code{false}, @code{true} and @code{always}, and the default is @code{true}.
+You should leave it that because then you get colorful output in
+terminals but git's output is consumed by something else, then no
+colors are used.
+
+If you actually use some other tool which expects that requires that
+you force git to output control sequences (which is highly unlikely),
+then you can override these settings just for Magit by using:
+
+@lisp
+(setq magit-git-global-arguments
+      (nconc magit-git-global-arguments
+	     '("-c" "color.ui=false"
+	       "-c" "color.diff=false")))
+@end lisp
 
 @node Expanding a file to show the diff causes it to disappear
 @section Expanding a file to show the diff causes it to disappear

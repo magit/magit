@@ -5814,6 +5814,26 @@ also inserting it into the process buffer would be to expensive.  For
 debugging purposes it's possible to do so anyway by setting
 ~magit-git-debug~ to ~t~.
 
+** Diffs contain control sequences
+
+This happens when you configure Git to always color diffs and/or all
+of its output.  The valid values for relevant Git variables ~color.ui~
+and ~color.diff~ are ~false~, ~true~ and ~always~, and the default is ~true~.
+You should leave it that because then you get colorful output in
+terminals but git's output is consumed by something else, then no
+colors are used.
+
+If you actually use some other tool which expects that requires that
+you force git to output control sequences (which is highly unlikely),
+then you can override these settings just for Magit by using:
+
+#+BEGIN_SRC emacs-lisp
+  (setq magit-git-global-arguments
+        (nconc magit-git-global-arguments
+               '("-c" "color.ui=false"
+                 "-c" "color.diff=false")))
+#+END_SRC
+
 ** Expanding a file to show the diff causes it to disappear
 
 This is probably caused by a change of a ~diff.*~ Git variable.  You
