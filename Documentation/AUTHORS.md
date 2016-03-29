@@ -134,7 +134,7 @@ Contributors
 - Lingchao Xin <douglarek@users.noreply.github.com>
 - Lluís Vilanova <vilanova@ac.upc.edu>
 - Loic Dachary <loic@dachary.org>
-- Luís Borges de Oliveira <lbo@siscog.pt>
+- Luís Oliveira <luismbo@gmail.com>
 - Luke Amdor <luke.amdor@gmail.com>
 - Manuel Vázquez Acosta <mva.led@gmail.com>
 - Marcel Wolf <mwolf@ml1.net>
@@ -199,6 +199,7 @@ Contributors
 - Ron Parker <rparker@a123systems.com>
 - Roy Crihfield <rscrihf@gmail.com>
 - Rüdiger Sonderfeld <ruediger@c-plusplus.net>
+- Russell Black <black.russell@gmail.com>
 - Ryan C. Thompson <rct@thompsonclan.org>
 - Samuel Bronson <naesten@gmail.com>
 - Sanjoy Das <sanjoy@playingwithpointers.com>
