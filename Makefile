@@ -46,7 +46,7 @@ help:
 	$(info make genstats         - regenerate statistics)
 	$(info make authors          - regenerate AUTHORS.md)
 	$(info make dist             - create tarballs)
-	$(info make VERSION=N.M bump-versions - bump versions for release)
+	$(info make bump-versions    - bump versions for release)
 	$(info make bump-snapshots   - bump versions after release)
 	@printf "\n"
 
@@ -154,7 +154,7 @@ endef
 export set_package_requires
 
 define set_manual_version
-(let ((version (split-string "$(VERSION)" "\\.")))
+(let ((version (split-string "$(MAGIT_VERSION)" "\\.")))
   (setq version (concat (car version) "." (cadr version)))
   (dolist (file (list "magit-popup" "magit"))
     (with-current-buffer (find-file-noselect (format "Documentation/%s.org" file))
