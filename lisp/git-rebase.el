@@ -69,6 +69,11 @@
 (require 'with-editor)
 (require 'magit)
 
+(and (require 'async-bytecomp nil t)
+     (memq 'magit (bound-and-true-p async-bytecomp-allowed-packages))
+     (fboundp 'async-bytecomp-package-mode)
+     (async-bytecomp-package-mode 1))
+
 (eval-when-compile (require 'recentf))
 
 ;;; Options
