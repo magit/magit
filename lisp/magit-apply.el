@@ -55,7 +55,7 @@
   "Whether unstaging a committed change reverts it instead.
 
 A committed change cannot be unstaged, because staging and
-unstaging are actions that are concern with the differences
+unstaging are actions that are concerned with the differences
 between the index and the working tree, not with committed
 changes.
 
