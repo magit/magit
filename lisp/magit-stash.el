@@ -77,7 +77,7 @@ Applying the resulting stash has the inverse effect."
 
 ;;;###autoload
 (defun magit-stash-worktree (message &optional include-untracked)
-  "Create a stash of the working tree only.
+  "Create a stash of unstaged changes in the working tree.
 Untracked files are included according to popup arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
@@ -129,7 +129,7 @@ Unstaged and untracked changes are not stashed."
 
 ;;;###autoload
 (defun magit-snapshot-worktree (&optional include-untracked)
-  "Create a snapshot of the working tree only.
+  "Create a snapshot of unstaged changes in the working tree.
 Untracked files are included according to popup arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
@@ -368,18 +368,18 @@ instead of \"Stashes:\"."
       "--" (or files (nth 3 magit-refresh-args)))))
 
 (defun magit-insert-stash-index ()
-  "Insert section showing the index commit of the stash."
+  "Insert section showing staged changes of the stash."
   (let ((stash (car magit-refresh-args)))
     (magit-stash-insert-section (format "%s^2" stash)
                                 (format "%s^..%s^2" stash stash)
-                                "Index")))
+                                "Staged")))
 
 (defun magit-insert-stash-worktree ()
-  "Insert section showing the worktree commit of the stash."
+  "Insert section showing unstaged changes of the stash."
   (let ((stash (car magit-refresh-args)))
     (magit-stash-insert-section stash
                                 (format "%s^2..%s" stash stash)
-                                "Working tree")))
+                                "Unstaged")))
 
 (defun magit-insert-stash-untracked ()
   "Insert section showing the untracked files commit of the stash."
