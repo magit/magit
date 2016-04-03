@@ -5369,10 +5369,10 @@ are not stashed.
 @cindex magit-stash-worktree
 @item @kbd{z w} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-worktree})
 
-Create a stash of the working tree only.  Untracked files are
-included according to popup arguments.  One prefix argument is
-equivalent to @code{--include-untracked} while two prefix arguments are
-equivalent to @code{--all}.
+Create a stash of unstaged changes in the working tree.  Untracked
+files are included according to popup arguments.  One prefix
+argument is equivalent to @code{--include-untracked} while two prefix
+arguments are equivalent to @code{--all}.
 
 @kindex z x
 @cindex magit-stash-keep-index
@@ -5403,10 +5403,10 @@ are not stashed.
 @cindex magit-snapshot-worktree
 @item @kbd{z W} @tie{}@tie{}@tie{}@tie{}(@code{magit-snapshot-worktree})
 
-Create a snapshot of the working tree only.  Untracked files are
-included according to popup arguments.  One prefix argument is
-equivalent to @code{--include-untracked} while two prefix arguments are
-equivalent to @code{--all}-.
+Create a snapshot of unstaged changes in the working tree.
+Untracked files are included according to popup arguments.  One
+prefix argument is equivalent to @code{--include-untracked} while two
+prefix arguments are equivalent to @code{--all}-.
 
 @kindex z a
 @cindex magit-stash-apply
