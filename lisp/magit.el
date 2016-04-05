@@ -1143,7 +1143,10 @@ FILE must be relative to the top directory of the repository."
           (setq magit-buffer-revision  (magit-rev-format "%H" rev)
                 magit-buffer-refname   rev
                 magit-buffer-file-name (expand-file-name file topdir))
-          (let ((buffer-file-name magit-buffer-file-name))
+          (let ((buffer-file-name magit-buffer-file-name)
+                (after-change-major-mode-hook
+                 (remq 'global-diff-hl-mode-enable-in-buffers
+                       after-change-major-mode-hook)))
             (normal-mode t))
           (setq buffer-read-only t)
           (set-buffer-modified-p nil)
