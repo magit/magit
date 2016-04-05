@@ -1440,6 +1440,9 @@ section or a child thereof."
           (magit-delete-line)
           (while (looking-at "^  \\([<>]\\) \\(.+\\)$")
             (magit-delete-line))
+          (when rewind
+            (setq range (replace-regexp-in-string "[^.]\\(\\.\\.\\)[^.]"
+                                                  "..." range t t 1)))
           (magit-insert-section (file module t)
             (magit-insert-heading
               (concat (propertize (concat "modified   " module)
