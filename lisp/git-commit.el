@@ -465,7 +465,7 @@ second line is empty."
             t ; Just try; we don't know whether --allow-empty-message was used.
           (and (or (equal (match-string 2) "")
                    (y-or-n-p "Summary line is too long.  Commit anyway? "))
-               (or (equal (match-string 3) "")
+               (or (not (match-string 3))
                    (y-or-n-p "Second line is not empty.  Commit anyway? ")))))))
 
 (defun git-commit-cancel-message ()
@@ -609,7 +609,7 @@ With a numeric prefix ARG, go forward ARG comments."
    ;; Summary line
    (format "\\(.\\{0,%d\\}\\)\\(.*\\)" git-commit-summary-max-length)
    ;; Non-empty non-comment second line
-   (format "\\(?:\n%s\\|\n\\(.*\\)\\)?" comment-start)))
+   (format "\\(?:\n%s\\|\n\\(.+\\)\\)?" comment-start)))
 
 (defun git-commit-mode-font-lock-keywords ()
   `(;; Comments
