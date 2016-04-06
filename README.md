@@ -28,16 +28,15 @@
 ***
 
 <p align="center">
+  <br>
+  <img width="16" height="16" src="https://assets-cdn.github.com/images/icons/emoji/unicode/2764.png">
   <b>
-    Please consider supporting development by making a
-    <a href="https://magit.vc/donations.html">donation</a>.
+    Please consider supporting development by
+    <a href="https://magit.vc/donations.html">making a donation</a>.
   </b>
-  </br></br>
-  <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TGDUK5VGB78XA">
-    <img alt="Donate" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">
-  </a>
-  </br>
-  <a class="small" href="https://magit.vc/donations.html">(other donation methods)</a>
+  <img width="16" height="16" src="https://assets-cdn.github.com/images/icons/emoji/unicode/2764.png">
+  <br>
+  <br>
 </p>
 ***
 
