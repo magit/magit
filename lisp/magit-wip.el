@@ -207,8 +207,8 @@ commit message."
     (unless (equal parent wipref)
       (setq start-msg (concat "restart autosaving " start-msg))
       (magit-update-ref wipref start-msg
-                        (magit-git-string "commit-tree" "-p" parent
-                                          "-m" start-msg
+                        (magit-git-string "commit-tree" "--no-gpg-sign"
+                                          "-p" parent "-m" start-msg
                                           (concat parent "^{tree}")))
       (setq parent wipref))
     (magit-update-ref wipref msg

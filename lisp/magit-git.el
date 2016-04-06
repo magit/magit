@@ -1179,7 +1179,7 @@ Return a list of two integers: (A>B B>A)."
            (delete-file (concat (file-remote-p default-directory) ,file)))))))
 
 (defun magit-commit-tree (message &optional tree &rest parents)
-  (magit-git-string "commit-tree" "-m" message
+  (magit-git-string "commit-tree" "--no-gpg-sign" "-m" message
                     (--mapcat (list "-p" it) (delq nil parents))
                     (or tree (magit-git-string "write-tree"))))
 
