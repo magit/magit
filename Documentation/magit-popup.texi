@@ -52,7 +52,6 @@ General Public License for more details.
 @insertcopying
 @end ifnottex
 
-
 @menu
 * Introduction::
 * Usage::
@@ -61,16 +60,18 @@ General Public License for more details.
 @detailmenu
 --- The Detailed Node Listing ---
 
+
 Usage
 
 * Customizing existing popups::
 * Other options::
 
+
+
 Defining prefix and suffix commands
 
 * Defining prefix commands::
 * Defining suffix commands::
-
 @end detailmenu
 @end menu
 

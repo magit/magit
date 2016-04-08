@@ -55,7 +55,6 @@ General Public License for more details.
 @insertcopying
 @end ifnottex
 
-
 @menu
 * Introduction::
 * Installation::
@@ -76,12 +75,16 @@ General Public License for more details.
 @detailmenu
 --- The Detailed Node Listing ---
 
+
 Installation
 
 * Updating from an older release::
 * Installing from an Elpa archive::
 * Installing from the Git repository::
 * Post-installation tasks::
+
+
+
 
 Interface concepts
 
@@ -100,6 +103,7 @@ Modes and Buffers
 * Automatic Saving of File-Visiting Buffers::
 * Automatic Reverting of File-Visiting Buffers::
 
+
 Sections
 
 * Section movement::
@@ -107,6 +111,9 @@ Sections
 * Section hooks::
 * Section types and values::
 * Section options::
+
+
+
 
 Running Git
 
@@ -132,6 +139,7 @@ Status buffer
 * Status header sections::
 * Status options::
 
+
 Logging
 
 * Refreshing logs::
@@ -139,12 +147,15 @@ Logging
 * Select from log::
 * Reflog::
 
+
 Diffing
 
 * Refreshing diffs::
 * Diff buffer::
 * Diff options::
 * Revision buffer::
+
+
 
 References buffer
 
@@ -163,19 +174,26 @@ Manipulating
 * Resetting::
 * Stashing::
 
+
 Staging and unstaging
 
 * Staging from file-visiting buffers::
+
+
 
 Committing
 
 * Initiating a commit::
 * Editing commit messages::
 
+
+
+
 Rebasing
 
 * Editing rebase sequences::
 * Rebase sequence log::
+
 
 Cherry picking
 
@@ -190,6 +208,8 @@ Transferring
 * Creating and sending patches::
 * Applying patches::
 
+
+
 Miscellaneous
 
 * Tagging::
@@ -200,10 +220,13 @@ Miscellaneous
 * Minor mode for buffers visiting files::
 * Minor mode for buffers visiting blobs::
 
+
+
 Customizing
 
 * Per-repository configuration::
 * Essential settings::
+
 
 Essential settings
 
@@ -222,11 +245,14 @@ Calling Git
 * Getting a value from Git::
 * Calling Git for effect::
 
+
 Section plumbing
 
 * Creating sections::
 * Section selection::
 * Matching sections::
+
+
 
 Conventions
 
@@ -254,7 +280,6 @@ FAQ
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
 * Symbol's value as function is void --some::
 * Where is the branch manager::
-
 @end detailmenu
 @end menu
 
@@ -660,7 +685,6 @@ You might also want to enable @code{global-magit-file-mode} (see @ref{Minor mode
 
 @node Interface concepts
 @chapter Interface concepts
-
 
 @menu
 * Modes and Buffers::
@@ -1647,7 +1671,6 @@ option when acting on a single section.
 
 @node Running Git
 @section Running Git
-
 
 @menu
 * Viewing Git output::
@@ -3495,7 +3518,6 @@ Hook run by @code{magit-blame-next-chunk} and @code{magit-blame-previous-chunk}.
 
 @node Manipulating
 @chapter Manipulating
-
 
 @menu
 * Repository setup::
@@ -5466,7 +5488,6 @@ Remove all stashes saved in REF's reflog by deleting REF.
 @node Transferring
 @chapter Transferring
 
-
 @menu
 * Remotes::
 * Fetching::
@@ -5910,7 +5931,6 @@ changes made since the sequence started.
 
 @node Miscellaneous
 @chapter Miscellaneous
-
 
 @menu
 * Tagging::
@@ -7105,7 +7125,6 @@ git exits with a non-zero exit status.  For debugging purposes.
 @node Section plumbing
 @section Section plumbing
 
-
 @menu
 * Creating sections::
 * Section selection::
@@ -7445,7 +7464,6 @@ of this variable and then calling this @code{magit-refresh-function}.
 
 @node Conventions
 @section Conventions
-
 
 @menu
 * Confirmation and completion::
