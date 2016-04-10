@@ -1,0 +1,24 @@
+Magit v2.6.1 Release Notes
+==========================
+
+Fixes since v2.6.0
+------------------
+
+* When the commit message buffer contained nothing but a single line
+  that did not end with a newline, then a warning was shown about
+  there being a non-empty second line.
+
+* Stash and wipref were needlessly signed if signing is enabled.
+
+* Visiting a blob did turn on `diff-hl-mode' if the global mode is on.
+
+* Rewinded submodules were not shown in the status buffer.
+
+* When installing from Melpa `async-bytecomp-package-mode' was no
+  longer activated early enough.
+
+This release also contains documentation updates, typofixes, fixes for
+minor bugs, and other small improvements.
+
+Authors
+-------
