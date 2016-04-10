@@ -17,6 +17,9 @@ Fixes since v2.6.0
 * When installing from Melpa `async-bytecomp-package-mode' was no
   longer activated early enough.
 
+* The command `git-commit-save-message' did not strip diffs produced
+  by `git commit --verbose'.
+
 This release also contains documentation updates, typofixes, fixes for
 minor bugs, and other small improvements.
 

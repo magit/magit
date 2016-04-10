@@ -511,6 +511,9 @@ With a numeric prefix ARG, go forward ARG comments."
     (with-temp-buffer
       (insert str)
       (goto-char (point-min))
+      (when (re-search-forward (concat flush " -+ >8 -+$") nil t)
+        (delete-region (point-at-bol) (point-max)))
+      (goto-char (point-min))
       (flush-lines flush)
       (goto-char (point-max))
       (unless (eq (char-before) ?\n)
