@@ -650,6 +650,7 @@ With a numeric prefix ARG, go forward ARG comments."
   (save-excursion
     (goto-char (point-min))
     (when (re-search-forward "^diff --git" nil t)
+      (beginning-of-line)
       (let ((buffer (current-buffer)))
         (insert
          (with-temp-buffer
@@ -667,7 +668,9 @@ With a numeric prefix ARG, go forward ARG comments."
              (while (setq next (next-single-property-change pos 'face))
                (put-text-property pos next 'font-lock-face
                                   (get-text-property pos 'face))
-               (setq pos next)))
+               (setq pos next))
+             (put-text-property pos (point-max) 'font-lock-face
+                                (get-text-property pos 'face)))
            (buffer-string)))))))
 
 ;;; git-commit.el ends soon

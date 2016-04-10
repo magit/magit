@@ -20,6 +20,9 @@ Fixes since v2.6.0
 * The command `git-commit-save-message' did not strip diffs produced
   by `git commit --verbose'.
 
+* Diffs produced by `git commit --verbose' were not completely
+  highlighted in the commit message buffer.
+
 This release also contains documentation updates, typofixes, fixes for
 minor bugs, and other small improvements.
 
