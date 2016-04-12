@@ -212,8 +212,8 @@ commit message."
                                           (concat parent "^{tree}")))
       (setq parent wipref))
     (magit-update-ref wipref msg
-                      (magit-git-string "commit-tree" tree
-                                        "-p" parent "-m" msg))))
+                      (magit-git-string "commit-tree" "--no-gpg-sign"
+                                        "-p" parent "-m" msg tree))))
 
 (defun magit-wip-get-ref ()
   (let ((ref (or (magit-git-string "symbolic-ref" "HEAD") "HEAD")))
