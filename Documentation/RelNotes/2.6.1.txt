@@ -15,6 +15,9 @@ Fixes since v2.6.0
 * In some cases not all modified submodules were shown in the status
   buffer.
 
+* When a submodule was manually removed, then the status buffer could
+  no longer be updated.
+
 * When installing from Melpa `async-bytecomp-package-mode' was no
   longer activated early enough.
 

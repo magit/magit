@@ -167,7 +167,8 @@ These sections can be expanded to show the respective commits."
         (dolist (module modules)
           (let ((default-directory
                   (expand-file-name (file-name-as-directory module))))
-            (--when-let (funcall fn)
+            (--when-let (and (magit-file-accessible-directory-p default-directory)
+                             (funcall fn))
               (magit-insert-section sec (file module t)
                 (magit-insert-heading
                   (concat (propertize module 'face 'magit-diff-file-heading) ":"))
