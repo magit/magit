@@ -1435,8 +1435,9 @@ section or a child thereof."
         (magit-delete-line)
         (setq modified t))
       (cond
-       ((looking-at "^Submodule [^ ]+ \\([^ :]+\\)\\( (rewind)\\)?:$")
-        (magit-bind-match-strings (range rewind) nil
+       ((and (looking-at "^Submodule \\([^ ]+\\) \\([^ :]+\\)\\( (rewind)\\)?:$")
+             (equal (match-string 1) module))
+        (magit-bind-match-strings (_module range rewind) nil
           (magit-delete-line)
           (while (looking-at "^  \\([<>]\\) \\(.+\\)$")
             (magit-delete-line))
@@ -1464,8 +1465,9 @@ section or a child thereof."
               (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
                 "log" "--oneline" "--left-right" range)
               (delete-char -1)))))
-       ((looking-at "^Submodule [^ ]+ \\([^ ]+\\) (\\([^)]+\\))$")
-        (magit-bind-match-strings (_range msg) nil
+       ((and (looking-at "^Submodule \\([^ ]+\\) \\([^ ]+\\) (\\([^)]+\\))$")
+             (equal (match-string 1) module))
+        (magit-bind-match-strings (_module _range msg) nil
           (magit-delete-line)
           (magit-insert-section (file module)
             (magit-insert-heading

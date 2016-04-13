@@ -12,7 +12,8 @@ Fixes since v2.6.0
 
 * Visiting a blob did turn on `diff-hl-mode' if the global mode is on.
 
-* Rewinded submodules were not shown in the status buffer.
+* In some cases not all modified submodules were shown in the status
+  buffer.
 
 * When installing from Melpa `async-bytecomp-package-mode' was no
   longer activated early enough.
