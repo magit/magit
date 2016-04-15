@@ -13,5 +13,9 @@ Fixes since v2.6.1
   `--graph', deleted the first two characters of file names in the
   diff.
 
+* The default value for `magit-cygwin-mount-points' checked if
+  "git.exe" was a cygwin flavor of git, instead of the (possibly user
+  customized) value of `magit-git-executable'.
+
 Authors
 -------

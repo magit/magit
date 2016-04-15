@@ -588,10 +588,13 @@ range.  Otherwise, it can be any revision or range accepted by
                              "Failed to parse Cygwin mount: %S" it))
                     ;; If --exec-path is not a native Windows path,
                     ;; then we probably have a cygwin git.
-                    (and (not (string-match-p
-                               "\\`[a-zA-Z]:"
-                               (car (process-lines "git" "--exec-path"))))
-                         (ignore-errors (process-lines "mount"))))
+                    (let ((process-environment
+                           (append magit-git-environment process-environment)))
+                      (and (not (string-match-p
+                                 "\\`[a-zA-Z]:"
+                                 (car (process-lines
+                                       magit-git-executable "--exec-path"))))
+                           (ignore-errors (process-lines "mount")))))
              #'> :key (-lambda ((cyg . _win)) (length cyg))))
   "Alist of (CYGWIN . WIN32) directory names.
 Sorted from longest to shortest CYGWIN name."
