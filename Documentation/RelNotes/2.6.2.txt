@@ -4,9 +4,10 @@ Magit v2.6.2 Release Notes (draft)
 Fixes since v2.6.1
 ------------------
 
-* When possible `git merge --no-commit' performs a fast-forward merge,
-  which isn't what one would expect.  `magit-merge-nocommit' now works
-  around that by always using `--no-ff'.
+* When possible `git merge (--no-commit|--edit)' perform fast-forward
+  merges, which isn't what one would expect.  `magit-merge-nocommit'
+  and `magit-merge-editmsg' now works around that by always using
+  `--no-ff'.
 
 Authors
 -------

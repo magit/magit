@@ -1795,10 +1795,11 @@ merge.
   "Merge commit REV into the current branch; and edit message.
 Perform the merge and prepare a commit message but let the user
 edit it.
-\n(git merge --edit [ARGS] rev)"
+\n(git merge --edit --no-ff [ARGS] rev)"
   (interactive (list (magit-read-other-branch-or-commit "Merge")
                      (magit-merge-arguments)))
   (magit-merge-assert)
+  (cl-pushnew "--no-ff" args :test #'equal)
   (with-editor "GIT_EDITOR"
     (let ((magit-process-popup-time -1))
       (magit-run-git-async "merge" "--edit" args rev))))
