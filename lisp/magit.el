@@ -1808,10 +1808,11 @@ edit it.
   "Merge commit REV into the current branch; pretending it failed.
 Pretend the merge failed to give the user the opportunity to
 inspect the merge and change the commit message.
-\n(git merge --no-commit [ARGS] rev)"
+\n(git merge --no-commit --no-ff [ARGS] rev)"
   (interactive (list (magit-read-other-branch-or-commit "Merge")
                      (magit-merge-arguments)))
   (magit-merge-assert)
+  (cl-pushnew "--no-ff" args :test #'equal)
   (magit-run-git "merge" "--no-commit" args rev))
 
 ;;;###autoload
