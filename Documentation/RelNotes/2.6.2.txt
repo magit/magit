@@ -9,5 +9,9 @@ Fixes since v2.6.1
   and `magit-merge-editmsg' now works around that by always using
   `--no-ff'.
 
+* The command `magit-log', when called with `--patch' but not
+  `--graph', deleted the first two characters of file names in the
+  diff.
+
 Authors
 -------

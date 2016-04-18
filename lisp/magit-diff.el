@@ -1399,7 +1399,9 @@ section or a child thereof."
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
       ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
-      (when (derived-mode-p 'magit-log-mode)
+      (when (and (derived-mode-p 'magit-log-mode)
+                 (--first (string-match-p "\\`-L" it)
+                          (nth 1 magit-refresh-args)))
         (setq file (substring file 2))
         (when orig
           (setq orig (substring orig 2))))
