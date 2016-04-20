@@ -334,7 +334,7 @@ missing.  To add them use something like:
              (?F "remotes and prune" magit-fetch-all-prune)
              "Fetch"
              (?o "another branch"    magit-fetch-branch)
-             (?r "explicit refspec"  magit-fetch-refspec)
+             (?s "explicit refspec"  magit-fetch-refspec)
              (?m "submodules"        magit-submodule-fetch))
   :default-action 'magit-fetch
   :max-action-columns 1)
