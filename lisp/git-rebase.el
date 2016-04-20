@@ -388,7 +388,9 @@ running 'man git-rebase' at the command line) for details."
   (setq-local redisplay-highlight-region-function 'git-rebase-highlight-region)
   (setq-local redisplay-unhighlight-region-function 'git-rebase-unhighlight-region)
   (add-hook 'with-editor-pre-cancel-hook  'git-rebase-autostash-save  nil t)
-  (add-hook 'with-editor-post-cancel-hook 'git-rebase-autostash-apply nil t))
+  (add-hook 'with-editor-post-cancel-hook 'git-rebase-autostash-apply nil t)
+  (when (boundp 'save-place)
+    (setq save-place nil)))
 
 (defun git-rebase-cancel-confirm (force)
   (or (not (buffer-modified-p)) force (y-or-n-p "Abort this rebase? ")))
