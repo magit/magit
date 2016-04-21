@@ -6,12 +6,17 @@ Fixes since v2.6.1
 
 * When possible `git merge (--no-commit|--edit)' perform fast-forward
   merges, which isn't what one would expect.  `magit-merge-nocommit'
-  and `magit-merge-editmsg' now works around that by always using
+  and `magit-merge-editmsg' now work around that by always using
   `--no-ff'.
 
 * The command `magit-log', when called with `--patch' but not
   `--graph', deleted the first two characters of file names in the
   diff.
+
+* `git-rebase-mode' failed to prevent `save-place-mode' from having an
+  effect.
+
+* Two key bindings in `magit-pull-and-fetch-popup' conflicted.
 
 * The default value for `magit-cygwin-mount-points' checked if
   "git.exe" was a cygwin flavor of git, instead of the (possibly user
