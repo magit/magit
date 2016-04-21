@@ -245,10 +245,14 @@ depending on the value of option `magit-commit-squash-confirm'."
                           current-prefix-arg
                           magit-commit-squash-confirm))))
         (let ((magit-commit-show-diff nil))
-          (magit-run-git-with-editor "commit"
-                                     (unless edit "--no-edit")
-                                     (concat option "=" commit)
-                                     args))
+          (push (concat option "=" commit) args)
+          (unless edit
+            (push "--no-edit" args))
+          (if rebase
+              (with-editor "GIT_EDITOR"
+                (let ((magit-process-popup-time -1))
+                  (magit-call-git "commit" args)))
+            (magit-run-git-with-editor "commit" args)))
       (magit-log-select
         `(lambda (commit)
            (magit-commit-squash-internal ,option commit ',args ,rebase ,edit t)

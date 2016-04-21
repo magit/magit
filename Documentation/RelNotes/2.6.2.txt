@@ -13,6 +13,9 @@ Fixes since v2.6.1
   `--graph', deleted the first two characters of file names in the
   diff.
 
+* When performing an instant fixup/squash, the rebase often failed
+  because the commit process still held the lock on `index.lock'.
+
 * `git-rebase-mode' failed to prevent `save-place-mode' from having an
   effect.
 
