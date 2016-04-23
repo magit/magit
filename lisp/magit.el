@@ -2276,6 +2276,7 @@ the current repository."
     map)
   "Keymap for `magit-file-mode'.")
 
+;;;###autoload (autoload 'magit-file-popup "magit" nil t)
 (magit-define-popup magit-file-popup
   "Popup console for Magit commands in file-visiting buffers."
   :actions '((?s "Stage"     magit-stage-file)
