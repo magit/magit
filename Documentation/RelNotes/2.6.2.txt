@@ -16,6 +16,10 @@ Fixes since v2.6.1
 * When performing an instant fixup/squash, the rebase often failed
   because the commit process still held the lock on `index.lock'.
 
+* The command `magit-submodule-add' offered an invalid default choice
+  for the module path and allowed selecting a path to a file that is
+  not a repository.
+
 * `git-rebase-mode' failed to prevent `save-place-mode' from having an
   effect.
 

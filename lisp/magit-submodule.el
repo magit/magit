@@ -46,27 +46,28 @@
 
 Optional PATH is the path to the submodule relative to the root
 of the superproject.  If it is nil, then the path is determined
-based on URL.
+based on the URL.
 
 Optional NAME is the name of the submodule.  If it is nil, then
 PATH also becomes the name."
   (interactive
    (magit-with-toplevel
-     (let ((path (read-file-name
-                  "Add submodule: " nil nil nil
-                  (magit-section-when [file untracked]
-                    (directory-file-name (magit-section-value it))))))
-       (when path
-         (setq path (file-name-as-directory (expand-file-name path)))
-         (when (member path (list "" default-directory))
-           (setq path nil)))
+     (let ((path (magit-completing-read "Add submodules at path"
+                                        (magit-untracked-files)
+                                        #'magit-git-repo-p nil nil nil
+                                        (magit-section-when [file untracked]
+                                          (file-relative-name
+                                           (directory-file-name
+                                            (magit-section-value it))
+                                           default-directory)))))
+       (unless path
+         (user-error "No path selected"))
        (list (magit-read-string-ns
               "Remote url"
-              (and path (magit-git-repo-p path t)
-                   (let ((default-directory path))
-                     (magit-get "remote" (or (magit-get-remote) "origin")
-                                "url"))))
-             (and path (directory-file-name (file-relative-name path)))
+              (let ((default-directory (file-name-as-directory
+                                        (expand-file-name path))))
+                (magit-get "remote" (or (magit-get-remote) "origin") "url")))
+             (directory-file-name path)
              (magit-read-string-ns "Name submodule" path)))))
   (magit-run-git "submodule" "add" (and name (list "--name" name)) url path))
 
