@@ -68,7 +68,12 @@ PATH also becomes the name."
                                         (expand-file-name path))))
                 (magit-get "remote" (or (magit-get-remote) "origin") "url")))
              (directory-file-name path)
-             (magit-read-string-ns "Name submodule" path)))))
+             (magit-read-string-ns
+              "Name submodule" nil nil
+              (--keep (-let [(var val) (split-string it "=")]
+                        (and (equal val path)
+                             (cadr (split-string var "\\."))))
+                      (magit-git-lines "config" "--list" "-f" ".gitmodules")))))))
   (magit-run-git "submodule" "add" (and name (list "--name" name)) url path))
 
 ;;;###autoload
