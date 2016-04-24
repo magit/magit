@@ -128,39 +128,39 @@ With a prefix argument fetch all remotes."
 (defun magit-insert-modules-unpulled-from-upstream ()
   "Insert sections for modules that haven't been pulled from the upstream.
 These sections can be expanded to show the respective commits."
-  (magit-insert-submodules "Modules unpulled from @{upstream}"
-                           'modules-unpulled-from-upstream
-                           'magit-get-upstream-ref
-                           "HEAD..%s"))
+  (magit--insert-modules-logs "Modules unpulled from @{upstream}"
+                              'modules-unpulled-from-upstream
+                              'magit-get-upstream-ref
+                              "HEAD..%s"))
 
 ;;;###autoload
 (defun magit-insert-modules-unpulled-from-pushremote ()
   "Insert sections for modules that haven't been pulled from the push-remote.
 These sections can be expanded to show the respective commits."
-  (magit-insert-submodules "Modules unpulled from <push-remote>"
-                           'modules-unpulled-from-pushremote
-                           'magit-get-push-branch
-                           "HEAD..%s"))
+  (magit--insert-modules-logs "Modules unpulled from <push-remote>"
+                              'modules-unpulled-from-pushremote
+                              'magit-get-push-branch
+                              "HEAD..%s"))
 
 ;;;###autoload
 (defun magit-insert-modules-unpushed-to-upstream ()
   "Insert sections for modules that haven't been pushed to the upstream.
 These sections can be expanded to show the respective commits."
-  (magit-insert-submodules "Modules unmerged into @{upstream}"
-                           'modules-unpushed-to-upstream
-                           'magit-get-upstream-ref
-                           "%s..HEAD"))
+  (magit--insert-modules-logs "Modules unmerged into @{upstream}"
+                              'modules-unpushed-to-upstream
+                              'magit-get-upstream-ref
+                              "%s..HEAD"))
 
 ;;;###autoload
 (defun magit-insert-modules-unpushed-to-pushremote ()
   "Insert sections for modules that haven't been pushed to the push-remote.
 These sections can be expanded to show the respective commits."
-  (magit-insert-submodules "Modules unpushed to <push-remote>"
-                           'modules-unpushed-to-pushremote
-                           'magit-get-push-branch
-                           "%s..HEAD"))
+  (magit--insert-modules-logs "Modules unpushed to <push-remote>"
+                              'modules-unpushed-to-pushremote
+                              'magit-get-push-branch
+                              "%s..HEAD"))
 
-(defun magit-insert-submodules (heading type fn format)
+(defun magit--insert-modules-logs (heading type fn format)
   "For internal use, don't add to a hook."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section ((eval type) nil t)
