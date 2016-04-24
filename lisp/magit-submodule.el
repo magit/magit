@@ -125,6 +125,24 @@ With a prefix argument fetch all remotes."
 ;;; Sections
 
 ;;;###autoload
+(defun magit-insert-submodules ()
+  "Insert sections for all modules.
+For each section insert the path and the output of `git describe --tags'."
+  (-when-let (modules (magit-get-submodules))
+    (magit-insert-section (modules nil t)
+      (magit-insert-heading "Submodules:")
+      (magit-with-toplevel
+        (dolist (module modules)
+          (let ((default-directory
+                  (expand-file-name (file-name-as-directory module))))
+            (magit-insert-section (file module t)
+              (insert (format "%-25s " module))
+              (let ((beg (point)))
+                (magit-git-insert "describe" "--tags")
+                (when (eq (point) beg)
+                  (insert ?\n))))))))))
+
+;;;###autoload
 (defun magit-insert-modules-unpulled-from-upstream ()
   "Insert sections for modules that haven't been pulled from the upstream.
 These sections can be expanded to show the respective commits."

@@ -2142,6 +2142,12 @@ push-remote yet. These sections can be expanded to show the
 respective commits.
 @end defun
 
+@defun magit-insert-submodules
+
+Insert sections for all modules.  For each section insert the path
+and the output of @code{git describe --tags}.
+@end defun
+
 @defun magit-insert-unpulled-cherries
 
 Insert section showing unpulled commits.

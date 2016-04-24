@@ -1584,6 +1584,11 @@ The following functions can also be added to the above hook:
   push-remote yet. These sections can be expanded to show the
   respective commits.
 
+- Function: magit-insert-submodules
+
+  Insert sections for all modules.  For each section insert the path
+  and the output of ~git describe --tags~.
+
 - Function: magit-insert-unpulled-cherries
 
   Insert section showing unpulled commits.

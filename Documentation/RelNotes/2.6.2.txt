@@ -4,6 +4,10 @@ Magit v2.6.2 Release Notes (draft)
 Changes since v2.6.1
 --------------------
 
+* Added new section inserter `magit-insert-submodules'.  For each
+  submodule it inserts the module path and the output of `git descibe
+  --tags'.
+
 * When adding an already configure but for some reason unstaged
   submodule, then `magit-submodule-add' now offers the configured
   submodule name as default choice.
