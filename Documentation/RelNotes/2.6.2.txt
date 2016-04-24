@@ -19,6 +19,10 @@ Fixes since v2.6.1
 * `git-rebase-mode' failed to prevent `save-place-mode' from having an
   effect.
 
+* When no upstream is configured, then
+  `magit-insert-unpulled-from-upstream-or-recent' failed to insert the
+  recent commits instead.
+
 * Two key bindings in `magit-pull-and-fetch-popup' conflicted.
 
 * The default value for `magit-cygwin-mount-points' checked if

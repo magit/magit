@@ -1364,10 +1364,11 @@ ahead of the current branch, then show the commits that have
 not yet been pulled into the current branch.  If no upstream is
 configured or if the upstream is not ahead of the current branch,
 then show the last `magit-log-section-commit-count' commits."
-  (if (equal (magit-rev-parse "HEAD")
-             (magit-rev-parse "@{upstream}"))
-      (magit-insert-recent-commits t)
-    (magit-insert-unpulled-from-upstream)))
+  (let ((upstream (magit-rev-parse "@{upstream}")))
+    (if (or (not upstream)
+            (equal upstream (magit-rev-parse "HEAD")))
+        (magit-insert-recent-commits t)
+      (magit-insert-unpulled-from-upstream))))
 
 ;;;; Auxiliary Log Sections
 
