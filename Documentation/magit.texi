@@ -276,11 +276,11 @@ FAQ
 * How can I show Git's output?::
 * Diffs contain control sequences::
 * Expanding a file to show the diff causes it to disappear::
-* Point is wrong in the COMMIT@math{_EDITMSG} buffer::
-* Can Magit be used as ediff-version-control-package?::
+* Point is wrong in the @code{COMMIT_EDITMSG} buffer::
+* Can Magit be used as @code{ediff-version-control-package}?::
 * How to show diffs for gpg-encrypted files?::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
-* Symbol's value as function is void --some::
+* @code{Symbol's value as function is void --some}::
 * Where is the branch manager::
 @end detailmenu
 @end menu
@@ -7648,11 +7648,11 @@ made it into the manual yet, see @uref{https://github.com/magit/magit/wiki/FAQ}.
 * How can I show Git's output?::
 * Diffs contain control sequences::
 * Expanding a file to show the diff causes it to disappear::
-* Point is wrong in the COMMIT@math{_EDITMSG} buffer::
-* Can Magit be used as ediff-version-control-package?::
+* Point is wrong in the @code{COMMIT_EDITMSG} buffer::
+* Can Magit be used as @code{ediff-version-control-package}?::
 * How to show diffs for gpg-encrypted files?::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
-* Symbol's value as function is void --some::
+* @code{Symbol's value as function is void --some}::
 * Where is the branch manager::
 @end menu
 
@@ -7892,8 +7892,8 @@ probably set that variable for a reason, and should therefore
 only undo that setting in Magit by customizing
 @code{magit-git-global-arguments}.
 
-@node Point is wrong in the COMMIT@math{_EDITMSG} buffer
-@section Point is wrong in the COMMIT@math{_EDITMSG} buffer
+@node Point is wrong in the @code{COMMIT_EDITMSG} buffer
+@section Point is wrong in the @code{COMMIT_EDITMSG} buffer
 
 Neither Magit nor `git-commit` fiddle with point in the buffer used to
 write commit messages, so something else must be doing it.
@@ -7915,8 +7915,8 @@ help:
       (pointback-mode -1))))
 @end lisp
 
-@node Can Magit be used as ediff-version-control-package?
-@section Can Magit be used as ediff-version-control-package?
+@node Can Magit be used as @code{ediff-version-control-package}?
+@section Can Magit be used as @code{ediff-version-control-package}?
 
 No, it cannot.  For that to work the functions @code{ediff-magit-internal}
 and @code{ediff-magit-merge-internal} would have to be implemented, and they
@@ -7969,8 +7969,8 @@ can work around the problem by setting
 @code{tramp-ssh-controlmaster-options}. Changing your DNS server (e.g. to
 Google's @code{8.8.8.8}) may also be sufficient to work around the issue.
 
-@node Symbol's value as function is void --some
-@section Symbol's value as function is void --some
+@node @code{Symbol's value as function is void --some}
+@section @code{Symbol's value as function is void --some}
 
 Update @code{dash}, restart Emacs, and then it will be defined.
 

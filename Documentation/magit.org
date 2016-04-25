@@ -5883,7 +5883,7 @@ probably set that variable for a reason, and should therefore
 only undo that setting in Magit by customizing
 ~magit-git-global-arguments~.
 
-** Point is wrong in the COMMIT_EDITMSG buffer
+** Point is wrong in the ~COMMIT_EDITMSG~ buffer
 
 Neither Magit nor `git-commit` fiddle with point in the buffer used to
 write commit messages, so something else must be doing it.
@@ -5905,7 +5905,7 @@ help:
 	(pointback-mode -1))))
 #+END_SRC
 
-** Can Magit be used as ediff-version-control-package?
+** Can Magit be used as ~ediff-version-control-package~?
 
 No, it cannot.  For that to work the functions ~ediff-magit-internal~
 and ~ediff-magit-merge-internal~ would have to be implemented, and they
@@ -5956,7 +5956,7 @@ can work around the problem by setting
 ~tramp-ssh-controlmaster-options~. Changing your DNS server (e.g. to
 Google's ~8.8.8.8~) may also be sufficient to work around the issue.
 
-** Symbol's value as function is void --some
+** ~Symbol's value as function is void --some~
 
 Update ~dash~, restart Emacs, and then it will be defined.
 
