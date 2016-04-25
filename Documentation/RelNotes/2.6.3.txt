@@ -1,0 +1,8 @@
+Magit v2.6.3 Release Notes (draft)
+==================================
+
+Fixes since v2.6.2
+------------------
+
+Authors
+-------
