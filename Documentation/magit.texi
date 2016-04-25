@@ -6707,10 +6707,6 @@ repositories, then you might want to disable certain features on a
 per-repository or per-repository-class basis only.  See
 @ref{Per-repository configuration,Per-repository configuration}.
 
-@menu
-* Committing Performance::
-@end menu
-
 @unnumberedsubsubsec Microsoft Windows Performance
 
 In order to update the status buffer, @code{git} has to be run a few dozen
@@ -6801,7 +6797,6 @@ Then you should also make sure that the listed remote branches
 actually all exist.  You can do so by pruning branches which no longer
 exist using @code{f-pa}.
 
-@node Committing Performance
 @unnumberedsubsubsec Committing Performance
 
 When you initiate a commit, then Magit by default automatically shows
