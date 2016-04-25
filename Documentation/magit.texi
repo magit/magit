@@ -271,6 +271,7 @@ FAQ
 * I am using an Emacs release older than v24.4: I am using an Emacs release older than v244. 
 * I am using a Git release older than v1.9.4: I am using a Git release older than v194. 
 * I am using MS Windows and cannot push with Magit::
+* I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
 * How to install the gitman info manual?::
 * How can I show Git's output?::
 * Diffs contain control sequences::
@@ -7642,6 +7643,7 @@ made it into the manual yet, see @uref{https://github.com/magit/magit/wiki/FAQ}.
 * I am using an Emacs release older than v24.4: I am using an Emacs release older than v244. 
 * I am using a Git release older than v1.9.4: I am using a Git release older than v194. 
 * I am using MS Windows and cannot push with Magit::
+* I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
 * How to install the gitman info manual?::
 * How can I show Git's output?::
 * Diffs contain control sequences::
@@ -7679,6 +7681,10 @@ and @ref{Debugging,,,with-editor,}.
 
 @node Diffs are collapsed after un-/staging
 @section Diffs are collapsed after un-/staging
+
+This typically happens on Windows and/or large repositories where
+preparing diffs takes longer than @code{magit-diff-expansion-threshold}. The
+default is one second, try increasing it to a larger value.
 
 Currently when one part of a Magit buffer has to be updated the whole
 buffer is recreated from scratch.  That obviously isn't good for
@@ -7774,6 +7780,18 @@ can push on the command line.
 
 Detailed setup instructions can be found at
 @uref{https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows}.
+
+@node I am using OS X and SOMETHING works in shell but not in Magit
+@section I am using OS X and SOMETHING works in shell, but not in Magit
+
+This usually occurs because Emacs doesn't have the same environment
+variables as your shell.  Try installing and configuring
+@uref{https://github.com/purcell/exec-path-from-shell}.  By default it
+synchronizes @code{$PATH}, which helps Magit find the same @code{git} as the one you
+are using on the shell.
+
+If SOMETHING is "passphrase caching with gpg-agent for commit and/or
+tag signing", then you'll also need to synchronize @code{$GPG_AGENT_INFO}.
 
 @node How to install the gitman info manual?
 @section How to install the gitman info manual?

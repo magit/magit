@@ -5684,6 +5684,10 @@ and [[info:with-editor#Debugging]].
 
 ** Diffs are collapsed after un-/staging
 
+This typically happens on Windows and/or large repositories where
+preparing diffs takes longer than ~magit-diff-expansion-threshold~. The
+default is one second, try increasing it to a larger value.
+
 Currently when one part of a Magit buffer has to be updated the whole
 buffer is recreated from scratch.  That obviously isn't good for
 performance and will be fixed eventually.  Meanwhile we need a kludge
@@ -5772,6 +5776,17 @@ can push on the command line.
 
 Detailed setup instructions can be found at
 https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows.
+
+** I am using OS X and SOMETHING works in shell, but not in Magit
+
+This usually occurs because Emacs doesn't have the same environment
+variables as your shell.  Try installing and configuring
+https://github.com/purcell/exec-path-from-shell.  By default it
+synchronizes ~$PATH~, which helps Magit find the same ~git~ as the one you
+are using on the shell.
+
+If SOMETHING is "passphrase caching with gpg-agent for commit and/or
+tag signing", then you'll also need to synchronize ~$GPG_AGENT_INFO~.
 
 ** How to install the gitman info manual?
 
