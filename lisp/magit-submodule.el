@@ -130,7 +130,7 @@ With a prefix argument fetch all remotes."
 For each section insert the path and the output of `git describe --tags'."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section (modules nil t)
-      (magit-insert-heading "Submodules:")
+      (magit-insert-heading "Modules:")
       (magit-with-toplevel
         (dolist (module modules)
           (let ((default-directory
