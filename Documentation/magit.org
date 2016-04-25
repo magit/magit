@@ -4832,14 +4832,12 @@ order to benefit from the latest performance tweaks, should always
 use the latest release.  Magit too tries to work around some
 Windows-specific issues.
 
-But all these efforts might not be enough, forcing users to make some
-changes themselves.  For example, according to
-http://stackoverflow.com/questions/4485059, setting the following Git
-variables might also help:
+According to some sources setting the following Git variables can also
+help.
 
 #+BEGIN_SRC shell-script
-  git config --global core.preloadindex true
-  git config --global core.fscache true
+  git config --global core.preloadindex true   # default since v2.1
+  git config --global core.fscache true        # default since v2.8
   git config --global gc.auto 256
 #+END_SRC
 
