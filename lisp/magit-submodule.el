@@ -137,10 +137,11 @@ For each section insert the path and the output of `git describe --tags'."
                   (expand-file-name (file-name-as-directory module))))
             (magit-insert-section (file module t)
               (insert (format "%-25s " module))
-              (let ((beg (point)))
-                (magit-git-insert "describe" "--tags")
-                (when (eq (point) beg)
-                  (insert ?\n))))))))))
+              (--when-let (magit-git-string "describe" "--tags")
+                (when (string-match-p "\\`[0-9]" it)
+                  (insert ?\s))
+                (insert it))
+              (insert ?\n))))))))
 
 ;;;###autoload
 (defun magit-insert-modules-unpulled-from-upstream ()
