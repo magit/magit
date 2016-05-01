@@ -93,8 +93,8 @@
   "Hook run to insert headers into the status buffer.
 
 This hook is run by `magit-insert-status-headers', which in turn
-has to be a member of `magit-insert-status-sections' to be used
-at all."
+has to be a member of `magit-status-sections-hook' to be used at
+all."
   :package-version '(magit . "2.1.0")
   :group 'magit-status
   :type 'hook

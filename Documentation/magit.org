@@ -1626,7 +1626,7 @@ hook variable.
   Hook run to insert headers sections into the status buffer.
 
   This hook is run by ~magit-insert-status-headers~, which in turn has
-  to be a member of ~magit-insert-status-sections~ to be used at all.
+  to be a member of ~magit-status-sections-hook~ to be used at all.
 
 By default the following functions are members of the above hook:
 

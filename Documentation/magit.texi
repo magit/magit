@@ -2190,7 +2190,7 @@ The sections are inserted by running the functions on the hook
 Hook run to insert headers sections into the status buffer.
 
 This hook is run by @code{magit-insert-status-headers}, which in turn has
-to be a member of @code{magit-insert-status-sections} to be used at all.
+to be a member of @code{magit-status-sections-hook} to be used at all.
 @end defopt
 
 By default the following functions are members of the above hook:
