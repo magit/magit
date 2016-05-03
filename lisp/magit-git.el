@@ -1162,7 +1162,7 @@ Return a list of two integers: (A>B B>A)."
   (declare (indent 2) (debug (form form body)))
   (let ((file (cl-gensym "file")))
     `(let ((,file (magit-convert-git-filename
-                   (magit-git-dir (make-temp-name "index.magit.")))))
+                   (make-temp-name (magit-git-dir "index.magit.")))))
        (setq ,file (or (file-remote-p ,file 'localname) ,file))
        (unwind-protect
            (progn (--when-let ,tree
