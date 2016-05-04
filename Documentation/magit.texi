@@ -3608,6 +3608,10 @@ You can also use Ediff to stage and unstage.  See @ref{Ediffing,Ediffing}.
 
 Add the change at point to the staging area.
 
+With a prefix argument and an untracked file (or files) at point,
+stage the file but not its content.  This makes it possible to stage
+only a subset of the new file's changes.
+
 @kindex S
 @cindex magit-stage-modified
 @item @kbd{S} @tie{}@tie{}@tie{}@tie{}(@code{magit-stage-modified})

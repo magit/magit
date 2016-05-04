@@ -1,6 +1,13 @@
 Magit v2.6.3 Release Notes (draft)
 ==================================
 
+Changes since v2.6.2
+--------------------
+
+* The command `magit-stage' learned to stage an untracked file while
+  leaving its content unstaged (i.e. `git add --intent-to-add') when
+  called with a prefix argument.
+
 Fixes since v2.6.2
 ------------------
 

@@ -2621,6 +2621,10 @@ You can also use Ediff to stage and unstage.  See [[*Ediffing]].
 
   Add the change at point to the staging area.
 
+  With a prefix argument and an untracked file (or files) at point,
+  stage the file but not its content.  This makes it possible to stage
+  only a subset of the new file's changes.
+
 - Key: S, magit-stage-modified
 
   Stage all changes to files modified in the worktree.  Stage all new
