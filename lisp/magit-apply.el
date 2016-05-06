@@ -475,9 +475,10 @@ without requiring confirmation."
             (setq sections
                   (--filter (not (member (magit-section-value it) binaries))
                             sections)))
-          (if (= (length sections) 1)
-              (magit-discard-apply (car sections) 'magit-apply-diff)
-            (magit-discard-apply-n sections 'magit-apply-diffs))
+          (cond ((= (length sections) 1)
+                 (magit-discard-apply (car sections) 'magit-apply-diff))
+                (sections
+                 (magit-discard-apply-n sections 'magit-apply-diffs)))
           (when binaries
             (let ((modified (magit-modified-files t)))
               (setq binaries (--separate (member it modified) binaries)))
