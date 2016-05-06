@@ -3510,6 +3510,9 @@ commands instead.
 
   Restart the current rebasing operation.
 
+  In some cases this pops up a commit message buffer for you do edit.
+  With a prefix argument the old message is reused as-is.
+
 - Key: r s, magit-rebase-skip
 
   Skip the current commit and restart the current rebase operation.

@@ -4824,6 +4824,9 @@ commands instead.
 
 Restart the current rebasing operation.
 
+In some cases this pops up a commit message buffer for you do edit.
+With a prefix argument the old message is reused as-is.
+
 @kindex r s
 @cindex magit-rebase-skip
 @item @kbd{r s} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-skip})

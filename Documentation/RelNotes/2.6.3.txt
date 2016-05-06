@@ -10,6 +10,9 @@ Changes since v2.6.2
   leaving its content unstaged (i.e. `git add --intent-to-add') when
   called with a prefix argument.
 
+* The command `magit-rebase--continue' learned to reuse the old commit
+  message as-is when called with a prefix argument.
+
 Fixes since v2.6.2
 ------------------
 
