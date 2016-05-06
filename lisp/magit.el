@@ -2826,7 +2826,7 @@ Git, and Emacs in the echo area."
              (gitdir (expand-file-name
                       ".git" (file-name-directory
                               (directory-file-name topdir))))
-             (static (expand-file-name "magit-version.el" topdir)))
+             (static (locate-library "magit-version.el" nil (list topdir))))
         (or (progn
               (push 'repo debug)
               (when (and (file-exists-p gitdir)
@@ -2836,14 +2836,14 @@ Git, and Emacs in the echo area."
                 (push t debug)
                 ;; Inside the repo the version file should only exist
                 ;; while running make.
-                (unless noninteractive
+                (when (and static (not noninteractive))
                   (ignore-errors (delete-file static)))
                 (setq magit-version
                       (let ((default-directory topdir))
                         (magit-git-string "describe" "--tags" "--dirty")))))
             (progn
               (push 'static debug)
-              (when (file-exists-p static)
+              (when (and static (file-exists-p static))
                 (push t debug)
                 (load-file static)
                 magit-version))
