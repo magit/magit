@@ -845,10 +845,14 @@ line is inserted at all."
           "\\] \\)?"
           "\\(?3:.*\\)"))                   ; message
 
+(defconst magit-refs-symref-line-re "^  \\([^ ]+\\) +-> \\(.+\\)")
+
 (defvar magit-refs-local-branch-format "%4c %-25n %U%m\n"
   "Format used for local branches in refs buffers.")
 (defvar magit-refs-remote-branch-format "%4c %-25n %m\n"
   "Format used for remote branches in refs buffers.")
+(defvar magit-refs-symref-format "%4c %-25n -> %m\n"
+  "Format used for symrefs in refs buffers.")
 (defvar magit-refs-tags-format "%4c %-25n %m\n"
   "Format used for tags in refs buffers.")
 (defvar magit-refs-indent-cherry-lines 3
@@ -927,14 +931,18 @@ reference, but it is not checked out."
           (branches (magit-list-local-branch-names)))
       (dolist (line (magit-git-lines "branch" "-vv"
                                      (cadr magit-refresh-args)))
-        (when (string-match magit-refs-branch-line-re line)
+        (cond
+         ((string-match magit-refs-branch-line-re line)
           (magit-bind-match-strings
               (branch hash message upstream ahead behind gone) line
             (when (string-match-p "(HEAD detached" branch)
               (setq branch nil))
             (magit-insert-branch
              branch magit-refs-local-branch-format current branches
-             'magit-branch-local hash message upstream ahead behind gone)))))
+             'magit-branch-local hash message upstream ahead behind gone)))
+         ((string-match magit-refs-symref-line-re line)
+          (magit-bind-match-strings (symref ref) line
+            (magit-insert-symref symref ref 'magit-branch-local))))))
     (insert ?\n)))
 
 (defun magit-insert-remote-branches ()
@@ -950,12 +958,16 @@ reference, but it is not checked out."
             (branches (magit-list-local-branch-names)))
         (dolist (line (magit-git-lines "branch" "-vvr"
                                        (cadr magit-refresh-args)))
-          (when (string-match magit-refs-branch-line-re line)
+          (cond
+           ((string-match magit-refs-branch-line-re line)
             (magit-bind-match-strings (branch hash message) line
               (when (string-match-p (format "^%s/" remote) branch)
                 (magit-insert-branch
                  branch magit-refs-remote-branch-format current branches
-                 'magit-branch-remote hash message))))))
+                 'magit-branch-remote hash message))))
+           ((string-match magit-refs-symref-line-re line)
+            (magit-bind-match-strings (symref ref) line
+              (magit-insert-symref symref ref 'magit-branch-remote))))))
       (insert ?\n))))
 
 (defun magit-insert-branch (branch format &rest args)
@@ -1014,6 +1026,18 @@ reference, but it is not checked out."
     (when magit-show-margin
       (magit-refs-format-margin branch))
     (magit-refs-insert-cherry-commits head branch section)))
+
+(defun magit-insert-symref (symref ref face)
+  "For internal use, don't add to a hook."
+  (magit-insert-section (commit symref)
+    (insert
+     (format-spec (if magit-refs-show-commit-count
+                      magit-refs-symref-format
+                    (replace-regexp-in-string "%[0-9]\\([cC]\\)" "%1\\1"
+                                              magit-refs-symref-format t))
+                  `((?c . "")
+                    (?n . ,(propertize symref 'face face))
+                    (?m . ,(propertize ref    'face face)))))))
 
 (defvar magit-tag-section-map
   (let ((map (make-sparse-keymap)))

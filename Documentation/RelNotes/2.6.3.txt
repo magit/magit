@@ -13,6 +13,9 @@ Changes since v2.6.2
 * The command `magit-rebase--continue' learned to reuse the old commit
   message as-is when called with a prefix argument.
 
+* In the refs buffer symbolic refs, such as remote/origin/HEAD, are no
+  longer omitted from the lists of local and remote branches.
+
 Fixes since v2.6.2
 ------------------
 
