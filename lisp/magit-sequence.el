@@ -443,13 +443,22 @@ START has to be selected from a list of recent commits."
     "perl -i -p -e '++$x if not $x and s/^pick/reword/'"))
 
 ;;;###autoload
-(defun magit-rebase-continue ()
-  "Restart the current rebasing operation."
-  (interactive)
+(defun magit-rebase-continue (&optional noedit)
+  "Restart the current rebasing operation.
+In some cases this pops up a commit message buffer for you do
+edit.  With a prefix argument the old message is reused as-is."
+  (interactive "P")
   (if (magit-rebase-in-progress-p)
       (if (magit-anything-unstaged-p t)
           (user-error "Cannot continue rebase with unstaged changes")
-        (magit-run-git-sequencer "rebase" "--continue"))
+        (if noedit
+            (let ((process-environment process-environment))
+              (push "GIT_EDITOR=true" process-environment)
+              (magit-run-git-async "rebase" "--continue")
+              (set-process-sentinel magit-this-process
+                                    #'magit-sequencer-process-sentinel)
+              magit-this-process)
+          (magit-run-git-sequencer "rebase" "--continue")))
     (user-error "No rebase in progress")))
 
 ;;;###autoload
