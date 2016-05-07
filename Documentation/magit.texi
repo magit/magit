@@ -277,10 +277,11 @@ FAQ
 * Diffs contain control sequences::
 * Expanding a file to show the diff causes it to disappear::
 * Point is wrong in the @code{COMMIT_EDITMSG} buffer::
+* The mode-line information isn't always up-to-date::
 * Can Magit be used as @code{ediff-version-control-package}?::
 * How to show diffs for gpg-encrypted files?::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
-* @code{Symbol's value as function is void --some}::
+* Symbol's value as function is void @code{--some}::
 * Where is the branch manager::
 @end detailmenu
 @end menu
@@ -6817,6 +6818,24 @@ but doing it this way has the advantage that you usually get to see
 the diff, which is useful because it increases the odds that you spot
 potential issues.
 
+@unnumberedsubsubsec The built-in VC Package
+
+Emacs comes with a version control interface called "VC", see
+@ref{Version Control,,,emacs,}.  It is enabled be default and if you don't
+use it in addition to Magit, then you should disable it to keep it
+from performing unnecessary work:
+
+@lisp
+(setq vc-handled-backends nil)
+@end lisp
+
+You can also disable its use only for Git but keep using it when using
+another version control system:
+
+@lisp
+(setq vc-handled-backends (delq 'Git vc-handled-backends))
+@end lisp
+
 @node Plumbing
 @chapter Plumbing
 
@@ -7649,10 +7668,11 @@ made it into the manual yet, see @uref{https://github.com/magit/magit/wiki/FAQ}.
 * Diffs contain control sequences::
 * Expanding a file to show the diff causes it to disappear::
 * Point is wrong in the @code{COMMIT_EDITMSG} buffer::
+* The mode-line information isn't always up-to-date::
 * Can Magit be used as @code{ediff-version-control-package}?::
 * How to show diffs for gpg-encrypted files?::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
-* @code{Symbol's value as function is void --some}::
+* Symbol's value as function is void @code{--some}::
 * Where is the branch manager::
 @end menu
 
@@ -7915,6 +7935,35 @@ help:
       (pointback-mode -1))))
 @end lisp
 
+@node The mode-line information isn't always up-to-date
+@section The mode-line information isn't always up-to-date
+
+Magit is not responsible for the version control information that is
+being displayed in the mode-line and looks something like @code{Git-master}.
+The built-in "Version Control" package, also known as "VC", updates
+that information, and can be told to do so more often:
+
+@lisp
+(setq auto-revert-check-vc-info t)
+@end lisp
+
+But doing so isn't good for performance.  For more (overly optimistic)
+information see @ref{VC Mode Line,,,emacs,}.
+
+If you don't really care about seeing that information in the
+mode-line, but just don't want to see @emph{incorrect} information, then
+consider disabling VC when using Git:
+
+@lisp
+(setq vc-handled-backends (delq 'Git vc-handled-backends))
+@end lisp
+
+Or to disable it completely:
+
+@lisp
+(setq vc-handled-backends nil)
+@end lisp
+
 @node Can Magit be used as @code{ediff-version-control-package}?
 @section Can Magit be used as @code{ediff-version-control-package}?
 
@@ -7969,8 +8018,8 @@ can work around the problem by setting
 @code{tramp-ssh-controlmaster-options}. Changing your DNS server (e.g. to
 Google's @code{8.8.8.8}) may also be sufficient to work around the issue.
 
-@node @code{Symbol's value as function is void --some}
-@section @code{Symbol's value as function is void --some}
+@node Symbol's value as function is void @code{--some}
+@section Symbol's value as function is void @code{--some}
 
 Update @code{dash}, restart Emacs, and then it will be defined.
 

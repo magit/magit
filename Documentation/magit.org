@@ -4938,6 +4938,27 @@ but doing it this way has the advantage that you usually get to see
 the diff, which is useful because it increases the odds that you spot
 potential issues.
 
+**** The built-in VC Package
+:PROPERTIES:
+:NONODE:     t
+:END:
+
+Emacs comes with a version control interface called "VC", see
+[[info:emacs#Version Control]].  It is enabled be default and if you don't
+use it in addition to Magit, then you should disable it to keep it
+from performing unnecessary work:
+
+#+BEGIN_SRC emacs-lisp
+  (setq vc-handled-backends nil)
+#+END_SRC
+
+You can also disable its use only for Git but keep using it when using
+another version control system:
+
+#+BEGIN_SRC emacs-lisp
+  (setq vc-handled-backends (delq 'Git vc-handled-backends))
+#+END_SRC
+
 * Plumbing
 
 The following sections describe how to use several of Magit's core
@@ -5905,6 +5926,34 @@ help:
 	(pointback-mode -1))))
 #+END_SRC
 
+** The mode-line information isn't always up-to-date
+
+Magit is not responsible for the version control information that is
+being displayed in the mode-line and looks something like ~Git-master~.
+The built-in "Version Control" package, also known as "VC", updates
+that information, and can be told to do so more often:
+
+#+BEGIN_SRC emacs-lisp
+  (setq auto-revert-check-vc-info t)
+#+END_SRC
+
+But doing so isn't good for performance.  For more (overly optimistic)
+information see [[info:emacs#VC Mode Line]].
+
+If you don't really care about seeing that information in the
+mode-line, but just don't want to see /incorrect/ information, then
+consider disabling VC when using Git:
+
+#+BEGIN_SRC emacs-lisp
+  (setq vc-handled-backends (delq 'Git vc-handled-backends))
+#+END_SRC
+
+Or to disable it completely:
+
+#+BEGIN_SRC emacs-lisp
+  (setq vc-handled-backends nil)
+#+END_SRC
+
 ** Can Magit be used as ~ediff-version-control-package~?
 
 No, it cannot.  For that to work the functions ~ediff-magit-internal~
@@ -5956,7 +6005,7 @@ can work around the problem by setting
 ~tramp-ssh-controlmaster-options~. Changing your DNS server (e.g. to
 Google's ~8.8.8.8~) may also be sufficient to work around the issue.
 
-** ~Symbol's value as function is void --some~
+** Symbol's value as function is void ~--some~
 
 Update ~dash~, restart Emacs, and then it will be defined.
 
