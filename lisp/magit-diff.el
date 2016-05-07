@@ -547,6 +547,7 @@ and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847."
                      (nth 3 magit-refresh-args)))
            (list (default-value 'magit-diff-arguments) nil)))))
 
+;;;###autoload
 (defun magit-diff-popup (arg)
   "Popup console for diff commands."
   (interactive "P")
@@ -563,6 +564,7 @@ and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847."
            (default-value 'magit-diff-arguments))))
     (magit-invoke-popup 'magit-diff-popup nil arg)))
 
+;;;###autoload
 (defun magit-diff-buffer-file-popup (arg)
   "Popup console for diff commans.
 
