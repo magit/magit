@@ -175,12 +175,14 @@ With a prefix argument and if necessary, attempt a 3-way merge."
 
 ;;;; Stage
 
-(defun magit-stage ()
-  "Add the change at point to the staging area."
-  (interactive)
+(defun magit-stage (&optional intent)
+  "Add the change at point to the staging area.
+With a prefix argument, INTENT, and an untracked file (or files)
+at point, stage the file but not its content."
+  (interactive "P")
   (--when-let (magit-apply--get-selection)
     (pcase (list (magit-diff-type) (magit-diff-scope))
-      (`(untracked     ,_) (magit-stage-untracked))
+      (`(untracked     ,_) (magit-stage-untracked intent))
       (`(unstaged  region) (magit-apply-region it "--cached"))
       (`(unstaged    hunk) (magit-apply-hunk   it "--cached"))
       (`(unstaged   hunks) (magit-apply-hunks  it "--cached"))
@@ -232,7 +234,7 @@ ignored) files.
     (mapc #'magit-turn-on-auto-revert-mode-if-desired files))
   (magit-wip-commit-after-apply files " after stage"))
 
-(defun magit-stage-untracked ()
+(defun magit-stage-untracked (&optional intent)
   (let* ((section (magit-current-section))
          (files (pcase (magit-diff-scope)
                   (`file  (list (magit-section-value section)))
@@ -245,7 +247,8 @@ ignored) files.
         (push file plain)))
     (magit-wip-commit-before-change files " before stage")
     (when plain
-      (magit-run-git "add" "--" plain)
+      (magit-run-git "add" (and intent "--intent-to-add")
+                     "--" plain)
       (when magit-auto-revert-mode
         (mapc #'magit-turn-on-auto-revert-mode-if-desired plain)))
     (dolist (repo repos)
@@ -472,9 +475,10 @@ without requiring confirmation."
             (setq sections
                   (--filter (not (member (magit-section-value it) binaries))
                             sections)))
-          (if (= (length sections) 1)
-              (magit-discard-apply (car sections) 'magit-apply-diff)
-            (magit-discard-apply-n sections 'magit-apply-diffs))
+          (cond ((= (length sections) 1)
+                 (magit-discard-apply (car sections) 'magit-apply-diff))
+                (sections
+                 (magit-discard-apply-n sections 'magit-apply-diffs)))
           (when binaries
             (let ((modified (magit-modified-files t)))
               (setq binaries (--separate (member it modified) binaries)))
