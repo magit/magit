@@ -215,6 +215,7 @@ Miscellaneous
 * Tagging::
 * Notes::
 * Submodules::
+* Subtree::
 * Common commands::
 * Wip modes::
 * Minor mode for buffers visiting files::
@@ -5949,6 +5950,7 @@ changes made since the sequence started.
 * Tagging::
 * Notes::
 * Submodules::
+* Subtree::
 * Common commands::
 * Wip modes::
 * Minor mode for buffers visiting files::
@@ -6179,6 +6181,78 @@ Fetch submodule.  With a prefix argument fetch all remotes.
 @item @kbd{o i} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-init})
 
 Unregister the submodule at PATH.
+@end table
+
+@node Subtree
+@section Subtree
+
+Also see 
+@ifinfo
+@ref{git-subtree,,,gitman,}
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-subtree">git-subtree(1)</a> manpage
+@end html
+@end ifhtml
+@iftex
+the git-subtree(1) manpage
+@end iftex
+.
+
+@table @asis
+@kindex O
+@cindex magit-tree-popup
+@item @kbd{O} @tie{}@tie{}@tie{}@tie{}(@code{magit-tree-popup})
+
+This prefix command shows the following suffix commands along with
+the appropriate infix arguments in a popup buffer.
+@end table
+
+Most infix arguments only apply to some of the @code{git subtree}
+subcommands.  When an argument that does not apply to the invoked
+command is set, then it is silently ignored.
+
+When the @code{--prefix} argument is set in the popup buffer, then that is
+used.  Otherwise the prefix is read in the minibuffer.
+
+@table @asis
+@kindex O a
+@cindex magit-subtree-add
+@item @kbd{O a} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-add})
+
+Add COMMIT from REPOSITORY as a new subtree at PREFIX.
+
+@kindex O c
+@cindex magit-subtree-add-commit
+@item @kbd{O c} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-add-commit})
+
+Add COMMIT as a new subtree at PREFIX.
+
+@kindex O m
+@cindex magit-subtree-merge
+@item @kbd{O m} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-merge})
+
+Merge COMMIT into the PREFIX subtree.
+
+@kindex O f
+@cindex magit-subtree-pull
+@item @kbd{O f} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-pull})
+
+Pull COMMIT from REPOSITORY into the PREFIX subtree.
+
+@kindex O p
+@cindex magit-subtree-push
+@item @kbd{O p} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-push})
+
+Extract the history of the subtree PREFIX and push it to REF on
+REPOSITORY.
+
+@kindex O s
+@cindex magit-subtree-split
+@item @kbd{O s} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-split})
+
+Extract the history of the subtree PREFIX.
 @end table
 
 @node Common commands

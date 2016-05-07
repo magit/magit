@@ -29,6 +29,7 @@ magit-bisect.elc:	magit.elc
 magit-stash.elc:	magit.elc
 magit-blame.elc:	magit.elc
 magit-submodule.elc:	magit.elc
+magit-subtree.elc:	magit.elc
 magit-ediff.elc:	magit.elc
 magit-extras.elc:	magit.elc
 git-rebase.elc:		magit.elc

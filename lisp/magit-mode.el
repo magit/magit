@@ -330,6 +330,7 @@ starts complicating other things, then it will be removed."
     (define-key map "m" 'magit-merge-popup)
     (define-key map "M" 'magit-remote-popup)
     (define-key map "o" 'magit-submodule-popup)
+    (define-key map "O" 'magit-subtree-popup)
     (define-key map "P" 'magit-push-popup)
     (define-key map "r" 'magit-rebase-popup)
     (define-key map "R" 'magit-file-rename)

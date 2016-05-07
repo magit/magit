@@ -4377,6 +4377,47 @@ Also see [[info:gitman#git-submodule]].
 
   Unregister the submodule at PATH.
 
+** Subtree
+
+Also see [[info:gitman#git-subtree]].
+
+- Key: O, magit-tree-popup
+
+  This prefix command shows the following suffix commands along with
+  the appropriate infix arguments in a popup buffer.
+
+Most infix arguments only apply to some of the ~git subtree~
+subcommands.  When an argument that does not apply to the invoked
+command is set, then it is silently ignored.
+
+When the ~--prefix~ argument is set in the popup buffer, then that is
+used.  Otherwise the prefix is read in the minibuffer.
+
+- Key: O a, magit-subtree-add
+
+  Add COMMIT from REPOSITORY as a new subtree at PREFIX.
+
+- Key: O c, magit-subtree-add-commit
+
+  Add COMMIT as a new subtree at PREFIX.
+
+- Key: O m, magit-subtree-merge
+
+  Merge COMMIT into the PREFIX subtree.
+
+- Key: O f, magit-subtree-pull
+
+  Pull COMMIT from REPOSITORY into the PREFIX subtree.
+
+- Key: O p, magit-subtree-push
+
+  Extract the history of the subtree PREFIX and push it to REF on
+  REPOSITORY.
+
+- Key: O s, magit-subtree-split
+
+  Extract the history of the subtree PREFIX.
+
 ** Common commands
 
 These are some of the commands that can be used in all buffers whose
