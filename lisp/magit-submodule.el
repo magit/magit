@@ -141,7 +141,8 @@ For each section insert the path and the output of `git describe --tags'."
                 (when (string-match-p "\\`[0-9]" it)
                   (insert ?\s))
                 (insert it))
-              (insert ?\n))))))))
+              (insert ?\n)))))
+      (insert ?\n))))
 
 ;;;###autoload
 (defun magit-insert-modules-unpulled-from-upstream ()
