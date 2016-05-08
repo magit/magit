@@ -2184,6 +2184,9 @@ without having to using one of the diff popups.
 
 ** Ediffing
 
+This section describes how to enter Ediff from Magit buffers.  For
+information on how to use Ediff itself, see info:ediff.
+
 - Key: e, magit-ediff-dwim
 
   Compare, stage, or resolve using Ediff.
@@ -3384,7 +3387,8 @@ info:gitman#git-config.  Also see [[info:gitman#git-branch]],
 
 ** Merging
 
-Also see [[info:gitman#git-merge]].
+Also see [[info:gitman#git-merge]].  For information on how to resolve
+merge conflicts see the next section.
 
 - Key: m, magit-merge-popup
 
@@ -3438,9 +3442,123 @@ commands instead.
 
   Abort the current merge operation.
 
+** Resolving conflicts
+
+When merging branches (or otherwise combining or changing history)
+conflicts can occur.  If you edited two completely different parts of
+the same file in two branches and then merge one of these branches
+into the other, then Git can resolve that on its own, but if you edit
+the same area of a file, then a human is required to decide how the
+two versions, or "sides of the conflict", are to be combined into one.
+
+Here we can only provide a brief introduction to the subject and point
+you toward some tools that can help.  If you are new to this, then
+please also consult Git's own documentation as well as other
+resources.
+
+If a file has conflicts and Git cannot resolve them by itself, then it
+puts both versions into the affected file along with special markers
+whose purpose is to denote the boundaries of the unresolved part of
+the file and between the different versions.  These boundary lines
+begin with the strings "<<<<<<<", "|||||||", "=======", and ">>>>>>>"
+and are followed by information about the source of the respective
+versions, e.g.:
+
+#+BEGIN_SRC undefined
+  <<<<<<< HEAD
+  Take the blue pill.
+  =======
+  Take the red pill.
+  >>>>>>> feature
+#+END_SRC
+
+In this case you have chosen to take the red pill on one bracnh and on
+another you picked the blue pill.  Now that you are merging these two
+diverging branches, Git cannot possibly know which pill you want to
+take.
+
+To resolve that conflict you have to create a version of the affected
+area of the file by keeping only one of the sides, possibly by editing
+it in order to bring in the changes from the other side, remove the
+other versions as well as the markers, and then stage the result.  A
+possible resolution might be:
+
+#+BEGIN_SRC undefined
+  Take both pills.
+#+END_SRC
+
+Often it is useful to see not only the two sides of the conflict but
+also the "original" version from before the same area of the file was
+modified twice on different branches.  Instruct Git to insert that
+version as well by running this command once:
+
+#+BEGIN_SRC shell
+  git config --global merge.conflictStyle diff3
+#+END_SRC
+
+The above conflict might then have looked like this:
+
+#+BEGIN_SRC undefined
+  <<<<<<< HEAD
+  Take the blue pill.
+  ||||||| merged common ancestors
+  Take either the blue or the red pill, but not both.
+  =======
+  Take the red pill.
+  >>>>>>> feature
+#+END_SRC
+
+If that were the case, then the above conflict resolution would not
+have been correct, which demonstrates why seeing the original version
+alongside the conflicting versions can be useful.
+
+You can perform the conflict resolution completely by hand, but Emacs
+also provides some packages that help in the process: Smerge, Ediff
+(info:ediff), and Emerge (info:emacs#Emerge).  Magit does not provide
+its own tools for conflict resolution, but it does make using Smerge
+and Ediff more convenient.  (Ediff supersedes Emerge, so you probably
+don't want to use the latter anyway.)
+
+In the Magit status buffer, files with unresolved conflicts are listed
+in the "Unstaged changes" and/or "Staged changes" sections.  They are
+prefixed with the word "unmerged", which in this context essentially
+is a synonym for "unresolved".
+
+Pressing ~RET~ while point is on such a file section shows a buffer
+visiting that file, turns on ~smerge-mode~ in that buffer, and places
+point inside the first area with conflicts.  You should then resolve
+that conflict using regular edit commands and/or Smerge commands.
+
+Unfortunately Smerge does not have a manual, but you can get a list of
+commands and binding ~C-c ^ C-h~ and press ~RET~ while point is on a
+command name to read its documentation.
+
+Normally you would edit one version and then tell Smerge to keep only
+that version.  Use ~C-c ^ m~ (~smerge-keep-mine)~ to keep the "HEAD"
+version or ~C-c ^ o~ (~smerge-keep-other~) to keep the version that
+follows "|||||||".  Then use ~C-c ^ n~ to move to the next conflicting
+area in the same file.  Once you are done resolving conflicts, return
+to the Magit status buffer.  The file should now be shown as
+"modified", no longer as "unmerged", because Smerge automatically
+stages the file when you save the buffer after resolving the last
+conflict.
+
+Alternatively you could use Ediff, which uses separate buffers for the
+different versions of the file.  To resolve conflicts in a file using
+Ediff press ~e~ while point is on such a file in the status buffer.
+
+Ediff can be used for other purposes as well.  For more information on
+how to enter Ediff from Magit, see [[*Ediffing]].  Explaining how to use
+Ediff is beyond the scope of this manual, instead see info:ediff.
+
+If you are unsure whether you should Smerge or Ediff, then use the
+former.  It is much easier to understand and use, and except for
+truely complex conflicts, the latter is usually overkill.
+
 ** Rebasing
 
-Also see [[info:gitman#git-rebase]].
+Also see [[info:gitman#git-rebase]].  For information on how to resolve
+conflicts that occur during rebases see the preceding section.
 
 - Key: r, magit-rebase-popup
 
@@ -3449,6 +3567,13 @@ Also see [[info:gitman#git-rebase]].
 
 When no rebase is in progress, then the popup buffer features the
 following commands.
+
+Using one of these commands /starts/ a rebase sequence.  Git might then
+stop somewhere along the way, either because you told it to do so, or
+because applying a commit failed due to a conflict.  When that
+happens, then the status buffer shows information about the rebase
+sequence which is in progress in a section similar to a log section.
+See [[*Information about in-progress rebase]].
 
 - Key: r p, magit-rebase-onto-pushremote
 
@@ -3530,12 +3655,12 @@ commands instead.
 - Key: C-c C-c, with-editor-finish
 
   Finish the current editing session by returning with exit code 0.
-  Git then creates the commit using the message it finds in the file.
+  Git then uses the rebase instructions it finds in the file.
 
 - Key: C-c C-k, with-editor-cancel
 
   Cancel the current editing session by returning with exit code 1.
-  Git then cancels the commit, but leaves the file untouched.
+  Git then forgoes starting the rebase sequence.
 
 - Key: RET, git-rebase-show-commit
 
@@ -3626,7 +3751,8 @@ commands instead.
 - User Option: git-rebase-confirm-cancel
 
   Whether confirmation is required to cancel.
-*** Rebase sequence log
+
+*** Information about in-progress rebase
 
 While a rebase sequence is in progress, the status buffer features a
 section which lists the commits that have already been applied as well
@@ -3700,9 +3826,9 @@ The following words are used:
   indicates that you reset to an earlier commit (and that this commit
   therefore is no longer reachable from ~HEAD~), but that it might still
   be possible to create a new commit with the exact same tree or at
-  least the same patch-id, without manually editing any file.  Or at
-  the very least that there are some uncommitted remaining, which
-  may or may not originate from that commit.
+  least the same patch-id [fn:patch-id], without manually editing any
+  file.  Or at the very least that there are some uncommitted
+  remaining, which may or may not originate from that commit.
 
   - When a commit is prefixed with ~goal~, then that indicates that it
     is still possible to create a commit with the exact same tree
@@ -3750,6 +3876,16 @@ to limitations in the git commands used to implement them.  Most
 importantly these sequences only support "picking" a commit but not
 other actions such as "rewording", and they do not keep track of the
 commits which have already been applied.
+
+[fn:patch-id] The patch-id is a hash of the /changes/ introduced by
+commit.  It differs from hash of the commit itself, which is a hash of
+the result of applying that change (i.e. the resulting trees and
+blobs) as well as author and committer information, the commit
+message, and the hashes of the parents of the commit.  The patch-id
+hash on the other hand is created only from the added and removed
+lines, even line numbers and whitespace are created when calculating
+the hash.  The patch-ids of two commits can be used to answer the
+question "Do these two commits make the same change?".
 
 ** Cherry picking
 
