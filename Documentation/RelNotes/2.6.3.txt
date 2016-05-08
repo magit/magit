@@ -6,6 +6,9 @@ Changes since v2.6.2
 
 * Added new popup `magit-subtree-popup' and bound "O" to it.
 
+* Added new commands `magit-worktree-checkout' and
+  `magit-worktree-branch'.
+
 * The command `magit-stage' learned to stage an untracked file while
   leaving its content unstaged (i.e. `git add --intent-to-add') when
   called with a prefix argument.

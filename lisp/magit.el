@@ -1324,15 +1324,17 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
                (?R "branch.autoSetupRebase"
                    magit-cycle-branch*autoSetupRebase
                    magit-format-branch*autoSetupRebase))
-  :actions '((?c "Create and checkout" magit-branch-and-checkout)
-             (?b "Checkout"            magit-checkout)
-             (?n "Create"              magit-branch)
-             (?m "Rename"              magit-branch-rename)
-             (?s "Create spin-off"     magit-branch-spinoff)
-             (?x "Reset"               magit-branch-reset) nil
-             (?k "Delete"              magit-branch-delete))
+  :actions '((?b "Checkout"              magit-checkout)
+             (?n "Create new branch"     magit-branch)
+             (?m "Rename"                magit-branch-rename)
+             (?c "Checkout new branch"   magit-branch-and-checkout)
+             (?s "Create new spin-off"   magit-branch-spinoff)
+             (?x "Reset"                 magit-branch-reset)
+             (?w "Checkout new worktree" magit-worktree-checkout)
+             (?W "Create new worktree"   magit-worktree-branch)
+             (?k "Delete"                magit-branch-delete))
   :default-action 'magit-checkout
-  :max-action-columns 2
+  :max-action-columns 3
   :setup-function 'magit-branch-popup-setup)
 
 (defun magit-branch-popup-setup (val def)
@@ -2081,6 +2083,28 @@ If DEFAULT is non-nil, use this as the default value instead of
         (car (member (or default (magit-current-file)) files))))))
 
 ;;; Miscellaneous
+;;;; Worktree
+
+;;;###autoload
+(defun magit-worktree-checkout (path branch)
+  (interactive
+   (let ((branch (magit-read-local-branch "Checkout")))
+     (list (read-directory-name (format "Checkout %s in new worktree: " branch))
+           branch)))
+  "Checkout BRANCH in a new worktree at PATH."
+  (magit-call-git "worktree" "add" path branch)
+  (magit-diff-visit-directory path))
+
+;;;###autoload
+(defun magit-worktree-branch (path branch start-point &optional force)
+  "Create a new BRANCH and check it out in a new worktree at PATH."
+  (interactive
+   `(,(read-directory-name "Create worktree: ")
+     ,@(butlast (magit-branch-read-args "Create and checkout branch"))
+     ,current-prefix-arg))
+  (magit-call-git "worktree" "add" (if force "-B" "-b") branch path start-point)
+  (magit-diff-visit-directory path))
+
 ;;;; Tag
 
 ;;;###autoload (autoload 'magit-tag-popup "magit" nil t)
