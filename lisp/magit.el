@@ -2092,7 +2092,7 @@ If DEFAULT is non-nil, use this as the default value instead of
      (list (read-directory-name (format "Checkout %s in new worktree: " branch))
            branch)))
   "Checkout BRANCH in a new worktree at PATH."
-  (magit-call-git "worktree" "add" path branch)
+  (magit-run-git "worktree" "add" path branch)
   (magit-diff-visit-directory path))
 
 ;;;###autoload
@@ -2102,8 +2102,27 @@ If DEFAULT is non-nil, use this as the default value instead of
    `(,(read-directory-name "Create worktree: ")
      ,@(butlast (magit-branch-read-args "Create and checkout branch"))
      ,current-prefix-arg))
-  (magit-call-git "worktree" "add" (if force "-B" "-b") branch path start-point)
+  (magit-run-git "worktree" "add" (if force "-B" "-b") branch path start-point)
   (magit-diff-visit-directory path))
+
+(defun magit-insert-worktrees ()
+  "Insert sections for all worktrees.
+If there is only one worktree, then insert nothing."
+  (let ((worktrees (magit-list-worktrees)))
+    (when (> (length worktrees) 1)
+      (magit-insert-section (worktrees)
+        (magit-insert-heading "Worktrees:")
+        (dolist (worktree worktrees)
+          (-let [(path barep commit branch) worktree]
+            (magit-insert-section (worktree path)
+              (insert (cond (branch (propertize branch
+                                                'face 'magit-branch-local))
+                            (commit (propertize (magit-rev-abbrev commit)
+                                                'face 'magit-hash))
+                            (barep  "(bare)")
+                            (t      "(detached)")))
+              (insert ?\s path ?\n))))
+        (insert ?\n)))))
 
 ;;;; Tag
 
