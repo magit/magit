@@ -2105,6 +2105,49 @@ If DEFAULT is non-nil, use this as the default value instead of
   (magit-run-git "worktree" "add" (if force "-B" "-b") branch path start-point)
   (magit-diff-visit-directory path))
 
+(defun magit-worktree-delete (worktree)
+  "Delete a worktree, defaulting to the worktree at point.
+The primary worktree cannot be deleted."
+  (interactive
+   (list (magit-completing-read "Delete worktree"
+                                (cdr (magit-list-worktrees))
+                                nil t nil nil
+                                (magit-section-when (worktree)))))
+  (if (file-directory-p (expand-file-name ".git" worktree))
+      (user-error "Deleting %s would delete the shared .git directory" worktree)
+    (let ((primary (file-name-as-directory (caar (magit-list-worktrees)))))
+      (when (if magit-delete-by-moving-to-trash
+                (magit-confirm-files 'trash (list "worktree"))
+              (magit-confirm-files 'delete (list "worktree")))
+        (let ((delete-by-moving-to-trash magit-delete-by-moving-to-trash))
+          (delete-directory worktree t magit-delete-by-moving-to-trash))
+        (if (file-exists-p default-directory)
+            (magit-run-git "worktree" "prune")
+          (let ((default-directory primary))
+            (magit-run-git "worktree" "prune")))))))
+
+(defun magit-worktree-status (worktree)
+  "Show the status for the worktree at point.
+If there is no worktree at point, then read one in the
+minibuffer.  If the worktree at point is the one whose
+status is already being displayed in the current buffer,
+then show it in Dired instead."
+  (interactive
+   (list (or (magit-section-when (worktree))
+             (magit-completing-read
+              "Show status for worktree"
+              (cl-delete (directory-file-name (magit-toplevel))
+                         (magit-list-worktrees)
+                         :test #'equal :key #'car)))))
+  (magit-diff-visit-directory worktree))
+
+(defvar magit-worktree-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-visit-thing]  'magit-worktree-status)
+    (define-key map [remap magit-delete-thing] 'magit-worktree-delete)
+    map)
+  "Keymap for `worktree' sections.")
+
 (defun magit-insert-worktrees ()
   "Insert sections for all worktrees.
 If there is only one worktree, then insert nothing."

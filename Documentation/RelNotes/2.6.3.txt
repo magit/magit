@@ -6,8 +6,9 @@ Changes since v2.6.2
 
 * Added new popup `magit-subtree-popup' and bound "O" to it.
 
-* Added new commands `magit-worktree-checkout' and
-  `magit-worktree-branch'.
+* Added new commands `magit-worktree-checkout',
+  `magit-worktree-branch', `magit-worktree-delete',
+  and `magit-worktree-status'.
 
 * Added new section inserter `magit-insert-worktrees'
 
