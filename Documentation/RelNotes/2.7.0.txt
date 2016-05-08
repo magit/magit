@@ -1,4 +1,4 @@
-Magit v2.6.3 Release Notes (draft)
+Magit v2.7.0 Release Notes (draft)
 ==================================
 
 Changes since v2.6.2
