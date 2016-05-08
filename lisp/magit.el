@@ -1324,15 +1324,17 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
                (?R "branch.autoSetupRebase"
                    magit-cycle-branch*autoSetupRebase
                    magit-format-branch*autoSetupRebase))
-  :actions '((?c "Create and checkout" magit-branch-and-checkout)
-             (?b "Checkout"            magit-checkout)
-             (?n "Create"              magit-branch)
-             (?m "Rename"              magit-branch-rename)
-             (?s "Create spin-off"     magit-branch-spinoff)
-             (?x "Reset"               magit-branch-reset) nil
-             (?k "Delete"              magit-branch-delete))
+  :actions '((?b "Checkout"              magit-checkout)
+             (?n "Create new branch"     magit-branch)
+             (?m "Rename"                magit-branch-rename)
+             (?c "Checkout new branch"   magit-branch-and-checkout)
+             (?s "Create new spin-off"   magit-branch-spinoff)
+             (?x "Reset"                 magit-branch-reset)
+             (?w "Checkout new worktree" magit-worktree-checkout)
+             (?W "Create new worktree"   magit-worktree-branch)
+             (?k "Delete"                magit-branch-delete))
   :default-action 'magit-checkout
-  :max-action-columns 2
+  :max-action-columns 3
   :setup-function 'magit-branch-popup-setup)
 
 (defun magit-branch-popup-setup (val def)
@@ -2081,6 +2083,90 @@ If DEFAULT is non-nil, use this as the default value instead of
         (car (member (or default (magit-current-file)) files))))))
 
 ;;; Miscellaneous
+;;;; Worktree
+
+;;;###autoload
+(defun magit-worktree-checkout (path branch)
+  (interactive
+   (let ((branch (magit-read-local-branch "Checkout")))
+     (list (read-directory-name (format "Checkout %s in new worktree: " branch))
+           branch)))
+  "Checkout BRANCH in a new worktree at PATH."
+  (magit-run-git "worktree" "add" path branch)
+  (magit-diff-visit-directory path))
+
+;;;###autoload
+(defun magit-worktree-branch (path branch start-point &optional force)
+  "Create a new BRANCH and check it out in a new worktree at PATH."
+  (interactive
+   `(,(read-directory-name "Create worktree: ")
+     ,@(butlast (magit-branch-read-args "Create and checkout branch"))
+     ,current-prefix-arg))
+  (magit-run-git "worktree" "add" (if force "-B" "-b") branch path start-point)
+  (magit-diff-visit-directory path))
+
+(defun magit-worktree-delete (worktree)
+  "Delete a worktree, defaulting to the worktree at point.
+The primary worktree cannot be deleted."
+  (interactive
+   (list (magit-completing-read "Delete worktree"
+                                (cdr (magit-list-worktrees))
+                                nil t nil nil
+                                (magit-section-when (worktree)))))
+  (if (file-directory-p (expand-file-name ".git" worktree))
+      (user-error "Deleting %s would delete the shared .git directory" worktree)
+    (let ((primary (file-name-as-directory (caar (magit-list-worktrees)))))
+      (when (if magit-delete-by-moving-to-trash
+                (magit-confirm-files 'trash (list "worktree"))
+              (magit-confirm-files 'delete (list "worktree")))
+        (let ((delete-by-moving-to-trash magit-delete-by-moving-to-trash))
+          (delete-directory worktree t magit-delete-by-moving-to-trash))
+        (if (file-exists-p default-directory)
+            (magit-run-git "worktree" "prune")
+          (let ((default-directory primary))
+            (magit-run-git "worktree" "prune")))))))
+
+(defun magit-worktree-status (worktree)
+  "Show the status for the worktree at point.
+If there is no worktree at point, then read one in the
+minibuffer.  If the worktree at point is the one whose
+status is already being displayed in the current buffer,
+then show it in Dired instead."
+  (interactive
+   (list (or (magit-section-when (worktree))
+             (magit-completing-read
+              "Show status for worktree"
+              (cl-delete (directory-file-name (magit-toplevel))
+                         (magit-list-worktrees)
+                         :test #'equal :key #'car)))))
+  (magit-diff-visit-directory worktree))
+
+(defvar magit-worktree-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-visit-thing]  'magit-worktree-status)
+    (define-key map [remap magit-delete-thing] 'magit-worktree-delete)
+    map)
+  "Keymap for `worktree' sections.")
+
+(defun magit-insert-worktrees ()
+  "Insert sections for all worktrees.
+If there is only one worktree, then insert nothing."
+  (let ((worktrees (magit-list-worktrees)))
+    (when (> (length worktrees) 1)
+      (magit-insert-section (worktrees)
+        (magit-insert-heading "Worktrees:")
+        (dolist (worktree worktrees)
+          (-let [(path barep commit branch) worktree]
+            (magit-insert-section (worktree path)
+              (insert (cond (branch (propertize branch
+                                                'face 'magit-branch-local))
+                            (commit (propertize (magit-rev-abbrev commit)
+                                                'face 'magit-hash))
+                            (barep  "(bare)")
+                            (t      "(detached)")))
+              (insert ?\s path ?\n))))
+        (insert ?\n)))))
+
 ;;;; Tag
 
 ;;;###autoload (autoload 'magit-tag-popup "magit" nil t)
