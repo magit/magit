@@ -524,7 +524,7 @@ and `magit-post-display-buffer-hook'."
                                 magit-stash-mode
                                 magit-status-mode))))
               '(display-buffer-same-window)
-            nil))) ; display in another window
+            '(display-buffer-use-some-window . (inhibit-same-window t)))))
 
 (defun magit-maybe-set-dedicated ()
   "Mark the selected window as dedicated if appropriate.
