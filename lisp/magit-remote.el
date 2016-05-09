@@ -366,7 +366,9 @@ missing.  To add them use something like:
   "Pull from the upstream of the current branch."
   (interactive (list (magit-pull-arguments)))
   (--if-let (magit-get-upstream-branch)
-      (magit-git-pull it args)
+      (progn (run-hooks 'magit-credential-hook)
+             (magit-run-git-with-editor
+              "pull" args (car (magit-split-branch-name it))))
     (--if-let (magit-get-current-branch)
         (user-error "No upstream is configured for %s" it)
       (user-error "No branch is checked out"))))
