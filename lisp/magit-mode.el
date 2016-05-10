@@ -525,7 +525,12 @@ and `magit-post-display-buffer-hook'."
                                    magit-status-mode))))
                  '(display-buffer-same-window))
                 (with-editor-mode ; see #2632
-                 '(display-buffer-use-some-window . (inhibit-same-window t)))
+                 '((display-buffer--maybe-same-window
+                    display-buffer-reuse-window
+                    display-buffer--maybe-pop-up-frame-or-window
+                    display-buffer-use-some-window
+                    display-buffer-pop-up-frame)
+                   . (inhibit-same-window t)))
                 (t nil)))) ; display in another window
 
 (defun magit-maybe-set-dedicated ()
