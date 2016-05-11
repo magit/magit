@@ -67,12 +67,25 @@ information see command `magit-reverse-in-index'."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-reverse-atomically nil
+  "Whether to reverse changes atomically.
+
+If some changes can be reversed while others cannot, then nothing
+is reversed if the value of this option is non-nil.  But when it
+is nil, then the changes that can be reversed are reversed and
+for the other changes diff files are created that contain the
+rejected reversals."
+  :package-version '(magit . "2.7.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;; Commands
 ;;;; Apply
 
 (defun magit-apply (&rest args)
-  "Apply the change at point.
-With a prefix argument and if necessary, attempt a 3-way merge."
+  "Apply the change at point to the working tree.
+With a prefix argument fallback to a 3-way merge.  Doing
+so causes the change to be applied to the index as well."
   (interactive (and current-prefix-arg (list "--3way")))
   (--when-let (magit-apply--get-selection)
     (pcase (list (magit-diff-type) (magit-diff-scope))
@@ -348,7 +361,7 @@ without requiring confirmation."
                (magit-section-parent-value section)))
         (progn (let ((inhibit-magit-refresh t))
                  (funcall apply section "--reverse" "--cached")
-                 (funcall apply section "--reverse"))
+                 (funcall apply section "--reverse" "--reject"))
                (magit-refresh))
       (funcall apply section "--reverse" "--index"))))
 
@@ -369,7 +382,7 @@ without requiring confirmation."
                  (magit-section-parent-value section)))
           (progn (let ((inhibit-magit-refresh t))
                    (funcall apply sections "--reverse" "--cached")
-                   (funcall apply sections "--reverse"))
+                   (funcall apply sections "--reverse" "--reject"))
                  (magit-refresh))
         (funcall apply sections "--reverse" "--index")))))
 
@@ -493,7 +506,9 @@ without requiring confirmation."
 ;;;; Reverse
 
 (defun magit-reverse (&rest args)
-  "Reverse the change at point in the working tree."
+  "Reverse the change at point in the working tree.
+With a prefix argument fallback to a 3-way merge.  Doing
+so causes the change to be applied to the index as well."
   (interactive (and current-prefix-arg (list "--3way")))
   (--when-let (magit-apply--get-selection)
     (pcase (list (magit-diff-type) (magit-diff-scope))
@@ -508,18 +523,18 @@ without requiring confirmation."
 
 (defun magit-reverse-region (section args)
   (when (magit-confirm 'reverse "Reverse region")
-    (apply 'magit-apply-region section "--reverse" args)))
+    (magit-reverse-apply section 'magit-apply-region args)))
 
 (defun magit-reverse-hunk (section args)
   (when (magit-confirm 'reverse "Reverse hunk")
-    (apply 'magit-apply-hunk section "--reverse" args)))
+    (magit-reverse-apply section 'magit-apply-hunk args)))
 
 (defun magit-reverse-hunks (sections args)
   (when (magit-confirm 'reverse
           (format "Reverse %s hunks from %s"
                   (length sections)
                   (magit-section-parent-value (car sections))))
-    (magit-apply-hunks sections "--reverse" args)))
+    (magit-reverse-apply sections 'magit-apply-hunks args)))
 
 (defun magit-reverse-file (section args)
   (magit-reverse-files (list section) args))
@@ -530,10 +545,16 @@ without requiring confirmation."
            (--separate (member (magit-section-value it) bs) sections))]
     (when (magit-confirm-files 'reverse (mapcar #'magit-section-value sections))
       (if (= (length sections) 1)
-          (magit-apply-diff (car sections) "--reverse" args)
-        (magit-apply-diffs sections "--reverse" args)))
+          (magit-reverse-apply (car sections) 'magit-apply-diff args)
+        (magit-reverse-apply sections 'magit-apply-diffs args)))
     (when binaries
       (user-error "Cannot reverse binary files"))))
+
+(defun magit-reverse-apply (section:s apply args)
+  (funcall apply section:s "--reverse" args
+           (and (not magit-reverse-atomically)
+                (not (member "--3way" args))
+                "--reject")))
 
 (defun magit-reverse-in-index (&rest args)
   "Reverse the change at point in the index but not the working tree.

@@ -2735,6 +2735,9 @@ variants.
 
   Apply the change at point to the working tree.
 
+  With a prefix argument fallback to a 3-way merge.  Doing so causes
+  the change to be applied to the index as well.
+
 - Key: k, magit-discard
 
   Remove the change at point from the working tree.
@@ -2742,6 +2745,9 @@ variants.
 - Key: v, magit-reverse
 
   Reverse the change at point in the working tree.
+
+  With a prefix argument fallback to a 3-way merge.  Doing so causes
+  the change to be applied to the index as well.
 
 With a prefix argument all apply variants attempt a 3-way merge when
 appropriate (i.e. when ~git apply~ is used internally).
