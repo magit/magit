@@ -40,6 +40,8 @@
 (defvar magit-revision-show-xref-buttons)
 ;; For `magit-refresh' and `magit-refresh-all'
 (declare-function magit-auto-revert-buffers 'magit-autorevert)
+;; For `magit-display-buffer-traditional'
+(defvar with-editor-mode)
 
 (require 'format-spec)
 (require 'help-mode)
