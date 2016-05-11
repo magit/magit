@@ -61,20 +61,21 @@ Then show the status buffer for the new repository."
                 (and (string-match "\\([^./]+\\)\\(\\.git\\)?$" url)
                      (match-string 1 url))))))
   (setq directory (file-name-as-directory (expand-file-name directory)))
-  (message "Cloning %s..." repository)
-  (when (= (magit-call-git "clone" repository
-                           ;; Stop cygwin git making a "c:" directory.
-                           (magit-convert-git-filename directory))
-           0)
-    (let ((default-directory directory))
-      (when (or (eq  magit-clone-set-remote.pushDefault t)
-                (and magit-clone-set-remote.pushDefault
-                     (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
-        (magit-call-git "config" "remote.pushDefault" "origin"))
-      (unless magit-clone-set-remote-head
-        (magit-remote-unset-head "origin")))
-    (message "Cloning %s...done" repository)
-    (magit-status-internal directory)))
+  (magit-run-git-async "clone" repository
+                       ;; Stop cygwin git making a "c:" directory.
+                       (magit-convert-git-filename directory))
+  ;; Don't refresh the buffer we're calling from.
+  (process-put magit-this-process 'inhibit-refresh t)
+  (set-process-sentinel
+   magit-this-process
+   (lambda (process event)
+     (when (memq (process-status process) '(exit signal))
+       (let ((magit-process-raise-error t))
+         (magit-process-sentinel process event)))
+     (when (and (eq (process-status process) 'exit)
+                (= (process-exit-status process) 0))
+       (with-current-buffer (process-get process 'command-buf)
+         (magit-status-internal directory))))))
 
 ;;; Setup
 
