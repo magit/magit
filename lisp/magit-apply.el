@@ -71,8 +71,9 @@ information see command `magit-reverse-in-index'."
 ;;;; Apply
 
 (defun magit-apply (&rest args)
-  "Apply the change at point.
-With a prefix argument and if necessary, attempt a 3-way merge."
+  "Apply the change at point to the working tree.
+With a prefix argument fallback to a 3-way merge.  Doing
+so causes the change to be applied to the index as well."
   (interactive (and current-prefix-arg (list "--3way")))
   (--when-let (magit-apply--get-selection)
     (pcase (list (magit-diff-type) (magit-diff-scope))
@@ -493,7 +494,9 @@ without requiring confirmation."
 ;;;; Reverse
 
 (defun magit-reverse (&rest args)
-  "Reverse the change at point in the working tree."
+  "Reverse the change at point in the working tree.
+With a prefix argument fallback to a 3-way merge.  Doing
+so causes the change to be applied to the index as well."
   (interactive (and current-prefix-arg (list "--3way")))
   (--when-let (magit-apply--get-selection)
     (pcase (list (magit-diff-type) (magit-diff-scope))

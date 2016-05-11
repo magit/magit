@@ -3778,6 +3778,9 @@ variants.
 
 Apply the change at point to the working tree.
 
+With a prefix argument fallback to a 3-way merge.  Doing so causes
+the change to be applied to the index as well.
+
 @kindex k
 @cindex magit-discard
 @item @kbd{k} @tie{}@tie{}@tie{}@tie{}(@code{magit-discard})
@@ -3789,6 +3792,9 @@ Remove the change at point from the working tree.
 @item @kbd{v} @tie{}@tie{}@tie{}@tie{}(@code{magit-reverse})
 
 Reverse the change at point in the working tree.
+
+With a prefix argument fallback to a 3-way merge.  Doing so causes
+the change to be applied to the index as well.
 @end table
 
 With a prefix argument all apply variants attempt a 3-way merge when
