@@ -530,7 +530,7 @@ and `magit-post-display-buffer-hook'."
                     display-buffer--maybe-pop-up-frame-or-window
                     display-buffer-use-some-window
                     display-buffer-pop-up-frame)
-                   . (inhibit-same-window t)))
+                   . ((inhibit-same-window . t))))
                 (t nil)))) ; display in another window
 
 (defun magit-maybe-set-dedicated ()
