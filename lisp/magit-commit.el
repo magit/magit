@@ -300,19 +300,24 @@ depending on the value of option `magit-commit-squash-confirm'."
     (user-error "Nothing staged"))))
 
 (defun magit-commit-diff ()
-  (--when-let (and git-commit-mode
-                   magit-commit-show-diff
-                   (pcase last-command
-                     (`magit-commit
-                      (apply-partially 'magit-diff-staged nil))
-                     (`magit-commit-amend  'magit-diff-while-amending)
-                     (`magit-commit-reword 'magit-diff-while-amending)))
+  (-when-let (fn (and git-commit-mode
+                      magit-commit-show-diff
+                      (pcase last-command
+                        (`magit-commit
+                         (apply-partially 'magit-diff-staged nil))
+                        (`magit-commit-amend  'magit-diff-while-amending)
+                        (`magit-commit-reword 'magit-diff-while-amending))))
+    (-when-let (diff-buffer (magit-mode-get-buffer 'magit-diff-mode))
+      ;; This window just started displaying the commit message
+      ;; buffer.  Without this that buffer would immediately be
+      ;; replaced with the diff buffer.  See #2632.
+      (unrecord-window-buffer nil diff-buffer))
     (condition-case nil
         (let ((magit-inhibit-save-previous-winconf 'unset)
               (magit-display-buffer-noselect t)
               (inhibit-quit nil))
           (message "Diffing changes to be committed (C-g to abort diffing)")
-          (funcall it (car (magit-diff-arguments))))
+          (funcall fn (car (magit-diff-arguments))))
       (quit))))
 
 ;; Mention `magit-diff-while-committing' because that's
