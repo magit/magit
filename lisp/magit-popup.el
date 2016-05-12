@@ -806,6 +806,9 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
   (interactive (list last-command-event))
   (let ((action   (magit-popup-lookup event :actions))
         (variable (magit-popup-lookup event :variables)))
+    (when (and variable (not (magit-popup-event-arg variable)))
+      (setq action variable)
+      (setq variable nil))
     (if (or action variable)
         (let ((magit-current-popup magit-this-popup)
               (magit-current-popup-args (magit-popup-get-args))
@@ -1142,12 +1145,14 @@ of events shared by all popups and before point is adjusted.")
         'type type 'event (magit-popup-event-key ev)))
 
 (defun magit-popup-format-variable-button (type ev)
-  (list (format-spec
-         (button-type-get type 'format)
-         `((?k . ,(propertize (magit-popup-event-keydsc ev)
-                              'face 'magit-popup-key))
-           (?d . ,(funcall (magit-popup-event-arg ev)))))
-        'type type 'event (magit-popup-event-key ev)))
+  (if (not (magit-popup-event-arg ev))
+      (magit-popup-format-action-button 'magit-popup-action-button ev)
+    (list (format-spec
+           (button-type-get type 'format)
+           `((?k . ,(propertize (magit-popup-event-keydsc ev)
+                                'face 'magit-popup-key))
+             (?d . ,(funcall (magit-popup-event-arg ev)))))
+          'type type 'event (magit-popup-event-key ev))))
 
 (defun magit-popup-format-variable
     (variable choices &optional default other width)
