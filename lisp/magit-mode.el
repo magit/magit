@@ -642,20 +642,32 @@ latter is displayed in its place."
     (&optional (mode major-mode)
                (args magit-refresh-args))
   (cl-case mode
+    (magit-cherry-mode
+     (-let [(upstream head) args]
+       (concat head ".." upstream)))
     (magit-diff-mode
-     (let ((rev  (nth 0 args))
-           (args (nth 1 args)))
-       (cond ((member "--no-index" args)
-              (nth 3 args))
-             (rev (if args (cons rev args) rev))
-             (t   (if (member "--cached" args) "staged" "unstaged")))))
-    ((magit-cherry-mode
-      magit-log-mode
-      magit-reflog-mode
-      magit-refs-mode
-      magit-revision-mode
-      magit-stash-mode
-      magit-stashes-mode)
+     (-let [(rev-or-range const _args files) args]
+       (nconc (cons (or rev-or-range
+                        (if (member "--cached" const)
+                            (progn (setq const (delete "--cached" const))
+                                   'staged)
+                          'unstaged))
+                    const)
+              (and files (cons "--" files)))))
+    (magit-log-mode
+     (-let [(revs _args files) args]
+       (if (and revs files)
+           (append revs (cons "--" files))
+         (append revs files))))
+    (magit-refs-mode
+     (-let [(ref args) args]
+       (cons (or ref "HEAD") args)))
+    (magit-revision-mode
+     (-let [(rev __const _args files) args]
+       (if files (cons rev files) (list rev))))
+    ((magit-reflog-mode   ; (ref ~args)
+      magit-stash-mode    ; (stash _const _args _files)
+      magit-stashes-mode) ; (ref)
      (car args))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
