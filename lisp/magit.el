@@ -1545,14 +1545,25 @@ With prefix, forces the rename even if NEW already exists.
 
 ;;;;; Branch Config Popup
 
+(defvar magit-branch-config-branch nil)
+
 ;;;###autoload
-(defun magit-branch-config-popup (&optional arg)
+(defun magit-branch-config-popup (branch)
   "Popup console for setting branch variables."
-  (interactive "P")
-  (magit-invoke-popup 'magit-branch-config-popup nil arg))
+  (interactive
+   (list (if (or current-prefix-arg
+                 (and (eq magit-current-popup 'magit-branch-popup)
+                      magit-branch-popup-show-variables))
+             (magit-read-local-branch "Configure branch")
+           (magit-get-current-branch))))
+  (let ((magit-branch-config-branch branch))
+    (magit-invoke-popup 'magit-branch-config-popup nil nil)))
 
 (defvar magit-branch-config-variables
-  '("Configure existing branches"
+  '((lambda ()
+      (concat
+       (propertize "Configure " 'face 'magit-popup-heading)
+       (propertize (magit-branch-config-branch) 'face 'magit-branch-local)))
     (?d "branch.%s.description"
         magit-edit-branch*description
         magit-format-branch*description)
@@ -1583,14 +1594,21 @@ With prefix, forces the rename even if NEW already exists.
 (defvar magit-branch-config-popup
   `(:man-page "git-branch"
     :variables ,magit-branch-config-variables
-    :default-action magit-checkout))
+    :default-action magit-checkout
+    :setup-function magit-branch-config-popup-setup))
+
+(defun magit-branch-config-popup-setup (val def)
+  (magit-popup-default-setup val def)
+  (setq-local magit-branch-config-branch magit-branch-config-branch))
 
 (defun magit-branch-config-branch (&optional prompt)
   (if prompt
       (or (and (not current-prefix-arg)
-               (magit-get-current-branch))
+               (or magit-branch-config-branch
+                   (magit-get-current-branch)))
           (magit-read-local-branch prompt))
-    (or (magit-get-current-branch)
+    (or magit-branch-config-branch
+        (magit-get-current-branch)
         "<name>")))
 
 ;;;###autoload
