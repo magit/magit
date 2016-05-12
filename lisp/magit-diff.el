@@ -574,13 +574,13 @@ and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847."
     (magit-invoke-popup 'magit-diff-popup nil arg)))
 
 ;;;###autoload
-(defun magit-diff-buffer-file-popup (arg)
-  "Popup console for diff commans.
+(defun magit-diff-buffer-file-popup ()
+  "Popup console for diff commands.
 
 This is a variant of `magit-diff-popup' which shows the same popup
 but which limits the diff to the file being visited in the current
 buffer."
-  (interactive "P")
+  (interactive)
   (-if-let (file (magit-file-relative-name))
       (let ((magit-diff-arguments
              (magit-popup-import-file-args
@@ -589,7 +589,7 @@ buffer."
                     (nth 3 magit-refresh-args))
                 (default-value 'magit-diff-arguments))
               (list file))))
-        (magit-invoke-popup 'magit-diff-popup nil arg))
+        (magit-invoke-popup 'magit-diff-popup nil nil))
     (user-error "Buffer isn't visiting a file")))
 
 (defun magit-diff-refresh-popup (arg)
