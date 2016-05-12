@@ -627,23 +627,7 @@ latter is displayed in its place."
         (setq magit-buffer-locked-p nil)
         (rename-buffer (funcall magit-generate-buffer-name-function
                                 major-mode)))
-    (setq magit-buffer-locked-p
-          (cond ((memq major-mode '(magit-cherry-mode
-                                    magit-log-mode
-                                    magit-reflog-mode
-                                    magit-refs-mode
-                                    magit-revision-mode
-                                    magit-stash-mode
-                                    magit-stashes-mode))
-                 (car magit-refresh-args))
-                ((eq major-mode 'magit-diff-mode)
-                 (let ((rev  (nth 0 magit-refresh-args))
-                       (args (nth 1 magit-refresh-args)))
-                   (cond
-                    ((member "--no-index" args)
-                     (nth 3 magit-refresh-args))
-                    (rev (if args (cons rev args) rev))
-                    (t   (if (member "--cached" args) "staged" "unstaged")))))))
+    (setq magit-buffer-locked-p (magit-buffer-lock-value))
     (if magit-buffer-locked-p
         (let ((name (funcall magit-generate-buffer-name-function
                              major-mode magit-buffer-locked-p)))
@@ -653,6 +637,26 @@ latter is displayed in its place."
                 (kill-buffer unlocked))
             (rename-buffer name)))
       (user-error "Buffer has no value it could be locked to"))))
+
+(cl-defun magit-buffer-lock-value
+    (&optional (mode major-mode)
+               (args magit-refresh-args))
+  (cl-case mode
+    (magit-diff-mode
+     (let ((rev  (nth 0 args))
+           (args (nth 1 args)))
+       (cond ((member "--no-index" args)
+              (nth 3 args))
+             (rev (if args (cons rev args) rev))
+             (t   (if (member "--cached" args) "staged" "unstaged")))))
+    ((magit-cherry-mode
+      magit-log-mode
+      magit-reflog-mode
+      magit-refs-mode
+      magit-revision-mode
+      magit-stash-mode
+      magit-stashes-mode)
+     (car args))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
