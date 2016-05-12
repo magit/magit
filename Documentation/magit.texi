@@ -188,6 +188,12 @@ Committing
 * Editing commit messages::
 
 
+Branching
+
+* The two remotes::
+* The branch popup::
+* The branch config popup::
+
 
 
 
@@ -4254,6 +4260,15 @@ To show no diff while committing remove @code{magit-commit-diff} from
 @node Branching
 @section Branching
 
+@menu
+* The two remotes::
+* The branch popup::
+* The branch config popup::
+@end menu
+
+@node The two remotes
+@subsection The two remotes
+
 The upstream branch of some local branch is the branch into which the
 commits on that local branch should eventually be merged, usually
 something like @code{origin/master}.  For the @code{master} branch itself the
@@ -4290,8 +4305,18 @@ unpushed and unpulled for both the push-remote and the upstream.
 It's fairly simple to configure these two remotes.  The values of all
 the variables that are related to fetching, pulling, and pushing (as
 well as some other branch-related variables) can be inspected and
-changed in the branching popup.  It is also possible to set the
-push-remote and/or upstream while pushing (see @ref{Pushing,Pushing}).
+changed using the popup @code{magit-branch-config-popup}, which is a
+sub-popup of many popups that deal with branches.  It is also possible
+to set the push-remote and/or upstream while pushing (see @ref{Pushing,Pushing}).
+
+@node The branch popup
+@subsection The branch popup
+
+The popup @code{magit-branch-popup} is used to create and checkout branches,
+and to make changes to existing branches.  It is not used to fetch,
+pull, merge, rebase, or push branches, i.e. this popup deals with
+branches themselves, not with the commits reachable from them.  Those
+features are available from separate popups.
 
 @table @asis
 @kindex b
@@ -4299,13 +4324,178 @@ push-remote and/or upstream while pushing (see @ref{Pushing,Pushing}).
 @item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-popup})
 
 This prefix command shows the following suffix commands in a popup
-buffer.  It also displays the values of the following variables and
-allows changing their values.
+buffer.
+
+By default it also displays the values of some branch-related Git
+variables and allows changing their values, just like the
+specialized @code{magit-branch-config-popup} does.
+
 @end table
+
+@defopt magit-branch-popup-show-variables
+
+Whether the @code{magit-branch-popup} shows Git variables.  This defaults
+to t to avoid changing key bindings.  When set to nil, no variables
+are displayed directly in this popup, and the sub-popup
+@code{magit-branch-config-popup} has to be used indead to view and change
+branch related variables.
+@end defopt
+
+@table @asis
+@kindex b b
+@cindex magit-checkout
+@item @kbd{b b} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout})
+
+Checkout a revision read in the minibuffer and defaulting to the
+branch or arbitrary revision at point.  If the revision is a local
+branch then that becomes the current branch.  If it is something
+else then @code{HEAD} becomes detached.  Checkout fails if the working tree
+or the staging area contain changes.
+
+@kindex b n
+@cindex magit-branch
+@item @kbd{b n} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch})
+
+Create a new branch.  The user is asked for a branch or arbitrary
+revision to use as the starting point of the new branch.  When a
+branch name is provided, then that becomes the upstream branch of
+the new branch.  The name of the new branch is also read in the
+minibuffer.
+
+Also see option @code{magit-branch-prefer-remote-upstream}.
+
+@kindex b c
+@cindex magit-branch-and-checkout
+@item @kbd{b c} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-and-checkout})
+
+This command creates a new branch like @code{magit-branch}, but then also
+checks it out.
+
+Also see option @code{magit-branch-prefer-remote-upstream}.
+
+@kindex b s
+@cindex magit-branch-spinoff
+@item @kbd{b s} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-spinoff})
+
+This command creates and checks out a new branch starting at and
+tracking the current branch.  That branch in turn is reset to the
+last commit it shares with its upstream.  If the current branch has
+no upstream or no unpushed commits, then the new branch is created
+anyway and the previously current branch is not touched.
+
+This is useful to create a feature branch after work has already
+began on the old branch (likely but not necessarily "master").
+
+If the current branch is a member of the value of option
+@code{magit-branch-prefer-remote-upstream} (which see), then the current
+branch will be used as the starting point as usual, but the upstream
+of the starting-point may be used as the upstream of the new branch,
+instead of the starting-point itself.
+
+@kindex b x
+@cindex magit-branch-reset
+@item @kbd{b x} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-reset})
+
+This command resets a branch, defaulting to the branch at point, to
+the tip of another branch or any other commit.
+
+When the branch being reset is the current branch, then a hard reset
+is performed.  If there are any uncommitted changes, then the user
+has to confirming the reset because those changes would be lost.
+
+This is useful when you have started work on a feature branch but
+realize it's all crap and want to start over.
+
+When resetting to another branch and a prefix argument is used, then
+the target branch is set as the upstream of the branch that is being
+reset.
+
+@kindex b d
+@cindex magit-branch-delete
+@item @kbd{b d} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-delete})
+
+Delete one or multiple branches.  If the region marks multiple
+branches, then offer to delete those.  Otherwise, prompt for a single
+branch to be deleted, defaulting to the branch at point.
+
+@kindex b r
+@cindex magit-branch-rename
+@item @kbd{b r} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-rename})
+
+Rename a branch.  The branch and the new name are read in the
+minibuffer.  With prefix argument the branch is renamed even if that
+name conflicts with an existing branch.
+
+@end table
+
+@defopt magit-branch-read-upstream-first
+
+When creating a branch, whether to read the upstream branch before
+the name of the branch that is to be created.  The default is @code{nil},
+and I recommend you leave it at that.
+@end defopt
+
+@defopt magit-branch-prefer-remote-upstream
+
+This option specifies whether remote upstreams are favored over
+local upstreams when creating new branches.
+
+When a new branch is created, Magit offers the branch, commit, or
+stash as the default starting point of the new branch.  If there is
+no such thing at point, then it falls back to offer the current
+branch as starting-point.  The user may then accept that default or
+pick something else.
+
+If the chosen starting-point is a branch, then it may also be set
+as the upstream of the new branch, depending on the value of the
+Git variable `branch.autoSetupMerge'.  By default this is done
+for remote branches, but not for local branches.
+
+You might prefer to always use some remote branch as upstream.
+If the chosen starting-point is (1) a local branch, (2) whose
+name is a member of the value of this option, (3) the upstream of
+that local branch is a remote branch with the same name, and (4)
+that remote branch can be fast-forwarded to the local branch,
+then the chosen branch is used as starting-point, but its own
+upstream is used as the upstream of the new branch.
+
+Assuming the chosen branch matches these conditions you would end
+up with with e.g.:
+
+@example
+feature --upstream--> origin/master
+@end example
+
+instead of
+
+@example
+feature --upstream--> master --upstream--> origin/master
+@end example
+
+Which you prefer is a matter of personal preference.  If you do
+prefer the former, then you should add branches such as @code{master},
+@code{next}, and @code{maint} to the value of this options.
+@end defopt
+
+@node The branch config popup
+@subsection The branch config popup
+
+@cindex magit-branch-popup
+@deffn Command magit-branch-popup
+
+This prefix command shows the following branch-related Git variables
+in a popup buffer.  The values can be changed from that buffer.
+
+This popup is a sub-popup of several popups that deal with branches,
+including @code{magit-branch-popup}, @code{magit-pull-popup}, @code{magit-fetch-popup},
+@code{magit-pull-and-fetch-popup}, and @code{magit-push-popup}.  In all of these
+popups "C" is bound to this popup.
+@end deffn
 
 The following variables are used to configure a specific branch.  The
 values are being displayed for the current branch (if any).  To change
-the value for another branch use a prefix argument.
+the value for another branch invoke @code{magit-branch-config-popup} with a
+prefix argument.
 
 @defvar branch.NAME.merge
 
@@ -4497,142 +4687,6 @@ choice.
 This affects all commands that use @code{magit-read-upstream-branch} or
 @code{magit-read-starting-point}, which includes all commands that change
 the upstream and many which create new branches.
-@end defopt
-
-@table @asis
-@kindex b b
-@cindex magit-checkout
-@item @kbd{b b} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout})
-
-Checkout a revision read in the minibuffer and defaulting to the
-branch or arbitrary revision at point.  If the revision is a local
-branch then that becomes the current branch.  If it is something
-else then @code{HEAD} becomes detached.  Checkout fails if the working tree
-or the staging area contain changes.
-
-@kindex b n
-@cindex magit-branch
-@item @kbd{b n} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch})
-
-Create a new branch.  The user is asked for a branch or arbitrary
-revision to use as the starting point of the new branch.  When a
-branch name is provided, then that becomes the upstream branch of
-the new branch.  The name of the new branch is also read in the
-minibuffer.
-
-Also see option @code{magit-branch-prefer-remote-upstream}.
-
-@kindex b c
-@cindex magit-branch-and-checkout
-@item @kbd{b c} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-and-checkout})
-
-This command creates a new branch like @code{magit-branch}, but then also
-checks it out.
-
-Also see option @code{magit-branch-prefer-remote-upstream}.
-
-@kindex b s
-@cindex magit-branch-spinoff
-@item @kbd{b s} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-spinoff})
-
-This command creates and checks out a new branch starting at and
-tracking the current branch.  That branch in turn is reset to the
-last commit it shares with its upstream.  If the current branch has
-no upstream or no unpushed commits, then the new branch is created
-anyway and the previously current branch is not touched.
-
-This is useful to create a feature branch after work has already
-began on the old branch (likely but not necessarily "master").
-
-If the current branch is a member of the value of option
-@code{magit-branch-prefer-remote-upstream} (which see), then the current
-branch will be used as the starting point as usual, but the upstream
-of the starting-point may be used as the upstream of the new branch,
-instead of the starting-point itself.
-
-@kindex b x
-@cindex magit-branch-reset
-@item @kbd{b x} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-reset})
-
-This command resets a branch, defaulting to the branch at point, to
-the tip of another branch or any other commit.
-
-When the branch being reset is the current branch, then a hard reset
-is performed.  If there are any uncommitted changes, then the user
-has to confirming the reset because those changes would be lost.
-
-This is useful when you have started work on a feature branch but
-realize it's all crap and want to start over.
-
-When resetting to another branch and a prefix argument is used, then
-the target branch is set as the upstream of the branch that is being
-reset.
-
-@kindex b d
-@cindex magit-branch-delete
-@item @kbd{b d} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-delete})
-
-Delete one or multiple branches.  If the region marks multiple
-branches, then offer to delete those.  Otherwise, prompt for a single
-branch to be deleted, defaulting to the branch at point.
-
-@kindex b r
-@cindex magit-branch-rename
-@item @kbd{b r} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-rename})
-
-Rename a branch.  The branch and the new name are read in the
-minibuffer.  With prefix argument the branch is renamed even if that
-name conflicts with an existing branch.
-
-@end table
-
-@defopt magit-branch-read-upstream-first
-
-When creating a branch, whether to read the upstream branch before
-the name of the branch that is to be created.  The default is @code{nil},
-and I recommend you leave it at that.
-@end defopt
-
-@defopt magit-branch-prefer-remote-upstream
-
-This option specifies whether remote upstreams are favored over
-local upstreams when creating new branches.
-
-When a new branch is created, Magit offers the branch, commit, or
-stash as the default starting point of the new branch.  If there is
-no such thing at point, then it falls back to offer the current
-branch as starting-point.  The user may then accept that default or
-pick something else.
-
-If the chosen starting-point is a branch, then it may also be set
-as the upstream of the new branch, depending on the value of the
-Git variable `branch.autoSetupMerge'.  By default this is done
-for remote branches, but not for local branches.
-
-You might prefer to always use some remote branch as upstream.
-If the chosen starting-point is (1) a local branch, (2) whose
-name is a member of the value of this option, (3) the upstream of
-that local branch is a remote branch with the same name, and (4)
-that remote branch can be fast-forwarded to the local branch,
-then the chosen branch is used as starting-point, but its own
-upstream is used as the upstream of the new branch.
-
-Assuming the chosen branch matches these conditions you would end
-up with with e.g.:
-
-@example
-feature --upstream--> origin/master
-@end example
-
-instead of
-
-@example
-feature --upstream--> master --upstream--> origin/master
-@end example
-
-Which you prefer is a matter of personal preference.  If you do
-prefer the former, then you should add branches such as @code{master},
-@code{next}, and @code{maint} to the value of this options.
 @end defopt
 
 @node Merging
