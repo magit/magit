@@ -586,7 +586,7 @@ buffer."
              (magit-popup-import-file-args
               (-if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
                   (with-current-buffer buffer
-                    (nth 2 magit-refresh-args))
+                    (nth 3 magit-refresh-args))
                 (default-value 'magit-diff-arguments))
               (list file))))
         (magit-invoke-popup 'magit-diff-popup nil arg))
