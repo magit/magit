@@ -3106,6 +3106,8 @@ To show no diff while committing remove ~magit-commit-diff~ from
 
 ** Branching
 
+*** The two remotes
+
 The upstream branch of some local branch is the branch into which the
 commits on that local branch should eventually be merged, usually
 something like ~origin/master~.  For the ~master~ branch itself the
@@ -3142,18 +3144,168 @@ unpushed and unpulled for both the push-remote and the upstream.
 It's fairly simple to configure these two remotes.  The values of all
 the variables that are related to fetching, pulling, and pushing (as
 well as some other branch-related variables) can be inspected and
-changed in the branching popup.  It is also possible to set the
-push-remote and/or upstream while pushing (see [[*Pushing]]).
+changed using the popup ~magit-branch-config-popup~, which is a
+sub-popup of many popups that deal with branches.  It is also possible
+to set the push-remote and/or upstream while pushing (see [[*Pushing]]).
+
+*** The branch popup
+
+The popup ~magit-branch-popup~ is used to create and checkout branches,
+and to make changes to existing branches.  It is not used to fetch,
+pull, merge, rebase, or push branches, i.e. this popup deals with
+branches themselves, not with the commits reachable from them.  Those
+features are available from separate popups.
 
 - Key: b, magit-branch-popup
 
   This prefix command shows the following suffix commands in a popup
-  buffer.  It also displays the values of the following variables and
-  allows changing their values.
+  buffer.
+
+  By default it also displays the values of some branch-related Git
+  variables and allows changing their values, just like the
+  specialized ~magit-branch-config-popup~ does.
+
+- User Option: magit-branch-popup-show-variables
+
+  Whether the ~magit-branch-popup~ shows Git variables.  This defaults
+  to t to avoid changing key bindings.  When set to nil, no variables
+  are displayed directly in this popup, and the sub-popup
+  ~magit-branch-config-popup~ has to be used indead to view and change
+  branch related variables.
+
+- Key: b b, magit-checkout
+
+  Checkout a revision read in the minibuffer and defaulting to the
+  branch or arbitrary revision at point.  If the revision is a local
+  branch then that becomes the current branch.  If it is something
+  else then ~HEAD~ becomes detached.  Checkout fails if the working tree
+  or the staging area contain changes.
+
+- Key: b n, magit-branch
+
+  Create a new branch.  The user is asked for a branch or arbitrary
+  revision to use as the starting point of the new branch.  When a
+  branch name is provided, then that becomes the upstream branch of
+  the new branch.  The name of the new branch is also read in the
+  minibuffer.
+
+  Also see option ~magit-branch-prefer-remote-upstream~.
+
+- Key: b c, magit-branch-and-checkout
+
+  This command creates a new branch like ~magit-branch~, but then also
+  checks it out.
+
+  Also see option ~magit-branch-prefer-remote-upstream~.
+
+- Key: b s, magit-branch-spinoff
+
+  This command creates and checks out a new branch starting at and
+  tracking the current branch.  That branch in turn is reset to the
+  last commit it shares with its upstream.  If the current branch has
+  no upstream or no unpushed commits, then the new branch is created
+  anyway and the previously current branch is not touched.
+
+  This is useful to create a feature branch after work has already
+  began on the old branch (likely but not necessarily "master").
+
+  If the current branch is a member of the value of option
+  ~magit-branch-prefer-remote-upstream~ (which see), then the current
+  branch will be used as the starting point as usual, but the upstream
+  of the starting-point may be used as the upstream of the new branch,
+  instead of the starting-point itself.
+
+- Key: b x, magit-branch-reset
+
+  This command resets a branch, defaulting to the branch at point, to
+  the tip of another branch or any other commit.
+
+  When the branch being reset is the current branch, then a hard reset
+  is performed.  If there are any uncommitted changes, then the user
+  has to confirming the reset because those changes would be lost.
+
+  This is useful when you have started work on a feature branch but
+  realize it's all crap and want to start over.
+
+  When resetting to another branch and a prefix argument is used, then
+  the target branch is set as the upstream of the branch that is being
+  reset.
+
+- Key: b d, magit-branch-delete
+
+  Delete one or multiple branches.  If the region marks multiple
+  branches, then offer to delete those.  Otherwise, prompt for a single
+  branch to be deleted, defaulting to the branch at point.
+
+- Key: b r, magit-branch-rename
+
+  Rename a branch.  The branch and the new name are read in the
+  minibuffer.  With prefix argument the branch is renamed even if that
+  name conflicts with an existing branch.
+
+- User Option: magit-branch-read-upstream-first
+
+  When creating a branch, whether to read the upstream branch before
+  the name of the branch that is to be created.  The default is ~nil~,
+  and I recommend you leave it at that.
+
+- User Option: magit-branch-prefer-remote-upstream
+
+  This option specifies whether remote upstreams are favored over
+  local upstreams when creating new branches.
+
+  When a new branch is created, Magit offers the branch, commit, or
+  stash as the default starting point of the new branch.  If there is
+  no such thing at point, then it falls back to offer the current
+  branch as starting-point.  The user may then accept that default or
+  pick something else.
+
+  If the chosen starting-point is a branch, then it may also be set
+  as the upstream of the new branch, depending on the value of the
+  Git variable `branch.autoSetupMerge'.  By default this is done
+  for remote branches, but not for local branches.
+
+  You might prefer to always use some remote branch as upstream.
+  If the chosen starting-point is (1) a local branch, (2) whose
+  name is a member of the value of this option, (3) the upstream of
+  that local branch is a remote branch with the same name, and (4)
+  that remote branch can be fast-forwarded to the local branch,
+  then the chosen branch is used as starting-point, but its own
+  upstream is used as the upstream of the new branch.
+
+  Assuming the chosen branch matches these conditions you would end
+  up with with e.g.:
+
+  #+BEGIN_SRC text
+    feature --upstream--> origin/master
+  #+END_SRC
+
+  instead of
+
+  #+BEGIN_SRC text
+    feature --upstream--> master --upstream--> origin/master
+  #+END_SRC
+
+  Which you prefer is a matter of personal preference.  If you do
+  prefer the former, then you should add branches such as ~master~,
+  ~next~, and ~maint~ to the value of this options.
+
+*** The branch config popup
+
+- Command: magit-branch-popup
+
+  This prefix command shows the following branch-related Git variables
+  in a popup buffer.  The values can be changed from that buffer.
+
+  This popup is a sub-popup of several popups that deal with branches,
+  including ~magit-branch-popup~, ~magit-pull-popup~, ~magit-fetch-popup~,
+  ~magit-pull-and-fetch-popup~, and ~magit-push-popup~.  In all of these
+  popups "C" is bound to this popup.
 
 The following variables are used to configure a specific branch.  The
 values are being displayed for the current branch (if any).  To change
-the value for another branch use a prefix argument.
+the value for another branch invoke ~magit-branch-config-popup~ with a
+prefix argument.
 
 - Variable: branch.NAME.merge
 
@@ -3273,123 +3425,6 @@ info:gitman#git-config.  Also see [[info:gitman#git-branch]],
   This affects all commands that use ~magit-read-upstream-branch~ or
   ~magit-read-starting-point~, which includes all commands that change
   the upstream and many which create new branches.
-
-- Key: b b, magit-checkout
-
-  Checkout a revision read in the minibuffer and defaulting to the
-  branch or arbitrary revision at point.  If the revision is a local
-  branch then that becomes the current branch.  If it is something
-  else then ~HEAD~ becomes detached.  Checkout fails if the working tree
-  or the staging area contain changes.
-
-- Key: b n, magit-branch
-
-  Create a new branch.  The user is asked for a branch or arbitrary
-  revision to use as the starting point of the new branch.  When a
-  branch name is provided, then that becomes the upstream branch of
-  the new branch.  The name of the new branch is also read in the
-  minibuffer.
-
-  Also see option ~magit-branch-prefer-remote-upstream~.
-
-- Key: b c, magit-branch-and-checkout
-
-  This command creates a new branch like ~magit-branch~, but then also
-  checks it out.
-
-  Also see option ~magit-branch-prefer-remote-upstream~.
-
-- Key: b s, magit-branch-spinoff
-
-  This command creates and checks out a new branch starting at and
-  tracking the current branch.  That branch in turn is reset to the
-  last commit it shares with its upstream.  If the current branch has
-  no upstream or no unpushed commits, then the new branch is created
-  anyway and the previously current branch is not touched.
-
-  This is useful to create a feature branch after work has already
-  began on the old branch (likely but not necessarily "master").
-
-  If the current branch is a member of the value of option
-  ~magit-branch-prefer-remote-upstream~ (which see), then the current
-  branch will be used as the starting point as usual, but the upstream
-  of the starting-point may be used as the upstream of the new branch,
-  instead of the starting-point itself.
-
-- Key: b x, magit-branch-reset
-
-  This command resets a branch, defaulting to the branch at point, to
-  the tip of another branch or any other commit.
-
-  When the branch being reset is the current branch, then a hard reset
-  is performed.  If there are any uncommitted changes, then the user
-  has to confirming the reset because those changes would be lost.
-
-  This is useful when you have started work on a feature branch but
-  realize it's all crap and want to start over.
-
-  When resetting to another branch and a prefix argument is used, then
-  the target branch is set as the upstream of the branch that is being
-  reset.
-
-- Key: b d, magit-branch-delete
-
-  Delete one or multiple branches.  If the region marks multiple
-  branches, then offer to delete those.  Otherwise, prompt for a single
-  branch to be deleted, defaulting to the branch at point.
-
-- Key: b r, magit-branch-rename
-
-  Rename a branch.  The branch and the new name are read in the
-  minibuffer.  With prefix argument the branch is renamed even if that
-  name conflicts with an existing branch.
-
-- User Option: magit-branch-read-upstream-first
-
-  When creating a branch, whether to read the upstream branch before
-  the name of the branch that is to be created.  The default is ~nil~,
-  and I recommend you leave it at that.
-
-- User Option: magit-branch-prefer-remote-upstream
-
-  This option specifies whether remote upstreams are favored over
-  local upstreams when creating new branches.
-
-  When a new branch is created, Magit offers the branch, commit, or
-  stash as the default starting point of the new branch.  If there is
-  no such thing at point, then it falls back to offer the current
-  branch as starting-point.  The user may then accept that default or
-  pick something else.
-
-  If the chosen starting-point is a branch, then it may also be set
-  as the upstream of the new branch, depending on the value of the
-  Git variable `branch.autoSetupMerge'.  By default this is done
-  for remote branches, but not for local branches.
-
-  You might prefer to always use some remote branch as upstream.
-  If the chosen starting-point is (1) a local branch, (2) whose
-  name is a member of the value of this option, (3) the upstream of
-  that local branch is a remote branch with the same name, and (4)
-  that remote branch can be fast-forwarded to the local branch,
-  then the chosen branch is used as starting-point, but its own
-  upstream is used as the upstream of the new branch.
-
-  Assuming the chosen branch matches these conditions you would end
-  up with with e.g.:
-
-  #+BEGIN_SRC text
-    feature --upstream--> origin/master
-  #+END_SRC
-
-  instead of
-
-  #+BEGIN_SRC text
-    feature --upstream--> master --upstream--> origin/master
-  #+END_SRC
-
-  Which you prefer is a matter of personal preference.  If you do
-  prefer the former, then you should add branches such as ~master~,
-  ~next~, and ~maint~ to the value of this options.
 
 ** Merging
 

@@ -6,6 +6,18 @@ Changes since v2.6.2
 
 * Added new popup `magit-subtree-popup' and bound "O" to it.
 
+* Added new popup `magit-branch-config-popup' and made it available
+  from the popups `magit-branch-popup', `magit-pull-and-fetch-popup',
+  `magit-pull-popup', `magit-fetch-popup', and `magit-push-popup'.
+
+  With a prefix argument it reads a the branch to be configured in
+  the minibuffer instead of using the current branch.
+
+* Added new option `magit-branch-popup-show-variables', defaulting to
+  t to avoid changing key bindings.  When set to nil, no variables are
+  displayed directly in the `magit-branch-popup', instead the subpopup
+  `magit-branch-config-popup' has to be used.
+
 * Added new commands `magit-worktree-checkout',
   `magit-worktree-branch', `magit-worktree-delete',
   and `magit-worktree-status'.

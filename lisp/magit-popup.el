@@ -291,6 +291,8 @@ Don't confuse this with `magit-current-popup'.")
 This is intended for internal use only.
 Don't confuse this with `magit-current-popup-args'.")
 
+(defvar-local magit-previous-popup nil)
+
 (defun magit-popup-get (prop)
   "While a popup is active, get the value of PROP."
   (if (memq prop '(:switches :options :variables :actions))
@@ -806,6 +808,9 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
   (interactive (list last-command-event))
   (let ((action   (magit-popup-lookup event :actions))
         (variable (magit-popup-lookup event :variables)))
+    (when (and variable (not (magit-popup-event-arg variable)))
+      (setq action variable)
+      (setq variable nil))
     (if (or action variable)
         (let ((magit-current-popup magit-this-popup)
               (magit-current-popup-args (magit-popup-get-args))
@@ -817,7 +822,9 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
           (unless action
             (magit-refresh-popup-buffer)))
       (if (eq event ?q)
-          (magit-popup-quit)
+          (progn (magit-popup-quit)
+                 (when magit-previous-popup
+                   (magit-popup-mode-setup magit-previous-popup nil)))
         (user-error "%c isn't bound to any action" event)))))
 
 (defun magit-popup-set-variable
@@ -1012,6 +1019,7 @@ restored."
                                  val (plist-get def :actions)))))
 
 (defun magit-popup-mode-setup (popup mode)
+  (setq magit-previous-popup magit-current-popup)
   (let ((val (symbol-value (plist-get (symbol-value popup) :variable)))
         (def (symbol-value popup)))
     (magit-popup-mode-display-buffer (get-buffer-create
@@ -1142,12 +1150,14 @@ of events shared by all popups and before point is adjusted.")
         'type type 'event (magit-popup-event-key ev)))
 
 (defun magit-popup-format-variable-button (type ev)
-  (list (format-spec
-         (button-type-get type 'format)
-         `((?k . ,(propertize (magit-popup-event-keydsc ev)
-                              'face 'magit-popup-key))
-           (?d . ,(funcall (magit-popup-event-arg ev)))))
-        'type type 'event (magit-popup-event-key ev)))
+  (if (not (magit-popup-event-arg ev))
+      (magit-popup-format-action-button 'magit-popup-action-button ev)
+    (list (format-spec
+           (button-type-get type 'format)
+           `((?k . ,(propertize (magit-popup-event-keydsc ev)
+                                'face 'magit-popup-key))
+             (?d . ,(funcall (magit-popup-event-arg ev)))))
+          'type type 'event (magit-popup-event-key ev))))
 
 (defun magit-popup-format-variable
     (variable choices &optional default other width)
