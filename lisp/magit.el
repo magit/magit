@@ -1612,8 +1612,7 @@ already set.  When nil, then always unset."
      (list branch (and (not (magit-get-upstream-branch branch))
                        (magit-read-upstream-branch)))))
   (if upstream
-      (-let (((remote . merge) (magit-split-branch-name upstream))
-             (branch (magit-get-current-branch)))
+      (-let (((remote . merge) (magit-split-branch-name upstream)))
         (magit-call-git "config" (format "branch.%s.remote" branch) remote)
         (magit-call-git "config" (format "branch.%s.merge"  branch)
                         (concat "refs/heads/" merge)))
