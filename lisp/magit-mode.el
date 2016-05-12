@@ -555,19 +555,22 @@ thinking a buffer belongs to a repo that it doesn't.")
 (defvar-local magit-buffer-locked-p nil)
 (put 'magit-buffer-locked-p 'permanent-local t)
 
-(defun magit-mode-get-buffer (mode &optional create frame)
+(defun magit-mode-get-buffer (mode &optional create frame value)
   (-if-let (topdir (magit-toplevel))
       (or (--first (with-current-buffer it
                      (and (eq major-mode mode)
                           (equal magit--default-directory topdir)
-                          (not magit-buffer-locked-p)))
+                          (if value
+                              (and magit-buffer-locked-p
+                                   (equal (magit-buffer-lock-value) value))
+                            (not magit-buffer-locked-p))))
                    (if frame
                        (-map #'window-buffer
                              (window-list (unless (eq frame t) frame)))
                      (buffer-list)))
           (and create
                (let ((default-directory topdir))
-                 (magit-generate-new-buffer mode))))
+                 (magit-generate-new-buffer mode value))))
     (user-error "Not inside a Git repository")))
 
 (defun magit-generate-new-buffer (mode &optional value)
