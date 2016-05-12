@@ -171,6 +171,15 @@ many spaces.  Otherwise, highlight neither."
   :group 'magit-diff
   :type 'boolean)
 
+;;;; File Diff
+
+(defcustom magit-diff-buffer-file-locked t
+  "Whether `magit-diff-buffer-file' uses a decicated buffer."
+  :package-version '(magit . "2.7.0")
+  :group 'magit-commands
+  :group 'magit-diff
+  :type 'boolean)
+
 ;;;; Revision Mode
 
 (defgroup magit-revision nil
@@ -777,6 +786,21 @@ be committed."
 
 (defun magit-diff-while-amending (&optional args files)
   (magit-diff-setup "HEAD^" (list "--cached") args files))
+
+;;;###autoload
+(defun magit-diff-buffer-file ()
+  "Show diff for the blob or file visited in the current buffer."
+  (interactive)
+  (-if-let (file (magit-file-relative-name))
+      (magit-mode-setup-internal #'magit-diff-mode
+                                 (list (or magit-buffer-refname
+                                           (magit-get-current-branch)
+                                           "HEAD")
+                                       nil
+                                       (cadr (magit-diff-arguments))
+                                       (list file))
+                                 magit-diff-buffer-file-locked)
+    (user-error "Buffer isn't visiting a file")))
 
 ;;;###autoload
 (defun magit-diff-paths (a b)
