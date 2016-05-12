@@ -1336,8 +1336,6 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   :default-action 'magit-checkout
   :max-action-columns 3)
 
-;;;;; Branch Actions
-
 ;;;###autoload
 (defun magit-checkout (revision)
   "Checkout REVISION, updating the index and the working tree.
@@ -1545,7 +1543,47 @@ With prefix, forces the rename even if NEW already exists.
   (unless (string= old new)
     (magit-run-git "branch" (if force "-M" "-m") old new)))
 
-;;;;; Branch Variables
+;;;;; Branch Config Popup
+
+;;;###autoload
+(defun magit-branch-config-popup (&optional arg)
+  "Popup console for setting branch variables."
+  (interactive "P")
+  (magit-invoke-popup 'magit-branch-config-popup nil arg))
+
+(defvar magit-branch-config-variables
+  '("Configure existing branches"
+    (?d "branch.%s.description"
+        magit-edit-branch*description
+        magit-format-branch*description)
+    (?u "branch.%s.merge"
+        magit-set-branch*merge/remote
+        magit-format-branch*merge/remote)
+    (?r "branch.%s.rebase"
+        magit-cycle-branch*rebase
+        magit-format-branch*rebase)
+    (?p "branch.%s.pushRemote"
+        magit-cycle-branch*pushRemote
+        magit-format-branch*pushRemote)
+    "Configure repository defaults"
+    (?\M-r "pull.rebase"
+           magit-cycle-pull.rebase
+           magit-format-pull.rebase)
+    (?\M-p "remote.pushDefault"
+           magit-cycle-remote.pushDefault
+           magit-format-remote.pushDefault)
+    "Configure branch creation"
+    (?U "branch.autoSetupMerge"
+        magit-cycle-branch*autoSetupMerge
+        magit-format-branch*autoSetupMerge)
+    (?R "branch.autoSetupRebase"
+        magit-cycle-branch*autoSetupRebase
+        magit-format-branch*autoSetupRebase)))
+
+(defvar magit-branch-config-popup
+  `(:man-page "git-branch"
+    :variables ,magit-branch-config-variables
+    :default-action magit-checkout))
 
 (defun magit-branch-config-branch (&optional prompt)
   (if prompt
