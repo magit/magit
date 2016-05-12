@@ -570,11 +570,12 @@ thinking a buffer belongs to a repo that it doesn't.")
                  (magit-generate-new-buffer mode))))
     (user-error "Not inside a Git repository")))
 
-(defun magit-generate-new-buffer (mode)
-  (let* ((name (funcall magit-generate-buffer-name-function mode))
+(defun magit-generate-new-buffer (mode &optional value)
+  (let* ((name (funcall magit-generate-buffer-name-function mode value))
          (buffer (generate-new-buffer name)))
     (with-current-buffer buffer
-      (setq magit--default-directory default-directory))
+      (setq magit--default-directory default-directory)
+      (setq magit-buffer-locked-p (and value t)))
     (when magit-uniquify-buffer-names
       (add-to-list 'uniquify-list-buffers-directory-modes mode)
       (with-current-buffer buffer
