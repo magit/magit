@@ -484,9 +484,13 @@ Magit is documented in info node `(magit)'."
   "Setup up a MODE buffer using ARGS to generate its content."
   (magit-mode-setup-internal mode args))
 
-(defun magit-mode-setup-internal (mode args)
-  "Setup up a MODE buffer using ARGS to generate its content."
-  (let ((buffer (magit-mode-get-buffer mode t))
+(defun magit-mode-setup-internal (mode args &optional locked)
+  "Setup up a MODE buffer using ARGS to generate its content.
+When optional LOCKED is non-nil, then create a buffer that is
+locked to its value, which is derived from MODE and ARGS."
+  (let ((buffer (magit-mode-get-buffer
+                 mode t nil
+                 (and locked (magit-buffer-lock-value mode args))))
         (section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
