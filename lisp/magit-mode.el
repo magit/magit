@@ -482,6 +482,10 @@ Magit is documented in info node `(magit)'."
 
 (defun magit-mode-setup (mode &rest args)
   "Setup up a MODE buffer using ARGS to generate its content."
+  (magit-mode-setup-internal mode args))
+
+(defun magit-mode-setup-internal (mode args)
+  "Setup up a MODE buffer using ARGS to generate its content."
   (let ((buffer (magit-mode-get-buffer mode t))
         (section (magit-current-section)))
     (with-current-buffer buffer
