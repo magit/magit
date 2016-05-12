@@ -627,14 +627,14 @@ latter is displayed in its place."
         (setq magit-buffer-locked-p nil)
         (rename-buffer (funcall magit-generate-buffer-name-function
                                 major-mode)))
-    (setq magit-buffer-locked-p (magit-buffer-lock-value))
-    (if magit-buffer-locked-p
+    (-if-let (value (magit-buffer-lock-value))
         (let ((name (funcall magit-generate-buffer-name-function
-                             major-mode magit-buffer-locked-p)))
+                             major-mode value)))
           (-if-let (locked (get-buffer name))
               (let ((unlocked (current-buffer)))
                 (switch-to-buffer locked nil t)
                 (kill-buffer unlocked))
+            (setq magit-buffer-locked-p t)
             (rename-buffer name)))
       (user-error "Buffer has no value it could be locked to"))))
 
