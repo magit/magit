@@ -279,6 +279,16 @@ prefer the former, then you should add branches such as \"master\",
   :group 'magit-commands
   :type '(repeat string))
 
+(defcustom magit-branch-popup-show-variables t
+  "Whether the `magit-branch-popup' shows Git variables.
+This defaults to t to avoid changing key bindings.  When set to
+nil, no variables are displayed directly in this popup, instead
+the sub-popup `magit-branch-config-popup' has to be used to view
+and change branch related variables."
+  :package-version '(magit . "2.7.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 (defcustom magit-repository-directories nil
   "Directories containing Git repositories.
 Magit checks these directories for Git repositories and offers
@@ -1297,44 +1307,26 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   "Popup console for branch commands."
   'magit-commands
   :man-page "git-branch"
-  :variables '("Configure existing branches"
-               (?d "branch.%s.description"
-                   magit-edit-branch*description
-                   magit-format-branch*description)
-               (?u "branch.%s.merge"
-                   magit-set-branch*merge/remote
-                   magit-format-branch*merge/remote)
-               (?r "branch.%s.rebase"
-                   magit-cycle-branch*rebase
-                   magit-format-branch*rebase)
-               (?p "branch.%s.pushRemote"
-                   magit-cycle-branch*pushRemote
-                   magit-format-branch*pushRemote)
-               "Configure repository defaults"
-               (?\M-r "pull.rebase"
-                      magit-cycle-pull.rebase
-                      magit-format-pull.rebase)
-               (?\M-p "remote.pushDefault"
-                      magit-cycle-remote.pushDefault
-                      magit-format-remote.pushDefault)
-               "Configure branch creation"
-               (?U "branch.autoSetupMerge"
-                   magit-cycle-branch*autoSetupMerge
-                   magit-format-branch*autoSetupMerge)
-               (?R "branch.autoSetupRebase"
-                   magit-cycle-branch*autoSetupRebase
-                   magit-format-branch*autoSetupRebase))
   :actions '((?b "Checkout"              magit-checkout)
              (?n "Create new branch"     magit-branch)
-             (?m "Rename"                magit-branch-rename)
+             (?C "Configure..."          magit-branch-config-popup)
              (?c "Checkout new branch"   magit-branch-and-checkout)
              (?s "Create new spin-off"   magit-branch-spinoff)
-             (?x "Reset"                 magit-branch-reset)
+             (?m "Rename"                magit-branch-rename)
              (?w "Checkout new worktree" magit-worktree-checkout)
              (?W "Create new worktree"   magit-worktree-branch)
+             (?x "Reset"                 magit-branch-reset) nil nil
              (?k "Delete"                magit-branch-delete))
   :default-action 'magit-checkout
-  :max-action-columns 3)
+  :max-action-columns 3
+  :setup-function 'magit-branch-popup-setup)
+
+(defvar magit-branch-config-variables)
+
+(defun magit-branch-popup-setup (val def)
+  (magit-popup-default-setup val def)
+  (magit-popup-put :variables (magit-popup-convert-variables
+                               val magit-branch-config-variables)))
 
 ;;;###autoload
 (defun magit-checkout (revision)

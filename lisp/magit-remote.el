@@ -178,7 +178,9 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   'magit-commands
   :man-page "git-fetch"
   :switches '((?p "Prune deleted branches" "--prune"))
-  :actions  '("Fetch from"
+  :actions  '("Configure"
+              (?C "variables..."           magit-branch-config-popup)
+              "Fetch from"
               (?p magit-get-push-remote    magit-fetch-from-pushremote)
               (?u magit-get-remote         magit-fetch-from-upstream)
               (?e "elsewhere"              magit-fetch)
@@ -271,9 +273,11 @@ removed on the respective remote."
   "Popup console for pull commands."
   'magit-commands
   :man-page "git-pull"
-  :variables '((?r "branch.%s.rebase"
+  :variables '("Configure"
+               (?r "branch.%s.rebase"
                    magit-cycle-branch*rebase
-                   magit-pull-format-branch*rebase))
+                   magit-pull-format-branch*rebase)
+               (?C "variables..." magit-branch-config-popup))
   :actions '((lambda ()
                (--if-let (magit-get-current-branch)
                    (concat
@@ -315,10 +319,11 @@ missing.  To add them use something like:
       \\='magit-fetch-from-push-remote ?F))"
   'magit-commands
   :man-page "git-pull"
-  :variables '("Pull variables"
+  :variables '("Configure"
                (?r "branch.%s.rebase"
                    magit-cycle-branch*rebase
-                   magit-pull-format-branch*rebase))
+                   magit-pull-format-branch*rebase)
+               (?C "variables..." magit-branch-config-popup))
   :actions '((lambda ()
                (--if-let (magit-get-current-branch)
                    (concat
@@ -418,7 +423,9 @@ removed after restarting Emacs."
               (?d "Dry run"       "--dry-run")
               ,@(and (not magit-push-current-set-remote-if-missing)
                      '((?u "Set upstream"  "--set-upstream"))))
-  :actions '((lambda ()
+  :actions '("Configure"
+             (?C "variables..."      magit-branch-config-popup)
+             (lambda ()
                (--when-let (magit-get-current-branch)
                  (concat (propertize "Push " 'face 'magit-popup-heading)
                          (propertize it      'face 'magit-branch-local)
