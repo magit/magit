@@ -1547,6 +1547,14 @@ With prefix, forces the rename even if NEW already exists.
 
 ;;;;; Branch Variables
 
+(defun magit-branch-config-branch (&optional prompt)
+  (if prompt
+      (or (and (not current-prefix-arg)
+               (magit-get-current-branch))
+          (magit-read-local-branch prompt))
+    (or (magit-get-current-branch)
+        "<name>")))
+
 ;;;###autoload
 (defun magit-edit-branch*description (branch)
   "Edit the description of the current branch.
@@ -1554,10 +1562,7 @@ With a prefix argument edit the description of another branch.
 
 The description for the branch named NAME is stored in the Git
 variable `branch.<name>.description'."
-  (interactive
-   (list (or (and (not current-prefix-arg)
-                  (magit-get-current-branch))
-             (magit-read-local-branch "Edit branch description"))))
+  (interactive (list (magit-branch-config-branch "Edit branch description")))
   (magit-run-git-with-editor "branch" "--edit-description" branch))
 
 (defun magit-edit-branch*description-check-buffers ()
@@ -1572,7 +1577,7 @@ variable `branch.<name>.description'."
 (add-hook 'find-file-hook 'magit-edit-branch*description-check-buffers)
 
 (defun magit-format-branch*description ()
-  (let* ((branch (or (magit-get-current-branch) "<name>"))
+  (let* ((branch (magit-branch-config-branch))
          (width (+ (length branch) 19))
          (var (format "branch.%s.description" branch)))
     (concat var " " (make-string (- width (length var)) ?\s)
@@ -1598,9 +1603,7 @@ Non-interactively, when UPSTREAM is non-nil, then always set it
 as the new upstream, regardless of whether another upstream was
 already set.  When nil, then always unset."
   (interactive
-   (let ((branch (or (and (not current-prefix-arg)
-                          (magit-get-current-branch))
-                     (magit-read-local-branch "Change upstream of branch"))))
+   (let ((branch (magit-branch-config-branch "Change upstream of branch")))
      (list branch (and (not (magit-get-upstream-branch branch))
                        (magit-read-upstream-branch)))))
   (if upstream
@@ -1613,7 +1616,7 @@ already set.  When nil, then always unset."
     (magit-refresh)))
 
 (defun magit-format-branch*merge/remote ()
-  (let* ((branch (or (magit-get-current-branch) "<name>"))
+  (let* ((branch (magit-branch-config-branch))
          (width (+ (length branch) 20))
          (varM (format "branch.%s.merge" branch))
          (varR (format "branch.%s.remote" branch))
@@ -1643,16 +1646,14 @@ When `false' then pulling is done by merging.
 
 When that variable is undefined then the value of `pull.rebase'
 is used instead.  It defaults to `false'."
-  (interactive
-   (list (or (and (not current-prefix-arg)
-                  (magit-get-current-branch))
-             (magit-read-local-branch "Cycle branch.<name>.rebase for"))))
+  (interactive (list (magit-branch-config-branch
+                      "Cycle branch.<name>.rebase for")))
   (magit-popup-set-variable (format "branch.%s.rebase" branch)
                             '("true" "false")
                             "false" "pull.rebase"))
 
 (defun magit-format-branch*rebase ()
-  (let ((branch (or (magit-get-current-branch) "<name>")))
+  (let ((branch (magit-branch-config-branch)))
     (magit-popup-format-variable (format "branch.%s.rebase" branch)
                                  '("true" "false")
                                  "false" "pull.rebase"
@@ -1670,16 +1671,14 @@ to be the name of an existing remote.
 If that variable is undefined, then the value of the Git variable
 `remote.pushDefault' is used instead, provided that it is defined,
 which by default it is not."
-  (interactive
-   (list (or (and (not current-prefix-arg)
-                  (magit-get-current-branch))
-             (magit-read-local-branch "Cycle branch.<name>.pushRemote for"))))
+  (interactive (list (magit-branch-config-branch
+                      "Cycle branch.<name>.pushRemote for")))
   (magit-popup-set-variable (format "branch.%s.pushRemote" branch)
                             (magit-list-remotes)
                             "remote.pushDefault"))
 
 (defun magit-format-branch*pushRemote ()
-  (let ((branch (or (magit-get-current-branch) "<name>")))
+  (let ((branch (magit-branch-config-branch)))
     (magit-popup-format-variable (format "branch.%s.pushRemote" branch)
                                  (magit-list-remotes)
                                  nil "remote.pushDefault"
