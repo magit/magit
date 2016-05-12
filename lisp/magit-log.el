@@ -414,6 +414,25 @@ the upstream isn't ahead of the current branch) show."
            (default-value 'magit-log-arguments))))
     (magit-invoke-popup 'magit-log-popup nil arg)))
 
+;;;###autoload
+(defun magit-log-buffer-file-popup ()
+  "Popup console for log commands.
+
+This is a variant of `magit-log-popup' which shows the same popup
+but which limits the log to the file being visited in the current
+buffer."
+  (interactive)
+  (-if-let (file (magit-file-relative-name))
+      (let ((magit-log-arguments
+             (magit-popup-import-file-args
+              (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
+                  (with-current-buffer buffer
+                    (nth 2 magit-refresh-args))
+                (default-value 'magit-log-arguments))
+              (list file))))
+        (magit-invoke-popup 'magit-log-popup nil nil))
+    (user-error "Buffer isn't visiting a file")))
+
 (defun magit-log-refresh-popup (arg)
   "Popup console for changing log arguments in the current buffer."
   (interactive "P")

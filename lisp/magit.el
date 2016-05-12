@@ -2433,7 +2433,7 @@ the current repository."
              (?b "Blame"     magit-blame-popup)
              (?u "Unstage"   magit-unstage-file)
              (?D "Diff..."   magit-diff-buffer-file-popup)
-             nil
+             (?L "Log..."    magit-log-buffer-file-popup)
              (?p "Find blob" magit-blob-previous)
              (?c "Commit"    magit-commit-popup))
   :max-action-columns 4)

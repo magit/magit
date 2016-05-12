@@ -18,6 +18,8 @@ Changes since v2.6.2
   displayed directly in the `magit-branch-popup', instead the subpopup
   `magit-branch-config-popup' has to be used.
 
+* Added new popup command `magit-log-buffer-file-popup'.
+
 * Added new command `magit-diff-buffer-file' and new option
   `magit-diff-buffer-file-locked'.  The the value of the option is
   non-nil, the default, then the command uses a dedicated buffer.
