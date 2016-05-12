@@ -291,6 +291,8 @@ Don't confuse this with `magit-current-popup'.")
 This is intended for internal use only.
 Don't confuse this with `magit-current-popup-args'.")
 
+(defvar-local magit-previous-popup nil)
+
 (defun magit-popup-get (prop)
   "While a popup is active, get the value of PROP."
   (if (memq prop '(:switches :options :variables :actions))
@@ -820,7 +822,9 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
           (unless action
             (magit-refresh-popup-buffer)))
       (if (eq event ?q)
-          (magit-popup-quit)
+          (progn (magit-popup-quit)
+                 (when magit-previous-popup
+                   (magit-popup-mode-setup magit-previous-popup nil)))
         (user-error "%c isn't bound to any action" event)))))
 
 (defun magit-popup-set-variable
@@ -1015,6 +1019,7 @@ restored."
                                  val (plist-get def :actions)))))
 
 (defun magit-popup-mode-setup (popup mode)
+  (setq magit-previous-popup magit-current-popup)
   (let ((val (symbol-value (plist-get (symbol-value popup) :variable)))
         (def (symbol-value popup)))
     (magit-popup-mode-display-buffer (get-buffer-create
