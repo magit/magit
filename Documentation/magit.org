@@ -1762,6 +1762,10 @@ The following related commands are not available from the popup.
 
   Show log for the file visited in the current buffer.
 
+Two additional commands that show the log for the file or blob that is
+being visited in the current buffer exists, see [[*Minor mode for
+buffers visiting files]].
+
 *** Refreshing logs
 
 The prefix command ~magit-log-refresh-popup~, on ~L~, can be used to
@@ -1988,6 +1992,10 @@ another buffer:
 - Key: d t, magit-stash-show
 
   Show all diffs of a stash in a buffer.
+
+Two additional commands that show the diff for the file or blob that
+is being visited in the current buffer exists, see [[*Minor mode for
+buffers visiting files]].
 
 *** Refreshing diffs
 
@@ -4795,7 +4803,7 @@ buffers belonging to a Git repository.  It should be enabled globally
 using ~global-magit-file-mode~.  Currently this mode only establishes a
 few key bindings, but this might be extended in the future.
 
-- User Option: global-magit-file-mode
+- User Option: magit-file-mode
 
   Whether to establish certain Magit key bindings in all file-visiting
   buffers belonging to a Git repository.  This establishes the
@@ -4820,18 +4828,41 @@ few key bindings, but this might be extended in the future.
   This prefix command shows suffix commands along with the appropriate
   infix arguments in a popup buffer.  See [[*Initiating a commit]].
 
-- Key: C-c M-g d, magit-diff-buffer-file-popup
+- Key: C-c M-g D, magit-diff-buffer-file-popup
 
   This prefix command shows the same suffix commands and infix
   arguments in a popup buffer as ~magit-diff-popup~.  But this variant
   has to be called from a file-visiting buffer and the visited file
   is automatically used in the popup to limit the diff to that file.
 
+- Key: C-c M-g d, magit-diff-buffer-file
+
+  This command shows the diff for the file of blob that the current
+  buffer visits.  Renames are followed when a prefix argument is used
+  or when ~--follow~ is part of ~magit-diff-arguments~.
+
+- User Option: magit-diff-buffer-file-locked
+
+  This option controls whether ~magit-diff-buffer-file~ uses a decicated
+  buffer.  See [[*Modes and Buffers]].
+
+- Key: C-c M-g L, magit-log-buffer-file-popup
+
+  This prefix command shows the same suffix commands and infix
+  arguments in a popup buffer as ~magit-log-popup~.  But this variant
+  has to be called from a file-visiting buffer and the visited file
+  is automatically used in the popup to limit the log to that file.
+
 - Key: C-c M-g l, magit-log-buffer-file
 
   This command shows the log for the file of blob that the current
   buffer visits.  Renames are followed when a prefix argument is used
   or when ~--follow~ is part of ~magit-log-arguments~.
+
+- User Option: magit-log-buffer-file-locked
+
+  This option controls whether ~magit-log-buffer-file~ uses a decicated
+  buffer.  See [[*Modes and Buffers]].
 
 - Key: C-c M-g b, magit-blame-popup
 

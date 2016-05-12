@@ -482,7 +482,15 @@ Magit is documented in info node `(magit)'."
 
 (defun magit-mode-setup (mode &rest args)
   "Setup up a MODE buffer using ARGS to generate its content."
-  (let ((buffer (magit-mode-get-buffer mode t))
+  (magit-mode-setup-internal mode args))
+
+(defun magit-mode-setup-internal (mode args &optional locked)
+  "Setup up a MODE buffer using ARGS to generate its content.
+When optional LOCKED is non-nil, then create a buffer that is
+locked to its value, which is derived from MODE and ARGS."
+  (let ((buffer (magit-mode-get-buffer
+                 mode t nil
+                 (and locked (magit-buffer-lock-value mode args))))
         (section (magit-current-section)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
@@ -555,26 +563,30 @@ thinking a buffer belongs to a repo that it doesn't.")
 (defvar-local magit-buffer-locked-p nil)
 (put 'magit-buffer-locked-p 'permanent-local t)
 
-(defun magit-mode-get-buffer (mode &optional create frame)
+(defun magit-mode-get-buffer (mode &optional create frame value)
   (-if-let (topdir (magit-toplevel))
       (or (--first (with-current-buffer it
                      (and (eq major-mode mode)
                           (equal magit--default-directory topdir)
-                          (not magit-buffer-locked-p)))
+                          (if value
+                              (and magit-buffer-locked-p
+                                   (equal (magit-buffer-lock-value) value))
+                            (not magit-buffer-locked-p))))
                    (if frame
                        (-map #'window-buffer
                              (window-list (unless (eq frame t) frame)))
                      (buffer-list)))
           (and create
                (let ((default-directory topdir))
-                 (magit-generate-new-buffer mode))))
+                 (magit-generate-new-buffer mode value))))
     (user-error "Not inside a Git repository")))
 
-(defun magit-generate-new-buffer (mode)
-  (let* ((name (funcall magit-generate-buffer-name-function mode))
+(defun magit-generate-new-buffer (mode &optional value)
+  (let* ((name (funcall magit-generate-buffer-name-function mode value))
          (buffer (generate-new-buffer name)))
     (with-current-buffer buffer
-      (setq magit--default-directory default-directory))
+      (setq magit--default-directory default-directory)
+      (setq magit-buffer-locked-p (and value t)))
     (when magit-uniquify-buffer-names
       (add-to-list 'uniquify-list-buffers-directory-modes mode)
       (with-current-buffer buffer
@@ -622,37 +634,52 @@ latter is displayed in its place."
   (if magit-buffer-locked-p
       (-if-let (unlocked (magit-mode-get-buffer major-mode))
           (let ((locked (current-buffer)))
-            (set-buffer unlocked)
+            (switch-to-buffer unlocked nil t)
             (kill-buffer locked))
         (setq magit-buffer-locked-p nil)
         (rename-buffer (funcall magit-generate-buffer-name-function
                                 major-mode)))
-    (setq magit-buffer-locked-p
-          (cond ((memq major-mode '(magit-cherry-mode
-                                    magit-log-mode
-                                    magit-reflog-mode
-                                    magit-refs-mode
-                                    magit-revision-mode
-                                    magit-stash-mode
-                                    magit-stashes-mode))
-                 (car magit-refresh-args))
-                ((eq major-mode 'magit-diff-mode)
-                 (let ((rev  (nth 0 magit-refresh-args))
-                       (args (nth 1 magit-refresh-args)))
-                   (cond
-                    ((member "--no-index" args)
-                     (nth 3 magit-refresh-args))
-                    (rev (if args (cons rev args) rev))
-                    (t   (if (member "--cached" args) "staged" "unstaged")))))))
-    (if magit-buffer-locked-p
-        (let ((name (funcall magit-generate-buffer-name-function
-                             major-mode magit-buffer-locked-p)))
-          (-if-let (locked (get-buffer name))
-              (let ((unlocked (current-buffer)))
-                (set-buffer locked)
-                (kill-buffer unlocked))
-            (rename-buffer name)))
+    (-if-let (value (magit-buffer-lock-value))
+        (-if-let (locked (magit-mode-get-buffer major-mode nil nil value))
+            (let ((unlocked (current-buffer)))
+              (switch-to-buffer locked nil t)
+              (kill-buffer unlocked))
+          (setq magit-buffer-locked-p t)
+          (rename-buffer (funcall magit-generate-buffer-name-function
+                                  major-mode value)))
       (user-error "Buffer has no value it could be locked to"))))
+
+(cl-defun magit-buffer-lock-value
+    (&optional (mode major-mode)
+               (args magit-refresh-args))
+  (cl-case mode
+    (magit-cherry-mode
+     (-let [(upstream head) args]
+       (concat head ".." upstream)))
+    (magit-diff-mode
+     (-let [(rev-or-range const _args files) args]
+       (nconc (cons (or rev-or-range
+                        (if (member "--cached" const)
+                            (progn (setq const (delete "--cached" const))
+                                   'staged)
+                          'unstaged))
+                    const)
+              (and files (cons "--" files)))))
+    (magit-log-mode
+     (-let [(revs _args files) args]
+       (if (and revs files)
+           (append revs (cons "--" files))
+         (append revs files))))
+    (magit-refs-mode
+     (-let [(ref args) args]
+       (cons (or ref "HEAD") args)))
+    (magit-revision-mode
+     (-let [(rev __const _args files) args]
+       (if files (cons rev files) (list rev))))
+    ((magit-reflog-mode   ; (ref ~args)
+      magit-stash-mode    ; (stash _const _args _files)
+      magit-stashes-mode) ; (ref)
+     (car args))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.

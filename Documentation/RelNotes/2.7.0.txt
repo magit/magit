@@ -18,6 +18,16 @@ Changes since v2.6.2
   displayed directly in the `magit-branch-popup', instead the subpopup
   `magit-branch-config-popup' has to be used.
 
+* Added new popup command `magit-log-buffer-file-popup'.
+
+* Added new command `magit-diff-buffer-file' and new option
+  `magit-diff-buffer-file-locked'.  The the value of the option is
+  non-nil, the default, then the command uses a dedicated buffer.
+
+* Added new option `magit-log-buffer-file-locked'.  When its value is
+  non-nil, the default, then `magit-log-buffer-file' uses a dedicated
+  buffer.
+
 * Added new commands `magit-worktree-checkout',
   `magit-worktree-branch', `magit-worktree-delete',
   and `magit-worktree-status'.
