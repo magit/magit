@@ -1334,15 +1334,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
              (?W "Create new worktree"   magit-worktree-branch)
              (?k "Delete"                magit-branch-delete))
   :default-action 'magit-checkout
-  :max-action-columns 3
-  :setup-function 'magit-branch-popup-setup)
-
-(defun magit-branch-popup-setup (val def)
-  (magit-popup-default-setup val def)
-  (use-local-map (copy-keymap magit-popup-mode-map))
-  (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
-    (local-set-key (vector (magit-popup-event-key ev))
-                   'magit-invoke-popup-action)))
+  :max-action-columns 3)
 
 ;;;;; Branch Actions
 
