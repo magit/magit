@@ -2384,6 +2384,9 @@ Show commits in a branch that are not merged in the upstream branch.
 Show log for the file visited in the current buffer.
 @end table
 
+Two additional commands that show the log for the file or blob that is
+being visited in the current buffer exists, see @ref{Minor mode for buffers visiting files,Minor mode for buffers visiting files}.
+
 @menu
 * Refreshing logs::
 * Log Buffer::
@@ -2717,6 +2720,9 @@ prefix argument, prompt for a commit.
 
 Show all diffs of a stash in a buffer.
 @end table
+
+Two additional commands that show the diff for the file or blob that
+is being visited in the current buffer exists, see @ref{Minor mode for buffers visiting files,Minor mode for buffers visiting files}.
 
 @menu
 * Refreshing diffs::
@@ -6677,7 +6683,7 @@ buffers belonging to a Git repository.  It should be enabled globally
 using @code{global-magit-file-mode}.  Currently this mode only establishes a
 few key bindings, but this might be extended in the future.
 
-@defopt global-magit-file-mode
+@defopt magit-file-mode
 
 Whether to establish certain Magit key bindings in all file-visiting
 buffers belonging to a Git repository.  This establishes the
@@ -6712,14 +6718,40 @@ Unstage all changes to the file being visited in the current buffer.
 This prefix command shows suffix commands along with the appropriate
 infix arguments in a popup buffer.  See @ref{Initiating a commit,Initiating a commit}.
 
-@kindex C-c M-g d
+@kindex C-c M-g D
 @cindex magit-diff-buffer-file-popup
-@item @kbd{C-c M-g d} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-buffer-file-popup})
+@item @kbd{C-c M-g D} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-buffer-file-popup})
 
 This prefix command shows the same suffix commands and infix
 arguments in a popup buffer as @code{magit-diff-popup}.  But this variant
 has to be called from a file-visiting buffer and the visited file
 is automatically used in the popup to limit the diff to that file.
+
+@kindex C-c M-g d
+@cindex magit-diff-buffer-file
+@item @kbd{C-c M-g d} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-buffer-file})
+
+This command shows the diff for the file of blob that the current
+buffer visits.  Renames are followed when a prefix argument is used
+or when @code{--follow} is part of @code{magit-diff-arguments}.
+
+@end table
+
+@defopt magit-diff-buffer-file-locked
+
+This option controls whether @code{magit-diff-buffer-file} uses a decicated
+buffer.  See @ref{Modes and Buffers,Modes and Buffers}.
+@end defopt
+
+@table @asis
+@kindex C-c M-g L
+@cindex magit-log-buffer-file-popup
+@item @kbd{C-c M-g L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-buffer-file-popup})
+
+This prefix command shows the same suffix commands and infix
+arguments in a popup buffer as @code{magit-log-popup}.  But this variant
+has to be called from a file-visiting buffer and the visited file
+is automatically used in the popup to limit the log to that file.
 
 @kindex C-c M-g l
 @cindex magit-log-buffer-file
@@ -6729,6 +6761,15 @@ This command shows the log for the file of blob that the current
 buffer visits.  Renames are followed when a prefix argument is used
 or when @code{--follow} is part of @code{magit-log-arguments}.
 
+@end table
+
+@defopt magit-log-buffer-file-locked
+
+This option controls whether @code{magit-log-buffer-file} uses a decicated
+buffer.  See @ref{Modes and Buffers,Modes and Buffers}.
+@end defopt
+
+@table @asis
 @kindex C-c M-g b
 @cindex magit-blame-popup
 @item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
