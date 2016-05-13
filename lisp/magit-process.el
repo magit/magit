@@ -811,10 +811,10 @@ as argument."
                             (--when-let (magit-section-content section)
                               (when (re-search-backward
                                      magit-process-error-message-re it t)
-                                (match-string 1))))))
+                                (match-string-no-properties 1))))))
                    "Git failed")))
       (if magit-process-raise-error
-          (signal 'magit-git-error (format "%s (in %s)" msg default-dir))
+          (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir)))
         (--when-let (magit-mode-get-buffer 'magit-status-mode)
           (setq magit-this-error msg))
         (message "%s ... [%s buffer %s for details]" msg
