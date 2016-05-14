@@ -74,6 +74,13 @@ Then show the status buffer for the new repository."
          (magit-process-sentinel process event)))
      (when (and (eq (process-status process) 'exit)
                 (= (process-exit-status process) 0))
+       (let ((default-directory directory))
+         (when (or (eq  magit-clone-set-remote.pushDefault t)
+                   (and magit-clone-set-remote.pushDefault
+                        (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
+           (magit-call-git "config" "remote.pushDefault" "origin"))
+         (unless magit-clone-set-remote-head
+           (magit-remote-unset-head "origin")))
        (with-current-buffer (process-get process 'command-buf)
          (magit-status-internal directory))))))
 
