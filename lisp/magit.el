@@ -1325,8 +1325,9 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
 
 (defun magit-branch-popup-setup (val def)
   (magit-popup-default-setup val def)
-  (magit-popup-put :variables (magit-popup-convert-variables
-                               val magit-branch-config-variables)))
+  (when magit-branch-popup-show-variables
+    (magit-popup-put :variables (magit-popup-convert-variables
+                                 val magit-branch-config-variables))))
 
 ;;;###autoload
 (defun magit-checkout (revision)
