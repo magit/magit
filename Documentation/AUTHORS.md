@@ -59,6 +59,7 @@ Contributors
 - Andriy Kmit' <dev@madand.net>
 - Andy Sawyer <git@pureabstract.org>
 - Barak A. Pearlmutter <barak+git@pearlmutter.net>
+- Bart Bakker <bart@thesoftwarecraft.com>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
 - Ben Walton <bwalton@artsci.utoronto.ca>
 - Bradley Wright <brad@intranation.com>
