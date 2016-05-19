@@ -846,13 +846,15 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 This function is intended to be added to `after-save-hook'.
 
 If the status buffer does not exist or the file being visited in
-the current buffer isn't inside a repository, then do nothing.
+the current buffer isn't inside the working tree of a repository,
+then do nothing.
 
 Note that refreshing a Magit buffer is done by re-creating its
 contents from scratch, which can be slow in large repositories.
 If you are not satisfied with Magit's performance, then you
 should obviously not add this function to that hook."
-  (unless disable-magit-save-buffers
+  (when (and (not disable-magit-save-buffers)
+             (magit-inside-worktree-p))
     (--when-let (ignore-errors (magit-mode-get-buffer 'magit-status-mode))
       (add-to-list 'magit-after-save-refresh-buffers it)
       (add-hook 'post-command-hook 'magit-after-save-refresh-buffers))))
