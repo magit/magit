@@ -1150,15 +1150,12 @@ commit or stash at point, then prompt for a commit."
         (stash
          (setq rev (magit-section-value it)
                cmd 'magit-stash-show
-               buf (magit-mode-get-buffer 'magit-diff-mode))))))
+               buf (magit-mode-get-buffer 'magit-stash-mode))))))
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))
                  (with-current-buffer buf
-                   (equal (if (eq cmd 'magit-stash-show)
-                              (concat rev "^2^.." rev)
-                            rev)
-                          (car magit-refresh-args))))
+                   (equal rev (car magit-refresh-args))))
             (with-selected-window win
               (condition-case nil
                   (funcall fn)
