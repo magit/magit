@@ -475,6 +475,13 @@ buffers whose major-modes derive from ~magit-mode~.
   function should call ~display-buffer~ with that buffer as first and a
   list of display actions as second argument.
 
+  Magit provides several functions, listed below, that are suitable
+  values for this option.  If you want to use different rules, then a
+  good way of doing that is to start with a copy of one of these
+  functions and then adjust it to your needs.  More functions to
+  choose from will likely be added in the future, and eventually the
+  default will change.
+
   Instead of using a wrapper around ~display-buffer~, that function
   itself can be used here, in which case the display actions have to
   be specified by adding them to ~display-buffer-alist~ instead.
@@ -490,10 +497,26 @@ buffers whose major-modes derive from ~magit-mode~.
   code base but now all the rules are contained in this one function
   (except for the "noselect" special case mentioned above).
 
-  If you want to use different rules, then a good way of doing that is
-  to start with a copy of this function and then adjust it to your
-  needs.  More functions to choose from will be added in the future,
-  and eventually the default will change.
+- Function: magit-display-buffer-same-window-except-diff-v1
+
+  This function displays most buffers in the currently selected
+  window.  If a buffer's mode derives from ~magit-diff-mode~ or
+  ~magit-process-mode~, it is displayed in another window.
+
+- Function: magit-display-buffer-fullframe-status-v1
+
+  This function fills the entire frame when displaying a status
+  buffer.  Otherwise, it behaves like
+  ~magit-display-buffer-traditional~.
+
+- Function: magit-display-buffer-fullcolumn-most-v1
+
+  This function displays most buffers so that they fill the entire
+  height of the frame.  However, the buffer is displayed in another
+  window if 1) the buffer's mode derives from ~magit-process-mode~,
+  or 2) the buffer's mode derives from ~magit-diff-mode~, provided
+  that the mode of the current buffer derives from ~magit-log-mode~ or
+  ~magit-cherry-mode~.
 
 - User Option: magit-pre-display-buffer-hook
 
