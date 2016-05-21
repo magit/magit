@@ -6,5 +6,8 @@ Fixes since v2.7.0
 
 * magit-diff-show-or-scroll-{up,down} failed to scroll stash buffers.
 
+* magit-popup-describe-function could create an extra window on wide
+  frames.
+
 Authors
 -------

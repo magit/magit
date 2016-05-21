@@ -961,7 +961,7 @@ and are defined in `magit-popup-mode-map' (which see)."
     (split-window-below)
     (other-window 1)
     (with-no-warnings ; display-buffer-function is obsolete
-      (let ((display-buffer-alist nil)
+      (let ((display-buffer-alist '(("" display-buffer-use-some-window)))
             (display-buffer-function nil))
         (describe-function function)))
     (fit-window-to-buffer)
