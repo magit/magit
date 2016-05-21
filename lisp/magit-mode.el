@@ -102,6 +102,9 @@ which in turn uses the function specified here."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
   :type '(radio (function-item magit-display-buffer-traditional)
+                (function-item magit-display-buffer-same-window-except-diff-v1)
+                (function-item magit-display-buffer-fullframe-status-v1)
+                (function-item magit-display-buffer-fullcolumn-most-v1)
                 (function-item display-buffer)
                 (function :tag "Function")))
 
@@ -533,6 +536,63 @@ and `magit-post-display-buffer-hook'."
                                 magit-status-mode))))
               '(display-buffer-same-window)
             nil))) ; display in another window
+
+(defun magit-display-buffer-same-window-except-diff-v1 (buffer)
+  "Display BUFFER in the selected window except for some modes.
+If a buffer's `major-mode' derives from `magit-diff-mode' or
+`magit-process-mode', display it in another window.  Display all
+other buffers in the selected window."
+  (display-buffer
+   buffer (if (with-current-buffer buffer
+                (or (derived-mode-p 'magit-diff-mode)
+                    (derived-mode-p 'magit-process-mode)))
+              nil  ; display in another window
+            '(display-buffer-same-window))))
+
+(defun magit--display-buffer-fullframe (buffer alist)
+  (-when-let (window (or (display-buffer-reuse-window buffer alist)
+                         (display-buffer-pop-up-window buffer alist)
+                         (display-buffer-use-some-window buffer alist)))
+    (delete-other-windows window)
+    window))
+
+(defun magit-display-buffer-fullframe-status-v1 (buffer)
+  "Display BUFFER, filling entire frame if BUFFER is a status buffer.
+Otherwise, behave like `magit-display-buffer-traditional'."
+  (if (eq (with-current-buffer buffer major-mode)
+          'magit-status-mode)
+      (display-buffer buffer '(magit--display-buffer-fullframe))
+    (magit-display-buffer-traditional buffer)))
+
+(defun magit--display-buffer-fullcolumn (buffer alist)
+  (-when-let (window (or (display-buffer-reuse-window buffer alist)
+                         (display-buffer-same-window buffer alist)
+                         (display-buffer-below-selected buffer alist)))
+    (delete-other-windows-vertically window)
+    window))
+
+(defun magit-display-buffer-fullcolumn-most-v1 (buffer)
+  "Display BUFFER using the full column except in some cases.
+For most cases where BUFFER's `major-mode' derives from
+`magit-mode', display it in the selected window and grow that
+window to the full height of the frame, deleting other windows in
+that column as necessary.  However, display BUFFER in another
+window if 1) BUFFER's mode derives from `magit-process-mode', or
+2) BUFFER's mode derives from `magit-diff-mode', provided that
+the mode of the current buffer derives from `magit-log-mode' or
+`magit-cherry-mode'."
+  (display-buffer
+   buffer
+   (cond ((and (or (derived-mode-p 'magit-log-mode)
+                   (derived-mode-p 'magit-cherry-mode))
+               (with-current-buffer buffer
+                 (derived-mode-p 'magit-diff-mode)))
+          nil)
+         ((with-current-buffer buffer
+            (derived-mode-p 'magit-process-mode))
+          nil)
+         (t
+          '(magit--display-buffer-fullcolumn)))))
 
 (defun magit-maybe-set-dedicated ()
   "Mark the selected window as dedicated if appropriate.

@@ -781,6 +781,13 @@ one argument, a buffer, to actually display that buffer.  This
 function should call @code{display-buffer} with that buffer as first and a
 list of display actions as second argument.
 
+Magit provides several functions, listed below, that are suitable
+values for this option.  If you want to use different rules, then a
+good way of doing that is to start with a copy of one of these
+functions and then adjust it to your needs.  More functions to
+choose from will likely be added in the future, and eventually the
+default will change.
+
 Instead of using a wrapper around @code{display-buffer}, that function
 itself can be used here, in which case the display actions have to
 be specified by adding them to @code{display-buffer-alist} instead.
@@ -795,11 +802,30 @@ This function is the current default value of the option
 were added, the behavior was hard-coded in many places all over the
 code base but now all the rules are contained in this one function
 (except for the "noselect" special case mentioned above).
+@end defun
 
-If you want to use different rules, then a good way of doing that is
-to start with a copy of this function and then adjust it to your
-needs.  More functions to choose from will be added in the future,
-and eventually the default will change.
+@defun magit-display-buffer-same-window-except-diff-v1
+
+This function displays most buffers in the currently selected
+window.  If a buffer's mode derives from @code{magit-diff-mode} or
+@code{magit-process-mode}, it is displayed in another window.
+@end defun
+
+@defun magit-display-buffer-fullframe-status-v1
+
+This function fills the entire frame when displaying a status
+buffer.  Otherwise, it behaves like
+@code{magit-display-buffer-traditional}.
+@end defun
+
+@defun magit-display-buffer-fullcolumn-most-v1
+
+This function displays most buffers so that they fill the entire
+height of the frame.  However, the buffer is displayed in another
+window if 1) the buffer's mode derives from @code{magit-process-mode},
+or 2) the buffer's mode derives from @code{magit-diff-mode}, provided
+that the mode of the current buffer derives from @code{magit-log-mode} or
+@code{magit-cherry-mode}.
 @end defun
 
 @defopt magit-pre-display-buffer-hook
