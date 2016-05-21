@@ -55,15 +55,18 @@
   (--if-let (--first (string-prefix-p "--prefix=" it)
                      (magit-subtree-arguments))
       (substring it 9)
-    (let* ((insert-default-directory nil)
-           (topdir (magit-toplevel))
-           (prefix (read-directory-name (concat prompt ": ") topdir)))
-      (if (file-name-absolute-p prefix)
-          ;; At least `ido-mode's variant is not compatible.
-          (if (string-prefix-p topdir prefix)
-              (file-relative-name prefix topdir)
-            (user-error "%s isn't inside the repository at %s" prefix topdir))
-        prefix))))
+    (magit-subtree-read-prefix prompt)))
+
+(defun magit-subtree-read-prefix (prompt &optional default)
+  (let* ((insert-default-directory nil)
+         (topdir (magit-toplevel))
+         (prefix (read-directory-name (concat prompt ": ") topdir default)))
+    (if (file-name-absolute-p prefix)
+        ;; At least `ido-mode's variant is not compatible.
+        (if (string-prefix-p topdir prefix)
+            (file-relative-name prefix topdir)
+          (user-error "%s isn't inside the repository at %s" prefix topdir))
+      prefix)))
 
 (defun magit-subtree-args ()
   (-filter (lambda (arg)
