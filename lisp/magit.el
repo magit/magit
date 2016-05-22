@@ -2194,27 +2194,24 @@ If there is only one worktree, then insert nothing."
     (when (> (length worktrees) 1)
       (magit-insert-section (worktrees)
         (magit-insert-heading "Worktrees:")
-        (let ((head-width 0))
-          (pcase-dolist
-              (`(,head . ,path)
-               ;; Decide what to insert, and check column width.
-               (mapcar
-                (-lambda ((path barep commit branch))
-                  (let ((relpath (file-relative-name path))
-                        (head (cond
-                               (branch (propertize branch
-                                                   'face 'magit-branch-local))
-                               (commit (propertize (magit-rev-abbrev commit)
-                                                   'face 'magit-hash))
-                               (barep  "(bare)")
-                               (t      "(detached)"))))
-                    (setq path (abbreviate-file-name path))
-                    (when (< (length relpath) (length path))
-                      (setq path relpath))
-                    (setq head-width (max head-width (length head)))
-                    `(,head . ,path)))
-                worktrees))
-            ;; Now actually insert the sections.
+        (let* ((section-data
+                (mapcar
+                 (-lambda ((path barep commit branch))
+                   (setq path (abbreviate-file-name path))
+                   (cons (cond
+                          (branch (propertize branch
+                                              'face 'magit-branch-local))
+                          (commit (propertize (magit-rev-abbrev commit)
+                                              'face 'magit-hash))
+                          (barep  "(bare)")
+                          (t      "(detached)"))
+                         (let ((relpath (file-relative-name path)))
+                           (if (< (length relpath) (length path))
+                               relpath path))))
+                 worktrees))
+               (head-width (-max (mapcar (-lambda ((head . _path)) (length head))
+                                         section-data))))
+          (pcase-dolist (`(,head . ,path) section-data)
             (magit-insert-section (worktree path)
               (insert head)
               (indent-to head-width)
