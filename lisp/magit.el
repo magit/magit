@@ -2197,13 +2197,15 @@ If there is only one worktree, then insert nothing."
         (dolist (worktree worktrees)
           (-let [(path barep commit branch) worktree]
             (magit-insert-section (worktree path)
-              (insert (cond (branch (propertize branch
-                                                'face 'magit-branch-local))
-                            (commit (propertize (magit-rev-abbrev commit)
-                                                'face 'magit-hash))
-                            (barep  "(bare)")
-                            (t      "(detached)")))
-              (insert ?\s path ?\n))))
+              (insert
+               (format "%-20s"
+                       (cond (branch (propertize branch
+                                                 'face 'magit-branch-local))
+                             (commit (propertize (magit-rev-abbrev commit)
+                                                 'face 'magit-hash))
+                             (barep  "(bare)")
+                             (t      "(detached)"))))
+              (insert ?\s (file-relative-name path) ?\n))))
         (insert ?\n)))))
 
 ;;;; Tag
