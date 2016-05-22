@@ -2194,18 +2194,31 @@ If there is only one worktree, then insert nothing."
     (when (> (length worktrees) 1)
       (magit-insert-section (worktrees)
         (magit-insert-heading "Worktrees:")
-        (dolist (worktree worktrees)
-          (-let [(path barep commit branch) worktree]
+        (let ((head-width 0))
+          (pcase-dolist
+              (`(,head . ,path)
+               ;; Decide what to insert, and check column width.
+               (mapcar
+                (-lambda ((path barep commit branch))
+                  (let ((relpath (file-relative-name path))
+                        (head (cond
+                               (branch (propertize branch
+                                                   'face 'magit-branch-local))
+                               (commit (propertize (magit-rev-abbrev commit)
+                                                   'face 'magit-hash))
+                               (barep  "(bare)")
+                               (t      "(detached)"))))
+                    (setq path (abbreviate-file-name path))
+                    (when (< (length relpath) (length path))
+                      (setq path relpath))
+                    (setq head-width (max head-width (length head)))
+                    `(,head . ,path)))
+                worktrees))
+            ;; Now actually insert the sections.
             (magit-insert-section (worktree path)
-              (insert
-               (format "%-20s"
-                       (cond (branch (propertize branch
-                                                 'face 'magit-branch-local))
-                             (commit (propertize (magit-rev-abbrev commit)
-                                                 'face 'magit-hash))
-                             (barep  "(bare)")
-                             (t      "(detached)"))))
-              (insert ?\s (file-relative-name path) ?\n))))
+              (insert head)
+              (indent-to head-width)
+              (insert ?\s path ?\n))))
         (insert ?\n)))))
 
 ;;;; Tag
