@@ -2194,16 +2194,25 @@ If there is only one worktree, then insert nothing."
     (when (> (length worktrees) 1)
       (magit-insert-section (worktrees)
         (magit-insert-heading "Worktrees:")
-        (dolist (worktree worktrees)
-          (-let [(path barep commit branch) worktree]
+        (let* ((cols
+                (mapcar (-lambda ((path barep commit branch))
+                          (cons (cond
+                                 (branch (propertize branch
+                                                     'face 'magit-branch-local))
+                                 (commit (propertize (magit-rev-abbrev commit)
+                                                     'face 'magit-hash))
+                                 (barep  "(bare)"))
+                                path))
+                        worktrees))
+               (align (1+ (-max (--map (length (car it)) cols)))))
+          (pcase-dolist (`(,head . ,path) cols)
             (magit-insert-section (worktree path)
-              (insert (cond (branch (propertize branch
-                                                'face 'magit-branch-local))
-                            (commit (propertize (magit-rev-abbrev commit)
-                                                'face 'magit-hash))
-                            (barep  "(bare)")
-                            (t      "(detached)")))
-              (insert ?\s path ?\n))))
+              (insert head)
+              (indent-to align)
+              (insert (let ((r (file-relative-name path))
+                            (a (abbreviate-file-name path)))
+                        (if (< (length r) (length a)) r a)))
+              (insert ?\n))))
         (insert ?\n)))))
 
 ;;;; Tag

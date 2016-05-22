@@ -10,6 +10,8 @@ Changes since v2.7.0
   `magit-display-buffer-fullframe-status-v1', and
   `magit-display-buffer-fullcolumn-most-v1'.
 
+* Made `magit-insert-worktrees' use relative filenames.
+
 Fixes since v2.7.0
 ------------------
 
