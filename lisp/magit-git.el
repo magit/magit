@@ -1031,7 +1031,10 @@ where COMMITS is the number of commits in TAG but not in REV."
 
 (defun magit-list-worktrees ()
   (let (worktrees worktree)
-    (dolist (line (magit-git-lines "worktree" "list" "--porcelain"))
+    (dolist (line (let ((magit-git-standard-options
+                         ;; KLUDGE At least in v2.8.3 this triggers a segfault.
+                         (remove "--no-pager" magit-git-standard-options)))
+                    (magit-git-lines "worktree" "list" "--porcelain")))
       (cond ((string-prefix-p "worktree" line)
              (push (setq worktree (list (substring line 9) nil nil nil))
                    worktrees))
