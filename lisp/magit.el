@@ -2194,28 +2194,26 @@ If there is only one worktree, then insert nothing."
     (when (> (length worktrees) 1)
       (magit-insert-section (worktrees)
         (magit-insert-heading "Worktrees:")
-        (let* ((section-data
-                (mapcar
-                 (-lambda ((path barep commit branch))
-                   (setq path (abbreviate-file-name path))
-                   (cons (cond
-                          (branch (propertize branch
-                                              'face 'magit-branch-local))
-                          (commit (propertize (magit-rev-abbrev commit)
-                                              'face 'magit-hash))
-                          (barep  "(bare)")
-                          (t      "(detached)"))
-                         (let ((relpath (file-relative-name path)))
-                           (if (< (length relpath) (length path))
-                               relpath path))))
-                 worktrees))
-               (head-width (-max (mapcar (-lambda ((head . _path)) (length head))
-                                         section-data))))
-          (pcase-dolist (`(,head . ,path) section-data)
+        (setq worktrees
+              (mapcar (-lambda ((path barep commit branch))
+                        (cons (cond
+                               (branch (propertize branch
+                                                   'face 'magit-branch-local))
+                               (commit (propertize (magit-rev-abbrev commit)
+                                                   'face 'magit-hash))
+                               (barep  "(bare)")
+                               (t      "(detached)"))
+                              path))
+                      worktrees))
+        (let ((align (1+ (-max (--map (length (car it)) worktrees)))))
+          (pcase-dolist (`(,head . ,path) worktrees)
             (magit-insert-section (worktree path)
               (insert head)
-              (indent-to head-width)
-              (insert ?\s path ?\n))))
+              (indent-to align)
+              (insert (let ((r (file-relative-name path))
+                            (a (abbreviate-file-name path)))
+                        (if (< (length r) (length a)) r a)))
+              (insert ?\n))))
         (insert ?\n)))))
 
 ;;;; Tag
