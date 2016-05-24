@@ -41,7 +41,7 @@ Changes since v2.6.0
 * Added new popup command `magit-log-buffer-file-popup'.
 
 * Added new command `magit-diff-buffer-file' and new option
-  `magit-diff-buffer-file-locked'.  The value of the option is
+  `magit-diff-buffer-file-locked'.  When the value of the option is
   non-nil, the default, then the command uses a dedicated buffer.
 
 * Added new option `magit-log-buffer-file-locked'.  When its value is
