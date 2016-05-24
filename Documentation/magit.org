@@ -3262,7 +3262,7 @@ features are available from separate popups.
   the target branch is set as the upstream of the branch that is being
   reset.
 
-- Key: b d, magit-branch-delete
+- Key: b k, magit-branch-delete
 
   Delete one or multiple branches.  If the region marks multiple
   branches, then offer to delete those.  Otherwise, prompt for a single
