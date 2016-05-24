@@ -1533,7 +1533,8 @@ With prefix, forces the rename even if NEW already exists.
   (interactive
    (let ((branch (magit-read-local-branch "Rename branch")))
      (list branch
-           (magit-read-string-ns (format "Rename branch '%s' to" branch))
+           (magit-read-string-ns (format "Rename branch '%s' to" branch)
+                                 nil 'magit-revision-history)
            current-prefix-arg)))
   (unless (string= old new)
     (magit-run-git "branch" (if force "-M" "-m") old new)))
