@@ -544,8 +544,7 @@ If a buffer's `major-mode' derives from `magit-diff-mode' or
 other buffers in the selected window."
   (display-buffer
    buffer (if (with-current-buffer buffer
-                (or (derived-mode-p 'magit-diff-mode)
-                    (derived-mode-p 'magit-process-mode)))
+                (derived-mode-p 'magit-diff-mode 'magit-process-mode))
               nil  ; display in another window
             '(display-buffer-same-window))))
 
@@ -583,8 +582,7 @@ the mode of the current buffer derives from `magit-log-mode' or
 `magit-cherry-mode'."
   (display-buffer
    buffer
-   (cond ((and (or (derived-mode-p 'magit-log-mode)
-                   (derived-mode-p 'magit-cherry-mode))
+   (cond ((and (derived-mode-p 'magit-log-mode 'magit-cherry-mode)
                (with-current-buffer buffer
                  (derived-mode-p 'magit-diff-mode)))
           nil)
