@@ -2775,7 +2775,10 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-version (_id)
   "Insert a description of the repository's `HEAD' revision."
-  (let ((v (magit-git-string "describe" "--tags")))
+  (let ((v (or (magit-git-string "describe" "--tags")
+               ;; If there are no tags, use the date in MELPA format.
+               (magit-git-string "show" "--no-patch" "--format=%cd-g%h"
+                                 "--date=format:%Y%m%d.%H%M"))))
     (if (string-match-p "\\`[0-9]" v)
         (concat " " v)
       v)))
