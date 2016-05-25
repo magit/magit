@@ -7,7 +7,8 @@ Changes since v2.7.0
 * Added several new functions that are suitable values for
   `magit-display-buffer-function':
   `magit-display-buffer-same-window-except-diff-v1',
-  `magit-display-buffer-fullframe-status-v1', and
+  `magit-display-buffer-fullframe-status-v1',
+  `magit-display-buffer-fullframe-status-topleft-v1', and
   `magit-display-buffer-fullcolumn-most-v1'.
 
 * Made `magit-insert-worktrees' use relative filenames.

@@ -818,6 +818,17 @@ buffer.  Otherwise, it behaves like
 @code{magit-display-buffer-traditional}.
 @end defun
 
+@defun magit-display-buffer-fullframe-status-topleft-v1
+
+This function fills the entire frame when displaying a status
+buffer.  It behaves like @code{magit-display-buffer-fullframe-status-v1}
+except that it displays buffers that derive from @code{magit-diff-mode}
+or @code{magit-process-mode} to the top or left of the current buffer
+rather than to the bottom or right.  As a result, Magit buffers tend
+to pop up on the same side as they would if
+@code{magit-display-buffer-traditional} were in use.
+@end defun
+
 @defun magit-display-buffer-fullcolumn-most-v1
 
 This function displays most buffers so that they fill the entire
