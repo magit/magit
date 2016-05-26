@@ -110,6 +110,13 @@ seconds of user inactivity.  That is not desirable."
 (make-obsolete-variable 'magit-revert-buffers 'magit-auto-revert-mode
                         "Magit 2.4.0")
 
+(defcustom magit-mute-auto-revert-messages nil
+  "Whether `magit-auto-revert-mode' emits messages upon
+  starting."
+  :package-version '(magit . "2.7.2")
+  :group 'magit-auto-revert
+  :type 'boolean)
+
 ;;;###autoload
 (define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
   magit-turn-on-auto-revert-mode-if-desired
@@ -147,15 +154,17 @@ and code surrounding the definition of this function."
   ;; had been established, so consult the value of both variables.
   (if (and magit-auto-revert-mode magit-revert-buffers)
       (let ((start (current-time)))
-        (message "Turning on magit-auto-revert-mode...")
+        (unless magit-mute-auto-revert-messages
+          (message "Turning on magit-auto-revert-mode..."))
         (magit-auto-revert-mode 1)
-        (message
-         "Turning on magit-auto-revert-mode...done%s"
-         (let ((elapsed (float-time (time-subtract (current-time) start))))
-           (if (> elapsed 0.2)
-               (format " (%.3fs, %s buffers checked)" elapsed
-                       (length (buffer-list)))
-             ""))))
+        (unless magit-mute-auto-revert-messages
+          (message
+           "Turning on magit-auto-revert-mode...done%s"
+           (let ((elapsed (float-time (time-subtract (current-time) start))))
+             (if (> elapsed 0.2)
+                 (format " (%.3fs, %s buffers checked)" elapsed
+                         (length (buffer-list)))
+               "")))))
     (magit-auto-revert-mode -1)))
 (if after-init-time
     ;; Since `after-init-hook' has already been
