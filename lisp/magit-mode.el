@@ -550,6 +550,7 @@ other buffers in the selected window."
 
 (defun magit--display-buffer-fullframe (buffer alist)
   (-when-let (window (or (display-buffer-reuse-window buffer alist)
+                         (display-buffer-same-window buffer alist)
                          (display-buffer-pop-up-window buffer alist)
                          (display-buffer-use-some-window buffer alist)))
     (delete-other-windows window)
