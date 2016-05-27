@@ -1426,18 +1426,34 @@ Return a list of two integers: (A>B B>A)."
 
 ;;; Variables
 
+(defun magit-config-slurp ()
+  (magit--with-refresh-cache 'config
+    (let ((configs (make-hash-table :test 'equal)))
+      (dolist (conf (magit-git-items "config" "--list" "-z"))
+        (let* ((nl-pos (cl-position ?\n conf))
+               (key (substring conf 0 nl-pos))
+               (val (substring conf (1+ nl-pos))))
+          (puthash key (cons val (gethash key configs)) configs)))
+      configs)))
+
 (defun magit-get (&rest keys)
   "Return the value of Git config entry specified by KEYS."
-  (magit-git-str "config" (mapconcat 'identity keys ".")))
+  (if magit--refresh-cache
+      (car (gethash (mapconcat 'downcase keys ".") (magit-config-slurp)))
+    (magit-git-str "config" (mapconcat 'identity keys "."))))
 
 (defun magit-get-all (&rest keys)
   "Return all values of the Git config entry specified by KEYS."
   (let ((magit-git-debug nil))
-    (magit-git-lines "config" "--get-all" (mapconcat 'identity keys "."))))
+    (if magit--refresh-cache
+        (reverse (gethash (mapconcat 'downcase keys ".") (magit-config-slurp)))
+    (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))))
 
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of Git config entry specified by KEYS."
-  (magit-git-true "config" "--bool" (mapconcat 'identity keys ".")))
+  (if magit--refresh-cache
+      (equal "true" (car (gethash (mapconcat 'downcase keys ".") (magit-config-slurp))))
+    (magit-git-true "config" "--bool" (mapconcat 'identity keys "."))))
 
 (defun magit-set (val &rest keys)
   "Set Git config settings specified by KEYS to VAL."
