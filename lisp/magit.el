@@ -831,11 +831,11 @@ current branch.  The description is taken from the Git variable
 `branch.<NAME>.description'; if that is undefined then no header
 line is inserted at all."
   (let ((branch (magit-get-current-branch)))
-    (--when-let (magit-git-lines
-                 "config" (format "branch.%s.description" branch))
+    (-when-let* ((desc (magit-get "branch" branch "description"))
+                 (desc-lines (split-string desc "\n")))
       (magit-insert-section (branchdesc branch t)
-        (magit-insert-heading branch ": " (car it))
-        (insert (mapconcat 'identity (cdr it) "\n"))
+        (magit-insert-heading branch ": " (car desc-lines))
+        (insert (mapconcat 'identity (cdr desc-lines) "\n"))
         (insert "\n\n")))))
 
 (defconst magit-refs-branch-line-re
@@ -1660,9 +1660,8 @@ already set.  When nil, then always unset."
                        (magit-read-upstream-branch)))))
   (if upstream
       (-let (((remote . merge) (magit-split-branch-name upstream)))
-        (magit-call-git "config" (format "branch.%s.remote" branch) remote)
-        (magit-call-git "config" (format "branch.%s.merge"  branch)
-                        (concat "refs/heads/" merge)))
+        (magit-set remote "branch" branch "remote")
+        (magit-set (concat "refs/heads/" merge) "branch" branch "merge"))
     (magit-call-git "branch" "--unset-upstream" branch))
   (when (called-interactively-p 'any)
     (magit-refresh)))

@@ -78,7 +78,7 @@ Then show the status buffer for the new repository."
          (when (or (eq  magit-clone-set-remote.pushDefault t)
                    (and magit-clone-set-remote.pushDefault
                         (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
-           (magit-call-git "config" "remote.pushDefault" "origin"))
+           (magit-set "origin" "remote" "pushDefault"))
          (unless magit-clone-set-remote-head
            (magit-remote-unset-head "origin")))
        (with-current-buffer (process-get process 'command-buf)
@@ -128,7 +128,7 @@ the variable isn't already set."
         ((or `(ask ,_) `(ask-if-unset nil))
          (y-or-n-p (format "Set `remote.pushDefault' to \"%s\"? " remote))))
       (progn (magit-call-git "remote" "add" "-f" remote url)
-             (magit-call-git "config" "remote.pushDefault" remote)
+             (magit-set remote "remote" "pushDefault")
              (magit-refresh))
     (magit-run-git-async "remote" "add" "-f" remote url)))
 
