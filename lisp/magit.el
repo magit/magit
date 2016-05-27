@@ -2881,7 +2881,7 @@ When the region is active, then save that to the `kill-ring',
 like `kill-ring-save' would, instead of behaving as described
 above."
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (copy-region-as-kill (mark) (point) 'region)
     (-when-let* ((section (magit-current-section))
                  (value (magit-section-value section)))
@@ -2924,7 +2924,7 @@ When the region is active, then save that to the `kill-ring',
 like `kill-ring-save' would, instead of behaving as described
 above."
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (copy-region-as-kill (mark) (point) 'region)
     (-when-let (rev (cond ((memq major-mode '(magit-cherry-mode
                                               magit-log-select-mode
