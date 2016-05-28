@@ -76,11 +76,27 @@ an alist that supports the keys `:right-align' and `:pad-right'."
   :man-page "git-submodule"
   :actions  '((?a "Add"    magit-submodule-add)
               (?b "Setup"  magit-submodule-setup)
-              (?i "Init"   magit-submodule-init)
               (?u "Update" magit-submodule-update)
-              (?s "Sync"   magit-submodule-sync)
               (?f "Fetch"  magit-submodule-fetch)
-              (?d "Deinit" magit-submodule-deinit)))
+              (?d "Deinit" magit-submodule-deinit)
+              (?C "Configure..." magit-submodule-config-popup)))
+
+;; TODO(?): add functions to set/see individual variables
+(defun magit-submodule-edit-gitsubmodules ()
+  (find-file ".gitmodules"))
+(defun magit-submodule-edit-config ()
+  (find-file ".git/config"))
+
+(magit-define-popup magit-submodule-config-popup
+  "Configure submodule related git variables."
+  'magit-commands nil nil
+  :man-page "git-submodule"
+  :actions '((?e "Edit .gitmodules" magit-submodule-edit-gitsubmodules)
+             (?E "Edit .git/config" magit-submodule-edit-config)
+             (?i "Copy missing settings from .gitmodules to .git/config"
+                 magit-subdmodule-init)
+             (?s "Update url from .gitmodules to .git/config"
+                 magit-submodule-sync)))
 
 ;;;###autoload
 (defun magit-submodule-add (url &optional path name)
