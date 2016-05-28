@@ -147,9 +147,9 @@ and code surrounding the definition of this function."
   ;; had been established, so consult the value of both variables.
   (if (and magit-auto-revert-mode magit-revert-buffers)
       (let ((start (current-time)))
-        (message "Turning on magit-auto-revert-mode...")
+        (magit-message "Turning on magit-auto-revert-mode...")
         (magit-auto-revert-mode 1)
-        (message
+        (magit-message
          "Turning on magit-auto-revert-mode...done%s"
          (let ((elapsed (float-time (time-subtract (current-time) start))))
            (if (> elapsed 0.2)

@@ -163,6 +163,29 @@ Global settings:
                       (const stage-all-changes) (const unstage-all-changes)
                       (const safe-with-wip))))
 
+(defcustom magit-no-message nil
+  "A list of messages Magit should not display.
+
+Magit displays most echo area messages using `message', but a few
+are displayed using `magit-message' instead, which takes the same
+arguments as the former, FORMAT-STRING and ARGS.  `magit-message'
+forgoes printing a message if any member of this list is a prefix
+of the respective FORMAT-STRING.
+
+If Magit prints a message which causes you grief, then please
+first investigate whether there is another option which can be
+used to suppress it.  If that is not the case, then ask the Magit
+maintainers to start using `magit-message' instead of `message'
+in that case.  We are not proactively replacing all uses of
+`message' with `magit-message', just in case someone *might* find
+some of these messages useless.
+
+Messages which can currently be suppressed using this option are:
+* \"Turning on magit-auto-revert-mode...\""
+  :package-version '(magit . "2.7.1")
+  :group 'magit
+  :type '(repeat string))
+
 (defcustom magit-ellipsis ?…
   "Character used to abbreviate text."
   :package-version '(magit . "2.1.0")
@@ -413,6 +436,14 @@ See http://debbugs.gnu.org/cgi/bugreport.cgi?bug=21573#17
 and https://github.com/magit/magit/issues/2295."
   (and (file-directory-p filename)
        (file-accessible-directory-p filename)))
+
+(defun magit-message (format-string &rest args)
+  "Display a message at the bottom of the screen, or not.
+Like `message', except that if the users configured option
+`magit-no-message' to prevent the message corresponding to
+FORMAT-STRING to be displayed, then don't."
+  (unless (--first (string-prefix-p it format-string) magit-no-message)
+    (apply #'message format-string args)))
 
 ;;; magit-utils.el ends soon
 (provide 'magit-utils)
