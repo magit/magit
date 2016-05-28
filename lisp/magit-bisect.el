@@ -135,18 +135,20 @@ bisect run'."
 (defun magit-insert-bisect-output ()
   "While bisecting, insert section with output from `git bisect'."
   (when (magit-bisect-in-progress-p)
-    (let ((lines
-           (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
-               (list "Bisecting: (no saved bisect output)"
-                     "It appears you have invoked `git bisect' from a shell."
-                     "There is nothing wrong with that, we just cannot display"
-                     "anything useful here.  Consult the shell output instead.")))
-          (done-re "^[a-z0-9]\\{40\\} is the first bad commit$"))
-      (magit-insert-section (bisect-output t)
+    (let* ((lines
+            (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
+                (list "Bisecting: (no saved bisect output)"
+                      "It appears you have invoked `git bisect' from a shell."
+                      "There is nothing wrong with that, we just cannot display"
+                      "anything useful here.  Consult the shell output instead.")))
+           (done-re "^\\([a-z0-9]\\{40\\}\\) is the first bad commit$")
+           (bad-line (or (and (string-match done-re (car lines))
+                              (pop lines))
+                         (--first (string-match done-re it) lines))))
+      (magit-insert-section ((eval (if bad-line 'commit 'bisect-output))
+                             (and bad-line (match-string 1 bad-line)))
         (magit-insert-heading
-          (propertize (or (and (string-match done-re (car lines)) (pop lines))
-                          (--first (string-match done-re it) lines)
-                          (pop lines))
+          (propertize (or bad-line (pop lines))
                       'face 'magit-section-heading))
         (dolist (line lines)
           (insert line "\n"))))

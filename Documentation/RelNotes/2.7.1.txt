@@ -13,6 +13,9 @@ Changes since v2.7.0
 
 * Made `magit-insert-worktrees' use relative filenames.
 
+* Added support for showing and copying bad commit identified by git
+  bisect.
+
 Fixes since v2.7.0
 ------------------
 
