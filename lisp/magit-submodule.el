@@ -276,6 +276,38 @@ These sections can be expanded to show the respective commits."
                               'magit-get-push-branch
                               "%s..HEAD"))
 
+(defun magit-submodule-visit (module &optional other-window)
+  "Visit MODULE by calling `magit-status' on it.
+Offer to initialize MODULE if it's not checked out yet."
+  (interactive (list (or (magit-section-when module)
+                         (user-error "No submodule at point"))
+                     current-prefix-arg))
+  (let ((path (expand-file-name module)))
+    (if (or (file-exists-p (expand-file-name ".git" module))
+            (not (y-or-n-p (format "Setup submodule '%s' first?"
+                                   module))))
+        (magit-diff-visit-directory path other-window)
+      (magit-submodule-setup module)
+      (set-process-sentinel
+       (lambda (process event)
+         (when (memq (process-status process) '(exit signal))
+           (let ((magit-process-raise-error t))
+             (magit-process-sentinel process event)))
+         (when (and (eq (process-status process) 'exit)
+                    (= (process-exit-status process) 0))
+           (magit-diff-visit-directory path other-window)))))))
+
+(defvar magit-submodule-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [C-return] 'magit-submodule-visit)
+    (define-key map "\C-j"     'magit-submodule-visit)
+    (define-key map [remap magit-visit-thing]  'magit-submodule-visit)
+    (define-key map [remap magit-delete-thing] 'magit-submodule-deinit)
+    (define-key map "K" 'magit-file-untrack)
+    (define-key map "R" 'magit-file-rename)
+    map)
+  "Keymap for `submodule' sections.")
+
 (defun magit--insert-modules-logs (heading type fn format)
   "For internal use, don't add to a hook."
   (-when-let (modules (magit-get-submodules))
