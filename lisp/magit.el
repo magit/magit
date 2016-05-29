@@ -2279,7 +2279,7 @@ If FILE isn't tracked in Git fallback to using `delete-file'."
   (let ((choices (nconc (magit-list-files)
                         (unless tracked-only (magit-untracked-files)))))
     (magit-completing-read prompt choices nil t nil nil
-                           (car (member (or (magit-section-when (file))
+                           (car (member (or (magit-section-when (file submodule))
                                             (magit-file-relative-name
                                              nil tracked-only))
                                         choices)))))
