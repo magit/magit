@@ -472,7 +472,7 @@ usually specified in that order):
 
   Members of VALUE may also be nil.  This should only be used
   together with `:max-action-columns' and allows having gaps in
-  the action grit, which can help arranging actions sensibly.
+  the action grid, which can help arranging actions sensibly.
 
 `:default-action'
   The default action of the popup which is used directly instead
