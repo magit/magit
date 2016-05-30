@@ -227,7 +227,9 @@ optional NODISPLAY is non-nil also display it."
             (when magit-process-log-max
               (magit-process-truncate-log))
           (magit-process-mode)
-          (let ((inhibit-read-only t))
+          (let ((inhibit-read-only t)
+                (magit-insert-section--parent  nil)
+                (magit-insert-section--oldroot nil))
             (make-local-variable 'text-property-default-nonsticky)
             (magit-insert-section (processbuf)
               (insert "\n")))))
@@ -506,7 +508,8 @@ Magit status buffer."
 
 (defun magit-process-insert-section (pwd program args &optional errcode errlog)
   (let ((inhibit-read-only t)
-        (magit-insert-section--parent magit-root-section))
+        (magit-insert-section--parent magit-root-section)
+        (magit-insert-section--oldroot nil))
     (goto-char (1- (point-max)))
     (magit-insert-section (process)
       (insert (if errcode

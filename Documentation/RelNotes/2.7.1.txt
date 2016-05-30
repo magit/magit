@@ -27,5 +27,9 @@ Fixes since v2.7.0
 * magit-popup-describe-function could create an extra window on wide
   frames.
 
+* Sections in the process buffer sometimes had invalid parent
+  sections, causing movement and visibility commands to fail, and
+  expected Git errors not to be handled gracefully in some cases.
+
 Authors
 -------
