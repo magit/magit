@@ -1146,6 +1146,18 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
                  (list (match-string 1 it)))
             (magit-git-items "ls-files" "-z" "--stage")))
 
+(defun magit-get-submodule-name (path)
+  "Return the name of the submodule at PATH.
+PATH has to be relative to the super-repository."
+  (cadr (split-string
+         (car (or (magit-git-items
+                   "config" "-z"
+                   "-f" (expand-file-name ".gitmodules" (magit-toplevel))
+                   "--get-regexp" "^submodule\\..*\\.path$"
+                   (concat "^" (regexp-quote (directory-file-name path)) "$"))
+                  (error "No such submodule `%s'" path)))
+         "\n")))
+
 (defun magit-list-worktrees ()
   (let (worktrees worktree)
     (dolist (line (let ((magit-git-global-arguments
