@@ -90,8 +90,8 @@ Fixes since v2.5.0
   `magit-process-ensure-unix-line-ending' to `nil'.
 
 * If the user sets the variable `magit-auto-revert-mode' or the
-  obsolete alias `magit-revert-buffers' to nil anytime during startup,
-  before or after `magit-autorevert' is loaded, then the mode is now
+  obsolete alias `magit-revert-buffers' to nil anytime during startup
+  (before or after `magit-autorevert' is loaded) then the mode is now
   no longer turned on (actually it is explicitly turned off).
 
 * When a revision buffer was limited to a set of files, its header
