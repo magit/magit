@@ -1168,16 +1168,20 @@ Call `magit-log-select-pick-function' with the selected
 commit as argument."
   (interactive)
   (let ((fun magit-log-select-pick-function)
-        (rev (magit-commit-at-point)))
+        (rev (magit-commit-at-point))
+        (start-default-directory default-directory))
     (kill-buffer (current-buffer))
-    (funcall fun rev)))
+    (let ((default-directory start-default-directory))
+      (funcall fun rev))))
 
 (defun magit-log-select-quit ()
   "Abort selecting a commit, don't act on any commit."
   (interactive)
-  (kill-buffer (current-buffer))
-  (when magit-log-select-quit-function
-    (funcall magit-log-select-quit-function)))
+  (let ((start-default-directory default-directory))
+    (kill-buffer (current-buffer))
+    (when magit-log-select-quit-function
+      (let ((default-directory start-default-directory))
+        (funcall magit-log-select-quit-function)))))
 
 ;;; Cherry Mode
 
