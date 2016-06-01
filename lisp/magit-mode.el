@@ -342,7 +342,7 @@ starts complicating other things, then it will be removed."
     (define-key map "T" 'magit-notes-popup)
     (define-key map "\r"       'magit-visit-thing)
     (define-key map [C-return] 'magit-visit-thing)
-    (define-key map [M-return] 'magit-dired-jump)
+    (define-key map "\M-\r"    'magit-dired-jump)
     (define-key map "\s"       'magit-diff-show-or-scroll-up)
     (define-key map "\d"       'magit-diff-show-or-scroll-down)
     (define-key map "s" 'magit-stage-file)
