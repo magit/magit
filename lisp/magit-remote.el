@@ -78,7 +78,7 @@ Then show the status buffer for the new repository."
          (when (or (eq  magit-clone-set-remote.pushDefault t)
                    (and magit-clone-set-remote.pushDefault
                         (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
-           (magit-call-git "config" "remote.pushDefault" "origin"))
+           (setf (magit-get "remote.pushDefault") "origin"))
          (unless magit-clone-set-remote-head
            (magit-remote-unset-head "origin")))
        (with-current-buffer (process-get process 'command-buf)
@@ -128,7 +128,7 @@ the variable isn't already set."
         ((or `(ask ,_) `(ask-if-unset nil))
          (y-or-n-p (format "Set `remote.pushDefault' to \"%s\"? " remote))))
       (progn (magit-call-git "remote" "add" "-f" remote url)
-             (magit-call-git "config" "remote.pushDefault" remote)
+             (setf (magit-get "remote.pushDefault") remote)
              (magit-refresh))
     (magit-run-git-async "remote" "add" "-f" remote url)))
 
@@ -477,13 +477,12 @@ the push-remote can be changed before pushed to it."
                          (magit-get-current-branch)))))))
   (--if-let (magit-get-current-branch)
       (progn (when push-remote
-               (magit-call-git
-                "config"
-                (if (eq magit-push-current-set-remote-if-missing 'default)
-                    "remote.pushDefault"
-                  (format "branch.%s.pushRemote"
-                          (magit-get-current-branch)))
-                push-remote))
+               (setf (magit-get
+                      (if (eq magit-push-current-set-remote-if-missing 'default)
+                          "remote.pushDefault"
+                        (format "branch.%s.pushRemote"
+                                (magit-get-current-branch))))
+                     push-remote))
              (-if-let (remote (magit-get-push-remote it))
                  (if (member remote (magit-list-remotes))
                      (magit-git-push it (concat remote "/" it) args)
