@@ -1432,7 +1432,7 @@ Return a list of two integers: (A>B B>A)."
       (dolist (conf (magit-git-items "config" "--list" "-z"))
         (let* ((nl-pos (cl-position ?\n conf))
                (key (substring conf 0 nl-pos))
-               (val (substring conf (1+ nl-pos))))
+               (val (if nl-pos (substring conf (1+ nl-pos)) "")))
           (puthash key (cons val (gethash key configs)) configs)))
       configs)))
 
