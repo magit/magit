@@ -1169,13 +1169,13 @@ commit as argument."
   (interactive)
   (let ((fun magit-log-select-pick-function)
         (rev (magit-commit-at-point)))
-    (kill-buffer (current-buffer))
+    (quit-restore-window nil 'kill)
     (funcall fun rev)))
 
 (defun magit-log-select-quit ()
   "Abort selecting a commit, don't act on any commit."
   (interactive)
-  (kill-buffer (current-buffer))
+  (quit-restore-window nil 'kill)
   (when magit-log-select-quit-function
     (funcall magit-log-select-quit-function)))
 
