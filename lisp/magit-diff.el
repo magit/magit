@@ -1144,7 +1144,8 @@ commit or stash at point, then prompt for a commit."
      ((derived-mode-p 'git-rebase-mode)
       (save-excursion
         (goto-char (line-beginning-position))
-        (--if-let (and (looking-at git-rebase-line)
+        (--if-let (and git-rebase-line
+                       (looking-at git-rebase-line)
                        (match-string 2))
             (setq rev it
                   cmd 'magit-show-commit

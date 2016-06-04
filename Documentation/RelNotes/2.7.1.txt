@@ -34,5 +34,7 @@ Fixes since v2.7.0
   sections, causing movement and visibility commands to fail, and
   expected Git errors not to be handled gracefully in some cases.
 
+* Git Rebase mode did not respect the Git variable `core.commentChar'.
+
 Authors
 -------
