@@ -574,7 +574,10 @@ If no such sequence is in progress, do nothing."
   (dolist (line (nreverse
                  (magit-file-lines
                   (magit-git-dir "rebase-merge/git-rebase-todo"))))
-    (when (string-match "^\\([^# ]+\\) \\([^ ]+\\) .*$" line)
+    (when (string-match (format "^\\([^%c ]+\\) \\([^ ]+\\) .*$"
+                                (string-to-char
+                                 (or (magit-get "core.commentChar") "#")))
+                        line)
       (magit-bind-match-strings (action hash) line
         (magit-sequence-insert-commit action hash 'magit-sequence-pick)))))
 
