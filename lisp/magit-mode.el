@@ -715,7 +715,7 @@ thinking a buffer belongs to a repo that it doesn't.")
        (?t . ,(if magit-uniquify-buffer-names
                   (file-name-nondirectory
                    (directory-file-name default-directory))
-                default-directory))))))
+                (abbreviate-file-name default-directory)))))))
 
 (defun magit-toggle-buffer-lock ()
   "Lock the current buffer to its value or unlock it.
