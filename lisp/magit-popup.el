@@ -66,6 +66,7 @@
 (declare-function magit-call-git 'magit-process)
 (declare-function magit-git-string 'magit-git)
 (declare-function magit-refresh 'magit-mode)
+(declare-function magit-get 'magit-git)
 (declare-function magit-set 'magit-git)
 
 ;; For branch actions.
@@ -829,11 +830,10 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
 
 (defun magit-popup-set-variable
     (variable choices &optional default other)
-  (--if-let (--if-let (magit-git-string "config" "--local" variable)
-                (cadr (member it choices))
-              (car choices))
-      (magit-set it variable)
-    (magit-call-git "config" "--unset" variable))
+  (magit-set (--if-let (magit-git-string "config" "--local" variable)
+                 (cadr (member it choices))
+               (car choices))
+             variable)
   (magit-refresh)
   (message "%s %s" variable
            (magit-popup-format-variable-1 variable choices default other)))
@@ -1167,12 +1167,14 @@ of events shared by all popups and before point is adjusted.")
 
 (defun magit-popup-format-variable-1
     (variable choices &optional default other)
+  "Print popup entry for git VARIABLE with possible CHOICES.
+DEFAULT is git's default choice for VARIABLE.  OTHER is a git
+variable whose value may be used as a default."
   (let ((local  (magit-git-string "config" "--local"  variable))
         (global (magit-git-string "config" "--global" variable)))
     (when other
-      (--if-let (magit-git-string "config" other)
-          (setq other (concat other ":" it))
-        (setq other nil)))
+      (setq other (--when-let (magit-get other)
+                    (concat other ":" it))))
     (concat
      (propertize "[" 'face 'magit-popup-disabled-argument)
      (mapconcat

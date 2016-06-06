@@ -1457,9 +1457,14 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-set (val &rest keys)
   "Set Git config settings specified by KEYS to VAL."
-  (if val
-      (magit-git-string "config" (mapconcat 'identity keys ".") val)
-    (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
+  (let ((key (mapconcat 'identity keys ".")))
+    (if val
+        (magit-git-success "config" key val)
+      (magit-git-success "config" "--unset" key))
+    val))
+
+(gv-define-setter magit-get (val &rest keys)
+  `(magit-set ,val ,@keys))
 
 ;;; magit-git.el ends soon
 
