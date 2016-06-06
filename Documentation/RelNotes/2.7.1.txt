@@ -21,6 +21,9 @@ Fixes since v2.7.0
 
 * magit-diff-show-or-scroll-{up,down} failed to scroll stash buffers.
 
+* `magit-diff-visit-file' didn't visit a blob when called inside a
+  `magit-stash-mode' buffer.
+
 * The function to read the --prefix arg from the subtree popup was
   missing.
 
