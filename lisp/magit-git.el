@@ -1439,20 +1439,20 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-get (&rest keys)
   "Return the value of Git config entry specified by KEYS."
   (if magit--refresh-cache
-      (car (gethash (mapconcat 'downcase keys ".") (magit-config-slurp)))
+      (car (gethash (mapconcat 'identity keys ".") (magit-config-slurp)))
     (magit-git-str "config" (mapconcat 'identity keys "."))))
 
 (defun magit-get-all (&rest keys)
   "Return all values of the Git config entry specified by KEYS."
   (let ((magit-git-debug nil))
     (if magit--refresh-cache
-        (reverse (gethash (mapconcat 'downcase keys ".") (magit-config-slurp)))
-    (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))))
+        (reverse (gethash (mapconcat 'identity keys ".") (magit-config-slurp)))
+      (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))))
 
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of Git config entry specified by KEYS."
   (if magit--refresh-cache
-      (equal "true" (car (gethash (mapconcat 'downcase keys ".") (magit-config-slurp))))
+      (equal "true" (car (gethash (mapconcat 'identity keys ".") (magit-config-slurp))))
     (magit-git-true "config" "--bool" (mapconcat 'identity keys "."))))
 
 (defun magit-set (val &rest keys)
