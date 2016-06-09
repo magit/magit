@@ -71,13 +71,14 @@ PATH also becomes the name."
   (magit-run-git "submodule" "add" (and name (list "--name" name)) url path))
 
 (defun magit-submodule-read-name (path)
+  (setq path (directory-file-name (file-relative-name path)))
   (magit-read-string-ns
    "Submodule name" nil nil
    (or (--keep (-let [(var val) (split-string it "=")]
                  (and (equal val path)
                       (cadr (split-string var "\\."))))
                (magit-git-lines "config" "--list" "-f" ".gitmodules"))
-       (directory-file-name path))))
+       path)))
 
 ;;;###autoload
 (defun magit-submodule-setup ()
