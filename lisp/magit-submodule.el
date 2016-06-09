@@ -72,8 +72,9 @@ PATH also becomes the name."
 
 (defun magit-submodule-read-name (path)
   (setq path (directory-file-name (file-relative-name path)))
+  (push (file-name-nondirectory path) minibuffer-history)
   (magit-read-string-ns
-   "Submodule name" nil nil
+   "Submodule name" nil (cons 'minibuffer-history 2)
    (or (--keep (-let [(var val) (split-string it "=")]
                  (and (equal val path)
                       (cadr (split-string var "\\."))))
