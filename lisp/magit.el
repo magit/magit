@@ -1364,6 +1364,13 @@ changes.
       (magit-call-git "branch" (concat "--set-upstream-to=" it) branch))
     (magit-refresh)))
 
+;;;###autoload
+(defun magit-branch-orphan (branch start-point &optional args)
+  "Create and checkout an orphan BRANCH with contents from revision START-POINT.
+\n(git checkout --orphan [ARGS] BRANCH START-POINT)."
+  (interactive (magit-branch-read-args "Create and checkout orphan branch"))
+  (magit-run-git "checkout" "--orphan" args branch start-point))
+
 (defun magit-branch-read-args (prompt)
   (let ((args (magit-branch-arguments)) start branch)
     (cond (magit-branch-read-upstream-first

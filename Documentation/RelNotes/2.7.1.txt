@@ -16,6 +16,8 @@ Changes since v2.7.0
 * Added support for showing and copying bad commit identified by git
   bisect.
 
+* Added new command `magit-branch-orphan'.
+
 Fixes since v2.7.0
 ------------------
 
