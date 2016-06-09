@@ -125,6 +125,7 @@ Running Git
 Inspecting
 
 * Status buffer::
+* Repository list::
 * Logging::
 * Diffing::
 * Ediffing::
@@ -2321,6 +2322,76 @@ with long histories, so you probably don't want to add this here.
 
 Also see the proceeding section for more options concerning status
 buffers.
+
+@node Repository list
+@section Repository list
+
+@cindex magit-list-repositories
+@deffn Command magit-list-repositories
+
+This command displays a list of repositories.
+
+The options @code{magit-repository-directories} and
+@code{magit-repository-directories-depth} control which repositories are
+displayed.
+@end deffn
+
+@defopt magit-repolist-columns
+
+This options controls what columns are displayed by the command
+@code{magit-list-repositories} and how they are displayed.
+
+Each element has the form @code{(HEADER WIDTH FORMAT PROPS)}.
+
+HEADER is the string displayed in the header.  WIDTH is the width of
+the column.  FORMAT is a function.  It is called with one argument
+the repository identification (usually its basename) and with
+@code{default-diretory} bound to the toplevel of its working tree, and has
+to return a string to be inserted or nil.  PROPS is an alist,
+supported keys are @code{:right-align} and @code{:pad-right}.
+@end defopt
+
+The following functions can be added to the above option:
+
+@defun magit-repolist-column-ident
+
+This function insert the identification of the repository.  Usually
+this is just its basename.
+@end defun
+
+@defun magit-repolist-column-path
+
+This function inserts the absolute path of the repository.
+@end defun
+
+@defun magit-repolist-column-version
+
+This function inserts a description of the repository's @code{HEAD} revision.
+@end defun
+
+@defun magit-repolist-column-unpulled-from-upstream
+
+This function inserts number of upstream commits not in the current
+branch.
+@end defun
+
+@defun magit-repolist-column-unpulled-from-pushremote
+
+This function inserts number of commits on push branch but not in
+the current branch.
+@end defun
+
+@defun magit-repolist-column-unpushed-to-upstream
+
+This function inserts number of commits not in the current branch
+but not its upstream.
+@end defun
+
+@defun magit-repolist-column-unpushed-to-pushremote
+
+This function inserts number of commits not in the current branch
+but not its push branch.
+@end defun
 
 @node Logging
 @section Logging
