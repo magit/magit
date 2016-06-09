@@ -40,6 +40,9 @@
 (declare-function magit-checkout-stage 'magit)
 (declare-function magit-checkout-read-stage 'magit)
 (defvar auto-revert-verbose)
+;; For `magit-stage-untracked'
+(declare-function magit-submodule-add 'magit-submodule)
+(declare-function magit-submodule-read-name 'magit-submodule)
 
 (require 'dired)
 
@@ -269,7 +272,12 @@ ignored) files.
         (goto-char (magit-section-start
                     (magit-get-section
                      `((file . ,repo) (untracked) (status)))))
-        (call-interactively 'magit-submodule-add)))
+        (magit-submodule-add
+         (let ((default-directory
+                 (file-name-as-directory (expand-file-name repo))))
+           (magit-get "remote" (or (magit-get-remote) "origin") "url"))
+         repo
+         (magit-submodule-read-name repo))))
     (magit-wip-commit-after-apply files " after stage")))
 
 ;;;; Unstage

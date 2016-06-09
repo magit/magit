@@ -61,11 +61,7 @@ PATH also becomes the name."
                                            default-directory)))))
        (unless path
          (user-error "No path selected"))
-       (list (magit-read-string-ns
-              "Remote url"
-              (let ((default-directory (file-name-as-directory
-                                        (expand-file-name path))))
-                (magit-get "remote" (or (magit-get-remote) "origin") "url")))
+       (list (magit-read-string-ns "Remote url")
              (directory-file-name path)
              (magit-submodule-read-name path)))))
   (magit-run-git "submodule" "add" (and name (list "--name" name)) url path))
