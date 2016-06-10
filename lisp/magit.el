@@ -2732,7 +2732,8 @@ control which repositories are displayed."
                             (vconcat (--map (or (funcall (nth 2 it) id) "")
                                             magit-repolist-columns)))))
                   (magit-list-repos-uniquify
-                   (--map (cons (file-name-nondirectory it) it)
+                   (--map (cons (file-name-nondirectory (directory-file-name it))
+                                it)
                           (magit-list-repos)))))
     (tabulated-list-print)
     (switch-to-buffer (current-buffer))))
@@ -2823,7 +2824,9 @@ With prefix argument simply read a directory name using
 `read-directory-name'."
   (if (and (not read-directory-name) magit-repository-directories)
       (let* ((repos (magit-list-repos-uniquify
-                     (--map (cons (file-name-nondirectory it) it)
+                     (--map (cons (file-name-nondirectory
+                                   (directory-file-name it))
+                                  it)
                             (magit-list-repos))))
              (reply (magit-completing-read "Git repository" repos)))
         (file-name-as-directory
@@ -2862,7 +2865,7 @@ With prefix argument simply read a directory name using
                                       key "\\"
                                       (file-name-nondirectory
                                        (directory-file-name
-                                        (substring it 0 (- (length key))))))
+                                        (substring it 0 (- (1+ (length key)))))))
                                      it)
                                value))))))
      dict)
