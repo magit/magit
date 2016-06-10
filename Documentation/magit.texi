@@ -2588,6 +2588,14 @@ Move backward in current buffer's history.
 
 Move forward in current buffer's history.
 
+@kindex C-c C-n
+@cindex magit-log-move-to-parent
+@item @kbd{C-c C-n} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-move-to-parent})
+
+Move to a parent of the current commit.  By default, this is the
+first parent, but a numeric prefix can be used to specify another
+parent.
+
 @kindex SPC
 @cindex magit-diff-show-or-scroll-up
 @item @kbd{SPC} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-show-or-scroll-up})

@@ -1921,6 +1921,12 @@ the status buffer.
 
   Move forward in current buffer's history.
 
+- Key: C-c C-n, magit-log-move-to-parent
+
+  Move to a parent of the current commit.  By default, this is the
+  first parent, but a numeric prefix can be used to specify another
+  parent.
+
 - Key: SPC, magit-diff-show-or-scroll-up
 
   Update the commit or diff buffer for the thing at point.
