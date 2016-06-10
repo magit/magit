@@ -316,11 +316,11 @@ deep."
 Each element has the form (HEADER WIDTH FORMAT PROPS).
 
 HEADER is the string displayed in the header.  WIDTH is the width
-of the column.  FORMAT is a function.  It is called with one
-argument the repository identification (usually its basename) and
-with `default-diretory' bound to the toplevel of its working
-tree, and has to return a string to be inserted or nil.  PROPS is
-an alist, supported keys are `:right-align' and `:pad-right'."
+of the column.  FORMAT is a function that is called with one
+argument, the repository identification (usually its basename),
+and with `default-directory' bound to the toplevel of its working
+tree.  It has to return a string to be inserted or nil.  PROPS is
+an alist that supports the keys ~:right-align~ and ~:pad-right~."
   :package-version '(magit . "2.7.1")
   :group 'magit-commands
   :type `(repeat (list :tag "Column"
@@ -2790,20 +2790,20 @@ Usually this is just its basename."
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpulled-from-pushremote (_id)
-  "Insert number of commits on push branch but not in the current branch."
+  "Insert number of commits in the push branch but not the current branch."
   (--when-let (magit-get-push-branch)
     (when (magit-rev-parse-p it)
       (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
         (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow))))))
 
 (defun magit-repolist-column-unpushed-to-upstream (_id)
-  "Insert number of commits not in the current branch but not its upstream."
+  "Insert number of commits in the current branch but not its upstream."
   (--when-let (magit-get-upstream-branch)
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpushed-to-pushremote (_id)
-  "Insert number of commits not in the current branch but not its push branch."
+  "Insert number of commits in the current branch but not its push branch."
   (--when-let (magit-get-push-branch)
     (when (magit-rev-parse-p it)
       (let ((n (car (magit-rev-diff-count "HEAD" it))))

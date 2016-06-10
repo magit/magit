@@ -2338,24 +2338,24 @@ displayed.
 
 @defopt magit-repolist-columns
 
-This options controls what columns are displayed by the command
+This option controls what columns are displayed by the command
 @code{magit-list-repositories} and how they are displayed.
 
 Each element has the form @code{(HEADER WIDTH FORMAT PROPS)}.
 
 HEADER is the string displayed in the header.  WIDTH is the width of
-the column.  FORMAT is a function.  It is called with one argument
-the repository identification (usually its basename) and with
-@code{default-diretory} bound to the toplevel of its working tree, and has
-to return a string to be inserted or nil.  PROPS is an alist,
-supported keys are @code{:right-align} and @code{:pad-right}.
+the column.  FORMAT is a function that is called with one argument,
+the repository identification (usually its basename), and with
+@code{default-directory} bound to the toplevel of its working tree.  It
+has to return a string to be inserted or nil.  PROPS is an alist
+that supports the keys @code{:right-align} and @code{:pad-right}.
 @end defopt
 
 The following functions can be added to the above option:
 
 @defun magit-repolist-column-ident
 
-This function insert the identification of the repository.  Usually
+This function inserts the identification of the repository.  Usually
 this is just its basename.
 @end defun
 
@@ -2371,25 +2371,25 @@ This function inserts a description of the repository's @code{HEAD} revision.
 
 @defun magit-repolist-column-unpulled-from-upstream
 
-This function inserts number of upstream commits not in the current
-branch.
+This function inserts the number of upstream commits not in the
+current branch.
 @end defun
 
 @defun magit-repolist-column-unpulled-from-pushremote
 
-This function inserts number of commits on push branch but not in
-the current branch.
+This function inserts the number of commits in the push branch but
+not the current branch.
 @end defun
 
 @defun magit-repolist-column-unpushed-to-upstream
 
-This function inserts number of commits not in the current branch
+This function inserts the number of commits in the current branch
 but not its upstream.
 @end defun
 
 @defun magit-repolist-column-unpushed-to-pushremote
 
-This function inserts number of commits not in the current branch
+This function inserts the number of commits in the current branch
 but not its push branch.
 @end defun
 
