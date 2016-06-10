@@ -18,6 +18,11 @@ Changes since v2.7.0
 * Added support for showing and copying bad commit identified by git
   bisect.
 
+* In addition to the directory, each member of the value of option
+  `magit-repository-directories' can now specify the depth to look for
+  repositories inside that directory, overriding the default depth
+  specified using the option `magit-repository-directories-depth'.
+
 * Added new command `magit-branch-orphan'.
 
 Fixes since v2.7.0

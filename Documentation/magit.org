@@ -1449,15 +1449,20 @@ that it should be bound globally.  We recommend using ~C-x g~:
 
 - User Option: magit-repository-directories
 
-  Directories containing Git repositories.  Magit checks these
-  directories for Git repositories and offers them as choices when
-  ~magit-status~ is used with a prefix argument.
+  List of directories that are or contain Git repositories.  Each
+  element has the form ~(DIRECTORY . DEPTH)~ or, for backward
+  compatibility, just DIRECTORY.  DIRECTORY has to be a directory or
+  a directory file-name, a string.  DEPTH, an integer, specifies the
+  maximum depth to look for Git repositories.  If it is 0, then only
+  add DIRECTORY itself.  For elements that are strings, the value of
+  option ~magit-repository-directories-depth~ specifies the depth.
 
 - User Option: magit-repository-directories-depth
 
-  The maximum depth to look for Git repositories.  When looking for
-  a Git repository below the directories in
-  ~magit-repository-directories~, only descend this many levels deep.
+  The maximum depth to look for Git repositories.  This option is
+  obsolete and only used for elements of the option
+  ~magit-repository-directories~ (which see) that don't specify the
+  depth directly.
 
 - Command: ido-enter-magit-status
 

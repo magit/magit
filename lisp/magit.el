@@ -290,18 +290,23 @@ and change branch related variables."
   :type 'boolean)
 
 (defcustom magit-repository-directories nil
-  "Directories containing Git repositories.
-Magit checks these directories for Git repositories and offers
-them as choices when `magit-status' is used with a prefix
-argument."
+  "List of directories that are or contain Git repositories.
+Each element has the form (DIRECTORY . DEPTH) or, for backward
+compatibility, just DIRECTORY.  DIRECTORY has to be a directory
+or a directory file-name, a string.  DEPTH, an integer, specifies
+the maximum depth to look for Git repositories.  If it is 0, then
+only add DIRECTORY itself.  For elements that are strings, the
+value of option `magit-repository-directories-depth' specifies
+the depth."
+  :package-version '(magit . "2.7.1")
   :group 'magit
-  :type '(repeat string))
+  :type '(repeat (choice (cons directory (integer :tag "Depth")) directory)))
 
 (defcustom magit-repository-directories-depth 3
   "The maximum depth to look for Git repositories.
-When looking for a Git repository below the directories in
-`magit-repository-directories', only descend this many levels
-deep."
+This option is obsolete and only used for elements of the option
+`magit-repository-directories' (which see) that don't specify the
+depth directly."
   :group 'magit
   :type 'integer)
 
@@ -2839,7 +2844,9 @@ With prefix argument simply read a directory name using
                           (or (magit-toplevel) default-directory)))))
 
 (defun magit-list-repos ()
-  (--mapcat (magit-list-repos-1 it magit-repository-directories-depth)
+  (--mapcat (if (consp it)
+                (magit-list-repos-1 (car it) (cdr it))
+              (magit-list-repos-1 it magit-repository-directories-depth))
             magit-repository-directories))
 
 (defun magit-list-repos-1 (directory depth)
