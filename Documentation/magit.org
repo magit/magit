@@ -5727,9 +5727,9 @@ And now for the asynchronous variants.
 
     matches TYPE regardless of its parents.
 
-  Each TYPE is a symbol.  Note that is not necessary to specify all
+  Each TYPE is a symbol.  Note that it is not necessary to specify all
   TYPEs up to the root section as printed by ~magit-describe-type~,
-  unless of course your want to be that precise.
+  unless of course you want to be that precise.
 
 - Function: magit-section-when condition &rest body
 

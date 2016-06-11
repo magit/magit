@@ -544,9 +544,10 @@ Conditions can take the following forms:
                   also recursively all their child sections.
   TYPE            matches TYPE regardless of its parents.
 
-Each TYPE is a symbol.  Note that is not necessary to specify all
-TYPEs up to the root section as printed by `magit-describe-type',
-unless of course your want to be that precise."
+Each TYPE is a symbol.  Note that it is not necessary to specify
+all TYPEs up to the root section as printed by
+`magit-describe-type', unless of course you want to be that
+precise."
   ;; When recursing SECTION actually is a type list.  Matching
   ;; macros also pass such a list instead of a section struct.
   (let ((types (if (magit-section-p section)
