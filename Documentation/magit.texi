@@ -1943,6 +1943,7 @@ described later.
 
 @menu
 * Status buffer::
+* Repository list::
 * Logging::
 * Diffing::
 * Ediffing::
