@@ -1361,7 +1361,11 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   (magit-popup-default-setup val def)
   (when magit-branch-popup-show-variables
     (magit-popup-put :variables (magit-popup-convert-variables
-                                 val magit-branch-config-variables))))
+                                 val magit-branch-config-variables))
+    (use-local-map (copy-keymap magit-popup-mode-map))
+    (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
+      (local-set-key (vector (magit-popup-event-key ev))
+                     'magit-invoke-popup-action))))
 
 ;;;###autoload
 (defun magit-checkout (revision)
@@ -1636,7 +1640,11 @@ With prefix, forces the rename even if NEW already exists.
 
 (defun magit-branch-config-popup-setup (val def)
   (magit-popup-default-setup val def)
-  (setq-local magit-branch-config-branch magit-branch-config-branch))
+  (setq-local magit-branch-config-branch magit-branch-config-branch)
+  (use-local-map (copy-keymap magit-popup-mode-map))
+  (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
+    (local-set-key (vector (magit-popup-event-key ev))
+                   'magit-invoke-popup-action)))
 
 (defun magit-branch-config-branch (&optional prompt)
   (if prompt
