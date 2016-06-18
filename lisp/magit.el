@@ -1213,9 +1213,11 @@ existing one."
                                    (concat "revision " magit-buffer-refname)))))
     (let* ((inhibit-read-only t)
            (default-directory (magit-toplevel))
-           (file (file-relative-name magit-buffer-file-name)))
+           (file (file-relative-name magit-buffer-file-name))
+           (coding-system-for-read (or coding-system-for-read 'undecided)))
       (erase-buffer)
-      (magit-git-insert "cat-file" "-p" (concat magit-buffer-refname ":" file)))
+      (magit-git-insert "cat-file" "-p" (concat magit-buffer-refname ":" file))
+      (setq buffer-file-coding-system last-coding-system-used))
     (let ((buffer-file-name magit-buffer-file-name)
           (after-change-major-mode-hook
            (remq 'global-diff-hl-mode-enable-in-buffers
@@ -1277,8 +1279,9 @@ is done using `magit-find-index-noselect'."
               (buffer (current-buffer)))
           (when magit-wip-before-change-mode
             (magit-wip-commit-before-change (list file) " before un-/stage"))
-          (with-temp-file index
-            (insert-buffer-substring buffer))
+          (let ((coding-system-for-write buffer-file-coding-system))
+            (with-temp-file index
+              (insert-buffer-substring buffer)))
           (magit-call-git "update-index" "--cacheinfo"
                           (substring (magit-git-string "ls-files" "-s" file) 0 6)
                           (magit-git-string "hash-object" "-t" "blob" "-w"
