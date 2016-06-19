@@ -600,6 +600,7 @@ With a prefix argument or when `--follow' is part of
                          (1- (line-number-at-pos (region-beginning)))
                          (1- (line-number-at-pos (region-end))))
                  (list current-prefix-arg)))
+  (require 'magit)
   (-if-let (file (magit-file-relative-name))
       (magit-mode-setup-internal
        #'magit-log-mode
@@ -630,6 +631,7 @@ With a prefix argument or when `--follow' is part of
 (defun magit-reflog (ref)
   "Display the reflog of a branch."
   (interactive (list (magit-read-local-branch-or-ref "Show reflog for")))
+  (require 'magit)
   (magit-mode-setup #'magit-reflog-mode ref magit-reflog-arguments))
 
 ;;;###autoload
@@ -1210,6 +1212,7 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
    (let  ((head (magit-read-branch "Cherry head")))
      (list head (magit-read-other-branch "Cherry upstream" head
                                          (magit-get-upstream-branch head)))))
+  (require 'magit)
   (magit-mode-setup #'magit-cherry-mode upstream head))
 
 (defun magit-cherry-refresh-buffer (_upstream _head)

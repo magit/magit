@@ -791,6 +791,7 @@ be committed."
 (defun magit-diff-buffer-file ()
   "Show diff for the blob or file visited in the current buffer."
   (interactive)
+  (require 'magit)
   (-if-let (file (magit-file-relative-name))
       (magit-mode-setup-internal #'magit-diff-mode
                                  (list (or magit-buffer-refname
