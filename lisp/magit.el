@@ -1201,6 +1201,30 @@ existing one."
 (defun magit-get-revision-buffer-create (rev file)
   (magit-get-revision-buffer rev file t))
 
+(defun magit-revert-rev-file-buffer (_ignore-auto noconfirm)
+  (when (or noconfirm
+            (and (not (buffer-modified-p))
+                 (catch 'found
+                   (dolist (regexp revert-without-query)
+                     (when (string-match regexp magit-buffer-file-name)
+                       (throw 'found t)))))
+            (yes-or-no-p (format "Revert buffer from git %s? "
+                                 (if (equal magit-buffer-refname "") "{index}"
+                                   (concat "revision " magit-buffer-refname)))))
+    (let* ((inhibit-read-only t)
+           (default-directory (magit-toplevel))
+           (file (file-relative-name magit-buffer-file-name)))
+      (erase-buffer)
+      (magit-git-insert "cat-file" "-p" (concat magit-buffer-refname ":" file)))
+    (let ((buffer-file-name magit-buffer-file-name)
+          (after-change-major-mode-hook
+           (remq 'global-diff-hl-mode-enable-in-buffers
+                 after-change-major-mode-hook)))
+      (normal-mode t))
+    (setq buffer-read-only t)
+    (set-buffer-modified-p nil)
+    (goto-char (point-min))))
+
 (defun magit-find-file-noselect-1 (rev file hookvar &optional revert)
   "Read FILE from REV into a buffer and return the buffer.
 FILE must be relative to the top directory of the repository.
@@ -1214,22 +1238,13 @@ An empty REV stands for index."
                     (y-or-n-p (format "%s already exists; revert it? "
                                       (buffer-name))))
                 revert)
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (magit-git-insert "cat-file" "-p" (concat rev ":" file)))
         (setq magit-buffer-revision
               (if (string= rev "") "{index}" (magit-rev-format "%H" rev))
               magit-buffer-refname rev
               magit-buffer-file-name (expand-file-name file topdir))
         (setq default-directory (file-name-directory magit-buffer-file-name))
-        (let ((buffer-file-name magit-buffer-file-name)
-              (after-change-major-mode-hook
-               (remq 'global-diff-hl-mode-enable-in-buffers
-                     after-change-major-mode-hook)))
-          (normal-mode t))
-        (setq buffer-read-only t)
-        (set-buffer-modified-p nil)
-        (goto-char (point-min))
+        (setq-local revert-buffer-function #'magit-revert-rev-file-buffer)
+        (revert-buffer t t)
         (run-hooks hookvar))
       (current-buffer))))
 
