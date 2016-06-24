@@ -65,6 +65,7 @@ PATH also becomes the name."
              (magit-submodule-read-name path)))))
   (magit-run-git "submodule" "add" (and name (list "--name" name)) url path))
 
+;;;###autoload
 (defun magit-submodule-read-name (path)
   (setq path (directory-file-name (file-relative-name path)))
   (push (file-name-nondirectory path) minibuffer-history)
