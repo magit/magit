@@ -175,6 +175,15 @@ bisect run'."
         "bisect" "visualize" "git" "log"
         "--format=%h%d %s" "--decorate=full"))))
 
+(defun magit-insert-bisect-rest-graph ()
+  "While bisecting, insert section visualizing the bisect state."
+  (when (magit-bisect-in-progress-p)
+    (magit-insert-section (bisect-view)
+      (magit-insert-heading "Bisect Rest:")
+      (magit-git-wash (apply-partially 'magit-log-wash-log 'log)
+        "bisect" "visualize" "git" "log" "--graph"
+        "--format=%h%d [%aN][%at]%s" "--decorate=full"))))
+
 (defun magit-insert-bisect-log ()
   "While bisecting, insert section logging bisect progress."
   (when (magit-bisect-in-progress-p)
