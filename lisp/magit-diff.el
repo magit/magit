@@ -1244,12 +1244,14 @@ is set in `magit-mode-setup'."
 
 (defun magit-insert-diff (rev-or-range)
   "Insert the diff into this `magit-diff-mode' buffer."
-  (magit-git-wash #'magit-diff-wash-diffs
-    "diff" rev-or-range "-p" "--no-prefix"
-    (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
-    (nth 1 magit-refresh-args)
-    (nth 2 magit-refresh-args) "--"
-    (nth 3 magit-refresh-args)))
+  (let ((magit-git-global-arguments
+         (remove "--literal-pathspecs" magit-git-global-arguments)))
+    (magit-git-wash #'magit-diff-wash-diffs
+      "diff" rev-or-range "-p" "--no-prefix"
+      (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
+      (nth 1 magit-refresh-args)
+      (nth 2 magit-refresh-args) "--"
+      (nth 3 magit-refresh-args))))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
@@ -1581,16 +1583,18 @@ Staging and applying changes is documented in info node
 
 (defun magit-insert-revision-diff (rev)
   "Insert the diff into this `magit-revision-mode' buffer."
-  ;; Before v2.2.0, "--format=" did not mean "no output".
-  ;; Instead the default format was used.  So use "--format=%n"
-  ;; and then delete the empty lines.
-  (magit-git-wash (lambda (args)
-                    (delete-region (point) (progn (forward-line 3) (point)))
-                    (magit-diff-wash-diffs args))
-    "show" "-p" "--cc" "--format=%n" "--no-prefix"
-    (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
-    (nth 2 magit-refresh-args) (concat rev "^{commit}") "--"
-    (nth 3 magit-refresh-args)))
+  (let ((magit-git-global-arguments
+         (remove "--literal-pathspecs" magit-git-global-arguments)))
+    ;; Before v2.2.0, "--format=" did not mean "no output".
+    ;; Instead the default format was used.  So use "--format=%n"
+    ;; and then delete the empty lines.
+    (magit-git-wash (lambda (args)
+                      (delete-region (point) (progn (forward-line 3) (point)))
+                      (magit-diff-wash-diffs args))
+      "show" "-p" "--cc" "--format=%n" "--no-prefix"
+      (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
+      (nth 2 magit-refresh-args) (concat rev "^{commit}") "--"
+      (nth 3 magit-refresh-args))))
 
 (defun magit-insert-revision-tag (rev)
   "Insert tag message and headers into a revision buffer.
