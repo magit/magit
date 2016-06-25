@@ -720,7 +720,7 @@ thinking a buffer belongs to a repo that it doesn't.")
 (defun magit-toggle-buffer-lock ()
   "Lock the current buffer to its value or unlock it.
 
-Locking a buffer to its value, prevents it from being reused to
+Locking a buffer to its value prevents it from being reused to
 display another value.  The name of a locked buffer contains its
 value, which allows telling it apart from other locked buffers
 and the unlocked buffer.
