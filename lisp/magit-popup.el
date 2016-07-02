@@ -863,9 +863,10 @@ argument is used in which case the popup remains open.
 For a popup named `NAME-popup' that usually means setting the
 value of the custom option `NAME-arguments'."
   (interactive "P")
-  (customize-set-variable (magit-popup-get :variable)
-                          (magit-popup-get-args))
-  (unless arg (magit-popup-quit)))
+  (-if-let (var (magit-popup-get :variable))
+      (progn (customize-set-variable var (magit-popup-get-args))
+             (unless arg (magit-popup-quit)))
+    (user-error "Nothing to set")))
 
 (defun magit-popup-save-default-arguments (arg)
   "Save default value for the arguments for the current popup.
@@ -875,9 +876,10 @@ argument is used in which case the popup remains open.
 For a popup named `NAME-popup' that usually means saving the
 value of the custom option `NAME-arguments'."
   (interactive "P")
-  (customize-save-variable (magit-popup-get :variable)
-                           (magit-popup-get-args))
-  (unless arg (magit-popup-quit)))
+  (-if-let (var (magit-popup-get :variable))
+      (progn (customize-save-variable var (magit-popup-get-args))
+             (unless arg (magit-popup-quit)))
+    (user-error "Nothing to save")))
 
 ;;; Help
 
