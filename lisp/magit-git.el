@@ -61,7 +61,7 @@
   ;; wrappers "cmd/git.exe" or "cmd/git.cmd", which are much slower
   ;; than using "bin/git.exe" directly.
   (or (and (eq system-type 'windows-nt)
-           (--when-let (executable-find "git.exe")
+           (--when-let (executable-find "git")
              (or (ignore-errors
                    ;; Git for Windows 2.x provides cygpath so we can
                    ;; ask it for native paths.  Using an upper case
