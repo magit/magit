@@ -25,6 +25,11 @@ Changes since v2.7.0
 
 * Added new command `magit-branch-orphan'.
 
+* Made `magit-find-file-noselect' and `magit-find-index-noselect' use
+  Emacs' encoding detection, and enable `revert-buffer' to work in
+  those buffers.  This makes magit-ediff-* commands more useful for
+  files with non-standard encoding.
+
 Fixes since v2.7.0
 ------------------
 
