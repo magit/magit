@@ -37,8 +37,6 @@
 (declare-function magit-dired-jump 'magit)
 (declare-function magit-find-file-noselect 'magit)
 (declare-function magit-status-internal 'magit)
-;; For `magit-diff-wash-revision'
-(declare-function magit-insert-tags-header 'magit)
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer 'magit)
 ;; For `magit-insert-revision-gravatar'

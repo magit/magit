@@ -63,7 +63,6 @@
 (declare-function Man-next-section 'man)
 
 ;; For the `:variable' event type.
-(declare-function magit-call-git 'magit-process)
 (declare-function magit-git-string 'magit-git)
 (declare-function magit-refresh 'magit-mode)
 (declare-function magit-get 'magit-git)
@@ -71,7 +70,6 @@
 
 ;; For branch actions.
 (declare-function magit-branch-set-face 'magit-git)
-(declare-function magit-local-branch-p 'magit-git)
 
 ;;; Settings
 ;;;; Custom Groups

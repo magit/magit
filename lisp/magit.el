@@ -66,7 +66,6 @@
 (eval-when-compile (require 'eshell))
 (declare-function eshell-parse-arguments 'eshell)
 (eval-when-compile (require 'message))
-(declare-function message-goto-body 'message)
 
 (defconst magit--minimal-git "1.9.4")
 (defconst magit--minimal-emacs "24.4")

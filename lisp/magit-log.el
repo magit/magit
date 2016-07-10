@@ -32,9 +32,7 @@
 (require 'magit-core)
 (require 'magit-diff)
 
-(declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-blob-visit 'magit)
-(declare-function magit-find-file-noselect 'magit)
 (declare-function magit-insert-head-branch-header 'magit)
 (declare-function magit-insert-upstream-branch-header 'magit)
 (declare-function magit-read-file-from-rev 'magit)
