@@ -94,7 +94,7 @@ and then turned on again when turning off the latter."
      :foreground "black")
     (((class color) (background dark))
      :background "grey25"
-     :foreground "black"))
+     :foreground "white"))
   "Face for blame headings."
   :group 'magit-faces)
 
