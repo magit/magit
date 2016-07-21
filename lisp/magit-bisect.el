@@ -56,7 +56,7 @@
                         (?k "Skip"         magit-bisect-skip)
                         (?r "Reset"        magit-bisect-reset)
                         (?s "Run script"   magit-bisect-run)
-                        (?L "Show log"     magit-bisect-visualize-log))
+                        (?l "Show log"     magit-bisect-visualize-log))
   :sequence-predicate 'magit-bisect-in-progress-p)
 
 ;;;###autoload
