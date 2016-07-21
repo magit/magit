@@ -176,7 +176,7 @@ bisect run'."
         "--format=%h%d %s" "--decorate=full"))))
 
 (defun magit-insert-bisect-rest-graph ()
-  "While bisecting, insert section visualizing the bisect state."
+  "Like `magit-insert-bisect-rest', but show in graph form."
   (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-view)
       (magit-insert-heading "Bisect Rest:")

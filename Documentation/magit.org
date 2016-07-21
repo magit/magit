@@ -1530,6 +1530,10 @@ By default the following functions are also members of that hook:
 
   While bisecting, insert section visualizing the bisect state.
 
+- Function: magit-insert-bisect-rest-graph
+
+  Like magit-insert-bisect-rest, but show in graph form.
+
 - Function: magit-insert-bisect-log
 
   While bisecting, insert section logging bisect progress.
