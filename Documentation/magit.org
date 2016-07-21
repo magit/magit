@@ -2570,6 +2570,10 @@ commands instead.
   After bisecting, cleanup bisection state and return to original
   ~HEAD~.
 
+- Key: B l, magit-bisect-visualize-log
+
+  Show a git log buffer with the remaining commits to bisect.
+
 ** Visiting blobs
 
 - Key: M-x magit-find-file, magit-find-file
