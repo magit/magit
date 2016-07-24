@@ -2439,9 +2439,9 @@ should also change the others to keep things aligned.  The following
 - ~%h~ Hash of this ref's tip.
 - ~%m~ Commit summary of the tip of this ref.
 - ~%n~ Name of this ref.
-- ~%u~ Upstream of this local branch and additional local vs. upstream
+- ~%u~ Upstream of this local branch.
+- ~%U~ Upstream of this local branch and additional local vs. upstream
   information.
-- ~%U~ Upstream of this local branch.
 
 - Variable: magit-refs-local-branch-format
 

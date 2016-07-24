@@ -3315,11 +3315,11 @@ is the current branch, or "#" otherwise.  For all other refs " ".
 @code{%n} Name of this ref.
 
 @item
-@code{%u} Upstream of this local branch and additional local vs. upstream
-information.
+@code{%u} Upstream of this local branch.
 
 @item
-@code{%U} Upstream of this local branch.
+@code{%U} Upstream of this local branch and additional local vs. upstream
+information.
 
 @end itemize
 
