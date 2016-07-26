@@ -190,7 +190,7 @@ By default popup buffers also feature a section listing commands
 common to all popups.  To avoid conflicts with suffix commands, the
 bindings of these common commands are not alphabetic characters.  This
 section is shown by default so that documentation-resistant users get
-a change to notice them.
+a chance to notice them.
 
 @defopt magit-popup-show-common-commands
 
