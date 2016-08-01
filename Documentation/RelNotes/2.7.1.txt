@@ -30,6 +30,9 @@ Changes since v2.7.0
   those buffers.  This makes magit-ediff-* commands more useful for
   files with non-standard encoding.
 
+* Added new command `magit-bisect-visualize-log' and section inserter
+  `magit-insert-bisect-rest-graph'.
+
 Fixes since v2.7.0
 ------------------
 

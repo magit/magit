@@ -55,7 +55,8 @@
                         (?g "Good"         magit-bisect-good)
                         (?k "Skip"         magit-bisect-skip)
                         (?r "Reset"        magit-bisect-reset)
-                        (?s "Run script"   magit-bisect-run))
+                        (?s "Run script"   magit-bisect-run)
+                        (?l "Show log"     magit-bisect-visualize-log))
   :sequence-predicate 'magit-bisect-in-progress-p)
 
 ;;;###autoload
@@ -75,6 +76,17 @@ other actions from the bisect popup (\
 (defun magit-bisect-start-read-args ()
   (let  ((b (magit-read-branch-or-commit "Start bisect with bad revision")))
     (list b (magit-read-other-branch-or-commit "Good revision" b))))
+
+;;;###autoload
+(defun magit-bisect-visualize-log ()
+  "Show log of remaining commits to bisect."
+  (interactive)
+  (magit-mode-setup-internal
+   #'magit-log-mode
+   (list '("--bisect") (car (magit-log-arguments))
+         (magit-split-and-unsq-quote-string
+          (magit-file-line (magit-git-dir "BISECT_NAMES"))))
+   t))
 
 ;;;###autoload
 (defun magit-bisect-reset ()
@@ -162,6 +174,15 @@ bisect run'."
       (magit-git-wash (apply-partially 'magit-log-wash-log 'bisect-vis)
         "bisect" "visualize" "git" "log"
         "--format=%h%d %s" "--decorate=full"))))
+
+(defun magit-insert-bisect-rest-graph ()
+  "Like `magit-insert-bisect-rest', but show in graph form."
+  (when (magit-bisect-in-progress-p)
+    (magit-insert-section (bisect-view)
+      (magit-insert-heading "Bisect Rest:")
+      (magit-git-wash (apply-partially 'magit-log-wash-log 'log)
+        "bisect" "visualize" "git" "log" "--graph"
+        "--format=%h%d [%aN][%at]%s" "--decorate=full"))))
 
 (defun magit-insert-bisect-log ()
   "While bisecting, insert section logging bisect progress."

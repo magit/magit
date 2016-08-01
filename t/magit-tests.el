@@ -211,6 +211,14 @@
                              nil "Password for 'www.host.com':")
                             "mypasswd\n")))))
 
+(ert-deftest magit-unsq-quote ()
+  (let ((strings '("plain" "\"dquoted\"" "'squoted'"
+                   "mix'ed with \"space\"")))
+    (should (equal
+             (magit-split-and-unsq-quote-string
+              (apply #'magit-git-string "rev-parse" "--sq-quote" strings))
+             strings))))
+
 ;;; Status
 
 (defun magit-test-get-section (list file)

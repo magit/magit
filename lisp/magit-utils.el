@@ -412,6 +412,11 @@ If optional NUM is specified only delete that subexpression."
   (delete-region (match-beginning (or num 0))
                  (match-end (or num 0))))
 
+(defun magit-split-and-unsq-quote-string (str)
+  "Splits output from git rev-parse --sq-quote."
+  (magit-git-items "-c" "alias.unsquote=!eval printf '%s\\\\0'"
+                   "unsquote" str))
+
 (defun magit-file-line (file)
   "Return the first line of FILE as a string."
   (when (file-regular-p file)
