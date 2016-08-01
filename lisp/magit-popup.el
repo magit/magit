@@ -179,6 +179,7 @@ that without users being aware of it could lead to tears.
     (define-key map [?\C-x ?\C-s] 'magit-popup-save-default-arguments)
     (define-key map [?\C-g]       'magit-popup-quit)
     (define-key map [??]          'magit-popup-help)
+    (define-key map [?\C-h ?k]    'magit-popup-help)
     (define-key map [?\C-h ?i]    'magit-popup-info)
     (define-key map [?\C-t]       'magit-popup-toggle-show-common-commands)
     (define-key map [?\d]         'backward-button)
