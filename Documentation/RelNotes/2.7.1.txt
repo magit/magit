@@ -30,6 +30,9 @@ Changes since v2.7.0
   those buffers.  This makes magit-ediff-* commands more useful for
   files with non-standard encoding.
 
+* Added support for globbing in file arguments of diff and log
+  commands.
+
 Fixes since v2.7.0
 ------------------
 

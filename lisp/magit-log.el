@@ -762,26 +762,28 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 (defun magit-insert-log (revs &optional args files)
   "Insert a log section.
 Do not add this to a hook variable."
-  (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
-    "log"
-    (format "--format=%%h%s %s[%%aN][%%at]%%s%s"
-            (if (member "--decorate" args) "%d" "")
-            (if (member "--show-signature" args)
-                (progn (setq args (remove "--show-signature" args)) "%G?")
-              "")
-            (if (member "++header" args)
-                (if (member "--graph" (setq args (remove "++header" args)))
-                    (concat "\n" magit-log-revision-headers-format "\n")
-                  (concat "\n" magit-log-revision-headers-format "\n"))
-              ""))
-    (progn
-      (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
-        (setq args (cons (format "--%s-order" (match-string 1 it))
-                         (remove it args))))
-      (if (member "--decorate" args)
-          (cons "--decorate=full" (remove "--decorate" args))
-        args))
-    "--use-mailmap" "--no-prefix" revs "--" files))
+  (let ((magit-git-global-arguments
+         (remove "--literal-pathspecs" magit-git-global-arguments)))
+    (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
+      "log"
+      (format "--format=%%h%s %s[%%aN][%%at]%%s%s"
+              (if (member "--decorate" args) "%d" "")
+              (if (member "--show-signature" args)
+                  (progn (setq args (remove "--show-signature" args)) "%G?")
+                "")
+              (if (member "++header" args)
+                  (if (member "--graph" (setq args (remove "++header" args)))
+                      (concat "\n" magit-log-revision-headers-format "\n")
+                    (concat "\n" magit-log-revision-headers-format "\n"))
+                ""))
+      (progn
+        (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
+          (setq args (cons (format "--%s-order" (match-string 1 it))
+                           (remove it args))))
+        (if (member "--decorate" args)
+            (cons "--decorate=full" (remove "--decorate" args))
+          args))
+      "--use-mailmap" "--no-prefix" revs "--" files)))
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
