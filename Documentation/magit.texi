@@ -7148,7 +7148,7 @@ In order to update the status buffer, @code{git} has to be run a few dozen
 times.  That is only problematic on Microsoft Windows, because that
 operating system is exceptionally slow at starting processes.  Sadly
 this is an issue that can only be fixed by Microsoft itself, and they
-don't appear to particularly interested in doing so.
+don't appear to be particularly interested in doing so.
 
 Beside the subprocess issue, there also exist other Window-specific
 performance issues, some of which can be worked around.  The
