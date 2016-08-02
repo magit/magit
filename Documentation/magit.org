@@ -883,7 +883,7 @@ using an Auto-Revert mode, and should therefore be avoided.  If Emacs
 crashed or if you quit Emacs by mistake, then you would also lose the
 buffer content.  There would be no autosave file still containing the
 intermediate version (because that was deleted when you saved the
-buffer) and you would not be asked whether you want to safe the buffer
+buffer) and you would not be asked whether you want to save the buffer
 (because it isn't modified).
 
 ** Sections
