@@ -324,7 +324,7 @@ of the column.  FORMAT is a function that is called with one
 argument, the repository identification (usually its basename),
 and with `default-directory' bound to the toplevel of its working
 tree.  It has to return a string to be inserted or nil.  PROPS is
-an alist that supports the keys ~:right-align~ and ~:pad-right~."
+an alist that supports the keys `:right-align' and `:pad-right'."
   :package-version '(magit . "2.7.1")
   :group 'magit-commands
   :type `(repeat (list :tag "Column"
