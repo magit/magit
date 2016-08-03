@@ -796,7 +796,8 @@ string \"true\", otherwise return nil."
   (or (magit-section-case
         (branch (magit-section-value it))
         (commit (let ((rev (magit-section-value it)))
-                  (or (magit-get-shortname rev) rev))))
+                  (or (magit-get-shortname rev) rev)))
+        (tag    (magit-section-value it)))
       (and (derived-mode-p 'magit-revision-mode)
            (car magit-refresh-args))))
 
