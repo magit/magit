@@ -911,9 +911,10 @@ invisible."
                         (previous (nth (length siblings) children)))
                    (if (not arg)
                        (--when-let (or previous (car (last children)))
-                         (goto-char (magit-section-start it)))
+                         (magit-section-goto it)
+                         t)
                      (when previous
-                       (goto-char (magit-section-start previous)))
+                       (magit-section-goto previous))
                      (if (and (stringp arg)
                               (re-search-forward
                                arg (magit-section-end parent) t))
