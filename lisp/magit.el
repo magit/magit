@@ -1918,7 +1918,7 @@ merge.
                      (magit-merge-arguments)
                      current-prefix-arg))
   (magit-merge-assert)
-  (magit-run-git "merge" (if nocommit "--no-commit" "--no-edit") args rev))
+  (magit-run-git-async "merge" (if nocommit "--no-commit" "--no-edit") args rev))
 
 ;;;###autoload
 (defun magit-merge-editmsg (rev &optional args)
@@ -1944,7 +1944,7 @@ inspect the merge and change the commit message.
                      (magit-merge-arguments)))
   (magit-merge-assert)
   (cl-pushnew "--no-ff" args :test #'equal)
-  (magit-run-git "merge" "--no-commit" args rev))
+  (magit-run-git-async "merge" "--no-commit" args rev))
 
 ;;;###autoload
 (defun magit-merge-preview (rev)
