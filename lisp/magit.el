@@ -2813,6 +2813,14 @@ Usually this is just its basename."
         (concat " " v)
       v)))
 
+(defun magit-repolist-column-branch (_id)
+  "Insert the current branch."
+  (magit-get-current-branch))
+
+(defun magit-repolist-column-upstream (_id)
+  "Insert the upstream branch of the current branch."
+  (magit-get-current-branch))
+
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
   (--when-let (magit-get-upstream-branch)
