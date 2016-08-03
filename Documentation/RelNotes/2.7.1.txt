@@ -11,7 +11,8 @@ Changes since v2.7.0
   `magit-display-buffer-fullframe-status-topleft-v1', and
   `magit-display-buffer-fullcolumn-most-v1'.
 
-* Added new command `magit-list-repositories'.
+* Added new commands `magit-list-repositories' and
+  `magit-list-submodules'.
 
 * Made `magit-insert-worktrees' use relative filenames.
 
