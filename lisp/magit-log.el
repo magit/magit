@@ -688,6 +688,26 @@ is displayed in the current frame."
           (user-error "No revision buffer in this frame")))
     (magit-mode-bury-buffer (> arg 1))))
 
+;;;###autoload
+(defun magit-log-move-to-parent (&optional n)
+  "Move to the Nth parent of the current commit."
+  (interactive "p")
+  (when (derived-mode-p 'magit-log-mode)
+    (magit-section-when commit
+      (-if-let* ((parent-rev (format "%s^%s"
+                                     (magit-section-value it) (or n 1)))
+                 (parent-hash (magit-rev-parse "--short" parent-rev))
+                 (section (--first (equal (magit-section-value it)
+                                          parent-hash)
+                                   (magit-section-siblings it 'next))))
+          (magit-section-goto section)
+        (if parent-hash
+            (user-error
+             (substitute-command-keys
+              (concat "Parent " parent-hash " not found.  Try typing "
+                      "\\[magit-log-double-commit-limit] first")))
+          (user-error "Parent %s does not exist" parent-rev))))))
+
 ;;; Log Mode
 
 (defvar magit-log-mode-map
@@ -695,6 +715,7 @@ is displayed in the current frame."
     (set-keymap-parent map magit-mode-map)
     (define-key map "\C-c\C-b" 'magit-go-backward)
     (define-key map "\C-c\C-f" 'magit-go-forward)
+    (define-key map "\C-c\C-n" 'magit-log-move-to-parent)
     (define-key map "=" 'magit-log-toggle-commit-limit)
     (define-key map "+" 'magit-log-double-commit-limit)
     (define-key map "-" 'magit-log-half-commit-limit)

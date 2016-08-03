@@ -33,6 +33,8 @@ Changes since v2.7.0
 * Added support for globbing in file arguments of diff and log
   commands.
 
+* Added new command `magit-log-move-to-parent'.
+
 Fixes since v2.7.0
 ------------------
 
