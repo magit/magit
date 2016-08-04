@@ -38,6 +38,9 @@ Changes since v2.7.0
 Fixes since v2.7.0
 ------------------
 
+* `magit-blame' failed when run in a blob buffer for a file located
+  in a subdirectory.
+
 * magit-diff-show-or-scroll-{up,down} failed to scroll stash buffers.
 
 * `magit-diff-visit-file' didn't visit a blob when called inside a
