@@ -58,7 +58,7 @@ That function in turn is used by all section movement commands."
   :group 'magit-section
   :type 'hook
   :options '(magit-section-set-window-start
-             magit-hunk-maybe-recenter
+             magit-diff-maybe-recenter
              magit-hunk-set-window-start
              magit-status-maybe-update-revision-buffer
              magit-status-maybe-update-blob-buffer
@@ -276,15 +276,15 @@ It the SECTION has a different type, then do nothing."
   (when (eq (magit-section-type section) 'hunk)
     (magit-section-set-window-start section)))
 
-(defun magit-hunk-maybe-recenter (section)
-  "Ensure the beginning of the `hunk' SECTION is visible and maybe the end too.
+(defun magit-diff-maybe-recenter (section)
+  "Ensure beginning and maybe end of the diff-related SECTION are visible.
 
 First make the beginning visible. Then, if the end isn't visible
 yet, attempt to scroll the window to make the end visible, while
 still keeping the beginning visible.
 
-It the SECTION has a different type, then do nothing."
-  (when (eq (magit-section-type section) 'hunk)
+It the SECTION's type isn't `hunk' of `file', then do nothing."
+  (when (memq (magit-section-type section) '(hunk file))
     (magit-section-set-window-start section)
     (unless (pos-visible-in-window-p (magit-section-end section))
       (recenter 0))))
@@ -925,8 +925,8 @@ invisible."
                         (siblings (magit-section-siblings section 'prev))
                         (previous (nth (length siblings) children)))
                    (if (not arg)
-                       (--when-let (or previous (car (last children)))
-                         (magit-section-goto it)
+                       (-when-let (sibling (or previous (car (last children))))
+                         (magit-section-goto sibling)
                          t)
                      (when previous
                        (magit-section-goto previous))
@@ -939,6 +939,16 @@ invisible."
                        (while (looking-at "^ ")    (forward-line -1))
                        (while (looking-at "^[-+]") (forward-line -1))
                        (forward-line))))))
+          (and (eq (magit-section-type section) 'file)
+               (-when-let (sibling
+                           (or (--when-let
+                                   (car (magit-section-siblings section 'next))
+                                 (magit-get-section (magit-section-ident it)))
+                               (--when-let
+                                   (car (magit-section-siblings section 'prev))
+                                 (magit-get-section (magit-section-ident it)))))
+                 (magit-section-goto sibling)
+                 t))
           (goto-char (--if-let (magit-section-goto-successor-1 section)
                          (if (eq (magit-section-type it) 'button)
                              (point-min)
