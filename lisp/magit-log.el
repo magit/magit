@@ -694,18 +694,16 @@ is displayed in the current frame."
   (interactive "p")
   (when (derived-mode-p 'magit-log-mode)
     (magit-section-when commit
-      (-if-let* ((parent-rev (format "%s^%s"
-                                     (magit-section-value it) (or n 1)))
-                 (parent-hash (magit-rev-parse "--short" parent-rev))
-                 (section (--first (equal (magit-section-value it)
-                                          parent-hash)
-                                   (magit-section-siblings it 'next))))
-          (magit-section-goto section)
-        (if parent-hash
-            (user-error
-             (substitute-command-keys
-              (concat "Parent " parent-hash " not found.  Try typing "
-                      "\\[magit-log-double-commit-limit] first")))
+      (let ((parent-rev (format "%s^%s" (magit-section-value it) (or n 1))))
+        (-if-let (parent-hash (magit-rev-parse "--short" parent-rev))
+            (-if-let (section (--first (equal (magit-section-value it)
+                                              parent-hash)
+                                       (magit-section-siblings it 'next)))
+                (magit-section-goto section)
+              (user-error
+               (substitute-command-keys
+                (concat "Parent " parent-hash " not found.  Try typing "
+                        "\\[magit-log-double-commit-limit] first"))))
           (user-error "Parent %s does not exist" parent-rev))))))
 
 ;;; Log Mode
