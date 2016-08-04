@@ -1281,12 +1281,14 @@ is done using `magit-find-index-noselect'."
           (let ((coding-system-for-write buffer-file-coding-system))
             (with-temp-file index
               (insert-buffer-substring buffer)))
-          (magit-call-git "update-index" "--cacheinfo"
-                          (substring (magit-git-string "ls-files" "-s" file) 0 6)
-                          (magit-git-string "hash-object" "-t" "blob" "-w"
-                                            (concat "--path=" file)
-                                            "--" index)
-                          file)
+          (magit-with-toplevel
+            (magit-call-git "update-index" "--cacheinfo"
+                            (substring (magit-git-string "ls-files" "-s" file)
+                                       0 6)
+                            (magit-git-string "hash-object" "-t" "blob" "-w"
+                                              (concat "--path=" file)
+                                              "--" index)
+                            file))
           (set-buffer-modified-p nil)
           (when magit-wip-after-apply-mode
             (magit-wip-commit-after-apply (list file) " after un-/stage")))
