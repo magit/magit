@@ -1434,7 +1434,7 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-get-all (&rest keys)
   "Return all values of the Git config entry specified by KEYS."
   (let ((magit-git-debug nil))
-    (magit-git-lines "config" "--get-all" (mapconcat 'identity keys "."))))
+    (magit-git-items "config" "-z" "--get-all" (mapconcat 'identity keys "."))))
 
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of Git config entry specified by KEYS."
