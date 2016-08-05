@@ -25,6 +25,39 @@
 
 (require 'magit)
 
+;;; Options
+
+(defcustom magit-submodule-list-columns
+  '(("Path"     25 magit-modulelist-column-path   nil)
+    ("Version"  25 magit-repolist-column-version  nil)
+    ("Branch"   20 magit-repolist-column-branch   nil)
+    ("L<U" 3 magit-repolist-column-unpulled-from-upstream   (:right-align t))
+    ("L>U" 3 magit-repolist-column-unpushed-to-upstream     (:right-align t))
+    ("L<P" 3 magit-repolist-column-unpulled-from-pushremote (:right-align t))
+    ("L>P" 3 magit-repolist-column-unpushed-to-pushremote   (:right-align t)))
+  "List of columns displayed by `magit-list-submodules'.
+
+Each element has the form (HEADER WIDTH FORMAT PROPS).
+
+HEADER is the string displayed in the header.  WIDTH is the width
+of the column.  FORMAT is a function that is called with one
+argument, the repository identification (usually its basename),
+and with `default-directory' bound to the toplevel of its working
+tree.  It has to return a string to be inserted or nil.  PROPS is
+an alist that supports the keys `:right-align' and `:pad-right'."
+  :package-version '(magit . "2.7.1")
+  :group 'magit-commands
+  :type `(repeat (list :tag "Column"
+                       (string   :tag "Header Label")
+                       (integer  :tag "Column Width")
+                       (function :tag "Inserter Function")
+                       (repeat   :tag "Properties"
+                                 (list (choice :tag "Property"
+                                               (const :right-align)
+                                               (const :pad-right)
+                                               (symbol))
+                                       (sexp   :tag "Value"))))))
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-submodule-popup "magit-submodule" nil t)
@@ -134,7 +167,7 @@ With a prefix argument fetch all remotes."
   "Insert sections for all modules.
 For each section insert the path and the output of `git describe --tags'."
   (-when-let (modules (magit-get-submodules))
-    (magit-insert-section (modules nil t)
+    (magit-insert-section (submodules nil t)
       (magit-insert-heading "Modules:")
       (magit-with-toplevel
         (dolist (module modules)
@@ -148,6 +181,12 @@ For each section insert the path and the output of `git describe --tags'."
                 (insert it))
               (insert ?\n)))))
       (insert ?\n))))
+
+(defvar magit-submodules-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-visit-thing] 'magit-list-submodules)
+    map)
+  "Keymap for `submodules' sections.")
 
 ;;;###autoload
 (defun magit-insert-modules-unpulled-from-upstream ()
@@ -210,6 +249,48 @@ These sections can be expanded to show the respective commits."
       (if (> (point) (magit-section-content section))
           (insert ?\n)
         (magit-cancel-section)))))
+
+;;; List
+
+;;;###autoload
+(defun magit-list-submodules ()
+  "Display a list of the current repository's submodules."
+  (interactive)
+  (magit-display-buffer (magit-mode-get-buffer 'magit-submodule-list-mode t))
+  (magit-submodule-list-mode)
+  (setq tabulated-list-entries
+        (mapcar (lambda (module)
+                  (let ((default-directory
+                          (expand-file-name (file-name-as-directory module))))
+                    (list module
+                          (vconcat (--map (or (funcall (nth 2 it) module) "")
+                                          magit-submodule-list-columns)))))
+                (magit-get-submodules)))
+  (tabulated-list-print))
+
+(defvar magit-submodule-list-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tabulated-list-mode-map)
+    (define-key map "g"  'magit-list-submodules)
+    (define-key map "\r" 'magit-repolist-status)
+    map)
+  "Local keymap for Magit-Submodule-List mode buffers.")
+
+(define-derived-mode magit-submodule-list-mode tabulated-list-mode "Modules"
+  "Major mode for browsing a list of Git submodules."
+  (setq x-stretch-cursor        nil)
+  (setq tabulated-list-padding  0)
+  (setq tabulated-list-sort-key (cons "Path" nil))
+  (setq tabulated-list-format
+        (vconcat (mapcar (-lambda ((title width _fn props))
+                           (nconc (list title width t)
+                                  (-flatten props)))
+                         magit-submodule-list-columns)))
+  (tabulated-list-init-header))
+
+(defun magit-modulelist-column-path (path)
+  "Insert the relative path of the submodule."
+  path)
 
 ;;; magit-submodule.el ends soon
 
