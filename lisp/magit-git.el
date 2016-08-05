@@ -742,18 +742,18 @@ string \"true\", otherwise return nil."
 (defun magit-name-local-branch (rev &optional lax)
   (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
                                 "--refs=refs/heads/*" rev)
-    (and (or lax (not (string-match-p "~" it))) it)))
+    (and (or lax (not (string-match-p "[~^]" it))) it)))
 
 (defun magit-name-remote-branch (rev &optional lax)
   (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
                                 "--refs=refs/remotes/*" rev)
-    (and (or lax (not (string-match-p "~" it)))
+    (and (or lax (not (string-match-p "[~^]" it)))
          (substring it 8))))
 
 (defun magit-name-tag (rev &optional lax)
   (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
                                 "--refs=refs/tags/*" rev)
-    (and (or lax (not (string-match-p "~" it)))
+    (and (or lax (not (string-match-p "[~^]" it)))
          (substring it 5))))
 
 (defun magit-ref-fullname (name)
