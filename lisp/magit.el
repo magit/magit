@@ -718,8 +718,8 @@ Do so depending on the value of `status.showUntrackedFiles'."
 
 (defun magit-insert-user-header ()
   "Insert a header line about the current user."
-  (let ((name  (magit-get "user.name"))
-        (email (magit-get "user.email")))
+  (let ((name  (magit-get-line "user.name"))
+        (email (magit-get-line "user.email")))
     (when (and name email)
       (magit-insert-section (user name)
         (insert (format "%-10s" "User: "))

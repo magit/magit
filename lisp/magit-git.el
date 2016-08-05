@@ -1429,12 +1429,16 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-get (&rest keys)
   "Return the value of Git config entry specified by KEYS."
-  (magit-git-str "config" (mapconcat 'identity keys ".")))
+  (car (magit-git-items "config" "-z" (mapconcat 'identity keys "."))))
+
+(defun magit-get-line (&rest keys)
+  "Return the first line of Git config entry specified by KEYS."
+  (car (split-string (apply #'magit-get keys) "\n")))
 
 (defun magit-get-all (&rest keys)
   "Return all values of the Git config entry specified by KEYS."
   (let ((magit-git-debug nil))
-    (magit-git-lines "config" "--get-all" (mapconcat 'identity keys "."))))
+    (magit-git-items "config" "-z" "--get-all" (mapconcat 'identity keys "."))))
 
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of Git config entry specified by KEYS."
