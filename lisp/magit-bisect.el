@@ -29,6 +29,12 @@
 
 (require 'magit)
 
+(defcustom magit-bisect-show-graph t
+  "Whether to use `--graph' in the log showing commits yet to be bisected."
+  :package-version '(magit . "2.7.1")
+  :group 'magit-status
+  :type 'boolean)
+
 (defface magit-bisect-good
   '((t :foreground "DarkOliveGreen"))
   "Face for good bisect revisions."
@@ -161,7 +167,8 @@ bisect run'."
       (magit-insert-heading "Bisect Rest:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'bisect-vis)
         "bisect" "visualize" "git" "log"
-        "--format=%h%d %s" "--decorate=full"))))
+        "--format=%h%d %s" "--decorate=full"
+        (and magit-bisect-show-graph "--graph")))))
 
 (defun magit-insert-bisect-log ()
   "While bisecting, insert section logging bisect progress."
