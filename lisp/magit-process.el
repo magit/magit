@@ -139,10 +139,11 @@ itself from the hook, to avoid further futile attempts."
     ;; match-group 99 is used to identify a host
     "^\\(Enter \\)?[Pp]assword\\( for '\\(?99:.*\\)'\\)?: ?$"
     "^.*'s password: ?$"
-    "^Yubikey for .*: ?$")
+    "^Yubikey for .*: ?$"
+    "^Enter PIN for .*: ?$")
   "List of regexps matching password prompts of Git and its subprocesses.
 Also see `magit-process-find-password-functions'."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.7.1")
   :group 'magit-process
   :type '(repeat (regexp)))
 
