@@ -82,7 +82,7 @@ magit-autoloads.el: $(ELS)
 	(setq default-directory (file-truename default-directory))\
 	(setq generated-autoload-file (expand-file-name \"magit-autoloads.el\"))\
 	(setq find-file-visit-truename t)\
-	(update-directory-autoloads default-directory)))"
+	(update-directory-autoloads default-directory))"
 
 install: lisp
 	@$(MKDIR) $(DESTDIR)$(lispdir)
