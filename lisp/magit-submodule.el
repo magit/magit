@@ -170,22 +170,23 @@ For each section insert the path and the output of `git describe --tags'."
     (magit-insert-section (submodules nil t)
       (magit-insert-heading "Modules:")
       (magit-with-toplevel
-        (dolist (module modules)
-          (let ((default-directory
-                  (expand-file-name (file-name-as-directory module))))
-            (magit-insert-section (file module t)
-              (insert (format "%-25s " module))
-              (if (not (file-exists-p ".git"))
-                  (insert "(uninitialized)")
-                (insert (format "%-25s "
-                                (--if-let (magit-get-current-branch)
-                                    (propertize it 'face 'magit-branch-local)
-                                  (propertize "(detached)" 'face 'warning))))
-                (--when-let (magit-git-string "describe" "--tags")
-                  (when (string-match-p "\\`[0-9]" it)
-                    (insert ?\s))
-                  (insert it)))
-              (insert ?\n)))))
+        (let ((col-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
+          (dolist (module modules)
+            (let ((default-directory
+                    (expand-file-name (file-name-as-directory module))))
+              (magit-insert-section (file module t)
+                (insert (format col-format module))
+                (if (not (file-exists-p ".git"))
+                    (insert "(uninitialized)")
+                  (insert (format col-format
+                                  (--if-let (magit-get-current-branch)
+                                      (propertize it 'face 'magit-branch-local)
+                                    (propertize "(detached)" 'face 'warning))))
+                  (--when-let (magit-git-string "describe" "--tags")
+                    (when (string-match-p "\\`[0-9]" it)
+                      (insert ?\s))
+                    (insert it)))
+                (insert ?\n))))))
       (insert ?\n))))
 
 (defvar magit-submodules-section-map
