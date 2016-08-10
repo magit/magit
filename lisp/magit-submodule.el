@@ -175,7 +175,8 @@ For each section insert the path and the output of `git describe --tags'."
             (let ((default-directory
                     (expand-file-name (file-name-as-directory module))))
               (magit-insert-section (file module t)
-                (insert (format col-format module))
+                (insert (propertize (format col-format module)
+                                    'face 'magit-diff-file-heading))
                 (if (not (file-exists-p ".git"))
                     (insert "(uninitialized)")
                   (insert (format col-format
@@ -185,7 +186,7 @@ For each section insert the path and the output of `git describe --tags'."
                   (--when-let (magit-git-string "describe" "--tags")
                     (when (string-match-p "\\`[0-9]" it)
                       (insert ?\s))
-                    (insert it)))
+                    (insert (propertize it 'face 'magit-tag))))
                 (insert ?\n))))))
       (insert ?\n))))
 
