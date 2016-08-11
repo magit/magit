@@ -60,6 +60,7 @@ Contributors
 - Andy Sawyer <git@pureabstract.org>
 - Barak A. Pearlmutter <barak+git@pearlmutter.net>
 - Bart Bakker <bart@thesoftwarecraft.com>
+- Basil L. Contovounesios <contovob@tcd.ie>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
 - Ben Walton <bwalton@artsci.utoronto.ca>
 - Bradley Wright <brad@intranation.com>
@@ -71,6 +72,7 @@ Contributors
 - Chris Done <chrisdone@gmail.com>
 - Chris Moore <dooglus@gmail.com>
 - Chris Ring <chris@ringthis.com>
+- Chris Shoemaker <chris@mojotech.com>
 - Christian Dietrich <christian.dietrich@informatik.uni-erlangen.de>
 - Christian Kluge <ckfrakturfreak@web.de>
 - Christopher Monsanto <chris@monsan.to>
@@ -110,6 +112,7 @@ Contributors
 - Hans-Peter Deifel <hpdeifel@gmx.de>
 - Ian Eure <ian.eure@gmail.com>
 - Ingo Lohmar <i.lohmar@gmail.com>
+- Ivan Brennan <ivan.brennan@gmail.com>
 - Jan Tatarik <jan.tatarik@xing.com>
 - Jasper St. Pierre <jstpierre@mecheye.net>
 - Jeff Bellegarde <jbellegarde@whitepages.com>
@@ -129,6 +132,7 @@ Contributors
 - Kimberly Wolk <kimwolk@hotmail.com>
 - Kyle Meyer <kyle@kyleam.com>
 - Laurent Laffont <laurent.laffont@gmail.com>
+- Laverne Schrock <laverne@schrock.email>
 - Leandro Facchinetti <me@leafac.com>
 - Lele Gaifax <lele@metapensiero.it>
 - Leo Liu <sdl.web@gmail.com>
@@ -144,6 +148,7 @@ Contributors
 - Marcin Bachry <hegel666@gmail.com>
 - Marco Craveiro <marco.craveiro@gmail.com>
 - Marian Schubert <marian.schubert@gooddata.com>
+- Mario Rodas <marsam@users.noreply.github.com>
 - Marius Vollmer <marius.vollmer@gmail.com>
 - Mark Hepburn <Mark.Hepburn@csiro.au>
 - Mark Karpov <markkarpov@opmbx.org>
@@ -204,6 +209,7 @@ Contributors
 - Russell Black <black.russell@gmail.com>
 - Ryan C. Thompson <rct@thompsonclan.org>
 - Samuel Bronson <naesten@gmail.com>
+- Samuel W. Flint <swflint@flintfam.org>
 - Sanjoy Das <sanjoy@playingwithpointers.com>
 - Sean Bryant <sbryant@hackinggibsons.com>
 - Sebastian Wiesner <lunaryorn@gmail.com>
