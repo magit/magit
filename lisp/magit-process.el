@@ -45,6 +45,15 @@
 
 ;;; Options
 
+(defcustom magit-log-output-coding-system 'utf-8
+  "Default coding system for receiving log output from Git.
+
+Should be consistent with the Git config value `i18n.logOutputEncoding'."
+  :package-version '(magit . "2.7.1")
+  :group 'magit-process
+  :group 'magit-log
+  :type '(coding-system :tag "Coding system to decode Git log output"))
+
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
   "Connection type used for the Git process.
 
@@ -294,8 +303,10 @@ before use.
 Process output goes into a new section in the buffer returned by
 `magit-process-buffer'."
   (run-hooks 'magit-pre-call-git-hook)
-  (apply #'magit-call-process magit-git-executable
-         (magit-process-git-arguments args)))
+  (let ((coding-system-for-read
+         (or coding-system-for-read magit-log-output-coding-system)))
+    (apply #'magit-call-process magit-git-executable
+           (magit-process-git-arguments args))))
 
 (defun magit-call-process (program &rest args)
   "Call PROGRAM synchronously in a separate process.
@@ -443,8 +454,10 @@ and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' for more information."
   (run-hooks 'magit-pre-start-git-hook)
-  (apply #'magit-start-process magit-git-executable input
-         (magit-process-git-arguments args)))
+  (let ((coding-system-for-read
+         (or coding-system-for-read magit-log-output-coding-system)))
+    (apply #'magit-start-process magit-git-executable input
+           (magit-process-git-arguments args))))
 
 (defun magit-start-process (program &optional input &rest args)
   "Start PROGRAM, prepare for refresh, and return the process object.
