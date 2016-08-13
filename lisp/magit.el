@@ -297,7 +297,7 @@ the maximum depth to look for Git repositories.  If it is 0, then
 only add DIRECTORY itself.  For elements that are strings, the
 value of option `magit-repository-directories-depth' specifies
 the depth."
-  :package-version '(magit . "2.7.1")
+  :package-version '(magit . "2.8.0")
   :group 'magit
   :type '(repeat (choice (cons directory (integer :tag "Depth")) directory)))
 
@@ -325,7 +325,7 @@ argument, the repository identification (usually its basename),
 and with `default-directory' bound to the toplevel of its working
 tree.  It has to return a string to be inserted or nil.  PROPS is
 an alist that supports the keys `:right-align' and `:pad-right'."
-  :package-version '(magit . "2.7.1")
+  :package-version '(magit . "2.8.0")
   :group 'magit-commands
   :type `(repeat (list :tag "Column"
                        (string   :tag "Header Label")

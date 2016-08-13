@@ -49,7 +49,7 @@
   "Default coding system for receiving log output from Git.
 
 Should be consistent with the Git config value `i18n.logOutputEncoding'."
-  :package-version '(magit . "2.7.1")
+  :package-version '(magit . "2.8.0")
   :group 'magit-process
   :group 'magit-log
   :type '(coding-system :tag "Coding system to decode Git log output"))
@@ -152,7 +152,7 @@ itself from the hook, to avoid further futile attempts."
     "^Enter PIN for .*: ?$")
   "List of regexps matching password prompts of Git and its subprocesses.
 Also see `magit-process-find-password-functions'."
-  :package-version '(magit . "2.7.1")
+  :package-version '(magit . "2.8.0")
   :group 'magit-process
   :type '(repeat (regexp)))
 

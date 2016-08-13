@@ -40,7 +40,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.7
+@subtitle for version 2.8
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -139,6 +139,7 @@ Status buffer
 * Status sections::
 * Status header sections::
 * Status options::
+
 
 
 Logging
@@ -567,7 +568,7 @@ M-x magit-version RET
 should display something like
 
 @example
-Magit 2.4.0, Git 2.7.0, Emacs 24.5.1
+Magit 2.8.0, Git 2.9.0, Emacs 24.5.1
 @end example
 
 Then you might also want to read about options that many users likely

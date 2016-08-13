@@ -182,7 +182,7 @@ some of these messages useless.
 
 Messages which can currently be suppressed using this option are:
 * \"Turning on magit-auto-revert-mode...\""
-  :package-version '(magit . "2.7.1")
+  :package-version '(magit . "2.8.0")
   :group 'magit
   :type '(repeat string))
 
