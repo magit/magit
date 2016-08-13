@@ -134,6 +134,7 @@
     (define-key map (kbd "r")   'git-rebase-reword)
     (define-key map (kbd "w")   'git-rebase-reword)
     (define-key map (kbd "e")   'git-rebase-edit)
+    (define-key map (kbd "m")   'git-rebase-edit)
     (define-key map (kbd "s")   'git-rebase-squash)
     (define-key map (kbd "f")   'git-rebase-fixup)
     (define-key map (kbd "y")   'git-rebase-insert)
