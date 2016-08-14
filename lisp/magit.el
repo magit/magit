@@ -3054,7 +3054,7 @@ like `kill-ring-save' would, instead of behaving as described
 above."
   (interactive)
   (if (use-region-p)
-      (copy-region-as-kill (mark) (point) 'region)
+      (copy-region-as-kill nil nil 'region)
     (-when-let* ((section (magit-current-section))
                  (value (magit-section-value section)))
       (magit-section-case
@@ -3097,7 +3097,7 @@ like `kill-ring-save' would, instead of behaving as described
 above."
   (interactive)
   (if (use-region-p)
-      (copy-region-as-kill (mark) (point) 'region)
+      (copy-region-as-kill nil nil 'region)
     (-when-let (rev (cond ((memq major-mode '(magit-cherry-mode
                                               magit-log-select-mode
                                               magit-reflog-mode
