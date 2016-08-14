@@ -2572,6 +2572,15 @@ commands instead.
   After bisecting, cleanup bisection state and return to original
   ~HEAD~.
 
+By default the status buffer shows information about the ongoing
+bisect session.
+
+- User Option: magit-bisect-show-graph
+
+  This option controls whether a graph is displayed for the log of
+  commits that still have to be bisected.
+
+
 ** Visiting blobs
 
 - Key: M-x magit-find-file, magit-find-file
@@ -2658,6 +2667,9 @@ Also see [[info:gitman#git-blame]].
 - Key: M-w, magit-blame-copy-hash
 
   Save the hash of the current chunk's commit to the kill ring.
+
+  When the region is active, then save that to the ~kill-ring~,
+  like ~kill-ring-save~ would.
 
 - Key: t, magit-blame-toggle-headings
 
@@ -3400,6 +3412,11 @@ features are available from separate popups.
   Which you prefer is a matter of personal preference.  If you do
   prefer the former, then you should add branches such as ~master~,
   ~next~, and ~maint~ to the value of this options.
+
+- Command: magit-branch-orphan
+
+  This command creates and checks out a new orphan branch with
+  contents from a given revision.
 
 *** The branch config popup
 
@@ -4630,6 +4647,12 @@ following suffix commands, instead of those listed above.
 ** Submodules
 
 Also see [[info:gitman#git-submodule]].
+
+- Command: magit-list-submodules
+
+  This command displays of the current repository's submodules.
+
+  It can be invoked by pressing ~RET~ on the section titles "Modules".
 
 - Key: o, magit-submodule-popup
 
