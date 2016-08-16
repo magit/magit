@@ -71,7 +71,7 @@ Changes since v2.7.0
 
 * Command `magit-stage' can now be used outside of Magit buffers.
 
-* Commands that read a branch or commit from the user, now also offer
+* Commands that read a branch or commit from the user now also offer
   tags as completion candidates.
 
 * Taught `magit-insert-worktrees' to use relative filenames.
@@ -114,7 +114,7 @@ Fixes since v2.7.0
 * Merges where not performed asynchronously, which made it impossible
   to read a passphrase from the user, needed for commit signing.
 
-* In bare repositories tracked files were listed has deleted.
+* In bare repositories tracked files were listed as deleted.
 
 This release also contains typofixes, documentation updates, code
 clean-ups, bug fixes, and other small to medium improvements.
