@@ -3202,7 +3202,7 @@ Git, and Emacs in the echo area."
       (setq magit-version 'error)
       (when magit-version
         (push magit-version debug))
-      (unless (not (equal (getenv "TRAVIS") "true"))
+      (unless (equal (getenv "TRAVIS") "true")
         ;; The repository is a sparse clone.
         (message "Cannot determine Magit's version %S" debug)))
     magit-version))
