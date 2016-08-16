@@ -4652,7 +4652,7 @@ Also see [[info:gitman#git-submodule]].
 
   This command displays of the current repository's submodules.
 
-  It can be invoked by pressing ~RET~ on the section titles "Modules".
+  It can be invoked by pressing ~RET~ on the section titled "Modules".
 
 - Key: o, magit-submodule-popup
 

@@ -6481,7 +6481,7 @@ the git-submodule(1) manpage
 
 This command displays of the current repository's submodules.
 
-It can be invoked by pressing @code{RET} on the section titles "Modules".
+It can be invoked by pressing @code{RET} on the section titled "Modules".
 @end deffn
 
 @table @asis
