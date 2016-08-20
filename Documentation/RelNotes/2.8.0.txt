@@ -79,9 +79,8 @@ Changes since v2.7.0
 Fixes since v2.7.0
 ------------------
 
-* Function `magit-get' only returned the first line of a multi-line
-  value, and function `magit-get-all' did split multi-line values into
-  multiple values.
+* Function `magit-get-all' did split multi-line values into multiple
+  values.
 
 * Function `magit-subtree-read-prefix' which is used in order to read
   the `--prefix' argument from the subtree popup was missing.
