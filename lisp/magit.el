@@ -869,11 +869,11 @@ current branch.  The description is taken from the Git variable
 `branch.<NAME>.description'; if that is undefined then no header
 line is inserted at all."
   (let ((branch (magit-get-current-branch)))
-    (-when-let* ((desc (magit-get "branch" branch "description"))
-                 (desc-lines (split-string desc "\n")))
+    (--when-let (magit-git-lines
+                 "config" (format "branch.%s.description" branch))
       (magit-insert-section (branchdesc branch t)
-        (magit-insert-heading branch ": " (car desc-lines))
-        (insert (mapconcat 'identity (cdr desc-lines) "\n"))
+        (magit-insert-heading branch ": " (car it))
+        (insert (mapconcat 'identity (cdr it) "\n"))
         (insert "\n\n")))))
 
 (defconst magit-refs-branch-line-re
