@@ -43,6 +43,11 @@
 
 ;;; Options
 
+(defcustom magit-commit-command "commit"
+  "The command used when committing."
+  :group 'magit-commands
+  :type '(string :tag "Command"))
+
 (defcustom magit-commit-arguments nil
   "The arguments used when committing."
   :group 'magit-commands
@@ -142,14 +147,14 @@ With a prefix argument amend to the commit at HEAD instead.
                    (list (cons "--amend" (magit-commit-arguments)))
                  (list (magit-commit-arguments))))
   (when (setq args (magit-commit-assert args))
-    (magit-run-git-with-editor "commit" args)))
+    (magit-run-git-with-editor magit-commit-command args)))
 
 ;;;###autoload
 (defun magit-commit-amend (&optional args)
   "Amend the last commit.
 \n(git commit --amend ARGS)"
   (interactive (list (magit-commit-arguments)))
-  (magit-run-git-with-editor "commit" "--amend" args))
+  (magit-run-git-with-editor magit-commit-command "--amend" args))
 
 ;;;###autoload
 (defun magit-commit-extend (&optional args override-date)
@@ -167,7 +172,7 @@ to inverse the meaning of the prefix argument.  \n(git commit
     (let ((process-environment process-environment))
       (unless override-date
         (push (magit-rev-format "GIT_COMMITTER_DATE=%cD") process-environment))
-      (magit-run-git-with-editor "commit" "--amend" "--no-edit" args))))
+      (magit-run-git-with-editor magit-commit-command "--amend" "--no-edit" args))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -187,7 +192,7 @@ and ignore the option.
   (let ((process-environment process-environment))
     (unless override-date
       (push (magit-rev-format "GIT_COMMITTER_DATE=%cD") process-environment))
-    (magit-run-git-with-editor "commit" "--amend" "--only" args)))
+    (magit-run-git-with-editor magit-commit-command "--amend" "--only" args)))
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args)
@@ -251,8 +256,8 @@ depending on the value of option `magit-commit-squash-confirm'."
           (if rebase
               (with-editor "GIT_EDITOR"
                 (let ((magit-process-popup-time -1))
-                  (magit-call-git "commit" args)))
-            (magit-run-git-with-editor "commit" args)))
+                  (magit-call-git magit-commit-command args)))
+            (magit-run-git-with-editor magit-commit-command args)))
       (magit-log-select
         `(lambda (commit)
            (magit-commit-squash-internal ,option commit ',args ,rebase ,edit t)
