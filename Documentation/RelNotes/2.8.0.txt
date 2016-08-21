@@ -11,8 +11,15 @@ Magit and Git itself deserve to be called porcelains.
 
 For more information about Magit, see http://magit.vc.
 
-Magit v2.8.0 Release Notes (draft)
-==================================
+Magit v2.8.0 Release Notes
+==========================
+
+Released 21 August 2016 by Jonas Bernoulli.
+
+We are pleased to announce the release of Magit version 2.8.0,
+representing 124 commits by 11 people over 3 months.
+
+Also see http://emacsair.me/2016/08/21/magit-2.8.
 
 Changes since v2.7.0
 --------------------
@@ -120,3 +127,15 @@ clean-ups, bug fixes, and other small to medium improvements.
 
 Authors
 -------
+
+    59  Jonas Bernoulli
+    33  Noam Postavsky
+    23  Kyle Meyer
+     2  Mario Rodas
+     1  Andriy Kmit'
+     1  Basil L. Contovounesios
+     1  Chris Shoemaker
+     1  Ivan Brennan
+     1  Laverne Schrock
+     1  Samuel W. Flint
+     1  Wilfred Hughes
