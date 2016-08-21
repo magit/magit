@@ -113,13 +113,12 @@ that are useful for resolving conflicts and resuming the sequence
 after doing so.
 
 Magit wraps and in many cases improves upon at least the following Git
-porcelain commands: ~add~, ~am~, ~bisect~, ~blame~, ~branch~,
-~checkout~, ~cherry~, ~cherry-pick~, ~clean~, ~clone~, ~commit~,
-~config~, ~describe~, ~diff~, ~fetch~, ~format-patch~, ~init~, ~log~,
-~merge~, ~merge-tree~, ~mv~, ~notes~, ~pull~, ~rebase~, ~reflog~,
-~remote~, ~request-pull~, ~reset~, ~revert~, ~rm~, ~show~, ~stash~,
-~submodule~, and ~tag~.  Many more Magit porcelain commands are
-implemented on top of Git plumbing commands.
+porcelain commands: ~add~, ~am~, ~bisect~, ~blame~, ~branch~, ~checkout~, ~cherry~,
+~cherry-pick~, ~clean~, ~clone~, ~commit~, ~config~, ~describe~, ~diff~, ~fetch~,
+~format-patch~, ~init~, ~log~, ~merge~, ~merge-tree~, ~mv~, ~notes~, ~pull~, ~rebase~,
+~reflog~, ~remote~, ~request-pull~, ~reset~, ~revert~, ~rm~, ~show~, ~stash~,
+~submodule~, ~subtree~, ~tag~, and ~worktree.~  Many more Magit porcelain
+commands are implemented on top of Git plumbing commands.
 
 * Installation
 
@@ -384,9 +383,9 @@ Write a message and then type ~C-c C-c~ to actually create the commit.
 
 You probably don't want to push the commit you just created because
 you just committed some random changes, but if that is not the case
-you could push it by typing ~P~ to bring up the push popup and then ~P~
-again to push to the configured upstream.  (If the upstream is not
-configured, then you would be prompted for the push target instead.)
+you could push it by typing ~P~ to bring up the push popup and then ~u~ to
+push to the configured upstream.  (If the upstream is not configured,
+then you would be prompted for the push target instead.)
 
 Instead we are going to undo the changes made so far.  Bring up the
 log for the current branch by typing ~l l~, move to the last commit
@@ -478,9 +477,7 @@ buffers whose major-modes derive from ~magit-mode~.
   Magit provides several functions, listed below, that are suitable
   values for this option.  If you want to use different rules, then a
   good way of doing that is to start with a copy of one of these
-  functions and then adjust it to your needs.  More functions to
-  choose from will likely be added in the future, and eventually the
-  default will change.
+  functions and then adjust it to your needs.
 
   Instead of using a wrapper around ~display-buffer~, that function
   itself can be used here, in which case the display actions have to
@@ -1624,8 +1621,13 @@ The following functions can also be added to the above hook:
 
 - Function: magit-insert-submodules
 
-  Insert sections for all modules.  For each section insert the path
-  and the output of ~git describe --tags~.
+  Insert sections for all submodules.  For each section insert the
+  path, the branch, and the output of ~git describe --tags~.
+
+  Press ~RET~ on such a submodule section to show its own status buffer.
+  Press ~RET~ on the "Modules" section to display a list of submodules
+  in a separate buffer.  This shows additional information not
+  displayed in the super-repository's status buffer.
 
 - Function: magit-insert-unpulled-cherries
 
@@ -1740,7 +1742,7 @@ buffers.
 
 - Command: magit-list-repositories
 
-  This command displays a list of repositories.
+  This command displays a list of repositories in a separate buffer.
 
   The options ~magit-repository-directories~ and
   ~magit-repository-directories-depth~ control which repositories are
@@ -2580,7 +2582,6 @@ bisect session.
   This option controls whether a graph is displayed for the log of
   commits that still have to be bisected.
 
-
 ** Visiting blobs
 
 - Key: M-x magit-find-file, magit-find-file
@@ -3228,7 +3229,6 @@ To show no diff while committing remove ~magit-commit-diff~ from
 ~server-switch-hook~.
 
 ** Branching
-
 *** The two remotes
 
 The upstream branch of some local branch is the branch into which the
@@ -4648,11 +4648,46 @@ following suffix commands, instead of those listed above.
 
 Also see [[info:gitman#git-submodule]].
 
+*** Listing submodules
+
+The command ~magit-list-submodule~ displays a list of the current
+repository's submodules in a separate buffer.  It's also possible to
+display information about submodules directly in the status buffer of
+the super-repository by adding ~magit-insert-submodules~ to the hook
+~magit-status-sections-hook~.
+
 - Command: magit-list-submodules
 
-  This command displays of the current repository's submodules.
+  This command displays a list of the current repository's submodules
+  in a separate buffer.
 
   It can be invoked by pressing ~RET~ on the section titled "Modules".
+
+- User Option: magit-submodule-list-columns
+
+  This option controls what columns are displayed by the command
+  ~magit-list-submodules~ and how they are displayed.
+
+  Each element has the form ~(HEADER WIDTH FORMAT PROPS)~.
+
+  HEADER is the string displayed in the header.  WIDTH is the width of
+  the column.  FORMAT is a function that is called with one argument,
+  the repository identification (usually its basename), and with
+  ~default-directory~ bound to the toplevel of its working tree.  It
+  has to return a string to be inserted or nil.  PROPS is an alist
+  that supports the keys ~:right-align~ and ~:pad-right~.
+
+- Function: magit-insert-submodules
+
+  Insert sections for all submodules.  For each section insert the
+  path, the branch, and the output of ~git describe --tags~.
+
+  Press ~RET~ on such a submodule section to show its own status buffer.
+  Press ~RET~ on the "Modules" section to display a list of submodules
+  in a separate buffer.  This shows additional information not
+  displayed in the super-repository's status buffer.
+
+*** Submodule popup
 
 - Key: o, magit-submodule-popup
 
