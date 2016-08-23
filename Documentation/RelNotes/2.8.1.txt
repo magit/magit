@@ -1,0 +1,8 @@
+Magit v2.8.1 Release Notes (draft)
+==================================
+
+Fixes since v2.8.0
+------------------
+
+Authors
+-------
