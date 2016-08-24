@@ -6,5 +6,9 @@ Fixes since v2.8.0
 
 * Command `magit-list-repositories' failed on empty git repositories.
 
+* The Git variable `pull.rebase' was ignored when determining whether
+  the current branch is being rebased onto its upstream in order to
+  display that information in the status buffer.
+
 Authors
 -------
