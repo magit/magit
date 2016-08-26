@@ -69,6 +69,7 @@ magit-autoloads.el: $(ELS)
 	@printf ";;; Code:\n" >> $@ >> $@
 	@printf "(add-to-list 'load-path (directory-file-name (or (file-name-directory #$$) (car load-path))))\n" >> $@
 	@printf "\n" >> $@
+	@printf "(provide 'magit-autoloads)\n" >> $@
 	@printf ";; Local Variables:\n" >> $@
 	@printf ";; version-control: never\n" >> $@
 	@printf ";; no-byte-compile: t\n" >> $@
