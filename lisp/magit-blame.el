@@ -197,8 +197,8 @@ and then turned on again when turning off the latter."
   :man-page "git-blame"
   :switches '((?w "Ignore whitespace" "-w")
               (?r "Do not treat root commits as boundaries" "--root"))
-  :options  '((?C "Detect lines moved or copied within a file" "-C")
-              (?M "Detect lines moved or copied between files" "-M"))
+  :options  '((?C "Detect lines moved or copied between files" "-C")
+              (?M "Detect lines moved or copied within a file" "-M"))
   :actions  '((?b "Blame" magit-blame))
   :default-arguments '("-w")
   :default-action 'magit-blame)
