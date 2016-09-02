@@ -10,5 +10,8 @@ Fixes since v2.8.0
   the current branch is being rebased onto its upstream in order to
   display that information in the status buffer.
 
+* When `--force-with-lease' was added to the `magit-push-popup',
+  `--force' was removed, but sometimes the former just isn't enough.
+
 Authors
 -------

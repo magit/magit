@@ -426,9 +426,10 @@ removed after restarting Emacs."
   "Popup console for push commands."
   'magit-commands
   :man-page "git-push"
-  :switches `((?f "Force"         "--force-with-lease")
-              (?h "Disable hooks" "--no-verify")
-              (?d "Dry run"       "--dry-run")
+  :switches `((?f "Force with lease" "--force-with-lease")
+              (?F "Force"            "--force")
+              (?h "Disable hooks"    "--no-verify")
+              (?d "Dry run"          "--dry-run")
               ,@(and (not magit-push-current-set-remote-if-missing)
                      '((?u "Set upstream"  "--set-upstream"))))
   :actions '("Configure"
