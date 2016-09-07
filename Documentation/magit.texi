@@ -1432,9 +1432,9 @@ Cycle the visibility of current section and its children.
 
 Cycle the visibility of diff-related sections in the current buffer.
 
-@kindex s-<tab>
+@kindex S-<tab>
 @cindex magit-section-cycle-global
-@item @kbd{s-<tab>} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-cycle-global})
+@item @kbd{S-<tab>} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-cycle-global})
 
 Cycle the visibility of all sections in the current buffer.
 @end table

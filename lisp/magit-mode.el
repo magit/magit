@@ -288,6 +288,8 @@ starts complicating other things, then it will be removed."
     (define-key map "\t"    'magit-section-toggle)
     (define-key map [C-tab] 'magit-section-cycle)
     (define-key map [M-tab] 'magit-section-cycle-diffs)
+    (define-key map [S-tab] 'magit-section-cycle-global)
+    ;; Next two are for backward compatibility.
     (define-key map [s-tab] 'magit-section-cycle-global)
     (define-key map [backtab] 'magit-section-cycle-global)
     (define-key map "^"    'magit-section-up)

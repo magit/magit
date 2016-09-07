@@ -1017,7 +1017,7 @@ but all you need to get started are the next two.
 
   Cycle the visibility of diff-related sections in the current buffer.
 
-- Key: s-<tab>, magit-section-cycle-global
+- Key: S-<tab>, magit-section-cycle-global
 
   Cycle the visibility of all sections in the current buffer.
 
