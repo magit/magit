@@ -2626,7 +2626,6 @@ Currently this only adds the following key bindings.
              (?c "Committing"      magit-commit-popup)
              (?d "Diffing"         magit-diff-popup)
              (?D "Change diffs"    magit-diff-refresh-popup)
-             (?e "Ediff dwimming"  magit-ediff-dwim)
              (?E "Ediffing"        magit-ediff-popup)
              (?f "Fetching"        magit-fetch-popup)
              (?F "Pulling"         magit-pull-popup)
