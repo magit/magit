@@ -32,7 +32,7 @@
   <img width="16" height="16" src="https://assets-cdn.github.com/images/icons/emoji/unicode/2764.png">
   <b>
     Please consider supporting development by
-    <a href="https://magit.vc/donations.html">making a donation</a>.
+    <a href="https://magit.vc/donations/">making a donation</a>.
   </b>
   <img width="16" height="16" src="https://assets-cdn.github.com/images/icons/emoji/unicode/2764.png">
   <br>
