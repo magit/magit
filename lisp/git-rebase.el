@@ -128,7 +128,7 @@
     (define-key map (kbd "q")    'undefined)
     (define-key map [remap undo] 'git-rebase-undo)
     (define-key map (kbd "RET") 'git-rebase-show-commit)
-    (define-key map (kbd "SPC") 'magit-diff-show-or-scroll-up)
+    (define-key map (kbd "SPC") 'git-rebase-show-or-scroll-up)
     (define-key map (kbd "x")   'git-rebase-exec)
     (define-key map (kbd "c")   'git-rebase-pick)
     (define-key map (kbd "r")   'git-rebase-reword)
@@ -351,15 +351,26 @@ Like `undo' but works in read-only buffers."
   (let ((inhibit-read-only t))
     (undo arg)))
 
+(defun git-rebase--show-commit (&optional scroll)
+  (let ((disable-magit-save-buffers t))
+    (save-excursion
+      (goto-char (line-beginning-position))
+      (--if-let (and (looking-at git-rebase-line)
+                     (match-string 2))
+          (if scroll
+              (magit-diff-show-or-scroll-up)
+            (apply #'magit-show-commit it (magit-diff-arguments)))
+        (ding)))))
+
 (defun git-rebase-show-commit ()
   "Show the commit on the current line if any."
   (interactive)
-  (save-excursion
-    (goto-char (line-beginning-position))
-    (--if-let (and (looking-at git-rebase-line)
-                   (match-string 2))
-        (apply #'magit-show-commit it (magit-diff-arguments))
-      (ding))))
+  (git-rebase--show-commit))
+
+(defun git-rebase-show-or-scroll-up ()
+  "Update the commit buffer for commit on current line."
+  (interactive)
+  (git-rebase--show-commit t))
 
 (defun git-rebase-backward-line (&optional n)
   "Move N lines backward (forward if N is negative).
