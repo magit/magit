@@ -546,6 +546,7 @@ usually specified in that order):
        (defun ,name (&optional arg) ,doc
          (interactive "P")
          (magit-invoke-popup ',name ,mode arg))
+       (makunbound ',name)
        (defvar ,name
          (list :variable ',opt ,@args))
        (magit-define-popup-keys-deferred ',name)
