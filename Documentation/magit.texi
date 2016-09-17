@@ -4969,7 +4969,7 @@ Take the red pill.
 >>>>>>> feature
 @end example
 
-In this case you have chosen to take the red pill on one bracnh and on
+In this case you have chosen to take the red pill on one branch and on
 another you picked the blue pill.  Now that you are merging these two
 diverging branches, Git cannot possibly know which pill you want to
 take.
