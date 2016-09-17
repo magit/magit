@@ -3645,7 +3645,7 @@ versions, e.g.:
   >>>>>>> feature
 #+END_SRC
 
-In this case you have chosen to take the red pill on one bracnh and on
+In this case you have chosen to take the red pill on one branch and on
 another you picked the blue pill.  Now that you are merging these two
 diverging branches, Git cannot possibly know which pill you want to
 take.
@@ -4272,7 +4272,7 @@ Also see [[info:gitman#git-stash]].
   Create a patch from STASH.
 
 - Key: k, magit-stash-clear
-  
+
   Remove all stashes saved in REF's reflog by deleting REF.
 
 * Transferring
@@ -6344,7 +6344,7 @@ help:
   (with-eval-after-load 'pointback
     (lambda ()
       (when (or git-commit-mode git-rebase-mode)
-	(pointback-mode -1))))
+        (pointback-mode -1))))
 #+END_SRC
 
 ** The mode-line information isn't always up-to-date
