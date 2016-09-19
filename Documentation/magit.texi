@@ -7372,6 +7372,10 @@ packages, without having to depend on Magit.  These libraries are
 described in separate manuals, see @ref{Top,,,with-editor,} and
 @ref{Top,,,magit-popup,}.
 
+If you are trying to find an unused key that you can bound to a
+command provided by your own Magit extension, then checkout
+@uref{https://github.com/magit/magit/wiki/Plugin-Dispatch-Key-Registry}.
+
 @menu
 * Calling Git::
 * Section plumbing::
