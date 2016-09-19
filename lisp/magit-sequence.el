@@ -171,7 +171,8 @@ without prompting."
   'magit-commands
   :man-page "git-revert"
   :switches '((?s "Add Signed-off-by lines" "--signoff"))
-  :options  '((?s "Strategy" "--strategy="))
+  :options  '((?s "Strategy"       "--strategy=")
+              (?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
   :actions  '((?V "Revert commit(s)" magit-revert)
               (?v "Revert changes"   magit-revert-no-commit))
   :sequence-actions '((?V "Continue" magit-sequencer-continue)

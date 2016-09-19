@@ -1,6 +1,12 @@
 Magit v2.8.1 Release Notes (draft)
 ==================================
 
+Changes since v2.6.1
+--------------------
+
+* The `--gpg-sign=' option is now also available from the revert
+  popup.
+
 Fixes since v2.8.0
 ------------------
 
