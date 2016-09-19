@@ -2097,11 +2097,11 @@ are highlighted."
       (when magit-diff-unmarked-lines-keep-foreground
         (setq face (list :background (face-attribute face :background))))
       (cl-flet ((ov (start end &rest args)
-                  (let ((ov (make-overlay start end nil t)))
-                    (overlay-put ov 'evaporate t)
-                    (while args (overlay-put ov (pop args) (pop args)))
-                    (push ov magit-region-overlays)
-                    ov)))
+                    (let ((ov (make-overlay start end nil t)))
+                      (overlay-put ov 'evaporate t)
+                      (while args (overlay-put ov (pop args) (pop args)))
+                      (push ov magit-region-overlays)
+                      ov)))
         (ov sbeg cbeg 'face 'magit-diff-lines-heading
             'display (concat (magit-diff-hunk-region-header section) "\n"))
         (ov cbeg rbeg 'face face 'priority 2)
