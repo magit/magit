@@ -62,12 +62,14 @@ Contributors
 - Bart Bakker <bart@thesoftwarecraft.com>
 - Basil L. Contovounesios <contovob@tcd.ie>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
+- bb2020 <bb2020@users.noreply.github.com>
 - Ben Walton <bwalton@artsci.utoronto.ca>
 - Bradley Wright <brad@intranation.com>
 - Brandon W Maister <quodlibetor@gmail.com>
 - Brian Warner <warner@lothar.com>
 - Bryan Shell <bryan.shell@orbitz.com>
 - Carl Lieberman <liebermancarl@gmail.com>
+- Chillar Anand <anand21nanda@gmail.com>
 - Chris Bernard <cebernard@gmail.com>
 - Chris Done <chrisdone@gmail.com>
 - Chris Moore <dooglus@gmail.com>
@@ -211,6 +213,7 @@ Contributors
 - Samuel Bronson <naesten@gmail.com>
 - Samuel W. Flint <swflint@flintfam.org>
 - Sanjoy Das <sanjoy@playingwithpointers.com>
+- Sean Allred <code@seanallred.com>
 - Sean Bryant <sbryant@hackinggibsons.com>
 - Sebastian Wiesner <lunaryorn@gmail.com>
 - Sébastien Gross <seb@chezwam.org>
