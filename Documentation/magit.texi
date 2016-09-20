@@ -5820,9 +5820,9 @@ Try to preserve the stash index.  If that fails because there are
 staged changes, apply without preserving the stash index and forgo
 removing the stash.
 
-@kindex z d
+@kindex z k
 @cindex magit-stash-drop
-@item @kbd{z d} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-drop})
+@item @kbd{z k} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-drop})
 
 Remove a stash from the stash list.  When the region is active, offer
 to drop all contained stashes.

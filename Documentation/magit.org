@@ -4250,7 +4250,7 @@ Also see [[info:gitman#git-stash]].
   staged changes, apply without preserving the stash index and forgo
   removing the stash.
 
-- Key: z d, magit-stash-drop
+- Key: z k, magit-stash-drop
 
   Remove a stash from the stash list.  When the region is active, offer
   to drop all contained stashes.
