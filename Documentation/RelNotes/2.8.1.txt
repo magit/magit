@@ -19,5 +19,8 @@ Fixes since v2.8.0
 * When `--force-with-lease' was added to the `magit-push-popup',
   `--force' was removed, but sometimes the former just isn't enough.
 
+* On 32bit systems `magit-format-log-margin' failed because it tried
+  to truncate a time float that was to large for that.  #2765
+
 Authors
 -------

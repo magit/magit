@@ -1030,8 +1030,8 @@ Do not add this to a hook variable."
                                   'face 'magit-log-author)
                       " "))
          (propertize (magit-format-duration
-                      (abs (truncate (- (float-time)
-                                        (string-to-number date))))
+                      (abs (- (float-time)
+                              (string-to-number date)))
                       (symbol-value duration-spec)
                       unit-width)
                      'face 'magit-log-date)
