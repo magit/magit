@@ -2082,8 +2082,14 @@ are highlighted."
 
 (defun magit-diff-update-hunk-region (section)
   (when (and (eq (magit-diff-scope section t) 'region)
-             (not (and (eq this-command 'mouse-drag-region)
-                       (eq (mark) (point)))))
+             (not (and (if (version< emacs-version "25.1")
+                           (eq this-command 'mouse-drag-region)
+                         (or (eq last-command 'mouse-drag-region)
+                             ;; When another window was previously
+                             ;; selected then the last-command is
+                             ;; a byte-code function.
+                             (byte-code-function-p last-command)))
+                       (eq (region-end) (region-beginning)))))
     (let ((sbeg (magit-section-start section))
           (cbeg (magit-section-content section))
           (rbeg (save-excursion (goto-char (region-beginning))
