@@ -46,7 +46,7 @@ If you run Magit from its Git repository, then you can do so using:
 If you installed Magit from Melpa, then run commands similar to the ones below, but use tab completion to replace the various Ns with the correct versions:
 
   $ cd ~/.emacs.d/elpa/magit-N
-  $ emacs -Q --debug-init --eval '(setq debug-on-error t)' -L ../dash-N -L with-editor-N -L lisp -l magit
+  $ emacs -Q --debug-init --eval '(setq debug-on-error t)' -L ../dash-N -L ../git-commit-N -L ../magit-popup-N -L ../with-editor-N -L . -l magit
 
 
 ---- now delete this line and everything above ----
