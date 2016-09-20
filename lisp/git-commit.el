@@ -617,6 +617,11 @@ With a numeric prefix ARG, go forward ARG comments."
    ;; Non-empty non-comment second line
    (format "\\(?:\n%s\\|\n\\(.+\\)\\)?" comment-start)))
 
+;; These are let-bound while `font-lock-extend-region-functions' are
+;; run.
+(defvar font-lock-beg)
+(defvar font-lock-end)
+
 (defun git-commit-extend-region-summary-line ()
   "Identify the multiline summary-regexp construct.
 Added to `font-lock-extend-region-functions'."
