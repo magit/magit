@@ -1040,10 +1040,10 @@ current section, the one point is in.
 
 When the region looks like it would in any other buffer then
 the selection is invalid.  When the selection is valid then the
-region uses the `magit-section-highlight'.  This does not apply
-to diffs were things get a bit more complicated, but even here
-if the region looks like it usually does, then that's not a
-valid selection as far as this function is concerned.
+region uses the `magit-section-highlight' face.  This does not
+apply to diffs were things get a bit more complicated, but even
+here if the region looks like it usually does, then that's not
+a valid selection as far as this function is concerned.
 
 If optional TYPES is non-nil then the selection not only has to
 be valid; the types of all selected sections additionally have to
