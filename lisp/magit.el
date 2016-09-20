@@ -3191,7 +3191,14 @@ Git, and Emacs in the echo area."
                   (setq magit-version
                         (and (fboundp 'package-desc-version)
                              (package-version-join
-                              (package-desc-version (cadr it)))))))))))
+                              (package-desc-version (cadr it))))))))
+            (progn
+              (push 'debug debug)
+              (let ((dirname (file-name-nondirectory
+                              (directory-file-name topdir))))
+                (when (string-match "\\`magit-\\([0-9]\\{8\\}\\.[0-9]*\\)"
+                                    dirname)
+                  (setq magit-version (match-string 1 dirname))))))))
     (if (stringp magit-version)
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s, %s"
