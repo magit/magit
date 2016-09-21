@@ -4,6 +4,8 @@ Magit v2.8.1 Release Notes (draft)
 Changes since v2.8.0
 --------------------
 
+* The environment variable `INSIDE_EMACS' is now set when calling git.
+
 * The `--gpg-sign=' option is now also available from the revert
   popup.
 
