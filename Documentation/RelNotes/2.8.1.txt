@@ -27,5 +27,9 @@ Fixes since v2.8.0
 * On Emacs v25.1 the hunk internal region flashed briefly on
   mouse-down-1 events.  #2758
 
+* The caching mechanism that was supposed to ensure that sections of
+  unpulled and unpushed remain collapsed even when they disappear for
+  a while was broken.
+
 Authors
 -------

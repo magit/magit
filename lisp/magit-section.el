@@ -330,7 +330,9 @@ With a prefix argument also expand it." heading)
         (remove-overlays beg end 'invisible t)
         (let ((o (make-overlay beg end)))
           (overlay-put o 'evaporate t)
-          (overlay-put o 'invisible t))))))
+          (overlay-put o 'invisible t))))
+    (when (memq (magit-section-type section) '(unpulled unpushed))
+      (magit-section-cache-visibility section))))
 
 (defun magit-section-toggle (section)
   "Toggle visibility of the body of the current section."
