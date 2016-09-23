@@ -2199,7 +2199,7 @@ If DEFAULT is non-nil, use this as the default value instead of
      (list (read-directory-name (format "Checkout %s in new worktree: " branch))
            branch)))
   "Checkout BRANCH in a new worktree at PATH."
-  (magit-run-git "worktree" "add" path branch)
+  (magit-run-git "worktree" "add" (expand-file-name path) branch)
   (magit-diff-visit-directory path))
 
 ;;;###autoload
@@ -2209,7 +2209,8 @@ If DEFAULT is non-nil, use this as the default value instead of
    `(,(read-directory-name "Create worktree: ")
      ,@(butlast (magit-branch-read-args "Create and checkout branch"))
      ,current-prefix-arg))
-  (magit-run-git "worktree" "add" (if force "-B" "-b") branch path start-point)
+  (magit-run-git "worktree" "add" (if force "-B" "-b")
+                 branch (expand-file-name path) start-point)
   (magit-diff-visit-directory path))
 
 (defun magit-worktree-delete (worktree)
