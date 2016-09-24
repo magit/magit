@@ -2076,7 +2076,15 @@ are highlighted."
       (recurse magit-root-section))))
 
 
-;;; Highlight Region
+;;; Hunk Region
+
+(defun magit-diff-hunk-region-beginning ()
+  (save-excursion (goto-char (region-beginning))
+                  (line-beginning-position)))
+
+(defun magit-diff-hunk-region-end ()
+  (save-excursion (goto-char (region-end))
+                  (line-end-position)))
 
 (defvar magit-diff-unmarked-lines-keep-foreground t)
 
@@ -2092,10 +2100,8 @@ are highlighted."
                        (eq (region-end) (region-beginning)))))
     (let ((sbeg (magit-section-start section))
           (cbeg (magit-section-content section))
-          (rbeg (save-excursion (goto-char (region-beginning))
-                                (line-beginning-position)))
-          (rend (save-excursion (goto-char (region-end))
-                                (line-end-position)))
+          (rbeg (magit-diff-hunk-region-beginning))
+          (rend (magit-diff-hunk-region-end))
           (send (magit-section-end section))
           (face (if magit-diff-highlight-hunk-body
                     'magit-diff-context-highlight
@@ -2138,9 +2144,7 @@ are highlighted."
 (defun magit-diff-hunk-region-patch (section &optional args)
   (let ((op (if (member "--reverse" args) "+" "-"))
         (sbeg (magit-section-start section))
-        (rbeg (save-excursion
-                (goto-char (region-beginning))
-                (line-beginning-position)))
+        (rbeg (magit-diff-hunk-region-beginning))
         (rend (region-end))
         (send (magit-section-end section))
         (patch nil))
