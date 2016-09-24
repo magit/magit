@@ -105,9 +105,7 @@
   :group 'faces
   :group 'git-rebase)
 
-(defface git-rebase-hash
-  '((((class color) (background light)) :foreground "grey60")
-    (((class color) (background  dark)) :foreground "grey40"))
+(defface git-rebase-hash '((t (:inherit magit-hash)))
   "Face for commit hashes."
   :group 'git-rebase-faces)
 
