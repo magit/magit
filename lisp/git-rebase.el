@@ -170,8 +170,8 @@
 (defvar git-rebase-command-descriptions
   '((with-editor-finish        . "tell Git to make it happen")
     (with-editor-cancel        . "tell Git that you changed your mind, i.e. abort")
-    (previous-line             . "move point to previous line")
-    (next-line                 . "move point to next line")
+    (git-rebase-backward-line  . "move point to previous line")
+    (forward-line              . "move point to next line")
     (git-rebase-move-line-up   . "move the commit at point up")
     (git-rebase-move-line-down . "move the commit at point down")
     (git-rebase-show-commit    . "show the commit at point in another buffer")
