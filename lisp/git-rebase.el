@@ -118,6 +118,16 @@
   "Face for commented action and exec lines."
   :group 'git-rebase-faces)
 
+(defface git-rebase-comment-hash
+  '((t (:inherit git-rebase-hash :weight bold)))
+  "Face for commit hashes in commit message comments."
+  :group 'git-rebase-faces)
+
+(defface git-rebase-comment-heading
+  '((t :inherit font-lock-keyword-face))
+  "Face used for headings in rebase message comments."
+  :group 'git-commit-faces)
+
 ;;; Keymaps
 
 (defvar git-rebase-mode-map
@@ -393,7 +403,7 @@ running 'man git-rebase' at the command line) for details."
         (concat "^\\(" (regexp-quote comment-start) "?"
                 "\\(?:[fprse]\\|pick\\|reword\\|edit\\|squash\\|fixup\\|exec\\)\\) "
                 "\\(?:\\([^ \n]+\\) \\(.*\\)\\)?"))
-  (setq font-lock-defaults '(git-rebase-mode-font-lock-keywords t t))
+  (setq font-lock-defaults (list (git-rebase-mode-font-lock-keywords) t t))
   (unless git-rebase-show-instructions
     (let ((inhibit-read-only t))
       (flush-lines git-rebase-comment-re)))
@@ -425,7 +435,8 @@ running 'man git-rebase' at the command line) for details."
 (defun git-rebase-match-killed-action (limit)
   (re-search-forward (concat git-rebase-comment-re "[^ \n].*") limit t))
 
-(defconst git-rebase-mode-font-lock-keywords
+(defun git-rebase-mode-font-lock-keywords ()
+  "Font lock keywords for Git-Rebase mode."
   `(("^\\([efprs]\\|pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ \n]+\\) \\(.*\\)"
      (1 'font-lock-keyword-face)
      (2 'git-rebase-hash)
@@ -434,8 +445,12 @@ running 'man git-rebase' at the command line) for details."
      (1 'font-lock-keyword-face)
      (2 'git-rebase-description))
     (git-rebase-match-comment-line 0 'font-lock-comment-face)
-    (git-rebase-match-killed-action 0 'git-rebase-killed-action t))
-  "Font lock keywords for Git-Rebase mode.")
+    (git-rebase-match-killed-action 0 'git-rebase-killed-action t)
+    (,(format "^%s Rebase \\([^ ]*\\) onto \\([^ ]*\\)" comment-start)
+     (1 'git-rebase-comment-hash t)
+     (2 'git-rebase-comment-hash t))
+    (,(format "^%s \\(Commands:\\)" comment-start)
+     (1 'git-rebase-comment-heading t))))
 
 (defun git-rebase-mode-show-keybindings ()
   "Modify the \"Commands:\" section of the comment Git generates
