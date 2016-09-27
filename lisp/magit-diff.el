@@ -1026,10 +1026,12 @@ which, as the name suggests always visits the actual file."
       (magit-display-file-buffer buffer)
       (with-current-buffer buffer
         (when line
-          (goto-char (point-min))
-          (forward-line (1- line))
-          (when col
-            (move-to-column col)))
+          (save-restriction
+            (widen)
+            (goto-char (point-min))
+            (forward-line (1- line))
+            (when col
+              (move-to-column col))))
         (when unmerged-p
           (smerge-start-session))
         (run-hooks 'magit-diff-visit-file-hook)))))
