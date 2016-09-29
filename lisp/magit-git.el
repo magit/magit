@@ -96,7 +96,9 @@
   :type 'string)
 
 (defcustom magit-git-global-arguments
-  '("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true")
+  `("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true"
+    ,@(and (eq system-type 'windows-nt)
+           (list "-c" "i18n.logOutputEncoding=UTF-8")))
   "Global git arguments.
 
 The arguments set here are used every time the git executable is
@@ -110,12 +112,10 @@ anything that is part of the default value, unless you really
 know what you are doing.  And think very hard before adding
 something; it will be used every time Magit runs Git for any
 purpose."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.9.0")
   :group 'magit
+  :group 'magit-process
   :type '(repeat string))
-
-(define-obsolete-variable-alias 'magit-git-standard-options
-  'magit-git-global-arguments "2.1.0")
 
 (defcustom magit-git-debug nil
   "Whether to enable additional reporting of git errors.
@@ -1487,6 +1487,8 @@ Return a list of two integers: (A>B B>A)."
 
 ;;; magit-git.el ends soon
 
+(define-obsolete-variable-alias 'magit-git-standard-options
+  'magit-git-global-arguments "Magit 2.1.0")
 (define-obsolete-function-alias 'magit-get-tracked-ref
   'magit-get-upstream-ref "Magit 2.4.0")
 (define-obsolete-function-alias 'magit-get-tracked-branch
