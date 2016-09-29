@@ -1400,9 +1400,7 @@ changes.
 \n(git branch [ARGS] BRANCH START-POINT)."
   (interactive (magit-branch-read-args "Create branch"))
   (magit-call-git "branch" args branch start-point)
-  (--when-let (and (magit-get-upstream-branch branch)
-                   (magit-get-indirect-upstream-branch start-point))
-    (magit-call-git "branch" (concat "--set-upstream-to=" it) branch))
+  (magit-branch-maybe-adjust-upstream branch start-point)
   (magit-refresh))
 
 ;;;###autoload
@@ -1413,10 +1411,14 @@ changes.
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
     (magit-call-git "checkout" args "-b" branch start-point)
-    (--when-let (and (magit-get-upstream-branch branch)
-                     (magit-get-indirect-upstream-branch start-point))
-      (magit-call-git "branch" (concat "--set-upstream-to=" it) branch))
+    (magit-branch-maybe-adjust-upstream branch start-point)
     (magit-refresh)))
+
+(defun magit-branch-maybe-adjust-upstream (branch start-point)
+  (--when-let
+      (and (magit-get-upstream-branch branch)
+           (magit-get-indirect-upstream-branch start-point))
+    (magit-call-git "branch" (concat "--set-upstream-to=" it) branch)))
 
 ;;;###autoload
 (defun magit-branch-orphan (branch start-point &optional args)
