@@ -278,6 +278,53 @@ prefer the former, then you should add branches such as \"master\",
   :group 'magit-commands
   :type '(repeat string))
 
+(defcustom magit-branch-adjust-remote-upstream-alist nil
+  "Alist of upstreams to be used when branching from remote branches.
+
+When creating a local branch from an ephemeral branch located
+on a remote, e.g. a feature or hotfix branch, then that remote
+branch should usually not be used as the upstream branch, since
+the push-remote already allows accessing it and having both the
+upstream and the push-remote reference the same related branch
+would be wasteful.  Instead a branch like \"maint\" or \"master\"
+should be used as the upstream.
+
+This option allows specifing the branch that should be used as
+the upstream when branching certain remote branches.  The value
+is an alist of the form ((UPSTREAM . RULE)...).  The first
+matching element is used, the following elements are ignored.
+
+UPSTREAM is the branch to be used as the upstream for branches
+specified by RULE.  It can be a local or a remote branch.
+
+RULE can either be a regular expression, matching branches whose
+upstream should be the one specified by UPSTREAM.  Or it can be
+a list of the only branches that should *not* use UPSTREAM; all
+other branches will.  Matching is done after stripping the remote
+part of the name of the branch that is being branched from.
+
+If you use a finite set of non-ephemeral branches across all your
+repositories, then you might use something like:
+
+  ((\"origin/master\" \"master\" \"next\" \"maint\"))
+
+Or if the names of all your ephemeral branches contain a slash,
+at least in some repositories, then a good value could be:
+
+  ((\"origin/master\" . \"/\"))
+
+Of course you can also fine-tune:
+
+  ((\"origin/maint\" . \"\\`hotfix/\")
+   (\"origin/master\" . \"\\`feature/\"))"
+  :package-version '(magit . "2.9.0")
+  :group 'magit-commands
+  :type '(repeat (cons (string :tag "Use upstream")
+                       (choice :tag "for branches"
+                               (regexp :tag "matching")
+                               (repeat :tag "except"
+                                       (string :tag "branch"))))))
+
 (defcustom magit-branch-popup-show-variables t
   "Whether the `magit-branch-popup' shows Git variables.
 This defaults to t to avoid changing key bindings.  When set to
@@ -1416,8 +1463,14 @@ changes.
 
 (defun magit-branch-maybe-adjust-upstream (branch start-point)
   (--when-let
-      (and (magit-get-upstream-branch branch)
-           (magit-get-indirect-upstream-branch start-point))
+      (or (and (magit-get-upstream-branch branch)
+               (magit-get-indirect-upstream-branch start-point))
+          (and (magit-remote-branch-p start-point)
+               (let ((name (cdr (magit-split-branch-name start-point))))
+                 (car (--first (if (listp (cdr it))
+                                   (not (member name (cdr it)))
+                                 (string-match-p (cdr it) name))
+                               magit-branch-adjust-remote-upstream-alist)))))
     (magit-call-git "branch" (concat "--set-upstream-to=" it) branch)))
 
 ;;;###autoload
