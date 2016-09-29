@@ -1538,7 +1538,11 @@ By default the following functions are also members of that hook:
 - Function: magit-insert-untracked-files
 
   Maybe insert a list or tree of untracked files.
-  Do so depending on the value of ~status.showUntrackedFiles~.
+
+  Do so depending on the value of ~status.showUntrackedFiles~.  Note
+  that even if the value is ~all~, Magit still initially only shows
+  directories.  But the directory sections can then be expanded using
+  ~TAB~.
 
 - Function: magit-insert-unstaged-changes
 

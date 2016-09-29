@@ -719,7 +719,10 @@ detached `HEAD'."
 
 (defun magit-insert-untracked-files ()
   "Maybe insert a list or tree of untracked files.
-Do so depending on the value of `status.showUntrackedFiles'."
+Do so depending on the value of `status.showUntrackedFiles'.
+Note that even if the value is `all', Magit still initially only
+shows directories.  But the directory sections can then be expanded
+using \"TAB\"."
   (let ((show (or (magit-get "status.showUntrackedFiles") "normal")))
     (unless (equal show "no")
       (if (equal show "all")
