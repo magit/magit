@@ -345,6 +345,8 @@ usually honor this wish and return non-nil."
 (eval-after-load 'recentf
   '(add-to-list 'recentf-exclude git-commit-filename-regexp))
 
+(add-to-list 'with-editor-file-name-history-exclude git-commit-filename-regexp)
+
 (defun git-commit-setup-font-lock-in-buffer ()
   (and buffer-file-name
        (string-match-p git-commit-filename-regexp buffer-file-name)
