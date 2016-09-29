@@ -2091,15 +2091,18 @@ are highlighted."
 (defvar magit-diff-unmarked-lines-keep-foreground t)
 
 (defun magit-diff-update-hunk-region (section)
-  (when (and (eq (magit-diff-scope section t) 'region)
-             (not (and (if (version< emacs-version "25.1")
-                           (eq this-command 'mouse-drag-region)
-                         (or (eq last-command 'mouse-drag-region)
-                             ;; When another window was previously
-                             ;; selected then the last-command is
-                             ;; a byte-code function.
-                             (byte-code-function-p last-command)))
-                       (eq (region-end) (region-beginning)))))
+  (when (eq (magit-diff-scope section t) 'region)
+    (if (version< emacs-version "25.1")
+        (magit-diff-update-hunk-region-v24 section)
+      (magit-diff-update-hunk-region-v25 section))))
+
+(defun magit-diff-update-hunk-region-v24 (section)
+  (unless (and (eq this-command 'mouse-drag-region)
+               (eq (region-end) (region-beginning)))
+    ;; Implement delimiting horizontal lines as single-pixel newlines.
+    ;; Although creating overlays containing newlines is discouraged,
+    ;; this version turns out to be less glitchy on Emacs 24 than the
+    ;; other method.
     (let ((sbeg (magit-section-start section))
           (cbeg (magit-section-content section))
           (rbeg (magit-diff-hunk-region-beginning))
@@ -2128,6 +2131,64 @@ are highlighted."
               (propertize (concat (propertize "\s" 'display '(space :height (1)))
                                   (propertize "\n" 'line-height t))
                           'face 'magit-diff-lines-boundary)))
+        (ov (1+ rend) send 'face face 'priority 2)))))
+
+(defun magit-diff-update-hunk-region-v25 (section)
+  (unless (and (or (eq last-command 'mouse-drag-region)
+                   ;; When another window was previously
+                   ;; selected then the last-command is
+                   ;; a byte-code function.
+                   (byte-code-function-p last-command))
+               (eq (region-end) (region-beginning)))
+    ;; Implement delimiting horizontal lines by over and underlining
+    ;; the first and last (visual) lines of the region.  In Emacs 24,
+    ;; using this method causes `move-end-of-line' to jump to the next
+    ;; line, so we only use it in Emacs 25 where that glitch was fixed
+    ;; (see https://github.com/magit/magit/pull/2293 for more
+    ;; details).
+    (let ((sbeg (magit-section-start section))
+          (cbeg (magit-section-content section))
+          (rbeg (save-excursion (goto-char (region-beginning))
+                                (line-beginning-position)))
+          (rend (save-excursion (goto-char (region-end))
+                                (line-end-position)))
+          (send (magit-section-end section))
+          (face (if magit-diff-highlight-hunk-body
+                    'magit-diff-context-highlight
+                  'magit-diff-context))
+          ;; We extend the under/overlining to the edge of the window.
+          (align (list 'space :align-to `(+ (,(window-body-width nil t))
+                                            ,(window-hscroll)))))
+      (when magit-diff-unmarked-lines-keep-foreground
+        (setq face (list :background (face-attribute face :background))))
+      (cl-flet* ((ov (start end &rest args)
+                     (let ((ov (make-overlay start end nil t)))
+                       (overlay-put ov 'evaporate t)
+                       (while args (overlay-put ov (pop args) (pop args)))
+                       (push ov magit-region-overlays)
+                       ov))
+                 (ln (start end &rest face)
+                     (ov start end 'face face 'after-string
+                         ;; The `cursor' property prevents the cursor
+                         ;; from being rendered at the edge of window.
+                         (propertize "\s" 'face face 'display align 'cursor t))))
+        (ov sbeg (1- cbeg) 'face 'magit-diff-lines-heading
+            'display (magit-diff-hunk-region-header section)
+            'after-string (propertize "\s" 'face 'magit-diff-lines-heading
+                                      'display align))
+        (ov cbeg rbeg 'face face 'priority 2)
+        (when (and (window-system) magit-diff-show-lines-boundary)
+          (let ((eol (save-excursion (goto-char rbeg)
+                                     (end-of-visual-line)
+                                     (point)))
+                (bol (save-excursion (goto-char rend)
+                                     (beginning-of-visual-line)
+                                     (point)))
+                (color (face-background 'magit-diff-lines-boundary nil t)))
+            (if (= rbeg bol)
+                (ln rbeg eol :overline color :underline color)
+              (ln rbeg eol :overline color)
+              (ln bol rend :underline color))))
         (ov (1+ rend) send 'face face 'priority 2)))))
 
 ;;; Diff Extract
