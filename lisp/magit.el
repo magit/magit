@@ -2597,6 +2597,56 @@ the current repository."
     (and (file-directory-p dir)
          (directory-files dir nil "^[^.]"))))
 
+;;;; Config Files
+
+(defun magit-find-git-config-file (filename &optional wildcards)
+  "Edit a located in the current repository's git directory.
+
+When \".git\", located at the root of the working tree, is a
+regular file, then that makes it cumbersome to open a file
+located in the actual git directory.
+
+This command is like `find-file', except that it temporarily
+binds `default-directory' to the actual git directory, while
+reading the FILENAME."
+  (interactive
+   (let ((default-directory (magit-git-dir)))
+     (find-file-read-args "Find file: "
+                          (confirm-nonexistent-file-or-buffer))))
+  (find-file filename wildcards))
+
+(defun magit-find-git-config-file-other-window (filename &optional wildcards)
+  "Edit a located in the current repository's git directory, in another window.
+
+When \".git\", located at the root of the working tree, is a
+regular file, then that makes it cumbersome to open a file
+located in the actual git directory.
+
+This command is like `find-file-other-window', except that it
+temporarily binds `default-directory' to the actual git
+directory, while reading the FILENAME."
+  (interactive
+   (let ((default-directory (magit-git-dir)))
+     (find-file-read-args "Find file in other window: "
+                          (confirm-nonexistent-file-or-buffer))))
+  (find-file-other-window filename wildcards))
+
+(defun magit-find-git-config-file-other-frame (filename &optional wildcards)
+  "Edit a located in the current repository's git directory, in another frame.
+
+When \".git\", located at the root of the working tree, is a
+regular file, then that makes it cumbersome to open a file
+located in the actual git directory.
+
+This command is like `find-file-other-frame', except that it
+temporarily binds `default-directory' to the actual git
+directory, while reading the FILENAME."
+  (interactive
+   (let ((default-directory (magit-git-dir)))
+     (find-file-read-args "Find file in other frame: "
+                          (confirm-nonexistent-file-or-buffer))))
+  (find-file-other-frame filename wildcards))
+
 ;;;; File Mode
 
 (defvar magit-file-mode-map

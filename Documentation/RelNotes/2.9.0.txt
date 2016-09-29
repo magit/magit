@@ -14,6 +14,10 @@ Changes since v2.8.0
   it to its upstream, when the region selects commits reachable from
   HEAD.
 
+* Added command `magit-find-git-config-file' and variants, to make it
+  easier to open a file located in the git directory, when ".git" is
+  a regular file.
+
 * The environment variable `INSIDE_EMACS' is now set when calling git.
 
 * The `--gpg-sign=' option is now also available from the revert
