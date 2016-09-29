@@ -1498,7 +1498,7 @@ changes.
     (list branch start args)))
 
 ;;;###autoload
-(defun magit-branch-spinoff (branch &rest args)
+(defun magit-branch-spinoff (branch &optional from &rest args)
   "Create new branch from the unpushed commits.
 
 Create and checkout a new branch starting at and tracking the
@@ -1514,18 +1514,42 @@ If the current branch is a member of the value of option
 `magit-branch-prefer-remote-upstream' (which see), then the
 current branch will be used as the starting point as usual, but
 the upstream of the starting-point may be used as the upstream
-of the new branch, instead of the starting-point itself."
+of the new branch, instead of the starting-point itself.
+
+If optional FROM is non-nil, then the source branch is reset to
+that commit, instead of to the last commit it shares with its
+upstream.  Interactively, FROM is non-nil, when the region
+selects some commits, and among those commits, FROM it is the
+commit that is the fewest commits ahead of the source branch.
+
+The commit at the other end of the selection actually does not
+matter, all commits between FROM and `HEAD' are moved to the new
+branch.  If FROM is not reachable from `HEAD' or is reachable
+from the source branch's upstream, then an error is raised."
   (interactive (list (magit-read-string "Spin off branch")
+                     (car (last (magit-region-values 'commit)))
                      (magit-branch-arguments)))
   (when (magit-branch-p branch)
-    (user-error "Branch %s already exists" branch))
+    (user-error "Cannot spin off %s.  It already exists" branch))
   (-if-let (current (magit-get-current-branch))
-      (let (tracked base)
+      (let ((tracked (magit-get-upstream-branch current))
+            base)
+        (when from
+          (unless (magit-rev-ancestor-p from current)
+            (user-error "Cannot spin off %s.  %s is not reachable from %s"
+                        branch from current))
+          (when (and tracked
+                     (magit-rev-ancestor-p from tracked))
+            (user-error "Cannot spin off %s.  %s is ancestor of upstream %s"
+                        branch from tracked)))
         (magit-call-git "checkout" args "-b" branch current)
         (--when-let (magit-get-indirect-upstream-branch current)
           (magit-call-git "branch" "--set-upstream-to" it branch))
-        (when (and (setq tracked (magit-get-upstream-branch current))
-                   (setq base (magit-git-string "merge-base" current tracked))
+        (when (and tracked
+                   (setq base
+                         (if from
+                             (concat from "^")
+                           (magit-git-string "merge-base" current tracked)))
                    (not (magit-rev-eq base current)))
           (magit-call-git "update-ref" "-m"
                           (format "reset: moving to %s" base)

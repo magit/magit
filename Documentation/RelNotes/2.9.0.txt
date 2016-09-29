@@ -9,6 +9,11 @@ Changes since v2.8.0
   setting this option the upstream ends up being the same branch as
   the one referred to by the push-remote.
 
+* The command `magit-branch-spinoff' learned to remove only a subset
+  of commits from the previously current branch, instead of resetting
+  it to its upstream, when the region selects commits reachable from
+  HEAD.
+
 * The environment variable `INSIDE_EMACS' is now set when calling git.
 
 * The `--gpg-sign=' option is now also available from the revert
