@@ -1069,6 +1069,10 @@ where COMMITS is the number of commits in TAG but not in REV."
   (or (car (member rev (magit-list-local-branches)))
       (car (member rev (magit-list-local-branch-names)))))
 
+(defun magit-remote-branch-p (rev)
+  (or (car (member rev (magit-list-remote-branches)))
+      (car (member rev (magit-list-remote-branch-names)))))
+
 (defun magit-branch-set-face (branch)
   (propertize branch 'face (if (magit-local-branch-p branch)
                                'magit-branch-local
