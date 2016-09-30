@@ -9,10 +9,10 @@ Changes since v2.8.0
   defined as an undocumented variable) allow tuning the appearance
   of the hunk-internal region.
 
-* The new option `magit-branch-adjust-remote-upstream-alist' what
-  branch to use as upstream when branching a remote branch.  Without
-  setting this option the upstream ends up being the same branch as
-  the one referred to by the push-remote.
+* The new option `magit-branch-adjust-remote-upstream-alist' can be
+  used to configure what branch to use as upstream when branching a
+  remote branch.  Without setting this option the upstream ends up
+  being the same branch as the one referred to by the push-remote.
 
 * The command `magit-branch-spinoff' learned to remove only a subset
   of commits from the previously current branch, instead of resetting
@@ -31,7 +31,7 @@ Changes since v2.8.0
 Fixes since v2.8.0
 ------------------
 
-* Command `magit-list-repositories' failed on empty git repositories.
+* Command `magit-list-repositories' failed on empty Git repositories.
 
 * The Git variable `pull.rebase' was ignored when determining whether
   the current branch is being rebased onto its upstream in order to
