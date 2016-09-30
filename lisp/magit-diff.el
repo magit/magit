@@ -1868,7 +1868,8 @@ selects a valid group of diff related sections, the type of these
 sections, i.e. `hunks' or `files'.  If SECTION, or if that is nil
 the current section, is a `hunk' section; and the region region
 starts and ends inside the body of a that section, then the type
-is `region'.
+is `region'.  If the region is empty after a mouse click, then
+`hunk' is returned instead of `region'.
 
 If optional STRICT is non-nil then return nil if the diff type of
 the section at point is `untracked' or the section at point is not
@@ -1883,7 +1884,7 @@ actually a `diff' but a `diffstat' section."
                                  'diffstat)))))
       (pcase (list (magit-section-type section)
                    (and siblings t)
-                   (and (region-active-p) t)
+                   (magit-diff-use-hunk-region-p)
                    ssection)
         (`(hunk nil   t  ,_)
          (if (magit-section-internal-region-p section) 'region 'hunk))
@@ -2105,8 +2106,7 @@ are highlighted."
 (defvar magit-diff-unmarked-lines-keep-foreground t)
 
 (defun magit-diff-update-hunk-region (section)
-  (when (and (eq (magit-diff-scope section t) 'region)
-             (magit-diff-use-hunk-region-p))
+  (when (eq (magit-diff-scope section t) 'region)
     (let ((sbeg (magit-section-start section))
           (cbeg (magit-section-content section))
           (rbeg (magit-diff-hunk-region-beginning))
