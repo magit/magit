@@ -38,8 +38,10 @@ Fixes since v2.8.0
 * On 32bit systems `magit-format-log-margin' failed because it tried
   to truncate a time float that was to large for that.  #2765
 
-* On Emacs v25.1 the hunk internal region flashed briefly on
-  mouse-down-1 events.  #2758
+* On Emacs v25.1 the hunk-internal region flashed briefly on
+  mouse-down-1 events and the delimiting horizontal lines could end
+  up having the height of a regular line instead of just a single
+  pixel.  #2758
 
 * The caching mechanism that was supposed to ensure that sections of
   unpulled and unpushed remain collapsed even when they disappear for

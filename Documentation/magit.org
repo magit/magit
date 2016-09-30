@@ -2291,8 +2291,11 @@ without having to using one of the diff popups.
   removed lines to have the same background color as context lines.
   This function should not be removed from the value of this option.
 
-  ~magit-diff-highlight-hunk-region-using-overlays~ emphasizes the
+  ~magit-diff-highlight-hunk-region-using-overlays~ and
+  ~magit-diff-highlight-hunk-region-using-underline~ emphasize the
   region by placing delimiting horizonal lines before and after it.
+  Which implementation is preferable depends on the Emacs version, and
+  the more suitable one is part of the default value.
 
 *** Revision buffer
 
