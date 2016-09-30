@@ -1894,6 +1894,19 @@ actually a `diff' but a `diffstat' section."
         (`(,(or `staged `unstaged `untracked)
            nil ,_ ,_) 'list)))))
 
+(defun magit-diff-use-hunk-region-p ()
+  (and (region-active-p)
+       (not (and (if (version< emacs-version "25.1")
+                     (eq this-command 'mouse-drag-region)
+                   ;; TODO implement this from first principals
+                   ;; currently it's trial-and-error
+                   (or (eq last-command 'mouse-drag-region)
+                       ;; When another window was previously
+                       ;; selected then the last-command is
+                       ;; some byte-code function.
+                       (byte-code-function-p last-command)))
+                 (eq (region-end) (region-beginning))))))
+
 ;;; Diff Highlight
 
 (defun magit-diff-unhighlight (section selection)
@@ -2092,14 +2105,7 @@ are highlighted."
 
 (defun magit-diff-update-hunk-region (section)
   (when (and (eq (magit-diff-scope section t) 'region)
-             (not (and (if (version< emacs-version "25.1")
-                           (eq this-command 'mouse-drag-region)
-                         (or (eq last-command 'mouse-drag-region)
-                             ;; When another window was previously
-                             ;; selected then the last-command is
-                             ;; a byte-code function.
-                             (byte-code-function-p last-command)))
-                       (eq (region-end) (region-beginning)))))
+             (magit-diff-use-hunk-region-p))
     (let ((sbeg (magit-section-start section))
           (cbeg (magit-section-content section))
           (rbeg (magit-diff-hunk-region-beginning))
