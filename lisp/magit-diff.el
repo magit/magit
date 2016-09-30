@@ -1900,7 +1900,8 @@ actually a `diff' but a `diffstat' section."
                      (eq this-command 'mouse-drag-region)
                    ;; TODO implement this from first principals
                    ;; currently it's trial-and-error
-                   (or (eq last-command 'mouse-drag-region)
+                   (or (eq this-command 'mouse-drag-region)
+                       (eq last-command 'mouse-drag-region)
                        ;; When another window was previously
                        ;; selected then the last-command is
                        ;; some byte-code function.
