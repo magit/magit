@@ -2281,6 +2281,37 @@ without having to using one of the diff popups.
 
   Whether to hide ^M characters at the end of a line in diffs.
 
+- User Option: magit-diff-highlight-hunk-region-functions
+
+  This option specifies the functions used to highlight the
+  hunk-internal region.
+
+  ~magit-diff-highlight-hunk-region-dim-outside~ overlays the outside of
+  the hunk internal selection with a face that causes the added and
+  removed lines to have the same background color as context lines.
+  This function should not be removed from the value of this option.
+
+  ~magit-diff-highlight-hunk-region-using-overlays~ and
+  ~magit-diff-highlight-hunk-region-using-underline~ emphasize the
+  region by placing delimiting horizonal lines before and after it.
+  Which implementation is preferable depends on the Emacs version, and
+  the more suitable one is part of the default value.
+
+  Instead of, or in addition to, using delimiting horizontal lines,
+  to emphasize the boundaries, you may which to emphasize the text
+  itself, using ~magit-diff-highlight-hunk-region-using-face~.
+
+  In terminal frames it's not possible to draw lines as the overlay
+  and underline variants normally do, so there they fall back to
+  calling the face function instead.
+
+- User Option: magit-diff-unmarked-lines-keep-foreground
+
+  This option controls whether added and removed lines outside the
+  hunk-internal region only lose their distinct background color or
+  also the foreground color.  Whether the outside of the region is
+  dimmed at all depends on ~magit-diff-highlight-hunk-region-functions~.
+
 *** Revision buffer
 
 - User Option: magit-revision-insert-related-refs
