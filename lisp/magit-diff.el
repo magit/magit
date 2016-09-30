@@ -2107,28 +2107,46 @@ are highlighted."
 
 (defun magit-diff-update-hunk-region (section)
   (when (eq (magit-diff-scope section t) 'region)
-    (let ((sbeg (magit-section-start section))
-          (cbeg (magit-section-content section))
-          (rbeg (magit-diff-hunk-region-beginning))
-          (rend (magit-diff-hunk-region-end))
-          (send (magit-section-end section))
-          (face (if magit-diff-highlight-hunk-body
-                    'magit-diff-context-highlight
-                  'magit-diff-context)))
-      (when magit-diff-unmarked-lines-keep-foreground
-        (setq face (list :background (face-attribute face :background))))
-      (magit-diff--make-hunk-overlay
-       sbeg cbeg
-       'face 'magit-diff-lines-heading
-       'display (concat (magit-diff-hunk-region-header section) "\n"))
-      (magit-diff--make-hunk-overlay cbeg rbeg 'face face 'priority 2)
-      (when (and (window-system) magit-diff-show-lines-boundary)
-        (let ((str (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                                       (propertize "\n" 'line-height t))
-                               'face 'magit-diff-lines-boundary)))
-          (magit-diff--make-hunk-overlay rbeg (1+ rbeg) 'before-string str)
-          (magit-diff--make-hunk-overlay rend (1+ rend) 'after-string  str)))
-      (magit-diff--make-hunk-overlay (1+ rend) send 'face face 'priority 2))))
+    (magit-diff--make-hunk-overlay
+     (magit-section-start section)
+     (magit-section-content section)
+     'face 'magit-diff-lines-heading
+     'display (concat (magit-diff-hunk-region-header section) "\n"))
+    (magit-diff-highlight-hunk-region-dim-outside)
+    (when magit-diff-show-lines-boundary
+      (magit-diff-highlight-hunk-region-using-overlays))
+    t))
+
+(defun magit-diff-highlight-hunk-region-dim-outside (section)
+  "Dim the parts of the hunk that are outside the hunk-internal region.
+This is done by using the same foreground and background color
+for added and removed lines as for context lines."
+  (let ((face (if magit-diff-highlight-hunk-body
+                  'magit-diff-context-highlight
+                'magit-diff-context)))
+    (when magit-diff-unmarked-lines-keep-foreground
+      (setq face (list :background (face-attribute face :background))))
+    (magit-diff--make-hunk-overlay (magit-section-content section)
+                                   (magit-diff-hunk-region-beginning)
+                                   'face face
+                                   'priority 2)
+    (magit-diff--make-hunk-overlay (1+ (magit-diff-hunk-region-end))
+                                   (magit-section-end section)
+                                   'face face
+                                   'priority 2)))
+
+(defun magit-diff-highlight-hunk-region-using-overlays (section)
+  "Emphasize the hunk-internal region using delimiting horizontal lines."
+  (if (window-system)
+      (let ((beg (magit-diff-hunk-region-beginning))
+            (end (magit-diff-hunk-region-end))
+            (str (propertize
+                  (concat (propertize "\s" 'display '(space :height (1)))
+                          (propertize "\n" 'line-height t))
+                  'face 'magit-diff-lines-boundary)))
+        (magit-diff--make-hunk-overlay beg (1+ beg) 'before-string str)
+        (magit-diff--make-hunk-overlay end (1+ end) 'after-string  str))
+    ))
 
 (defun magit-diff--make-hunk-overlay (start end &rest args)
   (let ((ov (make-overlay start end nil t)))
