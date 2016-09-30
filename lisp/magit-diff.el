@@ -100,16 +100,37 @@ member of `magit-section-highlight-hook', which see."
   :type 'boolean)
 
 (defcustom magit-diff-show-lines-boundary t
-  "Whether to delimit hunk-internal region with thin lines.
-
-When a hunk-internal region (used to stage just the lines that
-fall into the region instead of the complete hunk) only covers
-context lines, then these lines are the only visual indicator
-for the region.  In character-only terminals it's not possible
-to draw thin lines."
+  "This option is obsolete.
+If you have set this to nil, then remove that customization, and
+instead customize `magit-diff-highlight-hunk-region-functions'."
   :package-version '(magit . "2.1.0")
   :group 'magit-diff
   :type 'boolean)
+
+(make-obsolete-variable 'magit-diff-show-lines-boundary
+                        'magit-diff-highlight-hunk-region-functions
+                        "Magit 2.9.0")
+
+(defcustom magit-diff-highlight-hunk-region-functions
+  `(magit-diff-highlight-hunk-region-dim-outside
+    ,@(and magit-diff-show-lines-boundary
+           (list 'magit-diff-highlight-hunk-region-using-overlays)))
+  "The functions used to highlight the hunk-internal region.
+
+`magit-diff-highlight-hunk-region-dim-outside' overlays the outside
+of the hunk internal selection with a face that causes the added and
+removed lines to have the same background color as context lines.
+This function should not be removed from the value of this option.
+
+`magit-diff-highlight-hunk-region-using-overlays' emphasize the
+region by placing delimiting horizonal lines before and after it."
+  :package-version '(magit . "2.9.0")
+  :set-after '(magit-diff-show-lines-boundaries)
+  :group 'magit-diff
+  :type 'hook
+  :options '(magit-diff-highlight-hunk-region-dim-outside
+             magit-diff-highlight-hunk-region-using-overlays
+             ))
 
 (defcustom magit-diff-refine-hunk nil
   "Whether to show word-granularity differences within diff hunks.
@@ -2113,9 +2134,7 @@ are highlighted."
      'face 'magit-diff-lines-heading
      'display (magit-diff-hunk-region-header section)
      'after-string (magit-diff--hunk-after-string 'magit-diff-lines-heading))
-    (magit-diff-highlight-hunk-region-dim-outside)
-    (when magit-diff-show-lines-boundary
-      (magit-diff-highlight-hunk-region-using-overlays))
+    (run-hook-with-args 'magit-diff-highlight-hunk-region-functions section)
     t))
 
 (defun magit-diff-highlight-hunk-region-dim-outside (section)
