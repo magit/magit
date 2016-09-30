@@ -25,8 +25,12 @@ Changes since v2.8.0
 
 * The environment variable `INSIDE_EMACS' is now set when calling git.
 
-* The `--gpg-sign=' option is now also available from the revert
-  popup.
+* The `--gpg-sign=' option is now available from the revert popup
+  also.
+
+* The `--sort=' option is now available from the show-refs popup.
+  (Use "C-u y" to show the popup instead of invoking its default
+  action as "y" does.)
 
 Fixes since v2.8.0
 ------------------

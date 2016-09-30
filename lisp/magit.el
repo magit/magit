@@ -873,7 +873,8 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
               (?N "Not merged to master"      "--no-merged=master"))
   :options  '((?c "Contains"   "--contains="  magit-read-branch-or-commit)
               (?m "Merged"     "--merged="    magit-read-branch-or-commit)
-              (?n "Not merged" "--no-merged=" magit-read-branch-or-commit))
+              (?n "Not merged" "--no-merged=" magit-read-branch-or-commit)
+              (?s "Sort"       "--sort="      magit-read-ref-sort))
   :actions  '((?y "Show refs, comparing them with HEAD"
                   magit-show-refs-head)
               (?c "Show refs, comparing them with current branch"
@@ -882,6 +883,12 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
                   magit-show-refs))
   :default-action 'magit-show-refs-head
   :use-prefix 'popup)
+
+(defun magit-read-ref-sort (prompt initial-input)
+  (magit-completing-read prompt
+                         '("-committerdate" "-authordate"
+                           "committerdate" "authordate")
+                         nil nil initial-input))
 
 ;;;###autoload
 (defun magit-show-refs-head (&optional args)
