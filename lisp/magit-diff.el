@@ -2123,16 +2123,11 @@ are highlighted."
        'display (concat (magit-diff-hunk-region-header section) "\n"))
       (magit-diff--make-hunk-overlay cbeg rbeg 'face face 'priority 2)
       (when (and (window-system) magit-diff-show-lines-boundary)
-        (magit-diff--make-hunk-overlay
-         rbeg (1+ rbeg) 'before-string
-         (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                             (propertize "\n" 'line-height t))
-                     'face 'magit-diff-lines-boundary))
-        (magit-diff--make-hunk-overlay
-         rend (1+ rend) 'after-string
-         (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                             (propertize "\n" 'line-height t))
-                     'face 'magit-diff-lines-boundary)))
+        (let ((str (propertize (concat (propertize "\s" 'display '(space :height (1)))
+                                       (propertize "\n" 'line-height t))
+                               'face 'magit-diff-lines-boundary)))
+          (magit-diff--make-hunk-overlay rbeg (1+ rbeg) 'before-string str)
+          (magit-diff--make-hunk-overlay rend (1+ rend) 'after-string  str)))
       (magit-diff--make-hunk-overlay (1+ rend) send 'face face 'priority 2))))
 
 (defun magit-diff--make-hunk-overlay (start end &rest args)
