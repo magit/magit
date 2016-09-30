@@ -3124,6 +3124,14 @@ and underline variants normally do, so there they fall back to
 calling the face function instead.
 @end defopt
 
+@defopt magit-diff-unmarked-lines-keep-foreground
+
+This option controls whether added and removed lines outside the
+hunk-internal region only lose their distinct background color or
+also the foreground color.  Whether the outside of the region is
+dimmed at all depends on @code{magit-diff-highlight-hunk-region-functions}.
+@end defopt
+
 @node Revision buffer
 @subsection Revision buffer
 

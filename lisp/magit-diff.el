@@ -146,6 +146,15 @@ calling the face function instead."
              magit-diff-highlight-hunk-region-using-overlays
              magit-diff-highlight-hunk-region-using-face))
 
+(defcustom magit-diff-unmarked-lines-keep-foreground t
+  "Whether `magit-diff-highlight-hunk-region-dim-outside' preserves foreground.
+When this is set to nil, then that function only adjusts the
+foreground color but added and removed lines outside the region
+keep their distinct foreground colors."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 (defcustom magit-diff-refine-hunk nil
   "Whether to show word-granularity differences within diff hunks.
 
@@ -2149,8 +2158,6 @@ are highlighted."
 (defun magit-diff-hunk-region-end ()
   (save-excursion (goto-char (region-end))
                   (line-end-position)))
-
-(defvar magit-diff-unmarked-lines-keep-foreground t)
 
 (defun magit-diff-update-hunk-region (section)
   (when (eq (magit-diff-scope section t) 'region)

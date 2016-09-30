@@ -4,8 +4,10 @@ Magit v2.8.1 Release Notes (draft)
 Changes since v2.8.0
 --------------------
 
-* The new option `magit-diff-highlight-hunk-region-using-face' allows
-  tuning the appearance of the hunk-internal region.
+* The new option `magit-diff-highlight-hunk-region-using-face' and
+  `magit-diff-unmarked-lines-keep-foreground' (which was previously
+  defined as an undocumented variable) allow tuning the appearance
+  of the hunk-internal region.
 
 * The new option `magit-branch-adjust-remote-upstream-alist' what
   branch to use as upstream when branching a remote branch.  Without

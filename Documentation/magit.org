@@ -2305,6 +2305,13 @@ without having to using one of the diff popups.
   and underline variants normally do, so there they fall back to
   calling the face function instead.
 
+- User Option: magit-diff-unmarked-lines-keep-foreground
+
+  This option controls whether added and removed lines outside the
+  hunk-internal region only lose their distinct background color or
+  also the foreground color.  Whether the outside of the region is
+  dimmed at all depends on ~magit-diff-highlight-hunk-region-functions~.
+
 *** Revision buffer
 
 - User Option: magit-revision-insert-related-refs
