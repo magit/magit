@@ -3114,6 +3114,14 @@ This function should not be removed from the value of this option.
 region by placing delimiting horizonal lines before and after it.
 Which implementation is preferable depends on the Emacs version, and
 the more suitable one is part of the default value.
+
+Instead of, or in addition to, using delimiting horizontal lines,
+to emphasize the boundaries, you may which to emphasize the text
+itself, using @code{magit-diff-highlight-hunk-region-using-face}.
+
+In terminal frames it's not possible to draw lines as the overlay
+and underline variants normally do, so there they fall back to
+calling the face function instead.
 @end defopt
 
 @node Revision buffer

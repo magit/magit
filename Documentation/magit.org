@@ -2297,6 +2297,14 @@ without having to using one of the diff popups.
   Which implementation is preferable depends on the Emacs version, and
   the more suitable one is part of the default value.
 
+  Instead of, or in addition to, using delimiting horizontal lines,
+  to emphasize the boundaries, you may which to emphasize the text
+  itself, using ~magit-diff-highlight-hunk-region-using-face~.
+
+  In terminal frames it's not possible to draw lines as the overlay
+  and underline variants normally do, so there they fall back to
+  calling the face function instead.
+
 *** Revision buffer
 
 - User Option: magit-revision-insert-related-refs
