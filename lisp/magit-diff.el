@@ -2109,9 +2109,10 @@ are highlighted."
   (when (eq (magit-diff-scope section t) 'region)
     (magit-diff--make-hunk-overlay
      (magit-section-start section)
-     (magit-section-content section)
+     (1- (magit-section-content section))
      'face 'magit-diff-lines-heading
-     'display (concat (magit-diff-hunk-region-header section) "\n"))
+     'display (magit-diff-hunk-region-header section)
+     'after-string (magit-diff--hunk-after-string 'magit-diff-lines-heading))
     (magit-diff-highlight-hunk-region-dim-outside)
     (when magit-diff-show-lines-boundary
       (magit-diff-highlight-hunk-region-using-overlays))
@@ -2154,6 +2155,15 @@ for added and removed lines as for context lines."
     (while args (overlay-put ov (pop args) (pop args)))
     (push ov magit-region-overlays)
     ov))
+
+(defun magit-diff--hunk-after-string (face)
+  (propertize "\s"
+              'face face
+              'display (list 'space :align-to `(+ (,(window-body-width nil t))
+                                                  ,(window-hscroll)))
+              ;; This prevents the cursor from being rendered at the
+              ;; edge of the window.
+              'cursor t))
 
 ;;; Diff Extract
 
