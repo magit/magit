@@ -62,8 +62,7 @@ Then show the status buffer for the new repository."
                      (match-string 1 url))))))
   (setq directory (file-name-as-directory (expand-file-name directory)))
   (magit-run-git-async "clone" repository
-                       ;; Stop cygwin git making a "c:" directory.
-                       (magit-convert-git-filename directory))
+                       (magit-convert-filename-for-git directory))
   ;; Don't refresh the buffer we're calling from.
   (process-put magit-this-process 'inhibit-refresh t)
   (set-process-sentinel

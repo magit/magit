@@ -1402,7 +1402,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
          (user-error "Abort")))
      (list directory)))
   ;; `git init' does not understand the meaning of "~"!
-  (magit-call-git "init" (magit-convert-git-filename
+  (magit-call-git "init" (magit-convert-filename-for-git
                           (expand-file-name directory)))
   (magit-status-internal directory))
 
