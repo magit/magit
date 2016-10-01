@@ -686,37 +686,40 @@ Added to `font-lock-extend-region-functions'."
     "Author:"
     "Date:"))
 
-(defun git-commit-mode-font-lock-keywords ()
-  `(;; Comments
-    (,(format "^%s.*" comment-start)
-     (0 'font-lock-comment-face))
-    (,(format "^%s On branch \\(.*\\)" comment-start)
-     (1 'git-commit-comment-branch t))
-    (,(format "^%s Not currently on any branch." comment-start)
-     (1 'git-commit-comment-detached t))
-    (,(format "^%s %s" comment-start
-              (regexp-opt git-commit-comment-headings t))
-     (1 'git-commit-comment-heading t))
-    (,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
-     (1 'git-commit-comment-action t t)
-     (2 'git-commit-comment-file t))
+(defconst git-commit-font-lock-keywords-1
+  '(;; Comments
+    (eval . `(,(format "^%s.*" comment-start)
+              (0 'font-lock-comment-face)))
+    (eval . `(,(format "^%s On branch \\(.*\\)" comment-start)
+              (1 'git-commit-comment-branch t)))
+    (eval . `(,(format "^%s Not currently on any branch." comment-start)
+              (1 'git-commit-comment-detached t)))
+    (eval . `(,(format "^%s %s" comment-start
+                       (regexp-opt git-commit-comment-headings t))
+              (1 'git-commit-comment-heading t)))
+    (eval . `(,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
+              (1 'git-commit-comment-action t t)
+              (2 'git-commit-comment-file t)))
     ;; Pseudo headers
-    (,(format "^\\(%s:\\)\\( .*\\)"
-              (regexp-opt git-commit-known-pseudo-headers))
-     (1 'git-commit-known-pseudo-header)
-     (2 'git-commit-pseudo-header))
+    (eval . `(,(format "^\\(%s:\\)\\( .*\\)"
+                       (regexp-opt git-commit-known-pseudo-headers))
+              (1 'git-commit-known-pseudo-header)
+              (2 'git-commit-pseudo-header)))
     ("^[-a-zA-Z]+: [^<]+? <[^>]+>"
      (0 'git-commit-pseudo-header))
     ;; Summary
-    (,(git-commit-summary-regexp)
-     (1 'git-commit-summary t))
+    (eval . `(,(git-commit-summary-regexp)
+              (1 'git-commit-summary t)))
     ;; - Note (overrides summary)
     ("\\[.+?\\]"
      (0 'git-commit-note t))
     ;; - Non-empty second line (overrides summary and note)
-    (,(git-commit-summary-regexp)
-     (2 'git-commit-overlong-summary t t)
-     (3 'git-commit-nonempty-second-line t t))))
+    (eval . `(,(git-commit-summary-regexp)
+              (2 'git-commit-overlong-summary t t)
+              (3 'git-commit-nonempty-second-line t t)))))
+
+(defvar git-commit-font-lock-keywords git-commit-font-lock-keywords-1
+  "Font-Lock keywords for Git-Commit mode.")
 
 (defun git-commit-setup-font-lock ()
   (let ((table (make-syntax-table (syntax-table))))
@@ -738,7 +741,7 @@ Added to `font-lock-extend-region-functions'."
   (add-hook 'font-lock-extend-region-functions
             #'git-commit-extend-region-summary-line
             t t)
-  (font-lock-add-keywords nil (git-commit-mode-font-lock-keywords) t))
+  (font-lock-add-keywords nil git-commit-font-lock-keywords t))
 
 (defun git-commit-propertize-diff ()
   (save-excursion
