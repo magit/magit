@@ -835,7 +835,8 @@ as argument."
           (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir)))
         (--when-let (with-current-buffer command-buf
                       (magit-mode-get-buffer 'magit-status-mode))
-          (setq magit-this-error msg))
+          (with-current-buffer it
+            (setq magit-this-error msg)))
         (message "%s ... [%s buffer %s for details]" msg
                  (-if-let (key (and (buffer-live-p command-buf)
                                     (with-current-buffer command-buf
