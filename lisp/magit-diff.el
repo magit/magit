@@ -34,7 +34,7 @@
 ;; For `magit-diff-popup'
 (declare-function magit-stash-show 'magit-stash)
 ;; For `magit-diff-visit-file'
-(declare-function magit-dired-jump 'magit)
+(declare-function dired-jump 'dired-x)
 (declare-function magit-find-file-noselect 'magit)
 (declare-function magit-status-internal 'magit)
 ;; For `magit-diff-while-committing'
@@ -1166,7 +1166,7 @@ or `HEAD'."
 (defun magit-diff-visit-directory (directory &optional other-window)
   (if (equal (magit-toplevel directory)
              (magit-toplevel))
-      (magit-dired-jump other-window)
+      (dired-jump other-window (concat directory "/."))
     (let ((display-buffer-overriding-action
            (if other-window
                '(nil (inhibit-same-window t))
