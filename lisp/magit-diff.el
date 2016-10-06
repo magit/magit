@@ -727,7 +727,7 @@ If no DWIM context is found, nil is returned."
                       (if (magit-anything-modified-p)
                           current
                         (cons 'commit current)))
-                  (format "%s..%s" atpoint current))))
+                  (format "%s...%s" current atpoint))))
       (commit (cons 'commit (magit-section-value it)))
       (stash (cons 'stash (magit-section-value it)))))))
 
