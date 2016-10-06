@@ -1358,12 +1358,15 @@ is done using `magit-find-index-noselect'."
 ;;;###autoload
 (defun magit-dired-jump (&optional other-window)
   "Visit file at point using Dired.
-With a prefix argument, visit in other window.  If there
+With a prefix argument, visit in another window.  If there
 is no file at point then instead visit `default-directory'."
   (interactive "P")
-  (dired-jump other-window (--if-let (magit-file-at-point)
-                               (expand-file-name it)
-                             default-directory)))
+  (dired-jump other-window (-if-let (file (magit-file-at-point))
+                               (progn (setq file (expand-file-name file))
+                                      (if (file-directory-p file)
+                                          (concat file "/.")
+                                        file))
+                             (concat default-directory "/."))))
 
 ;;;###autoload
 (defun magit-checkout-file (rev file)
