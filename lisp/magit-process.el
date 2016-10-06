@@ -593,7 +593,8 @@ Magit status buffer."
   "Special sentinel used by `magit-run-git-sequencer'."
   (when (memq (process-status process) '(exit signal))
     (magit-process-sentinel process event)
-    (--when-let (magit-mode-get-buffer 'magit-status-mode)
+    (--when-let (with-current-buffer (process-get process 'command-buf)
+                  (magit-mode-get-buffer 'magit-status-mode))
       (with-current-buffer it
         (--when-let
             (magit-get-section
@@ -832,7 +833,8 @@ as argument."
                    "Git failed")))
       (if magit-process-raise-error
           (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir)))
-        (--when-let (magit-mode-get-buffer 'magit-status-mode)
+        (--when-let (with-current-buffer command-buf
+                      (magit-mode-get-buffer 'magit-status-mode))
           (setq magit-this-error msg))
         (message "%s ... [%s buffer %s for details]" msg
                  (-if-let (key (and (buffer-live-p command-buf)
