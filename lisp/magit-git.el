@@ -1437,6 +1437,9 @@ Return a list of two integers: (A>B B>A)."
                              (magit-remote-at-point)
                              (magit-get-remote))))
 
+(defun magit-read-module-path (prompt)
+  (magit-completing-read prompt (magit-get-submodules)))
+
 ;;; Variables
 
 (defun magit-get (&rest keys)
