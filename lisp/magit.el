@@ -2050,9 +2050,8 @@ edit it.
                      (magit-merge-arguments)))
   (magit-merge-assert)
   (cl-pushnew "--no-ff" args :test #'equal)
-  (with-editor "GIT_EDITOR"
-    (let ((magit-process-popup-time -1))
-      (magit-run-git-async "merge" "--edit" args rev))))
+  (apply #'magit-run-git-with-editor "merge" "--edit"
+         (append args (list rev))))
 
 ;;;###autoload
 (defun magit-merge-nocommit (rev &optional args)
