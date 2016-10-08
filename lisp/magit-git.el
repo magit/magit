@@ -203,6 +203,13 @@ change the upstream and many which create new branches."
                value)))
        ,@body)))
 
+(defmacro magit-with-editor (&rest body)
+  "Like `with-editor' but let-bind some more variables."
+  (declare (indent 0) (debug (body)))
+  `(let ((magit-process-popup-time -1)
+     (with-editor "GIT_EDITOR"
+       ,@body)))
+
 (defun magit-process-git-arguments (args)
   "Prepare ARGS for a function that invokes Git.
 

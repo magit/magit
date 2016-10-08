@@ -249,12 +249,11 @@ depending on the value of option `magit-commit-squash-confirm'."
           (unless edit
             (push "--no-edit" args))
           (if rebase
-              (with-editor "GIT_EDITOR"
-                (let ((magit-process-popup-time -1))
-                  (magit-call-git
-                   "commit" (-remove-first
-                             (apply-partially #'string-match-p "\\`--gpg-sign=")
-                             args))))
+              (magit-with-editor
+                (magit-call-git
+                 "commit" (-remove-first
+                           (apply-partially #'string-match-p "\\`--gpg-sign=")
+                           args)))
             (magit-run-git-with-editor "commit" args)))
       (magit-log-select
         `(lambda (commit)
