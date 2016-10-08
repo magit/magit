@@ -410,9 +410,7 @@ current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' and `with-editor' for more information."
-  (with-editor "GIT_EDITOR"
-    (let ((magit-process-popup-time -1))
-      (magit-run-git-async args))))
+  (magit-with-editor (magit-run-git-async args)))
 
 (defun magit-run-git-sequencer (&rest args)
   "Export GIT_EDITOR and start Git.
@@ -428,9 +426,7 @@ If the sequence stops at a commit, make the section representing
 that commit the current section by moving `point' there.
 
 See `magit-start-process' and `with-editor' for more information."
-  (with-editor "GIT_EDITOR"
-    (let ((magit-process-popup-time -1))
-      (magit-run-git-async args)))
+  (apply #'magit-run-git-with-editor args)
   (set-process-sentinel magit-this-process #'magit-sequencer-process-sentinel)
   magit-this-process)
 

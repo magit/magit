@@ -203,6 +203,25 @@ change the upstream and many which create new branches."
                value)))
        ,@body)))
 
+(defmacro magit-with-editor (&rest body)
+  "Like `with-editor' but let-bind some more variables."
+  (declare (indent 0) (debug (body)))
+  `(let ((magit-process-popup-time -1)
+         ;; The user may have customized `shell-file-name' to
+         ;; something which results in `w32-shell-dos-semantics' nil
+         ;; (which changes the quoting style used by
+         ;; `shell-quote-argument'), but Git for Windows expects shell
+         ;; quoting in the dos style.
+         (shell-file-name (if (and (eq system-type 'windows-nt)
+                                   ;; If we have Cygwin mount points
+                                   ;; the git flavor is cygwin, so dos
+                                   ;; shell quoting is probably wrong.
+                                   (not magit-cygwin-mount-points))
+                              "cmdproxy"
+                            shell-file-name)))
+     (with-editor "GIT_EDITOR"
+       ,@body)))
+
 (defun magit-process-git-arguments (args)
   "Prepare ARGS for a function that invokes Git.
 
