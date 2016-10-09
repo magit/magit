@@ -112,11 +112,9 @@ instead customize `magit-diff-highlight-hunk-region-functions'."
                         "Magit 2.9.0")
 
 (defcustom magit-diff-highlight-hunk-region-functions
-  `(magit-diff-highlight-hunk-region-dim-outside
-    ,@(and magit-diff-show-lines-boundary
-           (list (if t ;(version< emacs-version "25.1")
-                     'magit-diff-highlight-hunk-region-using-overlays
-                   'magit-diff-highlight-hunk-region-using-underline))))
+  '(magit-diff-highlight-hunk-region-dim-outside
+    magit-diff-show-lines-boundary
+    magit-diff-highlight-hunk-region-using-overlays)
   "The functions used to highlight the hunk-internal region.
 
 `magit-diff-highlight-hunk-region-dim-outside' overlays the outside
@@ -124,15 +122,12 @@ of the hunk internal selection with a face that causes the added and
 removed lines to have the same background color as context lines.
 This function should not be removed from the value of this option.
 
-  TEMPORARY NOTICE: there is a severe bug in
-  `magit-diff-highlight-hunk-region-using-underline'
-  and it has been temporarily removed.
-
 `magit-diff-highlight-hunk-region-using-overlays' and
 `magit-diff-highlight-hunk-region-using-underline' emphasize the
 region by placing delimiting horizonal lines before and after it.
-Which implementation is preferable depends on the Emacs version,
-and the more suitable one is part of the default value.
+Both of these functions have glitches which cannot be fixed due
+to limitations of Emacs' display engine.  For more information
+see https://github.com/magit/magit/issues/2758 ff.
 
 Instead of, or in addition to, using delimiting horizontal lines,
 to emphasize the boundaries, you may which to emphasize the text
@@ -146,6 +141,7 @@ calling the face function instead."
   :group 'magit-diff
   :type 'hook
   :options '(magit-diff-highlight-hunk-region-dim-outside
+             magit-diff-highlight-hunk-region-using-underline
              magit-diff-highlight-hunk-region-using-overlays
              magit-diff-highlight-hunk-region-using-face))
 
@@ -2217,6 +2213,33 @@ other method."
         (magit-diff--make-hunk-overlay end (1+ end) 'after-string  str))
     (magit-diff-highlight-hunk-region-using-face section)))
 
+(defun magit-diff-highlight-hunk-region-using-underline (section)
+  "Emphasize the hunk-internal region using delimiting horizontal lines.
+This is implemented by overlining and underlining the first and
+last (visual) lines of the region.  In Emacs 24, using this
+method causes `move-end-of-line' to jump to the next line, so
+we only use it in Emacs 25 where that glitch was fixed (see
+https://github.com/magit/magit/pull/2293 for more details)."
+  (if (window-system)
+      (let* ((beg (magit-diff-hunk-region-beginning))
+             (end (magit-diff-hunk-region-end))
+             (beg-eol (save-excursion (goto-char beg)
+                                      (end-of-visual-line)
+                                      (point)))
+             (end-bol (save-excursion (goto-char end)
+                                      (beginning-of-visual-line)
+                                      (point)))
+             (color (face-background 'magit-diff-lines-boundary nil t)))
+        (cl-flet ((ln (b e &rest face)
+                      (magit-diff--make-hunk-overlay
+                       b e 'face face 'after-string
+                       (magit-diff--hunk-after-string face))))
+          (if (= beg end-bol)
+              (ln beg beg-eol :overline color :underline color)
+            (ln beg beg-eol :overline color)
+            (ln end-bol end :underline color))))
+    (magit-diff-highlight-hunk-region-using-face section)))
+
 (defun magit-diff--make-hunk-overlay (start end &rest args)
   (let ((ov (make-overlay start end nil t)))
     (overlay-put ov 'evaporate t)
@@ -2227,8 +2250,11 @@ other method."
 (defun magit-diff--hunk-after-string (face)
   (propertize "\s"
               'face face
-              'display (list 'space :align-to `(+ (,(window-body-width nil t))
-                                                  ,(window-hscroll)))
+              'display (list 'space :align-to
+                             `(+ (0 . right)
+                                 ,(min (window-hscroll)
+                                       (- (line-end-position)
+                                          (line-beginning-position)))))
               ;; This prevents the cursor from being rendered at the
               ;; edge of the window.
               'cursor t))

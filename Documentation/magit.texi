@@ -3112,8 +3112,9 @@ This function should not be removed from the value of this option.
 @code{magit-diff-highlight-hunk-region-using-overlays} and
 @code{magit-diff-highlight-hunk-region-using-underline} emphasize the
 region by placing delimiting horizonal lines before and after it.
-Which implementation is preferable depends on the Emacs version, and
-the more suitable one is part of the default value.
+Both of these functions have glitches which cannot be fixed due to
+limitations of Emacs' display engine.  For more information see
+@uref{https://github.com/magit/magit/issues/2758} ff.
 
 Instead of, or in addition to, using delimiting horizontal lines,
 to emphasize the boundaries, you may which to emphasize the text

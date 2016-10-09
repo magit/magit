@@ -4,11 +4,6 @@ Magit v2.8.1 Release Notes (draft)
 Changes since v2.8.0
 --------------------
 
-* The new option `magit-diff-highlight-hunk-region-using-face' and
-  `magit-diff-unmarked-lines-keep-foreground' (which was previously
-  defined as an undocumented variable) allow tuning the appearance
-  of the hunk-internal region.
-
 * The new option `magit-branch-adjust-remote-upstream-alist' can be
   used to configure what branch to use as upstream when branching a
   remote branch.  Without setting this option the upstream ends up
@@ -18,6 +13,22 @@ Changes since v2.8.0
   of commits from the previously current branch, instead of resetting
   it to its upstream, when the region selects commits reachable from
   HEAD.
+
+* The new option `magit-diff-highlight-hunk-region-using-face' and
+  `magit-diff-unmarked-lines-keep-foreground' (which was previously
+  defined as an undocumented variable) allow tuning the appearance
+  of the hunk-internal region.
+
+  The new function `magit-diff-highlight-hunk-region-using-face',
+  provides a new style; it makes the hunk-internal region bold (or
+  italic).  I recommend you customize the above option to use this
+  instead of one of the functions mentioned below.
+
+  The new functions `magit-diff-highlight-hunk-region-using-overlay'
+  and `magit-diff-highlight-hunk-region-using-overlay' draw one-pixel
+  lines before and after the hunk-internal region.  Both of these
+  functions have glitches and due to limitations of Emacs' display
+  engine it is not possible to fix those.  #2758
 
 * Added command `magit-find-git-config-file' and variants, to make it
   easier to open a file located in the git directory, when ".git" is
