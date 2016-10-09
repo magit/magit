@@ -316,7 +316,7 @@ and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847."
   :group 'magit-faces)
 
 (defface magit-diff-file-heading-highlight
-  '((t :inherit (magit-diff-file-heading magit-section-highlight)))
+  '((t :inherit (magit-section-highlight)))
   "Face for current diff file headings."
   :group 'magit-faces)
 
