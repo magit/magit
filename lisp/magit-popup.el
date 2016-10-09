@@ -314,6 +314,9 @@ to determine whether it was invoked from a popup and if so from
 which popup.  If the current command was invoked without the use
 of a popup then this is nil.")
 
+(defvar magit-current-popup-action nil
+  "The popup action now being executed.")
+
 (defvar magit-current-popup-args nil
   "The value of the popup arguments for this editing command.
 
@@ -812,9 +815,10 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
       (setq action variable)
       (setq variable nil))
     (if (or action variable)
-        (let ((magit-current-popup magit-this-popup)
-              (magit-current-popup-args (magit-popup-get-args))
-              (command (magit-popup-event-fun (or action variable))))
+        (let* ((magit-current-popup magit-this-popup)
+               (magit-current-popup-args (magit-popup-get-args))
+               (command (magit-popup-event-fun (or action variable)))
+               (magit-current-popup-action command))
           (when action
             (magit-popup-quit))
           (call-interactively command)
