@@ -136,6 +136,37 @@
   (should (equal (magit-toplevel   "wrap/subsubdir-link")
                  (expand-file-name "repo/"))))
 
+(defun magit-test-magit-get ()
+  (should (equal (magit-get-all "a.b") '("val1" "val2")))
+  (should (equal (magit-get "a.b") "val2"))
+  (let ((default-directory (expand-file-name "../remote/")))
+    (should (equal (magit-get "a.b") "remote-value")))
+  (should (equal (magit-get "CAM.El.Case.VAR") "value"))
+  (should (equal (magit-get "a.b2") "line1\nline2")))
+
+(ert-deftest magit-get ()
+  (magit-with-test-directory
+   (magit-git "init" "remote")
+   (let ((default-directory (expand-file-name "remote/")))
+     (magit-git "commit" "-m" "init" "--allow-empty")
+     (magit-git "config" "a.b" "remote-value"))
+   (magit-git "init" "super")
+   (setq default-directory (expand-file-name "super/"))
+   ;; Some tricky cases:
+   ;; Multiple config values.
+   (magit-git "config" "a.b" "val1")
+   (magit-git "config" "--add" "a.b" "val2")
+   ;; CamelCase variable names.
+   (magit-git "config" "Cam.El.Case.Var" "value")
+   ;; Values with newlines.
+   (magit-git "config" "a.b2" "line1\nline2")
+   ;; Config variables in submodules.
+   (magit-git "submodule" "add" "../remote" "repo/")
+
+   (magit-test-magit-get)
+   (let ((magit--refresh-cache (list (cons 0 0))))
+     (magit-test-magit-get))))
+
 (ert-deftest magit-get-boolean ()
   (magit-with-test-repository
     (magit-git "config" "a.b" "true")
