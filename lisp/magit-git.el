@@ -117,9 +117,6 @@ purpose."
   :group 'magit-process
   :type '(repeat string))
 
-(define-obsolete-variable-alias 'magit-git-standard-options
-  'magit-git-global-arguments "2.1.0")
-
 (defcustom magit-git-debug nil
   "Whether to enable additional reporting of git errors.
 
@@ -1490,6 +1487,8 @@ Return a list of two integers: (A>B B>A)."
 
 ;;; magit-git.el ends soon
 
+(define-obsolete-variable-alias 'magit-git-standard-options
+  'magit-git-global-arguments "Magit 2.1.0")
 (define-obsolete-function-alias 'magit-get-tracked-ref
   'magit-get-upstream-ref "Magit 2.4.0")
 (define-obsolete-function-alias 'magit-get-tracked-branch

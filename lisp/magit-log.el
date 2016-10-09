@@ -282,9 +282,6 @@ the upstream isn't ahead of the current branch) show."
   :group 'magit-status
   :type '(repeat (string :tag "Argument")))
 
-(define-obsolete-variable-alias 'magit-log-section-args
-  'magit-log-section-arguments "2.2.0")
-
 ;;; Commands
 
 (defvar magit-log-popup
@@ -1511,6 +1508,8 @@ and the respective options are `magit-log-show-margin' and
 
 ;;; magit-log.el ends soon
 
+(define-obsolete-variable-alias 'magit-log-section-args
+  'magit-log-section-arguments "Magit 2.2.0")
 (define-obsolete-function-alias 'magit-insert-unpulled-or-recent-commits
   'magit-insert-unpulled-from-upstream-or-recent "Magit 2.4.0")
 

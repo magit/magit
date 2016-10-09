@@ -3465,13 +3465,10 @@ doesn't find the executable, then consult the info node
 
 (define-obsolete-function-alias 'global-magit-file-buffer-mode
   'global-magit-file-mode "Magit 2.3.0")
-
 (define-obsolete-function-alias 'magit-insert-head-header
   'magit-insert-head-branch-header "Magit 2.4.0")
-
 (define-obsolete-function-alias 'magit-insert-upstream-header
   'magit-insert-upstream-branch-header "Magit 2.4.0")
-
 (define-obsolete-function-alias 'magit-insert-pull-branch-header
   'magit-insert-upstream-branch-header "Magit 2.4.0")
 
