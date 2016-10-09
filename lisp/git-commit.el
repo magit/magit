@@ -122,6 +122,8 @@
 ;;;; Declarations
 
 (defvar flyspell-generic-check-word-predicate)
+(defvar font-lock-beg)
+(defvar font-lock-end)
 
 (declare-function magit-expand-git-file-name 'magit-git)
 
@@ -175,8 +177,7 @@ The major mode configured here is turned on by the minor mode
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
   :type 'hook
-  :options '(
-             git-commit-save-message
+  :options '(git-commit-save-message
              git-commit-setup-changelog-support
              git-commit-turn-on-auto-fill
              git-commit-turn-on-flyspell
@@ -637,11 +638,6 @@ With a numeric prefix ARG, go forward ARG comments."
    (format "\\(.\\{0,%d\\}\\)\\(.*\\)" git-commit-summary-max-length)
    ;; Non-empty non-comment second line
    (format "\\(?:\n%s\\|\n\\(.+\\)\\)?" comment-start)))
-
-;; These are let-bound while `font-lock-extend-region-functions' are
-;; run.
-(defvar font-lock-beg)
-(defvar font-lock-end)
 
 (defun git-commit-extend-region-summary-line ()
   "Identify the multiline summary-regexp construct.
