@@ -23,7 +23,7 @@
   to perform almost all of their daily version control tasks directly
   from within Emacs.  While many fine Git clients exist, only Magit
   and Git itself deserve to be called porcelains.
-  <a href="https://magit.vc/about.html">(more)</a>
+  <a href="https://magit.vc/about">(more)</a>
 </p>
 ***
 
