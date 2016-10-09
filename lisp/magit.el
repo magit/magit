@@ -235,10 +235,19 @@ the remote branch and then checking out the new local branch."
 ;;;; Miscellaneous
 
 (defcustom magit-branch-read-upstream-first t
-  "When creating a branch, read upstream before name of new branch."
+  "Whether to read upstream before name of new branch when creating a branch.
+
+`nil'      Read the branch name first.
+`t'        Read the upstream first.
+`fallback' Read the upstream first, but if it turns out that the chosen
+           value is not a valid upstream (because it cannot be resolved
+           as an existing revision), then treat it as the name of the
+           new branch and continue by reading the upstream next."
   :package-version '(magit . "2.2.0")
   :group 'magit-commands
-  :type 'boolean)
+  :type '(choice (const :tag "read branch name first" nil)
+                 (const :tag "read upstream first" t)
+                 (const :tag "read upstream first, with fallback" fallback)))
 
 (defcustom magit-branch-prefer-remote-upstream nil
   "Whether to favor remote upstreams when creating new branches.
@@ -1494,21 +1503,27 @@ changes.
   (magit-run-git "checkout" "--orphan" args branch start-point))
 
 (defun magit-branch-read-args (prompt)
-  (let ((args (magit-branch-arguments)) start branch)
-    (cond (magit-branch-read-upstream-first
-           (setq start  (magit-read-starting-point prompt))
-           (setq branch (magit-read-string-ns
-                         "Branch name"
-                         (let ((def (mapconcat #'identity
-                                               (cdr (split-string start "/"))
-                                               "/")))
-                           (and (member start (magit-list-remote-branch-names))
-                                (not (member def (magit-list-local-branch-names)))
-                                def)))))
-          (t
-           (setq branch (magit-read-string-ns "Branch name"))
-           (setq start  (magit-read-starting-point prompt))))
-    (list branch start args)))
+  (let ((args (magit-branch-arguments)))
+    (if magit-branch-read-upstream-first
+        (let ((choice (magit-read-starting-point prompt)))
+          (if (magit-rev-verify choice)
+              (list (magit-read-string-ns
+                     "Branch name"
+                     (let ((def (mapconcat #'identity
+                                           (cdr (split-string choice "/"))
+                                           "/")))
+                       (and (member choice (magit-list-remote-branch-names))
+                            (not (member def (magit-list-local-branch-names)))
+                            def)))
+                    choice args)
+            (if (eq magit-branch-read-upstream-first 'fallback)
+                (list choice
+                      (magit-read-starting-point (format "%s %s" prompt choice))
+                      args)
+              (user-error "Not a valid starting-point: %s" choice))))
+      (list (magit-read-string-ns "Branch name")
+            (magit-read-starting-point prompt)
+            args))))
 
 ;;;###autoload
 (defun magit-branch-spinoff (branch &optional from &rest args)
