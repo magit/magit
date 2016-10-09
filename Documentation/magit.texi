@@ -2992,18 +2992,25 @@ This command moves forward in current buffer's history.
 @cindex magit-diff-visit-file
 @item @kbd{RET} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-visit-file})
 
-From a diff, visit the corresponding file at the appropriate
-position.
-
-When the file is already being displayed in another window of the
-same frame, then just select that window and adjust point.  With a
-prefix argument also display in another window.
+From a diff, visit the corresponding file at the appropriate position.
 
 If the diff shows changes in the worktree, the index, or @code{HEAD}, then
-visit the actual file.  Otherwise when the diff is about an older
-commit, then visit the respective blob using @code{magit-find-file}.  Also
-see @code{magit-diff-visit-file-worktree}, which, as the name suggests,
-always visits the actual file.
+visit the actual file.  Otherwise, when the diff is about an older
+commit or a range, then visit the appropriate blob.
+
+If point is on a removed line, then visit the blob for the first
+parent of the commit which removed that line, i.e. the last
+commit where that line still existed.  Otherwise visit the blob
+for the commit whose changes are being shown.
+
+When the diff is about a range of commits, then, for the time
+being, the point this function jumps to often is only an
+approximation.
+
+When the file or blob to be displayed is already being displayed in
+another window of the same frame, then just select that window and
+adjust point.  Otherwise, or with a prefix argument, display the
+buffer in another window.
 
 @kindex C-<return>
 @cindex magit-diff-visit-file-worktree

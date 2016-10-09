@@ -1025,15 +1025,23 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defun magit-diff-visit-file (file &optional other-window force-worktree)
   "From a diff, visit the corresponding file at the appropriate position.
 
-When the file is already being displayed in another window of the
-same frame, then just select that window and adjust point.  With
-a prefix argument also display in another window.
-
 If the diff shows changes in the worktree, the index, or `HEAD',
-then visit the actual file.  Otherwise when the diff is about
-an older commit, then visit the respective blob using
-`magit-find-file'.  Also see `magit-diff-visit-file-worktree'
-which, as the name suggests always visits the actual file."
+then visit the actual file.  Otherwise, when the diff is about an
+older commit or a range, then visit the appropriate blob.
+
+If point is on a removed line, then visit the blob for the first
+parent of the commit which removed that line, i.e. the last
+commit where that line still existed.  Otherwise visit the blob
+for the commit whose changes are being shown.
+
+When the diff is about a range of commits, then, for the time
+being, the point this function jumps to often is only an
+approximation.
+
+When the file or blob to be displayed is already being displayed
+in another window of the same frame, then just select that window
+and adjust point.  Otherwise, or with a prefix argument, display
+the buffer in another window."
   (interactive (list (--if-let (magit-file-at-point)
                          (expand-file-name it)
                        (user-error "No file at point"))
@@ -1056,17 +1064,25 @@ which, as the name suggests always visits the actual file."
                      ((derived-mode-p 'magit-diff-mode)
                       (--when-let (car magit-refresh-args)
                         (and (string-match "\\.\\.\\([^.].*\\)?[ \t]*\\'" it)
-                             (match-string 1 it))))))
+                             (match-string 1 it))))
+                     ((derived-mode-p 'magit-status-mode)
+                      (magit-rev-name "HEAD"))))
           (unmerged-p (magit-anything-unmerged-p file))
           hunk line col buffer)
-      (when (and rev (magit-rev-head-p rev))
-        (setq rev nil))
-      (setq hunk
-            (pcase (magit-diff-scope)
-              ((or `hunk `region) current)
-              ((or `file `files)  (car (magit-section-children current)))
-              (`list (car (magit-section-children
-                           (car (magit-section-children current)))))))
+      (pcase (magit-diff-scope)
+        ((or `hunk `region)
+         (cond ((not rev))
+               ((save-excursion (goto-char (line-beginning-position))
+                                (looking-at "-"))
+                (setq rev (magit-rev-name (concat rev "~"))))
+               ((magit-rev-head-p rev)
+                (setq rev nil)))
+         (setq hunk current))
+        ((or `file `files)
+         (setq hunk (car (magit-section-children current))))
+        (`list
+         (setq hunk (car (magit-section-children
+                          (car (magit-section-children current)))))))
       (when (and hunk
                  ;; Currently the `hunk' type is also abused for file
                  ;; mode changes.  Luckily such sections have no value.
@@ -1133,9 +1149,12 @@ or `HEAD'."
          (prefix (- (length value) 2))
          (cpos   (marker-position (magit-section-content section)))
          (stop   (line-number-at-pos))
-         (cstart (save-excursion (goto-char cpos) (line-number-at-pos)))
-         (line   (car (last value))))
-    (string-match "^\\+\\([0-9]+\\)" line)
+         (cstart (save-excursion (goto-char cpos)
+                                 (line-number-at-pos)))
+         (prior  (save-excursion (goto-char (line-beginning-position))
+                                 (looking-at "-")))
+         (line   (nth (if prior 1 2) value)))
+    (string-match (format "^%s\\([0-9]+\\)" (if prior "-" "\\+")) line)
     (setq line (string-to-number (match-string 1 line)))
     (when (> cstart stop)
       (save-excursion
@@ -1146,7 +1165,8 @@ or `HEAD'."
       (goto-char cpos)
       (while (< (line-number-at-pos) stop)
         (unless (string-match-p
-                 "-" (buffer-substring (point) (+ (point) prefix)))
+                 (if prior "\\+" "-")
+                 (buffer-substring (point) (+ (point) prefix)))
           (cl-incf line))
         (forward-line)))
     line))
