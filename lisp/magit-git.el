@@ -1413,17 +1413,19 @@ Return a list of two integers: (A>B B>A)."
          (and (not (equal previous branch)) previous)))))
 
 (defun magit-read-starting-point (prompt)
-  (or (magit-completing-read
-       (concat prompt " starting at")
-       (cons "HEAD" (magit-list-refnames))
-       nil nil nil 'magit-revision-history
-       (or (let ((r (magit-remote-branch-at-point))
-                 (l (magit-local-branch-at-point)))
-             (if magit-prefer-remote-upstream (or r l) (or l r)))
-           (magit-commit-at-point)
-           (magit-stash-at-point)
-           (magit-get-current-branch)))
+  (or (magit-completing-read (concat prompt " starting at")
+                             (cons "HEAD" (magit-list-refnames))
+                             nil nil nil 'magit-revision-history
+                             (magit--default-starting-point))
       (user-error "Nothing selected")))
+
+(defun magit--default-starting-point ()
+  (or (let ((r (magit-remote-branch-at-point))
+            (l (magit-local-branch-at-point)))
+        (if magit-prefer-remote-upstream (or r l) (or l r)))
+      (magit-commit-at-point)
+      (magit-stash-at-point)
+      (magit-get-current-branch)))
 
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-list-tags) nil

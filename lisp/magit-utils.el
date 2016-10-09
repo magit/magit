@@ -62,6 +62,34 @@ want Magit to use Helm for completion, you can set this option to
                 (function-item helm--completing-read-default)
                 (function :tag "Other")))
 
+(defcustom magit-no-confirm-default nil
+  "A list of commands which should just use the default choice.
+
+Many commands let the user choose the target they act on offering
+a sensible default as default choice.  If you think that that
+default is so sensible that it should always be used without even
+offering other choices, then add that command here.
+
+Commands have to explicitly support this option.  Currently only
+these commands do:
+  `magit-branch'
+  `magit-branch-and-checkout'
+  `magit-branch-orphan'
+  `magit-worktree-branch'
+    For these four commands `magit-branch-read-upstream-first'
+    must be non-nil, or adding them here has no effect.
+  `magit-branch-rename'
+  `magit-tag'"
+  :package-version '(magit . "2.9.0")
+  :group 'magit-commands
+  :type '(list :convert-widget custom-hook-convert-widget)
+  :options '(magit-branch
+             magit-branch-and-checkout
+             magit-branch-orphan
+             magit-branch-rename
+             magit-worktree-branch
+             magit-tag))
+
 (defcustom magit-no-confirm nil
   "A list of symbols for actions Magit should not confirm, or t.
 
@@ -153,6 +181,7 @@ Global settings:
   as adding all of these symbols individually."
   :package-version '(magit . "2.1.0")
   :group 'magit
+  :group 'magit-commands
   :type '(choice (const :tag "No confirmation needed" t)
                  (set (const reverse)           (const discard)
                       (const rename)            (const resurrect)
