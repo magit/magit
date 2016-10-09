@@ -113,7 +113,6 @@ instead customize `magit-diff-highlight-hunk-region-functions'."
 
 (defcustom magit-diff-highlight-hunk-region-functions
   '(magit-diff-highlight-hunk-region-dim-outside
-    magit-diff-show-lines-boundary
     magit-diff-highlight-hunk-region-using-overlays)
   "The functions used to highlight the hunk-internal region.
 
