@@ -1528,9 +1528,10 @@ changes.
                       (magit-read-starting-point (concat prompt " " choice))
                       args)
               (user-error "Not a valid starting-point: %s" choice))))
-      (list (magit-read-string-ns "Branch name")
-            (magit-read-starting-point prompt)
-            args))))
+      (let ((branch (magit-read-string-ns (concat prompt " named"))))
+        (list branch
+              (magit-read-starting-point (concat prompt " " branch))
+              args)))))
 
 ;;;###autoload
 (defun magit-branch-spinoff (branch &optional from &rest args)
