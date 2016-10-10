@@ -1067,7 +1067,7 @@ the buffer in another window."
                              (match-string 1 it))))
                      ))
           (unmerged-p (magit-anything-unmerged-p file))
-          hunk line col buffer)
+          hunk buffer position)
       (pcase (magit-diff-scope)
         ((or `hunk `region)
          (cond ((not rev))
@@ -1084,25 +1084,21 @@ the buffer in another window."
                           (car (magit-section-children current)))))))
       (when (and rev (magit-rev-head-p rev))
         (setq rev nil))
-      (when (and hunk
-                 ;; Currently the `hunk' type is also abused for file
-                 ;; mode changes.  Luckily such sections have no value.
-                 (magit-section-value hunk))
-        (setq line (magit-diff-hunk-line   hunk)
-              col  (magit-diff-hunk-column hunk)))
       (setq buffer (if rev
                        (magit-find-file-noselect rev file)
                      (or (get-file-buffer file)
                          (find-file-noselect file))))
+      (when (and hunk
+                 ;; Currently the `hunk' type is also abused for file
+                 ;; mode changes.  Luckily such sections have no value.
+                 (magit-section-value hunk))
+        (setq position (magit-diff-hunk-position-in-buffer hunk buffer)))
       (magit-display-file-buffer buffer)
       (with-current-buffer buffer
-        (when line
-          (save-restriction
-            (widen)
-            (goto-char (point-min))
-            (forward-line (1- line))
-            (when col
-              (move-to-column col))))
+        (when position
+          (when (not (<= (point-min) position (point-max)))
+            (widen))
+          (goto-char position))
         (when unmerged-p
           (smerge-start-session))
         (run-hooks 'magit-diff-visit-file-hook)))))
@@ -1144,6 +1140,20 @@ or `HEAD'."
                          (user-error "No file at point"))
                      current-prefix-arg))
   (magit-diff-visit-file file other-window t))
+
+(defun magit-diff-hunk-position-in-buffer (hunk buffer)
+  (let ((line (magit-diff-hunk-line hunk))
+        (col (magit-diff-hunk-column hunk)))
+    (when line
+      (with-current-buffer buffer
+        (save-excursion
+          (save-restriction
+            (widen)
+            (goto-char (point-min))
+            (forward-line (1- line))
+            (when col
+              (move-to-column col))
+            (point)))))))
 
 (defun magit-diff-hunk-line (section)
   (let* ((value  (magit-section-value section))
