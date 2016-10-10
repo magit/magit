@@ -1097,12 +1097,16 @@ the buffer in another window."
       (magit-display-file-buffer buffer)
       (with-current-buffer buffer
         (when line
-          (save-restriction
-            (widen)
-            (goto-char (point-min))
-            (forward-line (1- line))
-            (when col
-              (move-to-column col))))
+          (let ((pos (save-restriction
+                       (widen)
+                       (goto-char (point-min))
+                       (forward-line (1- line))
+                       (when col
+                         (move-to-column col))
+                       (point))))
+            (unless (<= (point-min) pos (point-max))
+              (widen)
+              (goto-char pos))))
         (when unmerged-p
           (smerge-start-session))
         (run-hooks 'magit-diff-visit-file-hook)))))
