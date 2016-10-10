@@ -791,7 +791,8 @@ as argument."
           default-dir (process-get arg 'default-dir)
           section     (process-get arg 'section)
           arg         (process-exit-status arg)))
-  (magit-process-unset-mode-line)
+  (with-current-buffer process-buf
+    (magit-process-unset-mode-line))
   (when (featurep 'dired)
     (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
