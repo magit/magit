@@ -1083,6 +1083,8 @@ the buffer in another window."
         (`list
          (setq hunk (car (magit-section-children
                           (car (magit-section-children current)))))))
+      (when (and rev (magit-rev-head-p rev))
+        (setq rev nil))
       (when (and hunk
                  ;; Currently the `hunk' type is also abused for file
                  ;; mode changes.  Luckily such sections have no value.
@@ -1151,9 +1153,12 @@ or `HEAD'."
          (stop   (line-number-at-pos))
          (cstart (save-excursion (goto-char cpos)
                                  (line-number-at-pos)))
-         (prior  (save-excursion (goto-char (line-beginning-position))
-                                 (looking-at "-")))
-         (line   (nth (if prior 1 2) value)))
+         (prior  (and (= (length value) 3)
+                      (save-excursion (goto-char (line-beginning-position))
+                                      (looking-at "-"))))
+         (line   (if prior
+                     (cadr value)
+                   (car (last value)))))
     (string-match (format "^%s\\([0-9]+\\)" (if prior "-" "\\+")) line)
     (setq line (string-to-number (match-string 1 line)))
     (when (> cstart stop)
