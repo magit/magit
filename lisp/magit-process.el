@@ -867,8 +867,8 @@ as argument."
 
 ;;; magit-process.el ends soon
 
-(define-obsolete-variable-alias 'magit-git-output-coding-system
-  'magit-log-output-coding-system "Magit 2.9.0")
+(define-obsolete-variable-alias 'magit-log-output-coding-system
+  'magit-git-output-coding-system "Magit 2.9.0")
 
 (provide 'magit-process)
 ;; Local Variables:
