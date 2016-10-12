@@ -460,8 +460,10 @@ Magit is documented in info node `(magit)'."
   (add-hook 'post-command-hook #'magit-section-update-highlight t t)
   (setq-local redisplay-highlight-region-function 'magit-highlight-region)
   (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region)
-  (when (fboundp 'linum-mode)
-    (linum-mode -1)))
+  (when (bound-and-true-p global-linum-mode)
+    (linum-mode -1))
+  (when (bound-and-true-p global-nlinum-mode)
+    (nlinum-mode -1)))
 
 (defvar-local magit-region-overlays nil)
 
