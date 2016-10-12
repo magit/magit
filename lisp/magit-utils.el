@@ -490,6 +490,22 @@ FORMAT-STRING to be displayed, then don't."
   (unless (--first (string-prefix-p it format-string) magit-no-message)
     (apply #'message format-string args)))
 
+(defvar whitespace-mode)
+
+(defun whitespace-dont-turn-on-in-magit-mode ()
+  "Prevent `whitespace-mode' from being turned on in Magit buffers.
+Because `whitespace-mode' uses font-lock and Magit does not,
+they are not compatible.  See `magit-diff-paint-whitespace'
+for an alternative."
+  (when (derived-mode-p 'magit-mode)
+    (setq whitespace-mode nil)
+    (user-error
+     "Whitespace-Mode isn't compatible with Magit.  %s"
+     "See `magit-diff-paint-whitespace' for an alternative.")))
+
+(advice-add 'whitespace-turn-on :before
+            'whitespace-dont-turn-on-in-magit-mode)
+
 ;;; magit-utils.el ends soon
 (provide 'magit-utils)
 ;; Local Variables:
