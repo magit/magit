@@ -107,10 +107,6 @@ instead customize `magit-diff-highlight-hunk-region-functions'."
   :group 'magit-diff
   :type 'boolean)
 
-(make-obsolete-variable 'magit-diff-show-lines-boundary
-                        'magit-diff-highlight-hunk-region-functions
-                        "Magit 2.9.0")
-
 (defcustom magit-diff-highlight-hunk-region-functions
   '(magit-diff-highlight-hunk-region-dim-outside
     magit-diff-highlight-hunk-region-using-overlays)
@@ -2324,6 +2320,11 @@ https://github.com/magit/magit/pull/2293 for more details)."
     patch))
 
 ;;; magit-diff.el ends soon
+
+(make-obsolete-variable 'magit-diff-show-lines-boundary
+                        'magit-diff-highlight-hunk-region-functions
+                        "Magit 2.9.0")
+
 (provide 'magit-diff)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
