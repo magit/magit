@@ -3448,11 +3448,20 @@ features are available from separate popups.
 
   You might prefer to always use some remote branch as upstream.
   If the chosen starting-point is (1) a local branch, (2) whose
-  name is a member of the value of this option, (3) the upstream of
-  that local branch is a remote branch with the same name, and (4)
-  that remote branch can be fast-forwarded to the local branch,
-  then the chosen branch is used as starting-point, but its own
-  upstream is used as the upstream of the new branch.
+  name matches a member of the value of this option, (3) the
+  upstream of that local branch is a remote branch with the same
+  name, and (4) that remote branch can be fast-forwarded to the
+  local branch, then the chosen branch is used as starting-point,
+  but its own upstream is used as the upstream of the new branch.
+
+  Members of this option's value are treated as branch names that
+  have to match exactly unless they contain a character that makes
+  them invalid as a branch name.  Recommended characters to use
+  to trigger interpretation as a regexp are "*" and "^".  Some
+  other characters which you might expect to be invalid, actually
+  are not, e.g. ".+$" are all perfectly valid.  More precisely,
+  if `git check-ref-format --branch STRING' exits with a non-zero
+  status, then treat STRING as a regexp.
 
   Assuming the chosen branch matches these conditions you would end
   up with with e.g.:

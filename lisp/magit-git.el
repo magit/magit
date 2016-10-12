@@ -886,7 +886,11 @@ which is different from the current branch and still exists."
   (let ((remote (magit-get "branch" branch "remote")))
     (and remote (not (equal remote "."))
          ;; The user has opted in...
-         (or force (member branch magit-branch-prefer-remote-upstream))
+         (or force
+             (--any (if (magit-git-success "check-ref-format" "--branch" it)
+                        (equal it branch)
+                      (string-match-p it branch))
+                    magit-branch-prefer-remote-upstream))
          ;; and local BRANCH tracks a remote branch...
          (let ((upstream (magit-get-upstream-branch branch)))
            ;; whose upstream...
