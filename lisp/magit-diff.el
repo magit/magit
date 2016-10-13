@@ -1151,6 +1151,10 @@ or `HEAD'."
          (when section
            (setq section (car (magit-section-children section))))))
       (and
+       ;; Unmerged files appear in the list of staged changes
+       ;; but unlike in the list of unstaged changes no diffs
+       ;; are shown here.  In that case `section' is nil.
+       section
        ;; Currently the `hunk' type is also abused for file
        ;; mode changes, which we are not interested in here.
        ;; Such sections have no value.
