@@ -1283,6 +1283,15 @@ Return a list of two integers: (A>B B>A)."
           "\\(\\.\\.\\.?\\)"            ; range marker
           "\\([^.][^ \t]*\\)?\\'"))     ; revB
 
+(defun magit-split-range (range)
+  (when (string-match magit-range-re range)
+    (let ((beg (or (match-string 1 range) "HEAD"))
+          (end (or (match-string 3 range) "HEAD")))
+      (cons (if (string-equal (match-string 2) "...")
+                (magit-git-string "merge-base" beg end)
+              beg)
+            end))))
+
 ;;; Completion
 
 (defvar magit-revision-history nil)

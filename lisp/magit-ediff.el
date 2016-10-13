@@ -242,16 +242,12 @@ range)."
        'ediff-revision))))
 
 (defun magit-ediff-compare--read-revisions (&optional arg mbase)
-  (let ((input (or arg (magit-diff-read-range-or-commit "Compare range or commit"
-                                                        nil mbase)))
-        revA revB)
-    (if (string-match magit-range-re input)
-        (progn (setq revA (or (match-string 1 input) "HEAD")
-                     revB (or (match-string 3 input) "HEAD"))
-               (when (string= (match-string 2 input) "...")
-                 (setq revA (magit-git-string "merge-base" revA revB))))
-      (setq revA input))
-    (list revA revB)))
+  (let ((input (or arg (magit-diff-read-range-or-commit
+                        "Compare range or commit"
+                        nil mbase))))
+    (--if-let (magit-split-range input)
+        (-cons-to-list it)
+      (list input nil))))
 
 (defun magit-ediff-read-files (revA revB &optional fileB)
   "Read file in REVB, return it and the corresponding file in REVA.
