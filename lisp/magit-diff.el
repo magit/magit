@@ -512,6 +512,7 @@ and `:slant'."
   :group 'magit-faces)
 
 ;;; Commands
+;;;; Diff popups
 
 (defconst magit-diff-popup-common
   '(:variable magit-diff-arguments
@@ -676,6 +677,8 @@ buffer."
     (?m "[m]inimal"   "minimal")
     (?p "[p]atience"  "patience")
     (?h "[h]istogram" "histogram")))
+
+;;;; Diff commands
 
 ;;;###autoload
 (defun magit-diff-dwim (&optional args files)
@@ -919,6 +922,8 @@ for a revision."
                 (magit-section-cache-visibility child)))))))
     (magit-mode-setup #'magit-revision-mode rev nil args files)))
 
+;;;; Setting commands
+
 (defun magit-diff-refresh (args files)
   "Set the local diff arguments for the current buffer."
   (interactive (magit-diff-arguments t))
@@ -1042,6 +1047,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                   (if (eq magit-diff-refine-hunk 'all) t 'all)
                 (not magit-diff-refine-hunk)))
   (magit-diff-update-hunk-refinement))
+
+;;;; Visit commands
 
 (defun magit-diff-visit-file (file &optional other-window force-worktree)
   "From a diff, visit the corresponding file at the appropriate position.
@@ -1260,6 +1267,8 @@ or `HEAD'."
                '(nil (inhibit-same-window t))
              '(display-buffer-same-window))))
       (magit-status-internal directory))))
+
+;;;; Scroll commands
 
 (defun magit-diff-show-or-scroll-up ()
   "Update the commit or diff buffer for the thing at point.
