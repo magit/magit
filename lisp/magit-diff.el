@@ -1058,34 +1058,17 @@ the buffer in another window."
     (let* ((hunk (magit-diff-visit--hunk))
            (line (and hunk (magit-diff-hunk-line   hunk)))
            (col  (and hunk (magit-diff-hunk-column hunk)))
-           (rev (cond (force-worktree nil)
-                      ((derived-mode-p 'magit-revision-mode)
-                       (car magit-refresh-args))
-                      ((derived-mode-p 'magit-stash-mode)
-                       (magit-section-case
-                         (file (-> it
-                                   magit-section-parent
-                                   magit-section-value))
-                         (hunk (-> it
-                                   magit-section-parent
-                                   magit-section-parent
-                                   magit-section-value))))
-                      ((derived-mode-p 'magit-diff-mode)
-                       (--when-let (car magit-refresh-args)
-                         (and (string-match "\\.\\.\\([^.].*\\)?[ \t]*\\'" it)
-                              (match-string 1 it))))))
-           buf)
-      (when (and (magit-section-match 'hunk)
-                 rev
-                 (save-excursion (goto-char (line-beginning-position))
-                                 (looking-at "-")))
-        (setq rev (magit-rev-name (concat rev "~"))))
-      (when (and rev (magit-rev-head-p rev))
-        (setq rev nil))
-      (setq buf (if rev
-                    (magit-find-file-noselect rev file)
-                  (or (get-file-buffer file)
-                      (find-file-noselect file))))
+           (rev  (if (and (magit-section-match 'hunk)
+                          (save-excursion
+                            (goto-char (line-beginning-position))
+                            (looking-at "-")))
+                     (magit-diff-visit--range-beginning)
+                   (magit-diff-visit--range-end)))
+           (buf  (if (and (not force-worktree)
+                          (stringp rev))
+                     (magit-find-file-noselect rev file)
+                   (or (get-file-buffer file)
+                       (find-file-noselect file)))))
       (magit-display-file-buffer buf)
       (with-current-buffer buf
         (when line
@@ -1139,6 +1122,26 @@ or `HEAD'."
                          (user-error "No file at point"))
                      current-prefix-arg))
   (magit-diff-visit-file file other-window t))
+
+(defun magit-diff-visit--range-end ()
+  (let ((rev (magit-diff--dwim)))
+    (if (symbolp rev)
+        rev
+      (setq rev (if (consp rev)
+                    (cdr rev)
+                  (car (magit-split-range rev))))
+      (if (magit-rev-head-p rev)
+          'unstaged
+        rev))))
+
+(defun magit-diff-visit--range-beginning ()
+  (let ((rev (magit-diff--dwim)))
+    (cond ((consp rev)
+           (concat (cdr rev) "^"))
+          ((stringp rev)
+           (cdr (magit-split-range rev)))
+          (t
+           rev))))
 
 (defun magit-diff-visit--hunk ()
   (-when-let (scope (magit-diff-scope))
