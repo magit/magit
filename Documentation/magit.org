@@ -2207,10 +2207,6 @@ without having to using one of the diff popups.
   commit where that line still existed.  Otherwise visit the blob
   for the commit whose changes are being shown.
 
-  When the diff is about a range of commits, then, for the time
-  being, the point this function jumps to often is only an
-  approximation.
-
   When the file or blob to be displayed is already being displayed in
   another window of the same frame, then just select that window and
   adjust point.  Otherwise, or with a prefix argument, display the

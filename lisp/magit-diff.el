@@ -1041,10 +1041,6 @@ parent of the commit which removed that line, i.e. the last
 commit where that line still existed.  Otherwise visit the blob
 for the commit whose changes are being shown.
 
-When the diff is about a range of commits, then, for the time
-being, the point this function jumps to often is only an
-approximation.
-
 When the file or blob to be displayed is already being displayed
 in another window of the same frame, then just select that window
 and adjust point.  Otherwise, or with a prefix argument, display
@@ -1072,6 +1068,14 @@ the buffer in another window."
       (magit-display-file-buffer buf)
       (with-current-buffer buf
         (when line
+          (setq line
+                (cond ((eq rev 'staged)
+                       (apply 'magit-diff-visit--offset file nil line))
+                      ((and force-worktree
+                            (stringp rev))
+                       (apply 'magit-diff-visit--offset file rev line))
+                      (t
+                       (apply '+ line))))
           (let ((pos (save-restriction
                        (widen)
                        (goto-char (point-min))
@@ -1164,6 +1168,36 @@ or `HEAD'."
        (magit-section-value section)
        section))))
 
+(defun magit-diff-visit--offset (file rev hunk-start line-offset)
+  (let ((offset 0))
+    (with-temp-buffer
+      (save-excursion
+        (magit-with-toplevel
+          (magit-git-insert "diff" rev "--" file)))
+      (catch 'found
+        (while (re-search-forward
+                "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@"
+                nil t)
+          (let* ((abeg (string-to-number (match-string 1)))
+                 (alen (string-to-number (match-string 2)))
+                 (bbeg (string-to-number (match-string 3)))
+                 (blen (string-to-number (match-string 4)))
+                 (aend (+ abeg alen))
+                 (bend (+ bbeg blen))
+                 (hend (+ hunk-start line-offset)))
+            (if (<= abeg hunk-start)
+                (if (or (>= aend hend)
+                        (>= bend hend))
+                    (let ((line 0))
+                      (while (<= line alen)
+                        (forward-line 1)
+                        (cl-incf line)
+                        (cond ((looking-at "^\\+") (cl-incf offset))
+                              ((looking-at "^-")   (cl-decf offset)))))
+                  (cl-incf offset (- blen alen)))
+              (throw 'found nil))))))
+    (+ hunk-start line-offset offset)))
+
 (defun magit-diff-hunk-line (section)
   (let* ((value  (magit-section-value section))
          (prefix (- (length value) 2))
@@ -1174,6 +1208,7 @@ or `HEAD'."
          (prior  (and (= (length value) 3)
                       (save-excursion (goto-char (line-beginning-position))
                                       (looking-at "-"))))
+         (offset 0)
          (line   (if prior
                      (cadr value)
                    (car (last value)))))
@@ -1190,9 +1225,9 @@ or `HEAD'."
         (unless (string-match-p
                  (if prior "\\+" "-")
                  (buffer-substring (point) (+ (point) prefix)))
-          (cl-incf line))
+          (cl-incf offset))
         (forward-line)))
-    line))
+    (list line offset)))
 
 (defun magit-diff-hunk-column (section)
   (if (or (< (point) (magit-section-content section))
