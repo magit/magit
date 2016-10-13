@@ -462,7 +462,8 @@ Magit is documented in info node `(magit)'."
   (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region)
   (when (bound-and-true-p global-linum-mode)
     (linum-mode -1))
-  (when (bound-and-true-p global-nlinum-mode)
+  (when (and (fboundp 'nlinum-mode)
+             (bound-and-true-p global-nlinum-mode))
     (nlinum-mode -1)))
 
 (defvar-local magit-region-overlays nil)
