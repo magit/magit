@@ -90,6 +90,17 @@ these commands do:
              magit-worktree-branch
              magit-tag))
 
+(defconst magit--confirm-actions
+  '((const reverse)           (const discard)
+    (const rename)            (const resurrect)
+    (const trash)             (const delete)
+    (const abort-rebase)
+    (const abort-merge)       (const merge-dirty)
+    (const drop-stashes)      (const resect-bisect)
+    (const kill-process)      (const delete-unmerged-branch)
+    (const stage-all-changes) (const unstage-all-changes)
+    (const safe-with-wip)))
+
 (defcustom magit-no-confirm nil
   "A list of symbols for actions Magit should not confirm, or t.
 
@@ -186,25 +197,26 @@ Global settings:
   :package-version '(magit . "2.1.0")
   :group 'magit
   :group 'magit-commands
-  :type '(choice (const :tag "No confirmation needed" t)
-                 (set (const reverse)           (const discard)
-                      (const rename)            (const resurrect)
-                      (const trash)             (const delete)
-                      (const abort-rebase)
-                      (const abort-merge)       (const merge-dirty)
-                      (const drop-stashes)      (const resect-bisect)
-                      (const kill-process)      (const delete-unmerged-branch)
-                      (const stage-all-changes) (const unstage-all-changes)
-                      (const safe-with-wip))))
+  :type `(choice (const :tag "Always require confirmation" nil)
+                 (const :tag "Never require confirmation" t)
+                 (set   :tag "Require confirmation only for"
+                        ,@magit--confirm-actions)))
 
 (defcustom magit-slow-confirm nil
   "Whether to ask user \"y or n\" or \"yes or no\" questions.
-When this is nil (the default), then `y-or-n-p' is used when the
-user has to confirm a potentially destructive action.  When this
-is non-nil, then `yes-or-no-p' is used instead."
+
+When this is nil, then `y-or-n-p' is used when the user has to
+confirm a potentially destructive action.  When this is t, then
+`yes-or-no-p' is used instead.  If this is a list of symbols
+identifying actions, then `yes-or-no-p' is used for those,
+`y-or-no-p' for all others.  The list of actions is the same as
+for `magit-no-confirm' (which see)."
   :package-version '(magit . "2.9.0")
   :group 'magit-commands
-  :type 'boolean)
+  :type `(choice (const :tag "Always ask \"yes or no\" questions" t)
+                 (const :tag "Always ask \"y or n\" questions" nil)
+                 (set   :tag "Ask yes or no questions only for"
+                        ,@magit--confirm-actions)))
 
 (defcustom magit-no-message nil
   "A list of messages Magit should not display.
@@ -381,10 +393,12 @@ This is similar to `read-string', but
            ',(mapcar 'car clauses))
      ,@(--map `(,(car it) ,@(cddr it)) clauses)))
 
-(defun magit-y-or-n-p (prompt)
-  "Ask user a \"y or n\" or a \"yes or no\" question.
-Also see option `magit-slow-confirm'."
-  (if magit-slow-confirm
+(defun magit-y-or-n-p (prompt &optional action)
+  "Ask user a \"y or n\" or a \"yes or no\" question using PROMPT.
+Which kind of question is used depends on whether
+ACTION is a member of option `magit-slow-confirm'."
+  (if (or (eq magit-slow-confirm t)
+          (and action (member action magit-slow-confirm)))
       (yes-or-no-p prompt)
     (y-or-n-p prompt)))
 
@@ -405,9 +419,9 @@ Also see option `magit-slow-confirm'."
                                    unstage-all-changes))))))
          (or (not sitems) items))
         ((not sitems)
-         (magit-y-or-n-p prompt))
+         (magit-y-or-n-p prompt action))
         ((= (length items) 1)
-         (and (magit-y-or-n-p prompt) items))
+         (and (magit-y-or-n-p prompt action) items))
         ((> (length items) 1)
          (let ((buffer (get-buffer-create " *Magit Confirm*")))
            (with-current-buffer buffer
@@ -416,7 +430,7 @@ Also see option `magit-slow-confirm'."
                            '((window-height . fit-window-to-buffer)))
               (lambda (window _value)
                 (with-selected-window window
-                  (unwind-protect (and (magit-y-or-n-p prompt-n) items)
+                  (unwind-protect (and (magit-y-or-n-p prompt-n action) items)
                     (when (window-live-p window)
                       (quit-restore-window window 'kill)))))
               (dolist (item items)
