@@ -482,7 +482,8 @@ returning the truename."
   "Return t if `default-directory' is below a repository directory."
   ;; This does not work if the gitdir is not located inside the
   ;; working tree: (magit-rev-parse-p "--is-inside-git-dir").
-  (file-in-directory-p default-directory (magit-git-dir)))
+  (-when-let (gitdir (magit-git-dir))
+    (file-in-directory-p default-directory gitdir)))
 
 (defun magit-inside-worktree-p ()
   "Return t if `default-directory' is below the work tree of a repository."
