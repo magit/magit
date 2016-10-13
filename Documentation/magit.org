@@ -5894,17 +5894,18 @@ And now for the asynchronous variants.
 - Function: magit-section-match condition &optional section
 
   Return ~t~ if SECTION matches CONDITION.  SECTION defaults to the
-  section at point.
+  section at point.  If SECTION is not specified and there also is no
+  section at point, then return ~nil~.
 
-  Conditions can take the following forms:
+  CONDITION can take the following forms:
   - ~(CONDITION...)~
 
     matches if any of the CONDITIONs matches.
 
   - ~[TYPE...]~
 
-    matches if the first TYPE matches the type of the section at
-    point, the second matches that of its parent, and so on.
+    matches if the first TYPE matches the type of the section, the
+    second matches that of its parent, and so on.
 
   - ~[* TYPE...]~
 
@@ -5913,7 +5914,8 @@ And now for the asynchronous variants.
 
   - ~TYPE~
 
-    matches TYPE regardless of its parents.
+    matches sections of TYPE regardless of the types of the parent
+    sections.
 
   Each TYPE is a symbol.  Note that it is not necessary to specify all
   TYPEs up to the root section as printed by ~magit-describe-type~,
@@ -5923,9 +5925,11 @@ And now for the asynchronous variants.
 
   If the section at point matches CONDITION evaluate BODY.
 
-  If the section matches evaluate BODY forms sequentially and return
-  the value of the last one, or if there are no BODY forms return the
-  value of the section.  If the section does not match return nil.
+  If the section matches, then evaluate BODY forms sequentially with
+  ~it~ bound to the section and return the value of the last form.  If
+  there are no BODY forms, then return the value of the section.  If
+  the section does not match or if there is no section at point then
+  return nil.
 
   See ~magit-section-match~ for the forms CONDITION can take.
 

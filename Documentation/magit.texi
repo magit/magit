@@ -7942,9 +7942,10 @@ returned by @code{magit-section-ident}.
 @defun magit-section-match condition &optional section
 
 Return @code{t} if SECTION matches CONDITION.  SECTION defaults to the
-section at point.
+section at point.  If SECTION is not specified and there also is no
+section at point, then return @code{nil}.
 
-Conditions can take the following forms:
+CONDITION can take the following forms:
 @itemize
 @item
 @code{(CONDITION...)}
@@ -7955,8 +7956,8 @@ matches if any of the CONDITIONs matches.
 @item
 @code{[TYPE...]}
 
-matches if the first TYPE matches the type of the section at
-point, the second matches that of its parent, and so on.
+matches if the first TYPE matches the type of the section, the
+second matches that of its parent, and so on.
 
 
 @item
@@ -7969,7 +7970,8 @@ their child sections.
 @item
 @code{TYPE}
 
-matches TYPE regardless of its parents.
+matches sections of TYPE regardless of the types of the parent
+sections.
 @end itemize
 Each TYPE is a symbol.  Note that it is not necessary to specify all
 TYPEs up to the root section as printed by @code{magit-describe-type},
@@ -7980,9 +7982,11 @@ unless of course you want to be that precise.
 
 If the section at point matches CONDITION evaluate BODY.
 
-If the section matches evaluate BODY forms sequentially and return
-the value of the last one, or if there are no BODY forms return the
-value of the section.  If the section does not match return nil.
+If the section matches, then evaluate BODY forms sequentially with
+@code{it} bound to the section and return the value of the last form.  If
+there are no BODY forms, then return the value of the section.  If
+the section does not match or if there is no section at point then
+return nil.
 
 See @code{magit-section-match} for the forms CONDITION can take.
 @end defun

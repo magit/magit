@@ -533,18 +533,23 @@ This command is intended for debugging purposes."
 
 ;;; Match
 
-(defun magit-section-match (condition &optional section)
+(cl-defun magit-section-match
+    (condition &optional (section (magit-current-section)))
   "Return t if SECTION matches CONDITION.
-SECTION defaults to the section at point.
 
-Conditions can take the following forms:
+SECTION defaults to the section at point.  If SECTION is not
+specified and there also is no section at point, then return
+nil.
+
+CONDITION can take the following forms:
   (CONDITION...)  matches if any of the CONDITIONs matches.
   [TYPE...]       matches if the first TYPE matches the type
-                  of the section at point, the second matches
-                  that of its parent, and so on.
+                  of the section, the second matches that of
+                  its parent, and so on.
   [* TYPE...]     matches sections that match [TYPE...] and
                   also recursively all their child sections.
-  TYPE            matches TYPE regardless of its parents.
+  TYPE            matches sections of TYPE regardless of the
+                  types of the parent sections.
 
 Each TYPE is a symbol.  Note that it is not necessary to specify
 all TYPEs up to the root section as printed by
@@ -552,41 +557,42 @@ all TYPEs up to the root section as printed by
 precise."
   ;; When recursing SECTION actually is a type list.  Matching
   ;; macros also pass such a list instead of a section struct.
-  (let ((types (if (magit-section-p section)
-                   (mapcar 'car (magit-section-ident section))
-                 section)))
-    (when (or types section (magit-current-section))
-      (if (listp condition)
-          (--first (magit-section-match it types) condition)
-        (magit-section-match-1 (if (symbolp condition)
-                                   (list condition)
-                                 (append condition nil))
-                               types)))))
+  (and section
+       (magit-section-match-1 condition
+                              (mapcar #'car (magit-section-ident section)))))
 
-(defun magit-section-match-1 (l1 l2)
+(defun magit-section-match-1 (condition type-list)
+  (if (listp condition)
+      (--first (magit-section-match-1 it type-list) condition)
+    (magit-section-match-2 (if (symbolp condition)
+                               (list condition)
+                             (append condition nil))
+                           type-list)))
+
+(defun magit-section-match-2 (l1 l2)
   (or (null l1)
       (if (eq (car l1) '*)
-          (or (magit-section-match-1 (cdr l1) l2)
+          (or (magit-section-match-2 (cdr l1) l2)
               (and l2
-                   (magit-section-match-1 l1 (cdr l2))))
+                   (magit-section-match-2 l1 (cdr l2))))
         (and l2
              (equal (car l1) (car l2))
-             (magit-section-match-1 (cdr l1) (cdr l2))))))
+             (magit-section-match-2 (cdr l1) (cdr l2))))))
 
 (defmacro magit-section-when (condition &rest body)
   "If the section at point matches CONDITION evaluate BODY.
 
-If the section matches evaluate BODY forms sequentially and
-return the value of the last one, or if there are no BODY forms
-return the value of the section.  If the section does not match
-return nil.
+If the section matches, then evaluate BODY forms sequentially
+with `it' bound to the section and return the value of the last
+form.  If there are no BODY forms, then return the value of the
+section.  If the section does not match or if there is no section
+at point then return nil.
 
 See `magit-section-match' for the forms CONDITION can take."
   (declare (indent 1)
            (debug (sexp body)))
   `(--when-let (magit-current-section)
-     (when (magit-section-match ',condition
-                                (mapcar 'car (magit-section-ident it)))
+     (when (magit-section-match ',condition it)
        ,@(or body '((magit-section-value it))))))
 
 (defmacro magit-section-case (&rest clauses)
@@ -610,7 +616,7 @@ at point."
             (,ident (and it (mapcar 'car (magit-section-ident it)))))
        (cond ,@(mapcar (lambda (clause)
                          `(,(or (eq (car clause) t)
-                                `(and it (magit-section-match
+                                `(and it (magit-section-match-1
                                           ',(car clause) ,ident)))
                            ,@(cdr clause)))
                        clauses)))))

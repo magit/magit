@@ -1009,7 +1009,7 @@ reference, but it is not checked out."
          (let ((ref (magit-section-value (magit-current-section))))
            (if current-prefix-arg
                (magit-show-refs ref)
-             (if (magit-section-when [branch remote])
+             (if (magit-section-match [branch remote])
                  (let ((start ref)
                        (arg "-b"))
                    (string-match "^[^/]+/\\(.+\\)" ref)
