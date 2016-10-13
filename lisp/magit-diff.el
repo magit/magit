@@ -1055,7 +1055,9 @@ the buffer in another window."
                      current-prefix-arg))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
-    (let  ((current (magit-current-section))
+    (let* ((hunk (magit-diff-visit--hunk))
+           (line (and hunk (magit-diff-hunk-line   hunk)))
+           (col  (and hunk (magit-diff-hunk-column hunk)))
            (rev (cond (force-worktree nil)
                       ((derived-mode-p 'magit-revision-mode)
                        (car magit-refresh-args))
@@ -1072,29 +1074,14 @@ the buffer in another window."
                        (--when-let (car magit-refresh-args)
                          (and (string-match "\\.\\.\\([^.].*\\)?[ \t]*\\'" it)
                               (match-string 1 it))))))
-           hunk line col buf)
-      (pcase (magit-diff-scope)
-        ((or `hunk `region)
-         (cond ((not rev))
-               ((save-excursion (goto-char (line-beginning-position))
-                                (looking-at "-"))
-                (setq rev (magit-rev-name (concat rev "~"))))
-               ((magit-rev-head-p rev)
-                (setq rev nil)))
-         (setq hunk current))
-        ((or `file `files)
-         (setq hunk (car (magit-section-children current))))
-        (`list
-         (setq hunk (car (magit-section-children
-                          (car (magit-section-children current)))))))
+           buf)
+      (when (and (magit-section-match 'hunk)
+                 rev
+                 (save-excursion (goto-char (line-beginning-position))
+                                 (looking-at "-")))
+        (setq rev (magit-rev-name (concat rev "~"))))
       (when (and rev (magit-rev-head-p rev))
         (setq rev nil))
-      (when (and hunk
-                 ;; Currently the `hunk' type is also abused for file
-                 ;; mode changes.  Luckily such sections have no value.
-                 (magit-section-value hunk))
-        (setq line (magit-diff-hunk-line   hunk)
-              col  (magit-diff-hunk-column hunk)))
       (setq buf (if rev
                     (magit-find-file-noselect rev file)
                   (or (get-file-buffer file)
@@ -1152,6 +1139,23 @@ or `HEAD'."
                          (user-error "No file at point"))
                      current-prefix-arg))
   (magit-diff-visit-file file other-window t))
+
+(defun magit-diff-visit--hunk ()
+  (-when-let (scope (magit-diff-scope))
+    (let ((section (magit-current-section)))
+      (cl-case scope
+        ((file files)
+         (setq section (car (magit-section-children section))))
+        (list
+         (setq section (car (magit-section-children section)))
+         (when section
+           (setq section (car (magit-section-children section))))))
+      (and
+       ;; Currently the `hunk' type is also abused for file
+       ;; mode changes, which we are not interested in here.
+       ;; Such sections have no value.
+       (magit-section-value section)
+       section))))
 
 (defun magit-diff-hunk-line (section)
   (let* ((value  (magit-section-value section))
