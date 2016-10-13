@@ -483,7 +483,8 @@ edit.  With a prefix argument the old message is reused as-is."
   "Abort the current rebase operation, restoring the original branch."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (magit-run-git "rebase" "--abort")
+      (when (magit-confirm 'abort-rebase "Abort this rebase")
+        (magit-run-git "rebase" "--abort"))
     (user-error "No rebase in progress")))
 
 (defun magit-rebase-in-progress-p ()

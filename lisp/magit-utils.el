@@ -137,6 +137,10 @@ Sequences:
   `reset-bisect' Aborting (known to Git as \"resetting\") a
   bisect operation loses all information collected so far.
 
+  `abort-rebase' Aborting a rebase throws away all already
+  modified commits, but it's possible to restore those from the
+  reflog.
+
   `abort-merge' Aborting a merge throws away all conflict
   resolutions which has already been carried out by the user.
 
@@ -186,6 +190,7 @@ Global settings:
                  (set (const reverse)           (const discard)
                       (const rename)            (const resurrect)
                       (const trash)             (const delete)
+                      (const abort-rebase)
                       (const abort-merge)       (const merge-dirty)
                       (const drop-stashes)      (const resect-bisect)
                       (const kill-process)      (const delete-unmerged-branch)
