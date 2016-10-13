@@ -1055,26 +1055,24 @@ the buffer in another window."
                      current-prefix-arg))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
-    (let ((current (magit-current-section))
-          (rev (cond (force-worktree nil)
-                     ((derived-mode-p 'magit-revision-mode)
-                      (car magit-refresh-args))
-                     ((derived-mode-p 'magit-stash-mode)
-                      (magit-section-case
-                        (file (-> it
-                                  magit-section-parent
-                                  magit-section-value))
-                        (hunk (-> it
-                                  magit-section-parent
-                                  magit-section-parent
-                                  magit-section-value))))
-                     ((derived-mode-p 'magit-diff-mode)
-                      (--when-let (car magit-refresh-args)
-                        (and (string-match "\\.\\.\\([^.].*\\)?[ \t]*\\'" it)
-                             (match-string 1 it))))
-                     ))
-          (unmerged-p (magit-anything-unmerged-p file))
-          hunk line col buffer)
+    (let  ((current (magit-current-section))
+           (rev (cond (force-worktree nil)
+                      ((derived-mode-p 'magit-revision-mode)
+                       (car magit-refresh-args))
+                      ((derived-mode-p 'magit-stash-mode)
+                       (magit-section-case
+                         (file (-> it
+                                   magit-section-parent
+                                   magit-section-value))
+                         (hunk (-> it
+                                   magit-section-parent
+                                   magit-section-parent
+                                   magit-section-value))))
+                      ((derived-mode-p 'magit-diff-mode)
+                       (--when-let (car magit-refresh-args)
+                         (and (string-match "\\.\\.\\([^.].*\\)?[ \t]*\\'" it)
+                              (match-string 1 it))))))
+           hunk line col buf)
       (pcase (magit-diff-scope)
         ((or `hunk `region)
          (cond ((not rev))
@@ -1097,24 +1095,23 @@ the buffer in another window."
                  (magit-section-value hunk))
         (setq line (magit-diff-hunk-line   hunk)
               col  (magit-diff-hunk-column hunk)))
-      (setq buffer (if rev
-                       (magit-find-file-noselect rev file)
-                     (or (get-file-buffer file)
-                         (find-file-noselect file))))
-      (magit-display-file-buffer buffer)
-      (with-current-buffer buffer
+      (setq buf (if rev
+                    (magit-find-file-noselect rev file)
+                  (or (get-file-buffer file)
+                      (find-file-noselect file))))
+      (magit-display-file-buffer buf)
+      (with-current-buffer buf
         (when line
           (let ((pos (save-restriction
                        (widen)
                        (goto-char (point-min))
                        (forward-line (1- line))
-                       (when col
-                         (move-to-column col))
+                       (move-to-column col)
                        (point))))
             (unless (<= (point-min) pos (point-max))
               (widen)
               (goto-char pos))))
-        (when unmerged-p
+        (when (magit-anything-unmerged-p file)
           (smerge-start-session))
         (run-hooks 'magit-diff-visit-file-hook)))))
 
