@@ -2212,6 +2212,17 @@ without having to using one of the diff popups.
   adjust point.  Otherwise, or with a prefix argument, display the
   buffer in another window.
 
+- User Option: magit-diff-visit-previous-blob
+
+  This option controls whether ~magit-diff-visit-file~ may visit the
+  previous blob.  When this is ~t~ and point is on a removed line in a
+  diff for a committed change, then ~magit-diff-visit-file~ visits the
+  blob from the last revision which still had that line.
+
+  Currently this is only supported for committed changes, for staged
+  and unstaged changes ~magit-diff-visit-file~ always visits the file in
+  the working tree.
+
 - Key: C-<return>, magit-diff-visit-file-worktree
 
   From a diff, visit the corresponding file at the appropriate position.

@@ -207,6 +207,20 @@ many spaces.  Otherwise, highlight neither."
   :group 'magit-diff
   :type 'boolean)
 
+(defcustom magit-diff-visit-previous-blob t
+  "Whether `magit-diff-visit-file' may visit the previous blob.
+
+When this is t and point is on a removed line in a diff for a
+committed change, then `magit-diff-visit-file' visits the blob
+from the last revision which still had that line.
+
+Currently this is only supported for committed changes, for
+staged and unstaged changes `magit-diff-visit-file' always
+visits the file in the working tree."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 ;;;; File Diff
 
 (defcustom magit-diff-buffer-file-locked t
@@ -1054,7 +1068,8 @@ the buffer in another window."
     (let* ((hunk (magit-diff-visit--hunk))
            (line (and hunk (magit-diff-hunk-line   hunk)))
            (col  (and hunk (magit-diff-hunk-column hunk)))
-           (rev  (if (and (magit-section-match 'hunk)
+           (rev  (if (and magit-diff-visit-previous-blob
+                          (magit-section-match 'hunk)
                           (save-excursion
                             (goto-char (line-beginning-position))
                             (looking-at "-")))

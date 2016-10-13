@@ -3008,6 +3008,21 @@ another window of the same frame, then just select that window and
 adjust point.  Otherwise, or with a prefix argument, display the
 buffer in another window.
 
+@end table
+
+@defopt magit-diff-visit-previous-blob
+
+This option controls whether @code{magit-diff-visit-file} may visit the
+previous blob.  When this is @code{t} and point is on a removed line in a
+diff for a committed change, then @code{magit-diff-visit-file} visits the
+blob from the last revision which still had that line.
+
+Currently this is only supported for committed changes, for staged
+and unstaged changes @code{magit-diff-visit-file} always visits the file in
+the working tree.
+@end defopt
+
+@table @asis
 @kindex C-<return>
 @cindex magit-diff-visit-file-worktree
 @item @kbd{C-<return>} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-visit-file-worktree})
