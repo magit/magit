@@ -3074,9 +3074,10 @@ With prefix argument simply read a directory name using
   (cond ((file-readable-p (expand-file-name ".git" directory))
          (list directory))
         ((and (> depth 0) (magit-file-accessible-directory-p directory))
-         (--mapcat (when (file-directory-p it)
-                     (magit-list-repos-1 it (1- depth)))
-                   (directory-files directory t "^[^.]" t)))))
+         (--mapcat (and (not (member (file-name-nondirectory it) '("." "..")))
+                        (file-directory-p it)
+                        (magit-list-repos-1 it (1- depth)))
+                   (directory-files directory t nil t)))))
 
 (defun magit-list-repos-uniquify (alist)
   (let (result (dict (make-hash-table :test 'equal)))
