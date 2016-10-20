@@ -43,6 +43,9 @@ Changes since v2.8.0
   (Use "C-u y" to show the popup instead of invoking its default
   action as "y" does.)
 
+* With a branch at point, `magit-diff-dwim' now performs a diff for
+  "<current>...<atpoint>" rather than "<atpoint>..<current>".
+
 Fixes since v2.8.0
 ------------------
 
