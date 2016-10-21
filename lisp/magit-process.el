@@ -834,18 +834,18 @@ as argument."
       (if magit-process-raise-error
           (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir)))
         (when (buffer-live-p process-buf)
-          (--when-let (magit-mode-get-buffer 'magit-status-mode)
-            (when (buffer-live-p it)
-              (with-current-buffer it
-                (setq magit-this-error msg))))
-          (message "%s ... [%s buffer %s for details]" msg
-                   (-if-let (key (and (buffer-live-p command-buf)
-                                      (with-current-buffer command-buf
-                                        (car (where-is-internal
-                                              'magit-process-buffer)))))
-                       (format "Hit %s to see" (key-description key))
-                     "See")
-                   (buffer-name process-buf))))))
+          (with-current-buffer process-buf
+            (-when-let (status-buf (magit-mode-get-buffer 'magit-status-mode))
+              (with-current-buffer status-buf
+                (setq magit-this-error msg)))))
+        (message "%s ... [%s buffer %s for details]" msg
+                 (-if-let (key (and (buffer-live-p command-buf)
+                                    (with-current-buffer command-buf
+                                      (car (where-is-internal
+                                            'magit-process-buffer)))))
+                     (format "Hit %s to see" (key-description key))
+                   "See")
+                 (buffer-name process-buf)))))
   arg)
 
 (defun magit-process-display-buffer (process)
