@@ -590,20 +590,22 @@ Magit status buffer."
   "Special sentinel used by `magit-run-git-sequencer'."
   (when (memq (process-status process) '(exit signal))
     (magit-process-sentinel process event)
-    (--when-let (with-current-buffer (process-get process 'command-buf)
-                  (magit-mode-get-buffer 'magit-status-mode))
-      (with-current-buffer it
-        (--when-let
-            (magit-get-section
-             `((commit . ,(magit-rev-parse "HEAD"))
-               (,(pcase (car (cadr (-split-at
-                                    (1+ (length magit-git-global-arguments))
-                                    (process-command process))))
-                   ((or "rebase" "am")   'rebase-sequence)
-                   ((or "cherry-pick" "revert") 'sequence)))
-               (status)))
-          (goto-char (magit-section-start it))
-          (magit-section-update-highlight))))))
+    (-when-let (process-buf (process-get process 'process-buf))
+      (when (buffer-live-p process-buf)
+        (-when-let (status-buf (with-current-buffer process-buf
+                                 (magit-mode-get-buffer 'magit-status-mode)))
+          (with-current-buffer status-buf
+            (--when-let
+                (magit-get-section
+                 `((commit . ,(magit-rev-parse "HEAD"))
+                   (,(pcase (car (cadr (-split-at
+                                        (1+ (length magit-git-global-arguments))
+                                        (process-command process))))
+                       ((or "rebase" "am")   'rebase-sequence)
+                       ((or "cherry-pick" "revert") 'sequence)))
+                   (status)))
+              (goto-char (magit-section-start it))
+              (magit-section-update-highlight))))))))
 
 (defun magit-process-filter (proc string)
   "Default filter used by `magit-start-process'."
@@ -791,11 +793,10 @@ as argument."
           default-dir (process-get arg 'default-dir)
           section     (process-get arg 'section)
           arg         (process-exit-status arg)))
-  (with-current-buffer process-buf
-    (magit-process-unset-mode-line))
   (when (featurep 'dired)
     (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
+    (magit-process-unset-mode-line)
     (with-current-buffer process-buf
       (let ((inhibit-read-only t)
             (marker (magit-section-start section)))
@@ -832,18 +833,19 @@ as argument."
                    "Git failed")))
       (if magit-process-raise-error
           (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir)))
-        (--when-let (with-current-buffer command-buf
-                      (magit-mode-get-buffer 'magit-status-mode))
-          (with-current-buffer it
-            (setq magit-this-error msg)))
-        (message "%s ... [%s buffer %s for details]" msg
-                 (-if-let (key (and (buffer-live-p command-buf)
-                                    (with-current-buffer command-buf
-                                      (car (where-is-internal
-                                            'magit-process-buffer)))))
-                     (format "Hit %s to see" (key-description key))
-                   "See")
-                 (buffer-name process-buf)))))
+        (when (buffer-live-p process-buf)
+          (--when-let (magit-mode-get-buffer 'magit-status-mode)
+            (when (buffer-live-p it)
+              (with-current-buffer it
+                (setq magit-this-error msg))))
+          (message "%s ... [%s buffer %s for details]" msg
+                   (-if-let (key (and (buffer-live-p command-buf)
+                                      (with-current-buffer command-buf
+                                        (car (where-is-internal
+                                              'magit-process-buffer)))))
+                       (format "Hit %s to see" (key-description key))
+                     "See")
+                   (buffer-name process-buf))))))
   arg)
 
 (defun magit-process-display-buffer (process)
