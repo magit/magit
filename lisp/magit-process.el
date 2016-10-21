@@ -796,8 +796,8 @@ as argument."
   (when (featurep 'dired)
     (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
-    (magit-process-unset-mode-line)
     (with-current-buffer process-buf
+      (magit-process-unset-mode-line)
       (let ((inhibit-read-only t)
             (marker (magit-section-start section)))
         (goto-char marker)
