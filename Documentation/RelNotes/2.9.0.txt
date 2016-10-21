@@ -9,12 +9,31 @@ Changes since v2.8.0
   remote branch.  Without setting this option the upstream ends up
   being the same branch as the one referred to by the push-remote.
 
-* The command `magit-branch-spinoff' learned to remove only a subset
-  of commits from the previously current branch, instead of resetting
-  it to its upstream, when the region selects commits reachable from
-  HEAD.
+* The per-refresh cache which is used to save calls to git because
+  that is surprisingly slow on Windows has been improved for calls to
+  `git config'.  Instead of just avoiding identical calls to `git
+  config' as for other sub-commands we now call `git config --list'
+  only once per refresh to obtain a list of all variables and their
+  values.
 
-* The new option `magit-diff-highlight-hunk-region-using-face' and
+* Visiting a file or blob by pressing "RET" (or always visiting the
+  file by pressing "M-RET") while point is inside a diff has been
+  improved in several ways.
+
+  The position we jump to is now accurate even when jumping to the
+  file in the working tree from a diff that wasn't about changes in
+  the working tree.
+
+  If, and only if, point is on a removed line in the diff, then we
+  jump to the last commit which still had that line, not the commit
+  which removed that line.  Staged changes are currently exclude from
+  this new behavior, and it can be disabled completely using the new
+  option `magit-diff-visit-previous-blob'.
+
+  If, and only if, the file/blob buffer is narrowed to a region that
+  does not include the position we jump to, then it is widened first.
+
+* The new options `magit-diff-highlight-hunk-region-functions' and
   `magit-diff-unmarked-lines-keep-foreground' (which was previously
   defined as an undocumented variable) allow tuning the appearance
   of the hunk-internal region.
@@ -22,41 +41,90 @@ Changes since v2.8.0
   The new function `magit-diff-highlight-hunk-region-using-face',
   provides a new style; it makes the hunk-internal region bold (or
   italic).  I recommend you customize the above option to use this
-  instead of one of the functions mentioned below.
+  function instead of one of the functions mentioned below.
 
   The new functions `magit-diff-highlight-hunk-region-using-overlay'
   and `magit-diff-highlight-hunk-region-using-overlay' draw one-pixel
   lines before and after the hunk-internal region.  Both of these
-  functions have glitches and due to limitations of Emacs' display
-  engine it is not possible to fix those.  #2758
+  functions have (different) glitches and due to limitations of Emacs'
+  display engine it is not possible to fix those.  #2758
 
 * Added command `magit-find-git-config-file' and variants, to make it
   easier to open a file located in the git directory, when ".git" is
-  a regular file.
+  a regular file whose contents describe the location of the real git
+  directory.
+
+* The command `magit-branch-spinoff' learned to remove only a subset
+  of commits from the previously current branch, instead of resetting
+  it to its upstream, when the region selects commits reachable from
+  HEAD.
+
+* The command `magit-branch-delete' now falls back to deleting the
+  tracking branch when the user attempts to delete a remote branch
+  which does not actually exist on the remote anymore.
+
+* The command `magit-diff-dwim' learned about additional cases.  On
+  a non-current branch it now shows the diff for "CURRENT...BRANCH"
+  (instead of "BRANCH..CURRENT") and inside a stash buffer it shows
+  the diff for the commit at point.
+
+* The command `magit-push', which "o" is bound to in the push popup,
+  now offers the push-branch as default choice.  Only if that is not
+  set does it default to the upstream as before.  And when pushing a
+  commit that is reachable from HEAD, then it offers to push to the
+  push-branch or upstream of the current branch (which still has to
+  be forced explicitly).
+
+* Added option `magit-no-confirm-default' to allow specifying commands
+  which should just use the default choice instead of having the user
+  confirm that by pressing RET.  I recommend you don't use this, but
+  if you think that the defaults are so good that you always want to
+  use them, then this might make it a bit easier for you.
+
+* Added option `magit-slow-confirm' for users who are afraid they
+  would answer `y-or-n-p' questions to quickly.  One action, deleting
+  all stashes, now defaults to having to be confirmed with "yes RET".
+
+* The option `magit-branch-prefer-remote-upstream' now also supports
+  regexps as members instead of only complete branch names.
+
+* The option `magit-branch-read-upstream-first' used to be a boolean.
+  Now it supports a third value `fallback', which means to read the
+  upstream first like `t', but if the value provided by the user does
+  not reference an existing revision, then it is treat as the name of
+  the new branch and the upstream is read using the second prompt, as
+  if the value of this option were `nil'.
+
+* By default Git-Commit no longer complains about a summary line that
+  is to long by some standards.  If you actually want it to complain
+  about that, then customize `git-commit-style-convention-checks'.
+
+* When deleting a stash, the hash is now logged to *Messages* in
+  addition to the process log buffer, making it more likely that a
+  user who accidentally deleted a stash would find the information
+  required to undo that.
 
 * The environment variable `INSIDE_EMACS' is now set when calling git.
 
-* The `--gpg-sign=' option is now available from the revert popup
-  also.
+* Added the `--gpg-sign=' option to the revert popup.
 
-* The `--sort=' option is now available from the show-refs popup.
-  (Use "C-u y" to show the popup instead of invoking its default
-  action as "y" does.)
+* Added the `--sort=' option to the show-refs popup.  (Use "C-u y" to
+  show the popup instead of invoking its default action as "y" does.)
 
-* With a branch at point, `magit-diff-dwim' now performs a diff for
-  "<current>...<atpoint>" rather than "<atpoint>..<current>".
+* Added new faces `git-rebase-comment-heading'
+  and `git-rebase-comment-hash'.
+
+* `whitespace-mode' is not compatible with Magit buffers, where it is
+  now actively prevented from being turned on by the user.
 
 Fixes since v2.8.0
 ------------------
 
-* Command `magit-list-repositories' failed on empty Git repositories.
+* The command `magit-list-repositories' failed on empty repositories.
 
 * The Git variable `pull.rebase' was ignored when determining whether
   the current branch is being rebased onto its upstream in order to
   display that information in the status buffer.
-
-* When `--force-with-lease' was added to the `magit-push-popup',
-  `--force' was removed, but sometimes the former just isn't enough.
 
 * On 32bit systems `magit-format-log-margin' failed because it tried
   to truncate a time float that was to large for that.  #2765
@@ -66,9 +134,70 @@ Fixes since v2.8.0
   up having the height of a regular line instead of just a single
   pixel.  #2758
 
-* The caching mechanism that was supposed to ensure that sections of
-  unpulled and unpushed remain collapsed even when they disappear for
-  a while was broken.
+* On Windows, when using a `windows-nt' Emacs together with a cygwin
+  Git, we failed to instruct Emacs to not use dos shell quoting when
+  calling git.
+
+* The encoding of commit messages is controlled by the Git variable
+  `i18n.logOutputEncoding' but we failed to take that into account.
+  Fixes by setting `i18n.logOutputEncoding' to UTF-8, but only inside
+  Magit and only for `window-nt'.
+
+* The caching mechanism that is supposed to ensure that sections of
+  unpulled and unpushed commits remain collapsed even when they
+  disappear was broken for a while.
+
+* Process sentinels did not in all cases ensure that the correct
+  buffer was current before doing something that assumes that this is
+  the case.  Almost always that did not matter because it was the case
+  anyway, but if other timers are running then it is possible that
+  those make the wrong buffer current.
+
+* The commands `magit-clone' and `magit-init' did not work over Tramp.
+
+* The commands `magit-worktree-checkout' and `magit-worktree-branch'
+  did not expand the path they pass to git, which is necessary because
+  git does not know the meaning of "~/".
+
+* The commands which create fixup/squash commands and then immediately
+  squash them into the target commit did not remove the `--gpg-sign'
+  switch.  Signing such commits is not only unnecessary; unless the
+  passphrase was cached earlier trying to sign resulted in the process
+  indefinitely waiting for the passphrase to arrive with no way for
+  the user to actually provide it.
+
+* Depending on the value of `magit-save-repository-buffers' the user
+  might have been asked whether s/he wants to save "git-rebase-todo",
+  which is never necessary and just a distraction.
+
+* Directories whose names begin with a period were filtered out when
+  using `magit-repository-directories' to calculate a list of repos.
+
+* The user name and email, which are displayed when reading a gpg key
+  from the user, were not stripped from the chosen value before being
+  handed of to git.
+
+* When visiting a directory by displaying a Dired buffer, we used to
+  display a buffer for the parent of the directory in question and
+  placed point on the name of the directory.  But the intention always
+  was to show the Dired buffer for the directory itself.
+
+* Visiting or deleting a submodule listed inside "Modules" failed.
+  The latter is now done by de-initalizing the module.
+
+* The highlighting of a non-empty second line in a commit message was
+  not automatically updated.
+
+* When `--force-with-lease' was added to the `magit-push-popup',
+  `--force' was removed, but sometimes the former just isn't enough.
+
+* The face `magit-diff-file-heading-highlight' used to inherit from
+  `magit-diff-file-heading', which by default makes text bold.  That
+  resulted in the complete current heading to be bold, but only the
+  file-name part is supposed to be bold.
+
+This release also contains typofixes, documentation updates,
+code clean-ups, and other small bug fixes and improvements.
 
 Authors
 -------
