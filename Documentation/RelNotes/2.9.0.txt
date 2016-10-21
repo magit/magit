@@ -1,4 +1,4 @@
-Magit v2.8.1 Release Notes (draft)
+Magit v2.9.0 Release Notes (draft)
 ==================================
 
 Changes since v2.8.0
@@ -9,10 +9,10 @@ Changes since v2.8.0
   remote branch.  Without setting this option the upstream ends up
   being the same branch as the one referred to by the push-remote.
 
-* The per-refresh cache which is used to save calls to git because
-  that is surprisingly slow on Windows has been improved for calls to
+* The per-refresh cache, which is used to save calls to git because
+  that is surprisingly slow on Windows, has been improved for calls to
   `git config'.  Instead of just avoiding identical calls to `git
-  config' as for other sub-commands we now call `git config --list'
+  config' as for other sub-commands, we now call `git config --list'
   only once per refresh to obtain a list of all variables and their
   values.
 
@@ -26,7 +26,7 @@ Changes since v2.8.0
 
   If, and only if, point is on a removed line in the diff, then we
   jump to the last commit which still had that line, not the commit
-  which removed that line.  Staged changes are currently exclude from
+  which removed that line.  Staged changes are currently excluded from
   this new behavior, and it can be disabled completely using the new
   option `magit-diff-visit-previous-blob'.
 
@@ -49,8 +49,8 @@ Changes since v2.8.0
   functions have (different) glitches and due to limitations of Emacs'
   display engine it is not possible to fix those.  #2758
 
-* Added command `magit-find-git-config-file' and variants, to make it
-  easier to open a file located in the git directory, when ".git" is
+* Added command `magit-find-git-config-file' and variants to make it
+  easier to open a file located in the git directory when ".git" is
   a regular file whose contents describe the location of the real git
   directory.
 
@@ -91,16 +91,16 @@ Changes since v2.8.0
 * The option `magit-branch-read-upstream-first' used to be a boolean.
   Now it supports a third value `fallback', which means to read the
   upstream first like `t', but if the value provided by the user does
-  not reference an existing revision, then it is treat as the name of
+  not reference an existing revision, then it is treated as the name of
   the new branch and the upstream is read using the second prompt, as
   if the value of this option were `nil'.
 
 * By default Git-Commit no longer complains about a summary line that
-  is to long by some standards.  If you actually want it to complain
+  is too long by some standards.  If you actually want it to complain
   about that, then customize `git-commit-style-convention-checks'.
 
-* When deleting a stash, the hash is now logged to *Messages* in
-  addition to the process log buffer, making it more likely that a
+* When deleting a stash, the hash is now logged to the process log
+  buffer in addition to *Messages*, making it more likely that a
   user who accidentally deleted a stash would find the information
   required to undo that.
 
@@ -127,7 +127,7 @@ Fixes since v2.8.0
   display that information in the status buffer.
 
 * On 32bit systems `magit-format-log-margin' failed because it tried
-  to truncate a time float that was to large for that.  #2765
+  to truncate a time float that was too large for that.  #2765
 
 * On Emacs v25.1 the hunk-internal region flashed briefly on
   mouse-down-1 events and the delimiting horizontal lines could end
