@@ -2592,7 +2592,7 @@ Also see [[info:gitman#git-bisect]].
 When bisecting is not in progress, then the popup buffer features the
 following commands.
 
-- Key: B s, magit-bisect-start
+- Key: B B, magit-bisect-start
 
   Start a bisect session.
 
@@ -2600,7 +2600,7 @@ following commands.
   This command starts such a bisect session by asking for a known
   good and a bad commit.
 
-- Key: B u, magit-bisect-run
+- Key: B s, magit-bisect-run
 
   Bisect automatically by running commands after each step.
 

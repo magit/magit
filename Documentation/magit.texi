@@ -3523,9 +3523,9 @@ When bisecting is not in progress, then the popup buffer features the
 following commands.
 
 @table @asis
-@kindex B s
+@kindex B B
 @cindex magit-bisect-start
-@item @kbd{B s} @tie{}@tie{}@tie{}@tie{}(@code{magit-bisect-start})
+@item @kbd{B B} @tie{}@tie{}@tie{}@tie{}(@code{magit-bisect-start})
 
 Start a bisect session.
 
@@ -3533,9 +3533,9 @@ Bisecting a bug means to find the commit that introduced it.
 This command starts such a bisect session by asking for a known
 good and a bad commit.
 
-@kindex B u
+@kindex B s
 @cindex magit-bisect-run
-@item @kbd{B u} @tie{}@tie{}@tie{}@tie{}(@code{magit-bisect-run})
+@item @kbd{B s} @tie{}@tie{}@tie{}@tie{}(@code{magit-bisect-run})
 
 Bisect automatically by running commands after each step.
 @end table
