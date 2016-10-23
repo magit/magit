@@ -2235,7 +2235,9 @@ are highlighted."
              (goto-char (magit-section-start section))
              ;; `diff-refine-hunk' does not handle combined diffs.
              (unless (looking-at "@@@")
-               (diff-refine-hunk))))
+               ;; Avoid fsyncing many small temp files
+               (let ((write-region-inhibit-fsync t))
+                 (diff-refine-hunk)))))
           ((or `(nil t ,_) `(t t nil))
            (setf (magit-section-refined section) nil)
            (remove-overlays (magit-section-start section)
