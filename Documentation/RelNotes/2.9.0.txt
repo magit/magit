@@ -117,6 +117,10 @@ Changes since v2.8.0
 * `whitespace-mode' is not compatible with Magit buffers, where it is
   now actively prevented from being turned on by the user.
 
+* Hunk refinement is now faster.  Users who previously set
+  `magit-diff-refine-hunk' to nil due to performance issues may find
+  that it now works well even when set to `all'.
+
 Fixes since v2.8.0
 ------------------
 
