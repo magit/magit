@@ -2325,11 +2325,11 @@ If DEFAULT is non-nil, use this as the default value instead of
 
 ;;;###autoload
 (defun magit-worktree-checkout (path branch)
+  "Checkout BRANCH in a new worktree at PATH."
   (interactive
    (let ((branch (magit-read-local-branch "Checkout")))
      (list (read-directory-name (format "Checkout %s in new worktree: " branch))
            branch)))
-  "Checkout BRANCH in a new worktree at PATH."
   (magit-run-git "worktree" "add" (expand-file-name path) branch)
   (magit-diff-visit-directory path))
 
