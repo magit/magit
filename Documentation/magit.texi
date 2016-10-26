@@ -538,7 +538,11 @@ the top-level of the repository, and that elements of @code{load-path} should
 not end with a slash, while those of @code{Info-directory-list} should.
 
 Instead of requiring the feature @code{magit}, you could load just the
-autoload definitions, by loading the file @code{magit-autoloads.el}.
+autoload definitions:
+
+@lisp
+(require 'magit-autoloads)
+@end lisp
 
 @lisp
 (load "/path/to/magit/lisp/magit-autoloads")

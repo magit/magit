@@ -253,7 +253,11 @@ the top-level of the repository, and that elements of ~load-path~ should
 not end with a slash, while those of ~Info-directory-list~ should.
 
 Instead of requiring the feature ~magit~, you could load just the
-autoload definitions, by loading the file ~magit-autoloads.el~.
+autoload definitions:
+
+#+BEGIN_SRC emacs-lisp
+  (require 'magit-autoloads)
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (load "/path/to/magit/lisp/magit-autoloads")
