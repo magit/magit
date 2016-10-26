@@ -172,7 +172,10 @@ that without users being aware of it could lead to tears.
 
 (defvar magit-popup-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap self-insert-command] 'magit-invoke-popup-action)
+    (cl-loop for key from ?A to ?z
+             do (define-key map (char-to-string key) 'magit-invoke-popup-action))
+    (define-key map [?$] 'magit-invoke-popup-action)
+    (define-key map [?!] 'magit-invoke-popup-action)
     (define-key map [?- t]        'magit-invoke-popup-switch)
     (define-key map [?= t]        'magit-invoke-popup-option)
     (define-key map [?\C-c ?\C-c] 'magit-popup-set-default-arguments)
