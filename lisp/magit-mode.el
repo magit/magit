@@ -1001,7 +1001,7 @@ argument (the prefix) non-nil means save all with no questions."
      arg (-partial (lambda (topdir)
                      (and buffer-file-name
                           ;; Avoid needlessly connecting to unrelated remotes.
-                          (string-prefix-p topdir buffer-file-name)
+                          (string-prefix-p topdir (file-truename buffer-file-name))
                           (equal (magit-rev-parse-safe "--show-toplevel")
                                  topdir)))
                    topdir))))
