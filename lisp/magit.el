@@ -2968,7 +2968,7 @@ control which repositories are displayed."
   "Show the status for the repository at point."
   (interactive)
   (--if-let (tabulated-list-get-id)
-      (magit-status-internal it)
+      (magit-status-internal (expand-file-name it))
     (user-error "There is no repository at point")))
 
 (define-derived-mode magit-repolist-mode tabulated-list-mode "Repos"
