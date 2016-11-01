@@ -919,7 +919,10 @@ Do not add this to a hook variable."
       (magit-delete-line)
       (magit-insert-section section (commit hash)
         (pcase style
-          (`stash      (setf (magit-section-type section) 'stash))
+          (`stash      (setf (magit-section-type section) 'stash)
+                       ;; Replace blank space with nil for
+                       ;; `magit-format-log-margin'.
+                       (setq author nil))
           (`module     (setf (magit-section-type section) 'module-commit))
           (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
         (when cherry
