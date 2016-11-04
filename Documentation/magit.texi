@@ -415,9 +415,9 @@ or even all features belonging to a package.
 
 @item
 Furthermore the old dependencies @code{git-commit-mode} and @code{git-rebase-mode}
-  have to be removed because they are no longer used by the @code{2.1.0}
-  release and later, and get in the way of their successors @code{git-commit}
-  and @code{git-rebase}.
+have to be removed because they are no longer used by the @code{2.1.0}
+release and later, and get in the way of their successors @code{git-commit}
+and @code{git-rebase}.
 @end itemize
 
 So please uninstall the packages @code{magit}, @code{git-commit-mode}, and
@@ -5082,9 +5082,9 @@ If a file has conflicts and Git cannot resolve them by itself, then it
 puts both versions into the affected file along with special markers
 whose purpose is to denote the boundaries of the unresolved part of
 the file and between the different versions.  These boundary lines
-begin with the strings "<<<<@anchor{orgradiotarget1}", "|||||||", "=======", and ">>>>"
-and are followed by information about the source of the respective
-versions, e.g.:
+begin with the strings consisting of six times the same character, one
+of @code{<}, @code{|}, @code{=} and @code{>} and are followed by information about the source of
+the respective versions, e.g.:
 
 @example
 <<<<<<< HEAD

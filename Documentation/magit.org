@@ -16,7 +16,7 @@
 :COPYING:    t
 :END:
 
-#+BEGIN_TEXINFO
+#+BEGIN_EXPORT texinfo
 @ifnottex
 Magit is an interface to the version control system Git, implemented
 as an Emacs package.  Magit aspires to be a complete Git porcelain.
@@ -40,7 +40,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
 @end quotation
-#+END_TEXINFO
+#+END_EXPORT
 
 * Introduction
 
@@ -3751,9 +3751,9 @@ If a file has conflicts and Git cannot resolve them by itself, then it
 puts both versions into the affected file along with special markers
 whose purpose is to denote the boundaries of the unresolved part of
 the file and between the different versions.  These boundary lines
-begin with the strings "<<<<<<<", "|||||||", "=======", and ">>>>>>>"
-and are followed by information about the source of the respective
-versions, e.g.:
+begin with the strings consisting of six times the same character, one
+of ~<~, ~|~, ~=~ and ~>~ and are followed by information about the source of
+the respective versions, e.g.:
 
 #+BEGIN_SRC undefined
   <<<<<<< HEAD
