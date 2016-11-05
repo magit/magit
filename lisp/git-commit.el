@@ -391,7 +391,11 @@ to consider doing so."
     (when (file-accessible-directory-p (file-name-directory it))
       (find-alternate-file it)))
   (when git-commit-major-mode
-    (funcall git-commit-major-mode))
+    (let ((auto-mode-alist (list (cons (concat "\\`"
+                                               (regexp-quote buffer-file-name)
+                                               "\\'")
+                                       git-commit-major-mode))))
+      (normal-mode)))
   (setq with-editor-show-usage nil)
   (with-editor-mode 1)
   (add-hook 'with-editor-finish-query-functions
