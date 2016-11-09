@@ -1,12 +1,6 @@
 -include ../config.mk
 include ../default.mk
 
-MAKEINFO ?= makeinfo
-
-INSTALL_INFO ?= $(shell command -v ginstall-info || printf install-info)
-
-DOC_LOAD_PATH ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
-
 ######################################################################
 
 .PHONY: texi install clean AUTHORS.md stats
@@ -16,6 +10,8 @@ all: info
 # Build ##############################################################
 
 info: $(INFOPAGES) dir
+html: $(HTMLFILES)
+pdf:  $(PDFFILES)
 
 %.info: %.texi
 	@printf "Generating $@\n"
@@ -24,6 +20,20 @@ info: $(INFOPAGES) dir
 dir: magit.info magit-popup.info
 	@printf "Generating dir\n"
 	@echo $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
+
+%.html: %.texi
+	@printf "Generating $@\n"
+	@$(MAKEINFO) --html --no-split $(MANUAL_HTML_ARGS) $<
+
+html-dir: $(TEXIFILES)
+	@printf "Generating magit/*.html\n"
+	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit.texi
+	@printf "Generating magit-popup/*.html\n"
+	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit-popup.texi
+
+%.pdf: %.texi
+	@printf "Generating $@\n"
+	@texi2pdf --clean $< > /dev/null
 
 # Install ############################################################
 

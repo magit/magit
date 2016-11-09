@@ -4,8 +4,12 @@
 /*.tar
 /*.tar.gz
 /.dir-locals.el
+/Documentation/*.html
 /Documentation/*.info
+/Documentation/*.pdf
 /Documentation/dir
+/Documentation/magit/
+/Documentation/magit-popup/
 /Documentation/stats/
 /config.mk
 /lisp/magit-autoloads.el

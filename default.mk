@@ -18,11 +18,20 @@ RMDIR ?= rm -rf
 TAR   ?= tar
 SED   ?= sed
 
-PACKAGES = git-commit magit-popup magit
+INSTALL_INFO     ?= $(shell command -v ginstall-info || printf install-info)
+MAKEINFO         ?= makeinfo
+MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
+
+DOC_LOAD_PATH    ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
+
+PACKAGES         = magit magit-popup git-commit
 PACKAGE_VERSIONS = $(addsuffix -$(VERSION),$(PACKAGES))
 
-INFOPAGES = $(addsuffix .info,$(filter-out git-commit,$(PACKAGES)))
 TEXIPAGES = $(addsuffix .texi,$(filter-out git-commit,$(PACKAGES)))
+INFOPAGES = $(addsuffix .info,$(filter-out git-commit,$(PACKAGES)))
+HTMLFILES = $(addsuffix .html,$(filter-out git-commit,$(PACKAGES)))
+HTMLDIRS  = $(filter-out git-commit,$(PACKAGES))
+PDFFILES  = $(addsuffix .pdf,$(filter-out git-commit,$(PACKAGES)))
 
 ELS  = git-commit.el
 ELS += magit-popup.el

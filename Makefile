@@ -23,6 +23,9 @@ help:
 	$(info make lisp             - compile elisp)
 	$(info make docs             - generate info manuals)
 	$(info make info             - generate info manuals)
+	$(info make html             - generate html manual files)
+	$(info make html-dir         - generate html manual directories)
+	$(info make pdf              - generate pdf manuals)
 	$(info )
 	$(info Install)
 	$(info =======)
@@ -60,8 +63,14 @@ docs:
 info:
 	@$(MAKE) -C Documentation info
 
-texi:
-	@$(MAKE) -C Documentation texi
+html:
+	@$(MAKE) -C Documentation html
+
+html-dir:
+	@$(MAKE) -C Documentation html-dir
+
+pdf:
+	@$(MAKE) -C Documentation pdf
 
 install: install-lisp install-docs
 
@@ -107,6 +116,9 @@ clean-archives:
 	@$(RMDIR) magit-$(VERSION)
 
 # Release management
+
+texi:
+	@$(MAKE) -C Documentation texi
 
 stats:
 	@$(MAKE) -C Documentation stats
