@@ -7,7 +7,7 @@ INSTALL_INFO ?= $(shell command -v ginstall-info || printf install-info)
 
 DOC_LOAD_PATH ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
 
-.PHONY: texi install clean AUTHORS.md
+.PHONY: texi install clean AUTHORS.md stats
 
 all: info
 
@@ -47,6 +47,10 @@ install-info: info
 clean:
 	@printf "Cleaning Documentation/*...\n"
 	@$(RM) $(INFOPAGES) dir
+
+stats:
+	@printf "Generating statistics\n"
+	@gitstats -c style=/assets/stats.css -c max_authors=64 . $(statsdir)
 
 authors: AUTHORS.md
 AUTHORS.md:

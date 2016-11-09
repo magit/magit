@@ -43,7 +43,7 @@ help:
 	$(info =================)
 	$(info )
 	$(info make texi             - regenerate texi from org)
-	$(info make genstats         - regenerate statistics)
+	$(info make stats            - regenerate statistics)
 	$(info make authors          - regenerate AUTHORS.md)
 	$(info make dist             - create tarballs)
 	$(info make bump-versions    - bump versions for release)
@@ -108,9 +108,8 @@ clean-archives:
 
 # Release management
 
-genstats:
-	@printf "Generating stats\n"
-	@gitstats -c style=/css/stats.css -c max_authors=200 . $(statsdir)
+stats:
+	@$(MAKE) -C Documentation stats
 
 authors:
 	@$(MAKE) -C Documentation authors

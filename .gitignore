@@ -6,6 +6,7 @@
 /.dir-locals.el
 /Documentation/*.info
 /Documentation/dir
+/Documentation/stats/
 /config.mk
 /lisp/magit-autoloads.el
 /lisp/magit-version.el
