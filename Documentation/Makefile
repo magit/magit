@@ -13,19 +13,6 @@ DOC_LOAD_PATH ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
 
 all: info
 
-# Because most users don't have the necessary tools we cannot
-# use "%.texi: %.org".  Instead we have to hardcode each file
-# using a shared target.
-texi: $(TEXIPAGES)
-	@printf "Generating magit.texi\n"
-	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
-	-l ox-texinfo+.el magit.org -f org-texinfo+export-to-texinfo
-	@echo >> magit.texi
-	@printf "Generating magit-popup.texi\n"
-	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
-	-l ox-texinfo+.el magit-popup.org -f org-texinfo+export-to-texinfo
-	@echo >> magit-popup.texi
-
 # Build ##############################################################
 
 info: $(INFOPAGES) dir
@@ -57,6 +44,19 @@ clean:
 	@$(RM) $(INFOPAGES) dir
 
 # Release management #################################################
+
+# Because most users don't have the necessary tools we cannot
+# use "%.texi: %.org".  Instead we have to hardcode each file
+# using a shared target.
+texi: $(TEXIPAGES)
+	@printf "Generating magit.texi\n"
+	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
+	-l ox-texinfo+.el magit.org -f org-texinfo+export-to-texinfo
+	@echo >> magit.texi
+	@printf "Generating magit-popup.texi\n"
+	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
+	-l ox-texinfo+.el magit-popup.org -f org-texinfo+export-to-texinfo
+	@echo >> magit-popup.texi
 
 stats:
 	@printf "Generating statistics\n"
