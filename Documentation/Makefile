@@ -7,6 +7,8 @@ INSTALL_INFO ?= $(shell command -v ginstall-info || printf install-info)
 
 DOC_LOAD_PATH ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
 
+######################################################################
+
 .PHONY: texi install clean AUTHORS.md stats
 
 all: info
@@ -24,6 +26,8 @@ texi: $(TEXIPAGES)
 	-l ox-texinfo+.el magit-popup.org -f org-texinfo+export-to-texinfo
 	@echo >> magit-popup.texi
 
+# Build ##############################################################
+
 info: $(INFOPAGES) dir
 
 %.info: %.texi
@@ -33,6 +37,8 @@ info: $(INFOPAGES) dir
 dir: magit.info magit-popup.info
 	@printf "Generating dir\n"
 	@echo $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
+
+# Install ############################################################
 
 install: install-info install-docs
 
@@ -44,9 +50,13 @@ install-info: info
 	@$(MKDIR) $(DESTDIR)$(infodir)
 	$(CP) $(INFOPAGES) $(DESTDIR)$(infodir)
 
+# Clean ##############################################################
+
 clean:
 	@printf "Cleaning Documentation/*...\n"
 	@$(RM) $(INFOPAGES) dir
+
+# Release management #################################################
 
 stats:
 	@printf "Generating statistics\n"
@@ -60,6 +70,8 @@ AUTHORS.md:
 	&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
 	&& printf "done\n" ; ) \
 	|| printf "FAILED (non-fatal)\n"
+
+# Templates ##########################################################
 
 define AUTHORS_HEADER
 Authors
