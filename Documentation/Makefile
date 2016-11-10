@@ -81,6 +81,36 @@ AUTHORS.md:
 	&& printf "done\n" ; ) \
 	|| printf "FAILED (non-fatal)\n"
 
+DOMAIN         ?= magit.vc
+PUBLISH_BUCKET ?= s3://$(DOMAIN)
+PREVIEW_BUCKET ?= s3://preview.$(DOMAIN)
+
+preview-stats: stats
+	@printf "Uploading statistics...\n"
+	@aws s3 sync $(statsdir)      $(PREVIEW_BUCKET)/stats/
+
+publish-stats: stats
+	@printf "Uploading statistics...\n"
+	@aws s3 sync $(statsdir)      $(PUBLISH_BUCKET)/stats/
+
+preview-manuals: html html-dir pdf
+	@printf "Uploading manuals...\n"
+	@aws s3 sync magit            $(PREVIEW_BUCKET)/manual/magit/
+	@aws s3 cp   magit.html       $(PREVIEW_BUCKET)/manual/
+	@aws s3 cp   magit.pdf        $(PREVIEW_BUCKET)/manual/
+	@aws s3 sync magit-popup      $(PREVIEW_BUCKET)/manual/magit-popup/
+	@aws s3 cp   magit-popup.html $(PREVIEW_BUCKET)/manual/
+	@aws s3 cp   magit-popup.pdf  $(PREVIEW_BUCKET)/manual/
+
+publish-manuals: html html-dir pdf
+	@printf "Uploading manuals...\n"
+	@aws s3 sync magit            $(PUBLISH_BUCKET)/manual/magit/
+	@aws s3 cp   magit.html       $(PUBLISH_BUCKET)/manual/
+	@aws s3 cp   magit.pdf        $(PUBLISH_BUCKET)/manual/
+	@aws s3 sync magit-popup      $(PUBLISH_BUCKET)/manual/magit-popup/
+	@aws s3 cp   magit-popup.html $(PUBLISH_BUCKET)/manual/
+	@aws s3 cp   magit-popup.pdf  $(PUBLISH_BUCKET)/manual/
+
 # Templates ##########################################################
 
 define AUTHORS_HEADER

@@ -48,6 +48,10 @@ help:
 	$(info make texi             - regenerate texi from org)
 	$(info make stats            - regenerate statistics)
 	$(info make authors          - regenerate AUTHORS.md)
+	$(info make preview-stats    - preview statistics)
+	$(info make publish-stats    - publish statistics)
+	$(info make preview-manuals  - preview manuals)
+	$(info make publish-manuals  - publish manuals)
 	$(info make dist             - create tarballs)
 	$(info make bump-versions    - bump versions for release)
 	$(info make bump-snapshots   - bump versions after release)
@@ -125,6 +129,18 @@ stats:
 
 authors:
 	@$(MAKE) -C Documentation authors
+
+preview-stats:
+	@$(MAKE) -C Documentation preview-stats
+
+publish-stats:
+	@$(MAKE) -C Documentation publish-stats
+
+preview-manuals:
+	@$(MAKE) -C Documentation preview-manuals
+
+publish-manuals:
+	@$(MAKE) -C Documentation publish-manuals
 
 dist: magit-$(VERSION).tar.gz
 
