@@ -3958,7 +3958,7 @@ commands instead.
   Show the commit on the current line in another buffer and select
   that buffer.
 
-- Key: SPC, magit-diff-show-or-scroll-up
+- Key: SPC, git-rebase-show-or-scroll-up
 
   Show the commit on the current line in another buffer without
   selecting that buffer.  If the revision buffer is already visible in
