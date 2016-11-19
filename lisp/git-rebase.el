@@ -56,7 +56,9 @@
 ;;   x        Add a script to be run with the commit at point
 ;;            being checked out.
 ;;
-;;   RET      Show the commit at point in another buffer.
+;;   SPC      Show the commit at point in another buffer.
+;;   RET      Show the commit at point in another buffer and
+;;            select its window.
 ;;   C-/      Undo last change.
 
 ;; You should probably also read the `git-rebase' manpage.
@@ -180,15 +182,17 @@
     ["Finish" with-editor-finish t]))
 
 (defvar git-rebase-command-descriptions
-  '((with-editor-finish        . "tell Git to make it happen")
-    (with-editor-cancel        . "tell Git that you changed your mind, i.e. abort")
-    (git-rebase-backward-line  . "move point to previous line")
-    (forward-line              . "move point to next line")
-    (git-rebase-move-line-up   . "move the commit at point up")
-    (git-rebase-move-line-down . "move the commit at point down")
-    (git-rebase-show-commit    . "show the commit at point in another buffer")
-    (undo                      . "undo last change")
-    (git-rebase-kill-line      . "drop the commit at point")))
+  '((with-editor-finish           . "tell Git to make it happen")
+    (with-editor-cancel           . "tell Git that you changed your mind, i.e. abort")
+    (git-rebase-backward-line     . "move point to previous line")
+    (forward-line                 . "move point to next line")
+    (git-rebase-move-line-up      . "move the commit at point up")
+    (git-rebase-move-line-down    . "move the commit at point down")
+    (git-rebase-show-or-scroll-up . "show the commit at point in another buffer")
+    (git-rebase-show-commit
+     . "show the commit at point in another buffer and select its window")
+    (undo                         . "undo last change")
+    (git-rebase-kill-line         . "drop the commit at point")))
 
 ;;; Commands
 
