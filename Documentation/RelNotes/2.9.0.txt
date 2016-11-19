@@ -200,6 +200,11 @@ Fixes since v2.8.0
   resulted in the complete current heading to be bold, but only the
   file-name part is supposed to be bold.
 
+* The manual stated that "DEL" in Git Rebase mode was bound to
+  `magit-diff-show-or-scroll-down', which was not the case.  A new
+  command `git-rebase-show-or-scroll-down` has been added and bound to
+  "DEL" to provide this functionality.
+
 This release also contains typofixes, documentation updates,
 code clean-ups, and other small bug fixes and improvements.
 

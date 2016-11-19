@@ -3965,7 +3965,7 @@ commands instead.
   another window of the current frame, then instead scroll that window
   up.
 
-- Key: DEL, magit-diff-show-or-scroll-down
+- Key: DEL, git-rebase-show-or-scroll-down
 
   Show the commit on the current line in another buffer without
   selecting that buffer.  If the revision buffer is already visible in

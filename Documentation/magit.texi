@@ -5359,8 +5359,8 @@ another window of the current frame, then instead scroll that window
 up.
 
 @kindex DEL
-@cindex magit-diff-show-or-scroll-down
-@item @kbd{DEL} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-show-or-scroll-down})
+@cindex git-rebase-show-or-scroll-down
+@item @kbd{DEL} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-show-or-scroll-down})
 
 Show the commit on the current line in another buffer without
 selecting that buffer.  If the revision buffer is already visible in
