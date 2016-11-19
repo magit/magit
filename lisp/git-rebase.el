@@ -377,9 +377,14 @@ Like `undo' but works in read-only buffers."
   (git-rebase--show-commit))
 
 (defun git-rebase-show-or-scroll-up ()
-  "Update the commit buffer for commit on current line."
+  "Update the commit buffer for commit on current line.
+
+Either show the commit at point in the appropriate buffer, or if
+that buffer is already being displayed in the current frame and
+contains information about that commit, then instead scroll the
+buffer up."
   (interactive)
-  (git-rebase--show-commit t))
+  (git-rebase--show-commit 'up))
 
 (defun git-rebase-backward-line (&optional n)
   "Move N lines backward (forward if N is negative).
