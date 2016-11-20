@@ -27,6 +27,15 @@
 
 ;;; Options
 
+(unless (find-lisp-object-file-name 'magit-submodule-list-mode-hook 'defvar)
+  (add-hook 'magit-submodule-list-mode-hook 'hl-line-mode))
+(defcustom magit-submodule-list-mode-hook '(hl-line-mode)
+  "Hook run after entering Magit-Submodule-List mode."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-modes
+  :type 'hook
+  :options '(hl-line-mode))
+
 (defcustom magit-submodule-list-columns
   '(("Path"     25 magit-modulelist-column-path   nil)
     ("Version"  25 magit-repolist-column-version  nil)
