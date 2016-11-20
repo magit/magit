@@ -534,7 +534,9 @@ and `magit-post-display-buffer-hook'."
     (run-hooks 'magit-pre-display-buffer-hook))
   (let ((window (funcall magit-display-buffer-function buffer)))
     (unless magit-display-buffer-noselect
-      (select-window window)))
+      (select-frame-set-input-focus
+       (window-frame
+        (select-window window)))))
   (with-current-buffer buffer
     (run-hooks 'magit-post-display-buffer-hook)))
 

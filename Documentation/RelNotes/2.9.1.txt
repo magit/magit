@@ -4,6 +4,9 @@ Magit v2.9.1 Release Notes (unreleased)
 Changes since v2.9.0
 --------------------
 
+* The function `magit-display-buffer' now sets the focus on the frame
+  used to display the selected window.  #2865
+
 Fixes since v2.9.0
 ------------------
 
