@@ -58,7 +58,6 @@ help:
 	@printf "\n"
 
 lisp:
-	@$(RM) $(ELCS) $(ELGS) # temporary cleanup kludge
 	@$(MAKE) -C lisp lisp
 
 docs:
