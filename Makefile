@@ -105,7 +105,7 @@ emacs-Q: clean-lisp
 
 clean: clean-lisp clean-docs clean-archives
 	@printf "Cleaning...\n"
-	@$(RM) $(ELCS) $(ELGS) # temporary cleanup kludge
+	@$(RM) *.elc $(ELGS) # temporary cleanup kludge
 	@$(RM) Documentation/*.texi~ Documentation/*.info-1 Documentation/*.info-2
 	@$(RM) magit-pkg.el t/magit-tests.elc
 

@@ -90,4 +90,4 @@ install: lisp
 
 clean:
 	@printf "Cleaning lisp/*...\n"
-	@$(RM) $(ELCS) $(ELGS)
+	@$(RM) *.elc $(ELGS)
