@@ -597,6 +597,11 @@ See `magit-section-match' for the forms CONDITION can take."
   (declare (indent 1)
            (debug (sexp body)))
   `(--when-let (magit-current-section)
+     ;; Quoting CONDITION here often leads to double-quotes, which
+     ;; isn't an issue because `magit-section-match-1' implicitly
+     ;; deals with that.  We shouldn't force users of this function
+     ;; to not quote CONDITION because that would needlessly break
+     ;; backward compatibility.
      (when (magit-section-match ',condition it)
        ,@(or body '((magit-section-value it))))))
 
