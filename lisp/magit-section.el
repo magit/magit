@@ -555,11 +555,16 @@ Each TYPE is a symbol.  Note that it is not necessary to specify
 all TYPEs up to the root section as printed by
 `magit-describe-type', unless of course you want to be that
 precise."
-  ;; When recursing SECTION actually is a type list.  Matching
-  ;; macros also pass such a list instead of a section struct.
+  ;; For backward compatibility reasons SECTION can also be a
+  ;; type-list as understood by `magit-section-match-1'.  This
+  ;; includes uses of the macros `magit-section-when' and
+  ;; `magit-section-case' that did not get recompiled after
+  ;; this function was changed.
   (and section
        (magit-section-match-1 condition
-                              (mapcar #'car (magit-section-ident section)))))
+                              (if (magit-section-p section)
+                                  (mapcar #'car (magit-section-ident section))
+                                section))))
 
 (defun magit-section-match-1 (condition type-list)
   (if (listp condition)
