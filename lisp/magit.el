@@ -1047,7 +1047,8 @@ reference, but it is not checked out."
                    (setq ref (match-string 1 ref))
                    (when (magit-branch-p ref)
                      (if (yes-or-no-p
-                          (format "Branch %s already exists.  Recreate it?" ref))
+                          (format "Branch %s already exists.  Reset it to %s?"
+                                  ref start))
                          (setq arg "-B")
                        (user-error "Abort")))
                    (magit-call-git "checkout" arg ref start))
