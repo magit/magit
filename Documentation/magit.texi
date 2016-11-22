@@ -3420,43 +3420,91 @@ Indentation of cherries in refs buffers.  This should be N-1 where N
 is taken from "%Nc" in the above format strings.
 @end defvar
 
-Everywhere in Magit @code{RET} visits the thing represented by the section
-at point.  In almost all cases visiting is done by showing some
-information in another buffer and @strong{not} doing anything else.  In refs
-buffers @code{RET} behaves differently, and because many users have grown
-accustomed to that inconsistency we are keeping it that way.
-
 @table @asis
 @kindex RET
 @cindex magit-visit-ref
 @item @kbd{RET} @tie{}@tie{}@tie{}@tie{}(@code{magit-visit-ref})
 
-Everywhere except in refs buffers this command behaves exactly like
-@code{magit-show-commit}; it shows the commit at point in another buffer.
+This command visits the reference or revision at point in another
+buffer.  If there is no revision at point or with a prefix argument
+then it prompts for a revision.
 
-In refs buffers, when there is a local branch at point, then this
-command instead checks out that branch.  When there is a remote
-branch or a tag at point then the respective commit is checked out
-causing @code{HEAD} to be detached.
-
-When a prefix argument it used, then this command only @strong{focuses} on
-the reference at point, i.e. the commit counts and cherries are
-updated to be relative to that reference, but nothing is checked
-out.
+This command behaves just like @code{magit-show-commit} as described above,
+except if point is on a reference in a @code{magit-refs-mode} buffer, in
+which case the behavior may be different, but only if you have
+customized the option @code{magit-visit-ref-behavior}.
 
 @end table
 
-@defopt magit-visit-ref-create
+@defopt magit-visit-ref-behavior
 
-When this is non-nil and @code{magit-visit-ref} is called inside a refs
-buffer, then it "visits" the remote branch at point by creating a
-new local branch which tracks that remote branch and then checking
-out the newly created branch.
+This option controls how @code{magit-visit-ref} behaves in @code{magit-refs-mode}
+buffers.
 
-This is not enabled by default because one has to use an extremely
-loose definition of the verb "to visit" to be able to argue that
-creating and then checking out a new local branch is a form of
-visiting a remote branch.
+By default @code{magit-visit-ref} behaves like @code{magit-show-commits}, in all
+buffers, including @code{magit-refs-mode} buffers.  When the type of the
+section at point is @code{commit} then "RET" is bound to @code{magit-show-commit},
+and when the type is either @code{branch} or @code{tag} then it is bound to
+@code{magit-visit-ref}.
+
+"RET" is one of Magit's most essential keys and at least by default
+it should behave consistently across all of Magit, especially
+because users quickly learn that it does something very harmless; it
+shows more information about the thing at point in another buffer.
+
+However "RET" used to behave differently in @code{magit-refs-mode} buffers,
+doing surprising things, some of which cannot really be described as
+"visit this thing".  If you've grown accustomed this behavior, you
+can restore it by adding one or more of the below symbols to the
+value of this option.  But keep in mind that by doing so you don't
+only introduce inconsistencies, you also lose some functionality and
+might have to resort to @code{M-x magit-show-commit} to get it back.
+
+@code{magit-visit-ref} looks for these symbols in the order in which they
+are described here.  If the presence of a symbol applies to the
+current situation, then the symbols that follow do not affect the
+outcome.
+
+@itemize
+@item
+@code{focus-on-ref}
+
+With a prefix argument update the buffer to show commit counts
+and lists of cherry commits relative to the reference at point
+instead of relative to the current buffer or @code{HEAD}.
+
+Instead of adding this symbol, consider pressing "C-u y o RET".
+
+
+@item
+@code{create-branch}
+
+If point is on a remote branch, then create a new local branch
+with the same name, use the remote branch as its upstream, and
+then check out the local branch.
+
+Instead of adding this symbol, consider pressing "b c RET RET",
+like you would do in other buffers.
+
+
+@item
+@code{checkout-any}
+
+Check out the reference at point.  If that reference is a tag
+or a remote branch, then this results in a detached @code{HEAD}.
+
+Instead of adding this symbol, consider pressing "b b RET",
+like you would do in other buffers.
+
+
+@item
+@code{checkout-branch}
+
+Check out the local branch at point.
+
+Instead of adding this symbol, consider pressing "b b RET",
+like you would do in other buffers.
+@end itemize
 @end defopt
 
 @menu
