@@ -30,6 +30,18 @@ Breaking changes since v2.8.0
 
     (setq magit-popup-show-common-commands t)
 
+* The option `magit-popup-use-prefix-argument' defaults to `default'
+  now, meaning that the use of a prefix argument causes the popup's
+  default action to be invoked directly without the popup being shown
+  first.
+
+  Previously the use of a prefix argument did not invoke the popup
+  or its default action, and instead informed users that they had to
+  choose what behavior they wanted and that they had to set the option
+  accordingly.  Doing that was necessary three years ago, when the
+  default behavior changed when "magit-key-mode.el" was replaced with
+  "magit-popup.el".  Now we don't need that safety net anymore.
+
 Changes since v2.8.0
 --------------------
 
