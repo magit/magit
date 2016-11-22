@@ -106,10 +106,11 @@ One of `man' or `woman'."
   :group 'magit-popup
   :type 'boolean)
 
-(defcustom magit-popup-show-common-commands t
-  "Initially show section with commands common to all popups.
+(defcustom magit-popup-show-common-commands nil
+  "Whether to initially show section with commands common to all popups.
 This section can also be toggled temporarily using \
 \\<magit-popup-mode-map>\\[magit-popup-toggle-show-common-commands]."
+  :package-version '(magit-popup . "2.9.0")
   :group 'magit-popup
   :type 'boolean)
 
@@ -775,8 +776,12 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
      ((memq use-prefix '(disabled default popup nil))
       (magit-popup-mode-setup popup mode)
       (when magit-popup-show-help-echo
-        (message (concat "Type C-h i to view popup manual, "
-                         "? to describe an argument or action."))))
+        (message
+         (format
+          "[%s] show common commands, [%s] describe events, [%s] show manual"
+          (propertize "C-t"   'face 'magit-popup-key)
+          (propertize "?"     'face 'magit-popup-key)
+          (propertize "C-h i" 'face 'magit-popup-key)))))
      (local
       (error "Invalid :use-prefix popup property value: %s" use-prefix))
      (t

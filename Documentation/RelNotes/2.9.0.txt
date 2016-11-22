@@ -18,6 +18,18 @@ Breaking changes since v2.8.0
 
     (setq magit-branch-popup-show-variables t)
 
+* The option `magit-popup-show-common-commands' now defaults to `nil'.
+
+  This was done to make popups less noisy but increases the odds
+  that some users will never become aware of the common commands.
+  To counter that, the usage instructions displayed in the echo area
+  now also mention the key that can be used to show these commands
+  temporarily.
+
+  You can easily revert this change using:
+
+    (setq magit-popup-show-common-commands t)
+
 Changes since v2.8.0
 --------------------
 

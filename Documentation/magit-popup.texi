@@ -194,10 +194,12 @@ a chance to notice them.
 
 @defopt magit-popup-show-common-commands
 
-This option controls whether the section which lists the commands
-that are common to all popups is initially show.  We recommend you
-set this to @code{nil} - after you have memorized that it can be shown on
-demand using @code{C-t}.
+This option controls whether the section that lists the commands
+that are common to all popups is initially shown.
+
+By default this is not the case, but note that you can temporarily
+show this section using @code{C-t}, which therefore is the only common
+command you actually have to memorize.
 @end defopt
 
 @table @asis
