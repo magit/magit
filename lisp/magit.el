@@ -1050,8 +1050,8 @@ reference, but it is not checked out."
                           (format "Branch %s already exists.  Recreate it?" ref))
                          (setq arg "-B")
                        (user-error "Abort")))
-                   (magit-run-git "checkout" arg ref start))
-               (magit-run-git "checkout" ref))
+                   (magit-call-git "checkout" arg ref start))
+               (magit-call-git "checkout" ref))
              (setcar magit-refresh-args ref)
              (magit-refresh))))
         ([commit * branchbuf]
