@@ -34,6 +34,7 @@
 
 (require 'magit-section)
 (require 'magit-git)
+(require 'magit-popup)
 
 ;; For `magit-xref-insert-buttons' from `magit'
 (defvar magit-diff-show-xref-buttons)
@@ -384,7 +385,10 @@ which deletes the thing at point."
 Where applicable, section-specific keymaps bind another command
 which visits the thing at point."
   (interactive)
-  (user-error "There is no thing at point that could be visited"))
+  (if (eq magit-current-popup 'magit-dispatch-popup)
+      (progn (setq magit-current-popup nil)
+             (call-interactively (key-binding (this-command-keys))))
+    (user-error "There is no thing at point that could be visited")))
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"

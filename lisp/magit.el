@@ -2874,13 +2874,31 @@ Currently this only adds the following key bindings.
              (?U "Unstage all"     magit-unstage-all)
              nil
              (?k "Discard"         magit-discard)
-             "\
- g      refresh current buffer
- TAB    toggle section at point
- RET    visit thing at point
-
- C-h m  show all key bindings" nil)
+             "Essential commands"
+             (?g  "    refresh current buffer"   magit-refresh) nil
+             ;; These bindings only work because of :setup-function.
+             (?\t   "  toggle section at point"  magit-section-toggle) nil
+             (?\r   "  visit thing at point"     magit-visit-thing) nil
+             ;; This binding has no effect and only appears to do
+             ;; so because it is identical to the global binding.
+             ("C-h m" "show all key bindings"    describe-mode) nil)
+  :setup-function 'magit-dispatch-popup-setup
   :max-action-columns 4)
+
+(defun magit-dispatch-popup-setup (val def)
+  (magit-popup-default-setup val def)
+  (magit-popup-put
+   :actions (nconc (magit-popup-get :actions)
+                   (list (make-magit-popup-event :key 'tab
+                                                 :fun 'magit-section-toggle)
+                         (make-magit-popup-event :key 'return
+                                                 :fun 'magit-visit-thing))))
+  (let ((map (copy-keymap (current-local-map))))
+    (use-local-map map)
+    (define-key map "\t"     'magit-invoke-popup-action)
+    (define-key map "\r"     'magit-invoke-popup-action)
+    (define-key map [tab]    'magit-invoke-popup-action)
+    (define-key map [return] 'magit-invoke-popup-action)))
 
 ;;;; Git Popup
 
