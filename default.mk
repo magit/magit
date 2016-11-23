@@ -24,6 +24,7 @@ MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
 
 DOC_LOAD_PATH    ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
 
+PKG              = magit
 PACKAGES         = magit magit-popup git-commit
 PACKAGE_VERSIONS = $(addsuffix -$(VERSION),$(PACKAGES))
 
