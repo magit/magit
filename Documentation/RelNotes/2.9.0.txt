@@ -68,6 +68,20 @@ Breaking changes since v2.8.0
   default behavior changed when "magit-key-mode.el" was replaced with
   "magit-popup.el".  Now we don't need that safety net anymore.
 
+* By default Git-Commit no longer complains about a summary line that
+  is too long by some standards.  You can easily revert this change
+  using:
+
+    (add-to-list 'git-commit-style-convention-checks
+                 'overlong-summary-line)
+
+* In buffers used to write commit messages `fill-column' is no longer
+  set to 72.  Instead the default value 70 is used (or whatever local
+  value is setup through other means).  You can easily revert this
+  change using:
+
+    (setq git-commit-fill-column 72)
+
 Changes since v2.8.0
 --------------------
 
@@ -99,6 +113,10 @@ Changes since v2.8.0
 
   If, and only if, the file/blob buffer is narrowed to a region that
   does not include the position we jump to, then it is widened first.
+
+* Hunk refinement is now faster.  Users who previously set
+  `magit-diff-refine-hunk' to `nil' due to performance issues may
+  find that it now works well even when set to `all'.
 
 * The new options `magit-diff-highlight-hunk-region-functions' and
   `magit-diff-unmarked-lines-keep-foreground' (which was previously
@@ -162,16 +180,17 @@ Changes since v2.8.0
   the new branch and the upstream is read using the second prompt, as
   if the value of this option were `nil'.
 
-* By default Git-Commit no longer complains about a summary line that
-  is too long by some standards.  If you actually want it to complain
-  about that, then customize `git-commit-style-convention-checks'.
-
 * When deleting a stash, the hash is now logged to the process log
   buffer in addition to *Messages*, making it more likely that a
   user who accidentally deleted a stash would find the information
   required to undo that.
 
 * The environment variable `INSIDE_EMACS' is now set when calling git.
+
+* Added support for new gpg status letters X, Y, R, and E.
+
+* Added `hl-line-mode' to `magit-repolist-hook' and
+  `magit-submodule-list-hook' and defined those hooks explicitly.
 
 * Added the `--gpg-sign=' option to the revert popup.
 
@@ -183,10 +202,6 @@ Changes since v2.8.0
 
 * `whitespace-mode' is not compatible with Magit buffers, where it is
   now actively prevented from being turned on by the user.
-
-* Hunk refinement is now faster.  Users who previously set
-  `magit-diff-refine-hunk' to nil due to performance issues may find
-  that it now works well even when set to `all'.
 
 Fixes since v2.8.0
 ------------------
@@ -207,12 +222,16 @@ Fixes since v2.8.0
 
 * On Windows, when using a `windows-nt' Emacs together with a cygwin
   Git, we failed to instruct Emacs to not use dos shell quoting when
-  calling git.
+  calling git.  And if Git wasn't available, then that caused an
+  error, which prevented Magit from being loaded.
 
 * The encoding of commit messages is controlled by the Git variable
   `i18n.logOutputEncoding' but we failed to take that into account.
   Fixes by setting `i18n.logOutputEncoding' to UTF-8, but only inside
   Magit and only for `window-nt'.
+
+* File and directory local variables where not honored in the buffers
+  used to write commit messages.
 
 * The caching mechanism that is supposed to ensure that sections of
   unpulled and unpushed commits remain collapsed even when they
@@ -224,6 +243,9 @@ Fixes since v2.8.0
   anyway, but if other timers are running then it is possible that
   those make the wrong buffer current.
 
+* Process sentinels and filters used when blaming assumed that the
+  `exit' process status indicates success.  #2836
+
 * The commands `magit-clone' and `magit-init' did not work over Tramp.
 
 * The commands `magit-worktree-checkout' and `magit-worktree-branch'
@@ -231,15 +253,18 @@ Fixes since v2.8.0
   git does not know the meaning of "~/".
 
 * The commands which create fixup/squash commands and then immediately
-  squash them into the target commit did not remove the `--gpg-sign'
-  switch.  Signing such commits is not only unnecessary; unless the
-  passphrase was cached earlier trying to sign resulted in the process
-  indefinitely waiting for the passphrase to arrive with no way for
-  the user to actually provide it.
+  squash them into the target commit did neither remove `--gpg-sign'
+  nor add `--no-gpg-sign'.  Signing such commits is not only
+  unnecessary; unless the passphrase was cached earlier trying to sign
+  resulted in the process indefinitely waiting for the passphrase to
+  arrive with no way for the user to actually provide it.
 
 * Depending on the value of `magit-save-repository-buffers' the user
   might have been asked whether s/he wants to save "git-rebase-todo",
   which is never necessary and just a distraction.
+
+* The function `magit-save-repository-buffers' did not follow symlinks.
+  #2843
 
 * Directories whose names begin with a period were filtered out when
   using `magit-repository-directories' to calculate a list of repos.
@@ -247,6 +272,10 @@ Fixes since v2.8.0
 * The user name and email, which are displayed when reading a gpg key
   from the user, were not stripped from the chosen value before being
   handed of to git.
+
+* When the upstream of the current branch is a remote whose url isn't
+  configured then that caused an error when refreshing the status
+  buffer.
 
 * When visiting a directory by displaying a Dired buffer, we used to
   display a buffer for the parent of the directory in question and
@@ -271,6 +300,11 @@ Fixes since v2.8.0
   `magit-diff-show-or-scroll-down', which was not the case.  A new
   command `git-rebase-show-or-scroll-down` has been added and bound to
   "DEL" to provide this functionality.
+
+* The function `magit-repolist-status' did not expand the filename
+  which may be necessary when listing submodules.
+
+* The log margin did not show the author of stashes.  #2846
 
 This release also contains typofixes, documentation updates,
 code clean-ups, and other small bug fixes and improvements.
