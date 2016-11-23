@@ -18,11 +18,14 @@ infodir  ?= $(sharedir)/info
 docdir   ?= $(sharedir)/doc/magit
 statsdir ?= $(TOP)/Documentation/stats
 
-CP    ?= install -p -m 644
-MKDIR ?= install -p -m 755 -d
-RMDIR ?= rm -rf
-TAR   ?= tar
-SED   ?= sed
+CP       ?= install -p -m 644
+MKDIR    ?= install -p -m 755 -d
+RMDIR    ?= rm -rf
+TAR      ?= tar
+SED      ?= sed
+
+EMACSBIN ?= emacs
+BATCH     = $(EMACSBIN) -Q --batch $(LOAD_PATH)
 
 INSTALL_INFO     ?= $(shell command -v ginstall-info || printf install-info)
 MAKEINFO         ?= makeinfo
@@ -69,7 +72,13 @@ ELCS = $(ELS:.el=.elc)
 ELMS = magit.el $(filter-out $(addsuffix .el,$(PACKAGES)),$(ELS))
 ELGS = magit-autoloads.el magit-version.el
 
-EMACS_VERSION = 24.4
+VERSION := $(shell \
+  test -e $(TOP).git\
+  && git describe --tags --dirty 2> /dev/null\
+  || $(BATCH) --eval "(progn\
+  (fset 'message (lambda (&rest _)))\
+  (load-file \"magit-version.el\")\
+  (princ magit-version))")
 
 MAGIT_VERSION       = 2.8
 ASYNC_VERSION       = 1.9
@@ -84,7 +93,13 @@ WITH_EDITOR_MELPA_SNAPSHOT = 20160929.734
 GIT_COMMIT_MELPA_SNAPSHOT  = 20160929.801
 MAGIT_POPUP_MELPA_SNAPSHOT = 20160821.1338
 
-EMACSBIN ?= emacs
+EMACS_VERSION = 24.4
+
+EMACSOLD := $(shell $(BATCH) --eval \
+  "(and (version< emacs-version \"$(EMACS_VERSION)\") (princ \"true\"))")
+ifeq "$(EMACSOLD)" "true"
+  $(error At least version $(EMACS_VERSION) of Emacs is required)
+endif
 
 ifndef LOAD_PATH
 
@@ -120,19 +135,3 @@ else
 endif
 
 endif # ifndef LOAD_PATH
-
-BATCH = $(EMACSBIN) -batch -Q $(LOAD_PATH)
-
-EMACSOLD := $(shell $(BATCH) --eval \
-  "(and (version< emacs-version \"$(EMACS_VERSION)\") (princ \"true\"))")
-ifeq "$(EMACSOLD)" "true"
-  $(error At least version $(EMACS_VERSION) of Emacs is required)
-endif
-
-VERSION := $(shell \
-  test -e $(TOP).git\
-  && git describe --tags --dirty 2> /dev/null\
-  || $(BATCH) --eval "(progn\
-  (fset 'message (lambda (&rest _)))\
-  (load-file \"magit-version.el\")\
-  (princ magit-version))")
