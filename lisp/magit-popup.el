@@ -106,25 +106,19 @@ One of `man' or `woman'."
   :group 'magit-popup
   :type 'boolean)
 
-(defcustom magit-popup-show-common-commands t
-  "Initially show section with commands common to all popups.
+(defcustom magit-popup-show-common-commands nil
+  "Whether to initially show section with commands common to all popups.
 This section can also be toggled temporarily using \
 \\<magit-popup-mode-map>\\[magit-popup-toggle-show-common-commands]."
+  :package-version '(magit-popup . "2.9.0")
   :group 'magit-popup
   :type 'boolean)
 
-(defcustom magit-popup-use-prefix-argument 'disabled
+(defcustom magit-popup-use-prefix-argument 'default
   "Control how prefix arguments affect infix argument popups.
 
 This option controls the effect that the use of a prefix argument
-before entering a popup has.  The *intended* default is `default',
-but the *actual* default is `disabled'.  This is necessary because
-the old popup implementation did simply forward such a pre-popup
-prefix argument to the action invoked from the popup, and changing
-that without users being aware of it could lead to tears.
-
-`disabled' Bring up a Custom option buffer so that the user reads
-           this and then makes an informed choice.
+before entering a popup has.
 
 `default'  With a prefix argument directly invoke the popup's
            default action (an Emacs command), instead of bringing
@@ -138,8 +132,7 @@ that without users being aware of it could lead to tears.
   :type '(choice
           (const :tag "Call default action instead of showing popup" default)
           (const :tag "Show popup instead of calling default action" popup)
-          (const :tag "Ignore prefix argument" nil)
-          (const :tag "Abort and show usage information" disabled)))
+          (const :tag "Ignore prefix argument" nil)))
 
 ;;;; Custom Faces
 
@@ -753,10 +746,6 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
          (local   (plist-get def :use-prefix))
          (use-prefix (or local magit-popup-use-prefix-argument)))
     (cond
-     ((and arg (eq magit-popup-use-prefix-argument 'disabled))
-      (customize-option-other-window 'magit-popup-use-prefix-argument)
-      (error (concat "The meaning of prefix arguments has changed.  "
-                     "Please explicitly enable their use again.")))
      ((or (and (eq use-prefix 'default) arg)
           (and (eq use-prefix 'popup) (not arg)))
       (if default
@@ -772,11 +761,15 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
             (call-interactively default))
         (message "%s has no default action; showing popup instead." popup)
         (magit-popup-mode-setup popup mode)))
-     ((memq use-prefix '(disabled default popup nil))
+     ((memq use-prefix '(default popup nil))
       (magit-popup-mode-setup popup mode)
       (when magit-popup-show-help-echo
-        (message (concat "Type C-h i to view popup manual, "
-                         "? to describe an argument or action."))))
+        (message
+         (format
+          "[%s] show common commands, [%s] describe events, [%s] show manual"
+          (propertize "C-t"   'face 'magit-popup-key)
+          (propertize "?"     'face 'magit-popup-key)
+          (propertize "C-h i" 'face 'magit-popup-key)))))
      (local
       (error "Invalid :use-prefix popup property value: %s" use-prefix))
      (t

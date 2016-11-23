@@ -147,10 +147,12 @@ a chance to notice them.
 
 - User Option: magit-popup-show-common-commands
 
-  This option controls whether the section which lists the commands
-  that are common to all popups is initially show.  We recommend you
-  set this to ~nil~ - after you have memorized that it can be shown on
-  demand using ~C-t~.
+  This option controls whether the section that lists the commands
+  that are common to all popups is initially shown.
+
+  By default this is not the case, but note that you can temporarily
+  show this section using ~C-t~, which therefore is the only common
+  command you actually have to memorize.
 
 - Key: C-t, magit-popup-toggle-show-common-commands
 
@@ -342,16 +344,7 @@ is:
 - User Option: magit-popup-use-prefix-argument
 
   This option controls the effect that the use of a prefix argument
-  before entering a popup has.  The *intended* default is ~default~, but
-  the *actual* default is ~disabled~.  This is necessary because the old
-  popup implementation did simply forward such a pre-popup prefix
-  argument to the suffix command invoked from the popup, and changing
-  that without users being aware of it could lead to tears.
-
-  - ~disabled~
-
-    Bring up a Custom option buffer so that the user reads
-    this and then makes an informed choice.
+  before entering a popup has.
 
   - ~default~
 

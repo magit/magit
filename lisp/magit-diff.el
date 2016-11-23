@@ -890,7 +890,7 @@ be committed."
 
 ;;;###autoload
 (defun magit-show-commit (rev &optional args files module)
-  "Show the revision at point.
+  "Visit the revision at point in another buffer.
 If there is no revision at point or with a prefix argument prompt
 for a revision."
   (interactive
