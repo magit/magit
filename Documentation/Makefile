@@ -84,14 +84,18 @@ AUTHORS.md:
 DOMAIN         ?= magit.vc
 PUBLISH_BUCKET ?= s3://$(DOMAIN)
 PREVIEW_BUCKET ?= s3://preview.$(DOMAIN)
+PUBLISH_URL    ?= http://$(DOMAIN).s3-website.eu-central-1.amazonaws.com
+PREVIEW_URL    ?= http://preview.$(DOMAIN).s3-website.eu-central-1.amazonaws.com
 
 preview-stats: stats
 	@printf "Uploading statistics...\n"
 	@aws s3 sync $(statsdir)      $(PREVIEW_BUCKET)/stats/
+	@printf "Uploaded to $(PREVIEW_URL)/stats/\n"
 
 publish-stats: stats
 	@printf "Uploading statistics...\n"
 	@aws s3 sync $(statsdir)      $(PUBLISH_BUCKET)/stats/
+	@printf "Uploaded to $(PUBLISH_URL)/stats/\n"
 
 preview-manuals: html html-dir pdf
 	@printf "Uploading manuals...\n"
@@ -101,6 +105,7 @@ preview-manuals: html html-dir pdf
 	@aws s3 sync magit-popup      $(PREVIEW_BUCKET)/manual/magit-popup/
 	@aws s3 cp   magit-popup.html $(PREVIEW_BUCKET)/manual/
 	@aws s3 cp   magit-popup.pdf  $(PREVIEW_BUCKET)/manual/
+	@printf "Uploaded to $(PREVIEW_URL)/manual/\n"
 
 publish-manuals: html html-dir pdf
 	@printf "Uploading manuals...\n"
@@ -110,6 +115,7 @@ publish-manuals: html html-dir pdf
 	@aws s3 sync magit-popup      $(PUBLISH_BUCKET)/manual/magit-popup/
 	@aws s3 cp   magit-popup.html $(PUBLISH_BUCKET)/manual/
 	@aws s3 cp   magit-popup.pdf  $(PUBLISH_BUCKET)/manual/
+	@printf "Uploaded to $(PUBLISH_URL)/manual/\n"
 
 # Templates ##########################################################
 
