@@ -1,5 +1,5 @@
-include default.mk
 -include config.mk
+include default.mk
 
 .PHONY: lisp \
 	install install-lisp install-docs install-info \
