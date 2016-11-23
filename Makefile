@@ -35,6 +35,16 @@ help:
 	$(info make install-docs     - install all documentation)
 	$(info make install-info     - install info manuals only)
 	$(info )
+	$(info Clean)
+	$(info ====)
+	$(info )
+	$(info make clean            - clean elisp, documentation and tarball)
+	$(info make clean-lisp       - clean elisp)
+	$(info make clean-docs       - clean docs)
+	$(info make clean-archives   - clean release tarball)
+	$(info make clean-all        - clean everything except tracked texi)
+	$(info make clean-stats      - clean stats)
+	$(info )
 	$(info Test)
 	$(info ====)
 	$(info )
@@ -117,6 +127,11 @@ clean-docs:
 clean-archives:
 	@$(RM) git-commit-*.el *.tar.gz *.tar
 	@$(RMDIR) magit-$(VERSION)
+
+clean-all: clean clean-stats
+
+clean-stats:
+	@$(RMDIR) $(statsdir)
 
 # Release management
 
