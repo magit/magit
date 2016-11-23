@@ -1,16 +1,22 @@
 TOP := $(dir $(lastword $(MAKEFILE_LIST)))
 
+# You can override these settings in "config.mk" or on the command
+# line.
+#
+# You might also want to set LOAD_PATH.  If you do, then it must
+# contain "-L .".
+#
+# If you don't do so then the default is set in the "Load-Path"
+# section below.  The default assumes that all dependencies are
+# installed either at "../<DEPENDENCY>", or when using package.el
+# at "ELPA_DIR/<DEPENDENCY>-<HIGHEST-VERSION>".
+
 PREFIX   ?= /usr/local
 sharedir ?= $(PREFIX)/share
 lispdir  ?= $(sharedir)/emacs/site-lisp/magit
 infodir  ?= $(sharedir)/info
 docdir   ?= $(sharedir)/doc/magit
 statsdir ?= $(TOP)/Documentation/stats
-
-# You might also want to set LOAD_PATH.  If you do, then it must
-# contain "-L .".  If you don't then the default is set, assuming
-# that all dependencies are installed either at ../<DEPENDENCY>,
-# or using package.el at ELPA_DIR/<DEPENDENCY>-<HIGHEST-VERSION>.
 
 CP    ?= install -p -m 644
 MKDIR ?= install -p -m 755 -d
