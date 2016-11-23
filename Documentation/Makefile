@@ -51,7 +51,7 @@ install-info: info
 
 clean:
 	@printf "Cleaning Documentation/*...\n"
-	@$(RM) $(INFOPAGES) dir
+	@$(RMDIR) dir $(INFOPAGES) $(HTMLFILES) $(HTMLDIRS) $(PDFFILES)
 
 # Release management #################################################
 
