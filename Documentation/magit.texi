@@ -1437,41 +1437,37 @@ Cycle the visibility of diff-related sections in the current buffer.
 @item @kbd{S-<tab>} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-cycle-global})
 
 Cycle the visibility of all sections in the current buffer.
-@end table
 
 @kindex 1
-@kindex 2
-@kindex 3
-@kindex 4
 @cindex magit-section-show-level-1
-@deffn Command magit-section-show-level-1
+@item @kbd{1} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-1})
+@kindex 2
 @cindex magit-section-show-level-2
-@deffnx Command magit-section-show-level-2
+@item @kbd{2} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-2})
+@kindex 3
 @cindex magit-section-show-level-3
-@deffnx Command magit-section-show-level-3
+@item @kbd{3} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-3})
+@kindex 4
 @cindex magit-section-show-level-4
-@deffnx Command magit-section-show-level-4
+@item @kbd{4} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-4})
 
-To show sections surrounding the current section, up to level N,
-press the respective number key (@code{1}, @code{2}, @code{3}, or @code{4}).
-@end deffn
+Show sections surrounding the current section up to level N.
 
 @kindex M-1
-@kindex M-2
-@kindex M-3
-@kindex M-4
 @cindex magit-section-show-level-1-all
-@deffn Command magit-section-show-level-1-all
+@item @kbd{M-1} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-1-all})
+@kindex M-2
 @cindex magit-section-show-level-2-all
-@deffnx Command magit-section-show-level-2-all
+@item @kbd{M-2} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-2-all})
+@kindex M-3
 @cindex magit-section-show-level-3-all
-@deffnx Command magit-section-show-level-3-all
+@item @kbd{M-3} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-3-all})
+@kindex M-4
 @cindex magit-section-show-level-4-all
-@deffnx Command magit-section-show-level-4-all
+@item @kbd{M-4} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-4-all})
 
-To show all sections up to level N, press the respective number key
-and meta (@code{M-1}, @code{M-2}, @code{M-3}, or @code{M-4}).
-@end deffn
+Show all sections up to level N.
+@end table
 
 Some functions, which are used to implement the above commands, are
 also exposed as commands themselves.  By default no keys are bound to
