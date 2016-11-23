@@ -1,5 +1,7 @@
 TOP := $(dir $(lastword $(MAKEFILE_LIST)))
 
+## User options ######################################################
+#
 # You can override these settings in "config.mk" or on the command
 # line.
 #
@@ -32,6 +34,8 @@ MAKEINFO         ?= makeinfo
 MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
 
 DOC_LOAD_PATH    ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
+
+## Files #############################################################
 
 PKG              = magit
 PACKAGES         = magit magit-popup git-commit
@@ -72,6 +76,8 @@ ELCS = $(ELS:.el=.elc)
 ELMS = magit.el $(filter-out $(addsuffix .el,$(PACKAGES)),$(ELS))
 ELGS = magit-autoloads.el magit-version.el
 
+## Versions ##########################################################
+
 VERSION := $(shell \
   test -e $(TOP).git\
   && git describe --tags --dirty 2> /dev/null\
@@ -100,6 +106,8 @@ EMACSOLD := $(shell $(BATCH) --eval \
 ifeq "$(EMACSOLD)" "true"
   $(error At least version $(EMACS_VERSION) of Emacs is required)
 endif
+
+## Load-Path #########################################################
 
 ifndef LOAD_PATH
 

@@ -1,6 +1,8 @@
 -include config.mk
 include default.mk
 
+## ###################################################################
+
 .PHONY: lisp \
 	install install-lisp install-docs install-info \
 	test test-interactive magit \
@@ -67,6 +69,8 @@ help:
 	$(info make bump-snapshots   - bump versions after release)
 	@printf "\n"
 
+## Build #############################################################
+
 lisp:
 	@$(MAKE) -C lisp lisp
 
@@ -85,6 +89,8 @@ html-dir:
 pdf:
 	@$(MAKE) -C Documentation pdf
 
+## Install ###########################################################
+
 install: install-lisp install-docs
 
 install-lisp: lisp
@@ -95,6 +101,8 @@ install-docs: docs
 
 install-info: info
 	@$(MAKE) -C Documentation install-info
+
+## Test ##############################################################
 
 test:
 	@$(BATCH) --eval "(progn\
@@ -111,6 +119,8 @@ emacs-Q: clean-lisp
 	(setq debug-on-error t)\
 	(require 'magit)\
 	(global-set-key \"\\C-xg\" 'magit-status))"
+
+## Clean #############################################################
 
 clean: clean-lisp clean-docs clean-archives
 	@printf "Cleaning...\n"
@@ -133,7 +143,7 @@ clean-all: clean clean-stats
 clean-stats:
 	@$(RMDIR) $(statsdir)
 
-# Release management
+## Release management ################################################
 
 texi:
 	@$(MAKE) -C Documentation texi

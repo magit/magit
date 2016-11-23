@@ -1,9 +1,13 @@
 -include ../config.mk
 include ../default.mk
 
+## ###################################################################
+
 .PHONY: magit-version.el install
 
 all: lisp
+
+## Build order #######################################################
 
 git-commit.elc:
 magit-popup.elc:
@@ -33,6 +37,8 @@ magit-subtree.elc:	magit.elc
 magit-ediff.elc:	magit.elc
 magit-extras.elc:	magit.elc
 git-rebase.elc:		magit.elc
+
+## Build #############################################################
 
 lisp:       $(ELCS) loaddefs versionlib
 loaddefs:   $(PKG)-autoloads.el
@@ -66,13 +72,19 @@ $(PKG)-version.el:
 	@printf "Generating $@\n"
 	@printf "%s" "$$LOADDEFS_TMPL" > $@
 
+## Install ###########################################################
+
 install: lisp
 	@$(MKDIR) $(DESTDIR)$(lispdir)
 	$(CP) $(ELS) magit-autoloads.el magit-version.el $(ELCS) $(DESTDIR)$(lispdir)
 
+## Clean #############################################################
+
 clean:
 	@printf "Cleaning lisp/*...\n"
 	@$(RM) *.elc $(ELGS)
+
+## Templates #########################################################
 
 define LOADDEFS_TMPL
 ;;; $(PKG)-autoloads.el --- automatically extracted autoloads

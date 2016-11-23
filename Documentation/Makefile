@@ -1,13 +1,13 @@
 -include ../config.mk
 include ../default.mk
 
-######################################################################
+## ###################################################################
 
 .PHONY: texi install clean AUTHORS.md stats
 
 all: info
 
-# Build ##############################################################
+## Build #############################################################
 
 info: $(INFOPAGES) dir
 html: $(HTMLFILES)
@@ -35,7 +35,7 @@ html-dir: $(TEXIFILES)
 	@printf "Generating $@\n"
 	@texi2pdf --clean $< > /dev/null
 
-# Install ############################################################
+## Install ###########################################################
 
 install: install-info install-docs
 
@@ -47,13 +47,13 @@ install-info: info
 	@$(MKDIR) $(DESTDIR)$(infodir)
 	$(CP) $(INFOPAGES) $(DESTDIR)$(infodir)
 
-# Clean ##############################################################
+## Clean #############################################################
 
 clean:
 	@printf "Cleaning Documentation/*...\n"
 	@$(RMDIR) dir $(INFOPAGES) $(HTMLFILES) $(HTMLDIRS) $(PDFFILES)
 
-# Release management #################################################
+## Release management ################################################
 
 # Because most users don't have the necessary tools we cannot
 # use "%.texi: %.org".  Instead we have to hardcode each file
@@ -73,6 +73,7 @@ stats:
 	@gitstats -c style=/assets/stats.css -c max_authors=64 $(TOP) $(statsdir)
 
 authors: AUTHORS.md
+
 AUTHORS.md:
 	@printf "Generating AUTHORS.md..."
 	@test -e $(TOP).git \
