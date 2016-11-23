@@ -67,18 +67,18 @@ If t, use ptys: this enables Magit to prompt for passphrases when needed."
                  (const :tag "pty" t)))
 
 (defcustom magit-need-cygwin-noglob
-  (when (eq system-type 'windows-nt)
-    (with-temp-buffer
-      (let ((process-environment
-             (append magit-git-environment process-environment)))
-        (condition-case e
-            (process-file magit-git-executable
-                          nil (current-buffer) nil
-                          "-c" "alias.echo=!echo" "echo" "x{0}")
-          (file-error
-           (lwarn 'magit-process :warning
-                  "Could not run Git: %S" e))))
-      (equal "x0\n" (buffer-string))))
+  (and (eq system-type 'windows-nt)
+       (with-temp-buffer
+         (let ((process-environment
+                (append magit-git-environment process-environment)))
+           (condition-case e
+               (process-file magit-git-executable
+                             nil (current-buffer) nil
+                             "-c" "alias.echo=!echo" "echo" "x{0}")
+             (file-error
+              (lwarn 'magit-process :warning
+                     "Could not run Git: %S" e))))
+         (equal "x0\n" (buffer-string))))
   "Whether to use a workaround for Cygwin's globbing behavior.
 
 If non-nil, add environment variables to `process-environment' to
