@@ -5,7 +5,7 @@ sharedir ?= $(PREFIX)/share
 lispdir  ?= $(sharedir)/emacs/site-lisp/magit
 infodir  ?= $(sharedir)/info
 docdir   ?= $(sharedir)/doc/magit
-statsdir ?= ./stats
+statsdir ?= $(TOP)/Documentation/stats
 
 # You might also want to set LOAD_PATH.  If you do, then it must
 # contain "-L .".  If you don't then the default is set, assuming

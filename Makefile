@@ -5,7 +5,7 @@ include default.mk
 	install install-lisp install-docs install-info \
 	test test-interactive magit \
 	clean clean-lisp clean-docs clean-archives \
-	genstats bump-version melpa-post-release \
+	stats bump-version melpa-post-release \
 	dist magit-$(VERSION).tar.gz
 
 all: lisp docs
