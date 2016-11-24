@@ -8,8 +8,6 @@ env:
 # matrix:
 #   allow_failures:
 #     - env: EMACS=emacs-snapshot
-before-install:
-  - git tag 0
 install:
   - if [ "$EMACS" = 'emacs24' ]; then
         sudo add-apt-repository -y ppa:cassou/emacs &&
@@ -31,6 +29,7 @@ install:
 script:
   - git config --global user.name "A U Thor"
   - git config --global user.email a.u.thor@example.com
+  - git tag 0
   - make lisp EMACSBIN=$EMACS DASH_DIR=$PWD
   - make test EMACSBIN=$EMACS DASH_DIR=$PWD
 notifications:
