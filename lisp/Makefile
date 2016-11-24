@@ -70,7 +70,7 @@ $(PKG)-autoloads.el: $(ELS)
 
 $(PKG)-version.el:
 	@printf "Generating $@\n"
-	@printf "%s" "$$LOADDEFS_TMPL" > $@
+	@printf "%s" "$$VERSIONLIB_TMPL" > $@
 
 ## Install ###########################################################
 
