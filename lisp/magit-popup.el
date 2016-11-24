@@ -484,10 +484,11 @@ usually specified in that order):
   The value, if specified, should be one of `default' or `popup'.
 
 `:max-action-columns'
-  The maximum number of actions to display on a single line.
-  This helps arranging actions more sensibly.  If there is not
-  enough room to display that many actions on one line, then
-  this is ignored.
+  The maximum number of actions to display on a single line, a
+  number or a function that return a number and takes the name
+  of the section currently being inserted as argument.  If there
+  isn't enough room to display as many columns as specified here,
+  then fewer are used.
 
 `:switches'
   The popup arguments which can be toggled on and off.  VALUE
@@ -1104,6 +1105,8 @@ of events shared by all popups and before point is adjusted.")
         (cl-typecase maxcols
           (keyword (setq maxcols (magit-popup-get maxcols)))
           (symbol  (setq maxcols (symbol-value maxcols)))))
+      (when (functionp maxcols)
+        (setq maxcols (funcall maxcols heading)))
       (when items
         (if (functionp heading)
             (when (setq heading (funcall heading))
