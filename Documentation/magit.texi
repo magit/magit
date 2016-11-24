@@ -576,7 +576,7 @@ M-x magit-version RET
 should display something like
 
 @example
-Magit 2.8.0, Git 2.9.0, Emacs 24.5.1
+Magit 2.8.0, Git 2.10.2, Emacs 25.1.1, gnu/linux
 @end example
 
 Then you might also want to read about options that many users likely
@@ -593,7 +593,7 @@ If you have used an older Magit release before, then you should have a
 look at the release notes @uref{https://github.com/magit/magit/releases}.
 
 And last but not least please consider making a donation, to ensure
-that I can keep working on Magit.  See @uref{http://magit.vc/donations.html}
+that I can keep working on Magit.  See @uref{https://magit.vc/donations}.
 for various donation options.
 
 @node Getting started
