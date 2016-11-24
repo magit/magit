@@ -2922,22 +2922,24 @@ Currently this only adds the following key bindings.
              (?a "Apply"           magit-apply)
              (?s "Stage"           magit-stage)
              (?u "Unstage"         magit-unstage)
-             nil
              (?v "Reverse"         magit-reverse)
              (?S "Stage all"       magit-stage-modified)
              (?U "Unstage all"     magit-unstage-all)
-             nil
              (?k "Discard"         magit-discard)
              "Essential commands"
-             (?g  "    refresh current buffer"   magit-refresh) nil
+             (?g  "    refresh current buffer"   magit-refresh)
              ;; These bindings only work because of :setup-function.
-             (?\t   "  toggle section at point"  magit-section-toggle) nil
-             (?\r   "  visit thing at point"     magit-visit-thing) nil
+             (?\t   "  toggle section at point"  magit-section-toggle)
+             (?\r   "  visit thing at point"     magit-visit-thing)
              ;; This binding has no effect and only appears to do
              ;; so because it is identical to the global binding.
-             ("C-h m" "show all key bindings"    describe-mode) nil)
+             ("C-h m" "show all key bindings"    describe-mode))
   :setup-function 'magit-dispatch-popup-setup
-  :max-action-columns 4)
+  :max-action-columns (lambda (heading)
+                        (pcase heading
+                          ("Popup and dwim commands" 4)
+                          ("Applying changes" 3)
+                          ("Essential commands" 1))))
 
 (defvar magit-dispatch-popup-map
   (let ((map (copy-keymap (current-local-map))))
