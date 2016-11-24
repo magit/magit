@@ -77,7 +77,7 @@ Breaking changes since v2.8.0
 
 * In buffers used to write commit messages `fill-column' is no longer
   set to 72.  Instead the default value 70 is used (or whatever local
-  value is setup through other means).  You can easily revert this
+  value is set up through other means).  You can easily revert this
   change using:
 
     (setq git-commit-fill-column 72)
@@ -230,7 +230,7 @@ Fixes since v2.8.0
   Fixes by setting `i18n.logOutputEncoding' to UTF-8, but only inside
   Magit and only for `window-nt'.
 
-* File and directory local variables where not honored in the buffers
+* File and directory local variables were not honored in the buffers
   used to write commit messages.
 
 * The caching mechanism that is supposed to ensure that sections of
@@ -253,11 +253,11 @@ Fixes since v2.8.0
   git does not know the meaning of "~/".
 
 * The commands which create fixup/squash commands and then immediately
-  squash them into the target commit did neither remove `--gpg-sign'
-  nor add `--no-gpg-sign'.  Signing such commits is not only
-  unnecessary; unless the passphrase was cached earlier trying to sign
-  resulted in the process indefinitely waiting for the passphrase to
-  arrive with no way for the user to actually provide it.
+  squash them into the target commit did not remove `--gpg-sign' or
+  add `--no-gpg-sign'.  Signing such commits is not only unnecessary;
+  unless the passphrase was cached earlier, trying to sign resulted in
+  the process indefinitely waiting for the passphrase to arrive with
+  no way for the user to actually provide it.
 
 * Depending on the value of `magit-save-repository-buffers' the user
   might have been asked whether s/he wants to save "git-rebase-todo",
