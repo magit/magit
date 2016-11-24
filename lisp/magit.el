@@ -2939,20 +2939,26 @@ Currently this only adds the following key bindings.
   :setup-function 'magit-dispatch-popup-setup
   :max-action-columns 4)
 
+(defvar magit-dispatch-popup-map
+  (let ((map (copy-keymap (current-local-map))))
+    (set-keymap-parent map magit-popup-mode-map)
+    (define-key map "\t" 'magit-invoke-popup-action)
+    (define-key map "\r" 'magit-invoke-popup-action)
+    map)
+  "Keymap used by `magit-dispatch-popup'.")
+
 (defun magit-dispatch-popup-setup (val def)
   (magit-popup-default-setup val def)
+  (use-local-map magit-dispatch-popup-map)
+  ;; This is necessary for users (i.e. me) who have broken the
+  ;; connection between C-i (aka TAB) and tab, and C-m (aka RET)
+  ;; and return.
   (magit-popup-put
    :actions (nconc (magit-popup-get :actions)
                    (list (make-magit-popup-event :key 'tab
                                                  :fun 'magit-section-toggle)
                          (make-magit-popup-event :key 'return
-                                                 :fun 'magit-visit-thing))))
-  (let ((map (copy-keymap (current-local-map))))
-    (use-local-map map)
-    (define-key map "\t"     'magit-invoke-popup-action)
-    (define-key map "\r"     'magit-invoke-popup-action)
-    (define-key map [tab]    'magit-invoke-popup-action)
-    (define-key map [return] 'magit-invoke-popup-action)))
+                                                 :fun 'magit-visit-thing)))))
 
 ;;;; Git Popup
 
