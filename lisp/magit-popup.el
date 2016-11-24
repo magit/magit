@@ -504,6 +504,12 @@ usually specified in that order):
   enabled by default) and options with there default values, as
   in \"--OPT=OPTVAL\".
 
+`:variables'
+
+  Git variables which can be set from the popup.  VALUE is a list
+  whose members have the form (KEY DESC COMMAND FORMATTER), see
+  `magit-define-popup-variable' for details.
+
 `:sequence-predicate'
   When this function returns non-nil, then the popup uses
   `:sequence-actions' instead of `:actions', and does not show

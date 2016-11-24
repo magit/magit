@@ -481,12 +481,6 @@ commands have to be defined separately using plain ~defun~.
     whose members have the form (KEY DESC COMMAND), see
     ~magit-define-popup-action~ for details.
 
-    How the actions are split into rows and columns currently depends
-    on the available space and ~:max-action-columns~.
-
-    WARNING: This will likely be change to use a more explicit format
-    (((KEY DESC COMMAND)...)...) before the release.
-
     Actions are regular Emacs commands, which usually have an
     ~interactive~ form setup to consume the values of the popup
     ~:switches~ and ~:options~ when invoked from the corresponding popup,
@@ -518,6 +512,13 @@ commands have to be defined separately using plain ~defun~.
     default set using ~magit-popup-use-prefix-argument~.  The value, if
     specified, should be one of ~default~ or ~prefix~.
 
+  - ~:max-action-columns~
+
+    The maximum number of actions to display on a single line.  This
+    helps arranging actions more sensibly.  If there is not enough
+    room to display that many actions on one line, then this is
+    ignored.
+
   - ~:switches~
 
     The popup arguments which can be toggled on and off.  VALUE is a
@@ -527,20 +528,20 @@ commands have to be defined separately using plain ~defun~.
   - ~:options~
 
     The popup arguments which take a value, as in "--opt~OPTVAL".
-    VALUE is a list whose members have the form (KEY DESC OPTION
-    READER), see ~magit-define-popup-option~ for details.
-
-  - ~:variables~
-
-    Git variables which can be set from the popup.  VALUE is a list
-    whose members have the form (KEY DESC COMMAND FORMATTER), see
-    ~magit-define-popup-variable~ for details.
+    VALUE is a list whose members have the form ~(KEY DESC OPTION
+    READER)~, see ~magit-define-popup-option~ for details.
 
   - ~:default-arguments~
 
     The default arguments, a list of switches (which are then enabled
     by default) and options with there default values, as in
-    "--OPT~OPTVAL\".
+    ~"--OPT=OPTVAL"~.
+
+  - ~:variables~
+
+    Git variables which can be set from the popup.  VALUE is a list
+    whose members have the form ~(KEY DESC COMMAND FORMATTER)~, see
+    ~magit-define-popup-variable~ for details.
 
   - ~:sequence-predicate~
 

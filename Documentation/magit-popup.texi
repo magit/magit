@@ -579,12 +579,6 @@ The actions which can be invoked from the popup.  VALUE is a list
 whose members have the form (KEY DESC COMMAND), see
 @code{magit-define-popup-action} for details.
 
-How the actions are split into rows and columns currently depends
-on the available space and @code{:max-action-columns}.
-
-WARNING: This will likely be change to use a more explicit format
-(((KEY DESC COMMAND)@dots{})@dots{}) before the release.
-
 Actions are regular Emacs commands, which usually have an
 @code{interactive} form setup to consume the values of the popup
 @code{:switches} and @code{:options} when invoked from the corresponding popup,
@@ -622,6 +616,15 @@ specified, should be one of @code{default} or @code{prefix}.
 
 
 @item
+@code{:max-action-columns}
+
+The maximum number of actions to display on a single line.  This
+helps arranging actions more sensibly.  If there is not enough
+room to display that many actions on one line, then this is
+ignored.
+
+
+@item
 @code{:switches}
 
 The popup arguments which can be toggled on and off.  VALUE is a
@@ -633,16 +636,8 @@ list whose members have the form @code{(KEY DESC SWITCH)}, see
 @code{:options}
 
 The popup arguments which take a value, as in "--opt~OPTVAL".
-VALUE is a list whose members have the form (KEY DESC OPTION
-READER), see @code{magit-define-popup-option} for details.
-
-
-@item
-@code{:variables}
-
-Git variables which can be set from the popup.  VALUE is a list
-whose members have the form (KEY DESC COMMAND FORMATTER), see
-@code{magit-define-popup-variable} for details.
+VALUE is a list whose members have the form @code{(KEY DESC OPTION
+    READER)}, see @code{magit-define-popup-option} for details.
 
 
 @item
@@ -650,7 +645,15 @@ whose members have the form (KEY DESC COMMAND FORMATTER), see
 
 The default arguments, a list of switches (which are then enabled
 by default) and options with there default values, as in
-"--OPT~OPTVAL\".
+@code{"--OPT=OPTVAL"}.
+
+
+@item
+@code{:variables}
+
+Git variables which can be set from the popup.  VALUE is a list
+whose members have the form @code{(KEY DESC COMMAND FORMATTER)}, see
+@code{magit-define-popup-variable} for details.
 
 
 @item
