@@ -6216,80 +6216,26 @@ all.
 :APPENDIX:   t
 :END:
 
-Below you find a list of frequently asked questions.  For a list of
+The next two nodes lists frequently asked questions.  For a list of
 frequently *and recently* asked questions, i.e. questions that haven't
-made it into the manual yet, see https://github.com/magit/magit/wiki/FAQ.
+made it into the manual yet, see
+https://github.com/magit/magit/wiki/FAQ.
 
-** Magit is slow
+** FAQ - How to ...?
+*** How to show git's output?
 
-See [[*Performance]].
+To show the output of recently run git commands, press ~$~ (or, if that
+isn't available, ~M-x magit-process-buffer~).  This will show a buffer
+containing a section per git invocation; as always press ~TAB~ to expand
+or collapse them.
 
-** I changed several thousand files at once and now Magit is unusable
+By default git's output is only inserted into the process buffer if it
+is run for side-effects.  When the output is consumed in some way then
+also inserting it into the process buffer would be to expensive.  For
+debugging purposes it's possible to do so anyway by setting
+~magit-git-debug~ to ~t~.
 
-Magit is *currently* not expected to work under such conditions. It sure
-would be nice if it did, and v2.5 will hopefully be a big step into
-that direction.  But it might take until v3.1 to accomplish fully
-satisfactory performance, because that requires some heavy refactoring.
-
-But for now we recommend you use the command line to complete this one
-commit.  Also see [[*Performance]].
-
-** I am having problems committing
-
-That likely means that Magit is having problems finding an appropriate
-emacsclient executable.  See [[info:with-editor#Configuring With-Editor]]
-and [[info:with-editor#Debugging]].
-
-** Diffs are collapsed after un-/staging
-
-This typically happens on Windows and/or large repositories where
-preparing diffs takes longer than ~magit-diff-expansion-threshold~. The
-default is one second, try increasing it to a larger value.
-
-Currently when one part of a Magit buffer has to be updated the whole
-buffer is recreated from scratch.  That obviously isn't good for
-performance and will be fixed eventually.  Meanwhile we need a kludge
-that prevents the update from taking very long under certain
-circumstances, e.g. when showing the difference for hundrets of
-changes files.
-
-For that reason the variable ~magit-diff-expansion-threshold~ was added,
-defaulting to one second.  If it takes longer than that to recreate a
-Magit buffer, then no further diff sections are expanded because
-that's one of the steps that take the longest.  If a diff is not
-expanded, then some work can be delayed until it actually is.
-
-You can then still expand sections manually, but when you refresh the
-complete buffer explicitly using ~g~ or by performing an action which
-triggers a refresh, then previously expanded diffs could be collapsed.
-You can set ~magit-diff-expansion-threshold~ to a higher value to
-prevent that from happening.
-
-** I don't understand how branching and pushing work
-
-Please see [[*Branching]] and http://emacsair.me/2016/01/18/magit-2.4
-
-** I am using MS Windows and cannot push with Magit
-
-It's almost certain that Magit is only incidental to this issue.  It
-is much more likely that this is a configuration issue, even if you
-can push on the command line.
-
-Detailed setup instructions can be found at
-https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows.
-
-** I am using OS X and SOMETHING works in shell, but not in Magit
-
-This usually occurs because Emacs doesn't have the same environment
-variables as your shell.  Try installing and configuring
-https://github.com/purcell/exec-path-from-shell.  By default it
-synchronizes ~$PATH~, which helps Magit find the same ~git~ as the one you
-are using on the shell.
-
-If SOMETHING is "passphrase caching with gpg-agent for commit and/or
-tag signing", then you'll also need to synchronize ~$GPG_AGENT_INFO~.
-
-** How to install the gitman info manual?
+*** How to install the gitman info manual?
 
 Git's manpages can be exported as an info manual called ~gitman~.
 Magit's own info manual links to nodes in that manual instead of the
@@ -6344,97 +6290,23 @@ variation with used the Emacs Lisp implementation provided by the
 Did I mention that texinfo cross reference are just awful?  (This is
 just one of many issues.)
 
-** How can I show Git's output?
+*** How to show diffs for gpg-encrypted files?
 
-To show the output of recently run git commands, press ~$~ (or, if that
-isn't available, ~M-x magit-process-buffer~).  This will show a buffer
-containing a section per git invocation; as always press ~TAB~ to expand
-or collapse them.
+Git supports showing diffs for encrypted files, but has to be told to
+do so.  Since Magit just uses Git to get the diffs, configuring Git
+also affects the diffs displayed inside Magit.
 
-By default git's output is only inserted into the process buffer if it
-is run for side-effects.  When the output is consumed in some way then
-also inserting it into the process buffer would be to expensive.  For
-debugging purposes it's possible to do so anyway by setting
-~magit-git-debug~ to ~t~.
-
-** Diffs contain control sequences
-
-This happens when you configure Git to always color diffs and/or all
-of its output.  The valid values for relevant Git variables ~color.ui~
-and ~color.diff~ are ~false~, ~true~ and ~always~, and the default is ~true~.
-You should leave it that because then you get colorful output in
-terminals but git's output is consumed by something else, then no
-colors are used.
-
-If you actually use some other tool which expects that requires that
-you force git to output control sequences (which is highly unlikely),
-then you can override these settings just for Magit by using:
-
-#+BEGIN_SRC emacs-lisp
-  (setq magit-git-global-arguments
-        (nconc magit-git-global-arguments
-               '("-c" "color.ui=false"
-                 "-c" "color.diff=false")))
+#+BEGIN_SRC shell-script
+  git config --global diff.gpg.textconv "gpg --no-tty --decrypt"
+  echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 #+END_SRC
 
-** Expanding a file to show the diff causes it to disappear
 
-This is probably caused by a change of a ~diff.*~ Git variable.  You
-probably set that variable for a reason, and should therefore
-only undo that setting in Magit by customizing
-~magit-git-global-arguments~.
+*** How does branching and pushing work?
 
-** Point is wrong in the ~COMMIT_EDITMSG~ buffer
+Please see [[*Branching]] and http://emacsair.me/2016/01/18/magit-2.4
 
-Neither Magit nor `git-commit` fiddle with point in the buffer used to
-write commit messages, so something else must be doing it.
-
-You have probably globally enabled a mode which does restore point in
-file-visiting buffers.  It might be a bit surprising, but when you
-write a commit message, then you are actually editing a file.
-
-So you have to figure out which package is doing.  ~saveplace~,
-~pointback~, and ~session~ are likely candidates.  These snippets might
-help:
-
-#+BEGIN_SRC emacs-lisp
-  (setq session-name-disable-regexp "\\(?:\\`'\\.git/[A-Z_]+\\'\\)")
-
-  (with-eval-after-load 'pointback
-    (lambda ()
-      (when (or git-commit-mode git-rebase-mode)
-	(pointback-mode -1))))
-#+END_SRC
-
-** The mode-line information isn't always up-to-date
-
-Magit is not responsible for the version control information that is
-being displayed in the mode-line and looks something like ~Git-master~.
-The built-in "Version Control" package, also known as "VC", updates
-that information, and can be told to do so more often:
-
-#+BEGIN_SRC emacs-lisp
-  (setq auto-revert-check-vc-info t)
-#+END_SRC
-
-But doing so isn't good for performance.  For more (overly optimistic)
-information see [[info:emacs#VC Mode Line]].
-
-If you don't really care about seeing that information in the
-mode-line, but just don't want to see /incorrect/ information, then
-consider disabling VC when using Git:
-
-#+BEGIN_SRC emacs-lisp
-  (setq vc-handled-backends (delq 'Git vc-handled-backends))
-#+END_SRC
-
-Or to disable it completely:
-
-#+BEGIN_SRC emacs-lisp
-  (setq vc-handled-backends nil)
-#+END_SRC
-
-** Can Magit be used as ~ediff-version-control-package~?
+*** Can Magit be used as ~ediff-version-control-package~?
 
 No, it cannot.  For that to work the functions ~ediff-magit-internal~
 and ~ediff-magit-merge-internal~ would have to be implemented, and they
@@ -6466,18 +6338,150 @@ conflicts, in which case you *can* use these commands, which then use
 command ~magit-ediff-resolve~ which only shows yet-to-be resolved
 conflicts.
 
-** How to show diffs for gpg-encrypted files?
+** FAQ - Issues and errors
+*** Magit is slow
 
-Git supports showing diffs for encrypted files, but has to be told to
-do so.  Since Magit just uses Git to get the diffs, configuring Git
-also affects the diffs displayed inside Magit.
+See [[*Performance]].
 
-#+BEGIN_SRC shell-script
-  git config --global diff.gpg.textconv "gpg --no-tty --decrypt"
-  echo "*.gpg filter=gpg diff=gpg" > .gitattributes
+*** I changed several thousand files at once and now Magit is unusable
+
+Magit is *currently* not expected to work under such conditions. It sure
+would be nice if it did, and v2.5 will hopefully be a big step into
+that direction.  But it might take until v3.1 to accomplish fully
+satisfactory performance, because that requires some heavy refactoring.
+
+But for now we recommend you use the command line to complete this one
+commit.  Also see [[*Performance]].
+
+*** I am having problems committing
+
+That likely means that Magit is having problems finding an appropriate
+emacsclient executable.  See [[info:with-editor#Configuring With-Editor]]
+and [[info:with-editor#Debugging]].
+
+*** Diffs are collapsed after un-/staging
+
+This typically happens on Windows and/or large repositories where
+preparing diffs takes longer than ~magit-diff-expansion-threshold~. The
+default is one second, try increasing it to a larger value.
+
+Currently when one part of a Magit buffer has to be updated the whole
+buffer is recreated from scratch.  That obviously isn't good for
+performance and will be fixed eventually.  Meanwhile we need a kludge
+that prevents the update from taking very long under certain
+circumstances, e.g. when showing the difference for hundrets of
+changes files.
+
+For that reason the variable ~magit-diff-expansion-threshold~ was added,
+defaulting to one second.  If it takes longer than that to recreate a
+Magit buffer, then no further diff sections are expanded because
+that's one of the steps that take the longest.  If a diff is not
+expanded, then some work can be delayed until it actually is.
+
+You can then still expand sections manually, but when you refresh the
+complete buffer explicitly using ~g~ or by performing an action which
+triggers a refresh, then previously expanded diffs could be collapsed.
+You can set ~magit-diff-expansion-threshold~ to a higher value to
+prevent that from happening.
+
+*** I am using MS Windows and cannot push with Magit
+
+It's almost certain that Magit is only incidental to this issue.  It
+is much more likely that this is a configuration issue, even if you
+can push on the command line.
+
+Detailed setup instructions can be found at
+https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows.
+
+*** I am using OS X and SOMETHING works in shell, but not in Magit
+
+This usually occurs because Emacs doesn't have the same environment
+variables as your shell.  Try installing and configuring
+https://github.com/purcell/exec-path-from-shell.  By default it
+synchronizes ~$PATH~, which helps Magit find the same ~git~ as the one you
+are using on the shell.
+
+If SOMETHING is "passphrase caching with gpg-agent for commit and/or
+tag signing", then you'll also need to synchronize ~$GPG_AGENT_INFO~.
+
+*** Diffs contain control sequences
+
+This happens when you configure Git to always color diffs and/or all
+of its output.  The valid values for relevant Git variables ~color.ui~
+and ~color.diff~ are ~false~, ~true~ and ~always~, and the default is ~true~.
+You should leave it that because then you get colorful output in
+terminals but git's output is consumed by something else, then no
+colors are used.
+
+If you actually use some other tool which expects that requires that
+you force git to output control sequences (which is highly unlikely),
+then you can override these settings just for Magit by using:
+
+#+BEGIN_SRC emacs-lisp
+  (setq magit-git-global-arguments
+        (nconc magit-git-global-arguments
+               '("-c" "color.ui=false"
+                 "-c" "color.diff=false")))
 #+END_SRC
 
-** Emacs 24.5 hangs when loading Magit
+*** Expanding a file to show the diff causes it to disappear
+
+This is probably caused by a change of a ~diff.*~ Git variable.  You
+probably set that variable for a reason, and should therefore
+only undo that setting in Magit by customizing
+~magit-git-global-arguments~.
+
+*** Point is wrong in the ~COMMIT_EDITMSG~ buffer
+
+Neither Magit nor `git-commit` fiddle with point in the buffer used to
+write commit messages, so something else must be doing it.
+
+You have probably globally enabled a mode which does restore point in
+file-visiting buffers.  It might be a bit surprising, but when you
+write a commit message, then you are actually editing a file.
+
+So you have to figure out which package is doing.  ~saveplace~,
+~pointback~, and ~session~ are likely candidates.  These snippets might
+help:
+
+#+BEGIN_SRC emacs-lisp
+  (setq session-name-disable-regexp "\\(?:\\`'\\.git/[A-Z_]+\\'\\)")
+
+  (with-eval-after-load 'pointback
+    (lambda ()
+      (when (or git-commit-mode git-rebase-mode)
+	(pointback-mode -1))))
+#+END_SRC
+
+*** The mode-line information isn't always up-to-date
+
+Magit is not responsible for the version control information that is
+being displayed in the mode-line and looks something like ~Git-master~.
+The built-in "Version Control" package, also known as "VC", updates
+that information, and can be told to do so more often:
+
+#+BEGIN_SRC emacs-lisp
+  (setq auto-revert-check-vc-info t)
+#+END_SRC
+
+But doing so isn't good for performance.  For more (overly optimistic)
+information see [[info:emacs#VC Mode Line]].
+
+If you don't really care about seeing that information in the
+mode-line, but just don't want to see /incorrect/ information, then
+consider disabling VC when using Git:
+
+#+BEGIN_SRC emacs-lisp
+  (setq vc-handled-backends (delq 'Git vc-handled-backends))
+#+END_SRC
+
+Or to disable it completely:
+
+#+BEGIN_SRC emacs-lisp
+  (setq vc-handled-backends nil)
+#+END_SRC
+
+*** Emacs 24.5 hangs when loading Magit
 
 This is actually triggered by loading Tramp.  See
 https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015 for details. You

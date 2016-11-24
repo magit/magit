@@ -276,21 +276,30 @@ Conventions
 
 FAQ
 
+* FAQ - How to @dots{}?::
+* FAQ - Issues and errors::
+
+FAQ - How to @dots{}?
+
+* How to show git's output?::
+* How to install the gitman info manual?::
+* How to show diffs for gpg-encrypted files?::
+* How does branching and pushing work?::
+* Can Magit be used as @code{ediff-version-control-package}?::
+
+
+FAQ - Issues and errors
+
 * Magit is slow::
 * I changed several thousand files at once and now Magit is unusable::
 * I am having problems committing::
 * Diffs are collapsed after un-/staging::
-* I don't understand how branching and pushing work::
 * I am using MS Windows and cannot push with Magit::
 * I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
-* How to install the gitman info manual?::
-* How can I show Git's output?::
 * Diffs contain control sequences::
 * Expanding a file to show the diff causes it to disappear::
 * Point is wrong in the @code{COMMIT_EDITMSG} buffer::
 * The mode-line information isn't always up-to-date::
-* Can Magit be used as @code{ediff-version-control-package}?::
-* How to show diffs for gpg-encrypted files?::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
 @end detailmenu
 @end menu
@@ -8295,107 +8304,43 @@ all.
 @node FAQ
 @appendix FAQ
 
-Below you find a list of frequently asked questions.  For a list of
+The next two nodes lists frequently asked questions.  For a list of
 frequently @strong{and recently} asked questions, i.e. questions that haven't
-made it into the manual yet, see @uref{https://github.com/magit/magit/wiki/FAQ}.
+made it into the manual yet, see
+@uref{https://github.com/magit/magit/wiki/FAQ}.
 
 @menu
-* Magit is slow::
-* I changed several thousand files at once and now Magit is unusable::
-* I am having problems committing::
-* Diffs are collapsed after un-/staging::
-* I don't understand how branching and pushing work::
-* I am using MS Windows and cannot push with Magit::
-* I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
-* How to install the gitman info manual?::
-* How can I show Git's output?::
-* Diffs contain control sequences::
-* Expanding a file to show the diff causes it to disappear::
-* Point is wrong in the @code{COMMIT_EDITMSG} buffer::
-* The mode-line information isn't always up-to-date::
-* Can Magit be used as @code{ediff-version-control-package}?::
-* How to show diffs for gpg-encrypted files?::
-* Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
+* FAQ - How to @dots{}?::
+* FAQ - Issues and errors::
 @end menu
 
-@node Magit is slow
-@section Magit is slow
+@node FAQ - How to @dots{}?
+@section FAQ - How to @dots{}?
 
-See @ref{Performance,Performance}.
+@menu
+* How to show git's output?::
+* How to install the gitman info manual?::
+* How to show diffs for gpg-encrypted files?::
+* How does branching and pushing work?::
+* Can Magit be used as @code{ediff-version-control-package}?::
+@end menu
 
-@node I changed several thousand files at once and now Magit is unusable
-@section I changed several thousand files at once and now Magit is unusable
+@node How to show git's output?
+@subsection How to show git's output?
 
-Magit is @strong{currently} not expected to work under such conditions. It sure
-would be nice if it did, and v2.5 will hopefully be a big step into
-that direction.  But it might take until v3.1 to accomplish fully
-satisfactory performance, because that requires some heavy refactoring.
+To show the output of recently run git commands, press @code{$} (or, if that
+isn't available, @code{M-x magit-process-buffer}).  This will show a buffer
+containing a section per git invocation; as always press @code{TAB} to expand
+or collapse them.
 
-But for now we recommend you use the command line to complete this one
-commit.  Also see @ref{Performance,Performance}.
-
-@node I am having problems committing
-@section I am having problems committing
-
-That likely means that Magit is having problems finding an appropriate
-emacsclient executable.  See @ref{Configuring With-Editor,,,with-editor,}
-and @ref{Debugging,,,with-editor,}.
-
-@node Diffs are collapsed after un-/staging
-@section Diffs are collapsed after un-/staging
-
-This typically happens on Windows and/or large repositories where
-preparing diffs takes longer than @code{magit-diff-expansion-threshold}. The
-default is one second, try increasing it to a larger value.
-
-Currently when one part of a Magit buffer has to be updated the whole
-buffer is recreated from scratch.  That obviously isn't good for
-performance and will be fixed eventually.  Meanwhile we need a kludge
-that prevents the update from taking very long under certain
-circumstances, e.g. when showing the difference for hundrets of
-changes files.
-
-For that reason the variable @code{magit-diff-expansion-threshold} was added,
-defaulting to one second.  If it takes longer than that to recreate a
-Magit buffer, then no further diff sections are expanded because
-that's one of the steps that take the longest.  If a diff is not
-expanded, then some work can be delayed until it actually is.
-
-You can then still expand sections manually, but when you refresh the
-complete buffer explicitly using @code{g} or by performing an action which
-triggers a refresh, then previously expanded diffs could be collapsed.
-You can set @code{magit-diff-expansion-threshold} to a higher value to
-prevent that from happening.
-
-@node I don't understand how branching and pushing work
-@section I don't understand how branching and pushing work
-
-Please see @ref{Branching,Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
-
-@node I am using MS Windows and cannot push with Magit
-@section I am using MS Windows and cannot push with Magit
-
-It's almost certain that Magit is only incidental to this issue.  It
-is much more likely that this is a configuration issue, even if you
-can push on the command line.
-
-Detailed setup instructions can be found at
-@uref{https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows}.
-
-@node I am using OS X and SOMETHING works in shell but not in Magit
-@section I am using OS X and SOMETHING works in shell, but not in Magit
-
-This usually occurs because Emacs doesn't have the same environment
-variables as your shell.  Try installing and configuring
-@uref{https://github.com/purcell/exec-path-from-shell}.  By default it
-synchronizes @code{$PATH}, which helps Magit find the same @code{git} as the one you
-are using on the shell.
-
-If SOMETHING is "passphrase caching with gpg-agent for commit and/or
-tag signing", then you'll also need to synchronize @code{$GPG_AGENT_INFO}.
+By default git's output is only inserted into the process buffer if it
+is run for side-effects.  When the output is consumed in some way then
+also inserting it into the process buffer would be to expensive.  For
+debugging purposes it's possible to do so anyway by setting
+@code{magit-git-debug} to @code{t}.
 
 @node How to install the gitman info manual?
-@section How to install the gitman info manual?
+@subsection How to install the gitman info manual?
 
 Git's manpages can be exported as an info manual called @code{gitman}.
 Magit's own info manual links to nodes in that manual instead of the
@@ -8450,103 +8395,25 @@ the actual manpage using the function `woman'."
 Did I mention that texinfo cross reference are just awful?  (This is
 just one of many issues.)
 
-@node How can I show Git's output?
-@section How can I show Git's output?
+@node How to show diffs for gpg-encrypted files?
+@subsection How to show diffs for gpg-encrypted files?
 
-To show the output of recently run git commands, press @code{$} (or, if that
-isn't available, @code{M-x magit-process-buffer}).  This will show a buffer
-containing a section per git invocation; as always press @code{TAB} to expand
-or collapse them.
+Git supports showing diffs for encrypted files, but has to be told to
+do so.  Since Magit just uses Git to get the diffs, configuring Git
+also affects the diffs displayed inside Magit.
 
-By default git's output is only inserted into the process buffer if it
-is run for side-effects.  When the output is consumed in some way then
-also inserting it into the process buffer would be to expensive.  For
-debugging purposes it's possible to do so anyway by setting
-@code{magit-git-debug} to @code{t}.
+@example
+git config --global diff.gpg.textconv "gpg --no-tty --decrypt"
+echo "*.gpg filter=gpg diff=gpg" > .gitattributes
+@end example
 
-@node Diffs contain control sequences
-@section Diffs contain control sequences
+@node How does branching and pushing work?
+@subsection How does branching and pushing work?
 
-This happens when you configure Git to always color diffs and/or all
-of its output.  The valid values for relevant Git variables @code{color.ui}
-and @code{color.diff} are @code{false}, @code{true} and @code{always}, and the default is @code{true}.
-You should leave it that because then you get colorful output in
-terminals but git's output is consumed by something else, then no
-colors are used.
-
-If you actually use some other tool which expects that requires that
-you force git to output control sequences (which is highly unlikely),
-then you can override these settings just for Magit by using:
-
-@lisp
-(setq magit-git-global-arguments
-      (nconc magit-git-global-arguments
-	     '("-c" "color.ui=false"
-	       "-c" "color.diff=false")))
-@end lisp
-
-@node Expanding a file to show the diff causes it to disappear
-@section Expanding a file to show the diff causes it to disappear
-
-This is probably caused by a change of a @code{diff.*} Git variable.  You
-probably set that variable for a reason, and should therefore
-only undo that setting in Magit by customizing
-@code{magit-git-global-arguments}.
-
-@node Point is wrong in the @code{COMMIT_EDITMSG} buffer
-@section Point is wrong in the @code{COMMIT_EDITMSG} buffer
-
-Neither Magit nor `git-commit` fiddle with point in the buffer used to
-write commit messages, so something else must be doing it.
-
-You have probably globally enabled a mode which does restore point in
-file-visiting buffers.  It might be a bit surprising, but when you
-write a commit message, then you are actually editing a file.
-
-So you have to figure out which package is doing.  @code{saveplace},
-@code{pointback}, and @code{session} are likely candidates.  These snippets might
-help:
-
-@lisp
-(setq session-name-disable-regexp "\\(?:\\`'\\.git/[A-Z_]+\\'\\)")
-
-(with-eval-after-load 'pointback
-  (lambda ()
-    (when (or git-commit-mode git-rebase-mode)
-      (pointback-mode -1))))
-@end lisp
-
-@node The mode-line information isn't always up-to-date
-@section The mode-line information isn't always up-to-date
-
-Magit is not responsible for the version control information that is
-being displayed in the mode-line and looks something like @code{Git-master}.
-The built-in "Version Control" package, also known as "VC", updates
-that information, and can be told to do so more often:
-
-@lisp
-(setq auto-revert-check-vc-info t)
-@end lisp
-
-But doing so isn't good for performance.  For more (overly optimistic)
-information see @ref{VC Mode Line,,,emacs,}.
-
-If you don't really care about seeing that information in the
-mode-line, but just don't want to see @emph{incorrect} information, then
-consider disabling VC when using Git:
-
-@lisp
-(setq vc-handled-backends (delq 'Git vc-handled-backends))
-@end lisp
-
-Or to disable it completely:
-
-@lisp
-(setq vc-handled-backends nil)
-@end lisp
+Please see @ref{Branching,Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
 
 @node Can Magit be used as @code{ediff-version-control-package}?
-@section Can Magit be used as @code{ediff-version-control-package}?
+@subsection Can Magit be used as @code{ediff-version-control-package}?
 
 No, it cannot.  For that to work the functions @code{ediff-magit-internal}
 and @code{ediff-magit-merge-internal} would have to be implemented, and they
@@ -8578,20 +8445,177 @@ conflicts, in which case you @strong{can} use these commands, which then use
 command @code{magit-ediff-resolve} which only shows yet-to-be resolved
 conflicts.
 
-@node How to show diffs for gpg-encrypted files?
-@section How to show diffs for gpg-encrypted files?
+@node FAQ - Issues and errors
+@section FAQ - Issues and errors
 
-Git supports showing diffs for encrypted files, but has to be told to
-do so.  Since Magit just uses Git to get the diffs, configuring Git
-also affects the diffs displayed inside Magit.
+@menu
+* Magit is slow::
+* I changed several thousand files at once and now Magit is unusable::
+* I am having problems committing::
+* Diffs are collapsed after un-/staging::
+* I am using MS Windows and cannot push with Magit::
+* I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
+* Diffs contain control sequences::
+* Expanding a file to show the diff causes it to disappear::
+* Point is wrong in the @code{COMMIT_EDITMSG} buffer::
+* The mode-line information isn't always up-to-date::
+* Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
+@end menu
 
-@example
-git config --global diff.gpg.textconv "gpg --no-tty --decrypt"
-echo "*.gpg filter=gpg diff=gpg" > .gitattributes
-@end example
+@node Magit is slow
+@subsection Magit is slow
+
+See @ref{Performance,Performance}.
+
+@node I changed several thousand files at once and now Magit is unusable
+@subsection I changed several thousand files at once and now Magit is unusable
+
+Magit is @strong{currently} not expected to work under such conditions. It sure
+would be nice if it did, and v2.5 will hopefully be a big step into
+that direction.  But it might take until v3.1 to accomplish fully
+satisfactory performance, because that requires some heavy refactoring.
+
+But for now we recommend you use the command line to complete this one
+commit.  Also see @ref{Performance,Performance}.
+
+@node I am having problems committing
+@subsection I am having problems committing
+
+That likely means that Magit is having problems finding an appropriate
+emacsclient executable.  See @ref{Configuring With-Editor,,,with-editor,}
+and @ref{Debugging,,,with-editor,}.
+
+@node Diffs are collapsed after un-/staging
+@subsection Diffs are collapsed after un-/staging
+
+This typically happens on Windows and/or large repositories where
+preparing diffs takes longer than @code{magit-diff-expansion-threshold}. The
+default is one second, try increasing it to a larger value.
+
+Currently when one part of a Magit buffer has to be updated the whole
+buffer is recreated from scratch.  That obviously isn't good for
+performance and will be fixed eventually.  Meanwhile we need a kludge
+that prevents the update from taking very long under certain
+circumstances, e.g. when showing the difference for hundrets of
+changes files.
+
+For that reason the variable @code{magit-diff-expansion-threshold} was added,
+defaulting to one second.  If it takes longer than that to recreate a
+Magit buffer, then no further diff sections are expanded because
+that's one of the steps that take the longest.  If a diff is not
+expanded, then some work can be delayed until it actually is.
+
+You can then still expand sections manually, but when you refresh the
+complete buffer explicitly using @code{g} or by performing an action which
+triggers a refresh, then previously expanded diffs could be collapsed.
+You can set @code{magit-diff-expansion-threshold} to a higher value to
+prevent that from happening.
+
+@node I am using MS Windows and cannot push with Magit
+@subsection I am using MS Windows and cannot push with Magit
+
+It's almost certain that Magit is only incidental to this issue.  It
+is much more likely that this is a configuration issue, even if you
+can push on the command line.
+
+Detailed setup instructions can be found at
+@uref{https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows}.
+
+@node I am using OS X and SOMETHING works in shell but not in Magit
+@subsection I am using OS X and SOMETHING works in shell, but not in Magit
+
+This usually occurs because Emacs doesn't have the same environment
+variables as your shell.  Try installing and configuring
+@uref{https://github.com/purcell/exec-path-from-shell}.  By default it
+synchronizes @code{$PATH}, which helps Magit find the same @code{git} as the one you
+are using on the shell.
+
+If SOMETHING is "passphrase caching with gpg-agent for commit and/or
+tag signing", then you'll also need to synchronize @code{$GPG_AGENT_INFO}.
+
+@node Diffs contain control sequences
+@subsection Diffs contain control sequences
+
+This happens when you configure Git to always color diffs and/or all
+of its output.  The valid values for relevant Git variables @code{color.ui}
+and @code{color.diff} are @code{false}, @code{true} and @code{always}, and the default is @code{true}.
+You should leave it that because then you get colorful output in
+terminals but git's output is consumed by something else, then no
+colors are used.
+
+If you actually use some other tool which expects that requires that
+you force git to output control sequences (which is highly unlikely),
+then you can override these settings just for Magit by using:
+
+@lisp
+(setq magit-git-global-arguments
+      (nconc magit-git-global-arguments
+	     '("-c" "color.ui=false"
+	       "-c" "color.diff=false")))
+@end lisp
+
+@node Expanding a file to show the diff causes it to disappear
+@subsection Expanding a file to show the diff causes it to disappear
+
+This is probably caused by a change of a @code{diff.*} Git variable.  You
+probably set that variable for a reason, and should therefore
+only undo that setting in Magit by customizing
+@code{magit-git-global-arguments}.
+
+@node Point is wrong in the @code{COMMIT_EDITMSG} buffer
+@subsection Point is wrong in the @code{COMMIT_EDITMSG} buffer
+
+Neither Magit nor `git-commit` fiddle with point in the buffer used to
+write commit messages, so something else must be doing it.
+
+You have probably globally enabled a mode which does restore point in
+file-visiting buffers.  It might be a bit surprising, but when you
+write a commit message, then you are actually editing a file.
+
+So you have to figure out which package is doing.  @code{saveplace},
+@code{pointback}, and @code{session} are likely candidates.  These snippets might
+help:
+
+@lisp
+(setq session-name-disable-regexp "\\(?:\\`'\\.git/[A-Z_]+\\'\\)")
+
+(with-eval-after-load 'pointback
+  (lambda ()
+    (when (or git-commit-mode git-rebase-mode)
+      (pointback-mode -1))))
+@end lisp
+
+@node The mode-line information isn't always up-to-date
+@subsection The mode-line information isn't always up-to-date
+
+Magit is not responsible for the version control information that is
+being displayed in the mode-line and looks something like @code{Git-master}.
+The built-in "Version Control" package, also known as "VC", updates
+that information, and can be told to do so more often:
+
+@lisp
+(setq auto-revert-check-vc-info t)
+@end lisp
+
+But doing so isn't good for performance.  For more (overly optimistic)
+information see @ref{VC Mode Line,,,emacs,}.
+
+If you don't really care about seeing that information in the
+mode-line, but just don't want to see @emph{incorrect} information, then
+consider disabling VC when using Git:
+
+@lisp
+(setq vc-handled-backends (delq 'Git vc-handled-backends))
+@end lisp
+
+Or to disable it completely:
+
+@lisp
+(setq vc-handled-backends nil)
+@end lisp
 
 @node Emacs 245 hangs when loading Magit
-@section Emacs 24.5 hangs when loading Magit
+@subsection Emacs 24.5 hangs when loading Magit
 
 This is actually triggered by loading Tramp.  See
 @uref{https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015} for details. You
