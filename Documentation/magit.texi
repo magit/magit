@@ -78,7 +78,6 @@ General Public License for more details.
 
 Installation
 
-* Updating from an older release::
 * Installing from an Elpa archive::
 * Installing from the Git repository::
 * Post-installation tasks::
@@ -282,10 +281,6 @@ FAQ
 * I am having problems committing::
 * Diffs are collapsed after un-/staging::
 * I don't understand how branching and pushing work::
-* I don't like the key binding in v2.4: I don't like the key binding in v24. 
-* I cannot install the pre-requisites for Magit v2::
-* I am using an Emacs release older than v24.4: I am using an Emacs release older than v244. 
-* I am using a Git release older than v1.9.4: I am using a Git release older than v194. 
 * I am using MS Windows and cannot push with Magit::
 * I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
 * How to install the gitman info manual?::
@@ -297,8 +292,6 @@ FAQ
 * Can Magit be used as @code{ediff-version-control-package}?::
 * How to show diffs for gpg-encrypted files?::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
-* Symbol's value as function is void @code{--some}::
-* Where is the branch manager::
 @end detailmenu
 @end menu
 
@@ -390,51 +383,13 @@ Magit can be installed using Emacs' package manager or manually from
 its development repository.
 
 @menu
-* Updating from an older release::
 * Installing from an Elpa archive::
 * Installing from the Git repository::
 * Post-installation tasks::
 @end menu
 
-@node Updating from an older release
-@section Updating from an older release
-
-When updating from @code{1.2.*} or @code{1.4.*}, you should first uninstall Magit
-and some of its dependencies and restart Emacs before installing the
-latest release.
-
-@itemize
-@item
-The old Magit installation has to be removed because some macros
-have changed and using the old definitions when building the new
-release would lead to very strange results, including compile
-errors.  This is due to a limitation in Emacs' package manager or
-rather Emacs itself: it's not possible to reliably unload a feature
-or even all features belonging to a package.
-
-
-@item
-Furthermore the old dependencies @code{git-commit-mode} and @code{git-rebase-mode}
-have to be removed because they are no longer used by the @code{2.1.0}
-release and later, and get in the way of their successors @code{git-commit}
-and @code{git-rebase}.
-@end itemize
-
-So please uninstall the packages @code{magit}, @code{git-commit-mode}, and
-@code{git-rebase-mode}.  Then quit Emacs and start a new instance.  Only then
-follow the instructions in either one of the next two sections.
-
-Also note that starting with the @code{2.1.0} release, Magit requires at least
-Emacs @code{24.4} and Git @code{1.9.4}.  You should make sure you have at least
-these releases installed before updating Magit.  And if you connect to
-remote hosts using Tramp, then you should also make sure to install a
-recent enough Git version on these hosts.
-
 @node Installing from an Elpa archive
 @section Installing from an Elpa archive
-
-If you are updating from a release older than @code{2.1.0}, then you have to
-first uninstall the old version.  See @ref{Updating from an older release,Updating from an older release}.
 
 Magit is available from Melpa and Melpa-Stable.  If you haven't used
 Emacs' package manager before, then it is high time you familiarize
@@ -482,9 +437,6 @@ Now see @ref{Post-installation tasks,Post-installation tasks}.
 
 @node Installing from the Git repository
 @section Installing from the Git repository
-
-If you are updating from a release older than @code{2.1.0}, then you have to
-first uninstall the old version.  See @ref{Updating from an older release,Updating from an older release}.
 
 Magit depends on the @code{dash} and @code{with-editor} library which are available
 from Melpa and Melpa-Stable.  Install them using @code{M-x package-install
@@ -588,9 +540,6 @@ or advice @code{Info-follow-nearest-node} to instead open the actual manpage.
 See @ref{How to install the gitman info manual?,How to install the gitman info manual?}.
 
 If you are completely new to Magit then see @ref{Getting started,Getting started}.
-
-If you have used an older Magit release before, then you should have a
-look at the release notes @uref{https://github.com/magit/magit/releases}.
 
 And last but not least please consider making a donation, to ensure
 that I can keep working on Magit.  See @uref{https://magit.vc/donations}.
@@ -8356,10 +8305,6 @@ made it into the manual yet, see @uref{https://github.com/magit/magit/wiki/FAQ}.
 * I am having problems committing::
 * Diffs are collapsed after un-/staging::
 * I don't understand how branching and pushing work::
-* I don't like the key binding in v2.4: I don't like the key binding in v24. 
-* I cannot install the pre-requisites for Magit v2::
-* I am using an Emacs release older than v24.4: I am using an Emacs release older than v244. 
-* I am using a Git release older than v1.9.4: I am using a Git release older than v194. 
 * I am using MS Windows and cannot push with Magit::
 * I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
 * How to install the gitman info manual?::
@@ -8371,8 +8316,6 @@ made it into the manual yet, see @uref{https://github.com/magit/magit/wiki/FAQ}.
 * Can Magit be used as @code{ediff-version-control-package}?::
 * How to show diffs for gpg-encrypted files?::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
-* Symbol's value as function is void @code{--some}::
-* Where is the branch manager::
 @end menu
 
 @node Magit is slow
@@ -8428,67 +8371,6 @@ prevent that from happening.
 @section I don't understand how branching and pushing work
 
 Please see @ref{Branching,Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
-
-@node I don't like the key binding in v24
-@section I don't like the key binding in v2.4
-
-Please see @uref{http://emacsair.me/2016/01/1/restore-old-bindings}.
-
-@node I cannot install the pre-requisites for Magit v2
-@section I cannot install the pre-requisites for Magit v2
-
-An Elpa archive featuring obsolete Magit v1.4.2 and its dependencies
-is available from @uref{http://magit.vc/elpa/v1}.  But note that v1.4.2 is
-obsolete and no longer maintained.
-
-@node I am using an Emacs release older than v244
-@section I am using an Emacs release older than v24.4
-
-At least Emacs v24.4 is required.  There is no way around it, if you
-want to use Magit v2.
-
-If you own the machine you work on, then consider updating to the
-latest release provided by your distribution.  If it doesn't feature a
-recent enough release, then you will have to use a backport package or
-build Emacs from source.
-
-Installing Emacs from source is quite simple. See the instructions at
-@uref{http://git.savannah.gnu.org/cgit/emacs.git/tree/INSTALL} and
-@uref{http://git.savannah.gnu.org/cgit/emacs.git/tree/INSTALL.REPO} to get an
-idea of that this involves.  But when you perform the installation
-then use the instructions for the release you are actually installing.
-
-Unfortunately these instructions do not cover the hardest part (which
-is the hardest part exactly because it is not covered there):
-installing the build time dependencies.
-
-For that you'll need to perform a web search and find an appropriate
-tutorial for your distribution.  If you think you should not have had
-to do that yourself, then consider informing me about the resources
-that helped you figure what to do for your specific setup, so that I
-can post a link here.  That way those coming after you have it easier.
-
-An Elpa archive featuring obsolete Magit v1.4.2 and its dependencies
-is available from @uref{http://magit.vc/elpa/v1}.
-
-@node I am using a Git release older than v194
-@section I am using a Git release older than v1.9.4
-
-At least Git v1.9.4 is required.  There is no way around it, if you
-want to use Magit v2.
-
-If you own the machine, then consider updating to the latest release
-provided by your distribution.  If it doesn't feature a recent enough
-release, then you will have to use a backport package or build Git
-from source.
-
-Installing Git from source is quite simple. See the instructions at
-@uref{https://github.com/git/git/blob/master/INSTALL} to get an idea of that
-this involves.  But when you perform the installation then use the
-instructions for the release you are actually installing.
-
-An Elpa archive featuring obsolete Magit v1.4.2 and its dependencies
-is available from @uref{http://magit.vc/elpa/v1}.
 
 @node I am using MS Windows and cannot push with Magit
 @section I am using MS Windows and cannot push with Magit
@@ -8716,17 +8598,6 @@ This is actually triggered by loading Tramp.  See
 can work around the problem by setting
 @code{tramp-ssh-controlmaster-options}. Changing your DNS server (e.g. to
 Google's @code{8.8.8.8}) may also be sufficient to work around the issue.
-
-@node Symbol's value as function is void @code{--some}
-@section Symbol's value as function is void @code{--some}
-
-Update @code{dash}, restart Emacs, and then it will be defined.
-
-@node Where is the branch manager
-@section Where is the branch manager
-
-@code{y} is bound to the command that shows the "refs buffer", the successor
-of the "branch manager".
 
 @node Keystroke Index
 @appendix Keystroke Index
