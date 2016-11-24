@@ -59,14 +59,14 @@ versionlib: $(PKG)-version.el
 $(PKG)-autoloads.el: $(ELS)
 	@printf "Generating $@\n"
 	@printf "%s" "$$LOADDEFS_TMPL" > $@
-	@$(EMACS) -Q --batch --eval "(progn\
+	@$(BATCH) --eval "(progn\
 	(fset 'message (lambda (&rest _)))\
 	(setq make-backup-files nil)\
 	(setq vc-handled-backends nil)\
 	(setq default-directory (file-truename default-directory))\
 	(setq generated-autoload-file (expand-file-name \"$@\"))\
 	(setq find-file-visit-truename t)\
-	(update-directory-autoloads default-directory)))"
+	(update-directory-autoloads default-directory))"
 
 $(PKG)-version.el:
 	@printf "Generating $@\n"
