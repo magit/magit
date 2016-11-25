@@ -2799,7 +2799,7 @@ Currently this only adds the following key bindings.
   :keymap  magit-file-mode-map)
 
 (defun magit-file-mode-turn-on ()
-  (and buffer-file-name
+  (and (or buffer-file-name dired-directory)
        (ignore-errors (magit-inside-worktree-p))
        (magit-file-mode)))
 
