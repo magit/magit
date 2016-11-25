@@ -151,6 +151,7 @@ Contributors
 - Marc Herbert <marc.herbert@gmail.com>
 - Marcin Bachry <hegel666@gmail.com>
 - Marco Craveiro <marco.craveiro@gmail.com>
+- Marco Wahl <marcowahlsoft@gmail.com>
 - Marian Schubert <marian.schubert@gmail.com>
 - Mario Rodas <marsam@users.noreply.github.com>
 - Marius Vollmer <marius.vollmer@gmail.com>
@@ -190,6 +191,7 @@ Contributors
 - Peter Vasil <mail@petervasil.net>
 - Philippe Vaucher <philippe.vaucher@gmail.com>
 - Philipp Haselwarter <philipp@haselwarter.org>
+- Philipp Stephani <phst@google.com>
 - Philip Weaver <philip.weaver@gmail.com>
 - Phil Jackson <phil@shellarchive.co.uk>
 - Phil Sainty <phil@catalyst.net.nz>
