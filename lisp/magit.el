@@ -2942,7 +2942,7 @@ Currently this only adds the following key bindings.
                           ("Essential commands" 1))))
 
 (defvar magit-dispatch-popup-map
-  (let ((map (copy-keymap (current-local-map))))
+  (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-popup-mode-map)
     (define-key map "\t" 'magit-invoke-popup-action)
     (define-key map "\r" 'magit-invoke-popup-action)
