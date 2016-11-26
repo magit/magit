@@ -33,8 +33,6 @@ INSTALL_INFO     ?= $(shell command -v ginstall-info || printf install-info)
 MAKEINFO         ?= makeinfo
 MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
 
-DOC_LOAD_PATH    ?= -L ../../dash -L ../../org/lisp -L ../../ox-texinfo+
-
 ## Files #############################################################
 
 PKG              = magit
@@ -143,3 +141,6 @@ else
 endif
 
 endif # ifndef LOAD_PATH
+
+DOC_LOAD_PATH  ?= $(LOAD_PATH) \
+-L ../../org/lisp -L ../../org/contrib/lisp -L ../../ox-texinfo+

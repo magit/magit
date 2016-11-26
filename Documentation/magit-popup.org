@@ -625,3 +625,9 @@ Except when redefining the former, you should not use these directly.
 #  LocalWords:  ARG DESC KEY's LocalWords Magit OPTVAL POPUP PREPEND
 #  LocalWords:  Popup SHORTNAME args desc magit manpage popup popup's
 #  LocalWords:  popups pre prepend
+
+# Local Variables:
+# eval: (require 'magit-utils nil t)
+# eval: (require 'org-man     nil t)
+# eval: (require 'ox-texinfo+ nil t)
+# End:

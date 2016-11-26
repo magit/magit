@@ -61,11 +61,13 @@ clean:
 texi: $(TEXIPAGES)
 	@printf "Generating magit.texi\n"
 	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
-	-l ox-texinfo+.el magit.org -f org-texinfo+export-to-texinfo
+	-l magit-utils.el -l org-man -l ox-texinfo+.el \
+	magit.org -f org-texinfo-export-to-texinfo
 	@echo >> magit.texi
 	@printf "Generating magit-popup.texi\n"
 	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
-	-l ox-texinfo+.el magit-popup.org -f org-texinfo+export-to-texinfo
+	-l ox-texinfo+.el \
+	magit-popup.org -f org-texinfo-export-to-texinfo
 	@echo >> magit-popup.texi
 
 stats:

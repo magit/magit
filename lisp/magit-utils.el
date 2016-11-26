@@ -525,6 +525,31 @@ for an alternative."
 (advice-add 'whitespace-turn-on :before
             'whitespace-dont-turn-on-in-magit-mode)
 
+;;; Kludges for Info Manuals
+
+;;;###autoload
+(defun org-man-export--magit-gitman (fn link description format)
+  (if (and (eq format 'texinfo)
+           (string-match-p "\\`git" link))
+      (replace-regexp-in-string "%s" link "
+@ifinfo
+@ref{%s,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href=\"http://git-scm.com/docs/%s\">%s(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the %s(1) manpage.
+@end iftex
+")
+    (funcall fn link description format)))
+
+;;;###autoload
+(advice-add 'org-man-export :around
+            'org-man-export--magit-gitman)
+
 ;;; magit-utils.el ends soon
 (provide 'magit-utils)
 ;; Local Variables:

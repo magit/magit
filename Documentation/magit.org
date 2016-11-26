@@ -1347,7 +1347,7 @@ non-Windows machine, then you must change the value to "git".
   The arguments set here are used every time the git executable is run
   as a subprocess.  They are placed right after the executable itself
   and before the git command - as in ~git HERE... COMMAND REST~.  For
-  valid arguments see [[info:gitman#git]].
+  valid arguments see [[man:git]]
 
   Be careful what you add here, especially if you are using Tramp to
   connect to servers with ancient Git versions.  Never remove anything
@@ -1772,7 +1772,7 @@ use in the current repository's log buffer.  When the log popup is
 invoked while no log buffer exists for the current repository yet,
 then the default value of ~magit-log-arguments~ is used instead.
 
-For information about the various arguments, see [[info:gitman#git-log]].
+For information about the various arguments, see [[man:git-log]]
 The switch ~++order=VALUE~ is converted to one of ~--author-date-order~,
 ~--date-order~, or ~--topo-order~ before being passed to ~git log~.
 
@@ -1971,7 +1971,7 @@ This feature is used by rebase and squash commands.
 
 *** Reflog
 
-Also see [[info:gitman#git-reflog]].
+Also see [[man:git-reflog]]
 
 These reflog commands are available from the log popup.  See [[*Logging]].
 
@@ -2001,7 +2001,7 @@ in use in the current repository's diff buffer.  When the diff popup
 is invoked while no diff buffer exists for the current repository yet,
 then the default value of ~magit-diff-arguments~ is used instead.
 
-Also see [[info:gitman#git-diff]].
+Also see [[man:git-diff]]
 
 - Key: d, magit-diff-popup
 
@@ -2574,7 +2574,7 @@ buffer.
 
 ** Bisecting
 
-Also see [[info:gitman#git-bisect]].
+Also see [[man:git-bisect]]
 
 - Key: B, magit-bisect-popup
 
@@ -2642,7 +2642,7 @@ bisect session.
 
 ** Blaming
 
-Also see [[info:gitman#git-blame]].
+Also see [[man:git-blame]]
 
 - Key: M-x magit-blame, magit-blame
 
@@ -2933,7 +2933,7 @@ commit using the file's content as message.
 
 *** Initiating a commit
 
-Also see [[info:gitman#git-commit]].
+Also see [[man:git-commit]]
 
 - Key: c, magit-commit-popup
 
@@ -3652,8 +3652,7 @@ line, e.g.:
 #+END_SRC
 
 For more information about these variables you should also see
-info:gitman#git-config.  Also see [[info:gitman#git-branch]],
-[[info:gitman#git-checkout]], and [[*Pushing]].
+man:git-config Also see [[man:git-branch]], [[man:git-checkout]] and [[*Pushing]].
 
 - User Option: magit-prefer-remote-upstream
 
@@ -3668,7 +3667,7 @@ info:gitman#git-config.  Also see [[info:gitman#git-branch]],
 
 ** Merging
 
-Also see [[info:gitman#git-merge]].  For information on how to resolve
+Also see [[man:git-merge]]  For information on how to resolve
 merge conflicts see the next section.
 
 - Key: m, magit-merge-popup
@@ -3838,7 +3837,7 @@ truely complex conflicts, the latter is usually overkill.
 
 ** Rebasing
 
-Also see [[info:gitman#git-rebase]].  For information on how to resolve
+Also see [[man:git-rebase]]  For information on how to resolve
 conflicts that occur during rebases see the preceding section.
 
 - Key: r, magit-rebase-popup
@@ -4170,7 +4169,7 @@ question "Do these two commits make the same change?".
 
 ** Cherry picking
 
-Also see [[info:gitman#git-cherry-pick]].
+Also see [[man:git-cherry-pick]]
 
 - Key: A, magit-cherry-pick-popup
 
@@ -4253,7 +4252,7 @@ features these commands instead.
 
 ** Resetting
 
-Also see [[info:gitman#git-reset]].
+Also see [[man:git-reset]]
 
 - Key: x, magit-reset
 
@@ -4293,7 +4292,7 @@ Also see [[info:gitman#git-reset]].
 
 ** Stashing
 
-Also see [[info:gitman#git-stash]].
+Also see [[man:git-stash]]
 
 - Key: z, magit-stash-popup
 
@@ -4386,7 +4385,7 @@ Also see [[info:gitman#git-stash]].
 * Transferring
 ** Remotes
 
-Also see [[info:gitman#git-remote]].
+Also see [[man:git-remote]]
 
 - Key: M, magit-remote-popup
 
@@ -4428,7 +4427,7 @@ Also see [[info:gitman#git-remote]].
 For information about the differences between the /upstream/ and the
 /push-remote/, see [[*Branching]].
 
-Also see [[info:gitman#git-fetch]].
+Also see [[man:git-fetch]]
 
 - Key: f, magit-fetch-popup
 
@@ -4475,7 +4474,7 @@ more information.
 For information about the differences between the /upstream/ and the
 /push-remote/, see [[*Branching]].
 
-Also see [[info:gitman#git-pull]].
+Also see [[man:git-pull]]
 
 - Key: F, magit-pull-popup
 
@@ -4503,7 +4502,7 @@ more information.
 For information about the differences between the /upstream/ and the
 /push-remote/, see [[*Branching]].
 
-Also see [[info:gitman#git-push]].
+Also see [[man:git-push]]
 
 - Key: P, magit-push-popup
 
@@ -4631,7 +4630,7 @@ them to the popup.
 
 ** Applying patches
 
-Also see [[info:gitman#git-am]].
+Also see [[man:git-am]]
 
 - Key: w, magit-am-popup
 
@@ -4664,7 +4663,7 @@ Also see [[info:gitman#git-am]].
 * Miscellaneous
 ** Tagging
 
-Also see [[info:gitman#git-tag]].
+Also see [[man:git-tag]]
 
 - Key: t, magit-tag-popup
 
@@ -4688,7 +4687,7 @@ Also see [[info:gitman#git-tag]].
 
 ** Notes
 
-Also see [[info:gitman#git-notes]].
+Also see [[man:git-notes]]
 
 - Key: T, magit-notes-popup
 
@@ -4758,7 +4757,7 @@ following suffix commands, instead of those listed above.
 
 ** Submodules
 
-Also see [[info:gitman#git-submodule]].
+Also see [[man:git-submodule]]
 
 *** Listing submodules
 
@@ -4840,7 +4839,7 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
 
 ** Subtree
 
-Also see [[info:gitman#git-subtree]].
+Also see [[man:git-subtree]]
 
 - Key: O, magit-tree-popup
 
@@ -5204,7 +5203,7 @@ variables as well as Emacs options.
 
 To set a Git variable for one repository only, simply set it in
 ~/path/to/repo/.git/config~ instead of ~$HOME/.gitconfig~ or
-~/etc/gitconfig~.  See [[info:gitman#git-config]].
+~/etc/gitconfig~.  See [[man:git-config]]
 
 Similarly, Emacs options can be set for one repository only by editing
 ~/path/to/repo/.dir-locals.el~.  See [[info:emacs#Directory Variables]].
@@ -6529,3 +6528,9 @@ Google's ~8.8.8.8~) may also be sufficient to work around the issue.
 #  LocalWords:  sym texinfo theming todo topdir un unhighlighted unpulled
 #  LocalWords:  unpushed unstage unstaged unstages unstaging untracked url
 #  LocalWords:  versa whitespace wip workflow worktree wtree
+
+# Local Variables:
+# eval: (require 'magit-utils nil t)
+# eval: (require 'org-man     nil t)
+# eval: (require 'ox-texinfo+ nil t)
+# End:

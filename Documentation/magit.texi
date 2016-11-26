@@ -1864,17 +1864,16 @@ as a subprocess.  They are placed right after the executable itself
 and before the git command - as in @code{git HERE... COMMAND REST}.  For
 valid arguments see 
 @ifinfo
-@ref{git,,,gitman,}
+@ref{git,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git">git(1)</a> manpage
+the <a href="http://git-scm.com/docs/git">git(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git(1) manpage
+the git(1) manpage.
 @end iftex
-.
 
 Be careful what you add here, especially if you are using Tramp to
 connect to servers with ancient Git versions.  Never remove anything
@@ -2386,17 +2385,17 @@ then the default value of @code{magit-log-arguments} is used instead.
 
 For information about the various arguments, see 
 @ifinfo
-@ref{git-log,,,gitman,}
+@ref{git-log,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-log">git-log(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-log">git-log(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-log(1) manpage
+the git-log(1) manpage.
 @end iftex
-.
+
 The switch @code{++order=VALUE} is converted to one of @code{--author-date-order},
 @code{--date-order}, or @code{--topo-order} before being passed to @code{git log}.
 
@@ -2672,17 +2671,16 @@ This feature is used by rebase and squash commands.
 
 Also see 
 @ifinfo
-@ref{git-reflog,,,gitman,}
+@ref{git-reflog,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-reflog">git-reflog(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-reflog">git-reflog(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-reflog(1) manpage
+the git-reflog(1) manpage.
 @end iftex
-.
 
 These reflog commands are available from the log popup.  See @ref{Logging,Logging}.
 
@@ -2723,17 +2721,16 @@ then the default value of @code{magit-diff-arguments} is used instead.
 
 Also see 
 @ifinfo
-@ref{git-diff,,,gitman,}
+@ref{git-diff,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-diff">git-diff(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-diff">git-diff(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-diff(1) manpage
+the git-diff(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex d
@@ -3500,17 +3497,16 @@ Insert sections showing all tags.
 
 Also see 
 @ifinfo
-@ref{git-bisect,,,gitman,}
+@ref{git-bisect,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-bisect">git-bisect(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-bisect">git-bisect(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-bisect(1) manpage
+the git-bisect(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex B
@@ -3609,17 +3605,16 @@ create a new window or reuse an existing one.
 
 Also see 
 @ifinfo
-@ref{git-blame,,,gitman,}
+@ref{git-blame,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-blame">git-blame(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-blame">git-blame(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-blame(1) manpage
+the git-blame(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex M-x magit-blame
@@ -4036,17 +4031,16 @@ commit using the file's content as message.
 
 Also see 
 @ifinfo
-@ref{git-commit,,,gitman,}
+@ref{git-commit,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-commit">git-commit(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-commit">git-commit(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-commit(1) manpage
+the git-commit(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex c
@@ -4924,42 +4918,41 @@ git config --global remote.autoSetupMerge always
 For more information about these variables you should also see
 
 @ifinfo
-@ref{git-config,,,gitman,}
+@ref{git-config,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-config">git-config(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-config">git-config(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-config(1) manpage
+the git-config(1) manpage.
 @end iftex
-.  Also see 
+ Also see 
 @ifinfo
-@ref{git-branch,,,gitman,}
+@ref{git-branch,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-branch">git-branch(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-branch">git-branch(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-branch(1) manpage
+the git-branch(1) manpage.
 @end iftex
-,
-
+, 
 @ifinfo
-@ref{git-checkout,,,gitman,}
+@ref{git-checkout,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-checkout">git-checkout(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-checkout">git-checkout(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-checkout(1) manpage
+the git-checkout(1) manpage.
 @end iftex
-, and @ref{Pushing,Pushing}.
+ and @ref{Pushing,Pushing}.
 
 @defopt magit-prefer-remote-upstream
 
@@ -4978,17 +4971,17 @@ the upstream and many which create new branches.
 
 Also see 
 @ifinfo
-@ref{git-merge,,,gitman,}
+@ref{git-merge,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-merge">git-merge(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-merge">git-merge(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-merge(1) manpage
+the git-merge(1) manpage.
 @end iftex
-.  For information on how to resolve
+  For information on how to resolve
 merge conflicts see the next section.
 
 @table @asis
@@ -5182,17 +5175,17 @@ truely complex conflicts, the latter is usually overkill.
 
 Also see 
 @ifinfo
-@ref{git-rebase,,,gitman,}
+@ref{git-rebase,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-rebase">git-rebase(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-rebase">git-rebase(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-rebase(1) manpage
+the git-rebase(1) manpage.
 @end iftex
-.  For information on how to resolve
+  For information on how to resolve
 conflicts that occur during rebases see the preceding section.
 
 @table @asis
@@ -5645,17 +5638,16 @@ commits which have already been applied.
 
 Also see 
 @ifinfo
-@ref{git-cherry-pick,,,gitman,}
+@ref{git-cherry-pick,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-cherry-pick">git-cherry-pick(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-cherry-pick">git-cherry-pick(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-cherry-pick(1) manpage
+the git-cherry-pick(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex A
@@ -5782,17 +5774,16 @@ changes made since the sequence started.
 
 Also see 
 @ifinfo
-@ref{git-reset,,,gitman,}
+@ref{git-reset,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-reset">git-reset(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-reset">git-reset(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-reset(1) manpage
+the git-reset(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex x
@@ -5849,17 +5840,16 @@ Both the revision and file are read from the user.
 
 Also see 
 @ifinfo
-@ref{git-stash,,,gitman,}
+@ref{git-stash,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-stash">git-stash(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-stash">git-stash(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-stash(1) manpage
+the git-stash(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex z
@@ -6000,17 +5990,16 @@ Remove all stashes saved in REF's reflog by deleting REF.
 
 Also see 
 @ifinfo
-@ref{git-remote,,,gitman,}
+@ref{git-remote,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-remote">git-remote(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-remote">git-remote(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-remote(1) manpage
+the git-remote(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex M
@@ -6069,17 +6058,16 @@ For information about the differences between the @emph{upstream} and the
 
 Also see 
 @ifinfo
-@ref{git-fetch,,,gitman,}
+@ref{git-fetch,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-fetch">git-fetch(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-fetch">git-fetch(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-fetch(1) manpage
+the git-fetch(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex f
@@ -6147,17 +6135,16 @@ For information about the differences between the @emph{upstream} and the
 
 Also see 
 @ifinfo
-@ref{git-pull,,,gitman,}
+@ref{git-pull,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-pull">git-pull(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-pull">git-pull(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-pull(1) manpage
+the git-pull(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex F
@@ -6198,17 +6185,16 @@ For information about the differences between the @emph{upstream} and the
 
 Also see 
 @ifinfo
-@ref{git-push,,,gitman,}
+@ref{git-push,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-push">git-push(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-push">git-push(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-push(1) manpage
+the git-push(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex P
@@ -6373,17 +6359,16 @@ Request that upstream pulls from your public repository.
 
 Also see 
 @ifinfo
-@ref{git-am,,,gitman,}
+@ref{git-am,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-am">git-am(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-am">git-am(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-am(1) manpage
+the git-am(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex w
@@ -6446,17 +6431,16 @@ changes made since the sequence started.
 
 Also see 
 @ifinfo
-@ref{git-tag,,,gitman,}
+@ref{git-tag,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-tag">git-tag(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-tag">git-tag(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-tag(1) manpage
+the git-tag(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex t
@@ -6493,17 +6477,16 @@ Offer to delete tags missing locally from REMOTE, and vice versa.
 
 Also see 
 @ifinfo
-@ref{git-notes,,,gitman,}
+@ref{git-notes,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-notes">git-notes(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-notes">git-notes(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-notes(1) manpage
+the git-notes(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex T
@@ -6600,17 +6583,16 @@ Abort the current notes ref merge.
 
 Also see 
 @ifinfo
-@ref{git-submodule,,,gitman,}
+@ref{git-submodule,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-submodule">git-submodule(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-submodule">git-submodule(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-submodule(1) manpage
+the git-submodule(1) manpage.
 @end iftex
-.
 
 @menu
 * Listing submodules::
@@ -6724,17 +6706,16 @@ Unregister the submodule at PATH.
 
 Also see 
 @ifinfo
-@ref{git-subtree,,,gitman,}
+@ref{git-subtree,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-subtree">git-subtree(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-subtree">git-subtree(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-subtree(1) manpage
+the git-subtree(1) manpage.
 @end iftex
-.
 
 @table @asis
 @kindex O
@@ -7194,17 +7175,16 @@ To set a Git variable for one repository only, simply set it in
 @code{/path/to/repo/.git/config} instead of @code{$HOME/.gitconfig} or
 @code{/etc/gitconfig}.  See 
 @ifinfo
-@ref{git-config,,,gitman,}
+@ref{git-config,,,gitman,}.
 @end ifinfo
 @ifhtml
 @html
-the <a href="http://git-scm.com/docs/git-config">git-config(1)</a> manpage
+the <a href="http://git-scm.com/docs/git-config">git-config(1)</a> manpage.
 @end html
 @end ifhtml
 @iftex
-the git-config(1) manpage
+the git-config(1) manpage.
 @end iftex
-.
 
 Similarly, Emacs options can be set for one repository only by editing
 @code{/path/to/repo/.dir-locals.el}.  See @ref{Directory Variables,,,emacs,}.
