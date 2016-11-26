@@ -9,7 +9,9 @@
 #+TEXINFO_DIR_DESC: Infix arguments with feedback
 #+SUBTITLE: for version 2.8
 
-#+OPTIONS: H:4 num:3 toc:2
+#+TEXINFO_DEFFN: t
+#+TEXINFO_CLASS: info+
+#+OPTIONS: H:4 num:nil toc:2
 
 * Copying
 :PROPERTIES:

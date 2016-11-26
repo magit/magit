@@ -9,7 +9,9 @@
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
 #+SUBTITLE: for version 2.8
 
-#+OPTIONS: H:4 num:3 toc:2
+#+TEXINFO_DEFFN: t
+#+TEXINFO_CLASS: info+
+#+OPTIONS: H:4 num:nil toc:2
 
 * Copying
 :PROPERTIES:
@@ -810,6 +812,9 @@ group named ~auto-revert~.  The other, magit-specific, options are
 located in the ~magit~ group.
 
 **** Risk of Reverting Automatically
+:PROPERTIES:
+:TEXINFO-NODE: t
+:END:
 
 For the vast majority users automatically reverting file-visiting
 buffers after they have changed on disk is harmless.
@@ -5343,9 +5348,6 @@ per-repository or per-repository-class basis only.  See
 [[*Per-repository configuration]].
 
 **** Microsoft Windows Performance
-:PROPERTIES:
-:NONODE:     t
-:END:
 
 In order to update the status buffer, ~git~ has to be run a few dozen
 times.  That is only problematic on Microsoft Windows, because that
@@ -5373,9 +5375,6 @@ You should also check whether an anti-virus program is slowing things
 down.
 
 **** Log Performance
-:PROPERTIES:
-:NONODE:     t
-:END:
 
 When showing logs, Magit limits the number of commits initially shown
 in the hope that this avoids unnecessary work.  When using ~--graph~ is
@@ -5405,9 +5404,6 @@ merges.  For that reason ~--color~ is not enabled by default anymore.
 Consider leaving it at that.
 
 **** Diff Performance
-:PROPERTIES:
-:NONODE:     t
-:END:
 
 If diffs are slow, then consider turning off some optional diff
 features by setting all or some of the following variables to ~nil~:
@@ -5423,9 +5419,6 @@ looking at the same commit in ~magit-diff-mode~, then consider setting
 ~magit-revision-insert-related-refs~ to ~nil~.
 
 **** Refs Buffer Performance
-:PROPERTIES:
-:NONODE:     t
-:END:
 
 When refreshing the "references buffer" is slow, then that's usually
 because several hundred refs are being displayed.  The best way to
@@ -5443,9 +5436,6 @@ actually all exist.  You can do so by pruning branches which no longer
 exist using ~f-pa~.
 
 **** Committing Performance
-:PROPERTIES:
-:NONODE:     t
-:END:
 
 When you initiate a commit, then Magit by default automatically shows
 a diff of the changes you are about to commit.  For large commits this
@@ -5467,9 +5457,6 @@ the diff, which is useful because it increases the odds that you spot
 potential issues.
 
 **** The built-in VC Package
-:PROPERTIES:
-:NONODE:     t
-:END:
 
 Emacs comes with a version control interface called "VC", see
 [[info:emacs#Version Control]].  It is enabled be default and if you don't
