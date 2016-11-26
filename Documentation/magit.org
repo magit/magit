@@ -6238,56 +6238,20 @@ debugging purposes it's possible to do so anyway by setting
 
 Git's manpages can be exported as an info manual called ~gitman~.
 Magit's own info manual links to nodes in that manual instead of the
-actual manpages because texinfo sadly doesn't support linking to
-manpages.
+actual manpages because Info doesn't support linking to manpages.
 
-Unfortunately many distributions do not install the ~gitman~ manual by
-default.  Some distributions may provide a separate package containing
-the info manual.  Please let me know the name of that package for your
-distribution, so that I can mention here.
+Unfortunately some distributions do not install the ~gitman~ manual by
+default and you will have to install a separate documentation package
+to get it.
 
-If the distribution you are using does not offer a package that
-contains the ~gitman~ manual, then you have to install it manually.
-Clone Git's own Git repository, checkout the tag corresponding to the
-Git release you have installed, and follow the instructions in
-~INSTALL~.  The relevant make targets are ~info~ and ~install-info~.
-
-Alternatively you may add this advice to your ~init.el~ file.
+Magit patches Info adding the ability to visit links to the ~gitman~
+Info manual by instead viewing the respective manpage.  If you prefer
+that approach, then set the value of ~magit-view-git-manual-method~ to
+one of the supported packages ~man~ or ~woman~, e.g.:
 
 #+BEGIN_SRC emacs-lisp
-  (defadvice Info-follow-nearest-node (around gitman activate)
-    "When encountering a cross reference to the `gitman' info
-  manual, then instead of following that cross reference show
-  the actual manpage using the function `man'."
-    (let ((node (Info-get-token
-                 (point) "\\*note[ \n\t]+"
-                 "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
-      (if (and node (string-match "^(gitman)\\(.+\\)" node))
-          (progn (require 'man)
-                 (man (match-string 1 node)))
-        ad-do-it)))
+  (setq magit-view-git-manual-method 'man)
 #+END_SRC
-
-Or if you are using MS Windows and ~man~ is not available, use this
-variation with used the Emacs Lisp implementation provided by the
-~woman~ package.
-
-#+BEGIN_SRC emacs-lisp
-  (defadvice Info-follow-nearest-node (around gitman activate)
-    "When encountering a cross reference to the `gitman' info
-  manual, then instead of following that cross reference show
-  the actual manpage using the function `woman'."
-    (let ((node (Info-get-token
-                 (point) "\\*note[ \n\t]+"
-                 "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
-      (if (and node (string-match "^(gitman)\\(.+\\)" node))
-          (progn (require 'woman)
-                 (woman (match-string 1 node)))
-        ad-do-it)))
-#+END_SRC
-
-Did I mention that texinfo cross reference are just awful?  (This is
-just one of many issues.)
 
 *** How to show diffs for gpg-encrypted files?
 

@@ -264,6 +264,23 @@ and delay of your graphical environment or operating system."
   :group 'magit-modes
   :type 'number)
 
+(defcustom magit-view-git-manual-method 'info
+  "How links to Git documentation are followed from Magit's Info manuals.
+
+`nil'   Follow the link to the node in the `gitman' Info manual
+        as usual.  Unfortunately that manual is not installed by
+        default on some platforms, and when it is then the nodes
+        look worse than the actual manpages.
+
+`man'   View the respective man-page using the `man' package.
+
+`woman' View the respective man-page using the `woman' package."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-modes
+  :type '(choice (const :tag "view info manual" nil)
+                 (const :tag "view manpage using `man'" man)
+                 (const :tag "view manpage using `woman'" woman)))
+
 ;;; User Input
 
 (defun magit-completing-read
@@ -526,6 +543,27 @@ for an alternative."
             'whitespace-dont-turn-on-in-magit-mode)
 
 ;;; Kludges for Info Manuals
+
+;;;###autoload
+(defun Info-follow-nearest-node--magit-gitman (fn &optional fork)
+  (if magit-view-git-manual-method
+      (let ((node (Info-get-token
+                   (point) "\\*note[ \n\t]+"
+                   "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
+        (if (and node (string-match "^(gitman)\\(.+\\)" node))
+            (pcase magit-view-git-manual-method
+              (`man   (require 'man)
+                      (man (match-string 1 node)))
+              (`woman (require 'woman)
+                      (woman (match-string 1 node)))
+              (_
+               (user-error "Invalid value for `magit-view-git-documentation'")))
+          (funcall fn fork)))
+    (funcall fn fork)))
+
+;;;###autoload
+(advice-add 'Info-follow-nearest-node :around
+            'Info-follow-nearest-node--magit-gitman)
 
 ;;;###autoload
 (defun org-man-export--magit-gitman (fn link description format)
