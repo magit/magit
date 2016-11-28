@@ -306,6 +306,11 @@ Fixes since v2.8.0
 
 * The log margin did not show the author of stashes.  #2846
 
+* Buffers visiting a blob used the file's directory as
+  `default-directory' even when that directory did not exist in the
+  working tree.  The top-level directory is now used as
+  `default-directory' when the subdirectory does not exist.
+
 This release also contains typofixes, documentation updates,
 code clean-ups, and other small bug fixes and improvements.
 
