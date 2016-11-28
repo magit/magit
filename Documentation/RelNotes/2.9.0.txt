@@ -139,6 +139,10 @@ Changes since v2.8.0
   a regular file whose contents describe the location of the real git
   directory.
 
+* Added command `magit-emacs-Q-command' to make troubleshooting and
+  bug reporting easier for users not installing from the git
+  repository. #2856
+
 * The command `magit-branch-spinoff' learned to remove only a subset
   of commits from the previously current branch, instead of resetting
   it to its upstream, when the region selects commits reachable from
