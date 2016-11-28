@@ -721,9 +721,10 @@ detached `HEAD'."
     (magit-insert-section (branch pull)
       (let ((rebase (magit-git-string "config"
                                       (format "branch.%s.rebase" branch))))
-        (if (equal rebase "false")
-            (setq rebase nil)
-          (setq rebase (magit-get-boolean "pull.rebase")))
+        (pcase rebase
+          ("true")
+          ("false" (setq rebase nil))
+          (_       (setq rebase (magit-get-boolean "pull.rebase"))))
         (insert (format "%-10s" (or keyword (if rebase "Rebase: " "Merge: ")))))
       (--when-let (and magit-status-show-hashes-in-headers
                        (magit-rev-format "%h" pull))
