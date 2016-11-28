@@ -467,6 +467,28 @@ ACTION is a member of option `magit-slow-confirm'."
     (replace-regexp-in-string
      "-" " " (concat (upcase (substring prompt 0 1)) (substring prompt 1)))))
 
+;;; Debug Utilities
+
+;;;###autoload
+(defun magit-emacs-Q-command ()
+  (interactive)
+  (let ((cmd (mapconcat
+              #'shell-quote-argument
+              `(,(concat invocation-directory invocation-name)
+                "-Q" "--eval" "(setq debug-on-error t)"
+                ,@(cl-mapcan
+                   (lambda (dir) (list "-L" dir))
+                   (delete-dups
+                    (mapcar (lambda (lib)
+                              (file-name-directory (locate-library lib)))
+                            '("magit" "magit-popup" "with-editor"
+                              "git-commit" "dash"))))
+                "-l" "magit")
+              " ")))
+    (message "Uncustomized Magit command saved to kill-ring, %s"
+             "please run it in a terminal.")
+    (kill-new cmd)))
+
 ;;; Text Utilities
 
 (defmacro magit-bind-match-strings (varlist string &rest body)
