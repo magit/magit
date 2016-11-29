@@ -2285,6 +2285,29 @@ Insert a header line about the current user.
 Hook run after a status buffer has been refreshed.
 @end defopt
 
+@defopt magit-status-margin
+
+This option specifies whether the margin is initially shown in
+Magit-Status mode buffers and how it is formatted.
+
+The value has the form @code{(INIT NAME DATE-STYLE)}.
+
+@itemize
+@item
+If INIT is non-nil, then the margin is shown initially.
+
+@item
+If NAME is an integer, then the name of the author is
+shown using an area that width.  Otherwise it must be @code{nil}.
+
+@item
+DATE-STYLE can be @code{age} in which case the age of the commit
+is shown.  If it is @code{age-abbreviated}, then the time unit is
+abbreviated to a single character.  DATE-STYLE can also be
+a format-string suitable for @code{format-time-string}.
+@end itemize
+@end defopt
+
 @defopt magit-log-section-args
 
 Additional Git arguments used when creating log sections.  Only
@@ -2618,17 +2641,27 @@ entry.  Only considered when moving past the last entry with
 @code{magit-goto-*-section} commands.
 @end defopt
 
-@defopt magit-log-show-margin
+@defopt magit-log-margin
 
-Whether to initially show the margin in log buffers.
+This option specifies whether the margin is initially shown in
+Magit-Log mode buffers and how it is formatted.
 
-When non-nil the author name and date are initially displayed in the
-margin of log buffers.  The margin can be shown or hidden in the
-current buffer using the command @code{magit-toggle-margin}.
+The value has the form @code{(INIT NAME DATE-STYLE)}.
 
-When a log buffer contains a verbose log, then the margin is never
-displayed.  In status buffers this option is ignored, but it is
-possible to show the margin using the mentioned command.
+@itemize
+@item
+If INIT is non-nil, then the margin is shown initially.
+
+@item
+If NAME is an integer, then the name of the author is
+shown using an area that width.  Otherwise it must be @code{nil}.
+
+@item
+DATE-STYLE can be @code{age} in which case the age of the commit
+is shown.  If it is @code{age-abbreviated}, then the time unit is
+abbreviated to a single character.  DATE-STYLE can also be
+a format-string suitable for @code{format-time-string}.
+@end itemize
 @end defopt
 
 @defopt magit-log-show-refname-after-summary
@@ -2645,8 +2678,14 @@ When the user has to select a recent commit that is reachable from
 humans cannot remember hashes or "HEAD~5", at least not without double
 checking).  Instead a log buffer is used to select the commit, which
 has the advantage that commits are presented in order and with the
-commit message.  The following additional key bindings are available
-when a log is used for selection:
+commit message.
+
+Such selection logs are used when selecting the beginning of a rebase
+and when selecting the commit to be squashed into.
+
+In addition to the key bindings available in all log buffers, the
+following additional key bindings are available in selection log
+buffers:
 
 @table @asis
 @kindex C-c C-c
@@ -2662,9 +2701,31 @@ argument.
 @item @kbd{C-c C-k} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-select-quit})
 
 Abort selecting a commit, don't act on any commit.
+
 @end table
 
-This feature is used by rebase and squash commands.
+@defopt magit-log-select-margin
+
+This option specifies whether the margin is initially shown in
+Magit-Log-Select mode buffers and how it is formatted.
+
+The value has the form @code{(INIT NAME DATE-STYLE)}.
+
+@itemize
+@item
+If INIT is non-nil, then the margin is shown initially.
+
+@item
+If NAME is an integer, then the name of the author is
+shown using an area that width.  Otherwise it must be @code{nil}.
+
+@item
+DATE-STYLE can be @code{age} in which case the age of the commit
+is shown.  If it is @code{age-abbreviated}, then the time unit is
+abbreviated to a single character.  DATE-STYLE can also be
+a format-string suitable for @code{format-time-string}.
+@end itemize
+@end defopt
 
 @node Reflog
 @subsection Reflog
@@ -2702,7 +2763,31 @@ Display the reflog of a branch.
 @item @kbd{l H} @tie{}@tie{}@tie{}@tie{}(@code{magit-reflog-head})
 
 Display the @code{HEAD} reflog.
+
 @end table
+
+@defopt magit-reflog-margin
+
+This option specifies whether the margin is initially shown in
+Magit-Reflog mode buffers and how it is formatted.
+
+The value has the form @code{(INIT NAME DATE-STYLE)}.
+
+@itemize
+@item
+If INIT is non-nil, then the margin is shown initially.
+
+@item
+If NAME is an integer, then the name of the author is
+shown using an area that width.  Otherwise it must be @code{nil}.
+
+@item
+DATE-STYLE can be @code{age} in which case the age of the commit
+is shown.  If it is @code{age-abbreviated}, then the time unit is
+abbreviated to a single character.  DATE-STYLE can also be
+a format-string suitable for @code{format-time-string}.
+@end itemize
+@end defopt
 
 @node Diffing
 @section Diffing
@@ -3302,13 +3387,31 @@ Whether to show commit counts in Magit-Refs mode buffers.
 The default is @code{nil} because anything else can be very expensive.
 @end defopt
 
-@defopt magit-refs-show-margin
+@defopt magit-refs-margin
 
-Whether to initially show the margin in refs buffers.
+This option specifies whether the margin is initially shown in
+Magit-Refs mode buffers and how it is formatted.
 
-When non-nil the committer name and date are initially displayed in
-the margin of refs buffers.  The margin can be shown or hidden in
-the current buffer using the command @code{magit-toggle-margin}.
+The value has the form @code{(INIT NAME DATE-STYLE TAGS)}.
+
+@itemize
+@item
+If INIT is non-nil, then the margin is shown initially.
+
+@item
+If NAME is an integer, then the name of the author is
+shown using an area that width.  Otherwise it must be @code{nil}.
+
+@item
+DATE-STYLE can be @code{age} in which case the age of the commit
+is shown.  If it is @code{age-abbreviated}, then the time unit is
+abbreviated to a single character.  DATE-STYLE can also be
+a format-string suitable for @code{format-time-string}.
+
+@item
+If TAGS is non-nil, then the margin shows information not
+only about branches, but also about tags.
+@end itemize
 @end defopt
 
 The following variables control how individual refs are displayed.  If
@@ -5942,12 +6045,6 @@ removing the stash.
 Remove a stash from the stash list.  When the region is active, offer
 to drop all contained stashes.
 
-@kindex z l
-@cindex magit-stash-list
-@item @kbd{z l} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-list})
-
-List all stashes in a buffer.
-
 @kindex z v
 @cindex magit-stash-show
 @item @kbd{z v} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-show})
@@ -5971,7 +6068,37 @@ Create a patch from STASH.
 @item @kbd{k} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-clear})
 
 Remove all stashes saved in REF's reflog by deleting REF.
+
+@kindex z l
+@cindex magit-stash-list
+@item @kbd{z l} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-list})
+
+List all stashes in a buffer.
+
 @end table
+
+@defopt magit-stashes-margin
+
+This option specifies whether the margin is initially shown in
+stashes buffers and how it is formatted.
+
+The value has the form @code{(INIT NAME DATE-STYLE)}.
+
+@itemize
+@item
+If INIT is non-nil, then the margin is shown initially.
+
+@item
+If NAME is an integer, then the name of the author is
+shown using an area that width.  Otherwise it must be @code{nil}.
+
+@item
+DATE-STYLE can be @code{age} in which case the age of the commit
+is shown.  If it is @code{age-abbreviated}, then the time unit is
+abbreviated to a single character.  DATE-STYLE can also be
+a format-string suitable for @code{format-time-string}.
+@end itemize
+@end defopt
 
 @node Transferring
 @chapter Transferring

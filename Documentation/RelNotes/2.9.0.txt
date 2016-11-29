@@ -82,6 +82,41 @@ Breaking changes since v2.8.0
 
     (setq git-commit-fill-column 72)
 
+* The margin that by default is displayed in pure log buffers and
+  optionally in some other buffers that contain logs is now more
+  flexible and easier to customize.
+
+  For each mode that supports the margin there now exists a dedicated
+  option named `magit-*-margin', which controls whether the margin is
+  shown initially, whether the author name is displayed in addition
+  to the committer date, and how that committer date is formatted.
+  All of these options can be found in the new `magit-margin' Custom
+  group.
+
+  It is now possible to show the actual committer date, using a time
+  format of your choosing.  Previously the only option was to display
+  the age of the commit.
+
+  The old options that were previously used to configure the margin
+  have been removed.  If you have customized `magit-log-show-margin',
+  `magit-reflog-show-margin' and/`magit-refs-show-margin', then you
+  now have to customize the respective new variable whose names do not
+  contain "-show".  The same applies if you have previously changed
+  the value of `magit-log-margin-spec'.  Unfortunately this cannot be
+  automated because the format of the values has changed and because
+  it would be ambigious how to old customizations should be mapped
+  onto the new options.
+
+  You might also want to customize the options `magit-status-margin',
+  `magit-stashes-margin' and `magit-log-select-margin', for all of
+  which no corresponding `magit-*-show-margin' used to exist.
+
+  If you choose to display the commit dates instead of the commit
+  ages in all supported modes, then you should set `magit-log-margin'
+  before loading `magit'.  If you do that then the default values of
+  the other `magit-*-margin' options will use the same commit date
+  style without you having to customize each option individually.
+
 Changes since v2.8.0
 --------------------
 

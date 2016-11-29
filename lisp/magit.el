@@ -147,6 +147,26 @@ The functions which respect this option are
   :group 'magit-status
   :type 'boolean)
 
+(defcustom magit-status-margin '(nil nil (nth 2 magit-log-margin))
+  "Format of the margin in `magit-status-mode' buffers.
+
+The value has the form (INIT NAME DATE-STYLE).
+
+If INIT is non-nil, then the margin is shown initially.
+If NAME is an integer, then the name of the author is shown
+  using an area that width.  Otherwise it must be nil.
+DATE-STYLE can be `age' in which case the age of the commit
+is shown.  If it is `age-abbreviated', then the time unit is
+abbreviated to a single character.  DATE-STYLE can also be a
+format-string suitable for `format-time-string'."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-status
+  :group 'magit-margin
+  :type magit-log-margin--custom-type
+  :initialize 'magit-custom-initialize-reset
+  :set-after '(magit-log-margin)
+  :set (apply-partially #'magit-margin-set-variable 'magit-status-mode))
+
 ;;;; Refs Mode
 
 (defgroup magit-refs nil
@@ -188,18 +208,37 @@ To change the value in an existing buffer use the command
 (put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 (put 'magit-refs-show-commit-count 'permanent-local t)
 
-(defcustom magit-refs-show-margin 'branch
-  "Whether to initially show the margin in refs buffers.
+(defcustom magit-refs-margin '(nil 18 (nth 2 magit-log-margin) nil)
+  "Format of the margin in `magit-refs-mode' buffers.
 
-When non-nil the committer name and date are initially displayed
-in the margin of refs buffers.  The margin can be shown or hidden
-in the current buffer using the command `magit-toggle-margin'."
-  :package-version '(magit . "2.1.0")
+The value has the form (INIT NAME DATE-STYLE TAGS).
+
+If INIT is non-nil, then the margin is shown initially.
+If NAME is an integer, then the name of the author is shown
+  using an area that width.  Otherwise it must be nil.
+DATE-STYLE can be `age' in which case the age of the commit
+date is shown.  If it is `age-abbreviated', then the time
+unit is abbreviated to a single character.  DATE-STYLE can
+also be a format-string suitable for `format-time-string'.
+If TAGS is non-nil, then the margin shows information not
+only about branches, but also about tags."
+  :package-version '(magit . "2.9.0")
   :group 'magit-refs
+  :group 'magit-margin
   :safe (lambda (val) (memq val '(all branch nil)))
-  :type '(choice (const all    :tag "For branches and tags")
-                 (const branch :tag "For branches only")
-                 (const nil    :tag "Never")))
+  :type '(list (boolean :tag "Show initially")
+               (integer :tag "Show author name using width")
+               (choice  :tag "Show committer"
+                        (string :tag "date using format" "%Y-%m-%d %H:%m ")
+                        (const  :tag "date's age" age)
+                        (const  :tag "date's age (abbreviated)"
+                                age-abbreviated))
+               (choice  :tag "Show for"
+                        (const all    :tag "for branches and tags" all)
+                        (const branch :tag "for branches only" branches)))
+  :initialize 'magit-custom-initialize-reset
+  :set-after '(magit-log-margin)
+  :set (apply-partially #'magit-margin-set-variable 'magit-refs-mode))
 
 (defcustom magit-visit-ref-behavior nil
   "Control how `magit-visit-ref' behaves in `magit-refs-mode' buffers.
@@ -1264,7 +1303,7 @@ different, but only if you have customized the option
                               (?c . ,(or mark count ""))
                               (?m . ,(or message "")))))
               (when (and magit-show-margin
-                         (eq magit-refs-show-margin 'all))
+                         (eq (nth 3 magit-refs-margin) 'all))
                 (magit-refs-format-margin (concat tag "^{commit}")))
               (magit-refs-insert-cherry-commits head tag section)))))
       (insert ?\n))))
@@ -1296,7 +1335,7 @@ different, but only if you have customized the option
   (save-excursion
     (goto-char (line-beginning-position 0))
     (let ((line (magit-rev-format "%ct%cN" commit)))
-      (magit-format-log-margin (substring line 10)
+      (magit-log-format-margin (substring line 10)
                                (substring line 0 10)))))
 
 ;;;; Files
@@ -2857,13 +2896,9 @@ Currently this only adds the following key bindings.
       (find-file blob-or-file)
     (-let [(rev file) blob-or-file]
       (magit-find-file rev file)
-      (let ((str (magit-rev-format "%ct%s" rev)))
-        (message "%s (%s ago)" (substring str 10)
-                 (magit-format-duration
-                  (abs (truncate (- (float-time)
-                                    (string-to-number
-                                     (substring str 0 10)))))
-                  magit-duration-spec)))))
+      (apply #'message "%s (%s %s ago)"
+             (magit-rev-format "%s" rev)
+             (magit--age (magit-rev-format "%ct" rev)))))
   (goto-char (point-min))
   (forward-line (1- line)))
 

@@ -29,6 +29,28 @@
 
 (require 'magit)
 
+;;; Options
+
+(defcustom magit-stashes-margin '(t nil (nth 2 magit-log-margin))
+  "Format of the margin in `magit-stashes-mode' buffers.
+
+The value has the form (INIT NAME DATE-STYLE).
+
+If INIT is non-nil, then the margin is shown initially.
+If NAME is an integer, then the name of the author is shown
+  using an area that width.  Otherwise it must be nil.
+DATE-STYLE can be `age' in which case the age of the commit
+is shown.  If it is `age-abbreviated', then the time unit is
+abbreviated to a single character.  DATE-STYLE can also be a
+format-string suitable for `format-time-string'."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-refs
+  :group 'magit-margin
+  :type magit-log-margin--custom-type
+  :initialize 'magit-custom-initialize-reset
+  :set-after '(magit-log-margin)
+  :set (apply-partially #'magit-margin-set-variable 'magit-stashes-mode))
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-stash-popup "magit-stash" nil t)

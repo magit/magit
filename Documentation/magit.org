@@ -1692,6 +1692,21 @@ The following functions can also be added to the above hook:
 
   Hook run after a status buffer has been refreshed.
 
+- User Option: magit-status-margin
+
+  This option specifies whether the margin is initially shown in
+  Magit-Status mode buffers and how it is formatted.
+
+  The value has the form ~(INIT NAME DATE-STYLE)~.
+
+  - If INIT is non-nil, then the margin is shown initially.
+  - If NAME is an integer, then the name of the author is
+    shown using an area that width.  Otherwise it must be ~nil~.
+  - DATE-STYLE can be ~age~ in which case the age of the commit
+    is shown.  If it is ~age-abbreviated~, then the time unit is
+    abbreviated to a single character.  DATE-STYLE can also be
+    a format-string suitable for ~format-time-string~.
+
 - User Option: magit-log-section-args
 
   Additional Git arguments used when creating log sections.  Only
@@ -1935,17 +1950,20 @@ the status buffer.
   entry.  Only considered when moving past the last entry with
   ~magit-goto-*-section~ commands.
 
-- User Option: magit-log-show-margin
+- User Option: magit-log-margin
 
-  Whether to initially show the margin in log buffers.
+  This option specifies whether the margin is initially shown in
+  Magit-Log mode buffers and how it is formatted.
 
-  When non-nil the author name and date are initially displayed in the
-  margin of log buffers.  The margin can be shown or hidden in the
-  current buffer using the command ~magit-toggle-margin~.
+  The value has the form ~(INIT NAME DATE-STYLE)~.
 
-  When a log buffer contains a verbose log, then the margin is never
-  displayed.  In status buffers this option is ignored, but it is
-  possible to show the margin using the mentioned command.
+  - If INIT is non-nil, then the margin is shown initially.
+  - If NAME is an integer, then the name of the author is
+    shown using an area that width.  Otherwise it must be ~nil~.
+  - DATE-STYLE can be ~age~ in which case the age of the commit
+    is shown.  If it is ~age-abbreviated~, then the time unit is
+    abbreviated to a single character.  DATE-STYLE can also be
+    a format-string suitable for ~format-time-string~.
 
 - User Option: magit-log-show-refname-after-summary
 
@@ -1959,8 +1977,14 @@ When the user has to select a recent commit that is reachable from
 humans cannot remember hashes or "HEAD~5", at least not without double
 checking).  Instead a log buffer is used to select the commit, which
 has the advantage that commits are presented in order and with the
-commit message.  The following additional key bindings are available
-when a log is used for selection:
+commit message.
+
+Such selection logs are used when selecting the beginning of a rebase
+and when selecting the commit to be squashed into.
+
+In addition to the key bindings available in all log buffers, the
+following additional key bindings are available in selection log
+buffers:
 
 - Key: C-c C-c, magit-log-select-pick
 
@@ -1972,7 +1996,20 @@ when a log is used for selection:
 
   Abort selecting a commit, don't act on any commit.
 
-This feature is used by rebase and squash commands.
+- User Option: magit-log-select-margin
+
+  This option specifies whether the margin is initially shown in
+  Magit-Log-Select mode buffers and how it is formatted.
+
+  The value has the form ~(INIT NAME DATE-STYLE)~.
+
+  - If INIT is non-nil, then the margin is shown initially.
+  - If NAME is an integer, then the name of the author is
+    shown using an area that width.  Otherwise it must be ~nil~.
+  - DATE-STYLE can be ~age~ in which case the age of the commit
+    is shown.  If it is ~age-abbreviated~, then the time unit is
+    abbreviated to a single character.  DATE-STYLE can also be
+    a format-string suitable for ~format-time-string~.
 
 *** Reflog
 
@@ -1991,6 +2028,21 @@ These reflog commands are available from the log popup.  See [[*Logging]].
 - Key: l H, magit-reflog-head
 
   Display the ~HEAD~ reflog.
+
+- User Option: magit-reflog-margin
+
+  This option specifies whether the margin is initially shown in
+  Magit-Reflog mode buffers and how it is formatted.
+
+  The value has the form ~(INIT NAME DATE-STYLE)~.
+
+  - If INIT is non-nil, then the margin is shown initially.
+  - If NAME is an integer, then the name of the author is
+    shown using an area that width.  Otherwise it must be ~nil~.
+  - DATE-STYLE can be ~age~ in which case the age of the commit
+    is shown.  If it is ~age-abbreviated~, then the time unit is
+    abbreviated to a single character.  DATE-STYLE can also be
+    a format-string suitable for ~format-time-string~.
 
 ** Diffing
 
@@ -2436,13 +2488,22 @@ information on how to use Ediff itself, see info:ediff.
 
   The default is ~nil~ because anything else can be very expensive.
 
-- User Option: magit-refs-show-margin
+- User Option: magit-refs-margin
 
-  Whether to initially show the margin in refs buffers.
+  This option specifies whether the margin is initially shown in
+  Magit-Refs mode buffers and how it is formatted.
 
-  When non-nil the committer name and date are initially displayed in
-  the margin of refs buffers.  The margin can be shown or hidden in
-  the current buffer using the command ~magit-toggle-margin~.
+  The value has the form ~(INIT NAME DATE-STYLE TAGS)~.
+
+  - If INIT is non-nil, then the margin is shown initially.
+  - If NAME is an integer, then the name of the author is
+    shown using an area that width.  Otherwise it must be ~nil~.
+  - DATE-STYLE can be ~age~ in which case the age of the commit
+    is shown.  If it is ~age-abbreviated~, then the time unit is
+    abbreviated to a single character.  DATE-STYLE can also be
+    a format-string suitable for ~format-time-string~.
+  - If TAGS is non-nil, then the margin shows information not
+    only about branches, but also about tags.
 
 The following variables control how individual refs are displayed.  If
 you change one of these variables (especially the "%c" part), then you
@@ -4367,10 +4428,6 @@ Also see [[man:git-stash]]
   Remove a stash from the stash list.  When the region is active, offer
   to drop all contained stashes.
 
-- Key: z l, magit-stash-list
-
-  List all stashes in a buffer.
-
 - Key: z v, magit-stash-show
 
   Show all diffs of a stash in a buffer.
@@ -4386,6 +4443,25 @@ Also see [[man:git-stash]]
 - Key: k, magit-stash-clear
   
   Remove all stashes saved in REF's reflog by deleting REF.
+
+- Key: z l, magit-stash-list
+
+  List all stashes in a buffer.
+
+- User Option: magit-stashes-margin
+
+  This option specifies whether the margin is initially shown in
+  stashes buffers and how it is formatted.
+
+  The value has the form ~(INIT NAME DATE-STYLE)~.
+
+  - If INIT is non-nil, then the margin is shown initially.
+  - If NAME is an integer, then the name of the author is
+    shown using an area that width.  Otherwise it must be ~nil~.
+  - DATE-STYLE can be ~age~ in which case the age of the commit
+    is shown.  If it is ~age-abbreviated~, then the time unit is
+    abbreviated to a single character.  DATE-STYLE can also be
+    a format-string suitable for ~format-time-string~.
 
 * Transferring
 ** Remotes
