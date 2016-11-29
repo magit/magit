@@ -43,6 +43,7 @@
 
 (eval-when-compile (require 'ido))
 (declare-function ido-completing-read+ 'ido-completing-read+)
+(declare-function Info-get-token 'info)
 
 (defvar magit-wip-before-change-mode)
 
