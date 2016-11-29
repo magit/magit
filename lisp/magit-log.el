@@ -896,8 +896,7 @@ Do not add this to a hook variable."
                        (magit-log-double-commit-limit))
              'follow-link t
              'mouse-face 'magit-section-highlight)))
-      (unless (equal (car args) "cherry")
-        (insert ?\n)))))
+      (insert ?\n))))
 
 (defun magit-log-wash-rev (style abbrev)
   (when (derived-mode-p 'magit-log-mode)
