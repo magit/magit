@@ -1532,16 +1532,30 @@ all others with \"-\"."
     (with-selected-window window
       (set-window-margins nil (car (window-margins)) magit-show-margin))))
 
-(defun magit-make-margin-overlay (&optional string)
-  ;; Don't put the overlay on the complete line to work around #1880.
-  (let ((o (make-overlay (1+ (line-beginning-position))
-                         (line-end-position)
-                         nil t)))
-    (overlay-put o 'evaporate t)
-    (overlay-put o 'before-string
-                 (propertize "o" 'display
-                             (list (list 'margin 'right-margin)
-                                   (or string " "))))))
+(defun magit-make-margin-overlay (&optional string previous-line)
+  (if previous-line
+      (save-excursion
+        (forward-line -1)
+        (magit-make-margin-overlay string))
+    ;; Don't put the overlay on the complete line to work around #1880.
+    (let ((o (make-overlay (1+ (line-beginning-position))
+                           (line-end-position)
+                           nil t)))
+      (overlay-put o 'evaporate t)
+      (overlay-put o 'before-string
+                   (propertize "o" 'display
+                               (list (list 'margin 'right-margin)
+                                     (or string " ")))))))
+
+(defun magit-maybe-make-margin-overlay ()
+  (when (or (magit-section-match
+             '(unpulled unpushed recent stashes local)
+             magit-insert-section--current)
+            (and (eq major-mode 'magit-refs-mode)
+                 (magit-section-match
+                  '(remote commit)
+                  magit-insert-section--current)))
+    (magit-make-margin-overlay nil t)))
 
 ;;; magit-log.el ends soon
 

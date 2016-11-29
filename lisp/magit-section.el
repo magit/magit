@@ -34,6 +34,7 @@
 
 (require 'magit-utils)
 
+(declare-function magit-maybe-make-margin-overlay 'magit-log)
 (defvar magit-keep-region-overlay)
 
 ;;; Options
@@ -780,6 +781,7 @@ insert a newline character if necessary."
                 (propertize heading 'face 'magit-section-heading)))))
   (unless (bolp)
     (insert ?\n))
+  (magit-maybe-make-margin-overlay)
   (setf (magit-section-content magit-insert-section--current) (point-marker)))
 
 (defvar magit-insert-headers-hook nil "For internal use only.")

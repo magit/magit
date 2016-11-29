@@ -1174,7 +1174,8 @@ different, but only if you have customized the option
          ((string-match magit-refs-symref-line-re line)
           (magit-bind-match-strings (symref ref) line
             (magit-insert-symref symref ref 'magit-branch-local))))))
-    (insert ?\n)))
+    (insert ?\n)
+    (magit-make-margin-overlay nil t)))
 
 (defun magit-insert-remote-branches ()
   "Insert sections showing all remote-tracking branches."
@@ -1199,7 +1200,8 @@ different, but only if you have customized the option
            ((string-match magit-refs-symref-line-re line)
             (magit-bind-match-strings (symref ref) line
               (magit-insert-symref symref ref 'magit-branch-remote))))))
-      (insert ?\n))))
+      (insert ?\n)
+      (magit-make-margin-overlay nil t))))
 
 (defun magit-insert-branch (branch format &rest args)
   "For internal use, don't add to a hook."
@@ -1320,7 +1322,8 @@ different, but only if you have customized the option
     (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
       "cherry" "-v" "--abbrev" head ref magit-refresh-args)
     (unless (= (point) start)
-      (insert (propertize "\n" 'magit-section section)))))
+      (insert (propertize "\n" 'magit-section section))
+      (magit-make-margin-overlay nil t))))
 
 (defun magit-refs-format-commit-count (ref head format &optional tag-p)
   (and (string-match-p "%-?[0-9]+c" format)
