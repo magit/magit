@@ -220,6 +220,26 @@ format-string suitable for `format-time-string'."
   :group 'magit-log
   :type 'hook)
 
+(defcustom magit-cherry-margin '(t 18 (nth 2 magit-log-margin))
+  "Format of the margin in `magit-cherry-mode' buffers.
+
+The value has the form (INIT NAME DATE-STYLE).
+
+If INIT is non-nil, then the margin is shown initially.
+If NAME is an integer, then the name of the author is shown
+  using an area that width.  Otherwise it must be nil.
+DATE-STYLE can be `age' in which case the age of the commit
+is shown.  If it is `age-abbreviated', then the time unit is
+abbreviated to a single character.  DATE-STYLE can also be a
+format-string suitable for `format-time-string'."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-log
+  :group 'magit-margin
+  :type magit-log-margin--custom-type
+  :initialize 'magit-custom-initialize-reset
+  :set-after '(magit-log-margin)
+  :set (apply-partially #'magit-margin-set-variable 'magit-cherry-mode))
+
 ;;;; Reflog Mode
 
 (defcustom magit-reflog-arguments '("-n256")
@@ -991,6 +1011,12 @@ Do not add this to a hook variable."
           (save-excursion
             (backward-char)
             (magit-log-format-margin author date)))
+        (when (and (eq style 'cherry)
+                   magit-show-margin)
+          (save-excursion
+            (backward-char)
+            (apply #'magit-log-format-margin
+                   (split-string (magit-rev-format "%aN%x00%ct") "\0"))))
         (when (and graph
                    (not (eobp))
                    (not (looking-at non-graph-re)))
@@ -1470,6 +1496,7 @@ all others with \"-\"."
   (pcase prop
     (:age-width magit-margin-age-width)
     (:option (pcase major-mode
+               (`magit-cherry-mode     'magit-cherry-margin)
                (`magit-log-mode        'magit-log-margin)
                (`magit-log-select-mode 'magit-log-select-margin)
                (`magit-reflog-mode     'magit-reflog-margin)
@@ -1485,8 +1512,9 @@ all others with \"-\"."
 (defun magit-toggle-margin ()
   "Show or hide the Magit margin."
   (interactive)
-  (unless (derived-mode-p 'magit-log-mode 'magit-status-mode 'magit-refs-mode)
-    (user-error "Buffer doesn't contain any logs"))
+  (unless (derived-mode-p 'magit-log-mode 'magit-status-mode
+                          'magit-refs-mode 'magit-cherry-mode)
+    (user-error "Magit margin isn't supported in this buffer"))
   (magit-set-buffer-margin (not (cdr (window-margins)))))
 
 (defun magit-maybe-show-margin ()
@@ -1549,7 +1577,7 @@ all others with \"-\"."
 
 (defun magit-maybe-make-margin-overlay ()
   (when (or (magit-section-match
-             '(unpulled unpushed recent stashes local)
+             '(unpulled unpushed recent stashes local cherries)
              magit-insert-section--current)
             (and (eq major-mode 'magit-refs-mode)
                  (magit-section-match
