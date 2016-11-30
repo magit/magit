@@ -241,6 +241,9 @@ Changes since v2.8.0
 * `whitespace-mode' is not compatible with Magit buffers, where it is
   now actively prevented from being turned on by the user.
 
+* Log commands now support completion of refs in the "refs/tags" and
+  "refs/pull" namespaces.  #2878
+
 Fixes since v2.8.0
 ------------------
 
