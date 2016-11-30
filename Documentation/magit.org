@@ -1701,8 +1701,8 @@ The following functions can also be added to the above hook:
 
   - If INIT is non-nil, then the margin is shown initially.
   - If NAME is an integer, then the name of the author is
-    shown using an area that width.  Otherwise it must be ~nil~.
-  - DATE-STYLE can be ~age~ in which case the age of the commit
+    shown using an area of that width.  Otherwise it must be ~nil~.
+  - DATE-STYLE can be ~age~, in which case the age of the commit
     is shown.  If it is ~age-abbreviated~, then the time unit is
     abbreviated to a single character.  DATE-STYLE can also be
     a format-string suitable for ~format-time-string~.
@@ -1959,7 +1959,7 @@ the status buffer.
 
   - If INIT is non-nil, then the margin is shown initially.
   - If NAME is an integer, then the name of the author is
-    shown using an area that width.  Otherwise it must be ~nil~.
+    shown using an area of that width.  Otherwise it must be ~nil~.
   - DATE-STYLE can be ~age~ in which case the age of the commit
     is shown.  If it is ~age-abbreviated~, then the time unit is
     abbreviated to a single character.  DATE-STYLE can also be
@@ -2005,7 +2005,7 @@ buffers:
 
   - If INIT is non-nil, then the margin is shown initially.
   - If NAME is an integer, then the name of the author is
-    shown using an area that width.  Otherwise it must be ~nil~.
+    shown using an area of that width.  Otherwise it must be ~nil~.
   - DATE-STYLE can be ~age~ in which case the age of the commit
     is shown.  If it is ~age-abbreviated~, then the time unit is
     abbreviated to a single character.  DATE-STYLE can also be
@@ -2038,7 +2038,7 @@ These reflog commands are available from the log popup.  See [[*Logging]].
 
   - If INIT is non-nil, then the margin is shown initially.
   - If NAME is an integer, then the name of the author is
-    shown using an area that width.  Otherwise it must be ~nil~.
+    shown using an area of that width.  Otherwise it must be ~nil~.
   - DATE-STYLE can be ~age~ in which case the age of the commit
     is shown.  If it is ~age-abbreviated~, then the time unit is
     abbreviated to a single character.  DATE-STYLE can also be
@@ -2497,7 +2497,7 @@ information on how to use Ediff itself, see info:ediff.
 
   - If INIT is non-nil, then the margin is shown initially.
   - If NAME is an integer, then the name of the author is
-    shown using an area that width.  Otherwise it must be ~nil~.
+    shown using an area of that width.  Otherwise it must be ~nil~.
   - DATE-STYLE can be ~age~ in which case the age of the commit
     is shown.  If it is ~age-abbreviated~, then the time unit is
     abbreviated to a single character.  DATE-STYLE can also be
@@ -4457,7 +4457,7 @@ Also see [[man:git-stash]]
 
   - If INIT is non-nil, then the margin is shown initially.
   - If NAME is an integer, then the name of the author is
-    shown using an area that width.  Otherwise it must be ~nil~.
+    shown using an area of that width.  Otherwise it must be ~nil~.
   - DATE-STYLE can be ~age~ in which case the age of the commit
     is shown.  If it is ~age-abbreviated~, then the time unit is
     abbreviated to a single character.  DATE-STYLE can also be

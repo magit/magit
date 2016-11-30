@@ -124,8 +124,8 @@ The value has the form (INIT NAME DATE-STYLE).
 
 If INIT is non-nil, then the margin is shown initially.
 If NAME is an integer, then the name of the author is shown
-  using an area that width.  Otherwise it must be nil.
-DATE-STYLE can be `age' in which case the age of the commit
+  using an area of that width.  Otherwise it must be nil.
+DATE-STYLE can be `age', in which case the age of the commit
 is shown.  If it is `age-abbreviated', then the time unit is
 abbreviated to a single character.  DATE-STYLE can also be a
 format-string suitable for `format-time-string'."
@@ -197,8 +197,8 @@ The value has the form (INIT NAME DATE-STYLE).
 
 If INIT is non-nil, then the margin is shown initially.
 If NAME is an integer, then the name of the author is shown
-  using an area that width.  Otherwise it must be nil.
-DATE-STYLE can be `age' in which case the age of the commit
+  using an area of that width.  Otherwise it must be nil.
+DATE-STYLE can be `age', in which case the age of the commit
 is shown.  If it is `age-abbreviated', then the time unit is
 abbreviated to a single character.  DATE-STYLE can also be a
 format-string suitable for `format-time-string'."
@@ -227,8 +227,8 @@ The value has the form (INIT NAME DATE-STYLE).
 
 If INIT is non-nil, then the margin is shown initially.
 If NAME is an integer, then the name of the author is shown
-  using an area that width.  Otherwise it must be nil.
-DATE-STYLE can be `age' in which case the age of the commit
+  using an area of that width.  Otherwise it must be nil.
+DATE-STYLE can be `age', in which case the age of the commit
 is shown.  If it is `age-abbreviated', then the time unit is
 abbreviated to a single character.  DATE-STYLE can also be a
 format-string suitable for `format-time-string'."
@@ -256,8 +256,8 @@ The value has the form (INIT NAME DATE-STYLE).
 
 If INIT is non-nil, then the margin is shown initially.
 If NAME is an integer, then the name of the author is shown
-  using an area that width.  Otherwise it must be nil.
-DATE-STYLE can be `age' in which case the age of the commit
+  using an area of that width.  Otherwise it must be nil.
+DATE-STYLE can be `age', in which case the age of the commit
 is shown.  If it is `age-abbreviated', then the time unit is
 abbreviated to a single character.  DATE-STYLE can also be a
 format-string suitable for `format-time-string'."

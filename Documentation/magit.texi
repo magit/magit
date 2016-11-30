@@ -2298,10 +2298,10 @@ If INIT is non-nil, then the margin is shown initially.
 
 @item
 If NAME is an integer, then the name of the author is
-shown using an area that width.  Otherwise it must be @code{nil}.
+shown using an area of that width.  Otherwise it must be @code{nil}.
 
 @item
-DATE-STYLE can be @code{age} in which case the age of the commit
+DATE-STYLE can be @code{age}, in which case the age of the commit
 is shown.  If it is @code{age-abbreviated}, then the time unit is
 abbreviated to a single character.  DATE-STYLE can also be
 a format-string suitable for @code{format-time-string}.
@@ -2654,7 +2654,7 @@ If INIT is non-nil, then the margin is shown initially.
 
 @item
 If NAME is an integer, then the name of the author is
-shown using an area that width.  Otherwise it must be @code{nil}.
+shown using an area of that width.  Otherwise it must be @code{nil}.
 
 @item
 DATE-STYLE can be @code{age} in which case the age of the commit
@@ -2717,7 +2717,7 @@ If INIT is non-nil, then the margin is shown initially.
 
 @item
 If NAME is an integer, then the name of the author is
-shown using an area that width.  Otherwise it must be @code{nil}.
+shown using an area of that width.  Otherwise it must be @code{nil}.
 
 @item
 DATE-STYLE can be @code{age} in which case the age of the commit
@@ -2779,7 +2779,7 @@ If INIT is non-nil, then the margin is shown initially.
 
 @item
 If NAME is an integer, then the name of the author is
-shown using an area that width.  Otherwise it must be @code{nil}.
+shown using an area of that width.  Otherwise it must be @code{nil}.
 
 @item
 DATE-STYLE can be @code{age} in which case the age of the commit
@@ -3400,7 +3400,7 @@ If INIT is non-nil, then the margin is shown initially.
 
 @item
 If NAME is an integer, then the name of the author is
-shown using an area that width.  Otherwise it must be @code{nil}.
+shown using an area of that width.  Otherwise it must be @code{nil}.
 
 @item
 DATE-STYLE can be @code{age} in which case the age of the commit
@@ -6090,7 +6090,7 @@ If INIT is non-nil, then the margin is shown initially.
 
 @item
 If NAME is an integer, then the name of the author is
-shown using an area that width.  Otherwise it must be @code{nil}.
+shown using an area of that width.  Otherwise it must be @code{nil}.
 
 @item
 DATE-STYLE can be @code{age} in which case the age of the commit

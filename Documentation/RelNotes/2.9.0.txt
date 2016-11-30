@@ -99,13 +99,12 @@ Breaking changes since v2.8.0
 
   The old options that were previously used to configure the margin
   have been removed.  If you have customized `magit-log-show-margin',
-  `magit-reflog-show-margin' and/`magit-refs-show-margin', then you
+  `magit-reflog-show-margin' and/or `magit-refs-show-margin', then you
   now have to customize the respective new variable whose names do not
   contain "-show".  The same applies if you have previously changed
   the value of `magit-log-margin-spec'.  Unfortunately this cannot be
   automated because the format of the values has changed and because
-  it would be ambigious how to old customizations should be mapped
-  onto the new options.
+  the old customizations do not unambiguously map to the new options.
 
   You might also want to customize the options `magit-status-margin',
   `magit-stashes-margin' and `magit-log-select-margin', for all of
