@@ -233,9 +233,7 @@ only about branches, but also about tags."
                         (const  :tag "date's age" age)
                         (const  :tag "date's age (abbreviated)"
                                 age-abbreviated))
-               (choice  :tag "Show for"
-                        (const all    :tag "for branches and tags" all)
-                        (const branch :tag "for branches only" branches)))
+               (boolean :tag "Show for tags too"))
   :initialize 'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-refs-mode))
@@ -1305,7 +1303,7 @@ different, but only if you have customized the option
                               (?c . ,(or mark count ""))
                               (?m . ,(or message "")))))
               (when (and magit-show-margin
-                         (eq (nth 3 magit-refs-margin) 'all))
+                         (nth 3 magit-refs-margin))
                 (magit-refs-format-margin (concat tag "^{commit}")))
               (magit-refs-insert-cherry-commits head tag section)))))
       (insert ?\n))))
