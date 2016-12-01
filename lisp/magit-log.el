@@ -939,7 +939,7 @@ Do not add this to a hook variable."
              'mouse-face 'magit-section-highlight)))
       (insert ?\n))))
 
-(defun magit-log-wash-rev (style abbrev)
+(cl-defun magit-log-wash-rev (style abbrev)
   (when (derived-mode-p 'magit-log-mode)
     (cl-incf magit-log-count))
   (looking-at (pcase style
@@ -957,6 +957,10 @@ Do not add this to a hook variable."
                             magit-log-bisect-vis-re
                           magit-log-heading-re)))
       (magit-delete-line)
+      ;; `git reflog show' output sometimes ends with an incomplete
+      ;; element (which has no basis in the data stored in the file).
+      (when (and (eq style 'reflog) (not date))
+        (cl-return-from magit-log-wash-rev t))
       (magit-insert-section section (commit hash)
         (pcase style
           (`stash      (setf (magit-section-type section) 'stash))
