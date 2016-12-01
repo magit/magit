@@ -4641,9 +4641,11 @@ specialized @code{magit-branch-config-popup} does.
 
 @defopt magit-branch-popup-show-variables
 
-When this is @code{nil} then no variables are displayed directly in this
-popup, and the sub-popup @code{magit-branch-config-popup} has to be used
-instead to view and change branch related variables.
+Whether the @code{magit-branch-popup} shows Git variables.  This defaults
+to t to avoid changing key bindings.  When set to nil, no variables
+are displayed directly in this popup, and the sub-popup
+@code{magit-branch-config-popup} has to be used indead to view and change
+branch related variables.
 @end defopt
 
 @table @asis

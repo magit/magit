@@ -416,12 +416,13 @@ Of course you can also fine-tune:
                                (repeat :tag "except"
                                        (string :tag "branch"))))))
 
-(defcustom magit-branch-popup-show-variables nil
+(defcustom magit-branch-popup-show-variables t
   "Whether the `magit-branch-popup' shows Git variables.
-When this is nil then no variables are displayed directly in this
-popup.  Instead the sub-popup `magit-branch-config-popup' has to
-be used to view and change branch related variables."
-  :package-version '(magit . "2.9.0")
+This defaults to t to avoid changing key bindings.  When set to
+nil, no variables are displayed directly in this popup, instead
+the sub-popup `magit-branch-config-popup' has to be used to view
+and change branch related variables."
+  :package-version '(magit . "2.7.0")
   :group 'magit-commands
   :type 'boolean)
 

@@ -30,20 +30,6 @@ Breaking changes since v2.8.0
   However we recommend that you instead press "b c RET RET", just like
   you always had to do in other buffers.
 
-* The option `magit-branch-popup-show-variables' now defaults to `nil',
-  which results in changes to some key bindings.  "b u", for example,
-  is now "b C u" and, as before, is also available at "f C u", "F C u"
-  and "P C u".
-
-  Even though we generally avoid changing key bindings we did so in
-  this case to avoid confusing new users with an overly complex branch
-  popup and for consistency with the alternative bindings mentioned
-  above.
-
-  You can easily revert this change using:
-
-    (setq magit-branch-popup-show-variables t)
-
 * The option `magit-popup-show-common-commands' now defaults to `nil'.
 
   This was done to make popups less noisy but increases the odds

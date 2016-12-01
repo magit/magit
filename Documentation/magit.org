@@ -3402,9 +3402,11 @@ features are available from separate popups.
 
 - User Option: magit-branch-popup-show-variables
 
-  When this is ~nil~ then no variables are displayed directly in this
-  popup, and the sub-popup ~magit-branch-config-popup~ has to be used
-  instead to view and change branch related variables.
+  Whether the ~magit-branch-popup~ shows Git variables.  This defaults
+  to t to avoid changing key bindings.  When set to nil, no variables
+  are displayed directly in this popup, and the sub-popup
+  ~magit-branch-config-popup~ has to be used indead to view and change
+  branch related variables.
 
 - Key: b b, magit-checkout
 
