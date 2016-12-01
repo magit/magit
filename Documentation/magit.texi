@@ -414,7 +414,7 @@ To use Melpa:
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-	     '("melpa" . "http://melpa.org/packages/") t)
+             '("melpa" . "http://melpa.org/packages/") t)
 @end lisp
 
 @itemize
@@ -425,7 +425,7 @@ To use Melpa-Stable:
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 @end lisp
 
 Once you have added your preferred archive, you need to update the
@@ -491,7 +491,7 @@ Finally add this to your init file:
 (with-eval-after-load 'info
   (info-initialize)
   (add-to-list 'Info-directory-list
-	       "~/.emacs.d/site-lisp/magit/Documentation/"))
+               "~/.emacs.d/site-lisp/magit/Documentation/"))
 @end lisp
 
 Note that you have to add the @code{lisp} subdirectory to the @code{load-path}, not
@@ -1977,9 +1977,9 @@ To make this command available, use something like:
 
 @lisp
 (add-hook 'ido-setup-hook
-	  (lambda ()
-	    (define-key ido-completion-map
-	      (kbd \"C-x g\") 'ido-enter-magit-status)))
+          (lambda ()
+            (define-key ido-completion-map
+              (kbd \"C-x g\") 'ido-enter-magit-status)))
 @end lisp
 
 Starting with Emacs 25.1 the Ido keymaps are defined just once
@@ -7340,7 +7340,7 @@ For example:
 
 @example
 [include]
-	path = /path/to/huge-gitconfig
+        path = /path/to/huge-gitconfig
 @end example
 
 
@@ -7349,7 +7349,7 @@ For example:
 
 @example
 [status]
-	showUntrackedFiles = no
+        showUntrackedFiles = no
 @end example
 
 
@@ -8621,8 +8621,8 @@ then you can override these settings just for Magit by using:
 @lisp
 (setq magit-git-global-arguments
       (nconc magit-git-global-arguments
-	     '("-c" "color.ui=false"
-	       "-c" "color.diff=false")))
+             '("-c" "color.ui=false"
+               "-c" "color.diff=false")))
 @end lisp
 
 @node Expanding a file to show the diff causes it to disappear

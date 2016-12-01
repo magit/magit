@@ -501,19 +501,19 @@ infix arguments, and then also one of its suffix commands.
   'magit-commands
   :man-page "git-tag"
   :switches '((?a "Annotate" "--annotate")
-	      (?s "Sign"     "--sign")
-	      (?f "Force"    "--force"))
+              (?s "Sign"     "--sign")
+              (?f "Force"    "--force"))
   :actions  '((?t "Create"   magit-tag)
-	      (?k "Delete"   magit-tag-delete)
-	      (?p "Prune"    magit-tag-prune))
+              (?k "Delete"   magit-tag-delete)
+              (?p "Prune"    magit-tag-prune))
   :default-action 'magit-tag)
 
 ;;;###autoload
 (defun magit-tag (name rev &optional args)
   "Create a new tag with the given NAME at REV."
   (interactive (list (magit-read-tag "Tag name")
-		     (magit-read-branch-or-commit "Place tag on")
-		     (magit-tag-arguments)))
+                     (magit-read-branch-or-commit "Place tag on")
+                     (magit-tag-arguments)))
   (magit-run-git-with-editor "tag" args name rev))
 @end lisp
 
