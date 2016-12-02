@@ -125,7 +125,7 @@ in the worktree and the other contains snapshots of the entries
 in the index."
   :package-version '(magit . "2.1.0")
   :group 'magit-wip
-  :lighter magit-wip-after-change-mode-lighter
+  :lighter magit-wip-after-apply-mode-lighter
   :global t)
 
 (defun magit-wip-commit-after-apply (&optional files msg)
