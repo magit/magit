@@ -355,6 +355,10 @@ Fixes since v2.8.0
 * Visiting or deleting a submodule listed inside "Modules" failed.
   The latter is now done by de-initalizing the module.  c26b746e
 
+* In the list of commits that are being rebased in the status buffer,
+  HEAD was sometimes prefixed with "same" when "stop" would have been
+  correct.  #2877
+
 * The highlighting of a non-empty second line in a commit message was
   not automatically updated.  #2777
 

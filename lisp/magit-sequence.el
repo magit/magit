@@ -636,7 +636,7 @@ If no such sequence is in progress, do nothing."
                     ;; ...but its reincarnation lives on.
                     ;; Or it didn't die in the first place.
                     (list (if (and (equal rev head)
-                                   (equal (magit-patch-id (concat stop "^"))
+                                   (equal (magit-patch-id rev)
                                           (magit-patch-id (car (last orig 2)))))
                               "stop" ; We haven't done anything yet.
                             "same")  ; There are new commits.
