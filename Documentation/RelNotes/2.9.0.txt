@@ -379,6 +379,11 @@ Fixes since v2.8.0
 * The function `magit-repolist-status' did not expand the filename
   which may be necessary when listing submodules.  cc8c1385
 
+* The macro `magit-with-temp-index' did honor the refresh cache, even
+  though its BODY may contain calls to git that are identical to
+  outside calls during the same refresh, but which are expected to
+  return a different value due to the use of a different index.  #2883
+
 * The log margin did not show the author of stashes.  #2846
 
 * The status header about the upstream did not take

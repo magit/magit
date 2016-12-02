@@ -610,8 +610,9 @@ If no such sequence is in progress, do nothing."
            ((magit-anything-modified-p t)
             ;; ...and the dust hasn't settled yet...
             (magit-sequence-insert-commit
-             (let ((staged   (magit-commit-tree "oO" nil "HEAD"))
-                   (unstaged (magit-commit-worktree "oO" "--reset")))
+             (let* ((magit--refresh-cache nil)
+                    (staged   (magit-commit-tree "oO" nil "HEAD"))
+                    (unstaged (magit-commit-worktree "oO" "--reset")))
                (cond
                 ;; ...but we could end up at the same tree just by committing.
                 ((or (magit-rev-equal staged   stop)
