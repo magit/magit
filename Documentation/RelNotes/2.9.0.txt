@@ -1,3 +1,16 @@
+It's Magit!  A Git Porcelain inside Emacs
+=========================================
+
+Magit is an interface to the version control system Git, implemented
+as an Emacs package.  Magit aspires to be a complete Git porcelain.
+While we cannot (yet) claim that Magit wraps and improves upon each
+and every Git command, it is complete enough to allow even experienced
+Git users to perform almost all of their daily version control tasks
+directly from within Emacs.  While many fine Git clients exist, only
+Magit and Git itself deserve to be called porcelains.
+
+For more information about Magit, see http://magit.vc.
+
 Magit v2.9.0 Release Notes (draft)
 ==================================
 
@@ -28,7 +41,7 @@ Breaking changes since v2.8.0
     (add-to-list 'magit-visit-ref-behavior 'create-branch)
 
   However we recommend that you instead press "b c RET RET", just like
-  you always had to do in other buffers.
+  you always had to do in other buffers.  #2868
 
 * The option `magit-popup-show-common-commands' now defaults to `nil'.
 
@@ -36,7 +49,7 @@ Breaking changes since v2.8.0
   that some users will never become aware of the common commands.
   To counter that, the usage instructions displayed in the echo area
   now also mention the key that can be used to show these commands
-  temporarily.
+  temporarily.  #2868
 
   You can easily revert this change using:
 
@@ -52,11 +65,11 @@ Breaking changes since v2.8.0
   choose what behavior they wanted and that they had to set the option
   accordingly.  Doing that was necessary three years ago, when the
   default behavior changed when "magit-key-mode.el" was replaced with
-  "magit-popup.el".  Now we don't need that safety net anymore.
+  "magit-popup.el".  Now we don't need that safety net anymore.  #2868
 
 * By default Git-Commit no longer complains about a summary line that
   is too long by some standards.  You can easily revert this change
-  using:
+  using:                                                     2f115d51
 
     (add-to-list 'git-commit-style-convention-checks
                  'overlong-summary-line)
@@ -64,7 +77,7 @@ Breaking changes since v2.8.0
 * In buffers used to write commit messages `fill-column' is no longer
   set to 72.  Instead the default value 70 is used (or whatever local
   value is set up through other means).  You can easily revert this
-  change using:
+  change using:                                          #2848, #2852
 
     (setq git-commit-fill-column 72)
 
@@ -101,6 +114,7 @@ Breaking changes since v2.8.0
   before loading `magit'.  If you do that then the default values of
   the other `magit-*-margin' options will use the same commit date
   style without you having to customize each option individually.
+  #2792
 
 Changes since v2.8.0
 --------------------
@@ -109,13 +123,14 @@ Changes since v2.8.0
   used to configure what branch to use as upstream when branching a
   remote branch.  Without setting this option the upstream ends up
   being the same branch as the one referred to by the push-remote.
+  85c3053d
 
 * The per-refresh cache, which is used to save calls to git because
   that is surprisingly slow on Windows, has been improved for calls to
   `git config'.  Instead of just avoiding identical calls to `git
   config' as for other sub-commands, we now call `git config --list'
   only once per refresh to obtain a list of all variables and their
-  values.
+  values.  #2743
 
 * Visiting a file or blob by pressing "RET" (or always visiting the
   file by pressing "M-RET") while point is inside a diff has been
@@ -133,10 +148,11 @@ Changes since v2.8.0
 
   If, and only if, the file/blob buffer is narrowed to a region that
   does not include the position we jump to, then it is widened first.
+  #2755, #2804, #2818, #2828
 
 * Hunk refinement is now faster.  Users who previously set
   `magit-diff-refine-hunk' to `nil' due to performance issues may
-  find that it now works well even when set to `all'.
+  find that it now works well even when set to `all'.  #2834
 
 * The new options `magit-diff-highlight-hunk-region-functions' and
   `magit-diff-unmarked-lines-keep-foreground' (which was previously
@@ -152,92 +168,108 @@ Changes since v2.8.0
   and `magit-diff-highlight-hunk-region-using-overlay' draw one-pixel
   lines before and after the hunk-internal region.  Both of these
   functions have (different) glitches and due to limitations of Emacs'
-  display engine it is not possible to fix those.  #2758
+  display engine it is not possible to fix those.  #2293, #2758, #2791
 
 * Added command `magit-find-git-config-file' and variants to make it
   easier to open a file located in the git directory when ".git" is
   a regular file whose contents describe the location of the real git
-  directory.
+  directory.  8664223c
 
 * Added command `magit-emacs-Q-command' to make troubleshooting and
   bug reporting easier for users not installing from the git
-  repository. #2856
+  repository.  #2856
 
 * The command `magit-branch-spinoff' learned to remove only a subset
   of commits from the previously current branch, instead of resetting
   it to its upstream, when the region selects commits reachable from
-  HEAD.
+  HEAD.  1e652b87
 
 * The command `magit-branch-delete' now falls back to deleting the
   tracking branch when the user attempts to delete a remote branch
-  which does not actually exist on the remote anymore.
+  which does not actually exist on the remote anymore.  #2778
 
 * The command `magit-diff-dwim' learned about additional cases.  On
   a non-current branch it now shows the diff for "CURRENT...BRANCH"
   (instead of "BRANCH..CURRENT") and inside a stash buffer it shows
-  the diff for the commit at point.
+  the diff for the commit at point.  #2812
 
 * The command `magit-push', which "o" is bound to in the push popup,
   now offers the push-branch as default choice.  Only if that is not
   set does it default to the upstream as before.  And when pushing a
   commit that is reachable from HEAD, then it offers to push to the
   push-branch or upstream of the current branch (which still has to
-  be forced explicitly).
+  be forced explicitly).  #2820
+
+* Log commands now support completion of refs in the "refs/tags" and
+  "refs/pull" namespaces.  #2878
 
 * Added option `magit-no-confirm-default' to allow specifying commands
   which should just use the default choice instead of having the user
   confirm that by pressing RET.  I recommend you don't use this, but
   if you think that the defaults are so good that you always want to
-  use them, then this might make it a bit easier for you.
+  use them, then this might make it a bit easier for you.  #2741
 
 * Added option `magit-slow-confirm' for users who are afraid they
   would answer `y-or-n-p' questions to quickly.  One action, deleting
   all stashes, now defaults to having to be confirmed with "yes RET".
+  #2752
+
+* Added option `magit-view-git-manual-method' to allow following links
+  to the Git Info manual by visiting the respective manpage instead.
+  de38266a
 
 * The option `magit-branch-prefer-remote-upstream' now also supports
-  regexps as members instead of only complete branch names.
+  regexps as members instead of only complete branch names.  #2823
 
 * The option `magit-branch-read-upstream-first' used to be a boolean.
   Now it supports a third value `fallback', which means to read the
   upstream first like `t', but if the value provided by the user does
   not reference an existing revision, then it is treated as the name of
   the new branch and the upstream is read using the second prompt, as
-  if the value of this option were `nil'.
+  if the value of this option were `nil'.  #2741
 
 * When deleting a stash, the hash is now logged to the process log
   buffer in addition to *Messages*, making it more likely that a
   user who accidentally deleted a stash would find the information
-  required to undo that.
+  required to undo that.  #2746
 
 * The environment variable `INSIDE_EMACS' is now set when calling git.
+  #2789
 
-* Added support for new gpg status letters X, Y, R, and E.
+* `magit-define-popup' now allows specify `:max-action-columns' per
+  section by using a function that return a different value based on
+  the heading, which is passed as argument.  964fcbe0
+
+* Added support for new gpg status letters X, Y, R, and E.  #2845
 
 * Added `hl-line-mode' to `magit-repolist-hook' and
   `magit-submodule-list-hook' and defined those hooks explicitly.
+  9f806732
 
-* Added the `--gpg-sign=' option to the revert popup.
+* Added the `--gpg-sign=' option to the revert popup.  916e4599
 
 * Added the `--sort=' option to the show-refs popup.  (Use "C-u y" to
   show the popup instead of invoking its default action as "y" does.)
+  8ab81f06
 
 * Added new faces `git-rebase-comment-heading'
-  and `git-rebase-comment-hash'.
+  and `git-rebase-comment-hash'.  #2769
+
+* In `magit-refs-mode-map' "L" is now bound to `magit-toggle-margin'.
+  b310ebd8
 
 * `whitespace-mode' is not compatible with Magit buffers, where it is
-  now actively prevented from being turned on by the user.
-
-* Log commands now support completion of refs in the "refs/tags" and
-  "refs/pull" namespaces.  #2878
+  now actively prevented from being turned on by the user.  #2821
 
 Fixes since v2.8.0
 ------------------
 
 * The command `magit-list-repositories' failed on empty repositories.
+  09fac022
 
 * The Git variable `pull.rebase' was ignored when determining whether
   the current branch is being rebased onto its upstream in order to
-  display that information in the status buffer.
+  display that information in the status buffer.  9c946ee3
 
 * On 32bit systems `magit-format-log-margin' failed because it tried
   to truncate a time float that was too large for that.  #2765
@@ -250,93 +282,99 @@ Fixes since v2.8.0
 * On Windows, when using a `windows-nt' Emacs together with a cygwin
   Git, we failed to instruct Emacs to not use dos shell quoting when
   calling git.  And if Git wasn't available, then that caused an
-  error, which prevented Magit from being loaded.
+  error, which prevented Magit from being loaded.  #2842
 
 * The encoding of commit messages is controlled by the Git variable
   `i18n.logOutputEncoding' but we failed to take that into account.
   Fixes by setting `i18n.logOutputEncoding' to UTF-8, but only inside
-  Magit and only for `window-nt'.
+  Magit and only for `window-nt'.  #2738, #2813
 
 * File and directory local variables were not honored in the buffers
-  used to write commit messages.
+  used to write commit messages.  #2852
 
 * The caching mechanism that is supposed to ensure that sections of
   unpulled and unpushed commits remain collapsed even when they
-  disappear was broken for a while.
+  disappear was broken for a while.  0ad041c4
 
 * Process sentinels did not in all cases ensure that the correct
   buffer was current before doing something that assumes that this is
   the case.  Almost always that did not matter because it was the case
   anyway, but if other timers are running then it is possible that
-  those make the wrong buffer current.
+  those make the wrong buffer current.  #2836
 
 * Process sentinels and filters used when blaming assumed that the
   `exit' process status indicates success.  #2836
 
 * The commands `magit-clone' and `magit-init' did not work over Tramp.
+  #2806, #2807
 
 * The commands `magit-worktree-checkout' and `magit-worktree-branch'
   did not expand the path they pass to git, which is necessary because
-  git does not know the meaning of "~/".
+  git does not know the meaning of "~/".  #2796
 
 * The commands which create fixup/squash commands and then immediately
   squash them into the target commit did not remove `--gpg-sign' or
   add `--no-gpg-sign'.  Signing such commits is not only unnecessary;
   unless the passphrase was cached earlier, trying to sign resulted in
   the process indefinitely waiting for the passphrase to arrive with
-  no way for the user to actually provide it.
+  no way for the user to actually provide it.  #2799
 
 * Depending on the value of `magit-save-repository-buffers' the user
   might have been asked whether s/he wants to save "git-rebase-todo",
-  which is never necessary and just a distraction.
+  which is never necessary and just a distraction.  #2770, #2771
 
 * The function `magit-save-repository-buffers' did not follow symlinks.
   #2843
 
 * Directories whose names begin with a period were filtered out when
   using `magit-repository-directories' to calculate a list of repos.
+  #2830
 
 * The user name and email, which are displayed when reading a gpg key
   from the user, were not stripped from the chosen value before being
-  handed of to git.
+  handed of to git.  #2761
 
 * When the upstream of the current branch is a remote whose url isn't
   configured then that caused an error when refreshing the status
-  buffer.
+  buffer.  #2858
+
+* Buffers visiting a blob used the file's `default-directory'
+  even when that directory did not exist in the working tree.  The
+  top-level directory is now used as `default-directory' when the
+  subdirectory does not exist.  cfe46766
 
 * When visiting a directory by displaying a Dired buffer, we used to
   display a buffer for the parent of the directory in question and
   placed point on the name of the directory.  But the intention always
-  was to show the Dired buffer for the directory itself.
+  was to show the Dired buffer for the directory itself.  5665ba94
 
 * Visiting or deleting a submodule listed inside "Modules" failed.
-  The latter is now done by de-initalizing the module.
+  The latter is now done by de-initalizing the module.  c26b746e
 
 * The highlighting of a non-empty second line in a commit message was
-  not automatically updated.
+  not automatically updated.  #2777
 
 * When `--force-with-lease' was added to the `magit-push-popup',
   `--force' was removed, but sometimes the former just isn't enough.
+  be39a9ba
 
 * The face `magit-diff-file-heading-highlight' used to inherit from
   `magit-diff-file-heading', which by default makes text bold.  That
   resulted in the complete current heading to be bold, but only the
-  file-name part is supposed to be bold.
+  file-name part is supposed to be bold.  a4b52516
 
 * The manual stated that "DEL" in Git Rebase mode was bound to
   `magit-diff-show-or-scroll-down', which was not the case.  A new
-  command `git-rebase-show-or-scroll-down` has been added and bound to
-  "DEL" to provide this functionality.
+  command `git-rebase-show-or-scroll-down` has been added and bound
+  to "DEL" to provide this functionality.  #2863
 
 * The function `magit-repolist-status' did not expand the filename
-  which may be necessary when listing submodules.
+  which may be necessary when listing submodules.  cc8c1385
 
 * The log margin did not show the author of stashes.  #2846
 
-* Buffers visiting a blob used the file's directory as
-  `default-directory' even when that directory did not exist in the
-  working tree.  The top-level directory is now used as
-  `default-directory' when the subdirectory does not exist.
+* The status header about the upstream did not take
+  `branch.NAME.rebase' into account.  e65f15d0
 
 This release also contains typofixes, documentation updates,
 code clean-ups, and other small bug fixes and improvements.
