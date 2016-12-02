@@ -1129,7 +1129,9 @@ Return a list of two integers: (A>B B>A)."
                         "\t")))
 
 (defun magit-abbrev-length ()
-  (string-to-number (or (magit-get "core.abbrev") "7")))
+  (--if-let (magit-get "core.abbrev")
+      (string-to-number it)
+    (length (magit-rev-parse "--short" "HEAD"))))
 
 (defun magit-abbrev-arg (&optional arg)
   (format "--%s=%d" (or arg "abbrev") (magit-abbrev-length)))

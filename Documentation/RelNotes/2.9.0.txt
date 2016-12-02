@@ -289,6 +289,10 @@ Fixes since v2.8.0
   Fixes by setting `i18n.logOutputEncoding' to UTF-8, but only inside
   Magit and only for `window-nt'.  #2738, #2813
 
+* It wasn't taken into account, until a few days after the release,
+  that as of Git v2.11, the default abbreviation size is no longer
+  hardcoded as 7 but instead scales with the repository size.  #2880
+
 * File and directory local variables were not honored in the buffers
   used to write commit messages.  #2852
 
