@@ -1997,6 +1997,23 @@ in the default of all other options.  But setting it to ~t~, i.e.
 re-enforcing the default for that option, does not carry to other
 options.
 
+- Key: L, magit-margin-popup
+
+  This prefix command features the following commands for changing the
+  appearance of the margin.
+
+In some buffers that support the margin, "L" is bound to
+~magit-log-refresh-popup~, but that popup features the same commands,
+and then some other unrelated commands.
+
+- Key: L L, magit-toggle-margin
+
+  This command shows or hides the margin.
+
+- Key: L d, magit-toggle-margin-details
+
+  This command shows or hides details in the margin.
+
 *** Select from log
 
 When the user has to select a recent commit that is reachable from

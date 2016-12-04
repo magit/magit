@@ -405,11 +405,14 @@ the upstream isn't ahead of the current branch) show."
                (?d "Show refnames"       "--decorate"))
     :options  ((?n "Limit number of commits" "-n")
                (?o "Order commits by"        "++order=" magit-log-select-order))
-    :actions  ((?g "Refresh"       magit-log-refresh)
-               (?t "Toggle margin" magit-toggle-margin)
-               (?s "Set defaults"  magit-log-set-default-arguments) nil
-               (?w "Save defaults" magit-log-save-default-arguments))
-    :max-action-columns 2))
+    :actions  ("Refresh"
+               (?g "buffer"                   magit-log-refresh)
+               (?s "buffer and set defaults"  magit-log-set-default-arguments)
+               (?w "buffer and save defaults" magit-log-save-default-arguments)
+               "Margin"
+               (?L "toggle visibility" magit-toggle-margin)
+               (?d "toggle details"    magit-toggle-margin-details))
+    :max-action-columns 1))
 
 (magit-define-popup-keys-deferred 'magit-log-popup)
 (magit-define-popup-keys-deferred 'magit-log-mode-refresh-popup)
@@ -1273,7 +1276,7 @@ commit as argument."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map "q" 'magit-log-bury-buffer)
-    (define-key map "L" 'magit-toggle-margin)
+    (define-key map "L" 'magit-margin-popup)
     map)
   "Keymap for `magit-cherry-mode'.")
 
@@ -1325,7 +1328,7 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
-    (define-key map "L" 'magit-toggle-margin)
+    (define-key map "L" 'magit-margin-popup)
     map)
   "Keymap for `magit-reflog-mode'.")
 

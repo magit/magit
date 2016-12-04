@@ -83,7 +83,17 @@ Breaking changes since v2.8.0
 
 * The margin that by default is displayed in pure log buffers and
   optionally in some other buffers that contain logs is now more
-  flexible and easier to customize.
+  flexible and easier to customize and to change on the fly.
+
+  The popup that "L" is bound to now features two commands that
+  for changing the appearance of the margin: `magit-toggle-margin'
+  and `magit-toggle-margin-details'.
+
+  The binding for `magit-toggle-margin' has changed from "L t" to the
+  simpler "L L".  You can easily revert this change using:
+
+    (magit-change-popup-key 'magit-log-refresh-popup :action ?L ?t)
+    (magit-change-popup-key 'magit-margin-popup :action ?L ?t)
 
   For each mode that supports the margin there now exists a dedicated
   option named `magit-*-margin', which controls whether the margin is

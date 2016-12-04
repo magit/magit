@@ -57,6 +57,14 @@ does not carry to other options."
 
 ;;; Commands
 
+(magit-define-popup magit-margin-popup
+  "Popup console for changing appearance of the margin."
+  'magit-commands nil nil
+  :actions '("Margin"
+             (?L "toggle visibility" magit-toggle-margin)
+             (?d "toggle details"    magit-toggle-margin-details))
+  :max-action-columns 1)
+
 (defun magit-toggle-margin ()
   "Show or hide the Magit margin."
   (interactive)
@@ -64,6 +72,15 @@ does not carry to other options."
     (user-error "Magit margin isn't supported in this buffer"))
   (setcar magit-buffer-margin (not (magit-buffer-margin-p)))
   (magit-set-buffer-margin))
+
+(defun magit-toggle-margin-details ()
+  "Show or hide details in the Magit margin."
+  (interactive)
+  (unless (magit-margin-option)
+    (user-error "Magit margin isn't supported in this buffer"))
+  (setf (nth 3 magit-buffer-margin)
+        (not (nth 3 magit-buffer-margin)))
+  (magit-set-buffer-margin nil t))
 
 ;;; Core
 

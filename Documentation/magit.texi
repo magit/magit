@@ -2708,6 +2708,33 @@ in the default of all other options.  But setting it to @code{t}, i.e.
 re-enforcing the default for that option, does not carry to other
 options.
 
+@table @asis
+@kindex L
+@cindex magit-margin-popup
+@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-margin-popup})
+
+This prefix command features the following commands for changing the
+appearance of the margin.
+@end table
+
+In some buffers that support the margin, "L" is bound to
+@code{magit-log-refresh-popup}, but that popup features the same commands,
+and then some other unrelated commands.
+
+@table @asis
+@kindex L L
+@cindex magit-toggle-margin
+@item @kbd{L L} @tie{}@tie{}@tie{}@tie{}(@code{magit-toggle-margin})
+
+This command shows or hides the margin.
+
+@kindex L d
+@cindex magit-toggle-margin-details
+@item @kbd{L d} @tie{}@tie{}@tie{}@tie{}(@code{magit-toggle-margin-details})
+
+This command shows or hides details in the margin.
+@end table
+
 @node Select from log
 @subsection Select from log
 
