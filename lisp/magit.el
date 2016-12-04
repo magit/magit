@@ -147,7 +147,8 @@ The functions which respect this option are
   :group 'magit-status
   :type 'boolean)
 
-(defcustom magit-status-margin '(nil nil (nth 2 magit-log-margin))
+(defcustom magit-status-margin
+  (list nil nil (nth 2 magit-log-margin))
   "Format of the margin in `magit-status-mode' buffers.
 
 The value has the form (INIT NAME DATE-STYLE).
@@ -208,7 +209,8 @@ To change the value in an existing buffer use the command
 (put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 (put 'magit-refs-show-commit-count 'permanent-local t)
 
-(defcustom magit-refs-margin '(nil 18 (nth 2 magit-log-margin))
+(defcustom magit-refs-margin
+  (list nil 18 (nth 2 magit-log-margin))
   "Format of the margin in `magit-refs-mode' buffers.
 
 The value has the form (INIT NAME DATE-STYLE TAGS).

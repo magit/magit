@@ -31,7 +31,8 @@
 
 ;;; Options
 
-(defcustom magit-stashes-margin '(t nil (nth 2 magit-log-margin))
+(defcustom magit-stashes-margin
+  (list t nil (nth 2 magit-log-margin))
   "Format of the margin in `magit-stashes-mode' buffers.
 
 The value has the form (INIT NAME DATE-STYLE).

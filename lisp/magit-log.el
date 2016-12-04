@@ -190,7 +190,8 @@ be nil, in which case no usage information is shown."
                  (const :tag "in both places" both)
                  (const :tag "nowhere")))
 
-(defcustom magit-log-select-margin '(t 18 (nth 2 magit-log-margin))
+(defcustom magit-log-select-margin
+  (list t 18 (nth 2 magit-log-margin))
   "Format of the margin in `magit-log-select-mode' buffers.
 
 The value has the form (INIT NAME DATE-STYLE).
@@ -220,7 +221,8 @@ format-string suitable for `format-time-string'."
   :group 'magit-log
   :type 'hook)
 
-(defcustom magit-cherry-margin '(t 18 (nth 2 magit-log-margin))
+(defcustom magit-cherry-margin
+  (list t 18 (nth 2 magit-log-margin))
   "Format of the margin in `magit-cherry-mode' buffers.
 
 The value has the form (INIT NAME DATE-STYLE).
@@ -249,7 +251,8 @@ format-string suitable for `format-time-string'."
   :group 'magit-commands
   :type '(repeat (string :tag "Argument")))
 
-(defcustom magit-reflog-margin '(t nil (nth 2 magit-log-margin))
+(defcustom magit-reflog-margin
+  (list t nil (nth 2 magit-log-margin))
   "Format of the margin in `magit-reflog-mode' buffers.
 
 The value has the form (INIT NAME DATE-STYLE).
