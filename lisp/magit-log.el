@@ -387,7 +387,7 @@ the upstream isn't ahead of the current branch) show."
                (?S "Search occurrences"      "-S")
                (?L "Trace line evolution"    "-L" magit-read-file-trace))
     :actions  ((?g "Refresh"       magit-log-refresh)
-               (?t "Toggle margin" magit-toggle-margin)
+               (?L "Toggle margin" magit-toggle-margin)
                (?s "Set defaults"  magit-log-set-default-arguments) nil
                (?w "Save defaults" magit-log-save-default-arguments))
     :max-action-columns 2))
