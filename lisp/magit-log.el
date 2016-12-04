@@ -906,8 +906,9 @@ Do not add this to a hook variable."
 
 (defconst magit-log-reflog-re
   (concat "^"
-          "\\(?1:[^ ]+\\) "                        ; sha1
-          "\\(?:\\(?:[^@]+@{\\(?6:[^}]+\\)} "      ; date
+          "\\(?1:[^\0]+\\)\0"                      ; sha1
+          "\\(?5:[^\0]*\\)\0"                      ; author
+          "\\(?:\\(?:[^@]+@{\\(?6:[^}]+\\)}\0"     ; date
           "\\(?10:merge \\|autosave \\|restart \\|[^:]+: \\)?" ; refsub
           "\\(?2:.*\\)?\\)\\| \\)$"))              ; msg
 
@@ -918,9 +919,9 @@ Do not add this to a hook variable."
 
 (defconst magit-log-stash-re
   (concat "^"
-          "\\(?1:[^ ]+\\)"                         ; "sha1"
-          "\\(?5: \\)"                             ; "author"
-          "\\(?6:[^ ]+\\) "                        ; date
+          "\\(?1:[^\0]+\\)\0"                      ; "sha1"
+          "\\(?5:[^\0]*\\)\0"                      ; author
+          "\\(?6:[^\0]+\\)\0"                      ; date
           "\\(?2:.*\\)$"))                         ; msg
 
 (defvar magit-log-count nil)
@@ -1355,7 +1356,7 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
         (propertize (concat " Reflog for " ref) 'face 'magit-header-line))
   (magit-insert-section (reflogbuf)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
-      "reflog" "show" "--format=%h %gd %gs" "--date=raw" args ref)))
+      "reflog" "show" "--format=%h%x00%aN%x00%gd%x00%gs" "--date=raw" args ref)))
 
 (defvar magit-reflog-labels
   '(("commit"      . magit-reflog-commit)

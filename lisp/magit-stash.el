@@ -333,7 +333,7 @@ instead of \"Stashes:\"."
     (magit-insert-section (stashes ref (not magit-status-expand-stashes))
       (magit-insert-heading heading)
       (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-        "reflog" "--format=%gd %at %gs" ref))))
+        "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref))))
 
 ;;; List Stashes
 
@@ -354,7 +354,7 @@ instead of \"Stashes:\"."
                               "Stashes:"
                             (format "Stashes [%s]:" ref)))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-      "reflog" "--format=%gd %at %gs" ref)))
+      "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)))
 
 ;;; Show Stash
 
