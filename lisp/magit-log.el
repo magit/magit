@@ -103,7 +103,7 @@ Only considered when moving past the last entry with
   '(list (boolean :tag "Show initially")
          (integer :tag "Show author name using width")
          (choice  :tag "Show committer"
-                  (string :tag "date using format" "%Y-%m-%d %H:%m ")
+                  (string :tag "date using format" "%Y-%m-%d %H:%M ")
                   (const  :tag "date's age" age)
                   (const  :tag "date's age (abbreviated)" age-abbreviated))))
 
