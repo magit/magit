@@ -148,6 +148,7 @@ Logging
 * Log Margin::
 * Select from log::
 * Reflog::
+* Cherries::
 
 
 Diffing
@@ -2483,24 +2484,10 @@ Show log for all local and remote branches and @code{HEAD}.
 Show log for all references and @code{HEAD}.
 @end table
 
-The following related commands are not available from the popup.
 
-@table @asis
-@kindex Y
-@cindex magit-cherry
-@item @kbd{Y} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry})
-
-Show commits in a branch that are not merged in the upstream branch.
-
-@kindex M-x magit-log-buffer-file
-@cindex magit-log-buffer-file
-@item @kbd{M-x magit-log-buffer-file} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-buffer-file})
-
-Show log for the file visited in the current buffer.
-@end table
-
-Two additional commands that show the log for the file or blob that is
-being visited in the current buffer exists, see @ref{Minor mode for buffers visiting files,Minor mode for buffers visiting files}.
+Two additional commands that show the log for the file or blob that
+is being visited in the current buffer exists, see @ref{Minor mode for buffers visiting files,Minor mode for buffers visiting files}.  The command @code{magit-cherry} also shows a log,
+see @ref{Cherries,Cherries}.
 
 @menu
 * Refreshing logs::
@@ -2508,6 +2495,7 @@ being visited in the current buffer exists, see @ref{Minor mode for buffers visi
 * Log Margin::
 * Select from log::
 * Reflog::
+* Cherries::
 @end menu
 
 @node Refreshing logs
@@ -2849,6 +2837,72 @@ Display the @code{HEAD} reflog.
 
 This option specifies whether the margin is initially shown in
 Magit-Reflog mode buffers and how it is formatted.
+
+The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
+
+@itemize
+@item
+If INIT is non-nil, then the margin is shown initially.
+
+@item
+STYLE controls how to format the committer date.  It can be one
+of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+abbreviate the time unit to a character), or a string (suitable
+for @code{format-time-string}) to show the actual date.
+
+@item
+WIDTH controls the width of the margin.  This exists for forward
+compatibility and currently the value should not be changed.
+
+@item
+AUTHOR controls whether the name of the author is also shown by
+default.
+
+@item
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+is shown, then this specifies how much space is used to do so.
+@end itemize
+@end defopt
+
+@node Cherries
+@subsection Cherries
+
+Cherries are commits that haven't been applied upstream (yet), and are
+usually visualized using a log.  Each commit is prefixed with @code{-} if it
+has an equivalent in the upstream and @code{+} if it does not, i.e. if it is
+a cherry.
+
+The command @code{magit-cherry} shows cherries for a single branch, but the
+references buffer (see @ref{References buffer,References buffer}) can show cherries for
+multiple "upstreams" at once.
+
+Also see 
+@ifinfo
+@ref{git-reflog,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-reflog">git-reflog(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the git-reflog(1) manpage.
+@end iftex
+
+@table @asis
+@kindex Y
+@cindex magit-cherry
+@item @kbd{Y} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry})
+
+Show commits that are in a certain branch but that have not been
+merged in the upstream branch.
+
+@end table
+
+@defopt magit-cherry-margin
+
+This option specifies whether the margin is initially shown in
+Magit-Cherry mode buffers and how it is formatted.
 
 The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 

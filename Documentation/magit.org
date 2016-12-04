@@ -1836,19 +1836,11 @@ The log popup also features several reflog commands.  See [[*Reflog]].
 
   Show log for all references and ~HEAD~.
 
-The following related commands are not available from the popup.
 
-- Key: Y, magit-cherry
-
-  Show commits in a branch that are not merged in the upstream branch.
-
-- Key: M-x magit-log-buffer-file, magit-log-buffer-file
-
-  Show log for the file visited in the current buffer.
-
-Two additional commands that show the log for the file or blob that is
-being visited in the current buffer exists, see [[*Minor mode for
-buffers visiting files]].
+Two additional commands that show the log for the file or blob that
+is being visited in the current buffer exists, see [[*Minor mode for
+buffers visiting files]].  The command ~magit-cherry~ also shows a log,
+see [[*Cherries]].
 
 *** Refreshing logs
 
@@ -2085,6 +2077,43 @@ These reflog commands are available from the log popup.  See [[*Logging]].
 
   This option specifies whether the margin is initially shown in
   Magit-Reflog mode buffers and how it is formatted.
+
+  The value has the form ~(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)~.
+
+  - If INIT is non-nil, then the margin is shown initially.
+  - STYLE controls how to format the committer date.  It can be one
+    of ~age~ (to show the age of the commit), ~age-abbreviated~ (to
+    abbreviate the time unit to a character), or a string (suitable
+    for ~format-time-string~) to show the actual date.
+  - WIDTH controls the width of the margin.  This exists for forward
+    compatibility and currently the value should not be changed.
+  - AUTHOR controls whether the name of the author is also shown by
+    default.
+  - AUTHOR-WIDTH has to be an integer.  When the name of the author
+    is shown, then this specifies how much space is used to do so.
+
+*** Cherries
+
+Cherries are commits that haven't been applied upstream (yet), and are
+usually visualized using a log.  Each commit is prefixed with ~-~ if it
+has an equivalent in the upstream and ~+~ if it does not, i.e. if it is
+a cherry.
+
+The command ~magit-cherry~ shows cherries for a single branch, but the
+references buffer (see [[*References buffer]]) can show cherries for
+multiple "upstreams" at once.
+
+Also see [[man:git-reflog]]
+
+- Key: Y, magit-cherry
+
+  Show commits that are in a certain branch but that have not been
+  merged in the upstream branch.
+
+- User Option: magit-cherry-margin
+
+  This option specifies whether the margin is initially shown in
+  Magit-Cherry mode buffers and how it is formatted.
 
   The value has the form ~(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)~.
 
