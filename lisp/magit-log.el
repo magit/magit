@@ -264,7 +264,7 @@ format-string suitable for `format-time-string'."
   :package-version '(magit . "2.9.0")
   :group 'magit-log
   :group 'magit-margin
-  :type 'magit-log-margin--custom-type
+  :type magit-log-margin--custom-type
   :initialize 'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-reflog-mode))
