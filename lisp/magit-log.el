@@ -99,24 +99,6 @@ Only considered when moving past the last entry with
   :group 'magit-log
   :type 'boolean)
 
-(defconst magit-log-margin--custom-type
-  '(list (boolean :tag "Show initially")
-         (integer :tag "Show author name using width")
-         (choice  :tag "Show committer"
-                  (string :tag "date using format" "%Y-%m-%d %H:%M ")
-                  (const  :tag "date's age" age)
-                  (const  :tag "date's age (abbreviated)" age-abbreviated))))
-
-(defun magit-margin-set-variable (mode symbol value)
-  (set-default symbol value)
-  (message "Updating margins in %s buffers..." mode)
-  (dolist (buffer (buffer-list))
-    (with-current-buffer buffer
-      (when (eq major-mode mode)
-        (magit-set-buffer-margin magit-show-margin)
-        (magit-refresh))))
-  (message "Updating margins in %s buffers...done" mode))
-
 (defcustom magit-log-margin '(t 18 age)
   "Format of the margin in `magit-log-mode' buffers.
 
@@ -1067,29 +1049,6 @@ Do not add this to a hook variable."
                 (insert graph ?\n))))))))
   t)
 
-(defun magit-log-format-margin (author date)
-  (when (magit-margin-get :option)
-    (magit-make-margin-overlay
-     (concat (-when-let (width (magit-margin-get :person))
-               (concat (propertize (truncate-string-to-width
-                                    (or author "")
-                                    width
-                                    nil ?\s (make-string 1 magit-ellipsis))
-                                   'face 'magit-log-author)
-                       " "))
-             (propertize
-              (let ((style (magit-margin-get :style)))
-                (if (stringp style)
-                    (format-time-string
-                     style
-                     (seconds-to-time (string-to-number date)))
-                  (-let* ((abbr (eq style 'age-abbreviated))
-                          ((cnt unit) (magit--age date abbr)))
-                    (format (format (if abbr "%%2i%%-%ic" "%%2i %%-%is")
-                                    (1- (magit-margin-get :age-width)))
-                            cnt unit))))
-              'face 'magit-log-date)))))
-
 (defun magit-log-maybe-show-more-commits (section)
   "Automatically insert more commit sections in a log.
 Only do so if `point' is on the \"show more\" section,
@@ -1161,6 +1120,31 @@ If there is no blob buffer in the same frame, then do nothing."
                (same (--first (equal (magit-section-value it) rev)
                               (magit-section-children magit-root-section))))
     (goto-char (magit-section-start same))))
+
+;;; Log Margin
+
+(defun magit-log-format-margin (author date)
+  (when (magit-margin-get :option)
+    (magit-make-margin-overlay
+     (concat (-when-let (width (magit-margin-get :person))
+               (concat (propertize (truncate-string-to-width
+                                    (or author "")
+                                    width
+                                    nil ?\s (make-string 1 magit-ellipsis))
+                                   'face 'magit-log-author)
+                       " "))
+             (propertize
+              (let ((style (magit-margin-get :style)))
+                (if (stringp style)
+                    (format-time-string
+                     style
+                     (seconds-to-time (string-to-number date)))
+                  (-let* ((abbr (eq style 'age-abbreviated))
+                          ((cnt unit) (magit--age date abbr)))
+                    (format (format (if abbr "%%2i%%-%ic" "%%2i %%-%is")
+                                    (1- (magit-margin-get :age-width)))
+                            cnt unit))))
+              'face 'magit-log-date)))))
 
 ;;; Select Mode
 
@@ -1488,109 +1472,6 @@ all others with \"-\"."
       (magit-insert-heading "Unpushed commits:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) "@{upstream}"))))
-
-;;; Buffer Margins
-
-(defvar-local magit-set-buffer-margin-refresh nil)
-
-(defvar-local magit-show-margin nil)
-(put 'magit-show-margin 'permanent-local t)
-
-(defvar-local magit-margin-age-width nil)
-(put 'magit-margin-age-width 'permanent-local t)
-
-(defun magit-margin-get (prop)
-  (pcase prop
-    (:age-width magit-margin-age-width)
-    (:option (pcase major-mode
-               (`magit-cherry-mode     'magit-cherry-margin)
-               (`magit-log-mode        'magit-log-margin)
-               (`magit-log-select-mode 'magit-log-select-margin)
-               (`magit-reflog-mode     'magit-reflog-margin)
-               (`magit-refs-mode       'magit-refs-margin)
-               (`magit-stashes-mode    'magit-stashes-margin)
-               (`magit-status-mode     'magit-status-margin)))
-    (_ (nth (pcase prop
-              (:initially 0)
-              (:person    1)
-              (:style     2))
-            (symbol-value (magit-margin-get :option))))))
-
-(defun magit-toggle-margin ()
-  "Show or hide the Magit margin."
-  (interactive)
-  (unless (derived-mode-p 'magit-log-mode 'magit-status-mode
-                          'magit-refs-mode 'magit-cherry-mode)
-    (user-error "Magit margin isn't supported in this buffer"))
-  (magit-set-buffer-margin (not (cdr (window-margins)))))
-
-(defun magit-maybe-show-margin ()
-  "Maybe show the margin, depending on the major-mode and an option."
-  (cond ((local-variable-p 'magit-show-margin)
-         (magit-set-buffer-margin magit-show-margin))
-        ((magit-margin-get :option)
-         (magit-set-buffer-margin (magit-margin-get :initially)))))
-
-(defun magit-set-buffer-margin (enable)
-  (let ((style (magit-margin-get :style)))
-    (setq magit-margin-age-width
-          (+ 1 ; gap between committer and time
-             ;;; width of unit
-             (if (eq style 'age-abbreviated)
-                 1  ; single character
-               (+ 1 ; gap between count and unit
-                  (apply #'max (--map (max (length (nth 1 it))
-                                           (length (nth 2 it)))
-                                      magit--age-spec))))))
-    (let ((width (and enable
-                      (+ (-if-let (width (magit-margin-get :person))
-                             (1+ width)
-                           0)
-                         (if (stringp style)
-                             (length (format-time-string style))
-                           (+ 2 ; count width
-                              (magit-margin-get :age-width)))))))
-      (setq magit-show-margin width)
-      (when (and enable magit-set-buffer-margin-refresh)
-        (magit-refresh-buffer))
-      (dolist (window (get-buffer-window-list nil nil 0))
-        (with-selected-window window
-          (set-window-margins nil (car (window-margins)) width)
-          (if enable
-              (add-hook  'window-configuration-change-hook
-                         'magit-set-buffer-margin-1 nil t)
-            (remove-hook 'window-configuration-change-hook
-                         'magit-set-buffer-margin-1 t)))))))
-
-(defun magit-set-buffer-margin-1 ()
-  (-when-let (window (get-buffer-window))
-    (with-selected-window window
-      (set-window-margins nil (car (window-margins)) magit-show-margin))))
-
-(defun magit-make-margin-overlay (&optional string previous-line)
-  (if previous-line
-      (save-excursion
-        (forward-line -1)
-        (magit-make-margin-overlay string))
-    ;; Don't put the overlay on the complete line to work around #1880.
-    (let ((o (make-overlay (1+ (line-beginning-position))
-                           (line-end-position)
-                           nil t)))
-      (overlay-put o 'evaporate t)
-      (overlay-put o 'before-string
-                   (propertize "o" 'display
-                               (list (list 'margin 'right-margin)
-                                     (or string " ")))))))
-
-(defun magit-maybe-make-margin-overlay ()
-  (when (or (magit-section-match
-             '(unpulled unpushed recent stashes local cherries)
-             magit-insert-section--current)
-            (and (eq major-mode 'magit-refs-mode)
-                 (magit-section-match
-                  '(remote commit)
-                  magit-insert-section--current)))
-    (magit-make-margin-overlay nil t)))
 
 ;;; magit-log.el ends soon
 
