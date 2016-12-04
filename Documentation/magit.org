@@ -2010,6 +2010,10 @@ and then some other unrelated commands.
 
   This command shows or hides the margin.
 
+- Key: L l, magit-cycle-margin-style
+
+  This command cycles the style used for the margin.
+
 - Key: L d, magit-toggle-margin-details
 
   This command shows or hides details in the margin.

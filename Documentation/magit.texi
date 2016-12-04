@@ -2728,6 +2728,12 @@ and then some other unrelated commands.
 
 This command shows or hides the margin.
 
+@kindex L l
+@cindex magit-cycle-margin-style
+@item @kbd{L l} @tie{}@tie{}@tie{}@tie{}(@code{magit-cycle-margin-style})
+
+This command cycles the style used for the margin.
+
 @kindex L d
 @cindex magit-toggle-margin-details
 @item @kbd{L d} @tie{}@tie{}@tie{}@tie{}(@code{magit-toggle-margin-details})

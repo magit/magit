@@ -85,9 +85,9 @@ Breaking changes since v2.8.0
   optionally in some other buffers that contain logs is now more
   flexible and easier to customize and to change on the fly.
 
-  The popup that "L" is bound to now features two commands that
-  for changing the appearance of the margin: `magit-toggle-margin'
-  and `magit-toggle-margin-details'.
+  The popup that "L" is bound to now features three commands that
+  for changing the appearance of the margin: `magit-toggle-margin',
+  `magit-toggle-margin-details' and `magit-cycle-margin-style'.
 
   The binding for `magit-toggle-margin' has changed from "L t" to the
   simpler "L L".  You can easily revert this change using:

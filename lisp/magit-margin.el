@@ -62,6 +62,7 @@ does not carry to other options."
   'magit-commands nil nil
   :actions '("Margin"
              (?L "toggle visibility" magit-toggle-margin)
+             (?l "cycle style"       magit-cycle-margin-style)
              (?d "toggle details"    magit-toggle-margin-details))
   :max-action-columns 1)
 
@@ -72,6 +73,21 @@ does not carry to other options."
     (user-error "Magit margin isn't supported in this buffer"))
   (setcar magit-buffer-margin (not (magit-buffer-margin-p)))
   (magit-set-buffer-margin))
+
+(defun magit-cycle-margin-style ()
+  "Cycle style used for the Magit margin."
+  (interactive)
+  (unless (magit-margin-option)
+    (user-error "Magit margin isn't supported in this buffer"))
+  ;; This is only suitable for commit margins (there are not others).
+  (setf (cadr magit-buffer-margin)
+        (pcase (cadr magit-buffer-margin)
+          (`age 'age-abbreviated)
+          (`age-abbreviated
+           (let ((default (cadr (symbol-value (magit-margin-option)))))
+             (if (stringp default) default "%Y-%m-%d %H:%M ")))
+          (_ 'age)))
+  (magit-set-buffer-margin nil t))
 
 (defun magit-toggle-margin-details ()
   "Show or hide details in the Magit margin."

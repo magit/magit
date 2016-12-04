@@ -411,6 +411,7 @@ the upstream isn't ahead of the current branch) show."
                (?w "buffer and save defaults" magit-log-save-default-arguments)
                "Margin"
                (?L "toggle visibility" magit-toggle-margin)
+               (?l "cycle style"       magit-cycle-margin-style)
                (?d "toggle details"    magit-toggle-margin-details))
     :max-action-columns 1))
 
