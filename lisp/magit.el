@@ -208,7 +208,7 @@ To change the value in an existing buffer use the command
 (put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 (put 'magit-refs-show-commit-count 'permanent-local t)
 
-(defcustom magit-refs-margin '(nil 18 (nth 2 magit-log-margin) nil)
+(defcustom magit-refs-margin '(nil 18 (nth 2 magit-log-margin))
   "Format of the margin in `magit-refs-mode' buffers.
 
 The value has the form (INIT NAME DATE-STYLE TAGS).
@@ -226,17 +226,20 @@ only about branches, but also about tags."
   :group 'magit-refs
   :group 'magit-margin
   :safe (lambda (val) (memq val '(all branch nil)))
-  :type '(list (boolean :tag "Show initially")
-               (integer :tag "Show author name using width")
-               (choice  :tag "Show committer"
-                        (string :tag "date using format" "%Y-%m-%d %H:%m ")
-                        (const  :tag "date's age" age)
-                        (const  :tag "date's age (abbreviated)"
-                                age-abbreviated))
-               (boolean :tag "Show for tags too"))
+  :type magit-log-margin--custom-type
   :initialize 'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-refs-mode))
+
+(defcustom magit-refs-margin-for-tags nil
+  "Whether to show information about tags in the margin.
+
+This is disabled by default because it is slow if there are many
+tags."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-refs
+  :group 'magit-margin
+  :type 'boolean)
 
 (defcustom magit-visit-ref-behavior nil
   "Control how `magit-visit-ref' behaves in `magit-refs-mode' buffers.
@@ -1303,8 +1306,8 @@ different, but only if you have customized the option
                             `((?n . ,(propertize tag 'face 'magit-tag))
                               (?c . ,(or mark count ""))
                               (?m . ,(or message "")))))
-              (when (and magit-show-margin
-                         (nth 3 magit-refs-margin))
+              (when (and (car magit-buffer-margin)
+                         magit-refs-margin-for-tags)
                 (magit-refs-format-margin (concat tag "^{commit}")))
               (magit-refs-insert-cherry-commits head tag section)))))
       (insert ?\n))))

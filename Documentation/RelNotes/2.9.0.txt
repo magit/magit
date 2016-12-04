@@ -107,7 +107,8 @@ Breaking changes since v2.8.0
 
   You might also want to customize the options `magit-status-margin',
   `magit-stashes-margin' and `magit-log-select-margin', for all of
-  which no corresponding `magit-*-show-margin' used to exist.
+  which no corresponding `magit-*-show-margin' used to exist.  Another
+  new option is `magit-refs-margin-for-tags'.
 
   If you choose to display the commit dates instead of the commit
   ages in all supported modes, then you should set `magit-log-margin'

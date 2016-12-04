@@ -3407,11 +3407,14 @@ DATE-STYLE can be @code{age} in which case the age of the commit
 is shown.  If it is @code{age-abbreviated}, then the time unit is
 abbreviated to a single character.  DATE-STYLE can also be
 a format-string suitable for @code{format-time-string}.
-
-@item
-If TAGS is non-nil, then the margin shows information not
-only about branches, but also about tags.
 @end itemize
+@end defopt
+
+@defopt magit-refs-margin-for-tags
+
+This option specifies whether to show information about tags in the
+margin.  This is disabled by default because it is slow if there are
+many tags.
 @end defopt
 
 The following variables control how individual refs are displayed.  If

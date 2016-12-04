@@ -2502,8 +2502,12 @@ information on how to use Ediff itself, see info:ediff.
     is shown.  If it is ~age-abbreviated~, then the time unit is
     abbreviated to a single character.  DATE-STYLE can also be
     a format-string suitable for ~format-time-string~.
-  - If TAGS is non-nil, then the margin shows information not
-    only about branches, but also about tags.
+
+- User Option: magit-refs-margin-for-tags
+
+  This option specifies whether to show information about tags in the
+  margin.  This is disabled by default because it is slow if there are
+  many tags.
 
 The following variables control how individual refs are displayed.  If
 you change one of these variables (especially the "%c" part), then you
