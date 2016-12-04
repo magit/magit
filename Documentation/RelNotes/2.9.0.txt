@@ -115,7 +115,7 @@ Breaking changes since v2.8.0
   before loading `magit'.  If you do that then the default values of
   the other `magit-*-margin' options will use the same commit date
   style without you having to customize each option individually.
-  #2792
+  #2885, #2792
 
 Changes since v2.8.0
 --------------------

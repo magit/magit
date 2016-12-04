@@ -1697,15 +1697,19 @@ The following functions can also be added to the above hook:
   This option specifies whether the margin is initially shown in
   Magit-Status mode buffers and how it is formatted.
 
-  The value has the form ~(INIT NAME DATE-STYLE)~.
+  The value has the form ~(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)~.
 
   - If INIT is non-nil, then the margin is shown initially.
-  - If NAME is an integer, then the name of the author is
-    shown using an area of that width.  Otherwise it must be ~nil~.
-  - DATE-STYLE can be ~age~, in which case the age of the commit
-    is shown.  If it is ~age-abbreviated~, then the time unit is
-    abbreviated to a single character.  DATE-STYLE can also be
-    a format-string suitable for ~format-time-string~.
+  - STYLE controls how to format the committer date.  It can be one
+    of ~age~ (to show the age of the commit), ~age-abbreviated~ (to
+    abbreviate the time unit to a character), or a string (suitable
+    for ~format-time-string~) to show the actual date.
+  - WIDTH controls the width of the margin.  This exists for forward
+    compatibility and currently the value should not be changed.
+  - AUTHOR controls whether the name of the author is also shown by
+    default.
+  - AUTHOR-WIDTH has to be an integer.  When the name of the author
+    is shown, then this specifies how much space is used to do so.
 
 - User Option: magit-log-section-args
 
@@ -1950,25 +1954,48 @@ the status buffer.
   entry.  Only considered when moving past the last entry with
   ~magit-goto-*-section~ commands.
 
+- User Option: magit-log-show-refname-after-summary
+
+  Whether to show the refnames after the commit summaries.  This is
+  useful if you use really long branch names.
+
+For a description of ~magit-log-margin~ see [[*Log Margin]].
+
+*** Log Margin
+
+In buffers which show one or more logs, it is possible to show
+additional information about each commit in the margin.  The options
+used to configure the margin are named ~magit-INFIX-margin~, where INFIX
+is the same as in the respective major-mode ~magit-INFIX-mode~.  In
+regular log buffers that would be ~magit-log-margin~.
+
 - User Option: magit-log-margin
 
   This option specifies whether the margin is initially shown in
   Magit-Log mode buffers and how it is formatted.
 
-  The value has the form ~(INIT NAME DATE-STYLE)~.
+  The value has the form ~(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)~.
 
   - If INIT is non-nil, then the margin is shown initially.
-  - If NAME is an integer, then the name of the author is
-    shown using an area of that width.  Otherwise it must be ~nil~.
-  - DATE-STYLE can be ~age~ in which case the age of the commit
-    is shown.  If it is ~age-abbreviated~, then the time unit is
-    abbreviated to a single character.  DATE-STYLE can also be
-    a format-string suitable for ~format-time-string~.
+  - STYLE controls how to format the committer date.  It can be one
+    of ~age~ (to show the age of the commit), ~age-abbreviated~ (to
+    abbreviate the time unit to a character), or a string (suitable
+    for ~format-time-string~) to show the actual date.
+  - WIDTH controls the width of the margin.  This exists for forward
+    compatibility and currently the value should not be changed.
+  - AUTHOR controls whether the name of the author is also shown by
+    default.
+  - AUTHOR-WIDTH has to be an integer.  When the name of the author
+    is shown, then this specifies how much space is used to do so.
 
-- User Option: magit-log-show-refname-after-summary
-
-  Whether to show the refnames after the commit summaries.  This is
-  useful if you use really long branch names.
+You can change the STYLE and AUTHOR-WIDTH of all ~magit-INFIX-margin~
+options to the same values by customizing ~magit-log-margin~ *before*
+~magit~ is loaded.  If you do that, then the respective values for the
+other options will default to what you have set for that variable.
+Likewise if you set INIT in ~magit-log-margin~ to ~nil~, then that is used
+in the default of all other options.  But setting it to ~t~, i.e.
+re-enforcing the default for that option, does not carry to other
+options.
 
 *** Select from log
 
@@ -2001,15 +2028,19 @@ buffers:
   This option specifies whether the margin is initially shown in
   Magit-Log-Select mode buffers and how it is formatted.
 
-  The value has the form ~(INIT NAME DATE-STYLE)~.
+  The value has the form ~(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)~.
 
   - If INIT is non-nil, then the margin is shown initially.
-  - If NAME is an integer, then the name of the author is
-    shown using an area of that width.  Otherwise it must be ~nil~.
-  - DATE-STYLE can be ~age~ in which case the age of the commit
-    is shown.  If it is ~age-abbreviated~, then the time unit is
-    abbreviated to a single character.  DATE-STYLE can also be
-    a format-string suitable for ~format-time-string~.
+  - STYLE controls how to format the committer date.  It can be one
+    of ~age~ (to show the age of the commit), ~age-abbreviated~ (to
+    abbreviate the time unit to a character), or a string (suitable
+    for ~format-time-string~) to show the actual date.
+  - WIDTH controls the width of the margin.  This exists for forward
+    compatibility and currently the value should not be changed.
+  - AUTHOR controls whether the name of the author is also shown by
+    default.
+  - AUTHOR-WIDTH has to be an integer.  When the name of the author
+    is shown, then this specifies how much space is used to do so.
 
 *** Reflog
 
@@ -2034,15 +2065,19 @@ These reflog commands are available from the log popup.  See [[*Logging]].
   This option specifies whether the margin is initially shown in
   Magit-Reflog mode buffers and how it is formatted.
 
-  The value has the form ~(INIT NAME DATE-STYLE)~.
+  The value has the form ~(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)~.
 
   - If INIT is non-nil, then the margin is shown initially.
-  - If NAME is an integer, then the name of the author is
-    shown using an area of that width.  Otherwise it must be ~nil~.
-  - DATE-STYLE can be ~age~ in which case the age of the commit
-    is shown.  If it is ~age-abbreviated~, then the time unit is
-    abbreviated to a single character.  DATE-STYLE can also be
-    a format-string suitable for ~format-time-string~.
+  - STYLE controls how to format the committer date.  It can be one
+    of ~age~ (to show the age of the commit), ~age-abbreviated~ (to
+    abbreviate the time unit to a character), or a string (suitable
+    for ~format-time-string~) to show the actual date.
+  - WIDTH controls the width of the margin.  This exists for forward
+    compatibility and currently the value should not be changed.
+  - AUTHOR controls whether the name of the author is also shown by
+    default.
+  - AUTHOR-WIDTH has to be an integer.  When the name of the author
+    is shown, then this specifies how much space is used to do so.
 
 ** Diffing
 
@@ -2493,15 +2528,19 @@ information on how to use Ediff itself, see info:ediff.
   This option specifies whether the margin is initially shown in
   Magit-Refs mode buffers and how it is formatted.
 
-  The value has the form ~(INIT NAME DATE-STYLE TAGS)~.
+  The value has the form ~(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)~.
 
   - If INIT is non-nil, then the margin is shown initially.
-  - If NAME is an integer, then the name of the author is
-    shown using an area of that width.  Otherwise it must be ~nil~.
-  - DATE-STYLE can be ~age~ in which case the age of the commit
-    is shown.  If it is ~age-abbreviated~, then the time unit is
-    abbreviated to a single character.  DATE-STYLE can also be
-    a format-string suitable for ~format-time-string~.
+  - STYLE controls how to format the committer date.  It can be one
+    of ~age~ (to show the age of the commit), ~age-abbreviated~ (to
+    abbreviate the time unit to a character), or a string (suitable
+    for ~format-time-string~) to show the actual date.
+  - WIDTH controls the width of the margin.  This exists for forward
+    compatibility and currently the value should not be changed.
+  - AUTHOR controls whether the name of the author is also shown by
+    default.
+  - AUTHOR-WIDTH has to be an integer.  When the name of the author
+    is shown, then this specifies how much space is used to do so.
 
 - User Option: magit-refs-margin-for-tags
 
@@ -4459,15 +4498,19 @@ Also see [[man:git-stash]]
   This option specifies whether the margin is initially shown in
   stashes buffers and how it is formatted.
 
-  The value has the form ~(INIT NAME DATE-STYLE)~.
+  The value has the form ~(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)~.
 
   - If INIT is non-nil, then the margin is shown initially.
-  - If NAME is an integer, then the name of the author is
-    shown using an area of that width.  Otherwise it must be ~nil~.
-  - DATE-STYLE can be ~age~ in which case the age of the commit
-    is shown.  If it is ~age-abbreviated~, then the time unit is
-    abbreviated to a single character.  DATE-STYLE can also be
-    a format-string suitable for ~format-time-string~.
+  - STYLE controls how to format the committer date.  It can be one
+    of ~age~ (to show the age of the commit), ~age-abbreviated~ (to
+    abbreviate the time unit to a character), or a string (suitable
+    for ~format-time-string~) to show the actual date.
+  - WIDTH controls the width of the margin.  This exists for forward
+    compatibility and currently the value should not be changed.
+  - AUTHOR controls whether the name of the author is also shown by
+    default.
+  - AUTHOR-WIDTH has to be an integer.  When the name of the author
+    is shown, then this specifies how much space is used to do so.
 
 * Transferring
 ** Remotes

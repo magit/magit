@@ -145,6 +145,7 @@ Logging
 
 * Refreshing logs::
 * Log Buffer::
+* Log Margin::
 * Select from log::
 * Reflog::
 
@@ -2290,21 +2291,29 @@ Hook run after a status buffer has been refreshed.
 This option specifies whether the margin is initially shown in
 Magit-Status mode buffers and how it is formatted.
 
-The value has the form @code{(INIT NAME DATE-STYLE)}.
+The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-If NAME is an integer, then the name of the author is
-shown using an area of that width.  Otherwise it must be @code{nil}.
+STYLE controls how to format the committer date.  It can be one
+of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+abbreviate the time unit to a character), or a string (suitable
+for @code{format-time-string}) to show the actual date.
 
 @item
-DATE-STYLE can be @code{age}, in which case the age of the commit
-is shown.  If it is @code{age-abbreviated}, then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be
-a format-string suitable for @code{format-time-string}.
+WIDTH controls the width of the margin.  This exists for forward
+compatibility and currently the value should not be changed.
+
+@item
+AUTHOR controls whether the name of the author is also shown by
+default.
+
+@item
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+is shown, then this specifies how much space is used to do so.
 @end itemize
 @end defopt
 
@@ -2496,6 +2505,7 @@ being visited in the current buffer exists, see @ref{Minor mode for buffers visi
 @menu
 * Refreshing logs::
 * Log Buffer::
+* Log Margin::
 * Select from log::
 * Reflog::
 @end menu
@@ -2641,34 +2651,62 @@ entry.  Only considered when moving past the last entry with
 @code{magit-goto-*-section} commands.
 @end defopt
 
+@defopt magit-log-show-refname-after-summary
+
+Whether to show the refnames after the commit summaries.  This is
+useful if you use really long branch names.
+@end defopt
+
+For a description of @code{magit-log-margin} see @ref{Log Margin,Log Margin}.
+
+@node Log Margin
+@subsection Log Margin
+
+In buffers which show one or more logs, it is possible to show
+additional information about each commit in the margin.  The options
+used to configure the margin are named @code{magit-INFIX-margin}, where INFIX
+is the same as in the respective major-mode @code{magit-INFIX-mode}.  In
+regular log buffers that would be @code{magit-log-margin}.
+
 @defopt magit-log-margin
 
 This option specifies whether the margin is initially shown in
 Magit-Log mode buffers and how it is formatted.
 
-The value has the form @code{(INIT NAME DATE-STYLE)}.
+The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-If NAME is an integer, then the name of the author is
-shown using an area of that width.  Otherwise it must be @code{nil}.
+STYLE controls how to format the committer date.  It can be one
+of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+abbreviate the time unit to a character), or a string (suitable
+for @code{format-time-string}) to show the actual date.
 
 @item
-DATE-STYLE can be @code{age} in which case the age of the commit
-is shown.  If it is @code{age-abbreviated}, then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be
-a format-string suitable for @code{format-time-string}.
+WIDTH controls the width of the margin.  This exists for forward
+compatibility and currently the value should not be changed.
+
+@item
+AUTHOR controls whether the name of the author is also shown by
+default.
+
+@item
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+is shown, then this specifies how much space is used to do so.
 @end itemize
 @end defopt
 
-@defopt magit-log-show-refname-after-summary
-
-Whether to show the refnames after the commit summaries.  This is
-useful if you use really long branch names.
-@end defopt
+You can change the STYLE and AUTHOR-WIDTH of all @code{magit-INFIX-margin}
+options to the same values by customizing @code{magit-log-margin} @strong{before}
+@code{magit} is loaded.  If you do that, then the respective values for the
+other options will default to what you have set for that variable.
+Likewise if you set INIT in @code{magit-log-margin} to @code{nil}, then that is used
+in the default of all other options.  But setting it to @code{t}, i.e.
+re-enforcing the default for that option, does not carry to other
+options.
 
 @node Select from log
 @subsection Select from log
@@ -2709,21 +2747,29 @@ Abort selecting a commit, don't act on any commit.
 This option specifies whether the margin is initially shown in
 Magit-Log-Select mode buffers and how it is formatted.
 
-The value has the form @code{(INIT NAME DATE-STYLE)}.
+The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-If NAME is an integer, then the name of the author is
-shown using an area of that width.  Otherwise it must be @code{nil}.
+STYLE controls how to format the committer date.  It can be one
+of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+abbreviate the time unit to a character), or a string (suitable
+for @code{format-time-string}) to show the actual date.
 
 @item
-DATE-STYLE can be @code{age} in which case the age of the commit
-is shown.  If it is @code{age-abbreviated}, then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be
-a format-string suitable for @code{format-time-string}.
+WIDTH controls the width of the margin.  This exists for forward
+compatibility and currently the value should not be changed.
+
+@item
+AUTHOR controls whether the name of the author is also shown by
+default.
+
+@item
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+is shown, then this specifies how much space is used to do so.
 @end itemize
 @end defopt
 
@@ -2771,21 +2817,29 @@ Display the @code{HEAD} reflog.
 This option specifies whether the margin is initially shown in
 Magit-Reflog mode buffers and how it is formatted.
 
-The value has the form @code{(INIT NAME DATE-STYLE)}.
+The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-If NAME is an integer, then the name of the author is
-shown using an area of that width.  Otherwise it must be @code{nil}.
+STYLE controls how to format the committer date.  It can be one
+of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+abbreviate the time unit to a character), or a string (suitable
+for @code{format-time-string}) to show the actual date.
 
 @item
-DATE-STYLE can be @code{age} in which case the age of the commit
-is shown.  If it is @code{age-abbreviated}, then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be
-a format-string suitable for @code{format-time-string}.
+WIDTH controls the width of the margin.  This exists for forward
+compatibility and currently the value should not be changed.
+
+@item
+AUTHOR controls whether the name of the author is also shown by
+default.
+
+@item
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+is shown, then this specifies how much space is used to do so.
 @end itemize
 @end defopt
 
@@ -3392,21 +3446,29 @@ The default is @code{nil} because anything else can be very expensive.
 This option specifies whether the margin is initially shown in
 Magit-Refs mode buffers and how it is formatted.
 
-The value has the form @code{(INIT NAME DATE-STYLE TAGS)}.
+The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-If NAME is an integer, then the name of the author is
-shown using an area of that width.  Otherwise it must be @code{nil}.
+STYLE controls how to format the committer date.  It can be one
+of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+abbreviate the time unit to a character), or a string (suitable
+for @code{format-time-string}) to show the actual date.
 
 @item
-DATE-STYLE can be @code{age} in which case the age of the commit
-is shown.  If it is @code{age-abbreviated}, then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be
-a format-string suitable for @code{format-time-string}.
+WIDTH controls the width of the margin.  This exists for forward
+compatibility and currently the value should not be changed.
+
+@item
+AUTHOR controls whether the name of the author is also shown by
+default.
+
+@item
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+is shown, then this specifies how much space is used to do so.
 @end itemize
 @end defopt
 
@@ -6087,21 +6149,29 @@ List all stashes in a buffer.
 This option specifies whether the margin is initially shown in
 stashes buffers and how it is formatted.
 
-The value has the form @code{(INIT NAME DATE-STYLE)}.
+The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-If NAME is an integer, then the name of the author is
-shown using an area of that width.  Otherwise it must be @code{nil}.
+STYLE controls how to format the committer date.  It can be one
+of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+abbreviate the time unit to a character), or a string (suitable
+for @code{format-time-string}) to show the actual date.
 
 @item
-DATE-STYLE can be @code{age} in which case the age of the commit
-is shown.  If it is @code{age-abbreviated}, then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be
-a format-string suitable for @code{format-time-string}.
+WIDTH controls the width of the margin.  This exists for forward
+compatibility and currently the value should not be changed.
+
+@item
+AUTHOR controls whether the name of the author is also shown by
+default.
+
+@item
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+is shown, then this specifies how much space is used to do so.
 @end itemize
 @end defopt
 

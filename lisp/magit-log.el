@@ -40,7 +40,7 @@
 (defvar magit-refs-indent-cherry-lines)
 (defvar magit-refs-margin)
 (defvar magit-refs-show-commit-count)
-(defvar magit-show-margin)
+(defvar magit-buffer-margin)
 (defvar magit-status-margin)
 (defvar magit-status-sections-hook)
 
@@ -99,18 +99,22 @@ Only considered when moving past the last entry with
   :group 'magit-log
   :type 'boolean)
 
-(defcustom magit-log-margin '(t 18 age)
+(defcustom magit-log-margin '(t age magit-log-margin-width t 18)
   "Format of the margin in `magit-log-mode' buffers.
 
-The value has the form (INIT NAME DATE-STYLE).
+The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-If NAME is an integer, then the name of the author is shown
-  using an area of that width.  Otherwise it must be nil.
-DATE-STYLE can be `age', in which case the age of the commit
-is shown.  If it is `age-abbreviated', then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be a
-format-string suitable for `format-time-string'."
+STYLE controls how to format the committer date.  It can be one
+  of `age' (to show the age of the commit), `age-abbreviated' (to
+  abbreviate the time unit to a character), or a string (suitable
+  for `format-time-string') to show the actual date.
+WIDTH controls the width of the margin.  This exists for forward
+  compatibility and currently the value should not be changed.
+AUTHOR controls whether the name of the author is also shown by
+  default.
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+  is shown, then this specifies how much space is used to do so."
   :package-version '(magit . "2.9.0")
   :group 'magit-log
   :group 'magit-margin
@@ -173,18 +177,25 @@ be nil, in which case no usage information is shown."
                  (const :tag "nowhere")))
 
 (defcustom magit-log-select-margin
-  (list t 18 (nth 2 magit-log-margin))
+  (list (nth 0 magit-log-margin)
+        (nth 1 magit-log-margin)
+        'magit-log-margin-width t
+        (nth 4 magit-log-margin))
   "Format of the margin in `magit-log-select-mode' buffers.
 
-The value has the form (INIT NAME DATE-STYLE).
+The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-If NAME is an integer, then the name of the author is shown
-  using an area of that width.  Otherwise it must be nil.
-DATE-STYLE can be `age', in which case the age of the commit
-is shown.  If it is `age-abbreviated', then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be a
-format-string suitable for `format-time-string'."
+STYLE controls how to format the committer date.  It can be one
+  of `age' (to show the age of the commit), `age-abbreviated' (to
+  abbreviate the time unit to a character), or a string (suitable
+  for `format-time-string') to show the actual date.
+WIDTH controls the width of the margin.  This exists for forward
+  compatibility and currently the value should not be changed.
+AUTHOR controls whether the name of the author is also shown by
+  default.
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+  is shown, then this specifies how much space is used to do so."
   :package-version '(magit . "2.9.0")
   :group 'magit-log
   :group 'magit-margin
@@ -204,18 +215,25 @@ format-string suitable for `format-time-string'."
   :type 'hook)
 
 (defcustom magit-cherry-margin
-  (list t 18 (nth 2 magit-log-margin))
+  (list (nth 0 magit-log-margin)
+        (nth 1 magit-log-margin)
+        'magit-log-margin-width t
+        (nth 4 magit-log-margin))
   "Format of the margin in `magit-cherry-mode' buffers.
 
-The value has the form (INIT NAME DATE-STYLE).
+The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-If NAME is an integer, then the name of the author is shown
-  using an area of that width.  Otherwise it must be nil.
-DATE-STYLE can be `age', in which case the age of the commit
-is shown.  If it is `age-abbreviated', then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be a
-format-string suitable for `format-time-string'."
+STYLE controls how to format the committer date.  It can be one
+  of `age' (to show the age of the commit), `age-abbreviated' (to
+  abbreviate the time unit to a character), or a string (suitable
+  for `format-time-string') to show the actual date.
+WIDTH controls the width of the margin.  This exists for forward
+  compatibility and currently the value should not be changed.
+AUTHOR controls whether the name of the author is also shown by
+  default.
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+  is shown, then this specifies how much space is used to do so."
   :package-version '(magit . "2.9.0")
   :group 'magit-log
   :group 'magit-margin
@@ -234,18 +252,25 @@ format-string suitable for `format-time-string'."
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-reflog-margin
-  (list t nil (nth 2 magit-log-margin))
+  (list (nth 0 magit-log-margin)
+        (nth 1 magit-log-margin)
+        'magit-log-margin-width nil
+        (nth 4 magit-log-margin))
   "Format of the margin in `magit-reflog-mode' buffers.
 
-The value has the form (INIT NAME DATE-STYLE).
+The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-If NAME is an integer, then the name of the author is shown
-  using an area of that width.  Otherwise it must be nil.
-DATE-STYLE can be `age', in which case the age of the commit
-is shown.  If it is `age-abbreviated', then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be a
-format-string suitable for `format-time-string'."
+STYLE controls how to format the committer date.  It can be one
+  of `age' (to show the age of the commit), `age-abbreviated' (to
+  abbreviate the time unit to a character), or a string (suitable
+  for `format-time-string') to show the actual date.
+WIDTH controls the width of the margin.  This exists for forward
+  compatibility and currently the value should not be changed.
+AUTHOR controls whether the name of the author is also shown by
+  default.
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+  is shown, then this specifies how much space is used to do so."
   :package-version '(magit . "2.9.0")
   :group 'magit-log
   :group 'magit-margin
@@ -1001,7 +1026,7 @@ Do not add this to a hook variable."
             (backward-char)
             (magit-log-format-margin author date)))
         (when (and (eq style 'cherry)
-                   magit-show-margin)
+                   (magit-buffer-margin-p))
           (save-excursion
             (backward-char)
             (apply #'magit-log-format-margin
@@ -1124,17 +1149,19 @@ If there is no blob buffer in the same frame, then do nothing."
 ;;; Log Margin
 
 (defun magit-log-format-margin (author date)
-  (when (magit-margin-get :option)
-    (magit-make-margin-overlay
-     (concat (-when-let (width (magit-margin-get :person))
-               (concat (propertize (truncate-string-to-width
-                                    (or author "")
-                                    width
-                                    nil ?\s (make-string 1 magit-ellipsis))
-                                   'face 'magit-log-author)
-                       " "))
-             (propertize
-              (let ((style (magit-margin-get :style)))
+  (-when-let (option (magit-margin-option))
+    (-let [(_ style width details details-width)
+           (or magit-buffer-margin
+               (symbol-value option))]
+      (magit-make-margin-overlay
+       (concat (and details
+                    (concat (propertize (truncate-string-to-width
+                                         (or author "")
+                                         details-width
+                                         nil ?\s (make-string 1 magit-ellipsis))
+                                        'face 'magit-log-author)
+                            " "))
+               (propertize
                 (if (stringp style)
                     (format-time-string
                      style
@@ -1142,9 +1169,22 @@ If there is no blob buffer in the same frame, then do nothing."
                   (-let* ((abbr (eq style 'age-abbreviated))
                           ((cnt unit) (magit--age date abbr)))
                     (format (format (if abbr "%%2i%%-%ic" "%%2i %%-%is")
-                                    (1- (magit-margin-get :age-width)))
-                            cnt unit))))
-              'face 'magit-log-date)))))
+                                    (- width (if details (1+ details-width) 0)))
+                            cnt unit)))
+                'face 'magit-log-date))))))
+
+(defun magit-log-margin-width (style details details-width)
+  (+ (if details (1+ details-width) 0)
+     (if (stringp style)
+         (length (format-time-string style))
+       (+ 2 ; two digits
+          1 ; trailing space
+          (if (eq style 'age-abbreviated)
+              1  ; single character
+            (+ 1 ; gap after digits
+               (apply #'max (--map (max (length (nth 1 it))
+                                        (length (nth 2 it)))
+                                   magit--age-spec))))))))
 
 ;;; Select Mode
 

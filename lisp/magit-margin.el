@@ -38,20 +38,20 @@
 (defgroup magit-margin nil
   "Information Magit displays in the margin.
 
-If you want to change the DATE-STYLE of all `magit-*-margin'
-options to the same value, you can do so by only customizing
-`magit-log-margin' *before* `magit' is loaded.  If you do so,
-then the respective value for the other options will default
-to what you have set for `magit-log-margin'."
+You can change the STYLE and AUTHOR-WIDTH of all `magit-*-margin'
+options to the same values by customizing `magit-log-margin'
+*before* `magit' is loaded.  If you do that, then the respective
+values for the other options will default to what you have set
+for that variable.  Likewise if you set `magit-log-margin's INIT
+to nil, then that is used in the default of all other options.  But
+setting it to t, i.e. re-enforcing the default for that option,
+does not carry to other options."
   :group 'magit-log)
 
+(defvar-local magit-buffer-margin nil)
+(put 'magit-buffer-margin 'permanent-local t)
+
 (defvar-local magit-set-buffer-margin-refresh nil)
-
-(defvar-local magit-show-margin nil)
-(put 'magit-show-margin 'permanent-local t)
-
-(defvar-local magit-margin-age-width nil)
-(put 'magit-margin-age-width 'permanent-local t)
 
 (defvar magit--age-spec)
 
@@ -60,72 +60,54 @@ to what you have set for `magit-log-margin'."
 (defun magit-toggle-margin ()
   "Show or hide the Magit margin."
   (interactive)
-  (unless (derived-mode-p 'magit-log-mode 'magit-status-mode
-                          'magit-refs-mode 'magit-cherry-mode)
+  (unless (magit-margin-option)
     (user-error "Magit margin isn't supported in this buffer"))
-  (magit-set-buffer-margin (not (cdr (window-margins)))))
+  (setcar magit-buffer-margin (not (magit-buffer-margin-p)))
+  (magit-set-buffer-margin))
 
 ;;; Core
 
-(defun magit-margin-get (prop)
-  (pcase prop
-    (:age-width magit-margin-age-width)
-    (:option (pcase major-mode
-               (`magit-cherry-mode     'magit-cherry-margin)
-               (`magit-log-mode        'magit-log-margin)
-               (`magit-log-select-mode 'magit-log-select-margin)
-               (`magit-reflog-mode     'magit-reflog-margin)
-               (`magit-refs-mode       'magit-refs-margin)
-               (`magit-stashes-mode    'magit-stashes-margin)
-               (`magit-status-mode     'magit-status-margin)))
-    (_ (nth (pcase prop
-              (:initially 0)
-              (:person    1)
-              (:style     2))
-            (symbol-value (magit-margin-get :option))))))
+(defun magit-buffer-margin-p ()
+  (car magit-buffer-margin))
 
-(defun magit-maybe-show-margin ()
-  "Maybe show the margin, depending on the major-mode and an option."
-  (cond ((local-variable-p 'magit-show-margin)
-         (magit-set-buffer-margin magit-show-margin))
-        ((magit-margin-get :option)
-         (magit-set-buffer-margin (magit-margin-get :initially)))))
+(defun magit-margin-option ()
+  (pcase major-mode
+    (`magit-cherry-mode     'magit-cherry-margin)
+    (`magit-log-mode        'magit-log-margin)
+    (`magit-log-select-mode 'magit-log-select-margin)
+    (`magit-reflog-mode     'magit-reflog-margin)
+    (`magit-refs-mode       'magit-refs-margin)
+    (`magit-stashes-mode    'magit-stashes-margin)
+    (`magit-status-mode     'magit-status-margin)))
 
-(defun magit-set-buffer-margin (enable)
-  (let ((style (magit-margin-get :style)))
-    (setq magit-margin-age-width
-          (+ 1 ; gap between committer and time
-             ;;; width of unit
-             (if (eq style 'age-abbreviated)
-                 1  ; single character
-               (+ 1 ; gap between count and unit
-                  (apply #'max (--map (max (length (nth 1 it))
-                                           (length (nth 2 it)))
-                                      magit--age-spec))))))
-    (let ((width (and enable
-                      (+ (-if-let (width (magit-margin-get :person))
-                             (1+ width)
-                           0)
-                         (if (stringp style)
-                             (length (format-time-string style))
-                           (+ 2 ; count width
-                              (magit-margin-get :age-width)))))))
-      (setq magit-show-margin width)
-      (when (and enable magit-set-buffer-margin-refresh)
-        (magit-refresh-buffer))
-      (dolist (window (get-buffer-window-list nil nil 0))
-        (with-selected-window window
-          (set-window-margins nil (car (window-margins)) width)
-          (if enable
-              (add-hook  'window-configuration-change-hook
-                         'magit-set-buffer-margin-1 nil t)
-            (remove-hook 'window-configuration-change-hook
-                         'magit-set-buffer-margin-1 t)))))))
+(defun magit-set-buffer-margin (&optional reset refresh)
+  (-when-let (option (magit-margin-option))
+    (let* ((default (symbol-value option))
+           (default-width (nth 2 default)))
+      (when (or reset (not magit-buffer-margin))
+        (setq magit-buffer-margin (copy-sequence default)))
+      (-let [(enable style _width details details-width)
+             magit-buffer-margin]
+        (when (functionp default-width)
+          (setf (nth 2 magit-buffer-margin)
+                (funcall default-width style details details-width)))
+        (dolist (window (get-buffer-window-list nil nil 0))
+          (with-selected-window window
+            (magit-set-window-margin window)
+            (if enable
+                (add-hook  'window-configuration-change-hook
+                           'magit-set-window-margin nil t)
+              (remove-hook 'window-configuration-change-hook
+                           'magit-set-window-margin t))))
+        (when (and enable (or refresh magit-set-buffer-margin-refresh))
+          (magit-refresh-buffer))))))
 
-(defun magit-set-buffer-margin-1 ()
-  (-when-let (window (get-buffer-window))
+(defun magit-set-window-margin (&optional window)
+  (when (or window (setq window (get-buffer-window)))
     (with-selected-window window
-      (set-window-margins nil (car (window-margins)) magit-show-margin))))
+      (set-window-margins nil (car (window-margins))
+                          (and (magit-buffer-margin-p)
+                               (nth 2 magit-buffer-margin))))))
 
 (defun magit-make-margin-overlay (&optional string previous-line)
   (if previous-line
@@ -160,17 +142,20 @@ to what you have set for `magit-log-margin'."
   (dolist (buffer (buffer-list))
     (with-current-buffer buffer
       (when (eq major-mode mode)
-        (magit-set-buffer-margin magit-show-margin)
+        (magit-set-buffer-margin t)
         (magit-refresh))))
   (message "Updating margins in %s buffers...done" mode))
 
 (defconst magit-log-margin--custom-type
-  '(list (boolean :tag "Show initially")
-         (integer :tag "Show author name using width")
+  '(list (boolean :tag "Show margin initially")
          (choice  :tag "Show committer"
-                  (string :tag "date using format" "%Y-%m-%d %H:%M ")
+                  (string :tag "date using time-format" "%Y-%m-%d %H:%M ")
                   (const  :tag "date's age" age)
-                  (const  :tag "date's age (abbreviated)" age-abbreviated))))
+                  (const  :tag "date's age (abbreviated)" age-abbreviated))
+         (const   :tag "Calculate width using magit-log-margin-width"
+                  magit-log-margin-width)
+         (boolean :tag "Show author name by default")
+         (integer :tag "Show author name using width")))
 
 ;;; Time Utilities
 

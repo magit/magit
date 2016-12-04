@@ -148,18 +148,25 @@ The functions which respect this option are
   :type 'boolean)
 
 (defcustom magit-status-margin
-  (list nil nil (nth 2 magit-log-margin))
+  (list nil
+        (nth 1 magit-log-margin)
+        'magit-log-margin-width nil
+        (nth 4 magit-log-margin))
   "Format of the margin in `magit-status-mode' buffers.
 
-The value has the form (INIT NAME DATE-STYLE).
+The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-If NAME is an integer, then the name of the author is shown
-  using an area of that width.  Otherwise it must be nil.
-DATE-STYLE can be `age', in which case the age of the commit
-is shown.  If it is `age-abbreviated', then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be a
-format-string suitable for `format-time-string'."
+STYLE controls how to format the committer date.  It can be one
+  of `age' (to show the age of the commit), `age-abbreviated' (to
+  abbreviate the time unit to a character), or a string (suitable
+  for `format-time-string') to show the actual date.
+WIDTH controls the width of the margin.  This exists for forward
+  compatibility and currently the value should not be changed.
+AUTHOR controls whether the name of the author is also shown by
+  default.
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+  is shown, then this specifies how much space is used to do so."
   :package-version '(magit . "2.9.0")
   :group 'magit-status
   :group 'magit-margin
@@ -210,20 +217,25 @@ To change the value in an existing buffer use the command
 (put 'magit-refs-show-commit-count 'permanent-local t)
 
 (defcustom magit-refs-margin
-  (list nil 18 (nth 2 magit-log-margin))
+  (list nil
+        (nth 1 magit-log-margin)
+        'magit-log-margin-width nil
+        (nth 4 magit-log-margin))
   "Format of the margin in `magit-refs-mode' buffers.
 
-The value has the form (INIT NAME DATE-STYLE TAGS).
+The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-If NAME is an integer, then the name of the author is shown
-  using an area of that width.  Otherwise it must be nil.
-DATE-STYLE can be `age', in which case the age of the commit
-date is shown.  If it is `age-abbreviated', then the time
-unit is abbreviated to a single character.  DATE-STYLE can
-also be a format-string suitable for `format-time-string'.
-If TAGS is non-nil, then the margin shows information not
-only about branches, but also about tags."
+STYLE controls how to format the committer date.  It can be one
+  of `age' (to show the age of the commit), `age-abbreviated' (to
+  abbreviate the time unit to a character), or a string (suitable
+  for `format-time-string') to show the actual date.
+WIDTH controls the width of the margin.  This exists for forward
+  compatibility and currently the value should not be changed.
+AUTHOR controls whether the name of the author is also shown by
+  default.
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+  is shown, then this specifies how much space is used to do so."
   :package-version '(magit . "2.9.0")
   :group 'magit-refs
   :group 'magit-margin
@@ -1044,7 +1056,7 @@ Refs are compared with a branch read form the user."
   (magit-mode-setup #'magit-refs-mode ref args))
 
 (defun magit-refs-refresh-buffer (&rest _ignore)
-  (setq magit-set-buffer-margin-refresh (not magit-show-margin))
+  (setq magit-set-buffer-margin-refresh (not (magit-buffer-margin-p)))
   (unless (magit-rev-verify (or (car magit-refresh-args) "HEAD"))
     (setq magit-refs-show-commit-count nil))
   (magit-insert-section (branchbuf)
@@ -1260,7 +1272,7 @@ different, but only if you have customized the option
                                       (and behind (format "behind %s" behind))))
                              (t "")))
                   "")))))
-    (when magit-show-margin
+    (when (magit-buffer-margin-p)
       (magit-refs-format-margin branch))
     (magit-refs-insert-cherry-commits head branch section)))
 
@@ -1308,7 +1320,7 @@ different, but only if you have customized the option
                             `((?n . ,(propertize tag 'face 'magit-tag))
                               (?c . ,(or mark count ""))
                               (?m . ,(or message "")))))
-              (when (and (car magit-buffer-margin)
+              (when (and (magit-buffer-margin-p)
                          magit-refs-margin-for-tags)
                 (magit-refs-format-margin (concat tag "^{commit}")))
               (magit-refs-insert-cherry-commits head tag section)))))
