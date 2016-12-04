@@ -1552,7 +1552,7 @@ all others with \"-\"."
                               (magit-margin-get :age-width)))))))
       (setq magit-show-margin width)
       (when (and enable magit-set-buffer-margin-refresh)
-        (magit-refresh))
+        (magit-refresh-buffer))
       (dolist (window (get-buffer-window-list nil nil 0))
         (with-selected-window window
           (set-window-margins nil (car (window-margins)) width)
