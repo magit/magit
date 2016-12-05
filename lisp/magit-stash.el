@@ -31,18 +31,26 @@
 
 ;;; Options
 
-(defcustom magit-stashes-margin '(t nil (nth 2 magit-log-margin))
+(defcustom magit-stashes-margin
+  (list (nth 0 magit-log-margin)
+        (nth 1 magit-log-margin)
+        'magit-log-margin-width nil
+        (nth 4 magit-log-margin))
   "Format of the margin in `magit-stashes-mode' buffers.
 
-The value has the form (INIT NAME DATE-STYLE).
+The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-If NAME is an integer, then the name of the author is shown
-  using an area of that width.  Otherwise it must be nil.
-DATE-STYLE can be `age', in which case the age of the commit
-is shown.  If it is `age-abbreviated', then the time unit is
-abbreviated to a single character.  DATE-STYLE can also be a
-format-string suitable for `format-time-string'."
+STYLE controls how to format the committer date.  It can be one
+  of `age' (to show the age of the commit), `age-abbreviated' (to
+  abbreviate the time unit to a character), or a string (suitable
+  for `format-time-string') to show the actual date.
+WIDTH controls the width of the margin.  This exists for forward
+  compatibility and currently the value should not be changed.
+AUTHOR controls whether the name of the author is also shown by
+  default.
+AUTHOR-WIDTH has to be an integer.  When the name of the author
+  is shown, then this specifies how much space is used to do so."
   :package-version '(magit . "2.9.0")
   :group 'magit-refs
   :group 'magit-margin
@@ -325,7 +333,7 @@ instead of \"Stashes:\"."
     (magit-insert-section (stashes ref (not magit-status-expand-stashes))
       (magit-insert-heading heading)
       (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-        "reflog" "--format=%gd %at %gs" ref))))
+        "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref))))
 
 ;;; List Stashes
 
@@ -346,7 +354,7 @@ instead of \"Stashes:\"."
                               "Stashes:"
                             (format "Stashes [%s]:" ref)))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-      "reflog" "--format=%gd %at %gs" ref)))
+      "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)))
 
 ;;; Show Stash
 

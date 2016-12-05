@@ -83,7 +83,17 @@ Breaking changes since v2.8.0
 
 * The margin that by default is displayed in pure log buffers and
   optionally in some other buffers that contain logs is now more
-  flexible and easier to customize.
+  flexible and easier to customize and to change on the fly.
+
+  The popup that "L" is bound to now features three commands that
+  for changing the appearance of the margin: `magit-toggle-margin',
+  `magit-toggle-margin-details' and `magit-cycle-margin-style'.
+
+  The binding for `magit-toggle-margin' has changed from "L t" to the
+  simpler "L L".  You can easily revert this change using:
+
+    (magit-change-popup-key 'magit-log-refresh-popup :action ?L ?t)
+    (magit-change-popup-key 'magit-margin-popup :action ?L ?t)
 
   For each mode that supports the margin there now exists a dedicated
   option named `magit-*-margin', which controls whether the margin is
@@ -107,14 +117,15 @@ Breaking changes since v2.8.0
 
   You might also want to customize the options `magit-status-margin',
   `magit-stashes-margin' and `magit-log-select-margin', for all of
-  which no corresponding `magit-*-show-margin' used to exist.
+  which no corresponding `magit-*-show-margin' used to exist.  Another
+  new option is `magit-refs-margin-for-tags'.
 
   If you choose to display the commit dates instead of the commit
   ages in all supported modes, then you should set `magit-log-margin'
   before loading `magit'.  If you do that then the default values of
   the other `magit-*-margin' options will use the same commit date
   style without you having to customize each option individually.
-  #2792
+  #2885, #2792
 
 Changes since v2.8.0
 --------------------

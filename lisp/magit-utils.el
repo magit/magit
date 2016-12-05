@@ -532,41 +532,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
-;;; Time Utilities
-
-(defvar magit--age-spec
-  `((?Y "year"   "years"   ,(round (* 60 60 24 365.2425)))
-    (?M "month"  "months"  ,(round (* 60 60 24 30.436875)))
-    (?w "week"   "weeks"   ,(* 60 60 24 7))
-    (?d "day"    "days"    ,(* 60 60 24))
-    (?h "hour"   "hours"   ,(* 60 60))
-    (?m "minute" "minutes" 60)
-    (?s "second" "seconds" 1))
-  "Time units used when formatting relative commit ages.
-
-The value is a list of time units, beginning with the longest.
-Each element has the form (CHAR UNIT UNITS SECONDS).  UNIT is the
-time unit, UNITS is the plural of that unit.  CHAR is a character
-abbreviation.  And SECONDS is the number of seconds in one UNIT.
-
-This is defined as a variable to make it possible to use time
-units for a language other than English.  It is not defined
-as an option, because most other parts of Magit are always in
-English.")
-
-(defun magit--age (date &optional abbreviate)
-  (cl-labels ((fn (age spec)
-                  (-let [(char unit units weight) (car spec)]
-                    (let ((cnt (round (/ age weight 1.0))))
-                      (if (or (not (cdr spec))
-                              (>= (/ age weight) 1))
-                          (list cnt (cond (abbreviate char)
-                                          ((= cnt 1) unit)
-                                          (t units)))
-                        (fn age (cdr spec)))))))
-    (fn (abs (- (float-time) (string-to-number date)))
-        magit--age-spec)))
-
 ;;; Kludges
 
 (defun magit-file-accessible-directory-p (filename)

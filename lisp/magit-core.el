@@ -30,11 +30,12 @@
 
 ;;; Code:
 
+(require 'magit-popup)
 (require 'magit-utils)
 (require 'magit-section)
 (require 'magit-git)
 (require 'magit-mode)
-(require 'magit-popup)
+(require 'magit-margin)
 (require 'magit-process)
 (require 'magit-autorevert)
 

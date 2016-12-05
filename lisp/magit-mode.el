@@ -59,13 +59,13 @@
 
 (defcustom magit-mode-setup-hook
   '(magit-maybe-save-repository-buffers
-    magit-maybe-show-margin)
+    magit-set-buffer-margin)
   "Hook run by `magit-mode-setup'."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
   :type 'hook
   :options '(magit-maybe-save-repository-buffers
-             magit-maybe-show-margin))
+             magit-set-buffer-margin))
 
 (defcustom magit-pre-refresh-hook '(magit-maybe-save-repository-buffers)
   "Hook run before refreshing in `magit-refresh'.
