@@ -910,7 +910,7 @@ Do not add this to a hook variable."
           "\\(?5:[^\0]*\\)\0"                      ; author
           "\\(?:\\(?:[^@]+@{\\(?6:[^}]+\\)}\0"     ; date
           "\\(?10:merge \\|autosave \\|restart \\|[^:]+: \\)?" ; refsub
-          "\\(?2:.*\\)?\\)\\| \\)$"))              ; msg
+          "\\(?2:.*\\)?\\)\\|\0\\)$"))             ; msg
 
 (defconst magit-reflog-subject-re
   (concat "\\(?1:[^ ]+\\) ?"                       ; command
