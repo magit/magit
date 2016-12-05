@@ -101,6 +101,7 @@ define LOADDEFS_TMPL
 ;; no-update-autoloads: t
 ;; End:
 ;;; $(PKG)-autoloads.el ends here
+
 endef
 export LOADDEFS_TMPL
 #'
@@ -108,17 +109,18 @@ export LOADDEFS_TMPL
 define VERSIONLIB_TMPL
 ;;; $(PKG)-version.el --- the Magit version you are using
 
-(setq $(PKG)-version \""$(VERSION)"\")
+(setq $(PKG)-version "$(VERSION)")
 
 (provide '$(PKG)-version)
 
-;; Local Variables:\n
-;; version-control: never\n
-;; no-byte-compile: t\n
-;; no-update-autoloads: t\n
-;; coding: utf-8\n
-;; End:\n
+;; Local Variables:
+;; version-control: never
+;; no-byte-compile: t
+;; no-update-autoloads: t
+;; coding: utf-8
+;; End:
 ;;; $(PKG)-version.el ends here
+
 endef
 export VERSIONLIB_TMPL
 #'
