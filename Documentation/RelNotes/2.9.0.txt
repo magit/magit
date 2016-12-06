@@ -9,7 +9,7 @@ Git users to perform almost all of their daily version control tasks
 directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
-For more information about Magit, see http://magit.vc.
+For more information about Magit, see https://magit.vc.
 
 Magit v2.9.0 Release Notes (draft)
 ==================================
