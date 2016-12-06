@@ -70,6 +70,16 @@ Breaking changes since v2.8.0
   default behavior changed when "magit-key-mode.el" was replaced with
   "magit-popup.el".  Now we don't need that safety net anymore.  #2868
 
+* If, and only if, point is on a removed line in a diff, then "RET"
+  now jump to the last commit which still had that line, not the
+  commit which removed that line.  Staged changes are excluded from
+  this new behavior because in that case it seems favorable to always
+  visit the file in the working tree to make further changes.  #2755
+
+  You can easily revert this change using:
+
+    (setq magit-diff-visit-previous-blob nil)
+
 * The margin that by default is displayed in pure log buffers and
   optionally in some other buffers that contain logs is now more
   flexible and easier to customize and to change on the fly.
@@ -160,23 +170,16 @@ Changes since v2.8.0
   only once per refresh to obtain a list of all variables and their
   values.  #2743
 
-* Visiting a file or blob by pressing "RET" (or always visiting the
-  file by pressing "M-RET") while point is inside a diff has been
-  improved in several ways.
+* When visiting a file or blob buffer by pressing "RET" while point is
+  inside a diff, then the position this jumps to is now accurate (even
+  when jumping to the file in the working tree from a diff that wasn't
+  about changes in the working tree).  #2828
 
-  The position we jump to is now accurate even when jumping to the
-  file in the working tree from a diff that wasn't about changes in
-  the working tree.
-
-  If, and only if, point is on a removed line in the diff, then we
-  jump to the last commit which still had that line, not the commit
-  which removed that line.  Staged changes are currently excluded from
-  this new behavior, and it can be disabled completely using the new
-  option `magit-diff-visit-previous-blob'.
-
-  If, and only if, the file/blob buffer is narrowed to a region that
-  does not include the position we jump to, then it is widened first.
-  #2755, #2804, #2818, #2828
+* When visiting a file or blob buffer by pressing `RET` while point is
+  inside a diff, then the buffer may be widened but only if necessary.
+  If it isn't necessary to widen the buffer to jump to the appropriate
+  location, because that position falls into the narrowed region, then
+  that the buffer isn't widened.  #2804, #2818
 
 * Hunk refinement is now faster.  Users who previously set
   `magit-diff-refine-hunk' to `nil' due to performance issues may
