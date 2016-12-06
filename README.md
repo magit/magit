@@ -1,5 +1,4 @@
-<p align="center"><img src="https://magit.vc/img/magit.png"/></p>
-<h1 align="center">It's Magit!</h1>
+<div align="center"><img src="https://magit.vc/assets/magit-168x200px.png"/></div>
 <h2 align="center">A Git Porcelain inside Emacs</h2>
 <p align="center">
   <a href="https://magit.vc"><b>homepage</b></a> |

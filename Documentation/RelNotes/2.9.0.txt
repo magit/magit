@@ -133,6 +133,9 @@ Breaking changes since v2.8.0
 Changes since v2.8.0
 --------------------
 
+* Magit has a new shiny logo!  It was created by Dmitriy A. from
+  Prospect One.  Thanks a lot!  https://prospectone.io/portfolio/magit
+
 * The new option `magit-branch-adjust-remote-upstream-alist' can be
   used to configure what branch to use as upstream when branching a
   remote branch.  Without setting this option the upstream ends up
