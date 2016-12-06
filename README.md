@@ -26,17 +26,41 @@
 </p>
 ***
 
-<p align="center">
-  <br>
-  <img width="16" height="16" src="https://assets-cdn.github.com/images/icons/emoji/unicode/2764.png">
-  <b>
-    Please consider supporting development by
-    <a href="https://magit.vc/donations/">making a donation</a>.
-  </b>
-  <img width="16" height="16" src="https://assets-cdn.github.com/images/icons/emoji/unicode/2764.png">
-  <br>
-  <br>
-</p>
+<div align="center">
+  Keeping its user <a href= "https://magit.vc/quotes">this excited</a> is
+  <a href="https://magit.vc/stats/authors.html#cumulated_added_lines_of_code_per_author">
+    a lot of work
+  </a>.
+  If Magit makes you <br> more productive too,
+  then <b>please consider making a donation</b>.
+</div>
+<div align="center">
+  <em>Thank you! &mdash; Jonas Bernoulli</em>
+</div>
+<br>
+<div align="center">
+  <a href="https://www.paypal.me/JonasBernoulli/20">
+    <img title="Donate using PayPal"
+         alt="Donate using PayPal"
+		 style="height: 50px; width: auto;"
+         src="https://magit.vc/assets/paypal.png"></a>
+  &nbsp;&nbsp;
+  <a href="https://www.patreon.com/tarsius">
+    <img title="Donate monthly using Patreon"
+         alt="Donate monthly using Patreon"
+		 style="height: 50px; width: auto;"
+         src="https://magit.vc/assets/patreon-50px.png"></a>
+  &nbsp;&nbsp;
+  <a href="https://salt.bountysource.com/teams/magit">
+    <img title="Donate monthly using Bountysource"
+         alt="Donate monthly using Bountysource"
+		 style="height: 50px; width: auto;"
+         src="https://magit.vc/assets/bountysource-50px.png"></a>
+</div>
+<br>
+<div align="center">
+  Some alternative donation methods are <a href="/donate">available</a>.
+</div>
 ***
 
 Support
