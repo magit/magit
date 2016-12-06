@@ -11,6 +11,9 @@ Magit and Git itself deserve to be called porcelains.
 
 For more information about Magit, see https://magit.vc.
 
+If Magit helps you be more productive, then please consider donating
+at https://magit.vc/donate/.
+
 Magit v2.9.0 Release Notes (draft)
 ==================================
 
@@ -67,20 +70,6 @@ Breaking changes since v2.8.0
   default behavior changed when "magit-key-mode.el" was replaced with
   "magit-popup.el".  Now we don't need that safety net anymore.  #2868
 
-* By default Git-Commit no longer complains about a summary line that
-  is too long by some standards.  You can easily revert this change
-  using:                                                     2f115d51
-
-    (add-to-list 'git-commit-style-convention-checks
-                 'overlong-summary-line)
-
-* In buffers used to write commit messages `fill-column' is no longer
-  set to 72.  Instead the default value 70 is used (or whatever local
-  value is set up through other means).  You can easily revert this
-  change using:                                          #2848, #2852
-
-    (setq git-commit-fill-column 72)
-
 * The margin that by default is displayed in pure log buffers and
   optionally in some other buffers that contain logs is now more
   flexible and easier to customize and to change on the fly.
@@ -126,6 +115,20 @@ Breaking changes since v2.8.0
   the other `magit-*-margin' options will use the same commit date
   style without you having to customize each option individually.
   #2885, #2792
+
+* By default Git-Commit no longer complains about a summary line that
+  is too long by some standards.  You can easily revert this change
+  using:                                                      2f115d51
+
+    (add-to-list 'git-commit-style-convention-checks
+                 'overlong-summary-line)
+
+* In buffers used to write commit messages `fill-column' is no longer
+  set to 72.  Instead the default value 70 is used (or whatever local
+  or global value is set up through other means).  You can easily
+  revert this change using:                               #2848, #2852
+
+    (setq git-commit-fill-column 72)
 
 Changes since v2.8.0
 --------------------
@@ -266,9 +269,6 @@ Changes since v2.8.0
 * Added new faces `git-rebase-comment-heading'
   and `git-rebase-comment-hash'.  #2769
 
-* In `magit-refs-mode-map' "L" is now bound to `magit-toggle-margin'.
-  b310ebd8
-
 * `whitespace-mode' is not compatible with Magit buffers, where it is
   now actively prevented from being turned on by the user.  #2821
 
@@ -408,3 +408,22 @@ code clean-ups, and other small bug fixes and improvements.
 
 Authors
 -------
+
+   191  Jonas Bernoulli
+    21  Kyle Meyer
+    12  Noam Postavsky
+     4  Alexander Gramiak
+     2  Adam Porter
+     2  Marco Wahl
+     2  Sean Allred
+     1  Allen
+     1  Basil L. Contovounesios
+     1  Chillar Anand
+     1  Graham Dobbins
+     1  Joakim Jalap
+     1  Josiah Schwab
+     1  Keshav Kini
+     1  Marian Schubert
+     1  Philipp Stephani
+     1  Tunc Uzlu
+     1  York Zhao
