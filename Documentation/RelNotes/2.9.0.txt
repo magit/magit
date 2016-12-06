@@ -400,6 +400,9 @@ Fixes since v2.8.0
 * The status header about the upstream did not take
   `branch.NAME.rebase' into account.  e65f15d0
 
+* Highlighting overlays could not be garbage collected until after a
+  refresh.  #2888
+
 This release also contains typofixes, documentation updates,
 code clean-ups, and other small bug fixes and improvements.
 
