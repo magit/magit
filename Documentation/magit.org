@@ -6484,31 +6484,6 @@ That likely means that Magit is having problems finding an appropriate
 emacsclient executable.  See [[info:with-editor#Configuring With-Editor]]
 and [[info:with-editor#Debugging]].
 
-*** Diffs are collapsed after un-/staging
-
-This typically happens on Windows and/or large repositories where
-preparing diffs takes longer than ~magit-diff-expansion-threshold~. The
-default is one second, try increasing it to a larger value.
-
-Currently when one part of a Magit buffer has to be updated the whole
-buffer is recreated from scratch.  That obviously isn't good for
-performance and will be fixed eventually.  Meanwhile we need a kludge
-that prevents the update from taking very long under certain
-circumstances, e.g. when showing the difference for hundrets of
-changes files.
-
-For that reason the variable ~magit-diff-expansion-threshold~ was added,
-defaulting to one second.  If it takes longer than that to recreate a
-Magit buffer, then no further diff sections are expanded because
-that's one of the steps that take the longest.  If a diff is not
-expanded, then some work can be delayed until it actually is.
-
-You can then still expand sections manually, but when you refresh the
-complete buffer explicitly using ~g~ or by performing an action which
-triggers a refresh, then previously expanded diffs could be collapsed.
-You can set ~magit-diff-expansion-threshold~ to a higher value to
-prevent that from happening.
-
 *** I am using MS Windows and cannot push with Magit
 
 It's almost certain that Magit is only incidental to this issue.  It

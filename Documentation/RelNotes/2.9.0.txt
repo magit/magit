@@ -130,6 +130,17 @@ Breaking changes since v2.8.0
 
     (setq git-commit-fill-column 72)
 
+* When it takes too long to parse diffs, then Magit used to stop
+  expanding diff sections after one second.  This was a constant
+  source of confusion and one second is a very long time anyway, so
+  this did not really help hiding the slowness, so this kludge was
+  effectively dropped.  You can easily revert this change using:
+
+    (setq magit-diff-expansion-threshold 1.0)
+
+  By the way, improving performance will soon be a priority again.
+  #2886
+
 Changes since v2.8.0
 --------------------
 

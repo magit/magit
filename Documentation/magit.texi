@@ -295,7 +295,6 @@ FAQ - Issues and errors
 * Magit is slow::
 * I changed several thousand files at once and now Magit is unusable::
 * I am having problems committing::
-* Diffs are collapsed after un-/staging::
 * I am using MS Windows and cannot push with Magit::
 * I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
 * Diffs contain control sequences::
@@ -8685,7 +8684,6 @@ conflicts.
 * Magit is slow::
 * I changed several thousand files at once and now Magit is unusable::
 * I am having problems committing::
-* Diffs are collapsed after un-/staging::
 * I am using MS Windows and cannot push with Magit::
 * I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
 * Diffs contain control sequences::
@@ -8717,32 +8715,6 @@ commit.  Also see @ref{Performance,Performance}.
 That likely means that Magit is having problems finding an appropriate
 emacsclient executable.  See @ref{Configuring With-Editor,,,with-editor,}
 and @ref{Debugging,,,with-editor,}.
-
-@node Diffs are collapsed after un-/staging
-@subsection Diffs are collapsed after un-/staging
-
-This typically happens on Windows and/or large repositories where
-preparing diffs takes longer than @code{magit-diff-expansion-threshold}. The
-default is one second, try increasing it to a larger value.
-
-Currently when one part of a Magit buffer has to be updated the whole
-buffer is recreated from scratch.  That obviously isn't good for
-performance and will be fixed eventually.  Meanwhile we need a kludge
-that prevents the update from taking very long under certain
-circumstances, e.g. when showing the difference for hundrets of
-changes files.
-
-For that reason the variable @code{magit-diff-expansion-threshold} was added,
-defaulting to one second.  If it takes longer than that to recreate a
-Magit buffer, then no further diff sections are expanded because
-that's one of the steps that take the longest.  If a diff is not
-expanded, then some work can be delayed until it actually is.
-
-You can then still expand sections manually, but when you refresh the
-complete buffer explicitly using @code{g} or by performing an action which
-triggers a refresh, then previously expanded diffs could be collapsed.
-You can set @code{magit-diff-expansion-threshold} to a higher value to
-prevent that from happening.
 
 @node I am using MS Windows and cannot push with Magit
 @subsection I am using MS Windows and cannot push with Magit

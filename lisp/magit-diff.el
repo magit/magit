@@ -73,7 +73,7 @@
   :group 'magit-revision
   :type 'hook)
 
-(defcustom magit-diff-expansion-threshold 1.0
+(defcustom magit-diff-expansion-threshold 60
   "After how many seconds not to expand anymore diffs.
 
 Except in status buffers, diffs are usually start out fully
@@ -87,7 +87,7 @@ to be collapsed.  So you should not pick a very low value here.
 The hook function `magit-diff-expansion-threshold' has to be a
 member of `magit-section-set-visibility-hook' for this option
 to have any effect"
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.9.0")
   :group 'magit-diff
   :type 'float)
 
