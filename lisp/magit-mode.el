@@ -898,10 +898,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                         (or (get-buffer-window-list buffer nil t)
                             (list (selected-window))))))
         (deactivate-mark)
-        (setq magit-section-highlight-overlays nil
-              magit-section-highlighted-section nil
-              magit-section-highlighted-sections nil
-              magit-section-unhighlight-sections nil)
+        (setq magit-section-highlight-overlays nil)
+        (setq magit-section-highlighted-section nil)
+        (setq magit-section-highlighted-sections nil)
+        (setq magit-section-unhighlight-sections nil)
         (let ((inhibit-read-only t))
           (erase-buffer)
           (save-excursion

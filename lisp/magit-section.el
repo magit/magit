@@ -845,10 +845,10 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
             (deactivate-mark nil)
             (selection (magit-region-sections)))
         (mapc #'delete-overlay magit-section-highlight-overlays)
-        (setq magit-section-highlight-overlays nil
-              magit-section-unhighlight-sections
-              magit-section-highlighted-sections
-              magit-section-highlighted-sections nil)
+        (setq magit-section-highlight-overlays nil)
+        (setq magit-section-unhighlight-sections
+              magit-section-highlighted-sections)
+        (setq magit-section-highlighted-sections nil)
         (unless (eq section magit-root-section)
           (run-hook-with-args-until-success
            'magit-section-highlight-hook section selection))
