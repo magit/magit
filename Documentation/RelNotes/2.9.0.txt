@@ -78,7 +78,7 @@ Breaking changes since v2.8.0
   "magit-popup.el".  Now we don't need that safety net anymore.  #2868
 
 * If, and only if, point is on a removed line in a diff, then "RET"
-  now jump to the last commit which still had that line, not the
+  now jumps to the last commit which still had that line, not the
   commit which removed that line.  Staged changes are excluded from
   this new behavior because in that case it seems favorable to always
   visit the file in the working tree to make further changes.  #2755
@@ -203,7 +203,7 @@ Changes since v2.8.0
   function instead of one of the functions mentioned below.
 
   The new functions `magit-diff-highlight-hunk-region-using-overlay'
-  and `magit-diff-highlight-hunk-region-using-overlay' draw one-pixel
+  and `magit-diff-highlight-hunk-region-using-underline' draw one-pixel
   lines before and after the hunk-internal region.  Both of these
   functions have (different) glitches and due to limitations of Emacs'
   display engine it is not possible to fix those.  #2293, #2758, #2791
