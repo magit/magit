@@ -236,4 +236,4 @@ bump-snapshots:
         (setq git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
         (setq magit-popup-version \"$(MAGIT_POPUP_MELPA_SNAPSHOT)\")\
         $$set_package_requires)"
-	git commit -a -m "reset Package-Requires for Melpa"
+	git commit -a -m "Reset Package-Requires for Melpa"
