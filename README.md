@@ -59,7 +59,7 @@
 </div>
 <br>
 <div align="center">
-  Some alternative donation methods are <a href="/donate">available</a>.
+  Some alternative donation methods are <a href="https://magit.vc/donate">available</a>.
 </div>
 ***
 
