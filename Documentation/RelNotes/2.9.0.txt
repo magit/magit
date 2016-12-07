@@ -182,7 +182,7 @@ Changes since v2.8.0
   when jumping to the file in the working tree from a diff that wasn't
   about changes in the working tree).  #2828
 
-* When visiting a file or blob buffer by pressing `RET` while point is
+* When visiting a file or blob buffer by pressing "RET" while point is
   inside a diff, then the buffer may be widened but only if necessary.
   If it isn't necessary to widen the buffer to jump to the appropriate
   location, because that position falls into the narrowed region, then
@@ -202,7 +202,7 @@ Changes since v2.8.0
   italic).  I recommend you customize the above option to use this
   function instead of one of the functions mentioned below.
 
-  The new functions `magit-diff-highlight-hunk-region-using-overlay'
+  The new functions `magit-diff-highlight-hunk-region-using-overlays'
   and `magit-diff-highlight-hunk-region-using-underline' draw one-pixel
   lines before and after the hunk-internal region.  Both of these
   functions have (different) glitches and due to limitations of Emacs'
