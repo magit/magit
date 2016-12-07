@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.8
+#+SUBTITLE: for version 2.9
 
 #+TEXINFO_DEFFN: t
 #+TEXINFO_CLASS: info+
