@@ -274,8 +274,8 @@ Changes since v2.8.0
 * The environment variable `INSIDE_EMACS' is now set when calling git.
   #2789
 
-* `magit-define-popup' now allows specify `:max-action-columns' per
-  section by using a function that return a different value based on
+* `magit-define-popup' now allows specifying `:max-action-columns' per
+  section by using a function that returns a different value based on
   the heading, which is passed as argument.  964fcbe0
 
 * Added support for new gpg status letters X, Y, R, and E.  #2845
@@ -306,7 +306,7 @@ Fixes since v2.8.0
   the current branch is being rebased onto its upstream in order to
   display that information in the status buffer.  9c946ee3
 
-* On 32bit systems `magit-format-log-margin' failed because it tried
+* On 32-bit systems `magit-format-log-margin' failed because it tried
   to truncate a time float that was too large for that.  #2765
 
 * On Emacs v25.1 the hunk-internal region flashed briefly on
@@ -371,7 +371,7 @@ Fixes since v2.8.0
 
 * The user name and email, which are displayed when reading a gpg key
   from the user, were not stripped from the chosen value before being
-  handed of to git.  #2761
+  handed off to git.  #2761
 
 * When the upstream of the current branch is a remote whose url isn't
   configured then that caused an error when refreshing the status
