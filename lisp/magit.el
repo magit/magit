@@ -2778,7 +2778,7 @@ the current repository."
 ;;;; Config Files
 
 (defun magit-find-git-config-file (filename &optional wildcards)
-  "Edit a located in the current repository's git directory.
+  "Edit a file located in the current repository's git directory.
 
 When \".git\", located at the root of the working tree, is a
 regular file, then that makes it cumbersome to open a file
