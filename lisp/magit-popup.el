@@ -485,7 +485,7 @@ usually specified in that order):
 
 `:max-action-columns'
   The maximum number of actions to display on a single line, a
-  number or a function that return a number and takes the name
+  number or a function that returns a number and takes the name
   of the section currently being inserted as argument.  If there
   isn't enough room to display as many columns as specified here,
   then fewer are used.
