@@ -51,6 +51,7 @@ ELS += magit-utils.el
 ELS += magit-section.el
 ELS += magit-git.el
 ELS += magit-mode.el
+ELS += magit-margin.el
 ELS += magit-process.el
 ELS += magit-autorevert.el
 ELS += magit-core.el
