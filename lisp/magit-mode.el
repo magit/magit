@@ -640,7 +640,8 @@ the mode of the current buffer derives from `magit-log-mode' or
 `magit-cherry-mode'."
   (display-buffer
    buffer
-   (cond ((and (derived-mode-p 'magit-log-mode 'magit-cherry-mode)
+   (cond ((and (or git-commit-mode
+                   (derived-mode-p 'magit-log-mode 'magit-cherry-mode))
                (with-current-buffer buffer
                  (derived-mode-p 'magit-diff-mode)))
           nil)
