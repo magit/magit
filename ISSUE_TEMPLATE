@@ -2,7 +2,9 @@
 DO NOT use this issue tracker for support requests
 =================================================================
 
-Please use the Emacs StackExchange site [1] or the Gitter chat [2] for support requests.  But before you do that please read the list of frequently asked questions [3] and consult the manual [4] and a search engine.
+Please use the Emacs StackExchange site [1] or the Gitter chat [2] for support
+requests. But before you do that please read the list of frequently asked
+questions [3] and consult the manual [4] and a search engine.
 
 We only use this issue tracker for feature requests and for defects.
 
@@ -16,9 +18,12 @@ We only use this issue tracker for feature requests and for defects.
 How to ask for a new feature and other improvements
 =================================================================
 
-Before you ask for a new feature to be added to Magit or for an existing feature to be improved, please make sure that what are asking for does not already exist by consulting the documentation [5].
+Before you ask for a new feature to be added to Magit or for an existing feature
+to be improved, please make sure that what are asking for does not already exist
+by consulting the documentation [5].
 
-Then explain the feature you would like to see in Magit and why that is useful to you.
+Then explain the feature you would like to see in Magit and why that is useful
+to you.
 
   [5]: https://magit.vc/manual/magit/#Top
 
@@ -36,16 +41,23 @@ Also post the output of
 
   M-x magit-version RET
 
-Before reporting a defect please try to reproduce it using an Emacs instance in which only Magit and its dependencies have been loaded. Other packages or your configuration should not be loaded. This makes it easier to determine whether the issue lays with Magit or something else.
+Before reporting a defect please try to reproduce it using an Emacs instance in
+which only Magit and its dependencies have been loaded. Other packages or your
+configuration should not be loaded. This makes it easier to determine whether
+the issue lays with Magit or something else.
 
 If you run Magit from its Git repository, then you can do so using:
 
   $ cd /path/to/magit
   $ make emacs-Q
 
-Alternatively, run `M-x magit-emacs-Q-command RET` to save a shell command to the `kill-ring` and the system's clip-board, which you can then copy into a shell to run.
+Alternatively, run `M-x magit-emacs-Q-command RET` to save a shell command to
+the `kill-ring` and the system's clip-board, which you can then copy into a
+shell to run.
 
-Finally, if that didn't work and you have installed Magit from Melpa, then run commands similar to the ones below, but use tab completion to replace the various Ns with the correct versions:
+Finally, if that didn't work and you have installed Magit from Melpa, then run
+commands similar to the ones below, but use tab completion to replace the
+various Ns with the correct versions:
 
   $ cd ~/.emacs.d/elpa/magit-N
   $ emacs -Q --debug-init --eval '(setq debug-on-error t)' -L ../dash-N -L ../git-commit-N -L ../magit-popup-N -L ../with-editor-N -L . -l magit
