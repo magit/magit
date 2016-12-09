@@ -484,7 +484,8 @@ ACTION is a member of option `magit-slow-confirm'."
                               (file-name-directory (locate-library lib)))
                             '("magit" "magit-popup" "with-editor"
                               "git-commit" "dash"))))
-                "-l" "magit")
+                ;; Avoid Emacs bug#16406 by using full path.
+                "-l" ,(file-name-sans-extension (locate-library "magit")))
               " ")))
     (message "Uncustomized Magit command saved to kill-ring, %s"
              "please run it in a terminal.")
