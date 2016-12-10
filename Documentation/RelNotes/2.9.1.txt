@@ -7,5 +7,12 @@ Changes since v2.9.0
 Fixes since v2.9.0
 ------------------
 
+* When creating a commit, `magit-display-buffer-fullcolumn-most-v1'
+  did fill up the entire frame, hidding the commit message buffer.
+  #2891
+
+This release also contains documentation updates, typo fixes, and
+fixes for minor bugs.
+
 Authors
 -------
