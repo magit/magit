@@ -972,8 +972,9 @@ Do not add this to a hook variable."
                             magit-log-bisect-vis-re
                           magit-log-heading-re)))
       (magit-delete-line)
-      ;; `git reflog show' output sometimes ends with an incomplete
-      ;; element (which has no basis in the data stored in the file).
+      ;; If the reflog entries have been pruned, the output of `git
+      ;; reflog show' includes a partial line that refers to the hash
+      ;; of the youngest expired reflog entry.
       (when (and (eq style 'reflog) (not date))
         (cl-return-from magit-log-wash-rev t))
       (magit-insert-section section (commit hash)
