@@ -1926,7 +1926,8 @@ or a ref which is not a branch, then it inserts nothing."
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" magit-diff-section-arguments "--no-prefix"
+      "diff" magit-diff-section-arguments
+      "--diff-filter=ACDMRTXB" "--no-prefix"
       "--" magit-diff-section-file-args)))
 
 (defvar magit-staged-section-map
@@ -1946,7 +1947,17 @@ or a ref which is not a branch, then it inserts nothing."
   (magit-insert-section (staged)
     (magit-insert-heading "Staged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" "--cached" magit-diff-section-arguments "--no-prefix"
+      "diff" "--cached" magit-diff-section-arguments
+      "--diff-filter=ACDMRTXB" "--no-prefix"
+      "--" magit-diff-section-file-args)))
+
+(defun magit-insert-unmerged-changes ()
+  "Insert section showing unmerged changes."
+  (magit-insert-section (unmerged)
+    (magit-insert-heading "Unmerged changes:")
+    (magit-git-wash #'magit-diff-wash-diffs
+      "diff" "--cached" magit-diff-section-arguments
+      "--diff-filter=U" "--no-prefix"
       "--" magit-diff-section-file-args)))
 
 ;;; Diff Type
