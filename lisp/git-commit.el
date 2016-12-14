@@ -330,6 +330,7 @@ already using it, then you probably shouldn't start doing so."
     (define-key map (kbd "C-c C-x r") 'git-commit-review)
     (define-key map (kbd "C-c C-x o") 'git-commit-cc)
     (define-key map (kbd "C-c C-x p") 'git-commit-reported)
+    (define-key map (kbd "C-c C-x i") 'git-commit-suggested)
     map)
   "Key map used by `git-commit-mode'.")
 
