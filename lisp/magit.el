@@ -1050,7 +1050,7 @@ it is detached."
 ;;;###autoload
 (defun magit-show-refs (&optional ref args)
   "List and compare references in a dedicated buffer.
-Refs are compared with a branch read form the user."
+Refs are compared with a branch read from the user."
   (interactive (list (magit-read-other-branch "Compare with")
                      (magit-show-refs-arguments)))
   (magit-mode-setup #'magit-refs-mode ref args))
@@ -1736,7 +1736,7 @@ from the source branch's upstream, then an error is raised."
 
 When the branch being reset is the current branch, then do a
 hard reset.  If there are any uncommitted changes, then the user
-has to confirming the reset because those changes would be lost.
+has to confirm the reset because those changes would be lost.
 
 This is useful when you have started work on a feature branch but
 realize it's all crap and want to start over.

@@ -3561,7 +3561,7 @@ features are available from separate popups.
 
   When the branch being reset is the current branch, then a hard reset
   is performed.  If there are any uncommitted changes, then the user
-  has to confirming the reset because those changes would be lost.
+  has to confirm the reset because those changes would be lost.
 
   This is useful when you have started work on a feature branch but
   realize it's all crap and want to start over.
