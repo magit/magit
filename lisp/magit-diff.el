@@ -1414,7 +1414,8 @@ is set in `magit-mode-setup'."
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-j") 'magit-diff-visit-file-worktree)
+    (unless (featurep 'jkl)
+      (define-key map (kbd "C-j") 'magit-diff-visit-file-worktree))
     (define-key map [C-return] 'magit-diff-visit-file-worktree)
     (define-key map [remap magit-visit-thing]      'magit-diff-visit-file)
     (define-key map [remap magit-delete-thing]     'magit-discard)
@@ -1428,7 +1429,8 @@ is set in `magit-mode-setup'."
 
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-j") 'magit-diff-visit-file-worktree)
+    (unless (featurep 'jkl)
+      (define-key map (kbd "C-j") 'magit-diff-visit-file-worktree))
     (define-key map [C-return] 'magit-diff-visit-file-worktree)
     (define-key map [remap magit-visit-thing]      'magit-diff-visit-file)
     (define-key map [remap magit-delete-thing]     'magit-discard)

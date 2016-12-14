@@ -175,11 +175,17 @@ before entering a popup has.
     (define-key map (kbd "C-t")     'magit-popup-toggle-show-common-commands)
     (define-key map (kbd "C-c C-c") 'magit-popup-set-default-arguments)
     (define-key map (kbd "C-x C-s") 'magit-popup-save-default-arguments)
-    (define-key map (kbd "C-m") 'push-button)
-    (define-key map (kbd "DEL") 'backward-button)
-    (define-key map (kbd "C-p") 'backward-button)
-    (define-key map (kbd "C-i") 'forward-button)
-    (define-key map (kbd "C-n") 'forward-button)
+    (cond ((featurep 'jkl)
+           (define-key map (kbd "C-p") 'universal-argument)
+           (define-key map [return]    'push-button)
+           (define-key map (kbd "C-i") 'backward-button)
+           (define-key map (kbd "C-k") 'forward-button))
+          (t
+           (define-key map (kbd "C-m") 'push-button)
+           (define-key map (kbd "DEL") 'backward-button)
+           (define-key map (kbd "C-p") 'backward-button)
+           (define-key map (kbd "C-i") 'forward-button)
+           (define-key map (kbd "C-n") 'forward-button)))
     map)
   "Keymap for `magit-popup-mode'.
 

@@ -122,11 +122,18 @@ and then turned on again when turning off the latter."
 
 (defvar magit-blame-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-m") 'magit-show-commit)
-    (define-key map (kbd   "p") 'magit-blame-previous-chunk)
-    (define-key map (kbd   "P") 'magit-blame-previous-chunk-same-commit)
-    (define-key map (kbd   "n") 'magit-blame-next-chunk)
-    (define-key map (kbd   "N") 'magit-blame-next-chunk-same-commit)
+    (cond ((featurep 'jkl)
+           (define-key map [return]    'magit-show-commit)
+           (define-key map (kbd   "i") 'magit-blame-previous-chunk)
+           (define-key map (kbd   "I") 'magit-blame-previous-chunk-same-commit)
+           (define-key map (kbd   "k") 'magit-blame-next-chunk)
+           (define-key map (kbd   "K") 'magit-blame-next-chunk-same-commit))
+          (t
+           (define-key map (kbd "C-m") 'magit-show-commit)
+           (define-key map (kbd   "p") 'magit-blame-previous-chunk)
+           (define-key map (kbd   "P") 'magit-blame-previous-chunk-same-commit)
+           (define-key map (kbd   "n") 'magit-blame-next-chunk)
+           (define-key map (kbd   "N") 'magit-blame-next-chunk-same-commit)))
     (define-key map (kbd   "b") 'magit-blame-popup)
     (define-key map (kbd   "t") 'magit-blame-toggle-headings)
     (define-key map (kbd   "q") 'magit-blame-quit)

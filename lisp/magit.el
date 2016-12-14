@@ -2875,8 +2875,12 @@ Currently this only adds the following key bindings.
 
 (defvar magit-blob-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "p" 'magit-blob-previous)
-    (define-key map "n" 'magit-blob-next)
+    (cond ((featurep 'jkl)
+           (define-key map "i" 'magit-blob-previous)
+           (define-key map "k" 'magit-blob-next))
+          (t
+           (define-key map "p" 'magit-blob-previous)
+           (define-key map "n" 'magit-blob-next)))
     (define-key map "q" 'magit-kill-this-buffer)
     map)
   "Keymap for `magit-blob-mode'.")
@@ -3002,8 +3006,12 @@ Currently this only adds the following key bindings.
 (defvar magit-dispatch-popup-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-popup-mode-map)
-    (define-key map (kbd "C-i") 'magit-invoke-popup-action)
-    (define-key map (kbd "C-m") 'magit-invoke-popup-action)
+    (cond ((featurep 'jkl)
+           (define-key map [tab]    'magit-invoke-popup-action)
+           (define-key map [return] 'magit-invoke-popup-action))
+          (t
+           (define-key map (kbd "C-i") 'magit-invoke-popup-action)
+           (define-key map (kbd "C-m") 'magit-invoke-popup-action)))
     map)
   "Keymap used by `magit-dispatch-popup'.")
 
@@ -3130,7 +3138,8 @@ control which repositories are displayed."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map "g" 'magit-list-repositories)
-    (define-key map (kbd "C-m") 'magit-repolist-status)
+    (define-key map (if (featurep 'jkl) [return] (kbd "C-m"))
+      'magit-repolist-status)
     map)
   "Local keymap for Magit-Repolist mode buffers.")
 
