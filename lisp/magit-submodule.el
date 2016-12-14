@@ -322,9 +322,8 @@ These sections can be expanded to show the respective commits."
 
 (defvar magit-submodule-list-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map "g"  'magit-list-submodules)
-    (define-key map "\r" 'magit-repolist-status)
+    (set-keymap-parent map magit-repolist-mode-map)
+    (define-key map "g" 'magit-list-submodules)
     map)
   "Local keymap for Magit-Submodule-List mode buffers.")
 
