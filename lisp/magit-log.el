@@ -1356,7 +1356,8 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
         (propertize (concat " Reflog for " ref) 'face 'magit-header-line))
   (magit-insert-section (reflogbuf)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
-      "reflog" "show" "--format=%h%x00%aN%x00%gd%x00%gs" "--date=raw" args ref)))
+      "reflog" "show" "--format=%h%x00%aN%x00%gd%x00%gs" "--date=raw"
+      args ref "--")))
 
 (defvar magit-reflog-labels
   '(("commit"      . magit-reflog-commit)

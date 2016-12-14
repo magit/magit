@@ -14,6 +14,10 @@ Fixes since v2.9.0
   did fill up the entire frame, hidding the commit message buffer.
   #2891
 
+* `magit-reflog' and `magit-reflog-current' reported a revision's
+  reflog as empty when the name of a file in the repository, relative
+  to the top-level directory, matched the revision name.
+
 This release also contains documentation updates, typo fixes, and
 fixes for minor bugs.
 
