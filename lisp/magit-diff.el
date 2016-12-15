@@ -224,7 +224,7 @@ visits the file in the working tree."
 ;;;; File Diff
 
 (defcustom magit-diff-buffer-file-locked t
-  "Whether `magit-diff-buffer-file' uses a decicated buffer."
+  "Whether `magit-diff-buffer-file' uses a dedicated buffer."
   :package-version '(magit . "2.7.0")
   :group 'magit-commands
   :group 'magit-diff
