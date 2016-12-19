@@ -3191,25 +3191,25 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
-  (--when-let (magit-get-upstream-branch t)
+  (--when-let (magit-get-upstream-branch nil t)
     (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpulled-from-pushremote (_id)
   "Insert number of commits in the push branch but not the current branch."
-  (--when-let (magit-get-push-branch t)
+  (--when-let (magit-get-push-branch nil t)
     (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpushed-to-upstream (_id)
   "Insert number of commits in the current branch but not its upstream."
-  (--when-let (magit-get-upstream-branch t)
+  (--when-let (magit-get-upstream-branch nil t)
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpushed-to-pushremote (_id)
   "Insert number of commits in the current branch but not its push branch."
-  (--when-let (magit-get-push-branch t)
+  (--when-let (magit-get-push-branch nil t)
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
