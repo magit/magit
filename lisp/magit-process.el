@@ -595,7 +595,7 @@ Magit status buffer."
   "Special sentinel used by `magit-run-git-sequencer'."
   (when (memq (process-status process) '(exit signal))
     (magit-process-sentinel process event)
-    (-when-let (process-buf (process-get process 'process-buf))
+    (-when-let (process-buf (process-buffer process))
       (when (buffer-live-p process-buf)
         (-when-let (status-buf (with-current-buffer process-buf
                                  (magit-mode-get-buffer 'magit-status-mode)))
