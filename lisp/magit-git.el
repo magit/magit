@@ -875,15 +875,20 @@ which is different from the current branch and still exists."
                (concat "refs/remotes/" remote "/" (substring merge 11))))))))
 
 (cl-defun magit-get-upstream-branch
-    (&optional (branch (magit-get-current-branch)))
-  (when branch
-    (let ((remote (magit-get "branch" branch "remote"))
-          (merge  (magit-get "branch" branch "merge")))
-      (when (and remote merge (string-prefix-p "refs/heads/" merge))
-        (setq merge (substring merge 11))
-        (if (string-equal remote ".")
-            (propertize merge 'face 'magit-branch-local)
-          (propertize (concat remote "/" merge) 'face 'magit-branch-remote))))))
+    (&optional (branch (magit-get-current-branch)) verify)
+  (and branch
+       (-when-let* ((remote (magit-get "branch" branch "remote"))
+                    (merge  (magit-get "branch" branch "merge")))
+         (and (string-prefix-p "refs/heads/" merge)
+              (let* ((upstream (substring merge 11))
+                     (upstream
+                      (if (string-equal remote ".")
+                          (propertize upstream 'face 'magit-branch-local)
+                        (propertize (concat remote "/" upstream)
+                                    'face 'magit-branch-remote))))
+                (and (or (not verify)
+                         (magit-rev-verify upstream))
+                     upstream))))))
 
 (defun magit-get-indirect-upstream-branch (branch &optional force)
   (let ((remote (magit-get "branch" branch "remote")))
@@ -915,9 +920,13 @@ which is different from the current branch and still exists."
       (magit-get "remote.pushDefault")))
 
 (cl-defun magit-get-push-branch
-    (&optional (branch (magit-get-current-branch)))
-  (-when-let (remote (and branch (magit-get-push-remote branch)))
-    (concat remote "/" branch)))
+    (&optional (branch (magit-get-current-branch)) verify)
+  (and branch
+       (-when-let* ((remote (magit-get-push-remote branch))
+                    (push-branch (concat remote "/" branch)))
+         (and (or (not verify)
+                  (magit-rev-verify push-branch))
+              push-branch))))
 
 (defun magit-get-@{push}-branch (&optional branch)
   (let ((ref (magit-rev-parse "--symbolic-full-name"
