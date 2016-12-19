@@ -640,7 +640,7 @@ If no such sequence is in progress, do nothing."
                                    (equal (magit-patch-id rev)
                                           (magit-patch-id (car (last orig 2)))))
                               "stop" ; We haven't done anything yet.
-                            "same")  ; There are new commits.
+                            "like")  ; There are new commits.
                           rev (if (equal rev head)
                                   'magit-sequence-head
                                 'magit-sequence-stop)))
