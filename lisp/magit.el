@@ -464,13 +464,12 @@ depth directly."
   :group 'magit
   :type 'integer)
 
-(unless (find-lisp-object-file-name 'magit-repolist-mode-hook 'defvar)
-  (add-hook 'magit-repolist-mode-hook 'hl-line-mode))
 (defcustom magit-repolist-mode-hook '(hl-line-mode)
   "Hook run after entering Magit-Repolist mode."
   :package-version '(magit . "2.9.0")
   :group 'magit-modes
   :type 'hook
+  :get 'magit-hook-custom-get
   :options '(hl-line-mode))
 
 (defcustom magit-repolist-columns

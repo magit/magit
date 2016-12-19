@@ -10,6 +10,9 @@ Changes since v2.9.0
 Fixes since v2.9.0
 ------------------
 
+* Customizations of hooks were ignored, if the `custom-set-variables'
+  form was evaluated before the Magit libraries were loaded.  #2902
+
 * When creating a commit, `magit-display-buffer-fullcolumn-most-v1'
   filled the entire frame, hiding the commit message buffer.  #2891
 

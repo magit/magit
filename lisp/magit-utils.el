@@ -566,6 +566,8 @@ for an alternative."
 (advice-add 'whitespace-turn-on :before
             'whitespace-dont-turn-on-in-magit-mode)
 
+;;; Kludges for Custom
+
 (defun magit-custom-initialize-reset (symbol exp)
   "Initialize SYMBOL based on EXP.
 Set the symbol, using `set-default' (unlike
@@ -583,6 +585,32 @@ or (last of all) the value of EXP."
      (error
       (eval (let ((sv (get symbol 'saved-value)))
               (if sv (car sv) exp)))))))
+
+(defun magit-hook-custom-get (symbol)
+  (if (symbol-file symbol 'defvar)
+      (default-toplevel-value symbol)
+    ;;
+    ;; Called by `custom-initialize-reset' on behalf of `symbol's
+    ;; `defcustom', which is being evaluated for the first time to
+    ;; set the initial value, but there's already a default value,
+    ;; which most likely was stablished by one or more `add-hook'
+    ;; calls.
+    ;;
+    ;; We combine the `standard-value' and the current value, while
+    ;; preserving the order established by `:options', and return
+    ;; the result of that to be used as the "initial" default value.
+    ;;
+    (let ((standard (eval (car (get symbol 'standard-value))))
+          (current (default-toplevel-value symbol))
+          (value nil))
+      (dolist (fn (get symbol 'custom-options))
+        (when (or (memq fn standard)
+                  (memq fn current))
+          (push fn value)))
+      (dolist (fn current)
+        (unless (memq fn value)
+          (push fn value)))
+      (nreverse value))))
 
 ;;; Kludges for Info Manuals
 

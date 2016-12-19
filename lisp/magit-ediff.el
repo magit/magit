@@ -39,9 +39,6 @@
   "Ediff support for Magit."
   :group 'magit-extensions)
 
-(unless (find-lisp-object-file-name 'magit-ediff-quit-hook 'defvar)
-  (add-hook 'magit-ediff-quit-hook 'magit-ediff-restore-previous-winconf)
-  (add-hook 'magit-ediff-quit-hook 'magit-ediff-cleanup-auxiliary-buffers))
 (defcustom magit-ediff-quit-hook
   '(magit-ediff-cleanup-auxiliary-buffers
     magit-ediff-restore-previous-winconf)
@@ -53,6 +50,7 @@ invoked using Magit."
   :package-version '(magit . "2.2.0")
   :group 'magit-ediff
   :type 'hook
+  :get 'magit-hook-custom-get
   :options '(magit-ediff-cleanup-auxiliary-buffers
              magit-ediff-restore-previous-winconf))
 

@@ -112,22 +112,20 @@ which in turn uses the function specified here."
                 (function-item display-buffer)
                 (function :tag "Function")))
 
-(unless (find-lisp-object-file-name 'magit-pre-display-buffer-hook 'defvar)
-  (add-hook 'magit-pre-display-buffer-hook 'magit-save-window-configuration))
 (defcustom magit-pre-display-buffer-hook '(magit-save-window-configuration)
   "Hook run by `magit-display-buffer' before displaying the buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
   :type 'hook
+  :get 'magit-hook-custom-get
   :options '(magit-save-window-configuration))
 
-(unless (find-lisp-object-file-name 'magit-post-display-buffer-hook 'defvar)
-  (add-hook 'magit-post-display-buffer-hook 'magit-maybe-set-dedicated))
 (defcustom magit-post-display-buffer-hook '(magit-maybe-set-dedicated)
   "Hook run by `magit-display-buffer' after displaying the buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
   :type 'hook
+  :get 'magit-hook-custom-get
   :options '(magit-maybe-set-dedicated))
 
 (defcustom magit-generate-buffer-name-function
