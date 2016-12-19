@@ -3197,10 +3197,9 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-unpulled-from-pushremote (_id)
   "Insert number of commits in the push branch but not the current branch."
-  (--when-let (magit-get-push-branch)
-    (when (magit-rev-verify it)
-      (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
-        (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow))))))
+  (--when-let (magit-get-push-branch t)
+    (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
+      (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpushed-to-upstream (_id)
   "Insert number of commits in the current branch but not its upstream."
@@ -3210,10 +3209,9 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-unpushed-to-pushremote (_id)
   "Insert number of commits in the current branch but not its push branch."
-  (--when-let (magit-get-push-branch)
-    (when (magit-rev-verify it)
-      (let ((n (car (magit-rev-diff-count "HEAD" it))))
-        (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow))))))
+  (--when-let (magit-get-push-branch t)
+    (let ((n (car (magit-rev-diff-count "HEAD" it))))
+      (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-read-repository (&optional read-directory-name)
   "Read a Git repository in the minibuffer, with completion.
