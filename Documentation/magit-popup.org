@@ -121,6 +121,7 @@ in packages that are not related to Magit.  But keep in mind that it
 will be deprecated eventually.
 
 * Usage
+** _ :ignore:
 
 Every popup buffers created with a prefix command contains a section
 named "Actions" listing the available suffix commands.  Most buffers
@@ -386,6 +387,7 @@ To emphasize the default action by making it bold use this:
 #+END_SRC
 
 * Defining Prefix and Suffix Commands
+** _ :ignore:
 
 If you write an extension for Magit then you should use this library
 now and later when ~transient~ is released port to that.
@@ -625,6 +627,8 @@ Except when redefining the former, you should not use these directly.
   arguments that don't match any of the regexps are returned, or ~:only~
   which doesn't change the behavior.
 
+* _ :ignore:
+
 #  LocalWords:  ARG DESC KEY's LocalWords Magit OPTVAL POPUP PREPEND
 #  LocalWords:  Popup SHORTNAME args desc magit manpage popup popup's
 #  LocalWords:  popups pre prepend
@@ -633,4 +637,5 @@ Except when redefining the former, you should not use these directly.
 # eval: (require 'magit-utils nil t)
 # eval: (require 'org-man     nil t)
 # eval: (require 'ox-texinfo+ nil t)
+# eval: (and (require 'ox-extra nil t) (ox-extras-activate '(ignore-headlines)))
 # End:

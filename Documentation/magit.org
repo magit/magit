@@ -123,6 +123,7 @@ porcelain commands: ~add~, ~am~, ~bisect~, ~blame~, ~branch~, ~checkout~, ~cherr
 commands are implemented on top of Git plumbing commands.
 
 * Installation
+** _ :ignore:
 
 Magit can be installed using Emacs' package manager or manually from
 its development repository.
@@ -386,6 +387,7 @@ then it is highly recommended that you read the next section too.
 
 * Interface Concepts
 ** Modes and Buffers
+*** _ :ignore:
 
 Magit provides several major-modes.  For each of these modes there
 usually exists only one buffer per repository.  Separate modes and
@@ -856,6 +858,7 @@ buffer) and you would not be asked whether you want to save the buffer
 (because it isn't modified).
 
 ** Sections
+*** _ :ignore:
 
 Magit buffers are organized into nested sections, which can be
 collapsed and expanded, similar to how sections are handled in Org
@@ -1382,6 +1385,7 @@ non-Windows machine, then you must change the value to "git".
   used every time Magit runs Git for any purpose.
 
 * Inspecting
+** _ :ignore:
 
 The functionality provided by Magit can be roughly divided into three
 groups: inspecting existing data, manipulating existing data or adding
@@ -1400,6 +1404,7 @@ mainly concerned with the porcelain -- Magit's plumbing layer is
 described later.
 
 ** Status Buffer
+*** _ :ignore:
 
 While other Magit buffers contain e.g. one particular diff or one
 particular log, the status buffer contains the diffs for staged and
@@ -1804,6 +1809,7 @@ The following functions can be added to the above option:
   but not its push branch.
 
 ** Logging
+*** _ :ignore:
 
 The status buffer contains logs for the unpushed and unpulled commits,
 but that obviously isn't enough.  The prefix command ~magit-log-popup~,
@@ -2151,6 +2157,7 @@ Also see [[man:git-reflog]]
     is shown, then this specifies how much space is used to do so.
 
 ** Diffing
+*** _ :ignore:
 
 The status buffer contains diffs for the staged and unstaged commits,
 but that obviously isn't enough.  The prefix command ~magit-diff-popup~,
@@ -2561,6 +2568,7 @@ information on how to use Ediff itself, see info:ediff.
   that were created using a Magit command.
 
 ** References Buffer
+*** _ :ignore:
 
 - Key: y, magit-show-refs-popup
 
@@ -2948,6 +2956,7 @@ Also see [[man:git-blame]]
   then ask the user every time she clones a repository.
 
 ** Staging and Unstaging
+*** _ :ignore:
 
 Like Git, Magit can of course stage and unstage complete files.
 Unlike Git, it also allows users to gracefully un-/stage
@@ -3104,6 +3113,7 @@ With a prefix argument all apply variants attempt a 3-way merge when
 appropriate (i.e. when ~git apply~ is used internally).
 
 ** Committing
+*** _ :ignore:
 
 When the user initiates a commit, Magit calls ~git commit~ without any
 arguments, so Git has to get it from the user.  It creates the file
@@ -4024,6 +4034,7 @@ former.  It is much easier to understand and use, and except for
 truely complex conflicts, the latter is usually overkill.
 
 ** Rebasing
+*** _ :ignore:
 
 Also see [[man:git-rebase]]  For information on how to resolve
 conflicts that occur during rebases see the preceding section.
@@ -4356,6 +4367,7 @@ the hash.  The patch-ids of two commits can be used to answer the
 question "Do these two commits make the same change?".
 
 ** Cherry Picking
+*** _ :ignore:
 
 Also see [[man:git-cherry-pick]]
 
@@ -5373,6 +5385,7 @@ bindings, but this might be extended.
   Kill the current buffer.
 
 * Customizing
+** _ :ignore:
 
 Both Git and Emacs are highly customizable.  Magit is both a Git
 porcelain as well as an Emacs package, so it makes sense to customize
@@ -5492,6 +5505,7 @@ but to make an informed decision you should see [[*Risk of Reverting
 Automatically]].
 
 *** Performance
+**** _ :ignore:
 
 After Magit has run ~git~ for side-effects, it also refreshes the
 current Magit buffer and the respective status buffer.  This is
@@ -5691,6 +5705,7 @@ command provided by your own Magit extension, then checkout
 https://github.com/magit/magit/wiki/Plugin-Dispatch-Key-Registry.
 
 ** Calling Git
+*** _ :ignore:
 
 Magit provides many specialized functions for calling Git.  All of
 these functions are defined in either ~magit-git.el~ or ~magit-process.el~
@@ -6454,7 +6469,6 @@ also affects the diffs displayed inside Magit.
   echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 #+END_SRC
 
-
 *** How does branching and pushing work?
 
 Please see [[*Branching]] and http://emacsair.me/2016/01/18/magit-2.4
@@ -6682,6 +6696,8 @@ Please also see the [[*FAQ]].
 :INDEX:      vr
 :END:
 
+* _ :ignore:
+
 #  LocalWords:  ARG ARGS CONDITIONs ChangeLog DNS Dired Ediff Ediffing
 #  LocalWords:  Elpa Emacsclient FUNC Flyspell Git Git's Gitk HOOK's
 #  LocalWords:  IDENT Ido Junio LocalWords Magit Magit's Magitian Magitians
@@ -6705,4 +6721,5 @@ Please also see the [[*FAQ]].
 # eval: (require 'magit-utils nil t)
 # eval: (require 'org-man     nil t)
 # eval: (require 'ox-texinfo+ nil t)
+# eval: (and (require 'ox-extra nil t) (ox-extras-activate '(ignore-headlines)))
 # End:
