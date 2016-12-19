@@ -3187,7 +3187,7 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-upstream (_id)
   "Insert the upstream branch of the current branch."
-  (magit-get-current-branch))
+  (magit-get-upstream-branch))
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
