@@ -3191,7 +3191,7 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
-  (--when-let (magit-get-upstream-branch)
+  (--when-let (magit-get-upstream-branch t)
     (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
@@ -3204,7 +3204,7 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-unpushed-to-upstream (_id)
   "Insert number of commits in the current branch but not its upstream."
-  (--when-let (magit-get-upstream-branch)
+  (--when-let (magit-get-upstream-branch t)
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
