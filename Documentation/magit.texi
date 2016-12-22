@@ -558,50 +558,46 @@ for various donation options.
 @node Getting started
 @chapter Getting started
 
-This section describes the most essential features that many
+This short tutorial describes the most essential features that many
 Magitians use on a daily basis.  It only scratches the surface but
 should be enough to get you started.
 
-(You might want to create a repository just for this walk-through,
-e.g. by cloning an existing repository.  If you don't use a separate
-repository then make sure you create a snapshot as described below).
+IMPORTANT: It is safest if you clone some repository just for this
+tutorial.  Alternatively you can use an existing local repository, but
+if you do that, then you should commit all uncommitted changes before
+proceeding.
 
 To display information about the current Git repository, type @code{M-x
-magit-status}.  You will be doing that so often that it is best to bind
-this command globally:
+magit-status RET}.  You will be using this command a lot, and should
+therefore give it a global key binding.  This is what we recommend:
 
 @lisp
 (global-set-key (kbd "C-x g") 'magit-status)
 @end lisp
 
-Most Magit commands are commonly invoked from this buffer.  It should
-be considered the primary interface to interact with Git using Magit.
-There are many other Magit buffers, but they are usually created from
-this buffer.
+Most Magit commands are commonly invoked from the status buffer.  It
+can be considered the primary interface for interacting with Git using
+Magit.  Many other Magit buffers may exist at a given time, but they
+are often created from this buffer.
 
-Depending on what state your repository is in, this buffer will
-contain sections titled "Staged changes", "Unstaged changes",
-"Unpulled commits", "Unpushed commits", and/or some others.
+Depending on what state your repository is in, this buffer may contain
+sections titled "Staged changes", "Unstaged changes", "Unmerged into
+origin/master", "Unpushed to origin/master", and many others.
 
-If some staged and/or unstaged changes exist, you should back them up
-now.  Type @code{z} to show the stashing popup buffer featuring various stash
-variants and arguments that can be passed to these commands.  Do not
-worry about those for now, just type @code{Z} (uppercase) to create a stash
-while also keeping the index and work tree intact.  The status buffer
-should now also contain a section titled "Stashes".
-
-Otherwise, if there are no uncommitted changes, you should create some
-now by editing and saving some of the tracked files.  Then go back to
-the status buffer, while at the same time refreshing it, by typing @code{C-x
-g}.  (When the status buffer, or any Magit buffer for that matter, is
-the current buffer, then you can also use just @code{g} to refresh it).
+Since we are starting from a safe state, which you can easily return
+to (by doing a @code{git reset --hard PRE-MAGIT-STATE}), there currently are
+not staged or unstaged changes.  Edit some files and save the changes.
+Then go back to the status buffer, while at the same time refreshing
+it, by typing @code{C-x g}.  (When the status buffer, or any Magit buffer for
+that matter, is the current buffer, then you can also use just @code{g} to
+refresh it).
 
 Move between sections using @code{p} and @code{n}.  Note that the bodies of some
 sections are hidden.  Type @code{TAB} to expand or collapse the section at
 point.  You can also use @code{C-tab} to cycle the visibility of the current
-section and its children. Move to a file section inside the section
+section and its children.  Move to a file section inside the section
 named "Unstaged changes" and type @code{s} to stage the changes you have made
-to that file. That file now appears under "Staged changes".
+to that file.  That file now appears under "Staged changes".
 
 Magit can stage and unstage individual hunks, not just complete files.
 Move to the file you have just staged, expand it using @code{TAB}, move to
@@ -611,10 +607,10 @@ point.  Many other commands behave the same way.
 
 You can also un-/stage just part of a hunk.  Inside the body of a hunk
 section (move there using @code{C-n}), set the mark using @code{C-SPC} and move down
-until some added and removed lines fall inside the region but not all
-of them.  Again type @code{s} to stage.
+until some added and/or removed lines fall inside the region but not
+all of them.  Again type @code{s} to stage.
 
-It's also possible to un-/stage multiple files at once.  Move to a
+It is also possible to un-/stage multiple files at once.  Move to a
 file section, type @code{C-SPC}, move to the next file using @code{n}, and then @code{s} to
 stage both files.  Note that both the mark and point have to be on the
 headings of sibling sections for this to work.  If the region looks
@@ -628,27 +624,23 @@ those for now.  We want to create a "normal" commit, which is done by
 typing @code{c} again.
 
 Now two new buffers appear.  One is for writing the commit message,
-the other shows a diff with the changes that are about to committed.
-Write a message and then type @code{C-c C-c} to actually create the commit.
+the other shows a diff with the changes that you are about to
+committed.  Write a message and then type @code{C-c C-c} to actually create
+the commit.
 
 You probably don't want to push the commit you just created because
 you just committed some random changes, but if that is not the case
-you could push it by typing @code{P} to bring up the push popup and then @code{u} to
-push to the configured upstream.  (If the upstream is not configured,
-then you would be prompted for the push target instead.)
-
-Instead we are going to undo the changes made so far.  Bring up the
-log for the current branch by typing @code{l l}, move to the last commit
-created before starting with this walk through using @code{n}, and do a hard
-reset using @code{C-u x}.  @strong{WARNING}: this discards all uncommitted changes.
-If you did not follow the advice about using a separate repository for
-these experiments and did not create a snapshot of uncommitted changes
-before starting to try out Magit, then don't do this.
+you could push it by typing @code{P} to bring up the push popup and then @code{p}
+to push to a branch with the same name as the local branch onto the
+remote configured as the push-remote.  (If the push-remote is not
+configured yet, then you would first be prompted for the remote to
+push to.)
 
 So far we have mentioned the commit, push, and log popups.  These are
 probably among the popups you will be using the most, but many others
-exist.  To show a popup with all other popups (as well as the various
-apply commands), type @code{h}.  Try a few.
+exist.  To show a popup that lists all other popups (as well as the
+various apply commands and some other fundamental commands), type @code{h}.
+Try a few.
 
 The key bindings in that popup correspond to the bindings in Magit
 buffers, including but not limited to the status buffer.  So you could
@@ -656,13 +648,19 @@ type @code{h d} to bring up the diff popup, but once you remember that "d"
 stands for "diff", you would usually do so by just typing @code{d}.  But the
 "popup of popups" is useful even once you have memorized all the
 bindings, as it can provide easy access to Magit commands from
-non-Magit buffers.  So you should bind this globally too:
+non-Magit buffers.  You should create a global key binding for this
+command too:
 
 @lisp
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 @end lisp
 
-You might also want to enable @code{global-magit-file-mode} (see @ref{Minor mode for buffers visiting files,Minor mode for buffers visiting files}).
+In the same vein, you might also want to enable @code{global-magit-file-mode}
+to get some more Magit key bindings in regular file-visiting buffers
+(see @ref{Minor mode for buffers visiting files,Minor mode for buffers visiting files}).
+
+It is not necessary that you do so now, but if you stick with Magit,
+then it is highly recommended that you read the next section too.
 
 @node Interface concepts
 @chapter Interface concepts
