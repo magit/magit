@@ -1081,9 +1081,15 @@ Do not add this to a hook variable."
   t)
 
 (defun magit-log-maybe-show-more-commits (section)
-  "Automatically insert more commit sections in a log.
-Only do so if `point' is on the \"show more\" section,
-and `magit-log-auto-more' is non-nil."
+  "When point is at the end of a log buffer, insert more commits.
+
+Log buffers end with a button \"Type + to show more history\".
+When the use of a section movement command puts point on that
+button, then automatically show more commits, without the user
+having to press \"+\".
+
+This function is called `magit-section-movement-hook',
+and exists mostly for backward compatibility reasons."
   (when (and (eq (magit-section-type section) 'longer)
              magit-log-auto-more)
     (magit-log-double-commit-limit)

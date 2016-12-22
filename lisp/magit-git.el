@@ -100,7 +100,7 @@
   `("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true"
     ,@(and (eq system-type 'windows-nt)
            (list "-c" "i18n.logOutputEncoding=UTF-8")))
-  "Global git arguments.
+  "Global Git arguments.
 
 The arguments set here are used every time the git executable is
 run as a subprocess.  They are placed right after the executable

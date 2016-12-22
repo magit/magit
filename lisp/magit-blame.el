@@ -99,22 +99,22 @@ and then turned on again when turning off the latter."
 
 (defface magit-blame-summary
   '((t :inherit magit-blame-heading))
-  "Face used for commit summary in blame headings."
+  "Face for commit summary in blame headings."
   :group 'magit-faces)
 
 (defface magit-blame-hash
   '((t :inherit magit-blame-heading))
-  "Face used for commit hash in blame headings."
+  "Face for commit hash in blame headings."
   :group 'magit-faces)
 
 (defface magit-blame-name
   '((t :inherit magit-blame-heading))
-  "Face used for author and committer names in blame headings."
+  "Face for author and committer names in blame headings."
   :group 'magit-faces)
 
 (defface magit-blame-date
   '((t :inherit magit-blame-heading))
-  "Face used for dates in blame headings."
+  "Face for dates in blame headings."
   :group 'magit-faces)
 
 ;;; Code

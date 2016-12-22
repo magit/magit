@@ -216,7 +216,7 @@ for `magit-no-confirm' (which see)."
   :group 'magit-commands
   :type `(choice (const :tag "Always ask \"yes or no\" questions" t)
                  (const :tag "Always ask \"y or n\" questions" nil)
-                 (set   :tag "Ask yes or no questions only for"
+                 (set   :tag "Ask \"yes or no\" questions only for"
                         ,@magit--confirm-actions)))
 
 (defcustom magit-no-message nil
@@ -243,7 +243,10 @@ Messages which can currently be suppressed using this option are:
   :type '(repeat string))
 
 (defcustom magit-ellipsis ?…
-  "Character used to abbreviate text."
+  "Character used to abbreviate text.
+
+Currently this is used to abbreviate author names in the margin
+and in process buffers to elide `magit-git-global-arguments'."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'character)

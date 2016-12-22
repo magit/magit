@@ -62,7 +62,13 @@
 (defcustom magit-mode-setup-hook
   '(magit-maybe-save-repository-buffers
     magit-set-buffer-margin)
-  "Hook run by `magit-mode-setup'."
+  "Hook run by `magit-mode-setup'.
+
+This is run right after displaying the buffer and right before
+generating or updating its content.  `magit-mode-hook' and other,
+more specific, `magit-mode-*-hook's on the other hand are run
+right before displaying the buffer.  Usually one of these hooks
+should be used instead of this one."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
   :type 'hook
@@ -186,10 +192,10 @@ support additional %-sequences."
 (defcustom magit-region-highlight-hook
   '(magit-section-update-region magit-diff-update-hunk-region)
   "Functions used to highlight the region.
+
 Each function is run with the current section as only argument
-until one of them returns non-nil.  When multiple sections are
-selected, then this hook does not run and the region is not
-displayed.  Otherwise fall back to regular region highlighting."
+until one of them returns non-nil.  If all functions return nil,
+then fall back to regular region highlighting."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'hook
@@ -223,13 +229,14 @@ improve performance."
 (defcustom magit-save-repository-buffers t
   "Whether to save file-visiting buffers when appropriate.
 
-If this is non-nil then all modified file-visiting buffers
-belonging to the current repository may be saved before running
-commands, before creating new Magit buffers, and before
-explicitly refreshing such buffers.  If this is `dontask' then
-this is done without user intervention, if it is t then the user
-has to confirm each save.  `dontask' is the recommended setting."
-  :group 'magit
+If non-nil then all modified file-visiting buffers belonging
+to the current repository may be saved before running Magit
+commands and before creating or refreshing Magit buffers.
+If `dontask' then this is done without user intervention, for
+any other non-nil value the user has to confirm each save.
+
+The default is t to avoid surprises, but `dontask' is the
+recommended value."
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
@@ -738,6 +745,10 @@ thinking a buffer belongs to a repo that it doesn't.")
     buffer))
 
 (defun magit-generate-buffer-name-default-function (mode &optional value)
+  "Generate buffer name for a MODE buffer in the current repository.
+The returned name is based on `magit-buffer-name-format' and
+takes `magit-uniquify-buffer-names' and VALUE, if non-nil, into
+account."
   (let ((m (substring (symbol-name mode) 0 -5))
         (v (and value (format "%s" (if (listp value) value (list value))))))
     (format-spec

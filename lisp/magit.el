@@ -445,13 +445,16 @@ and change branch related variables."
 
 (defcustom magit-repository-directories nil
   "List of directories that are or contain Git repositories.
+
 Each element has the form (DIRECTORY . DEPTH) or, for backward
 compatibility, just DIRECTORY.  DIRECTORY has to be a directory
 or a directory file-name, a string.  DEPTH, an integer, specifies
 the maximum depth to look for Git repositories.  If it is 0, then
-only add DIRECTORY itself.  For elements that are strings, the
-value of option `magit-repository-directories-depth' specifies
-the depth."
+only add DIRECTORY itself.
+
+For backward compatibility reasons an element may be a string,
+instead of a cons-cell, in which case the value of the obsolete
+option `magit-repository-directories-depth' specifies the depth."
   :package-version '(magit . "2.8.0")
   :group 'magit
   :type '(repeat (choice (cons directory (integer :tag "Depth")) directory)))
@@ -2851,7 +2854,7 @@ directory, while reading the FILENAME."
 (defvar magit-file-mode-lighter "")
 
 (define-minor-mode magit-file-mode
-  "Enable some Magit features in file-visiting buffers.
+  "Enable some Magit features in a file-visiting buffer.
 
 Currently this only adds the following key bindings.
 \n\\{magit-file-mode-map}"

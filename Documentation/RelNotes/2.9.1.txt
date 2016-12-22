@@ -7,6 +7,8 @@ Changes since v2.9.0
 * The function `magit-display-buffer' now sets the focus on the frame
   used to display the selected window.  #2865
 
+* Many doc-strings were improved, added, and fixed.
+
 Fixes since v2.9.0
 ------------------
 

@@ -24,7 +24,7 @@
 ;;; Commentary:
 
 ;; This library defines tree global modes which automatically commit
-;; snapshots to branch specific work-in-progress refs before and after
+;; snapshots to branch-specific work-in-progress refs before and after
 ;; making changes, and two commands which can be used to do so on
 ;; demand.
 

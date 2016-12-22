@@ -49,7 +49,12 @@
 ;;; Options
 
 (defcustom magit-delete-by-moving-to-trash t
-  "Whether Magit uses the system's trash can."
+  "Whether Magit uses the system's trash can.
+
+You should absolutely not disable this and also remove `discard'
+from `magit-no-confirm'.  Even if you have all of the Magit-Wip
+modes enabled you shouldn't do that, because those modes to not
+track any files that are not tracked in the proper branch."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type 'boolean)

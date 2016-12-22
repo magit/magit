@@ -86,7 +86,7 @@ to be collapsed.  So you should not pick a very low value here.
 
 The hook function `magit-diff-expansion-threshold' has to be a
 member of `magit-section-set-visibility-hook' for this option
-to have any effect"
+to have any effect."
   :package-version '(magit . "2.9.0")
   :group 'magit-diff
   :type 'float)
@@ -2074,7 +2074,7 @@ actually a `diff' but a `diffstat' section."
     t))
 
 (defun magit-diff-highlight (section selection)
-  "Highlight the diff-related SECTION and return t.
+  "Highlight the diff-related SECTION.
 If SECTION is not a diff-related section, then do nothing and
 return nil.  If SELECTION is non-nil then it is a list of sections
 selected by the region, including SECTION.  All of these sections
@@ -2262,6 +2262,7 @@ are highlighted."
                   (line-end-position)))
 
 (defun magit-diff-update-hunk-region (section)
+  "Highlight the hunk-internal region if any."
   (when (eq (magit-diff-scope section t) 'region)
     (magit-diff--make-hunk-overlay
      (magit-section-start section)

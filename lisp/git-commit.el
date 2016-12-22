@@ -245,7 +245,7 @@ already using it, then you probably shouldn't start doing so."
 ;;;; Faces
 
 (defgroup git-commit-faces nil
-  "Faces for highlighting Git commit messages."
+  "Faces used for highlighting Git commit messages."
   :prefix "git-commit-"
   :group 'git-commit
   :group 'faces)
