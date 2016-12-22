@@ -57,7 +57,7 @@ turn on `helm-mode' and leave this option set to the default
 value.  However, if you prefer to not use `helm-mode' but still
 want Magit to use Helm for completion, you can set this option to
 `helm--completing-read-default'."
-  :group 'magit
+  :group 'magit-essentials
   :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
                 (function-item helm--completing-read-default)
@@ -82,7 +82,7 @@ these commands do:
   `magit-branch-rename'
   `magit-tag'"
   :package-version '(magit . "2.9.0")
-  :group 'magit-commands
+  :group 'magit-miscellaneous
   :type '(list :convert-widget custom-hook-convert-widget)
   :options '(magit-branch
              magit-branch-and-checkout
@@ -196,7 +196,7 @@ Global settings:
   this mode is enabled then `safe-with-wip' has the same effect
   as adding all of these symbols individually."
   :package-version '(magit . "2.1.0")
-  :group 'magit
+  :group 'magit-essentials
   :group 'magit-commands
   :type `(choice (const :tag "Always require confirmation" nil)
                  (const :tag "Never require confirmation" t)
@@ -213,7 +213,7 @@ identifying actions, then `yes-or-no-p' is used for those,
 `y-or-no-p' for all others.  The list of actions is the same as
 for `magit-no-confirm' (which see)."
   :package-version '(magit . "2.9.0")
-  :group 'magit-commands
+  :group 'magit-miscellaneous
   :type `(choice (const :tag "Always ask \"yes or no\" questions" t)
                  (const :tag "Always ask \"y or n\" questions" nil)
                  (set   :tag "Ask \"yes or no\" questions only for"
@@ -239,7 +239,7 @@ some of these messages useless.
 Messages which can currently be suppressed using this option are:
 * \"Turning on magit-auto-revert-mode...\""
   :package-version '(magit . "2.8.0")
-  :group 'magit
+  :group 'magit-miscellaneous
   :type '(repeat string))
 
 (defcustom magit-ellipsis ?…
@@ -248,7 +248,7 @@ Messages which can currently be suppressed using this option are:
 Currently this is used to abbreviate author names in the margin
 and in process buffers to elide `magit-git-global-arguments'."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-miscellaneous
   :type 'character)
 
 (defcustom magit-update-other-window-delay 0.2
@@ -265,7 +265,7 @@ this option controls for how long.  For optimal experience you
 might have to adjust this delay and/or the keyboard repeat rate
 and delay of your graphical environment or operating system."
   :package-version '(magit . "2.3.0")
-  :group 'magit-modes
+  :group 'magit-miscellaneous
   :type 'number)
 
 (defcustom magit-view-git-manual-method 'info
@@ -280,7 +280,7 @@ and delay of your graphical environment or operating system."
 
 `woman' View the respective man-page using the `woman' package."
   :package-version '(magit . "2.9.0")
-  :group 'magit-modes
+  :group 'magit-miscellaneous
   :type '(choice (const :tag "view info manual" info)
                  (const :tag "view manpage using `man'" man)
                  (const :tag "view manpage using `woman'" woman)))

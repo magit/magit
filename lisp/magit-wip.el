@@ -37,7 +37,8 @@
 
 (defgroup magit-wip nil
   "Automatically commit to work-in-progress refs."
-  :group 'magit-extensions)
+  :group 'magit-modes
+  :group 'magit-essentials)
 
 (defcustom magit-wip-after-save-local-mode-lighter " sWip"
   "Lighter for Magit-Wip-After-Save-Local mode."

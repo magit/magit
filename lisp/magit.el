@@ -456,7 +456,7 @@ For backward compatibility reasons an element may be a string,
 instead of a cons-cell, in which case the value of the obsolete
 option `magit-repository-directories-depth' specifies the depth."
   :package-version '(magit . "2.8.0")
-  :group 'magit
+  :group 'magit-essentials
   :type '(repeat (choice (cons directory (integer :tag "Depth")) directory)))
 
 (defvar magit-repository-directories-depth 3
@@ -465,10 +465,16 @@ This variable is obsolete and only used for elements of the
 option `magit-repository-directories' (which see) that don't
 specify the depth directly.")
 
+;;;; Repolist Mode
+
+(defgroup magit-repolist nil
+  "List repositories in a buffer."
+  :group 'magit-modes)
+
 (defcustom magit-repolist-mode-hook '(hl-line-mode)
   "Hook run after entering Magit-Repolist mode."
   :package-version '(magit . "2.9.0")
-  :group 'magit-modes
+  :group 'magit-repolist
   :type 'hook
   :get 'magit-hook-custom-get
   :options '(hl-line-mode))
@@ -490,7 +496,7 @@ and with `default-directory' bound to the toplevel of its working
 tree.  It has to return a string to be inserted or nil.  PROPS is
 an alist that supports the keys `:right-align' and `:pad-right'."
   :package-version '(magit . "2.8.0")
-  :group 'magit-commands
+  :group 'magit-repolist
   :type `(repeat (list :tag "Column"
                        (string   :tag "Header Label")
                        (integer  :tag "Column Width")
@@ -2863,6 +2869,7 @@ Currently this only adds the following key bindings.
 (define-globalized-minor-mode global-magit-file-mode
   magit-file-mode magit-file-mode-turn-on
   :package-version '(magit . "2.2.0")
+  :group 'magit-essentials
   :group 'magit-modes)
 
 ;;;; Blob Mode

@@ -56,7 +56,7 @@ from `magit-no-confirm'.  Even if you have all of the Magit-Wip
 modes enabled you shouldn't do that, because those modes to not
 track any files that are not tracked in the proper branch."
   :package-version '(magit . "2.1.0")
-  :group 'magit
+  :group 'magit-essentials
   :type 'boolean)
 
 (defcustom magit-unstage-committed t

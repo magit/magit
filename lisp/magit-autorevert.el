@@ -33,7 +33,8 @@
 (defgroup magit-auto-revert nil
   "Revert buffers when files in repository change."
   :group 'auto-revert
-  :group 'magit-extensions)
+  :group 'magit-essentials
+  :group 'magit-modes)
 
 (defcustom auto-revert-buffer-list-filter nil
   "Filter that determines which buffers `auto-revert-buffers' reverts.
@@ -56,6 +57,7 @@ is enabled."
   :package-version '(magit . "2.4.2")
   :group 'auto-revert
   :group 'magit-auto-revert
+  :group 'magit-related
   :type '(radio (const :tag "no filter" nil)
                 (function-item magit-auto-revert-buffer-p)
                 (function-item magit-auto-revert-repository-buffer-p)
@@ -114,8 +116,8 @@ seconds of user inactivity.  That is not desirable."
 (define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
   magit-turn-on-auto-revert-mode-if-desired
   :package-version '(magit . "2.4.0")
-  :group 'magit
   :group 'magit-auto-revert
+  :group 'magit-essentials
   ;; When `global-auto-revert-mode' is enabled, then this mode is
   ;; redundant.  When `magit-revert-buffers' is nil, then the user has
   ;; opted out of the automatic reverts while the old implementation
@@ -249,8 +251,6 @@ located.  If there is no current repository, then return FALLBACK
 
 (advice-add 'auto-revert-buffers :before
             'auto-revert-buffers--buffer-list-filter)
-
-(custom-add-to-group 'magit 'auto-revert-check-vc-info 'custom-variable)
 
 ;;; magit-autorevert.el ends soon
 (provide 'magit-autorevert)

@@ -30,7 +30,7 @@
 (defcustom magit-submodule-list-mode-hook '(hl-line-mode)
   "Hook run after entering Magit-Submodule-List mode."
   :package-version '(magit . "2.9.0")
-  :group 'magit-modes
+  :group 'magit-repolist
   :type 'hook
   :get 'magit-hook-custom-get
   :options '(hl-line-mode))
@@ -54,7 +54,7 @@ and with `default-directory' bound to the toplevel of its working
 tree.  It has to return a string to be inserted or nil.  PROPS is
 an alist that supports the keys `:right-align' and `:pad-right'."
   :package-version '(magit . "2.8.0")
-  :group 'magit-commands
+  :group 'magit-repolist-mode
   :type `(repeat (list :tag "Column"
                        (string   :tag "Header Label")
                        (integer  :tag "Column Width")
@@ -327,6 +327,7 @@ These sections can be expanded to show the respective commits."
 
 (define-derived-mode magit-submodule-list-mode tabulated-list-mode "Modules"
   "Major mode for browsing a list of Git submodules."
+  :group 'magit-repolist-mode
   (setq x-stretch-cursor        nil)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "Path" nil))

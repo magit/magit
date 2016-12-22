@@ -73,6 +73,7 @@ to what you have set for `magit-log-margin'."
   "The log arguments used in `magit-log-mode' buffers."
   :package-version '(magit . "2.3.0")
   :group 'magit-git-arguments
+  :group 'magit-log
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-log-remove-graph-args '("--follow" "--grep" "-G" "-S" "-L")
@@ -327,6 +328,7 @@ the upstream isn't ahead of the current branch) show."
 (defcustom magit-log-section-arguments '("-n256" "--decorate")
   "The log arguments used in buffers that show other things besides logs."
   :package-version '(magit . "2.4.0")
+  :group 'magit-git-arguments
   :group 'magit-log
   :group 'magit-status
   :type '(repeat (string :tag "Argument")))

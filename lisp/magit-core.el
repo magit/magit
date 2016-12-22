@@ -43,6 +43,21 @@
   "Controlling Git from Emacs."
   :group 'tools)
 
+(defgroup magit-essentials nil
+  "Options that every Magit user should briefly think about.
+
+Each of these options falls into one or more of these categories:
+
+* Options that affect Magit's behavior in fundamental ways.
+* Options that affect safety.
+* Options that affect performance.
+* Options that are of a personal nature."
+  :group 'magit)
+
+(defgroup magit-miscellaneous nil
+  "Miscellanous Magit options."
+  :group 'magit)
+
 (defgroup magit-commands nil
   "Options controlling behavior of certain commands."
   :group 'magit)
@@ -62,14 +77,23 @@ are enabled by default by the popup `magit-NAME-popup'."
   "Modes used or provided by Magit."
   :group 'magit)
 
-(defgroup magit-extensions nil
-  "Extensions to Magit."
+(defgroup magit-buffers nil
+  "Options concerning Magit buffers."
   :group 'magit)
+
+(defgroup magit-refresh nil
+  "Options controlling how Magit buffers are refreshed."
+  :group 'magit
+  :group 'magit-buffers)
 
 (defgroup magit-faces nil
   "Faces used by Magit."
   :group 'magit
   :group 'faces)
+
+(defgroup magit-extensions nil
+  "Extensions to Magit."
+  :group 'magit)
 
 (custom-add-to-group 'magit-modes   'magit-popup       'custom-group)
 (custom-add-to-group 'magit-faces   'magit-popup-faces 'custom-group)
@@ -79,7 +103,17 @@ are enabled by default by the popup `magit-NAME-popup'."
 (custom-add-to-group 'magit-faces   'git-rebase-faces  'custom-group)
 (custom-add-to-group 'magit-process 'with-editor       'custom-group)
 
-(custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
+(defgroup magit-related nil
+  "Options that are relevant to Magit but that are defined elsewhere."
+  :group 'magit
+  :group 'magit-extensions
+  :group 'magit-essentials)
+
+(custom-add-to-group 'magit-related     'auto-revert-check-vc-info 'custom-variable)
+(custom-add-to-group 'magit-auto-revert 'auto-revert-check-vc-info 'custom-variable)
+
+(custom-add-to-group 'magit-related 'smerge-refine-ignore-whitespace 'custom-variable)
+(custom-add-to-group 'magit-related 'vc-follow-symlinks 'custom-variable)
 
 ;;; magit-core.el ends soon
 (provide 'magit-core)

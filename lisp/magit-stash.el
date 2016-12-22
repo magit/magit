@@ -31,6 +31,23 @@
 
 ;;; Options
 
+(defgroup magit-stash nil
+  "List stashes and show stash diffs."
+  :group 'magit-modes)
+
+;;;; Diff options
+
+(defcustom magit-stash-sections-hook
+  '(magit-insert-stash-worktree
+    magit-insert-stash-index
+    magit-insert-stash-untracked)
+  "Hook run to insert sections into stash diff buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-stash
+  :type 'hook)
+
+;;;; Log options
+
 (defcustom magit-stashes-margin
   (list (nth 0 magit-log-margin)
         (nth 1 magit-log-margin)
@@ -52,7 +69,7 @@ AUTHOR controls whether the name of the author is also shown by
 AUTHOR-WIDTH has to be an integer.  When the name of the author
   is shown, then this specifies how much space is used to do so."
   :package-version '(magit . "2.9.0")
-  :group 'magit-refs
+  :group 'magit-stash
   :group 'magit-margin
   :type magit-log-margin--custom-type
   :initialize 'magit-custom-initialize-reset
@@ -356,15 +373,6 @@ instead of \"Stashes:\"."
       "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)))
 
 ;;; Show Stash
-
-(defcustom magit-stash-sections-hook
-  '(magit-insert-stash-worktree
-    magit-insert-stash-index
-    magit-insert-stash-untracked)
-  "Hook run to insert sections into stash buffers."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-log
-  :type 'hook)
 
 ;;;###autoload
 (defun magit-stash-show (stash &optional args files)

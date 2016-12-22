@@ -57,20 +57,23 @@
   "Inspect and manipulate Git diffs."
   :group 'magit-modes)
 
-(custom-add-to-group 'magit-diff 'smerge-refine-ignore-whitespace
-                     'custom-variable)
-
 (defcustom magit-diff-mode-hook nil
   "Hook run after entering Magit-Diff mode."
   :group 'magit-diff
   :type 'hook)
+
+(defcustom magit-diff-arguments '("--stat" "--no-ext-diff")
+  "The diff arguments used in buffers whose mode derives from `magit-diff-mode'."
+  :group 'magit-git-arguments
+  :group 'magit-diff
+  :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-diff-sections-hook
   '(magit-insert-diff
     magit-insert-xref-buttons)
   "Hook run to insert sections into a `magit-diff-mode' buffer."
   :package-version '(magit . "2.3.0")
-  :group 'magit-revision
+  :group 'magit-diff
   :type 'hook)
 
 (defcustom magit-diff-expansion-threshold 60
@@ -312,6 +315,15 @@ and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
   :type 'boolean)
+
+;;;; Diff Sections
+
+(defcustom magit-diff-section-arguments '("--no-ext-diff")
+  "The diff arguments used in buffers that show other things besides diffs."
+  :group 'magit-git-arguments
+  :group 'magit-diff
+  :group 'magit-status
+  :type '(repeat (string :tag "Argument")))
 
 ;;; Faces
 
@@ -586,17 +598,6 @@ and `:slant'."
 (magit-define-popup-keys-deferred 'magit-diff-refresh-popup)
 (magit-define-popup-keys-deferred 'magit-diff-mode-refresh-popup)
 (magit-define-popup-keys-deferred 'magit-revision-mode-refresh-popup)
-
-(defcustom magit-diff-arguments '("--stat" "--no-ext-diff")
-  "The diff arguments used in buffers whose mode derives from `magit-diff-mode'."
-  :group 'magit-git-arguments
-  :type '(repeat (string :tag "Argument")))
-
-(defcustom magit-diff-section-arguments '("--no-ext-diff")
-  "The diff arguments used in buffers that show other things besides diffs."
-  :group 'magit-diff
-  :group 'magit-status
-  :type '(repeat (string :tag "Argument")))
 
 (defvar magit-diff-section-file-args nil)
 (put 'magit-diff-section-file-args 'permanent-local t)
