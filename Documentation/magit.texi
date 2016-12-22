@@ -7388,7 +7388,7 @@ The @code{magit-blob-mode} enables certain Magit features in blob-visiting
 buffers.  Such buffers can be created using @code{magit-find-file} and some
 of the commands mentioned below, which also take care of turning on
 this minor mode.  Currently this mode only establishes a few key
-bindings, but this might be e
+bindings, but this might be extended.
 
 @table @asis
 @kindex p
