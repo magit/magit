@@ -32,6 +32,8 @@
 
 (defgroup magit-auto-revert nil
   "Revert buffers when files in repository change."
+  :link '(custom-group-link auto-revert)
+  :link '(info-link "(magit)Automatic Reverting of File-Visiting Buffers")
   :group 'auto-revert
   :group 'magit-essentials
   :group 'magit-modes)
@@ -116,6 +118,7 @@ seconds of user inactivity.  That is not desirable."
 (define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
   magit-turn-on-auto-revert-mode-if-desired
   :package-version '(magit . "2.4.0")
+  :link '(info-link "(magit)Automatic Reverting of File-Visiting Buffers")
   :group 'magit-auto-revert
   :group 'magit-essentials
   ;; When `global-auto-revert-mode' is enabled, then this mode is

@@ -41,6 +41,9 @@
 
 (defgroup magit nil
   "Controlling Git from Emacs."
+  :link '(url-link "https://magit.vc")
+  :link '(info-link "(magit)FAQ")
+  :link '(info-link "(magit)")
   :group 'tools)
 
 (defgroup magit-essentials nil
@@ -52,6 +55,7 @@ Each of these options falls into one or more of these categories:
 * Options that affect safety.
 * Options that affect performance.
 * Options that are of a personal nature."
+  :link '(info-link "(magit)Essential Settings")
   :group 'magit)
 
 (defgroup magit-miscellaneous nil
@@ -71,6 +75,8 @@ be certain that Magit supports the arguments that you select.
 
 An option `magit-NAME-argument' specifies the arguments that
 are enabled by default by the popup `magit-NAME-popup'."
+  :link '(info-link "(magit-popup)Customizing Existing Popups")
+  :link '(info-link "(magit-popup)Usage")
   :group 'magit-commands)
 
 (defgroup magit-modes nil
@@ -79,10 +85,12 @@ are enabled by default by the popup `magit-NAME-popup'."
 
 (defgroup magit-buffers nil
   "Options concerning Magit buffers."
+  :link '(info-link "(magit)Modes and Buffers")
   :group 'magit)
 
 (defgroup magit-refresh nil
   "Options controlling how Magit buffers are refreshed."
+  :link '(info-link "(magit)Automatic Refreshing of Magit Buffers")
   :group 'magit
   :group 'magit-buffers)
 
@@ -105,6 +113,10 @@ are enabled by default by the popup `magit-NAME-popup'."
 
 (defgroup magit-related nil
   "Options that are relevant to Magit but that are defined elsewhere."
+  :link '(custom-group-link vc)
+  :link '(custom-group-link smerge)
+  :link '(custom-group-link ediff)
+  :link '(custom-group-link auto-revert)
   :group 'magit
   :group 'magit-extensions
   :group 'magit-essentials)
@@ -112,6 +124,7 @@ are enabled by default by the popup `magit-NAME-popup'."
 (custom-add-to-group 'magit-related     'auto-revert-check-vc-info 'custom-variable)
 (custom-add-to-group 'magit-auto-revert 'auto-revert-check-vc-info 'custom-variable)
 
+(custom-add-to-group 'magit-related 'ediff-window-setup-function 'custom-variable)
 (custom-add-to-group 'magit-related 'smerge-refine-ignore-whitespace 'custom-variable)
 (custom-add-to-group 'magit-related 'vc-follow-symlinks 'custom-variable)
 

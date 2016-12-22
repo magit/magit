@@ -75,6 +75,7 @@
 
 (defgroup magit-status nil
   "Inspect and manipulate Git repositories."
+  :link '(info-link "(magit)Status Buffer")
   :group 'magit-modes)
 
 (defcustom magit-status-mode-hook nil
@@ -179,6 +180,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 
 (defgroup magit-refs nil
   "Inspect and manipulate Git branches and tags."
+  :link '(info-link "(magit)References Buffer")
   :group 'magit-modes)
 
 (defcustom magit-refs-mode-hook nil
@@ -469,6 +471,7 @@ specify the depth directly.")
 
 (defgroup magit-repolist nil
   "List repositories in a buffer."
+  :link '(info-link "(magit)Repository List")
   :group 'magit-modes)
 
 (defcustom magit-repolist-mode-hook '(hl-line-mode)
@@ -2869,6 +2872,7 @@ Currently this only adds the following key bindings.
 (define-globalized-minor-mode global-magit-file-mode
   magit-file-mode magit-file-mode-turn-on
   :package-version '(magit . "2.2.0")
+  :link '(info-link "(magit)Minor Mode for Buffers Visiting Files")
   :group 'magit-essentials
   :group 'magit-modes)
 

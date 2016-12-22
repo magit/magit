@@ -41,6 +41,7 @@
 
 (defgroup magit-section nil
   "Expandable sections."
+  :link '(info-link "(magit)Sections")
   :group 'magit)
 
 (defcustom magit-section-show-child-count t

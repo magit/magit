@@ -46,6 +46,7 @@ for that variable.  Likewise if you set `magit-log-margin's INIT
 to nil, then that is used in the default of all other options.  But
 setting it to t, i.e. re-enforcing the default for that option,
 does not carry to other options."
+  :link '(info-link "(magit)Log Margin")
   :group 'magit-log)
 
 (defvar-local magit-buffer-margin nil)

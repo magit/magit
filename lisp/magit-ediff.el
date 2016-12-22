@@ -37,6 +37,7 @@
 
 (defgroup magit-ediff nil
   "Ediff support for Magit."
+  :link '(info-link "(magit)Ediffing")
   :group 'magit-extensions)
 
 (defcustom magit-ediff-quit-hook

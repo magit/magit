@@ -83,6 +83,7 @@
 
 (defgroup git-rebase nil
   "Edit Git rebase sequences."
+  :link '(info-link "(magit)Editing Rebase Sequences")
   :group 'tools)
 
 (defcustom git-rebase-auto-advance t

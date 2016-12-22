@@ -134,6 +134,7 @@
 (defgroup git-commit nil
   "Edit Git commit messages."
   :prefix "git-commit-"
+  :link '(info-link "(magit)Editing Commit Messages")
   :group 'tools)
 
 ;;;###autoload

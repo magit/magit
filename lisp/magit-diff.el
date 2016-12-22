@@ -55,6 +55,7 @@
 
 (defgroup magit-diff nil
   "Inspect and manipulate Git diffs."
+  :link '(info-link "(magit)Diffing")
   :group 'magit-modes)
 
 (defcustom magit-diff-mode-hook nil
@@ -237,6 +238,7 @@ visits the file in the working tree."
 
 (defgroup magit-revision nil
   "Inspect and manipulate Git commits."
+  :link '(info-link "(magit)Revision Buffer")
   :group 'magit-modes)
 
 (defcustom magit-revision-mode-hook nil

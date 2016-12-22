@@ -52,6 +52,7 @@
 
 (defgroup magit-log nil
   "Inspect and manipulate Git history."
+  :link '(info-link "(magit)Logging")
   :group 'magit-modes)
 
 (defgroup magit-margin nil

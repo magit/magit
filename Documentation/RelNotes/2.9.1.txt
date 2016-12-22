@@ -11,6 +11,9 @@ Changes since v2.9.0
   but many options also moved between groups that already existed
   before.
 
+* Many Custom groups and options now link to the relevant Info nodes
+  and to other relevant options.
+
 * Many doc-strings were improved, added, and fixed.
 
 * The obsolete variable `magit-repository-directory-depth' is no

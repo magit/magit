@@ -76,6 +76,7 @@
 
 (defgroup magit-popup nil
   "Infix arguments with a popup as feedback."
+  :link '(info-link "(magit-popup)")
   :group 'bindings)
 
 (defgroup magit-popup-faces nil

@@ -37,6 +37,7 @@
 
 (defgroup magit-wip nil
   "Automatically commit to work-in-progress refs."
+  :link '(info-link "(magit)Wip Modes")
   :group 'magit-modes
   :group 'magit-essentials)
 

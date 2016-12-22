@@ -34,6 +34,7 @@
 
 (defgroup magit-blame nil
   "Blame support for Magit."
+  :link '(info-link "(magit)Blaming")
   :group 'magit-modes)
 
 (defcustom magit-blame-heading-format "%-20a %C %s"
