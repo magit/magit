@@ -58,8 +58,8 @@ General Public License for more details.
 @menu
 * Introduction::
 * Installation::
-* Getting started::
-* Interface concepts::
+* Getting Started::
+* Interface Concepts::
 * Inspecting::
 * Manipulating::
 * Transferring::
@@ -78,19 +78,19 @@ General Public License for more details.
 
 Installation
 
-* Installing from an Elpa archive::
-* Installing from the Git repository::
-* Post-installation tasks::
+* Installing from an Elpa Archive::
+* Installing from the Git Repository::
+* Post-Installation Tasks::
 
 
 
 
-Interface concepts
+Interface Concepts
 
 * Modes and Buffers::
 * Sections::
-* Popup buffers and prefix commands::
-* Completion and confirmation::
+* Popup Buffers and Prefix Commands::
+* Completion and Confirmation::
 * Running Git::
 
 Modes and Buffers
@@ -105,108 +105,108 @@ Modes and Buffers
 
 Sections
 
-* Section movement::
-* Section visibility::
-* Section hooks::
-* Section types and values::
-* Section options::
+* Section Movement::
+* Section Visibility::
+* Section Hooks::
+* Section Types and Values::
+* Section Options::
 
 
 
 
 Running Git
 
-* Viewing Git output::
-* Running Git manually::
-* Git executable::
-* Global Git arguments::
+* Viewing Git Output::
+* Running Git Manually::
+* Git Executable::
+* Global Git Arguments::
 
 Inspecting
 
-* Status buffer::
-* Repository list::
+* Status Buffer::
+* Repository List::
 * Logging::
 * Diffing::
 * Ediffing::
-* References buffer::
+* References Buffer::
 * Bisecting::
-* Visiting blobs::
+* Visiting Blobs::
 * Blaming::
 
-Status buffer
+Status Buffer
 
-* Status sections::
-* Status header sections::
-* Status options::
+* Status Sections::
+* Status Header Sections::
+* Status Options::
 
 
 
 Logging
 
-* Refreshing logs::
+* Refreshing Logs::
 * Log Buffer::
 * Log Margin::
-* Select from log::
+* Select from Log::
 * Reflog::
 * Cherries::
 
 
 Diffing
 
-* Refreshing diffs::
-* Diff buffer::
-* Diff options::
-* Revision buffer::
+* Refreshing Diffs::
+* Diff Buffer::
+* Diff Options::
+* Revision Buffer::
 
 
 
-References buffer
+References Buffer
 
-* References sections::
+* References Sections::
 
 Manipulating
 
-* Repository setup::
-* Staging and unstaging::
+* Repository Setup::
+* Staging and Unstaging::
 * Applying::
 * Committing::
 * Branching::
 * Merging::
-* Resolving conflicts::
+* Resolving Conflicts::
 * Rebasing::
-* Cherry picking::
+* Cherry Picking::
 * Resetting::
 * Stashing::
 
 
-Staging and unstaging
+Staging and Unstaging
 
-* Staging from file-visiting buffers::
+* Staging from File-Visiting Buffers::
 
 
 
 Committing
 
-* Initiating a commit::
-* Editing commit messages::
+* Initiating a Commit::
+* Editing Commit Messages::
 
 
 Branching
 
-* The two remotes::
-* The branch popup::
-* The branch config popup::
+* The Two Remotes::
+* The Branch Popup::
+* The Branch Config Popup::
 
 
 
 
 Rebasing
 
-* Editing rebase sequences::
-* Information about in-progress rebase::
+* Editing Rebase Sequences::
+* Information About In-Progress Rebase::
 
 
-Cherry picking
+Cherry Picking
 
 * Reverting::
 
@@ -216,8 +216,8 @@ Transferring
 * Fetching::
 * Pulling::
 * Pushing::
-* Creating and sending patches::
-* Applying patches::
+* Creating and Sending Patches::
+* Applying Patches::
 
 
 
@@ -227,25 +227,25 @@ Miscellaneous
 * Notes::
 * Submodules::
 * Subtree::
-* Common commands::
-* Wip modes::
-* Minor mode for buffers visiting files::
-* Minor mode for buffers visiting blobs::
+* Common Commands::
+* Wip Modes::
+* Minor Mode for Buffers Visiting Files::
+* Minor Mode for Buffers Visiting Blobs::
 
 
 
 Submodules
 
-* Listing submodules::
-* Submodule popup::
+* Listing Submodules::
+* Submodule Popup::
 
 Customizing
 
-* Per-repository configuration::
-* Essential settings::
+* Per-Repository Configuration::
+* Essential Settings::
 
 
-Essential settings
+Essential Settings
 
 * Safety::
 * Performance::
@@ -253,33 +253,33 @@ Essential settings
 Plumbing
 
 * Calling Git::
-* Section plumbing::
-* Refreshing buffers::
+* Section Plumbing::
+* Refreshing Buffers::
 * Conventions::
 
 Calling Git
 
-* Getting a value from Git::
-* Calling Git for effect::
+* Getting a Value from Git::
+* Calling Git for Effect::
 
 
-Section plumbing
+Section Plumbing
 
-* Creating sections::
-* Section selection::
-* Matching sections::
+* Creating Sections::
+* Section Selection::
+* Matching Sections::
 
 
 
 Conventions
 
-* Confirmation and completion::
+* Confirmation and Completion::
 * Theming Faces::
 
 FAQ
 
 * FAQ - How to @dots{}?::
-* FAQ - Issues and errors::
+* FAQ - Issues and Errors::
 
 FAQ - How to @dots{}?
 
@@ -290,7 +290,7 @@ FAQ - How to @dots{}?
 * Can Magit be used as @code{ediff-version-control-package}?::
 
 
-FAQ - Issues and errors
+FAQ - Issues and Errors
 
 * Magit is slow::
 * I changed several thousand files at once and now Magit is unusable::
@@ -393,13 +393,13 @@ Magit can be installed using Emacs' package manager or manually from
 its development repository.
 
 @menu
-* Installing from an Elpa archive::
-* Installing from the Git repository::
-* Post-installation tasks::
+* Installing from an Elpa Archive::
+* Installing from the Git Repository::
+* Post-Installation Tasks::
 @end menu
 
-@node Installing from an Elpa archive
-@section Installing from an Elpa archive
+@node Installing from an Elpa Archive
+@section Installing from an Elpa Archive
 
 Magit is available from Melpa and Melpa-Stable.  If you haven't used
 Emacs' package manager before, then it is high time you familiarize
@@ -443,10 +443,10 @@ using:
 M-x package-install RET magit RET
 @end example
 
-Now see @ref{Post-installation tasks,Post-installation tasks}.
+Now see @ref{Post-Installation Tasks,Post-Installation Tasks}.
 
-@node Installing from the Git repository
-@section Installing from the Git repository
+@node Installing from the Git Repository
+@section Installing from the Git Repository
 
 Magit depends on the @code{dash} and @code{with-editor} library which are available
 from Melpa and Melpa-Stable.  Install them using @code{M-x package-install
@@ -521,10 +521,10 @@ At times it might be necessary to run @code{make clean all} instead.
 
 To view all available targets use @code{make help}.
 
-Now see @ref{Post-installation tasks,Post-installation tasks}.
+Now see @ref{Post-Installation Tasks,Post-Installation Tasks}.
 
-@node Post-installation tasks
-@section Post-installation tasks
+@node Post-Installation Tasks
+@section Post-Installation Tasks
 
 After installing Magit you should verify that you are indeed using the
 Magit, Git, and Emacs releases you think you are using.  It's best to
@@ -542,21 +542,21 @@ Magit 2.8.0, Git 2.10.2, Emacs 25.1.1, gnu/linux
 @end example
 
 Then you might also want to read about options that many users likely
-want to customize.  See @ref{Essential settings,Essential settings}.
+want to customize.  See @ref{Essential Settings,Essential Settings}.
 
 To be able to follow cross references to Git manpages found in this
 manual, you might also have to manually install the @code{gitman} info manual,
 or advice @code{Info-follow-nearest-node} to instead open the actual manpage.
 See @ref{How to install the gitman info manual?,How to install the gitman info manual?}.
 
-If you are completely new to Magit then see @ref{Getting started,Getting started}.
+If you are completely new to Magit then see @ref{Getting Started,Getting Started}.
 
 And last but not least please consider making a donation, to ensure
 that I can keep working on Magit.  See @uref{https://magit.vc/donations}.
 for various donation options.
 
-@node Getting started
-@chapter Getting started
+@node Getting Started
+@chapter Getting Started
 
 This short tutorial describes the most essential features that many
 Magitians use on a daily basis.  It only scratches the surface but
@@ -657,19 +657,19 @@ command too:
 
 In the same vein, you might also want to enable @code{global-magit-file-mode}
 to get some more Magit key bindings in regular file-visiting buffers
-(see @ref{Minor mode for buffers visiting files,Minor mode for buffers visiting files}).
+(see @ref{Minor Mode for Buffers Visiting Files,Minor Mode for Buffers Visiting Files}).
 
 It is not necessary that you do so now, but if you stick with Magit,
 then it is highly recommended that you read the next section too.
 
-@node Interface concepts
-@chapter Interface concepts
+@node Interface Concepts
+@chapter Interface Concepts
 
 @menu
 * Modes and Buffers::
 * Sections::
-* Popup buffers and prefix commands::
-* Completion and confirmation::
+* Popup Buffers and Prefix Commands::
+* Completion and Confirmation::
 * Running Git::
 @end menu
 
@@ -1237,15 +1237,15 @@ differently depending on the type) are usually bound in section type
 keymaps.
 
 @menu
-* Section movement::
-* Section visibility::
-* Section hooks::
-* Section types and values::
-* Section options::
+* Section Movement::
+* Section Visibility::
+* Section Hooks::
+* Section Types and Values::
+* Section Options::
 @end menu
 
-@node Section movement
-@subsection Section movement
+@node Section Movement
+@subsection Section Movement
 
 To move within a section use the usual keys (@code{C-p}, @code{C-n}, @code{C-b}, @code{C-f} etc),
 whose global bindings are not shadowed.  To move to another section use
@@ -1364,8 +1364,8 @@ to adjust this delay and/or the keyboard repeat rate and delay of
 your graphical environment or operating system.
 @end defopt
 
-@node Section visibility
-@subsection Section visibility
+@node Section Visibility
+@subsection Section Visibility
 
 Magit provides many commands for changing the visibility of sections,
 but all you need to get started are the next two.
@@ -1494,8 +1494,8 @@ then the buffer is being refreshed and these functions should
 immediately return @code{nil}.
 @end defvar
 
-@node Section hooks
-@subsection Section hooks
+@node Section Hooks
+@subsection Section Hooks
 
 Which sections are inserted into certain buffers is controlled with
 hooks.  This includes the status and the refs buffers.  For other
@@ -1539,8 +1539,8 @@ should not be abused for other side-effects.
 
 To remove a function from a section hook, use @code{remove-hook}.
 
-@node Section types and values
-@subsection Section types and values
+@node Section Types and Values
+@subsection Section Types and Values
 
 Each section has a type, for example @code{hunk}, @code{file}, and @code{commit}.
 Instances of certain section types also have a value.  The value of a
@@ -1569,8 +1569,8 @@ of all text belonging to any section of the respective type.  If such
 a map does not exist for a certain type, then you can define it
 yourself, and it will automatically be used.
 
-@node Section options
-@subsection Section options
+@node Section Options
+@subsection Section Options
 
 This section describes options that have an effect on more than just a
 certain type of sections.  As you can see there are not many of those.
@@ -1581,8 +1581,8 @@ Whether to append the number of children to section headings.  This
 only affects sections that could benefit from this information.
 @end defopt
 
-@node Popup buffers and prefix commands
-@section Popup buffers and prefix commands
+@node Popup Buffers and Prefix Commands
+@section Popup Buffers and Prefix Commands
 
 Many Magit commands are implemented using @strong{popup buffers}.  First the
 user invokes a @strong{popup} or @strong{prefix} command, which causes a popup buffer
@@ -1615,8 +1615,8 @@ you should setup a global binding:
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 @end lisp
 
-@node Completion and confirmation
-@section Completion and confirmation
+@node Completion and Confirmation
+@section Completion and Confirmation
 
 Many commands read a value from the user.  By default this is done
 using the built-in function @code{completing-read}, but Magit can instead use
@@ -1683,14 +1683,14 @@ option when acting on a single section.
 @section Running Git
 
 @menu
-* Viewing Git output::
-* Running Git manually::
-* Git executable::
-* Global Git arguments::
+* Viewing Git Output::
+* Running Git Manually::
+* Git Executable::
+* Global Git Arguments::
 @end menu
 
-@node Viewing Git output
-@subsection Viewing Git output
+@node Viewing Git Output
+@subsection Viewing Git Output
 
 Magit runs Git either for side-effects (e.g. when pushing) or to get
 some value (e.g. the name of the current branch).  When Git is run for
@@ -1725,8 +1725,8 @@ in the process buffer.  This is useful when debugging, otherwise it
 just negatively affects performance.
 @end defopt
 
-@node Running Git manually
-@subsection Running Git manually
+@node Running Git Manually
+@subsection Running Git Manually
 
 While Magit provides many Emacs commands to interact with Git, it does
 not cover everything.  In those cases your existing Git knowledge will
@@ -1809,8 +1809,8 @@ This command runs @code{gitk --branches} in the current repository.
 This command runs @code{git gui} in the current repository.
 @end table
 
-@node Git executable
-@subsection Git executable
+@node Git Executable
+@subsection Git Executable
 
 Except on MS Windows, Magit defaults to running Git without specifying
 the path to the git executable.  Instead the first executable found by
@@ -1853,8 +1853,8 @@ executable or the string "git" to let Emacs find the executable
 itself, using the standard mechanism for doing such things.
 @end defopt
 
-@node Global Git arguments
-@subsection Global Git arguments
+@node Global Git Arguments
+@subsection Global Git Arguments
 
 @defopt magit-git-global-arguments
 
@@ -1901,19 +1901,19 @@ mainly concerned with the porcelain -- Magit's plumbing layer is
 described later.
 
 @menu
-* Status buffer::
-* Repository list::
+* Status Buffer::
+* Repository List::
 * Logging::
 * Diffing::
 * Ediffing::
-* References buffer::
+* References Buffer::
 * Bisecting::
-* Visiting blobs::
+* Visiting Blobs::
 * Blaming::
 @end menu
 
-@node Status buffer
-@section Status buffer
+@node Status Buffer
+@section Status Buffer
 
 While other Magit buffers contain e.g. one particular diff or one
 particular log, the status buffer contains the diffs for staged and
@@ -1992,16 +1992,16 @@ like pretty much every other keymap:
 @end deffn
 
 @menu
-* Status sections::
-* Status header sections::
-* Status options::
+* Status Sections::
+* Status Header Sections::
+* Status Options::
 @end menu
 
-@node Status sections
-@subsection Status sections
+@node Status Sections
+@subsection Status Sections
 
 The contents of status buffers is controlled using the hook
-@code{magit-status-sections-hook}.  See @ref{Section hooks,Section hooks} to learn about such
+@code{magit-status-sections-hook}.  See @ref{Section Hooks,Section Hooks} to learn about such
 hooks and how to customize them.
 
 @defopt magit-status-sections-hook
@@ -2189,11 +2189,11 @@ a patch-id not shared with any upstream commit) with "+" and
 all others with "-".
 @end defun
 
-See @ref{References buffer,References buffer} for some more section inserters, which could be
+See @ref{References Buffer,References Buffer} for some more section inserters, which could be
 used here.
 
-@node Status header sections
-@subsection Status header sections
+@node Status Header Sections
+@subsection Status Header Sections
 
 The contents of status buffers is controlled using the hook
 @code{magit-status-sections-hook}, as described in the previous section.
@@ -2276,8 +2276,8 @@ remote in alphabetic order.
 Insert a header line about the current user.
 @end defun
 
-@node Status options
-@subsection Status options
+@node Status Options
+@subsection Status Options
 
 @defopt magit-status-refresh-hook
 
@@ -2328,8 +2328,8 @@ with long histories, so you probably don't want to add this here.
 Also see the proceeding section for more options concerning status
 buffers.
 
-@node Repository list
-@section Repository list
+@node Repository List
+@section Repository List
 
 @cindex magit-list-repositories
 @deffn Command magit-list-repositories
@@ -2483,20 +2483,20 @@ Show log for all references and @code{HEAD}.
 
 
 Two additional commands that show the log for the file or blob that
-is being visited in the current buffer exists, see @ref{Minor mode for buffers visiting files,Minor mode for buffers visiting files}.  The command @code{magit-cherry} also shows a log,
+is being visited in the current buffer exists, see @ref{Minor Mode for Buffers Visiting Files,Minor Mode for Buffers Visiting Files}.  The command @code{magit-cherry} also shows a log,
 see @ref{Cherries,Cherries}.
 
 @menu
-* Refreshing logs::
+* Refreshing Logs::
 * Log Buffer::
 * Log Margin::
-* Select from log::
+* Select from Log::
 * Reflog::
 * Cherries::
 @end menu
 
-@node Refreshing logs
-@subsection Refreshing logs
+@node Refreshing Logs
+@subsection Refreshing Logs
 
 The prefix command @code{magit-log-refresh-popup}, on @code{L}, can be used to
 change the log arguments used in the current buffer, without changing
@@ -2552,7 +2552,7 @@ Show or hide the margin.
 @item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-popup})
 
 This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.  See @ref{Refreshing logs,Refreshing logs}.
+the appropriate infix arguments in a popup buffer.  See @ref{Refreshing Logs,Refreshing Logs}.
 
 @kindex q
 @cindex magit-log-bury-buffer
@@ -2726,8 +2726,8 @@ This command cycles the style used for the margin.
 This command shows or hides details in the margin.
 @end table
 
-@node Select from log
-@subsection Select from log
+@node Select from Log
+@subsection Select from Log
 
 When the user has to select a recent commit that is reachable from
 @code{HEAD}, using regular completion would be inconvenient (because most
@@ -2870,7 +2870,7 @@ has an equivalent in the upstream and @code{+} if it does not, i.e. if it is
 a cherry.
 
 The command @code{magit-cherry} shows cherries for a single branch, but the
-references buffer (see @ref{References buffer,References buffer}) can show cherries for
+references buffer (see @ref{References Buffer,References Buffer}) can show cherries for
 multiple "upstreams" at once.
 
 Also see 
@@ -3034,17 +3034,17 @@ Show all diffs of a stash in a buffer.
 @end table
 
 Two additional commands that show the diff for the file or blob that
-is being visited in the current buffer exists, see @ref{Minor mode for buffers visiting files,Minor mode for buffers visiting files}.
+is being visited in the current buffer exists, see @ref{Minor Mode for Buffers Visiting Files,Minor Mode for Buffers Visiting Files}.
 
 @menu
-* Refreshing diffs::
-* Diff buffer::
-* Diff options::
-* Revision buffer::
+* Refreshing Diffs::
+* Diff Buffer::
+* Diff Options::
+* Revision Buffer::
 @end menu
 
-@node Refreshing diffs
-@subsection Refreshing diffs
+@node Refreshing Diffs
+@subsection Refreshing Diffs
 
 The prefix command @code{magit-diff-refresh-popup}, on @code{D}, can be used to
 change the diff arguments used in the current buffer, without changing
@@ -3158,8 +3158,8 @@ This command moves backward in current buffer's history.
 This command moves forward in current buffer's history.
 @end table
 
-@node Diff buffer
-@subsection Diff buffer
+@node Diff Buffer
+@subsection Diff Buffer
 
 @table @asis
 @kindex RET
@@ -3236,8 +3236,8 @@ Scroll text upward.
 Scroll text downward.
 @end table
 
-@node Diff options
-@subsection Diff options
+@node Diff Options
+@subsection Diff Options
 
 @defopt magit-diff-refine-hunk
 
@@ -3325,8 +3325,8 @@ also the foreground color.  Whether the outside of the region is
 dimmed at all depends on @code{magit-diff-highlight-hunk-region-functions}.
 @end defopt
 
-@node Revision buffer
-@subsection Revision buffer
+@node Revision Buffer
+@subsection Revision Buffer
 
 @defopt magit-revision-insert-related-refs
 
@@ -3471,8 +3471,8 @@ account.  The regular @code{ediff-quit-hook} is ignored by Ediff sessions
 that were created using a Magit command.
 @end defopt
 
-@node References buffer
-@section References buffer
+@node References Buffer
+@section References Buffer
 
 @table @asis
 @kindex y
@@ -3711,14 +3711,14 @@ like you would do in other buffers.
 @end defopt
 
 @menu
-* References sections::
+* References Sections::
 @end menu
 
-@node References sections
-@subsection References sections
+@node References Sections
+@subsection References Sections
 
 The contents of references buffers is controlled using the hook
-@code{magit-refs-sections-hook}.  See @ref{Section hooks,Section hooks} to learn about such hooks
+@code{magit-refs-sections-hook}.  See @ref{Section Hooks,Section Hooks} to learn about such hooks
 and how to customize them.  All of the below functions are members of
 the default value.  Note that it makes much less sense to customize
 this hook than it does for the respective hook used for the status
@@ -3833,8 +3833,8 @@ This option controls whether a graph is displayed for the log of
 commits that still have to be bisected.
 @end defopt
 
-@node Visiting blobs
-@section Visiting blobs
+@node Visiting Blobs
+@section Visiting Blobs
 
 @table @asis
 @kindex M-x magit-find-file
@@ -3998,21 +3998,21 @@ Hook run by @code{magit-blame-next-chunk} and @code{magit-blame-previous-chunk}.
 @chapter Manipulating
 
 @menu
-* Repository setup::
-* Staging and unstaging::
+* Repository Setup::
+* Staging and Unstaging::
 * Applying::
 * Committing::
 * Branching::
 * Merging::
-* Resolving conflicts::
+* Resolving Conflicts::
 * Rebasing::
-* Cherry picking::
+* Cherry Picking::
 * Resetting::
 * Stashing::
 @end menu
 
-@node Repository setup
-@section Repository setup
+@node Repository Setup
+@section Repository Setup
 
 @table @asis
 @kindex M-x magit-init
@@ -4046,8 +4046,8 @@ If @code{t}, then set without asking.  If @code{nil}, then don't set.  If @code{
 then ask the user every time she clones a repository.
 @end defopt
 
-@node Staging and unstaging
-@section Staging and unstaging
+@node Staging and Unstaging
+@section Staging and Unstaging
 
 Like Git, Magit can of course stage and unstage complete files.
 Unlike Git, it also allows users to gracefully un-/stage
@@ -4162,11 +4162,11 @@ point, then it defaults to @code{HEAD}.
 @end table
 
 @menu
-* Staging from file-visiting buffers::
+* Staging from File-Visiting Buffers::
 @end menu
 
-@node Staging from file-visiting buffers
-@subsection Staging from file-visiting buffers
+@node Staging from File-Visiting Buffers
+@subsection Staging from File-Visiting Buffers
 
 Fine-grained un-/staging has to be done from the status or a diff
 buffer, but it's also possible to un-/stage all changes made to the
@@ -4274,12 +4274,12 @@ finishes the editing session, the Emacsclient exits and Git creates the
 commit using the file's content as message.
 
 @menu
-* Initiating a commit::
-* Editing commit messages::
+* Initiating a Commit::
+* Editing Commit Messages::
 @end menu
 
-@node Initiating a commit
-@subsection Initiating a commit
+@node Initiating a Commit
+@subsection Initiating a Commit
 
 Also see 
 @ifinfo
@@ -4409,8 +4409,8 @@ always require confirmation because making an error while using
 those is harder to recover from.
 @end defopt
 
-@node Editing commit messages
-@subsection Editing commit messages
+@node Editing Commit Messages
+@subsection Editing Commit Messages
 
 After initiating a commit as described in the previous section, two new
 buffers appear.  One shows the changes that are about to committed,
@@ -4717,13 +4717,13 @@ To show no diff while committing remove @code{magit-commit-diff} from
 @section Branching
 
 @menu
-* The two remotes::
-* The branch popup::
-* The branch config popup::
+* The Two Remotes::
+* The Branch Popup::
+* The Branch Config Popup::
 @end menu
 
-@node The two remotes
-@subsection The two remotes
+@node The Two Remotes
+@subsection The Two Remotes
 
 The upstream branch of some local branch is the branch into which the
 commits on that local branch should eventually be merged, usually
@@ -4765,8 +4765,8 @@ changed using the popup @code{magit-branch-config-popup}, which is a
 sub-popup of many popups that deal with branches.  It is also possible
 to set the push-remote and/or upstream while pushing (see @ref{Pushing,Pushing}).
 
-@node The branch popup
-@subsection The branch popup
+@node The Branch Popup
+@subsection The Branch Popup
 
 The popup @code{magit-branch-popup} is used to create and checkout branches,
 and to make changes to existing branches.  It is not used to fetch,
@@ -5009,8 +5009,8 @@ This command creates and checks out a new orphan branch with
 contents from a given revision.
 @end deffn
 
-@node The branch config popup
-@subsection The branch config popup
+@node The Branch Config Popup
+@subsection The Branch Config Popup
 
 @cindex magit-branch-popup
 @deffn Command magit-branch-popup
@@ -5310,8 +5310,8 @@ still conflicts, then this fails.
 Abort the current merge operation.
 @end table
 
-@node Resolving conflicts
-@section Resolving conflicts
+@node Resolving Conflicts
+@section Resolving Conflicts
 
 When merging branches (or otherwise combining or changing history)
 conflicts can occur.  If you edited two completely different parts of
@@ -5459,7 +5459,7 @@ stop somewhere along the way, either because you told it to do so, or
 because applying a commit failed due to a conflict.  When that
 happens, then the status buffer shows information about the rebase
 sequence which is in progress in a section similar to a log section.
-See @ref{Information about in-progress rebase,Information about in-progress rebase}.
+See @ref{Information About In-Progress Rebase,Information About In-Progress Rebase}.
 
 @table @asis
 @kindex r p
@@ -5567,12 +5567,12 @@ Abort the current rebase operation, restoring the original branch.
 @end table
 
 @menu
-* Editing rebase sequences::
-* Information about in-progress rebase::
+* Editing Rebase Sequences::
+* Information About In-Progress Rebase::
 @end menu
 
-@node Editing rebase sequences
-@subsection Editing rebase sequences
+@node Editing Rebase Sequences
+@subsection Editing Rebase Sequences
 
 @table @asis
 @kindex C-c C-c
@@ -5716,8 +5716,8 @@ Whether to show usage instructions inside the rebase buffer.
 Whether confirmation is required to cancel.
 @end defopt
 
-@node Information about in-progress rebase
-@subsection Information about in-progress rebase
+@node Information About In-Progress Rebase
+@subsection Information About In-Progress Rebase
 
 While a rebase sequence is in progress, the status buffer features a
 section which lists the commits that have already been applied as well
@@ -5772,7 +5772,7 @@ The following words are used:
 @item
 Commits prefixed with @code{pick}, @code{reword}, @code{edit}, @code{squash}, and @code{fixup} have not
 been applied yet.  These words have the same meaning here as they do
-in the buffer used to edit the rebase sequence.  See @ref{Editing rebase sequences,Editing rebase sequences}.
+in the buffer used to edit the rebase sequence.  See @ref{Editing Rebase Sequences,Editing Rebase Sequences}.
 
 
 @item
@@ -5887,8 +5887,8 @@ importantly these sequences only support "picking" a commit but not
 other actions such as "rewording", and they do not keep track of the
 commits which have already been applied.
 
-@node Cherry picking
-@section Cherry picking
+@node Cherry Picking
+@section Cherry Picking
 
 Also see 
 @ifinfo
@@ -6267,8 +6267,8 @@ is shown, then this specifies how much space is used to do so.
 * Fetching::
 * Pulling::
 * Pushing::
-* Creating and sending patches::
-* Applying patches::
+* Creating and Sending Patches::
+* Applying Patches::
 @end menu
 
 @node Remotes
@@ -6614,8 +6614,8 @@ not take affect immediately, the argument will only be added or
 removed after restarting Emacs.
 @end defopt
 
-@node Creating and sending patches
-@section Creating and sending patches
+@node Creating and Sending Patches
+@section Creating and Sending Patches
 
 @table @asis
 @kindex W
@@ -6640,8 +6640,8 @@ commit, defaulting to the commit at point.
 Request that upstream pulls from your public repository.
 @end table
 
-@node Applying patches
-@section Applying patches
+@node Applying Patches
+@section Applying Patches
 
 Also see 
 @ifinfo
@@ -6706,10 +6706,10 @@ changes made since the sequence started.
 * Notes::
 * Submodules::
 * Subtree::
-* Common commands::
-* Wip modes::
-* Minor mode for buffers visiting files::
-* Minor mode for buffers visiting blobs::
+* Common Commands::
+* Wip Modes::
+* Minor Mode for Buffers Visiting Files::
+* Minor Mode for Buffers Visiting Blobs::
 @end menu
 
 @node Tagging
@@ -6881,12 +6881,12 @@ the git-submodule(1) manpage.
 @end iftex
 
 @menu
-* Listing submodules::
-* Submodule popup::
+* Listing Submodules::
+* Submodule Popup::
 @end menu
 
-@node Listing submodules
-@subsection Listing submodules
+@node Listing Submodules
+@subsection Listing Submodules
 
 The command @code{magit-list-submodule} displays a list of the current
 repository's submodules in a separate buffer.  It's also possible to
@@ -6929,8 +6929,8 @@ in a separate buffer.  This shows additional information not
 displayed in the super-repository's status buffer.
 @end defun
 
-@node Submodule popup
-@subsection Submodule popup
+@node Submodule Popup
+@subsection Submodule Popup
 
 @table @asis
 @kindex o
@@ -7058,8 +7058,8 @@ REPOSITORY.
 Extract the history of the subtree PREFIX.
 @end table
 
-@node Common commands
-@section Common commands
+@node Common Commands
+@section Common Commands
 
 These are some of the commands that can be used in all buffers whose
 major-modes derive from @code{magit-mode}.  There are other common commands
@@ -7100,8 +7100,8 @@ Outside of Magit @code{M-w} and @code{C-w} are usually bound to @code{kill-ring-
 Therefore when the region is active, then both of these commands
 behave like @code{kill-ring-save} instead of as described above.
 
-@node Wip modes
-@section Wip modes
+@node Wip Modes
+@section Wip Modes
 
 Git keeps @strong{committed} changes around long enough for users to recover
 changes they have accidentally deleted.  It does so by not garbage
@@ -7272,8 +7272,8 @@ slash.  The wip refs are named "<namespace>index/<branchref>" and
 the @code{HEAD} is detached then "HEAD" is used in place of @code{<branchref>}.
 @end defopt
 
-@node Minor mode for buffers visiting files
-@section Minor mode for buffers visiting files
+@node Minor Mode for Buffers Visiting Files
+@section Minor Mode for Buffers Visiting Files
 
 The @code{magit-file-mode} enables certain Magit features in file-visiting
 buffers belonging to a Git repository.  It should be enabled globally
@@ -7284,7 +7284,7 @@ few key bindings, but this might be extended in the future.
 
 Whether to establish certain Magit key bindings in all file-visiting
 buffers belonging to a Git repository.  This establishes the
-bindings suggested in @ref{Getting started,Getting started} (but only for file-visiting
+bindings suggested in @ref{Getting Started,Getting Started} (but only for file-visiting
 buffers), and additionally binds @code{C-c M-g} to @code{magit-file-popup}.
 @end defopt
 
@@ -7313,7 +7313,7 @@ Unstage all changes to the file being visited in the current buffer.
 @item @kbd{C-c M-g c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-popup})
 
 This prefix command shows suffix commands along with the appropriate
-infix arguments in a popup buffer.  See @ref{Initiating a commit,Initiating a commit}.
+infix arguments in a popup buffer.  See @ref{Initiating a Commit,Initiating a Commit}.
 
 @kindex C-c M-g D
 @cindex magit-diff-buffer-file-popup
@@ -7372,7 +7372,7 @@ buffer.  See @ref{Modes and Buffers,Modes and Buffers}.
 @item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
 
 This prefix command shows the @code{magit-blame} suffix command along with
-the appropriate infix arguments in a popup buffer.  See @ref{Initiating a commit,Initiating a commit}.
+the appropriate infix arguments in a popup buffer.  See @ref{Initiating a Commit,Initiating a Commit}.
 
 @kindex C-c M-g p
 @cindex magit-blob-previous
@@ -7381,8 +7381,8 @@ the appropriate infix arguments in a popup buffer.  See @ref{Initiating a commit
 Visit the previous blob which modified the current file.
 @end table
 
-@node Minor mode for buffers visiting blobs
-@section Minor mode for buffers visiting blobs
+@node Minor Mode for Buffers Visiting Blobs
+@section Minor Mode for Buffers Visiting Blobs
 
 The @code{magit-blob-mode} enables certain Magit features in blob-visiting
 buffers.  Such buffers can be created using @code{magit-find-file} and some
@@ -7447,12 +7447,12 @@ that no pruning will happen.
 I intend to address these and similar issues in a future release.
 
 @menu
-* Per-repository configuration::
-* Essential settings::
+* Per-Repository Configuration::
+* Essential Settings::
 @end menu
 
-@node Per-repository configuration
-@section Per-repository configuration
+@node Per-Repository Configuration
+@section Per-Repository Configuration
 
 Magit can be configured on a per-repository level using both Git
 variables as well as Emacs options.
@@ -7524,8 +7524,8 @@ For example:
 @end lisp
 @end itemize
 
-@node Essential settings
-@section Essential settings
+@node Essential Settings
+@section Essential Settings
 
 The next two sections list and discuss several variables that many
 users might want to customize, for safety and/or performance reasons.
@@ -7548,12 +7548,12 @@ for @strong{uncommitted} changes in the working tree and not even the index
 uncommitted changes, it also makes it easy to shoot yourself in the
 foot in the process.  For that reason Magit provides three global
 modes that save @strong{tracked} files to work-in-progress references after or
-before certain actions.  See @ref{Wip modes,Wip modes}.
+before certain actions.  See @ref{Wip Modes,Wip Modes}.
 
 These modes are not enabled by default because of performance
 concerns.  Instead a lot of potentially destructive commands require
 confirmation every time they are used.  In many cases this can be
-disabled by adding a symbol to @code{magit-no-confirm} (see @ref{Completion and confirmation,Completion and confirmation}).  If you enable the various wip modes then you should
+disabled by adding a symbol to @code{magit-no-confirm} (see @ref{Completion and Confirmation,Completion and Confirmation}).  If you enable the various wip modes then you should
 add @code{safe-with-wip} to this list.
 
 Similarly it isn't necessary to require confirmation before moving a
@@ -7622,7 +7622,7 @@ they reduce performance at least in large repositories.
 If performance is only slow inside certain unusually large
 repositories, then you might want to disable certain features on a
 per-repository or per-repository-class basis only.  See
-@ref{Per-repository configuration,Per-repository configuration}.
+@ref{Per-Repository Configuration,Per-Repository Configuration}.
 
 @unnumberedsubsubsec Microsoft Windows Performance
 
@@ -7733,7 +7733,7 @@ but doing it this way has the advantage that you usually get to see
 the diff, which is useful because it increases the odds that you spot
 potential issues.
 
-@unnumberedsubsubsec The built-in VC Package
+@unnumberedsubsubsec The Built-In VC Package
 
 Emacs comes with a version control interface called "VC", see
 @ref{Version Control,,,emacs,}.  It is enabled be default and if you don't
@@ -7769,8 +7769,8 @@ command provided by your own Magit extension, then checkout
 
 @menu
 * Calling Git::
-* Section plumbing::
-* Refreshing buffers::
+* Section Plumbing::
+* Refreshing Buffers::
 * Conventions::
 @end menu
 
@@ -7802,12 +7802,12 @@ Git synchronously or asynchronously, and depending on whether they
 trigger a refresh when the executable has finished.
 
 @menu
-* Getting a value from Git::
-* Calling Git for effect::
+* Getting a Value from Git::
+* Calling Git for Effect::
 @end menu
 
-@node Getting a value from Git
-@subsection Getting a value from Git
+@node Getting a Value from Git
+@subsection Getting a Value from Git
 
 These functions run Git in order to get a value, either its exit
 status or its output.  Of course you could also use them to run Git
@@ -7895,8 +7895,8 @@ therefore lead to an infinite recursion.  You probably won't ever
 need to use this function.
 @end defun
 
-@node Calling Git for effect
-@subsection Calling Git for effect
+@node Calling Git for Effect
+@subsection Calling Git for Effect
 
 These functions are used to run git to produce some effect.  Most
 Magit commands that actually run git do so by using such a function.
@@ -8061,17 +8061,17 @@ When this is non-nil, then @code{magit-process-sentinel} raises an error if
 git exits with a non-zero exit status.  For debugging purposes.
 @end defvar
 
-@node Section plumbing
-@section Section plumbing
+@node Section Plumbing
+@section Section Plumbing
 
 @menu
-* Creating sections::
-* Section selection::
-* Matching sections::
+* Creating Sections::
+* Section Selection::
+* Matching Sections::
 @end menu
 
-@node Creating sections
-@subsection Creating sections
+@node Creating Sections
+@subsection Creating Sections
 
 @defmac magit-insert-section &rest args
 
@@ -8151,8 +8151,8 @@ Define an interactive function to go to section SYM.  TITLE is the
 displayed title of the section.
 @end defun
 
-@node Section selection
-@subsection Section selection
+@node Section Selection
+@subsection Section Selection
 
 @defun magit-current-section
 
@@ -8191,8 +8191,8 @@ types of all selected sections additionally have to match one of
 TYPES, or nil is returned.
 @end defun
 
-@node Matching sections
-@subsection Matching sections
+@node Matching Sections
+@subsection Matching Sections
 
 @table @asis
 @kindex M-x magit-describe-section
@@ -8338,8 +8338,8 @@ the section at point is @code{untracked} or the section at point is not
 actually a @code{diff} but a @code{diffstat} section.
 @end defun
 
-@node Refreshing buffers
-@section Refreshing buffers
+@node Refreshing Buffers
+@section Refreshing Buffers
 
 All commands that create a new Magit buffer or change what is being
 displayed in an existing buffer do so by calling @code{magit-mode-setup}.
@@ -8409,12 +8409,12 @@ of this variable and then calling this @code{magit-refresh-function}.
 @section Conventions
 
 @menu
-* Confirmation and completion::
+* Confirmation and Completion::
 * Theming Faces::
 @end menu
 
-@node Confirmation and completion
-@subsection Confirmation and completion
+@node Confirmation and Completion
+@subsection Confirmation and Completion
 
 Dangerous operations that may lead to data loss have to be confirmed
 by default.  With a multi-section selection, this is done using
@@ -8577,7 +8577,7 @@ made it into the manual yet, see
 
 @menu
 * FAQ - How to @dots{}?::
-* FAQ - Issues and errors::
+* FAQ - Issues and Errors::
 @end menu
 
 @node FAQ - How to @dots{}?
@@ -8675,8 +8675,8 @@ conflicts, in which case you @strong{can} use these commands, which then use
 command @code{magit-ediff-resolve} which only shows yet-to-be resolved
 conflicts.
 
-@node FAQ - Issues and errors
-@section FAQ - Issues and errors
+@node FAQ - Issues and Errors
+@section FAQ - Issues and Errors
 
 @menu
 * Magit is slow::

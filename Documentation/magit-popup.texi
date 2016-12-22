@@ -55,7 +55,7 @@ General Public License for more details.
 @menu
 * Introduction::
 * Usage::
-* Defining prefix and suffix commands::
+* Defining Prefix and Suffix Commands::
 
 @detailmenu
 --- The Detailed Node Listing ---
@@ -63,15 +63,15 @@ General Public License for more details.
 
 Usage
 
-* Customizing existing popups::
-* Other options::
+* Customizing Existing Popups::
+* Other Options::
 
 
 
-Defining prefix and suffix commands
+Defining Prefix and Suffix Commands
 
-* Defining prefix commands::
-* Defining suffix commands::
+* Defining Prefix Commands::
+* Defining Suffix Commands::
 @end detailmenu
 @end menu
 
@@ -248,7 +248,7 @@ prefix argument is used in which case the popup remains open.
 
 It is also possible to add additional arguments and commands to an
 existing popup, but that cannot be done directly from the popup (or
-the Custom interface).  See @ref{Customizing existing popups,Customizing existing popups}.
+the Custom interface).  See @ref{Customizing Existing Popups,Customizing Existing Popups}.
 
 Documentation about a popup's arguments and commands can be shown
 directly from the popup.
@@ -287,12 +287,12 @@ key bindings instead, so these commands are not listed in popup
 buffers along with the other common commands.
 
 @menu
-* Customizing existing popups::
-* Other options::
+* Customizing Existing Popups::
+* Other Options::
 @end menu
 
-@node Customizing existing popups
-@section Customizing existing popups
+@node Customizing Existing Popups
+@section Customizing Existing Popups
 
 It is possible to define additional infix arguments and suffix
 commands to an existing popup using the following functions.
@@ -410,7 +410,7 @@ is to be unbound.
 @end defun
 
 It is also possible to change other aspects of a popup by setting a
-property using @code{plist-put}.  See @ref{Defining prefix commands,Defining prefix commands} for valid
+property using @code{plist-put}.  See @ref{Defining Prefix Commands,Defining Prefix Commands} for valid
 properties.  The most likely change Magit users might want to make
 is:
 
@@ -418,8 +418,8 @@ is:
 (plist-put magit-show-refs-popup :use-prefix nil)
 @end lisp
 
-@node Other options
-@section Other options
+@node Other Options
+@section Other Options
 
 @defopt magit-popup-use-prefix-argument
 
@@ -450,7 +450,7 @@ Ignore prefix arguments.
 This option can be overridden for individual popups.
 @code{magit-show-refs-popup} for example defaults to invoking the default
 action directly.  It only shows the popup buffer when a prefix
-argument is used.  See @ref{Customizing existing popups,Customizing existing popups}.
+argument is used.  See @ref{Customizing Existing Popups,Customizing Existing Popups}.
 @end defopt
 
 @defopt magit-popup-manpage-package
@@ -472,8 +472,8 @@ To emphasize the default action by making it bold use this:
 (button-type-put 'magit-popup-action-button 'format " %k %D")
 @end lisp
 
-@node Defining prefix and suffix commands
-@chapter Defining prefix and suffix commands
+@node Defining Prefix and Suffix Commands
+@chapter Defining Prefix and Suffix Commands
 
 If you write an extension for Magit then you should use this library
 now and later when @code{transient} is released port to that.
@@ -518,12 +518,12 @@ infix arguments, and then also one of its suffix commands.
 @end lisp
 
 @menu
-* Defining prefix commands::
-* Defining suffix commands::
+* Defining Prefix Commands::
+* Defining Suffix Commands::
 @end menu
 
-@node Defining prefix commands
-@section Defining prefix commands
+@node Defining Prefix Commands
+@section Defining Prefix Commands
 
 Prefix commands and their infix arguments are defined using the macro
 @code{magit-define-popup}.  The key bindings and descriptions of suffix
@@ -696,8 +696,8 @@ help for an argument.
 @end itemize
 @end defmac
 
-@node Defining suffix commands
-@section Defining suffix commands
+@node Defining Suffix Commands
+@section Defining Suffix Commands
 
 Commands intended to be invoked from a particular popup should
 determine the currently effective arguments by calling the function

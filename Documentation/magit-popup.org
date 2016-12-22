@@ -190,7 +190,7 @@ interface, it is better to do so directly from the popup buffer.
 
 It is also possible to add additional arguments and commands to an
 existing popup, but that cannot be done directly from the popup (or
-the Custom interface).  See [[*Customizing existing popups]].
+the Custom interface).  See [[*Customizing Existing Popups]].
 
 Documentation about a popup's arguments and commands can be shown
 directly from the popup.
@@ -222,7 +222,7 @@ point using ~RET~.  But it is much more efficient to use the dedicated
 key bindings instead, so these commands are not listed in popup
 buffers along with the other common commands.
 
-** Customizing existing popups
+** Customizing Existing Popups
 
 It is possible to define additional infix arguments and suffix
 commands to an existing popup using the following functions.
@@ -333,7 +333,7 @@ https://github.com/magit/magit/wiki/Additional-proposed-infix-arguments-and-suff
   is to be unbound.
 
 It is also possible to change other aspects of a popup by setting a
-property using ~plist-put~.  See [[*Defining prefix commands]] for valid
+property using ~plist-put~.  See [[*Defining Prefix Commands]] for valid
 properties.  The most likely change Magit users might want to make
 is:
 
@@ -341,7 +341,7 @@ is:
   (plist-put magit-show-refs-popup :use-prefix nil)
 #+END_SRC
 
-** Other options
+** Other Options
 
 - User Option: magit-popup-use-prefix-argument
 
@@ -366,7 +366,7 @@ is:
   This option can be overridden for individual popups.
   ~magit-show-refs-popup~ for example defaults to invoking the default
   action directly.  It only shows the popup buffer when a prefix
-  argument is used.  See [[*Customizing existing popups]].
+  argument is used.  See [[*Customizing Existing Popups]].
 
 - User Option: magit-popup-manpage-package
 
@@ -385,7 +385,7 @@ To emphasize the default action by making it bold use this:
   (button-type-put 'magit-popup-action-button 'format " %k %D")
 #+END_SRC
 
-* Defining prefix and suffix commands
+* Defining Prefix and Suffix Commands
 
 If you write an extension for Magit then you should use this library
 now and later when ~transient~ is released port to that.
@@ -429,7 +429,7 @@ infix arguments, and then also one of its suffix commands.
     (magit-run-git-with-editor "tag" args name rev))
 #+END_SRC
 
-** Defining prefix commands
+** Defining Prefix Commands
 
 Prefix commands and their infix arguments are defined using the macro
 ~magit-define-popup~.  The key bindings and descriptions of suffix
@@ -574,7 +574,7 @@ commands have to be defined separately using plain ~defun~.
     The name of the manpage to be displayed when the user requests
     help for an argument.
 
-** Defining suffix commands
+** Defining Suffix Commands
 
 Commands intended to be invoked from a particular popup should
 determine the currently effective arguments by calling the function
