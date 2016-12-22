@@ -459,13 +459,11 @@ option `magit-repository-directories-depth' specifies the depth."
   :group 'magit
   :type '(repeat (choice (cons directory (integer :tag "Depth")) directory)))
 
-(defcustom magit-repository-directories-depth 3
+(defvar magit-repository-directories-depth 3
   "The maximum depth to look for Git repositories.
-This option is obsolete and only used for elements of the option
-`magit-repository-directories' (which see) that don't specify the
-depth directly."
-  :group 'magit
-  :type 'integer)
+This variable is obsolete and only used for elements of the
+option `magit-repository-directories' (which see) that don't
+specify the depth directly.")
 
 (defcustom magit-repolist-mode-hook '(hl-line-mode)
   "Hook run after entering Magit-Repolist mode."
@@ -3683,6 +3681,9 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
   If your hook function only has to be run once, when the buffer
   is first created, then `magit-status-mode-hook' instead.
 " "Magit 2.4.0")
+
+(make-obsolete-variable 'magit-repository-directories-depth
+                        'magit-repository-directories "Magit 2.8.0")
 
 (define-obsolete-function-alias 'global-magit-file-buffer-mode
   'global-magit-file-mode "Magit 2.3.0")

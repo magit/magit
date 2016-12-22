@@ -9,6 +9,9 @@ Changes since v2.9.0
 
 * Many doc-strings were improved, added, and fixed.
 
+* The obsolete variable `magit-repository-directory-depth' is no
+  longer defined as an option.
+
 Fixes since v2.9.0
 ------------------
 
