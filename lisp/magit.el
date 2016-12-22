@@ -1007,7 +1007,6 @@ Type \\[magit-reset] to reset HEAD to the commit at point.
 ;;;###autoload (autoload 'magit-show-refs-popup "magit" nil t)
 (magit-define-popup magit-show-refs-popup
   "Popup console for `magit-show-refs'."
-  'magit-refs
   :man-page "git-branch"
   :switches '((?m "Merged to HEAD"            "--merged")
               (?M "Merged to master"          "--merged=master")
@@ -1561,7 +1560,6 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
 ;;;###autoload (autoload 'magit-branch-popup "magit" nil t)
 (magit-define-popup magit-branch-popup
   "Popup console for branch commands."
-  'magit-commands
   :man-page "git-branch"
   :actions '((?b "Checkout"              magit-checkout)
              (?n "Create new branch"     magit-branch)
@@ -2170,7 +2168,6 @@ When `never' (the default) then the variable is never set."
 ;;;###autoload (autoload 'magit-merge-popup "magit" nil t)
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
-  'magit-commands
   :man-page "git-merge"
   :switches '((?f "Fast-forward only" "--ff-only")
               (?n "No fast-forward"   "--no-ff")
@@ -2321,7 +2318,6 @@ If no merge is in progress, do nothing."
 ;;;###autoload (autoload 'magit-reset-popup "magit" nil t)
 (magit-define-popup magit-reset-popup
   "Popup console for reset commands."
-  'magit-commands
   :man-page "git-reset"
   :actions '((?m "reset mixed  (HEAD and index)"         magit-reset-head)
              (?s "reset soft   (HEAD only)"              magit-reset-soft)
@@ -2568,7 +2564,6 @@ If there is only one worktree, then insert nothing."
 ;;;###autoload (autoload 'magit-tag-popup "magit" nil t)
 (magit-define-popup magit-tag-popup
   "Popup console for tag commands."
-  'magit-commands
   :man-page "git-tag"
   :switches '((?a "Annotate" "--annotate")
               (?s "Sign"     "--sign")
@@ -2635,7 +2630,6 @@ defaulting to the tag at point.
 ;;;###autoload (autoload 'magit-notes-popup "magit" nil t)
 (magit-define-popup magit-notes-popup
   "Popup console for notes commands."
-  'magit-commands
   :man-page "git-tag"
   :switches '("Switch for prune"
               (?n "Dry run"          "--dry-run"))
@@ -2951,7 +2945,6 @@ Currently this only adds the following key bindings.
 ;;;###autoload (autoload 'magit-dispatch-popup "magit" nil t)
 (magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
-  'magit-commands nil nil
   :actions '("Popup and dwim commands"
              (?A "Cherry-picking"  magit-cherry-pick-popup)
              (?b "Branching"       magit-branch-popup)
@@ -3035,7 +3028,6 @@ Currently this only adds the following key bindings.
 ;;;###autoload (autoload 'magit-run-popup "magit" nil t)
 (magit-define-popup magit-run-popup
   "Popup console for running raw Git commands."
-  'magit-commands nil nil
   :actions '((?! "Git Subcommand (in topdir)" magit-git-command-topdir)
              (?k "Gitk"                       magit-run-gitk)
              (?p "Git Subcommand (in pwd)"    magit-git-command)

@@ -59,7 +59,6 @@ does not carry to other options."
 
 (magit-define-popup magit-margin-popup
   "Popup console for changing appearance of the margin."
-  'magit-commands nil nil
   :actions '("Margin"
              (?L "toggle visibility" magit-toggle-margin)
              (?l "cycle style"       magit-cycle-margin-style)

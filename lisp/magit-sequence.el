@@ -114,7 +114,6 @@ This discards all changes made since the sequence started."
 ;;;###autoload (autoload 'magit-cherry-pick-popup "magit-sequence" nil t)
 (magit-define-popup magit-cherry-pick-popup
   "Popup console for cherry-pick commands."
-  'magit-commands
   :man-page "git-cherry-pick"
   :switches '((?s "Add Signed-off-by lines"            "--signoff")
               (?e "Edit commit messages"               "--edit")
@@ -168,7 +167,6 @@ without prompting."
 ;;;###autoload (autoload 'magit-revert-popup "magit-sequence" nil t)
 (magit-define-popup magit-revert-popup
   "Popup console for revert commands."
-  'magit-commands
   :man-page "git-revert"
   :switches '((?s "Add Signed-off-by lines" "--signoff"))
   :options  '((?s "Strategy"       "--strategy=")
@@ -214,7 +212,6 @@ without prompting."
 ;;;###autoload (autoload 'magit-am-popup "magit-sequence" nil t)
 (magit-define-popup magit-am-popup
   "Popup console for mailbox commands."
-  'magit-commands
   :man-page "git-am"
   :switches '((?3 "Fall back on 3way merge"           "--3way")
               (?s "Add Signed-off-by lines"           "--signoff")
@@ -290,7 +287,6 @@ This discards all changes made since the sequence started."
 ;;;###autoload (autoload 'magit-rebase-popup "magit-sequence" nil t)
 (magit-define-popup magit-rebase-popup
   "Key menu for rebasing."
-  'magit-commands
   :man-page "git-rebase"
   :switches '((?k "Keep empty commits"    "--keep-empty")
               (?p "Preserve merges"       "--preserve-merges")

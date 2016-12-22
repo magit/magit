@@ -64,7 +64,6 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 ;;;###autoload (autoload 'magit-stash-popup "magit-stash" nil t)
 (magit-define-popup magit-stash-popup
   "Popup console for stash commands."
-  'magit-commands
   :man-page "git-stash"
   :switches '((?u "Also save untracked files" "--include-untracked")
               (?a "Also save untracked and ignored files" "--all"))

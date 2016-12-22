@@ -53,7 +53,6 @@
 ;;;###autoload (autoload 'magit-bisect-popup "magit-bisect" nil t)
 (magit-define-popup magit-bisect-popup
   "Popup console for bisect commands."
-  'magit-commands
   :man-page "git-bisect"
   :actions            '((?B "Start"        magit-bisect-start)
                         (?s "Start script" magit-bisect-run))

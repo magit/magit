@@ -47,6 +47,17 @@
   "Options controlling behavior of certain commands."
   :group 'magit)
 
+(defgroup magit-git-arguments nil
+  "Options controlling what arguments are passed to Git.
+
+Most of these options can be set using the respective popup,
+and it is recommended that you do that because then you can
+be certain that Magit supports the arguments that you select.
+
+An option `magit-NAME-argument' specifies the arguments that
+are enabled by default by the popup `magit-NAME-popup'."
+  :group 'magit-commands)
+
 (defgroup magit-modes nil
   "Modes used or provided by Magit."
   :group 'magit)

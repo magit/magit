@@ -464,10 +464,11 @@ commands have to be defined separately using plain ~defun~.
   value of the variable by the same name.  See below for more
   information.
 
-  The optional argument GROUP specifies the Custom group in which the
-  option is placed.  If omitted then the option is placed in some
+  Optional argument GROUP specifies the Custom group into which the
+  option is placed.  If omitted then the option is placed into some
   group the same way it is done when directly using ~defcustom~ and
-  omitting the group.
+  omitting the group, except when NAME begins with "magit-", in
+  which case the group ~magit-git-arguments~ is used.
 
   The optional argument MODE specifies the mode used by the popup
   buffer.  If it is omitted or ~nil~ then ~magit-popup-mode~ is used.

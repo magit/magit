@@ -71,7 +71,6 @@ an alist that supports the keys `:right-align' and `:pad-right'."
 ;;;###autoload (autoload 'magit-submodule-popup "magit-submodule" nil t)
 (magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
-  'magit-commands nil nil
   :man-page "git-submodule"
   :actions  '((?a "Add"    magit-submodule-add)
               (?b "Setup"  magit-submodule-setup)

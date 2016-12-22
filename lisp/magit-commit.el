@@ -45,7 +45,7 @@
 
 (defcustom magit-commit-arguments nil
   "The arguments used when committing."
-  :group 'magit-commands
+  :group 'magit-git-arguments
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-commit-ask-to-stage 'verbose

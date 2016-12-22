@@ -101,7 +101,6 @@ tree at the time of stashing."
 ;;;###autoload (autoload 'magit-ediff-popup "magit-ediff" nil t)
 (magit-define-popup magit-ediff-popup
   "Popup console for ediff commands."
-  'magit-diff nil nil
   :actions '((?E "Dwim"          magit-ediff-dwim)
              (?u "Show unstaged" magit-ediff-show-unstaged)
              (?s "Stage"         magit-ediff-stage)

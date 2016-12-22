@@ -72,8 +72,7 @@ to what you have set for `magit-log-margin'."
 (defcustom magit-log-arguments '("-n256" "--graph" "--decorate")
   "The log arguments used in `magit-log-mode' buffers."
   :package-version '(magit . "2.3.0")
-  :group 'magit-log
-  :group 'magit-commands
+  :group 'magit-git-arguments
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-log-remove-graph-args '("--follow" "--grep" "-G" "-S" "-L")
@@ -247,8 +246,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 (defcustom magit-reflog-arguments '("-n256")
   "The log arguments used in `magit-reflog-mode' buffers."
   :package-version '(magit . "2.3.0")
-  :group 'magit-log
-  :group 'magit-commands
+  :group 'magit-git-arguments
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-reflog-margin

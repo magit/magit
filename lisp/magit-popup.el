@@ -438,9 +438,11 @@ the value of the variable `magit-current-popup-args'; however
 when the command is invoked directly, then it returns the default
 value of the variable `SHORTNAME-arguments'.
 
-Optional argument GROUP specifies the Custom group in which the
-option is placed.  If omitted then the option is placed in some
-group the same way it is done when directly using `defcustom'.
+Optional argument GROUP specifies the Custom group into which the
+option is placed.  If omitted then the option is placed into some
+group the same way it is done when directly using `defcustom' and
+omitting the group, except when NAME begins with \"magit-\", in
+which case the group `magit-git-arguments' is used.
 
 Optional argument MODE is deprecated, instead use the keyword
 arguments `:setup-function' and/or `:refresh-function'.  If MODE
@@ -542,13 +544,15 @@ usually specified in that order):
 
 \(fn NAME DOC [GROUP [MODE [OPTION]]] :KEYWORD VALUE...)"
   (declare (indent defun) (doc-string 2))
-  (let* ((grp  (unless (keywordp (car args)) (pop args)))
-         (mode (unless (keywordp (car args)) (pop args)))
-         (opt  (symbol-name name))
+  (let* ((str  (symbol-name name))
+         (grp  (if (keywordp (car args))
+                   (and (string-prefix-p "magit-" str) ''magit-git-arguments)
+                 (pop args)))
+         (mode (and (not (keywordp (car args))) (pop args)))
          (opt  (if (keywordp (car args))
-                   (intern (concat (if (string-suffix-p "-popup" opt)
-                                       (substring opt 0 -6)
-                                     opt)
+                   (intern (concat (if (string-suffix-p "-popup" str)
+                                       (substring str 0 -6)
+                                     str)
                                    "-arguments"))
                  (eval (pop args)))))
     `(progn

@@ -589,8 +589,7 @@ and `:slant'."
 
 (defcustom magit-diff-arguments '("--stat" "--no-ext-diff")
   "The diff arguments used in buffers whose mode derives from `magit-diff-mode'."
-  :group 'magit-diff
-  :group 'magit-commands
+  :group 'magit-git-arguments
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-diff-section-arguments '("--no-ext-diff")

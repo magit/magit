@@ -103,7 +103,6 @@ the variable isn't already set."
 ;;;###autoload (autoload 'magit-remote-popup "magit-remote" nil t)
 (magit-define-popup magit-remote-popup
   "Popup console for remote commands."
-  'magit-commands nil nil
   :man-page "git-remote"
   :actions  '((?a "Add"     magit-remote-add)
               (?r "Rename"  magit-remote-rename)
@@ -182,7 +181,6 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 ;;;###autoload (autoload 'magit-fetch-popup "magit-remote" nil t)
 (magit-define-popup magit-fetch-popup
   "Popup console for fetch commands."
-  'magit-commands
   :man-page "git-fetch"
   :switches '((?p "Prune deleted branches" "--prune"))
   :actions  '("Configure"
@@ -278,7 +276,6 @@ removed on the respective remote."
 ;;;###autoload (autoload 'magit-pull-popup "magit-remote" nil t)
 (magit-define-popup magit-pull-popup
   "Popup console for pull commands."
-  'magit-commands
   :man-page "git-pull"
   :variables '("Configure"
                (?r "branch.%s.rebase"
@@ -324,7 +321,6 @@ missing.  To add them use something like:
     (magit-define-popup-action \\='magit-pull-and-fetch-popup ?P
       \\='magit-get-push-branch
       \\='magit-fetch-from-push-remote ?F))"
-  'magit-commands
   :man-page "git-pull"
   :variables '("Configure"
                (?r "branch.%s.rebase"
@@ -423,7 +419,6 @@ removed after restarting Emacs."
 ;;;###autoload (autoload 'magit-push-popup "magit-remote" nil t)
 (magit-define-popup magit-push-popup
   "Popup console for push commands."
-  'magit-commands
   :man-page "git-push"
   :switches `((?f "Force with lease" "--force-with-lease")
               (?F "Force"            "--force")
@@ -701,7 +696,6 @@ To add this command to the push popup add this to your init file:
 ;;;###autoload (autoload 'magit-patch-popup "magit-remote" nil t)
 (magit-define-popup magit-patch-popup
   "Popup console for patch commands."
-  'magit-commands
   :man-page "git-format-patch"
   :switches '("Switches for formatting patches"
               (?l "Add cover letter" "--cover-letter"))

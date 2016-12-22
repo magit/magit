@@ -28,7 +28,6 @@
 ;;;###autoload (autoload 'magit-subtree-popup "magit-subtree" nil t)
 (magit-define-popup magit-subtree-popup
   "Popup console for subtree commands."
-  'magit-commands
   :man-page "git-subtree"
   :switches '("Switches for add, merge, push, and pull"
               (?s "Squash" "--squash")
