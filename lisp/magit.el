@@ -476,9 +476,9 @@ specify the depth directly.")
 (defcustom magit-repolist-columns
   '(("Name"    25 magit-repolist-column-ident                  nil)
     ("Version" 25 magit-repolist-column-version                nil)
-    ("L<U"      3 magit-repolist-column-unpulled-from-upstream (:right-align t))
-    ("L>U"      3 magit-repolist-column-unpushed-to-upstream   (:right-align t))
-    ("Path"    99 magit-repolist-column-path))
+    ("L<U"      3 magit-repolist-column-unpulled-from-upstream ((:right-align t)))
+    ("L>U"      3 magit-repolist-column-unpushed-to-upstream   ((:right-align t)))
+    ("Path"    99 magit-repolist-column-path                   nil))
   "List of columns displayed by `magit-list-repositories'.
 
 Each element has the form (HEADER WIDTH FORMAT PROPS).
