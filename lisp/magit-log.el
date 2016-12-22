@@ -55,16 +55,6 @@
   :link '(info-link "(magit)Logging")
   :group 'magit-modes)
 
-(defgroup magit-margin nil
-  "Information Magit displays in the margin.
-
-If you want to change the DATE-STYLE of all `magit-*-margin'
-options to the same value, you can do so by only customizing
-`magit-log-margin' *before* `magit' is loaded.  If you do so,
-then the respective value for the other options will default
-to what you have set for `magit-log-margin'."
-  :group 'magit-log)
-
 (defcustom magit-log-mode-hook nil
   "Hook run after entering Magit-Log mode."
   :group 'magit-log
