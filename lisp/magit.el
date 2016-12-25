@@ -2491,7 +2491,7 @@ If DEFAULT is non-nil, use this as the default value instead of
   "Create a new BRANCH and check it out in a new worktree at PATH."
   (interactive
    `(,(read-directory-name "Create worktree: ")
-     ,@(butlast (magit-branch-read-args "Create and checkout branch"))
+     ,@(nbutlast (magit-branch-read-args "Create and checkout branch"))
      ,current-prefix-arg))
   (magit-run-git "worktree" "add" (if force "-B" "-b")
                  branch (expand-file-name path) start-point)
@@ -2934,7 +2934,7 @@ Currently this only adds the following key bindings.
   (let ((lines (magit-with-toplevel
                  (magit-git-lines "log" "-2" "--format=%H" "--name-only"
                                   "--follow" (or rev "HEAD") "--" file))))
-    (if rev (cddr lines) (butlast lines 2))))
+    (if rev (cddr lines) (nbutlast lines 2))))
 
 (defun magit-blob-successor (rev file)
   (let ((lines (magit-with-toplevel

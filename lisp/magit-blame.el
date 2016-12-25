@@ -319,7 +319,7 @@ This is intended for debugging purposes.")
         (unless (string-match-p "\n\\'" string)
           (process-put process 'chunk chunk)
           (process-put process 'partial-line (car (last lines)))
-          (setq lines (butlast lines)))
+          (setq lines (nbutlast lines)))
         (dolist (line lines)
           (cond
            ((equal line ""))
