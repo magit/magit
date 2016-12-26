@@ -558,17 +558,11 @@ If no such sequence is in progress, do nothing."
       (magit-insert-section (rebase-sequence)
         (magit-insert-heading (format "Rebasing %s onto %s" name onto))
         (if interactive
-            (magit-rebase-insert-merge-sequence)
-          (magit-rebase-insert-apply-sequence))
-        (magit-sequence-insert-sequence
-         (magit-file-line
-          (magit-git-dir
-           (concat dir (if interactive "stopped-sha" "original-commit"))))
-         onto (--map (cadr (split-string it))
-                     (magit-file-lines (magit-git-dir "rebase-merge/done"))))
+            (magit-rebase-insert-merge-sequence onto)
+          (magit-rebase-insert-apply-sequence onto))
         (insert ?\n)))))
 
-(defun magit-rebase-insert-merge-sequence ()
+(defun magit-rebase-insert-merge-sequence (onto)
   (dolist (line (nreverse
                  (magit-file-lines
                   (magit-git-dir "rebase-merge/git-rebase-todo"))))
@@ -577,12 +571,26 @@ If no such sequence is in progress, do nothing."
                                  (or (magit-get "core.commentChar") "#")))
                         line)
       (magit-bind-match-strings (action hash) line
-        (magit-sequence-insert-commit action hash 'magit-sequence-pick)))))
+        (magit-sequence-insert-commit action hash 'magit-sequence-pick))))
+  (magit-sequence-insert-sequence
+   (magit-file-line (magit-git-dir "rebase-merge/stopped-sha"))
+   onto
+   (--map (cadr (split-string it))
+          (magit-file-lines (magit-git-dir "rebase-merge/done")))))
 
-(defun magit-rebase-insert-apply-sequence ()
-  (dolist (patch (nreverse (cdr (magit-rebase-patches))))
-    (magit-sequence-insert-commit
-     "pick" (cadr (split-string (magit-file-line patch))) 'magit-sequence-pick)))
+(defun magit-rebase-insert-apply-sequence (onto)
+  (let ((rewritten
+         (--map (car (split-string it))
+                (magit-file-lines (magit-git-dir "rebase-apply/rewritten"))))
+        (stop (magit-file-line (magit-git-dir "rebase-apply/original-commit"))))
+    (dolist (patch (nreverse (cdr (magit-rebase-patches))))
+      (let ((hash (cadr (split-string (magit-file-line patch)))))
+        (unless (or (member hash rewritten)
+                    (equal hash stop))
+          (magit-sequence-insert-commit "pick" hash 'magit-sequence-pick)))))
+  (magit-sequence-insert-sequence
+   (magit-file-line (magit-git-dir "rebase-apply/original-commit"))
+   onto))
 
 (defun magit-rebase-patches ()
   (directory-files (magit-git-dir "rebase-apply") t "^[0-9]\\{4\\}$"))
