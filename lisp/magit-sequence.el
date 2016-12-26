@@ -575,8 +575,8 @@ If no such sequence is in progress, do nothing."
   (magit-sequence-insert-sequence
    (magit-file-line (magit-git-dir "rebase-merge/stopped-sha"))
    onto
-   (--map (cadr (split-string it))
-          (magit-file-lines (magit-git-dir "rebase-merge/done")))))
+   (cadr (split-string (car (last (magit-file-lines
+                                   (magit-git-dir "rebase-merge/done"))))))))
 
 (defun magit-rebase-insert-apply-sequence (onto)
   (let ((rewritten
@@ -642,7 +642,7 @@ If no such sequence is in progress, do nothing."
                     ;; Or it didn't die in the first place.
                     (list (if (and (equal rev head)
                                    (equal (magit-patch-id rev)
-                                          (magit-patch-id (car (last orig 2)))))
+                                          (magit-patch-id orig)))
                               "stop" ; We haven't done anything yet.
                             "like")  ; There are new commits.
                           rev (if (equal rev head)
