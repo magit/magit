@@ -64,6 +64,7 @@ ELS += magit.el
 ELS += magit-status.el
 ELS += magit-refs.el
 ELS += magit-files.el
+ELS += magit-branch.el
 ELS += magit-obsolete.el
 ELS += magit-sequence.el
 ELS += magit-commit.el
