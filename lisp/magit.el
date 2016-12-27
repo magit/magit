@@ -1305,7 +1305,7 @@ different, but only if you have customized the option
 
 (defun magit-insert-tags ()
   "Insert sections showing all tags."
-  (-when-let (tags (magit-git-lines "tag" "-l" "-n"))
+  (-when-let (tags (magit-git-lines "tag" "-l" "-n" "--sort=v:refname"))
     (magit-insert-section (tags)
       (magit-insert-heading "Tags:")
       (let ((head (or (car magit-refresh-args)
