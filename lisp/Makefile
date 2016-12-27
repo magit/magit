@@ -34,6 +34,7 @@ magit-refs.elc: 	magit.elc
 magit-files.elc:	magit.elc
 magit-branch.elc:	magit.elc
 magit-worktree.elc:	magit.elc
+magit-notes.elc:	magit.elc
 magit-obsolete.elc:	magit.elc
 magit-sequence.elc:	magit.elc
 magit-commit.elc:	magit.elc magit-sequence.elc
