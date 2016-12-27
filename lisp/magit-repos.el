@@ -187,6 +187,17 @@ Usually this is just its basename."
   "Insert the upstream branch of the current branch."
   (magit-get-upstream-branch))
 
+(defun magit-repolist-column-dirty (_id)
+  "Insert a letter if there are uncommitted changes.
+
+Show N if there is at least one untracked file.
+Show U if there is at least one unstaged file.
+Show S if there is at least one staged file.
+Only one letter is shown, the first that applies."
+  (cond ((magit-untracked-files) "N")
+        ((magit-unstaged-files)  "U")
+        ((magit-staged-files     "S"))))
+
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
   (--when-let (magit-get-upstream-branch nil t)

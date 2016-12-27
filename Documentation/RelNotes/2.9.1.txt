@@ -19,6 +19,9 @@ Changes since v2.9.0
 
 * Many doc-strings were improved, added, and fixed.  47aae617
 
+* Added the function `magit-repolist-column-dirty', which can be added
+  to `magit-repolist-columns' and `magit-submodule-list-columns'.  #2907
+
 * The obsolete variable `magit-repository-directory-depth' is no
   longer defined as an option.  09993c39
 
