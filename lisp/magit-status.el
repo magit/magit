@@ -87,9 +87,6 @@ all."
   :group 'magit-status
   :type 'hook)
 
-(defvar magit-status-refresh-hook nil
-  "Hook run after a status buffer has been refreshed.")
-
 (defcustom magit-status-expand-stashes t
   "Whether the list of stashes is expanded initially."
   :package-version '(magit . "2.3.0")

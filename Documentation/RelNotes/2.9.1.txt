@@ -19,6 +19,9 @@ Changes since v2.9.0
 * The obsolete variable `magit-repository-directory-depth' is no
   longer defined as an option.  09993c39
 
+* The obsolete hook variable `magit-status-refresh-hook' is no longer
+  defined explicitly.
+
 Fixes since v2.9.0
 ------------------
 
