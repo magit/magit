@@ -60,6 +60,7 @@ ELS += magit-log.el
 ELS += magit-wip.el
 ELS += magit-apply.el
 ELS += magit.el
+ELS += magit-obsolete.el
 ELS += magit-sequence.el
 ELS += magit-commit.el
 ELS += magit-remote.el

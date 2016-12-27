@@ -28,6 +28,7 @@ magit-wip.elc:		magit-core.elc magit-log.elc
 magit-apply.elc:	magit-core.elc magit-diff.elc magit-wip.elc
 magit.elc:		git-commit.elc magit-core.elc magit-diff.elc \
 			magit-apply.elc magit-log.elc
+magit-obsolete.elc:	magit.elc
 magit-sequence.elc:	magit.elc
 magit-commit.elc:	magit.elc magit-sequence.elc
 magit-remote.elc:	magit.elc

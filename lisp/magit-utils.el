@@ -661,8 +661,5 @@ the %s(1) manpage.
 (advice-add 'org-man-export :around
             'org-man-export--magit-gitman)
 
-(define-obsolete-variable-alias 'magit-duration-spec
-  'magit--age-spec "Magit 2.9.0")
-
 (provide 'magit-utils)
 ;;; magit-utils.el ends here

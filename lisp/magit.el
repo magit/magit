@@ -3488,7 +3488,7 @@ above."
         (push (list rev default-directory) magit-revision-stack)
         (kill-new (message "%s" rev))))))
 
-;;; magit.el ends soon
+;;; (Keywords)
 
 (defconst magit-font-lock-keywords
   (eval-when-compile
@@ -3508,6 +3508,8 @@ above."
        . 1))))
 
 (font-lock-add-keywords 'emacs-lisp-mode magit-font-lock-keywords)
+
+;;; (Versions)
 
 (defvar magit-version 'undefined
   "The version of Magit that you're using.
@@ -3583,6 +3585,8 @@ Git, and Emacs in the echo area."
         ;; The repository is a sparse clone.
         (message "Cannot determine Magit's version %S" debug)))
     magit-version))
+
+;;; (Asserts)
 
 (defun magit-startup-asserts ()
   (let ((version (magit-git-version)))
@@ -3665,37 +3669,7 @@ If the value already is just \"git\" but TRAMP never-the-less
 doesn't find the executable, then consult the info node
 `(tramp)Remote programs'.\n" remote) :error)))))
 
-(make-obsolete-variable 'magit-status-refresh-hook "\
-use `magit-pre-refresh-hook', `magit-post-refresh-hook',
-  `magit-refresh-buffer-hook', or `magit-status-mode-hook' instead.
-
-  If you want to run a function every time the status buffer is
-  refreshed, in order to do something with that buffer, then use:
-
-    (add-hook 'magit-refresh-buffer-hook
-              (lambda ()
-                (when (derived-mode-p 'magit-status-mode)
-                  ...)))
-
-  If your hook function should run regardless of whether the
-  status buffer exists or not, then use `magit-pre-refresh-hook'
-  or `magit-post-refresh-hook'.
-
-  If your hook function only has to be run once, when the buffer
-  is first created, then `magit-status-mode-hook' instead.
-" "Magit 2.4.0")
-
-(make-obsolete-variable 'magit-repository-directories-depth
-                        'magit-repository-directories "Magit 2.8.0")
-
-(define-obsolete-function-alias 'global-magit-file-buffer-mode
-  'global-magit-file-mode "Magit 2.3.0")
-(define-obsolete-function-alias 'magit-insert-head-header
-  'magit-insert-head-branch-header "Magit 2.4.0")
-(define-obsolete-function-alias 'magit-insert-upstream-header
-  'magit-insert-upstream-branch-header "Magit 2.4.0")
-(define-obsolete-function-alias 'magit-insert-pull-branch-header
-  'magit-insert-upstream-branch-header "Magit 2.4.0")
+;;; (Features)
 
 (provide 'magit)
 
@@ -3706,6 +3680,7 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
   (require 'magit-bisect)
   (require 'magit-stash)
   (require 'magit-blame)
+  (require 'magit-obsolete)
   (unless (load "magit-autoloads" t t)
     (require 'magit-submodule)
     (require 'magit-subtree)

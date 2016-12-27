@@ -872,8 +872,5 @@ as argument."
                                        (pop-to-buffer buf))))))
                              process))))))
 
-(define-obsolete-variable-alias 'magit-log-output-coding-system
-  'magit-git-output-coding-system "Magit 2.9.0")
-
 (provide 'magit-process)
 ;;; magit-process.el ends here

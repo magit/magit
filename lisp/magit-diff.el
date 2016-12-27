@@ -2402,9 +2402,5 @@ https://github.com/magit/magit/pull/2293 for more details)."
       (setq patch (buffer-string)))
     patch))
 
-(make-obsolete-variable 'magit-diff-show-lines-boundary
-                        'magit-diff-highlight-hunk-region-functions
-                        "Magit 2.9.0")
-
 (provide 'magit-diff)
 ;;; magit-diff.el ends here

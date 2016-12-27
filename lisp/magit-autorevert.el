@@ -110,9 +110,7 @@ seconds of user inactivity.  That is not desirable."
       (auto-revert-mode))))
 
 ;;;###autoload
-(defvar magit-revert-buffers t)
-(make-obsolete-variable 'magit-revert-buffers 'magit-auto-revert-mode
-                        "Magit 2.4.0")
+(defvar magit-revert-buffers t) ; obsolete
 
 ;;;###autoload
 (define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
