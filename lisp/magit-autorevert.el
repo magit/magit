@@ -125,7 +125,7 @@ seconds of user inactivity.  That is not desirable."
   ;; was still in use.  In all other cases enable the mode because if
   ;; buffers are not automatically reverted that would make many very
   ;; common tasks much more cumbersome.
-  :init-value (and magit-revert-buffers
+  :init-value (and (with-no-warnings magit-revert-buffers)
                    (not global-auto-revert-mode)
                    (not noninteractive)))
 ;; - Unfortunately `:init-value t' only sets the value of the mode
@@ -148,7 +148,7 @@ the `after-init-hook'.  For more information see the comments
 and code surrounding the definition of this function."
   ;; `magit-revert-buffers' may have been set to nil before the alias
   ;; had been established, so consult the value of both variables.
-  (if (and magit-auto-revert-mode magit-revert-buffers)
+  (if (and magit-auto-revert-mode (with-no-warnings magit-revert-buffers))
       (let ((start (current-time)))
         (magit-message "Turning on magit-auto-revert-mode...")
         (magit-auto-revert-mode 1)
