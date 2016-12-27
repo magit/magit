@@ -498,9 +498,5 @@ stash that were staged."
 (defun magit-ediff-restore-previous-winconf ()
   (set-window-configuration magit-ediff-previous-winconf))
 
-;;; magit-ediff.el ends soon
 (provide 'magit-ediff)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-ediff.el ends here

@@ -872,13 +872,8 @@ as argument."
                                        (pop-to-buffer buf))))))
                              process))))))
 
-;;; magit-process.el ends soon
-
 (define-obsolete-variable-alias 'magit-log-output-coding-system
   'magit-git-output-coding-system "Magit 2.9.0")
 
 (provide 'magit-process)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-process.el ends here

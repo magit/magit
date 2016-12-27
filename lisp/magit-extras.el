@@ -195,9 +195,5 @@ on a position in a file-visiting buffer."
                           (prompt-for-change-log-name))))
   (magit-add-change-log-entry whoami file-name t))
 
-;;; magit-extras.el ends soon
 (provide 'magit-extras)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-extras.el ends here

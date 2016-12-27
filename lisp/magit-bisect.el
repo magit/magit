@@ -200,9 +200,5 @@ bisect run'."
         (magit-insert-section (bisect-log)
           (insert hash " is the first bad commit\n"))))))
 
-;;; magit-bisect.el ends soon
 (provide 'magit-bisect)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-bisect.el ends here

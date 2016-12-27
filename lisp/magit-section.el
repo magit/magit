@@ -1175,9 +1175,5 @@ again use `remove-hook'."
         (set hook value)
       (set-default hook value))))
 
-;;; magit-section.el ends soon
 (provide 'magit-section)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-section.el ends here

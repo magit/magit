@@ -1535,8 +1535,6 @@ Return a list of two integers: (A>B B>A)."
 (gv-define-setter magit-get (val &rest keys)
   `(magit-set ,val ,@keys))
 
-;;; magit-git.el ends soon
-
 (define-obsolete-variable-alias 'magit-git-standard-options
   'magit-git-global-arguments "Magit 2.1.0")
 (define-obsolete-function-alias 'magit-get-tracked-ref
@@ -1547,7 +1545,4 @@ Return a list of two integers: (A>B B>A)."
   'magit-get-upstream-remote "Magit 2.4.0")
 
 (provide 'magit-git)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-git.el ends here

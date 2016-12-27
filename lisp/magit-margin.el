@@ -225,9 +225,5 @@ English.")
     (fn (abs (- (float-time) (string-to-number date)))
         magit--age-spec)))
 
-;;; magit-margin.el ends soon
 (provide 'magit-margin)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-margin.el ends here

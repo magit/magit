@@ -662,9 +662,5 @@ If no such sequence is in progress, do nothing."
     (insert (propertize type 'face face)    ?\s
             (magit-format-rev-summary hash) ?\n)))
 
-;;; magit-sequence.el ends soon
 (provide 'magit-sequence)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-sequence.el ends here

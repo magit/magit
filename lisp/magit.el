@@ -3719,7 +3719,4 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
   (add-hook 'after-init-hook #'magit-startup-asserts t)
   (add-hook 'after-init-hook #'magit-version t))
 
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit.el ends here

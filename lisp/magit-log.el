@@ -1517,15 +1517,10 @@ all others with \"-\"."
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) "@{upstream}"))))
 
-;;; magit-log.el ends soon
-
 (define-obsolete-variable-alias 'magit-log-section-args
   'magit-log-section-arguments "Magit 2.2.0")
 (define-obsolete-function-alias 'magit-insert-unpulled-or-recent-commits
   'magit-insert-unpulled-from-upstream-or-recent "Magit 2.4.0")
 
 (provide 'magit-log)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-log.el ends here
