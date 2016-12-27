@@ -61,6 +61,7 @@ ELS += magit-wip.el
 ELS += magit-apply.el
 ELS += magit.el
 ELS += magit-status.el
+ELS += magit-refs.el
 ELS += magit-obsolete.el
 ELS += magit-sequence.el
 ELS += magit-commit.el
