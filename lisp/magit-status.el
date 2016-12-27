@@ -421,20 +421,17 @@ detached `HEAD'."
     (when (or this-tag next-tag)
       (magit-insert-section (tag (or this-tag next-tag))
         (insert (format "%-10s" (if both-tags "Tags: " "Tag: ")))
-        (when this-tag
-          (insert (magit-format-status-tag-sentence this-tag this-cnt nil)))
-        (when both-tags
-          (insert ", "))
-        (when next-tag
-          (insert (magit-format-status-tag-sentence next-tag next-cnt t)))
+        (cl-flet ((insert-count
+                   (tag count face)
+                   (insert (concat (propertize tag 'face 'magit-tag)
+                                   (and (> count 0)
+                                        (format " (%s)"
+                                                (propertize (format "%s" count)
+                                                            'face face)))))))
+          (when this-tag  (insert-count this-tag this-cnt 'magit-branch-local))
+          (when both-tags (insert ", "))
+          (when next-tag  (insert-count next-tag next-cnt 'magit-tag)))
         (insert ?\n)))))
-
-(defun magit-format-status-tag-sentence (tag count next)
-  (concat (propertize tag 'face 'magit-tag)
-          (and (> count 0)
-               (format " (%s)"
-                       (propertize (format "%s" count) 'face
-                                   (if next 'magit-tag 'magit-branch-local))))))
 
 ;;;; Auxiliary Headers
 
