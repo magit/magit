@@ -59,6 +59,7 @@ ELS += magit-diff.el
 ELS += magit-log.el
 ELS += magit-wip.el
 ELS += magit-apply.el
+ELS += magit-repos.el
 ELS += magit.el
 ELS += magit-status.el
 ELS += magit-refs.el
