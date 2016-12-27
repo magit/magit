@@ -228,7 +228,6 @@ English.")
 ;;; magit-margin.el ends soon
 (provide 'magit-margin)
 ;; Local Variables:
-;; coding: utf-8
 ;; indent-tabs-mode: nil
 ;; End:
 ;;; magit-margin.el ends here

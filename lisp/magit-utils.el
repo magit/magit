@@ -1,4 +1,4 @@
-;;; magit-utils.el --- various utilities  -*- lexical-binding: t -*-
+;;; magit-utils.el --- various utilities  -*- lexical-binding: t; coding: utf-8 -*-
 
 ;; Copyright (C) 2010-2016  The Magit Project Contributors
 ;;
@@ -668,7 +668,6 @@ the %s(1) manpage.
 
 (provide 'magit-utils)
 ;; Local Variables:
-;; coding: utf-8
 ;; indent-tabs-mode: nil
 ;; End:
 ;;; magit-utils.el ends here

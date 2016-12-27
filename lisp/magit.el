@@ -1,4 +1,4 @@
-;;; magit.el --- A Git porcelain inside Emacs  -*- lexical-binding: t -*-
+;;; magit.el --- A Git porcelain inside Emacs  -*- lexical-binding: t; coding: utf-8 -*-
 
 ;; Copyright (C) 2008-2016  The Magit Project Contributors
 ;;
@@ -3720,7 +3720,6 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
   (add-hook 'after-init-hook #'magit-version t))
 
 ;; Local Variables:
-;; coding: utf-8
 ;; indent-tabs-mode: nil
 ;; End:
 ;;; magit.el ends here
