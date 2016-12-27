@@ -379,7 +379,7 @@ If FILE isn't tracked in Git fallback to using `delete-file'."
     (magit-refresh)))
 
 ;;;###autoload
-(defun magit-checkout-file (rev file)
+(defun magit-file-checkout (rev file)
   "Checkout FILE from REV."
   (interactive
    (let ((rev (magit-read-branch-or-commit

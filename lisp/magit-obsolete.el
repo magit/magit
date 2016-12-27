@@ -116,5 +116,10 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
 (define-obsolete-variable-alias 'magit-log-output-coding-system
   'magit-git-output-coding-system "Magit 2.9.0")
 
+;;; Obsolete since v2.9.1
+
+(define-obsolete-function-alias 'magit-checkout-file
+  'magit-file-checkout "Magit 2.6.0")
+
 (provide 'magit-obsolete)
 ;;; magit-obsolete.el ends here
