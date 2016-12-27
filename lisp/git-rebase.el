@@ -545,7 +545,4 @@ By default, this is the same except for the \"pick\" command."
 (add-to-list 'with-editor-file-name-history-exclude git-rebase-filename-regexp)
 
 (provide 'git-rebase)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; git-rebase.el ends here

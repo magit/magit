@@ -409,9 +409,5 @@ actually insert the entry."
           (insert (format "(%s): \n" defun))
           (backward-char))))))
 
-;;; magit-commit.el ends soon
 (provide 'magit-commit)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-commit.el ends here

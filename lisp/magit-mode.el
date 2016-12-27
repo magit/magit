@@ -1152,9 +1152,5 @@ Currently `magit-log-mode', `magit-reflog-mode',
                    (float-time (time-subtract (current-time) start))))
       (run-hooks hook))))
 
-;;; magit-mode.el ends soon
 (provide 'magit-mode)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-mode.el ends here

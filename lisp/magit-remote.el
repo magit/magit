@@ -762,9 +762,5 @@ is asked to pull.  START has to be reachable from that commit."
   (magit-git-insert "request-pull" start url end)
   (set-buffer-modified-p nil))
 
-;;; magit-remote.el ends soon
 (provide 'magit-remote)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-remote.el ends here

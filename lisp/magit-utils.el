@@ -1,4 +1,4 @@
-;;; magit-utils.el --- various utilities  -*- lexical-binding: t -*-
+;;; magit-utils.el --- various utilities  -*- lexical-binding: t; coding: utf-8 -*-
 
 ;; Copyright (C) 2010-2016  The Magit Project Contributors
 ;;
@@ -536,6 +536,13 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
+;;; Missing from Emacs
+
+(defun magit-kill-this-buffer ()
+  "Kill the current buffer."
+  (interactive)
+  (kill-buffer (current-buffer)))
+
 ;;; Kludges
 
 (defun magit-file-accessible-directory-p (filename)
@@ -661,14 +668,5 @@ the %s(1) manpage.
 (advice-add 'org-man-export :around
             'org-man-export--magit-gitman)
 
-;;; magit-utils.el ends soon
-
-(define-obsolete-variable-alias 'magit-duration-spec
-  'magit--age-spec "Magit 2.9.0")
-
 (provide 'magit-utils)
-;; Local Variables:
-;; coding: utf-8
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-utils.el ends here

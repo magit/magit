@@ -134,9 +134,5 @@
                      (magit-subtree-args)))
   (magit-git-subtree "split" prefix args commit))
 
-;;; magit-subtree.el ends soon
 (provide 'magit-subtree)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-subtree.el ends here

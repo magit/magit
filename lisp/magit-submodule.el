@@ -342,15 +342,5 @@ These sections can be expanded to show the respective commits."
   "Insert the relative path of the submodule."
   path)
 
-;;; magit-submodule.el ends soon
-
-(define-obsolete-function-alias 'magit-insert-unpulled-module-commits
-  'magit-insert-modules-unpulled-from-upstream "Magit 2.6.0")
-(define-obsolete-function-alias 'magit-insert-unpushed-module-commits
-  'magit-insert-modules-unpushed-to-upstream "Magit 2.6.0")
-
 (provide 'magit-submodule)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-submodule.el ends here

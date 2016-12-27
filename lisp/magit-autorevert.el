@@ -110,9 +110,7 @@ seconds of user inactivity.  That is not desirable."
       (auto-revert-mode))))
 
 ;;;###autoload
-(defvar magit-revert-buffers t)
-(make-obsolete-variable 'magit-revert-buffers 'magit-auto-revert-mode
-                        "Magit 2.4.0")
+(defvar magit-revert-buffers t) ; obsolete
 
 ;;;###autoload
 (define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
@@ -255,9 +253,5 @@ located.  If there is no current repository, then return FALLBACK
 (advice-add 'auto-revert-buffers :before
             'auto-revert-buffers--buffer-list-filter)
 
-;;; magit-autorevert.el ends soon
 (provide 'magit-autorevert)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-autorevert.el ends here

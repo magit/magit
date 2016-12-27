@@ -525,9 +525,5 @@ like `kill-ring-save' would."
              (let ((magit-display-buffer-noselect t))
                (apply #'magit-show-commit rev (magit-diff-arguments))))))))))
 
-;;; magit-blame.el ends soon
 (provide 'magit-blame)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-blame.el ends here

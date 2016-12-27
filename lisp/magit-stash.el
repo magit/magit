@@ -430,9 +430,5 @@ instead of \"Stashes:\"."
                                   (magit-git-items "ls-tree" "-z" "--name-only"
                                                    "-r" "--full-tree" rev)))))
 
-;;; magit-stash.el ends soon
 (provide 'magit-stash)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-stash.el ends here

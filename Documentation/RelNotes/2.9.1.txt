@@ -4,6 +4,9 @@ Magit v2.9.1 Release Notes (unreleased)
 Changes since v2.9.0
 --------------------
 
+* Many new, well organized, libraries were added, consisting of code
+  that was previously located inside a messier "magit.el".  #2908
+
 * The function `magit-display-buffer' now sets the focus on the frame
   used to display the selected window.  #2865
 
@@ -18,6 +21,9 @@ Changes since v2.9.0
 
 * The obsolete variable `magit-repository-directory-depth' is no
   longer defined as an option.  09993c39
+
+* The obsolete hook variable `magit-status-refresh-hook' is no longer
+  defined explicitly.  7e96e831
 
 Fixes since v2.9.0
 ------------------

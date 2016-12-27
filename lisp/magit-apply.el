@@ -589,9 +589,5 @@ a separate commit.  A typical workflow would be:
   (interactive)
   (magit-reverse (cons "--cached" args)))
 
-;;; magit-apply.el ends soon
 (provide 'magit-apply)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-apply.el ends here

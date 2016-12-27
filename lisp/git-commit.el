@@ -732,9 +732,5 @@ Added to `font-lock-extend-region-functions'."
                                 (get-text-property pos 'face)))
            (buffer-string)))))))
 
-;;; git-commit.el ends soon
 (provide 'git-commit)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; git-commit.el ends here
