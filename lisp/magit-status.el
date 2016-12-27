@@ -245,11 +245,9 @@ doesn't find the executable, then consult the info node
     (define-key map "jfp" 'magit-jump-to-unpulled-from-pushremote)
     (define-key map "jpu" 'magit-jump-to-unpushed-to-upstream)
     (define-key map "jpp" 'magit-jump-to-unpushed-to-pushremote)
+    (define-key map [remap dired-jump] 'magit-dired-jump)
     map)
   "Keymap for `magit-status-mode'.")
-
-(eval-after-load 'dired-x
-  '(define-key magit-status-mode-map [remap dired-jump] 'magit-dired-jump))
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at Git status.
