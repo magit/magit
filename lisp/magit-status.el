@@ -189,13 +189,13 @@ then offer to initialize it as a new repository."
 
 ;;;###autoload
 (defun magit-status-internal (directory)
-  (magit-tramp-asserts directory)
+  (magit--tramp-asserts directory)
   (let ((default-directory directory))
     (magit-mode-setup #'magit-status-mode)))
 
 (defvar magit--remotes-using-recent-git nil)
 
-(defun magit-tramp-asserts (directory)
+(defun magit--tramp-asserts (directory)
   (-when-let (remote (file-remote-p directory))
     (unless (member remote magit--remotes-using-recent-git)
       (-if-let (version (let ((default-directory directory))
