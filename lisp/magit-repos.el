@@ -195,8 +195,8 @@ Show U if there is at least one unstaged file.
 Show S if there is at least one staged file.
 Only one letter is shown, the first that applies."
   (cond ((magit-untracked-files) "N")
-        ((magit-unstaged-files)  "U")
-        ((magit-staged-files     "S"))))
+        ((magit-modified-files)  "U")
+        ((magit-staged-files)    "S")))
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
