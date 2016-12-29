@@ -282,9 +282,5 @@ many \"branches\" of each wip ref are shown."
         (cl-decf count))
       (cons wipref (nreverse tips)))))
 
-;;; magit-wip.el ends soon
 (provide 'magit-wip)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-wip.el ends here
