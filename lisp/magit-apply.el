@@ -68,7 +68,7 @@ between the index and the working tree, not with committed
 changes.
 
 If this option is non-nil (the default), then typing \"u\"
-(`magit-unstage') on a committed change, causes it to be
+\(`magit-unstage') on a committed change, causes it to be
 reversed in the index but not the working tree.  For more
 information see command `magit-reverse-in-index'."
   :package-version '(magit . "2.4.1")
