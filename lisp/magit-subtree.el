@@ -50,12 +50,6 @@
               (?s "Split"      magit-subtree-split))
   :max-action-columns 3)
 
-(defun magit-subtree-prefix (prompt)
-  (--if-let (--first (string-prefix-p "--prefix=" it)
-                     (magit-subtree-arguments))
-      (substring it 9)
-    (magit-subtree-read-prefix prompt)))
-
 (defun magit-subtree-read-prefix (prompt &optional default)
   (let* ((insert-default-directory nil)
          (topdir (magit-toplevel))
@@ -66,6 +60,12 @@
             (file-relative-name prefix topdir)
           (user-error "%s isn't inside the repository at %s" prefix topdir))
       prefix)))
+
+(defun magit-subtree-prefix (prompt)
+  (--if-let (--first (string-prefix-p "--prefix=" it)
+                     (magit-subtree-arguments))
+      (substring it 9)
+    (magit-subtree-read-prefix prompt)))
 
 (defun magit-subtree-args ()
   (-filter (lambda (arg)
