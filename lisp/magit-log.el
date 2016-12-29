@@ -325,6 +325,7 @@ the upstream isn't ahead of the current branch) show."
   :type '(repeat (string :tag "Argument")))
 
 ;;; Commands
+;;;; Popups
 
 (defvar magit-log-popup
   '(:variable magit-log-arguments
@@ -498,6 +499,8 @@ buffer."
                 magit-log-section-arguments))))
     (magit-invoke-popup 'magit-log-refresh-popup nil arg)))
 
+;;;; Refresh Commands
+
 (defun magit-log-refresh (args files)
   "Set the local log arguments for the current buffer."
   (interactive (magit-log-arguments t))
@@ -545,6 +548,8 @@ buffer."
          (user-error "Cannot change log arguments in reflog buffers"))
         ((derived-mode-p 'magit-cherry-mode)
          (user-error "Cannot change log arguments in cherry buffers"))))
+
+;;;; Log Commands
 
 (defvar magit-log-read-revs-map
   (let ((map (make-sparse-keymap)))
@@ -681,6 +686,8 @@ With a prefix argument or when `--follow' is part of
   (interactive)
   (magit-reflog "HEAD"))
 
+;;;; Limit Commands
+
 (defun magit-log-toggle-commit-limit ()
   "Toggle the number of commits the current log buffer is limited to.
 If the number of commits is currently limited, then remove that
@@ -714,6 +721,8 @@ limit.  Otherwise set it to 256."
   (--when-let (--first (string-match "^-n\\([0-9]+\\)?$" it)
                        (car (magit-log-arguments t)))
     (string-to-number (match-string 1 it))))
+
+;;;; Other Commands
 
 (defun magit-log-bury-buffer (&optional arg)
   "Bury the current buffer or the revision buffer in the same frame.

@@ -85,7 +85,7 @@ an error while using those is harder to recover from."
   :group 'magit-commands
   :type 'boolean)
 
-;;; Code
+;;; Popup
 
 (defun magit-commit-popup (&optional arg)
   "Popup console for commit commands."
@@ -141,6 +141,8 @@ an error while using those is harder to recover from."
                         prompt keys nil nil nil 'magit-gpg-secret-key-hist
                         (car (or magit-gpg-secret-key-hist keys)))
                        " "))))
+
+;;; Commands
 
 ;;;###autoload
 (defun magit-commit (&optional args)
@@ -311,6 +313,8 @@ depending on the value of option `magit-commit-squash-confirm'."
    (t
     (user-error "Nothing staged"))))
 
+;;; Pending Diff
+
 (defun magit-commit-diff ()
   (-when-let (fn (and git-commit-mode
                       magit-commit-show-diff
@@ -338,6 +342,8 @@ depending on the value of option `magit-commit-squash-confirm'."
 
 (add-to-list 'with-editor-server-window-alist
              (cons git-commit-filename-regexp 'switch-to-buffer))
+
+;;; Message Utilities
 
 (defun magit-commit-message-buffer ()
   (let* ((find-file-visit-truename t) ; git uses truename of COMMIT_EDITMSG

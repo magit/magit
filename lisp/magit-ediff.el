@@ -35,6 +35,8 @@
 (defvar smerge-ediff-buf)
 (defvar smerge-ediff-windows)
 
+;;; Options
+
 (defgroup magit-ediff nil
   "Ediff support for Magit."
   :link '(info-link "(magit)Ediffing")
@@ -96,6 +98,8 @@ tree at the time of stashing."
   :package-version '(magit . "2.6.0")
   :group 'magit-ediff
   :type 'boolean)
+
+;;; Commands
 
 (defvar magit-ediff-previous-winconf nil)
 

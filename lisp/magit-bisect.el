@@ -29,6 +29,8 @@
 
 (require 'magit)
 
+;;; Options
+
 (defcustom magit-bisect-show-graph t
   "Whether to use `--graph' in the log showing commits yet to be bisected."
   :package-version '(magit . "2.8.0")
@@ -49,6 +51,8 @@
   '((t :foreground "IndianRed4"))
   "Face for bad bisect revisions."
   :group 'magit-faces)
+
+;;; Commands
 
 ;;;###autoload (autoload 'magit-bisect-popup "magit-bisect" nil t)
 (magit-define-popup magit-bisect-popup
@@ -133,6 +137,8 @@ bisect run'."
   (magit-with-toplevel
     (magit-run-git-with-logfile
      (magit-git-dir "BISECT_CMD_OUTPUT") "bisect" subcommand args)))
+
+;;; Sections
 
 (defun magit-bisect-in-progress-p ()
   (file-exists-p (magit-git-dir "BISECT_LOG")))

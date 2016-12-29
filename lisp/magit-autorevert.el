@@ -30,6 +30,8 @@
 
 (require 'autorevert)
 
+;;; Options
+
 (defgroup magit-auto-revert nil
   "Revert buffers when files in repository change."
   :link '(custom-group-link auto-revert)
@@ -96,6 +98,8 @@ seconds of user inactivity.  That is not desirable."
   :package-version '(magit . "2.4.0")
   :group 'magit-auto-revert
   :type 'boolean)
+
+;;; Mode
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
   (if file

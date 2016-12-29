@@ -25,6 +25,8 @@
 
 (require 'magit)
 
+;;; Popup
+
 ;;;###autoload (autoload 'magit-subtree-popup "magit-subtree" nil t)
 (magit-define-popup magit-subtree-popup
   "Popup console for subtree commands."
@@ -60,6 +62,8 @@
             (file-relative-name prefix topdir)
           (user-error "%s isn't inside the repository at %s" prefix topdir))
       prefix)))
+
+;;; Commands
 
 (defun magit-subtree-prefix (prompt)
   (--if-let (--first (string-prefix-p "--prefix=" it)
