@@ -125,14 +125,6 @@ an error while using those is harder to recover from."
       magit-current-popup-args
     magit-commit-arguments))
 
-(defun magit-commit-message-buffer ()
-  (let* ((find-file-visit-truename t) ; git uses truename of COMMIT_EDITMSG
-         (topdir (magit-toplevel)))
-    (--first (equal topdir (with-current-buffer it
-                             (and git-commit-mode (magit-toplevel))))
-             (append (buffer-list (selected-frame))
-                     (buffer-list)))))
-
 ;;;###autoload
 (defun magit-commit (&optional args)
   "Create a new commit on HEAD.
@@ -346,6 +338,14 @@ depending on the value of option `magit-commit-squash-confirm'."
                         prompt keys nil nil nil 'magit-gpg-secret-key-hist
                         (car (or magit-gpg-secret-key-hist keys)))
                        " "))))
+
+(defun magit-commit-message-buffer ()
+  (let* ((find-file-visit-truename t) ; git uses truename of COMMIT_EDITMSG
+         (topdir (magit-toplevel)))
+    (--first (equal topdir (with-current-buffer it
+                             (and git-commit-mode (magit-toplevel))))
+             (append (buffer-list (selected-frame))
+                     (buffer-list)))))
 
 (defvar magit-commit-add-log-insert-function 'magit-commit-add-log-insert
   "Used by `magit-commit-add-log' to insert a single entry.")
