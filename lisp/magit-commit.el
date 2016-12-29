@@ -125,6 +125,23 @@ an error while using those is harder to recover from."
       magit-current-popup-args
     magit-commit-arguments))
 
+(defvar magit-gpg-secret-key-hist nil)
+
+(defun magit-read-gpg-secret-key (prompt &optional _initial-input)
+  (require 'epa)
+  (let ((keys (--map (concat (epg-sub-key-id (car (epg-key-sub-key-list it)))
+                             " "
+                             (-when-let (id-obj (car (epg-key-user-id-list it)))
+                               (let    ((id-str (epg-user-id-string id-obj)))
+                                 (if (stringp id-str)
+                                     id-str
+                                   (epg-decode-dn id-obj)))))
+                     (epg-list-keys (epg-make-context epa-protocol) nil t))))
+    (car (split-string (magit-completing-read
+                        prompt keys nil nil nil 'magit-gpg-secret-key-hist
+                        (car (or magit-gpg-secret-key-hist keys)))
+                       " "))))
+
 ;;;###autoload
 (defun magit-commit (&optional args)
   "Create a new commit on HEAD.
@@ -321,23 +338,6 @@ depending on the value of option `magit-commit-squash-confirm'."
 
 (add-to-list 'with-editor-server-window-alist
              (cons git-commit-filename-regexp 'switch-to-buffer))
-
-(defvar magit-gpg-secret-key-hist nil)
-
-(defun magit-read-gpg-secret-key (prompt &optional _initial-input)
-  (require 'epa)
-  (let ((keys (--map (concat (epg-sub-key-id (car (epg-key-sub-key-list it)))
-                             " "
-                             (-when-let (id-obj (car (epg-key-user-id-list it)))
-                               (let    ((id-str (epg-user-id-string id-obj)))
-                                 (if (stringp id-str)
-                                     id-str
-                                   (epg-decode-dn id-obj)))))
-                     (epg-list-keys (epg-make-context epa-protocol) nil t))))
-    (car (split-string (magit-completing-read
-                        prompt keys nil nil nil 'magit-gpg-secret-key-hist
-                        (car (or magit-gpg-secret-key-hist keys)))
-                       " "))))
 
 (defun magit-commit-message-buffer ()
   (let* ((find-file-visit-truename t) ; git uses truename of COMMIT_EDITMSG
