@@ -373,8 +373,7 @@ detached `HEAD'."
   "Insert a header line about branch usually pulled into current branch."
   (when pull
     (magit-insert-section (branch pull)
-      (let ((rebase (magit-git-string "config"
-                                      (format "branch.%s.rebase" branch))))
+      (let ((rebase (magit-get "branch" branch "rebase")))
         (pcase rebase
           ("true")
           ("false" (setq rebase nil))
