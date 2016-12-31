@@ -543,7 +543,7 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
   (interactive)
   (kill-buffer (current-buffer)))
 
-;;; Kludges
+;;; Kludges for Emacs Bugs
 
 (defun magit-file-accessible-directory-p (filename)
   "Like `file-accessible-directory-p' but work around an Apple bug.
@@ -552,13 +552,7 @@ and https://github.com/magit/magit/issues/2295."
   (and (file-directory-p filename)
        (file-accessible-directory-p filename)))
 
-(defun magit-message (format-string &rest args)
-  "Display a message at the bottom of the screen, or not.
-Like `message', except that if the users configured option
-`magit-no-message' to prevent the message corresponding to
-FORMAT-STRING to be displayed, then don't."
-  (unless (--first (string-prefix-p it format-string) magit-no-message)
-    (apply #'message format-string args)))
+;;; Kludges for Incompatible Modes
 
 (defvar whitespace-mode)
 
@@ -667,6 +661,16 @@ the %s(1) manpage.
 ;;;###autoload
 (advice-add 'org-man-export :around
             'org-man-export--magit-gitman)
+
+;;; Miscellaneous
+
+(defun magit-message (format-string &rest args)
+  "Display a message at the bottom of the screen, or not.
+Like `message', except that if the users configured option
+`magit-no-message' to prevent the message corresponding to
+FORMAT-STRING to be displayed, then don't."
+  (unless (--first (string-prefix-p it format-string) magit-no-message)
+    (apply #'message format-string args)))
 
 (provide 'magit-utils)
 ;;; magit-utils.el ends here
