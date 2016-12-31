@@ -1503,7 +1503,7 @@ then show the last `magit-log-section-commit-count' commits."
 
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
-Like `magit-insert-unpulled-to-upstream' but prefix each commit
+Like `magit-insert-unpulled-from-upstream' but prefix each commit
 which has not been applied yet (i.e. a commit with a patch-id
 not shared with any local commit) with \"+\", and all others with
 \"-\"."
