@@ -4,5 +4,9 @@ Magit v2.10.1 Release Notes
 Fixes since v2.10.0
 -------------------
 
+* When multiple stashes were selected by the region, responding "no"
+  when asked to confirm the deletion of these stashes resulted in a
+  type error.  #2917
+
 Authors
 -------
