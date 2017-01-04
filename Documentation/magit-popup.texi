@@ -15,7 +15,7 @@ suffix commands.
 @end ifnottex
 
 @quotation
-Copyright (C) 2015-2016 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
