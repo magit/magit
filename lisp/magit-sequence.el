@@ -575,8 +575,8 @@ If no such sequence is in progress, do nothing."
   (magit-sequence-insert-sequence
    (magit-file-line (magit-git-dir "rebase-merge/stopped-sha"))
    onto
-   (cadr (split-string (car (last (magit-file-lines
-                                   (magit-git-dir "rebase-merge/done"))))))))
+   (--when-let (magit-file-lines (magit-git-dir "rebase-merge/done"))
+     (cadr (split-string (car (last it)))))))
 
 (defun magit-rebase-insert-apply-sequence (onto)
   (let ((rewritten
