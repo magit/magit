@@ -14,8 +14,15 @@ For more information about Magit, see https://magit.vc.
 If Magit helps you be more productive, then please consider donating
 at https://magit.vc/donate/.
 
-Magit v2.10.0 Release Notes (unreleased)
-========================================
+Magit v2.10.0 Release Notes
+===========================
+
+Released 4 January 2017 by Jonas Bernoulli.
+
+We are pleased to announce the release of Magit version 2.10.0,
+representing 85 commits by six people over one month.
+
+Also see https://emacsair.me/2017/01/04/magit-2.10.
 
 Changes since v2.9.0
 --------------------
@@ -31,7 +38,7 @@ Changes since v2.9.0
   before.  422d776e, 33c5c1ca
 
 * Many Custom groups and options now link to the relevant Info nodes
-  and to other relevant options.  810d7fb4
+  and to other relevant groups.  810d7fb4
 
 * Many doc-strings were improved, added, and fixed.  47aae617
 
@@ -85,3 +92,10 @@ This release also contains documentation updates and typo fixes.
 
 Authors
 -------
+
+    68  Jonas Bernoulli
+    13  Kyle Meyer
+     1  Aleksey Uimanov
+     1  Alexander Gramiak
+     1  Noam Postavsky
+     1  Wouter Bolsterlee

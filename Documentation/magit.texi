@@ -40,7 +40,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.9
+@subtitle for version 2.10
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
