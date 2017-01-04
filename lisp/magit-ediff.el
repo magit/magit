@@ -74,7 +74,7 @@ If non-nil, use a third Ediff buffer to distinguish which changes
 in the stash were staged.  In cases where the stash contains no
 staged changes, fall back to a two-buffer Ediff.
 
-More specificaly, a stash is a merge commit, stash@{N}, with
+More specifically, a stash is a merge commit, stash@{N}, with
 potentially three parents.
 
 * stash@{N}^1 represents the HEAD commit at the time the stash
