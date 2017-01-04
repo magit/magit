@@ -45,6 +45,7 @@ Contributors
 - Adeodato Simó <dato@net.com.org.es>
 - Ævar Arnfjörð Bjarmason <avarab@gmail.com>
 - Alan Falloon <alan.falloon@gmail.com>
+- Aleksey Uimanov <s9gf4ult@gmail.com>
 - Alexander Gramiak <fice-t@protonmail.com>
 - Alex Dunn <adunn@ucsb.edu>
 - Alexey Voinov <alexey.v.voinov@gmail.com>
@@ -256,6 +257,7 @@ Contributors
 - Wei Huang <weih@opera.com>
 - Wilfred Hughes <me@wilfred.me.uk>
 - Win Treese <treese@acm.org>
+- Wouter Bolsterlee <wouter@bolsterl.ee>
 - Xavier Noria <fxn@hashref.com>
 - Yann Hodique <yann.hodique@gmail.com>
 - York Zhao <gtdplatform@gmail.com>
