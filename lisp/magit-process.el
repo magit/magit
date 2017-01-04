@@ -337,12 +337,12 @@ conversion."
 
 (defun magit-cygwin-env-vars ()
   (append magit-git-environment
-          (when magit-need-cygwin-noglob
-            (mapcar (lambda (var)
-                      (concat var "=" (--if-let (getenv var)
-                                          (concat it " noglob")
-                                        "noglob")))
-                    '("CYGWIN" "MSYS")))))
+          (and magit-need-cygwin-noglob
+               (mapcar (lambda (var)
+                         (concat var "=" (--if-let (getenv var)
+                                             (concat it " noglob")
+                                           "noglob")))
+                       '("CYGWIN" "MSYS")))))
 
 (defvar magit-this-process nil)
 
