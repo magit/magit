@@ -95,6 +95,7 @@ blame to center around the line point is on."
 
 ;;; Emacs Tools
 
+;;;###autoload
 (defun ido-enter-magit-status ()
   "Drop into `magit-status' from file switching.
 
