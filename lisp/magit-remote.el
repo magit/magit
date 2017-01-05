@@ -424,6 +424,7 @@ removed after restarting Emacs."
               (?F "Force"            "--force")
               (?h "Disable hooks"    "--no-verify")
               (?d "Dry run"          "--dry-run")
+              (?t "Follow tags"      "--follow-tags")
               ,@(and (not magit-push-current-set-remote-if-missing)
                      '((?u "Set upstream"  "--set-upstream"))))
   :actions '("Configure"
