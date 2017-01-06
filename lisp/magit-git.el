@@ -1298,7 +1298,7 @@ Return a list of two integers: (A>B B>A)."
   (when (string-match magit-range-re range)
     (let ((beg (or (match-string 1 range) "HEAD"))
           (end (or (match-string 3 range) "HEAD")))
-      (cons (if (string-equal (match-string 2) "...")
+      (cons (if (string-equal (match-string 2 range) "...")
                 (magit-git-string "merge-base" beg end)
               beg)
             end))))
