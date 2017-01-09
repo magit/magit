@@ -407,7 +407,7 @@ already using it, then you probably shouldn't start doing so."
                                                (regexp-quote buffer-file-name)
                                                "\\'")
                                        git-commit-major-mode))))
-      (normal-mode)))
+      (normal-mode t)))
   (setq with-editor-show-usage nil)
   (with-editor-mode 1)
   (add-hook 'with-editor-finish-query-functions
