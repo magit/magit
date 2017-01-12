@@ -244,7 +244,8 @@ visits the file in the working tree."
 (defcustom magit-revision-mode-hook nil
   "Hook run after entering Magit-Revision mode."
   :group 'magit-revision
-  :type 'hook)
+  :type 'hook
+  :options '(bug-reference-mode))
 
 (defcustom magit-revision-sections-hook
   '(magit-insert-revision-tag

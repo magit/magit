@@ -179,6 +179,7 @@ The major mode configured here is turned on by the minor mode
              git-commit-turn-on-auto-fill
              git-commit-turn-on-flyspell
              git-commit-propertize-diff
+             bug-reference-mode
              with-editor-usage-message))
 
 (defcustom git-commit-finish-query-functions
