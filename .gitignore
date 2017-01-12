@@ -1,9 +1,7 @@
 *.elc
 *~
-/*.el
 /*.tar
 /*.tar.gz
-/.dir-locals.el
 /Documentation/*.html
 /Documentation/*.info
 /Documentation/*.pdf
