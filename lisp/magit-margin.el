@@ -25,8 +25,8 @@
 
 ;; This library implements support for showing additional information
 ;; in the margins of Magit buffers.  Currently this is only used for
-;; commits, for which the author name and optionally committer date or
-;; age are shown.
+;; commits, for which the committer date or age, and optionally the
+;; author name are shown.
 
 ;;; Code:
 
