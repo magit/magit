@@ -8,5 +8,8 @@ Fixes since v2.10.0
   when asked to confirm the deletion of these stashes resulted in a
   type error.  #2917
 
+* In the repository list buffer, the columns that are supposed to list
+  unpushed and unpulled commit counts, were blank.  #2960
+
 Authors
 -------

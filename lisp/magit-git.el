@@ -861,19 +861,17 @@ which is different from the current branch and still exists."
       (cl-incf i))
     prev))
 
-(cl-defun magit-get-upstream-ref
-    (&optional (branch (magit-get-current-branch)))
-  (when branch
-    (let ((remote (magit-get "branch" branch "remote"))
-          (merge  (magit-get "branch" branch "merge")))
-      (when (and remote merge)
-        (cond ((string-equal remote ".") merge)
-              ((string-prefix-p "refs/heads/" merge)
-               (concat "refs/remotes/" remote "/" (substring merge 11))))))))
+(defun magit-get-upstream-ref (&optional branch)
+  (and (or branch (setq branch (magit-get-current-branch)))
+       (let ((remote (magit-get "branch" branch "remote"))
+             (merge  (magit-get "branch" branch "merge")))
+         (when (and remote merge)
+           (cond ((string-equal remote ".") merge)
+                 ((string-prefix-p "refs/heads/" merge)
+                  (concat "refs/remotes/" remote "/" (substring merge 11))))))))
 
-(cl-defun magit-get-upstream-branch
-    (&optional (branch (magit-get-current-branch)) verify)
-  (and branch
+(defun magit-get-upstream-branch (&optional branch verify)
+  (and (or branch (setq branch (magit-get-current-branch)))
        (-when-let* ((remote (magit-get "branch" branch "remote"))
                     (merge  (magit-get "branch" branch "merge")))
          (and (string-prefix-p "refs/heads/" merge)
@@ -906,19 +904,17 @@ which is different from the current branch and still exists."
                 (magit-rev-ancestor-p upstream branch)
                 upstream)))))
 
-(cl-defun magit-get-upstream-remote
-    (&optional (branch (magit-get-current-branch)))
-  (when branch
-    (magit-get "branch" branch "remote")))
+(defun magit-get-upstream-remote (&optional branch)
+  (and (or branch (setq branch (magit-get-current-branch)))
+       (magit-get "branch" branch "remote")))
 
-(cl-defun magit-get-push-remote
-    (&optional (branch (magit-get-current-branch)))
-  (or (and branch (magit-get "branch" branch "pushRemote"))
+(defun magit-get-push-remote (&optional branch)
+  (or (and (or branch (setq branch (magit-get-current-branch)))
+           (magit-get "branch" branch "pushRemote"))
       (magit-get "remote.pushDefault")))
 
-(cl-defun magit-get-push-branch
-    (&optional (branch (magit-get-current-branch)) verify)
-  (and branch
+(defun magit-get-push-branch (&optional branch verify)
+  (and (or branch (setq branch (magit-get-current-branch)))
        (-when-let* ((remote (magit-get-push-remote branch))
                     (push-branch (concat remote "/" branch)))
          (and (or (not verify)
