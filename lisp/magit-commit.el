@@ -331,6 +331,7 @@ depending on the value of option `magit-commit-squash-confirm'."
     (condition-case nil
         (let ((magit-inhibit-save-previous-winconf 'unset)
               (magit-display-buffer-noselect t)
+              (magit-toplevel--force-fallback-to-gitdir t)
               (inhibit-quit nil))
           (message "Diffing changes to be committed (C-g to abort diffing)")
           (funcall fn (car (magit-diff-arguments))))

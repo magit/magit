@@ -8,6 +8,12 @@ Fixes since v2.10.0
   when asked to confirm the deletion of these stashes resulted in a
   type error.  #2917
 
+* When committing inside a repository that was created using `git
+  init --separate-git-dir', the diff buffer was empty, instead of
+  showing the changes about to be committed.  For some reason that
+  git command, unlike other commands that do essentially the same
+  thing, does not set `core.worktree', which confused Magit.  #2955
+
 * In the repository list buffer, the columns that are supposed to list
   unpushed and unpulled commit counts, were blank.  #2960
 
