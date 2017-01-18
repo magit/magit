@@ -11,5 +11,8 @@ Fixes since v2.10.0
 * In the repository list buffer, the columns that are supposed to list
   unpushed and unpulled commit counts, were blank.  #2960
 
+* The command magit-reflog-head did not properly format reflog lines
+  for branch renaming events.
+
 Authors
 -------

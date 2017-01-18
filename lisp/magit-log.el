@@ -909,7 +909,7 @@ Do not add this to a hook variable."
           "\\(?1:[^\0]+\\)\0"                      ; sha1
           "\\(?5:[^\0]*\\)\0"                      ; author
           "\\(?:\\(?:[^@]+@{\\(?6:[^}]+\\)}\0"     ; date
-          "\\(?10:merge \\|autosave \\|restart \\|[^:]+: \\)?" ; refsub
+          "\\(?10:merge \\|autosave \\|restart \\|[^:\n]+: \\)?" ; refsub
           "\\(?2:.*\\)?\\)\\|\0\\)$"))             ; msg
 
 (defconst magit-reflog-subject-re
@@ -1003,10 +1003,11 @@ Do not add this to a hook variable."
           (insert (propertize hash 'face 'magit-hash) ?\s))
         (when (and refs (not magit-log-show-refname-after-summary))
           (insert (magit-format-ref-labels refs) ?\s))
-        (when refsub
+        (when (eq style 'reflog)
           (insert (format "%-2s " (1- magit-log-count)))
-          (insert (magit-reflog-format-subject
-                   (substring refsub 0 (if (string-match-p ":" refsub) -2 -1)))))
+          (when refsub
+            (insert (magit-reflog-format-subject
+                     (substring refsub 0 (if (string-match-p ":" refsub) -2 -1))))))
         (when msg
           (insert (propertize msg 'face
                               (pcase (and gpg (aref gpg 0))
