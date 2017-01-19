@@ -891,6 +891,8 @@ be committed."
                     nil (list (expand-file-name a)
                               (expand-file-name b))))
 
+(defvar-local magit-buffer-revision-hash nil)
+
 ;;;###autoload
 (defun magit-show-commit (rev &optional args files module)
   "Visit the revision at point in another buffer.
@@ -1326,7 +1328,9 @@ commit or stash at point, then prompt for a commit."
         (if (and buf
                  (setq win (get-buffer-window buf))
                  (with-current-buffer buf
-                   (equal rev (car magit-refresh-args))))
+                   (and (equal rev (car magit-refresh-args))
+                        (equal (magit-rev-parse rev)
+                               magit-buffer-revision-hash))))
             (with-selected-window win
               (condition-case nil
                   (funcall fn)
@@ -1740,6 +1744,7 @@ Staging and applying changes is documented in info node
                               (_ (concat " in files "
                                          (mapconcat #'identity files ", ")))))
                     'face 'magit-header-line))
+  (setq magit-buffer-revision-hash (magit-rev-parse rev))
   (magit-insert-section (commitbuf)
     (run-hook-with-args 'magit-revision-sections-hook rev)))
 
