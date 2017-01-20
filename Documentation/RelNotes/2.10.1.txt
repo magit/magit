@@ -17,13 +17,13 @@ Fixes since v2.10.0
 * In the repository list buffer, the columns that are supposed to list
   unpushed and unpulled commit counts, were blank.  #2960
 
-* The command magit-reflog-head did not properly format reflog lines
+* The command `magit-reflog-head' did not properly format reflog lines
   for branch renaming events.  2a268e20
 
 * The commands `magit-diff-show-or-scroll-down' and
-  `magit-diff-or-scroll-up' scrolled instead of updating revision or
-  stash buffer, when that already showed the requested reference but
-  that reference no longer pointed at the same revision.  #2966
+  `magit-diff-or-scroll-up' scrolled instead of updated the revision
+  or stash buffer, when that already showed the requested reference
+  but that reference no longer pointed at the same revision.  #2966
 
 Authors
 -------
