@@ -1361,7 +1361,7 @@ commit or stash at point, then prompt for a commit."
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a Git diff.
 
-This mode is documented in info node `(magit)Diff buffer'.
+This mode is documented in info node `(magit)Diff Buffer'.
 
 \\<magit-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
@@ -1369,7 +1369,7 @@ Type \\[magit-section-toggle] to expand or hide the section at point.
 Type \\[magit-visit-thing] to visit the hunk or file at point.
 
 Staging and applying changes is documented in info node
-`(magit)Staging and unstaging' and info node `(magit)Applying'.
+`(magit)Staging and Unstaging' and info node `(magit)Applying'.
 
 \\<magit-hunk-section-map>Type \
 \\[magit-apply] to apply the change at point, \
@@ -1713,7 +1713,7 @@ section or a child thereof."
 (define-derived-mode magit-revision-mode magit-diff-mode "Magit Rev"
   "Mode for looking at a Git commit.
 
-This mode is documented in info node `(magit)Revision buffer'.
+This mode is documented in info node `(magit)Revision Buffer'.
 
 \\<magit-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
@@ -1721,7 +1721,7 @@ Type \\[magit-section-toggle] to expand or hide the section at point.
 Type \\[magit-visit-thing] to visit the hunk or file at point.
 
 Staging and applying changes is documented in info node
-`(magit)Staging and unstaging' and info node `(magit)Applying'.
+`(magit)Staging and Unstaging' and info node `(magit)Applying'.
 
 \\<magit-hunk-section-map>Type \
 \\[magit-apply] to apply the change at point, \

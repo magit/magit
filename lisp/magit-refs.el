@@ -190,7 +190,7 @@ the outcome.
 (define-derived-mode magit-refs-mode magit-mode "Magit Refs"
   "Mode which lists and compares references.
 
-This mode is documented in info node `(magit)References buffer'.
+This mode is documented in info node `(magit)References Buffer'.
 
 \\<magit-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.

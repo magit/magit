@@ -249,7 +249,7 @@ doesn't find the executable, then consult the info node
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at Git status.
 
-This mode is documented in info node `(magit)Status buffer'.
+This mode is documented in info node `(magit)Status Buffer'.
 
 \\<magit-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
@@ -259,7 +259,7 @@ Type \\[magit-visit-thing] to visit the change or commit at point.
 Type \\[magit-dispatch-popup] to see available prefix popups.
 
 Staging and applying changes is documented in info node
-`(magit)Staging and unstaging' and info node `(magit)Applying'.
+`(magit)Staging and Unstaging' and info node `(magit)Applying'.
 
 \\<magit-hunk-section-map>Type \
 \\[magit-apply] to apply the change at point, \

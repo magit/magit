@@ -1220,7 +1220,7 @@ If there is no blob buffer in the same frame, then do nothing."
 (define-derived-mode magit-log-select-mode magit-log-mode "Magit Select"
   "Mode for selecting a commit from history.
 
-This mode is documented in info node `(magit)Select from log'.
+This mode is documented in info node `(magit)Select from Log'.
 
 \\<magit-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
