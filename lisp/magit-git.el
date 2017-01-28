@@ -505,7 +505,7 @@ returning the truename."
 (defun magit-git-repo-p (directory &optional non-bare)
   "Return t if DIRECTORY is a Git repository.
 When optional NON-BARE is non-nil also return nil if DIRECTORY is
-a bare repositories."
+a bare repository."
   (or (file-regular-p (expand-file-name ".git" directory))
       (file-directory-p (expand-file-name ".git" directory))
       (and (not non-bare)
