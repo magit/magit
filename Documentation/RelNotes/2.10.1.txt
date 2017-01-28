@@ -49,3 +49,9 @@ This release also contains typo fixes and other documentation fixes.
 
 Authors
 -------
+
+    16  Jonas Bernoulli
+     4  Kyle Meyer
+     2  Alex Kost
+     1  Kévin Le Gouguec
+     1  Radon Rosborough
