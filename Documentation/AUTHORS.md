@@ -134,8 +134,8 @@ Contributors
 - Julien Danjou <julien@danjou.info>
 - Justin Caratzas <justin.caratzas@gmail.com>
 - Kan-Ru Chen <kanru@kanru.info>
-- Kan-Ru Chen <koster@debian.org>
 - Keshav Kini <keshav.kini@gmail.com>
+- Kévin Le Gouguec <kevin.legouguec@gmail.com>
 - Kimberly Wolk <kimwolk@hotmail.com>
 - Kyle Meyer <kyle@kyleam.com>
 - Laurent Laffont <laurent.laffont@gmail.com>
@@ -201,6 +201,7 @@ Contributors
 - Pieter Praet <pieter@praet.org>
 - Prathamesh Sonpatki <csonpatki@gmail.com>
 - rabio <rabiodev@o2.pl>
+- Radon Rosborough <radon.neon@gmail.com>
 - Rafael Laboissiere <rafael@laboissiere.net>
 - Raimon Grau <raimon@3scale.net>
 - Ramkumar Ramachandra <artagnon@gmail.com>
