@@ -7137,26 +7137,26 @@ it (@code{xxO} commits below are such boundary commits).
 
 Starting with
 
-@verbatim
+@example
       BI0---BI1    refs/wip/index/refs/heads/master
      /
 A---B              refs/heads/master
      \
       BW0---BW1    refs/wip/wtree/refs/heads/master
-@end verbatim
+@end example
 
 and committing the staged changes and editing and saving a file would
 result in
 
-@verbatim
+@example
       BI0---BI1        refs/wip/index/refs/heads/master
      /
 A---B---C              refs/heads/master
      \   \
       \   CW0---CW1    refs/wip/wtree/refs/heads/master
        \
-        BW0---BW1      refs/wip/wtree/refs/heads/master@{2}
-@end verbatim
+        BW0---BW1      refs/wip/wtree/refs/heads/master@@@{2@}
+@end example
 
 The fork-point of the index wip ref is not changed until some change
 is being staged.  Likewise just checking out a branch or creating a

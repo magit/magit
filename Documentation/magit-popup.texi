@@ -91,7 +91,7 @@ argument is prefixes with the key sequence that can be used to toggle
 it or change its value.  Likewise each suffix command is prefixed with
 the key used to invoke it.  Such a popup buffer might look like this:
 
-@verbatim
+@example
 ,-----------------------------------------
 |Switches
 | -l Show graph (--graph)
@@ -105,7 +105,7 @@ the key used to invoke it.  Such a popup buffer might look like this:
 | l Show log for current branch
 | o Show log for another branch
 '-----------------------------------------
-@end verbatim
+@end example
 
 The user could then for example type @code{-l} to toggle the @code{--graph} @strong{switch}
 (when it is on then it is shown in green, otherwise in gray), or @code{=m} to
@@ -124,34 +124,34 @@ This should illustrate the most basic differences:
 @item
 A regular prefix commands
 
-@verbatim
+@example
         /- command1
 prefix --- command2
         \- command3
-@end verbatim
+@end example
 
 
 @item
 Prefix arguments
 
-@verbatim
+@example
          /- command1
 C-u ... --- command2
          \- well *any* command
-@end verbatim
+@end example
 
 
 @item
 A Prefix-Infix-Suffix combo
 
-@verbatim
+@example
          /- argument1 -\ /- suffix1
 prefix----- argument2 --+-- suffix2
        ^ \- argument3 -/
        |        |
        '--------'
     (refresh buffer)
-@end verbatim
+@end example
 @end itemize
 
 This library was written as a replacement for @code{magit-key-mode} which was
