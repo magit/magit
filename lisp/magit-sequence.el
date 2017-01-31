@@ -134,6 +134,9 @@ This discards all changes made since the sequence started."
             (magit-read-other-branch-or-commit prompt))
         (magit-cherry-pick-arguments)))
 
+(defun magit-cherry-pick-args-include-mainline (args)
+  (member t (mapcar '(lambda (a) (string-prefix-p "--mainline" a)) args)))
+
 ;;;###autoload
 (defun magit-cherry-pick (commit &optional args)
   "Cherry-pick COMMIT.
