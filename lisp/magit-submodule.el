@@ -205,8 +205,9 @@ For each section insert the path and the output of `git describe --tags'."
 
 (defvar magit-submodule-section-map
   (let ((map (make-sparse-keymap)))
+    (unless (featurep 'jkl)
+      (define-key map "\C-j"   'magit-submodule-visit))
     (define-key map [C-return] 'magit-submodule-visit)
-    (define-key map "\C-j"     'magit-submodule-visit)
     (define-key map [remap magit-visit-thing]  'magit-submodule-visit)
     (define-key map [remap magit-delete-thing] 'magit-submodule-deinit)
     (define-key map "K" 'magit-file-untrack)
