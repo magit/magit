@@ -118,9 +118,9 @@ This discards all changes made since the sequence started."
   :switches '((?s "Add Signed-off-by lines"            "--signoff")
               (?e "Edit commit messages"               "--edit")
               (?x "Reference cherry in commit message" "-x")
-              (?F "Attempt fast-forward"               "--ff")
-              (?m "Reply merge relative to parent"     "--mainline="))
-  :options  '((?s "Strategy" "--strategy="))
+              (?F "Attempt fast-forward"               "--ff"))
+  :options  '((?s "Strategy"                        "--strategy=")
+              (?m "Replay merge relative to parent" "--mainline="))
   :actions  '((?A "Cherry Pick"  magit-cherry-pick)
               (?a "Cherry Apply" magit-cherry-apply))
   :sequence-actions '((?A "Continue" magit-sequencer-continue)
@@ -141,10 +141,11 @@ Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then pick all of them,
 without prompting."
   (interactive (magit-cherry-pick-read-args "Cherry-pick"))
-  (magit-assert-one-parent (car (if (listp commit)
-                                    commit
-                                  (split-string commit "\\.\\.")))
-                           "cherry-pick")
+  (unless (--any (string-prefix-p "--mainline" it) args)
+    (magit-assert-one-parent (car (if (listp commit)
+                                      commit
+                                    (split-string commit "\\.\\.")))
+                             "cherry-pick"))
   (magit-run-git-sequencer "cherry-pick" args commit))
 
 ;;;###autoload
@@ -154,7 +155,8 @@ Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then apply all of them,
 without prompting."
   (interactive (magit-cherry-pick-read-args "Apply changes from commit"))
-  (magit-assert-one-parent commit "cherry-pick")
+  (unless (--any (string-prefix-p "--mainline" it) args)
+    (magit-assert-one-parent commit "cherry-pick"))
   (magit-run-git-sequencer "cherry-pick" "--no-commit"
                            (remove "--ff" args) commit))
 
