@@ -3,3 +3,8 @@ Magit v2.10.2 Release Notes (unreleased)
 
 Fixes since v2.10.1
 -------------------
+
+* Cherry-picking a commit with multiple parents was not possible,
+  because "--mainline" was treated as a switch rather than an option,
+  and because of a too-strict assertion that only single-parent commits
+  can be cherry-picked.  7a280a0
