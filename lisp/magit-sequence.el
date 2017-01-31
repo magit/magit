@@ -144,10 +144,11 @@ Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then pick all of them,
 without prompting."
   (interactive (magit-cherry-pick-read-args "Cherry-pick"))
-  (magit-assert-one-parent (car (if (listp commit)
-                                    commit
-                                  (split-string commit "\\.\\.")))
-                           "cherry-pick")
+  (unless (magit-cherry-pick-args-include-mainline args)
+    (magit-assert-one-parent (car (if (listp commit)
+                                      commit
+                                    (split-string commit "\\.\\.")))
+                             "cherry-pick"))
   (magit-run-git-sequencer "cherry-pick" args commit))
 
 ;;;###autoload
@@ -157,7 +158,8 @@ Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then apply all of them,
 without prompting."
   (interactive (magit-cherry-pick-read-args "Apply changes from commit"))
-  (magit-assert-one-parent commit "cherry-pick")
+  (unless (magit-cherry-pick-args-include-mainline args)
+    (magit-assert-one-parent commit "cherry-pick"))
   (magit-run-git-sequencer "cherry-pick" "--no-commit"
                            (remove "--ff" args) commit))
 
