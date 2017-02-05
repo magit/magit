@@ -395,8 +395,6 @@ absolute path is returned."
         (setq it (file-name-as-directory (magit-expand-git-file-name it)))
         (if path (expand-file-name (convert-standard-filename path) it) it)))))
 
-(defvar magit-toplevel--force-fallback-to-gitdir nil)
-
 (defun magit-toplevel (&optional directory)
   "Return the absolute path to the toplevel of the current repository.
 
@@ -461,22 +459,14 @@ returning the truename."
             (let* ((link (expand-file-name "gitdir" gitdir))
                    (wtree (and (file-exists-p link)
                                (magit-file-line link))))
-              (cond
-               ((and wtree
-                     ;; Ignore .git/gitdir files that result from a
-                     ;; Git bug.  See #2364.
-                     (not (equal wtree ".git")))
-                ;; Return the linked working tree.
-                (file-name-directory wtree))
-               (magit-toplevel--force-fallback-to-gitdir
-                ;; `git init --separate-git-dir' doesn't set `core.worktree'.
-                ;; Commands that have to work under such conditions and that
-                ;; also do work properly when run in the gitdir, should bind
-                ;; this variable.  See #2955.
-                gitdir)
-               (t
+              (if (and wtree
+                       ;; Ignore .git/gitdir files that result from a
+                       ;; Git bug.  See #2364.
+                       (not (equal wtree ".git")))
+                  ;; Return the linked working tree.
+                  (file-name-directory wtree)
                 ;; Step outside the control directory to enter the working tree.
-                (file-name-directory (directory-file-name gitdir)))))))))))
+                (file-name-directory (directory-file-name gitdir))))))))))
 
 (defmacro magit-with-toplevel (&rest body)
   (declare (indent defun) (debug (body)))
