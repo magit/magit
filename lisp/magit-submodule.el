@@ -25,6 +25,8 @@
 
 (require 'magit)
 
+(defvar x-stretch-cursor)
+
 ;;; Options
 
 (defcustom magit-submodule-list-mode-hook '(hl-line-mode)

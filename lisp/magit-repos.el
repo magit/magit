@@ -33,6 +33,8 @@
 
 (declare-function magit-status-internal 'magit-status)
 
+(defvar x-stretch-cursor)
+
 ;;; Options
 
 (defcustom magit-repository-directories nil
