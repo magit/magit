@@ -12,3 +12,6 @@ Fixes since v2.10.1
 * magit-abbrev-length mishandled two edge cases, returning 0 when
   called within an empty repository or outside of a repository.
   077740f5
+
+* A bug fix in the last release broke the visit-file functionality in
+  diff buffers displayed while committing.  #2988
