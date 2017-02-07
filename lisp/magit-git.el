@@ -1133,7 +1133,10 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-abbrev-length ()
   (--if-let (magit-get "core.abbrev")
       (string-to-number it)
-    (length (magit-rev-parse "--short" "HEAD"))))
+    (--if-let (magit-rev-parse "--short" "HEAD")
+        (length it)
+      ;; We are either in an empty repository or not in a repository.
+      7)))
 
 (defun magit-abbrev-arg (&optional arg)
   (format "--%s=%d" (or arg "abbrev") (magit-abbrev-length)))

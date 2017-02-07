@@ -8,3 +8,6 @@ Fixes since v2.10.1
   because "--mainline" was treated as a switch rather than an option,
   and because of a too-strict assertion that only single-parent commits
   can be cherry-picked.  #2978
+
+* magit-abbrev-length mishandled two edge cases, returning 0 when
+  called within an empty repository or outside of a repository.
