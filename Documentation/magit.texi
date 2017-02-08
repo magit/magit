@@ -6079,9 +6079,9 @@ as-is.
 Reset the @code{HEAD}, index, and working tree to some commit read from the
 user and defaulting to the commit at point.
 
-@kindex M-x magit-checkout-file
-@cindex magit-checkout-file
-@item @kbd{M-x magit-checkout-file} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout-file})
+@kindex M-x magit-file-checkout
+@cindex magit-file-checkout
+@item @kbd{M-x magit-file-checkout} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-checkout})
 
 Update file in the working tree and index to the contents from a
 revision.

@@ -4441,7 +4441,7 @@ Also see [[man:git-reset]]
   Reset the ~HEAD~, index, and working tree to some commit read from the
   user and defaulting to the commit at point.
 
-- Key: M-x magit-checkout-file, magit-checkout-file
+- Key: M-x magit-file-checkout, magit-file-checkout
 
   Update file in the working tree and index to the contents from a
   revision.
