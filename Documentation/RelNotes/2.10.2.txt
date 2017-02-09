@@ -1,6 +1,13 @@
 Magit v2.10.2 Release Notes (unreleased)
 ========================================
 
+Changes since v2.10.1
+---------------------
+
+* The new command `git-rebase-noop' adds a noop action during a
+  rebase.  It can be used to make git perform a rebase even if none
+  of the commits are selected.  #2991
+
 Fixes since v2.10.1
 -------------------
 

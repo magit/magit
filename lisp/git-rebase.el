@@ -55,6 +55,7 @@
 ;;   f        Like "s" but don't also edit the commit message.
 ;;   x        Add a script to be run with the commit at point
 ;;            being checked out.
+;;   z        Add noop action at point.
 ;;
 ;;   SPC      Show the commit at point in another buffer.
 ;;   RET      Show the commit at point in another buffer and
@@ -162,6 +163,7 @@
     (define-key map (kbd "s") 'git-rebase-squash)
     (define-key map (kbd "x") 'git-rebase-exec)
     (define-key map (kbd "y") 'git-rebase-insert)
+    (define-key map (kbd "z") 'git-rebase-noop)
     (define-key map (kbd "SPC")     'git-rebase-show-or-scroll-up)
     (define-key map (kbd "DEL")     'git-rebase-show-or-scroll-down)
     (define-key map (kbd "C-x C-t") 'git-rebase-move-line-up)
@@ -207,7 +209,8 @@
     (git-rebase-show-commit
      . "show the commit at point in another buffer and select its window")
     (undo                         . "undo last change")
-    (git-rebase-kill-line         . "drop the commit at point")))
+    (git-rebase-kill-line         . "drop the commit at point")
+    (git-rebase-noop              . "add noop action at point")))
 
 ;;; Commands
 
@@ -242,7 +245,7 @@
 (defun git-rebase-set-action (action)
   (goto-char (line-beginning-position))
   (if (and (looking-at git-rebase-line)
-           (not (string-match-p "\\(e\\|exec\\)$" (match-string 1))))
+           (not (string-match-p "\\(e\\|exec\\|noop\\)$" (match-string 1))))
       (let ((inhibit-read-only t))
         (replace-match action t t nil 1)
         (when git-rebase-auto-advance
@@ -373,6 +376,31 @@ remove the command on the current line, if any."
            (forward-line)
          (goto-char (line-beginning-position)))))))
 
+(defun git-rebase-noop (&optional arg)
+  "Add noop action at point.
+
+If the current line already contains a a noop action, leave it
+unchanged.  If there is a commented noop action present, remove
+the comment.  Otherwise add a new noop action.  With a prefix
+argument insert a new noop action regardless what is already
+present on the current line.
+
+A noop action can be used to make git perform a rebase even if
+no commits are selected.  Without the noop action present, git
+would see an empty file and therefore do nothing."
+  (interactive "P")
+  (goto-char (line-beginning-position))
+  ;; The extra space at the end is only there to make the action
+  ;; consistent with the others (action argument). This keeps
+  ;; the regexp `git-rebase-line' from getting complicated.
+  (let ((noop-string "noop \n"))
+    (when (or arg (not (looking-at noop-string)))
+      (let ((inhibit-read-only t))
+        (if (and (not arg)
+                 (looking-at (concat comment-start noop-string)))
+            (delete-char 1)
+          (insert noop-string))))))
+
 (defun git-rebase-undo (&optional arg)
   "Undo some previous changes.
 Like `undo' but works in read-only buffers."
@@ -438,7 +466,7 @@ running 'man git-rebase' at the command line) for details."
   (setq git-rebase-comment-re (concat "^" (regexp-quote comment-start)))
   (setq git-rebase-line
         (concat "^\\(" (regexp-quote comment-start) "?"
-                "\\(?:[fprse]\\|pick\\|reword\\|edit\\|squash\\|fixup\\|exec\\)\\) "
+                "\\(?:[fprse]\\|pick\\|reword\\|edit\\|squash\\|fixup\\|exec\\|noop\\)\\) "
                 "\\(?:\\([^ \n]+\\) \\(.*\\)\\)?"))
   (setq font-lock-defaults (list (git-rebase-mode-font-lock-keywords) t t))
   (unless git-rebase-show-instructions
