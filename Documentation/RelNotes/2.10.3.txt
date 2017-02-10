@@ -4,5 +4,9 @@ Magit v2.10.3 Release Notes (unreleased)
 Changes since v2.10.2
 ---------------------
 
+* The new command `magit-do-async-shell-command' opens file at point
+  with `dired-do-async-shell-command'.  "&" is now bound to this
+  command.  #2992
+
 Fixes since v2.10.2
 -------------------

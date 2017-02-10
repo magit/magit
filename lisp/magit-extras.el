@@ -130,6 +130,17 @@ is no file at point then instead visit `default-directory'."
                                         file))
                              (concat default-directory "/."))))
 
+;;;###autoload
+(defun magit-do-async-shell-command (file)
+  "Open FILE with `dired-do-async-shell-command'.
+Interactively, open the file at point."
+  (interactive (list (or (magit-file-at-point)
+                         (completing-read "Act on file: "
+                                          (magit-list-files)))))
+  (dired-do-async-shell-command
+   (dired-read-shell-command "& on %s: " current-prefix-arg (list file))
+   nil (list file)))
+
 ;;; Clean
 
 ;;;###autoload
