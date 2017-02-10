@@ -1432,6 +1432,7 @@ is set in `magit-mode-setup'."
     (define-key map "C" 'magit-commit-add-log)
     (define-key map "s" 'magit-stage)
     (define-key map "u" 'magit-unstage)
+    (define-key map "&" 'magit-do-async-shell-command)
     map)
   "Keymap for `file' sections.")
 
@@ -1447,6 +1448,7 @@ is set in `magit-mode-setup'."
     (define-key map "C" 'magit-commit-add-log)
     (define-key map "s" 'magit-stage)
     (define-key map "u" 'magit-unstage)
+    (define-key map "&" 'magit-do-async-shell-command)
     map)
   "Keymap for `hunk' sections.")
 
