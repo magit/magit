@@ -1160,7 +1160,7 @@ or `HEAD'."
         rev
       (setq rev (if (consp rev)
                     (cdr rev)
-                  (car (magit-split-range rev))))
+                  (cdr (magit-split-range rev))))
       (if (magit-rev-head-p rev)
           'unstaged
         rev))))
@@ -1170,7 +1170,7 @@ or `HEAD'."
     (cond ((consp rev)
            (concat (cdr rev) "^"))
           ((stringp rev)
-           (cdr (magit-split-range rev)))
+           (car (magit-split-range rev)))
           (t
            rev))))
 

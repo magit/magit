@@ -27,3 +27,9 @@ Fixes since v2.10.1
   "rev^n..rev" (new in Git v2.11), resulting in the buffer header
   incorrectly indicating that the diff was between "rev^-n" and the
   working tree.
+
+* In diff buffers created using the dotted range notation, the command
+  `magit-diff-visit-file' incorrectly swapped which revision was
+  visited for deleted and added lines.  For example, with the range
+  "rev1..rev2", calling `magit-diff-visit-file' on a deleted line
+  visited the blob for rev2.
