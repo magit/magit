@@ -1393,7 +1393,8 @@ is set in `magit-mode-setup'."
          (if (member "--no-index" const)
              (apply #'format " Differences between %s and %s" files)
            (concat (if rev-or-range
-                       (if (string-match-p "\\.\\." rev-or-range)
+                       (if (string-match-p "\\(\\.\\.\\|\\^-\\)"
+                                           rev-or-range)
                            (format " Changes in %s" rev-or-range)
                          (format " Changes from %s to working tree" rev-or-range))
                      (if (member "--cached" const)
