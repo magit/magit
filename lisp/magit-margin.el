@@ -163,7 +163,7 @@ does not carry to other options."
              magit-insert-section--current)
             (and (eq major-mode 'magit-refs-mode)
                  (magit-section-match
-                  '(remote commit)
+                  '(remote commit tags)
                   magit-insert-section--current)))
     (magit-make-margin-overlay nil t)))
 

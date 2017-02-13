@@ -546,7 +546,8 @@ line is inserted at all."
                          magit-refs-margin-for-tags)
                 (magit-refs-format-margin (concat tag "^{commit}")))
               (magit-refs-insert-cherry-commits head tag section)))))
-      (insert ?\n))))
+      (insert ?\n)
+      (magit-make-margin-overlay nil t))))
 
 ;;;; Cherry Sections
 
