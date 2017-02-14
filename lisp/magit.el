@@ -16,7 +16,7 @@
 ;;	Rémi Vanicat      <vanicat@debian.org>
 ;;	Yann Hodique      <yann.hodique@gmail.com>
 
-;; Package-Requires: ((emacs "24.4") (async "1.9") (dash "2.13.0") (with-editor "2.5.10") (git-commit "2.10.1") (magit-popup "2.10.1"))
+;; Package-Requires: ((emacs "24.4") (async "20161103.1036") (dash "20170207.2056") (with-editor "20170111.609") (git-commit "20170128.745") (magit-popup "20170209.1031"))
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
 
