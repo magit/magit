@@ -1,0 +1,8 @@
+Magit v2.10.3 Release Notes (unreleased)
+========================================
+
+Changes since v2.10.2
+---------------------
+
+Fixes since v2.10.2
+-------------------
