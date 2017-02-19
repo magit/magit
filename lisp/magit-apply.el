@@ -483,7 +483,10 @@ without requiring confirmation."
     (dolist (file files)
       (let ((orig (cadr (assoc file status))))
         (if (file-exists-p file)
-            (magit-call-git "mv" file orig)
+            (progn
+              (--when-let (file-name-directory orig)
+                (make-directory it t))
+              (magit-call-git "mv" file orig))
           (magit-call-git "rm" "--cached" "--" file)
           (magit-call-git "reset" "--" orig))))))
 

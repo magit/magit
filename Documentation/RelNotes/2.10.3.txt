@@ -10,3 +10,6 @@ Changes since v2.10.2
 
 Fixes since v2.10.2
 -------------------
+
+* Discarding a renamed file failed if the original file was within a
+  directory that no longer existed.  #2998
