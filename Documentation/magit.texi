@@ -3259,9 +3259,10 @@ Whether to show word-granularity differences within diff hunks.
 
 Specify where to highlight whitespace errors.
 
-See @code{magit-highlight-trailing-whitespace},
-@code{magit-highlight-indentation}.  The symbol @code{t} means in all diffs,
-@code{status} means only in the status buffer, and nil means nowhere.
+See @code{magit-diff-highlight-trailing},
+@code{magit-diff-highlight-indentation}.  The symbol @code{t} means in all
+diffs, @code{status} means only in the status buffer, and nil means
+nowhere.
 @end defopt
 
 @defopt magit-diff-highlight-trailing
