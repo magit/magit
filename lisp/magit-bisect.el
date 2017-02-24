@@ -126,7 +126,12 @@ begun.  In that case it behaves like `git bisect start; git
 bisect run'."
   (interactive (let ((args (and (not (magit-bisect-in-progress-p))
                                 (magit-bisect-start-read-args))))
-                 (cons (read-shell-command "Bisect shell command: ") args)))
+                 (lexical-let* ((raw-cmdline (read-shell-command "Bisect shell command: "))
+                                (parsed-cmdline (with-temp-buffer
+                                                  (insert raw-cmdline)
+                                                  (mapcar 'eval (eshell-parse-arguments (point-min)
+                                                                                        (point-max))))))
+                               (cons parsed-cmdline args))))
   (when (and bad good)
     (magit-bisect-start bad good))
   (magit-git-bisect "run" (list cmdline)))
