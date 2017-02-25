@@ -129,7 +129,7 @@ bisect run'."
                  (cons (read-shell-command "Bisect shell command: ") args)))
   (when (and bad good)
     (magit-bisect-start bad good))
-  (magit-git-bisect "run" (list cmdline)))
+  (magit-git-bisect "run" (list shell-file-name shell-command-switch cmdline)))
 
 (defun magit-git-bisect (subcommand &optional args no-assert)
   (unless (or no-assert (magit-bisect-in-progress-p))
