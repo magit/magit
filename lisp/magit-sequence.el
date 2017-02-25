@@ -573,7 +573,8 @@ If no such sequence is in progress, do nothing."
                                  (or (magit-get "core.commentChar") "#")))
                         line)
       (magit-bind-match-strings (action hash) line
-        (magit-sequence-insert-commit action hash 'magit-sequence-pick))))
+        (unless (equal action "exec")
+          (magit-sequence-insert-commit action hash 'magit-sequence-pick)))))
   (magit-sequence-insert-sequence
    (magit-file-line (magit-git-dir "rebase-merge/stopped-sha"))
    onto

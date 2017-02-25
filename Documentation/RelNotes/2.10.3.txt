@@ -13,3 +13,7 @@ Fixes since v2.10.2
 
 * Discarding a renamed file failed if the original file was within a
   directory that no longer existed.  #2998
+
+* When inserting information about a rebase in progress into the
+  status buffer, "exec" lines were treated as a commit, leading to an
+  error.  #3002
