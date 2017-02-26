@@ -237,7 +237,7 @@ only arguments available from `magit-blame-popup' should be used.
              (list it (magit-blame-chunk-get :previous-file)
                    args (magit-blame-chunk-get :previous-start))
            (user-error "Block has no further history"))
-       (--if-let (magit-file-relative-name nil 'tracked)
+       (--if-let (magit-file-relative-name nil (not magit-buffer-file-name))
            (list (or magit-buffer-refname magit-buffer-revision) it args)
          (if buffer-file-name
              (user-error "Buffer isn't visiting a tracked file")

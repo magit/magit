@@ -17,3 +17,6 @@ Fixes since v2.10.2
 * When inserting information about a rebase in progress into the
   status buffer, "exec" lines were treated as a commit, leading to an
   error.  #3002
+
+* `magit-blame' failed in blob-visiting buffers if the corresponding
+  file no longer exists in the HEAD or the index.
