@@ -76,9 +76,9 @@ An empty REV stands for index."
                                       (buffer-name))))
                 revert)
         (setq magit-buffer-revision
-              (if (string= rev "") "{index}" (magit-rev-format "%H" rev))
-              magit-buffer-refname rev
-              magit-buffer-file-name (expand-file-name file topdir))
+              (if (string= rev "") "{index}" (magit-rev-format "%H" rev)))
+        (setq magit-buffer-refname rev)
+        (setq magit-buffer-file-name (expand-file-name file topdir))
         (setq default-directory
               (let ((dir (file-name-directory magit-buffer-file-name)))
                 (if (file-exists-p dir) dir topdir)))
