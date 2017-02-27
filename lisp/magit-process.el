@@ -490,9 +490,9 @@ Magit status buffer."
                  (process-environment (append (magit-cygwin-env-vars)
                                               process-environment))
                  (default-process-coding-system (magit--process-coding-system)))
-             (apply #'start-file-process
-                    (file-name-nondirectory program)
-                    process-buf program args))))
+             (start-file-process-shell-command
+              (file-name-nondirectory program)
+              process-buf (mapconcat 'identity (cons program args) " ")))))
     (with-editor-set-process-filter process #'magit-process-filter)
     (set-process-sentinel process #'magit-process-sentinel)
     (set-process-buffer   process process-buf)
