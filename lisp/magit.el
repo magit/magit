@@ -578,17 +578,12 @@ defaulting to the tag at point.
 With a prefix argument run Git in the root of the current
 repository, otherwise in `default-directory'."
   (interactive (magit-read-shell-command "Git subcommand (pwd: %s)"))
-  (require 'eshell)
-  (with-temp-buffer
-    (insert args)
-    (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
-                                                     (point-max))))
-    (setq default-directory directory)
-    (let ((magit-git-global-arguments
-           ;; A human will want globbing by default.
-           (remove "--literal-pathspecs"
-                   magit-git-global-arguments)))
-     (magit-run-git-async args)))
+  (let ((magit-git-global-arguments
+         ;; A human will want globbing by default.
+         (remove "--literal-pathspecs"
+                 magit-git-global-arguments))
+        (default-directory directory))
+    (magit-run-git-async (split-string args)))
   (magit-process-buffer))
 
 ;;;###autoload
@@ -605,12 +600,8 @@ Run Git in the top-level directory of the current repository.
 With a prefix argument run the command in the root of the current
 repository, otherwise in `default-directory'."
   (interactive (magit-read-shell-command "Shell command (pwd: %s)"))
-  (require 'eshell)
-  (with-temp-buffer
-    (insert args)
-    (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
-                                                     (point-max))))
-    (setq default-directory directory)
+  (setq args (split-string args))
+  (let ((default-directory directory))
     (apply #'magit-start-process (car args) nil (cdr args)))
   (magit-process-buffer))
 
