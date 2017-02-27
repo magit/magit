@@ -627,9 +627,13 @@ Run the command in the top-level directory of the current repository.
                  (or (magit-toplevel)
                      (user-error "Not inside a Git repository"))
                default-directory)))
-    (list (magit-read-string (format prompt (abbreviate-file-name dir))
-                             nil 'magit-git-command-history)
-          dir)))
+    (list
+     (replace-regexp-in-string
+      "\\`git " ""
+      (read-shell-command
+       (format (concat prompt ": ") (abbreviate-file-name dir))
+       "git " 'magit-git-command-history))
+     dir)))
 
 ;;; Revision Stack
 
