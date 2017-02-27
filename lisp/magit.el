@@ -600,9 +600,10 @@ Run Git in the top-level directory of the current repository.
 With a prefix argument run the command in the root of the current
 repository, otherwise in `default-directory'."
   (interactive (magit-read-shell-command "Shell command (pwd: %s)"))
-  (setq args (split-string args))
   (let ((default-directory directory))
-    (apply #'magit-start-process (car args) nil (cdr args)))
+    (start-file-process-shell-command
+     "magit-shell-command"
+     (magit-process-buffer 'nodisplay) args))
   (magit-process-buffer))
 
 ;;;###autoload
