@@ -11,6 +11,9 @@ Changes since v2.10.2
 Fixes since v2.10.2
 -------------------
 
+* `magit-bisect-run' now uses a shell to run the command entered in
+  response to the "Enter shell command" prompt.  #3001
+
 * Discarding a renamed file failed if the original file was within a
   directory that no longer existed.  #2998
 
