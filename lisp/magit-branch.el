@@ -288,11 +288,13 @@ current branch will be used as the starting point as usual, but
 the upstream of the starting-point may be used as the upstream
 of the new branch, instead of the starting-point itself.
 
-If optional FROM is non-nil, then the source branch is reset to
-that commit, instead of to the last commit it shares with its
-upstream.  Interactively, FROM is non-nil, when the region
-selects some commits, and among those commits, FROM it is the
-commit that is the fewest commits ahead of the source branch.
+If optional FROM is non-nil, then the source branch is reset
+to `FROM~', instead of to the last commit it shares with its
+upstream.  Interactively, FROM is only ever non-nil, if the
+region selects some commits, and among those commits, FROM is
+the commit that is the fewest commits ahead of the source
+branch.  (It not yet possible to spin off a single commit,
+unless it is the only unpushed commit.  See #2920.)
 
 The commit at the other end of the selection actually does not
 matter, all commits between FROM and `HEAD' are moved to the new
