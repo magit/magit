@@ -290,9 +290,9 @@ of the new branch, instead of the starting-point itself.
 
 If optional FROM is non-nil, then the source branch is reset to
 that commit, instead of to the last commit it shares with its
-upstream.  Interactively, FROM is non-nil, when the region
-selects some commits, and among those commits, FROM it is the
-commit that is the fewest commits ahead of the source branch.
+upstream.  Interactively when the region selects some commits,
+FROM is the selected commit that is the fewest commits ahead of
+the source branch.
 
 The commit at the other end of the selection actually does not
 matter, all commits between FROM and `HEAD' are moved to the new
@@ -320,7 +320,7 @@ from the source branch's upstream, then an error is raised."
         (when (and tracked
                    (setq base
                          (if from
-                             (concat from "^")
+                             from
                            (magit-git-string "merge-base" current tracked)))
                    (not (magit-rev-eq base current)))
           (magit-call-git "update-ref" "-m"
