@@ -4733,38 +4733,41 @@ upstream branch and the branch it is being pushed to, are usually the
 same remote branch.  But for a feature branch the upstream branch and
 the branch it is being pushed to should differ.
 
-Feature branches too should @emph{eventually} end up in a remote branch such
-as @code{origin/master} or @code{origin/maint}.  Such a branch should therefore be
-used as the upstream.  But feature branches shouldn't be pushed
-directly to such branches.  Instead a feature branch @code{my-feature} is
-usually pushed to @code{my-fork/my-feature} or @code{origin/my-feature}.  After the
-new feature has been reviewed, the maintainer merges the feature into
-@code{master}.  And finally @code{master} (not @code{my-feature} itself) is pushed to
-@code{origin/master}.
+The commits on feature branches too should @emph{eventually} end up in a
+remote branch such as @code{origin/master} or @code{origin/maint}.  Such a branch
+should therefore be used as the upstream.  But feature branches
+shouldn't be pushed directly to such branches.  Instead a feature
+branch @code{my-feature} is usually pushed to @code{my-fork/my-feature} or if you
+are a contributor @code{origin/my-feature}.  After the new feature has been
+reviewed, the maintainer merges the feature into @code{master}.  And finally
+@code{master} (not @code{my-feature} itself) is pushed to @code{origin/master}.
 
 But new features seldom are perfect on the first try, and so feature
-branches usually have to be improved and re-pushed many times.
-Pushing should therefore be easy to do, and for that reason some users
-have concluded that the remote branch to which a feature branch is
-being pushed should be set as the upstream.  Luckily Git has long ago
-gained support for a push-remote which can be configured separately
-from the upstream branch, using the variables @code{branch.<name>.pushRemote}
-and @code{remote.pushDefault}, so we no longer have to choose which of the
-two remotes should be used as "the remote".
+branches usually have to be reviewed, improved, and re-pushed several
+times.  Pushing should therefore be easy to do, and for that reason
+many Git users have concluded that it is best to use the remote branch
+to which the local feature branch is being pushed as its upstream.
+
+But luckily Git has long ago gained support for a push-remote which
+can be configured separately from the upstream branch, using the
+variables @code{branch.<name>.pushRemote} and @code{remote.pushDefault}.  So we no
+longer have to choose which of the two remotes should be used as "the
+remote".
 
 Each of the fetching, pulling, and pushing popups features three
-commands which act on the current branch and some other branch.  Of
+commands that act on the current branch and some other branch.  Of
 these, @code{p} is bound to a command which acts on the push-remote, @code{u} is
 bound to a command which acts on the upstream, and @code{e} is bound to a
 command which acts on any other branch.  The status buffer shows
-unpushed and unpulled for both the push-remote and the upstream.
+unpushed and unpulled commits for both the push-remote and the
+upstream.
 
 It's fairly simple to configure these two remotes.  The values of all
 the variables that are related to fetching, pulling, and pushing (as
 well as some other branch-related variables) can be inspected and
 changed using the popup @code{magit-branch-config-popup}, which is a
 sub-popup of many popups that deal with branches.  It is also possible
-to set the push-remote and/or upstream while pushing (see @ref{Pushing,Pushing}).
+to set the push-remote or upstream while pushing (see @ref{Pushing,Pushing}).
 
 @node The Branch Popup
 @subsection The Branch Popup
