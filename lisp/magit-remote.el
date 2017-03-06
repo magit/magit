@@ -121,7 +121,7 @@ variable isn't already set."
   (interactive (list (magit-read-string-ns "Remote name")
                      (magit-read-url "Remote url")))
   (if (pcase (list magit-remote-add-set-remote.pushDefault
-                   (magit-get "remote.defaultPush"))
+                   (magit-get "remote.pushDefault"))
         (`(,(pred stringp) ,_) t)
         ((or `(ask ,_) `(ask-if-unset nil))
          (y-or-n-p (format "Set `remote.pushDefault' to \"%s\"? " remote))))
