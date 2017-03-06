@@ -4600,10 +4600,9 @@ Also see [[man:git-remote]]
   remote.
 
   If ~ask~, then always ask.  If ~ask-if-unset~, then ask, but only if the
-  variable isn't set already.  If ~nil~, then don't ever set.  If the
-  value is a string, then set without asking, provided the name of the
-  name of the added remote is equal to that string and the variable
-  isn't already set.
+  variable isn't set already.  If ~nil~, then don't ever set.  If the value
+  is a string, then set without asking, provided that the name of the added
+  remote is equal to that string and the variable isn't already set.
 
 ** Fetching
 

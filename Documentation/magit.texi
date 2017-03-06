@@ -6336,10 +6336,9 @@ Whether to set the value of @code{remote.pushDefault} after adding a
 remote.
 
 If @code{ask}, then always ask.  If @code{ask-if-unset}, then ask, but only if the
-variable isn't set already.  If @code{nil}, then don't ever set.  If the
-value is a string, then set without asking, provided the name of the
-name of the added remote is equal to that string and the variable
-isn't already set.
+variable isn't set already.  If @code{nil}, then don't ever set.  If the value
+is a string, then set without asking, provided that the name of the added
+remote is equal to that string and the variable isn't already set.
 @end defopt
 
 @node Fetching
