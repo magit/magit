@@ -11,7 +11,7 @@
 ;;	Marius Vollmer <marius.vollmer@gmail.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "24.4") (dash "2.13.0") (with-editor "2.5.10"))
+;; Package-Requires: ((emacs "24.4") (dash "20170207.2056") (with-editor "20170111.609"))
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
 
