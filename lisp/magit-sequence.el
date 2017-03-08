@@ -360,7 +360,7 @@ selected branch TARGET are being rebased."
 
 ;;;###autoload
 (defun magit-rebase-subset (newbase start args)
-  "Rebase a subset of the current branches history onto a new base.
+  "Rebase a subset of the current branch's history onto a new base.
 Rebase commits from START to `HEAD' onto NEWBASE.
 START has to be selected from a list of recent commits."
   (interactive (list (magit-read-other-branch-or-commit
