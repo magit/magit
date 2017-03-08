@@ -350,7 +350,7 @@ If that variable is unset, then rebase onto `remote.pushDefault'."
 ;;;###autoload
 (defun magit-rebase (target args)
   "Rebase the current branch onto a branch read in the minibuffer.
-All commits that are reachable from head but not from the
+All commits that are reachable from HEAD but not from the
 selected branch TARGET are being rebased."
   (interactive (list (magit-read-other-branch-or-commit "Rebase onto")
                      (magit-rebase-arguments)))
@@ -360,8 +360,8 @@ selected branch TARGET are being rebased."
 
 ;;;###autoload
 (defun magit-rebase-subset (newbase start args)
-  "Rebase a subset of the current branches history onto a new base.
-Rebase commits from START to `HEAD' onto NEWBASE.
+  "Rebase a subset of the current branch's history onto a new base.
+Rebase commits from START to HEAD onto NEWBASE.
 START has to be selected from a list of recent commits."
   (interactive (list (magit-read-other-branch-or-commit
                       "Rebase subset onto" nil
