@@ -98,6 +98,7 @@ Contributors
 - Dennis Paskorz <dennis@walltowall.com>
 - Divye Kapoor <divye@google.com>
 - Dominique Quatravaux <domq@google.com>
+- Duianto Vebotci <vebotci@openmailbox.org>
 - Eli Barzilay <eli@barzilay.org>
 - Eric Davis <ed@npri.org>
 - Eric Schulte <schulte.eric@gmail.com>
