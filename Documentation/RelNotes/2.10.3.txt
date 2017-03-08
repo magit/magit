@@ -1,5 +1,5 @@
-Magit v2.10.3 Release Notes (unreleased)
-========================================
+Magit v2.10.3 Release Notes
+===========================
 
 Changes since v2.10.2
 ---------------------
@@ -29,3 +29,13 @@ Fixes since v2.10.2
   and it was configured not to ask in that case.  4f565039
 
 This release also contains typo fixes and documentation improvements.
+
+Authors
+-------
+
+    10  Jonas Bernoulli
+     2  Kyle Meyer
+     1  Basil L. Contovounesios
+     1  Damien Cassou
+     1  Duianto Vebotci
+     1  Noam Postavsky
