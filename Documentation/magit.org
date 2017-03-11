@@ -2648,7 +2648,7 @@ should also change the others to keep things aligned.  The following
   This option controls how ~magit-visit-ref~ behaves in ~magit-refs-mode~
   buffers.
 
-  By default ~magit-visit-ref~ behaves like ~magit-show-commits~, in all
+  By default ~magit-visit-ref~ behaves like ~magit-show-commit~, in all
   buffers, including ~magit-refs-mode~ buffers.  When the type of the
   section at point is ~commit~ then "RET" is bound to ~magit-show-commit~,
   and when the type is either ~branch~ or ~tag~ then it is bound to

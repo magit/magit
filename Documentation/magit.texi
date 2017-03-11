@@ -3645,7 +3645,7 @@ customized the option @code{magit-visit-ref-behavior}.
 This option controls how @code{magit-visit-ref} behaves in @code{magit-refs-mode}
 buffers.
 
-By default @code{magit-visit-ref} behaves like @code{magit-show-commits}, in all
+By default @code{magit-visit-ref} behaves like @code{magit-show-commit}, in all
 buffers, including @code{magit-refs-mode} buffers.  When the type of the
 section at point is @code{commit} then "RET" is bound to @code{magit-show-commit},
 and when the type is either @code{branch} or @code{tag} then it is bound to

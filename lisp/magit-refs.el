@@ -113,7 +113,7 @@ tags."
 (defcustom magit-visit-ref-behavior nil
   "Control how `magit-visit-ref' behaves in `magit-refs-mode' buffers.
 
-By default `magit-visit-ref' behaves like `magit-show-commits',
+By default `magit-visit-ref' behaves like `magit-show-commit',
 in all buffers, including `magit-refs-mode' buffers.  When the
 type of the section at point is `commit' then \"RET\" is bound to
 `magit-show-commit', and when the type is either `branch' or
