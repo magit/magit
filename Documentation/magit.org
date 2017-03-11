@@ -1191,6 +1191,14 @@ More frameworks will be supported in the future.
   comes with a supposed drop-in replacement ~ido-completing-read~, but
   that has too many deficits to serve our needs.
 
+- User Option: magit-list-refs-sortby
+
+  For many commands that read a ref or refs from the user, the value
+  of this option can be used to control the order of the refs.  Valid
+  values include any key accepted by the ~--sort~ flag of ~git
+  for-each-ref~.  By default, refs are sorted alphabetically by their
+  full name (e.g., "refs/heads/master").
+
 By default many commands that could potentially lead to data loss have
 to be confirmed.  This includes many very common commands, so this
 can become annoying quickly.  Many of these actions can be undone,
