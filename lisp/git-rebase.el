@@ -210,6 +210,7 @@
      . "show the commit at point in another buffer and select its window")
     (undo                         . "undo last change")
     (git-rebase-kill-line         . "drop the commit at point")
+    (git-rebase-insert            . "insert a line for an arbitrary commit")
     (git-rebase-noop              . "add noop action at point")))
 
 ;;; Commands
