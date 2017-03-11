@@ -290,12 +290,12 @@ This discards all changes made since the sequence started."
 (magit-define-popup magit-rebase-popup
   "Key menu for rebasing."
   :man-page "git-rebase"
-  :switches '((?k "Keep empty commits"    "--keep-empty")
-              (?p "Preserve merges"       "--preserve-merges")
-              (?c "Lie about author date" "--committer-date-is-author-date")
-              (?a "Autosquash"            "--autosquash")
-              (?A "Autostash"             "--autostash")
-              (?i "Interactive"           "--interactive"))
+  :switches '((?k "Keep empty commits"       "--keep-empty")
+              (?p "Preserve merges"          "--preserve-merges")
+              (?c "Lie about committer date" "--committer-date-is-author-date")
+              (?a "Autosquash"               "--autosquash")
+              (?A "Autostash"                "--autostash")
+              (?i "Interactive"              "--interactive"))
   :actions  '((lambda ()
                 (concat (propertize "Rebase " 'face 'magit-popup-heading)
                         (propertize (or (magit-get-current-branch) "HEAD")
