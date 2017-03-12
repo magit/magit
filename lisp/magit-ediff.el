@@ -77,7 +77,7 @@ staged changes, fall back to a two-buffer Ediff.
 More specifically, a stash is a merge commit, stash@{N}, with
 potentially three parents.
 
-* stash@{N}^1 represents the HEAD commit at the time the stash
+* stash@{N}^1 represents the `HEAD' commit at the time the stash
   was created.
 
 * stash@{N}^2 records any changes that were staged when the stash
@@ -401,7 +401,7 @@ FILE must be relative to the top directory of the repository."
 
 ;;;###autoload
 (defun magit-ediff-show-working-tree (file)
-  "Show changes between HEAD and working tree using Ediff.
+  "Show changes between `HEAD' and working tree using Ediff.
 FILE must be relative to the top directory of the repository."
   (interactive
    (list (magit-read-file-choice "Show changes in file"

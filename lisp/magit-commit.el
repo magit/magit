@@ -146,8 +146,8 @@ an error while using those is harder to recover from."
 
 ;;;###autoload
 (defun magit-commit (&optional args)
-  "Create a new commit on HEAD.
-With a prefix argument amend to the commit at HEAD instead.
+  "Create a new commit on `HEAD'.
+With a prefix argument, amend to the commit at `HEAD' instead.
 \n(git commit [--amend] ARGS)"
   (interactive (if current-prefix-arg
                    (list (cons "--amend" (magit-commit-arguments)))

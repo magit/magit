@@ -2157,7 +2157,7 @@ Also see [[man:git-diff]]
 
   RANGE should be a range (A..B or A...B) but can also be a single
   commit.  If one side of the range is omitted, then it defaults to
-  HEAD.  If just a commit is given, then changes in the working tree
+  ~HEAD~.  If just a commit is given, then changes in the working tree
   relative to that commit are shown.
 
   If the region is active, use the revisions on the first and last
@@ -2501,7 +2501,7 @@ information on how to use Ediff itself, see info:ediff.
 
 - Key: E w, magit-ediff-show-working-tree
 
-  Show changes in a file between HEAD and working tree using Ediff.
+  Show changes in a file between ~HEAD~ and working tree using Ediff.
 
 - Key: E c, magit-ediff-show-commit
 
@@ -3978,7 +3978,7 @@ commands and binding ~C-c ^ C-h~ and press ~RET~ while point is on a
 command name to read its documentation.
 
 Normally you would edit one version and then tell Smerge to keep only
-that version.  Use ~C-c ^ m~ (~smerge-keep-mine)~ to keep the "HEAD"
+that version.  Use ~C-c ^ m~ (~smerge-keep-mine~) to keep the ~HEAD~
 version or ~C-c ^ o~ (~smerge-keep-other~) to keep the version that
 follows "|||||||".  Then use ~C-c ^ n~ to move to the next conflicting
 area in the same file.  Once you are done resolving conflicts, return
