@@ -56,7 +56,7 @@
 ;;;###autoload
 (defun magit-run-git-gui-blame (commit filename &optional linenum)
   "Run `git gui blame' on the given FILENAME and COMMIT.
-Interactively run it for the current file and the HEAD, with a
+Interactively run it for the current file and the `HEAD', with a
 prefix or when the current file cannot be determined let the user
 choose.  When the current buffer is visiting FILENAME instruct
 blame to center around the line point is on."

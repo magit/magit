@@ -966,10 +966,10 @@ which is different from the current branch and still exists."
 (defun magit-get-current-tag (&optional rev with-distance)
   "Return the closest tag reachable from REV.
 
-If optional REV is nil then default to \"HEAD\".
+If optional REV is nil then default to `HEAD'.
 If optional WITH-DISTANCE is non-nil then return (TAG COMMITS),
 if it is `dirty' return (TAG COMMIT DIRTY). COMMITS is the number
-of commits in \"HEAD\" but not in TAG and DIRTY is t if there are
+of commits in `HEAD' but not in TAG and DIRTY is t if there are
 uncommitted changes, nil otherwise."
   (--when-let (magit-git-str "describe" "--long" "--tags"
                              (and (eq with-distance 'dirty) "--dirty") rev)
@@ -985,7 +985,7 @@ uncommitted changes, nil otherwise."
 (defun magit-get-next-tag (&optional rev with-distance)
   "Return the closest tag from which REV is reachable.
 
-If optional REV is nil then default to \"HEAD\".
+If optional REV is nil then default to `HEAD'.
 If no such tag can be found or if the distance is 0 (in which
 case it is the current tag, not the next) return nil instead.
 If optional WITH-DISTANCE is non-nil then return (TAG COMMITS)

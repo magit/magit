@@ -2977,7 +2977,7 @@ Show differences between two commits.
 
 RANGE should be a range (A..B or A@dots{}B) but can also be a single
 commit.  If one side of the range is omitted, then it defaults to
-HEAD.  If just a commit is given, then changes in the working tree
+@code{HEAD}.  If just a commit is given, then changes in the working tree
 relative to that commit are shown.
 
 If the region is active, use the revisions on the first and last
@@ -3428,7 +3428,7 @@ Show staged changes to a file using Ediff.
 @cindex magit-ediff-show-working-tree
 @item @kbd{E w} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-show-working-tree})
 
-Show changes in a file between HEAD and working tree using Ediff.
+Show changes in a file between @code{HEAD} and working tree using Ediff.
 
 @kindex E c
 @cindex magit-ediff-show-commit
@@ -5409,7 +5409,7 @@ commands and binding @code{C-c ^ C-h} and press @code{RET} while point is on a
 command name to read its documentation.
 
 Normally you would edit one version and then tell Smerge to keep only
-that version.  Use @code{C-c ^ m} (@code{smerge-keep-mine)} to keep the "HEAD"
+that version.  Use @code{C-c ^ m} (@code{smerge-keep-mine}) to keep the @code{HEAD}
 version or @code{C-c ^ o} (@code{smerge-keep-other}) to keep the version that
 follows "|||||||".  Then use @code{C-c ^ n} to move to the next conflicting
 area in the same file.  Once you are done resolving conflicts, return

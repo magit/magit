@@ -117,7 +117,7 @@
 (defface magit-head
   '((((class color) (background light)) :inherit magit-branch-local)
     (((class color) (background  dark)) :inherit magit-branch-local))
-  "Face for the symbolic ref \"HEAD\"."
+  "Face for the symbolic ref `HEAD'."
   :group 'magit-faces)
 
 (defface magit-refname

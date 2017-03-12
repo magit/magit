@@ -144,7 +144,7 @@ the outcome.
 
   With a prefix argument update the buffer to show commit counts
   and lists of cherry commits relative to the reference at point
-  instead of relative to the current buffer or HEAD.
+  instead of relative to the current buffer or `HEAD'.
 
   Instead of adding this symbol, consider pressing \"C-u y o RET\".
 
@@ -160,7 +160,7 @@ the outcome.
 `checkout-any'
 
   Check out the reference at point.  If that reference is a tag
-  or a remote branch, then this results in a detached HEAD.
+  or a remote branch, then this results in a detached `HEAD'.
 
   Instead of adding this symbol, consider pressing \"b b RET\",
   like you would do in other buffers.
@@ -201,7 +201,7 @@ to visit the commit or branch at point.
 Type \\[magit-branch-popup] to see available branch commands.
 Type \\[magit-merge-popup] to merge the branch or commit at point.
 Type \\[magit-cherry-pick-popup] to apply the commit at point.
-Type \\[magit-reset] to reset HEAD to the commit at point.
+Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 \\{magit-refs-mode-map}"
   :group 'magit-refs
