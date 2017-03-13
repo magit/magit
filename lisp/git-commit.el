@@ -426,8 +426,7 @@ already using it, then you probably shouldn't start doing so."
     (setq save-place nil))
   (save-excursion
     (goto-char (point-min))
-    (when (= (line-beginning-position)
-             (line-end-position))
+    (when (looking-at "\\`\\(\\'\\|\n[^\n]\\)")
       (open-line 1)))
   (run-hooks 'git-commit-setup-hook)
   (set-buffer-modified-p nil))
