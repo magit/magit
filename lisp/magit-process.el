@@ -43,6 +43,9 @@
 (eval-when-compile (require 'dired))
 (declare-function dired-uncache 'dired)
 
+(eval-when-compile (require 'auth-source))
+(declare-function auth-source-search 'auth-source)
+
 ;;; Options
 
 (defcustom magit-git-output-coding-system
