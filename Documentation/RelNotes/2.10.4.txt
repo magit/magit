@@ -6,3 +6,9 @@ Changes since v2.10.3
 
 Fixes since v2.10.3
 -------------------
+
+* Rebasing was sometimes interrupted by an error about the index lock
+  already being held.  This happened because VC asynchronously checks
+  for files with conflict, which involved using a git command that
+  grabs the lock.  Magit now redefines that VC command to use a git
+  command that does not grab the lock.  #2708, debbug#21559
