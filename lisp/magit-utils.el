@@ -45,6 +45,9 @@
 (declare-function ido-completing-read+ 'ido-completing-read+)
 (declare-function Info-get-token 'info)
 
+(eval-when-compile (require 'vc-git))
+(declare-function vc-git--run-command-string 'vc-git)
+
 (defvar magit-wip-before-change-mode)
 
 ;;; Options
@@ -551,6 +554,27 @@ See http://debbugs.gnu.org/cgi/bugreport.cgi?bug=21573#17
 and https://github.com/magit/magit/issues/2295."
   (and (file-directory-p filename)
        (file-accessible-directory-p filename)))
+
+(when (version<= "25.1" emacs-version)
+  (with-eval-after-load 'vc-git
+    (defun vc-git-conflicted-files (directory)
+      "Return the list of files with conflicts in DIRECTORY."
+      (let* ((status
+              (vc-git--run-command-string directory "status" "--porcelain" "--"))
+             (lines (when status (split-string status "\n" 'omit-nulls)))
+             files)
+        ;; TODO: Look into reimplementing `vc-git-state', as well as
+        ;; `vc-git-dir-status-files', based on this output, thus making the
+        ;; extra process call in `vc-git-find-file-hook' unnecessary.
+        (dolist (line lines files)
+          (when (string-match "\\([ MADRCU?!][ MADRCU?!]\\) \\(.+\\)\\(?: -> \\(.+\\)\\)?"
+                              line)
+            (let ((state (match-string 1 line))
+                  (file (match-string 2 line)))
+              ;; See git-status(1).
+              (when (member state '("AU" "UD" "UA" ;; "DD"
+                                    "DU" "AA" "UU"))
+                (push (expand-file-name file directory) files)))))))))
 
 ;;; Kludges for Incompatible Modes
 
