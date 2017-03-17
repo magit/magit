@@ -4034,7 +4034,7 @@ See [[*Information About In-Progress Rebase]].
   commits that are reachable from head but not from the selected
   branch TARGET are being rebased."
 
-- Key: r o, magit-rebase-subset
+- Key: r s, magit-rebase-subset
 
   Start a non-interactive rebase sequence with commits from START to
   ~HEAD~ onto NEWBASE.  START has to be selected from a list of recent

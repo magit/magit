@@ -5489,9 +5489,9 @@ Rebase the current branch onto a branch read in the minibuffer.  All
 commits that are reachable from head but not from the selected
 branch TARGET are being rebased."
 
-@kindex r o
+@kindex r s
 @cindex magit-rebase-subset
-@item @kbd{r o} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-subset})
+@item @kbd{r s} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-subset})
 
 Start a non-interactive rebase sequence with commits from START to
 @code{HEAD} onto NEWBASE.  START has to be selected from a list of recent
