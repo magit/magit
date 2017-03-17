@@ -1002,12 +1002,20 @@ where COMMITS is the number of commits in TAG but not in REV."
 (defvar magit-list-refs-namespaces
   '("refs/heads" "refs/remotes" "refs/tags" "refs/pull"))
 
-(defun magit-list-refs (&rest args)
-  (magit-git-lines "for-each-ref" "--format=%(refname)"
-                   (or args magit-list-refs-namespaces)))
+(defun magit-list-refs (&optional namespaces format)
+  "Return list of references.
+
+When NAMESPACES is non-nil, list refs from these namespaces
+rather than those from `magit-list-refs-namespaces'.
+
+FORMAT is passed to the `--format' flag of `git for-each-ref' and
+defaults to \"%(refname)\"."
+  (magit-git-lines "for-each-ref"
+                   (concat "--format=" (or format "%(refname)"))
+                   (or namespaces magit-list-refs-namespaces)))
 
 (defun magit-list-branches ()
-  (magit-list-refs "refs/heads" "refs/remotes"))
+  (magit-list-refs (list "refs/heads" "refs/remotes")))
 
 (defun magit-list-local-branches ()
   (magit-list-refs "refs/heads"))
@@ -1035,12 +1043,11 @@ where COMMITS is the number of commits in TAG but not in REV."
               (member it (magit-list-unmerged-branches upstream)))
             (magit-list-local-branch-names)))
 
-(defun magit-list-refnames (&rest args)
-  (magit-git-lines "for-each-ref" "--format=%(refname:short)"
-                   (or args magit-list-refs-namespaces)))
+(defun magit-list-refnames (&optional namespaces)
+  (magit-list-refs namespaces "%(refname:short)"))
 
 (defun magit-list-branch-names ()
-  (magit-list-refnames "refs/heads" "refs/remotes"))
+  (magit-list-refnames (list "refs/heads" "refs/remotes")))
 
 (defun magit-list-local-branch-names ()
   (magit-list-refnames "refs/heads"))
