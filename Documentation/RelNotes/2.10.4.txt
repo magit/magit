@@ -4,6 +4,12 @@ Magit v2.10.4 Release Notes (unreleased)
 Changes since v2.10.3
 ---------------------
 
+* The popup `magit-remote-popup' now exposes the `-f' switch for `git
+  remote add', which allows the user to control whether information
+  from the remote is fetched after the remote is added.  The default
+  behavior is still to fetch after adding a remote (i.e., the switch
+  is enabled by default).  #2997
+
 Fixes since v2.10.3
 -------------------
 
