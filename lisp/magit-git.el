@@ -340,7 +340,7 @@ message and add a section in the respective process buffer."
 Actually first insert the raw output at point.  If there is no
 output call `magit-cancel-section'.  Otherwise temporarily narrow
 the buffer to the inserted text, move to its beginning, and then
-call function WASHER with no argument."
+call function WASHER with ARGS as its sole argument."
   (declare (indent 1))
   (let ((beg (point)))
     (setq args (-flatten args))

@@ -7979,7 +7979,7 @@ Execute Git with ARGS, inserting washed output at point.  Actually
 first insert the raw output at point.  If there is no output call
 @code{magit-cancel-section}.  Otherwise temporarily narrow the buffer to
 the inserted text, move to its beginning, and then call function
-WASHER with no argument.
+WASHER with ARGS as its sole argument.
 @end defun
 
 And now for the asynchronous variants.

@@ -5841,7 +5841,7 @@ the refresh because that also automatically moves to the next change.
   first insert the raw output at point.  If there is no output call
   ~magit-cancel-section~.  Otherwise temporarily narrow the buffer to
   the inserted text, move to its beginning, and then call function
-  WASHER with no argument.
+  WASHER with ARGS as its sole argument.
 
 And now for the asynchronous variants.
 
