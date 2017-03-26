@@ -877,8 +877,8 @@ Git, and Emacs in the echo area."
         debug)
     (unless (and toplib
                  (equal (file-name-nondirectory toplib) "magit.el"))
-      (setq toplib (locate-library "magit.el"))
-      (setq toplib (and toplib (file-chase-links toplib))))
+      (setq toplib (locate-library "magit.el")))
+    (setq toplib (and toplib (file-chase-links toplib)))
     (push toplib debug)
     (when toplib
       (let* ((topdir (file-name-directory toplib))
