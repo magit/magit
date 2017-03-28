@@ -10,7 +10,7 @@
   <a href="https://gitter.im/magit/magit"><b>chat</b></a> |
   <a href="https://twitter.com/magit_emacs"><b>news</b></a>
 </p>
-***
+<hr>
 
 <p align="justify">
   Magit is an interface to the version control system
@@ -24,7 +24,7 @@
   and Git itself deserve to be called porcelains.
   <a href="https://magit.vc/about">(more)</a>
 </p>
-***
+<hr>
 
 <div align="center">
   Keeping its user <a href= "https://magit.vc/quotes">this excited</a> is
@@ -61,7 +61,7 @@
 <div align="center">
   Some alternative donation methods are <a href="https://magit.vc/donate">available</a>.
 </div>
-***
+<hr>
 
 Support
 =======
