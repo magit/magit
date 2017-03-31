@@ -337,10 +337,12 @@ results in additional differences."
 (defun magit-builtin-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
-  (completing-read (magit-prompt-with-default prompt def)
-                   (magit--completion-table choices)
-                   predicate require-match
-                   initial-input hist def))
+  (cl-letf (((symbol-function 'completion-pcm--all-completions)
+             #'magit-completion-pcm--all-completions))
+    (completing-read (magit-prompt-with-default prompt def)
+                     (magit--completion-table choices)
+                     predicate require-match
+                     initial-input hist def)))
 
 (defun magit-completing-read-multiple
   (prompt choices &optional sep default hist keymap)
@@ -362,10 +364,13 @@ into a list."
           '(crm--choose-completion-string))
          (minibuffer-completion-table #'crm--collection-fn)
          (minibuffer-completion-confirm t)
-         (input (read-from-minibuffer
-                 (concat prompt (and default (format " (%s)" default)) ": ")
-                 nil (or keymap crm-local-completion-map)
-                 nil hist default)))
+         (input
+          (cl-letf (((symbol-function 'completion-pcm--all-completions)
+                     #'magit-completion-pcm--all-completions))
+            (read-from-minibuffer
+             (concat prompt (and default (format " (%s)" default)) ": ")
+             nil (or keymap crm-local-completion-map)
+             nil hist default))))
     (when (string-equal input "")
       (or (setq input default)
           (user-error "Nothing selected")))
@@ -608,6 +613,28 @@ and https://github.com/magit/magit/issues/2295."
                   (file (match-string 2 line)))
               (when (equal state "U")
                 (push (expand-file-name file directory) files)))))))))
+
+;; `completion-pcm--all-completions' reverses the completion list.  To
+;; preserve the order of our pre-sorted completions, we'll temporarily
+;; override it with the function below.  bug#24676
+(defun magit-completion-pcm--all-completions (prefix pattern table pred)
+  (if (completion-pcm--pattern-trivial-p pattern)
+      (all-completions (concat prefix (car pattern)) table pred)
+    (let* ((regex (completion-pcm--pattern->regex pattern))
+           (case-fold-search completion-ignore-case)
+           (completion-regexp-list (cons regex completion-regexp-list))
+           (compl (all-completions
+                   (concat prefix
+                           (if (stringp (car pattern)) (car pattern) ""))
+                   table pred)))
+      (if (not (functionp table))
+          compl
+        (let ((poss ()))
+          (dolist (c compl)
+            (when (string-match-p regex c) (push c poss)))
+          ;; This `nreverse' call is the only code change made to the
+          ;; `completion-pcm--all-completions' that shipped with Emacs 25.1.
+          (nreverse poss))))))
 
 ;;; Kludges for Incompatible Modes
 
