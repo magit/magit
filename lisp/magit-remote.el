@@ -579,9 +579,10 @@ only available for the part before the colon, or when no colon
 is used."
   (interactive
    (list (magit-read-remote "Push to remote")
-         (completing-read-multiple
-          "Push refspec,s: "
-          (cons "HEAD" (magit-list-local-branch-names)))
+         (split-string (magit-completing-read-multiple
+                        "Push refspec,s"
+                        (cons "HEAD" (magit-list-local-branch-names)))
+                       crm-default-separator t)
          (magit-push-arguments)))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" "-v" args remote refspecs))
