@@ -43,8 +43,6 @@
 
 (defvar magit-tramp-process-environment nil)
 
-(require 'crm)
-
 ;;; Options
 
 ;; For now this is shared between `magit-process' and `magit-git'.
@@ -1394,21 +1392,10 @@ Return a list of two integers: (A>B B>A)."
        (magit-get-current-branch))))
 
 (defun magit-read-range (prompt &optional default)
-  (let* ((choose-completion-string-functions
-          '(crm--choose-completion-string))
-         (minibuffer-completion-table #'crm--collection-fn)
-         (minibuffer-completion-confirm t)
-         (crm-completion-table (magit-list-refnames))
-         (crm-separator "\\.\\.\\.?")
-         (input (read-from-minibuffer
-                 (concat prompt (and default (format " (%s)" default)) ": ")
-                 nil crm-local-completion-map
-                 nil 'magit-revision-history
-                 default)))
-    (when (string-equal input "")
-      (or (setq input default)
-          (user-error "Nothing selected")))
-    input))
+  (magit-completing-read-multiple prompt
+                                  (magit-list-refnames)
+                                  "\\.\\.\\.?"
+                                  default 'magit-revision-history))
 
 (defun magit-read-remote-branch
     (prompt &optional remote default local-branch require-match)

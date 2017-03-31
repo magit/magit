@@ -41,6 +41,8 @@
 (require 'cl-lib)
 (require 'dash)
 
+(require 'crm)
+
 (eval-when-compile (require 'ido))
 (declare-function ido-completing-read+ 'ido-completing-read+)
 (declare-function Info-get-token 'info)
@@ -332,6 +334,35 @@ results in additional differences."
   (completing-read (magit-prompt-with-default prompt def)
                    choices predicate require-match
                    initial-input hist def))
+
+(defun magit-completing-read-multiple
+  (prompt choices &optional sep default hist keymap)
+  "Read multiple items from CHOICES, separated by SEP.
+
+Set up the `crm' variables needed to read multiple values with
+`read-from-minibuffer'.
+
+SEP is a regexp matching characters that can separate choices.
+When SEP is nil, it defaults to `crm-default-separator'.
+DEFAULT, HIST, and KEYMAP are passed to `read-from-minibuffer'.
+When KEYMAP is nil, it defaults to `crm-local-completion-map'.
+
+Unlike `completing-read-multiple', the return value is not split
+into a list."
+  (let* ((crm-separator (or sep crm-default-separator))
+         (crm-completion-table choices)
+         (choose-completion-string-functions
+          '(crm--choose-completion-string))
+         (minibuffer-completion-table #'crm--collection-fn)
+         (minibuffer-completion-confirm t)
+         (input (read-from-minibuffer
+                 (concat prompt (and default (format " (%s)" default)) ": ")
+                 nil (or keymap crm-local-completion-map)
+                 nil hist default)))
+    (when (string-equal input "")
+      (or (setq input default)
+          (user-error "Nothing selected")))
+    input))
 
 (defun magit-ido-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
