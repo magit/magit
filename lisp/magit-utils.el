@@ -328,11 +328,18 @@ results in additional differences."
           nil)
       reply)))
 
+(defun magit--completion-table (collection)
+  (lambda (string pred action)
+    (if (eq action 'metadata)
+        '(metadata (display-sort-function . identity))
+      (complete-with-action action collection string pred))))
+
 (defun magit-builtin-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
   (completing-read (magit-prompt-with-default prompt def)
-                   choices predicate require-match
+                   (magit--completion-table choices)
+                   predicate require-match
                    initial-input hist def))
 
 (defun magit-completing-read-multiple
@@ -350,7 +357,7 @@ When KEYMAP is nil, it defaults to `crm-local-completion-map'.
 Unlike `completing-read-multiple', the return value is not split
 into a list."
   (let* ((crm-separator (or sep crm-default-separator))
-         (crm-completion-table choices)
+         (crm-completion-table (magit--completion-table choices))
          (choose-completion-string-functions
           '(crm--choose-completion-string))
          (minibuffer-completion-table #'crm--collection-fn)
