@@ -344,6 +344,8 @@ results in additional differences."
                      predicate require-match
                      initial-input hist def)))
 
+(defvar helm-completion-in-region-default-sort-fn)
+
 (defun magit-completing-read-multiple
   (prompt choices &optional sep default hist keymap)
   "Read multiple items from CHOICES, separated by SEP.
@@ -364,6 +366,7 @@ into a list."
           '(crm--choose-completion-string))
          (minibuffer-completion-table #'crm--collection-fn)
          (minibuffer-completion-confirm t)
+         (helm-completion-in-region-default-sort-fn nil)
          (input
           (cl-letf (((symbol-function 'completion-pcm--all-completions)
                      #'magit-completion-pcm--all-completions))
