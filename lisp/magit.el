@@ -577,18 +577,13 @@ defaulting to the tag at point.
   "Execute a Git subcommand asynchronously, displaying the output.
 With a prefix argument run Git in the root of the current
 repository, otherwise in `default-directory'."
-  (interactive (magit-read-shell-command "Git subcommand (pwd: %s)"))
-  (require 'eshell)
-  (with-temp-buffer
-    (insert args)
-    (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
-                                                     (point-max))))
-    (setq default-directory directory)
-    (let ((magit-git-global-arguments
-           ;; A human will want globbing by default.
-           (remove "--literal-pathspecs"
-                   magit-git-global-arguments)))
-     (magit-run-git-async args)))
+  (interactive (magit-read-shell-command "Git subcommand (pwd: %s)" nil "git "))
+  (let ((magit-git-global-arguments
+         ;; A human will want globbing by default.
+         (remove "--literal-pathspecs"
+                 magit-git-global-arguments))
+        (default-directory directory))
+    (magit-run-git-async (cdr (split-string args))))
   (magit-process-buffer))
 
 ;;;###autoload
@@ -596,7 +591,7 @@ repository, otherwise in `default-directory'."
   "Execute a Git subcommand asynchronously, displaying the output.
 Run Git in the top-level directory of the current repository.
 \n(fn)" ; arguments are for internal use
-  (interactive (magit-read-shell-command "Git subcommand (pwd: %s)" t))
+  (interactive (magit-read-shell-command "Git subcommand (pwd: %s)" t "git "))
   (magit-git-command args directory))
 
 ;;;###autoload
@@ -605,12 +600,8 @@ Run Git in the top-level directory of the current repository.
 With a prefix argument run the command in the root of the current
 repository, otherwise in `default-directory'."
   (interactive (magit-read-shell-command "Shell command (pwd: %s)"))
-  (require 'eshell)
-  (with-temp-buffer
-    (insert args)
-    (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
-                                                     (point-max))))
-    (setq default-directory directory)
+  (setq args (split-string args))
+  (let ((default-directory directory))
     (apply #'magit-start-process (car args) nil (cdr args)))
   (magit-process-buffer))
 
@@ -622,14 +613,16 @@ Run the command in the top-level directory of the current repository.
   (interactive (magit-read-shell-command "Shell command (pwd: %s)" t))
   (magit-shell-command args directory))
 
-(defun magit-read-shell-command (prompt &optional root)
+(defun magit-read-shell-command (prompt &optional root initial-input)
   (let ((dir (if (or root current-prefix-arg)
                  (or (magit-toplevel)
                      (user-error "Not inside a Git repository"))
                default-directory)))
-    (list (magit-read-string (format prompt (abbreviate-file-name dir))
-                             nil 'magit-git-command-history)
-          dir)))
+    (list
+     (read-shell-command
+       (format (concat prompt ": ") (abbreviate-file-name dir))
+       initial-input 'magit-git-command-history)
+     dir)))
 
 ;;; Revision Stack
 
