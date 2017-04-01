@@ -74,6 +74,20 @@
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-commit-comands-commit "commit"
+  "The git command used for commit.  This option exists to
+  allow support for git aliases and extensions such as git duet."
+  :group 'magit-commands
+  :safe 'stringp
+  :type 'stringp)
+
+(defcustom magit-commit-comands-commit-for-amend "commit"
+  "The git command used for commit --amend.  This option exists to
+  allow support for git aliases and extensions such as git duet."
+  :group 'magit-commands
+  :safe 'stringp
+  :type 'stringp)
+
 (defcustom magit-commit-squash-confirm t
   "Whether the commit targeted by squash and fixup has to be confirmed.
 When non-nil then the commit at point (if any) is used as default
@@ -153,14 +167,14 @@ With a prefix argument, amend to the commit at `HEAD' instead.
                    (list (cons "--amend" (magit-commit-arguments)))
                  (list (magit-commit-arguments))))
   (when (setq args (magit-commit-assert args))
-    (magit-run-git-with-editor "commit" args)))
+    (magit-run-git-with-editor magit-commit-comands-commit args)))
 
 ;;;###autoload
 (defun magit-commit-amend (&optional args)
   "Amend the last commit.
 \n(git commit --amend ARGS)"
   (interactive (list (magit-commit-arguments)))
-  (magit-run-git-with-editor "commit" "--amend" args))
+  (magit-run-git-with-editor magit-commit-comands-commit-for-amend "--amend" args))
 
 ;;;###autoload
 (defun magit-commit-extend (&optional args override-date)
@@ -178,7 +192,7 @@ to inverse the meaning of the prefix argument.  \n(git commit
     (let ((process-environment process-environment))
       (unless override-date
         (push (magit-rev-format "GIT_COMMITTER_DATE=%cD") process-environment))
-      (magit-run-git-with-editor "commit" "--amend" "--no-edit" args))))
+      (magit-run-git-with-editor magit-commit-comands-commit-for-amend "--amend" "--no-edit" args))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -198,7 +212,7 @@ and ignore the option.
   (let ((process-environment process-environment))
     (unless override-date
       (push (magit-rev-format "GIT_COMMITTER_DATE=%cD") process-environment))
-    (magit-run-git-with-editor "commit" "--amend" "--only" args)))
+    (magit-run-git-with-editor magit-commit-comands-commit-for-amend "--amend" "--only" args)))
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args)
@@ -262,11 +276,11 @@ depending on the value of option `magit-commit-squash-confirm'."
           (if rebase
               (magit-with-editor
                 (magit-call-git
-                 "commit" "--no-gpg-sign"
+                 magit-commit-comands-commit "--no-gpg-sign"
                  (-remove-first
                   (apply-partially #'string-match-p "\\`--gpg-sign=")
                   args)))
-            (magit-run-git-with-editor "commit" args)))
+            (magit-run-git-with-editor magit-commit-comands-commit-for-amend args)))
       (magit-log-select
         `(lambda (commit)
            (magit-commit-squash-internal ,option commit ',args ,rebase ,edit t)
