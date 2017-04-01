@@ -18,3 +18,6 @@ Fixes since v2.10.3
   for files with conflict, which involved using a git command that
   grabs the lock.  Magit now redefines that VC command to use a git
   command that does not grab the lock.  #2708, debbug#21559
+
+* The command `magit-shell-command' now uses a shell to run the command
+  entered in response to the "Enter shell command" prompt.  #3007
