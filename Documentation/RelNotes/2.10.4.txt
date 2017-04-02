@@ -10,6 +10,15 @@ Changes since v2.10.3
   behavior is still to fetch after adding a remote (i.e., the switch
   is enabled by default).  #2997
 
+* Added option `magit-list-refs-sortby' to allow more control over the
+  order of refs in prompts.  #2872
+
+* The Magit wrappers around the default Emacs completion functions now
+  override the default behavior of alphabetically sorting choices when
+  displaying them in the "*Completions*" buffer.  In repositories with
+  many release tags, the new behavior prevents completion prompts from
+  being dominated by version tags instead of branch names.  #2925
+
 Fixes since v2.10.3
 -------------------
 

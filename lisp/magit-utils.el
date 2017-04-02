@@ -41,6 +41,8 @@
 (require 'cl-lib)
 (require 'dash)
 
+(require 'crm)
+
 (eval-when-compile (require 'ido))
 (declare-function ido-completing-read+ 'ido-completing-read+)
 (declare-function Info-get-token 'info)
@@ -326,12 +328,56 @@ results in additional differences."
           nil)
       reply)))
 
+(defun magit--completion-table (collection)
+  (lambda (string pred action)
+    (if (eq action 'metadata)
+        '(metadata (display-sort-function . identity))
+      (complete-with-action action collection string pred))))
+
 (defun magit-builtin-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
-  (completing-read (magit-prompt-with-default prompt def)
-                   choices predicate require-match
-                   initial-input hist def))
+  (cl-letf (((symbol-function 'completion-pcm--all-completions)
+             #'magit-completion-pcm--all-completions))
+    (completing-read (magit-prompt-with-default prompt def)
+                     (magit--completion-table choices)
+                     predicate require-match
+                     initial-input hist def)))
+
+(defvar helm-completion-in-region-default-sort-fn)
+
+(defun magit-completing-read-multiple
+  (prompt choices &optional sep default hist keymap)
+  "Read multiple items from CHOICES, separated by SEP.
+
+Set up the `crm' variables needed to read multiple values with
+`read-from-minibuffer'.
+
+SEP is a regexp matching characters that can separate choices.
+When SEP is nil, it defaults to `crm-default-separator'.
+DEFAULT, HIST, and KEYMAP are passed to `read-from-minibuffer'.
+When KEYMAP is nil, it defaults to `crm-local-completion-map'.
+
+Unlike `completing-read-multiple', the return value is not split
+into a list."
+  (let* ((crm-separator (or sep crm-default-separator))
+         (crm-completion-table (magit--completion-table choices))
+         (choose-completion-string-functions
+          '(crm--choose-completion-string))
+         (minibuffer-completion-table #'crm--collection-fn)
+         (minibuffer-completion-confirm t)
+         (helm-completion-in-region-default-sort-fn nil)
+         (input
+          (cl-letf (((symbol-function 'completion-pcm--all-completions)
+                     #'magit-completion-pcm--all-completions))
+            (read-from-minibuffer
+             (concat prompt (and default (format " (%s)" default)) ": ")
+             nil (or keymap crm-local-completion-map)
+             nil hist default))))
+    (when (string-equal input "")
+      (or (setq input default)
+          (user-error "Nothing selected")))
+    input))
 
 (defun magit-ido-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
@@ -570,6 +616,28 @@ and https://github.com/magit/magit/issues/2295."
                   (file (match-string 2 line)))
               (when (equal state "U")
                 (push (expand-file-name file directory) files)))))))))
+
+;; `completion-pcm--all-completions' reverses the completion list.  To
+;; preserve the order of our pre-sorted completions, we'll temporarily
+;; override it with the function below.  bug#24676
+(defun magit-completion-pcm--all-completions (prefix pattern table pred)
+  (if (completion-pcm--pattern-trivial-p pattern)
+      (all-completions (concat prefix (car pattern)) table pred)
+    (let* ((regex (completion-pcm--pattern->regex pattern))
+           (case-fold-search completion-ignore-case)
+           (completion-regexp-list (cons regex completion-regexp-list))
+           (compl (all-completions
+                   (concat prefix
+                           (if (stringp (car pattern)) (car pattern) ""))
+                   table pred)))
+      (if (not (functionp table))
+          compl
+        (let ((poss ()))
+          (dolist (c compl)
+            (when (string-match-p regex c) (push c poss)))
+          ;; This `nreverse' call is the only code change made to the
+          ;; `completion-pcm--all-completions' that shipped with Emacs 25.1.
+          (nreverse poss))))))
 
 ;;; Kludges for Incompatible Modes
 
