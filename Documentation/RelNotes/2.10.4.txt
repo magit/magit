@@ -19,6 +19,19 @@ Changes since v2.10.3
   many release tags, the new behavior prevents completion prompts from
   being dominated by version tags instead of branch names.  #2925
 
+* The commands `magit-git-command', `magit-git-command-topdir',
+  `magit-shell-command', and `magit-shell-command-topdir' now use
+  `read-shell-command' to read the command.  Packages like `pcmpl-git'
+  and `bash-completion' can now be used to get command-line completion
+  when using these commands.  #2951
+
+* The commands `magit-git-command' and `magit-git-command-topdir' can
+  now call arbitrary commands.  The initial-value when reading the
+  command is "git ", and you can remove that to call something else.
+  #2951
+
+* Added option `magit-shell-command-verbose-prompt'.  #2951
+
 Fixes since v2.10.3
 -------------------
 

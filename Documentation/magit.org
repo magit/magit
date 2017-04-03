@@ -1267,32 +1267,38 @@ switch to a shell.
 
   Shows the popup buffer featuring the below suffix commands.
 
-These suffix commands run a Git subcommand.  The user input has to
-begin with the subcommand, "git" is assumed.
-
 - Key: ! !, magit-git-command-topdir
 
-  This command reads a Git subcommand from the user and executes it in
-  the top-level directory of the current repository.
+  This command reads a command from the user and executes it in the
+  top-level directory of the current working tree.
+
+  The string "git " is used as initial input when prompting the user
+  for the command.  It can be removed to run another command.
 
 - Key: ! p, magit-git-command
 
-  This command reads a Git subcommand from the user and executes it in
+  This command reads a command from the user and executes it in
   ~default-directory~.  With a prefix argument the command is executed
-  in the top-level directory of the current repository instead.
+  in the top-level directory of the current working tree instead.
 
-These suffix commands run arbitrary shell commands.
+  The string "git " is used as initial input when prompting the user
+  for the command.  It can be removed to run another command.
 
 - Key: ! s, magit-shell-command-topdir
 
-  This command reads a shell command from the user and executes it in
-  the top-level directory of the current repository.
+  This command reads a command from the user and executes it in the
+  top-level directory of the current working tree.
 
 - Key: ! S, magit-shell-command
 
-  This command reads a shell command from the user and executes it in
+  This command reads a command from the user and executes it in
   ~default-directory~.  With a prefix argument the command is executed
-  in the top-level directory of the current repository instead.
+  in the top-level directory of the current working tree instead.
+
+- User Option: magit-shell-command-verbose-prompt
+
+  Whether the prompt, used by the the above commands when reading a
+  shell command, shows the directory in which it will be run.
 
 These suffix commands start external gui tools.
 

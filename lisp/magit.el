@@ -559,6 +559,14 @@ defaulting to the tag at point.
 
 ;;;; Git Popup
 
+(defcustom magit-shell-command-verbose-prompt t
+  "Whether to show the working directory when reading a command.
+This affects `magit-git-command', `magit-git-command-topdir',
+`magit-shell-command', and `magit-shell-command-topdir'."
+  :package-version '(magit . "2.10.4")
+  :group 'magit-commands
+  :type 'boolean)
+
 (defvar magit-git-command-history nil)
 
 ;;;###autoload (autoload 'magit-run-popup "magit" nil t)
@@ -576,59 +584,64 @@ defaulting to the tag at point.
   :max-action-columns 2)
 
 ;;;###autoload
-(defun magit-git-command (args directory)
-  "Execute a Git subcommand asynchronously, displaying the output.
-With a prefix argument run Git in the root of the current
-repository, otherwise in `default-directory'."
-  (interactive (magit-read-shell-command "Git subcommand (pwd: %s)"))
-  (require 'eshell)
-  (with-temp-buffer
-    (insert args)
-    (setq args (mapcar 'eval (eshell-parse-arguments (point-min)
-                                                     (point-max))))
-    (setq default-directory directory)
-    (let ((magit-git-global-arguments
-           ;; A human will want globbing by default.
-           (remove "--literal-pathspecs"
-                   magit-git-global-arguments)))
-     (magit-run-git-async args)))
-  (magit-process-buffer))
+(defun magit-git-command (command)
+  "Execute COMMAND asynchonously; display output.
+
+Interactively, prompt for COMMAND in the minibuffer. \"git \" is
+used as initial input, but can be deleted to run another command.
+
+With a prefix argument COMMAND is run in the top-level directory
+of the current working tree, otherwise in `default-directory'."
+  (interactive (list (magit-read-shell-command nil "git ")))
+  (magit--shell-command command))
 
 ;;;###autoload
-(defun magit-git-command-topdir (args directory)
-  "Execute a Git subcommand asynchronously, displaying the output.
-Run Git in the top-level directory of the current repository.
-\n(fn)" ; arguments are for internal use
-  (interactive (magit-read-shell-command "Git subcommand (pwd: %s)" t))
-  (magit-git-command args directory))
+(defun magit-git-command-topdir (command)
+  "Execute COMMAND asynchonously; display output.
+
+Interactively, prompt for COMMAND in the minibuffer. \"git \" is
+used as initial input, but can be deleted to run another command.
+
+COMMAND is run in the top-level directory of the current
+working tree."
+  (interactive (list (magit-read-shell-command t "git ")))
+  (magit--shell-command command (magit-toplevel)))
 
 ;;;###autoload
-(defun magit-shell-command (cmd directory)
-  "Execute a shell command asynchronously, displaying the output.
-With a prefix argument run the command in the root of the current
-repository, otherwise in `default-directory'."
-  (interactive (magit-read-shell-command "Shell command (pwd: %s)"))
-  (let ((default-directory directory))
+(defun magit-shell-command (command)
+  "Execute COMMAND asynchonously; display output.
+
+Interactively, prompt for COMMAND in the minibuffer.  With a
+prefix argument COMMAND is run in the top-level directory of
+the current working tree, otherwise in `default-directory'."
+  (interactive (list (magit-read-shell-command)))
+  (magit--shell-command command))
+
+;;;###autoload
+(defun magit-shell-command-topdir (command)
+  "Execute COMMAND asynchonously; display output.
+
+Interactively, prompt for COMMAND in the minibuffer.  COMMAND
+is run in the top-level directory of the current working tree."
+  (interactive (list (magit-read-shell-command t)))
+  (magit--shell-command command (magit-toplevel)))
+
+(defun magit--shell-command (command &optional directory)
+  (let ((default-directory (or directory default-directory)))
     (magit-start-process shell-file-name nil
-                         shell-command-switch cmd))
+                         shell-command-switch command))
   (magit-process-buffer))
 
-;;;###autoload
-(defun magit-shell-command-topdir (args directory)
-  "Execute a shell command asynchronously, displaying the output.
-Run the command in the top-level directory of the current repository.
-\n(fn)" ; arguments are for internal use
-  (interactive (magit-read-shell-command "Shell command (pwd: %s)" t))
-  (magit-shell-command args directory))
-
-(defun magit-read-shell-command (prompt &optional root)
-  (let ((dir (if (or root current-prefix-arg)
-                 (or (magit-toplevel)
-                     (user-error "Not inside a Git repository"))
-               default-directory)))
-    (list (magit-read-string (format prompt (abbreviate-file-name dir))
-                             nil 'magit-git-command-history)
-          dir)))
+(defun magit-read-shell-command (&optional toplevel initial-input)
+  (let ((dir (abbreviate-file-name
+              (if (or toplevel current-prefix-arg)
+                  (or (magit-toplevel)
+                      (user-error "Not inside a Git repository"))
+                default-directory))))
+    (read-shell-command (if magit-shell-command-verbose-prompt
+                            (format "Async shell command in %s: " dir)
+                          "Async shell command: ")
+                        initial-input 'magit-git-command-history)))
 
 ;;; Revision Stack
 
