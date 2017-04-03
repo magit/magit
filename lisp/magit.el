@@ -592,14 +592,14 @@ Run Git in the top-level directory of the current repository.
   (magit-shell-command command directory))
 
 ;;;###autoload
-(defun magit-shell-command (cmd directory)
+(defun magit-shell-command (command directory)
   "Execute a shell command asynchronously, displaying the output.
 With a prefix argument run the command in the root of the current
 repository, otherwise in `default-directory'."
   (interactive (magit-read-shell-command "Shell command (pwd: %s)"))
   (let ((default-directory directory))
     (magit-start-process shell-file-name nil
-                         shell-command-switch cmd))
+                         shell-command-switch command))
   (magit-process-buffer))
 
 ;;;###autoload
