@@ -576,49 +576,49 @@ defaulting to the tag at point.
   :max-action-columns 2)
 
 ;;;###autoload
-(defun magit-git-command (command directory)
+(defun magit-git-command (command)
   "Execute a Git subcommand asynchronously, displaying the output.
 With a prefix argument run Git in the root of the current
 repository, otherwise in `default-directory'."
-  (interactive (magit-read-shell-command "Git subcommand (pwd: %s)" nil "git "))
-  (magit-shell-command command directory))
+  (interactive (list (magit-read-shell-command "Git subcommand (pwd: %s)" nil "git ")))
+  (magit--shell-command command))
 
 ;;;###autoload
-(defun magit-git-command-topdir (command directory)
+(defun magit-git-command-topdir (command)
   "Execute a Git subcommand asynchronously, displaying the output.
-Run Git in the top-level directory of the current repository.
-\n(fn)" ; arguments are for internal use
-  (interactive (magit-read-shell-command "Git subcommand (pwd: %s)" t "git "))
-  (magit-shell-command command directory))
+Run Git in the top-level directory of the current repository."
+  (interactive (list (magit-read-shell-command "Git subcommand (pwd: %s)" t "git ")))
+  (magit--shell-command command (magit-toplevel)))
 
 ;;;###autoload
-(defun magit-shell-command (command directory)
+(defun magit-shell-command (command)
   "Execute a shell command asynchronously, displaying the output.
 With a prefix argument run the command in the root of the current
 repository, otherwise in `default-directory'."
-  (interactive (magit-read-shell-command "Shell command (pwd: %s)"))
-  (let ((default-directory directory))
+  (interactive (list (magit-read-shell-command "Shell command (pwd: %s)")))
+  (magit--shell-command command))
+
+;;;###autoload
+(defun magit-shell-command-topdir (command)
+  "Execute a shell command asynchronously, displaying the output.
+Run the command in the top-level directory of the current repository."
+  (interactive (list (magit-read-shell-command "Shell command (pwd: %s)" t)))
+  (magit--shell-command command (magit-toplevel)))
+
+(defun magit--shell-command (command &optional directory)
+  (let ((default-directory (or directory default-directory)))
     (magit-start-process shell-file-name nil
                          shell-command-switch command))
   (magit-process-buffer))
-
-;;;###autoload
-(defun magit-shell-command-topdir (command directory)
-  "Execute a shell command asynchronously, displaying the output.
-Run the command in the top-level directory of the current repository.
-\n(fn)" ; arguments are for internal use
-  (interactive (magit-read-shell-command "Shell command (pwd: %s)" t))
-  (magit-shell-command command directory))
 
 (defun magit-read-shell-command (prompt &optional root initial-input)
   (let ((dir (if (or root current-prefix-arg)
                  (or (magit-toplevel)
                      (user-error "Not inside a Git repository"))
                default-directory)))
-    (list (read-shell-command (format (concat prompt ": ")
-                                      (abbreviate-file-name dir))
-                              initial-input 'magit-git-command-history)
-          dir)))
+    (read-shell-command (format (concat prompt ": ")
+                                (abbreviate-file-name dir))
+                        initial-input 'magit-git-command-history)))
 
 ;;; Revision Stack
 
