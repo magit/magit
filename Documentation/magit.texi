@@ -1749,45 +1749,42 @@ switch to a shell.
 @item @kbd{!} @tie{}@tie{}@tie{}@tie{}(@code{magit-run-popup})
 
 Shows the popup buffer featuring the below suffix commands.
-@end table
 
-These suffix commands run a Git subcommand.  The user input has to
-begin with the subcommand, "git" is assumed.
-
-@table @asis
 @kindex ! !
 @cindex magit-git-command-topdir
 @item @kbd{! !} @tie{}@tie{}@tie{}@tie{}(@code{magit-git-command-topdir})
 
-This command reads a Git subcommand from the user and executes it in
-the top-level directory of the current repository.
+This command reads a command from the user and executes it in the
+top-level directory of the current working tree.
+
+The string "git " is used as initial input when prompting the user
+for the command.  It can be removed to run another command.
 
 @kindex ! p
 @cindex magit-git-command
 @item @kbd{! p} @tie{}@tie{}@tie{}@tie{}(@code{magit-git-command})
 
-This command reads a Git subcommand from the user and executes it in
+This command reads a command from the user and executes it in
 @code{default-directory}.  With a prefix argument the command is executed
-in the top-level directory of the current repository instead.
-@end table
+in the top-level directory of the current working tree instead.
 
-These suffix commands run arbitrary shell commands.
+The string "git " is used as initial input when prompting the user
+for the command.  It can be removed to run another command.
 
-@table @asis
 @kindex ! s
 @cindex magit-shell-command-topdir
 @item @kbd{! s} @tie{}@tie{}@tie{}@tie{}(@code{magit-shell-command-topdir})
 
-This command reads a shell command from the user and executes it in
-the top-level directory of the current repository.
+This command reads a command from the user and executes it in the
+top-level directory of the current working tree.
 
 @kindex ! S
 @cindex magit-shell-command
 @item @kbd{! S} @tie{}@tie{}@tie{}@tie{}(@code{magit-shell-command})
 
-This command reads a shell command from the user and executes it in
+This command reads a command from the user and executes it in
 @code{default-directory}.  With a prefix argument the command is executed
-in the top-level directory of the current repository instead.
+in the top-level directory of the current working tree instead.
 @end table
 
 These suffix commands start external gui tools.

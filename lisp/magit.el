@@ -577,31 +577,44 @@ defaulting to the tag at point.
 
 ;;;###autoload
 (defun magit-git-command (command)
-  "Execute a Git subcommand asynchronously, displaying the output.
-With a prefix argument run Git in the root of the current
-repository, otherwise in `default-directory'."
+  "Execute COMMAND asynchonously; display output.
+
+Interactively, prompt for COMMAND in the minibuffer. \"git \" is
+used as initial input, but can be deleted to run another command.
+
+With a prefix argument COMMAND is run in the top-level directory
+of the current working tree, otherwise in `default-directory'."
   (interactive (list (magit-read-shell-command "Git subcommand (pwd: %s)" nil "git ")))
   (magit--shell-command command))
 
 ;;;###autoload
 (defun magit-git-command-topdir (command)
-  "Execute a Git subcommand asynchronously, displaying the output.
-Run Git in the top-level directory of the current repository."
+  "Execute COMMAND asynchonously; display output.
+
+Interactively, prompt for COMMAND in the minibuffer. \"git \" is
+used as initial input, but can be deleted to run another command.
+
+COMMAND is run in the top-level directory of the current
+working tree."
   (interactive (list (magit-read-shell-command "Git subcommand (pwd: %s)" t "git ")))
   (magit--shell-command command (magit-toplevel)))
 
 ;;;###autoload
 (defun magit-shell-command (command)
-  "Execute a shell command asynchronously, displaying the output.
-With a prefix argument run the command in the root of the current
-repository, otherwise in `default-directory'."
+  "Execute COMMAND asynchonously; display output.
+
+Interactively, prompt for COMMAND in the minibuffer.  With a
+prefix argument COMMAND is run in the top-level directory of
+the current working tree, otherwise in `default-directory'."
   (interactive (list (magit-read-shell-command "Shell command (pwd: %s)")))
   (magit--shell-command command))
 
 ;;;###autoload
 (defun magit-shell-command-topdir (command)
-  "Execute a shell command asynchronously, displaying the output.
-Run the command in the top-level directory of the current repository."
+  "Execute COMMAND asynchonously; display output.
+
+Interactively, prompt for COMMAND in the minibuffer.  COMMAND
+is run in the top-level directory of the current working tree."
   (interactive (list (magit-read-shell-command "Shell command (pwd: %s)" t)))
   (magit--shell-command command (magit-toplevel)))
 
