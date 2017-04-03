@@ -627,7 +627,9 @@ is run in the top-level directory of the current working tree."
   (magit--shell-command command (magit-toplevel)))
 
 (defun magit--shell-command (command &optional directory)
-  (let ((default-directory (or directory default-directory)))
+  (let ((default-directory (or directory default-directory))
+        (process-environment process-environment))
+    (push "GIT_PAGER=cat" process-environment)
     (magit-start-process shell-file-name nil
                          shell-command-switch command))
   (magit-process-buffer))
