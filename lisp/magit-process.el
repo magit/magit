@@ -548,7 +548,7 @@ Magit status buffer."
                             'help-echo (mapconcat #'identity (car args) " ")))
         (insert " ")
         (setq args (cadr args)))
-      (insert (propertize (mapconcat #'identity args " ")
+      (insert (propertize (mapconcat #'shell-quote-argument args " ")
                           'face 'magit-section-heading))
       (magit-insert-heading)
       (when errlog
