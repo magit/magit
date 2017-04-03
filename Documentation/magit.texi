@@ -1785,7 +1785,14 @@ top-level directory of the current working tree.
 This command reads a command from the user and executes it in
 @code{default-directory}.  With a prefix argument the command is executed
 in the top-level directory of the current working tree instead.
+
 @end table
+
+@defopt magit-shell-command-verbose-prompt
+
+Whether the prompt, used by the the above commands when reading a
+shell command, shows the directory in which it will be run.
+@end defopt
 
 These suffix commands start external gui tools.
 

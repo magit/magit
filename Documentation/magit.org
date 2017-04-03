@@ -1295,6 +1295,11 @@ switch to a shell.
   ~default-directory~.  With a prefix argument the command is executed
   in the top-level directory of the current working tree instead.
 
+- User Option: magit-shell-command-verbose-prompt
+
+  Whether the prompt, used by the the above commands when reading a
+  shell command, shows the directory in which it will be run.
+
 These suffix commands start external gui tools.
 
 - Key: ! k, magit-run-gitk
