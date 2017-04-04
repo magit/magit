@@ -940,7 +940,12 @@ and Emacs to it."
         (when print-dest
           (princ (format "Magit %s, Git %s, Emacs %s, %s"
                          (or magit-version "(unknown)")
-                         (or (magit-git-version t) "(unknown)")
+                         (or (let ((magit-git-debug
+                                    (lambda (err)
+                                      (display-warning '(magit git)
+                                                       err :error))))
+                               (magit-git-version t))
+                             "(unknown)")
                          emacs-version
                          system-type)
                  print-dest))

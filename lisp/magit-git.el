@@ -312,9 +312,12 @@ add a section in the respective process buffer."
                       (setq msg (with-temp-buffer
                                   (insert-file-contents log)
                                   (goto-char (point-max))
-                                  (and (re-search-backward
-                                        magit-process-error-message-re nil t)
-                                       (match-string 1))))
+                                  (cond
+                                   ((functionp magit-git-debug)
+                                    (funcall magit-git-debug (buffer-string)))
+                                   ((re-search-backward
+                                     magit-process-error-message-re nil t)
+                                    (match-string 1)))))
                       (let ((magit-git-debug nil))
                         (with-current-buffer (magit-process-buffer t)
                           (magit-process-insert-section default-directory
