@@ -878,11 +878,13 @@ above."
 Use the function by the same name instead of this variable.")
 
 ;;;###autoload
-(defun magit-version ()
+(defun magit-version (&optional print-dest)
   "Return the version of Magit currently in use.
-When called interactive also show the used versions of Magit,
-Git, and Emacs in the echo area."
-  (interactive)
+If optional argument PRINT-DEST is non-nil output
+stream (interactively, the echo area, or the current buffer with
+a prefix argument), also print the used versions of Magit, Git,
+and Emacs to it."
+  (interactive (list (if current-prefix-arg (current-buffer) t)))
   (let ((magit-git-global-arguments nil)
         (toplib (or load-file-name buffer-file-name))
         debug)
@@ -935,12 +937,13 @@ Git, and Emacs in the echo area."
                                     dirname)
                   (setq magit-version (match-string 1 dirname))))))))
     (if (stringp magit-version)
-        (when (called-interactively-p 'any)
-          (message "Magit %s, Git %s, Emacs %s, %s"
-                   (or magit-version "(unknown)")
-                   (or (magit-git-version t) "(unknown)")
-                   emacs-version
-                   system-type))
+        (when print-dest
+          (princ (format "Magit %s, Git %s, Emacs %s, %s"
+                         (or magit-version "(unknown)")
+                         (or (magit-git-version t) "(unknown)")
+                         emacs-version
+                         system-type)
+                 print-dest))
       (setq debug (reverse debug))
       (setq magit-version 'error)
       (when magit-version
