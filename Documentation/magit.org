@@ -1343,11 +1343,13 @@ the actual git binary, which are also placed on ~$PATH~, and using one
 of these wrappers instead of the binary would degrade performance
 horribly.
 
-If Magit doesn't find the correct executable then you *can* work around
-that by setting ~magit-git-executable~ to an absolute path.  But note
-that doing so is a kludge.  It is better to make sure the order in the
-environment variable ~$PATH~ is correct, and that Emacs is started with
-that environment in effect.  If you have to connect from Windows to a
+If Magit doesn't find the correct executable then you *can* work
+around that by setting ~magit-git-executable~ to an absolute path.
+But note that doing so is a kludge.  It is better to make sure the
+order in the environment variable ~$PATH~ is correct, and that Emacs
+is started with that environment in effect.  The command
+~magit-debug-git-executable~ can be useful to find out where Emacs is
+searching for git.  If you have to connect from Windows to a
 non-Windows machine, then you must change the value to "git".
 
 - User Option: magit-git-executable
@@ -1355,6 +1357,10 @@ non-Windows machine, then you must change the value to "git".
   The git executable used by Magit, either the full path to the
   executable or the string "git" to let Emacs find the executable
   itself, using the standard mechanism for doing such things.
+
+- Key: M-x magit-debug-git-executable, magit-debug-git-executable
+
+  Display a buffer with information about ~magit-git-executable~.
 
 *** Global Git Arguments
 
