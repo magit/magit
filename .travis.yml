@@ -1,30 +1,23 @@
+# We need sudo for the tramp test.
+sudo: true
 language: generic
 env:
   global:
     - CURL="curl -fsSkL --retry 9 --retry-delay 9"
   matrix:
-    # - EMACS=emacs24 ## This is 24.3 which is too old to run magit
-    - EMACS=emacs-snapshot
-# matrix:
-#   allow_failures:
-#     - env: EMACS=emacs-snapshot
+  - EMACS_VERSION=24.4
+  - EMACS_VERSION=24.5
+  - EMACS_VERSION=25.1
+  - EMACS_VERSION=25 # emacs-25 branch, built daily
+  - EMACS_VERSION=master # master branch, built daily
+  allow_failures:
+    - env: EMACS_VERSION=master
 install:
-  - if [ "$EMACS" = 'emacs24' ]; then
-        sudo add-apt-repository -y ppa:cassou/emacs &&
-        sudo apt-get -qq update &&
-        sudo apt-get -qq -f install &&
-        sudo apt-get -qq install emacs24 &&
-        sudo apt-get -qq install emacs24-el;
-    fi
-  - if [ "$EMACS" = 'emacs-snapshot' ]; then
-        sudo add-apt-repository -y ppa:ubuntu-elisp/ppa &&
-        sudo apt-get -qq update &&
-        sudo apt-get -qq -f install &&
-        sudo apt-get -qq install emacs-snapshot &&
-        sudo apt-get -qq install emacs-snapshot-el;
-    fi
-  - $CURL https://raw.githubusercontent.com/magnars/dash.el/master/dash.el -o dash.el
-  - $CURL https://raw.githubusercontent.com/magit/with-editor/master/with-editor.el -o with-editor.el
+  - $CURL -O https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz
+  - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
+  - export EMACS=/tmp/emacs/bin/emacs
+  - $CURL -O https://raw.githubusercontent.com/magnars/dash.el/master/dash.el
+  - $CURL -O https://raw.githubusercontent.com/magit/with-editor/master/with-editor.el
   - $EMACS --version
 script:
   - git config --global user.name "A U Thor"
