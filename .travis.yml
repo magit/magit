@@ -1,5 +1,4 @@
-# We need sudo for the tramp test.
-sudo: true
+sudo: false
 language: generic
 env:
   global:
