@@ -43,3 +43,6 @@ Fixes since v2.10.3
 
 * The command `magit-shell-command' now uses a shell to run the command
   entered in response to the "Enter shell command" prompt.  #3007
+
+* Adding an untracked subdirectory as a submodule failed if a remote
+  was not configured for the subdirectory repository.  #3047

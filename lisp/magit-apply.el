@@ -281,7 +281,8 @@ ignored) files.
         (magit-submodule-add
          (let ((default-directory
                  (file-name-as-directory (expand-file-name repo))))
-           (magit-get "remote" (or (magit-get-remote) "origin") "url"))
+           (or (magit-get "remote" (or (magit-get-remote) "origin") "url")
+               (concat (file-name-as-directory ".") repo)))
          repo
          (magit-submodule-read-name repo))))
     (magit-wip-commit-after-apply files " after stage")))
