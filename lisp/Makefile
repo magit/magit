@@ -60,13 +60,10 @@ versionlib: $(PKG)-version.el
 	(when (file-exists-p \"$@\")\
 	  (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
-	(advice-add 'message :around\
-	  (lambda (fun f &rest args)\
-	    (unless (or (equal f \"Wrote %s\")\
-	                (and (stringp f)\
-	                     (string-prefix-p \"Warning: Unknown defun property\" f)\
-	                     (memq (car args) '(pure side-effect-free))))\
-	      (apply fun f args)))))" \
+	(fset 'message* (symbol-function 'message))\
+	(fset 'message  (lambda (f &rest a)\
+	                  (unless (equal f \"Wrote %s\")\
+	                    (apply 'message* f a)))))" \
 	-f batch-byte-compile $<
 
 $(PKG)-autoloads.el: $(ELS)

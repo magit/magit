@@ -16,6 +16,7 @@ install:
   - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
   - export EMACS=/tmp/emacs/bin/emacs
   - $CURL -O https://raw.githubusercontent.com/magnars/dash.el/master/dash.el
+  - $EMACS -Q --batch -f batch-byte-compile dash.el
   - $CURL -O https://raw.githubusercontent.com/magit/with-editor/master/with-editor.el
   - $EMACS --version
 script:
