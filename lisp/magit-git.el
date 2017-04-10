@@ -872,7 +872,8 @@ string \"true\", otherwise return nil."
         (commit (let ((rev (magit-section-value it)))
                   (or (magit-get-shortname rev) rev)))
         (tag    (magit-section-value it)))
-      (and (derived-mode-p 'magit-revision-mode)
+      (and (derived-mode-p 'magit-revision-mode
+                           'magit-merge-preview-mode)
            (car magit-refresh-args))))
 
 (defun magit-tag-at-point ()

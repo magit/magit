@@ -218,10 +218,7 @@ merge failed to give the user the opportunity to inspect the
 merge.
 
 \(git merge --no-edit|--no-commit [ARGS] REV)"
-  (interactive (list (magit-read-other-branch-or-commit
-                      "Merge" nil
-                      (and (derived-mode-p 'magit-merge-preview-mode)
-                           (car magit-refresh-args)))
+  (interactive (list (magit-read-other-branch-or-commit "Merge")
                      (magit-merge-arguments)
                      current-prefix-arg))
   (magit-merge-assert)
