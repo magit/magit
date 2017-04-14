@@ -1,4 +1,4 @@
-Magit v2.10.4 Release Notes (unreleased)
+Magit v2.11.0 Release Notes (unreleased)
 ========================================
 
 Changes since v2.10.3
