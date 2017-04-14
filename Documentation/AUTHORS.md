@@ -120,6 +120,7 @@ Contributors
 - Hans-Peter Deifel <hpdeifel@gmx.de>
 - Ian Eure <ian.eure@gmail.com>
 - Ingo Lohmar <i.lohmar@gmail.com>
+- Ioan-Adrian Ratiu <adi@adirat.com>
 - Ivan Brennan <ivan.brennan@gmail.com>
 - Jan Tatarik <jan.tatarik@xing.com>
 - Jasper St. Pierre <jstpierre@mecheye.net>
@@ -226,6 +227,7 @@ Contributors
 - Sanjoy Das <sanjoy@playingwithpointers.com>
 - Sean Allred <code@seanallred.com>
 - Sean Bryant <sbryant@hackinggibsons.com>
+- Sean Whitton <spwhitton@spwhitton.name>
 - Sebastian Wiesner <lunaryorn@gmail.com>
 - Sébastien Gross <seb@chezwam.org>
 - Seong-Kook Shin <cinsky@gmail.com>
