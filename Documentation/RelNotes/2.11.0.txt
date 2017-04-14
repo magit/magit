@@ -21,9 +21,9 @@ Changes since v2.10.3
 
 * The commands `magit-git-command', `magit-git-command-topdir',
   `magit-shell-command', and `magit-shell-command-topdir' now use
-  `read-shell-command' to read the command.  Packages like `pcmpl-git'
-  and `bash-completion' can now be used to get command-line completion
-  when using these commands.  #2951
+  `read-shell-command' to read the command and a shell to run it.
+  Packages like `pcmpl-git' and `bash-completion' can now be used
+  to get command-line completion when using these commands.  #2951
 
 * The commands `magit-git-command' and `magit-git-command-topdir' can
   now call arbitrary commands.  The initial-value when reading the
@@ -31,6 +31,16 @@ Changes since v2.10.3
   #2951
 
 * Added option `magit-shell-command-verbose-prompt'.  #2951
+
+* The function `magit-branch-or-commit-at-point' now offers the
+  appropriate default choice in a `magit-merge-preview-mode' buffer.
+  #3039
+
+* On Travis tests are now run against all supported Emacs releases, as
+  well as against snapshots of the `master' and `emacs-25' branches.
+  #3046
+
+* Added command `magit-debug-git-executable'.  #3044
 
 Fixes since v2.10.3
 -------------------
@@ -41,8 +51,8 @@ Fixes since v2.10.3
   grabs the lock.  Magit now redefines that VC command to use a git
   command that does not grab the lock.  #2708, debbug#21559
 
-* The command `magit-shell-command' now uses a shell to run the command
-  entered in response to the "Enter shell command" prompt.  #3007
-
 * Adding an untracked subdirectory as a submodule failed if a remote
   was not configured for the subdirectory repository.  #3047
+
+This release also contains other minor improvements, bug fixes, typo
+fixes, and documentation fixes.
