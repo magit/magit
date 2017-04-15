@@ -560,7 +560,7 @@ defaulting to the tag at point.
   "Whether to show the working directory when reading a command.
 This affects `magit-git-command', `magit-git-command-topdir',
 `magit-shell-command', and `magit-shell-command-topdir'."
-  :package-version '(magit . "2.10.4")
+  :package-version '(magit . "2.11.0")
   :group 'magit-commands
   :type 'boolean)
 
