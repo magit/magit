@@ -828,7 +828,7 @@ Do not add this to a hook variable."
          (remove "--literal-pathspecs" magit-git-global-arguments)))
     (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
       "log"
-      (format "--format=%%h%s%%x00%s[%%aN][%%at]%%s%s"
+      (format "--format=%%h%s%%x00%s%%x00%%aN%%x00%%at%%x00%%s%s"
               (if (member "--decorate" args) "%d" "")
               (if (member "--show-signature" args)
                   (progn (setq args (remove "--show-signature" args)) "%G?")
@@ -865,9 +865,9 @@ Do not add this to a hook variable."
           "\\(?4:[-_/|\\*o. ]*\\)"                 ; graph
           "\\(?1:[0-9a-fA-F]+\\)"                  ; sha1
           "\\(?3:[^\0]+)\\)?\0"                    ; refs
-          "\\(?7:[BGUXYREN]\\)?"                   ; gpg
-          "\\[\\(?5:[^]]*\\)\\]"                   ; author
-          "\\[\\(?6:[^]]*\\)\\]"                   ; date
+          "\\(?7:[BGUXYREN]\\)?\0"                 ; gpg
+          "\\(?5:[^\0]*\\)\0"                      ; author
+          "\\(?6:[^\0]+\\)\0"                      ; date
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re
