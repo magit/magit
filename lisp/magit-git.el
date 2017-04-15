@@ -1261,8 +1261,15 @@ Return a list of two integers: (A>B B>A)."
                   'face (if (equal ref head) 'magit-branch-current face)))))
 
 (defun magit-format-ref-labels (string)
+  ;; To support Git <2.2.0, we remove the surrounding parentheses here
+  ;; rather than specifying that STRING should be generated with Git's
+  ;; "%D" placeholder.
+  (setq string (->> string
+                    (replace-regexp-in-string "\\`\\s-*(" "")
+                    (replace-regexp-in-string ")\\s-*\\'" "")))
   (save-match-data
-    (let ((regexp "\\(, \\|tag: \\| -> \\|[()]\\)") head names)
+    (let ((regexp "\\(, \\|tag: \\| -> \\)")
+          head names)
       (if (and (derived-mode-p 'magit-log-mode)
                (member "--simplify-by-decoration" (cadr magit-refresh-args)))
           (let ((branches (magit-list-local-branch-names))
