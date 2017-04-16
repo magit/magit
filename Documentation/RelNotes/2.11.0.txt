@@ -42,6 +42,8 @@ Changes since v2.10.3
 
 * Added command `magit-debug-git-executable'.  #3044
 
+* Added `--mainline' switch to `magit-revert-popup'.  #3018
+
 Fixes since v2.10.3
 -------------------
 

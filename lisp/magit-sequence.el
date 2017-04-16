@@ -172,7 +172,8 @@ without prompting."
   :man-page "git-revert"
   :switches '((?s "Add Signed-off-by lines" "--signoff"))
   :options  '((?s "Strategy"       "--strategy=")
-              (?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
+              (?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key)
+              (?m "Replay merge relative to parent" "--mainline="))
   :actions  '((?V "Revert commit(s)" magit-revert)
               (?v "Revert changes"   magit-revert-no-commit))
   :sequence-actions '((?V "Continue" magit-sequencer-continue)
@@ -192,7 +193,8 @@ Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then revert all of them,
 without prompting."
   (interactive (magit-revert-read-args "Revert commit"))
-  (magit-assert-one-parent commit "revert")
+  (unless (--any (string-prefix-p "--mainline" it) args)
+    (magit-assert-one-parent commit "revert"))
   (magit-run-git-sequencer "revert" args commit))
 
 ;;;###autoload
@@ -202,7 +204,8 @@ Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then revert all of them,
 without prompting."
   (interactive (magit-revert-read-args "Revert changes"))
-  (magit-assert-one-parent commit "revert")
+  (unless (--any (string-prefix-p "--mainline" it) args)
+    (magit-assert-one-parent commit "revert"))
   (magit-run-git-sequencer "revert" "--no-commit" args commit))
 
 (defun magit-revert-in-progress-p ()
