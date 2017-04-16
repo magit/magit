@@ -54,5 +54,8 @@ Fixes since v2.10.3
 * Adding an untracked subdirectory as a submodule failed if a remote
   was not configured for the subdirectory repository.  #3047
 
+* Parsing the log buffer failed if the log displayed a ref that
+  contained parentheses in its name.  #3028
+
 This release also contains other minor improvements, bug fixes, typo
 fixes, and documentation fixes.

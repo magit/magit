@@ -1838,7 +1838,7 @@ or a ref which is not a branch, then it inserts nothing."
   (magit-insert-section (headers)
     ;; Before v2.2.0, "%D" was not supported.
     (--when-let (magit-rev-format "%d" rev "--decorate=full")
-      (insert (magit-format-ref-labels (substring it 2 -1)) ?\s))
+      (insert (magit-format-ref-labels it) ?\s))
     (insert (propertize (magit-rev-parse (concat rev "^{commit}"))
                         'face 'magit-hash))
     (magit-insert-heading)
