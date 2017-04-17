@@ -29,7 +29,11 @@
 
 (defmacro magit-with-test-repository (&rest body)
   (declare (indent 0) (debug t))
-  `(magit-with-test-directory (magit-git "init" ".") ,@body))
+  `(magit-with-test-directory
+    (magit-git "init" ".")
+    (magit-git "config" "--local" "user.name" "Chester T. Tester")
+    (magit-git "config" "--local" "user.email" "ctt@example.com")
+    ,@body))
 
 ;;; Git
 
