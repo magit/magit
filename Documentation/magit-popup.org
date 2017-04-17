@@ -252,6 +252,17 @@ https://github.com/magit/magit/wiki/Additional-proposed-infix-arguments-and-suff
   of another switch already defined for POPUP, the argument is then
   placed before or after AT, depending on PREPEND.
 
+  Example:
+  #+BEGIN_SRC emacs-lisp
+    (defun m/magit-reset-author (&optional args)
+      "Resets the authorship information for the last commit"
+      (interactive)
+      (magit-run-git-async "commit" "--amend" "--no-edit" "--reset-author"))
+
+    (magit-define-popup-action 'magit-commit-popup
+      ?R "Reset author" 'm/magit-reset-author)
+  #+END_SRC
+
 - Function: magit-define-popup-option popup key desc option &optional reader value at prepend
 
   In POPUP, define KEY as OPTION.
