@@ -1067,6 +1067,9 @@ library getting in the way.  Then restart Emacs.\n"
     (progn (magit-startup-asserts)
            (magit-version))
   (add-hook 'after-init-hook #'magit-startup-asserts t)
-  (add-hook 'after-init-hook #'magit-version t))
+  (add-hook 'after-init-hook #'magit-version t)
+  (let ((recommended-key-binding  (kbd "C-x C-g")))
+		 (when (not (lookup-key (current-global-map) recommended-key-binding))
+		    (global-set-key recommended-key-binding 'magit-status))))
 
 ;;; magit.el ends here
