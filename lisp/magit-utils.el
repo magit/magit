@@ -524,6 +524,8 @@ ACTION is a member of option `magit-slow-confirm'."
 
 ;;;###autoload
 (defun magit-emacs-Q-command ()
+  "Show a shell command that runs an uncustomized Emacs with only Magit loaded.
+See info node `(magit)Debugging Tools' for more information."
   (interactive)
   (let ((cmd (mapconcat
               #'shell-quote-argument

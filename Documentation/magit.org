@@ -271,6 +271,9 @@ See [[*How to install the gitman info manual?]].
 
 If you are completely new to Magit then see [[*Getting Started]].
 
+If you run into problems, then please see the [[*FAQ]].  Also see the
+[[*Debugging Tools]].
+
 And last but not least please consider making a donation, to ensure
 that I can keep working on Magit.  See https://magit.vc/donations.
 for various donation options.
@@ -1333,8 +1336,9 @@ one you think you are using.
 
 - Key: M-x magit-version, magit-version
 
-  Shows the currently used versions of Magit, Git, and Emacs in the
-  echo area.  Non-interactively this just returns the Magit version.
+  This command shows the currently used versions of Magit, Git, and
+  Emacs in the echo area.  Non-interactively this just returns the
+  Magit version.
 
 When the ~system-type~ is ~windows-nt~, then ~magit-git-executable~ is set
 to an absolute path when Magit is first loaded.  This is necessary
@@ -6404,6 +6408,8 @@ frequently *and recently* asked questions, i.e. questions that haven't
 made it into the manual yet, see
 https://github.com/magit/magit/wiki/FAQ.
 
+Please also use the [[*Debugging Tools]].
+
 ** FAQ - How to ...?
 *** How to show git's output?
 
@@ -6610,6 +6616,49 @@ https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015 for details. You
 can work around the problem by setting
 ~tramp-ssh-controlmaster-options~. Changing your DNS server (e.g. to
 Google's ~8.8.8.8~) may also be sufficient to work around the issue.
+
+* Debugging Tools
+
+Magit and its dependencies provide a few debugging tools, and we
+appreciate it very much if you use those tools before reporting an
+issue.  Please include all relevant output when reporting an
+issue.
+
+- Key: M-x magit-version, magit-version
+
+  This command shows the currently used versions of Magit, Git, and
+  Emacs in the echo area.  Non-interactively this just returns the
+  Magit version.
+
+- Key: M-x magit-emacs-Q-command, magit-emacs-Q-command
+
+  This command shows a debugging shell command in the echo area and
+  adds it to the kill ring.  Paste that command into a shell an run
+  it.
+
+  This shell command starts ~emacs~ and in which only ~magit~ and its
+  dependencies are loaded.  Neither your configuration nor other
+  installed packages are not loaded.  This makes it easier to
+  determine whether some issue lays with Magit or something else.
+
+- Key: M-x magit-debug-git-executable, magit-debug-git-executable
+
+  This command displays a buffer containing information about the
+  available and used ~git~ executable(s), and can be useful when
+  investigating ~exec-path~ issues.
+
+  Also see [[*Git Executable]].
+
+- Key: M-x with-editor-debug, with-editor-debug
+
+  This command displays a buffer containing information about the
+  available and used ~git~ executable(s), and can be useful when
+  investigating why Magit (or rather ~with-editor~) cannot find an
+  appropriate ~emacsclient~ executable.
+
+  Also see [[info:with-editor#Debugging]].
+
+Please also see the [[*FAQ]].
 
 * Keystroke Index
 :PROPERTIES:

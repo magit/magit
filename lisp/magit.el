@@ -959,7 +959,8 @@ and Emacs to it."
     magit-version))
 
 (defun magit-debug-git-executable ()
-  "Display a buffer with information about `magit-git-executable'."
+  "Display a buffer with information about `magit-git-executable'.
+See info node `(magit)Debugging Tools' for more information."
   (interactive)
   (with-current-buffer (get-buffer-create "*magit-git-debug*")
     (pop-to-buffer (current-buffer))

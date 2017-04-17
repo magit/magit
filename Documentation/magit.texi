@@ -67,6 +67,7 @@ General Public License for more details.
 * Customizing::
 * Plumbing::
 * FAQ::
+* Debugging Tools::
 * Keystroke Index::
 * Command Index::
 * Function Index::
@@ -550,6 +551,9 @@ or advice @code{Info-follow-nearest-node} to instead open the actual manpage.
 See @ref{How to install the gitman info manual?,How to install the gitman info manual?}.
 
 If you are completely new to Magit then see @ref{Getting Started,Getting Started}.
+
+If you run into problems, then please see the @ref{FAQ,FAQ}.  Also see the
+@ref{Debugging Tools,Debugging Tools}.
 
 And last but not least please consider making a donation, to ensure
 that I can keep working on Magit.  See @uref{https://magit.vc/donations}.
@@ -1841,8 +1845,9 @@ one you think you are using.
 @cindex magit-version
 @item @kbd{M-x magit-version} @tie{}@tie{}@tie{}@tie{}(@code{magit-version})
 
-Shows the currently used versions of Magit, Git, and Emacs in the
-echo area.  Non-interactively this just returns the Magit version.
+This command shows the currently used versions of Magit, Git, and
+Emacs in the echo area.  Non-interactively this just returns the
+Magit version.
 @end table
 
 When the @code{system-type} is @code{windows-nt}, then @code{magit-git-executable} is set
@@ -8603,6 +8608,8 @@ frequently @strong{and recently} asked questions, i.e. questions that haven't
 made it into the manual yet, see
 @uref{https://github.com/magit/magit/wiki/FAQ}.
 
+Please also use the @ref{Debugging Tools,Debugging Tools}.
+
 @menu
 * FAQ - How to @dots{}?::
 * FAQ - Issues and Errors::
@@ -8853,6 +8860,60 @@ This is actually triggered by loading Tramp.  See
 can work around the problem by setting
 @code{tramp-ssh-controlmaster-options}. Changing your DNS server (e.g. to
 Google's @code{8.8.8.8}) may also be sufficient to work around the issue.
+
+@node Debugging Tools
+@chapter Debugging Tools
+
+Magit and its dependencies provide a few debugging tools, and we
+appreciate it very much if you use those tools before reporting an
+issue.  Please include all relevant output when reporting an
+issue.
+
+@table @asis
+@kindex M-x magit-version
+@cindex magit-version
+@item @kbd{M-x magit-version} @tie{}@tie{}@tie{}@tie{}(@code{magit-version})
+
+This command shows the currently used versions of Magit, Git, and
+Emacs in the echo area.  Non-interactively this just returns the
+Magit version.
+
+@kindex M-x magit-emacs-Q-command
+@cindex magit-emacs-Q-command
+@item @kbd{M-x magit-emacs-Q-command} @tie{}@tie{}@tie{}@tie{}(@code{magit-emacs-Q-command})
+
+This command shows a debugging shell command in the echo area and
+adds it to the kill ring.  Paste that command into a shell an run
+it.
+
+This shell command starts @code{emacs} and in which only @code{magit} and its
+dependencies are loaded.  Neither your configuration nor other
+installed packages are not loaded.  This makes it easier to
+determine whether some issue lays with Magit or something else.
+
+@kindex M-x magit-debug-git-executable
+@cindex magit-debug-git-executable
+@item @kbd{M-x magit-debug-git-executable} @tie{}@tie{}@tie{}@tie{}(@code{magit-debug-git-executable})
+
+This command displays a buffer containing information about the
+available and used @code{git} executable(s), and can be useful when
+investigating @code{exec-path} issues.
+
+Also see @ref{Git Executable,Git Executable}.
+
+@kindex M-x with-editor-debug
+@cindex with-editor-debug
+@item @kbd{M-x with-editor-debug} @tie{}@tie{}@tie{}@tie{}(@code{with-editor-debug})
+
+This command displays a buffer containing information about the
+available and used @code{git} executable(s), and can be useful when
+investigating why Magit (or rather @code{with-editor}) cannot find an
+appropriate @code{emacsclient} executable.
+
+Also see @ref{Debugging,,,with-editor,}.
+@end table
+
+Please also see the @ref{FAQ,FAQ}.
 
 @node Keystroke Index
 @appendix Keystroke Index

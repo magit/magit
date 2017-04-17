@@ -50,4 +50,8 @@ Finally, if that didn't work and you have installed Magit from Melpa, then run c
   $ cd ~/.emacs.d/elpa/magit-N
   $ emacs -Q --debug-init --eval '(setq debug-on-error t)' -L ../dash-N -L ../git-commit-N -L ../magit-popup-N -L ../with-editor-N -L . -l magit
 
+More debugging tools are described in the manual [6].
+
+  [6]: https://magit.vc/manual/magit/Debugging-Tools.html
+
 ---- now delete this line and everything above ----
