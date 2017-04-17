@@ -111,7 +111,7 @@ When this is nil, no sections are ever removed."
   :type '(choice (const :tag "Never remove old sections" nil) integer))
 
 (defcustom magit-credential-cache-daemon-socket
-  (--some (-let [(prog . args) (split-string it)]
+  (--some? (-let [(prog . args) (split-string it)]
             (if (string-match-p
                  "\\`\\(?:\\(?:/.*/\\)?git-credential-\\)?cache\\'" prog)
                 (or (cl-loop for (opt val) on args
