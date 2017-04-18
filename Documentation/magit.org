@@ -6636,10 +6636,10 @@ issue.
   adds it to the kill ring.  Paste that command into a shell an run
   it.
 
-  This shell command starts ~emacs~ and in which only ~magit~ and its
-  dependencies are loaded.  Neither your configuration nor other
-  installed packages are not loaded.  This makes it easier to
-  determine whether some issue lays with Magit or something else.
+  This shell command starts ~emacs~ with only ~magit~ and its
+  dependencies loaded.  Neither your configuration nor other installed
+  packages are loaded.  This makes it easier to determine whether some
+  issue lays with Magit or something else.
 
 - Key: M-x magit-debug-git-executable, magit-debug-git-executable
 

@@ -8886,10 +8886,10 @@ This command shows a debugging shell command in the echo area and
 adds it to the kill ring.  Paste that command into a shell an run
 it.
 
-This shell command starts @code{emacs} and in which only @code{magit} and its
-dependencies are loaded.  Neither your configuration nor other
-installed packages are not loaded.  This makes it easier to
-determine whether some issue lays with Magit or something else.
+This shell command starts @code{emacs} with only @code{magit} and its
+dependencies loaded.  Neither your configuration nor other installed
+packages are loaded.  This makes it easier to determine whether some
+issue lays with Magit or something else.
 
 @kindex M-x magit-debug-git-executable
 @cindex magit-debug-git-executable
