@@ -1015,6 +1015,7 @@ restored."
   :mode 'magit-popup
   (setq truncate-lines t)
   (setq buffer-read-only t)
+  (setq show-trailing-whitespace nil)
   (setq-local scroll-margin 0)
   (setq-local magit-popup-show-common-commands magit-popup-show-common-commands)
   (hack-dir-local-variables-non-file-buffer))
