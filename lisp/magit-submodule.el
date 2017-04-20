@@ -104,11 +104,11 @@ PATH also becomes the name."
                             (match-string 1 url))))))))
        (list url
              (directory-file-name path)
-             (magit-submodule-read-name path)))))
+             (magit-submodule-read-name-for-path path)))))
   (magit-run-git "submodule" "add" (and name (list "--name" name)) url path))
 
 ;;;###autoload
-(defun magit-submodule-read-name (path)
+(defun magit-submodule-read-name-for-path (path)
   (setq path (directory-file-name (file-relative-name path)))
   (push (file-name-nondirectory path) minibuffer-history)
   (magit-read-string-ns
