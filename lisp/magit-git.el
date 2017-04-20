@@ -697,7 +697,7 @@ Sorted from longest to shortest CYGWIN name."
 
 (defun magit-decode-git-path (path)
   (if (eq (aref path 0) ?\")
-      (string-as-multibyte (read path))
+      (decode-coding-string (read path))
     path))
 
 (defun magit-file-at-point ()
