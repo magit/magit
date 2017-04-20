@@ -183,14 +183,14 @@ can upload their packages in the first place.)
 
 Then clone the Magit repository:
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC shell-script
   $ git clone https://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
   $ cd ~/.emacs.d/site-lisp/magit
 #+END_SRC
 
 Then compile the libraries and generate the info manuals:
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC shell-script
   $ make
 #+END_SRC
 
@@ -234,7 +234,7 @@ directory using ~sudo make install~ and setting ~load-path~ accordingly.
 
 To update Magit use:
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC shell-script
   $ git pull
   $ make
 #+END_SRC
@@ -3845,7 +3845,7 @@ values.  If you want to change the global value, which is used when
 the local value is undefined, then you have to do so on the command
 line, e.g.:
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC shell-script
   git config --global remote.autoSetupMerge always
 #+END_SRC
 
@@ -3970,7 +3970,7 @@ also the "original" version from before the same area of the file was
 modified twice on different branches.  Instruct Git to insert that
 version as well by running this command once:
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC shell-script
   git config --global merge.conflictStyle diff3
 #+END_SRC
 
