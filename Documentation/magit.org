@@ -155,16 +155,16 @@ yourself with it by reading the documentation in the Emacs manual, see
 Once you have added your preferred archive, you need to update the
 local package list using:
 
-#+BEGIN_SRC undefined
+#+BEGIN_EXAMPLE
   M-x package-refresh-contents RET
-#+END_SRC
+#+END_EXAMPLE
 
 Once you have done that, you can install Magit and its dependencies
 using:
 
-#+BEGIN_SRC undefined
+#+BEGIN_EXAMPLE
   M-x package-install RET magit RET
-#+END_SRC
+#+END_EXAMPLE
 
 Now see [[*Post-Installation Tasks]].
 
@@ -252,15 +252,15 @@ Magit, Git, and Emacs releases you think you are using.  It's best to
 restart Emacs before doing so, to make sure you are not using an
 outdated value for ~load-path~.
 
-#+BEGIN_SRC undefined
+#+BEGIN_EXAMPLE
   M-x magit-version RET
-#+END_SRC
+#+END_EXAMPLE
 
 should display something like
 
-#+BEGIN_SRC undefined
+#+BEGIN_EXAMPLE
   Magit 2.8.0, Git 2.10.2, Emacs 25.1.1, gnu/linux
-#+END_SRC
+#+END_EXAMPLE
 
 Then you might also want to read about options that many users likely
 want to customize.  See [[*Essential Settings]].
@@ -3942,13 +3942,13 @@ begin with the strings consisting of six times the same character, one
 of ~<~, ~|~, ~=~ and ~>~ and are followed by information about the source of
 the respective versions, e.g.:
 
-#+BEGIN_SRC undefined
+#+BEGIN_EXAMPLE
   <<<<<<< HEAD
   Take the blue pill.
   =======
   Take the red pill.
   >>>>>>> feature
-#+END_SRC
+#+END_EXAMPLE
 
 In this case you have chosen to take the red pill on one branch and on
 another you picked the blue pill.  Now that you are merging these two
@@ -3961,9 +3961,9 @@ it in order to bring in the changes from the other side, remove the
 other versions as well as the markers, and then stage the result.  A
 possible resolution might be:
 
-#+BEGIN_SRC undefined
+#+BEGIN_EXAMPLE
   Take both pills.
-#+END_SRC
+#+END_EXAMPLE
 
 Often it is useful to see not only the two sides of the conflict but
 also the "original" version from before the same area of the file was
@@ -3976,7 +3976,7 @@ version as well by running this command once:
 
 The above conflict might then have looked like this:
 
-#+BEGIN_SRC undefined
+#+BEGIN_EXAMPLE
   <<<<<<< HEAD
   Take the blue pill.
   ||||||| merged common ancestors
@@ -3984,7 +3984,7 @@ The above conflict might then have looked like this:
   =======
   Take the red pill.
   >>>>>>> feature
-#+END_SRC
+#+END_EXAMPLE
 
 If that were the case, then the above conflict resolution would not
 have been correct, which demonstrates why seeing the original version
