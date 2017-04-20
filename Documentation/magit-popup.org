@@ -83,7 +83,7 @@ While such "prefix-infix-suffix" combos were inspired by regular
 prefix commands and prefix arguments, they are also quite different.
 This should illustrate the most basic differences:
 
-- A regular prefix commands
+- A regular prefix command
 
   #+BEGIN_EXAMPLE
           /- command1
@@ -96,7 +96,7 @@ This should illustrate the most basic differences:
   #+BEGIN_EXAMPLE
            /- command1
   C-u ... --- command2
-           \- well *any* command
+           \- well any command
   #+END_EXAMPLE
 
 - A Prefix-Infix-Suffix combo
@@ -110,8 +110,8 @@ This should illustrate the most basic differences:
       (refresh buffer)
    #+END_EXAMPLE
 
-This library was written as a replacement for ~magit-key-mode~ which was
-used in Magit releases before 2.1.0.  It is used to implement all
+This library was written as a replacement for ~magit-key-mode~, which
+was used in Magit releases before 2.1.0.  It is used to implement all
 "popups" in the current Magit release but a future release will switch
 to yet another implementation.
 

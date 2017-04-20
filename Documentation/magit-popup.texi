@@ -122,7 +122,7 @@ This should illustrate the most basic differences:
 
 @itemize
 @item
-A regular prefix commands
+A regular prefix command
 
 @example
         /- command1
@@ -137,7 +137,7 @@ Prefix arguments
 @example
          /- command1
 C-u ... --- command2
-         \- well *any* command
+         \- well any command
 @end example
 
 
@@ -154,8 +154,8 @@ prefix----- argument2 --+-- suffix2
 @end example
 @end itemize
 
-This library was written as a replacement for @code{magit-key-mode} which was
-used in Magit releases before 2.1.0.  It is used to implement all
+This library was written as a replacement for @code{magit-key-mode}, which
+was used in Magit releases before 2.1.0.  It is used to implement all
 "popups" in the current Magit release but a future release will switch
 to yet another implementation.
 
