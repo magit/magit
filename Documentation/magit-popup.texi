@@ -613,7 +613,8 @@ prefix argument.
 Controls when to display the popup buffer and when to invoke the
 default action (if any) directly.  This overrides the global
 default set using @code{magit-popup-use-prefix-argument}.  The value, if
-specified, should be one of @code{default} or @code{prefix}.
+specified, should be one of @code{default} or @code{prefix}, or a function that
+is called with no arguments and returns one of these symbols.
 
 
 @item

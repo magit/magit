@@ -515,7 +515,8 @@ commands have to be defined separately using plain ~defun~.
     Controls when to display the popup buffer and when to invoke the
     default action (if any) directly.  This overrides the global
     default set using ~magit-popup-use-prefix-argument~.  The value, if
-    specified, should be one of ~default~ or ~prefix~.
+    specified, should be one of ~default~ or ~prefix~, or a function that
+    is called with no arguments and returns one of these symbols.
 
   - ~:max-action-columns~
 
