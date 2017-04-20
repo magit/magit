@@ -58,16 +58,18 @@ clean:
 # Because most users don't have the necessary tools we cannot
 # use "%.texi: %.org".  Instead we have to hardcode each file
 # using a shared target.
+
+DOC_ARGS  = --batch -Q $(DOC_LOAD_PATH)
+DOC_ARGS += -l magit-utils.el -l ox-extra -l org-man -l ox-texinfo+.el
+DOC_EVAL  = --eval "(ox-extras-activate '(ignore-headlines))"
+DOC_EVAL += -f org-texinfo-export-to-texinfo
+
 texi: $(TEXIPAGES)
 	@printf "Generating magit.texi\n"
-	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
-	-l magit-utils.el -l org-man -l ox-texinfo+.el \
-	magit.org -f org-texinfo-export-to-texinfo
+	@$(EMACSBIN) $(DOC_ARGS) magit.org $(DOC_EVAL)
 	@echo >> magit.texi
 	@printf "Generating magit-popup.texi\n"
-	@$(EMACSBIN) -batch -Q $(DOC_LOAD_PATH) \
-	-l ox-texinfo+.el \
-	magit-popup.org -f org-texinfo-export-to-texinfo
+	@$(EMACSBIN) $(DOC_ARGS) magit-popup.org $(DOC_EVAL)
 	@echo >> magit-popup.texi
 
 stats:
