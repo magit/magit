@@ -7657,32 +7657,10 @@ repositories, then you might want to disable certain features on a
 per-repository or per-repository-class basis only.  See
 @ref{Per-Repository Configuration,Per-Repository Configuration}.
 
-@unnumberedsubsubsec Microsoft Windows Performance
-
-In order to update the status buffer, @code{git} has to be run a few dozen
-times.  That is only problematic on Microsoft Windows, because that
-operating system is exceptionally slow at starting processes.  Sadly
-this is an issue that can only be fixed by Microsoft itself, and they
-don't appear to be particularly interested in doing so.
-
-Beside the subprocess issue, there also exist other Window-specific
-performance issues, some of which can be worked around.  The
-maintainers of "Git for Windows" try to reduce their effect, and in
-order to benefit from the latest performance tweaks, should always
-use the latest release.  Magit too tries to work around some
-Windows-specific issues.
-
-According to some sources setting the following Git variables can also
-help.
-
-@example
-git config --global core.preloadindex true   # default since v2.1
-git config --global core.fscache true        # default since v2.8
-git config --global gc.auto 256
-@end example
-
-You should also check whether an anti-virus program is slowing things
-down.
+@menu
+* Microsoft Windows Performance::
+* MacOS Performance::
+@end menu
 
 @unnumberedsubsubsec Log Performance
 
@@ -7783,6 +7761,58 @@ another version control system:
 @lisp
 (setq vc-handled-backends (delq 'Git vc-handled-backends))
 @end lisp
+
+@node Microsoft Windows Performance
+@unnumberedsubsubsec Microsoft Windows Performance
+
+In order to update the status buffer, @code{git} has to be run a few dozen
+times.  That is problematic on Microsoft Windows, because that
+operating system is exceptionally slow at starting processes.  Sadly
+this is an issue that can only be fixed by Microsoft itself, and they
+don't appear to be particularly interested in doing so.
+
+Beside the subprocess issue, there also exist other Window-specific
+performance issues, some of which can be worked around.  The
+maintainers of "Git for Windows" try to reduce their effect, and in
+order to benefit from the latest performance tweaks, should always
+use the latest release.  Magit too tries to work around some
+Windows-specific issues.
+
+According to some sources setting the following Git variables can also
+help.
+
+@example
+git config --global core.preloadindex true   # default since v2.1
+git config --global core.fscache true        # default since v2.8
+git config --global gc.auto 256
+@end example
+
+You should also check whether an anti-virus program is slowing things
+down.
+
+@node MacOS Performance
+@unnumberedsubsubsec MacOS Performance
+
+On macOS Emacs currently creates child processes using @code{fork}.  It
+appears that this also copies GUI resources.  The result is that
+forking takes about 30 times as long on Darwin than on Linux.  And
+because Magit starts many @code{git} processes even when doing simple things,
+that makes quite a difference.
+
+On the @code{master} branch Emacs now uses @code{vfork} when possible, like this was
+already done on Linux, and now child creation only takes about twice
+as long on Darwin.  See @footnote{@uref{https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html}} for more information.
+
+Nobody knows when the changes on the @code{master} branch will be released as
+@code{26.1}, but it is still a long way off.  You might want to get your
+hands on this change before then.  The easiest way to get a patched
+Emacs is to install the @code{emacs-plus} formula @footnote{@uref{https://github.com/d12frosted/homebrew-emacs-plus}} using @code{homebrew}.
+The patch has been backported, so you get it not only when using
+@code{--HEAD}, but also when using @code{--devel} or when installing the latest
+release (by not using a version argument).  The patch was added only
+recently, so you will likely have to reinstall Emacs.
+
+Alternatively you have to apply the patch @footnote{@uref{https://github.com/emacs-mirror/emacs/commit/a13eaddce2ddbe3ba0b7f4c81715bc0fcdba99f6}} manually.
 
 @node Plumbing
 @chapter Plumbing

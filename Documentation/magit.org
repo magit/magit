@@ -5562,33 +5562,6 @@ repositories, then you might want to disable certain features on a
 per-repository or per-repository-class basis only.  See
 [[*Per-Repository Configuration]].
 
-**** Microsoft Windows Performance
-
-In order to update the status buffer, ~git~ has to be run a few dozen
-times.  That is only problematic on Microsoft Windows, because that
-operating system is exceptionally slow at starting processes.  Sadly
-this is an issue that can only be fixed by Microsoft itself, and they
-don't appear to be particularly interested in doing so.
-
-Beside the subprocess issue, there also exist other Window-specific
-performance issues, some of which can be worked around.  The
-maintainers of "Git for Windows" try to reduce their effect, and in
-order to benefit from the latest performance tweaks, should always
-use the latest release.  Magit too tries to work around some
-Windows-specific issues.
-
-According to some sources setting the following Git variables can also
-help.
-
-#+BEGIN_SRC shell-script
-  git config --global core.preloadindex true   # default since v2.1
-  git config --global core.fscache true        # default since v2.8
-  git config --global gc.auto 256
-#+END_SRC
-
-You should also check whether an anti-virus program is slowing things
-down.
-
 **** Log Performance
 
 When showing logs, Magit limits the number of commits initially shown
@@ -5688,6 +5661,66 @@ another version control system:
 #+BEGIN_SRC emacs-lisp
   (setq vc-handled-backends (delq 'Git vc-handled-backends))
 #+END_SRC
+
+**** Microsoft Windows Performance
+:PROPERTIES:
+:TEXINFO-NODE: t
+:END:
+
+In order to update the status buffer, ~git~ has to be run a few dozen
+times.  That is problematic on Microsoft Windows, because that
+operating system is exceptionally slow at starting processes.  Sadly
+this is an issue that can only be fixed by Microsoft itself, and they
+don't appear to be particularly interested in doing so.
+
+Beside the subprocess issue, there also exist other Window-specific
+performance issues, some of which can be worked around.  The
+maintainers of "Git for Windows" try to reduce their effect, and in
+order to benefit from the latest performance tweaks, should always
+use the latest release.  Magit too tries to work around some
+Windows-specific issues.
+
+According to some sources setting the following Git variables can also
+help.
+
+#+BEGIN_SRC shell-script
+  git config --global core.preloadindex true   # default since v2.1
+  git config --global core.fscache true        # default since v2.8
+  git config --global gc.auto 256
+#+END_SRC
+
+You should also check whether an anti-virus program is slowing things
+down.
+
+**** MacOS Performance
+:PROPERTIES:
+:TEXINFO-NODE: t
+:END:
+
+On macOS Emacs currently creates child processes using ~fork~.  It
+appears that this also copies GUI resources.  The result is that
+forking takes about 30 times as long on Darwin than on Linux.  And
+because Magit starts many ~git~ processes even when doing simple things,
+that makes quite a difference.
+
+On the ~master~ branch Emacs now uses ~vfork~ when possible, like this was
+already done on Linux, and now child creation only takes about twice
+as long on Darwin.  See [fn:mac1] for more information.
+
+Nobody knows when the changes on the ~master~ branch will be released as
+~26.1~, but it is still a long way off.  You might want to get your
+hands on this change before then.  The easiest way to get a patched
+Emacs is to install the ~emacs-plus~ formula [fn:mac2] using ~homebrew~.
+The patch has been backported, so you get it not only when using
+~--HEAD~, but also when using ~--devel~ or when installing the latest
+release (by not using a version argument).  The patch was added only
+recently, so you will likely have to reinstall Emacs.
+
+Alternatively you have to apply the patch [fn:mac3] manually.
+
+[fn:mac1] https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html
+[fn:mac2] https://github.com/d12frosted/homebrew-emacs-plus
+[fn:mac3] https://github.com/emacs-mirror/emacs/commit/a13eaddce2ddbe3ba0b7f4c81715bc0fcdba99f6
 
 * Plumbing
 
@@ -6716,6 +6749,7 @@ Please also see the [[*FAQ]].
 #  LocalWords:  sym texinfo theming todo topdir un unhighlighted unpulled
 #  LocalWords:  unpushed unstage unstaged unstages unstaging untracked url
 #  LocalWords:  versa whitespace wip workflow worktree wtree
+#  LocalWords:  backported macOS
 
 # Local Variables:
 # eval: (require 'magit-utils nil t)
