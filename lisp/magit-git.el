@@ -1330,7 +1330,9 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-commit-tree (message &optional tree &rest parents)
   (magit-git-string "commit-tree" "--no-gpg-sign" "-m" message
                     (--mapcat (list "-p" it) (delq nil parents))
-                    (or tree (magit-git-string "write-tree"))))
+                    (or tree
+                        (magit-git-string "write-tree")
+                        (error "Cannot write tree"))))
 
 (defun magit-commit-worktree (message &optional arg &rest other-parents)
   (magit-with-temp-index "HEAD" arg
