@@ -6082,45 +6082,43 @@ Reset the head and index to some commit read from the user and
 defaulting to the commit at point.  The working tree is kept as-is.
 With a prefix argument also reset the working tree.
 
-@kindex M-x magit-reset-index
+@kindex X m
+@cindex magit-reset-head
+@item @kbd{X m} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-head})
+
+Reset the @code{HEAD} and index to some commit read from the user and
+defaulting to the commit at point.  The working tree is kept as-is.
+
+@kindex X s
+@cindex magit-reset-soft
+@item @kbd{X s} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-soft})
+
+Reset the @code{HEAD} to some commit read from the user and defaulting
+to the commit at point.  The index and the working tree are kept
+as-is.
+
+@kindex X h
+@cindex magit-reset-hard
+@item @kbd{X h} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-hard})
+
+Reset the @code{HEAD}, index, and working tree to some commit read from the
+user and defaulting to the commit at point.
+
+@kindex X i
 @cindex magit-reset-index
-@item @kbd{M-x magit-reset-index} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-index})
+@item @kbd{X i} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-index})
 
 Reset the index to some commit read from the user and defaulting to
 the commit at point.  Keep the @code{HEAD} and working tree as-is, so if
 the commit refers to the @code{HEAD}, then this effectively unstages all
 changes.
 
-@kindex M-x magit-reset-head
-@cindex magit-reset-head
-@item @kbd{M-x magit-reset-head} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-head})
-
-Reset the @code{HEAD} and index to some commit read from the user and
-defaulting to the commit at point.  The working tree is kept as-is.
-
-@kindex M-x magit-reset-soft
-@cindex magit-reset-soft
-@item @kbd{M-x magit-reset-soft} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-soft})
-
-Reset the @code{HEAD} to some commit read from the user and defaulting
-to the commit at point.  The index and the working tree are kept
-as-is.
-
-@kindex M-x magit-reset-hard
-@cindex magit-reset-hard
-@item @kbd{M-x magit-reset-hard} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-hard})
-
-Reset the @code{HEAD}, index, and working tree to some commit read from the
-user and defaulting to the commit at point.
-
-@kindex M-x magit-file-checkout
+@kindex X f
 @cindex magit-file-checkout
-@item @kbd{M-x magit-file-checkout} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-checkout})
+@item @kbd{X f} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-checkout})
 
 Update file in the working tree and index to the contents from a
-revision.
-
-Both the revision and file are read from the user.
+revision.  Both the revision and file are read from the user.
 @end table
 
 @node Stashing

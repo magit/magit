@@ -4460,35 +4460,33 @@ Also see [[man:git-reset]]
   defaulting to the commit at point.  The working tree is kept as-is.
   With a prefix argument also reset the working tree.
 
-- Key: M-x magit-reset-index, magit-reset-index
+- Key: X m, magit-reset-head
+
+  Reset the ~HEAD~ and index to some commit read from the user and
+  defaulting to the commit at point.  The working tree is kept as-is.
+
+- Key: X s, magit-reset-soft
+
+  Reset the ~HEAD~ to some commit read from the user and defaulting
+  to the commit at point.  The index and the working tree are kept
+  as-is.
+
+- Key: X h, magit-reset-hard
+
+  Reset the ~HEAD~, index, and working tree to some commit read from the
+  user and defaulting to the commit at point.
+
+- Key: X i, magit-reset-index
 
   Reset the index to some commit read from the user and defaulting to
   the commit at point.  Keep the ~HEAD~ and working tree as-is, so if
   the commit refers to the ~HEAD~, then this effectively unstages all
   changes.
 
-- Key: M-x magit-reset-head, magit-reset-head
-
-  Reset the ~HEAD~ and index to some commit read from the user and
-  defaulting to the commit at point.  The working tree is kept as-is.
-
-- Key: M-x magit-reset-soft, magit-reset-soft
-
-  Reset the ~HEAD~ to some commit read from the user and defaulting
-  to the commit at point.  The index and the working tree are kept
-  as-is.
-
-- Key: M-x magit-reset-hard, magit-reset-hard
-
-  Reset the ~HEAD~, index, and working tree to some commit read from the
-  user and defaulting to the commit at point.
-
-- Key: M-x magit-file-checkout, magit-file-checkout
+- Key: X f, magit-file-checkout
 
   Update file in the working tree and index to the contents from a
-  revision.
-
-  Both the revision and file are read from the user.
+  revision.  Both the revision and file are read from the user.
 
 ** Stashing
 
