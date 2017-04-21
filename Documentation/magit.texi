@@ -7807,12 +7807,11 @@ Nobody knows when the changes on the @code{master} branch will be released as
 @code{26.1}, but it is still a long way off.  You might want to get your
 hands on this change before then.  The easiest way to get a patched
 Emacs is to install the @code{emacs-plus} formula @footnote{@uref{https://github.com/d12frosted/homebrew-emacs-plus}} using @code{homebrew}.
-The patch has been backported, so you get it not only when using
+The change has been backported, so you get it not only when using
 @code{--HEAD}, but also when using @code{--devel} or when installing the latest
-release (by not using a version argument).  The patch was added only
-recently, so you will likely have to reinstall Emacs.
+release (by not using a version argument).
 
-Alternatively you have to apply the patch @footnote{@uref{https://github.com/emacs-mirror/emacs/commit/a13eaddce2ddbe3ba0b7f4c81715bc0fcdba99f6}} manually.
+Alternatively you can apply the backport @footnote{@uref{https://gist.githubusercontent.com/aaronjensen/f45894ddf431ecbff78b1bcf533d3e6b/raw/6a5cd7f57341aba673234348d8b0d2e776f86719/Emacs-25-OS-X-use-vfork.patch}} manually.
 
 @node Plumbing
 @chapter Plumbing
