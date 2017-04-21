@@ -48,18 +48,6 @@
 
 ;;; Options
 
-(defcustom magit-git-output-coding-system
-  (and (eq system-type 'windows-nt) 'utf-8)
-  "Coding system for receiving output from Git.
-
-If non-nil, the Git config value `i18n.logOutputEncoding' should
-be set via `magit-git-global-arguments' to value consistent with
-this."
-  :package-version '(magit . "2.9.0")
-  :group 'magit-process
-  :type '(choice (coding-system :tag "Coding system to decode Git output")
-                 (const :tag "Use system default" nil)))
-
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
   "Connection type used for the Git process.
 
