@@ -44,6 +44,8 @@ Changes since v2.10.3
 
 * Added `--mainline' switch to `magit-revert-popup'.  #3018
 
+* Added `magit-file-checkout' to `magit-reset-popup'.  #3052
+
 Fixes since v2.10.3
 -------------------
 

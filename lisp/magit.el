@@ -346,7 +346,8 @@ If no merge is in progress, do nothing."
   :actions '((?m "reset mixed  (HEAD and index)"         magit-reset-head)
              (?s "reset soft   (HEAD only)"              magit-reset-soft)
              (?h "reset hard   (HEAD, index, and files)" magit-reset-hard)
-             (?i "reset index  (index only)"             magit-reset-index))
+             (?i "reset index  (index only)"             magit-reset-index) nil
+             (?f "reset a file"                          magit-file-checkout))
   :max-action-columns 1)
 
 ;;;###autoload
