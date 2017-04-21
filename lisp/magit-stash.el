@@ -299,7 +299,8 @@ When the region is active offer to drop all contained stashes."
         (summary (magit-stash-summary))
         (head "HEAD"))
     (when (and worktree (not index))
-      (setq head (magit-commit-tree "pre-stash index" nil "HEAD")))
+      (setq head (or (magit-commit-tree "pre-stash index" nil "HEAD")
+                     (error "Cannot save the current index state"))))
     (or (setq index (magit-commit-tree (concat "index on " summary) nil head))
         (error "Cannot save the current index state"))
     (and untracked
