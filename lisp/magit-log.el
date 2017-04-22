@@ -338,6 +338,7 @@ the upstream isn't ahead of the current branch) show."
                (?s "Show diffstats"          "--stat")
                (?h "Show header"             "++header")
                (?D "Simplify by decoration"  "--simplify-by-decoration")
+               (?F "Full History"            "--full-history")
                (?f "Follow renames when showing single-file log" "--follow"))
     :options  ((?n "Limit number of commits" "-n")
                (?f "Limit to files"          "-- " magit-read-files)
