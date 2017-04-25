@@ -42,7 +42,7 @@
 (defvar auto-revert-verbose)
 ;; For `magit-stage-untracked'
 (declare-function magit-submodule-add 'magit-submodule)
-(declare-function magit-submodule-read-name 'magit-submodule)
+(declare-function magit-submodule-read-name-for-path 'magit-submodule)
 
 (require 'dired)
 
@@ -284,7 +284,7 @@ ignored) files.
            (or (magit-get "remote" (or (magit-get-remote) "origin") "url")
                (concat (file-name-as-directory ".") repo)))
          repo
-         (magit-submodule-read-name repo))))
+         (magit-submodule-read-name-for-path repo))))
     (magit-wip-commit-after-apply files " after stage")))
 
 ;;;; Unstage
