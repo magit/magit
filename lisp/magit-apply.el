@@ -298,6 +298,7 @@ ignored) files.
       (`(unstaged      ,_) (user-error "Already unstaged"))
       (`(staged    region) (magit-apply-region it "--reverse" "--cached"))
       (`(staged      hunk) (magit-apply-hunk   it "--reverse" "--cached"))
+      (`(committed   hunk) (magit-apply-hunk   it "--reverse" "--cached"))
       (`(staged     hunks) (magit-apply-hunks  it "--reverse" "--cached"))
       (`(staged      file) (magit-unstage-1 (list (magit-section-value it))))
       (`(staged     files) (magit-unstage-1 (magit-region-values)))
