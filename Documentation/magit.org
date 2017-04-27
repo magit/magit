@@ -4573,7 +4573,7 @@ Also see [[man:git-stash]]
   Create a patch from STASH.
 
 - Key: k, magit-stash-clear
-  
+
   Remove all stashes saved in REF's reflog by deleting REF.
 
 - Key: z l, magit-stash-list
@@ -6622,7 +6622,7 @@ help:
   (with-eval-after-load 'pointback
     (lambda ()
       (when (or git-commit-mode git-rebase-mode)
-	(pointback-mode -1))))
+        (pointback-mode -1))))
 #+END_SRC
 
 *** The mode-line information isn't always up-to-date
