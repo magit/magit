@@ -1103,13 +1103,14 @@ If there is no revision buffer in the same frame, then do nothing."
       (setq magit--update-revision-buffer (list commit buffer))
       (run-with-idle-timer
        magit-update-other-window-delay nil
-       (lambda ()
-         (-let [(rev buf) magit--update-revision-buffer]
-           (setq magit--update-revision-buffer nil)
-           (when (buffer-live-p buf)
-             (let ((magit-display-buffer-noselect t))
-               (apply #'magit-show-commit rev (magit-diff-arguments)))))
-         (setq magit--update-revision-buffer nil))))))
+       (let ((args (magit-show-commit--arguments)))
+         (lambda ()
+           (-let [(rev buf) magit--update-revision-buffer]
+             (setq magit--update-revision-buffer nil)
+             (when (buffer-live-p buf)
+               (let ((magit-display-buffer-noselect t))
+                 (apply #'magit-show-commit rev args))))
+           (setq magit--update-revision-buffer nil)))))))
 
 (defvar magit--update-blob-buffer nil)
 

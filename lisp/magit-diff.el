@@ -894,6 +894,12 @@ be committed."
 
 (defvar-local magit-buffer-revision-hash nil)
 
+(defun magit-show-commit--arguments ()
+  (-let [(args diff-files) (magit-diff-arguments)]
+    (list args (if (derived-mode-p 'magit-log-mode)
+                   (nth 2 magit-refresh-args)
+                 diff-files))))
+
 ;;;###autoload
 (defun magit-show-commit (rev &optional args files module)
   "Visit the revision at point in another buffer.
@@ -908,7 +914,7 @@ for a revision."
                        (magit-tag-at-point))))
      (nconc (cons (or (and (not current-prefix-arg) atpoint)
                       (magit-read-branch-or-commit "Show commit" atpoint))
-                  (magit-diff-arguments))
+                  (magit-show-commit--arguments))
             (and mcommit (list (magit-section-parent-value
                                 (magit-current-section)))))))
   (require 'magit)
@@ -1353,7 +1359,7 @@ commit or stash at point, then prompt for a commit."
                               (`scroll-down (point-max)))))))
           (let ((magit-display-buffer-noselect t))
             (if (eq cmd 'magit-show-commit)
-                (apply #'magit-show-commit rev (magit-diff-arguments))
+                (apply #'magit-show-commit rev (magit-show-commit--arguments))
               (funcall cmd rev))))
       (call-interactively #'magit-show-commit))))
 

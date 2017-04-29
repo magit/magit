@@ -46,6 +46,9 @@ Changes since v2.10.3
 
 * Added `magit-file-checkout' to `magit-reset-popup'.  #3052
 
+* When a revision is shown from a log buffer, the revision buffer now
+  inherits the file restriction of the log buffer.  #3056
+
 Fixes since v2.10.3
 -------------------
 
