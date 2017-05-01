@@ -999,11 +999,26 @@ which is different from the current branch and still exists."
         remote))))
 
 (defun magit-branch-merged-p (branch &optional target)
-  "Return t if BRANCH is either merged into its upstream or TARGET.
-If optional TARGET is nil, then check whether it is merged into
-`HEAD' instead."
+  "Return non-nil if BRANCH is either merged into its upstream or TARGET.
+
+If optional TARGET is nil, then check whether BRANCH is merged
+into the current branch instead.  If TARGET is t, then check
+whether BRANCH is merged into any other local branch.  In both
+cases the upstream check is also performed.
+
+If BRANCH isn't merged into its upstream, TARGET is nil, and
+`HEAD' is detached, then return nil, even when BRANCH is merged
+into `HEAD' or some local branch.
+
+BRANCH can also be a revision or non-branch reference, though in
+that case the upstream check obviously is meaningless and always
+fails."
   (or (magit-branch-merged-into-upstream-p branch)
-      (magit-git-success "merge-base" "--is-ancestor" branch (or target "HEAD"))))
+      (if (eq target t)
+          (delete (magit-name-local-branch branch)
+                  (magit-list-containing-branches branch))
+        (--when-let (or target (magit-get-current-branch))
+          (magit-git-success "merge-base" "--is-ancestor" branch it)))))
 
 (defun magit-branch-merged-into-upstream-p (branch)
   "Return t if BRANCH is merged into its upstream."
