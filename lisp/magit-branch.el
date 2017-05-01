@@ -392,7 +392,7 @@ defaulting to the branch at point."
              (if (magit-confirm 'delete-unmerged-branch
                    "Delete unmerged branch %s"
                    "Delete %i unmerged branches" it)
-                 (setq force t)
+                 (setq force branches)
                (or (setq branches (-difference branches it))
                    (user-error "Abort")))))
        (user-error "Abort"))
@@ -438,7 +438,14 @@ defaulting to the branch at point."
                      (?c "[c]heckout master & delete" 'master)
                      (?a "[a]bort"                    'abort)))
             (`detach (magit-call-git "checkout" "--detach"))
-            (`master (magit-call-git "checkout" "master"))
+            (`master (unless (or (equal force '(4))
+                                 (member branch force)
+                                 (magit-branch-merged-p branch "master")
+                                 (magit-confirm 'delete-unmerged-branch
+                                   "Delete unmerged branch %s" ""
+                                   (list branch)))
+                       (user-error "Abort"))
+                     (magit-call-git "checkout" "master"))
             (`abort  (user-error "Abort")))
           (setq force t))
         (magit-run-git "branch" (if force "-D" "-d") branch))))))
