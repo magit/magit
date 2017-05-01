@@ -855,6 +855,26 @@ string \"true\", otherwise return nil."
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))
 
+(defun magit-ref-equal (a b)
+  "Return t if the refs A and B are `equal'.
+A symbolic-ref pointing to some ref, is `equal' to that ref,
+as are two symbolic-refs pointing to the same ref."
+  (equal (magit-ref-fullname a)
+         (magit-ref-fullname b)))
+
+(defun magit-ref-eq (a b)
+  "Return t if the refs A and B are `eq'.
+A symbolic-ref is `eq' to itself, but not to the ref it points
+to, or to some other symbolic-ref that points to the same ref."
+  (let ((symbolic-a (magit-symbolic-ref-p a))
+        (symbolic-b (magit-symbolic-ref-p b)))
+    (or (and symbolic-a
+             symbolic-b
+             (equal a b))
+        (and (not symbolic-a)
+             (not symbolic-b)
+             (magit-ref-equal a b)))))
+
 (defun magit-headish ()
   "Return \"HEAD\" or if that doesn't exist the hash of the empty tree."
   (if (magit-no-commit-p)
