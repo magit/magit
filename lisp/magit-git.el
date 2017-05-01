@@ -998,6 +998,18 @@ which is different from the current branch and still exists."
       (unless (equal remote ".")
         remote))))
 
+(defun magit-branch-merged-p (branch &optional target)
+  "Return t if BRANCH is either merged into its upstream or TARGET.
+If optional TARGET is nil, then check whether it is merged into
+`HEAD' instead."
+  (or (magit-branch-merged-into-upstream-p branch)
+      (magit-git-success "merge-base" "--is-ancestor" branch (or target "HEAD"))))
+
+(defun magit-branch-merged-into-upstream-p (branch)
+  "Return t if BRANCH is merged into its upstream."
+  (--when-let (magit-get-upstream-branch branch)
+    (magit-git-success "merge-base" "--is-ancestor" branch it)))
+
 (defun magit-split-branch-name (branch)
   (cond ((member branch (magit-list-local-branch-names))
          (cons "." branch))

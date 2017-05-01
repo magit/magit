@@ -388,10 +388,7 @@ defaulting to the branch at point."
                                             "Delete branch")
                                           (magit-get-previous-branch)))))
          (unless force
-           (--when-let (-intersection
-                        (-union (magit-list-unmerged-branches)
-                                (magit-list-unmerged-to-upstream-branches))
-                        branches)
+           (--when-let (-remove #'magit-branch-merged-p branches)
              (if (magit-confirm 'delete-unmerged-branch
                    "Delete unmerged branch %s"
                    "Delete %i unmerged branches" it)
