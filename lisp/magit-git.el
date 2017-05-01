@@ -1212,6 +1212,9 @@ PATH has to be relative to the super-repository."
             ((string-equal line "detached"))))
     (nreverse worktrees)))
 
+(defun magit-symbolic-ref-p (name)
+  (magit-git-success "symbolic-ref" "--quiet" name))
+
 (defun magit-ref-p (rev)
   (or (car (member rev (magit-list-refs)))
       (car (member rev (magit-list-refnames)))))
