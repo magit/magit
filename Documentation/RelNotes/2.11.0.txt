@@ -61,5 +61,8 @@ Fixes since v2.10.3
 * Parsing the log buffer failed if the log displayed a ref that
   contained parentheses in its name.  #3028
 
+* Parsing the `git show' and `git log' output for a signed commit
+  failed with the Git variable `log.showSignature' enabled.  #3061
+
 This release also contains other minor improvements, bug fixes, typo
 fixes, and documentation fixes.

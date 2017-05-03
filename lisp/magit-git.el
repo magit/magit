@@ -108,6 +108,7 @@ this."
 
 (defcustom magit-git-global-arguments
   `("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true"
+    "-c" "log.showSignature=false"
     ,@(and (eq system-type 'windows-nt)
            (list "-c" "i18n.logOutputEncoding=UTF-8")))
   "Global Git arguments.
