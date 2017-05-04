@@ -486,6 +486,7 @@ stash that were staged."
     (ediff-kill-buffer-carefully ediff-error-buffer)
     (ediff-kill-buffer-carefully ediff-msg-buffer)
     (ediff-kill-buffer-carefully ediff-debug-buffer)
+    (ediff-kill-buffer-carefully ediff-registry-buffer)
     (when (boundp 'ediff-patch-diagnostics)
       (ediff-kill-buffer-carefully ediff-patch-diagnostics))
     (cond ((and (ediff-window-display-p)
