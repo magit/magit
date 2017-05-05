@@ -166,7 +166,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   "Show the status of the current Git repository in a buffer.
 With a prefix argument prompt for a repository to be shown.
 With two prefix arguments prompt for an arbitrary directory.
-If that directory isn't the root of an existing repository
+If that directory isn't the root of an existing repository,
 then offer to initialize it as a new repository."
   (interactive
    (list (and (or current-prefix-arg (not (magit-toplevel)))
