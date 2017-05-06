@@ -33,8 +33,8 @@ Changes since v2.10.3
 * Added option `magit-shell-command-verbose-prompt'.  #2951
 
 * The function `magit-branch-or-commit-at-point' now offers the
-  appropriate default choice in a `magit-merge-preview-mode' buffer.
-  #3039
+  appropriate default choice in a `magit-merge-preview-mode' buffer
+  and in blob-visiting buffers.  #3039, #3066
 
 * On Travis tests are now run against all supported Emacs releases, as
   well as against snapshots of the `master' and `emacs-25' branches.

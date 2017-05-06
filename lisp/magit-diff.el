@@ -904,7 +904,6 @@ for a revision."
           (atpoint (or (and (bound-and-true-p magit-blame-mode)
                             (magit-blame-chunk-get :hash))
                        mcommit
-                       magit-buffer-refname
                        (magit-branch-or-commit-at-point)
                        (magit-tag-at-point))))
      (nconc (cons (or (and (not current-prefix-arg) atpoint)

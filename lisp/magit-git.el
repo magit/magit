@@ -886,7 +886,8 @@ string \"true\", otherwise return nil."
            (car magit-refresh-args))))
 
 (defun magit-branch-or-commit-at-point ()
-  (or (magit-section-case
+  (or magit-buffer-refname
+      (magit-section-case
         (branch (magit-section-value it))
         (commit (let ((rev (magit-section-value it)))
                   (or (magit-get-shortname rev) rev)))
