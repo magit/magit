@@ -128,7 +128,7 @@ in another buffer.
 However \"RET\" used to behave differently in `magit-refs-mode'
 buffers, doing surprising things, some of which cannot really be
 described as \"visit this thing\".  If you have grown accustomed
-to such inconsistent, but to you useful, behavior then you can
+to such inconsistent, but to you useful, behavior, then you can
 restore that by adding one or more of the below symbols to the
 value of this option.  But keep in mind that by doing so you
 don't only introduce inconsistencies, you also lose some

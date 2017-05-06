@@ -24,7 +24,7 @@
 ;;; Commentary:
 
 ;; This library implements "sections" as used in all Magit buffers.
-;; If you have used Magit before then you probably know what that
+;; If you have used Magit before, then you probably know what that
 ;; means, otherwise think "read-only Org-Mode for Git", kinda.
 
 ;;; Code:
@@ -98,7 +98,7 @@ diff-related sections being the only exception."
     magit-section-set-visibility-from-cache)
   "Hook used to set the initial visibility of a section.
 Stop at the first function that returns non-nil.  The value
-should be `show' or `hide'.  If no function returns non-nil
+should be `show' or `hide'.  If no function returns non-nil,
 determine the visibility as usual, i.e. use the hardcoded
 section specific default (see `magit-insert-section')."
   :package-version '(magit . "2.4.0")
@@ -466,7 +466,7 @@ SECTION's body (and heading) obviously cannot be visible."
 
 (defun magit-section-show-level (level)
   "Show surrounding sections up to LEVEL.
-If LEVEL is negative show up to the absolute value.
+If LEVEL is negative, show up to the absolute value.
 Sections at higher levels are hidden."
   (if (< level 0)
       (let ((s (magit-current-section)))
@@ -588,13 +588,13 @@ precise."
              (magit-section-match-2 (cdr l1) (cdr l2))))))
 
 (defmacro magit-section-when (condition &rest body)
-  "If the section at point matches CONDITION evaluate BODY.
+  "If the section at point matches CONDITION, evaluate BODY.
 
 If the section matches, then evaluate BODY forms sequentially
 with `it' bound to the section and return the value of the last
 form.  If there are no BODY forms, then return the value of the
 section.  If the section does not match or if there is no section
-at point then return nil.
+at point, then return nil.
 
 See `magit-section-match' for the forms CONDITION can take."
   (declare (indent 1)
@@ -616,7 +616,7 @@ section is compared against each CONDITION; the BODY forms of the
 first match are evaluated sequentially and the value of the last
 form is returned.  Inside BODY the symbol `it' is bound to the
 section at point.  If no clause succeeds or if there is no
-section at point return nil.
+section at point, return nil.
 
 See `magit-section-match' for the forms CONDITION can take.
 Additionally a CONDITION of t is allowed in the final clause, and
@@ -770,7 +770,7 @@ The `content' property of the section struct is the end of the
 heading (which lasts from `start' to `content') and the beginning
 of the the body (which lasts from `content' to `end').  If the
 value of `content' is nil, then the section has no heading and
-its body cannot be collapsed.  If a section does have a heading
+its body cannot be collapsed.  If a section does have a heading,
 then its height must be exactly one line, including a trailing
 newline character.  This isn't enforced, you are responsible for
 getting it right.  The only exception is that this function does
@@ -885,7 +885,7 @@ highlighted using `magit-diff-highlight'.  Return t."
 
 (defun magit-section-highlight-selection (_ selection)
   "Highlight the section-selection region.
-If SELECTION is non-nil then it is a list of sections selected by
+If SELECTION is non-nil, then it is a list of sections selected by
 the region.  The headings of these sections are then highlighted.
 
 This is a fallback for people who don't want to highlight the
@@ -1032,9 +1032,9 @@ either `hide' or nil."
 (defun magit-section-siblings (section &optional direction)
   "Return a list of the sibling sections of SECTION.
 
-If optional DIRECTION is `prev' then return siblings that come
-before SECTION, if it is `next' then return siblings that come
-after SECTION.  For all other values return all siblings
+If optional DIRECTION is `prev', then return siblings that come
+before SECTION.  If it is `next', then return siblings that come
+after SECTION.  For all other values, return all siblings
 excluding SECTION itself."
   (-when-let (parent (magit-section-parent section))
     (let ((siblings  (magit-section-children parent)))
@@ -1072,7 +1072,7 @@ apply to diffs where things get a bit more complicated, but even
 here if the region looks like it usually does, then that's not
 a valid selection as far as this function is concerned.
 
-If optional TYPES is non-nil then the selection not only has to
+If optional TYPES is non-nil, then the selection not only has to
 be valid; the types of all selected sections additionally have to
 match one of TYPES, or nil is returned."
   (when (use-region-p)
@@ -1123,7 +1123,7 @@ FUNCTION has to move point forward or return nil."
 
 Add FUNCTION at the beginning of the hook list unless optional
 APPEND is non-nil, in which case FUNCTION is added at the end.
-If FUNCTION already is a member then move it to the new location.
+If FUNCTION already is a member, then move it to the new location.
 
 If optional AT is non-nil and a member of the hook list, then
 add FUNCTION next to that instead.  Add before or after AT, or

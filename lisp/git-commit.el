@@ -191,7 +191,7 @@ called.  If any of them returns nil, then the commit is not
 performed and the buffer is not killed.  The user should then
 fix the issue and try again.
 
-The functions are called with one argument.  If it is non-nil
+The functions are called with one argument.  If it is non-nil,
 then that indicates that the user used a prefix argument to
 force finishing the session despite issues.  Functions should
 usually honor this wish and return non-nil."

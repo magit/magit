@@ -191,8 +191,8 @@ and change branch related variables."
 ;;;###autoload
 (defun magit-checkout (revision)
   "Checkout REVISION, updating the index and the working tree.
-If REVISION is a local branch then that becomes the current
-branch.  If it is something else then `HEAD' becomes detached.
+If REVISION is a local branch, then that becomes the current
+branch.  If it is something else, then `HEAD' becomes detached.
 Checkout fails if the working tree or the staging area contain
 changes.
 \n(git checkout REVISION)."

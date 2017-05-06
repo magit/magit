@@ -198,7 +198,7 @@ Global settings:
   When `magit-wip-before-change-mode' is enabled then these actions
   can fairly easily be undone: `discard', `reverse',
   `stage-all-changes', and `unstage-all-changes'.  If and only if
-  this mode is enabled then `safe-with-wip' has the same effect
+  this mode is enabled, then `safe-with-wip' has the same effect
   as adding all of these symbols individually."
   :package-version '(magit . "2.1.0")
   :group 'magit-essentials
@@ -551,7 +551,7 @@ See info node `(magit)Debugging Tools' for more information."
   "Bind variables to submatches according to VARLIST then evaluate BODY.
 Bind the symbols in VARLIST to submatches of the current match
 data, starting with 1 and incrementing by 1 for each symbol.  If
-the last match was against a string then that has to be provided
+the last match was against a string, then that has to be provided
 as STRING."
   (declare (indent 2) (debug (listp form body)))
   (let ((s (cl-gensym "string"))
@@ -567,7 +567,7 @@ as STRING."
 
 (defun magit-delete-match (&optional num)
   "Delete text matched by last search.
-If optional NUM is specified only delete that subexpression."
+If optional NUM is specified, only delete that subexpression."
   (delete-region (match-beginning (or num 0))
                  (match-end (or num 0))))
 

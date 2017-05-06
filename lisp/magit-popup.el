@@ -200,7 +200,7 @@ The prefix used to toggle any switch can be changed by binding
 another key to `magit-invoke-popup-switch'.  Likewise binding
 another key to `magit-invoke-popup-option' changes the prefixed
 used to set any option.  The two prefixes have to be different.
-If you change these bindings you should also change the `prefix'
+If you change these bindings, you should also change the `prefix'
 property of the button types `magit-popup-switch-button' and
 `magit-popup-option-button'.
 
@@ -313,7 +313,7 @@ Don't confuse this with `magit-current-popup-args'.")
 Use this inside the `interactive' form of a popup aware command
 to determine whether it was invoked from a popup and if so from
 which popup.  If the current command was invoked without the use
-of a popup then this is nil.")
+of a popup, then this is nil.")
 
 (defvar magit-current-popup-action nil
   "The popup action now being executed.")
@@ -441,7 +441,7 @@ when the command is invoked directly, then it returns the default
 value of the variable `SHORTNAME-arguments'.
 
 Optional argument GROUP specifies the Custom group into which the
-option is placed.  If omitted then the option is placed into some
+option is placed.  If omitted, then the option is placed into some
 group the same way it is done when directly using `defcustom' and
 omitting the group, except when NAME begins with \"magit-\", in
 which case the group `magit-git-arguments' is used.
@@ -591,11 +591,11 @@ changed in `magit-popup-mode-keymap').
 DESC is a string describing the purpose of the argument, it is
 displayed in the popup.
 
-If optional ENABLE is non-nil then the switch is on by default.
+If optional ENABLE is non-nil, then the switch is on by default.
 
 SWITCH is inserted after all other switches already defined for
 POPUP, unless optional PREPEND is non-nil, in which case it is
-placed first.  If optional AT is non-nil then it should be the
+placed first.  If optional AT is non-nil, then it should be the
 KEY of another switch already defined for POPUP, the argument
 is then placed before or after AT, depending on PREPEND."
   (declare (indent defun))
@@ -621,7 +621,7 @@ and VALUE is its default value.
 
 OPTION is inserted after all other options already defined for
 POPUP, unless optional PREPEND is non-nil, in which case it is
-placed first.  If optional AT is non-nil then it should be the
+placed first.  If optional AT is non-nil, then it should be the
 KEY of another option already defined for POPUP, the argument
 is then placed before or after AT, depending on PREPEND."
   (declare (indent defun))
@@ -645,7 +645,7 @@ actually used for anything.
 
 COMMAND is inserted after all other commands already defined for
 POPUP, unless optional PREPEND is non-nil, in which case it is
-placed first.  If optional AT is non-nil then it should be the
+placed first.  If optional AT is non-nil, then it should be the
 KEY of another command already defined for POPUP, the command
 is then placed before or after AT, depending on PREPEND."
   (declare (indent defun))
@@ -667,7 +667,7 @@ displayed in the popup.
 
 COMMAND is inserted after all other commands already defined for
 POPUP, unless optional PREPEND is non-nil, in which case it is
-placed first.  If optional AT is non-nil then it should be the
+placed first.  If optional AT is non-nil, then it should be the
 KEY of another command already defined for POPUP, the command
 is then placed before or after AT, depending on PREPEND."
   (declare (indent defun))

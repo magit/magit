@@ -668,7 +668,7 @@ the index number.  That number is incremented by one, and becomes
 the index number of the entry to be inserted.  If you don't want
 to number the inserted revisions, then use nil for INDEX-REGEXP.
 
-If INDEX-REGEXP is non-nil then both POINT-FORMAT and EOB-FORMAT
+If INDEX-REGEXP is non-nil, then both POINT-FORMAT and EOB-FORMAT
 should contain \"%N\", which is replaced with the number that was
 determined in the previous step.
 
@@ -700,7 +700,7 @@ the current buffer according to `magit-pop-revision-stack-format'.
 Revisions can be put on the stack using `magit-copy-section-value'
 and `magit-copy-buffer-revision'.
 
-If the stack is empty or with a prefix argument instead read a
+If the stack is empty or with a prefix argument, instead read a
 revision in the minibuffer.  By using the minibuffer history this
 allows selecting an item which was popped earlier or to insert an
 arbitrary reference or revision without first pushing it onto the
@@ -881,7 +881,7 @@ Use the function by the same name instead of this variable.")
 ;;;###autoload
 (defun magit-version (&optional print-dest)
   "Return the version of Magit currently in use.
-If optional argument PRINT-DEST is non-nil output
+If optional argument PRINT-DEST is non-nil, output
 stream (interactively, the echo area, or the current buffer with
 a prefix argument), also print the used versions of Magit, Git,
 and Emacs to it."

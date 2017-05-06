@@ -230,10 +230,10 @@ improve performance."
 (defcustom magit-save-repository-buffers t
   "Whether to save file-visiting buffers when appropriate.
 
-If non-nil then all modified file-visiting buffers belonging
+If non-nil, then all modified file-visiting buffers belonging
 to the current repository may be saved before running Magit
 commands and before creating or refreshing Magit buffers.
-If `dontask' then this is done without user intervention, for
+If `dontask', then this is done without user intervention, for
 any other non-nil value the user has to confirm each save.
 
 The default is t to avoid surprises, but `dontask' is the

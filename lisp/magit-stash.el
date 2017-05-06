@@ -344,8 +344,8 @@ When the region is active offer to drop all contained stashes."
 (cl-defun magit-insert-stashes (&optional (ref   "refs/stash")
                                           (heading "Stashes:"))
   "Insert `stashes' section showing reflog for \"refs/stash\".
-If optional REF is non-nil show reflog for that instead.
-If optional HEADING is non-nil use that as section heading
+If optional REF is non-nil, show reflog for that instead.
+If optional HEADING is non-nil, use that as section heading
 instead of \"Stashes:\"."
   (when (magit-rev-verify ref)
     (magit-insert-section (stashes ref (not magit-status-expand-stashes))

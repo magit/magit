@@ -168,7 +168,7 @@ has the form (REGEXP FACE FORMATTER).  REGEXP is a regular
 expression used to match full refs.  The first entry whose REGEXP
 matches the reference is used.  The first regexp submatch becomes
 the \"label\" that represents the ref and is propertized with
-font FONT.  If FORMATTER is non-nil it should be a function that
+font FONT.  If FORMATTER is non-nil, it should be a function that
 takes two arguments, the full ref and the face.  It is supposed
 to return a propertized label that represents the ref."
   :package-version '(magit . "2.1.0")
@@ -247,7 +247,7 @@ framework ultimately determines how the collection is displayed."
          ;; `shell-quote-argument'), but Git for Windows expects shell
          ;; quoting in the dos style.
          (shell-file-name (if (and (eq system-type 'windows-nt)
-                                   ;; If we have Cygwin mount points
+                                   ;; If we have Cygwin mount points,
                                    ;; the git flavor is cygwin, so dos
                                    ;; shell quoting is probably wrong.
                                    (not magit-cygwin-mount-points))
@@ -282,8 +282,8 @@ to do the following.
 
 (defun magit-git-str (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
-If there is no output return nil.  If the output begins with a
-newline return an empty string.  Like `magit-git-string' but
+If there is no output, return nil.  If the output begins with a
+newline, return an empty string.  Like `magit-git-string' but
 ignore `magit-git-debug'."
   (setq args (-flatten args))
   (magit--with-refresh-cache (cons default-directory args)
@@ -344,8 +344,8 @@ add a section in the respective process buffer."
 
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
-If there is no output return nil.  If the output begins with a
-newline return an empty string."
+If there is no output, return nil.  If the output begins with a
+newline, return an empty string."
   (setq args (-flatten args))
   (magit--with-refresh-cache (cons default-directory args)
     (with-temp-buffer
@@ -377,7 +377,7 @@ message and add a section in the respective process buffer."
 (defun magit-git-wash (washer &rest args)
   "Execute Git with ARGS, inserting washed output at point.
 Actually first insert the raw output at point.  If there is no
-output call `magit-cancel-section'.  Otherwise temporarily narrow
+output, call `magit-cancel-section'.  Otherwise temporarily narrow
 the buffer to the inserted text, move to its beginning, and then
 call function WASHER with ARGS as its sole argument."
   (declare (indent 1))
@@ -573,9 +573,9 @@ a bare repository."
 (defun magit-file-relative-name (&optional file tracked)
   "Return the path of FILE relative to the repository root.
 
-If optional FILE is nil or omitted return the relative path of
+If optional FILE is nil or omitted, return the relative path of
 the file being visited in the current buffer, if any, else nil.
-If the file is not inside a Git repository then return nil.
+If the file is not inside a Git repository, then return nil.
 
 If TRACKED is non-nil, return the path only if it matches a
 tracked file."
@@ -766,12 +766,12 @@ are considered."
 
 (defun magit-rev-parse (&rest args)
   "Execute `git rev-parse ARGS', returning first line of output.
-If there is no output return nil."
+If there is no output, return nil."
   (apply #'magit-git-string "rev-parse" args))
 
 (defun magit-rev-parse-safe (&rest args)
   "Execute `git rev-parse ARGS', returning first line of output.
-If there is no output return nil.  Like `magit-rev-parse' but
+If there is no output, return nil.  Like `magit-rev-parse' but
 ignore `magit-git-debug'."
   (apply #'magit-git-str "rev-parse" args))
 
@@ -1009,7 +1009,7 @@ which is different from the current branch and still exists."
 (defun magit-get-current-tag (&optional rev with-distance)
   "Return the closest tag reachable from REV.
 
-If optional REV is nil then default to `HEAD'.
+If optional REV is nil, then default to `HEAD'.
 If optional WITH-DISTANCE is non-nil then return (TAG COMMITS),
 if it is `dirty' return (TAG COMMIT DIRTY). COMMITS is the number
 of commits in `HEAD' but not in TAG and DIRTY is t if there are
@@ -1028,10 +1028,10 @@ uncommitted changes, nil otherwise."
 (defun magit-get-next-tag (&optional rev with-distance)
   "Return the closest tag from which REV is reachable.
 
-If optional REV is nil then default to `HEAD'.
+If optional REV is nil, then default to `HEAD'.
 If no such tag can be found or if the distance is 0 (in which
-case it is the current tag, not the next) return nil instead.
-If optional WITH-DISTANCE is non-nil then return (TAG COMMITS)
+case it is the current tag, not the next), return nil instead.
+If optional WITH-DISTANCE is non-nil, then return (TAG COMMITS)
 where COMMITS is the number of commits in TAG but not in REV."
   (--when-let (magit-git-str "describe" "--contains" (or rev "HEAD"))
     (save-match-data

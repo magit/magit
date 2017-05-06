@@ -124,7 +124,7 @@ like pretty much every other keymap:
 (defun magit-dired-jump (&optional other-window)
   "Visit file at point using Dired.
 With a prefix argument, visit in another window.  If there
-is no file at point then instead visit `default-directory'."
+is no file at point, then instead visit `default-directory'."
   (interactive "P")
   (dired-jump other-window (-if-let (file (magit-file-at-point))
                                (progn (setq file (expand-file-name file))

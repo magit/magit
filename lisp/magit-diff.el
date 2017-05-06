@@ -2052,7 +2052,7 @@ starts and ends inside the body of a that section, then the type
 is `region'.  If the region is empty after a mouse click, then
 `hunk' is returned instead of `region'.
 
-If optional STRICT is non-nil then return nil if the diff type of
+If optional STRICT is non-nil, then return nil if the diff type of
 the section at point is `untracked' or the section at point is not
 actually a `diff' but a `diffstat' section."
   (let ((siblings (and (not ssection) (magit-region-sections))))
@@ -2101,7 +2101,7 @@ actually a `diff' but a `diffstat' section."
 (defun magit-diff-highlight (section selection)
   "Highlight the diff-related SECTION.
 If SECTION is not a diff-related section, then do nothing and
-return nil.  If SELECTION is non-nil then it is a list of sections
+return nil.  If SELECTION is non-nil, then it is a list of sections
 selected by the region, including SECTION.  All of these sections
 are highlighted."
   (if (and (magit-section-match 'commit section)
