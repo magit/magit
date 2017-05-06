@@ -236,6 +236,9 @@ already using it, then you probably shouldn't start doing so."
   :type '(choice (const :tag "use regular fill-column")
                  number))
 
+(make-obsolete-variable 'git-commit-fill-column 'fill-column
+                        "Magit 2.11.0" 'set)
+
 (defcustom git-commit-known-pseudo-headers
   '("Signed-off-by" "Acked-by" "Cc"
     "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by")
