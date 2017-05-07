@@ -476,6 +476,7 @@ to `git-commit-fill-column'."
   (when (and (numberp git-commit-fill-column)
              (not (local-variable-p 'fill-column)))
     (setq fill-column git-commit-fill-column))
+  (setq-local comment-auto-fill-only-comments nil)
   (turn-on-auto-fill))
 
 (defun git-commit-turn-on-flyspell ()
