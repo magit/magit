@@ -333,6 +333,7 @@ the upstream isn't ahead of the current branch) show."
     :switches ((?g "Show graph"              "--graph")
                (?c "Show graph in color"     "--color")
                (?d "Show refnames"           "--decorate")
+               (?1 "First parent"            "--first-parent")
                (?S "Show signatures"         "--show-signature")
                (?u "Show diffs"              "--patch")
                (?s "Show diffstats"          "--stat")
