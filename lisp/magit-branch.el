@@ -383,7 +383,7 @@ defaulting to the branch at point."
      (if (if (> (length branches) 1)
              (magit-confirm t nil "Delete %i branches" branches)
            (setq branches
-                 (list (magit-read-branch (if current-prefix-arg
+                 (list (magit-read-branch (if force
                                               "Force delete branch"
                                             "Delete branch")
                                           (magit-get-previous-branch)))))
