@@ -1756,8 +1756,8 @@ Staging and applying changes is documented in info node
                             " " rev
                             (pcase (length files)
                               (0)
-                              (1 (concat " in file " (car files)))
-                              (_ (concat " in files "
+                              (1 (concat " limited to file " (car files)))
+                              (_ (concat " limited to files "
                                          (mapconcat #'identity files ", ")))))
                     'face 'magit-header-line))
   (setq magit-buffer-revision-hash (magit-rev-parse rev))
