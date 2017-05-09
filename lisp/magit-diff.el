@@ -1938,6 +1938,24 @@ or a ref which is not a branch, then it inserts nothing."
                (if magit-revision-use-gravatar-kludge slice2 slice1)
                (if magit-revision-use-gravatar-kludge slice1 slice2)))))))
 
+(defvar-local magit-revision-files nil)
+
+(defun magit-revision-toggle-file-filter ()
+  "Toggle the file restriction of the current revision buffer."
+  (interactive)
+  (with-current-buffer (or (and (derived-mode-p 'magit-revision-mode)
+                                (current-buffer))
+                           (magit-mode-get-buffer 'magit-revision-mode)
+                           (user-error "No revision buffer found"))
+    (let ((files (nth 3 magit-refresh-args)))
+      (unless (or magit-revision-files files)
+        (user-error "No file filter to toggle"))
+      (setf (nth 3 magit-refresh-args) (if (not files)
+                                           magit-revision-files
+                                         (setq magit-revision-files files)
+                                         nil))
+      (magit-refresh))))
+
 ;;; Diff Sections
 
 (defvar magit-unstaged-section-map
