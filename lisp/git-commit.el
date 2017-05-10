@@ -369,6 +369,7 @@ already using it, then you probably shouldn't start doing so."
 
 ;;; Hooks
 
+;;;###autoload
 (defconst git-commit-filename-regexp "/\\(\
 \\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\
 \\|BRANCH_DESCRIPTION\\)\\'")
@@ -390,6 +391,7 @@ already using it, then you probably shouldn't start doing so."
        (string-match-p git-commit-filename-regexp buffer-file-name)
        (git-commit-setup)))
 
+;;;###autoload
 (defun git-commit-setup ()
   ;; cygwin git will pass a cygwin path (/cygdrive/c/foo/.git/...),
   ;; try to handle this in window-nt Emacs.
