@@ -2473,6 +2473,15 @@ without having to using one of the diff popups.
   the committer image, accordingly.  Either the car or the cdr may
   be nil.
 
+- Key: M-x magit-revision-toggle-file-filter, magit-revision-toggle-file-filter
+
+  This command toggles the file restriction of the current revision
+  buffer.  It is particularly useful when you display a revision from
+  a log buffer that is restricted to a file or files.  In this case,
+  the revision buffer is also restricted to these files, and this
+  command allows you to quickly switch between viewing all the changes
+  in the commit and the restricted subset.
+
 ** Ediffing
 
 This section describes how to enter Ediff from Magit buffers.  For

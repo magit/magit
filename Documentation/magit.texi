@@ -3379,6 +3379,19 @@ the committer image, accordingly.  Either the car or the cdr may
 be nil.
 @end defopt
 
+@table @asis
+@kindex M-x magit-revision-toggle-file-filter
+@cindex magit-revision-toggle-file-filter
+@item @kbd{M-x magit-revision-toggle-file-filter} @tie{}@tie{}@tie{}@tie{}(@code{magit-revision-toggle-file-filter})
+
+This command toggles the file restriction of the current revision
+buffer.  It is particularly useful when you display a revision from
+a log buffer that is restricted to a file or files.  In this case,
+the revision buffer is also restricted to these files, and this
+command allows you to quickly switch between viewing all the changes
+in the commit and the restricted subset.
+@end table
+
 @node Ediffing
 @section Ediffing
 
