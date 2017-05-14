@@ -7,6 +7,7 @@ env:
   - EMACS_VERSION=24.4
   - EMACS_VERSION=24.5
   - EMACS_VERSION=25.1
+  - EMACS_VERSION=25.2
   - EMACS_VERSION=25 # emacs-25 branch, built daily
   - EMACS_VERSION=master # master branch, built daily
   allow_failures:
