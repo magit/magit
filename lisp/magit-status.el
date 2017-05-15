@@ -29,6 +29,8 @@
 
 (require 'magit)
 
+(require 'subr-x)
+
 ;;; Options
 
 (defgroup magit-status nil
@@ -274,6 +276,7 @@ Type \\[magit-commit-popup] to create a commit.
 \\{magit-status-mode-map}"
   :group 'magit-status
   (hack-dir-local-variables-non-file-buffer)
+  (setq imenu-create-index-function #'magit-status-imenu-create-index-function)
   ;; Avoid listing all files as deleted when visiting a bare repo.
   (when (magit-bare-repo-p)
     (make-local-variable 'magit-status-sections-hook)
@@ -526,6 +529,38 @@ using \"TAB\"."
           (magit-insert-heading)
           (setq files (magit-insert-un/tracked-files-1 files dir))))))
   files)
+
+;;;; Imenu Support
+
+(defun magit-status-imenu-create-index-function ()
+  "Return an alist of all imenu entries in current buffer.
+This function is used as a value for
+`imenu-create-index-function'."
+  (let* ((entry-types '(file commit stash))
+         (menu-types '(unpushed unstaged unpulled untracked staged stashes))
+         (entries (make-hash-table :test 'equal)))
+    (goto-char (point-max))
+    (while (magit-section--backward-find
+            (lambda ()
+              (let* ((section (magit-current-section))
+                     (type (magit-section-type section))
+                     (parent (magit-section-parent section))
+                     (parent-type (magit-section-type parent)))
+                (and (-contains? entry-types type)
+                     (-contains? menu-types parent-type)))))
+      (let* ((section (magit-current-section))
+             (name (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
+             (parent (magit-section-parent section))
+             (parent-title (buffer-substring-no-properties
+                            (magit-section-start parent)
+                            (1- (magit-section-content parent)))))
+        (puthash parent-title
+                 (cons (cons name (point)) (gethash parent-title entries (list)))
+                 entries)))
+    (-map (lambda (menu-title)
+            (cons menu-title
+                  (gethash menu-title entries)))
+          (hash-table-keys entries))))
 
 (provide 'magit-status)
 ;;; magit-status.el ends here
