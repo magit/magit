@@ -101,6 +101,9 @@ Fixes since v2.10.3
 * The command `magit-show-commit' mistakenly displayed a tag's commit
   when point was on a branch with the same name.  #3098
 
+* The command `magit-log-buffer-file' miscalculated line numbers from
+  the region.  #3075
+
 This release also contains the fixes described in the v2.10.{1,2,3}
 release notes, as well as other minor improvements, bug fixes, typo
 fixes, and documentation fixes.
