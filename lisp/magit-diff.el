@@ -1148,7 +1148,7 @@ whether `magit-diff-visit-file' uses this function."
 
 (defun magit-display-file-buffer-other-window (buffer)
   "Display BUFFER in another window.
-With a prefix argument display it the current window.
+With a prefix argument display it in the current window.
 Option `magit-display-file-buffer-function' controls
 whether `magit-diff-visit-file' uses this function."
   (if (or current-prefix-arg (get-buffer-window buffer))
