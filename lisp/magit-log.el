@@ -425,21 +425,25 @@ the upstream isn't ahead of the current branch) show."
     (?a "[a]uthor date"    "author-date")
     (?c "[c]ommitter date" "date")))
 
+(defun magit-log-get-buffer-args ()
+  (cond ((derived-mode-p 'magit-log-mode)
+         (list (nth 1 magit-refresh-args)
+               (nth 2 magit-refresh-args)))
+        ((--when-let (magit-mode-get-buffer 'magit-log-mode)
+           (with-current-buffer it
+             (list (nth 1 magit-refresh-args)
+                   (nth 2 magit-refresh-args)))))
+        (t
+         (list (default-value 'magit-log-arguments) nil))))
+
 (defun magit-log-arguments (&optional refresh)
   (cond ((memq magit-current-popup
                '(magit-log-popup magit-log-refresh-popup))
          (magit-popup-export-file-args magit-current-popup-args))
-        ((derived-mode-p 'magit-log-mode)
-         (list (nth 1 magit-refresh-args)
-               (nth 2 magit-refresh-args)))
-        (refresh
+        ((and refresh (not (derived-mode-p 'magit-log-mode)))
          (list magit-log-section-arguments nil))
         (t
-         (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
-             (with-current-buffer buffer
-               (list (nth 1 magit-refresh-args)
-                     (nth 2 magit-refresh-args)))
-           (list (default-value 'magit-log-arguments) nil)))))
+         (magit-log-get-buffer-args))))
 
 (defun magit-log-popup (arg)
   "Popup console for log commands."
@@ -449,11 +453,7 @@ the upstream isn't ahead of the current branch) show."
            (`magit-log-mode magit-log-mode-refresh-popup)
            (_               magit-log-refresh-popup)))
         (magit-log-arguments
-         (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
-             (with-current-buffer buffer
-               (magit-popup-import-file-args (nth 1 magit-refresh-args)
-                                             (nth 2 magit-refresh-args)))
-           (default-value 'magit-log-arguments))))
+         (apply #'magit-popup-import-file-args (magit-log-get-buffer-args))))
     (magit-invoke-popup 'magit-log-popup nil arg)))
 
 ;;;###autoload
