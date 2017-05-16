@@ -607,21 +607,27 @@ and `:slant'."
 (put 'magit-diff-section-file-args 'permanent-local t)
 (put 'magit-diff-section-arguments 'permanent-local t)
 
+(defun magit-diff-get-buffer-args ()
+  (cond ((and magit-use-sticky-arguments
+              (derived-mode-p 'magit-diff-mode))
+         (list (nth 2 magit-refresh-args)
+               (nth 3 magit-refresh-args)))
+        ((and (eq magit-use-sticky-arguments t)
+              (--when-let (magit-mode-get-buffer 'magit-diff-mode)
+                (with-current-buffer it
+                  (list (nth 2 magit-refresh-args)
+                        (nth 3 magit-refresh-args))))))
+        (t
+         (list (default-value 'magit-diff-arguments) nil))))
+
 (defun magit-diff-arguments (&optional refresh)
   (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
          (magit-popup-export-file-args magit-current-popup-args))
-        ((derived-mode-p 'magit-diff-mode)
-         (list (nth 2 magit-refresh-args)
-               (nth 3 magit-refresh-args)))
-        (refresh
+        ((and refresh (not (derived-mode-p 'magit-diff-mode)))
          (list magit-diff-section-arguments
                magit-diff-section-file-args))
         (t
-         (-if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
-             (with-current-buffer buffer
-               (list (nth 2 magit-refresh-args)
-                     (nth 3 magit-refresh-args)))
-           (list (default-value 'magit-diff-arguments) nil)))))
+         (magit-diff-get-buffer-args))))
 
 ;;;###autoload
 (defun magit-diff-popup (arg)
@@ -633,11 +639,7 @@ and `:slant'."
          ;; we should get the current values.  However it is much
          ;; more likely that we will end up updating the diff buffer,
          ;; and we therefore use the value from that buffer.
-         (-if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
-             (with-current-buffer buffer
-               (magit-popup-import-file-args (nth 2 magit-refresh-args)
-                                             (nth 3 magit-refresh-args)))
-           (default-value 'magit-diff-arguments))))
+         (apply #'magit-popup-import-file-args (magit-diff-get-buffer-args))))
     (magit-invoke-popup 'magit-diff-popup nil arg)))
 
 ;;;###autoload
