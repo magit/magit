@@ -40,6 +40,7 @@ Contributors
 
 - Aaron Culich <aculich@gmail.com>
 - Abdo Roig-Maranges <abdo.roig@gmail.com>
+- Adam Benanti <0entropy@protonmail.com>
 - Adam Porter <adam@alphapapa.net>
 - Adam Spiers <emacs@adamspiers.org>
 - Adeodato Simó <dato@net.com.org.es>
@@ -137,6 +138,7 @@ Contributors
 - Josiah Schwab <jschwab@gmail.com>
 - Julien Danjou <julien@danjou.info>
 - Justin Caratzas <justin.caratzas@gmail.com>
+- Justin Thomas <justin.thomas1@gmail.com>
 - Kan-Ru Chen <kanru@kanru.info>
 - Keshav Kini <keshav.kini@gmail.com>
 - Kévin Le Gouguec <kevin.legouguec@gmail.com>
