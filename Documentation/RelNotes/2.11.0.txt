@@ -60,6 +60,10 @@ Changes since v2.10.3
 
 * Add imenu support in log, revision, and status buffers.  #3022
 
+* Add command `magit-abort-dwim` to abort the current operation.
+  Depending on the context, this will abort a merge, a rebase, a
+  patch application, a cherry-pick, a revert, or a bisect.  #3017
+
 Fixes since v2.10.3
 -------------------
 
