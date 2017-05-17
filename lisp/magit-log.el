@@ -637,14 +637,16 @@ With a prefix argument or when `--follow' is part of
   (interactive
    (cons current-prefix-arg
          (and (region-active-p)
-              (list (line-number-at-pos (region-beginning))
-                    (line-number-at-pos
-                     (let ((end (region-end)))
-                       (if (char-after end)
-                           end
-                         ;; Ensure that we don't get the line number
-                         ;; of a trailing newline.
-                         (1- end))))))))
+              (save-restriction
+                (widen)
+                (list (line-number-at-pos (region-beginning))
+                      (line-number-at-pos
+                       (let ((end (region-end)))
+                         (if (char-after end)
+                             end
+                           ;; Ensure that we don't get the line number
+                           ;; of a trailing newline.
+                           (1- end)))))))))
   (require 'magit)
   (-if-let (file (magit-file-relative-name))
       (magit-mode-setup-internal
