@@ -74,13 +74,44 @@ an alist that supports the keys `:right-align' and `:pad-right'."
 (magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
   :man-page "git-submodule"
-  :actions  '((?a "Add"    magit-submodule-add)
-              (?b "Setup"  magit-submodule-setup)
-              (?i "Init"   magit-submodule-init)
+  ;:max-action-columns 2
+  :actions  '("Managing"
+              (?a "Add"    magit-submodule-add)
+              (?s "Setup"  magit-submodule-setup)
+              (?d "Deinit" magit-submodule-deinit)
+              (?C "Configure..." magit-submodule-config-popup)
+              "Updating"
               (?u "Update" magit-submodule-update)
-              (?s "Sync"   magit-submodule-sync)
-              (?f "Fetch"  magit-submodule-fetch)
-              (?d "Deinit" magit-submodule-deinit)))
+              (?U "Update all" magit-submodule-update-all)
+              (?F "Pull" magit-submodule-update-remote)
+              (?R "Pull all" magit-submodule-update-all-remote)
+              (?f "Fetch all"  magit-submodule-fetch)))
+
+(defun magit-submodule-get-name (module)
+  ;; Find submodule.<name>.path = <module> in `.gitmodules'.
+  (cadr (split-string
+         (car (or (magit-git-items "config" "-z" "-f" ".gitmodules"
+                                   "--get-regexp" "^submodule\\..*\\.path$"
+                                   (concat "^" (regexp-quote module) "$"))
+                  (error "No such submodule `%s'" module)))
+         "\n")))
+
+;; TODO(?): add functions to set/see individual variables
+(defun magit-submodule-edit-gitsubmodules ()
+  (find-file ".gitmodules"))
+(defun magit-submodule-edit-config ()
+  (find-file ".git/config"))
+
+(magit-define-popup magit-submodule-config-popup
+  "Configure submodule related git variables."
+  'magit-commands nil nil
+  :man-page "git-submodule"
+  :actions '((?e "Edit .gitmodules" magit-submodule-edit-gitsubmodules)
+             (?E "Edit .git/config" magit-submodule-edit-config)
+             (?i "Copy missing settings from .gitmodules to .git/config"
+                 magit-subdmodule-init)
+             (?s "Update url from .gitmodules to .git/config"
+                 magit-submodule-sync)))
 
 ;;;###autoload
 (defun magit-submodule-add (url &optional path name)
@@ -136,13 +167,59 @@ PATH also becomes the name."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "init")))
 
+(defun magit-submodule-read-module-path (prompt)
+  (or (magit-section-when module)
+      (magit-completing-read prompt (magit-get-submodules))))
+
+(defun magit-submodule-update-read-method (&optional prompt)
+  (list (magit-read-char-case (or prompt "Update submodules by ") t
+          (?c "[c]heckout" 'checkout)
+          (?m "[m]erge" 'merge)
+          (?r "[r]ebase" 'rebase)
+          (?s "[x] reset" 'reset))))
+
+(defun magit-submodule-update-read-args ()
+  (let ((module (magit-submodule-read-module-path "Update submodule")))
+    (cons module (magit-submodule-update-read-method
+                  (format "Update submodule `%s' by " module)))))
+
 ;;;###autoload
-(defun magit-submodule-update (&optional init)
-  "Clone missing submodules and checkout appropriate commits.
-With a prefix argument also register submodules in \".git/config\"."
-  (interactive "P")
+(defun magit-submodule-update (module method &optional opts)
+  "Update MODULE by METHOD to recorded target revision.
+METHOD may be `checkout', `merge', `rebase', or `reset'.  When
+called from lisp, MODULE may be a list of submodules."
+  (interactive (magit-submodule-update-read-args))
   (magit-with-toplevel
-    (magit-run-git-async "submodule" "update" (and init "--init"))))
+    (magit-run-git-async
+     (--mapcat (list
+                "-c" (format "submodule.%s.update=%s"
+                             (magit-submodule-get-name it)
+                             (pcase method
+                               (`reset "!git reset --keep")
+                               (_ (symbol-name method)))))
+               (if (listp module) module (list module)))
+     "submodule" "update" opts "--" module)))
+
+;;;###autoload
+(defun magit-submodule-update-remote (module method)
+  "Update MODULE by METHOD to submodule's remote revision.
+METHOD may be `checkout', `merge', `rebase', or `reset'."
+  (interactive (magit-submodule-update-read-args))
+  (magit-submodule-update module method "--remote"))
+
+;;;###autoload
+(defun magit-submodule-update-all (method)
+  "Update all submodules by METHOD to recorded target revision.
+METHOD may be `checkout', `merge', `rebase', or `reset'."
+  (interactive (magit-submodule-update-read-method))
+  (magit-submodule-update (magit-get-submodules) method nil))
+
+;;;###autoload
+(defun magit-submodule-update-all-remote (method)
+  "Update all submodules by METHOD to submodule's remote revision.
+METHOD may be `checkout', `merge', `rebase', or `reset'."
+  (interactive (magit-submodule-update-read-method))
+  (magit-submodule-update (magit-get-submodules) method t))
 
 ;;;###autoload
 (defun magit-submodule-sync ()
@@ -276,6 +353,38 @@ These sections can be expanded to show the respective commits."
                               'modules-unpushed-to-pushremote
                               'magit-get-push-branch
                               "%s..HEAD"))
+
+(defun magit-submodule-visit (module &optional other-window)
+  "Visit MODULE by calling `magit-status' on it.
+Offer to initialize MODULE if it's not checked out yet."
+  (interactive (list (or (magit-section-when module)
+                         (user-error "No submodule at point"))
+                     current-prefix-arg))
+  (let ((path (expand-file-name module)))
+    (if (or (file-exists-p (expand-file-name ".git" module))
+            (not (y-or-n-p (format "Setup submodule '%s' first?"
+                                   module))))
+        (magit-diff-visit-directory path other-window)
+      (magit-submodule-setup module)
+      (set-process-sentinel
+       (lambda (process event)
+         (when (memq (process-status process) '(exit signal))
+           (let ((magit-process-raise-error t))
+             (magit-process-sentinel process event)))
+         (when (and (eq (process-status process) 'exit)
+                    (= (process-exit-status process) 0))
+           (magit-diff-visit-directory path other-window)))))))
+
+(defvar magit-submodule-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [C-return] 'magit-submodule-visit)
+    (define-key map "\C-j"     'magit-submodule-visit)
+    (define-key map [remap magit-visit-thing]  'magit-submodule-visit)
+    (define-key map [remap magit-delete-thing] 'magit-submodule-deinit)
+    (define-key map "K" 'magit-file-untrack)
+    (define-key map "R" 'magit-file-rename)
+    map)
+  "Keymap for `submodule' sections.")
 
 (defun magit--insert-modules-logs (heading type fn format)
   "For internal use, don't add to a hook."
