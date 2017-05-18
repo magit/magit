@@ -64,6 +64,9 @@ Changes since v2.10.3
   Depending on the context, this will abort a merge, a rebase, a
   patch application, a cherry-pick, a revert, or a bisect.  #3017
 
+* The command `magit-clone' now suggests a directory name that more
+  closely follows `git clone' when no directory is given.  #3079
+
 Fixes since v2.10.3
 -------------------
 

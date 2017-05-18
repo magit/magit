@@ -58,7 +58,7 @@ Then show the status buffer for the new repository."
    (let  ((url (magit-read-string-ns "Clone repository")))
      (list url (read-directory-name
                 "Clone to: " nil nil nil
-                (and (string-match "\\([^./]+\\)\\(\\.git\\)?$" url)
+                (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" url)
                      (match-string 1 url))))))
   (setq directory (file-name-as-directory (expand-file-name directory)))
   (magit-run-git-async "clone" repository
