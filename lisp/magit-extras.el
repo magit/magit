@@ -247,5 +247,19 @@ on a position in a file-visiting buffer."
                           (prompt-for-change-log-name))))
   (magit-add-change-log-entry whoami file-name t))
 
+;;; Miscellaneous
+
+;;;###autoload
+(defun magit-abort-dwim ()
+  "Abort current operation.
+Depending on the context, this will abort a merge, a rebase, a
+patch application, a cherry-pick, a revert, or a bisect."
+  (interactive)
+  (cond ((magit-merge-state)             (magit-merge-abort))
+        ((magit-rebase-in-progress-p)    (magit-rebase-abort))
+        ((magit-am-in-progress-p)        (magit-am-abort))
+        ((magit-sequencer-in-progress-p) (magit-sequencer-abort))
+        ((magit-bisect-in-progress-p)    (magit-bisect-reset))))
+
 (provide 'magit-extras)
 ;;; magit-extras.el ends here
