@@ -1113,6 +1113,27 @@ If optional SECTION is nil, use the current section."
                 (magit-section-position-in-heading-p section (region-end))))
        t))
 
+(defun magit-section--backward-protected ()
+  "Move to the beginning of the current or the previous visible section.
+Same as `magit-section-backward' but for non-interactive use.
+Suppress `magit-section-movement-hook', and return a boolean to
+indicate whether a section was found, instead of raising an error
+if not."
+  (condition-case nil
+      (let ((magit-section-movement-hook nil))
+        (magit-section-backward)
+        t)
+    (user-error nil)))
+
+(defun magit-section--backward-find (predicate)
+  "Move to the first previous section satisfying PREDICATE.
+PREDICATE does not take any parameter and should not move
+point."
+  (let (found)
+    (while (and (setq found (magit-section--backward-protected))
+                (not (funcall predicate))))
+    found))
+
 (defun magit-wash-sequence (function)
   "Repeatedly call FUNCTION until it returns nil or eob is reached.
 FUNCTION has to move point forward or return nil."
