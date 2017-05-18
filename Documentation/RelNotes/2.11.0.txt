@@ -58,6 +58,8 @@ Changes since v2.10.3
   control over how diff and log commands reuse arguments from existing
   buffers.  #3074
 
+* Add imenu support in log, revision, and status buffers.  #3022
+
 Fixes since v2.10.3
 -------------------
 
