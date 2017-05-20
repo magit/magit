@@ -90,10 +90,12 @@
 ;;;###autoload
 (defun magit-subtree-add (prefix repository ref args)
   "Add REF from REPOSITORY as a new subtree at PREFIX."
-  (interactive (list (magit-subtree-prefix "Add subtree")
-                     (magit-read-string-ns "Repository")
-                     (magit-read-string-ns "Ref")
-                     (magit-subtree-args)))
+  (interactive
+   (cons (magit-subtree-prefix "Add subtree")
+         (let ((remote (magit-read-remote-or-url "From repository")))
+           (list remote
+                 (magit-read-refspec "Ref" remote)
+                 (magit-subtree-args)))))
   (magit-git-subtree "add" prefix args repository ref))
 
 ;;;###autoload
@@ -115,17 +117,19 @@
 ;;;###autoload
 (defun magit-subtree-pull (prefix repository ref args)
   "Pull REF from REPOSITORY into the PREFIX subtree."
-  (interactive (list (magit-subtree-prefix "Pull into subtree")
-                     (magit-read-string-ns "From repository")
-                     (magit-read-string-ns "Ref")
-                     (magit-subtree-args)))
+  (interactive
+   (cons (magit-subtree-prefix "Pull into subtree")
+         (let ((remote (magit-read-remote-or-url "From repository")))
+           (list remote
+                 (magit-read-refspec "Ref" remote)
+                 (magit-subtree-args)))))
   (magit-git-subtree "pull" prefix args repository ref))
 
 ;;;###autoload
 (defun magit-subtree-push (prefix repository ref args)
   "Extract the history of the subtree PREFIX and push it to REF on REPOSITORY."
   (interactive (list (magit-subtree-prefix "Push subtree")
-                     (magit-read-string-ns "To repository")
+                     (magit-read-remote-or-url "To repository")
                      (magit-read-string-ns "To reference")
                      (magit-subtree-args)))
   (magit-git-subtree "push" prefix args repository ref))
