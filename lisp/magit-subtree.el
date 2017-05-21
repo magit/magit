@@ -88,13 +88,13 @@
   (magit-run-git-async "subtree" subcmd (concat "--prefix=" prefix) args))
 
 ;;;###autoload
-(defun magit-subtree-add (prefix repository commit args)
-  "Add COMMIT from REPOSITORY as a new subtree at PREFIX."
+(defun magit-subtree-add (prefix repository ref args)
+  "Add REF from REPOSITORY as a new subtree at PREFIX."
   (interactive (list (magit-subtree-prefix "Add subtree")
                      (magit-read-string-ns "Repository")
-                     (magit-read-string-ns "Commit")
+                     (magit-read-string-ns "Ref")
                      (magit-subtree-args)))
-  (magit-git-subtree "add" prefix args repository commit))
+  (magit-git-subtree "add" prefix args repository ref))
 
 ;;;###autoload
 (defun magit-subtree-add-commit (prefix commit args)
@@ -113,13 +113,13 @@
   (magit-git-subtree "merge" prefix args commit))
 
 ;;;###autoload
-(defun magit-subtree-pull (prefix repository commit args)
-  "Pull COMMIT from REPOSITORY into the PREFIX subtree."
+(defun magit-subtree-pull (prefix repository ref args)
+  "Pull REF from REPOSITORY into the PREFIX subtree."
   (interactive (list (magit-subtree-prefix "Pull into subtree")
                      (magit-read-string-ns "From repository")
-                     (magit-read-string-ns "Commit")
+                     (magit-read-string-ns "Ref")
                      (magit-subtree-args)))
-  (magit-git-subtree "pull" prefix args repository commit))
+  (magit-git-subtree "pull" prefix args repository ref))
 
 ;;;###autoload
 (defun magit-subtree-push (prefix repository ref args)
