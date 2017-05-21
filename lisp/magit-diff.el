@@ -1101,28 +1101,30 @@ the buffer in another window."
                    (or (get-file-buffer file)
                        (find-file-noselect file)))))
       (magit-display-file-buffer buf)
-      (with-current-buffer buf
-        (when line
-          (setq line
-                (cond ((eq rev 'staged)
-                       (apply 'magit-diff-visit--offset file nil line))
-                      ((and force-worktree
-                            (stringp rev))
-                       (apply 'magit-diff-visit--offset file rev line))
-                      (t
-                       (apply '+ line))))
-          (let ((pos (save-restriction
-                       (widen)
-                       (goto-char (point-min))
-                       (forward-line (1- line))
-                       (move-to-column col)
-                       (point))))
-            (unless (<= (point-min) pos (point-max))
-              (widen)
-              (goto-char pos))))
-        (when (magit-anything-unmerged-p file)
-          (smerge-start-session))
-        (run-hooks 'magit-diff-visit-file-hook)))))
+      (let ((win (magit-display-file-buffer buf)))
+        (with-selected-window win
+          (with-current-buffer buf
+            (when line
+              (setq line
+                    (cond ((eq rev 'staged)
+                           (apply 'magit-diff-visit--offset file nil line))
+                          ((and force-worktree
+                                (stringp rev))
+                           (apply 'magit-diff-visit--offset file rev line))
+                          (t
+                           (apply '+ line))))
+              (let ((pos (save-restriction
+                           (widen)
+                           (goto-char (point-min))
+                           (forward-line (1- line))
+                           (move-to-column col)
+                           (point))))
+                (unless (<= (point-min) pos (point-max))
+                  (widen)
+                  (goto-char pos))))
+            (when (magit-anything-unmerged-p file)
+              (smerge-start-session))
+            (run-hooks 'magit-diff-visit-file-hook)))))))
 
 (defvar magit-display-file-buffer-function
   'magit-display-file-buffer-traditional
