@@ -1101,7 +1101,9 @@ the buffer in another window."
                    (or (get-file-buffer file)
                        (find-file-noselect file)))))
       (magit-display-file-buffer buf)
-      (with-current-buffer buf
+      (with-selected-window
+          (or (get-buffer-window buf 'visible)
+              (error "File buffer is not visible"))
         (when line
           (setq line
                 (cond ((eq rev 'staged)

@@ -88,6 +88,10 @@ Fixes since v2.10.3
 * When deleting the current branch, `magit-branch-delete' did not ask
   for confirmation in some cases.  #3058
 
+* When using a non-standard `magit-display-file-buffer-function' that
+  does not select the window used to display the buffer, then the
+  point in that window was not adjusted.  #3082
+
 This release also contains the fixes described in the v2.10.{1,2,3}
 release notes, as well as other minor improvements, bug fixes, typo
 fixes, and documentation fixes.
