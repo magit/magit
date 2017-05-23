@@ -43,6 +43,7 @@
 The following placeholders are recognized:
 
   %H    hash
+  %h    abbreviated hash
   %s    summary
   %a    author
   %A    author time
@@ -53,6 +54,11 @@ The author and committer time formats can be specified with
 `magit-blame-time-format'."
   :group 'magit-blame
   :type 'string)
+  
+(defcustom magit-blame-abbreviated-hash-length 9
+  "Length of the abbreviated hash used in magit-blame's headings"
+  :group 'magit-blame
+  :type 'number)
 
 (defcustom magit-blame-time-format "%F %H:%M"
   "Format for time strings in blame headings."
@@ -333,6 +339,9 @@ This is intended for debugging purposes.")
                   (list :hash (let ((hash (match-string 1 line)))
                                 (unless (equal hash (make-string 40 ?0))
                                   hash))
+                        :abbrev-hash (let ((hash (match-string 1 line)))
+                                (unless (equal hash (make-string 40 ?0))
+                                  (substring hash 0 magit-blame-abbreviated-hash-length)))
                         :previous-start (string-to-number (match-string 2 line))
                         :start (string-to-number (match-string 3 line))
                         :lines (string-to-number (match-string 4 line)))))
@@ -398,6 +407,8 @@ This is intended for debugging purposes.")
     (insert (format-spec
              (concat magit-blame-heading-format "\n")
              `((?H . ,(propertize (or (plist-get chunk :hash) "")
+                                  'face 'magit-blame-hash))
+               (?h . ,(propertize (or (plist-get chunk :abbrev-hash) "")
                                   'face 'magit-blame-hash))
                (?s . ,(propertize (or (plist-get chunk :summary) "")
                                   'face 'magit-blame-summary))
