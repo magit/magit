@@ -36,6 +36,7 @@
 (require 'subr-x)
 
 (require 'magit)
+(require 'git-rebase)
 
 (defun magit-imenu--index-function (entry-types menu-types)
   "Return an alist of imenu entries in current buffer.
@@ -132,6 +133,28 @@ This function is used as a value for
   (magit-imenu--index-function
    '(file commit stash)
    '(unpushed unstaged unpulled untracked staged stashes)))
+
+;;;; Rebase mode
+
+;;;###autoload
+(defun magit-imenu--rebase-prev-index-position-function ()
+  "Move point to previous commit in git-rebase buffer.
+This function is used as a value for
+`imenu-prev-index-position-function'."
+  (catch 'found
+    (while (not (bobp))
+      (git-rebase-backward-line)
+      (when (git-rebase-line-p)
+        (throw 'found t)))))
+
+;;;###autoload
+(defun magit-imenu--rebase-extract-index-name-function ()
+  "Return imenu name for line at point.
+This function is used as a value for
+`imenu-extract-index-name-function'.  Point should be at the
+beginning of the line."
+  (buffer-substring-no-properties (line-beginning-position)
+                                  (line-end-position)))
 
 (provide 'magit-imenu)
 ;;; magit-imenu.el ends here

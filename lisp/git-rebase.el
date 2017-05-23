@@ -482,6 +482,10 @@ running 'man git-rebase' at the command line) for details."
   (setq-local redisplay-unhighlight-region-function 'git-rebase-unhighlight-region)
   (add-hook 'with-editor-pre-cancel-hook  'git-rebase-autostash-save  nil t)
   (add-hook 'with-editor-post-cancel-hook 'git-rebase-autostash-apply nil t)
+  (setq imenu-prev-index-position-function
+        #'magit-imenu--rebase-prev-index-position-function)
+  (setq imenu-extract-index-name-function
+        #'magit-imenu--rebase-extract-index-name-function)
   (when (boundp 'save-place)
     (setq save-place nil)))
 
