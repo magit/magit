@@ -67,6 +67,9 @@ Changes since v2.10.3
 * The command `magit-clone' now suggests a directory name that more
   closely follows `git clone' when no directory is given.  #3079
 
+* The commands `magit-subtree-add', `magit-subtree-pull', and
+  `magit-subtree-push' now offer more completion candidates.  #3081
+
 Fixes since v2.10.3
 -------------------
 
