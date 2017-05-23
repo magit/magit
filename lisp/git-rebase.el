@@ -451,7 +451,7 @@ buffer down."
   "Move N lines backward (forward if N is negative).
 Like `forward-line' but go into the opposite direction."
   (interactive "p")
-  (forward-line (- n)))
+  (forward-line (- (or n 1))))
 
 ;;; Mode
 
