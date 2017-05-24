@@ -310,6 +310,15 @@ This discards all changes made since the sequence started."
               (?u (lambda ()
                     (--when-let (magit-get-upstream-branch) (concat it "\n")))
                   magit-rebase-onto-upstream)
+              (?M (lambda ()
+                    (-when-let* ((remote (magit-get-upstream-remote))
+                                 (master (concat remote "/master")))
+                      (when (magit-branch-p master) master)))
+                  (lambda (args)
+                    (interactive (list (magit-rebase-arguments)))
+                    (magit-rebase (concat
+                                   (magit-get-upstream-remote)
+                                   "/master") args)))
               (?e "elsewhere"               magit-rebase)
               "Rebase"
               (?i "interactively"      magit-rebase-interactive)
