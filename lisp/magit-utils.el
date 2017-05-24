@@ -339,7 +339,10 @@ results in additional differences."
   "Magit wrapper for standard `completing-read' function."
   (cl-letf (((symbol-function 'completion-pcm--all-completions)
              #'magit-completion-pcm--all-completions))
-    (completing-read (magit-prompt-with-default prompt def)
+    (completing-read (if (or (bound-and-true-p helm-mode)
+                             (bound-and-true-p ivy-mode))
+                         prompt
+                       (magit-prompt-with-default prompt def))
                      (magit--completion-table choices)
                      predicate require-match
                      initial-input hist def)))
