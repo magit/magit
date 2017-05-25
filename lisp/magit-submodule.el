@@ -80,7 +80,8 @@ an alist that supports the keys `:right-align' and `:pad-right'."
               (?u "Update" magit-submodule-update)
               (?s "Sync"   magit-submodule-sync)
               (?f "Fetch"  magit-submodule-fetch)
-              (?d "Deinit" magit-submodule-deinit)))
+              (?d "Deinit" magit-submodule-deinit)
+              (?l "List"   magit-list-submodules)))
 
 ;;;###autoload
 (defun magit-submodule-add (url &optional path name)
