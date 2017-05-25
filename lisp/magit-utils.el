@@ -320,7 +320,11 @@ that this wrapper makes the following changes:
 The use of another completing function and/or wrapper obviously
 results in additional differences."
   (let ((reply (funcall magit-completing-read-function
-                        (concat prompt ": ") collection predicate
+                        (concat prompt ": ")
+                        (if (and def (not (member def collection)))
+                            (cons def collection)
+                          collection)
+                        predicate
                         require-match initial-input hist def)))
     (if (string= reply "")
         (if require-match
