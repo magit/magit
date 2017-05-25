@@ -1073,13 +1073,16 @@ buffer which visits a file in the current repository.  Optional
 argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
   (-when-let (topdir (magit-rev-parse-safe "--show-toplevel"))
-    (save-some-buffers
-     arg (lambda ()
-           (and buffer-file-name
-                ;; Avoid needlessly connecting to unrelated remotes.
-                (string-prefix-p topdir (file-truename buffer-file-name))
-                (equal (magit-rev-parse-safe "--show-toplevel")
-                       topdir))))))
+    (let ((remote (file-remote-p topdir)))
+      (save-some-buffers
+       arg (lambda ()
+             (and buffer-file-name
+                  ;; Avoid needlessly connecting to unrelated remotes.
+                  (equal (file-remote-p buffer-file-name)
+                         remote)
+                  (string-prefix-p topdir (file-truename buffer-file-name))
+                  (equal (magit-rev-parse-safe "--show-toplevel")
+                         topdir)))))))
 
 ;;; Restore Window Configuration
 
