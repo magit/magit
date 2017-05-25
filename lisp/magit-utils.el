@@ -57,16 +57,22 @@
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
   "Function to be called when requesting input from the user.
 
-For Helm users, the simplest way to get Helm completion is to
-turn on `helm-mode' and leave this option set to the default
-value.  However, if you prefer to not use `helm-mode' but still
-want Magit to use Helm for completion, you can set this option to
-`helm--completing-read-default'."
+If you have enabled `ivy-mode' or `helm-mode', then you don't
+have to customize this option; `magit-builtin-completing-read'
+will work just fine.  However, if you use Ido completion, then
+you do have to use `magit-ido-completion-read', because Ido is
+less well behaved than the former, more modern alternatives.
+
+If you would like to use Ivy or Helm completion with Magit but
+not enable the respective modes globally, then customize this
+option to use `ivy-completing-read'
+or `helm--completing-read-default'."
   :group 'magit-essentials
   :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
+                (function-item ivy-completing-read)
                 (function-item helm--completing-read-default)
-                (function :tag "Other")))
+                (function :tag "Other function")))
 
 (defcustom magit-no-confirm-default nil
   "A list of commands which should just use the default choice.
