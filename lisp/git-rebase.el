@@ -334,7 +334,8 @@ current line."
   (when (and (looking-at git-rebase-line)
              (not (eq (char-after) (string-to-char comment-start))))
     (let ((inhibit-read-only t))
-      (insert comment-start))
+      (insert comment-start)
+      (insert " "))
     (when git-rebase-auto-advance
       (forward-line))))
 
@@ -500,9 +501,6 @@ running 'man git-rebase' at the command line) for details."
 (defun git-rebase-match-comment-line (limit)
   (re-search-forward (concat git-rebase-comment-re ".*") limit t))
 
-(defun git-rebase-match-killed-action (limit)
-  (re-search-forward (concat git-rebase-comment-re "[^ \n].*") limit t))
-
 (defun git-rebase-mode-font-lock-keywords ()
   "Font lock keywords for Git-Rebase mode."
   `(("^\\([efprs]\\|pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ \n]+\\) \\(.*\\)"
@@ -513,7 +511,9 @@ running 'man git-rebase' at the command line) for details."
      (1 'font-lock-keyword-face)
      (2 'git-rebase-description))
     (git-rebase-match-comment-line 0 'font-lock-comment-face)
-    (git-rebase-match-killed-action 0 'git-rebase-killed-action t)
+    (,(format "%s *\\([efprs]\\|pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ \n]+\\) \\(.*\\)"
+              git-rebase-comment-re)
+     0 'git-rebase-killed-action t)
     (,(format "^%s Rebase \\([^ ]*\\) onto \\([^ ]*\\)" comment-start)
      (1 'git-rebase-comment-hash t)
      (2 'git-rebase-comment-hash t))
