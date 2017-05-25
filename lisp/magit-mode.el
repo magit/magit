@@ -1074,13 +1074,12 @@ argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
   (-when-let (topdir (magit-rev-parse-safe "--show-toplevel"))
     (save-some-buffers
-     arg (-partial (lambda (topdir)
-                     (and buffer-file-name
-                          ;; Avoid needlessly connecting to unrelated remotes.
-                          (string-prefix-p topdir (file-truename buffer-file-name))
-                          (equal (magit-rev-parse-safe "--show-toplevel")
-                                 topdir)))
-                   topdir))))
+     arg (lambda ()
+           (and buffer-file-name
+                ;; Avoid needlessly connecting to unrelated remotes.
+                (string-prefix-p topdir (file-truename buffer-file-name))
+                (equal (magit-rev-parse-safe "--show-toplevel")
+                       topdir))))))
 
 ;;; Restore Window Configuration
 
