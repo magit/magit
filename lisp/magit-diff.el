@@ -1403,7 +1403,11 @@ Staging and applying changes is documented in info node
 
 \\{magit-diff-mode-map}"
   :group 'magit-diff
-  (hack-dir-local-variables-non-file-buffer))
+  (hack-dir-local-variables-non-file-buffer)
+  (setq imenu-prev-index-position-function
+        'magit-imenu--diff-prev-index-position-function)
+  (setq imenu-extract-index-name-function
+        'magit-imenu--diff-extract-index-name-function))
 
 (defun magit-diff-refresh-buffer (rev-or-range const _args files)
   "Refresh the current `magit-diff-mode' buffer.
@@ -1758,11 +1762,7 @@ Staging and applying changes is documented in info node
 
 \\{magit-revision-mode-map}"
   :group 'magit-revision
-  (hack-dir-local-variables-non-file-buffer)
-  (setq imenu-prev-index-position-function
-        #'magit-revision-imenu-prev-index-position-function)
-  (setq imenu-extract-index-name-function
-        #'magit-revision-imenu-extract-index-name-function))
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-revision-refresh-buffer (rev __const _args files)
   (setq header-line-format
@@ -2455,24 +2455,6 @@ https://github.com/magit/magit/pull/2293 for more details)."
       (diff-fixup-modifs (point-min) (point-max))
       (setq patch (buffer-string)))
     patch))
-
-;;;; Imenu Support
-
-(defun magit-revision-imenu-prev-index-position-function ()
-  "Move point to previous file line in current buffer.
-This function is used as a value for
-`imenu-prev-index-position-function'."
-  (magit-section--backward-find
-   (lambda ()
-     (and (equal (magit-section-type (magit-current-section)) 'file)
-          (equal (magit-section-type (magit-section-parent (magit-current-section))) 'commitbuf)))))
-
-(defun magit-revision-imenu-extract-index-name-function ()
-  "Return imenu name for line at point.
-This function is used as a value for
-`imenu-extract-index-name-function'.  Point should be at the
-beginning of the line."
-  (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
 
 (provide 'magit-diff)
 ;;; magit-diff.el ends here

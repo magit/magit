@@ -79,6 +79,7 @@ ELS += magit-subtree.el
 ELS += magit-ediff.el
 ELS += magit-extras.el
 ELS += git-rebase.el
+ELS += magit-imenu.el
 ELCS = $(ELS:.el=.elc)
 ELMS = magit.el $(filter-out $(addsuffix .el,$(PACKAGES)),$(ELS))
 ELGS = magit-autoloads.el magit-version.el

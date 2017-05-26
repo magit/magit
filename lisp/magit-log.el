@@ -785,9 +785,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer)
   (setq imenu-prev-index-position-function
-        #'magit-log-imenu-prev-index-position-function)
+        'magit-imenu--log-prev-index-position-function)
   (setq imenu-extract-index-name-function
-        #'magit-log-imenu-extract-index-name-function))
+        'magit-imenu--log-extract-index-name-function))
 
 (defvar magit-log-disable-graph-hack-args
   '("-G" "--grep" "--author")
@@ -1524,26 +1524,6 @@ all others with \"-\"."
       (magit-insert-heading "Unpushed commits:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) "@{upstream}"))))
-
-;;;; Imenu Support
-
-(defun magit-log-imenu-prev-index-position-function ()
-  "Move point to previous line in current buffer.
-This function is used as a value for
-`imenu-prev-index-position-function'."
-  (magit-section--backward-find
-   (lambda () (eq (magit-section-type (magit-current-section)) 'commit))))
-
-(defun magit-log-imenu-extract-index-name-function ()
-  "Return imenu name for line at point.
-This function is used as a value for
-`imenu-extract-index-name-function'.  Point should be at the
-beginning of the line."
-  (save-match-data
-    (looking-at "\\([^ ]+\\) [ *|]+ \\(.+\\)$")
-    (format "%s: %s"
-            (match-string-no-properties 1)
-            (match-string-no-properties 2))))
 
 (provide 'magit-log)
 ;;; magit-log.el ends here

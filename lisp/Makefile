@@ -47,6 +47,7 @@ magit-subtree.elc:	magit.elc
 magit-ediff.elc:	magit.elc
 magit-extras.elc:	magit.elc
 git-rebase.elc:		magit.elc
+magit-imenu.elc:	magit.elc
 
 ## Build #############################################################
 
