@@ -1086,8 +1086,8 @@ When the use of a section movement command puts point on that
 button, then automatically show more commits, without the user
 having to press \"+\".
 
-This function is called `magit-section-movement-hook',
-and exists mostly for backward compatibility reasons."
+This function is called by `magit-section-movement-hook' and
+exists mostly for backward compatibility reasons."
   (when (and (eq (magit-section-type section) 'longer)
              magit-log-auto-more)
     (magit-log-double-commit-limit)
