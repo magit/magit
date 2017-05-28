@@ -224,7 +224,7 @@ requiring confirmation."
   (interactive
    (let* ((atpoint (magit-section-when (file)))
           (current (magit-file-relative-name))
-          (choices (nconc (magit-modified-files)
+          (choices (nconc (magit-unstaged-files)
                           (magit-untracked-files)))
           (default (car (member (or atpoint current) choices))))
      (list (if (or current-prefix-arg (not default))
@@ -511,7 +511,7 @@ without requiring confirmation."
                 (sections
                  (magit-discard-apply-n sections 'magit-apply-diffs)))
           (when binaries
-            (let ((modified (magit-modified-files t)))
+            (let ((modified (magit-unstaged-files t)))
               (setq binaries (--separate (member it modified) binaries)))
             (when (cadr binaries)
               (magit-call-git "reset" "--" (cadr binaries)))
