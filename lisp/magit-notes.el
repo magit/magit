@@ -92,7 +92,7 @@ undefined."
 The current notes ref is the value of Git variable
 `core.notesRef' or \"refs/notes/commits\" if that is undefined.
 
-When there are conflict, then they have to resolved in the
+When there are conflicts, then they have to be resolved in the
 temporary worktree \".git/NOTES_MERGE_WORKTREE\".  When
 done use `magit-notes-merge-commit' to finish.  To abort
 use `magit-notes-merge-abort'."
