@@ -602,9 +602,10 @@ tracked file."
 (defun magit-untracked-files (&optional all files)
   (magit-list-files "--other" (unless all "--exclude-standard") "--" files))
 
-(defun magit-modified-files (&optional nomodules)
+(defun magit-modified-files (&optional nomodules files)
   (magit-git-items "diff-files" "-z" "--name-only"
-                   (and nomodules "--ignore-submodules")))
+                   (and nomodules "--ignore-submodules")
+                   "--" files))
 
 (defun magit-staged-files (&optional nomodules files)
   (magit-git-items "diff-index" "-z" "--name-only" "--cached"
