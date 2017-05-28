@@ -612,11 +612,6 @@ tracked file."
                    (and nomodules "--ignore-submodules")
                    (magit-headish) "--" files))
 
-(defun magit-unstaged-files (&optional nomodules files)
-  (magit-git-items "diff-index" "-z" "--name-only"
-                   (and nomodules "--ignore-submodules")
-                   (magit-headish) "--" files))
-
 (defun magit-staged-binary-files ()
   (--mapcat (and (string-match "^-\t-\t\\(.+\\)" it)
                  (list (match-string 1 it)))
