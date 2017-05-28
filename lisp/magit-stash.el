@@ -262,7 +262,7 @@ When the region is active offer to drop all contained stashes."
 (defun magit-stash-save (message index worktree untracked
                                  &optional refresh keep noerror ref)
   (if (or (and index     (magit-staged-files t))
-          (and worktree  (magit-modified-files t))
+          (and worktree  (magit-unstaged-files t))
           (and untracked (magit-untracked-files (eq untracked 'all))))
       (magit-with-toplevel
         (magit-stash-store message (or ref "refs/stash")

@@ -380,7 +380,7 @@ and discard changes using Ediff, use `magit-ediff-stage'.
 FILE must be relative to the top directory of the repository."
   (interactive
    (list (magit-read-file-choice "Show unstaged changes for file"
-                                 (magit-modified-files)
+                                 (magit-unstaged-files)
                                  "No unstaged files")))
   (magit-with-toplevel
     (let ((conf (current-window-configuration))

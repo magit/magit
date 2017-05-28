@@ -602,7 +602,7 @@ tracked file."
 (defun magit-untracked-files (&optional all files)
   (magit-list-files "--other" (unless all "--exclude-standard") "--" files))
 
-(defun magit-modified-files (&optional nomodules files)
+(defun magit-unstaged-files (&optional nomodules files)
   (magit-git-items "diff-files" "-z" "--name-only"
                    (and nomodules "--ignore-submodules")
                    "--" files))
@@ -1411,7 +1411,7 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-commit-worktree (message &optional arg &rest other-parents)
   (magit-with-temp-index "HEAD" arg
-    (and (magit-update-files (magit-modified-files))
+    (and (magit-update-files (magit-unstaged-files))
          (apply #'magit-commit-tree message nil "HEAD" other-parents))))
 
 (defun magit-update-files (files)
