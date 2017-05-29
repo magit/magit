@@ -145,6 +145,17 @@ This function is used as a value for
    '(branch commit tag)
    '(local remote tags)))
 
+;;;; Cherry mode
+
+;;;###autoload
+(defun magit-imenu--cherry-create-index-function ()
+  "Return an alist of all imenu entries in current buffer.
+This function is used as a value for
+`imenu-create-index-function'."
+  (magit-imenu--index-function
+   '(commit)
+   '(cherries)))
+
 ;;;; Submodule list mode
 
 ;;;###autoload

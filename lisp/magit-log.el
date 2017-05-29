@@ -1300,7 +1300,9 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
 
 \\{magit-cherry-mode-map}"
   :group 'magit-log
-  (hack-dir-local-variables-non-file-buffer))
+  (hack-dir-local-variables-non-file-buffer)
+  (setq imenu-create-index-function
+        'magit-imenu--cherry-create-index-function))
 
 ;;;###autoload
 (defun magit-cherry (head upstream)
