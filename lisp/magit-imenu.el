@@ -163,6 +163,27 @@ This function is used as a value for
 beginning of the line."
   (elt (tabulated-list-get-entry) 0))
 
+;;;; Repolist mode
+
+;;;###autoload
+(defun magit-imenu--repolist-prev-index-position-function ()
+  "Move point to previous line in magit-repolist buffer.
+This function is used as a value for
+`imenu-prev-index-position-function'."
+  (unless (bobp)
+    (forward-line -1)))
+
+;;;###autoload
+(defun magit-imenu--repolist-extract-index-name-function ()
+  "Return imenu name for line at point.
+This function is used as a value for
+`imenu-extract-index-name-function'.  Point should be at the
+beginning of the line."
+  (let ((entry (tabulated-list-get-entry)))
+    (format "%s (%s)"
+            (elt entry 0)
+            (elt entry (1- (length entry))))))
+
 ;;;; Rebase mode
 
 ;;;###autoload
