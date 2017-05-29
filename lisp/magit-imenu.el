@@ -145,6 +145,24 @@ This function is used as a value for
    '(branch commit tag)
    '(local remote tags)))
 
+;;;; Submodule list mode
+
+;;;###autoload
+(defun magit-imenu--submodule-prev-index-position-function ()
+  "Move point to previous line in magit-submodule-list buffer.
+This function is used as a value for
+`imenu-prev-index-position-function'."
+  (unless (bobp)
+    (forward-line -1)))
+
+;;;###autoload
+(defun magit-imenu--submodule-extract-index-name-function ()
+  "Return imenu name for line at point.
+This function is used as a value for
+`imenu-extract-index-name-function'.  Point should be at the
+beginning of the line."
+  (elt (tabulated-list-get-entry) 0))
+
 ;;;; Rebase mode
 
 ;;;###autoload
