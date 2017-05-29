@@ -195,6 +195,28 @@ beginning of the line."
             (elt entry 0)
             (elt entry (1- (length entry))))))
 
+;;;; Process mode
+
+;;;###autoload
+(defun magit-imenu--process-prev-index-position-function ()
+  "Move point to previous process in magit-process buffer.
+This function is used as a value for
+`imenu-prev-index-position-function'."
+  (magit-section--backward-find
+   (lambda ()
+     (eq
+      (magit-section-type (magit-current-section))
+      'process))))
+
+;;;###autoload
+(defun magit-imenu--process-extract-index-name-function ()
+  "Return imenu name for line at point.
+This function is used as a value for
+`imenu-extract-index-name-function'.  Point should be at the
+beginning of the line."
+  (buffer-substring-no-properties (line-beginning-position)
+                                  (line-end-position)))
+
 ;;;; Rebase mode
 
 ;;;###autoload
