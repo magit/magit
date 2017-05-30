@@ -60,7 +60,9 @@ That function in turn is used by all section movement commands."
   :package-version '(magit . "2.3.0")
   :group 'magit-section
   :type 'hook
-  :options '(magit-hunk-set-window-start
+  :options '(magit-section-set-window-start
+             magit-hunk-maybe-recenter
+             magit-hunk-set-window-start
              magit-status-maybe-update-revision-buffer
              magit-status-maybe-update-blob-buffer
              magit-log-maybe-update-revision-buffer
@@ -276,6 +278,19 @@ If there is no previous sibling section, then move to the parent."
 It the SECTION has a different type, then do nothing."
   (when (eq (magit-section-type section) 'hunk)
     (magit-section-set-window-start section)))
+
+(defun magit-hunk-maybe-recenter (section)
+  "Ensure the beginning of the `hunk' SECTION is visible and maybe the end too.
+
+First make the beginning visible. Then, if the end isn't visible
+yet, attempt to scroll the window to make the end visible, while
+still keeping the beginning visible.
+
+It the SECTION has a different type, then do nothing."
+  (when (eq (magit-section-type section) 'hunk)
+    (magit-section-set-window-start section)
+    (unless (pos-visible-in-window-p (magit-section-end section))
+      (recenter 0))))
 
 (defmacro magit-define-section-jumper (name heading type &optional value)
   "Define an interactive function to go some section.
