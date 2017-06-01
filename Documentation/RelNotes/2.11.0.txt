@@ -81,6 +81,10 @@ Changes since v2.10.3
 * Text inside brackets in commit messages (including when shown in a
   log) are now highlighted using face `magit-keyword'.
 
+* Invocations of git are cached over the whole body of
+  `magit-run-git', not just during the status buffer refresh.  This
+  should make staging and unstaging slightly faster.  #3096
+
 Fixes since v2.10.3
 -------------------
 

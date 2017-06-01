@@ -913,7 +913,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (interactive)
   (unless inhibit-magit-refresh
     (let ((start (current-time))
-          (magit--refresh-cache (list (cons 0 0))))
+          (magit--refresh-cache (or magit--refresh-cache
+                                    (list (cons 0 0)))))
       (when magit-refresh-verbose
         (message "Refreshing magit..."))
       (magit-run-hook-with-benchmark 'magit-pre-refresh-hook)

@@ -290,8 +290,9 @@ as well as the current repository's status buffer are refreshed.
 
 Process output goes into a new section in the buffer returned by
 `magit-process-buffer'."
-  (magit-call-git args)
-  (magit-refresh))
+  (let ((magit--refresh-cache (list (cons 0 0))))
+    (magit-call-git args)
+    (magit-refresh)))
 
 (defvar magit-pre-call-git-hook nil)
 
