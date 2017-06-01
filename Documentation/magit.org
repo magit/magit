@@ -2219,7 +2219,7 @@ Also see [[man:git-diff]]
   revisions, choose a revision to view changes along, starting at the
   common ancestor of both revisions (i.e., use a "..."  range).
 
-- Key: d w, magit-diff-worktree
+- Key: d w, magit-diff-working-tree
 
   Show changes between the current working tree and the ~HEAD~ commit.
   With a prefix argument show changes between the working tree and a
