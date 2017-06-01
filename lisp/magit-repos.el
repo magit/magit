@@ -158,7 +158,11 @@ control which repositories are displayed."
                            (nconc (list title width t)
                                   (-flatten props)))
                          magit-repolist-columns)))
-  (tabulated-list-init-header))
+  (tabulated-list-init-header)
+  (setq imenu-prev-index-position-function
+        'magit-imenu--repolist-prev-index-position-function)
+  (setq imenu-extract-index-name-function
+        'magit-imenu--repolist-extract-index-name-function))
 
 ;;;; Columns
 

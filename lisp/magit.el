@@ -1063,7 +1063,8 @@ library getting in the way.  Then restart Emacs.\n"
     (require 'magit-subtree)
     (require 'magit-ediff)
     (require 'magit-extras)
-    (require 'git-rebase)))
+    (require 'git-rebase)
+    (require 'magit-imenu)))
 
 (if after-init-time
     (progn (magit-startup-asserts)

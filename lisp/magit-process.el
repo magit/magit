@@ -208,7 +208,11 @@ non-nil, then the password is read from the user instead."
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
   "Mode for looking at Git process output."
   :group 'magit-process
-  (hack-dir-local-variables-non-file-buffer))
+  (hack-dir-local-variables-non-file-buffer)
+  (setq imenu-prev-index-position-function
+        'magit-imenu--process-prev-index-position-function)
+  (setq imenu-extract-index-name-function
+        'magit-imenu--process-extract-index-name-function))
 
 (defun magit-process-buffer (&optional nodisplay)
   "Display the current repository's process buffer.

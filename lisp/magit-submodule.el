@@ -340,7 +340,11 @@ These sections can be expanded to show the respective commits."
                            (nconc (list title width t)
                                   (-flatten props)))
                          magit-submodule-list-columns)))
-  (tabulated-list-init-header))
+  (tabulated-list-init-header)
+  (setq imenu-prev-index-position-function
+        #'magit-imenu--submodule-prev-index-position-function)
+  (setq imenu-extract-index-name-function
+        #'magit-imenu--submodule-extract-index-name-function))
 
 (defun magit-modulelist-column-path (path)
   "Insert the relative path of the submodule."
