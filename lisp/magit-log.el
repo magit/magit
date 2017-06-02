@@ -806,7 +806,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         (propertize
          (concat " Commits in " (mapconcat 'identity revs  " ")
                  (and files (concat " touching "
-                                    (mapconcat 'identity files " "))))
+                                    (mapconcat 'identity files " ")))
+                 (--some (and (string-prefix-p "-L" it)
+                              (concat " " it))
+                         args))
          'face 'magit-header-line))
   (unless (= (length files) 1)
     (setq args (remove "--follow" args)))
