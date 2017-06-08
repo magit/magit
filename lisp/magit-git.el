@@ -913,10 +913,10 @@ to, or to some other symbolic-ref that points to the same ref."
 (defun magit-branch-or-commit-at-point ()
   (or magit-buffer-refname
       (magit-section-case
-        (branch (magit-section-value it))
+        (branch (magit-ref-maybe-qualify (magit-section-value it)))
         (commit (let ((rev (magit-section-value it)))
                   (or (magit-get-shortname rev) rev)))
-        (tag    (magit-section-value it)))
+        (tag (magit-ref-maybe-qualify (magit-section-value it) "tags/")))
       (and (derived-mode-p 'magit-revision-mode
                            'magit-merge-preview-mode)
            (car magit-refresh-args))))
