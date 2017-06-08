@@ -1010,6 +1010,37 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                                                 beg (line-end-position))))
                                 (t t)))))))))
 
+;;; Update File-Visiting Buffers
+
+(defvar magit--uncommitted-buffers nil)
+
+(defun magit-uncommitted-buffers ()
+  (let ((topdir (magit-toplevel)))
+    (--keep (find-buffer-visiting (expand-file-name it topdir))
+            (magit-modified-files t))))
+
+(defun magit-maybe-cache-uncommitted-buffers ()
+  "Maybe save a list of file-visiting buffers with uncommitted changes.
+That list is later used by `magit-update-uncommitted-buffers',
+provided it is a member of `magit-post-refresh-hook'.  If it is
+not, then don't save anything here."
+  (when (memq 'magit-update-uncommitted-buffers magit-post-refresh-hook)
+    (setq magit--uncommitted-buffers (magit-uncommitted-buffers))))
+
+(add-hook 'magit-pre-refresh-hook #'magit-maybe-cache-uncommitted-buffers)
+(add-hook 'magit-pre-call-git-hook #'magit-maybe-cache-uncommitted-buffers)
+(add-hook 'magit-pre-start-git-hook #'magit-maybe-cache-uncommitted-buffers)
+
+(defun magit-update-uncommitted-buffers ()
+  "Update file-visiting-buffers belonging to the current repository.
+Run `magit-update-uncommitted-buffer-hook' for each buffer
+which visits a file inside the current repository that had
+uncommitted changes before running the current Magit command
+and/or that does so now."
+  (dolist (buf (cl-union magit--uncommitted-buffers
+                         (magit-uncommitted-buffers) :test 'eq))
+    (run-hook-with-args 'magit-update-uncommitted-buffer-hook buf)))
+
 ;;; Save File-Visiting Buffers
 
 (defvar disable-magit-save-buffers nil)
