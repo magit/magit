@@ -896,7 +896,7 @@ to, or to some other symbolic-ref that points to the same ref."
 
 (defun magit-local-branch-at-point ()
   (magit-section-case
-    (branch (let ((branch (magit-section-value it)))
+    (branch (let ((branch (magit-ref-maybe-qualify (magit-section-value it))))
               (when (member branch (magit-list-local-branch-names))
                 branch)))
     (commit (magit-name-local-branch (magit-section-value it)))))
