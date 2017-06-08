@@ -818,9 +818,9 @@ string \"true\", otherwise return nil."
                   (funcall fn "--refs=refs/heads/*")
                   (funcall fn "--refs=refs/remotes/*" "--always")))
     (if (and (string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" rev)
-             (magit-ref-fullname (match-string 1 rev)))
-        (match-string 1 rev)
-      rev)))
+             (magit-ref-ambiguous-p (match-string 1 rev)))
+        rev
+      (match-string 1 rev))))
 
 (defun magit-name-branch (rev &optional lax)
   (or (magit-name-local-branch rev)
@@ -847,6 +847,9 @@ string \"true\", otherwise return nil."
 
 (defun magit-ref-fullname (name)
   (magit-rev-parse "--symbolic-full-name" name))
+
+(defun magit-ref-ambiguous-p (name)
+  (not (magit-ref-fullname name)))
 
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))

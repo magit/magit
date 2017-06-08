@@ -405,7 +405,7 @@ defaulting to the branch at point."
        (let ((len (length ambiguous)))
          (cond
           ((= len 1)
-           (format "%s is" (--first (not (magit-ref-fullname it)) branches)))
+           (format "%s is" (-first #'magit-ref-ambiguous-p branches)))
           ((= len (length refs))
            (format "These %s names are" len))
           (t
