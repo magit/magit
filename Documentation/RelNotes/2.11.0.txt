@@ -98,6 +98,9 @@ Fixes since v2.10.3
 * `git-rebase-mode' did wrongly assume that there is no space after
   the comment character in action lines that are commented out.  #3085
 
+* The command `magit-show-commit' mistakenly displayed a tag's commit
+  when point was on a branch with the same name.  #3098
+
 This release also contains the fixes described in the v2.10.{1,2,3}
 release notes, as well as other minor improvements, bug fixes, typo
 fixes, and documentation fixes.

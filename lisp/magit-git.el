@@ -812,15 +812,18 @@ string \"true\", otherwise return nil."
     (unless (string-match-p "~" it) it)))
 
 (defun magit-get-shortname (rev)
-  (let ((fn (apply-partially 'magit-git-string "name-rev"
-                             "--name-only" "--no-undefined" rev)))
-    (setq rev (or (funcall fn "--refs=refs/tags/*")
-                  (funcall fn "--refs=refs/heads/*")
-                  (funcall fn "--refs=refs/remotes/*" "--always")))
-    (if (and (string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" rev)
-             (magit-ref-ambiguous-p (match-string 1 rev)))
-        rev
-      (match-string 1 rev))))
+  (let* ((fn (apply-partially 'magit-git-string "name-rev"
+                              "--name-only" "--no-undefined" rev))
+         (name (or (funcall fn "--refs=refs/tags/*")
+                   (funcall fn "--refs=refs/heads/*")
+                   (funcall fn "--refs=refs/remotes/*"))))
+    (cond ((not name)
+           (magit-rev-parse "--short" rev))
+          ((string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" name)
+           (if (magit-ref-ambiguous-p (match-string 1 name))
+               name
+             (match-string 1 name)))
+          (t (magit-ref-maybe-qualify name)))))
 
 (defun magit-name-branch (rev &optional lax)
   (or (magit-name-local-branch rev)
