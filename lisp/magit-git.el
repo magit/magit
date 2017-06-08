@@ -688,7 +688,9 @@ Sorted from longest to shortest CYGWIN name."
             (cl-assoc filename magit-cygwin-mount-points
                       :test (lambda (f cyg) (string-prefix-p cyg f))))
       (concat win (substring filename (length cyg)))
-    filename))
+    (if (file-remote-p filename)
+        (tramp-file-name-localname (tramp-dissect-file-name filename))
+      filename)))
 
 (defun magit-convert-filename-for-git (filename)
   "Convert FILENAME so that it can be passed to git.
