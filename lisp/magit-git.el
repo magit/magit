@@ -851,6 +851,12 @@ string \"true\", otherwise return nil."
 (defun magit-ref-ambiguous-p (name)
   (not (magit-ref-fullname name)))
 
+(cl-defun magit-ref-maybe-qualify (name &optional (prefix "heads/"))
+  "If NAME is ambiguous, prepend PREFIX to it."
+  (concat (and (magit-ref-ambiguous-p name)
+               prefix)
+          name))
+
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))
 
