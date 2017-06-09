@@ -65,8 +65,8 @@ blame to center around the line point is on."
      (when (or current-prefix-arg
                (not (setq revision "HEAD"
                           filename (magit-file-relative-name nil 'tracked))))
-       (setq revision (magit-read-branch-or-commit "Blame from revision")
-             filename (magit-read-file-from-rev revision "Blame file")))
+       (setq revision (magit-read-branch-or-commit "Blame from revision"))
+       (setq filename (magit-read-file-from-rev revision "Blame file")))
      (list revision filename
            (and (equal filename
                        (ignore-errors
@@ -229,8 +229,8 @@ a position in a file-visiting buffer."
   (let (buf pos)
     (save-window-excursion
       (call-interactively #'magit-diff-visit-file)
-      (setq buf (current-buffer)
-            pos (point)))
+      (setq buf (current-buffer))
+      (setq pos (point)))
     (save-excursion
       (with-current-buffer buf
         (goto-char pos)

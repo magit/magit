@@ -1324,29 +1324,29 @@ commit or stash at point, then prompt for a commit."
   (let (rev cmd buf win)
     (cond
      (magit-blame-mode
-      (setq rev (magit-blame-chunk-get :hash)
-            cmd 'magit-show-commit
-            buf (magit-mode-get-buffer 'magit-revision-mode)))
+      (setq rev (magit-blame-chunk-get :hash))
+      (setq cmd 'magit-show-commit)
+      (setq buf (magit-mode-get-buffer 'magit-revision-mode)))
      ((derived-mode-p 'git-rebase-mode)
       (save-excursion
         (goto-char (line-beginning-position))
         (--if-let (and git-rebase-line
                        (looking-at git-rebase-line)
                        (match-string 2))
-            (setq rev it
-                  cmd 'magit-show-commit
-                  buf (magit-mode-get-buffer 'magit-revision-mode))
+            (progn (setq rev it)
+                   (setq cmd 'magit-show-commit)
+                   (setq buf (magit-mode-get-buffer 'magit-revision-mode)))
           (user-error "No commit on this line"))))
      (t
       (magit-section-case
         ((commit branch)
-         (setq rev (magit-section-value it)
-               cmd 'magit-show-commit
-               buf (magit-mode-get-buffer 'magit-revision-mode)))
+         (setq rev (magit-section-value it))
+         (setq cmd 'magit-show-commit)
+         (setq buf (magit-mode-get-buffer 'magit-revision-mode)))
         (stash
-         (setq rev (magit-section-value it)
-               cmd 'magit-stash-show
-               buf (magit-mode-get-buffer 'magit-stash-mode))))))
+         (setq rev (magit-section-value it))
+         (setq cmd 'magit-stash-show)
+         (setq buf (magit-mode-get-buffer 'magit-stash-mode))))))
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))

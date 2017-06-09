@@ -737,11 +737,11 @@ the minibuffer too."
                             "1"))))
               pnt-args eob-args)
           (when (listp pnt-format)
-            (setq pnt-args (cdr pnt-format)
-                  pnt-format (car pnt-format)))
+            (setq pnt-args (cdr pnt-format))
+            (setq pnt-format (car pnt-format)))
           (when (listp eob-format)
-            (setq eob-args (cdr eob-format)
-                  eob-format (car eob-format)))
+            (setq eob-args (cdr eob-format))
+            (setq eob-format (car eob-format)))
           (when pnt-format
             (when idx-format
               (setq pnt-format

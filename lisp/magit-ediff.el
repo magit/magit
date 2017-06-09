@@ -300,22 +300,23 @@ mind at all, then it asks the user for a command to run."
          (`unstaged (setq command #'magit-ediff-show-unstaged))
          (`staged (setq command #'magit-ediff-show-staged))
          (`(commit . ,value)
-          (setq command #'magit-ediff-show-commit
-                revB value))
+          (setq command #'magit-ediff-show-commit)
+          (setq revB value))
          (`(stash . ,value)
-          (setq command #'magit-ediff-show-stash
-                revB value))
+          (setq command #'magit-ediff-show-stash)
+          (setq revB value))
          ((pred stringp)
           (-let [(a b) (magit-ediff-compare--read-revisions range)]
-            (setq command #'magit-ediff-compare
-                  revA a
-                  revB b)))
+            (setq command #'magit-ediff-compare)
+            (setq revA a)
+            (setq revB b)))
          (_
           (when (derived-mode-p 'magit-diff-mode)
             (pcase (magit-diff-type)
               (`committed (-let [(a b) (magit-ediff-compare--read-revisions
                                         (car magit-refresh-args))]
-                            (setq revA a revB b)))
+                            (setq revA a)
+                            (setq revB b)))
               ((guard (not magit-ediff-dwim-show-on-hunks))
                (setq command #'magit-ediff-stage))
               (`unstaged  (setq command #'magit-ediff-show-unstaged))

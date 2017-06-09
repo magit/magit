@@ -1277,8 +1277,8 @@ variable whose value may be used as a default."
 (defun magit-popup-export-file-args (args)
   (let ((files (--first (string-prefix-p "-- " it) args)))
     (when files
-      (setq args  (remove files args)
-            files (split-string (substring files 3) ",")))
+      (setq args  (remove files args))
+      (setq files (split-string (substring files 3) ",")))
     (list args files)))
 
 (defconst magit-popup-font-lock-keywords

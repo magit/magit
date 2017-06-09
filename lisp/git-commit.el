@@ -676,8 +676,8 @@ Added to `font-lock-extend-region-functions'."
               (summary-end (match-end 0)))
           (when (or (< summary-beg font-lock-beg summary-end)
                     (< summary-beg font-lock-end summary-end))
-            (setq font-lock-beg (min font-lock-beg summary-beg)
-                  font-lock-end (max font-lock-end summary-end))))))))
+            (setq font-lock-beg (min font-lock-beg summary-beg))
+            (setq font-lock-end (max font-lock-end summary-end))))))))
 
 (defun git-commit-mode-font-lock-keywords ()
   `(;; Comments

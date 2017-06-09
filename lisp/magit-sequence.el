@@ -526,8 +526,8 @@ If no such sequence is in progress, do nothing."
       (let ((patches (nreverse (magit-rebase-patches)))
             patch commit)
         (while patches
-          (setq patch (pop patches)
-                commit (magit-rev-verify-commit
+          (setq patch (pop patches))
+          (setq commit (magit-rev-verify-commit
                         (cadr (split-string (magit-file-line patch)))))
           (cond ((and commit patches)
                  (magit-sequence-insert-commit

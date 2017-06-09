@@ -487,8 +487,8 @@ ACTION is a member of option `magit-slow-confirm'."
 
 (cl-defun magit-confirm (action &optional prompt prompt-n (items nil sitems))
   (declare (indent defun))
-  (setq prompt-n (format (concat (or prompt-n prompt) "? ") (length items))
-        prompt   (format (concat (or prompt (magit-confirm-make-prompt action))
+  (setq prompt-n (format (concat (or prompt-n prompt) "? ") (length items)))
+  (setq prompt   (format (concat (or prompt (magit-confirm-make-prompt action))
                                  "? ")
                          (car items)))
   (cond ((and (not (eq action t))

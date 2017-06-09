@@ -366,8 +366,8 @@ actually insert the entry."
         (log (magit-commit-message-buffer)) buf pos)
     (save-window-excursion
       (call-interactively #'magit-diff-visit-file)
-      (setq buf (current-buffer)
-            pos (point)))
+      (setq buf (current-buffer))
+      (setq pos (point)))
     (unless log
       (unless (magit-commit-assert nil)
         (user-error "Abort"))
