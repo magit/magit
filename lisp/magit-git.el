@@ -812,15 +812,18 @@ string \"true\", otherwise return nil."
     (unless (string-match-p "~" it) it)))
 
 (defun magit-get-shortname (rev)
-  (let ((fn (apply-partially 'magit-git-string "name-rev"
-                             "--name-only" "--no-undefined" rev)))
-    (setq rev (or (funcall fn "--refs=refs/tags/*")
-                  (funcall fn "--refs=refs/heads/*")
-                  (funcall fn "--refs=refs/remotes/*" "--always")))
-    (if (and (string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" rev)
-             (magit-ref-fullname (match-string 1 rev)))
-        (match-string 1 rev)
-      rev)))
+  (let* ((fn (apply-partially 'magit-git-string "name-rev"
+                              "--name-only" "--no-undefined" rev))
+         (name (or (funcall fn "--refs=refs/tags/*")
+                   (funcall fn "--refs=refs/heads/*")
+                   (funcall fn "--refs=refs/remotes/*"))))
+    (cond ((not name)
+           (magit-rev-parse "--short" rev))
+          ((string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" name)
+           (if (magit-ref-ambiguous-p (match-string 1 name))
+               name
+             (match-string 1 name)))
+          (t (magit-ref-maybe-qualify name)))))
 
 (defun magit-name-branch (rev &optional lax)
   (or (magit-name-local-branch rev)
@@ -847,6 +850,15 @@ string \"true\", otherwise return nil."
 
 (defun magit-ref-fullname (name)
   (magit-rev-parse "--symbolic-full-name" name))
+
+(defun magit-ref-ambiguous-p (name)
+  (not (magit-ref-fullname name)))
+
+(cl-defun magit-ref-maybe-qualify (name &optional (prefix "heads/"))
+  "If NAME is ambiguous, prepend PREFIX to it."
+  (concat (and (magit-ref-ambiguous-p name)
+               prefix)
+          name))
 
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))
@@ -884,7 +896,7 @@ to, or to some other symbolic-ref that points to the same ref."
 
 (defun magit-local-branch-at-point ()
   (magit-section-case
-    (branch (let ((branch (magit-section-value it)))
+    (branch (let ((branch (magit-ref-maybe-qualify (magit-section-value it))))
               (when (member branch (magit-list-local-branch-names))
                 branch)))
     (commit (magit-name-local-branch (magit-section-value it)))))
@@ -904,10 +916,10 @@ to, or to some other symbolic-ref that points to the same ref."
 (defun magit-branch-or-commit-at-point ()
   (or magit-buffer-refname
       (magit-section-case
-        (branch (magit-section-value it))
+        (branch (magit-ref-maybe-qualify (magit-section-value it)))
         (commit (let ((rev (magit-section-value it)))
                   (or (magit-get-shortname rev) rev)))
-        (tag    (magit-section-value it)))
+        (tag (magit-ref-maybe-qualify (magit-section-value it) "tags/")))
       (and (derived-mode-p 'magit-revision-mode
                            'magit-merge-preview-mode)
            (car magit-refresh-args))))

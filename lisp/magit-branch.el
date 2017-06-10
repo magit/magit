@@ -197,6 +197,8 @@ Checkout fails if the working tree or the staging area contain
 changes.
 \n(git checkout REVISION)."
   (interactive (list (magit-read-other-branch-or-commit "Checkout")))
+  (when (string-match "\\`heads/\\(.+\\)" revision)
+    (setq revision (match-string 1 revision)))
   (magit-run-git "checkout" revision))
 
 ;;;###autoload
@@ -405,7 +407,7 @@ defaulting to the branch at point."
        (let ((len (length ambiguous)))
          (cond
           ((= len 1)
-           (format "%s is" (--first (not (magit-ref-fullname it)) branches)))
+           (format "%s is" (-first #'magit-ref-ambiguous-p branches)))
           ((= len (length refs))
            (format "These %s names are" len))
           (t
