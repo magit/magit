@@ -17,6 +17,6 @@ Please also consider to contribute by making a
 [monetary donation][donations].
 
 
-[donations]: https://magit.vc/donations.html
+[donations]: https://magit.vc/donate/
 [issues]:    https://github.com/magit/magit/issues
 [pulls]:     https://github.com/magit/magit/pulls
