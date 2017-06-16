@@ -634,11 +634,19 @@ completion candidates."
   "Show log for the blob or file visited in the current buffer.
 With a prefix argument or when `--follow' is part of
 `magit-log-arguments', then follow renames."
-  (interactive (if (region-active-p)
-                   (list current-prefix-arg
-                         (1- (line-number-at-pos (region-beginning)))
-                         (1- (line-number-at-pos (region-end))))
-                 (list current-prefix-arg)))
+  (interactive
+   (cons current-prefix-arg
+         (and (region-active-p)
+              (save-restriction
+                (widen)
+                (list (line-number-at-pos (region-beginning))
+                      (line-number-at-pos
+                       (let ((end (region-end)))
+                         (if (char-after end)
+                             end
+                           ;; Ensure that we don't get the line number
+                           ;; of a trailing newline.
+                           (1- end)))))))))
   (require 'magit)
   (-if-let (file (magit-file-relative-name))
       (magit-mode-setup-internal
@@ -798,7 +806,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         (propertize
          (concat " Commits in " (mapconcat 'identity revs  " ")
                  (and files (concat " touching "
-                                    (mapconcat 'identity files " "))))
+                                    (mapconcat 'identity files " ")))
+                 (--some (and (string-prefix-p "-L" it)
+                              (concat " " it))
+                         args))
          'face 'magit-header-line))
   (unless (= (length files) 1)
     (setq args (remove "--follow" args)))
