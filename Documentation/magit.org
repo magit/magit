@@ -5214,7 +5214,7 @@ A---B---C              refs/heads/master
      \   \
       \   CW0---CW1    refs/wip/wtree/refs/heads/master
        \
-        BW0---BW1      refs/wip/wtree/refs/heads/master@@@{2@}
+        BW0---BW1      refs/wip/wtree/refs/heads/master@{2}
 #+END_EXAMPLE
 
 The fork-point of the index wip ref is not changed until some change

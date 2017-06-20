@@ -358,8 +358,8 @@ gotten their hands on Magit earlier.
 While one has to know the basic features of Emacs to be able to make
 full use of Magit, acquiring just enough Emacs skills doesn't take
 long and is worth it, even for users who prefer other editors.  Vim
-users are advised to give @uref{https://bitbucket.org/lyro/evil/wiki/Home,Evil}, the "Extensible VI Layer for Emacs",
-and @uref{https://github.com/syl20bnr/spacemacs,Spacemacs}, an "Emacs starter-kit focused on Evil" a try.
+users are advised to give @uref{https://bitbucket.org/lyro/evil/wiki/Home, Evil}, the "Extensible VI Layer for Emacs",
+and @uref{https://github.com/syl20bnr/spacemacs, Spacemacs}, an "Emacs starter-kit focused on Evil" a try.
 
 Magit provides a consistent and efficient Git porcelain.  After a
 short learning period, you will be able to perform most of your daily
@@ -444,7 +444,7 @@ using:
 M-x package-install RET magit RET
 @end example
 
-Now see @ref{Post-Installation Tasks,Post-Installation Tasks}.
+Now see @ref{Post-Installation Tasks}.
 
 @node Installing from the Git Repository
 @section Installing from the Git Repository
@@ -522,7 +522,7 @@ At times it might be necessary to run @code{make clean all} instead.
 
 To view all available targets use @code{make help}.
 
-Now see @ref{Post-Installation Tasks,Post-Installation Tasks}.
+Now see @ref{Post-Installation Tasks}.
 
 @node Post-Installation Tasks
 @section Post-Installation Tasks
@@ -543,17 +543,17 @@ Magit 2.8.0, Git 2.10.2, Emacs 25.1.1, gnu/linux
 @end example
 
 Then you might also want to read about options that many users likely
-want to customize.  See @ref{Essential Settings,Essential Settings}.
+want to customize.  See @ref{Essential Settings}.
 
 To be able to follow cross references to Git manpages found in this
 manual, you might also have to manually install the @code{gitman} info manual,
 or advice @code{Info-follow-nearest-node} to instead open the actual manpage.
-See @ref{How to install the gitman info manual?,How to install the gitman info manual?}.
+See @ref{How to install the gitman info manual?}.
 
-If you are completely new to Magit then see @ref{Getting Started,Getting Started}.
+If you are completely new to Magit then see @ref{Getting Started}.
 
-If you run into problems, then please see the @ref{FAQ,FAQ}.  Also see the
-@ref{Debugging Tools,Debugging Tools}.
+If you run into problems, then please see the @ref{FAQ}.  Also see the
+@ref{Debugging Tools}.
 
 And last but not least please consider making a donation, to ensure
 that I can keep working on Magit.  See @uref{https://magit.vc/donations}.
@@ -661,7 +661,7 @@ command too:
 
 In the same vein, you might also want to enable @code{global-magit-file-mode}
 to get some more Magit key bindings in regular file-visiting buffers
-(see @ref{Minor Mode for Buffers Visiting Files,Minor Mode for Buffers Visiting Files}).
+(see @ref{Minor Mode for Buffers Visiting Files}).
 
 It is not necessary that you do so now, but if you stick with Magit,
 then it is highly recommended that you read the next section too.
@@ -1621,7 +1621,7 @@ you should setup a global binding:
 
 Most popups set their initial arguments according to the corresponding
 @code{magit-*-arguments} variable.  Two popups, the log and diff popups
-(see @ref{Logging,Logging} and @ref{Diffing,Diffing}), may behave a bit differently, depending
+(see @ref{Logging} and @ref{Diffing}), may behave a bit differently, depending
 on the value of @code{magit-use-sticky-arguments}.
 
 @defopt magit-use-sticky-arguments
@@ -1660,7 +1660,7 @@ themselves, such functions should not be used directly.  Instead a
 wrapper function has to be used.
 @end defopt
 
-Currently only the real @code{completing-read} and @uref{http://www.emacswiki.org/emacs/InteractivelyDoThings,Ido} are fully supported.
+Currently only the real @code{completing-read} and @uref{http://www.emacswiki.org/emacs/InteractivelyDoThings, Ido} are fully supported.
 More frameworks will be supported in the future.
 
 @defun magit-builtin-completing-read prompt choices &optional predicate require-match initial-input hist def
@@ -2053,7 +2053,7 @@ like pretty much every other keymap:
 @subsection Status Sections
 
 The contents of status buffers is controlled using the hook
-@code{magit-status-sections-hook}.  See @ref{Section Hooks,Section Hooks} to learn about such
+@code{magit-status-sections-hook}.  See @ref{Section Hooks} to learn about such
 hooks and how to customize them.
 
 @defopt magit-status-sections-hook
@@ -2241,7 +2241,7 @@ a patch-id not shared with any upstream commit) with "+" and
 all others with "-".
 @end defun
 
-See @ref{References Buffer,References Buffer} for some more section inserters, which could be
+See @ref{References Buffer} for some more section inserters, which could be
 used here.
 
 @node Status Header Sections
@@ -2462,7 +2462,7 @@ Like other popups, the log popup also features several arguments that
 can be changed before invoking one of the suffix commands.  However,
 in the case of the log popup, these arguments may be taken from those
 currently in use in the current repository's log buffer, depending on
-the value of @code{magit-use-sticky-arguments} (see @ref{Popup Buffers and Prefix Commands,Popup Buffers and Prefix Commands}).
+the value of @code{magit-use-sticky-arguments} (see @ref{Popup Buffers and Prefix Commands}).
 
 For information about the various arguments, see 
 @ifinfo
@@ -2480,7 +2480,7 @@ the git-log(1) manpage.
 The switch @code{++order=VALUE} is converted to one of @code{--author-date-order},
 @code{--date-order}, or @code{--topo-order} before being passed to @code{git log}.
 
-The log popup also features several reflog commands.  See @ref{Reflog,Reflog}.
+The log popup also features several reflog commands.  See @ref{Reflog}.
 
 @table @asis
 @kindex l
@@ -2534,8 +2534,8 @@ Show log for all references and @code{HEAD}.
 
 
 Two additional commands that show the log for the file or blob that
-is being visited in the current buffer exists, see @ref{Minor Mode for Buffers Visiting Files,Minor Mode for Buffers Visiting Files}.  The command @code{magit-cherry} also shows a log,
-see @ref{Cherries,Cherries}.
+is being visited in the current buffer exists, see @ref{Minor Mode for Buffers Visiting Files}.  The command @code{magit-cherry} also shows a log,
+see @ref{Cherries}.
 
 @menu
 * Refreshing Logs::
@@ -2603,7 +2603,7 @@ Show or hide the margin.
 @item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-popup})
 
 This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.  See @ref{Refreshing Logs,Refreshing Logs}.
+the appropriate infix arguments in a popup buffer.  See @ref{Refreshing Logs}.
 
 @kindex q
 @cindex magit-log-bury-buffer
@@ -2693,7 +2693,7 @@ Whether to show the refnames after the commit summaries.  This is
 useful if you use really long branch names.
 @end defopt
 
-For a description of @code{magit-log-margin} see @ref{Log Margin,Log Margin}.
+For a description of @code{magit-log-margin} see @ref{Log Margin}.
 
 @node Log Margin
 @subsection Log Margin
@@ -2858,7 +2858,7 @@ the <a href="http://git-scm.com/docs/git-reflog">git-reflog(1)</a> manpage.
 the git-reflog(1) manpage.
 @end iftex
 
-These reflog commands are available from the log popup.  See @ref{Logging,Logging}.
+These reflog commands are available from the log popup.  See @ref{Logging}.
 
 @table @asis
 @kindex l r
@@ -2921,7 +2921,7 @@ has an equivalent in the upstream and @code{+} if it does not, i.e. if it is
 a cherry.
 
 The command @code{magit-cherry} shows cherries for a single branch, but the
-references buffer (see @ref{References Buffer,References Buffer}) can show cherries for
+references buffer (see @ref{References Buffer}) can show cherries for
 multiple "upstreams" at once.
 
 Also see 
@@ -2990,7 +2990,7 @@ Like other popups, the diff popup also features several arguments that
 can be changed before invoking one of the suffix commands.  However,
 in the case of the diff popup, these arguments may be taken from those
 currently in use in the current repository's log buffer, depending on
-the value of @code{magit-use-sticky-arguments} (see @ref{Popup Buffers and Prefix Commands,Popup Buffers and Prefix Commands}).
+the value of @code{magit-use-sticky-arguments} (see @ref{Popup Buffers and Prefix Commands}).
 
 Also see 
 @ifinfo
@@ -3084,7 +3084,7 @@ Show all diffs of a stash in a buffer.
 @end table
 
 Two additional commands that show the diff for the file or blob that
-is being visited in the current buffer exists, see @ref{Minor Mode for Buffers Visiting Files,Minor Mode for Buffers Visiting Files}.
+is being visited in the current buffer exists, see @ref{Minor Mode for Buffers Visiting Files}.
 
 @menu
 * Refreshing Diffs::
@@ -3781,7 +3781,7 @@ like you would do in other buffers.
 @subsection References Sections
 
 The contents of references buffers is controlled using the hook
-@code{magit-refs-sections-hook}.  See @ref{Section Hooks,Section Hooks} to learn about such hooks
+@code{magit-refs-sections-hook}.  See @ref{Section Hooks} to learn about such hooks
 and how to customize them.  All of the below functions are members of
 the default value.  Note that it makes much less sense to customize
 this hook than it does for the respective hook used for the status
@@ -4132,7 +4132,7 @@ Besides staging and unstaging, Magit also provides several other
 once, a hunk, multiple hunks at once, and on parts of a hunk.  These
 apply variants are described in the next section.
 
-You can also use Ediff to stage and unstage.  See @ref{Ediffing,Ediffing}.
+You can also use Ediff to stage and unstage.  See @ref{Ediffing}.
 
 @table @asis
 @kindex s
@@ -4829,7 +4829,7 @@ the variables that are related to fetching, pulling, and pushing (as
 well as some other branch-related variables) can be inspected and
 changed using the popup @code{magit-branch-config-popup}, which is a
 sub-popup of many popups that deal with branches.  It is also possible
-to set the push-remote or upstream while pushing (see @ref{Pushing,Pushing}).
+to set the push-remote or upstream while pushing (see @ref{Pushing}).
 
 @node The Branch Popup
 @subsection The Branch Popup
@@ -5274,7 +5274,7 @@ the <a href="http://git-scm.com/docs/git-checkout">git-checkout(1)</a> manpage.
 @iftex
 the git-checkout(1) manpage.
 @end iftex
- and @ref{Pushing,Pushing}.
+ and @ref{Pushing}.
 
 @defopt magit-prefer-remote-upstream
 
@@ -5485,7 +5485,7 @@ different versions of the file.  To resolve conflicts in a file using
 Ediff press @code{e} while point is on such a file in the status buffer.
 
 Ediff can be used for other purposes as well.  For more information on
-how to enter Ediff from Magit, see @ref{Ediffing,Ediffing}.  Explaining how to use
+how to enter Ediff from Magit, see @ref{Ediffing}.  Explaining how to use
 Ediff is beyond the scope of this manual, instead see @ref{Top,,,ediff,}.
 
 If you are unsure whether you should Smerge or Ediff, then use the
@@ -5527,7 +5527,7 @@ stop somewhere along the way, either because you told it to do so, or
 because applying a commit failed due to a conflict.  When that
 happens, then the status buffer shows information about the rebase
 sequence which is in progress in a section similar to a log section.
-See @ref{Information About In-Progress Rebase,Information About In-Progress Rebase}.
+See @ref{Information About In-Progress Rebase}.
 
 @table @asis
 @kindex r p
@@ -5840,7 +5840,7 @@ The following words are used:
 @item
 Commits prefixed with @code{pick}, @code{reword}, @code{edit}, @code{squash}, and @code{fixup} have not
 been applied yet.  These words have the same meaning here as they do
-in the buffer used to edit the rebase sequence.  See @ref{Editing Rebase Sequences,Editing Rebase Sequences}.
+in the buffer used to edit the rebase sequence.  See @ref{Editing Rebase Sequences}.
 
 
 @item
@@ -6405,7 +6405,7 @@ remote is equal to that string and the variable isn't already set.
 @section Fetching
 
 For information about the differences between the @emph{upstream} and the
-@emph{push-remote}, see @ref{Branching,Branching}.
+@emph{push-remote}, see @ref{Branching}.
 
 Also see 
 @ifinfo
@@ -6482,7 +6482,7 @@ more information.
 @section Pulling
 
 For information about the differences between the @emph{upstream} and the
-@emph{push-remote}, see @ref{Branching,Branching}.
+@emph{push-remote}, see @ref{Branching}.
 
 Also see 
 @ifinfo
@@ -6532,7 +6532,7 @@ more information.
 @section Pushing
 
 For information about the differences between the @emph{upstream} and the
-@emph{push-remote}, see @ref{Branching,Branching}.
+@emph{push-remote}, see @ref{Branching}.
 
 Also see 
 @ifinfo
@@ -7349,7 +7349,7 @@ few key bindings, but this might be extended in the future.
 
 Whether to establish certain Magit key bindings in all file-visiting
 buffers belonging to a Git repository.  This establishes the
-bindings suggested in @ref{Getting Started,Getting Started} (but only for file-visiting
+bindings suggested in @ref{Getting Started} (but only for file-visiting
 buffers), and additionally binds @code{C-c M-g} to @code{magit-file-popup}.
 @end defopt
 
@@ -7378,7 +7378,7 @@ Unstage all changes to the file being visited in the current buffer.
 @item @kbd{C-c M-g c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-popup})
 
 This prefix command shows suffix commands along with the appropriate
-infix arguments in a popup buffer.  See @ref{Initiating a Commit,Initiating a Commit}.
+infix arguments in a popup buffer.  See @ref{Initiating a Commit}.
 
 @kindex C-c M-g D
 @cindex magit-diff-buffer-file-popup
@@ -7401,7 +7401,7 @@ buffer visits.
 @defopt magit-diff-buffer-file-locked
 
 This option controls whether @code{magit-diff-buffer-file} uses a decicated
-buffer.  See @ref{Modes and Buffers,Modes and Buffers}.
+buffer.  See @ref{Modes and Buffers}.
 @end defopt
 
 @table @asis
@@ -7427,7 +7427,7 @@ or when @code{--follow} is part of @code{magit-log-arguments}.
 @defopt magit-log-buffer-file-locked
 
 This option controls whether @code{magit-log-buffer-file} uses a decicated
-buffer.  See @ref{Modes and Buffers,Modes and Buffers}.
+buffer.  See @ref{Modes and Buffers}.
 @end defopt
 
 @table @asis
@@ -7436,7 +7436,7 @@ buffer.  See @ref{Modes and Buffers,Modes and Buffers}.
 @item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
 
 This prefix command shows the @code{magit-blame} suffix command along with
-the appropriate infix arguments in a popup buffer.  See @ref{Initiating a Commit,Initiating a Commit}.
+the appropriate infix arguments in a popup buffer.  See @ref{Initiating a Commit}.
 
 @kindex C-c M-g p
 @cindex magit-blob-previous
@@ -7612,12 +7612,12 @@ for @strong{uncommitted} changes in the working tree and not even the index
 uncommitted changes, it also makes it easy to shoot yourself in the
 foot in the process.  For that reason Magit provides three global
 modes that save @strong{tracked} files to work-in-progress references after or
-before certain actions.  See @ref{Wip Modes,Wip Modes}.
+before certain actions.  See @ref{Wip Modes}.
 
 These modes are not enabled by default because of performance
 concerns.  Instead a lot of potentially destructive commands require
 confirmation every time they are used.  In many cases this can be
-disabled by adding a symbol to @code{magit-no-confirm} (see @ref{Completion and Confirmation,Completion and Confirmation}).  If you enable the various wip modes then you should
+disabled by adding a symbol to @code{magit-no-confirm} (see @ref{Completion and Confirmation}).  If you enable the various wip modes then you should
 add @code{safe-with-wip} to this list.
 
 Similarly it isn't necessary to require confirmation before moving a
@@ -7629,7 +7629,7 @@ might want to change that.
 
 By default buffers visiting files are automatically reverted when the
 visited file changes on disk.  This isn't as risky as it might seem,
-but to make an informed decision you should see @ref{Risk of Reverting Automatically,Risk of Reverting Automatically}.
+but to make an informed decision you should see @ref{Risk of Reverting Automatically}.
 
 @node Performance
 @subsection Performance
@@ -7676,7 +7676,7 @@ should help.
       'magit-auto-revert-repository-buffers-p)
 @end lisp
 
-For alternative approaches see @ref{Automatic Reverting of File-Visiting Buffers,Automatic Reverting of File-Visiting Buffers}.
+For alternative approaches see @ref{Automatic Reverting of File-Visiting Buffers}.
 
 If you have enabled any features that are disabled by default, then
 you should check whether they impact performance significantly.  It's
@@ -7686,7 +7686,7 @@ they reduce performance at least in large repositories.
 If performance is only slow inside certain unusually large
 repositories, then you might want to disable certain features on a
 per-repository or per-repository-class basis only.  See
-@ref{Per-Repository Configuration,Per-Repository Configuration}.
+@ref{Per-Repository Configuration}.
 
 @menu
 * Microsoft Windows Performance::
@@ -8668,7 +8668,7 @@ frequently @strong{and recently} asked questions, i.e. questions that haven't
 made it into the manual yet, see
 @uref{https://github.com/magit/magit/wiki/FAQ}.
 
-Please also use the @ref{Debugging Tools,Debugging Tools}.
+Please also use the @ref{Debugging Tools}.
 
 @menu
 * FAQ - How to @dots{}?::
@@ -8735,7 +8735,7 @@ echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 @node How does branching and pushing work?
 @subsection How does branching and pushing work?
 
-Please see @ref{Branching,Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
+Please see @ref{Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
 
 @node Can Magit be used as @code{ediff-version-control-package}?
 @subsection Can Magit be used as @code{ediff-version-control-package}?
@@ -8789,7 +8789,7 @@ conflicts.
 @node Magit is slow
 @subsection Magit is slow
 
-See @ref{Performance,Performance}.
+See @ref{Performance}.
 
 @node I changed several thousand files at once and now Magit is unusable
 @subsection I changed several thousand files at once and now Magit is unusable
@@ -8800,7 +8800,7 @@ that direction.  But it might take until v3.1 to accomplish fully
 satisfactory performance, because that requires some heavy refactoring.
 
 But for now we recommend you use the command line to complete this one
-commit.  Also see @ref{Performance,Performance}.
+commit.  Also see @ref{Performance}.
 
 @node I am having problems committing
 @subsection I am having problems committing
@@ -8959,7 +8959,7 @@ This command displays a buffer containing information about the
 available and used @code{git} executable(s), and can be useful when
 investigating @code{exec-path} issues.
 
-Also see @ref{Git Executable,Git Executable}.
+Also see @ref{Git Executable}.
 
 @kindex M-x with-editor-debug
 @cindex with-editor-debug
@@ -8973,7 +8973,7 @@ appropriate @code{emacsclient} executable.
 Also see @ref{Debugging,,,with-editor,}.
 @end table
 
-Please also see the @ref{FAQ,FAQ}.
+Please also see the @ref{FAQ}.
 
 @node Keystroke Index
 @appendix Keystroke Index
