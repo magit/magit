@@ -7394,8 +7394,7 @@ is automatically used in the popup to limit the diff to that file.
 @item @kbd{C-c M-g d} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-buffer-file})
 
 This command shows the diff for the file of blob that the current
-buffer visits.  Renames are followed when a prefix argument is used
-or when @code{--follow} is part of @code{magit-diff-arguments}.
+buffer visits.
 
 @end table
 
