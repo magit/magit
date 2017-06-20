@@ -849,7 +849,15 @@ string \"true\", otherwise return nil."
          (substring it 5))))
 
 (defun magit-ref-fullname (name)
-  (magit-rev-parse "--symbolic-full-name" name))
+  "Return fully qualified refname for NAME.
+If NAME is ambiguous, return nil.  NAME may include suffixes such
+as \"^1\" and \"~3\".  "
+  (save-match-data
+    (if (string-match "\\`\\([^^~]+\\)\\(.*\\)" name)
+        (--when-let (magit-rev-parse "--symbolic-full-name"
+                                     (match-string 1 name))
+          (concat it (match-string 2 name)))
+      (error "`name' has an unrecognized format"))))
 
 (defun magit-ref-ambiguous-p (name)
   (not (magit-ref-fullname name)))
