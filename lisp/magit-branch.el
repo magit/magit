@@ -618,7 +618,7 @@ already set.  When nil, then always unset."
   (interactive
    (let ((branch (magit-branch-config-branch "Change upstream of branch")))
      (list branch (and (not (magit-get-upstream-branch branch))
-                       (magit-read-upstream-branch)))))
+                       (magit-read-upstream-branch branch)))))
   (if upstream
       (-let (((remote . merge) (magit-split-branch-name upstream)))
         (setf (magit-get (format "branch.%s.remote" branch)) remote)
