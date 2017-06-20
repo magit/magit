@@ -1038,31 +1038,25 @@ which is different from the current branch and still exists."
         remote))))
 
 (defun magit-branch-merged-p (branch &optional target)
-  "Return non-nil if BRANCH is either merged into its upstream or TARGET.
+  "Return non-nil if BRANCH is merged into its upstream and TARGET.
 
-If optional TARGET is nil, then check whether BRANCH is merged
-into the current branch instead.  If TARGET is t, then check
-whether BRANCH is merged into any other local branch.  In both
-cases the upstream check is also performed.
+TARGET defaults to the current branch.  If `HEAD' is detached and
+TARGET is nil, then always return nil.  As a special case, if
+TARGET is t, then return non-nil if BRANCH is merged into any one
+of the other local branches.
 
-If BRANCH isn't merged into its upstream, TARGET is nil, and
-`HEAD' is detached, then return nil, even when BRANCH is merged
-into `HEAD' or some local branch.
-
-BRANCH can also be a revision or non-branch reference, though in
-that case the upstream check obviously is meaningless and always
-fails."
-  (or (magit-branch-merged-into-upstream-p branch)
-      (if (eq target t)
-          (delete (magit-name-local-branch branch)
-                  (magit-list-containing-branches branch))
-        (--when-let (or target (magit-get-current-branch))
-          (magit-git-success "merge-base" "--is-ancestor" branch it)))))
-
-(defun magit-branch-merged-into-upstream-p (branch)
-  "Return t if BRANCH is merged into its upstream."
-  (--when-let (magit-get-upstream-branch branch)
-    (magit-git-success "merge-base" "--is-ancestor" branch it)))
+If, and only if, BRANCH has an upstream, then only return non-nil
+if BRANCH is merged into both TARGET (as described above) as well
+as into its upstream."
+  (and (--if-let (and (magit-branch-p branch)
+                      (magit-get-upstream-branch branch))
+           (magit-git-success "merge-base" "--is-ancestor" branch it)
+         t)
+       (if (eq target t)
+           (delete (magit-name-local-branch branch)
+                   (magit-list-containing-branches branch))
+         (--when-let (or target (magit-get-current-branch))
+           (magit-git-success "merge-base" "--is-ancestor" branch it)))))
 
 (defun magit-split-branch-name (branch)
   (cond ((member branch (magit-list-local-branch-names))

@@ -113,6 +113,10 @@ Fixes since v2.10.3
   the user was asked what branch to use as the upstream of the current
   branch anyway, even though the correct branch would then be modified.
 
+* When deleting a branch that is merged into the current branch but
+  not into its own upstream branch, then the user was not offered to
+  force the deletion, causing it to fail.  #3107
+
 This release also contains the fixes described in the v2.10.{1,2,3}
 release notes, as well as other minor improvements, bug fixes, typo
 fixes, and documentation fixes.
