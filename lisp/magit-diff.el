@@ -912,8 +912,7 @@ for a revision."
           (atpoint (or (and (bound-and-true-p magit-blame-mode)
                             (magit-blame-chunk-get :hash))
                        mcommit
-                       (magit-branch-or-commit-at-point)
-                       (magit-tag-at-point))))
+                       (magit-branch-or-commit-at-point))))
      (nconc (cons (or (and (not current-prefix-arg) atpoint)
                       (magit-read-branch-or-commit "Show commit" atpoint))
                   (magit-show-commit--arguments))
