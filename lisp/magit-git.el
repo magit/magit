@@ -802,9 +802,16 @@ string \"true\", otherwise return nil."
            (equal (magit-rev-parse rev)
                   (magit-rev-parse "HEAD")))))
 
-(defun magit-rev-name (rev &optional pattern)
+(defun magit-rev-name (rev &optional pattern not-anchored)
+  "Return a symbolic name for REV.
+PATTERN can be used to limit the result to a matching ref.
+Unless NOT-ANCHORED is non-nil, the beginning of the ref must
+match PATTERN."
   (magit-git-string "name-rev" "--name-only" "--no-undefined"
                     (and pattern (concat "--refs=" pattern))
+                    (and pattern
+                         (not not-anchored)
+                         (concat "--exclude=*/" pattern))
                     rev))
 
 (defun magit-rev-branch (rev)
