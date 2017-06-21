@@ -802,9 +802,16 @@ string \"true\", otherwise return nil."
            (equal (magit-rev-parse rev)
                   (magit-rev-parse "HEAD")))))
 
-(defun magit-rev-name (rev &optional pattern)
+(defun magit-rev-name (rev &optional pattern not-anchored)
+  "Return a symbolic name for REV.
+PATTERN can be used to limit the result to a matching ref.
+Unless NOT-ANCHORED is non-nil, the beginning of the ref must
+match PATTERN."
   (magit-git-string "name-rev" "--name-only" "--no-undefined"
                     (and pattern (concat "--refs=" pattern))
+                    (and pattern
+                         (not not-anchored)
+                         (concat "--exclude=*/" pattern))
                     rev))
 
 (defun magit-rev-branch (rev)
@@ -812,11 +819,10 @@ string \"true\", otherwise return nil."
     (unless (string-match-p "~" it) it)))
 
 (defun magit-get-shortname (rev)
-  (let* ((fn (apply-partially 'magit-git-string "name-rev"
-                              "--name-only" "--no-undefined" rev))
-         (name (or (funcall fn "--refs=refs/tags/*")
-                   (funcall fn "--refs=refs/heads/*")
-                   (funcall fn "--refs=refs/remotes/*"))))
+  (let* ((fn (apply-partially 'magit-rev-name rev))
+         (name (or (funcall fn "refs/tags/*")
+                   (funcall fn "refs/heads/*")
+                   (funcall fn "refs/remotes/*"))))
     (cond ((not name)
            (magit-rev-parse "--short" rev))
           ((string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" name)
@@ -832,19 +838,16 @@ string \"true\", otherwise return nil."
                    (magit-name-remote-branch rev t)))))
 
 (defun magit-name-local-branch (rev &optional lax)
-  (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
-                                "--refs=refs/heads/*" rev)
+  (--when-let (magit-rev-name rev "refs/heads/*")
     (and (or lax (not (string-match-p "[~^]" it))) it)))
 
 (defun magit-name-remote-branch (rev &optional lax)
-  (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
-                                "--refs=refs/remotes/*" rev)
+  (--when-let (magit-rev-name rev "refs/remotes/*")
     (and (or lax (not (string-match-p "[~^]" it)))
          (substring it 8))))
 
 (defun magit-name-tag (rev &optional lax)
-  (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
-                                "--refs=refs/tags/*" rev)
+  (--when-let (magit-rev-name rev "refs/tags/*")
     (and (or lax (not (string-match-p "[~^]" it)))
          (substring it 5))))
 
