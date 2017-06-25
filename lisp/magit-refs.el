@@ -29,6 +29,8 @@
 
 (require 'magit)
 
+(defvar bookmark-make-record-function)
+
 ;;; Options
 
 (defgroup magit-refs nil
@@ -207,7 +209,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   :group 'magit-refs
   (hack-dir-local-variables-non-file-buffer)
   (setq imenu-create-index-function
-        #'magit-imenu--refs-create-index-function))
+        #'magit-imenu--refs-create-index-function)
+  (setq-local bookmark-make-record-function
+              #'magit-bookmark--refs-make-record))
 
 (defun magit-refs-refresh-buffer (&rest _ignore)
   (setq magit-set-buffer-margin-refresh (not (magit-buffer-margin-p)))
