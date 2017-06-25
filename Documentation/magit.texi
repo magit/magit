@@ -306,8 +306,6 @@ FAQ - Issues and Errors
 @end detailmenu
 @end menu
 
-
-
 @node Introduction
 @chapter Introduction
 
@@ -8676,7 +8674,7 @@ Please also use the @ref{Debugging Tools}.
 @end menu
 
 @node FAQ - How to @dots{}?
-@section FAQ - How to @dots{}?
+@appendixsec FAQ - How to @dots{}?
 
 @menu
 * How to show git's output?::
@@ -8687,7 +8685,7 @@ Please also use the @ref{Debugging Tools}.
 @end menu
 
 @node How to show git's output?
-@subsection How to show git's output?
+@appendixsubsec How to show git's output?
 
 To show the output of recently run git commands, press @code{$} (or, if that
 isn't available, @code{M-x magit-process-buffer}).  This will show a buffer
@@ -8701,7 +8699,7 @@ debugging purposes it's possible to do so anyway by setting
 @code{magit-git-debug} to @code{t}.
 
 @node How to install the gitman info manual?
-@subsection How to install the gitman info manual?
+@appendixsubsec How to install the gitman info manual?
 
 Git's manpages can be exported as an info manual called @code{gitman}.
 Magit's own info manual links to nodes in that manual instead of the
@@ -8721,7 +8719,7 @@ one of the supported packages @code{man} or @code{woman}, e.g.:
 @end lisp
 
 @node How to show diffs for gpg-encrypted files?
-@subsection How to show diffs for gpg-encrypted files?
+@appendixsubsec How to show diffs for gpg-encrypted files?
 
 Git supports showing diffs for encrypted files, but has to be told to
 do so.  Since Magit just uses Git to get the diffs, configuring Git
@@ -8733,12 +8731,12 @@ echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 @end example
 
 @node How does branching and pushing work?
-@subsection How does branching and pushing work?
+@appendixsubsec How does branching and pushing work?
 
 Please see @ref{Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
 
 @node Can Magit be used as @code{ediff-version-control-package}?
-@subsection Can Magit be used as @code{ediff-version-control-package}?
+@appendixsubsec Can Magit be used as @code{ediff-version-control-package}?
 
 No, it cannot.  For that to work the functions @code{ediff-magit-internal}
 and @code{ediff-magit-merge-internal} would have to be implemented, and they
@@ -8771,7 +8769,7 @@ command @code{magit-ediff-resolve} which only shows yet-to-be resolved
 conflicts.
 
 @node FAQ - Issues and Errors
-@section FAQ - Issues and Errors
+@appendixsec FAQ - Issues and Errors
 
 @menu
 * Magit is slow::
@@ -8787,12 +8785,12 @@ conflicts.
 @end menu
 
 @node Magit is slow
-@subsection Magit is slow
+@appendixsubsec Magit is slow
 
 See @ref{Performance}.
 
 @node I changed several thousand files at once and now Magit is unusable
-@subsection I changed several thousand files at once and now Magit is unusable
+@appendixsubsec I changed several thousand files at once and now Magit is unusable
 
 Magit is @strong{currently} not expected to work under such conditions. It sure
 would be nice if it did, and v2.5 will hopefully be a big step into
@@ -8803,14 +8801,14 @@ But for now we recommend you use the command line to complete this one
 commit.  Also see @ref{Performance}.
 
 @node I am having problems committing
-@subsection I am having problems committing
+@appendixsubsec I am having problems committing
 
 That likely means that Magit is having problems finding an appropriate
 emacsclient executable.  See @ref{Configuring With-Editor,,,with-editor,}
 and @ref{Debugging,,,with-editor,}.
 
 @node I am using MS Windows and cannot push with Magit
-@subsection I am using MS Windows and cannot push with Magit
+@appendixsubsec I am using MS Windows and cannot push with Magit
 
 It's almost certain that Magit is only incidental to this issue.  It
 is much more likely that this is a configuration issue, even if you
@@ -8820,7 +8818,7 @@ Detailed setup instructions can be found at
 @uref{https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows}.
 
 @node I am using OS X and SOMETHING works in shell but not in Magit
-@subsection I am using OS X and SOMETHING works in shell, but not in Magit
+@appendixsubsec I am using OS X and SOMETHING works in shell, but not in Magit
 
 This usually occurs because Emacs doesn't have the same environment
 variables as your shell.  Try installing and configuring
@@ -8832,7 +8830,7 @@ If SOMETHING is "passphrase caching with gpg-agent for commit and/or
 tag signing", then you'll also need to synchronize @code{$GPG_AGENT_INFO}.
 
 @node Diffs contain control sequences
-@subsection Diffs contain control sequences
+@appendixsubsec Diffs contain control sequences
 
 This happens when you configure Git to always color diffs and/or all
 of its output.  The valid values for relevant Git variables @code{color.ui}
@@ -8853,7 +8851,7 @@ then you can override these settings just for Magit by using:
 @end lisp
 
 @node Expanding a file to show the diff causes it to disappear
-@subsection Expanding a file to show the diff causes it to disappear
+@appendixsubsec Expanding a file to show the diff causes it to disappear
 
 This is probably caused by a change of a @code{diff.*} Git variable.  You
 probably set that variable for a reason, and should therefore
@@ -8861,7 +8859,7 @@ only undo that setting in Magit by customizing
 @code{magit-git-global-arguments}.
 
 @node Point is wrong in the @code{COMMIT_EDITMSG} buffer
-@subsection Point is wrong in the @code{COMMIT_EDITMSG} buffer
+@appendixsubsec Point is wrong in the @code{COMMIT_EDITMSG} buffer
 
 Neither Magit nor `git-commit` fiddle with point in the buffer used to
 write commit messages, so something else must be doing it.
@@ -8884,7 +8882,7 @@ help:
 @end lisp
 
 @node The mode-line information isn't always up-to-date
-@subsection The mode-line information isn't always up-to-date
+@appendixsubsec The mode-line information isn't always up-to-date
 
 Magit is not responsible for the version control information that is
 being displayed in the mode-line and looks something like @code{Git-master}.
@@ -8913,7 +8911,7 @@ Or to disable it completely:
 @end lisp
 
 @node Emacs 245 hangs when loading Magit
-@subsection Emacs 24.5 hangs when loading Magit
+@appendixsubsec Emacs 24.5 hangs when loading Magit
 
 This is actually triggered by loading Tramp.  See
 @uref{https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015} for details. You

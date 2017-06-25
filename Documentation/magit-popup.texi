@@ -75,8 +75,6 @@ Defining Prefix and Suffix Commands
 @end detailmenu
 @end menu
 
-
-
 @node Introduction
 @chapter Introduction
 
@@ -248,7 +246,7 @@ prefix argument is used in which case the popup remains open.
 
 It is also possible to add additional arguments and commands to an
 existing popup, but that cannot be done directly from the popup (or
-the Custom interface).  See @ref{Customizing Existing Popups,Customizing Existing Popups}.
+the Custom interface).  See @ref{Customizing Existing Popups}.
 
 Documentation about a popup's arguments and commands can be shown
 directly from the popup.
@@ -410,7 +408,7 @@ is to be unbound.
 @end defun
 
 It is also possible to change other aspects of a popup by setting a
-property using @code{plist-put}.  See @ref{Defining Prefix Commands,Defining Prefix Commands} for valid
+property using @code{plist-put}.  See @ref{Defining Prefix Commands} for valid
 properties.  The most likely change Magit users might want to make
 is:
 
@@ -450,7 +448,7 @@ Ignore prefix arguments.
 This option can be overridden for individual popups.
 @code{magit-show-refs-popup} for example defaults to invoking the default
 action directly.  It only shows the popup buffer when a prefix
-argument is used.  See @ref{Customizing Existing Popups,Customizing Existing Popups}.
+argument is used.  See @ref{Customizing Existing Popups}.
 @end defopt
 
 @defopt magit-popup-manpage-package
