@@ -467,7 +467,7 @@ running 'man git-rebase' at the command line) for details."
   (setq comment-start (or (magit-get "core.commentChar") "#"))
   (setq git-rebase-comment-re (concat "^" (regexp-quote comment-start)))
   (setq git-rebase-line
-        (concat "^\\(" (regexp-quote comment-start) "?"
+        (concat "^\\(" (regexp-quote comment-start) "? *"
                 "\\(?:[fprse]\\|pick\\|reword\\|edit\\|squash\\|fixup\\|exec\\|noop\\)\\) "
                 "\\(?:\\([^ \n]+\\) \\(.*\\)\\)?"))
   (setq font-lock-defaults (list (git-rebase-mode-font-lock-keywords) t t))
