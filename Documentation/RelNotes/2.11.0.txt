@@ -81,6 +81,9 @@ Changes since v2.10.3
 * Text inside brackets in commit messages (including when shown in a
   log) are now highlighted using face `magit-keyword'.
 
+* Added bookmark support in status, refs, log, reflog, stashes,
+  cherry, diff, revision, stash, and submodule-list buffers.  #3113
+
 Fixes since v2.10.3
 -------------------
 
