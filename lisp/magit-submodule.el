@@ -26,6 +26,7 @@
 (require 'magit)
 
 (defvar x-stretch-cursor)
+(defvar bookmark-make-record-function)
 
 ;;; Options
 
@@ -346,7 +347,9 @@ These sections can be expanded to show the respective commits."
   (setq imenu-prev-index-position-function
         #'magit-imenu--submodule-prev-index-position-function)
   (setq imenu-extract-index-name-function
-        #'magit-imenu--submodule-extract-index-name-function))
+        #'magit-imenu--submodule-extract-index-name-function)
+  (setq-local bookmark-make-record-function
+              #'magit-bookmark--submodules-make-record))
 
 (defun magit-modulelist-column-path (path)
   "Insert the relative path of the submodule."

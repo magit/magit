@@ -31,6 +31,8 @@
 
 (require 'subr-x)
 
+(defvar bookmark-make-record-function)
+
 ;;; Options
 
 (defgroup magit-status nil
@@ -278,6 +280,8 @@ Type \\[magit-commit-popup] to create a commit.
   (hack-dir-local-variables-non-file-buffer)
   (setq imenu-create-index-function
         'magit-imenu--status-create-index-function)
+  (setq-local bookmark-make-record-function
+              #'magit-bookmark--status-make-record)
   ;; Avoid listing all files as deleted when visiting a bare repo.
   (when (magit-bare-repo-p)
     (make-local-variable 'magit-status-sections-hook)

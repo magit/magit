@@ -1069,7 +1069,11 @@ library getting in the way.  Then restart Emacs.\n"
     (require 'magit-ediff)
     (require 'magit-extras)
     (require 'git-rebase)
-    (require 'magit-imenu)))
+    (require 'magit-imenu)
+    (require 'magit-bookmark)))
+
+(eval-after-load 'bookmark
+  '(require 'magit-bookmark))
 
 (if after-init-time
     (progn (magit-startup-asserts)
