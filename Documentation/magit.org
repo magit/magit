@@ -4604,7 +4604,7 @@ Also see [[man:git-stash]]
   Create a patch from STASH.
 
 - Key: k, magit-stash-clear
-  
+
   Remove all stashes saved in REF's reflog by deleting REF.
 
 - Key: z l, magit-stash-list

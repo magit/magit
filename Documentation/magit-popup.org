@@ -374,7 +374,7 @@ is:
   The Emacs package used to display man-pages, one of ~man~ or ~woman~.
 
 - User Option: magit-popup-display-buffer-action
-  
+
   The option controls how the window used to display a popup buffer is
   created.  Popup buffers are displayed using ~display-buffer~ with the
   value of this option as ACTION argument.  You can also set this to
