@@ -151,7 +151,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
                       (read-directory-name "Create repository in: ")))))
      (-when-let (toplevel (magit-toplevel directory))
        (setq toplevel (expand-file-name toplevel))
-       (unless (y-or-n-p (if (string-equal toplevel directory)
+       (unless (y-or-n-p (if (file-equal-p toplevel directory)
                              (format "Reinitialize existing repository %s? "
                                      directory)
                            (format "%s is a repository.  Create another in %s? "
@@ -177,7 +177,7 @@ then offer to initialize it as a new repository."
   (if directory
       (let ((toplevel (magit-toplevel directory)))
         (setq directory (file-name-as-directory (expand-file-name directory)))
-        (if (and toplevel (string-equal directory toplevel))
+        (if (and toplevel (file-equal-p directory toplevel))
             (magit-status-internal directory)
           (when (y-or-n-p
                  (if toplevel

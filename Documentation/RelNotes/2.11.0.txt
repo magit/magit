@@ -117,6 +117,11 @@ Fixes since v2.10.3
   not into its own upstream branch, then the user was not offered to
   force the deletion, causing it to fail.  #3107
 
+* With `find-file-visit-truename' set to a non-nil value, the commands
+  `magit-status' and `magit-init' failed to detect when their
+  directory argument was a symlink that resolved to the output of
+  `magit-toplevel'.  #3115
+
 This release also contains the fixes described in the v2.10.{1,2,3}
 release notes, as well as other minor improvements, bug fixes, typo
 fixes, and documentation fixes.
