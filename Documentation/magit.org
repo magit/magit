@@ -13,13 +13,6 @@
 #+TEXINFO_CLASS: info+
 #+OPTIONS: H:4 num:nil toc:2
 
-* Copying
-:PROPERTIES:
-:COPYING:    t
-:END:
-
-#+BEGIN_EXPORT texinfo
-@ifnottex
 Magit is an interface to the version control system Git, implemented
 as an Emacs package.  Magit aspires to be a complete Git porcelain.
 While we cannot (yet) claim that Magit wraps and improves upon each
@@ -27,10 +20,9 @@ and every Git command, it is complete enough to allow even experienced
 Git users to perform almost all of their daily version control tasks
 directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
-@end ifnottex
 
-@quotation
-Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
+#+BEGIN_QUOTE
+Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -41,8 +33,7 @@ This document is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
-@end quotation
-#+END_EXPORT
+#+END_QUOTE
 
 * Introduction
 
@@ -6755,6 +6746,25 @@ Please also see the [[*FAQ]].
 :APPENDIX:   t
 :INDEX:      vr
 :END:
+
+* _ Copying
+:PROPERTIES:
+:COPYING:    t
+:END:
+
+#+BEGIN_QUOTE
+Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
+
+You can redistribute this document and/or modify it under the terms
+of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+#+END_QUOTE
 
 * _ :ignore:
 

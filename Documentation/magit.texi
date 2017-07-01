@@ -7,16 +7,6 @@
 @c %**end of header
 
 @copying
-@ifnottex
-Magit is an interface to the version control system Git, implemented
-as an Emacs package.  Magit aspires to be a complete Git porcelain.
-While we cannot (yet) claim that Magit wraps and improves upon each
-and every Git command, it is complete enough to allow even experienced
-Git users to perform almost all of their daily version control tasks
-directly from within Emacs.  While many fine Git clients exist, only
-Magit and Git itself deserve to be called porcelains.
-@end ifnottex
-
 @quotation
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -52,7 +42,28 @@ General Public License for more details.
 @ifnottex
 @node Top
 @top Magit User Manual
-@insertcopying
+
+Magit is an interface to the version control system Git, implemented
+as an Emacs package.  Magit aspires to be a complete Git porcelain.
+While we cannot (yet) claim that Magit wraps and improves upon each
+and every Git command, it is complete enough to allow even experienced
+Git users to perform almost all of their daily version control tasks
+directly from within Emacs.  While many fine Git clients exist, only
+Magit and Git itself deserve to be called porcelains.
+
+@quotation
+Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
+
+You can redistribute this document and/or modify it under the terms
+of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+@end quotation
 @end ifnottex
 
 @menu
