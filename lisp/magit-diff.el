@@ -242,7 +242,7 @@ visits the file in the working tree."
   :link '(info-link "(magit)Revision Buffer")
   :group 'magit-modes)
 
-(defcustom magit-revision-mode-hook nil
+(defcustom magit-revision-mode-hook '(bug-reference-mode)
   "Hook run after entering Magit-Revision mode."
   :group 'magit-revision
   :type 'hook
