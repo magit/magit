@@ -1185,6 +1185,9 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 (defun magit-list-tags ()
   (magit-git-lines "tag"))
 
+(defun magit-list-stashes (&optional format)
+  (magit-git-lines "stash" "list" (concat "--format=" (or format "%gd"))))
+
 (defun magit-list-notes-refnames ()
   (--map (substring it 6) (magit-list-refnames "refs/notes")))
 
@@ -1616,7 +1619,7 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-read-stash (prompt &optional use-at-point)
   (let ((atpoint (magit-stash-at-point)))
     (or (and use-at-point atpoint)
-        (let ((stashes (magit-git-lines "stash" "list" "--format=%gd")))
+        (let ((stashes (magit-list-stashes)))
           (magit-completing-read prompt stashes nil t nil nil
                                  (or atpoint (car stashes)))))))
 
