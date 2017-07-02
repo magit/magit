@@ -73,6 +73,11 @@ Changes since v2.10.3
 * The log buffer now shows the line range restriction (i.e. `-L'
   argument) in its header.  #3075
 
+* Added new functions `magit-repolist-column-branches' and
+  `magit-repolist-column-stashes', which insert the count of branches
+  and stashes into submodules and repository list buffers. By default
+  they are used in submodule lists but not in the repository list.
+
 Fixes since v2.10.3
 -------------------
 

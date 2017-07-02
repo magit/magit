@@ -228,6 +228,16 @@ Only one letter is shown, the first that applies."
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
+(defun magit-repolist-column-branches (_id)
+  "Insert number of branches."
+  (let ((n (length (magit-list-local-branches))))
+    (propertize (number-to-string n) 'face (if (> n 1) 'bold 'shadow))))
+
+(defun magit-repolist-column-stashes (_id)
+  "Insert number of stashes."
+  (let ((n (length (magit-list-stashes))))
+    (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow))))
+
 ;;; Read Repository
 
 (defun magit-read-repository (&optional read-directory-name)
