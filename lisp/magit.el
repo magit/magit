@@ -136,6 +136,11 @@
   "Face for wip refnames."
   :group 'magit-faces)
 
+(defface magit-keyword
+  '((t :inherit font-lock-string-face))
+  "Face for parts of commit messages inside brackets."
+  :group 'magit-faces)
+
 (defface magit-signature-good
   '((t :foreground "green"))
   "Face for good signatures."

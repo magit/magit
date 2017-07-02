@@ -1827,12 +1827,18 @@ or a ref which is not a branch, then it inserts nothing."
           (progn (backward-delete-char 2)
                  (insert "(no message)\n"))
         (goto-char beg)
-        (while (search-forward "\r\n" nil t) ; Remove trailing CRs.
-          (delete-region (match-beginning 0) (1+ (match-beginning 0))))
-        (goto-char beg)
-        (forward-line)
-        (put-text-property beg (point) 'face 'magit-section-secondary-heading)
-        (magit-insert-heading)
+        (save-excursion
+          (while (search-forward "\r\n" nil t) ; Remove trailing CRs.
+            (delete-region (match-beginning 0) (1+ (match-beginning 0)))))
+        (save-excursion
+          (forward-line)
+          (put-text-property beg (point) 'face 'magit-section-secondary-heading)
+          (magit-insert-heading))
+        (save-excursion
+          (while (re-search-forward "\\[[^[]*\\]" nil t)
+            (put-text-property (match-beginning 0)
+                               (match-end 0)
+                               'face 'magit-keyword)))
         (goto-char (point-max))))))
 
 (defun magit-insert-revision-notes (rev)

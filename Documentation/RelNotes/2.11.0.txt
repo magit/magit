@@ -78,6 +78,9 @@ Changes since v2.10.3
   and stashes into submodules and repository list buffers. By default
   they are used in submodule lists but not in the repository list.
 
+* Text inside brackets in commit messages (including when shown in a
+  log) are now highlighted using face `magit-keyword'.
+
 Fixes since v2.10.3
 -------------------
 

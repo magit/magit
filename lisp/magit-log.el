@@ -1017,15 +1017,23 @@ Do not add this to a hook variable."
             (insert (magit-reflog-format-subject
                      (substring refsub 0 (if (string-match-p ":" refsub) -2 -1))))))
         (when msg
-          (insert (propertize msg 'face
-                              (pcase (and gpg (aref gpg 0))
-                                (?G 'magit-signature-good)
-                                (?B 'magit-signature-bad)
-                                (?U 'magit-signature-untrusted)
-                                (?X 'magit-signature-expired)
-                                (?Y 'magit-signature-expired-key)
-                                (?R 'magit-signature-revoked)
-                                (?E 'magit-signature-error)))))
+          (when gpg
+            (setq msg (propertize msg 'face
+                                  (pcase (aref gpg 0)
+                                    (?G 'magit-signature-good)
+                                    (?B 'magit-signature-bad)
+                                    (?U 'magit-signature-untrusted)
+                                    (?X 'magit-signature-expired)
+                                    (?Y 'magit-signature-expired-key)
+                                    (?R 'magit-signature-revoked)
+                                    (?E 'magit-signature-error)))))
+          (let ((start 0))
+            (while (string-match "\\[[^[]*\\]" msg start)
+              (setq start (match-end 0))
+              (put-text-property (match-beginning 0)
+                                 (match-end 0)
+                                 'face 'magit-keyword msg)))
+          (insert msg))
         (when (and refs magit-log-show-refname-after-summary)
           (insert ?\s)
           (insert (magit-format-ref-labels refs)))
