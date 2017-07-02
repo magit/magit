@@ -9,6 +9,7 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'ert)
+(require 'tramp)
 
 (require 'magit)
 
