@@ -803,9 +803,24 @@ string \"true\", otherwise return nil."
                   (magit-rev-parse "HEAD")))))
 
 (defun magit-rev-name (rev &optional pattern)
-  (magit-git-string "name-rev" "--name-only" "--no-undefined"
-                    (and pattern (concat "--refs=" pattern))
-                    rev))
+  "Return a symbolic name for REV.
+PATTERN is passed to the `--refs' flag of `git-name-rev' and can
+be used to limit the result to a matching ref.  When structured
+as \"refs/<subdir>/*\", PATTERN is taken as a namespace.  In this
+case, the name returned by `git-name-rev' is discarded if it
+corresponds to a ref outside of the namespace."
+  (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
+                                (and pattern (concat "--refs=" pattern))
+                                rev)
+    ;; We can't use name-rev's --exclude to filter out "*/PATTERN"
+    ;; because --exclude wasn't added until Git v2.13.0.
+    (if (and pattern
+             (string-match-p "\\`refs/[^/]+/\\*\\'" pattern))
+        (let ((namespace (substring pattern 0 -1)))
+          (unless (and (string-match-p namespace it)
+                       (not (magit-rev-verify (concat namespace it))))
+            it))
+      it)))
 
 (defun magit-rev-branch (rev)
   (--when-let (magit-rev-name rev "refs/heads/*")
