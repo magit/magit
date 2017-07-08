@@ -1501,7 +1501,7 @@ Show the last `magit-log-section-commit-count' commits."
          (range (and (magit-rev-verify start)
                      (concat start "..HEAD"))))
     (magit-insert-section (recent range collapse)
-      (magit-insert-heading "Recent commits:")
+      (magit-insert-heading "Recent commits")
       (magit-insert-log range
                         (cons (format "-%d" magit-log-section-commit-count)
                               magit-log-section-arguments)))))
