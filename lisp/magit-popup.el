@@ -348,10 +348,10 @@ only arguments that don't match any of the regexps are returned,
 or `:only' which doesn't change the behaviour."
   (let ((-compare-fn (lambda (a b) (magit-popup-arg-match b a))))
     (-filter (if (eq (car filter) :not)
-                 (lambda (arg) (not (-contains? (cdr filter) arg)))
+                 (lambda (arg) (not (-contains-p (cdr filter) arg)))
                (when (eq (car filter) :only)
                  (pop filter))
-               (lambda (arg) (-contains? filter arg)))
+               (lambda (arg) (-contains-p filter arg)))
              magit-current-popup-args)))
 
 (defun magit-popup-arg-match (pattern string)
