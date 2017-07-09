@@ -384,16 +384,16 @@ detached `HEAD'."
           (_       (setq rebase (magit-get-boolean "pull.rebase"))))
         (insert (format "%-10s" (or keyword (if rebase "Rebase: " "Merge: ")))))
       (--when-let (and magit-status-show-hashes-in-headers
+                       (not (string-match-p " " pull))
                        (magit-rev-format "%h" pull))
-        (insert (propertize it 'face 'magit-hash) ?\s))
-      (insert (propertize pull 'face
-                          (if (string= (magit-get "branch" branch "remote") ".")
-                              'magit-branch-local
-                            'magit-branch-remote)))
-      (insert ?\s)
-      (if (magit-rev-verify pull)
-          (insert (or (magit-rev-format "%s" pull) ""))
-        (insert (propertize "is missing" 'face 'font-lock-warning-face)))
+        (insert (propertize it 'face 'magit-hash) " "))
+      (if (string-match-p " " pull)
+          (pcase-let ((`(,url ,branch) (split-string pull " ")))
+            (insert branch " from " url " "))
+        (insert pull " ")
+        (if (magit-rev-verify pull)
+            (insert (or (magit-rev-format "%s" pull) ""))
+          (insert (propertize "is missing" 'face 'font-lock-warning-face))))
       (insert ?\n))))
 
 (cl-defun magit-insert-push-branch-header
