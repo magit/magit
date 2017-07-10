@@ -85,6 +85,10 @@ Changes since v2.10.3
   `magit-run-git', not just during the status buffer refresh.  This
   should make staging and unstaging slightly faster.  #3096
 
+* When reading a value for the `--reuse-message' option, the popup
+  `magit-commit-popup' now prompts with all ref names, offering
+  `ORIG_HEAD' as the default if it exists.  #3110
+
 Fixes since v2.10.3
 -------------------
 

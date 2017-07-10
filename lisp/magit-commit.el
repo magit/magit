@@ -105,7 +105,8 @@ an error while using those is harder to recover from."
                (?R "Claim authorship and reset author date" "--reset-author"))
     :options  ((?A "Override the author"  "--author=")
                (?S "Sign using gpg"       "--gpg-sign=" magit-read-gpg-secret-key)
-               (?C "Reuse commit message" "--reuse-message="))
+               (?C "Reuse commit message" "--reuse-message="
+                   magit-read-reuse-message))
     :actions  ((?c "Commit"         magit-commit)
                (?e "Extend"         magit-commit-extend)
                (?f "Fixup"          magit-commit-fixup)
@@ -141,6 +142,13 @@ an error while using those is harder to recover from."
                         prompt keys nil nil nil 'magit-gpg-secret-key-hist
                         (car (or magit-gpg-secret-key-hist keys)))
                        " "))))
+
+(defun magit-read-reuse-message (prompt &optional default)
+  (magit-completing-read prompt (magit-list-refnames)
+                         nil nil nil 'magit-revision-history
+                         (or default
+                             (and (magit-rev-verify "ORIG_HEAD")
+                                  "ORIG_HEAD"))))
 
 ;;; Commands
 
