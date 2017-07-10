@@ -53,6 +53,7 @@ Contributors
 - Alex Kost <alezost@gmail.com>
 - Alex Ott <alexott@gmail.com>
 - Allen <darkfeline@felesatra.moe>
+- Allen Li <darkfeline@felesatra.moe>
 - Andreas Fuchs <asf@boinkor.net>
 - Andreas Liljeqvist <andreas.liljeqvist@robacks.se>
 - Andreas Rottmann <a.rottmann@gmx.at>
@@ -103,7 +104,9 @@ Contributors
 - Eli Barzilay <eli@barzilay.org>
 - Eric Davis <ed@npri.org>
 - Eric Schulte <schulte.eric@gmail.com>
+- Erik Anderson <erikbpanderson@gmail.com>
 - Evgkeni Sampelnikof <esabof@gmail.com>
+- Eyal Lotem <eyal.lotem@gmail.com>
 - Fabian Wiget <fabacino@gmail.com>
 - Felix Geller <fgeller@gmail.com>
 - Feng Li <fengli@blackmagicdesign.com>
@@ -137,7 +140,9 @@ Contributors
 - Jordan Greenberg <jordan@softwareslave.com>
 - Josiah Schwab <jschwab@gmail.com>
 - Julien Danjou <julien@danjou.info>
+- Justin Burkett <justin@burkett.cc>
 - Justin Caratzas <justin.caratzas@gmail.com>
+- Justin Guenther <jguenther@gmail.com>
 - Justin Thomas <justin.thomas1@gmail.com>
 - Kan-Ru Chen <kanru@kanru.info>
 - Keshav Kini <keshav.kini@gmail.com>
