@@ -74,7 +74,7 @@ texi: $(TEXIPAGES)
 
 stats:
 	@printf "Generating statistics\n"
-	@gitstats -c style=/assets/stats.css -c max_authors=64 $(TOP) $(statsdir)
+	@gitstats -c style=/assets/stats.css -c max_authors=999 $(TOP) $(statsdir)
 
 authors: AUTHORS.md
 
