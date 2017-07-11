@@ -881,10 +881,10 @@ Do not add this to a hook variable."
   (concat "^"
           "\\(?4:[-_/|\\*o. ]*\\)"                 ; graph
           "\\(?1:[0-9a-fA-F]+\\)"                  ; sha1
-          "\\(?3:[^\0]+)\\)?\0"                    ; refs
+          "\\(?3:[^\0\n]+)\\)?\0"                  ; refs
           "\\(?7:[BGUXYREN]\\)?\0"                 ; gpg
-          "\\(?5:[^\0]*\\)\0"                      ; author
-          "\\(?6:[^\0]+\\)\0"                      ; date
+          "\\(?5:[^\0\n]*\\)\0"                    ; author
+          "\\(?6:[^\0\n]+\\)\0"                    ; date
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re
@@ -903,20 +903,20 @@ Do not add this to a hook variable."
   (concat "^"
           "\\(?4:[-_/|\\*o. ]*\\)"                 ; graph
           "\\(?1:[0-9a-fA-F]+\\)"                  ; sha1
-          "\\(?3:[^\0]+)\\)?\0"                    ; refs
+          "\\(?3:[^\0\n]+)\\)?\0"                  ; refs
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-bisect-log-re
   (concat "^# "
           "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
-          "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
+          "\\[\\(?1:[^]\n]+\\)\\] "                ; sha1
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-reflog-re
   (concat "^"
-          "\\(?1:[^\0]+\\)\0"                      ; sha1
-          "\\(?5:[^\0]*\\)\0"                      ; author
-          "\\(?:\\(?:[^@]+@{\\(?6:[^}]+\\)}\0"     ; date
+          "\\(?1:[^\0\n]+\\)\0"                    ; sha1
+          "\\(?5:[^\0\n]*\\)\0"                    ; author
+          "\\(?:\\(?:[^@\n]+@{\\(?6:[^}\n]+\\)}\0" ; date
           "\\(?10:merge \\|autosave \\|restart \\|[^:\n]+: \\)?" ; refsub
           "\\(?2:.*\\)?\\)\\|\0\\)$"))             ; msg
 
@@ -927,9 +927,9 @@ Do not add this to a hook variable."
 
 (defconst magit-log-stash-re
   (concat "^"
-          "\\(?1:[^\0]+\\)\0"                      ; "sha1"
-          "\\(?5:[^\0]*\\)\0"                      ; author
-          "\\(?6:[^\0]+\\)\0"                      ; date
+          "\\(?1:[^\0\n]+\\)\0"                    ; "sha1"
+          "\\(?5:[^\0\n]*\\)\0"                    ; author
+          "\\(?6:[^\0\n]+\\)\0"                    ; date
           "\\(?2:.*\\)$"))                         ; msg
 
 (defvar magit-log-count nil)
