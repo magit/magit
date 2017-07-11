@@ -89,6 +89,9 @@ Changes since v2.10.3
   `magit-commit-popup' now prompts with all ref names, offering
   `ORIG_HEAD' as the default if it exists.  #3110
 
+* Added bookmark support in status, refs, log, reflog, stashes,
+  cherry, diff, revision, stash, and submodule-list buffers.  #3113
+
 Fixes since v2.10.3
 -------------------
 

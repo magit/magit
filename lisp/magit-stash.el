@@ -29,6 +29,8 @@
 
 (require 'magit)
 
+(defvar bookmark-make-record-function)
+
 ;;; Options
 
 (defgroup magit-stash nil
@@ -364,7 +366,9 @@ instead of \"Stashes:\"."
 (define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
   "Mode for looking at lists of stashes."
   :group 'magit-log
-  (hack-dir-local-variables-non-file-buffer))
+  (hack-dir-local-variables-non-file-buffer)
+  (setq-local bookmark-make-record-function
+              #'magit-bookmark--stashes-make-record))
 
 (cl-defun magit-stashes-refresh-buffer (ref)
   (magit-insert-section (stashesbuf)
@@ -389,7 +393,9 @@ instead of \"Stashes:\"."
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
   :group 'magit-diff
-  (hack-dir-local-variables-non-file-buffer))
+  (hack-dir-local-variables-non-file-buffer)
+  (setq-local bookmark-make-record-function
+              #'magit-bookmark--stash-make-record))
 
 (defun magit-stash-refresh-buffer (stash _const _args _files)
   (setq header-line-format
