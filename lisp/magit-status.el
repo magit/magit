@@ -166,28 +166,35 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   (magit-status-internal directory))
 
 ;;;###autoload
-(defun magit-status (&optional directory)
+(defun magit-status (&optional directory cache)
   "Show the status of the current Git repository in a buffer.
 With a prefix argument prompt for a repository to be shown.
 With two prefix arguments prompt for an arbitrary directory.
 If that directory isn't the root of an existing repository,
 then offer to initialize it as a new repository."
   (interactive
-   (list (and (or current-prefix-arg (not (magit-toplevel)))
-              (magit-read-repository
-               (>= (prefix-numeric-value current-prefix-arg) 16)))))
-  (if directory
-      (let ((toplevel (magit-toplevel directory)))
-        (setq directory (file-name-as-directory (expand-file-name directory)))
-        (if (and toplevel (file-equal-p directory toplevel))
-            (magit-status-internal directory)
-          (when (y-or-n-p
-                 (if toplevel
-                     (format "%s is a repository.  Create another in %s? "
-                             toplevel directory)
-                   (format "Create repository in %s? " directory)))
-            (magit-init directory))))
-    (magit-status-internal default-directory)))
+   (let ((magit--refresh-cache (list (cons 0 0))))
+     (list (and (or current-prefix-arg (not (magit-toplevel)))
+                (magit-read-repository
+                 (>= (prefix-numeric-value current-prefix-arg) 16)))
+           magit--refresh-cache)))
+  (let ((magit--refresh-cache (or cache (list (cons 0 0)))))
+    (if directory
+        (let ((toplevel (magit-toplevel directory)))
+          (setq directory (file-name-as-directory
+                           (expand-file-name directory)))
+          (if (and toplevel (file-equal-p directory toplevel))
+              (magit-status-internal directory)
+            (when (y-or-n-p
+                   (if toplevel
+                       (format "%s is a repository.  Create another in %s? "
+                               toplevel directory)
+                     (format "Create repository in %s? " directory)))
+              ;; Creating a new repository will invalidate cached
+              ;; values.
+              (setq magit--refresh-cache nil)
+              (magit-init directory))))
+      (magit-status-internal default-directory))))
 
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
