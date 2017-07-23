@@ -3409,17 +3409,23 @@ the committer image, accordingly.  Either the car or the cdr may
 be nil.
 @end defopt
 
+The diffs shown in the revision buffer may be automatically restricted
+to a subset of the changed files.  If the revision buffer is displayed
+from a log buffer, the revision buffer will share the same file
+restriction as that log buffer.  Otherwise, the file restriction is
+determined by the file restriction in the repository's diff buffer, if
+it exists, and the value of the option @code{magit-use-sticky-arguments}.
+
 @table @asis
 @kindex M-x magit-revision-toggle-file-filter
 @cindex magit-revision-toggle-file-filter
 @item @kbd{M-x magit-revision-toggle-file-filter} @tie{}@tie{}@tie{}@tie{}(@code{magit-revision-toggle-file-filter})
 
 This command toggles the file restriction of the current revision
-buffer.  It is particularly useful when you display a revision from
-a log buffer that is restricted to a file or files.  In this case,
-the revision buffer is also restricted to these files, and this
-command allows you to quickly switch between viewing all the changes
-in the commit and the restricted subset.
+buffer, allowing you to quickly switch between viewing all the
+changes in the commit and the restricted subset.  It is particularly
+useful when you display a revision from a log buffer that is
+restricted to a file or files.
 @end table
 
 @node Ediffing
