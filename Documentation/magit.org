@@ -2489,9 +2489,15 @@ without having to using one of the diff popups.
 The diffs shown in the revision buffer may be automatically restricted
 to a subset of the changed files.  If the revision buffer is displayed
 from a log buffer, the revision buffer will share the same file
-restriction as that log buffer.  Otherwise, the file restriction is
-determined by the file restriction in the repository's diff buffer, if
-it exists, and the value of the option ~magit-use-sticky-arguments~.
+restriction as that log buffer.  Note, however, that the log's file
+restriction will be ignored when ~magit-log-arguments~ includes
+~--follow~.  In this case, the ~-u~ argument of the log popup can be
+used to show the file-restricted diffs inline.
+
+If the revision buffer is not displayed from a log buffer, the file
+restriction is determined by the file restriction in the repository's
+diff buffer, if it exists, and the value of the option
+~magit-use-sticky-arguments~.
 
 - Key: M-x magit-revision-toggle-file-filter, magit-revision-toggle-file-filter
 

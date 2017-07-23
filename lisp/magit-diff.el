@@ -901,7 +901,8 @@ be committed."
 (defun magit-show-commit--arguments ()
   (-let [(args diff-files) (magit-diff-arguments)]
     (list args (if (derived-mode-p 'magit-log-mode)
-                   (nth 2 magit-refresh-args)
+                   (and (not (member "--follow" (nth 1 magit-refresh-args)))
+                        (nth 2 magit-refresh-args))
                  diff-files))))
 
 ;;;###autoload
