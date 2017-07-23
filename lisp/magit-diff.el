@@ -294,8 +294,8 @@ inserted inside the text that was previously inserted according
 to `magit-revision-header-format'.
 
 Both cells are regular expressions.  The car specifies where to
-insert the author gravatar image.  The top halve of the image is
-inserted right after the matched text, the bottom halve on the
+insert the author gravatar image.  The top half of the image is
+inserted right after the matched text, the bottom half on the
 next line at the same offset.  The cdr specifies where to insert
 the committer image, accordingly.  Either the car or the cdr may
 be nil."
