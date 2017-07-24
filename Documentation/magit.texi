@@ -3423,13 +3423,15 @@ diff buffer, if it exists, and the value of the option
 @code{magit-use-sticky-arguments}.
 
 @table @asis
-@kindex M-x magit-revision-toggle-file-filter
-@cindex magit-revision-toggle-file-filter
-@item @kbd{M-x magit-revision-toggle-file-filter} @tie{}@tie{}@tie{}@tie{}(@code{magit-revision-toggle-file-filter})
+@kindex M-x magit-diff-toggle-file-filter
+@cindex magit-diff-toggle-file-filter
+@item @kbd{M-x magit-diff-toggle-file-filter} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-toggle-file-filter})
 
-This command toggles the file restriction of the current revision
-buffer, allowing you to quickly switch between viewing all the
-changes in the commit and the restricted subset.  It is particularly
+This command toggles the file restriction of the diffs in the
+current buffer, allowing you to quickly switch between viewing all
+the changes in the commit and the restricted subset.  As a special
+case, when this command is called from a log buffer, it toggles the
+file restriction in the repository's revision buffer, which is
 useful when you display a revision from a log buffer that is
 restricted to a file or files.
 @end table

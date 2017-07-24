@@ -1961,23 +1961,33 @@ or a ref which is not a branch, then it inserts nothing."
           (insert (propertize " " 'display `((space :align-to ,align-to))))
           (insert " "))))))
 
-(defvar-local magit-revision-files nil)
+(defvar-local magit-diff--last-file-args nil)
+(defun magit-diff--toggle-file-args (files)
+  (cond (files
+         (setq magit-diff--last-file-args files)
+               nil)
+        (magit-diff--last-file-args)
+        (t
+         (user-error "No diff file filter to toggle"))))
 
-(defun magit-revision-toggle-file-filter ()
-  "Toggle the file restriction of the current revision buffer."
+(defun magit-diff-toggle-file-filter ()
+  "Toggle the file restriction of the current buffer's diffs.
+If the current buffer's mode is derived from `magit-log-mode',
+toggle the file restriction in the repository's revision buffer
+instead."
   (interactive)
-  (with-current-buffer (or (and (derived-mode-p 'magit-revision-mode)
-                                (current-buffer))
-                           (magit-mode-get-buffer 'magit-revision-mode)
-                           (user-error "No revision buffer found"))
-    (let ((files (nth 3 magit-refresh-args)))
-      (unless (or magit-revision-files files)
-        (user-error "No file filter to toggle"))
-      (setf (nth 3 magit-refresh-args) (if (not files)
-                                           magit-revision-files
-                                         (setq magit-revision-files files)
-                                         nil))
-      (magit-refresh))))
+  (--if-let (and (derived-mode-p 'magit-log-mode)
+                 (magit-mode-get-buffer 'magit-revision-mode))
+      (with-current-buffer it
+        (setf (nth 3 magit-refresh-args)
+              (magit-diff--toggle-file-args (nth 3 magit-refresh-args)))
+        (magit-refresh))
+    (if (derived-mode-p 'magit-diff-mode)
+        (setf (nth 3 magit-refresh-args)
+              (magit-diff--toggle-file-args (nth 3 magit-refresh-args)))
+      (setq-local magit-diff-section-file-args
+                  (magit-diff--toggle-file-args magit-diff-section-file-args)))
+    (magit-refresh)))
 
 ;;; Diff Sections
 

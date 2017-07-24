@@ -2499,11 +2499,13 @@ restriction is determined by the file restriction in the repository's
 diff buffer, if it exists, and the value of the option
 ~magit-use-sticky-arguments~.
 
-- Key: M-x magit-revision-toggle-file-filter, magit-revision-toggle-file-filter
+- Key: M-x magit-diff-toggle-file-filter, magit-diff-toggle-file-filter
 
-  This command toggles the file restriction of the current revision
-  buffer, allowing you to quickly switch between viewing all the
-  changes in the commit and the restricted subset.  It is particularly
+  This command toggles the file restriction of the diffs in the
+  current buffer, allowing you to quickly switch between viewing all
+  the changes in the commit and the restricted subset.  As a special
+  case, when this command is called from a log buffer, it toggles the
+  file restriction in the repository's revision buffer, which is
   useful when you display a revision from a log buffer that is
   restricted to a file or files.
 
