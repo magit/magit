@@ -568,7 +568,8 @@ and `:slant'."
                (?x "Disallow external diff drivers" "--no-ext-diff"))
     :actions  ((?g "Refresh"                magit-diff-refresh)
                (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-               (?s "Set defaults"           magit-diff-set-default-arguments) nil
+               (?s "Set defaults"           magit-diff-set-default-arguments)
+               (?F "Toggle file filter"     magit-diff-toggle-file-filter)
                (?w "Save defaults"          magit-diff-save-default-arguments))
     :max-action-columns 2))
 
@@ -584,7 +585,8 @@ and `:slant'."
                (?s "Set defaults"           magit-diff-set-default-arguments)
                (?r "Switch range type"      magit-diff-switch-range-type)
                (?w "Save defaults"          magit-diff-save-default-arguments)
-               (?f "Flip revisions"         magit-diff-flip-revs))
+               (?f "Flip revisions"         magit-diff-flip-revs) nil
+               (?F "Toggle file filter"     magit-diff-toggle-file-filter))
     :max-action-columns 2))
 
 (defvar magit-revision-mode-refresh-popup
@@ -596,7 +598,8 @@ and `:slant'."
                (?s "Show stats"                     "--stat"))
     :actions  ((?g "Refresh"                magit-diff-refresh)
                (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-               (?s "Set defaults"           magit-diff-set-default-arguments) nil
+               (?s "Set defaults"           magit-diff-set-default-arguments)
+               (?F "Toggle file filter"     magit-diff-toggle-file-filter)
                (?w "Save defaults"          magit-diff-save-default-arguments))
     :max-action-columns 2))
 
