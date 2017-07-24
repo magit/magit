@@ -1007,6 +1007,34 @@ Change \"revA..revB\" to \"revB..revA\"."
           (magit-refresh))
       (user-error "No range to swap"))))
 
+(defvar-local magit-diff--last-file-args nil)
+(defun magit-diff--toggle-file-args (files)
+  (cond (files
+         (setq magit-diff--last-file-args files)
+               nil)
+        (magit-diff--last-file-args)
+        (t
+         (user-error "No diff file filter to toggle"))))
+
+(defun magit-diff-toggle-file-filter ()
+  "Toggle the file restriction of the current buffer's diffs.
+If the current buffer's mode is derived from `magit-log-mode',
+toggle the file restriction in the repository's revision buffer
+instead."
+  (interactive)
+  (--if-let (and (derived-mode-p 'magit-log-mode)
+                 (magit-mode-get-buffer 'magit-revision-mode))
+      (with-current-buffer it
+        (setf (nth 3 magit-refresh-args)
+              (magit-diff--toggle-file-args (nth 3 magit-refresh-args)))
+        (magit-refresh))
+    (if (derived-mode-p 'magit-diff-mode)
+        (setf (nth 3 magit-refresh-args)
+              (magit-diff--toggle-file-args (nth 3 magit-refresh-args)))
+      (setq-local magit-diff-section-file-args
+                  (magit-diff--toggle-file-args magit-diff-section-file-args)))
+    (magit-refresh)))
+
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
   (interactive "p")
@@ -1960,34 +1988,6 @@ or a ref which is not a branch, then it inserts nothing."
                                              ,slice2)))
           (insert (propertize " " 'display `((space :align-to ,align-to))))
           (insert " "))))))
-
-(defvar-local magit-diff--last-file-args nil)
-(defun magit-diff--toggle-file-args (files)
-  (cond (files
-         (setq magit-diff--last-file-args files)
-               nil)
-        (magit-diff--last-file-args)
-        (t
-         (user-error "No diff file filter to toggle"))))
-
-(defun magit-diff-toggle-file-filter ()
-  "Toggle the file restriction of the current buffer's diffs.
-If the current buffer's mode is derived from `magit-log-mode',
-toggle the file restriction in the repository's revision buffer
-instead."
-  (interactive)
-  (--if-let (and (derived-mode-p 'magit-log-mode)
-                 (magit-mode-get-buffer 'magit-revision-mode))
-      (with-current-buffer it
-        (setf (nth 3 magit-refresh-args)
-              (magit-diff--toggle-file-args (nth 3 magit-refresh-args)))
-        (magit-refresh))
-    (if (derived-mode-p 'magit-diff-mode)
-        (setf (nth 3 magit-refresh-args)
-              (magit-diff--toggle-file-args (nth 3 magit-refresh-args)))
-      (setq-local magit-diff-section-file-args
-                  (magit-diff--toggle-file-args magit-diff-section-file-args)))
-    (magit-refresh)))
 
 ;;; Diff Sections
 
