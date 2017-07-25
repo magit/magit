@@ -1953,11 +1953,13 @@ or a ref which is not a branch, then it inserts nothing."
           (insert (propertize " " 'display `((,@image :ascent center :relief 1)
                                              ,slice1)))
           (insert (propertize " " 'display `((space :align-to ,align-to))))
+          (insert " ")
           (forward-line)
           (forward-char offset)
           (insert (propertize " " 'display `((,@image :ascent center :relief 1)
                                              ,slice2)))
-          (insert (propertize " " 'display `((space :align-to ,align-to)))))))))
+          (insert (propertize " " 'display `((space :align-to ,align-to))))
+          (insert " "))))))
 
 (defvar-local magit-revision-files nil)
 
