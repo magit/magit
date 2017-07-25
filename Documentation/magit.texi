@@ -3162,6 +3162,18 @@ This command converts the diff range type from "revA..revB" to
 
 This command swaps revisions in the diff range from "revA..revB"
 to "revB..revA", or vice versa.
+
+@kindex D F
+@cindex magit-diff-toggle-file-filter
+@item @kbd{D F} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-toggle-file-filter})
+
+This command toggles the file restriction of the diffs in the
+current buffer, allowing you to quickly switch between viewing all
+the changes in the commit and the restricted subset.  As a special
+case, when this command is called from a log buffer, it toggles the
+file restriction in the repository's revision buffer, which is
+useful when you display a revision from a log buffer that is
+restricted to a file or files.
 @end table
 
 In addition to the above popup, which allows changing any of the
@@ -3412,7 +3424,8 @@ be nil.
 The diffs shown in the revision buffer may be automatically restricted
 to a subset of the changed files.  If the revision buffer is displayed
 from a log buffer, the revision buffer will share the same file
-restriction as that log buffer.  Note, however, that the log's file
+restriction as that log buffer (also see the command
+@code{magit-diff-toggle-file-filter}).  Note, however, that the log's file
 restriction will be ignored when @code{magit-log-arguments} includes
 @code{--follow}.  In this case, the @code{-u} argument of the log popup can be
 used to show the file-restricted diffs inline.
@@ -3421,18 +3434,6 @@ If the revision buffer is not displayed from a log buffer, the file
 restriction is determined by the file restriction in the repository's
 diff buffer, if it exists, and the value of the option
 @code{magit-use-sticky-arguments}.
-
-@table @asis
-@kindex M-x magit-revision-toggle-file-filter
-@cindex magit-revision-toggle-file-filter
-@item @kbd{M-x magit-revision-toggle-file-filter} @tie{}@tie{}@tie{}@tie{}(@code{magit-revision-toggle-file-filter})
-
-This command toggles the file restriction of the current revision
-buffer, allowing you to quickly switch between viewing all the
-changes in the commit and the restricted subset.  It is particularly
-useful when you display a revision from a log buffer that is
-restricted to a file or files.
-@end table
 
 @node Ediffing
 @section Ediffing
