@@ -234,7 +234,7 @@ merge.
   "Merge commit REV into the current branch; and edit message.
 Perform the merge and prepare a commit message but let the user
 edit it.
-\n(git merge --edit --no-ff [ARGS] rev)"
+\n(git merge --edit --no-ff [ARGS] REV)"
   (interactive (list (magit-read-other-branch-or-commit "Merge")
                      (magit-merge-arguments)))
   (magit-merge-assert)
@@ -247,7 +247,7 @@ edit it.
   "Merge commit REV into the current branch; pretending it failed.
 Pretend the merge failed to give the user the opportunity to
 inspect the merge and change the commit message.
-\n(git merge --no-commit --no-ff [ARGS] rev)"
+\n(git merge --no-commit --no-ff [ARGS] REV)"
   (interactive (list (magit-read-other-branch-or-commit "Merge")
                      (magit-merge-arguments)))
   (magit-merge-assert)
