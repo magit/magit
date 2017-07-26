@@ -10,8 +10,7 @@
 #+SUBTITLE: for version 2.10
 
 #+TEXINFO_DEFFN: t
-#+TEXINFO_CLASS: info+
-#+OPTIONS: H:4 num:nil toc:2
+#+OPTIONS: H:4 num:3 toc:2
 
 Magit is an interface to the version control system Git, implemented
 as an Emacs package.  Magit aspires to be a complete Git porcelain.
@@ -5597,6 +5596,9 @@ per-repository or per-repository-class basis only.  See
 [[*Per-Repository Configuration]].
 
 **** Log Performance
+:PROPERTIES:
+:NONODE: t
+:END:
 
 When showing logs, Magit limits the number of commits initially shown
 in the hope that this avoids unnecessary work.  When using ~--graph~ is
@@ -5626,6 +5628,9 @@ merges.  For that reason ~--color~ is not enabled by default anymore.
 Consider leaving it at that.
 
 **** Diff Performance
+:PROPERTIES:
+:NONODE: t
+:END:
 
 If diffs are slow, then consider turning off some optional diff
 features by setting all or some of the following variables to ~nil~:
@@ -5641,6 +5646,9 @@ looking at the same commit in ~magit-diff-mode~, then consider setting
 ~magit-revision-insert-related-refs~ to ~nil~.
 
 **** Refs Buffer Performance
+:PROPERTIES:
+:NONODE: t
+:END:
 
 When refreshing the "references buffer" is slow, then that's usually
 because several hundred refs are being displayed.  The best way to
@@ -5658,6 +5666,9 @@ actually all exist.  You can do so by pruning branches which no longer
 exist using ~f-pa~.
 
 **** Committing Performance
+:PROPERTIES:
+:NONODE: t
+:END:
 
 When you initiate a commit, then Magit by default automatically shows
 a diff of the changes you are about to commit.  For large commits this
@@ -5679,6 +5690,9 @@ the diff, which is useful because it increases the odds that you spot
 potential issues.
 
 **** The Built-In VC Package
+:PROPERTIES:
+:NONODE: t
+:END:
 
 Emacs comes with a version control interface called "VC", see
 [[info:emacs#Version Control]].  It is enabled be default and if you don't
@@ -5697,9 +5711,6 @@ another version control system:
 #+END_SRC
 
 **** Microsoft Windows Performance
-:PROPERTIES:
-:TEXINFO-NODE: t
-:END:
 
 In order to update the status buffer, ~git~ has to be run a few dozen
 times.  That is problematic on Microsoft Windows, because that
@@ -5727,9 +5738,6 @@ You should also check whether an anti-virus program is slowing things
 down.
 
 **** MacOS Performance
-:PROPERTIES:
-:TEXINFO-NODE: t
-:END:
 
 On macOS Emacs currently creates child processes using ~fork~.  It
 appears that this also copies GUI resources.  The result is that
@@ -6808,4 +6816,5 @@ General Public License for more details.
 # eval: (require 'org-man     nil t)
 # eval: (require 'ox-texinfo+ nil t)
 # eval: (and (require 'ox-extra nil t) (ox-extras-activate '(ignore-headlines)))
+# indent-tabs-mode: nil
 # End:
