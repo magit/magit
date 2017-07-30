@@ -634,7 +634,8 @@ completion candidates."
 (defun magit-log-buffer-file (&optional follow beg end)
   "Show log for the blob or file visited in the current buffer.
 With a prefix argument or when `--follow' is part of
-`magit-log-arguments', then follow renames."
+`magit-log-arguments', then follow renames.  When the region is
+active, restrict the log to the lines that the region touches."
   (interactive
    (cons current-prefix-arg
          (and (region-active-p)

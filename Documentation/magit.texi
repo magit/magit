@@ -7441,7 +7441,8 @@ is automatically used in the popup to limit the log to that file.
 
 This command shows the log for the file of blob that the current
 buffer visits.  Renames are followed when a prefix argument is used
-or when @code{--follow} is part of @code{magit-log-arguments}.
+or when @code{--follow} is part of @code{magit-log-arguments}.  When the
+region is active, the log is restricted to the selected line range.
 
 @end table
 

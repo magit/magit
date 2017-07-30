@@ -5379,7 +5379,8 @@ few key bindings, but this might be extended in the future.
 
   This command shows the log for the file of blob that the current
   buffer visits.  Renames are followed when a prefix argument is used
-  or when ~--follow~ is part of ~magit-log-arguments~.
+  or when ~--follow~ is part of ~magit-log-arguments~.  When the
+  region is active, the log is restricted to the selected line range.
 
 - User Option: magit-log-buffer-file-locked
 
