@@ -96,7 +96,7 @@ suffix commands.
 
 Invoking such a prefix command displays a popup buffer which lists the
 associated infix arguments and suffix commands.  In that buffer each
-argument is prefixes with the key sequence that can be used to toggle
+argument is prefixed with the key sequence that can be used to toggle
 it or change its value.  Likewise each suffix command is prefixed with
 the key used to invoke it.  Such a popup buffer might look like this:
 
@@ -121,7 +121,7 @@ The user could then for example type @code{-l} to toggle the @code{--graph} @str
 change the value of the @strong{option} @code{--grep}.
 
 Once all arguments are as desired one invokes a suffix command, which
-causes the popup buffer to disappears.  The suffix command should then
+causes the popup buffer to disappear.  The suffix command should then
 retrieve the infix arguments in its @code{interactive} form like this is done
 for prefix arguments.
 
