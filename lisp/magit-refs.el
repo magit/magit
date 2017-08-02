@@ -564,12 +564,11 @@ line is inserted at all."
                              head ref section))
     (magit-refs-insert-cherry-commits-1 head ref section)))
 
-(defun magit-refs-insert-cherry-commits-1 (head ref section)
+(defun magit-refs-insert-cherry-commits-1 (head ref _section)
   (let ((start (point)))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
       "cherry" "-v" "--abbrev" head ref magit-refresh-args)
     (unless (= (point) start)
-      (insert (propertize "\n" 'magit-section section))
       (magit-make-margin-overlay nil t))))
 
 (defun magit-refs-format-margin (commit)
