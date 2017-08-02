@@ -305,17 +305,15 @@ With a prefix argument, visit in another window."
 These sections can be expanded to show the respective commits."
   (magit--insert-modules-logs "Modules unpulled from @{upstream}"
                               'modules-unpulled-from-upstream
-                              'magit-get-upstream-ref
-                              "HEAD..%s"))
+                              "HEAD..@{upstream}"))
 
 ;;;###autoload
 (defun magit-insert-modules-unpulled-from-pushremote ()
   "Insert sections for modules that haven't been pulled from the push-remote.
 These sections can be expanded to show the respective commits."
-  (magit--insert-modules-logs "Modules unpulled from <push-remote>"
+  (magit--insert-modules-logs "Modules unpulled from ${push}"
                               'modules-unpulled-from-pushremote
-                              'magit-get-push-branch
-                              "HEAD..%s"))
+                              "HEAD..@{push}"))
 
 ;;;###autoload
 (defun magit-insert-modules-unpushed-to-upstream ()
@@ -323,19 +321,17 @@ These sections can be expanded to show the respective commits."
 These sections can be expanded to show the respective commits."
   (magit--insert-modules-logs "Modules unmerged into @{upstream}"
                               'modules-unpushed-to-upstream
-                              'magit-get-upstream-ref
-                              "%s..HEAD"))
+                              "@{upstream}..HEAD"))
 
 ;;;###autoload
 (defun magit-insert-modules-unpushed-to-pushremote ()
   "Insert sections for modules that haven't been pushed to the push-remote.
 These sections can be expanded to show the respective commits."
-  (magit--insert-modules-logs "Modules unpushed to <push-remote>"
+  (magit--insert-modules-logs "Modules unpushed to @{push}"
                               'modules-unpushed-to-pushremote
-                              'magit-get-push-branch
-                              "%s..HEAD"))
+                              "${push}..HEAD"))
 
-(defun magit--insert-modules-logs (heading type fn format)
+(defun magit--insert-modules-logs (heading type range)
   "For internal use, don't add to a hook."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section ((eval type) nil t)
@@ -348,13 +344,12 @@ These sections can be expanded to show the respective commits."
         (dolist (module modules)
           (let ((default-directory
                   (expand-file-name (file-name-as-directory module))))
-            (--when-let (and (magit-file-accessible-directory-p default-directory)
-                             (funcall fn))
+            (when (magit-file-accessible-directory-p default-directory)
               (magit-insert-section sec (file module t)
                 (magit-insert-heading
                   (concat (propertize module 'face 'magit-diff-file-heading) ":"))
                 (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
-                  "log" "--oneline" (format format it))
+                  "-c" "push.default=current" "log" "--oneline" range)
                 (when (> (point) (magit-section-content sec))
                   (delete-char -1)))))))
       (if (> (point) (magit-section-content section))

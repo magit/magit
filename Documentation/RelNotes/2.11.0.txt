@@ -101,6 +101,8 @@ Changes since v2.10.3
   `magit-insert-modules-overview' for consistency with other
   `magit-insert-modules-*' functions.  #3141
 
+* Inserting module sections is much faster now.  #3141
+
 Fixes since v2.10.3
 -------------------
 
