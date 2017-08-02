@@ -1601,39 +1601,6 @@ The following functions can also be added to the above hook:
   ~magit-insert-unpulled-or-recent-commits~ (provided there are no
   unpulled commits) show.
 
-- Function: magit-insert-modules-unpulled-from-upstream
-
-  Insert sections for modules that haven't been pulled from the
-  upstream yet.  These sections can be expanded to show the respective
-  commits.
-
-- Function: magit-insert-modules-unpulled-from-pushremote
-
-  Insert sections for modules that haven't been pulled from the
-  push-remote yet.  These sections can be expanded to show the
-  respective commits.
-
-- Function: magit-insert-modules-unpushed-to-upstream
-
-  Insert sections for modules that haven't been pushed to the upstream
-  yet.  These sections can be expanded to show the respective commits.
-
-- Function: magit-insert-modules-unpushed-to-pushremote
-
-  Insert sections for modules that haven't been pushed to the
-  push-remote yet. These sections can be expanded to show the
-  respective commits.
-
-- Function: magit-insert-submodules
-
-  Insert sections for all submodules.  For each section insert the
-  path, the branch, and the output of ~git describe --tags~.
-
-  Press ~RET~ on such a submodule section to show its own status buffer.
-  Press ~RET~ on the "Modules" section to display a list of submodules
-  in a separate buffer.  This shows additional information not
-  displayed in the super-repository's status buffer.
-
 - Function: magit-insert-unpulled-cherries
 
   Insert section showing unpulled commits.
@@ -1656,7 +1623,8 @@ used here.
 *** Status Header Sections
 
 The contents of status buffers is controlled using the hook
-~magit-status-sections-hook~, as described in the previous section.
+~magit-status-sections-hook~, see [[*Status Sections]].
+
 By default ~magit-insert-status-headers~ is the first member of that
 hook variable.
 
@@ -1724,6 +1692,68 @@ The following functions can also be added to the above hook:
 - Function: magit-insert-user-header
 
   Insert a header line about the current user.
+
+*** Status Module Sections
+
+The contents of status buffers is controlled using the hook
+~magit-status-sections-hook~, see [[*Status Sections]].
+
+By default ~magit-insert-status-headers~ is /not/ a member of that hook
+variable.
+
+- Function: magit-insert-modules
+
+  Insert submodule sections.
+
+  Hook ~magit-module-sections-hook~ controls which module sections are
+  inserted, and option ~magit-insert-modules-nested~ controls whether
+  they are wrapped in an additional section.
+
+- Option: magit-module-sections-hook
+
+  Hook run by ~magit-insert-modules~.
+
+- Option: magit-module-sections-nested
+
+  This option controls whether ~magit-insert-modules~ wraps inserted
+  sections in an additional section.
+
+  If this is non-nil then only a single top-level section is inserted,
+  if it is nil, then all sections listed in ~magit-module-sections-hook~
+  become top-level sections.
+
+- Function: magit-insert-submodules
+
+  Insert sections for all submodules.  For each section insert the
+  path, the branch, and the output of ~git describe --tags~.
+
+  Press ~RET~ on such a submodule section to show its own status buffer.
+  Press ~RET~ on the "Modules" section to display a list of submodules
+  in a separate buffer.  This shows additional information not
+  displayed in the super-repository's status buffer.
+
+- Function: magit-insert-modules-unpulled-from-upstream
+
+  Insert sections for modules that haven't been pulled from the
+  upstream yet.  These sections can be expanded to show the respective
+  commits.
+
+- Function: magit-insert-modules-unpulled-from-pushremote
+
+  Insert sections for modules that haven't been pulled from the
+  push-remote yet.  These sections can be expanded to show the
+  respective commits.
+
+- Function: magit-insert-modules-unpushed-to-upstream
+
+  Insert sections for modules that haven't been pushed to the upstream
+  yet.  These sections can be expanded to show the respective commits.
+
+- Function: magit-insert-modules-unpushed-to-pushremote
+
+  Insert sections for modules that haven't been pushed to the
+  push-remote yet. These sections can be expanded to show the
+  respective commits.
 
 *** Status Options
 

@@ -30,6 +30,31 @@
 
 ;;; Options
 
+(defcustom magit-module-sections-hook
+  '(magit-insert-submodules
+    magit-insert-modules-unpulled-from-upstream
+    magit-insert-modules-unpulled-from-pushremote
+    magit-insert-modules-unpushed-to-upstream
+    magit-insert-modules-unpushed-to-pushremote)
+  "Hook run by `magit-insert-modules'.
+
+That function isn't part of `magit-status-sections-hook's default
+value, so you have to add it yourself for this hook to have any
+effect."
+  :package-version '(magit . "2.11.0")
+  :group 'magit-status
+  :type 'hook)
+
+(defcustom magit-module-sections-nested t
+  "Whether `magit-insert-modules' wraps inserted sections.
+
+If this is non-nil then only a single top-level section
+is inserted, if it is nil, then all sections listed in
+`magit-module-sections-hook' become top-level sections."
+  :package-version '(magit . "2.11.0")
+  :group 'magit-status
+  :type 'boolean)
+
 (defcustom magit-submodule-list-mode-hook '(hl-line-mode)
   "Hook run after entering Magit-Submodule-List mode."
   :package-version '(magit . "2.9.0")
@@ -174,6 +199,27 @@ With a prefix argument fetch all remotes."
     (magit-run-git-async "submodule" "deinit" path)))
 
 ;;; Sections
+
+;;;###autoload
+(defun magit-insert-modules ()
+  "Insert submodule sections.
+Hook `magit-module-sections-hook' controls which module sections
+are inserted, and option `magit-insert-modules-nested' controls
+whether they are wrapped in an additional section."
+  (-when-let (modules (magit-get-submodules))
+    (if magit-module-sections-nested
+        (magit-insert-section section (submodules nil t)
+          (magit-insert-heading
+            (format "%s (%s)"
+                    (propertize "Modules" 'face 'magit-section-heading)
+                    (length modules)))
+          (if (magit-section-hidden section)
+              (setf (magit-section-washer section) 'magit--insert-modules)
+            (magit--insert-modules)))
+      (magit--insert-modules))))
+
+(defun magit--insert-modules (&optional _section)
+  (magit-run-section-hook 'magit-module-sections-hook))
 
 ;;;###autoload
 (defun magit-insert-submodules ()
