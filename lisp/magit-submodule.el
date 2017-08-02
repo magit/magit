@@ -226,28 +226,36 @@ whether they are wrapped in an additional section."
   "Insert sections for all modules.
 For each section insert the path and the output of `git describe --tags'."
   (-when-let (modules (magit-get-submodules))
-    (magit-insert-section (submodules nil t)
-      (magit-insert-heading "Modules:")
-      (magit-with-toplevel
-        (let ((col-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
-          (dolist (module modules)
-            (let ((default-directory
-                    (expand-file-name (file-name-as-directory module))))
-              (magit-insert-section (submodule module t)
-                (insert (propertize (format col-format module)
-                                    'face 'magit-diff-file-heading))
-                (if (not (file-exists-p ".git"))
-                    (insert "(uninitialized)")
-                  (insert (format col-format
-                                  (--if-let (magit-get-current-branch)
-                                      (propertize it 'face 'magit-branch-local)
-                                    (propertize "(detached)" 'face 'warning))))
-                  (--when-let (magit-git-string "describe" "--tags")
-                    (when (string-match-p "\\`[0-9]" it)
-                      (insert ?\s))
-                    (insert (propertize it 'face 'magit-tag))))
-                (insert ?\n))))))
-      (insert ?\n))))
+    (magit-insert-section section (submodules nil t)
+      (magit-insert-heading
+        (format "%s (%s)"
+                (propertize "Modules overview" 'face 'magit-section-heading)
+                (length modules)))
+      (if (magit-section-hidden section)
+          (setf (magit-section-washer section) 'magit--insert-modules-overview)
+        (magit--insert-modules-overview)))))
+
+(defun magit--insert-modules-overview (&optional _section)
+  (magit-with-toplevel
+    (let ((col-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
+      (dolist (module (magit-get-submodules))
+        (let ((default-directory
+                (expand-file-name (file-name-as-directory module))))
+          (magit-insert-section (submodule module t)
+            (insert (propertize (format col-format module)
+                                'face 'magit-diff-file-heading))
+            (if (not (file-exists-p ".git"))
+                (insert "(uninitialized)")
+              (insert (format col-format
+                              (--if-let (magit-get-current-branch)
+                                  (propertize it 'face 'magit-branch-local)
+                                (propertize "(detached)" 'face 'warning))))
+              (--when-let (magit-git-string "describe" "--tags")
+                (when (string-match-p "\\`[0-9]" it)
+                  (insert ?\s))
+                (insert (propertize it 'face 'magit-tag))))
+            (insert ?\n))))))
+  (insert ?\n))
 
 (defvar magit-submodules-section-map
   (let ((map (make-sparse-keymap)))
