@@ -1623,7 +1623,7 @@ used here.
 *** Status Header Sections
 
 The contents of status buffers is controlled using the hook
-~magit-status-sections-hook~, see [[*Status Sections]].
+~magit-status-sections-hook~ (see [[*Status Sections]]).
 
 By default ~magit-insert-status-headers~ is the first member of that
 hook variable.
@@ -1696,9 +1696,9 @@ The following functions can also be added to the above hook:
 *** Status Module Sections
 
 The contents of status buffers is controlled using the hook
-~magit-status-sections-hook~, see [[*Status Sections]].
+~magit-status-sections-hook~ (see [[*Status Sections]]).
 
-By default ~magit-insert-status-headers~ is /not/ a member of that hook
+By default ~magit-insert-modules~ is /not/ a member of that hook
 variable.
 
 - Function: magit-insert-modules
@@ -1718,8 +1718,8 @@ variable.
   This option controls whether ~magit-insert-modules~ wraps inserted
   sections in an additional section.
 
-  If this is non-nil then only a single top-level section is inserted,
-  if it is nil, then all sections listed in ~magit-module-sections-hook~
+  If this is non-nil, then only a single top-level section is inserted.
+  If it is nil, then all sections listed in ~magit-module-sections-hook~
   become top-level sections.
 
 - Function: magit-insert-modules-overview
@@ -1752,7 +1752,7 @@ variable.
 - Function: magit-insert-modules-unpushed-to-pushremote
 
   Insert sections for modules that haven't been pushed to the
-  push-remote yet. These sections can be expanded to show the
+  push-remote yet.  These sections can be expanded to show the
   respective commits.
 
 *** Status Options

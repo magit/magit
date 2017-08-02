@@ -92,7 +92,7 @@ Changes since v2.10.3
 * Added bookmark support in status, refs, log, reflog, stashes,
   cherry, diff, revision, stash, and submodule-list buffers.  #3113
 
-* Added new function `magit-insert-modules', a warper around the
+* Added new function `magit-insert-modules', a wrapper around the
   existing `magit-insert-modules-*' functions.  Also added options
   `magit-module-sections-hook' and `magit-module-sections-nested',
   to allow tuning the behavior of this function.  #3141

@@ -2221,7 +2221,7 @@ used here.
 @subsection Status Header Sections
 
 The contents of status buffers is controlled using the hook
-@code{magit-status-sections-hook}, see @ref{Status Sections}.
+@code{magit-status-sections-hook} (see @ref{Status Sections}).
 
 By default @code{magit-insert-status-headers} is the first member of that
 hook variable.
@@ -2306,9 +2306,9 @@ Insert a header line about the current user.
 @subsection Status Module Sections
 
 The contents of status buffers is controlled using the hook
-@code{magit-status-sections-hook}, see @ref{Status Sections}.
+@code{magit-status-sections-hook} (see @ref{Status Sections}).
 
-By default @code{magit-insert-status-headers} is @emph{not} a member of that hook
+By default @code{magit-insert-modules} is @emph{not} a member of that hook
 variable.
 
 @defun magit-insert-modules
@@ -2333,8 +2333,8 @@ Option: magit-module-sections-nested
 This option controls whether @code{magit-insert-modules} wraps inserted
 sections in an additional section.
 
-If this is non-nil then only a single top-level section is inserted,
-if it is nil, then all sections listed in @code{magit-module-sections-hook}
+If this is non-nil, then only a single top-level section is inserted.
+If it is nil, then all sections listed in @code{magit-module-sections-hook}
 become top-level sections.
 
 @end itemize
@@ -2373,7 +2373,7 @@ yet.  These sections can be expanded to show the respective commits.
 @defun magit-insert-modules-unpushed-to-pushremote
 
 Insert sections for modules that haven't been pushed to the
-push-remote yet. These sections can be expanded to show the
+push-remote yet.  These sections can be expanded to show the
 respective commits.
 @end defun
 

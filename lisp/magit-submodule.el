@@ -48,8 +48,8 @@ effect."
 (defcustom magit-module-sections-nested t
   "Whether `magit-insert-modules' wraps inserted sections.
 
-If this is non-nil then only a single top-level section
-is inserted, if it is nil, then all sections listed in
+If this is non-nil, then only a single top-level section
+is inserted.  If it is nil, then all sections listed in
 `magit-module-sections-hook' become top-level sections."
   :package-version '(magit . "2.11.0")
   :group 'magit-status
