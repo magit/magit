@@ -295,19 +295,10 @@ Type \\[magit-commit-popup] to create a commit.
     (remove-hook 'magit-status-sections-hook #'magit-insert-staged-changes
                  'local)))
 
-(defvar magit-status-sections-hook-1 nil)
-
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
-    (if (-all-p #'functionp magit-status-sections-hook)
-        (run-hooks 'magit-status-sections-hook)
-      (message "`magit-status-sections-hook' contains entries that are \
-no longer valid.\nUsing standard value instead.  Please re-configure")
-      (sit-for 5)
-      (let ((magit-status-sections-hook-1
-             (eval (car (get 'magit-status-sections-hook 'standard-value)))))
-        (run-hooks 'magit-status-sections-hook-1))))
+    (magit-run-section-hook 'magit-status-sections-hook))
   (run-hooks 'magit-status-refresh-hook))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
