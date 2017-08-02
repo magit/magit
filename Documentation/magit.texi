@@ -2339,7 +2339,7 @@ become top-level sections.
 
 @end itemize
 
-@defun magit-insert-submodules
+@defun magit-insert-modules-overview
 
 Insert sections for all submodules.  For each section insert the
 path, the branch, and the output of @code{git describe --tags}.

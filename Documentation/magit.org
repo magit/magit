@@ -1722,7 +1722,7 @@ variable.
   if it is nil, then all sections listed in ~magit-module-sections-hook~
   become top-level sections.
 
-- Function: magit-insert-submodules
+- Function: magit-insert-modules-overview
 
   Insert sections for all submodules.  For each section insert the
   path, the branch, and the output of ~git describe --tags~.

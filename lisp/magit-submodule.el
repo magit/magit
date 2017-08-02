@@ -31,7 +31,7 @@
 ;;; Options
 
 (defcustom magit-module-sections-hook
-  '(magit-insert-submodules
+  '(magit-insert-modules-overview
     magit-insert-modules-unpulled-from-upstream
     magit-insert-modules-unpulled-from-pushremote
     magit-insert-modules-unpushed-to-upstream
@@ -222,7 +222,7 @@ whether they are wrapped in an additional section."
   (magit-run-section-hook 'magit-module-sections-hook))
 
 ;;;###autoload
-(defun magit-insert-submodules ()
+(defun magit-insert-modules-overview ()
   "Insert sections for all modules.
 For each section insert the path and the output of `git describe --tags'."
   (-when-let (modules (magit-get-submodules))

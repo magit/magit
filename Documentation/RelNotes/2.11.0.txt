@@ -97,6 +97,10 @@ Changes since v2.10.3
   `magit-module-sections-hook' and `magit-module-sections-nested',
   to allow tuning the behavior of this function.  #3141
 
+* Renamed function `magit-insert-submodules' to
+  `magit-insert-modules-overview' for consistency with other
+  `magit-insert-modules-*' functions.  #3141
+
 Fixes since v2.10.3
 -------------------
 
