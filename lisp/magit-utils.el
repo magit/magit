@@ -699,7 +699,7 @@ or (last of all) the value of EXP."
     ;; Called by `custom-initialize-reset' on behalf of `symbol's
     ;; `defcustom', which is being evaluated for the first time to
     ;; set the initial value, but there's already a default value,
-    ;; which most likely was stablished by one or more `add-hook'
+    ;; which most likely was established by one or more `add-hook'
     ;; calls.
     ;;
     ;; We combine the `standard-value' and the current value, while
