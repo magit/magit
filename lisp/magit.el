@@ -314,7 +314,7 @@ inspect the merge and change the commit message.
   (file-exists-p (magit-git-dir "MERGE_HEAD")))
 
 (defun magit-merge-assert ()
-  (or (not (magit-anything-modified-p))
+  (or (not (magit-anything-modified-p t))
       (magit-confirm 'merge-dirty
         "Merging with dirty worktree is risky.  Continue")
       (user-error "Abort")))
