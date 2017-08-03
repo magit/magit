@@ -1196,5 +1196,20 @@ again use `remove-hook'."
         (set hook value)
       (set-default hook value))))
 
+(defun magit-run-section-hook (hook)
+  "Run HOOK, warning about invalid entries."
+  (--if-let (-remove #'functionp (symbol-value hook))
+      (progn
+        (message "`%s' contains entries that are no longer valid.
+%s\nUsing standard value instead.  Please re-configure hook variable."
+                 hook
+                 (mapconcat (lambda (sym) (format "  `%s'" sym)) it "\n"))
+        (sit-for 5)
+        (defvar magit--hook-standard-value nil)
+        (let ((magit--hook-standard-value
+               (eval (car (get hook 'standard-value)))))
+          (run-hooks 'magit---hook-standard-value)))
+    (run-hooks hook)))
+
 (provide 'magit-section)
 ;;; magit-section.el ends here
