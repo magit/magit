@@ -105,6 +105,10 @@ Changes since v2.10.3
 
 * Added `--no-verify' switch to `magit-rebase-popup'.  #3144
 
+* The `--no-verify' switch in `magit-commit-popup' is now bound to "h"
+  instead of "n" for consistency with `magit-push-popup' and
+  `magit-rebase-popup'.  #3144
+
 Fixes since v2.10.3
 -------------------
 

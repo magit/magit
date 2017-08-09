@@ -100,7 +100,7 @@ an error while using those is harder to recover from."
     :switches ((?a "Stage all modified and deleted files"   "--all")
                (?e "Allow empty commit"                     "--allow-empty")
                (?v "Show diff of changes to be committed"   "--verbose")
-               (?n "Bypass git hooks"                       "--no-verify")
+               (?h "Disable hooks"                          "--no-verify")
                (?s "Add Signed-off-by line"                 "--signoff")
                (?R "Claim authorship and reset author date" "--reset-author"))
     :options  ((?A "Override the author"  "--author=")
