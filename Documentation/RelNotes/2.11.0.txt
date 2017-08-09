@@ -103,6 +103,8 @@ Changes since v2.10.3
 
 * Inserting module sections is much faster now.  #3141
 
+* Added `--no-verify' switch to `magit-rebase-popup'.  #3144
+
 Fixes since v2.10.3
 -------------------
 
