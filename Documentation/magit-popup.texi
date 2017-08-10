@@ -349,6 +349,11 @@ displayed in the popup.
 If optional VALUE is non-nil then the option is on by default, and
 VALUE is its default value.
 
+READER is used to read a value from the user when the option is
+invoked and does not currently have a value.  It should take one
+argument and use it as the prompt.  If this is nil, then
+@code{read-from-minibuffer} is used.
+
 OPTION is inserted after all other options already defined for
 POPUP, unless optional PREPEND is non-nil, in which case it is
 placed first.  If optional AT is non-nil then it should be the KEY
