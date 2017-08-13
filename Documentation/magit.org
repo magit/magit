@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-36-gb4caa7e3+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-39-g05fb8563+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-36-gb4caa7e3+1).
+This manual is for Magit version 2.11.0 (2.11.0-39-g05fb8563+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -1729,7 +1729,8 @@ variable.
 - Function: magit-insert-modules-overview
 
   Insert sections for all submodules.  For each section insert the
-  path, the branch, and the output of ~git describe --tags~.
+  path, the branch, and the output of ~git describe --tags~,
+  or, failing that, the abbreviated HEAD commit hash.
 
   Press ~RET~ on such a submodule section to show its own status buffer.
   Press ~RET~ on the "Modules" section to display a list of submodules
@@ -5076,7 +5077,8 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
 - Function: magit-insert-submodules
 
   Insert sections for all submodules.  For each section insert the
-  path, the branch, and the output of ~git describe --tags~.
+  path, the branch, and the output of ~git describe --tags~,
+  or, failing that, the abbreviated HEAD commit hash.
 
   Press ~RET~ on such a submodule section to show its own status buffer.
   Press ~RET~ on the "Modules" section to display a list of submodules
