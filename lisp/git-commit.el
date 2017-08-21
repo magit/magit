@@ -84,7 +84,8 @@
 ;; provided by these commands:
 ;;
 ;;   C-c C-s  Insert a Signed-off-by header.
-;;   C-C C-a  Insert a Acked-by header.
+;;   C-c C-a  Insert a Acked-by header.
+;;   C-c C-m  Insert a Modified-by header.
 ;;   C-c C-t  Insert a Tested-by header.
 ;;   C-c C-r  Insert a Reviewed-by header.
 ;;   C-c C-o  Insert a Cc header.
@@ -240,7 +241,7 @@ already using it, then you probably shouldn't start doing so."
                         "Magit 2.11.0" 'set)
 
 (defcustom git-commit-known-pseudo-headers
-  '("Signed-off-by" "Acked-by" "Cc"
+  '("Signed-off-by" "Acked-by" "Modified-by" "Cc"
     "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by")
   "A list of Git pseudo headers to be highlighted."
   :group 'git-commit
@@ -323,6 +324,7 @@ already using it, then you probably shouldn't start doing so."
            ;; Old bindings to avoid confusion
            (define-key map (kbd "C-c C-x a") 'git-commit-ack)
            (define-key map (kbd "C-c C-x i") 'git-commit-suggested)
+           (define-key map (kbd "C-c C-x m") 'git-commit-modified)
            (define-key map (kbd "C-c C-x o") 'git-commit-cc)
            (define-key map (kbd "C-c C-x p") 'git-commit-reported)
            (define-key map (kbd "C-c C-x r") 'git-commit-review)
@@ -330,6 +332,7 @@ already using it, then you probably shouldn't start doing so."
            (define-key map (kbd "C-c C-x t") 'git-commit-test)))
     (define-key map (kbd "C-c C-a") 'git-commit-ack)
     (define-key map (kbd "C-c C-i") 'git-commit-suggested)
+    (define-key map (kbd "C-c C-m") 'git-commit-modified)
     (define-key map (kbd "C-c C-o") 'git-commit-cc)
     (define-key map (kbd "C-c C-p") 'git-commit-reported)
     (define-key map (kbd "C-c C-r") 'git-commit-review)
@@ -352,6 +355,8 @@ already using it, then you probably shouldn't start doing so."
      :help "Insert an 'Acked-by' header"]
     ["Sign-Off" git-commit-signoff :active t
      :help "Insert a 'Signed-off-by' header"]
+    ["Modified-by" git-commit-modified :active t
+     :help "Insert an 'Modified-by' header"]
     ["Tested-by" git-commit-test :active t
      :help "Insert a 'Tested-by' header"]
     ["Reviewed-by" git-commit-review :active t
@@ -583,6 +588,11 @@ With a numeric prefix ARG, go forward ARG comments."
   "Insert a header acknowledging that you have looked at the commit."
   (interactive (git-commit-self-ident))
   (git-commit-insert-header "Acked-by" name mail))
+
+(defun git-commit-modified (name mail)
+  "Insert a header to signal that you have modified the commit."
+  (interactive (git-commit-self-ident))
+  (git-commit-insert-header "Modified-by" name mail))
 
 (defun git-commit-review (name mail)
   "Insert a header acknowledging that you have reviewed the commit."
