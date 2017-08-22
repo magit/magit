@@ -109,6 +109,10 @@ Changes since v2.10.3
   instead of "n" for consistency with `magit-push-popup' and
   `magit-rebase-popup'.  #3144
 
+* Added support for the file "EDIT_DESCRIPTION", which is used instead
+  of "BRANCH_DESCRIPTION" for editing a branch's description as of Git
+  2.13.0.  #3149
+
 Fixes since v2.10.3
 -------------------
 

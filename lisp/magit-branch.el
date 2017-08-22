@@ -580,7 +580,7 @@ variable `branch.<name>.description'."
 
 (defun magit-edit-branch*description-check-buffers ()
   (and buffer-file-name
-       (string-match-p "/BRANCH_DESCRIPTION\\'" buffer-file-name)
+       (string-match-p "/\\(BRANCH\\|EDIT\\)_DESCRIPTION\\'" buffer-file-name)
        (add-hook 'with-editor-post-finish-hook
                  (lambda ()
                    (when (derived-mode-p 'magit-popup-mode)
