@@ -836,22 +836,23 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
     (when (and variable (not (magit-popup-event-arg variable)))
       (setq action variable)
       (setq variable nil))
-    (if (or action variable)
-        (let* ((magit-current-popup magit-this-popup)
-               (magit-current-popup-args (magit-popup-get-args))
-               (command (magit-popup-event-fun (or action variable)))
-               (magit-current-popup-action command))
-          (when action
-            (magit-popup-quit))
-          (call-interactively command)
-          (setq this-command command)
-          (unless action
-            (magit-refresh-popup-buffer)))
-      (if (eq event ?q)
-          (progn (magit-popup-quit)
-                 (when magit-previous-popup
-                   (magit-popup-mode-setup magit-previous-popup nil)))
-        (user-error "%c isn't bound to any action" event)))))
+    (cond ((or action variable)
+           (let* ((magit-current-popup magit-this-popup)
+                  (magit-current-popup-args (magit-popup-get-args))
+                  (command (magit-popup-event-fun (or action variable)))
+                  (magit-current-popup-action command))
+             (when action
+               (magit-popup-quit))
+             (call-interactively command)
+             (setq this-command command)
+             (unless action
+               (magit-refresh-popup-buffer))))
+          ((eq event ?q)
+           (magit-popup-quit)
+           (when magit-previous-popup
+             (magit-popup-mode-setup magit-previous-popup nil)))
+          (t
+           (user-error "%c isn't bound to any action" event)))))
 
 (defun magit-popup-set-variable
     (variable choices &optional default other)
