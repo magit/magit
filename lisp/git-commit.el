@@ -356,7 +356,7 @@ already using it, then you probably shouldn't start doing so."
     ["Sign-Off" git-commit-signoff :active t
      :help "Insert a 'Signed-off-by' header"]
     ["Modified-by" git-commit-modified :active t
-     :help "Insert an 'Modified-by' header"]
+     :help "Insert a 'Modified-by' header"]
     ["Tested-by" git-commit-test :active t
      :help "Insert a 'Tested-by' header"]
     ["Reviewed-by" git-commit-review :active t
