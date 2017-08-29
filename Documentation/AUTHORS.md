@@ -166,6 +166,7 @@ Contributors
 - Marcin Bachry <hegel666@gmail.com>
 - Marco Craveiro <marco.craveiro@gmail.com>
 - Marco Wahl <marcowahlsoft@gmail.com>
+- Marc Sherry <msherry@gmail.com>
 - Marian Schubert <marian.schubert@gmail.com>
 - Mario Rodas <marsam@users.noreply.github.com>
 - Marius Vollmer <marius.vollmer@gmail.com>
