@@ -51,7 +51,7 @@
   "Run `git gui' for the current git repository."
   (interactive)
   (magit-with-toplevel
-    (call-process magit-git-executable nil 0 nil "gui")))
+    (magit-process-file magit-git-executable nil 0 nil "gui")))
 
 ;;;###autoload
 (defun magit-run-git-gui-blame (commit filename &optional linenum)
@@ -73,7 +73,7 @@ blame to center around the line point is on."
                          (magit-file-relative-name buffer-file-name)))
                 (line-number-at-pos)))))
   (magit-with-toplevel
-    (apply #'call-process magit-git-executable nil 0 nil "gui" "blame"
+    (apply #'magit-process-file magit-git-executable nil 0 nil "gui" "blame"
            `(,@(and linenum (list (format "--line=%d" linenum)))
              ,commit
              ,filename))))
@@ -82,19 +82,19 @@ blame to center around the line point is on."
 (defun magit-run-gitk ()
   "Run `gitk' in the current repository."
   (interactive)
-  (call-process magit-gitk-executable nil 0))
+  (magit-process-file magit-gitk-executable nil 0))
 
 ;;;###autoload
 (defun magit-run-gitk-branches ()
   "Run `gitk --branches' in the current repository."
   (interactive)
-  (call-process magit-gitk-executable nil 0 nil "--branches"))
+  (magit-process-file magit-gitk-executable nil 0 nil "--branches"))
 
 ;;;###autoload
 (defun magit-run-gitk-all ()
   "Run `gitk --all' in the current repository."
   (interactive)
-  (call-process magit-gitk-executable nil 0 nil "--all"))
+  (magit-process-file magit-gitk-executable nil 0 nil "--all"))
 
 ;;; Emacs Tools
 
