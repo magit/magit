@@ -1,3 +1,12 @@
+<h1 align="center">
+  <a href="https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client">
+    Please support
+    <img src="https://magit.vc/assets/logo/logo/100x100/magit-logo-100x100px.png"> on
+    <img src="https://static.kickstarter.com/assets/help/brand_assets/preview-logo-light-0cdfaf3bb32053ed8dae95dcfc4f9f22820257eb01c7c3c5bedab20cddc3f1f4.jpg">
+  </a>
+</h1>
+<br><br><br>
+
 <div align="center"><img src="https://magit.vc/assets/magit-168x200px.png"/></div>
 <h2 align="center">A Git Porcelain inside Emacs</h2>
 <p align="center">
@@ -26,41 +35,24 @@
 </p>
 <hr>
 
-<div align="center">
-  Keeping its user <a href= "https://magit.vc/quotes">this excited</a> is
-  <a href="https://magit.vc/stats/authors.html#cumulated_added_lines_of_code_per_author">
-    a lot of work
-  </a>.
-  If Magit makes you <br> more productive too,
-  then <b>please consider making a donation</b>.
+<div align="justify">
+  Please consider supporting the ongoing
+  <a href="https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client">
+  crowd-funding campaign</a>.  If it succeeds, then I can work full-time
+  on Magit for a whole year.  I am still overflowing with ideas, and
+  depend on your support to realize them, and to address the remaining
+  long-standing issues.  It is great that many users already consider
+  Magit to be one of Emacs' killer applications, but it is still far
+  from fulfilling its true potential.  Only with your help can I get it
+  there.
 </div>
 <div align="center">
-  <em>Thank you! &mdash; Jonas Bernoulli</em>
-</div>
-<br>
-<div align="center">
-  <a href="https://www.paypal.me/JonasBernoulli/20">
-    <img title="Donate using PayPal"
-         alt="Donate using PayPal"
-		 style="height: 50px; width: auto;"
-         src="https://magit.vc/assets/paypal.png"></a>
-  &nbsp;&nbsp;
-  <a href="https://www.patreon.com/tarsius">
-    <img title="Donate monthly using Patreon"
-         alt="Donate monthly using Patreon"
-		 style="height: 50px; width: auto;"
-         src="https://magit.vc/assets/patreon-50px.png"></a>
-  &nbsp;&nbsp;
-  <a href="https://salt.bountysource.com/teams/magit">
-    <img title="Donate monthly using Bountysource"
-         alt="Donate monthly using Bountysource"
-		 style="height: 50px; width: auto;"
-         src="https://magit.vc/assets/bountysource-50px.png"></a>
+  <br>
+  <em>Thank you! — Jonas Bernoulli</em>
+  <br><br>
+  <img src="https://static.kickstarter.com/assets/help/brand_assets/preview-logo-light-0cdfaf3bb32053ed8dae95dcfc4f9f22820257eb01c7c3c5bedab20cddc3f1f4.jpg">
 </div>
 <br>
-<div align="center">
-  Some alternative donation methods are <a href="https://magit.vc/donate">available</a>.
-</div>
 <hr>
 
 Support
