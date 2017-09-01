@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client">
+  <a href="https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client?ref=ewctvn">
     Please support
     <img src="https://magit.vc/assets/logo/logo/100x100/magit-logo-100x100px.png"> on
     <img src="https://static.kickstarter.com/assets/help/brand_assets/preview-logo-light-0cdfaf3bb32053ed8dae95dcfc4f9f22820257eb01c7c3c5bedab20cddc3f1f4.jpg">
@@ -37,7 +37,7 @@
 
 <div align="justify">
   Please consider supporting the ongoing
-  <a href="https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client">
+  <a href="https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client?ref=ewctvn">
   crowd-funding campaign</a>.  If it succeeds, then I can work full-time
   on Magit for a whole year.  I am still overflowing with ideas, and
   depend on your support to realize them, and to address the remaining
@@ -50,7 +50,9 @@
   <br>
   <em>Thank you! — Jonas Bernoulli</em>
   <br><br>
-  <img src="https://static.kickstarter.com/assets/help/brand_assets/preview-logo-light-0cdfaf3bb32053ed8dae95dcfc4f9f22820257eb01c7c3c5bedab20cddc3f1f4.jpg">
+  <a href="https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client?ref=ewctvn">
+    <img src="https://static.kickstarter.com/assets/help/brand_assets/preview-logo-light-0cdfaf3bb32053ed8dae95dcfc4f9f22820257eb01c7c3c5bedab20cddc3f1f4.jpg">
+  </a>
 </div>
 <br>
 <hr>
