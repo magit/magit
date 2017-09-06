@@ -199,6 +199,14 @@ then offer to initialize it as a new repository."
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
 ;;;###autoload
+(defun magit-switch-to-magit-buffer ()
+  "Switch to magit's buffer if it exists otherwise call `magit-status'."
+  (interactive)
+  (if-let ((buffer (magit-mode-get-buffer #'magit-status-mode)))
+      (magit-display-buffer buffer)
+    (magit-status)))
+
+;;;###autoload
 (defun magit-status-internal (directory)
   (magit--tramp-asserts directory)
   (let ((default-directory directory))
