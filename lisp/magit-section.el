@@ -786,7 +786,8 @@ insert a newline character if necessary."
   (magit-maybe-make-margin-overlay)
   (setf (magit-section-content magit-insert-section--current) (point-marker)))
 
-(defvar magit-insert-headers-hook nil "For internal use only.")
+(defvar magit-insert-headers--hook nil "For internal use only.")
+(defvar magit-insert-headers--beginning nil "For internal use only.")
 
 (defun magit-insert-headers (hooks)
   (let ((magit-insert-section-hook
@@ -794,18 +795,19 @@ insert a newline character if necessary."
                (if (listp magit-insert-section-hook)
                    magit-insert-section-hook
                  (list magit-insert-section-hook))))
-        (magit-insert-headers-hook hooks)
+        (magit-insert-headers--hook hooks)
         wrapper)
-    (while (and (setq wrapper (pop magit-insert-headers-hook))
-                (= (point) (point-min)))
+    (setq magit-insert-headers--beginning (point))
+    (while (and (setq wrapper (pop magit-insert-headers--hook))
+                (= (point) magit-insert-headers--beginning))
       (funcall wrapper))))
 
 (defun magit-insert-remaining-headers ()
-  (if (= (point) (point-min))
+  (if (= (point) magit-insert-headers--beginning)
       (magit-cancel-section)
     (magit-insert-heading)
     (remove-hook 'magit-insert-section-hook 'magit-insert-remaining-headers)
-    (mapc #'funcall magit-insert-headers-hook)
+    (mapc #'funcall magit-insert-headers--hook)
     (insert "\n")))
 
 (defun magit-insert-child-count (section)
