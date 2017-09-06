@@ -52,15 +52,15 @@ Changes since v2.10.3
 * When a revision is shown from a log buffer, the revision buffer now
   inherits the file restriction of the log buffer.  #3056
 
-* Add new command `magit-diff-toggle-file-filter'.  #3062
+* Added new command `magit-diff-toggle-file-filter'.  #3062
 
-* Add new option `magit-use-sticky-arguments' that provides more
+* Added new option `magit-use-sticky-arguments' that provides more
   control over how diff and log commands reuse arguments from existing
   buffers.  #3074
 
-* Add imenu support in log, revision, and status buffers.  #3022
+* Added imenu support in log, revision, and status buffers.  #3022
 
-* Add command `magit-abort-dwim` to abort the current operation.
+* Added command `magit-abort-dwim` to abort the current operation.
   Depending on the context, this will abort a merge, a rebase, a
   patch application, a cherry-pick, a revert, or a bisect.  #3017
 
