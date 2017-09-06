@@ -33,6 +33,7 @@
 (require 'dash)
 
 (require 'magit-section)
+(require 'magit-status)
 (require 'magit-git)
 (require 'magit-popup)
 
@@ -582,6 +583,13 @@ locked to its value, which is derived from MODE and ARGS."
     (with-current-buffer buffer
       (run-hooks 'magit-mode-setup-hook)
       (magit-refresh-buffer))))
+
+(defun magit-switch-to-magit-buffer ()
+  "Switch to magit's buffer if it exists otherwise call `magit-status'."
+  (interactive)
+  (if-let ((buffer (magit-mode-get-buffer #'magit-status-mode)))
+      (magit-display-buffer buffer)
+    (magit-status)))
 
 (defvar magit-display-buffer-noselect nil
   "If non-nil, then `magit-display-buffer' doesn't call `select-window'.")
