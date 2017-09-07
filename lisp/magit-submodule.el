@@ -238,16 +238,20 @@ or, failing that, the abbreviated HEAD commit hash."
 
 (defun magit--insert-modules-overview (&optional _section)
   (magit-with-toplevel
-    (let ((col-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
-      (dolist (module (magit-get-submodules))
+    (let* ((modules (magit-get-submodules))
+           (path-format (format "%%-%is "
+                                (min (apply 'max (mapcar 'length modules))
+                                     (/ (window-width) 2))))
+           (branch-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
+      (dolist (module modules)
         (let ((default-directory
                 (expand-file-name (file-name-as-directory module))))
           (magit-insert-section (submodule module t)
-            (insert (propertize (format col-format module)
+            (insert (propertize (format path-format module)
                                 'face 'magit-diff-file-heading))
             (if (not (file-exists-p ".git"))
                 (insert "(uninitialized)")
-              (insert (format col-format
+              (insert (format branch-format
                               (--if-let (magit-get-current-branch)
                                   (propertize it 'face 'magit-branch-local)
                                 (propertize "(detached)" 'face 'warning))))
