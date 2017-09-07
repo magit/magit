@@ -31,6 +31,7 @@
 
 ;;; Code:
 
+(require 'ansi-color)
 (require 'cl-lib)
 (require 'dash)
 
@@ -817,6 +818,7 @@ as argument."
                                         'magit-process-ok
                                       'magit-process-ng)))
           (set-marker-insertion-type marker t))
+        (ansi-color-apply-on-region (point) (point-max))   
         (if (= (magit-section-end section)
                (+ (line-end-position) 2))
             (save-excursion
