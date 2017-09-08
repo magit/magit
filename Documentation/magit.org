@@ -5042,7 +5042,7 @@ Also see [[man:git-submodule]]
 
 *** Listing Submodules
 
-The command ~magit-list-submodule~ displays a list of the current
+The command ~magit-list-submodules~ displays a list of the current
 repository's submodules in a separate buffer.  It's also possible to
 display information about submodules directly in the status buffer of
 the super-repository by adding ~magit-insert-submodules~ to the hook
