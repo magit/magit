@@ -1057,7 +1057,7 @@ Do not add this to a hook variable."
           (save-excursion
             (backward-char)
             (apply #'magit-log-format-margin
-                   (split-string (magit-rev-format "%aN%x00%ct") "\0"))))
+                   (split-string (magit-rev-format "%aN%x00%ct" hash) "\0"))))
         (when (and graph
                    (not (eobp))
                    (not (looking-at non-graph-re)))

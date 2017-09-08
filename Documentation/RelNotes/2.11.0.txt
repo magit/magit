@@ -166,6 +166,8 @@ Fixes since v2.10.3
   not properly supported, causing issues when trying to pull or push.
   #3116
 
+* The log margin displayed invalid information for cherries.  #3163
+
 This release also contains the fixes described in the v2.10.{1,2,3}
 release notes, as well as other minor improvements, bug fixes, typo
 fixes, and documentation fixes.
