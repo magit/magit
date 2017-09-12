@@ -3311,7 +3311,7 @@ stored at the beginning and the end of an edit session (regardless of
 whether the session is finished successfully or was canceled).  It is
 sometimes useful to bring back messages from that ring.
 
-- Key: C-s M-s, git-commit-save-message
+- Key: C-c M-s, git-commit-save-message
 
   Save the current buffer content to the commit message ring.
 

@@ -4573,9 +4573,9 @@ whether the session is finished successfully or was canceled).  It is
 sometimes useful to bring back messages from that ring.
 
 @table @asis
-@kindex C-s M-s
+@kindex C-c M-s
 @cindex git-commit-save-message
-@item @kbd{C-s M-s} @tie{}@tie{}@tie{}@tie{}(@code{git-commit-save-message})
+@item @kbd{C-c M-s} @tie{}@tie{}@tie{}@tie{}(@code{git-commit-save-message})
 
 Save the current buffer content to the commit message ring.
 
