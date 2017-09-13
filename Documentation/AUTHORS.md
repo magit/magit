@@ -130,6 +130,7 @@ Contributors
 - Jasper St. Pierre <jstpierre@mecheye.net>
 - Jeff Bellegarde <jbellegarde@whitepages.com>
 - Jeff Dairiki <dairiki@dairiki.org>
+- Jeremy Meng <yumeng@microsoft.com>
 - Jesse Alama <jesse.alama@gmail.com>
 - Joakim Jalap <JOJA@stoneridge.com>
 - Johann Klähn <kljohann@gmail.com>
