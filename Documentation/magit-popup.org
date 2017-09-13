@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit-Popup: (magit-popup).
 #+TEXINFO_DIR_DESC: Infix arguments with feedback
-#+SUBTITLE: for version 2.10
+#+SUBTITLE: for version 2.11
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
