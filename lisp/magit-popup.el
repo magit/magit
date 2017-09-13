@@ -12,7 +12,7 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "24.4") (async "1.9.2") (dash "2.13.0"))
+;; Package-Requires: ((emacs "24.4") (async "20170823") (dash "20170810"))
 ;; Keywords: bindings
 ;; Homepage: https://github.com/magit/magit
 
