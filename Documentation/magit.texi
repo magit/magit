@@ -2721,9 +2721,9 @@ limit.  Otherwise set it to 256.
 
 Double the number of commits the current log buffer is limited to.
 
-@kindex =
+@kindex -
 @cindex magit-log-half-commit-limit
-@item @kbd{=} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-half-commit-limit})
+@item @kbd{-} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-half-commit-limit})
 
 Half the number of commits the current log buffer is limited to.
 

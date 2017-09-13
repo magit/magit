@@ -2006,7 +2006,7 @@ the status buffer.
 
   Double the number of commits the current log buffer is limited to.
 
-- Key: =, magit-log-half-commit-limit
+- Key: -, magit-log-half-commit-limit
 
   Half the number of commits the current log buffer is limited to.
 
