@@ -478,7 +478,7 @@ remote in alphabetic order."
 ;;;; Campaign Header
 
 (defvar magit-hide-campaign-header
-  (magit-get-boolean "magit.hideCampaign"))
+  (ignore-errors (magit-get-boolean "magit.hideCampaign")))
 
 (defun magit-campaign-remove ()
   "Remove the fundraising campaign header permanently."
