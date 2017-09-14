@@ -733,7 +733,8 @@ Added to `font-lock-extend-region-functions'."
             (with-current-buffer buffer
               (prog1 (buffer-substring-no-properties (point) (point-max))
                 (delete-region (point) (point-max)))))
-           (diff-mode)
+           (let ((diff-default-read-only nil))
+             (diff-mode))
            (let (font-lock-verbose font-lock-support-mode)
              (if (fboundp 'font-lock-ensure)
                  (font-lock-ensure)
