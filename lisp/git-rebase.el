@@ -152,6 +152,7 @@
            (define-key map (kbd "M-p") 'git-rebase-move-line-up)
            (define-key map (kbd "M-n") 'git-rebase-move-line-down)
            (define-key map (kbd   "c") 'git-rebase-pick)
+           (define-key map (kbd   "d") 'git-rebase-kill-line)
            (define-key map (kbd   "k") 'git-rebase-kill-line)
            (define-key map (kbd "C-k") 'git-rebase-kill-line)))
     (define-key map (kbd "e") 'git-rebase-edit)
