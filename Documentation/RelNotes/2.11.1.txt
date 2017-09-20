@@ -6,3 +6,6 @@ Changes since v2.11.0
 
 Fixes since v2.11.0
 -------------------
+
+* `git-rebase-mode-show-keybindings' failed to process non-English
+  usage instructions in interactive rebase buffers.  #3175

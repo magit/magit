@@ -535,15 +535,17 @@ By default, this is the same except for the \"pick\" command."
       (goto-char (point-min))
       (when (and git-rebase-show-instructions
                  (re-search-forward
-                  (concat git-rebase-comment-re " Commands:\n")
+                  (concat git-rebase-comment-re " p, pick")
                   nil t))
+        (goto-char (line-beginning-position))
         (--each git-rebase-command-descriptions
           (insert (format "%s %-8s %s\n"
                           comment-start
                           (substitute-command-keys (format "\\[%s]" (car it)))
                           (cdr it))))
         (while (re-search-forward (concat git-rebase-comment-re
-                                          "\\(  ?\\)\\([^,],\\) \\([^ ]+\\) = ")
+                                          "\\(  ?\\)\\([^\n,],\\) "
+                                          "\\([^\n ]+\\) ")
                                   nil t)
           (let ((cmd (intern (concat "git-rebase-" (match-string 3)))))
             (if (not (fboundp cmd))
