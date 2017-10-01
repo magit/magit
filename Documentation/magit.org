@@ -1673,7 +1673,8 @@ By default the following functions are members of the above hook:
 
 - Function: magit-insert-tags-header
 
-  Insert a header line about the current and/or next tag.
+  Insert a header line about the current and/or next tag, along with
+  the number of commits between the tag and ~HEAD~.
 
 The following functions can also be added to the above hook:
 

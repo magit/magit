@@ -2278,7 +2278,8 @@ usually pushed to.
 
 @defun magit-insert-tags-header
 
-Insert a header line about the current and/or next tag.
+Insert a header line about the current and/or next tag, along with
+the number of commits between the tag and @code{HEAD}.
 @end defun
 
 The following functions can also be added to the above hook:
