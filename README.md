@@ -45,6 +45,12 @@
 		 style="height: 50px; width: auto;"
          src="https://magit.vc/assets/paypal.png"></a>
   &nbsp;&nbsp;
+  <a href="https://gratipay.com/magit">
+     <img class="donate"
+          title="Donate monthly using Gratipay"
+          alt="Donate monthly using Gratipay"
+          src="https://magit.vc/assets/gratipay.png"></a>
+  <br>
   <a href="https://www.patreon.com/tarsius">
     <img title="Donate monthly using Patreon"
          alt="Donate monthly using Patreon"
