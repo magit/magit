@@ -39,6 +39,7 @@
 </div>
 <div align="center">
   <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em>
+  <br><img src="https://magit.vc/assets/pixel-heart.png">
 </div>
 <br>
 <hr>
