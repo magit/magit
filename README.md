@@ -27,6 +27,23 @@
 <hr>
 
 <div align="center">
+  <a href="https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client/updates">
+    <img src="https://magit.vc/assets/kickstarter-k.png">
+  </a>
+</div>
+<div align="justify">
+  Thanks to 1987 backers the Kickstarter campaign was a huge success!
+  This September was very exciting and I would like to thank you all
+  for your generosity and enthusiastic support!  A longer update will
+  follow later today.
+</div>
+<div align="center">
+  <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em>
+</div>
+<br>
+<hr>
+
+<div align="center">
   Keeping its user <a href= "https://magit.vc/quotes">this excited</a> is
   <a href="https://magit.vc/stats/authors.html#cumulated_added_lines_of_code_per_author">
     a lot of work
