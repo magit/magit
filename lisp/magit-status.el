@@ -70,8 +70,7 @@ all."
              magit-insert-tags-header))
 
 (defcustom magit-status-sections-hook
-  '(magit-insert-campaign-header
-    magit-insert-status-headers
+  '(magit-insert-status-headers
     magit-insert-merge-log
     magit-insert-rebase-sequence
     magit-insert-am-sequence
@@ -474,81 +473,6 @@ remote in alphabetic order."
       (insert (format "%-10s" "Remote: "))
       (insert (propertize name 'face 'magit-branch-remote) ?\s)
       (insert url ?\n))))
-
-;;;; Campaign Header
-
-(defvar magit-hide-campaign-header
-  (magit-get-boolean "magit.hideCampaign"))
-
-(defun magit-campaign-remove ()
-  "Remove the fundraising campaign header permanently."
-  (interactive)
-  (magit-call-git "config" "--global" "magit.hideCampaign" "true")
-  (setq magit-hide-campaign-header t)
-  (magit-refresh))
-
-(defun magit-campaign-hide ()
-  "Remove the fundraising campaign header until restart."
-  (interactive)
-  (setq magit-hide-campaign-header t)
-  (magit-refresh))
-
-(defun magit-campaign-visit ()
-  "Visit the fundraising campaign in a browser."
-  (interactive)
-  (browse-url "https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client?ref=2nj0oy"))
-
-(defvar magit-campaign-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-k") 'magit-campaign-remove)
-    (define-key map (kbd "C-c C-h") 'magit-campaign-hide)
-    (define-key map [remap magit-visit-thing] 'magit-campaign-visit)
-    map))
-
-(defun magit-insert-campaign-header ()
-  "Insert a header informing users of the fundraiser."
-  (unless (or (< (float-time) 1505512800) ; 2017-09-16 00:00:00 +0200
-              (> (float-time) 1506895200) ; 2017-10-02 00:00:00 +0200
-              magit-hide-campaign-header)
-    (magit-insert-section (campaign nil t)
-      (magit-insert-heading
-        (propertize "<3" 'face '(:foreground "magenta"))
-        (propertize " Please consider backing the Magit fundraiser.")
-        (propertize " Thanks!" 'face '(:foreground "magenta"))
-        " [TAB] to expand"
-        (propertize " <3" 'face '(:foreground "magenta")))
-      (insert "
-Please accept my apologies for this brief interruption.
-
-  C-c C-k   remove this section permanently
-  C-c C-h   remove this section until restart
-  TAB       collapse this section
-
-  RET       visit the fundraising campaign in a browser
-
---------------------------------------------------------------
-                     The magic must go on
---------------------------------------------------------------
-
-I am currently running a fundraising campaign on Kickstarter.
-If it succeeds, then I can work on Magit full-time for a whole
-year.  I am still overflowing with ideas, and depend on your
-support to realize them.
-
-I would love to work on Magit for at least another year and
-think that its users would miss out on a lot of significant
-improvements if I were unable to do so.  Magit and I are at
-a crossroad — either I can intensive my efforts or I have
-to give up bringing the long time goals to completion that
-I have been working toward for the past few years.
-
-Magit is still far from fulfilling its potential and now I
-need your help to get it there.  Visit the campaign to learn
-more about the planned improvements and please consider to
-make a contribution.
-
-  Thank you,
-  Jonas Bernoulli\n\n"))))
 
 ;;;; File Sections
 
