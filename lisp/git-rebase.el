@@ -474,7 +474,9 @@ running 'man git-rebase' at the command line) for details."
   (unless git-rebase-show-instructions
     (let ((inhibit-read-only t))
       (flush-lines git-rebase-comment-re)))
-  (with-editor-mode 1)
+  (unless with-editor-mode
+    ;; Maybe already enabled when using `shell-command' or an Emacs shell.
+    (with-editor-mode 1))
   (when git-rebase-confirm-cancel
     (add-hook 'with-editor-cancel-query-functions
               'git-rebase-cancel-confirm nil t))

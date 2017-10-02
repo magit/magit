@@ -420,7 +420,9 @@ already using it, then you probably shouldn't start doing so."
                                        git-commit-major-mode))))
       (normal-mode t)))
   (setq with-editor-show-usage nil)
-  (with-editor-mode 1)
+  (unless with-editor-mode
+    ;; Maybe already enabled when using `shell-command' or an Emacs shell.
+    (with-editor-mode 1))
   (add-hook 'with-editor-finish-query-functions
             'git-commit-finish-query-functions nil t)
   (add-hook 'with-editor-pre-finish-hook
