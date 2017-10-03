@@ -261,16 +261,28 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                            "committerdate" "authordate")
                          nil nil initial-input))
 
+(defun magit-show-refs-get-buffer-args ()
+  (cond ((and magit-use-sticky-arguments
+              (derived-mode-p 'magit-refs-mode))
+         (cadr magit-refresh-args))
+        ((and (eq magit-use-sticky-arguments t)
+              (--when-let (magit-mode-get-buffer 'magit-refs-mode)
+                (with-current-buffer it
+                  (cadr magit-refresh-args)))))
+        (t
+         (default-value 'magit-show-refs-arguments))))
+
 (defun magit-show-refs-arguments ()
   (if (eq magit-current-popup 'magit-show-refs-popup)
       magit-current-popup-args
-    magit-show-refs-arguments))
+    (magit-show-refs-get-buffer-args)))
 
 ;;;###autoload
 (defun magit-show-refs-popup (&optional arg)
   "Popup console for `magit-show-refs'."
   (interactive "P")
-  (magit-invoke-popup 'magit-show-refs-popup nil arg))
+  (let ((magit-show-refs-arguments (magit-show-refs-get-buffer-args)))
+    (magit-invoke-popup 'magit-show-refs-popup nil arg)))
 
 ;;;###autoload
 (defun magit-show-refs-head (&optional args)
