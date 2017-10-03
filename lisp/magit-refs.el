@@ -242,7 +242,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                   magit-show-refs))
   :default-action 'magit-show-refs-head
   :max-action-columns 1
-  :use-prefix 'popup)
+  :use-prefix (lambda ()
+                (if (derived-mode-p 'magit-refs-mode)
+                    (if current-prefix-arg 'popup 'default)
+                  'popup)))
 
 (defun magit-read-ref-sort (prompt initial-input)
   (magit-completing-read prompt
