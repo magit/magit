@@ -2449,6 +2449,13 @@ https://github.com/magit/magit/pull/2293 for more details)."
               ;; edge of the window.
               'cursor t))
 
+;;; Hunk Utilities
+
+(defun magit-diff-inside-hunk-body-p ()
+  "Return non-nil if point is inside the body of a hunk."
+  (and (magit-section-match 'hunk)
+       (> (point) (magit-section-content (magit-current-section)))))
+
 ;;; Diff Extract
 
 (defun magit-diff-file-header (section)
