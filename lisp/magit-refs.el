@@ -241,6 +241,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
               (?o "Show refs, comparing them with other branch"
                   magit-show-refs))
   :default-action 'magit-show-refs-head
+  :max-action-columns 1
   :use-prefix 'popup)
 
 (defun magit-read-ref-sort (prompt initial-input)
