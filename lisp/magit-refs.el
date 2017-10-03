@@ -213,10 +213,15 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (setq-local bookmark-make-record-function
               #'magit-bookmark--refs-make-record))
 
-(defun magit-refs-refresh-buffer (&rest _ignore)
+(defun magit-refs-refresh-buffer (ref &optional args)
   (setq magit-set-buffer-margin-refresh (not (magit-buffer-margin-p)))
-  (unless (magit-rev-verify (or (car magit-refresh-args) "HEAD"))
+  (unless ref
+    (setq ref "HEAD"))
+  (unless (magit-rev-verify ref)
     (setq magit-refs-show-commit-count nil))
+  (setq header-line-format
+        (propertize (format " %s %s" ref (mapconcat #'identity args " "))
+                    'face 'magit-header-line))
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-refs-sections-hook)))
 
