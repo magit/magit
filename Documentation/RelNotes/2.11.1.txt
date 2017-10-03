@@ -4,6 +4,20 @@ Magit v2.11.1 Release Notes (unreleased)
 Changes since v2.11.0
 ---------------------
 
+* Added new commands `magit-previous-line' and `magit-next-line' as
+  substitutes for `previous-line' and `next-line'.  Magit's selection
+  mechanism is based on the region but selects an area that is larger
+  than the region.  This causes shift selection to select two lines on
+  the first invocation when using the vanilla commands.  When invoked
+  inside the body of a hunk the new Magit-specific variants don't move
+  point on the first invocation and thereby they only selects a single
+  line.  Which inconsistency you prefer is a matter of preference.  #2912
+
+  To use the Magit-specific variants add this to your init file:
+
+    (define-key magit-mode-map [remap previous-line] 'magit-previous-line)
+    (define-key magit-mode-map [remap next-line] 'magit-next-line)
+
 Fixes since v2.11.0
 -------------------
 

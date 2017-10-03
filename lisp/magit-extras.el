@@ -145,6 +145,57 @@ Interactively, open the file at point."
    (dired-read-shell-command "& on %s: " current-prefix-arg (list file))
    nil (list file)))
 
+;;; Shift Selection
+
+(defun magit--turn-on-shift-select-mode-p ()
+  (and shift-select-mode
+       this-command-keys-shift-translated
+       (not mark-active)
+       (not (eq (car-safe transient-mark-mode) 'only))))
+
+;;;###autoload
+(defun magit-previous-line (&optional arg try-vscroll)
+  "Like `previous-line' but with Magit-specific shift-selection.
+
+Magit's selection mechanism is based on the region but selects an
+area that is larger than the region.  This causes `previous-line'
+when invoked while holding the shift key to move up one line and
+thereby select two lines.  When invoked inside a hunk body this
+command does not move point on the first invocation and thereby
+it only selects a single line.  Which inconsistency you prefer
+is a matter of preference."
+  (declare (interactive-only
+            "use `forward-line' with negative argument instead."))
+  (interactive "p\np")
+  (unless arg (setq arg 1))
+  (let ((hunkp (magit-diff-inside-hunk-body-p)))
+    (if (and hunkp (= arg 1) (magit--turn-on-shift-select-mode-p))
+        (push-mark nil nil t)
+      (with-no-warnings
+        (handle-shift-selection)
+        (previous-line (if hunkp (max (1- arg) 1) arg) try-vscroll)))))
+
+;;;###autoload
+(defun magit-next-line (&optional arg try-vscroll)
+  "Like `next-line' but with Magit-specific shift-selection.
+
+Magit's selection mechanism is based on the region but selects
+an area that is larger than the region.  This causes `next-line'
+when invoked while holding the shift key to move down one line
+and thereby select two lines.  When invoked inside a hunk body
+this command does not move point on the first invocation and
+thereby it only selects a single line.  Which inconsistency you
+prefer is a matter of preference."
+  (declare (interactive-only forward-line))
+  (interactive "p\np")
+  (unless arg (setq arg 1))
+  (let ((hunkp (magit-diff-inside-hunk-body-p)))
+    (if (and hunkp (= arg 1) (magit--turn-on-shift-select-mode-p))
+        (push-mark nil nil t)
+      (with-no-warnings
+        (handle-shift-selection)
+        (next-line (if hunkp (max (1- arg) 1) arg) try-vscroll)))))
+
 ;;; Clean
 
 ;;;###autoload
