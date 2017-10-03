@@ -18,6 +18,9 @@ Changes since v2.11.0
     (define-key magit-mode-map [remap previous-line] 'magit-previous-line)
     (define-key magit-mode-map [remap next-line] 'magit-next-line)
 
+* Added `magit-remote-prune` function to `magit-remote-popup`. Function
+  prunes the specified remote and is bound to "p".  #3186
+
 Fixes since v2.11.0
 -------------------
 

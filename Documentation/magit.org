@@ -4694,6 +4694,10 @@ Also see [[man:git-remote]]
 
   Delete a remote, read from the minibuffer.
 
+- Key: M p, magit-remote-prune
+
+  Prune a remote, read from the minibuffer.
+
 - User Option: magit-remote-add-set-remote.pushDefault
 
   Whether to set the value of ~remote.pushDefault~ after adding a
