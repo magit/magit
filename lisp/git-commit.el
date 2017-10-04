@@ -278,7 +278,7 @@ already using it, then you probably shouldn't start doing so."
 
 (defface git-commit-pseudo-header
   '((t :inherit font-lock-string-face))
-  "Font used for pseudo headers in commit messages."
+  "Face used for pseudo headers in commit messages."
   :group 'git-commit-faces)
 
 (defface git-commit-known-pseudo-header
