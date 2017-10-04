@@ -31,6 +31,7 @@
 
 ;;; Code:
 
+(require 'ansi-color)
 (require 'cl-lib)
 (require 'dash)
 
@@ -795,6 +796,8 @@ as argument."
 
 (defvar-local magit-this-error nil)
 
+(defvar magit-process-finish-apply-ansi-colors nil)
+
 (defun magit-process-finish (arg &optional process-buf command-buf
                                  default-dir section)
   (unless (integerp arg)
@@ -820,6 +823,9 @@ as argument."
                                         'magit-process-ok
                                       'magit-process-ng)))
           (set-marker-insertion-type marker t))
+        (when magit-process-finish-apply-ansi-colors
+          (ansi-color-apply-on-region (magit-section-content section)
+                                      (magit-section-end section)))
         (if (= (magit-section-end section)
                (+ (line-end-position) 2))
             (save-excursion
