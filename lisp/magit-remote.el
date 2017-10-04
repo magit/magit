@@ -110,6 +110,7 @@ variable isn't already set."
   :actions  '((?a "Add"     magit-remote-add)
               (?r "Rename"  magit-remote-rename)
               (?k "Remove"  magit-remote-remove)
+              (?p "Prune"   magit-remote-prune)
               (?u "Set url" magit-remote-set-url)))
 
 (defun magit-read-url (prompt &optional initial-input)
@@ -157,6 +158,12 @@ variable isn't already set."
   "Delete the remote named REMOTE."
   (interactive (list (magit-read-remote "Delete remote")))
   (magit-run-git "remote" "rm" remote))
+
+;;;###autoload
+(defun magit-remote-prune (remote)
+  "Prune the remote named REMOTE."
+  (interactive (list (magit-read-remote "Prune remote")))
+  (magit-run-git "remote" "prune" remote))
 
 ;;;###autoload
 (defun magit-remote-set-head (remote &optional branch)
