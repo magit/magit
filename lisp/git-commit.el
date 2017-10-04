@@ -666,7 +666,9 @@ With a numeric prefix ARG, go forward ARG comments."
     "Untracked files:"
     "Changed but not updated:"
     "Changes not staged for commit:"
-    "Unmerged paths:"))
+    "Unmerged paths:"
+    "Author:"
+    "Date:"))
 
 (defun git-commit-summary-regexp ()
   (concat
