@@ -288,12 +288,7 @@ Type \\[magit-commit-popup] to create a commit.
   (setq imenu-create-index-function
         'magit-imenu--status-create-index-function)
   (setq-local bookmark-make-record-function
-              #'magit-bookmark--status-make-record)
-  ;; Avoid listing all files as deleted when visiting a bare repo.
-  (when (magit-bare-repo-p)
-    (make-local-variable 'magit-status-sections-hook)
-    (remove-hook 'magit-status-sections-hook #'magit-insert-staged-changes
-                 'local)))
+              #'magit-bookmark--status-make-record))
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")

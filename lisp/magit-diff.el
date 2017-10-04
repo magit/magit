@@ -2029,11 +2029,13 @@ or a ref which is not a branch, then it inserts nothing."
 
 (defun magit-insert-staged-changes ()
   "Insert section showing staged changes."
-  (magit-insert-section (staged)
-    (magit-insert-heading "Staged changes:")
-    (magit-git-wash #'magit-diff-wash-diffs
-      "diff" "--cached" magit-diff-section-arguments "--no-prefix"
-      "--" magit-diff-section-file-args)))
+  ;; Avoid listing all files as deleted when visiting a bare repo.
+  (unless (magit-bare-repo-p)
+    (magit-insert-section (staged)
+      (magit-insert-heading "Staged changes:")
+      (magit-git-wash #'magit-diff-wash-diffs
+        "diff" "--cached" magit-diff-section-arguments "--no-prefix"
+        "--" magit-diff-section-file-args))))
 
 ;;; Diff Type
 
