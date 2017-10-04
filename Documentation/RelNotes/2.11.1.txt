@@ -18,6 +18,12 @@ Changes since v2.11.0
     (define-key magit-mode-map [remap previous-line] 'magit-previous-line)
     (define-key magit-mode-map [remap next-line] 'magit-next-line)
 
+* The command `magit-refs-popup' now remembers arguments and they are
+  displayed in the header-line of `magit-refs-mode' buffers.  The popup
+  command still invokes the default action by default when invoked from
+  another buffer, but when invoked from a `magit-refs-mode' buffer it
+  now shows the popup.  #2898
+
 Fixes since v2.11.0
 -------------------
 

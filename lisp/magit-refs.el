@@ -213,41 +213,81 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (setq-local bookmark-make-record-function
               #'magit-bookmark--refs-make-record))
 
-(defun magit-refs-refresh-buffer (&rest _ignore)
+(defun magit-refs-refresh-buffer (ref &optional args)
   (setq magit-set-buffer-margin-refresh (not (magit-buffer-margin-p)))
-  (unless (magit-rev-verify (or (car magit-refresh-args) "HEAD"))
+  (unless ref
+    (setq ref "HEAD"))
+  (unless (magit-rev-verify ref)
     (setq magit-refs-show-commit-count nil))
+  (setq header-line-format
+        (propertize (format " %s %s" ref (mapconcat #'identity args " "))
+                    'face 'magit-header-line))
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-refs-sections-hook)))
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-show-refs-popup "magit" nil t)
-(magit-define-popup magit-show-refs-popup
-  "Popup console for `magit-show-refs'."
-  :man-page "git-branch"
-  :switches '((?m "Merged to HEAD"            "--merged")
-              (?M "Merged to master"          "--merged=master")
-              (?n "Not merged to HEAD"        "--no-merged")
-              (?N "Not merged to master"      "--no-merged=master"))
-  :options  '((?c "Contains"   "--contains="  magit-read-branch-or-commit)
-              (?m "Merged"     "--merged="    magit-read-branch-or-commit)
-              (?n "Not merged" "--no-merged=" magit-read-branch-or-commit)
-              (?s "Sort"       "--sort="      magit-read-ref-sort))
-  :actions  '((?y "Show refs, comparing them with HEAD"
-                  magit-show-refs-head)
-              (?c "Show refs, comparing them with current branch"
-                  magit-show-refs-current)
-              (?o "Show refs, comparing them with other branch"
-                  magit-show-refs))
-  :default-action 'magit-show-refs-head
-  :use-prefix 'popup)
+(defcustom magit-show-refs-arguments nil
+  "The arguments used in `magit-refs-mode' buffers."
+  :group 'magit-git-arguments
+  :group 'magit-refs
+  :type '(repeat (string :tag "Argument")))
+
+(defvar magit-show-refs-popup
+  (list
+   :variable 'magit-show-refs-arguments
+   :man-page "git-branch"
+   :switches '((?m "Merged to HEAD"            "--merged")
+               (?M "Merged to master"          "--merged=master")
+               (?n "Not merged to HEAD"        "--no-merged")
+               (?N "Not merged to master"      "--no-merged=master"))
+   :options  '((?c "Contains"   "--contains="  magit-read-branch-or-commit)
+               (?m "Merged"     "--merged="    magit-read-branch-or-commit)
+               (?n "Not merged" "--no-merged=" magit-read-branch-or-commit)
+               (?s "Sort"       "--sort="      magit-read-ref-sort))
+   :actions  '((?y "Show refs, comparing them with HEAD"
+                   magit-show-refs-head)
+               (?c "Show refs, comparing them with current branch"
+                   magit-show-refs-current)
+               (?o "Show refs, comparing them with other branch"
+                   magit-show-refs))
+   :default-action 'magit-show-refs-head
+   :max-action-columns 1
+   :use-prefix (lambda ()
+                 (if (derived-mode-p 'magit-refs-mode)
+                     (if current-prefix-arg 'popup 'default)
+                   'popup))))
+
+(magit-define-popup-keys-deferred 'magit-show-refs-popup)
 
 (defun magit-read-ref-sort (prompt initial-input)
   (magit-completing-read prompt
                          '("-committerdate" "-authordate"
                            "committerdate" "authordate")
                          nil nil initial-input))
+
+(defun magit-show-refs-get-buffer-args ()
+  (cond ((and magit-use-sticky-arguments
+              (derived-mode-p 'magit-refs-mode))
+         (cadr magit-refresh-args))
+        ((and (eq magit-use-sticky-arguments t)
+              (--when-let (magit-mode-get-buffer 'magit-refs-mode)
+                (with-current-buffer it
+                  (cadr magit-refresh-args)))))
+        (t
+         (default-value 'magit-show-refs-arguments))))
+
+(defun magit-show-refs-arguments ()
+  (if (eq magit-current-popup 'magit-show-refs-popup)
+      magit-current-popup-args
+    (magit-show-refs-get-buffer-args)))
+
+;;;###autoload
+(defun magit-show-refs-popup (&optional arg)
+  "Popup console for `magit-show-refs'."
+  (interactive "P")
+  (let ((magit-show-refs-arguments (magit-show-refs-get-buffer-args)))
+    (magit-invoke-popup 'magit-show-refs-popup nil arg)))
 
 ;;;###autoload
 (defun magit-show-refs-head (&optional args)
