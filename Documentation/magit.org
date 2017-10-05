@@ -6845,8 +6845,9 @@ General Public License for more details.
 # Local Variables:
 # eval: (require 'magit-utils nil t)
 # eval: (require 'org-man     nil t)
+# eval: (require 'ox-extra    nil t)
 # eval: (require 'ox-texinfo+ nil t)
-# eval: (and (require 'ox-extra nil t) (ox-extras-activate '(ignore-headlines)))
+# eval: (and (featurep 'ox-extra) (ox-extras-activate '(ignore-headlines)))
 # indent-tabs-mode: nil
 # org-src-preserve-indentation: nil
 # End:
