@@ -153,5 +153,9 @@ endif
 
 endif # ifndef LOAD_PATH
 
-DOC_LOAD_PATH  ?= $(LOAD_PATH) \
--L ../../org/lisp -L ../../org/contrib/lisp -L ../../ox-texinfo+
+ifndef DOC_LOAD_PATH
+DOC_LOAD_PATH  = $(LOAD_PATH)
+DOC_LOAD_PATH += -L ../../org/lisp
+DOC_LOAD_PATH += -L ../../org/contrib/lisp
+DOC_LOAD_PATH += -L ../../ox-texinfo+
+endif

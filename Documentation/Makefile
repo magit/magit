@@ -60,17 +60,17 @@ clean:
 # using a shared target.
 
 DOC_ARGS  = --batch -Q $(DOC_LOAD_PATH)
-DOC_ARGS += -l magit-utils.el -l ox-extra -l org-man -l ox-texinfo+.el
+DOC_ARGS += -l magit-utils.el -l org-man -l ox-extra -l ox-texinfo+.el
 DOC_EVAL  = --eval "(ox-extras-activate '(ignore-headlines))"
-DOC_EVAL += -f org-texinfo-export-to-texinfo
+DOC_EVAL += --funcall org-texinfo-export-to-texinfo
 
 texi: $(TEXIPAGES)
 	@printf "Generating magit.texi\n"
 	@$(EMACSBIN) $(DOC_ARGS) magit.org $(DOC_EVAL)
-	@echo >> magit.texi
+	@printf "\n" >> magit.texi
 	@printf "Generating magit-popup.texi\n"
 	@$(EMACSBIN) $(DOC_ARGS) magit-popup.org $(DOC_EVAL)
-	@echo >> magit-popup.texi
+	@printf "\n" >> magit-popup.texi
 
 stats:
 	@printf "Generating statistics\n"
