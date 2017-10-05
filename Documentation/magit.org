@@ -6842,6 +6842,7 @@ General Public License for more details.
 #  LocalWords:  versa whitespace wip workflow worktree wtree
 #  LocalWords:  backported macOS
 
+# IMPORTANT: Also update ORG_ARGS and ORG_EVAL in the Makefile.
 # Local Variables:
 # eval: (require 'magit-utils nil t)
 # eval: (require 'org-man     nil t)
