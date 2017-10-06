@@ -35,9 +35,8 @@ MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
 
 ## Files #############################################################
 
-PKG              = magit
-PACKAGES         = magit magit-popup git-commit
-PACKAGE_VERSIONS = $(addsuffix -$(VERSION),$(PACKAGES))
+PKG       = magit
+PACKAGES  = magit magit-popup git-commit
 
 TEXIPAGES = $(addsuffix .texi,$(filter-out git-commit,$(PACKAGES)))
 INFOPAGES = $(addsuffix .info,$(filter-out git-commit,$(PACKAGES)))
@@ -87,15 +86,8 @@ ELGS = magit-autoloads.el magit-version.el
 
 ## Versions ##########################################################
 
-VERSION := $(shell \
-  test -e $(TOP).git\
-  && git describe --tags --dirty 2> /dev/null\
-  || $(BATCH) --eval "(progn\
-  (fset 'message (lambda (&rest _)))\
-  (load-file \"magit-version.el\")\
-  (princ magit-version))")
+VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0)
 
-MAGIT_VERSION       = 2.11
 ASYNC_VERSION       = 1.9.2
 DASH_VERSION        = 2.13.0
 WITH_EDITOR_VERSION = 2.6.0

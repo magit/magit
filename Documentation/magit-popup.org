@@ -7,7 +7,8 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit-Popup: (magit-popup).
 #+TEXINFO_DIR_DESC: Infix arguments with feedback
-#+SUBTITLE: for version 2.11
+#+SUBTITLE: for version 2.11.0 (2.11.0-36-gb4caa7e3+1)
+#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -18,6 +19,8 @@ command that is associated with a specific set of infix arguments and
 suffix commands.
 
 #+BEGIN_QUOTE
+This manual is for Magit-Popup version 2.11.0 (2.11.0-36-gb4caa7e3+1).
+
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms

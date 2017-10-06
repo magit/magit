@@ -55,10 +55,6 @@ clean:
 
 ## Release management ################################################
 
-# Because most users don't have the necessary tools we cannot
-# use "%.texi: %.org".  Instead we have to hardcode each file
-# using a shared target.
-
 ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH)
 ORG_ARGS += -l magit-utils.el -l org-man -l ox-extra -l ox-texinfo+.el
 ORG_EVAL  = --eval "(ox-extras-activate '(ignore-headlines))"
@@ -66,13 +62,20 @@ ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo
 
-texi: $(TEXIPAGES)
-	@printf "Generating magit.texi\n"
-	@$(EMACSBIN) $(ORG_ARGS) magit.org $(ORG_EVAL)
-	@printf "\n" >> magit.texi
-	@printf "Generating magit-popup.texi\n"
+# This target first bumps version strings in the Org source.  The
+# necessary tools might be missing so other targets do not depend
+# on this target and it has to be run explicitly when appropriate.
+#
+#   AMEND=t make texi    Update manual to be amended to HEAD.
+#   VERSION=N make texi  Update manual for release.
+#
+texi:
+	@$(EMACSBIN) $(ORG_ARGS) $(PKG).org $(ORG_EVAL)
+	@printf "\n" >> $(PKG).texi
+	@rm -f $(PKG).texi~
 	@$(EMACSBIN) $(ORG_ARGS) magit-popup.org $(ORG_EVAL)
 	@printf "\n" >> magit-popup.texi
+	@rm -f magit-popup.texi~
 
 stats:
 	@printf "Generating statistics\n"

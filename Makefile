@@ -8,13 +8,11 @@ include default.mk
 	test test-interactive magit \
 	clean clean-lisp clean-docs clean-archives \
 	stats bump-version melpa-post-release \
-	dist magit-$(VERSION).tar.gz
+	dist versionlib magit-$(VERSION).tar.gz
 
 all: lisp docs
 
 help:
-	$(info )
-	$(info Current version: magit-$(VERSION))
 	$(info )
 	$(info See default.mk for variables you might want to set.)
 	$(info )
@@ -135,7 +133,7 @@ clean-docs:
 	@$(MAKE) -C Documentation clean
 
 clean-archives:
-	@$(RM) git-commit-*.el *.tar.gz *.tar
+	@$(RM) *.tar.gz *.tar lisp/magit-version.el
 	@$(RMDIR) magit-$(VERSION)
 
 clean-all: clean clean-stats
@@ -168,6 +166,9 @@ publish-manuals:
 
 dist: magit-$(VERSION).tar.gz
 
+versionlib:
+	@$(MAKE) -C lisp versionlib
+
 DIST_ROOT_FILES = COPYING default.mk Makefile README.md
 DIST_LISP_FILES = $(addprefix lisp/,$(ELS) magit-version.el Makefile)
 DIST_DOCS_FILES = $(addprefix Documentation/,$(TEXIPAGES) AUTHORS.md Makefile)
@@ -175,7 +176,7 @@ ifneq ("$(wildcard Documentation/RelNotes/$(VERSION).txt)","")
   DIST_DOCS_FILES += Documentation/RelNotes/$(VERSION).txt
 endif
 
-magit-$(VERSION).tar.gz: lisp info
+magit-$(VERSION).tar.gz: lisp versionlib info
 	@printf "Packing $@\n"
 	@$(MKDIR) magit-$(VERSION)
 	@$(CP) $(DIST_ROOT_FILES) magit-$(VERSION)
@@ -204,19 +205,6 @@ define set_package_requires
 endef
 export set_package_requires
 
-define set_manual_version
-(let ((version (split-string "$(MAGIT_VERSION)" "\\.")))
-  (setq version (concat (car version) "." (cadr version)))
-  (dolist (file (list "magit-popup" "magit"))
-    (with-current-buffer (find-file-noselect (format "Documentation/%s.org" file))
-      (goto-char (point-min))
-      (re-search-forward "^#\\+SUBTITLE: for version ")
-      (delete-region (point) (line-end-position))
-      (insert version)
-      (save-buffer))))
-endef
-export set_manual_version
-
 bump-versions: bump-versions-1 texi
 bump-versions-1:
 	@$(BATCH) --eval "(progn\
@@ -225,8 +213,7 @@ bump-versions-1:
         (setq with-editor-version \"$(WITH_EDITOR_VERSION)\")\
         (setq git-commit-version \"$(GIT_COMMIT_VERSION)\")\
         (setq magit-popup-version \"$(MAGIT_POPUP_VERSION)\")\
-        $$set_package_requires\
-        $$set_manual_version)"
+        $$set_package_requires)"
 
 bump-snapshots:
 	@$(BATCH) --eval "(progn\

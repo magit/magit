@@ -52,7 +52,7 @@ magit-bookmark.elc:	magit.elc
 
 ## Build #############################################################
 
-lisp:       $(ELCS) loaddefs versionlib
+lisp:       $(ELCS) loaddefs
 loaddefs:   $(PKG)-autoloads.el
 versionlib: $(PKG)-version.el
 
