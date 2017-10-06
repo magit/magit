@@ -106,9 +106,10 @@ preview-stats: stats
 publish-stats: stats
 	@printf "Uploading statistics...\n"
 	@aws s3 sync $(statsdir)      $(PUBLISH_BUCKET)/stats/
-	@aws cloudfront create-invalidation \
-	--distribution-id $(CFRONT_DIST) --paths "/stats/*"
 	@printf "Uploaded to $(PUBLISH_URL)/stats/\n"
+	@printf "Generating CDN invalidation\n"
+	@aws cloudfront create-invalidation \
+	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
 
 preview-manuals: html html-dir pdf
 	@printf "Uploading manuals...\n"
@@ -128,9 +129,10 @@ publish-manuals: html html-dir pdf
 	@aws s3 sync magit-popup      $(PUBLISH_BUCKET)/manual/magit-popup/
 	@aws s3 cp   magit-popup.html $(PUBLISH_BUCKET)/manual/
 	@aws s3 cp   magit-popup.pdf  $(PUBLISH_BUCKET)/manual/
-	@aws cloudfront create-invalidation \
-	--distribution-id $(CFRONT_DIST) --paths "/manual/*"
 	@printf "Uploaded to $(PUBLISH_URL)/manual/\n"
+	@printf "Generating CDN invalidation\n"
+	@aws cloudfront create-invalidation \
+	--distribution-id $(CFRONT_DIST) --paths "/manual/*" > /dev/null
 
 # Templates ##########################################################
 
