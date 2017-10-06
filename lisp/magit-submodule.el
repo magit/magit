@@ -236,6 +236,8 @@ or, failing that, the abbreviated HEAD commit hash."
           (setf (magit-section-washer section) 'magit--insert-modules-overview)
         (magit--insert-modules-overview)))))
 
+(defvar magit-modules-overview-align-numbers t)
+
 (defun magit--insert-modules-overview (&optional _section)
   (magit-with-toplevel
     (let* ((modules (magit-get-submodules))
@@ -256,7 +258,8 @@ or, failing that, the abbreviated HEAD commit hash."
                                   (propertize it 'face 'magit-branch-local)
                                 (propertize "(detached)" 'face 'warning))))
               (--if-let (magit-git-string "describe" "--tags")
-                  (progn (when (string-match-p "\\`[0-9]" it)
+                  (progn (when (and magit-modules-overview-align-numbers
+                                    (string-match-p "\\`[0-9]" it))
                            (insert ?\s))
                          (insert (propertize it 'face 'magit-tag)))
                 (--when-let (magit-rev-format "%h")
