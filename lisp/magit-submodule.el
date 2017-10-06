@@ -224,7 +224,8 @@ whether they are wrapped in an additional section."
 ;;;###autoload
 (defun magit-insert-modules-overview ()
   "Insert sections for all modules.
-For each section insert the path and the output of `git describe --tags'."
+For each section insert the path and the output of `git describe --tags',
+or, failing that, the abbreviated HEAD commit hash."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (submodules nil t)
       (magit-insert-heading
@@ -235,25 +236,34 @@ For each section insert the path and the output of `git describe --tags'."
           (setf (magit-section-washer section) 'magit--insert-modules-overview)
         (magit--insert-modules-overview)))))
 
+(defvar magit-modules-overview-align-numbers t)
+
 (defun magit--insert-modules-overview (&optional _section)
   (magit-with-toplevel
-    (let ((col-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
-      (dolist (module (magit-get-submodules))
+    (let* ((modules (magit-get-submodules))
+           (path-format (format "%%-%is "
+                                (min (apply 'max (mapcar 'length modules))
+                                     (/ (window-width) 2))))
+           (branch-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
+      (dolist (module modules)
         (let ((default-directory
                 (expand-file-name (file-name-as-directory module))))
           (magit-insert-section (submodule module t)
-            (insert (propertize (format col-format module)
+            (insert (propertize (format path-format module)
                                 'face 'magit-diff-file-heading))
             (if (not (file-exists-p ".git"))
                 (insert "(uninitialized)")
-              (insert (format col-format
+              (insert (format branch-format
                               (--if-let (magit-get-current-branch)
                                   (propertize it 'face 'magit-branch-local)
                                 (propertize "(detached)" 'face 'warning))))
-              (--when-let (magit-git-string "describe" "--tags")
-                (when (string-match-p "\\`[0-9]" it)
-                  (insert ?\s))
-                (insert (propertize it 'face 'magit-tag))))
+              (--if-let (magit-git-string "describe" "--tags")
+                  (progn (when (and magit-modules-overview-align-numbers
+                                    (string-match-p "\\`[0-9]" it))
+                           (insert ?\s))
+                         (insert (propertize it 'face 'magit-tag)))
+                (--when-let (magit-rev-format "%h")
+                  (insert (propertize it 'face 'magit-hash)))))
             (insert ?\n))))))
   (insert ?\n))
 
