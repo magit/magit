@@ -101,8 +101,6 @@ PREVIEW_URL    ?= http://preview.$(DOMAIN).s3-website.eu-central-1.amazonaws.com
 preview-stats: stats
 	@printf "Uploading statistics...\n"
 	@aws s3 sync $(statsdir)      $(PREVIEW_BUCKET)/stats/
-	@aws cloudfront create-invalidation \
-	--distribution-id $(CFRONT_DIST) --paths "/stats/*"
 	@printf "Uploaded to $(PREVIEW_URL)/stats/\n"
 
 publish-stats: stats
@@ -120,8 +118,6 @@ preview-manuals: html html-dir pdf
 	@aws s3 sync magit-popup      $(PREVIEW_BUCKET)/manual/magit-popup/
 	@aws s3 cp   magit-popup.html $(PREVIEW_BUCKET)/manual/
 	@aws s3 cp   magit-popup.pdf  $(PREVIEW_BUCKET)/manual/
-	@aws cloudfront create-invalidation \
-	--distribution-id $(CFRONT_DIST) --paths "/manual/*"
 	@printf "Uploaded to $(PREVIEW_URL)/manual/\n"
 
 publish-manuals: html html-dir pdf
