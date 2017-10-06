@@ -110,8 +110,9 @@ seconds of user inactivity.  That is not desirable."
                (file-readable-p buffer-file-name)
                (magit-toplevel)
                (or (not magit-auto-revert-tracked-only)
-                   (magit-file-tracked-p buffer-file-name)))
-      (auto-revert-mode))))
+                   (magit-file-tracked-p buffer-file-name))
+               (not auto-revert-mode)) ; see #3014
+      (auto-revert-mode 1))))
 
 ;;;###autoload
 (defvar magit-revert-buffers t) ; obsolete
