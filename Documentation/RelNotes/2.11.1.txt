@@ -28,6 +28,11 @@ Changes since v2.11.0
   substitute for `magit-checkout'.  Setup instructions can be found in
   the manual.  #3104
 
+* Added new customizable options `magit-log-highlight-keywords' and
+  `magit-diff-highlight-keywords' which control whether text inside
+  brackets is highlighted in magit-log and magit-diff buffers
+  respectively.  #3190
+
 Fixes since v2.11.0
 -------------------
 
