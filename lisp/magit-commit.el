@@ -326,11 +326,12 @@ depending on the value of option `magit-commit-squash-confirm'."
 (defun magit-commit-diff ()
   (-when-let (fn (and git-commit-mode
                       magit-commit-show-diff
-                      (pcase last-command
-                        (`magit-commit
+                      (cl-case last-command
+                        (magit-commit
                          (apply-partially 'magit-diff-staged nil))
-                        (`magit-commit-amend  'magit-diff-while-amending)
-                        (`magit-commit-reword 'magit-diff-while-amending))))
+                        ((magit-commit-amend
+                          magit-commit-reword)
+                         'magit-diff-while-amending))))
     (-when-let (diff-buffer (magit-mode-get-buffer 'magit-diff-mode))
       ;; This window just started displaying the commit message
       ;; buffer.  Without this that buffer would immediately be
