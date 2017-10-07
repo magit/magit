@@ -160,6 +160,8 @@ With a prefix argument, amend to the commit at `HEAD' instead.
   (interactive (if current-prefix-arg
                    (list (cons "--amend" (magit-commit-arguments)))
                  (list (magit-commit-arguments))))
+  (when (member "--all" args)
+    (setq this-command 'magit-commit-all))
   (when (setq args (magit-commit-assert args))
     (magit-run-git-with-editor "commit" args)))
 
@@ -329,6 +331,8 @@ depending on the value of option `magit-commit-squash-confirm'."
                       (cl-case last-command
                         (magit-commit
                          (apply-partially 'magit-diff-staged nil))
+                        (magit-commit-all
+                         (apply-partially 'magit-diff-working-tree nil))
                         ((magit-commit-amend
                           magit-commit-reword
                           magit-rebase-reword-commit)
