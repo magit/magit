@@ -396,6 +396,8 @@ already using it, then you probably shouldn't start doing so."
        (string-match-p git-commit-filename-regexp buffer-file-name)
        (git-commit-setup)))
 
+(defvar git-commit-mode)
+
 ;;;###autoload
 (defun git-commit-setup ()
   ;; cygwin git will pass a cygwin path (/cygdrive/c/foo/.git/...),
@@ -417,7 +419,12 @@ already using it, then you probably shouldn't start doing so."
     (let ((auto-mode-alist (list (cons (concat "\\`"
                                                (regexp-quote buffer-file-name)
                                                "\\'")
-                                       git-commit-major-mode))))
+                                       git-commit-major-mode)))
+          ;; The major-mode hook might want to consult these minor
+          ;; modes, while the minor-mode hooks might want to consider
+          ;; the major mode.
+          (git-commit-mode t)
+          (with-editor-mode t))
       (normal-mode t)))
   (setq with-editor-show-usage nil)
   (unless with-editor-mode
