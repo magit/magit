@@ -844,7 +844,8 @@ TYPE is one of `:action', `:sequence-action', `:switch', or
              (when action
                (magit-popup-quit))
              (call-interactively command)
-             (setq this-command command)
+             (when (eq this-command 'magit-invoke-popup-action)
+               (setq this-command command))
              (unless action
                (magit-refresh-popup-buffer))))
           ((eq event ?q)
