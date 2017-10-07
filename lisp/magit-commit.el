@@ -330,7 +330,8 @@ depending on the value of option `magit-commit-squash-confirm'."
                         (magit-commit
                          (apply-partially 'magit-diff-staged nil))
                         ((magit-commit-amend
-                          magit-commit-reword)
+                          magit-commit-reword
+                          magit-rebase-reword-commit)
                          'magit-diff-while-amending))))
     (-when-let (diff-buffer (magit-mode-get-buffer 'magit-diff-mode))
       ;; This window just started displaying the commit message
