@@ -24,6 +24,10 @@ Changes since v2.11.0
   another buffer, but when invoked from a `magit-refs-mode' buffer it
   now shows the popup.  #2898
 
+* Added new command `magit-branch-or-checkout' as a potential
+  substitute for `magit-checkout'.  Setup instructions can be found in
+  the manual.  #3104
+
 Fixes since v2.11.0
 -------------------
 

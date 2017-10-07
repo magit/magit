@@ -221,6 +221,30 @@ changes.
     (magit-branch-maybe-adjust-upstream branch start-point)
     (magit-refresh)))
 
+;;;###autoload
+(defun magit-branch-or-checkout (arg &optional start-point)
+  "Hybrid between `magit-checkout' and `magit-branch-and-checkout'.
+
+Ask the user for an existing branch or revision.  If the user
+input actually can be resolved as a branch or revision, then
+check that out, just like `magit-checkout' would.
+
+Otherwise create and checkout a new branch using the input as
+its name.  Before doing so read the starting-point for the new
+branch.  This is similar to what `magit-branch-and-checkout'
+does."
+  (interactive
+   (let ((arg (magit-read-other-branch-or-commit "Checkout")))
+     (list arg
+           (and (not (magit-rev-verify-commit arg))
+                (magit-read-starting-point
+                 (format "Create and checkout branch `%s' starting at" arg))))))
+  (when (string-match "\\`heads/\\(.+\\)" arg)
+    (setq arg (match-string 1 arg)))
+  (if start-point
+      (magit-branch-and-checkout arg start-point (magit-branch-arguments))
+    (magit-run-git "checkout" arg)))
+
 (defun magit-branch-maybe-adjust-upstream (branch start-point)
   (--when-let
       (or (and (magit-get-upstream-branch branch)

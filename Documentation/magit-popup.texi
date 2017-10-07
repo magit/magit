@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit-Popup User Manual
-@subtitle for version 2.11.0 (2.11.0-39-g05fb8563+1)
+@subtitle for version 2.11.0 (2.11.0-49-g8cda790d+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -49,7 +49,7 @@ command that is associated with a specific set of infix arguments and
 suffix commands.
 
 @quotation
-This manual is for Magit-Popup version 2.11.0 (2.11.0-39-g05fb8563+1).
+This manual is for Magit-Popup version 2.11.0 (2.11.0-49-g8cda790d+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 

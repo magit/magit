@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-39-g05fb8563+1)
+@subtitle for version 2.11.0 (2.11.0-49-g8cda790d+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-39-g05fb8563+1).
+This manual is for Magit version 2.11.0 (2.11.0-49-g8cda790d+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -5140,6 +5140,32 @@ Of course you can also fine-tune:
 
 This command creates and checks out a new orphan branch with
 contents from a given revision.
+@end deffn
+
+@cindex magit-branch-or-checkout
+@deffn Command magit-branch-or-checkout
+
+This command is a hybrid between @code{magit-checkout} and
+@code{magit-branch-and-checkout} and is intended as a replacement for the
+former in @code{magit-branch-popup}.
+
+It first asks the user for an existing branch or revision.  If the
+user input actually can be resolved as a branch or revision, then it
+checks that out, just like @code{magit-checkout} would.
+
+Otherwise it creates and checks out a new branch using the input as
+its name.  Before doing so it reads the starting-point for the new
+branch.  This is similar to what @code{magit-branch-and-checkout} does.
+
+To use this command instead of @code{magit-checkout} add this to your init
+file:
+
+@lisp
+(magit-remove-popup-key 'magit-branch-popup :action ?b)
+(magit-define-popup-action 'magit-branch-popup
+  ?b "Checkout" 'magit-branch-or-checkout
+  'magit-branch t)"
+@end lisp
 @end deffn
 
 @node The Branch Config Popup
