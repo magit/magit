@@ -101,8 +101,9 @@ When this is nil, no sections are ever removed."
 
 (defcustom magit-credential-cache-daemon-socket
   (--some (-let [(prog . args) (split-string it)]
-            (if (string-match-p
-                 "\\`\\(?:\\(?:/.*/\\)?git-credential-\\)?cache\\'" prog)
+            (if (and prog
+                     (string-match-p
+                      "\\`\\(?:\\(?:/.*/\\)?git-credential-\\)?cache\\'" prog))
                 (or (cl-loop for (opt val) on args
                              if (string= opt "--socket")
                              return val)
