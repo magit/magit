@@ -840,6 +840,29 @@ latter is displayed in its place."
                                   major-mode value)))
       (user-error "Buffer has no value it could be locked to"))))
 
+(defvar magit-buffer-lock-functions nil
+  "Provide buffer-locking support for third-party modes.
+An alist of symbols to functions.
+
+The symbol must be the major-mode the locked buffer will have.
+
+The function must take a list of arguments and return a value
+that identifies the buffer (i.e., its 'lock value').  If the
+third-party mode is invoked as
+
+    (magit-mode-setup-internal #\\='my-mode \\='(1 2 3) t)
+
+the function will be invoked as
+
+    (apply lock-func \\='(1 2 3))
+
+if the cons (my-mode . lock-func) is in this list.
+
+This variable is intended for third-party extensions;
+`magit-buffer-lock-value' implements all built-in behavior.
+
+See also `magit-toggle-buffer-lock'.")
+
 (cl-defun magit-buffer-lock-value
     (&optional (mode major-mode)
                (args magit-refresh-args))
@@ -870,7 +893,10 @@ latter is displayed in its place."
     ((magit-reflog-mode   ; (ref ~args)
       magit-stash-mode    ; (stash _const _args _files)
       magit-stashes-mode) ; (ref)
-     (car args))))
+     (car args))
+    (t
+     (--when-let (cdr (entry (assq mode magit-buffer-lock-functions)))
+       (apply it args)))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
