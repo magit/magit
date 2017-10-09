@@ -33,6 +33,10 @@ Changes since v2.11.0
   brackets is highlighted in magit-log and magit-diff buffers
   respectively.  #3190
 
+* When the names of Magit buffers are not uniquified then their names
+  now end with an asterisk.  When the `uniquify' package is used, then
+  that still is not possible due limitations in that package.  #2841
+
 Fixes since v2.11.0
 -------------------
 
