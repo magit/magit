@@ -5873,7 +5873,7 @@ packages, without having to depend on Magit.  These libraries are
 described in separate manuals, see [[info:with-editor]] and
 [[info:magit-popup]].
 
-If you are trying to find an unused key that you can bound to a
+If you are trying to find an unused key that you can bind to a
 command provided by your own Magit extension, then checkout
 https://github.com/magit/magit/wiki/Plugin-Dispatch-Key-Registry.
 
