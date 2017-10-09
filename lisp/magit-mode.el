@@ -866,6 +866,8 @@ See also `magit-toggle-buffer-lock'.")
 (cl-defun magit-buffer-lock-value
     (&optional (mode major-mode)
                (args magit-refresh-args))
+  "Find an appropriate buffer lock value for MODE under ARGS.
+See also `magit-buffer-lock-functions'."
   (cl-case mode
     (magit-cherry-mode
      (-let [(upstream head) args]
