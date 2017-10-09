@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-49-g8cda790d+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-53-g3c16b9fe+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-49-g8cda790d+1).
+This manual is for Magit version 2.11.0 (2.11.0-53-g3c16b9fe+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -3819,7 +3819,7 @@ features are available from separate popups.
     (magit-remove-popup-key 'magit-branch-popup :action ?b)
     (magit-define-popup-action 'magit-branch-popup
       ?b "Checkout" 'magit-branch-or-checkout
-      'magit-branch t)"
+      'magit-branch t)
   #+END_SRC
 
 *** The Branch Config Popup
