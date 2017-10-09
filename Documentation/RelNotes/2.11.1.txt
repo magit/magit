@@ -35,7 +35,7 @@ Changes since v2.11.0
 
 * When the names of Magit buffers are not uniquified then their names
   now end with an asterisk.  When the `uniquify' package is used, then
-  that still is not possible due limitations in that package.  #2841
+  that still is not possible due to limitations in that package.  #2841
 
 Fixes since v2.11.0
 -------------------
