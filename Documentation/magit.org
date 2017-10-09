@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-54-g54e4c559+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-55-g7edecce4+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-54-g54e4c559+1).
+This manual is for Magit version 2.11.0 (2.11.0-55-g7edecce4+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -4174,9 +4174,17 @@ See [[*Information About In-Progress Rebase]].
   ~HEAD~ onto NEWBASE.  START has to be selected from a list of recent
   commits.
 
-Note that the popup also features the infix argument ~--interactive~.
-This can be used to turn one of the above non-interactive rebase
-variants into an interactive rebase.
+By default Magit uses the ~--autostash~ argument, which causes
+uncommitted changes to be stored in a stash before the rebase begins.
+These changes are restored after the rebase completes and if possible
+the stash is removed.  If the stash does not apply cleanly, then the
+stash is not removed.  In case something goes wrong when resolving
+the conflicts, this allows you to start over.
+
+Even though one of the actions is dedicated to interactive rebases,
+the popup also features the infix argument ~--interactive~.  This can be
+used to turn one of the other, non-interactive rebase variants into an
+interactive rebase.
 
 For example if you want to clean up a feature branch and at the same
 time rebase it onto ~master~, then you could use ~r-iu~.  But we recommend

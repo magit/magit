@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-54-g54e4c559+1)
+@subtitle for version 2.11.0 (2.11.0-55-g7edecce4+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-54-g54e4c559+1).
+This manual is for Magit version 2.11.0 (2.11.0-55-g7edecce4+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -5658,9 +5658,17 @@ Start a non-interactive rebase sequence with commits from START to
 commits.
 @end table
 
-Note that the popup also features the infix argument @code{--interactive}.
-This can be used to turn one of the above non-interactive rebase
-variants into an interactive rebase.
+By default Magit uses the @code{--autostash} argument, which causes
+uncommitted changes to be stored in a stash before the rebase begins.
+These changes are restored after the rebase completes and if possible
+the stash is removed.  If the stash does not apply cleanly, then the
+stash is not removed.  In case something goes wrong when resolving
+the conflicts, this allows you to start over.
+
+Even though one of the actions is dedicated to interactive rebases,
+the popup also features the infix argument @code{--interactive}.  This can be
+used to turn one of the other, non-interactive rebase variants into an
+interactive rebase.
 
 For example if you want to clean up a feature branch and at the same
 time rebase it onto @code{master}, then you could use @code{r-iu}.  But we recommend
