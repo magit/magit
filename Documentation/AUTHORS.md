@@ -64,6 +64,7 @@ Contributors
 - Andriy Kmit' <dev@madand.net>
 - Andy Sawyer <git@pureabstract.org>
 - Barak A. Pearlmutter <barak+git@pearlmutter.net>
+- Bar Magal <bmagamb@gmail.com>
 - Bart Bakker <bart@thesoftwarecraft.com>
 - Basil L. Contovounesios <contovob@tcd.ie>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
@@ -132,6 +133,7 @@ Contributors
 - Jeff Dairiki <dairiki@dairiki.org>
 - Jeremy Meng <yumeng@microsoft.com>
 - Jesse Alama <jesse.alama@gmail.com>
+- Jim Blandy <jimb@red-bean.com>
 - Joakim Jalap <JOJA@stoneridge.com>
 - Johann Klähn <kljohann@gmail.com>
 - John Mastro <john.b.mastro@gmail.com>
@@ -174,6 +176,7 @@ Contributors
 - Mark Hepburn <Mark.Hepburn@csiro.au>
 - Mark Karpov <markkarpov@opmbx.org>
 - Mark Oteiza <mvoteiza@udel.edu>
+- Matthieu Hauglustaine <matt.hauglustaine@gmail.com>
 - Matus Goljer <dota.keys@gmail.com>
 - Michael Fogleman <michaelwfogleman@gmail.com>
 - Michael Griffiths <mikey@cich.li>
