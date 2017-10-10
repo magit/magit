@@ -361,9 +361,6 @@ starts complicating other things, then it will be removed."
            (define-key map [C-tab]     'magit-section-cycle)
            (define-key map [M-tab]     'magit-section-cycle-diffs)
            (define-key map [S-tab]     'magit-section-cycle-global)
-           ;; Next two are for backward compatibility.
-           (define-key map [s-tab]     'magit-section-cycle-global)
-           (define-key map   [backtab] 'magit-section-cycle-global)
            (define-key map (kbd   "^") 'magit-section-up)
            (define-key map (kbd   "p") 'magit-section-backward)
            (define-key map (kbd   "n") 'magit-section-forward)
