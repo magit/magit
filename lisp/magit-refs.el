@@ -500,11 +500,11 @@ line is inserted at all."
          (?u . ,(or upstream ""))
          (?U . ,(if upstream
                     (format (propertize "[%s%s] " 'face 'magit-dimmed)
-                            upstream
-                            (if utrack
-                                (concat ":" (if (equal utrack "gone")
-                                                (propertize "gone" 'face 'error)
-                                              utrack))
+                            (if (equal utrack "gone")
+                                (propertize upstream 'face 'error)
+                              upstream)
+                            (if (and utrack (not (equal utrack "gone")))
+                                (concat " " utrack)
                               ""))
                   "")))))
     (when (magit-buffer-margin-p)
