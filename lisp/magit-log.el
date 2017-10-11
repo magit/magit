@@ -123,7 +123,7 @@ This is useful if you use really long branch names."
 
 (defcustom magit-log-highlight-keywords t
   "Whether to highlight bracketed keywords in commit summaries."
-  :package-version '(magit . "2.11.1")
+  :package-version '(magit . "2.12.0")
   :group 'magit-log
   :type 'boolean)
 

@@ -173,7 +173,7 @@ This is used by `magit-generate-buffer-name-default-function'.
 If another `magit-generate-buffer-name-function' is used, then
 it may not respect this option, or on the contrary it may
 support additional %-sequences."
-  :package-version '(magit . "2.11.1")
+  :package-version '(magit . "2.12.0")
   :group 'magit-buffers
   :type 'string)
 

@@ -230,7 +230,7 @@ visits the file in the working tree."
 
 (defcustom magit-diff-highlight-keywords t
   "Whether to highlight bracketed keywords in commit messages."
-  :package-version '(magit . "2.11.1")
+  :package-version '(magit . "2.12.0")
   :group 'magit-diff
   :type 'boolean)
 
