@@ -285,7 +285,8 @@ depending on the value of option `magit-commit-squash-confirm'."
                      (list "--autosquash" "--autostash")
                    "" "true"))))
         (format "Type %%p on a commit to %s into it,"
-                (substring option 2)))
+                (substring option 2))
+        nil nil (list "--graph"))
       (when magit-commit-show-diff
         (let ((magit-display-buffer-noselect t))
           (apply #'magit-diff-staged nil (magit-diff-arguments)))))))
