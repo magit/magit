@@ -490,7 +490,7 @@ line is inserted at all."
        `((?c . ,(or mark count ""))
          (?C . ,(or mark " "))
          (?h . ,(or (propertize hash 'face 'magit-hash) ""))
-         (?m . ,(or message ""))
+         (?m . ,(magit-log-propertize-keywords (or message "")))
          (?n . ,(propertize (or branch "(detached)") 'face face))
          (?u . ,(or upstream ""))
          (?U . ,(if upstream
