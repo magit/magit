@@ -42,3 +42,10 @@ Fixes since v2.11.0
 
 * `git-rebase-mode-show-keybindings' failed to process non-English
   usage instructions in interactive rebase buffers.  #3175
+
+* Fixup commands did not warn about merges in the rebase range until
+  after creating the fixup commit.  #3176
+
+* Instant fixup allowed selecting a commit that is not reachable from
+  HEAD, which, for the instant variants (but only those), clearly is
+  a user mistake that should be caught immediately.  #3176

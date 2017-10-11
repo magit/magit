@@ -382,7 +382,7 @@ START has to be selected from a list of recent commits."
       (concat "Type %p on a commit to rebase it "
               "and commits above it onto " newbase ","))))
 
-(defun magit-rebase-interactive-1 (commit args message &optional editor)
+(defun magit-rebase-interactive-1 (commit args message &optional editor noassert)
   (declare (indent 2))
   (when commit
     (if (eq commit :merge-base)
@@ -394,12 +394,8 @@ START has to be selected from a list of recent commits."
       (if (magit-commit-parents commit)
           (setq commit (concat commit "^"))
         (setq args (cons "--root" args)))))
-  (when (and commit
-             (magit-git-lines "rev-list" "--merges" (concat commit "..HEAD")))
-    (magit-read-char-case "Proceed despite merge in rebase range?  " nil
-      (?c "[c]ontinue")
-      (?s "[s]elect other" (setq commit nil))
-      (?a "[a]bort" (user-error "Quit"))))
+  (when (and commit (not noassert))
+    (setq commit (magit-rebase-interactive-assert commit)))
   (if commit
       (let ((process-environment process-environment))
         (when editor
@@ -408,8 +404,17 @@ START has to be selected from a list of recent commits."
                                  (unless (member "--root" args) commit)))
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-interactive-1 commit (list ,@args) ,message ,editor))
+         (magit-rebase-interactive-1 commit (list ,@args)
+           ,message ,editor ,noassert))
       message)))
+
+(defun magit-rebase-interactive-assert (since)
+  (if (magit-git-lines "rev-list" "--merges" (concat since "..HEAD"))
+      (magit-read-char-case "Proceed despite merge in rebase range?  " nil
+        (?c "[c]ontinue" since)
+        (?s "[s]elect other" nil)
+        (?a "[a]bort" (user-error "Quit")))
+    since))
 
 ;;;###autoload
 (defun magit-rebase-interactive (commit args)

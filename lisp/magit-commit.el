@@ -260,6 +260,15 @@ depending on the value of option `magit-commit-squash-confirm'."
 (defun magit-commit-squash-internal
     (option commit &optional args rebase edit confirmed)
   (-when-let (args (magit-commit-assert args t))
+    (when commit
+      (when (and rebase (not (magit-rev-ancestor-p commit "HEAD")))
+        (magit-read-char-case
+            (format "%s isn't an ancestor of HEAD.  " commit) nil
+          (?c "[c]reate without rebasing" (setq rebase nil))
+          (?s "[s]elect other"            (setq commit nil))
+          (?a "[a]bort"                   (user-error "Quit")))))
+    (when commit
+      (setq commit (magit-rebase-interactive-assert commit)))
     (if (and commit
              (or confirmed
                  (not (or rebase
@@ -276,16 +285,19 @@ depending on the value of option `magit-commit-squash-confirm'."
                  (-remove-first
                   (apply-partially #'string-match-p "\\`--gpg-sign=")
                   args)))
-            (magit-run-git-with-editor "commit" args)))
+            (magit-run-git-with-editor "commit" args))
+          t) ; The commit was created; used by below lambda.
       (magit-log-select
-        `(lambda (commit)
-           (magit-commit-squash-internal ,option commit ',args ,rebase ,edit t)
-           ,@(when rebase
-               `((magit-rebase-interactive-1 commit
-                     (list "--autosquash" "--autostash")
-                   "" "true"))))
+        (lambda (commit)
+          (when (and (magit-commit-squash-internal option commit args
+                                                   rebase edit t)
+                     rebase)
+            (magit-rebase-interactive-1 commit
+                (list "--autosquash" "--autostash")
+              "" "true" t)))
         (format "Type %%p on a commit to %s into it,"
-                (substring option 2)))
+                (substring option 2))
+        nil nil (list "--graph"))
       (when magit-commit-show-diff
         (let ((magit-display-buffer-noselect t))
           (apply #'magit-diff-staged nil (magit-diff-arguments)))))))
