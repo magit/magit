@@ -469,9 +469,9 @@ line is inserted at all."
       (let ((current  (magit-get-current-branch))
             (branches (magit-list-local-branch-names)))
         (dolist (line (magit-git-lines "branch" "-vvr"
+                                       "--list" (concat remote "/*")
                                        (cadr magit-refresh-args)))
           (cond
-           ((string-prefix-p (concat remote "/") branch)) ; noop
            ((string-match magit-refs-branch-line-re line)
             (magit-bind-match-strings (branch hash message) line
               (magit-insert-branch
