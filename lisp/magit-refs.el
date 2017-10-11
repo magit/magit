@@ -450,10 +450,7 @@ line is inserted at all."
               (setq branch nil))
             (magit-insert-branch
              branch magit-refs-local-branch-format current branches
-             'magit-branch-local hash message upstream ahead behind gone)))
-         ((string-match magit-refs-symref-line-re line)
-          (magit-bind-match-strings (symref ref) line
-            (magit-insert-symref symref ref 'magit-branch-local))))))
+             'magit-branch-local hash message upstream ahead behind gone))))))
     (insert ?\n)
     (magit-make-margin-overlay nil t)))
 
