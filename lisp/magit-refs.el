@@ -388,25 +388,6 @@ different, but only if you have customized the option
 
 ;;;; Section Variables
 
-(defconst magit-refs-branch-line-re
-  (concat "^"
-          "\\(?:[ \\*]\\) "
-          "\\(?1:([^)]+)\\|[^ ]+?\\)"       ; branch
-          "\\(?: +\\)"
-          "\\(?2:[0-9a-fA-F]+\\) "          ; sha1
-          "\\(?:\\["
-          "\\(?4:[^:]+\\)"                  ; upstream
-          "\\(?:: \\(?:"
-          "\\(?7:gone\\)\\|"                ; gone
-          "\\(?:ahead \\(?5:[0-9]+\\)\\)?"  ; ahead
-          "\\(?:, \\)?"
-          "\\(?:behind \\(?6:[0-9]+\\)\\)?" ; behind
-          "\\)\\)?"
-          "\\] \\)?"
-          "\\(?3:.*\\)"))                   ; message
-
-(defconst magit-refs-symref-line-re "^  \\([^ ]+\\) +-> \\(.+\\)")
-
 (defvar magit-refs-local-branch-format "%4c %-25n %U%m\n"
   "Format used for local branches in refs buffers.")
 (defvar magit-refs-remote-branch-format "%4c %-25n %m\n"
@@ -440,17 +421,17 @@ line is inserted at all."
     (magit-insert-heading "Branches:")
     (let ((current  (magit-get-current-branch))
           (branches (magit-list-local-branch-names)))
-      (dolist (line (magit-git-lines "branch" "-vv"
+      (dolist (line (magit-git-lines "branch" "--format=\
+%(refname:short)%00%(objectname:short)%00%(subject)%00\
+%(upstream:short)%00%(upstream:track,nobracket)"
                                      (cadr magit-refresh-args)))
-        (cond
-         ((string-match magit-refs-branch-line-re line)
-          (magit-bind-match-strings
-              (branch hash message upstream ahead behind gone) line
-            (when (string-match-p "(HEAD detached" branch)
-              (setq branch nil))
-            (magit-insert-branch
-             branch magit-refs-local-branch-format current branches
-             'magit-branch-local hash message upstream ahead behind gone))))))
+        (pcase-let ((`(,branch ,hash ,message
+                               ,upstream ,utrack)
+                     (-replace "" nil (split-string line "\0"))))
+          (magit-insert-branch
+           (and (not (string-prefix-p "(HEAD detached" branch)) branch)
+           magit-refs-local-branch-format current branches
+           'magit-branch-local hash message upstream utrack))))
     (insert ?\n)
     (magit-make-margin-overlay nil t)))
 
@@ -465,18 +446,17 @@ line is inserted at all."
                   (concat pull (and pull push ", ") push))))
       (let ((current  (magit-get-current-branch))
             (branches (magit-list-local-branch-names)))
-        (dolist (line (magit-git-lines "branch" "-vvr"
+        (dolist (line (magit-git-lines "branch" "-r" "--format=\
+%(symref:short)%00%(refname:short)%00%(objectname:short)%00%(subject)"
                                        "--list" (concat remote "/*")
                                        (cadr magit-refresh-args)))
-          (cond
-           ((string-match magit-refs-branch-line-re line)
-            (magit-bind-match-strings (branch hash message) line
+          (pcase-let ((`(,symref ,branch ,hash ,message)
+                       (-replace "" nil (split-string line "\0"))))
+            (if symref
+                (magit-insert-symref branch symref 'magit-branch-remote)
               (magit-insert-branch
                branch magit-refs-remote-branch-format current branches
-               'magit-branch-remote hash message)))
-           ((string-match magit-refs-symref-line-re line)
-            (magit-bind-match-strings (symref ref) line
-              (magit-insert-symref symref ref 'magit-branch-remote))))))
+               'magit-branch-remote hash message)))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
 
@@ -492,7 +472,7 @@ line is inserted at all."
 
 (defun magit-insert-branch-1
     (section branch format current branches face
-             &optional hash message upstream ahead behind gone)
+             &optional hash message upstream utrack)
   "For internal use, don't add to a hook."
   (let* ((head  (or (car magit-refresh-args) current "HEAD"))
          (count (and branch
@@ -503,7 +483,14 @@ line is inserted at all."
                            (propertize "@" 'face 'magit-head)
                          (propertize "#" 'face 'magit-tag)))
                       ((equal branch current)
-                       (propertize "." 'face 'magit-head)))))
+                       (propertize "." 'face 'magit-head))))
+         (ahead  (and utrack
+                      (string-match "ahead \\([0-9]+\\)" utrack)
+                      (match-string 1 utrack)))
+         (behind (and utrack
+                      (string-match "behind \\([0-9]+\\)" utrack)
+                      (match-string 1 utrack)))
+         (gone   (equal utrack "gone")))
     (when upstream
       (setq upstream (propertize upstream 'face
                                  (if (member upstream branches)
