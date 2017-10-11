@@ -125,14 +125,19 @@ and then turned on again when turning off the latter."
            (define-key map (kbd   "i") 'magit-blame-previous-chunk)
            (define-key map (kbd   "I") 'magit-blame-previous-chunk-same-commit)
            (define-key map (kbd   "k") 'magit-blame-next-chunk)
-           (define-key map (kbd   "K") 'magit-blame-next-chunk-same-commit))
+           (define-key map (kbd   "K") 'magit-blame-next-chunk-same-commit)
+           (define-key map (kbd   "j") 'magit-blame)
+           (define-key map (kbd   "l") 'magit-blame-reverse)
+           (define-key map (kbd   "b") 'magit-blame-popup))
           (t
            (define-key map (kbd "C-m") 'magit-show-commit)
            (define-key map (kbd   "p") 'magit-blame-previous-chunk)
            (define-key map (kbd   "P") 'magit-blame-previous-chunk-same-commit)
            (define-key map (kbd   "n") 'magit-blame-next-chunk)
-           (define-key map (kbd   "N") 'magit-blame-next-chunk-same-commit)))
-    (define-key map (kbd   "b") 'magit-blame-popup)
+           (define-key map (kbd   "N") 'magit-blame-next-chunk-same-commit)
+           (define-key map (kbd   "b") 'magit-blame)
+           (define-key map (kbd   "f") 'magit-blame-reverse)
+           (define-key map (kbd   "B") 'magit-blame-popup)))
     (define-key map (kbd   "t") 'magit-blame-toggle-headings)
     (define-key map (kbd   "q") 'magit-blame-quit)
     (define-key map (kbd "M-w") 'magit-blame-copy-hash)
@@ -156,6 +161,7 @@ and then turned on again when turning off the latter."
 (defvar-local magit-blame-disabled-modes nil)
 (defvar-local magit-blame-process nil)
 (defvar-local magit-blame-recursive-p nil)
+(defvar-local magit-blame-reverse-p nil)
 (defvar-local magit-blame-separator nil)
 
 (define-minor-mode magit-blame-mode
@@ -206,15 +212,42 @@ and then turned on again when turning off the latter."
               (?r "Do not treat root commits as boundaries" "--root"))
   :options  '((?M "Detect lines moved or copied within a file" "-M")
               (?C "Detect lines moved or copied between files" "-C"))
-  :actions  '((?b "Blame" magit-blame))
+  :actions  '((?b "Show blob touching these lines" magit-blame)
+              (?f "Show blob removing these lines" magit-blame-reverse))
   :default-arguments '("-w")
+  :max-action-columns 1
   :default-action 'magit-blame)
 
 ;;; Process
 
+(defun magit-blame-arguments* (reverse)
+  (let ((args (magit-blame-arguments)))
+    (when (and reverse buffer-file-name)
+      (user-error "Only blob buffers can be blamed in reverse"))
+    (if (and magit-blame-mode
+             (or (and reverse magit-blame-reverse-p)
+                 (and (not reverse)
+                      (not magit-blame-reverse-p))))
+        (--if-let (magit-blame-chunk-get :previous-hash)
+            (list it (magit-blame-chunk-get :previous-file)
+                  args (magit-blame-chunk-get :previous-start))
+          (user-error "Block has no further history"))
+      (--if-let (magit-file-relative-name nil (not magit-buffer-file-name))
+          (list (or magit-buffer-refname magit-buffer-revision) it args)
+        (if buffer-file-name
+            (user-error "Buffer isn't visiting a tracked file")
+          (user-error "Buffer isn't visiting a file"))))))
+
+;;;###autoload
+(defun magit-blame-reverse (revision file &optional args line)
+  "For each line show the subsequent revision that removes it.
+\n(fn REVISION FILE &optional ARGS)" ; LINE is for internal use
+  (interactive (magit-blame-arguments* t))
+  (magit-blame revision file (cons "--reverse" args) line))
+
 ;;;###autoload
 (defun magit-blame (revision file &optional args line)
-  "Display edit history of FILE up to REVISION.
+  "For each line show the revision that last touched it.
 
 Interactively blame the file being visited in the current buffer.
 If the buffer visits a revision of that file, then blame up to
@@ -229,18 +262,7 @@ point.
 ARGS is a list of additional arguments to pass to `git blame';
 only arguments available from `magit-blame-popup' should be used.
 \n(fn REVISION FILE &optional ARGS)" ; LINE is for internal use
-  (interactive
-   (let ((args (magit-blame-arguments)))
-     (if magit-blame-mode
-         (--if-let (magit-blame-chunk-get :previous-hash)
-             (list it (magit-blame-chunk-get :previous-file)
-                   args (magit-blame-chunk-get :previous-start))
-           (user-error "Block has no further history"))
-       (--if-let (magit-file-relative-name nil (not magit-buffer-file-name))
-           (list (or magit-buffer-refname magit-buffer-revision) it args)
-         (if buffer-file-name
-             (user-error "Buffer isn't visiting a tracked file")
-           (user-error "Buffer isn't visiting a file"))))))
+  (interactive (magit-blame-arguments* nil))
   (let ((toplevel (or (magit-toplevel)
                       (user-error "Not in git repository"))))
     (let ((default-directory toplevel))
@@ -250,13 +272,17 @@ only arguments available from `magit-blame-popup' should be used.
             (progn (switch-to-buffer it)
                    (save-buffer))
           (find-file file))))
-    (let ((default-directory toplevel))
+    (let ((default-directory toplevel)
+          (reverse (and (member "--reverse" args) t)))
       (widen)
       (when line
         (setq magit-blame-recursive-p t)
         (goto-char (point-min))
         (forward-line (1- line)))
-      (unless magit-blame-mode
+      (when (or (not magit-blame-mode)
+                (and reverse  (not magit-blame-reverse-p))
+                (and (not reverse) magit-blame-reverse-p))
+        (setq magit-blame-reverse-p reverse)
         (setq magit-blame-cache (make-hash-table :test 'equal))
         (let ((show-headings magit-blame-show-headings))
           (magit-blame-mode 1)
@@ -436,6 +462,7 @@ This is intended for debugging purposes.")
 If the buffer was created during a recursive blame,
 then also kill the buffer."
   (interactive)
+  (kill-local-variable 'magit-blame-reverse-p)
   (if magit-blame-recursive-p
       (kill-buffer)
     (magit-blame-mode -1)))

@@ -227,15 +227,18 @@ directory, while reading the FILENAME."
 (magit-define-popup magit-file-popup
   "Popup console for Magit commands in file-visiting buffers."
   :actions '((?s "Stage"     magit-stage-file)
-             (?d "Diff"      magit-diff-buffer-file)
-             (?l "Log"       magit-log-buffer-file)
-             (?b "Blame"     magit-blame-popup)
-             (?u "Unstage"   magit-unstage-file)
              (?D "Diff..."   magit-diff-buffer-file-popup)
              (?L "Log..."    magit-log-buffer-file-popup)
-             (?p "Find blob" magit-blob-previous)
-             (?c "Commit"    magit-commit-popup))
-  :max-action-columns 4)
+             (?B "Blame..."  magit-blame-popup) nil
+             (?u "Unstage"   magit-unstage-file)
+             (?d "Diff"      magit-diff-buffer-file)
+             (?l "Log"       magit-log-buffer-file)
+             (?b "Blame"     magit-blame)
+             (?p "Prev blob" magit-blob-previous)
+             (?c "Commit"    magit-commit-popup) nil nil
+             (?f "...reverse" magit-blame-reverse)
+             (?n "Next blob" magit-blob-next))
+  :max-action-columns 5)
 
 (defvar magit-file-mode-lighter "")
 
@@ -267,10 +270,14 @@ Currently this only adds the following key bindings.
   (let ((map (make-sparse-keymap)))
     (cond ((featurep 'jkl)
            (define-key map "i" 'magit-blob-previous)
-           (define-key map "k" 'magit-blob-next))
+           (define-key map "k" 'magit-blob-next)
+           (define-key map "j" 'magit-blame)
+           (define-key map "l" 'magit-blame-reverse))
           (t
            (define-key map "p" 'magit-blob-previous)
-           (define-key map "n" 'magit-blob-next)))
+           (define-key map "n" 'magit-blob-next)
+           (define-key map "b" 'magit-blame)
+           (define-key map "f" 'magit-blame-reverse)))
     (define-key map "q" 'magit-kill-this-buffer)
     map)
   "Keymap for `magit-blob-mode'.")

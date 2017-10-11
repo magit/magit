@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-55-g7edecce4+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-71-g3a0faaf3+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-55-g7edecce4+1).
+This manual is for Magit version 2.11.0 (2.11.0-71-g3a0faaf3+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -2909,100 +2909,126 @@ bisect session.
 
 Also see [[man:git-blame]]
 
+To start blaming use ~M-x~ in a file-visiting buffer to invoke one of
+the next tree commands.  In a blob-visiting buffer you can also use
+the key bindings described below, and when Magit-File mode is enabled,
+then you can at least use ~C-c M-g~ to enter the blaming popup instead
+of having to type out the command name.
+
 - Key: M-x magit-blame, magit-blame
 
-  Display edit history of FILE up to REVISION.
+  This command augments each line or chunk of lines in the current
+  file- or blob-visiting buffer with information about what commits
+  last touched these lines.
 
-  Interactively blame the file being visited in the current buffer.
-  If the buffer visits a revision of that file, then blame up to that
-  revision.  Otherwise, blame the file's full history, including
-  uncommitted changes.
+  If the buffer visits a revision of that file, then history up to
+  that revision is considered.  Otherwise, the file's full history is
+  considered, including uncommitted changes.
 
-  If Magit-Blame mode is already turned on then blame recursively, by
-  visiting REVISION:FILE (using ~magit-find-file~), where revision is
-  the revision before the revision that added the lines at point.
+  If Magit-Blame mode is already turned on in the current buffer then
+  blaming is done recursively, by visiting REVISION:FILE (using
+  ~magit-find-file~), where REVISION is the revision before the revision
+  that added the current line or chunk of lines.
 
-  ARGS is a list of additional arguments to pass to ~git blame~; only
-  arguments available from ~magit-blame-popup~ should be used.
+- Key: M-x magit-blame-reverse, magit-blame-reverse
+
+  This command augments each line or chunk of lines in the current
+  file- or blob-visiting buffer with information about what subsequent
+  commit removes these lines.
+
+  Like ~magit-blame~, this command can be used recursively.
 
 - Key: M-x magit-blame-popup, magit-blame-popup
 
   This prefix command shows the above suffix command along with the
   appropriate infix arguments in a popup buffer.
 
+The above commands are also bound in the keymaps ~magit-blame-mode-map
+and ~magit-blob-mode-map~, and in the popup ~magit-file-popup~.  Once
+Magit-Blame mode is enabled in a file-visiting buffer, you can use ~B~
+to show the blaming popup, ~b~ to blame recursively going backward in
+time, and ~f~ to blame recursively going forward in time (i.e. blame in
+reverse).  These bindings are always available in blob-visiting
+buffers.
+
+Additionally the following key bindings are available when Magit-Blame
+mode is enabled.  These commands are also available in other buffers;
+here only the behavior is described that is relevant in file-visiting
+buffers that are being blamed.
+
 - Key: RET, magit-show-commit
 
-  Show the commit at point.  If there is no commit at point or with a
-  prefix argument, prompt for a commit.
+  This command shows the commit that last touched the line at point.
 
 - Key: SPC, magit-diff-show-or-scroll-up
 
-  Update the commit or diff buffer for the thing at point.
+  This command updates the commit buffer.
 
-  Either show the commit or stash at point in the appropriate buffer,
-  or if that buffer is already being displayed in the current frame
-  and contains information about that commit or stash, then instead
-  scroll the buffer up.  If there is no commit or stash at point, then
-  prompt for a commit.
+  This either shows the commit that last touched the line at point in
+  the appropriate buffer, or if that buffer is already being displayed
+  in the current frame and if that buffer contains information about
+  that commit, then the buffer is scrolled up instead.
 
 - Key: DEL, magit-diff-show-or-scroll-down
 
-  Update the commit or diff buffer for the thing at point.
+  This command updates the commit buffer.
 
-  Either show the commit or stash at point in the appropriate buffer,
-  or if that buffer is already being displayed in the current frame
-  and contains information about that commit or stash, then instead
-  scroll the buffer down.  If there is no commit or stash at point,
-  then prompt for a commit.
+  This either shows the commit that last touched the line at point in
+  the appropriate buffer, or if that buffer is already being displayed
+  in the current frame and if that buffer contains information about
+  that commit, then the buffer is scrolled down instead.
 
 - Key: n, magit-blame-next-chunk
 
-  Move to the next chunk.
+  This command moves to the next chunk.
 
 - Key: N, magit-blame-next-chunk-same-commit
 
-  Move to the next chunk from the same commit.
+  This command moves to the next chunk from the same commit.
 
 - Key: p, magit-blame-previous-chunk
 
-  Move to the previous chunk.
+  This command moves to the previous chunk.
 
 - Key: P, magit-blame-previous-chunk-same-commit
 
-  Move to the previous chunk from the same commit.
+  This command moves to the previous chunk from the same commit.
 
 - Key: q, magit-blame-quit
 
-  Turn off Magit-Blame mode.  If the buffer was created during a
-  recursive blame, then also kill the buffer.
+  This command turns off Magit-Blame mode.  If the buffer was created
+  during a recursive blame, then it also kill the buffer.
 
 - Key: M-w, magit-blame-copy-hash
 
-  Save the hash of the current chunk's commit to the kill ring.
+  This command saves the hash of the current chunk's commit to the
+  kill ring.
 
-  When the region is active, then save that to the ~kill-ring~,
-  like ~kill-ring-save~ would.
+  When the region is active, then it save that to the ~kill-ring~, like
+  ~kill-ring-save~ would.
 
 - Key: t, magit-blame-toggle-headings
 
-  Show or hide blame chunk headings.
+  This command shows or hides blame chunk headings.
 
 - User Option: magit-blame-heading-format
 
-  Format string used for blame headings.
+  The format string used for blame headings.
 
 - User Option: magit-blame-time-format
 
-  Format string used for time strings in blame headings.
+  The format string used for time strings in blame headings.
 
 - User Option: magit-blame-show-headings
 
-  Whether to initially show blame block headings.  The headings can
-  also be toggled locally using command ~magit-blame-toggle-headings~.
+  This option controls whether blame block headings are initially
+  shown.  The headings can also be toggled locally using the command
+  ~magit-blame-toggle-headings~.
 
 - User Option: magit-blame-goto-chunk-hook
 
-  Hook run by ~magit-blame-next-chunk~ and ~magit-blame-previous-chunk~.
+  This hook is run by ~magit-blame-next-chunk~ and
+  ~magit-blame-previous-chunk~.
 
 * Manipulating
 ** Repository Setup

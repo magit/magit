@@ -37,6 +37,13 @@ Changes since v2.11.0
   now end with an asterisk.  When the `uniquify' package is used, then
   that still is not possible due to limitations in that package.  #2841
 
+* Added the existing commands `magit-blame' and `magit-blob-next' to
+  the `magit-file-popup'.
+
+* Added new command `magit-blame-reverse'.  See the updated manual
+  for information on how to best use this and other blaming commands.
+  #3055
+
 Fixes since v2.11.0
 -------------------
 
