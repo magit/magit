@@ -419,18 +419,17 @@ line is inserted at all."
   "Insert sections showing all local branches."
   (magit-insert-section (local nil)
     (magit-insert-heading "Branches:")
-    (let ((current  (magit-get-current-branch))
-          (branches (magit-list-local-branch-names)))
+    (let ((branches (magit-list-local-branch-names)))
       (dolist (line (magit-git-lines "branch" "--format=\
-%(refname:short)%00%(objectname:short)%00%(subject)%00\
+%(HEAD)%00%(refname:short)%00%(objectname:short)%00%(subject)%00\
 %(upstream:short)%00%(upstream:track,nobracket)"
                                      (cadr magit-refresh-args)))
-        (pcase-let ((`(,branch ,hash ,message
-                               ,upstream ,utrack)
+        (pcase-let ((`(,head ,branch ,hash ,message
+                             ,upstream ,utrack)
                      (-replace "" nil (split-string line "\0"))))
           (magit-insert-branch
            (and (not (string-prefix-p "(HEAD detached" branch)) branch)
-           magit-refs-local-branch-format current branches
+           magit-refs-local-branch-format (and (equal head "*") branch) branches
            'magit-branch-local hash message upstream utrack))))
     (insert ?\n)
     (magit-make-margin-overlay nil t)))
@@ -444,8 +443,7 @@ line is inserted at all."
               (push (magit-get "remote" remote "pushurl")))
           (format "%s (%s):" (capitalize remote)
                   (concat pull (and pull push ", ") push))))
-      (let ((current  (magit-get-current-branch))
-            (branches (magit-list-local-branch-names)))
+      (let ((branches (magit-list-local-branch-names)))
         (dolist (line (magit-git-lines "branch" "-r" "--format=\
 %(symref:short)%00%(refname:short)%00%(objectname:short)%00%(subject)"
                                        "--list" (concat remote "/*")
@@ -455,7 +453,7 @@ line is inserted at all."
             (if symref
                 (magit-insert-symref branch symref 'magit-branch-remote)
               (magit-insert-branch
-               branch magit-refs-remote-branch-format current branches
+               branch magit-refs-remote-branch-format nil branches
                'magit-branch-remote hash message)))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
@@ -474,16 +472,15 @@ line is inserted at all."
     (section branch format current branches face
              &optional hash message upstream utrack)
   "For internal use, don't add to a hook."
-  (let* ((head  (or (car magit-refresh-args) current "HEAD"))
+  (let* ((focus (car magit-refresh-args))
+         (head  (or focus "HEAD"))
          (count (and branch
                      (magit-refs-format-commit-count branch head format)))
-         (mark  (cond ((or (equal branch head)
-                           (and (not branch) (equal head "HEAD")))
-                       (if (equal branch current)
-                           (propertize "@" 'face 'magit-head)
-                         (propertize "#" 'face 'magit-tag)))
-                      ((equal branch current)
-                       (propertize "." 'face 'magit-head)))))
+         (mark  (cond (current
+                       (propertize (if (member focus (list nil branch)) "@" ".")
+                                   'face 'magit-head))
+                      ((equal branch focus)
+                       (propertize "#" 'face 'magit-tag)))))
     (when upstream
       (setq upstream (propertize upstream 'face
                                  (if (member upstream branches)
