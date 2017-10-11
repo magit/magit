@@ -278,12 +278,13 @@ depending on the value of option `magit-commit-squash-confirm'."
                   args)))
             (magit-run-git-with-editor "commit" args)))
       (magit-log-select
-        `(lambda (commit)
-           (magit-commit-squash-internal ,option commit ',args ,rebase ,edit t)
-           ,@(when rebase
-               `((magit-rebase-interactive-1 commit
-                     (list "--autosquash" "--autostash")
-                   "" "true"))))
+        (lambda (commit)
+          (when (and (magit-commit-squash-internal option commit args
+                                                   rebase edit t)
+                     rebase)
+            (magit-rebase-interactive-1 commit
+                (list "--autosquash" "--autostash")
+              "" "true")))
         (format "Type %%p on a commit to %s into it,"
                 (substring option 2))
         nil nil (list "--graph"))
