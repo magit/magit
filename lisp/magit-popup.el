@@ -1247,7 +1247,7 @@ variable whose value may be used as a default."
     (when fun
       (setq dsc
             (-when-let (branch (funcall fun))
-              (if (next-single-property-change 0 'face (concat "0" branch))
+              (if (text-property-not-all 0 (length branch) 'face nil branch)
                   branch
                 (magit-branch-set-face branch)))))
     (when dsc
