@@ -471,12 +471,12 @@ line is inserted at all."
         (dolist (line (magit-git-lines "branch" "-vvr"
                                        (cadr magit-refresh-args)))
           (cond
+           ((string-prefix-p (concat remote "/") branch)) ; noop
            ((string-match magit-refs-branch-line-re line)
             (magit-bind-match-strings (branch hash message) line
-              (when (string-match-p (format "^%s/" remote) branch)
-                (magit-insert-branch
-                 branch magit-refs-remote-branch-format current branches
-                 'magit-branch-remote hash message))))
+              (magit-insert-branch
+               branch magit-refs-remote-branch-format current branches
+               'magit-branch-remote hash message)))
            ((string-match magit-refs-symref-line-re line)
             (magit-bind-match-strings (symref ref) line
               (magit-insert-symref symref ref 'magit-branch-remote))))))
