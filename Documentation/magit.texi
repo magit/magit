@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-71-g3a0faaf3+1)
+@subtitle for version 2.11.0 (2.11.0-73-g66b22c1c+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-71-g3a0faaf3+1).
+This manual is for Magit version 2.11.0 (2.11.0-73-g66b22c1c+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -4117,7 +4117,7 @@ This command moves to the previous chunk from the same commit.
 @item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-quit})
 
 This command turns off Magit-Blame mode.  If the buffer was created
-during a recursive blame, then it also kill the buffer.
+during a recursive blame, then it also kills the buffer.
 
 @kindex M-w
 @cindex magit-blame-copy-hash
@@ -7285,7 +7285,7 @@ instead of the reference name.
 @cindex magit-copy-buffer-revision
 @item @kbd{C-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-copy-buffer-revision})
 
-This command save the revision being displayed in the current buffer
+This command saves the revision being displayed in the current buffer
 to the @code{kill-ring} and also pushes it to the @code{magit-revision-stack}.  It
 is mainly intended for use in @code{magit-revision-mode} buffers, the only
 buffers where it is always unambiguous exactly which revision should
@@ -7366,7 +7366,7 @@ commit does not change the fork-point of the working tree wip ref.  The
 fork-points are not adjusted until there actually is a change that
 should be committed to the respective wip ref.
 
-To view the log for the a branch and its wip refs use the commands
+To view the log for a branch and its wip refs use the commands
 @code{magit-wip-log} and @code{magit-wip-log-current}.  You should use @code{--graph} when
 using these commands.  Alternatively you can use the reflog to show
 all commits that ever existed on a wip ref.  You can then recover lost
@@ -7397,7 +7397,7 @@ which might seem excessive, but allows fine tuning of when exactly
 changes are being committed to the wip refs.  Enabling all modes makes
 it less likely that a change slips through the cracks.
 
-Setting the below variable directly does not take effect; either
+Setting the following variables directly does not take effect; either
 customize them or call the respective mode function.
 
 @defopt magit-wip-after-save-mode
@@ -7537,7 +7537,7 @@ buffer visits.
 
 @defopt magit-diff-buffer-file-locked
 
-This option controls whether @code{magit-diff-buffer-file} uses a decicated
+This option controls whether @code{magit-diff-buffer-file} uses a dedicated
 buffer.  See @ref{Modes and Buffers}.
 @end defopt
 
@@ -7564,7 +7564,7 @@ region is active, the log is restricted to the selected line range.
 
 @defopt magit-log-buffer-file-locked
 
-This option controls whether @code{magit-log-buffer-file} uses a decicated
+This option controls whether @code{magit-log-buffer-file} uses a dedicated
 buffer.  See @ref{Modes and Buffers}.
 @end defopt
 
