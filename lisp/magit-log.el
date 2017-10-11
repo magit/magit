@@ -145,6 +145,11 @@ This is useful if you use really long branch names."
   "Face for the date part of the log output."
   :group 'magit-faces)
 
+(defface magit-header-line-log-select
+  '((t :inherit bold))
+  "Face for the `header-line' in `magit-log-select-mode'."
+  :group 'magit-faces)
+
 ;;;; File Log
 
 (defcustom magit-log-buffer-file-locked t
@@ -1279,19 +1284,27 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   (setq magit-log-select-pick-function pick)
   (setq magit-log-select-quit-function quit)
   (when magit-log-select-show-usage
-    (setq msg (substitute-command-keys
-               (format-spec
-                (if msg
-                    (if (string-suffix-p "," msg)
-                        (concat msg " or %q to abort")
-                      msg)
-                  "Type %p to select commit at point, or %q to abort")
-                '((?p . "\\[magit-log-select-pick]")
-                  (?q . "\\[magit-log-select-quit]")))))
+    (let ((pick (propertize (substitute-command-keys
+                             "\\[magit-log-select-pick]")
+                            'face
+                            'magit-header-line-key))
+          (quit (propertize (substitute-command-keys
+                             "\\[magit-log-select-quit]")
+                            'face
+                            'magit-header-line-key)))
+      (setq msg (format-spec
+                 (if msg
+                     (if (string-suffix-p "," msg)
+                         (concat msg " or %q to abort")
+                       msg)
+                   "Type %p to select commit at point, or %q to abort")
+                 `((?p . ,pick)
+                   (?q . ,quit)))))
+    (add-face-text-property 0 (length msg) 'magit-header-line-log-select t msg)
     (when (memq magit-log-select-show-usage '(both header-line))
       (magit-set-header-line-format msg))
     (when (memq magit-log-select-show-usage '(both echo-area))
-      (message "%s" msg))))
+      (message "%s" (substring-no-properties msg)))))
 
 (defun magit-log-select-pick ()
   "Select the commit at point and act on it.

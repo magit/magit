@@ -75,7 +75,15 @@
 
 (defface magit-header-line
   '((t :inherit magit-section-heading))
-  "Face for the `header-line'."
+  "Face for the `header-line' in some Magit modes.
+Note that some modes, such as `magit-log-select-mode', have their
+own faces for the `header-line', or for parts of the
+`header-line'."
+  :group 'magit-faces)
+
+(defface magit-header-line-key
+  '((t :inherit magit-popup-key))
+  "Face for keys in the `header-line'."
   :group 'magit-faces)
 
 (defface magit-dimmed
