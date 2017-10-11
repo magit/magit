@@ -212,6 +212,19 @@ and then turned on again when turning off the latter."
 
 ;;; Process
 
+(defun magit-blame-arguments* ()
+  (let ((args (magit-blame-arguments)))
+    (if magit-blame-mode
+        (--if-let (magit-blame-chunk-get :previous-hash)
+            (list it (magit-blame-chunk-get :previous-file)
+                  args (magit-blame-chunk-get :previous-start))
+          (user-error "Block has no further history"))
+      (--if-let (magit-file-relative-name nil (not magit-buffer-file-name))
+          (list (or magit-buffer-refname magit-buffer-revision) it args)
+        (if buffer-file-name
+            (user-error "Buffer isn't visiting a tracked file")
+          (user-error "Buffer isn't visiting a file"))))))
+
 ;;;###autoload
 (defun magit-blame (revision file &optional args line)
   "Display edit history of FILE up to REVISION.
@@ -229,18 +242,7 @@ point.
 ARGS is a list of additional arguments to pass to `git blame';
 only arguments available from `magit-blame-popup' should be used.
 \n(fn REVISION FILE &optional ARGS)" ; LINE is for internal use
-  (interactive
-   (let ((args (magit-blame-arguments)))
-     (if magit-blame-mode
-         (--if-let (magit-blame-chunk-get :previous-hash)
-             (list it (magit-blame-chunk-get :previous-file)
-                   args (magit-blame-chunk-get :previous-start))
-           (user-error "Block has no further history"))
-       (--if-let (magit-file-relative-name nil (not magit-buffer-file-name))
-           (list (or magit-buffer-refname magit-buffer-revision) it args)
-         (if buffer-file-name
-             (user-error "Buffer isn't visiting a tracked file")
-           (user-error "Buffer isn't visiting a file"))))))
+  (interactive (magit-blame-arguments*))
   (let ((toplevel (or (magit-toplevel)
                       (user-error "Not in git repository"))))
     (let ((default-directory toplevel))
