@@ -483,14 +483,7 @@ line is inserted at all."
                            (propertize "@" 'face 'magit-head)
                          (propertize "#" 'face 'magit-tag)))
                       ((equal branch current)
-                       (propertize "." 'face 'magit-head))))
-         (ahead  (and utrack
-                      (string-match "ahead \\([0-9]+\\)" utrack)
-                      (match-string 1 utrack)))
-         (behind (and utrack
-                      (string-match "behind \\([0-9]+\\)" utrack)
-                      (match-string 1 utrack)))
-         (gone   (equal utrack "gone")))
+                       (propertize "." 'face 'magit-head)))))
     (when upstream
       (setq upstream (propertize upstream 'face
                                  (if (member upstream branches)
@@ -499,9 +492,7 @@ line is inserted at all."
     (magit-insert-heading
       (format-spec
        format
-       `((?a . ,(or ahead ""))
-         (?b . ,(or behind ""))
-         (?c . ,(or mark count ""))
+       `((?c . ,(or mark count ""))
          (?C . ,(or mark " "))
          (?h . ,(or (propertize hash 'face 'magit-hash) ""))
          (?m . ,(or message ""))
@@ -510,15 +501,11 @@ line is inserted at all."
          (?U . ,(if upstream
                     (format (propertize "[%s%s] " 'face 'magit-dimmed)
                             upstream
-                            (cond
-                             (gone
-                              (concat ": " (propertize gone 'face 'error)))
-                             ((or ahead behind)
-                              (concat ": "
-                                      (and ahead (format "ahead %s" ahead))
-                                      (and ahead behind ", ")
-                                      (and behind (format "behind %s" behind))))
-                             (t "")))
+                            (if utrack
+                                (concat ":" (if (equal utrack "gone")
+                                                (propertize "gone" 'face 'error)
+                                              utrack))
+                              ""))
                   "")))))
     (when (magit-buffer-margin-p)
       (magit-refs-format-margin branch))
