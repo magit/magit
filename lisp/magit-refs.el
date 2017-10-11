@@ -487,11 +487,11 @@ line is inserted at all."
   "For internal use, don't add to a hook."
   (unless magit-refs-show-commit-count
     (setq format (replace-regexp-in-string "%[0-9]\\([cC]\\)" "%1\\1" format t)))
-  (if (equal branch "HEAD")
-      (magit-insert-section it (commit (magit-rev-parse "HEAD") t)
-        (apply #'magit-insert-branch-1 it nil format args))
-    (magit-insert-section it (branch branch t)
-      (apply #'magit-insert-branch-1 it branch format args))))
+  (if branch
+      (magit-insert-section it (branch branch t)
+        (apply #'magit-insert-branch-1 it branch format args))
+    (magit-insert-section it (commit (magit-rev-parse "HEAD") t)
+      (apply #'magit-insert-branch-1 it nil format args))))
 
 (defun magit-insert-branch-1
     (section branch format current branches face
