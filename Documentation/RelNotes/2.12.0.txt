@@ -40,7 +40,9 @@ Changes since v2.11.0
 * Added the existing commands `magit-blame' and `magit-blob-next' to
   the `magit-file-popup'.
 
-* Added new command `magit-blame-reverse'.  #3055
+* Added new command `magit-blame-reverse'.  See the updated manual
+  for information on how to best use this and other blaming commands.
+  #3055
 
 Fixes since v2.11.0
 -------------------
