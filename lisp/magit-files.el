@@ -229,13 +229,15 @@ directory, while reading the FILENAME."
   :actions '((?s "Stage"     magit-stage-file)
              (?d "Diff"      magit-diff-buffer-file)
              (?l "Log"       magit-log-buffer-file)
-             (?b "Blame"     magit-blame-popup)
+             (?b "Blame"     magit-blame)
+             (?p "Prev blob" magit-blob-previous)
              (?u "Unstage"   magit-unstage-file)
              (?D "Diff..."   magit-diff-buffer-file-popup)
              (?L "Log..."    magit-log-buffer-file-popup)
-             (?p "Find blob" magit-blob-previous)
+             (?B "Blame..."  magit-blame-popup)
+             (?n "Next blob" magit-blob-next)
              (?c "Commit"    magit-commit-popup))
-  :max-action-columns 4)
+  :max-action-columns 5)
 
 (defvar magit-file-mode-lighter "")
 
