@@ -600,6 +600,22 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
+(defun magit-set-header-line-format (string)
+  "Set the header-line using STRING.
+Propertize STRING with the `magit-header-line' face if no face is
+present, and make sure it aligns with the text area."
+  (let ((header-line
+         (concat (propertize " "
+                             'display
+                             '(space :align-to 0))
+                 string)))
+    (setq header-line-format
+          (if (text-property-not-all 0 (length header-line) 'face nil header-line)
+              header-line
+            (propertize header-line
+                        'face
+                        'magit-header-line)))))
+
 ;;; Missing from Emacs
 
 (defun magit-kill-this-buffer ()

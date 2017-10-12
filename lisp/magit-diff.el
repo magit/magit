@@ -1462,24 +1462,22 @@ Staging and applying changes is documented in info node
 In such buffers the buffer-local value of `magit-refresh-args'
 has the same form as the arguments of this function.  The value
 is set in `magit-mode-setup'."
-  (setq header-line-format
-        (propertize
-         (if (member "--no-index" const)
-             (apply #'format " Differences between %s and %s" files)
-           (concat (if rev-or-range
-                       (if (string-match-p "\\(\\.\\.\\|\\^-\\)"
-                                           rev-or-range)
-                           (format " Changes in %s" rev-or-range)
-                         (format " Changes from %s to working tree" rev-or-range))
-                     (if (member "--cached" const)
-                         " Staged changes"
-                       " Unstaged changes"))
-                   (pcase (length files)
-                     (0)
-                     (1 (concat " in file " (car files)))
-                     (_ (concat " in files "
-                                (mapconcat #'identity files ", "))))))
-         'face 'magit-header-line))
+  (magit-set-header-line-format
+   (if (member "--no-index" const)
+       (apply #'format "Differences between %s and %s" files)
+     (concat (if rev-or-range
+                 (if (string-match-p "\\(\\.\\.\\|\\^-\\)"
+                                     rev-or-range)
+                     (format "Changes in %s" rev-or-range)
+                   (format "Changes from %s to working tree" rev-or-range))
+               (if (member "--cached" const)
+                   "Staged changes"
+                 "Unstaged changes"))
+             (pcase (length files)
+               (0)
+               (1 (concat " in file " (car files)))
+               (_ (concat " in files "
+                          (mapconcat #'identity files ", ")))))))
   (magit-insert-section (diffbuf)
     (run-hook-with-args 'magit-diff-sections-hook rev-or-range)))
 
@@ -1814,15 +1812,15 @@ Staging and applying changes is documented in info node
               'magit-bookmark--revision-make-record))
 
 (defun magit-revision-refresh-buffer (rev __const _args files)
-  (setq header-line-format
-        (propertize (concat " " (capitalize (magit-object-type rev))
-                            " " rev
-                            (pcase (length files)
-                              (0)
-                              (1 (concat " limited to file " (car files)))
-                              (_ (concat " limited to files "
-                                         (mapconcat #'identity files ", ")))))
-                    'face 'magit-header-line))
+  (magit-set-header-line-format
+   (concat (capitalize (magit-object-type rev))
+           " "
+           rev
+           (pcase (length files)
+             (0)
+             (1 (concat " limited to file " (car files)))
+             (_ (concat " limited to files "
+                        (mapconcat #'identity files ", "))))))
   (setq magit-buffer-revision-hash (magit-rev-parse rev))
   (magit-insert-section (commitbuf)
     (run-hook-with-args 'magit-revision-sections-hook rev)))

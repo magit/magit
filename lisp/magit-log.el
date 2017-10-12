@@ -812,15 +812,14 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   "Arguments which disable the graph speedup hack.")
 
 (defun magit-log-refresh-buffer (revs args files)
-  (setq header-line-format
-        (propertize
-         (concat " Commits in " (mapconcat 'identity revs  " ")
-                 (and files (concat " touching "
-                                    (mapconcat 'identity files " ")))
-                 (--some (and (string-prefix-p "-L" it)
-                              (concat " " it))
-                         args))
-         'face 'magit-header-line))
+  (magit-set-header-line-format
+   (concat "Commits in "
+           (mapconcat #'identity revs " ")
+           (and files (concat " touching "
+                              (mapconcat 'identity files " ")))
+           (--some (and (string-prefix-p "-L" it)
+                        (concat " " it))
+                   args)))
   (unless (= (length files) 1)
     (setq args (remove "--follow" args)))
   (when (--any-p (string-match-p
@@ -1290,7 +1289,7 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
                 '((?p . "\\[magit-log-select-pick]")
                   (?q . "\\[magit-log-select-quit]")))))
     (when (memq magit-log-select-show-usage '(both header-line))
-      (setq header-line-format (propertize (concat " " msg) 'face 'bold)))
+      (magit-set-header-line-format msg))
     (when (memq magit-log-select-show-usage '(both echo-area))
       (message "%s" msg))))
 
@@ -1397,8 +1396,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
               'magit-bookmark--reflog-make-record))
 
 (defun magit-reflog-refresh-buffer (ref args)
-  (setq header-line-format
-        (propertize (concat " Reflog for " ref) 'face 'magit-header-line))
+  (magit-set-header-line-format (concat "Reflog for " ref))
   (magit-insert-section (reflogbuf)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
       "reflog" "show" "--format=%h%x00%aN%x00%gd%x00%gs" "--date=raw"

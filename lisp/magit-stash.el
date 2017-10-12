@@ -398,10 +398,10 @@ instead of \"Stashes:\"."
               #'magit-bookmark--stash-make-record))
 
 (defun magit-stash-refresh-buffer (stash _const _args _files)
-  (setq header-line-format
-        (concat
-         "\s" (propertize (capitalize stash) 'face 'magit-section-heading)
-         "\s" (magit-rev-format "%s" stash)))
+  (magit-set-header-line-format
+   (concat (propertize (capitalize stash) 'face 'magit-section-heading)
+           " "
+           (magit-rev-format "%s" stash)))
   (setq magit-buffer-revision-hash (magit-rev-parse stash))
   (magit-insert-section (stash)
     (run-hooks 'magit-stash-sections-hook)))

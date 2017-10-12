@@ -268,10 +268,9 @@ inspect the merge and change the commit message.
 (defun magit-merge-preview-refresh-buffer (rev)
   (let* ((branch (magit-get-current-branch))
          (head (or branch (magit-rev-verify "HEAD"))))
-    (setq header-line-format
-          (propertize (format "Preview merge of %s into %s"
-                              rev (or branch "HEAD"))
-                      'face 'magit-header-line))
+    (magit-set-header-line-format (format "Preview merge of %s into %s"
+                                          rev
+                                          (or branch "HEAD")))
     (magit-insert-section (diffbuf)
       (magit-git-wash #'magit-diff-wash-diffs
         "merge-tree" (magit-git-string "merge-base" head rev) head rev))))
