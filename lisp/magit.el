@@ -978,13 +978,14 @@ See info node `(magit)Debugging Tools' for more information."
   (with-current-buffer (get-buffer-create "*magit-git-debug*")
     (pop-to-buffer (current-buffer))
     (erase-buffer)
-    (insert (format "magit-git-executable: %S" magit-git-executable)
-            (unless (file-name-absolute-p magit-git-executable)
-              (format " [%S]" (executable-find magit-git-executable)))
-            (format " (%s)\n"
-                    (let* ((errmsg nil)
-                           (magit-git-debug (lambda (err) (setq errmsg err))))
-                      (or (magit-git-version t) errmsg))))
+    (insert (concat
+             (format "magit-git-executable: %S" magit-git-executable)
+             (unless (file-name-absolute-p magit-git-executable)
+               (format " [%S]" (executable-find magit-git-executable)))
+             (format " (%s)\n"
+                     (let* ((errmsg nil)
+                            (magit-git-debug (lambda (err) (setq errmsg err))))
+                       (or (magit-git-version t) errmsg)))))
     (insert (format "exec-path: %S\n" exec-path))
     (--when-let (cl-set-difference
                  (-filter #'file-exists-p (remq nil (parse-colon-path
