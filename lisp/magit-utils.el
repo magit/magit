@@ -603,12 +603,21 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 (defun magit-set-header-line-format (string)
   "Set the header-line using STRING.
 Propertize STRING with the `magit-header-line' face if no face is
-present, and make sure it aligns with the text area."
+present, and pad the left and right sides of STRING equally such
+that it will align with the text area."
   (let ((header-line
          (concat (propertize " "
                              'display
                              '(space :align-to 0))
-                 string)))
+                 string
+                 (propertize
+                  " "
+                  'display
+                  `(space :width (+ left-fringe
+                                    left-margin
+                                    ,@(and (eq (car (window-current-scroll-bars))
+                                               'left)
+                                           '(scroll-bar))))))))
     (setq header-line-format
           (if (text-property-not-all 0 (length header-line) 'face nil header-line)
               header-line
