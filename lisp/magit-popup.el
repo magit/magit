@@ -52,6 +52,7 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'format-spec)
+(eval-when-compile (require 'subr-x))
 
 (and (require 'async-bytecomp nil t)
      (cl-intersection '(all magit)
@@ -977,11 +978,47 @@ and are defined in `magit-popup-mode-map' (which see)."
       (fit-window-to-buffer (next-window))
       (if (and arg
                (Man-find-section "OPTIONS")
-               (re-search-forward (format "^[\t\s]+\\(-., \\)*?%s[=\n]" arg)
-                                  (save-excursion
-                                    (Man-next-section 1)
-                                    (point))
-                                  t))
+               (let ((case-fold-search nil)
+                     ;; This matches preceding/proceeding options.
+                     ;; Options such as '-a', '-S[<keyid>]', and
+                     ;; '--grep=<pattern>' are matched by this regex
+                     ;; without the shy group. The '. ' in the shy
+                     ;; group is for options such as '-m
+                     ;; parent-number', and the '-[^[:space:]]+ ' is
+                     ;; for options such as '--mainline parent-number'
+                     (others "-\\(?:. \\|-[^[:space:]]+ \\)?[^[:space:]]+"))
+                 (re-search-forward
+                  ;; should start with whitespace, and may have any
+                  ;; number of options before/after
+                  (format "^[\t\s]+\\(?:%s, \\)*%s%s\\(?:, %s\\)*$"
+                          others
+                          ;; options don't necessarily end in an '='
+                          ;; (e.g., '--gpg-sign[=<keyid>]')
+                          (string-remove-suffix "=" arg)
+                          ;; Simple options don't end in an '='.
+                          ;; Splitting this into 2 cases should make
+                          ;; getting false positives less likely.
+                          (if (string-suffix-p "=" arg)
+                              ;; [^[:space:]]*[^.[:space:]] matches
+                              ;; the option value, which is usually
+                              ;; after the option name and either '='
+                              ;; or '[='. The value can't end in a
+                              ;; period, as that means it's being used
+                              ;; at the end of a sentence. The space
+                              ;; is for options such as '--mainline
+                              ;; parent-number'.
+                              "\\(?: \\|\\[?=\\)[^[:space:]]*[^.[:space:]]"
+                            ;; Either this doesn't match anything
+                            ;; (e.g., '-a'), or the option is followed
+                            ;; by a value delimited by a '[', '<', or
+                            ;; ':'. A space might appear before this
+                            ;; value, as in '-f <file>'. The space
+                            ;; alternative is for options such as '-m
+                            ;; parent-number'.
+                            "\\(?:\\(?: \\| ?[\\[<:]\\)[^[:space:]]*[^.[:space:]]\\)?")
+                          others)
+                  nil
+                  t)))
           (goto-char (1+ (match-beginning 0)))
         (goto-char (point-min))))))
 
