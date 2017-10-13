@@ -934,9 +934,13 @@ and are defined in `magit-popup-mode-map' (which see)."
                   (lookup-key (current-global-map) key))))
     (pcase def
       (`magit-invoke-popup-switch
-       (magit-popup-manpage man (magit-popup-lookup int :switches)))
+       (--if-let (magit-popup-lookup int :switches)
+           (magit-popup-manpage man it)
+         (user-error "%c isn't bound to any switch" int)))
       (`magit-invoke-popup-option
-       (magit-popup-manpage man (magit-popup-lookup int :options)))
+       (--if-let (magit-popup-lookup int :options)
+           (magit-popup-manpage man it)
+         (user-error "%c isn't bound to any option" int)))
       (`magit-popup-help
        (magit-popup-manpage man nil))
       ((or `self-insert-command
