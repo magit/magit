@@ -595,7 +595,7 @@ This affects `magit-git-command', `magit-git-command-topdir',
 
 ;;;###autoload
 (defun magit-git-command (command)
-  "Execute COMMAND asynchonously; display output.
+  "Execute COMMAND asynchronously; display output.
 
 Interactively, prompt for COMMAND in the minibuffer. \"git \" is
 used as initial input, but can be deleted to run another command.
@@ -607,7 +607,7 @@ of the current working tree, otherwise in `default-directory'."
 
 ;;;###autoload
 (defun magit-git-command-topdir (command)
-  "Execute COMMAND asynchonously; display output.
+  "Execute COMMAND asynchronously; display output.
 
 Interactively, prompt for COMMAND in the minibuffer. \"git \" is
 used as initial input, but can be deleted to run another command.
@@ -619,7 +619,7 @@ working tree."
 
 ;;;###autoload
 (defun magit-shell-command (command)
-  "Execute COMMAND asynchonously; display output.
+  "Execute COMMAND asynchronously; display output.
 
 Interactively, prompt for COMMAND in the minibuffer.  With a
 prefix argument COMMAND is run in the top-level directory of
@@ -629,7 +629,7 @@ the current working tree, otherwise in `default-directory'."
 
 ;;;###autoload
 (defun magit-shell-command-topdir (command)
-  "Execute COMMAND asynchonously; display output.
+  "Execute COMMAND asynchronously; display output.
 
 Interactively, prompt for COMMAND in the minibuffer.  COMMAND
 is run in the top-level directory of the current working tree."
