@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-73-g66b22c1c+1)
+@subtitle for version 2.11.0 (2.11.0-101-g83ac4f12+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-73-g66b22c1c+1).
+This manual is for Magit version 2.11.0 (2.11.0-101-g83ac4f12+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -7994,7 +7994,7 @@ packages, without having to depend on Magit.  These libraries are
 described in separate manuals, see @ref{Top,,,with-editor,} and
 @ref{Top,,,magit-popup,}.
 
-If you are trying to find an unused key that you can bound to a
+If you are trying to find an unused key that you can bind to a
 command provided by your own Magit extension, then checkout
 @uref{https://github.com/magit/magit/wiki/Plugin-Dispatch-Key-Registry}.
 
