@@ -219,9 +219,8 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (setq ref "HEAD"))
   (unless (magit-rev-verify ref)
     (setq magit-refs-show-commit-count nil))
-  (setq header-line-format
-        (propertize (format " %s %s" ref (mapconcat #'identity args " "))
-                    'face 'magit-header-line))
+  (magit-set-header-line-format
+   (format "%s %s" ref (mapconcat #'identity args " ")))
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-refs-sections-hook)))
 

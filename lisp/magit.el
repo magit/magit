@@ -75,7 +75,15 @@
 
 (defface magit-header-line
   '((t :inherit magit-section-heading))
-  "Face for the `header-line'."
+  "Face for the `header-line' in some Magit modes.
+Note that some modes, such as `magit-log-select-mode', have their
+own faces for the `header-line', or for parts of the
+`header-line'."
+  :group 'magit-faces)
+
+(defface magit-header-line-key
+  '((t :inherit magit-popup-key))
+  "Face for keys in the `header-line'."
   :group 'magit-faces)
 
 (defface magit-dimmed
@@ -268,10 +276,9 @@ inspect the merge and change the commit message.
 (defun magit-merge-preview-refresh-buffer (rev)
   (let* ((branch (magit-get-current-branch))
          (head (or branch (magit-rev-verify "HEAD"))))
-    (setq header-line-format
-          (propertize (format "Preview merge of %s into %s"
-                              rev (or branch "HEAD"))
-                      'face 'magit-header-line))
+    (magit-set-header-line-format (format "Preview merge of %s into %s"
+                                          rev
+                                          (or branch "HEAD")))
     (magit-insert-section (diffbuf)
       (magit-git-wash #'magit-diff-wash-diffs
         "merge-tree" (magit-git-string "merge-base" head rev) head rev))))
