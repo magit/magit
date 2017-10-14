@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-101-g83ac4f12+1)
+@subtitle for version 2.11.0 (2.11.0-104-g80d9ca41+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-101-g83ac4f12+1).
+This manual is for Magit version 2.11.0 (2.11.0-104-g80d9ca41+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -7787,7 +7787,7 @@ but also requires major refactoring.
 
 Meanwhile you can tell Magit to only automatically refresh the current
 Magit buffer, but not the status buffer.  If you do that, then the
-status buffer is only refreshed automatically if it itself is the
+status buffer is only refreshed automatically if it is the
 current buffer.
 
 @lisp
@@ -7797,16 +7797,16 @@ current buffer.
 You should also check whether any third-party packages have added
 anything to @code{magit-refresh-buffer-hook}, @code{magit-status-refresh-hook},
 @code{magit-pre-refresh-hook}, and @code{magit-post-refresh-hook}.  If so, then
-check whether those additions impacts performance significantly.
+check whether those additions impact performance significantly.
 Setting @code{magit-refresh-verbose} and then inspecting the output in the
 @code{*Messages*} buffer, should help doing so.
 
-Magit also reverts buffers which visit files located inside the
-current repository, when the visited file changes on disk.  That is
+Magit also reverts buffers for visited files located inside the
+current repository when the visited file changes on disk.  That is
 implemented on top of @code{auto-revert-mode} from the built-in library
 @code{autorevert}.  To figure out whether that impacts performance, check
 whether performance is significantly worse, when many buffers exist
-and/or when some buffers visit files using Tramp.  If so, then this
+and/or when some buffers visit files using TRAMP.  If so, then this
 should help.
 
 @lisp
@@ -7907,7 +7907,7 @@ using:
 
 Then you can type @code{C-c C-d} to show the diff when you actually want to
 see it, but only then.  Alternatively you can leave the hook alone and
-just type @code{C-g} in those cases when it takes to long to generate the
+just type @code{C-g} in those cases when it takes too long to generate the
 diff.  If you do that, then you will end up with a broken diff buffer,
 but doing it this way has the advantage that you usually get to see
 the diff, which is useful because it increases the odds that you spot
@@ -7916,7 +7916,7 @@ potential issues.
 @unnumberedsubsubsec The Built-In VC Package
 
 Emacs comes with a version control interface called "VC", see
-@ref{Version Control,,,emacs,}.  It is enabled be default and if you don't
+@ref{Version Control,,,emacs,}.  It is enabled be default, and if you don't
 use it in addition to Magit, then you should disable it to keep it
 from performing unnecessary work:
 
@@ -7924,7 +7924,7 @@ from performing unnecessary work:
 (setq vc-handled-backends nil)
 @end lisp
 
-You can also disable its use only for Git but keep using it when using
+You can also disable its use for Git but keep using it when using
 another version control system:
 
 @lisp
@@ -7940,14 +7940,14 @@ operating system is exceptionally slow at starting processes.  Sadly
 this is an issue that can only be fixed by Microsoft itself, and they
 don't appear to be particularly interested in doing so.
 
-Beside the subprocess issue, there also exist other Window-specific
-performance issues, some of which can be worked around.  The
-maintainers of "Git for Windows" try to reduce their effect, and in
-order to benefit from the latest performance tweaks, should always
-use the latest release.  Magit too tries to work around some
+Beside the subprocess issue, there are also other Windows-specific
+performance issues. Some of these have workarounds.  The
+maintainers of "Git for Windows" try to improve performance on Windows.
+Always use the latest release in order to benefit from the latest
+performance tweaks.  Magit too tries to work around some
 Windows-specific issues.
 
-According to some sources setting the following Git variables can also
+According to some sources, setting the following Git variables can also
 help.
 
 @example
@@ -7956,8 +7956,8 @@ git config --global core.fscache true        # default since v2.8
 git config --global gc.auto 256
 @end example
 
-You should also check whether an anti-virus program is slowing things
-down.
+You should also check whether an anti-virus program is affecting
+performance.
 
 @node MacOS Performance
 @unnumberedsubsubsec MacOS Performance
@@ -8014,15 +8014,15 @@ and have one of the prefixes @code{magit-run-}, @code{magit-call-}, @code{magit-
 or @code{magit-git-} (which is also used for other things).
 
 All of these functions accept an indefinite number of arguments, which
-are strings that specify command line arguments for git (or in some
+are strings that specify command line arguments for Git (or in some
 cases an arbitrary executable).  These arguments are flattened before
 being passed on to the executable; so instead of strings they can also
 be lists of strings and arguments that are @code{nil} are silently dropped.
 Some of these functions also require a single mandatory argument
 before these command line arguments.
 
-Roughly speaking these functions run Git either to get some value or
-for side-effect.  The functions that return a value are useful to
+Roughly speaking, these functions run Git either to get some value or
+for side-effects.  The functions that return a value are useful to
 collect the information necessary to populate a Magit buffer, while
 the others are used to implement Magit commands.
 
@@ -8040,8 +8040,8 @@ trigger a refresh when the executable has finished.
 @node Getting a Value from Git
 @subsection Getting a Value from Git
 
-These functions run Git in order to get a value, either its exit
-status or its output.  Of course you could also use them to run Git
+These functions run Git in order to get a value, an exit
+status, or output.  Of course you could also use them to run Git
 commands that have side-effects, but that should be avoided.
 
 @defun magit-git-exit-code &rest args
@@ -8102,8 +8102,8 @@ add a section containing git's standard error in the current
 repository's process buffer.
 @end defun
 
-When an error occurs when using one of the above functions, then that
-is usually due to a bug, i.e. the use of an argument which is not
+If an error occurs when using one of the above functions, then that
+is usually due to a bug, i.e. using an argument which is not
 actually supported.  Such errors are usually not reported, but when
 they occur we need to be able to debug them.
 
@@ -8832,10 +8832,10 @@ isn't available, @code{M-x magit-process-buffer}).  This will show a buffer
 containing a section per git invocation; as always press @code{TAB} to expand
 or collapse them.
 
-By default git's output is only inserted into the process buffer if it
-is run for side-effects.  When the output is consumed in some way then
-also inserting it into the process buffer would be to expensive.  For
-debugging purposes it's possible to do so anyway by setting
+By default, git's output is only inserted into the process buffer if it
+is run for side-effects.  When the output is consumed in some way,
+also inserting it into the process buffer would be too expensive.  For
+debugging purposes, it's possible to do so anyway by setting
 @code{magit-git-debug} to @code{t}.
 
 @node How to install the gitman info manual?
@@ -8887,7 +8887,7 @@ are not.  These two functions are only used by the three commands
 These commands only delegate the task of populating buffers with
 certain revisions to the "internal" functions.  The equally important
 task of determining which revisions are to be compared/merged is not
-delegated.  Instead this is done without any support whatsoever, from
+delegated.  Instead this is done without any support whatsoever from
 the version control package/system - meaning that the user has to
 enter the revisions explicitly.  Instead of implementing
 @code{ediff-magit-internal} we provide @code{magit-ediff-compare}, which handles
