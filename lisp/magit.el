@@ -980,8 +980,8 @@ See info node `(magit)Debugging Tools' for more information."
     (erase-buffer)
     (insert (concat
              (format "magit-git-executable: %S" magit-git-executable)
-             (unless (file-name-absolute-p magit-git-executable)
-               (format " [%S]" (executable-find magit-git-executable)))
+             (and (not (file-name-absolute-p magit-git-executable))
+                  (format " [%S]" (executable-find magit-git-executable)))
              (format " (%s)\n"
                      (let* ((errmsg nil)
                             (magit-git-debug (lambda (err) (setq errmsg err))))
