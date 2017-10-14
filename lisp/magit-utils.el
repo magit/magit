@@ -605,25 +605,42 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 Propertize STRING with the `magit-header-line' face if no face is
 present, and pad the left and right sides of STRING equally such
 that it will align with the text area."
-  (let ((header-line
-         (concat (propertize " "
-                             'display
-                             '(space :align-to 0))
-                 string
-                 (propertize
-                  " "
-                  'display
-                  `(space :width (+ left-fringe
-                                    left-margin
-                                    ,@(and (eq (car (window-current-scroll-bars))
-                                               'left)
-                                           '(scroll-bar))))))))
+  (let* ((header-line
+          (concat (propertize " "
+                              'display
+                              '(space :align-to 0))
+                  string
+                  (propertize
+                   " "
+                   'display
+                   `(space :width (+ left-fringe
+                                     left-margin
+                                     ,@(and (eq (car (window-current-scroll-bars))
+                                                'left)
+                                            '(scroll-bar)))))))
+         (len (length header-line)))
     (setq header-line-format
-          (if (text-property-not-all 0 (length header-line) 'face nil header-line)
-              header-line
+          (if (text-property-not-all 0 len 'face nil header-line)
+              (let ((face (get-text-property 0 'face string)))
+                (when (and (atom face)
+                           (magit-face-property-all face string))
+                  (add-face-text-property 0 1 face nil header-line)
+                  (add-face-text-property (1- len) len face nil header-line))
+                header-line)
             (propertize header-line
                         'face
                         'magit-header-line)))))
+
+(defun magit-face-property-all (face string)
+  "Return non-nil if FACE is present in all of STRING."
+  (cl-loop for pos = 0 then (next-single-property-change pos 'face string)
+           unless pos
+             return t
+           for current = (get-text-property pos 'face string)
+           unless (if (consp current)
+                      (memq face current)
+                    (eq face current))
+             return nil))
 
 ;;; Missing from Emacs
 
