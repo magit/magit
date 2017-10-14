@@ -1002,7 +1002,7 @@ and are defined in `magit-popup-mode-map' (which see)."
                  (re-search-forward
                   ;; should start with whitespace, and may have any
                   ;; number of options before/after
-                  (format "^[\t\s]+\\(?:%s, \\)*%s%s\\(?:, %s\\)*$"
+                  (format "^[\t\s]+\\(?:%s, \\)*?\\(?1:%s\\)%s\\(?:, %s\\)*$"
                           others
                           ;; options don't necessarily end in an '='
                           ;; (e.g., '--gpg-sign[=<keyid>]')
@@ -1031,7 +1031,7 @@ and are defined in `magit-popup-mode-map' (which see)."
                           others)
                   nil
                   t)))
-          (goto-char (1+ (match-beginning 0)))
+          (goto-char (match-beginning 1))
         (goto-char (point-min))))))
 
 (defun magit-popup-describe-function (function)
