@@ -897,7 +897,7 @@ See also `magit-buffer-lock-functions'."
       magit-stashes-mode) ; (ref)
      (car args))
     (t
-     (--when-let (cdr (entry (assq mode magit-buffer-lock-functions)))
+     (--when-let (cdr (assq mode magit-buffer-lock-functions))
        (apply it args)))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
