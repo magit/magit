@@ -372,7 +372,7 @@ When resetting to another branch and a prefix argument is used,
 then also set the target branch as the upstream of the branch
 that is being reset."
   (interactive
-   (let* ((atpoint (magit-branch-at-point))
+   (let* ((atpoint (magit-local-branch-at-point))
           (branch  (magit-read-local-branch "Reset branch" atpoint)))
      (list branch
            (magit-completing-read (format "Reset %s to" branch)
