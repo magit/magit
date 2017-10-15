@@ -34,7 +34,7 @@
 ;;;###autoload (autoload 'magit-notes-popup "magit" nil t)
 (magit-define-popup magit-notes-popup
   "Popup console for notes commands."
-  :man-page "git-tag"
+  :man-page "git-notes"
   :switches '("Switch for prune"
               (?n "Dry run"          "--dry-run"))
   :options  '("Option for edit and remove"
