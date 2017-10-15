@@ -956,7 +956,16 @@ and are defined in `magit-popup-mode-map' (which see)."
     (user-error "No man page associated with %s"
                 (magit-popup-get :man-page)))
   (when arg
-    (setq arg (magit-popup-event-arg arg)))
+    (setq arg (magit-popup-event-arg arg))
+    (when (string-prefix-p "--" arg)
+      ;; handle --[no-] options
+      (setq arg (if (string-prefix-p "--no-" arg)
+                    (concat "--"
+                            "\\[?no-\\]?"
+                            (substring arg 5))
+                  (concat "--"
+                          "\\(?:\\[no-\\]\\)?"
+                          (substring arg 2))))))
   (let ((winconf (current-window-configuration)) buffer)
     (pcase magit-popup-manpage-package
       (`woman (delete-other-windows)
