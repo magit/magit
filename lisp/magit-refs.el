@@ -420,7 +420,7 @@ line is inserted at all."
     (magit-insert-heading "Branches:")
     (dolist (line (magit-git-lines "for-each-ref" "--format=\
 %(HEAD)%00%(refname:short)%00%(objectname:short)%00%(subject)%00\
-%(upstream:short)%00%(upstream)%00%(upstream:track,nobracket)"
+%(upstream:short)%00%(upstream)%00%(upstream:track)"
                                    "refs/heads"
                                    (cadr magit-refresh-args)))
       (pcase-let ((`(,head ,branch ,hash ,message
@@ -429,7 +429,10 @@ line is inserted at all."
         (magit-insert-branch
          (and (not (string-prefix-p "(HEAD detached" branch)) branch)
          magit-refs-local-branch-format (and (equal head "*") branch)
-         'magit-branch-local hash message upstream uref utrack)))
+         'magit-branch-local hash message upstream uref
+         ;; Strip the brackets here because
+         ;; %(upstream:track,nobracket) was added in Git v2.13.
+         (and utrack (substring utrack 1 -1)))))
     (insert ?\n)
     (magit-make-margin-overlay nil t)))
 
