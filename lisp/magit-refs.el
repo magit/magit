@@ -427,7 +427,7 @@ line is inserted at all."
                            ,upstream ,uref ,utrack)
                    (-replace "" nil (split-string line "\0"))))
         (magit-insert-branch
-         (and (not (string-prefix-p "(HEAD detached" branch)) branch)
+         branch
          magit-refs-local-branch-format (and (equal head "*") branch)
          'magit-branch-local hash message upstream uref
          ;; Strip the brackets here because
