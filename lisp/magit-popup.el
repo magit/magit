@@ -958,14 +958,17 @@ and are defined in `magit-popup-mode-map' (which see)."
   (when arg
     (setq arg (magit-popup-event-arg arg))
     (when (string-prefix-p "--" arg)
-      ;; handle --[no-] options
-      (setq arg (if (string-prefix-p "--no-" arg)
-                    (concat "--"
-                            "\\[?no-\\]?"
-                            (substring arg 5))
-                  (concat "--"
-                          "\\(?:\\[no-\\]\\)?"
-                          (substring arg 2))))))
+      ;; handle '--' option and the '--[no-]' shorthand
+      (setq arg (cond ((string= "-- " arg)
+                       "\\(?:\\[--\\] \\)?<[^[:space:]]+>\\.\\.\\.")
+                      ((string-prefix-p "--no-" arg)
+                       (concat "--"
+                               "\\[?no-\\]?"
+                               (substring arg 5)))
+                      (t
+                       (concat "--"
+                               "\\(?:\\[no-\\]\\)?"
+                               (substring arg 2)))))))
   (let ((winconf (current-window-configuration)) buffer)
     (pcase magit-popup-manpage-package
       (`woman (delete-other-windows)
