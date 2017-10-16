@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-104-g80d9ca41+1)
+@subtitle for version 2.11.0 (2.11.0-108-gb4038b74+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-104-g80d9ca41+1).
+This manual is for Magit version 2.11.0 (2.11.0-108-gb4038b74+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -3425,7 +3425,7 @@ This function should not be removed from the value of this option.
 
 @code{magit-diff-highlight-hunk-region-using-overlays} and
 @code{magit-diff-highlight-hunk-region-using-underline} emphasize the
-region by placing delimiting horizonal lines before and after it.
+region by placing delimiting horizontal lines before and after it.
 Both of these functions have glitches which cannot be fixed due to
 limitations of Emacs' display engine.  For more information see
 @uref{https://github.com/magit/magit/issues/2758} ff.
@@ -4962,7 +4962,7 @@ specialized @code{magit-branch-config-popup} does.
 Whether the @code{magit-branch-popup} shows Git variables.  This defaults
 to t to avoid changing key bindings.  When set to nil, no variables
 are displayed directly in this popup, and the sub-popup
-@code{magit-branch-config-popup} has to be used indead to view and change
+@code{magit-branch-config-popup} has to be used instead to view and change
 branch related variables.
 @end defopt
 
@@ -5136,7 +5136,7 @@ and the push-remote reference the same related branch would be
 wasteful.  Instead a branch like "maint" or "master" should be used
 as the upstream.
 
-This option allows specifing the branch that should be used as the
+This option allows specifying the branch that should be used as the
 upstream when branching certain remote branches.  The value is an
 alist of the form @code{((UPSTREAM . RULE)...)}.  The first matching
 element is used, the following elements are ignored.
@@ -5618,7 +5618,7 @@ Ediff is beyond the scope of this manual, instead see @ref{Top,,,ediff,}.
 
 If you are unsure whether you should Smerge or Ediff, then use the
 former.  It is much easier to understand and use, and except for
-truely complex conflicts, the latter is usually overkill.
+truly complex conflicts, the latter is usually overkill.
 
 @node Rebasing
 @section Rebasing
@@ -6710,7 +6710,7 @@ push-remote can be changed before pushed to it.
 Push the current branch to its upstream branch.
 
 When @code{magit-push-current-set-remote-if-missing} is non-nil and the
-push-remote is not configured, then read the upstram from the
+push-remote is not configured, then read the upstream from the
 user, set it, and then push to it.  With a prefix argument the
 push-remote can be changed before pushed to it.
 
@@ -7641,7 +7641,7 @@ their value is not reflected in the respective popup buffers.  In
 this case the @code{--prune} argument in @code{magit-fetch-popup} might be active
 or inactive depending on the value of @code{magit-fetch-arguments} only,
 but that doesn't keep the Git variable from being honored by the
-suffix commands anyway.  So pruning might happen despite the the
+suffix commands anyway.  So pruning might happen despite the
 @code{--prune} arguments being displayed in a way that seems to indicate
 that no pruning will happen.
 @end itemize

@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-104-g80d9ca41+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-108-gb4038b74+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-104-g80d9ca41+1).
+This manual is for Magit version 2.11.0 (2.11.0-108-gb4038b74+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -2493,7 +2493,7 @@ without having to using one of the diff popups.
 
   ~magit-diff-highlight-hunk-region-using-overlays~ and
   ~magit-diff-highlight-hunk-region-using-underline~ emphasize the
-  region by placing delimiting horizonal lines before and after it.
+  region by placing delimiting horizontal lines before and after it.
   Both of these functions have glitches which cannot be fixed due to
   limitations of Emacs' display engine.  For more information see
   https://github.com/magit/magit/issues/2758 ff.
@@ -3635,7 +3635,7 @@ features are available from separate popups.
   Whether the ~magit-branch-popup~ shows Git variables.  This defaults
   to t to avoid changing key bindings.  When set to nil, no variables
   are displayed directly in this popup, and the sub-popup
-  ~magit-branch-config-popup~ has to be used indead to view and change
+  ~magit-branch-config-popup~ has to be used instead to view and change
   branch related variables.
 
 - Key: b b, magit-checkout
@@ -3789,7 +3789,7 @@ features are available from separate popups.
   wasteful.  Instead a branch like "maint" or "master" should be used
   as the upstream.
 
-  This option allows specifing the branch that should be used as the
+  This option allows specifying the branch that should be used as the
   upstream when branching certain remote branches.  The value is an
   alist of the form ~((UPSTREAM . RULE)...)~.  The first matching
   element is used, the following elements are ignored.
@@ -4156,7 +4156,7 @@ Ediff is beyond the scope of this manual, instead see info:ediff.
 
 If you are unsure whether you should Smerge or Ediff, then use the
 former.  It is much easier to understand and use, and except for
-truely complex conflicts, the latter is usually overkill.
+truly complex conflicts, the latter is usually overkill.
 
 ** Rebasing
 *** _ :ignore:
@@ -4873,7 +4873,7 @@ Also see [[man:git-push]]
   Push the current branch to its upstream branch.
 
   When ~magit-push-current-set-remote-if-missing~ is non-nil and the
-  push-remote is not configured, then read the upstram from the
+  push-remote is not configured, then read the upstream from the
   user, set it, and then push to it.  With a prefix argument the
   push-remote can be changed before pushed to it.
 
@@ -5541,7 +5541,7 @@ to the following.
   this case the ~--prune~ argument in ~magit-fetch-popup~ might be active
   or inactive depending on the value of ~magit-fetch-arguments~ only,
   but that doesn't keep the Git variable from being honored by the
-  suffix commands anyway.  So pruning might happen despite the the
+  suffix commands anyway.  So pruning might happen despite the
   ~--prune~ arguments being displayed in a way that seems to indicate
   that no pruning will happen.
 
