@@ -935,11 +935,17 @@ and are defined in `magit-popup-mode-map' (which see)."
     (pcase def
       (`magit-invoke-popup-switch
        (--if-let (magit-popup-lookup int :switches)
-           (magit-popup-manpage man it)
+           (if (and (string-prefix-p "++" (magit-popup-event-arg it))
+                    (magit-popup-event-fun it))
+               (magit-popup-describe-function (magit-popup-event-fun it))
+             (magit-popup-manpage man it))
          (user-error "%c isn't bound to any switch" int)))
       (`magit-invoke-popup-option
        (--if-let (magit-popup-lookup int :options)
-           (magit-popup-manpage man it)
+           (if (and (string-prefix-p "++" (magit-popup-event-arg it))
+                    (magit-popup-event-fun it))
+               (magit-popup-describe-function (magit-popup-event-fun it))
+             (magit-popup-manpage man it))
          (user-error "%c isn't bound to any option" int)))
       (`magit-popup-help
        (magit-popup-manpage man nil))

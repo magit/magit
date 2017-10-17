@@ -348,7 +348,7 @@ the upstream isn't ahead of the current branch) show."
                (?S "Show signatures"         "--show-signature")
                (?u "Show diffs"              "--patch")
                (?s "Show diffstats"          "--stat")
-               (?h "Show header"             "++header")
+               (?h "Show header"             "++header" magit-log++header)
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
     :options  ((?n "Limit number of commits" "-n")
@@ -432,10 +432,20 @@ the upstream isn't ahead of the current branch) show."
       (user-error "Trace is invalid, see man git-log"))))
 
 (defun magit-log-select-order (&rest _ignored)
+  "Set one `--<value>-order' option in Git log.
+This encompasses the options `--author-date-order',
+`--date-order', and `--topo-order'."
   (magit-read-char-case "Order commits by " t
     (?t "[t]opography"     "topo")
     (?a "[a]uthor date"    "author-date")
     (?c "[c]ommitter date" "date")))
+
+;; This is a dummy procedure used to show help in `magit-log-popup'.
+(defun magit-log++header ()
+  "Insert a header after each revision summary in Git log.
+Customize `magit-log-revision-headers-format' to change this
+header."
+  nil)
 
 (defun magit-log-get-buffer-args ()
   (cond ((and magit-use-sticky-arguments
