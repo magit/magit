@@ -40,7 +40,8 @@
 ;;;; Diff options
 
 (defcustom magit-stash-sections-hook
-  '(magit-insert-stash-worktree
+  '(magit-insert-stash-notes
+    magit-insert-stash-worktree
     magit-insert-stash-index
     magit-insert-stash-untracked)
   "Hook run to insert sections into stash diff buffers."
@@ -413,6 +414,17 @@ instead of \"Stashes:\"."
       "diff" range "-p" "--no-prefix"
       (nth 2 magit-refresh-args)
       "--" (or files (nth 3 magit-refresh-args)))))
+
+(defun magit-insert-stash-notes ()
+  "Insert section showing notes for a stash.
+This shows the notes for stash@{N} but not for the other commits
+that make up the stash."
+  (magit-insert-section section (note)
+    (magit-insert-heading "Notes")
+    (magit-git-insert "notes" "show" (car magit-refresh-args))
+    (if (= (point) (magit-section-content section))
+        (magit-cancel-section)
+      (insert "\n"))))
 
 (defun magit-insert-stash-index ()
   "Insert section showing staged changes of the stash."
