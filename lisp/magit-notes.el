@@ -170,7 +170,7 @@ the current repository."
   (magit-refresh))
 
 (defun magit-notes-read-args (prompt)
- (list (magit-read-branch-or-commit prompt)
+ (list (magit-read-branch-or-commit prompt (magit-stash-at-point))
        (--when-let (--first (string-match "^--ref=\\(.+\\)" it)
                             (magit-notes-arguments))
          (match-string 1 it))))
