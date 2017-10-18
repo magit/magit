@@ -342,7 +342,8 @@ from the source branch's upstream, then an error is raised."
                      (magit-rev-ancestor-p from tracked))
             (user-error "Cannot spin off %s.  %s is ancestor of upstream %s"
                         branch from tracked)))
-        (magit-call-git "checkout" args "-b" branch current)
+        (let ((magit-process-raise-error t))
+          (magit-call-git "checkout" args "-b" branch current))
         (--when-let (magit-get-indirect-upstream-branch current)
           (magit-call-git "branch" "--set-upstream-to" it branch))
         (when (and tracked
