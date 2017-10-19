@@ -50,6 +50,8 @@ Changes since v2.11.0
 * Added new variable `magit-buffer-lock-functions' to support
   third-party packages in creating Magit-like buffers.  #3191
 
+* Added new command `magit-rebase-remove-commit' to the rebase popup.
+
 Fixes since v2.11.0
 -------------------
 

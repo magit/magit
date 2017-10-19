@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-108-gb4038b74+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-124-g15cecfc6+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-108-gb4038b74+1).
+This manual is for Magit version 2.11.0 (2.11.0-124-g15cecfc6+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -4239,6 +4239,10 @@ is not enabled in the popup.
 - Key: r w, magit-rebase-reword-commit
 
   Reword a single older commit using rebase.
+
+- Key: r k, magit-rebase-remove-commit
+
+  Remove a single older commit using rebase.
 
 When a rebase is in progress, then the popup buffer features these
 commands instead.

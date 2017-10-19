@@ -317,6 +317,7 @@ This discards all changes made since the sequence started."
               (?m "to edit a commit"   magit-rebase-edit-commit)
               (?s "a subset"           magit-rebase-subset)
               (?w "to reword a commit" magit-rebase-reword-commit) nil
+              (?k "to remove a commit" magit-rebase-remove-commit) nil
               (?f "to autosquash"      magit-rebase-autosquash))
   :sequence-actions '((?r "Continue" magit-rebase-continue)
                       (?s "Skip"     magit-rebase-skip)
@@ -382,7 +383,8 @@ START has to be selected from a list of recent commits."
       (concat "Type %p on a commit to rebase it "
               "and commits above it onto " newbase ","))))
 
-(defun magit-rebase-interactive-1 (commit args message &optional editor noassert)
+(defun magit-rebase-interactive-1
+    (commit args message &optional editor noassert confirm)
   (declare (indent 2))
   (when commit
     (if (eq commit :merge-base)
@@ -396,7 +398,7 @@ START has to be selected from a list of recent commits."
         (setq args (cons "--root" args)))))
   (when (and commit (not noassert))
     (setq commit (magit-rebase-interactive-assert commit)))
-  (if commit
+  (if (and commit (not confirm))
       (let ((process-environment process-environment))
         (when editor
           (push (concat "GIT_SEQUENCE_EDITOR=" editor) process-environment))
@@ -449,6 +451,16 @@ START has to be selected from a list of recent commits."
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to reword its message,"
     "perl -i -p -e '++$x if not $x and s/^pick/reword/'"))
+
+;;;###autoload
+(defun magit-rebase-remove-commit (commit args)
+  "Remove a single older commit using rebase."
+  (interactive (list (magit-commit-at-point)
+                     (magit-rebase-arguments)))
+  (magit-rebase-interactive-1 commit args
+    "Type %p on a commit to remove it,"
+    "perl -i -p -e '++$x if not $x and s/^pick/# pick/'"
+    nil t))
 
 ;;;###autoload
 (defun magit-rebase-continue (&optional noedit)

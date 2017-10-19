@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-108-gb4038b74+1)
+@subtitle for version 2.11.0 (2.11.0-124-g15cecfc6+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-108-gb4038b74+1).
+This manual is for Magit version 2.11.0 (2.11.0-124-g15cecfc6+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -5736,6 +5736,12 @@ Edit a single older commit using rebase.
 @item @kbd{r w} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-reword-commit})
 
 Reword a single older commit using rebase.
+
+@kindex r k
+@cindex magit-rebase-remove-commit
+@item @kbd{r k} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-remove-commit})
+
+Remove a single older commit using rebase.
 @end table
 
 When a rebase is in progress, then the popup buffer features these
