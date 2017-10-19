@@ -389,7 +389,11 @@ or `:only' which doesn't change the behaviour."
     (let ((a (nth 2 it)))
       (make-magit-popup-event
        :key (car it) :dsc (cadr it) :arg a
-       :use (and (member a val) t)))))
+       :use (and (member a val) t)
+       ;; For arguments implemented in lisp, this function's
+       ;; doc-string is used by `magit-popup-help'.  That is
+       ;; the only thing it is used for.
+       :fun (and (string-prefix-p "\+\+" a) (nth 3 it))))))
 
 (defun magit-popup-convert-options (val def)
   (magit-popup-convert-events def
