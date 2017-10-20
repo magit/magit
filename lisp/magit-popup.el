@@ -1154,9 +1154,9 @@ of events shared by all popups and before point is adjusted.")
     (save-excursion
       (--if-let (magit-popup-get :refresh-function)
           (funcall it)
+        (magit-popup-insert-section 'magit-popup-variable-button)
         (magit-popup-insert-section 'magit-popup-switch-button)
         (magit-popup-insert-section 'magit-popup-option-button)
-        (magit-popup-insert-section 'magit-popup-variable-button)
         (magit-popup-insert-section 'magit-popup-action-button))
       (run-hooks 'magit-refresh-popup-buffer-hook)
       (when magit-popup-show-common-commands
