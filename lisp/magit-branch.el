@@ -570,7 +570,6 @@ With prefix, forces the rename even if NEW already exists.
 (defvar magit-branch-config-popup
   `(:man-page "git-branch"
     :variables ,magit-branch-config-variables
-    :default-action magit-checkout
     :setup-function magit-branch-config-popup-setup))
 
 (defun magit-branch-config-popup-setup (val def)
