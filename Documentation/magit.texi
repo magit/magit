@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-125-g31cc5fe5+1)
+@subtitle for version 2.11.0 (2.11.0-132-ga6dcd97a+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-125-g31cc5fe5+1).
+This manual is for Magit version 2.11.0 (2.11.0-132-ga6dcd97a+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -234,7 +234,10 @@ Transferring
 * Creating and Sending Patches::
 * Applying Patches::
 
+Remotes
 
+* The Remote Popup::
+* The Remote Config Popup::
 
 Miscellaneous
 
@@ -6492,6 +6495,19 @@ is shown, then this specifies how much space is used to do so.
 @node Remotes
 @section Remotes
 
+@menu
+* The Remote Popup::
+* The Remote Config Popup::
+@end menu
+
+@node The Remote Popup
+@subsection The Remote Popup
+
+The popup @code{magit-remote-popup} is used to add remotes and to make
+changes to existing remotes.  This popup only deals with remotes
+themselves, not with branches or the transfer of commits.  Those
+features are available from separate popups.
+
 Also see 
 @ifinfo
 @ref{git-remote,,,gitman,}.
@@ -6512,6 +6528,28 @@ the git-remote(1) manpage.
 
 This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
+
+@end table
+
+@defopt magit-remote-popup-show-variables
+
+This option controls whether the @code{magit-remote-popup} shows remote
+related Git variables.  When set to nil, no variables are displayed
+directly in this popup, and the sub-popup @code{magit-remote-config-popup}
+has to be used instead to view and change remote related variables.
+@end defopt
+
+@table @asis
+@kindex M C
+@cindex magit-remote-config-popup
+@item @kbd{M C} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-config-popup})
+
+This command shows remote related variables in a separate popup.  By
+default this asks the user for which remote the variables should be
+shown.  When @code{magit-remote-popup-show-variables} is @code{nil}, then it shows
+the variables for the upstream of the current branch or "origin" it
+that branch has no remote upstream.  To select another remote use a
+prefix argument.
 
 @kindex M a
 @cindex magit-remote-add
@@ -6552,6 +6590,57 @@ variable isn't set already.  If @code{nil}, then don't ever set.  If the value
 is a string, then set without asking, provided that the name of the added
 remote is equal to that string and the variable isn't already set.
 @end defopt
+
+@node The Remote Config Popup
+@subsection The Remote Config Popup
+
+@cindex magit-remote-config-popup
+@deffn Command magit-remote-config-popup
+
+This prefix command shows the following remote-related Git variables
+in a popup buffer.  The values can be changed from that buffer.
+
+This popup is a sub-popup of the @code{magit-remote-popup} in which "C" is
+bound to this popup.
+@end deffn
+
+The following variables are used to configure a specific remote.  The
+values are being displayed for the upstream remote of the current
+branch.  To change the value for another remote invoke
+@code{magit-remote-config-popup} with a prefix argument.
+
+@defvar remote.NAME.url
+
+This variable specifies the url of the remote named NAME.  It can
+have multiple values.
+@end defvar
+
+@defvar remote.NAME.fetch
+
+The refspec used when fetching from the remote named NAME.  It can
+have multiple values.
+@end defvar
+
+@defvar remote.NAME.pushurl
+
+This variable specifies the url used for fetching from the remote
+named NAME.  If it is not specified, then @code{remote.NAME.url} is used
+instead.  It can have multiple values.
+@end defvar
+
+@defvar remote.NAME.push
+
+The refspec used when pushing to the remote named NAME.  It can
+have multiple values.
+@end defvar
+
+@defvar remote.NAME.tagOpts
+
+This variable specifies what tags are fetched by default.  If the
+value is @code{--no-tags} then no tags are fetched.  If the value is
+@code{--tags}, then all tags are fetched.  If this variable has not value,
+then only tags are fetched that are reachable from fetched branches.
+@end defvar
 
 @node Fetching
 @section Fetching

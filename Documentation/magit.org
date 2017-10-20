@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-125-g31cc5fe5+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-132-ga6dcd97a+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-125-g31cc5fe5+1).
+This manual is for Magit version 2.11.0 (2.11.0-132-ga6dcd97a+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -4746,6 +4746,12 @@ Also see [[man:git-stash]]
 
 * Transferring
 ** Remotes
+*** The Remote Popup
+
+The popup ~magit-remote-popup~ is used to add remotes and to make
+changes to existing remotes.  This popup only deals with remotes
+themselves, not with branches or the transfer of commits.  Those
+features are available from separate popups.
 
 Also see [[man:git-remote]]
 
@@ -4753,6 +4759,22 @@ Also see [[man:git-remote]]
 
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
+
+- User Option: magit-remote-popup-show-variables
+
+  This option controls whether the ~magit-remote-popup~ shows remote
+  related Git variables.  When set to nil, no variables are displayed
+  directly in this popup, and the sub-popup ~magit-remote-config-popup~
+  has to be used instead to view and change remote related variables.
+
+- Key: M C, magit-remote-config-popup
+
+  This command shows remote related variables in a separate popup.  By
+  default this asks the user for which remote the variables should be
+  shown.  When ~magit-remote-popup-show-variables~ is ~nil~, then it shows
+  the variables for the upstream of the current branch or "origin" it
+  that branch has no remote upstream.  To select another remote use a
+  prefix argument.
 
 - Key: M a, magit-remote-add
 
@@ -4782,6 +4804,49 @@ Also see [[man:git-remote]]
   variable isn't set already.  If ~nil~, then don't ever set.  If the value
   is a string, then set without asking, provided that the name of the added
   remote is equal to that string and the variable isn't already set.
+
+*** The Remote Config Popup
+
+- Command: magit-remote-config-popup
+
+  This prefix command shows the following remote-related Git variables
+  in a popup buffer.  The values can be changed from that buffer.
+
+  This popup is a sub-popup of the ~magit-remote-popup~ in which "C" is
+  bound to this popup.
+
+The following variables are used to configure a specific remote.  The
+values are being displayed for the upstream remote of the current
+branch.  To change the value for another remote invoke
+~magit-remote-config-popup~ with a prefix argument.
+
+- Variable: remote.NAME.url
+
+  This variable specifies the url of the remote named NAME.  It can
+  have multiple values.
+
+- Variable: remote.NAME.fetch
+
+  The refspec used when fetching from the remote named NAME.  It can
+  have multiple values.
+
+- Variable: remote.NAME.pushurl
+
+  This variable specifies the url used for fetching from the remote
+  named NAME.  If it is not specified, then ~remote.NAME.url~ is used
+  instead.  It can have multiple values.
+
+- Variable: remote.NAME.push
+
+  The refspec used when pushing to the remote named NAME.  It can
+  have multiple values.
+
+- Variable: remote.NAME.tagOpts
+
+  This variable specifies what tags are fetched by default.  If the
+  value is ~--no-tags~ then no tags are fetched.  If the value is
+  ~--tags~, then all tags are fetched.  If this variable has not value,
+  then only tags are fetched that are reachable from fetched branches.
 
 ** Fetching
 
