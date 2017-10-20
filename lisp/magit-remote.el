@@ -83,7 +83,8 @@ Then show the status buffer for the new repository."
        (with-current-buffer (process-get process 'command-buf)
          (magit-status-internal directory))))))
 
-;;; Setup
+;;; Remote
+;;;; Options
 
 (defcustom magit-remote-add-set-remote.pushDefault 'ask-if-unset
   "Whether to set the value of `remote.pushDefault' after adding a remote.
@@ -100,6 +101,8 @@ variable isn't already set."
                  (string :tag "set if named")
                  (const  :tag "don't set")))
 
+;;;; Popup
+
 ;;;###autoload (autoload 'magit-remote-popup "magit-remote" nil t)
 (magit-define-popup magit-remote-popup
   "Popup console for remote commands."
@@ -111,6 +114,8 @@ variable isn't already set."
               (?r "Rename"  magit-remote-rename)
               (?k "Remove"  magit-remote-remove)
               (?u "Set url" magit-remote-set-url)))
+
+;;;; Commands
 
 (defun magit-read-url (prompt &optional initial-input)
   (let ((url (magit-read-string-ns prompt initial-input)))
