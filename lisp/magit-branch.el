@@ -156,10 +156,15 @@ and change branch related variables."
 
 ;;; Branch Popup
 
+(defvar magit-branch-config-variables)
+
 ;;;###autoload (autoload 'magit-branch-popup "magit" nil t)
 (magit-define-popup magit-branch-popup
   "Popup console for branch commands."
   :man-page "git-branch"
+  :variables (lambda ()
+               (and magit-branch-popup-show-variables
+                    magit-branch-config-variables))
   :actions '((?b "Checkout"              magit-checkout)
              (?n "Create new branch"     magit-branch)
              (?C "Configure..."          magit-branch-config-popup)
@@ -171,16 +176,7 @@ and change branch related variables."
              (?x "Reset"                 magit-branch-reset) nil nil
              (?k "Delete"                magit-branch-delete))
   :default-action 'magit-checkout
-  :max-action-columns 3
-  :setup-function 'magit-branch-popup-setup)
-
-(defvar magit-branch-config-variables)
-
-(defun magit-branch-popup-setup (val def)
-  (if magit-branch-popup-show-variables
-      (magit-popup-default-setup
-       val (nconc (list :variables magit-branch-config-variables) def))
-    (magit-popup-default-setup val def)))
+  :max-action-columns 3)
 
 ;;; Branch Commands
 
