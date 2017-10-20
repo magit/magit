@@ -1104,14 +1104,17 @@ restored."
         (funcall it))
       (magit-popup-put :actions (magit-popup-convert-actions
                                  val (magit-popup-get :sequence-actions)))
-    (magit-popup-put :variables (magit-popup-convert-variables
-                                 val (plist-get def :variables)))
-    (magit-popup-put :switches  (magit-popup-convert-switches
-                                 val (plist-get def :switches)))
-    (magit-popup-put :options   (magit-popup-convert-options
-                                 val (plist-get def :options)))
-    (magit-popup-put :actions   (magit-popup-convert-actions
-                                 val (plist-get def :actions)))))
+    (let ((vars (plist-get def :variables)))
+      (when (functionp vars)
+        (setq vars (funcall vars)))
+      (when vars
+        (magit-popup-put :variables (magit-popup-convert-variables val vars))))
+    (magit-popup-put :switches (magit-popup-convert-switches
+                                val (plist-get def :switches)))
+    (magit-popup-put :options  (magit-popup-convert-options
+                                val (plist-get def :options)))
+    (magit-popup-put :actions  (magit-popup-convert-actions
+                                val (plist-get def :actions)))))
 
 (defun magit-popup-mode-setup (popup mode)
   (setq magit-previous-popup magit-current-popup)
@@ -1151,9 +1154,9 @@ of events shared by all popups and before point is adjusted.")
     (save-excursion
       (--if-let (magit-popup-get :refresh-function)
           (funcall it)
+        (magit-popup-insert-section 'magit-popup-variable-button)
         (magit-popup-insert-section 'magit-popup-switch-button)
         (magit-popup-insert-section 'magit-popup-option-button)
-        (magit-popup-insert-section 'magit-popup-variable-button)
         (magit-popup-insert-section 'magit-popup-action-button))
       (run-hooks 'magit-refresh-popup-buffer-hook)
       (when magit-popup-show-common-commands

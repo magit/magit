@@ -156,10 +156,15 @@ and change branch related variables."
 
 ;;; Branch Popup
 
+(defvar magit-branch-config-variables)
+
 ;;;###autoload (autoload 'magit-branch-popup "magit" nil t)
 (magit-define-popup magit-branch-popup
   "Popup console for branch commands."
   :man-page "git-branch"
+  :variables (lambda ()
+               (and magit-branch-popup-show-variables
+                    magit-branch-config-variables))
   :actions '((?b "Checkout"              magit-checkout)
              (?n "Create new branch"     magit-branch)
              (?C "Configure..."          magit-branch-config-popup)
@@ -171,20 +176,7 @@ and change branch related variables."
              (?x "Reset"                 magit-branch-reset) nil nil
              (?k "Delete"                magit-branch-delete))
   :default-action 'magit-checkout
-  :max-action-columns 3
-  :setup-function 'magit-branch-popup-setup)
-
-(defvar magit-branch-config-variables)
-
-(defun magit-branch-popup-setup (val def)
-  (magit-popup-default-setup val def)
-  (when magit-branch-popup-show-variables
-    (magit-popup-put :variables (magit-popup-convert-variables
-                                 val magit-branch-config-variables))
-    (use-local-map (copy-keymap magit-popup-mode-map))
-    (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
-      (local-set-key (vector (magit-popup-event-key ev))
-                     'magit-invoke-popup-action))))
+  :max-action-columns 3)
 
 ;;; Branch Commands
 
@@ -570,16 +562,11 @@ With prefix, forces the rename even if NEW already exists.
 (defvar magit-branch-config-popup
   `(:man-page "git-branch"
     :variables ,magit-branch-config-variables
-    :default-action magit-checkout
     :setup-function magit-branch-config-popup-setup))
 
 (defun magit-branch-config-popup-setup (val def)
   (magit-popup-default-setup val def)
-  (setq-local magit-branch-config-branch magit-branch-config-branch)
-  (use-local-map (copy-keymap magit-popup-mode-map))
-  (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
-    (local-set-key (vector (magit-popup-event-key ev))
-                   'magit-invoke-popup-action)))
+  (setq-local magit-branch-config-branch magit-branch-config-branch))
 
 (defun magit-branch-config-branch (&optional prompt)
   (if prompt
