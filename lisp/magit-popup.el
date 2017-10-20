@@ -52,6 +52,7 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'format-spec)
+(eval-when-compile (require 'subr-x))
 
 (and (require 'async-bytecomp nil t)
      (cl-intersection '(all magit)
@@ -388,7 +389,11 @@ or `:only' which doesn't change the behaviour."
     (let ((a (nth 2 it)))
       (make-magit-popup-event
        :key (car it) :dsc (cadr it) :arg a
-       :use (and (member a val) t)))))
+       :use (and (member a val) t)
+       ;; For arguments implemented in lisp, this function's
+       ;; doc-string is used by `magit-popup-help'.  That is
+       ;; the only thing it is used for.
+       :fun (and (string-prefix-p "\+\+" a) (nth 3 it))))))
 
 (defun magit-popup-convert-options (val def)
   (magit-popup-convert-events def
@@ -933,9 +938,19 @@ and are defined in `magit-popup-mode-map' (which see)."
                   (lookup-key (current-global-map) key))))
     (pcase def
       (`magit-invoke-popup-switch
-       (magit-popup-manpage man (magit-popup-lookup int :switches)))
+       (--if-let (magit-popup-lookup int :switches)
+           (if (and (string-prefix-p "++" (magit-popup-event-arg it))
+                    (magit-popup-event-fun it))
+               (magit-popup-describe-function (magit-popup-event-fun it))
+             (magit-popup-manpage man it))
+         (user-error "%c isn't bound to any switch" int)))
       (`magit-invoke-popup-option
-       (magit-popup-manpage man (magit-popup-lookup int :options)))
+       (--if-let (magit-popup-lookup int :options)
+           (if (and (string-prefix-p "++" (magit-popup-event-arg it))
+                    (magit-popup-event-fun it))
+               (magit-popup-describe-function (magit-popup-event-fun it))
+             (magit-popup-manpage man it))
+         (user-error "%c isn't bound to any option" int)))
       (`magit-popup-help
        (magit-popup-manpage man nil))
       ((or `self-insert-command
@@ -955,7 +970,19 @@ and are defined in `magit-popup-mode-map' (which see)."
     (user-error "No man page associated with %s"
                 (magit-popup-get :man-page)))
   (when arg
-    (setq arg (magit-popup-event-arg arg)))
+    (setq arg (magit-popup-event-arg arg))
+    (when (string-prefix-p "--" arg)
+      ;; handle '--' option and the '--[no-]' shorthand
+      (setq arg (cond ((string= "-- " arg)
+                       "\\(?:\\[--\\] \\)?<[^[:space:]]+>\\.\\.\\.")
+                      ((string-prefix-p "--no-" arg)
+                       (concat "--"
+                               "\\[?no-\\]?"
+                               (substring arg 5)))
+                      (t
+                       (concat "--"
+                               "\\(?:\\[no-\\]\\)?"
+                               (substring arg 2)))))))
   (let ((winconf (current-window-configuration)) buffer)
     (pcase magit-popup-manpage-package
       (`woman (delete-other-windows)
@@ -977,12 +1004,48 @@ and are defined in `magit-popup-mode-map' (which see)."
       (fit-window-to-buffer (next-window))
       (if (and arg
                (Man-find-section "OPTIONS")
-               (re-search-forward (format "^[\t\s]+\\(-., \\)*?%s[=\n]" arg)
-                                  (save-excursion
-                                    (Man-next-section 1)
-                                    (point))
-                                  t))
-          (goto-char (1+ (match-beginning 0)))
+               (let ((case-fold-search nil)
+                     ;; This matches preceding/proceeding options.
+                     ;; Options such as '-a', '-S[<keyid>]', and
+                     ;; '--grep=<pattern>' are matched by this regex
+                     ;; without the shy group. The '. ' in the shy
+                     ;; group is for options such as '-m
+                     ;; parent-number', and the '-[^[:space:]]+ ' is
+                     ;; for options such as '--mainline parent-number'
+                     (others "-\\(?:. \\|-[^[:space:]]+ \\)?[^[:space:]]+"))
+                 (re-search-forward
+                  ;; should start with whitespace, and may have any
+                  ;; number of options before/after
+                  (format "^[\t\s]+\\(?:%s, \\)*?\\(?1:%s\\)%s\\(?:, %s\\)*$"
+                          others
+                          ;; options don't necessarily end in an '='
+                          ;; (e.g., '--gpg-sign[=<keyid>]')
+                          (string-remove-suffix "=" arg)
+                          ;; Simple options don't end in an '='.
+                          ;; Splitting this into 2 cases should make
+                          ;; getting false positives less likely.
+                          (if (string-suffix-p "=" arg)
+                              ;; [^[:space:]]*[^.[:space:]] matches
+                              ;; the option value, which is usually
+                              ;; after the option name and either '='
+                              ;; or '[='. The value can't end in a
+                              ;; period, as that means it's being used
+                              ;; at the end of a sentence. The space
+                              ;; is for options such as '--mainline
+                              ;; parent-number'.
+                              "\\(?: \\|\\[?=\\)[^[:space:]]*[^.[:space:]]"
+                            ;; Either this doesn't match anything
+                            ;; (e.g., '-a'), or the option is followed
+                            ;; by a value delimited by a '[', '<', or
+                            ;; ':'. A space might appear before this
+                            ;; value, as in '-f <file>'. The space
+                            ;; alternative is for options such as '-m
+                            ;; parent-number'.
+                            "\\(?:\\(?: \\| ?[\\[<:]\\)[^[:space:]]*[^.[:space:]]\\)?")
+                          others)
+                  nil
+                  t)))
+          (goto-char (match-beginning 1))
         (goto-char (point-min))))))
 
 (defun magit-popup-describe-function (function)
