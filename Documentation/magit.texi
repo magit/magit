@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-124-g15cecfc6+1)
+@subtitle for version 2.11.0 (2.11.0-125-g31cc5fe5+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-124-g15cecfc6+1).
+This manual is for Magit version 2.11.0 (2.11.0-125-g31cc5fe5+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -4967,6 +4967,16 @@ branch related variables.
 @end defopt
 
 @table @asis
+@kindex b C
+@cindex magit-branch-config-popup
+@item @kbd{b C} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-config-popup})
+
+This command shows branch related variables in a separate popup.  By
+default this asks the user for which branch the variables should be
+shown.  When @code{magit-branch-popup-show-variables} is @code{nil}, then it shows
+the variables for the current branch, unless a prefix argument is
+used.
+
 @kindex b b
 @cindex magit-checkout
 @item @kbd{b b} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout})
@@ -5208,8 +5218,8 @@ file:
 @node The Branch Config Popup
 @subsection The Branch Config Popup
 
-@cindex magit-branch-popup
-@deffn Command magit-branch-popup
+@cindex magit-branch-config-popup
+@deffn Command magit-branch-config-popup
 
 This prefix command shows the following branch-related Git variables
 in a popup buffer.  The values can be changed from that buffer.

@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-124-g15cecfc6+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-125-g31cc5fe5+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-124-g15cecfc6+1).
+This manual is for Magit version 2.11.0 (2.11.0-125-g31cc5fe5+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -3638,6 +3638,14 @@ features are available from separate popups.
   ~magit-branch-config-popup~ has to be used instead to view and change
   branch related variables.
 
+- Key: b C, magit-branch-config-popup
+
+  This command shows branch related variables in a separate popup.  By
+  default this asks the user for which branch the variables should be
+  shown.  When ~magit-branch-popup-show-variables~ is ~nil~, then it shows
+  the variables for the current branch, unless a prefix argument is
+  used.
+
 - Key: b b, magit-checkout
 
   Checkout a revision read in the minibuffer and defaulting to the
@@ -3855,7 +3863,7 @@ features are available from separate popups.
 
 *** The Branch Config Popup
 
-- Command: magit-branch-popup
+- Command: magit-branch-config-popup
 
   This prefix command shows the following branch-related Git variables
   in a popup buffer.  The values can be changed from that buffer.
