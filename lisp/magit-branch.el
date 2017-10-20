@@ -177,14 +177,10 @@ and change branch related variables."
 (defvar magit-branch-config-variables)
 
 (defun magit-branch-popup-setup (val def)
-  (magit-popup-default-setup val def)
-  (when magit-branch-popup-show-variables
-    (magit-popup-put :variables (magit-popup-convert-variables
-                                 val magit-branch-config-variables))
-    (use-local-map (copy-keymap magit-popup-mode-map))
-    (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
-      (local-set-key (vector (magit-popup-event-key ev))
-                     'magit-invoke-popup-action))))
+  (if magit-branch-popup-show-variables
+      (magit-popup-default-setup
+       val (nconc (list :variables magit-branch-config-variables) def))
+    (magit-popup-default-setup val def)))
 
 ;;; Branch Commands
 
