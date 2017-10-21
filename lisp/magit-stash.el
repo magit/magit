@@ -101,6 +101,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
               (?v "Show"               magit-stash-show)
               (?b "Branch"             magit-stash-branch)
               (?k "Drop"               magit-stash-drop) nil
+              (?B "Branch here"        magit-stash-branch-here) nil nil
               (?f "Format patch"       magit-stash-format-patch))
   :default-action 'magit-stash
   :max-action-columns 3)
@@ -251,6 +252,17 @@ When the region is active offer to drop all contained stashes."
   (interactive (list (magit-read-stash "Branch stash" t)
                      (magit-read-string-ns "Branch name")))
   (magit-run-git "stash" "branch" branch stash))
+
+;;;###autoload
+(defun magit-stash-branch-here (stash branch)
+  "Create and checkout a new BRANCH and apply STASH.
+The branch is created using `magit-branch', using the current
+branch or `HEAD' as the string-point."
+  (interactive (list (magit-read-stash "Branch stash" t)
+                     (magit-read-string-ns "Branch name")))
+  (let ((inhibit-magit-refresh t))
+    (magit-branch branch (or (magit-get-current-branch) "HEAD")))
+  (magit-stash-apply stash))
 
 ;;;###autoload
 (defun magit-stash-format-patch (stash)

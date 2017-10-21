@@ -61,6 +61,11 @@ Changes since v2.11.0
 * Added new command `magit-patch-save' for saving a diff into a patch
   file.  In diff buffers it is bound to "C-x C-w".  #2950
 
+* Added new command `magit-stash-branch-here', which — unlike the
+  existing `magit-stash-branch' — creates a branch that starts at
+  the current HEAD instead of at the commit that was current when
+  the stash was created.  #2935
+
 Fixes since v2.11.0
 -------------------
 
