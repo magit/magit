@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-132-ga6dcd97a+1)
+@subtitle for version 2.11.0 (2.11.0-135-g82f2fe82+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-132-ga6dcd97a+1).
+This manual is for Magit version 2.11.0 (2.11.0-135-g82f2fe82+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -6946,6 +6946,9 @@ commit, defaulting to the commit at point.
 Request that upstream pulls from your public repository.
 @end table
 
+It is also possible to save a plain patch file by using @code{C-x C-w} inside
+a @code{magit-diff-mode} or @code{magit-revision-mode} buffer.
+
 @node Applying Patches
 @section Applying Patches
 
@@ -6960,6 +6963,18 @@ the <a href="http://git-scm.com/docs/git-am">git-am(1)</a> manpage.
 @end ifhtml
 @iftex
 the git-am(1) manpage.
+@end iftex
+ and 
+@ifinfo
+@ref{git-apply,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-apply">git-apply(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the git-apply(1) manpage.
 @end iftex
 
 @table @asis
@@ -6983,7 +6998,12 @@ defaulting to the file at point.
 @item @kbd{w m} @tie{}@tie{}@tie{}@tie{}(@code{magit-am-apply-maildir})
 
 Apply the patches from a maildir.
+@end table
 
+When an "am" operation is in progress, then the popup buffer features
+these commands instead.
+
+@table @asis
 @kindex w w
 @cindex magit-am-continue
 @item @kbd{w w} @tie{}@tie{}@tie{}@tie{}(@code{magit-am-continue})
@@ -7002,6 +7022,25 @@ Skip the stopped at patch during a patch applying sequence.
 
 Abort the current patch applying sequence.  This discards all
 changes made since the sequence started.
+@end table
+
+In addition to the commands listed at the top, the "am" popup also has
+a binding for the related "patch" popup.
+
+@table @asis
+@kindex w a
+@cindex magit-patch-apply-popup
+@item @kbd{w a} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-apply-popup})
+
+This prefix command shows the following suffix commands along with
+the appropriate infix arguments in a popup buffer.
+
+@kindex w a a
+@cindex magit-patch-apply
+@item @kbd{w a a} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-apply})
+
+This command applies a simple patch file, which may not contain any
+Git metadata in addition to the actual diff.
 @end table
 
 @node Miscellaneous
