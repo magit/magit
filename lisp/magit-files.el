@@ -474,9 +474,9 @@ If DEFAULT is non-nil, use this as the default value instead of
   (pcase-let ((`(,rev ,const ,args ,files) magit-refresh-args))
     (when (derived-mode-p 'magit-revision-mode)
       (setq rev (format "%s~..%s" rev rev)))
-    (with-temp-buffer
-      (magit-git-insert "diff" rev "-p" const args "--" files)
-      (write-file file))))
+    (with-temp-file file
+      (magit-git-insert "diff" rev "-p" const args "--" files)))
+  (magit-refresh))
 
 (provide 'magit-files)
 ;;; magit-files.el ends here
