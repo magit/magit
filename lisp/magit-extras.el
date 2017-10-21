@@ -134,6 +134,28 @@ is no file at point, then instead visit `default-directory'."
                              (concat default-directory "/."))))
 
 ;;;###autoload
+(defun magit-dired-log (&optional follow)
+  "Show log for all marked files, or the current file."
+  (interactive "P")
+  (-if-let (topdir (magit-toplevel default-directory))
+      (let ((args (car (magit-log-arguments)))
+            (files (dired-get-marked-files nil nil #'magit-file-tracked-p)))
+        (unless files
+          (user-error "No marked file is being tracked by Git"))
+        (when (and follow
+                   (not (member "--follow" args))
+                   (not (cdr files)))
+          (push "--follow" args))
+        (magit-mode-setup-internal
+         #'magit-log-mode
+         (list (list (or (magit-get-current-branch) "HEAD"))
+               args
+               (let ((default-directory topdir))
+                 (mapcar #'file-relative-name files)))
+         magit-log-buffer-file-locked))
+    (user-error "Not inside a Git repository")))
+
+;;;###autoload
 (defun magit-do-async-shell-command (file)
   "Open FILE with `dired-do-async-shell-command'.
 Interactively, open the file at point."

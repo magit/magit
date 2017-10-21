@@ -66,6 +66,9 @@ Changes since v2.11.0
   the current HEAD instead of at the commit that was current when
   the stash was created.  #2935
 
+* Added new command `magit-dired-log' intended to be bound in
+  `dired-mode-map'.  #3011
+
 Fixes since v2.11.0
 -------------------
 
