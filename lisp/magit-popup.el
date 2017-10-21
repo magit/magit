@@ -188,6 +188,7 @@ before entering a popup has.
            (define-key map (kbd "DEL") 'backward-button)
            (define-key map (kbd "C-p") 'backward-button)
            (define-key map (kbd "C-i") 'forward-button)
+           (define-key map [tab]       'forward-button)
            (define-key map (kbd "C-n") 'forward-button)))
     map)
   "Keymap for `magit-popup-mode'.

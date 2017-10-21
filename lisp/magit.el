@@ -550,6 +550,7 @@ defaulting to the tag at point.
            (define-key map [return] 'magit-invoke-popup-action))
           (t
            (define-key map (kbd "C-i") 'magit-invoke-popup-action)
+           (define-key map [tab]       'magit-invoke-popup-action)
            (define-key map (kbd "C-m") 'magit-invoke-popup-action)))
     map)
   "Keymap used by `magit-dispatch-popup'.")
