@@ -466,5 +466,17 @@ If DEFAULT is non-nil, use this as the default value instead of
                      (magit-patch-apply-arguments)))
   (magit-run-git "apply" args "--" file))
 
+(defun magit-patch-save (file)
+  "Write current diff into patch FILE."
+  (interactive (list (read-file-name "Write patch file: " default-directory)))
+  (unless (derived-mode-p 'magit-diff-mode)
+    (user-error "Only diff buffers can be saved as patches"))
+  (pcase-let ((`(,rev ,const ,args ,files) magit-refresh-args))
+    (when (derived-mode-p 'magit-revision-mode)
+      (setq rev (format "%s~..%s" rev rev)))
+    (with-temp-buffer
+      (magit-git-insert "diff" rev "-p" const args "--" files)
+      (write-file file))))
+
 (provide 'magit-files)
 ;;; magit-files.el ends here

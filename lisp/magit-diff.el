@@ -1423,6 +1423,7 @@ commit or stash at point, then prompt for a commit."
     (define-key map "\s" 'scroll-up)
     (define-key map "\d" 'scroll-down)
     (define-key map "j" 'magit-jump-to-diffstat-or-diff)
+    (define-key map [remap write-file] 'magit-patch-save)
     map)
   "Keymap for `magit-diff-mode'.")
 

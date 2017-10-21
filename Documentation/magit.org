@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-134-g3b3b2bc1+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-135-g82f2fe82+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-134-g3b3b2bc1+1).
+This manual is for Magit version 2.11.0 (2.11.0-135-g82f2fe82+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -5053,6 +5053,9 @@ them to the popup.
 - Key: W r, magit-request-pull
 
   Request that upstream pulls from your public repository.
+
+It is also possible to save a plain patch file by using ~C-x C-w~ inside
+a ~magit-diff-mode~ or ~magit-revision-mode~ buffer.
 
 ** Applying Patches
 

@@ -58,6 +58,9 @@ Changes since v2.11.0
 * Added new commands `magit-patch-apply' and `magit-patch-apply-popup'.
   The latter is available from inside `magit-am-popup' ("w").  #2940
 
+* Added new command `magit-patch-save' for saving a diff into a patch
+  file.  In diff buffers it is bound to "C-x C-w".  #2950
+
 Fixes since v2.11.0
 -------------------
 
