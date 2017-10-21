@@ -446,5 +446,25 @@ If DEFAULT is non-nil, use this as the default value instead of
                                        (magit-list-files)
                                        nil nil initial-contents) ","))
 
+;;; Patch File
+
+(magit-define-popup magit-patch-apply-popup
+  "Popup console for applying a patch file."
+  :man-page "git-apply"
+  :switches '((?i "Also apply to index"     "--index")
+              (?c "Only apply to index"     "--cached")
+              (?3 "Fall back on 3way merge" "--3way"))
+  :actions  '((?a "Apply patch" magit-patch-apply))
+  :default-action 'magit-patch-apply)
+
+(defun magit-patch-apply (file &rest args)
+  "Apply the patch file FILE."
+  (interactive (list (read-file-name "Apply patch: "
+                                     default-directory nil nil
+                                     (file-relative-name (magit-file-at-point)
+                                                         default-directory))
+                     (magit-patch-apply-arguments)))
+  (magit-run-git "apply" args "--" file))
+
 (provide 'magit-files)
 ;;; magit-files.el ends here

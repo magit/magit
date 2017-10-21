@@ -55,6 +55,9 @@ Changes since v2.11.0
 * The remote popup can now be used to set various remote releated
   variables.  #3165
 
+* Added new commands `magit-patch-apply' and `magit-patch-apply-popup'.
+  The latter is available from inside `magit-am-popup' ("w").  #2940
+
 Fixes since v2.11.0
 -------------------
 

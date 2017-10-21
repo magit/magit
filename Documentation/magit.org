@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-132-ga6dcd97a+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-134-g3b3b2bc1+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-132-ga6dcd97a+1).
+This manual is for Magit version 2.11.0 (2.11.0-134-g3b3b2bc1+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -5056,7 +5056,7 @@ them to the popup.
 
 ** Applying Patches
 
-Also see [[man:git-am]]
+Also see [[man:git-am]] and [[man:git-apply]]
 
 - Key: w, magit-am-popup
 
@@ -5073,6 +5073,9 @@ Also see [[man:git-am]]
 
   Apply the patches from a maildir.
 
+When an "am" operation is in progress, then the popup buffer features
+these commands instead.
+
 - Key: w w, magit-am-continue
 
   Resume the current patch applying sequence.
@@ -5085,6 +5088,19 @@ Also see [[man:git-am]]
 
   Abort the current patch applying sequence.  This discards all
   changes made since the sequence started.
+
+In addition to the commands listed at the top, the "am" popup also has
+a binding for the related "patch" popup.
+
+- Key: w a, magit-patch-apply-popup
+
+  This prefix command shows the following suffix commands along with
+  the appropriate infix arguments in a popup buffer.
+
+- Key: w a a, magit-patch-apply
+
+  This command applies a simple patch file, which may not contain any
+  Git metadata in addition to the actual diff.
 
 * Miscellaneous
 ** Tagging
