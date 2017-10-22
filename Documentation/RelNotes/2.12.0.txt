@@ -69,6 +69,9 @@ Changes since v2.11.0
 * Added new command `magit-dired-log' intended to be bound in
   `dired-mode-map'.  #3011
 
+* The list of rebase actions displayed in the status buffer now also
+  shows "exec" actions.  #3003
+
 Fixes since v2.11.0
 -------------------
 
