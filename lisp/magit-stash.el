@@ -362,11 +362,37 @@ branch or `HEAD' as the string-point."
 If optional REF is non-nil, show reflog for that instead.
 If optional HEADING is non-nil, use that as section heading
 instead of \"Stashes:\"."
-  (when (magit-rev-verify ref)
-    (magit-insert-section (stashes ref (not magit-status-expand-stashes))
-      (magit-insert-heading heading)
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-        "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref))))
+  (let ((verified (magit-rev-verify ref))
+        (autostash
+         (and (magit-rebase-in-progress-p)
+              (magit-file-line
+               (magit-git-dir
+                (-> (if (file-directory-p (magit-git-dir "rebase-merge"))
+                        "rebase-merge/autostash"
+                      "rebase-apply/autostash")))))))
+    (when (or autostash verified)
+      (magit-insert-section (stashes ref (not magit-status-expand-stashes))
+        (magit-insert-heading heading)
+        (when autostash
+          (pcase-let ((`(,author ,date ,msg)
+                       (split-string
+                        (car (magit-git-lines
+                              "show" "-q" "--format=%aN%x00%at%x00%s"
+                              autostash))
+                        "\0")))
+            (magit-insert-section (stash autostash)
+              (insert (propertize "AUTOSTASH" 'face 'magit-hash))
+              (insert " " msg "\n")
+              (save-excursion
+                (backward-char)
+                (magit-log-format-margin author date)))))
+        (if verified
+            (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
+              "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)
+          (insert ?\n)
+          (save-excursion
+            (backward-char)
+            (magit-make-margin-overlay)))))))
 
 ;;; List Stashes
 

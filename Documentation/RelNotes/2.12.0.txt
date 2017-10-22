@@ -72,6 +72,9 @@ Changes since v2.11.0
 * The list of rebase actions displayed in the status buffer now also
   shows "exec" actions.  #3003
 
+* While it exists, the stash created by `git rebase `--autostash' is
+  now also displayed in the list of stashes.  #3146
+
 Fixes since v2.11.0
 -------------------
 
