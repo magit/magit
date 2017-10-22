@@ -318,7 +318,7 @@ The commit at the other end of the selection actually does not
 matter, all commits between FROM and `HEAD' are moved to the new
 branch.  If FROM is not reachable from `HEAD' or is reachable
 from the source branch's upstream, then an error is raised."
-  (interactive (list (magit-read-string "Spin off branch")
+  (interactive (list (magit-read-string-ns "Spin off branch")
                      (car (last (magit-region-values 'commit)))
                      (magit-branch-arguments)))
   (when (magit-branch-p branch)
