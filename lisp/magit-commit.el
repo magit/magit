@@ -163,7 +163,8 @@ With a prefix argument, amend to the commit at `HEAD' instead.
   (when (member "--all" args)
     (setq this-command 'magit-commit-all))
   (when (setq args (magit-commit-assert args))
-    (magit-run-git-with-editor "commit" args)))
+    (let ((default-directory (magit-toplevel)))
+      (magit-run-git-with-editor "commit" args))))
 
 ;;;###autoload
 (defun magit-commit-amend (&optional args)
