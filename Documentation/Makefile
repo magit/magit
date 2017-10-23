@@ -24,12 +24,15 @@ dir: magit.info magit-popup.info
 %.html: %.texi
 	@printf "Generating $@\n"
 	@$(MAKEINFO) --html --no-split $(MANUAL_HTML_ARGS) $<
+	@./fixup-html.sh $@
 
 html-dir: $(TEXIFILES)
 	@printf "Generating magit/*.html\n"
 	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit.texi
+	@./fixup-html.sh magit
 	@printf "Generating magit-popup/*.html\n"
 	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit-popup.texi
+	@./fixup-html.sh magit-popup
 
 %.pdf: %.texi
 	@printf "Generating $@\n"
