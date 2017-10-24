@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-145-g892ca025a+1)
+@subtitle for version 2.11.0 (2.11.0-147-g387257f20+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-145-g892ca025a+1).
+This manual is for Magit version 2.11.0 (2.11.0-147-g387257f20+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -4129,8 +4129,8 @@ during a recursive blame, then it also kills the buffer.
 This command saves the hash of the current chunk's commit to the
 kill ring.
 
-When the region is active, then it save that to the @code{kill-ring}, like
-@code{kill-ring-save} would.
+When the region is active, the command saves the region's content
+instead of the hash, like @code{kill-ring-save} would.
 
 @kindex t
 @cindex magit-blame-toggle-headings

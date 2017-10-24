@@ -529,8 +529,8 @@ then also kill the buffer."
 (defun magit-blame-copy-hash ()
   "Save hash of the current chunk's commit to the kill ring.
 
-When the region is active, then save that to the `kill-ring',
-like `kill-ring-save' would."
+When the region is active, then save the region's content
+instead of the hash, like `kill-ring-save' would."
   (interactive)
   (if (use-region-p)
       (copy-region-as-kill nil nil 'region)

@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-145-g892ca025a+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-147-g387257f20+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-145-g892ca025a+1).
+This manual is for Magit version 2.11.0 (2.11.0-147-g387257f20+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -3004,8 +3004,8 @@ buffers that are being blamed.
   This command saves the hash of the current chunk's commit to the
   kill ring.
 
-  When the region is active, then it save that to the ~kill-ring~, like
-  ~kill-ring-save~ would.
+  When the region is active, the command saves the region's content
+  instead of the hash, like ~kill-ring-save~ would.
 
 - Key: t, magit-blame-toggle-headings
 
