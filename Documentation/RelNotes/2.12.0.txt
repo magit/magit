@@ -87,3 +87,6 @@ Fixes since v2.11.0
 * Instant fixup allowed selecting a commit that is not reachable from
   HEAD, which, for the instant variants (but only those), clearly is
   a user mistake that should be caught immediately.  #3176
+
+* The command `magit-branch-rename' failed to rename a local branch if
+  a tag existed with the same name.  #3222

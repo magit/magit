@@ -508,6 +508,8 @@ With prefix, forces the rename even if NEW already exists.
            (magit-read-string-ns (format "Rename branch '%s' to" branch)
                                  nil 'magit-revision-history)
            current-prefix-arg)))
+  (when (string-match "\\`heads/\\(.+\\)" old)
+    (setq old (match-string 1 old)))
   (unless (string= old new)
     (magit-run-git "branch" (if force "-M" "-m") old new)))
 
