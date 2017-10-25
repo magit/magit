@@ -293,9 +293,10 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (magit-remote-config--format-variable "push"))
 
 (defun magit-format-remote*tagOpt ()
-  (magit-popup-format-variable (format "remote.%s.tagOpts"
-                                       (magit-remote-config--remote))
-                               '("--no-tags" "--tags") nil nil 22))
+  (let ((remote (magit-remote-config--remote)))
+    (magit-popup-format-variable (format "remote.%s.tagOpts" remote)
+                                 '("--no-tags" "--tags") nil nil
+                                 (+ (length remote) 16))))
 
 (defun magit-remote-config--read-args (var prompt)
   (let* ((remote (magit-remote-config--remote (format "Set `%s' of remote" var)))
