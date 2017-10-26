@@ -1601,6 +1601,19 @@ Return a list of two integers: (A>B B>A)."
                                nil nil nil 'magit-revision-history default)
         (user-error "Nothing selected"))))
 
+(defun magit-read-branch-prefer-other (prompt)
+  (let* ((current (magit-get-current-branch))
+         (branch  )
+         (commit  (magit-commit-at-point))
+         (atpoint (and commit (magit-list-branches-pointing-at commit))))
+    (magit-completing-read prompt (magit-list-branch-names)
+                           nil t nil 'magit-revision-history
+                           (or branch
+                               (and (not (cdr atpoint)) (car atpoint))
+                               (--first (not (equal it current)) atpoint)
+                               (magit-get-previous-branch)
+                               (car atpoint)))))
+
 (cl-defun magit-read-upstream-branch
     (&optional (branch (magit-get-current-branch)) prompt)
   (magit-completing-read
