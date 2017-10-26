@@ -366,15 +366,19 @@ If FILE isn't tracked in Git, fallback to using `rename-file'."
     (rename-file file newname current-prefix-arg)
     (magit-refresh)))
 
-(defun magit-file-untrack (files)
-  "Untrack the selected FILES or one file read in the minibuffer."
+(defun magit-file-untrack (files &optional force)
+  "Untrack the selected FILES or one file read in the minibuffer.
+
+With a prefix argument FORCE do so even when the files have
+staged as well as unstaged changes."
   (interactive
    (list (or (let ((files (magit-region-values 'file)))
                (and files
                     (magit-file-tracked-p (car files))
                     (magit-confirm-files 'untrack files "Untrack")))
-             (list (magit-read-tracked-file "Untrack file")))))
-  (magit-run-git "rm" "--cached" "--" files))
+             (list (magit-read-tracked-file "Untrack file")))
+         current-prefix-arg))
+  (magit-run-git "rm" "--cached" (and force "--force") "--" files))
 
 (defun magit-file-delete (files &optional force)
   "Delete the selected FILES or one file read in the minibuffer.
