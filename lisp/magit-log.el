@@ -1507,6 +1507,19 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (magit-define-section-jumper magit-jump-to-unpushed-to-upstream
   "Unpushed to @{upstream}" unpushed "@{upstream}..")
 
+(defun magit-insert-unpushed-to-upstream-or-recent ()
+  "Insert section showing unpushed or other recent commits.
+If an upstream is configured for the current branch and it is
+behind of the current branch, then show the commits that have
+not yet been pushed into the upstream branch.  If no upstream is
+configured or if the upstream is not behind of the current branch,
+then show the last `magit-log-section-commit-count' commits."
+  (let ((upstream (magit-rev-parse "@{upstream}")))
+    (if (or (not upstream)
+            (magit-rev-ancestor-p "HEAD" upstream))
+        (magit-insert-recent-commits t)
+      (magit-insert-unpushed-to-upstream))))
+
 (defun magit-insert-unpushed-to-upstream ()
   "Insert commits that haven't been pushed to the upstream yet."
   (when (magit-git-success "rev-parse" "@{upstream}")
@@ -1525,8 +1538,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (--when-let (magit-get-push-branch)
     (unless (and (equal (magit-rev-name it)
                         (magit-rev-name "@{upstream}"))
-                 (memq 'magit-insert-unpushed-to-upstream
-                       magit-status-sections-hook))
+                 (or (memq 'magit-insert-unpushed-to-upstream
+                           magit-status-sections-hook)
+                     (memq 'magit-insert-unpushed-to-upstream-or-recent
+                           magit-status-sections-hook)))
       (magit-insert-section (unpushed (concat it ".."))
         (magit-insert-heading
           (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
@@ -1544,19 +1559,6 @@ Show the last `magit-log-section-commit-count' commits."
       (magit-insert-log range
                         (cons (format "-%d" magit-log-section-commit-count)
                               magit-log-section-arguments)))))
-
-(defun magit-insert-unpulled-from-upstream-or-recent ()
-  "Insert section showing unpulled or recent commits.
-If an upstream is configured for the current branch and it is
-ahead of the current branch, then show the commits that have
-not yet been pulled into the current branch.  If no upstream is
-configured or if the upstream is not ahead of the current branch,
-then show the last `magit-log-section-commit-count' commits."
-  (let ((upstream (magit-rev-parse "@{upstream}")))
-    (if (or (not upstream)
-            (equal upstream (magit-rev-parse "HEAD")))
-        (magit-insert-recent-commits t)
-      (magit-insert-unpulled-from-upstream))))
 
 ;;;; Auxiliary Log Sections
 
