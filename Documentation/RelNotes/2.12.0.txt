@@ -91,8 +91,8 @@ Changes since v2.11.0
 
 * Added new popup `magit-worktree-popup' and bound "%" to it.  #2927
 
-* The command `magit-file-delete' now acts on the selected files.
-  #2930
+* The commands `magit-file-delete' and `magit-file-untrack' now act on
+  the selected files.  #2930
 
 Fixes since v2.11.0
 -------------------

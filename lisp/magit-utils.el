@@ -105,8 +105,8 @@ these commands do:
 (defconst magit--confirm-actions
   '((const reverse)           (const discard)
     (const rename)            (const resurrect)
-    (const trash)             (const delete)
-    (const abort-rebase)
+    (const untrack)           (const trash)
+    (const delete)            (const abort-rebase)
     (const abort-merge)       (const merge-dirty)
     (const drop-stashes)      (const resect-bisect)
     (const kill-process)      (const delete-unmerged-branch)
@@ -152,6 +152,8 @@ Files:
   `resurrect' A deleted file can easily be resurrected by
   \"deleting\" the deletion, which is done using the same command
   that was used to delete the same file in the first place.
+
+  `untrack' Untracking a file can be undone by tracking it again.
 
   `rename' Renaming a file can easily be undone.
 
