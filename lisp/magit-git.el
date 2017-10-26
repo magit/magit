@@ -1169,6 +1169,15 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
               (member it (magit-list-unmerged-branches upstream)))
             (magit-list-local-branch-names)))
 
+(defun magit-list-branches-pointing-at (commit)
+  (let ((re (format "\\`%s refs/\\(heads\\|remotes\\)/\\(.*\\)\\'"
+                   (magit-rev-verify commit))))
+    (--keep (and (string-match re it)
+                 (let ((name (match-string 2 it)))
+                   (and (not (string-suffix-p "HEAD" name))
+                        name)))
+            (magit-git-lines "show-ref"))))
+
 (defun magit-list-refnames (&optional namespaces)
   (magit-list-refs namespaces "%(refname:short)"))
 
