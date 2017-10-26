@@ -93,7 +93,7 @@ these commands do:
   `magit-branch-rename'
   `magit-tag'"
   :package-version '(magit . "2.9.0")
-  :group 'magit-miscellaneous
+  :group 'magit-commands
   :type '(list :convert-widget custom-hook-convert-widget)
   :options '(magit-branch
              magit-branch-and-checkout
