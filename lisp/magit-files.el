@@ -373,18 +373,23 @@ tree."
   (interactive (list (magit-read-tracked-file "Untrack file")))
   (magit-run-git "rm" "--cached" "--" file))
 
-(defun magit-file-delete (file &optional force)
-  "Delete FILE.
-With a prefix argument FORCE do so even when FILE has uncommitted
-changes.
+(defun magit-file-delete (files &optional force)
+  "Delete the selected FILES or one file read in the minibuffer.
 
-If FILE isn't tracked in Git, fallback to using `delete-file'."
-  (interactive (list (magit-read-file "Delete file")
+With a prefix argument FORCE do so even when the files have
+uncommitted changes.  When the files aren't being tracked in
+Git, then fallback to using `delete-file'."
+  (interactive (list (or (magit-confirm-files 'delete
+                                              (magit-region-values 'file)
+                                              "Delete")
+                         (list (magit-read-file "Delete file")))
                      current-prefix-arg))
-  (if (magit-file-tracked-p file)
-      (magit-run-git "rm" (and force "--force") "--" file)
-    (delete-file (expand-file-name file (magit-toplevel)) t)
-    (magit-refresh)))
+  (if (magit-file-tracked-p (car files))
+      (magit-call-git "rm" (and force "--force") "--" files)
+    (let ((topdir (magit-toplevel)))
+      (dolist (file files)
+        (delete-file (expand-file-name file topdir) t))))
+  (magit-refresh))
 
 ;;;###autoload
 (defun magit-file-checkout (rev file)
