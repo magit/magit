@@ -259,9 +259,7 @@ does."
 (defun magit-branch-read-args (prompt)
   (let ((args (magit-branch-arguments)))
     (if magit-branch-read-upstream-first
-        (let* ((default (and (or (memq this-command magit-no-confirm-default)
-                                 (memq magit-current-popup-action
-                                       magit-no-confirm-default))
+        (let* ((default (and (memq this-command magit-no-confirm-default)
                              (magit--default-starting-point)))
                (choice (or default
                            (magit-read-starting-point prompt))))
