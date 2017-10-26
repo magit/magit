@@ -75,6 +75,16 @@ Changes since v2.11.0
 * While it exists, the stash created by `git rebase --autostash' is
   now also displayed in the list of stashes.  #3146
 
+* When the current branch has no upstream or when all commits have
+  already been pushed there, then the status buffer now shows
+  `magit-log-section-commit-count' recent commit.  If you previously
+  used `magit-insert-unpulled-from-upstream-or-recent', then remove
+  that from `magit-status-sections-hook', as it is an obsolete alias
+  for `magit-insert-unpulled-from-upstream' now.  #3227
+
+* When switching between showing "Unmerged into <upstream>" and
+  "Recent commits", preserve the visibility of that section.  #3227
+
 Fixes since v2.11.0
 -------------------
 

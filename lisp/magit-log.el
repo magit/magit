@@ -1507,31 +1507,42 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (magit-define-section-jumper magit-jump-to-unpushed-to-upstream
   "Unpushed to @{upstream}" unpushed "@{upstream}..")
 
-(defun magit-insert-unpushed-to-upstream ()
+(defun magit-insert-unpushed-to-upstream-or-recent ()
+  "Insert section showing unpushed or other recent commits.
+If an upstream is configured for the current branch and it is
+behind of the current branch, then show the commits that have
+not yet been pushed into the upstream branch.  If no upstream is
+configured or if the upstream is not behind of the current branch,
+then show the last `magit-log-section-commit-count' commits."
+  (let ((upstream (magit-rev-parse "@{upstream}")))
+    (if (or (not upstream)
+            (magit-rev-ancestor-p "HEAD" upstream))
+        (magit-insert-recent-commits
+         (--if-let (and magit-insert-section--oldroot
+                        (magit-get-section
+                         '((unpushed . "@{upstream}..")
+                           (status))
+                         magit-insert-section--oldroot))
+             (magit-section-hidden it)
+           nil))
+      (magit-insert-unpushed-to-upstream
+       (--if-let (and magit-insert-section--oldroot
+                      (magit-get-section
+                       `((recent . ,(format "HEAD~%s..HEAD"
+                                            magit-log-section-commit-count))
+                         (status))
+                       magit-insert-section--oldroot))
+           (magit-section-hidden it)
+         t)))))
+
+(defun magit-insert-unpushed-to-upstream (&optional collapse)
   "Insert commits that haven't been pushed to the upstream yet."
   (when (magit-git-success "rev-parse" "@{upstream}")
-    (magit-insert-section (unpushed "@{upstream}..")
+    (magit-insert-section (unpushed "@{upstream}.." collapse)
       (magit-insert-heading
         (format (propertize "Unmerged into %s:" 'face 'magit-section-heading)
                 (magit-get-upstream-branch)))
       (magit-insert-log "@{upstream}.." magit-log-section-arguments))))
-
-(magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
-  "Unpushed to <push-remote>" unpushed
-  (concat (magit-get-push-branch) ".."))
-
-(defun magit-insert-unpushed-to-pushremote ()
-  "Insert commits that haven't been pushed to the push-remote yet."
-  (--when-let (magit-get-push-branch)
-    (unless (and (equal (magit-rev-name it)
-                        (magit-rev-name "@{upstream}"))
-                 (memq 'magit-insert-unpushed-to-upstream
-                       magit-status-sections-hook))
-      (magit-insert-section (unpushed (concat it ".."))
-        (magit-insert-heading
-          (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
-                  (propertize it 'face 'magit-branch-remote)))
-        (magit-insert-log (concat it "..") magit-log-section-arguments)))))
 
 (defun magit-insert-recent-commits (&optional collapse)
   "Insert section showing recent commits.
@@ -1545,18 +1556,24 @@ Show the last `magit-log-section-commit-count' commits."
                         (cons (format "-%d" magit-log-section-commit-count)
                               magit-log-section-arguments)))))
 
-(defun magit-insert-unpulled-from-upstream-or-recent ()
-  "Insert section showing unpulled or recent commits.
-If an upstream is configured for the current branch and it is
-ahead of the current branch, then show the commits that have
-not yet been pulled into the current branch.  If no upstream is
-configured or if the upstream is not ahead of the current branch,
-then show the last `magit-log-section-commit-count' commits."
-  (let ((upstream (magit-rev-parse "@{upstream}")))
-    (if (or (not upstream)
-            (equal upstream (magit-rev-parse "HEAD")))
-        (magit-insert-recent-commits t)
-      (magit-insert-unpulled-from-upstream))))
+(magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
+  "Unpushed to <push-remote>" unpushed
+  (concat (magit-get-push-branch) ".."))
+
+(defun magit-insert-unpushed-to-pushremote ()
+  "Insert commits that haven't been pushed to the push-remote yet."
+  (--when-let (magit-get-push-branch)
+    (unless (and (equal (magit-rev-name it)
+                        (magit-rev-name "@{upstream}"))
+                 (or (memq 'magit-insert-unpushed-to-upstream
+                           magit-status-sections-hook)
+                     (memq 'magit-insert-unpushed-to-upstream-or-recent
+                           magit-status-sections-hook)))
+      (magit-insert-section (unpushed (concat it ".."))
+        (magit-insert-heading
+          (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
+                  (propertize it 'face 'magit-branch-remote)))
+        (magit-insert-log (concat it "..") magit-log-section-arguments)))))
 
 ;;;; Auxiliary Log Sections
 
