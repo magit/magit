@@ -95,6 +95,10 @@ Changes since v2.11.0
   the selected files and force with a prefix argument they force the
   action.  #2930
 
+* When requesting the history of a single file that is no longer being
+  tracked use the `--full-history' argument.  Otherwise no history at
+  all would be show.  #3012
+
 Fixes since v2.11.0
 -------------------
 
