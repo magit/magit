@@ -1529,6 +1529,18 @@ then show the last `magit-log-section-commit-count' commits."
                 (magit-get-upstream-branch)))
       (magit-insert-log "@{upstream}.." magit-log-section-arguments))))
 
+(defun magit-insert-recent-commits (&optional collapse)
+  "Insert section showing recent commits.
+Show the last `magit-log-section-commit-count' commits."
+  (let* ((start (format "HEAD~%s" magit-log-section-commit-count))
+         (range (and (magit-rev-verify start)
+                     (concat start "..HEAD"))))
+    (magit-insert-section (recent range collapse)
+      (magit-insert-heading "Recent commits")
+      (magit-insert-log range
+                        (cons (format "-%d" magit-log-section-commit-count)
+                              magit-log-section-arguments)))))
+
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
   "Unpushed to <push-remote>" unpushed
   (concat (magit-get-push-branch) ".."))
@@ -1547,18 +1559,6 @@ then show the last `magit-log-section-commit-count' commits."
           (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
                   (propertize it 'face 'magit-branch-remote)))
         (magit-insert-log (concat it "..") magit-log-section-arguments)))))
-
-(defun magit-insert-recent-commits (&optional collapse)
-  "Insert section showing recent commits.
-Show the last `magit-log-section-commit-count' commits."
-  (let* ((start (format "HEAD~%s" magit-log-section-commit-count))
-         (range (and (magit-rev-verify start)
-                     (concat start "..HEAD"))))
-    (magit-insert-section (recent range collapse)
-      (magit-insert-heading "Recent commits")
-      (magit-insert-log range
-                        (cons (format "-%d" magit-log-section-commit-count)
-                              magit-log-section-arguments)))))
 
 ;;;; Auxiliary Log Sections
 
