@@ -379,7 +379,8 @@ With a prefix argument FORCE do so even when FILE has uncommitted
 changes.
 
 If FILE isn't tracked in Git, fallback to using `delete-file'."
-  (interactive (list (magit-read-file "Delete file")))
+  (interactive (list (magit-read-file "Delete file")
+                     current-prefix-arg))
   (if (magit-file-tracked-p file)
       (magit-run-git "rm" (and force "--force") "--" file)
     (delete-file (expand-file-name file (magit-toplevel)) t)

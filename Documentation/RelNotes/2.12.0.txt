@@ -106,3 +106,6 @@ Fixes since v2.11.0
 
 * The command `magit-branch-rename' failed to rename a local branch if
   a tag existed with the same name.  #3222
+
+* The command `magit-file-delete ignored the prefix argument instead
+  of forcing the action as intended.
