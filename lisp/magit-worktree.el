@@ -34,6 +34,16 @@
 
 ;;; Commands
 
+;;;###autoload (autoload 'magit-worktree-popup "magit-worktree" nil t)
+(magit-define-popup magit-worktree-popup
+  "Popup console for worktree commands."
+  :man-page "git-worktree"
+  :actions  '((?b "Create new worktree"            magit-worktree-checkout)
+              (?c "Create new branch and worktree" magit-worktree-branch)
+              (?k "Delete worktree"                magit-worktree-delete)
+              (?g "Show status for worktree"       magit-worktree-status))
+  :max-action-columns 1)
+
 ;;;###autoload
 (defun magit-worktree-checkout (path branch)
   "Checkout BRANCH in a new worktree at PATH."

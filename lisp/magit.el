@@ -519,6 +519,7 @@ defaulting to the tag at point.
              (?y "Show Refs"       magit-show-refs-popup)
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)
+             (?% "Worktree"        magit-worktree-popup)
              "Applying changes"
              (?a "Apply"           magit-apply)
              (?s "Stage"           magit-stage)

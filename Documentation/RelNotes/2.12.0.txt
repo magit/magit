@@ -89,6 +89,8 @@ Changes since v2.11.0
   no longer offered as default choice, except in cases where it is
   likely that that is actually what the user wants.  #2924
 
+* Added new popup `magit-worktree-popup' and bound "%" to it.  #2927
+
 Fixes since v2.11.0
 -------------------
 
