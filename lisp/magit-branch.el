@@ -402,10 +402,8 @@ defaulting to the branch at point."
      (if (if (> (length branches) 1)
              (magit-confirm t nil "Delete %i branches" branches)
            (setq branches
-                 (list (magit-read-branch (if force
-                                              "Force delete branch"
-                                            "Delete branch")
-                                          (magit-get-previous-branch)))))
+                 (list (magit-read-branch-prefer-other
+                        (if force "Force delete branch" "Delete branch")))))
          (unless force
            (--when-let (-remove #'magit-branch-merged-p branches)
              (if (magit-confirm 'delete-unmerged-branch

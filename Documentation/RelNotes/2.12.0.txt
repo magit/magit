@@ -85,6 +85,10 @@ Changes since v2.11.0
 * When switching between showing "Unmerged into <upstream>" and
   "Recent commits", preserve the visibility of that section.  #3227
 
+* When prompting for a branch to delete then the default branch is
+  no longer offered as default choice, except in cases where it is
+  likely that that is actually what the user wants.  #2924
+
 Fixes since v2.11.0
 -------------------
 
