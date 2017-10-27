@@ -129,7 +129,7 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
 (define-obsolete-function-alias 'magit-insert-submodules
   'magit-insert-modules-overview "Magit 2.11.0")
 
-;;; Obsolete since v2.11.0
+;;; Obsolete since v2.12.0
 
 (define-obsolete-function-alias 'magit-insert-unpulled-from-upstream-or-recent
   'magit-insert-unpulled-from-upstream "Magit 2.12.0")
