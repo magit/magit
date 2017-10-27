@@ -208,7 +208,7 @@ are staged changes, apply without preserving the stash index."
 Try to preserve the stash index.  If that fails because there
 are staged changes, apply without preserving the stash index
 and forgo removing the stash."
-  (interactive (list (magit-read-stash "Apply pop" t)))
+  (interactive (list (magit-read-stash "Pop stash" t)))
   (if (= (magit-call-git "stash" "apply" "--index" stash) 0)
       (magit-stash-drop stash)
     (magit-run-git "stash" "apply" stash)))
