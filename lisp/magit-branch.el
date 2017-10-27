@@ -229,8 +229,7 @@ does."
    (let ((arg (magit-read-other-branch-or-commit "Checkout")))
      (list arg
            (and (not (magit-rev-verify-commit arg))
-                (magit-read-starting-point
-                 (format "Create and checkout branch `%s'" arg))))))
+                (magit-read-starting-point "Create and checkout branch" arg)))))
   (when (string-match "\\`heads/\\(.+\\)" arg)
     (setq arg (match-string 1 arg)))
   (if start-point
@@ -276,14 +275,10 @@ does."
                             def)))
                     choice args)
             (if (eq magit-branch-read-upstream-first 'fallback)
-                (list choice
-                      (magit-read-starting-point (concat prompt " " choice))
-                      args)
+                (list choice (magit-read-starting-point prompt choice) args)
               (user-error "Not a valid starting-point: %s" choice))))
       (let ((branch (magit-read-string-ns (concat prompt " named"))))
-        (list branch
-              (magit-read-starting-point (concat prompt " " branch))
-              args)))))
+        (list branch (magit-read-starting-point prompt branch) args)))))
 
 ;;;###autoload
 (defun magit-branch-spinoff (branch &optional from &rest args)
