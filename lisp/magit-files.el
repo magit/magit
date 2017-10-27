@@ -461,6 +461,18 @@ If DEFAULT is non-nil, use this as the default value instead of
 
 ;;; Patch File
 
+(defcustom magit-patch-save-arguments '(exclude "--stat")
+  "Arguments used by `magit-patch-save-arguments' (which see)"
+  :package-version '(magit . "2.12.0")
+  :group 'magit-diff
+  :type '(choice (const :tag "use buffer arguments" buffer)
+                 (cons :tag "use buffer arguments except"
+                       (const :format "" exclude)
+                       (repeat :format "%v%i\n"
+                               (string :tag "Argument")))
+                 (repeat :tag "use constant arguments"
+                         (string :tag "Argument"))))
+
 (magit-define-popup magit-patch-apply-popup
   "Popup console for applying a patch file."
   :man-page "git-apply"
@@ -479,14 +491,43 @@ If DEFAULT is non-nil, use this as the default value instead of
                      (magit-patch-apply-arguments)))
   (magit-run-git "apply" args "--" file))
 
-(defun magit-patch-save (file)
-  "Write current diff into patch FILE."
-  (interactive (list (read-file-name "Write patch file: " default-directory)))
+(defun magit-patch-save (file &optional arg)
+  "Write current diff into patch FILE.
+
+What arguments are used to create the patch depends on the value
+of `magit-patch-save-arguments' and whether a prefix argument is
+used.
+
+If the value is the symbol `buffer', then use the same arguments
+as the buffer.  With a prefix argument use no arguments.
+
+If the value is a list beginning with the symbol `exclude', then
+use the arguments as the buffer except for those matched by
+entries in the cdr of the list.  The comparison is done using
+`string-prefix-p'.  With a prefix argument use the same arguments
+as the buffer.
+
+If the value is a list of strings (including the empty list),
+then use those arguments.  With a prefix argument use the same
+arguments as the buffer.
+
+Of course the arguments that are required to actually show the
+same differences as those shown in the buffer are always used."
+  (interactive (list (read-file-name "Write patch file: " default-directory)
+                     current-prefix-arg))
   (unless (derived-mode-p 'magit-diff-mode)
     (user-error "Only diff buffers can be saved as patches"))
   (pcase-let ((`(,rev ,const ,args ,files) magit-refresh-args))
     (when (derived-mode-p 'magit-revision-mode)
       (setq rev (format "%s~..%s" rev rev)))
+    (cond ((eq magit-patch-save-arguments 'buffer)
+           (when arg
+             (setq args nil)))
+          ((eq (car-safe magit-patch-save-arguments) 'exclude)
+           (unless arg
+             (setq args (-difference args (cdr magit-patch-save-arguments)))))
+          ((not arg)
+           (setq args magit-patch-save-arguments)))
     (with-temp-file file
       (magit-git-insert "diff" rev "-p" const args "--" files)))
   (magit-refresh))
