@@ -266,7 +266,7 @@ does."
               (list (magit-read-string-ns
                      (if default
                          (format "%s (starting at %s)" prompt choice)
-                       "Branch name")
+                       "Name for new branch")
                      (let ((def (mapconcat #'identity
                                            (cdr (split-string choice "/"))
                                            "/")))
