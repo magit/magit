@@ -2278,11 +2278,11 @@ are highlighted."
                              (`("="   t) 'magit-diff-their-highlight)
                              (`(">" nil) nil)))
                'magit-diff-conflict-heading)
-              ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
+              ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
                (magit-diff-paint-whitespace merging)
                (or stage
                    (if highlight 'magit-diff-added-highlight 'magit-diff-added)))
-              ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
+              ((looking-at (if merging "^\\(-\\| -\\)" "^-"))
                (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
               (t
                (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
