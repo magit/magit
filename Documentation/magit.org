@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-147-g387257f20+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-176-g284bb4b7a+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-147-g387257f20+1).
+This manual is for Magit version 2.11.0 (2.11.0-176-g284bb4b7a+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -5208,6 +5208,7 @@ following suffix commands, instead of those listed above.
   Abort the current notes ref merge.
 
 ** Submodules
+*** _ :ignore:
 
 Also see [[man:git-submodule]]
 
@@ -5702,6 +5703,7 @@ For example:
   #+END_SRC
 
 ** Essential Settings
+*** _ :ignore:
 
 The next two sections list and discuss several variables that many
 users might want to customize, for safety and/or performance reasons.
@@ -5966,6 +5968,7 @@ Alternatively you can apply the backport [fn:mac3] manually.
 [fn:mac3] https://gist.githubusercontent.com/aaronjensen/f45894ddf431ecbff78b1bcf533d3e6b/raw/6a5cd7f57341aba673234348d8b0d2e776f86719/Emacs-25-OS-X-use-vfork.patch
 
 * Plumbing
+** _ :ignore:
 
 The following sections describe how to use several of Magit's core
 abstractions to extend Magit itself or implement a separate extension.
@@ -6693,6 +6696,7 @@ all.
 :PROPERTIES:
 :APPENDIX:   t
 :END:
+** _ :ignore:
 
 The next two nodes lists frequently asked questions.  For a list of
 frequently *and recently* asked questions, i.e. questions that haven't
