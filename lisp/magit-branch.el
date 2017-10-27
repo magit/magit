@@ -230,7 +230,7 @@ does."
      (list arg
            (and (not (magit-rev-verify-commit arg))
                 (magit-read-starting-point
-                 (format "Create and checkout branch `%s' starting at" arg))))))
+                 (format "Create and checkout branch `%s'" arg))))))
   (when (string-match "\\`heads/\\(.+\\)" arg)
     (setq arg (match-string 1 arg)))
   (if start-point
