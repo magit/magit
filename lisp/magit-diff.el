@@ -2279,15 +2279,26 @@ are highlighted."
                              (`(">" nil) nil)))
                'magit-diff-conflict-heading)
               ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
+               (magit-diff-paint-tab merging)
                (magit-diff-paint-whitespace merging)
                (or stage
                    (if highlight 'magit-diff-added-highlight 'magit-diff-added)))
               ((looking-at (if merging "^\\(-\\| -\\)" "^-"))
+               (magit-diff-paint-tab merging)
                (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
               (t
+               (magit-diff-paint-tab merging)
                (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
             (forward-line))))))
   (magit-diff-update-hunk-refinement section))
+
+(defun magit-diff-paint-tab (merging)
+  (save-excursion
+    (forward-char (if merging 2 1))
+    (while (= (char-after) ?\t)
+      (put-text-property (point) (1+ (point))
+                         'display (list (list 'space :width tab-width)))
+      (forward-char))))
 
 (defun magit-diff-paint-whitespace (merging)
   (when (and magit-diff-paint-whitespace
