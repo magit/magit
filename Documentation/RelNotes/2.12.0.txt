@@ -105,6 +105,9 @@ Changes since v2.11.0
   are additional characters before the "leading" tabs that should
   count as an additional, but very short tab-stop.  #3185
 
+* The command `magit-visit-ref' now drops the prefix argument before
+  calling `magit-show-commit' when appropriate.  #3009
+
 Fixes since v2.11.0
 -------------------
 

@@ -335,9 +335,13 @@ different, but only if you have customized the option
   (if (and (derived-mode-p 'magit-refs-mode)
            (magit-section-match '(branch tag)))
       (let ((ref (magit-section-value (magit-current-section))))
-        (cond ((and (memq 'focus-on-ref magit-visit-ref-behavior)
-                    current-prefix-arg)
-               (magit-show-refs ref))
+        (cond (current-prefix-arg
+               (cond ((memq 'focus-on-ref magit-visit-ref-behavior)
+                      (magit-show-refs ref))
+                     (magit-visit-ref-behavior
+                      ;; Don't prompt for commit to visit.
+                      (let ((current-prefix-arg nil))
+                        (call-interactively #'magit-show-commit)))))
               ((and (memq 'create-branch magit-visit-ref-behavior)
                     (magit-section-match [branch remote]))
                (let ((branch (cdr (magit-split-branch-name ref))))
