@@ -106,7 +106,9 @@ Changes since v2.11.0
   count as an additional, but very short tab-stop.  #3185
 
 * The command `magit-visit-ref' now drops the prefix argument before
-  calling `magit-show-commit' when appropriate.  #3009
+  calling `magit-show-commit' when appropriate, and when using the
+  `create-branch' variant and the branch exists, then it offers to
+  simply checking it out instead of resetting it first.  #3009
 
 Fixes since v2.11.0
 -------------------

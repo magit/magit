@@ -346,11 +346,20 @@ different, but only if you have customized the option
                     (magit-section-match [branch remote]))
                (let ((branch (cdr (magit-split-branch-name ref))))
                  (if (magit-branch-p branch)
-                     (if (yes-or-no-p
-                          (format "Branch %s already exists.  Reset it to %s?"
-                                  branch ref))
-                         (magit-call-git "checkout" "-B" branch ref)
-                       (user-error "Abort"))
+                     (if (magit-rev-eq branch ref)
+                         (magit-call-git "checkout" branch)
+                       (setq branch (propertize branch 'face 'magit-branch-local))
+                       (setq ref (propertize ref 'face 'magit-branch-remote))
+                       (pcase (prog1 (read-char-choice (format (propertize "\
+Branch %s already exists.
+  [c]heckout %s as-is
+  [r]reset %s to %s and checkout %s
+  [a]bort " 'face 'minibuffer-prompt) branch branch branch ref branch)
+                                                       '(?c ?r ?a))
+                                (message "")) ; otherwise prompt sticks
+                         (?c (magit-call-git "checkout" branch))
+                         (?r (magit-call-git "checkout" "-B" branch ref))
+                         (?a (user-error "Abort"))))
                    (magit-call-git "checkout" "-b" branch ref))
                  (setcar magit-refresh-args branch)
                  (magit-refresh)))
