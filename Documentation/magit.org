@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-176-g284bb4b7a+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-179-ga12cdfcf+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-176-g284bb4b7a+1).
+This manual is for Magit version 2.11.0 (2.11.0-179-ga12cdfcf+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -6910,6 +6910,18 @@ https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015 for details. You
 can work around the problem by setting
 ~tramp-ssh-controlmaster-options~. Changing your DNS server (e.g. to
 Google's ~8.8.8.8~) may also be sufficient to work around the issue.
+
+*** A branch and tag sharing the same name breaks SOMETHING
+
+Or more generally, ambiguous refnames break SOMETHING.
+
+Magit assumes that refs are named non-ambiguously across the
+"refs/heads/", "refs/tags/", and "refs/remotes/" namespaces (i.e., all
+the names remain unique when those prefixes are stripped).  We
+consider ambiguous refnames unsupported and recommend that you use a
+non-ambiguous naming scheme.  However, if you do work with a
+repository that has ambiguous refnames, please report any issues you
+encounter so that we can investigate whether there is a simple fix.
 
 * Debugging Tools
 
