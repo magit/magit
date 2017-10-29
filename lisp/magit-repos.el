@@ -73,11 +73,15 @@ specify the depth directly.")
   :options '(hl-line-mode))
 
 (defcustom magit-repolist-columns
-  '(("Name"    25 magit-repolist-column-ident                  nil)
-    ("Version" 25 magit-repolist-column-version                nil)
-    ("B<U"      3 magit-repolist-column-unpulled-from-upstream ((:right-align t)))
-    ("B>U"      3 magit-repolist-column-unpushed-to-upstream   ((:right-align t)))
-    ("Path"    99 magit-repolist-column-path                   nil))
+  '(("Name"    25 magit-repolist-column-ident nil)
+    ("Version" 25 magit-repolist-column-version nil)
+    ("B<U"      3 magit-repolist-column-unpulled-from-upstream
+     ((:right-align t)
+      (:help-echo "Upstream changes not in branch")))
+    ("B>U"      3 magit-repolist-column-unpushed-to-upstream
+     ((:right-align t)
+      (:help-echo "Local changes not in upstream")))
+    ("Path"    99 magit-repolist-column-path nil))
   "List of columns displayed by `magit-list-repositories'.
 
 Each element has the form (HEADER WIDTH FORMAT PROPS).
@@ -87,8 +91,10 @@ of the column.  FORMAT is a function that is called with one
 argument, the repository identification (usually its basename),
 and with `default-directory' bound to the toplevel of its working
 tree.  It has to return a string to be inserted or nil.  PROPS is
-an alist that supports the keys `:right-align' and `:pad-right'."
-  :package-version '(magit . "2.8.0")
+an alist that supports the keys `:right-align' and `:pad-right'.
+Some entries also use `:help-echo', but `tabulated-list' does not
+actually support that yet."
+  :package-version '(magit . "2.12.0")
   :group 'magit-repolist
   :type `(repeat (list :tag "Column"
                        (string   :tag "Header Label")
