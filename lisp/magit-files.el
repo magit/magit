@@ -371,13 +371,14 @@ If FILE isn't tracked in Git, fallback to using `rename-file'."
 
 With a prefix argument FORCE do so even when the files have
 staged as well as unstaged changes."
-  (interactive
-   (list (or (let ((files (magit-region-values 'file)))
-               (and files
-                    (magit-file-tracked-p (car files))
-                    (magit-confirm-files 'untrack files "Untrack")))
-             (list (magit-read-tracked-file "Untrack file")))
-         current-prefix-arg))
+  (interactive (list (or (--if-let (magit-region-values 'file)
+                             (progn
+                               (or (magit-file-tracked-p (car it))
+                                   (user-error "Already untracked"))
+                               (or (magit-confirm-files 'untrack it "Untrack")
+                                   (user-error "Abort")))
+                           (list (magit-read-tracked-file "Untrack file"))))
+                     current-prefix-arg))
   (magit-run-git "rm" "--cached" (and force "--force") "--" files))
 
 (defun magit-file-delete (files &optional force)
@@ -386,10 +387,10 @@ staged as well as unstaged changes."
 With a prefix argument FORCE do so even when the files have
 uncommitted changes.  When the files aren't being tracked in
 Git, then fallback to using `delete-file'."
-  (interactive (list (or (magit-confirm-files 'delete
-                                              (magit-region-values 'file)
-                                              "Delete")
-                         (list (magit-read-file "Delete file")))
+  (interactive (list (--if-let (magit-region-values 'file)
+                         (or (magit-confirm-files 'delete it "Delete")
+                             (user-error "Abort"))
+                       (list (magit-read-file "Delete file")))
                      current-prefix-arg))
   (if (magit-file-tracked-p (car files))
       (magit-call-git "rm" (and force "--force") "--" files)
