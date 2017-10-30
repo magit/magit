@@ -729,7 +729,7 @@ The information can be in three forms:
 
 If no DWIM context is found, nil is returned."
   (cond
-   ((--when-let (magit-region-values 'commit 'branch)
+   ((--when-let (magit-region-values '(commit branch) t)
       (deactivate-mark)
       (concat (car (last it)) ".." (car it))))
    (magit-buffer-refname
@@ -774,7 +774,7 @@ If no DWIM context is found, nil is returned."
 If MBASE is non-nil, prompt for which rev to place at the end of
 a \"revA...revB\" range.  Otherwise, always construct
 \"revA..revB\" range."
-  (--if-let (magit-region-values 'commit 'branch)
+  (--if-let (magit-region-values '(commit branch) t)
       (let ((revA (car (last it)))
             (revB (car it)))
         (deactivate-mark)
@@ -2124,7 +2124,7 @@ is `region'.  If the region is empty after a mouse click, then
 If optional STRICT is non-nil, then return nil if the diff type of
 the section at point is `untracked' or the section at point is not
 actually a `diff' but a `diffstat' section."
-  (let ((siblings (and (not ssection) (magit-region-sections))))
+  (let ((siblings (and (not ssection) (magit-region-sections nil t))))
     (setq section (or section (car siblings) (magit-current-section)))
     (when (and section
                (or (not strict)

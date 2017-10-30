@@ -7,11 +7,12 @@ Changes since v2.11.0
 * Added new commands `magit-previous-line' and `magit-next-line' as
   substitutes for `previous-line' and `next-line'.  Magit's selection
   mechanism is based on the region but selects an area that is larger
-  than the region.  This causes shift selection to select two lines on
-  the first invocation when using the vanilla commands.  When invoked
-  inside the body of a hunk the new Magit-specific variants don't move
-  point on the first invocation and thereby they only selects a single
-  line.  Which inconsistency you prefer is a matter of preference.  #2912
+  than the region.  This causes shift-selection to select two lines on
+  the first invocation when using the vanilla commands.  On section
+  headings and inside hunk bodies the new magit-specific variants
+  don't move point on the first invocation and thereby they only
+  select a single section or line.  Which inconsistency you prefer
+  is a matter of preference.  #2912
 
   To use the Magit-specific variants add this to your init file:
 
@@ -109,6 +110,20 @@ Changes since v2.11.0
   calling `magit-show-commit' when appropriate, and when using the
   `create-branch' variant and the branch exists, then it offers to
   simply checking it out instead of resetting it first.  #3009
+
+* For a long time Magit has supported selecting two or more sibling
+  sections using the region and then acting on that selection instead
+  of only on the current section.  Single-section selections were not
+  supported and a region that did not span multiple siblings was not
+  visualized as a selection.  Not every section-aware command was
+  adjusted to take single-section selections into account because in
+  many cases that would have lead to undesired changes in behavior.
+  #3026
+
+* The command `magit-branch-spinoff' now spins off just HEAD, when
+  that constitutes the single-section selection.  Previously one could
+  only spin off all commits that aren't in the upstream yet or at least
+  two commits.  #2920
 
 Fixes since v2.11.0
 -------------------

@@ -1517,7 +1517,7 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-read-range-or-commit (prompt &optional secondary-default)
   (magit-read-range
    prompt
-   (or (--when-let (magit-region-values 'commit 'branch)
+   (or (--when-let (magit-region-values '(commit branch) t)
          (deactivate-mark)
          (concat (car (last it)) ".." (car it)))
        (magit-branch-or-commit-at-point)

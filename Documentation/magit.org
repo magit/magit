@@ -3693,8 +3693,7 @@ features are available from separate popups.
   upstream.  Interactively, FROM is only ever non-nil, if the
   region selects some commits, and among those commits, FROM is
   the commit that is the fewest commits ahead of the source
-  branch.  (It not yet possible to spin off a single commit,
-  unless it is the only unpushed commit.  See #2920.)
+  branch.
 
   The commit at the other end of the selection actually does not
   matter, all commits between FROM and ~HEAD~ are moved to the new
