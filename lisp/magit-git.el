@@ -1507,11 +1507,12 @@ Return a list of two integers: (A>B B>A)."
                              (magit-get-current-branch))))
 
 (defun magit-read-branch-or-commit (prompt &optional secondary-default)
-  (magit-completing-read prompt (cons "HEAD" (magit-list-refnames))
-                         nil t nil 'magit-revision-history
-                         (or (magit-branch-or-commit-at-point)
-                             secondary-default
-                             (magit-get-current-branch))))
+  (or (magit-completing-read prompt (cons "HEAD" (magit-list-refnames))
+                             nil nil nil 'magit-revision-history
+                             (or (magit-branch-or-commit-at-point)
+                                 secondary-default
+                                 (magit-get-current-branch)))
+      (user-error "Nothing selected")))
 
 (defun magit-read-range-or-commit (prompt &optional secondary-default)
   (magit-read-range
