@@ -898,7 +898,8 @@ This function is necessary to ensure that a representation of
 such a region is visible.  If neither of these functions were
 part of the hook variable, then such a region would be
 invisible."
-  (when selection
+  (when (and selection
+             (not (and (eq this-command 'mouse-drag-region))))
     (--each selection
       (magit-section-make-overlay (magit-section-start it)
                                   (or (magit-section-content it)
@@ -1045,7 +1046,7 @@ excluding SECTION itself."
         (`next  (cdr (member section siblings)))
         (_      (remq section siblings))))))
 
-(defun magit-region-values (&rest types)
+(defun magit-region-values (&optional types multiple)
   "Return a list of the values of the selected sections.
 
 Also see `magit-region-sections' whose doc-string explains when a
@@ -1054,18 +1055,21 @@ or is not a valid section selection, then return nil.  If optional
 TYPES is non-nil then the selection not only has to be valid; the
 types of all selected sections additionally have to match one of
 TYPES, or nil is returned."
-  (mapcar 'magit-section-value (apply 'magit-region-sections types)))
+  (mapcar #'magit-section-value (magit-region-sections types multiple)))
 
-(defun magit-region-sections (&rest types)
+(defun magit-region-sections (&optional types multiple)
   "Return a list of the selected sections.
 
 When the region is active and constitutes a valid section
 selection, then return a list of all selected sections.  This is
 the case when the region begins in the heading of a section and
-ends in the heading of a sibling of that first section.  When
-the selection is not valid then return nil.  Most commands that
-can act on the selected sections, then instead just act on the
-current section, the one point is in.
+ends in the heading of the same section or in that of a sibling
+section.  If optional MULTIPLE is non-nil, then the region cannot
+begin and end in the same section.
+
+When the selection is not valid, then return nil.  In this case,
+most commands that can act on the selected sections will instead
+act on the section at point.
 
 When the region looks like it would in any other buffer then
 the selection is invalid.  When the selection is valid then the
@@ -1075,15 +1079,19 @@ here if the region looks like it usually does, then that's not
 a valid selection as far as this function is concerned.
 
 If optional TYPES is non-nil, then the selection not only has to
-be valid; the types of all selected sections additionally have to
-match one of TYPES, or nil is returned."
-  (when (use-region-p)
+be valid; the types of all selected sections additionally have
+to match one of TYPES, or nil is returned.  TYPES can also be a
+single type, instead of a list of types."
+  (when (region-active-p)
     (let* ((rbeg (region-beginning))
            (rend (region-end))
            (sbeg (get-text-property rbeg 'magit-section))
            (send (get-text-property rend 'magit-section)))
-      (unless (memq send (list sbeg magit-root-section nil))
-        (let ((siblings (magit-section-siblings sbeg 'next)) sections)
+      (when (and send
+                 (not (eq send magit-root-section))
+                 (not (and multiple (eq send sbeg))))
+        (let ((siblings (cons sbeg (magit-section-siblings sbeg 'next)))
+              sections)
           (when (and (memq send siblings)
                      (magit-section-position-in-heading-p sbeg rbeg)
                      (magit-section-position-in-heading-p send rend))
@@ -1091,14 +1099,23 @@ match one of TYPES, or nil is returned."
               (push (car siblings) sections)
               (when (eq (pop siblings) send)
                 (setq siblings nil)))
-            (setq sections (cons sbeg (nreverse sections)))
+            (setq sections (nreverse sections))
+            (when (and types (symbolp types))
+              (setq types (list types)))
             (when (or (not types)
                       (--all-p (memq (magit-section-type it) types) sections))
               sections)))))))
 
-(defun magit-section-position-in-heading-p (section pos)
-  "Return t if POSITION is inside the heading of SECTION."
-  (and (>= pos (magit-section-start section))
+(defun magit-section-position-in-heading-p (&optional section pos)
+  "Return t if POSITION is inside the heading of SECTION.
+POSITION defaults to point and SECTION defaults to the
+current section."
+  (unless section
+    (setq section (magit-current-section)))
+  (unless pos
+    (setq pos (point)))
+  (and section
+       (>= pos (magit-section-start section))
        (<  pos (or (magit-section-content section)
                    (magit-section-end section)))
        t))

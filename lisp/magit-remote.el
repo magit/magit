@@ -891,7 +891,7 @@ changes introduced by that commit (unlike 'git format-patch'
 which creates patches for all commits that are reachable from
 `HEAD' but not from the specified commit)."
   (interactive
-   (list (-if-let (revs (magit-region-values 'commit))
+   (list (-if-let (revs (magit-region-values 'commit t))
              (concat (car (last revs)) "^.." (car revs))
            (let ((range (magit-read-range-or-commit "Format range or commit")))
              (if (string-match-p "\\.\\." range)

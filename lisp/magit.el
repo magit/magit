@@ -457,10 +457,11 @@ If the region marks multiple tags (and nothing else), then offer
 to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
 \n(git tag -d TAGS)"
-  (interactive (list (--if-let (magit-region-values 'tag)
-                         (or (magit-confirm t nil "Delete %i tags" it)
-                             (user-error "Abort"))
-                       (magit-read-tag "Delete tag" t))))
+  (interactive
+   (list (--if-let (magit-region-values 'tag)
+             (or (magit-confirm t "Delete %s" "Delete %i tags" it)
+                 (user-error "Abort"))
+           (magit-read-tag "Delete tag" t))))
   (magit-run-git "tag" "-d" tags))
 
 (defun magit-tag-prune (tags remote-tags remote)

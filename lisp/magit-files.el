@@ -371,7 +371,7 @@ If FILE isn't tracked in Git, fallback to using `rename-file'."
 
 With a prefix argument FORCE do so even when the files have
 staged as well as unstaged changes."
-  (interactive (list (or (--if-let (magit-region-values 'file)
+  (interactive (list (or (--if-let (magit-region-values 'file t)
                              (progn
                                (or (magit-file-tracked-p (car it))
                                    (user-error "Already untracked"))
@@ -387,7 +387,7 @@ staged as well as unstaged changes."
 With a prefix argument FORCE do so even when the files have
 uncommitted changes.  When the files aren't being tracked in
 Git, then fallback to using `delete-file'."
-  (interactive (list (--if-let (magit-region-values 'file)
+  (interactive (list (--if-let (magit-region-values 'file t)
                          (or (magit-confirm-files 'delete it "Delete")
                              (user-error "Abort"))
                        (list (magit-read-file "Delete file")))
