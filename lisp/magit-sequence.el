@@ -175,7 +175,9 @@ without prompting."
 (magit-define-popup magit-revert-popup
   "Popup console for revert commands."
   :man-page "git-revert"
-  :switches '((?s "Add Signed-off-by lines" "--signoff"))
+  :switches '((?s "Add Signed-off-by lines"   "--signoff")
+              (?e "Edit commit message"       "--edit")
+              (?E "Don't edit commit message" "--no-edit"))
   :options  '((?s "Strategy"       "--strategy=")
               (?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key)
               (?m "Replay merge relative to parent" "--mainline="))
@@ -184,7 +186,8 @@ without prompting."
   :sequence-actions '((?V "Continue" magit-sequencer-continue)
                       (?s "Skip"     magit-sequencer-skip)
                       (?a "Abort"    magit-sequencer-abort))
-  :sequence-predicate 'magit-sequencer-in-progress-p)
+  :sequence-predicate 'magit-sequencer-in-progress-p
+  :default-arguments '("--edit"))
 
 (defun magit-revert-read-args (prompt)
   (list (or (magit-region-values 'commit)
