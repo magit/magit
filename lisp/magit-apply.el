@@ -337,12 +337,13 @@ without requiring confirmation."
 (defun magit-unstage-all ()
   "Remove all changes from the staging area."
   (interactive)
-  (when (or (and (not (magit-anything-unstaged-p))
-                 (not (magit-untracked-files)))
-            (magit-confirm 'unstage-all-changes))
-    (magit-wip-commit-before-change nil " before unstage")
-    (magit-run-git "reset" "HEAD" "--")
-    (magit-wip-commit-after-apply nil " after unstage")))
+  (when (or (magit-anything-unstaged-p)
+            (magit-untracked-files))
+    (unless (magit-confirm 'unstage-all-changes)
+      (user-error "Abort")))
+  (magit-wip-commit-before-change nil " before unstage")
+  (magit-run-git "reset" "HEAD" "--")
+  (magit-wip-commit-after-apply nil " after unstage"))
 
 ;;;; Discard
 
