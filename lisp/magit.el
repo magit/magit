@@ -427,8 +427,9 @@ With a prefix argument also reset the working tree.
   "Popup console for tag commands."
   :man-page "git-tag"
   :switches '((?a "Annotate" "--annotate")
-              (?s "Sign"     "--sign")
-              (?f "Force"    "--force"))
+              (?f "Force"    "--force")
+              (?s "Sign"     "--sign"))
+  :options  '((?f "Sign"     "--local-user=" magit-read-gpg-secret-key))
   :actions  '((?t "Create"   magit-tag)
               (?k "Delete"   magit-tag-delete)
               (?p "Prune"    magit-tag-prune))
