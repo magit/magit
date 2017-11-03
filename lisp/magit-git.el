@@ -430,9 +430,9 @@ it has to be a path relative to the control directory and its
 absolute path is returned."
   (magit--with-refresh-cache (list default-directory 'magit-git-dir path)
     (magit--with-safe-default-directory nil
-      (--when-let (magit-rev-parse-safe "--git-dir")
-        (setq it (file-name-as-directory (magit-expand-git-file-name it)))
-        (if path (expand-file-name (convert-standard-filename path) it) it)))))
+      (-when-let (dir (magit-rev-parse-safe "--git-dir"))
+        (setq dir (file-name-as-directory (magit-expand-git-file-name dir)))
+        (if path (expand-file-name (convert-standard-filename path) dir) dir)))))
 
 (defvar magit--separated-gitdirs nil)
 
