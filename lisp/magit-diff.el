@@ -863,16 +863,22 @@ be committed."
     (user-error "No commit in progress"))
   (let ((magit-display-buffer-noselect t)
         (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))
-    (if (and (or ;; most likely an explicit amend
-                 (not (magit-anything-staged-p))
-                 ;; explicitly toggled from within diff
-                 (and (eq (current-buffer) diff-buf)))
-             (or (not diff-buf)
-                 (with-current-buffer diff-buf
-                   ;; toggle to include last commit
-                   (not (car magit-refresh-args)))))
-        (magit-diff-while-amending args)
-      (magit-diff-staged nil args))))
+    (if diff-buf
+        (if (eq diff-buf (window-buffer (selected-window)))
+            ;; Attempt to toggle (may fail).
+            (if (car magit-refresh-args)
+                (magit-diff-staged nil args)
+              (magit-diff-while-amending args))
+          (with-current-buffer diff-buf
+            ;; If there are staged changes, then show them.
+            ;; Otherwise toggle from amend to staged (empty).
+            (if (or (magit-anything-staged-p)
+                    (car magit-refresh-args))
+                (magit-diff-staged nil args)
+              (magit-diff-while-amending args))))
+      (if (magit-anything-staged-p)
+          (magit-diff-staged nil args)
+        (magit-diff-while-amending args)))))
 
 (define-key git-commit-mode-map
   (kbd "C-c C-d") 'magit-diff-while-committing)
