@@ -853,12 +853,12 @@ a commit read from the minibuffer."
   (magit-diff-setup nil nil args files))
 
 ;;;###autoload
-(defun magit-diff-while-committing (&optional args files)
+(defun magit-diff-while-committing (&optional args)
   "While committing, show the changes that are about to be committed.
 While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
 be committed."
-  (interactive (magit-diff-arguments))
+  (interactive (list (car (magit-diff-arguments))))
   (let ((toplevel (magit-toplevel))
         (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))
     (if (magit-commit-message-buffer)
@@ -872,15 +872,15 @@ be committed."
                            (not (equal (magit-toplevel) toplevel))
                            ;; toggle to include last commit
                            (not (car magit-refresh-args))))))
-            (magit-diff-while-amending args files)
-          (magit-diff-staged nil args files))
+            (magit-diff-while-amending args)
+          (magit-diff-staged nil args))
       (user-error "No commit in progress"))))
 
 (define-key git-commit-mode-map
   (kbd "C-c C-d") 'magit-diff-while-committing)
 
-(defun magit-diff-while-amending (&optional args files)
-  (magit-diff-setup "HEAD^" (list "--cached") args files))
+(defun magit-diff-while-amending (&optional args)
+  (magit-diff-setup "HEAD^" (list "--cached") args nil))
 
 ;;;###autoload
 (defun magit-diff-buffer-file ()
