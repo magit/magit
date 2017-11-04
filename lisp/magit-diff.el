@@ -863,20 +863,19 @@ be committed."
     (user-error "No commit in progress"))
   (let ((magit-display-buffer-noselect t)
         (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))
-    (if diff-buf
-        (if (get-buffer-window diff-buf)
-            (with-current-buffer diff-buf
-              ;; Attempt to toggle (may fail).
-              (if (car magit-refresh-args)
-                  (magit-diff-staged nil args)
-                (magit-diff-while-amending args)))
-          (with-current-buffer diff-buf
-            ;; If there are staged changes, then show them.
-            ;; Otherwise toggle from amend to staged (empty).
-            (if (or (magit-anything-staged-p)
-                    (car magit-refresh-args))
-                (magit-diff-staged nil args)
-              (magit-diff-while-amending args))))
+    (if (get-buffer-window diff-buf)
+        (with-current-buffer diff-buf
+          (pcase-let ((`(,rev ,arg . ,_) magit-refresh-args))
+            (cond ((and (equal rev "HEAD^")
+                        (equal arg '("--cached")))
+                   (magit-diff-staged nil args))
+                  ((and (equal rev nil)
+                        (equal arg '("--cached")))
+                   (magit-diff-while-amending args))
+                  ((magit-anything-staged-p)
+                   (magit-diff-staged nil args))
+                  (t
+                   (magit-diff-while-amending args)))))
       (if (magit-anything-staged-p)
           (magit-diff-staged nil args)
         (magit-diff-while-amending args)))))
