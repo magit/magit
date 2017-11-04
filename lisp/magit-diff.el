@@ -859,7 +859,8 @@ While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
 be committed."
   (interactive (list (car (magit-diff-arguments))))
-  (let ((toplevel (magit-toplevel))
+  (let ((magit-display-buffer-noselect t)
+        (toplevel (magit-toplevel))
         (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))
     (if (magit-commit-message-buffer)
         (if (and (or ;; most likely an explicit amend
