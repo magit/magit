@@ -862,7 +862,6 @@ be committed."
   (unless (magit-commit-message-buffer)
     (user-error "No commit in progress"))
   (let ((magit-display-buffer-noselect t)
-        (toplevel (magit-toplevel))
         (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))
     (if (and (or ;; most likely an explicit amend
                  (not (magit-anything-staged-p))
@@ -870,10 +869,8 @@ be committed."
                  (and (eq (current-buffer) diff-buf)))
              (or (not diff-buf)
                  (with-current-buffer diff-buf
-                   (or ;; default to include last commit
-                       (not (equal (magit-toplevel) toplevel))
-                       ;; toggle to include last commit
-                       (not (car magit-refresh-args))))))
+                   ;; toggle to include last commit
+                   (not (car magit-refresh-args)))))
         (magit-diff-while-amending args)
       (magit-diff-staged nil args))))
 
