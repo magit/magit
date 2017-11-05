@@ -176,7 +176,15 @@ and change branch related variables."
              (?x "Reset"                 magit-branch-reset) nil nil
              (?k "Delete"                magit-branch-delete))
   :default-action 'magit-checkout
-  :max-action-columns 3)
+  :max-action-columns 3
+  :setup-function 'magit-branch-popup-setup)
+
+(defun magit-branch-popup-setup (val def)
+  (magit-popup-default-setup val def)
+  (use-local-map (copy-keymap magit-popup-mode-map))
+  (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
+    (local-set-key (vector (magit-popup-event-key ev))
+                   'magit-invoke-popup-action)))
 
 ;;; Branch Commands
 
@@ -558,7 +566,11 @@ With prefix, forces the rename even if NEW already exists.
 
 (defun magit-branch-config-popup-setup (val def)
   (magit-popup-default-setup val def)
-  (setq-local magit-branch-config-branch magit-branch-config-branch))
+  (setq-local magit-branch-config-branch magit-branch-config-branch)
+  (use-local-map (copy-keymap magit-popup-mode-map))
+  (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
+    (local-set-key (vector (magit-popup-event-key ev))
+                   'magit-invoke-popup-action)))
 
 (defun magit-branch-config-branch (&optional prompt)
   (if prompt
