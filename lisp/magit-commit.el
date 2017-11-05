@@ -339,28 +339,31 @@ depending on the value of option `magit-commit-squash-confirm'."
 ;;; Pending Diff
 
 (defun magit-commit-diff ()
-  (-when-let (fn (and git-commit-mode
-                      magit-commit-show-diff
-                      (cl-case last-command
-                        (magit-commit
-                         (apply-partially 'magit-diff-staged nil))
-                        (magit-commit-all
-                         (apply-partially 'magit-diff-working-tree nil))
-                        ((magit-commit-amend
-                          magit-commit-reword
-                          magit-rebase-reword-commit)
-                         'magit-diff-while-amending))))
+  (when (and git-commit-mode magit-commit-show-diff)
     (-when-let (diff-buffer (magit-mode-get-buffer 'magit-diff-mode))
       ;; This window just started displaying the commit message
       ;; buffer.  Without this that buffer would immediately be
       ;; replaced with the diff buffer.  See #2632.
       (unrecord-window-buffer nil diff-buffer))
     (condition-case nil
-        (let ((magit-inhibit-save-previous-winconf 'unset)
+        (let ((args (car (magit-diff-arguments)))
+              (magit-inhibit-save-previous-winconf 'unset)
               (magit-display-buffer-noselect t)
               (inhibit-quit nil))
           (message "Diffing changes to be committed (C-g to abort diffing)")
-          (funcall fn (car (magit-diff-arguments))))
+          (-if-let (fn (cl-case last-command
+                         (magit-commit
+                          (apply-partially 'magit-diff-staged nil))
+                         (magit-commit-all
+                          (apply-partially 'magit-diff-working-tree nil))
+                         ((magit-commit-amend
+                           magit-commit-reword
+                           magit-rebase-reword-commit)
+                          'magit-diff-while-amending)))
+              (funcall fn args)
+            (if (magit-anything-staged-p)
+                (magit-diff-staged nil args)
+              (magit-diff-while-amending args))))
       (quit))))
 
 ;; Mention `magit-diff-while-committing' because that's
