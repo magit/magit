@@ -104,6 +104,7 @@ so causes the change to be applied to the index as well."
       (`(,_ region) (magit-apply-region it args))
       (`(,_   hunk) (magit-apply-hunk   it args))
       (`(,_  hunks) (magit-apply-hunks  it args))
+      (`(rebase-sequence file) (magit-patch-apply-popup))
       (`(,_   file) (magit-apply-diff   it args))
       (`(,_  files) (magit-apply-diffs  it args)))))
 
