@@ -485,10 +485,11 @@ If DEFAULT is non-nil, use this as the default value instead of
 
 (defun magit-patch-apply (file &rest args)
   "Apply the patch file FILE."
-  (interactive (list (read-file-name "Apply patch: "
-                                     default-directory nil nil
-                                     (--when-let (magit-file-at-point)
-                                       (file-relative-name it)))
+  (interactive (list (expand-file-name
+                      (read-file-name "Apply patch: "
+                                      default-directory nil nil
+                                      (--when-let (magit-file-at-point)
+                                        (file-relative-name it))))
                      (magit-patch-apply-arguments)))
   (magit-run-git "apply" args "--" file))
 
