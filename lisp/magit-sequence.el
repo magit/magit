@@ -573,9 +573,16 @@ If no such sequence is in progress, do nothing."
 
 (defun magit-sequence-insert-am-patch (type patch face)
   (magit-insert-section (file patch)
-    (insert (propertize type 'face face)
-            ?\s (propertize (file-name-nondirectory patch) 'face 'magit-hash)
-            ?\n)))
+    (let ((title
+           (with-temp-buffer
+             (insert-file-contents patch nil nil 4096)
+             (unless (re-search-forward "^Subject: " nil t)
+               (goto-char (point-min)))
+             (buffer-substring (point) (line-end-position)))))
+      (insert (propertize type 'face face)
+              ?\s (propertize (file-name-nondirectory patch) 'face 'magit-hash)
+              ?\s title
+              ?\n))))
 
 (defun magit-insert-rebase-sequence ()
   "Insert section for the on-going rebase sequence.
