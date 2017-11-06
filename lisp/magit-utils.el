@@ -92,7 +92,13 @@ Only the following commands support this option:
   `magit-branch-rename'
   `magit-tag'")
 
-(defcustom magit-dwim-selection nil
+(defcustom magit-dwim-selection
+  '((magit-stash-apply        nil t)
+    (magit-stash-branch       nil t)
+    (magit-stash-branch-here  nil t)
+    (magit-stash-format-patch nil t)
+    (magit-stash-drop         nil nil)
+    (magit-stash-pop          nil t))
   "When not to offer alternatives and ask for confirmation.
 
 Many commands by default ask the user to select from a list of
