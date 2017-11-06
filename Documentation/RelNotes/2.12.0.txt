@@ -160,6 +160,13 @@ Changes since v2.11.0
   candidates to use the default instead, with or without confirmation.
   #3232
 
+* When there is a stash at point, then the commands `magit-stash-drop'
+  and `magit-stash-pop' now ask for confirmation.  The former command
+  previously allowed users to select another stash instead and the
+  latter used to act on the stash at point without giving the user a
+  chance to abort.  These changes are implemented using the new option
+  `magit-dwim-selection' and can easily be reverted.  #2916
+
 Fixes since v2.11.0
 -------------------
 

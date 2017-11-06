@@ -97,8 +97,8 @@ Only the following commands support this option:
     (magit-stash-branch       nil t)
     (magit-stash-branch-here  nil t)
     (magit-stash-format-patch nil t)
-    (magit-stash-drop         nil nil)
-    (magit-stash-pop          nil t))
+    (magit-stash-drop         nil ask)
+    (magit-stash-pop          nil ask))
   "When not to offer alternatives and ask for confirmation.
 
 Many commands by default ask the user to select from a list of
