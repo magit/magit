@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-226-g9c2a362cf+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-227-gaeca03f04+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-226-g9c2a362cf+1).
+This manual is for Magit version 2.11.0 (2.11.0-227-gaeca03f04+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -1494,7 +1494,8 @@ will also have to install the ~ido-completing-read+~ package and use
 
   This is the function that Magit commands use when they need the user
   to select a single thing to act on.  The arguments have the same
-  meaning as for ~completing-read~.
+  meaning as for ~completing-read~, except for FALLBACK, which is unique
+  to this function and is described below.
 
   Instead of asking the user to choose from a list of possible
   candidates, this function may just return the default specified by
@@ -1510,6 +1511,12 @@ will also have to install the ~ido-completing-read+~ package and use
 
   - If REQUIRE-MATCH is non-nil and the users exits without a choice,
     an user-error is raised.
+
+  - FALLBACK specifies a secondary default that is only used if the
+    primary default DEF is ~nil~.  The secondary default is not subject
+    to ~magit-dwim-selection~ — if DEF is ~nil~ but FALLBACK is not, then
+    this function always asks the user to choose a candidate, just as
+    if both defaults were ~nil~.
 
   - ": " is appended to PROMPT.
 

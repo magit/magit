@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-226-g9c2a362cf+1)
+@subtitle for version 2.11.0 (2.11.0-227-gaeca03f04+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-226-g9c2a362cf+1).
+This manual is for Magit version 2.11.0 (2.11.0-227-gaeca03f04+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -2051,7 +2051,8 @@ because it violates too many of the implicit conventions.
 
 This is the function that Magit commands use when they need the user
 to select a single thing to act on.  The arguments have the same
-meaning as for @code{completing-read}.
+meaning as for @code{completing-read}, except for FALLBACK, which is unique
+to this function and is described below.
 
 Instead of asking the user to choose from a list of possible
 candidates, this function may just return the default specified by
@@ -2071,6 +2072,14 @@ If REQUIRE-MATCH is @code{nil} and the user exits without a choice, then
 @item
 If REQUIRE-MATCH is non-nil and the users exits without a choice,
 an user-error is raised.
+
+
+@item
+FALLBACK specifies a secondary default that is only used if the
+primary default DEF is @code{nil}.  The secondary default is not subject
+to @code{magit-dwim-selection} — if DEF is @code{nil} but FALLBACK is not, then
+this function always asks the user to choose a candidate, just as
+if both defaults were @code{nil}.
 
 
 @item

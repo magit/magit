@@ -328,8 +328,9 @@ and delay of your graphical environment or operating system."
 
 (defvar magit-completing-read--silent-default nil)
 
-(defun magit-completing-read
-    (prompt collection &optional predicate require-match initial-input hist def)
+(defun magit-completing-read (prompt collection &optional
+                                     predicate require-match initial-input
+                                     hist def fallback)
   "Read a choice in the minibuffer, or use the default choice.
 
 This is the function that Magit commands use when they need the
@@ -357,6 +358,12 @@ acts similarly to `completing-read', except for the following:
 - If REQUIRE-MATCH is non-nil and the users exits without a
   choice, an user-error is raised.
 
+- FALLBACK specifies a secondary default that is only used if
+  the primary default DEF is nil.  The secondary default is not
+  subject to `magit-dwim-selection' — if DEF is nil but FALLBACK
+  is not, then this function always asks the user to choose a
+  candidate, just as if both defaults were nil.
+
 - \": \" is appended to PROMPT.
 
 - PROMPT is modified to end with \" (default DEF|FALLBACK): \"
@@ -379,6 +386,8 @@ acts similarly to `completing-read', except for the following:
             (user-error "Abort"))
         (setq magit-completing-read--silent-default t)
         def)
+    (unless def
+      (setq def fallback))
     (let ((reply (funcall magit-completing-read-function
                           (concat prompt ": ")
                           (if (and def (not (member def collection)))
