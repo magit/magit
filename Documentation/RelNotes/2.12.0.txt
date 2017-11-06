@@ -144,6 +144,10 @@ Changes since v2.11.0
   Note that this can be disabled and that even if you do so you can
   still visit the commit at point using "RET".  #2949
 
+* The documentation regarding completion, confirmation, the selection,
+  and the hunk-internal region were significantly extended.  It might
+  be worth reading that.
+
 Fixes since v2.11.0
 -------------------
 
