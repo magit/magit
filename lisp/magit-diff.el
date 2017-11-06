@@ -863,7 +863,8 @@ be committed."
     (user-error "No commit in progress"))
   (let ((magit-display-buffer-noselect t)
         (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))
-    (if (get-buffer-window diff-buf)
+    (if (and diff-buf
+             (get-buffer-window diff-buf))
         (with-current-buffer diff-buf
           (pcase-let ((`(,rev ,arg . ,_) magit-refresh-args))
             (cond ((and (equal rev "HEAD^")
