@@ -359,6 +359,10 @@ option `magit-git-global-arguments' specifies constant arguments.
 The remaining arguments ARGS specify arguments to Git, they are
 flattened before use."
   (declare (indent 1))
+  (when (eq system-type 'windows-nt)
+    ;; On w32, git expects UTF-8 encoded input, ignore any user
+    ;; configuration telling us otherwise (see #3250).
+    (encode-coding-region (point-min) (point-max) 'utf-8-unix))
   (if (file-remote-p default-directory)
       ;; We lack `process-file-region', so fall back to asynch +
       ;; waiting in remote case.
@@ -497,6 +501,10 @@ Magit status buffer."
     (with-editor-set-process-filter process #'magit-process-filter)
     (set-process-sentinel process #'magit-process-sentinel)
     (set-process-buffer   process process-buf)
+    (when (eq system-type 'windows-nt)
+      ;; On w32, git expects UTF-8 encoded input, ignore any user
+      ;; configuration telling us otherwise.
+      (set-process-coding-system 'utf-8-unix))
     (process-put process 'section section)
     (process-put process 'command-buf (current-buffer))
     (process-put process 'default-dir default-directory)

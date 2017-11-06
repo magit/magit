@@ -234,8 +234,17 @@ pass arguments through this function before handing them to Git,
 to do the following.
 
 * Flatten ARGS, removing nil arguments.
-* Prepend `magit-git-global-arguments' to ARGS."
-  (append magit-git-global-arguments (-flatten args)))
+* Prepend `magit-git-global-arguments' to ARGS.
+* On w32 systems, encode to `w32-ansi-code-page'."
+  (setq args (append magit-git-global-arguments (-flatten args)))
+  (if (and (eq system-type 'windows-nt) (boundp 'w32-ansi-code-page))
+      ;; On w32, the process arguments *must* be encoded in the
+      ;; current code-page (see #3250).
+      (mapcar (lambda (arg)
+                (encode-coding-string
+                 arg (intern (format "cp%d" w32-ansi-code-page))))
+              args)
+    args))
 
 (defun magit-git-exit-code (&rest args)
   "Execute Git with ARGS, returning its exit code."
