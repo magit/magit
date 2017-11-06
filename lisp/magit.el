@@ -441,10 +441,7 @@ With a prefix argument also reset the working tree.
 With a prefix argument annotate the tag.
 \n(git tag [--annotate] NAME REV)"
   (interactive (list (magit-read-tag "Tag name")
-                     (or (and (memq 'magit-tag magit-no-confirm-default)
-                              (or (magit-branch-or-commit-at-point)
-                                  (magit-get-current-branch)))
-                         (magit-read-branch-or-commit "Place tag on"))
+                     (magit-read-branch-or-commit "Place tag on")
                      (let ((args (magit-tag-arguments)))
                        (when current-prefix-arg
                          (cl-pushnew "--annotate" args))

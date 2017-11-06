@@ -1,6 +1,13 @@
 Magit v2.12.0 Release Notes (unreleased)
 ========================================
 
+Upcoming breaking changes
+-------------------------
+
+* The option `magit-no-confirm-default' has been demoted to a variable
+  and will be removed in v2.13.0.  Please migrate your customizations
+  to the new option `magit-dwim-selection'.  #3232
+
 Changes since v2.11.0
 ---------------------
 
@@ -147,6 +154,11 @@ Changes since v2.11.0
 * The documentation regarding completion, confirmation, the selection,
   and the hunk-internal region were significantly extended.  It might
   be worth reading that.
+
+* Added new option `magit-dwim-selection', which allows configuring
+  commands that would otherwise ask the user to select among possible
+  candidates to use the default instead, with or without confirmation.
+  #3232
 
 Fixes since v2.11.0
 -------------------

@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-225-g9b96aeb04+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-226-g9c2a362cf+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-225-g9b96aeb04+1).
+This manual is for Magit version 2.11.0 (2.11.0-226-g9c2a362cf+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -1323,7 +1323,9 @@ the target by moving to it.
 
 However you might find that for some commands you always want to use
 the default target, if any, or even that you want the command to act
-on the default without requiring any confirmation at all.
+on the default without requiring any confirmation at all.  The option
+~magit-dwim-selection~ can be used to configure certain commands to that
+effect.
 
 Note that when the region is active then many commands act on the
 things that are selected using a mechanism based on the region, in
@@ -1336,6 +1338,30 @@ whether it asks for confirmation is not controlled by this option.
 Also note that Magit asks for confirmation of certain actions that are
 not coupled with completion (or the selection).  Such dialogs are also
 not affected by this option and are described in the previous section.
+
+- User Option: magit-dwim-selection
+
+This option can be used to tell certain commands to use the thing
+at point instead of asking the user to select a candidate to act
+on, with or without confirmation.
+
+The value has the form ~((COMMAND nil|PROMPT DEFAULT)...)~.
+
+- COMMAND is the command that should not prompt for a choice.
+  To have an effect, the command has to use the function
+  ~magit-completing-read~ or a utility function which in turn uses
+  that function.
+
+- If the command uses ~magit-completing-read~ multiple times, then
+  PROMPT can be used to only affect one of these uses.  PROMPT, if
+  non-nil, is a regular expression that is used to match against
+  the PROMPT argument passed to ~magit-completing-read~.
+
+- DEFAULT specifies how to use the default.  If it is ~t~, then
+  the DEFAULT argument passed to ~magit-completing-read~ is used
+  without confirmation.  If it is ~ask~, then the user is given
+  a chance to abort.  DEFAULT can also be ~nil~, in which case the
+  entry has no effect.
 
 *** The Selection
 

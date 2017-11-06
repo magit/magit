@@ -74,7 +74,7 @@ or `helm--completing-read-default'."
                 (function-item helm--completing-read-default)
                 (function :tag "Other function")))
 
-(defcustom magit-no-confirm-default nil
+(defvar magit-no-confirm-default nil
   "A list of commands which should just use the default choice.
 
 Many commands let the user choose the target they act on offering
@@ -82,8 +82,7 @@ a sensible default as default choice.  If you think that that
 default is so sensible that it should always be used without even
 offering other choices, then add that command here.
 
-Commands have to explicitly support this option.  Currently only
-these commands do:
+Only the following commands support this option:
   `magit-branch'
   `magit-branch-and-checkout'
   `magit-branch-orphan'
@@ -91,16 +90,43 @@ these commands do:
     For these four commands `magit-branch-read-upstream-first'
     must be non-nil, or adding them here has no effect.
   `magit-branch-rename'
-  `magit-tag'"
-  :package-version '(magit . "2.9.0")
+  `magit-tag'")
+
+(defcustom magit-dwim-selection nil
+  "When not to offer alternatives and ask for confirmation.
+
+Many commands by default ask the user to select from a list of
+possible candidates.  They do so even when there is a thing at
+point that they can act on, which is then offered as the default.
+
+This option can be used to tell certain commands to use the thing
+at point instead of asking the user to select a candidate to act
+on, with or without confirmation.
+
+The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
+
+- COMMAND is the command that should not prompt for a choice.
+  To have an effect, the command has to use the function
+  `magit-completing-read' or a utility function which in turn uses
+  that function.
+
+- If the command uses `magit-completing-read' multiple times, then
+  PROMPT can be used to only affect one of these uses.  PROMPT, if
+  non-nil, is a regular expression that is used to match against
+  the PROMPT argument passed to `magit-completing-read'.
+
+- DEFAULT specifies how to use the default.  If it is t, then
+  the DEFAULT argument passed to `magit-completing-read' is used
+  without confirmation.  If it is `ask', then the user is given
+  a chance to abort.  DEFAULT can also be nil, in which case the
+  entry has no effect."
+  :package-version '(magit . "2.12.0")
   :group 'magit-commands
-  :type '(list :convert-widget custom-hook-convert-widget)
-  :options '(magit-branch
-             magit-branch-and-checkout
-             magit-branch-orphan
-             magit-branch-rename
-             magit-worktree-branch
-             magit-tag))
+  :type '(repeat (list command
+                       (regexp :tag "Prompt regexp")
+                       (choice (const "Offer other choices" nil)
+                               (const "Require confirmation" ask)
+                               (const "Use default without confirmation" t)))))
 
 (defconst magit--confirm-actions
   '((const reverse)           (const discard)
@@ -300,45 +326,71 @@ and delay of your graphical environment or operating system."
 
 ;;; User Input
 
+(defvar magit-completing-read--silent-default nil)
+
 (defun magit-completing-read
     (prompt collection &optional predicate require-match initial-input hist def)
-  "Magit wrapper around `completing-read' or an alternative function.
+  "Read a choice in the minibuffer, or use the default choice.
 
-Option `magit-completing-read-function' can be used to wrap
-around another `completing-read'-like function.  Unless it
-doesn't have the exact same signature, an additional wrapper is
-required.  Even if it has the same signature it might be a good
-idea to wrap it, so that `magit-prompt-with-default' can be used.
+This is the function that Magit commands use when they need the
+user to select a single thing to act on.  The arguments have the
+same meaning as for `completing-read', except for FALLBACK, which
+is unique to this function and is described below.
 
-See `completing-read' for the meanings of the arguments, but note
-that this wrapper makes the following changes:
+Instead of asking the user to choose from a list of possible
+candidates, this function may instead just return the default
+specified by DEF, with or without requiring user confirmation.
+Whether that is the case depends on PROMPT, `this-command' and
+`magit-dwim-selection'.  See the documentation of the latter for
+more information.
+
+If it does use the default without the user even having to
+confirm that, then `magit-completing-read--silent-default' is set
+to t, otherwise nil.
+
+If it does read a value in the minibuffer, then this function
+acts similarly to `completing-read', except for the following:
 
 - If REQUIRE-MATCH is nil and the user exits without a choice,
-  then return nil instead of an empty string.
+  then nil is returned instead of an empty string.
 
 - If REQUIRE-MATCH is non-nil and the users exits without a
-  choice, then raise an user-error.
+  choice, an user-error is raised.
 
 - \": \" is appended to PROMPT.
 
-- If a `magit-completing-read-function' is used which in turn
-  uses `magit-prompt-with-completion' and DEF is non-nil, then
-  PROMPT is modified to end with \" (default DEF): \".
-
-The use of another completing function and/or wrapper obviously
-results in additional differences."
-  (let ((reply (funcall magit-completing-read-function
-                        (concat prompt ": ")
-                        (if (and def (not (member def collection)))
-                            (cons def collection)
-                          collection)
-                        predicate
-                        require-match initial-input hist def)))
-    (if (string= reply "")
-        (if require-match
-            (user-error "Nothing selected")
-          nil)
-      reply)))
+- PROMPT is modified to end with \" (default DEF|FALLBACK): \"
+  provided that DEF or FALLBACK is non-nil, that neither
+  `ivy-mode' nor `helm-mode' is enabled, and that
+  `magit-completing-read-function' is set to its default value of
+  `magit-builtin-completing-read'."
+  (setq magit-completing-read--silent-default nil)
+  (-if-let (dwim (and def
+                      (or (nth 2 (-first (pcase-lambda (`(,cmd ,re ,_))
+                                           (and (eq this-command cmd)
+                                                (or (not re)
+                                                    (string-match-p re prompt))))
+                                         magit-dwim-selection))
+                          (memq this-command
+                                (with-no-warnings magit-no-confirm-default)))))
+      (if (eq dwim 'ask)
+          (if (y-or-n-p (format "%s %s? " prompt def))
+              def
+            (user-error "Abort"))
+        (setq magit-completing-read--silent-default t)
+        def)
+    (let ((reply (funcall magit-completing-read-function
+                          (concat prompt ": ")
+                          (if (and def (not (member def collection)))
+                              (cons def collection)
+                            collection)
+                          predicate
+                          require-match initial-input hist def)))
+      (if (string= reply "")
+          (if require-match
+              (user-error "Nothing selected")
+            nil)
+        reply))))
 
 (defun magit--completion-table (collection)
   (lambda (string pred action)
