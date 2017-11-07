@@ -36,6 +36,7 @@
 
 ;; For `magit-apply'
 (declare-function magit-am-popup 'magit-sequence)
+(declare-function magit-patch-apply-popup 'magit-files)
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage 'magit)
 (declare-function magit-checkout-read-stage 'magit)
