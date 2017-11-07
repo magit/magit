@@ -129,6 +129,12 @@ Changes since v2.11.0
   itself was never visualized.  Now it is, but only if it stays within
   a single line.  #3249
 
+* Added new command `magit-branch-checkout' and bound "l" in the
+  branch popup to it.  This command always checks out a local branch.
+  Valid inputs are an existing local branch, a remote branch for which
+  no corresponding local branch exists, and a new branch name that
+  doesn't match the name of any existing local or remote branch.  #2906
+
 Fixes since v2.11.0
 -------------------
 
