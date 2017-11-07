@@ -266,7 +266,8 @@ does."
 (defun magit-branch-read-args (prompt)
   (let ((args (magit-branch-arguments)))
     (if magit-branch-read-upstream-first
-        (let* ((default (and (memq this-command magit-no-confirm-default)
+        (let* ((default (and (memq this-command
+                                   (with-no-warnings magit-no-confirm-default))
                              (magit--default-starting-point)))
                (choice (or default
                            (magit-read-starting-point prompt))))
@@ -498,7 +499,8 @@ defaulting to the branch at point."
 With prefix, forces the rename even if NEW already exists.
 \n(git branch -m|-M OLD NEW)."
   (interactive
-   (let ((branch (or (and (memq 'magit-branch-rename magit-no-confirm-default)
+   (let ((branch (or (and (memq 'magit-branch-rename
+                                (with-no-warnings magit-no-confirm-default))
                           (or (magit-local-branch-at-point)
                               (magit-get-current-branch)))
                      (magit-read-local-branch "Rename branch"))))
