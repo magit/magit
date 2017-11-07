@@ -125,6 +125,10 @@ Changes since v2.11.0
   only spin off all commits that aren't in the upstream yet or at least
   two commits.  #2920
 
+* When there is a valid selection based on the region, then the region
+  itself was never visualized.  Now it is, but only if it stays within
+  a single line.  #3249
+
 Fixes since v2.11.0
 -------------------
 
