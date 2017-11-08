@@ -291,6 +291,30 @@ subject to option `magit-revision-insert-related-refs'."
   :group 'magit-revision
   :type 'boolean)
 
+(defcustom magit-revision-use-hash-sections 'quicker
+  "Whether to turn hashes inside the commit message into sections.
+
+If non-nil, then hashes inside the commit message are turned into
+`commit' sections.  There is a trade off to be made between
+performance and reliability:
+
+- `slow' calls git for every word to be absolutely sure.
+- `quick' skips words less than seven characters long.
+- `quicker' additionally skips words that don't contain a number.
+- `quickest' uses all words that are at least seven characters
+  long and which contain at least one number as well as at least
+  one letter.
+
+If nil, then no hashes are turned into sections, but you can
+still visit the commit at point using \"RET\"."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-revision
+  :type '(choice (const :tag "Use sections, quickest" quickest)
+                 (const :tag "Use sections, quicker" quicker)
+                 (const :tag "Use sections, quick" quick)
+                 (const :tag "Use sections, slow" slow)
+                 (const :tag "Don't use sections" nil)))
+
 (defcustom magit-revision-show-gravatars nil
   "Whether to show gravatar images in revision buffers.
 
@@ -1886,6 +1910,33 @@ or a ref which is not a branch, then it inserts nothing."
         (save-excursion
           (while (search-forward "\r\n" nil t) ; Remove trailing CRs.
             (delete-region (match-beginning 0) (1+ (match-beginning 0)))))
+        (when magit-revision-use-hash-sections
+          (save-excursion
+            (while (not (eobp))
+              (re-search-forward "\\_<" nil 'move)
+              (let ((beg (point)))
+                (re-search-forward "\\_>" nil t)
+                (when (> (point) beg)
+                  (let ((text (buffer-substring-no-properties beg (point))))
+                    (when (pcase magit-revision-use-hash-sections
+                            (`quickest ; false negatives and positives
+                             (and (>= (length text) 7)
+                                  (string-match-p "[0-9]" text)
+                                  (string-match-p "[a-z]" text)))
+                            (`quicker  ; false negatives (number-less hashes)
+                             (and (>= (length text) 7)
+                                  (string-match-p "[0-9]" text)
+                                  (magit-rev-verify-commit text)))
+                            (`quick    ; false negatives (short hashes)
+                             (and (>= (length text) 7)
+                                  (magit-rev-verify-commit text)))
+                            (`slow
+                             (magit-rev-verify-commit text)))
+                      (put-text-property beg (point) 'face 'magit-hash)
+                      (let ((end (point)))
+                        (goto-char beg)
+                        (magit-insert-section (commit text)
+                          (goto-char end))))))))))
         (save-excursion
           (forward-line)
           (put-text-property beg (point) 'face 'magit-section-secondary-heading)

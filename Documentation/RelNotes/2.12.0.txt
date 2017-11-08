@@ -140,6 +140,10 @@ Changes since v2.11.0
   determine the "current" revision fail.  This is useful for visiting
   revisions mentioned in commit messages.  #2949
 
+* Hashes inside commit messages are now turned into `commit' sections.
+  Note that this can be disabled and that even if you do so you can
+  still visit the commit at point using "RET".  #2949
+
 Fixes since v2.11.0
 -------------------
 

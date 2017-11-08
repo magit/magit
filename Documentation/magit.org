@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-218-gb1db91fb1+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-223-gcfed6f5be+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-218-gb1db91fb1+1).
+This manual is for Magit version 2.11.0 (2.11.0-223-gcfed6f5be+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -2534,6 +2534,24 @@ without having to using one of the diff popups.
   next line at the same offset.  The cdr specifies where to insert
   the committer image, accordingly.  Either the car or the cdr may
   be nil.
+
+- User Option: magit-revision-use-hash-sections
+
+  Whether to turn hashes inside the commit message into sections.
+
+  If non-nil, then hashes inside the commit message are turned into
+  ~commit~ sections.  There is a trade off to be made between
+  performance and reliability:
+
+  - ~slow~ calls git for every word to be absolutely sure.
+  - ~quick~ skips words less than seven characters long.
+  - ~quicker~ additionally skips words that don't contain a number.
+  - ~quickest~ uses all words that are at least seven characters long
+    and which contain at least one number as well as at least one
+    letter.
+
+  If nil, then no hashes are turned into sections, but you can still
+  visit the commit at point using "RET".
 
 The diffs shown in the revision buffer may be automatically restricted
 to a subset of the changed files.  If the revision buffer is displayed
