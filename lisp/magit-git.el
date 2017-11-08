@@ -1465,9 +1465,9 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-update-ref (ref message rev &optional stashish)
   (or (if (not (version< (magit-git-version) "2.6.0"))
-          (magit-git-success "update-ref" "--create-reflog"
-                             "-m" message ref rev
-                             (or (magit-rev-verify ref) ""))
+          (zerop (magit-call-git "update-ref" "--create-reflog"
+                                 "-m" message ref rev
+                                 (or (magit-rev-verify ref) "")))
         ;; `--create-reflog' didn't exist before v2.6.0
         (let ((oldrev  (magit-rev-verify ref))
               (logfile (magit-git-dir (concat "logs/" ref))))
