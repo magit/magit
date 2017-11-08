@@ -1868,9 +1868,15 @@ or a ref which is not a branch, then it inserts nothing."
       (goto-char (point-max))
       (insert ?\n))))
 
+(defvar magit-commit-message-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-visit-thing] 'magit-show-commit)
+    map)
+  "Keymap for `commit-message' sections.")
+
 (defun magit-insert-revision-message (rev)
   "Insert the commit message into a revision buffer."
-  (magit-insert-section (message)
+  (magit-insert-section (commit-message)
     (let ((beg (point)))
       (magit-rev-insert-format "%B" rev)
       (if (= (point) (+ beg 2))

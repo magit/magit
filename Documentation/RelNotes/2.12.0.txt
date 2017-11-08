@@ -135,6 +135,11 @@ Changes since v2.11.0
   no corresponding local branch exists, and a new branch name that
   doesn't match the name of any existing local or remote branch.  #2906
 
+* The command `magit-show-commit' now offers the revision at point as
+  the default completion choice if the less generic mechanisms used to
+  determine the "current" revision fail.  This is useful for visiting
+  revisions mentioned in commit messages.  #2949
+
 Fixes since v2.11.0
 -------------------
 
