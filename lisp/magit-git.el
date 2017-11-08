@@ -1498,6 +1498,14 @@ Return a list of two integers: (A>B B>A)."
               beg)
             end))))
 
+(put 'git-revision 'beginning-op 'forward-symbol)
+(put 'git-revision 'thing-at-point 'magit-thingatpt--git-revision)
+
+(defun magit-thingatpt--git-revision ()
+  (--when-let (bounds-of-thing-at-point 'symbol)
+    (let ((text (buffer-substring (car it) (cdr it))))
+      (and (magit-rev-verify-commit text) text))))
+
 ;;; Completion
 
 (defvar magit-revision-history nil)
