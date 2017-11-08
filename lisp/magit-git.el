@@ -942,6 +942,7 @@ to, or to some other symbolic-ref that points to the same ref."
         (commit (let ((rev (magit-section-value it)))
                   (or (magit-get-shortname rev) rev)))
         (tag (magit-ref-maybe-qualify (magit-section-value it) "tags/")))
+      (thing-at-point 'git-revision t)
       (and (derived-mode-p 'magit-revision-mode
                            'magit-merge-preview-mode)
            (car magit-refresh-args))))
