@@ -1406,8 +1406,8 @@ Return a list of two integers: (A>B B>A)."
                           regexp t))))
         (setq names (split-string string regexp t)))
       (when (member "HEAD" names)
-        (setq head  (magit-git-string "symbolic-ref" "HEAD")
-              names (cons (or head "@") (delete head (delete "HEAD" names)))))
+        (setq head  (magit-git-string "symbolic-ref" "HEAD"))
+        (setq names (cons (or head "@") (delete head (delete "HEAD" names)))))
       (mapconcat (lambda (it) (magit-format-ref-label it head)) names " "))))
 
 (defun magit-object-type (object)
