@@ -33,6 +33,7 @@
 (require 'magit-utils)
 (require 'magit-section)
 
+(declare-function magit-call-git 'magit-process)
 (declare-function magit-maybe-make-margin-overlay 'magit-log)
 (declare-function magit-process-buffer 'magit-process)
 (declare-function magit-process-file 'magit-process)
