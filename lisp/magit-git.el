@@ -942,6 +942,7 @@ to, or to some other symbolic-ref that points to the same ref."
         (commit (let ((rev (magit-section-value it)))
                   (or (magit-get-shortname rev) rev)))
         (tag (magit-ref-maybe-qualify (magit-section-value it) "tags/")))
+      (thing-at-point 'git-revision t)
       (and (derived-mode-p 'magit-revision-mode
                            'magit-merge-preview-mode)
            (car magit-refresh-args))))
@@ -1497,6 +1498,14 @@ Return a list of two integers: (A>B B>A)."
                 (magit-git-string "merge-base" beg end)
               beg)
             end))))
+
+(put 'git-revision 'beginning-op 'forward-symbol)
+(put 'git-revision 'thing-at-point 'magit-thingatpt--git-revision)
+
+(defun magit-thingatpt--git-revision ()
+  (--when-let (bounds-of-thing-at-point 'symbol)
+    (let ((text (buffer-substring (car it) (cdr it))))
+      (and (magit-rev-verify-commit text) text))))
 
 ;;; Completion
 

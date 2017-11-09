@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-218-gb1db91fb1+1)
+@subtitle for version 2.11.0 (2.11.0-223-gcfed6f5be+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-218-gb1db91fb1+1).
+This manual is for Magit version 2.11.0 (2.11.0-223-gcfed6f5be+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -3468,6 +3468,34 @@ inserted right after the matched text, the bottom half on the
 next line at the same offset.  The cdr specifies where to insert
 the committer image, accordingly.  Either the car or the cdr may
 be nil.
+@end defopt
+
+@defopt magit-revision-use-hash-sections
+
+Whether to turn hashes inside the commit message into sections.
+
+If non-nil, then hashes inside the commit message are turned into
+@code{commit} sections.  There is a trade off to be made between
+performance and reliability:
+
+@itemize
+@item
+@code{slow} calls git for every word to be absolutely sure.
+
+@item
+@code{quick} skips words less than seven characters long.
+
+@item
+@code{quicker} additionally skips words that don't contain a number.
+
+@item
+@code{quickest} uses all words that are at least seven characters long
+and which contain at least one number as well as at least one
+letter.
+@end itemize
+
+If nil, then no hashes are turned into sections, but you can still
+visit the commit at point using "RET".
 @end defopt
 
 The diffs shown in the revision buffer may be automatically restricted
