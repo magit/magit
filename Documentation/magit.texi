@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-223-gcfed6f5be+1)
+@subtitle for version 2.11.0 (2.11.0-227-gaeca03f04+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-223-gcfed6f5be+1).
+This manual is for Magit version 2.11.0 (2.11.0-227-gaeca03f04+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -100,7 +100,7 @@ Interface Concepts
 * Modes and Buffers::
 * Sections::
 * Popup Buffers and Prefix Commands::
-* Completion and Confirmation::
+* Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
 * Running Git::
 
 Modes and Buffers
@@ -120,6 +120,16 @@ Sections
 * Section Hooks::
 * Section Types and Values::
 * Section Options::
+
+
+Completion, Confirmation and the Selection
+
+* Action Confirmation::
+* Completion and Confirmation::
+* The Selection::
+* The hunk-internal region::
+* Support for Completion Frameworks::
+* Additional Completion Options::
 
 
 Running Git
@@ -281,7 +291,6 @@ Section Plumbing
 
 Conventions
 
-* Confirmation and Completion::
 * Theming Faces::
 
 
@@ -682,7 +691,7 @@ then it is highly recommended that you read the next section too.
 * Modes and Buffers::
 * Sections::
 * Popup Buffers and Prefix Commands::
-* Completion and Confirmation::
+* Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
 * Running Git::
 @end menu
 
@@ -1660,38 +1669,434 @@ When @code{nil}, the default value of @code{magit-log-arguments} or
 @code{magit-diff-arguments} is always used.
 @end defopt
 
-@node Completion and Confirmation
-@section Completion and Confirmation
+@node Completion Confirmation and the Selection
+@section Completion, Confirmation and the Selection
 
-Many commands read a value from the user.  By default this is done
-using the built-in function @code{completing-read}, but Magit can instead use
-another completion framework.
+@menu
+* Action Confirmation::
+* Completion and Confirmation::
+* The Selection::
+* The hunk-internal region::
+* Support for Completion Frameworks::
+* Additional Completion Options::
+@end menu
+
+@node Action Confirmation
+@subsection Action Confirmation
+
+By default many actions that could potentially lead to data loss have
+to be confirmed.  This includes many very common actions, so this can
+quickly become annoying.  Many of these actions can be undone and if
+you have thought about how to undo certain mistakes, then it should
+be safe to disable confirmation for the respective actions.
+
+The option @code{magit-no-confirm} can be used to tell Magit to perform
+certain actions without the user having to confirm them.  Note that
+while this option can only be used to disable confirmation for a
+specific set of actions, the next section explains another way of
+telling Magit to ask fewer questions.
+
+@defopt magit-no-confirm
+
+The value of this option is a list of symbols, representing actions
+that do not have to be confirmed by the user before being carried
+out.
+
+By default many potentially dangerous commands ask the user for
+confirmation.  Each of the below symbols stands for an action which,
+when invoked unintentionally or without being fully aware of the
+consequences, could lead to tears.  In many cases there are several
+commands that perform variations of a certain action, so we don't
+use the command names but more generic symbols.
+
+@itemize
+@item
+Applying changes:
+
+@itemize
+@item
+@code{discard} Discarding one or more changes (i.e. hunks or the
+complete diff for a file) loses that change, obviously.
+
+
+@item
+@code{reverse} Reverting one or more changes can usually be undone by
+reverting the reversion.
+
+
+@item
+@code{stage-all-changes}, @code{unstage-all-changes} When there are both
+staged and unstaged changes, then un-/staging everything would
+destroy that distinction.  Of course that also applies when
+un-/staging a single change, but then less is lost and one does
+that so often that having to confirm every time would be
+unacceptable.
+@end itemize
+
+
+@item
+Files:
+
+@itemize
+@item
+@code{delete} When a file that isn't yet tracked by Git is deleted,
+then it is completely lost, not just the last changes.  Very
+dangerous.
+
+
+@item
+@code{trash} Instead of deleting a file it can also be move to the
+system trash.  Obviously much less dangerous than deleting it.
+
+Also see option @code{magit-delete-by-moving-to-trash}.
+
+
+@item
+@code{resurrect} A deleted file can easily be resurrected by "deleting"
+the deletion, which is done using the same command that was used
+to delete the same file in the first place.
+
+
+@item
+@code{untrack} Untracking a file can be undone by tracking it again.
+
+
+@item
+@code{rename} Renaming a file can easily be undone.
+@end itemize
+
+
+@item
+Sequences:
+
+@itemize
+@item
+@code{reset-bisect} Aborting (known to Git as "resetting") a bisect
+operation loses all information collected so far.
+
+
+@item
+@code{abort-rebase} Aborting a rebase throws away all already modified
+commits, but it's possible to restore those from the reflog.
+
+
+@item
+@code{abort-merge} Aborting a merge throws away all conflict
+resolutions which have already been carried out by the user.
+
+
+@item
+@code{merge-dirty} Merging with a dirty worktree can make it hard to go
+back to the state before the merge was initiated.
+@end itemize
+
+
+@item
+References:
+
+@itemize
+@item
+@code{delete-unmerged-branch} Once a branch has been deleted, it can
+only be restored using low-level recovery tools provided by Git.
+And even then the reflog is gone.  The user always has to
+confirm the deletion of a branch by accepting the default choice
+(or selecting another branch), but when a branch has not been
+merged yet, also make sure the user is aware of that.
+
+
+@item
+@code{drop-stashes} Dropping a stash is dangerous because Git stores
+stashes in the reflog.  Once a stash is removed, there is no
+going back without using low-level recovery tools provided by
+Git.  When a single stash is dropped, then the user always has
+to confirm by accepting the default (or selecting another).
+This action only concerns the deletion of multiple stashes at
+once.
+@end itemize
+
+
+@item
+Various:
+
+@itemize
+@item
+@code{kill-process} There seldom is a reason to kill a process.
+@end itemize
+
+
+@item
+Global settings:
+
+Instead of adding all of the above symbols to the value of this
+option, you can also set it to the atom `t', which has the same
+effect as adding all of the above symbols.  Doing that most
+certainly is a bad idea, especially because other symbols might be
+added in the future.  So even if you don't want to be asked for
+confirmation for any of these actions, you are still better of
+adding all of the respective symbols individually.
+
+When @code{magit-wip-before-change-mode} is enabled, then the following
+actions can be undone fairly easily: @code{discard}, @code{reverse},
+@code{stage-all-changes}, and @code{unstage-all-changes}.  If and only if
+this mode is enabled, then @code{safe-with-wip} has the same effect as
+adding all of these symbols individually.
+@end itemize
+@end defopt
+
+@node Completion and Confirmation
+@subsection Completion and Confirmation
+
+Many Magit commands ask the user to select from a list of possible
+things to act on, while offering the most likely choice as the
+default.  For many of these commands the default is the thing at
+point, provided that it actually is a valid thing to act on.  For
+many commands that act on a branch, the current branch serves as
+the default if there is no branch at point.
+
+These commands combine asking for confirmation and asking for a target
+to act on into a single action.  The user can confirm the default
+target using @code{RET} or abort using @code{C-g}.  This is similar to a @code{y-or-n-p}
+prompt, but the keys to confirm or abort differ.
+
+At the same time the user is also given the opportunity to select
+another target, which is useful because for some commands and/or in
+some situations you might want to select the action before selecting
+the target by moving to it.
+
+However you might find that for some commands you always want to use
+the default target, if any, or even that you want the command to act
+on the default without requiring any confirmation at all.  The option
+@code{magit-dwim-selection} can be used to configure certain commands to that
+effect.
+
+Note that when the region is active then many commands act on the
+things that are selected using a mechanism based on the region, in
+many cases after asking for confirmation.  This region-based mechanism
+is called the "selection" and is described in detail in the next
+section.  When a selection exists that is valid for the invoked
+command, then that command never offers to act on something else, and
+whether it asks for confirmation is not controlled by this option.
+
+Also note that Magit asks for confirmation of certain actions that are
+not coupled with completion (or the selection).  Such dialogs are also
+not affected by this option and are described in the previous section.
+
+@defopt magit-dwim-selection
+@end defopt
+
+This option can be used to tell certain commands to use the thing
+at point instead of asking the user to select a candidate to act
+on, with or without confirmation.
+
+The value has the form @code{((COMMAND nil|PROMPT DEFAULT)...)}.
+
+@itemize
+@item
+COMMAND is the command that should not prompt for a choice.
+To have an effect, the command has to use the function
+@code{magit-completing-read} or a utility function which in turn uses
+that function.
+
+
+@item
+If the command uses @code{magit-completing-read} multiple times, then
+PROMPT can be used to only affect one of these uses.  PROMPT, if
+non-nil, is a regular expression that is used to match against
+the PROMPT argument passed to @code{magit-completing-read}.
+
+
+@item
+DEFAULT specifies how to use the default.  If it is @code{t}, then
+the DEFAULT argument passed to @code{magit-completing-read} is used
+without confirmation.  If it is @code{ask}, then the user is given
+a chance to abort.  DEFAULT can also be @code{nil}, in which case the
+entry has no effect.
+@end itemize
+
+@node The Selection
+@subsection The Selection
+
+If the region is active, then many Magit commands act on the things
+that are selected using a mechanism based on the region instead of one
+single thing.  When the region is not active, then these commands act
+on the thing at point or read a single thing to act on.  This is
+described in the previous section — this section only covers how
+multiple things are selected, how that is visualized, and how certain
+commands behave when that is the case.
+
+Magit's mechanism for selecting multiple things, or rather sections
+that represent these things, is based on the Emacs region, but the
+area that Magit considers to be selected is typically larger than the
+region and additional restrictions apply.
+
+Magit makes a distinction between a region that qualifies as forming a
+valid Magit selection and a region that does not.  If the region does
+not qualify, then it is displayed as it is in other Emacs buffers.  If
+the region does qualify as a Magit selection, then the selection is
+always visualized, while the region itself is only visualized if it
+begins and ends on the same line.
+
+For a region to qualify as a Magit selection, it must begin in the
+heading of one section and end in the heading of a sibling section.
+Note that if the end of the region is at the very beginning of section
+heading (i.e. at the very beginning of a line) then that section is
+considered to be @strong{inside} the selection.
+
+This is not consistent with how the region is normally treated in
+Emacs — if the region ends at the beginning of a line, then that line
+is outside the region.  Due to how Magit visualizes the selection, it
+should be obvious that this difference exists.
+
+Not every command acts on every valid selection.  Some commands do not
+even consider the location of point, others may act on the section at
+point but not support acting on the selection, and even commands that
+do support the selection of course only do so if it selects things
+that they can act on.
+
+This is the main reason why the selection must include the section at
+point.  Even if a selection exists, the invoked command may disregard
+it, in which case it may act on the current section only.  It is much
+safer to only act on the current section but not the other selected
+sections than it is to act on the current section @strong{instead} of the
+selected sections.  The latter would be much more surprising and if
+the current section always is part of the selection, then that cannot
+happen.
+
+@defvar magit-keep-region-overlay
+
+This variable controls whether the region is visualized as usual
+even when a valid Magit selection or a hunk-internal region exists.
+See the doc-string for more information.
+@end defvar
+
+@node The hunk-internal region
+@subsection The hunk-internal region
+
+Somewhat related to the Magit selection described in the previous
+section is the hunk-internal region.
+
+Like the selection, the hunk-internal region is based on the Emacs
+region but causes that region to not be visualized as it would in
+other Emacs buffers, and includes the line on which the region ends
+even if it ends at the very beginning of that line.
+
+Unlike the selection, which is based on a region that must begin in
+the heading of one section and ends in the section of a sibling
+section, the hunk-internal region must begin inside the @strong{body} of a
+hunk section and end in the body of the @strong{same} section.
+
+The hunk-internal region is honored by "apply" commands, which can,
+among other targets, act on a hunk.  If the hunk-internal region is
+active, then such commands act only on the marked part of the hunk
+instead of on the complete hunk.
+
+@node Support for Completion Frameworks
+@subsection Support for Completion Frameworks
+
+The built-in option @code{completing-read-function} specifies the low-level
+function used by @code{completing-read} to ask a user to select from a list
+of choices.  Its default value is @code{completing-read-default}.
+Alternative completion frameworks typically activate themselves by
+substituting their own implementation.
+
+Mostly for historic reasons Magit provides a similar option named
+@code{magit-completing-read-function}, which only controls the low-level
+function used by @code{magit-completing-read}.  This option also makes it
+possible to use a different completing mechanism for Magit than for
+the rest of Emacs, but doing that is not recommend.
+
+You most likely don't have to customize the magit-specific option to
+use an alternative completion framework.  For example, if you enable
+@code{ivy-mode}, then Magit will respect that, and if you enable @code{helm-mode},
+then you are done too.
+
+However if you want to use Ido, then @code{ido-mode} won't do the trick.  You
+will also have to install the @code{ido-completing-read+} package and use
+@code{magit-ido-completing-read} as @code{magit-completing-read-function}.
 
 @defopt magit-completing-read-function
 
-The value of this variable is the function used to perform
-completion.  Because functions @emph{intended} to replace @code{completing-read}
-often are not fully compatible drop-in replacements, and also
-because Magit expects them to add the default choice to the prompt
-themselves, such functions should not be used directly.  Instead a
-wrapper function has to be used.
-@end defopt
+The value of this variable is the low-level function used to perform
+completion by code that uses @code{magit-completing-read} (as opposed to
+the built-in @code{completing-read}).
 
-Currently only the real @code{completing-read} and @uref{http://www.emacswiki.org/emacs/InteractivelyDoThings, Ido} are fully supported.
-More frameworks will be supported in the future.
+The default value, @code{magit-builtin-completing-read}, is suitable for
+the standard completion mechanism, @code{ivy-mode}, and @code{helm-mode} at least.
+
+The built-in @code{completing-read} and @code{completing-read-default} are @strong{not}
+suitable to be used here.  @code{magit-builtin-completing-read} performs
+some additional work, and any function used in its place has to do
+the same.
+@end defopt
 
 @defun magit-builtin-completing-read prompt choices &optional predicate require-match initial-input hist def
 
-Perform completion using @code{completion-read}.
+This function performs completion using the built-in @code{completion-read}
+and does some additional magit-specific work.
 @end defun
 
 @defun magit-ido-completing-read prompt choices &optional predicate require-match initial-input hist def
 
-Perform completion using @code{ido-completing-read+} from the package by
-the same name (which you have to explicitly install).  Ido itself
-comes with a supposed drop-in replacement @code{ido-completing-read}, but
-that has too many deficits to serve our needs.
+This function performs completion using @code{ido-completing-read+} from the
+package by the same name (which you have to explicitly install) and
+does some additional magit-specific work.
+
+We have to use @code{ido-completing-read+} instead of the
+@code{ido-completing-read} that comes with Ido itself, because the latter,
+while intended as a drop-in replacement, cannot serve that purpose
+because it violates too many of the implicit conventions.
 @end defun
+
+@defun magit-completing-read prompt choices &optional predicate require-match initial-input hist def fallback
+
+This is the function that Magit commands use when they need the user
+to select a single thing to act on.  The arguments have the same
+meaning as for @code{completing-read}, except for FALLBACK, which is unique
+to this function and is described below.
+
+Instead of asking the user to choose from a list of possible
+candidates, this function may just return the default specified by
+DEF, with or without requiring user confirmation.  Whether that is
+the case depends on PROMPT, @code{this-command} and @code{magit-dwim-selection}.
+See the documentation of the latter for more information.
+
+If it does read a value in the minibuffer, then this function acts
+similar to @code{completing-read}, except for the following:
+
+@itemize
+@item
+If REQUIRE-MATCH is @code{nil} and the user exits without a choice, then
+@code{nil} is returned instead of an empty string.
+
+
+@item
+If REQUIRE-MATCH is non-nil and the users exits without a choice,
+an user-error is raised.
+
+
+@item
+FALLBACK specifies a secondary default that is only used if the
+primary default DEF is @code{nil}.  The secondary default is not subject
+to @code{magit-dwim-selection} — if DEF is @code{nil} but FALLBACK is not, then
+this function always asks the user to choose a candidate, just as
+if both defaults were @code{nil}.
+
+
+@item
+": " is appended to PROMPT.
+
+
+@item
+PROMPT is modified to end with \" (default DEF|FALLBACK): \"
+provided that DEF or FALLBACK is non-nil, that neither @code{ivy-mode}
+nor @code{helm-mode} is enabled, and that
+@code{magit-completing-read-function} is set to its default value of
+@code{magit-builtin-completing-read}.
+@end itemize
+@end defun
+
+@node Additional Completion Options
+@subsection Additional Completion Options
 
 @defopt magit-list-refs-sortby
 
@@ -1701,37 +2106,6 @@ values include any key accepted by the @code{--sort} flag of @code{git
   for-each-ref}.  By default, refs are sorted alphabetically by their
 full name (e.g., "refs/heads/master").
 @end defopt
-
-By default many commands that could potentially lead to data loss have
-to be confirmed.  This includes many very common commands, so this
-can become annoying quickly.  Many of these actions can be undone,
-provided @code{magit-wip-before-change-mode} is turned on (which it is not by
-default, due to performance concerns).
-
-@defopt magit-no-confirm
-
-The value of this option is a list of symbols, representing commands
-which do not have to be confirmed by the user before being carried
-out.
-
-When the global mode @code{magit-wip-before-change-mode} is enabled then
-many commands can be undone.  If that mode is enabled then adding
-@code{safe-with-wip} to this list has the same effect as adding @code{discard},
-@code{reverse}, @code{stage-all-changes}, and @code{unstage-all-changes}.
-
-@lisp
-(add-to-list 'magit-no-confirm 'safe-with-wip)
-@end lisp
-
-For a list of all symbols that can be added to the value of this
-variable, see the doc-string.
-@end defopt
-
-Note that there are commands that ignore this option and always
-require confirmation, or which can be told not to do so using another
-dedicated option.  Also most commands, when acting on multiple sections
-at once always, require confirmation, even when they do respect this
-option when acting on a single section.
 
 @node Running Git
 @section Running Git
@@ -8848,25 +9222,11 @@ of this variable and then calling this @code{magit-refresh-function}.
 @node Conventions
 @section Conventions
 
+Also see @ref{Completion and Confirmation}.
+
 @menu
-* Confirmation and Completion::
 * Theming Faces::
 @end menu
-
-@node Confirmation and Completion
-@subsection Confirmation and Completion
-
-Dangerous operations that may lead to data loss have to be confirmed
-by default.  With a multi-section selection, this is done using
-questions that can be answered with "yes" or "no".  When the region isn't
-active, or if it doesn't constitute a valid section selection, then
-such commands instead read a single item in the minibuffer.  When the
-value of the current section is among the possible choices, then that
-is presented as default choice.  To confirm the action on a single
-item, the user has to answer @code{RET} (instead of "yes"), and to abort, @code{C-g}
-(instead of "no").  But alternatively the user may also select another
-item, just like if the command had been invoked with no suitable
-section at point at all.
 
 @node Theming Faces
 @subsection Theming Faces

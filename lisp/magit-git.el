@@ -1673,12 +1673,11 @@ Return a list of two integers: (A>B B>A)."
                          require-match nil 'magit-revision-history
                          (magit-tag-at-point)))
 
-(defun magit-read-stash (prompt &optional use-at-point)
-  (let ((atpoint (magit-stash-at-point)))
-    (or (and use-at-point atpoint)
-        (let ((stashes (magit-list-stashes)))
-          (magit-completing-read prompt stashes nil t nil nil
-                                 (or atpoint (car stashes)))))))
+(defun magit-read-stash (prompt)
+  (let ((stashes (magit-list-stashes)))
+    (magit-completing-read prompt stashes nil t nil nil
+                           (magit-stash-at-point)
+                           (car stashes))))
 
 (defun magit-read-remote (prompt &optional default use-only)
   (let ((remotes (magit-list-remotes)))

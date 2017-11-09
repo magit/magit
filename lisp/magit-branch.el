@@ -332,15 +332,11 @@ when using `magit-branch-and-checkout'."
 (defun magit-branch-read-args (prompt)
   (let ((args (magit-branch-arguments)))
     (if magit-branch-read-upstream-first
-        (let* ((default (and (memq this-command
-                                   (with-no-warnings magit-no-confirm-default))
-                             (magit--default-starting-point)))
-               (choice (or default
-                           (magit-read-starting-point prompt))))
+        (let ((choice (magit-read-starting-point prompt)))
           (if (magit-rev-verify choice)
               (list (magit-read-string-ns
-                     (if default
-                         (format "%s (starting at %s)" prompt choice)
+                     (if magit-completing-read--silent-default
+                         (format "%s (starting at `%s')" prompt choice)
                        "Name for new branch")
                      (let ((def (mapconcat #'identity
                                            (cdr (split-string choice "/"))
@@ -353,7 +349,10 @@ when using `magit-branch-and-checkout'."
                 (list choice (magit-read-starting-point prompt choice) args)
               (user-error "Not a valid starting-point: %s" choice))))
       (let ((branch (magit-read-string-ns (concat prompt " named"))))
-        (list branch (magit-read-starting-point prompt branch) args)))))
+        (list branch
+              (with-no-warnings
+                (let ((magit-no-confirm-default nil))
+                  (magit-read-starting-point prompt branch) args)))))))
 
 ;;;###autoload
 (defun magit-branch-spinoff (branch &optional from &rest args)
@@ -565,11 +564,7 @@ defaulting to the branch at point."
 With prefix, forces the rename even if NEW already exists.
 \n(git branch -m|-M OLD NEW)."
   (interactive
-   (let ((branch (or (and (memq 'magit-branch-rename
-                                (with-no-warnings magit-no-confirm-default))
-                          (or (magit-local-branch-at-point)
-                              (magit-get-current-branch)))
-                     (magit-read-local-branch "Rename branch"))))
+   (let ((branch (magit-read-local-branch "Rename branch")))
      (list branch
            (magit-read-string-ns (format "Rename branch '%s' to" branch)
                                  nil 'magit-revision-history)
