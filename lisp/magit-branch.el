@@ -169,15 +169,16 @@ and change branch related variables."
   :variables (lambda ()
                (and magit-branch-popup-show-variables
                     magit-branch-config-variables))
-  :actions '((?b "Checkout"              magit-checkout)
-             (?n "Create new branch"     magit-branch)
+  :actions '((?b "Checkout"              magit-checkout) nil
              (?C "Configure..."          magit-branch-config-popup)
-             (?c "Checkout new branch"   magit-branch-and-checkout)
+             (?l "Checkout local branch" magit-branch-checkout)
              (?s "Create new spin-off"   magit-branch-spinoff)
              (?m "Rename"                magit-branch-rename)
+             (?c "Checkout new branch"   magit-branch-and-checkout)
+             (?n "Create new branch"     magit-branch)
+             (?x "Reset"                 magit-branch-reset)
              (?w "Checkout new worktree" magit-worktree-checkout)
              (?W "Create new worktree"   magit-worktree-branch)
-             (?x "Reset"                 magit-branch-reset) nil nil
              (?k "Delete"                magit-branch-delete))
   :default-action 'magit-checkout
   :max-action-columns 3
@@ -246,7 +247,68 @@ does."
     (setq arg (match-string 1 arg)))
   (if start-point
       (magit-branch-and-checkout arg start-point (magit-branch-arguments))
-    (magit-run-git "checkout" arg)))
+    (magit-checkout arg)))
+
+;;;###autoload
+(defun magit-branch-checkout (branch &optional start-point)
+  "Checkout an existing or new local branch.
+
+Read a branch name from the user offering all local branches and
+a subset of remote branches as candidates.  Omit remote branches
+for which a local branch by the same name exists from the list
+of candidates.  The user can also enter a completely new branch
+name.
+
+- If the user selects an existing local branch, then check that
+  out.
+
+- If the user selects a remote branch, then create and checkout
+  a new local branch with the same name.  Configure the selected
+  remote branch as push target.
+
+- If the user enters a new branch name, then create and check
+  that out, after also reading the starting-point from the user.
+
+In the latter two cases the upstream is also set.  Whether it is
+set to the chosen START-POINT or something else depends on the
+value of `magit-branch-adjust-remote-upstream-alist', just like
+when using `magit-branch-and-checkout'."
+  (interactive
+   (let* ((current (magit-get-current-branch))
+          (local   (magit-list-local-branch-names))
+          (remote  (--filter (and (string-match "[^/]+/" it)
+                                  (not (member (substring it (match-end 0))
+                                               (cons "HEAD" local))))
+                             (magit-list-remote-branch-names)))
+          (choices (nconc (delete current local) remote))
+          (atpoint (magit-branch-at-point))
+          (choice  (magit-completing-read
+                    "Checkout branch" choices
+                    nil nil nil 'magit-revision-history
+                    (or (car (member atpoint choices))
+                        (and atpoint
+                             (car (member (and (string-match "[^/]+/" atpoint)
+                                               (substring atpoint (match-end 0)))
+                                          choices)))))))
+     (cond ((member choice remote)
+            (list (and (string-match "[^/]+/" choice)
+                       (substring choice (match-end 0)))
+                  choice))
+           ((member choice local)
+            (list choice))
+           (t
+            (list choice (magit-read-starting-point "Create" choice))))))
+  (if (not start-point)
+      (magit-checkout branch)
+    (when (magit-anything-modified-p)
+      (user-error "Cannot checkout when there are uncommitted changes"))
+    (magit-branch-and-checkout branch start-point (magit-branch-arguments))
+    (when (magit-remote-branch-p start-point)
+      (pcase-let ((`(,remote . ,remote-branch)
+                   (magit-split-branch-name start-point)))
+        (when (and (equal branch remote-branch)
+                   (not (equal remote (magit-get "remote.pushDefault"))))
+          (magit-set remote "branch" branch "pushRemote"))))))
 
 (defun magit-branch-maybe-adjust-upstream (branch start-point)
   (--when-let

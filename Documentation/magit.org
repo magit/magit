@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-217-ge5f626de8+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-218-gb1db91fb1+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-217-ge5f626de8+1).
+This manual is for Magit version 2.11.0 (2.11.0-218-gb1db91fb1+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -3670,6 +3670,28 @@ features are available from separate popups.
   checks it out.
 
   Also see option ~magit-branch-prefer-remote-upstream~.
+
+- Key: b l, magit-branch-checkout
+
+  This command checks out an existing or new local branch.  It reads a
+  branch name from the user offering all local branches and a subset
+  of remote branches as candidates.  Remote branches for which a local
+  branch by the same name exists are omitted from the list of
+  candidates.  The user can also enter a completely new branch name.
+
+  - If the user selects an existing local branch, then that is checked
+    out.
+
+  - If the user selects a remote branch, then it creates and checks
+    out a new local branch with the same name, and configures the
+    selected remote branch as the push target.
+
+  - If the user enters a new branch name, then it creates and checks
+    that out, after also reading the starting-point from the user.
+
+  In the latter two cases the upstream is also set.  Whether it is set
+  to the chosen starting point or something else depends on the value
+  of ~magit-branch-adjust-remote-upstream-alist~.
 
 - Key: b s, magit-branch-spinoff
 
