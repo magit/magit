@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit-Popup User Manual
-@subtitle for version 2.11.0 (2.11.0-145-g892ca025a+1)
+@subtitle for version 2.11.0 (2.11.0-217-ge5f626de8+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -49,7 +49,7 @@ command that is associated with a specific set of infix arguments and
 suffix commands.
 
 @quotation
-This manual is for Magit-Popup version 2.11.0 (2.11.0-145-g892ca025a+1).
+This manual is for Magit-Popup version 2.11.0 (2.11.0-217-ge5f626de8+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -73,18 +73,16 @@ General Public License for more details.
 @detailmenu
 --- The Detailed Node Listing ---
 
-
 Usage
 
 * Customizing Existing Popups::
 * Other Options::
 
-
-
 Defining Prefix and Suffix Commands
 
 * Defining Prefix Commands::
 * Defining Suffix Commands::
+
 @end detailmenu
 @end menu
 
@@ -463,6 +461,7 @@ directly invoke the popup's default action.
 
 Ignore prefix arguments.
 @end itemize
+
 This option can be overridden for individual popups.
 @code{magit-show-refs-popup} for example defaults to invoking the default
 action directly.  It only shows the popup buffer when a prefix

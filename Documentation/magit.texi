@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-179-ga12cdfcf+1)
+@subtitle for version 2.11.0 (2.11.0-217-ge5f626de8+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-179-ga12cdfcf+1).
+This manual is for Magit version 2.11.0 (2.11.0-217-ge5f626de8+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -89,15 +89,11 @@ General Public License for more details.
 @detailmenu
 --- The Detailed Node Listing ---
 
-
 Installation
 
 * Installing from an Elpa Archive::
 * Installing from the Git Repository::
 * Post-Installation Tasks::
-
-
-
 
 Interface Concepts
 
@@ -126,14 +122,13 @@ Sections
 * Section Options::
 
 
-
-
 Running Git
 
 * Viewing Git Output::
 * Running Git Manually::
 * Git Executable::
 * Global Git Arguments::
+
 
 Inspecting
 
@@ -155,7 +150,6 @@ Status Buffer
 * Status Options::
 
 
-
 Logging
 
 * Refreshing Logs::
@@ -174,10 +168,10 @@ Diffing
 * Revision Buffer::
 
 
-
 References Buffer
 
 * References Sections::
+
 
 Manipulating
 
@@ -193,11 +187,9 @@ Manipulating
 * Resetting::
 * Stashing::
 
-
 Staging and Unstaging
 
 * Staging from File-Visiting Buffers::
-
 
 
 Committing
@@ -213,8 +205,6 @@ Branching
 * The Branch Config Popup::
 
 
-
-
 Rebasing
 
 * Editing Rebase Sequences::
@@ -224,6 +214,7 @@ Rebasing
 Cherry Picking
 
 * Reverting::
+
 
 Transferring
 
@@ -239,6 +230,7 @@ Remotes
 * The Remote Popup::
 * The Remote Config Popup::
 
+
 Miscellaneous
 
 * Tagging::
@@ -250,23 +242,22 @@ Miscellaneous
 * Minor Mode for Buffers Visiting Files::
 * Minor Mode for Buffers Visiting Blobs::
 
-
-
 Submodules
 
 * Listing Submodules::
 * Submodule Popup::
+
 
 Customizing
 
 * Per-Repository Configuration::
 * Essential Settings::
 
-
 Essential Settings
 
 * Safety::
 * Performance::
+
 
 Plumbing
 
@@ -288,11 +279,11 @@ Section Plumbing
 * Matching Sections::
 
 
-
 Conventions
 
 * Confirmation and Completion::
 * Theming Faces::
+
 
 FAQ
 
@@ -321,6 +312,8 @@ FAQ - Issues and Errors
 * The mode-line information isn't always up-to-date::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
 * A branch and tag sharing the same name breaks SOMETHING::
+
+
 @end detailmenu
 @end menu
 
@@ -924,6 +917,7 @@ if @code{magit-uniquify-buffer-names} is non-nil an abbreviation of that.
 Like @code{%t}, but append an asterisk if and only if
 @code{magit-uniquify-buffer-names} is nil.
 @end itemize
+
 The value should always contain @code{%m} or @code{%M}, @code{%v} or @code{%V}, and @code{%t} or @code{%T}.
 If @code{magit-uniquify-buffer-names} is non-nil, then the value must end
 with @code{%t} or @code{%T} (see issue #2841).
@@ -3662,6 +3656,7 @@ Whether to show commit counts in Magit-Refs mode buffers.
 @item
 @code{nil} Never show counts.
 @end itemize
+
 The default is @code{nil} because anything else can be very expensive.
 @end defopt
 
@@ -5036,8 +5031,7 @@ to @code{FROM~}, instead of to the last commit it shares with its
 upstream.  Interactively, FROM is only ever non-nil, if the
 region selects some commits, and among those commits, FROM is
 the commit that is the fewest commits ahead of the source
-branch.  (It not yet possible to spin off a single commit,
-unless it is the only unpushed commit.  See #2920.)
+branch.
 
 The commit at the other end of the selection actually does not
 matter, all commits between FROM and @code{HEAD} are moved to the new
@@ -5308,6 +5302,7 @@ When @code{true} then pulling is done by rebasing.
 @item
 When @code{false} (the default) then pulling is done by merging.
 @end itemize
+
 Since it is never a good idea to merge the upstream branch into a
 feature or hotfix branch and most branches are such branches, you
 should consider setting this to @code{true}, and @code{branch.master.rebase} to
@@ -8635,6 +8630,7 @@ their child sections.
 matches sections of TYPE regardless of the types of the parent
 sections.
 @end itemize
+
 Each TYPE is a symbol.  Note that it is not necessary to specify all
 TYPEs up to the root section as printed by @code{magit-describe-type},
 unless of course you want to be that precise.
