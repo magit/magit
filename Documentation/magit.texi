@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-227-gaeca03f04+1)
+@subtitle for version 2.11.0 (2.11.0-232-gac96a04f7+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-227-gaeca03f04+1).
+This manual is for Magit version 2.11.0 (2.11.0-232-gac96a04f7+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -7764,9 +7764,9 @@ Update each submodule's remote URL according to ".gitmodules".
 
 Fetch submodule.  With a prefix argument fetch all remotes.
 
-@kindex o i
-@cindex magit-submodule-init
-@item @kbd{o i} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-init})
+@kindex o d
+@cindex magit-submodule-deinit
+@item @kbd{o d} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-deinit})
 
 Unregister the submodule at PATH.
 @end table
