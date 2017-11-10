@@ -379,10 +379,11 @@ acts similarly to `completing-read', except for the following:
   `magit-builtin-completing-read'."
   (setq magit-completing-read--silent-default nil)
   (-if-let (dwim (and def
-                      (or (nth 2 (-first (pcase-lambda (`(,cmd ,re ,_))
-                                           (and (eq this-command cmd)
-                                                (or (not re)
-                                                    (string-match-p re prompt))))
+                      (or (nth 2 (-first (lambda (arg)
+                                           (pcase-let ((`(,cmd ,re ,_) arg))
+                                             (and (eq this-command cmd)
+                                                  (or (not re)
+                                                      (string-match-p re prompt)))))
                                          magit-dwim-selection))
                           (memq this-command
                                 (with-no-warnings magit-no-confirm-default)))))
