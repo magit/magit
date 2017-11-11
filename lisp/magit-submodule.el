@@ -204,7 +204,7 @@ With a prefix argument fetch all remotes."
 (defun magit-insert-modules ()
   "Insert submodule sections.
 Hook `magit-module-sections-hook' controls which module sections
-are inserted, and option `magit-insert-modules-nested' controls
+are inserted, and option `magit-module-sections-nested' controls
 whether they are wrapped in an additional section."
   (-when-let (modules (magit-get-submodules))
     (if magit-module-sections-nested

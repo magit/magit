@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-232-gac96a04f7+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-235-gc5ba3819a+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-232-gac96a04f7+1).
+This manual is for Magit version 2.11.0 (2.11.0-235-gc5ba3819a+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -1995,7 +1995,7 @@ variable.
   Insert submodule sections.
 
   Hook ~magit-module-sections-hook~ controls which module sections are
-  inserted, and option ~magit-insert-modules-nested~ controls whether
+  inserted, and option ~magit-module-sections-nested~ controls whether
   they are wrapped in an additional section.
 
 - Option: magit-module-sections-hook
