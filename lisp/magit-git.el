@@ -1499,11 +1499,26 @@ Return a list of two integers: (A>B B>A)."
               beg)
             end))))
 
-(put 'git-revision 'beginning-op 'forward-symbol)
+(defvar magit-thingatpt--git-revision-chars "-./[:alnum:]@{}^~!"
+  "Characters allowable in filenames, excluding space and colon.")
+
+(put 'git-revision 'end-op
+     (lambda ()
+       (re-search-forward
+        (concat "\\=[" magit-thingatpt--git-revision-chars "]*")
+        nil t)))
+
+(put 'git-revision 'beginning-op
+     (lambda ()
+       (if (re-search-backward
+            (concat "[^" magit-thingatpt--git-revision-chars "]") nil t)
+           (forward-char)
+         (goto-char (point-min)))))
+
 (put 'git-revision 'thing-at-point 'magit-thingatpt--git-revision)
 
 (defun magit-thingatpt--git-revision ()
-  (--when-let (bounds-of-thing-at-point 'symbol)
+  (--when-let (bounds-of-thing-at-point 'git-revision)
     (let ((text (buffer-substring (car it) (cdr it))))
       (and (magit-rev-verify-commit text) text))))
 
