@@ -1519,7 +1519,7 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-thingatpt--git-revision ()
   (--when-let (bounds-of-thing-at-point 'git-revision)
-    (let ((text (buffer-substring (car it) (cdr it))))
+    (let ((text (buffer-substring-no-properties (car it) (cdr it))))
       (and (magit-rev-verify-commit text) text))))
 
 ;;; Completion
