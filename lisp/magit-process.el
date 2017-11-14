@@ -791,7 +791,8 @@ as argument."
     (with-current-buffer buf (setq mode-line-process nil))))
 
 (defvar magit-process-error-message-regexps
-  (list "^\\(?:error\\|fatal\\|git\\): \\(.*\\)$"))
+  (list "^\\*ERROR\\*: Canceled by user$"
+        "^\\(?:error\\|fatal\\|git\\): \\(.*\\)$"))
 
 (define-error 'magit-git-error "Git error")
 

@@ -167,6 +167,10 @@ Changes since v2.11.0
   chance to abort.  These changes are implemented using the new option
   `magit-dwim-selection' and can easily be reverted.  #2916
 
+* Aborting a commit is seen as an error by Git and like all such
+  errors it was reported to users, which led to confusion and a few
+  bug reports.  Now that non-error is being suppressed.  #2932
+
 Fixes since v2.11.0
 -------------------
 
