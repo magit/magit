@@ -790,8 +790,8 @@ as argument."
   (dolist (buf (magit-mode-get-buffers))
     (with-current-buffer buf (setq mode-line-process nil))))
 
-(defvar magit-process-error-message-re
-  (concat "^\\(?:error\\|fatal\\|git\\): \\(.*\\)" paragraph-separate))
+(defvar magit-process-error-message-regexps
+  (list "^\\(?:error\\|fatal\\|git\\): \\(.*\\)$"))
 
 (define-error 'magit-git-error "Git error")
 
@@ -839,17 +839,25 @@ as argument."
                                      (window-list))))
               (magit-section-hide section)))))))
   (unless (= arg 0)
-    (let ((msg (or (and (buffer-live-p process-buf)
-                        (with-current-buffer process-buf
-                          (save-excursion
-                            (goto-char (magit-section-end section))
-                            (--when-let (magit-section-content section)
-                              (when (re-search-backward
-                                     magit-process-error-message-re it t)
-                                (match-string-no-properties 1))))))
-                   "Git failed")))
-      (if magit-process-raise-error
-          (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir)))
+    (let ((msg
+           (or (and (buffer-live-p process-buf)
+                    (with-current-buffer process-buf
+                      (and (magit-section-content section)
+                           (save-excursion
+                             (goto-char (magit-section-end section))
+                             (run-hook-wrapped
+                              'magit-process-error-message-regexps
+                              (lambda (re)
+                                (save-excursion
+                                  (and (re-search-backward re nil t)
+                                       (or (match-string-no-properties 1)
+                                           (and (not magit-process-raise-error)
+                                                'suppressed))))))))))
+               "Git failed")))
+      (cond
+       (magit-process-raise-error
+        (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir))))
+       ((not (eq msg 'suppressed))
         (when (buffer-live-p process-buf)
           (with-current-buffer process-buf
             (-when-let (status-buf (magit-mode-get-buffer 'magit-status-mode))
@@ -862,7 +870,7 @@ as argument."
                                             'magit-process-buffer)))))
                      (format "Hit %s to see" (key-description key))
                    "See")
-                 (buffer-name process-buf)))))
+                 (buffer-name process-buf))))))
   arg)
 
 (defun magit-process-display-buffer (process)
