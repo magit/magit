@@ -96,6 +96,13 @@ an alist that supports the keys `:right-align' and `:pad-right'."
                                                (symbol))
                                        (sexp   :tag "Value"))))))
 
+(defcustom magit-submodule-fetch-jobs 4
+  "Number of submodules to fetch in parallel.
+Ignored for Git versions before v2.8.0."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-commands
+  :type '(choice (const :tag "one at a time" nil) number))
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-submodule-popup "magit-submodule" nil t)
@@ -183,11 +190,17 @@ With a prefix argument also register submodules in \".git/config\"."
 ;;;###autoload
 (defun magit-submodule-fetch (&optional all)
   "Fetch all submodules.
-With a prefix argument fetch all remotes."
+
+Option `magit-submodule-fetch-jobs' controls how many submodules
+are being fetched in parallel.  Also fetch the super-repository,
+because `git-fetch' does not support not doing that.  With a
+prefix argument fetch all remotes."
   (interactive "P")
   (magit-with-toplevel
-    (magit-run-git-async "submodule" "foreach"
-                         (format "git fetch %s || true" (if all "--all" "")))))
+    (magit-run-git-async "fetch" "--verbose" "--recurse-submodules"
+                         (and (version<= "2.8.0" (magit-git-version))
+                              (list "-j" magit-submodule-fetch-jobs))
+                         (and all "--all"))))
 
 ;;;###autoload
 (defun magit-submodule-deinit (path)
