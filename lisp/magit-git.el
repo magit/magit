@@ -1345,7 +1345,7 @@ Return a list of two integers: (A>B B>A)."
     it))
 
 (defvar magit-ref-namespaces
-  '(("\\`@\\'"                     . magit-head)
+  '(("\\`HEAD\\'"                  . magit-head)
     ("\\`refs/tags/\\(.+\\)"       . magit-tag)
     ("\\`refs/heads/\\(.+\\)"      . magit-branch-local)
     ("\\`refs/remotes/\\(.+\\)"    . magit-branch-remote)
@@ -1366,12 +1366,6 @@ used to match full refs.  The first entry whose REGEXP matches
 the reference is used.  The first regexp submatch becomes the
 \"label\" that represents the ref and is propertized with FONT.")
 
-(defun magit-format-ref-label (ref &optional head)
-  (-let [(_re . face)
-         (--first (string-match (car it) ref) magit-ref-namespaces)]
-    (propertize (or (match-string 1 ref) ref)
-                'face (if (equal ref head) 'magit-branch-current face))))
-
 (defun magit-format-ref-labels (string)
   ;; To support Git <2.2.0, we remove the surrounding parentheses here
   ;; rather than specifying that STRING should be generated with Git's
@@ -1380,8 +1374,8 @@ the reference is used.  The first regexp submatch becomes the
                     (replace-regexp-in-string "\\`\\s-*(" "")
                     (replace-regexp-in-string ")\\s-*\\'" "")))
   (save-match-data
-    (let ((regexp "\\(, \\|tag: \\| -> \\)")
-          head names)
+    (let ((regexp "\\(, \\|tag: \\|HEAD -> \\)")
+          names)
       (if (and (derived-mode-p 'magit-log-mode)
                (member "--simplify-by-decoration" (cadr magit-refresh-args)))
           (let ((branches (magit-list-local-branch-names))
@@ -1396,10 +1390,53 @@ the reference is used.  The first regexp submatch becomes the
                           (replace-regexp-in-string "tag: " "refs/tags/" string)
                           regexp t))))
         (setq names (split-string string regexp t)))
-      (when (member "HEAD" names)
-        (setq head  (magit-git-string "symbolic-ref" "HEAD"))
-        (setq names (cons (or head "@") (delete head (delete "HEAD" names)))))
-      (mapconcat (lambda (it) (magit-format-ref-label it head)) names " "))))
+      (let (state head tags branches remotes other combined)
+        (dolist (ref names)
+          (let* ((face (cdr (--first (string-match (car it) ref)
+                                     magit-ref-namespaces)))
+                 (name (propertize (or (match-string 1 ref) ref) 'face face)))
+            (cl-case face
+              ((magit-bisect-bad magit-bisect-skip magit-bisect-good)
+               (setq state name))
+              (magit-head
+               (setq head (propertize "@" 'face 'magit-head)))
+              (magit-tag            (push name tags))
+              (magit-branch-local   (push name branches))
+              (magit-branch-remote  (push name remotes))
+              (t                    (push name other)))))
+        (setq remotes
+              (-keep (lambda (name)
+                       (string-match "\\`\\([^/]*\\)/\\(.*\\)\\'" name)
+                       (let ((r (match-string 1 name))
+                             (b (match-string 2 name)))
+                         (and (not (equal b "HEAD"))
+                              (if (equal (concat "refs/remotes/" name)
+                                         (magit-git-string
+                                          "symbolic-ref"
+                                          (format "refs/remotes/%s/HEAD" r)))
+                                  (propertize name
+                                              'face 'magit-branch-remote-head)
+                                name))))
+                     remotes))
+        (dolist (name branches)
+          (let ((push (car (member (magit-get-push-branch name) remotes))))
+            (when push
+              (setq remotes (delete push remotes))
+              (string-match "^[^/]*/" push)
+              (setq push (substring push 0 (match-end 0))))
+            (if (equal name (magit-get-current-branch))
+                (setq head
+                      (concat push
+                              (propertize name 'face 'magit-branch-current)))
+              (push (concat push name) combined))))
+        (mapconcat #'identity
+                   (-flatten `(,state
+                               ,head
+                               ,@(nreverse tags)
+                               ,@(nreverse combined)
+                               ,@(nreverse remotes)
+                               ,@other))
+                   " ")))))
 
 (defun magit-object-type (object)
   (magit-git-string "cat-file" "-t" object))

@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-235-gc5ba3819a+1)
+@subtitle for version 2.11.0 (2.11.0-242-ge0af5b39e+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-235-gc5ba3819a+1).
+This manual is for Magit version 2.11.0 (2.11.0-242-ge0af5b39e+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -3124,6 +3124,28 @@ entry.  Only considered when moving past the last entry with
 Whether to show the refnames after the commit summaries.  This is
 useful if you use really long branch names.
 @end defopt
+
+Magit displays references in logs a bit differently from how Git does
+it.
+
+Local branches are blue and remote branches are green.  Of course that
+depends on the used theme, as do the colors used for other types of
+references.  The current branch has a box around it, as do remote
+branches that are their respective remote's @code{HEAD} branch.
+
+If a local branch and its push-target point at the same commit, then
+their names are combined to preserve space and to make that
+relationship visible.  For example:
+
+@example
+origin/feature
+[green][blue-]
+
+instead of
+
+feature origin/feature
+[blue-] [green-------]
+@end example
 
 For a description of @code{magit-log-margin} see @ref{Log Margin}.
 

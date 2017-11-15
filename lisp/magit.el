@@ -110,6 +110,12 @@ own faces for the `header-line', or for parts of the
   "Face for remote branch head labels shown in log buffer."
   :group 'magit-faces)
 
+(defface magit-branch-remote-head
+  '((((class color) (background light)) :inherit magit-branch-remote :box t)
+    (((class color) (background  dark)) :inherit magit-branch-remote :box t))
+  "Face for current branch."
+  :group 'magit-faces)
+
 (defface magit-branch-local
   '((((class color) (background light)) :foreground "SkyBlue4")
     (((class color) (background  dark)) :foreground "LightSkyBlue1"))
