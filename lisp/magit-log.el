@@ -1001,6 +1001,9 @@ Do not add this to a hook variable."
                 (`bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry _ refsub side) nil
+    (setq msg (substring-no-properties msg))
+    (when refs
+      (setq refs (substring-no-properties refs)))
     (let ((align (not (member "--stat" (cadr magit-refresh-args))))
           (non-graph-re (if (eq style 'bisect-vis)
                             magit-log-bisect-vis-re
