@@ -1345,37 +1345,32 @@ Return a list of two integers: (A>B B>A)."
     it))
 
 (defvar magit-ref-namespaces
-  '(("^@$"                       magit-head nil)
-    ("^refs/tags/\\(.+\\)"       magit-tag nil)
-    ("^refs/heads/\\(.+\\)"      magit-branch-local nil)
-    ("^refs/remotes/\\(.+\\)"    magit-branch-remote nil)
-    ("^refs/bisect/\\(bad\\)"    magit-bisect-bad nil)
-    ("^refs/bisect/\\(skip.*\\)" magit-bisect-skip nil)
-    ("^refs/bisect/\\(good.*\\)" magit-bisect-good nil)
-    ("^refs/stash$"              magit-refname-stash nil)
-    ("^refs/wip/\\(.+\\)"        magit-refname-wip nil)
-    ("^\\(bad\\):"               magit-bisect-bad nil)
-    ("^\\(skip\\):"              magit-bisect-skip nil)
-    ("^\\(good\\):"              magit-bisect-good nil)
-    ("\\(.+\\)"                  magit-refname nil))
+  '(("^@$"                       . magit-head)
+    ("^refs/tags/\\(.+\\)"       . magit-tag)
+    ("^refs/heads/\\(.+\\)"      . magit-branch-local)
+    ("^refs/remotes/\\(.+\\)"    . magit-branch-remote)
+    ("^refs/bisect/\\(bad\\)"    . magit-bisect-bad)
+    ("^refs/bisect/\\(skip.*\\)" . magit-bisect-skip)
+    ("^refs/bisect/\\(good.*\\)" . magit-bisect-good)
+    ("^refs/stash$"              . magit-refname-stash)
+    ("^refs/wip/\\(.+\\)"        . magit-refname-wip)
+    ("^\\(bad\\):"               . magit-bisect-bad)
+    ("^\\(skip\\):"              . magit-bisect-skip)
+    ("^\\(good\\):"              . magit-bisect-good)
+    ("\\(.+\\)"                  . magit-refname))
   "How refs are formatted for display.
 
 Each entry controls how a certain type of ref is displayed, and
-has the form (REGEXP FACE FORMATTER).  REGEXP is a regular
-expression used to match full refs.  The first entry whose REGEXP
-matches the reference is used.  The first regexp submatch becomes
-the \"label\" that represents the ref and is propertized with
-font FONT.  If FORMATTER is non-nil, it should be a function that
-takes two arguments, the full ref and the face.  It is supposed
-to return a propertized label that represents the ref.")
+has the form (REGEXP . FACE).  REGEXP is a regular expression
+used to match full refs.  The first entry whose REGEXP matches
+the reference is used.  The first regexp submatch becomes the
+\"label\" that represents the ref and is propertized with FONT.")
 
 (defun magit-format-ref-label (ref &optional head)
-  (-let [(_re face fn)
+  (-let [(_re . face)
          (--first (string-match (car it) ref) magit-ref-namespaces)]
-    (if fn
-        (funcall fn ref face)
-      (propertize (or (match-string 1 ref) ref)
-                  'face (if (equal ref head) 'magit-branch-current face)))))
+    (propertize (or (match-string 1 ref) ref)
+                'face (if (equal ref head) 'magit-branch-current face))))
 
 (defun magit-format-ref-labels (string)
   ;; To support Git <2.2.0, we remove the surrounding parentheses here
