@@ -171,6 +171,8 @@ Changes since v2.11.0
   errors it was reported to users, which led to confusion and a few
   bug reports.  Now that non-error is being suppressed.  #2932
 
+* The option `magit-ref-namespaces' was demoted to a variable.  #2923
+
 Fixes since v2.11.0
 -------------------
 
