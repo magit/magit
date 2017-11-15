@@ -148,37 +148,6 @@ then at least its standard error is inserted into this buffer.
 This is only intended for debugging purposes.  Do not enable this
 permanently, that would negatively affect performance.")
 
-(defcustom magit-ref-namespaces
-  '(("^@$"                       magit-head nil)
-    ("^refs/tags/\\(.+\\)"       magit-tag nil)
-    ("^refs/heads/\\(.+\\)"      magit-branch-local nil)
-    ("^refs/remotes/\\(.+\\)"    magit-branch-remote nil)
-    ("^refs/bisect/\\(bad\\)"    magit-bisect-bad nil)
-    ("^refs/bisect/\\(skip.*\\)" magit-bisect-skip nil)
-    ("^refs/bisect/\\(good.*\\)" magit-bisect-good nil)
-    ("^refs/stash$"              magit-refname-stash nil)
-    ("^refs/wip/\\(.+\\)"        magit-refname-wip nil)
-    ("^\\(bad\\):"               magit-bisect-bad nil)
-    ("^\\(skip\\):"              magit-bisect-skip nil)
-    ("^\\(good\\):"              magit-bisect-good nil)
-    ("\\(.+\\)"                  magit-refname nil))
-  "How refs are formatted for display.
-
-Each entry controls how a certain type of ref is displayed, and
-has the form (REGEXP FACE FORMATTER).  REGEXP is a regular
-expression used to match full refs.  The first entry whose REGEXP
-matches the reference is used.  The first regexp submatch becomes
-the \"label\" that represents the ref and is propertized with
-font FONT.  If FORMATTER is non-nil, it should be a function that
-takes two arguments, the full ref and the face.  It is supposed
-to return a propertized label that represents the ref."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-miscellanous
-  :type '(repeat
-          (list regexp
-                face
-                (choice (const :tag "first submatch is label" nil)
-                        (function :tag "format using function")))))
 
 (defcustom magit-prefer-remote-upstream nil
   "Whether to favor remote branches when reading the upstream branch.
@@ -1375,13 +1344,27 @@ Return a list of two integers: (A>B B>A)."
     (put-text-property 0 (match-beginning 0) 'face 'magit-hash it)
     it))
 
-(defun magit-format-ref-label (ref &optional head)
-  (-let [(_re face fn)
-         (--first (string-match (car it) ref) magit-ref-namespaces)]
-    (if fn
-        (funcall fn ref face)
-      (propertize (or (match-string 1 ref) ref)
-                  'face (if (equal ref head) 'magit-branch-current face)))))
+(defvar magit-ref-namespaces
+  '(("\\`HEAD\\'"                  . magit-head)
+    ("\\`refs/tags/\\(.+\\)"       . magit-tag)
+    ("\\`refs/heads/\\(.+\\)"      . magit-branch-local)
+    ("\\`refs/remotes/\\(.+\\)"    . magit-branch-remote)
+    ("\\`refs/bisect/\\(bad\\)"    . magit-bisect-bad)
+    ("\\`refs/bisect/\\(skip.*\\)" . magit-bisect-skip)
+    ("\\`refs/bisect/\\(good.*\\)" . magit-bisect-good)
+    ("\\`refs/stash$"              . magit-refname-stash)
+    ("\\`refs/wip/\\(.+\\)"        . magit-refname-wip)
+    ("\\`\\(bad\\):"               . magit-bisect-bad)
+    ("\\`\\(skip\\):"              . magit-bisect-skip)
+    ("\\`\\(good\\):"              . magit-bisect-good)
+    ("\\'\\(.+\\)"                 . magit-refname))
+  "How refs are formatted for display.
+
+Each entry controls how a certain type of ref is displayed, and
+has the form (REGEXP . FACE).  REGEXP is a regular expression
+used to match full refs.  The first entry whose REGEXP matches
+the reference is used.  The first regexp submatch becomes the
+\"label\" that represents the ref and is propertized with FONT.")
 
 (defun magit-format-ref-labels (string)
   ;; To support Git <2.2.0, we remove the surrounding parentheses here
@@ -1391,8 +1374,8 @@ Return a list of two integers: (A>B B>A)."
                     (replace-regexp-in-string "\\`\\s-*(" "")
                     (replace-regexp-in-string ")\\s-*\\'" "")))
   (save-match-data
-    (let ((regexp "\\(, \\|tag: \\| -> \\)")
-          head names)
+    (let ((regexp "\\(, \\|tag: \\|HEAD -> \\)")
+          names)
       (if (and (derived-mode-p 'magit-log-mode)
                (member "--simplify-by-decoration" (cadr magit-refresh-args)))
           (let ((branches (magit-list-local-branch-names))
@@ -1407,10 +1390,53 @@ Return a list of two integers: (A>B B>A)."
                           (replace-regexp-in-string "tag: " "refs/tags/" string)
                           regexp t))))
         (setq names (split-string string regexp t)))
-      (when (member "HEAD" names)
-        (setq head  (magit-git-string "symbolic-ref" "HEAD"))
-        (setq names (cons (or head "@") (delete head (delete "HEAD" names)))))
-      (mapconcat (lambda (it) (magit-format-ref-label it head)) names " "))))
+      (let (state head tags branches remotes other combined)
+        (dolist (ref names)
+          (let* ((face (cdr (--first (string-match (car it) ref)
+                                     magit-ref-namespaces)))
+                 (name (propertize (or (match-string 1 ref) ref) 'face face)))
+            (cl-case face
+              ((magit-bisect-bad magit-bisect-skip magit-bisect-good)
+               (setq state name))
+              (magit-head
+               (setq head (propertize "@" 'face 'magit-head)))
+              (magit-tag            (push name tags))
+              (magit-branch-local   (push name branches))
+              (magit-branch-remote  (push name remotes))
+              (t                    (push name other)))))
+        (setq remotes
+              (-keep (lambda (name)
+                       (string-match "\\`\\([^/]*\\)/\\(.*\\)\\'" name)
+                       (let ((r (match-string 1 name))
+                             (b (match-string 2 name)))
+                         (and (not (equal b "HEAD"))
+                              (if (equal (concat "refs/remotes/" name)
+                                         (magit-git-string
+                                          "symbolic-ref"
+                                          (format "refs/remotes/%s/HEAD" r)))
+                                  (propertize name
+                                              'face 'magit-branch-remote-head)
+                                name))))
+                     remotes))
+        (dolist (name branches)
+          (let ((push (car (member (magit-get-push-branch name) remotes))))
+            (when push
+              (setq remotes (delete push remotes))
+              (string-match "^[^/]*/" push)
+              (setq push (substring push 0 (match-end 0))))
+            (if (equal name (magit-get-current-branch))
+                (setq head
+                      (concat push
+                              (propertize name 'face 'magit-branch-current)))
+              (push (concat push name) combined))))
+        (mapconcat #'identity
+                   (-flatten `(,state
+                               ,head
+                               ,@(nreverse tags)
+                               ,@(nreverse combined)
+                               ,@(nreverse remotes)
+                               ,@other))
+                   " ")))))
 
 (defun magit-object-type (object)
   (magit-git-string "cat-file" "-t" object))

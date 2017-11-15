@@ -171,6 +171,12 @@ Changes since v2.11.0
   errors it was reported to users, which led to confusion and a few
   bug reports.  Now that non-error is being suppressed.  #2932
 
+* The option `magit-ref-namespaces' was demoted to a variable and its
+  format changed.  #2923
+
+* Some refs that are being displayed in logs are now being compressed
+  to save space while providing more information.  #2923
+
 Fixes since v2.11.0
 -------------------
 
