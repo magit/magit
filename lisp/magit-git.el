@@ -1345,19 +1345,19 @@ Return a list of two integers: (A>B B>A)."
     it))
 
 (defvar magit-ref-namespaces
-  '(("^@$"                       . magit-head)
-    ("^refs/tags/\\(.+\\)"       . magit-tag)
-    ("^refs/heads/\\(.+\\)"      . magit-branch-local)
-    ("^refs/remotes/\\(.+\\)"    . magit-branch-remote)
-    ("^refs/bisect/\\(bad\\)"    . magit-bisect-bad)
-    ("^refs/bisect/\\(skip.*\\)" . magit-bisect-skip)
-    ("^refs/bisect/\\(good.*\\)" . magit-bisect-good)
-    ("^refs/stash$"              . magit-refname-stash)
-    ("^refs/wip/\\(.+\\)"        . magit-refname-wip)
-    ("^\\(bad\\):"               . magit-bisect-bad)
-    ("^\\(skip\\):"              . magit-bisect-skip)
-    ("^\\(good\\):"              . magit-bisect-good)
-    ("\\(.+\\)"                  . magit-refname))
+  '(("\\`@\\'"                     . magit-head)
+    ("\\`refs/tags/\\(.+\\)"       . magit-tag)
+    ("\\`refs/heads/\\(.+\\)"      . magit-branch-local)
+    ("\\`refs/remotes/\\(.+\\)"    . magit-branch-remote)
+    ("\\`refs/bisect/\\(bad\\)"    . magit-bisect-bad)
+    ("\\`refs/bisect/\\(skip.*\\)" . magit-bisect-skip)
+    ("\\`refs/bisect/\\(good.*\\)" . magit-bisect-good)
+    ("\\`refs/stash$"              . magit-refname-stash)
+    ("\\`refs/wip/\\(.+\\)"        . magit-refname-wip)
+    ("\\`\\(bad\\):"               . magit-bisect-bad)
+    ("\\`\\(skip\\):"              . magit-bisect-skip)
+    ("\\`\\(good\\):"              . magit-bisect-good)
+    ("\\'\\(.+\\)"                 . magit-refname))
   "How refs are formatted for display.
 
 Each entry controls how a certain type of ref is displayed, and
