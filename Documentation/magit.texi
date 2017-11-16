@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-242-ge0af5b39e+1)
+@subtitle for version 2.11.0 (2.11.0-246-g7b0bda76+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-242-ge0af5b39e+1).
+This manual is for Magit version 2.11.0 (2.11.0-246-g7b0bda76+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -4469,8 +4469,8 @@ This prefix command shows the above suffix command along with the
 appropriate infix arguments in a popup buffer.
 @end table
 
-The above commands are also bound in the keymaps @code{magit-blame-mode-map
-and ~magit-blob-mode-map}, and in the popup @code{magit-file-popup}.  Once
+The above commands are also bound in the keymaps @code{magit-blame-mode-map}
+and @code{magit-blob-mode-map}, and in the popup @code{magit-file-popup}.  Once
 Magit-Blame mode is enabled in a file-visiting buffer, you can use @code{B}
 to show the blaming popup, @code{b} to blame recursively going backward in
 time, and @code{f} to blame recursively going forward in time (i.e. blame in

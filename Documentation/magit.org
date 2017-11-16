@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-242-ge0af5b39e+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-246-g7b0bda76+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-242-ge0af5b39e+1).
+This manual is for Magit version 2.11.0 (2.11.0-246-g7b0bda76+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -3263,7 +3263,7 @@ of having to type out the command name.
   This prefix command shows the above suffix command along with the
   appropriate infix arguments in a popup buffer.
 
-The above commands are also bound in the keymaps ~magit-blame-mode-map
+The above commands are also bound in the keymaps ~magit-blame-mode-map~
 and ~magit-blob-mode-map~, and in the popup ~magit-file-popup~.  Once
 Magit-Blame mode is enabled in a file-visiting buffer, you can use ~B~
 to show the blaming popup, ~b~ to blame recursively going backward in
