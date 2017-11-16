@@ -197,10 +197,11 @@ because `git-fetch' does not support not doing that.  With a
 prefix argument fetch all remotes."
   (interactive "P")
   (magit-with-toplevel
-    (magit-run-git-async "fetch" "--verbose" "--recurse-submodules"
-                         (and (version<= "2.8.0" (magit-git-version))
-                              (list "-j" magit-submodule-fetch-jobs))
-                         (and all "--all"))))
+    (magit-run-git-async
+     "fetch" "--verbose" "--recurse-submodules"
+     (and (version<= "2.8.0" (magit-git-version))
+          (list "-j" (number-to-string magit-submodule-fetch-jobs)))
+     (and all "--all"))))
 
 ;;;###autoload
 (defun magit-submodule-deinit (path)
