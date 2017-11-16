@@ -199,7 +199,8 @@ prefix argument fetch all remotes."
   (magit-with-toplevel
     (magit-run-git-async
      "fetch" "--verbose" "--recurse-submodules"
-     (and (version<= "2.8.0" (magit-git-version))
+     (and magit-submodule-fetch-jobs
+          (version<= "2.8.0" (magit-git-version))
           (list "-j" (number-to-string magit-submodule-fetch-jobs)))
      (and all "--all"))))
 
