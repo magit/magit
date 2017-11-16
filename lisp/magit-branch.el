@@ -352,7 +352,8 @@ when using `magit-branch-and-checkout'."
         (list branch
               (with-no-warnings
                 (let ((magit-no-confirm-default nil))
-                  (magit-read-starting-point prompt branch) args)))))))
+                  (magit-read-starting-point prompt branch)))
+              args)))))
 
 ;;;###autoload
 (defun magit-branch-spinoff (branch &optional from &rest args)
