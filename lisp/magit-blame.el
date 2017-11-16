@@ -240,7 +240,7 @@ and then turned on again when turning off the latter."
 
 ;;;###autoload
 (defun magit-blame-reverse (revision file &optional args line)
-  "For each line show the subsequent revision that removes it.
+  "For each line show the last revision in which a line still existed.
 \n(fn REVISION FILE &optional ARGS)" ; LINE is for internal use
   (interactive (magit-blame-arguments* t))
   (magit-blame revision file (cons "--reverse" args) line))

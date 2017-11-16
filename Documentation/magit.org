@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-246-g7b0bda76+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-249-gcf6d30833+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-246-g7b0bda76+1).
+This manual is for Magit version 2.11.0 (2.11.0-249-gcf6d30833+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -3253,8 +3253,8 @@ of having to type out the command name.
 - Key: M-x magit-blame-reverse, magit-blame-reverse
 
   This command augments each line or chunk of lines in the current
-  file- or blob-visiting buffer with information about what subsequent
-  commit removes these lines.
+  file- or blob-visiting buffer with information about the last
+  revision in which a line still existed.
 
   Like ~magit-blame~, this command can be used recursively.
 

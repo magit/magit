@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-246-g7b0bda76+1)
+@subtitle for version 2.11.0 (2.11.0-249-gcf6d30833+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-246-g7b0bda76+1).
+This manual is for Magit version 2.11.0 (2.11.0-249-gcf6d30833+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -4456,8 +4456,8 @@ that added the current line or chunk of lines.
 @item @kbd{M-x magit-blame-reverse} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-reverse})
 
 This command augments each line or chunk of lines in the current
-file- or blob-visiting buffer with information about what subsequent
-commit removes these lines.
+file- or blob-visiting buffer with information about the last
+revision in which a line still existed.
 
 Like @code{magit-blame}, this command can be used recursively.
 
