@@ -31,14 +31,31 @@
     <img src="https://magit.vc/assets/kickstarter-k.png">
   </a>
 </div>
+<br>
 <div align="justify">
   Thanks to 1987 backers the Kickstarter campaign was a huge success!
   This September was very exciting and I would like to thank you all
   for your generosity and enthusiastic support!
 </div>
 <div align="center">
-  <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em>
-  <br><img src="https://magit.vc/assets/pixel-heart.png">
+  <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em><br><br>
+  <img src="https://magit.vc/assets/pixel-heart.png">
+</div>
+<br>
+<div align="center">
+  <em>My thanks also go to these three sponsors!</em><br><br>
+  <a href="https://www.mojotech.com/about">
+    <img title="Mojotech"
+         alt="Mojotech"
+         src="https://magit.vc/assets/mojotech.png"></a>
+  <a href="https://opensource.google.com">
+    <img title="Google Open Source"
+         alt="Google Open Source"
+         src="https://magit.vc/assets/google-os.png"></a>
+  <a href="http://www.directangular.com">
+    <img title="Directangular"
+         alt="Directangular"
+         src="https://magit.vc/assets/directangular.png"></a>
 </div>
 <br>
 <hr>
