@@ -1558,8 +1558,9 @@ Show the last `magit-log-section-commit-count' commits."
     (magit-insert-section (recent range collapse)
       (magit-insert-heading "Recent commits")
       (magit-insert-log range
-                        (cons (format "-%d" magit-log-section-commit-count)
-                              magit-log-section-arguments)))))
+                        (cons (format "-n%d" magit-log-section-commit-count)
+                              (--remove (string-prefix-p "-n" it)
+                                        magit-log-section-arguments))))))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
   "Unpushed to <push-remote>" unpushed
