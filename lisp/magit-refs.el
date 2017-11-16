@@ -587,7 +587,8 @@ line is inserted at all."
     (magit-refs-insert-cherry-commits-1 head ref section)))
 
 (defun magit-refs-insert-cherry-commits-1 (head ref _section)
-  (let ((start (point)))
+  (let ((start (point))
+        (magit-insert-section--current nil))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
       "cherry" "-v" (magit-abbrev-arg) head ref magit-refresh-args)
     (unless (= (point) start)
