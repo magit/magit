@@ -1357,7 +1357,7 @@ Return a list of two integers: (A>B B>A)."
     ("\\`\\(bad\\):"               . magit-bisect-bad)
     ("\\`\\(skip\\):"              . magit-bisect-skip)
     ("\\`\\(good\\):"              . magit-bisect-good)
-    ("\\'\\(.+\\)"                 . magit-refname))
+    ("\\`\\(.+\\)"                 . magit-refname))
   "How refs are formatted for display.
 
 Each entry controls how a certain type of ref is displayed, and
