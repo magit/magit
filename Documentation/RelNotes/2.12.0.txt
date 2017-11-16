@@ -85,7 +85,7 @@ Changes since v2.11.0
 
 * When the current branch has no upstream or when all commits have
   already been pushed there, then the status buffer now shows
-  `magit-log-section-commit-count' recent commit.  If you previously
+  `magit-log-section-commit-count' recent commits.  If you previously
   used `magit-insert-unpulled-from-upstream-or-recent', then remove
   that from `magit-status-sections-hook', as it is an obsolete alias
   for `magit-insert-unpulled-from-upstream' now.  #3227
@@ -93,19 +93,19 @@ Changes since v2.11.0
 * When switching between showing "Unmerged into <upstream>" and
   "Recent commits", preserve the visibility of that section.  #3227
 
-* When prompting for a branch to delete then the default branch is
-  no longer offered as default choice, except in cases where it is
-  likely that that is actually what the user wants.  #2924
+* When prompting for a branch to delete, the default branch is no
+  longer offered as default choice, except in cases where it is likely
+  that that is actually what the user wants.  #2924
 
 * Added new popup `magit-worktree-popup' and bound "%" to it.  #2927
 
 * The commands `magit-file-delete' and `magit-file-untrack' now act on
-  the selected files and force with a prefix argument they force the
-  action.  #2930
+  the selected files and with a prefix argument they force the action.
+  #2930
 
 * When requesting the history of a single file that is no longer being
-  tracked use the `--full-history' argument.  Otherwise no history at
-  all would be show.  #3012
+  tracked, use the `--full-history' argument.  Otherwise no history at
+  all would be shown.  #3012
 
 * Leading tabs in files no longer cause misalignment in diffs.  This
   is done by overriding the mechanism used by the display engine to
@@ -127,9 +127,9 @@ Changes since v2.11.0
   many cases that would have lead to undesired changes in behavior.
   #3026
 
-* The command `magit-branch-spinoff' now spins off just HEAD, when
-  that constitutes the single-section selection.  Previously one could
-  only spin off all commits that aren't in the upstream yet or at least
+* The command `magit-branch-spinoff' now spins off just HEAD when that
+  constitutes the single-section selection.  Previously one could only
+  spin off all commits that weren't in the upstream yet or at least
   two commits.  #2920
 
 * When there is a valid selection based on the region, then the region
@@ -193,5 +193,5 @@ Fixes since v2.11.0
 * The command `magit-branch-rename' failed to rename a local branch if
   a tag existed with the same name.  #3222
 
-* The command `magit-file-delete ignored the prefix argument instead
+* The command `magit-file-delete ignored' the prefix argument instead
   of forcing the action as intended.
