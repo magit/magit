@@ -67,12 +67,6 @@
          alt="Donate monthly using Patreon"
 		 style="height: 50px; width: auto;"
          src="https://magit.vc/assets/patreon-50px.png"></a>
-  &nbsp;&nbsp;
-  <a href="https://salt.bountysource.com/teams/magit">
-    <img title="Donate monthly using Bountysource"
-         alt="Donate monthly using Bountysource"
-		 style="height: 50px; width: auto;"
-         src="https://magit.vc/assets/bountysource-50px.png"></a>
 </div>
 <br>
 <div align="center">
