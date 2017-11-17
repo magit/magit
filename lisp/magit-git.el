@@ -1185,6 +1185,12 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 (defun magit-list-stashes (&optional format)
   (magit-git-lines "stash" "list" (concat "--format=" (or format "%gd"))))
 
+(defun magit-list-active-notes-refs ()
+  "Return notes refs according to `core.notesRef' and `notes.displayRef'."
+  (magit-git-lines "for-each-ref" "--format=%(refname)"
+                   (magit-get "core.notesRef")
+                   (magit-get-all "notes.displayRef")))
+
 (defun magit-list-notes-refnames ()
   (--map (substring it 6) (magit-list-refnames "refs/notes")))
 

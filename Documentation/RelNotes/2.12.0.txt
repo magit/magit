@@ -177,6 +177,10 @@ Changes since v2.11.0
 * Some refs that are being displayed in logs are now being compressed
   to save space while providing more information.  #2923
 
+* The command `magit-show-commit' now also show notes specified using
+  `notes.displayRef', not just those specified using `core.notesRef'.
+  #2857
+
 Fixes since v2.11.0
 -------------------
 
