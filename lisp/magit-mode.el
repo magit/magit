@@ -358,6 +358,7 @@ starts complicating other things, then it will be removed."
            (define-key map (kbd "C-m") 'magit-visit-thing)
            (define-key map (kbd "C-M-i") 'magit-dired-jump)
            (define-key map (kbd "C-i") 'magit-section-toggle)
+           (define-key map [tab]       'magit-section-toggle)
            (define-key map [C-tab]     'magit-section-cycle)
            (define-key map [M-tab]     'magit-section-cycle-diffs)
            ;; [backtab] is the most portable binding for Shift+Tab.
