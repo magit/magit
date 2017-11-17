@@ -1405,19 +1405,21 @@ the reference is used.  The first regexp submatch becomes the
               (magit-branch-remote  (push name remotes))
               (t                    (push name other)))))
         (setq remotes
-              (-keep (lambda (name)
-                       (string-match "\\`\\([^/]*\\)/\\(.*\\)\\'" name)
-                       (let ((r (match-string 1 name))
-                             (b (match-string 2 name)))
-                         (and (not (equal b "HEAD"))
-                              (if (equal (concat "refs/remotes/" name)
-                                         (magit-git-string
-                                          "symbolic-ref"
-                                          (format "refs/remotes/%s/HEAD" r)))
-                                  (propertize name
-                                              'face 'magit-branch-remote-head)
-                                name))))
-                     remotes))
+              (-keep
+               (lambda (name)
+                 (if (string-match "\\`\\([^/]*\\)/\\(.*\\)\\'" name)
+                     (let ((r (match-string 1 name))
+                           (b (match-string 2 name)))
+                       (and (not (equal b "HEAD"))
+                            (if (equal (concat "refs/remotes/" name)
+                                       (magit-git-string
+                                        "symbolic-ref"
+                                        (format "refs/remotes/%s/HEAD" r)))
+                                (propertize name
+                                            'face 'magit-branch-remote-head)
+                              name)))
+                   name))
+               remotes))
         (dolist (name branches)
           (let ((push (car (member (magit-get-push-branch name) remotes))))
             (when push
