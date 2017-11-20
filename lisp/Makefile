@@ -86,7 +86,7 @@ $(PKG)-version.el:
 
 ## Install ###########################################################
 
-install: lisp
+install: lisp versionlib
 	@$(MKDIR) $(DESTDIR)$(lispdir)
 	$(CP) $(ELS) magit-autoloads.el magit-version.el $(ELCS) $(DESTDIR)$(lispdir)
 
