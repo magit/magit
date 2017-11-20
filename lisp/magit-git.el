@@ -38,7 +38,7 @@
 (declare-function magit-process-buffer 'magit-process)
 (declare-function magit-process-file 'magit-process)
 (declare-function magit-process-insert-section 'magit-process)
-(defvar magit-process-error-message-re)
+(defvar magit-process-error-message-regexps)
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
 (defvar magit-branch-prefer-remote-upstream)
 
@@ -298,9 +298,10 @@ add a section in the respective process buffer."
                                   (cond
                                    ((functionp magit-git-debug)
                                     (funcall magit-git-debug (buffer-string)))
-                                   ((re-search-backward
-                                     magit-process-error-message-re nil t)
-                                    (match-string 1)))))
+                                   ((run-hook-wrapped
+                                     'magit-process-error-message-regexps
+                                     (lambda (re) (re-search-backward re nil t)))
+                                    (match-string-no-properties 1)))))
                       (let ((magit-git-debug nil))
                         (with-current-buffer (magit-process-buffer t)
                           (magit-process-insert-section default-directory
