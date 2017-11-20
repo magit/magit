@@ -19,8 +19,9 @@ install:
   - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
   - export EMACS=/tmp/emacs/bin/emacs
   - $CURL -O https://raw.githubusercontent.com/magnars/dash.el/master/dash.el
-  - $EMACS -Q --batch -f batch-byte-compile dash.el
+  - $CURL -O https://raw.githubusercontent.com/magit/magit-popup/master/magit-popup.el
   - $CURL -O https://raw.githubusercontent.com/magit/with-editor/master/with-editor.el
+  - $EMACS -Q --batch -L . -f batch-byte-compile dash.el magit-popup.el with-editor.el
   - $EMACS --version
 script:
   - git config --global user.name "A U Thor"

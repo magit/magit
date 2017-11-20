@@ -10,16 +10,15 @@ all: lisp
 ## Build order #######################################################
 
 git-commit.elc:
-magit-popup.elc:
 magit-utils.elc:
 magit-section.elc:	magit-utils.elc
 magit-git.elc:		magit-utils.elc magit-section.elc
-magit-mode.elc:		magit-section.elc magit-git.elc magit-popup.elc
+magit-mode.elc:		magit-section.elc magit-git.elc
 magit-margin.elc:	magit-section.elc magit-mode.elc
 magit-process.elc:	magit-utils.elc magit-section.elc \
 			magit-git.elc magit-mode.elc
 magit-autorevert.elc:	magit-git.elc magit-process.elc
-magit-core.elc:		magit-popup.elc magit-margin.elc magit-utils.elc \
+magit-core.elc:		magit-margin.elc magit-utils.elc \
 			magit-section.elc magit-git.elc magit-mode.elc \
 			magit-process.elc magit-autorevert.elc
 magit-diff.elc:		git-commit.elc magit-core.elc

@@ -17,7 +17,7 @@ pdf:  $(PDFFILES)
 	@printf "Generating $@\n"
 	@$(MAKEINFO) --no-split $< -o $@
 
-dir: magit.info magit-popup.info
+dir: magit.info
 	@printf "Generating dir\n"
 	@echo $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
 
@@ -30,9 +30,6 @@ html-dir: $(TEXIFILES)
 	@printf "Generating magit/*.html\n"
 	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit.texi
 	@./fixup-html.sh magit
-	@printf "Generating magit-popup/*.html\n"
-	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit-popup.texi
-	@./fixup-html.sh magit-popup
 
 %.pdf: %.texi
 	@printf "Generating $@\n"
@@ -76,9 +73,6 @@ texi:
 	@$(EMACSBIN) $(ORG_ARGS) $(PKG).org $(ORG_EVAL)
 	@printf "\n" >> $(PKG).texi
 	@rm -f $(PKG).texi~
-	@$(EMACSBIN) $(ORG_ARGS) magit-popup.org $(ORG_EVAL)
-	@printf "\n" >> magit-popup.texi
-	@rm -f magit-popup.texi~
 
 stats:
 	@printf "Generating statistics\n"
@@ -119,9 +113,6 @@ preview-manuals: html html-dir pdf
 	@aws s3 sync magit            $(PREVIEW_BUCKET)/manual/magit/
 	@aws s3 cp   magit.html       $(PREVIEW_BUCKET)/manual/
 	@aws s3 cp   magit.pdf        $(PREVIEW_BUCKET)/manual/
-	@aws s3 sync magit-popup      $(PREVIEW_BUCKET)/manual/magit-popup/
-	@aws s3 cp   magit-popup.html $(PREVIEW_BUCKET)/manual/
-	@aws s3 cp   magit-popup.pdf  $(PREVIEW_BUCKET)/manual/
 	@printf "Uploaded to $(PREVIEW_URL)/manual/\n"
 
 publish-manuals: html html-dir pdf
@@ -129,9 +120,6 @@ publish-manuals: html html-dir pdf
 	@aws s3 sync magit            $(PUBLISH_BUCKET)/manual/magit/
 	@aws s3 cp   magit.html       $(PUBLISH_BUCKET)/manual/
 	@aws s3 cp   magit.pdf        $(PUBLISH_BUCKET)/manual/
-	@aws s3 sync magit-popup      $(PUBLISH_BUCKET)/manual/magit-popup/
-	@aws s3 cp   magit-popup.html $(PUBLISH_BUCKET)/manual/
-	@aws s3 cp   magit-popup.pdf  $(PUBLISH_BUCKET)/manual/
 	@printf "Uploaded to $(PUBLISH_URL)/manual/\n"
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation \

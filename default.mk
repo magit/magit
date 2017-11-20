@@ -36,7 +36,7 @@ MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
 ## Files #############################################################
 
 PKG       = magit
-PACKAGES  = magit magit-popup git-commit
+PACKAGES  = magit git-commit
 
 TEXIPAGES = $(addsuffix .texi,$(filter-out git-commit,$(PACKAGES)))
 INFOPAGES = $(addsuffix .info,$(filter-out git-commit,$(PACKAGES)))
@@ -45,7 +45,6 @@ HTMLDIRS  = $(filter-out git-commit,$(PACKAGES))
 PDFFILES  = $(addsuffix .pdf,$(filter-out git-commit,$(PACKAGES)))
 
 ELS  = git-commit.el
-ELS += magit-popup.el
 ELS += magit-utils.el
 ELS += magit-section.el
 ELS += magit-git.el
@@ -90,15 +89,15 @@ VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0)
 
 ASYNC_VERSION       = 1.9.2
 DASH_VERSION        = 2.13.0
+MAGIT_POPUP_VERSION = 2.12.0
 WITH_EDITOR_VERSION = 2.6.0
 GIT_COMMIT_VERSION  = 2.10.3
-MAGIT_POPUP_VERSION = 2.10.3
 
 ASYNC_MELPA_SNAPSHOT       = 20170823
 DASH_MELPA_SNAPSHOT        = 20170810
+MAGIT_POPUP_MELPA_SNAPSHOT = 20171120
 WITH_EDITOR_MELPA_SNAPSHOT = 20170817
 GIT_COMMIT_MELPA_SNAPSHOT  = 20170823
-MAGIT_POPUP_MELPA_SNAPSHOT = 20170824
 
 EMACS_VERSION = 24.4
 
@@ -121,6 +120,13 @@ ifeq "$(DASH_DIR)" ""
   DASH_DIR = $(TOP)../dash
 endif
 
+MAGIT_POPUP_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(MAGIT_POPUP_DIR)" ""
+  MAGIT_POPUP_DIR = $(TOP)../magit-popup
+endif
+
 WITH_EDITOR_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/with-editor-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
@@ -137,9 +143,11 @@ LOAD_PATH = -L $(TOP)/lisp
 
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(MAGIT_POPUP_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
 else
   LOAD_PATH += -L $(DASH_DIR)
+  LOAD_PATH += -L $(MAGIT_POPUP_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
 endif
 

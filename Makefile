@@ -189,7 +189,7 @@ magit-$(VERSION).tar.gz: lisp versionlib info
 
 define set_package_requires
 (require (quote dash))
-(dolist (lib (list "git-commit" "magit-popup" "magit"))
+(dolist (lib (list "git-commit" "magit"))
   (with-current-buffer (find-file-noselect (format "lisp/%s.el" lib))
     (goto-char (point-min))
     (re-search-forward "^;; Package-Requires: ")
@@ -198,7 +198,6 @@ define set_package_requires
       (--when-let (assq (quote dash)        s) (setcdr it (list dash-version)))
       (--when-let (assq (quote with-editor) s) (setcdr it (list with-editor-version)))
       (--when-let (assq (quote git-commit)  s) (setcdr it (list git-commit-version)))
-      (--when-let (assq (quote magit-popup) s) (setcdr it (list magit-popup-version)))
       (delete-region (point) (line-end-position))
       (insert (format "%S" s))
       (save-buffer))))
@@ -212,7 +211,6 @@ bump-versions-1:
         (setq dash-version \"$(DASH_VERSION)\")\
         (setq with-editor-version \"$(WITH_EDITOR_VERSION)\")\
         (setq git-commit-version \"$(GIT_COMMIT_VERSION)\")\
-        (setq magit-popup-version \"$(MAGIT_POPUP_VERSION)\")\
         $$set_package_requires)"
 
 bump-snapshots:
@@ -221,6 +219,5 @@ bump-snapshots:
         (setq dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (setq with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\")\
         (setq git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
-        (setq magit-popup-version \"$(MAGIT_POPUP_MELPA_SNAPSHOT)\")\
         $$set_package_requires)"
 	git commit -a -m "Reset Package-Requires for Melpa"
