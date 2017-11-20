@@ -199,3 +199,6 @@ Fixes since v2.11.0
 
 * The command `magit-file-delete ignored' the prefix argument instead
   of forcing the action as intended.
+
+* Fixed encoding of non-ascii filename arguments to git on
+  `windows-nt' systems.  #3250
