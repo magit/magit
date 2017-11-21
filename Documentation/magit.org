@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-249-gcf6d30833+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-274-gd43d8a4f2+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-249-gcf6d30833+1).
+This manual is for Magit version 2.11.0 (2.11.0-274-gd43d8a4f2+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -5507,25 +5507,6 @@ Also see [[man:git-notes]]
 
   Remove notes about unreachable commits.
 
-- Key: T s, magit-notes-set-ref
-
-  Set the current notes ref to a the value read from the user.  The
-  ref is made current by setting the value of the Git variable
-  ~core.notesRef~.  With a prefix argument change the global value
-  instead of the value in the current repository.  When this is
-  undefined, then "refs/notes/commit" is used.
-
-  Other ~magit-notes-*~ commands, as well as the sub-commands of Git's
-  ~note~ command, default to operate on that ref.
-
-- Key: T S, magit-notes-set-display-refs
-
-  Set notes refs to be display in addition to "core.notesRef".  This
-  reads a colon separated list of notes refs from the user.  The
-  values are stored in the Git variable ~notes.displayRef~.  With a
-  prefix argument GLOBAL change the global values instead of the
-  values in the current repository.
-
 It is possible to merge one note ref into another.  That may result in
 conflicts which have to resolved in the temporary worktree
 ".git/NOTES_MERGE_WORKTREE".
@@ -5547,6 +5528,22 @@ following suffix commands, instead of those listed above.
 - Key: T a, magit-notes-merge-abort
 
   Abort the current notes ref merge.
+
+The following variables control what notes reference ~magit-notes-*~,
+~git notes~ and ~git show~ act on and display.  Both the local and global
+values are displayed and can be modified.
+
+- Variable: core.notesRef
+
+  This variable specifies the notes ref that is displayed by default
+  and which commands act on by default.
+
+- Variable: notes.displayRef
+
+  This variable specifies additional notes ref to be displayed in
+  addition to the ref specified by ~core.notesRef~.  It can have
+  multiple values and may end with ~*~ to display all refs in the
+  ~refs/notes/~ namespace (or ~**~ if some names contain slashes).
 
 ** Submodules
 *** _ :ignore:
