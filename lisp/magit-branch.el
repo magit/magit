@@ -747,10 +747,11 @@ is used instead.  It defaults to `false'."
 
 (defun magit-format-branch*rebase ()
   (let ((branch (magit-branch-config-branch)))
-    (magit-popup-format-variable (format "branch.%s.rebase" branch)
-                                 '("true" "false")
-                                 "false" "pull.rebase"
-                                 (+ (length branch) 20))))
+    (magit--format-popup-variable:choices
+     (format "branch.%s.rebase" branch)
+     '("true" "false")
+     "false" "pull.rebase"
+     (+ (length branch) 20))))
 
 ;;;###autoload
 (defun magit-cycle-branch*pushRemote (branch)
@@ -772,10 +773,11 @@ which by default it is not."
 
 (defun magit-format-branch*pushRemote ()
   (let ((branch (magit-branch-config-branch)))
-    (magit-popup-format-variable (format "branch.%s.pushRemote" branch)
-                                 (magit-list-remotes)
-                                 nil "remote.pushDefault"
-                                 (+ (length branch) 20))))
+    (magit--format-popup-variable:choices
+     (format "branch.%s.pushRemote" branch)
+     (magit-list-remotes)
+     nil "remote.pushDefault"
+     (+ (length branch) 20))))
 
 ;;;###autoload
 (defun magit-cycle-pull.rebase ()
@@ -791,7 +793,8 @@ When `false' (the default) then pulling is done by merging."
   (magit--set-popup-variable "pull.rebase" '("true" "false") "false"))
 
 (defun magit-format-pull.rebase ()
-  (magit-popup-format-variable "pull.rebase" '("true" "false") "false" nil 19))
+  (magit--format-popup-variable:choices
+   "pull.rebase" '("true" "false") "false" nil 19))
 
 ;;;###autoload
 (defun magit-cycle-remote.pushDefault ()
@@ -804,8 +807,8 @@ using the Git variable `branch.<name>.pushRemote'."
   (magit--set-popup-variable "remote.pushDefault" (magit-list-remotes)))
 
 (defun magit-format-remote.pushDefault ()
-  (magit-popup-format-variable "remote.pushDefault"
-                               (magit-list-remotes) nil nil 19))
+  (magit--format-popup-variable:choices
+   "remote.pushDefault" (magit-list-remotes) nil nil 19))
 
 ;;;###autoload
 (defun magit-cycle-branch*autoSetupMerge ()
@@ -831,8 +834,8 @@ When `false' then the variables are never set."
                              '("always" "true" "false") "true"))
 
 (defun magit-format-branch*autoSetupMerge ()
-  (magit-popup-format-variable "branch.autoSetupMerge"
-                               '("always" "true" "false") "true" nil 23))
+  (magit--format-popup-variable:choices
+   "branch.autoSetupMerge" '("always" "true" "false") "true" nil 23))
 
 ;;;###autoload
 (defun magit-cycle-branch*autoSetupRebase ()
@@ -857,9 +860,10 @@ When `never' (the default) then the variable is never set."
                              '("always" "local" "remote" "never") "never"))
 
 (defun magit-format-branch*autoSetupRebase ()
-  (magit-popup-format-variable "branch.autoSetupRebase"
-                               '("always" "local" "remote" "never")
-                               "never" nil 23))
+  (magit--format-popup-variable:choices
+   "branch.autoSetupRebase"
+   '("always" "local" "remote" "never")
+   "never" nil 23))
 
 (provide 'magit-branch)
 ;;; magit-branch.el ends here

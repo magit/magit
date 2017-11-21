@@ -296,9 +296,10 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 
 (defun magit-format-remote*tagOpt ()
   (let ((remote (magit-remote-config--remote)))
-    (magit-popup-format-variable (format "remote.%s.tagOpts" remote)
-                                 '("--no-tags" "--tags") nil nil
-                                 (+ (length remote) 16))))
+    (magit--format-popup-variable:choices
+     (format "remote.%s.tagOpts" remote)
+     '("--no-tags" "--tags") nil nil
+     (+ (length remote) 16))))
 
 (defun magit-remote-config--read-args (var prompt)
   (let* ((remote (magit-remote-config--remote (format "Set `%s' of remote" var)))
@@ -508,10 +509,10 @@ missing.  To add them use something like:
   :max-action-columns 1)
 
 (defun magit-pull-format-branch*rebase ()
-  (magit-popup-format-variable (format "branch.%s.rebase"
-                                       (or (magit-get-current-branch) "<name>"))
-                               '("true" "false")
-                               "false" "pull.rebase"))
+  (magit--format-popup-variable:choices
+   (format "branch.%s.rebase" (or (magit-get-current-branch) "<name>"))
+   '("true" "false")
+   "false" "pull.rebase"))
 
 (defun magit-git-pull (source args)
   (run-hooks 'magit-credential-hook)
