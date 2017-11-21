@@ -1799,16 +1799,16 @@ the reference is used.  The first regexp submatch becomes the
         (equal "true" (car (magit-config-get-from-cached-list key)))
       (magit-git-true "config" "--bool" key))))
 
-(defun magit-set (val &rest keys)
-  "Set the value of the Git variable specified by KEYS to VAL."
+(defun magit-set (value &rest keys)
+  "Set the value of the Git variable specified by KEYS to VALUE."
   (let ((arg (and (or (string-prefix-p "--" (car keys))
                       (null (car keys)))
                   (pop keys)))
         (key (mapconcat 'identity keys ".")))
-    (if val
-        (magit-git-success "config" arg key val)
+    (if value
+        (magit-git-success "config" arg key value)
       (magit-git-success "config" arg "--unset" key))
-    val))
+    value))
 
 (gv-define-setter magit-get (val &rest keys)
   `(magit-set ,val ,@keys))
