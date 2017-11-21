@@ -323,19 +323,9 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (magit-refresh))
 
 (defun magit-remote-config--format-variable (variable)
-  (let* ((remote (magit-remote-config--remote))
-         (var (format "remote.%s.%s" remote variable)))
-    (concat var (make-string (max 1 (- 8 (length variable))) ?\s)
-            (-if-let (values (magit-get-all var))
-                (concat
-                 (propertize (car values) 'face 'magit-popup-option-value)
-                 (mapconcat
-                  (lambda (value)
-                    (concat "\n" (make-string 25 ?\s)
-                            (propertize value
-                                        'face 'magit-popup-option-value)))
-                  (cdr values) ""))
-              (propertize "unset" 'face 'magit-popup-disabled-argument)))))
+  (magit--format-popup-variable:values
+   (format "remote.%s.%s" (magit-remote-config--remote) variable)
+   25))
 
 ;;; Fetch
 
