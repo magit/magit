@@ -35,6 +35,20 @@
 (magit-define-popup magit-notes-popup
   "Popup console for notes commands."
   :man-page "git-notes"
+  :variables '("Configure local settings"
+               (?c "core.notesRef"
+                   magit-set-core.notesRef
+                   magit-format-core.notesRef)
+               (?d "notes.displayRef"
+                   magit-set-notes.displayRef
+                   magit-format-notes.displayRef)
+               "Configure global settings"
+               (?C "core.notesRef"
+                   magit-set-global-core.notesRef
+                   magit-format-global-core.notesRef)
+               (?D "notes.displayRef"
+                   magit-set-global-notes.displayRef
+                   magit-format-global-notes.displayRef))
   :switches '("Switch for prune"
               (?n "Dry run"          "--dry-run"))
   :options  '("Option for edit and remove"
@@ -44,9 +58,7 @@
   :actions  '((?T "Edit"             magit-notes-edit)
               (?r "Remove"           magit-notes-remove)
               (?m "Merge"            magit-notes-merge)
-              (?p "Prune"            magit-notes-prune)
-              (?s "Set ref"          magit-notes-set-ref)
-              (?S "Set display refs" magit-notes-set-display-refs))
+              (?p "Prune"            magit-notes-prune))
   :sequence-actions '((?c "Commit merge" magit-notes-merge-commit)
                       (?a "Abort merge"  magit-notes-merge-abort))
   :sequence-predicate 'magit-notes-merging-p
@@ -57,10 +69,17 @@
     (and (file-directory-p dir)
          (directory-files dir nil "^[^.]"))))
 
-(defun magit-notes-popup-read-ref (prompt &optional initial-input)
-  (magit-completing-read prompt (nconc (list "refs/" "refs/notes/")
-                                       (magit-list-notes-refnames))
-                         nil nil initial-input))
+(defun magit-format-core.notesRef ()
+  (magit--format-popup-variable:value "core.notesRef" 22))
+
+(defun magit-format-notes.displayRef ()
+  (magit--format-popup-variable:values "notes.displayRef" 22))
+
+(defun magit-format-global-core.notesRef ()
+  (magit--format-popup-variable:value "core.notesRef" 22 t))
+
+(defun magit-format-global-notes.displayRef ()
+  (magit--format-popup-variable:values "notes.displayRef" 22 t))
 
 ;;; Commands
 
@@ -118,56 +137,59 @@ Also see `magit-notes-merge'."
     (magit-process-buffer))
   (magit-run-git-with-editor "notes" "prune" (and dry-run "--dry-run")))
 
-(defun magit-notes-set-ref (ref &optional global)
-  "Set the current notes ref to REF.
-The ref is made current by setting the value of the Git variable
-`core.notesRef'.  With a prefix argument GLOBAL change the global
-value, else the value in the current repository.  When this is
-undefined, then \"refs/notes/commit\" is used.
+(defun magit-set-core.notesRef (ref)
+  "Set the local value of `core.notesRef' to REF."
+  (interactive (list (magit-notes-read-ref "Set local core.notesRef")))
+  (magit-set ref "core.notesRef")
+  (magit-with-pre-popup-buffer
+    (magit-refresh)))
 
-Other `magit-notes-*' commands, as well as the sub-commands
-of Git's `note' command, default to operate on that ref."
-  (interactive
-   (list (magit-completing-read "Set notes ref"
-                                (nconc (list "refs/" "refs/notes/")
-                                       (magit-list-notes-refnames))
-                                nil nil
-                                (--when-let (magit-get "core.notesRef")
-                                  (if (string-match "^refs/notes/\\(.+\\)" it)
-                                      (match-string 1 it)
-                                    it)))
-         current-prefix-arg))
-  (if ref
-      (magit-run-git "config" (and global "--global") "core.notesRef"
-                     (if (string-prefix-p "refs/" ref)
-                         ref
-                       (concat "refs/notes/" ref)))
-    (magit-run-git "config" (and global "--global")
-                   "--unset" "core.notesRef")))
+(defun magit-set-global-core.notesRef (ref)
+  "Set the global value of `core.notesRef' to REF."
+  (interactive (list (magit-notes-read-ref "Set global core.notesRef")))
+  (magit-set ref "--global" "core.notesRef")
+  (magit-with-pre-popup-buffer
+    (magit-refresh)))
 
-(defun magit-notes-set-display-refs (refs &optional global)
-  "Set notes refs to be display in addition to \"core.notesRef\".
-REFS is a colon separated list of notes refs.  The values are
-stored in the Git variable `notes.displayRef'.  With a prefix
-argument GLOBAL change the global values, else the values in
-the current repository."
-  (interactive
-   (list (magit-completing-read "Set additional notes ref(s)"
-                                (nconc (list "refs/" "refs/notes/")
-                                       (magit-list-notes-refnames))
-                                nil nil
-                                (mapconcat #'identity
-                                           (magit-get-all "notes.displayRef")
-                                           ":"))
-         current-prefix-arg))
-  (when (and refs (atom refs))
-    (setq refs (split-string refs ":")))
-  (when global
-    (setq global "--global"))
-  (magit-git-success "config" "--unset-all" global "notes.displayRef")
-  (dolist (ref refs)
-    (magit-call-git "config" "--add" global "notes.displayRef" ref))
-  (magit-refresh))
+(defun magit-set-notes.displayRef (refs)
+  "Set the local values of `notes.displayRef' to REFS."
+  (interactive (list (magit-notes-read-refs "Set local notes.displayRef")))
+  (magit-set-all refs "notes.displayRef")
+  (magit-with-pre-popup-buffer
+    (magit-refresh)))
+
+(defun magit-set-global-notes.displayRef (refs)
+  "Set the global values of `notes.displayRef' to REFS."
+  (interactive (list (magit-notes-read-refs "Set global notes.displayRef")))
+  (magit-set-all refs "--global" "notes.displayRef")
+  (magit-with-pre-popup-buffer
+    (magit-refresh)))
+
+(defun magit-notes-read-ref (prompt)
+  (--when-let (magit-completing-read
+               prompt (magit-list-notes-refnames) nil nil
+               (--when-let (magit-get "core.notesRef")
+                 (if (string-prefix-p "refs/notes/" it)
+                     (substring it 11)
+                   it)))
+    (if (string-prefix-p "refs/" it)
+        it
+      (concat "refs/notes/" it))))
+
+(defun magit-notes-read-refs (prompt)
+  (mapcar (lambda (ref)
+            (if (string-prefix-p "refs/" ref)
+                ref
+              (concat "refs/notes/" ref)))
+          (completing-read-multiple
+           (concat prompt ": ")
+           (magit-list-notes-refnames) nil nil
+           (mapconcat (lambda (ref)
+                        (if (string-prefix-p "refs/notes/" ref)
+                            (substring ref 11)
+                          ref))
+                      (magit-get-all "notes.displayRef")
+                      ","))))
 
 (defun magit-notes-read-args (prompt)
  (list (magit-read-branch-or-commit prompt (magit-stash-at-point))

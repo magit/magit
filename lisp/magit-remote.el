@@ -263,7 +263,8 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 (defun magit-set-remote*fetch (remote values)
   "Set the variable `fetch' for the remote named REMOTE to VALUES."
   (interactive (magit-remote-config--read-args "fetch" "Fetch specs: "))
-  (magit-remote-config--set remote "fetch" values))
+  (magit-set-all values "remote" remote "fetch")
+  (magit-refresh))
 
 (defun magit-set-remote*pushurl (remote urls)
   "Set the variable `pushurl' for the remote named REMOTE to URLS."
@@ -273,12 +274,13 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 (defun magit-set-remote*push (remote values)
   "Set the variable `push' for the remote named REMOTE to VALUES."
   (interactive (magit-remote-config--read-args "push" "Push specs: "))
-  (magit-remote-config--set remote "push" values))
+  (magit-set-all values "remote" remote "push")
+  (magit-refresh))
 
 (defun magit-cycle-remote*tagOpt (remote)
   (interactive (list (magit-remote-config--remote)))
-  (magit-popup-set-variable (format "remote.%s.tagOpts" remote)
-                            '("--no-tags" "--tags") nil))
+  (magit--set-popup-variable (format "remote.%s.tagOpts" remote)
+                             '("--no-tags" "--tags") nil))
 
 (defun magit-format-remote*url ()
   (magit-remote-config--format-variable "url"))
@@ -294,9 +296,10 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 
 (defun magit-format-remote*tagOpt ()
   (let ((remote (magit-remote-config--remote)))
-    (magit-popup-format-variable (format "remote.%s.tagOpts" remote)
-                                 '("--no-tags" "--tags") nil nil
-                                 (+ (length remote) 16))))
+    (magit--format-popup-variable:choices
+     (format "remote.%s.tagOpts" remote)
+     '("--no-tags" "--tags") nil nil
+     (+ (length remote) 16))))
 
 (defun magit-remote-config--read-args (var prompt)
   (let* ((remote (magit-remote-config--remote (format "Set `%s' of remote" var)))
@@ -310,14 +313,6 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
                    prompt nil nil nil
                    (and value (mapconcat #'identity value ",")))))))
 
-(defun magit-remote-config--set (remote var values)
-  (setq var (format "remote.%s.%s" remote var))
-  (when (magit-get var)
-    (magit-call-git "config" "--unset-all" var))
-  (dolist (v values)
-    (magit-call-git "config" "--add" var v))
-  (magit-refresh))
-
 (defun magit-remote-config--set-url (remote var values &optional arg)
   (let ((old (magit-get-all "remote" remote var)))
     (dolist (v (-difference values old))
@@ -328,19 +323,9 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (magit-refresh))
 
 (defun magit-remote-config--format-variable (variable)
-  (let* ((remote (magit-remote-config--remote))
-         (var (format "remote.%s.%s" remote variable)))
-    (concat var (make-string (max 1 (- 8 (length variable))) ?\s)
-            (-if-let (values (magit-get-all var))
-                (concat
-                 (propertize (car values) 'face 'magit-popup-option-value)
-                 (mapconcat
-                  (lambda (value)
-                    (concat "\n" (make-string 25 ?\s)
-                            (propertize value
-                                        'face 'magit-popup-option-value)))
-                  (cdr values) ""))
-              (propertize "unset" 'face 'magit-popup-disabled-argument)))))
+  (magit--format-popup-variable:values
+   (format "remote.%s.%s" (magit-remote-config--remote) variable)
+   25))
 
 ;;; Fetch
 
@@ -514,10 +499,10 @@ missing.  To add them use something like:
   :max-action-columns 1)
 
 (defun magit-pull-format-branch*rebase ()
-  (magit-popup-format-variable (format "branch.%s.rebase"
-                                       (or (magit-get-current-branch) "<name>"))
-                               '("true" "false")
-                               "false" "pull.rebase"))
+  (magit--format-popup-variable:choices
+   (format "branch.%s.rebase" (or (magit-get-current-branch) "<name>"))
+   '("true" "false")
+   "false" "pull.rebase"))
 
 (defun magit-git-pull (source args)
   (run-hooks 'magit-credential-hook)

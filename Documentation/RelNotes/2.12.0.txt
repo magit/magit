@@ -181,6 +181,9 @@ Changes since v2.11.0
   `notes.displayRef', not just those specified using `core.notesRef'.
   #2857
 
+* The popup `magit-notes-popup' now shows the values of the relevant
+  variables and allows changing them.  #2857
+
 Fixes since v2.11.0
 -------------------
 
