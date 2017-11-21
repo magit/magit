@@ -263,7 +263,8 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 (defun magit-set-remote*fetch (remote values)
   "Set the variable `fetch' for the remote named REMOTE to VALUES."
   (interactive (magit-remote-config--read-args "fetch" "Fetch specs: "))
-  (magit-remote-config--set remote "fetch" values))
+  (magit-set-all values "remote" remote "fetch")
+  (magit-refresh))
 
 (defun magit-set-remote*pushurl (remote urls)
   "Set the variable `pushurl' for the remote named REMOTE to URLS."
@@ -273,7 +274,8 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 (defun magit-set-remote*push (remote values)
   "Set the variable `push' for the remote named REMOTE to VALUES."
   (interactive (magit-remote-config--read-args "push" "Push specs: "))
-  (magit-remote-config--set remote "push" values))
+  (magit-set-all values "remote" remote "push")
+  (magit-refresh))
 
 (defun magit-cycle-remote*tagOpt (remote)
   (interactive (list (magit-remote-config--remote)))
@@ -309,14 +311,6 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
                   (completing-read-multiple
                    prompt nil nil nil
                    (and value (mapconcat #'identity value ",")))))))
-
-(defun magit-remote-config--set (remote var values)
-  (setq var (format "remote.%s.%s" remote var))
-  (when (magit-get var)
-    (magit-call-git "config" "--unset-all" var))
-  (dolist (v values)
-    (magit-call-git "config" "--add" var v))
-  (magit-refresh))
 
 (defun magit-remote-config--set-url (remote var values &optional arg)
   (let ((old (magit-get-all "remote" remote var)))
