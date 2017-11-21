@@ -1828,6 +1828,13 @@ the reference is used.  The first regexp submatch becomes the
 
 ;;;; Variables in Popups
 
+(defun magit--format-popup-variable:value (variable width &optional global)
+  (concat variable
+          (make-string (max 1 (- width 3 (length variable))) ?\s)
+          (-if-let (value (magit-get (and global "--global") variable))
+              (propertize value 'face 'magit-popup-option-value)
+            (propertize "unset" 'face 'magit-popup-disabled-argument))))
+
 (defun magit--format-popup-variable:values (variable width &optional global)
   (concat variable
           (make-string (max 1 (- width 3 (length variable))) ?\s)
