@@ -1784,10 +1784,13 @@ the reference is used.  The first regexp submatch becomes the
 (defun magit-get-all (&rest keys)
   "Return all values of the Git config entry specified by KEYS."
   (let ((magit-git-debug nil)
+        (arg (and (or (string-prefix-p "--" (car keys))
+                      (null (car keys)))
+                  (pop keys)))
         (key (mapconcat 'identity keys ".")))
-    (if magit--refresh-cache
+    (if (and magit--refresh-cache (not arg))
         (magit-config-get-from-cached-list key)
-      (magit-git-items "config" "-z" "--get-all" key))))
+      (magit-git-items "config" arg "-z" "--get-all" key))))
 
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of Git config entry specified by KEYS."
@@ -1798,10 +1801,13 @@ the reference is used.  The first regexp submatch becomes the
 
 (defun magit-set (val &rest keys)
   "Set Git config settings specified by KEYS to VAL."
-  (let ((key (mapconcat 'identity keys ".")))
+  (let ((arg (and (or (string-prefix-p "--" (car keys))
+                      (null (car keys)))
+                  (pop keys)))
+        (key (mapconcat 'identity keys ".")))
     (if val
-        (magit-git-success "config" key val)
-      (magit-git-success "config" "--unset" key))
+        (magit-git-success "config" arg key val)
+      (magit-git-success "config" arg "--unset" key))
     val))
 
 (gv-define-setter magit-get (val &rest keys)
