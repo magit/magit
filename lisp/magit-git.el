@@ -30,6 +30,7 @@
 (require 'cl-lib)
 (require 'dash)
 
+(require 'magit-popup)
 (require 'magit-utils)
 (require 'magit-section)
 
@@ -38,6 +39,7 @@
 (declare-function magit-process-buffer 'magit-process)
 (declare-function magit-process-file 'magit-process)
 (declare-function magit-process-insert-section 'magit-process)
+(declare-function magit-refresh 'magit-mode)
 (defvar magit-process-error-message-regexps)
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
 (defvar magit-branch-prefer-remote-upstream)
@@ -1823,6 +1825,19 @@ the reference is used.  The first regexp submatch becomes the
       (magit-call-git "config" arg "--unset-all" var))
     (dolist (v values)
       (magit-call-git "config" arg "--add" var v))))
+
+;;;; Variables in Popups
+
+(defun magit--set-popup-variable
+    (variable choices &optional default other)
+  (magit-set (--if-let (magit-git-string "config" "--local" variable)
+                 (cadr (member it choices))
+               (car choices))
+             variable)
+  (magit-with-pre-popup-buffer
+    (magit-refresh))
+  (message "%s %s" variable
+           (magit-popup-format-variable variable choices default other)))
 
 (provide 'magit-git)
 ;;; magit-git.el ends here

@@ -741,9 +741,9 @@ When that variable is undefined then the value of `pull.rebase'
 is used instead.  It defaults to `false'."
   (interactive (list (magit-branch-config-branch
                       "Cycle branch.<name>.rebase for")))
-  (magit-popup-set-variable (format "branch.%s.rebase" branch)
-                            '("true" "false")
-                            "false" "pull.rebase"))
+  (magit--set-popup-variable (format "branch.%s.rebase" branch)
+                             '("true" "false")
+                             "false" "pull.rebase"))
 
 (defun magit-format-branch*rebase ()
   (let ((branch (magit-branch-config-branch)))
@@ -766,9 +766,9 @@ If that variable is undefined, then the value of the Git variable
 which by default it is not."
   (interactive (list (magit-branch-config-branch
                       "Cycle branch.<name>.pushRemote for")))
-  (magit-popup-set-variable (format "branch.%s.pushRemote" branch)
-                            (magit-list-remotes)
-                            "remote.pushDefault"))
+  (magit--set-popup-variable (format "branch.%s.pushRemote" branch)
+                             (magit-list-remotes)
+                             "remote.pushDefault"))
 
 (defun magit-format-branch*pushRemote ()
   (let ((branch (magit-branch-config-branch)))
@@ -788,7 +788,7 @@ variable `branch.<name>.rebase'.
 When `true' then pulling is done by rebasing.
 When `false' (the default) then pulling is done by merging."
   (interactive)
-  (magit-popup-set-variable "pull.rebase" '("true" "false") "false"))
+  (magit--set-popup-variable "pull.rebase" '("true" "false") "false"))
 
 (defun magit-format-pull.rebase ()
   (magit-popup-format-variable "pull.rebase" '("true" "false") "false" nil 19))
@@ -801,7 +801,7 @@ The Git variable `remote.pushDefault' specifies the remote that
 local branches are usually pushed to.  It can be overwritten
 using the Git variable `branch.<name>.pushRemote'."
   (interactive)
-  (magit-popup-set-variable "remote.pushDefault" (magit-list-remotes)))
+  (magit--set-popup-variable "remote.pushDefault" (magit-list-remotes)))
 
 (defun magit-format-remote.pushDefault ()
   (magit-popup-format-variable "remote.pushDefault"
@@ -827,8 +827,8 @@ branch.
 
 When `false' then the variables are never set."
   (interactive)
-  (magit-popup-set-variable "branch.autoSetupMerge"
-                            '("always" "true" "false") "true"))
+  (magit--set-popup-variable "branch.autoSetupMerge"
+                             '("always" "true" "false") "true"))
 
 (defun magit-format-branch*autoSetupMerge ()
   (magit-popup-format-variable "branch.autoSetupMerge"
@@ -853,8 +853,8 @@ is a remote branch, but not when it is a local branch.
 
 When `never' (the default) then the variable is never set."
   (interactive)
-  (magit-popup-set-variable "branch.autoSetupRebase"
-                            '("always" "local" "remote" "never") "never"))
+  (magit--set-popup-variable "branch.autoSetupRebase"
+                             '("always" "local" "remote" "never") "never"))
 
 (defun magit-format-branch*autoSetupRebase ()
   (magit-popup-format-variable "branch.autoSetupRebase"
