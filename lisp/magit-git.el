@@ -1200,7 +1200,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 (defun magit-list-active-notes-refs ()
   "Return notes refs according to `core.notesRef' and `notes.displayRef'."
   (magit-git-lines "for-each-ref" "--format=%(refname)"
-                   (magit-get "core.notesRef")
+                   (or (magit-get "core.notesRef") "refs/notes/commits")
                    (magit-get-all "notes.displayRef")))
 
 (defun magit-list-notes-refnames ()
