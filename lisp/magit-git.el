@@ -713,6 +713,10 @@ Sorted from longest to shortest CYGWIN name."
   "Return t if there is no commit in the current Git repository."
   (not (magit-rev-verify "HEAD")))
 
+(defun magit-merge-commit-p (commit)
+  "Return t if COMMIT is a merge commit."
+  (> (length (magit-commit-parents commit)) 1))
+
 (defun magit-anything-staged-p (&optional ignore-submodules &rest files)
   "Return t if there are any staged changes.
 If optional FILES is non-nil, then only changes to those files
@@ -1331,10 +1335,6 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-commit-parents (commit)
   (--when-let (magit-git-string "rev-list" "-1" "--parents" commit)
     (cdr (split-string it))))
-
-(defun magit-assert-one-parent (commit command)
-  (when (> (length (magit-commit-parents commit)) 1)
-    (user-error "Cannot %s a merge commit" command)))
 
 (defun magit-patch-id (rev)
   (with-temp-buffer
