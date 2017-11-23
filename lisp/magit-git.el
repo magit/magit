@@ -1336,10 +1336,6 @@ Return a list of two integers: (A>B B>A)."
   (--when-let (magit-git-string "rev-list" "-1" "--parents" commit)
     (cdr (split-string it))))
 
-(defun magit-assert-one-parent (commit command)
-  (when (> (length (magit-commit-parents commit)) 1)
-    (user-error "Cannot %s a merge commit" command)))
-
 (defun magit-patch-id (rev)
   (with-temp-buffer
     (magit-process-file
