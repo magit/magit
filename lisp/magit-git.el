@@ -713,6 +713,10 @@ Sorted from longest to shortest CYGWIN name."
   "Return t if there is no commit in the current Git repository."
   (not (magit-rev-verify "HEAD")))
 
+(defun magit-merge-commit-p (commit)
+  "Return t if COMMIT is a merge commit."
+  (> (length (magit-commit-parents commit)) 1))
+
 (defun magit-anything-staged-p (&optional ignore-submodules &rest files)
   "Return t if there are any staged changes.
 If optional FILES is non-nil, then only changes to those files
