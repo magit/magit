@@ -316,8 +316,8 @@ already using it, then you probably shouldn't start doing so."
 (defvar git-commit-mode-map
   (let ((map (make-sparse-keymap)))
     (cond ((featurep 'jkl)
-           (define-key map (kbd "M-i") 'git-commit-prev-message)
-           (define-key map (kbd "M-k") 'git-commit-next-message))
+           (define-key map (kbd "C-M-i") 'git-commit-prev-message)
+           (define-key map (kbd "C-M-k") 'git-commit-next-message))
           (t
            (define-key map (kbd "M-p") 'git-commit-prev-message)
            (define-key map (kbd "M-n") 'git-commit-next-message)
