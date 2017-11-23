@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-274-gd43d8a4f2+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-278-g94980fed2+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-274-gd43d8a4f2+1).
+This manual is for Magit version 2.11.0 (2.11.0-278-g94980fed2+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -163,10 +163,10 @@ Now see [[*Post-Installation Tasks]].
 
 ** Installing from the Git Repository
 
-Magit depends on the ~dash~ and ~with-editor~ library which are available
-from Melpa and Melpa-Stable.  Install them using ~M-x package-install
-RET <package> RET~.  Of course you may also install them manually from
-their development repository, but I won't cover that here.
+Magit depends on the ~dash~, ~magit-popup~ and ~with-editor~ libraries which
+are available from Melpa and Melpa-Stable.  Install them using ~M-x
+package-install RET <package> RET~.  Of course you may also install
+them manually from their development repository.
 
 (An older release of Magit is also available from Marmalade, but no
 new versions will be uploaded in the future.  Marmalade's maintainer
@@ -187,14 +187,15 @@ Then compile the libraries and generate the info manuals:
   $ make
 #+END_SRC
 
-If you haven't installed ~dash~ and ~with-editor~ using Elpa or at
-~/path/to/magit/../<package>~, then you have to tell ~make~ where to find
-them.  To do so create ~/path/to/magit/config.mk~ with the following
-content before running ~make~:
+If you haven't installed ~dash~, ~magit-popup~ and ~with-editor~ from Melpa
+or at ~/path/to/magit/../<package>~, then you have to tell ~make~ where to
+find them.  To do so create the file ~/path/to/magit/config.mk~ with the
+following content before running ~make~:
 
 #+BEGIN_SRC makefile
   LOAD_PATH  = -L /path/to/magit/lisp
   LOAD_PATH += -L /path/to/dash
+  LOAD_PATH += -L /path/to/magit-popup
   LOAD_PATH += -L /path/to/with-editor
 #+END_SRC
 

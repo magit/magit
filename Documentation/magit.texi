@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-274-gd43d8a4f2+1)
+@subtitle for version 2.11.0 (2.11.0-278-g94980fed2+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-274-gd43d8a4f2+1).
+This manual is for Magit version 2.11.0 (2.11.0-278-g94980fed2+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -467,10 +467,10 @@ Now see @ref{Post-Installation Tasks}.
 @node Installing from the Git Repository
 @section Installing from the Git Repository
 
-Magit depends on the @code{dash} and @code{with-editor} library which are available
-from Melpa and Melpa-Stable.  Install them using @code{M-x package-install
-RET <package> RET}.  Of course you may also install them manually from
-their development repository, but I won't cover that here.
+Magit depends on the @code{dash}, @code{magit-popup} and @code{with-editor} libraries which
+are available from Melpa and Melpa-Stable.  Install them using @code{M-x
+package-install RET <package> RET}.  Of course you may also install
+them manually from their development repository.
 
 (An older release of Magit is also available from Marmalade, but no
 new versions will be uploaded in the future.  Marmalade's maintainer
@@ -491,14 +491,15 @@ Then compile the libraries and generate the info manuals:
 $ make
 @end example
 
-If you haven't installed @code{dash} and @code{with-editor} using Elpa or at
-@code{/path/to/magit/../<package>}, then you have to tell @code{make} where to find
-them.  To do so create @code{/path/to/magit/config.mk} with the following
-content before running @code{make}:
+If you haven't installed @code{dash}, @code{magit-popup} and @code{with-editor} from Melpa
+or at @code{/path/to/magit/../<package>}, then you have to tell @code{make} where to
+find them.  To do so create the file @code{/path/to/magit/config.mk} with the
+following content before running @code{make}:
 
 @example
 LOAD_PATH  = -L /path/to/magit/lisp
 LOAD_PATH += -L /path/to/dash
+LOAD_PATH += -L /path/to/magit-popup
 LOAD_PATH += -L /path/to/with-editor
 @end example
 
