@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-279-g36e821418+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-283-g2d82dc0e5+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-279-g36e821418+1).
+This manual is for Magit version 2.11.0 (2.11.0-283-g2d82dc0e5+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -4868,16 +4868,17 @@ features the following commands.
 
 - Key: A A, magit-cherry-pick
 
-  Cherry-pick a commit.  Prompt for a commit, defaulting to the commit
-  at point.  If the region selects multiple commits, then pick all of
-  them, without prompting.
+  This command copies COMMITS from another branch onto the current
+  branch.  If the region selects multiple commits, then those are
+  copied, without prompting.  Otherwise the user is prompted for a
+  commit or range, defaulting to the commit at point.
 
 - Key: A a, magit-cherry-apply
 
-  Apply the changes in a commit to the working tree, but do not commit
-  them.  Prompt for a commit, defaulting to the commit at point.  If
-  the region selects multiple commits, then apply all of them, without
-  prompting.
+  This command applies the changes in COMMITS from another branch onto
+  the current branch.  If the region selects multiple commits, then
+  those are used, without prompting.  Otherwise the user is prompted
+  for a commit or range, defaulting to the commit at point.
 
   This command also has a top-level binding, which can be invoked without
   using the popup by typing ~a~ at the top-level.

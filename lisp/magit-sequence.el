@@ -140,22 +140,22 @@ This discards all changes made since the sequence started."
         (magit-cherry-pick-arguments)))
 
 ;;;###autoload
-(defun magit-cherry-pick (commit &optional args)
-  "Cherry-pick COMMIT.
+(defun magit-cherry-pick (commits &optional args)
+  "Copy COMMITS from another branch onto the current branch.
 Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then pick all of them,
 without prompting."
   (interactive (magit-cherry-pick-read-args "Cherry-pick"))
-  (magit--cherry-pick commit args))
+  (magit--cherry-pick commits args))
 
 ;;;###autoload
-(defun magit-cherry-apply (commit &optional args)
-  "Apply the changes in COMMIT but do not commit them.
+(defun magit-cherry-apply (commits &optional args)
+  "Apply the changes in COMMITS but do not commit them.
 Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then apply all of them,
 without prompting."
   (interactive (magit-cherry-pick-read-args "Apply changes from commit"))
-  (magit--cherry-pick commit (cons "--no-commit" (remove "--ff" args))))
+  (magit--cherry-pick commits (cons "--no-commit" (remove "--ff" args))))
 
 (defun magit--cherry-pick (commits args &optional revert)
   (let ((command (if revert "revert" "cherry-pick")))

@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-279-g36e821418+1)
+@subtitle for version 2.11.0 (2.11.0-283-g2d82dc0e5+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-279-g36e821418+1).
+This manual is for Magit version 2.11.0 (2.11.0-283-g2d82dc0e5+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -6595,18 +6595,19 @@ features the following commands.
 @cindex magit-cherry-pick
 @item @kbd{A A} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-pick})
 
-Cherry-pick a commit.  Prompt for a commit, defaulting to the commit
-at point.  If the region selects multiple commits, then pick all of
-them, without prompting.
+This command copies COMMITS from another branch onto the current
+branch.  If the region selects multiple commits, then those are
+copied, without prompting.  Otherwise the user is prompted for a
+commit or range, defaulting to the commit at point.
 
 @kindex A a
 @cindex magit-cherry-apply
 @item @kbd{A a} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-apply})
 
-Apply the changes in a commit to the working tree, but do not commit
-them.  Prompt for a commit, defaulting to the commit at point.  If
-the region selects multiple commits, then apply all of them, without
-prompting.
+This command applies the changes in COMMITS from another branch onto
+the current branch.  If the region selects multiple commits, then
+those are used, without prompting.  Otherwise the user is prompted
+for a commit or range, defaulting to the commit at point.
 
 This command also has a top-level binding, which can be invoked without
 using the popup by typing @code{a} at the top-level.
