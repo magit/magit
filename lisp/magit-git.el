@@ -413,9 +413,9 @@ absolute path is returned."
   (magit--with-refresh-cache (list default-directory 'magit-git-dir path)
     (magit--with-safe-default-directory nil
       (-when-let (dir (magit-rev-parse-safe "--git-dir"))
-        (setq dir (file-name-as-directory
-                   (concat (file-remote-p default-directory)
-                           (magit-expand-git-file-name dir))))
+        (setq dir (file-name-as-directory (magit-expand-git-file-name dir)))
+        (unless (file-remote-p dir)
+          (setq dir (concat (file-remote-p default-directory) dir)))
         (if path (expand-file-name (convert-standard-filename path) dir) dir)))))
 
 (defvar magit--separated-gitdirs nil)
