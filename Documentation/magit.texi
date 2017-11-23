@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-278-g94980fed2+1)
+@subtitle for version 2.11.0 (2.11.0-279-g36e821418+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-278-g94980fed2+1).
+This manual is for Magit version 2.11.0 (2.11.0-279-g36e821418+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -472,11 +472,11 @@ are available from Melpa and Melpa-Stable.  Install them using @code{M-x
 package-install RET <package> RET}.  Of course you may also install
 them manually from their development repository.
 
-(An older release of Magit is also available from Marmalade, but no
-new versions will be uploaded in the future.  Marmalade's maintainer
-has stopped responding to requests from package maintainers who are
-having difficulties or require him to create an account so that they
-can upload their packages in the first place.)
+(An ancient release of Magit is also available from Marmalade, but
+no new versions will be uploaded.  Marmalade is unmaintained — its
+maintainer has stopped responding to support requests from package
+authors or even just to create new accounts so that new authors can
+upload their packages in the first place.)
 
 Then clone the Magit repository:
 
