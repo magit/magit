@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'magit-core)
+(require 'uniquify)
 
 (declare-function magit-status-internal 'magit-status)
 
@@ -289,7 +290,9 @@ With prefix argument simply read a directory name using
                    (directory-files directory t
                                     directory-files-no-dot-files-regexp t)))))
 
-(defun magit-list-repos-uniquify (alist)
+(defun magit-list-repos-uniquify (alist &optional depth)
+  (unless depth
+    (setq depth 0))
   (let (result (dict (make-hash-table :test 'equal)))
     (dolist (a (delete-dups alist))
       (puthash (car a) (cons (cdr a) (gethash (car a) dict)) dict))
@@ -300,13 +303,14 @@ With prefix argument simply read a directory name using
          (setq result
                (append result
                        (magit-list-repos-uniquify
-                        (--map (cons (concat
-                                      key "\\"
-                                      (file-name-nondirectory
-                                       (directory-file-name
-                                        (substring it 0 (- (1+ (length key)))))))
+                        (--map (cons (uniquify-get-proposed-name
+                                      (file-name-nondirectory it)
+                                      (directory-file-name
+                                       (file-name-directory it))
+                                      (+ 1 depth))
                                      it)
-                               value))))))
+                               value)
+                        (+ 1 depth))))))
      dict)
     result))
 

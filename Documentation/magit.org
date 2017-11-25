@@ -2128,6 +2128,10 @@ buffers.
   ~magit-repository-directories-depth~ control which repositories are
   displayed.
 
+  Duplicates in repository names are made unique using via ~uniquify~.
+  Customize ~uniquify-buffer-name-style~ to modify how they are
+  displayed.
+
 - User Option: magit-repolist-columns
 
   This option controls what columns are displayed by the command
