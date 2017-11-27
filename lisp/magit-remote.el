@@ -260,10 +260,11 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (interactive (magit-remote-config--read-args "url" "Urls: "))
   (magit-remote-config--set-url remote "url" urls))
 
-(defun magit-set-remote*fetch (remote values)
-  "Set the variable `fetch' for the remote named REMOTE to VALUES."
+(defun magit-set-remote*fetch (remote values*)
+  "Set the variable `fetch' for the remote named REMOTE to VALUES.
+\n(fn REMOTE VALUES)"
   (interactive (magit-remote-config--read-args "fetch" "Fetch specs: "))
-  (magit-set-all values "remote" remote "fetch")
+  (magit-set-all values* "remote" remote "fetch")
   (magit-refresh))
 
 (defun magit-set-remote*pushurl (remote urls)
@@ -271,10 +272,11 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (interactive (magit-remote-config--read-args "pushurl" "Urls: "))
   (magit-remote-config--set-url remote "pushurl" urls "--push"))
 
-(defun magit-set-remote*push (remote values)
-  "Set the variable `push' for the remote named REMOTE to VALUES."
+(defun magit-set-remote*push (remote values*)
+  "Set the variable `push' for the remote named REMOTE to VALUES.
+\n(fn REMOTE VALUES)"
   (interactive (magit-remote-config--read-args "push" "Push specs: "))
-  (magit-set-all values "remote" remote "push")
+  (magit-set-all values* "remote" remote "push")
   (magit-refresh))
 
 (defun magit-cycle-remote*tagOpt (remote)
@@ -313,11 +315,11 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
                    prompt nil nil nil
                    (and value (mapconcat #'identity value ",")))))))
 
-(defun magit-remote-config--set-url (remote var values &optional arg)
+(defun magit-remote-config--set-url (remote var values* &optional arg)
   (let ((old (magit-get-all "remote" remote var)))
-    (dolist (v (-difference values old))
+    (dolist (v (-difference values* old))
       (magit-call-git "remote" "set-url" arg "--add" remote v))
-    (dolist (v (-difference old values))
+    (dolist (v (-difference old values*))
       (magit-call-git "remote" "set-url" arg "--delete" remote
                       (concat "^" (regexp-quote v) "$"))))
   (magit-refresh))
