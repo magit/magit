@@ -1156,13 +1156,15 @@ the buffer in another window."
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (let* ((hunk (magit-diff-visit--hunk))
+           (last (and magit-diff-visit-previous-blob
+                      (not force-worktree)
+                      (magit-section-match 'hunk)
+                      (save-excursion
+                        (goto-char (line-beginning-position))
+                        (looking-at "-"))))
            (line (and hunk (magit-diff-hunk-line   hunk)))
-           (col  (and hunk (magit-diff-hunk-column hunk)))
-           (rev  (if (and magit-diff-visit-previous-blob
-                          (magit-section-match 'hunk)
-                          (save-excursion
-                            (goto-char (line-beginning-position))
-                            (looking-at "-")))
+           (col  (and hunk (magit-diff-hunk-column hunk last)))
+           (rev  (if last
                      (magit-diff-visit--range-beginning)
                    (magit-diff-visit--range-end)))
            (buf  (if (and (not force-worktree)
@@ -1349,9 +1351,10 @@ or `HEAD'."
         (forward-line)))
     (list line offset)))
 
-(defun magit-diff-hunk-column (section)
+(defun magit-diff-hunk-column (section visit-beginning)
   (if (or (< (point) (magit-section-content section))
-          (save-excursion (beginning-of-line) (looking-at-p "-")))
+          (and (not visit-beginning)
+               (save-excursion (beginning-of-line) (looking-at-p "-"))))
       0
     (max 0 (- (+ (current-column) 2)
               (length (magit-section-value section))))))
