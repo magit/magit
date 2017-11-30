@@ -198,6 +198,14 @@ then offer to initialize it as a new repository."
 
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
+(defalias 'magit 'magit-status
+  "An alias for `magit-status' for better discoverability.
+
+Instead of invoking this alias for `magit-status' using
+\"M-x magit RET\", you should bind a key to `magit-status'
+and read the info node `(magit)Getting Started', which
+also contains other useful hints.")
+
 ;;;###autoload
 (defun magit-status-internal (directory)
   (magit--tramp-asserts directory)
