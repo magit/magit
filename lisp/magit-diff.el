@@ -214,17 +214,16 @@ many spaces.  Otherwise, highlight neither."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-visit-previous-blob t
+(defcustom magit-diff-visit-previous-blob 'always
   "Whether `magit-diff-visit-file' may visit the previous blob.
 
-When this is t and point is on a removed line in a diff for a
-committed change, then `magit-diff-visit-file' visits the blob
+When this is non-nil and point is on a removed line in a diff for
+a committed change, then `magit-diff-visit-file' visits the blob
 from the last revision which still had that line.
 
-Currently this is only supported for committed changes, for
-staged and unstaged changes `magit-diff-visit-file' always
-visits the file in the working tree."
-  :package-version '(magit . "2.9.0")
+When this is `always', then `magit-diff-visit-file' visits `HEAD'
+when point is on a staged or unstaged change."
+  :package-version '(magit . "2.12.0")
   :group 'magit-diff
   :type 'boolean)
 
@@ -1167,11 +1166,16 @@ the buffer in another window."
            (rev  (if last
                      (magit-diff-visit--range-beginning)
                    (magit-diff-visit--range-end)))
-           (buf  (if (and (not force-worktree)
-                          (stringp rev))
-                     (magit-find-file-noselect rev file)
-                   (or (get-file-buffer file)
-                       (find-file-noselect file)))))
+           (buf  (cond (force-worktree
+                        (or (get-file-buffer file)
+                            (find-file-noselect file)))
+                       ((and last (eq rev 'staged))
+                        (magit-find-file-index-noselect file))
+                       ((stringp rev)
+                        (magit-find-file-noselect rev file))
+                       (t
+                        (or (get-file-buffer file)
+                            (find-file-noselect file))))))
       (magit-display-file-buffer buf)
       (with-selected-window
           (or (get-buffer-window buf 'visible)
@@ -1266,6 +1270,8 @@ or `HEAD'."
            (concat (cdr rev) "^"))
           ((stringp rev)
            (car (magit-split-range rev)))
+          ((eq magit-diff-visit-previous-blob 'always)
+           "HEAD")
           (t
            rev))))
 
