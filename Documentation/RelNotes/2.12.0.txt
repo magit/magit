@@ -184,6 +184,8 @@ Changes since v2.11.0
 * The popup `magit-notes-popup' now shows the values of the relevant
   variables and allows changing them.  #2857
 
+* The command `magit-log-buffer-file' now also works in Dired buffers.
+
 Fixes since v2.11.0
 -------------------
 

@@ -660,6 +660,7 @@ active, restrict the log to the lines that the region touches."
   (interactive
    (cons current-prefix-arg
          (and (region-active-p)
+              (magit-file-relative-name)
               (save-restriction
                 (widen)
                 (list (line-number-at-pos (region-beginning))
@@ -671,7 +672,9 @@ active, restrict the log to the lines that the region touches."
                            ;; of a trailing newline.
                            (1- end)))))))))
   (require 'magit)
-  (-if-let (file (magit-file-relative-name))
+  (-if-let (file (or (magit-file-relative-name)
+                     (and (derived-mode-p 'dired-mode)
+                          default-directory)))
       (magit-mode-setup-internal
        #'magit-log-mode
        (list (list (or magit-buffer-refname
