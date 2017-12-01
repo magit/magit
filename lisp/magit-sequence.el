@@ -336,7 +336,7 @@ This discards all changes made since the sequence started."
               (?e "elsewhere"               magit-rebase)
               "Rebase"
               (?i "interactively"      magit-rebase-interactive)
-              (?m "to edit a commit"   magit-rebase-edit-commit)
+              (?m "to modify a commit" magit-rebase-edit-commit)
               (?s "a subset"           magit-rebase-subset)
               (?w "to reword a commit" magit-rebase-reword-commit) nil
               (?k "to remove a commit" magit-rebase-remove-commit) nil
