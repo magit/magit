@@ -1786,8 +1786,8 @@ the reference is used.  The first regexp submatch becomes the
 (defun magit-get-all (&rest keys)
   "Return all values of the Git variable specified by KEYS."
   (let ((magit-git-debug nil)
-        (arg (and (or (string-prefix-p "--" (car keys))
-                      (null (car keys)))
+        (arg (and (or (null (car keys))
+                      (string-prefix-p "--" (car keys)))
                   (pop keys)))
         (key (mapconcat 'identity keys ".")))
     (if (and magit--refresh-cache (not arg))
@@ -1803,8 +1803,8 @@ the reference is used.  The first regexp submatch becomes the
 
 (defun magit-set (value &rest keys)
   "Set the value of the Git variable specified by KEYS to VALUE."
-  (let ((arg (and (or (string-prefix-p "--" (car keys))
-                      (null (car keys)))
+  (let ((arg (and (or (null (car keys))
+                      (string-prefix-p "--" (car keys)))
                   (pop keys)))
         (key (mapconcat 'identity keys ".")))
     (if value
@@ -1818,8 +1818,8 @@ the reference is used.  The first regexp submatch becomes the
 (defun magit-set-all (values* &rest keys)
   "Set all values of the Git variable specified by KEYS to VALUES.
 \n(fn VALUES &rest KEYS)"
-  (let ((arg (and (or (string-prefix-p "--" (car keys))
-                      (null (car keys)))
+  (let ((arg (and (or (null (car keys))
+                      (string-prefix-p "--" (car keys)))
                   (pop keys)))
         (var (mapconcat 'identity keys ".")))
     (when (magit-get var)
