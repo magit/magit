@@ -121,7 +121,7 @@ ifeq "$(DASH_DIR)" ""
 endif
 
 MAGIT_POPUP_DIR ?= $(shell \
-  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/magit-popup-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
 ifeq "$(MAGIT_POPUP_DIR)" ""
   MAGIT_POPUP_DIR = $(TOP)../magit-popup
