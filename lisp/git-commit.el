@@ -503,7 +503,15 @@ finally check current non-comment text."
   (turn-on-flyspell)
   (setq flyspell-generic-check-word-predicate
         'git-commit-flyspell-verify)
-  (flyspell-buffer))
+  (let (end)
+    (save-excursion
+      (goto-char (point-max))
+      (while (and (not (bobp)) (looking-at "^\\(#\\|$\\)"))
+        (forward-line -1))
+      (unless (looking-at "^\\(#\\|$\\)")
+        (forward-line))
+      (setq end (point)))
+    (flyspell-region (point-min) end)))
 
 (defun git-commit-flyspell-verify ()
   (not (= (char-after (line-beginning-position)) ?#)))
