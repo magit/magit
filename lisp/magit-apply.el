@@ -283,7 +283,7 @@ ignored) files."
         (magit-submodule-add
          (let ((default-directory
                  (file-name-as-directory (expand-file-name repo))))
-           (or (magit-get "remote" (or (magit-get-remote) "origin") "url")
+           (or (magit-get "remote" (magit-get-some-remote) "url")
                (concat (file-name-as-directory ".") repo)))
          repo
          (magit-submodule-read-name-for-path repo))))

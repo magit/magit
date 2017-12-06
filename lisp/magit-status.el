@@ -465,10 +465,7 @@ detached `HEAD'."
 If no remote is configured for the current branch, then fall back
 showing the \"origin\" remote, or if that does not exist the first
 remote in alphabetic order."
-  (-when-let* ((name (or (magit-get-remote)
-                         (let ((remotes (magit-list-remotes)))
-                           (or (car (member "origin" remotes))
-                               (car remotes)))))
+  (-when-let* ((name (magit-get-some-remote))
                ;; Under certain configurations it's possible for url
                ;; to be nil, when name is not, see #2858.
                (url (magit-get "remote" name "url")))

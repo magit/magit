@@ -1038,6 +1038,14 @@ which is different from the current branch and still exists."
       (unless (equal remote ".")
         remote))))
 
+(defun magit-get-some-remote (&optional branch)
+  (or (magit-get-remote branch)
+      (and (magit-branch-p "master")
+           (magit-get-remote "master"))
+      (let ((remotes (magit-list-remotes)))
+        (or (car (member "origin" remotes))
+            (car remotes)))))
+
 (defun magit-branch-merged-p (branch &optional target)
   "Return non-nil if BRANCH is merged into its upstream and TARGET.
 
