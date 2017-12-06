@@ -144,16 +144,17 @@ PATH also becomes the name."
   (magit-run-git "submodule" "add" (and name (list "--name" name)) url path))
 
 ;;;###autoload
-(defun magit-submodule-read-name-for-path (path)
-  (setq path (directory-file-name (file-relative-name path)))
-  (push (file-name-nondirectory path) minibuffer-history)
-  (magit-read-string-ns
-   "Submodule name" nil (cons 'minibuffer-history 2)
-   (or (--keep (-let [(var val) (split-string it "=")]
-                 (and (equal val path)
-                      (cadr (split-string var "\\."))))
-               (magit-git-lines "config" "--list" "-f" ".gitmodules"))
-       path)))
+(defun magit-submodule-read-name-for-path (path &optional prefer-short)
+  (let* ((path (directory-file-name (file-relative-name path)))
+         (name (file-name-nondirectory path)))
+    (push (if prefer-short path name) minibuffer-history)
+    (magit-read-string-ns
+     "Submodule name" nil (cons 'minibuffer-history 2)
+     (or (--keep (-let [(var val) (split-string it "=")]
+                   (and (equal val path)
+                        (cadr (split-string var "\\."))))
+                 (magit-git-lines "config" "--list" "-f" ".gitmodules"))
+         (if prefer-short name path)))))
 
 ;;;###autoload
 (defun magit-submodule-setup ()
