@@ -280,13 +280,30 @@ ignored) files."
         (goto-char (magit-section-start
                     (magit-get-section
                      `((file . ,repo) (untracked) (status)))))
-        (magit-submodule-add
-         (let ((default-directory
-                 (file-name-as-directory (expand-file-name repo))))
-           (or (magit-get "remote" (magit-get-some-remote) "url")
-               (concat (file-name-as-directory ".") repo)))
-         repo
-         (magit-submodule-read-name-for-path repo))))
+        (let* ((topdir (magit-toplevel))
+               (package
+                (and (equal (bound-and-true-p borg-user-emacs-directory)
+                            topdir)
+                     (file-name-nondirectory (directory-file-name repo)))))
+          (magit-submodule-add
+           (let ((default-directory
+                   (file-name-as-directory (expand-file-name repo))))
+             (or (magit-get "remote" (magit-get-some-remote) "url")
+                 (concat (file-name-as-directory ".") repo)))
+           repo
+           (magit-submodule-read-name-for-path repo package))
+          (when (and package
+                     (fboundp 'borg--sort-submodule-sections))
+            (borg--sort-submodule-sections
+             (expand-file-name ".gitmodules" topdir))
+            (let ((default-directory borg-user-emacs-directory))
+              (borg--maybe-absorb-gitdir package))
+            (when (and (y-or-n-p
+                        (format "Also build and activate `%s' drone?" package))
+                       (fboundp 'borg-build)
+                       (fboundp 'borg-activate))
+              (borg-build package)
+              (borg-activate package))))))
     (magit-wip-commit-after-apply files " after stage")))
 
 ;;;; Unstage
