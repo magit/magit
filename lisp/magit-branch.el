@@ -537,8 +537,7 @@ those, otherwise prompt for a single branch to be deleted,
 defaulting to the branch at point."
   ;; One would expect this to be a command as simple as, for example,
   ;; `magit-branch-rename'; but it turns out everyone wants to squeeze
-  ;; a bit of extra functionality into this one.  And once it's there,
-  ;; you cannot remove it anymore. (I tried, it causes protests.)
+  ;; a bit of extra functionality into this one, including myself.
   (interactive
    (let ((branches (magit-region-values 'branch t))
          (force current-prefix-arg))
@@ -582,8 +581,9 @@ defaulting to the branch at point."
          magit-this-process
          (apply-partially 'magit-delete-remote-branch-sentinel refs))))
      ((> (length branches) 1)
-      (magit-run-git "branch" (if force "-D" "-d")
-                     (delete (magit-get-current-branch) branches)))
+      (setq branches (delete (magit-get-current-branch) branches))
+      (mapc 'magit-branch-maybe-delete-pr-remote branches)
+      (magit-run-git "branch" (if force "-D" "-d") branches))
      (t ; And now for something completely different.
       (let* ((branch (car branches))
              (prompt (format "Branch %s is checked out.  " branch)))
@@ -615,9 +615,35 @@ defaulting to the branch at point."
                      (magit-call-git "checkout" "master"))
             (`abort  (user-error "Abort")))
           (setq force t))
+        (magit-branch-maybe-delete-pr-remote branch)
         (magit-run-git "branch" (if force "-D" "-d") branch))))))
 
 (put 'magit-branch-delete 'interactive-only t)
+
+(defun magit-branch-maybe-delete-pr-remote (branch)
+  (-when-let (remote (magit-get "branch" branch "pullRequestRemote"))
+    (let* ((variable (format "remote.%s.fetch" remote))
+           (refspecs (magit-get-all variable)))
+      (unless (member (format "+refs/heads/*:refs/remotes/%s/*" remote)
+                      refspecs)
+        (let ((refspec
+               (if (equal (magit-get "branch" branch "pushRemote") remote)
+                   (format "+refs/heads/%s:refs/remotes/%s/%s"
+                           branch remote branch)
+                 (let ((merge (magit-get "branch" branch "merge")))
+                   (and merge
+                        (string-prefix-p "refs/heads/" merge)
+                        (setq merge (substring merge 11))
+                        (format "+refs/heads/%s:refs/remotes/%s/%s"
+                                merge remote merge))))))
+          (when (member refspec refspecs)
+            (if (and (= (length refspecs) 1)
+                     (magit-confirm 'delete-pr-remote
+                       (format "Also delete remote %s (%s)" remote
+                               "no pull-request branch remains")))
+                (magit-call-git "remote" "rm" remote)
+              (magit-call-git "config" "--unset" variable
+                              (regexp-quote refspec)))))))))
 
 (defun magit-delete-remote-branch-sentinel (refs process event)
   (when (memq (process-status process) '(exit signal))

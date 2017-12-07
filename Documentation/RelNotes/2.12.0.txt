@@ -195,6 +195,11 @@ Changes since v2.11.0
   support Github, but other Git forges will be supported in the future.
   #3134
 
+* The command `magit-branch-delete' now offers to also delete the
+  corresponding remote after deleting a local branch that was created
+  with `magit-branch-pull-request' or magit-checkout-pull-request',
+  provided that remote has no other tracking branches.  #3134
+
 Fixes since v2.11.0
 -------------------
 

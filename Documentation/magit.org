@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-301-gce31549d7+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-302-gac281d7f1+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-301-gce31549d7+1).
+This manual is for Magit version 2.11.0 (2.11.0-302-gac281d7f1+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -1274,6 +1274,13 @@ telling Magit to ask fewer questions.
       confirm the deletion of a branch by accepting the default choice
       (or selecting another branch), but when a branch has not been
       merged yet, also make sure the user is aware of that.
+
+    - ~delete-pr-branch~ When deleting a branch that was created from a
+      pull request and if no other branches still exist on that
+      remote, then `magit-branch-delete' offers to delete the remote
+      as well.  This should be safe because it only happens if no
+      other refs exist in the remotes namespace, and you can recreate
+      the remote if necessary.
 
     - ~drop-stashes~ Dropping a stash is dangerous because Git stores
       stashes in the reflog.  Once a stash is removed, there is no
@@ -4124,6 +4131,17 @@ features are available from separate popups.
     in case you change the value of the latter later on.  Additionally
     the variable ~branch.<name>.pullRequestRemote~ is set to the fork
     remote.
+
+  When you later delete the local pull-request branch, then you are
+  offered to also delete the corresponding remote, provided it is not
+  the upstream remote and that the tracking branch that corresponds to
+  the deleted branch is the only remaining tracked branch.  If you
+  don't confirm, then only the tracking branch itself is deleted in
+  addition to the local branch.
+
+  Do not delete the tracking branch instead of the local branch.  The
+  cleanup mentioned in the previous paragraph is not performed if you
+  do that.
 
 - Key: b p, magit-checkout-pull-request
 

@@ -142,6 +142,7 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const abort-merge)       (const merge-dirty)
     (const drop-stashes)      (const resect-bisect)
     (const kill-process)      (const delete-unmerged-branch)
+    (const delete-pr-branch)
     (const stage-all-changes) (const unstage-all-changes)
     (const safe-with-wip)))
 
@@ -212,6 +213,13 @@ References:
   to confirm the deletion of a branch by accepting the default
   choice (or selecting another branch), but when a branch has
   not been merged yet, also make sure the user is aware of that.
+
+  `delete-pr-branch' When deleting a branch that was created from
+  a pull request and if no other branches still exist on that
+  remote, then `magit-branch-delete' offers to delete the remote
+  as well.  This should be safe because it only happens if no
+  other refs exist in the remotes namespace, and you can recreate
+  the remote if necessary.
 
   `drop-stashes' Dropping a stash is dangerous because Git stores
   stashes in the reflog.  Once a stash is removed, there is no
