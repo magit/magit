@@ -32,6 +32,7 @@
 ;;; Code:
 
 (require 'magit)
+(require 'magit-collab)
 
 ;;; Options
 

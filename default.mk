@@ -62,6 +62,7 @@ ELS += magit.el
 ELS += magit-status.el
 ELS += magit-refs.el
 ELS += magit-files.el
+ELS += magit-collab.el
 ELS += magit-branch.el
 ELS += magit-worktree.el
 ELS += magit-notes.el
@@ -89,12 +90,14 @@ VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0)
 
 ASYNC_VERSION       = 1.9.2
 DASH_VERSION        = 2.13.0
+GHUB_VERSION        = 2.0.0
 MAGIT_POPUP_VERSION = 2.13.0
 WITH_EDITOR_VERSION = 2.6.0
 GIT_COMMIT_VERSION  = 2.10.3
 
 ASYNC_MELPA_SNAPSHOT       = 20170823
 DASH_MELPA_SNAPSHOT        = 20170810
+GHUB_SNAPSHOT              = 20171207
 MAGIT_POPUP_MELPA_SNAPSHOT = 20171121
 WITH_EDITOR_MELPA_SNAPSHOT = 20170817
 GIT_COMMIT_MELPA_SNAPSHOT  = 20170823
@@ -120,6 +123,13 @@ ifeq "$(DASH_DIR)" ""
   DASH_DIR = $(TOP)../dash
 endif
 
+GHUB_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/ghub-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(GHUB_DIR)" ""
+  GHUB_DIR = $(TOP)../ghub
+endif
+
 MAGIT_POPUP_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/magit-popup-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
@@ -143,10 +153,12 @@ LOAD_PATH = -L $(TOP)/lisp
 
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(GHUB_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(MAGIT_POPUP_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
 else
   LOAD_PATH += -L $(DASH_DIR)
+  LOAD_PATH += -L $(GHUB_DIR)
   LOAD_PATH += -L $(MAGIT_POPUP_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
 endif
