@@ -186,6 +186,10 @@ Changes since v2.11.0
 
 * The command `magit-log-buffer-file' now also works in Dired buffers.
 
+* Added command `magit-browse-pull-request', which reads an open pull
+  request and then visits it in a browser.  For now this only supports
+  Github, but other Git forges will be supported in the future.  #3134
+
 Fixes since v2.11.0
 -------------------
 
