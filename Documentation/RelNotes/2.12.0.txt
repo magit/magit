@@ -190,6 +190,11 @@ Changes since v2.11.0
   request and then visits it in a browser.  For now this only supports
   Github, but other Git forges will be supported in the future.  #3134
 
+* Added new commands `magit-checkout-pull-request' and
+  `magit-branch-pull-request' to the branch popup.  For now they only
+  support Github, but other Git forges will be supported in the future.
+  #3134
+
 Fixes since v2.11.0
 -------------------
 
