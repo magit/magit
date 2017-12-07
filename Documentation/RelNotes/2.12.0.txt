@@ -186,6 +186,20 @@ Changes since v2.11.0
 
 * The command `magit-log-buffer-file' now also works in Dired buffers.
 
+* Added command `magit-browse-pull-request', which reads an open pull
+  request and then visits it in a browser.  For now this only supports
+  Github, but other Git forges will be supported in the future.  #3134
+
+* Added new commands `magit-checkout-pull-request' and
+  `magit-branch-pull-request' to the branch popup.  For now they only
+  support Github, but other Git forges will be supported in the future.
+  #3134
+
+* The command `magit-branch-delete' now offers to also delete the
+  corresponding remote after deleting a local branch that was created
+  with `magit-branch-pull-request' or magit-checkout-pull-request',
+  provided that remote has no other tracking branches.  #3134
+
 Fixes since v2.11.0
 -------------------
 

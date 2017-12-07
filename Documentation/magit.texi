@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-283-g2d82dc0e5+1)
+@subtitle for version 2.11.0 (2.11.0-302-gac281d7f1+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-283-g2d82dc0e5+1).
+This manual is for Magit version 2.11.0 (2.11.0-302-gac281d7f1+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -1803,6 +1803,15 @@ And even then the reflog is gone.  The user always has to
 confirm the deletion of a branch by accepting the default choice
 (or selecting another branch), but when a branch has not been
 merged yet, also make sure the user is aware of that.
+
+
+@item
+@code{delete-pr-branch} When deleting a branch that was created from a
+pull request and if no other branches still exist on that
+remote, then `magit-branch-delete' offers to delete the remote
+as well.  This should be safe because it only happens if no
+other refs exist in the remotes namespace, and you can recreate
+the remote if necessary.
 
 
 @item
@@ -5493,6 +5502,128 @@ The commit at the other end of the selection actually does not
 matter, all commits between FROM and @code{HEAD} are moved to the new
 branch.  If FROM is not reachable from @code{HEAD} or is reachable from the
 source branch's upstream, then an error is raised.
+
+@kindex b p
+@cindex magit-branch-pull-request
+@item @kbd{b p} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-pull-request})
+
+This command creates and configures a new branch from a Github
+pull-request, creating and configuring a new remote if necessary.
+
+The name of the local branch is the same as the name of the remote
+branch that you are being asked to merge, unless the contributor
+could not be bother to properly name the branch before opening the
+pull-request.  The most likely such case is when you are being asked
+to merge something like "fork/master" into "origin/master".  In such
+cases the local branch will be named "pr-N", where @code{N} is the
+pull-request number.
+
+These variables are always set by this command:
+
+@itemize
+@item
+@code{branch.<name>.pullRequest} is set to the pull-request number.
+
+@item
+@code{branch.<name>.description} is set to the pull-request title.
+
+@item
+@code{branch.<name>.rebase} is set to @code{true} because there should be no
+merge commits among the commits in a pull-request.
+@end itemize
+
+This command also configures the upstream and the push-remote of the
+local branch that it creates.
+
+The branch against which the pull-request was opened, is always used
+as the upstream.  This makes it easy to see what commits you are
+being asked to merge in the section titled something like "Unmerged
+into origin/master".
+
+Like for other commands that create a branch it depends on the
+option @code{magit-branch-prefer-remote-upstream} whether the remote branch
+itself or the respective local branch is used as the upstream, so
+this section may also be titled e.g. "Unmerged into master".
+
+When necessary and possible, then the remote pull-request branch is
+configured to be used as the push-target.  This makes it easy to see
+what further changes the contributor has made since you last
+reviewed their changes in the section titled something like
+"Unpulled from origin/new-feature" or "Unpulled from
+fork/new-feature".
+
+@itemize
+@item
+If the pull-request branch is located in the upstream repository,
+then it is not necessary to configure the push-target.
+
+(If you have push access to the upstream repository, then it is
+usually a good idea to configure that as the push-remote using
+@code{remote.pushDefault}.  However even if you are not using that
+recommended setting, then it is still easy enough to set
+@code{branch.<name>.pushRemote} while pushing using @code{P p}.)
+
+
+@item
+If the pull-request branch is located inside a fork, then you
+usually are able to push to that branch, because Github by default
+allows the recipient of a pull-request to push to the remote
+pull-request branch even if it is located in a fork.  The
+contributor has to explicitly disable this.
+
+@itemize
+@item
+If you are not allowed to push to the pull-request branch on
+the fork, then a branch by the same name located in the
+upstream repository is configured as the push-target.
+
+
+@item
+A — sadly rather common — special case is when the contributor
+didn't bother to use a dedicated branch for the pull-request.
+
+The most likely such case is when you are being asked to merge
+something like "fork/master" into "origin/master".  The special
+push permission mentioned above is never granted for the branch
+that is the repository's default branch, and that is almost
+certainly be the case in this scenario.
+
+To enable you to easily push somewhere anyway, the local branch
+is named "pr-N" (where @code{N} is the pull-request number) and the
+upstream repository is used as the push-remote.
+
+
+@item
+Finally, if you are allowed to push to the pull-request branch
+and the contributor had the foresight to use a dedicated branch,
+then the fork is configured as the push-remote.
+@end itemize
+
+The push-remote is configured using @code{branch.<name>.pushRemote}, even
+if the used value is identical to that of @code{remote.pushDefault}, just
+in case you change the value of the latter later on.  Additionally
+the variable @code{branch.<name>.pullRequestRemote} is set to the fork
+remote.
+@end itemize
+
+When you later delete the local pull-request branch, then you are
+offered to also delete the corresponding remote, provided it is not
+the upstream remote and that the tracking branch that corresponds to
+the deleted branch is the only remaining tracked branch.  If you
+don't confirm, then only the tracking branch itself is deleted in
+addition to the local branch.
+
+Do not delete the tracking branch instead of the local branch.  The
+cleanup mentioned in the previous paragraph is not performed if you
+do that.
+
+@kindex b p
+@cindex magit-checkout-pull-request
+@item @kbd{b p} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout-pull-request})
+
+This command creates and configures a new branch from a pull
+request, the same way @code{magit-branch-pull-request} does.  Additionally
+it checks out the new branch.
 
 @kindex b x
 @cindex magit-branch-reset
