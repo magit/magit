@@ -44,6 +44,9 @@
 ;; For `magit-stage-untracked'
 (declare-function magit-submodule-add 'magit-submodule)
 (declare-function magit-submodule-read-name-for-path 'magit-submodule)
+(declare-function borg--maybe-absorb-gitdir 'borg)
+(declare-function borg--sort-submodule-sections 'borg)
+(defvar borg-user-emacs-directory)
 
 (require 'dired)
 
@@ -292,8 +295,7 @@ ignored) files."
                  (concat (file-name-as-directory ".") repo)))
            repo
            (magit-submodule-read-name-for-path repo package))
-          (when (and package
-                     (fboundp 'borg--sort-submodule-sections))
+          (when package
             (borg--sort-submodule-sections
              (expand-file-name ".gitmodules" topdir))
             (let ((default-directory borg-user-emacs-directory))
