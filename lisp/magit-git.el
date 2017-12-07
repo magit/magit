@@ -1823,16 +1823,15 @@ the reference is used.  The first regexp submatch becomes the
 (gv-define-setter magit-get (val &rest keys)
   `(magit-set ,val ,@keys))
 
-(defun magit-set-all (values* &rest keys)
-  "Set all values of the Git variable specified by KEYS to VALUES.
-\n(fn VALUES &rest KEYS)"
+(defun magit-set-all (values &rest keys)
+  "Set all values of the Git variable specified by KEYS to VALUES."
   (let ((arg (and (or (null (car keys))
                       (string-prefix-p "--" (car keys)))
                   (pop keys)))
         (var (mapconcat 'identity keys ".")))
     (when (magit-get var)
       (magit-call-git "config" arg "--unset-all" var))
-    (dolist (v values*)
+    (dolist (v values)
       (magit-call-git "config" arg "--add" var v))))
 
 ;;;; Variables in Popups
