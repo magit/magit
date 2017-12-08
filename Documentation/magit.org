@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-307-g29ae3b587+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-308-gfd1a9ad6b+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-307-g29ae3b587+1).
+This manual is for Magit version 2.11.0 (2.11.0-308-gfd1a9ad6b+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -4827,17 +4827,17 @@ commands instead.
 *** Information About In-Progress Rebase
 
 While a rebase sequence is in progress, the status buffer features a
-section which lists the commits that have already been applied as well
+section that lists the commits that have already been applied as well
 as the commits that still have to be applied.
 
 The commits are split in two halves.  When rebase stops at a commit,
-either because the user has to deal with a conflict or explicitly
-requested that rebase stops at that commit, then point is placed on
-the commit that separates the two groups, i.e. on ~HEAD~.  The commits
-above it have not been applied yet, while it and the commits below it
-have already been applied.  In between these two groups of applied and
-yet-to-be applied commits, there sometimes is a commit which has been
-dropped.
+either because the user has to deal with a conflict or because s/he
+explicitly requested that rebase stops at that commit, then point is
+placed on the commit that separates the two groups, i.e. on ~HEAD~.  The
+commits above it have not been applied yet, while the ~HEAD~ and the
+commits below it have already been applied.  In between these two
+groups of applied and yet-to-be applied commits, there sometimes is a
+commit which has been dropped.
 
 Each commit is prefixed with a word and these words are additionally
 shown in different colors to indicate the status of the commits.
@@ -4853,7 +4853,7 @@ The following colors are used:
 - The green commit is the commit the rebase sequence stopped at.  If
   this is the same commit as ~HEAD~ (e.g. because you haven't done
   anything yet after rebase stopped at the commit, then this commit is
-  shown in blue, not green.  There can only be a green and a blue
+  shown in blue, not green.  There can only be a green *and* a blue
   commit at the same time, if you create one or more new commits after
   rebase stops at a commit.
 
@@ -4869,75 +4869,108 @@ The following words are used:
   in the buffer used to edit the rebase sequence.  See [[*Editing Rebase
   Sequences]].
 
-- The commit prefixed with ~onto~ is the commit on top of which all the
-  other commits are being re-applied.  Like the commits that have
-  already been re-applied, it is reachable from ~HEAD~, but unlike those
-  it has not actually been re-applied during the current session - it
-  wasn't touched at all.
+- Commits prefixed with ~done~ and ~onto~ have already been applied.
+  It is possible for such a commit to be the ~HEAD~, in which case it
+  is blue.  Otherwise it is grey.
 
-- Commits prefixed with ~done~ have already been re-applied.  Not all
-  commits that have already been applied are prefixed with this word,
-  though.
+  - The commit prefixed with ~onto~ is the commit on top of which all
+    the other commits are being re-applied.  This commit itself did
+    not have to be re-applied, it is the commit rebase did rewind to
+    before starting to re-apply other commits.
 
-- When a commit is prefixed with ~void~, then that indicates that Magit
-  knows for sure that all the changes in that commit have been applied
-  using several new commits.  This commit is no longer reachable from
-  ~HEAD~, and it also isn't one of the commits that will be applied when
-  resuming the session.
+  - Commits prefixed with ~done~ have already been re-applied.  This
+    includes commits that have been re-applied but also new commits
+    that you have created during the rebase.
 
-- When a commit is prefixed with ~join~, then that indicates that the
-  rebase sequence stopped at that commit due to a conflict - you now
-  have to join (merge) the changes with what has already been
-  applied.  In a sense this is the commit rebase stopped at, but while
-  its effect is already in the index and in the worktree (with
-  conflict markers), the commit itself has not actually been applied
-  yet (it isn't the ~HEAD~).  So it is shown in yellow, like the other
-  commits that still have to be applied.
+- All other commits, those not prefixed with any of the above words,
+  are in some way related to the commit at which rebase stopped.
 
-- When a commit is prefixed with ~goal~, ~same~, or ~work~, then that
-  indicates that you reset to an earlier commit (and that this commit
-  therefore is no longer reachable from ~HEAD~), but that it might still
-  be possible to create a new commit with the exact same tree or at
-  least the same patch-id [fn:patch-id], without manually editing any
-  file.  Or at the very least that there are some uncommitted
-  remaining, which may or may not originate from that commit.
+  To determine whether a commit is related to the stopped-at commit
+  their hashes, trees and patch-ids [fn:patch-id] are being compared.
+  The commit message is not used for this purpose.
 
-  - When a commit is prefixed with ~goal~, then that indicates that it
-    is still possible to create a commit with the exact same tree
-    (the "goal") without manually editing a file, by simply committing
-    the index (or, provided nothing is already staged, by staging all
-    unstaged changes and then committing that).  This is the case when
-    the original tree exists in the index or worktree in untainted
-    form.
+  Generally speaking commits that are related to the stopped-at commit
+  can have any of the used colors, though not all color/word
+  combinations are possible.
 
-  - When a commit is prefixed with ~same~, then that indicates that it
-    is no longer possible to create a commit with the exact same tree,
-    but that it is still possible to create a commit with the same
-    patch-id.  This would be the case if you created a new commit with
-    other changes, but the changes from the original commit still
-    exist in the index and/or working tree in untainted form.
+  Words used for stopped-at commits are:
 
-  - When a commit is prefixed with ~work~, then that indicates that you
-    are working with the changes from that commit after resetting to
-    an earlier commit.  There are changes in the index and/or working
-    tree and some of them likely originate from that commit.
+  - When a commit is prefixed with ~void~, then that indicates that
+    Magit knows for sure that all the changes in that commit have been
+    applied using several new commits.  This commit is no longer
+    reachable from ~HEAD~, and it also isn't one of the commits that
+    will be applied when resuming the session.
 
-- When a commit is prefixed with ~poof~ or ~gone~, then that indicates
-  that you reset to an earlier commit (and that this commit therefore
-  is no longer reachable from ~HEAD~), and that there are no
-  uncommitted changes remaining which might allow you to create a new
-  commit with the same tree or at least the same patch-id.
+  - When a commit is prefixed with ~join~, then that indicates that the
+    rebase sequence stopped at that commit due to a conflict - you now
+    have to join (merge) the changes with what has already been
+    applied.  In a sense this is the commit rebase stopped at, but
+    while its effect is already in the index and in the worktree (with
+    conflict markers), the commit itself has not actually been applied
+    yet (it isn't the ~HEAD~).  So it is shown in yellow, like the other
+    commits that still have to be applied.
 
-  - When a commit is prefixed with ~poof~, then that indicates that it
-    is no longer reachable from ~HEAD~, but that it has been replaced
-    with one or more commits, which together have the exact same
-    effect.
+  - When a commit is prefixed with ~stop~ or a /blue/ or /green/ ~same~, then
+    that indicates that rebase stopped at this commit, that it is
+    still applied or has been applied again, and that at least its
+    patch-id is unchanged.
 
-  - When a commit is prefixed with ~gone~, then that indicates that it
-    is no longer reachable from ~HEAD~ and that we also cannot determine
-    whether its changes are still in effect in one or more new
-    commits.  They might be, but if so, then there must also be other
-    changes which makes it impossible to know for sure.
+    - When a commit is prefixed with ~stop~, then that indicates that
+      rebase stopped at that commit because you requested that
+      earlier, and its patch-id is unchanged.  It might even still be
+      the exact same commit.
+
+    - When a commit is prefixed with a /blue/ or /green/ ~same~, then that
+      indicates that while its tree or hash changed, its patch-id did
+      not.  If it is blue, then it is the ~HEAD~ commit (as always for
+      blue).  When it is green, then it no longer is ~HEAD~ because
+      other commit have been created since (but before continuing the
+      rebase).
+
+  - When a commit is prefixed with ~goal~, a /yellow/ ~same,~ or ~work~, then
+    that indicates that rebase applied that commit but that you then
+    reset ~HEAD~ to an earlier commit (likely to split it up into
+    multiple commits), and that there are some uncommitted changes
+    remaining which likely (but not necessarily) originate from that
+    commit.
+
+    - When a commit is prefixed with ~goal~, then that indicates that it
+      is still possible to create a new commit with the exact same
+      tree (the "goal") without manually editing any files, by
+      committing the index, or by staging all changes and then
+      committing that.  This is the case when the original tree still
+      exists in the index or worktree in untainted form.
+
+    - When a commit is prefixed with a yellow ~same~, then that
+      indicates that it is no longer possible to create a commit with
+      the exact same tree, but that it is still possible to create a
+      commit with the same patch-id.  This would be the case if you
+      created a new commit with other changes, but the changes from
+      the original commit still exist in the index or working tree in
+      untainted form.
+
+    - When a commit is prefixed with ~work~, then that indicates that
+      you reset ~HEAD~ to an earlier commit, and that there are some
+      staged and/or unstaged changes (likely, but not necessarily)
+      originating from that commit.  However it is no longer possible
+      to create a new commit with the same tree or at least the same
+      patch-id because you have already made other changes.
+
+  - When a commit is prefixed with ~poof~ or ~gone~, then that indicates
+    that rebase applied that commit but that you then reset ~HEAD~ to an
+    earlier commit (likely to split it up into multiple commits), and
+    that there are no uncommitted changes.
+
+    - When a commit is prefixed with ~poof~, then that indicates that it
+      is no longer reachable from ~HEAD~, but that it has been replaced
+      with one or more commits, which together have the exact same
+      effect.
+
+    - When a commit is prefixed with ~gone~, then that indicates that it
+      is no longer reachable from ~HEAD~ and that we also cannot
+      determine whether its changes are still in effect in one or more
+      new commits.  They might be, but if so, then there must also be
+      other changes which makes it impossible to know for sure.
 
 Do not worry if you do not fully understand the above.  That's okay,
 you will acquire a good enough understanding through practice.
