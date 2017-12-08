@@ -213,7 +213,12 @@ and then turned on again when turning off the latter."
   :options  '((?M "Detect lines moved or copied within a file" "-M")
               (?C "Detect lines moved or copied between files" "-C"))
   :actions  '((?b "Show blob touching these lines" magit-blame)
-              (?f "Show last blob with these lines" magit-blame-reverse))
+              (?r (lambda ()
+                    (with-current-buffer magit-pre-popup-buffer
+                      (and (not buffer-file-name)
+                           (propertize "Show last blob with these lines"
+                                       'face 'default))))
+                  magit-blame-reverse))
   :default-arguments '("-w")
   :max-action-columns 1
   :default-action 'magit-blame)
