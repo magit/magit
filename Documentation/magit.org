@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-302-gac281d7f1+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-307-g29ae3b587+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-302-gac281d7f1+1).
+This manual is for Magit version 2.11.0 (2.11.0-307-g29ae3b587+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -4949,15 +4949,15 @@ importantly these sequences only support "picking" a commit but not
 other actions such as "rewording", and they do not keep track of the
 commits which have already been applied.
 
-[fn:patch-id] The patch-id is a hash of the /changes/ introduced by
-commit.  It differs from hash of the commit itself, which is a hash of
-the result of applying that change (i.e. the resulting trees and
-blobs) as well as author and committer information, the commit
+[fn:patch-id] The patch-id is a hash of the /changes/ introduced by a
+commit.  It differs from the hash of the commit itself, which is a
+hash of the result of applying that change (i.e. the resulting trees
+and blobs) as well as author and committer information, the commit
 message, and the hashes of the parents of the commit.  The patch-id
 hash on the other hand is created only from the added and removed
-lines, even line numbers and whitespace are created when calculating
-the hash.  The patch-ids of two commits can be used to answer the
-question "Do these two commits make the same change?".
+lines, even line numbers and whitespace changes are ignored when
+calculating this hash.  The patch-ids of two commits can be used to
+answer the question "Do these commits make the same change?".
 
 ** Cherry Picking
 *** _ :ignore:

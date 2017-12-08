@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-302-gac281d7f1+1)
+@subtitle for version 2.11.0 (2.11.0-307-g29ae3b587+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-302-gac281d7f1+1).
+This manual is for Magit version 2.11.0 (2.11.0-307-g29ae3b587+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -6619,15 +6619,15 @@ When a commit is prefixed with @code{goal}, @code{same}, or @code{work}, then th
 indicates that you reset to an earlier commit (and that this commit
 therefore is no longer reachable from @code{HEAD}), but that it might still
 be possible to create a new commit with the exact same tree or at
-least the same patch-id @footnote{The patch-id is a hash of the @emph{changes} introduced by
-commit.  It differs from hash of the commit itself, which is a hash of
-the result of applying that change (i.e. the resulting trees and
-blobs) as well as author and committer information, the commit
+least the same patch-id @footnote{The patch-id is a hash of the @emph{changes} introduced by a
+commit.  It differs from the hash of the commit itself, which is a
+hash of the result of applying that change (i.e. the resulting trees
+and blobs) as well as author and committer information, the commit
 message, and the hashes of the parents of the commit.  The patch-id
 hash on the other hand is created only from the added and removed
-lines, even line numbers and whitespace are created when calculating
-the hash.  The patch-ids of two commits can be used to answer the
-question "Do these two commits make the same change?".}, without manually editing any
+lines, even line numbers and whitespace changes are ignored when
+calculating this hash.  The patch-ids of two commits can be used to
+answer the question "Do these commits make the same change?".}, without manually editing any
 file.  Or at the very least that there are some uncommitted
 remaining, which may or may not originate from that commit.
 
