@@ -188,45 +188,53 @@ magit-$(VERSION).tar.gz: lisp versionlib info
 	@$(RMDIR) magit-$(VERSION)
 
 define set_package_requires
-(require (quote dash))
-(dolist (lib (list "git-commit" "magit"))
-  (with-current-buffer (find-file-noselect (format "lisp/%s.el" lib))
-    (goto-char (point-min))
-    (re-search-forward "^;; Package-Requires: ")
-    (let ((s (read (buffer-substring (point) (line-end-position)))))
-      (--when-let (assq (quote async)       s) (setcdr it (list async-version)))
-      (--when-let (assq (quote dash)        s) (setcdr it (list dash-version)))
-      (--when-let (assq (quote ghub)        s) (setcdr it (list ghub-version)))
-      (--when-let (assq (quote git-commit)  s) (setcdr it (list git-commit-version)))
-      (--when-let (assq (quote let-alist)   s) (setcdr it (list let-alist-version)))
-      (--when-let (assq (quote magit-popup) s) (setcdr it (list magit-popup-version)))
-      (--when-let (assq (quote with-editor) s) (setcdr it (list with-editor-version)))
-      (delete-region (point) (line-end-position))
-      (insert (format "%S" s))
-      (save-buffer))))
+(with-temp-file "lisp/git-commit.el"
+  (insert-file-contents "lisp/git-commit.el")
+  (re-search-forward "^;; Package-Requires: ")
+  (delete-region (point) (line-end-position))
+  (insert (format "%S"
+`((emacs "24.4") ;`
+  (dash ,dash-version)
+  (with-editor ,with-editor-version))))
+(with-temp-file "lisp/magit-pkg.el"
+  (insert (pp-to-string
+`(define-package "magit" "2.12.0" ;`
+   "A Git porcelain inside Emacs."
+   '((emacs "24.4") ;'
+     (async ,async-version)
+     (dash ,dash-version)
+     (ghub ,ghub-version)
+     (git-commit ,git-commit-version)
+     (let-alist ,let-alist-version)
+     (magit-popup ,magit-popup-version)
+     (with-editor ,with-editor-version)))))
+  (goto-char (point-min))
+  (re-search-forward " \"A")
+  (goto-char (match-beginning 0))
+  (insert "\n ")))
 endef
 export set_package_requires
 
 bump-versions: bump-versions-1 texi
 bump-versions-1:
-	@$(BATCH) --eval "(progn\
-        (setq async-version \"$(ASYNC_VERSION)\")\
-        (setq dash-version \"$(DASH_VERSION)\")\
-        (setq ghub-version \"$(GHUB_VERSION)\")\
-        (setq git-commit-version \"$(GIT_COMMIT_VERSION)\")\
-        (setq let-alist-version \"$(LET_ALIST_VERSION)\")\
-        (setq magit-popup-version \"$(LET_ALIST_VERSION)\")\
-        (setq with-editor-version \"$(WITH_EDITOR_VERSION)\")\
+	@$(BATCH) --eval "(let (\
+        (async-version \"$(ASYNC_VERSION)\")\
+        (dash-version \"$(DASH_VERSION)\")\
+        (ghub-version \"$(GHUB_VERSION)\")\
+        (git-commit-version \"$(GIT_COMMIT_VERSION)\")\
+        (let-alist-version \"$(LET_ALIST_VERSION)\")\
+        (magit-popup-version \"$(MAGIT_POPUP_VERSION)\")\
+        (with-editor-version \"$(WITH_EDITOR_VERSION)\"))\
         $$set_package_requires)"
 
 bump-snapshots:
-	@$(BATCH) --eval "(progn\
-        (setq async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
-        (setq dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
-        (setq ghub-version \"$(GHUB_MELPA_SNAPSHOT)\")\
-        (setq git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
-        (setq let-alist-version \"$(LET_ALIST_VERSION)\")\
-        (setq magit-popup-version \"$(MAGIT_POPUP_MELPA_SNAPSHOT)\")\
-        (setq with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\")\
+	@$(BATCH) --eval "(let (\
+        (async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
+        (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
+        (ghub-version \"$(GHUB_MELPA_SNAPSHOT)\")\
+        (git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
+        (let-alist-version \"$(LET_ALIST_VERSION)\")\
+        (magit-popup-version \"$(MAGIT_POPUP_MELPA_SNAPSHOT)\")\
+        (with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\"))\
         $$set_package_requires)"
-	git commit -a -m "Reset Package-Requires for Melpa"
+	@git commit -a -m "Reset Package-Requires for Melpa"
