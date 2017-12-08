@@ -209,6 +209,11 @@ Changes since v2.11.0
   might take longer than anticipated.  Customize this face if you wish
   to make this indicator more (or less) visible.  #3284
 
+* When staging and unstaging at the file level and the arguments that
+  cause whitespace differences to be hidden, then apply the visible
+  changes using `git-apply' instead of using `git-add' and `git-rm'
+  because doing that would also un-/stage the invisible changes.  #3102
+
 Fixes since v2.11.0
 -------------------
 
