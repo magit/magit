@@ -219,7 +219,7 @@ bump-snapshots:
 	@$(BATCH) --eval "(progn\
         (setq async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
         (setq dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
-        (setq ghub-version \"$(GHUB_SNAPSHOT)\")\
+        (setq ghub-version \"$(GHUB_MELPA_SNAPSHOT)\")\
         (setq with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\")\
         (setq git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
         $$set_package_requires)"
