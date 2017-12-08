@@ -197,8 +197,10 @@ define set_package_requires
       (--when-let (assq (quote async)       s) (setcdr it (list async-version)))
       (--when-let (assq (quote dash)        s) (setcdr it (list dash-version)))
       (--when-let (assq (quote ghub)        s) (setcdr it (list ghub-version)))
-      (--when-let (assq (quote with-editor) s) (setcdr it (list with-editor-version)))
       (--when-let (assq (quote git-commit)  s) (setcdr it (list git-commit-version)))
+      (--when-let (assq (quote let-alist)   s) (setcdr it (list let-alist-version)))
+      (--when-let (assq (quote magit-popup) s) (setcdr it (list magit-popup-version)))
+      (--when-let (assq (quote with-editor) s) (setcdr it (list with-editor-version)))
       (delete-region (point) (line-end-position))
       (insert (format "%S" s))
       (save-buffer))))
@@ -211,8 +213,10 @@ bump-versions-1:
         (setq async-version \"$(ASYNC_VERSION)\")\
         (setq dash-version \"$(DASH_VERSION)\")\
         (setq ghub-version \"$(GHUB_VERSION)\")\
-        (setq with-editor-version \"$(WITH_EDITOR_VERSION)\")\
         (setq git-commit-version \"$(GIT_COMMIT_VERSION)\")\
+        (setq let-alist-version \"$(LET_ALIST_VERSION)\")\
+        (setq magit-popup-version \"$(LET_ALIST_VERSION)\")\
+        (setq with-editor-version \"$(WITH_EDITOR_VERSION)\")\
         $$set_package_requires)"
 
 bump-snapshots:
@@ -220,7 +224,9 @@ bump-snapshots:
         (setq async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
         (setq dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (setq ghub-version \"$(GHUB_MELPA_SNAPSHOT)\")\
-        (setq with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\")\
         (setq git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
+        (setq let-alist-version \"$(LET_ALIST_VERSION)\")\
+        (setq magit-popup-version \"$(MAGIT_POPUP_MELPA_SNAPSHOT)\")\
+        (setq with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\")\
         $$set_package_requires)"
 	git commit -a -m "Reset Package-Requires for Melpa"
