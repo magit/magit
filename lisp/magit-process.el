@@ -199,6 +199,11 @@ non-nil, then the password is read from the user instead."
   "Face for non-zero exit-status."
   :group 'magit-faces)
 
+(defface magit-mode-line-process
+  '((t :inherit mode-line-emphasis))
+  "Face for `mode-line-process' status when Git is running for side-effects."
+  :group 'magit-faces)
+
 ;;; Process Mode
 
 (defvar magit-process-mode-map
@@ -790,9 +795,12 @@ as argument."
 (defun magit-process-set-mode-line (program args)
   (when (equal program magit-git-executable)
     (setq args (nthcdr (length magit-git-global-arguments) args)))
-  (let ((str (concat " " program (and args (concat " " (car args))))))
+  (let ((str (concat " " (propertize
+                          (concat program (and args (concat " " (car args))))
+                          'face 'magit-mode-line-process))))
     (dolist (buf (magit-mode-get-buffers))
-      (with-current-buffer buf (setq mode-line-process str)))))
+      (with-current-buffer buf
+        (setq mode-line-process str)))))
 
 (defun magit-process-unset-mode-line ()
   (dolist (buf (magit-mode-get-buffers))
