@@ -197,7 +197,7 @@ Changes since v2.11.0
 
 * The command `magit-branch-delete' now offers to also delete the
   corresponding remote after deleting a local branch that was created
-  with `magit-branch-pull-request' or magit-checkout-pull-request',
+  with `magit-branch-pull-request' or `magit-checkout-pull-request',
   provided that remote has no other tracking branches.  #3134
 
 * Added new face `magit-mode-line-process' which is applied to the
@@ -209,10 +209,11 @@ Changes since v2.11.0
   might take longer than anticipated.  Customize this face if you wish
   to make this indicator more (or less) visible.  #3284
 
-* When staging and unstaging at the file level and the arguments that
-  cause whitespace differences to be hidden, then apply the visible
-  changes using `git-apply' instead of using `git-add' and `git-rm'
-  because doing that would also un-/stage the invisible changes.  #3102
+* When staging and unstaging at the file level and there are arguments
+  that cause whitespace differences to be hidden, then apply the
+  visible changes using `git-apply' instead of using `git-add' and
+  `git-rm' because doing that would also un-/stage the invisible
+  changes.  #3102
 
 * Added new command `magit-diff-visit-file-other-window'.  It isn't
   bound by default because that would result in changes to existing
