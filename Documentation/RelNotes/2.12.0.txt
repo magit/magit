@@ -273,6 +273,10 @@ Changes since v2.11.0
   By default that is now also done for `untracked, `unstaged' and
   `staged' sections.  #2780
 
+* Added command `magit-remote-prune-refspec', which is necessary
+  because Git does not ignore invalid refspecs and instead refuses
+  to fetch using only the refspecs that are still valid.  #3134
+
 Fixes since v2.11.0
 -------------------
 

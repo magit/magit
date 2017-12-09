@@ -124,10 +124,12 @@ to be used to view and change remote related variables."
                     magit-remote-config-variables))
   :switches '("Switches for add"
               (?f "Fetch after add" "-f"))
-  :actions  '((?a "Add"          magit-remote-add)
-              (?r "Rename"       magit-remote-rename)
-              (?k "Remove"       magit-remote-remove)
-              (?C "Configure..." magit-remote-config-popup)))
+  :actions  '((?a "Add"            magit-remote-add)
+              (?C "Configure..."   magit-remote-config-popup)
+              (?r "Rename"         magit-remote-rename)
+              (?p "Prune refspecs" magit-remote-prune-refspecs)
+              (?k "Remove"         magit-remote-remove))
+  :max-action-columns 2)
 
 ;;;; Commands
 
@@ -180,6 +182,76 @@ to be used to view and change remote related variables."
                                   "--get-regexp" "^branch\.[^.]*\.pushRemote"
                                   (format "^%s$" remote)))
       (magit-call-git "config" (and (not new-name) "--unset") var new-name))))
+
+(defconst magit--refspec-re "\\`\\(\\+\\)?\\([^:]+\\):\\(.*\\)\\'")
+
+;;;###autoload
+(defun magit-remote-prune-refspecs (remote)
+  "Remove stale refspecs and tracking branches for REMOTE.
+If there are only stale refspecs, then offer to either delete the
+remote or replace the refspecs with the default refspec instead."
+  (interactive (list (magit-read-remote "Prune refspecs of remote")))
+  (let* ((tracking-refs (magit-list-remote-branches remote))
+         (remote-refs (magit-remote-list-refs remote))
+         (variable (format "remote.%s.fetch" remote))
+         (refspecs (magit-get-all variable))
+         stale)
+    (dolist (refspec refspecs)
+      (when (string-match magit--refspec-re refspec)
+        (let ((theirs (match-string 2 refspec))
+              (ours   (match-string 3 refspec)))
+          (unless (if (string-match "\\*" theirs)
+                      (let ((re (replace-match ".*" t t theirs)))
+                        (--some (string-match-p re it) remote-refs))
+                    (member theirs remote-refs))
+            (push (cons refspec
+                        (if (string-match "\\*" ours)
+                            (let ((re (replace-match ".*" t t ours)))
+                              (--filter (string-match-p re it) tracking-refs))
+                          (list (car (member ours tracking-refs)))))
+                  stale)))))
+    (if (not stale)
+        (message "No stale refspecs for remote %S" remote)
+      (if (= (length stale)
+             (length refspecs))
+          (magit-read-char-case
+              (format "All of %s's refspecs are stale.  " remote) nil
+            (?s "replace with [d]efault refspec"
+                (magit-set-all
+                 (list (format "+refs/heads/*:refs/remotes/%s/*" remote))
+                 variable))
+            (?r "[r]emove remote"
+                (magit-call-git "remote" "rm" remote))
+            (?a "or [a]abort"
+                (user-error "Abort")))
+        (if (if (= (length stale) 1)
+                (pcase-let ((`(,refspec . ,refs) (car stale)))
+                  (magit-confirm 'prune-stale-refspecs
+                    (format "Prune stale refspec %s and branch %%s" refspec)
+                    (format "Prune stale refspec %s and %%i branches" refspec)
+                    refs))
+              (magit-confirm 'prune-stale-refspecs nil
+                (format "Prune %%i stale refspecs and %i branches"
+                        (length (mapcan (lambda (s) (copy-sequence (cdr s))) stale)))
+                (mapcar (pcase-lambda (`(,refspec . ,refs))
+                          (concat refspec "\n"
+                                  (mapconcat (lambda (b) (concat "  " b))
+                                             refs "\n")))
+                        stale)))
+            (pcase-dolist (`(,refspec . ,refs) stale)
+              (magit-call-git "config" "--unset" variable
+                              (regexp-quote refspec))
+              (magit--log-action
+               (lambda (refs)
+                 (format "Deleting %i branches" (length refs)))
+               (lambda (ref)
+                 (format "Deleting branch %s (was %s)" ref
+                         (magit-rev-parse "--short" ref)))
+               refs)
+              (dolist (ref refs)
+                (magit-call-git "update-ref" "-d" ref)))
+          (user-error "Abort")))
+      (magit-refresh))))
 
 ;;;###autoload
 (defun magit-remote-set-head (remote &optional branch)
