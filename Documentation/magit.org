@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-321-g4d5bc68e+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-322-g936fb71c2+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-321-g4d5bc68e+1).
+This manual is for Magit version 2.11.0 (2.11.0-322-g936fb71c2+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -4081,7 +4081,7 @@ features are available from separate popups.
   branch.  If FROM is not reachable from ~HEAD~ or is reachable from the
   source branch's upstream, then an error is raised.
 
-- Key: b p, magit-branch-pull-request
+- Key: b R, magit-branch-pull-request
 
   This command creates and configures a new branch from a Github
   pull-request, creating and configuring a new remote if necessary.
@@ -4174,7 +4174,7 @@ features are available from separate popups.
   cleanup mentioned in the previous paragraph is not performed if you
   do that.
 
-- Key: b p, magit-checkout-pull-request
+- Key: b r, magit-checkout-pull-request
 
   This command creates and configures a new branch from a pull
   request, the same way ~magit-branch-pull-request~ does.  Additionally

@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-321-g4d5bc68e+1)
+@subtitle for version 2.11.0 (2.11.0-322-g936fb71c2+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-321-g4d5bc68e+1).
+This manual is for Magit version 2.11.0 (2.11.0-322-g936fb71c2+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -5549,9 +5549,9 @@ matter, all commits between FROM and @code{HEAD} are moved to the new
 branch.  If FROM is not reachable from @code{HEAD} or is reachable from the
 source branch's upstream, then an error is raised.
 
-@kindex b p
+@kindex b R
 @cindex magit-branch-pull-request
-@item @kbd{b p} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-pull-request})
+@item @kbd{b R} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-pull-request})
 
 This command creates and configures a new branch from a Github
 pull-request, creating and configuring a new remote if necessary.
@@ -5663,9 +5663,9 @@ Do not delete the tracking branch instead of the local branch.  The
 cleanup mentioned in the previous paragraph is not performed if you
 do that.
 
-@kindex b p
+@kindex b r
 @cindex magit-checkout-pull-request
-@item @kbd{b p} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout-pull-request})
+@item @kbd{b r} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout-pull-request})
 
 This command creates and configures a new branch from a pull
 request, the same way @code{magit-branch-pull-request} does.  Additionally
