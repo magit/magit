@@ -1145,10 +1145,17 @@ parent of the commit which removed that line, i.e. the last
 commit where that line still existed.  Otherwise visit the blob
 for the commit whose changes are being shown.
 
-When the file or blob to be displayed is already being displayed
-in another window of the same frame, then just select that window
-and adjust point.  Otherwise, or with a prefix argument, display
-the buffer in another window."
+Interactively, when the file or blob to be displayed is already
+being displayed in another window of the same frame, then just
+select that window and adjust point.  Otherwise, or with a prefix
+argument, display the buffer in another window.  The meaning of
+the prefix argument can be inverted or further modified using the
+option `magit-display-file-buffer-function'.  Non-interactively
+the optional OTHER-WINDOW argument is taken literally.
+
+The optional FORCE-WORKTREE means to force visiting the worktree
+version of the file in the worktree.  To do this interactively us
+the command `magit-diff-visit-file-worktree' instead."
   (interactive (list (--if-let (magit-file-at-point)
                          (expand-file-name it)
                        (user-error "No file at point"))
@@ -1170,7 +1177,12 @@ the buffer in another window."
                      (magit-find-file-noselect rev file)
                    (or (get-file-buffer file)
                        (find-file-noselect file)))))
-      (magit-display-file-buffer buf)
+      (cond ((called-interactively-p 'any)
+             (magit-display-file-buffer buf))
+            ((or other-window (get-buffer-window buf))
+             (switch-to-buffer-other-window buf))
+            (t
+             (pop-to-buffer buf)))
       (with-selected-window
           (or (get-buffer-window buf 'visible)
               (error "File buffer is not visible"))
@@ -1195,6 +1207,23 @@ the buffer in another window."
         (when (magit-anything-unmerged-p file)
           (smerge-start-session))
         (run-hooks 'magit-diff-visit-file-hook)))))
+
+(defun magit-diff-visit-file-other-window (file)
+  "From a diff, visit the corresponding file at the appropriate position.
+The file is shown in another window.
+
+If the diff shows changes in the worktree, the index, or `HEAD',
+then visit the actual file.  Otherwise, when the diff is about an
+older commit or a range, then visit the appropriate blob.
+
+If point is on a removed line, then visit the blob for the first
+parent of the commit which removed that line, i.e. the last
+commit where that line still existed.  Otherwise visit the blob
+for the commit whose changes are being shown."
+  (interactive (list (--if-let (magit-file-at-point)
+                         (expand-file-name it)
+                       (user-error "No file at point"))))
+  (magit-diff-visit-file file t))
 
 (defvar magit-display-file-buffer-function
   'magit-display-file-buffer-traditional

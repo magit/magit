@@ -214,6 +214,16 @@ Changes since v2.11.0
   changes using `git-apply' instead of using `git-add' and `git-rm'
   because doing that would also un-/stage the invisible changes.  #3102
 
+* Added new command `magit-diff-visit-file-other-window'.  It isn't
+  bound by default because that would result in changes to existing
+  key bindings, which is something that is frowned upon.  To use this
+  command add something like this to your init file.  #2833
+
+    (define-key magit-file-section-map (kbd "SPC")
+      'magit-diff-visit-other-window)
+    (define-key magit-hunk-section-map (kbd "SPC")
+      'magit-diff-visit-other-window)
+
 Fixes since v2.11.0
 -------------------
 

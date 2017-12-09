@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-311-gc6ef61b2e+1)
+@subtitle for version 2.11.0 (2.11.0-315-g96cb64e6b+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-311-gc6ef61b2e+1).
+This manual is for Magit version 2.11.0 (2.11.0-315-g96cb64e6b+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -3743,6 +3743,16 @@ result, jumping to the appropriate position gets less reliable.
 Also see @code{magit-diff-visit-file}, which visits the respective blob,
 unless the diff shows changes in the worktree, the index, or @code{HEAD}.
 
+@end table
+
+@cindex magit-diff-visit-file-other-window
+@deffn Command magit-diff-visit-file-other-window
+
+From a diff, visit the corresponding file at the appropriate
+position in another window.
+@end deffn
+
+@table @asis
 @kindex j
 @cindex magit-jump-to-diffstat-or-diff
 @item @kbd{j} @tie{}@tie{}@tie{}@tie{}(@code{magit-jump-to-diffstat-or-diff})

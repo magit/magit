@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-311-gc6ef61b2e+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-315-g96cb64e6b+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-311-gc6ef61b2e+1).
+This manual is for Magit version 2.11.0 (2.11.0-315-g96cb64e6b+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -2736,6 +2736,11 @@ without having to using one of the diff popups.
 
   Also see ~magit-diff-visit-file~, which visits the respective blob,
   unless the diff shows changes in the worktree, the index, or ~HEAD~.
+
+- Command: magit-diff-visit-file-other-window
+
+  From a diff, visit the corresponding file at the appropriate
+  position in another window.
 
 - Key: j, magit-jump-to-diffstat-or-diff
 
