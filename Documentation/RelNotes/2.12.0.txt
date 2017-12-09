@@ -220,9 +220,9 @@ Changes since v2.11.0
   command add something like this to your init file.  #2833
 
     (define-key magit-file-section-map (kbd "SPC")
-      'magit-diff-visit-other-window)
+      'magit-diff-visit-file-other-window)
     (define-key magit-hunk-section-map (kbd "SPC")
-      'magit-diff-visit-other-window)
+      'magit-diff-visit-file-other-window)
 
 Fixes since v2.11.0
 -------------------
