@@ -169,6 +169,34 @@ t      show fine differences for the current diff hunk only.
 
 (put 'magit-diff-refine-hunk 'permanent-local t)
 
+(defcustom magit-diff-adjust-tab-width nil
+  "Whether to adjust the width of tabs in diffs.
+
+Determining the correct width can be expensive if it requires
+opening large and/or many files, so the widths are cached in
+the variable `magit-diff--tab-width-cache'.  Set that to nil
+to invalidate the cache.
+
+nil       Never ajust tab width.  Use `tab-width's value from
+          them Magit buffer itself instead.
+
+t         If the corresponding file-visiting buffer exits, then
+          use `tab-width's value from that buffer.  Doing this is
+          cheap, so this value is used even if a corresponding
+          cache entry exists.
+
+`always'  If there is no such buffer, then temporarily visit the
+          file to determine the value.
+
+NUMBER    Like `always', but don't visit files larger than NUMBER
+          bytes."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-diff
+  :type '(choice (const :tag "Never" nil)
+                 (const :tag "If file-visiting buffer exists" t)
+                 (const :tag "... or file isn't larger than bytes" all)
+                 (const :tag "Always" always)))
+
 (defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.
 See `magit-diff-highlight-trailing',
@@ -2366,7 +2394,9 @@ are highlighted."
         (goto-char (magit-section-start section))
         (let ((end (magit-section-end section))
               (merging (looking-at "@@@"))
-              (stage nil))
+              (stage nil)
+              (tab-width (magit-diff-tab-width
+                          (magit-section-parent-value section))))
           (forward-line)
           (while (< (point) end)
             (when (and magit-diff-hide-trailing-cr-characters
@@ -2387,25 +2417,52 @@ are highlighted."
                              (`(">" nil) nil)))
                'magit-diff-conflict-heading)
               ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
-               (magit-diff-paint-tab merging)
+               (magit-diff-paint-tab merging tab-width)
                (magit-diff-paint-whitespace merging)
                (or stage
                    (if highlight 'magit-diff-added-highlight 'magit-diff-added)))
               ((looking-at (if merging "^\\(-\\| -\\)" "^-"))
-               (magit-diff-paint-tab merging)
+               (magit-diff-paint-tab merging tab-width)
                (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
               (t
-               (magit-diff-paint-tab merging)
+               (magit-diff-paint-tab merging tab-width)
                (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
             (forward-line))))))
   (magit-diff-update-hunk-refinement section))
 
-(defun magit-diff-paint-tab (merging)
+(defvar magit-diff--tab-width-cache nil)
+
+(defun magit-diff-tab-width (file)
+  (setq file (expand-file-name file))
+  (cl-flet ((cache (value)
+                   (setf (alist-get file magit-diff--tab-width-cache
+                                    nil nil #'equal)
+                         value)))
+    (let (buf)
+      (cond
+       ((not magit-diff-adjust-tab-width)
+        tab-width)
+       ((setq buf (find-buffer-visiting file))
+        (with-current-buffer buf
+          (cache tab-width)))
+       ((--when-let (assoc file magit-diff--tab-width-cache)
+          (or (cdr it)
+              tab-width)))
+       ((or (eq magit-diff-adjust-tab-width 'always)
+            (>= magit-diff-adjust-tab-width
+                (file-attribute-size (file-attributes file))))
+        (with-current-buffer (setq buf (find-file-noselect file))
+          (cache tab-width)))
+       (t
+        (cache nil)
+        tab-width)))))
+
+(defun magit-diff-paint-tab (merging width)
   (save-excursion
     (forward-char (if merging 2 1))
     (while (= (char-after) ?\t)
       (put-text-property (point) (1+ (point))
-                         'display (list (list 'space :width tab-width)))
+                         'display (list (list 'space :width width)))
       (forward-char))))
 
 (defun magit-diff-paint-whitespace (merging)
