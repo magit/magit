@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-315-g96cb64e6b+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-319-g25272af4a+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-315-g96cb64e6b+1).
+This manual is for Magit version 2.11.0 (2.11.0-319-g25272af4a+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -2765,6 +2765,28 @@ without having to using one of the diff popups.
   - ~nil~ never show fine differences.
   - ~t~ show fine differences for the current diff hunk only.
   - ~all~ show fine differences for all displayed diff hunks.
+
+- User Option: magit-diff-adjust-tab-width
+
+  Whether to adjust the width of tabs in diffs.
+
+  Determining the correct width can be expensive if it requires
+  opening large and/or many files, so the widths are cached in the
+  variable ~magit-diff--tab-width-cache~.  Set that to nil to invalidate
+  the cache.
+
+  - ~nil~ Never ajust tab width.  Use `tab-width's value from them Magit
+    buffer itself instead.
+
+  - ~t~ If the corresponding file-visiting buffer exits, then use
+    ~tab-width~'s value from that buffer.  Doing this is cheap, so this
+    value is used even if a corresponding cache entry exists.
+
+  - ~always~ If there is no such buffer, then temporarily visit the file
+    to determine the value.
+
+  - NUMBER Like ~always~, but don't visit files larger than NUMBER
+    bytes.
 
 - User Option: magit-diff-paint-whitespace
 

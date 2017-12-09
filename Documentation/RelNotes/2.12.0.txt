@@ -225,6 +225,13 @@ Changes since v2.11.0
     (define-key magit-hunk-section-map (kbd "SPC")
       'magit-diff-visit-file-other-window)
 
+* The widths of tabs in diffs can now be adjusted to match the widths
+  that would be used in the corresponing file-visiting buffers.  This
+  is disabled by default because it can be expensive to determine the
+  appropriate values (and also unnecessary when using spaces for
+  intendation).  Use the new option `magit-diff-adjust-tab-width' to
+  control if and when the tab widths should be adjusted.  #2929
+
 Fixes since v2.11.0
 -------------------
 

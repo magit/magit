@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-315-g96cb64e6b+1)
+@subtitle for version 2.11.0 (2.11.0-319-g25272af4a+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-315-g96cb64e6b+1).
+This manual is for Magit version 2.11.0 (2.11.0-319-g25272af4a+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -3790,6 +3790,38 @@ Whether to show word-granularity differences within diff hunks.
 
 @item
 @code{all} show fine differences for all displayed diff hunks.
+@end itemize
+@end defopt
+
+@defopt magit-diff-adjust-tab-width
+
+Whether to adjust the width of tabs in diffs.
+
+Determining the correct width can be expensive if it requires
+opening large and/or many files, so the widths are cached in the
+variable @code{magit-diff--tab-width-cache}.  Set that to nil to invalidate
+the cache.
+
+@itemize
+@item
+@code{nil} Never ajust tab width.  Use `tab-width's value from them Magit
+buffer itself instead.
+
+
+@item
+@code{t} If the corresponding file-visiting buffer exits, then use
+@code{tab-width}'s value from that buffer.  Doing this is cheap, so this
+value is used even if a corresponding cache entry exists.
+
+
+@item
+@code{always} If there is no such buffer, then temporarily visit the file
+to determine the value.
+
+
+@item
+NUMBER Like @code{always}, but don't visit files larger than NUMBER
+bytes.
 @end itemize
 @end defopt
 
