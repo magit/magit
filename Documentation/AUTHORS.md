@@ -92,9 +92,11 @@ Contributors
 - Daniel Brockman <daniel@gointeractive.se>
 - Daniel Farina <drfarina@acm.org>
 - Daniel Hackney <dan@haxney.org>
+- Daniel Mai <daniel@danielmai.net>
 - Dan LaManna <dan.lamanna@gmail.com>
 - Dato Simó <dato@net.com.org.es>
 - David Abrahams <dave@boostpro.com>
+- David Ellison <davide@voicebox.com>
 - David Hull <david.hull@openx.com>
 - David L. Rager <ragerdl@gmail.com>
 - David Wallin <david.wallin@gmail.com>
@@ -176,6 +178,7 @@ Contributors
 - Mark Hepburn <Mark.Hepburn@csiro.au>
 - Mark Karpov <markkarpov@opmbx.org>
 - Mark Oteiza <mvoteiza@udel.edu>
+- Matthew Fluet <matthew.fluet@gmail.com>
 - Matthieu Hauglustaine <matt.hauglustaine@gmail.com>
 - Matus Goljer <dota.keys@gmail.com>
 - Michael Fogleman <michaelwfogleman@gmail.com>
