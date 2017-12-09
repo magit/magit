@@ -2435,9 +2435,13 @@ are highlighted."
 (defun magit-diff-tab-width (file)
   (setq file (expand-file-name file))
   (cl-flet ((cache (value)
-                   (setf (alist-get file magit-diff--tab-width-cache
-                                    nil nil #'equal)
-                         value)))
+                   (let ((elt (assoc file magit-diff--tab-width-cache)))
+                     (if elt
+                         (setcdr elt value)
+                       (setq magit-diff--tab-width-cache
+                             (cons (cons file value)
+                                   magit-diff--tab-width-cache))))
+                   value))
     (let (buf)
       (cond
        ((not magit-diff-adjust-tab-width)
