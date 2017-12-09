@@ -1154,8 +1154,8 @@ option `magit-display-file-buffer-function'.  Non-interactively
 the optional OTHER-WINDOW argument is taken literally.
 
 The optional FORCE-WORKTREE means to force visiting the worktree
-version of the file in the worktree.  To do this interactively us
-the command `magit-diff-visit-file-worktree' instead."
+version of the file.  To do this interactively use the command
+`magit-diff-visit-file-worktree' instead."
   (interactive (list (--if-let (magit-file-at-point)
                          (expand-file-name it)
                        (user-error "No file at point"))
