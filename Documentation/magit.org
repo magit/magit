@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-319-g25272af4a+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-321-g4d5bc68e+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-319-g25272af4a+1).
+This manual is for Magit version 2.11.0 (2.11.0-321-g4d5bc68e+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -904,8 +904,7 @@ the following commands.
   Move to the beginning of the parent of the current section.
 
 The above commands all call the hook ~magit-section-movement-hook~.
-And, except for the second, the below functions are all members of
-that hook's default value.
+Any of the functions listed below can be used as members of this hook.
 
 - Variable: magit-section-movement-hook
 
@@ -916,7 +915,7 @@ that hook's default value.
 
   This hook function ensures that the beginning of the current section
   is visible, provided it is a ~hunk~ section.  Otherwise, it does
-  nothing.
+  nothing.  This function is a member of the hook's default value.
 
 - Function: magit-section-set-window-start
 
@@ -929,13 +928,15 @@ that hook's default value.
 
   This hook function only has an effect in log buffers, and ~point~ is
   on the "show more" section.  If that is the case, then it doubles
-  the number of commits that are being shown.
+  the number of commits that are being shown.  This function is a
+  member of the hook's default value.
 
 - Function: magit-log-maybe-update-revision-buffer
 
   When moving inside a log buffer, then this function updates the
   revision buffer, provided it is already being displayed in another
-  window of the same frame.
+  window of the same frame.  This function is a member of the hook's
+  default value.
 
 - Function: magit-log-maybe-update-blob-buffer
 
