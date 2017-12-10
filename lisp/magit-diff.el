@@ -2442,25 +2442,24 @@ are highlighted."
                              (cons (cons file value)
                                    magit-diff--tab-width-cache))))
                    value))
-    (let (buf)
-      (cond
-       ((not magit-diff-adjust-tab-width)
-        tab-width)
-       ((setq buf (find-buffer-visiting file))
-        (with-current-buffer buf
-          (cache tab-width)))
-       ((--when-let (assoc file magit-diff--tab-width-cache)
-          (or (cdr it)
-              tab-width)))
-       ((or (eq magit-diff-adjust-tab-width 'always)
-            (and (numberp magit-diff-adjust-tab-width)
-                 (>= magit-diff-adjust-tab-width
-                     (nth 7 (file-attributes file)))))
-        (with-current-buffer (setq buf (find-file-noselect file))
-          (cache tab-width)))
-       (t
-        (cache nil)
-        tab-width)))))
+    (cond
+     ((not magit-diff-adjust-tab-width)
+      tab-width)
+     ((--when-let (find-buffer-visiting file)
+        (with-current-buffer it
+          (cache tab-width))))
+     ((--when-let (assoc file magit-diff--tab-width-cache)
+        (or (cdr it)
+            tab-width)))
+     ((or (eq magit-diff-adjust-tab-width 'always)
+          (and (numberp magit-diff-adjust-tab-width)
+               (>= magit-diff-adjust-tab-width
+                   (nth 7 (file-attributes file)))))
+      (with-current-buffer (find-file-noselect file)
+        (cache tab-width)))
+     (t
+      (cache nil)
+      tab-width))))
 
 (defun magit-diff-paint-tab (merging width)
   (save-excursion
