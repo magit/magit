@@ -178,7 +178,7 @@ the variable `magit-diff--tab-width-cache'.  Set that to nil
 to invalidate the cache.
 
 nil       Never ajust tab width.  Use `tab-width's value from
-          them Magit buffer itself instead.
+          the Magit buffer itself instead.
 
 t         If the corresponding file-visiting buffer exits, then
           use `tab-width's value from that buffer.  Doing this is
