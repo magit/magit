@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-322-g936fb71c2+1)
+@subtitle for version 2.11.0 (2.11.0-328-gd6a02d1a+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @quotation
-This manual is for Magit version 2.11.0 (2.11.0-322-g936fb71c2+1).
+This manual is for Magit version 2.11.0 (2.11.0-328-gd6a02d1a+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
 
@@ -3805,7 +3805,7 @@ the cache.
 
 @itemize
 @item
-@code{nil} Never ajust tab width.  Use `tab-width's value from them Magit
+@code{nil} Never ajust tab width.  Use `tab-width's value from the Magit
 buffer itself instead.
 
 

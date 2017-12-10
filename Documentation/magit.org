@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-322-g936fb71c2+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-328-gd6a02d1a+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-322-g936fb71c2+1).
+This manual is for Magit version 2.11.0 (2.11.0-328-gd6a02d1a+1).
 
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -2776,7 +2776,7 @@ without having to using one of the diff popups.
   variable ~magit-diff--tab-width-cache~.  Set that to nil to invalidate
   the cache.
 
-  - ~nil~ Never ajust tab width.  Use `tab-width's value from them Magit
+  - ~nil~ Never ajust tab width.  Use `tab-width's value from the Magit
     buffer itself instead.
 
   - ~t~ If the corresponding file-visiting buffer exits, then use
