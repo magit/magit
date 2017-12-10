@@ -2446,8 +2446,7 @@ are highlighted."
      ((not magit-diff-adjust-tab-width)
       tab-width)
      ((--when-let (find-buffer-visiting file)
-        (with-current-buffer it
-          (cache tab-width))))
+        (cache (buffer-local-value 'tab-width it))))
      ((--when-let (assoc file magit-diff--tab-width-cache)
         (or (cdr it)
             tab-width)))
@@ -2455,8 +2454,7 @@ are highlighted."
           (and (numberp magit-diff-adjust-tab-width)
                (>= magit-diff-adjust-tab-width
                    (nth 7 (file-attributes file)))))
-      (with-current-buffer (find-file-noselect file)
-        (cache tab-width)))
+      (cache (buffer-local-value 'tab-width (find-file-noselect file))))
      (t
       (cache nil)
       tab-width))))
