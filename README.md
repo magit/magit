@@ -84,6 +84,11 @@
          alt="Donate monthly using Patreon"
 		 style="height: 50px; width: auto;"
          src="https://magit.vc/assets/patreon-50px.png"></a>
+  &nbsp;&nbsp;
+  <a href="https://liberapay.com/magit">
+     <img title="Donate weekly using Liberapay"
+          alt="Donate weekly using Liberapay"
+          src="https://magit.vc//assets/liberapay.png"></a>
 </div>
 <br>
 <div align="center">
