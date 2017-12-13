@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-328-gd6a02d1a+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-333-g5e999590b+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -21,9 +21,10 @@ Git users to perform almost all of their daily version control tasks
 directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
-#+BEGIN_QUOTE
-This manual is for Magit version 2.11.0 (2.11.0-328-gd6a02d1a+1).
+#+TEXINFO: @noindent
+This manual is for Magit version 2.11.0 (2.11.0-333-g5e999590b+1).
 
+#+BEGIN_QUOTE
 Copyright (C) 2015-2017 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
