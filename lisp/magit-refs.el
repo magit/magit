@@ -456,7 +456,8 @@ line is inserted at all."
       (magit-insert-heading
         (let ((pull (magit-get "remote" remote "url"))
               (push (magit-get "remote" remote "pushurl")))
-          (format "%s (%s):" (capitalize remote)
+          (format (propertize "Remote %s (%s):" 'face 'magit-section-heading)
+                  (propertize remote 'face 'magit-branch-remote)
                   (concat pull (and pull push ", ") push))))
       (dolist (line (magit-git-lines "for-each-ref" "--format=\
 %(symref:short)%00%(refname:short)%00%(objectname:short)%00%(subject)"
