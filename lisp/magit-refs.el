@@ -73,6 +73,15 @@ To change the value in an existing buffer use the command
 (put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 (put 'magit-refs-show-commit-count 'permanent-local t)
 
+(defcustom magit-refs-show-remote-prefix nil
+  "Whether to show the remote prefix in lists of remote branches.
+
+This is redundant because the name of the remote is already shown
+in the heading preceeding the list of its branches."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-refs
+  :type 'boolean)
+
 (defcustom magit-refs-margin
   (list nil
         (nth 1 magit-log-margin)
@@ -469,12 +478,14 @@ line is inserted at all."
               (magit-insert-symref branch symref 'magit-branch-remote)
             (magit-insert-branch
              branch magit-refs-remote-branch-format nil
-             'magit-branch-remote hash message))))
+             'magit-branch-remote hash message nil nil nil
+             (and (not magit-refs-show-remote-prefix)
+                  (1+ (length remote)))))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
 
 (defun magit-insert-branch (branch format &optional current face hash
-                                   message upstream uref utrack)
+                                   message upstream uref utrack substring)
   "For internal use, don't add to a hook."
   (unless magit-refs-show-commit-count
     (setq format (replace-regexp-in-string "%[0-9]\\([cC]\\)" "%1\\1" format t)))
@@ -482,15 +493,15 @@ line is inserted at all."
       (magit-insert-section it (branch branch t)
         (magit-insert-branch-1 it branch format
                                current face hash message
-                               upstream uref utrack))
+                               upstream uref utrack substring))
     (magit-insert-section it (commit (magit-rev-parse "HEAD") t)
       (magit-insert-branch-1 it nil format
                              current face hash message
-                             upstream uref utrack))))
+                             upstream uref utrack substring))))
 
 (defun magit-insert-branch-1
     (section branch format current face
-             &optional hash message upstream uref utrack)
+             &optional hash message upstream uref utrack substring)
   "For internal use, don't add to a hook."
   (let* ((focus (car magit-refresh-args))
          (head  (or focus "HEAD"))
@@ -506,6 +517,8 @@ line is inserted at all."
                                  (if (string-prefix-p "refs/heads/" uref)
                                      'magit-branch-local
                                    'magit-branch-remote))))
+    (when (and substring branch)
+      (setq branch (substring branch substring)))
     (magit-insert-heading
       (format-spec
        format

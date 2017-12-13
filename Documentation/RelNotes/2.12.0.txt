@@ -232,6 +232,11 @@ Changes since v2.11.0
   intendation).  Use the new option `magit-diff-adjust-tab-width' to
   control if and when the tab widths should be adjusted.  #2929
 
+* In the references buffer the remote part of the branch names are now
+  hidden in the remote specific lists of branches by default, which is
+  done to preserves space.  The option `magit-refs-show-remote-prefix'
+  can be used to revert this change.
+
 Fixes since v2.11.0
 -------------------
 
