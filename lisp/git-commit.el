@@ -740,7 +740,32 @@ Added to `font-lock-extend-region-functions'."
               (2 'git-commit-comment-file t)))))
 
 (defconst git-commit-font-lock-keywords-3
-  `(,@git-commit-font-lock-keywords-2))
+  `(,@git-commit-font-lock-keywords-2
+    ;; More comments
+    (eval
+     ;; Your branch is ahead of 'master' by 3 commits.
+     ;; Your branch is behind 'master' by 2 commits, and can be fast-forwarded.
+     . `(,(format
+           "^%s Your branch is \\(?:ahead\\|behind\\) of '%s' by \\([0-9]*\\)"
+           comment-start git-commit--branch-name-regexp)
+         (1 'git-commit-comment-branch-local t)
+         (2 'git-commit-comment-branch-remote t)
+         (3 'bold t)))
+    (eval
+     ;; Your branch is up to date with 'master'.
+     ;; Your branch and 'master' have diverged,
+     . `(,(format
+           "^%s Your branch \\(?:is up-to-date with\\|and\\) '%s'"
+           comment-start git-commit--branch-name-regexp)
+         (1 'git-commit-comment-branch-local t)
+         (2 'git-commit-comment-branch-remote t)))
+    (eval
+     ;; and have 1 and 2 different commits each, respectively.
+     . `(,(format
+           "^%s and have \\([0-9]*\\) and \\([0-9]*\\) commits each"
+           comment-start)
+         (1 'bold t)
+         (2 'bold t)))))
 
 (defvar git-commit-font-lock-keywords git-commit-font-lock-keywords-2
   "Font-Lock keywords for Git-Commit mode.")
