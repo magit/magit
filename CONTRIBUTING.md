@@ -8,7 +8,8 @@ Code contributions
 
 If you have some code which you would like to be merged, then open a
 [pull request][pulls].  Please create atomic commits with descriptive
-commit messages.
+commit messages and use a dedicated feature branch (`b s` might help
+with the latter).
 
 Documentation contributions
 ===========================
