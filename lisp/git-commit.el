@@ -323,7 +323,7 @@ This is only used if Magit is available."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-action
-  '((t :inherit git-commit-comment-branch-local))
+  '((t :inherit bold))
   "Face used for actions in commit message comments."
   :group 'git-commit-faces)
 
