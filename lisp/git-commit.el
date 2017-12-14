@@ -654,15 +654,6 @@ With a numeric prefix ARG, go forward ARG comments."
 
 ;;; Font-Lock
 
-(defconst git-commit-comment-headings
-  '("Changes to be committed:"
-    "Untracked files:"
-    "Changed but not updated:"
-    "Changes not staged for commit:"
-    "Unmerged paths:"
-    "Author:"
-    "Date:"))
-
 (defun git-commit-summary-regexp ()
   (concat
    ;; Leading empty lines and comments
@@ -685,6 +676,15 @@ Added to `font-lock-extend-region-functions'."
                     (< summary-beg font-lock-end summary-end))
             (setq font-lock-beg (min font-lock-beg summary-beg))
             (setq font-lock-end (max font-lock-end summary-end))))))))
+
+(defconst git-commit-comment-headings
+  '("Changes to be committed:"
+    "Untracked files:"
+    "Changed but not updated:"
+    "Changes not staged for commit:"
+    "Unmerged paths:"
+    "Author:"
+    "Date:"))
 
 (defun git-commit-mode-font-lock-keywords ()
   `(;; Comments
