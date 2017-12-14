@@ -114,6 +114,7 @@
 
 (require 'dash)
 (require 'log-edit)
+(require 'magit-git nil t)
 (require 'magit-utils nil t)
 (require 'ring)
 (require 'server)
@@ -128,6 +129,8 @@
 (defvar font-lock-end)
 
 (declare-function magit-expand-git-file-name 'magit-git)
+(declare-function magit-list-local-branch-names 'magit-git)
+(declare-function magit-list-remote-branch-names 'magit-git)
 
 ;;; Options
 ;;;; Variables
@@ -286,13 +289,26 @@ already using it, then you probably shouldn't start doing so."
   "Face used for the keywords of known pseudo headers in commit messages."
   :group 'git-commit-faces)
 
-(defface git-commit-comment-branch
-  '((t :inherit font-lock-variable-name-face))
-  "Face used for branch names in commit message comments."
+(defface git-commit-comment-branch-local
+  (if (featurep 'magit)
+      '((t :inherit magit-branch-local))
+    '((t :inherit font-lock-variable-name-face)))
+  "Face used for names of local branches in commit message comments."
+  :group 'git-commit-faces)
+
+(define-obsolete-face-alias 'git-commit-comment-branch
+  'git-commit-comment-branch-local "Git-Commit 2.12.0")
+
+(defface git-commit-comment-branch-remote
+  (if (featurep 'magit)
+      '((t :inherit magit-branch-remote))
+    '((t :inherit font-lock-variable-name-face)))
+  "Face used for names of remote branches in commit message comments.
+This is only used if Magit is available."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-detached
-  '((t :inherit git-commit-comment-branch))
+  '((t :inherit git-commit-comment-branch-local))
   "Face used for detached `HEAD' in commit message comments."
   :group 'git-commit-faces)
 
@@ -307,7 +323,7 @@ already using it, then you probably shouldn't start doing so."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-action
-  '((t :inherit git-commit-comment-branch))
+  '((t :inherit git-commit-comment-branch-local))
   "Face used for actions in commit message comments."
   :group 'git-commit-faces)
 
@@ -677,6 +693,8 @@ Added to `font-lock-extend-region-functions'."
             (setq font-lock-beg (min font-lock-beg summary-beg))
             (setq font-lock-end (max font-lock-end summary-end))))))))
 
+(defvar-local git-commit--branch-name-regexp nil)
+
 (defconst git-commit-comment-headings
   '("Changes to be committed:"
     "Untracked files:"
@@ -711,7 +729,7 @@ Added to `font-lock-extend-region-functions'."
     (eval . `(,(format "^%s.*" comment-start)
               (0 'font-lock-comment-face)))
     (eval . `(,(format "^%s On branch \\(.*\\)" comment-start)
-              (1 'git-commit-comment-branch t)))
+              (1 'git-commit-comment-branch-local t)))
     (eval . `(,(format "^%s Not currently on any branch." comment-start)
               (1 'git-commit-comment-detached t)))
     (eval . `(,(format "^%s %s" comment-start
@@ -743,6 +761,13 @@ Added to `font-lock-extend-region-functions'."
   (setq-local comment-start-skip (format "^%s+[\s\t]*" comment-start))
   (setq-local comment-end-skip "\n")
   (setq-local comment-use-syntax nil)
+  (setq-local git-commit--branch-name-regexp
+              (if (featurep 'magit-git)
+                  ;; Font-Lock wants every submatch to succeed.
+                  (format "\\(%s\\|\\)\\(%s\\|\\)"
+                          (regexp-opt (magit-list-local-branch-names))
+                          (regexp-opt (magit-list-remote-branch-names)))
+                "\\([^']*\\)"))
   (setq-local font-lock-multiline t)
   (add-hook 'font-lock-extend-region-functions
             #'git-commit-extend-region-summary-line
