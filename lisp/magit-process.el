@@ -609,8 +609,7 @@ Magit status buffer."
               (magit-refresh))
           (with-temp-buffer
             (setq default-directory (process-get process 'default-dir))
-            (magit-refresh)))))
-    (force-mode-line-update t)))
+            (magit-refresh)))))))
 
 (defun magit-sequencer-process-sentinel (process event)
   "Special sentinel used by `magit-run-git-sequencer'."
