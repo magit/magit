@@ -687,20 +687,7 @@ Added to `font-lock-extend-region-functions'."
     "Date:"))
 
 (defconst git-commit-font-lock-keywords-1
-  '(;; Comments
-    (eval . `(,(format "^%s.*" comment-start)
-              (0 'font-lock-comment-face)))
-    (eval . `(,(format "^%s On branch \\(.*\\)" comment-start)
-              (1 'git-commit-comment-branch t)))
-    (eval . `(,(format "^%s Not currently on any branch." comment-start)
-              (1 'git-commit-comment-detached t)))
-    (eval . `(,(format "^%s %s" comment-start
-                       (regexp-opt git-commit-comment-headings t))
-              (1 'git-commit-comment-heading t)))
-    (eval . `(,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
-              (1 'git-commit-comment-action t t)
-              (2 'git-commit-comment-file t)))
-    ;; Pseudo headers
+  '(;; Pseudo headers
     (eval . `(,(format "^\\(%s:\\)\\( .*\\)"
                        (regexp-opt git-commit-known-pseudo-headers))
               (1 'git-commit-known-pseudo-header)
@@ -718,7 +705,26 @@ Added to `font-lock-extend-region-functions'."
               (2 'git-commit-overlong-summary t t)
               (3 'git-commit-nonempty-second-line t t)))))
 
-(defvar git-commit-font-lock-keywords git-commit-font-lock-keywords-1
+(defconst git-commit-font-lock-keywords-2
+  `(,@git-commit-font-lock-keywords-1
+    ;; Comments
+    (eval . `(,(format "^%s.*" comment-start)
+              (0 'font-lock-comment-face)))
+    (eval . `(,(format "^%s On branch \\(.*\\)" comment-start)
+              (1 'git-commit-comment-branch t)))
+    (eval . `(,(format "^%s Not currently on any branch." comment-start)
+              (1 'git-commit-comment-detached t)))
+    (eval . `(,(format "^%s %s" comment-start
+                       (regexp-opt git-commit-comment-headings t))
+              (1 'git-commit-comment-heading t)))
+    (eval . `(,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
+              (1 'git-commit-comment-action t t)
+              (2 'git-commit-comment-file t)))))
+
+(defconst git-commit-font-lock-keywords-3
+  `(,@git-commit-font-lock-keywords-2))
+
+(defvar git-commit-font-lock-keywords git-commit-font-lock-keywords-2
   "Font-Lock keywords for Git-Commit mode.")
 
 (defun git-commit-setup-font-lock ()
