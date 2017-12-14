@@ -1935,6 +1935,13 @@ or a ref which is not a branch, then it inserts nothing."
   (when (equal (magit-object-type rev) "tag")
     (magit-insert-section (taginfo)
       (let ((beg (point)))
+        ;; "git verify-tag -v" would output what we need, but the gpg
+        ;; output is send to stderr and we have no control over the
+        ;; order in which stdout and stderr are inserted, which would
+        ;; make parsing hard.  We are forced to use "git cat-file tag"
+        ;; instead, which inserts the signature instead of verifying
+        ;; it.  We remove that later and then insert the verification
+        ;; output using "git verify-tag" (without the "-v").
         (magit-git-insert "cat-file" "tag" rev)
         (goto-char beg)
         (forward-line 3)
@@ -1946,7 +1953,14 @@ or a ref which is not a branch, then it inserts nothing."
         (magit-delete-line)
         (insert (propertize heading 'face 'magit-section-secondary-heading)))
       (magit-insert-heading)
-      (goto-char (point-max))
+      (if (re-search-forward "-----BEGIN PGP SIGNATURE-----" nil t)
+          (progn
+            (let ((beg (match-beginning 0)))
+              (re-search-forward "-----END PGP SIGNATURE-----")
+              (delete-region beg (point)))
+            (insert ?\n)
+            (process-file magit-git-executable nil t nil "verify-tag" rev))
+        (goto-char (point-max)))
       (insert ?\n))))
 
 (defvar magit-commit-message-section-map
