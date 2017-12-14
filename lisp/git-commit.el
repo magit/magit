@@ -296,6 +296,12 @@ already using it, then you probably shouldn't start doing so."
   "Face used for detached `HEAD' in commit message comments."
   :group 'git-commit-faces)
 
+(defface git-commit-comment-hash
+  '((((class color) (background light)) :foreground "grey60" :weight bold)
+    (((class color) (background  dark)) :foreground "grey40" :weight bold))
+  "Face used for commit hashes in commit message comments."
+  :group 'git-commit-faces)
+
 (defface git-commit-comment-heading
   '((t :inherit git-commit-known-pseudo-header))
   "Face used for headings in commit message comments."
@@ -309,6 +315,11 @@ already using it, then you probably shouldn't start doing so."
 (defface git-commit-comment-action
   '((t :inherit git-commit-comment-branch))
   "Face used for actions in commit message comments."
+  :group 'git-commit-faces)
+
+(defface git-commit-comment-number
+  '((t :weight bold))
+  "Face used for numbers in commit message comments."
   :group 'git-commit-faces)
 
 ;;; Keymap
@@ -470,7 +481,10 @@ already using it, then you probably shouldn't start doing so."
   (add-hook 'font-lock-extend-region-functions
             #'git-commit-extend-region-summary-line
             t t)
-  (font-lock-add-keywords nil (git-commit-mode-font-lock-keywords) t))
+  (font-lock-add-keywords nil
+                          (append (git-commit-font-lock-keywords)
+                                  (git-commit-font-lock-extra-keywords))
+                          t))
 
 (define-minor-mode git-commit-mode
   "Auxiliary minor mode used when editing Git commit messages.
@@ -685,6 +699,11 @@ With a numeric prefix ARG, go forward ARG comments."
     "Author:"
     "Date:"))
 
+(defcustom git-commit-font-lock-extra-hook
+  (list 'git-commit-font-lock-actions 'git-commit-font-lock-rebase-command)
+  "Functions that add extra keywords for git-commit's font-lock."
+  :group 'git-commit)
+
 (defun git-commit-summary-regexp ()
   (concat
    ;; Leading empty lines and comments
@@ -708,20 +727,62 @@ Added to `font-lock-extend-region-functions'."
             (setq font-lock-beg (min font-lock-beg summary-beg))
             (setq font-lock-end (max font-lock-end summary-end))))))))
 
-(defun git-commit-mode-font-lock-keywords ()
+(defun git-commit-font-lock-keywords ()
   `(;; Comments
     (,(format "^%s.*" comment-start)
      (0 'font-lock-comment-face))
+    ;; Branch descriptions
     (,(format "^%s On branch \\(.*\\)" comment-start)
      (1 'git-commit-comment-branch t))
+    (,(format
+       "^%s Your branch \\(is up-to-date with\\|and\\) '\\([^']*\\)'"
+       comment-start)
+     (2 'git-commit-comment-branch t))
+    (,(format
+       "^%s Your branch \\(is ahead of\\|is behind\\) '\\([^']*\\)' by \\([0-9]+\\)"
+       comment-start)
+     (2 'git-commit-comment-branch t)
+     (3 'git-commit-comment-number t))
+    (,(format "^%s and have \\([0-9]+\\) and \\([0-9]+\\) different commits each"
+              comment-start)
+     (1 'git-commit-comment-number t)
+     (2 'git-commit-comment-number t))
     (,(format "^%s Not currently on any branch." comment-start)
      (1 'git-commit-comment-detached t))
+    ;; Squash comments
+    (,(format "^%s This is a combination of \\([0-9]+\\) commits?." comment-start)
+     (1 'git-commit-comment-number t))
+    (,(format "^%s The \\(first\\) commit's message is:" comment-start)
+     (1 'git-commit-comment-number t))
+    (,(format                           ; removed in Git 2.10
+       "^%s This is the \\([0-9]+\\(?:st\\|nd\\|rd\\|th\\)\\)" comment-start)
+     (1 'git-commit-comment-number t))
+    (,(format "^%s This is the commit message \\(#[0-9]+\\):" comment-start)
+     (1 'git-commit-comment-number t))
+    (,(format "^%s interactive rebase in progress; onto \\([[:xdigit:]]+\\)"
+              comment-start)
+     (1 'git-commit-comment-hash t))
+    (,(format (concat "^%s You are currently editing a commit while rebasing branch "
+                      "'\\([^']*\\)' on '\\([[:xdigit:]]+\\)'.")
+              comment-start)
+     (1 'git-commit-comment-branch t)
+     (2 'git-commit-comment-hash t))
+    (,(format
+       "^%s \\(\\(?:Last commands? done\\|Next commands? to do\\) (\\([0-9]+\\) .*:\\)"
+       comment-start)
+     (1 'git-commit-comment-heading t)
+     (2 'git-commit-comment-number t))
+    ;; Fixup comments
+    (,(format                           ; removed in Git 2.10
+       "^%s The \\([0-9]+\\(?:st\\|nd\\|rd\\|th\\)\\) commit message will be skipped:"
+       comment-start)
+     (1 'git-commit-comment-number t))
+    (,(format "^%s The commit message \\(#[0-9]+\\) will be skipped:" comment-start)
+     (1 'git-commit-comment-number t))
+    ;; Comment headings
     (,(format "^%s %s" comment-start
               (regexp-opt git-commit-comment-headings t))
      (1 'git-commit-comment-heading t))
-    (,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
-     (1 'git-commit-comment-action t t)
-     (2 'git-commit-comment-file t))
     ;; Pseudo headers
     (,(format "^\\(%s:\\)\\( .*\\)"
               (regexp-opt git-commit-known-pseudo-headers))
@@ -739,6 +800,22 @@ Added to `font-lock-extend-region-functions'."
     (,(git-commit-summary-regexp)
      (2 'git-commit-overlong-summary t t)
      (3 'git-commit-nonempty-second-line t t))))
+
+(defun git-commit-font-lock-extra-keywords ()
+  (apply #'append (mapcar #'funcall git-commit-font-lock-extra-hook)))
+
+(defun git-commit-font-lock-actions ()
+  `((,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
+     (1 'git-commit-comment-action t t)
+     (2 'git-commit-comment-file t))))
+
+(defun git-commit-font-lock-rebase-command ()
+  `((,(format (concat "^%s    \\(pick\\|reword\\|edit\\|squash\\|fixup\\) "
+                      "\\([[:xdigit:]]+\\) \\(.*\\)")
+              comment-start)
+     (1 'font-lock-keyword-face t)
+     (2 'git-commit-comment-hash t)
+     (3 'git-commit-summary t))))
 
 (defun git-commit-propertize-diff ()
   (save-excursion
