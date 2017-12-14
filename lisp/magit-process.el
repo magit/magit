@@ -793,6 +793,7 @@ as argument."
             'tramp-sh-handle-process-file--magit-tramp-process-environment)
 
 (defun magit-process-set-mode-line (program args)
+  "Display the git command (sans arguments) in the mode line."
   (when (equal program magit-git-executable)
     (setq args (nthcdr (length magit-git-global-arguments) args)))
   (let ((str (concat " " (propertize
@@ -800,11 +801,14 @@ as argument."
                           'face 'magit-mode-line-process))))
     (dolist (buf (magit-mode-get-buffers))
       (with-current-buffer buf
-        (setq mode-line-process str)))))
+        (setq mode-line-process str)))
+    (force-mode-line-update t)))
 
 (defun magit-process-unset-mode-line ()
+  "Remove the git command from the mode line."
   (dolist (buf (magit-mode-get-buffers))
-    (with-current-buffer buf (setq mode-line-process nil))))
+    (with-current-buffer buf (setq mode-line-process nil)))
+  (force-mode-line-update t))
 
 (defvar magit-process-error-message-regexps
   (list "^\\*ERROR\\*: Canceled by user$"
