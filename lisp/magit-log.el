@@ -974,9 +974,9 @@ Do not add this to a hook variable."
       (ansi-color-apply-on-region (point-min) (point-max))))
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
-  (let ((magit-log-count 0)
-        (abbrev (magit-abbrev-length)))
-    (magit-wash-sequence (apply-partially 'magit-log-wash-rev style abbrev))
+  (let ((magit-log-count 0))
+    (magit-wash-sequence (apply-partially 'magit-log-wash-rev style
+                                          (magit-abbrev-length)))
     (if (derived-mode-p 'magit-log-mode)
         (when (eq magit-log-count (magit-log-get-commit-limit))
           (magit-insert-section (longer)
