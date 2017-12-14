@@ -517,7 +517,8 @@ back to built-in `completing-read' for now." :error)
 This is similar to `read-string', but
 * empty input is only allowed if DEFAULT-VALUE is non-nil in
   which case that is returned,
-* whitespace is not allowed if NO-WHITESPACE is non-nil,
+* whitespace is not allowed and leading and trailing whitespace is
+  removed automatically if NO-WHITESPACE is non-nil,
 * \": \" is appended to PROMPT, and
 * an invalid DEFAULT-VALUE is silently ignored."
   (when default-value
@@ -529,9 +530,17 @@ This is similar to `read-string', but
          (val (read-from-minibuffer
                (magit-prompt-with-default (concat prompt ": ") default-value)
                initial-input (and no-whitespace magit-minibuffer-local-ns-map)
-               nil history default-value inherit-input-method)))
+               nil history default-value inherit-input-method))
+         (trim (lambda (regexp string)
+                 (save-match-data
+                   (if (string-match regexp string)
+                       (replace-match "" t t string)
+                     string)))))
     (when (and (string= val "") default-value)
       (setq val default-value))
+    (when no-whitespace
+      (setq val (funcall trim "\\`\\(?:[ \t\n\r]+\\)"
+                         (funcall trim "\\(?:[ \t\n\r]+\\)\\'" val))))
     (cond ((string= val "")
            (user-error "Need non-empty input"))
           ((and no-whitespace (string-match-p "[\s\t\n]" val))
