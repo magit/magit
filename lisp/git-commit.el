@@ -114,6 +114,7 @@
 
 (require 'dash)
 (require 'log-edit)
+(require 'magit-git nil t)
 (require 'magit-utils nil t)
 (require 'ring)
 (require 'server)
@@ -128,6 +129,8 @@
 (defvar font-lock-end)
 
 (declare-function magit-expand-git-file-name 'magit-git)
+(declare-function magit-list-local-branch-names 'magit-git)
+(declare-function magit-list-remote-branch-names 'magit-git)
 
 ;;; Options
 ;;;; Variables
@@ -286,13 +289,26 @@ already using it, then you probably shouldn't start doing so."
   "Face used for the keywords of known pseudo headers in commit messages."
   :group 'git-commit-faces)
 
-(defface git-commit-comment-branch
-  '((t :inherit font-lock-variable-name-face))
-  "Face used for branch names in commit message comments."
+(defface git-commit-comment-branch-local
+  (if (featurep 'magit)
+      '((t :inherit magit-branch-local))
+    '((t :inherit font-lock-variable-name-face)))
+  "Face used for names of local branches in commit message comments."
+  :group 'git-commit-faces)
+
+(define-obsolete-face-alias 'git-commit-comment-branch
+  'git-commit-comment-branch-local "Git-Commit 2.12.0")
+
+(defface git-commit-comment-branch-remote
+  (if (featurep 'magit)
+      '((t :inherit magit-branch-remote))
+    '((t :inherit font-lock-variable-name-face)))
+  "Face used for names of remote branches in commit message comments.
+This is only used if Magit is available."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-detached
-  '((t :inherit git-commit-comment-branch))
+  '((t :inherit git-commit-comment-branch-local))
   "Face used for detached `HEAD' in commit message comments."
   :group 'git-commit-faces)
 
@@ -307,7 +323,7 @@ already using it, then you probably shouldn't start doing so."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-action
-  '((t :inherit git-commit-comment-branch))
+  '((t :inherit bold))
   "Face used for actions in commit message comments."
   :group 'git-commit-faces)
 
@@ -449,28 +465,6 @@ already using it, then you probably shouldn't start doing so."
       (open-line 1)))
   (run-hooks 'git-commit-setup-hook)
   (set-buffer-modified-p nil))
-
-(defun git-commit-setup-font-lock ()
-  (let ((table (make-syntax-table (syntax-table))))
-    (when comment-start
-      (modify-syntax-entry (string-to-char comment-start) "." table))
-    (modify-syntax-entry ?#  "." table)
-    (modify-syntax-entry ?\" "." table)
-    (modify-syntax-entry ?\' "." table)
-    (modify-syntax-entry ?`  "." table)
-    (set-syntax-table table))
-  (setq-local comment-start
-              (or (ignore-errors
-                    (car (process-lines "git" "config" "core.commentchar")))
-                  "#"))
-  (setq-local comment-start-skip (format "^%s+[\s\t]*" comment-start))
-  (setq-local comment-end-skip "\n")
-  (setq-local comment-use-syntax nil)
-  (setq-local font-lock-multiline t)
-  (add-hook 'font-lock-extend-region-functions
-            #'git-commit-extend-region-summary-line
-            t t)
-  (font-lock-add-keywords nil (git-commit-mode-font-lock-keywords) t))
 
 (define-minor-mode git-commit-mode
   "Auxiliary minor mode used when editing Git commit messages.
@@ -676,15 +670,6 @@ With a numeric prefix ARG, go forward ARG comments."
 
 ;;; Font-Lock
 
-(defconst git-commit-comment-headings
-  '("Changes to be committed:"
-    "Untracked files:"
-    "Changed but not updated:"
-    "Changes not staged for commit:"
-    "Unmerged paths:"
-    "Author:"
-    "Date:"))
-
 (defun git-commit-summary-regexp ()
   (concat
    ;; Leading empty lines and comments
@@ -708,37 +693,111 @@ Added to `font-lock-extend-region-functions'."
             (setq font-lock-beg (min font-lock-beg summary-beg))
             (setq font-lock-end (max font-lock-end summary-end))))))))
 
-(defun git-commit-mode-font-lock-keywords ()
-  `(;; Comments
-    (,(format "^%s.*" comment-start)
-     (0 'font-lock-comment-face))
-    (,(format "^%s On branch \\(.*\\)" comment-start)
-     (1 'git-commit-comment-branch t))
-    (,(format "^%s Not currently on any branch." comment-start)
-     (1 'git-commit-comment-detached t))
-    (,(format "^%s %s" comment-start
-              (regexp-opt git-commit-comment-headings t))
-     (1 'git-commit-comment-heading t))
-    (,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
-     (1 'git-commit-comment-action t t)
-     (2 'git-commit-comment-file t))
-    ;; Pseudo headers
-    (,(format "^\\(%s:\\)\\( .*\\)"
-              (regexp-opt git-commit-known-pseudo-headers))
-     (1 'git-commit-known-pseudo-header)
-     (2 'git-commit-pseudo-header))
+(defvar-local git-commit--branch-name-regexp nil)
+
+(defconst git-commit-comment-headings
+  '("Changes to be committed:"
+    "Untracked files:"
+    "Changed but not updated:"
+    "Changes not staged for commit:"
+    "Unmerged paths:"
+    "Author:"
+    "Date:"))
+
+(defconst git-commit-font-lock-keywords-1
+  '(;; Pseudo headers
+    (eval . `(,(format "^\\(%s:\\)\\( .*\\)"
+                       (regexp-opt git-commit-known-pseudo-headers))
+              (1 'git-commit-known-pseudo-header)
+              (2 'git-commit-pseudo-header)))
     ("^[-a-zA-Z]+: [^<]+? <[^>]+>"
      (0 'git-commit-pseudo-header))
     ;; Summary
-    (,(git-commit-summary-regexp)
-     (1 'git-commit-summary t))
+    (eval . `(,(git-commit-summary-regexp)
+              (1 'git-commit-summary t)))
     ;; - Note (overrides summary)
     ("\\[.+?\\]"
      (0 'git-commit-note t))
     ;; - Non-empty second line (overrides summary and note)
-    (,(git-commit-summary-regexp)
-     (2 'git-commit-overlong-summary t t)
-     (3 'git-commit-nonempty-second-line t t))))
+    (eval . `(,(git-commit-summary-regexp)
+              (2 'git-commit-overlong-summary t t)
+              (3 'git-commit-nonempty-second-line t t)))))
+
+(defconst git-commit-font-lock-keywords-2
+  `(,@git-commit-font-lock-keywords-1
+    ;; Comments
+    (eval . `(,(format "^%s.*" comment-start)
+              (0 'font-lock-comment-face)))
+    (eval . `(,(format "^%s On branch \\(.*\\)" comment-start)
+              (1 'git-commit-comment-branch-local t)))
+    (eval . `(,(format "^%s \\(HEAD\\) detached at" comment-start)
+              (1 'git-commit-comment-detached t)))
+    (eval . `(,(format "^%s %s" comment-start
+                       (regexp-opt git-commit-comment-headings t))
+              (1 'git-commit-comment-heading t)))
+    (eval . `(,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
+              (1 'git-commit-comment-action t t)
+              (2 'git-commit-comment-file t)))))
+
+(defconst git-commit-font-lock-keywords-3
+  `(,@git-commit-font-lock-keywords-2
+    ;; More comments
+    (eval
+     ;; Your branch is ahead of 'master' by 3 commits.
+     ;; Your branch is behind 'master' by 2 commits, and can be fast-forwarded.
+     . `(,(format
+           "^%s Your branch is \\(?:ahead\\|behind\\) of '%s' by \\([0-9]*\\)"
+           comment-start git-commit--branch-name-regexp)
+         (1 'git-commit-comment-branch-local t)
+         (2 'git-commit-comment-branch-remote t)
+         (3 'bold t)))
+    (eval
+     ;; Your branch is up to date with 'master'.
+     ;; Your branch and 'master' have diverged,
+     . `(,(format
+           "^%s Your branch \\(?:is up-to-date with\\|and\\) '%s'"
+           comment-start git-commit--branch-name-regexp)
+         (1 'git-commit-comment-branch-local t)
+         (2 'git-commit-comment-branch-remote t)))
+    (eval
+     ;; and have 1 and 2 different commits each, respectively.
+     . `(,(format
+           "^%s and have \\([0-9]*\\) and \\([0-9]*\\) commits each"
+           comment-start)
+         (1 'bold t)
+         (2 'bold t)))))
+
+(defvar git-commit-font-lock-keywords git-commit-font-lock-keywords-2
+  "Font-Lock keywords for Git-Commit mode.")
+
+(defun git-commit-setup-font-lock ()
+  (let ((table (make-syntax-table (syntax-table))))
+    (when comment-start
+      (modify-syntax-entry (string-to-char comment-start) "." table))
+    (modify-syntax-entry ?#  "." table)
+    (modify-syntax-entry ?\" "." table)
+    (modify-syntax-entry ?\' "." table)
+    (modify-syntax-entry ?`  "." table)
+    (set-syntax-table table))
+  (setq-local comment-start
+              (or (ignore-errors
+                    (car (process-lines "git" "config" "core.commentchar")))
+                  "#"))
+  (setq-local comment-start-skip (format "^%s+[\s\t]*" comment-start))
+  (setq-local comment-end-skip "\n")
+  (setq-local comment-use-syntax nil)
+  (setq-local git-commit--branch-name-regexp
+              (if (featurep 'magit-git)
+                  ;; Font-Lock wants every submatch to succeed.
+                  (format "\\(%s\\|\\)\\(%s\\|\\)"
+                          (regexp-opt (magit-list-local-branch-names))
+                          (regexp-opt (magit-list-remote-branch-names)))
+                "\\([^']*\\)"))
+  (setq-local font-lock-multiline t)
+  (add-hook 'font-lock-extend-region-functions
+            #'git-commit-extend-region-summary-line
+            t t)
+  (font-lock-add-keywords nil git-commit-font-lock-keywords t))
 
 (defun git-commit-propertize-diff ()
   (save-excursion
