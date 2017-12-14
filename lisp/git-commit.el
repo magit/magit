@@ -730,7 +730,7 @@ Added to `font-lock-extend-region-functions'."
               (0 'font-lock-comment-face)))
     (eval . `(,(format "^%s On branch \\(.*\\)" comment-start)
               (1 'git-commit-comment-branch-local t)))
-    (eval . `(,(format "^%s Not currently on any branch." comment-start)
+    (eval . `(,(format "^%s \\(HEAD\\) detached at" comment-start)
               (1 'git-commit-comment-detached t)))
     (eval . `(,(format "^%s %s" comment-start
                        (regexp-opt git-commit-comment-headings t))
