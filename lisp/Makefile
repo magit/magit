@@ -63,9 +63,11 @@ versionlib: $(PKG)-version.el
 	  (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
 	(fset 'message* (symbol-function 'message))\
-	(fset 'message  (lambda (f &rest a)\
-	                  (unless (equal f \"Wrote %s\")\
-	                    (apply 'message* f a)))))" \
+	(fset 'message\
+	      (lambda (f &rest a)\
+	        (unless (or (equal f \"Wrote %s\")\
+	                    (equal f \"pcase-memoize: equal first branch, yet different\"))\
+	          (apply 'message* f a)))))" \
 	-f batch-byte-compile $<
 
 $(PKG)-autoloads.el: $(ELS)
