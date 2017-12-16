@@ -62,14 +62,7 @@ versionlib: $(PKG)-version.el
 	(when (file-exists-p \"$@\")\
 	  (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
-	(fset 'message* (symbol-function 'message))\
-	(fset 'message\
-	      (lambda (f &rest a)\
-	        (unless (or (equal f \"Wrote %s\")\
-	                    (equal f \"pcase-memoize: equal first branch, yet different\")\
-	                    (and (equal f \"Warning: Unknown defun property \`%S' in %S\")\
-	                         (memq (car a) '(pure side-effect-free interactive-only))))\
-	          (apply 'message* f a)))))" \
+	$$suppress_warnings)" \
 	-f batch-byte-compile $<
 
 $(PKG)-autoloads.el: $(ELS)
