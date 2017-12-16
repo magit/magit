@@ -21,15 +21,26 @@ dir: magit.info
 	@printf "Generating dir\n"
 	@echo $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
 
+HTML_FIXUP_CSS    = '/<link rel="stylesheet" type="text\/css" href="\/assets\/page.css">/a\
+<link class="s-css-s--style" rel="stylesheet"           title="Default"               href="/assets/themes/default.css">\
+\n<link class="s-css-s--style" rel="stylesheet alternate" title="Default high contrast" href="/assets/themes/default-high-contrast.css">\
+\n<link class="s-css-s--style" rel="stylesheet alternate" title="Solarized dark xterm"  href="/assets/themes/solarized-dark-xterm.css">\
+\n<link class="s-css-s--style" rel="stylesheet alternate" title="Black on white"        href="/assets/themes/black-on-white.css">\
+\n<script src="/assets/js/simple-css-switch.js"></script>'
+HTML_FIXUP_ONLOAD = 's/<body lang="en">/<body lang="en" onload="simpleCssSwitch()">/'
+HTML_FIXUP_MENU   = '/<\/body>/i<div id="s-css-s--menu"><\/div>'
+
 %.html: %.texi
 	@printf "Generating $@\n"
 	@$(MAKEINFO) --html --no-split $(MANUAL_HTML_ARGS) $<
-	@./fixup-html.sh $@
+	@sed -i -e $(HTML_FIXUP_CSS) -e $(HTML_FIXUP_ONLOAD) -e $(HTML_FIXUP_MENU) $@
 
 html-dir: $(TEXIFILES)
 	@printf "Generating magit/*.html\n"
 	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit.texi
-	@./fixup-html.sh magit
+	@for f in $$(find magit -name '*.html') ; do \
+	sed -i -e $(HTML_FIXUP_CSS) -e $(HTML_FIXUP_ONLOAD) -e $(HTML_FIXUP_MENU) $$f ; \
+	done
 
 %.pdf: %.texi
 	@printf "Generating $@\n"
