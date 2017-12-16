@@ -66,7 +66,9 @@ versionlib: $(PKG)-version.el
 	(fset 'message\
 	      (lambda (f &rest a)\
 	        (unless (or (equal f \"Wrote %s\")\
-	                    (equal f \"pcase-memoize: equal first branch, yet different\"))\
+	                    (equal f \"pcase-memoize: equal first branch, yet different\")\
+	                    (and (equal f \"Warning: Unknown defun property \`%S' in %S\")\
+	                         (memq (car a) '(pure side-effect-free interactive-only))))\
 	          (apply 'message* f a)))))" \
 	-f batch-byte-compile $<
 
