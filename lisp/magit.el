@@ -654,7 +654,7 @@ is run in the top-level directory of the current working tree."
   (let ((dir (abbreviate-file-name
               (if (or toplevel current-prefix-arg)
                   (or (magit-toplevel)
-                      (user-error "Not inside a Git repository"))
+                      (magit--not-inside-repository-error))
                 default-directory))))
     (read-shell-command (if magit-shell-command-verbose-prompt
                             (format "Async shell command in %s: " dir)

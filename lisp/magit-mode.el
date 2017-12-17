@@ -769,7 +769,7 @@ thinking a buffer belongs to a repo that it doesn't.")
           (and create
                (let ((default-directory topdir))
                  (magit-generate-new-buffer mode value))))
-    (user-error "Not inside a Git repository")))
+    (magit--not-inside-repository-error)))
 
 (defun magit-generate-new-buffer (mode &optional value)
   (let* ((name (funcall magit-generate-buffer-name-function mode value))

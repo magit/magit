@@ -153,7 +153,7 @@ is no file at point, then instead visit `default-directory'."
                (let ((default-directory topdir))
                  (mapcar #'file-relative-name files)))
          magit-log-buffer-file-locked))
-    (user-error "Not inside a Git repository")))
+    (magit--not-inside-repository-error)))
 
 ;;;###autoload
 (defun magit-do-async-shell-command (file)

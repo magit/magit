@@ -519,7 +519,13 @@ returning the truename."
        (if ,toplevel
            (let ((default-directory ,toplevel))
              ,@body)
-         (error "Not inside a Git repository: %s" default-directory)))))
+         (magit--not-inside-repository-error)))))
+
+(defun magit--not-inside-repository-error ()
+  (if (executable-find magit-git-executable)
+      (user-error "Not inside a Git repository: %s" default-directory)
+    (user-error "The `git' executable cannot be found.  See %s"
+                "https://magit.vc/goto/e6a78ed2")))
 
 (defun magit-inside-gitdir-p ()
   "Return t if `default-directory' is below a repository directory."
