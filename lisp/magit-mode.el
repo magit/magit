@@ -1011,6 +1011,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (setq magit-section-highlighted-section nil)
         (setq magit-section-highlighted-sections nil)
         (setq magit-section-unhighlight-sections nil)
+        (magit-process-unset-mode-line-error-status)
         (let ((inhibit-read-only t))
           (erase-buffer)
           (save-excursion

@@ -189,6 +189,12 @@ non-nil, then the password is read from the user instead."
   :group 'magit-process
   :type 'boolean)
 
+(defcustom magit-process-display-mode-line-error t
+  "Whether Magit should retain and highlight process errors in the mode line."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-process
+  :type 'boolean)
+
 (defface magit-process-ok
   '((t :inherit magit-section-heading :foreground "green"))
   "Face for zero exit-status."
@@ -202,6 +208,13 @@ non-nil, then the password is read from the user instead."
 (defface magit-mode-line-process
   '((t :inherit mode-line-emphasis))
   "Face for `mode-line-process' status when Git is running for side-effects."
+  :group 'magit-faces)
+
+(defface magit-mode-line-process-error
+  '((t :inherit error))
+  "Face for `mode-line-process' error status.
+
+Used when `magit-process-display-mode-line-error' is non-nil."
   :group 'magit-faces)
 
 ;;; Process Mode
@@ -799,16 +812,69 @@ as argument."
   (let ((str (concat " " (propertize
                           (concat program (and args (concat " " (car args))))
                           'face 'magit-mode-line-process))))
+    (magit-repository-local-set 'mode-line-process str)
     (dolist (buf (magit-mode-get-buffers))
       (with-current-buffer buf
         (setq mode-line-process str)))
     (force-mode-line-update t)))
 
+(declare-function magit-repository-local-repository "magit-mode")
+
+(defun magit-process-set-mode-line-error-status (&optional str)
+  "Apply an error face to the string set by `magit-process-set-mode-line'.
+
+If STR is supplied, it replaces the `mode-line-process' text."
+  (setq str (or str (magit-repository-local-get 'mode-line-process)))
+  (when str
+    (setq str (concat " " (propertize
+                           (substring-no-properties str 1)
+                           'face 'magit-mode-line-process-error)))
+    (magit-repository-local-set 'mode-line-process str)
+    (dolist (buf (magit-mode-get-buffers))
+      (with-current-buffer buf
+        (setq mode-line-process str)))
+    (force-mode-line-update t)
+    ;; We remove any error status from the mode line when a magit
+    ;; buffer is refreshed (see `magit-refresh-buffer'), but we must
+    ;; ensure that we ignore any refreshes during the remainder of the
+    ;; current command -- otherwise a newly-set error status would be
+    ;; removed before it was seen.  We set a flag which prevents the
+    ;; status from being removed prior to the next command, so that
+    ;; the error status is guaranteed to remain visible until then.
+    (let ((repokey (magit-repository-local-repository)))
+      ;; The following closure captures the repokey value, and is
+      ;; added to `pre-command-hook'.
+      (cl-labels ((enable-magit-process-unset-mode-line
+                   () ;; Remove ourself from the hook variable, so
+                      ;; that we only run once.
+                   (remove-hook 'pre-command-hook
+                                #'enable-magit-process-unset-mode-line)
+                   ;; Clear the inhibit flag for the repository in
+                   ;; which we set it.
+                   (magit-repository-local-set
+                    'inhibit-magit-process-unset-mode-line nil repokey)))
+        ;; Set the inhibit flag until the next command is invoked.
+        (magit-repository-local-set
+         'inhibit-magit-process-unset-mode-line t repokey)
+        (add-hook 'pre-command-hook
+                  #'enable-magit-process-unset-mode-line)))))
+
+(defun magit-process-unset-mode-line-error-status ()
+  "Remove any current error status from the mode line."
+  (let ((status (or mode-line-process
+                    (magit-repository-local-get 'mode-line-process))))
+    (when (and status
+               (eq (get-text-property 1 'face status)
+                   'magit-mode-line-process-error))
+      (magit-process-unset-mode-line))))
+
 (defun magit-process-unset-mode-line ()
   "Remove the git command from the mode line."
-  (dolist (buf (magit-mode-get-buffers))
-    (with-current-buffer buf (setq mode-line-process nil)))
-  (force-mode-line-update t))
+  (unless (magit-repository-local-get 'inhibit-magit-process-unset-mode-line)
+    (magit-repository-local-set 'mode-line-process nil)
+    (dolist (buf (magit-mode-get-buffers))
+      (with-current-buffer buf (setq mode-line-process nil)))
+    (force-mode-line-update t)))
 
 (defvar magit-process-error-message-regexps
   (list "^\\*ERROR\\*: Canceled by user$"
@@ -832,7 +898,6 @@ as argument."
     (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
     (with-current-buffer process-buf
-      (magit-process-unset-mode-line)
       (let ((inhibit-read-only t)
             (marker (magit-section-start section)))
         (goto-char marker)
@@ -859,7 +924,13 @@ as argument."
                        (not (--any-p (eq (window-buffer it) buf)
                                      (window-list))))
               (magit-section-hide section)))))))
-  (unless (= arg 0)
+  (if (= arg 0)
+      ;; Unset the `mode-line-process' value upon success.
+      (magit-process-unset-mode-line)
+    ;; Change `mode-line-process' to an error face upon failure.
+    (if magit-process-display-mode-line-error
+        (magit-process-set-mode-line-error-status)
+      (magit-process-unset-mode-line))
     (let ((msg
            (or (and (buffer-live-p process-buf)
                     (with-current-buffer process-buf
