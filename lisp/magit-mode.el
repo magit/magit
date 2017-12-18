@@ -1230,5 +1230,62 @@ Currently `magit-log-mode', `magit-reflog-mode',
                    (float-time (time-subtract (current-time) start))))
       (run-hooks hook))))
 
+(defvar magit-repository-local-cache nil
+  "Alist mapping `magit-toplevel' paths to alists of key/value pairs.")
+
+(defun magit-repository-local-repository ()
+  "Return the key for the current repository."
+  (or (bound-and-true-p magit--default-directory)
+      (magit-toplevel)
+      (magit--not-inside-repository-error)))
+
+(defun magit-repository-local-set (key value &optional repository)
+  "Set the repository-local VALUE for KEY.
+
+KEY should be a symbol, or otherwise comparable by `eq'.
+
+Unless specified, REPOSITORY is the current buffer's repository."
+  (let* ((repokey (or repository (magit-repository-local-repository)))
+         (cache (assoc repokey magit-repository-local-cache)))
+    (if cache
+        (let ((keyvalue (assq key (cdr cache))))
+          (if keyvalue
+              ;; Update pre-existing value for key.
+              (setcdr keyvalue value)
+            ;; No such key in repository-local cache.
+            (push (cons key value) (cdr cache))))
+      ;; No cache for this repository.
+      (push (cons repokey (list (cons key value)))
+            magit-repository-local-cache))))
+
+(defun magit-repository-local-exists-p (key &optional repository)
+  "Non-nil when a repository-local value exists for KEY.
+
+Unless specified, REPOSITORY is the current buffer's repository."
+  (let* ((repokey (or repository (magit-repository-local-repository)))
+         (cache (assoc repokey magit-repository-local-cache)))
+    (and cache
+         (assq key (cdr cache)))))
+
+(defun magit-repository-local-get (key &optional default repository)
+  "Return the repository-local value for KEY.
+
+Return DEFAULT if no value for KEY exists.
+
+Unless specified, REPOSITORY is the current buffer's repository."
+  (let ((keyvalue (magit-repository-local-exists-p key repository)))
+    (if keyvalue
+        (cdr keyvalue)
+      default)))
+
+(defun magit-repository-local-delete (key &optional repository)
+  "Delete the repository-local value for KEY.
+
+Unless specified, REPOSITORY is the current buffer's repository."
+  (let* ((repokey (or repository (magit-repository-local-repository)))
+         (cache (assoc repokey magit-repository-local-cache)))
+    (when cache
+      (setf cache (assq-delete-all key cache)))))
+
 (provide 'magit-mode)
 ;;; magit-mode.el ends here
