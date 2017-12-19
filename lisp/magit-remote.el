@@ -279,7 +279,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 
 (defun magit-cycle-remote*tagOpt (remote)
   (interactive (list (magit-remote-config--remote)))
-  (magit--set-popup-variable (format "remote.%s.tagOpts" remote)
+  (magit--set-popup-variable (format "remote.%s.tagOpt" remote)
                              '("--no-tags" "--tags") nil))
 
 (defun magit-format-remote*url ()
