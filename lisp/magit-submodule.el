@@ -132,7 +132,10 @@ PATH also becomes the name."
    (magit-with-toplevel
      (let* ((url (magit-read-string-ns "Add submodule (remote url)"))
             (path (let ((read-file-name-function
-                         (if (eq read-file-name-function 'ido-read-file-name)
+                         (if (or (eq read-file-name-function 'ido-read-file-name)
+                                 (advice-function-member-p
+                                  'ido-read-file-name
+                                  read-file-name-function))
                              ;; The Ido variant doesn't work properly here.
                              #'read-file-name-default
                            read-file-name-function)))
