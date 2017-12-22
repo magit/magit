@@ -99,6 +99,18 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   :type '(choice (const :tag "Never remove old sections" nil) integer))
 
+(defcustom magit-process-error-tooltip-max-lines 20
+  "The number of lines for `magit-process-error-lines' to return.
+
+These are displayed in a tooltip for `mode-line-process' errors.
+
+If `magit-process-error-tooltip-max-lines' is nil, the tooltip
+displays the text of `magit-process-error-summary' instead."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-process
+  :type '(choice (const :tag "Use summary line" nil)
+                 integer))
+
 (defcustom magit-credential-cache-daemon-socket
   (--some (-let [(prog . args) (split-string it)]
             (if (and prog
@@ -885,6 +897,48 @@ If STR is supplied, it replaces the `mode-line-process' text."
 
 (define-error 'magit-git-error "Git error")
 
+(defun magit-process-error-summary (process-buf section)
+  "A one-line error summary from the given SECTION."
+  (or (and (buffer-live-p process-buf)
+           (with-current-buffer process-buf
+             (and (magit-section-content section)
+                  (save-excursion
+                    (goto-char (magit-section-end section))
+                    (run-hook-wrapped
+                     'magit-process-error-message-regexps
+                     (lambda (re)
+                       (save-excursion
+                         (and (re-search-backward re nil t)
+                              (or (match-string-no-properties 1)
+                                  (and (not magit-process-raise-error)
+                                       'suppressed))))))))))
+      "Git failed"))
+
+(defun magit-process-error-tooltip (process-buf section)
+  "Returns the text from SECTION of the PROCESS-BUF buffer.
+
+Limited by `magit-process-error-tooltip-max-lines'."
+  (and (integerp magit-process-error-tooltip-max-lines)
+       (> magit-process-error-tooltip-max-lines 0)
+       (buffer-live-p process-buf)
+       (with-current-buffer process-buf
+         (save-excursion
+           (goto-char (or (magit-section-content section)
+                          (magit-section-start section)))
+           (buffer-substring-no-properties
+            (point)
+            (save-excursion
+              (forward-line magit-process-error-tooltip-max-lines)
+              (goto-char
+               (if (> (point) (magit-section-end section))
+                   (magit-section-end section)
+                 (point)))
+              ;; Remove any trailing whitespace.
+              (when (re-search-backward "[^[:space:]\n]"
+                                        (magit-section-start section) t)
+                (forward-char 1))
+              (point)))))))
+
 (defvar-local magit-this-error nil)
 
 (defvar magit-process-finish-apply-ansi-colors nil)
@@ -930,25 +984,16 @@ If STR is supplied, it replaces the `mode-line-process' text."
   (if (= arg 0)
       ;; Unset the `mode-line-process' value upon success.
       (magit-process-unset-mode-line)
-    (let ((msg
-           (or (and (buffer-live-p process-buf)
-                    (with-current-buffer process-buf
-                      (and (magit-section-content section)
-                           (save-excursion
-                             (goto-char (magit-section-end section))
-                             (run-hook-wrapped
-                              'magit-process-error-message-regexps
-                              (lambda (re)
-                                (save-excursion
-                                  (and (re-search-backward re nil t)
-                                       (or (match-string-no-properties 1)
-                                           (and (not magit-process-raise-error)
-                                                'suppressed))))))))))
-               "Git failed")))
+    ;; Otherwise process the error.
+    (let ((msg (magit-process-error-summary process-buf section)))
       ;; Change `mode-line-process' to an error face upon failure.
       (if magit-process-display-mode-line-error
-          (magit-process-set-mode-line-error-status msg)
+          (magit-process-set-mode-line-error-status
+           (or (magit-process-error-tooltip process-buf section)
+               msg))
         (magit-process-unset-mode-line))
+      ;; Either signal the error, or else display the error summary in
+      ;; the status buffer and with a message in the echo area.
       (cond
        (magit-process-raise-error
         (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir))))
