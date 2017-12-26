@@ -820,14 +820,17 @@ as argument."
 
 (declare-function magit-repository-local-repository "magit-mode")
 
-(defun magit-process-set-mode-line-error-status (&optional str)
+(defun magit-process-set-mode-line-error-status (&optional error str)
   "Apply an error face to the string set by `magit-process-set-mode-line'.
+
+If ERROR is supplied, include it in the `mode-line-process' tooltip.
 
 If STR is supplied, it replaces the `mode-line-process' text."
   (setq str (or str (magit-repository-local-get 'mode-line-process)))
   (when str
     (setq str (concat " " (propertize
                            (substring-no-properties str 1)
+                           'help-echo error
                            'face 'magit-mode-line-process-error)))
     (magit-repository-local-set 'mode-line-process str)
     (dolist (buf (magit-mode-get-buffers))
@@ -927,10 +930,6 @@ If STR is supplied, it replaces the `mode-line-process' text."
   (if (= arg 0)
       ;; Unset the `mode-line-process' value upon success.
       (magit-process-unset-mode-line)
-    ;; Change `mode-line-process' to an error face upon failure.
-    (if magit-process-display-mode-line-error
-        (magit-process-set-mode-line-error-status)
-      (magit-process-unset-mode-line))
     (let ((msg
            (or (and (buffer-live-p process-buf)
                     (with-current-buffer process-buf
@@ -946,6 +945,10 @@ If STR is supplied, it replaces the `mode-line-process' text."
                                            (and (not magit-process-raise-error)
                                                 'suppressed))))))))))
                "Git failed")))
+      ;; Change `mode-line-process' to an error face upon failure.
+      (if magit-process-display-mode-line-error
+          (magit-process-set-mode-line-error-status msg)
+        (magit-process-unset-mode-line))
       (cond
        (magit-process-raise-error
         (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir))))
