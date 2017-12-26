@@ -817,12 +817,22 @@ as argument."
 (advice-add 'tramp-sh-handle-process-file :around
             'tramp-sh-handle-process-file--magit-tramp-process-environment)
 
+(defvar magit-mode-line-process-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "<mode-line> <mouse-1>")
+      'magit-process-buffer)
+    map)
+  "Keymap for `mode-line-process'.")
+
 (defun magit-process-set-mode-line (program args)
   "Display the git command (sans arguments) in the mode line."
   (when (equal program magit-git-executable)
     (setq args (nthcdr (length magit-git-global-arguments) args)))
   (let ((str (concat " " (propertize
                           (concat program (and args (concat " " (car args))))
+                          'mouse-face 'highlight
+                          'keymap magit-mode-line-process-map
+                          'help-echo "mouse-1: Show process buffer"
                           'face 'magit-mode-line-process))))
     (magit-repository-local-set 'mode-line-process str)
     (dolist (buf (magit-mode-get-buffers))
@@ -840,8 +850,14 @@ If ERROR is supplied, include it in the `mode-line-process' tooltip.
 If STR is supplied, it replaces the `mode-line-process' text."
   (setq str (or str (magit-repository-local-get 'mode-line-process)))
   (when str
+    (setq error (format "%smouse-1: Show process buffer"
+                        (if (stringp error)
+                            (concat error "\n\n")
+                          "")))
     (setq str (concat " " (propertize
                            (substring-no-properties str 1)
+                           'mouse-face 'highlight
+                           'keymap magit-mode-line-process-map
                            'help-echo error
                            'face 'magit-mode-line-process-error)))
     (magit-repository-local-set 'mode-line-process str)
