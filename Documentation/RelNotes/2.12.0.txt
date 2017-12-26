@@ -200,14 +200,26 @@ Changes since v2.11.0
   with `magit-branch-pull-request' or `magit-checkout-pull-request',
   provided that remote has no other tracking branches.  #3134
 
-* Added new face `magit-mode-line-process' which is applied to the
-  mode line process status indicator shown while Git is running for
-  side-effects.  This improves the visibility of pending asynchronous
+* The mode line process indicator, displayed in the mode line when Git
+  is run for side-effects, is now more visible than before, and is
+  additionally used to highlight process errors.
+
+  New face `magit-mode-line-process' is applied to the mode line
+  process indicator to improve the visibility of pending asynchronous
   processes (in particular), as Magit remains responsive after
   initiating such commands (for instance fetching or rebasing), but
   will not update its buffers until the process has completed, which
   might take longer than anticipated.  Customize this face if you wish
   to make this indicator more (or less) visible.  #3284
+
+  If the Git process returns an error, the mode line process indicator
+  is no longer removed, and new face `magit-mode-line-process-error`
+  is applied to highlight the error status.  Details of the error from
+  the process buffer are also provided as a tooltip.  The error
+  indicator will remain visible in the mode line until a magit buffer
+  is refreshed.  If you do not want errors to be indicated in the mode
+  line, customize the `magit-process-display-mode-line-error' user
+  option.  #3297
 
 * When staging and unstaging at the file level and there are arguments
   that cause whitespace differences to be hidden, then apply the
