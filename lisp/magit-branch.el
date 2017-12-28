@@ -522,7 +522,7 @@ that is being reset."
     (setq args (cons "--force" args)))
   (if (equal branch (magit-get-current-branch))
       (if (and (magit-anything-modified-p)
-               (not (yes-or-no-p "Uncommitted changes will be lost.  Proceed?")))
+               (not (yes-or-no-p "Uncommitted changes will be lost.  Proceed? ")))
           (user-error "Abort")
         (magit-reset-hard to)
         (when (and set-upstream (magit-branch-p to))

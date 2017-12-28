@@ -141,7 +141,7 @@ conflicts, including those already resolved by Git, use
          (let ((bufC ediff-buffer-C)
                (bufS smerge-ediff-buf))
            (with-current-buffer bufS
-             (when (yes-or-no-p (format "Conflict resolution finished; save %s?"
+             (when (yes-or-no-p (format "Conflict resolution finished; save %s? "
                                         buffer-file-name))
                (erase-buffer)
                (insert-buffer-substring bufC)
