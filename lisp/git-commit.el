@@ -127,6 +127,7 @@
 (defvar flyspell-generic-check-word-predicate)
 (defvar font-lock-beg)
 (defvar font-lock-end)
+(defvar diff-default-read-only)
 
 (declare-function magit-expand-git-file-name 'magit-git)
 (declare-function magit-list-local-branch-names 'magit-git)
