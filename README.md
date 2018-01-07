@@ -88,7 +88,7 @@
   <a href="https://liberapay.com/magit">
      <img title="Donate weekly using Liberapay"
           alt="Donate weekly using Liberapay"
-          src="https://magit.vc//assets/liberapay.png"></a>
+          src="https://magit.vc/assets/liberapay-50px.png"></a>
 </div>
 <br>
 <div align="center">
