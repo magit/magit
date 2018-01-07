@@ -113,6 +113,7 @@
 ;;;; Dependencies
 
 (require 'dash)
+(require 'diff-mode)
 (require 'log-edit)
 (require 'magit-git nil t)
 (require 'magit-utils nil t)
