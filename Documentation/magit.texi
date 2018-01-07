@@ -8,7 +8,7 @@
 
 @copying
 @quotation
-Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-356-gebd8c651+1)
+@subtitle for version 2.11.0 (2.11.0-357-gf26a6cf4e+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,10 +52,10 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-356-gebd8c651+1).
+This manual is for Magit version 2.11.0 (2.11.0-357-gf26a6cf4e+1).
 
 @quotation
-Copyright (C) 2015-2017 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
