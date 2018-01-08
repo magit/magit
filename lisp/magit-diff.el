@@ -375,7 +375,10 @@ interchanging the halves once more, which cancels out the effect
 of the bug.
 
 See https://github.com/magit/magit/issues/2265
-and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847."
+and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847.
+
+Starting with Emacs 26.1 this kludge should not be required for
+any build."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
   :type 'boolean)
