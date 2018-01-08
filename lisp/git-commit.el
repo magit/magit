@@ -113,7 +113,6 @@
 ;;;; Dependencies
 
 (require 'dash)
-(require 'diff-mode)
 (require 'log-edit)
 (require 'magit-git nil t)
 (require 'magit-utils nil t)
@@ -125,6 +124,7 @@
 
 ;;;; Declarations
 
+(defvar diff-default-read-only)
 (defvar flyspell-generic-check-word-predicate)
 (defvar font-lock-beg)
 (defvar font-lock-end)
@@ -801,6 +801,7 @@ Added to `font-lock-extend-region-functions'."
   (font-lock-add-keywords nil git-commit-font-lock-keywords t))
 
 (defun git-commit-propertize-diff ()
+  (require 'diff-mode)
   (save-excursion
     (goto-char (point-min))
     (when (re-search-forward "^diff --git" nil t)
