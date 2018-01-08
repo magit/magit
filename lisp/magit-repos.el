@@ -307,10 +307,10 @@ With prefix argument simply read a directory name using
                                       (file-name-nondirectory it)
                                       (directory-file-name
                                        (file-name-directory it))
-                                      (+ 1 depth))
+                                      (1+ depth))
                                      it)
                                value)
-                        (+ 1 depth))))))
+                        (1+ depth))))))
      dict)
     result))
 
