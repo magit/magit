@@ -1095,7 +1095,9 @@ if you so desire."
     (let ((msg (current-message)))
       (magit-save-repository-buffers
        (eq magit-save-repository-buffers 'dontask))
-      (when (and msg (not (equal msg (current-message))))
+      (when (and msg
+                 (current-message)
+                 (not (equal msg (current-message))))
         (message "%s" msg)))))
 
 (add-hook 'magit-pre-refresh-hook #'magit-maybe-save-repository-buffers)
