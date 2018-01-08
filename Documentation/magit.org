@@ -1551,12 +1551,14 @@ will also have to install the ~ido-completing-read+~ package and use
 *** Viewing Git Output
 
 Magit runs Git either for side-effects (e.g. when pushing) or to get
-some value (e.g. the name of the current branch).  When Git is run for
-side-effects, the mode line displays a process status indicator (using
-the ~magit-mode-line-process~ face), and the process output goes into
-a per-repository log buffer, which can be consulted when things don't
-go as expected.  Process errors are indicated at the top of the status
-buffer.
+some value (e.g. the name of the current branch).
+
+When Git is run for side-effects, the process output is logged in a
+per-repository log buffer, which can be consulted using the
+~magit-process~ command when things don't go as expected.
+
+The output/errors for up to `magit-process-log-max' Git commands are
+retained.
 
 - Key: $, magit-process
 
@@ -1575,6 +1577,26 @@ sections are available.  There is one additional command.
   When this is non-nil then the output of all calls to git are logged
   in the process buffer.  This is useful when debugging, otherwise it
   just negatively affects performance.
+
+*** Git Process Status
+
+When a Git process is running for side-effects, Magit displays an
+indicator in the mode line, using the ~magit-mode-line-process~ face.
+
+If the Git process exits successfully, the process indicator is
+removed from the mode line immediately.
+
+In the case of a Git error, the process indicator is not removed, but
+is instead highlighted with the ~magit-mode-line-process-error~ face,
+and the error details from the process buffer are provided as a
+tooltip for mouse users.  This error indicator persists in the mode
+line until the next magit buffer refresh.
+
+If you do not wish process errors to be indicated in the mode line,
+customize the ~magit-process-display-mode-line-error~ user option.
+
+Process errors are additionally indicated at the top of the status
+buffer.
 
 *** Running Git Manually
 
