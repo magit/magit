@@ -789,10 +789,13 @@ Added to `font-lock-extend-region-functions'."
   (setq-local comment-use-syntax nil)
   (setq-local git-commit--branch-name-regexp
               (if (featurep 'magit-git)
-                  ;; Font-Lock wants every submatch to succeed.
-                  (format "\\(%s\\|\\)\\(%s\\|\\)"
-                          (regexp-opt (magit-list-local-branch-names))
-                          (regexp-opt (magit-list-remote-branch-names)))
+                  (progn
+                    ;; Make sure the below functions are available.
+                    (require 'magit)
+                    ;; Font-Lock wants every submatch to succeed.
+                    (format "\\(%s\\|\\)\\(%s\\|\\)"
+                            (regexp-opt (magit-list-local-branch-names))
+                            (regexp-opt (magit-list-remote-branch-names))))
                 "\\([^']*\\)"))
   (setq-local font-lock-multiline t)
   (add-hook 'font-lock-extend-region-functions
