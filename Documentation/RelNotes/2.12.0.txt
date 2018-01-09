@@ -265,7 +265,8 @@ Changes since v2.11.0
 * The section visibility cache can now also remember that a section
   should be expanded instead of being hidden when that is the default
   and the section reappears, not just that it should be hidden instead
-  of being shown.  #2780
+  of being shown.  For `magit-status-mode' and `magit-refs-mode'
+  buffers the cache now persists when killing the buffer.  #2780
 
 * The new option `magit-section-cache-visibility-types' lets users
   choose for which section types the visibility cache should be done.

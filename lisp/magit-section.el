@@ -35,6 +35,8 @@
 (require 'magit-utils)
 
 (declare-function magit-maybe-make-margin-overlay 'magit-log)
+(declare-function magit-repository-local-get 'magit-mode)
+(declare-function magit-repository-local-set 'magit-mode)
 (defvar magit-keep-region-overlay)
 
 ;;; Options
@@ -1021,6 +1023,17 @@ invisible."
                 ;; So we have to pretend the value is constant.
                 ((string-match-p "\\`\\.\\." value) "..@{push}")
                 (t "@{push}..")))))
+
+(defun magit-preserve-section-visibility-cache ()
+  (when (derived-mode-p 'magit-status-mode 'magit-refs-mode)
+    (magit-repository-local-set
+     (cons major-mode 'magit-section-visibility-cache)
+     magit-section-visibility-cache)))
+
+(defun magit-restore-section-visibility-cache (mode)
+  (setq magit-section-visibility-cache
+        (magit-repository-local-get
+         (cons mode 'magit-section-visibility-cache))))
 
 ;;; Utilities
 

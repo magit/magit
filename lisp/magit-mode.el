@@ -537,7 +537,8 @@ Magit is documented in info node `(magit)'."
     (linum-mode -1))
   (when (and (fboundp 'nlinum-mode)
              (bound-and-true-p global-nlinum-mode))
-    (nlinum-mode -1)))
+    (nlinum-mode -1))
+  (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache))
 
 (defvar-local magit-region-overlays nil)
 
@@ -778,7 +779,8 @@ thinking a buffer belongs to a repo that it doesn't.")
          (buffer (generate-new-buffer name)))
     (with-current-buffer buffer
       (setq magit--default-directory default-directory)
-      (setq magit-buffer-locked-p (and value t)))
+      (setq magit-buffer-locked-p (and value t))
+      (magit-restore-section-visibility-cache mode))
     (when magit-uniquify-buffer-names
       (add-to-list 'uniquify-list-buffers-directory-modes mode)
       (with-current-buffer buffer
