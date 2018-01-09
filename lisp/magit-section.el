@@ -95,17 +95,24 @@ diff-related sections being the only exception."
 
 (defcustom magit-section-set-visibility-hook
   '(magit-diff-expansion-threshold
-    magit-section-set-visibility-from-cache)
+    magit-section-cached-visibility)
   "Hook used to set the initial visibility of a section.
-Stop at the first function that returns non-nil.  The value
-should be `show' or `hide'.  If no function returns non-nil,
-determine the visibility as usual, i.e. use the hardcoded
-section specific default (see `magit-insert-section')."
+Stop at the first function that returns non-nil.  The returned
+value should be `show', `hide' or nil.  If no function returns
+non-nil, determine the visibility as usual, i.e. use the
+hardcoded section specific default (see `magit-insert-section')."
   :package-version '(magit . "2.4.0")
   :group 'magit-section
   :type 'hook
   :options '(magit-diff-expansion-threshold
-             magit-section-set-visibility-from-cache))
+             magit-section-cached-visibility))
+
+(defcustom magit-section-cache-visibility-types
+  '(unpulled unpushed)
+  "List of section types for which visibility should be cached."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-section
+  :type '(repeat symbol))
 
 (defface magit-section-highlight
   '((((class color) (background light)) :background "grey95")
@@ -316,7 +323,7 @@ With a prefix argument also expand it." heading)
     (magit-section-update-highlight))
   (-when-let (beg (magit-section-content section))
     (remove-overlays beg (magit-section-end section) 'invisible t))
-  (magit-section-update-visibility-cache section)
+  (magit-section-maybe-cache-visibility section)
   (dolist (child (magit-section-children section))
     (if (magit-section-hidden child)
         (magit-section-hide child)
@@ -334,8 +341,7 @@ With a prefix argument also expand it." heading)
         (let ((o (make-overlay beg end)))
           (overlay-put o 'evaporate t)
           (overlay-put o 'invisible t))))
-    (when (memq (magit-section-type section) '(unpulled unpushed))
-      (magit-section-cache-visibility section))))
+    (magit-section-maybe-cache-visibility section)))
 
 (defun magit-section-toggle (section)
   "Toggle visibility of the body of the current section."
@@ -980,27 +986,26 @@ invisible."
 (defvar-local magit-section-visibility-cache nil)
 (put 'magit-section-visibility-cache 'permanent-local t)
 
-(defun magit-section-set-visibility-from-cache (section)
-  "Set SECTION's visibility to the cached value.
-Currently the cache can only be used to remember that a section's
-body should be collapsed, not that it should be expanded.  Return
-either `hide' or nil."
-  (and (member (magit-section-visibility-ident section)
-               magit-section-visibility-cache)
-       'hide))
+(defun magit-section-cached-visibility (section)
+  "Set SECTION's visibility to the cached value."
+  (assoc (magit-section-visibility-ident section)
+         magit-section-visibility-cache))
 
 (cl-defun magit-section-cache-visibility
     (&optional (section magit-insert-section--current))
-  (let ((ident (magit-section-visibility-ident section)))
-    (if (magit-section-hidden section)
-        (cl-pushnew ident magit-section-visibility-cache :test #'equal)
-      (setq magit-section-visibility-cache
-            (delete ident magit-section-visibility-cache)))))
+  ;; Emacs 24 doesn't have `alist-get'.
+  (let* ((id  (magit-section-visibility-ident section))
+         (elt (assoc id magit-section-visibility-cache))
+         (val (if (magit-section-hidden section) 'hide 'show)))
+    (if elt
+        (setcdr elt val)
+      (push (cons id val) magit-section-visibility-cache))))
 
-(defun magit-section-update-visibility-cache (section)
-  (setq magit-section-visibility-cache
-        (delete (magit-section-visibility-ident section)
-                magit-section-visibility-cache)))
+(cl-defun magit-section-maybe-cache-visibility
+    (&optional (section magit-insert-section--current))
+  (when (memq (magit-section-type section)
+              magit-section-cache-visibility-types)
+    (magit-section-cache-visibility section)))
 
 (defun magit-section-visibility-ident (section)
   (let ((type  (magit-section-type  section))
