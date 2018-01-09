@@ -149,6 +149,32 @@ However, I recommend that you use local branches as UPSTREAM."
                                (repeat :tag "except"
                                        (string :tag "branch"))))))
 
+(defcustom magit-branch-rename-push-target t
+  "Whether the push-remote setup is preserved when renaming a branch.
+
+The command `magit-branch-rename' renames a branch named OLD to
+NEW.  This option controls how much of the push-remote setup is
+preserved when doing so.
+
+When nil, then preserve nothing and unset `branch.OLD.pushRemote'.
+
+When `local-only', then first set `branch.NEW.pushRemote' to the
+  same value as `branch.OLD.pushRemote', provided the latter is
+  actually set and unless the former already has another value.
+
+When t, then rename the branch named OLD on the remote specified
+  by `branch.OLD.pushRemote' to NEW, provided OLD exists on that
+  remote and unless NEW already exists on the remote.
+
+When `github-only', then behave like `t' if the remote points to
+  a repository on Github, otherwise like `local-only'."
+  :group 'magit-commands
+  :type '(choice
+          (const :tag "Don't preserve push-remote setup" nil)
+          (const :tag "Preserve push-remote setup" local-only)
+          (const :tag "... and rename corresponding branch on remote" t)
+          (const :tag "... but only if remote is on Github" github-only)))
+
 (defcustom magit-branch-popup-show-variables t
   "Whether the `magit-branch-popup' shows Git variables.
 This defaults to t to avoid changing key bindings.  When set to
@@ -583,6 +609,7 @@ defaulting to the branch at point."
      ((> (length branches) 1)
       (setq branches (delete (magit-get-current-branch) branches))
       (mapc 'magit-branch-maybe-delete-pr-remote branches)
+      (mapc 'magit-branch-unset-pushRemote branches)
       (magit-run-git "branch" (if force "-D" "-d") branches))
      (t ; And now for something completely different.
       (let* ((branch (car branches))
@@ -616,6 +643,7 @@ defaulting to the branch at point."
             (`abort  (user-error "Abort")))
           (setq force t))
         (magit-branch-maybe-delete-pr-remote branch)
+        (magit-branch-unset-pushRemote branch)
         (magit-run-git "branch" (if force "-D" "-d") branch))))))
 
 (put 'magit-branch-delete 'interactive-only t)
@@ -645,6 +673,9 @@ defaulting to the branch at point."
               (magit-call-git "config" "--unset" variable
                               (regexp-quote refspec)))))))))
 
+(defun magit-branch-unset-pushRemote (branch)
+  (magit-set nil "branch" branch "pushRemote"))
+
 (defun magit-delete-remote-branch-sentinel (refs process event)
   (when (memq (process-status process) '(exit signal))
     (if (= (process-exit-status process) 0)
@@ -663,9 +694,15 @@ defaulting to the branch at point."
 
 ;;;###autoload
 (defun magit-branch-rename (old new &optional force)
-  "Rename branch OLD to NEW.
-With prefix, forces the rename even if NEW already exists.
-\n(git branch -m|-M OLD NEW)."
+  "Rename the branch named OLD to NEW.
+
+With a prefix argument FORCE, rename even if a branch named NEW
+already exists.
+
+If `branch.OLD.pushRemote' is set, then unset it.  Depending on
+the value of `magit-branch-rename-push-target' (which see) maybe
+set `branch.NEW.pushRemote' and maybe rename the push-target on
+the remote."
   (interactive
    (let ((branch (magit-read-local-branch "Rename branch")))
      (list branch
@@ -674,8 +711,40 @@ With prefix, forces the rename even if NEW already exists.
            current-prefix-arg)))
   (when (string-match "\\`heads/\\(.+\\)" old)
     (setq old (match-string 1 old)))
-  (unless (string= old new)
-    (magit-run-git "branch" (if force "-M" "-m") old new)))
+  (when (equal old new)
+    (user-error "Old and new branch names are the same"))
+  (magit-call-git "branch" (if force "-M" "-m") old new)
+  (when magit-branch-rename-push-target
+    (let ((remote (magit-get-push-remote old))
+          (old-specific (magit-get "branch" old "pushRemote"))
+          (new-specific (magit-get "branch" new "pushRemote")))
+      (when (and old-specific (or force (not new-specific)))
+        ;; Keep the target setting branch specific, even if that is
+        ;; redundant.  But if a branch by the same name existed before
+        ;; and the rename isn't forced, then do not change a leftover
+        ;; setting.  Such a leftover setting may or may not conform to
+        ;; what we expect here...
+        (magit-set old-specific "branch" new "pushRemote"))
+      (when (and (equal (magit-get-push-remote new) remote)
+                 ;; ...and if it does not, then we must abort.
+                 (not (eq magit-branch-rename-push-target 'local-only))
+                 (or (not (eq magit-branch-rename-push-target 'github-only))
+                     (magit--github-remote-p remote)))
+        (let ((old-target (magit-get-push-branch old t))
+              (new-target (magit-get-push-branch new t)))
+          (when (and old-target (not new-target))
+            ;; Rename on (i.e. within) the remote, but only if the
+            ;; destination ref doesn't exist yet.  If that ref already
+            ;; exists, then it probably is of some value and we better
+            ;; not touch it.  Ignore what the local ref points at,
+            ;; i.e. if the local and the remote ref didn't point at
+            ;; the same commit before the rename then keep it that way.
+            (magit-call-git "push" "-v"
+                            (magit-get-push-remote new)
+                            (format "%s:refs/heads/%s" old-target new)
+                            (format ":refs/heads/%s" old)))))))
+  (magit-branch-unset-pushRemote old)
+  (magit-refresh))
 
 ;;; Config Popup
 

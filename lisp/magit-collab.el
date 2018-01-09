@@ -118,6 +118,15 @@ exist, then raise an error."
 \\(\\([^/]+\\)/\\(.+?\\)\\)\
 \\(?:\\.git\\)?\\'")
 
+(defun magit--github-url-p (url)
+  (and url (string-match-p magit--github-url-regexp url)))
+
+(defun magit--github-remote-p (remote)
+  (or (--when-let (magit-get "remote" remote "pushurl")
+        (magit--github-url-p it))
+      (--when-let (magit-get "remote" remote "url")
+        (magit--github-url-p it))))
+
 (defun magit--github-url-equal (r1 r2)
   (or (equal r1 r2)
       (let ((n1 (and (string-match magit--github-url-regexp r1)
