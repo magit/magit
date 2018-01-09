@@ -78,6 +78,7 @@ Contributors
 - Chillar Anand <anand21nanda@gmail.com>
 - Chris Bernard <cebernard@gmail.com>
 - Chris Done <chrisdone@gmail.com>
+- Chris LaRose <cjlarose@gmail.com>
 - Chris Moore <dooglus@gmail.com>
 - Chris Ring <chris@ringthis.com>
 - Chris Shoemaker <chris@mojotech.com>
@@ -115,6 +116,7 @@ Contributors
 - Feng Li <fengli@blackmagicdesign.com>
 - Florian Ragwitz <rafl@debian.org>
 - Fritz Grabo <fritz.grabo@gmail.com>
+- Fritz Stelzer <brotzeitmacher@gmail.com>
 - Geoff Shannon <geoffpshannon@gmail.com>
 - George Kadianakis <desnacked@gmail.com>
 - Graham Clark <grclark@gmail.com>
@@ -203,6 +205,7 @@ Contributors
 - Noam Postavsky <npostavs@users.sourceforge.net>
 - Ole Arndt <oliver.arndt@cegedim.com>
 - Oleh Krehel <ohwoeowho@gmail.com>
+- Orivej Desh <orivej@gmx.fr>
 - Óscar Fuentes <ofv@wanadoo.es>
 - Paul Stadig <paul@stadig.name>
 - Pavel Holejsovsky <pavel.holejsovsky@upek.com>
