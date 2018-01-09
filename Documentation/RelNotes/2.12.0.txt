@@ -249,6 +249,11 @@ Changes since v2.11.0
   done to preserves space.  The option `magit-refs-show-remote-prefix'
   can be used to revert this change.
 
+* The command `magit-remote-remove' now unsets the relevant
+  push-remote related variables, which Git fails to do unlike for
+  other variable affected by the removal of a remote.  Likewise the
+  command `magit-remote-rename' renames such variables.  #2850.
+
 Fixes since v2.11.0
 -------------------
 

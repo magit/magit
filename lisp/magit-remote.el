@@ -160,13 +160,26 @@ to be used to view and change remote related variables."
    (let  ((remote (magit-read-remote "Rename remote")))
      (list remote (magit-read-string-ns (format "Rename %s to" remote)))))
   (unless (string= old new)
-    (magit-run-git "remote" "rename" old new)))
+    (magit-call-git "remote" "rename" old new)
+    (magit-remote--cleanup-push-variables old new)
+    (magit-refresh)))
 
 ;;;###autoload
 (defun magit-remote-remove (remote)
   "Delete the remote named REMOTE."
   (interactive (list (magit-read-remote "Delete remote")))
-  (magit-run-git "remote" "rm" remote))
+  (magit-call-git "remote" "rm" remote)
+  (magit-remote--cleanup-push-variables remote)
+  (magit-refresh))
+
+(defun magit-remote--cleanup-push-variables (remote &optional new-name)
+  (magit-with-toplevel
+    (when (equal (magit-get "remote.pushDefault") remote)
+      (magit-set new-name "remote.pushDefault"))
+    (dolist (var (magit-git-lines "config" "--name-only"
+                                  "--get-regexp" "^branch\.[^.]*\.pushRemote"
+                                  (format "^%s$" remote)))
+      (magit-call-git "config" (and (not new-name) "--unset") var new-name))))
 
 ;;;###autoload
 (defun magit-remote-set-head (remote &optional branch)
