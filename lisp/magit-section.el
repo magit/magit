@@ -108,7 +108,7 @@ hardcoded section specific default (see `magit-insert-section')."
              magit-section-cached-visibility))
 
 (defcustom magit-section-cache-visibility-types
-  '(unpulled unpushed)
+  '(unpulled unpushed untracked unstaged staged)
   "List of section types for which visibility should be cached."
   :package-version '(magit . "2.12.0")
   :group 'magit-section
