@@ -637,7 +637,7 @@ See info node `(magit)Debugging Tools' for more information."
                     (mapcar (lambda (lib)
                               (file-name-directory (locate-library lib)))
                             '("magit" "magit-popup" "with-editor"
-                              "git-commit" "dash"))))
+                              "git-commit" "dash" "ghub"))))
                 ;; Avoid Emacs bug#16406 by using full path.
                 "-l" ,(file-name-sans-extension (locate-library "magit")))
               " ")))
