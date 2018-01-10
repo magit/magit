@@ -777,7 +777,8 @@ variable `branch.<name>.description'."
          (var (format "branch.%s.description" branch)))
     (concat var " " (make-string (- width (length var)) ?\s)
             (-if-let (value (magit-get var))
-                (propertize value 'face 'magit-popup-option-value)
+                (propertize (car (split-string value "\n"))
+                            'face 'magit-popup-option-value)
               (propertize "unset" 'face 'magit-popup-disabled-argument)))))
 
 ;;;###autoload
