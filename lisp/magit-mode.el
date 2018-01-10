@@ -1239,8 +1239,7 @@ Currently `magit-log-mode', `magit-reflog-mode',
 (defun magit-repository-local-repository ()
   "Return the key for the current repository."
   (or (bound-and-true-p magit--default-directory)
-      (magit-toplevel)
-      (magit--not-inside-repository-error)))
+      (magit-toplevel)))
 
 (defun magit-repository-local-set (key value &optional repository)
   "Set the repository-local VALUE for KEY.
