@@ -430,11 +430,14 @@ current branch.  The description is taken from the Git variable
 line is inserted at all."
   (-when-let* ((branch (magit-get-current-branch))
                (desc (magit-get "branch" branch "description"))
-               (desc-lines (split-string desc "\n")))
+               (desc (split-string desc "\n")))
+    (when (equal (car (last desc)) "")
+      (setq desc (butlast desc)))
     (magit-insert-section (branchdesc branch t)
-      (magit-insert-heading branch ": " (car desc-lines))
-      (insert (mapconcat 'identity (cdr desc-lines) "\n"))
-      (insert "\n\n"))))
+      (magit-insert-heading branch ": " (car desc))
+      (when (cdr desc)
+        (insert (mapconcat 'identity (cdr desc) "\n"))
+        (insert "\n\n")))))
 
 (defun magit-insert-local-branches ()
   "Insert sections showing all local branches."
