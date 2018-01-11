@@ -909,7 +909,8 @@ If STR is supplied, it replaces the `mode-line-process' text."
 
 (defvar magit-process-error-message-regexps
   (list "^\\*ERROR\\*: Canceled by user$"
-        "^\\(?:error\\|fatal\\|git\\): \\(.*\\)$"))
+        "^\\(?:error\\|fatal\\|git\\): \\(.*\\)$"
+        "^\\(Cannot rebase:.*\\)$"))
 
 (define-error 'magit-git-error "Git error")
 
