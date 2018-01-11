@@ -924,7 +924,8 @@ If STR is supplied, it replaces the `mode-line-process' text."
                      'magit-process-error-message-regexps
                      (lambda (re)
                        (save-excursion
-                         (and (re-search-backward re nil t)
+                         (and (re-search-backward
+                               re (magit-section-start section) t)
                               (or (match-string-no-properties 1)
                                   (and (not magit-process-raise-error)
                                        'suppressed))))))))))
