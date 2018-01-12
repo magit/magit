@@ -719,9 +719,11 @@ If found, return the password.  Otherwise, return nil."
 
 (defun magit-process-password-prompt (process string)
   "Find a password based on prompt STRING and send it to git.
-First try the functions in `magit-process-find-password-functions'.
-If none of them returns a password, then read it from the user
-instead."
+Use `magit-process-password-prompt-regexps' to find a known
+prompt.  If and only if one is found, then call functions in
+`magit-process-find-password-functions' until one of them returns
+the password.  If all function return nil, then read the password
+from the user."
   (--when-let (magit-process-match-prompt
                magit-process-password-prompt-regexps string)
     (process-send-string
