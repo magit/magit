@@ -869,6 +869,7 @@ To add this command to the push popup add this to your init file:
               (?t "To"               "--to=")
               (?c "CC"               "--cc=")
               (?r "In reply to"      "--in-reply-to=")
+              (?P "Subject Prefix"   "--subject-prefix=")
               (?v "Reroll count"     "--reroll-count=")
               (?s "Thread style"     "--thread=")
               (?U "Context lines"    "-U")
