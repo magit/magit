@@ -1046,6 +1046,15 @@ then the previous visibility is preserved. The initial visibility of
 certain sections can also be overwritten using the hook
 ~magit-section-set-visibility-hook~.
 
+- User Option: magit-section-cache-visibility-types
+
+  This option controls for which sections the previous visibility
+  state should be restored if a section disappears and later appears
+  again.  The value is a list of section types.
+
+  This requires that ~magit-section-cached-visibility~ is a member of
+  ~magit-section-set-visibility-hook~.
+
 - Variable: magit-section-set-visibility-hook
 
   This hook is run when first creating a buffer and also when
