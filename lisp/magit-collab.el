@@ -91,7 +91,10 @@ only supports Github, but that will change eventually."
                            (cdr (assq 'number pull-request))
                            (cdr (assq 'title  pull-request)))))
          (prs    (ghub-get (format "/repos/%s/pulls" id) nil :auth 'magit))
-         (choice (magit-completing-read prompt (mapcar fmtfun prs)))
+         (choice (magit-completing-read
+                  prompt (mapcar fmtfun prs) nil nil nil nil
+                  (let ((default (thing-at-point 'github-pull-request)))
+                    (and default (funcall fmtfun default)))))
          (number (and (string-match "\\([0-9]+\\)" choice)
                       (string-to-number (match-string 1 choice)))))
     (and number
