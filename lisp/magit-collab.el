@@ -86,13 +86,12 @@ only supports Github, but that will change eventually."
          (id     (and (string-match "github.com[:/]\\(.+?\\)\\(?:\\.git\\)?\\'"
                                     url)
                       (match-string 1 url)))
+         (fmtfun (lambda (pull-request)
+                   (format "%s  %s"
+                           (cdr (assq 'number pull-request))
+                           (cdr (assq 'title  pull-request)))))
          (prs    (ghub-get (format "/repos/%s/pulls" id) nil :auth 'magit))
-         (choice (magit-completing-read
-                  prompt
-                  (--map (format "%s  %s"
-                                 (cdr (assq 'number it))
-                                 (cdr (assq 'title  it)))
-                         prs)))
+         (choice (magit-completing-read prompt (mapcar fmtfun prs)))
          (number (and (string-match "\\([0-9]+\\)" choice)
                       (string-to-number (match-string 1 choice)))))
     (and number
