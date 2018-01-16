@@ -96,7 +96,7 @@ only supports Github, but that will change eventually."
          (number (and (string-match "\\([0-9]+\\)" choice)
                       (string-to-number (match-string 1 choice)))))
     (and number
-         (or (--first (eq (cdr (assq 'number it)) number) prs)
+         (or (--first (= (cdr (assq 'number it)) number) prs)
              (ghub-get (format "/repos/%s" id) nil :auth 'magit)))))
 
 (defun magit-upstream-repository ()
