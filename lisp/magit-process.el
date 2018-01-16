@@ -1052,5 +1052,25 @@ Limited by `magit-process-error-tooltip-max-lines'."
                                        (pop-to-buffer buf))))))
                              process))))))
 
+(defun magit--log-action (summary line list)
+  (let (heading lines)
+    (if (cdr list)
+        (progn (setq heading (funcall summary list))
+               (setq lines (mapcar line list)))
+      (setq heading (funcall line (car list))))
+    (with-current-buffer (magit-process-buffer t)
+      (goto-char (1- (point-max)))
+      (let ((inhibit-read-only t))
+        (magit-insert-section (message)
+          (magit-insert-heading (concat "  * " heading))
+          (when lines
+            (dolist (line lines)
+              (insert line "\n"))
+            (insert "\n"))))
+      (let ((inhibit-message t))
+        (when heading
+          (setq lines (cons heading lines)))
+        (message (mapconcat #'identity lines "\n"))))))
+
 (provide 'magit-process)
 ;;; magit-process.el ends here
