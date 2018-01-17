@@ -285,7 +285,7 @@ mind at all, then it asks the user for a command to run."
   (interactive)
   (magit-section-case
     (hunk (save-excursion
-            (goto-char (magit-section-start (magit-section-parent it)))
+            (goto-char (oref (oref it parent) start))
             (magit-ediff-dwim)))
     (t
      (let ((range (magit-diff--dwim))

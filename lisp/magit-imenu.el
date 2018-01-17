@@ -55,19 +55,19 @@ This function is used as a helper for functions set as
     (while (magit-section--backward-find
             (lambda ()
               (let* ((section (magit-current-section))
-                     (type (magit-section-type section))
-                     (parent (magit-section-parent section))
-                     (parent-type (magit-section-type parent)))
+                     (type (oref section type))
+                     (parent (oref section parent))
+                     (parent-type (oref parent type)))
                 (and (-contains-p entry-types type)
                      (-contains-p menu-types parent-type)))))
       (let* ((section (magit-current-section))
              (name (buffer-substring-no-properties
                     (line-beginning-position)
                     (line-end-position)))
-             (parent (magit-section-parent section))
+             (parent (oref section parent))
              (parent-title (buffer-substring-no-properties
-                            (magit-section-start parent)
-                            (1- (magit-section-content parent)))))
+                            (oref parent start)
+                            (1- (oref parent content)))))
         (puthash parent-title
                  (cons (cons name (point))
                        (gethash parent-title entries (list)))
@@ -86,7 +86,7 @@ This function is used as a value for
   (magit-section--backward-find
    (lambda ()
      (-contains-p '(commit stash)
-                  (magit-section-type (magit-current-section))))))
+                  (oref (magit-current-section) type)))))
 
 ;;;###autoload
 (defun magit-imenu--log-extract-index-name-function ()
@@ -109,10 +109,10 @@ This function is used as a value for
 `imenu-prev-index-position-function'."
   (magit-section--backward-find
    (lambda ()
-     (and (equal (magit-section-type (magit-current-section)) 'file)
-          (not (equal (magit-section-type
-                       (magit-section-parent (magit-current-section)))
-                      'diffstat))))))
+     (let ((section (magit-current-section)))
+       (and (magit-file-section-p section)
+            (not (equal (oref (oref section parent) type)
+                        'diffstat)))))))
 
 ;;;###autoload
 (defun magit-imenu--diff-extract-index-name-function ()
@@ -204,9 +204,7 @@ This function is used as a value for
 `imenu-prev-index-position-function'."
   (magit-section--backward-find
    (lambda ()
-     (eq
-      (magit-section-type (magit-current-section))
-      'process))))
+     (eq (oref (magit-current-section) type) 'process))))
 
 ;;;###autoload
 (defun magit-imenu--process-extract-index-name-function ()

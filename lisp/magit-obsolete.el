@@ -137,5 +137,15 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
 (make-obsolete-variable 'magit-no-confirm-default
                         'magit-dwim-selection "Magit 2.12.0")
 
+(make-obsolete 'magit-section-type     "use (oref ... type) instead"     "Magit 2.12.0")
+(make-obsolete 'magit-section-value    "use (oref ... value) instead"    "Magit 2.12.0")
+(make-obsolete 'magit-section-start    "use (oref ... start) instead"    "Magit 2.12.0")
+(make-obsolete 'magit-section-content  "use (oref ... content) instead"  "Magit 2.12.0")
+(make-obsolete 'magit-section-end      "use (oref ... end) instead"      "Magit 2.12.0")
+(make-obsolete 'magit-section-hidden   "use (oref ... hidden) instead"   "Magit 2.12.0")
+(make-obsolete 'magit-section-washer   "use (oref ... washer) instead"   "Magit 2.12.0")
+(make-obsolete 'magit-section-parent   "use (oref ... parent) instead"   "Magit 2.12.0")
+(make-obsolete 'magit-section-children "use (oref ... children) instead" "Magit 2.12.0")
+
 (provide 'magit-obsolete)
 ;;; magit-obsolete.el ends here

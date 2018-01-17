@@ -1034,10 +1034,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 
 (defun magit-refresh-get-relative-position ()
   (-when-let (section (magit-current-section))
-    (let ((start (magit-section-start section)))
+    (let ((start (oref section start)))
       (list (count-lines start (point))
             (- (point) (line-beginning-position))
-            (and (eq (magit-section-type section) 'hunk)
+            (and (magit-hunk-section-p section)
                  (region-active-p)
                  (progn (goto-char (line-beginning-position))
                         (when  (looking-at "^[-+]") (forward-line))
