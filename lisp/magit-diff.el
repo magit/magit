@@ -1783,8 +1783,8 @@ section or a child thereof."
                         'face 'magit-diff-file-heading))
     (magit-insert-heading)
     (unless (equal orig file)
-      (setf (magit-section-source section) orig))
-    (setf (magit-section-diff-header section) header)
+      (oset section source orig))
+    (oset section header header)
     (when modes
       (magit-insert-section (hunk)
         (insert modes)))
@@ -2516,10 +2516,10 @@ are highlighted."
   (if section
       (unless (magit-section-hidden section)
         (pcase (list magit-diff-refine-hunk
-                     (magit-section-refined section)
+                     (oref section refined)
                      (eq section (magit-current-section)))
           ((or `(all nil ,_) `(t nil t))
-           (setf (magit-section-refined section) t)
+           (oset section refined t)
            (save-excursion
              (goto-char (magit-section-start section))
              ;; `diff-refine-hunk' does not handle combined diffs.
@@ -2528,7 +2528,7 @@ are highlighted."
                (let ((write-region-inhibit-fsync t))
                  (diff-refine-hunk)))))
           ((or `(nil t ,_) `(t t nil))
-           (setf (magit-section-refined section) nil)
+           (oset section refined nil)
            (remove-overlays (magit-section-start section)
                             (magit-section-end   section)
                             'diff-mode 'fine))))
@@ -2665,7 +2665,7 @@ https://github.com/magit/magit/pull/2293 for more details)."
   (when (eq (magit-section-type section) 'hunk)
     (setq section (magit-section-parent section)))
   (when (eq (magit-section-type section) 'file)
-    (magit-section-diff-header section)))
+    (oref section header)))
 
 (defun magit-diff-hunk-region-header (section)
   (let ((patch (magit-diff-hunk-region-patch section)))

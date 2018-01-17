@@ -138,7 +138,7 @@ so causes the change to be applied to the index as well."
     (when (string-match "^diff --cc" (magit-section-value section))
       (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
     (magit-apply-patch section args
-                       (concat (magit-section-diff-header section)
+                       (concat (oref section header)
                                (mapconcat 'magit-apply--section-content
                                           sections "")))))
 
