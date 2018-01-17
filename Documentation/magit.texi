@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-400-g00552fd10+1)
+@subtitle for version 2.11.0 (2.11.0-411-g73ea37afb+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-400-g00552fd10+1).
+This manual is for Magit version 2.11.0 (2.11.0-411-g73ea37afb+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -3197,6 +3197,12 @@ instead of
 feature origin/feature
 [blue-] [green-------]
 @end example
+
+Also note that while the popup features the @code{--show-signature} argument,
+that won't actually be used when enabled, because Magit defaults to
+use just one line per commit.  Instead the commit colorized to
+indicate the validity of the signed commit object, using the faces
+named @code{magit-signature-*} (which see).
 
 For a description of @code{magit-log-margin} see @ref{Log Margin}.
 
