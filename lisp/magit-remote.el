@@ -232,7 +232,8 @@ remote or replace the refspecs with the default refspec instead."
                     refs))
               (magit-confirm 'prune-stale-refspecs nil
                 (format "Prune %%i stale refspecs and %i branches"
-                        (length (mapcan (lambda (s) (copy-sequence (cdr s))) stale)))
+                        (length (cl-mapcan (lambda (s) (copy-sequence (cdr s)))
+                                           stale)))
                 (mapcar (pcase-lambda (`(,refspec . ,refs))
                           (concat refspec "\n"
                                   (mapconcat (lambda (b) (concat "  " b))
