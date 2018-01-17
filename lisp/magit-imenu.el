@@ -110,7 +110,7 @@ This function is used as a value for
   (magit-section--backward-find
    (lambda ()
      (let ((section (magit-current-section)))
-       (and (equal (oref section type) 'file)
+       (and (magit-file-section-p section)
             (not (equal (oref (oref section parent) type)
                         'diffstat)))))))
 

@@ -1037,7 +1037,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
     (let ((start (oref section start)))
       (list (count-lines start (point))
             (- (point) (line-beginning-position))
-            (and (eq (oref section type) 'hunk)
+            (and (magit-hunk-section-p section)
                  (region-active-p)
                  (progn (goto-char (line-beginning-position))
                         (when  (looking-at "^[-+]") (forward-line))

@@ -113,7 +113,7 @@ so causes the change to be applied to the index as well."
       (`(,_  files) (magit-apply-diffs  it args)))))
 
 (defun magit-apply--section-content (section)
-  (buffer-substring-no-properties (if (eq (oref section type) 'hunk)
+  (buffer-substring-no-properties (if (magit-hunk-section-p section)
                                       (oref section start)
                                     (oref section content))
                                   (oref section end)))
@@ -414,7 +414,7 @@ without requiring confirmation."
   (if (eq (magit-diff-type section) 'unstaged)
       (funcall apply section "--reverse")
     (if (magit-anything-unstaged-p
-         nil (if (eq (oref section type) 'file)
+         nil (if (magit-file-section-p section)
                  (oref section value)
                (magit-section-parent-value section)))
         (progn (let ((inhibit-magit-refresh t))
@@ -435,7 +435,7 @@ without requiring confirmation."
     (if (eq (magit-diff-type section) 'unstaged)
         (funcall apply sections "--reverse")
       (if (magit-anything-unstaged-p
-           nil (if (eq (oref section type) 'file)
+           nil (if (magit-file-section-p section)
                    (oref section value)
                  (magit-section-parent-value section)))
           (progn (let ((inhibit-magit-refresh t))

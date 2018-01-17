@@ -303,7 +303,7 @@ If there is no previous sibling section, then move to the parent."
 (defun magit-hunk-set-window-start (section)
   "When SECTION is a `hunk', ensure that its beginning is visible.
 It the SECTION has a different type, then do nothing."
-  (when (eq (oref section type) 'hunk)
+  (when (magit-hunk-section-p section)
     (magit-section-set-window-start section)))
 
 (defmacro magit-define-section-jumper (name heading type &optional value)
@@ -463,8 +463,8 @@ hidden."
                       (list (magit-get-section '((staged)   (status)))
                             (magit-get-section '((unstaged) (status))))))
                     ((derived-mode-p 'magit-diff-mode)
-                     (--filter (eq (oref it type) 'file)
-                               (oref magit-root-section children)))))
+                     (-filter #'magit-file-section-p
+                              (oref magit-root-section children)))))
     (if (--any-p (oref it hidden) sections)
         (dolist (s sections)
           (magit-section-show s)
@@ -961,7 +961,7 @@ invisible."
               (forward-char char))
             (unless (eq (magit-current-section) it)
               (goto-char start))))
-      (or (and (eq (oref section type) 'hunk)
+      (or (and (magit-hunk-section-p section)
                (-when-let (parent (magit-get-section
                                    (magit-section-ident
                                     (oref section parent))))

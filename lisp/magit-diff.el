@@ -1004,7 +1004,7 @@ for a revision."
         (let ((prev (car magit-refresh-args)))
           (unless (equal rev prev)
             (dolist (child (cdr (oref magit-root-section children)))
-              (when (eq (oref child type) 'file)
+              (when (magit-file-section-p child)
                 (magit-section-cache-visibility child)))))))
     (magit-mode-setup #'magit-revision-mode rev nil args files)))
 
@@ -1869,7 +1869,7 @@ section or a child thereof."
 
 (defun magit-diff-expansion-threshold (section)
   "Keep new diff sections collapsed if washing takes too long."
-  (and (eq (oref section type) 'file)
+  (and (magit-file-section-p section)
        (> (float-time (time-subtract (current-time) magit-refresh-start-time))
           magit-diff-expansion-threshold)
        'hide))
@@ -2311,7 +2311,7 @@ actually a `diff' but a `diffstat' section."
 
 (defun magit-diff-unhighlight (section selection)
   "Remove the highlighting of the diff-related SECTION."
-  (when (eq (oref section type) 'hunk)
+  (when (magit-hunk-section-p section)
     (magit-diff-paint-hunk section selection nil)
     t))
 
@@ -2665,9 +2665,9 @@ https://github.com/magit/magit/pull/2293 for more details)."
 ;;; Diff Extract
 
 (defun magit-diff-file-header (section)
-  (when (eq (oref section type) 'hunk)
+  (when (magit-hunk-section-p section)
     (setq section (oref section parent)))
-  (when (eq (oref section type) 'file)
+  (when (magit-file-section-p section)
     (oref section header)))
 
 (defun magit-diff-hunk-region-header (section)
