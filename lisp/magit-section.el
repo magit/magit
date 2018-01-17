@@ -149,16 +149,16 @@ hardcoded section specific default (see `magit-insert-section')."
    (end      :initform nil :accessor magit-section-end)
    (hidden   :initform nil :accessor magit-section-hidden)
    (washer   :initform nil :accessor magit-section-washer)
-   (process  :initform nil :accessor magit-section-process)
+   (process  :initform nil)
    (parent   :initform nil :accessor magit-section-parent   :initarg :parent)
    (children :initform nil :accessor magit-section-children)))
 
 (defclass magit-file-section (magit-section)
-  ((source   :initform nil :accessor magit-section-source)
-   (header   :initform nil :accessor magit-section-header)))
+  ((source   :initform nil)
+   (header   :initform nil)))
 
 (defclass magit-hunk-section (magit-section)
-  ((refined  :initform nil :accessor magit-section-refined)))
+  ((refined  :initform nil)))
 
 (defvar-local magit-root-section nil
   "The root section in the current buffer.
