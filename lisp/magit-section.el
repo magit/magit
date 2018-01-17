@@ -31,6 +31,7 @@
 
 (require 'cl-lib)
 (require 'dash)
+(require 'eieio)
 
 (require 'magit-utils)
 
@@ -140,9 +141,20 @@ hardcoded section specific default (see `magit-insert-section')."
 
 ;;; Core
 
-(cl-defstruct magit-section
-  type value start content end hidden washer refined
-  source diff-header process parent children)
+(defclass magit-section ()
+  ((type     :initform nil :accessor magit-section-type     :initarg :type)
+   (value    :initform nil :accessor magit-section-value    :initarg :value)
+   (start    :initform nil :accessor magit-section-start    :initarg :start)
+   (content  :initform nil :accessor magit-section-content)
+   (end      :initform nil :accessor magit-section-end)
+   (hidden   :initform nil :accessor magit-section-hidden)
+   (washer   :initform nil :accessor magit-section-washer)
+   (process  :initform nil :accessor magit-section-process)
+   (parent   :initform nil :accessor magit-section-parent   :initarg :parent)
+   (children :initform nil :accessor magit-section-children)
+   (source      :initform nil :accessor magit-section-source)
+   (diff-header :initform nil :accessor magit-section-diff-header)
+   (refined     :initform nil :accessor magit-section-refined)))
 
 (defvar-local magit-root-section nil
   "The root section in the current buffer.
@@ -695,7 +707,7 @@ anything this time around.
   (let ((s (if (symbolp (car args))
                (pop args)
              (cl-gensym "section"))))
-    `(let* ((,s (make-magit-section
+    `(let* ((,s (magit-section ""
                  :type ,(let ((type (nth 0 (car args))))
                           (if (eq (car-safe type) 'eval)
                               (cadr type)
