@@ -990,8 +990,8 @@ invisible."
 
 (defun magit-section-cached-visibility (section)
   "Set SECTION's visibility to the cached value."
-  (assoc (magit-section-visibility-ident section)
-         magit-section-visibility-cache))
+  (cdr (assoc (magit-section-visibility-ident section)
+              magit-section-visibility-cache)))
 
 (cl-defun magit-section-cache-visibility
     (&optional (section magit-insert-section--current))
