@@ -704,7 +704,7 @@ Sorted from longest to shortest CYGWIN name."
 
 (defun magit-file-at-point ()
   (magit-section-case
-    (file (magit-section-value it))
+    (file (oref it value))
     (hunk (magit-section-parent-value it))))
 
 (defun magit-current-file ()
@@ -904,22 +904,22 @@ to, or to some other symbolic-ref that points to the same ref."
 
 (defun magit-branch-at-point ()
   (magit-section-case
-    (branch (magit-section-value it))
-    (commit (magit-name-branch (magit-section-value it)))))
+    (branch (oref it value))
+    (commit (magit-name-branch (oref it value)))))
 
 (defun magit-local-branch-at-point ()
   (magit-section-case
-    (branch (let ((branch (magit-ref-maybe-qualify (magit-section-value it))))
+    (branch (let ((branch (magit-ref-maybe-qualify (oref it value))))
               (when (member branch (magit-list-local-branch-names))
                 branch)))
-    (commit (magit-name-local-branch (magit-section-value it)))))
+    (commit (magit-name-local-branch (oref it value)))))
 
 (defun magit-remote-branch-at-point ()
   (magit-section-case
-    (branch (let ((branch (magit-section-value it)))
+    (branch (let ((branch (oref it value)))
               (when (member branch (magit-list-remote-branch-names))
                 branch)))
-    (commit (magit-name-remote-branch (magit-section-value it)))))
+    (commit (magit-name-remote-branch (oref it value)))))
 
 (defun magit-commit-at-point ()
   (or (magit-section-when commit)
@@ -929,10 +929,10 @@ to, or to some other symbolic-ref that points to the same ref."
 (defun magit-branch-or-commit-at-point ()
   (or magit-buffer-refname
       (magit-section-case
-        (branch (magit-ref-maybe-qualify (magit-section-value it)))
-        (commit (let ((rev (magit-section-value it)))
+        (branch (magit-ref-maybe-qualify (oref it value)))
+        (commit (let ((rev (oref it value)))
                   (or (magit-get-shortname rev) rev)))
-        (tag (magit-ref-maybe-qualify (magit-section-value it) "tags/")))
+        (tag (magit-ref-maybe-qualify (oref it value) "tags/")))
       (thing-at-point 'git-revision t)
       (and (derived-mode-p 'magit-revision-mode
                            'magit-merge-preview-mode)
@@ -940,15 +940,15 @@ to, or to some other symbolic-ref that points to the same ref."
 
 (defun magit-tag-at-point ()
   (magit-section-case
-    (tag    (magit-section-value it))
-    (commit (magit-name-tag (magit-section-value it)))))
+    (tag    (oref it value))
+    (commit (magit-name-tag (oref it value)))))
 
 (defun magit-stash-at-point ()
   (magit-section-when stash))
 
 (defun magit-remote-at-point ()
   (magit-section-case
-    (remote (magit-section-value it))
+    (remote (oref it value))
     (branch (magit-section-parent-value it))))
 
 (defun magit-get-current-branch ()

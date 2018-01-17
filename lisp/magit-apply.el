@@ -113,10 +113,10 @@ so causes the change to be applied to the index as well."
       (`(,_  files) (magit-apply-diffs  it args)))))
 
 (defun magit-apply--section-content (section)
-  (buffer-substring-no-properties (if (eq (magit-section-type section) 'hunk)
-                                      (magit-section-start section)
-                                    (magit-section-content section))
-                                  (magit-section-end section)))
+  (buffer-substring-no-properties (if (eq (oref section type) 'hunk)
+                                      (oref section start)
+                                    (oref section content))
+                                  (oref section end)))
 
 (defun magit-apply-diffs (sections &rest args)
   (setq sections (magit-apply--get-diffs sections))
@@ -134,8 +134,8 @@ so causes the change to be applied to the index as well."
                              (magit-apply--section-content section))))
 
 (defun magit-apply-hunks (sections &rest args)
-  (let ((section (magit-section-parent (car sections))))
-    (when (string-match "^diff --cc" (magit-section-value section))
+  (let ((section (oref (car sections) parent)))
+    (when (string-match "^diff --cc" (oref section value))
       (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
     (magit-apply-patch section args
                        (concat (oref section header)
@@ -145,7 +145,7 @@ so causes the change to be applied to the index as well."
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (magit-apply-patch (magit-section-parent section) args
+  (magit-apply-patch (oref section parent) args
                      (concat (magit-diff-file-header section)
                              (magit-apply--section-content section))))
 
@@ -154,14 +154,14 @@ so causes the change to be applied to the index as well."
     (user-error "Not enough context to apply region.  Increase the context"))
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (magit-apply-patch (magit-section-parent section) args
+  (magit-apply-patch (oref section parent) args
                      (concat (magit-diff-file-header section)
                              (magit-diff-hunk-region-patch section args))))
 
 (defun magit-apply-patch (section:s args patch)
   (let* ((files (if (atom section:s)
-                    (list (magit-section-value section:s))
-                  (mapcar 'magit-section-value section:s)))
+                    (list (oref section:s value))
+                  (--map (oref it value) section:s)))
          (command (symbol-name this-command))
          (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
                       (match-string 1 command)
@@ -182,18 +182,18 @@ so causes the change to be applied to the index as well."
 (defun magit-apply--get-selection ()
   (or (magit-region-sections '(hunk file) t)
       (let ((section (magit-current-section)))
-        (pcase (magit-section-type section)
+        (pcase (oref section type)
           ((or `hunk `file) section)
           ((or `staged `unstaged `untracked
                `stashed-index `stashed-worktree `stashed-untracked)
-           (magit-section-children section))
+           (oref section children))
           (_ (user-error "Cannot apply this, it's not a change"))))))
 
 (defun magit-apply--get-diffs (sections)
   (magit-section-case
     ([file diffstat]
      (--map (or (magit-get-section
-                 (append `((file . ,(magit-section-value it)))
+                 (append `((file . ,(oref it value)))
                          (magit-section-ident magit-root-section)))
                 (error "Cannot get required diff headers"))
             sections))
@@ -228,7 +228,7 @@ at point, stage the file but not its content."
         (`(unstaged    file   t) (magit-apply-diff   it "--cached"))
         (`(unstaged   files   t) (magit-apply-diffs  it "--cached"))
         (`(unstaged    list   t) (magit-apply-diffs  it "--cached"))
-        (`(unstaged    file nil) (magit-stage-1 "-u" (list (magit-section-value it))))
+        (`(unstaged    file nil) (magit-stage-1 "-u" (list (oref it value))))
         (`(unstaged   files nil) (magit-stage-1 "-u" (magit-region-values nil t)))
         (`(unstaged    list nil) (magit-stage-modified))
         (`(staged        ,_  ,_) (user-error "Already staged"))
@@ -279,7 +279,7 @@ ignored) files."
 (defun magit-stage-untracked (&optional intent)
   (let* ((section (magit-current-section))
          (files (pcase (magit-diff-scope)
-                  (`file  (list (magit-section-value section)))
+                  (`file  (list (oref section value)))
                   (`files (magit-region-values nil t))
                   (`list  (magit-untracked-files))))
          plain repos)
@@ -296,9 +296,9 @@ ignored) files."
         (mapc #'magit-turn-on-auto-revert-mode-if-desired plain)))
     (dolist (repo repos)
       (save-excursion
-        (goto-char (magit-section-start
-                    (magit-get-section
-                     `((file . ,repo) (untracked) (status)))))
+        (goto-char (oref (magit-get-section
+                          `((file . ,repo) (untracked) (status)))
+                         start))
         (let* ((topdir (magit-toplevel))
                (package
                 (and (equal (bound-and-true-p borg-user-emacs-directory)
@@ -341,7 +341,7 @@ ignored) files."
       (`(staged      file   t) (magit-apply-diff   it "--reverse" "--cached"))
       (`(staged     files   t) (magit-apply-diffs  it "--reverse" "--cached"))
       (`(staged      list   t) (magit-apply-diffs  it "--reverse" "--cached"))
-      (`(staged      file nil) (magit-unstage-1 (list (magit-section-value it))))
+      (`(staged      file nil) (magit-unstage-1 (list (oref it value))))
       (`(staged     files nil) (magit-unstage-1 (magit-region-values nil t)))
       (`(staged      list nil) (magit-unstage-all))
       (`(committed     ,_  ,_) (if magit-unstage-committed
@@ -414,8 +414,8 @@ without requiring confirmation."
   (if (eq (magit-diff-type section) 'unstaged)
       (funcall apply section "--reverse")
     (if (magit-anything-unstaged-p
-         nil (if (eq (magit-section-type section) 'file)
-                 (magit-section-value section)
+         nil (if (eq (oref section type) 'file)
+                 (oref section value)
                (magit-section-parent-value section)))
         (progn (let ((inhibit-magit-refresh t))
                  (funcall apply section "--reverse" "--cached")
@@ -435,8 +435,8 @@ without requiring confirmation."
     (if (eq (magit-diff-type section) 'unstaged)
         (funcall apply sections "--reverse")
       (if (magit-anything-unstaged-p
-           nil (if (eq (magit-section-type section) 'file)
-                   (magit-section-value section)
+           nil (if (eq (oref section type) 'file)
+                   (oref section value)
                  (magit-section-parent-value section)))
           (progn (let ((inhibit-magit-refresh t))
                    (funcall apply sections "--reverse" "--cached")
@@ -453,7 +453,7 @@ without requiring confirmation."
         (status (magit-file-status))
         files delete resurrect rename discard discard-new resolve)
     (dolist (section sections)
-      (let ((file (magit-section-value section)))
+      (let ((file (oref section value)))
         (push file files)
         (pcase (cons (pcase type
                        (`staged ?X)
@@ -536,7 +536,7 @@ without requiring confirmation."
           (magit-call-git "reset" "--" orig))))))
 
 (defun magit-discard-files--discard (sections new-files)
-  (let ((files (mapcar #'magit-section-value sections)))
+  (let ((files (--map (oref it value) sections)))
     (when (magit-confirm-files
            'discard (append files new-files)
            (format "Discard %s changes in" (magit-diff-type)))
@@ -548,7 +548,7 @@ without requiring confirmation."
         (let ((binaries (magit-staged-binary-files)))
           (when binaries
             (setq sections
-                  (--filter (not (member (magit-section-value it) binaries))
+                  (--filter (not (member (oref it value) binaries))
                             sections)))
           (cond ((= (length sections) 1)
                  (magit-discard-apply (car sections) 'magit-apply-diff))
@@ -604,8 +604,9 @@ so causes the change to be applied to the index as well."
 (defun magit-reverse-files (sections args)
   (-let [(binaries sections)
          (let ((bs (magit-staged-binary-files)))
-           (--separate (member (magit-section-value it) bs) sections))]
-    (when (magit-confirm-files 'reverse (mapcar #'magit-section-value sections))
+           (--separate (member (oref it value) bs)
+                       sections))]
+    (when (magit-confirm-files 'reverse (--map (oref it value) sections))
       (if (= (length sections) 1)
           (magit-reverse-apply (car sections) 'magit-apply-diff args)
         (magit-reverse-apply sections 'magit-apply-diffs args)))

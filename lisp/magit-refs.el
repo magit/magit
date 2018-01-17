@@ -344,7 +344,7 @@ different, but only if you have customized the option
   (interactive)
   (if (and (derived-mode-p 'magit-refs-mode)
            (magit-section-match '(branch tag)))
-      (let ((ref (magit-section-value (magit-current-section))))
+      (let ((ref (oref (magit-current-section) value)))
         (cond (current-prefix-arg
                (cond ((memq 'focus-on-ref magit-visit-ref-behavior)
                       (magit-show-refs ref))
@@ -603,8 +603,8 @@ line is inserted at all."
 ;;;; Cherry Sections
 
 (defun magit-refs-insert-cherry-commits (head ref section)
-  (if (magit-section-hidden section)
-      (setf (magit-section-washer section)
+  (if (oref section hidden)
+      (oset section washer
             (apply-partially #'magit-refs-insert-cherry-commits-1
                              head ref section))
     (magit-refs-insert-cherry-commits-1 head ref section)))

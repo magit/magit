@@ -254,9 +254,9 @@
 
 (defun magit-test-get-section (list file)
   (magit-status-internal default-directory)
-  (--first (equal (magit-section-value it) file)
-           (magit-section-children
-            (magit-get-section `(,list (status))))))
+  (--first (equal (oref it value) file)
+           (oref (magit-get-section `(,list (status)))
+                 children)))
 
 (ert-deftest magit-status:file-sections ()
   (magit-with-test-repository

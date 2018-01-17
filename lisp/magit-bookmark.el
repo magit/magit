@@ -51,8 +51,9 @@ This function will:
     (when (derived-mode-p 'magit-mode)
       (-when-let (hidden-sections (bookmark-prop-get bookmark
                                                      'magit-hidden-sections))
-        (--each (magit-section-children magit-root-section)
-          (if (member (cons (magit-section-type it) (magit-section-value it))
+        (--each (oref magit-root-section children)
+          (if (member (cons (oref it type)
+                            (oref it value))
                       hidden-sections)
               (magit-section-hide it)
             (magit-section-show it)))))
@@ -87,9 +88,10 @@ specifies additional properties to store in the bookmark."
     (when (derived-mode-p 'magit-mode)
       (bookmark-prop-set
        bookmark 'magit-hidden-sections
-       (--map (cons (magit-section-type it) (magit-section-value it))
-              (-filter #'magit-section-hidden
-                       (magit-section-children magit-root-section)))))
+       (--map (cons (oref it type)
+                    (oref it value))
+              (--filter (oref it hidden)
+                        (oref magit-root-section children)))))
     (when make-props
       (pcase-dolist (`(,prop . ,value) (apply make-props magit-refresh-args))
         (bookmark-prop-set bookmark prop value)))
@@ -340,12 +342,12 @@ specifies additional properties to store in the bookmark."
         (magit-args  . ,args)
         (magit-files . ,files)
         (magit-hidden-sections
-         . ,(--map `(,(magit-section-type it)
+         . ,(--map `(,(oref it type)
                      . ,(replace-regexp-in-string (regexp-quote stash)
                                                   magit-buffer-revision-hash
-                                                  (magit-section-value it)))
-                   (-filter #'magit-section-hidden
-                            (magit-section-children magit-root-section))))))))
+                                                  (oref it value)))
+                   (--filter (oref it hidden)
+                             (oref magit-root-section children))))))))
 
 ;;; Submodules
 

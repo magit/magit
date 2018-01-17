@@ -461,7 +461,8 @@ that make up the stash."
   (magit-insert-section section (note)
     (magit-insert-heading "Notes")
     (magit-git-insert "notes" "show" (car magit-refresh-args))
-    (if (= (point) (magit-section-content section))
+    (if (= (point)
+           (oref section content))
         (magit-cancel-section)
       (insert "\n"))))
 
