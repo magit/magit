@@ -462,7 +462,7 @@ defaulting to the tag at point.
 \n(git tag -d TAGS)"
   (interactive
    (list (--if-let (magit-region-values 'tag)
-             (or (magit-confirm t "Delete %s" "Delete %i tags" it)
+             (or (magit-confirm t nil "Delete %i tags" it)
                  (user-error "Abort"))
            (magit-read-tag "Delete tag" t))))
   (magit-run-git "tag" "-d" tags))

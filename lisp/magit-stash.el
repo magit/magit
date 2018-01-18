@@ -219,7 +219,7 @@ and forgo removing the stash."
 When the region is active offer to drop all contained stashes."
   (interactive
    (list (--if-let (magit-region-values 'stash)
-             (or (magit-confirm t "Drop %s" "Drop %i stashes" it)
+             (or (magit-confirm t nil "Drop %i stashes" it)
                  (user-error "Abort"))
            (magit-read-stash "Drop stash"))))
   (dolist (stash (if (listp stash)
