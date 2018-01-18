@@ -192,7 +192,7 @@ bisect run'."
         (save-restriction
           (narrow-to-region beg (point))
           (goto-char (point-min))
-          (magit-insert-section (bisect-log heading t)
+          (magit-insert-section (bisect-item heading t)
             (insert (propertize heading 'face 'magit-section-secondary-heading))
             (magit-insert-heading)
             (magit-wash-sequence
@@ -203,7 +203,7 @@ bisect run'."
            "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
       (magit-bind-match-strings (hash) nil
         (magit-delete-match)
-        (magit-insert-section (bisect-log)
+        (magit-insert-section (bisect-item)
           (insert hash " is the first bad commit\n"))))))
 
 (provide 'magit-bisect)
