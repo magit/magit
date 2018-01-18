@@ -414,8 +414,6 @@ Branch %s already exists.
   "Format used for local branches in refs buffers.")
 (defvar magit-refs-remote-branch-format "%4c %-25n %m\n"
   "Format used for remote branches in refs buffers.")
-(defvar magit-refs-symref-format "%4c %-25n -> %m\n"
-  "Format used for symrefs in refs buffers.")
 (defvar magit-refs-tags-format "%4c %-25n %m\n"
   "Format used for tags in refs buffers.")
 (defvar magit-refs-indent-cherry-lines 3
@@ -449,13 +447,16 @@ line is inserted at all."
 %(upstream:short)%00%(upstream)%00%(upstream:track)"
                                    "refs/heads"
                                    (cadr magit-refresh-args)))
-      (pcase-let ((`(,head ,branch ,hash ,message
-                           ,upstream ,uref ,utrack)
-                   (-replace "" nil (split-string line "\0"))))
+      (pcase-let* ((`(,head ,branch ,hash ,message
+                            ,upstream ,uref ,utrack)
+                    (-replace "" nil (split-string line "\0")))
+                   (current (and (equal head "*") branch)))
         (magit-insert-branch
-         branch
-         magit-refs-local-branch-format (and (equal head "*") branch)
-         'magit-branch-local hash message upstream uref
+         branch magit-refs-local-branch-format current
+         (if current
+             'magit-branch-current
+           'magit-branch-local)
+         hash message upstream uref
          ;; Strip the brackets here because
          ;; %(upstream:track,nobracket) was added in Git v2.13.
          (and utrack (substring utrack 1 -1)))))
@@ -472,19 +473,24 @@ line is inserted at all."
           (format (propertize "Remote %s (%s):" 'face 'magit-section-heading)
                   (propertize remote 'face 'magit-branch-remote)
                   (concat pull (and pull push ", ") push))))
-      (dolist (line (magit-git-lines "for-each-ref" "--format=\
+      (let (head)
+        (dolist (line (magit-git-lines "for-each-ref" "--format=\
 %(symref:short)%00%(refname:short)%00%(objectname:short)%00%(subject)"
-                                     (concat "refs/remotes/" remote)
-                                     (cadr magit-refresh-args)))
-        (pcase-let ((`(,symref ,branch ,hash ,message)
-                     (-replace "" nil (split-string line "\0"))))
-          (if symref
-              (magit-insert-symref branch symref 'magit-branch-remote)
-            (magit-insert-branch
-             branch magit-refs-remote-branch-format nil
-             'magit-branch-remote hash message nil nil nil
-             (and (not magit-refs-show-remote-prefix)
-                  (1+ (length remote)))))))
+                                       (concat "refs/remotes/" remote)
+                                       (cadr magit-refresh-args)))
+          (pcase-let ((`(,head-branch ,branch ,hash ,message)
+                       (-replace "" nil (split-string line "\0"))))
+            (if head-branch
+                (progn (cl-assert (equal branch (concat remote "/HEAD")))
+                       (setq head head-branch))
+              (magit-insert-branch
+               branch magit-refs-remote-branch-format nil
+               (if (equal branch head)
+                   'magit-branch-remote-head
+                 'magit-branch-remote)
+               hash message nil nil nil
+               (and (not magit-refs-show-remote-prefix)
+                    (1+ (length remote))))))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
 
@@ -530,7 +536,13 @@ line is inserted at all."
          (?C . ,(or mark " "))
          (?h . ,(or (propertize hash 'face 'magit-hash) ""))
          (?m . ,(magit-log-propertize-keywords (or message "")))
-         (?n . ,(propertize (or branch "(detached)") 'face face))
+         (?n . ,(let ((str (propertize (or branch "(detached)") 'face face)))
+                  (when (string-match "%-?\\([0-9]+\\)n" format)
+                    (let ((width (string-to-number (match-string 1 format))))
+                      (setq str (concat str (make-string
+                                             (max 0 (- width (length str)))
+                                             ?\s)))))
+                  str))
          (?u . ,(or upstream ""))
          (?U . ,(if upstream
                     (format (propertize "[%s%s] " 'face 'magit-dimmed)
@@ -544,18 +556,6 @@ line is inserted at all."
     (when (magit-buffer-margin-p)
       (magit-refs-format-margin branch))
     (magit-refs-insert-cherry-commits head branch section)))
-
-(defun magit-insert-symref (symref ref face)
-  "For internal use, don't add to a hook."
-  (magit-insert-section (commit symref)
-    (insert
-     (format-spec (if magit-refs-show-commit-count
-                      magit-refs-symref-format
-                    (replace-regexp-in-string "%[0-9]\\([cC]\\)" "%1\\1"
-                                              magit-refs-symref-format t))
-                  `((?c . "")
-                    (?n . ,(propertize symref 'face face))
-                    (?m . ,(propertize ref    'face face)))))))
 
 (defun magit-refs-format-commit-count (ref head format &optional tag-p)
   (and (string-match-p "%-?[0-9]+c" format)
