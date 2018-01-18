@@ -498,12 +498,13 @@ finally check current non-comment text."
   (turn-on-flyspell)
   (setq flyspell-generic-check-word-predicate
         'git-commit-flyspell-verify)
-  (let (end)
+  (let ((end)
+        (comment-start-regex (format "^\\(%s\\|$\\)" comment-start)))
     (save-excursion
       (goto-char (point-max))
-      (while (and (not (bobp)) (looking-at "^\\(#\\|$\\)"))
+      (while (and (not (bobp)) (looking-at comment-start-regex))
         (forward-line -1))
-      (unless (looking-at "^\\(#\\|$\\)")
+      (unless (looking-at comment-start-regex)
         (forward-line))
       (setq end (point)))
     (flyspell-region (point-min) end)))
