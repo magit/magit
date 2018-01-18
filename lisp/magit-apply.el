@@ -496,9 +496,8 @@ without requiring confirmation."
       (magit-call-git "checkout" "--" files))))
 
 (defun magit-discard-files--delete (files status)
-  (when (if magit-delete-by-moving-to-trash
-            (magit-confirm-files 'trash files)
-          (magit-confirm-files 'delete files))
+  (when (magit-confirm-files (if magit-delete-by-moving-to-trash 'trash 'delete)
+                             files)
     (let ((delete-by-moving-to-trash magit-delete-by-moving-to-trash))
       (dolist (file files)
         (if (memq (magit-diff-type) '(unstaged untracked))
