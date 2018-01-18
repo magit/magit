@@ -708,9 +708,9 @@ anything this time around.
                         [symbolp &optional form form])
                    body)))
   (let ((tp (cl-gensym "type"))
-        (s (if (symbolp (car args))
-               (pop args)
-             (cl-gensym "section"))))
+        (s* (and (symbolp (car args))
+                 (pop args)))
+        (s  (cl-gensym "section")))
     `(let* ((,tp ,(let ((type (nth 0 (car args))))
                     (if (eq (car-safe type) 'eval)
                         (cadr type)
@@ -742,7 +742,10 @@ anything this time around.
                     (prog1 magit-root-section
                       (setq magit-root-section ,s))))))
          (catch 'cancel-section
-           ,@(cdr args)
+           ,@(if s*
+                 `((let ((,s* ,s))
+                     ,@(cdr args)))
+               (cdr args))
            (run-hooks 'magit-insert-section-hook)
            (magit-insert-child-count ,s)
            (set-marker-insertion-type (oref ,s start) t)
