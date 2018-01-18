@@ -460,11 +460,10 @@ If the region marks multiple tags (and nothing else), then offer
 to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
 \n(git tag -d TAGS)"
-  (interactive
-   (list (--if-let (magit-region-values 'tag)
-             (or (magit-confirm t nil "Delete %i tags" it)
-                 (user-error "Abort"))
-           (magit-read-tag "Delete tag" t))))
+  (interactive (--if-let (magit-region-values 'tag)
+                   (or (magit-confirm t nil "Delete %i tags" it)
+                       (user-error "Abort"))
+                 (list (magit-read-tag "Delete tag" t))))
   (magit-run-git "tag" "-d" tags))
 
 (defun magit-tag-prune (tags remote-tags remote)
@@ -479,11 +478,15 @@ defaulting to the tag at point.
           (rtags  (-difference rtags tags)))
      (unless (or ltags rtags)
        (message "Same tags exist locally and remotely"))
-     (unless (magit-confirm t "Delete %s locally"
-               "Delete %i tags locally" ltags)
+     (unless (magit-confirm t
+               "Delete %s locally"
+               "Delete %i tags locally"
+               ltags)
        (setq ltags nil))
-     (unless (magit-confirm t "Delete %s from remote"
-               "Delete %i tags from remote" rtags)
+     (unless (magit-confirm t
+               "Delete %s from remote"
+               "Delete %i tags from remote"
+               rtags)
        (setq rtags nil))
      (list ltags rtags remote)))
   (when tags
