@@ -573,12 +573,13 @@ defaulting to the branch at point."
                  (list (magit-read-branch-prefer-other
                         (if force "Force delete branch" "Delete branch")))))
          (unless force
-           (--when-let (-remove #'magit-branch-merged-p branches)
+           (-when-let (unmerged (-remove #'magit-branch-merged-p branches)
              (if (magit-confirm 'delete-unmerged-branch
                    "Delete unmerged branch %s"
-                   "Delete %i unmerged branches" it)
+                   "Delete %i unmerged branches"
+                   unmerged)
                  (setq force branches)
-               (or (setq branches (-difference branches it))
+               (or (setq branches (-difference branches unmerged))
                    (user-error "Abort")))))
        (user-error "Abort"))
      (list branches force)))
