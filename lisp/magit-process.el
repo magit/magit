@@ -287,10 +287,10 @@ optional NODISPLAY is non-nil also display it."
   (interactive)
   (magit-section-when process
     (let ((process (oref it value)))
-      (if (eq (process-status process) 'run)
-          (when (magit-confirm 'kill-process)
-            (kill-process process))
-        (user-error "Process isn't running")))))
+      (unless (eq (process-status process) 'run)
+        (user-error "Process isn't running"))
+      (when (magit-confirm 'kill-process)
+        (kill-process process)))))
 
 ;;; Synchronous Processes
 

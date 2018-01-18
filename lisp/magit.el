@@ -293,10 +293,10 @@ inspect the merge and change the commit message.
   "Abort the current merge operation.
 \n(git merge --abort)"
   (interactive)
-  (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
-      (when (magit-confirm 'abort-merge)
-        (magit-run-git-async "merge" "--abort"))
-    (user-error "No merge in progress")))
+  (unless (file-exists-p (magit-git-dir "MERGE_HEAD"))
+    (user-error "No merge in progress"))
+  (when (magit-confirm 'abort-merge)
+    (magit-run-git-async "merge" "--abort")))
 
 (defun magit-checkout-stage (file arg)
   "During a conflict checkout and stage side, or restore conflict."
