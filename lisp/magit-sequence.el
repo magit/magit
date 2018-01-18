@@ -525,8 +525,8 @@ edit.  With a prefix argument the old message is reused as-is."
   (interactive)
   (unless (magit-rebase-in-progress-p)
     (user-error "No rebase in progress"))
-  (when (magit-confirm 'abort-rebase "Abort this rebase")
-    (magit-run-git "rebase" "--abort")))
+  (magit-confirm 'abort-rebase "Abort this rebase")
+  (magit-run-git "rebase" "--abort"))
 
 (defun magit-rebase-in-progress-p ()
   "Return t if a rebase is in progress."

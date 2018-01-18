@@ -379,8 +379,7 @@ staged as well as unstaged changes."
                              (progn
                                (unless (magit-file-tracked-p (car it))
                                  (user-error "Already untracked"))
-                               (unless (magit-confirm-files 'untrack it "Untrack")
-                                 (user-error "Abort")))
+                               (magit-confirm-files 'untrack it "Untrack"))
                            (list (magit-read-tracked-file "Untrack file"))))
                      current-prefix-arg))
   (magit-run-git "rm" "--cached" (and force "--force") "--" files))
@@ -392,8 +391,7 @@ With a prefix argument FORCE do so even when the files have
 uncommitted changes.  When the files aren't being tracked in
 Git, then fallback to using `delete-file'."
   (interactive (list (--if-let (magit-region-values 'file t)
-                         (or (magit-confirm-files 'delete it "Delete")
-                             (user-error "Abort"))
+                         (magit-confirm-files 'delete it "Delete")
                        (list (magit-read-file "Delete file")))
                      current-prefix-arg))
   (if (magit-file-tracked-p (car files))

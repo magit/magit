@@ -295,8 +295,8 @@ inspect the merge and change the commit message.
   (interactive)
   (unless (file-exists-p (magit-git-dir "MERGE_HEAD"))
     (user-error "No merge in progress"))
-  (when (magit-confirm 'abort-merge)
-    (magit-run-git-async "merge" "--abort")))
+  (magit-confirm 'abort-merge)
+  (magit-run-git-async "merge" "--abort"))
 
 (defun magit-checkout-stage (file arg)
   "During a conflict checkout and stage side, or restore conflict."
@@ -328,8 +328,7 @@ inspect the merge and change the commit message.
 (defun magit-merge-assert ()
   (or (not (magit-anything-modified-p t))
       (magit-confirm 'merge-dirty
-        "Merging with dirty worktree is risky.  Continue")
-      (user-error "Abort")))
+        "Merging with dirty worktree is risky.  Continue")))
 
 (defun magit-checkout-read-stage (file)
   (magit-read-char-case (format "For %s checkout: " file) t
@@ -461,8 +460,7 @@ to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
 \n(git tag -d TAGS)"
   (interactive (--if-let (magit-region-values 'tag)
-                   (or (magit-confirm t nil "Delete %i tags" it)
-                       (user-error "Abort"))
+                   (magit-confirm t nil "Delete %i tags" it)
                  (list (magit-read-tag "Delete tag" t))))
   (magit-run-git "tag" "-d" tags))
 
@@ -481,12 +479,12 @@ defaulting to the tag at point.
      (unless (magit-confirm t
                "Delete %s locally"
                "Delete %i tags locally"
-               ltags)
+               ltags 'noabort)
        (setq ltags nil))
      (unless (magit-confirm t
                "Delete %s from remote"
                "Delete %i tags from remote"
-               rtags)
+               rtags 'noabort)
        (setq rtags nil))
      (list ltags rtags remote)))
   (when tags

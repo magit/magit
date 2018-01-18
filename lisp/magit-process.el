@@ -289,8 +289,8 @@ optional NODISPLAY is non-nil also display it."
     (let ((process (oref it value)))
       (unless (eq (process-status process) 'run)
         (user-error "Process isn't running"))
-      (when (magit-confirm 'kill-process)
-        (kill-process process)))))
+      (magit-confirm 'kill-process)
+      (kill-process process))))
 
 ;;; Synchronous Processes
 
