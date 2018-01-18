@@ -507,26 +507,26 @@ edit.  With a prefix argument the old message is reused as-is."
 (defun magit-rebase-skip ()
   "Skip the current commit and restart the current rebase operation."
   (interactive)
-  (if (magit-rebase-in-progress-p)
-      (magit-run-git-sequencer "rebase" "--skip")
-    (user-error "No rebase in progress")))
+  (unless (magit-rebase-in-progress-p)
+    (user-error "No rebase in progress"))
+  (magit-run-git-sequencer "rebase" "--skip"))
 
 ;;;###autoload
 (defun magit-rebase-edit ()
   "Edit the todo list of the current rebase operation."
   (interactive)
-  (if (magit-rebase-in-progress-p)
-      (magit-run-git-sequencer "rebase" "--edit-todo")
-    (user-error "No rebase in progress")))
+  (unless (magit-rebase-in-progress-p)
+    (user-error "No rebase in progress"))
+  (magit-run-git-sequencer "rebase" "--edit-todo"))
 
 ;;;###autoload
 (defun magit-rebase-abort ()
   "Abort the current rebase operation, restoring the original branch."
   (interactive)
-  (if (magit-rebase-in-progress-p)
-      (when (magit-confirm 'abort-rebase "Abort this rebase")
-        (magit-run-git "rebase" "--abort"))
-    (user-error "No rebase in progress")))
+  (unless (magit-rebase-in-progress-p)
+    (user-error "No rebase in progress"))
+  (magit-confirm 'abort-rebase "Abort this rebase")
+  (magit-run-git "rebase" "--abort"))
 
 (defun magit-rebase-in-progress-p ()
   "Return t if a rebase is in progress."

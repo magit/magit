@@ -293,10 +293,10 @@ inspect the merge and change the commit message.
   "Abort the current merge operation.
 \n(git merge --abort)"
   (interactive)
-  (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
-      (when (magit-confirm 'abort-merge)
-        (magit-run-git-async "merge" "--abort"))
-    (user-error "No merge in progress")))
+  (unless (file-exists-p (magit-git-dir "MERGE_HEAD"))
+    (user-error "No merge in progress"))
+  (magit-confirm 'abort-merge)
+  (magit-run-git-async "merge" "--abort"))
 
 (defun magit-checkout-stage (file arg)
   "During a conflict checkout and stage side, or restore conflict."
@@ -328,8 +328,7 @@ inspect the merge and change the commit message.
 (defun magit-merge-assert ()
   (or (not (magit-anything-modified-p t))
       (magit-confirm 'merge-dirty
-        "Merging with dirty worktree is risky.  Continue")
-      (user-error "Abort")))
+        "Merging with dirty worktree is risky.  Continue")))
 
 (defun magit-checkout-read-stage (file)
   (magit-read-char-case (format "For %s checkout: " file) t
@@ -460,11 +459,9 @@ If the region marks multiple tags (and nothing else), then offer
 to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
 \n(git tag -d TAGS)"
-  (interactive
-   (list (--if-let (magit-region-values 'tag)
-             (or (magit-confirm t "Delete %s" "Delete %i tags" it)
-                 (user-error "Abort"))
-           (magit-read-tag "Delete tag" t))))
+  (interactive (--if-let (magit-region-values 'tag)
+                   (magit-confirm t nil "Delete %i tags" it)
+                 (list (magit-read-tag "Delete tag" t))))
   (magit-run-git "tag" "-d" tags))
 
 (defun magit-tag-prune (tags remote-tags remote)
@@ -479,11 +476,15 @@ defaulting to the tag at point.
           (rtags  (-difference rtags tags)))
      (unless (or ltags rtags)
        (message "Same tags exist locally and remotely"))
-     (unless (magit-confirm t "Delete %s locally"
-               "Delete %i tags locally" ltags)
+     (unless (magit-confirm t
+               "Delete %s locally"
+               "Delete %i tags locally"
+               ltags 'noabort)
        (setq ltags nil))
-     (unless (magit-confirm t "Delete %s from remote"
-               "Delete %i tags from remote" rtags)
+     (unless (magit-confirm t
+               "Delete %s from remote"
+               "Delete %i tags from remote"
+               rtags 'noabort)
        (setq rtags nil))
      (list ltags rtags remote)))
   (when tags

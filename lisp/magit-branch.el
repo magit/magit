@@ -567,20 +567,20 @@ defaulting to the branch at point."
   (interactive
    (let ((branches (magit-region-values 'branch t))
          (force current-prefix-arg))
-     (if (if (> (length branches) 1)
-             (magit-confirm t nil "Delete %i branches" branches)
-           (setq branches
-                 (list (magit-read-branch-prefer-other
-                        (if force "Force delete branch" "Delete branch")))))
-         (unless force
-           (--when-let (-remove #'magit-branch-merged-p branches)
-             (if (magit-confirm 'delete-unmerged-branch
-                   "Delete unmerged branch %s"
-                   "Delete %i unmerged branches" it)
-                 (setq force branches)
-               (or (setq branches (-difference branches it))
-                   (user-error "Abort")))))
-       (user-error "Abort"))
+     (if (> (length branches) 1)
+         (magit-confirm t nil "Delete %i branches" branches)
+       (setq branches
+             (list (magit-read-branch-prefer-other
+                    (if force "Force delete branch" "Delete branch")))))
+     (unless force
+       (-when-let (unmerged (-remove #'magit-branch-merged-p branches))
+         (if (magit-confirm 'delete-unmerged-branch
+               "Delete unmerged branch %s"
+               "Delete %i unmerged branches"
+               unmerged 'noabort)
+             (setq force branches)
+           (or (setq branches (-difference branches unmerged))
+               (user-error "Abort")))))
      (list branches force)))
   (let* ((refs (-map #'magit-ref-fullname branches))
          (ambiguous (--filter (not it) refs)))
@@ -626,19 +626,17 @@ defaulting to the branch at point."
                      (?a "[a]bort"                    'abort)))
             (`detach (unless (or (equal force '(4))
                                  (member branch force)
-                                 (magit-branch-merged-p branch t)
-                                 (magit-confirm 'delete-unmerged-branch
-                                   "Delete unmerged branch %s" ""
-                                   (list branch)))
-                       (user-error "Abort"))
+                                 (magit-branch-merged-p branch t))
+                       (magit-confirm 'delete-unmerged-branch
+                         "Delete unmerged branch %s" ""
+                         (list branch)))
                      (magit-call-git "checkout" "--detach"))
             (`master (unless (or (equal force '(4))
                                  (member branch force)
-                                 (magit-branch-merged-p branch "master")
-                                 (magit-confirm 'delete-unmerged-branch
-                                   "Delete unmerged branch %s" ""
-                                   (list branch)))
-                       (user-error "Abort"))
+                                 (magit-branch-merged-p branch "master"))
+                       (magit-confirm 'delete-unmerged-branch
+                         "Delete unmerged branch %s" ""
+                         (list branch)))
                      (magit-call-git "checkout" "master"))
             (`abort  (user-error "Abort")))
           (setq force t))

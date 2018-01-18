@@ -572,39 +572,42 @@ ACTION is a member of option `magit-slow-confirm'."
       (yes-or-no-p prompt)
     (y-or-n-p prompt)))
 
-(cl-defun magit-confirm (action &optional prompt prompt-n (items nil sitems))
+(cl-defun magit-confirm (action &optional prompt prompt-n
+                                (items nil sitems) noabort)
   (declare (indent defun))
   (setq prompt-n (format (concat (or prompt-n prompt) "? ") (length items)))
   (setq prompt   (format (concat (or prompt (magit-confirm-make-prompt action))
                                  "? ")
                          (car items)))
-  (cond ((and (not (eq action t))
-              (or (eq magit-no-confirm t)
-                  (memq action
-                        `(,@magit-no-confirm
-                          ,@(and magit-wip-before-change-mode
-                                 (memq 'safe-with-wip magit-no-confirm)
-                                 `(discard reverse
-                                   stage-all-changes
-                                   unstage-all-changes))))))
-         (or (not sitems) items))
-        ((not sitems)
-         (magit-y-or-n-p prompt action))
-        ((= (length items) 1)
-         (and (magit-y-or-n-p prompt action) items))
-        ((> (length items) 1)
-         (let ((buffer (get-buffer-create " *Magit Confirm*")))
-           (with-current-buffer buffer
-             (with-current-buffer-window
-              buffer (cons 'display-buffer-below-selected
-                           '((window-height . fit-window-to-buffer)))
-              (lambda (window _value)
-                (with-selected-window window
-                  (unwind-protect (and (magit-y-or-n-p prompt-n action) items)
-                    (when (window-live-p window)
-                      (quit-restore-window window 'kill)))))
-              (dolist (item items)
-                (insert item "\n"))))))))
+  (or (cond ((and (not (eq action t))
+                  (or (eq magit-no-confirm t)
+                      (memq action
+                            `(,@magit-no-confirm
+                              ,@(and magit-wip-before-change-mode
+                                     (memq 'safe-with-wip magit-no-confirm)
+                                     `(discard reverse
+                                               stage-all-changes
+                                               unstage-all-changes))))))
+             (or (not sitems) items))
+            ((not sitems)
+             (magit-y-or-n-p prompt action))
+            ((= (length items) 1)
+             (and (magit-y-or-n-p prompt action) items))
+            ((> (length items) 1)
+             (let ((buffer (get-buffer-create " *Magit Confirm*")))
+               (with-current-buffer buffer
+                 (with-current-buffer-window
+                  buffer (cons 'display-buffer-below-selected
+                               '((window-height . fit-window-to-buffer)))
+                  (lambda (window _value)
+                    (with-selected-window window
+                      (unwind-protect
+                          (and (magit-y-or-n-p prompt-n action) items)
+                        (when (window-live-p window)
+                          (quit-restore-window window 'kill)))))
+                  (dolist (item items)
+                    (insert item "\n")))))))
+      (if noabort nil (user-error "Abort"))))
 
 (defun magit-confirm-files (action files &optional prompt)
   (when files
