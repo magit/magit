@@ -127,6 +127,28 @@ then don't do so for any sections."
                  (const  :tag "Cache visibility of all sections" t)
                  (repeat :tag "Cache visibility for section types" symbol)))
 
+(defcustom magit-section-initial-visibility-alist nil
+  "Alist controlling the initial visibility of sections.
+
+Each elements maps a section type or lineage to the initial
+visibility state for such sections.  The state has to be one of
+`show' or `hide', or a function that returns on of these symbols.
+A function is called with the section as only argument.
+
+Use the command `magit-describe-section' to determine a sections
+lineage or type.  The vector in the output is the section lineage
+and the type is the first element of that vector.  Wildcards can
+be used, see `magit-section-match'.
+
+Currently this option is only used to override hardcoded defaults,
+but in the future it will also be used set those the defaults."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-section
+  :type '(alist :key-type (sexp :tag "Section type/lineage")
+                :value-type (choice (const hide)
+                                    (const show)
+                                    function)))
+
 (defface magit-section-highlight
   '((((class color) (background light)) :background "grey95")
     (((class color) (background  dark)) :background "grey20"))
@@ -682,6 +704,14 @@ at point."
                                           ',(car clause) ,lineage)))
                            ,@(cdr clause)))
                        clauses)))))
+
+(defun magit-section-match-assoc (section alist)
+  "Return the value associated with SECTION's type or lineage in ALIST."
+  (let ((ident (mapcar #'car (magit-section-ident section))))
+    (--some (pcase-let ((`(,key . ,val) it))
+              (and (magit-section-match-1 key ident) val))
+            alist)))
+
 ;;; Create
 
 (defvar magit-insert-section-hook nil
@@ -759,7 +789,13 @@ anything this time around.
                                            (magit-section-ident ,s)
                                            magit-insert-section--oldroot)))
                    (oref incarnation hidden)
-                 ,(nth 2 (car args)))))
+                 (-if-let (value (magit-section-match-assoc
+                                  ,s magit-section-initial-visibility-alist))
+                     (progn
+                       (when (functionp value)
+                         (setq value (funcall value ,s)))
+                       (eq value 'hide))
+                   ,(nth 2 (car args))))))
        (let ((magit-insert-section--current ,s)
              (magit-insert-section--parent  ,s)
              (magit-insert-section--oldroot
