@@ -1657,7 +1657,7 @@ section or a child thereof."
       (setq heading (match-string 1))
       (magit-delete-match)
       (goto-char beg)
-      (magit-insert-section it (diffstat)
+      (magit-insert-section (diffstat)
         (insert (propertize heading 'face 'magit-diff-file-heading))
         (magit-insert-heading)
         (let (files)
