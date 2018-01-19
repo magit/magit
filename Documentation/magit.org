@@ -5832,7 +5832,8 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
 - Key: o u, magit-submodule-update
 
   Clone missing submodules and checkout appropriate commits.  With a
-  prefix argument also register submodules in ".git/config".
+  prefix argument also register submodules in ".git/config".  The
+  command will update nested submodules recursively.
 
 - Key: o s, magit-submodule-sync
 

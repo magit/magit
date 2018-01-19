@@ -186,7 +186,7 @@ PATH also becomes the name."
 With a prefix argument also register submodules in \".git/config\"."
   (interactive "P")
   (magit-with-toplevel
-    (magit-run-git-async "submodule" "update" (and init "--init"))))
+    (magit-run-git-async "submodule" "update" "--recursive" (and init "--init"))))
 
 ;;;###autoload
 (defun magit-submodule-sync ()
