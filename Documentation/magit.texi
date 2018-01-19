@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-411-g73ea37afb+1)
+@subtitle for version 2.11.0 (2.11.0-436-g3baeddd4c+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-411-g73ea37afb+1).
+This manual is for Magit version 2.11.0 (2.11.0-436-g3baeddd4c+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -1511,14 +1511,16 @@ then the previous visibility is preserved. The initial visibility of
 certain sections can also be overwritten using the hook
 @code{magit-section-set-visibility-hook}.
 
-@defopt magit-section-cache-visibility-types
+@defopt magit-section-cache-visibility
 
 This option controls for which sections the previous visibility
 state should be restored if a section disappears and later appears
-again.  The value is a list of section types.
+again.  The value is a boolean or a list of section types.  If t,
+then the visibility of all sections is cached.  Otherwise this is
+only done for sections whose type matches one of the listed types.
 
-This requires that @code{magit-section-cached-visibility} is a member of
-@code{magit-section-set-visibility-hook}.
+This requires that the function @code{magit-section-cached-visibility} is
+a member of @code{magit-section-set-visibility-hook}.
 @end defopt
 
 @defvar magit-section-set-visibility-hook

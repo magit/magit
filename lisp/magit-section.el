@@ -110,12 +110,22 @@ hardcoded section specific default (see `magit-insert-section')."
   :options '(magit-diff-expansion-threshold
              magit-section-cached-visibility))
 
-(defcustom magit-section-cache-visibility-types
-  '(unpulled unpushed untracked unstaged staged)
-  "List of section types for which visibility should be cached."
+(defcustom magit-section-cache-visibility t
+  "Whether to cache visibility of sections.
+
+Sections always retain their visibility state when they are being
+recreated during a refresh.  But if a section disappears and then
+later reappears again, then this option controls whether this is
+the case.
+
+If t, then cache the the visibility of all sections.  If a list
+of section types, then only do so for matching sections.  If nil,
+then don't do so for any sections."
   :package-version '(magit . "2.12.0")
   :group 'magit-section
-  :type '(repeat symbol))
+  :type '(choice (const  :tag "Don't cache visibility" nil)
+                 (const  :tag "Cache visibility of all sections" t)
+                 (repeat :tag "Cache visibility for section types" symbol)))
 
 (defface magit-section-highlight
   '((((class color) (background light)) :background "grey95")
@@ -1039,8 +1049,9 @@ invisible."
 
 (cl-defun magit-section-maybe-cache-visibility
     (&optional (section magit-insert-section--current))
-  (when (memq (oref section type)
-              magit-section-cache-visibility-types)
+  (when (or (eq magit-section-cache-visibility t)
+            (memq (oref section type)
+                  magit-section-cache-visibility))
     (magit-section-cache-visibility section)))
 
 (defun magit-preserve-section-visibility-cache ()

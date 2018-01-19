@@ -268,10 +268,9 @@ Changes since v2.11.0
   of being shown.  For `magit-status-mode' and `magit-refs-mode'
   buffers the cache now persists when killing the buffer.  #2780
 
-* The new option `magit-section-cache-visibility-types' lets users
-  choose for which section types the visibility cache should be done.
-  By default that is now also done for `untracked, `unstaged' and
-  `staged' sections.  #2780
+* The new option `magit-section-cache-visibility' lets users choose
+  for which section types the visibility cache should be done.  By
+  default that is done for all sections.  #2780
 
 * Added command `magit-remote-prune-refspec', which is necessary
   because Git does not ignore invalid refspecs and instead refuses
