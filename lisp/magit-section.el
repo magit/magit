@@ -754,11 +754,11 @@ anything this time around.
              (-if-let (value (run-hook-with-args-until-success
                               'magit-section-set-visibility-hook ,s))
                  (eq value 'hide)
-               (--if-let (and magit-insert-section--oldroot
-                              (magit-get-section
-                               (magit-section-ident ,s)
-                               magit-insert-section--oldroot))
-                   (oref it hidden)
+               (-if-let (incarnation (and magit-insert-section--oldroot
+                                          (magit-get-section
+                                           (magit-section-ident ,s)
+                                           magit-insert-section--oldroot)))
+                   (oref incarnation hidden)
                  ,(nth 2 (car args)))))
        (let ((magit-insert-section--current ,s)
              (magit-insert-section--parent  ,s)
