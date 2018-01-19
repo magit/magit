@@ -135,7 +135,12 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
   'magit-insert-unpulled-from-upstream "Magit 2.12.0")
 
 (make-obsolete-variable 'magit-no-confirm-default
-                        'magit-dwim-selection "Magit 2.12.0")
+                        'magit-dwim-selection
+                        "Magit 2.12.0")
+
+(make-obsolete-variable 'magit-status-expand-stashes
+                        'magit-section-initial-visibility-alist
+                        "Magit 2.12.0")
 
 (make-obsolete 'magit-section-type     "use (oref ... type) instead"     "Magit 2.12.0")
 (make-obsolete 'magit-section-value    "use (oref ... value) instead"    "Magit 2.12.0")
