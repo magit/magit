@@ -785,7 +785,8 @@ anything this time around.
                        (put-text-property (point) next 'keymap map)))
                    (goto-char next)))))
            (if (eq ,s magit-root-section)
-               (magit-section-show ,s)
+               (let ((magit-section-cache-visibility nil))
+                 (magit-section-show ,s))
              (oset (oref ,s parent) children
                    (nconc (oref (oref ,s parent) children)
                           (list ,s)))))
