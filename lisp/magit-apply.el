@@ -478,11 +478,15 @@ without requiring confirmation."
           (when resolve
             (dolist (file (nreverse resolve))
               (magit-checkout-stage file (magit-checkout-read-stage file))))
-          (magit-discard-files--resurrect (nreverse resurrect))
-          (magit-discard-files--delete    (nreverse delete) status)
-          (magit-discard-files--rename    (nreverse rename) status)
-          (magit-discard-files--discard   (nreverse discard)
-                                          (nreverse discard-new))
+          (when resurrect
+            (magit-discard-files--resurrect (nreverse resurrect)))
+          (when delete
+            (magit-discard-files--delete (nreverse delete) status))
+          (when rename
+            (magit-discard-files--rename (nreverse rename) status))
+          (when (or discard discard-new)
+            (magit-discard-files--discard (nreverse discard)
+                                          (nreverse discard-new)))
           (magit-wip-commit-after-apply files " after discard"))
       (magit-refresh))))
 
