@@ -174,10 +174,21 @@ never modify it.")
 (defun magit-section-ident (section)
   "Return an unique identifier for SECTION.
 The return value has the form ((TYPE . VALUE)...)."
-  (cons (cons (oref section type)
-              (oref section value))
-        (--when-let (oref section parent)
-          (magit-section-ident it))))
+  (with-slots (type value parent) section
+    (cons (cons type
+                (cond ((not (memq type '(unpulled unpushed))) value)
+                      ((string-match-p "@{upstream}" value) value)
+                      ;; Unfortunately Git chokes on "@{push}" when
+                      ;; the value of `push.default' does not allow a
+                      ;; 1:1 mapping.  Arbitrary commands may consult
+                      ;; the section value so we cannot use "@{push}".
+                      ;; But `unpushed' and `unpulled' sections should
+                      ;; keep their identity when switching branches
+                      ;; so we have to use another value here.
+                      ((string-match-p "\\`\\.\\." value) "..@{push}")
+                      (t "@{push}..")))
+          (and parent
+               (magit-section-ident parent)))))
 
 (defun magit-get-section (ident &optional root)
   "Return the section identified by IDENT.
@@ -1013,13 +1024,13 @@ invisible."
 
 (defun magit-section-cached-visibility (section)
   "Set SECTION's visibility to the cached value."
-  (cdr (assoc (magit-section-visibility-ident section)
+  (cdr (assoc (magit-section-ident section)
               magit-section-visibility-cache)))
 
 (cl-defun magit-section-cache-visibility
     (&optional (section magit-insert-section--current))
   ;; Emacs 24 doesn't have `alist-get'.
-  (let* ((id  (magit-section-visibility-ident section))
+  (let* ((id  (magit-section-ident section))
          (elt (assoc id magit-section-visibility-cache))
          (val (if (oref section hidden) 'hide 'show)))
     (if elt
@@ -1031,21 +1042,6 @@ invisible."
   (when (memq (oref section type)
               magit-section-cache-visibility-types)
     (magit-section-cache-visibility section)))
-
-(defun magit-section-visibility-ident (section)
-  (let ((type  (oref section type))
-        (value (oref section value)))
-    (cons type
-          (cond ((not (memq type '(unpulled unpushed))) value)
-                ((string-match-p "@{upstream}" value) value)
-                ;; Unfortunately Git chokes on "@{push}" when the
-                ;; value of `push.default' does not allow a 1:1
-                ;; mapping.  But collapsed logs of unpushed and
-                ;; unpulled commits in the status buffer should
-                ;; remain invisible after changing branches.
-                ;; So we have to pretend the value is constant.
-                ((string-match-p "\\`\\.\\." value) "..@{push}")
-                (t "@{push}..")))))
 
 (defun magit-preserve-section-visibility-cache ()
   (when (derived-mode-p 'magit-status-mode 'magit-refs-mode)
