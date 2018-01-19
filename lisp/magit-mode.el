@@ -1293,6 +1293,21 @@ Unless specified, REPOSITORY is the current buffer's repository."
       (setf (cdr cache)
             (cl-delete key (cdr cache) :key #'car :test #'equal)))))
 
+(defun magit-zap-caches ()
+  "Zap caches for the current repository.
+Remove the repository's entry from `magit-repository-cache'
+and set `magit-section-visibility-cache' to nil in all of
+repository's Magit buffers."
+  (interactive)
+  (magit-with-toplevel
+    (setq magit-repository-local-cache
+          (cl-delete default-directory
+                     magit-repository-local-cache
+                     :key #'car :test #'equal)))
+  (dolist (buffer (magit-mode-get-buffers))
+    (with-current-buffer buffer
+      (setq magit-section-visibility-cache nil))))
+
 ;;; Utilities
 
 (defun magit-run-hook-with-benchmark (hook)
