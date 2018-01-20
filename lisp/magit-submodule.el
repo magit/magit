@@ -219,7 +219,7 @@ prefix argument fetch all remotes."
    (list (magit-completing-read "Deinit module" (magit-get-submodules)
                                 nil t nil nil (magit-section-when module))))
   (magit-with-toplevel
-    (magit-run-git-async "submodule" "deinit" path)))
+    (magit-run-git-async "submodule" "deinit" "--" path)))
 
 ;;; Sections
 
