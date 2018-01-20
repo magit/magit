@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-440-g441e33ea8+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-445-ge751ead6+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-440-g441e33ea8+1).
+This manual is for Magit version 2.11.0 (2.11.0-445-ge751ead6+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -1050,14 +1050,14 @@ certain sections can also be overwritten using the hook
 
   This options can be used to override the initial visibility of
   sections.  In the future it will also be used to define the
-  defaults, but currently a sections default is still hardcoded.
+  defaults, but currently a section's default is still hardcoded.
 
-  The value is an alist.  Each elements maps a section type or lineage
+  The value is an alist.  Each element maps a section type or lineage
   to the initial visibility state for such sections.  The state has to
-  be one of ~show~ or ~hide~, or a function that returns on of these
-  symbols.  A function is called with the section as only argument.
+  be one of ~show~ or ~hide~, or a function that returns one of these
+  symbols.  A function is called with the section as the only argument.
 
-  Use the command ~magit-describe-section~ to determine a sections
+  Use the command ~magit-describe-section~ to determine a section's
   lineage or type.  The vector in the output is the section lineage
   and the type is the first element of that vector.  Wildcards can be
   used, see ~magit-section-match~.

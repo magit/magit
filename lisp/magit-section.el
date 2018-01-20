@@ -118,8 +118,8 @@ recreated during a refresh.  But if a section disappears and then
 later reappears again, then this option controls whether this is
 the case.
 
-If t, then cache the the visibility of all sections.  If a list
-of section types, then only do so for matching sections.  If nil,
+If t, then cache the visibility of all sections.  If a list of
+section types, then only do so for matching sections.  If nil,
 then don't do so for any sections."
   :package-version '(magit . "2.12.0")
   :group 'magit-section
@@ -130,18 +130,18 @@ then don't do so for any sections."
 (defcustom magit-section-initial-visibility-alist nil
   "Alist controlling the initial visibility of sections.
 
-Each elements maps a section type or lineage to the initial
+Each element maps a section type or lineage to the initial
 visibility state for such sections.  The state has to be one of
-`show' or `hide', or a function that returns on of these symbols.
-A function is called with the section as only argument.
+`show' or `hide', or a function that returns one of these symbols.
+A function is called with the section as the only argument.
 
-Use the command `magit-describe-section' to determine a sections
+Use the command `magit-describe-section' to determine a section's
 lineage or type.  The vector in the output is the section lineage
 and the type is the first element of that vector.  Wildcards can
 be used, see `magit-section-match'.
 
 Currently this option is only used to override hardcoded defaults,
-but in the future it will also be used set those the defaults."
+but in the future it will also be used set the defaults."
   :package-version '(magit . "2.12.0")
   :group 'magit-section
   :type '(alist :key-type (sexp :tag "Section type/lineage")

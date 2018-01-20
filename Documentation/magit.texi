@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-440-g441e33ea8+1)
+@subtitle for version 2.11.0 (2.11.0-445-ge751ead6+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-440-g441e33ea8+1).
+This manual is for Magit version 2.11.0 (2.11.0-445-ge751ead6+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -1515,14 +1515,14 @@ certain sections can also be overwritten using the hook
 
 This options can be used to override the initial visibility of
 sections.  In the future it will also be used to define the
-defaults, but currently a sections default is still hardcoded.
+defaults, but currently a section's default is still hardcoded.
 
-The value is an alist.  Each elements maps a section type or lineage
+The value is an alist.  Each element maps a section type or lineage
 to the initial visibility state for such sections.  The state has to
-be one of @code{show} or @code{hide}, or a function that returns on of these
-symbols.  A function is called with the section as only argument.
+be one of @code{show} or @code{hide}, or a function that returns one of these
+symbols.  A function is called with the section as the only argument.
 
-Use the command @code{magit-describe-section} to determine a sections
+Use the command @code{magit-describe-section} to determine a section's
 lineage or type.  The vector in the output is the section lineage
 and the type is the first element of that vector.  Wildcards can be
 used, see @code{magit-section-match}.
