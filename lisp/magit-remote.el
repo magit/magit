@@ -234,11 +234,11 @@ remote or replace the refspecs with the default refspec instead."
                 (format "Prune %%i stale refspecs and %i branches"
                         (length (cl-mapcan (lambda (s) (copy-sequence (cdr s)))
                                            stale)))
-                (mapcar (pcase-lambda (`(,refspec . ,refs))
-                          (concat refspec "\n"
-                                  (mapconcat (lambda (b) (concat "  " b))
-                                             refs "\n")))
-                        stale)))
+                (--map (pcase-let ((`(,refspec . ,refs) it))
+                         (concat refspec "\n"
+                                 (mapconcat (lambda (b) (concat "  " b))
+                                            refs "\n")))
+                       stale)))
             (pcase-dolist (`(,refspec . ,refs) stale)
               (magit-call-git "config" "--unset" variable
                               (regexp-quote refspec))
