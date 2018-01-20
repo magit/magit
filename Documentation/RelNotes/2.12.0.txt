@@ -262,16 +262,19 @@ Changes since v2.11.0
   local branch's push-remote or even rename the push branch on the
   remote.  The default is to do both.  #2850
 
-* The section visibility cache can now also remember that a section
-  should be expanded instead of being hidden when that is the default
-  and the section reappears, not just that it should be hidden instead
-  of being shown.  For `magit-status-mode' and `magit-refs-mode'
-  buffers the cache now persists when killing the buffer.  #2780
+* The section visibility is now being cached for all sections.
+  Previously this was only done for some sections.  When a section
+  disappeared and later appeared again, then it went back to its
+  initial visibility.  The option `magit-section-cache-visibility' can
+  be used to restrict the cache to certain sections again.  #2780
 
-* The new option `magit-section-cache-visibility-types' lets users
-  choose for which section types the visibility cache should be done.
-  By default that is now also done for `untracked, `unstaged' and
-  `staged' sections.  #2780
+* The section visibility cache can now also remember that a section
+  should be expanded instead of being hidden when the latter is the
+  default and the section reappears.  Previously only the opposite
+  was possible.  #2780
+
+* For `magit-status-mode' and `magit-refs-mode' buffers the visibility
+  cache now persists when killing the buffer.  #2780
 
 * Added command `magit-remote-prune-refspec', which is necessary
   because Git does not ignore invalid refspecs and instead refuses

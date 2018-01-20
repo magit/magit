@@ -92,7 +92,8 @@ all."
   :type 'hook)
 
 (defcustom magit-status-expand-stashes t
-  "Whether the list of stashes is expanded initially."
+  "OBSOLETE.  Whether the list of stashes is expanded initially.
+Use `magit-section-visibility-alist' instead."
   :package-version '(magit . "2.3.0")
   :group 'magit-status
   :type 'boolean)

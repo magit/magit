@@ -999,13 +999,6 @@ for a revision."
             (expand-file-name (file-name-as-directory module))))
     (unless (magit-rev-verify-commit rev)
       (user-error "%s is not a commit" rev))
-    (-when-let (buffer (magit-mode-get-buffer 'magit-revision-mode))
-      (with-current-buffer buffer
-        (let ((prev (car magit-refresh-args)))
-          (unless (equal rev prev)
-            (dolist (child (cdr (oref magit-root-section children)))
-              (when (magit-file-section-p child)
-                (magit-section-cache-visibility child)))))))
     (magit-mode-setup #'magit-revision-mode rev nil args files)))
 
 ;;;; Setting commands
