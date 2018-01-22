@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-445-ge751ead6+1)
+@subtitle for version 2.11.0 (2.11.0-446-g6c1156dff+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-445-ge751ead6+1).
+This manual is for Magit version 2.11.0 (2.11.0-446-g6c1156dff+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8044,18 +8044,18 @@ Add the repository at URL as a submodule.  Optional PATH is the path
 to the submodule relative to the root of the super-project. If it is
 nil then the path is determined based on URL.
 
+@kindex o i
+@cindex magit-submodule-init
+@item @kbd{o i} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-init})
+
+Register submodules listed in ".gitmodules" into ".git/config".
+
 @kindex o b
 @cindex magit-submodule-setup
 @item @kbd{o b} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-setup})
 
 Clone and register missing submodules and checkout appropriate
 commits.
-
-@kindex o i
-@cindex magit-submodule-init
-@item @kbd{o i} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-init})
-
-Register submodules listed in ".gitmodules" into ".git/config".
 
 @kindex o u
 @cindex magit-submodule-update
@@ -8064,17 +8064,17 @@ Register submodules listed in ".gitmodules" into ".git/config".
 Clone missing submodules and checkout appropriate commits.  With a
 prefix argument also register submodules in ".git/config".
 
-@kindex o s
-@cindex magit-submodule-sync
-@item @kbd{o s} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-sync})
-
-Update each submodule's remote URL according to ".gitmodules".
-
 @kindex o f
 @cindex magit-submodule-fetch
 @item @kbd{o f} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-fetch})
 
 Fetch submodule.  With a prefix argument fetch all remotes.
+
+@kindex o s
+@cindex magit-submodule-sync
+@item @kbd{o s} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-sync})
+
+Update each submodule's remote URL according to ".gitmodules".
 
 @kindex o d
 @cindex magit-submodule-deinit

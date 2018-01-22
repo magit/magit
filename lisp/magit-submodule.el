@@ -164,6 +164,13 @@ PATH also becomes the name."
          (if prefer-short name path)))))
 
 ;;;###autoload
+(defun magit-submodule-init ()
+  "Register submodules listed in \".gitmodules\" into \".git/config\"."
+  (interactive)
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "init")))
+
+;;;###autoload
 (defun magit-submodule-setup ()
   "Clone and register missing submodules and checkout appropriate commits."
   (interactive)
@@ -174,26 +181,12 @@ PATH also becomes the name."
       (message "All submodules already setup"))))
 
 ;;;###autoload
-(defun magit-submodule-init ()
-  "Register submodules listed in \".gitmodules\" into \".git/config\"."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "init")))
-
-;;;###autoload
 (defun magit-submodule-update (&optional init)
   "Clone missing submodules and checkout appropriate commits.
 With a prefix argument also register submodules in \".git/config\"."
   (interactive "P")
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" (and init "--init"))))
-
-;;;###autoload
-(defun magit-submodule-sync ()
-  "Update each submodule's remote URL according to \".gitmodules\"."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "sync")))
 
 ;;;###autoload
 (defun magit-submodule-fetch (&optional all)
@@ -211,6 +204,13 @@ prefix argument fetch all remotes."
           (version<= "2.8.0" (magit-git-version))
           (list "-j" (number-to-string magit-submodule-fetch-jobs)))
      (and all "--all"))))
+
+;;;###autoload
+(defun magit-submodule-sync ()
+  "Update each submodule's remote URL according to \".gitmodules\"."
+  (interactive)
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "sync")))
 
 ;;;###autoload
 (defun magit-submodule-deinit (path)
