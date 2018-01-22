@@ -103,7 +103,7 @@ Ignored for Git versions before v2.8.0."
   :group 'magit-commands
   :type '(choice (const :tag "one at a time" nil) number))
 
-;;; Commands
+;;; Popup
 
 ;;;###autoload (autoload 'magit-submodule-popup "magit-submodule" nil t)
 (magit-define-popup magit-submodule-popup
@@ -117,6 +117,9 @@ Ignored for Git versions before v2.8.0."
               (?f "Fetch"  magit-submodule-fetch)
               (?d "Deinit" magit-submodule-deinit)
               (?l "List"   magit-list-submodules)))
+
+;;; Commands
+;;;; Add
 
 ;;;###autoload
 (defun magit-submodule-add (url &optional path name)
@@ -163,6 +166,8 @@ PATH also becomes the name."
                  (magit-git-lines "config" "--list" "-f" ".gitmodules"))
          (if prefer-short name path)))))
 
+;;;; Initialize
+
 ;;;###autoload
 (defun magit-submodule-init ()
   "Register submodules listed in \".gitmodules\" into \".git/config\"."
@@ -180,6 +185,8 @@ PATH also becomes the name."
         (magit-run-git-async "submodule" "update" "--init" "--" it)
       (message "All submodules already setup"))))
 
+;;;; Update
+
 ;;;###autoload
 (defun magit-submodule-update (&optional init)
   "Clone missing submodules and checkout appropriate commits.
@@ -187,6 +194,8 @@ With a prefix argument also register submodules in \".git/config\"."
   (interactive "P")
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" (and init "--init"))))
+
+;;;; Fetch
 
 ;;;###autoload
 (defun magit-submodule-fetch (&optional all)
@@ -205,12 +214,16 @@ prefix argument fetch all remotes."
           (list "-j" (number-to-string magit-submodule-fetch-jobs)))
      (and all "--all"))))
 
+;;;; Synchronize
+
 ;;;###autoload
 (defun magit-submodule-sync ()
   "Update each submodule's remote URL according to \".gitmodules\"."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "sync")))
+
+;;;; De-initialize
 
 ;;;###autoload
 (defun magit-submodule-deinit (path)
