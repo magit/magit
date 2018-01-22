@@ -180,10 +180,7 @@ PATH also becomes the name."
   "Clone and register missing submodules and checkout appropriate commits."
   (interactive)
   (magit-with-toplevel
-    (--if-let (--filter (not (file-exists-p (expand-file-name ".git" it)))
-                        (magit-get-submodules))
-        (magit-run-git-async "submodule" "update" "--init" "--" it)
-      (message "All submodules already setup"))))
+    (magit-run-git-async "submodule" "update" "--init")))
 
 ;;;; Update
 
