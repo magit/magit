@@ -96,13 +96,6 @@ an alist that supports the keys `:right-align' and `:pad-right'."
                                                (symbol))
                                        (sexp   :tag "Value"))))))
 
-(defcustom magit-submodule-fetch-jobs 4
-  "Number of submodules to fetch in parallel.
-Ignored for Git versions before v2.8.0."
-  :package-version '(magit . "2.12.0")
-  :group 'magit-commands
-  :type '(choice (const :tag "one at a time" nil) number))
-
 ;;; Popup
 
 ;;;###autoload (autoload 'magit-submodule-popup "magit-submodule" nil t)
@@ -114,8 +107,8 @@ Ignored for Git versions before v2.8.0."
               (?i "Init"   magit-submodule-init)
               (?u "Update" magit-submodule-update)
               (?s "Sync"   magit-submodule-sync)
-              (?f "Fetch"  magit-submodule-fetch)
               (?d "Deinit" magit-submodule-deinit)
+              (?f "Fetch"  magit-fetch-modules)
               (?l "List"   magit-list-submodules)))
 
 ;;; Commands
@@ -190,25 +183,6 @@ PATH also becomes the name."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update")))
-
-;;;; Fetch
-
-;;;###autoload
-(defun magit-submodule-fetch (&optional all)
-  "Fetch all submodules.
-
-Option `magit-submodule-fetch-jobs' controls how many submodules
-are being fetched in parallel.  Also fetch the super-repository,
-because `git-fetch' does not support not doing that.  With a
-prefix argument fetch all remotes."
-  (interactive "P")
-  (magit-with-toplevel
-    (magit-run-git-async
-     "fetch" "--verbose" "--recurse-submodules"
-     (and magit-submodule-fetch-jobs
-          (version<= "2.8.0" (magit-git-version))
-          (list "-j" (number-to-string magit-submodule-fetch-jobs)))
-     (and all "--all"))))
 
 ;;;; Synchronize
 
