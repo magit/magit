@@ -116,14 +116,12 @@ an alist that supports the keys `:right-align' and `:pad-right'."
 
 ;;;###autoload
 (defun magit-submodule-add (url &optional path name)
-  "Add the repository at URL as a submodule.
+  "Add the repository at URL as a module.
 
-Optional PATH is the path to the submodule relative to the root
-of the superproject.  If it is nil, then the path is determined
-based on the URL.
-
-Optional NAME is the name of the submodule.  If it is nil, then
-PATH also becomes the name."
+Optional PATH is the path to the module relative to the root of
+the superproject.  If it is nil, then the path is determined
+based on the URL.  Optional NAME is the name of the module.  If
+it is nil, then PATH also becomes the name."
   (interactive
    (magit-with-toplevel
      (let* ((url (magit-read-string-ns "Add submodule (remote url)"))
@@ -163,14 +161,14 @@ PATH also becomes the name."
 
 ;;;###autoload
 (defun magit-submodule-init ()
-  "Register submodules listed in \".gitmodules\" into \".git/config\"."
+  "Register all remaining modules."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "init")))
 
 ;;;###autoload
 (defun magit-submodule-setup ()
-  "Clone and register missing submodules and checkout appropriate commits."
+  "Register and clone all remaining modules, checking out the recorded tips."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" "--init")))
@@ -179,7 +177,7 @@ PATH also becomes the name."
 
 ;;;###autoload
 (defun magit-submodule-update ()
-  "Clone missing modules and checkout appropriate commits."
+  "Update all modules by checking out the recorded tips."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update")))
@@ -188,7 +186,7 @@ PATH also becomes the name."
 
 ;;;###autoload
 (defun magit-submodule-sync ()
-  "Update each submodule's remote URL according to \".gitmodules\"."
+  "Synchronize each module's remote configuration."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "sync")))
@@ -197,7 +195,7 @@ PATH also becomes the name."
 
 ;;;###autoload
 (defun magit-submodule-deinit (path)
-  "Unregister the submodule at PATH."
+  "Unregister the module at PATH."
   (interactive
    (list (magit-completing-read "Deinit module" (magit-list-module-paths)
                                 nil t nil nil (magit-section-when module))))
