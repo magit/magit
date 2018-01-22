@@ -134,6 +134,9 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
 (define-obsolete-function-alias 'magit-insert-unpulled-from-upstream-or-recent
   'magit-insert-unpulled-from-upstream "Magit 2.12.0")
 
+(define-obsolete-function-alias 'magit-get-submodules
+  'magit-list-module-paths "Magit 2.12.0")
+
 (make-obsolete-variable 'magit-no-confirm-default
                         'magit-dwim-selection
                         "Magit 2.12.0")

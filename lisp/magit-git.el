@@ -1239,7 +1239,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
                (substring it 41))
           (magit-git-lines "ls-remote" remote)))
 
-(defun magit-get-submodules ()
+(defun magit-list-module-paths ()
   (--mapcat (and (string-match "^160000 [0-9a-z]\\{40\\} 0\t\\(.+\\)$" it)
                  (list (match-string 1 it)))
             (magit-git-items "ls-files" "-z" "--stage")))
@@ -1774,7 +1774,7 @@ the reference is used.  The first regexp submatch becomes the
                              (magit-get-remote))))
 
 (defun magit-read-module-path (prompt)
-  (magit-completing-read prompt (magit-get-submodules)))
+  (magit-completing-read prompt (magit-list-module-paths)))
 
 ;;; Variables
 

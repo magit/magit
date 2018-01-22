@@ -225,7 +225,7 @@ prefix argument fetch all remotes."
 (defun magit-submodule-deinit (path)
   "Unregister the submodule at PATH."
   (interactive
-   (list (magit-completing-read "Deinit module" (magit-get-submodules)
+   (list (magit-completing-read "Deinit module" (magit-list-module-paths)
                                 nil t nil nil (magit-section-when module))))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "deinit" "--" path)))
@@ -238,7 +238,7 @@ prefix argument fetch all remotes."
 Hook `magit-module-sections-hook' controls which module sections
 are inserted, and option `magit-module-sections-nested' controls
 whether they are wrapped in an additional section."
-  (-when-let (modules (magit-get-submodules))
+  (-when-let (modules (magit-list-module-paths))
     (if magit-module-sections-nested
         (magit-insert-section section (submodules nil t)
           (magit-insert-heading
@@ -258,7 +258,7 @@ whether they are wrapped in an additional section."
   "Insert sections for all modules.
 For each section insert the path and the output of `git describe --tags',
 or, failing that, the abbreviated HEAD commit hash."
-  (-when-let (modules (magit-get-submodules))
+  (-when-let (modules (magit-list-module-paths))
     (magit-insert-section section (submodules nil t)
       (magit-insert-heading
         (format "%s (%s)"
@@ -272,7 +272,7 @@ or, failing that, the abbreviated HEAD commit hash."
 
 (defun magit--insert-modules-overview (&optional _section)
   (magit-with-toplevel
-    (let* ((modules (magit-get-submodules))
+    (let* ((modules (magit-list-module-paths))
            (path-format (format "%%-%is "
                                 (min (apply 'max (mapcar 'length modules))
                                      (/ (window-width) 2))))
@@ -375,7 +375,7 @@ These sections can be expanded to show the respective commits."
 
 (defun magit--insert-modules-logs (heading type range)
   "For internal use, don't add to a hook."
-  (-when-let (modules (magit-get-submodules))
+  (-when-let (modules (magit-list-module-paths))
     (magit-insert-section section ((eval type) nil t)
       (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
       (magit-insert-heading
@@ -415,7 +415,7 @@ These sections can be expanded to show the respective commits."
                     (list module
                           (vconcat (--map (or (funcall (nth 2 it) module) "")
                                           magit-submodule-list-columns)))))
-                (magit-get-submodules)))
+                (magit-list-module-paths)))
   (tabulated-list-print))
 
 (defvar magit-submodule-list-mode-map
