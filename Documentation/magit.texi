@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-446-g6c1156dff+1)
+@subtitle for version 2.11.0 (2.11.0-448-gf18957a17+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-446-g6c1156dff+1).
+This manual is for Magit version 2.11.0 (2.11.0-448-gf18957a17+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8061,8 +8061,7 @@ commits.
 @cindex magit-submodule-update
 @item @kbd{o u} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-update})
 
-Clone missing submodules and checkout appropriate commits.  With a
-prefix argument also register submodules in ".git/config".
+Clone missing submodules and checkout appropriate commits.
 
 @kindex o f
 @cindex magit-submodule-fetch

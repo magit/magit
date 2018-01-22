@@ -188,12 +188,11 @@ PATH also becomes the name."
 ;;;; Update
 
 ;;;###autoload
-(defun magit-submodule-update (&optional init)
-  "Clone missing submodules and checkout appropriate commits.
-With a prefix argument also register submodules in \".git/config\"."
-  (interactive "P")
+(defun magit-submodule-update ()
+  "Clone missing modules and checkout appropriate commits."
+  (interactive)
   (magit-with-toplevel
-    (magit-run-git-async "submodule" "update" (and init "--init"))))
+    (magit-run-git-async "submodule" "update")))
 
 ;;;; Fetch
 
