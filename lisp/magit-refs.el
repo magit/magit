@@ -528,7 +528,7 @@ line is inserted at all."
                                      'magit-branch-local
                                    'magit-branch-remote))))
     (when (and substring branch)
-      (setq branch (substring branch substring)))
+      (setq substring (substring branch substring)))
     (magit-insert-heading
       (format-spec
        format
@@ -536,7 +536,8 @@ line is inserted at all."
          (?C . ,(or mark " "))
          (?h . ,(or (propertize hash 'face 'magit-hash) ""))
          (?m . ,(magit-log-propertize-keywords (or message "")))
-         (?n . ,(let ((str (propertize (or branch "(detached)") 'face face)))
+         (?n . ,(let ((str (propertize (or substring branch "(detached)")
+                                       'face face)))
                   (when (string-match "%-?\\([0-9]+\\)n" format)
                     (let ((width (string-to-number (match-string 1 format))))
                       (setq str (concat str (make-string
