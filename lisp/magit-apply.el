@@ -520,7 +520,7 @@ without requiring confirmation."
               (magit-call-git "rm" "--cached" "--force" "--" file)))))))
 
 (defun magit-discard-files--rename (files status)
-  (magit-confirm 'rename "Undo rename %s" "Undo %i renames"
+  (magit-confirm 'rename "Undo rename %s" "Undo %i renames" nil
     (mapcar (lambda (file)
               (setq file (assoc file status))
               (format "%s -> %s" (cadr file) (car file)))

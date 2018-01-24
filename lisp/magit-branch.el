@@ -568,7 +568,7 @@ defaulting to the branch at point."
    (let ((branches (magit-region-values 'branch t))
          (force current-prefix-arg))
      (if (> (length branches) 1)
-         (magit-confirm t nil "Delete %i branches" branches)
+         (magit-confirm t nil "Delete %i branches" nil branches)
        (setq branches
              (list (magit-read-branch-prefer-other
                     (if force "Force delete branch" "Delete branch")))))
@@ -577,7 +577,7 @@ defaulting to the branch at point."
          (if (magit-confirm 'delete-unmerged-branch
                "Delete unmerged branch %s"
                "Delete %i unmerged branches"
-               unmerged 'noabort)
+               'noabort unmerged)
              (setq force branches)
            (or (setq branches (-difference branches unmerged))
                (user-error "Abort")))))
@@ -629,14 +629,14 @@ defaulting to the branch at point."
                                  (magit-branch-merged-p branch t))
                        (magit-confirm 'delete-unmerged-branch
                          "Delete unmerged branch %s" ""
-                         (list branch)))
+                         nil (list branch)))
                      (magit-call-git "checkout" "--detach"))
             (`master (unless (or (equal force '(4))
                                  (member branch force)
                                  (magit-branch-merged-p branch "master"))
                        (magit-confirm 'delete-unmerged-branch
                          "Delete unmerged branch %s" ""
-                         (list branch)))
+                         nil (list branch)))
                      (magit-call-git "checkout" "master"))
             (`abort  (user-error "Abort")))
           (setq force t))

@@ -460,7 +460,7 @@ to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
 \n(git tag -d TAGS)"
   (interactive (list (--if-let (magit-region-values 'tag)
-                         (magit-confirm t nil "Delete %i tags" it)
+                         (magit-confirm t nil "Delete %i tags" nil it)
                        (magit-read-tag "Delete tag" t))))
   (magit-run-git "tag" "-d" tags))
 
@@ -479,12 +479,12 @@ defaulting to the tag at point.
      (unless (magit-confirm t
                "Delete %s locally"
                "Delete %i tags locally"
-               ltags 'noabort)
+               'noabort ltags)
        (setq ltags nil))
      (unless (magit-confirm t
                "Delete %s from remote"
                "Delete %i tags from remote"
-               rtags 'noabort)
+               'noabort rtags)
        (setq rtags nil))
      (list ltags rtags remote)))
   (when tags

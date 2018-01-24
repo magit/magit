@@ -494,7 +494,7 @@ running 'man git-rebase' at the command line) for details."
 (defun git-rebase-cancel-confirm (force)
   (or (not (buffer-modified-p))
       force
-      (magit-confirm 'abort-rebase "Abort this rebase" nil nil 'noabort)))
+      (magit-confirm 'abort-rebase "Abort this rebase" nil 'noabort)))
 
 (defun git-rebase-autostash-save ()
   (--when-let (magit-file-line (magit-git-dir "rebase-merge/autostash"))

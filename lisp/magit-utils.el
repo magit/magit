@@ -572,8 +572,8 @@ ACTION is a member of option `magit-slow-confirm'."
       (yes-or-no-p prompt)
     (y-or-n-p prompt)))
 
-(cl-defun magit-confirm (action &optional prompt prompt-n
-                                (items nil sitems) noabort)
+(cl-defun magit-confirm (action &optional prompt prompt-n noabort
+                                (items nil sitems))
   (declare (indent defun))
   (setq prompt-n (format (concat (or prompt-n prompt) "? ") (length items)))
   (setq prompt   (format (concat (or prompt (magit-confirm-make-prompt action))
@@ -616,7 +616,7 @@ ACTION is a member of option `magit-slow-confirm'."
     (magit-confirm action
       (concat prompt " %s")
       (concat prompt " %i files")
-      files)))
+      nil files)))
 
 (defun magit-confirm-make-prompt (action)
   (let ((prompt (symbol-name action)))
