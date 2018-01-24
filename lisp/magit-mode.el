@@ -1109,6 +1109,8 @@ if you so desire."
 (add-hook 'magit-pre-call-git-hook #'magit-maybe-save-repository-buffers)
 (add-hook 'magit-pre-start-git-hook #'magit-maybe-save-repository-buffers)
 
+(defvar-local magit-inhibit-refresh-save nil)
+
 (defun magit-save-repository-buffers (&optional arg)
   "Save file-visiting buffers belonging to the current repository.
 After any buffer where `buffer-save-without-query' is non-nil
@@ -1117,10 +1119,22 @@ buffer which visits a file in the current repository.  Optional
 argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
   (-when-let (topdir (magit-rev-parse-safe "--show-toplevel"))
-    (let ((remote (file-remote-p topdir)))
+    (let ((remote (file-remote-p topdir))
+          (save-some-buffers-action-alist
+           `((?Y (lambda (buffer)
+                   (with-current-buffer buffer
+                     (setq buffer-save-without-query t)
+                     (save-buffer)))
+                 "to save the current buffer and remember choice")
+             (?N (lambda (buffer)
+                   (with-current-buffer buffer
+                     (setq magit-inhibit-refresh-save t)))
+                 "to skip the current buffer and remember choice")
+             ,@save-some-buffers-action-alist)))
       (save-some-buffers
        arg (lambda ()
-             (and buffer-file-name
+             (and (not magit-inhibit-refresh-save)
+                  buffer-file-name
                   ;; Avoid needlessly connecting to unrelated remotes.
                   (equal (file-remote-p buffer-file-name)
                          remote)
