@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-448-gf18957a17+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-459-gcf60b1039+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-448-gf18957a17+1).
+This manual is for Magit version 2.11.0 (2.11.0-459-gcf60b1039+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -5834,9 +5834,9 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
 
 - Key: o a, magit-submodule-add
 
-  Add the repository at URL as a submodule.  Optional PATH is the path
-  to the submodule relative to the root of the super-project. If it is
-  nil then the path is determined based on URL.
+  This commands adds the repository at URL as a module.  Optional PATH
+  is the path to the module relative to the root of the super-project.
+  If it is nil then the path is determined based on URL.
 
 - Key: o i, magit-submodule-init
 
@@ -5851,10 +5851,6 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
 
   Clone missing submodules and checkout appropriate commits.
 
-- Key: o f, magit-submodule-fetch
-
-  Fetch submodule.  With a prefix argument fetch all remotes.
-
 - Key: o s, magit-submodule-sync
 
   Update each submodule's remote URL according to ".gitmodules".
@@ -5862,6 +5858,19 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
 - Key: o d, magit-submodule-deinit
 
   Unregister the submodule at PATH.
+
+- Key: o l, magit-list-submodules
+
+  This command displays a list of the current repository's modules.
+
+- Key: o f, magit-fetch-modules
+
+  This command fetches all modules.
+
+  Option ~magit-fetch-modules-jobs~ controls how many submodules are
+  being fetched in parallel.  Also fetch the super-repository, because
+  ~git fetch~ does not support not doing that.  With a prefix argument
+  fetch all remotes.
 
 ** Subtree
 

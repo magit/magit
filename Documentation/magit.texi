@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-448-gf18957a17+1)
+@subtitle for version 2.11.0 (2.11.0-459-gcf60b1039+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-448-gf18957a17+1).
+This manual is for Magit version 2.11.0 (2.11.0-459-gcf60b1039+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8040,9 +8040,9 @@ the appropriate infix arguments in a popup buffer.
 @cindex magit-submodule-add
 @item @kbd{o a} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-add})
 
-Add the repository at URL as a submodule.  Optional PATH is the path
-to the submodule relative to the root of the super-project. If it is
-nil then the path is determined based on URL.
+This commands adds the repository at URL as a module.  Optional PATH
+is the path to the module relative to the root of the super-project.
+If it is nil then the path is determined based on URL.
 
 @kindex o i
 @cindex magit-submodule-init
@@ -8063,12 +8063,6 @@ commits.
 
 Clone missing submodules and checkout appropriate commits.
 
-@kindex o f
-@cindex magit-submodule-fetch
-@item @kbd{o f} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-fetch})
-
-Fetch submodule.  With a prefix argument fetch all remotes.
-
 @kindex o s
 @cindex magit-submodule-sync
 @item @kbd{o s} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-sync})
@@ -8080,6 +8074,23 @@ Update each submodule's remote URL according to ".gitmodules".
 @item @kbd{o d} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-deinit})
 
 Unregister the submodule at PATH.
+
+@kindex o l
+@cindex magit-list-submodules
+@item @kbd{o l} @tie{}@tie{}@tie{}@tie{}(@code{magit-list-submodules})
+
+This command displays a list of the current repository's modules.
+
+@kindex o f
+@cindex magit-fetch-modules
+@item @kbd{o f} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-modules})
+
+This command fetches all modules.
+
+Option @code{magit-fetch-modules-jobs} controls how many submodules are
+being fetched in parallel.  Also fetch the super-repository, because
+@code{git fetch} does not support not doing that.  With a prefix argument
+fetch all remotes.
 @end table
 
 @node Subtree
