@@ -111,9 +111,6 @@ an alist that supports the keys `:right-align' and `:pad-right'."
               (?f "Fetch"  magit-fetch-modules)
               (?l "List"   magit-list-submodules)))
 
-;;; Commands
-;;;; Add
-
 ;;;###autoload
 (defun magit-submodule-add (url &optional path name)
   "Add the repository at URL as a module.
@@ -157,8 +154,6 @@ it is nil, then PATH also becomes the name."
                  (magit-git-lines "config" "--list" "-f" ".gitmodules"))
          (if prefer-short name path)))))
 
-;;;; Initialize
-
 ;;;###autoload
 (defun magit-submodule-init ()
   "Register all remaining modules."
@@ -173,8 +168,6 @@ it is nil, then PATH also becomes the name."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" "--init")))
 
-;;;; Update
-
 ;;;###autoload
 (defun magit-submodule-update ()
   "Update all modules by checking out the recorded tips."
@@ -182,16 +175,12 @@ it is nil, then PATH also becomes the name."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update")))
 
-;;;; Synchronize
-
 ;;;###autoload
 (defun magit-submodule-sync ()
   "Synchronize each module's remote configuration."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "sync")))
-
-;;;; De-initialize
 
 ;;;###autoload
 (defun magit-submodule-deinit (path)
