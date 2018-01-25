@@ -139,7 +139,8 @@ it is nil, then PATH also becomes the name."
        (list url
              (directory-file-name path)
              (magit-submodule-read-name-for-path path)))))
-  (magit-run-git "submodule" "add" (and name (list "--name" name)) url path))
+  (magit-with-toplevel
+    (magit-run-git "submodule" "add" (and name (list "--name" name)) url path)))
 
 ;;;###autoload
 (defun magit-submodule-read-name-for-path (path &optional prefer-short)
