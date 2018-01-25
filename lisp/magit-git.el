@@ -1773,8 +1773,10 @@ the reference is used.  The first regexp submatch becomes the
                              (magit-remote-at-point)
                              (magit-get-remote))))
 
-(defun magit-read-module-path (prompt)
-  (magit-completing-read prompt (magit-list-module-paths)))
+(defun magit-read-module-path (prompt &optional predicate)
+  (magit-completing-read prompt (magit-list-module-paths)
+                         predicate t nil nil
+                         (magit-module-at-point predicate)))
 
 ;;; Variables
 
