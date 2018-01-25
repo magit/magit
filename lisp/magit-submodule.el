@@ -348,17 +348,18 @@ These sections can be expanded to show the respective commits."
          (propertize (match-string 2 heading) 'face 'magit-branch-remote) ":"))
       (magit-with-toplevel
         (dolist (module modules)
-          (let ((default-directory
-                  (expand-file-name (file-name-as-directory module))))
-            (when (magit-file-accessible-directory-p default-directory)
-              (magit-insert-section sec (file module t)
-                (magit-insert-heading
-                  (concat (propertize module 'face 'magit-diff-file-heading) ":"))
-                (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
-                  "-c" "push.default=current" "log" "--oneline" range)
-                (when (> (point)
-                         (oref sec content))
-                  (delete-char -1)))))))
+          (when (magit-module-worktree-p module)
+            (let ((default-directory
+                    (expand-file-name (file-name-as-directory module))))
+              (when (magit-file-accessible-directory-p default-directory)
+                (magit-insert-section sec (file module t)
+                  (magit-insert-heading
+                    (concat (propertize module 'face 'magit-diff-file-heading) ":"))
+                  (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
+                    "-c" "push.default=current" "log" "--oneline" range)
+                  (when (> (point)
+                           (oref sec content))
+                    (delete-char -1))))))))
       (if (> (point)
              (oref section content))
           (insert ?\n)
