@@ -752,6 +752,13 @@ If optional FILES is non-nil, then only conflicts in those files
 are considered."
   (and (magit-git-string "ls-files" "--unmerged" files) t))
 
+(defun magit-module-worktree-p (module)
+  (magit-with-toplevel
+    (file-exists-p (expand-file-name (expand-file-name ".git" module)))))
+
+(defun magit-module-no-worktree-p (module)
+  (not (magit-module-worktree-p module)))
+
 ;;; Revisions and References
 
 (defun magit-rev-parse (&rest args)
@@ -950,6 +957,18 @@ to, or to some other symbolic-ref that points to the same ref."
   (magit-section-case
     (remote (oref it value))
     (branch (magit-section-parent-value it))))
+
+(defun magit-module-at-point (&optional predicate)
+  (magit-section-when
+      '(submodule
+        [file modules-unpulled-from-upstream]
+        [file modules-unpulled-from-pushremote]
+        [file modules-unpushed-to-upstream]
+        [file modules-unpushed-to-pushremote])
+    (let ((module (oref it value)))
+      (and (or (not predicate)
+               (funcall predicate module))
+           module))))
 
 (defun magit-get-current-branch ()
   "Return the refname of the currently checked out branch.
@@ -1777,6 +1796,32 @@ the reference is used.  The first regexp submatch becomes the
   (magit-completing-read prompt (magit-list-module-paths)
                          predicate t nil nil
                          (magit-module-at-point predicate)))
+
+(defun magit-module-confirm (verb &optional predicate)
+  (let (modules)
+    (if current-prefix-arg
+        (progn
+          (setq modules (magit-list-module-paths))
+          (when predicate
+            (setq modules (-filter predicate modules)))
+          (unless modules
+            (if predicate
+                (user-error "No modules satisfying %s available" predicate)
+              (user-error "No modules available"))))
+      (setq modules (magit-region-values
+                     '(submodule
+                       [file modules-unpulled-from-upstream]
+                       [file modules-unpulled-from-pushremote]
+                       [file modules-unpushed-to-upstream]
+                       [file modules-unpushed-to-pushremote])))
+      (when modules
+        (when predicate
+          (setq modules (-filter predicate modules)))
+        (unless modules
+          (user-error "No modules satisfying %s selected" predicate))))
+    (if (> (length modules) 1)
+        (magit-confirm t nil (format "%s %%i modules" verb) modules)
+      (list (magit-read-module-path (format "%s module" verb) predicate)))))
 
 ;;; Variables
 
