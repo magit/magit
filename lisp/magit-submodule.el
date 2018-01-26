@@ -103,12 +103,18 @@ an alist that supports the keys `:right-align' and `:pad-right'."
   "Popup console for submodule commands."
   :man-page "git-submodule"
   :actions
-  '((?a "Add"         magit-submodule-add)
-    (?r "Register"    magit-submodule-register)
-    (?p "Populate"    magit-submodule-populate)
-    (?u "Update"      magit-submodule-update)
-    (?s "Synchronize" magit-submodule-synchronize)
-    (?d "Unpopulate"  magit-submodule-unpopulate)
+  '((?a "Add            git submodule add"
+        magit-submodule-add)
+    (?r "Register       git submodule init"
+        magit-submodule-register)
+    (?p "Populate       git submodule update --init"
+        magit-submodule-populate)
+    (?u "Update         git submodule update"
+        magit-submodule-update)
+    (?s "Synchronize    git submodule sync"
+        magit-submodule-synchronize)
+    (?d "Unpopulate     git submodule deinit"
+        magit-submodule-unpopulate)
     nil
     (?l "List all modules"  magit-list-submodules)
     (?f "Fetch all modules" magit-fetch-modules))
@@ -161,41 +167,63 @@ it is nil, then PATH also becomes the name."
          (if prefer-short name path)))))
 
 ;;;###autoload
-(defun magit-submodule-register ()
-  "Register all remaining modules."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "init")))
-
-;;;###autoload
-(defun magit-submodule-populate ()
-  "Register and clone all remaining modules, checking out the recorded tips."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "update" "--init")))
-
-;;;###autoload
-(defun magit-submodule-update ()
-  "Update all modules by checking out the recorded tips."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "update")))
-
-;;;###autoload
-(defun magit-submodule-synchronize ()
-  "Synchronize each module's remote configuration."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "sync")))
-
-;;;###autoload
-(defun magit-submodule-unpopulate (path)
-  "Remove the working directory of the module at PATH."
+(defun magit-submodule-register (modules)
+  "Register MODULES."
+  ;; This command and the underlying "git submodule init" do NOT
+  ;; "initialize" modules.  They merely "register" modules in the
+  ;; super-projects $GIT_DIR/config file, the purpose of which is to
+  ;; allow users to change such values before actually initializing
+  ;; the modules.
   (interactive
-   (list (magit-completing-read "Deinit module" (magit-list-module-paths)
-                                nil t nil nil (magit-section-when module))))
+   (list (magit-module-confirm "Register" 'magit-module-no-worktree-p)))
   (magit-with-toplevel
-    (magit-run-git-async "submodule" "deinit" "--" path)))
+    (magit-run-git-async "submodule" "init" "--" modules)))
+
+;;;###autoload
+(defun magit-submodule-populate (modules)
+  "Create MODULES working directories, checking out the recorded commits."
+  ;; This is the command that actually "initializes" modules.
+  ;; A module is initialized when it has a working directory,
+  ;; a gitlink, and a .gitmodules entry.
+  (interactive
+   (list (magit-module-confirm "Populate" 'magit-module-no-worktree-p)))
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "update" "--init" "--" modules)))
+
+;;;###autoload
+(defun magit-submodule-update (modules)
+  "Update MODULES by checking out the recorded commits."
+  ;; Unlike `git-submodule's `update' command ours can only update
+  ;; "initialized" modules by checking out other commits but not
+  ;; "initialize" modules by creating the working directories.
+  ;; To do the latter we previde the "setup" command.
+  (interactive
+   (list (magit-module-confirm "Update" 'magit-module-worktree-p)))
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "update" "--" modules)))
+
+;;;###autoload
+(defun magit-submodule-synchronize (modules)
+  "Synchronize url configuration of MODULES."
+  (interactive
+   (list (magit-module-confirm "Synchronize" 'magit-module-worktree-p)))
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "sync" "--" modules)))
+
+;;;###autoload
+(defun magit-submodule-unpopulate (modules)
+  "Remove working directories of MODULES."
+  ;; Even though a package is "uninitialized" (it has no worktree)
+  ;; the super-projects $GIT_DIR/config may never-the-less set the
+  ;; module's url.  This may happen if you `deinit' and then `init'
+  ;; to register (NOT initialize).  Because the purpose of `deinit'
+  ;; is to remove the working directory AND to remove the url, this
+  ;; command does not limit itself to modules that have no working
+  ;; directory.
+  (interactive
+   (list (magit-module-confirm "Unpopulate")))
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "deinit" "--" modules)))
 
 ;;; Sections
 

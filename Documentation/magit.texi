@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-467-gba1e34950+1)
+@subtitle for version 2.11.0 (2.11.0-468-gf6d0229c6+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-467-gba1e34950+1).
+This manual is for Magit version 2.11.0 (2.11.0-468-gf6d0229c6+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8035,7 +8035,17 @@ displayed in the super-repository's status buffer.
 
 This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
+@end table
 
+Some of the below commands default to act on the modules that are
+selected using the region.  For brevity their description talk about
+"the selected modules", but if no modules are selected, then the act
+on the current module instead, or if point isn't on a module, then the
+read a single module to act on.  With a prefix argument these commands
+ignore the selection and the current module and instead act on all
+suitable modules.
+
+@table @asis
 @kindex o a
 @cindex magit-submodule-add
 @item @kbd{o a} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-add})
@@ -8048,32 +8058,38 @@ If it is nil then the path is determined based on URL.
 @cindex magit-submodule-register
 @item @kbd{o r} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-register})
 
-Register submodules listed in ".gitmodules" into ".git/config".
+This command registers the selected modules by copying their urls
+from ".gitmodules" to "$GIT@math{_DIR}/config".  These values can then be
+edited before running @code{magit-submodule-populate}.  If you don't need
+to edit any urls, then use the latter directly.
 
 @kindex o p
 @cindex magit-submodule-populate
 @item @kbd{o p} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-populate})
 
-Clone and register missing submodules and checkout appropriate
-commits.
+This command creates the working directory or directories of the
+selected modules, checking out the recorded commits.
 
 @kindex o u
 @cindex magit-submodule-update
 @item @kbd{o u} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-update})
 
-Clone missing submodules and checkout appropriate commits.
+This command updates the selected modules checking out the recorded
+commits.
 
 @kindex o s
 @cindex magit-submodule-synchronize
 @item @kbd{o s} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-synchronize})
 
-Update each submodule's remote URL according to ".gitmodules".
+This command synchronizes the urls of the selected modules, copying
+the values from ".gitmodules" to the ".git/config" of the
+super-project as well those of the modules.
 
 @kindex o d
 @cindex magit-submodule-unpopulate
 @item @kbd{o d} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-unpopulate})
 
-Remove the working directory of a module.
+This command removes the working directory of the selected modules.
 
 @kindex o l
 @cindex magit-list-submodules

@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-467-gba1e34950+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-468-gf6d0229c6+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-467-gba1e34950+1).
+This manual is for Magit version 2.11.0 (2.11.0-468-gf6d0229c6+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -5832,6 +5832,14 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
+Some of the below commands default to act on the modules that are
+selected using the region.  For brevity their description talk about
+"the selected modules", but if no modules are selected, then the act
+on the current module instead, or if point isn't on a module, then the
+read a single module to act on.  With a prefix argument these commands
+ignore the selection and the current module and instead act on all
+suitable modules.
+
 - Key: o a, magit-submodule-add
 
   This commands adds the repository at URL as a module.  Optional PATH
@@ -5840,24 +5848,30 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
 
 - Key: o r, magit-submodule-register
 
-  Register submodules listed in ".gitmodules" into ".git/config".
+  This command registers the selected modules by copying their urls
+  from ".gitmodules" to "$GIT_DIR/config".  These values can then be
+  edited before running ~magit-submodule-populate~.  If you don't need
+  to edit any urls, then use the latter directly.
 
 - Key: o p, magit-submodule-populate
 
-  Clone and register missing submodules and checkout appropriate
-  commits.
+  This command creates the working directory or directories of the
+  selected modules, checking out the recorded commits.
 
 - Key: o u, magit-submodule-update
 
-  Clone missing submodules and checkout appropriate commits.
+  This command updates the selected modules checking out the recorded
+  commits.
 
 - Key: o s, magit-submodule-synchronize
 
-  Update each submodule's remote URL according to ".gitmodules".
+  This command synchronizes the urls of the selected modules, copying
+  the values from ".gitmodules" to the ".git/config" of the
+  super-project as well those of the modules.
 
 - Key: o d, magit-submodule-unpopulate
 
-  Remove the working directory of a module.
+  This command removes the working directory of the selected modules.
 
 - Key: o l, magit-list-submodules
 
