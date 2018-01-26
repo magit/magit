@@ -280,6 +280,24 @@ Changes since v2.11.0
   because Git does not ignore invalid refspecs and instead refuses
   to fetch using only the refspecs that are still valid.  #3134
 
+* The terminology about modules as used by Git is ambigious.  Magit
+  now avoids the term "initialized" and instead uses the term
+  "populated" to refer to a module whose working directory exists.
+  The names of commands have been adjusted accordingly.  For example,
+  unlike "git submodule init", which does *not* actually "initialize"
+  a module, `magit-submodule-popuplate' does "populate" a module
+  (using "git submodule update --init").  #2911
+
+* Most module commands now default to act on the selected modules or
+  if no modules are selected the current module, if any.  Otherwise
+  they fall back to read a single module from the user.  Previously
+  some of these commands acted on all modules and it was not possible
+  to perform the respective actions on a subset of modules.  Acting
+  on all suitable modules is still possible using a prefix argument.
+  #2911
+
+* Many arguments have been added to the module popup.  #2911
+
 Fixes since v2.11.0
 -------------------
 

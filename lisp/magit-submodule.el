@@ -102,17 +102,38 @@ an alist that supports the keys `:right-align' and `:pad-right'."
 (magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
   :man-page "git-submodule"
-  :actions  '((?a "Add"    magit-submodule-add)
-              (?b "Setup"  magit-submodule-setup)
-              (?i "Init"   magit-submodule-init)
-              (?u "Update" magit-submodule-update)
-              (?s "Sync"   magit-submodule-sync)
-              (?d "Deinit" magit-submodule-deinit)
-              (?f "Fetch"  magit-fetch-modules)
-              (?l "List"   magit-list-submodules)))
+  :switches '((?f "Force"            "--force")
+              (?r "Recursive"        "--recursive")
+              (?N "Do not fetch"     "--no-fetch")
+              (?C "Checkout tip"     "--checkout")
+              (?R "Rebase onto tip"  "--rebase")
+              (?M "Merge tip"        "--merge")
+              (?U "Use upstream tip" "--remote"))
+  :actions
+  '((?a "Add            git submodule add [--force]"
+        magit-submodule-add)
+    (?r "Register       git submodule init"
+        magit-submodule-register)
+    (?p "Populate       git submodule update --init"
+        magit-submodule-populate)
+    (?u "Update         git submodule update [--force] [--no-fetch]
+                     [--remote] [--checkout|--rebase|--merge]"
+        magit-submodule-update)
+    (?s "Synchronize    git submodule sync [--recursive]"
+        magit-submodule-synchronize)
+    (?d "Unpopulate     git submodule deinit [--force]"
+        magit-submodule-unpopulate)
+    nil
+    (?l "List all modules"  magit-list-submodules)
+    (?f "Fetch all modules" magit-fetch-modules))
+  :max-action-columns 1)
+
+(defun magit-submodule-filtered-arguments (&rest filters)
+  (--filter (and (member it filters) it)
+            (magit-submodule-arguments)))
 
 ;;;###autoload
-(defun magit-submodule-add (url &optional path name)
+(defun magit-submodule-add (url &optional path name args)
   "Add the repository at URL as a module.
 
 Optional PATH is the path to the module relative to the root of
@@ -138,9 +159,11 @@ it is nil, then PATH also becomes the name."
                             (match-string 1 url))))))))
        (list url
              (directory-file-name path)
-             (magit-submodule-read-name-for-path path)))))
+             (magit-submodule-read-name-for-path path)
+             (magit-submodule-filtered-arguments "--force")))))
   (magit-with-toplevel
-    (magit-call-git "submodule" "add" (and name (list "--name" name)) url path)
+    (magit-call-git "submodule" "add" (and name (list "--name" name))
+                    args "--" url path)
     (magit-call-git "submodule" "absorbgitdirs" path)
     (magit-refresh)))
 
@@ -158,41 +181,67 @@ it is nil, then PATH also becomes the name."
          (if prefer-short name path)))))
 
 ;;;###autoload
-(defun magit-submodule-init ()
-  "Register all remaining modules."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "init")))
-
-;;;###autoload
-(defun magit-submodule-setup ()
-  "Register and clone all remaining modules, checking out the recorded tips."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "update" "--init")))
-
-;;;###autoload
-(defun magit-submodule-update ()
-  "Update all modules by checking out the recorded tips."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "update")))
-
-;;;###autoload
-(defun magit-submodule-sync ()
-  "Synchronize each module's remote configuration."
-  (interactive)
-  (magit-with-toplevel
-    (magit-run-git-async "submodule" "sync")))
-
-;;;###autoload
-(defun magit-submodule-deinit (path)
-  "Unregister the module at PATH."
+(defun magit-submodule-register (modules)
+  "Register MODULES."
+  ;; This command and the underlying "git submodule init" do NOT
+  ;; "initialize" modules.  They merely "register" modules in the
+  ;; super-projects $GIT_DIR/config file, the purpose of which is to
+  ;; allow users to change such values before actually initializing
+  ;; the modules.
   (interactive
-   (list (magit-completing-read "Deinit module" (magit-list-module-paths)
-                                nil t nil nil (magit-section-when module))))
+   (list (magit-module-confirm "Register" 'magit-module-no-worktree-p)))
   (magit-with-toplevel
-    (magit-run-git-async "submodule" "deinit" "--" path)))
+    (magit-run-git-async "submodule" "init" "--" modules)))
+
+;;;###autoload
+(defun magit-submodule-populate (modules)
+  "Create MODULES working directories, checking out the recorded commits."
+  ;; This is the command that actually "initializes" modules.
+  ;; A module is initialized when it has a working directory,
+  ;; a gitlink, and a .gitmodules entry.
+  (interactive
+   (list (magit-module-confirm "Populate" 'magit-module-no-worktree-p)))
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "update" "--init" "--" modules)))
+
+;;;###autoload
+(defun magit-submodule-update (modules args)
+  "Update MODULES by checking out the recorded commits."
+  ;; Unlike `git-submodule's `update' command ours can only update
+  ;; "initialized" modules by checking out other commits but not
+  ;; "initialize" modules by creating the working directories.
+  ;; To do the latter we previde the "setup" command.
+  (interactive
+   (list (magit-module-confirm "Update" 'magit-module-worktree-p)
+         (magit-submodule-filtered-arguments
+          "--force" "--remote" "--checkout" "--rebase" "--merge" "--no-fetch")))
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "update" args "--" modules)))
+
+;;;###autoload
+(defun magit-submodule-synchronize (modules args)
+  "Synchronize url configuration of MODULES."
+  (interactive
+   (list (magit-module-confirm "Synchronize" 'magit-module-worktree-p)
+         (magit-submodule-filtered-arguments "--recursive")))
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "sync" args "--" modules)))
+
+;;;###autoload
+(defun magit-submodule-unpopulate (modules args)
+  "Remove working directories of MODULES."
+  ;; Even though a package is "uninitialized" (it has no worktree)
+  ;; the super-projects $GIT_DIR/config may never-the-less set the
+  ;; module's url.  This may happen if you `deinit' and then `init'
+  ;; to register (NOT initialize).  Because the purpose of `deinit'
+  ;; is to remove the working directory AND to remove the url, this
+  ;; command does not limit itself to modules that have no working
+  ;; directory.
+  (interactive
+   (list (magit-module-confirm "Unpopulate")
+         (magit-submodule-filtered-arguments "--force")))
+  (magit-with-toplevel
+    (magit-run-git-async "submodule" "deinit" args "--" modules)))
 
 ;;; Sections
 
@@ -248,7 +297,7 @@ or, failing that, the abbreviated HEAD commit hash."
             (insert (propertize (format path-format module)
                                 'face 'magit-diff-file-heading))
             (if (not (file-exists-p ".git"))
-                (insert "(uninitialized)")
+                (insert "(unpopulated)")
               (insert (format branch-format
                               (--if-let (magit-get-current-branch)
                                   (propertize it 'face 'magit-branch-local)

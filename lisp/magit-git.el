@@ -1820,7 +1820,7 @@ the reference is used.  The first regexp submatch becomes the
         (unless modules
           (user-error "No modules satisfying %s selected" predicate))))
     (if (> (length modules) 1)
-        (magit-confirm t nil (format "%s %%i modules" verb) modules)
+        (magit-confirm t nil (format "%s %%i modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
 
 ;;; Variables
