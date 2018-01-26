@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-459-gcf60b1039+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-467-gba1e34950+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-459-gcf60b1039+1).
+This manual is for Magit version 2.11.0 (2.11.0-467-gba1e34950+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -5838,11 +5838,11 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
   is the path to the module relative to the root of the super-project.
   If it is nil then the path is determined based on URL.
 
-- Key: o i, magit-submodule-init
+- Key: o r, magit-submodule-register
 
   Register submodules listed in ".gitmodules" into ".git/config".
 
-- Key: o b, magit-submodule-setup
+- Key: o p, magit-submodule-populate
 
   Clone and register missing submodules and checkout appropriate
   commits.
@@ -5851,13 +5851,13 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
 
   Clone missing submodules and checkout appropriate commits.
 
-- Key: o s, magit-submodule-sync
+- Key: o s, magit-submodule-synchronize
 
   Update each submodule's remote URL according to ".gitmodules".
 
-- Key: o d, magit-submodule-deinit
+- Key: o d, magit-submodule-unpopulate
 
-  Unregister the submodule at PATH.
+  Remove the working directory of a module.
 
 - Key: o l, magit-list-submodules
 

@@ -102,14 +102,17 @@ an alist that supports the keys `:right-align' and `:pad-right'."
 (magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
   :man-page "git-submodule"
-  :actions  '((?a "Add"    magit-submodule-add)
-              (?b "Setup"  magit-submodule-setup)
-              (?i "Init"   magit-submodule-init)
-              (?u "Update" magit-submodule-update)
-              (?s "Sync"   magit-submodule-sync)
-              (?d "Deinit" magit-submodule-deinit)
-              (?f "Fetch"  magit-fetch-modules)
-              (?l "List"   magit-list-submodules)))
+  :actions
+  '((?a "Add"         magit-submodule-add)
+    (?r "Register"    magit-submodule-register)
+    (?p "Populate"    magit-submodule-populate)
+    (?u "Update"      magit-submodule-update)
+    (?s "Synchronize" magit-submodule-synchronize)
+    (?d "Unpopulate"  magit-submodule-unpopulate)
+    nil
+    (?l "List all modules"  magit-list-submodules)
+    (?f "Fetch all modules" magit-fetch-modules))
+  :max-action-columns 1)
 
 ;;;###autoload
 (defun magit-submodule-add (url &optional path name)
@@ -158,14 +161,14 @@ it is nil, then PATH also becomes the name."
          (if prefer-short name path)))))
 
 ;;;###autoload
-(defun magit-submodule-init ()
+(defun magit-submodule-register ()
   "Register all remaining modules."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "init")))
 
 ;;;###autoload
-(defun magit-submodule-setup ()
+(defun magit-submodule-populate ()
   "Register and clone all remaining modules, checking out the recorded tips."
   (interactive)
   (magit-with-toplevel
@@ -179,15 +182,15 @@ it is nil, then PATH also becomes the name."
     (magit-run-git-async "submodule" "update")))
 
 ;;;###autoload
-(defun magit-submodule-sync ()
+(defun magit-submodule-synchronize ()
   "Synchronize each module's remote configuration."
   (interactive)
   (magit-with-toplevel
     (magit-run-git-async "submodule" "sync")))
 
 ;;;###autoload
-(defun magit-submodule-deinit (path)
-  "Unregister the module at PATH."
+(defun magit-submodule-unpopulate (path)
+  "Remove the working directory of the module at PATH."
   (interactive
    (list (magit-completing-read "Deinit module" (magit-list-module-paths)
                                 nil t nil nil (magit-section-when module))))
@@ -248,7 +251,7 @@ or, failing that, the abbreviated HEAD commit hash."
             (insert (propertize (format path-format module)
                                 'face 'magit-diff-file-heading))
             (if (not (file-exists-p ".git"))
-                (insert "(uninitialized)")
+                (insert "(unpopulated)")
               (insert (format branch-format
                               (--if-let (magit-get-current-branch)
                                   (propertize it 'face 'magit-branch-local)
