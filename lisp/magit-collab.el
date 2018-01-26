@@ -90,7 +90,8 @@ only supports Github, but that will change eventually."
                    (format "%s  %s"
                            (cdr (assq 'number pull-request))
                            (cdr (assq 'title  pull-request)))))
-         (prs    (ghub-get (format "/repos/%s/pulls" id) nil :auth 'magit))
+         (prs    (ghub-get (format "/repos/%s/pulls" id) nil
+                           :auth 'magit :unpaginate t))
          (choice (magit-completing-read
                   prompt (mapcar fmtfun prs) nil nil nil nil
                   (let ((default (thing-at-point 'github-pull-request)))
