@@ -556,7 +556,7 @@ With a numeric prefix ARG, go back ARG comments."
   (save-restriction
     (goto-char (point-min))
     (narrow-to-region (point)
-                      (if (re-search-forward (concat "^" comment-start))
+                      (if (re-search-forward (concat "^" comment-start) nil t)
                           (max 1 (- (point) 2))
                         (point-max)))
     (log-edit-previous-comment arg)))
