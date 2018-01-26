@@ -296,6 +296,8 @@ Changes since v2.11.0
   on all suitable modules is still possible using a prefix argument.
   #2911
 
+* Many arguments have been added to the module popup.  #2911
+
 Fixes since v2.11.0
 -------------------
 
