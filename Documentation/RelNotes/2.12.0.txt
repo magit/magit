@@ -298,6 +298,9 @@ Changes since v2.11.0
 
 * Many arguments have been added to the module popup.  #2911
 
+* Added option `magit-refs-filter-alist', which allows omitting some
+  references from being displayed in `magit-refs-mode' buffers.
+
 Fixes since v2.11.0
 -------------------
 

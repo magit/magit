@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-468-gf6d0229c6+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-471-g4e637088f+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-468-gf6d0229c6+1).
+This manual is for Magit version 2.11.0 (2.11.0-471-g4e637088f+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -3138,6 +3138,23 @@ should also change the others to keep things aligned.  The following
 - ~%u~ Upstream of this local branch.
 - ~%U~ Upstream of this local branch and additional local vs. upstream
   information.
+
+- User Option: magit-refs-filter-alist
+
+  This alist controls which tags and branches are omitted from being
+  displayed in ~magit-refs-mode~ buffers.  If it is ~nil~, then all refs
+  are displayed (subject to ~magit-refs-sections-hook~).
+
+  All keys are tried in order until one matches.  Then its value is
+  used and subsequent elements are ignored.  If the value is non-nil,
+  then the reference is displayed, otherwise it is not.  If no element
+  matches, then the reference is displayed.
+
+  A key can either be a regular expression that the refname has to
+  match, or a function that takes the refname as only argument and
+  returns a boolean.  Contrary to how they are displayed in the
+  buffer, for comparison each tag begins with "tags/" and each remote
+  branch with "<remote>/".
 
 - Variable: magit-refs-local-branch-format
 

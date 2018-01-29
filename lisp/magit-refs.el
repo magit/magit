@@ -121,6 +121,26 @@ tags."
   :group 'magit-margin
   :type 'boolean)
 
+(defcustom magit-refs-filter-alist nil
+  "Alist controlling which refs are omitted from `magit-refs-mode' buffers.
+
+All keys are tried in order until one matches.  Then its value
+is used and subsequent elements are ignored.  If the value is
+non-nil, then the reference is displayed, otherwise it is not.
+If no element matches, then the reference is displayed.
+
+A key can either be a regular expression that the refname has
+to match, or a function that takes the refname as only argument
+and returns a boolean.  Contrary to how they are displayed in
+the buffer, for comparison each tag begins with \"tags/\" and
+each remote branch with \"<remote>/\"."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-refs
+  :type '(alist :key-type   (choice  :tag "Key" regexp function)
+                :value-type (boolean :tag "Value"
+                                     :on  "show (non-nil)"
+                                     :off "omit (nil)")))
+
 (defcustom magit-visit-ref-behavior nil
   "Control how `magit-visit-ref' behaves in `magit-refs-mode' buffers.
 
@@ -500,10 +520,11 @@ line is inserted at all."
   (unless magit-refs-show-commit-count
     (setq format (replace-regexp-in-string "%[0-9]\\([cC]\\)" "%1\\1" format t)))
   (if branch
-      (magit-insert-section it (branch branch t)
-        (magit-insert-branch-1 it branch format
-                               current face hash message
-                               upstream uref utrack substring))
+      (when (magit-refs-insert-refname-p branch)
+        (magit-insert-section it (branch branch t)
+          (magit-insert-branch-1 it branch format
+                                 current face hash message
+                                 upstream uref utrack substring)))
     (magit-insert-section it (commit (magit-rev-parse "HEAD") t)
       (magit-insert-branch-1 it nil format
                              current face hash message
@@ -558,6 +579,15 @@ line is inserted at all."
       (magit-refs-format-margin branch))
     (magit-refs-insert-cherry-commits head branch section)))
 
+(defun magit-refs-insert-refname-p (refname)
+  (--if-let (-first (-lambda ((key . _))
+                      (if (functionp key)
+                          (funcall key refname)
+                        (string-match-p key refname)))
+                    magit-refs-filter-alist)
+      (cdr it)
+    t))
+
 (defun magit-refs-format-commit-count (ref head format &optional tag-p)
   (and (string-match-p "%-?[0-9]+c" format)
        (if tag-p
@@ -588,16 +618,17 @@ line is inserted at all."
                  (count   (magit-refs-format-commit-count tag head format t))
                  (mark    (and (equal tag head)
                                (propertize "#" 'face 'magit-tag))))
-            (magit-insert-section section (tag tag t)
-              (magit-insert-heading
-               (format-spec format
-                            `((?n . ,(propertize tag 'face 'magit-tag))
-                              (?c . ,(or mark count ""))
-                              (?m . ,(or message "")))))
-              (when (and (magit-buffer-margin-p)
-                         magit-refs-margin-for-tags)
-                (magit-refs-format-margin (concat tag "^{commit}")))
-              (magit-refs-insert-cherry-commits head tag section)))))
+            (when (magit-refs-insert-refname-p (concat "tags/" tag))
+              (magit-insert-section section (tag tag t)
+                (magit-insert-heading
+                  (format-spec format
+                               `((?n . ,(propertize tag 'face 'magit-tag))
+                                 (?c . ,(or mark count ""))
+                                 (?m . ,(or message "")))))
+                (when (and (magit-buffer-margin-p)
+                           magit-refs-margin-for-tags)
+                  (magit-refs-format-margin (concat tag "^{commit}")))
+                (magit-refs-insert-cherry-commits head tag section))))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
 
