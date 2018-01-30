@@ -962,7 +962,8 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
           (setq magit-section-highlighted-section
                 (and (not (oref section hidden))
                      section))))
-      (setq deactivate-mark nil))))
+      (when (version< emacs-version "25.1")
+        (setq deactivate-mark nil)))))
 
 (defun magit-section-highlight (section selection)
   "Highlight SECTION and if non-nil all sections in SELECTION.
