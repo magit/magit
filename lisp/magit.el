@@ -212,12 +212,12 @@ own faces for the `header-line', or for parts of the
   "Popup console for merge commands."
   :man-page "git-merge"
   :switches '((?f "Fast-forward only" "--ff-only")
-              (?n "No fast-forward"   "--no-ff")
-              (?s "Squash"            "--squash"))
+              (?n "No fast-forward"   "--no-ff"))
   :options  '((?s "Strategy" "--strategy="))
   :actions  '((?m "Merge"                  magit-merge)
-              (?e "Merge and edit message" magit-merge-editmsg)
               (?p "Preview merge"          magit-merge-preview)
+              (?e "Merge and edit message" magit-merge-editmsg)
+              (?s "Squash merge"           magit-merge-squash)
               (?n "Merge but don't commit" magit-merge-nocommit))
   :sequence-actions   '((?m "Commit merge" magit-commit)
                         (?a "Abort merge"  magit-merge-abort))
@@ -266,6 +266,14 @@ inspect the merge and change the commit message.
   (magit-merge-assert)
   (cl-pushnew "--no-ff" args :test #'equal)
   (magit-run-git-async "merge" "--no-commit" args rev))
+
+;;;###autoload
+(defun magit-merge-squash (rev)
+  "Squash commit REV into the current branch; don't create a commit.
+\n(git merge --squash REV)"
+  (interactive (list (magit-read-other-branch-or-commit "Squash")))
+  (magit-merge-assert)
+  (magit-run-git-async "merge" "--squash" rev))
 
 ;;;###autoload
 (defun magit-merge-preview (rev)
