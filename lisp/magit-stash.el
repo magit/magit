@@ -291,7 +291,8 @@ branch or `HEAD' as the string-point."
                 (magit-call-git "checkout" "--" ".")
               (magit-call-git "reset" "--hard" "HEAD"))
             (when untracked
-              (magit-call-git "clean" "-f" (and (eq untracked 'all) "-x")))))
+              (magit-call-git "clean" "--force" "-d"
+                              (and (eq untracked 'all) "-x")))))
         (when refresh
           (magit-refresh)))
     (unless noerror
