@@ -322,3 +322,6 @@ Fixes since v2.11.0
 
 * Fixed encoding of non-ascii filename arguments to git on
   `windows-nt' systems.  #3250
+
+* The command `magit-worktree-delete' failed to delete a worktree when
+  its directory no longer existed.  #3355
