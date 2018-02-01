@@ -1076,6 +1076,7 @@ library getting in the way.  Then restart Emacs.\n"
   (require 'magit-status)
   (require 'magit-refs)
   (require 'magit-files)
+  (require 'magit-collab)
   (require 'magit-branch)
   (require 'magit-worktree)
   (require 'magit-notes)

@@ -32,16 +32,16 @@ magit-status.elc:	magit.elc
 magit-refs.elc: 	magit.elc
 magit-files.elc:	magit.elc
 magit-collab.elc:	magit.elc
-magit-branch.elc:	magit.elc magit-collab.el
+magit-branch.elc:	magit.elc magit-collab.elc
 magit-worktree.elc:	magit.elc
 magit-notes.elc:	magit.elc
-magit-obsolete.elc:	magit.elc
 magit-sequence.elc:	magit.elc
 magit-commit.elc:	magit.elc magit-sequence.elc
 magit-remote.elc:	magit.elc
 magit-bisect.elc:	magit.elc
 magit-stash.elc:	magit.elc
 magit-blame.elc:	magit.elc
+magit-obsolete.elc:	magit.elc
 magit-submodule.elc:	magit.elc
 magit-subtree.elc:	magit.elc
 magit-ediff.elc:	magit.elc
