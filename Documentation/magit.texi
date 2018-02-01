@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-471-g4e637088f+1)
+@subtitle for version 2.11.0 (2.11.0-479-g68d847bd0+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-471-g4e637088f+1).
+This manual is for Magit version 2.11.0 (2.11.0-479-g68d847bd0+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6173,11 +6173,11 @@ following commands.
 @cindex magit-merge
 @item @kbd{m m} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge})
 
-Merge another branch or an arbitrary revision into the current
-branch.  The branch or revision to be merged is read in the
-minibuffer and defaults to the one at point.
+This command merges another branch or an arbitrary revision into the
+current branch.  The branch or revision to be merged is read in the
+minibuffer and defaults to the branch at point.
 
-Unless there are conflicts or a prefix argument is used, the
+Unless there are conflicts or a prefix argument is used, then the
 resulting merge commit uses a generic commit message, and the user
 does not get a chance to inspect or change it before the commit is
 created.  With a prefix argument this does not actually create the
@@ -6188,26 +6188,36 @@ resolved and to adjust the commit message.
 @cindex magit-merge-editmsg
 @item @kbd{m e} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-editmsg})
 
-Merge another branch or an arbitrary revision into the current
-branch and open a commit message buffer, so that the user can make
-adjustments.  The commit is not actually created until the user
-finishes with @code{C-c C-c}.
+This command merges another branch or an arbitrary revision into the
+current branch and opens a commit message buffer, so that the user
+can make adjustments.  The commit is not actually created until the
+user finishes with @code{C-c C-c}.
 
 @kindex m n
 @cindex magit-merge-nocommit
 @item @kbd{m n} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-nocommit})
 
-Merge another branch or an arbitrary revision into the current
-branch, but do not actually create the commit.  The user can then
-further adjust the merge, even when automatic conflict resolution
-succeeded and/or adjust the commit message.
+This command merges another branch or an arbitrary revision into the
+current branch, but does not actually create the merge commit.  The
+user can then further adjust the merge, even when automatic conflict
+resolution succeeded and/or adjust the commit message.
+
+@kindex m s
+@cindex magit-merge-squash
+@item @kbd{m s} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-squash})
+
+This command squashes the changes introduced by another branch or an
+arbitrary revision into the current branch.  This only applies the
+changes made by the squashed commits.  No information is preserved
+that would allow creating an actual merge commit.  Instead of this
+command you should probably use a command from the apply popup.
 
 @kindex m p
 @cindex magit-merge-preview
 @item @kbd{m p} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-preview})
 
-Preview result of merging another branch or an arbitrary revision
-into the current branch.
+This command shows a preview of merging another branch or an
+arbitrary revision into the current branch.
 @end table
 
 When a merge is in progress, then the popup buffer features these
@@ -6218,14 +6228,14 @@ commands instead.
 @cindex magit-merge
 @item @kbd{m m} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge})
 
-After resolving conflicts, proceed with the merge.  If there are
-still conflicts, then this fails.
+After the user resolved conflicts, this command proceeds with the
+merge.  If some conflicts weren't resolved, then this command fails.
 
 @kindex m a
 @cindex magit-merge-abort
 @item @kbd{m a} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-abort})
 
-Abort the current merge operation.
+This command aborts the current merge operation.
 @end table
 
 @node Resolving Conflicts
