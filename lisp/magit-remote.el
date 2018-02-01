@@ -739,8 +739,7 @@ the push-remote can be changed before pushed to it."
                (setf (magit-get
                       (if (eq magit-push-current-set-remote-if-missing 'default)
                           "remote.pushDefault"
-                        (format "branch.%s.pushRemote"
-                                (magit-get-current-branch))))
+                        (format "branch.%s.pushRemote" it)))
                      push-remote))
              (-if-let (remote (magit-get-push-remote it))
                  (if (member remote (magit-list-remotes))
