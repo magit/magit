@@ -1859,7 +1859,7 @@ the reference is used.  The first regexp submatch becomes the
   "Return the boolean value of the Git variable specified by KEYS."
   (let ((key (mapconcat 'identity keys ".")))
     (if magit--refresh-cache
-        (equal "true" (car (magit-config-get-from-cached-list key)))
+        (equal "true" (car (last (magit-config-get-from-cached-list key))))
       (magit-git-true "config" "--bool" key))))
 
 (defun magit-set (value &rest keys)

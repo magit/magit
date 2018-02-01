@@ -182,7 +182,12 @@
     (should     (magit-get-boolean "a" "b"))
     (magit-git "config" "a.b" "false")
     (should-not (magit-get-boolean "a.b"))
-    (should-not (magit-get-boolean "a" "b"))))
+    (should-not (magit-get-boolean "a" "b"))
+    ;; Multiple values, last one wins.
+    (magit-git "config" "--add" "a.b" "true")
+    (should     (magit-get-boolean "a.b"))
+    (let ((magit--refresh-cache (list (cons 0 0))))
+     (should    (magit-get-boolean "a.b")))))
 
 (ert-deftest magit-get-{current|next}-tag ()
   (magit-with-test-repository
