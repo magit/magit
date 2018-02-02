@@ -1708,6 +1708,20 @@ the reference is used.  The first regexp submatch becomes the
                                nil nil nil 'magit-revision-history default)
         (user-error "Nothing selected"))))
 
+(defun magit-read-other-local-branch
+    (prompt &optional exclude secondary-default no-require-match)
+  (let* ((current (magit-get-current-branch))
+         (atpoint (magit-local-branch-at-point))
+         (exclude (or exclude current))
+         (default (or (and (not (equal atpoint exclude)) atpoint)
+                      (and (not (equal current exclude)) current)
+                      secondary-default
+                      (magit-get-previous-branch))))
+    (magit-completing-read prompt
+                           (delete exclude (magit-list-local-branch-names))
+                           nil (not no-require-match)
+                           nil 'magit-revision-history default)))
+
 (defun magit-read-branch-prefer-other (prompt)
   (let* ((current (magit-get-current-branch))
          (commit  (magit-commit-at-point))
