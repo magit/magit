@@ -61,12 +61,6 @@
 (require 'format-spec)
 (require 'package nil t) ; used in `magit-version'
 
-(eval-when-compile (require 'dired-x))
-(declare-function dired-jump 'dired-x)
-(eval-when-compile (require 'eshell))
-(declare-function eshell-parse-arguments 'eshell)
-(eval-when-compile (require 'message))
-
 (defconst magit--minimal-git "1.9.4")
 (defconst magit--minimal-emacs "24.4")
 

@@ -129,9 +129,10 @@
 (defvar font-lock-beg)
 (defvar font-lock-end)
 
-(declare-function magit-expand-git-file-name 'magit-git)
-(declare-function magit-list-local-branch-names 'magit-git)
-(declare-function magit-list-remote-branch-names 'magit-git)
+(declare-function magit-expand-git-file-name "magit-git" (filename))
+(declare-function magit-list-local-branch-names "magit-git" ())
+(declare-function magit-list-remote-branch-names "magit-git"
+                  (&optional remote relative))
 
 ;;; Options
 ;;;; Variables

@@ -35,9 +35,11 @@
 
 (require 'magit-utils)
 
-(declare-function magit-maybe-make-margin-overlay 'magit-log)
-(declare-function magit-repository-local-get 'magit-mode)
-(declare-function magit-repository-local-set 'magit-mode)
+(declare-function magit-maybe-make-margin-overlay "magit-margin" ())
+(declare-function magit-repository-local-get "magit-mode"
+                  (key &optional default repository))
+(declare-function magit-repository-local-set "magit-mode"
+                  (key value &optional repository))
 (defvar magit-keep-region-overlay)
 
 ;;; Options

@@ -42,9 +42,9 @@
 (defvar magit-diff-show-xref-buttons)
 (defvar magit-revision-show-xref-buttons)
 ;; For `magit-refresh' and `magit-refresh-all'
-(declare-function magit-auto-revert-buffers 'magit-autorevert)
+(declare-function magit-auto-revert-buffers "magit-autorevert" ())
 ;; For `magit-refresh-buffer'
-(declare-function magit-process-unset-mode-line-error-status 'magit-process)
+(declare-function magit-process-unset-mode-line-error-status "magit-process" ())
 
 (require 'format-spec)
 (require 'help-mode)

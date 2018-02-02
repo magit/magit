@@ -26,8 +26,7 @@
 
 (require 'magit)
 
-(declare-function dired-do-shell-command 'dired-aux)
-(declare-function dired-read-shell-command 'dired-aux)
+(declare-function dired-read-shell-command "dired-aux" (prompt arg files))
 
 (defgroup magit-extras nil
   "Additional functionality for Magit."

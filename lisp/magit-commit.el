@@ -34,12 +34,6 @@
 
 (eval-when-compile (require 'epa)) ; for `epa-protocol'
 (eval-when-compile (require 'epg))
-(declare-function epg-sub-key-id 'epg)
-(declare-function epg-key-sub-key-list 'epg)
-(declare-function epg-key-user-id-list 'epg)
-(declare-function epg-user-id-string 'epg)
-(declare-function epg-decode-dn 'epg)
-(declare-function epg-list-keys 'epg)
 
 ;;; Options
 

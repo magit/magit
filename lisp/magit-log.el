@@ -32,11 +32,15 @@
 (require 'magit-core)
 (require 'magit-diff)
 
-(declare-function magit-blob-visit 'magit)
-(declare-function magit-insert-head-branch-header 'magit)
-(declare-function magit-insert-upstream-branch-header 'magit)
-(declare-function magit-read-file-from-rev 'magit)
-(declare-function magit-show-commit 'magit)
+(declare-function magit-blob-visit "magit-files" (blob-or-file line))
+(declare-function magit-insert-head-branch-header "magit-status"
+                  (&optional branch))
+(declare-function magit-insert-upstream-branch-header "magit-status"
+                  (&optional branch pull keyword))
+(declare-function magit-read-file-from-rev "magit-files"
+                  (rev prompt &optional default))
+(declare-function magit-show-commit "magit-diff"
+                  (arg1 &optional arg2 arg3 arg4))
 (defvar magit-refs-indent-cherry-lines)
 (defvar magit-refs-margin)
 (defvar magit-refs-show-commit-count)

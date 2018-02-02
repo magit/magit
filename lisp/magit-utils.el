@@ -44,11 +44,14 @@
 (require 'crm)
 
 (eval-when-compile (require 'ido))
-(declare-function ido-completing-read+ 'ido-completing-read+)
-(declare-function Info-get-token 'info)
+(declare-function ido-completing-read+ "ido-completing-read+"
+                  (prompt collection &optional predicate
+                          require-match initial-input
+                          hist def inherit-input-method))
+(declare-function Info-get-token "info" (pos start all &optional errorstring))
 
 (eval-when-compile (require 'vc-git))
-(declare-function vc-git--run-command-string 'vc-git)
+(declare-function vc-git--run-command-string "vc-git" (file &rest args))
 
 (defvar magit-wip-before-change-mode)
 

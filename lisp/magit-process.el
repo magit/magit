@@ -41,11 +41,8 @@
 (require 'magit-git)
 (require 'magit-mode)
 
-(eval-when-compile (require 'dired))
-(declare-function dired-uncache 'dired)
-
-(eval-when-compile (require 'auth-source))
-(declare-function auth-source-search 'auth-source)
+(declare-function auth-source-search "auth-source"
+                  (&rest spec &key max require create delete &allow-other-keys))
 
 ;;; Options
 
@@ -842,8 +839,6 @@ as argument."
         (setq mode-line-process str)))
     (force-mode-line-update t)))
 
-(declare-function magit-repository-local-repository "magit-mode")
-
 (defun magit-process-set-mode-line-error-status (&optional error str)
   "Apply an error face to the string set by `magit-process-set-mode-line'.
 
@@ -971,7 +966,7 @@ Limited by `magit-process-error-tooltip-max-lines'."
     (setq default-dir (process-get arg 'default-dir))
     (setq section     (process-get arg 'section))
     (setq arg         (process-exit-status arg)))
-  (when (featurep 'dired)
+  (when (fboundp 'dired-uncache)
     (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
     (with-current-buffer process-buf

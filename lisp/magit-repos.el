@@ -31,7 +31,7 @@
 
 (require 'magit-core)
 
-(declare-function magit-status-internal 'magit-status)
+(declare-function magit-status-internal "magit-status" (directory))
 
 (defvar x-stretch-cursor)
 

@@ -32,18 +32,18 @@
 (require 'magit-core)
 
 ;; For `magit-diff-popup'
-(declare-function magit-stash-show 'magit-stash)
+(declare-function magit-stash-show "magit-stash" (stash &optional args files))
 ;; For `magit-diff-visit-file'
-(declare-function dired-jump 'dired-x)
-(declare-function magit-find-file-noselect 'magit)
-(declare-function magit-status-internal 'magit)
+(declare-function dired-jump "dired-x" (&optional other-window file-name))
+(declare-function magit-find-file-noselect "magit-files" (rev file))
+(declare-function magit-status-internal "magit-status" (directory))
 ;; For `magit-diff-while-committing'
-(declare-function magit-commit-message-buffer 'magit)
+(declare-function magit-commit-message-buffer "magit-commit" ())
 ;; For `magit-insert-revision-gravatar'
 (defvar gravatar-size)
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
-(declare-function magit-blame-chunk-get 'magit-blame)
-(declare-function magit-blame-mode 'magit-blame)
+(declare-function magit-blame-chunk-get "magit-blame" (key &optional pos))
+(declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
 (defvar git-rebase-line)
 
