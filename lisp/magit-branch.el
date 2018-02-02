@@ -33,6 +33,7 @@
 
 (require 'magit)
 (require 'magit-collab)
+(require 'magit-reset)
 
 ;;; Options
 

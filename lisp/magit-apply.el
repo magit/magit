@@ -38,8 +38,8 @@
 (declare-function magit-am-popup "magit-sequence" (&optional arg))
 (declare-function magit-patch-apply-popup "magit-files" (&optional arg))
 ;; For `magit-discard-files'
-(declare-function magit-checkout-stage "magit" (file arg))
-(declare-function magit-checkout-read-stage "magit" (file))
+(declare-function magit-checkout-stage "magit-merge" (file arg))
+(declare-function magit-checkout-read-stage "magit-merge" (file))
 (defvar auto-revert-verbose)
 ;; For `magit-stage-untracked'
 (declare-function magit-submodule-add "magit-submodule"
