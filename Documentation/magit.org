@@ -4589,6 +4589,30 @@ following commands.
   user can then further adjust the merge, even when automatic conflict
   resolution succeeded and/or adjust the commit message.
 
+- Key: m a, magit-merge-absorb
+
+  This command merges another local branch into the current branch and
+  then removes the former.
+
+  Before the source branch is merged, it is first force pushed to its
+  push-remote, provided the respective remote branch already exists.
+  This ensures that the respective pull-request (if any) won't get
+  stuck on some obsolete version of the commits that are being merged.
+  Finally, if ~magit-branch-pull-request~ was used to create the merged
+  branch, then the respective remote branch is also removed.
+
+- Key: m a, magit-merge-into
+
+  This command merges another local branch into the current branch and
+  then removes the former.
+
+  Before the source branch is merged, it is first force pushed to its
+  push-remote, provided the respective remote branch already exists.
+  This ensures that the respective pull-request (if any) won't get
+  stuck on some obsolete version of the commits that are being merged.
+  Finally, if ~magit-branch-pull-request~ was used to create the merged
+  branch, then the respective remote branch is also removed.
+
 - Key: m s, magit-merge-squash
 
   This command squashes the changes introduced by another branch or an
