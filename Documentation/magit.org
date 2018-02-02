@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-479-g68d847bd0+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-485-gc744fa49f+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-479-g68d847bd0+1).
+This manual is for Magit version 2.11.0 (2.11.0-485-gc744fa49f+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -4588,6 +4588,30 @@ following commands.
   current branch, but does not actually create the merge commit.  The
   user can then further adjust the merge, even when automatic conflict
   resolution succeeded and/or adjust the commit message.
+
+- Key: m a, magit-merge-absorb
+
+  This command merges another local branch into the current branch and
+  then removes the former.
+
+  Before the source branch is merged, it is first force pushed to its
+  push-remote, provided the respective remote branch already exists.
+  This ensures that the respective pull-request (if any) won't get
+  stuck on some obsolete version of the commits that are being merged.
+  Finally, if ~magit-branch-pull-request~ was used to create the merged
+  branch, then the respective remote branch is also removed.
+
+- Key: m i, magit-merge-into
+
+  This command merges another local branch into the current branch and
+  then removes the former.
+
+  Before the source branch is merged, it is first force pushed to its
+  push-remote, provided the respective remote branch already exists.
+  This ensures that the respective pull-request (if any) won't get
+  stuck on some obsolete version of the commits that are being merged.
+  Finally, if ~magit-branch-pull-request~ was used to create the merged
+  branch, then the respective remote branch is also removed.
 
 - Key: m s, magit-merge-squash
 

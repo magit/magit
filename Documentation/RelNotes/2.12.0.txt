@@ -301,6 +301,10 @@ Changes since v2.11.0
 * Added option `magit-refs-filter-alist', which allows omitting some
   references from being displayed in `magit-refs-mode' buffers.
 
+* Added commands `magit-merge-absort' and `magit-merge-into', which
+  not only merge a local branch into another but also remove the
+  merged branch.  #2922.
+
 Fixes since v2.11.0
 -------------------
 

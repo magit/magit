@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-479-g68d847bd0+1)
+@subtitle for version 2.11.0 (2.11.0-485-gc744fa49f+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-479-g68d847bd0+1).
+This manual is for Magit version 2.11.0 (2.11.0-485-gc744fa49f+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6201,6 +6201,34 @@ This command merges another branch or an arbitrary revision into the
 current branch, but does not actually create the merge commit.  The
 user can then further adjust the merge, even when automatic conflict
 resolution succeeded and/or adjust the commit message.
+
+@kindex m a
+@cindex magit-merge-absorb
+@item @kbd{m a} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-absorb})
+
+This command merges another local branch into the current branch and
+then removes the former.
+
+Before the source branch is merged, it is first force pushed to its
+push-remote, provided the respective remote branch already exists.
+This ensures that the respective pull-request (if any) won't get
+stuck on some obsolete version of the commits that are being merged.
+Finally, if @code{magit-branch-pull-request} was used to create the merged
+branch, then the respective remote branch is also removed.
+
+@kindex m i
+@cindex magit-merge-into
+@item @kbd{m i} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-into})
+
+This command merges another local branch into the current branch and
+then removes the former.
+
+Before the source branch is merged, it is first force pushed to its
+push-remote, provided the respective remote branch already exists.
+This ensures that the respective pull-request (if any) won't get
+stuck on some obsolete version of the commits that are being merged.
+Finally, if @code{magit-branch-pull-request} was used to create the merged
+branch, then the respective remote branch is also removed.
 
 @kindex m s
 @cindex magit-merge-squash
