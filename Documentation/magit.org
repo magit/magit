@@ -5159,6 +5159,59 @@ features the following commands.
   This command also has a top-level binding, which can be invoked without
   using the popup by typing ~a~ at the top-level.
 
+The following commands not apply some commits to some branch, but also
+remove them from some other branch.  The removal is performed using
+either ~git-update-ref~ or if necessary ~git-rebase~.  Both applying
+commits as well as removing them using ~git-rebase~ can lead to
+conflicts.  If that happens, then these commands abort and you not
+only have to resolve the conflicts but also finish the process the
+same you would have to if these commands didn't exist at all.
+
+- Key: A h, magit-cherry-harvest
+
+  This command moves the selected COMMITS that must be located on
+  another BRANCH onto the current branch instead, removing them the
+  former.  When this command succeeds, then the same branch is current
+  as before.
+
+  Applying the commits on the current branch or removing them from the
+  other branch can lead to conflicts.  When that happens, then this
+  command stops and you have to resolve the conflicts and then finish
+  the process manually.
+
+- Key: A d, magit-cherry-donate
+
+  This command moves the selected COMMITS from the current branch onto
+  another existing BRANCH, removing them from the former.  When this
+  command succeeds, then the same branch is current as before.
+
+  Applying the commits on the other branch or removing them from the
+  current branch can lead to conflicts.  When that happens, then this
+  command stops and you have to resolve the conflicts and then finish
+  the process manually.
+
+- Key: A n, magit-cherry-spinout
+
+  This command moves the selected COMMITS from the current branch onto
+  a new branch BRANCH, removing them from the former.  When this
+  command succeeds, then the same branch is current as before.
+
+  Applying the commits on the other branch or removing them from the
+  current branch can lead to conflicts.  When that happens, then this
+  command stops and you have to resolve the conflicts and then finish
+  the process manually.
+
+- Key: A s, magit-cherry-spinoff
+
+  This command moves the selected COMMITS from the current branch onto
+  a new branch BRANCH, removing them from the former.  When this
+  command succeeds, then the new branch is checked out.
+
+  Applying the commits on the other branch or removing them from the
+  current branch can lead to conflicts.  When that happens, then this
+  command stops and you have to resolve the conflicts and then finish
+  the process manually.
+
 When a cherry-pick or revert is in progress, then the popup buffer
 features these commands instead.
 

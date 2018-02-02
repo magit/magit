@@ -126,8 +126,14 @@ This discards all changes made since the sequence started."
               (?F "Attempt fast-forward"               "--ff"))
   :options  '((?s "Strategy"                        "--strategy=")
               (?m "Replay merge relative to parent" "--mainline="))
-  :actions  '((?A "Cherry Pick"  magit-cherry-pick)
-              (?a "Cherry Apply" magit-cherry-apply))
+  :actions  '("Apply here"
+              (?A "Pick"    magit-cherry-pick)
+              (?a "Apply"   magit-cherry-apply)
+              (?h "Harvest" magit-cherry-harvest)
+              "Apply elsewhere"
+              (?d "Donate"  magit-cherry-donate)
+              (?n "Spinout" magit-cherry-spinout)
+              (?s "Spinoff" magit-cherry-spinoff))
   :sequence-actions '((?A "Continue" magit-sequencer-continue)
                       (?s "Skip"     magit-sequencer-skip)
                       (?a "Abort"    magit-sequencer-abort))
@@ -138,6 +144,29 @@ This discards all changes made since the sequence started."
   (list (or (nreverse (magit-region-values 'commit))
             (magit-read-other-branch-or-commit prompt))
         (magit-cherry-pick-arguments)))
+
+(defun magit--cherry-move-read-args (verb away fn)
+  (declare (indent defun))
+   (let ((commits (or (nreverse (magit-region-values 'commit))
+                      (magit-read-other-branch-or-commit
+                       (format "%s cherry" (capitalize verb)))))
+         (current (magit-get-current-branch)))
+     (unless current
+       (user-error "Cannot %s cherries while HEAD is detached" verb))
+     (let ((reachable (magit-rev-ancestor-p (car commits) current))
+           (msg "Cannot %s cherries that %s reachable from HEAD"))
+       (pcase (list away reachable)
+         (`(nil t) (user-error msg verb "are"))
+         (`(t nil) (user-error msg verb "are not"))))
+     `(,(reverse commits)
+       ,@(funcall fn commits)
+       ,(magit-cherry-pick-arguments))))
+
+(defun magit--cherry-spinoff-read-args (verb)
+  (magit--cherry-move-read-args verb t
+    (lambda (commits)
+      (butlast (magit-branch-read-args
+                (format "Create branch from %s cherries" commits))))))
 
 ;;;###autoload
 (defun magit-cherry-pick (commits &optional args)
@@ -156,6 +185,110 @@ the region selects multiple commits, then apply all of them,
 without prompting."
   (interactive (magit-cherry-pick-read-args "Apply changes from commit"))
   (magit--cherry-pick commits (cons "--no-commit" (remove "--ff" args))))
+
+;;;###autoload
+(defun magit-cherry-harvest (commits branch &optional args)
+  "Move COMMITS from another BRANCH onto the current branch.
+Remove the COMMITS from BRANCH and stay on the current branch.
+If a conflict occurs, then you have to fix that and finish the
+process manually."
+  (interactive
+   (magit--cherry-move-read-args "harvest" nil
+     (lambda (commits)
+       (list (let ((branches (magit-list-containing-branches (car commits))))
+               (pcase (length branches)
+                 (0 nil)
+                 (1 (car branches))
+                 (_ (magit-completing-read
+                     (format "Remove %s cherries from branch" (length commits))
+                     branches nil t))))
+             (magit-cherry-pick-arguments)))))
+  (magit--cherry-move commits branch (magit-get-current-branch) args))
+
+;;;###autoload
+(defun magit-cherry-donate (commits branch &optional args)
+  "Move COMMITS from the current branch onto another existing BRANCH.
+Remove COMMITS from the current branch and stay on that branch.
+If a conflict occurs, then you have to fix that and finish the
+process manually."
+  (interactive
+   (magit--cherry-move-read-args "donate" t
+     (lambda (commits)
+       (list (magit-read-other-branch (format "Move %s cherries to branch"
+                                              (length commits)))))))
+  (magit--cherry-move commits (magit-get-current-branch) branch args))
+
+;;;###autoload
+(defun magit-cherry-spinout (commits branch start-point &optional args)
+  "Move COMMITS from the current branch onto a new BRANCH.
+Remove COMMITS from the current branch and stay on that branch.
+If a conflict occurs, then you have to fix that and finish the
+process manually."
+  (interactive (magit--cherry-spinoff-read-args "spinout"))
+  (magit--cherry-move commits (magit-get-current-branch) branch args
+                      start-point))
+
+;;;###autoload
+(defun magit-cherry-spinoff (commits branch start-point &optional args)
+  "Move COMMITS from the current branch onto a new BRANCH.
+Remove COMMITS from the current branch and checkout BRANCH.
+If a conflict occurs, then you have to fix that and finish
+the process manually."
+  (interactive (magit--cherry-spinoff-read-args "spinoff"))
+  (magit--cherry-move commits (magit-get-current-branch) branch args
+                      start-point t))
+
+(defun magit--cherry-move (commits src dst args
+                                   &optional start-point checkout-dst)
+  (let ((current (magit-get-current-branch)))
+    (unless (magit-branch-p dst)
+      (let ((magit-process-raise-error t))
+        (magit-call-git "branch" dst start-point))
+      (--when-let (magit-get-indirect-upstream-branch start-point)
+        (magit-call-git "branch" "--set-upstream-to" it dst)))
+    (unless (equal dst current)
+      (let ((magit-process-raise-error t))
+        (magit-call-git "checkout" dst)))
+    (if (not src) ; harvest only
+        (magit--cherry-pick commits args)
+      (let ((tip (car (last commits)))
+            (keep (concat (car commits) "^")))
+        (magit--cherry-pick commits args)
+        (set-process-sentinel
+         magit-this-process
+         (lambda (process event)
+           (when (memq (process-status process) '(exit signal))
+             (if (> (process-exit-status process) 0)
+                 (magit-process-sentinel process event)
+               (process-put process 'inhibit-refresh t)
+               (magit-process-sentinel process event)
+               (cond
+                ((magit-rev-equal tip src)
+                 (magit-call-git "update-ref"
+                                 "-m" (format "reset: moving to %s" keep)
+                                 (magit-ref-fullname src)
+                                 keep tip)
+                 (if (not checkout-dst)
+                     (magit-run-git "checkout" src)
+                   (magit-refresh)))
+                (t
+                 (magit-call-git "checkout" src)
+                 (let ((process-environment process-environment))
+                   (push (format "%s=perl -i -ne '/^pick (%s)/ or print'"
+                                 "GIT_SEQUENCE_EDITOR"
+                                 (mapconcat #'identity commits "|"))
+                         process-environment)
+                   (magit-run-git-sequencer "rebase" "-i" keep))
+                 (when checkout-dst
+                   (set-process-sentinel
+                    magit-this-process
+                    (lambda (process event)
+                      (when (memq (process-status process) '(exit signal))
+                        (if (> (process-exit-status process) 0)
+                            (magit-process-sentinel process event)
+                          (process-put process 'inhibit-refresh t)
+                          (magit-process-sentinel process event)
+                          (magit-run-git "checkout" dst))))))))))))))))
 
 (defun magit--cherry-pick (commits args &optional revert)
   (let ((command (if revert "revert" "cherry-pick")))

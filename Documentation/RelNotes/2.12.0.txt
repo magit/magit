@@ -305,6 +305,11 @@ Changes since v2.11.0
   not only merge a local branch into another but also remove the
   merged branch.  #2922.
 
+* Added commands `magit-cherry-harvest', magit-cherry-donate',
+  `magit-cherry-spinout' and `magit-cherry-spinoff', which move
+  commits from one branch to another and also remove them from the
+  branch where they were previously located.  #2921
+
 Fixes since v2.11.0
 -------------------
 
