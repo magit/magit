@@ -547,18 +547,7 @@ or using some sort of application launcher, then you probably
 have to adjust the environment as seen by graphical interface.
 For X11 something like ~/.xinitrc should work.\n"
                                     magit--minimal-emacs emacs-version)
-                     :error))
-  (--each '((magit-log-edit  . git-commit)
-            (git-commit-mode . git-commit)
-            (git-rebase-mode . git-rebase))
-    (when (or (featurep (car it)) (locate-library (symbol-name (car it))))
-      (display-warning 'magit (format "%s has to be removed
-
-Magit is no longer compatible with the library `%s',
-which was used in earlier releases.  Please remove it, so that
-Magit can use the successor `%s' without the obsolete
-library getting in the way.  Then restart Emacs.\n"
-                                      (car it)  (car it) (cdr it)) :error))))
+                     :error)))
 
 ;;; Loading Libraries
 
