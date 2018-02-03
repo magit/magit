@@ -547,7 +547,7 @@ without requiring confirmation."
       (let ((binaries (magit-staged-binary-files)))
         (when binaries
           (setq sections
-                (--filter (not (member (oref it value) binaries))
+                (--remove (member (oref it value) binaries)
                           sections)))
         (cond ((= (length sections) 1)
                (magit-discard-apply (car sections) 'magit-apply-diff))

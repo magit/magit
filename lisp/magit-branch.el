@@ -584,7 +584,7 @@ defaulting to the branch at point."
                (user-error "Abort")))))
      (list branches force)))
   (let* ((refs (-map #'magit-ref-fullname branches))
-         (ambiguous (--filter (not it) refs)))
+         (ambiguous (-non-nil refs)))
     (when ambiguous
       (user-error
        "%s ambiguous.  Please cleanup using git directly."

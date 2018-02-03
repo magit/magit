@@ -556,7 +556,7 @@ By default, this is the same except for the \"pick\" command."
               (replace-match
                (format "%-8s"
                        (mapconcat #'key-description
-                                  (--filter (not (eq (elt it 0) 'menu-bar))
+                                  (--remove (eq (elt it 0) 'menu-bar)
                                             (reverse (where-is-internal cmd)))
                                   ", "))
                t t nil 2))))))))
