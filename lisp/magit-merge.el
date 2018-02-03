@@ -225,6 +225,14 @@ branch, then also remove the respective remote branch."
 (defun magit-merge-in-progress-p ()
   (file-exists-p (magit-git-dir "MERGE_HEAD")))
 
+(defun magit--merge-range (&optional head)
+  (unless head
+    (setq head (magit-get-shortname
+                (car (magit-file-lines (magit-git-dir "MERGE_HEAD"))))))
+  (and head
+       (concat (magit-git-string "merge-base" "--octopus" "HEAD" head)
+               ".." head)))
+
 (defun magit-merge-assert ()
   (or (not (magit-anything-modified-p t))
       (magit-confirm 'merge-dirty
@@ -248,8 +256,7 @@ If no merge is in progress, do nothing."
       (magit-insert-heading
         (format "Merging %s:" (mapconcat 'identity heads ", ")))
       (magit-insert-log
-       (concat (magit-git-string "merge-base" "--octopus" "HEAD" (car heads))
-               ".." (car heads))
+       (magit--merge-range (car heads))
        (let ((args magit-log-section-arguments))
          (unless (member "--decorate=full" magit-log-section-arguments)
            (push "--decorate=full" args))
