@@ -251,13 +251,14 @@ branch, then also remove the respective remote branch."
 Display the heads that are being merged.
 If no merge is in progress, do nothing."
   (when (magit-merge-in-progress-p)
-    (let  ((heads (mapcar #'magit-get-shortname
-                          (magit-file-lines (magit-git-dir "MERGE_HEAD")))))
-      (magit-insert-section (commit (car heads))
+    (let* ((heads (mapcar #'magit-get-shortname
+                          (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
+           (range (magit--merge-range (car heads))))
+      (magit-insert-section (unmerged range)
         (magit-insert-heading
           (format "Merging %s:" (mapconcat #'identity heads ", ")))
         (magit-insert-log
-         (magit--merge-range (car heads))
+         range
          (let ((args magit-log-section-arguments))
            (unless (member "--decorate=full" magit-log-section-arguments)
              (push "--decorate=full" args))
