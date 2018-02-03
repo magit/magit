@@ -1150,18 +1150,24 @@ where COMMITS is the number of commits in TAG but not in REV."
 When NAMESPACES is non-nil, list refs from these namespaces
 rather than those from `magit-list-refs-namespaces'.
 
-FORMAT is passed to the `--format' flag of `git for-each-ref' and
-defaults to \"%(refname)\".
+FORMAT is passed to the `--format' flag of `git for-each-ref'
+and defaults to \"%(refname)\".  If the format is \"%(refname)\"
+or \"%(refname:short)\", then drop the symbolic-ref \"HEAD\".
 
 SORTBY is a key or list of keys to pass to the `--sort' flag of
 `git for-each-ref'.  When nil, use `magit-list-refs-sortby'"
-  (magit-git-lines "for-each-ref"
-                   (concat "--format=" (or format "%(refname)"))
-                   (--map (concat "--sort=" it)
-                          (pcase (or sortby magit-list-refs-sortby)
-                            ((and val (pred stringp)) (list val))
-                            ((and val (pred listp)) val)))
-                   (or namespaces magit-list-refs-namespaces)))
+  (unless format
+    (setq format "%(refname)"))
+  (let ((refs (magit-git-lines "for-each-ref"
+                               (concat "--format=" format)
+                               (--map (concat "--sort=" it)
+                                      (pcase (or sortby magit-list-refs-sortby)
+                                        ((and val (pred stringp)) (list val))
+                                        ((and val (pred listp)) val)))
+                               (or namespaces magit-list-refs-namespaces))))
+    (if (member format '("%(refname)" "%(refname:short)"))
+        (--remove (string-match-p "\\(\\`\\|/\\)HEAD\\'" it) refs)
+      refs)))
 
 (defun magit-list-branches ()
   (magit-list-refs (list "refs/heads" "refs/remotes")))
