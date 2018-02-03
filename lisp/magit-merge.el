@@ -246,6 +246,12 @@ branch, then also remove the respective remote branch."
 
 ;;; Sections
 
+(defvar magit-unmerged-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-visit-thing] 'magit-diff-dwim)
+    map)
+  "Keymap for `unmerged' sections.")
+
 (defun magit-insert-merge-log ()
   "Insert section for the on-going merge.
 Display the heads that are being merged.

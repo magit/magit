@@ -46,6 +46,9 @@
 (declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
 (defvar git-rebase-line)
+;; For `magit-diff-unmerged'
+(declare-function magit-merge-in-progress-p "magit-merge" ())
+(declare-function magit--merge-range "magit-merge" (&optional head))
 
 (require 'diff-mode)
 (require 'smerge-mode)
@@ -757,6 +760,7 @@ buffer."
   "Show changes for the thing at point."
   (interactive (magit-diff-arguments))
   (pcase (magit-diff--dwim)
+    (`unmerged (magit-diff-unmerged args files))
     (`unstaged (magit-diff-unstaged args files))
     (`staged (magit-diff-staged nil args files))
     (`(commit . ,value)
@@ -773,8 +777,8 @@ buffer."
 The information can be in three forms:
 1. TYPE
    A symbol describing a type of diff where no additional information
-   is needed to generate the diff.  Currently, this includes `staged'
-   and `unstaged'.
+   is needed to generate the diff.  Currently, this includes `staged',
+   `unstaged' and `unmerged'.
 2. (TYPE . VALUE)
    Like #1 but the diff requires additional information, which is
    given by VALUE.  Currently, this includes `commit' and `stash',
@@ -808,6 +812,7 @@ If no DWIM context is found, nil is returned."
     (magit-section-case
       ([* unstaged] 'unstaged)
       ([* staged] 'staged)
+      (unmerged 'unmerged)
       (unpushed (oref it value))
       (unpulled (oref it value))
       (branch (let ((current (magit-get-current-branch))
@@ -906,6 +911,14 @@ a commit read from the minibuffer."
   "Show changes between the working tree and the index."
   (interactive (magit-diff-arguments))
   (magit-diff-setup nil nil args files))
+
+;;;###autoload
+(defun magit-diff-unmerged (&optional args files)
+  "Show changes that are being merged."
+  (interactive (magit-diff-arguments))
+  (unless (magit-merge-in-progress-p)
+    (user-error "No merge is in progress"))
+  (magit-diff-setup (magit--merge-range) nil args files))
 
 ;;;###autoload
 (defun magit-diff-while-committing (&optional args)
