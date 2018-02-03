@@ -45,7 +45,7 @@
               (?i "Merge into"             magit-merge-into))
   :sequence-actions   '((?m "Commit merge" magit-commit)
                         (?a "Abort merge"  magit-merge-abort))
-  :sequence-predicate 'magit-merge-state
+  :sequence-predicate 'magit-merge-in-progress-p
   :default-action 'magit-merge
   :max-action-columns 2)
 
@@ -218,7 +218,7 @@ branch, then also remove the respective remote branch."
          (magit-call-git "checkout" arg "--" file)
          (magit-run-git "add" "-u" "--" file)))))
 
-(defun magit-merge-state ()
+(defun magit-merge-in-progress-p ()
   (file-exists-p (magit-git-dir "MERGE_HEAD")))
 
 (defun magit-merge-assert ()

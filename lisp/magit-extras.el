@@ -537,7 +537,7 @@ above."
 Depending on the context, this will abort a merge, a rebase, a
 patch application, a cherry-pick, a revert, or a bisect."
   (interactive)
-  (cond ((magit-merge-state)             (magit-merge-abort))
+  (cond ((magit-merge-in-progress-p)     (magit-merge-abort))
         ((magit-rebase-in-progress-p)    (magit-rebase-abort))
         ((magit-am-in-progress-p)        (magit-am-abort))
         ((magit-sequencer-in-progress-p) (magit-sequencer-abort))
