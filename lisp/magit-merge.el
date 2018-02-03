@@ -250,17 +250,18 @@ branch, then also remove the respective remote branch."
   "Insert section for the on-going merge.
 Display the heads that are being merged.
 If no merge is in progress, do nothing."
-  (-when-let (heads (mapcar 'magit-get-shortname
-                            (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
-    (magit-insert-section (commit (car heads))
-      (magit-insert-heading
-        (format "Merging %s:" (mapconcat 'identity heads ", ")))
-      (magit-insert-log
-       (magit--merge-range (car heads))
-       (let ((args magit-log-section-arguments))
-         (unless (member "--decorate=full" magit-log-section-arguments)
-           (push "--decorate=full" args))
-         args)))))
+  (when (magit-merge-in-progress-p)
+    (let  ((heads (mapcar #'magit-get-shortname
+                          (magit-file-lines (magit-git-dir "MERGE_HEAD")))))
+      (magit-insert-section (commit (car heads))
+        (magit-insert-heading
+          (format "Merging %s:" (mapconcat #'identity heads ", ")))
+        (magit-insert-log
+         (magit--merge-range (car heads))
+         (let ((args magit-log-section-arguments))
+           (unless (member "--decorate=full" magit-log-section-arguments)
+             (push "--decorate=full" args))
+           args))))))
 
 (provide 'magit-merge)
 ;;; magit-merge.el ends here
