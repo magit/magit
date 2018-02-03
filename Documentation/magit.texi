@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-484-ge26b79050+1)
+@subtitle for version 2.11.0 (2.11.0-489-g3bb365775+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-484-ge26b79050+1).
+This manual is for Magit version 2.11.0 (2.11.0-489-g3bb365775+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6952,6 +6952,69 @@ for a commit or range, defaulting to the commit at point.
 
 This command also has a top-level binding, which can be invoked without
 using the popup by typing @code{a} at the top-level.
+@end table
+
+The following commands not only apply some commits to some branch, but
+also remove them from some other branch.  The removal is performed
+using either @code{git-update-ref} or if necessary @code{git-rebase}.  Both applying
+commits as well as removing them using @code{git-rebase} can lead to
+conflicts.  If that happens, then these commands abort and you not
+only have to resolve the conflicts but also finish the process the
+same way you would have to if these commands didn't exist at all.
+
+@table @asis
+@kindex A h
+@cindex magit-cherry-harvest
+@item @kbd{A h} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-harvest})
+
+This command moves the selected COMMITS that must be located on
+another BRANCH onto the current branch instead, removing them the
+former.  When this command succeeds, then the same branch is current
+as before.
+
+Applying the commits on the current branch or removing them from the
+other branch can lead to conflicts.  When that happens, then this
+command stops and you have to resolve the conflicts and then finish
+the process manually.
+
+@kindex A d
+@cindex magit-cherry-donate
+@item @kbd{A d} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-donate})
+
+This command moves the selected COMMITS from the current branch onto
+another existing BRANCH, removing them from the former.  When this
+command succeeds, then the same branch is current as before.
+
+Applying the commits on the other branch or removing them from the
+current branch can lead to conflicts.  When that happens, then this
+command stops and you have to resolve the conflicts and then finish
+the process manually.
+
+@kindex A n
+@cindex magit-cherry-spinout
+@item @kbd{A n} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-spinout})
+
+This command moves the selected COMMITS from the current branch onto
+a new branch BRANCH, removing them from the former.  When this
+command succeeds, then the same branch is current as before.
+
+Applying the commits on the other branch or removing them from the
+current branch can lead to conflicts.  When that happens, then this
+command stops and you have to resolve the conflicts and then finish
+the process manually.
+
+@kindex A s
+@cindex magit-cherry-spinoff
+@item @kbd{A s} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-spinoff})
+
+This command moves the selected COMMITS from the current branch onto
+a new branch BRANCH, removing them from the former.  When this
+command succeeds, then the new branch is checked out.
+
+Applying the commits on the other branch or removing them from the
+current branch can lead to conflicts.  When that happens, then this
+command stops and you have to resolve the conflicts and then finish
+the process manually.
 @end table
 
 When a cherry-pick or revert is in progress, then the popup buffer

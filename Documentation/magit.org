@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-484-ge26b79050+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-489-g3bb365775+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-484-ge26b79050+1).
+This manual is for Magit version 2.11.0 (2.11.0-489-g3bb365775+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -5159,13 +5159,13 @@ features the following commands.
   This command also has a top-level binding, which can be invoked without
   using the popup by typing ~a~ at the top-level.
 
-The following commands not apply some commits to some branch, but also
-remove them from some other branch.  The removal is performed using
-either ~git-update-ref~ or if necessary ~git-rebase~.  Both applying
+The following commands not only apply some commits to some branch, but
+also remove them from some other branch.  The removal is performed
+using either ~git-update-ref~ or if necessary ~git-rebase~.  Both applying
 commits as well as removing them using ~git-rebase~ can lead to
 conflicts.  If that happens, then these commands abort and you not
 only have to resolve the conflicts but also finish the process the
-same you would have to if these commands didn't exist at all.
+same way you would have to if these commands didn't exist at all.
 
 - Key: A h, magit-cherry-harvest
 
