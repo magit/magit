@@ -1715,9 +1715,9 @@ section or a child thereof."
         (magit-bind-match-strings (side _blob name) nil
           (pcase side
             ("result" (setq file name))
-            ("our" (setq orig name))
-            ("their" (setq file name))
-            ("base" (setq base name))))
+            ("our"    (setq orig name))
+            ("their"  (setq file name))
+            ("base"   (setq base name))))
         (magit-delete-line))
       (when orig (setq orig (magit-decode-git-path orig)))
       (when file (setq file (magit-decode-git-path file)))
