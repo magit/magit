@@ -762,7 +762,12 @@ buffer."
   (pcase (magit-diff--dwim)
     (`unmerged (magit-diff-unmerged args files))
     (`unstaged (magit-diff-unstaged args files))
-    (`staged (magit-diff-staged nil args files))
+    (`staged
+     (let ((file (magit-file-at-point)))
+       (if (and file (equal (cddr (car (magit-file-status file))) '(?D ?U)))
+           ;; File was deleted by us and modified by them.  Show the latter.
+           (magit-diff-unmerged args (list file))
+         (magit-diff-staged nil args files))))
     (`(commit . ,value)
      (magit-diff (format "%s^..%s" value value) args files))
     (`(stash  . ,value) (magit-stash-show value args))
