@@ -29,6 +29,8 @@
 
 (require 'magit)
 
+;;; Commands
+
 ;;;###autoload (autoload 'magit-merge-popup "magit" nil t)
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
@@ -218,6 +220,8 @@ branch, then also remove the respective remote branch."
          (magit-call-git "checkout" arg "--" file)
          (magit-run-git "add" "-u" "--" file)))))
 
+;;; Utilities
+
 (defun magit-merge-in-progress-p ()
   (file-exists-p (magit-git-dir "MERGE_HEAD")))
 
@@ -231,6 +235,8 @@ branch, then also remove the respective remote branch."
     (?o "[o]ur stage"   "--ours")
     (?t "[t]heir stage" "--theirs")
     (?c "[c]onflict"    "--merge")))
+
+;;; Sections
 
 (defun magit-insert-merge-log ()
   "Insert section for the on-going merge.
