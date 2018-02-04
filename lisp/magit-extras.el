@@ -448,6 +448,7 @@ the minibuffer too."
 (define-key git-commit-mode-map
   (kbd "C-c C-w") 'magit-pop-revision-stack)
 
+;;;###autoload
 (defun magit-copy-section-value ()
   "Save the value of the current section for later use.
 
@@ -485,6 +486,7 @@ above."
                                        value)))))
         (t (kill-new (message "%s" value)))))))
 
+;;;###autoload
 (defun magit-copy-buffer-revision ()
   "Save the revision of the current buffer for later use.
 
