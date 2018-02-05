@@ -70,6 +70,12 @@ this."
   :type '(choice (coding-system :tag "Coding system to decode Git output")
                  (const :tag "Use system default" nil)))
 
+(defvar magit-git-w32-path-hack nil
+  "Alist of (EXE . (PATHENTRY)).
+This specifies what additional PATH setting needs to be added to
+the environment in order to run the non-wrapper git executables
+successfully.")
+
 (defcustom magit-git-executable
   ;; Git might be installed in a different location on a remote, so
   ;; it is better not to use the full path to the executable, except
@@ -84,18 +90,28 @@ this."
                    ;; alias makes this fail on 1.x (which is good,
                    ;; because we would not want to end up using some
                    ;; other cygpath).
-                   (prog1 (car
-                           (process-lines
-                            it "-c"
-                            "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
-                            "X" "git"))
-                     (setq magit-git-environment
-                           (cons (concat "PATH="
+                   (let* ((core-exe
+                           (car
+                            (process-lines
+                             it "-c"
+                             "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
+                             "X" "git")))
+                          (hack-entry (assoc core-exe magit-git-w32-path-hack))
+                          ;; Running the libexec/git-core executable
+                          ;; requires some extra PATH entries.
+                          (path-hack
+                           (list (concat "PATH="
                                          (car (process-lines
                                                it "-c"
                                                "alias.P=!cygpath -wp \"$PATH\""
-                                               "P")))
-                                 magit-git-environment))))
+                                               "P"))))))
+                     ;; The defcustom STANDARD expression can be
+                     ;; evaluated many times, so make sure it is
+                     ;; idempotent.
+                     (if hack-entry
+                         (setcdr hack-entry path-hack)
+                       (push (cons core-exe path-hack) magit-git-w32-path-hack))
+                     core-exe))
                  ;; For 1.x, we search for bin/ next to cmd/.
                  (let ((alt (directory-file-name (file-name-directory it))))
                    (if (and (equal (file-name-nondirectory alt) "cmd")

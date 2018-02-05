@@ -364,6 +364,7 @@ conversion."
 
 (defun magit-process-environment ()
   (append magit-git-environment
+          (cdr (assoc magit-git-executable magit-git-w32-path-hack))
           (and magit-need-cygwin-noglob
                (mapcar (lambda (var)
                          (concat var "=" (--if-let (getenv var)
