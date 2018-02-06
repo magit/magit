@@ -152,7 +152,7 @@ Changes since v2.11.0
   still visit the commit at point using "RET".  #2949
 
 * The documentation regarding completion, confirmation, the selection,
-  and the hunk-internal region were significantly extended.  It might
+  and the hunk-internal region was significantly extended.  It might
   be worth reading that.
 
 * Added new option `magit-dwim-selection', which allows configuring
@@ -301,11 +301,11 @@ Changes since v2.11.0
 * Added option `magit-refs-filter-alist', which allows omitting some
   references from being displayed in `magit-refs-mode' buffers.
 
-* Added commands `magit-merge-absort' and `magit-merge-into', which
+* Added commands `magit-merge-absorb' and `magit-merge-into', which
   not only merge a local branch into another but also remove the
   merged branch.  #2922.
 
-* Added commands `magit-cherry-harvest', magit-cherry-donate',
+* Added commands `magit-cherry-harvest', `magit-cherry-donate',
   `magit-cherry-spinout' and `magit-cherry-spinoff', which move
   commits from one branch to another and also remove them from the
   branch where they were previously located.  #2921
