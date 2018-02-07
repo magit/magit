@@ -423,13 +423,15 @@ These sections can be expanded to show the respective commits."
   (magit-display-buffer (magit-mode-get-buffer 'magit-submodule-list-mode t))
   (magit-submodule-list-mode)
   (setq tabulated-list-entries
-        (mapcar (lambda (module)
-                  (let ((default-directory
-                          (expand-file-name (file-name-as-directory module))))
-                    (list module
-                          (vconcat (--map (or (funcall (nth 2 it) module) "")
-                                          magit-submodule-list-columns)))))
-                (magit-list-module-paths)))
+        (-keep (lambda (module)
+                 (let ((default-directory
+                         (expand-file-name (file-name-as-directory module))))
+                   (and (file-exists-p ".git")
+                        (list module
+                              (vconcat
+                               (--map (or (funcall (nth 2 it) module) "")
+                                      magit-submodule-list-columns))))))
+               (magit-list-module-paths)))
   (tabulated-list-print))
 
 (defvar magit-submodule-list-mode-map
