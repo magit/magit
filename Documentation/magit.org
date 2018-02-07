@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-491-g893c35f52+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-507-g07ce57181+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-491-g893c35f52+1).
+This manual is for Magit version 2.11.0 (2.11.0-507-g07ce57181+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -4603,8 +4603,8 @@ following commands.
 
 - Key: m i, magit-merge-into
 
-  This command merges another local branch into the current branch and
-  then removes the former.
+  This command merges the current branch into another local branch and
+  then removes the former.  The latter becomes the new current branch.
 
   Before the source branch is merged, it is first force pushed to its
   push-remote, provided the respective remote branch already exists.
