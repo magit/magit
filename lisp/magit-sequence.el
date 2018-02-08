@@ -403,14 +403,18 @@ without prompting."
                                     "Apply patch: ")
                                   nil default))))
                      (magit-am-arguments)))
-  (magit-run-git-sequencer "am" args "--" (mapcar 'expand-file-name files)))
+  (magit-run-git-sequencer "am" args "--"
+                           (--map (magit-convert-filename-for-git
+                                   (expand-file-name it))
+                                  files)))
 
 ;;;###autoload
 (defun magit-am-apply-maildir (&optional maildir args)
   "Apply the patches from MAILDIR."
   (interactive (list (read-file-name "Apply mbox or Maildir: ")
                      (magit-am-arguments)))
-  (magit-run-git-sequencer "am" args (expand-file-name maildir)))
+  (magit-run-git-sequencer "am" args (magit-convert-filename-for-git
+                                      (expand-file-name maildir))))
 
 ;;;###autoload
 (defun magit-am-continue ()
