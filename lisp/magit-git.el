@@ -684,8 +684,7 @@ Sorted from longest to shortest CYGWIN name."
 (defun magit-convert-filename-for-git (filename)
   "Convert FILENAME so that it can be passed to git.
 1. If it's a remote filename, then remove the remote part.
-2. Expand \"~/\", git isn't a shell and does not understand it.
-3. Deal with an `windows-nt' Emacs vs. Cygwin Git incompatibility."
+2. Deal with an `windows-nt' Emacs vs. Cygwin Git incompatibility."
   (if (file-name-absolute-p filename)
       (-if-let ((cyg . win)
                 (cl-rassoc filename magit-cygwin-mount-points
