@@ -982,8 +982,10 @@ be committed."
   (interactive (list (read-file-name "First file: " nil nil t)
                      (read-file-name "Second file: " nil nil t)))
   (magit-diff-setup nil (list "--no-index")
-                    nil (list (expand-file-name a)
-                              (expand-file-name b))))
+                    nil (list (magit-convert-filename-for-git
+                               (expand-file-name a))
+                              (magit-convert-filename-for-git
+                               (expand-file-name b)))))
 
 (defvar-local magit-buffer-revision-hash nil)
 

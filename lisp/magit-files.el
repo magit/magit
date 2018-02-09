@@ -352,13 +352,15 @@ If FILE isn't tracked in Git, fallback to using `rename-file'."
           (newname (read-file-name (format "Rename %s to file: " file))))
      (list (expand-file-name file (magit-toplevel))
            (expand-file-name newname))))
-  (if (magit-file-tracked-p file)
+  (if (magit-file-tracked-p (magit-convert-filename-for-git file))
       (let ((oldbuf (get-file-buffer file)))
         (when (and oldbuf (buffer-modified-p oldbuf))
           (user-error "Save %s before moving it" file))
         (when (file-exists-p newname)
           (user-error "%s already exists" newname))
-        (magit-run-git "mv" file newname)
+        (magit-run-git "mv"
+                       (magit-convert-filename-for-git file)
+                       (magit-convert-filename-for-git newname))
         (when oldbuf
           (with-current-buffer oldbuf
             (let ((buffer-read-only buffer-read-only))
@@ -493,7 +495,7 @@ If DEFAULT is non-nil, use this as the default value instead of
                                       (--when-let (magit-file-at-point)
                                         (file-relative-name it))))
                      (magit-patch-apply-arguments)))
-  (magit-run-git "apply" args "--" file))
+  (magit-run-git "apply" args "--" (magit-convert-filename-for-git file)))
 
 (defun magit-patch-save (file &optional arg)
   "Write current diff into patch FILE.
