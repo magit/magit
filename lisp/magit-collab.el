@@ -98,8 +98,10 @@ only supports Github, but that will change eventually."
          (number (and (string-match "\\([0-9]+\\)" choice)
                       (string-to-number (match-string 1 choice)))))
     (and number
-         (or (--first (= (cdr (assq 'number it)) number) prs)
-             (ghub-get (format "/repos/%s" id) nil :auth 'magit)))))
+         ;; Don't reuse the pr from the list, it lacks some information
+         ;; that is only returned when requesting a single pr.  #3371
+         (ghub-get (format "/repos/%s/pulls/%s" id number)
+                   nil :auth 'magit))))
 
 (defun magit-upstream-repository ()
   "Return the remote name of the upstream repository.
