@@ -164,7 +164,8 @@ it is nil, then PATH also becomes the name."
   (magit-with-toplevel
     (magit-call-git "submodule" "add" (and name (list "--name" name))
                     args "--" url path)
-    (magit-call-git "submodule" "absorbgitdirs" path)
+    (unless (version< (magit-git-version) "2.11.0")
+      (magit-call-git "submodule" "absorbgitdirs" path))
     (magit-refresh)))
 
 ;;;###autoload
