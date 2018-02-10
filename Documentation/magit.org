@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-507-g07ce57181+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-516-g918010c77+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-507-g07ce57181+1).
+This manual is for Magit version 2.11.0 (2.11.0-516-g918010c77+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -568,14 +568,21 @@ buffers whose major-modes derive from ~magit-mode~.
     The top-level directory of the working tree of the repository, or
     if ~magit-uniquify-buffer-names~ is non-nil an abbreviation of that.
 
+  - ~%x~
+
+    If ~magit-uniquify-buffer-names~ is nil "*", otherwise the empty
+    string.  Due to limitations of the ~uniquify~ package, buffer names
+    must end with the path.
+
   - ~%T~
 
-    Like ~%t~, but append an asterisk if and only if
-    ~magit-uniquify-buffer-names~ is nil.
+    Obsolete, use "%t%x" instead.  Like ~%t~, but append an asterisk if
+    and only if ~magit-uniquify-buffer-names~ is nil.
 
-  The value should always contain ~%m~ or ~%M~, ~%v~ or ~%V~, and ~%t~ or ~%T~.
-  If ~magit-uniquify-buffer-names~ is non-nil, then the value must end
-  with ~%t~ or ~%T~ (see issue #2841).
+  The value should always contain ~%m~ or ~%M~, ~%v~ or ~%V~, and ~%t~ (or the
+  obsolete ~%T~).  If ~magit-uniquify-buffer-names~ is non-nil, then the
+  value must end with ~%t~ or ~%t%x~ (or the obsolete ~%T~).  See issue
+  #2841.
 
 - User Option: magit-uniquify-buffer-names
 

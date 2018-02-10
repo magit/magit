@@ -144,7 +144,7 @@ which in turn uses the function specified here."
   :type '(radio (function-item magit-generate-buffer-name-default-function)
                 (function :tag "Function")))
 
-(defcustom magit-buffer-name-format "*%M%v: %T"
+(defcustom magit-buffer-name-format "%x%M%v: %t%x"
   "The format string used to name Magit buffers.
 
 The following %-sequences are supported:
@@ -164,12 +164,19 @@ The following %-sequences are supported:
      repository, or if `magit-uniquify-buffer-names' is non-nil
      an abbreviation of that.
 
-`%T' Like \"%t\", but append an asterisk if and only if
-     `magit-uniquify-buffer-names' is nil.
+`%x' If `magit-uniquify-buffer-names' is nil \"*\", otherwise the
+     empty string.  Due to limitations of the `uniquify' package,
+     buffer names must end with the path.
 
-The value should always contain \"%m\" or \"%M\", \"%v\" or \"%V\",
-and \"%t\" or \"%T\".  If `magit-uniquify-buffer-names' is non-nil,
-then the value must end with \"%t\" or \"%T\" (see issue #2841).
+`%T' Obsolete, use \"%t%x\" instead.  Like \"%t\", but append an
+     asterisk if and only if `magit-uniquify-buffer-names' is nil.
+
+The value should always contain \"%m\" or \"%M\", \"%v\" or
+\"%V\", and \"%t\" (or the obsolete \"%T\").
+
+If `magit-uniquify-buffer-names' is non-nil, then the value must
+end with \"%t\" or \"%t%x\" (or the obsolete \"%T\").  See issue
+#2841.
 
 This is used by `magit-generate-buffer-name-default-function'.
 If another `magit-generate-buffer-name-function' is used, then
@@ -813,6 +820,7 @@ account."
        (?v . ,(or v ""))
        (?V . ,(if v (concat " " v) ""))
        (?t . ,n)
+       (?x . ,(if magit-uniquify-buffer-names "" "*"))
        (?T . ,(if magit-uniquify-buffer-names n (concat n "*")))))))
 
 (defun magit-toggle-buffer-lock ()
