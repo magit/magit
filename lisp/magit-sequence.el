@@ -148,8 +148,8 @@ This discards all changes made since the sequence started."
 (defun magit--cherry-move-read-args (verb away fn)
   (declare (indent defun))
    (let ((commits (or (nreverse (magit-region-values 'commit))
-                      (magit-read-other-branch-or-commit
-                       (format "%s cherry" (capitalize verb)))))
+                      (list (magit-read-other-branch-or-commit
+                             (format "%s cherry" (capitalize verb))))))
          (current (magit-get-current-branch)))
      (unless current
        (user-error "Cannot %s cherries while HEAD is detached" verb))
