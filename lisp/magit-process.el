@@ -358,19 +358,27 @@ Process output goes into a new section in the buffer returned by
 Identical to `process-file' but temporarily enable Cygwin's
 \"noglob\" option during the call and ensure unix eol
 conversion."
-  (let ((process-environment (append (magit-cygwin-env-vars)
-                                     process-environment))
+  (let ((process-environment (magit-process-environment))
         (default-process-coding-system (magit--process-coding-system)))
     (apply #'process-file args)))
 
-(defun magit-cygwin-env-vars ()
-  (append magit-git-environment
-          (and magit-need-cygwin-noglob
-               (mapcar (lambda (var)
-                         (concat var "=" (--if-let (getenv var)
-                                             (concat it " noglob")
-                                           "noglob")))
-                       '("CYGWIN" "MSYS")))))
+(defun magit-process-environment ()
+  ;; The various w32 hacks are only applicable when running on the
+  ;; local machine.  As of Emacs 25.1, a local binding of
+  ;; process-environment different from the top-level value affects
+  ;; the environment used in
+  ;; tramp-sh-handle-{start-file-process,process-file}.
+  (let ((local (not (file-remote-p default-directory))))
+    (append magit-git-environment
+            (and local
+                 (cdr (assoc magit-git-executable magit-git-w32-path-hack)))
+            (and local magit-need-cygwin-noglob
+                 (mapcar (lambda (var)
+                           (concat var "=" (--if-let (getenv var)
+                                               (concat it " noglob")
+                                             "noglob")))
+                         '("CYGWIN" "MSYS")))
+            process-environment)))
 
 (defvar magit-this-process nil)
 
@@ -399,8 +407,7 @@ flattened before use."
                     (eq (process-status magit-this-process) 'run))
           (sleep-for 0.005)))
     (run-hooks 'magit-pre-call-git-hook)
-    (-let* ((process-environment (append (magit-cygwin-env-vars)
-                                         process-environment))
+    (-let* ((process-environment (magit-process-environment))
             (default-process-coding-system (magit--process-coding-system))
             (flat-args (magit-process-git-arguments args))
             ((process-buf . section)
@@ -519,8 +526,7 @@ Magit status buffer."
                   ;; Don't use a pty, because it would set icrnl
                   ;; which would modify the input (issue #20).
                   (and (not input) magit-process-connection-type))
-                 (process-environment (append (magit-cygwin-env-vars)
-                                              process-environment))
+                 (process-environment (magit-process-environment))
                  (default-process-coding-system (magit--process-coding-system)))
              (apply #'start-file-process
                     (file-name-nondirectory program)
