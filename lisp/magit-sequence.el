@@ -204,7 +204,7 @@ process manually."
                  (_ (magit-completing-read
                      (format "Remove %s cherries from branch" (length commits))
                      branches nil t))))))))
-  (magit--cherry-move commits branch (magit-get-current-branch) args))
+  (magit--cherry-move commits branch (magit-get-current-branch) args nil t))
 
 ;;;###autoload
 (defun magit-cherry-donate (commits branch &optional args)
