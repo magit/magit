@@ -203,8 +203,7 @@ process manually."
                  (1 (car branches))
                  (_ (magit-completing-read
                      (format "Remove %s cherries from branch" (length commits))
-                     branches nil t))))
-             (magit-cherry-pick-arguments)))))
+                     branches nil t))))))))
   (magit--cherry-move commits branch (magit-get-current-branch) args))
 
 ;;;###autoload
