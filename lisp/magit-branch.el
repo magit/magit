@@ -745,6 +745,43 @@ the remote."
   (magit-branch-unset-pushRemote old)
   (magit-refresh))
 
+;;;###autoload
+(defun magit-branch-shelve (branch)
+  "Shelve a BRANCH.
+Rename \"refs/heads/BRANCH\" to \"refs/shelved/BRANCH\",
+and also rename the respective reflog file."
+  (interactive (list (magit-read-other-local-branch "Shelve branch")))
+  (let ((old (concat "refs/heads/"   branch))
+        (new (concat "refs/shelved/" branch)))
+    (magit-git "update-ref" new old "")
+    (magit--rename-reflog-file old new)
+    (magit-branch-unset-pushRemote branch)
+    (magit-run-git "branch" "-D" branch)))
+
+;;;###autoload
+(defun magit-branch-unshelve (branch)
+  "Unshelve a BRANCH
+Rename \"refs/shelved/BRANCH\" to \"refs/heads/BRANCH\",
+and also rename the respective reflog file."
+  (interactive
+   (list (magit-completing-read
+          "Unshelve branch"
+          (--map (substring it 8)
+                 (magit-list-refnames "refs/shelved"))
+          nil t)))
+  (let ((old (concat "refs/shelved/" branch))
+        (new (concat "refs/heads/"   branch)))
+    (magit-git "update-ref" new old "")
+    (magit--rename-reflog-file old new)
+    (magit-run-git "update-ref" "-d" old)))
+
+(defun magit--rename-reflog-file (old new)
+  (let ((old (magit-git-dir (concat "logs/" old)))
+        (new (magit-git-dir (concat "logs/" new))))
+    (when (file-exists-p old)
+      (make-directory (file-name-directory new) t)
+      (rename-file old new t))))
+
 ;;; Config Popup
 
 (defvar magit-branch-config-branch nil)

@@ -310,6 +310,9 @@ Changes since v2.11.0
   commits from one branch to another and also remove them from the
   branch where they were previously located.  #2921
 
+* Added commands `magit-branch-shelve' and `magit-branch-unshelve'.
+  You might want to add them to the branch popup.
+
 Fixes since v2.11.0
 -------------------
 
