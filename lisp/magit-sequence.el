@@ -160,7 +160,7 @@ This discards all changes made since the sequence started."
        (pcase (list away reachable)
          (`(nil t) (user-error msg verb "are"))
          (`(t nil) (user-error msg verb "are not"))))
-     `(,(reverse commits)
+     `(,commits
        ,@(funcall fn commits)
        ,(magit-cherry-pick-arguments))))
 
