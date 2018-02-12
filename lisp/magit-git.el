@@ -954,7 +954,9 @@ to, or to some other symbolic-ref that points to the same ref."
       (magit-section-case
         (branch (magit-ref-maybe-qualify (oref it value)))
         (commit (let ((rev (oref it value)))
-                  (or (magit-get-shortname rev) rev)))
+                  (or (magit-name-branch rev)
+                      (magit-get-shortname rev)
+                      rev)))
         (tag (magit-ref-maybe-qualify (oref it value) "tags/")))
       (thing-at-point 'git-revision t)
       (and (derived-mode-p 'magit-revision-mode
