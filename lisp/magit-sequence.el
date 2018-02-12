@@ -277,7 +277,7 @@ the process manually."
                  (let ((process-environment process-environment))
                    (push (format "%s=perl -i -ne '/^pick (%s)/ or print'"
                                  "GIT_SEQUENCE_EDITOR"
-                                 (mapconcat #'identity commits "|"))
+                                 (mapconcat #'magit-rev-abbrev commits "|"))
                          process-environment)
                    (magit-run-git-sequencer "rebase" "-i" keep))
                  (when checkout-dst
