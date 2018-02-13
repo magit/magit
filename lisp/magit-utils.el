@@ -597,25 +597,10 @@ ACTION is a member of option `magit-slow-confirm'."
             ((= (length items) 1)
              (and (magit-y-or-n-p prompt action) items))
             ((> (length items) 1)
-             (let ((buffer (get-buffer-create " *Magit Confirm*")))
-               (with-current-buffer buffer
-                 (with-current-buffer-window
-                  buffer (cons 'display-buffer-at-bottom
-                               '((window-height . fit-window-to-buffer)))
-                  (lambda (window _value)
-                    (with-selected-window window
-                      (unwind-protect
-                          (and (magit-y-or-n-p
-                                (if (>= (length items) window-min-height)
-                                    (concat "\n" prompt-n)
-                                  prompt-n)
-                                action)
-                               items)
-                        (when (window-live-p window)
-                          (quit-restore-window window 'kill)))))
-                  (dolist (item items)
-                    (insert item "\n"))
-                  (setf mode-line-format nil))))))
+             (and (magit-y-or-n-p (concat (mapconcat #'identity items "\n")
+                                          "\n\n" prompt-n)
+                                  action)
+                  items)))
       (if noabort nil (user-error "Abort"))))
 
 (defun magit-confirm-files (action files &optional prompt)
