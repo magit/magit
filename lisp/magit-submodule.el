@@ -117,7 +117,7 @@ an alist that supports the keys `:right-align' and `:pad-right'."
     (?p "Populate       git submodule update --init"
         magit-submodule-populate)
     (?u "Update         git submodule update [--force] [--no-fetch]
-                     [--remote] [--checkout|--rebase|--merge]"
+                     [--remote] [--recursive] [--checkout|--rebase|--merge]"
         magit-submodule-update)
     (?s "Synchronize    git submodule sync [--recursive]"
         magit-submodule-synchronize)
@@ -215,7 +215,8 @@ it is nil, then PATH also becomes the name."
   (interactive
    (list (magit-module-confirm "Update" 'magit-module-worktree-p)
          (magit-submodule-filtered-arguments
-          "--force" "--remote" "--checkout" "--rebase" "--merge" "--no-fetch")))
+          "--force" "--remote" "--recursive" "--checkout" "--rebase" "--merge"
+          "--no-fetch")))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" args "--" modules)))
 
