@@ -376,7 +376,8 @@ Please see the manual for more information."
            (remote .head.repo.owner.login)
            (branch .head.ref)
            (pr-branch branch))
-      (unless .maintainer_can_modify
+      (when (or (not .maintainer_can_modify)
+                (magit-branch-p branch))
         (setq branch (format "pr-%s" .number)))
       (when (magit-branch-p branch)
         (user-error "Branch `%s' already exists" branch))
