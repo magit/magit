@@ -520,7 +520,7 @@ line is inserted at all."
   (unless magit-refs-show-commit-count
     (setq format (replace-regexp-in-string "%[0-9]\\([cC]\\)" "%1\\1" format t)))
   (if branch
-      (when (magit-refs-insert-refname-p branch)
+      (when (magit-refs--insert-refname-p branch)
         (magit-insert-section it (branch branch t)
           (magit-insert-branch-1 it branch format
                                  current face hash message
@@ -537,7 +537,7 @@ line is inserted at all."
   (let* ((focus (car magit-refresh-args))
          (head  (or focus "HEAD"))
          (count (and branch
-                     (magit-refs-format-commit-count branch head format)))
+                     (magit-refs--format-focus-column branch head format)))
          (mark  (and (or (equal branch focus)
                          (and current (not focus)))
                      (propertize "#" 'face 'magit-section-heading))))
@@ -574,10 +574,10 @@ line is inserted at all."
                               ""))
                   "")))))
     (when (magit-buffer-margin-p)
-      (magit-refs-format-margin branch))
-    (magit-refs-insert-cherry-commits branch section)))
+      (magit-refs--format-margin branch))
+    (magit-refs--insert-cherry-commits branch section)))
 
-(defun magit-refs-insert-refname-p (refname)
+(defun magit-refs--insert-refname-p (refname)
   (--if-let (-first (-lambda ((key . _))
                       (if (functionp key)
                           (funcall key refname)
@@ -586,7 +586,7 @@ line is inserted at all."
       (cdr it)
     t))
 
-(defun magit-refs-format-commit-count (ref head format &optional tag-p)
+(defun magit-refs--format-focus-column (ref head format &optional tag-p)
   (and (string-match-p "%-?[0-9]+c" format)
        (if tag-p
            (eq magit-refs-show-commit-count 'all)
@@ -615,10 +615,10 @@ line is inserted at all."
           (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
           (let* ((message (match-string 2 tag))
                  (tag     (match-string 1 tag))
-                 (count   (magit-refs-format-commit-count tag head format t))
+                 (count   (magit-refs--format-focus-column tag head format t))
                  (mark    (and (equal tag head)
                                (propertize "#" 'face 'magit-tag))))
-            (when (magit-refs-insert-refname-p (concat "tags/" tag))
+            (when (magit-refs--insert-refname-p (concat "tags/" tag))
               (magit-insert-section section (tag tag t)
                 (magit-insert-heading
                   (format-spec format
@@ -627,20 +627,20 @@ line is inserted at all."
                                  (?m . ,(or message "")))))
                 (when (and (magit-buffer-margin-p)
                            magit-refs-margin-for-tags)
-                  (magit-refs-format-margin (concat tag "^{commit}")))
-                (magit-refs-insert-cherry-commits tag section))))))
+                  (magit-refs--format-margin (concat tag "^{commit}")))
+                (magit-refs--insert-cherry-commits tag section))))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
 
 ;;;; Cherry Sections
 
-(defun magit-refs-insert-cherry-commits (ref section)
+(defun magit-refs--insert-cherry-commits (ref section)
   (if (oref section hidden)
       (oset section washer
-            (apply-partially #'magit-refs-insert-cherry-commits-1 ref section))
-    (magit-refs-insert-cherry-commits-1 ref section)))
+            (apply-partially #'magit-refs--insert-cherry-commits-1 ref section))
+    (magit-refs--insert-cherry-commits-1 ref section)))
 
-(defun magit-refs-insert-cherry-commits-1 (ref _section)
+(defun magit-refs--insert-cherry-commits-1 (ref _section)
   (let ((start (point))
         (magit-insert-section--current nil))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
@@ -650,7 +650,7 @@ line is inserted at all."
     (unless (= (point) start)
       (magit-make-margin-overlay nil t))))
 
-(defun magit-refs-format-margin (commit)
+(defun magit-refs--format-margin (commit)
   (save-excursion
     (goto-char (line-beginning-position 0))
     (let ((line (magit-rev-format "%ct%cN" commit)))
