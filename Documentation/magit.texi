@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-530-gbe3882621+1)
+@subtitle for version 2.11.0 (2.11.0-552-g40361273a+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-530-gbe3882621+1).
+This manual is for Magit version 2.11.0 (2.11.0-552-g40361273a+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4212,6 +4212,42 @@ Whether to show commit counts in Magit-Refs mode buffers.
 The default is @code{nil} because anything else can be very expensive.
 @end defopt
 
+@defopt magit-refs-show-remote-prefix
+
+Whether to show the remote prefix in lists of remote branches.
+
+Showing the prefix is redundant because the name of the remote is
+already shown in the heading preceeding the list of its branches.
+@end defopt
+
+@defopt magit-refs-primary-column-width
+
+Width of the focus column in `magit-refs-mode' buffers.  The primary
+column is the that contains the name the current row is about.
+
+If this is an integer, then the column is that many columns wide.
+Otherwise it has to be a cons-cell of two integers.  The first
+specified the minimal wide, the second the maximal wide.  In that
+case the actual wide is determined using the length of the names of
+the shown local branches.  (Remote branches and tags are not taken
+into account when calculating to optimal wide.)
+@end defopt
+
+@defopt magit-refs-focus-column-width
+
+Width of the focus column in `magit-refs-mode' buffers.
+
+The focus column is the first column, which marks one branch
+(usually the current branch) as the focused branch using @code{*} or @code{@@}.
+For other references it optionally shows how many commits it is
+ahead of the focused branch and @code{<}, or if it isn't ahead then the
+commits it is behind and @code{>}, or if it isn't behind either, then a @code{=}.
+
+This column may also display only @code{*} or @code{@@} for the focused branch, in
+which case this option is ignored.  Use @code{L v} to change the verbosity
+of this column.
+@end defopt
+
 @defopt magit-refs-margin
 
 This option specifies whether the margin is initially shown in
@@ -4306,27 +4342,6 @@ returns a boolean.  Contrary to how they are displayed in the
 buffer, for comparison each tag begins with "tags/" and each remote
 branch with "<remote>/".
 @end defopt
-
-@defvar magit-refs-local-branch-format
-
-Format used for local branches in refs buffers.
-@end defvar
-
-@defvar magit-refs-remote-branch-format
-
-Format used for remote branches in refs buffers.
-@end defvar
-
-@defvar magit-refs-tags-format
-
-Format used for tags in refs buffers.
-@end defvar
-
-@defvar magit-refs-indent-cherry-lines
-
-Indentation of cherries in refs buffers.  This should be N-1 where N
-is taken from "%Nc" in the above format strings.
-@end defvar
 
 @table @asis
 @kindex RET

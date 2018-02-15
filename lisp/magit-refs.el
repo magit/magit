@@ -129,7 +129,7 @@ tags."
   :type 'boolean)
 
 (defcustom magit-refs-primary-column-width (cons 16 32)
-  "Wide of the focus column in `magit-refs-mode' buffers.
+  "Width of the focus column in `magit-refs-mode' buffers.
 
 The primary column is the that contains the name the current row
 is about.
@@ -148,17 +148,18 @@ taken into account when calculating to optimal wide.)"
                           (integer :tag "Maximum"))))
 
 (defcustom magit-refs-focus-column-width 5
-  "Wide of the focus column in `magit-refs-mode' buffers.
+  "Width of the focus column in `magit-refs-mode' buffers.
 
 The focus column is the first column, which marks one
-branch (usually the current branch as the focused branch using
-colorful \"=\".  For other references it optionally shows how
-many commits it is ahead of the focused branch and \">\", or if
-it isn't ahead then the commits it is behind and \"<\", or if
-it isn't behind either, then a blant \"=\".
+branch (usually the current branch) as the focused branch using
+\"*\" or \"*\".  For other references it optionally shows how
+many commits it is ahead of the focused branch and \"<\", or if
+it isn't ahead then the commits it is behind and \">\", or if it
+isn't behind either, then a \"=\".
 
-This column may also display only \"=\" for the focused branch,
-in which case this option is ignored.  The command ... TODO"
+This column may also display only \"*\" or \"@\" for the focused
+branch, in which case this option is ignored.  Use \"L v\" to
+change the verbosity of this column."
   :package-version '(magit . "2.12.0")
   :group 'magit-refs
   :type 'integer)
