@@ -591,9 +591,11 @@ line is inserted at all."
        (if tag-p
            (eq magit-refs-show-commit-count 'all)
          magit-refs-show-commit-count)
-       (let ((count (cadr (magit-rev-diff-count head ref))))
-         (and (> count 0)
-              (propertize (number-to-string count) 'face 'magit-dimmed)))))
+       (pcase-let ((`(,ahead ,behind) (magit-rev-diff-count head ref)))
+         (propertize (cond ((> ahead 0)  (number-to-string ahead))
+                           ((> behind 0) (number-to-string (1- behind)))
+                           (t "0"))
+                     'face 'magit-dimmed))))
 
 ;;;; Tag Sections
 
