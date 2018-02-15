@@ -578,6 +578,10 @@ line is inserted at all."
 %(push:remotename)%00%(push)%00%(push:track)%00%(subject)"
                           "refs/heads"
                           (cadr magit-refresh-args)))))
+    (unless (magit-get-current-branch)
+      (push (magit-refs--format-local-branch
+             (concat "*\0\0\0\0\0\0\0" (magit-rev-format "%s")))
+            lines))
     (setq-local magit-refs-primary-column-width
                 (let ((def (default-value 'magit-refs-primary-column-width)))
                   (if (atom def)
