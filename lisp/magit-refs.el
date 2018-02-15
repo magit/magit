@@ -575,7 +575,7 @@ line is inserted at all."
                   "")))))
     (when (magit-buffer-margin-p)
       (magit-refs-format-margin branch))
-    (magit-refs-insert-cherry-commits head branch section)))
+    (magit-refs-insert-cherry-commits branch section)))
 
 (defun magit-refs-insert-refname-p (refname)
   (--if-let (-first (-lambda ((key . _))
@@ -628,24 +628,25 @@ line is inserted at all."
                 (when (and (magit-buffer-margin-p)
                            magit-refs-margin-for-tags)
                   (magit-refs-format-margin (concat tag "^{commit}")))
-                (magit-refs-insert-cherry-commits head tag section))))))
+                (magit-refs-insert-cherry-commits tag section))))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
 
 ;;;; Cherry Sections
 
-(defun magit-refs-insert-cherry-commits (head ref section)
+(defun magit-refs-insert-cherry-commits (ref section)
   (if (oref section hidden)
       (oset section washer
-            (apply-partially #'magit-refs-insert-cherry-commits-1
-                             head ref section))
-    (magit-refs-insert-cherry-commits-1 head ref section)))
+            (apply-partially #'magit-refs-insert-cherry-commits-1 ref section))
+    (magit-refs-insert-cherry-commits-1 ref section)))
 
-(defun magit-refs-insert-cherry-commits-1 (head ref _section)
+(defun magit-refs-insert-cherry-commits-1 (ref _section)
   (let ((start (point))
         (magit-insert-section--current nil))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
-      "cherry" "-v" (magit-abbrev-arg) head ref magit-refresh-args)
+      "cherry" "-v" (magit-abbrev-arg)
+      (or (car magit-refresh-args) "HEAD")
+      ref magit-refresh-args)
     (unless (= (point) start)
       (magit-make-margin-overlay nil t))))
 
