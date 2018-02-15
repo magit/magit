@@ -61,9 +61,14 @@ does not carry to other options."
 (magit-define-popup magit-margin-popup
   "Popup console for changing appearance of the margin."
   :actions '("Margin"
-             (?L "toggle visibility" magit-toggle-margin)
-             (?l "cycle style"       magit-cycle-margin-style)
-             (?d "toggle details"    magit-toggle-margin-details))
+             (?L "Toggle visibility" magit-toggle-margin)
+             (?l "Cycle style"       magit-cycle-margin-style)
+             (?d "Toggle details"    magit-toggle-margin-details)
+             (lambda ()
+               (and (with-current-buffer magit-pre-popup-buffer
+                      (derived-mode-p 'magit-refs-mode))
+                    (propertize "Left edge" 'face 'magit-popup-heading)))
+             (?v "Change verbosity" magit-refs-set-show-commit-count))
   :max-action-columns 1)
 
 (defun magit-toggle-margin ()
