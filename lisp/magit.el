@@ -232,7 +232,10 @@ own faces for the `header-line', or for parts of the
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)
              (?% "Worktree"        magit-worktree-popup)
-             "Applying changes"
+             (lambda ()
+               (and (with-current-buffer magit-pre-popup-buffer
+                      (derived-mode-p 'magit-mode))
+                    (propertize "Applying changes" 'face 'magit-popup-heading)))
              (?a "Apply"           magit-apply)
              (?s "Stage"           magit-stage)
              (?u "Unstage"         magit-unstage)
@@ -240,7 +243,10 @@ own faces for the `header-line', or for parts of the
              (?S "Stage all"       magit-stage-modified)
              (?U "Unstage all"     magit-unstage-all)
              (?k "Discard"         magit-discard)
-             "Essential commands"
+             (lambda ()
+               (and (with-current-buffer magit-pre-popup-buffer
+                      (derived-mode-p 'magit-mode))
+                    (propertize "Essential commands" 'face 'magit-popup-heading)))
              (?g  "    refresh current buffer"   magit-refresh)
              ;; These bindings only work because of :setup-function.
              (?\t   "  toggle section at point"  magit-section-toggle)
