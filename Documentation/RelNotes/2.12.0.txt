@@ -313,6 +313,10 @@ Changes since v2.11.0
 * Added commands `magit-branch-shelve' and `magit-branch-unshelve'.
   You might want to add them to the branch popup.
 
+* The look of `magit-refs-mode' buffers was changed to save horizonal
+  space and two new options `magit-refs-primary-column-width' and
+  `magit-refs-focus-column-width' were added.  #3378
+
 Fixes since v2.11.0
 -------------------
 
