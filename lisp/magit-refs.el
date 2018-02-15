@@ -405,6 +405,13 @@ Branch %s already exists.
 
 ;;; Sections
 
+(defvar magit-remote-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-delete-thing] 'magit-remote-remove)
+    (define-key map "R"                        'magit-remote-rename)
+    map)
+  "Keymap for `remote' sections.")
+
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing]  'magit-visit-ref)
@@ -412,13 +419,6 @@ Branch %s already exists.
     (define-key map "R"                        'magit-branch-rename)
     map)
   "Keymap for `branch' sections.")
-
-(defvar magit-remote-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-delete-thing] 'magit-remote-remove)
-    (define-key map "R"                        'magit-remote-rename)
-    map)
-  "Keymap for `remote' sections.")
 
 (defvar magit-tag-section-map
   (let ((map (make-sparse-keymap)))
@@ -453,30 +453,38 @@ line is inserted at all."
         (insert (mapconcat 'identity (cdr desc) "\n"))
         (insert "\n\n")))))
 
-(defun magit-insert-local-branches ()
-  "Insert sections showing all local branches."
-  (magit-insert-section (local nil)
-    (magit-insert-heading "Branches:")
-    (dolist (line (magit-git-lines "for-each-ref" "--format=\
-%(HEAD)%00%(refname:short)%00%(objectname:short)%00%(subject)%00\
-%(upstream:short)%00%(upstream)%00%(upstream:track)"
-                                   "refs/heads"
-                                   (cadr magit-refresh-args)))
-      (pcase-let* ((`(,head ,branch ,hash ,message
-                            ,upstream ,uref ,utrack)
-                    (-replace "" nil (split-string line "\0")))
-                   (current (and (equal head "*") branch)))
-        (magit-insert-branch
-         branch magit-refs-local-branch-format current
-         (if current
-             'magit-branch-current
-           'magit-branch-local)
-         hash message upstream uref
-         ;; Strip the brackets here because
-         ;; %(upstream:track,nobracket) was added in Git v2.13.
-         (and utrack (substring utrack 1 -1)))))
-    (insert ?\n)
-    (magit-make-margin-overlay nil t)))
+(defun magit-insert-tags ()
+  "Insert sections showing all tags."
+  (-when-let (tags (magit-git-lines "tag" "-l" "-n"))
+    (magit-insert-section (tags)
+      (magit-insert-heading "Tags:")
+      (let ((head (or (car magit-refresh-args)
+                      (magit-get-current-branch)
+                      "HEAD"))
+            (format (if magit-refs-show-commit-count
+                        magit-refs-tags-format
+                      (replace-regexp-in-string
+                       "%[0-9]\\([cC]\\)" "%1\\1" magit-refs-tags-format t))))
+        (dolist (tag (nreverse tags))
+          (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
+          (let* ((message (match-string 2 tag))
+                 (tag     (match-string 1 tag))
+                 (count   (magit-refs--format-focus-column tag head format t))
+                 (mark    (and (equal tag head)
+                               (propertize "#" 'face 'magit-tag))))
+            (when (magit-refs--insert-refname-p (concat "tags/" tag))
+              (magit-insert-section section (tag tag t)
+                (magit-insert-heading
+                  (format-spec format
+                               `((?n . ,(propertize tag 'face 'magit-tag))
+                                 (?c . ,(or mark count ""))
+                                 (?m . ,(or message "")))))
+                (when (and (magit-buffer-margin-p)
+                           magit-refs-margin-for-tags)
+                  (magit-refs--format-margin (concat tag "^{commit}")))
+                (magit-refs--insert-cherry-commits tag section))))))
+      (insert ?\n)
+      (magit-make-margin-overlay nil t))))
 
 (defun magit-insert-remote-branches ()
   "Insert sections showing all remote-tracking branches."
@@ -508,6 +516,31 @@ line is inserted at all."
                     (1+ (length remote))))))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
+
+(defun magit-insert-local-branches ()
+  "Insert sections showing all local branches."
+  (magit-insert-section (local nil)
+    (magit-insert-heading "Branches:")
+    (dolist (line (magit-git-lines "for-each-ref" "--format=\
+%(HEAD)%00%(refname:short)%00%(objectname:short)%00%(subject)%00\
+%(upstream:short)%00%(upstream)%00%(upstream:track)"
+                                   "refs/heads"
+                                   (cadr magit-refresh-args)))
+      (pcase-let* ((`(,head ,branch ,hash ,message
+                            ,upstream ,uref ,utrack)
+                    (-replace "" nil (split-string line "\0")))
+                   (current (and (equal head "*") branch)))
+        (magit-insert-branch
+         branch magit-refs-local-branch-format current
+         (if current
+             'magit-branch-current
+           'magit-branch-local)
+         hash message upstream uref
+         ;; Strip the brackets here because
+         ;; %(upstream:track,nobracket) was added in Git v2.13.
+         (and utrack (substring utrack 1 -1)))))
+    (insert ?\n)
+    (magit-make-margin-overlay nil t)))
 
 (defun magit-insert-branch (branch format &optional current face hash
                                    message upstream uref utrack substring)
@@ -572,15 +605,6 @@ line is inserted at all."
       (magit-refs--format-margin branch))
     (magit-refs--insert-cherry-commits branch section)))
 
-(defun magit-refs--insert-refname-p (refname)
-  (--if-let (-first (-lambda ((key . _))
-                      (if (functionp key)
-                          (funcall key refname)
-                        (string-match-p key refname)))
-                    magit-refs-filter-alist)
-      (cdr it)
-    t))
-
 (defun magit-refs--format-focus-column (ref head format &optional tag-p)
   (and (string-match-p "%-?[0-9]+c" format)
        (if tag-p
@@ -592,38 +616,14 @@ line is inserted at all."
                            (t "0"))
                      'face 'magit-dimmed))))
 
-(defun magit-insert-tags ()
-  "Insert sections showing all tags."
-  (-when-let (tags (magit-git-lines "tag" "-l" "-n"))
-    (magit-insert-section (tags)
-      (magit-insert-heading "Tags:")
-      (let ((head (or (car magit-refresh-args)
-                      (magit-get-current-branch)
-                      "HEAD"))
-            (format (if magit-refs-show-commit-count
-                        magit-refs-tags-format
-                      (replace-regexp-in-string
-                       "%[0-9]\\([cC]\\)" "%1\\1" magit-refs-tags-format t))))
-        (dolist (tag (nreverse tags))
-          (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
-          (let* ((message (match-string 2 tag))
-                 (tag     (match-string 1 tag))
-                 (count   (magit-refs--format-focus-column tag head format t))
-                 (mark    (and (equal tag head)
-                               (propertize "#" 'face 'magit-tag))))
-            (when (magit-refs--insert-refname-p (concat "tags/" tag))
-              (magit-insert-section section (tag tag t)
-                (magit-insert-heading
-                  (format-spec format
-                               `((?n . ,(propertize tag 'face 'magit-tag))
-                                 (?c . ,(or mark count ""))
-                                 (?m . ,(or message "")))))
-                (when (and (magit-buffer-margin-p)
-                           magit-refs-margin-for-tags)
-                  (magit-refs--format-margin (concat tag "^{commit}")))
-                (magit-refs--insert-cherry-commits tag section))))))
-      (insert ?\n)
-      (magit-make-margin-overlay nil t))))
+(defun magit-refs--insert-refname-p (refname)
+  (--if-let (-first (-lambda ((key . _))
+                      (if (functionp key)
+                          (funcall key refname)
+                        (string-match-p key refname)))
+                    magit-refs-filter-alist)
+      (cdr it)
+    t))
 
 (defun magit-refs--insert-cherry-commits (ref section)
   (if (oref section hidden)
