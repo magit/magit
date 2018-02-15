@@ -41,7 +41,7 @@
                   (rev prompt &optional default))
 (declare-function magit-show-commit "magit-diff"
                   (arg1 &optional arg2 arg3 arg4))
-(defvar magit-refs-indent-cherry-lines)
+(defvar magit-refs-focus-column-width)
 (defvar magit-refs-margin)
 (defvar magit-refs-show-commit-count)
 (defvar magit-buffer-margin)
@@ -1029,7 +1029,7 @@ Do not add this to a hook variable."
         (when cherry
           (when (and (derived-mode-p 'magit-refs-mode)
                      magit-refs-show-commit-count)
-            (insert (make-string magit-refs-indent-cherry-lines ?\s)))
+            (insert (make-string (1- magit-refs-focus-column-width) ?\s)))
           (insert (propertize cherry 'face (if (string= cherry "-")
                                                'magit-cherry-equivalent
                                              'magit-cherry-unmatched)))
