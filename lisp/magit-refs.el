@@ -538,10 +538,9 @@ line is inserted at all."
          (head  (or focus "HEAD"))
          (count (and branch
                      (magit-refs-format-commit-count branch head format)))
-         (mark  (cond ((and current (member focus (list nil branch)))
-                       (propertize "@" 'face 'magit-head))
-                      ((equal branch focus)
-                       (propertize "#" 'face 'magit-tag)))))
+         (mark  (and (or (equal branch focus)
+                         (and current (not focus)))
+                     (propertize "#" 'face 'magit-tag))))
     (when upstream
       (setq upstream (propertize upstream 'face
                                  (if (string-prefix-p "refs/heads/" uref)
