@@ -73,6 +73,13 @@ To change the value in an existing buffer use the command
 (put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 (put 'magit-refs-show-commit-count 'permanent-local t)
 
+(defvar magit-refs-show-push-remote nil
+  "Whether to show the push-remotes of local branches.
+Also show the commits that the local branch is ahead and behind
+the push-target.  Unfortunatley there is a bug in Git that makes
+this useless (the commits ahead and behind the upstream are
+shown), so this isn't enabled yet.")
+
 (defcustom magit-refs-show-remote-prefix nil
   "Whether to show the remote prefix in lists of remote branches.
 
@@ -568,7 +575,7 @@ line is inserted at all."
                       (magit-git-lines "for-each-ref" "--format=\
 %(HEAD)%00%(refname:short)%00\
 %(upstream:short)%00%(upstream)%00%(upstream:track)%00\
-%(subject)"
+%(push:remotename)%00%(push)%00%(push:track)%00%(subject)"
                           "refs/heads"
                           (cadr magit-refresh-args)))))
     (setq-local magit-refs-primary-column-width
@@ -577,24 +584,30 @@ line is inserted at all."
                       def
                     (pcase-let ((`(,min . ,max) def))
                       (min max (apply #'max min (mapcar #'car lines)))))))
-    (mapcar (pcase-lambda (`(,_ ,branch ,focus ,branch-desc ,u:ahead
-                                ,u:behind ,upstream ,msg))
-              (list branch focus branch-desc u:ahead
+    (mapcar (pcase-lambda (`(,_ ,branch ,focus ,branch-desc ,u:ahead ,p:ahead
+                                ,u:behind ,upstream ,p:behind ,push ,msg))
+              (list branch focus branch-desc u:ahead p:ahead
                     (make-string (max 1 (- magit-refs-primary-column-width
                                            (length (concat branch-desc
                                                            u:ahead
+                                                           p:ahead
                                                            u:behind))))
                                  ?\s)
-                    u:behind upstream
+                    u:behind upstream p:behind push
                     msg))
             lines)))
 
 (defun magit-refs--format-local-branch (line)
-  (pcase-let ((`(,head ,branch ,upstream ,u:ref ,u:track ,msg)
+  (pcase-let ((`(,head ,branch ,upstream ,u:ref ,u:track
+                       ,push ,p:ref ,p:track ,msg)
                (-replace "" nil (split-string line "\0"))))
     (when (or (not branch)
               (magit-refs--insert-refname-p branch))
       (let* ((headp (equal head "*"))
+             (pushp (and push
+                         magit-refs-show-push-remote
+                         (magit-rev-verify p:ref)
+                         (not (equal p:ref u:ref))))
              (branch-desc (propertize (or branch "(detached)")
                                       'face (if (and headp branch)
                                                 'magit-branch-current
@@ -606,11 +619,19 @@ line is inserted at all."
              (u:behind (and u:track
                             (string-match "behind \\([0-9]+\\)" u:track)
                             (propertize (concat "<" (match-string 1 u:track))
+                                        'face 'magit-dimmed)))
+             (p:ahead  (and pushp p:track
+                            (string-match "ahead \\([0-9]+\\)" p:track)
+                            (propertize (concat (match-string 1 p:track) ">")
+                                        'face 'magit-branch-remote)))
+             (p:behind (and pushp p:track
+                            (string-match "behind \\([0-9]+\\)" p:track)
+                            (propertize (concat "<" (match-string 1 p:track))
                                         'face 'magit-dimmed))))
-        (list (1+ (length (concat branch-desc u:ahead u:behind)))
+        (list (1+ (length (concat branch-desc u:ahead p:ahead u:behind)))
               branch
               (magit-refs--format-focus-column branch headp)
-              branch-desc u:ahead u:behind
+              branch-desc u:ahead p:ahead u:behind
               (and upstream
                    (concat (propertize
                             upstream 'face
@@ -620,6 +641,10 @@ line is inserted at all."
                                    'magit-branch-local)
                                   (t
                                    'magit-branch-remote)))
+                           " "))
+              (and pushp
+                   (concat p:behind
+                           (propertize push 'face 'magit-branch-remote)
                            " "))
               (magit-log-propertize-keywords msg))))))
 
