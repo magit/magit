@@ -591,7 +591,7 @@ line is inserted at all."
        (if tag-p
            (eq magit-refs-show-commit-count 'all)
          magit-refs-show-commit-count)
-       (pcase-let ((`(,ahead ,behind) (magit-rev-diff-count head ref)))
+       (pcase-let ((`(,ahead ,behind) (magit-rev-diff-count ref head)))
          (propertize (cond ((> ahead 0)  (number-to-string ahead))
                            ((> behind 0) (number-to-string (1- behind)))
                            (t "0"))
