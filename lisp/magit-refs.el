@@ -404,7 +404,6 @@ Branch %s already exists.
     (call-interactively #'magit-show-commit)))
 
 ;;; Sections
-;;;; Section Keymaps
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
@@ -428,8 +427,6 @@ Branch %s already exists.
     map)
   "Keymap for `tag' sections.")
 
-;;;; Section Variables
-
 (defvar magit-refs-local-branch-format "%4c %-25n %U%m\n"
   "Format used for local branches in refs buffers.")
 (defvar magit-refs-remote-branch-format "%4c %-25n %m\n"
@@ -438,8 +435,6 @@ Branch %s already exists.
   "Format used for tags in refs buffers.")
 (defvar magit-refs-indent-cherry-lines 3
   "Indentation of cherries in refs buffers.")
-
-;;;; Branch Sections
 
 (defun magit-insert-branch-description ()
   "Insert header containing the description of the current branch.
@@ -597,8 +592,6 @@ line is inserted at all."
                            (t "0"))
                      'face 'magit-dimmed))))
 
-;;;; Tag Sections
-
 (defun magit-insert-tags ()
   "Insert sections showing all tags."
   (-when-let (tags (magit-git-lines "tag" "-l" "-n"))
@@ -631,8 +624,6 @@ line is inserted at all."
                 (magit-refs--insert-cherry-commits tag section))))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
-
-;;;; Cherry Sections
 
 (defun magit-refs--insert-cherry-commits (ref section)
   (if (oref section hidden)
