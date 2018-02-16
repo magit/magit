@@ -654,7 +654,7 @@ line is inserted at all."
                    (concat p:behind
                            (propertize push 'face 'magit-branch-remote)
                            " "))
-              (magit-log-propertize-keywords msg))))))
+              (and msg (magit-log-propertize-keywords msg)))))))
 
 (defun magit-refs--format-focus-column (ref &optional type)
   (let ((focus (car magit-refresh-args))
