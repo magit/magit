@@ -76,7 +76,7 @@ To change the value in an existing buffer use the command
 (defvar magit-refs-show-push-remote nil
   "Whether to show the push-remotes of local branches.
 Also show the commits that the local branch is ahead and behind
-the push-target.  Unfortunatley there is a bug in Git that makes
+the push-target.  Unfortunately there is a bug in Git that makes
 this useless (the commits ahead and behind the upstream are
 shown), so this isn't enabled yet.")
 
@@ -131,15 +131,15 @@ tags."
 (defcustom magit-refs-primary-column-width (cons 16 32)
   "Width of the focus column in `magit-refs-mode' buffers.
 
-The primary column is the that contains the name the current row
-is about.
+The primary column is the column that contains the name of the
+branch that the current row is about.
 
 If this is an integer, then the column is that many columns wide.
 Otherwise it has to be a cons-cell of two integers.  The first
 specified the minimal wide, the second the maximal wide.  In that
 case the actual wide is determined using the length of the names
 of the shown local branches.  (Remote branches and tags are not
-taken into account when calculating to optimal wide.)"
+taken into account when calculating to optimal width.)"
   :package-version '(magit . "2.12.0")
   :group 'magit-refs
   :type '(choice (integer :tag "Constant wide")

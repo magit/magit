@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-552-g40361273a+1)
+@subtitle for version 2.11.0 (2.11.0-556-g956641048+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-552-g40361273a+1).
+This manual is for Magit version 2.11.0 (2.11.0-556-g956641048+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4222,15 +4222,16 @@ already shown in the heading preceeding the list of its branches.
 
 @defopt magit-refs-primary-column-width
 
-Width of the focus column in `magit-refs-mode' buffers.  The primary
-column is the that contains the name the current row is about.
+Width of the primary column in `magit-refs-mode' buffers.  The
+primary column is the column that contains the name of the branch
+that the current row is about.
 
 If this is an integer, then the column is that many columns wide.
 Otherwise it has to be a cons-cell of two integers.  The first
 specified the minimal wide, the second the maximal wide.  In that
 case the actual wide is determined using the length of the names of
 the shown local branches.  (Remote branches and tags are not taken
-into account when calculating to optimal wide.)
+into account when calculating to optimal width.)
 @end defopt
 
 @defopt magit-refs-focus-column-width
