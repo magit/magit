@@ -73,6 +73,20 @@ To change the value in an existing buffer use the command
 (put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 (put 'magit-refs-show-commit-count 'permanent-local t)
 
+(defcustom magit-refs-pad-commit-counts nil
+  "Whether to pad all counts on all sides in `magit-refs-mode' buffers.
+
+If this is nil, then some commit counts are displayed right next
+to one of the branches that appear next to the count, without any
+space in between.  This might look bad if the branch name faces
+look too similar to `magit-dimmed'.
+
+If this is non-nil, then spaces are placed on both sides of all
+commit count."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-refs
+  :type 'boolean)
+
 (defvar magit-refs-show-push-remote nil
   "Whether to show the push-remotes of local branches.
 Also show the commits that the local branch is ahead and behind
@@ -626,20 +640,32 @@ line is inserted at all."
                                               'magit-branch-local)))
              (u:ahead  (and u:track
                             (string-match "ahead \\([0-9]+\\)" u:track)
-                            (propertize (concat (match-string 1 u:track) ">")
-                                        'face 'magit-dimmed)))
+                            (propertize
+                             (concat (and magit-refs-pad-commit-counts " ")
+                                     (match-string 1 u:track)
+                                     ">")
+                             'face 'magit-dimmed)))
              (u:behind (and u:track
                             (string-match "behind \\([0-9]+\\)" u:track)
-                            (propertize (concat "<" (match-string 1 u:track))
-                                        'face 'magit-dimmed)))
+                            (propertize
+                             (concat "<"
+                                     (match-string 1 u:track)
+                                     (and magit-refs-pad-commit-counts " "))
+                             'face 'magit-dimmed)))
              (p:ahead  (and pushp p:track
                             (string-match "ahead \\([0-9]+\\)" p:track)
-                            (propertize (concat (match-string 1 p:track) ">")
-                                        'face 'magit-branch-remote)))
+                            (propertize
+                             (concat (match-string 1 p:track)
+                                     ">"
+                                     (and magit-refs-pad-commit-counts " "))
+                             'face 'magit-branch-remote)))
              (p:behind (and pushp p:track
                             (string-match "behind \\([0-9]+\\)" p:track)
-                            (propertize (concat "<" (match-string 1 p:track))
-                                        'face 'magit-dimmed))))
+                            (propertize
+                             (concat "<"
+                                     (match-string 1 p:track)
+                                     (and magit-refs-pad-commit-counts " "))
+                             'face 'magit-dimmed))))
         (list (1+ (length (concat branch-desc u:ahead p:ahead u:behind)))
               branch
               (magit-refs--format-focus-column branch headp)

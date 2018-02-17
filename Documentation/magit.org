@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-556-g956641048+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-557-g2d9e72333+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-556-g956641048+1).
+This manual is for Magit version 2.11.0 (2.11.0-557-g2d9e72333+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -3101,6 +3101,19 @@ information on how to use Ediff itself, see info:ediff.
   - ~nil~ Never show counts.
 
   The default is ~nil~ because anything else can be very expensive.
+
+- User Option: magit-refs-pad-commit-counts
+
+  Whether to pad all commit counts on all sides in Magit-Refs mode
+  buffers.
+
+  If this is nil, then some commit counts are displayed right next to
+  one of the branches that appear next to the count, without any space
+  in between.  This might look bad if the branch name faces look too
+  similar to ~magit-dimmed~.
+
+  If this is non-nil, then spaces are placed on both sides of all
+  commit count.
 
 - User Option: magit-refs-show-remote-prefix
 
