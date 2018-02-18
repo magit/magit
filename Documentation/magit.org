@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-557-g2d9e72333+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-558-gee6a6d86+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-557-g2d9e72333+1).
+This manual is for Magit version 2.11.0 (2.11.0-558-gee6a6d86+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -3113,7 +3113,7 @@ information on how to use Ediff itself, see info:ediff.
   similar to ~magit-dimmed~.
 
   If this is non-nil, then spaces are placed on both sides of all
-  commit count.
+  commit counts.
 
 - User Option: magit-refs-show-remote-prefix
 
@@ -3130,8 +3130,8 @@ information on how to use Ediff itself, see info:ediff.
 
   If this is an integer, then the column is that many columns wide.
   Otherwise it has to be a cons-cell of two integers.  The first
-  specified the minimal wide, the second the maximal wide.  In that
-  case the actual wide is determined using the length of the names of
+  specifies the minimal width, the second the maximal width.  In that
+  case the actual width is determined using the length of the names of
   the shown local branches.  (Remote branches and tags are not taken
   into account when calculating to optimal width.)
 
@@ -3141,9 +3141,10 @@ information on how to use Ediff itself, see info:ediff.
 
   The focus column is the first column, which marks one branch
   (usually the current branch) as the focused branch using ~*~ or ~@~.
-  For other references it optionally shows how many commits it is
-  ahead of the focused branch and ~<~, or if it isn't ahead then the
-  commits it is behind and ~>~, or if it isn't behind either, then a ~=~.
+  For each other reference, this column optionally shows how many
+  commits it is ahead of the focused branch and ~<~, or if it isn't
+  ahead then the commits it is behind and ~>~, or if it isn't behind
+  either, then a ~=~.
 
   This column may also display only ~*~ or ~@~ for the focused branch, in
   which case this option is ignored.  Use ~L v~ to change the verbosity

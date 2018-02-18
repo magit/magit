@@ -82,7 +82,7 @@ space in between.  This might look bad if the branch name faces
 look too similar to `magit-dimmed'.
 
 If this is non-nil, then spaces are placed on both sides of all
-commit count."
+commit counts."
   :package-version '(magit . "2.12.0")
   :group 'magit-refs
   :type 'boolean)
@@ -150,8 +150,8 @@ branch that the current row is about.
 
 If this is an integer, then the column is that many columns wide.
 Otherwise it has to be a cons-cell of two integers.  The first
-specified the minimal wide, the second the maximal wide.  In that
-case the actual wide is determined using the length of the names
+specifies the minimal width, the second the maximal width.  In that
+case the actual width is determined using the length of the names
 of the shown local branches.  (Remote branches and tags are not
 taken into account when calculating to optimal width.)"
   :package-version '(magit . "2.12.0")
@@ -166,9 +166,9 @@ taken into account when calculating to optimal width.)"
 
 The focus column is the first column, which marks one
 branch (usually the current branch) as the focused branch using
-\"*\" or \"*\".  For other references it optionally shows how
-many commits it is ahead of the focused branch and \"<\", or if
-it isn't ahead then the commits it is behind and \">\", or if it
+\"*\" or \"@\".  For each other reference, this column optionally
+shows how many commits it is ahead of the focused branch and \"<\", or
+if it isn't ahead then the commits it is behind and \">\", or if it
 isn't behind either, then a \"=\".
 
 This column may also display only \"*\" or \"@\" for the focused

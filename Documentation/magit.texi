@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-557-g2d9e72333+1)
+@subtitle for version 2.11.0 (2.11.0-558-gee6a6d86+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-557-g2d9e72333+1).
+This manual is for Magit version 2.11.0 (2.11.0-558-gee6a6d86+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4223,7 +4223,7 @@ in between.  This might look bad if the branch name faces look too
 similar to @code{magit-dimmed}.
 
 If this is non-nil, then spaces are placed on both sides of all
-commit count.
+commit counts.
 @end defopt
 
 @defopt magit-refs-show-remote-prefix
@@ -4242,8 +4242,8 @@ that the current row is about.
 
 If this is an integer, then the column is that many columns wide.
 Otherwise it has to be a cons-cell of two integers.  The first
-specified the minimal wide, the second the maximal wide.  In that
-case the actual wide is determined using the length of the names of
+specifies the minimal width, the second the maximal width.  In that
+case the actual width is determined using the length of the names of
 the shown local branches.  (Remote branches and tags are not taken
 into account when calculating to optimal width.)
 @end defopt
@@ -4254,9 +4254,10 @@ Width of the focus column in `magit-refs-mode' buffers.
 
 The focus column is the first column, which marks one branch
 (usually the current branch) as the focused branch using @code{*} or @code{@@}.
-For other references it optionally shows how many commits it is
-ahead of the focused branch and @code{<}, or if it isn't ahead then the
-commits it is behind and @code{>}, or if it isn't behind either, then a @code{=}.
+For each other reference, this column optionally shows how many
+commits it is ahead of the focused branch and @code{<}, or if it isn't
+ahead then the commits it is behind and @code{>}, or if it isn't behind
+either, then a @code{=}.
 
 This column may also display only @code{*} or @code{@@} for the focused branch, in
 which case this option is ignored.  Use @code{L v} to change the verbosity
