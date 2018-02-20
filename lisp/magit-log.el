@@ -967,6 +967,8 @@ Do not add this to a hook variable."
 
 (defvar magit-log-count nil)
 
+(defvar magit-log-format-message-function 'magit-log-propertize-keywords)
+
 (defun magit-log-wash-log (style args)
   (setq args (-flatten args))
   (when (and (member "--graph" args)
@@ -1063,7 +1065,7 @@ Do not add this to a hook variable."
                                     (?Y 'magit-signature-expired-key)
                                     (?R 'magit-signature-revoked)
                                     (?E 'magit-signature-error)))))
-          (insert (magit-log-propertize-keywords msg)))
+          (insert (funcall magit-log-format-message-function hash msg)))
         (when (and refs magit-log-show-refname-after-summary)
           (insert ?\s)
           (insert (magit-format-ref-labels refs)))
@@ -1127,7 +1129,7 @@ Do not add this to a hook variable."
                 (insert graph ?\n))))))))
   t)
 
-(defun magit-log-propertize-keywords (msg)
+(defun magit-log-propertize-keywords (_rev msg)
   (let ((start 0))
     (while (string-match "\\[[^[]*\\]" msg start)
       (setq start (match-end 0))

@@ -520,7 +520,7 @@ line is inserted at all."
                   (make-string (max 1 (- magit-refs-primary-column-width
                                          (length tag)))
                                ?\s)
-                  (and msg (magit-log-propertize-keywords msg)))
+                  (and msg (magit-log-propertize-keywords nil msg)))
                 (when (and magit-refs-margin-for-tags (magit-buffer-margin-p))
                   (magit-refs--format-margin tag))
                 (magit-refs--insert-cherry-commits tag section)))))
@@ -562,7 +562,7 @@ line is inserted at all."
                       (make-string (max 1 (- magit-refs-primary-column-width
                                              (length abbrev)))
                                    ?\s)
-                      (magit-log-propertize-keywords msg)))
+                      (magit-log-propertize-keywords nil msg)))
                   (when (magit-buffer-margin-p)
                     (magit-refs--format-margin branch))
                   (magit-refs--insert-cherry-commits branch section)))))))
@@ -684,7 +684,7 @@ line is inserted at all."
                    (concat p:behind
                            (propertize push 'face 'magit-branch-remote)
                            " "))
-              (and msg (magit-log-propertize-keywords msg)))))))
+              (and msg (magit-log-propertize-keywords nil msg)))))))
 
 (defun magit-refs--format-focus-column (ref &optional type)
   (let ((focus (car magit-refresh-args))
