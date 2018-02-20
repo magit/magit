@@ -92,7 +92,9 @@ Contributors
 - Dan Erikson <derikson3@gmail.com>
 - Daniel Brockman <daniel@gointeractive.se>
 - Daniel Farina <drfarina@acm.org>
+- Daniel Gröber <daniel@dps.uibk.ac.at>
 - Daniel Hackney <dan@haxney.org>
+- Daniel Kraus <daniel@kraus.my>
 - Daniel Mai <daniel@danielmai.net>
 - Dan LaManna <dan.lamanna@gmail.com>
 - Dato Simó <dato@net.com.org.es>
@@ -152,6 +154,7 @@ Contributors
 - Justin Guenther <jguenther@gmail.com>
 - Justin Thomas <justin.thomas1@gmail.com>
 - Kan-Ru Chen <kanru@kanru.info>
+- Kenny Ballou <kballou@devnulllabs.io>
 - Keshav Kini <keshav.kini@gmail.com>
 - Kévin Le Gouguec <kevin.legouguec@gmail.com>
 - Kimberly Wolk <kimwolk@hotmail.com>
@@ -278,11 +281,13 @@ Contributors
 - Tom Feist <shabble@metavore.org>
 - Tunc Uzlu <bb2020@users.noreply.github.com>
 - Vineet Naik <vineet@helpshift.com>
+- Vladimir Panteleev <git@thecybershadow.net>
 - Wei Huang <weih@opera.com>
 - Wilfred Hughes <me@wilfred.me.uk>
 - Win Treese <treese@acm.org>
 - Wouter Bolsterlee <wouter@bolsterl.ee>
 - Xavier Noria <fxn@hashref.com>
+- Xu Chunyang <mail@xuchunyang.me>
 - Yann Hodique <yann.hodique@gmail.com>
 - York Zhao <gtdplatform@gmail.com>
 - Yuichi Higashi <aaa707b@gmail.com>
