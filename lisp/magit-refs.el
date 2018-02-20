@@ -520,8 +520,7 @@ line is inserted at all."
                   (make-string (max 1 (- magit-refs-primary-column-width
                                          (length tag)))
                                ?\s)
-                  (or (and msg (magit-log-propertize-keywords msg))
-                      ""))
+                  (and msg (magit-log-propertize-keywords msg)))
                 (when (and magit-refs-margin-for-tags (magit-buffer-margin-p))
                   (magit-refs--format-margin tag))
                 (magit-refs--insert-cherry-commits tag section)))))
