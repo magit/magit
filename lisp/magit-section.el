@@ -854,13 +854,13 @@ slot of the object representing the section being inserted to
 a marker at `point'.  The section should only contain a single
 line when this function is used like this.
 
-When called with arguments ARGS, which have to be strings, then
-insert those strings at point.  The section should not contain
-any text before this happens and afterwards it should again only
-contain a single line.  If the `face' property is set anywhere
-inside any of these strings, then insert all of them unchanged.
-Otherwise use the `magit-section-heading' face for all inserted
-text.
+When called with arguments ARGS, which have to be strings, or
+nil, then insert those strings at point.  The section should not
+contain any text before this happens and afterwards it should
+again only contain a single line.  If the `face' property is set
+anywhere inside any of these strings, then insert all of them
+unchanged.  Otherwise use the `magit-section-heading' face for
+all inserted text.
 
 The `content' property of the section struct is the end of the
 heading (which lasts from `start' to `content') and the beginning
