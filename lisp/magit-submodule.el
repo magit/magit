@@ -183,7 +183,12 @@ it is nil, then PATH also becomes the name."
 
 ;;;###autoload
 (defun magit-submodule-register (modules)
-  "Register MODULES."
+  "Register MODULES.
+
+With a prefix argument act on all suitable modules.  Otherwise,
+if the region selects modules, then act on those.  Otherwise, if
+there is a module at point, then act on that.  Otherwise read a
+single module from the user."
   ;; This command and the underlying "git submodule init" do NOT
   ;; "initialize" modules.  They merely "register" modules in the
   ;; super-projects $GIT_DIR/config file, the purpose of which is to
@@ -196,7 +201,12 @@ it is nil, then PATH also becomes the name."
 
 ;;;###autoload
 (defun magit-submodule-populate (modules)
-  "Create MODULES working directories, checking out the recorded commits."
+  "Create MODULES working directories, checking out the recorded commits.
+
+With a prefix argument act on all suitable modules.  Otherwise,
+if the region selects modules, then act on those.  Otherwise, if
+there is a module at point, then act on that.  Otherwise read a
+single module from the user."
   ;; This is the command that actually "initializes" modules.
   ;; A module is initialized when it has a working directory,
   ;; a gitlink, and a .gitmodules entry.
@@ -207,11 +217,16 @@ it is nil, then PATH also becomes the name."
 
 ;;;###autoload
 (defun magit-submodule-update (modules args)
-  "Update MODULES by checking out the recorded commits."
+  "Update MODULES by checking out the recorded commits.
+
+With a prefix argument act on all suitable modules.  Otherwise,
+if the region selects modules, then act on those.  Otherwise, if
+there is a module at point, then act on that.  Otherwise read a
+single module from the user."
   ;; Unlike `git-submodule's `update' command ours can only update
   ;; "initialized" modules by checking out other commits but not
   ;; "initialize" modules by creating the working directories.
-  ;; To do the latter we previde the "setup" command.
+  ;; To do the latter we provide the "setup" command.
   (interactive
    (list (magit-module-confirm "Update" 'magit-module-worktree-p)
          (magit-submodule-filtered-arguments
@@ -222,7 +237,12 @@ it is nil, then PATH also becomes the name."
 
 ;;;###autoload
 (defun magit-submodule-synchronize (modules args)
-  "Synchronize url configuration of MODULES."
+  "Synchronize url configuration of MODULES.
+
+With a prefix argument act on all suitable modules.  Otherwise,
+if the region selects modules, then act on those.  Otherwise, if
+there is a module at point, then act on that.  Otherwise read a
+single module from the user."
   (interactive
    (list (magit-module-confirm "Synchronize" 'magit-module-worktree-p)
          (magit-submodule-filtered-arguments "--recursive")))
@@ -231,7 +251,12 @@ it is nil, then PATH also becomes the name."
 
 ;;;###autoload
 (defun magit-submodule-unpopulate (modules args)
-  "Remove working directories of MODULES."
+  "Remove working directories of MODULES.
+
+With a prefix argument act on all suitable modules.  Otherwise,
+if the region selects modules, then act on those.  Otherwise, if
+there is a module at point, then act on that.  Otherwise read a
+single module from the user."
   ;; Even though a package is "uninitialized" (it has no worktree)
   ;; the super-projects $GIT_DIR/config may never-the-less set the
   ;; module's url.  This may happen if you `deinit' and then `init'

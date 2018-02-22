@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-558-gee6a6d86+1)
+@subtitle for version 2.11.0 (2.11.0-564-g2fed82a5d+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-558-gee6a6d86+1).
+This manual is for Magit version 2.11.0 (2.11.0-564-g2fed82a5d+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8228,7 +8228,7 @@ the appropriate infix arguments in a popup buffer.
 
 Some of the below commands default to act on the modules that are
 selected using the region.  For brevity their description talk about
-"the selected modules", but if no modules are selected, then the act
+"the selected modules", but if no modules are selected, then they act
 on the current module instead, or if point isn't on a module, then the
 read a single module to act on.  With a prefix argument these commands
 ignore the selection and the current module and instead act on all

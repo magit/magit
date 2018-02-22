@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-558-gee6a6d86+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-564-g2fed82a5d+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-558-gee6a6d86+1).
+This manual is for Magit version 2.11.0 (2.11.0-564-g2fed82a5d+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -5997,7 +5997,7 @@ the super-repository by adding ~magit-insert-submodules~ to the hook
 
 Some of the below commands default to act on the modules that are
 selected using the region.  For brevity their description talk about
-"the selected modules", but if no modules are selected, then the act
+"the selected modules", but if no modules are selected, then they act
 on the current module instead, or if point isn't on a module, then the
 read a single module to act on.  With a prefix argument these commands
 ignore the selection and the current module and instead act on all
