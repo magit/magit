@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-565-ge2c44ad10+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-566-g7c534123c+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-565-ge2c44ad10+1).
+This manual is for Magit version 2.11.0 (2.11.0-566-g7c534123c+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -2068,11 +2068,11 @@ variable.
   inserted, and option ~magit-module-sections-nested~ controls whether
   they are wrapped in an additional section.
 
-- Option: magit-module-sections-hook
+- User Option: magit-module-sections-hook
 
   Hook run by ~magit-insert-modules~.
 
-- Option: magit-module-sections-nested
+- User Option: magit-module-sections-nested
 
   This option controls whether ~magit-insert-modules~ wraps inserted
   sections in an additional section.

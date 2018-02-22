@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-565-ge2c44ad10+1)
+@subtitle for version 2.11.0 (2.11.0-566-g7c534123c+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-565-ge2c44ad10+1).
+This manual is for Magit version 2.11.0 (2.11.0-566-g7c534123c+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -2782,15 +2782,12 @@ inserted, and option @code{magit-module-sections-nested} controls whether
 they are wrapped in an additional section.
 @end defun
 
-@itemize
-@item
-Option: magit-module-sections-hook
+@defopt magit-module-sections-hook
 
 Hook run by @code{magit-insert-modules}.
+@end defopt
 
-
-@item
-Option: magit-module-sections-nested
+@defopt magit-module-sections-nested
 
 This option controls whether @code{magit-insert-modules} wraps inserted
 sections in an additional section.
@@ -2798,8 +2795,7 @@ sections in an additional section.
 If this is non-nil, then only a single top-level section is inserted.
 If it is nil, then all sections listed in @code{magit-module-sections-hook}
 become top-level sections.
-
-@end itemize
+@end defopt
 
 @defun magit-insert-modules-overview
 
