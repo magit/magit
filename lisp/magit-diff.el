@@ -676,6 +676,10 @@ and `:slant'."
 
 (defvar magit-diff-section-file-args nil)
 (put 'magit-diff-section-file-args 'permanent-local t)
+(put 'magit-diff-section-file-args 'safe-local-variable
+     (lambda (val)
+       (and (listp val)
+            (-all-p #'stringp val))))
 
 (defun magit-diff-get-buffer-args ()
   (cond ((and magit-use-sticky-arguments
