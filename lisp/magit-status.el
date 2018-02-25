@@ -488,22 +488,30 @@ remote in alphabetic order."
 
 (defun magit-insert-untracked-files ()
   "Maybe insert a list or tree of untracked files.
+
 Do so depending on the value of `status.showUntrackedFiles'.
-Note that even if the value is `all', Magit still initially only
-shows directories.  But the directory sections can then be expanded
-using \"TAB\"."
-  (let ((show (or (magit-get "status.showUntrackedFiles") "normal")))
+Note that even if the value is `all', Magit still initially
+only shows directories.  But the directory sections can then
+be expanded using \"TAB\".
+
+If the first element of `magit-diff-section-arguments' is a
+directory, then limit the list to files below that.  The value
+value of that variable can be set using \"D = f DIRECTORY RET g\"."
+  (let* ((show (or (magit-get "status.showUntrackedFiles") "normal"))
+         (base (car magit-diff-section-file-args))
+         (base (and base (file-directory-p base) base)))
     (unless (equal show "no")
       (if (equal show "all")
-          (-when-let (files (magit-untracked-files))
+          (-when-let (files (magit-untracked-files nil base))
             (magit-insert-section (untracked)
               (magit-insert-heading "Untracked files:")
-              (magit-insert-un/tracked-files-1 files nil)
+              (magit-insert-un/tracked-files-1 files base)
               (insert ?\n)))
         (-when-let
             (files (--mapcat (and (eq (aref it 0) ??)
                                   (list (substring it 3)))
-                             (magit-git-items "status" "-z" "--porcelain")))
+                             (magit-git-items "status" "-z" "--porcelain"
+                                              "--" base)))
           (magit-insert-section (untracked)
             (magit-insert-heading "Untracked files:")
             (dolist (file files)
@@ -514,12 +522,18 @@ using \"TAB\"."
 (magit-define-section-jumper magit-jump-to-tracked "Tracked files" tracked)
 
 (defun magit-insert-tracked-files ()
-  "Insert a tree of tracked files."
+  "Insert a tree of tracked files.
+
+If the first element of `magit-diff-section-arguments' is a
+directory, then limit the list to files below that.  The value
+value of that variable can be set using \"D = f DIRECTORY RET g\"."
   (-when-let (files (magit-list-files))
-    (magit-insert-section (tracked nil t)
-      (magit-insert-heading "Tracked files:")
-      (magit-insert-un/tracked-files-1 files nil)
-      (insert ?\n))))
+    (let* ((base (car magit-diff-section-file-args))
+           (base (and base (file-directory-p base) base)))
+      (magit-insert-section (tracked nil t)
+        (magit-insert-heading "Tracked files:")
+        (magit-insert-un/tracked-files-1 files base)
+        (insert ?\n)))))
 
 (defun magit-insert-un/tracked-files-1 (files directory)
   (while (and files (string-prefix-p (or directory "") (car files)))
