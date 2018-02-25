@@ -395,6 +395,8 @@ any build."
   :group 'magit-status
   :type '(repeat (string :tag "Argument")))
 
+(put 'magit-diff-section-arguments 'permanent-local t)
+
 ;;; Faces
 
 (defface magit-diff-file-heading
@@ -674,7 +676,6 @@ and `:slant'."
 
 (defvar magit-diff-section-file-args nil)
 (put 'magit-diff-section-file-args 'permanent-local t)
-(put 'magit-diff-section-arguments 'permanent-local t)
 
 (defun magit-diff-get-buffer-args ()
   (cond ((and magit-use-sticky-arguments
