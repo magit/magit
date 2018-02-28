@@ -44,7 +44,7 @@
 <br>
 <div align="center">
   <em>My thanks also go to these three sponsors!</em><br><br>
-  <a href="https://www.mojotech.com/about">
+  <a href="https://www.mojotech.com">
     <img title="Mojotech"
          alt="Mojotech"
          src="https://magit.vc/assets/mojotech.png"></a>
