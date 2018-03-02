@@ -1144,6 +1144,7 @@ argument (the prefix) non-nil means save all with no questions."
        arg (lambda ()
              (and (not magit-inhibit-refresh-save)
                   buffer-file-name
+                  (file-exists-p (file-name-directory buffer-file-name))
                   ;; Avoid needlessly connecting to unrelated remotes.
                   (equal (file-remote-p buffer-file-name)
                          remote)
