@@ -317,6 +317,8 @@ Changes since v2.11.0
   space and two new options `magit-refs-primary-column-width' and
   `magit-refs-focus-column-width' were added.  #3378
 
+* Added commands `magit-commit-reshelve' and `magit-reshelve-since'.
+
 Fixes since v2.11.0
 -------------------
 

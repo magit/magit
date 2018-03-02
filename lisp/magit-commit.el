@@ -330,6 +330,33 @@ depending on the value of option `magit-commit-squash-confirm'."
    (t
     (user-error "Nothing staged"))))
 
+(defvar magit--reselve-history nil)
+
+;;;###autoload
+(defun magit-commit-reshelve (date)
+  "Change the committer date and possibly the author date of `HEAD'.
+
+If you are the author of `HEAD', then both dates are changed,
+otherwise only the committer date.  The current time is used
+as the initial minibuffer input and the original author (if
+that is you) or committer date is available as the previous
+history element."
+  (interactive
+   (let ((author-p (magit-rev-author-p "HEAD")))
+     (push (magit-rev-format (if author-p "%ad" "%cd") "HEAD"
+                             (concat "--date=format:%F %T %z"))
+           magit--reselve-history)
+     (list (read-string (if author-p
+                            "Change author and committer dates to: "
+                          "Change committer date to: ")
+                        (cons (format-time-string "%F %T %z") 17)
+                        'magit--reselve-history))))
+  (let ((process-environment process-environment))
+    (push (concat "GIT_COMMITTER_DATE=" date) process-environment)
+    (magit-run-git "commit" "--amend" "--no-edit"
+                   (and (magit-rev-author-p "HEAD")
+                        (concat "--date=" date)))))
+
 ;;; Pending Diff
 
 (defun magit-commit-diff ()
