@@ -819,6 +819,14 @@ string \"true\", otherwise return nil."
            (equal (magit-rev-parse rev)
                   (magit-rev-parse "HEAD")))))
 
+(defun magit-rev-author-p (rev)
+  "Return t if the user is the author of REV.
+More precisely return t if `user.name' is equal to the author
+name of REV and/or `user.email' is equal to the author email
+of REV."
+  (or (equal (magit-get "user.name")  (magit-rev-format "%an" rev))
+      (equal (magit-get "user.email") (magit-rev-format "%ae" rev))))
+
 (defun magit-rev-name (rev &optional pattern)
   "Return a symbolic name for REV.
 PATTERN is passed to the `--refs' flag of `git-name-rev' and can
