@@ -369,18 +369,18 @@ be used on highly rearranged and unpublished history."
                        (read-string "Date for first commit: "
                                     time-now 'magit--reselve-history))))))
           (magit-with-toplevel
-            (magit-run-git "filter-branch" "--force" "--env-filter"
-                           (format "case $GIT_COMMIT in %s\nesac"
-                                   (mapconcat
-                                    (lambda (rev)
-                                      (prog1 (format "%s) \
+            (magit-run-git-async
+             "filter-branch" "--force" "--env-filter"
+             (format "case $GIT_COMMIT in %s\nesac"
+                     (mapconcat (lambda (rev)
+                                  (prog1 (format "%s) \
 export GIT_AUTHOR_DATE=\"%s\"; \
 export GIT_COMMITTER_DATE=\"%s\";;" rev date date)
-                                        (cl-incf date 60)))
-                                    (magit-git-lines "rev-list" "--reverse"
-                                                     range)
-                                    " "))
-                           range "--")
+                                    (cl-incf date 60)))
+                                (magit-git-lines "rev-list" "--reverse"
+                                                 range)
+                                " "))
+             range "--")
             (set-process-sentinel
              magit-this-process
              (lambda (process event)
