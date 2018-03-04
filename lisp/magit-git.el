@@ -555,11 +555,14 @@ returning the truename."
              ,@body)
          (magit--not-inside-repository-error)))))
 
+(define-error 'magit-outside-git-repo "Not inside Git repository")
+(define-error 'magit-git-executable-not-found
+  "Git executable cannot be found (see https://magit.vc/goto/e6a78ed2)")
+
 (defun magit--not-inside-repository-error ()
   (if (executable-find magit-git-executable)
-      (user-error "Not inside a Git repository: %s" default-directory)
-    (user-error "The `git' executable cannot be found.  See %s"
-                "https://magit.vc/goto/e6a78ed2")))
+      (signal 'magit-outside-git-repo default-directory)
+    (signal 'magit-git-executable-not-found magit-git-executable)))
 
 (defun magit-inside-gitdir-p ()
   "Return t if `default-directory' is below a repository directory."
