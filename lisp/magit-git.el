@@ -805,6 +805,18 @@ If there is no output, return nil.  Like `magit-rev-parse' but
 ignore `magit-git-debug'."
   (apply #'magit-git-str "rev-parse" args))
 
+(defun magit-rev-parse-true (&rest args)
+  "Execute `git rev-parse ARGS', returning t if it prints \"true\".
+If it prints \"false\", then return nil.  For any other output
+signal an error."
+  (magit-git-true "rev-parse" args))
+
+(defun magit-rev-parse-false (&rest args)
+  "Execute `git rev-parse ARGS', returning t if it prints \"false\".
+If it prints \"true\", then return nil.  For any other output
+signal an error."
+  (magit-git-false "rev-parse" args))
+
 (defun magit-rev-parse-p (&rest args)
   "Execute `git rev-parse ARGS', returning t if it prints \"true\".
 Return t if the first (and usually only) output line is the
