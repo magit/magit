@@ -301,17 +301,25 @@ ignore `magit-git-debug'."
              (magit-process-git-arguments args))
       (buffer-substring-no-properties (point-min) (point-max)))))
 
+(define-error 'magit-invalid-git-boolean "Not a Git boolean")
+
 (defun magit-git-true (&rest args)
   "Execute Git with ARGS, returning t if it prints \"true\".
-Return t if the first (and usually only) output line is the
-string \"true\", otherwise return nil."
-  (equal (magit-git-str args) "true"))
+If it prints \"false\", then return nil.  For any other output
+signal `magit-invalid-git-boolean'."
+  (pcase (magit-git-output args)
+    ((or "true"  "true\n")  t)
+    ((or "false" "false\n") nil)
+    (output (signal 'magit-invalid-git-boolean output))))
 
 (defun magit-git-false (&rest args)
   "Execute Git with ARGS, returning t if it prints \"false\".
-Return t if the first (and usually only) output line is the
-string \"false\", otherwise return nil."
-  (equal (magit-git-str args) "false"))
+If it prints \"true\", then return nil.  For any other output
+signal `magit-invalid-git-boolean'."
+  (pcase (magit-git-output args)
+    ((or "true"  "true\n")  nil)
+    ((or "false" "false\n") t)
+    (output (signal 'magit-invalid-git-boolean output))))
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point.
@@ -801,7 +809,7 @@ ignore `magit-git-debug'."
   "Execute `git rev-parse ARGS', returning t if it prints \"true\".
 Return t if the first (and usually only) output line is the
 string \"true\", otherwise return nil."
-  (magit-git-true "rev-parse" args))
+  (equal (magit-git-str "rev-parse" args) "true"))
 
 (defun magit-rev-verify (rev)
   (magit-rev-parse-safe "--verify" rev))
@@ -1915,7 +1923,7 @@ the reference is used.  The first regexp submatch becomes the
   (let ((key (mapconcat 'identity keys ".")))
     (if magit--refresh-cache
         (equal "true" (car (last (magit-config-get-from-cached-list key))))
-      (magit-git-true "config" "--bool" key))))
+      (equal (magit-git-str "config" "--bool" key) "true"))))
 
 (defun magit-set (value &rest keys)
   "Set the value of the Git variable specified by KEYS to VALUE."
