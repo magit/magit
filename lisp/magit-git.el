@@ -292,6 +292,15 @@ ignore `magit-git-debug'."
         (goto-char (point-min))
         (buffer-substring-no-properties (point) (line-end-position))))))
 
+(defun magit-git-output (&rest args)
+  "Execute Git with ARGS, returning its output."
+  (setq args (-flatten args))
+  (magit--with-refresh-cache (cons default-directory args)
+    (with-temp-buffer
+      (apply #'magit-process-file magit-git-executable nil (list t nil) nil
+             (magit-process-git-arguments args))
+      (buffer-substring-no-properties (point-min) (point-max)))))
+
 (defun magit-git-true (&rest args)
   "Execute Git with ARGS, returning t if it prints \"true\".
 Return t if the first (and usually only) output line is the
