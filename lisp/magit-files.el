@@ -242,7 +242,7 @@ Currently this only adds the following key bindings.
 
 (defun magit-file-mode-turn-on ()
   (and buffer-file-name
-       (ignore-errors (magit-inside-worktree-p))
+       (magit-inside-worktree-p t)
        (magit-file-mode)))
 
 ;;;###autoload

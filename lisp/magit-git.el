@@ -564,20 +564,38 @@ returning the truename."
       (signal 'magit-outside-git-repo default-directory)
     (signal 'magit-git-executable-not-found magit-git-executable)))
 
-(defun magit-inside-gitdir-p ()
-  "Return t if `default-directory' is below a repository directory."
-  ;; This does not work if the gitdir is not located inside the
-  ;; working tree: (magit-rev-parse-p "--is-inside-git-dir").
-  (-when-let (gitdir (magit-git-dir))
-    (file-in-directory-p default-directory gitdir)))
+(defun magit-inside-gitdir-p (&optioal noerror)
+  "Return t if `default-directory' is below the repository directory.
+If it is below the working directory, then return nil.
+If it isn't below either, then signal an error unless NOERROR
+is non-nil, in which case return nil."
+  ;; Below a repository directory that is not located below the
+  ;; working directory "git rev-parse --is-inside-git-dir" prints
+  ;; "false", which is wrong.
+  (let ((gitdir (magit-git-dir)))
+    (cond (gitdir (file-in-directory-p default-directory gitdir))
+          (noerror nil)
+          (t (signal 'magit-outside-git-repo default-directory)))))
 
-(defun magit-inside-worktree-p ()
-  "Return t if `default-directory' is below the work tree of a repository."
-  (magit-rev-parse-p "--is-inside-work-tree"))
+(defun magit-inside-worktree-p (&optional noerror)
+  "Return t if `default-directory' is below the working directory.
+If it is below the repository directory, then return nil.
+If it isn't below either, then signal an error unless NOERROR
+is non-nil, in which case return nil."
+  (condition-case nil
+      (magit-rev-parse-true "--is-inside-work-tree")
+    (magit-invalid-git-boolean
+     (if noerror nil (signal 'magit-outside-git-repo default-directory)))))
 
-(defun magit-bare-repo-p ()
-  "Return t if the current repository is bare."
-  (magit-rev-parse-p "--is-bare-repository"))
+(defun magit-bare-repo-p (&optional noerror)
+  "Return t if the current repository is bare.
+If it is non-bare, then return nil.  If `default-directory'
+isn't below a Git repository, then signal an error unless
+NOERROR is non-nil, in which case return nil."
+  (condition-case nil
+      (magit-rev-parse-true "--is-bare-repository")
+    (magit-invalid-git-boolean
+     (if noerror nil (signal 'magit-outside-git-repo default-directory)))))
 
 (defun magit-git-repo-p (directory &optional non-bare)
   "Return t if DIRECTORY is a Git repository.

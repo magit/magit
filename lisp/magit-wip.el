@@ -83,7 +83,7 @@ variant `magit-wip-after-save-mode'."
   :package-version '(magit . "2.1.0")
   :lighter magit-wip-after-save-local-mode-lighter
   (if magit-wip-after-save-local-mode
-      (if (and buffer-file-name (magit-inside-worktree-p))
+      (if (and buffer-file-name (magit-inside-worktree-p t))
           (add-hook 'after-save-hook 'magit-wip-commit-buffer-file t t)
         (setq magit-wip-after-save-local-mode nil)
         (user-error "Need a worktree and a file"))
@@ -91,7 +91,7 @@ variant `magit-wip-after-save-mode'."
 
 (defun magit-wip-after-save-local-mode-turn-on ()
   (and buffer-file-name
-       (ignore-errors (magit-inside-worktree-p))
+       (magit-inside-worktree-p t)
        (magit-file-tracked-p buffer-file-name)
        (magit-wip-after-save-local-mode)))
 
