@@ -521,6 +521,8 @@ running 'man git-rebase' at the command line) for details."
       (git-rebase-match-comment-line 0 'font-lock-comment-face)
       (,(concat git-rebase-comment-re " *" action-re)
        0 'git-rebase-killed-action t)
+      ("\\[[^[]*\\]"
+       0 'magit-keyword t)
       (,(format "^%s Rebase \\([^ ]*\\) onto \\([^ ]*\\)" comment-start)
        (1 'git-rebase-comment-hash t)
        (2 'git-rebase-comment-hash t))

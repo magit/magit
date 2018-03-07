@@ -53,8 +53,8 @@ Changes since v2.11.0
   #3055
 
 * Keywords in brackets are now being highlighted in `magit-refs-mode'
-  and the headers of `magit-status-mode' buffers, like they already
-  were in logs.  #3179
+  and `git-rebase-mode' buffers, and the headers of `magit-status-mode'
+  buffers, like they already were in logs.  #3179
 
 * Added new variable `magit-buffer-lock-functions' to support
   third-party packages in creating Magit-like buffers.  #3191
