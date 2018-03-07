@@ -37,7 +37,7 @@ Changes since v2.11.0
   the manual.  #3104
 
 * Added new customizable options `magit-log-highlight-keywords' and
-  `magit-diff-highlight-keywords' which control whether text inside
+  `magit-diff-highlight-keywords', which control whether text inside
   brackets is highlighted in magit-log and magit-diff buffers
   respectively.  #3190
 
@@ -46,7 +46,7 @@ Changes since v2.11.0
   that still is not possible due to limitations in that package.  #2841
 
 * Added the existing commands `magit-blame' and `magit-blob-next' to
-  the `magit-file-popup'.
+  the `magit-file-popup' popup.
 
 * Added new command `magit-blame-reverse'.  See the updated manual
   for information on how to best use this and other blaming commands.
@@ -94,7 +94,7 @@ Changes since v2.11.0
 * When switching between showing "Unmerged into <upstream>" and
   "Recent commits", preserve the visibility of that section.  #3227
 
-* When prompting for a branch to delete, the default branch is no
+* When prompting for a branch to delete, the current branch is no
   longer offered as default choice, except in cases where it is likely
   that that is actually what the user wants.  #2924
 
@@ -123,10 +123,11 @@ Changes since v2.11.0
   sections using the region and then acting on that selection instead
   of only on the current section.  Single-section selections were not
   supported and a region that did not span multiple siblings was not
-  visualized as a selection.  Not every section-aware command was
-  adjusted to take single-section selections into account because in
-  many cases that would have lead to undesired changes in behavior.
-  #3026
+  visualized as a selection.  Now that is supported.
+
+  Not every section-aware command was adjusted to take single-section
+  selections into account because in many cases that would have lead
+  to undesired changes in behavior.  #3026
 
 * The command `magit-branch-spinoff' now spins off just HEAD when that
   constitutes the single-section selection.  Previously one could only
@@ -178,7 +179,7 @@ Changes since v2.11.0
 * Some refs that are being displayed in logs are now being compressed
   to save space while providing more information.  #2923
 
-* The command `magit-show-commit' now also show notes specified using
+* The command `magit-show-commit' now also shows notes specified using
   `notes.displayRef', not just those specified using `core.notesRef'.
   #2857
 
@@ -253,9 +254,7 @@ Changes since v2.11.0
 * The commands `magit-remote-remove' and `magit-branch-delete' now
   unset the relevant push-remote related variables, which Git fails to
   do, unlike for other variable affected by the removal of a remote or
-  branch.  #2850
-
-* Likewise the command `magit-remote-rename' now renames such
+  branch. Likewise the command `magit-remote-rename' now renames such
   variables.  #2850
 
 * Depending on the value of the new `magit-branch-rename-push-target'
@@ -312,13 +311,19 @@ Changes since v2.11.0
   branch where they were previously located.  #2921
 
 * Added commands `magit-branch-shelve' and `magit-branch-unshelve'.
-  You might want to add them to the branch popup.
+  Use them to replace a branch with a less visible ref while
+  preserving the ref log.  This is useful for work that you probably
+  but not certainly will end up discarding.  You might want to add
+  these commands to the branch popup.
 
 * The look of `magit-refs-mode' buffers was changed to save horizonal
   space and two new options `magit-refs-primary-column-width' and
   `magit-refs-focus-column-width' were added.  #3378
 
-* Added commands `magit-commit-reshelve' and `magit-reshelve-since'.
+* Added commands `magit-commit-reshelve' and `magit-reshelve-since',
+  replacing and improving upon commands from the `magit-rockstar'
+  package, which was deprecated.  The former changes the dates of HEAD
+  and the latter those of a range of commits leading up to HEAD.
 
 Fixes since v2.11.0
 -------------------
@@ -336,7 +341,7 @@ Fixes since v2.11.0
 * The command `magit-branch-rename' failed to rename a local branch if
   a tag existed with the same name.  #3222
 
-* The command `magit-file-delete ignored' the prefix argument instead
+* The command `magit-file-delete' ignored the prefix argument instead
   of forcing the action as intended.
 
 * Fixed encoding of non-ascii filename arguments to git on
