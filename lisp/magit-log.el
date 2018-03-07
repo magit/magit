@@ -353,6 +353,7 @@ the upstream isn't ahead of the current branch) show."
                (?u "Show diffs"              "--patch")
                (?s "Show diffstats"          "--stat")
                (?h "Show header"             "++header" magit-log++header)
+               (?r "Show in reverse order"   "--reverse")
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
     :options  ((?n "Limit number of commits" "-n")
@@ -384,6 +385,7 @@ the upstream isn't ahead of the current branch) show."
                (?S "Show signatures"         "--show-signature")
                (?u "Show diffs"              "--patch")
                (?s "Show diffstats"          "--stat")
+               (?r "Show in reverse order"   "--reverse")
                (?D "Simplify by decoration"  "--simplify-by-decoration")
                (?f "Follow renames when showing single-file log" "--follow"))
     :options  ((?n "Limit number of commits" "-n")
@@ -837,6 +839,8 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (magit-set-header-line-format
    (concat "Commits in "
            (mapconcat #'identity revs " ")
+           (and (member "--reverse" args)
+                " in reverse")
            (and files (concat " touching "
                               (mapconcat 'identity files " ")))
            (--some (and (string-prefix-p "-L" it)
@@ -892,9 +896,11 @@ Do not add this to a hook variable."
         (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
           (setq args (cons (format "--%s-order" (match-string 1 it))
                            (remove it args))))
-        (if (member "--decorate" args)
-            (cons "--decorate=full" (remove "--decorate" args))
-          args))
+        (when (member "--decorate" args)
+          (setq args (cons "--decorate=full" (remove "--decorate" args))))
+        (when (member "--reverse" args)
+          (setq args (remove "--graph" args)))
+        args)
       "--use-mailmap" "--no-prefix" revs "--" files)))
 
 (defvar magit-commit-section-map
