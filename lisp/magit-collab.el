@@ -142,11 +142,12 @@ exist, then raise an error."
 
 (defun magit--github-url-equal (r1 r2)
   (or (equal r1 r2)
-      (let ((n1 (and (string-match magit--github-url-regexp r1)
-                     (match-string 2 r1)))
-            (n2 (and (string-match magit--github-url-regexp r2)
-                     (match-string 2 r2))))
-        (and n1 n2 (equal n1 n2)))))
+      (save-match-data
+        (let ((n1 (and (string-match magit--github-url-regexp r1)
+                       (match-string 2 r1)))
+              (n2 (and (string-match magit--github-url-regexp r2)
+                       (match-string 2 r2))))
+          (and n1 n2 (equal n1 n2))))))
 
 (provide 'magit-collab)
 ;;; magit-collab.el ends here
