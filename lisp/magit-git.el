@@ -1643,7 +1643,8 @@ the reference is used.  The first regexp submatch becomes the
               (magit-git-success "update-ref" "-m" "enable reflog"
                                  ref oldrev ""))))
         (magit-git-success "update-ref" "-m" message ref rev
-                           (or (magit-rev-verify ref) "")))
+                           (let ((magit--refresh-cache nil))
+                             (or (magit-rev-verify ref) ""))))
       (error "Cannot update %s with %s" ref rev)))
 
 (defconst magit-range-re
