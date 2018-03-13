@@ -328,6 +328,12 @@ The sections are inserted by running the functions on the hook
       (magit-insert-headers magit-status-headers-hook)
     (insert "In the beginning there was darkness\n\n")))
 
+(defvar magit-error-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-visit-thing] 'magit-process-buffer)
+    map)
+  "Keymap for `error' sections.")
+
 (defun magit-insert-error-header ()
   "Insert the message about the Git error that just occured.
 
