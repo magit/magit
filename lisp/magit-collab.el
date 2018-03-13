@@ -120,12 +120,19 @@ exist, then raise an error."
          (match-string 1 url))))
 
 (defconst magit--github-url-regexp "\
-\\`\\(?:git://\\|git@\\|ssh://git@\\|https://\\)github.com[/:]\
-\\(\\([^/]+\\)/\\(.+?\\)\\)\
+\\`\\(?:git://\\|git@\\|ssh://git@\\|https://\\)\
+\\(.*?\\)[/:]\
+\\(\\([^:/]+\\)/\\([^/]+?\\)\\)\
 \\(?:\\.git\\)?\\'")
 
 (defun magit--github-url-p (url)
-  (and url (string-match-p magit--github-url-regexp url)))
+  (save-match-data
+    (and url
+         (string-match magit--github-url-regexp url)
+         (let ((host (match-string 1 url)))
+           (and (or (equal host "github.com")
+                    (equal host (ghub--host)))
+                host)))))
 
 (defun magit--github-remote-p (remote)
   (or (--when-let (magit-get "remote" remote "pushurl")
@@ -136,9 +143,9 @@ exist, then raise an error."
 (defun magit--github-url-equal (r1 r2)
   (or (equal r1 r2)
       (let ((n1 (and (string-match magit--github-url-regexp r1)
-                     (match-string 1 r1)))
+                     (match-string 2 r1)))
             (n2 (and (string-match magit--github-url-regexp r2)
-                     (match-string 1 r2))))
+                     (match-string 2 r2))))
         (and n1 n2 (equal n1 n2)))))
 
 (provide 'magit-collab)
