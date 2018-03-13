@@ -82,10 +82,7 @@ be lifted eventually to support other Git forges."
 Return the Git forge's API response.  Currently this function
 only supports Github, but that will change eventually."
   (let* ((origin (magit-upstream-repository))
-         (url    (magit-get "remote" origin "url"))
-         (id     (and (string-match "github.com[:/]\\(.+?\\)\\(?:\\.git\\)?\\'"
-                                    url)
-                      (match-string 1 url)))
+         (id     (magit--forge-id origin))
          (fmtfun (lambda (pull-request)
                    (format "%s  %s"
                            (cdr (assq 'number pull-request))
@@ -116,6 +113,11 @@ exist, then raise an error."
     (unless (string-match-p "github\\.com" (magit-get "remote" remote "url"))
       (error "Currently only Github is supported"))
     remote))
+
+(defun magit--forge-id (remote)
+  (let ((url (magit-get "remote" remote "url")))
+    (and (string-match "\\([^:/]+/[^/]+?\\)\\(?:\\.git\\)?\\'" url)
+         (match-string 1 url))))
 
 (defconst magit--github-url-regexp "\
 \\`\\(?:git://\\|git@\\|ssh://git@\\|https://\\)github.com[/:]\
