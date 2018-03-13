@@ -110,7 +110,7 @@ exist, then raise an error."
     (unless (magit-remote-p remote)
       (error "No remote named `%s' exists (consider setting `magit.upstream')"
              remote))
-    (unless (string-match-p "github\\.com" (magit-get "remote" remote "url"))
+    (unless (magit--github-remote-p remote)
       (error "Currently only Github is supported"))
     remote))
 
