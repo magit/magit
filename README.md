@@ -7,7 +7,6 @@
   <a href="https://github.com/magit/magit/wiki"><b>wiki</b></a> |
   <a href="https://groups.google.com/forum/?fromgroups#!forum/magit"><b>mailing list</b></a> |
   <a href="https://emacs.stackexchange.com/questions/tagged/magit"><b>forum</b></a> |
-  <a href="https://gitter.im/magit/magit"><b>chat</b></a> |
   <a href="https://twitter.com/magit_emacs"><b>news</b></a>
 </p>
 <hr>
@@ -106,9 +105,9 @@ You should also consult the [manual][manual] and ask a general-purpose
 search engine.
 
 If that doesn't answer your question, then ask for help on the
-**[Emacs Stackexchange site][forum]**, the [mailing list][list], or
-the [Gitter chat][chat].  We only use the GitHub issue tracker for
-feature requests and bug reports, so please don't ask for help there.
+**[Emacs Stackexchange site][forum]** or the [mailing list][list].
+We only use the GitHub issue tracker for feature requests and bug
+reports, so please don't ask for help there.
 
 Contributing
 ============
@@ -151,7 +150,6 @@ Thanks to all of you, may (the history of) the source be with you!
 [faq]:     https://magit.vc/manual/magit/FAQ.html
 [manual]:  https://magit.vc/manual
 
-[chat]:    https://gitter.im/magit/magit
 [forum]:   https://emacs.stackexchange.com/questions/tagged/magit
 [list]:    https://groups.google.com/forum/?fromgroups#!forum/magit
 
