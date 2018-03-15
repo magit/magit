@@ -131,6 +131,14 @@ This is useful if you use really long branch names."
   :group 'magit-log
   :type 'boolean)
 
+(defcustom magit-log-header-line-function 'magit-log-header-line-sentence
+  "Function used to generate text shown in header line of log buffers."
+  :package-version '(magit . "2.12.0")
+  :group 'magit-log
+  :type '(choice (function-item magit-log-header-line-arguments)
+                 (function-item magit-log-header-line-sentence)
+                 function))
+
 (defface magit-log-graph
   '((((class color) (background light)) :foreground "grey30")
     (((class color) (background  dark)) :foreground "grey80"))
@@ -837,15 +845,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 (defun magit-log-refresh-buffer (revs args files)
   (magit-set-header-line-format
-   (concat "Commits in "
-           (mapconcat #'identity revs " ")
-           (and (member "--reverse" args)
-                " in reverse")
-           (and files (concat " touching "
-                              (mapconcat 'identity files " ")))
-           (--some (and (string-prefix-p "-L" it)
-                        (concat " " it))
-                   args)))
+   (funcall magit-log-header-line-function revs args files))
   (if (= (length files) 1)
       (unless (magit-file-tracked-p (car files))
         (setq args (cons "--full-history" args)))
@@ -874,6 +874,27 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                  (format "%s~%s..%s" revs limit revs))))
   (magit-insert-section (logbuf)
     (magit-insert-log revs args files)))
+
+(defun magit-log-header-line-arguments (revs args files)
+  "Return string describing some of the used arguments."
+  (mapconcat (lambda (arg)
+               (if (string-match-p " " arg)
+                   (prin1 arg)
+                 arg))
+             `("git" "log" ,@args ,@revs "--" ,@files)
+             " "))
+
+(defun magit-log-header-line-sentence (revs args files)
+  "Return string containing all arguments."
+  (concat "Commits in "
+          (mapconcat #'identity revs " ")
+          (and (member "--reverse" args)
+               " in reverse")
+          (and files (concat " touching "
+                             (mapconcat 'identity files " ")))
+          (--some (and (string-prefix-p "-L" it)
+                       (concat " " it))
+                  args)))
 
 (defun magit-insert-log (revs &optional args files)
   "Insert a log section.
