@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-566-g7c534123c+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-592-g31976d040+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-566-g7c534123c+1).
+This manual is for Magit version 2.11.0 (2.11.0-592-g31976d040+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -5518,38 +5518,41 @@ Also see [[man:git-remote]]
 
 - Key: M a, magit-remote-add
 
-  Add a remote and fetch it.  The remote name and url are read in the
-  minibuffer.
+  This command add a remote and fetches it.  The remote name and url
+  are read in the minibuffer.
 
 - Key: M r, magit-remote-rename
 
-  Rename a remote.  Both the old and the new names are read in the
-  minibuffer.
+  This command renames a remote.  Both the old and the new names are
+  read in the minibuffer.
 
 - Key: M u, magit-remote-set-url
 
-  Change the url of a remote.  Both the remote and the new url are
-  read in the minibuffer.
+  This command changes the url of a remote.  Both the remote and the
+  new url are read in the minibuffer.
 
 - Key: M k, magit-remote-remove
 
-  Delete a remote, read from the minibuffer.
+  This command deletes a remote, read in the minibuffer.
 
 - Key: M p, magit-remote-prune-refspecs
 
-  Remove stale refspecs and tracking branches for REMOTE.  If there
-  are only stale refspecs, then offer to either delete the remote or
-  replace the refspecs with the default refspec instead.
+  This command removes stale refspecs and tracking branches for a
+  remote read in the minibuffer.  If there are only stale refspecs,
+  then offer to either delete the remote or replace the refspecs with
+  the default refspec instead.
 
 - User Option: magit-remote-add-set-remote.pushDefault
 
-  Whether to set the value of ~remote.pushDefault~ after adding a
-  remote.
+  This option controls whether the user is asked whether they want to
+  set ~remote.pushDefault~ after adding a remote.
 
-  If ~ask~, then always ask.  If ~ask-if-unset~, then ask, but only if the
-  variable isn't set already.  If ~nil~, then don't ever set.  If the value
-  is a string, then set without asking, provided that the name of the added
-  remote is equal to that string and the variable isn't already set.
+  If ~ask~, then users is always ask.  If ~ask-if-unset~, then the user is
+  only if the variable isn't set already.  If ~nil~, then the user isn't
+  asked and the variable isn't set.  If the value is a string, then
+  the variable is set without the user being asked, provided that the
+  name of the added remote is equal to that string and the variable
+  isn't already set.
 
 *** The Remote Config Popup
 

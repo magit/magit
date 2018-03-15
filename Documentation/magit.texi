@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-566-g7c534123c+1)
+@subtitle for version 2.11.0 (2.11.0-592-g31976d040+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-566-g7c534123c+1).
+This manual is for Magit version 2.11.0 (2.11.0-592-g31976d040+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -7487,48 +7487,51 @@ prefix argument.
 @cindex magit-remote-add
 @item @kbd{M a} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-add})
 
-Add a remote and fetch it.  The remote name and url are read in the
-minibuffer.
+This command add a remote and fetches it.  The remote name and url
+are read in the minibuffer.
 
 @kindex M r
 @cindex magit-remote-rename
 @item @kbd{M r} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-rename})
 
-Rename a remote.  Both the old and the new names are read in the
-minibuffer.
+This command renames a remote.  Both the old and the new names are
+read in the minibuffer.
 
 @kindex M u
 @cindex magit-remote-set-url
 @item @kbd{M u} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-set-url})
 
-Change the url of a remote.  Both the remote and the new url are
-read in the minibuffer.
+This command changes the url of a remote.  Both the remote and the
+new url are read in the minibuffer.
 
 @kindex M k
 @cindex magit-remote-remove
 @item @kbd{M k} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-remove})
 
-Delete a remote, read from the minibuffer.
+This command deletes a remote, read in the minibuffer.
 
 @kindex M p
 @cindex magit-remote-prune-refspecs
 @item @kbd{M p} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-prune-refspecs})
 
-Remove stale refspecs and tracking branches for REMOTE.  If there
-are only stale refspecs, then offer to either delete the remote or
-replace the refspecs with the default refspec instead.
+This command removes stale refspecs and tracking branches for a
+remote read in the minibuffer.  If there are only stale refspecs,
+then offer to either delete the remote or replace the refspecs with
+the default refspec instead.
 
 @end table
 
 @defopt magit-remote-add-set-remote.pushDefault
 
-Whether to set the value of @code{remote.pushDefault} after adding a
-remote.
+This option controls whether the user is asked whether they want to
+set @code{remote.pushDefault} after adding a remote.
 
-If @code{ask}, then always ask.  If @code{ask-if-unset}, then ask, but only if the
-variable isn't set already.  If @code{nil}, then don't ever set.  If the value
-is a string, then set without asking, provided that the name of the added
-remote is equal to that string and the variable isn't already set.
+If @code{ask}, then users is always ask.  If @code{ask-if-unset}, then the user is
+only if the variable isn't set already.  If @code{nil}, then the user isn't
+asked and the variable isn't set.  If the value is a string, then
+the variable is set without the user being asked, provided that the
+name of the added remote is equal to that string and the variable
+isn't already set.
 @end defopt
 
 @node The Remote Config Popup
