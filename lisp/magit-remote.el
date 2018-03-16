@@ -203,9 +203,18 @@ to be used to view and change remote related variables."
 
 ;;;###autoload
 (defun magit-remote-prune-refspecs (remote)
-  "Remove stale refspecs and tracking branches for REMOTE.
-If there are only stale refspecs, then offer to either delete the
-remote or replace the refspecs with the default refspec instead."
+  "Remove stale refspecs for REMOTE.
+
+A refspec is stale if there no longer exists at least one branch
+on the remote that would be fetched due to that refspec.  A stale
+refspec is problematic because its existence causes Git to refuse
+to fetch according to the remaining non-stale refspecs.
+
+If only stale refspecs remain, then offer to either delete the
+remote or to replace the stale refspecs with the default refspec.
+
+Also remove the remote-tracking branches that were created due to
+the now stale refspecs.  Other stale branches are not removed."
   (interactive (list (magit-read-remote "Prune refspecs of remote")))
   (let* ((tracking-refs (magit-list-remote-branches remote))
          (remote-refs (magit-remote-list-refs remote))
