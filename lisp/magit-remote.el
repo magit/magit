@@ -133,11 +133,12 @@ to be used to view and change remote related variables."
                     magit-remote-config-variables))
   :switches '("Switches for add"
               (?f "Fetch after add" "-f"))
-  :actions  '((?a "Add"            magit-remote-add)
-              (?C "Configure..."   magit-remote-config-popup)
-              (?r "Rename"         magit-remote-rename)
-              (?p "Prune refspecs" magit-remote-prune-refspecs)
-              (?k "Remove"         magit-remote-remove))
+  :actions  '((?a "Add"                  magit-remote-add)
+              (?C "Configure..."         magit-remote-config-popup)
+              (?r "Rename"               magit-remote-rename)
+              (?p "Prune stale branches" magit-remote-prune)
+              (?k "Remove"               magit-remote-remove)
+              (?p "Prune stale refspecs" magit-remote-prune-refspecs))
   :max-action-columns 2)
 
 ;;;; Commands
@@ -193,6 +194,12 @@ to be used to view and change remote related variables."
       (magit-call-git "config" (and (not new-name) "--unset") var new-name))))
 
 (defconst magit--refspec-re "\\`\\(\\+\\)?\\([^:]+\\):\\(.*\\)\\'")
+
+;;;###autoload
+(defun magit-remote-prune (remote)
+  "Remove stale remote-tracking branches for REMOTE."
+  (interactive (list (magit-read-remote "Prune stale branches of remote")))
+  (magit-run-git-async "remote" "prune" remote))
 
 ;;;###autoload
 (defun magit-remote-prune-refspecs (remote)

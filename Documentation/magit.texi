@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.11.0 (2.11.0-592-g31976d040+1)
+@subtitle for version 2.11.0 (2.11.0-593-g6266eb110+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.11.0 (2.11.0-592-g31976d040+1).
+This manual is for Magit version 2.11.0 (2.11.0-593-g6266eb110+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -7511,8 +7511,15 @@ new url are read in the minibuffer.
 This command deletes a remote, read in the minibuffer.
 
 @kindex M p
+@cindex magit-remote-prune
+@item @kbd{M p} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-prune})
+
+This command removes stale remote-tracking branches for a remote
+read in the minibuffer.
+
+@kindex M P
 @cindex magit-remote-prune-refspecs
-@item @kbd{M p} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-prune-refspecs})
+@item @kbd{M P} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-prune-refspecs})
 
 This command removes stale refspecs and tracking branches for a
 remote read in the minibuffer.  If there are only stale refspecs,

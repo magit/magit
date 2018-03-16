@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.11.0 (2.11.0-592-g31976d040+1)
+#+SUBTITLE: for version 2.11.0 (2.11.0-593-g6266eb110+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.11.0 (2.11.0-592-g31976d040+1).
+This manual is for Magit version 2.11.0 (2.11.0-593-g6266eb110+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -5535,7 +5535,12 @@ Also see [[man:git-remote]]
 
   This command deletes a remote, read in the minibuffer.
 
-- Key: M p, magit-remote-prune-refspecs
+- Key: M p, magit-remote-prune
+
+  This command removes stale remote-tracking branches for a remote
+  read in the minibuffer.
+
+- Key: M P, magit-remote-prune-refspecs
 
   This command removes stale refspecs and tracking branches for a
   remote read in the minibuffer.  If there are only stale refspecs,
