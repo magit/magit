@@ -130,8 +130,12 @@ exist, then raise an error."
     (and url
          (string-match magit--github-url-regexp url)
          (let ((host (match-string 1 url)))
-           (and (or (equal host "github.com")
-                    (equal host (ghub--host)))
+           ;; Match values like "github.com-as-someone", which are
+           ;; translated to just "github.com" according to settings
+           ;; in "~/.ssh/config".  Theoretically this could result
+           ;; in false-positives, but that's rather unlikely.  #3392
+           (and (or (string-match-p (regexp-quote "github.com") host)
+                    (string-match-p (regexp-quote (ghub--host)) host))
                 host)))))
 
 (defun magit--github-remote-p (remote)
