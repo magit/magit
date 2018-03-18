@@ -1627,25 +1627,25 @@ the reference is used.  The first regexp submatch becomes the
   (magit-git-success "update-index" "--add" "--remove" "--" files))
 
 (defun magit-update-ref (ref message rev &optional stashish)
-  (or (if (not (version< (magit-git-version) "2.6.0"))
-          (zerop (magit-call-git "update-ref" "--create-reflog"
-                                 "-m" message ref rev
-                                 (or (magit-rev-verify ref) "")))
-        ;; `--create-reflog' didn't exist before v2.6.0
-        (let ((oldrev  (magit-rev-verify ref))
-              (logfile (magit-git-dir (concat "logs/" ref))))
-          (unless (file-exists-p logfile)
-            (when oldrev
-              (magit-git-success "update-ref" "-d" ref oldrev))
-            (make-directory (file-name-directory logfile) t)
-            (with-temp-file logfile)
-            (when (and oldrev (not stashish))
-              (magit-git-success "update-ref" "-m" "enable reflog"
-                                 ref oldrev ""))))
-        (magit-git-success "update-ref" "-m" message ref rev
-                           (let ((magit--refresh-cache nil))
-                             (or (magit-rev-verify ref) ""))))
-      (error "Cannot update %s with %s" ref rev)))
+  (let ((magit--refresh-cache nil))
+    (or (if (not (version< (magit-git-version) "2.6.0"))
+            (zerop (magit-call-git "update-ref" "--create-reflog"
+                                   "-m" message ref rev
+                                   (or (magit-rev-verify ref) "")))
+          ;; `--create-reflog' didn't exist before v2.6.0
+          (let ((oldrev  (magit-rev-verify ref))
+                (logfile (magit-git-dir (concat "logs/" ref))))
+            (unless (file-exists-p logfile)
+              (when oldrev
+                (magit-git-success "update-ref" "-d" ref oldrev))
+              (make-directory (file-name-directory logfile) t)
+              (with-temp-file logfile)
+              (when (and oldrev (not stashish))
+                (magit-git-success "update-ref" "-m" "enable reflog"
+                                   ref oldrev ""))))
+          (magit-git-success "update-ref" "-m" message ref rev
+                             (or (magit-rev-verify ref) "")))
+        (error "Cannot update %s with %s" ref rev))))
 
 (defconst magit-range-re
   (concat "\\`\\([^ \t]*[^.]\\)?"       ; revA
