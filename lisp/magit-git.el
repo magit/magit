@@ -601,12 +601,13 @@ NOERROR is non-nil, in which case return nil."
   "Return t if DIRECTORY is a Git repository.
 When optional NON-BARE is non-nil also return nil if DIRECTORY is
 a bare repository."
-  (or (file-regular-p (expand-file-name ".git" directory))
-      (file-directory-p (expand-file-name ".git" directory))
-      (and (not non-bare)
-           (file-regular-p (expand-file-name "HEAD" directory))
-           (file-directory-p (expand-file-name "refs" directory))
-           (file-directory-p (expand-file-name "objects" directory)))))
+  (and (file-directory-p directory) ; Avoid archives, see #3397.
+       (or (file-regular-p (expand-file-name ".git" directory))
+           (file-directory-p (expand-file-name ".git" directory))
+           (and (not non-bare)
+                (file-regular-p (expand-file-name "HEAD" directory))
+                (file-directory-p (expand-file-name "refs" directory))
+                (file-directory-p (expand-file-name "objects" directory))))))
 
 (defvar-local magit-buffer-revision  nil)
 (defvar-local magit-buffer-refname   nil)
