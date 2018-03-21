@@ -794,10 +794,18 @@ Added to `font-lock-extend-region-functions'."
                   (progn
                     ;; Make sure the below functions are available.
                     (require 'magit)
-                    ;; Font-Lock wants every submatch to succeed.
-                    (format "\\(%s\\|\\)\\(%s\\|\\)"
-                            (regexp-opt (magit-list-local-branch-names))
-                            (regexp-opt (magit-list-remote-branch-names))))
+                    ;; Font-Lock wants every submatch to succeed,
+                    ;; so also match the empty string.  Do not use
+                    ;; `regexp-quote' because that is slow if there
+                    ;; are thousands of branches outweighing the
+                    ;; benefit of an efficient regep.
+                    (format "\\(\\(?:%s\\)\\|\\)\\(\\(?:%s\\)\\|\\)"
+                            (mapconcat #'identity
+                                       (magit-list-local-branch-names)
+                                       "\\|")
+                            (mapconcat #'identity
+                                       (magit-list-remote-branch-names)
+                                       "\\|")))
                 "\\([^']*\\)"))
   (setq-local font-lock-multiline t)
   (add-hook 'font-lock-extend-region-functions
