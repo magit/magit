@@ -102,14 +102,7 @@ AUTHORS.md:
 DOMAIN         ?= magit.vc
 CFRONT_DIST    ?= E2LUHBKU1FBV02
 PUBLISH_BUCKET ?= s3://$(DOMAIN)
-PREVIEW_BUCKET ?= s3://preview.$(DOMAIN)
 PUBLISH_URL    ?= http://$(DOMAIN).s3-website.eu-central-1.amazonaws.com
-PREVIEW_URL    ?= http://preview.$(DOMAIN).s3-website.eu-central-1.amazonaws.com
-
-preview-stats: stats
-	@printf "Uploading statistics...\n"
-	@aws s3 sync $(statsdir)      $(PREVIEW_BUCKET)/stats/
-	@printf "Uploaded to $(PREVIEW_URL)/stats/\n"
 
 publish-stats: stats
 	@printf "Uploading statistics...\n"
@@ -118,13 +111,6 @@ publish-stats: stats
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation \
 	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
-
-preview-manuals: html html-dir pdf
-	@printf "Uploading manuals...\n"
-	@aws s3 sync --delete magit $(PREVIEW_BUCKET)/manual/magit/
-	@aws s3 cp magit.html       $(PREVIEW_BUCKET)/manual/
-	@aws s3 cp magit.pdf        $(PREVIEW_BUCKET)/manual/
-	@printf "Uploaded to $(PREVIEW_URL)/manual/\n"
 
 publish-manuals: html html-dir pdf
 	@printf "Uploading manuals...\n"
