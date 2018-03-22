@@ -121,16 +121,16 @@ publish-stats: stats
 
 preview-manuals: html html-dir pdf
 	@printf "Uploading manuals...\n"
-	@aws s3 sync magit            $(PREVIEW_BUCKET)/manual/magit/
-	@aws s3 cp   magit.html       $(PREVIEW_BUCKET)/manual/
-	@aws s3 cp   magit.pdf        $(PREVIEW_BUCKET)/manual/
+	@aws s3 sync --delete magit $(PREVIEW_BUCKET)/manual/magit/
+	@aws s3 cp magit.html       $(PREVIEW_BUCKET)/manual/
+	@aws s3 cp magit.pdf        $(PREVIEW_BUCKET)/manual/
 	@printf "Uploaded to $(PREVIEW_URL)/manual/\n"
 
 publish-manuals: html html-dir pdf
 	@printf "Uploading manuals...\n"
-	@aws s3 sync magit            $(PUBLISH_BUCKET)/manual/magit/
-	@aws s3 cp   magit.html       $(PUBLISH_BUCKET)/manual/
-	@aws s3 cp   magit.pdf        $(PUBLISH_BUCKET)/manual/
+	@aws s3 sync --delete magit $(PUBLISH_BUCKET)/manual/magit/
+	@aws s3 cp magit.html       $(PUBLISH_BUCKET)/manual/
+	@aws s3 cp magit.pdf        $(PUBLISH_BUCKET)/manual/
 	@printf "Uploaded to $(PUBLISH_URL)/manual/\n"
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation \
