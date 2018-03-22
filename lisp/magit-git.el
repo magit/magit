@@ -592,10 +592,23 @@ is non-nil, in which case return nil."
 If it is non-bare, then return nil.  If `default-directory'
 isn't below a Git repository, then signal an error unless
 NOERROR is non-nil, in which case return nil."
-  (condition-case nil
-      (magit-rev-parse-true "--is-bare-repository")
-    (magit-invalid-git-boolean
-     (if noerror nil (signal 'magit-outside-git-repo default-directory)))))
+  (and (magit--assert-default-directory noerror)
+       (condition-case nil
+           (magit-rev-parse-true "--is-bare-repository")
+         (magit-invalid-git-boolean
+          (and (not noerror)
+               (signal 'magit-outside-git-repo default-directory))))))
+
+(defun magit--assert-default-directory (&optional noerror)
+  (or (file-directory-p default-directory)
+      (and (not noerror)
+           (let ((exists (file-exists-p default-directory)))
+	     (signal (if exists 'file-error 'file-missing)
+		     (list "Running git in directory"
+		           (if exists
+                               "Not a directory"
+                             "No such file or directory")
+		           default-directory))))))
 
 (defun magit-git-repo-p (directory &optional non-bare)
   "Return t if DIRECTORY is a Git repository.
