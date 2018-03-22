@@ -59,7 +59,8 @@ help:
 	$(info make stats            - regenerate statistics)
 	$(info make authors          - regenerate AUTHORS.md)
 	$(info make publish-stats    - publish statistics)
-	$(info make publish-manuals  - publish manuals)
+	$(info make publish-manuals  - publish snapshot manuals)
+	$(info make release-manuals  - publish release manuals)
 	$(info make dist             - create tarballs)
 	$(info make bump-versions    - bump versions for release)
 	$(info make bump-snapshots   - bump versions after release)
@@ -156,6 +157,9 @@ publish-stats:
 
 publish-manuals:
 	@$(MAKE) -C Documentation publish-manuals
+
+release-manuals:
+	@$(MAKE) -C Documentation release-manuals
 
 dist: magit-$(VERSION).tar.gz
 
