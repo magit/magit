@@ -449,22 +449,12 @@ These sections can be expanded to show the respective commits."
   (interactive)
   (magit-display-buffer (magit-mode-get-buffer 'magit-submodule-list-mode t))
   (magit-submodule-list-mode)
-  (setq tabulated-list-entries
-        (-keep (lambda (module)
-                 (let ((default-directory
-                         (expand-file-name (file-name-as-directory module))))
-                   (and (file-exists-p ".git")
-                        (list module
-                              (vconcat
-                               (--map (or (funcall (nth 2 it) module) "")
-                                      magit-submodule-list-columns))))))
-               (magit-list-module-paths)))
+  (magit-submodule-list-refresh)
   (tabulated-list-print))
 
 (defvar magit-submodule-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-repolist-mode-map)
-    (define-key map "g" 'magit-list-submodules)
     map)
   "Local keymap for Magit-Submodule-List mode buffers.")
 
@@ -480,12 +470,25 @@ These sections can be expanded to show the respective commits."
                                   (-flatten props)))
                          magit-submodule-list-columns)))
   (tabulated-list-init-header)
+  (add-hook 'tabulated-list-revert-hook 'magit-submodule-list-refresh nil t)
   (setq imenu-prev-index-position-function
         #'magit-imenu--submodule-prev-index-position-function)
   (setq imenu-extract-index-name-function
         #'magit-imenu--submodule-extract-index-name-function)
   (setq-local bookmark-make-record-function
               #'magit-bookmark--submodules-make-record))
+
+(defun magit-submodule-list-refresh ()
+  (setq tabulated-list-entries
+        (-keep (lambda (module)
+                 (let ((default-directory
+                         (expand-file-name (file-name-as-directory module))))
+                   (and (file-exists-p ".git")
+                        (list module
+                              (vconcat
+                               (--map (or (funcall (nth 2 it) module) "")
+                                      magit-submodule-list-columns))))))
+               (magit-list-module-paths))))
 
 (defun magit-modulelist-column-path (path)
   "Insert the relative path of the submodule."

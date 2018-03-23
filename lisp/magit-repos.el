@@ -121,16 +121,7 @@ control which repositories are displayed."
   (if magit-repository-directories
       (with-current-buffer (get-buffer-create "*Magit Repositories*")
         (magit-repolist-mode)
-        (setq tabulated-list-entries
-              (mapcar (-lambda ((id . path))
-                        (let ((default-directory path))
-                          (list path
-                                (vconcat (--map (or (funcall (nth 2 it) id) "")
-                                                magit-repolist-columns)))))
-                      (magit-list-repos-uniquify
-                       (--map (cons (file-name-nondirectory (directory-file-name it))
-                                    it)
-                              (magit-list-repos)))))
+        (magit-repolist-refresh)
         (tabulated-list-print)
         (switch-to-buffer (current-buffer)))
     (message "You need to customize `magit-repository-directories' %s"
@@ -141,7 +132,6 @@ control which repositories are displayed."
 (defvar magit-repolist-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map "g" 'magit-list-repositories)
     (define-key map (if (featurep 'jkl) [return] (kbd "C-m"))
       'magit-repolist-status)
     map)
@@ -165,10 +155,23 @@ control which repositories are displayed."
                                   (-flatten props)))
                          magit-repolist-columns)))
   (tabulated-list-init-header)
+  (add-hook 'tabulated-list-revert-hook 'magit-repolist-refresh nil t)
   (setq imenu-prev-index-position-function
         'magit-imenu--repolist-prev-index-position-function)
   (setq imenu-extract-index-name-function
         'magit-imenu--repolist-extract-index-name-function))
+
+(defun magit-repolist-refresh ()
+  (setq tabulated-list-entries
+        (mapcar (-lambda ((id . path))
+                  (let ((default-directory path))
+                    (list path
+                          (vconcat (--map (or (funcall (nth 2 it) id) "")
+                                          magit-repolist-columns)))))
+                (magit-list-repos-uniquify
+                 (--map (cons (file-name-nondirectory (directory-file-name it))
+                              it)
+                        (magit-list-repos))))))
 
 ;;;; Columns
 
