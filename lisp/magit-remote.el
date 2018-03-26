@@ -514,7 +514,9 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 ;;;###autoload
 (defun magit-fetch-all (args)
   "Fetch from all remotes."
-  (interactive (list (magit-fetch-arguments)))
+  (interactive (list (cl-intersection (magit-fetch-arguments)
+                                      (list "--verbose" "--prune")
+                                      :test #'equal)))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "remote" "update" args))
 
