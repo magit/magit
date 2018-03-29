@@ -116,7 +116,7 @@ space := $(empty) $(empty)
 
 publish-stats: stats
 	@printf "Uploading statistics...\n"
-	@aws s3 sync $(statsdir)      $(PUBLISH_BUCKET)/stats/
+	@aws s3 sync $(statsdir) $(S3_BUCKET)/stats/
 	@printf "Uploaded to $(PUBLISH_URL)/stats/\n"
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation \
