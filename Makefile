@@ -166,7 +166,7 @@ dist: magit-$(VERSION).tar.gz
 versionlib:
 	@$(MAKE) -C lisp versionlib
 
-DIST_ROOT_FILES = COPYING default.mk Makefile README.md
+DIST_ROOT_FILES = LICENSE default.mk Makefile README.md
 DIST_LISP_FILES = $(addprefix lisp/,$(ELS) magit-version.el Makefile)
 DIST_DOCS_FILES = $(addprefix Documentation/,$(TEXIPAGES) AUTHORS.md Makefile)
 ifneq ("$(wildcard Documentation/RelNotes/$(VERSION).txt)","")

@@ -1,5 +1,22 @@
-Magit v2.12.0 Release Notes (unreleased)
-========================================
+It's Magit!  A Git Porcelain inside Emacs
+=========================================
+
+Magit is a text-based Git user interface that puts an unmatched focus
+on streamlining workflows. Commands are invoked using short mnemonic
+key sequences that take the cursor’s position in the highly actionable
+interface into account to provide context-sensitive behavior.
+
+With Magit you can do nearly everything that you can do when using Git
+on the command-line, but at greater speed and while taking advantage
+of advanced features that previously seemed too daunting to use on a
+daily basis. Many users will find that by using Magit they can become
+more effective Git user.
+
+For more information about Magit, see https://magit.vc
+and https://emacsair.me/2017/09/01/campaign-articles.
+
+Magit v2.12.0 Release Notes
+===========================
 
 Upcoming breaking changes
 -------------------------
@@ -598,3 +615,40 @@ c9689c670 magit-popup: locally set another display-buffer variable
 
 * Buffers listing repositories using `tabulated-list-mode' did not
   preserve point when being refreshed.  2f0302635
+
+This release also contains other minor improvements, bug fixes, typo
+fixes, and documentation fixes.
+
+Authors
+-------
+
+   500  Jonas Bernoulli
+    26  Kyle Meyer
+    15  Phil Sainty
+    13  Alexander Gramiak
+    13  Noam Postavsky
+     7  Sean Allred
+     4  Basil L. Contovounesios
+     3  Bastian Beischer
+     3  Damien Cassou
+     3  Štěpán Němec
+     2  Bar Magal
+     2  Daniel Mai
+     2  Matthew Fluet
+     1  Chris LaRose
+     1  Daniel Gröber
+     1  Daniel Kraus
+     1  David Ellison
+     1  Fritz Stelzer
+     1  Jim Blandy
+     1  John Mastro
+     1  Kenny Ballou
+     1  Matthieu Hauglustaine
+     1  Matus Goljer
+     1  Orivej Desh
+     1  Philipp Stephani
+     1  Radon Rosborough
+     1  Vladimir Panteleev
+     1  Wilfred Hughes
+     1  Wouter Bolsterlee
+     1  Xu Chunyang
