@@ -1,0 +1,16 @@
+Magit v2.12.1 Release Notes
+===========================
+
+Fixes since v2.12.0
+-------------------
+
+* Magit 2.12.0 depended on a non-existent Magit-Popup version.
+
+* Key bindings in `magit-remote-popup' conflicted.
+
+Authors
+-------
+
+     8  Jonas Bernoulli
+     1  Dean Kariniemi
+     1  Phil Sainty
