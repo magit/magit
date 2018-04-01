@@ -156,7 +156,7 @@ Changes since v2.11.0
 
 * Leading tabs in files no longer cause misalignment in diffs.  This
   is done by overriding the mechanism used by the display engine to
-  determine how width a tab should be, which doesn't work when there
+  determine how wide a tab should be, which doesn't work when there
   are additional characters before the "leading" tabs that should
   count as an additional, but very short tab-stop.  #3185
 
@@ -371,7 +371,7 @@ Changes since v2.11.0
 * Sections are now defined as classes instead of as structs.  This
   is only a first step towards taking advantage of generic methods.
   A few subclasses are already being defined and dedicated slot
-  accessors have been deprecated of `oref'. 651a9abcc ff
+  accessors have been deprecated in favor of `oref'. 651a9abcc ff
 
 * When asking the user whether to save modified file-visiting buffers
   during a refresh, then also allow them to remember the choice for
@@ -507,11 +507,12 @@ c9689c670 magit-popup: locally set another display-buffer variable
 * Jumping to the correct location in a man page failed for many
   switches and options.  deb482063 ff
 
-* The default action of `magit-branch-config-popup' was a command the
+* The default action of `magit-branch-config-popup' was a command that
   isn't even available in the popup.  eaa836fe2
 
 * The command `magit-branch-spinoff' didn't try to prevent the user
-  from a string that contains whitespace as a branch name.  bd6055ab2
+  from entering a string containing whitespace as a branch name.
+  bd6055ab2
 
 * The command `magit-commit' failed to commit everything after asking
   for confirmation if it is called from a subdirectory.  #3221
@@ -520,7 +521,7 @@ c9689c670 magit-popup: locally set another display-buffer variable
   candidates.  387257f20
 
 * In some cases an error occured when showing the remote popup because
-  the length of the remotes name was not taken into accound.  a9177e5b9
+  the length of the remotes name was not taken into account.  a9177e5b9
 
 * The command `magit-branch-rename' failed to rename a local branch if
   a tag existed with the same name.  #3222
@@ -540,7 +541,7 @@ c9689c670 magit-popup: locally set another display-buffer variable
 * In a secondary worktree `magit-git-dir' failed to return a remote
   path when the repository is accessed using Tramp.  #3228
 
-* When the user choose the default offered by `magit-patch-apply',
+* When the user chose the default offered by `magit-patch-apply',
   then that function failed to expand the file-name so that Git would
   understand it.  ab00c5ba2
 
@@ -596,7 +597,7 @@ c9689c670 magit-popup: locally set another display-buffer variable
   1c4fa9b14
 
 * The commands `magit-am-apply-patches' and `magit-am-apply-maildir'
-  did not work over Tramp because it passed Tramp file names directly
+  did not work over Tramp because they passed Tramp file names directly
   to git.  This was fixed in a way that should prevent similar issues
   elsewhere.  #3368
 
