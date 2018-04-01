@@ -138,7 +138,7 @@ to be used to view and change remote related variables."
               (?r "Rename"               magit-remote-rename)
               (?p "Prune stale branches" magit-remote-prune)
               (?k "Remove"               magit-remote-remove)
-              (?p "Prune stale refspecs" magit-remote-prune-refspecs))
+              (?P "Prune stale refspecs" magit-remote-prune-refspecs))
   :max-action-columns 2)
 
 ;;;; Commands
