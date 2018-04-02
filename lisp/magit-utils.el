@@ -792,9 +792,9 @@ are not compatible.  Therefore you cannot turn on that minor-mode
 in Magit buffers.  If you try to enable it anyway, then this
 advice prevents that.
 
-It the reason the attempt is made is that `global-whitespace-mode'
-is enabled, then that is done silently.  However if you you call
-the local minor-mode interactively, then that results in an error.
+If the reason the attempt is made is that `global-whitespace-mode'
+is enabled, then that is done silently.  However if you call the local
+minor-mode interactively, then that results in an error.
 
 See `magit-diff-paint-whitespace' for an alternative."
   (if (not (derived-mode-p 'magit-mode))
