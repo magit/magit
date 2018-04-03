@@ -644,7 +644,8 @@ tracked file."
   (unless file
     (with-current-buffer (or (buffer-base-buffer)
                              (current-buffer))
-      (setq file (or magit-buffer-file-name buffer-file-name))))
+      (setq file (or magit-buffer-file-name buffer-file-name
+                     (and (derived-mode-p 'dired-mode) default-directory)))))
   (when (and file (or (not tracked)
                       (magit-file-tracked-p (file-relative-name file))))
     (--when-let (magit-toplevel

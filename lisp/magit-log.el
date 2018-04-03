@@ -686,9 +686,7 @@ active, restrict the log to the lines that the region touches."
                            ;; of a trailing newline.
                            (1- end)))))))))
   (require 'magit)
-  (-if-let (file (or (magit-file-relative-name)
-                     (and (derived-mode-p 'dired-mode)
-                          default-directory)))
+  (-if-let (file (magit-file-relative-name))
       (magit-mode-setup-internal
        #'magit-log-mode
        (list (list (or magit-buffer-refname
@@ -697,7 +695,7 @@ active, restrict the log to the lines that the region touches."
              (let ((args (car (magit-log-arguments))))
                (when (and follow (not (member "--follow" args)))
                  (push "--follow" args))
-               (when (and beg end)
+               (when (and (file-regular-p file) beg end)
                  (setq args (cons (format "-L%s,%s:%s" beg end file)
                                   (cl-delete "-L" args :test
                                              'string-prefix-p)))
