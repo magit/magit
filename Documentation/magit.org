@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.12.1
+#+SUBTITLE: for version 2.12.1 (2.12.1-9-g9453a96ff+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.12.1.
+This manual is for Magit version 2.12.1 (2.12.1-9-g9453a96ff+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -3398,8 +3398,8 @@ of having to type out the command name.
 
   If Magit-Blame mode is already turned on in the current buffer then
   blaming is done recursively, by visiting REVISION:FILE (using
-  ~magit-find-file~), where REVISION is the revision before the revision
-  that added the current line or chunk of lines.
+  ~magit-find-file~), where REVISION is a parent of the revision that
+  added the current line or chunk of lines.
 
 - Key: M-x magit-blame-reverse, magit-blame-reverse
 

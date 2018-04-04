@@ -259,9 +259,9 @@ If the buffer visits a revision of that file, then blame up to
 that revision, otherwise blame the file's full history, including
 uncommitted changes.
 
-If Magit-Blame mode is already turned on then blame recursively, by
-visiting REVISION:FILE (using `magit-find-file'), where revision
-is the revision before the revision that added the lines at
+If Magit-Blame mode is already turned on then blame recursively,
+by visiting REVISION:FILE (using `magit-find-file'), where
+revision is a parent of the revision that added the lines at
 point.
 
 ARGS is a list of additional arguments to pass to `git blame';
