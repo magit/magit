@@ -383,8 +383,11 @@ Please see the manual for more information."
         (user-error "Branch `%s' already exists" branch))
       (if (equal .head.repo.full_name
                  .base.repo.full_name)
-          (let ((inhibit-magit-refresh t))
-            (magit-branch branch (concat upstream "/" pr-branch)))
+          (let ((tracking (concat upstream "/" pr-branch)))
+            (unless (magit-branch-p tracking)
+              (magit-call-git "fetch" upstream))
+            (let ((inhibit-magit-refresh t))
+              (magit-branch branch tracking)))
         (if (magit-remote-p remote)
             (let ((url   (magit-get     "remote" remote "url"))
                   (fetch (magit-get-all "remote" remote "fetch")))
