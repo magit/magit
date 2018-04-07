@@ -435,23 +435,22 @@ This is intended for debugging purposes.")
                             'face 'magit-blame-summary))
          (?a . ,(propertize (or (plist-get chunk :author) "")
                             'face 'magit-blame-name))
+         (?c . ,(propertize (or (plist-get chunk :committer) "")
+                            'face 'magit-blame-name))
          (?A . ,(propertize (magit-blame-format-time-string
-                             magit-blame-time-format
                              (plist-get chunk :author-time)
                              (plist-get chunk :author-tz))
                             'face 'magit-blame-date))
-         (?c . ,(propertize (or (plist-get chunk :committer) "")
-                            'face 'magit-blame-name))
          (?C . ,(propertize (magit-blame-format-time-string
-                             magit-blame-time-format
                              (plist-get chunk :committer-time)
                              (plist-get chunk :committer-tz))
                             'face 'magit-blame-date))))
     (propertize "Not Yet Committed\n" 'face 'magit-blame-heading)))
 
-(defun magit-blame-format-time-string (format time tz)
+(defun magit-blame-format-time-string (time tz)
   (format-time-string
-   format (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
+   magit-blame-time-format
+   (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
 
 ;;; Commands
 
