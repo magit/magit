@@ -218,7 +218,8 @@ and then turned on again when turning off the latter."
                       (and (not buffer-file-name)
                            (propertize "Show last blob with these lines"
                                        'face 'default))))
-                  magit-blame-reverse))
+                  magit-blame-reverse)
+              (?h "Toggle chunk headings" magit-blame-toggle-headings))
   :default-arguments '("-w")
   :max-action-columns 1
   :default-action 'magit-blame)
