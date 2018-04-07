@@ -233,9 +233,7 @@ and then turned on again when turning off the latter."
              (or (and reverse magit-blame-reverse-p)
                  (and (not reverse)
                       (not magit-blame-reverse-p))))
-        (pcase-let ((`(,_ ,_ ,_ ,rev ,file ,start ,_)
-                     (--keep (overlay-get it 'magit-blame)
-                             (overlays-at (point)))))
+        (pcase-let ((`(,_ ,_ ,_ ,rev ,file ,start ,_) (magit-blame-chunk)))
           (if rev
               (list rev file args start)
             (user-error "Block has no further history")))
@@ -466,7 +464,7 @@ then also kill the buffer."
 (defun magit-blame-next-chunk-same-commit (&optional previous)
   "Move to the next chunk from the same commit.\n\n(fn)"
   (interactive)
-  (-if-let (hash (magit-blame-chunk-get :hash))
+  (-if-let (rev (car (magit-blame-chunk)))
       (let ((pos (point)) ov)
         (save-excursion
           (while (and (not ov)
@@ -477,7 +475,7 @@ then also kill the buffer."
                                    'next-single-char-property-change)
                                  pos 'magit-blame)))
             (--when-let (magit-blame-overlay-at pos)
-              (when (equal (magit-blame-chunk-get :hash pos) hash)
+              (when (equal (car (magit-blame-chunk pos)) rev)
                 (setq ov it)))))
         (if ov
             (goto-char (overlay-start ov))
@@ -514,15 +512,13 @@ instead of the hash, like `kill-ring-save' would."
   (interactive)
   (if (use-region-p)
       (copy-region-as-kill nil nil 'region)
-    (kill-new (message "%s" (magit-blame-chunk-get :hash)))))
+    (kill-new (message "%s" (car (magit-blame-chunk))))))
 
 ;;; Utilities
 
-(defun magit-blame-chunk-get (key &optional pos)
-  (--when-let (magit-blame-overlay-at pos)
-    (if (equal key :hash)
-        (car (overlay-get it 'magit-blame) key)
-      (error "Not implemented"))))
+(defun magit-blame-chunk (&optional pos)
+  (--any (overlay-get it 'magit-blame)
+         (overlays-at (or pos (point)))))
 
 (defun magit-blame-overlay-at (&optional pos)
   (--first (overlay-get it 'magit-blame)
@@ -531,7 +527,7 @@ instead of the hash, like `kill-ring-save' would."
 (defun magit-blame-maybe-update-revision-buffer ()
   (unless magit--update-revision-buffer
     (setq magit--update-revision-buffer nil)
-    (-when-let* ((commit (magit-blame-chunk-get :hash))
+    (-when-let* ((commit (car (magit-blame-chunk)))
                  (buffer (magit-mode-get-buffer 'magit-revision-mode nil t)))
       (setq magit--update-revision-buffer (list commit buffer))
       (run-with-idle-timer
