@@ -233,10 +233,12 @@ and then turned on again when turning off the latter."
              (or (and reverse magit-blame-reverse-p)
                  (and (not reverse)
                       (not magit-blame-reverse-p))))
-        (--if-let (magit-blame-chunk-get :previous-hash)
-            (list it (magit-blame-chunk-get :previous-file)
-                  args (magit-blame-chunk-get :previous-start))
-          (user-error "Block has no further history"))
+        (pcase-let ((`(,_ ,_ ,_ ,rev ,file ,start ,_)
+                     (--keep (overlay-get it 'magit-blame)
+                             (overlays-at (point)))))
+          (if rev
+              (list rev file args start)
+            (user-error "Block has no further history")))
       (--if-let (magit-file-relative-name nil (not magit-buffer-file-name))
           (list (or magit-buffer-refname magit-buffer-revision) it args)
         (if buffer-file-name
@@ -288,7 +290,6 @@ only arguments available from `magit-blame-popup' should be used.
                 (and reverse  (not magit-blame-reverse-p))
                 (and (not reverse) magit-blame-reverse-p))
         (setq magit-blame-reverse-p reverse)
-        (setq magit-blame-cache (make-hash-table :test 'equal))
         (let ((show-headings magit-blame-show-headings))
           (magit-blame-mode 1)
           (setq-local magit-blame-show-headings show-headings))
@@ -301,20 +302,20 @@ only arguments available from `magit-blame-popup' should be used.
                               'magit-blame-process-quickstart-sentinel)))))
 
 (defun magit-blame-run-process (revision file args &optional lines)
-  (let* ((magit-process-popup-time -1)
-         (inhibit-magit-refresh t)
-         (process (magit-run-git-async
-                   "blame" "--incremental" args
-                   (and lines (list "-L" (apply #'format "%s,%s" lines)))
-                   revision "--" file)))
+  (let ((process (magit-parse-git-async
+                  "blame" "--incremental" args
+                  (and lines (list "-L" (apply #'format "%s,%s" lines)))
+                  revision "--" file)))
     (set-process-filter   process 'magit-blame-process-filter)
     (set-process-sentinel process 'magit-blame-process-sentinel)
     (process-put process 'arguments (list revision file args))
+    (with-current-buffer (process-buffer process)
+      (setq magit-blame-cache (make-hash-table :test 'equal)))
     (setq magit-blame-process process)))
 
 (defun magit-blame-process-quickstart-sentinel (process event)
   (when (memq (process-status process) '(exit signal))
-    (magit-blame-process-sentinel process event)
+    (magit-blame-process-sentinel process event t)
     (magit-blame-assert-buffer process)
     (with-current-buffer (process-get process 'command-buf)
       (when magit-blame-mode
@@ -322,73 +323,53 @@ only arguments available from `magit-blame-popup' should be used.
           (apply #'magit-blame-run-process
                  (process-get process 'arguments)))))))
 
-(defun magit-blame-process-sentinel (process event)
+(defun magit-blame-process-sentinel (process _event &optional quiet)
   (let ((status (process-status process)))
     (when (memq status '(exit signal))
-      (magit-process-sentinel process event)
+      (kill-buffer (process-buffer process))
       (if (and (eq status 'exit)
                (zerop (process-exit-status process)))
-          (message "Blaming...done")
+          (unless quiet
+            (message "Blaming...done"))
         (magit-blame-assert-buffer process)
         (with-current-buffer (process-get process 'command-buf)
           (magit-blame-mode -1))
         (message "Blaming...failed")))))
 
-(defvar magit-blame-log nil
-  "Whether to log blame output to the process buffer.
-This is intended for debugging purposes.")
-
 (defun magit-blame-process-filter (process string)
-  (when magit-blame-log
-    (magit-process-filter process string))
-  (--when-let (process-get process 'partial-line)
-    (setq string (concat it string))
-    (setf (process-get process 'partial-line) nil))
-  (magit-blame-assert-buffer process)
-  (with-current-buffer (process-get process 'command-buf)
-    (when (and magit-blame-mode
-               (zerop (process-exit-status process)))
-      (let ((chunk (process-get process 'chunk))
-            (lines (split-string string "\n" t)))
-        (unless (string-match-p "\n\\'" string)
-          (process-put process 'chunk chunk)
-          (process-put process 'partial-line (car (last lines)))
-          (setq lines (butlast lines)))
-        (dolist (line lines)
-          (cond
-           ((equal line ""))
-           ((not chunk)
-            (string-match
-             "^\\(.\\{40\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)" line)
-            (setq chunk
-                  (list :hash (let ((hash (match-string 1 line)))
-                                (unless (equal hash (make-string 40 ?0))
-                                  hash))
-                        :previous-start (string-to-number (match-string 2 line))
-                        :start (string-to-number (match-string 3 line))
-                        :lines (string-to-number (match-string 4 line)))))
-           ((string-match "^filename \\(.+\\)" line)
-            (let* ((hash (plist-get chunk :hash))
-                   (file (match-string 1 line)))
-              (--if-let (gethash hash magit-blame-cache)
-                  (setq chunk (nconc chunk it))
-                (plist-put chunk :filename file)
-                (puthash hash chunk magit-blame-cache)))
-            (magit-blame-make-overlay chunk)
-            (setq chunk nil))
-           ((string-match "^previous \\(.\\{40\\}\\) \\(.+\\)" line)
-            (plist-put chunk :previous-hash (match-string 1 line))
-            (plist-put chunk :previous-file (match-string 2 line)))
-           ((string-match "^\\([^ ]+?-mail\\) <\\([^>]+\\)>" line)
-            (plist-put chunk (intern (concat ":" (match-string 1 line)))
-                       (string-to-number (match-string 2 line))))
-           ((string-match "^\\([^ ]+?-\\(?:time\\|tz\\)\\) \\(.+\\)" line)
-            (plist-put chunk (intern (concat ":" (match-string 1 line)))
-                       (string-to-number (match-string 2 line))))
-           ((string-match "^\\([^ ]+\\) \\(.+\\)" line)
-            (plist-put chunk (intern (concat ":" (match-string 1 line)))
-                       (match-string 2 line))))
-          (process-put process 'chunk chunk))))))
+  (internal-default-process-filter process string)
+  (let ((buf  (process-get process 'command-buf))
+        (pos  (process-get process 'parsed))
+        (mark (process-mark process)))
+    (with-current-buffer (process-buffer process)
+      (goto-char pos)
+      (let (end rev chunk alist)
+        (while (and (< (point) mark)
+                    (save-excursion
+                      (setq end (re-search-forward "^filename .+\n" nil t))))
+          (looking-at "^\\(.\\{40\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)")
+          (magit-bind-match-strings (r sourceline resultline lines) nil
+            (setq rev r)
+            (setq chunk (list r   nil (string-to-number resultline)
+                              nil nil (string-to-number sourceline)
+                              (string-to-number lines))))
+          (forward-line)
+          (while (< (point) end)
+            (cond ((looking-at "^filename \\(.+\\)")
+                   (setf (nth 1 chunk) (match-string 1)))
+                  ((looking-at "^previous \\(.\\{40\\}\\) \\(.+\\)")
+                   (setf (nth 3 chunk) (match-string 1))
+                   (setf (nth 4 chunk) (match-string 2)))
+                  ((looking-at "^\\([^ ]+\\) \\(.+\\)")
+                   (push (cons (match-string 1)
+                               (match-string 2)) alist)))
+            (forward-line))
+          (if alist
+              (puthash rev alist magit-blame-cache)
+            (setq alist (gethash rev magit-blame-cache)))
+          (magit-blame-make-overlay buf chunk alist)
+          (setq alist nil)
+          (process-put process 'parsed (point)))))))
 
 (defun magit-blame-assert-buffer (process)
   (unless (buffer-live-p (process-get process 'command-buf))
@@ -397,26 +378,27 @@ This is intended for debugging purposes.")
 
 ;;; Display
 
-(defun magit-blame-make-overlay (chunk)
-  (let ((ov (save-excursion
-              (save-restriction
-                (widen)
-                (goto-char (point-min))
-                (forward-line (1- (plist-get chunk :start)))
-                (--when-let (--first (overlay-get it 'magit-blame)
-                                     (overlays-at (point)))
-                  (delete-overlay it))
-                (make-overlay (point)
-                              (progn (forward-line
-                                      (plist-get chunk :lines))
-                                     (point))))))
-        (heading (magit-blame-format-heading chunk)))
-    (overlay-put ov 'magit-blame chunk)
-    (overlay-put ov 'magit-blame-heading heading)
-    (overlay-put ov 'before-string
-                 (if magit-blame-show-headings
-                     heading
-                   magit-blame-separator))))
+(defun magit-blame-make-overlay (buf chunk alist)
+  (with-current-buffer buf
+    (pcase-let* ((`(,rev ,_ ,start ,_ ,_ ,_ ,lines) chunk)
+                 (ov (save-excursion
+                       (save-restriction
+                         (widen)
+                         (goto-char (point-min))
+                         (forward-line (1- start))
+                         (--when-let (--first (overlay-get it 'magit-blame)
+                                              (overlays-at (point)))
+                           (delete-overlay it))
+                         (make-overlay (point)
+                                       (progn (forward-line lines)
+                                              (point))))))
+                 (heading (magit-blame-format-heading rev alist)))
+      (overlay-put ov 'magit-blame chunk)
+      (overlay-put ov 'magit-blame-heading heading)
+      (overlay-put ov 'before-string
+                   (if magit-blame-show-headings
+                       heading
+                     magit-blame-separator)))))
 
 (defun magit-blame-format-separator ()
   (propertize
@@ -424,30 +406,31 @@ This is intended for debugging purposes.")
            (propertize "\n" 'line-height t))
    'face (list :background (face-attribute 'magit-blame-heading :background))))
 
-(defun magit-blame-format-heading (chunk)
-  (-if-let (rev (plist-get chunk :hash))
-      (magit--format-spec
-       (propertize (concat magit-blame-heading-format "\n")
-                   'face 'magit-blame-heading)
-       `((?H . ,(propertize (or (plist-get chunk :hash) "")
-                            'face 'magit-blame-hash))
-         (?s . ,(propertize (or (plist-get chunk :summary) "")
-                            'face 'magit-blame-summary))
-         (?a . ,(propertize (or (plist-get chunk :author) "")
-                            'face 'magit-blame-name))
-         (?c . ,(propertize (or (plist-get chunk :committer) "")
-                            'face 'magit-blame-name))
-         (?A . ,(propertize (magit-blame-format-time-string
-                             (plist-get chunk :author-time)
-                             (plist-get chunk :author-tz))
-                            'face 'magit-blame-date))
-         (?C . ,(propertize (magit-blame-format-time-string
-                             (plist-get chunk :committer-time)
-                             (plist-get chunk :committer-tz))
-                            'face 'magit-blame-date))))
-    (propertize "Not Yet Committed\n" 'face 'magit-blame-heading)))
+(defun magit-blame-format-heading (rev alist)
+  (if (equal rev "0000000000000000000000000000000000000000")
+      (propertize "Not Yet Committed\n" 'face 'magit-blame-heading)
+    (magit--format-spec
+     (propertize (concat magit-blame-heading-format "\n")
+                 'face 'magit-blame-heading)
+     `((?H . ,(propertize rev 'face 'magit-blame-hash))
+       (?s . ,(propertize (cdr (assoc "summary" alist))
+                          'face 'magit-blame-summary))
+       (?a . ,(propertize (cdr (assoc "author" alist))
+                          'face 'magit-blame-name))
+       (?c . ,(propertize (cdr (assoc "committer" alist))
+                          'face 'magit-blame-name))
+       (?A . ,(propertize (magit-blame-format-time-string
+                           (cdr (assoc "author-time" alist))
+                           (cdr (assoc "author-tz" alist)))
+                          'face 'magit-blame-date))
+       (?C . ,(propertize (magit-blame-format-time-string
+                           (cdr (assoc "committer-time" alist))
+                           (cdr (assoc "committer-tz" alist)))
+                          'face 'magit-blame-date))))))
 
 (defun magit-blame-format-time-string (time tz)
+  (setq time (string-to-number time))
+  (setq tz   (string-to-number tz))
   (format-time-string
    magit-blame-time-format
    (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
@@ -537,7 +520,9 @@ instead of the hash, like `kill-ring-save' would."
 
 (defun magit-blame-chunk-get (key &optional pos)
   (--when-let (magit-blame-overlay-at pos)
-    (plist-get (overlay-get it 'magit-blame) key)))
+    (if (equal key :hash)
+        (car (overlay-get it 'magit-blame) key)
+      (error "Not implemented"))))
 
 (defun magit-blame-overlay-at (&optional pos)
   (--first (overlay-get it 'magit-blame)
