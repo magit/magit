@@ -425,27 +425,29 @@ This is intended for debugging purposes.")
    'face (list :background (face-attribute 'magit-blame-heading :background))))
 
 (defun magit-blame-format-heading (chunk)
-  (magit--format-spec
-   (propertize (concat magit-blame-heading-format "\n")
-               'face 'magit-blame-heading)
-   `((?H . ,(propertize (or (plist-get chunk :hash) "")
-                        'face 'magit-blame-hash))
-     (?s . ,(propertize (or (plist-get chunk :summary) "")
-                        'face 'magit-blame-summary))
-     (?a . ,(propertize (or (plist-get chunk :author) "")
-                        'face 'magit-blame-name))
-     (?A . ,(propertize (magit-blame-format-time-string
-                         magit-blame-time-format
-                         (plist-get chunk :author-time)
-                         (plist-get chunk :author-tz))
-                        'face 'magit-blame-date))
-     (?c . ,(propertize (or (plist-get chunk :committer) "")
-                        'face 'magit-blame-name))
-     (?C . ,(propertize (magit-blame-format-time-string
-                         magit-blame-time-format
-                         (plist-get chunk :committer-time)
-                         (plist-get chunk :committer-tz))
-                        'face 'magit-blame-date)))))
+  (-if-let (rev (plist-get chunk :hash))
+      (magit--format-spec
+       (propertize (concat magit-blame-heading-format "\n")
+                   'face 'magit-blame-heading)
+       `((?H . ,(propertize (or (plist-get chunk :hash) "")
+                            'face 'magit-blame-hash))
+         (?s . ,(propertize (or (plist-get chunk :summary) "")
+                            'face 'magit-blame-summary))
+         (?a . ,(propertize (or (plist-get chunk :author) "")
+                            'face 'magit-blame-name))
+         (?A . ,(propertize (magit-blame-format-time-string
+                             magit-blame-time-format
+                             (plist-get chunk :author-time)
+                             (plist-get chunk :author-tz))
+                            'face 'magit-blame-date))
+         (?c . ,(propertize (or (plist-get chunk :committer) "")
+                            'face 'magit-blame-name))
+         (?C . ,(propertize (magit-blame-format-time-string
+                             magit-blame-time-format
+                             (plist-get chunk :committer-time)
+                             (plist-get chunk :committer-tz))
+                            'face 'magit-blame-date))))
+    (propertize "Not Yet Committed\n" 'face 'magit-blame-heading)))
 
 (defun magit-blame-format-time-string (format time tz)
   (format-time-string
