@@ -390,7 +390,10 @@ only arguments available from `magit-blame-popup' should be used.
                          (make-overlay (point)
                                        (progn (forward-line lines)
                                               (point))))))
-                 (heading (magit-blame-format-heading rev alist)))
+                 (heading (cdr (assq 'heading alist))))
+      (unless heading
+        (setq heading (magit-blame-format-heading rev alist))
+        (nconc alist (list (cons 'heading heading))))
       (overlay-put ov 'magit-blame chunk)
       (overlay-put ov 'magit-blame-heading heading)
       (overlay-put ov 'before-string
