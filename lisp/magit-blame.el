@@ -293,34 +293,34 @@ only arguments available from `magit-blame-popup' should be used.
           (magit-blame-mode 1)
           (setq-local magit-blame-show-headings show-headings))
         (message "Blaming...")
-        (let ((magit-process-popup-time -1)
-              (inhibit-magit-refresh t))
-          (magit-run-git-async
-           "blame" "--incremental" args
-           "-L" (format "%s,%s"
-                        (line-number-at-pos (window-start))
-                        (line-number-at-pos (1- (window-end nil t))))
-           revision "--" file))
-        (setq magit-blame-process magit-this-process)
-        (set-process-filter magit-this-process 'magit-blame-process-filter)
-        (set-process-sentinel
-         magit-this-process
-         `(lambda (process event)
-            (when (memq (process-status process) '(exit signal))
-              (magit-process-sentinel process event)
-              (magit-blame-assert-buffer process)
-              (with-current-buffer (process-get process 'command-buf)
-                (when magit-blame-mode
-                  (let ((magit-process-popup-time -1)
-                        (inhibit-magit-refresh t)
-                        (default-directory ,default-directory))
-                    (magit-run-git-async "blame" "--incremental" ,@args
-                                         ,revision "--" ,file))
-                  (setq magit-blame-process magit-this-process)
-                  (set-process-filter
-                   magit-this-process 'magit-blame-process-filter)
-                  (set-process-sentinel
-                   magit-this-process 'magit-blame-process-sentinel))))))))))
+        (magit-blame-run-process
+         revision file args
+         (list (line-number-at-pos (window-start))
+               (line-number-at-pos (1- (window-end nil t)))))
+        (set-process-sentinel magit-this-process
+                              'magit-blame-process-quickstart-sentinel)))))
+
+(defun magit-blame-run-process (revision file args &optional lines)
+  (let* ((magit-process-popup-time -1)
+         (inhibit-magit-refresh t)
+         (process (magit-run-git-async
+                   "blame" "--incremental" args
+                   (and lines (list "-L" (apply #'format "%s,%s" lines)))
+                   revision "--" file)))
+    (set-process-filter   process 'magit-blame-process-filter)
+    (set-process-sentinel process 'magit-blame-process-sentinel)
+    (process-put process 'arguments (list revision file args))
+    (setq magit-blame-process process)))
+
+(defun magit-blame-process-quickstart-sentinel (process event)
+  (when (memq (process-status process) '(exit signal))
+    (magit-blame-process-sentinel process event)
+    (magit-blame-assert-buffer process)
+    (with-current-buffer (process-get process 'command-buf)
+      (when magit-blame-mode
+        (let ((default-directory (magit-toplevel)))
+          (apply #'magit-blame-run-process
+                 (process-get process 'arguments)))))))
 
 (defun magit-blame-process-sentinel (process event)
   (let ((status (process-status process)))
