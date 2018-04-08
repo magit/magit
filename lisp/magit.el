@@ -274,7 +274,7 @@ own faces for the `header-line', or for parts of the
              ("C-h m" "show all key bindings"    describe-mode)
              (lambda ()
                (and (with-current-buffer magit-pre-popup-buffer
-                      buffer-file-name)
+                      (or buffer-file-name magit-buffer-file-name))
                     (propertize "File commands" 'face 'magit-popup-heading)))
              ,@magit-file-popup-actions)
   :setup-function 'magit-dispatch-popup-setup
