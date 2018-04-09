@@ -308,8 +308,7 @@ only arguments available from `magit-blame-popup' should be used.
     (set-process-filter   process 'magit-blame-process-filter)
     (set-process-sentinel process 'magit-blame-process-sentinel)
     (process-put process 'arguments (list revision file args))
-    (with-current-buffer (process-buffer process)
-      (setq magit-blame-cache (make-hash-table :test 'equal)))
+    (setq magit-blame-cache (make-hash-table :test 'equal))
     (setq magit-blame-process process)))
 
 (defun magit-blame-process-quickstart-sentinel (process event)
@@ -339,7 +338,10 @@ only arguments available from `magit-blame-popup' should be used.
   (internal-default-process-filter process string)
   (let ((buf  (process-get process 'command-buf))
         (pos  (process-get process 'parsed))
-        (mark (process-mark process)))
+        (mark (process-mark process))
+        cache)
+    (with-current-buffer buf
+      (setq cache magit-blame-cache))
     (with-current-buffer (process-buffer process)
       (goto-char pos)
       (let (end rev chunk alist)
@@ -364,8 +366,8 @@ only arguments available from `magit-blame-popup' should be used.
                                (match-string 2)) alist)))
             (forward-line))
           (if alist
-              (puthash rev alist magit-blame-cache)
-            (setq alist (gethash rev magit-blame-cache)))
+              (puthash rev alist cache)
+            (setq alist (gethash rev cache)))
           (magit-blame-make-overlay buf chunk alist)
           (setq alist nil)
           (process-put process 'parsed (point)))))))
