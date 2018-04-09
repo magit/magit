@@ -230,7 +230,7 @@ modes is toggled, then this mode also gets toggled automatically.
   (magit-blame-read-only-mode (if buffer-read-only 1 -1)))
 
 (defun magit-blame-after-save-refresh ()
-  (apply 'magit-blame
+  (apply 'magit-blame--run
          (nconc (magit-blame-arguments* magit-blame-reverse-p t)
                 (list nil t))))
 
@@ -289,7 +289,7 @@ modes is toggled, then this mode also gets toggled automatically.
   "For each line show the last revision in which a line still existed.
 \n(fn REVISION FILE &optional ARGS)" ; LINE is for internal use
   (interactive (magit-blame-arguments* t))
-  (magit-blame revision file (cons "--reverse" args) line))
+  (magit-blame--run revision file (cons "--reverse" args) line))
 
 ;;;###autoload
 (defun magit-blame (revision file &optional args line force)
@@ -309,6 +309,9 @@ ARGS is a list of additional arguments to pass to `git blame';
 only arguments available from `magit-blame-popup' should be used.
 \n(fn REVISION FILE &optional ARGS)" ; LINE is for internal use
   (interactive (magit-blame-arguments* nil))
+  (magit-blame--run revision file args line force))
+
+(defun magit-blame--run (revision file &optional args line force)
   (let ((toplevel (or (magit-toplevel)
                       (user-error "Not in git repository"))))
     (let ((default-directory toplevel))
