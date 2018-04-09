@@ -216,12 +216,15 @@ modes is toggled, then this mode also gets toggled automatically.
            (funcall mode 1))
          (when (process-live-p magit-blame-process)
            (kill-process magit-blame-process))
-         (save-excursion
-           (save-restriction
-             (widen)
-             (dolist (ov (overlays-in (point-min) (point-max)))
-               (when (overlay-get ov 'magit-blame)
-                 (delete-overlay ov))))))))
+         (magit-blame--clear-overlays))))
+
+(defun magit-blame--clear-overlays ()
+  (save-excursion
+    (save-restriction
+      (widen)
+      (dolist (ov (overlays-in (point-min) (point-max)))
+        (when (overlay-get ov 'magit-blame)
+          (delete-overlay ov))))))
 
 (defun magit-blame-toggle-read-only ()
   (magit-blame-read-only-mode (if buffer-read-only 1 -1)))
