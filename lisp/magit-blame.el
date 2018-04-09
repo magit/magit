@@ -536,7 +536,7 @@ instead of the hash, like `kill-ring-save' would."
       (run-with-idle-timer
        magit-update-other-window-delay nil
        (lambda ()
-         (-let [(rev buf) magit--update-revision-buffer]
+         (pcase-let ((`(,rev ,buf) magit--update-revision-buffer))
            (setq magit--update-revision-buffer nil)
            (when (buffer-live-p buf)
              (let ((magit-display-buffer-noselect t))
