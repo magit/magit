@@ -230,9 +230,7 @@ modes is toggled, then this mode also gets toggled automatically.
   (magit-blame-read-only-mode (if buffer-read-only 1 -1)))
 
 (defun magit-blame-after-save-refresh ()
-  (apply 'magit-blame--run
-         (nconc (magit-blame-arguments* magit-blame-type t)
-                (list nil t))))
+  (magit-blame--run magit-blame-type))
 
 (defun auto-revert-handler--unless-magit-blame-mode ()
   "If Magit-Blame mode is on, then do nothing.  See #1731."
@@ -265,83 +263,22 @@ modes is toggled, then this mode also gets toggled automatically.
 
 ;;; Process
 
-(defun magit-blame-arguments* (type &optional refresh)
-  (let ((args (magit-blame-arguments)))
-    (when (and (eq type 'final)
-               buffer-file-name)
-      (user-error "Only blob buffers can be blamed in reverse"))
-    (if (and magit-blame-mode
-             (not refresh)
-             (eq type magit-blame-type))
-        (with-slots (orig-rev orig-line orig-file)
-            (magit-blame-chunk)
-          (if orig-rev
-              (list orig-rev orig-file args magit-blame-type orig-line)
-            (user-error "Block has no further history")))
-      (--if-let (magit-file-relative-name nil (not magit-buffer-file-name))
-          (list (or magit-buffer-refname magit-buffer-revision) it args type)
-        (if buffer-file-name
-            (user-error "Buffer isn't visiting a tracked file")
-          (user-error "Buffer isn't visiting a file"))))))
-
-;;;###autoload
-(defun magit-blame-reverse (revision file &optional args type line)
-  "For each line show the last revision in which a line still existed."
-  (interactive (magit-blame-arguments* 'final))
-  (magit-blame--run revision file args type line))
-
-;;;###autoload
-(defun magit-blame (revision file &optional args type line force)
-  "For each line show the revision that last touched it.
-
-Interactively blame the file being visited in the current buffer.
-If the buffer visits a revision of that file, then blame up to
-that revision, otherwise blame the file's full history, including
-uncommitted changes.
-
-If Magit-Blame mode is already turned on then blame recursively,
-by visiting REVISION:FILE (using `magit-find-file'), where
-revision is a parent of the revision that added the lines at
-point.
-
-ARGS is a list of additional arguments to pass to `git blame';
-only arguments available from `magit-blame-popup' should be used."
-  (interactive (magit-blame-arguments* 'addition))
-  (magit-blame--run revision file args type line force))
-
-(defun magit-blame--run (revision file &optional args type line force)
-  (let ((toplevel (or (magit-toplevel)
-                      (user-error "Not in git repository"))))
-    (let ((default-directory toplevel))
-      (if revision
-          (magit-find-file revision file)
-        (--if-let (find-buffer-visiting file)
-            (progn (switch-to-buffer it)
-                   (save-buffer))
-          (find-file file))))
-    (let ((default-directory toplevel))
-      (widen)
-      (when line
-        (setq magit-blame-recursive-p t)
-        (goto-char (point-min))
-        (forward-line (1- line)))
-      (when (or force
-                (not magit-blame-mode)
-                (not (eq type magit-blame-type)))
-        (setq magit-blame-type type)
-        (let ((show-headings magit-blame-show-headings))
-          (magit-blame-mode 1)
-          (setq-local magit-blame-show-headings show-headings))
-        (message "Blaming...")
-        (magit-blame-run-process
-         revision file
-         (if (eq type 'final)
-             (cons "--reverse" args)
-           args)
-         (list (line-number-at-pos (window-start))
-               (line-number-at-pos (1- (window-end nil t)))))
-        (set-process-sentinel magit-this-process
-                              'magit-blame-process-quickstart-sentinel)))))
+(defun magit-blame--run (type)
+  (magit-with-toplevel
+    (setq magit-blame-type type)
+    (unless magit-blame-mode
+      (magit-blame-mode 1))
+    (message "Blaming...")
+    (magit-blame-run-process
+     (or magit-buffer-refname magit-buffer-revision)
+     (magit-file-relative-name nil (not magit-buffer-file-name))
+     (if (eq type 'final)
+         (cons "--reverse" (magit-blame-arguments))
+       (magit-blame-arguments))
+     (list (line-number-at-pos (window-start))
+           (line-number-at-pos (1- (window-end nil t)))))
+    (set-process-sentinel magit-this-process
+                          'magit-blame-process-quickstart-sentinel)))
 
 (defun magit-blame-run-process (revision file args &optional lines)
   (let ((process (magit-parse-git-async
@@ -491,6 +428,49 @@ only arguments available from `magit-blame-popup' should be used."
         (message "Commit data not available yet.  Still blaming.")))))
 
 ;;; Commands
+
+;;;###autoload
+(defun magit-blame ()
+  "For each line show the revision that last touched it."
+  (interactive)
+  (magit-blame--pre-blame-assert 'addition)
+  (magit-blame--pre-blame-setup 'addition)
+  (magit-blame--run 'addition))
+
+;;;###autoload
+(defun magit-blame-reverse ()
+  "For each line show the last revision in which a line still exists."
+  (interactive)
+  (unless magit-buffer-file-name
+    (user-error "Only blob buffers can be blamed in reverse"))
+  (magit-blame--pre-blame-assert 'final)
+  (magit-blame--pre-blame-setup 'final)
+  (magit-blame--run 'final))
+
+(defun magit-blame--pre-blame-assert (type)
+  (unless (magit-toplevel)
+    (magit--not-inside-repository-error))
+  (if (and magit-blame-mode
+           (eq type magit-blame-type))
+      (-if-let (chunk (magit-current-blame-chunk))
+          (unless (oref chunk prev-rev)
+            (user-error "Chunk has no further history"))
+        (user-error "Commit data not available yet.  Still blaming."))
+    (unless (magit-file-relative-name nil (not magit-buffer-file-name))
+      (if buffer-file-name
+          (user-error "Buffer isn't visiting a tracked file")
+        (user-error "Buffer isn't visiting a file")))))
+
+(defun magit-blame--pre-blame-setup (type)
+  (when magit-blame-mode
+    (if (eq type magit-blame-type)
+        (let ((show-headings magit-blame-show-headings))
+          (magit-blame-visit-prev-file)
+          (setq-local magit-blame-show-headings show-headings)
+          (setq-local magit-blame-recursive-p t)
+          ;; Set window-start for the benefit of quickstart.
+          (redisplay))
+      (magit-blame--clear-overlays))))
 
 (defun magit-blame-visit-prev-file ()
   "Visit the blob before the one that added the current chunk."
