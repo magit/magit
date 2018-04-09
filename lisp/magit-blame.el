@@ -59,6 +59,12 @@ The author and committer time formats can be specified with
   :group 'magit-blame
   :type 'string)
 
+(defcustom magit-blame-read-only t
+  "Whether to initially make the blamed buffer read-only."
+  :package-version '(magit . "2.13.0")
+  :group 'magit-blame
+  :type 'boolean)
+
 (defcustom magit-blame-show-headings t
   "Whether to initially show blame block headings.
 The headings can also be toggled locally using command
@@ -121,7 +127,7 @@ and then turned on again when turning off the latter."
 
 ;;; Mode
 
-(defvar magit-blame-mode-map
+(defvar magit-blame-read-only-mode-map
   (let ((map (make-sparse-keymap)))
     (cond ((featurep 'jkl)
            (define-key map [return]    'magit-show-commit)
@@ -147,11 +153,24 @@ and then turned on again when turning off the latter."
     (define-key map (kbd "SPC") 'magit-diff-show-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-diff-show-or-scroll-down)
     map)
-  "Keymap for `magit-blame-mode'.")
+  "Keymap for `magit-blame-read-only-mode'.")
+
+(define-minor-mode magit-blame-read-only-mode
+  "Provide keybindings for Magit-Blame mode.
+
+This minor-mode provides the key bindings for Magit-Blame mode,
+but only when Read-Only mode is also enabled because these key
+bindings would otherwise conflict badly with regular bindings.
+
+When both Magit-Blame mode and Read-Only mode are enabled, then
+this mode gets automatically enabled too and when one of these
+modes is toggled, then this mode also gets toggled automatically.
+
+\\{magit-blame-read-only-mode-map}")
 
 (defun magit-blame-put-keymap-before-view-mode ()
-  "Put `magit-blame-mode' ahead of `view-mode' in `minor-mode-map-alist'."
-  (--when-let (assq 'magit-blame-mode
+  "Put `magit-blame-read-only-mode' ahead of `view-mode' in `minor-mode-map-alist'."
+  (--when-let (assq 'magit-blame-read-only--mode
                     (cl-member 'view-mode minor-mode-map-alist :key #'car))
     (setq minor-mode-map-alist
           (cons it (delq it minor-mode-map-alist))))
@@ -168,8 +187,7 @@ and then turned on again when turning off the latter."
 (defvar-local magit-blame-separator nil)
 
 (define-minor-mode magit-blame-mode
-  "Display blame information inline.
-\n\\{magit-blame-mode-map}"
+  "Display blame information inline."
   :lighter magit-blame-mode-lighter
   (cond (magit-blame-mode
          (when (called-interactively-p 'any)
@@ -177,16 +195,23 @@ and then turned on again when turning off the latter."
            (user-error
             (concat "Don't call `magit-blame-mode' directly; "
                     "instead use `magit-blame' or `magit-blame-popup'")))
+         (add-hook 'after-save-hook     'magit-blame-after-save-refresh t t)
+         (add-hook 'read-only-mode-hook 'magit-blame-toggle-read-only   t t)
          (setq magit-blame-buffer-read-only buffer-read-only)
-         (read-only-mode 1)
+         (if (or magit-blame-read-only magit-buffer-file-name)
+             (read-only-mode 1)
+           (magit-blame-read-only-mode 1))
          (dolist (mode magit-blame-disable-modes)
            (when (and (boundp mode) (symbol-value mode))
              (funcall mode -1)
              (push mode magit-blame-disabled-modes)))
          (setq magit-blame-separator (magit-blame-format-separator)))
         (t
+         (remove-hook 'after-save-hook     'magit-blame-after-save-refresh t)
+         (remove-hook 'read-only-mode-hook 'magit-blame-toggle-read-only   t)
          (unless magit-blame-buffer-read-only
            (read-only-mode -1))
+         (magit-blame-read-only-mode -1)
          (dolist (mode magit-blame-disabled-modes)
            (funcall mode 1))
          (when (process-live-p magit-blame-process)
@@ -197,6 +222,14 @@ and then turned on again when turning off the latter."
              (dolist (ov (overlays-in (point-min) (point-max)))
                (when (overlay-get ov 'magit-blame)
                  (delete-overlay ov))))))))
+
+(defun magit-blame-toggle-read-only ()
+  (magit-blame-read-only-mode (if buffer-read-only 1 -1)))
+
+(defun magit-blame-after-save-refresh ()
+  (apply 'magit-blame
+         (nconc (magit-blame-arguments* magit-blame-reverse-p t)
+                (list nil t))))
 
 (defun auto-revert-handler--unless-magit-blame-mode ()
   "If Magit-Blame mode is on, then do nothing.  See #1731."
@@ -229,11 +262,12 @@ and then turned on again when turning off the latter."
 
 ;;; Process
 
-(defun magit-blame-arguments* (reverse)
+(defun magit-blame-arguments* (reverse &optional refresh)
   (let ((args (magit-blame-arguments)))
     (when (and reverse buffer-file-name)
       (user-error "Only blob buffers can be blamed in reverse"))
     (if (and magit-blame-mode
+             (not refresh)
              (or (and reverse magit-blame-reverse-p)
                  (and (not reverse)
                       (not magit-blame-reverse-p))))
@@ -255,7 +289,7 @@ and then turned on again when turning off the latter."
   (magit-blame revision file (cons "--reverse" args) line))
 
 ;;;###autoload
-(defun magit-blame (revision file &optional args line)
+(defun magit-blame (revision file &optional args line force)
   "For each line show the revision that last touched it.
 
 Interactively blame the file being visited in the current buffer.
@@ -288,7 +322,8 @@ only arguments available from `magit-blame-popup' should be used.
         (setq magit-blame-recursive-p t)
         (goto-char (point-min))
         (forward-line (1- line)))
-      (when (or (not magit-blame-mode)
+      (when (or force
+                (not magit-blame-mode)
                 (and reverse  (not magit-blame-reverse-p))
                 (and (not reverse) magit-blame-reverse-p))
         (setq magit-blame-reverse-p reverse)
