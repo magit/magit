@@ -78,13 +78,16 @@ and then turned on again when turning off the latter."
   :group 'magit-blame
   :type '(choice (const :tag "No lighter" "") string))
 
-(defcustom magit-blame-goto-chunk-hook '(magit-blame-maybe-update-revision-buffer)
+(defcustom magit-blame-goto-chunk-hook
+  '(magit-blame-maybe-update-revision-buffer
+    magit-blame-maybe-show-message)
   "Hook run by `magit-blame-next-chunk' and `magit-blame-previous-chunk'."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "2.13.0")
   :group 'magit-blame
   :type 'hook
   :get 'magit-hook-custom-get
-  :options '(magit-blame-maybe-update-revision-buffer))
+  :options '(magit-blame-maybe-update-revision-buffer
+             magit-blame-maybe-show-message))
 
 (defface magit-blame-heading
   '((((class color) (background light))
@@ -437,6 +440,15 @@ only arguments available from `magit-blame-popup' should be used.
   (format-time-string
    magit-blame-time-format
    (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
+
+(defun magit-blame-maybe-show-message ()
+  (unless magit-blame-show-headings
+    (let ((message-log-max 0))
+      (--if-let (cdr (assq 'heading
+                           (gethash (car (magit-blame-chunk))
+                                    magit-blame-cache)))
+          (message "%s" (substring it 0 -1))
+        (message "Commit data not available yet.  Still blaming.")))))
 
 ;;; Commands
 

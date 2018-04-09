@@ -3493,8 +3493,13 @@ buffers that are being blamed.
 - User Option: magit-blame-show-headings
 
   This option controls whether blame block headings are initially
-  shown.  The headings can also be toggled locally using the command
-  ~magit-blame-toggle-headings~.
+  shown.  Whether blame headings are shown in the current buffer
+  can be changed using the command ~magit-blame-toggle-headings~.
+
+  When headings are not shown, then the information for the current
+  chunk is shown in the echo-area instead.  If you do not want that,
+  then remove ~magit-blame-maybe-show-message~ from
+  ~magit-blame-goto-chunk-hook~.
 
 - User Option: magit-blame-goto-chunk-hook
 
