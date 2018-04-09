@@ -492,6 +492,29 @@ only arguments available from `magit-blame-popup' should be used."
 
 ;;; Commands
 
+(defun magit-blame-visit-prev-file ()
+  "Visit the blob before the one that added the current chunk."
+  (interactive)
+  (with-slots (prev-rev prev-file orig-line)
+      (magit-current-blame-chunk)
+    (unless prev-rev
+      (user-error "Chunk has no further history"))
+    (magit-with-toplevel
+      (magit-find-file prev-rev prev-file))
+    ;; TODO Adjust line like magit-diff-visit-file.
+    (goto-char (point-min))
+    (forward-line (1- orig-line))))
+
+(defun magit-blame-visit-orig-file ()
+  "Visit the blob that added the current chunk."
+  (interactive)
+  (with-slots (orig-rev orig-file orig-line)
+      (magit-current-blame-chunk)
+    (magit-with-toplevel
+      (magit-find-file orig-rev orig-file))
+    (goto-char (point-min))
+    (forward-line (1- orig-line))))
+
 (defun magit-blame-quit ()
   "Turn off Magit-Blame mode.
 If the buffer was created during a recursive blame,
