@@ -43,7 +43,9 @@
 (defvar gravatar-size)
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
 (declare-function magit-current-blame-chunk "magit-blame" ())
-(eval-when-compile (add-to-list 'eieio--known-slot-names 'orig-rev))
+(eval-when-compile
+  (when (boundp 'eieio--known-slot-names)
+    (add-to-list 'eieio--known-slot-names 'orig-rev)))
 (declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
 (defvar git-rebase-line)
