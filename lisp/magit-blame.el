@@ -183,7 +183,7 @@ modes is toggled, then this mode also gets toggled automatically.
 (defvar-local magit-blame-disabled-modes nil)
 (defvar-local magit-blame-process nil)
 (defvar-local magit-blame-recursive-p nil)
-(defvar-local magit-blame-reverse-p nil)
+(defvar-local magit-blame-type nil)
 (defvar-local magit-blame-separator nil)
 
 (define-minor-mode magit-blame-mode
@@ -231,7 +231,7 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame-after-save-refresh ()
   (apply 'magit-blame--run
-         (nconc (magit-blame-arguments* magit-blame-reverse-p t)
+         (nconc (magit-blame-arguments* magit-blame-type t)
                 (list nil t))))
 
 (defun auto-revert-handler--unless-magit-blame-mode ()
@@ -265,34 +265,32 @@ modes is toggled, then this mode also gets toggled automatically.
 
 ;;; Process
 
-(defun magit-blame-arguments* (reverse &optional refresh)
+(defun magit-blame-arguments* (type &optional refresh)
   (let ((args (magit-blame-arguments)))
-    (when (and reverse buffer-file-name)
+    (when (and (eq type 'final)
+               buffer-file-name)
       (user-error "Only blob buffers can be blamed in reverse"))
     (if (and magit-blame-mode
              (not refresh)
-             (or (and reverse magit-blame-reverse-p)
-                 (and (not reverse)
-                      (not magit-blame-reverse-p))))
+             (eq type magit-blame-type))
         (pcase-let ((`(,_ ,_ ,_ ,rev ,file ,start ,_) (magit-blame-chunk)))
           (if rev
-              (list rev file args start)
+              (list rev file args magit-blame-type start)
             (user-error "Block has no further history")))
       (--if-let (magit-file-relative-name nil (not magit-buffer-file-name))
-          (list (or magit-buffer-refname magit-buffer-revision) it args)
+          (list (or magit-buffer-refname magit-buffer-revision) it args type)
         (if buffer-file-name
             (user-error "Buffer isn't visiting a tracked file")
           (user-error "Buffer isn't visiting a file"))))))
 
 ;;;###autoload
-(defun magit-blame-reverse (revision file &optional args line)
-  "For each line show the last revision in which a line still existed.
-\n(fn REVISION FILE &optional ARGS)" ; LINE is for internal use
-  (interactive (magit-blame-arguments* t))
-  (magit-blame--run revision file (cons "--reverse" args) line))
+(defun magit-blame-reverse (revision file &optional args type line)
+  "For each line show the last revision in which a line still existed."
+  (interactive (magit-blame-arguments* 'final))
+  (magit-blame--run revision file args type line))
 
 ;;;###autoload
-(defun magit-blame (revision file &optional args line force)
+(defun magit-blame (revision file &optional args type line force)
   "For each line show the revision that last touched it.
 
 Interactively blame the file being visited in the current buffer.
@@ -306,12 +304,11 @@ revision is a parent of the revision that added the lines at
 point.
 
 ARGS is a list of additional arguments to pass to `git blame';
-only arguments available from `magit-blame-popup' should be used.
-\n(fn REVISION FILE &optional ARGS)" ; LINE is for internal use
-  (interactive (magit-blame-arguments* nil))
-  (magit-blame--run revision file args line force))
+only arguments available from `magit-blame-popup' should be used."
+  (interactive (magit-blame-arguments* 'addition))
+  (magit-blame--run revision file args type line force))
 
-(defun magit-blame--run (revision file &optional args line force)
+(defun magit-blame--run (revision file &optional args type line force)
   (let ((toplevel (or (magit-toplevel)
                       (user-error "Not in git repository"))))
     (let ((default-directory toplevel))
@@ -321,8 +318,7 @@ only arguments available from `magit-blame-popup' should be used.
             (progn (switch-to-buffer it)
                    (save-buffer))
           (find-file file))))
-    (let ((default-directory toplevel)
-          (reverse (and (member "--reverse" args) t)))
+    (let ((default-directory toplevel))
       (widen)
       (when line
         (setq magit-blame-recursive-p t)
@@ -330,15 +326,17 @@ only arguments available from `magit-blame-popup' should be used.
         (forward-line (1- line)))
       (when (or force
                 (not magit-blame-mode)
-                (and reverse  (not magit-blame-reverse-p))
-                (and (not reverse) magit-blame-reverse-p))
-        (setq magit-blame-reverse-p reverse)
+                (not (eq type magit-blame-type)))
+        (setq magit-blame-type type)
         (let ((show-headings magit-blame-show-headings))
           (magit-blame-mode 1)
           (setq-local magit-blame-show-headings show-headings))
         (message "Blaming...")
         (magit-blame-run-process
-         revision file args
+         revision file
+         (if (eq type 'final)
+             (cons "--reverse" args)
+           args)
          (list (line-number-at-pos (window-start))
                (line-number-at-pos (1- (window-end nil t)))))
         (set-process-sentinel magit-this-process
@@ -498,7 +496,7 @@ only arguments available from `magit-blame-popup' should be used.
 If the buffer was created during a recursive blame,
 then also kill the buffer."
   (interactive)
-  (kill-local-variable 'magit-blame-reverse-p)
+  (kill-local-variable 'magit-blame-type)
   (if magit-blame-recursive-p
       (kill-buffer)
     (magit-blame-mode -1)))
