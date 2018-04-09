@@ -273,9 +273,10 @@ modes is toggled, then this mode also gets toggled automatically.
     (if (and magit-blame-mode
              (not refresh)
              (eq type magit-blame-type))
-        (pcase-let ((`(,_ ,_ ,_ ,rev ,file ,start ,_) (magit-blame-chunk)))
-          (if rev
-              (list rev file args magit-blame-type start)
+        (with-slots (orig-rev orig-line orig-file)
+            (magit-blame-chunk)
+          (if orig-rev
+              (list orig-rev orig-file args magit-blame-type orig-line)
             (user-error "Block has no further history")))
       (--if-let (magit-file-relative-name nil (not magit-buffer-file-name))
           (list (or magit-buffer-refname magit-buffer-revision) it args type)
@@ -391,18 +392,18 @@ only arguments available from `magit-blame-popup' should be used."
                     (save-excursion
                       (setq end (re-search-forward "^filename .+\n" nil t))))
           (looking-at "^\\(.\\{40\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)")
-          (magit-bind-match-strings (r sourceline resultline lines) nil
-            (setq rev r)
-            (setq chunk (list r   nil (string-to-number resultline)
-                              nil nil (string-to-number sourceline)
-                              (string-to-number lines))))
+          (setq chunk (magit-blame-chunk
+                       :orig-rev   (setq rev         (match-string 1))
+                       :orig-line  (string-to-number (match-string 2))
+                       :final-line (string-to-number (match-string 3))
+                       :num-lines  (string-to-number (match-string 4))))
           (forward-line)
           (while (< (point) end)
             (cond ((looking-at "^filename \\(.+\\)")
-                   (setf (nth 1 chunk) (match-string 1)))
+                   (oset chunk orig-file (match-string 1)))
                   ((looking-at "^previous \\(.\\{40\\}\\) \\(.+\\)")
-                   (setf (nth 3 chunk) (match-string 1))
-                   (setf (nth 4 chunk) (match-string 2)))
+                   (oset chunk prev-rev  (match-string 1))
+                   (oset chunk prev-file (match-string 2)))
                   ((looking-at "^\\([^ ]+\\) \\(.+\\)")
                    (push (cons (match-string 1)
                                (match-string 2)) alist)))
@@ -423,27 +424,27 @@ only arguments available from `magit-blame-popup' should be used."
 
 (defun magit-blame-make-overlay (buf chunk alist)
   (with-current-buffer buf
-    (pcase-let* ((`(,rev ,_ ,start ,_ ,_ ,_ ,lines) chunk)
-                 (ov (save-excursion
-                       (save-restriction
-                         (widen)
-                         (goto-char (point-min))
-                         (forward-line (1- start))
-                         (--when-let (magit-blame-overlay-at)
-                           (delete-overlay it))
-                         (make-overlay (point)
-                                       (progn (forward-line lines)
-                                              (point))))))
-                 (heading (cdr (assq 'heading alist))))
-      (unless heading
-        (setq heading (magit-blame-format-heading rev alist))
-        (nconc alist (list (cons 'heading heading))))
-      (overlay-put ov 'magit-blame chunk)
-      (overlay-put ov 'magit-blame-heading heading)
-      (overlay-put ov 'before-string
-                   (if magit-blame-show-headings
-                       heading
-                     magit-blame-separator)))))
+    (with-slots (orig-rev final-line num-lines) chunk
+      (let ((ov (save-excursion
+                  (save-restriction
+                    (widen)
+                    (goto-char (point-min))
+                    (forward-line (1- final-line))
+                    (--when-let (magit-blame-overlay-at)
+                      (delete-overlay it))
+                    (make-overlay (point)
+                                  (progn (forward-line num-lines)
+                                         (point))))))
+            (heading (cdr (assq 'heading alist))))
+        (unless heading
+          (setq heading (magit-blame-format-heading orig-rev alist))
+          (nconc alist (list (cons 'heading heading))))
+        (overlay-put ov 'magit-blame chunk)
+        (overlay-put ov 'magit-blame-heading heading)
+        (overlay-put ov 'before-string
+                     (if magit-blame-show-headings
+                         heading
+                       magit-blame-separator))))))
 
 (defun magit-blame-format-separator ()
   (propertize
@@ -484,7 +485,7 @@ only arguments available from `magit-blame-popup' should be used."
   (unless magit-blame-show-headings
     (let ((message-log-max 0))
       (--if-let (cdr (assq 'heading
-                           (gethash (car (magit-blame-chunk))
+                           (gethash (oref (magit-current-blame-chunk) orig-rev)
                                     magit-blame-cache)))
           (message "%s" (substring it 0 -1))
         (message "Commit data not available yet.  Still blaming.")))))
@@ -520,7 +521,7 @@ then also kill the buffer."
 (defun magit-blame-next-chunk-same-commit (&optional previous)
   "Move to the next chunk from the same commit.\n\n(fn)"
   (interactive)
-  (-if-let (rev (car (magit-blame-chunk)))
+  (-if-let (rev (oref (magit-current-blame-chunk) orig-rev))
       (let ((pos (point)) ov)
         (save-excursion
           (while (and (not ov)
@@ -531,7 +532,7 @@ then also kill the buffer."
                                    'next-single-char-property-change)
                                  pos 'magit-blame)))
             (--when-let (magit-blame-overlay-at pos)
-              (when (equal (car (magit-blame-chunk pos)) rev)
+              (when (equal (oref (magit-blame-chunk-at pos) orig-rev) rev)
                 (setq ov it)))))
         (if ov
             (goto-char (overlay-start ov))
@@ -568,13 +569,28 @@ instead of the hash, like `kill-ring-save' would."
   (interactive)
   (if (use-region-p)
       (copy-region-as-kill nil nil 'region)
-    (kill-new (message "%s" (car (magit-blame-chunk))))))
+    (kill-new (message "%s" (oref (magit-current-blame-chunk) orig-rev)))))
 
 ;;; Utilities
 
-(defun magit-blame-chunk (&optional pos)
+(defclass magit-blame-chunk ()
+  (;; <orig-rev> <orig-line> <final-line> <num-lines>
+   (orig-rev   :initarg :orig-rev)
+   (orig-line  :initarg :orig-line)
+   (final-line :initarg :final-line)
+   (num-lines  :initarg :num-lines)
+   ;; previous <prev-rev> <prev-file>
+   (prev-rev   :initform nil)
+   (prev-file  :initform nil)
+   ;; filename <orig-file>
+   (orig-file)))
+
+(defun magit-current-blame-chunk ()
+  (magit-blame-chunk-at (point)))
+
+(defun magit-blame-chunk-at (pos)
   (--any (overlay-get it 'magit-blame)
-         (overlays-at (or pos (point)))))
+         (overlays-at pos)))
 
 (defun magit-blame-overlay-at (&optional pos)
   (--first (overlay-get it 'magit-blame)
@@ -583,7 +599,8 @@ instead of the hash, like `kill-ring-save' would."
 (defun magit-blame-maybe-update-revision-buffer ()
   (unless magit--update-revision-buffer
     (setq magit--update-revision-buffer nil)
-    (-when-let* ((commit (car (magit-blame-chunk)))
+    (-when-let* ((chunk  (magit-current-blame-chunk))
+                 (commit (oref chunk orig-rev))
                  (buffer (magit-mode-get-buffer 'magit-revision-mode nil t)))
       (setq magit--update-revision-buffer (list commit buffer))
       (run-with-idle-timer

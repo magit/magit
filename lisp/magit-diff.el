@@ -42,7 +42,8 @@
 ;; For `magit-insert-revision-gravatar'
 (defvar gravatar-size)
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
-(declare-function magit-blame-chunk "magit-blame" (&optional pos))
+(declare-function magit-current-blame-chunk "magit-blame" ())
+(eval-when-compile (add-to-list 'eieio--known-slot-names 'orig-rev))
 (declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
 (defvar git-rebase-line)
@@ -1009,7 +1010,7 @@ for a revision."
   (interactive
    (let* ((mcommit (magit-section-when module-commit))
           (atpoint (or (and (bound-and-true-p magit-blame-mode)
-                            (car (magit-blame-chunk)))
+                            (oref (magit-current-blame-chunk) orig-rev))
                        mcommit
                        (magit-branch-or-commit-at-point))))
      (nconc (cons (or (and (not current-prefix-arg) atpoint)
@@ -1476,7 +1477,7 @@ commit or stash at point, then prompt for a commit."
   (let (rev cmd buf win)
     (cond
      (magit-blame-mode
-      (setq rev (car (magit-blame-chunk)))
+      (setq rev (oref (magit-current-blame-chunk) orig-rev))
       (setq cmd 'magit-show-commit)
       (setq buf (magit-mode-get-buffer 'magit-revision-mode)))
      ((derived-mode-p 'git-rebase-mode)
