@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.12.1 (2.12.1-9-g9453a96ff+1)
+#+SUBTITLE: for version 2.12.1 (2.12.1-38-g5a41957d4+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.12.1 (2.12.1-9-g9453a96ff+1).
+This manual is for Magit version 2.12.1 (2.12.1-38-g5a41957d4+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -7694,6 +7694,13 @@ consider ambiguous refnames unsupported and recommend that you use a
 non-ambiguous naming scheme.  However, if you do work with a
 repository that has ambiguous refnames, please report any issues you
 encounter so that we can investigate whether there is a simple fix.
+
+*** My Git hooks work on the command line but not in Magit
+
+When Magit calls ~git~ it adds a few global arguments including
+~--literal-pathspecs~ and the ~git~ process started by Magit then passes
+that setting on to other ~git~ process it starts itself.  This setting
+can be reverted in hook scripts using ~unset GIT_LITERAL_PATHSPECS~.
 
 * Debugging Tools
 

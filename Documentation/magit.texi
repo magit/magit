@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.12.1 (2.12.1-9-g9453a96ff+1)
+@subtitle for version 2.12.1 (2.12.1-38-g5a41957d4+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.12.1 (2.12.1-9-g9453a96ff+1).
+This manual is for Magit version 2.12.1 (2.12.1-38-g5a41957d4+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -324,6 +324,7 @@ FAQ - Issues and Errors
 * The mode-line information isn't always up-to-date::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
 * A branch and tag sharing the same name breaks SOMETHING::
+* My Git hooks work on the command line but not in Magit::
 
 
 @end detailmenu
@@ -4746,8 +4747,13 @@ The format string used for time strings in blame headings.
 @defopt magit-blame-show-headings
 
 This option controls whether blame block headings are initially
-shown.  The headings can also be toggled locally using the command
-@code{magit-blame-toggle-headings}.
+shown.  Whether blame headings are shown in the current buffer
+can be changed using the command @code{magit-blame-toggle-headings}.
+
+When headings are not shown, then the information for the current
+chunk is shown in the echo-area instead.  If you do not want that,
+then remove @code{magit-blame-maybe-show-message} from
+@code{magit-blame-goto-chunk-hook}.
 @end defopt
 
 @defopt magit-blame-goto-chunk-hook
@@ -10036,6 +10042,7 @@ conflicts.
 * The mode-line information isn't always up-to-date::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
 * A branch and tag sharing the same name breaks SOMETHING::
+* My Git hooks work on the command line but not in Magit::
 @end menu
 
 @node Magit is slow
@@ -10185,6 +10192,14 @@ consider ambiguous refnames unsupported and recommend that you use a
 non-ambiguous naming scheme.  However, if you do work with a
 repository that has ambiguous refnames, please report any issues you
 encounter so that we can investigate whether there is a simple fix.
+
+@node My Git hooks work on the command line but not in Magit
+@appendixsubsec My Git hooks work on the command line but not in Magit
+
+When Magit calls @code{git} it adds a few global arguments including
+@code{--literal-pathspecs} and the @code{git} process started by Magit then passes
+that setting on to other @code{git} process it starts itself.  This setting
+can be reverted in hook scripts using @code{unset GIT_LITERAL_PATHSPECS}.
 
 @node Debugging Tools
 @chapter Debugging Tools
