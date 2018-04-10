@@ -195,8 +195,8 @@ modes is toggled, then this mode also gets toggled automatically.
            (user-error
             (concat "Don't call `magit-blame-mode' directly; "
                     "instead use `magit-blame' or `magit-blame-popup'")))
-         (add-hook 'after-save-hook     'magit-blame-after-save-refresh t t)
-         (add-hook 'read-only-mode-hook 'magit-blame-toggle-read-only   t t)
+         (add-hook 'after-save-hook     'magit-blame--run t t)
+         (add-hook 'read-only-mode-hook 'magit-blame-toggle-read-only t t)
          (setq magit-blame-buffer-read-only buffer-read-only)
          (if (or magit-blame-read-only magit-buffer-file-name)
              (read-only-mode 1)
@@ -207,8 +207,8 @@ modes is toggled, then this mode also gets toggled automatically.
              (push mode magit-blame-disabled-modes)))
          (setq magit-blame-separator (magit-blame-format-separator)))
         (t
-         (remove-hook 'after-save-hook     'magit-blame-after-save-refresh t)
-         (remove-hook 'read-only-mode-hook 'magit-blame-toggle-read-only   t)
+         (remove-hook 'after-save-hook     'magit-blame--run t)
+         (remove-hook 'read-only-mode-hook 'magit-blame-toggle-read-only t)
          (unless magit-blame-buffer-read-only
            (read-only-mode -1))
          (magit-blame-read-only-mode -1)
@@ -228,9 +228,6 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame-toggle-read-only ()
   (magit-blame-read-only-mode (if buffer-read-only 1 -1)))
-
-(defun magit-blame-after-save-refresh ()
-  (magit-blame--run magit-blame-type))
 
 (defun auto-revert-handler--unless-magit-blame-mode ()
   "If Magit-Blame mode is on, then do nothing.  See #1731."
@@ -288,16 +285,15 @@ modes is toggled, then this mode also gets toggled automatically.
 
 ;;; Process
 
-(defun magit-blame--run (type)
+(defun magit-blame--run ()
   (magit-with-toplevel
-    (setq magit-blame-type type)
     (unless magit-blame-mode
       (magit-blame-mode 1))
     (message "Blaming...")
     (magit-blame-run-process
      (or magit-buffer-refname magit-buffer-revision)
      (magit-file-relative-name nil (not magit-buffer-file-name))
-     (if (eq type 'final)
+     (if (memq magit-blame-type '(final removal))
          (cons "--reverse" (magit-blame-arguments))
        (magit-blame-arguments))
      (list (line-number-at-pos (window-start))
@@ -459,8 +455,8 @@ modes is toggled, then this mode also gets toggled automatically.
   "For each line show the revision that last touched it."
   (interactive)
   (magit-blame--pre-blame-assert 'addition)
-  (magit-blame--pre-blame-setup 'addition)
-  (magit-blame--run 'addition))
+  (magit-blame--pre-blame-setup  'addition)
+  (magit-blame--run))
 
 ;;;###autoload
 (defun magit-blame-reverse ()
@@ -469,8 +465,8 @@ modes is toggled, then this mode also gets toggled automatically.
   (unless magit-buffer-file-name
     (user-error "Only blob buffers can be blamed in reverse"))
   (magit-blame--pre-blame-assert 'final)
-  (magit-blame--pre-blame-setup 'final)
-  (magit-blame--run 'final))
+  (magit-blame--pre-blame-setup  'final)
+  (magit-blame--run))
 
 (defun magit-blame--pre-blame-assert (type)
   (unless (magit-toplevel)
@@ -495,7 +491,8 @@ modes is toggled, then this mode also gets toggled automatically.
           (setq-local magit-blame-recursive-p t)
           ;; Set window-start for the benefit of quickstart.
           (redisplay))
-      (magit-blame--clear-overlays))))
+      (magit-blame--clear-overlays)))
+  (setq magit-blame-type type))
 
 (defun magit-blame-visit-prev-file ()
   "Visit the blob before the one that added the current chunk."
