@@ -261,6 +261,31 @@ modes is toggled, then this mode also gets toggled automatically.
   :max-action-columns 1
   :default-action 'magit-blame)
 
+;;; Chunks
+
+(defclass magit-blame-chunk ()
+  (;; <orig-rev> <orig-line> <final-line> <num-lines>
+   (orig-rev   :initarg :orig-rev)
+   (orig-line  :initarg :orig-line)
+   (final-line :initarg :final-line)
+   (num-lines  :initarg :num-lines)
+   ;; previous <prev-rev> <prev-file>
+   (prev-rev   :initform nil)
+   (prev-file  :initform nil)
+   ;; filename <orig-file>
+   (orig-file)))
+
+(defun magit-current-blame-chunk ()
+  (magit-blame-chunk-at (point)))
+
+(defun magit-blame-chunk-at (pos)
+  (--any (overlay-get it 'magit-blame)
+         (overlays-at pos)))
+
+(defun magit-blame-overlay-at (&optional pos)
+  (--first (overlay-get it 'magit-blame)
+           (overlays-at (or pos (point)))))
+
 ;;; Process
 
 (defun magit-blame--run (type)
@@ -575,29 +600,6 @@ instead of the hash, like `kill-ring-save' would."
     (kill-new (message "%s" (oref (magit-current-blame-chunk) orig-rev)))))
 
 ;;; Utilities
-
-(defclass magit-blame-chunk ()
-  (;; <orig-rev> <orig-line> <final-line> <num-lines>
-   (orig-rev   :initarg :orig-rev)
-   (orig-line  :initarg :orig-line)
-   (final-line :initarg :final-line)
-   (num-lines  :initarg :num-lines)
-   ;; previous <prev-rev> <prev-file>
-   (prev-rev   :initform nil)
-   (prev-file  :initform nil)
-   ;; filename <orig-file>
-   (orig-file)))
-
-(defun magit-current-blame-chunk ()
-  (magit-blame-chunk-at (point)))
-
-(defun magit-blame-chunk-at (pos)
-  (--any (overlay-get it 'magit-blame)
-         (overlays-at pos)))
-
-(defun magit-blame-overlay-at (&optional pos)
-  (--first (overlay-get it 'magit-blame)
-           (overlays-at (or pos (point)))))
 
 (defun magit-blame-maybe-update-revision-buffer ()
   (unless magit--update-revision-buffer
