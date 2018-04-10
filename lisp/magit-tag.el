@@ -67,6 +67,7 @@ defaulting to the tag at point.
                        (magit-read-tag "Delete tag" t))))
   (magit-run-git "tag" "-d" tags))
 
+;;;###autoload
 (defun magit-tag-prune (tags remote-tags remote)
   "Offer to delete tags missing locally from REMOTE, and vice versa."
   (interactive
@@ -94,6 +95,38 @@ defaulting to the tag at point.
     (magit-call-git "tag" "-d" tags))
   (when remote-tags
     (magit-run-git-async "push" remote (--map (concat ":" it) remote-tags))))
+
+;;;###autoload
+(defun magit-tag-release (tag)
+  "Create an opinionated release tag.
+
+Assume version tags that match \"\\\\`v?[0-9]\\\\(\\\\.[0-9]\\\\)*\\\\'\".
+Prompt for the name of the new tag using the highest existing tag
+as initial input and call \"git tag --annotate --sign -m MSG\" TAG,
+regardless of whether these arguments are enabled in the popup.
+Given a TAG \"v1.2.3\" and a repository \"/path/to/foo-bar\", the
+MESSAGE would be \"Foo-Bar 1.2.3\".
+
+Because it is so opinionated, this command is not available from
+the tag popup by default."
+  (interactive
+   (list (read-string "Create tag: "
+                      (car (nreverse
+                            (cl-sort (magit-list-tags) #'version<
+                                     :key (lambda (tag)
+                                            (if (string-prefix-p "v" tag)
+                                                (substring tag 1)
+                                              tag))))))))
+  (magit-run-git
+   "tag" "--annotate" "--sign"
+   "-m" (format "%s %s"
+                (capitalize (file-name-nondirectory
+                             (directory-file-name (magit-toplevel))))
+                (if (string-prefix-p "v" tag)
+                    (substring tag 1)
+                  tag))
+   tag)
+  (magit-show-refs))
 
 (provide 'magit-tag)
 ;;; magit-tag.el ends here
