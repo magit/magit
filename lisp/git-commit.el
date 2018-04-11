@@ -512,7 +512,8 @@ finally check current non-comment text."
     (flyspell-region (point-min) end)))
 
 (defun git-commit-flyspell-verify ()
-  (not (= (char-after (line-beginning-position)) ?#)))
+  (not (= (char-after (line-beginning-position))
+          (aref comment-start 0))))
 
 (defun git-commit-finish-query-functions (force)
   (run-hook-with-args-until-failure
