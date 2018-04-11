@@ -37,7 +37,7 @@
 (defcustom magit-gitk-executable
   (or (and (eq system-type 'windows-nt)
            (let ((exe (expand-file-name
-                       "gitk" (file-name-nondirectory magit-git-executable))))
+                       "gitk" (file-name-directory magit-git-executable))))
              (and (file-executable-p exe) exe)))
       (executable-find "gitk") "gitk")
   "The Gitk executable."
