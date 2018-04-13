@@ -1946,7 +1946,7 @@ the reference is used.  The first regexp submatch becomes the
    (--> key
         (replace-regexp-in-string "\\`[^.]+" #'downcase it t t)
         (replace-regexp-in-string "[^.]+\\'" #'downcase it t t))
-   (magit--with-refresh-cache (list 'config (magit-toplevel))
+   (magit--with-refresh-cache (cons (magit-toplevel) 'config)
      (let ((configs (make-hash-table :test 'equal)))
        (dolist (conf (magit-git-items "config" "--list" "-z"))
          (let* ((nl-pos (cl-position ?\n conf))
