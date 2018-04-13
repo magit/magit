@@ -460,6 +460,7 @@ This discards all changes made since the sequence started."
               (?A "Autostash"                "--autostash")
               (?i "Interactive"              "--interactive")
               (?h "Disable hooks"            "--no-verify"))
+  :options  '((?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
   :actions  '((lambda ()
                 (concat (propertize "Rebase " 'face 'magit-popup-heading)
                         (propertize (or (magit-get-current-branch) "HEAD")
