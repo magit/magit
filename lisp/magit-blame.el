@@ -170,7 +170,7 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame-put-keymap-before-view-mode ()
   "Put `magit-blame-read-only-mode' ahead of `view-mode' in `minor-mode-map-alist'."
-  (--when-let (assq 'magit-blame-read-only--mode
+  (--when-let (assq 'magit-blame-read-only-mode
                     (cl-member 'view-mode minor-mode-map-alist :key #'car))
     (setq minor-mode-map-alist
           (cons it (delq it minor-mode-map-alist))))
