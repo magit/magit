@@ -330,7 +330,7 @@ depending on the value of option `magit-commit-squash-confirm'."
    (t
     (user-error "Nothing staged"))))
 
-(defvar magit--reselve-history nil)
+(defvar magit--reshelve-history nil)
 
 ;;;###autoload
 (defun magit-commit-reshelve (date)
@@ -345,12 +345,12 @@ history element."
    (let ((author-p (magit-rev-author-p "HEAD")))
      (push (magit-rev-format (if author-p "%ad" "%cd") "HEAD"
                              (concat "--date=format:%F %T %z"))
-           magit--reselve-history)
+           magit--reshelve-history)
      (list (read-string (if author-p
                             "Change author and committer dates to: "
                           "Change committer date to: ")
                         (cons (format-time-string "%F %T %z") 17)
-                        'magit--reselve-history))))
+                        'magit--reshelve-history))))
   (let ((process-environment process-environment))
     (push (concat "GIT_COMMITTER_DATE=" date) process-environment)
     (magit-run-git "commit" "--amend" "--no-edit"
