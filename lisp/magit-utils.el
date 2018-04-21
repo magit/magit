@@ -131,11 +131,13 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
   entry has no effect."
   :package-version '(magit . "2.12.0")
   :group 'magit-commands
-  :type '(repeat (list command
-                       (regexp :tag "Prompt regexp")
-                       (choice (const "Offer other choices" nil)
-                               (const "Require confirmation" ask)
-                               (const "Use default without confirmation" t)))))
+  :type '(repeat
+          (list (symbol :tag "Command") ; It might not be fboundp yet.
+                (choice (const  :tag "for all prompts" nil)
+                        (regexp :tag "for prompts matching regexp"))
+                (choice (const  :tag "offer other choices" nil)
+                        (const  :tag "require confirmation" ask)
+                        (const  :tag "use default without confirmation" t)))))
 
 (defconst magit--confirm-actions
   '((const reverse)           (const discard)
