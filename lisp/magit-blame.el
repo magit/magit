@@ -522,7 +522,7 @@ modes is toggled, then this mode also gets toggled automatically.
   (when magit-blame-mode
     (if (eq type magit-blame-type)
         (let ((show-headings magit-blame-show-headings))
-          (magit-blame-visit-prev-file)
+          (magit-blame-visit-other-file)
           (setq-local magit-blame-show-headings show-headings)
           (setq-local magit-blame-recursive-p t)
           ;; Set window-start for the benefit of quickstart.
@@ -530,8 +530,8 @@ modes is toggled, then this mode also gets toggled automatically.
       (magit-blame--clear-overlays)))
   (setq magit-blame-type type))
 
-(defun magit-blame-visit-prev-file ()
-  "Visit the blob before the one that added the current chunk."
+(defun magit-blame-visit-other-file ()
+  "Visit another blob related to the current chunk."
   (interactive)
   (with-slots (prev-rev prev-file orig-line)
       (magit-current-blame-chunk)
@@ -543,8 +543,8 @@ modes is toggled, then this mode also gets toggled automatically.
     (goto-char (point-min))
     (forward-line (1- orig-line))))
 
-(defun magit-blame-visit-orig-file ()
-  "Visit the blob that added the current chunk."
+(defun magit-blame-visit-file ()
+  "Visit the blob related to the current chunk."
   (interactive)
   (with-slots (orig-rev orig-file orig-line)
       (magit-current-blame-chunk)
