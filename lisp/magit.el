@@ -214,9 +214,15 @@ own faces for the `header-line', or for parts of the
     (?r (lambda ()
           (with-current-buffer magit-pre-popup-buffer
             (and (not buffer-file-name)
+                 (propertize "...removal" 'face 'default))))
+        magit-blame-removal)
+    (?n "Next blob" magit-blob-next)
+    nil nil nil
+    (?f (lambda ()
+          (with-current-buffer magit-pre-popup-buffer
+            (and (not buffer-file-name)
                  (propertize "...reverse" 'face 'default))))
-        magit-blame-reverse)
-    (?n "Next blob" magit-blob-next)))
+        magit-blame-reverse)))
 
 ;;;###autoload (autoload 'magit-dispatch-popup "magit" nil t)
 (magit-define-popup magit-dispatch-popup
