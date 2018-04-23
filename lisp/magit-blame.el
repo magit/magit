@@ -569,9 +569,9 @@ If the buffer was created during a recursive blame,
 then also kill the buffer."
   (interactive)
   (kill-local-variable 'magit-blame-type)
-  (if magit-blame-recursive-p
-      (kill-buffer)
-    (magit-blame-mode -1)))
+  (magit-blame-mode -1)
+  (when magit-blame-recursive-p
+    (kill-buffer)))
 
 (defun magit-blame-next-chunk ()
   "Move to the next chunk."
