@@ -1864,7 +1864,9 @@ the reference is used.  The first regexp submatch becomes the
                       (concat " "
                               (propertize branch 'face 'magit-branch-local))))
                " starting at")
-       (cons "HEAD" (magit-list-refnames))
+       (nconc (list "HEAD")
+              (magit-list-refnames)
+              (directory-files (magit-git-dir) nil "_HEAD\\'"))
        nil nil nil 'magit-revision-history
        (magit--default-starting-point))
       (user-error "Nothing selected")))
