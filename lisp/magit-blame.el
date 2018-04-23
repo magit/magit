@@ -214,6 +214,14 @@ modes is toggled, then this mode also gets toggled automatically.
 (defvar-local magit-blame-separator nil)
 (defvar-local magit-blame-previous-chunk nil)
 
+(defvar magit-blame-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-q") 'magit-blame-quit)
+    map)
+  "Keymap for `magit-blame-read-only-mode'.
+Note that most blaming key bindings are defined
+in `magit-blame-read-only-mode-map' instead.")
+
 (define-minor-mode magit-blame-mode
   "Display blame information inline."
   :lighter magit-blame-mode-lighter
@@ -486,6 +494,24 @@ modes is toggled, then this mode also gets toggled automatically.
 ;;; Commands
 
 ;;;###autoload
+(defun magit-blame-echo ()
+  "For each line show the revision in which it was added.
+Show the information about the chunk at point in the echo area
+when moving between chunks.  Unlike other blaming commands, do
+not turn on `read-only-mode'."
+  (interactive)
+  (when magit-buffer-file-name
+    (user-error "Blob buffers aren't supported"))
+  (setq-local magit-blame-show-headings nil)
+  (setq-local magit-blame-disable-modes
+              (cons 'eldoc-mode magit-blame-disable-modes))
+  (if (not magit-blame-mode)
+      (let ((magit-blame-read-only nil))
+        (magit-blame))
+    (read-only-mode -1)
+    (magit-blame-update-separators)))
+
+;;;###autoload
 (defun magit-blame ()
   "For each line show the revision in which it was added."
   (interactive)
@@ -568,6 +594,9 @@ If the buffer was created during a recursive blame,
 then also kill the buffer."
   (interactive)
   (kill-local-variable 'magit-blame-type)
+  (kill-local-variable 'magit-blame-disable-modes)
+  (unless buffer-read-only
+    (kill-local-variable 'magit-blame-show-headings))
   (magit-blame-mode -1)
   (when magit-blame-recursive-p
     (kill-buffer)))
@@ -616,6 +645,9 @@ then also kill the buffer."
   "Show or hide blame chunk headings."
   (interactive)
   (setq-local magit-blame-show-headings (not magit-blame-show-headings))
+  (magit-blame-update-separators))
+
+(defun magit-blame-update-separators ()
   (save-excursion
     (save-restriction
       (widen)
