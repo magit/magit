@@ -485,10 +485,13 @@ in `magit-blame-read-only-mode-map' instead.")
 (defun magit-blame-maybe-show-message ()
   (unless magit-blame-show-headings
     (let ((message-log-max 0))
-      (--if-let (cdr (assq 'heading
-                           (gethash (oref (magit-current-blame-chunk) orig-rev)
-                                    magit-blame-cache)))
-          (message "%s" (substring it 0 -1))
+      (-if-let (msg (cdr (assq 'heading
+                               (gethash (oref (magit-current-blame-chunk)
+                                              orig-rev)
+                                        magit-blame-cache))))
+          (progn (setq msg (substring msg 0 -1))
+                 (set-text-properties 0 (length msg) nil msg)
+                 (message msg))
         (message "Commit data not available yet.  Still blaming.")))))
 
 ;;; Commands
