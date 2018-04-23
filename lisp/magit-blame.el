@@ -87,7 +87,7 @@ and then turned on again when turning off the latter."
 (defcustom magit-blame-goto-chunk-hook
   '(magit-blame-maybe-update-revision-buffer
     magit-blame-maybe-show-message)
-  "Hook run by `magit-blame-next-chunk' and `magit-blame-previous-chunk'."
+  "Hook run after point entered another chunk."
   :package-version '(magit . "2.13.0")
   :group 'magit-blame
   :type 'hook
@@ -187,6 +187,7 @@ modes is toggled, then this mode also gets toggled automatically.
 (defvar-local magit-blame-recursive-p nil)
 (defvar-local magit-blame-type nil)
 (defvar-local magit-blame-separator nil)
+(defvar-local magit-blame-previous-chunk nil)
 
 (define-minor-mode magit-blame-mode
   "Display blame information inline."
@@ -198,6 +199,7 @@ modes is toggled, then this mode also gets toggled automatically.
             (concat "Don't call `magit-blame-mode' directly; "
                     "instead use `magit-blame' or `magit-blame-popup'")))
          (add-hook 'after-save-hook     'magit-blame--run t t)
+         (add-hook 'post-command-hook   'magit-blame-goto-chunk-hook t t)
          (add-hook 'read-only-mode-hook 'magit-blame-toggle-read-only t t)
          (setq magit-blame-buffer-read-only buffer-read-only)
          (if (or magit-blame-read-only magit-buffer-file-name)
@@ -210,6 +212,7 @@ modes is toggled, then this mode also gets toggled automatically.
          (setq magit-blame-separator (magit-blame-format-separator)))
         (t
          (remove-hook 'after-save-hook     'magit-blame--run t)
+         (remove-hook 'post-command-hook   'magit-blame-goto-chunk-hook t)
          (remove-hook 'read-only-mode-hook 'magit-blame-toggle-read-only t)
          (unless magit-blame-buffer-read-only
            (read-only-mode -1))
@@ -227,6 +230,12 @@ modes is toggled, then this mode also gets toggled automatically.
       (dolist (ov (overlays-in (point-min) (point-max)))
         (when (overlay-get ov 'magit-blame)
           (delete-overlay ov))))))
+
+(defun magit-blame-goto-chunk-hook ()
+  (let ((chunk (magit-blame-chunk-at (point))))
+    (unless (eq chunk magit-blame-previous-chunk)
+      (run-hooks 'magit-blame-goto-chunk-hook))
+    (setq magit-blame-previous-chunk chunk)))
 
 (defun magit-blame-toggle-read-only ()
   (magit-blame-read-only-mode (if buffer-read-only 1 -1)))
@@ -567,16 +576,14 @@ then also kill the buffer."
   "Move to the next chunk."
   (interactive)
   (--if-let (next-single-char-property-change (point) 'magit-blame)
-      (progn (goto-char it)
-             (run-hooks 'magit-blame-goto-chunk-hook))
+      (goto-char it)
     (user-error "No more chunks")))
 
 (defun magit-blame-previous-chunk ()
   "Move to the previous chunk."
   (interactive)
   (--if-let (previous-single-char-property-change (point) 'magit-blame)
-      (progn (goto-char it)
-             (run-hooks 'magit-blame-goto-chunk-hook))
+      (goto-char it)
     (user-error "No more chunks")))
 
 (defun magit-blame-next-chunk-same-commit (&optional previous)
