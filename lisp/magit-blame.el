@@ -125,6 +125,31 @@ and then turned on again when turning off the latter."
   "Face for dates in blame headings."
   :group 'magit-faces)
 
+;;; Chunks
+
+(defclass magit-blame-chunk ()
+  (;; <orig-rev> <orig-line> <final-line> <num-lines>
+   (orig-rev   :initarg :orig-rev)
+   (orig-line  :initarg :orig-line)
+   (final-line :initarg :final-line)
+   (num-lines  :initarg :num-lines)
+   ;; previous <prev-rev> <prev-file>
+   (prev-rev   :initform nil)
+   (prev-file  :initform nil)
+   ;; filename <orig-file>
+   (orig-file)))
+
+(defun magit-current-blame-chunk ()
+  (magit-blame-chunk-at (point)))
+
+(defun magit-blame-chunk-at (pos)
+  (--any (overlay-get it 'magit-blame)
+         (overlays-at pos)))
+
+(defun magit-blame-overlay-at (&optional pos)
+  (--first (overlay-get it 'magit-blame)
+           (overlays-at (or pos (point)))))
+
 ;;; Mode
 
 (defvar magit-blame-read-only-mode-map
@@ -233,7 +258,8 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame-goto-chunk-hook ()
   (let ((chunk (magit-blame-chunk-at (point))))
-    (unless (eq chunk magit-blame-previous-chunk)
+    (when (and (cl-typep chunk 'magit-blame-chunk)
+               (not (eq chunk magit-blame-previous-chunk)))
       (run-hooks 'magit-blame-goto-chunk-hook))
     (setq magit-blame-previous-chunk chunk)))
 
@@ -274,31 +300,6 @@ modes is toggled, then this mode also gets toggled automatically.
   :default-arguments '("-w")
   :max-action-columns 1
   :default-action 'magit-blame)
-
-;;; Chunks
-
-(defclass magit-blame-chunk ()
-  (;; <orig-rev> <orig-line> <final-line> <num-lines>
-   (orig-rev   :initarg :orig-rev)
-   (orig-line  :initarg :orig-line)
-   (final-line :initarg :final-line)
-   (num-lines  :initarg :num-lines)
-   ;; previous <prev-rev> <prev-file>
-   (prev-rev   :initform nil)
-   (prev-file  :initform nil)
-   ;; filename <orig-file>
-   (orig-file)))
-
-(defun magit-current-blame-chunk ()
-  (magit-blame-chunk-at (point)))
-
-(defun magit-blame-chunk-at (pos)
-  (--any (overlay-get it 'magit-blame)
-         (overlays-at pos)))
-
-(defun magit-blame-overlay-at (&optional pos)
-  (--first (overlay-get it 'magit-blame)
-           (overlays-at (or pos (point)))))
 
 ;;; Process
 
