@@ -74,6 +74,7 @@ Contributors
 - Brandon W Maister <quodlibetor@gmail.com>
 - Brian Warner <warner@lothar.com>
 - Bryan Shell <bryan.shell@orbitz.com>
+- Buster Copley <buster@buster.me.uk>
 - Carl Lieberman <liebermancarl@gmail.com>
 - Chillar Anand <anand21nanda@gmail.com>
 - Chris Bernard <cebernard@gmail.com>
@@ -84,6 +85,7 @@ Contributors
 - Chris Shoemaker <chris@mojotech.com>
 - Christian Dietrich <christian.dietrich@informatik.uni-erlangen.de>
 - Christian Kluge <ckfrakturfreak@web.de>
+- Christophe Junke <christophe.junke@parrot.com>
 - Christopher Monsanto <chris@monsan.to>
 - Cornelius Mika <cornelius.mika@gmail.com>
 - Craig Andera <candera@wangdera.com>
@@ -147,6 +149,7 @@ Contributors
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
 - Jonathan Roes <jroes@jroes.net>
+- Jon <jonathn@github.com>
 - Jordan Greenberg <jordan@softwareslave.com>
 - Josiah Schwab <jschwab@gmail.com>
 - Julien Danjou <julien@danjou.info>
