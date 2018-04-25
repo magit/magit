@@ -17,14 +17,15 @@ Graham Clark <grclark@gmail.com> <gcla@moria.(none)>
 Ivan Brennan <ivan.brennan@gmail.com>
 Jesse Alama <jesse.alama@gmail.com> <alama@stanford.edu>
 Joakim Jalap <JOJA@stoneridge.com>
+Jon Vanderwijk <jonathn@github.com>
 Jonas Bernoulli <jonas@bernoul.li>
 Jonas Bernoulli <jonas@bernoul.li> <jonasbernoulli@gmail.com>
 Kan-Ru Chen <kanru@kanru.info> <koster@debian.org>
 Leo Liu <sdl.web@gmail.com>
 Luís Oliveira <luismbo@gmail.com> <loliveira@common-lisp.net>
 Luís Oliveira <luismbo@gmail.com> Luís Borges de Oliveira <lbo@siscog.pt>
-Marc Herbert <marc.herbert@gmail.com> <marc.herbert+git@gmail.com>
 Marc Herbert <marc.herbert@gmail.com> <Marc.Herbert+git@gmail.com>
+Marc Herbert <marc.herbert@gmail.com> <marc.herbert+git@gmail.com>
 Marcel Wolf <mwolf@ml1.net> marcel-wolf
 Marian Schubert <marian.schubert@gmail.com> <marian.schubert@gooddata.com>
 Marius Vollmer <marius.vollmer@gmail.com> <marius.vollmer@nokia.com>
@@ -36,9 +37,6 @@ Mark Karpov <markkarpov@opmbx.org>
 Natalie Weizenbaum <nex342@gmail.com> Nathan Weizenbaum
 Noam Postavsky <npostavs@users.sourceforge.net>
 Noam Postavsky <npostavs@users.sourceforge.net> <github.10.npostavs@spamgourmet.com>
-Óscar Fuentes <ofv@wanadoo.es> <ofv@wanadoo.es>
-Óscar Fuentes <ofv@wanadoo.es> <oscar@nc10>
-Óscar Fuentes <ofv@wanadoo.es> <oscar@qcore>
 Peter J. Weisberg <pj@irregularexpressions.net>
 Peter Vasil <mail@petervasil.net>
 Phil Sainty <phil@catalyst.net.nz> <phil-s@users.noreply.github.com>
@@ -46,11 +44,11 @@ Philippe Vaucher <philippe.vaucher@gmail.com> <philippe@stvs.ch>
 Raimon Grau <raimon@3scale.net> <raimonster@gmail.com>
 Rémi Vanicat <vanicat@debian.org> <github.20.vanicat@mamber.net>
 Rüdiger Sonderfeld <ruediger@c-plusplus.net> <ruediger@c-plusplus.de>
-Sébastien Gross <seb@chezwam.org> <seb•ɑƬ•chezwam•ɖɵʈ•org>
 Seong-Kook Shin <cinsky@gmail.com>
 Silent Sphere <silentsphere110@gmail.com>
 Sylvain Rousseau <thisirs@gmail.com>
 Syohei Yoshida <syohex@gmail.com>
+Sébastien Gross <seb@chezwam.org> <seb•ɑƬ•chezwam•ɖɵʈ•org>
 Tunc Uzlu <bb2020@users.noreply.github.com>
 Wei Huang <weih@opera.com>
 Wilfred Hughes <me@wilfred.me.uk> <whughes@ahl.com>
@@ -59,3 +57,6 @@ Yann Hodique <yann.hodique@gmail.com> <hodiquey@vmware.com>
 Yann Hodique <yann.hodique@gmail.com> <yann.hodique@bromium.com>
 Yann Hodique <yann.hodique@gmail.com> <yhodique@vmware.com>
 Yuichi Higashi <aaa707b@gmail.com>
+Óscar Fuentes <ofv@wanadoo.es> <ofv@wanadoo.es>
+Óscar Fuentes <ofv@wanadoo.es> <oscar@nc10>
+Óscar Fuentes <ofv@wanadoo.es> <oscar@qcore>

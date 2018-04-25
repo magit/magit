@@ -149,7 +149,7 @@ Contributors
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
 - Jonathan Roes <jroes@jroes.net>
-- Jon <jonathn@github.com>
+- Jon Vanderwijk <jonathn@github.com>
 - Jordan Greenberg <jordan@softwareslave.com>
 - Josiah Schwab <jschwab@gmail.com>
 - Julien Danjou <julien@danjou.info>
