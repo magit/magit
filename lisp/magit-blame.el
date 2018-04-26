@@ -244,7 +244,9 @@ in `magit-blame-read-only-mode-map' instead.")
          (setq magit-blame-separator (magit-blame-format-separator)))
         (t
          (when (process-live-p magit-blame-process)
-           (kill-process magit-blame-process))
+           (kill-process magit-blame-process)
+           (while magit-blame-process
+             (sit-for 0.01))) ; avoid racing the sentinal
          (remove-hook 'after-save-hook     'magit-blame--run t)
          (remove-hook 'post-command-hook   'magit-blame-goto-chunk-hook t)
          (remove-hook 'read-only-mode-hook 'magit-blame-toggle-read-only t)
@@ -361,8 +363,11 @@ in `magit-blame-read-only-mode-map' instead.")
             (message "Blaming...done"))
         (magit-blame-assert-buffer process)
         (with-current-buffer (process-get process 'command-buf)
-          (magit-blame-mode -1))
-        (message "Blaming...failed")))))
+          (if magit-blame-mode
+              (progn (magit-blame-mode -1)
+                     (message "Blaming...failed"))
+            (message "Blaming...aborted"))))
+      (kill-local-variable 'magit-blame-process))))
 
 (defun magit-blame-process-filter (process string)
   (internal-default-process-filter process string)
