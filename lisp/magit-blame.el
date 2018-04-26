@@ -253,6 +253,10 @@ in `magit-blame-read-only-mode-map' instead.")
            (funcall mode 1))
          (when (process-live-p magit-blame-process)
            (kill-process magit-blame-process))
+         (kill-local-variable 'magit-blame-disable-modes)
+         (kill-local-variable 'magit-blame-type)
+         (unless buffer-read-only
+           (kill-local-variable 'magit-blame-show-headings))
          (magit-blame--clear-overlays))))
 
 (defun magit-blame--clear-overlays ()
@@ -596,10 +600,6 @@ not turn on `read-only-mode'."
 If the buffer was created during a recursive blame,
 then also kill the buffer."
   (interactive)
-  (kill-local-variable 'magit-blame-type)
-  (kill-local-variable 'magit-blame-disable-modes)
-  (unless buffer-read-only
-    (kill-local-variable 'magit-blame-show-headings))
   (magit-blame-mode -1)
   (when magit-blame-recursive-p
     (kill-buffer)))
