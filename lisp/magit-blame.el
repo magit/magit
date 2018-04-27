@@ -453,10 +453,13 @@ in `magit-blame-read-only-mode-map' instead.")
           (nconc alist (list (cons 'heading heading))))
         (overlay-put ov 'magit-blame chunk)
         (overlay-put ov 'magit-blame-heading heading)
-        (overlay-put ov 'before-string
-                     (if magit-blame-show-headings
-                         heading
-                       magit-blame-separator))))))
+        (magit-blame--update-heading-overlay ov)))))
+
+(defun magit-blame--update-heading-overlay (ov)
+  (overlay-put ov 'before-string
+               (if magit-blame-show-headings
+                   (overlay-get ov 'magit-blame-heading)
+                 magit-blame-separator)))
 
 (defun magit-blame-format-separator ()
   (propertize
@@ -664,10 +667,7 @@ then also kill the buffer."
       (while (not (eobp))
         (let ((next (next-single-char-property-change (point) 'magit-blame)))
           (--when-let (magit-blame-overlay-at (point))
-            (overlay-put it 'before-string
-                         (if magit-blame-show-headings
-                             (overlay-get it 'magit-blame-heading)
-                           magit-blame-separator)))
+            (magit-blame--update-heading-overlay it))
           (goto-char (or next (point-max))))))))
 
 (defun magit-blame-copy-hash ()
