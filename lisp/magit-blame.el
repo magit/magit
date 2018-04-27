@@ -495,12 +495,11 @@ in `magit-blame-read-only-mode-map' instead.")
    (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
 
 (defun magit-blame--remove-overlays ()
-  (save-excursion
-    (save-restriction
-      (widen)
-      (dolist (ov (overlays-in (point-min) (point-max)))
-        (when (overlay-get ov 'magit-blame)
-          (delete-overlay ov))))))
+  (save-restriction
+    (widen)
+    (dolist (ov (overlays-in (point-min) (point-max)))
+      (when (overlay-get ov 'magit-blame)
+        (delete-overlay ov)))))
 
 (defun magit-blame-maybe-show-message ()
   (unless magit-blame-show-headings
