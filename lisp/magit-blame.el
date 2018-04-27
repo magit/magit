@@ -264,14 +264,6 @@ in `magit-blame-read-only-mode-map' instead.")
            (kill-local-variable 'magit-blame-show-headings))
          (magit-blame--remove-overlays))))
 
-(defun magit-blame--remove-overlays ()
-  (save-excursion
-    (save-restriction
-      (widen)
-      (dolist (ov (overlays-in (point-min) (point-max)))
-        (when (overlay-get ov 'magit-blame)
-          (delete-overlay ov))))))
-
 (defun magit-blame-goto-chunk-hook ()
   (let ((chunk (magit-blame-chunk-at (point))))
     (when (and (cl-typep chunk 'magit-blame-chunk)
@@ -501,6 +493,14 @@ in `magit-blame-read-only-mode-map' instead.")
   (format-time-string
    magit-blame-time-format
    (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
+
+(defun magit-blame--remove-overlays ()
+  (save-excursion
+    (save-restriction
+      (widen)
+      (dolist (ov (overlays-in (point-min) (point-max)))
+        (when (overlay-get ov 'magit-blame)
+          (delete-overlay ov))))))
 
 (defun magit-blame-maybe-show-message ()
   (unless magit-blame-show-headings
