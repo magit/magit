@@ -455,15 +455,12 @@ in `magit-blame-read-only-mode-map' instead.")
       (magit-blame--update-heading-overlay ov))))
 
 (defun magit-blame--update-overlays ()
-  (save-excursion
-    (save-restriction
-      (widen)
-      (goto-char (point-min))
-      (while (not (eobp))
-        (let ((next (next-single-char-property-change (point) 'magit-blame)))
-          (--when-let (magit-blame--overlay-at (point))
-            (magit-blame--update-heading-overlay it))
-          (goto-char (or next (point-max))))))))
+  (save-restriction
+    (widen)
+    (dolist (ov (overlays-in (point-min) (point-max)))
+      (cond ((overlay-get ov 'magit-blame)
+             (magit-blame--update-heading-overlay ov))
+            ))))
 
 (defun magit-blame--update-heading-overlay (ov)
   (overlay-put ov 'before-string
