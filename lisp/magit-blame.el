@@ -262,9 +262,9 @@ in `magit-blame-read-only-mode-map' instead.")
          (kill-local-variable 'magit-blame-type)
          (unless buffer-read-only
            (kill-local-variable 'magit-blame-show-headings))
-         (magit-blame--clear-overlays))))
+         (magit-blame--remove-overlays))))
 
-(defun magit-blame--clear-overlays ()
+(defun magit-blame--remove-overlays ()
   (save-excursion
     (save-restriction
       (widen)
@@ -585,7 +585,7 @@ not turn on `read-only-mode'."
           (setq-local magit-blame-recursive-p t)
           ;; Set window-start for the benefit of quickstart.
           (redisplay))
-      (magit-blame--clear-overlays)))
+      (magit-blame--remove-overlays)))
   (setq magit-blame-type type))
 
 (defun magit-blame-visit-other-file ()
