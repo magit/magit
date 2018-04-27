@@ -454,6 +454,17 @@ in `magit-blame-read-only-mode-map' instead.")
       (overlay-put ov 'magit-blame-heading heading)
       (magit-blame--update-heading-overlay ov))))
 
+(defun magit-blame--update-overlays ()
+  (save-excursion
+    (save-restriction
+      (widen)
+      (goto-char (point-min))
+      (while (not (eobp))
+        (let ((next (next-single-char-property-change (point) 'magit-blame)))
+          (--when-let (magit-blame--overlay-at (point))
+            (magit-blame--update-heading-overlay it))
+          (goto-char (or next (point-max))))))))
+
 (defun magit-blame--update-heading-overlay (ov)
   (overlay-put ov 'before-string
                (if magit-blame-show-headings
@@ -664,17 +675,6 @@ then also kill the buffer."
   (interactive)
   (setq-local magit-blame-show-headings (not magit-blame-show-headings))
   (magit-blame--update-overlays))
-
-(defun magit-blame--update-overlays ()
-  (save-excursion
-    (save-restriction
-      (widen)
-      (goto-char (point-min))
-      (while (not (eobp))
-        (let ((next (next-single-char-property-change (point) 'magit-blame)))
-          (--when-let (magit-blame--overlay-at (point))
-            (magit-blame--update-heading-overlay it))
-          (goto-char (or next (point-max))))))))
 
 (defun magit-blame-copy-hash ()
   "Save hash of the current chunk's commit to the kill ring.
