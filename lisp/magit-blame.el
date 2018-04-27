@@ -447,7 +447,9 @@ in `magit-blame-read-only-mode-map' instead.")
                                          (point))))))
             (heading (cdr (assq 'heading alist))))
         (unless heading
-          (setq heading (magit-blame-format-heading orig-rev alist))
+          (setq heading (magit-blame--format-rev
+                         orig-rev alist
+                         (concat magit-blame-heading-format "\n")))
           (nconc alist (list (cons 'heading heading))))
         (overlay-put ov 'magit-blame chunk)
         (overlay-put ov 'magit-blame-heading heading)
@@ -462,12 +464,11 @@ in `magit-blame-read-only-mode-map' instead.")
            (propertize "\n" 'line-height t))
    'face (list :background (face-attribute 'magit-blame-heading :background))))
 
-(defun magit-blame-format-heading (rev alist)
+(defun magit-blame--format-rev (rev alist format)
   (if (equal rev "0000000000000000000000000000000000000000")
       (propertize "Not Yet Committed\n" 'face 'magit-blame-heading)
     (magit--format-spec
-     (propertize (concat magit-blame-heading-format "\n")
-                 'face 'magit-blame-heading)
+     (propertize format 'face 'magit-blame-heading)
      `((?H . ,(propertize rev 'face 'magit-blame-hash))
        (?s . ,(propertize (cdr (assoc "summary" alist))
                           'face 'magit-blame-summary))
