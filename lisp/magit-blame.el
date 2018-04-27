@@ -146,7 +146,7 @@ and then turned on again when turning off the latter."
   (--any (overlay-get it 'magit-blame)
          (overlays-at pos)))
 
-(defun magit-blame-overlay-at (&optional pos)
+(defun magit-blame--overlay-at (&optional pos)
   (--first (overlay-get it 'magit-blame)
            (overlays-at (or pos (point)))))
 
@@ -446,7 +446,7 @@ in `magit-blame-read-only-mode-map' instead.")
           (magit-blame--make-heading-overlay chunk alist beg end))))))
 
 (defun magit-blame--make-heading-overlay (chunk alist beg end)
-  (--when-let (magit-blame-overlay-at beg)
+  (--when-let (magit-blame--overlay-at beg)
     (delete-overlay it))
   (let ((heading (cdr (assq 'heading alist))))
     (unless heading
@@ -644,7 +644,7 @@ then also kill the buffer."
                                      'previous-single-char-property-change
                                    'next-single-char-property-change)
                                  pos 'magit-blame)))
-            (--when-let (magit-blame-overlay-at pos)
+            (--when-let (magit-blame--overlay-at pos)
               (when (equal (oref (magit-blame-chunk-at pos) orig-rev) rev)
                 (setq ov it)))))
         (if ov
@@ -670,7 +670,7 @@ then also kill the buffer."
       (goto-char (point-min))
       (while (not (eobp))
         (let ((next (next-single-char-property-change (point) 'magit-blame)))
-          (--when-let (magit-blame-overlay-at (point))
+          (--when-let (magit-blame--overlay-at (point))
             (magit-blame--update-heading-overlay it))
           (goto-char (or next (point-max))))))))
 
