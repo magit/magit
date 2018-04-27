@@ -146,10 +146,10 @@ and then turned on again when turning off the latter."
   (--any (overlay-get it 'magit-blame)
          (overlays-at pos)))
 
-(defun magit-blame--overlay-at (&optional pos)
+(defun magit-blame--overlay-at (&optional pos key)
   (unless pos
     (setq pos (point)))
-  (--first (overlay-get it key 'magit-blame)
+  (--first (overlay-get it (or key 'magit-blame))
            (nconc (overlays-at pos)
                   (overlays-in pos pos))))
 
