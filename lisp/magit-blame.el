@@ -255,7 +255,7 @@ in `magit-blame-read-only-mode-map' instead.")
          (magit-blame-read-only-mode -1)
          (dolist (mode magit-blame-disabled-modes)
            (funcall mode 1))
-         (kill-local-variable 'magit-blame-disable-modes)
+         (kill-local-variable 'magit-blame-disabled-modes)
          (kill-local-variable 'magit-blame-type)
          (unless buffer-read-only
            (kill-local-variable 'magit-blame-show-headings))
