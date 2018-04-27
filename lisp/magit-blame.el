@@ -244,7 +244,7 @@ in `magit-blame-read-only-mode-map' instead.")
            (when (and (boundp mode) (symbol-value mode))
              (funcall mode -1)
              (push mode magit-blame-disabled-modes)))
-         (setq magit-blame-separator (magit-blame-format-separator)))
+         (setq magit-blame-separator (magit-blame--format-separator)))
         (t
          (when (process-live-p magit-blame-process)
            (kill-process magit-blame-process)
@@ -468,7 +468,7 @@ in `magit-blame-read-only-mode-map' instead.")
                    (overlay-get ov 'magit-blame-heading)
                  magit-blame-separator)))
 
-(defun magit-blame-format-separator ()
+(defun magit-blame--format-separator ()
   (propertize
    (concat (propertize " "  'display '(space :height (2)))
            (propertize "\n" 'line-height t))
