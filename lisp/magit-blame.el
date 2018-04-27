@@ -486,16 +486,16 @@ in `magit-blame-read-only-mode-map' instead.")
                           'face 'magit-blame-name))
        (?c . ,(propertize (cdr (assoc "committer" alist))
                           'face 'magit-blame-name))
-       (?A . ,(propertize (magit-blame-format-time-string
+       (?A . ,(propertize (magit-blame--format-time-string
                            (cdr (assoc "author-time" alist))
                            (cdr (assoc "author-tz" alist)))
                           'face 'magit-blame-date))
-       (?C . ,(propertize (magit-blame-format-time-string
+       (?C . ,(propertize (magit-blame--format-time-string
                            (cdr (assoc "committer-time" alist))
                            (cdr (assoc "committer-tz" alist)))
                           'face 'magit-blame-date))))))
 
-(defun magit-blame-format-time-string (time tz)
+(defun magit-blame--format-time-string (time tz)
   (setq time (string-to-number time))
   (setq tz   (string-to-number tz))
   (format-time-string
