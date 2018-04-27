@@ -412,7 +412,7 @@ in `magit-blame-read-only-mode-map' instead.")
                               (puthash orig-rev
                                        (magit-blame--commit-alist orig-rev)
                                        cache))))
-            (magit-blame-make-overlay buf chunk alist)
+            (magit-blame--make-overlays buf chunk alist)
             (setq alist nil)
             (process-put process 'parsed (point))))))))
 
@@ -432,28 +432,32 @@ in `magit-blame-read-only-mode-map' instead.")
 
 ;;; Display
 
-(defun magit-blame-make-overlay (buf chunk alist)
+(defun magit-blame--make-overlays (buf chunk alist)
   (with-current-buffer buf
-    (with-slots (orig-rev final-line num-lines) chunk
-      (let ((ov (save-excursion
-                  (save-restriction
-                    (widen)
-                    (goto-char (point-min))
-                    (forward-line (1- final-line))
-                    (--when-let (magit-blame-overlay-at)
-                      (delete-overlay it))
-                    (make-overlay (point)
-                                  (progn (forward-line num-lines)
-                                         (point))))))
-            (heading (cdr (assq 'heading alist))))
-        (unless heading
-          (setq heading (magit-blame--format-rev
-                         orig-rev alist
-                         (concat magit-blame-heading-format "\n")))
-          (nconc alist (list (cons 'heading heading))))
-        (overlay-put ov 'magit-blame chunk)
-        (overlay-put ov 'magit-blame-heading heading)
-        (magit-blame--update-heading-overlay ov)))))
+    (save-excursion
+      (save-restriction
+        (widen)
+        (goto-char (point-min))
+        (forward-line (1- (oref chunk final-line)))
+        (let ((beg (point))
+              (end (save-excursion
+                     (forward-line (oref chunk num-lines))
+                     (point))))
+          (magit-blame--make-heading-overlay chunk alist beg end))))))
+
+(defun magit-blame--make-heading-overlay (chunk alist beg end)
+  (--when-let (magit-blame-overlay-at beg)
+    (delete-overlay it))
+  (let ((heading (cdr (assq 'heading alist))))
+    (unless heading
+      (setq heading
+            (magit-blame--format-rev (oref chunk orig-rev) alist
+                                     (concat magit-blame-heading-format "\n")))
+      (nconc alist (list (cons 'heading heading))))
+    (let ((ov (make-overlay beg end)))
+      (overlay-put ov 'magit-blame chunk)
+      (overlay-put ov 'magit-blame-heading heading)
+      (magit-blame--update-heading-overlay ov))))
 
 (defun magit-blame--update-heading-overlay (ov)
   (overlay-put ov 'before-string
