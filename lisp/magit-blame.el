@@ -531,7 +531,7 @@ not turn on `read-only-mode'."
       (let ((magit-blame-read-only nil))
         (magit-blame))
     (read-only-mode -1)
-    (magit-blame-update-separators)))
+    (magit-blame--update-overlays)))
 
 ;;;###autoload
 (defun magit-blame ()
@@ -663,9 +663,9 @@ then also kill the buffer."
   "Show or hide blame chunk headings."
   (interactive)
   (setq-local magit-blame-show-headings (not magit-blame-show-headings))
-  (magit-blame-update-separators))
+  (magit-blame--update-overlays))
 
-(defun magit-blame-update-separators ()
+(defun magit-blame--update-overlays ()
   (save-excursion
     (save-restriction
       (widen)
