@@ -153,7 +153,15 @@ and then turned on again when turning off the latter."
            (nconc (overlays-at pos)
                   (overlays-in pos pos))))
 
-;;; Mode
+;;; Keymaps
+
+(defvar magit-blame-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-q") 'magit-blame-quit)
+    map)
+  "Keymap for `magit-blame-read-only-mode'.
+Note that most blaming key bindings are defined
+in `magit-blame-read-only-mode-map' instead.")
 
 (defvar magit-blame-read-only-mode-map
   (let ((map (make-sparse-keymap)))
@@ -184,6 +192,8 @@ and then turned on again when turning off the latter."
     (define-key map (kbd "DEL") 'magit-diff-show-or-scroll-down)
     map)
   "Keymap for `magit-blame-read-only-mode'.")
+
+;;; Modes
 
 (define-minor-mode magit-blame-read-only-mode
   "Provide keybindings for Magit-Blame mode.
@@ -216,14 +226,6 @@ modes is toggled, then this mode also gets toggled automatically.
 (defvar-local magit-blame-type nil)
 (defvar-local magit-blame-separator nil)
 (defvar-local magit-blame-previous-chunk nil)
-
-(defvar magit-blame-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-q") 'magit-blame-quit)
-    map)
-  "Keymap for `magit-blame-read-only-mode'.
-Note that most blaming key bindings are defined
-in `magit-blame-read-only-mode-map' instead.")
 
 (define-minor-mode magit-blame-mode
   "Display blame information inline."
