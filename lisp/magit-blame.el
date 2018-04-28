@@ -194,29 +194,7 @@ in `magit-blame-read-only-mode-map' instead.")
   "Keymap for `magit-blame-read-only-mode'.")
 
 ;;; Modes
-
-(define-minor-mode magit-blame-read-only-mode
-  "Provide keybindings for Magit-Blame mode.
-
-This minor-mode provides the key bindings for Magit-Blame mode,
-but only when Read-Only mode is also enabled because these key
-bindings would otherwise conflict badly with regular bindings.
-
-When both Magit-Blame mode and Read-Only mode are enabled, then
-this mode gets automatically enabled too and when one of these
-modes is toggled, then this mode also gets toggled automatically.
-
-\\{magit-blame-read-only-mode-map}")
-
-(defun magit-blame-put-keymap-before-view-mode ()
-  "Put `magit-blame-read-only-mode' ahead of `view-mode' in `minor-mode-map-alist'."
-  (--when-let (assq 'magit-blame-read-only-mode
-                    (cl-member 'view-mode minor-mode-map-alist :key #'car))
-    (setq minor-mode-map-alist
-          (cons it (delq it minor-mode-map-alist))))
-  (remove-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode))
-
-(add-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode)
+;;;; Variables
 
 (defvar-local magit-blame-buffer-read-only nil)
 (defvar-local magit-blame-cache nil)
@@ -226,6 +204,8 @@ modes is toggled, then this mode also gets toggled automatically.
 (defvar-local magit-blame-type nil)
 (defvar-local magit-blame-separator nil)
 (defvar-local magit-blame-previous-chunk nil)
+
+;;;; Base Mode
 
 (define-minor-mode magit-blame-mode
   "Display blame information inline."
@@ -275,6 +255,33 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame-toggle-read-only ()
   (magit-blame-read-only-mode (if buffer-read-only 1 -1)))
+
+;;;; Read-Only Mode
+
+(define-minor-mode magit-blame-read-only-mode
+  "Provide keybindings for Magit-Blame mode.
+
+This minor-mode provides the key bindings for Magit-Blame mode,
+but only when Read-Only mode is also enabled because these key
+bindings would otherwise conflict badly with regular bindings.
+
+When both Magit-Blame mode and Read-Only mode are enabled, then
+this mode gets automatically enabled too and when one of these
+modes is toggled, then this mode also gets toggled automatically.
+
+\\{magit-blame-read-only-mode-map}")
+
+;;;; Kludges
+
+(defun magit-blame-put-keymap-before-view-mode ()
+  "Put `magit-blame-read-only-mode' ahead of `view-mode' in `minor-mode-map-alist'."
+  (--when-let (assq 'magit-blame-read-only-mode
+                    (cl-member 'view-mode minor-mode-map-alist :key #'car))
+    (setq minor-mode-map-alist
+          (cons it (delq it minor-mode-map-alist))))
+  (remove-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode))
+
+(add-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode)
 
 (defun auto-revert-handler--unless-magit-blame-mode ()
   "If Magit-Blame mode is on, then do nothing.  See #1731."
