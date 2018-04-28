@@ -159,7 +159,7 @@ and then turned on again when turning off the latter."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-q") 'magit-blame-quit)
     map)
-  "Keymap for `magit-blame-read-only-mode'.
+  "Keymap for `magit-blame-mode'.
 Note that most blaming key bindings are defined
 in `magit-blame-read-only-mode-map' instead.")
 
