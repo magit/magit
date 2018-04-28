@@ -281,34 +281,6 @@ in `magit-blame-read-only-mode-map' instead.")
 (advice-add 'auto-revert-handler :before-until
             'auto-revert-handler--unless-magit-blame-mode)
 
-;;; Popup
-
-;;;###autoload (autoload 'magit-blame-popup "magit-blame" nil t)
-(magit-define-popup magit-blame-popup
-  "Popup console for blame commands."
-  :man-page "git-blame"
-  :switches '((?w "Ignore whitespace" "-w")
-              (?r "Do not treat root commits as boundaries" "--root"))
-  :options  '((?M "Detect lines moved or copied within a file" "-M")
-              (?C "Detect lines moved or copied between files" "-C"))
-  :actions  '((?b "Show commits adding lines" magit-blame)
-              (?r (lambda ()
-                    (with-current-buffer magit-pre-popup-buffer
-                      (and (not buffer-file-name)
-                           (propertize "Show commits removing lines"
-                                       'face 'default))))
-                  magit-blame-removal)
-              (?f (lambda ()
-                    (with-current-buffer magit-pre-popup-buffer
-                      (and (not buffer-file-name)
-                           (propertize "Show last commits that still have lines"
-                                       'face 'default))))
-                  magit-blame-reverse)
-              (?h "Toggle chunk headings" magit-blame-toggle-headings))
-  :default-arguments '("-w")
-  :max-action-columns 1
-  :default-action 'magit-blame)
-
 ;;; Process
 
 (defun magit-blame--run ()
@@ -682,6 +654,34 @@ instead of the hash, like `kill-ring-save' would."
   (if (use-region-p)
       (copy-region-as-kill nil nil 'region)
     (kill-new (message "%s" (oref (magit-current-blame-chunk) orig-rev)))))
+
+;;; Popup
+
+;;;###autoload (autoload 'magit-blame-popup "magit-blame" nil t)
+(magit-define-popup magit-blame-popup
+  "Popup console for blame commands."
+  :man-page "git-blame"
+  :switches '((?w "Ignore whitespace" "-w")
+              (?r "Do not treat root commits as boundaries" "--root"))
+  :options  '((?M "Detect lines moved or copied within a file" "-M")
+              (?C "Detect lines moved or copied between files" "-C"))
+  :actions  '((?b "Show commits adding lines" magit-blame)
+              (?r (lambda ()
+                    (with-current-buffer magit-pre-popup-buffer
+                      (and (not buffer-file-name)
+                           (propertize "Show commits removing lines"
+                                       'face 'default))))
+                  magit-blame-removal)
+              (?f (lambda ()
+                    (with-current-buffer magit-pre-popup-buffer
+                      (and (not buffer-file-name)
+                           (propertize "Show last commits that still have lines"
+                                       'face 'default))))
+                  magit-blame-reverse)
+              (?h "Toggle chunk headings" magit-blame-toggle-headings))
+  :default-arguments '("-w")
+  :max-action-columns 1
+  :default-action 'magit-blame)
 
 ;;; Utilities
 
