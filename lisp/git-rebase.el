@@ -191,6 +191,7 @@
     ["Squash" git-rebase-squash t]
     ["Fixup" git-rebase-fixup t]
     ["Kill" git-rebase-kill-line t]
+    ["Noop" git-rebase-noop t]
     ["Execute" git-rebase-exec t]
     ["Move Down" git-rebase-move-line-down t]
     ["Move Up" git-rebase-move-line-up t]
