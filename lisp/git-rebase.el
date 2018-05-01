@@ -519,6 +519,8 @@ running 'man git-rebase' at the command line) for details."
       ("^\\(exec\\) \\(.*\\)"
        (1 'font-lock-keyword-face)
        (2 'git-rebase-description))
+      ("^\\(noop\\)"
+       (1 'font-lock-keyword-face))
       (git-rebase-match-comment-line 0 'font-lock-comment-face)
       (,(concat git-rebase-comment-re " *" action-re)
        0 'git-rebase-killed-action t)
