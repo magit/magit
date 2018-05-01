@@ -917,7 +917,7 @@ corresponds to a ref outside of the namespace."
 
 (defun magit-rev-branch (rev)
   (--when-let (magit-rev-name rev "refs/heads/*")
-    (unless (string-match-p "~" it) it)))
+    (unless (string-match-p "[~^]" it) it)))
 
 (defun magit-get-shortname (rev)
   (let* ((fn (apply-partially 'magit-rev-name rev))
