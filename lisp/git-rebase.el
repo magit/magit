@@ -539,7 +539,7 @@ By default, this is the same except for the \"pick\" command."
       (goto-char (point-min))
       (when (and git-rebase-show-instructions
                  (re-search-forward
-                  (concat git-rebase-comment-re " p, pick")
+                  (concat git-rebase-comment-re "\\s-+p, pick")
                   nil t))
         (goto-char (line-beginning-position))
         (--each git-rebase-command-descriptions
