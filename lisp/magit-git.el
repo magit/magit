@@ -684,6 +684,10 @@ tracked file."
 (defun magit-unmerged-files ()
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))
 
+(defun magit-ignored-files ()
+  (magit-git-items "ls-files" "-z" "--others" "--ignored"
+                   "--exclude-standard" "--directory"))
+
 (defun magit-revision-files (rev)
   (magit-with-toplevel
     (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
