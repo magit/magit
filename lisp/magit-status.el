@@ -515,7 +515,7 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
           (-when-let (files (magit-untracked-files nil base))
             (magit-insert-section (untracked)
               (magit-insert-heading "Untracked files:")
-              (magit-insert-un/tracked-files-1 files base)
+              (magit-insert-files files base)
               (insert ?\n)))
         (-when-let
             (files (--mapcat (and (eq (aref it 0) ??)
@@ -542,10 +542,10 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
            (base (and base (file-directory-p base) base)))
       (magit-insert-section (tracked nil t)
         (magit-insert-heading "Tracked files:")
-        (magit-insert-un/tracked-files-1 files base)
+        (magit-insert-files files base)
         (insert ?\n)))))
 
-(defun magit-insert-un/tracked-files-1 (files directory)
+(defun magit-insert-files (files directory)
   (while (and files (string-prefix-p (or directory "") (car files)))
     (let ((dir (file-name-directory (car files))))
       (if (equal dir directory)
@@ -555,7 +555,7 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
         (magit-insert-section (file dir t)
           (insert (propertize dir 'file 'magit-filename) ?\n)
           (magit-insert-heading)
-          (setq files (magit-insert-un/tracked-files-1 files dir))))))
+          (setq files (magit-insert-files files dir))))))
   files)
 
 (provide 'magit-status)
