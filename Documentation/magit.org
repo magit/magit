@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.12.1 (2.12.1-55-g3e8538d96+1)
+#+SUBTITLE: for version 2.12.1 (2.12.1-93-ga80da3d6+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.12.1 (2.12.1-55-g3e8538d96+1).
+This manual is for Magit version 2.12.1 (2.12.1-93-ga80da3d6+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -3380,13 +3380,15 @@ bisect session.
 
 Also see [[man:git-blame]]
 
-To start blaming use ~M-x~ in a file-visiting buffer to invoke one of
-the next tree commands.  In a blob-visiting buffer you can also use
-the key bindings described below, and when Magit-File mode is enabled,
-then you can at least use ~C-c M-g~ to enter the blaming popup instead
-of having to type out the command name.
+To start blaming you can use ~M-x~ in a file-visiting buffer to invoke
+one of the following commands.  You can also invoke these commands
+using the blame popup, which is available on ~b~ in file-visiting
+buffers that already contain blame information and, also on ~b~, in all
+blob-visiting buffers.  You can also enter the blame popup from the
+file popup, which is available on ~C-c M-g~, provided ~magit-file-mode~
+is enabled, see [[*Minor Mode for Buffers Visiting Files]].
 
-- Key: M-x magit-blame, magit-blame
+- Command: magit-blame
 
   This command augments each line or chunk of lines in the current
   file- or blob-visiting buffer with information about what commits
@@ -3401,7 +3403,21 @@ of having to type out the command name.
   ~magit-find-file~), where REVISION is a parent of the revision that
   added the current line or chunk of lines.
 
-- Key: M-x magit-blame-reverse, magit-blame-reverse
+- Command: magit-blame-echo
+
+  This command is like ~magit-blame~ except that it doesn't turn on
+  ~read-only-mode~ and that it initially uses the visualization style
+  specified by option ~magit-blame-echo-style~.
+
+- Command: magit-blame-removal
+
+  This command augments each line or chunk of lines in the current
+  blob-visiting buffer with information about the revision that
+  removes it.  It cannot be used in file-visiting buffers.
+
+  Like ~magit-blame~, this command can be used recursively.
+
+- Command: magit-blame-reverse
 
   This command augments each line or chunk of lines in the current
   file- or blob-visiting buffer with information about the last
@@ -3409,23 +3425,10 @@ of having to type out the command name.
 
   Like ~magit-blame~, this command can be used recursively.
 
-- Key: M-x magit-blame-popup, magit-blame-popup
-
-  This prefix command shows the above suffix command along with the
-  appropriate infix arguments in a popup buffer.
-
-The above commands are also bound in the keymaps ~magit-blame-mode-map~
-and ~magit-blob-mode-map~, and in the popup ~magit-file-popup~.  Once
-Magit-Blame mode is enabled in a file-visiting buffer, you can use ~B~
-to show the blaming popup, ~b~ to blame recursively going backward in
-time, and ~f~ to blame recursively going forward in time (i.e. blame in
-reverse).  These bindings are always available in blob-visiting
-buffers.
-
-Additionally the following key bindings are available when Magit-Blame
-mode is enabled.  These commands are also available in other buffers;
-here only the behavior is described that is relevant in file-visiting
-buffers that are being blamed.
+The following key bindings are available when Magit-Blame mode is
+enabled and Read-Only mode is not enabled.  These commands are also
+available in other buffers; here only the behavior is described that
+is relevant in file-visiting buffers that are being blamed.
 
 - Key: RET, magit-show-commit
 
@@ -3448,6 +3451,14 @@ buffers that are being blamed.
   the appropriate buffer, or if that buffer is already being displayed
   in the current frame and if that buffer contains information about
   that commit, then the buffer is scrolled down instead.
+
+The following key bindings are available when Magit-Blame mode is
+enabled and Read-Only mode is not enabled.
+
+- Key: b, magit-blame-popup
+
+  This prefix command shows the above suffix command along with the
+  appropriate infix arguments in a popup buffer.
 
 - Key: n, magit-blame-next-chunk
 
@@ -3478,33 +3489,44 @@ buffers that are being blamed.
   When the region is active, the command saves the region's content
   instead of the hash, like ~kill-ring-save~ would.
 
-- Key: t, magit-blame-toggle-headings
+- Key: c, magit-blame-cycle-style
 
-  This command shows or hides blame chunk headings.
+  This command changes how blame information is visualized in the
+  current buffer by cycling through the styles specified using the
+  option ~magit-blame-styles~.
 
-- User Option: magit-blame-heading-format
+Blaming is also controlled using the following options.
 
-  The format string used for blame headings.
+- User Option: magit-blame-styles
+
+  This option defines a list of styles used to visualize blame
+  information.  For now see its doc-string to learn more.
+
+- User Option: magit-blame-echo-style
+
+  This option specifies the blame visualization style used by the
+  command ~magit-blame-echo~.  This must be a symbol that is used as the
+  identifier for one of the styles defined in ~magit-blame-styles~.
 
 - User Option: magit-blame-time-format
 
-  The format string used for time strings in blame headings.
+  This option specifies the format string used to display times when
+  showing blame information.
 
-- User Option: magit-blame-show-headings
+- User Option: magit-blame-read-only
 
-  This option controls whether blame block headings are initially
-  shown.  Whether blame headings are shown in the current buffer
-  can be changed using the command ~magit-blame-toggle-headings~.
+  This option controls whether blaming a buffer also makes temporarily
+  read-only.
 
-  When headings are not shown, then the information for the current
-  chunk is shown in the echo-area instead.  If you do not want that,
-  then remove ~magit-blame-maybe-show-message~ from
-  ~magit-blame-goto-chunk-hook~.
+- User Option: magit-blame-disable-modes
+
+  This option lists incompatible minor-modes that should be disabled
+  temporarily when a buffer contains blame information.  They are
+  enabled again when the buffer no longer shows blame information.
 
 - User Option: magit-blame-goto-chunk-hook
 
-  This hook is run by ~magit-blame-next-chunk~ and
-  ~magit-blame-previous-chunk~.
+  This hook is run when moving between chunks.
 
 * Manipulating
 ** Repository Setup
