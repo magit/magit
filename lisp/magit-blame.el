@@ -143,13 +143,13 @@ and then turned on again when turning off the latter."
   (magit-blame-chunk-at (point)))
 
 (defun magit-blame-chunk-at (pos)
-  (--any (overlay-get it 'magit-blame)
+  (--any (overlay-get it 'magit-blame-chunk)
          (overlays-at pos)))
 
 (defun magit-blame--overlay-at (&optional pos key)
   (unless pos
     (setq pos (point)))
-  (--first (overlay-get it (or key 'magit-blame))
+  (--first (overlay-get it (or key 'magit-blame-chunk))
            (nconc (overlays-at pos)
                   (overlays-in pos pos))))
 
@@ -431,7 +431,7 @@ modes is toggled, then this mode also gets toggled automatically.
                                      (concat magit-blame-heading-format "\n")))
       (nconc revinfo (list (cons 'heading heading))))
     (let ((ov (make-overlay beg end)))
-      (overlay-put ov 'magit-blame chunk)
+      (overlay-put ov 'magit-blame-chunk chunk)
       (overlay-put ov 'magit-blame-heading heading)
       (magit-blame--update-heading-overlay ov))))
 
@@ -439,7 +439,7 @@ modes is toggled, then this mode also gets toggled automatically.
   (save-restriction
     (widen)
     (dolist (ov (overlays-in (point-min) (point-max)))
-      (cond ((overlay-get ov 'magit-blame)
+      (cond ((overlay-get ov 'magit-blame-chunk)
              (magit-blame--update-heading-overlay ov))
             ))))
 
@@ -488,7 +488,7 @@ modes is toggled, then this mode also gets toggled automatically.
     (widen)
     (dolist (ov (overlays-in (or beg (point-min))
                              (or end (point-max))))
-      (when (overlay-get ov 'magit-blame)
+      (when (overlay-get ov 'magit-blame-chunk)
         (delete-overlay ov)))))
 
 (defun magit-blame-maybe-show-message ()
@@ -612,14 +612,14 @@ then also kill the buffer."
 (defun magit-blame-next-chunk ()
   "Move to the next chunk."
   (interactive)
-  (--if-let (next-single-char-property-change (point) 'magit-blame)
+  (--if-let (next-single-char-property-change (point) 'magit-blame-chunk)
       (goto-char it)
     (user-error "No more chunks")))
 
 (defun magit-blame-previous-chunk ()
   "Move to the previous chunk."
   (interactive)
-  (--if-let (previous-single-char-property-change (point) 'magit-blame)
+  (--if-let (previous-single-char-property-change (point) 'magit-blame-chunk)
       (goto-char it)
     (user-error "No more chunks")))
 
@@ -635,7 +635,7 @@ then also kill the buffer."
                                  (if previous
                                      'previous-single-char-property-change
                                    'next-single-char-property-change)
-                                 pos 'magit-blame)))
+                                 pos 'magit-blame-chunk)))
             (--when-let (magit-blame--overlay-at pos)
               (when (equal (oref (magit-blame-chunk-at pos) orig-rev) rev)
                 (setq ov it)))))
