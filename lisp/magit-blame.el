@@ -356,7 +356,7 @@ modes is toggled, then this mode also gets toggled automatically.
       (setq cache magit-blame-cache))
     (with-current-buffer (process-buffer process)
       (goto-char pos)
-      (let (end chunk alist)
+      (let (end chunk revinfo)
         (while (and (< (point) mark)
                     (save-excursion
                       (setq end (re-search-forward "^filename .+\n" nil t))))
@@ -376,20 +376,20 @@ modes is toggled, then this mode also gets toggled automatically.
                      (setf prev-file (match-string 2)))
                     ((looking-at "^\\([^ ]+\\) \\(.+\\)")
                      (push (cons (match-string 1)
-                                 (match-string 2)) alist)))
+                                 (match-string 2)) revinfo)))
               (forward-line))
             (when (and (eq type 'removal) prev-rev)
               (cl-rotatef orig-rev  prev-rev)
               (cl-rotatef orig-file prev-file)
-              (setq alist nil))
-            (if alist
-                (puthash orig-rev alist cache)
-              (setq alist (or (gethash orig-rev cache)
-                              (puthash orig-rev
-                                       (magit-blame--commit-alist orig-rev)
-                                       cache))))
-            (magit-blame--make-overlays buf chunk alist)
-            (setq alist nil)
+              (setq revinfo nil))
+            (if revinfo
+                (puthash orig-rev revinfo cache)
+              (setq revinfo (or (gethash orig-rev cache)
+                                (puthash orig-rev
+                                         (magit-blame--commit-alist orig-rev)
+                                         cache))))
+            (magit-blame--make-overlays buf chunk revinfo)
+            (setq revinfo nil)
             (process-put process 'parsed (point))))))))
 
 (defun magit-blame--commit-alist (rev)
@@ -408,7 +408,7 @@ modes is toggled, then this mode also gets toggled automatically.
 
 ;;; Display
 
-(defun magit-blame--make-overlays (buf chunk alist)
+(defun magit-blame--make-overlays (buf chunk revinfo)
   (with-current-buffer buf
     (save-excursion
       (save-restriction
@@ -419,17 +419,17 @@ modes is toggled, then this mode also gets toggled automatically.
               (end (save-excursion
                      (forward-line (oref chunk num-lines))
                      (point))))
-          (magit-blame--make-heading-overlay chunk alist beg end))))))
+          (magit-blame--make-heading-overlay chunk revinfo beg end))))))
 
-(defun magit-blame--make-heading-overlay (chunk alist beg end)
+(defun magit-blame--make-heading-overlay (chunk revinfo beg end)
   (--when-let (magit-blame--overlay-at beg)
     (delete-overlay it))
-  (let ((heading (cdr (assq 'heading alist))))
+  (let ((heading (cdr (assq 'heading revinfo))))
     (unless heading
       (setq heading
-            (magit-blame--format-rev (oref chunk orig-rev) alist
+            (magit-blame--format-rev (oref chunk orig-rev) revinfo
                                      (concat magit-blame-heading-format "\n")))
-      (nconc alist (list (cons 'heading heading))))
+      (nconc revinfo (list (cons 'heading heading))))
     (let ((ov (make-overlay beg end)))
       (overlay-put ov 'magit-blame chunk)
       (overlay-put ov 'magit-blame-heading heading)
@@ -455,25 +455,25 @@ modes is toggled, then this mode also gets toggled automatically.
            (propertize "\n" 'line-height t))
    'face (list :background (face-attribute 'magit-blame-heading :background))))
 
-(defun magit-blame--format-rev (rev alist format)
+(defun magit-blame--format-rev (rev revinfo format)
   (if (equal rev "0000000000000000000000000000000000000000")
       (propertize "Not Yet Committed\n" 'face 'magit-blame-heading)
     (magit--format-spec
      (propertize format 'face 'magit-blame-heading)
      `((?H . ,(propertize rev 'face 'magit-blame-hash))
-       (?s . ,(propertize (cdr (assoc "summary" alist))
+       (?s . ,(propertize (cdr (assoc "summary" revinfo))
                           'face 'magit-blame-summary))
-       (?a . ,(propertize (cdr (assoc "author" alist))
+       (?a . ,(propertize (cdr (assoc "author" revinfo))
                           'face 'magit-blame-name))
-       (?c . ,(propertize (cdr (assoc "committer" alist))
+       (?c . ,(propertize (cdr (assoc "committer" revinfo))
                           'face 'magit-blame-name))
        (?A . ,(propertize (magit-blame--format-time-string
-                           (cdr (assoc "author-time" alist))
-                           (cdr (assoc "author-tz" alist)))
+                           (cdr (assoc "author-time" revinfo))
+                           (cdr (assoc "author-tz" revinfo)))
                           'face 'magit-blame-date))
        (?C . ,(propertize (magit-blame--format-time-string
-                           (cdr (assoc "committer-time" alist))
-                           (cdr (assoc "committer-tz" alist)))
+                           (cdr (assoc "committer-time" revinfo))
+                           (cdr (assoc "committer-tz" revinfo)))
                           'face 'magit-blame-date))))))
 
 (defun magit-blame--format-time-string (time tz)
