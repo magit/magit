@@ -483,10 +483,11 @@ modes is toggled, then this mode also gets toggled automatically.
    magit-blame-time-format
    (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
 
-(defun magit-blame--remove-overlays ()
+(defun magit-blame--remove-overlays (&optional beg end)
   (save-restriction
     (widen)
-    (dolist (ov (overlays-in (point-min) (point-max)))
+    (dolist (ov (overlays-in (or beg (point-min))
+                             (or end (point-max))))
       (when (overlay-get ov 'magit-blame)
         (delete-overlay ov)))))
 
