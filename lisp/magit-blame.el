@@ -451,7 +451,7 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame--format-separator ()
   (propertize
-   (concat (propertize " "  'display '(space :height (2)))
+   (concat (propertize "\s" 'display '(space :height (2)))
            (propertize "\n" 'line-height t))
    'face (list :background (face-attribute 'magit-blame-heading :background))))
 
