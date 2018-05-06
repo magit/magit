@@ -235,7 +235,9 @@ directory, while reading the FILENAME."
              (?l "Log"       magit-log-buffer-file)
              (?b "Blame"     magit-blame)
              (?p "Prev blob" magit-blob-previous)
-             (?c "Commit"    magit-commit-popup) nil nil
+
+             (?c "Commit"    magit-commit-popup) nil
+             (?t "Trace"     magit-log-trace-definition)
              (?r (lambda ()
                    (with-current-buffer magit-pre-popup-buffer
                      (and (not buffer-file-name)
