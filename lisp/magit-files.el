@@ -226,7 +226,28 @@ directory, while reading the FILENAME."
 ;;;###autoload (autoload 'magit-file-popup "magit" nil t)
 (magit-define-popup magit-file-popup
   "Popup console for Magit commands in file-visiting buffers."
-  :actions magit-file-popup-actions
+  :actions '((?s "Stage"     magit-stage-file)
+             (?D "Diff..."   magit-diff-buffer-file-popup)
+             (?L "Log..."    magit-log-buffer-file-popup)
+             (?B "Blame..."  magit-blame-popup) nil
+             (?u "Unstage"   magit-unstage-file)
+             (?d "Diff"      magit-diff-buffer-file)
+             (?l "Log"       magit-log-buffer-file)
+             (?b "Blame"     magit-blame)
+             (?p "Prev blob" magit-blob-previous)
+             (?c "Commit"    magit-commit-popup) nil nil
+             (?r (lambda ()
+                   (with-current-buffer magit-pre-popup-buffer
+                     (and (not buffer-file-name)
+                          (propertize "...removal" 'face 'default))))
+                 magit-blame-removal)
+             (?n "Next blob" magit-blob-next)
+             nil nil nil
+             (?f (lambda ()
+                   (with-current-buffer magit-pre-popup-buffer
+                     (and (not buffer-file-name)
+                          (propertize "...reverse" 'face 'default))))
+                 magit-blame-reverse))
   :max-action-columns 5)
 
 (defvar magit-file-mode-lighter "")

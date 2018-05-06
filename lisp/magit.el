@@ -200,34 +200,10 @@ own faces for the `header-line', or for parts of the
 
 ;;; Dispatch Popup
 
-(defvar magit-file-popup-actions
-  '((?s "Stage"     magit-stage-file)
-    (?D "Diff..."   magit-diff-buffer-file-popup)
-    (?L "Log..."    magit-log-buffer-file-popup)
-    (?B "Blame..."  magit-blame-popup) nil
-    (?u "Unstage"   magit-unstage-file)
-    (?d "Diff"      magit-diff-buffer-file)
-    (?l "Log"       magit-log-buffer-file)
-    (?b "Blame"     magit-blame)
-    (?p "Prev blob" magit-blob-previous)
-    (?c "Commit"    magit-commit-popup) nil nil
-    (?r (lambda ()
-          (with-current-buffer magit-pre-popup-buffer
-            (and (not buffer-file-name)
-                 (propertize "...removal" 'face 'default))))
-        magit-blame-removal)
-    (?n "Next blob" magit-blob-next)
-    nil nil nil
-    (?f (lambda ()
-          (with-current-buffer magit-pre-popup-buffer
-            (and (not buffer-file-name)
-                 (propertize "...reverse" 'face 'default))))
-        magit-blame-reverse)))
-
 ;;;###autoload (autoload 'magit-dispatch-popup "magit" nil t)
 (magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
-  :actions `("Popup and dwim commands"
+  :actions '("Popup and dwim commands"
              (?A "Cherry-picking"  magit-cherry-pick-popup)
              (?b "Branching"       magit-branch-popup)
              (?B "Bisecting"       magit-bisect-popup)
@@ -277,19 +253,13 @@ own faces for the `header-line', or for parts of the
              (?\r   "  visit thing at point"     magit-visit-thing)
              ;; This binding has no effect and only appears to do
              ;; so because it is identical to the global binding.
-             ("C-h m" "show all key bindings"    describe-mode)
-             (lambda ()
-               (and (with-current-buffer magit-pre-popup-buffer
-                      (or buffer-file-name magit-buffer-file-name))
-                    (propertize "File commands" 'face 'magit-popup-heading)))
-             ,@magit-file-popup-actions)
+             ("C-h m" "show all key bindings"    describe-mode))
   :setup-function 'magit-dispatch-popup-setup
   :max-action-columns (lambda (heading)
                         (pcase heading
                           ("Popup and dwim commands" 4)
                           ("Applying changes" 3)
-                          ("Essential commands" 1)
-                          ("File commands" 5))))
+                          ("Essential commands" 1))))
 
 (defvar magit-dispatch-popup-map
   (let ((map (make-sparse-keymap)))
