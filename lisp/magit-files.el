@@ -269,10 +269,18 @@ Currently this only adds the following key bindings.
 ;;;###autoload
 (define-globalized-minor-mode global-magit-file-mode
   magit-file-mode magit-file-mode-turn-on
-  :package-version '(magit . "2.2.0")
+  :package-version '(magit . "2.13.0")
   :link '(info-link "(magit)Minor Mode for Buffers Visiting Files")
   :group 'magit-essentials
-  :group 'magit-modes)
+  :group 'magit-modes
+  :init-value t)
+;; Unfortunately `:init-value t' only sets the value of the mode
+;; variable but does not cause the mode function to be called, and we
+;; cannot use `:initialize' to call that explicitly because the option
+;; is defined before the functions, so we have to do it here.
+(cl-eval-when (load)
+  (when global-magit-file-mode
+    (global-magit-file-mode 1)))
 
 ;;; Blob Mode
 
