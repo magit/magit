@@ -218,8 +218,25 @@ Also see option `magit-blame-styles'."
    ;; filename <orig-file>
    (orig-file)))
 
-(defun magit-current-blame-chunk ()
-  (magit-blame-chunk-at (point)))
+(defun magit-current-blame-chunk (&optional type)
+  (or (and (not (and type (not (eq type magit-blame-type))))
+           (magit-blame-chunk-at (point)))
+      (and type
+           (let ((rev  (or magit-buffer-refname magit-buffer-revision))
+                 (file (magit-file-relative-name nil (not magit-buffer-file-name)))
+                 (line (format "%i,+1" (line-number-at-pos))))
+             (unless file
+               (error "Buffer does not visit a tracked file"))
+             (with-temp-buffer
+               (magit-with-toplevel
+                 (magit-git-insert
+                  "blame" "--porcelain"
+                  (if (memq magit-blame-type '(final removal))
+                      (cons "--reverse" (magit-blame-arguments))
+                    (magit-blame-arguments))
+                  "-L" line rev "--" file)
+                 (goto-char (point-min))
+                 (car (magit-blame--parse-chunk type))))))))
 
 (defun magit-blame-chunk-at (pos)
   (--any (overlay-get it 'magit-blame-chunk)
