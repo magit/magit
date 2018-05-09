@@ -54,10 +54,11 @@ head this effectively unstages all changes.
   "Reset the head and index to COMMIT, but not the working tree.
 With a prefix argument also reset the working tree.
 \n(git reset --mixed|--hard COMMIT)"
-  (interactive (list (magit-read-branch-or-commit
+  (interactive (list (magit-reset-read-branch-or-commit
                       (if current-prefix-arg
-                          "Hard reset to"
-                        "Reset head to"))
+                          (concat (propertize "Hard" 'face 'bold)
+                                  " reset %s to")
+                        "Reset %s to"))
                      current-prefix-arg))
   (magit-reset-internal (if hard "--hard" "--mixed") commit))
 
@@ -65,22 +66,32 @@ With a prefix argument also reset the working tree.
 (defun magit-reset-head (commit)
   "Reset the head and index to COMMIT, but not the working tree.
 \n(git reset --mixed COMMIT)"
-  (interactive (list (magit-read-branch-or-commit "Reset head to")))
+  (interactive (list (magit-reset-read-branch-or-commit "Reset %s to")))
   (magit-reset-internal "--mixed" commit))
 
 ;;;###autoload
 (defun magit-reset-soft (commit)
   "Reset the head to COMMIT, but not the index and working tree.
 \n(git reset --soft REVISION)"
-  (interactive (list (magit-read-branch-or-commit "Soft reset to")))
+  (interactive (list (magit-reset-read-branch-or-commit "Soft reset %s to")))
   (magit-reset-internal "--soft" commit))
 
 ;;;###autoload
 (defun magit-reset-hard (commit)
   "Reset the head, index, and working tree to COMMIT.
 \n(git reset --hard REVISION)"
-  (interactive (list (magit-read-branch-or-commit "Hard reset to")))
+  (interactive (list (magit-reset-read-branch-or-commit
+                      (concat (propertize "Hard" 'face 'bold)
+                              " reset %s to"))))
   (magit-reset-internal "--hard" commit))
+
+(defun magit-reset-read-branch-or-commit (prompt)
+  "Prompt for and return a ref to reset HEAD to.
+
+PROMPT is a format string, where either the current branch name
+or \"detached head\" will be substituted for %s."
+  (magit-read-branch-or-commit
+   (format prompt (or (magit-get-current-branch) "detached head"))))
 
 (defun magit-reset-internal (arg commit &optional path)
   (when (and (not (member arg '("--hard" nil)))

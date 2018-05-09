@@ -4,5 +4,8 @@ Magit v2.13.0 Release Notes (unreleased)
 Changes since v2.12.0
 ---------------------
 
+* The interactive prompts for the various reset commands now indicate
+  the branch which is going to be reset.  #3438
+
 Fixes since v2.12.0
 -------------------
