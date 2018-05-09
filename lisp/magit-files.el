@@ -235,7 +235,6 @@ directory, while reading the FILENAME."
              (?l "Log"       magit-log-buffer-file)
              (?b "Blame"     magit-blame)
              (?p "Prev blob" magit-blob-previous)
-
              (?c "Commit"    magit-commit-popup) nil
              (?t "Trace"     magit-log-trace-definition)
              (?r (lambda ()
@@ -244,7 +243,8 @@ directory, while reading the FILENAME."
                           (propertize "...removal" 'face 'default))))
                  magit-blame-removal)
              (?n "Next blob" magit-blob-next)
-             nil nil nil
+             (?e "Edit line" magit-edit-line-commit)
+             nil nil
              (?f (lambda ()
                    (with-current-buffer magit-pre-popup-buffer
                      (and (not buffer-file-name)
