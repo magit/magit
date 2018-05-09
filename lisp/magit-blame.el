@@ -319,6 +319,8 @@ in `magit-blame-read-only-mode-map' instead.")
                     "instead use `magit-blame' or `magit-blame-popup'")))
          (add-hook 'after-save-hook     'magit-blame--run t t)
          (add-hook 'post-command-hook   'magit-blame-goto-chunk-hook t t)
+         (add-hook 'before-revert-hook  'magit-blame--remove-overlays t t)
+         (add-hook 'after-revert-hook   'magit-blame--run t t)
          (add-hook 'read-only-mode-hook 'magit-blame-toggle-read-only t t)
          (setq magit-blame-buffer-read-only buffer-read-only)
          (when (or magit-blame-read-only magit-buffer-file-name)
@@ -338,6 +340,8 @@ in `magit-blame-read-only-mode-map' instead.")
              (sit-for 0.01))) ; avoid racing the sentinal
          (remove-hook 'after-save-hook     'magit-blame--run t)
          (remove-hook 'post-command-hook   'magit-blame-goto-chunk-hook t)
+         (remove-hook 'before-revert-hook  'magit-blame--remove-overlays t)
+         (remove-hook 'after-revert-hook   'magit-blame--run t)
          (remove-hook 'read-only-mode-hook 'magit-blame-toggle-read-only t)
          (unless magit-blame-buffer-read-only
            (read-only-mode -1))
@@ -386,13 +390,6 @@ modes is toggled, then this mode also gets toggled automatically.
   (remove-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode))
 
 (add-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode)
-
-(defun auto-revert-handler--unless-magit-blame-mode ()
-  "If Magit-Blame mode is on, then do nothing.  See #1731."
-  magit-blame-mode)
-
-(advice-add 'auto-revert-handler :before-until
-            'auto-revert-handler--unless-magit-blame-mode)
 
 ;;; Process
 
