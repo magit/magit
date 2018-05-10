@@ -1185,7 +1185,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 ;;;; Visit commands
 
-(defun magit-diff-visit-file (file &optional other-window force-worktree)
+(defun magit-diff-visit-file
+    (file &optional other-window force-worktree display-fn)
   "From a diff, visit the corresponding file at the appropriate position.
 
 If the diff shows changes in the worktree, the index, or `HEAD',
@@ -1202,8 +1203,11 @@ being displayed in another window of the same frame, then just
 select that window and adjust point.  Otherwise, or with a prefix
 argument, display the buffer in another window.  The meaning of
 the prefix argument can be inverted or further modified using the
-option `magit-display-file-buffer-function'.  Non-interactively
-the optional OTHER-WINDOW argument is taken literally.
+option `magit-display-file-buffer-function'.
+
+Non-interactively the optional OTHER-WINDOW argument is taken
+literally, and DISPLAY-FN can be used to override that specify a
+function explicitly.
 
 The optional FORCE-WORKTREE means to force visiting the worktree
 version of the file.  To do this interactively use the command
@@ -1233,6 +1237,8 @@ version of the file.  To do this interactively use the command
                        (find-file-noselect file)))))
       (cond ((called-interactively-p 'any)
              (magit-display-file-buffer buf))
+            (display-fn
+             (funcall display-fn buf))
             ((or other-window (get-buffer-window buf))
              (switch-to-buffer-other-window buf))
             (t
