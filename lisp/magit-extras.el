@@ -335,29 +335,31 @@ from `HEAD', or by checking out the commit (or a branch that
 points at it) otherwise."
   (interactive (list (and current-prefix-arg 'removal)))
   (let* ((chunk  (magit-current-blame-chunk (or type 'addition)))
-         (rev    (oref chunk orig-rev))
-         (rebase (magit-rev-ancestor-p rev "HEAD"))
-         (file   (expand-file-name (oref chunk orig-file)
-                                   (magit-toplevel))))
-    (if rebase
-        (magit-rebase-edit-commit rev (magit-rebase-arguments))
-      (magit-checkout (or (magit-rev-branch rev) rev)))
-    (unless (file-equal-p file buffer-file-name)
-      (let ((blame-type (and magit-blame-mode magit-blame-type)))
+         (rev    (oref chunk orig-rev)))
+    (if (equal rev "0000000000000000000000000000000000000000")
+        (message "This line has not been committed yet")
+      (let ((rebase (magit-rev-ancestor-p rev "HEAD"))
+            (file   (expand-file-name (oref chunk orig-file)
+                                      (magit-toplevel))))
         (if rebase
-            (set-process-sentinel
-             magit-this-process
-             (lambda (process event)
-               (magit-sequencer-process-sentinel process event)
-               (when (eq (process-status process) 'exit)
-                 (find-file file)
-                 (when blame-type
-                   (magit-blame--pre-blame-setup blame-type)
-                   (magit-blame--run)))))
-          (find-file file)
-          (when blame-type
-            (magit-blame--pre-blame-setup blame-type)
-            (magit-blame--run)))))))
+            (magit-rebase-edit-commit rev (magit-rebase-arguments))
+          (magit-checkout (or (magit-rev-branch rev) rev)))
+        (unless (file-equal-p file buffer-file-name)
+          (let ((blame-type (and magit-blame-mode magit-blame-type)))
+            (if rebase
+                (set-process-sentinel
+                 magit-this-process
+                 (lambda (process event)
+                   (magit-sequencer-process-sentinel process event)
+                   (when (eq (process-status process) 'exit)
+                     (find-file file)
+                     (when blame-type
+                       (magit-blame--pre-blame-setup blame-type)
+                       (magit-blame--run)))))
+              (find-file file)
+              (when blame-type
+                (magit-blame--pre-blame-setup blame-type)
+                (magit-blame--run)))))))))
 
 (put 'magit-edit-line-commit 'disabled t)
 
