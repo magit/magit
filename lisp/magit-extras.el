@@ -363,6 +363,33 @@ points at it) otherwise."
 
 (put 'magit-edit-line-commit 'disabled t)
 
+(defun magit-diff-edit-hunk-commit ()
+  "From a hunk, edit the respective commit and visit the file.
+
+First visit the file being modified by the hunk at the correct
+location using `magit-diff-visit-file'.  This actually visits a
+blob.  When point is on a diff header, not within an individual
+hunk, then this visits the blob the first hunk is about.
+
+Then invoke `magit-edit-line-commit', which uses an interactive
+rebase to make the commit editable, or if that is not possible
+because the commit is not reachable from `HEAD' by checking out
+that commit directly.  This also causes the actual worktree file
+to be visited.
+
+Neither the blob nor the file buffer are killed when finishing
+the rebase.  If that is undesirable, then it might be better to
+use `magit-rebase-edit-command' instead of this command."
+  (interactive)
+  (let ((magit-diff-visit-previous-blob nil))
+    (magit-diff-visit-file (--if-let (magit-file-at-point)
+                               (expand-file-name it)
+                             (user-error "No file at point"))
+                           nil 'switch-to-buffer))
+  (magit-edit-line-commit))
+
+(put 'magit-diff-edit-hunk-commit 'disabled t)
+
 ;;; Reshelve
 
 ;;;###autoload
