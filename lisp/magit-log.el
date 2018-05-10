@@ -165,7 +165,7 @@ This is useful if you use really long branch names."
 ;;;; File Log
 
 (defcustom magit-log-buffer-file-locked t
-  "Whether `magit-log-buffer-file' uses a decicated buffer."
+  "Whether `magit-log-buffer-file' uses a dedicated buffer."
   :package-version '(magit . "2.7.0")
   :group 'magit-commands
   :group 'magit-log
