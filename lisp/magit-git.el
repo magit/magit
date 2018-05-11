@@ -1275,19 +1275,19 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 (defun magit-list-remote-branches (&optional remote)
   (magit-list-refs (concat "refs/remotes/" remote)))
 
-(defun magit-list-related-branches (relation &optional commit)
+(defun magit-list-related-branches (relation &optional commit arg)
   (--remove (string-match-p "\\(\\`(HEAD\\|HEAD -> \\)" it)
             (--map (substring it 2)
-                   (magit-git-lines "branch" relation commit))))
+                   (magit-git-lines "branch" arg relation commit))))
 
-(defun magit-list-containing-branches (&optional commit)
-  (magit-list-related-branches "--contains" commit))
+(defun magit-list-containing-branches (&optional commit arg)
+  (magit-list-related-branches "--contains" commit arg))
 
-(defun magit-list-merged-branches (&optional commit)
-  (magit-list-related-branches "--merged" commit))
+(defun magit-list-merged-branches (&optional commit arg)
+  (magit-list-related-branches "--merged" commit arg))
 
-(defun magit-list-unmerged-branches (&optional commit)
-  (magit-list-related-branches "--no-merged" commit))
+(defun magit-list-unmerged-branches (&optional commit arg)
+  (magit-list-related-branches "--no-merged" commit arg))
 
 (defun magit-list-unmerged-to-upstream-branches ()
   (--filter (-when-let (upstream (magit-get-upstream-branch it))
