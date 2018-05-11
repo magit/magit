@@ -266,7 +266,7 @@ depending on the value of option `magit-commit-squash-confirm'."
           (?s "[s]elect other"            (setq commit nil))
           (?a "[a]bort"                   (user-error "Quit")))))
     (when commit
-      (setq commit (magit-rebase-interactive-assert commit)))
+      (setq commit (magit-rebase-interactive-assert commit t)))
     (if (and commit
              (or confirmed
                  (not (or rebase
@@ -290,9 +290,10 @@ depending on the value of option `magit-commit-squash-confirm'."
           (when (and (magit-commit-squash-internal option commit args
                                                    rebase edit t)
                      rebase)
+            (magit-commit-amend-assert commit)
             (magit-rebase-interactive-1 commit
                 (list "--autosquash" "--autostash")
-              "" "true" t)))
+              "" "true" nil t)))
         (format "Type %%p on a commit to %s into it,"
                 (substring option 2))
         nil nil (list "--graph"))

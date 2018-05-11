@@ -544,7 +544,7 @@ START has to be selected from a list of recent commits."
               "and commits above it onto " newbase ","))))
 
 (defun magit-rebase-interactive-1
-    (commit args message &optional editor noassert confirm)
+    (commit args message &optional editor delay-edit-confirm noassert confirm)
   (declare (indent 2))
   (when commit
     (if (eq commit :merge-base)
@@ -557,7 +557,7 @@ START has to be selected from a list of recent commits."
           (setq commit (concat commit "^"))
         (setq args (cons "--root" args)))))
   (when (and commit (not noassert))
-    (setq commit (magit-rebase-interactive-assert commit)))
+    (setq commit (magit-rebase-interactive-assert commit delay-edit-confirm)))
   (if (and commit (not confirm))
       (let ((process-environment process-environment))
         (when editor
@@ -567,10 +567,32 @@ START has to be selected from a list of recent commits."
     (magit-log-select
       `(lambda (commit)
          (magit-rebase-interactive-1 commit (list ,@args)
-           ,message ,editor ,noassert))
+           ,message ,editor ,delay-edit-confirm ,noassert))
       message)))
 
-(defun magit-rebase-interactive-assert (since)
+(defun magit-rebase-interactive-assert (since &optional delay-edit-confirm)
+  (let* ((commit (if (string-suffix-p "^" since)
+                     ;; If SINCE is "REV^", then the user selected
+                     ;; "REV", which is the first commit that will
+                     ;; be replaced. (from^..to] <=> [from..to].
+                     (substring since 0 -1)
+                   ;; The "--root" argument is being used.
+                   since))
+         (branches (magit-list-publishing-branches commit)))
+    (when (and branches
+               (or (not delay-edit-confirm)
+                   ;; The user might have stopped at a published commit
+                   ;; merely to add new commits *after* it.  Try not to
+                   ;; ask users whether they really want to edit public
+                   ;; commits, when they don't actually intend to do so.
+                   (not (--all-p (magit-rev-equal it commit) branches))))
+      (let ((m1 "Some of these commits have already been published to ")
+            (m2 ".\nDo you really want to modify them"))
+        (magit-confirm 'edit-published
+          (concat m1 "%s" m2)
+          (concat m1 "%i public branches" m2)
+          nil branches))
+      (magit--rebase-public-edit-confirmed 'set)))
   (if (magit-git-lines "rev-list" "--merges" (concat since "..HEAD"))
       (magit-read-char-case "Proceed despite merge in rebase range?  " nil
         (?c "[c]ontinue" since)
@@ -578,13 +600,21 @@ START has to be selected from a list of recent commits."
         (?a "[a]bort" (user-error "Quit")))
     since))
 
+(defun magit--rebase-public-edit-confirmed (&optional set)
+  (let ((file (magit-git-dir (convert-standard-filename
+                              "rebase-merge/magit-edit-confirmed"))))
+    (if set
+        (with-temp-file (write-file file) t)
+      (file-exists-p file))))
+
 ;;;###autoload
 (defun magit-rebase-interactive (commit args)
   "Start an interactive rebase sequence."
   (interactive (list (magit-commit-at-point)
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1 commit args
-    "Type %p on a commit to rebase it and all commits above it,"))
+    "Type %p on a commit to rebase it and all commits above it,"
+    nil t))
 
 ;;;###autoload
 (defun magit-rebase-autosquash (args)
@@ -601,7 +631,8 @@ START has to be selected from a list of recent commits."
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to edit it,"
-    "perl -i -p -e '++$x if not $x and s/^pick/edit/'"))
+    "perl -i -p -e '++$x if not $x and s/^pick/edit/'"
+    t))
 
 ;;;###autoload
 (defun magit-rebase-reword-commit (commit args)
@@ -620,7 +651,7 @@ START has to be selected from a list of recent commits."
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to remove it,"
     "perl -i -p -e '++$x if not $x and s/^pick/# pick/'"
-    nil t))
+    nil nil t))
 
 ;;;###autoload
 (defun magit-rebase-continue (&optional noedit)
@@ -631,6 +662,10 @@ edit.  With a prefix argument the old message is reused as-is."
   (if (magit-rebase-in-progress-p)
       (if (magit-anything-unstaged-p t)
           (user-error "Cannot continue rebase with unstaged changes")
+        (when (and (magit-anything-staged-p)
+                   (file-exists-p (magit-git-dir "rebase-merge"))
+                   (not (magit--rebase-public-edit-confirmed)))
+          (magit-commit-amend-assert))
         (if noedit
             (let ((process-environment process-environment))
               (push "GIT_EDITOR=true" process-environment)
