@@ -1276,7 +1276,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
   (magit-list-refs (concat "refs/remotes/" remote)))
 
 (defun magit-list-related-branches (relation &optional commit)
-  (--remove (string-match-p "\\`(HEAD" it)
+  (--remove (string-match-p "\\(\\`(HEAD\\|HEAD -> \\)" it)
             (--map (substring it 2)
                    (magit-git-lines "branch" relation commit))))
 
