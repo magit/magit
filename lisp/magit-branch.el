@@ -186,6 +186,12 @@ and change branch related variables."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-published-branches '("origin/master")
+  "List of branches that are considered to be published."
+  :package-version '(magit . "2.13.0")
+  :group 'magit-commands
+  :type '(repeat string))
+
 ;;; Branch Popup
 
 (defvar magit-branch-config-variables)
