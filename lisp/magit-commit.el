@@ -305,7 +305,7 @@ depending on the value of option `magit-commit-squash-confirm'."
   (--when-let (magit-list-publishing-branches commit)
     (let ((m1 "This commit has already been published to ")
           (m2 ".\nDo you really want to modify it"))
-      (magit-confirm 'edit-published
+      (magit-confirm 'amend-published
         (concat m1 "%s" m2)
         (concat m1 "%i public branches" m2)
         nil it))))

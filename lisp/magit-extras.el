@@ -342,7 +342,8 @@ points at it) otherwise."
             (file   (expand-file-name (oref chunk orig-file)
                                       (magit-toplevel))))
         (if rebase
-            (magit-rebase-edit-commit rev (magit-rebase-arguments))
+            (let ((magit--rebase-published-symbol 'edit-published))
+              (magit-rebase-edit-commit rev (magit-rebase-arguments)))
           (magit-checkout (or (magit-rev-branch rev) rev)))
         (unless (file-equal-p file buffer-file-name)
           (let ((blame-type (and magit-blame-mode magit-blame-type)))

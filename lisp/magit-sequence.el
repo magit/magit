@@ -570,6 +570,8 @@ START has to be selected from a list of recent commits."
            ,message ,editor ,delay-edit-confirm ,noassert))
       message)))
 
+(defvar magit--rebase-published-symbol nil)
+
 (defun magit-rebase-interactive-assert (since &optional delay-edit-confirm)
   (let* ((commit (if (string-suffix-p "^" since)
                      ;; If SINCE is "REV^", then the user selected
@@ -588,7 +590,7 @@ START has to be selected from a list of recent commits."
                    (not (--all-p (magit-rev-equal it commit) branches))))
       (let ((m1 "Some of these commits have already been published to ")
             (m2 ".\nDo you really want to modify them"))
-        (magit-confirm 'edit-published
+        (magit-confirm (or magit--rebase-published-symbol 'rebase-published)
           (concat m1 "%s" m2)
           (concat m1 "%i public branches" m2)
           nil branches))
