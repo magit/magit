@@ -345,7 +345,8 @@ points at it) otherwise."
             (let ((magit--rebase-published-symbol 'edit-published))
               (magit-rebase-edit-commit rev (magit-rebase-arguments)))
           (magit-checkout (or (magit-rev-branch rev) rev)))
-        (unless (file-equal-p file buffer-file-name)
+        (unless (and buffer-file-name
+                     (file-equal-p file buffer-file-name))
           (let ((blame-type (and magit-blame-mode magit-blame-type)))
             (if rebase
                 (set-process-sentinel
