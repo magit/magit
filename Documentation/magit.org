@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.12.1 (2.12.1-93-ga80da3d6+1)
+#+SUBTITLE: for version 2.12.1 (2.12.1-114-gfd19cb8d+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.12.1 (2.12.1-93-ga80da3d6+1).
+This manual is for Magit version 2.12.1 (2.12.1-114-gfd19cb8d+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -1326,6 +1326,27 @@ telling Magit to ask fewer questions.
       to confirm by accepting the default (or selecting another).
       This action only concerns the deletion of multiple stashes at
       once.
+
+  - Edit published history:
+
+    Without adding these symbols here, you will be warned before
+    editing commits that have already been pushed to one of the
+    branches listed in ~magit-published-branches~.
+
+    - ~amend-published~ Affects most commands that amend to "HEAD".
+
+    - ~rebase-published~ Affects commands that perform interactive
+      rebases.  This includes commands from the commit popup that
+      modify a commit other than "HEAD", namely the various fixup
+      and squash variants.
+
+    - ~edit-published~ Affects the commands ~magit-edit-line-commit~ and
+      ~magit-diff-edit-hunk-commit~.  These two commands make it quite
+      easy to accidentally edit a published commit, so you should
+      think twice before configuring them not to ask for confirmation.
+
+    To disable confirmation completely, add all three symbols here or
+    set ~magit-published-branches~ to ~nil~.
 
   - Various:
 

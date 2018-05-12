@@ -17,7 +17,7 @@ later version.
 
 This document is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE@.  See the GNU
 General Public License for more details.
 @end quotation
 @end copying
@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.12.1 (2.12.1-93-ga80da3d6+1)
+@subtitle for version 2.12.1 (2.12.1-114-gfd19cb8d+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.12.1 (2.12.1-93-ga80da3d6+1).
+This manual is for Magit version 2.12.1 (2.12.1-114-gfd19cb8d+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -64,7 +64,7 @@ later version.
 
 This document is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE@.  See the GNU
 General Public License for more details.
 @end quotation
 @end ifnottex
@@ -1454,7 +1454,7 @@ Cycle the visibility of all sections in the current buffer.
 @cindex magit-section-show-level-4
 @item @kbd{4} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-4})
 
-Show sections surrounding the current section up to level N.
+Show sections surrounding the current section up to level N@.
 
 @kindex M-1
 @cindex magit-section-show-level-1-all
@@ -1469,7 +1469,7 @@ Show sections surrounding the current section up to level N.
 @cindex magit-section-show-level-4-all
 @item @kbd{M-4} @tie{}@tie{}@tie{}@tie{}(@code{magit-section-show-level-4-all})
 
-Show all sections up to level N.
+Show all sections up to level N@.
 @end table
 
 Some functions, which are used to implement the above commands, are
@@ -1586,7 +1586,7 @@ this manual along with the appropriate "section inserter functions".
 
 @defun magit-add-section-hook hook function &optional at append local
 
-Add the function FUNCTION to the value of section hook HOOK.
+Add the function FUNCTION to the value of section hook HOOK@.
 
 Add FUNCTION at the beginning of the hook list unless optional
 APPEND is non-nil, in which case FUNCTION is added at the end.  If
@@ -1594,10 +1594,10 @@ FUNCTION already is a member then move it to the new location.
 
 If optional AT is non-nil and a member of the hook list, then add
 FUNCTION next to that instead.  Add before or after AT, or replace
-AT with FUNCTION depending on APPEND.  If APPEND is the symbol
-@code{replace}, then replace AT with FUNCTION.  For any other non-nil value
-place FUNCTION right after AT.  If nil, then place FUNCTION right
-before AT.  If FUNCTION already is a member of the list but AT is
+AT with FUNCTION depending on APPEND@.  If APPEND is the symbol
+@code{replace}, then replace AT with FUNCTION@.  For any other non-nil value
+place FUNCTION right after AT@.  If nil, then place FUNCTION right
+before AT@.  If FUNCTION already is a member of the list but AT is
 not, then leave FUNCTION where ever it already is.
 
 If optional LOCAL is non-nil, then modify the hook's buffer-local
@@ -1870,6 +1870,36 @@ once.
 
 
 @item
+Edit published history:
+
+Without adding these symbols here, you will be warned before
+editing commits that have already been pushed to one of the
+branches listed in @code{magit-published-branches}.
+
+@itemize
+@item
+@code{amend-published} Affects most commands that amend to "HEAD".
+
+
+@item
+@code{rebase-published} Affects commands that perform interactive
+rebases.  This includes commands from the commit popup that
+modify a commit other than "HEAD", namely the various fixup
+and squash variants.
+
+
+@item
+@code{edit-published} Affects the commands @code{magit-edit-line-commit} and
+@code{magit-diff-edit-hunk-commit}.  These two commands make it quite
+easy to accidentally edit a published commit, so you should
+think twice before configuring them not to ask for confirmation.
+@end itemize
+
+To disable confirmation completely, add all three symbols here or
+set @code{magit-published-branches} to @code{nil}.
+
+
+@item
 Various:
 
 @itemize
@@ -2137,7 +2167,7 @@ if both defaults were @code{nil}.
 
 
 @item
-": " is appended to PROMPT.
+": " is appended to PROMPT@.
 
 
 @item
@@ -2474,7 +2504,7 @@ then offer to initialize it as a new repository.
 
 List of directories that are or contain Git repositories.  Each
 element has the form @code{(DIRECTORY . DEPTH)} or, for backward
-compatibility, just DIRECTORY.  DIRECTORY has to be a directory or
+compatibility, just DIRECTORY@.  DIRECTORY has to be a directory or
 a directory file-name, a string.  DEPTH, an integer, specifies the
 maximum depth to look for Git repositories.  If it is 0, then only
 add DIRECTORY itself.  For elements that are strings, the value of
@@ -4574,7 +4604,7 @@ commits that still have to be bisected.
 @cindex magit-find-file
 @item @kbd{M-x magit-find-file} @tie{}@tie{}@tie{}@tie{}(@code{magit-find-file})
 
-View FILE from REV.  Switch to a buffer visiting blob REV:FILE,
+View FILE from REV@.  Switch to a buffer visiting blob REV:FILE,
 creating one if none already exists.
 
 @kindex M-x magit-find-file-other-window
@@ -5329,14 +5359,14 @@ First INDEX-REGEXP is used to find the previously inserted entry,
 by searching backward from point.  The first submatch must match
 the index number.  That number is incremented by one, and becomes
 the index number of the entry to be inserted.  If you don't want
-to number the inserted revisions, then use nil for INDEX-REGEXP.
+to number the inserted revisions, then use nil for INDEX-REGEXP@.
 
 If INDEX-REGEXP is non-nil then both POINT-FORMAT and EOB-FORMAT
 should contain \"%N\", which is replaced with the number that was
 determined in the previous step.
 
 Both formats, if non-nil and after removing %N, are then expanded
-using `git show --format=FORMAT @dots{}' inside TOPLEVEL.
+using `git show --format=FORMAT @dots{}' inside TOPLEVEL@.
 
 The expansion of POINT-FORMAT is inserted at point, and the
 expansion of EOB-FORMAT is inserted at the end of the buffer (if the
@@ -5934,10 +5964,10 @@ alist of the form @code{((UPSTREAM . RULE)...)}.  The first matching
 element is used, the following elements are ignored.
 
 UPSTREAM is the branch to be used as the upstream for branches
-specified by RULE.  It can be a local or a remote branch.
+specified by RULE@.  It can be a local or a remote branch.
 
 RULE can either be a regular expression, matching branches whose
-upstream should be the one specified by UPSTREAM.  Or it can be a
+upstream should be the one specified by UPSTREAM@.  Or it can be a
 list of the only branches that should @strong{not} use UPSTREAM; all other
 branches will.  Matching is done after stripping the remote part of
 the name of the branch that is being branched from.
@@ -6020,14 +6050,14 @@ prefix argument.
 @defvar branch.NAME.merge
 
 Together with @code{branch.NAME.remote} this variable defines the upstream
-branch of the local branch named NAME.  The value of this variable
+branch of the local branch named NAME@.  The value of this variable
 is the full reference of the upstream @emph{branch}.
 @end defvar
 
 @defvar branch.NAME.remote
 
 Together with @code{branch.NAME.merge} this variable defines the upstream
-branch of the local branch named NAME.  The value of this variable
+branch of the local branch named NAME@.  The value of this variable
 is the name of the upstream @emph{remote}.
 @end defvar
 
@@ -6066,7 +6096,7 @@ is undefined.
 
 @defvar branch.NAME.description
 
-This variable can be used to describe the branch named NAME.  That
+This variable can be used to describe the branch named NAME@.  That
 description is used e.g. when turning the branch into a series of
 patches.
 @end defvar
@@ -6543,7 +6573,7 @@ branch TARGET are being rebased."
 @item @kbd{r s} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-subset})
 
 Start a non-interactive rebase sequence with commits from START to
-@code{HEAD} onto NEWBASE.  START has to be selected from a list of recent
+@code{HEAD} onto NEWBASE@.  START has to be selected from a list of recent
 commits.
 @end table
 
@@ -7383,7 +7413,7 @@ Show all diffs of a stash in a buffer.
 @cindex magit-stash-branch
 @item @kbd{z b} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-branch})
 
-Create and checkout a new BRANCH from STASH.  The branch starts at
+Create and checkout a new BRANCH from STASH@.  The branch starts at
 the commit that was current when the stash was created.
 
 @kindex z B
@@ -7398,13 +7428,13 @@ if it applies cleanly.
 @cindex magit-stash-format-patch
 @item @kbd{z f} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-format-patch})
 
-Create a patch from STASH.
+Create a patch from STASH@.
 
 @kindex k
 @cindex magit-stash-clear
 @item @kbd{k} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-clear})
 
-Remove all stashes saved in REF's reflog by deleting REF.
+Remove all stashes saved in REF's reflog by deleting REF@.
 
 @kindex z l
 @cindex magit-stash-list
@@ -7605,26 +7635,26 @@ branch.  To change the value for another remote invoke
 
 @defvar remote.NAME.url
 
-This variable specifies the url of the remote named NAME.  It can
+This variable specifies the url of the remote named NAME@.  It can
 have multiple values.
 @end defvar
 
 @defvar remote.NAME.fetch
 
-The refspec used when fetching from the remote named NAME.  It can
+The refspec used when fetching from the remote named NAME@.  It can
 have multiple values.
 @end defvar
 
 @defvar remote.NAME.pushurl
 
 This variable specifies the url used for fetching from the remote
-named NAME.  If it is not specified, then @code{remote.NAME.url} is used
+named NAME@.  If it is not specified, then @code{remote.NAME.url} is used
 instead.  It can have multiple values.
 @end defvar
 
 @defvar remote.NAME.push
 
-The refspec used when pushing to the remote named NAME.  It can
+The refspec used when pushing to the remote named NAME@.  It can
 have multiple values.
 @end defvar
 
@@ -8079,7 +8109,7 @@ the appropriate infix arguments in a popup buffer.
 @cindex magit-tag
 @item @kbd{t t} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag})
 
-Create a new tag with the given NAME at REV.  With a prefix argument
+Create a new tag with the given NAME at REV@.  With a prefix argument
 annotate the tag.
 
 @kindex t k
@@ -8291,7 +8321,7 @@ suitable modules.
 
 This commands adds the repository at URL as a module.  Optional PATH
 is the path to the module relative to the root of the super-project.
-If it is nil then the path is determined based on URL.
+If it is nil then the path is determined based on URL@.
 
 @kindex o r
 @cindex magit-submodule-register
@@ -8385,13 +8415,13 @@ used.  Otherwise the prefix is read in the minibuffer.
 @cindex magit-subtree-add
 @item @kbd{O a} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-add})
 
-Add COMMIT from REPOSITORY as a new subtree at PREFIX.
+Add COMMIT from REPOSITORY as a new subtree at PREFIX@.
 
 @kindex O c
 @cindex magit-subtree-add-commit
 @item @kbd{O c} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-add-commit})
 
-Add COMMIT as a new subtree at PREFIX.
+Add COMMIT as a new subtree at PREFIX@.
 
 @kindex O m
 @cindex magit-subtree-merge
@@ -8410,13 +8440,13 @@ Pull COMMIT from REPOSITORY into the PREFIX subtree.
 @item @kbd{O p} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-push})
 
 Extract the history of the subtree PREFIX and push it to REF on
-REPOSITORY.
+REPOSITORY@.
 
 @kindex O s
 @cindex magit-subtree-split
 @item @kbd{O s} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-split})
 
-Extract the history of the subtree PREFIX.
+Extract the history of the subtree PREFIX@.
 @end table
 
 @node Common Commands
@@ -8965,7 +8995,7 @@ current repository when the visited file changes on disk.  That is
 implemented on top of @code{auto-revert-mode} from the built-in library
 @code{autorevert}.  To figure out whether that impacts performance, check
 whether performance is significantly worse, when many buffers exist
-and/or when some buffers visit files using TRAMP.  If so, then this
+and/or when some buffers visit files using TRAMP@.  If so, then this
 should help.
 
 @lisp
@@ -9312,12 +9342,12 @@ the refresh because that also automatically moves to the next change.
 
 @defun magit-call-git &rest args
 
-Calls git synchronously with ARGS.
+Calls git synchronously with ARGS@.
 @end defun
 
 @defun magit-call-process program &rest args
 
-Calls PROGRAM synchronously with ARGS.
+Calls PROGRAM synchronously with ARGS@.
 @end defun
 
 @defun magit-run-git &rest args
@@ -9344,8 +9374,8 @@ for the process to return, so the function itself is synchronous.
 
 @defun magit-run-git-with-logfile file &rest args
 
-Calls git synchronously with ARGS.  The process' output is saved in
-FILE.  This is rarely useful and so this function might be removed
+Calls git synchronously with ARGS@.  The process' output is saved in
+FILE@.  This is rarely useful and so this function might be removed
 in the future.
 
 This function actually runs git asynchronously.  But then it waits
@@ -9537,7 +9567,7 @@ what has already happened inside that call.
 
 @defun magit-define-section-jumper sym title &optional value
 
-Define an interactive function to go to section SYM.  TITLE is the
+Define an interactive function to go to section SYM@.  TITLE is the
 displayed title of the section.
 @end defun
 
@@ -9596,19 +9626,19 @@ intended for debugging purposes.
 
 @defun magit-section-ident
 
-Return an unique identifier for SECTION.  The return value has the
+Return an unique identifier for SECTION@.  The return value has the
 form @code{((TYPE . VALUE)...)}.
 @end defun
 
 @defun magit-get-section
 
-Return the section identified by IDENT.  IDENT has to be a list as
+Return the section identified by IDENT@.  IDENT has to be a list as
 returned by @code{magit-section-ident}.
 @end defun
 
 @defun magit-section-match condition &optional section
 
-Return @code{t} if SECTION matches CONDITION.  SECTION defaults to the
+Return @code{t} if SECTION matches CONDITION@.  SECTION defaults to the
 section at point.  If SECTION is not specified and there also is no
 section at point, then return @code{nil}.
 
@@ -9648,7 +9678,7 @@ unless of course you want to be that precise.
 
 @defun magit-section-when condition &rest body
 
-If the section at point matches CONDITION evaluate BODY.
+If the section at point matches CONDITION evaluate BODY@.
 
 If the section matches, then evaluate BODY forms sequentially with
 @code{it} bound to the section and return the value of the last form.  If
@@ -9687,7 +9717,7 @@ For diff related sections a few additional tools exist.
 
 @defun magit-diff-type &optional section
 
-Return the diff type of SECTION.
+Return the diff type of SECTION@.
 
 The returned type is one of the symbols @code{staged}, @code{unstaged}, @code{committed},
 or @code{undefined}.  This type serves a similar purpose as the general
@@ -9751,11 +9781,11 @@ refreshes a first time.
 This function displays and optionally selects BUFFER by calling
 @code{magit-mode-display-buffer} with BUFFER, MODE and SWITCH-FUNC as
 arguments.  Then it sets the local value of @code{magit-refresh-function}
-to REFRESH-FUNC and that of @code{magit-refresh-args} to REFRESH-ARGS.
+to REFRESH-FUNC and that of @code{magit-refresh-args} to REFRESH-ARGS@.
 Finally it creates the buffer content by calling REFRESH-FUNC with
 REFRESH-ARGS as arguments.
 
-All arguments are evaluated before switching to BUFFER.
+All arguments are evaluated before switching to BUFFER@.
 @end defmac
 
 @defun magit-mode-display-buffer buffer mode &optional switch-function
@@ -9768,7 +9798,7 @@ Unless BUFFER is already displayed in the selected frame, store the
 previous window configuration as a buffer local value, so that it
 can later be restored by @code{magit-mode-bury-buffer}.
 
-The buffer is displayed and selected using SWITCH-FUNCTION.  If that
+The buffer is displayed and selected using SWITCH-FUNCTION@.  If that
 is @code{nil} then @code{pop-to-buffer} is used if the current buffer's major mode
 derives from @code{magit-mode}.  Otherwise @code{switch-to-buffer} is used.
 @end defun
@@ -10210,7 +10240,7 @@ Google's @code{8.8.8.8}) may also be sufficient to work around the issue.
 @node A branch and tag sharing the same name breaks SOMETHING
 @appendixsubsec A branch and tag sharing the same name breaks SOMETHING
 
-Or more generally, ambiguous refnames break SOMETHING.
+Or more generally, ambiguous refnames break SOMETHING@.
 
 Magit assumes that refs are named non-ambiguously across the
 "refs/heads/", "refs/tags/", and "refs/remotes/" namespaces (i.e., all

@@ -234,6 +234,28 @@ References:
   This action only concerns the deletion of multiple stashes at
   once.
 
+Edit published history:
+
+  Without adding these symbols here, you will be warned before
+  editing commits that have already been pushed to one of the
+  branches listed in `magit-published-branches'.
+
+  `amend-published' Affects most commands that amend to \"HEAD\".
+
+  `rebase-published' Affects commands that perform interactive
+  rebases.  This includes commands from the commit popup that
+  modify a commit other than \"HEAD\", namely the various fixup
+  and squash variants.
+
+  `edit-published' Affects the commands `magit-edit-line-commit'
+  and `magit-diff-edit-hunk-commit'.  These two commands make
+  it quite easy to accidentally edit a published commit, so you
+  should think twice before configuring them not to ask for
+  confirmation.
+
+  To disable confirmation completely, add all three symbols here
+  or set `magit-published-branches' to nil.
+
 Various:
 
   `kill-process' There seldom is a reason to kill a process.
