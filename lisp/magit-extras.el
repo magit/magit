@@ -334,8 +334,8 @@ editable using `git rebase --interactive' if it is reachable
 from `HEAD', or by checking out the commit (or a branch that
 points at it) otherwise."
   (interactive (list (and current-prefix-arg 'removal)))
-  (let* ((chunk  (magit-current-blame-chunk (or type 'addition)))
-         (rev    (oref chunk orig-rev)))
+  (let* ((chunk (magit-current-blame-chunk (or type 'addition)))
+         (rev   (oref chunk orig-rev)))
     (if (equal rev "0000000000000000000000000000000000000000")
         (message "This line has not been committed yet")
       (let ((rebase (magit-rev-ancestor-p rev "HEAD"))
