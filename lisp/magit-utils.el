@@ -577,6 +577,10 @@ ACTION is a member of option `magit-slow-confirm'."
       (yes-or-no-p prompt)
     (y-or-n-p prompt)))
 
+(defvar magit--no-confirm-alist
+  '((safe-with-wip magit-wip-before-change-mode
+                   discard reverse stage-all-changes unstage-all-changes)))
+
 (cl-defun magit-confirm (action &optional prompt prompt-n noabort
                                 (items nil sitems))
   (declare (indent defun))
@@ -586,13 +590,14 @@ ACTION is a member of option `magit-slow-confirm'."
                          (car items)))
   (or (cond ((and (not (eq action t))
                   (or (eq magit-no-confirm t)
-                      (memq action
-                            `(,@magit-no-confirm
-                              ,@(and magit-wip-before-change-mode
-                                     (memq 'safe-with-wip magit-no-confirm)
-                                     `(discard reverse
-                                               stage-all-changes
-                                               unstage-all-changes))))))
+                      (memq action magit-no-confirm)
+                      (cl-member-if (pcase-lambda (`(,key ,var . ,sub))
+                                      (and (memq key magit-no-confirm)
+                                           (memq action sub)
+                                           (or (not var)
+                                               (and (boundp var)
+                                                    (symbol-value var)))))
+                                    magit--no-confirm-alist)))
              (or (not sitems) items))
             ((not sitems)
              (magit-y-or-n-p prompt action))
