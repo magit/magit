@@ -44,6 +44,7 @@
 (defvar magit-process-error-message-regexps)
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
 (defvar magit-branch-prefer-remote-upstream)
+(defvar magit-published-branches)
 
 (defvar magit-tramp-process-environment nil)
 
