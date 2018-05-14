@@ -571,6 +571,7 @@ START has to be selected from a list of recent commits."
       message)))
 
 (defvar magit--rebase-published-symbol nil)
+(defvar magit--rebase-public-edit-confirmed nil)
 
 (defun magit-rebase-interactive-assert (since &optional delay-edit-confirm)
   (let* ((commit (if (string-suffix-p "^" since)
@@ -581,6 +582,8 @@ START has to be selected from a list of recent commits."
                    ;; The "--root" argument is being used.
                    since))
          (branches (magit-list-publishing-branches commit)))
+    (setq magit--rebase-public-edit-confirmed
+          (delete (magit-toplevel) magit--rebase-public-edit-confirmed))
     (when (and branches
                (or (not delay-edit-confirm)
                    ;; The user might have stopped at a published commit
@@ -592,22 +595,14 @@ START has to be selected from a list of recent commits."
             (m2 ".\nDo you really want to modify them"))
         (magit-confirm (or magit--rebase-published-symbol 'rebase-published)
           (concat m1 "%s" m2)
-          (concat m1 "%i public branches" m2)
-          nil branches))
-      (magit--rebase-public-edit-confirmed 'set)))
+          (concat m1 "%i public branches" m2)))
+      (push (magit-toplevel) magit--rebase-public-edit-confirmed)))
   (if (magit-git-lines "rev-list" "--merges" (concat since "..HEAD"))
       (magit-read-char-case "Proceed despite merge in rebase range?  " nil
         (?c "[c]ontinue" since)
         (?s "[s]elect other" nil)
         (?a "[a]bort" (user-error "Quit")))
     since))
-
-(defun magit--rebase-public-edit-confirmed (&optional set)
-  (let ((file (magit-git-dir (convert-standard-filename
-                              "rebase-merge/magit-edit-confirmed"))))
-    (if set
-        (with-temp-file (write-file file) t)
-      (file-exists-p file))))
 
 ;;;###autoload
 (defun magit-rebase-interactive (commit args)
@@ -666,7 +661,8 @@ edit.  With a prefix argument the old message is reused as-is."
           (user-error "Cannot continue rebase with unstaged changes")
         (when (and (magit-anything-staged-p)
                    (file-exists-p (magit-git-dir "rebase-merge"))
-                   (not (magit--rebase-public-edit-confirmed)))
+                   (not (member (magit-toplevel)
+                                magit--rebase-public-edit-confirmed)))
           (magit-commit-amend-assert))
         (if noedit
             (let ((process-environment process-environment))
