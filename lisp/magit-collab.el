@@ -139,9 +139,9 @@ exist, then raise an error."
                 host)))))
 
 (defun magit--github-remote-p (remote)
-  (or (--when-let (magit-get "remote" remote "pushurl")
+  (or (--when-let (magit-git-string "remote" "get-url" "--push" remote)
         (magit--github-url-p it))
-      (--when-let (magit-get "remote" remote "url")
+      (--when-let (magit-git-string "remote" "get-url" "--all" remote)
         (magit--github-url-p it))))
 
 (defun magit--github-url-equal (r1 r2)
