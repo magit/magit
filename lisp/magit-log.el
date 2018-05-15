@@ -695,7 +695,7 @@ active, restrict the log to the lines that the region touches."
              (let ((args (car (magit-log-arguments))))
                (when (and follow (not (member "--follow" args)))
                  (push "--follow" args))
-               (when (and (file-regular-p (buffer-file-name)) beg end)
+               (when (and (file-regular-p file) beg end)
                  (setq args (cons (format "-L%s,%s:%s" beg end file)
                                   (cl-delete "-L" args :test
                                              'string-prefix-p)))
