@@ -73,7 +73,6 @@ Input is case-insensitive."
 
     (cond
      ((equal dlevel "ultimate") 'ultimate)
-     ((equal dlevel "full") 'full)
      ((equal dlevel "fully") 'full)
      ((equal dlevel "undefined") 'undefined)
      ((equal dlevel "marginal") 'marginal)
