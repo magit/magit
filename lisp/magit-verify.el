@@ -118,13 +118,13 @@ Returns a possibly empty list of (KEYID OWNERID)."
                             (not (equal "NEVER" ownertrust)))))
            (when (or valid include-invalid)
              (list fingerprint key-uid valid
-                   (pcase (downcase level)
+                   (pcase (downcase ownertrust)
                      ("ultimate"  'ultimate)
                      ("fully"     'full)
                      ("undefined" 'undefined)
                      ("marginal"  'marginal)
                      ("never"     nil)
-                     (_ (error "Unknown owner trust %s" level)))
+                     (_ (error "Unknown owner trust %s" ownertrust)))
                    (equal "EXPKEYSIG" sig-validity)
                    (equal "EXPSIG" sig-validity)))))))
 
