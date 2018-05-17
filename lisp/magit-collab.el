@@ -153,5 +153,10 @@ exist, then raise an error."
                        (match-string 2 r2))))
           (and n1 n2 (equal n1 n2))))))
 
+(defun magit--pullreq-from-upstream-p (pr)
+  (let-alist pr
+    (equal .head.repo.full_name
+           .base.repo.full_name)))
+
 (provide 'magit-collab)
 ;;; magit-collab.el ends here
