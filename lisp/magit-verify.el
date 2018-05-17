@@ -50,14 +50,16 @@ always returned even if the signature is invalid.
 
 This function is implemented following GnuPG documentation at:
 https://www.gnupg.org/documentation/manuals/gnupg/Automated-signature-checking.html"
-  (magit-verify--parse-output (magit-git-lines "verify-commit" "--raw" id) include-invalid))
+  (magit-verify--parse-output (magit-git-lines "verify-commit" "--raw" id)
+                              include-invalid))
 
 (defun magit-verify-tag (name &optional include-invalid)
   "Verify cryptographic signature of tag NAME.
 
 The return value has the same format as `magit-verify-tag', which
 see."
-  (magit-verify--parse-output (magit-git-lines "verify-tag" "--raw" name) include-invalid))
+  (magit-verify--parse-output (magit-git-lines "verify-tag" "--raw" name)
+                              include-invalid))
 
 (defun magit-verify--ownertrust-symbol (level)
     "Internal, DO NOT USE.
@@ -69,15 +71,13 @@ UNKNOWN ('unknown), UNDEFINED ('undefined), MARGINAL ('marginal)
 and NEVER (nil).  Any other value will raise an error.
 
 Input is case-insensitive."
-    (setq dlevel (downcase level))
-
-    (cond
-     ((equal dlevel "ultimate") 'ultimate)
-     ((equal dlevel "fully") 'full)
-     ((equal dlevel "undefined") 'undefined)
-     ((equal dlevel "marginal") 'marginal)
-     ((equal dlevel "never") nil)
-     (t (error "Unknown owner trust %s" level))))
+    (pcase (downcase level)
+      ("ultimate"  'ultimate)
+      ("fully"     'full)
+      ("undefined" 'undefined)
+      ("marginal"  'marginal)
+      ("never"     nil)
+      (_ (error "Unknown owner trust %s" level))))
 
 (defun magit-verify--parse-output (lines &optional include-invalid)
   "Internal, DO NOT USE.
@@ -87,85 +87,77 @@ The common part of `magit-verify-commit' and
 
   "Parse LINES as output of git verify-[tag,commit] --raw ...
 Returns a possibly empty list of (KEYID OWNERID)."
-  (when lines
-    (let ((keydata (-non-nil
-                    (mapcar
-                     (lambda (str)
-                       (when (string-match
-                              (rx
-                               line-start
-                               "[GNUPG:] "
-                               (group (or "GOODSIG" "BADSIG" "EXPKEYSIG" "EXPSIG"))
-                               " "
-                               (one-or-more hex-digit) ;; This a short ID, we'd rather not use it.
-                               " "
-                               (group (one-or-more any))
-                               line-end)
-                              str)
-                         (list (match-string 1 str) ;; GOOD/BAD/EXP/EXPSIG
-                               (match-string 2 str) ;; UID
-                               )))
-                     lines)))
-          (fingerprint (-non-nil
+  (and lines
+       (let ((keydata (-non-nil
                        (mapcar
                         (lambda (str)
                           (when (string-match
                                  (rx
                                   line-start
-                                  "[GNUPG:] VALIDSIG "
-                                  (group (one-or-more hex-digit))
+                                  "[GNUPG:] "
+                                  (group (or "GOODSIG" "BADSIG" "EXPKEYSIG" "EXPSIG"))
                                   " "
-                                  (one-or-more any)
+                                  ;; This a short ID, we'd rather not use it.
+                                  (one-or-more hex-digit)
+                                  " "
+                                  (group (one-or-more any))
                                   line-end)
                                  str)
-                            (match-string 1 str)))
+                            (list (match-string 1 str) ; GOOD/BAD/EXP/EXPSIG
+                                  (match-string 2 str) ; UID
+                                  )))
                         lines)))
-          (ownertrust (-non-nil
-                       (mapcar
-                        (lambda (str)
-                          (when (string-match
-                                 (rx
-                                  line-start
-                                  "[GNUPG:] TRUST_"
-                                  (group (one-or-more alpha))
-                                  " "
-                                  (one-or-more any)
-                                  line-end)
-                                 str)
-                            (match-string 1 str)))
-                        lines))))
-
-          ;; We should have processed exactly one
-          ;; GOODSIG/BADSIG/EXPSIG/EXPKEYSIG line and exactly one TRUST_
-          ;; line.  If this is not the case, panic.
-
-      (unless (= 1 (length keydata))
-        (error "Abnormal state 1 in magit-verify--parse-output"))
-
-      (unless (= 1 (length fingerprint))
-        (error "Abnormal state 2 in magit-verify--parse-output"))
-
-      (unless (= 1 (length ownertrust))
-        (error "Abnormal state 3 in magit-verify--parse-output"))
-
-      (let* ((keydata (car keydata))
-             (fingerprint (car fingerprint))
-             (ownertrust (car ownertrust))
-
-             (sig-validity (nth 0 keydata))
-             (key-uid (nth 1 keydata))
-             (valid (and
-                     (not (equal "BADSIG" sig-validity))
-                     (not (equal "NEVER" ownertrust)))))
-
-        (when (or valid include-invalid)
-          (list
-           fingerprint
-           key-uid
-           valid
-           (magit-verify--ownertrust-symbol ownertrust)
-           (equal "EXPKEYSIG" sig-validity)
-           (equal "EXPSIG" sig-validity)))))))
+             (fingerprint (-non-nil
+                           (mapcar
+                            (lambda (str)
+                              (when (string-match
+                                     (rx
+                                      line-start
+                                      "[GNUPG:] VALIDSIG "
+                                      (group (one-or-more hex-digit))
+                                      " "
+                                      (one-or-more any)
+                                      line-end)
+                                     str)
+                                (match-string 1 str)))
+                            lines)))
+             (ownertrust (-non-nil
+                          (mapcar
+                           (lambda (str)
+                             (when (string-match
+                                    (rx
+                                     line-start
+                                     "[GNUPG:] TRUST_"
+                                     (group (one-or-more alpha))
+                                     " "
+                                     (one-or-more any)
+                                     line-end)
+                                    str)
+                               (match-string 1 str)))
+                           lines))))
+         ;; We should have processed exactly one
+         ;; GOODSIG/BADSIG/EXPSIG/EXPKEYSIG line and exactly one TRUST_
+         ;; line.  If this is not the case, panic.
+         (unless (= 1 (length keydata))
+           (error "Abnormal state 1 in magit-verify--parse-output"))
+         (unless (= 1 (length fingerprint))
+           (error "Abnormal state 2 in magit-verify--parse-output"))
+         (unless (= 1 (length ownertrust))
+           (error "Abnormal state 3 in magit-verify--parse-output"))
+         (let* ((keydata (car keydata))
+                (fingerprint (car fingerprint))
+                (ownertrust (car ownertrust))
+                (sig-validity (nth 0 keydata))
+                (key-uid (nth 1 keydata))
+                (valid (and (not (equal "BADSIG" sig-validity))
+                            (not (equal "NEVER" ownertrust)))))
+           (and (or valid include-invalid)
+                (list fingerprint
+                      key-uid
+                      valid
+                      (magit-verify--ownertrust-symbol ownertrust)
+                      (equal "EXPKEYSIG" sig-validity)
+                      (equal "EXPSIG" sig-validity)))))))
 
 (provide 'magit-verify)
 ;;; magit-verify.el ends here
