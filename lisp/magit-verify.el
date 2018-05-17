@@ -114,7 +114,7 @@ Returns a possibly empty list of (KEYID OWNERID)."
                 (ownertrust (car ownertrust))
                 (sig-validity (nth 0 keydata))
                 (key-uid (nth 1 keydata))
-                (valid (and (not (equal "BADSIG" sig-validity))
+                (valid (and (not (equal "BAD" sig-validity))
                             (not (equal "NEVER" ownertrust)))))
            (and (or valid include-invalid)
                 (list fingerprint key-uid valid
@@ -125,8 +125,8 @@ Returns a possibly empty list of (KEYID OWNERID)."
                         ("marginal"  'marginal)
                         ("never"     nil)
                         (_ (error "Unknown owner trust %s" ownertrust)))
-                      (equal "EXPKEYSIG" sig-validity)
-                      (equal "EXPSIG" sig-validity)))))))
+                      (equal "EXPKEY" sig-validity)
+                      (equal "EXP" sig-validity)))))))
 
 (provide 'magit-verify)
 ;;; magit-verify.el ends here
