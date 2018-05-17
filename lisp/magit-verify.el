@@ -116,17 +116,17 @@ Returns a possibly empty list of (KEYID OWNERID)."
                 (key-uid (nth 1 keydata))
                 (valid (and (not (equal "BADSIG" sig-validity))
                             (not (equal "NEVER" ownertrust)))))
-           (when (or valid include-invalid)
-             (list fingerprint key-uid valid
-                   (pcase (downcase ownertrust)
-                     ("ultimate"  'ultimate)
-                     ("fully"     'full)
-                     ("undefined" 'undefined)
-                     ("marginal"  'marginal)
-                     ("never"     nil)
-                     (_ (error "Unknown owner trust %s" ownertrust)))
-                   (equal "EXPKEYSIG" sig-validity)
-                   (equal "EXPSIG" sig-validity)))))))
+           (and (or valid include-invalid)
+                (list fingerprint key-uid valid
+                      (pcase (downcase ownertrust)
+                        ("ultimate"  'ultimate)
+                        ("fully"     'full)
+                        ("undefined" 'undefined)
+                        ("marginal"  'marginal)
+                        ("never"     nil)
+                        (_ (error "Unknown owner trust %s" ownertrust)))
+                      (equal "EXPKEYSIG" sig-validity)
+                      (equal "EXPSIG" sig-validity)))))))
 
 (provide 'magit-verify)
 ;;; magit-verify.el ends here
