@@ -2145,38 +2145,58 @@ or a ref which is not a branch, then it inserts nothing."
       (insert ?\n))))
 
 (defun magit-insert-revision-gravatars (rev beg)
-  (when (and magit-revision-show-gravatars (window-system))
+  (when (and magit-revision-show-gravatars
+             (window-system))
     (require 'gravatar)
-    (magit-insert-revision-gravatar beg (magit-rev-format "%aE" rev)
-                                    (car magit-revision-show-gravatars))
-    (magit-insert-revision-gravatar beg (magit-rev-format "%cE" rev)
-                                    (cdr magit-revision-show-gravatars))
-    (goto-char (point-max))))
+    (pcase-let ((`(,author . ,committer) magit-revision-show-gravatars))
+      (--when-let (magit-rev-format "%aE" rev)
+        (magit-insert-revision-gravatar beg rev it author))
+      (--when-let (magit-rev-format "%cE" rev)
+        (magit-insert-revision-gravatar beg rev it committer)))))
 
-(defun magit-insert-revision-gravatar (beg email regexp)
-  (when (and email (goto-char beg) (re-search-forward regexp nil t))
-    (ignore-errors
-      (let* ((offset   (length (match-string 0)))
+(defun magit-insert-revision-gravatar (beg rev email regexp)
+  (save-excursion
+    (goto-char beg)
+    (when (re-search-forward regexp nil t)
+      (let* ((column   (length (match-string 0)))
              (font-obj (query-font (font-at (point) (get-buffer-window))))
-             (size     (* 2 (+ (aref font-obj 4) (aref font-obj 5))))
-             (align-to (+ offset (ceiling (/ size (aref font-obj 7) 1.0))))
-             (gravatar-size (- size 2))
-             (slice1  '(slice .0 .0 1.0 0.5))
-             (slice2  '(slice .0 .5 1.0 1.0))
-             (image    (gravatar-retrieve-synchronously email)))
-        (unless (eq image 'error)
-          (when magit-revision-use-gravatar-kludge
-            (cl-rotatef slice1 slice2))
-          (insert (propertize " " 'display `((,@image :ascent center :relief 1)
-                                             ,slice1)))
-          (insert (propertize " " 'display `((space :align-to ,align-to))))
-          (insert " ")
-          (forward-line)
-          (forward-char offset)
-          (insert (propertize " " 'display `((,@image :ascent center :relief 1)
-                                             ,slice2)))
-          (insert (propertize " " 'display `((space :align-to ,align-to))))
-          (insert " "))))))
+             (size     (* 2 (+ (aref font-obj 4)
+                               (aref font-obj 5))))
+             (align-to (+ column
+                          (ceiling (/ size (aref font-obj 7) 1.0))
+                          1))
+             (gravatar-size (- size 2)))
+        (gravatar-retrieve email 'magit-insert-revision-gravatar-cb
+                           (list rev (point-marker) align-to column))))))
+
+(defun magit-insert-revision-gravatar-cb (image rev marker align-to column)
+  (unless (eq image 'error)
+    (-when-let (buffer (marker-buffer marker))
+      (with-current-buffer buffer
+        (save-excursion
+          (goto-char marker)
+          ;; The buffer might display another revision by now or
+          ;; it might have been refreshed, in which case another
+          ;; process might already have inserted the image.
+          (when (and (equal rev (car magit-refresh-args))
+                     (not (eq (car-safe
+                               (car-safe
+                                (get-text-property (point) 'display)))
+                              'image)))
+            (let ((top `((,@image :ascent center :relief 1)
+                         (slice 0.0 0.0 1.0 0.5)))
+                  (bot `((,@image :ascent center :relief 1)
+                         (slice 0.0 0.5 1.0 1.0)))
+                  (align `((space :align-to ,align-to))))
+              (when magit-revision-use-gravatar-kludge
+                (cl-rotatef top bot))
+              (let ((inhibit-read-only t))
+                (insert (propertize " " 'display top))
+                (insert (propertize " " 'display align))
+                (forward-line)
+                (forward-char column)
+                (insert (propertize " " 'display bot))
+                (insert (propertize " " 'display align))))))))))
 
 ;;; Diff Sections
 
