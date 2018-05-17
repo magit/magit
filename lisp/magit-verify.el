@@ -77,16 +77,7 @@ Returns a possibly empty list of (KEYID OWNERID)."
                        (mapcar
                         (lambda (str)
                           (when (string-match
-                                 (rx
-                                  line-start
-                                  "[GNUPG:] "
-                                  (group (or "GOODSIG" "BADSIG" "EXPKEYSIG" "EXPSIG"))
-                                  " "
-                                  ;; This a short ID, we'd rather not use it.
-                                  (one-or-more hex-digit)
-                                  " "
-                                  (group (one-or-more any))
-                                  line-end)
+                                 "^\\[GNUPG:] \\(\\(?:GOOD\\|BAD\\|EXPKEY\\|EXP\\)\\)SIG [[:xdigit:]]+ \\(.+\\)$"
                                  str)
                             (list (match-string 1 str) ; GOOD/BAD/EXP/EXPSIG
                                   (match-string 2 str) ; UID
@@ -96,13 +87,7 @@ Returns a possibly empty list of (KEYID OWNERID)."
                            (mapcar
                             (lambda (str)
                               (when (string-match
-                                     (rx
-                                      line-start
-                                      "[GNUPG:] VALIDSIG "
-                                      (group (one-or-more hex-digit))
-                                      " "
-                                      (one-or-more any)
-                                      line-end)
+                                     "^\\[GNUPG:] VALIDSIG \\([[:xdigit:]]+\\) .+$"
                                      str)
                                 (match-string 1 str)))
                             lines)))
@@ -110,13 +95,7 @@ Returns a possibly empty list of (KEYID OWNERID)."
                           (mapcar
                            (lambda (str)
                              (when (string-match
-                                    (rx
-                                     line-start
-                                     "[GNUPG:] TRUST_"
-                                     (group (one-or-more alpha))
-                                     " "
-                                     (one-or-more any)
-                                     line-end)
+                                    "^\\[GNUPG:] TRUST_\\([[:alpha:]]+\\) .+$"
                                     str)
                                (match-string 1 str)))
                            lines))))
@@ -137,17 +116,17 @@ Returns a possibly empty list of (KEYID OWNERID)."
                 (key-uid (nth 1 keydata))
                 (valid (and (not (equal "BADSIG" sig-validity))
                             (not (equal "NEVER" ownertrust)))))
-           (and (or valid include-invalid)
-                (list fingerprint key-uid valid
-                      (pcase (downcase level)
-                        ("ultimate"  'ultimate)
-                        ("fully"     'full)
-                        ("undefined" 'undefined)
-                        ("marginal"  'marginal)
-                        ("never"     nil)
-                        (_ (error "Unknown owner trust %s" level)))
-                      (equal "EXPKEYSIG" sig-validity)
-                      (equal "EXPSIG" sig-validity)))))))
+           (when (or valid include-invalid)
+             (list fingerprint key-uid valid
+                   (pcase (downcase level)
+                     ("ultimate"  'ultimate)
+                     ("fully"     'full)
+                     ("undefined" 'undefined)
+                     ("marginal"  'marginal)
+                     ("never"     nil)
+                     (_ (error "Unknown owner trust %s" level)))
+                   (equal "EXPKEYSIG" sig-validity)
+                   (equal "EXPSIG" sig-validity)))))))
 
 (provide 'magit-verify)
 ;;; magit-verify.el ends here
