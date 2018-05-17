@@ -37,10 +37,13 @@ Return value is nil if ID is not signed, or a list of the form
 
  - KEY-FP is a PGP key fingerprint.
  - KEY-UID is the PGP key's primary UID.
- - VALID is t if the signature is valid.  Unless INCLUDE-INVALID
-   is non-nil, this is always the case.
- - OWNERTRUST is either a symbol between 'ultimate, 'full,
-   'unknown, 'undefined, 'marginal or nil (never)
+ - VALID is t if and only if the signature is valid.
+   Notice that unless INCLUDE-INVALID is non-nil,
+   you don't need to verify this value: the function
+   would have returned nil if the signature was invalid.
+ - OWNERTRUST is either a symbol ('ultimate, 'full,
+   'unknown, 'undefined, 'marginal) or nil if the key is NOT
+   trusted.
  - KEY-EXPIRED is non-nil if the key or a subkey has expired.
  - SIG-EXPIRED is non-nil if the signature has expired.
 
@@ -118,8 +121,9 @@ Returns a possibly empty list of (KEYID OWNERID)."
                                (match-string 1 str)))
                            lines))))
          ;; We should have processed exactly one
-         ;; GOODSIG/BADSIG/EXPSIG/EXPKEYSIG line and exactly one TRUST_
-         ;; line.  If this is not the case, panic.
+         ;; GOODSIG/BADSIG/EXPSIG/EXPKEYSIG line, exactly one VALIDSIG
+         ;; line and exactly one TRUST_ line.  If this is not the
+         ;; case, panic.
          (unless (= 1 (length keydata))
            (error "Abnormal state 1 in magit-verify--parse-output"))
          (unless (= 1 (length fingerprint))
