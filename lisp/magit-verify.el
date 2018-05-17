@@ -61,24 +61,6 @@ see."
   (magit-verify--parse-output (magit-git-lines "verify-tag" "--raw" name)
                               include-invalid))
 
-(defun magit-verify--ownertrust-symbol (level)
-    "Internal, DO NOT USE.
-
-Convert owner trust LEVEL, a string, to a symbol.
-
-Accepted inputs are ULTIMATE ('ultimate), FULLY ('full),
-UNKNOWN ('unknown), UNDEFINED ('undefined), MARGINAL ('marginal)
-and NEVER (nil).  Any other value will raise an error.
-
-Input is case-insensitive."
-    (pcase (downcase level)
-      ("ultimate"  'ultimate)
-      ("fully"     'full)
-      ("undefined" 'undefined)
-      ("marginal"  'marginal)
-      ("never"     nil)
-      (_ (error "Unknown owner trust %s" level))))
-
 (defun magit-verify--parse-output (lines &optional include-invalid)
   "Internal, DO NOT USE.
 
@@ -152,10 +134,14 @@ Returns a possibly empty list of (KEYID OWNERID)."
                 (valid (and (not (equal "BADSIG" sig-validity))
                             (not (equal "NEVER" ownertrust)))))
            (and (or valid include-invalid)
-                (list fingerprint
-                      key-uid
-                      valid
-                      (magit-verify--ownertrust-symbol ownertrust)
+                (list fingerprint key-uid valid
+                      (pcase (downcase level)
+                        ("ultimate"  'ultimate)
+                        ("fully"     'full)
+                        ("undefined" 'undefined)
+                        ("marginal"  'marginal)
+                        ("never"     nil)
+                        (_ (error "Unknown owner trust %s" level)))
                       (equal "EXPKEYSIG" sig-validity)
                       (equal "EXPSIG" sig-validity)))))))
 
