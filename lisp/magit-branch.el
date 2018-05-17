@@ -379,18 +379,10 @@ Please see the manual for more information."
                           "Upstream repository %s not available as a remote"
                           .base.repo.ssh_url)))
            (upstream-url (magit-get "remote" upstream "url"))
-           (upstream-pr-p (equal .head.repo.full_name
-                                 .base.repo.full_name))
            (remote .head.repo.owner.login)
-           (branch .head.ref)
-           (pr-branch branch))
-      (when (and (not upstream-pr-p)
-                 (or (not .maintainer_can_modify)
-                     (magit-branch-p branch)))
-        (setq branch (format "pr-%s" .number)))
-      (when (magit-branch-p branch)
-        (user-error "Branch `%s' already exists" branch))
-      (if upstream-pr-p
+           (branch (magit--pullreq-branch pr t))
+           (pr-branch .head.ref))
+      (if (magit--pullreq-from-upstream-p pr)
           (let ((tracking (concat upstream "/" pr-branch)))
             (unless (magit-branch-p tracking)
               (magit-call-git "fetch" upstream))

@@ -153,5 +153,21 @@ exist, then raise an error."
                        (match-string 2 r2))))
           (and n1 n2 (equal n1 n2))))))
 
+(defun magit--pullreq-from-upstream-p (pr)
+  (let-alist pr
+    (equal .head.repo.full_name
+           .base.repo.full_name)))
+
+(defun magit--pullreq-branch (pr &optional assert-new)
+  (let-alist pr
+    (let ((branch .head.ref))
+      (when (and (not (magit--pullreq-from-upstream-p pr))
+                 (or (not .maintainer_can_modify)
+                     (magit-branch-p branch)))
+        (setq branch (format "pr-%s" .number)))
+      (when (and assert-new (magit-branch-p branch))
+        (user-error "Branch `%s' already exists" branch))
+      branch)))
+
 (provide 'magit-collab)
 ;;; magit-collab.el ends here
