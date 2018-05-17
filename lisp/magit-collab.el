@@ -158,5 +158,16 @@ exist, then raise an error."
     (equal .head.repo.full_name
            .base.repo.full_name)))
 
+(defun magit--pullreq-branch (pr &optional assert-new)
+  (let-alist pr
+    (let ((branch .head.ref))
+      (when (and (not (magit--pullreq-from-upstream-p pr))
+                 (or (not .maintainer_can_modify)
+                     (magit-branch-p branch)))
+        (setq branch (format "pr-%s" .number)))
+      (when (and assert-new (magit-branch-p branch))
+        (user-error "Branch `%s' already exists" branch))
+      branch)))
+
 (provide 'magit-collab)
 ;;; magit-collab.el ends here
