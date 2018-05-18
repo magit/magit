@@ -25,91 +25,325 @@
 
 ;; Verifies PGP signatures of commit and tag objects.
 
-;; Also see
+;; Git delegates must of the verification job to GnuPG.  This module
+;; is essentially a parser for a subset of the GnuPG's --status-fd
+;; formal output syntax, as documented in /doc/DETAILS in GnuPG
+;; tarballs.
+;;
+;;
 ;; https://www.gnupg.org/documentation/manuals/gnupg/Automated-signature-checking.html.
 
 ;;; Code:
 
 (require 'magit)
 
-(defun magit-verify-commit (id &optional include-invalid)
-  ;; TODO Update me.
-  "Verify cryptographic signature of commit ID.
+(defun magit-verify-signature (sig &optional
+                                   ignore-key-expiration
+                                   ignore-sig-expiration
+                                   ignore-key-validity
+                                   ignore-revocation)
+  "Verify signature SIG, a `magit-pgp-signature' object.
 
-Return a `magit-gpg-signature' object (which see) or if the
-commit isn't signed nil.
+If SIG is a valid signature (non-expired, from a non-expired and
+non-revoked key, with a non-never ownertrust), return it
+unmodified, otherwise return nil.
 
-By default, this function returns nil for missing or invalid
-signature.  If INCLUDE-INVALID is non-nil, however, a list is
-always returned even if the signature is invalid."
-  (with-temp-buffer
-    (magit-git-insert "verify-commit" "--raw" id)
-    (magit-verify--parse-output include-invalid)))
+If IGNORE-KEY-EXPIRATION is non-nil, will accept signatures
+from expired keys.
 
-(defun magit-verify-tag (name &optional include-invalid)
-  "Verify cryptographic signature of tag NAME.
+If IGNORE-SIG-EXPIRATION is non-nil, will accept expired
+signatures.
 
-The return value has the same format as `magit-verify-tag', which
-see."
-  (with-temp-buffer
-    (magit-git-lines "verify-tag" "--raw" name)
-    (magit-verify--parse-output include-invalid)))
+If IGNORE-KEY-VALIDITY is non-nil, will accept signatures from
+keys with ownertrust=never.  Enable if you know what you're
+doing.
 
-(defclass magit-gpg-signature ()
-  ;; TODO reasonable order and documentation
-  ((sig-validity)
-   (key-uid)
-   (fingerprint)
-   (ownertrust)
-   (valid)
-   (key-expired)
-   (sig-expired))
-  "
- - KEY-FP is a PGP key fingerprint.
- - KEY-UID is the PGP key's primary UID.
- - VALID is t if and only if the signature is valid.
-   Notice that unless INCLUDE-INVALID is non-nil,
-   you don't need to verify this value: the function
-   would have returned nil if the signature was invalid.
- - OWNERTRUST is either a symbol (`ultimate', `full',
-   `unknown', `undefined', `marginal') or nil if the key is NOT
-   trusted.
- - KEY-EXPIRED is non-nil if the key or a subkey has expired.
- - SIG-EXPIRED is non-nil if the signature has expired.")
+If IGNORE-REVOCATION is non-nil, will accept signatures from
+revoked keys.  Enable if you know what you're doing."
 
-(defun magit-verify--parse-output (&optional include-invalid)
-  (let ((obj (magit-gpg-signature)))
-    (with-slots (sig-validity key-uid fingerprint ownertrust
-                              valid key-expired sig-expired) obj
-      (while (not (eobp))
-        ;; TODO Are these in the correct order?
-        (cond
-         ((looking-at "^\\[GNUPG:] \\(\\(?:GOOD\\|BAD\\|EXPKEY\\|EXP\\)\\)SIG \
-[[:xdigit:]]+ \\(.+\\)$")
-          (cl-assert (not sig-validity) (buffer-string))
-          (setf sig-validity (match-string 1))
-          (setf key-uid (match-string 2)))
-         ((looking-at "^\\[GNUPG:] VALIDSIG \\([[:xdigit:]]+\\) .+$")
-          (cl-assert (not fingerprint) (buffer-string))
-          (setf fingerprint (match-string 1)))
-         ((looking-at "^\\[GNUPG:] TRUST_\\([[:alpha:]]+\\) .+$")
-          (cl-assert (not ownertrust) (buffer-string))
-          (setf ownertrust (match-string 1))))
-        (forward-line))
-      (cl-assert (and sig-validity key-uid fingerprint ownertrust)
-                 (buffer-string))
-      (setf ownertrust (pcase (downcase ownertrust)
-                         ("ultimate"  'ultimate)
-                         ("fully"     'full)
-                         ("undefined" 'undefined)
-                         ("marginal"  'marginal)
-                         ("never"     nil)
-                         (_ (error "Unknown owner trust %s" ownertrust))))
-      (setf valid (and (not (equal "BAD" sig-validity))
-                       (not (equal "NEVER" ownertrust))))
-      (setf key-expired (equal "EXPKEY" sig-validity))
-      (setf sig-expired (equal "EXP" sig-validity))
-      (and (or valid include-invalid) obj))))
+  (and
+   (not (oref sig error))
+   (oref sig sig-validity)
+   (or ignore-key-expiration
+       (not (oref sig key-expired)))
+   (or ignore-sig-expiration
+       (not (oref sig sig-expired)))
+   (or ignore-key-validity
+       (not (equal 'never (oref sig key-validity))))
+   (or ignore-key-deprecated
+       (not (oref sig key-deprecated))))
+   sig))
+
+(defun magit-read-commit-signatures (id)
+  "Read cryptographic signatures on commit ID.
+
+For simple verification purposes, `magit-verify-commit' provides
+a much simpler and safer interface.
+
+Return a list `magit-pgp-signature' object (which see)."
+    (magit-verify--parse-output (magit-git-lines "verify-commit" "--raw" id)))
+
+(defun magit-read-tag-signatures (name)
+  "Read cryptographic signatures on tag NAME.
+
+For simple verification purposes, `magit-verify-tag' provides
+a much simpler and safer interface.
+
+Return a list `magit-pgp-signature' object (which see)."
+    (magit-verify--parse-output (magit-git-lines "verify-tag" "--raw" name)))
+
+(defclass magit-pgp-signature ()
+  (
+   (error
+    :initform nil
+    :type boolean
+    :doc "The error state after verification.  See class
+    documentation for more details.")
+   (sig-validity
+    :initform nil
+    :type boolean
+    :doc "Whether the signature is valid.  This is non-nil if the
+    signature could successfully be verified, but doesn't
+    guarantee that the signing key is trusted.")
+   (sig-creation-date
+    :initform 0
+    :type number
+    :doc "The date this signature was created.")
+   (key-fingerprint
+    :initform nil
+    :type (or null string)
+    :doc "The fingerprint of the signing key.")
+   (key-uid
+    :initform nil
+    :type (or null string)
+    :doc "The primary UID of the signing key (e-mail address).")
+   (key-name
+    :initform nil
+    :type (or null string)
+    :doc "The name of the primary UID of the signing key.")
+   (key-comment
+    :initform nil
+    :type (or null string)
+    :doc "The comment field of the primary UID of the signing key.")
+   (key-validity
+    :initform nil
+    :type (or null symbol)
+    :doc "The key's key-validity, as either a symbol (`ultimate',
+   `full', `unknown', `undefined', `marginal') or nil if
+   unspecified.")
+   (key-expiration-date
+    :initform nil
+    :type (or null integer)
+    :doc "The key's expiration date as a number of seconds from epoch.")
+   (key-expired
+    :initform nil
+    :type boolean
+    :doc "Whether the key has expired.  Notice that an expired
+    key doesn't imply that the signature is invalid.")
+   (sig-expiration-date
+    :initform nil
+    :type (or null integer)
+    :doc "The signature's expiration date as a number of seconds from epoch.")
+   (sig-expired
+    :initform nil
+    :type boolean
+    :doc "Whether the signature has expired.  Notice that an
+    expired signature doesn't imply that the signature is
+    invalid."))
+  "A PGP signature.
+
+You generally shouldn't manipulate these objects directly.  Magit
+provides multiple high-level functions for working with
+signatures, use them instead.  See, for example,
+`magit-verify-signature'.
+
+By the very design of GnuPG, the semantics of this class are
+complex.  To verify a signature, the following algorithm should
+be followed.
+
+Short, minimal, version:
+
+ (and
+     (not (oref sig error))                        ; #1
+     (oref sig sig-validity)                       ; #2
+     (not (oref sig key-revoked))                  ; #3
+     (not (equal 'never (oref sig key-validity)))) ; #4
+
+ 1. Read the value of the `error' field.
+
+    If nil => Verification was successful, GOTO 2.
+
+    If 'no-pubkey => The public key wasn't in the keyring.
+
+      Fields `key-fingerprint' and `key-uid' indicate the
+      identity of the signing key.  Other fields are unusable.
+
+      Signature is INVALID, END.
+
+    If 'unknown-algorithm => GnuPG doesn't support this signature
+      algorithm.
+
+      All fields are unusable.
+
+      Signature is INVALID, END.
+
+    If 'no-data => No signature data were found.
+
+      All fields are unusable.
+
+      Signature is INVALID, END.
+
+    If other non-nil value => Unknown error, possible data
+                              corruption?
+
+      All fields are unusable.
+
+      Signature is INVALID, END.
+
+ 2. Read the value of the `sig-validity' field.
+
+    If t => verification was successful.  GOTO 3.
+
+    If nil => signature was invalid.
+
+      This may indicate that signed data have been tampered with,
+      that some corruption happened or a user error.
+
+      Only fields `key-fingerprint', `key-uid', `key-name' and
+      `key-comment' are usable.
+
+      Signature is INVALID, END.
+
+ 3. Read the value of the `key-revoked' field.
+
+    If nil => Signing key is not revoked, goto 4.
+
+    If  => Signing key was revoked, signature is INVALID, END.
+
+ 4. [Optional] Read the value of the `key-validity' field and handle
+    accordingly.
+
+    How exactly to manipulate this value is policy-dependant.
+    What follows is not a RECOMMENDATION, but the bare minimum
+    level of verification.
+
+    If 'never => Signature is INVALID, END.
+
+    Otherwise => goto 5.
+
+ 5. Consider the values of `key-expired' and `sig-expired' and
+    handle them according to your policy.  It is often
+    correct to emit a warning when a key or signature has
+    expired without rejecting the signature.")
+
+(defun magit-verify--extract-uid (line sig)
+  ;; Read name and comment from a *SIG LINE and `oset' them in SIG.
+
+  (unless
+      (string-match
+   ;; "^[A-Z]+SIG  \\(.*\\)\\(?: (<\\(.+\\))\\) <\\(.*\\)$>"
+       "^[A-Z]+SIG [[:xdigit:]]+ \\(.*?\\)\\(?: (\\(.*\\))\\)? <\\(.*\\)>$"
+       line)
+    (error "Error parsing uid from %s" line))
+  (oset sig key-name (match-string 1 line))
+  (oset sig key-comment (match-string 2 line))
+  (oset sig key-uid (match-string 3 line)))
+
+(defun magit-verify--parse-date (str)
+  ;; Read STR into a number.
+  ;;
+  ;; If STR matches ^[[:digit:]]+$, it's treated as a unix timestmap,
+  ;; otherwise as an RFC 8601 string.  If nothing works, raise an error."
+
+  (and
+   (not (string= str "0"))
+   (or
+    (and
+     (string-match "^[[:digit:]]+$" str)
+     (seconds-to-time (string-to-number str)))
+
+    ;; @FIXME If `parse-iso8601-time-string' fails, it will neither
+    ;; return an invalid value nor error, but instead delegate to
+    ;; the weird `parse-time-string' which will associate a value to
+    ;; every possible input.  This is not what we want, and we need
+    ;; a way to error if we can't parse the date.
+    (parse-iso8601-time-string str))))
+
+(defun magit-verify--parse-output (lines)
+  ;; Parse output from git verify-[tag|commit] --raw (which is
+  ;; actually the output of gpg --verify --status-fd) and return a
+  ;; `magit-pgp-signature' object.
+  (let ((lines (mapcar
+                (lambda (line)
+                  (substring line 9)) lines))
+        (sigs nil)
+        (sig nil))
+
+    (dolist (line lines nil)
+      (let ((fields (split-string line)))
+        (pcase (car fields)
+        ;; Start reading a new signature
+          ("NEWSIG" (progn
+                      (setq sigs (cons (setq sig (magit-pgp-signature)) sigs))
+                      (oset sig key-uid (nth 1 fields))))
+          ("GOODSIG" (progn
+                       (oset sig sig-validity t)
+                       (oset sig sig-expired nil)
+                       (oset sig key-expired nil)
+                       (magit-verify--extract-uid line sig)))
+          ("EXPSIG" (progn
+                      (oset sig sig-validity t)
+                      (oset sig sig-expired t)
+                      (magit-verify--extract-uid line sig)))
+          ("EXPKEYSIG" (progn
+                         (oset sig sig-validity t)
+                         (oset sig key-expired t)
+                         (magit-verify--extract-uid line sig)))
+          ("REVKEYSIG" (progn
+                         (oset sig sig-validity t)
+                         (oset sig key-revoked t)
+                         (magit-verify--extract-uid line sig)))
+          ("ERRSIG" (progn
+                      (oset sig sig-validity nil)
+                      (oset sig error (pcase (number-to-string (nth 6 fields))
+                            (4 'unknown-algorithm)
+                            (9 'no-pubkey)
+                            (_ t)))))
+          ("BADSIG" (progn
+                      (oset sig sig-validity nil)
+                      (magit-verify--extract-uid line sig)))
+          ("VALIDSIG" (progn
+                        (oset sig key-fingerprint (nth 1 fields))
+                        (oset sig sig-creation-date (magit-verify--safe-string-to-number (nth 3 fields)))
+                        (oset sig sig-expiration-date (magit-verify--safe-string-to-number (nth 4 fields)))))
+          ("KEYEXPIRED" (oset sig key-expired t))
+          ("TRUST_UNDEFINED" (oset sig key-validity 'undefined))
+          ("TRUST_NEVER" (oset sig key-validity 'never))
+          ("TRUST_MARGINAL" (oset sig key-validity 'marginal))
+          ("TRUST_FULLY" (oset sig key-validity 'fully))
+          ("TRUST_ULTIMATE" (oset sig key-validity 'ultimate))
+          ("NO_PUBKEY" (oset sig error 'no-pubkey))
+
+          ;; Arguments we know we can ignore
+          ("SIG_ID")
+          ("VERIFICATION_COMPLIANCE_MODE")
+          ("KEY_CONSIDERED")
+
+          ;; Error states We may have received more specific
+          ;; information earlier, we don't want to overwrite them.
+          ("NODATA" (unless (member (string-to-number (nth 1 fields)) '(1 2))
+                      (error "PGP returned abnormal state NODATA %s" (nth 1 fields))))
+           ("FAILURE" (unless (or (not sig)
+                                  (oref sig error))
+                        (oset sig error t)))
+
+          ;; The doc in doc/DETAILS states that: "an application should
+          ;; always be willing to ignore unknown keywords that may be
+          ;; emitted by future versions of GnuPG."  Yet we really
+          ;; shouldn't ignore them *silently*.
+          (_ (warn "Unexpected input line in `magit-verify--parse-output': %s" line))
+        )))
+    sigs))
 
 (provide 'magit-verify)
 ;;; magit-verify.el ends here
