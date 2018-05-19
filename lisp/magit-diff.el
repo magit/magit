@@ -1694,7 +1694,12 @@ section or a child thereof."
         (magit-insert-heading)
         (let (files)
           (while (looking-at "^[-0-9]+\t[-0-9]+\t\\(.+\\)$")
-            (push (magit-decode-git-path (match-string 1)) files)
+            (push (magit-decode-git-path
+                   (let ((f (match-string 1)))
+                     (if (string-match " => " f)
+                         (substring f (match-end 0))
+                       f)))
+                  files)
             (magit-delete-line))
           (setq files (nreverse files))
           (while (looking-at magit-diff-statline-re)
