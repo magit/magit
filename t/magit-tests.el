@@ -404,47 +404,47 @@ verify-[tag|commit] --raw"
     (should-not (oref sig key-comment))
     (should-not (oref sig key-validity))
     (should (oref sig key-expired))
-    (should (oref sig sig-expired)))
+    (should (oref sig sig-expired))))
 
-  ;; Bad signature from valid key
+;; Bad signature from valid key
 
-  ;;  Invalid_KEXP_SEXP.txt
-  "[GNUPG:] NEWSIG expired@badsig.example.com"
-  "[GNUPG:] KEYEXPIRED 1325376017"
-  "[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
-  "[GNUPG:] KEYEXPIRED 1325376017"
-  "[GNUPG:] KEYEXPIRED 1325376017"
-  "[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
-  "[GNUPG:] BADSIG FB2B6F167A81BDC5 Expired Badsig <expired@badsig.example.com>"
-  "[GNUPG:] VERIFICATION_COMPLIANCE_MODE 23"
-  ;; Invalid_KEXP_SOK.txt
-  "[GNUPG:] NEWSIG expired@badsig.example.com"
-  "[GNUPG:] KEYEXPIRED 1325376017"
-  "[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
-  "[GNUPG:] KEYEXPIRED 1325376017"
-  "[GNUPG:] KEYEXPIRED 1325376017"
-  "[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
-  "[GNUPG:] BADSIG FB2B6F167A81BDC5 Expired Badsig <expired@badsig.example.com>"
-  "[GNUPG:] VERIFICATION_COMPLIANCE_MODE 23"
-  ;; Invalid_KOK_SEXP.txt
-  "[GNUPG:] NEWSIG key@badsig.example.com"
-  "[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
-  "[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
-  "[GNUPG:] BADSIG 7A2E132C20E0EAF8 Normal Badsig <key@badsig.example.com>"
-  ;; Invalid_kok_sok.txt
-  "[GNUPG:] NEWSIG key@badsig.example.com"
-  "[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
-  "[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
-  "[GNUPG:] BADSIG 7A2E132C20E0EAF8 Normal Badsig <key@badsig.example.com>"
-  ;; Valid_KEXP_SOK.txt
-  ;; Valid_KOK_SEXP.txt
-  ;; Valid_KOK_SOK.txt
+;;  Invalid_KEXP_SEXP.txt
+"[GNUPG:] NEWSIG expired@badsig.example.com"
+"[GNUPG:] KEYEXPIRED 1325376017"
+"[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
+"[GNUPG:] KEYEXPIRED 1325376017"
+"[GNUPG:] KEYEXPIRED 1325376017"
+"[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
+"[GNUPG:] BADSIG FB2B6F167A81BDC5 Expired Badsig <expired@badsig.example.com>"
+"[GNUPG:] VERIFICATION_COMPLIANCE_MODE 23"
+;; Invalid_KEXP_SOK.txt
+"[GNUPG:] NEWSIG expired@badsig.example.com"
+"[GNUPG:] KEYEXPIRED 1325376017"
+"[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
+"[GNUPG:] KEYEXPIRED 1325376017"
+"[GNUPG:] KEYEXPIRED 1325376017"
+"[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
+"[GNUPG:] BADSIG FB2B6F167A81BDC5 Expired Badsig <expired@badsig.example.com>"
+"[GNUPG:] VERIFICATION_COMPLIANCE_MODE 23"
+;; Invalid_KOK_SEXP.txt
+"[GNUPG:] NEWSIG key@badsig.example.com"
+"[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
+"[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
+"[GNUPG:] BADSIG 7A2E132C20E0EAF8 Normal Badsig <key@badsig.example.com>"
+;; Invalid_kok_sok.txt
+"[GNUPG:] NEWSIG key@badsig.example.com"
+"[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
+"[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
+"[GNUPG:] BADSIG 7A2E132C20E0EAF8 Normal Badsig <key@badsig.example.com>"
+;; Valid_KEXP_SOK.txt
+;; Valid_KOK_SEXP.txt
+;; Valid_KOK_SOK.txt
 
 
 
 ;;; magit-tests.el ends soon
-  (provide 'magit-tests)
-  ;; Local Variables:
-  ;; indent-tabs-mode: nil
-  ;; End:
+(provide 'magit-tests)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; magit-tests.el ends here
