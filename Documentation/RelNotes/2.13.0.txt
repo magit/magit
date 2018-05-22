@@ -9,3 +9,6 @@ Changes since v2.12.0
 
 Fixes since v2.12.0
 -------------------
+
+* Time zones were not handled correctly when calculating times for
+  blame headings.  #3443
