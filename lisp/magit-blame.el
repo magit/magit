@@ -673,12 +673,14 @@ modes is toggled, then this mode also gets toggled automatically.
                (face-attribute 'magit-blame-heading :background nil t))))
 
 (defun magit-blame--format-time-string (time tz)
-  (setq time (string-to-number time))
-  (setq tz   (string-to-number tz))
-  (format-time-string
-   (or (magit-blame--style-get 'time-format)
-       magit-blame-time-format)
-   (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
+  (let* ((time-format (or (magit-blame--style-get 'time-format)
+                          magit-blame-time-format))
+         (tz-in-second (and (not (version< emacs-version "25"))
+                            (string-match "%z" time-format)
+                            (car (last (parse-time-string tz))))))
+    (format-time-string time-format
+                        (seconds-to-time (string-to-number time))
+                        tz-in-second)))
 
 (defun magit-blame--remove-overlays (&optional beg end)
   (save-restriction
