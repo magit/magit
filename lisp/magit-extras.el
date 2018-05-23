@@ -39,7 +39,7 @@
            (let ((exe (magit-git-string
                        "-c" "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
                        "X" "gitk.exe")))
-             (and (file-executable-p exe) exe)))
+             (and exe (file-executable-p exe) exe)))
       (executable-find "gitk") "gitk")
   "The Gitk executable."
   :group 'magit-extras
