@@ -562,7 +562,7 @@ line is inserted at all."
                       (make-string (max 1 (- magit-refs-primary-column-width
                                              (length abbrev)))
                                    ?\s)
-                      (magit-log-propertize-keywords nil msg)))
+                      (and msg (magit-log-propertize-keywords nil msg))))
                   (when (magit-buffer-margin-p)
                     (magit-refs--format-margin branch))
                   (magit-refs--insert-cherry-commits branch section)))))))
