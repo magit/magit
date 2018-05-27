@@ -526,7 +526,7 @@ If the value is the symbol `buffer', then use the same arguments
 as the buffer.  With a prefix argument use no arguments.
 
 If the value is a list beginning with the symbol `exclude', then
-use the arguments as the buffer except for those matched by
+use the same arguments as the buffer except for those matched by
 entries in the cdr of the list.  The comparison is done using
 `string-prefix-p'.  With a prefix argument use the same arguments
 as the buffer.
