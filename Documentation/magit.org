@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.12.1 (2.12.1-114-gfd19cb8d+1)
+#+SUBTITLE: for version 2.12.1 (2.12.1-138-g3dd660fe+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.12.1 (2.12.1-114-gfd19cb8d+1).
+This manual is for Magit version 2.12.1 (2.12.1-138-g3dd660fe+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -4257,6 +4257,8 @@ features are available from separate popups.
   These variables are always set by this command:
 
   - ~branch.<name>.pullRequest~ is set to the pull-request number.
+  - ~branch.<name>.pullRequestRemote~ is set to the remote on which the
+    pull-request branch is located.
   - ~branch.<name>.description~ is set to the pull-request title.
   - ~branch.<name>.rebase~ is set to ~true~ because there should be no
     merge commits among the commits in a pull-request.
@@ -4306,7 +4308,7 @@ features are available from separate popups.
       The most likely such case is when you are being asked to merge
       something like "fork/master" into "origin/master".  The special
       push permission mentioned above is never granted for the branch
-      that is the repository's default branch, and that is almost
+      that is the repository's default branch, and that would almost
       certainly be the case in this scenario.
 
       To enable you to easily push somewhere anyway, the local branch
@@ -4320,8 +4322,8 @@ features are available from separate popups.
     The push-remote is configured using ~branch.<name>.pushRemote~, even
     if the used value is identical to that of ~remote.pushDefault~, just
     in case you change the value of the latter later on.  Additionally
-    the variable ~branch.<name>.pullRequestRemote~ is set to the fork
-    remote.
+    the variable ~branch.<name>.pullRequestRemote~ is set to the remote
+    on which the pull-request branch is located.
 
   When you later delete the local pull-request branch, then you are
   offered to also delete the corresponding remote, provided it is not

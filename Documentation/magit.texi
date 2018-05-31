@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.12.1 (2.12.1-114-gfd19cb8d+1)
+@subtitle for version 2.12.1 (2.12.1-138-g3dd660fe+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.12.1 (2.12.1-114-gfd19cb8d+1).
+This manual is for Magit version 2.12.1 (2.12.1-138-g3dd660fe+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -5752,6 +5752,10 @@ These variables are always set by this command:
 @code{branch.<name>.pullRequest} is set to the pull-request number.
 
 @item
+@code{branch.<name>.pullRequestRemote} is set to the remote on which the
+pull-request branch is located.
+
+@item
 @code{branch.<name>.description} is set to the pull-request title.
 
 @item
@@ -5812,7 +5816,7 @@ didn't bother to use a dedicated branch for the pull-request.
 The most likely such case is when you are being asked to merge
 something like "fork/master" into "origin/master".  The special
 push permission mentioned above is never granted for the branch
-that is the repository's default branch, and that is almost
+that is the repository's default branch, and that would almost
 certainly be the case in this scenario.
 
 To enable you to easily push somewhere anyway, the local branch
@@ -5829,8 +5833,8 @@ then the fork is configured as the push-remote.
 The push-remote is configured using @code{branch.<name>.pushRemote}, even
 if the used value is identical to that of @code{remote.pushDefault}, just
 in case you change the value of the latter later on.  Additionally
-the variable @code{branch.<name>.pullRequestRemote} is set to the fork
-remote.
+the variable @code{branch.<name>.pullRequestRemote} is set to the remote
+on which the pull-request branch is located.
 @end itemize
 
 When you later delete the local pull-request branch, then you are

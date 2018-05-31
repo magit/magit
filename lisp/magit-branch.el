@@ -414,8 +414,8 @@ Please see the manual for more information."
         (magit-call-git "branch" branch (concat remote "/" pr-branch))
         (if (or .locked (not (equal branch pr-branch)))
             (magit-set upstream "branch" branch "pushRemote")
-          (magit-set remote "branch" branch "pushRemote"))
-        (magit-set remote "branch" branch "pullRequestRemote"))
+          (magit-set remote "branch" branch "pushRemote")))
+      (magit-set remote "branch" branch "pullRequestRemote")
       (magit-set "true" "branch" branch "rebase")
       (magit-call-git "branch" branch
                       (concat "--set-upstream-to="
