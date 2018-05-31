@@ -4,6 +4,9 @@ Magit v2.13.0 Release Notes (unreleased)
 Changes since v2.12.0
 ---------------------
 
+* As announced earlier, the obsolete option `magit-no-confirm-default'
+  has been removed.  #3232
+
 * The interactive prompts for the various reset commands now indicate
   the branch which is going to be reset.  #3438
 

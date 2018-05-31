@@ -77,24 +77,6 @@ or `helm--completing-read-default'."
                 (function-item helm--completing-read-default)
                 (function :tag "Other function")))
 
-(defvar magit-no-confirm-default nil
-  "A list of commands which should just use the default choice.
-
-Many commands let the user choose the target they act on offering
-a sensible default as default choice.  If you think that that
-default is so sensible that it should always be used without even
-offering other choices, then add that command here.
-
-Only the following commands support this option:
-  `magit-branch'
-  `magit-branch-and-checkout'
-  `magit-branch-orphan'
-  `magit-worktree-branch'
-    For these four commands `magit-branch-read-upstream-first'
-    must be non-nil, or adding them here has no effect.
-  `magit-branch-rename'
-  `magit-tag'")
-
 (defcustom magit-dwim-selection
   '((magit-stash-apply        nil t)
     (magit-stash-branch       nil t)
@@ -414,14 +396,12 @@ acts similarly to `completing-read', except for the following:
   `magit-builtin-completing-read'."
   (setq magit-completing-read--silent-default nil)
   (-if-let (dwim (and def
-                      (or (nth 2 (-first (lambda (arg)
-                                           (pcase-let ((`(,cmd ,re ,_) arg))
-                                             (and (eq this-command cmd)
-                                                  (or (not re)
-                                                      (string-match-p re prompt)))))
-                                         magit-dwim-selection))
-                          (memq this-command
-                                (with-no-warnings magit-no-confirm-default)))))
+                      (nth 2 (-first (lambda (arg)
+                                       (pcase-let ((`(,cmd ,re ,_) arg))
+                                         (and (eq this-command cmd)
+                                              (or (not re)
+                                                  (string-match-p re prompt)))))
+                                     magit-dwim-selection))))
       (if (eq dwim 'ask)
           (if (y-or-n-p (format "%s %s? " prompt def))
               def

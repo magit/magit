@@ -456,9 +456,7 @@ Please see the manual for more information."
               (user-error "Not a valid starting-point: %s" choice))))
       (let ((branch (magit-read-string-ns (concat prompt " named"))))
         (list branch
-              (with-no-warnings
-                (let ((magit-no-confirm-default nil))
-                  (magit-read-starting-point prompt branch)))
+              (magit-read-starting-point prompt branch)
               args)))))
 
 ;;;###autoload

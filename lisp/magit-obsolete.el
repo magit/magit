@@ -137,10 +137,6 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
 (define-obsolete-function-alias 'magit-get-submodules
   'magit-list-module-paths "Magit 2.12.0")
 
-(make-obsolete-variable 'magit-no-confirm-default
-                        'magit-dwim-selection
-                        "Magit 2.12.0")
-
 (make-obsolete-variable 'magit-status-expand-stashes
                         'magit-section-initial-visibility-alist
                         "Magit 2.12.0")
