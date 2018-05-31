@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.12.1 (2.12.1-138-g3dd660fe+1)
+@subtitle for version 2.12.1 (2.12.1-139-gfb98ee0a+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.12.1 (2.12.1-138-g3dd660fe+1).
+This manual is for Magit version 2.12.1 (2.12.1-139-gfb98ee0a+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -5756,6 +5756,11 @@ These variables are always set by this command:
 pull-request branch is located.
 
 @item
+@code{branch.<name>.pushRemote} is set to the same remote as
+@code{branch.<name>.pullRequestRemote} if that is possible, otherwise
+it is set to the upstream remote.
+
+@item
 @code{branch.<name>.description} is set to the pull-request title.
 
 @item
@@ -5786,18 +5791,15 @@ fork/new-feature".
 @itemize
 @item
 If the pull-request branch is located in the upstream repository,
-then it is not necessary to configure the push-target.
-
-(If you have push access to the upstream repository, then it is
-usually a good idea to configure that as the push-remote using
-@code{remote.pushDefault}.  However even if you are not using that
-recommended setting, then it is still easy enough to set
-@code{branch.<name>.pushRemote} while pushing using @code{P p}.)
+then you probably have set @code{remote.pushDefault} to that repository.
+However some users like to set that variable to their personal
+fork, even if they have push access to the upstream, so
+@code{branch.<name>.pushRemote} is set anyway.
 
 
 @item
-If the pull-request branch is located inside a fork, then you
-usually are able to push to that branch, because Github by default
+If the pull-request branch is located inside a fork, then you are
+usually able to push to that branch, because Github by default
 allows the recipient of a pull-request to push to the remote
 pull-request branch even if it is located in a fork.  The
 contributor has to explicitly disable this.

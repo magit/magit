@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.12.1 (2.12.1-138-g3dd660fe+1)
+#+SUBTITLE: for version 2.12.1 (2.12.1-139-gfb98ee0a+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.12.1 (2.12.1-138-g3dd660fe+1).
+This manual is for Magit version 2.12.1 (2.12.1-139-gfb98ee0a+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -4259,6 +4259,9 @@ features are available from separate popups.
   - ~branch.<name>.pullRequest~ is set to the pull-request number.
   - ~branch.<name>.pullRequestRemote~ is set to the remote on which the
     pull-request branch is located.
+  - ~branch.<name>.pushRemote~ is set to the same remote as
+    ~branch.<name>.pullRequestRemote~ if that is possible, otherwise
+    it is set to the upstream remote.
   - ~branch.<name>.description~ is set to the pull-request title.
   - ~branch.<name>.rebase~ is set to ~true~ because there should be no
     merge commits among the commits in a pull-request.
@@ -4284,16 +4287,13 @@ features are available from separate popups.
   fork/new-feature".
 
   - If the pull-request branch is located in the upstream repository,
-    then it is not necessary to configure the push-target.
+    then you probably have set ~remote.pushDefault~ to that repository.
+    However some users like to set that variable to their personal
+    fork, even if they have push access to the upstream, so
+    ~branch.<name>.pushRemote~ is set anyway.
 
-    (If you have push access to the upstream repository, then it is
-    usually a good idea to configure that as the push-remote using
-    ~remote.pushDefault~.  However even if you are not using that
-    recommended setting, then it is still easy enough to set
-    ~branch.<name>.pushRemote~ while pushing using ~P p~.)
-
-  - If the pull-request branch is located inside a fork, then you
-    usually are able to push to that branch, because Github by default
+  - If the pull-request branch is located inside a fork, then you are
+    usually able to push to that branch, because Github by default
     allows the recipient of a pull-request to push to the remote
     pull-request branch even if it is located in a fork.  The
     contributor has to explicitly disable this.
