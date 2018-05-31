@@ -546,6 +546,9 @@ Magit is documented in info node `(magit)'."
   (when (and (fboundp 'nlinum-mode)
              (bound-and-true-p global-nlinum-mode))
     (nlinum-mode -1))
+  (when (and (fboundp 'display-line-numbers-mode)
+             (bound-and-true-p global-display-line-numbers-mode))
+    (display-line-numbers-mode -1))
   (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache))
 
 (defvar-local magit-region-overlays nil)
