@@ -412,11 +412,11 @@ Please see the manual for more information."
                   .head.repo.git_url)
                  (t (error "%s has an unexpected format" upstream-url)))))
         (magit-call-git "branch" branch (concat remote "/" pr-branch))
-        (magit-set "true" "branch" branch "rebase")
         (if (or .locked (not (equal branch pr-branch)))
             (magit-set upstream "branch" branch "pushRemote")
           (magit-set remote "branch" branch "pushRemote"))
         (magit-set remote "branch" branch "pullRequestRemote"))
+      (magit-set "true" "branch" branch "rebase")
       (magit-call-git "branch" branch
                       (concat "--set-upstream-to="
                               (if magit-branch-prefer-remote-upstream
