@@ -316,9 +316,10 @@ and in process buffers to elide `magit-git-global-arguments'."
 (defcustom magit-update-other-window-delay 0.2
   "Delay before automatically updating the other window.
 
-When moving around in certain buffers certain other buffers,
-which are being displayed in another window, may optionally be
-updated to display information about the section at point.
+When moving around in certain buffers, then certain other
+buffers, which are being displayed in another window, may
+optionally be updated to display information about the
+section at point.
 
 When holding down a key to move by more than just one section,
 then that would update that buffer for each section on the way.

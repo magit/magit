@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.12.1 (2.12.1-139-gfb98ee0a+1)
+#+SUBTITLE: for version 2.12.1 (2.12.1-143-g802fba7e+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.12.1 (2.12.1-139-gfb98ee0a+1).
+This manual is for Magit version 2.12.1 (2.12.1-143-g802fba7e+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -969,9 +969,9 @@ Any of the functions listed below can be used as members of this hook.
 
   Delay before automatically updating the other window.
 
-  When moving around in certain buffers certain other buffers, which
-  are being displayed in another window, may optionally be updated to
-  display information about the section at point.
+  When moving around in certain buffers, then certain other buffers,
+  which are being displayed in another window, may optionally be
+  updated to display information about the section at point.
 
   When holding down a key to move by more than just one section, then
   that would update that buffer for each section on the way.  To
