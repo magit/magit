@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.12.1 (2.12.1-144-g9058b223+1)
+@subtitle for version 2.12.1 (2.12.1-149-g8a758dbb+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.12.1 (2.12.1-144-g9058b223+1).
+This manual is for Magit version 2.12.1 (2.12.1-149-g8a758dbb+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -250,6 +250,7 @@ Miscellaneous
 * Notes::
 * Submodules::
 * Subtree::
+* Worktree::
 * Common Commands::
 * Wip Modes::
 * Minor Mode for Buffers Visiting Files::
@@ -2666,6 +2667,15 @@ The following functions can also be added to the above hook:
 Insert a tree of tracked files.
 @end defun
 
+@defun magit-insert-ignored-files
+
+Insert a tree of ignored files.
+
+If the first element of @code{magit-diff-section-arguments} is a directory,
+then limit the list to files below that.  The value of that variable
+can be set using @code{D = f <DIRECTORY> RET g}.
+@end defun
+
 @defun magit-insert-unpulled-or-recent-commits
 
 Insert section showing unpulled or recent commits.
@@ -3790,6 +3800,8 @@ This command moves forward in current buffer's history.
 @node Diff Buffer
 @subsection Diff Buffer
 
+These commands are available in diff buffers.
+
 @table @asis
 @kindex RET
 @cindex magit-diff-visit-file
@@ -3863,6 +3875,33 @@ position in another window.
 @end deffn
 
 @table @asis
+@kindex C-c C-t
+@cindex magit-diff-trace-definition
+@item @kbd{C-c C-t} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-trace-definition})
+
+From a diff, show log for the definition at point.
+
+@kindex C-c C-e
+@cindex magit-diff-edit-hunk-commit
+@item @kbd{C-c C-e} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-edit-hunk-commit})
+
+From a hunk, edit the respective commit and visit the file.
+
+First visit the file being modified by the hunk at the correct
+location using @code{magit-diff-visit-file}.  This actually visits a
+blob.  When point is on a diff header, not within an individual
+hunk, then this visits the blob the first hunk is about.
+
+Then invoke @code{magit-edit-line-commit}, which uses an interactive
+rebase to make the commit editable, or if that is not possible
+because the commit is not reachable from @code{HEAD} by checking out
+that commit directly.  This also causes the actual worktree file
+to be visited.
+
+Neither the blob nor the file buffer are killed when finishing
+the rebase.  If that is undesirable, then it might be better to
+use @code{magit-rebase-edit-command} instead of this command.
+
 @kindex j
 @cindex magit-jump-to-diffstat-or-diff
 @item @kbd{j} @tie{}@tie{}@tie{}@tie{}(@code{magit-jump-to-diffstat-or-diff})
@@ -8091,6 +8130,7 @@ Git metadata in addition to the actual diff.
 * Notes::
 * Submodules::
 * Subtree::
+* Worktree::
 * Common Commands::
 * Wip Modes::
 * Minor Mode for Buffers Visiting Files::
@@ -8141,7 +8181,24 @@ single tag to be deleted, defaulting to the tag at point.
 @item @kbd{t p} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag-prune})
 
 Offer to delete tags missing locally from REMOTE, and vice versa.
+
 @end table
+
+@cindex magit-tag-release
+@deffn Command magit-tag-release
+
+Create an opinionated release tag.
+
+Assume version tags that match "\\`v?[0-9]\*\\'".
+Prompt for the name of the new tag using the highest existing tag
+as initial input and call "git tag --annotate --sign -m MSG" TAG,
+regardless of whether these arguments are enabled in the popup.
+Given a TAG "v1.2.3" and a repository "/path/to/foo-bar", the
+MESSAGE would be "Foo-Bar 1.2.3".
+
+Because it is so opinionated, this command is not available from
+the tag popup by default.
+@end deffn
 
 @node Notes
 @section Notes
@@ -8465,6 +8522,69 @@ REPOSITORY@.
 Extract the history of the subtree PREFIX@.
 @end table
 
+@node Worktree
+@section Worktree
+
+Also see 
+@ifinfo
+@ref{git-worktree,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-worktree">git-worktree(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the git-worktree(1) manpage.
+@end iftex
+
+@table @asis
+@kindex %
+@cindex magit-worktree-popup
+@item @kbd{%} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-popup})
+
+This prefix command shows the following suffix commands in a popup
+buffer.
+
+@kindex % b
+@cindex magit-worktree-checkout
+@item @kbd{% b} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-checkout})
+
+Checkout BRANCH in a new worktree at PATH@.
+
+@kindex % c
+@cindex magit-worktree-branch
+@item @kbd{% c} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-branch})
+
+Create a new BRANCH and check it out in a new worktree at PATH@.
+
+@kindex % p
+@cindex magit-worktree-checkout-pull-request
+@item @kbd{% p} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-checkout-pull-request})
+
+Create, configure and checkout a new worktree from a pull-request.
+
+This is like @code{magit-checkout-pull-request} (which see) except that it
+also creates a new worktree.
+
+@kindex % k
+@cindex magit-worktree-delete
+@item @kbd{% k} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-delete})
+
+Delete a worktree, defaulting to the worktree at point.
+The primary worktree cannot be deleted.
+
+@kindex % g
+@cindex magit-worktree-status
+@item @kbd{% g} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-status})
+
+Show the status for the worktree at point.
+
+If there is no worktree at point, then read one in the minibuffer.
+If the worktree at point is the one whose status is already being
+displayed in the current buffer, then show it in Dired instead.
+@end table
+
 @node Common Commands
 @section Common Commands
 
@@ -8765,6 +8885,12 @@ buffer visits.  Renames are followed when a prefix argument is used
 or when @code{--follow} is part of @code{magit-log-arguments}.  When the
 region is active, the log is restricted to the selected line range.
 
+@kindex C-c M-g t
+@cindex magit-log-trace-definition
+@item @kbd{C-c M-g t} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-trace-definition})
+
+This command shows the log for the definition at point.
+
 @end table
 
 @defopt magit-log-buffer-file-locked
@@ -8774,12 +8900,44 @@ buffer.  See @ref{Modes and Buffers}.
 @end defopt
 
 @table @asis
-@kindex C-c M-g b
+@kindex C-c M-g B
 @cindex magit-blame-popup
-@item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
+@item @kbd{C-c M-g B} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
 
-This prefix command shows the @code{magit-blame} suffix command along with
-the appropriate infix arguments in a popup buffer.  See @ref{Initiating a Commit}.
+This prefix command shows all blaming suffix command along with the
+appropriate infix arguments in a popup buffer.  See @ref{Blaming}.
+
+@kindex C-c M-g b
+@cindex magit-blame
+@item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame})
+
+This command shows for each line the revision in which it was added.
+
+@kindex C-c M-g r
+@cindex magit-blame-removal
+@item @kbd{C-c M-g r} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-removal})
+
+This command shows for each line the revision in which it was removed.
+This command is only available in blob-visiting buffers.
+
+@kindex C-c M-g f
+@cindex magit-blame-reverse
+@item @kbd{C-c M-g f} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-reverse})
+
+This command shows for each line the last revision in which it still
+exists.  This command is only available in blob-visiting buffers.
+
+@kindex C-c M-g e
+@cindex magit-edit-line-commit
+@item @kbd{C-c M-g e} @tie{}@tie{}@tie{}@tie{}(@code{magit-edit-line-commit})
+
+This command makes the commit editable that added the current line.
+
+With a prefix argument it makes the commit editable that removes the
+line, if any.  The commit is determined using @code{git blame} and made
+editable using @code{git rebase --interactive} if it is reachable from
+@code{HEAD}, or by checking out the commit (or a branch that points at it)
+otherwise.
 
 @kindex C-c M-g p
 @cindex magit-blob-previous

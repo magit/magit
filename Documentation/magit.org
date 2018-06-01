@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.12.1 (2.12.1-144-g9058b223+1)
+#+SUBTITLE: for version 2.12.1 (2.12.1-149-g8a758dbb+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.12.1 (2.12.1-144-g9058b223+1).
+This manual is for Magit version 2.12.1 (2.12.1-149-g8a758dbb+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -1961,6 +1961,14 @@ The following functions can also be added to the above hook:
 
   Insert a tree of tracked files.
 
+- Function: magit-insert-ignored-files
+
+  Insert a tree of ignored files.
+
+  If the first element of ~magit-diff-section-arguments~ is a directory,
+  then limit the list to files below that.  The value of that variable
+  can be set using ~D = f <DIRECTORY> RET g~.
+
 - Function: magit-insert-unpulled-or-recent-commits
 
   Insert section showing unpulled or recent commits.
@@ -2779,6 +2787,8 @@ without having to using one of the diff popups.
 
 *** Diff Buffer
 
+These commands are available in diff buffers.
+
 - Key: RET, magit-diff-visit-file
 
   From a diff, visit the corresponding file at the appropriate position.
@@ -2837,6 +2847,29 @@ without having to using one of the diff popups.
 
   From a diff, visit the corresponding file at the appropriate
   position in another window.
+
+- Key: C-c C-t, magit-diff-trace-definition
+
+  From a diff, show log for the definition at point.
+
+- Key: C-c C-e, magit-diff-edit-hunk-commit
+
+  From a hunk, edit the respective commit and visit the file.
+
+  First visit the file being modified by the hunk at the correct
+  location using ~magit-diff-visit-file~.  This actually visits a
+  blob.  When point is on a diff header, not within an individual
+  hunk, then this visits the blob the first hunk is about.
+
+  Then invoke ~magit-edit-line-commit~, which uses an interactive
+  rebase to make the commit editable, or if that is not possible
+  because the commit is not reachable from ~HEAD~ by checking out
+  that commit directly.  This also causes the actual worktree file
+  to be visited.
+
+  Neither the blob nor the file buffer are killed when finishing
+  the rebase.  If that is undesirable, then it might be better to
+  use ~magit-rebase-edit-command~ instead of this command.
 
 - Key: j, magit-jump-to-diffstat-or-diff
 
@@ -5955,6 +5988,20 @@ Also see [[man:git-tag]]
 
   Offer to delete tags missing locally from REMOTE, and vice versa.
 
+- Command: magit-tag-release
+
+  Create an opinionated release tag.
+
+  Assume version tags that match "\\`v?[0-9]\\(\\.[0-9]\\)*\\'".
+  Prompt for the name of the new tag using the highest existing tag
+  as initial input and call "git tag --annotate --sign -m MSG" TAG,
+  regardless of whether these arguments are enabled in the popup.
+  Given a TAG "v1.2.3" and a repository "/path/to/foo-bar", the
+  MESSAGE would be "Foo-Bar 1.2.3".
+
+  Because it is so opinionated, this command is not available from
+  the tag popup by default.
+
 ** Notes
 
 Also see [[man:git-notes]]
@@ -6168,6 +6215,43 @@ used.  Otherwise the prefix is read in the minibuffer.
 - Key: O s, magit-subtree-split
 
   Extract the history of the subtree PREFIX.
+
+** Worktree
+
+Also see [[man:git-worktree]]
+
+- Key: %, magit-worktree-popup
+
+  This prefix command shows the following suffix commands in a popup
+  buffer.
+
+- Key: % b, magit-worktree-checkout
+
+  Checkout BRANCH in a new worktree at PATH.
+
+- Key: % c, magit-worktree-branch
+
+  Create a new BRANCH and check it out in a new worktree at PATH.
+
+- Key: % p, magit-worktree-checkout-pull-request
+
+  Create, configure and checkout a new worktree from a pull-request.
+
+  This is like ~magit-checkout-pull-request~ (which see) except that it
+  also creates a new worktree.
+
+- Key: % k, magit-worktree-delete
+
+  Delete a worktree, defaulting to the worktree at point.
+  The primary worktree cannot be deleted.
+
+- Key: % g, magit-worktree-status
+
+  Show the status for the worktree at point.
+
+  If there is no worktree at point, then read one in the minibuffer.
+  If the worktree at point is the one whose status is already being
+  displayed in the current buffer, then show it in Dired instead.
 
 ** Common Commands
 
@@ -6422,16 +6506,43 @@ few key bindings, but this might be extended in the future.
   or when ~--follow~ is part of ~magit-log-arguments~.  When the
   region is active, the log is restricted to the selected line range.
 
+- Key: C-c M-g t, magit-log-trace-definition
+
+  This command shows the log for the definition at point.
+
 - User Option: magit-log-buffer-file-locked
 
   This option controls whether ~magit-log-buffer-file~ uses a dedicated
   buffer.  See [[*Modes and Buffers]].
 
-- Key: C-c M-g b, magit-blame-popup
+- Key: C-c M-g B, magit-blame-popup
 
-  This prefix command shows the ~magit-blame~ suffix command along with
-  the appropriate infix arguments in a popup buffer.  See [[*Initiating
-  a Commit]].
+  This prefix command shows all blaming suffix command along with the
+  appropriate infix arguments in a popup buffer.  See [[*Blaming]].
+
+- Key: C-c M-g b, magit-blame
+
+  This command shows for each line the revision in which it was added.
+
+- Key: C-c M-g r, magit-blame-removal
+
+  This command shows for each line the revision in which it was removed.
+  This command is only available in blob-visiting buffers.
+
+- Key: C-c M-g f, magit-blame-reverse
+
+  This command shows for each line the last revision in which it still
+  exists.  This command is only available in blob-visiting buffers.
+
+- Key: C-c M-g e, magit-edit-line-commit
+
+  This command makes the commit editable that added the current line.
+
+  With a prefix argument it makes the commit editable that removes the
+  line, if any.  The commit is determined using ~git blame~ and made
+  editable using ~git rebase --interactive~ if it is reachable from
+  ~HEAD~, or by checking out the commit (or a branch that points at it)
+  otherwise.
 
 - Key: C-c M-g p, magit-blob-previous
 
