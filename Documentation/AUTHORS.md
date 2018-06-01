@@ -39,6 +39,7 @@ Contributors
 ------------
 
 - Aaron Culich <aculich@gmail.com>
+- Aaron Madlon-Kay <aaron@madlon-kay.com>
 - Abdo Roig-Maranges <abdo.roig@gmail.com>
 - Adam Benanti <0entropy@protonmail.com>
 - Adam Porter <adam@alphapapa.net>
@@ -46,6 +47,7 @@ Contributors
 - Adeodato Simó <dato@net.com.org.es>
 - Ævar Arnfjörð Bjarmason <avarab@gmail.com>
 - Alan Falloon <alan.falloon@gmail.com>
+- Alban Gruin <alban@pa1ch.fr>
 - Aleksey Uimanov <s9gf4ult@gmail.com>
 - Alexander Gramiak <fice-t@protonmail.com>
 - Alex Dunn <adunn@ucsb.edu>
@@ -148,6 +150,7 @@ Contributors
 - John Mastro <john.b.mastro@gmail.com>
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
+- Jonathan Leech-Pepin <jonathan.leechpepin@gmail.com>
 - Jonathan Roes <jroes@jroes.net>
 - Jon Vanderwijk <jonathn@github.com>
 - Jordan Greenberg <jordan@softwareslave.com>
@@ -170,6 +173,7 @@ Contributors
 - Leo Liu <sdl.web@gmail.com>
 - Leonardo Etcheverry <leo@kalio.net>
 - Lingchao Xin <douglarek@users.noreply.github.com>
+- Li-Yun Chang <michael142536@gmail.com>
 - Lluís Vilanova <vilanova@ac.upc.edu>
 - Loic Dachary <loic@dachary.org>
 - Luís Oliveira <luismbo@gmail.com>
