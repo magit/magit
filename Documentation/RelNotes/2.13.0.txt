@@ -44,6 +44,9 @@ Changes since v2.12.0
 
 * Added new command `magit-worktree-checkout-pull-request'.  a3d788ec
 
+* New variable `magit-get-previous-branch-timeout' limits the amount
+  of time spent in `magit-get-previous-branch'.  #3457
+
 Fixes since v2.12.0
 -------------------
 

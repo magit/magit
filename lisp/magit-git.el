@@ -1074,15 +1074,24 @@ to, or to some other symbolic-ref that points to the same ref."
 Return nil if no branch is currently checked out."
   (magit-git-string "symbolic-ref" "--short" "HEAD"))
 
+(defvar magit-get-previous-branch-timeout 0.5
+  "Maximum time to spend in `magit-get-previous-branch'.
+Given as a number of seconds.")
+
 (defun magit-get-previous-branch ()
   "Return the refname of the previously checked out branch.
 Return nil if no branch can be found in the `HEAD' reflog
-which is different from the current branch and still exists."
-  (let ((current (magit-get-current-branch))
+which is different from the current branch and still exists.
+The amount of time spent searching is limited by
+`magit-get-previous-branch-timeout'."
+  (let ((t0 (float-time))
+        (current (magit-get-current-branch))
         (i 1) prev)
-    (while (and (setq prev (magit-rev-verify (format "@{-%i}" i)))
-                (or (not (setq prev (magit-rev-branch prev)))
-                    (equal prev current)))
+    (while (if (> (- (float-time) t0) magit-get-previous-branch-timeout)
+               (setq prev nil) ;; Timed out.
+             (and (setq prev (magit-rev-verify (format "@{-%i}" i)))
+                  (or (not (setq prev (magit-rev-branch prev)))
+                      (equal prev current))))
       (cl-incf i))
     prev))
 
