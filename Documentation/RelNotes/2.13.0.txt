@@ -7,11 +7,55 @@ Changes since v2.12.0
 * As announced earlier, the obsolete option `magit-no-confirm-default'
   has been removed.  #3232
 
+* Augmenting a file- or blob-visiting buffer with blame information
+  was completely rewritten, making the implementation more robust and
+  adding many new feautures. [...]
+
+* Added new command `magit-tag-release'.  This is a fairly opinionated
+  command and its only use to you might be to serve as a template for
+  your own variant.
+
+* Added new section inserter `magit-insert-ignored-files', which
+  could be added to `magit-status-sections-hook'.
+
+* The mode `global-magit-file-mode' is now enabled by default.
+  0ec28b97
+
+* Added new commands `magit-log-trace-definition' and
+  `magit-diff-trace-definition'.  #2588
+
+* Added new commands `magit-edit-line-commit' and
+  `magit-diff-edit-hunk-commit'.  febe79ba 22b13337
+
 * The interactive prompts for the various reset commands now indicate
   the branch which is going to be reset.  #3438
+
+* Added new option `magit-published-branches', providing an additional
+  safety-net.  If you try to modify a commit that has been pushed to
+  one of these branches already, then you are now asked whether you
+  really want to do that.  Do not rely on this exclusively, there are
+  edge-cases that are ambiguous and are not always handled as you
+  might have expected.  add4a7f3 ff
+
+* Gravatar images are now being inserted asynchronously.  #3452
+
+* After deleting the current worktree, `magit-delete-worktree' now
+  shows the status buffer for another worktree.  d9cd4611
+
+* Added new command `magit-worktree-checkout-pull-request'.  a3d788ec
 
 Fixes since v2.12.0
 -------------------
 
+* The recently added command `magit-branch-pull-request' had various
+  issues concerning pull-requests referencing branches from the
+  upstream repository.  #3416 #3417 #3461
+
+* The values of diffstat sections was wrong for sections that
+  represent renamed files.  66d9558f
+
 * Time zones were not handled correctly when calculating times for
   blame headings.  #3443
+
+This release also contains other minor improvements, bug fixes, typo
+fixes, and documentation fixes.
