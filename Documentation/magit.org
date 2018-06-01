@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.12.1 (2.12.1-143-g802fba7e+1)
+#+SUBTITLE: for version 2.12.1 (2.12.1-144-g9058b223+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.12.1 (2.12.1-143-g802fba7e+1).
+This manual is for Magit version 2.12.1 (2.12.1-144-g9058b223+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -2792,10 +2792,20 @@ without having to using one of the diff popups.
   commit where that line still existed.  Otherwise visit the blob
   for the commit whose changes are being shown.
 
-  When the file or blob to be displayed is already being displayed in
-  another window of the same frame, then just select that window and
-  adjust point.  Otherwise, or with a prefix argument, display the
-  buffer in another window.
+  Interactively, when the file or blob to be displayed is already
+  being displayed in another window of the same frame, then just
+  select that window and adjust point.  Otherwise, or with a prefix
+  argument, display the buffer in another window.  The meaning of
+  the prefix argument can be inverted or further modified using the
+  option ~magit-display-file-buffer-function~.
+
+  Non-interactively the optional OTHER-WINDOW argument is taken
+  literally.  DISPLAY-FN can be used to specify the display
+  function explicitly, in which case OTHER-WINDOW is ignored.
+
+  The optional FORCE-WORKTREE means to force visiting the worktree
+  version of the file.  To do this interactively use the command
+  ~magit-diff-visit-file-worktree~ instead.
 
 - User Option: magit-diff-visit-previous-blob
 
