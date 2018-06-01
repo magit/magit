@@ -1627,6 +1627,7 @@ is set in `magit-mode-setup'."
     (define-key map "u" 'magit-unstage)
     (define-key map "&" 'magit-do-async-shell-command)
     (define-key map "\C-c\C-t" 'magit-diff-trace-definition)
+    (define-key map "\C-c\C-e" 'magit-diff-edit-hunk-commit)
     map)
   "Keymap for `file' sections.")
 
@@ -1644,6 +1645,7 @@ is set in `magit-mode-setup'."
     (define-key map "u" 'magit-unstage)
     (define-key map "&" 'magit-do-async-shell-command)
     (define-key map "\C-c\C-t" 'magit-diff-trace-definition)
+    (define-key map "\C-c\C-e" 'magit-diff-edit-hunk-commit)
     map)
   "Keymap for `hunk' sections.")
 
