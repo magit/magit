@@ -37,16 +37,18 @@
 
 (require 'magit)
 
-(defun magit-verify-signature (sig &optional
-                                   ignore-key-expiration
-                                   ignore-sig-expiration
-                                   ignore-key-validity
-                                   ignore-revocation)
-  "Verify signature SIG, a `magit-pgp-signature' object.
+;;; High level interface
 
-If SIG is a valid signature (non-expired, from a non-expired and
-non-revoked key, with a non-never ownertrust), return it
-unmodified, otherwise return nil.
+(defun magit-verify-commit (id &optional
+                               ignore-key-expiration
+                               ignore-sig-expiration
+                               ignore-key-validity
+                               ignore-revocation)
+  "Verify commit ID.
+
+Return a (possibly empty) list of valid signature's fingerprints.
+Due to Git's current limitations, it can be assumed that this
+list contains at most one element.
 
 If IGNORE-KEY-EXPIRATION is non-nil, will accept signatures
 from expired keys.
@@ -60,6 +62,103 @@ doing.
 
 If IGNORE-REVOCATION is non-nil, will accept signatures from
 revoked keys.  Enable if you know what you're doing."
+  (-non-nil
+   (mapcar (lambda (sig) (oref (magit-verify-signature
+                                sig
+                                ignore-key-expiration
+                                ignore-sig-expiration
+                                ignore-key-validity
+                                ignore-revocation)
+                               key-fingerprint))
+           (magit-read-commit-signatures id))
+
+(defun magit-verify-tag (name &optional
+                              ignore-key-expiration
+                              ignore-sig-expiration
+                              ignore-key-validity
+                              ignore-revocation)
+
+  "Verify tag NAME.
+
+NAME must be a tag *name*, and cannot be a SHA-1 identifier.
+This is because this function actually verifies that the name
+stored in the tag object matches the user-provided name, which
+git verify-tag doesn't do.  If names don't match, an error will
+be signaled.
+
+IGNORE-KEY-EXPIRATION, IGNORE-SIG-EXPIRATION, IGNORE-KEY-VALIDITY
+and IGNORE-REVOCATION have the same meaning as in
+`magit-verify-commit', which see."
+  (-non-nil
+   (mapcar (lambda (sig) (oref (magit-verify-signature
+                                sig
+                                ignore-key-expiration
+                                ignore-sig-expiration
+                                ignore-key-validity
+                                ignore-revocation)
+                               key-fingerprint))
+           (magit-read-tag-signatures name))))
+
+(defun magit-read-commit-signatures (id)
+  "Return PGP signatures of commit ID, regardless of their validity.
+
+In most cases, you'll want to use `magit-verify-commit' instead
+of this function, which provides a simpler and safer interface to
+the same functionality.
+
+Return a possibly empty list of `magit-pgp-signature' objects, which see."
+  (magit-verify--parse-output
+   (split-string
+    ;; `magit-git-lines' only returns stdout, we need stderr.
+    (shell-command-to-string (format
+                              "%s verify-commit --raw %s"
+                              (shell-quote-argument magit-git-executable)
+                              (shell-quote-argument id)))
+    "\n")))
+
+(defun magit-read-tag-signatures (name)
+  "Return PGP signatures of tag NAME, regardless of their validity.
+
+In most cases, you'll want to use `magit-verify-tag' instead of
+this function, which provides a simpler and safer interface to
+the same functionality.
+
+NAME must be a tag *name*, and cannot be a SHA-1 identifier.
+This is because this function actually verifies that the name
+stored in the tag object matches the user-provided name, which
+git verify-tag doesn't do.  If names don't match, an error will
+be signaled.
+
+Return a possibly empty list of `magit-pgp-signature' objects, which see."
+  (let ((realname (car (magit-git-lines "verify-tag" "--format" "%(tag)" name))))
+    (unless
+        (string= realname name)
+      (error
+       "The tag object referred to by `%s' is actually named `%s'.  Maybe you've given `magit-verify-tag' a hash instead of a name, or maybe something fishy is going on"
+       name realname)))
+
+  (magit-verify--parse-output
+   (split-string
+    ;; `magit-git-lines' only return stdout, we need stderr.
+    (shell-command-to-string (format
+                              "%s verify-tag --raw %s"
+                              (shell-quote-argument magit-git-executable)
+                              (shell-quote-argument name)))
+    "\n")))
+
+
+;;; Low level interface
+
+(defun magit-verify-signature (sig &optional
+                                   ignore-key-expiration
+                                   ignore-sig-expiration
+                                   ignore-key-validity
+                                   ignore-revocation)
+  "Verify signature SIG, a `magit-pgp-signature' object.
+
+If SIG is a valid signature (non-expired, from a non-expired and
+non-revoked key, with a non-never ownertrust), return it
+unmodified, otherwise return nil."
 
   (and
    (not (oref sig error))
@@ -70,31 +169,12 @@ revoked keys.  Enable if you know what you're doing."
        (not (oref sig sig-expired)))
    (or ignore-key-validity
        (not (equal 'never (oref sig key-validity))))
-   (or ignore-key-deprecated
-       (not (oref sig key-deprecated))))
-   sig))
-
-(defun magit-read-commit-signatures (id)
-  "Read cryptographic signatures on commit ID.
-
-For simple verification purposes, `magit-verify-commit' provides
-a much simpler and safer interface.
-
-Return a list `magit-pgp-signature' object (which see)."
-    (magit-verify--parse-output (magit-git-lines "verify-commit" "--raw" id)))
-
-(defun magit-read-tag-signatures (name)
-  "Read cryptographic signatures on tag NAME.
-
-For simple verification purposes, `magit-verify-tag' provides
-a much simpler and safer interface.
-
-Return a list `magit-pgp-signature' object (which see)."
-    (magit-verify--parse-output (magit-git-lines "verify-tag" "--raw" name)))
+   (or ignore-revocation
+       (not (oref sig key-revoked))))
+  sig)
 
 (defclass magit-pgp-signature ()
-  (
-   (error
+  ((error
     :initform nil
     :type boolean
     :doc "The error state after verification.  See class
@@ -106,8 +186,7 @@ Return a list `magit-pgp-signature' object (which see)."
     signature could successfully be verified, but doesn't
     guarantee that the signing key is trusted.")
    (sig-creation-date
-    :initform 0
-    :type number
+    :initform '(0 0)
     :doc "The date this signature was created.")
    (key-fingerprint
     :initform nil
@@ -131,9 +210,12 @@ Return a list `magit-pgp-signature' object (which see)."
     :doc "The key's key-validity, as either a symbol (`ultimate',
    `full', `unknown', `undefined', `marginal') or nil if
    unspecified.")
+   (key-revoked
+    :initform nil
+    :type boolean
+    :doc "Whether this key was revoked.")
    (key-expiration-date
     :initform nil
-    :type (or null integer)
     :doc "The key's expiration date as a number of seconds from epoch.")
    (key-expired
     :initform nil
@@ -142,7 +224,6 @@ Return a list `magit-pgp-signature' object (which see)."
     key doesn't imply that the signature is invalid.")
    (sig-expiration-date
     :initform nil
-    :type (or null integer)
     :doc "The signature's expiration date as a number of seconds from epoch.")
    (sig-expired
     :initform nil
@@ -224,8 +305,8 @@ Short, minimal, version:
     accordingly.
 
     How exactly to manipulate this value is policy-dependant.
-    What follows is not a RECOMMENDATION, but the bare minimum
-    level of verification.
+    What follows is NOT a recommendation, but the bare minimum
+    level of verification:
 
     If 'never => Signature is INVALID, END.
 
@@ -236,8 +317,10 @@ Short, minimal, version:
     correct to emit a warning when a key or signature has
     expired without rejecting the signature.")
 
+;;; Internals
+
 (defun magit-verify--extract-uid (line sig)
-  ;; Read name and comment from a *SIG LINE and `oset' them in SIG.
+  ;; Read name and comment from a "*SIG" LINE and `oset' them in SIG.
 
   (unless
       (string-match
@@ -254,12 +337,11 @@ Short, minimal, version:
   ;;
   ;; If STR matches ^[[:digit:]]+$, it's treated as a unix timestmap,
   ;; otherwise as an RFC 8601 string.  If nothing works, raise an error."
-
   (and
    (not (string= str "0"))
    (or
     (and
-     (string-match "^[[:digit:]]+$" str)
+     (string-match "\\`[[:digit:]]+\\'" str)
      (seconds-to-time (string-to-number str)))
 
     ;; @FIXME If `parse-iso8601-time-string' fails, it will neither
@@ -272,12 +354,18 @@ Short, minimal, version:
 (defun magit-verify--parse-output (lines)
   ;; Parse output from git verify-[tag|commit] --raw (which is
   ;; actually the output of gpg --verify --status-fd) and return a
-  ;; `magit-pgp-signature' object.
-  (let ((lines (mapcar
-                (lambda (line)
-                  (substring line 9)) lines))
+  ;; possibly empty list of `magit-pgp-signature' object.
+  (let ((lines (-non-nil
+                (mapcar
+                 (lambda (line)
+                   (and
+                    (string-prefix-p "[GNUPG:] " line)
+                    (substring line 9)))
+                 lines)))
         (sigs nil)
         (sig nil))
+
+    (message "%s" lines)
 
     (dolist (line lines nil)
       (let ((fields (split-string line)))
@@ -314,8 +402,8 @@ Short, minimal, version:
                       (magit-verify--extract-uid line sig)))
           ("VALIDSIG" (progn
                         (oset sig key-fingerprint (nth 1 fields))
-                        (oset sig sig-creation-date (magit-verify--safe-string-to-number (nth 3 fields)))
-                        (oset sig sig-expiration-date (magit-verify--safe-string-to-number (nth 4 fields)))))
+                        (oset sig sig-creation-date (magit-verify--parse-date (nth 3 fields)))
+                        (oset sig sig-expiration-date (magit-verify--parse-date (nth 4 fields)))))
           ("KEYEXPIRED" (oset sig key-expired t))
           ("TRUST_UNDEFINED" (oset sig key-validity 'undefined))
           ("TRUST_NEVER" (oset sig key-validity 'never))
