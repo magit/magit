@@ -543,12 +543,12 @@ modes is toggled, then this mode also gets toggled automatically.
   (let* ((end (line-end-position))
          ;; If possible avoid putting this on the first character
          ;; of the line to avoid a conflict with the line overlay.
-         (beg (min (1+ (line-beginning-position)) end)))
-    (let ((ov (make-overlay beg end)))
-      (overlay-put ov 'magit-blame-chunk chunk)
-      (overlay-put ov 'magit-blame-revinfo revinfo)
-      (overlay-put ov 'magit-blame-margin line)
-      (magit-blame--update-margin-overlay ov))))
+         (beg (min (1+ (line-beginning-position)) end))
+         (ov  (make-overlay beg end)))
+    (overlay-put ov 'magit-blame-chunk chunk)
+    (overlay-put ov 'magit-blame-revinfo revinfo)
+    (overlay-put ov 'magit-blame-margin line)
+    (magit-blame--update-margin-overlay ov)))
 
 (defun magit-blame--make-heading-overlay (chunk revinfo beg end)
   (let ((ov (make-overlay beg end)))
