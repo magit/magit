@@ -99,6 +99,8 @@ and IGNORE-REVOCATION have the same meaning as in
                                key-fingerprint))
            (magit-read-tag-signatures name))))
 
+;;; Lower level interface
+
 (defun magit-read-commit-signatures (id)
   "Return PGP signatures of commit ID, regardless of their validity.
 
@@ -139,15 +141,12 @@ Return a possibly empty list of `magit-pgp-signature' objects, which see."
 
   (magit-verify--parse-output
    (split-string
-    ;; `magit-git-lines' only return stdout, we need stderr.
+    ;; `magit-git-lines' only returns stdout, we need stderr.
     (shell-command-to-string (format
                               "%s verify-tag --raw %s"
                               (shell-quote-argument magit-git-executable)
                               (shell-quote-argument name)))
     "\n")))
-
-
-;;; Low level interface
 
 (defun magit-verify-signature (sig &optional
                                    ignore-key-expiration
@@ -173,6 +172,8 @@ unmodified, otherwise return nil."
        (not (oref sig key-revoked))))
   sig)
 
+;;; Signature class
+
 (defclass magit-pgp-signature ()
   ((error
     :initform nil
@@ -186,7 +187,7 @@ unmodified, otherwise return nil."
     signature could successfully be verified, but doesn't
     guarantee that the signing key is trusted.")
    (sig-creation-date
-    :initform '(0 0)
+    :initform nil
     :doc "The date this signature was created.")
    (key-fingerprint
     :initform nil
@@ -208,12 +209,12 @@ unmodified, otherwise return nil."
     :initform nil
     :type (or null symbol)
     :doc "The key's key-validity, as either a symbol (`ultimate',
-   `full', `unknown', `undefined', `marginal') or nil if
+   `full', `unknown', `undefined', `marginal', `never') or nil if
    unspecified.")
    (key-revoked
     :initform nil
     :type boolean
-    :doc "Whether this key was revoked.")
+    :doc "Whether this key is known to be revoked.")
    (key-expiration-date
     :initform nil
     :doc "The key's expiration date as a number of seconds from epoch.")
@@ -224,7 +225,8 @@ unmodified, otherwise return nil."
     key doesn't imply that the signature is invalid.")
    (sig-expiration-date
     :initform nil
-    :doc "The signature's expiration date as a number of seconds from epoch.")
+    :doc "The signature's expiration date as a number of seconds
+    from epoch.")
    (sig-expired
     :initform nil
     :type boolean
@@ -233,14 +235,15 @@ unmodified, otherwise return nil."
     invalid."))
   "A PGP signature.
 
-You generally shouldn't manipulate these objects directly.  Magit
-provides multiple high-level functions for working with
-signatures, use them instead.  See, for example,
-`magit-verify-signature'.
+Notice that the presence of such an object doesn't guarantee that
+a signature is valid or should be trusted.  Magit provides a
+simple verification command, `magit-verify-signature', which you
+probably should use before you do anything with an object of this
+class.
 
 By the very design of GnuPG, the semantics of this class are
-complex.  To verify a signature, the following algorithm should
-be followed.
+complex.  To manually verify a signature (don't), the following
+algorithm should be followed.
 
 Short, minimal, version:
 
