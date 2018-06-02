@@ -9,7 +9,12 @@ Changes since v2.12.0
 
 * Augmenting a file- or blob-visiting buffer with blame information
   was completely rewritten, making the implementation more robust and
-  adding many new feautures. [...]
+  adding many new features.  It is now possible blame in order to get
+  an answer to the question "what commits remove these lines".  It is
+  no longer necessary for the buffer to be put into `read-only-mode',
+  when displaying blame information.  New visualization styles were
+  added and users can define their own styles.  New commands to visit
+  blobs related to the current chunk were added.
 
 * Added new command `magit-tag-release'.  This is a fairly opinionated
   command and its only use to you might be to serve as a template for
@@ -18,23 +23,25 @@ Changes since v2.12.0
 * Added new section inserter `magit-insert-ignored-files', which
   could be added to `magit-status-sections-hook'.
 
-* The mode `global-magit-file-mode' is now enabled by default.
-  0ec28b97
+* The mode `global-magit-file-mode' is now enabled by default, making
+  the `magit-file-popup' available on "C-c M-g".  0ec28b97
 
 * Added new commands `magit-log-trace-definition' and
-  `magit-diff-trace-definition'.  #2588
+  `magit-diff-trace-definition', which show a log with diffs about the
+  definition at point.  #2588
 
 * Added new commands `magit-edit-line-commit' and
-  `magit-diff-edit-hunk-commit'.  febe79ba 22b13337
+  `magit-diff-edit-hunk-commit', which allow editing the commit that
+  added the line at point.  febe79ba 22b13337
 
 * The interactive prompts for the various reset commands now indicate
   the branch which is going to be reset.  #3438
 
 * Added new option `magit-published-branches', providing an additional
   safety-net.  If you try to modify a commit that has been pushed to
-  one of these branches already, then you are now asked whether you
-  really want to do that.  Do not rely on this exclusively, there are
-  edge-cases that are ambiguous and are not always handled as you
+  one of these branches already, then you are now being asked whether
+  you really want to do that.  Do not rely on this exclusively, there
+  are edge-cases that are ambiguous and are not always handled as you
   might have expected.  add4a7f3 ff
 
 * Gravatar images are now being inserted asynchronously.  #3452

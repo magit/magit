@@ -18,6 +18,13 @@ and https://emacsair.me/2017/09/01/campaign-articles.
 Magit v2.12.0 Release Notes
 ===========================
 
+Released 29th March 2018 by Jonas Bernoulli.
+
+I am pleased to announce the release of Magit version 2.12.0,
+representing 610 commits by 30 contributors over six months.
+
+Also see https://emacsair.me/2018/03/29/magit-2.12.
+
 Upcoming breaking changes
 -------------------------
 
