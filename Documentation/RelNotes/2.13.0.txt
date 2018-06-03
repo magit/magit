@@ -1,11 +1,56 @@
-Magit v2.13.0 Release Notes (unreleased)
-========================================
+It's Magit!  A Git Porcelain inside Emacs
+=========================================
 
-Changes since v2.12.0
----------------------
+Magit is a text-based Git user interface that puts an unmatched focus
+on streamlining workflows. Commands are invoked using short mnemonic
+key sequences that take the cursor’s position in the highly actionable
+interface into account to provide context-sensitive behavior.
+
+With Magit you can do nearly everything that you can do when using Git
+on the command-line, but at greater speed and while taking advantage
+of advanced features that previously seemed too daunting to use on a
+daily basis. Many users will find that by using Magit they can become
+more effective Git user.
+
+For more information about Magit, see https://magit.vc
+and https://emacsair.me/2017/09/01/campaign-articles.
+
+Magit v2.13.0 Release Notes
+===========================
+
+Released 2nd June 2018 by Jonas Bernoulli.
+
+I am pleased to announce the release of Magit version 2.13.0,
+representing 166 commits by 18 contributors over two months.
+
+Also see https://emacsair.me/2018/06/02/magit-2.13.
+
+Upcoming breaking changes
+-------------------------
+
+* This is the last release to support Emacs 24.4.  Going forward at
+  least Emacs 25.1 is required.
+
+* This is the last release to support Git 1.9.4.  Going forward at
+  least Git 2.4 is required.
+
+* Many functions and variables that have been declared obsolete for
+  a while now are going to be removed after this release.
+
+All of these changes will happen on "master", the development branch.
+Note that the snapshot packages on Melpa are built from that branch.
+If you cannot update Emacs and/or Git now, then you should pin Magit
+to Melpa-Stable to stick with this release (and bugfix releases) for
+the time being.
+
+Breaking changes
+----------------
 
 * As announced earlier, the obsolete option `magit-no-confirm-default'
   has been removed.  #3232
+
+Changes since v2.12.0
+---------------------
 
 * Augmenting a file- or blob-visiting buffer with blame information
   was completely rewritten, making the implementation more robust and
@@ -67,5 +112,28 @@ Fixes since v2.12.0
 * Time zones were not handled correctly when calculating times for
   blame headings.  #3443
 
-This release also contains other minor improvements, bug fixes, typo
-fixes, and documentation fixes.
+This release also contains the fixes described in the v2.12.1 release
+notes, as well as other minor improvements, bug fixes, typo fixes, and
+documentation fixes.
+
+Authors
+-------
+
+   138  Jonas Bernoulli
+     6  Kyle Meyer
+     2  Alban Gruin
+     2  Basil L. Contovounesios
+     2  Buster Copley
+     2  Christophe Junke
+     2  Mario Rodas
+     2  Phil Sainty
+     1  Aaron Madlon-Kay
+     1  Ben North
+     1  Dean Kariniemi
+     1  Eli Barzilay
+     1  Jon Vanderwijk
+     1  Jonathan Leech-Pepin
+     1  Justin Guenther
+     1  Li-Yun Chang
+     1  Marc Sherry
+     1  Noam Postavsky
