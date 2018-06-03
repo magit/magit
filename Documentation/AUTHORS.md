@@ -87,7 +87,7 @@ Contributors
 - Chris Shoemaker <chris@mojotech.com>
 - Christian Dietrich <christian.dietrich@informatik.uni-erlangen.de>
 - Christian Kluge <ckfrakturfreak@web.de>
-- Christophe Junke <christophe.junke@parrot.com>
+- Christophe Junke <junke.christophe@gmail.com>
 - Christopher Monsanto <chris@monsan.to>
 - Cornelius Mika <cornelius.mika@gmail.com>
 - Craig Andera <candera@wangdera.com>
