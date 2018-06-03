@@ -20,7 +20,7 @@ install:
   - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
   - export EMACS=/tmp/emacs/bin/emacs
   - $CURL -O https://raw.githubusercontent.com/magnars/dash.el/master/dash.el
-  - $CURL -O https://raw.githubusercontent.com/tarsius/ghub/master/ghub.el
+  - $CURL -O https://raw.githubusercontent.com/magit/ghub/master/ghub.el
   - $CURL -o let-alist.el https://elpa.gnu.org/packages/let-alist-1.0.5.el
   - $CURL -O https://raw.githubusercontent.com/magit/magit-popup/master/magit-popup.el
   - $CURL -O https://raw.githubusercontent.com/magit/with-editor/master/with-editor.el
