@@ -710,9 +710,9 @@ at point."
 (defun magit-section-match-assoc (section alist)
   "Return the value associated with SECTION's type or lineage in ALIST."
   (let ((ident (mapcar #'car (magit-section-ident section))))
-    (--some (pcase-let ((`(,key . ,val) it))
-              (and (magit-section-match-1 key ident) val))
-            alist)))
+    (-some (pcase-lambda (`(,key . ,val))
+             (and (magit-section-match-1 key ident) val))
+           alist)))
 
 ;;; Create
 
