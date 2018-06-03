@@ -132,9 +132,9 @@ This function should not be removed from the value of this option.
 `magit-diff-highlight-hunk-region-using-overlays' and
 `magit-diff-highlight-hunk-region-using-underline' emphasize the
 region by placing delimiting horizonal lines before and after it.
-Both of these functions have glitches which cannot be fixed due
-to limitations of Emacs' display engine.  For more information
-see https://github.com/magit/magit/issues/2758 ff.
+The underline variant was implemented because Eli said that is
+how we should do it.  However the overlay variant actually works
+better.  Also see https://github.com/magit/magit/issues/2758.
 
 Instead of, or in addition to, using delimiting horizontal lines,
 to emphasize the boundaries, you may which to emphasize the text
@@ -2652,10 +2652,7 @@ face."
 
 (defun magit-diff-highlight-hunk-region-using-overlays (section)
   "Emphasize the hunk-internal region using delimiting horizontal lines.
-This is implemented as single-pixel newlines places inside overlays.
-Although creating overlays containing newlines is discouraged,
-this version turns out to be less glitchy on Emacs 24 than the
-other method."
+This is implemented as single-pixel newlines places inside overlays."
   (if (window-system)
       (let ((beg (magit-diff-hunk-region-beginning))
             (end (magit-diff-hunk-region-end))
@@ -2670,10 +2667,7 @@ other method."
 (defun magit-diff-highlight-hunk-region-using-underline (section)
   "Emphasize the hunk-internal region using delimiting horizontal lines.
 This is implemented by overlining and underlining the first and
-last (visual) lines of the region.  In Emacs 24, using this
-method causes `move-end-of-line' to jump to the next line, so
-we only use it in Emacs 25 where that glitch was fixed (see
-https://github.com/magit/magit/pull/2293 for more details)."
+last (visual) lines of the region."
   (if (window-system)
       (let* ((beg (magit-diff-hunk-region-beginning))
              (end (magit-diff-hunk-region-end))
