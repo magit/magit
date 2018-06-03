@@ -202,7 +202,6 @@ define set_package_requires
      (dash ,dash-version)
      (ghub ,ghub-version)
      (git-commit ,git-commit-version)
-     (let-alist ,let-alist-version)
      (magit-popup ,magit-popup-version)
      (with-editor ,with-editor-version)))))
   (goto-char (point-min))
@@ -219,7 +218,6 @@ bump-versions-1:
         (dash-version \"$(DASH_VERSION)\")\
         (ghub-version \"$(GHUB_VERSION)\")\
         (git-commit-version \"$(GIT_COMMIT_VERSION)\")\
-        (let-alist-version \"$(LET_ALIST_VERSION)\")\
         (magit-popup-version \"$(MAGIT_POPUP_VERSION)\")\
         (with-editor-version \"$(WITH_EDITOR_VERSION)\"))\
         $$set_package_requires)"
@@ -230,7 +228,6 @@ bump-snapshots:
         (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (ghub-version \"$(GHUB_MELPA_SNAPSHOT)\")\
         (git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
-        (let-alist-version \"$(LET_ALIST_VERSION)\")\
         (magit-popup-version \"$(MAGIT_POPUP_MELPA_SNAPSHOT)\")\
         (with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\"))\
         $$set_package_requires)"

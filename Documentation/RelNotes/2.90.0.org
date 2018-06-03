@@ -1,3 +1,9 @@
 * Magit v2.90.0 Release Notes (unreleased)
+
+** Breaking changes
+
+- Dropped support for Emacs 24.4.
+  At least Emacs 25.1 is required now.
+
 ** Changes since v2.13.0
 ** Fixes since v2.13.0
