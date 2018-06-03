@@ -3,6 +3,7 @@ language: generic
 env:
   global:
     - CURL="curl -fsSkL --retry 9 --retry-delay 9"
+    - GHRAW="https://raw.githubusercontent.com"
   matrix:
   - EMACS_VERSION=24.4
   - EMACS_VERSION=24.5
@@ -19,11 +20,11 @@ install:
   - $CURL -O https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz
   - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
   - export EMACS=/tmp/emacs/bin/emacs
-  - $CURL -O https://raw.githubusercontent.com/magnars/dash.el/master/dash.el
-  - $CURL -O https://raw.githubusercontent.com/magit/ghub/master/ghub.el
+  - $CURL -O ${GHRAW}/magnars/dash.el/master/dash.el
+  - $CURL -O ${GHRAW}/magit/ghub/master/ghub.el
   - $CURL -o let-alist.el https://elpa.gnu.org/packages/let-alist-1.0.5.el
-  - $CURL -O https://raw.githubusercontent.com/magit/magit-popup/master/magit-popup.el
-  - $CURL -O https://raw.githubusercontent.com/magit/with-editor/master/with-editor.el
+  - $CURL -O ${GHRAW}/magit/magit-popup/master/magit-popup.el
+  - $CURL -O ${GHRAW}/magit/with-editor/master/with-editor.el
   - $EMACS -Q --batch -L . -f batch-byte-compile dash.el ghub.el let-alist.el magit-popup.el with-editor.el
   - $EMACS --version
 script:
