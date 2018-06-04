@@ -55,11 +55,6 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
   is first created, then `magit-status-mode-hook' instead.
 " "Magit 2.4.0")
 
-;;; Obsolete since v2.8.0
-
-(make-obsolete-variable 'magit-repository-directories-depth
-                        'magit-repository-directories "Magit 2.8.0")
-
 ;;; Obsolete since v2.9.0
 
 (make-obsolete-variable 'magit-diff-show-lines-boundary
