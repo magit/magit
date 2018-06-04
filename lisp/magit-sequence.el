@@ -620,7 +620,7 @@ START has to be selected from a list of recent commits."
   (interactive (list (magit-rebase-arguments)))
   (magit-rebase-interactive-1 :merge-base (cons "--autosquash" args)
     "Type %p on a commit to squash into it and then rebase as necessary,"
-    "true"))
+    "true" nil t))
 
 ;;;###autoload
 (defun magit-rebase-edit-commit (commit args)
