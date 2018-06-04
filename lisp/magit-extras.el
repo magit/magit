@@ -126,12 +126,11 @@ like pretty much every other keymap:
 With a prefix argument, visit in another window.  If there
 is no file at point, then instead visit `default-directory'."
   (interactive "P")
-  (dired-jump other-window (if-let (file (magit-file-at-point))
-                               (progn (setq file (expand-file-name file))
-                                      (if (file-directory-p file)
-                                          (concat file "/.")
-                                        file))
-                             (concat default-directory "/."))))
+  (dired-jump other-window
+              (when-let (file (magit-file-at-point))
+                (expand-file-name (if (file-directory-p file)
+                                      (file-name-as-directory file)
+                                    file)))))
 
 ;;;###autoload
 (defun magit-dired-log (&optional follow)
