@@ -5,5 +5,7 @@
 - Dropped support for Emacs 24.4.
   At least Emacs 25.1 is required now.
 
+- Removed many obsolete variable and function aliases.
+
 ** Changes since v2.13.0
 ** Fixes since v2.13.0
