@@ -295,8 +295,7 @@ Type \\[magit-commit-popup] to create a commit.
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
-    (magit-run-section-hook 'magit-status-sections-hook))
-  (run-hooks 'magit-status-refresh-hook))
+    (magit-run-section-hook 'magit-status-sections-hook)))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
   "When moving in the status buffer, update the revision buffer.
