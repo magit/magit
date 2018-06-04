@@ -195,7 +195,7 @@ define set_package_requires
   (with-editor ,with-editor-version))))
 (with-temp-file "lisp/magit-pkg.el"
   (insert (pp-to-string
-`(define-package "magit" "2.12.0" ;`
+`(define-package "magit" "$(VERSION)" ;`
    "A Git porcelain inside Emacs."
    '((emacs "24.4") ;'
      (async ,async-version)
