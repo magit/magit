@@ -29,11 +29,5 @@
 
 (require 'magit)
 
-;;; Obsolete since v2.4.0
-
-(make-obsolete-variable 'magit-revert-buffers
-                        'magit-auto-revert-mode
-                        "Magit 2.4.0")
-
 (provide 'magit-obsolete)
 ;;; magit-obsolete.el ends here
