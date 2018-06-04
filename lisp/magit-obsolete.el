@@ -55,12 +55,6 @@ use `magit-pre-refresh-hook', `magit-post-refresh-hook',
   is first created, then `magit-status-mode-hook' instead.
 " "Magit 2.4.0")
 
-;;; Obsolete since v2.9.0
-
-(make-obsolete-variable 'magit-diff-show-lines-boundary
-                        'magit-diff-highlight-hunk-region-functions
-                        "Magit 2.9.0")
-
 ;;; Obsolete since v2.12.0
 
 (make-obsolete-variable 'magit-status-expand-stashes
