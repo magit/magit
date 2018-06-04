@@ -369,8 +369,7 @@ instead of \"Stashes:\"."
                         "rebase-merge/autostash"
                       "rebase-apply/autostash")))))))
     (when (or autostash verified)
-      (magit-insert-section (stashes ref (with-no-warnings
-                                           (not magit-status-expand-stashes)))
+      (magit-insert-section (stashes ref)
         (magit-insert-heading heading)
         (when autostash
           (pcase-let ((`(,author ,date ,msg)
