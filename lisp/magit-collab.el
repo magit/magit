@@ -67,12 +67,10 @@ Currently this only supports Github, but that restriction will
 be lifted eventually to support other Git forges."
   (interactive (list (magit-read-pull-request "Visit pull request")))
   (browse-url (format "https://github.com/%s/pull/%s"
-                      ;; Cannot use --> yet.  See #3134.
-                      (let* ((it pr)
-                             (it (cdr (assq 'base it)))
-                             (it (cdr (assq 'repo it)))
-                             (it (cdr (assq 'full_name it))))
-                        it)
+                      (--> pr
+                           (cdr (assq 'base it))
+                           (cdr (assq 'repo it))
+                           (cdr (assq 'full_name it)))
                       (cdr (assq 'number pr)))))
 
 ;;; Utilities
