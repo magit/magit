@@ -710,9 +710,9 @@ at point."
 (defun magit-section-match-assoc (section alist)
   "Return the value associated with SECTION's type or lineage in ALIST."
   (let ((ident (mapcar #'car (magit-section-ident section))))
-    (--some (pcase-let ((`(,key . ,val) it))
-              (and (magit-section-match-1 key ident) val))
-            alist)))
+    (-some (pcase-lambda (`(,key . ,val))
+             (and (magit-section-match-1 key ident) val))
+           alist)))
 
 ;;; Create
 
@@ -1084,13 +1084,9 @@ invisible."
 
 (cl-defun magit-section-cache-visibility
     (&optional (section magit-insert-section--current))
-  ;; Emacs 24 doesn't have `alist-get'.
-  (let* ((id  (magit-section-ident section))
-         (elt (assoc id magit-section-visibility-cache))
-         (val (if (oref section hidden) 'hide 'show)))
-    (if elt
-        (setcdr elt val)
-      (push (cons id val) magit-section-visibility-cache))))
+  (setf (alist-get (magit-section-ident section)
+                   magit-section-visibility-cache)
+        (if (oref section hidden) 'hide 'show)))
 
 (cl-defun magit-section-maybe-cache-visibility
     (&optional (section magit-insert-section--current))

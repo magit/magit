@@ -608,20 +608,18 @@ line is inserted at all."
                       def
                     (pcase-let ((`(,min . ,max) def))
                       (min max (apply #'max min (mapcar #'car lines)))))))
-    (mapcar (lambda (arg)
-              (pcase-let ((`(,_ ,branch ,focus ,branch-desc ,u:ahead ,p:ahead
-                                ,u:behind ,upstream ,p:behind ,push ,msg)
-                           arg))
-                (list branch focus branch-desc u:ahead p:ahead
-                      (make-string (max 1 (- magit-refs-primary-column-width
-                                             (length (concat branch-desc
-                                                             u:ahead
-                                                             p:ahead
-                                                             u:behind))))
-                                   ?\s)
-                      u:behind upstream p:behind push
-                      msg)))
-              lines)))
+    (mapcar (pcase-lambda (`(,_ ,branch ,focus ,branch-desc ,u:ahead ,p:ahead
+                                ,u:behind ,upstream ,p:behind ,push ,msg))
+              (list branch focus branch-desc u:ahead p:ahead
+                    (make-string (max 1 (- magit-refs-primary-column-width
+                                           (length (concat branch-desc
+                                                           u:ahead
+                                                           p:ahead
+                                                           u:behind))))
+                                 ?\s)
+                    u:behind upstream p:behind push
+                    msg))
+            lines)))
 
 (defun magit-refs--format-local-branch (line)
   (pcase-let ((`(,head ,branch ,upstream ,u:ref ,u:track
