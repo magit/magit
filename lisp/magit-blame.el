@@ -473,13 +473,12 @@ modes is toggled, then this mode also gets toggled automatically.
 (defun magit-blame--parse-chunk (type)
   (let (chunk revinfo)
     (looking-at "^\\(.\\{40\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)")
-    (setq chunk (let ((fn 'magit-blame-chunk))
-                  (funcall fn "" ; Suppress warning about obsolete name arg.
-                           :orig-rev                     (match-string 1)
-                           :orig-line  (string-to-number (match-string 2))
-                           :final-line (string-to-number (match-string 3))
-                           :num-lines  (string-to-number (match-string 4)))))
-    (with-slots (orig-rev orig-file prev-rev prev-file) chunk
+    (with-slots (orig-rev orig-file prev-rev prev-file)
+        (setq chunk (magit-blame-chunk
+                     :orig-rev                     (match-string 1)
+                     :orig-line  (string-to-number (match-string 2))
+                     :final-line (string-to-number (match-string 3))
+                     :num-lines  (string-to-number (match-string 4))))
       (forward-line)
       (let (done)
         (while (not done)
