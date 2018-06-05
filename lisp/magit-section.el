@@ -777,7 +777,6 @@ anything this time around.
                            (`file 'magit-file-section)
                            (`hunk 'magit-hunk-section)
                            (_     'magit-section))
-                         ""
                          :type ,tp
                          :value ,(nth 1 (car args))
                          :start (point-marker)
