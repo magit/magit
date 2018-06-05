@@ -111,14 +111,6 @@ member of `magit-section-highlight-hook', which see."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-show-lines-boundary t
-  "This option is obsolete.
-If you have set this to nil, then remove that customization, and
-instead customize `magit-diff-highlight-hunk-region-functions'."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-diff
-  :type 'boolean)
-
 (defcustom magit-diff-highlight-hunk-region-functions
   '(magit-diff-highlight-hunk-region-dim-outside
     magit-diff-highlight-hunk-region-using-overlays)

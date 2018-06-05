@@ -91,13 +91,6 @@ all."
   :group 'magit-status
   :type 'hook)
 
-(defcustom magit-status-expand-stashes t
-  "OBSOLETE.  Whether the list of stashes is expanded initially.
-Use `magit-section-visibility-alist' instead."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-status
-  :type 'boolean)
-
 (defcustom magit-status-show-hashes-in-headers nil
   "Whether headers in the status buffer show hashes.
 The functions which respect this option are
@@ -302,8 +295,7 @@ Type \\[magit-commit-popup] to create a commit.
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
-    (magit-run-section-hook 'magit-status-sections-hook))
-  (run-hooks 'magit-status-refresh-hook))
+    (magit-run-section-hook 'magit-status-sections-hook)))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
   "When moving in the status buffer, update the revision buffer.

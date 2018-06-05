@@ -116,23 +116,22 @@ seconds of user inactivity.  That is not desirable."
       (auto-revert-mode 1))))
 
 ;;;###autoload
-(defvar magit-revert-buffers t) ; obsolete
-
-;;;###autoload
 (define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
   magit-turn-on-auto-revert-mode-if-desired
   :package-version '(magit . "2.4.0")
   :link '(info-link "(magit)Automatic Reverting of File-Visiting Buffers")
   :group 'magit-auto-revert
   :group 'magit-essentials
-  ;; When `global-auto-revert-mode' is enabled, then this mode is
-  ;; redundant.  When `magit-revert-buffers' is nil, then the user has
-  ;; opted out of the automatic reverts while the old implementation
-  ;; was still in use.  In all other cases enable the mode because if
-  ;; buffers are not automatically reverted that would make many very
-  ;; common tasks much more cumbersome.
-  :init-value (and (with-no-warnings magit-revert-buffers)
-                   (not global-auto-revert-mode)
+  ;; - When `global-auto-revert-mode' is enabled, then this mode is
+  ;;   redundant.
+  ;; - In all other cases enable the mode because if buffers are not
+  ;;   automatically reverted that would make many very common tasks
+  ;;   much more cumbersome.
+  ;; - When `magit-revert-buffers' is nil, then the user has opted out
+  ;;   of the automatic reverts while a very old implementation was
+  ;;   still in use.  We continued to respect that setting for another
+  ;;   two and a half years, but no longer do so now.
+  :init-value (and (not global-auto-revert-mode)
                    (not noninteractive)))
 ;; - Unfortunately `:init-value t' only sets the value of the mode
 ;;   variable but does not cause the mode function to be called.
@@ -152,9 +151,7 @@ seconds of user inactivity.  That is not desirable."
 Do not use this function elsewhere, and don't remove it from
 the `after-init-hook'.  For more information see the comments
 and code surrounding the definition of this function."
-  ;; `magit-revert-buffers' may have been set to nil before the alias
-  ;; had been established, so consult the value of both variables.
-  (if (and magit-auto-revert-mode (with-no-warnings magit-revert-buffers))
+  (if magit-auto-revert-mode
       (let ((start (current-time)))
         (magit-message "Turning on magit-auto-revert-mode...")
         (magit-auto-revert-mode 1)
