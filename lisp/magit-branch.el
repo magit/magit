@@ -494,7 +494,7 @@ from the source branch's upstream, then an error is raised."
                      (magit-branch-arguments)))
   (when (magit-branch-p branch)
     (user-error "Cannot spin off %s.  It already exists" branch))
-  (-if-let (current (magit-get-current-branch))
+  (if-let (current (magit-get-current-branch))
       (let ((tracked (magit-get-upstream-branch current))
             base)
         (when from
@@ -680,7 +680,7 @@ defaulting to the branch at point."
   (when (memq (process-status process) '(exit signal))
     (if (= (process-exit-status process) 0)
         (magit-process-sentinel process event)
-      (-if-let (rest (-filter #'magit-ref-exists-p refs))
+      (if-let (rest (-filter #'magit-ref-exists-p refs))
           (progn
             (process-put process 'inhibit-refresh t)
             (magit-process-sentinel process event)
@@ -882,7 +882,7 @@ variable `branch.<name>.description'."
          (width (+ (length branch) 19))
          (var (format "branch.%s.description" branch)))
     (concat var " " (make-string (- width (length var)) ?\s)
-            (-if-let (value (magit-get var))
+            (if-let (value (magit-get var))
                 (propertize (car (split-string value "\n"))
                             'face 'magit-popup-option-value)
               (propertize "unset" 'face 'magit-popup-disabled-argument)))))
@@ -926,11 +926,11 @@ already set.  When nil, then always unset."
                    'magit-branch-local
                  'magit-branch-remote)))
     (concat varM (make-string (- width (length varM)) ?\s)
-            (-if-let (value (magit-get varM))
+            (if-let (value (magit-get varM))
                 (propertize value 'face face)
               (propertize "unset" 'face 'magit-popup-disabled-argument))
             "\n   " varR (make-string (- width (length varR)) ?\s)
-            (-if-let (value (magit-get varR))
+            (if-let (value (magit-get varR))
                 (propertize value 'face face)
               (propertize "unset" 'face 'magit-popup-disabled-argument)))))
 

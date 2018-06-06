@@ -326,8 +326,8 @@ Currently this only adds the following key bindings.
 (defun magit-blob-previous ()
   "Visit the previous blob which modified the current file."
   (interactive)
-  (-if-let (file (or magit-buffer-file-name
-                     (buffer-file-name (buffer-base-buffer))))
+  (if-let (file (or magit-buffer-file-name
+                    (buffer-file-name (buffer-base-buffer))))
       (--if-let (magit-blob-ancestor magit-buffer-revision file)
           (magit-blob-visit it (line-number-at-pos))
         (user-error "You have reached the beginning of time"))

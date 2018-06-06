@@ -768,7 +768,7 @@ thinking a buffer belongs to a repo that it doesn't.")
 (put 'magit-buffer-locked-p 'permanent-local t)
 
 (defun magit-mode-get-buffer (mode &optional create frame value)
-  (-if-let (topdir (magit-toplevel))
+  (if-let (topdir (magit-toplevel))
       (or (--first (with-current-buffer it
                      (and (eq major-mode mode)
                           (equal magit--default-directory topdir)
@@ -844,15 +844,15 @@ repository, then the former buffer is instead deleted and the
 latter is displayed in its place."
   (interactive)
   (if magit-buffer-locked-p
-      (-if-let (unlocked (magit-mode-get-buffer major-mode))
+      (if-let (unlocked (magit-mode-get-buffer major-mode))
           (let ((locked (current-buffer)))
             (switch-to-buffer unlocked nil t)
             (kill-buffer locked))
         (setq magit-buffer-locked-p nil)
         (rename-buffer (funcall magit-generate-buffer-name-function
                                 major-mode)))
-    (-if-let (value (magit-buffer-lock-value))
-        (-if-let (locked (magit-mode-get-buffer major-mode nil nil value))
+    (if-let (value (magit-buffer-lock-value))
+        (if-let (locked (magit-mode-get-buffer major-mode nil nil value))
             (let ((unlocked (current-buffer)))
               (switch-to-buffer locked nil t)
               (kill-buffer unlocked))

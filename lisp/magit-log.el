@@ -502,10 +502,10 @@ This is a variant of `magit-log-popup' which shows the same popup
 but which limits the log to the file being visited in the current
 buffer."
   (interactive)
-  (-if-let (file (magit-file-relative-name))
+  (if-let (file (magit-file-relative-name))
       (let ((magit-log-arguments
              (magit-popup-import-file-args
-              (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
+              (if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
                   (with-current-buffer buffer
                     (nth 2 magit-refresh-args))
                 (default-value 'magit-log-arguments))
@@ -686,7 +686,7 @@ active, restrict the log to the lines that the region touches."
                            ;; of a trailing newline.
                            (1- end)))))))))
   (require 'magit)
-  (-if-let (file (magit-file-relative-name))
+  (if-let (file (magit-file-relative-name))
       (magit-mode-setup-internal
        #'magit-log-mode
        (list (list (or magit-buffer-refname
@@ -821,10 +821,10 @@ is displayed in the current frame."
   (when (derived-mode-p 'magit-log-mode)
     (magit-section-when commit
       (let ((parent-rev (format "%s^%s" (oref it value) (or n 1))))
-        (-if-let (parent-hash (magit-rev-parse "--short" parent-rev))
-            (-if-let (section (--first (equal (oref it value)
-                                              parent-hash)
-                                       (magit-section-siblings it 'next)))
+        (if-let (parent-hash (magit-rev-parse "--short" parent-rev))
+            (if-let (section (--first (equal (oref it value)
+                                             parent-hash)
+                                      (magit-section-siblings it 'next)))
                 (magit-section-goto section)
               (user-error
                (substitute-command-keys

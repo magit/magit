@@ -719,10 +719,10 @@ This is a variant of `magit-diff-popup' which shows the same popup
 but which limits the diff to the file being visited in the current
 buffer."
   (interactive)
-  (-if-let (file (magit-file-relative-name))
+  (if-let (file (magit-file-relative-name))
       (let ((magit-diff-arguments
              (magit-popup-import-file-args
-              (-if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
+              (if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
                   (with-current-buffer buffer
                     (nth 3 magit-refresh-args))
                 (default-value 'magit-diff-arguments))
@@ -965,7 +965,7 @@ be committed."
   "Show diff for the blob or file visited in the current buffer."
   (interactive)
   (require 'magit)
-  (-if-let (file (magit-file-relative-name))
+  (if-let (file (magit-file-relative-name))
       (magit-mode-setup-internal #'magit-diff-mode
                                  (list (or magit-buffer-refname
                                            (magit-get-current-branch)

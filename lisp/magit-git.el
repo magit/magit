@@ -490,7 +490,7 @@ returning the truename."
   (magit--with-refresh-cache
       (cons (or directory default-directory) 'magit-toplevel)
     (magit--with-safe-default-directory directory
-      (-if-let (topdir (magit-rev-parse-safe "--show-toplevel"))
+      (if-let (topdir (magit-rev-parse-safe "--show-toplevel"))
           (let (updir)
             (setq topdir (magit-expand-git-file-name topdir))
             (if (and
@@ -2026,14 +2026,14 @@ the reference is used.  The first regexp submatch becomes the
 (defun magit--format-popup-variable:value (variable width &optional global)
   (concat variable
           (make-string (max 1 (- width 3 (length variable))) ?\s)
-          (-if-let (value (magit-get (and global "--global") variable))
+          (if-let (value (magit-get (and global "--global") variable))
               (propertize value 'face 'magit-popup-option-value)
             (propertize "unset" 'face 'magit-popup-disabled-argument))))
 
 (defun magit--format-popup-variable:values (variable width &optional global)
   (concat variable
           (make-string (max 1 (- width 3 (length variable))) ?\s)
-          (-if-let (values (magit-get-all (and global "--global") variable))
+          (if-let (values (magit-get-all (and global "--global") variable))
               (concat
                (propertize (car values) 'face 'magit-popup-option-value)
                (mapconcat
