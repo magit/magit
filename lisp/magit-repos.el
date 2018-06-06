@@ -139,7 +139,7 @@ repositories are displayed."
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "Path" nil))
   (setq tabulated-list-format
-        (vconcat (mapcar (-lambda ((title width _fn props))
+        (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)
                                   (-flatten props)))
                          magit-repolist-columns)))
@@ -152,7 +152,7 @@ repositories are displayed."
 
 (defun magit-repolist-refresh ()
   (setq tabulated-list-entries
-        (mapcar (-lambda ((id . path))
+        (mapcar (pcase-lambda (`(,id . ,path))
                   (let ((default-directory path))
                     (list path
                           (vconcat (--map (or (funcall (nth 2 it) id) "")

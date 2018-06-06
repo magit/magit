@@ -712,7 +712,7 @@ line is inserted at all."
            (t "")))))
 
 (defun magit-refs--insert-refname-p (refname)
-  (--if-let (-first (-lambda ((key . _))
+  (--if-let (-first (pcase-lambda (`(,key . ,_))
                       (if (functionp key)
                           (funcall key refname)
                         (string-match-p key refname)))

@@ -742,7 +742,7 @@ range.  Otherwise, it can be any revision or range accepted by
                                  (car (process-lines
                                        magit-git-executable "--exec-path"))))
                            (ignore-errors (process-lines "mount")))))
-             #'> :key (-lambda ((cyg . _win)) (length cyg))))
+             #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
   "Alist of (CYGWIN . WIN32) directory names.
 Sorted from longest to shortest CYGWIN name."
   :package-version '(magit . "2.3.0")
