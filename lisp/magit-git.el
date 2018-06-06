@@ -1106,8 +1106,8 @@ The amount of time spent searching is limited by
 
 (defun magit-get-upstream-branch (&optional branch verify)
   (and (or branch (setq branch (magit-get-current-branch)))
-       (-when-let* ((remote (magit-get "branch" branch "remote"))
-                    (merge  (magit-get "branch" branch "merge")))
+       (when-let ((remote (magit-get "branch" branch "remote"))
+                  (merge  (magit-get "branch" branch "merge")))
          (and (string-prefix-p "refs/heads/" merge)
               (let* ((upstream (substring merge 11))
                      (upstream
@@ -1153,8 +1153,8 @@ The amount of time spent searching is limited by
 
 (defun magit-get-push-branch (&optional branch verify)
   (and (or branch (setq branch (magit-get-current-branch)))
-       (-when-let* ((remote (magit-get-push-remote branch))
-                    (push-branch (concat remote "/" branch)))
+       (when-let ((remote (magit-get-push-remote branch))
+                  (push-branch (concat remote "/" branch)))
          (and (or (not verify)
                   (magit-rev-verify push-branch))
               push-branch))))

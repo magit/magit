@@ -926,9 +926,9 @@ the popup buffer."
 (defun magit-push-implicitly--desc ()
   (let ((default (magit-get "push.default")))
     (unless (equal default "nothing")
-      (or (-when-let* ((remote (or (magit-get-remote)
-                                   (magit-remote-p "origin")))
-                       (refspec (magit-get "remote" remote "push")))
+      (or (when-let ((remote (or (magit-get-remote)
+                                 (magit-remote-p "origin")))
+                     (refspec (magit-get "remote" remote "push")))
             (format "%s using %s"
                     (propertize remote  'face 'magit-branch-remote)
                     (propertize refspec 'face 'bold)))

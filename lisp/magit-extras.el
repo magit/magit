@@ -610,8 +610,8 @@ above."
   (interactive)
   (if (use-region-p)
       (copy-region-as-kill nil nil 'region)
-    (-when-let* ((section (magit-current-section))
-                 (value (oref section value)))
+    (when-let ((section (magit-current-section))
+               (value (oref section value)))
       (magit-section-case
         ((branch commit module-commit tag)
          (let ((default-directory default-directory) ref)

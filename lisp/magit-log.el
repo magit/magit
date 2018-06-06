@@ -889,19 +889,19 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (setq args (remove "--graph" args)))
   (unless (member "--graph" args)
     (setq args (remove "--color" args)))
-  (-when-let* ((limit (magit-log-get-commit-limit))
-               (limit (* 2 limit)) ; increase odds for complete graph
-               (count (and (= (length revs) 1)
-                           (> limit 1024) ; otherwise it's fast enough
-                           (setq revs (car revs))
-                           (not (string-match-p "\\.\\." revs))
-                           (not (member revs '("--all" "--branches")))
-                           (-none-p (lambda (arg)
-                                      (--any-p (string-prefix-p it arg)
-                                               magit-log-disable-graph-hack-args))
-                                    args)
-                           (magit-git-string "rev-list" "--count"
-                                             "--first-parent" args revs))))
+  (when-let ((limit (magit-log-get-commit-limit))
+             (limit (* 2 limit)) ; increase odds for complete graph
+             (count (and (= (length revs) 1)
+                         (> limit 1024) ; otherwise it's fast enough
+                         (setq revs (car revs))
+                         (not (string-match-p "\\.\\." revs))
+                         (not (member revs '("--all" "--branches")))
+                         (-none-p (lambda (arg)
+                                    (--any-p (string-prefix-p it arg)
+                                             magit-log-disable-graph-hack-args))
+                                  args)
+                         (magit-git-string "rev-list" "--count"
+                                           "--first-parent" args revs))))
     (setq revs (if (< (string-to-number count) limit)
                    revs
                  (format "%s~%s..%s" revs limit revs))))
@@ -1225,8 +1225,8 @@ If there is no revision buffer in the same frame, then do nothing."
 
 (defun magit-log-maybe-update-revision-buffer-1 ()
   (unless magit--update-revision-buffer
-    (-when-let* ((commit (magit-section-when 'commit))
-                 (buffer (magit-mode-get-buffer 'magit-revision-mode nil t)))
+    (when-let ((commit (magit-section-when 'commit))
+               (buffer (magit-mode-get-buffer 'magit-revision-mode nil t)))
       (setq magit--update-revision-buffer (list commit buffer))
       (run-with-idle-timer
        magit-update-other-window-delay nil
@@ -1249,9 +1249,9 @@ If there is no blob buffer in the same frame, then do nothing."
 
 (defun magit-log-maybe-update-blob-buffer-1 ()
   (unless magit--update-revision-buffer
-    (-when-let* ((commit (magit-section-when 'commit))
-                 (buffer (--first (with-current-buffer it magit-buffer-revision)
-                                  (-map #'window-buffer (window-list)))))
+    (when-let ((commit (magit-section-when 'commit))
+               (buffer (--first (with-current-buffer it magit-buffer-revision)
+                                (-map #'window-buffer (window-list)))))
         (setq magit--update-blob-buffer (list commit buffer))
         (run-with-idle-timer
          magit-update-other-window-delay nil
@@ -1268,13 +1268,13 @@ If there is no blob buffer in the same frame, then do nothing."
                                        (line-number-at-pos))))))))))))
 
 (defun magit-log-goto-same-commit ()
-  (-when-let* ((prev magit-previous-section)
-               (rev  (cond ((magit-section-match 'commit prev)
-                            (oref prev value))
-                           ((magit-section-match 'branch prev)
-                            (magit-rev-format "%h" (oref prev value)))))
-               (same (--first (equal (oref it value) rev)
-                              (oref magit-root-section children))))
+  (when-let ((prev magit-previous-section)
+             (rev  (cond ((magit-section-match 'commit prev)
+                          (oref prev value))
+                         ((magit-section-match 'branch prev)
+                          (magit-rev-format "%h" (oref prev value)))))
+             (same (--first (equal (oref it value) rev)
+                            (oref magit-root-section children))))
     (goto-char (oref same start))))
 
 ;;; Log Margin
