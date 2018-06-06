@@ -714,7 +714,7 @@ If no such sequence is in progress, do nothing."
     (when (or picking (magit-revert-in-progress-p))
       (magit-insert-section (sequence)
         (magit-insert-heading (if picking "Cherry Picking" "Reverting"))
-        (-when-let (lines (cdr (magit-file-lines (magit-git-dir "sequencer/todo"))))
+        (when-let (lines (cdr (magit-file-lines (magit-git-dir "sequencer/todo"))))
           (dolist (line (nreverse lines))
             (when (string-match "^\\(pick\\|revert\\) \\([^ ]+\\) \\(.*\\)$" line)
               (magit-bind-match-strings (cmd hash msg) line

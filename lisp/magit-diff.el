@@ -1349,7 +1349,7 @@ or `HEAD'."
            rev))))
 
 (defun magit-diff-visit--hunk ()
-  (-when-let (scope (magit-diff-scope))
+  (when-let (scope (magit-diff-scope))
     (let ((section (magit-current-section)))
       (cl-case scope
         ((file files)
@@ -2099,7 +2099,7 @@ or a ref which is not a branch, then it inserts nothing."
               (insert "Parent:     ")
               (insert (propertize hash 'face 'magit-hash))
               (insert " " msg "\n")))))
-      (-when-let (merged (magit-list-merged-branches rev))
+      (when-let (merged (magit-list-merged-branches rev))
         (insert "Merged:    ")
         (let (branch)
           (while (and (< (+ (- (point) (line-beginning-position))
@@ -2112,7 +2112,7 @@ or a ref which is not a branch, then it inserts nothing."
         (when merged
           (insert (format " (%s more)" (length merged))))
         (insert ?\n))
-      (-when-let (containing (magit-list-containing-branches rev))
+      (when-let (containing (magit-list-containing-branches rev))
         (insert "Containing:")
         (let (branch)
           (while (and (< (+ (- (point) (line-beginning-position))
@@ -2125,7 +2125,7 @@ or a ref which is not a branch, then it inserts nothing."
         (when containing
           (insert (format " (%s more)" (length containing))))
         (insert ?\n))
-      (-when-let (follows (magit-get-current-tag rev t))
+      (when-let (follows (magit-get-current-tag rev t))
         (let ((tag (car  follows))
               (cnt (cadr follows)))
           (magit-insert-section (tag tag)
@@ -2133,7 +2133,7 @@ or a ref which is not a branch, then it inserts nothing."
                             (propertize tag 'face 'magit-tag)
                             (propertize (number-to-string cnt)
                                         'face 'magit-branch-local))))))
-      (-when-let (precedes (magit-get-next-tag rev t))
+      (when-let (precedes (magit-get-next-tag rev t))
         (let ((tag (car  precedes))
               (cnt (cadr precedes)))
           (magit-insert-section (tag tag)
@@ -2170,7 +2170,7 @@ or a ref which is not a branch, then it inserts nothing."
 
 (defun magit-insert-revision-gravatar-cb (image rev marker align-to column)
   (unless (eq image 'error)
-    (-when-let (buffer (marker-buffer marker))
+    (when-let (buffer (marker-buffer marker))
       (with-current-buffer buffer
         (save-excursion
           (goto-char marker)
@@ -2379,7 +2379,7 @@ are highlighted."
                    (magit-diff-highlight-list section selection))
                (magit-diff-highlight-list section))
              t)
-    (-when-let (scope (magit-diff-scope section t))
+    (when-let (scope (magit-diff-scope section t))
       (cond ((eq scope 'region)
              (magit-diff-paint-hunk section selection t))
             (selection

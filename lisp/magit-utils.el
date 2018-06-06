@@ -40,6 +40,7 @@
 
 (require 'cl-lib)
 (require 'dash)
+(require 'subr-x)
 
 (require 'crm)
 

@@ -662,10 +662,10 @@ Magit status buffer."
   "Special sentinel used by `magit-run-git-sequencer'."
   (when (memq (process-status process) '(exit signal))
     (magit-process-sentinel process event)
-    (-when-let (process-buf (process-buffer process))
+    (when-let (process-buf (process-buffer process))
       (when (buffer-live-p process-buf)
-        (-when-let (status-buf (with-current-buffer process-buf
-                                 (magit-mode-get-buffer 'magit-status-mode)))
+        (when-let (status-buf (with-current-buffer process-buf
+                                (magit-mode-get-buffer 'magit-status-mode)))
           (with-current-buffer status-buf
             (--when-let
                 (magit-get-section
@@ -715,7 +715,7 @@ Magit status buffer."
 
 (defun magit-process-yes-or-no-prompt (process string)
   "Forward Yes-or-No prompts to the user."
-  (-when-let (beg (string-match magit-process-yes-or-no-prompt-regexp string))
+  (when-let (beg (string-match magit-process-yes-or-no-prompt-regexp string))
     (let ((max-mini-window-height 30))
       (process-send-string
        process
@@ -1040,7 +1040,7 @@ Limited by `magit-process-error-tooltip-max-lines'."
        ((not (eq msg 'suppressed))
         (when (buffer-live-p process-buf)
           (with-current-buffer process-buf
-            (-when-let (status-buf (magit-mode-get-buffer 'magit-status-mode))
+            (when-let (status-buf (magit-mode-get-buffer 'magit-status-mode))
               (with-current-buffer status-buf
                 (setq magit-this-error msg)))))
         (message "%s ... [%s buffer %s for details]" msg

@@ -126,8 +126,8 @@ an error while using those is harder to recover from."
   (require 'epa)
   (let ((keys (--map (concat (epg-sub-key-id (car (epg-key-sub-key-list it)))
                              " "
-                             (-when-let (id-obj (car (epg-key-user-id-list it)))
-                               (let    ((id-str (epg-user-id-string id-obj)))
+                             (when-let (id-obj (car (epg-key-user-id-list it)))
+                               (let   ((id-str (epg-user-id-string id-obj)))
                                  (if (stringp id-str)
                                      id-str
                                    (epg-decode-dn id-obj)))))
@@ -257,7 +257,7 @@ depending on the value of option `magit-commit-squash-confirm'."
 
 (defun magit-commit-squash-internal
     (option commit &optional args rebase edit confirmed)
-  (-when-let (args (magit-commit-assert args t))
+  (when-let (args (magit-commit-assert args t))
     (when commit
       (when (and rebase (not (magit-rev-ancestor-p commit "HEAD")))
         (magit-read-char-case
@@ -374,7 +374,7 @@ history element."
 
 (defun magit-commit-diff ()
   (when (and git-commit-mode magit-commit-show-diff)
-    (-when-let (diff-buffer (magit-mode-get-buffer 'magit-diff-mode))
+    (when-let (diff-buffer (magit-mode-get-buffer 'magit-diff-mode))
       ;; This window just started displaying the commit message
       ;; buffer.  Without this that buffer would immediately be
       ;; replaced with the diff buffer.  See #2632.
