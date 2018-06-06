@@ -2588,8 +2588,8 @@ are highlighted."
     (cl-labels ((recurse (section)
                          (if (magit-section-match 'hunk section)
                              (magit-diff-update-hunk-refinement section)
-                           (--each (oref section children)
-                             (recurse it)))))
+                           (dolist (child (oref section children))
+                             (recurse child)))))
       (recurse magit-root-section))))
 
 

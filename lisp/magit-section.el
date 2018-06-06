@@ -444,13 +444,13 @@ children."
   (magit-section-show section))
 
 (defun magit-section-show-children-1 (section &optional depth)
-  (--each (oref section children)
-    (oset it hidden nil)
+  (dolist (child (oref section children))
+    (oset child hidden nil)
     (if depth
         (if (> depth 0)
-            (magit-section-show-children-1 it (1- depth))
-          (magit-section-hide it))
-      (magit-section-show-children-1 it))))
+            (magit-section-show-children-1 child (1- depth))
+          (magit-section-hide child))
+      (magit-section-show-children-1 child))))
 
 (defun magit-section-hide-children (section)
   "Recursively hide the bodies of children of the current section."
@@ -466,11 +466,11 @@ hidden."
   (magit-section-show section))
 
 (defun magit-section-show-headings-1 (section)
-  (--each (oref section children)
-    (oset it hidden nil)
-    (when (or (oref it children)
-              (not (oref it content)))
-      (magit-section-show-headings-1 it))))
+  (dolist (child (oref section children))
+    (oset child hidden nil)
+    (when (or (oref child children)
+              (not (oref child content)))
+      (magit-section-show-headings-1 child))))
 
 (defun magit-section-cycle (section)
   "Cycle visibility of current section and its children."
@@ -955,9 +955,9 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (unless (eq section magit-root-section)
           (run-hook-with-args-until-success
            'magit-section-highlight-hook section selection))
-        (--each magit-section-unhighlight-sections
+        (dolist (s magit-section-unhighlight-sections)
           (run-hook-with-args-until-success
-           'magit-section-unhighlight-hook it selection))
+           'magit-section-unhighlight-hook s selection))
         (restore-buffer-modified-p nil)
         (unless (eq magit-section-highlighted-section section)
           (setq magit-section-highlighted-section
@@ -997,10 +997,10 @@ part of the hook variable, then such a region would be
 invisible."
   (when (and selection
              (not (and (eq this-command 'mouse-drag-region))))
-    (--each selection
-      (magit-section-make-overlay (oref it start)
-                                  (or (oref it content)
-                                      (oref it end))
+    (dolist (section selection)
+      (magit-section-make-overlay (oref section start)
+                                  (or (oref section content)
+                                      (oref section end))
                                   'magit-section-heading-selection))
     t))
 

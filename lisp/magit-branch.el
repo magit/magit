@@ -687,7 +687,8 @@ defaulting to the branch at point."
             (setq magit-this-error nil)
             (message "Some remote branches no longer exist.  %s"
                      "Deleting just the local tracking refs instead...")
-            (--each rest (magit-call-git "update-ref" "-d" it))
+            (dolist (ref rest)
+              (magit-call-git "update-ref" "-d" ref))
             (magit-refresh)
             (message "Deleting local remote-tracking refs...done"))
         (magit-process-sentinel process event)))))

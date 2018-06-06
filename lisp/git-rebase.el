@@ -545,11 +545,11 @@ By default, this is the same except for the \"pick\" command."
                   (concat git-rebase-comment-re "\\s-+p, pick")
                   nil t))
         (goto-char (line-beginning-position))
-        (--each git-rebase-command-descriptions
+        (pcase-dolist (`(,cmd . ,desc) git-rebase-command-descriptions)
           (insert (format "%s %-8s %s\n"
                           comment-start
-                          (substitute-command-keys (format "\\[%s]" (car it)))
-                          (cdr it))))
+                          (substitute-command-keys (format "\\[%s]" cmd))
+                          desc)))
         (while (re-search-forward (concat git-rebase-comment-re
                                           "\\(  ?\\)\\([^\n,],\\) "
                                           "\\([^\n ]+\\) ")
