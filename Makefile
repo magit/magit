@@ -190,14 +190,14 @@ define set_package_requires
   (re-search-forward "^;; Package-Requires: ")
   (delete-region (point) (line-end-position))
   (insert (format "%S"
-`((emacs "24.4") ;`
+`((emacs ,emacs-version) ;`
   (dash ,dash-version)
   (with-editor ,with-editor-version))))
 (with-temp-file "lisp/magit-pkg.el"
   (insert (pp-to-string
 `(define-package "magit" "$(VERSION)" ;`
    "A Git porcelain inside Emacs."
-   '((emacs "24.4") ;'
+   '((emacs ,emacs-version) ;'
      (async ,async-version)
      (dash ,dash-version)
      (ghub ,ghub-version)
@@ -214,6 +214,7 @@ export set_package_requires
 bump-versions: bump-versions-1 texi
 bump-versions-1:
 	@$(BATCH) --eval "(let (\
+	(emacs-version \"$(EMACS_VERSION)\")\
         (async-version \"$(ASYNC_VERSION)\")\
         (dash-version \"$(DASH_VERSION)\")\
         (ghub-version \"$(GHUB_VERSION)\")\
@@ -224,6 +225,7 @@ bump-versions-1:
 
 bump-snapshots:
 	@$(BATCH) --eval "(let (\
+	(emacs-version \"$(EMACS_VERSION)\")\
         (async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
         (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (ghub-version \"$(GHUB_MELPA_SNAPSHOT)\")\
