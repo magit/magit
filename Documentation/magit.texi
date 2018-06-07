@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0
+@subtitle for version 2.13.0 (2.13.0-33-g0b8e2aeb+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0.
+This manual is for Magit version 2.13.0 (2.13.0-33-g0b8e2aeb+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -2503,13 +2503,13 @@ then offer to initialize it as a new repository.
 
 @defopt magit-repository-directories
 
-List of directories that are or contain Git repositories.  Each
-element has the form @code{(DIRECTORY . DEPTH)} or, for backward
-compatibility, just DIRECTORY@.  DIRECTORY has to be a directory or
-a directory file-name, a string.  DEPTH, an integer, specifies the
-maximum depth to look for Git repositories.  If it is 0, then only
-add DIRECTORY itself.  For elements that are strings, the value of
-option @code{magit-repository-directories-depth} specifies the depth.
+List of directories that are Git repositories or contain Git
+repositories.
+
+Each element has the form @code{(DIRECTORY . DEPTH)}.  DIRECTORY has to be
+a directory or a directory file-name, a string.  DEPTH, an integer,
+specifies the maximum depth to look for Git repositories.  If it is
+0, then only add DIRECTORY itself.
 @end defopt
 
 @defopt magit-repository-directories-depth

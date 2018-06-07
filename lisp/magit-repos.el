@@ -40,11 +40,10 @@
 (defcustom magit-repository-directories nil
   "List of directories that are or contain Git repositories.
 
-Each element has the form (DIRECTORY . DEPTH) or, for backward
-compatibility, just DIRECTORY.  DIRECTORY has to be a directory
-or a directory file-name, a string.  DEPTH, an integer, specifies
-the maximum depth to look for Git repositories.  If it is 0, then
-only add DIRECTORY itself."
+Each element has the form (DIRECTORY . DEPTH).  DIRECTORY has
+to be a directory or a directory file-name, a string.  DEPTH,
+an integer, specifies the maximum depth to look for Git
+repositories.  If it is 0, then only add DIRECTORY itself."
   :package-version '(magit . "2.8.0")
   :group 'magit-essentials
   :type '(repeat (cons directory (integer :tag "Depth"))))

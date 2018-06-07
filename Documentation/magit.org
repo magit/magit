@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0
+#+SUBTITLE: for version 2.13.0 (2.13.0-33-g0b8e2aeb+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0.
+This manual is for Magit version 2.13.0 (2.13.0-33-g0b8e2aeb+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -1826,13 +1826,13 @@ that it should be bound globally.  We recommend using ~C-x g~:
 
 - User Option: magit-repository-directories
 
-  List of directories that are or contain Git repositories.  Each
-  element has the form ~(DIRECTORY . DEPTH)~ or, for backward
-  compatibility, just DIRECTORY.  DIRECTORY has to be a directory or
-  a directory file-name, a string.  DEPTH, an integer, specifies the
-  maximum depth to look for Git repositories.  If it is 0, then only
-  add DIRECTORY itself.  For elements that are strings, the value of
-  option ~magit-repository-directories-depth~ specifies the depth.
+  List of directories that are Git repositories or contain Git
+  repositories.
+
+  Each element has the form ~(DIRECTORY . DEPTH)~.  DIRECTORY has to be
+  a directory or a directory file-name, a string.  DEPTH, an integer,
+  specifies the maximum depth to look for Git repositories.  If it is
+  0, then only add DIRECTORY itself.
 
 - User Option: magit-repository-directories-depth
 
