@@ -7,7 +7,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-35-gadb7d445+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-36-gd0837acc+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -22,7 +22,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-35-gadb7d445+1).
+This manual is for Magit version 2.13.0 (2.13.0-36-gd0837acc+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -7840,14 +7840,6 @@ Or to disable it completely:
 #+BEGIN_SRC emacs-lisp
   (setq vc-handled-backends nil)
 #+END_SRC
-
-*** Emacs 24.5 hangs when loading Magit
-
-This is actually triggered by loading Tramp.  See
-https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015 for details. You
-can work around the problem by setting
-~tramp-ssh-controlmaster-options~. Changing your DNS server (e.g. to
-Google's ~8.8.8.8~) may also be sufficient to work around the issue.
 
 *** A branch and tag sharing the same name breaks SOMETHING
 

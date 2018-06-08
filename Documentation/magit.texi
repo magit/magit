@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-35-gadb7d445+1)
+@subtitle for version 2.13.0 (2.13.0-36-gd0837acc+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-35-gadb7d445+1).
+This manual is for Magit version 2.13.0 (2.13.0-36-gd0837acc+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -323,7 +323,6 @@ FAQ - Issues and Errors
 * Expanding a file to show the diff causes it to disappear::
 * Point is wrong in the @code{COMMIT_EDITMSG} buffer::
 * The mode-line information isn't always up-to-date::
-* Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
 * A branch and tag sharing the same name breaks SOMETHING::
 * My Git hooks work on the command-line but not inside Magit::
 
@@ -10271,7 +10270,6 @@ conflicts.
 * Expanding a file to show the diff causes it to disappear::
 * Point is wrong in the @code{COMMIT_EDITMSG} buffer::
 * The mode-line information isn't always up-to-date::
-* Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
 * A branch and tag sharing the same name breaks SOMETHING::
 * My Git hooks work on the command-line but not inside Magit::
 @end menu
@@ -10401,15 +10399,6 @@ Or to disable it completely:
 @lisp
 (setq vc-handled-backends nil)
 @end lisp
-
-@node Emacs 245 hangs when loading Magit
-@appendixsubsec Emacs 24.5 hangs when loading Magit
-
-This is actually triggered by loading Tramp.  See
-@uref{https://debbugs.gnu.org/cgi/bugreport.cgi?bug=20015} for details. You
-can work around the problem by setting
-@code{tramp-ssh-controlmaster-options}. Changing your DNS server (e.g. to
-Google's @code{8.8.8.8}) may also be sufficient to work around the issue.
 
 @node A branch and tag sharing the same name breaks SOMETHING
 @appendixsubsec A branch and tag sharing the same name breaks SOMETHING
