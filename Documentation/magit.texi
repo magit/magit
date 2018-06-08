@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-33-g0b8e2aeb+1)
+@subtitle for version 2.13.0 (2.13.0-35-gadb7d445+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-33-g0b8e2aeb+1).
+This manual is for Magit version 2.13.0 (2.13.0-35-gadb7d445+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -325,7 +325,7 @@ FAQ - Issues and Errors
 * The mode-line information isn't always up-to-date::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
 * A branch and tag sharing the same name breaks SOMETHING::
-* My Git hooks work on the command line but not in Magit::
+* My Git hooks work on the command-line but not inside Magit::
 
 
 @end detailmenu
@@ -10273,7 +10273,7 @@ conflicts.
 * The mode-line information isn't always up-to-date::
 * Emacs 24.5 hangs when loading Magit: Emacs 245 hangs when loading Magit. 
 * A branch and tag sharing the same name breaks SOMETHING::
-* My Git hooks work on the command line but not in Magit::
+* My Git hooks work on the command-line but not inside Magit::
 @end menu
 
 @node Magit is slow
@@ -10424,13 +10424,15 @@ non-ambiguous naming scheme.  However, if you do work with a
 repository that has ambiguous refnames, please report any issues you
 encounter so that we can investigate whether there is a simple fix.
 
-@node My Git hooks work on the command line but not in Magit
-@appendixsubsec My Git hooks work on the command line but not in Magit
+@node My Git hooks work on the command-line but not inside Magit
+@appendixsubsec My Git hooks work on the command-line but not inside Magit
 
 When Magit calls @code{git} it adds a few global arguments including
 @code{--literal-pathspecs} and the @code{git} process started by Magit then passes
-that setting on to other @code{git} process it starts itself.  This setting
-can be reverted in hook scripts using @code{unset GIT_LITERAL_PATHSPECS}.
+that setting on to other @code{git} process it starts itself.  It does so by
+setting the environment variable @code{GIT_LITERAL_PATHSPECS}, not by calling
+subprocesses with the @code{--literal-pathspecs}.  You can therefore override
+this setting in hook scripts using @code{unset GIT_LITERAL_PATHSPECS}.
 
 @node Debugging Tools
 @chapter Debugging Tools
