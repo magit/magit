@@ -745,31 +745,31 @@ that it will align with the text area."
       (cond
        ;; Quoted percent sign.
        ((eq (char-after) ?%)
-	(delete-char 1))
+        (delete-char 1))
        ;; Valid format spec.
        ((looking-at "\\([-0-9.]*\\)\\([a-zA-Z]\\)")
-	(let* ((num (match-string 1))
-	       (spec (string-to-char (match-string 2)))
-	       (val (assq spec specification)))
-	  (unless val
-	    (error "Invalid format character: `%%%c'" spec))
-	  (setq val (cdr val))
-	  ;; Pad result to desired length.
-	  (let ((text (format (concat "%" num "s") val)))
-	    ;; Insert first, to preserve text properties.
+        (let* ((num (match-string 1))
+               (spec (string-to-char (match-string 2)))
+               (val (assq spec specification)))
+          (unless val
+            (error "Invalid format character: `%%%c'" spec))
+          (setq val (cdr val))
+          ;; Pad result to desired length.
+          (let ((text (format (concat "%" num "s") val)))
+            ;; Insert first, to preserve text properties.
             (if (next-property-change 0 (concat " " text))
                 ;; If the inserted text has properties, then preserve those.
-	        (insert text)
+                (insert text)
               ;; Otherwise preserve FORMAT's properties, like `format-spec'.
-	      (insert-and-inherit text))
-	    ;; Delete the specifier body.
+              (insert-and-inherit text))
+            ;; Delete the specifier body.
             (delete-region (+ (match-beginning 0) (length text))
                            (+ (match-end 0) (length text)))
             ;; Delete the percent sign.
             (delete-region (1- (match-beginning 0)) (match-beginning 0)))))
        ;; Signal an error on bogus format strings.
        (t
-	(error "Invalid format string"))))
+        (error "Invalid format string"))))
     (buffer-string)))
 
 ;;; Missing from Emacs
