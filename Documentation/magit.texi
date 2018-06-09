@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-37-g48000cde+1)
+@subtitle for version 2.13.0 (2.13.0-42-gf987534e+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-37-g48000cde+1).
+This manual is for Magit version 2.13.0 (2.13.0-42-gf987534e+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -5258,7 +5258,7 @@ depending on the value of option @code{magit-commit-squash-confirm}.
 
 @defopt magit-commit-ask-to-stage
 
-Whether to ask to stage everything when committing and nothing is
+Whether to ask to stage all unstaged changes when committing and nothing is
 staged.
 @end defopt
 
