@@ -241,6 +241,14 @@ with two prefix arguments remove ignored files only.
 
 ;;; Gitignore
 
+;;;###autoload (autoload 'magit-ignore-popup "extras" nil t)
+(magit-define-popup magit-gitignore-popup
+  "Popup console for gitignore commands."
+  :man-page "gitignore"
+  :actions '((?l "ignore locally"  magit-gitignore)
+             (?g "ignore globally" magit-gitignore-globally))
+  :max-action-columns 1)
+
 ;;;###autoload
 (defun magit-gitignore (file-or-pattern &optional local)
   "Instruct Git to ignore FILE-OR-PATTERN.
