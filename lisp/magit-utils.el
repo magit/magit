@@ -439,9 +439,10 @@ acts similarly to `completing-read', except for the following:
     (setq choices (magit--completion-table choices)))
   (cl-letf (((symbol-function 'completion-pcm--all-completions)
              #'magit-completion-pcm--all-completions))
-    (completing-read prompt choices
-                     predicate require-match
-                     initial-input hist def)))
+    (let ((ivy-sort-functions-alist nil))
+      (completing-read prompt choices
+                       predicate require-match
+                       initial-input hist def))))
 
 (defvar helm-completion-in-region-default-sort-fn)
 
