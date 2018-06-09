@@ -3858,7 +3858,7 @@ Also see [[man:git-commit]]
 
 - User Option: magit-commit-ask-to-stage
 
-  Whether to ask to stage everything when committing and nothing is
+  Whether to ask to stage all unstaged files when committing and nothing is
   staged.
 
 - User Option: magit-commit-extend-override-date
