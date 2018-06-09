@@ -433,13 +433,13 @@ acts similarly to `completing-read', except for the following:
 (defun magit-builtin-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
+  (unless (or (bound-and-true-p helm-mode)
+              (bound-and-true-p ivy-mode))
+    (setq prompt (magit-prompt-with-default prompt def))
+    (setq choices (magit--completion-table choices)))
   (cl-letf (((symbol-function 'completion-pcm--all-completions)
              #'magit-completion-pcm--all-completions))
-    (completing-read (if (or (bound-and-true-p helm-mode)
-                             (bound-and-true-p ivy-mode))
-                         prompt
-                       (magit-prompt-with-default prompt def))
-                     (magit--completion-table choices)
+    (completing-read prompt choices
                      predicate require-match
                      initial-input hist def)))
 
