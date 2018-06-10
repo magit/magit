@@ -43,7 +43,7 @@
   :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-commit-ask-to-stage 'verbose
-  "Whether to ask to stage all unstaged files when committing and nothing is staged."
+  "Whether to ask to stage all unstaged changes when committing and nothing is staged."
   :package-version '(magit . "2.3.0")
   :group 'magit-commands
   :type '(choice (const :tag "Ask showing diff" verbose)
@@ -334,7 +334,7 @@ depending on the value of option `magit-commit-squash-confirm'."
    (magit-commit-ask-to-stage
     (when (eq magit-commit-ask-to-stage 'verbose)
       (magit-diff-unstaged))
-    (prog1 (when (y-or-n-p "Nothing staged.  Stage and commit all unstaged files? ")
+    (prog1 (when (y-or-n-p "Nothing staged.  Stage and commit all unstaged changes? ")
              (magit-run-git "add" "-u" ".")
              (or args (list "--")))
       (when (and (eq magit-commit-ask-to-stage 'verbose)

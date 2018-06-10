@@ -5258,7 +5258,7 @@ depending on the value of option @code{magit-commit-squash-confirm}.
 
 @defopt magit-commit-ask-to-stage
 
-Whether to ask to stage all unstaged files when committing and nothing is
+Whether to ask to stage all unstaged changes when committing and nothing is
 staged.
 @end defopt
 
