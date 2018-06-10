@@ -1,30 +1,7 @@
-=================================================================
-DO NOT use this issue tracker for support requests
-=================================================================
-
-Please use the Emacs StackExchange site [1] for support requests.  But before you do that please read the list of frequently asked questions [2] and consult the manual [3] and a search engine.
-
-We only use this issue tracker for feature requests and for defects.
-
-  [1]: https://emacs.stackexchange.com
-  [2]: https://magit.vc/manual/magit/FAQ.html
-  [3]: https://magit.vc/manual/magit/#Top
-
-
-=================================================================
-How to ask for a new feature and other improvements
-=================================================================
-
-Before you ask for a new feature to be added to Magit or for an existing feature to be improved, please make sure that what are asking for does not already exist by consulting the documentation [5].
-
-Then explain the feature you would like to see in Magit and why that is useful to you.
-
-  [5]: https://magit.vc/manual/magit/#Top
-
-
-=================================================================
-How to report defects
-=================================================================
+---
+name: Bug report
+about: Report a defect
+---
 
 Please explain
   (1) what behavior you expected
