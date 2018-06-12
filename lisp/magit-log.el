@@ -1073,7 +1073,8 @@ Do not add this to a hook variable."
     (setq msg (substring-no-properties msg))
     (when refs
       (setq refs (substring-no-properties refs)))
-    (let ((align (not (member "--stat" (cadr magit-refresh-args))))
+    (let ((align (or (eq style 'cherry)
+                     (not (member "--stat" (cadr magit-refresh-args)))))
           (non-graph-re (if (eq style 'bisect-vis)
                             magit-log-bisect-vis-re
                           magit-log-heading-re)))
