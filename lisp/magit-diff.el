@@ -44,8 +44,7 @@
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
 (declare-function magit-current-blame-chunk "magit-blame" ())
 (eval-when-compile
-  (when (boundp 'eieio--known-slot-names)
-    (add-to-list 'eieio--known-slot-names 'orig-rev)))
+  (cl-pushnew 'orig-rev eieio--known-slot-names))
 (declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
 (defvar git-rebase-line)
