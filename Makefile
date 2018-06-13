@@ -52,7 +52,7 @@ help:
 	$(info make test-interactive - run tests interactively)
 	$(info make emacs-Q          - run emacs -Q plus Magit)
 	$(info )
-	$(info Release Managment)
+	$(info Release Management)
 	$(info =================)
 	$(info )
 	$(info make texi             - regenerate texi from org)
