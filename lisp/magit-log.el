@@ -50,6 +50,8 @@
 
 (require 'ansi-color)
 (require 'crm)
+(require 'which-func)
+
 (defvar bookmark-make-record-function)
 
 ;;; Options
@@ -713,7 +715,7 @@ active, restrict the log to the lines that the region touches."
   "Show log for the definition at point."
   (interactive (list (or (magit-file-relative-name)
                          (user-error "Buffer isn't visiting a file"))
-                     (add-log-current-defun)
+                     (which-function)
                      (or magit-buffer-refname
                          (magit-get-current-branch)
                          "HEAD")))
