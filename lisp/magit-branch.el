@@ -32,7 +32,6 @@
 ;;; Code:
 
 (require 'magit)
-(require 'magit-collab)
 (require 'magit/forge)
 (require 'magit-reset)
 
