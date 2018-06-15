@@ -118,6 +118,8 @@
   (browse-url (magit-forge--format-url issue 'issue-url-format))
   (oset issue unread-p nil))
 
+(defalias 'magit-issue-visit 'magit-issue-browse)
+
 ;;; Utilities
 
 (defun magit-read-issue (prompt)
@@ -146,6 +148,7 @@
 (defvar magit-issue-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-browse-thing] 'magit-issue-browse)
+    (define-key map [remap magit-visit-thing]  'magit-issue-visit)
     map))
 
 (defun magit-insert-issues ()

@@ -88,8 +88,9 @@ alphabetical order, depending on your version of Ivy."
     (magit-stash-drop         nil ask)
     (magit-stash-pop          nil ask)
     (magit-issue-browse       nil t)
+    (magit-issue-visit        nil t)
     (magit-pullreq-browse     nil t)
-    )
+    (magit-pullreq-visit      nil t))
   "When not to offer alternatives and ask for confirmation.
 
 Many commands by default ask the user to select from a list of
