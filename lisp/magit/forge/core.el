@@ -180,33 +180,26 @@ determined, then raise an error.")
 
 (defun magit--forge-url-p (url)
   (save-match-data
-    (and url
-         (string-match magit--forge-url-regexp url)
-         (let ((host (match-string 1 url)))
-           ;; Match values like "github.com-as-someone", which are
-           ;; translated to just "github.com" according to settings
-           ;; in "~/.ssh/config".  Theoretically this could result
-           ;; in false-positives, but that's rather unlikely.  #3392
-           (and (or (string-match-p (regexp-quote "github.com") host)
-                    (string-match-p (regexp-quote (ghub--host)) host)
-                    (string-match-p (regexp-quote "gitlab.com") host)
-                    (string-match-p (regexp-quote (glab--host)) host))
-                host)))))
+    (and (string-match magit--forge-url-regexp url)
+         (cl-caddr (assoc (match-string 1 url) magit-forge-alist)))))
 
 (defun magit--forge-remote-p (remote)
-  (or (--when-let (magit-git-string "remote" "get-url" "--push" remote)
-        (magit--forge-url-p it))
-      (--when-let (magit-git-string "remote" "get-url" "--all" remote)
-        (magit--forge-url-p it))))
+  (when-let ((url (magit-git-string "remote" "get-url" remote)))
+    (magit--forge-url-p url)))
 
-(defun magit--forge-url-equal (r1 r2)
-  (or (equal r1 r2)
+(defun magit--forge-url-equal (urlA urlB)
+  (or (equal urlA urlB)
       (save-match-data
-        (let ((n1 (and (string-match magit--forge-url-regexp r1)
-                       (match-string 2 r1)))
-              (n2 (and (string-match magit--forge-url-regexp r2)
-                       (match-string 2 r2))))
-          (and n1 n2 (equal n1 n2))))))
+        (let (hostA repoA hostB repoB)
+          (and (when (string-match magit--forge-url-regexp urlA)
+                 (setq hostA (match-string 1 urlA))
+                 (setq repoA (match-string 2 urlA)))
+               (when (string-match magit--forge-url-regexp urlB)
+                 (setq hostB (match-string 1 urlB))
+                 (setq repoB (match-string 2 urlB)))
+               (equal repoA repoB)
+               (equal (cl-caddr (assoc hostA magit-forge-alist))
+                      (cl-caddr (assoc hostB magit-forge-alist))))))))
 
 ;;; _
 (provide 'magit/forge/core)
