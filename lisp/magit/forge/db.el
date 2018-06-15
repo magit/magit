@@ -28,6 +28,8 @@
 (require 'emacsql)
 (require 'emacsql-sqlite)
 
+(declare-function magit-forge-reset-database "magit/forge")
+
 ;;; Options
 
 (defcustom magit-forge-database-file "~/.emacs.d/magit-forge-database.sqlite"
@@ -41,14 +43,30 @@
 (defclass magit-database (closql-database)
   ((object-class :initform magit-forge-project)))
 
+(defconst magit--db-version 1)
+
+(defvar magit--db-disabled nil)
+
 (defvar magit--db-connection nil
   "The EmacSQL database connection.")
 
 (defun magit-db ()
+  (setq magit--db-disabled nil)
   (unless (and magit--db-connection (emacsql-live-p magit--db-connection))
     (make-directory (file-name-directory magit-forge-database-file) t)
     (closql-db 'magit-database 'magit--db-connection
-               magit-forge-database-file t))
+               magit-forge-database-file t)
+    (let ((version (caar (emacsql magit--db-connection "PRAGMA user_version"))))
+      (cond
+       ((> version magit--db-version)
+        (emacsql-close magit--db-connection)
+        (user-error "BUG: magit-db-version is to low"))
+       ((< version magit--db-version)
+        (emacsql-close magit--db-connection)
+        (if (yes-or-no-p "The database scheme changed. Reset database now? ")
+            (magit-forge-reset-database)
+          (setq magit--db-disabled t)
+          (user-error "Aborted.  Database disabled until update"))))))
   magit--db-connection)
 
 ;;; Api
@@ -174,7 +192,7 @@
   (emacsql-with-transaction db
     (pcase-dolist (`(,table . ,schema) magit--db-table-schemata)
       (emacsql db [:create-table $i1 $S2] table schema))
-    ))
+    (emacsql db (format "PRAGMA user_version = %s" magit--db-version))))
 
 ;;; _
 (provide 'magit/forge/db)
