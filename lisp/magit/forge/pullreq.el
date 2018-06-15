@@ -176,6 +176,17 @@
     (and number
          (magit-forge-get-pullreq prj number))))
 
+(defun magit-forge--pullreq-branch (pullreq &optional assert-new)
+  (with-slots (head-ref number cross-repo-p editable-p) pullreq
+    (let ((branch head-ref))
+      (when (and cross-repo-p
+                 (or (not editable-p)
+                     (magit-branch-p branch)))
+        (setq branch (format "pr-%s" number)))
+      (when (and assert-new (magit-branch-p branch))
+        (user-error "Branch `%s' already exists" branch))
+      branch)))
+
 ;;; Sections
 
 (defun magit-pullreq-at-point ()

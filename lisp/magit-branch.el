@@ -33,6 +33,7 @@
 
 (require 'magit)
 (require 'magit-collab)
+(require 'magit/forge)
 (require 'magit-reset)
 
 ;;; Options
@@ -366,23 +367,27 @@ when using `magit-branch-and-checkout'."
   (magit-run-git "checkout" "--orphan" args branch start-point))
 
 ;;;###autoload
-(defun magit-branch-pull-request (pr)
+(defun magit-branch-pull-request (pullreq)
   "Create and configure a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (magit-read-pull-request "Branch pull request")))
-  (let-alist pr
-    (let* ((upstream (or (--first (magit--github-url-equal
-                                   (magit-get "remote" it "url")
-                                   .base.repo.ssh_url)
+  (interactive (list (magit-read-pullreq "* Branch pull request")))
+  (with-slots (number title editable-p cross-repo-p
+                      base-ref base-repo
+                      head-ref head-repo head-user) pullreq
+    (let* ((host (oref (magit-forge-get-project nil) githost))
+           (upstream-url (format "git@%s:%s.git" host base-repo))
+           (upstream (or (--first (magit--github-url-equal
+                                   (magit-git-string "remote" "get-url" it)
+                                   upstream-url)
                                   (magit-list-remotes))
                          (user-error
                           "Upstream repository %s not available as a remote"
-                          .base.repo.ssh_url)))
-           (upstream-url (magit-get "remote" upstream "url"))
-           (remote .head.repo.owner.login)
-           (branch (magit--pullreq-branch pr t))
-           (pr-branch .head.ref))
-      (if (magit--pullreq-from-upstream-p pr)
+                          upstream-url)))
+           (upstream-url (magit-git-string "remote" "get-url" upstream))
+           (remote head-user)
+           (branch (magit-forge--pullreq-branch pullreq t))
+           (pr-branch head-ref))
+      (if (not cross-repo-p)
           (let ((tracking (concat upstream "/" pr-branch)))
             (unless (magit-branch-p tracking)
               (magit-call-git "fetch" upstream))
@@ -391,9 +396,10 @@ Please see the manual for more information."
             (magit-set upstream "branch" branch "pushRemote")
             (magit-set upstream "branch" branch "pullRequestRemote"))
         (if (magit-remote-p remote)
-            (let ((url   (magit-get     "remote" remote "url"))
+            (let ((url   (magit-git-string "remote" "get-url" remote))
                   (fetch (magit-get-all "remote" remote "fetch")))
-              (unless (magit--github-url-equal url .head.repo.ssh_url)
+              (unless (magit--github-url-equal
+                       url (format "git@%s:%s.git" host head-repo))
                 (user-error
                  "Remote `%s' already exists but does not point to %s"
                  remote url))
@@ -407,35 +413,36 @@ Please see the manual for more information."
            "-t" pr-branch remote
            (cond ((or (string-prefix-p "git@" upstream-url)
                       (string-prefix-p "ssh://git@" upstream-url))
-                  .head.repo.ssh_url)
+                  (format "git@%s:%s.git" host head-repo))
                  ((string-prefix-p "https://" upstream-url)
-                  .head.repo.clone_url)
+                  (format "https://%s/%s.git" host head-repo))
                  ((string-prefix-p "git://" upstream-url)
-                  .head.repo.git_url)
+                  (format "git://%s/%s.git" host head-repo))
                  (t (error "%s has an unexpected format" upstream-url)))))
         (magit-call-git "branch" branch (concat remote "/" pr-branch))
-        (if (or .locked (not (equal branch pr-branch)))
-            (magit-set upstream "branch" branch "pushRemote")
-          (magit-set remote "branch" branch "pushRemote"))
-        (magit-set remote "branch" branch "pullRequestRemote"))
+        (if (and editable-p
+                 (equal branch pr-branch))
+            (magit-set remote "branch" branch "pushRemote")
+          (magit-set upstream "branch" branch "pushRemote")))
+      (magit-set remote "branch" branch "pullRequestRemote")
       (magit-set "true" "branch" branch "rebase")
       (magit-call-git "branch" branch
                       (concat "--set-upstream-to="
                               (if magit-branch-prefer-remote-upstream
-                                  (concat upstream "/" .base.ref)
-                                .base.ref)))
-      (magit-set (number-to-string .number) "branch" branch "pullRequest")
-      (magit-set .title                     "branch" branch "description")
+                                  (concat upstream "/" base-ref)
+                                base-ref)))
+      (magit-set (number-to-string number) "branch" branch "pullRequest")
+      (magit-set title                     "branch" branch "description")
       (magit-refresh)
       branch)))
 
-(defun magit-checkout-pull-request (pr)
+(defun magit-checkout-pull-request (pullreq)
   "Create, configure and checkout a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (magit-read-pull-request "Checkout pull request")))
+  (interactive (list (magit-read-pullreq "Checkout pull request")))
   (magit-checkout
    (let ((inhibit-magit-refresh t))
-     (magit-branch-pull-request pr))))
+     (magit-branch-pull-request pullreq))))
 
 (defun magit-branch-read-args (prompt)
   (let ((args (magit-branch-arguments)))

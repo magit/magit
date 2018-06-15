@@ -46,10 +46,10 @@ magit/forge/github.elc:	magit.elc magit/forge.elc \
 magit/forge/gitlab.elc:	magit.elc magit/forge.elc \
 			magit/forge/issue.elc magit/forge/pullreq.elc
 magit-reset.elc:        magit.elc
-magit-branch.elc:	magit.elc magit-collab.elc magit-reset.elc
+magit-branch.elc:	magit.elc magit-collab.elc magit/forge.elc magit-reset.elc
 magit-merge.elc:        magit.elc
 magit-tag.elc:          magit.elc
-magit-worktree.elc:	magit.elc
+magit-worktree.elc:	magit.elc magit-branch.elc
 magit-notes.elc:	magit.elc
 magit-sequence.elc:	magit.elc
 magit-commit.elc:	magit.elc magit-sequence.elc

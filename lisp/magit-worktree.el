@@ -28,6 +28,7 @@
 ;;; Code:
 
 (require 'magit)
+(require 'magit-branch)
 
 ;;; Commands
 
@@ -53,34 +54,34 @@
   (magit-run-git "worktree" "add" (expand-file-name path) branch)
   (magit-diff-visit-directory path))
 
-(defun magit-worktree-checkout-pull-request (path pr)
+(defun magit-worktree-checkout-pull-request (path pullreq)
   "Create, configure and checkout a new worktree from a pull-request.
 This is like `magit-checkout-pull-request', except that it
 also creates a new worktree. Please see the manual for more
 information."
   (interactive
-   (let ((pr (magit-read-pull-request "Checkout pull request")))
-     (let-alist pr
-       (let ((path (let ((branch (magit--pullreq-branch pr t)))
+   (let ((pullreq (magit-read-pullreq "Checkout pull request")))
+     (with-slots (number head-ref) pullreq
+       (let ((path (let ((branch (magit-forge--pullreq-branch pullreq t)))
                      (read-directory-name
                       (format "Checkout #%s as `%s' in new worktree: "
-                              .number branch)
+                              number branch)
                       (file-name-directory
                        (directory-file-name default-directory))
                       nil nil
                       (if (string-match-p "\\`pr-[0-9]+\\'" branch)
-                          (number-to-string .number)
-                        (format "%s-%s" .number .head.ref))))))
+                          (number-to-string number)
+                        (format "%s-%s" number head-ref))))))
          (when (equal path "")
            (user-error "The empty string isn't a valid path"))
-         (list path pr)))))
+         (list path pullreq)))))
   (when (and (file-exists-p path)
              (not (and (file-directory-p path)
                        (= (length (directory-files "/tmp/testing/")) 2))))
     (user-error "%s already exists and isn't empty" path))
   (magit-worktree-checkout path
                            (let ((inhibit-magit-refresh t))
-                             (magit-branch-pull-request pr))))
+                             (magit-branch-pull-request pullreq))))
 
 ;;;###autoload
 (defun magit-worktree-branch (path branch start-point &optional force)
