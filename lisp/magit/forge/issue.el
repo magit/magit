@@ -129,8 +129,39 @@
     (and number
          (magit-forge-get-issue prj number))))
 
+;;; Sections
+
 (defun magit-issue-at-point ()
   (magit-section-when issue))
+
+(defvar magit-issue-section-map
+  (let ((map (make-sparse-keymap)))
+    map))
+
+(defun magit-insert-issues ()
+  (when-let* ((prj (magit-forge-get-project nil))
+              (- (not (oref prj sparse-p)))
+              (issues (magit-forge-list-issues prj magit--topic-limit)))
+    (magit-insert-section (issues nil t)
+      (magit-insert-heading "Issues:")
+      (let ((width (length (number-to-string (oref (car issues) number)))))
+        (dolist (issue issues)
+          (magit-insert-issue issue width)))
+      (insert ?\n))))
+
+(defun magit-insert-issue (issue &optional width)
+  (with-slots (number title unread-p closed) issue
+    (magit-insert-section (issue issue)
+      (insert
+       (format (if width
+                   (format "%%-%is %%s\n" (1+ width))
+                 "%s %s\n")
+               (propertize (format "#%s" number) 'face 'magit-dimmed)
+               (magit-log-propertize-keywords
+                nil (propertize title 'face
+                                (cond (unread-p 'magit-topic-unread)
+                                      (closed   'magit-topic-closed)
+                                      (t        'magit-topic-open)))))))))
 
 ;;; _
 (provide 'magit/forge/issue)

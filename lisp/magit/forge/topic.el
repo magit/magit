@@ -28,6 +28,27 @@
 (require 'magit/forge)
 (require 'magit/forge/post)
 
+;;; Options
+
+(defvar magit--topic-limit 20) ; TODO fancier
+
+;;; Faces
+
+(defface magit-topic-unread
+  '((t :inherit bold))
+  "Face used for unread topics."
+  :group 'magit-faces)
+
+(defface magit-topic-closed
+  '((t :inherit magit-dimmed))
+  "Face used for unread topics."
+  :group 'magit-faces)
+
+(defface magit-topic-open
+  '((t :inherit default))
+  "Face used for open topics."
+  :group 'magit-faces)
+
 ;;; Class
 
 (defclass magit-forge-topic (magit-forge-object) () :abstract t)
