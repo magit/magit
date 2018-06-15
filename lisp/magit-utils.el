@@ -68,8 +68,10 @@ less well behaved than the former, more modern alternatives.
 
 If you would like to use Ivy or Helm completion with Magit but
 not enable the respective modes globally, then customize this
-option to use `ivy-completing-read'
-or `helm--completing-read-default'."
+option to use `ivy-completing-read' or
+`helm--completing-read-default'.  If you choose to use
+`ivy-completing-read', note that the items may always be shown in
+alphabetical order, depending on your version of Ivy."
   :group 'magit-essentials
   :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
