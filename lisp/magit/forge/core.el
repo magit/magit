@@ -178,7 +178,7 @@ determined, then raise an error.")
      (?n . ,(oref prj name))
      ,@spec)))
 
-(defun magit--github-url-p (url)
+(defun magit--forge-url-p (url)
   (save-match-data
     (and url
          (string-match magit--forge-url-regexp url)
@@ -188,16 +188,18 @@ determined, then raise an error.")
            ;; in "~/.ssh/config".  Theoretically this could result
            ;; in false-positives, but that's rather unlikely.  #3392
            (and (or (string-match-p (regexp-quote "github.com") host)
-                    (string-match-p (regexp-quote (ghub--host)) host))
+                    (string-match-p (regexp-quote (ghub--host)) host)
+                    (string-match-p (regexp-quote "gitlab.com") host)
+                    (string-match-p (regexp-quote (glab--host)) host))
                 host)))))
 
-(defun magit--github-remote-p (remote)
+(defun magit--forge-remote-p (remote)
   (or (--when-let (magit-git-string "remote" "get-url" "--push" remote)
-        (magit--github-url-p it))
+        (magit--forge-url-p it))
       (--when-let (magit-git-string "remote" "get-url" "--all" remote)
-        (magit--github-url-p it))))
+        (magit--forge-url-p it))))
 
-(defun magit--github-url-equal (r1 r2)
+(defun magit--forge-url-equal (r1 r2)
   (or (equal r1 r2)
       (save-match-data
         (let ((n1 (and (string-match magit--forge-url-regexp r1)

@@ -375,7 +375,7 @@ Please see the manual for more information."
                       head-ref head-repo head-user) pullreq
     (let* ((host (oref (magit-forge-get-project nil) githost))
            (upstream-url (format "git@%s:%s.git" host base-repo))
-           (upstream (or (--first (magit--github-url-equal
+           (upstream (or (--first (magit--forge-url-equal
                                    (magit-git-string "remote" "get-url" it)
                                    upstream-url)
                                   (magit-list-remotes))
@@ -397,7 +397,7 @@ Please see the manual for more information."
         (if (magit-remote-p remote)
             (let ((url   (magit-git-string "remote" "get-url" remote))
                   (fetch (magit-get-all "remote" remote "fetch")))
-              (unless (magit--github-url-equal
+              (unless (magit--forge-url-equal
                        url (format "git@%s:%s.git" host head-repo))
                 (user-error
                  "Remote `%s' already exists but does not point to %s"
@@ -738,7 +738,7 @@ the remote."
                  ;; ...and if it does not, then we must abort.
                  (not (eq magit-branch-rename-push-target 'local-only))
                  (or (not (eq magit-branch-rename-push-target 'github-only))
-                     (magit--github-remote-p remote)))
+                     (magit--forge-remote-p remote)))
         (let ((old-target (magit-get-push-branch old t))
               (new-target (magit-get-push-branch new t)))
           (when (and old-target (not new-target))
