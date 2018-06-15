@@ -53,7 +53,7 @@ help:
 	$(info make emacs-Q          - run emacs -Q plus Magit)
 	$(info )
 	$(info Release Management)
-	$(info =================)
+	$(info ==================)
 	$(info )
 	$(info make texi             - regenerate texi from org)
 	$(info make stats            - regenerate statistics)
