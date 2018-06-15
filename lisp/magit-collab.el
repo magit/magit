@@ -37,22 +37,6 @@
 (require 'magit)
 (require 'ghub)
 
-;;; Commands
-
-;;;###autoload
-(defun magit-browse-pull-request (pr)
-  "Visit pull-request PR using `browse-url'.
-
-Currently this only supports Github, but that restriction will
-be lifted eventually to support other Git forges."
-  (interactive (list (magit-read-pull-request "Visit pull request")))
-  (browse-url (format "https://github.com/%s/pull/%s"
-                      (--> pr
-                           (cdr (assq 'base it))
-                           (cdr (assq 'repo it))
-                           (cdr (assq 'full_name it)))
-                      (cdr (assq 'number pr)))))
-
 ;;; Utilities
 
 (defun magit-read-pull-request (prompt)
