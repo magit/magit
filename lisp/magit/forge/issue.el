@@ -109,6 +109,15 @@
                         :order-by [(desc number)]]
                        (oref prj id)))))
 
+;;; Commands
+
+;;;###autoload
+(defun magit-issue-browse (issue)
+  "Visit the url corresponding to ISSUE using a browser."
+  (interactive (list (magit-read-issue "Browse issue")))
+  (browse-url (magit-forge--format-url issue 'issue-url-format))
+  (oset issue unread-p nil))
+
 ;;; Utilities
 
 (defun magit-read-issue (prompt)
@@ -136,6 +145,7 @@
 
 (defvar magit-issue-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-browse-thing] 'magit-issue-browse)
     map))
 
 (defun magit-insert-issues ()

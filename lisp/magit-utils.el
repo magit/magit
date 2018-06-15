@@ -86,7 +86,10 @@ alphabetical order, depending on your version of Ivy."
     (magit-stash-branch-here  nil t)
     (magit-stash-format-patch nil t)
     (magit-stash-drop         nil ask)
-    (magit-stash-pop          nil ask))
+    (magit-stash-pop          nil ask)
+    (magit-issue-browse       nil t)
+    (magit-pullreq-browse     nil t)
+    )
   "When not to offer alternatives and ask for confirmation.
 
 Many commands by default ask the user to select from a list of
@@ -114,7 +117,7 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
   without confirmation.  If it is `ask', then the user is given
   a chance to abort.  DEFAULT can also be nil, in which case the
   entry has no effect."
-  :package-version '(magit . "2.12.0")
+  :package-version '(magit . "2.90.0")
   :group 'magit-commands
   :type '(repeat
           (list (symbol :tag "Command") ; It might not be fboundp yet.

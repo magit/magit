@@ -70,6 +70,8 @@ ID, and vice-versa."
    (closql-class-suffix       :initform "-project")
    (closql-table              :initform project)
    (closql-primary-key        :initform id)
+   (issue-url-format          :allocation :class)
+   (pullreq-url-format        :allocation :class)
    (id                        :initarg :id)
    (forge                     :initarg :forge)
    (owner                     :initarg :owner)

@@ -53,7 +53,9 @@ repositories.
 ;;; Projects
 
 (defclass magit-github-project (magit-forge-project)
-  ())
+  ((issue-url-format          :initform "https://%h/%o/%n/issues/%i")
+   (pullreq-url-format        :initform "https://%h/%o/%n/pull/%i")
+   ))
 
 (cl-defmethod magit-forge--object-id
   ((_class (subclass magit-github-project)) forge host owner name)
