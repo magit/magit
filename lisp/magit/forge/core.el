@@ -178,16 +178,10 @@ determined, then raise an error.")
      (?n . ,(oref prj name))
      ,@spec)))
 
-(defconst magit--github-url-regexp "\
-\\`\\(?:git://\\|git@\\|ssh://git@\\|https://\\)\
-\\(.*?\\)[/:]\
-\\(\\([^:/]+\\)/\\([^/]+?\\)\\)\
-\\(?:\\.git\\)?\\'")
-
 (defun magit--github-url-p (url)
   (save-match-data
     (and url
-         (string-match magit--github-url-regexp url)
+         (string-match magit--forge-url-regexp url)
          (let ((host (match-string 1 url)))
            ;; Match values like "github.com-as-someone", which are
            ;; translated to just "github.com" according to settings
@@ -206,9 +200,9 @@ determined, then raise an error.")
 (defun magit--github-url-equal (r1 r2)
   (or (equal r1 r2)
       (save-match-data
-        (let ((n1 (and (string-match magit--github-url-regexp r1)
+        (let ((n1 (and (string-match magit--forge-url-regexp r1)
                        (match-string 2 r1)))
-              (n2 (and (string-match magit--github-url-regexp r2)
+              (n2 (and (string-match magit--forge-url-regexp r2)
                        (match-string 2 r2))))
           (and n1 n2 (equal n1 n2))))))
 
