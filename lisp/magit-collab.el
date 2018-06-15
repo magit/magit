@@ -37,26 +37,6 @@
 (require 'magit)
 (require 'ghub)
 
-;;; Variables
-
-(defvar magit-github-token-scopes '(repo)
-  "The Github API scopes needed by Magit.
-
-`repo' is the only required scope.  Without this scope none of
-Magit's features that use the API work.  Instead of this scope
-you could use `public_repo' if you are only interested in public
-repositories.
-
-`repo' Grants read/write access to code, commit statuses,
-  invitations, collaborators, adding team memberships, and
-  deployment statuses for public and private repositories
-  and organizations.
-
-`public_repo' Grants read/write access to code, commit statuses,
-  collaborators, and deployment statuses for public repositories
-  and organizations. Also required for starring public
-  repositories.")
-
 ;;; Commands
 
 ;;;###autoload

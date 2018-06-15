@@ -32,6 +32,19 @@ magit-status.elc:	magit.elc
 magit-refs.elc: 	magit.elc
 magit-files.elc:	magit.elc
 magit-collab.elc:	magit.elc
+magit/forge/db.elc:	magit.elc
+magit/forge/core.elc:	magit.elc
+magit/forge.elc:	magit.elc magit/forge/db.elc magit/forge/core.elc
+magit/forge/post.elc:	magit.elc magit/forge.elc
+magit/forge/topic.elc:	magit.elc magit/forge.elc magit/forge/post.elc
+magit/forge/issue.elc:	magit.elc magit/forge.elc \
+			magit/forge/post.elc magit/forge/topic.elc
+magit/forge/pullreq.elc: magit.elc magit/forge.elc \
+			magit/forge/post.elc magit/forge/topic.elc
+magit/forge/github.elc:	magit.elc magit/forge.elc \
+			magit/forge/issue.elc magit/forge/pullreq.elc
+magit/forge/gitlab.elc:	magit.elc magit/forge.elc \
+			magit/forge/issue.elc magit/forge/pullreq.elc
 magit-reset.elc:        magit.elc
 magit-branch.elc:	magit.elc magit-collab.elc magit-reset.elc
 magit-merge.elc:        magit.elc
@@ -95,7 +108,8 @@ install: lisp versionlib
 
 clean:
 	@printf "Cleaning lisp/*...\n"
-	@$(RM) *.elc $(ELGS)
+	@$(RM) $(ELGS)
+	@find -name '*elc' -exec rm '{}' ';'
 
 ## Templates #########################################################
 
