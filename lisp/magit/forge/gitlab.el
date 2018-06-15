@@ -45,7 +45,8 @@ it is all or nothing.")
 (defclass magit-gitlab-project (magit-forge-project)
   ((issue-url-format          :initform "https://%h/%o/%n/issues/%i")
    (pullreq-url-format        :initform "https://%h/%o/%n/merge_requests/%i")
-   ))
+   (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
+   (create-pullreq-url-format :initform "https://%h/%o/%n/merge_requests/new")))
 
 (cl-defmethod magit-forge--object-id
   ((_class (subclass magit-gitlab-project)) forge host owner name)

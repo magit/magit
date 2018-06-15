@@ -120,6 +120,13 @@
 
 (defalias 'magit-issue-visit 'magit-issue-browse)
 
+;;;###autoload
+(defun magit-issue-create ()
+  "Create a new issue for this project using a browser."
+  (interactive)
+  (browse-url (magit-forge--format-url (magit-forge-get-project t)
+                                       'create-issue-url-format)))
+
 ;;; Utilities
 
 (defun magit-read-issue (prompt)

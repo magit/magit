@@ -149,6 +149,13 @@
 
 (defalias 'magit-pullreq-visit 'magit-pullreq-browse)
 
+;;;###autoload
+(defun magit-pullreq-create ()
+  "Create a new pull-request for this project using a browser."
+  (interactive)
+  (browse-url (magit-forge--format-url (magit-forge-get-project t)
+                                       'create-pullreq-url-format)))
+
 ;;; Utilities
 
 (defun magit-read-pullreq (prompt)
