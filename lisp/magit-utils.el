@@ -353,6 +353,9 @@ and delay of your graphical environment or operating system."
 
 ;;; User Input
 
+(defvar helm-completion-in-region-default-sort-fn)
+(defvar ivy-sort-functions-alist)
+
 (defvar magit-completing-read--silent-default nil)
 
 (defun magit-completing-read (prompt collection &optional
@@ -445,8 +448,6 @@ acts similarly to `completing-read', except for the following:
       (completing-read prompt choices
                        predicate require-match
                        initial-input hist def))))
-
-(defvar helm-completion-in-region-default-sort-fn)
 
 (defun magit-completing-read-multiple
   (prompt choices &optional sep default hist keymap)
