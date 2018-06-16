@@ -1522,6 +1522,7 @@ Return a list of two integers: (A>B B>A)."
     ("\\`refs/bisect/\\(good.*\\)" . magit-bisect-good)
     ("\\`refs/stash$"              . magit-refname-stash)
     ("\\`refs/wip/\\(.+\\)"        . magit-refname-wip)
+    ("\\`refs/pullreqs/\\(.+\\)"   . magit-refname-pullreq)
     ("\\`\\(bad\\):"               . magit-bisect-bad)
     ("\\`\\(skip\\):"              . magit-bisect-skip)
     ("\\`\\(good\\):"              . magit-bisect-good)

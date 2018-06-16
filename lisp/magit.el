@@ -143,6 +143,11 @@ own faces for the `header-line', or for parts of the
   "Face for wip refnames."
   :group 'magit-faces)
 
+(defface magit-refname-pullreq
+  '((t :inherit magit-refname))
+  "Face for pullreq refnames."
+  :group 'magit-faces)
+
 (defface magit-keyword
   '((t :inherit font-lock-string-face))
   "Face for parts of commit messages inside brackets."
