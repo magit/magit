@@ -244,8 +244,8 @@ with two prefix arguments remove ignored files only.
 (magit-define-popup magit-gitignore-popup
   "Popup console for gitignore commands."
   :man-page "gitignore"
-  :actions '((?l "ignore locally"  magit-gitignore)
-             (?g "ignore globally" magit-gitignore-globally))
+  :actions '((?l "ignore locally"  magit-gitignore-locally)
+             (?g "ignore globally" magit-gitignore))
   :max-action-columns 1)
 
 ;;;###autoload
