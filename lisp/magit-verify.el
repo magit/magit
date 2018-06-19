@@ -108,13 +108,12 @@ of this function, which provides a simpler and safer interface to
 the same functionality.
 
 Return a possibly empty list of `magit-pgp-signature' objects, which see."
-  (magit-verify--parse-output
-   ;; `magit-git-lines' only returns stdout, we need stderr.
-   (split-string (shell-command-to-string
-                  (format "%s verify-commit --raw %s"
-                          (shell-quote-argument magit-git-executable)
-                          (shell-quote-argument id)))
-                 "\n")))
+  (with-temp-buffer
+    (magit-process-file magit-git-executable nil t nil
+                        "verify-commit" "--raw"
+                        (shell-quote-argument id))
+    (magit-verify--parse-output
+     (split-string (buffer-string) "\n" t))))
 
 (defun magit-read-tag-signatures (name)
   "Return PGP signatures of tag NAME, regardless of their validity.
@@ -135,14 +134,12 @@ Return a possibly empty list of `magit-pgp-signature' objects, which see."
       (error "The tag object referred to by `%s' is actually named `%s'.  \
 Maybe you've given `magit-verify-tag' a hash instead of a name, \
 or maybe something fishy is going on" name realname)))
-
-  (magit-verify--parse-output
-   ;; `magit-git-lines' only returns stdout, we need stderr.
-   (split-string (shell-command-to-string
-                  (format "%s verify-tag --raw %s"
-                          (shell-quote-argument magit-git-executable)
-                          (shell-quote-argument name)))
-                 "\n")))
+  (with-temp-buffer
+    (magit-process-file magit-git-executable nil t nil
+                        "verify-tag" "--raw"
+                        (shell-quote-argument name))
+    (magit-verify--parse-output
+     (split-string (buffer-string) "\n" t))))
 
 (defun magit-verify-signature (sig &optional
                                    ignore-key-expiration
