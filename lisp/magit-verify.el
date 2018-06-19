@@ -70,7 +70,7 @@ revoked keys.  Enable if you know what you're doing."
                                 ignore-key-validity
                                 ignore-revocation)
                                key-fingerprint))
-           (magit-read-commit-signatures id))
+           (magit-read-commit-signatures id))))
 
 (defun magit-verify-tag (name &optional
                               ignore-key-expiration
