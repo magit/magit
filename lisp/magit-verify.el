@@ -158,11 +158,9 @@ unmodified, otherwise return nil."
        (oref sig sig-validity)
        (or ignore-key-expiration (not (oref sig key-expired)))
        (or ignore-sig-expiration (not (oref sig sig-expired)))
-       ;; FIXME why not `eq'?
-       (or ignore-key-validity   (not (equal 'never (oref sig key-validity))))
-       (or ignore-revocation     (not (oref sig key-revoked))))
-  ;; FIXME this seems to be wrong
-  sig)
+       (or ignore-key-validity   (not (eq 'never (oref sig key-validity))))
+       (or ignore-revocation     (not (oref sig key-revoked)))
+       sig))
 
 ;;; Signature class
 
