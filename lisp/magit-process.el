@@ -353,14 +353,14 @@ Process output goes into a new section in the buffer returned by
        (apply #'magit-process-file program nil process-buf nil args))
      process-buf (current-buffer) default-directory section)))
 
-(defun magit-process-file (&rest args)
+(defun magit-process-file (process &optional infile buffer display &rest args)
   "Process files synchronously in a separate process.
 Identical to `process-file' but temporarily enable Cygwin's
 \"noglob\" option during the call and ensure unix eol
 conversion."
   (let ((process-environment (magit-process-environment))
         (default-process-coding-system (magit--process-coding-system)))
-    (apply #'process-file args)))
+    (apply #'process-file process infile buffer display args)))
 
 (defun magit-process-environment ()
   ;; The various w32 hacks are only applicable when running on the
