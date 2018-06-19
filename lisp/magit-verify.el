@@ -350,9 +350,10 @@ Short, minimal, version:
     (dolist (line lines nil)
       (let ((fields (split-string line)))
         (pcase (car fields)
-        ;; Start reading a new signature
+          ;; Start reading a new signature
           ("NEWSIG"
-           (setq sigs (cons (setq sig (magit-pgp-signature)) sigs))
+           (setq sig (magit-pgp-signature))
+           (push sig sigs)
            (oset sig key-uid (nth 1 fields)))
           ("GOODSIG"
            (oset sig sig-validity t)
