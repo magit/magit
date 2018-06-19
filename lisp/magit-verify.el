@@ -158,18 +158,17 @@ Return a possibly empty list of `magit-pgp-signature' objects, which see."
 If SIG is a valid signature (non-expired, from a non-expired and
 non-revoked key, with a non-never ownertrust), return it
 unmodified, otherwise return nil."
-
-  (and
-   (not (oref sig error))
-   (oref sig sig-validity)
-   (or ignore-key-expiration
-       (not (oref sig key-expired)))
-   (or ignore-sig-expiration
-       (not (oref sig sig-expired)))
-   (or ignore-key-validity
-       (not (equal 'never (oref sig key-validity))))
-   (or ignore-revocation
-       (not (oref sig key-revoked))))
+  (and (not (oref sig error))
+       (oref sig sig-validity)
+       (or ignore-key-expiration
+           (not (oref sig key-expired)))
+       (or ignore-sig-expiration
+           (not (oref sig sig-expired)))
+       (or ignore-key-validity
+           (not (equal 'never (oref sig key-validity))))
+       (or ignore-revocation
+           (not (oref sig key-revoked))))
+  ;; FIXME this seems to be wrong
   sig)
 
 ;;; Signature class
