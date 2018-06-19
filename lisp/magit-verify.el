@@ -156,14 +156,11 @@ non-revoked key, with a non-never ownertrust), return it
 unmodified, otherwise return nil."
   (and (not (oref sig error))
        (oref sig sig-validity)
-       (or ignore-key-expiration
-           (not (oref sig key-expired)))
-       (or ignore-sig-expiration
-           (not (oref sig sig-expired)))
-       (or ignore-key-validity
-           (not (equal 'never (oref sig key-validity))))
-       (or ignore-revocation
-           (not (oref sig key-revoked))))
+       (or ignore-key-expiration (not (oref sig key-expired)))
+       (or ignore-sig-expiration (not (oref sig sig-expired)))
+       ;; FIXME why not `eq'?
+       (or ignore-key-validity   (not (equal 'never (oref sig key-validity))))
+       (or ignore-revocation     (not (oref sig key-revoked))))
   ;; FIXME this seems to be wrong
   sig)
 
