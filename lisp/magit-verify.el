@@ -35,6 +35,7 @@
 
 ;;; Code:
 
+(require 'parse-time)
 (require 'magit)
 
 ;;; High level interface
