@@ -957,7 +957,7 @@ Do not add this to a hook variable."
         (when (member "--reverse" args)
           (setq args (remove "--graph" args)))
         args)
-      "--use-mailmap" "--no-prefix" revs "--" files)))
+      "--use-mailmap" revs "--" files)))
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))

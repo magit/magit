@@ -447,7 +447,7 @@ instead of \"Stashes:\"."
   (magit-insert-section (commit commit)
     (magit-insert-heading message)
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" range "-p" "--no-prefix"
+      "diff" range "-p"
       (nth 2 magit-refresh-args)
       "--" (or files (nth 3 magit-refresh-args)))))
 

@@ -171,7 +171,7 @@ so causes the change to be applied to the index as well."
     (with-temp-buffer
       (insert patch)
       (magit-run-git-with-input
-       "apply" args "-p0"
+       "apply" args
        (unless (magit-diff-context-p) "--unidiff-zero")
        "--ignore-space-change" "-"))
     (unless inhibit-magit-refresh
