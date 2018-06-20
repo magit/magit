@@ -1598,7 +1598,7 @@ is set in `magit-mode-setup'."
   (let ((magit-git-global-arguments
          (remove "--literal-pathspecs" magit-git-global-arguments)))
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" rev-or-range "-p"
+      "diff" rev-or-range "-p" "--no-prefix"
       (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
       (nth 1 magit-refresh-args)
       (nth 2 magit-refresh-args) "--"
@@ -1794,9 +1794,14 @@ section or a child thereof."
       (when orig
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
-      (magit-diff-insert-file-section (substring file 2)
-                                      (and orig (substring orig 2))
-                                      status modes header)))))
+      ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
+      (when (and (derived-mode-p 'magit-log-mode)
+                 (--first (string-match-p "\\`-L" it)
+                          (nth 1 magit-refresh-args)))
+        (setq file (substring file 2))
+        (when orig
+          (setq orig (substring orig 2))))
+      (magit-diff-insert-file-section file orig status modes header)))))
 
 (defun magit-diff-insert-file-section (file orig status modes header)
   (magit-insert-section section
@@ -1951,7 +1956,7 @@ Staging and applying changes is documented in info node
     (magit-git-wash (lambda (args)
                       (delete-region (point) (progn (forward-line 3) (point)))
                       (magit-diff-wash-diffs args))
-      "show" "-p" "--cc" "--format=%n"
+      "show" "-p" "--cc" "--format=%n" "--no-prefix"
       (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
       (nth 2 magit-refresh-args) (concat rev "^{commit}") "--"
       (nth 3 magit-refresh-args))))
@@ -2209,7 +2214,7 @@ or a ref which is not a branch, then it inserts nothing."
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" magit-diff-section-arguments
+      "diff" magit-diff-section-arguments "--no-prefix"
       "--" magit-diff-section-file-args)))
 
 (defvar magit-staged-section-map
@@ -2231,7 +2236,7 @@ or a ref which is not a branch, then it inserts nothing."
     (magit-insert-section (staged)
       (magit-insert-heading "Staged changes:")
       (magit-git-wash #'magit-diff-wash-diffs
-        "diff" "--cached" magit-diff-section-arguments
+        "diff" "--cached" magit-diff-section-arguments "--no-prefix"
         "--" magit-diff-section-file-args))))
 
 ;;; Diff Type
