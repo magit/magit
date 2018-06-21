@@ -602,7 +602,8 @@ Magit status buffer."
       (cond
        ((and args (equal program magit-git-executable))
         (setq args (-split-at (length magit-git-global-arguments) args))
-        (insert (propertize program 'face 'magit-section-heading) " ")
+        (insert (propertize (file-name-nondirectory program)
+                            'face 'magit-section-heading) " ")
         (insert (propertize (char-to-string magit-ellipsis)
                             'face 'magit-section-heading
                             'help-echo (mapconcat #'identity (car args) " ")))
@@ -612,7 +613,8 @@ Magit status buffer."
        ((and args (equal program shell-file-name))
         (insert (propertize (cadr args) 'face 'magit-section-heading)))
        (t
-        (insert (propertize program 'face 'magit-section-heading) " ")
+        (insert (propertize (file-name-nondirectory program)
+                            'face 'magit-section-heading) " ")
         (insert (propertize (mapconcat #'shell-quote-argument args " ")
                             'face 'magit-section-heading))))
       (magit-insert-heading)
@@ -856,7 +858,8 @@ as argument."
   (when (equal program magit-git-executable)
     (setq args (nthcdr (length magit-git-global-arguments) args)))
   (let ((str (concat " " (propertize
-                          (concat program (and args (concat " " (car args))))
+                          (concat (file-name-nondirectory program)
+                                  (and args (concat " " (car args))))
                           'mouse-face 'highlight
                           'keymap magit-mode-line-process-map
                           'help-echo "mouse-1: Show process buffer"
