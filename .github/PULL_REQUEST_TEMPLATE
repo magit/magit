@@ -1,4 +1,16 @@
 =================================================================
+Use a dedicated feature branch
+=================================================================
+
+Please use a dedicated feature branch for your feature request, instead of asking us to merge "your-fork/master" into the "origin/master".  The use of dedicated branches makes it much more convenient to deal with pull-requests, especially when using Magit to do so.
+
+If you were about to open a pull-request asking us to merge your version of "master", then see [1] for instructions on how to quickly fix that and some information on why we ask you to do so.
+
+Additionally we ask you to allow us to push to the branch you want us to merge.  We might want to push additional commits and/or make minor changes.  Please make sure the box next to "Allow edits from maintainers" is checked before creating the pull-request.
+
+  [1]: https://github.com/magit/magit/wiki/Dedicated-pull-request-branches
+
+=================================================================
 What you should write here
 =================================================================
 
@@ -8,6 +20,6 @@ Please summarize the changes made in the commits.  Explain why you are making th
 How to update the manual
 =================================================================
 
-If you make changes to the manual, then edit only "magit.org".  Do not manually edit "magit.texi".  The latter has to be generate from the former.  If you want to do that yourself, then follow the instructions at [1].  Otherwise a maintainer will do it and amend that to your commit.
+If you make changes to the manual, then edit only "magit.org".  Do not manually edit "magit.texi".  The latter has to be generate from the former.  If you want to do that yourself, then follow the instructions at [2].  Otherwise a maintainer will do it and amend that to your commit.
 
-  [1]: https://github.com/magit/magit/wiki/Documentation-tools-and-conventions
+  [2]: https://github.com/magit/magit/wiki/Documentation-tools-and-conventions
