@@ -961,7 +961,8 @@ Do not add this to a hook variable."
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-show-commit)
+    (define-key map [remap magit-browse-thing] 'magit-browse-commit)
+    (define-key map [remap magit-visit-thing]  'magit-show-commit)
     (define-key map "a" 'magit-cherry-apply)
     map)
   "Keymap for `commit' sections.")

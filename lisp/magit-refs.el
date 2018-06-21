@@ -464,6 +464,7 @@ Branch %s already exists.
 
 (defvar magit-remote-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-browse-thing] 'magit-browse-remote)
     (define-key map [remap magit-delete-thing] 'magit-remote-remove)
     (define-key map "R"                        'magit-remote-rename)
     map)
@@ -471,6 +472,7 @@ Branch %s already exists.
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-browse-thing] 'magit-browse-branch)
     (define-key map [remap magit-visit-thing]  'magit-visit-ref)
     (define-key map [remap magit-delete-thing] 'magit-branch-delete)
     (define-key map "R"                        'magit-branch-rename)

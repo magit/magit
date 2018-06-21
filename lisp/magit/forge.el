@@ -67,4 +67,54 @@ heavy development."
     (delete-file magit-forge-database-file t)
     (magit-refresh)))
 
+;;;###autoload
+(defun magit-browse-commit (rev)
+  "Visit the url corresponding to REV using a browser."
+  (interactive
+   (list (or (magit-completing-read "Browse commit"
+                                    (magit-list-branch-names)
+                                    nil nil nil 'magit-revision-history
+                                    (magit-branch-or-commit-at-point))
+             (user-error "Nothing selected"))))
+  ;; FIXME This assumes that the commit is available on the upstream,
+  ;; but it might only be available in another remote or even only
+  ;; locally.
+  (browse-url (magit-forge--format-url
+               (magit-forge-get-project t)
+               'commit-url-format
+               `((?r . ,(magit-rev-verify-commit rev))))))
+
+;;;###autoload
+(defun magit-browse-branch (branch)
+  "Visit the url corresponding BRANCH using a browser."
+  (interactive (list (magit-read-branch "Browse branch")))
+  (let (remote)
+    (if (magit-remote-branch-p branch)
+        (let ((cons (magit-split-branch-name branch)))
+          (setq remote (car cons))
+          (setq branch (cdr cons)))
+      (or (setq remote (or (magit-get-push-remote branch)
+                           (magit-get-upstream-remote branch)))
+          (user-error "Cannot determine remote for %s" branch)))
+    (browse-url (magit-forge--format-remote-url remote 'branch-url-format
+                                                `((?r . ,branch))))))
+
+;;;###autoload
+(defun magit-browse-remote (remote)
+  "Visit the url corresponding to REMOTE using a browser."
+  (interactive (list (magit-read-remote "Browse remote")))
+  (browse-url (magit-forge--format-remote-url remote 'remote-url-format)))
+
+;; TODO move me
+(defun magit-forge--format-remote-url (remote slot &optional spec)
+  (if-let (parts (magit-forge--split-remote-url remote))
+      ;; FIXME(?) This assumes that a fork is located on the same
+      ;; forge as the upstream.
+      (magit-forge--format-url (magit-forge-get-project t) slot
+                               `(,@spec
+                                 (?h . ,(nth 0 parts))
+                                 (?o . ,(nth 1 parts))
+                                 (?n . ,(nth 2 parts))))
+    (user-error "Cannot browse non-forge remote %s" remote)))
+
 ;;; magit/forge.el ends here

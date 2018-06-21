@@ -55,6 +55,9 @@ repositories.
 (defclass magit-github-project (magit-forge-project)
   ((issue-url-format          :initform "https://%h/%o/%n/issues/%i")
    (pullreq-url-format        :initform "https://%h/%o/%n/pull/%i")
+   (commit-url-format         :initform "https://%h/%o/%n/commit/%r")
+   (branch-url-format         :initform "https://%h/%o/%n/commits/%r")
+   (remote-url-format         :initform "https://%h/%o/%n")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/compare")))
 

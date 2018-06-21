@@ -72,6 +72,9 @@ ID, and vice-versa."
    (closql-primary-key        :initform id)
    (issue-url-format          :allocation :class)
    (pullreq-url-format        :allocation :class)
+   (commit-url-format         :allocation :class)
+   (branch-url-format         :allocation :class)
+   (remote-url-format         :allocation :class)
    (create-issue-url-format   :allocation :class)
    (create-pullreq-url-format :allocation :class)
    (id                        :initarg :id)
@@ -173,10 +176,17 @@ determined, then raise an error.")
 (cl-defmethod magit-forge--format-url ((prj magit-forge-project) slot &optional spec)
   (format-spec
    (eieio-oref-default prj slot)
-   `((?h . ,(oref prj githost))
+   `(,@spec
+     (?h . ,(oref prj githost))
      (?o . ,(oref prj owner))
-     (?n . ,(oref prj name))
-     ,@spec)))
+     (?n . ,(oref prj name)))))
+
+(defun magit-forge--split-remote-url (remote)
+  (when-let ((url (magit-git-string "remote" "get-url" remote)))
+    (and (string-match magit--forge-url-regexp url)
+         (list (match-string 1 url)
+               (match-string 3 url)
+               (match-string 4 url)))))
 
 (defun magit--forge-url-p (url)
   (save-match-data

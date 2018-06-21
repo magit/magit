@@ -90,7 +90,10 @@ alphabetical order, depending on your version of Ivy."
     (magit-issue-browse       nil t)
     (magit-issue-visit        nil t)
     (magit-pullreq-browse     nil t)
-    (magit-pullreq-visit      nil t))
+    (magit-pullreq-visit      nil t)
+    (magit-browse-commit      nil t)
+    (magit-browse-branch      nil t)
+    (magit-browse-remote      nil t))
   "When not to offer alternatives and ask for confirmation.
 
 Many commands by default ask the user to select from a list of
