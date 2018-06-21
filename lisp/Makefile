@@ -32,6 +32,7 @@ magit-status.elc:	magit.elc
 magit-refs.elc: 	magit.elc
 magit-files.elc:	magit.elc
 magit-collab.elc:	magit.elc
+magit-browse.elc:	magit.elc magit-collab.elc
 magit-reset.elc:        magit.elc
 magit-branch.elc:	magit.elc magit-collab.elc magit-reset.elc
 magit-merge.elc:        magit.elc
