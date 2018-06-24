@@ -13,6 +13,7 @@
 (require 'tramp-sh)
 
 (require 'magit)
+(require 'magit-pgp)
 
 (defmacro magit-with-test-directory (&rest body)
   (declare (indent 0) (debug t))
@@ -37,30 +38,30 @@
 
 (ert-deftest magit--with-safe-default-directory ()
   (magit-with-test-directory
-   (let ((find-file-visit-truename nil))
-     (should (equal (magit-toplevel "repo/")
-                    (magit-toplevel (expand-file-name "repo/"))))
-     (should (equal (magit-toplevel "repo")
-                    (magit-toplevel (expand-file-name "repo/")))))))
+    (let ((find-file-visit-truename nil))
+      (should (equal (magit-toplevel "repo/")
+                     (magit-toplevel (expand-file-name "repo/"))))
+      (should (equal (magit-toplevel "repo")
+                     (magit-toplevel (expand-file-name "repo/")))))))
 
 (ert-deftest magit-toplevel:basic ()
   (let ((find-file-visit-truename nil))
     (magit-with-test-directory
-     (magit-git "init" "repo")
-     (magit-test-magit-toplevel)
-     (should (equal (magit-toplevel   "repo/.git/")
-                    (expand-file-name "repo/")))
-     (should (equal (magit-toplevel   "repo/.git/objects/")
-                    (expand-file-name "repo/")))
-     (should (equal (magit-toplevel   "repo-link/.git/")
-                    (expand-file-name "repo-link/")))
-     (should (equal (magit-toplevel   "repo-link/.git/objects/")
-                    ;; We could theoretically return "repo-link/"
-                    ;; here by going up until `--git-dir' gives us
-                    ;; "." .  But that would be a bit risky and Magit
-                    ;; never goes there anyway, so it's not worth it.
-                    ;; But in the doc-string we say we cannot do it.
-                    (expand-file-name "repo/"))))))
+      (magit-git "init" "repo")
+      (magit-test-magit-toplevel)
+      (should (equal (magit-toplevel   "repo/.git/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo/.git/objects/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo-link/.git/")
+                     (expand-file-name "repo-link/")))
+      (should (equal (magit-toplevel   "repo-link/.git/objects/")
+                     ;; We could theoretically return "repo-link/"
+                     ;; here by going up until `--git-dir' gives us
+                     ;; "." .  But that would be a bit risky and Magit
+                     ;; never goes there anyway, so it's not worth it.
+                     ;; But in the doc-string we say we cannot do it.
+                     (expand-file-name "repo/"))))))
 
 (ert-deftest magit-toplevel:tramp ()
   (cl-letf* ((find-file-visit-truename nil)
@@ -71,34 +72,34 @@
               (list shell-file-name))
              ((cdr (assq 'tramp-login-args sudo-method)) nil))
     (magit-with-test-directory
-     (setq default-directory
-           (concat (format "/sudo:%s@localhost:" (user-login-name))
-                   default-directory))
-     (magit-git "init" "repo")
-     (magit-test-magit-toplevel)
-     (should (equal (magit-toplevel   "repo/.git/")
-                    (expand-file-name "repo/")))
-     (should (equal (magit-toplevel   "repo/.git/objects/")
-                    (expand-file-name "repo/")))
-     (should (equal (magit-toplevel   "repo-link/.git/")
-                    (expand-file-name "repo-link/")))
-     (should (equal (magit-toplevel   "repo-link/.git/objects/")
-                    (expand-file-name "repo/"))))))
+      (setq default-directory
+            (concat (format "/sudo:%s@localhost:" (user-login-name))
+                    default-directory))
+      (magit-git "init" "repo")
+      (magit-test-magit-toplevel)
+      (should (equal (magit-toplevel   "repo/.git/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo/.git/objects/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   "repo-link/.git/")
+                     (expand-file-name "repo-link/")))
+      (should (equal (magit-toplevel   "repo-link/.git/objects/")
+                     (expand-file-name "repo/"))))))
 
 (ert-deftest magit-toplevel:submodule ()
   (let ((find-file-visit-truename nil))
     (magit-with-test-directory
-     (magit-git "init" "remote")
-     (let ((default-directory (expand-file-name "remote/")))
-       (magit-git "commit" "-m" "init" "--allow-empty"))
-     (magit-git "init" "super")
-     (setq default-directory (expand-file-name "super/"))
-     (magit-git "submodule" "add" "../remote" "repo/")
-     (magit-test-magit-toplevel)
-     (should (equal (magit-toplevel   ".git/modules/repo/")
-                    (expand-file-name "repo/")))
-     (should (equal (magit-toplevel   ".git/modules/repo/objects/")
-                    (expand-file-name "repo/"))))))
+      (magit-git "init" "remote")
+      (let ((default-directory (expand-file-name "remote/")))
+        (magit-git "commit" "-m" "init" "--allow-empty"))
+      (magit-git "init" "super")
+      (setq default-directory (expand-file-name "super/"))
+      (magit-git "submodule" "add" "../remote" "repo/")
+      (magit-test-magit-toplevel)
+      (should (equal (magit-toplevel   ".git/modules/repo/")
+                     (expand-file-name "repo/")))
+      (should (equal (magit-toplevel   ".git/modules/repo/objects/")
+                     (expand-file-name "repo/"))))))
 
 (defun magit-test-magit-toplevel ()
   ;; repo
@@ -154,77 +155,77 @@
 
 (ert-deftest magit-get ()
   (magit-with-test-directory
-   (magit-git "init" "remote")
-   (let ((default-directory (expand-file-name "remote/")))
-     (magit-git "commit" "-m" "init" "--allow-empty")
-     (magit-git "config" "a.b" "remote-value"))
-   (magit-git "init" "super")
-   (setq default-directory (expand-file-name "super/"))
-   ;; Some tricky cases:
-   ;; Multiple config values.
-   (magit-git "config" "a.b" "val1")
-   (magit-git "config" "--add" "a.b" "val2")
-   ;; CamelCase variable names.
-   (magit-git "config" "Cam.El.Case.Var" "value")
-   ;; Values with newlines.
-   (magit-git "config" "a.b2" "line1\nline2")
-   ;; Config variables in submodules.
-   (magit-git "submodule" "add" "../remote" "repo/")
+    (magit-git "init" "remote")
+    (let ((default-directory (expand-file-name "remote/")))
+      (magit-git "commit" "-m" "init" "--allow-empty")
+      (magit-git "config" "a.b" "remote-value"))
+    (magit-git "init" "super")
+    (setq default-directory (expand-file-name "super/"))
+    ;; Some tricky cases:
+    ;; Multiple config values.
+    (magit-git "config" "a.b" "val1")
+    (magit-git "config" "--add" "a.b" "val2")
+    ;; CamelCase variable names.
+    (magit-git "config" "Cam.El.Case.Var" "value")
+    ;; Values with newlines.
+    (magit-git "config" "a.b2" "line1\nline2")
+    ;; Config variables in submodules.
+    (magit-git "submodule" "add" "../remote" "repo/")
 
-   (magit-test-magit-get)
-   (let ((magit--refresh-cache (list (cons 0 0))))
-     (magit-test-magit-get))))
+    (magit-test-magit-get)
+    (let ((magit--refresh-cache (list (cons 0 0))))
+      (magit-test-magit-get))))
 
 (ert-deftest magit-get-boolean ()
   (magit-with-test-repository
-   (magit-git "config" "a.b" "true")
-   (should     (magit-get-boolean "a.b"))
-   (should     (magit-get-boolean "a" "b"))
-   (magit-git "config" "a.b" "false")
-   (should-not (magit-get-boolean "a.b"))
-   (should-not (magit-get-boolean "a" "b"))
-   ;; Multiple values, last one wins.
-   (magit-git "config" "--add" "a.b" "true")
-   (should     (magit-get-boolean "a.b"))
-   (let ((magit--refresh-cache (list (cons 0 0))))
-     (should    (magit-get-boolean "a.b")))))
+    (magit-git "config" "a.b" "true")
+    (should     (magit-get-boolean "a.b"))
+    (should     (magit-get-boolean "a" "b"))
+    (magit-git "config" "a.b" "false")
+    (should-not (magit-get-boolean "a.b"))
+    (should-not (magit-get-boolean "a" "b"))
+    ;; Multiple values, last one wins.
+    (magit-git "config" "--add" "a.b" "true")
+    (should     (magit-get-boolean "a.b"))
+    (let ((magit--refresh-cache (list (cons 0 0))))
+      (should    (magit-get-boolean "a.b")))))
 
 (ert-deftest magit-get-{current|next}-tag ()
   (magit-with-test-repository
-   (magit-git "commit" "-m" "1" "--allow-empty")
-   (should (equal (magit-get-current-tag) nil))
-   (should (equal (magit-get-next-tag)    nil))
-   (magit-git "tag" "1")
-   (should (equal (magit-get-current-tag) "1"))
-   (should (equal (magit-get-next-tag)    nil))
-   (magit-git "commit" "-m" "2" "--allow-empty")
-   (magit-git "tag" "2")
-   (should (equal (magit-get-current-tag) "2"))
-   (should (equal (magit-get-next-tag)    nil))
-   (magit-git "commit" "-m" "3" "--allow-empty")
-   (should (equal (magit-get-current-tag) "2"))
-   (should (equal (magit-get-next-tag)    nil))
-   (magit-git "commit" "-m" "4" "--allow-empty")
-   (magit-git "tag" "4")
-   (magit-git "reset" "HEAD~")
-   (should (equal (magit-get-current-tag) "2"))
-   (should (equal (magit-get-next-tag)    "4"))))
+    (magit-git "commit" "-m" "1" "--allow-empty")
+    (should (equal (magit-get-current-tag) nil))
+    (should (equal (magit-get-next-tag)    nil))
+    (magit-git "tag" "1")
+    (should (equal (magit-get-current-tag) "1"))
+    (should (equal (magit-get-next-tag)    nil))
+    (magit-git "commit" "-m" "2" "--allow-empty")
+    (magit-git "tag" "2")
+    (should (equal (magit-get-current-tag) "2"))
+    (should (equal (magit-get-next-tag)    nil))
+    (magit-git "commit" "-m" "3" "--allow-empty")
+    (should (equal (magit-get-current-tag) "2"))
+    (should (equal (magit-get-next-tag)    nil))
+    (magit-git "commit" "-m" "4" "--allow-empty")
+    (magit-git "tag" "4")
+    (magit-git "reset" "HEAD~")
+    (should (equal (magit-get-current-tag) "2"))
+    (should (equal (magit-get-next-tag)    "4"))))
 
 (ert-deftest magit-list-{|local-|remote-}branch-names ()
   (magit-with-test-repository
-   (magit-git "commit" "-m" "init" "--allow-empty")
-   (magit-git "update-ref" "refs/remotes/foobar/master" "master")
-   (magit-git "update-ref" "refs/remotes/origin/master" "master")
-   (should (equal (magit-list-branch-names)
-                  (list "master" "foobar/master" "origin/master")))
-   (should (equal (magit-list-local-branch-names)
-                  (list "master")))
-   (should (equal (magit-list-remote-branch-names)
-                  (list "foobar/master" "origin/master")))
-   (should (equal (magit-list-remote-branch-names "origin")
-                  (list "origin/master")))
-   (should (equal (magit-list-remote-branch-names "origin" t)
-                  (list "master")))))
+    (magit-git "commit" "-m" "init" "--allow-empty")
+    (magit-git "update-ref" "refs/remotes/foobar/master" "master")
+    (magit-git "update-ref" "refs/remotes/origin/master" "master")
+    (should (equal (magit-list-branch-names)
+                   (list "master" "foobar/master" "origin/master")))
+    (should (equal (magit-list-local-branch-names)
+                   (list "master")))
+    (should (equal (magit-list-remote-branch-names)
+                   (list "foobar/master" "origin/master")))
+    (should (equal (magit-list-remote-branch-names "origin")
+                   (list "origin/master")))
+    (should (equal (magit-list-remote-branch-names "origin" t)
+                   (list "master")))))
 
 (ert-deftest magit-process:match-prompt-nil-when-no-match ()
   (should (null (magit-process-match-prompt '("^foo: ?$") "bar: "))))
@@ -265,59 +266,59 @@
 
 (ert-deftest magit-status:file-sections ()
   (magit-with-test-repository
-   (cl-flet ((modify (file) (with-temp-file file
-                              (insert (make-temp-name "content")))))
-     (modify "file")
-     (modify "file with space")
-     (modify "file with äöüéλ")
-     (should (magit-test-get-section '(untracked) "file"))
-     (should (magit-test-get-section '(untracked) "file with space"))
-     (should (magit-test-get-section '(untracked) "file with äöüéλ"))
-     (magit-stage-modified t)
-     (should (magit-test-get-section '(staged) "file"))
-     (should (magit-test-get-section '(staged) "file with space"))
-     (should (magit-test-get-section '(staged) "file with äöüéλ"))
-     (magit-git "add" ".")
-     (modify "file")
-     (modify "file with space")
-     (modify "file with äöüéλ")
-     (should (magit-test-get-section '(unstaged) "file"))
-     (should (magit-test-get-section '(unstaged) "file with space"))
-     (should (magit-test-get-section '(unstaged) "file with äöüéλ")))))
+    (cl-flet ((modify (file) (with-temp-file file
+                               (insert (make-temp-name "content")))))
+      (modify "file")
+      (modify "file with space")
+      (modify "file with äöüéλ")
+      (should (magit-test-get-section '(untracked) "file"))
+      (should (magit-test-get-section '(untracked) "file with space"))
+      (should (magit-test-get-section '(untracked) "file with äöüéλ"))
+      (magit-stage-modified t)
+      (should (magit-test-get-section '(staged) "file"))
+      (should (magit-test-get-section '(staged) "file with space"))
+      (should (magit-test-get-section '(staged) "file with äöüéλ"))
+      (magit-git "add" ".")
+      (modify "file")
+      (modify "file with space")
+      (modify "file with äöüéλ")
+      (should (magit-test-get-section '(unstaged) "file"))
+      (should (magit-test-get-section '(unstaged) "file with space"))
+      (should (magit-test-get-section '(unstaged) "file with äöüéλ")))))
 
 (ert-deftest magit-status:log-sections ()
   (magit-with-test-repository
-   (magit-git "commit" "-m" "common" "--allow-empty")
-   (magit-git "commit" "-m" "unpulled" "--allow-empty")
-   (magit-git "remote" "add" "origin" "/origin")
-   (magit-git "update-ref" "refs/remotes/origin/master" "master")
-   (magit-git "branch" "--set-upstream-to=origin/master")
-   (magit-git "reset" "--hard" "HEAD~")
-   (magit-git "commit" "-m" "unpushed" "--allow-empty")
-   (should (magit-test-get-section
-            '(unpulled . "..@{upstream}")
-            (magit-rev-parse "--short" "origin/master")))
-   (should (magit-test-get-section
-            '(unpushed . "@{upstream}..")
-            (magit-rev-parse "--short" "master")))))
+    (magit-git "commit" "-m" "common" "--allow-empty")
+    (magit-git "commit" "-m" "unpulled" "--allow-empty")
+    (magit-git "remote" "add" "origin" "/origin")
+    (magit-git "update-ref" "refs/remotes/origin/master" "master")
+    (magit-git "branch" "--set-upstream-to=origin/master")
+    (magit-git "reset" "--hard" "HEAD~")
+    (magit-git "commit" "-m" "unpushed" "--allow-empty")
+    (should (magit-test-get-section
+             '(unpulled . "..@{upstream}")
+             (magit-rev-parse "--short" "origin/master")))
+    (should (magit-test-get-section
+             '(unpushed . "@{upstream}..")
+             (magit-rev-parse "--short" "master")))))
 
-;;; PGP signatures
+;;; PGP signature verification
 
-(ert-deftest magit-verify:parse-output ()
+(ert-deftest magit-pgp:parse-output ()
   "Test the output parser for gpg --status-fd format used by git
 verify-[tag|commit] --raw"
 
   ;; No data
-  (should-not (magit-verify--parse-output nil))
+  (should-not (magit-pgp--parse-output nil))
 
   ;; Corrupted signature
-  (should-error (magit-verify--parse-output
+  (should-error (magit-pgp--parse-output
                  (list
                   "[GNUPG:] NODATA 4"
                   "[GNUPG:] FAILURE gpg-exit 33554433")))
 
   ;; Good signature, not expired, key not expired
-  (let ((sig (magit-verify--parse-output
+  (let ((sig (magit-pgp--parse-output
               (list
                "[GNUPG:] NEWSIG key@badsig.example.com"
                "[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
@@ -338,7 +339,7 @@ verify-[tag|commit] --raw"
     (should-not (oref sig sig-expired)))
 
   ;; Good EXPIRED signature, key not expired.
-  (let ((sig (magit-verify--parse-output
+  (let ((sig (magit-pgp--parse-output
               (list
                "[GNUPG:] NEWSIG key@badsig.example.com"
                "[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
@@ -359,7 +360,7 @@ verify-[tag|commit] --raw"
     (should (oref sig sig-expired)))
 
   ;; Good signature, key EXPIRED
-  (let ((sig (magit-verify--parse-output
+  (let ((sig (magit-pgp--parse-output
               (list
                "[GNUPG:] NEWSIG expired@badsig.example.com"
                "[GNUPG:] KEYEXPIRED 1325376017"
@@ -383,7 +384,7 @@ verify-[tag|commit] --raw"
     (should-not (oref sig sig-expired)))
 
   ;; Good EXPIRED signature by EXPIRED key
-  (let ((sig (magit-verify--parse-output
+  (let ((sig (magit-pgp--parse-output
               (list
                "[GNUPG:] NEWSIG expired@badsig.example.com"
                "[GNUPG:] KEYEXPIRED 1325376017"
@@ -404,43 +405,143 @@ verify-[tag|commit] --raw"
     (should-not (oref sig key-comment))
     (should-not (oref sig key-validity))
     (should (oref sig key-expired))
-    (should (oref sig sig-expired))))
+    (should (oref sig sig-expired)))
 
-;; Bad signature from valid key
+  ;; Bad signature from valid key
 
-;;  Invalid_KEXP_SEXP.txt
-"[GNUPG:] NEWSIG expired@badsig.example.com"
-"[GNUPG:] KEYEXPIRED 1325376017"
-"[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
-"[GNUPG:] KEYEXPIRED 1325376017"
-"[GNUPG:] KEYEXPIRED 1325376017"
-"[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
-"[GNUPG:] BADSIG FB2B6F167A81BDC5 Expired Badsig <expired@badsig.example.com>"
-"[GNUPG:] VERIFICATION_COMPLIANCE_MODE 23"
-;; Invalid_KEXP_SOK.txt
-"[GNUPG:] NEWSIG expired@badsig.example.com"
-"[GNUPG:] KEYEXPIRED 1325376017"
-"[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
-"[GNUPG:] KEYEXPIRED 1325376017"
-"[GNUPG:] KEYEXPIRED 1325376017"
-"[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
-"[GNUPG:] BADSIG FB2B6F167A81BDC5 Expired Badsig <expired@badsig.example.com>"
-"[GNUPG:] VERIFICATION_COMPLIANCE_MODE 23"
-;; Invalid_KOK_SEXP.txt
-"[GNUPG:] NEWSIG key@badsig.example.com"
-"[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
-"[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
-"[GNUPG:] BADSIG 7A2E132C20E0EAF8 Normal Badsig <key@badsig.example.com>"
-;; Invalid_kok_sok.txt
-"[GNUPG:] NEWSIG key@badsig.example.com"
-"[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
-"[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
-"[GNUPG:] BADSIG 7A2E132C20E0EAF8 Normal Badsig <key@badsig.example.com>"
-;; Valid_KEXP_SOK.txt
-;; Valid_KOK_SEXP.txt
-;; Valid_KOK_SOK.txt
+  ;; INVALID EXPIRED signature by EXPIRED key
+  (let ((sig (magit-pgp--parse-output
+              (list
+               "[GNUPG:] NEWSIG expired@badsig.example.com"
+               "[GNUPG:] KEYEXPIRED 1325376017"
+               "[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
+               "[GNUPG:] KEYEXPIRED 1325376017"
+               "[GNUPG:] KEYEXPIRED 1325376017"
+               "[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
+               "[GNUPG:] BADSIG FB2B6F167A81BDC5 Expired Badsig <expired@badsig.example.com>"
+               "[GNUPG:] VERIFICATION_COMPLIANCE_MODE 23"))))
+    (should (= 1 (length sig)))
+    (setq sig (car sig))
+    (should-not (oref sig sig-validity))
+    (should (string= (oref sig key-fingerprint) "04F19E43F5FD42CB0264605EFB2B6F167A81BDC5"))
+    (should (string= (oref sig key-uid) "expired@badsig.example.com"))
+    (should (string= (oref sig key-name) "Expired Badsig"))
+    (should-not (oref sig key-comment))
+    (should-not (oref sig key-validity))
+    (should (oref sig key-expired)))
 
+  ;; INVALID signature by EXPIRED key.
+  (let ((sig (magit-pgp--parse-output
+              (list
+               "[GNUPG:] NEWSIG expired@badsig.example.com"
+               "[GNUPG:] KEYEXPIRED 1325376017"
+               "[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
+               "[GNUPG:] KEYEXPIRED 1325376017"
+               "[GNUPG:] KEYEXPIRED 1325376017"
+               "[GNUPG:] KEY_CONSIDERED 04F19E43F5FD42CB0264605EFB2B6F167A81BDC5 0"
+               "[GNUPG:] BADSIG FB2B6F167A81BDC5 Expired Badsig <expired@badsig.example.com>"
+               "[GNUPG:] VERIFICATION_COMPLIANCE_MODE 23"))))
+    (should (= 1 (length sig)))
+    (setq sig (car sig))
+    (should-not (oref sig sig-validity))
+    (should (string= (oref sig key-fingerprint) "04F19E43F5FD42CB0264605EFB2B6F167A81BDC5"))
+    (should (string= (oref sig key-uid) "expired@badsig.example.com"))
+    (should (string= (oref sig key-name) "Expired Badsig"))
+    (should-not (oref sig key-comment))
+    (should-not (oref sig key-validity))
+    (should (oref sig key-expired)))
 
+  ;; INVALID
+  (let ((sig (magit-pgp--parse-output
+              (list
+               "[GNUPG:] NEWSIG key@badsig.example.com"
+               "[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
+               "[GNUPG:] KEY_CONSIDERED 75741BBB0494201426D349C47A2E132C20E0EAF8 0"
+               "[GNUPG:] BADSIG 7A2E132C20E0EAF8 Normal Badsig <key@badsig.example.com>"))))
+    (should (= 1 (length sig)))
+    (setq sig (car sig))
+    (should-not (oref sig sig-validity))
+    (should (string= (oref sig key-fingerprint) "75741BBB0494201426D349C47A2E132C20E0EAF8"))
+    (should (string= (oref sig key-uid) "key@badsig.example.com"))
+    (should (string= (oref sig key-name) "Normal Badsig"))
+    (should-not (oref sig key-comment))
+    (should-not (oref sig key-validity))
+    (should-not (oref sig key-expired)))
+
+  ;; No public key
+  (let ((sig (magit-pgp--parse-output
+              (list
+               "[GNUPG:] NEWSIG key@badsig.example.com"
+               "[GNUPG:] ERRSIG 7A2E132C20E0EAF8 1 8 01 1526747005 9"
+               "[GNUPG:] NO_PUBKEY 7A2E132C20E0EAF8"
+               "[GNUPG:] FAILURE gpg-exit 33554433"))))
+    (should (= 1 (length sig)))
+    (setq sig (car sig))
+    (should (eq (oref sig error) 'no-pubkey))
+    (should-not (oref sig sig-validity))
+    (should (string= (oref sig key-fingerprint) "7A2E132C20E0EAF8"))
+    (should (string= (oref sig key-uid) "key@badsig.example.com"))
+    (should-not (oref sig key-name))
+    (should-not (oref sig key-comment))
+    (should-not (oref sig key-validity))
+    (should-not (oref sig key-expired))))
+
+(ert-deftest magit-pgp:verify-signature ()
+  (let ((sig (magit-pgp-signature)))
+    ;; Never accept a key with non-nil error
+    (oset sig error 'no-pubkey)
+    (oset sig sig-validity t)
+    (oset sig key-expired nil)
+    (oset sig key-revoked nil)
+    (oset sig sig-expired nil)
+    (should (null (magit-pgp-verify-signature sig)))
+    (should (null (magit-pgp-verify-signature sig t t t t)))
+    (oset sig error t)
+    (should (null (magit-pgp-verify-signature sig)))
+    (should (null (magit-pgp-verify-signature sig t t t t)))
+
+    ;; Never accept a key with nil sig-validity
+    (oset sig error nil)
+    (oset sig sig-validity nil)
+    (should-not (magit-pgp-verify-signature sig))
+    (should-not (magit-pgp-verify-signature sig t t t t))
+
+    ;; Now testing signatures that can be considered valid
+    (oset sig sig-validity t)
+    (should (magit-pgp-verify-signature sig))
+
+    ;; Accept an EXPIRED KEY only with explicit override
+    (oset sig key-expired t)
+    (should-not (magit-pgp-verify-signature sig))
+    (should (magit-pgp-verify-signature sig t))
+
+    ;; Accept an EXPIRED SIG only with explicit override
+    (oset sig key-expired nil)
+    (oset sig sig-expired t)
+    (should-not (magit-pgp-verify-signature sig))
+    (should (magit-pgp-verify-signature sig nil t))
+
+    ;; Accept an INVALID KEY only with explicit override
+    (oset sig sig-expired nil)
+    (oset sig key-validity 'never)
+    (should-not (magit-pgp-verify-signature sig))
+    (should (magit-pgp-verify-signature sig nil nil t))
+
+    ;; Accept a revoked key only with explicit override
+    (oset sig key-validity nil)
+    (oset sig key-revoked t)
+    (should-not (magit-pgp-verify-signature sig))
+    (should (magit-pgp-verify-signature sig nil nil nil t))))
+
+(ert-deftest magit-pgp:verify-tag ()
+  (should-not (magit-pgp-verify-tag "2.1.0"))
+  (should-error (magit-pgp-verify-tag "decfd29b1521c6ee8fd335cb61961ab3ae2db974")) ;; 2.0.1
+  (should (magit-pgp-verify-tag "2.12.0"))
+  (should-error (magit-pgp-verify-tag "4aa9da25015dbbf1553b4ae629f9bbfc3142e6d1"))) ;; 2.12.0
+
+(ert-deftest magit-pgp:verify-commit ()
+  (should (magit-pgp-verify-commit "6216151ef642344be19b1395ad4f6af35740617f"))
+  (should-not (magit-pgp-verify-commit "c271ddeb9f36f35ede417764bd17a3e328a42726")))
 
 ;;; magit-tests.el ends soon
 (provide 'magit-tests)
