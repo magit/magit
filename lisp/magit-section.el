@@ -1084,7 +1084,8 @@ invisible."
 (cl-defun magit-section-cache-visibility
     (&optional (section magit-insert-section--current))
   (setf (alist-get (magit-section-ident section)
-                   magit-section-visibility-cache)
+                   magit-section-visibility-cache
+                   nil nil #'equal)
         (if (oref section hidden) 'hide 'show)))
 
 (cl-defun magit-section-maybe-cache-visibility
