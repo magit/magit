@@ -74,6 +74,7 @@ That function in turn is used by all section movement commands."
 
 (defcustom magit-section-highlight-hook
   '(magit-diff-highlight
+    magit-forge-highlight-post
     magit-section-highlight
     magit-section-highlight-selection)
   "Functions used to highlight the current section.

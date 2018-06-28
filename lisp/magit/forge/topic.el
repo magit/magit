@@ -70,6 +70,58 @@
 (defun magit-forge--sanitize-string (string)
   (replace-regexp-in-string "\r\n" "\n" string t t))
 
+;;; Sections
+
+(defun magit-forge-highlight-post (section &optional selection)
+  (when (eq (oref section type) 'post)
+    (dolist (section (or selection (list section)))
+      (magit-section-make-overlay
+       (oref section start)
+       (or (oref section content)
+           (oref section end))
+       'magit-diff-hunk-heading-highlight))
+    nil))
+
+;;; Mode
+
+(define-derived-mode magit-forge-topic-mode magit-mode "View Topic"
+  "View a forge issue or pull-request.")
+
+(defun magit-forge-topic-refresh-buffer (topic)
+  (magit-set-header-line-format
+   (format "#%s: %s"
+           (oref topic number)
+           (oref topic title)))
+  (magit-insert-section (topicbuf)
+    (dolist (post (cons topic (oref topic posts)))
+      (with-slots (author created body) post
+        (magit-insert-section (post post)
+          (let ((heading
+                 (format
+                  "%s %s\n"
+                  (propertize author  'face 'bold)
+                  (propertize created 'face 'italic))))
+            (add-face-text-property 0 (length heading)
+                                    'magit-diff-hunk-heading t heading)
+            (magit-insert-heading heading))
+          (insert (magit-forge--fontify-markdown body) "\n\n"))))))
+
+(defun magit-forge-topic-buffer-name (_mode topic)
+  (with-slots (owner name)
+      (magit-forge-get-project topic)
+    (format "*%s/%s #%d*" owner name (oref topic number))))
+
+(defun magit-forge--fontify-markdown (text)
+  (with-temp-buffer
+    (delay-mode-hooks
+      (if (fboundp 'gfm-mode)
+          (gfm-mode)
+        (text-mode)))
+    (insert text)
+    (font-lock-ensure)
+    (fill-region (point-min) (point-max))
+    (buffer-string)))
+
 ;;; _
 (provide 'magit/forge/topic)
 ;;; magit/forge/topic.el ends here

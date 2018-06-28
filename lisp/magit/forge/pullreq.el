@@ -147,7 +147,12 @@
   (browse-url (magit-forge--format-url pullreq 'pullreq-url-format))
   (oset pullreq unread-p nil))
 
-(defalias 'magit-pullreq-visit 'magit-pullreq-browse)
+;;;###autoload
+(defun magit-pullreq-visit (pullreq)
+  (interactive (list (magit-read-pullreq "View pull-request")))
+  (let ((magit-generate-buffer-name-function 'magit-forge-topic-buffer-name))
+    (magit-mode-setup-internal #'magit-forge-topic-mode (list pullreq) t))
+  (oset pullreq unread-p nil))
 
 ;;;###autoload
 (defun magit-pullreq-create ()

@@ -118,7 +118,12 @@
   (browse-url (magit-forge--format-url issue 'issue-url-format))
   (oset issue unread-p nil))
 
-(defalias 'magit-issue-visit 'magit-issue-browse)
+;;;###autoload
+(defun magit-issue-visit (issue)
+  (interactive (list (magit-read-issue "View issue")))
+  (let ((magit-generate-buffer-name-function 'magit-forge-topic-buffer-name))
+    (magit-mode-setup-internal #'magit-forge-topic-mode (list issue) t))
+  (oset issue unread-p nil))
 
 ;;;###autoload
 (defun magit-issue-create ()
