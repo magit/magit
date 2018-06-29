@@ -91,6 +91,20 @@ rejected reversals."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-post-stage-hook nil
+  "Hook run after staging commands.
+Hook functions will be called with a list of all currently staged files."
+  :package-version '(magit . "2.13.0")
+  :group 'magit-commands
+  :type 'hook)
+
+(defcustom magit-post-unstage-hook nil
+  "Hook run after unstaging commands.
+Hook functions will be called with a list of all currently unstaged files."
+  :package-version '(magit . "2.13.0")
+  :group 'magit-commands
+  :type 'hook)
+
 ;;; Commands
 ;;;; Apply
 
@@ -234,7 +248,10 @@ at point, stage the file but not its content."
         (`(staged        ,_  ,_) (user-error "Already staged"))
         (`(committed     ,_  ,_) (user-error "Cannot stage committed changes"))
         (`(undefined     ,_  ,_) (user-error "Cannot stage this change")))
-    (call-interactively 'magit-stage-file)))
+    (call-interactively 'magit-stage-file))
+  (magit-with-toplevel
+    (let ((staged-files (magit-staged-files)))
+      (run-hook-with-args 'magit-post-stage-hook staged-files))))
 
 ;;;###autoload
 (defun magit-stage-file (file)
@@ -346,7 +363,10 @@ ignored) files."
       (`(committed     ,_  ,_) (if magit-unstage-committed
                                    (magit-reverse-in-index)
                                  (user-error "Cannot unstage committed changes")))
-      (`(undefined     ,_  ,_) (user-error "Cannot unstage this change")))))
+      (`(undefined     ,_  ,_) (user-error "Cannot unstage this change")))
+    (magit-with-toplevel
+      (let ((unstaged-files (magit-unstaged-files)))
+        (run-hook-with-args 'magit-post-unstage-hook unstaged-files)))))
 
 ;;;###autoload
 (defun magit-unstage-file (file)
