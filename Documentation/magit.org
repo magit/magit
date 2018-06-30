@@ -3706,12 +3706,12 @@ You can also use Ediff to stage and unstage.  See [[*Ediffing]].
   and defaults to the commit at point.  If there is no commit at
   point, then it defaults to ~HEAD~.
 
-- User Option: magit-post-stage-hook
+- User Option: magit-post-stage-functions
 
   Hook run after staging commands.
   Hook functions will be called with a list of all currently staged files.
 
-- User Option: magit-post-unstage-hook
+- User Option: magit-post-unstage-functions
 
   Hook run after unstaging commands.
   Hook functions will be called with a list of all currently unstaged files.
