@@ -271,7 +271,10 @@ requiring confirmation."
                                       nil t nil nil default)
              default))))
   (magit-with-toplevel
-    (magit-stage-1 nil (list file))))
+    (magit-stage-1 nil (list file))
+    (when magit-post-stage-functions
+      (let ((staged-files (magit-staged-files)))
+        (run-hook-with-args 'magit-post-stage-functions staged-files)))))
 
 ;;;###autoload
 (defun magit-stage-modified (&optional all)
@@ -284,7 +287,10 @@ ignored) files."
   (when (magit-anything-staged-p)
     (magit-confirm 'stage-all-changes))
   (magit-with-toplevel
-    (magit-stage-1 (if all "--all" "-u"))))
+    (magit-stage-1 (if all "--all" "-u"))
+    (when magit-post-stage-functions
+      (let ((staged-files (magit-staged-files)))
+        (run-hook-with-args 'magit-post-stage-functions staged-files)))))
 
 (defun magit-stage-1 (arg &optional files)
   (magit-wip-commit-before-change files " before stage")
@@ -386,7 +392,10 @@ without requiring confirmation."
                                       nil t nil nil default)
              default))))
   (magit-with-toplevel
-    (magit-unstage-1 (list file))))
+    (magit-unstage-1 (list file))
+    (when magit-post-unstage-functions
+      (let ((unstaged-files (magit-unstaged-files)))
+        (run-hook-with-args 'magit-post-unstage-functions unstaged-files)))))
 
 (defun magit-unstage-1 (files)
   (magit-wip-commit-before-change files " before unstage")
@@ -404,7 +413,11 @@ without requiring confirmation."
     (magit-confirm 'unstage-all-changes))
   (magit-wip-commit-before-change nil " before unstage")
   (magit-run-git "reset" "HEAD" "--")
-  (magit-wip-commit-after-apply nil " after unstage"))
+  (magit-wip-commit-after-apply nil " after unstage")
+  (when magit-post-unstage-functions
+    (magit-with-toplevel
+      (let ((unstaged-files (magit-unstaged-files)))
+        (run-hook-with-args 'magit-post-unstage-functions unstaged-files)))) )
 
 ;;;; Discard
 
