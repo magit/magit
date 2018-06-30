@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-59-g2e84b68f+1)
+@subtitle for version 2.13.0 (2.13.0-68-gfb5341b38+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-59-g2e84b68f+1).
+This manual is for Magit version 2.13.0 (2.13.0-68-gfb5341b38+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8944,6 +8944,48 @@ otherwise.
 
 Visit the previous blob which modified the current file.
 @end table
+
+A few additional commands that operate on a single file exist, that are
+not available from the file popup by default:
+
+@cindex magit-file-rename
+@deffn Command magit-file-rename
+
+This command renames a file read from the user.
+@end deffn
+
+@cindex magit-file-delete
+@deffn Command magit-file-delete
+
+This command deletes a file read from the user.
+@end deffn
+
+@cindex magit-file-untrack
+@deffn Command magit-file-untrack
+
+This command untracks a file read from the user.
+@end deffn
+
+@cindex magit-file-checkout
+@deffn Command magit-file-checkout
+
+This command update file in the working tree and index to the
+contents from a revision.  Both the revision and file are read
+the the user.
+@end deffn
+
+You could add them to the popup like so:
+
+@lisp
+(magit-define-popup-action 'magit-file-popup
+  ?R "Rename file" 'magit-file-rename)
+(magit-define-popup-action 'magit-file-popup
+  ?K "Delete file" 'magit-file-delete)
+(magit-define-popup-action 'magit-file-popup
+  ?U "Untrack file" 'magit-file-untrack)
+(magit-define-popup-action 'magit-file-popup
+  ?C "Checkout file" 'magit-file-checkout)
+@end lisp
 
 @node Minor Mode for Buffers Visiting Blobs
 @section Minor Mode for Buffers Visiting Blobs

@@ -249,7 +249,8 @@ directory, while reading the FILENAME."
                    (with-current-buffer magit-pre-popup-buffer
                      (and (not buffer-file-name)
                           (propertize "...reverse" 'face 'default))))
-                 magit-blame-reverse))
+                 magit-blame-reverse)
+             nil)
   :max-action-columns 5)
 
 (defvar magit-file-mode-lighter "")
