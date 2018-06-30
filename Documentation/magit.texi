@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-68-gfb5341b38+1)
+@subtitle for version 2.13.0 (2.13.0-69-gbc8b275e+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-68-gfb5341b38+1).
+This manual is for Magit version 2.13.0 (2.13.0-69-gbc8b275e+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8945,8 +8945,8 @@ otherwise.
 Visit the previous blob which modified the current file.
 @end table
 
-A few additional commands that operate on a single file exist, that are
-not available from the file popup by default:
+There are a few additional commands that operate on a single file but
+are not available from the file popup by default:
 
 @cindex magit-file-rename
 @deffn Command magit-file-rename
@@ -8969,9 +8969,9 @@ This command untracks a file read from the user.
 @cindex magit-file-checkout
 @deffn Command magit-file-checkout
 
-This command update file in the working tree and index to the
+This command updates a file in the working tree and index to the
 contents from a revision.  Both the revision and file are read
-the the user.
+from the user.
 @end deffn
 
 You could add them to the popup like so:
