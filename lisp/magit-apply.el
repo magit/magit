@@ -91,6 +91,20 @@ rejected reversals."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-post-stage-functions nil
+  "Hook run after staging commands.
+Hook functions will be called with a list of all currently staged files."
+  :package-version '(magit . "2.13.0")
+  :group 'magit-commands
+  :type 'hook)
+
+(defcustom magit-post-unstage-functions nil
+  "Hook run after unstaging commands.
+Hook functions will be called with a list of all currently unstaged files."
+  :package-version '(magit . "2.13.0")
+  :group 'magit-commands
+  :type 'hook)
+
 ;;; Commands
 ;;;; Apply
 
@@ -234,7 +248,11 @@ at point, stage the file but not its content."
         (`(staged        ,_  ,_) (user-error "Already staged"))
         (`(committed     ,_  ,_) (user-error "Cannot stage committed changes"))
         (`(undefined     ,_  ,_) (user-error "Cannot stage this change")))
-    (call-interactively 'magit-stage-file)))
+    (call-interactively 'magit-stage-file))
+  (when magit-post-stage-functions
+    (magit-with-toplevel
+      (let ((staged-files (magit-staged-files)))
+        (run-hook-with-args 'magit-post-stage-functions staged-files)))))
 
 ;;;###autoload
 (defun magit-stage-file (file)
@@ -253,7 +271,10 @@ requiring confirmation."
                                       nil t nil nil default)
              default))))
   (magit-with-toplevel
-    (magit-stage-1 nil (list file))))
+    (magit-stage-1 nil (list file))
+    (when magit-post-stage-functions
+      (let ((staged-files (magit-staged-files)))
+        (run-hook-with-args 'magit-post-stage-functions staged-files)))))
 
 ;;;###autoload
 (defun magit-stage-modified (&optional all)
@@ -266,7 +287,10 @@ ignored) files."
   (when (magit-anything-staged-p)
     (magit-confirm 'stage-all-changes))
   (magit-with-toplevel
-    (magit-stage-1 (if all "--all" "-u"))))
+    (magit-stage-1 (if all "--all" "-u"))
+    (when magit-post-stage-functions
+      (let ((staged-files (magit-staged-files)))
+        (run-hook-with-args 'magit-post-stage-functions staged-files)))))
 
 (defun magit-stage-1 (arg &optional files)
   (magit-wip-commit-before-change files " before stage")
@@ -346,7 +370,11 @@ ignored) files."
       (`(committed     ,_  ,_) (if magit-unstage-committed
                                    (magit-reverse-in-index)
                                  (user-error "Cannot unstage committed changes")))
-      (`(undefined     ,_  ,_) (user-error "Cannot unstage this change")))))
+      (`(undefined     ,_  ,_) (user-error "Cannot unstage this change")))
+    (when magit-post-unstage-functions
+      (magit-with-toplevel
+        (let ((unstaged-files (magit-unstaged-files)))
+          (run-hook-with-args 'magit-post-unstage-functions unstaged-files))))))
 
 ;;;###autoload
 (defun magit-unstage-file (file)
@@ -364,7 +392,10 @@ without requiring confirmation."
                                       nil t nil nil default)
              default))))
   (magit-with-toplevel
-    (magit-unstage-1 (list file))))
+    (magit-unstage-1 (list file))
+    (when magit-post-unstage-functions
+      (let ((unstaged-files (magit-unstaged-files)))
+        (run-hook-with-args 'magit-post-unstage-functions unstaged-files)))))
 
 (defun magit-unstage-1 (files)
   (magit-wip-commit-before-change files " before unstage")
@@ -382,7 +413,11 @@ without requiring confirmation."
     (magit-confirm 'unstage-all-changes))
   (magit-wip-commit-before-change nil " before unstage")
   (magit-run-git "reset" "HEAD" "--")
-  (magit-wip-commit-after-apply nil " after unstage"))
+  (magit-wip-commit-after-apply nil " after unstage")
+  (when magit-post-unstage-functions
+    (magit-with-toplevel
+      (let ((unstaged-files (magit-unstaged-files)))
+        (run-hook-with-args 'magit-post-unstage-functions unstaged-files)))) )
 
 ;;;; Discard
 
