@@ -249,9 +249,10 @@ at point, stage the file but not its content."
         (`(committed     ,_  ,_) (user-error "Cannot stage committed changes"))
         (`(undefined     ,_  ,_) (user-error "Cannot stage this change")))
     (call-interactively 'magit-stage-file))
-  (magit-with-toplevel
-    (let ((staged-files (magit-staged-files)))
-      (run-hook-with-args 'magit-post-stage-functions staged-files))))
+  (when magit-post-stage-functions
+    (magit-with-toplevel
+      (let ((staged-files (magit-staged-files)))
+        (run-hook-with-args 'magit-post-stage-functions staged-files)))))
 
 ;;;###autoload
 (defun magit-stage-file (file)
@@ -364,9 +365,10 @@ ignored) files."
                                    (magit-reverse-in-index)
                                  (user-error "Cannot unstage committed changes")))
       (`(undefined     ,_  ,_) (user-error "Cannot unstage this change")))
-    (magit-with-toplevel
-      (let ((unstaged-files (magit-unstaged-files)))
-        (run-hook-with-args 'magit-post-unstage-functions unstaged-files)))))
+    (when magit-post-unstage-functions
+      (magit-with-toplevel
+        (let ((unstaged-files (magit-unstaged-files)))
+          (run-hook-with-args 'magit-post-unstage-functions unstaged-files))))))
 
 ;;;###autoload
 (defun magit-unstage-file (file)
