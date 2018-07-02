@@ -599,7 +599,7 @@ locked to its value, which is derived from MODE and ARGS."
       (funcall mode))
     (magit-display-buffer buffer)
     (with-current-buffer buffer
-      (run-hooks 'magit-mode-setup-hook)
+      (run-hooks 'magit-mode-setup-hook) ; run-mode-hooks?
       (magit-refresh-buffer))))
 
 (defvar magit-display-buffer-noselect nil
