@@ -175,8 +175,12 @@ but in the future it will also be used set the defaults."
 
 ;;; Core
 
+(defvar magit--current-section-hook nil
+  "Internal variable used for `magit-explain-section'.")
+
 (defclass magit-section ()
-  ((type     :initform nil :initarg :type)
+  ((source   :initform (symbol-value 'magit--current-section-hook))
+   (type     :initform nil :initarg :type)
    (value    :initform nil :initarg :value)
    (start    :initform nil :initarg :start)
    (content  :initform nil)
@@ -620,6 +624,38 @@ This command is intended for debugging purposes."
   "Print `magit-describe-section' result of SECTION."
   ;; Used by debug and edebug as of Emacs 26.
   (princ (magit-describe-section section) stream))
+
+(defun magit-explain-section (section &optional interactive-p)
+  "Show information about the section at point."
+  (interactive (list (magit-current-section) t))
+  (let ((src-section section))
+    (while (and src-section (not (oref src-section source)))
+      (setq src-section (oref src-section parent)))
+    (when (oref src-section source)
+      (setq section src-section)))
+  (pcase (oref section source)
+    (`((,hook ,fun) . ,src-src)
+     (help-setup-xref `(magit-explain-section ,section) interactive-p)
+     (with-help-window (help-buffer)
+       (with-current-buffer standard-output
+         (insert (format-message
+                  "The current section is inserted by `%s' from `%s'"
+                  (make-text-button (symbol-name fun) nil
+                                    :type 'help-function 'help-args (list fun))
+                  (make-text-button (symbol-name hook) nil
+                                    :type 'help-variable 'help-args (list hook))))
+         (pcase-dolist (`(,hook ,fun) src-src)
+           (insert (format-message
+                    ",\n  called by `%s' from `%s'"
+                    (make-text-button (symbol-name fun) nil
+                                      :type 'help-function 'help-args (list fun))
+                    (make-text-button (symbol-name hook) nil
+                                      :type 'help-variable 'help-args (list hook)))))
+         (insert ".\n\n"
+                 (or (cdr (help-split-fundoc (documentation fun) fun))
+                     (documentation fun))))))
+    (_ (message "section type: `%S', source unknown"
+                (oref section type)))))
 
 ;;; Match
 
@@ -1321,6 +1357,8 @@ again use `remove-hook'."
         (set hook value)
       (set-default hook value))))
 
+(defvar magit--current-section-hook)
+
 (defun magit-run-section-hook (hook)
   "Run HOOK, warning about invalid entries."
   (let ((entries (symbol-value hook)))
@@ -1333,7 +1371,10 @@ again use `remove-hook'."
                (mapconcat (lambda (sym) (format "  `%s'" sym)) it "\n"))
       (sit-for 5)
       (setq entries (eval (car (get hook 'standard-value)))))
-    (mapc #'funcall entries)))
+    (dolist (entry entries)
+      (let ((magit--current-section-hook (cons (list hook entry)
+                                               magit--current-section-hook)))
+        (funcall entry)))))
 
 (provide 'magit-section)
 ;;; magit-section.el ends here
