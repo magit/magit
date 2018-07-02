@@ -317,7 +317,7 @@ If there is no blob buffer in the same frame, then do nothing."
 The sections are inserted by running the functions on the hook
 `magit-status-headers-hook'."
   (if (magit-rev-verify "HEAD")
-      (magit-insert-headers magit-status-headers-hook)
+      (magit-insert-headers 'magit-status-headers-hook)
     (insert "In the beginning there was darkness\n\n")))
 
 (defvar magit-error-section-map

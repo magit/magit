@@ -820,6 +820,9 @@ anything this time around.
                  `((let ((,s* ,s))
                      ,@(cdr args)))
                (cdr args))
+           ;; `magit-insert-section-hook' should *not* be run with
+           ;; `magit-run-section-hook' because it's a hook that runs
+           ;; on section insertion, not a section inserting hook.
            (run-hooks 'magit-insert-section-hook)
            (magit-insert-child-count ,s)
            (set-marker-insertion-type (oref ,s start) t)
@@ -892,7 +895,7 @@ insert a newline character if necessary."
   (magit-maybe-make-margin-overlay)
   (oset magit-insert-section--current content (point-marker)))
 
-(defun magit-insert-headers (hooks)
+(defun magit-insert-headers (hook)
   (let* ((header-sections nil)
          (magit-insert-section-hook
           (cons (lambda ()
@@ -901,8 +904,7 @@ insert a newline character if necessary."
                 (if (listp magit-insert-section-hook)
                     magit-insert-section-hook
                   (list magit-insert-section-hook)))))
-    (cl-assert (eq hooks magit-status-headers-hook)) ; TODO: take symbol instead of value
-    (mapc #'funcall hooks)
+    (magit-run-section-hook hook)
     (when header-sections
       ;; Make the first header into the parent of the rest.
       (cl-callf nreverse header-sections)
@@ -1326,20 +1328,20 @@ again use `remove-hook'."
         (set hook value)
       (set-default hook value))))
 
-(defun magit-run-section-hook (hook)
-  "Run HOOK, warning about invalid entries."
-  (--if-let (-remove #'functionp (symbol-value hook))
-      (progn
-        (message "`%s' contains entries that are no longer valid.
+(defun magit-run-section-hook (hook &rest args)
+  "Run HOOK with ARGS, warning about invalid entries."
+  (let ((entries (symbol-value hook)))
+    (unless (listp entries)
+      (setq entries (list entries)))
+    (--when-let (-remove #'functionp entries)
+      (message "`%s' contains entries that are no longer valid.
 %s\nUsing standard value instead.  Please re-configure hook variable."
-                 hook
-                 (mapconcat (lambda (sym) (format "  `%s'" sym)) it "\n"))
-        (sit-for 5)
-        (defvar magit--hook-standard-value nil)
-        (let ((magit--hook-standard-value
-               (eval (car (get hook 'standard-value)))))
-          (run-hooks 'magit---hook-standard-value)))
-    (run-hooks hook)))
+               hook
+               (mapconcat (lambda (sym) (format "  `%s'" sym)) it "\n"))
+      (sit-for 5)
+      (setq entries (eval (car (get hook 'standard-value)))))
+    (dolist (entry entries)
+      (apply entry args))))
 
 (provide 'magit-section)
 ;;; magit-section.el ends here
