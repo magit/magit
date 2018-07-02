@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-130-gad8627b2+1)
+@subtitle for version 2.13.0 (2.13.0-142-g2fc79d08+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-130-gad8627b2+1).
+This manual is for Magit version 2.13.0 (2.13.0-142-g2fc79d08+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -1533,10 +1533,10 @@ to the initial visibility state for such sections.  The state has to
 be one of @code{show} or @code{hide}, or a function that returns one of these
 symbols.  A function is called with the section as the only argument.
 
-Use the command @code{magit-describe-section} to determine a section's
-lineage or type.  The vector in the output is the section lineage
-and the type is the first element of that vector.  Wildcards can be
-used, see @code{magit-section-match}.
+Use the command @code{magit-describe-section-briefly} to determine a
+section's lineage or type.  The vector in the output is the section
+lineage and the type is the first element of that vector.  Wildcards
+can be used, see @code{magit-section-match}.
 @end defopt
 
 @defopt magit-section-cache-visibility
@@ -1574,7 +1574,9 @@ immediately return @code{nil}.
 
 Which sections are inserted into certain buffers is controlled with
 hooks.  This includes the status and the refs buffers.  For other
-buffers, e.g. log, diff, and revision buffers, this is not possible.
+buffers, e.g. log and diff buffers, this is not possible.  The command
+@code{magit-describe-section} can be used to see which hook (if any) was
+responsible for inserting the section at point.
 
 For buffers whose sections can be customized by the user, a hook
 variable called @code{magit-TYPE-sections-hook} exists.  This hook should be
@@ -1625,12 +1627,12 @@ Users usually do not have to worry about a section's type and value,
 but knowing them can be handy at times.
 
 @table @asis
-@kindex M-x magit-describe-section
-@cindex magit-describe-section
-@item @kbd{M-x magit-describe-section} @tie{}@tie{}@tie{}@tie{}(@code{magit-describe-section})
+@kindex M-x magit-describe-section-briefly
+@cindex magit-describe-section-briefly
+@item @kbd{M-x magit-describe-section-briefly} @tie{}@tie{}@tie{}@tie{}(@code{magit-describe-section-briefly})
 
-Show information about the section at point in the echo area,
-as "VALUE [TYPE PARENT-TYPE@dots{}] BEGINNING-END".
+Show information about the section at point in the echo area, as
+"#<magit-section VALUE [TYPE PARENT-TYPE@dots{}] BEGINNING-END>".
 @end table
 
 Many commands behave differently depending on the type of the section
@@ -9867,9 +9869,9 @@ TYPES, or nil is returned.
 @subsection Matching Sections
 
 @table @asis
-@kindex M-x magit-describe-section
-@cindex magit-describe-section
-@item @kbd{M-x magit-describe-section} @tie{}@tie{}@tie{}@tie{}(@code{magit-describe-section})
+@kindex M-x magit-describe-section-briefly
+@cindex magit-describe-section-briefly
+@item @kbd{M-x magit-describe-section-briefly} @tie{}@tie{}@tie{}@tie{}(@code{magit-describe-section-briefly})
 
 Show information about the section at point.  This command is
 intended for debugging purposes.

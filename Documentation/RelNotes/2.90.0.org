@@ -13,4 +13,10 @@
   Use ~oref~ and ~oset~ instead.
 
 ** Changes since v2.13.0
+
+- ~magit-describe-section~ now pops up a ~*Help*~ buffer showing which
+  hook and function produced the section.  The old
+  ~magit-describe-section~ is renamed to
+  ~magit-describe-section-briefly~.
+
 ** Fixes since v2.13.0

@@ -175,6 +175,9 @@ but in the future it will also be used set the defaults."
 
 ;;; Core
 
+(defvar magit--current-section-hook nil
+  "Internal variable used for `magit-explain-section'.")
+
 (defclass magit-section ()
   ((type     :initform nil :initarg :type)
    (value    :initform nil :initarg :value)
@@ -185,6 +188,7 @@ but in the future it will also be used set the defaults."
    (washer   :initform nil)
    (process  :initform nil)
    (heading-highlight-face :initform nil)
+   (inserter :initform (symbol-value 'magit--current-section-hook))
    (parent   :initform nil :initarg :parent)
    (children :initform nil)))
 
@@ -604,7 +608,7 @@ Sections at higher levels are hidden."
 
 ;;;; Auxiliary
 
-(defun magit-describe-section (section &optional message)
+(defun magit-describe-section-briefly (section &optional message)
   "Show information about the section at point.
 This command is intended for debugging purposes."
   (interactive (list (magit-current-section) t))
@@ -623,7 +627,48 @@ This command is intended for debugging purposes."
 (defmethod cl-print-object ((section magit-section) stream)
   "Print `magit-describe-section' result of SECTION."
   ;; Used by debug and edebug as of Emacs 26.
-  (princ (magit-describe-section section) stream))
+  (princ (magit-describe-section-briefly section) stream))
+
+(defun magit-describe-section (section &optional interactive-p)
+  "Show information about the section at point."
+  (interactive (list (magit-current-section) t))
+  (let ((inserter-section section))
+    (while (and inserter-section (not (oref inserter-section inserter)))
+      (setq inserter-section (oref inserter-section parent)))
+    (when (and inserter-section (oref inserter-section inserter))
+      (setq section inserter-section)))
+  (pcase (oref section inserter)
+    (`((,hook ,fun) . ,src-src)
+     (help-setup-xref `(magit-describe-section ,section) interactive-p)
+     (with-help-window (help-buffer)
+       (with-current-buffer standard-output
+         (insert (format-message
+                  "%s\n  is inserted by `%s'\n  from `%s'"
+                  (magit-describe-section-briefly section)
+                  (make-text-button (symbol-name fun) nil
+                                    :type 'help-function
+                                    'help-args (list fun))
+                  (make-text-button (symbol-name hook) nil
+                                    :type 'help-variable
+                                    'help-args (list hook))))
+         (pcase-dolist (`(,hook ,fun) src-src)
+           (insert (format-message
+                    ",\n  called by `%s'\n  from `%s'"
+                    (make-text-button (symbol-name fun) nil
+                                      :type 'help-function
+                                      'help-args (list fun))
+                    (make-text-button (symbol-name hook) nil
+                                      :type 'help-variable
+                                      'help-args (list hook)))))
+         (insert ".\n\n")
+         (insert
+          (format-message
+           "`%s' is "
+           (make-text-button (symbol-name fun) nil
+                             :type 'help-function 'help-args (list fun))))
+         (describe-function-1 fun))))
+    (_ (message "%s, inserter unknown"
+                (magit-describe-section-briefly section)))))
 
 ;;; Match
 
@@ -1341,7 +1386,9 @@ again use `remove-hook'."
       (sit-for 5)
       (setq entries (eval (car (get hook 'standard-value)))))
     (dolist (entry entries)
-      (apply entry args))))
+      (let ((magit--current-section-hook (cons (list hook entry)
+                                               magit--current-section-hook)))
+        (apply entry args)))))
 
 (provide 'magit-section)
 ;;; magit-section.el ends here
