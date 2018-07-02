@@ -603,16 +603,23 @@ Sections at higher levels are hidden."
 
 ;;;; Auxiliary
 
-(defun magit-describe-section ()
+(defun magit-describe-section (section &optional message)
   "Show information about the section at point.
 This command is intended for debugging purposes."
-  (interactive)
-  (let ((section (magit-current-section)))
-    (message "%S %S %s-%s"
-             (oref section value)
-             (magit-section-lineage section)
-             (marker-position (oref section start))
-             (marker-position (oref section end)))))
+  (interactive (list (magit-current-section) t))
+  (let ((str (format "#<magit-section %S %S %s-%s>"
+                     (oref section value)
+                     (magit-section-lineage section)
+                     (if-let (m (oref section start))
+                         (marker-position m))
+                     (if-let (m (oref section end))
+                         (marker-position m)))))
+    (if message (message "%s" str) str)))
+
+(defmethod cl-print-object ((section magit-section) stream)
+  "Print `magit-describe-section' result of SECTION."
+  ;; Used by debug and edebug as of Emacs 26.
+  (princ (magit-describe-section section) stream))
 
 ;;; Match
 
