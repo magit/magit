@@ -892,29 +892,29 @@ insert a newline character if necessary."
   (magit-maybe-make-margin-overlay)
   (oset magit-insert-section--current content (point-marker)))
 
-(defvar magit-insert-headers--hook nil "For internal use only.")
-(defvar magit-insert-headers--beginning nil "For internal use only.")
-
 (defun magit-insert-headers (hooks)
-  (let ((magit-insert-section-hook
-         (cons 'magit-insert-remaining-headers
-               (if (listp magit-insert-section-hook)
-                   magit-insert-section-hook
-                 (list magit-insert-section-hook))))
-        (magit-insert-headers--hook hooks)
-        wrapper)
-    (setq magit-insert-headers--beginning (point))
-    (while (and (setq wrapper (pop magit-insert-headers--hook))
-                (= (point) magit-insert-headers--beginning))
-      (funcall wrapper))))
-
-(defun magit-insert-remaining-headers ()
-  (if (= (point) magit-insert-headers--beginning)
-      (magit-cancel-section)
-    (magit-insert-heading)
-    (remove-hook 'magit-insert-section-hook 'magit-insert-remaining-headers)
-    (mapc #'funcall magit-insert-headers--hook)
-    (insert "\n")))
+  (let* ((header-sections nil)
+         (magit-insert-section-hook
+          (cons (lambda ()
+                  (push magit-insert-section--current
+                        header-sections))
+                (if (listp magit-insert-section-hook)
+                    magit-insert-section-hook
+                  (list magit-insert-section-hook)))))
+    (cl-assert (eq hooks magit-status-headers-hook)) ; TODO: take symbol instead of value
+    (mapc #'funcall hooks)
+    (when header-sections
+      ;; Make the first header into the parent of the rest.
+      (cl-callf nreverse header-sections)
+      (let* ((1st-header (pop header-sections))
+             (header-parent (oref 1st-header parent)))
+        (oset header-parent children (list 1st-header))
+        (oset 1st-header children header-sections)
+        (oset 1st-header content (oref (car header-sections) start))
+        (oset 1st-header end (oref (car (last header-sections)) end))
+        (dolist (sub-header header-sections)
+          (oset sub-header parent 1st-header))
+        (insert "\n")))))
 
 (defun magit-insert-child-count (section)
   "Modify SECTION's heading to contain number of child sections.
