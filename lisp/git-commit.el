@@ -792,7 +792,11 @@ Added to `font-lock-extend-region-functions'."
   (setq-local comment-end-skip "\n")
   (setq-local comment-use-syntax nil)
   (setq-local git-commit--branch-name-regexp
-              (if (featurep 'magit-git)
+              (if (and (featurep 'magit-git)
+                       ;; When using cygwin git, we may end up in a
+                       ;; non-existing directory, which would cause
+                       ;; any git calls to signal an error.
+                       (file-accessible-directory-p default-directory))
                   (progn
                     ;; Make sure the below functions are available.
                     (require 'magit)
