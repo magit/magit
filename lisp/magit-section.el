@@ -607,7 +607,7 @@ Sections at higher levels are hidden."
 
 ;;;; Auxiliary
 
-(defun magit-describe-section (section &optional message)
+(defun magit-describe-section-briefly (section &optional message)
   "Show information about the section at point.
 This command is intended for debugging purposes."
   (interactive (list (magit-current-section) t))
@@ -623,9 +623,9 @@ This command is intended for debugging purposes."
 (defmethod cl-print-object ((section magit-section) stream)
   "Print `magit-describe-section' result of SECTION."
   ;; Used by debug and edebug as of Emacs 26.
-  (princ (magit-describe-section section) stream))
+  (princ (magit-describe-section-briefly section) stream))
 
-(defun magit-explain-section (section &optional interactive-p)
+(defun magit-describe-section (section &optional interactive-p)
   "Show information about the section at point."
   (interactive (list (magit-current-section) t))
   (let ((src-section section))
