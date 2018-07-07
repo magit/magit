@@ -564,6 +564,7 @@ prefix argument fetch all remotes."
                    magit-cycle-branch*rebase
                    magit-pull-format-branch*rebase)
                (?C "variables..." magit-branch-config-popup))
+  :options '((?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
   :actions '((lambda ()
                (--if-let (magit-get-current-branch)
                    (concat

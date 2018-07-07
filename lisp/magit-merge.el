@@ -37,7 +37,8 @@
   :man-page "git-merge"
   :switches '((?f "Fast-forward only" "--ff-only")
               (?n "No fast-forward"   "--no-ff"))
-  :options  '((?s "Strategy" "--strategy="))
+  :options  '((?s "Strategy"       "--strategy=")
+              (?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
   :actions  '((?m "Merge"                  magit-merge)
               (?p "Preview merge"          magit-merge-preview)
               (?e "Merge and edit message" magit-merge-editmsg) nil
