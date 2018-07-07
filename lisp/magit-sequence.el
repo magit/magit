@@ -125,7 +125,9 @@ This discards all changes made since the sequence started."
               (?x "Reference cherry in commit message" "-x")
               (?F "Attempt fast-forward"               "--ff"))
   :options  '((?s "Strategy"                        "--strategy=")
-              (?m "Replay merge relative to parent" "--mainline="))
+              (?m "Replay merge relative to parent" "--mainline=")
+              (?S "Sign using gpg"                  "--gpg-sign="
+                  magit-read-gpg-secret-key))
   :actions  '("Apply here"
               (?A "Pick"    magit-cherry-pick)
               (?a "Apply"   magit-cherry-apply)
@@ -381,7 +383,9 @@ without prompting."
                   "--committer-date-is-author-date")
               (?D "Use committer date as author date" "--ignore-date"))
   :options  '((?p "Remove leading slashes from paths" "-p"
-                  magit-popup-read-number))
+                  magit-popup-read-number)
+              (?S "Sign using gpg"                    "--gpg-sign="
+                  magit-read-gpg-secret-key))
   :actions  '((?m "Apply maildir"     magit-am-apply-maildir)
               (?w "Apply patches"     magit-am-apply-patches)
               (?a "Apply plain patch" magit-patch-apply-popup))
@@ -460,6 +464,7 @@ This discards all changes made since the sequence started."
               (?A "Autostash"                "--autostash")
               (?i "Interactive"              "--interactive")
               (?h "Disable hooks"            "--no-verify"))
+  :options  '((?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
   :actions  '((lambda ()
                 (concat (propertize "Rebase " 'face 'magit-popup-heading)
                         (propertize (or (magit-get-current-branch) "HEAD")
