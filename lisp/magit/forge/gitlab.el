@@ -49,7 +49,8 @@ it is all or nothing.")
    (branch-url-format         :initform "https://%h/%o/%n/commits/%r")
    (remote-url-format         :initform "https://%h/%o/%n")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
-   (create-pullreq-url-format :initform "https://%h/%o/%n/merge_requests/new")))
+   (create-pullreq-url-format :initform "https://%h/%o/%n/merge_requests/new")
+   (pullreq-refspec :initform "+refs/merge-requests/*/head:refs/pullreqs/*")))
 
 (cl-defmethod magit-forge--object-id
   ((_class (subclass magit-gitlab-project)) forge host owner name)

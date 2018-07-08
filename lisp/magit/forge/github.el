@@ -59,7 +59,8 @@ repositories.
    (branch-url-format         :initform "https://%h/%o/%n/commits/%r")
    (remote-url-format         :initform "https://%h/%o/%n")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
-   (create-pullreq-url-format :initform "https://%h/%o/%n/compare")))
+   (create-pullreq-url-format :initform "https://%h/%o/%n/compare")
+   (pullreq-refspec           :initform "+refs/pull/*/head:refs/pullreqs/*")))
 
 (cl-defmethod magit-forge--object-id
   ((_class (subclass magit-github-project)) forge host owner name)

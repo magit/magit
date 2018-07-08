@@ -77,6 +77,7 @@ ID, and vice-versa."
    (remote-url-format         :allocation :class)
    (create-issue-url-format   :allocation :class)
    (create-pullreq-url-format :allocation :class)
+   (pullreq-refspec           :allocation :class)
    (id                        :initarg :id)
    (forge                     :initarg :forge)
    (owner                     :initarg :owner)

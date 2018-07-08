@@ -54,6 +54,24 @@
     (error "Cannot determine forge project for %s" (magit-toplevel))))
 
 ;;;###autoload
+(defun magit-forge-add-pullreq-refspec ()
+  "Configure Git to fetch all pull-requests.
+This is done by adding \"+refs/pull/*/head:refs/pullreqs/*\"
+to the value of `remote.REMOTE.fetch', where REMOTE is the
+upstream remote.  Also fetch from REMOTE."
+  (interactive)
+  (let* ((project (magit-forge-get-project t))
+         (remote  (oref project remote))
+         (fetch   (magit-get-all "remote" remote "fetch"))
+         (refspec (oref-default project pullreq-refspec)))
+    (if (member refspec fetch)
+        (message "Pull-request refspec is already active")
+      (magit-call-git "config" "--add"
+                      (format "remote.%s.fetch" remote)
+                      refspec)
+      (magit-git-fetch remote (magit-fetch-arguments)))))
+
+;;;###autoload
 (defun magit-forge-reset-database ()
   "Move the current database file to the trash.
 This is useful after the database scheme has changed, which will
