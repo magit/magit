@@ -192,6 +192,12 @@
         (user-error "Branch `%s' already exists" branch))
       branch)))
 
+(defun magit-forge--pullreq-ref (pullreq)
+  (let ((branch (magit-forge--pullreq-branch pullreq)))
+    (or (and branch (magit-rev-verify branch) branch)
+        (let ((ref (format "refs/pullreqs/%s" (oref pullreq number))))
+          (and (magit-rev-verify ref) ref)))))
+
 ;;; Sections
 
 (defun magit-pullreq-at-point ()
@@ -207,17 +213,27 @@
   (when-let* ((prj (magit-forge-get-project nil))
               (- (not (oref prj sparse-p)))
               (pullreqs (magit-forge-list-pullreqs prj magit--topic-limit)))
-    (magit-insert-section (pullreqs nil t)
-      (magit-insert-heading "Pull requests:")
-      (let ((width (length (number-to-string (oref (car pullreqs) number)))))
-        (dolist (pullreq pullreqs)
-          (magit-insert-pullreq pullreq width)))
-      (insert ?\n))))
+    (magit-insert-section section (pullreqs nil t)
+      (magit-insert-heading
+        (format "%s (%s)"
+                (propertize "Pull requests" 'face 'magit-section-heading)
+                (length pullreqs)))
+      (if (oref section hidden)
+          (oset section washer 'magit--insert-pullreqs)
+        (magit--insert-pullreqs)))))
+
+(defun magit--insert-pullreqs ()
+  (let* ((pullreqs (magit-forge-list-pullreqs (magit-forge-get-project nil)
+                                              magit--topic-limit))
+         (width (length (number-to-string (oref (car pullreqs) number)))))
+    (dolist (pullreq pullreqs)
+      (magit-insert-pullreq pullreq width)))
+  (insert ?\n))
 
 (defun magit-insert-pullreq (pullreq &optional width)
   (with-slots (number title unread-p closed) pullreq
-    (magit-insert-section (pullreq pullreq)
-      (insert
+    (magit-insert-section section (pullreq pullreq t)
+      (magit-insert-heading
        (format (if width
                    (format "%%-%is %%s\n" (1+ width))
                  "%s %s\n")
@@ -226,7 +242,17 @@
                 nil (propertize title 'face
                                 (cond (unread-p 'magit-topic-unread)
                                       (closed   'magit-topic-closed)
-                                      (t        'magit-topic-open)))))))))
+                                      (t        'magit-topic-open))))))
+      (if (oref section hidden)
+          (oset section washer
+                (apply-partially 'magit--insert-pullreq pullreq))
+        (magit--insert-pullreq pullreq)))))
+
+(defun magit--insert-pullreq (pullreq)
+  (when-let ((ref (magit-forge--pullreq-ref pullreq)))
+    (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
+      (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
+                        magit-log-section-arguments))))
 
 ;;; _
 (provide 'magit/forge/pullreq)
