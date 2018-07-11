@@ -204,6 +204,19 @@ This method has to make an API request."
                                     owner name)
                         '((per_page . 100)) :unpaginate t)))))
 
+;;; Notifications
+
+(cl-defmethod magit-forge--pull-notifications
+  ((_class (subclass magit-gitlab-project)) _githost &optional _prj)
+  ;; NOTE The closest that Gitlab provides are "events" as described
+  ;; at https://docs.gitlab.com/ee/api/events.html.  This allows us
+  ;; to see the last N events that took place, but that is not good
+  ;; enough - we are mostly interested in events we haven't looked
+  ;; at yet.  Gitlab doesn't make a distinction between unread and
+  ;; read events, so this is rather useless and we don't use it for
+  ;; the time being.
+  )
+
 ;;; Utilities
 
 (cl-defun magit--glab-get (prj resource

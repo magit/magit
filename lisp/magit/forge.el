@@ -33,6 +33,7 @@
 (require 'magit/forge/topic)
 (require 'magit/forge/issue)
 (require 'magit/forge/pullreq)
+(require 'magit/forge/notify)
 
 (require 'magit/forge/github)
 (require 'magit/forge/gitlab)
@@ -48,6 +49,9 @@
         (message "Pulling project %s/%s..." owner name)
         (magit-forge--pull-issues prj)
         (magit-forge--pull-pullreqs prj)
+        (magit-forge--pull-notifications (eieio-object-class prj)
+                                         (oref prj githost)
+                                         prj)
         (oset prj sparse-p nil)
         (if-let ((remote  (oref prj remote))
                  (refspec (oref-default prj pullreq-refspec)))
@@ -60,6 +64,12 @@
           (magit-refresh))
         (message "Pulling project %s/%s...done" owner name))
     (error "Cannot determine forge project for %s" (magit-toplevel))))
+
+;;;###autoload
+(defun magit-forge-pull-notifications ()
+  (interactive)
+  (pcase-dolist (`(,githost ,_ ,_ ,class) magit-forge-alist)
+    (magit-forge--pull-notifications class githost)))
 
 ;;;###autoload
 (defun magit-forge-add-pullreq-refspec ()

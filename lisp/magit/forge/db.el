@@ -43,6 +43,31 @@
 (defclass magit-database (closql-database)
   ((object-class :initform magit-forge-project)))
 
+;; FIXME Instead add closql-update and/or closql-replace to closql.el
+(cl-defmethod closql-insert ((db magit-database) obj)
+  (closql--oset obj 'closql-database db)
+  (let (alist)
+    (dolist (slot (eieio-class-slots (eieio--object-class obj)))
+      (setq  slot (cl--slot-descriptor-name slot))
+      (let ((columns (closql--slot-get obj slot :closql-columns)))
+        (when columns
+          (push (cons slot (closql-oref obj slot)) alist)
+          (closql--oset obj slot eieio-unbound))))
+    (emacsql-with-transaction db
+      (emacsql db [:insert-or-replace-into $i1 :values $v2]
+               (oref-default obj closql-table)
+               (pcase-let ((`(,class ,_db . ,values)
+                            (closql--intern-unbound
+                             (closql--coerce obj 'list))))
+                 (vconcat (cons (closql--abbrev-class
+                                 (if (fboundp 'record)
+                                     (eieio--class-name class)
+                                   class))
+                                values))))
+      (pcase-dolist (`(,slot . ,value) alist)
+        (closql--dset db obj slot value))))
+  obj)
+
 (defconst magit--db-version 1)
 
 (defvar magit--db-disabled nil)
@@ -186,7 +211,23 @@
      (:foreign-key
       [pullreq] :references pullreq [id]
       :on-delete :cascade))
-    ))
+
+    (notification
+     [(class :not-null)
+      (id :not-null :primary-key)
+      project
+      forge
+      reason
+      unread-p
+      last-read
+      updated
+      title
+      type
+      topic
+      url]
+     (:foreign-key
+      [project] :references project [id]
+      :on-delete :cascade))))
 
 (cl-defmethod closql--db-init ((db magit-database))
   (emacsql-with-transaction db

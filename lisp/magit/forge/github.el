@@ -428,6 +428,79 @@ query ($owner:String!, $name:String!) {
                       .pageInfo.endCursor))
           (nth 2 node)))))
 
+;;; Notifications
+
+(cl-defmethod magit-forge--pull-notifications
+  ((_class (subclass magit-github-project)) githost &optional prj)
+  (message "Pulling notifications...")
+  (let (pulled)
+    (emacsql-with-transaction (magit-db)
+      (magit-sql [:drop-table-if-exists notification])
+      (magit-sql [:create-table notification $S1]
+                 (cdr (assq 'notification magit--db-table-schemata)))
+      (if-let ((spec (assoc githost magit-forge-alist)))
+          (pcase-let ((`(,_ ,apihost ,forge ,_) spec))
+            (dolist (n (magit--ghub-get
+                        nil (if prj
+                                (format "/repos/%s/%s/notifications"
+                                        (oref prj owner)
+                                        (oref prj name))
+                              "/notifications")
+                        '((all . "true"))
+                        :host apihost :unpaginate t))
+              (let-alist n
+                (let* ((type (intern (downcase .subject.type)))
+                       (type (if (eq type 'pullrequest) 'pullreq type))
+                       (prj-id  (list githost
+                                      .repository.owner.login
+                                      .repository.name))
+                       (prj (magit-forge-get-project prj-id nil t))
+                       (owner (oref prj owner))
+                       (name (oref prj name))
+                       (number (and (string-match "[0-9]*\\'" .subject.url)
+                                    (string-to-number
+                                     (match-string 0 .subject.url))))
+                       (notification-id (format "%s:%s" (oref prj id) .id)))
+                  (unless (or (oref prj sparse-p)
+                              (member prj-id pulled))
+                    (magit-msg "Pulling project %s/%s..." owner name)
+                    (magit-forge--pull-issues prj)
+                    (magit-forge--pull-pullreqs prj)
+                    (push prj-id pulled))
+                  (pcase type
+                    ('issue
+                     (let ((issue (magit-forge-get-issue prj number)))
+                       (when (or (not issue)
+                                 (string< (oref issue updated) .updated_at))
+                         (magit-msg "Pulling issue %s/%s#%s..."
+                                    owner name number)
+                         (setq issue (magit-forge-get-issue prj number t)))
+                       (oset issue unread-p .unread)))
+                    ('pullreq
+                     (let ((pullreq (magit-forge-get-pullreq prj number)))
+                       (when (or (not pullreq)
+                                 (string< (oref pullreq updated) .updated_at))
+                         (magit-msg "Pulling pullreq %s/%s#%s..."
+                                    owner name number)
+                         (setq pullreq (magit-forge-get-pullreq prj number t)))
+                       (oset pullreq unread-p .unread))))
+                  (closql-insert
+                   (magit-db)
+                   (magit-forge-notification
+                    :id           notification-id
+                    :project      (oref prj id)
+                    :forge        forge
+                    :reason       (intern (downcase .reason))
+                    :unread-p     .unread
+                    :last-read    .last_read_at
+                    :updated      .updated_at
+                    :title        .subject.title
+                    :type         type
+                    :topic        number
+                    :url          .subject.url))))))
+        (error "No entry for %S in magit-forge-alist" githost)))
+    (message "Pulling notifications...done")))
+
 ;;; Utilities
 
 (cl-defun magit--ghub-get (prj resource
