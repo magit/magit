@@ -1535,7 +1535,7 @@ used to match full refs.  The first entry whose REGEXP matches
 the reference is used.  The first regexp submatch becomes the
 \"label\" that represents the ref and is propertized with FONT.")
 
-(defun magit-format-ref-labels (string)
+(defun magit-format-ref-labels (string &optional insert-space)
   ;; To support Git <2.2.0, we remove the surrounding parentheses here
   ;; rather than specifying that STRING should be generated with Git's
   ;; "%D" placeholder.
@@ -1564,15 +1564,19 @@ the reference is used.  The first regexp submatch becomes the
           (let* ((face (cdr (--first (string-match (car it) ref)
                                      magit-ref-namespaces)))
                  (name (propertize (or (match-string 1 ref) ref) 'face face)))
-            (cl-case face
-              ((magit-bisect-bad magit-bisect-skip magit-bisect-good)
-               (setq state name))
-              (magit-head
-               (setq head (propertize "@" 'face 'magit-head)))
-              (magit-tag            (push name tags))
-              (magit-branch-local   (push name branches))
-              (magit-branch-remote  (push name remotes))
-              (t                    (push name other)))))
+            (unless (and (eq face 'magit-refname-pullreq)
+                         (eq (oref (oref magit-insert-section--parent parent)
+                                   type)
+                             'pullreq))
+              (cl-case face
+                ((magit-bisect-bad magit-bisect-skip magit-bisect-good)
+                 (setq state name))
+                (magit-head
+                 (setq head (propertize "@" 'face 'magit-head)))
+                (magit-tag            (push name tags))
+                (magit-branch-local   (push name branches))
+                (magit-branch-remote  (push name remotes))
+                (t                    (push name other))))))
         (setq remotes
               (-keep
                (lambda (name)
@@ -1600,14 +1604,17 @@ the reference is used.  The first regexp submatch becomes the
                       (concat push
                               (propertize name 'face 'magit-branch-current)))
               (push (concat push name) combined))))
-        (mapconcat #'identity
-                   (-flatten `(,state
-                               ,head
-                               ,@(nreverse tags)
-                               ,@(nreverse combined)
-                               ,@(nreverse remotes)
-                               ,@other))
-                   " ")))))
+        (setq names (-flatten `(,state
+                                ,head
+                                ,@(nreverse tags)
+                                ,@(nreverse combined)
+                                ,@(nreverse remotes)
+                                ,@other)))
+        (if names
+            (concat (and (eq insert-space 'before) " ")
+                    (mapconcat #'identity names " ")
+                    (and (eq insert-space 'after) " "))
+          "")))))
 
 (defun magit-object-type (object)
   (magit-git-string "cat-file" "-t" object))
