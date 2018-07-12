@@ -32,6 +32,18 @@
 
 (defvar magit--topic-limit 20) ; TODO fancier
 
+(defcustom magit-post-heading-format "%a %C\n"
+  "Format for post headings in topic view.
+
+The following %-sequences are supported:
+
+`%a' The forge nickname of the author.
+`%c' The absolute creation date.
+`%C' The relative creation date."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-forge
+  :type 'string)
+
 ;;; Faces
 
 (defface magit-topic-unread
@@ -57,6 +69,16 @@
 (defface magit-topic-unmerged
   '((t :inherit magit-dimmed :slant italic))
   "Face used for number of unmerged topics."
+  :group 'magit-faces)
+
+(defface magit-post-author
+  '((t :inherit bold))
+  "Face used for post author in topic view."
+  :group 'magit-faces)
+
+(defface magit-post-date
+  '((t :inherit italic))
+  "Face used for post date in topic view."
   :group 'magit-faces)
 
 ;;; Class
@@ -107,10 +129,16 @@
       (with-slots (author created body) post
         (magit-insert-section (post post)
           (let ((heading
-                 (format
-                  "%s %s\n"
-                  (propertize author  'face 'bold)
-                  (propertize created 'face 'italic))))
+                 (format-spec
+                  magit-post-heading-format
+                  `((?a . ,(propertize author  'face 'magit-post-author))
+                    (?A . ,(propertize "TODO"  'face 'magit-post-author))
+                    (?c . ,(propertize created 'face 'magit-post-date))
+                    (?C . ,(propertize (apply #'format "%s %s ago"
+                                              (magit--age
+                                               (float-time
+                                                (date-to-time created))))
+                                       'face 'magit-post-date))))))
             (add-face-text-property 0 (length heading)
                                     'magit-diff-hunk-heading t heading)
             (magit-insert-heading heading))
