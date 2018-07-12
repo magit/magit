@@ -231,13 +231,16 @@
   (insert ?\n))
 
 (defun magit-insert-pullreq (pullreq &optional width)
-  (with-slots (number title unread-p closed) pullreq
+  (with-slots (number title unread-p closed merged) pullreq
     (magit-insert-section section (pullreq pullreq t)
       (magit-insert-heading
        (format (if width
                    (format "%%-%is %%s\n" (1+ width))
                  "%s %s\n")
-               (propertize (format "#%s" number) 'face 'magit-dimmed)
+               (propertize (format "#%s" number) 'face
+                           (if merged
+                               'magit-topic-merged
+                             'magit-topic-unmerged))
                (magit-log-propertize-keywords
                 nil (propertize title 'face
                                 (cond (unread-p 'magit-topic-unread)

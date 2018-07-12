@@ -36,17 +36,27 @@
 
 (defface magit-topic-unread
   '((t :inherit bold))
-  "Face used for unread topics."
+  "Face used for title unread topics."
   :group 'magit-faces)
 
 (defface magit-topic-closed
   '((t :inherit magit-dimmed))
-  "Face used for unread topics."
+  "Face used for title of unread topics."
   :group 'magit-faces)
 
 (defface magit-topic-open
   '((t :inherit default))
-  "Face used for open topics."
+  "Face used for title of open topics."
+  :group 'magit-faces)
+
+(defface magit-topic-merged
+  '((t :inherit magit-dimmed))
+  "Face used for number of merged topics."
+  :group 'magit-faces)
+
+(defface magit-topic-unmerged
+  '((t :inherit magit-dimmed :slant italic))
+  "Face used for number of unmerged topics."
   :group 'magit-faces)
 
 ;;; Class
