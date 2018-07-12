@@ -49,7 +49,15 @@
         (magit-forge--pull-issues prj)
         (magit-forge--pull-pullreqs prj)
         (oset prj sparse-p nil)
-        (magit-refresh)
+        (if-let ((remote  (oref prj remote))
+                 (refspec (oref-default prj pullreq-refspec)))
+            (progn
+              (unless (member refspec (magit-get-all "remote" remote "fetch"))
+                (magit-call-git "config" "--add"
+                                (format "remote.%s.fetch" remote)
+                                refspec))
+              (magit-git-fetch remote (magit-fetch-arguments)))
+          (magit-refresh))
         (message "Pulling project %s/%s...done" owner name))
     (error "Cannot determine forge project for %s" (magit-toplevel))))
 
