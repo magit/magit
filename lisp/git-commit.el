@@ -436,7 +436,15 @@ This is only used if Magit is available."
       (find-alternate-file it)))
   ;; Pretend that git-commit-mode is a major-mode,
   ;; so that directory-local settings can be used.
-  (progn
+  (let ((default-directory
+          (if (file-exists-p ".dir-locals.el")
+              default-directory
+            ;; When $GIT_DIR/.dir-locals.el doesn't exist,
+            ;; fallback to $GIT_WORK_TREE/.dir-locals.el,
+            ;; because the maintainer can use the latter
+            ;; to enforce conventions, while s/he has no
+            ;; control over the former.
+            (magit-toplevel))))
     (let ((buffer-file-name nil)         ; trick hack-dir-local-variables
           (major-mode 'git-commit-mode)) ; trick dir-locals-collect-variables
       (hack-dir-local-variables)
