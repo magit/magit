@@ -434,6 +434,13 @@ This is only used if Magit is available."
                           (match-string 3 buffer-file-name)))))
     (when (file-accessible-directory-p (file-name-directory it))
       (find-alternate-file it)))
+  ;; Pretend that git-commit-mode is a major-mode,
+  ;; so that directory-local settings can be used.
+  (progn
+    (let ((buffer-file-name nil)         ; trick hack-dir-local-variables
+          (major-mode 'git-commit-mode)) ; trick dir-locals-collect-variables
+      (hack-dir-local-variables)
+      (hack-local-variables-apply)))
   (when git-commit-major-mode
     (let ((auto-mode-alist (list (cons (concat "\\`"
                                                (regexp-quote buffer-file-name)
