@@ -719,7 +719,7 @@ Added to `font-lock-extend-region-functions'."
      (0 'git-commit-pseudo-header))
     ;; Summary
     (eval . `(,(git-commit-summary-regexp)
-              (1 'git-commit-summary t)))
+              (1 'git-commit-summary)))
     ;; - Note (overrides summary)
     ("\\[.+?\\]"
      (0 'git-commit-note t))
@@ -844,5 +844,22 @@ Added to `font-lock-extend-region-functions'."
                                 (get-text-property pos 'face)))
            (buffer-string)))))))
 
+;;; Elisp Text Mode
+
+(define-derived-mode git-commit-elisp-text-mode text-mode "ElText"
+  "Major mode for editing commit messages of elisp projects.
+This is intended for use as `git-commit-major-mode' for projects
+that expect `symbols' to look like this.  I.e. like they look in
+Elisp doc-strings, including this one.  Unlike in doc-strings,
+\"strings\" also look different than the other text."
+  (setq font-lock-defaults '(git-commit-elisp-text-mode-keywords)))
+
+(defvar git-commit-elisp-text-mode-keywords
+  `((,(concat "[`‘]\\(\\(?:\\sw\\|\\s_\\|\\\\.\\)"
+              lisp-mode-symbol-regexp "\\)['’]")
+     (1 font-lock-constant-face prepend))
+    ("\"[^\"]*\"" (0 font-lock-string-face prepend))))
+
+;;; _
 (provide 'git-commit)
 ;;; git-commit.el ends here
