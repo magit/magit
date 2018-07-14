@@ -276,11 +276,12 @@ If N is negative, move the commit up instead.  With an active
 region, move all the lines that the region touches, not just the
 current line."
   (interactive "p")
-  (-let* (((beg end) (or (git-rebase-region-bounds)
-                         (list (line-beginning-position)
-                               (1+ (line-end-position)))))
-          (pt-offset (- (point) beg))
-          (mark-offset (and mark-active (- (mark) beg))))
+  (pcase-let* ((`(,beg ,end)
+                (or (git-rebase-region-bounds)
+                    (list (line-beginning-position)
+                          (1+ (line-end-position)))))
+               (pt-offset (- (point) beg))
+               (mark-offset (and mark-active (- (mark) beg))))
     (save-restriction
       (narrow-to-region
        (point-min)

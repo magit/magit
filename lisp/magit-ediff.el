@@ -444,11 +444,11 @@ FILE must be relative to the top directory of the repository."
 three-buffer Ediff is used in order to distinguish changes in the
 stash that were staged."
   (interactive (list (magit-read-stash "Stash")))
-  (-let* ((revA (concat stash "^1"))
-          (revB (concat stash "^2"))
-          (revC stash)
-          ((fileA fileC) (magit-ediff-read-files revA revC))
-          (fileB fileC))
+  (pcase-let* ((revA (concat stash "^1"))
+               (revB (concat stash "^2"))
+               (revC stash)
+               (`(,fileA ,fileC) (magit-ediff-read-files revA revC))
+               (fileB fileC))
     (if (and magit-ediff-show-stash-with-index
              (member fileA (magit-changed-files revB revA)))
         (let ((conf (current-window-configuration))

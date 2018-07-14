@@ -408,12 +408,12 @@ flattened before use."
                     (eq (process-status magit-this-process) 'run))
           (sleep-for 0.005)))
     (run-hooks 'magit-pre-call-git-hook)
-    (-let* ((process-environment (magit-process-environment))
-            (default-process-coding-system (magit--process-coding-system))
-            (flat-args (magit-process-git-arguments args))
-            ((process-buf . section)
-             (magit-process-setup magit-git-executable flat-args))
-            (inhibit-read-only t))
+    (pcase-let* ((process-environment (magit-process-environment))
+                 (default-process-coding-system (magit--process-coding-system))
+                 (flat-args (magit-process-git-arguments args))
+                 (`(,process-buf . ,section)
+                  (magit-process-setup magit-git-executable flat-args))
+                 (inhibit-read-only t))
       (magit-process-finish
        (apply #'call-process-region (point-min) (point-max)
               magit-git-executable nil process-buf nil flat-args)
@@ -520,18 +520,19 @@ After the process returns, `magit-process-sentinel' refreshes the
 buffer that was current when `magit-start-process' was called (if
 it is a Magit buffer and still alive), as well as the respective
 Magit status buffer."
-  (-let* (((process-buf . section)
-           (magit-process-setup program args))
-          (process
-           (let ((process-connection-type
-                  ;; Don't use a pty, because it would set icrnl
-                  ;; which would modify the input (issue #20).
-                  (and (not input) magit-process-connection-type))
-                 (process-environment (magit-process-environment))
-                 (default-process-coding-system (magit--process-coding-system)))
-             (apply #'start-file-process
-                    (file-name-nondirectory program)
-                    process-buf program args))))
+  (pcase-let*
+      ((`(,process-buf . ,section)
+        (magit-process-setup program args))
+       (process
+        (let ((process-connection-type
+               ;; Don't use a pty, because it would set icrnl
+               ;; which would modify the input (issue #20).
+               (and (not input) magit-process-connection-type))
+              (process-environment (magit-process-environment))
+              (default-process-coding-system (magit--process-coding-system)))
+          (apply #'start-file-process
+                 (file-name-nondirectory program)
+                 process-buf program args))))
     (with-editor-set-process-filter process #'magit-process-filter)
     (set-process-sentinel process #'magit-process-sentinel)
     (set-process-buffer   process process-buf)

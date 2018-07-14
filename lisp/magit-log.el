@@ -1300,8 +1300,8 @@ If there is no blob buffer in the same frame, then do nothing."
                     (format-time-string
                      style
                      (seconds-to-time (string-to-number date)))
-                  (-let* ((abbr (eq style 'age-abbreviated))
-                          ((cnt unit) (magit--age date abbr)))
+                  (pcase-let* ((abbr (eq style 'age-abbreviated))
+                               (`(,cnt ,unit) (magit--age date abbr)))
                     (format (format (if abbr "%%2i%%-%ic" "%%2i %%-%is")
                                     (- width (if details (1+ details-width) 0)))
                             cnt unit)))
