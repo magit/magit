@@ -119,7 +119,7 @@ does not carry to other options."
     (`magit-status-mode     'magit-status-margin)))
 
 (defun magit-set-buffer-margin (&optional reset refresh)
-  (when-let (option (magit-margin-option))
+  (when-let ((option (magit-margin-option)))
     (let* ((default (symbol-value option))
            (default-width (nth 2 default)))
       (when (or reset (not magit-buffer-margin))

@@ -436,7 +436,7 @@ call function WASHER with ARGS as its sole argument."
 
 (defmacro magit--with-safe-default-directory (file &rest body)
   (declare (indent 1) (debug (form body)))
-  `(when-let (default-directory (magit--safe-default-directory ,file))
+  `(when-let ((default-directory (magit--safe-default-directory ,file)))
      ,@body))
 
 (defun magit-git-dir (&optional path)
@@ -447,7 +447,7 @@ it has to be a path relative to the control directory and its
 absolute path is returned."
   (magit--with-refresh-cache (list default-directory 'magit-git-dir path)
     (magit--with-safe-default-directory nil
-      (when-let (dir (magit-rev-parse-safe "--git-dir"))
+      (when-let ((dir (magit-rev-parse-safe "--git-dir")))
         (setq dir (file-name-as-directory (magit-expand-git-file-name dir)))
         (unless (file-remote-p dir)
           (setq dir (concat (file-remote-p default-directory) dir)))
@@ -520,7 +520,7 @@ returning the truename."
                 updir
               (concat (file-remote-p default-directory)
                       (file-name-as-directory topdir))))
-        (when-let (gitdir (magit-rev-parse-safe "--git-dir"))
+        (when-let ((gitdir (magit-rev-parse-safe "--git-dir")))
           (setq gitdir (file-name-as-directory
                         (if (file-name-absolute-p gitdir)
                             ;; We might have followed a symlink.
@@ -1304,7 +1304,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
   (magit-list-related-branches "--no-merged" commit arg))
 
 (defun magit-list-unmerged-to-upstream-branches ()
-  (--filter (when-let (upstream (magit-get-upstream-branch it))
+  (--filter (when-let ((upstream (magit-get-upstream-branch it)))
               (member it (magit-list-unmerged-branches upstream)))
             (magit-list-local-branch-names)))
 

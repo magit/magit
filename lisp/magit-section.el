@@ -380,7 +380,7 @@ With a prefix argument also expand it." heading)
   "Show the body of the current section."
   (interactive (list (magit-current-section)))
   (oset section hidden nil)
-  (when-let (washer (oref section washer))
+  (when-let ((washer (oref section washer)))
     (oset section washer nil)
     (let ((inhibit-read-only t)
           (magit-insert-section--parent section)
@@ -393,7 +393,7 @@ With a prefix argument also expand it." heading)
           (funcall washer)
           (oset section end (point-marker)))))
     (magit-section-update-highlight))
-  (when-let (beg (oref section content))
+  (when-let ((beg (oref section content)))
     (remove-overlays beg (oref section end) 'invisible t))
   (magit-section-maybe-cache-visibility section)
   (dolist (child (oref section children))
@@ -407,7 +407,7 @@ With a prefix argument also expand it." heading)
   (if (eq section magit-root-section)
       (user-error "Cannot hide root section")
     (oset section hidden t)
-    (when-let (beg (oref section content))
+    (when-let ((beg (oref section content)))
       (let ((end (oref section end)))
         (remove-overlays beg end 'invisible t)
         (let ((o (make-overlay beg end)))
@@ -503,18 +503,18 @@ hidden."
 (defun magit-section-cycle-diffs ()
   "Cycle visibility of diff-related sections in the current buffer."
   (interactive)
-  (when-let (sections
-             (cond ((derived-mode-p 'magit-status-mode)
-                    (--mapcat
-                     (when it
-                       (when (oref it hidden)
-                         (magit-section-show it))
-                       (oref it children))
-                     (list (magit-get-section '((staged)   (status)))
-                           (magit-get-section '((unstaged) (status))))))
-                   ((derived-mode-p 'magit-diff-mode)
-                    (-filter #'magit-file-section-p
-                             (oref magit-root-section children)))))
+  (when-let ((sections
+              (cond ((derived-mode-p 'magit-status-mode)
+                     (--mapcat
+                      (when it
+                        (when (oref it hidden)
+                          (magit-section-show it))
+                        (oref it children))
+                      (list (magit-get-section '((staged)   (status)))
+                            (magit-get-section '((unstaged) (status))))))
+                    ((derived-mode-p 'magit-diff-mode)
+                     (-filter #'magit-file-section-p
+                              (oref magit-root-section children))))))
     (if (--any-p (oref it hidden) sections)
         (dolist (s sections)
           (magit-section-show s)
@@ -1030,9 +1030,9 @@ invisible."
             (unless (eq (magit-current-section) it)
               (goto-char start))))
       (or (and (magit-hunk-section-p section)
-               (when-let (parent (magit-get-section
-                                  (magit-section-ident
-                                   (oref section parent))))
+               (when-let ((parent (magit-get-section
+                                   (magit-section-ident
+                                    (oref section parent)))))
                  (let* ((children (oref parent children))
                         (siblings (magit-section-siblings section 'prev))
                         (previous (nth (length siblings) children)))
@@ -1121,7 +1121,7 @@ invisible."
               (magit-section-selected-p it selection)))))
 
 (defun magit-section-parent-value (section)
-  (when-let (parent (oref section parent))
+  (when-let ((parent (oref section parent)))
     (oref parent value)))
 
 (defun magit-section-siblings (section &optional direction)
@@ -1131,7 +1131,7 @@ If optional DIRECTION is `prev', then return siblings that come
 before SECTION.  If it is `next', then return siblings that come
 after SECTION.  For all other values, return all siblings
 excluding SECTION itself."
-  (when-let (parent (oref section parent))
+  (when-let ((parent (oref section parent)))
     (let ((siblings (oref parent children)))
       (pcase direction
         (`prev  (cdr (member section (reverse siblings))))

@@ -270,7 +270,7 @@ many \"branches\" of each wip ref are shown."
              args files))
 
 (defun magit-wip-log-get-tips (wipref count)
-  (when-let (reflog (magit-git-lines "reflog" wipref))
+  (when-let ((reflog (magit-git-lines "reflog" wipref)))
     (let (tips)
       (while (and reflog (> count 1))
         (setq reflog (cl-member "^[^ ]+ [^:]+: restart autosaving"

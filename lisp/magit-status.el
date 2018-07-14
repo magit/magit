@@ -145,7 +145,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
    (let ((directory (file-name-as-directory
                      (expand-file-name
                       (read-directory-name "Create repository in: ")))))
-     (when-let (toplevel (magit-toplevel directory))
+     (when-let ((toplevel (magit-toplevel directory)))
        (setq toplevel (expand-file-name toplevel))
        (unless (y-or-n-p (if (file-equal-p toplevel directory)
                              (format "Reinitialize existing repository %s? "
@@ -209,7 +209,7 @@ also contains other useful hints.")
 (defvar magit--remotes-using-recent-git nil)
 
 (defun magit--tramp-asserts (directory)
-  (when-let (remote (file-remote-p directory))
+  (when-let ((remote (file-remote-p directory)))
     (unless (member remote magit--remotes-using-recent-git)
       (if-let (version (let ((default-directory directory))
                          (magit-git-version)))
@@ -338,7 +338,7 @@ the status buffer causes this section to disappear again."
       (insert (propertize (format "%-10s" "GitError! ")
                           'face 'magit-section-heading))
       (insert (propertize magit-this-error 'face 'font-lock-warning-face))
-      (when-let (key (car (where-is-internal 'magit-process-buffer)))
+      (when-let ((key (car (where-is-internal 'magit-process-buffer))))
         (insert (format "  [Type `%s' for details]" (key-description key))))
       (insert ?\n))
     (setq magit-this-error nil)))
@@ -504,15 +504,15 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
          (base (and base (file-directory-p base) base)))
     (unless (equal show "no")
       (if (equal show "all")
-          (when-let (files (magit-untracked-files nil base))
+          (when-let ((files (magit-untracked-files nil base)))
             (magit-insert-section (untracked)
               (magit-insert-heading "Untracked files:")
               (magit-insert-files files base)
               (insert ?\n)))
-        (when-let (files (--mapcat (and (eq (aref it 0) ??)
-                                        (list (substring it 3)))
-                                   (magit-git-items "status" "-z" "--porcelain"
-                                                    "--" base)))
+        (when-let ((files (--mapcat (and (eq (aref it 0) ??)
+                                         (list (substring it 3)))
+                                    (magit-git-items "status" "-z" "--porcelain"
+                                                     "--" base))))
           (magit-insert-section (untracked)
             (magit-insert-heading "Untracked files:")
             (dolist (file files)
@@ -528,7 +528,7 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
 If the first element of `magit-diff-section-arguments' is a
 directory, then limit the list to files below that.  The value
 value of that variable can be set using \"D = f DIRECTORY RET g\"."
-  (when-let (files (magit-list-files))
+  (when-let ((files (magit-list-files)))
     (let* ((base (car magit-diff-section-file-args))
            (base (and base (file-directory-p base) base)))
       (magit-insert-section (tracked nil t)
@@ -542,7 +542,7 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
 If the first element of `magit-diff-section-arguments' is a
 directory, then limit the list to files below that.  The value
 of that variable can be set using \"D = f DIRECTORY RET g\"."
-  (when-let (files (magit-ignored-files))
+  (when-let ((files (magit-ignored-files)))
     (let* ((base (car magit-diff-section-file-args))
            (base (and base (file-directory-p base) base)))
       (magit-insert-section (tracked nil t)

@@ -503,8 +503,8 @@ line is inserted at all."
 
 (defun magit-insert-tags ()
   "Insert sections showing all tags."
-  (when-let (tags (magit-git-lines "tag" "--list" "-n"
-                                   (cadr magit-refresh-args)))
+  (when-let ((tags (magit-git-lines "tag" "--list" "-n"
+                                    (cadr magit-refresh-args))))
     (let ((_head (magit-rev-parse "HEAD")))
       (magit-insert-section (tags)
         (magit-insert-heading "Tags:")

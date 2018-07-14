@@ -49,8 +49,8 @@ This function will:
         (apply fn args)
       (signal 'bookmark-error-no-filename (list 'stringp default-directory)))
     (when (derived-mode-p 'magit-mode)
-      (when-let (hidden-sections (bookmark-prop-get bookmark
-                                                    'magit-hidden-sections))
+      (when-let ((hidden-sections (bookmark-prop-get bookmark
+                                                     'magit-hidden-sections)))
         (dolist (child (oref magit-root-section children))
           (if (member (cons (oref child type)
                             (oref child value))

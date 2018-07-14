@@ -1283,7 +1283,7 @@ If there is no blob buffer in the same frame, then do nothing."
 ;;; Log Margin
 
 (defun magit-log-format-margin (author date)
-  (when-let (option (magit-margin-option))
+  (when-let ((option (magit-margin-option)))
     (pcase-let ((`(,_ ,style ,width ,details ,details-width)
                  (or magit-buffer-margin
                      (symbol-value option))))

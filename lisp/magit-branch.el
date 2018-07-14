@@ -577,7 +577,7 @@ defaulting to the branch at point."
              (list (magit-read-branch-prefer-other
                     (if force "Force delete branch" "Delete branch")))))
      (unless force
-       (when-let (unmerged (-remove #'magit-branch-merged-p branches))
+       (when-let ((unmerged (-remove #'magit-branch-merged-p branches)))
          (if (magit-confirm 'delete-unmerged-branch
                "Delete unmerged branch %s"
                "Delete %i unmerged branches"
@@ -651,7 +651,7 @@ defaulting to the branch at point."
 (put 'magit-branch-delete 'interactive-only t)
 
 (defun magit-branch-maybe-delete-pr-remote (branch)
-  (when-let (remote (magit-get "branch" branch "pullRequestRemote"))
+  (when-let ((remote (magit-get "branch" branch "pullRequestRemote")))
     (let* ((variable (format "remote.%s.fetch" remote))
            (refspecs (magit-get-all variable)))
       (unless (member (format "+refs/heads/*:refs/remotes/%s/*" remote)
