@@ -153,6 +153,11 @@ own faces for the `header-line', or for parts of the
   "Face for parts of commit messages inside brackets."
   :group 'magit-faces)
 
+(defface magit-keyword-squash
+  '((t :inherit font-lock-warning-face))
+  "Face for squash! and fixup! keywords in commit messages."
+  :group 'magit-faces)
+
 (defface magit-signature-good
   '((t :foreground "green"))
   "Face for good signatures."

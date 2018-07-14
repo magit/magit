@@ -1198,7 +1198,7 @@ Do not add this to a hook variable."
       (setq start (match-end 0))
       (put-text-property (match-beginning 0)
                          (match-end 0)
-                         'face 'magit-keyword msg))
+                         'face 'magit-keyword-squash msg))
     (while (string-match "\\[[^[]*\\]" msg start)
       (setq start (match-end 0))
       (when magit-log-highlight-keywords
