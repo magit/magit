@@ -586,7 +586,7 @@ defaulting to the branch at point."
            (or (setq branches (-difference branches unmerged))
                (user-error "Abort")))))
      (list branches force)))
-  (let* ((refs (-map #'magit-ref-fullname branches))
+  (let* ((refs (mapcar #'magit-ref-fullname branches))
          (ambiguous (--remove it refs)))
     (when ambiguous
       (user-error

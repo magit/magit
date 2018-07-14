@@ -72,9 +72,9 @@ This function is used as a helper for functions set as
                  (cons (cons name (point))
                        (gethash parent-title entries (list)))
                  entries)))
-    (-map (lambda (menu-title)
-            (cons menu-title (gethash menu-title entries)))
-          (hash-table-keys entries))))
+    (mapcar (lambda (menu-title)
+              (cons menu-title (gethash menu-title entries)))
+            (hash-table-keys entries))))
 
 ;;; Log mode
 

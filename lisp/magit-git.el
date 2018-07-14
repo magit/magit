@@ -1474,13 +1474,13 @@ Return a list of two integers: (A>B B>A)."
   (magit-rev-parse (magit-abbrev-arg "short") rev))
 
 (defun magit-commit-children (commit &optional args)
-  (-map #'car
-        (--filter (member commit (cdr it))
-                  (--map (split-string it " ")
-                         (magit-git-lines
-                          "log" "--format=%H %P"
-                          (or args (list "--branches" "--tags" "--remotes"))
-                          "--not" commit)))))
+  (mapcar #'car
+          (--filter (member commit (cdr it))
+                    (--map (split-string it " ")
+                           (magit-git-lines
+                            "log" "--format=%H %P"
+                            (or args (list "--branches" "--tags" "--remotes"))
+                            "--not" commit)))))
 
 (defun magit-commit-parents (commit)
   (--when-let (magit-git-string "rev-list" "-1" "--parents" commit)

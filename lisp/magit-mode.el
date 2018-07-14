@@ -776,8 +776,8 @@ thinking a buffer belongs to a repo that it doesn't.")
                                    (equal (magit-buffer-lock-value) value))
                             (not magit-buffer-locked-p))))
                    (if frame
-                       (-map #'window-buffer
-                             (window-list (unless (eq frame t) frame)))
+                       (mapcar #'window-buffer
+                               (window-list (unless (eq frame t) frame)))
                      (buffer-list)))
           (and create
                (let ((default-directory topdir))

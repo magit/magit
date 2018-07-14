@@ -1254,7 +1254,7 @@ If there is no blob buffer in the same frame, then do nothing."
   (unless magit--update-revision-buffer
     (when-let ((commit (magit-section-when 'commit))
                (buffer (--first (with-current-buffer it magit-buffer-revision)
-                                (-map #'window-buffer (window-list)))))
+                                (mapcar #'window-buffer (window-list)))))
         (setq magit--update-blob-buffer (list commit buffer))
         (run-with-idle-timer
          magit-update-other-window-delay nil
