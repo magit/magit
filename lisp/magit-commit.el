@@ -385,15 +385,15 @@ history element."
               (magit-display-buffer-noselect t)
               (inhibit-quit nil))
           (message "Diffing changes to be committed (C-g to abort diffing)")
-          (if-let (fn (cl-case last-command
-                        (magit-commit
-                         (apply-partially 'magit-diff-staged nil))
-                        (magit-commit-all
-                         (apply-partially 'magit-diff-working-tree nil))
-                        ((magit-commit-amend
-                          magit-commit-reword
-                          magit-rebase-reword-commit)
-                         'magit-diff-while-amending)))
+          (if-let ((fn (cl-case last-command
+                         (magit-commit
+                          (apply-partially 'magit-diff-staged nil))
+                         (magit-commit-all
+                          (apply-partially 'magit-diff-working-tree nil))
+                         ((magit-commit-amend
+                           magit-commit-reword
+                           magit-rebase-reword-commit)
+                          'magit-diff-while-amending))))
               (funcall fn args)
             (if (magit-anything-staged-p)
                 (magit-diff-staged nil args)

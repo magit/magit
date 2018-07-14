@@ -659,8 +659,8 @@ modes is toggled, then this mode also gets toggled automatically.
                 (?A . ,(p2 "author-time"    "author-tz"    'magit-blame-date))
                 (?C . ,(p2 "committer-time" "committer-tz" 'magit-blame-date))
                 (?f . "")))))))
-    (if-let (width (and (string-suffix-p "%f" format)
-                        (magit-blame--style-get 'margin-width)))
+    (if-let ((width (and (string-suffix-p "%f" format)
+                         (magit-blame--style-get 'margin-width))))
         (concat str
                 (propertize (make-string (max 0 (- width (length str))) ?\s)
                             'face face))
@@ -694,10 +694,10 @@ modes is toggled, then this mode also gets toggled automatically.
 (defun magit-blame-maybe-show-message ()
   (when (magit-blame--style-get 'show-message)
     (let ((message-log-max 0))
-      (if-let (msg (cdr (assq 'heading
-                              (gethash (oref (magit-current-blame-chunk)
-                                             orig-rev)
-                                       magit-blame-cache))))
+      (if-let ((msg (cdr (assq 'heading
+                               (gethash (oref (magit-current-blame-chunk)
+                                              orig-rev)
+                                        magit-blame-cache)))))
           (progn (setq msg (substring msg 0 -1))
                  (set-text-properties 0 (length msg) nil msg)
                  (message msg))
@@ -757,7 +757,7 @@ not turn on `read-only-mode'."
     (magit--not-inside-repository-error))
   (if (and magit-blame-mode
            (eq type magit-blame-type))
-      (if-let (chunk (magit-current-blame-chunk))
+      (if-let ((chunk (magit-current-blame-chunk)))
           (unless (oref chunk prev-rev)
             (user-error "Chunk has no further history"))
         (user-error "Commit data not available yet.  Still blaming."))
@@ -827,7 +827,7 @@ then also kill the buffer."
 (defun magit-blame-next-chunk-same-commit (&optional previous)
   "Move to the next chunk from the same commit.\n\n(fn)"
   (interactive)
-  (if-let (rev (oref (magit-current-blame-chunk) orig-rev))
+  (if-let ((rev (oref (magit-current-blame-chunk) orig-rev)))
       (let ((pos (point)) ov)
         (save-excursion
           (while (and (not ov)

@@ -1047,10 +1047,10 @@ Limited by `magit-process-error-tooltip-max-lines'."
               (with-current-buffer status-buf
                 (setq magit-this-error msg)))))
         (message "%s ... [%s buffer %s for details]" msg
-                 (if-let (key (and (buffer-live-p command-buf)
-                                   (with-current-buffer command-buf
-                                     (car (where-is-internal
-                                           'magit-process-buffer)))))
+                 (if-let ((key (and (buffer-live-p command-buf)
+                                    (with-current-buffer command-buf
+                                      (car (where-is-internal
+                                            'magit-process-buffer))))))
                      (format "Hit %s to see" (key-description key))
                    "See")
                  (buffer-name process-buf))))))

@@ -495,7 +495,7 @@ This discards all changes made since the sequence started."
 If that variable is unset, then rebase onto `remote.pushDefault'."
   (interactive (list (magit-rebase-arguments)))
   (--if-let (magit-get-current-branch)
-      (if-let (remote (magit-get-push-remote it))
+      (if-let ((remote (magit-get-push-remote it)))
           (if (member remote (magit-list-remotes))
               (magit-git-rebase (concat remote "/" it) args)
             (user-error "Remote `%s' doesn't exist" remote))
@@ -507,7 +507,7 @@ If that variable is unset, then rebase onto `remote.pushDefault'."
   "Rebase the current branch onto its upstream branch."
   (interactive (list (magit-rebase-arguments)))
   (--if-let (magit-get-current-branch)
-      (if-let (target (magit-get-upstream-branch it))
+      (if-let ((target (magit-get-upstream-branch it)))
           (magit-git-rebase target args)
         (user-error "No upstream is configured for %s" it))
     (user-error "No branch is checked out")))

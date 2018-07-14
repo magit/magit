@@ -136,7 +136,7 @@ is no file at point, then instead visit `default-directory'."
 (defun magit-dired-log (&optional follow)
   "Show log for all marked files, or the current file."
   (interactive "P")
-  (if-let (topdir (magit-toplevel default-directory))
+  (if-let ((topdir (magit-toplevel default-directory)))
       (let ((args (car (magit-log-arguments)))
             (files (dired-get-marked-files nil nil #'magit-file-tracked-p)))
         (unless files

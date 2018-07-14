@@ -782,16 +782,16 @@ anything this time around.
                          :start (point-marker)
                          :parent magit-insert-section--parent)))
        (oset ,s hidden
-             (if-let (value (run-hook-with-args-until-success
-                             'magit-section-set-visibility-hook ,s))
+             (if-let ((value (run-hook-with-args-until-success
+                              'magit-section-set-visibility-hook ,s)))
                  (eq value 'hide)
-               (if-let (incarnation (and magit-insert-section--oldroot
-                                         (magit-get-section
-                                          (magit-section-ident ,s)
-                                          magit-insert-section--oldroot)))
+               (if-let ((incarnation (and magit-insert-section--oldroot
+                                          (magit-get-section
+                                           (magit-section-ident ,s)
+                                           magit-insert-section--oldroot))))
                    (oref incarnation hidden)
-                 (if-let (value (magit-section-match-assoc
-                                 ,s magit-section-initial-visibility-alist))
+                 (if-let ((value (magit-section-match-assoc
+                                  ,s magit-section-initial-visibility-alist)))
                      (progn
                        (when (functionp value)
                          (setq value (funcall value ,s)))

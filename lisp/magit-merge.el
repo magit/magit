@@ -129,7 +129,7 @@ branch, then also remove the respective remote branch."
     (unless (yes-or-no-p
              "Do you really wanto to merge `master' into another branch? ")
       (user-error "Abort")))
-  (if-let (target (magit-get-push-branch branch t))
+  (if-let ((target (magit-get-push-branch branch t)))
       (progn
         (magit-git-push branch target (list "--force-with-lease"))
         (set-process-sentinel
