@@ -175,7 +175,7 @@ it is nil, then PATH also becomes the name."
     (push (if prefer-short path name) minibuffer-history)
     (magit-read-string-ns
      "Submodule name" nil (cons 'minibuffer-history 2)
-     (or (--keep (-let [(var val) (split-string it "=")]
+     (or (--keep (pcase-let ((`(,var ,val) (split-string it "=")))
                    (and (equal val path)
                         (cadr (split-string var "\\."))))
                  (magit-git-lines "config" "--list" "-f" ".gitmodules"))

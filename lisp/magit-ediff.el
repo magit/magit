@@ -214,10 +214,11 @@ line of the region.  With a prefix argument, instead of diffing
 the revisions, choose a revision to view changes along, starting
 at the common ancestor of both revisions (i.e., use a \"...\"
 range)."
-  (interactive (-let [(revA revB) (magit-ediff-compare--read-revisions
-                                   nil current-prefix-arg)]
-                 (nconc (list revA revB)
-                        (magit-ediff-read-files revA revB))))
+  (interactive
+   (pcase-let ((`(,revA ,revB) (magit-ediff-compare--read-revisions
+                                nil current-prefix-arg)))
+     (nconc (list revA revB)
+            (magit-ediff-read-files revA revB))))
   (magit-with-toplevel
     (let ((conf (current-window-configuration))
           (bufA (if revA
@@ -306,15 +307,16 @@ mind at all, then it asks the user for a command to run."
           (setq command #'magit-ediff-show-stash)
           (setq revB value))
          ((pred stringp)
-          (-let [(a b) (magit-ediff-compare--read-revisions range)]
+          (pcase-let ((`(,a ,b) (magit-ediff-compare--read-revisions range)))
             (setq command #'magit-ediff-compare)
             (setq revA a)
             (setq revB b)))
          (_
           (when (derived-mode-p 'magit-diff-mode)
             (pcase (magit-diff-type)
-              (`committed (-let [(a b) (magit-ediff-compare--read-revisions
-                                        (car magit-refresh-args))]
+              (`committed (pcase-let ((`(,a ,b)
+                                       (magit-ediff-compare--read-revisions
+                                        (car magit-refresh-args))))
                             (setq revA a)
                             (setq revB b)))
               ((guard (not magit-ediff-dwim-show-on-hunks))

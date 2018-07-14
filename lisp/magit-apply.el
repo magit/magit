@@ -601,10 +601,10 @@ so causes the change to be applied to the index as well."
   (magit-reverse-files (list section) args))
 
 (defun magit-reverse-files (sections args)
-  (-let [(binaries sections)
-         (let ((bs (magit-staged-binary-files)))
-           (--separate (member (oref it value) bs)
-                       sections))]
+  (pcase-let ((`(,binaries ,sections)
+               (let ((bs (magit-staged-binary-files)))
+                 (--separate (member (oref it value) bs)
+                             sections))))
     (magit-confirm-files 'reverse (--map (oref it value) sections))
     (if (= (length sections) 1)
         (magit-reverse-apply (car sections) 'magit-apply-diff args)

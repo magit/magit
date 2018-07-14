@@ -337,7 +337,7 @@ Currently this only adds the following key bindings.
 (defun magit-blob-visit (blob-or-file line)
   (if (stringp blob-or-file)
       (find-file blob-or-file)
-    (-let [(rev file) blob-or-file]
+    (pcase-let ((`(,rev ,file) blob-or-file))
       (magit-find-file rev file)
       (apply #'message "%s (%s %s ago)"
              (magit-rev-format "%s" rev)

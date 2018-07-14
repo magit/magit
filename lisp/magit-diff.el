@@ -989,7 +989,7 @@ be committed."
 (defvar-local magit-buffer-revision-hash nil)
 
 (defun magit-show-commit--arguments ()
-  (-let [(args diff-files) (magit-diff-arguments)]
+  (pcase-let ((`(,args ,diff-files) (magit-diff-arguments)))
     (list args (if (derived-mode-p 'magit-log-mode)
                    (and (not (member "--follow" (nth 1 magit-refresh-args)))
                         (nth 2 magit-refresh-args))

@@ -109,7 +109,7 @@ displays the text of `magit-process-error-summary' instead."
                  integer))
 
 (defcustom magit-credential-cache-daemon-socket
-  (--some (-let [(prog . args) (split-string it)]
+  (--some (pcase-let ((`(,prog . ,args) (split-string it)))
             (if (and prog
                      (string-match-p
                       "\\`\\(?:\\(?:/.*/\\)?git-credential-\\)?cache\\'" prog))
@@ -347,7 +347,8 @@ Process output goes into a new section in the buffer returned by
   "Call PROGRAM synchronously in a separate process.
 Process output goes into a new section in the buffer returned by
 `magit-process-buffer'."
-  (-let [(process-buf . section) (magit-process-setup program args)]
+  (pcase-let ((`(,process-buf . ,section)
+               (magit-process-setup program args)))
     (magit-process-finish
      (let ((inhibit-read-only t))
        (apply #'magit-process-file program nil process-buf nil args))

@@ -890,10 +890,10 @@ See also `magit-toggle-buffer-lock'.")
 See also `magit-buffer-lock-functions'."
   (cl-case mode
     (magit-cherry-mode
-     (-let [(upstream head) args]
+     (pcase-let ((`(,upstream ,head) args))
        (concat head ".." upstream)))
     (magit-diff-mode
-     (-let [(rev-or-range const _args files) args]
+     (pcase-let ((`(,rev-or-range ,const ,_args ,files) args))
        (nconc (cons (or rev-or-range
                         (if (member "--cached" const)
                             (progn (setq const (delete "--cached" const))
@@ -902,15 +902,15 @@ See also `magit-buffer-lock-functions'."
                     const)
               (and files (cons "--" files)))))
     (magit-log-mode
-     (-let [(revs _args files) args]
+     (pcase-let ((`(,revs ,_args ,files) args))
        (if (and revs files)
            (append revs (cons "--" files))
          (append revs files))))
     (magit-refs-mode
-     (-let [(ref args) args]
+     (pcase-let ((`(,ref ,args) args))
        (cons (or ref "HEAD") args)))
     (magit-revision-mode
-     (-let [(rev __const _args files) args]
+     (pcase-let ((`(,rev ,_const ,_args ,files) args))
        (if files (cons rev files) (list rev))))
     ((magit-reflog-mode   ; (ref ~args)
       magit-stash-mode    ; (stash _const _args _files)

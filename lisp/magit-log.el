@@ -1235,7 +1235,7 @@ If there is no revision buffer in the same frame, then do nothing."
        magit-update-other-window-delay nil
        (let ((args (magit-show-commit--arguments)))
          (lambda ()
-           (-let [(rev buf) magit--update-revision-buffer]
+           (pcase-let ((`(,rev ,buf) magit--update-revision-buffer))
              (setq magit--update-revision-buffer nil)
              (when (buffer-live-p buf)
                (let ((magit-display-buffer-noselect t))
@@ -1259,7 +1259,7 @@ If there is no blob buffer in the same frame, then do nothing."
         (run-with-idle-timer
          magit-update-other-window-delay nil
          (lambda ()
-           (-let [(rev buf) magit--update-blob-buffer]
+           (pcase-let ((`(,rev ,buf) magit--update-blob-buffer))
              (setq magit--update-blob-buffer nil)
              (when (buffer-live-p buf)
                (save-excursion
@@ -1284,9 +1284,9 @@ If there is no blob buffer in the same frame, then do nothing."
 
 (defun magit-log-format-margin (author date)
   (when-let (option (magit-margin-option))
-    (-let [(_ style width details details-width)
-           (or magit-buffer-margin
-               (symbol-value option))]
+    (pcase-let ((`(,_ ,style ,width ,details ,details-width)
+                 (or magit-buffer-margin
+                     (symbol-value option))))
       (magit-make-margin-overlay
        (concat (and details
                     (concat (propertize (truncate-string-to-width

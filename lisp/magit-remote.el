@@ -637,8 +637,8 @@ missing.  To add them use something like:
 
 (defun magit-git-pull (source args)
   (run-hooks 'magit-credential-hook)
-  (-let [(remote . branch)
-         (magit-split-branch-name source)]
+  (pcase-let ((`(,remote . ,branch)
+               (magit-split-branch-name source)))
     (magit-run-git-with-editor "pull" args remote branch)))
 
 ;;;###autoload
@@ -730,8 +730,8 @@ removed after restarting Emacs."
 
 (defun magit-git-push (branch target args)
   (run-hooks 'magit-credential-hook)
-  (-let [(remote . target)
-         (magit-split-branch-name target)]
+  (pcase-let ((`(,remote . ,target)
+               (magit-split-branch-name target)))
     (magit-run-git-async "push" "-v" args remote
                          (format "%s:refs/heads/%s" branch target))))
 

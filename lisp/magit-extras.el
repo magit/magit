@@ -555,7 +555,8 @@ the minibuffer too."
      (push (caar magit-revision-stack) magit-revision-history)
      (pop magit-revision-stack)))
   (if rev
-      (-let [(pnt-format eob-format idx-format) magit-pop-revision-stack-format]
+      (pcase-let ((`(,pnt-format ,eob-format ,idx-format)
+                   magit-pop-revision-stack-format))
         (let ((default-directory toplevel)
               (idx (and idx-format
                         (save-excursion

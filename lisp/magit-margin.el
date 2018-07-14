@@ -124,8 +124,8 @@ does not carry to other options."
            (default-width (nth 2 default)))
       (when (or reset (not magit-buffer-margin))
         (setq magit-buffer-margin (copy-sequence default)))
-      (-let [(enable style _width details details-width)
-             magit-buffer-margin]
+      (pcase-let ((`(,enable ,style ,_width ,details ,details-width)
+                   magit-buffer-margin))
         (when (functionp default-width)
           (setf (nth 2 magit-buffer-margin)
                 (funcall default-width style details details-width)))
@@ -219,7 +219,7 @@ English.")
 
 (defun magit--age (date &optional abbreviate)
   (cl-labels ((fn (age spec)
-                  (-let [(char unit units weight) (car spec)]
+                  (pcase-let ((`(,char ,unit ,units ,weight) (car spec)))
                     (let ((cnt (round (/ age weight 1.0))))
                       (if (or (not (cdr spec))
                               (>= (/ age weight) 1))
