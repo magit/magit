@@ -409,10 +409,9 @@ Please see the manual for more information."
                  remote url))
               (unless (member (format "+refs/heads/*:refs/remotes/%s/*" remote)
                               fetch)
-                (magit-call-git "remote" "set-branches"
-                                "--add" remote pr-branch)
-                (magit-call-git "fetch" remote)))
-          (magit-call-git
+                (magit-git "remote" "set-branches" "--add" remote pr-branch)
+                (magit-git "fetch" remote)))
+          (magit-git
            "remote" "add" "-f" "--no-tags"
            "-t" pr-branch remote
            (cond ((or (string-prefix-p "git@" upstream-url)
@@ -423,18 +422,18 @@ Please see the manual for more information."
                  ((string-prefix-p "git://" upstream-url)
                   (format "git://%s/%s.git" host head-repo))
                  (t (error "%s has an unexpected format" upstream-url)))))
-        (magit-call-git "branch" branch (concat remote "/" pr-branch))
+        (magit-git "branch" branch (concat remote "/" pr-branch))
         (if (and editable-p
                  (equal branch pr-branch))
             (magit-set remote "branch" branch "pushRemote")
           (magit-set upstream "branch" branch "pushRemote")))
       (magit-set remote "branch" branch "pullRequestRemote")
       (magit-set "true" "branch" branch "rebase")
-      (magit-call-git "branch" branch
-                      (concat "--set-upstream-to="
-                              (if magit-branch-prefer-remote-upstream
-                                  (concat upstream "/" base-ref)
-                                base-ref)))
+      (magit-git "branch" branch
+                 (concat "--set-upstream-to="
+                         (if magit-branch-prefer-remote-upstream
+                             (concat upstream "/" base-ref)
+                           base-ref)))
       (magit-set (number-to-string number) "branch" branch "pullRequest")
       (magit-set title                     "branch" branch "description")
       (magit-refresh)
