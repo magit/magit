@@ -1598,40 +1598,26 @@ then show the last `magit-log-section-commit-count' commits."
   (let ((upstream (magit-rev-parse "@{upstream}")))
     (if (or (not upstream)
             (magit-rev-ancestor-p "HEAD" upstream))
-        (magit-insert-recent-commits
-         (--if-let (and magit-insert-section--oldroot
-                        (magit-get-section
-                         '((unpushed . "@{upstream}..")
-                           (status))
-                         magit-insert-section--oldroot))
-             (oref it hidden)
-           nil))
-      (magit-insert-unpushed-to-upstream
-       (--if-let (and magit-insert-section--oldroot
-                      (magit-get-section
-                       `((recent . ,(format "HEAD~%s..HEAD"
-                                            magit-log-section-commit-count))
-                         (status))
-                       magit-insert-section--oldroot))
-           (oref it hidden)
-         t)))))
+        (magit-insert-recent-commits 'unpushed "@{upstream}..")
+      (magit-insert-unpushed-to-upstream))))
 
-(defun magit-insert-unpushed-to-upstream (&optional collapse)
+(defun magit-insert-unpushed-to-upstream ()
   "Insert commits that haven't been pushed to the upstream yet."
   (when (magit-git-success "rev-parse" "@{upstream}")
-    (magit-insert-section (unpushed "@{upstream}.." collapse)
+    (magit-insert-section (unpushed "@{upstream}.." t)
       (magit-insert-heading
         (format (propertize "Unmerged into %s:" 'face 'magit-section-heading)
                 (magit-get-upstream-branch)))
       (magit-insert-log "@{upstream}.." magit-log-section-arguments))))
 
-(defun magit-insert-recent-commits (&optional collapse)
+(defun magit-insert-recent-commits (&optional type value)
   "Insert section showing recent commits.
 Show the last `magit-log-section-commit-count' commits."
   (let* ((start (format "HEAD~%s" magit-log-section-commit-count))
          (range (and (magit-rev-verify start)
                      (concat start "..HEAD"))))
-    (magit-insert-section (recent range collapse)
+    (magit-insert-section ((eval (or type 'recent))
+                           (or value range))
       (magit-insert-heading "Recent commits")
       (magit-insert-log range
                         (cons (format "-n%d" magit-log-section-commit-count)
