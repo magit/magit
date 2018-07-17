@@ -1554,7 +1554,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (defun magit-insert-unpulled-from-upstream ()
   "Insert commits that haven't been pulled from the upstream yet."
   (when (magit-git-success "rev-parse" "@{upstream}")
-    (magit-insert-section (unpulled "..@{upstream}")
+    (magit-insert-section (unpulled "..@{upstream}" t)
       (magit-insert-heading
         (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
                 (magit-get-upstream-branch)))
@@ -1573,7 +1573,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                            magit-status-sections-hook)
                      (memq 'magit-insert-unpulled-from-upstream-or-recent
                            magit-status-sections-hook)))
-      (magit-insert-section (unpulled (concat ".." it))
+      (magit-insert-section (unpulled (concat ".." it) t)
         (magit-insert-heading
           (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
                   (propertize it 'face 'magit-branch-remote)))
@@ -1604,7 +1604,7 @@ then show the last `magit-log-section-commit-count' commits."
 (defun magit-insert-unpushed-to-upstream ()
   "Insert commits that haven't been pushed to the upstream yet."
   (when (magit-git-success "rev-parse" "@{upstream}")
-    (magit-insert-section (unpushed "@{upstream}.." t)
+    (magit-insert-section (unpushed "@{upstream}..")
       (magit-insert-heading
         (format (propertize "Unmerged into %s:" 'face 'magit-section-heading)
                 (magit-get-upstream-branch)))
@@ -1617,7 +1617,8 @@ Show the last `magit-log-section-commit-count' commits."
          (range (and (magit-rev-verify start)
                      (concat start "..HEAD"))))
     (magit-insert-section ((eval (or type 'recent))
-                           (or value range))
+                           (or value range)
+                           t)
       (magit-insert-heading "Recent commits")
       (magit-insert-log range
                         (cons (format "-n%d" magit-log-section-commit-count)
@@ -1637,7 +1638,7 @@ Show the last `magit-log-section-commit-count' commits."
                            magit-status-sections-hook)
                      (memq 'magit-insert-unpushed-to-upstream-or-recent
                            magit-status-sections-hook)))
-      (magit-insert-section (unpushed (concat it ".."))
+      (magit-insert-section (unpushed (concat it "..") t)
         (magit-insert-heading
           (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
                   (propertize it 'face 'magit-branch-remote)))
