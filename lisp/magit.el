@@ -531,6 +531,14 @@ See info node `(magit)Debugging Tools' for more information."
 ;;; Startup Asserts
 
 (defun magit-startup-asserts ()
+  (when-let ((val (getenv "GIT_DIR")))
+    (setenv "GIT_DIR")
+    (message "Magit unset $GIT_DIR (was %S).  See \
+https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
+  (when-let ((val (getenv "GIT_WORK_TREE")))
+    (setenv "GIT_WORK_TREE")
+    (message "Magit unset $GIT_WORK_TREE (was %S).  See \
+https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
   (let ((version (magit-git-version)))
     (when (and version
                (version< version magit--minimal-git)
