@@ -961,5 +961,11 @@ FORMAT-STRING to be displayed, then don't."
   (unless (--first (string-prefix-p it format-string) magit-no-message)
     (apply #'message format-string args)))
 
+(defun magit-msg (format-string &rest args)
+  "Display a message at the bottom of the screen, but don't log it.
+Like `message', except that `message-log-max' is bound to nil."
+  (let ((message-log-max nil))
+    (apply #'message format-string args)))
+
 (provide 'magit-utils)
 ;;; magit-utils.el ends here
