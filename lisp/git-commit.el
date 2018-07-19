@@ -417,13 +417,13 @@ This is only used if Magit is available."
 
 (defvar git-commit-mode)
 
-;;;###autoload
-(defun git-commit-setup ()
+(defun git-commit-file-not-found ()
   ;; cygwin git will pass a cygwin path (/cygdrive/c/foo/.git/...),
   ;; try to handle this in window-nt Emacs.
   (--when-let
-      (and (eq system-type 'windows-nt)
-           (not (file-accessible-directory-p default-directory))
+      (and (string-match-p git-commit-filename-regexp buffer-file-name)
+           (not (file-accessible-directory-p
+                 (file-name-directory buffer-file-name)))
            (if (require 'magit-git nil t)
                ;; Emacs prepends a "c:".
                (magit-expand-git-file-name (substring buffer-file-name 2))
@@ -433,7 +433,15 @@ This is only used if Magit is available."
                   (concat (match-string 2 buffer-file-name) ":/"
                           (match-string 3 buffer-file-name)))))
     (when (file-accessible-directory-p (file-name-directory it))
-      (find-alternate-file it)))
+      (let ((inhibit-read-only t))
+        (insert-file-contents it t)
+        t))))
+
+(when (eq system-type 'windows-nt)
+  (add-hook 'find-file-not-found-functions #'git-commit-file-not-found))
+
+;;;###autoload
+(defun git-commit-setup ()
   (when git-commit-major-mode
     (let ((auto-mode-alist (list (cons (concat "\\`"
                                                (regexp-quote buffer-file-name)
