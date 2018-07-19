@@ -437,6 +437,7 @@ starts complicating other things, then it will be removed."
     (define-key map "Z" 'magit-stash-popup)
     (define-key map ":" 'magit-git-command)
     (define-key map "!" 'magit-run-popup)
+    (define-key map (kbd "C-c C-b") 'magit-browse-thing)
     (define-key map (kbd "C-c C-c") 'magit-dispatch-popup)
     (define-key map (kbd "C-c C-e") 'magit-dispatch-popup)
     (define-key map (kbd "C-x a")   'magit-add-change-log-entry)
@@ -464,6 +465,13 @@ which visits the thing at point."
       (progn (setq magit-current-popup nil)
              (call-interactively (key-binding (this-command-keys))))
     (user-error "There is no thing at point that could be visited")))
+
+(defun magit-browse-thing ()
+  "This is a placeholder command.
+Where applicable, section-specific keymaps bind another command
+which visits the thing at point using `browse-url'."
+  (interactive)
+  (user-error "There is no thing at point that could be browsed"))
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
@@ -912,9 +920,10 @@ See also `magit-buffer-lock-functions'."
     (magit-revision-mode
      (pcase-let ((`(,rev ,_const ,_args ,files) args))
        (if files (cons rev files) (list rev))))
-    ((magit-reflog-mode   ; (ref ~args)
-      magit-stash-mode    ; (stash _const _args _files)
-      magit-stashes-mode) ; (ref)
+    ((magit-reflog-mode       ; (ref ~args)
+      magit-stash-mode        ; (stash _const _args _files)
+      magit-stashes-mode      ; (ref)
+      magit-forge-topic-mode) ; (issue)
      (car args))
     (t
      (--when-let (cdr (assq mode magit-buffer-lock-functions))

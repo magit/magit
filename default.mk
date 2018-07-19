@@ -62,7 +62,15 @@ ELS += magit.el
 ELS += magit-status.el
 ELS += magit-refs.el
 ELS += magit-files.el
-ELS += magit-collab.el
+ELS += magit/forge/db.el
+ELS += magit/forge/core.el
+ELS += magit/forge.el
+ELS += magit/forge/post.el
+ELS += magit/forge/topic.el
+ELS += magit/forge/issue.el
+ELS += magit/forge/pullreq.el
+ELS += magit/forge/github.el
+ELS += magit/forge/gitlab.el
 ELS += magit-reset.el
 ELS += magit-branch.el
 ELS += magit-merge.el
@@ -91,19 +99,27 @@ ELGS = magit-autoloads.el magit-version.el
 
 VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0)
 
-ASYNC_VERSION       = 1.9.3
-DASH_VERSION        = 2.14.1
-GHUB_VERSION        = 2.0.1
-GIT_COMMIT_VERSION  = 2.13.0
-MAGIT_POPUP_VERSION = 2.12.3
-WITH_EDITOR_VERSION = 2.7.3
+ASYNC_VERSION          = 1.9.3
+CLOSQL_VERSION         = 0.5.2
+DASH_VERSION           = 2.14.1
+EMACSQL_VERSION        = 2.0.3
+EMACSQL_SQLITE_VERSION = $(EMACSQL_VERSION)
+GHUB_VERSION           = 2.0.1
+GIT_COMMIT_VERSION     = 2.13.0
+MAGIT_POPUP_VERSION    = 2.12.3
+TREEPY_VERSION         = 1.0.0
+WITH_EDITOR_VERSION    = 2.7.3
 
-ASYNC_MELPA_SNAPSHOT       = 20180527
-DASH_MELPA_SNAPSHOT        = 20180413
-GHUB_MELPA_SNAPSHOT        = 20180417
-GIT_COMMIT_MELPA_SNAPSHOT  = 20180602
-MAGIT_POPUP_MELPA_SNAPSHOT = 20180509
-WITH_EDITOR_MELPA_SNAPSHOT = 20180414
+ASYNC_MELPA_SNAPSHOT          = 20180527
+CLOSQL_MELPA_SNAPSHOT         = 20180521
+DASH_MELPA_SNAPSHOT           = 20180413
+EMACSQL_MELPA_SNAPSHOT        = 20180507
+EMACSQL_SQLITE_MELPA_SNAPSHOT = 20180128
+GHUB_MELPA_SNAPSHOT           = 20180417
+GIT_COMMIT_MELPA_SNAPSHOT     = 20180602
+MAGIT_POPUP_MELPA_SNAPSHOT    = 20180509
+TREEPY_MELPA_SNAPSHOT         = 20170722
+WITH_EDITOR_MELPA_SNAPSHOT    = 20180414
 
 EMACS_VERSION = 25.1
 
@@ -119,12 +135,30 @@ ifndef LOAD_PATH
 
 ELPA_DIR ?= $(HOME)/.emacs.d/elpa
 
+CLOSQL_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/closql-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(CLOSQL_DIR)" ""
+  CLOSQL_DIR = $(TOP)../closql
+endif
+
 DASH_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
 ifeq "$(DASH_DIR)" ""
   DASH_DIR = $(TOP)../dash
 endif
+
+EMACSQL_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/emacsql-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(EMACSQL_DIR)" ""
+  EMACSQL_DIR = $(TOP)../emacsql
+endif
+
+EMACSQL_SQLITE_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/emacsql-sqlite-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
 
 GHUB_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/ghub-[.0-9]*' 2> /dev/null | \
@@ -138,6 +172,13 @@ MAGIT_POPUP_DIR ?= $(shell \
   sort | tail -n 1)
 ifeq "$(MAGIT_POPUP_DIR)" ""
   MAGIT_POPUP_DIR = $(TOP)../magit-popup
+endif
+
+TREEPY_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/treepy-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(TREEPY_DIR)" ""
+  TREEPY_DIR = $(TOP)../treepy
 endif
 
 WITH_EDITOR_DIR ?= $(shell \
@@ -155,14 +196,26 @@ endif
 LOAD_PATH = -L $(TOP)/lisp
 
 ifdef CYGPATH
+  LOAD_PATH += -L $(shell cygpath --mixed $(CLOSQL_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(EMACSQL_DIR))
+  ifneq "$(EMACSQL_SQLITE_DIR)" ""
+  LOAD_PATH += -L $(shell cygpath --mixed $(EMACSQL_SQLITE_DIR))
+  endif
   LOAD_PATH += -L $(shell cygpath --mixed $(GHUB_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(MAGIT_POPUP_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(TREEPY_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
 else
+  LOAD_PATH += -L $(CLOSQL_DIR)
   LOAD_PATH += -L $(DASH_DIR)
+  LOAD_PATH += -L $(EMACSQL_DIR)
+  ifneq "$(EMACSQL_SQLITE_DIR)" ""
+  LOAD_PATH += -L $(EMACSQL_SQLITE_DIR)
+  endif
   LOAD_PATH += -L $(GHUB_DIR)
   LOAD_PATH += -L $(MAGIT_POPUP_DIR)
+  LOAD_PATH += -L $(TREEPY_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
 endif
 

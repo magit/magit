@@ -456,7 +456,8 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
               "Fetch"
               (?o "another branch"         magit-fetch-branch)
               (?r "explicit refspec"       magit-fetch-refspec)
-              (?m "submodules"             magit-fetch-modules))
+              (?m "submodules"             magit-fetch-modules)
+              (?i "forge issues"           magit-forge-pull))
   :default-action 'magit-fetch
   :max-action-columns 1)
 
@@ -625,7 +626,8 @@ missing.  To add them use something like:
              "Fetch"
              (?o "another branch"    magit-fetch-branch)
              (?s "explicit refspec"  magit-fetch-refspec)
-             (?m "submodules"        magit-fetch-modules))
+             (?m "submodules"        magit-fetch-modules)
+             (?i "forge issues"      magit-forge-pull))
   :default-action 'magit-fetch
   :max-action-columns 1)
 

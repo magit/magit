@@ -961,7 +961,8 @@ Do not add this to a hook variable."
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-show-commit)
+    (define-key map [remap magit-browse-thing] 'magit-browse-commit)
+    (define-key map [remap magit-visit-thing]  'magit-show-commit)
     (define-key map "a" 'magit-cherry-apply)
     map)
   "Keymap for `commit' sections.")
@@ -1111,7 +1112,7 @@ Do not add this to a hook variable."
         (unless align
           (insert (propertize hash 'face 'magit-hash) ?\s))
         (when (and refs (not magit-log-show-refname-after-summary))
-          (insert (magit-format-ref-labels refs) ?\s))
+          (insert (magit-format-ref-labels refs 'after)))
         (when (eq style 'reflog)
           (insert (format "%-2s " (1- magit-log-count)))
           (when refsub
@@ -1130,8 +1131,7 @@ Do not add this to a hook variable."
                                     (?E 'magit-signature-error)))))
           (insert (funcall magit-log-format-message-function hash msg)))
         (when (and refs magit-log-show-refname-after-summary)
-          (insert ?\s)
-          (insert (magit-format-ref-labels refs)))
+          (insert (magit-format-ref-labels refs 'before)))
         (insert ?\n)
         (when (memq style '(log reflog stash))
           (goto-char (line-beginning-position))
