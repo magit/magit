@@ -184,6 +184,7 @@ but in the future it will also be used set the defaults."
    (hidden   :initform nil)
    (washer   :initform nil)
    (process  :initform nil)
+   (heading-highlight-face :initform nil)
    (parent   :initform nil :initarg :parent)
    (children :initform nil)))
 
@@ -971,6 +972,13 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 This function works for any section but produces undesirable
 effects for diff related sections, which by default are
 highlighted using `magit-diff-highlight'.  Return t."
+  (when-let ((face (oref section heading-highlight-face)))
+    (dolist (section (or selection (list section)))
+      (magit-section-make-overlay
+       (oref section start)
+       (or (oref section content)
+           (oref section end))
+       face)))
   (cond (selection
          (magit-section-make-overlay (oref (car selection) start)
                                      (oref (car (last selection)) end)
