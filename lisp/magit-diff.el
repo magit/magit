@@ -2005,7 +2005,8 @@ or a ref which is not a branch, then it inserts nothing."
 
 (defun magit-insert-revision-message (rev)
   "Insert the commit message into a revision buffer."
-  (magit-insert-section (commit-message)
+  (magit-insert-section section (commit-message)
+    (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
     (let ((beg (point)))
       (magit-rev-insert-format "%B" rev)
       (if (= (point) (+ beg 2))
@@ -2044,7 +2045,7 @@ or a ref which is not a branch, then it inserts nothing."
                           (goto-char end))))))))))
         (save-excursion
           (forward-line)
-          (put-text-property beg (point) 'face 'magit-section-secondary-heading)
+          (add-face-text-property beg (point) 'magit-diff-hunk-heading)
           (magit-insert-heading))
         (when magit-diff-highlight-keywords
           (save-excursion
@@ -2059,7 +2060,8 @@ or a ref which is not a branch, then it inserts nothing."
   (let* ((var "core.notesRef")
          (def (or (magit-get var) "refs/notes/commits")))
     (dolist (ref (or (magit-list-active-notes-refs)))
-      (magit-insert-section (notes ref (not (equal ref def)))
+      (magit-insert-section section (notes ref (not (equal ref def)))
+        (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
         (let ((beg (point)))
           (magit-git-insert "-c" (concat "core.notesRef=" ref)
                             "notes" "show" rev)
@@ -2067,12 +2069,13 @@ or a ref which is not a branch, then it inserts nothing."
               (magit-cancel-section)
             (goto-char beg)
             (end-of-line)
-            (put-text-property beg (point) 'face 'magit-section-secondary-heading)
             (insert (format " (%s)"
                             (propertize (if (string-prefix-p "refs/notes/" ref)
                                             (substring ref 11)
                                           ref)
                                         'face 'magit-refname)))
+            (forward-char)
+            (add-face-text-property beg (point) 'magit-diff-hunk-heading)
             (magit-insert-heading)
             (goto-char (point-max))
             (insert ?\n)))))))
