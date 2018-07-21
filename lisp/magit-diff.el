@@ -2008,7 +2008,9 @@ or a ref which is not a branch, then it inserts nothing."
   (magit-insert-section section (commit-message)
     (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
     (let ((beg (point)))
-      (magit-rev-insert-format "%B" rev)
+      (insert (with-temp-buffer
+                (magit-rev-insert-format "%B" rev)
+                (magit-revision--wash-message)))
       (if (= (point) (+ beg 2))
           (progn (backward-delete-char 2)
                  (insert "(no message)\n"))
@@ -2063,8 +2065,10 @@ or a ref which is not a branch, then it inserts nothing."
       (magit-insert-section section (notes ref (not (equal ref def)))
         (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
         (let ((beg (point)))
-          (magit-git-insert "-c" (concat "core.notesRef=" ref)
-                            "notes" "show" rev)
+          (insert (with-temp-buffer
+                    (magit-git-insert "-c" (concat "core.notesRef=" ref)
+                                      "notes" "show" rev)
+                    (magit-revision--wash-message)))
           (if (= (point) beg)
               (magit-cancel-section)
             (goto-char beg)
@@ -2079,6 +2083,15 @@ or a ref which is not a branch, then it inserts nothing."
             (magit-insert-heading)
             (goto-char (point-max))
             (insert ?\n)))))))
+
+(defun magit-revision--wash-message ()
+  (let ((major-mode 'git-commit-mode))
+    (hack-dir-local-variables)
+    (hack-local-variables-apply))
+  (unless (memq git-commit-major-mode '(nil text-mode))
+    (funcall git-commit-major-mode)
+    (font-lock-ensure))
+  (buffer-string))
 
 (defun magit-insert-revision-headers (rev)
   "Insert headers about the commit into a revision buffer."
