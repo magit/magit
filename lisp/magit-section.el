@@ -179,8 +179,7 @@ but in the future it will also be used set the defaults."
   "Internal variable used for `magit-explain-section'.")
 
 (defclass magit-section ()
-  ((source   :initform (symbol-value 'magit--current-section-hook))
-   (type     :initform nil :initarg :type)
+  ((type     :initform nil :initarg :type)
    (value    :initform nil :initarg :value)
    (start    :initform nil :initarg :start)
    (content  :initform nil)
@@ -188,6 +187,7 @@ but in the future it will also be used set the defaults."
    (hidden   :initform nil)
    (washer   :initform nil)
    (process  :initform nil)
+   (inserter :initform (symbol-value 'magit--current-section-hook))
    (parent   :initform nil :initarg :parent)
    (children :initform nil)))
 
@@ -628,12 +628,12 @@ This command is intended for debugging purposes."
 (defun magit-describe-section (section &optional interactive-p)
   "Show information about the section at point."
   (interactive (list (magit-current-section) t))
-  (let ((src-section section))
-    (while (and src-section (not (oref src-section source)))
-      (setq src-section (oref src-section parent)))
-    (when (oref src-section source)
-      (setq section src-section)))
-  (pcase (oref section source)
+  (let ((inserter-section section))
+    (while (and inserter-section (not (oref inserter-section inserter)))
+      (setq inserter-section (oref inserter-section parent)))
+    (when (oref inserter-section inserter)
+      (setq section inserter-section)))
+  (pcase (oref section inserter)
     (`((,hook ,fun) . ,src-src)
      (help-setup-xref `(magit-explain-section ,section) interactive-p)
      (with-help-window (help-buffer)
@@ -654,7 +654,7 @@ This command is intended for debugging purposes."
          (insert ".\n\n"
                  (or (cdr (help-split-fundoc (documentation fun) fun))
                      (documentation fun))))))
-    (_ (message "section type: `%S', source unknown"
+    (_ (message "section type: `%S', inserter unknown"
                 (oref section type)))))
 
 ;;; Match
