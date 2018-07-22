@@ -933,19 +933,15 @@ insert a newline character if necessary."
           (cons (lambda ()
                   (push magit-insert-section--current
                         header-sections))
-               (if (listp magit-insert-section-hook)
-                   magit-insert-section-hook
-                 (list magit-insert-section-hook)))))
+                (if (listp magit-insert-section-hook)
+                    magit-insert-section-hook
+                  (list magit-insert-section-hook)))))
     (magit-run-section-hook hook)
     (when header-sections
       ;; Make the first header into the parent of the rest.
       (cl-callf nreverse header-sections)
       (let* ((1st-header (pop header-sections))
              (header-parent (oref 1st-header parent)))
-        ;; Can we just assume the header sections are the only
-        ;; sections, and then we don't need the collector function in
-        ;; `magit-insert-section-hook' at all?
-        (cl-assert (equal (oref header-parent children) (cons 1st-header header-sections)))
         (oset header-parent children (list 1st-header))
         (oset 1st-header children header-sections)
         (oset 1st-header content (oref (car header-sections) start))
