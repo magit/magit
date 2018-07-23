@@ -874,15 +874,16 @@ An alist of symbols to functions.
 
 The symbol must be the major-mode the locked buffer will have.
 
-The function must take a list of arguments and return a value
-that identifies the buffer (i.e., its 'lock value').  If the
-third-party mode is invoked as
+The function must take a single argument, a list of refresh
+arguments (the value of `magit-refresh-args') and return a
+value that identifies the buffer (i.e., its 'lock value').
+If the third-party mode is invoked as
 
     (magit-mode-setup-internal #\\='my-mode \\='(1 2 3) t)
 
 the function will be invoked as
 
-    (apply lock-func \\='(1 2 3))
+    (funcall lock-func \\='(1 2 3))
 
 if the cons (my-mode . lock-func) is in this list.
 
@@ -926,7 +927,7 @@ See also `magit-buffer-lock-functions'."
      (car args))
     (t
      (--when-let (cdr (assq mode magit-buffer-lock-functions))
-       (apply it args)))))
+       (funcall it args)))))
 
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
