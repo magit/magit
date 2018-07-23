@@ -167,14 +167,19 @@ When t, then rename the branch named OLD on the remote specified
   by `branch.OLD.pushRemote' to NEW, provided OLD exists on that
   remote and unless NEW already exists on the remote.
 
-When `github-only', then behave like `t' if the remote points to
-  a repository on Github, otherwise like `local-only'."
+When `forge-only' and the `forge' package is available, then
+  behave like `t' if the remote points to a repository on a forge
+  (currently Github or Gitlab), otherwise like `local-only'.
+
+Another supported but obsolete value is `github-only'.  It is a
+  misnomer because it now treated as an alias for `forge-only'."
+  :package-version '(magit . "2.90.0")
   :group 'magit-commands
   :type '(choice
           (const :tag "Don't preserve push-remote setup" nil)
           (const :tag "Preserve push-remote setup" local-only)
           (const :tag "... and rename corresponding branch on remote" t)
-          (const :tag "... but only if remote is on Github" github-only)))
+          (const :tag "... but only if remote is on a forge" forge-only)))
 
 (defcustom magit-branch-popup-show-variables t
   "Whether the `magit-branch-popup' shows Git variables.
@@ -731,8 +736,11 @@ the remote."
       (when (and (equal (magit-get-push-remote new) remote)
                  ;; ...and if it does not, then we must abort.
                  (not (eq magit-branch-rename-push-target 'local-only))
-                 (or (not (eq magit-branch-rename-push-target 'github-only))
-                     (magit--github-remote-p remote)))
+                 (or (not (memq magit-branch-rename-push-target
+                                '(forge-only github-only)))
+                     (and (require (quote forge) nil t)
+                          (fboundp 'forge--forge-remote-p)
+                          (forge--forge-remote-p remote))))
         (let ((old-target (magit-get-push-branch old t))
               (new-target (magit-get-push-branch new t)))
           (when (and old-target (not new-target))
