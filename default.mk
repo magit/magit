@@ -140,6 +140,13 @@ ifeq "$(MAGIT_POPUP_DIR)" ""
   MAGIT_POPUP_DIR = $(TOP)../magit-popup
 endif
 
+TREEPY_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/treepy-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(TREEPY_DIR)" ""
+  TREEPY_DIR = $(TOP)../treepy
+endif
+
 WITH_EDITOR_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/with-editor-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
@@ -158,11 +165,13 @@ ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(GHUB_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(MAGIT_POPUP_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(TREEPY_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
 else
   LOAD_PATH += -L $(DASH_DIR)
   LOAD_PATH += -L $(GHUB_DIR)
   LOAD_PATH += -L $(MAGIT_POPUP_DIR)
+  LOAD_PATH += -L $(TREEPY_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
 endif
 
