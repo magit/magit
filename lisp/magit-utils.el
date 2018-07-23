@@ -86,7 +86,14 @@ alphabetical order, depending on your version of Ivy."
     (magit-stash-branch-here  nil t)
     (magit-stash-format-patch nil t)
     (magit-stash-drop         nil ask)
-    (magit-stash-pop          nil ask))
+    (magit-stash-pop          nil ask)
+    (forge-browse-commit      nil t)
+    (forge-browse-branch      nil t)
+    (forge-browse-remote      nil t)
+    (forge-browse-issue       nil t)
+    (forge-browse-pullreq     nil t)
+    (forge-visit-issue        nil t)
+    (forge-visit-pullreq      nil t))
   "When not to offer alternatives and ask for confirmation.
 
 Many commands by default ask the user to select from a list of
