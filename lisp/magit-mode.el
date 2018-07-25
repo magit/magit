@@ -466,6 +466,16 @@ which visits the thing at point."
              (call-interactively (key-binding (this-command-keys))))
     (user-error "There is no thing at point that could be visited")))
 
+(defun magit-edit-thing ()
+  "This is a placeholder command.
+Where applicable, section-specific keymaps bind another command
+which lets you edit the thing at point, likely in another buffer."
+  (interactive)
+  (if (eq magit-current-popup 'magit-dispatch-popup)
+      (progn (setq magit-current-popup nil)
+             (call-interactively (key-binding (this-command-keys))))
+    (user-error "There is no thing at point that could be visited")))
+
 (defun magit-browse-thing ()
   "This is a placeholder command.
 Where applicable, section-specific keymaps bind another command
