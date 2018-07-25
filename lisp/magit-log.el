@@ -723,7 +723,7 @@ active, restrict the log to the lines that the region touches."
   (magit-mode-setup-internal
    #'magit-log-mode
    (list (list rev)
-         (cons (format "-L:%s:%s" fn file)
+         (cons (format "-L:%s:%s" (regexp-quote fn) file)
                (cl-delete "-L" (car (magit-log-arguments))
                           :test 'string-prefix-p))
          nil)
