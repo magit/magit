@@ -272,7 +272,7 @@ Global settings:
   :group 'magit-commands
   :type `(choice (const :tag "Always require confirmation" nil)
                  (const :tag "Never require confirmation" t)
-                 (set   :tag "Require confirmation only for"
+                 (set   :tag "Require confirmation except for"
                         ,@magit--confirm-actions)))
 
 (defcustom magit-slow-confirm '(drop-stashes)
