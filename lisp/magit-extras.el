@@ -240,7 +240,7 @@ with two prefix arguments remove ignored files only.
 
 ;;; Gitignore
 
-;;;###autoload (autoload 'magit-ignore-popup "extras" nil t)
+;;;###autoload (autoload 'magit-gitignore-popup "magit-extras" nil t)
 (magit-define-popup magit-gitignore-popup
   "Popup console for gitignore commands."
   :man-page "gitignore"
