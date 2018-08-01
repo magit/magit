@@ -177,10 +177,9 @@ commit message."
 
 (defun magit-wip-commit-index (ref files msg)
   (let* ((wipref (concat magit-wip-namespace "index/" ref))
-         (parent (magit-wip-get-parent ref wipref)))
-    (when (magit-git-failure "diff-index" "--quiet" parent "--" files)
-      (magit-wip-update-wipref wipref (magit-git-string "write-tree")
-                               parent files msg "index"))))
+         (parent (magit-wip-get-parent ref wipref))
+         (tree   (magit-git-string "write-tree")))
+    (magit-wip-update-wipref wipref tree parent files msg "index")))
 
 (defun magit-wip-commit-worktree (ref files msg)
   (let* ((wipref (concat magit-wip-namespace "wtree/" ref))
@@ -191,8 +190,7 @@ commit message."
                    (magit-with-toplevel
                      (magit-call-git "add" "-u" ".")))
                  (magit-git-string "write-tree"))))
-    (when (magit-git-failure "diff-tree" "--quiet" parent tree "--" files)
-      (magit-wip-update-wipref wipref tree parent files msg "worktree"))))
+    (magit-wip-update-wipref wipref tree parent files msg "worktree")))
 
 (defun magit-wip-update-wipref (wipref tree parent files msg start-msg)
   (unless (equal parent wipref)
@@ -202,7 +200,7 @@ commit message."
                                         "-p" parent "-m" start-msg
                                         (concat parent "^{tree}")))
     (setq parent wipref))
-  (progn
+  (when (magit-git-failure "diff-tree" "--quiet" parent tree "--" files)
     (unless (and msg (not (= (aref msg 0) ?\s)))
       (let ((len (length files)))
         (setq msg (concat
