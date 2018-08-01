@@ -175,12 +175,10 @@ commit message."
     (magit-wip-commit-index it files msg)
     (magit-wip-commit-worktree it files msg)))
 
-(defun magit-wip-commit-index (ref files msg &optional cached-only)
+(defun magit-wip-commit-index (ref files msg)
   (let* ((wipref (concat magit-wip-namespace "index/" ref))
          (parent (magit-wip-get-parent ref wipref)))
-    (when (magit-git-failure "diff-index" "--quiet"
-                             (and cached-only "--cached")
-                             parent "--" files)
+    (when (magit-git-failure "diff-index" "--quiet" parent "--" files)
       (magit-wip-update-wipref wipref (magit-git-string "write-tree")
                                parent files msg "index"))))
 
