@@ -217,8 +217,8 @@ commit message."
 
 (defun magit-wip-get-ref ()
   (let ((ref (or (magit-git-string "symbolic-ref" "HEAD") "HEAD")))
-    (when (magit-rev-verify ref)
-      ref)))
+    (and (magit-rev-verify ref)
+         ref)))
 
 (defun magit-wip-get-parent (ref wipref)
   (if (and (magit-rev-verify wipref)
