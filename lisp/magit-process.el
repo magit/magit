@@ -204,6 +204,15 @@ non-nil, then the password is read from the user instead."
   :group 'magit-process
   :type 'boolean)
 
+(defcustom magit-process-display-automatically nil
+  "Whether Magit should automatically display the process buffer.
+
+If non-nil, show the process buffer automatically (without
+focusing it), whenever Git output is appended to it."
+  :package-version '(magit . "2.13.0")
+  :group 'magit-process
+  :type 'boolean)
+
 (defface magit-process-ok
   '((t :inherit magit-section-heading :foreground "green"))
   "Face for zero exit-status."
@@ -590,6 +599,10 @@ Magit status buffer."
                   (backward-char 1))))))
 
 (defun magit-process-insert-section (pwd program args &optional errcode errlog)
+  (when magit-process-display-automatically
+    (let ((magit-display-buffer-noselect t))
+      (magit-process-buffer)))
+
   (let ((inhibit-read-only t)
         (magit-insert-section--parent magit-root-section)
         (magit-insert-section--oldroot nil))
