@@ -195,6 +195,13 @@ commit message."
       (magit-wip-update-wipref wipref tree parent files msg "worktree"))))
 
 (defun magit-wip-update-wipref (wipref tree parent files msg start-msg)
+  (unless (equal parent wipref)
+    (setq start-msg (concat "restart autosaving " start-msg))
+    (magit-update-ref wipref start-msg
+                      (magit-git-string "commit-tree" "--no-gpg-sign"
+                                        "-p" parent "-m" start-msg
+                                        (concat parent "^{tree}")))
+    (setq parent wipref))
   (let ((len (length files)))
     (unless (and msg (not (= (aref msg 0) ?\s)))
       (setq msg (concat
@@ -204,13 +211,6 @@ commit message."
                                   (file-relative-name (car files)
                                                       (magit-toplevel)))))
                  msg)))
-    (unless (equal parent wipref)
-      (setq start-msg (concat "restart autosaving " start-msg))
-      (magit-update-ref wipref start-msg
-                        (magit-git-string "commit-tree" "--no-gpg-sign"
-                                          "-p" parent "-m" start-msg
-                                          (concat parent "^{tree}")))
-      (setq parent wipref))
     (magit-update-ref wipref msg
                       (magit-git-string "commit-tree" "--no-gpg-sign"
                                         "-p" parent "-m" msg tree))))
