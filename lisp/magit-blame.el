@@ -239,8 +239,8 @@ Also see option `magit-blame-styles'."
                  (car (magit-blame--parse-chunk type))))))))
 
 (defun magit-blame-chunk-at (pos)
-  (--any (overlay-get it 'magit-blame-chunk)
-         (overlays-at pos)))
+  (--some (overlay-get it 'magit-blame-chunk)
+          (overlays-at pos)))
 
 (defun magit-blame--overlay-at (&optional pos key)
   (unless pos
