@@ -243,12 +243,13 @@ Used when `magit-process-display-mode-line-error' is non-nil."
   (setq imenu-extract-index-name-function
         'magit-imenu--process-extract-index-name-function))
 
-(defun magit-process-buffer (&optional nodisplay)
+(defun magit-process-buffer (&optional nodisplay nocreate)
   "Display the current repository's process buffer.
 
-If that buffer doesn't exist yet, then create it.
-Non-interactively return the buffer and unless
-optional NODISPLAY is non-nil also display it."
+If that buffer doesn't exist yet, then create it, unless optional
+NOCREATE is non-nil.  Non-interactively return the buffer, or nil
+if it neither existed, nor was created and unless optional
+NODISPLAY is non-nil also display it."
   (interactive)
   (let ((topdir (magit-toplevel)))
     (unless topdir
@@ -262,22 +263,24 @@ optional NODISPLAY is non-nil also display it."
                                  (and (eq major-mode 'magit-process-mode)
                                       (equal default-directory topdir)))
                                (buffer-list))
-                      (let ((default-directory topdir))
-                        (magit-generate-new-buffer 'magit-process-mode)))))
-      (with-current-buffer buffer
-        (if magit-root-section
-            (when magit-process-log-max
-              (magit-process-truncate-log))
-          (magit-process-mode)
-          (let ((inhibit-read-only t)
-                (magit-insert-section--parent  nil)
-                (magit-insert-section--oldroot nil))
-            (make-local-variable 'text-property-default-nonsticky)
-            (magit-insert-section (processbuf)
-              (insert "\n")))))
-      (unless nodisplay
-        (magit-display-buffer buffer))
-      buffer)))
+                       (and (not nocreate)
+                            (let ((default-directory topdir))
+                              (magit-generate-new-buffer 'magit-process-mode))))))
+      (when buffer
+        (with-current-buffer buffer
+          (if magit-root-section
+              (when magit-process-log-max
+                (magit-process-truncate-log))
+            (magit-process-mode)
+            (let ((inhibit-read-only t)
+                  (magit-insert-section--parent  nil)
+                  (magit-insert-section--oldroot nil))
+              (make-local-variable 'text-property-default-nonsticky)
+              (magit-insert-section (processbuf)
+                (insert "\n")))))
+        (unless nodisplay
+          (magit-display-buffer buffer))
+        buffer))))
 
 (defun magit-process-kill ()
   "Kill the process at point."

@@ -333,7 +333,9 @@ This function is only aware of the last error that occur when Git
 was run for side-effects.  If, for example, an error occurs while
 generating a diff, then that error won't be inserted.  Refreshing
 the status buffer causes this section to disappear again."
-  (when magit-this-error
+  (when (and magit-this-error
+             (not (let ((buffer (magit-process-buffer t t)))
+                    (and buffer (get-buffer-window buffer)))))
     (magit-insert-section (error 'git)
       (insert (propertize (format "%-10s" "GitError! ")
                           'face 'magit-section-heading))
