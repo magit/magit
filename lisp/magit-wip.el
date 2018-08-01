@@ -202,15 +202,16 @@ commit message."
                                         "-p" parent "-m" start-msg
                                         (concat parent "^{tree}")))
     (setq parent wipref))
-  (let ((len (length files)))
+  (progn
     (unless (and msg (not (= (aref msg 0) ?\s)))
-      (setq msg (concat
-                 (cond ((= len 0) "autosave tracked files")
-                       ((> len 1) (format "autosave %s files" len))
-                       (t (concat "autosave "
-                                  (file-relative-name (car files)
-                                                      (magit-toplevel)))))
-                 msg)))
+      (let ((len (length files)))
+        (setq msg (concat
+                   (cond ((= len 0) "autosave tracked files")
+                         ((> len 1) (format "autosave %s files" len))
+                         (t (concat "autosave "
+                                    (file-relative-name (car files)
+                                                        (magit-toplevel)))))
+                   msg))))
     (magit-update-ref wipref msg
                       (magit-git-string "commit-tree" "--no-gpg-sign"
                                         "-p" parent "-m" msg tree))))
