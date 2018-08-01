@@ -135,3 +135,15 @@ define VERSIONLIB_TMPL
 endef
 export VERSIONLIB_TMPL
 #'
+
+define suppress_warnings
+(fset 'original-message (symbol-function 'message))
+(fset 'message ;'
+      (lambda (f &rest a)
+        (unless (or (equal f "Wrote %s")
+                    (equal f "pcase-memoize: equal first branch, yet different")
+                    (and (equal f "Warning: Unknown defun property `%S' in %S")
+                         (memq (car a) '(pure side-effect-free interactive-only))))
+          (apply 'original-message f a))))
+endef
+export suppress_warnings
