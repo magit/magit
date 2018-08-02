@@ -274,6 +274,16 @@ commit message."
 
 ;;; Log
 
+(defun magit-wip-log-index (args files)
+  (interactive (magit-log-arguments))
+  "Show log for the index wip ref of the current branch."
+  (magit-log (list (magit--wip-index-ref)) args files))
+
+(defun magit-wip-log-worktree (args files)
+  (interactive (magit-log-arguments))
+  "Show log for the worktree wip ref of the current branch."
+  (magit-log (list (magit--wip-wtree-ref)) args files))
+
 (defun magit-wip-log-current (branch args files count)
   "Show log for the current branch and its wip refs.
 With a negative prefix argument only show the worktree wip ref.
