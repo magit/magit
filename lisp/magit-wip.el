@@ -192,13 +192,13 @@ commit message."
     (magit-wip-commit-worktree it files msg)))
 
 (defun magit-wip-commit-index (ref files msg)
-  (let* ((wipref (concat magit-wip-namespace "index/" ref))
+  (let* ((wipref (magit--wip-index-ref ref))
          (parent (magit-wip-get-parent ref wipref))
          (tree   (magit-git-string "write-tree")))
     (magit-wip-update-wipref ref wipref tree parent files msg "index")))
 
 (defun magit-wip-commit-worktree (ref files msg)
-  (let* ((wipref (concat magit-wip-namespace "wtree/" ref))
+  (let* ((wipref (magit--wip-wtree-ref ref))
          (parent (magit-wip-get-parent ref wipref))
          (tree (magit-with-temp-index parent "--reset"
                  (if files
@@ -259,6 +259,19 @@ commit message."
       wipref
     ref))
 
+(defun magit--wip-index-ref (&optional ref)
+  (magit--wip-ref "index/" ref))
+
+(defun magit--wip-wtree-ref (&optional ref)
+  (magit--wip-ref "wtree/" ref))
+
+(defun magit--wip-ref (namespace &optional ref)
+  (concat magit-wip-namespace namespace
+          (or (and ref (string-prefix-p "refs/" ref) ref)
+              (and-let* ((branch (or ref (magit-get-current-branch))))
+                (concat "refs/heads/" branch))
+              "HEAD")))
+
 ;;; Log
 
 (defun magit-wip-log-current (branch args files count)
@@ -287,15 +300,13 @@ many \"branches\" of each wip ref are shown."
                      "HEAD")))
           (magit-log-arguments)
           (list (prefix-numeric-value current-prefix-arg))))
-  (unless (equal branch "HEAD")
-    (setq branch (concat "refs/heads/" branch)))
   (magit-log (nconc (list branch)
                     (magit-wip-log-get-tips
-                     (concat magit-wip-namespace "wtree/" branch)
+                     (magit--wip-wtree-ref branch)
                      (abs count))
                     (and (>= count 0)
                          (magit-wip-log-get-tips
-                          (concat magit-wip-namespace "index/" branch)
+                          (magit--wip-index-ref branch)
                           (abs count))))
              args files))
 
