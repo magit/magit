@@ -480,6 +480,9 @@ This is only used if Magit is available."
             'git-commit-save-message nil t)
   (add-hook 'with-editor-pre-cancel-hook
             'git-commit-save-message nil t)
+  (when (bound-and-true-p magit-wip-merge-branch)
+    (add-hook 'with-editor-post-finish-hook
+              'magit-wip-commit nil t))
   (setq with-editor-cancel-message
         'git-commit-cancel-message)
   (make-local-variable 'log-edit-comment-ring-index)

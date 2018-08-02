@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-69-gbc8b275e+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-122-ge57a5fd67+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-69-gbc8b275e+1).
+This manual is for Magit version 2.13.0 (2.13.0-122-ge57a5fd67+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -6351,6 +6351,24 @@ is being staged.  Likewise just checking out a branch or creating a
 commit does not change the fork-point of the working tree wip ref.  The
 fork-points are not adjusted until there actually is a change that
 should be committed to the respective wip ref.
+
+- User Option: magit-wip-merge-branch
+
+  This option controls whether the current branch is merged into the
+  wip refs after a new commit was created on the branch.  If non-nil
+  (currently the default), then no merge is perfomed and wip refs are
+  reset as described above.
+
+  If this is non-nil and the current branch has new commits, then it
+  is merged into the wip ref before creating a new wip commit.  This
+  makes it easier to inspect wip history and the wip commits are never
+  garbage collected.
+
+  #+BEGIN_EXAMPLE
+      ,*--*--*--*--*--*       refs/wip/index/refs/heads/master
+     /     /     /
+    A-----B-----C            refs/heads/master
+  #+END_EXAMPLE
 
 To view the log for a branch and its wip refs use the commands
 ~magit-wip-log~ and ~magit-wip-log-current~.  You should use ~--graph~ when
