@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-122-ge57a5fd67+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-128-g9c212e8c7+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-122-ge57a5fd67+1).
+This manual is for Magit version 2.13.0 (2.13.0-128-g9c212e8c7+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -6424,12 +6424,29 @@ before making changes that could cause the loss of earlier changes.
   When this mode is enabled, then certain commands commit the existing
   changes to the files they are about to make changes to.
 
-Note that even if you enable all three modes this won't give you
-perfect protection.  The most likely scenario for losing changes
-despite the use of these modes is making a change outside Emacs and
-then destroying it also outside Emacs.  In such a scenario, Magit,
-being an Emacs package, didn't get the opportunity to keep you from
-shooting yourself in the foot.
+- Function: magit-wip-commit-initial-backup
+
+  Adding this function to ~before-save-hook~ causes the current version
+  of the file to be committed to the worktree wip ref before the
+  modifications in the buffer are saved.  It backs up the same version
+  of the file as ~backup-buffer~ would but, instead of using a backup
+  file as ~backup-buffer~ would, it uses the same worktree wip ref as
+  used by the various Magit Wip modes.  Like ~backup-buffer~, it only
+  does this once; unless you kill the buffer and visit the file again
+  only one backup will be created per Emacs session.
+
+  This function ignores the variables that affect ~backup-buffer~ and
+  can be used along-side that function, which is recommended because
+  this function only backs up files that are tracked in a Git
+  repository.
+
+Note that even if you enable all three modes and add the above
+function to the intended hook, this won't give you perfect protection.
+The most likely scenario for losing changes despite the use of these
+modes is making a change outside Emacs and then destroying it also
+outside Emacs.  In some such a scenario, Magit, being an Emacs
+package, didn't get the opportunity to keep you from shooting yourself
+in the foot.
 
 When you are unsure whether Magit did commit a change to the wip refs,
 then you can explicitly request that all changes to all tracked files

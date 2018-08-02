@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-122-ge57a5fd67+1)
+@subtitle for version 2.13.0 (2.13.0-128-g9c212e8c7+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-122-ge57a5fd67+1).
+This manual is for Magit version 2.13.0 (2.13.0-128-g9c212e8c7+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8770,12 +8770,30 @@ When this mode is enabled, then certain commands commit the existing
 changes to the files they are about to make changes to.
 @end defopt
 
-Note that even if you enable all three modes this won't give you
-perfect protection.  The most likely scenario for losing changes
-despite the use of these modes is making a change outside Emacs and
-then destroying it also outside Emacs.  In such a scenario, Magit,
-being an Emacs package, didn't get the opportunity to keep you from
-shooting yourself in the foot.
+@defun magit-wip-commit-initial-backup
+
+Adding this function to @code{before-save-hook} causes the current version
+of the file to be committed to the worktree wip ref before the
+modifications in the buffer are saved.  It backs up the same version
+of the file as @code{backup-buffer} would but, instead of using a backup
+file as @code{backup-buffer} would, it uses the same worktree wip ref as
+used by the various Magit Wip modes.  Like @code{backup-buffer}, it only
+does this once; unless you kill the buffer and visit the file again
+only one backup will be created per Emacs session.
+
+This function ignores the variables that affect @code{backup-buffer} and
+can be used along-side that function, which is recommended because
+this function only backs up files that are tracked in a Git
+repository.
+@end defun
+
+Note that even if you enable all three modes and add the above
+function to the intended hook, this won't give you perfect protection.
+The most likely scenario for losing changes despite the use of these
+modes is making a change outside Emacs and then destroying it also
+outside Emacs.  In some such a scenario, Magit, being an Emacs
+package, didn't get the opportunity to keep you from shooting yourself
+in the foot.
 
 When you are unsure whether Magit did commit a change to the wip refs,
 then you can explicitly request that all changes to all tracked files

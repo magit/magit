@@ -117,7 +117,7 @@ variant `magit-wip-after-save-mode'."
   :package-version '(magit . "2.1.0")
   :group 'magit-wip)
 
-(defun magit-wip-commit-buffer-file ()
+(defun magit-wip-commit-buffer-file (&optional msg)
   "Commit visited file to a worktree work-in-progress ref.
 
 Also see `magit-wip-after-save-mode' which calls this function
@@ -127,9 +127,13 @@ automatically whenever a buffer visiting a tracked file is saved."
     (magit-with-toplevel
       (let ((file (file-relative-name buffer-file-name)))
         (magit-wip-commit-worktree
-         it (list file) (if (called-interactively-p 'any)
-                            (format "wip-save %s after save" file)
-                          (format "autosave %s after save" file)))))))
+         it (list file)
+         (format (cond (msg)
+                       ((called-interactively-p 'any)
+                        "wip-save %s after save")
+                       (t
+                        "autosave %s after save"))
+                 file))))))
 
 ;;;###autoload
 (define-minor-mode magit-wip-after-apply-mode
@@ -172,6 +176,35 @@ command which is about to be called are committed."
   (when magit-wip-before-change-mode
     (magit-with-toplevel
       (magit-wip-commit files msg))))
+
+;;; Extras
+
+(defvar-local magit-wip-buffer-backed-up nil)
+(put 'magit-wip-buffer-backed-up 'permanent-local t)
+
+;;;###autoload
+(defun magit-wip-commit-initial-backup ()
+  "Before saving, commit current file to a worktree wip ref.
+
+The user has to add this function to `backup-buffer'.
+
+Commit the current state of the visited file before saving the
+current buffer to that file.  This backs up the same version of
+the file as `backup-buffer' would, but stores the backup in the
+worktree wip ref, which is also used by the various Magit Wip
+modes, instead of in a backup file as `backup-buffer' would.
+
+This function ignores the variables that affect `backup-buffer'
+and can be used along-side that function, which is recommended
+because this function only backs up files that are tracked in
+a Git repository."
+  (when (and (not magit-wip-buffer-backed-up)
+             buffer-file-name
+             (magit-inside-worktree-p t)
+             (magit-file-tracked-p buffer-file-name))
+    (let ((magit-save-repository-buffers nil))
+      (magit-wip-commit-buffer-file "autosave %s before save"))
+    (setq magit-wip-buffer-backed-up t)))
 
 ;;; Core
 
