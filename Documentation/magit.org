@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-128-g9c212e8c7+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-130-gad8627b2+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-128-g9c212e8c7+1).
+This manual is for Magit version 2.13.0 (2.13.0-130-gad8627b2+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -6355,7 +6355,7 @@ should be committed to the respective wip ref.
 - User Option: magit-wip-merge-branch
 
   This option controls whether the current branch is merged into the
-  wip refs after a new commit was created on the branch.  If non-nil
+  wip refs after a new commit was created on the branch.  If nil
   (currently the default), then no merge is perfomed and wip refs are
   reset as described above.
 
