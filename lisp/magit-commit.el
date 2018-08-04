@@ -370,6 +370,40 @@ history element."
                    (and (magit-rev-author-p "HEAD")
                         (concat "--date=" date)))))
 
+;;;###autoload (autoload 'magit-commit-absorb-popup "magit-commit" nil t)
+(magit-define-popup magit-commit-absorb-popup
+  "Spread unstaged changes across recent commits.
+Without a prefix argument just call `magit-commit-absorb'.
+With a prefix argument use a popup buffer to select arguments."
+  :man-page "git-bisect"
+  :options '((?c "Diff context lines" "--context=")
+             (?s "Strictness"         "--strict="))
+  :actions '((?x "Absorb" magit-commit-absorb))
+  :default-action 'magit-commit-absorb
+  :use-prefix 'popup)
+
+(defun magit-commit-absorb (&optional commit args confirmed)
+  "Spread unstaged changes across recent commits.
+This command requires the git-autofixup script, which is
+available from https://github.com/torbiak/git-autofixup."
+  (interactive (list (magit-get-upstream-branch)
+                     (magit-commit-absorb-arguments)))
+  (unless (executable-find "git-autofixup")
+    (user-error "This command requires the git-autofixup script, which %s"
+                "is available from https://github.com/torbiak/git-autofixup"))
+  (when (magit-anything-staged-p)
+    (user-error "Cannot absorb when there are staged changes"))
+  (unless (magit-anything-unstaged-p)
+    (user-error "There are no unstaged changes that could be absorbed"))
+  (when commit
+    (setq commit (magit-rebase-interactive-assert commit t)))
+  (if (and commit confirmed)
+      (progn (magit-run-git-async "autofixup" "-vv" args commit) t)
+    (magit-log-select
+      (lambda (commit)
+        (magit-commit-absorb commit args t))
+      nil nil nil nil commit)))
+
 ;;; Pending Diff
 
 (defun magit-commit-diff ()
