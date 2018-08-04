@@ -1272,15 +1272,16 @@ If there is no blob buffer in the same frame, then do nothing."
                                               magit-buffer-file-name))
                                        (line-number-at-pos))))))))))))
 
-(defun magit-log-goto-same-commit ()
-  (when-let ((prev magit-previous-section)
-             (rev  (cond ((magit-section-match 'commit prev)
-                          (oref prev value))
-                         ((magit-section-match 'branch prev)
-                          (magit-rev-format "%h" (oref prev value)))))
-             (same (--first (equal (oref it value) rev)
-                            (oref magit-root-section children))))
-    (goto-char (oref same start))))
+(defun magit-log-goto-same-commit (&optional default)
+  (let ((prev magit-previous-section))
+    (when-let ((rev (cond ((and prev (magit-section-match 'commit prev))
+                           (oref prev value))
+                          ((and prev (magit-section-match 'branch prev))
+                           (magit-rev-format "%h" (oref prev value)))
+                          (default (magit-rev-format "%h" default))))
+               (same (--first (equal (oref it value) rev)
+                              (oref magit-root-section children))))
+      (goto-char (oref same start)))))
 
 ;;; Log Margin
 
