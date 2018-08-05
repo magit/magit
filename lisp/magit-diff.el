@@ -2010,9 +2010,10 @@ or a ref which is not a branch, then it inserts nothing."
   (magit-insert-section section (commit-message)
     (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
     (let ((beg (point)))
-      (insert (with-temp-buffer
-                (magit-rev-insert-format "%B" rev)
-                (magit-revision--wash-message)))
+      (insert (save-excursion ; The risky var query can move point.
+                (with-temp-buffer
+                  (magit-rev-insert-format "%B" rev)
+                  (magit-revision--wash-message))))
       (if (= (point) (+ beg 2))
           (progn (backward-delete-char 2)
                  (insert "(no message)\n"))
