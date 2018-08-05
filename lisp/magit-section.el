@@ -631,7 +631,7 @@ This command is intended for debugging purposes."
   (let ((inserter-section section))
     (while (and inserter-section (not (oref inserter-section inserter)))
       (setq inserter-section (oref inserter-section parent)))
-    (when (oref inserter-section inserter)
+    (when (and inserter-section (oref inserter-section inserter))
       (setq section inserter-section)))
   (pcase (oref section inserter)
     (`((,hook ,fun) . ,src-src)
@@ -641,19 +641,27 @@ This command is intended for debugging purposes."
          (insert (format-message
                   "The current section is inserted by `%s' from `%s'"
                   (make-text-button (symbol-name fun) nil
-                                    :type 'help-function 'help-args (list fun))
+                                    :type 'help-function
+                                    'help-args (list fun))
                   (make-text-button (symbol-name hook) nil
-                                    :type 'help-variable 'help-args (list hook))))
+                                    :type 'help-variable
+                                    'help-args (list hook))))
          (pcase-dolist (`(,hook ,fun) src-src)
            (insert (format-message
                     ",\n  called by `%s' from `%s'"
                     (make-text-button (symbol-name fun) nil
-                                      :type 'help-function 'help-args (list fun))
+                                      :type 'help-function
+                                      'help-args (list fun))
                     (make-text-button (symbol-name hook) nil
-                                      :type 'help-variable 'help-args (list hook)))))
-         (insert ".\n\n"
-                 (or (cdr (help-split-fundoc (documentation fun) fun))
-                     (documentation fun))))))
+                                      :type 'help-variable
+                                      'help-args (list hook)))))
+         (insert ".\n\n")
+         (insert
+          (format-message
+           "`%s' is "
+           (make-text-button (symbol-name fun) nil
+                             :type 'help-function 'help-args (list fun))))
+         (describe-function-1 fun))))
     (_ (message "section type: `%S', inserter unknown"
                 (oref section type)))))
 
@@ -1352,8 +1360,6 @@ again use `remove-hook'."
     (if local
         (set hook value)
       (set-default hook value))))
-
-(defvar magit--current-section-hook)
 
 (defun magit-run-section-hook (hook)
   "Run HOOK, warning about invalid entries."
