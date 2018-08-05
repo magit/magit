@@ -383,7 +383,7 @@ instead of \"Stashes:\"."
               (insert " " msg "\n")
               (save-excursion
                 (backward-char)
-                (magit-log-format-margin author date)))))
+                (magit-log-format-margin autostash author date)))))
         (if verified
             (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
               "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)
