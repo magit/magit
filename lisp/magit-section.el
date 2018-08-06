@@ -175,6 +175,9 @@ but in the future it will also be used set the defaults."
 
 ;;; Core
 
+(defvar magit--current-section-hook nil
+  "Internal variable used for `magit-explain-section'.")
+
 (defclass magit-section ()
   ((type     :initform nil :initarg :type)
    (value    :initform nil :initarg :value)
@@ -185,6 +188,7 @@ but in the future it will also be used set the defaults."
    (washer   :initform nil)
    (process  :initform nil)
    (heading-highlight-face :initform nil)
+   (inserter :initform (symbol-value 'magit--current-section-hook))
    (parent   :initform nil :initarg :parent)
    (children :initform nil)))
 
@@ -604,16 +608,67 @@ Sections at higher levels are hidden."
 
 ;;;; Auxiliary
 
-(defun magit-describe-section ()
+(defun magit-describe-section-briefly (section &optional message)
   "Show information about the section at point.
 This command is intended for debugging purposes."
-  (interactive)
-  (let ((section (magit-current-section)))
-    (message "%S %S %s-%s"
-             (oref section value)
-             (magit-section-lineage section)
-             (marker-position (oref section start))
-             (marker-position (oref section end)))))
+  (interactive (list (magit-current-section) t))
+  (let ((str (format "#<magit-section %S %S %s-%s>"
+                     (let ((val (oref section value)))
+                       (if (stringp val)
+                           (substring-no-properties val)
+                         val))
+                     (magit-section-lineage section)
+                     (if-let (m (oref section start))
+                         (marker-position m))
+                     (if-let (m (oref section end))
+                         (marker-position m)))))
+    (if message (message "%s" str) str)))
+
+(defmethod cl-print-object ((section magit-section) stream)
+  "Print `magit-describe-section' result of SECTION."
+  ;; Used by debug and edebug as of Emacs 26.
+  (princ (magit-describe-section-briefly section) stream))
+
+(defun magit-describe-section (section &optional interactive-p)
+  "Show information about the section at point."
+  (interactive (list (magit-current-section) t))
+  (let ((inserter-section section))
+    (while (and inserter-section (not (oref inserter-section inserter)))
+      (setq inserter-section (oref inserter-section parent)))
+    (when (and inserter-section (oref inserter-section inserter))
+      (setq section inserter-section)))
+  (pcase (oref section inserter)
+    (`((,hook ,fun) . ,src-src)
+     (help-setup-xref `(magit-describe-section ,section) interactive-p)
+     (with-help-window (help-buffer)
+       (with-current-buffer standard-output
+         (insert (format-message
+                  "%s\n  is inserted by `%s'\n  from `%s'"
+                  (magit-describe-section-briefly section)
+                  (make-text-button (symbol-name fun) nil
+                                    :type 'help-function
+                                    'help-args (list fun))
+                  (make-text-button (symbol-name hook) nil
+                                    :type 'help-variable
+                                    'help-args (list hook))))
+         (pcase-dolist (`(,hook ,fun) src-src)
+           (insert (format-message
+                    ",\n  called by `%s'\n  from `%s'"
+                    (make-text-button (symbol-name fun) nil
+                                      :type 'help-function
+                                      'help-args (list fun))
+                    (make-text-button (symbol-name hook) nil
+                                      :type 'help-variable
+                                      'help-args (list hook)))))
+         (insert ".\n\n")
+         (insert
+          (format-message
+           "`%s' is "
+           (make-text-button (symbol-name fun) nil
+                             :type 'help-function 'help-args (list fun))))
+         (describe-function-1 fun))))
+    (_ (message "%s, inserter unknown"
+                (magit-describe-section-briefly section)))))
 
 ;;; Match
 
@@ -810,6 +865,9 @@ anything this time around.
                  `((let ((,s* ,s))
                      ,@(cdr args)))
                (cdr args))
+           ;; `magit-insert-section-hook' should *not* be run with
+           ;; `magit-run-section-hook' because it's a hook that runs
+           ;; on section insertion, not a section inserting hook.
            (run-hooks 'magit-insert-section-hook)
            (magit-insert-child-count ,s)
            (set-marker-insertion-type (oref ,s start) t)
@@ -882,29 +940,28 @@ insert a newline character if necessary."
   (magit-maybe-make-margin-overlay)
   (oset magit-insert-section--current content (point-marker)))
 
-(defvar magit-insert-headers--hook nil "For internal use only.")
-(defvar magit-insert-headers--beginning nil "For internal use only.")
-
-(defun magit-insert-headers (hooks)
-  (let ((magit-insert-section-hook
-         (cons 'magit-insert-remaining-headers
-               (if (listp magit-insert-section-hook)
-                   magit-insert-section-hook
-                 (list magit-insert-section-hook))))
-        (magit-insert-headers--hook hooks)
-        wrapper)
-    (setq magit-insert-headers--beginning (point))
-    (while (and (setq wrapper (pop magit-insert-headers--hook))
-                (= (point) magit-insert-headers--beginning))
-      (funcall wrapper))))
-
-(defun magit-insert-remaining-headers ()
-  (if (= (point) magit-insert-headers--beginning)
-      (magit-cancel-section)
-    (magit-insert-heading)
-    (remove-hook 'magit-insert-section-hook 'magit-insert-remaining-headers)
-    (mapc #'funcall magit-insert-headers--hook)
-    (insert "\n")))
+(defun magit-insert-headers (hook)
+  (let* ((header-sections nil)
+         (magit-insert-section-hook
+          (cons (lambda ()
+                  (push magit-insert-section--current
+                        header-sections))
+                (if (listp magit-insert-section-hook)
+                    magit-insert-section-hook
+                  (list magit-insert-section-hook)))))
+    (magit-run-section-hook hook)
+    (when header-sections
+      ;; Make the first header into the parent of the rest.
+      (cl-callf nreverse header-sections)
+      (let* ((1st-header (pop header-sections))
+             (header-parent (oref 1st-header parent)))
+        (oset header-parent children (list 1st-header))
+        (oset 1st-header children header-sections)
+        (oset 1st-header content (oref (car header-sections) start))
+        (oset 1st-header end (oref (car (last header-sections)) end))
+        (dolist (sub-header header-sections)
+          (oset sub-header parent 1st-header))
+        (insert "\n")))))
 
 (defun magit-insert-child-count (section)
   "Modify SECTION's heading to contain number of child sections.
@@ -1316,20 +1373,22 @@ again use `remove-hook'."
         (set hook value)
       (set-default hook value))))
 
-(defun magit-run-section-hook (hook)
-  "Run HOOK, warning about invalid entries."
-  (--if-let (-remove #'functionp (symbol-value hook))
-      (progn
-        (message "`%s' contains entries that are no longer valid.
+(defun magit-run-section-hook (hook &rest args)
+  "Run HOOK with ARGS, warning about invalid entries."
+  (let ((entries (symbol-value hook)))
+    (unless (listp entries)
+      (setq entries (list entries)))
+    (--when-let (-remove #'functionp entries)
+      (message "`%s' contains entries that are no longer valid.
 %s\nUsing standard value instead.  Please re-configure hook variable."
-                 hook
-                 (mapconcat (lambda (sym) (format "  `%s'" sym)) it "\n"))
-        (sit-for 5)
-        (defvar magit--hook-standard-value nil)
-        (let ((magit--hook-standard-value
-               (eval (car (get hook 'standard-value)))))
-          (run-hooks 'magit---hook-standard-value)))
-    (run-hooks hook)))
+               hook
+               (mapconcat (lambda (sym) (format "  `%s'" sym)) it "\n"))
+      (sit-for 5)
+      (setq entries (eval (car (get hook 'standard-value)))))
+    (dolist (entry entries)
+      (let ((magit--current-section-hook (cons (list hook entry)
+                                               magit--current-section-hook)))
+        (apply entry args)))))
 
 (provide 'magit-section)
 ;;; magit-section.el ends here

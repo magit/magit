@@ -1485,7 +1485,7 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
 
 (defun magit-cherry-refresh-buffer (_upstream _head)
   (magit-insert-section (cherry)
-    (run-hooks 'magit-cherry-sections-hook)))
+    (magit-run-section-hook 'magit-cherry-sections-hook)))
 
 (defun magit-insert-cherry-headers ()
   "Insert headers appropriate for `magit-cherry-mode' buffers."

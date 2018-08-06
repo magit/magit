@@ -1593,7 +1593,7 @@ is set in `magit-mode-setup'."
                (_ (concat " in files "
                           (mapconcat #'identity files ", ")))))))
   (magit-insert-section (diffbuf)
-    (run-hook-with-args 'magit-diff-sections-hook rev-or-range)))
+    (magit-run-section-hook 'magit-diff-sections-hook rev-or-range)))
 
 (defun magit-insert-diff (rev-or-range)
   "Insert the diff into this `magit-diff-mode' buffer."
@@ -1946,7 +1946,7 @@ Staging and applying changes is documented in info node
                         (mapconcat #'identity files ", "))))))
   (setq magit-buffer-revision-hash (magit-rev-parse rev))
   (magit-insert-section (commitbuf)
-    (run-hook-with-args 'magit-revision-sections-hook rev)))
+    (magit-run-section-hook 'magit-revision-sections-hook rev)))
 
 (defun magit-insert-revision-diff (rev)
   "Insert the diff into this `magit-revision-mode' buffer."
