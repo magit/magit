@@ -65,13 +65,16 @@ Contributors
 - Andrey Smirnov <andrew.smirnov@gmail.com>
 - Andriy Kmit' <dev@madand.net>
 - Andy Sawyer <git@pureabstract.org>
+- Aria Edmonds <aria@ar1as.space>
 - Barak A. Pearlmutter <barak+git@pearlmutter.net>
 - Bar Magal <bmagamb@gmail.com>
 - Bart Bakker <bart@thesoftwarecraft.com>
 - Basil L. Contovounesios <contovob@tcd.ie>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
+- Benjamin Motz <Benjamin.Motz@3ds.com>
 - Ben North <ben@redfrontdoor.org>
 - Ben Walton <bwalton@artsci.utoronto.ca>
+- Bob Uhl <buhl@zvelo.com>
 - Bradley Wright <brad@intranation.com>
 - Brandon W Maister <quodlibetor@gmail.com>
 - Brian Warner <warner@lothar.com>
@@ -114,12 +117,14 @@ Contributors
 - Duianto Vebotci <vebotci@openmailbox.org>
 - Eli Barzilay <eli@barzilay.org>
 - Eric Davis <ed@npri.org>
+- Eric Prud'hommeaux <eric@w3.org>
 - Eric Schulte <schulte.eric@gmail.com>
 - Erik Anderson <erikbpanderson@gmail.com>
 - Evgkeni Sampelnikof <esabof@gmail.com>
 - Eyal Lotem <eyal.lotem@gmail.com>
 - Fabian Wiget <fabacino@gmail.com>
 - Felix Geller <fgeller@gmail.com>
+- Felix Yan <felixonmars@archlinux.org>
 - Feng Li <fengli@blackmagicdesign.com>
 - Florian Ragwitz <rafl@debian.org>
 - Fritz Grabo <fritz.grabo@gmail.com>
@@ -198,6 +203,7 @@ Contributors
 - Michael Griffiths <mikey@cich.li>
 - Michael Heerdegen <michael_heerdegen@web.de>
 - Michal Sojka <sojkam1@fel.cvut.cz>
+- Miciah Masters <miciah.masters@gmail.com>
 - Miles Bader <miles@gnu.org>
 - Miloš Mošić <mosic.milos@gmail.com>
 - Mitchel Humpherys <mitch.special@gmail.com>
@@ -231,6 +237,7 @@ Contributors
 - Philip Weaver <philip.weaver@gmail.com>
 - Phil Jackson <phil@shellarchive.co.uk>
 - Phil Sainty <phil@catalyst.net.nz>
+- Pierre Neidhardt <ambrevar@gmail.com>
 - Pieter Praet <pieter@praet.org>
 - Prathamesh Sonpatki <csonpatki@gmail.com>
 - rabio <rabiodev@o2.pl>
