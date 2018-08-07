@@ -951,17 +951,18 @@ insert a newline character if necessary."
                   (list magit-insert-section-hook)))))
     (magit-run-section-hook hook)
     (when header-sections
+      (insert "\n")
       ;; Make the first header into the parent of the rest.
-      (cl-callf nreverse header-sections)
-      (let* ((1st-header (pop header-sections))
-             (header-parent (oref 1st-header parent)))
-        (oset header-parent children (list 1st-header))
-        (oset 1st-header children header-sections)
-        (oset 1st-header content (oref (car header-sections) start))
-        (oset 1st-header end (oref (car (last header-sections)) end))
-        (dolist (sub-header header-sections)
-          (oset sub-header parent 1st-header))
-        (insert "\n")))))
+      (when (cdr header-sections)
+        (cl-callf nreverse header-sections)
+        (let* ((1st-header (pop header-sections))
+               (header-parent (oref 1st-header parent)))
+          (oset header-parent children (list 1st-header))
+          (oset 1st-header children header-sections)
+          (oset 1st-header content (oref (car header-sections) start))
+          (oset 1st-header end (oref (car (last header-sections)) end))
+          (dolist (sub-header header-sections)
+            (oset sub-header parent 1st-header)))))))
 
 (defun magit-insert-child-count (section)
   "Modify SECTION's heading to contain number of child sections.
