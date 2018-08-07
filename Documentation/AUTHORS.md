@@ -71,7 +71,7 @@ Contributors
 - Bart Bakker <bart@thesoftwarecraft.com>
 - Basil L. Contovounesios <contovob@tcd.ie>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
-- Benjamin Motz <Benjamin.Motz@3ds.com>
+- Benjamin Motz <benjamin.motz@mailbox.org>
 - Ben North <ben@redfrontdoor.org>
 - Ben Walton <bwalton@artsci.utoronto.ca>
 - Bob Uhl <buhl@zvelo.com>
