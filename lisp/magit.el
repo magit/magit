@@ -19,7 +19,7 @@
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
 
-;; Magit requires at least GNU Emacs 25.1 and Git 1.9.4.
+;; Magit requires at least GNU Emacs 25.1 and Git 2.0.0.
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@
 (require 'format-spec)
 (require 'package nil t) ; used in `magit-version'
 
-(defconst magit--minimal-git "1.9.4")
+(defconst magit--minimal-git "2.0.0")
 (defconst magit--minimal-emacs "25.1")
 
 ;;; Faces
