@@ -624,7 +624,7 @@ This command is intended for debugging purposes."
                          (marker-position m)))))
     (if message (message "%s" str) str)))
 
-(defmethod cl-print-object ((section magit-section) stream)
+(cl-defmethod cl-print-object ((section magit-section) stream)
   "Print `magit-describe-section' result of SECTION."
   ;; Used by debug and edebug as of Emacs 26.
   (princ (magit-describe-section-briefly section) stream))
