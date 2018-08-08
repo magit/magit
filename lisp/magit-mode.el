@@ -549,7 +549,7 @@ Magit is documented in info node `(magit)'."
   (setq truncate-lines t)
   (setq buffer-read-only t)
   (setq-local line-move-visual t) ; see #1771
-  (setq show-trailing-whitespace nil)
+  (setq-local show-trailing-whitespace nil)
   (setq list-buffers-directory (abbreviate-file-name default-directory))
   (hack-dir-local-variables-non-file-buffer)
   (make-local-variable 'text-property-default-nonsticky)
