@@ -103,13 +103,14 @@ that the respective pull-request (if any) won't get stuck on some
 obsolete version of the commits that are being merged.  Finally
 if `magit-branch-pull-request' was used to create the merged
 branch, then also remove the respective remote branch."
-  (interactive (list (magit-read-other-local-branch
-                      (format "Merge `%s' into" (magit-get-current-branch))
-                      nil
-                      (let ((branch (cdr (magit-split-branch-name
-                                          (magit-get-upstream-branch)))))
-                        (and (magit-branch-p branch) branch)))
-                     (magit-merge-arguments)))
+  (interactive
+   (list (magit-read-other-local-branch
+          (format "Merge `%s' into" (magit-get-current-branch))
+          nil
+          (when-let* ((upstream (magit-get-upstream-branch))
+                      (upstream (cdr (magit-split-branch-name upstream))))
+            (and (magit-branch-p upstream) upstream)))
+         (magit-merge-arguments)))
   (let ((current (magit-get-current-branch)))
     (when (zerop (magit-call-git "checkout" branch))
       (magit--merge-absort current args))))
