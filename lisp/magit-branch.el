@@ -136,8 +136,8 @@ at least in some repositories, then a good value could be:
 
 Of course you can also fine-tune:
 
-  ((\"origin/maint\" . \"\\`hotfix/\")
-   (\"origin/master\" . \"\\`feature/\"))
+  ((\"origin/maint\" . \"\\\\\\=`hotfix/\")
+   (\"origin/master\" . \"\\\\\\=`feature/\"))
 
 If you use remote branches as UPSTREAM, then you might also want
 to set `magit-branch-prefer-remote-upstream' to a non-nil value.
