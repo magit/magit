@@ -290,12 +290,21 @@ Type \\[magit-commit-popup] to create a commit.
   (setq imenu-create-index-function
         'magit-imenu--status-create-index-function)
   (setq-local bookmark-make-record-function
-              #'magit-bookmark--status-make-record))
+              #'magit-bookmark--status-make-record)
+  (add-hook 'magit-refresh-buffer-hook 'magit-status-goto-commits-once nil t))
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
     (magit-run-section-hook 'magit-status-sections-hook)))
+
+(defun magit-status-goto-commits-once ()
+  "When showing a status buffer for the first time, jump to some log."
+  (when-let
+      ((s (or (magit-get-section '((unpulled . "..@{upstream}") (status)))
+              (magit-get-section '((unpushed . "@{upstream}..") (status))))))
+    (goto-char (oref s start)))
+  (remove-hook 'magit-refresh-buffer-hook 'magit-status-goto-commits-once))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
   "When moving in the status buffer, update the revision buffer.
