@@ -460,10 +460,35 @@ Branch %s already exists.
                (call-interactively #'magit-show-commit))))
     (call-interactively #'magit-show-commit)))
 
+(defvar magit-visitable-remotes-list
+  '((lambda (pull-url)
+      (when (string-match "git@github.com:\\([A-Za-z/]+\\)" pull-url)
+        (format "https://github.com/%s" (match-string 1 pull-url))))))
+
+(defun magit-visitable-remote-url (pull-url)
+  (let ((url nil))
+    (catch 'found
+      (dolist (f magit-visitable-remotes-list)
+        (when (setq url (funcall f pull-url))
+          (throw 'found url))))
+    url))
+
+(defun magit-visit-remote ()
+  (interactive)
+  (let* ((remote (oref (magit-current-section) value))
+         (pull-url (magit-get "remote" remote "url"))
+         (url (magit-visitable-remote-url pull-url)))
+    (if url
+        (when (y-or-n-p (format "Visit %s?" url))
+          (message "Visiting remote %s..." url)
+          (browse-url url))
+      (message "Don't know how to visit this remote."))))
+
 ;;; Sections
 
 (defvar magit-remote-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-visit-thing]  'magit-visit-remote)
     (define-key map [remap magit-delete-thing] 'magit-remote-remove)
     (define-key map "R"                        'magit-remote-rename)
     map)
