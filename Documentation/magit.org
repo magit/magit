@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-53-g279ae8b47+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-79-g50b5aad12+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-53-g279ae8b47+1).
+This manual is for Magit version 2.90.1 (v2.90.1-79-g50b5aad12+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -165,10 +165,10 @@ Now see [[*Post-Installation Tasks]].
 
 ** Installing from the Git Repository
 
-Magit depends on the ~dash~, ~ghub~, ~graphql~, ~magit-popup~, ~treepy~ and
-~with-editor~ libraries which are available from Melpa and Melpa-Stable.
-Install them using ~M-x package-install RET <package> RET~.  Of course
-you may also install them manually from their repository.
+Magit depends on the ~dash~, ~magit-popup~, and ~with-editor~ libraries
+which are available from Melpa and Melpa-Stable.  Install them using
+~M-x package-install RET <package> RET~.  Of course you may also install
+them manually from their repository.
 
 Then clone the Magit repository:
 
@@ -183,19 +183,15 @@ Then compile the libraries and generate the info manuals:
   $ make
 #+END_SRC
 
-If you haven't installed ~dash~, ~ghub~, ~graphql~, ~magit-popup~, ~treepy~ and
-~with-editor~ from Melpa or at ~/path/to/magit/../<package>~, then you
-have to tell ~make~ where to find them.  To do so create the file
-~/path/to/magit/config.mk~ with the following content before running
-~make~:
+If you haven't installed ~dash~, ~magit-popup~ and ~with-editor~ from Melpa
+or at ~/path/to/magit/../<package>~, then you have to tell ~make~ where to
+find them.  To do so create the file ~/path/to/magit/config.mk~ with the
+following content before running ~make~:
 
 #+BEGIN_SRC makefile
   LOAD_PATH  = -L /path/to/magit/lisp
   LOAD_PATH += -L /path/to/dash
-  LOAD_PATH += -L /path/to/ghub
-  LOAD_PATH += -L /path/to/graphql
   LOAD_PATH += -L /path/to/magit-popup
-  LOAD_PATH += -L /path/to/treepy
   LOAD_PATH += -L /path/to/with-editor
 #+END_SRC
 
@@ -4366,107 +4362,6 @@ features are available from separate popups.
   branch.  If FROM is not reachable from ~HEAD~ or is reachable from the
   source branch's upstream, then an error is raised.
 
-- Key: b Y, magit-branch-pull-request
-
-  This command creates and configures a new branch from a Github
-  pull-request, creating and configuring a new remote if necessary.
-
-  The name of the local branch is the same as the name of the remote
-  branch that you are being asked to merge, unless the contributor
-  could not be bother to properly name the branch before opening the
-  pull-request.  The most likely such case is when you are being asked
-  to merge something like "fork/master" into "origin/master".  In such
-  cases the local branch will be named "pr-N", where ~N~ is the
-  pull-request number.
-
-  These variables are always set by this command:
-
-  - ~branch.<name>.pullRequest~ is set to the pull-request number.
-  - ~branch.<name>.pullRequestRemote~ is set to the remote on which the
-    pull-request branch is located.
-  - ~branch.<name>.pushRemote~ is set to the same remote as
-    ~branch.<name>.pullRequestRemote~ if that is possible, otherwise
-    it is set to the upstream remote.
-  - ~branch.<name>.description~ is set to the pull-request title.
-  - ~branch.<name>.rebase~ is set to ~true~ because there should be no
-    merge commits among the commits in a pull-request.
-
-  This command also configures the upstream and the push-remote of the
-  local branch that it creates.
-
-  The branch against which the pull-request was opened, is always used
-  as the upstream.  This makes it easy to see what commits you are
-  being asked to merge in the section titled something like "Unmerged
-  into origin/master".
-
-  Like for other commands that create a branch it depends on the
-  option ~magit-branch-prefer-remote-upstream~ whether the remote branch
-  itself or the respective local branch is used as the upstream, so
-  this section may also be titled e.g. "Unmerged into master".
-
-  When necessary and possible, then the remote pull-request branch is
-  configured to be used as the push-target.  This makes it easy to see
-  what further changes the contributor has made since you last
-  reviewed their changes in the section titled something like
-  "Unpulled from origin/new-feature" or "Unpulled from
-  fork/new-feature".
-
-  - If the pull-request branch is located in the upstream repository,
-    then you probably have set ~remote.pushDefault~ to that repository.
-    However some users like to set that variable to their personal
-    fork, even if they have push access to the upstream, so
-    ~branch.<name>.pushRemote~ is set anyway.
-
-  - If the pull-request branch is located inside a fork, then you are
-    usually able to push to that branch, because Github by default
-    allows the recipient of a pull-request to push to the remote
-    pull-request branch even if it is located in a fork.  The
-    contributor has to explicitly disable this.
-
-    - If you are not allowed to push to the pull-request branch on
-      the fork, then a branch by the same name located in the
-      upstream repository is configured as the push-target.
-
-    - A — sadly rather common — special case is when the contributor
-      didn't bother to use a dedicated branch for the pull-request.
-
-      The most likely such case is when you are being asked to merge
-      something like "fork/master" into "origin/master".  The special
-      push permission mentioned above is never granted for the branch
-      that is the repository's default branch, and that would almost
-      certainly be the case in this scenario.
-
-      To enable you to easily push somewhere anyway, the local branch
-      is named "pr-N" (where ~N~ is the pull-request number) and the
-      upstream repository is used as the push-remote.
-
-    - Finally, if you are allowed to push to the pull-request branch
-      and the contributor had the foresight to use a dedicated branch,
-      then the fork is configured as the push-remote.
-
-    The push-remote is configured using ~branch.<name>.pushRemote~, even
-    if the used value is identical to that of ~remote.pushDefault~, just
-    in case you change the value of the latter later on.  Additionally
-    the variable ~branch.<name>.pullRequestRemote~ is set to the remote
-    on which the pull-request branch is located.
-
-  When you later delete the local pull-request branch, then you are
-  offered to also delete the corresponding remote, provided it is not
-  the upstream remote and that the tracking branch that corresponds to
-  the deleted branch is the only remaining tracked branch.  If you
-  don't confirm, then only the tracking branch itself is deleted in
-  addition to the local branch.
-
-  Do not delete the tracking branch instead of the local branch.  The
-  cleanup mentioned in the previous paragraph is not performed if you
-  do that.
-
-- Key: b y, magit-checkout-pull-request
-
-  This command creates and configures a new branch from a pull
-  request, the same way ~magit-branch-pull-request~ does.  Additionally
-  it checks out the new branch.
-
 - Key: b x, magit-branch-reset
 
   This command resets a branch, defaulting to the branch at point, to
@@ -6320,13 +6215,6 @@ Also see [[man:git-worktree]]
 - Key: % c, magit-worktree-branch
 
   Create a new BRANCH and check it out in a new worktree at PATH.
-
-- Key: % p, magit-worktree-checkout-pull-request
-
-  Create, configure and checkout a new worktree from a pull-request.
-
-  This is like ~magit-checkout-pull-request~ (which see) except that it
-  also creates a new worktree.
 
 - Key: % k, magit-worktree-delete
 

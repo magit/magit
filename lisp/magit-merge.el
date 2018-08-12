@@ -106,7 +106,7 @@ Before merging, force push the source branch to its push-remote,
 provided the respective remote branch already exists, ensuring
 that the respective pull-request (if any) won't get stuck on some
 obsolete version of the commits that are being merged.  Finally
-if `magit-branch-pull-request' was used to create the merged
+if `forge-branch-pullreq' was used to create the merged branch,
 branch, then also remove the respective remote branch."
   (interactive
    (list (magit-read-other-local-branch
@@ -128,8 +128,8 @@ Before merging, force push the source branch to its push-remote,
 provided the respective remote branch already exists, ensuring
 that the respective pull-request (if any) won't get stuck on some
 obsolete version of the commits that are being merged.  Finally
-if `magit-branch-pull-request' was used to create the merged
-branch, then also remove the respective remote branch."
+if `forge-branch-pullreq' was used to create the merged branch,
+then also remove the respective remote branch."
   (interactive (list (magit-read-other-local-branch "Absorb branch")
                      (magit-merge-arguments)))
   (magit--merge-absort branch args))

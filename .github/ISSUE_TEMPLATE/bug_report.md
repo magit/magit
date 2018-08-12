@@ -25,7 +25,7 @@ Alternatively, run `M-x magit-emacs-Q-command RET` to save a shell command to th
 Finally, if that didn't work and you have installed Magit from Melpa, then run commands similar to the ones below, but use tab completion to replace the various Ns with the correct versions:
 
   $ cd ~/.emacs.d/elpa/magit-N
-  $ emacs -Q --debug-init --eval '(setq debug-on-error t)' -L ../dash-N -L ../git-commit-N -L ../magit-popup-N -L ../with-editor-N -L ../ghub-N -L . -l magit
+  $ emacs -Q --debug-init --eval '(setq debug-on-error t)' -L ../dash-N -L ../git-commit-N -L ../magit-popup-N -L ../with-editor-N -L . -l magit
 
 More debugging tools are described in the manual [6].
 

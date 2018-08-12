@@ -743,12 +743,9 @@ See info node `(magit)Debugging Tools' for more information."
                            (error "Cannot find mandatory dependency %s" lib)))))
                      '(;; Like `LOAD_PATH' in `default.mk'.
                        "dash"
-                       "ghub"
-                       "graphql"
                        "lv"
                        "magit-popup"
                        "transient"
-                       "treepy"
                        "with-editor"
                        ;; Obviously `magit' itself is needed too.
                        "magit"

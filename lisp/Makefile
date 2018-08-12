@@ -31,9 +31,8 @@ magit.elc:		git-commit.elc magit-core.elc magit-diff.elc \
 magit-status.elc:	magit.elc
 magit-refs.elc: 	magit.elc
 magit-files.elc:	magit.elc
-magit-collab.elc:	magit.elc
 magit-reset.elc:        magit.elc
-magit-branch.elc:	magit.elc magit-collab.elc magit-reset.elc
+magit-branch.elc:	magit.elc magit-reset.elc
 magit-merge.elc:        magit.elc
 magit-tag.elc:          magit.elc
 magit-worktree.elc:	magit.elc

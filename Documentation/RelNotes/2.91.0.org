@@ -1,6 +1,10 @@
 * Magit v2.91.0 Release Notes (unreleased)
 ** Breaking changes
 
+- The commands ~magit-branch-pull-request~, ~magit-checkout-pull-request~
+  and ~magit-worktree-checkout-pull-request~ were removed in favor of
+  improved implementations provided by the new Forge package.
+
 - ~C-c C-e~ is no longer bound to ~magit-dispatch-popup~.  It is bound
   to  ~magit-edit-thing~ now, so that Forge can add section-specific
   bindings using this key.  ~magit-dispatch-popup~ continues to be

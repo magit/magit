@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-53-g279ae8b47+1)
+@subtitle for version 2.90.1 (v2.90.1-79-g50b5aad12+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-53-g279ae8b47+1).
+This manual is for Magit version 2.90.1 (v2.90.1-79-g50b5aad12+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -481,10 +481,10 @@ Now see @ref{Post-Installation Tasks}.
 @node Installing from the Git Repository
 @section Installing from the Git Repository
 
-Magit depends on the @code{dash}, @code{ghub}, @code{graphql}, @code{magit-popup}, @code{treepy} and
-@code{with-editor} libraries which are available from Melpa and Melpa-Stable.
-Install them using @code{M-x package-install RET <package> RET}.  Of course
-you may also install them manually from their repository.
+Magit depends on the @code{dash}, @code{magit-popup}, and @code{with-editor} libraries
+which are available from Melpa and Melpa-Stable.  Install them using
+@code{M-x package-install RET <package> RET}.  Of course you may also install
+them manually from their repository.
 
 Then clone the Magit repository:
 
@@ -499,19 +499,15 @@ Then compile the libraries and generate the info manuals:
 $ make
 @end example
 
-If you haven't installed @code{dash}, @code{ghub}, @code{graphql}, @code{magit-popup}, @code{treepy} and
-@code{with-editor} from Melpa or at @code{/path/to/magit/../<package>}, then you
-have to tell @code{make} where to find them.  To do so create the file
-@code{/path/to/magit/config.mk} with the following content before running
-@code{make}:
+If you haven't installed @code{dash}, @code{magit-popup} and @code{with-editor} from Melpa
+or at @code{/path/to/magit/../<package>}, then you have to tell @code{make} where to
+find them.  To do so create the file @code{/path/to/magit/config.mk} with the
+following content before running @code{make}:
 
 @example
 LOAD_PATH  = -L /path/to/magit/lisp
 LOAD_PATH += -L /path/to/dash
-LOAD_PATH += -L /path/to/ghub
-LOAD_PATH += -L /path/to/graphql
 LOAD_PATH += -L /path/to/magit-popup
-LOAD_PATH += -L /path/to/treepy
 LOAD_PATH += -L /path/to/with-editor
 @end example
 
@@ -5915,134 +5911,6 @@ matter, all commits between FROM and @code{HEAD} are moved to the new
 branch.  If FROM is not reachable from @code{HEAD} or is reachable from the
 source branch's upstream, then an error is raised.
 
-@kindex b Y
-@cindex magit-branch-pull-request
-@item @kbd{b Y} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-pull-request})
-
-This command creates and configures a new branch from a Github
-pull-request, creating and configuring a new remote if necessary.
-
-The name of the local branch is the same as the name of the remote
-branch that you are being asked to merge, unless the contributor
-could not be bother to properly name the branch before opening the
-pull-request.  The most likely such case is when you are being asked
-to merge something like "fork/master" into "origin/master".  In such
-cases the local branch will be named "pr-N", where @code{N} is the
-pull-request number.
-
-These variables are always set by this command:
-
-@itemize
-@item
-@code{branch.<name>.pullRequest} is set to the pull-request number.
-
-@item
-@code{branch.<name>.pullRequestRemote} is set to the remote on which the
-pull-request branch is located.
-
-@item
-@code{branch.<name>.pushRemote} is set to the same remote as
-@code{branch.<name>.pullRequestRemote} if that is possible, otherwise
-it is set to the upstream remote.
-
-@item
-@code{branch.<name>.description} is set to the pull-request title.
-
-@item
-@code{branch.<name>.rebase} is set to @code{true} because there should be no
-merge commits among the commits in a pull-request.
-@end itemize
-
-This command also configures the upstream and the push-remote of the
-local branch that it creates.
-
-The branch against which the pull-request was opened, is always used
-as the upstream.  This makes it easy to see what commits you are
-being asked to merge in the section titled something like "Unmerged
-into origin/master".
-
-Like for other commands that create a branch it depends on the
-option @code{magit-branch-prefer-remote-upstream} whether the remote branch
-itself or the respective local branch is used as the upstream, so
-this section may also be titled e.g. "Unmerged into master".
-
-When necessary and possible, then the remote pull-request branch is
-configured to be used as the push-target.  This makes it easy to see
-what further changes the contributor has made since you last
-reviewed their changes in the section titled something like
-"Unpulled from origin/new-feature" or "Unpulled from
-fork/new-feature".
-
-@itemize
-@item
-If the pull-request branch is located in the upstream repository,
-then you probably have set @code{remote.pushDefault} to that repository.
-However some users like to set that variable to their personal
-fork, even if they have push access to the upstream, so
-@code{branch.<name>.pushRemote} is set anyway.
-
-
-@item
-If the pull-request branch is located inside a fork, then you are
-usually able to push to that branch, because Github by default
-allows the recipient of a pull-request to push to the remote
-pull-request branch even if it is located in a fork.  The
-contributor has to explicitly disable this.
-
-@itemize
-@item
-If you are not allowed to push to the pull-request branch on
-the fork, then a branch by the same name located in the
-upstream repository is configured as the push-target.
-
-
-@item
-A — sadly rather common — special case is when the contributor
-didn't bother to use a dedicated branch for the pull-request.
-
-The most likely such case is when you are being asked to merge
-something like "fork/master" into "origin/master".  The special
-push permission mentioned above is never granted for the branch
-that is the repository's default branch, and that would almost
-certainly be the case in this scenario.
-
-To enable you to easily push somewhere anyway, the local branch
-is named "pr-N" (where @code{N} is the pull-request number) and the
-upstream repository is used as the push-remote.
-
-
-@item
-Finally, if you are allowed to push to the pull-request branch
-and the contributor had the foresight to use a dedicated branch,
-then the fork is configured as the push-remote.
-@end itemize
-
-The push-remote is configured using @code{branch.<name>.pushRemote}, even
-if the used value is identical to that of @code{remote.pushDefault}, just
-in case you change the value of the latter later on.  Additionally
-the variable @code{branch.<name>.pullRequestRemote} is set to the remote
-on which the pull-request branch is located.
-@end itemize
-
-When you later delete the local pull-request branch, then you are
-offered to also delete the corresponding remote, provided it is not
-the upstream remote and that the tracking branch that corresponds to
-the deleted branch is the only remaining tracked branch.  If you
-don't confirm, then only the tracking branch itself is deleted in
-addition to the local branch.
-
-Do not delete the tracking branch instead of the local branch.  The
-cleanup mentioned in the previous paragraph is not performed if you
-do that.
-
-@kindex b y
-@cindex magit-checkout-pull-request
-@item @kbd{b y} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout-pull-request})
-
-This command creates and configures a new branch from a pull
-request, the same way @code{magit-branch-pull-request} does.  Additionally
-it checks out the new branch.
-
 @kindex b x
 @cindex magit-branch-reset
 @item @kbd{b x} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-reset})
@@ -8701,15 +8569,6 @@ Checkout BRANCH in a new worktree at PATH@.
 @item @kbd{% c} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-branch})
 
 Create a new BRANCH and check it out in a new worktree at PATH@.
-
-@kindex % p
-@cindex magit-worktree-checkout-pull-request
-@item @kbd{% p} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-checkout-pull-request})
-
-Create, configure and checkout a new worktree from a pull-request.
-
-This is like @code{magit-checkout-pull-request} (which see) except that it
-also creates a new worktree.
 
 @kindex % k
 @cindex magit-worktree-delete

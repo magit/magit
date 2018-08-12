@@ -63,7 +63,6 @@ ELS += magit.el
 ELS += magit-status.el
 ELS += magit-refs.el
 ELS += magit-files.el
-ELS += magit-collab.el
 ELS += magit-reset.el
 ELS += magit-branch.el
 ELS += magit-merge.el
@@ -100,14 +99,12 @@ VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0 | cut -c
 
 ASYNC_VERSION       = 1.9.3
 DASH_VERSION        = 2.14.1
-GHUB_VERSION        = 3.0.0
-GIT_COMMIT_VERSION  = 2.90.0
-MAGIT_POPUP_VERSION = 2.12.4
+GIT_COMMIT_VERSION  = 2.91.0
+MAGIT_POPUP_VERSION = 2.12.5
 WITH_EDITOR_VERSION = 2.8.0
 
 ASYNC_MELPA_SNAPSHOT       = 20180527
 DASH_MELPA_SNAPSHOT        = 20180910
-GHUB_MELPA_SNAPSHOT        = 20181107
 GIT_COMMIT_MELPA_SNAPSHOT  = 20181104
 MAGIT_POPUP_MELPA_SNAPSHOT = 20181003
 WITH_EDITOR_MELPA_SNAPSHOT = 20181103
@@ -133,32 +130,11 @@ ifeq "$(DASH_DIR)" ""
   DASH_DIR = $(TOP)../dash
 endif
 
-GHUB_DIR ?= $(shell \
-  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/ghub-[.0-9]*' 2> /dev/null | \
-  sort | tail -n 1)
-ifeq "$(GHUB_DIR)" ""
-  GHUB_DIR = $(TOP)../ghub
-endif
-
-GRAPHQL_DIR ?= $(shell \
-  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/graphql-[.0-9]*' 2> /dev/null | \
-  sort | tail -n 1)
-ifeq "$(GRAPHQL_DIR)" ""
-  GRAPHQL_DIR = $(TOP)../graphql
-endif
-
 MAGIT_POPUP_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/magit-popup-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
 ifeq "$(MAGIT_POPUP_DIR)" ""
   MAGIT_POPUP_DIR = $(TOP)../magit-popup
-endif
-
-TREEPY_DIR ?= $(shell \
-  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/treepy-[.0-9]*' 2> /dev/null | \
-  sort | tail -n 1)
-ifeq "$(TREEPY_DIR)" ""
-  TREEPY_DIR = $(TOP)../treepy
 endif
 
 WITH_EDITOR_DIR ?= $(shell \
@@ -181,17 +157,11 @@ LOAD_PATH = -L $(TOP)/lisp
 
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
-  LOAD_PATH += -L $(shell cygpath --mixed $(GHUB_DIR))
-  LOAD_PATH += -L $(shell cygpath --mixed $(GRAPHQL_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(MAGIT_POPUP_DIR))
-  LOAD_PATH += -L $(shell cygpath --mixed $(TREEPY_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
 else
   LOAD_PATH += -L $(DASH_DIR)
-  LOAD_PATH += -L $(GHUB_DIR)
-  LOAD_PATH += -L $(GRAPHQL_DIR)
   LOAD_PATH += -L $(MAGIT_POPUP_DIR)
-  LOAD_PATH += -L $(TREEPY_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
 endif
 

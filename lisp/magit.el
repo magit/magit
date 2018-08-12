@@ -591,7 +591,6 @@ For X11 something like ~/.xinitrc should work.\n"
   (require 'magit-status)
   (require 'magit-refs)
   (require 'magit-files)
-  (require 'magit-collab)
   (require 'magit-reset)
   (require 'magit-branch)
   (require 'magit-merge)
