@@ -26,11 +26,9 @@
 <hr>
 
 <div align="justify">
-  Thanks to
   <a href="https://github.com/magit/magit/blob/master/Documentation/BACKERS.md">1987 backers</a>
-  the Kickstarter campaign was a huge success!
-  This September was very exciting and I would like to thank you all
-  for your generosity and enthusiastic support!
+  made sure the Kickstarter campaign was a huge success!
+  Thanks for your generosity and enthusiastic support!
 </div>
 <div align="center">
   <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em><br><br>
