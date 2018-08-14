@@ -42,7 +42,7 @@
 
 ;;;###autoload
 (defun magit-reset (commit &optional hard)
-  "Reset the head and index to COMMIT, but not the working tree.
+  "Reset the `HEAD' and index to COMMIT, but not the working tree.
 With a prefix argument also reset the working tree.
 \n(git reset --mixed|--hard COMMIT)"
   (interactive (list (magit-reset-read-branch-or-commit
@@ -55,21 +55,21 @@ With a prefix argument also reset the working tree.
 
 ;;;###autoload
 (defun magit-reset-head (commit)
-  "Reset the head and index to COMMIT, but not the working tree.
+  "Reset the `HEAD' and index to COMMIT, but not the working tree.
 \n(git reset --mixed COMMIT)"
   (interactive (list (magit-reset-read-branch-or-commit "Reset %s to")))
   (magit-reset-internal "--mixed" commit))
 
 ;;;###autoload
 (defun magit-reset-soft (commit)
-  "Reset the head to COMMIT, but not the index and working tree.
+  "Reset the `HEAD' to COMMIT, but not the index and working tree.
 \n(git reset --soft REVISION)"
   (interactive (list (magit-reset-read-branch-or-commit "Soft reset %s to")))
   (magit-reset-internal "--soft" commit))
 
 ;;;###autoload
 (defun magit-reset-hard (commit)
-  "Reset the head, index, and working tree to COMMIT.
+  "Reset the `HEAD', index, and working tree to COMMIT.
 \n(git reset --hard REVISION)"
   (interactive (list (magit-reset-read-branch-or-commit
                       (concat (propertize "Hard" 'face 'bold)
@@ -79,7 +79,7 @@ With a prefix argument also reset the working tree.
 ;;;###autoload
 (defun magit-reset-index (commit)
   "Reset the index to COMMIT.
-Keep the head and working tree as-is, so if COMMIT refers to the
+Keep the `HEAD' and working tree as-is, so if COMMIT refers to the
 head this effectively unstages all changes.
 \n(git reset COMMIT .)"
   (interactive (list (magit-read-branch-or-commit "Reset index to")))
