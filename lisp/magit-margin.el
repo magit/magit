@@ -143,11 +143,12 @@ does not carry to other options."
 (defun magit-set-window-margin (&optional window)
   (when (or window (setq window (get-buffer-window)))
     (with-selected-window window
-      (set-window-margins nil (car (window-margins))
-                          (and (magit-buffer-margin-p)
-                               (if magit-log-margin-show-shortstat
-                                   16 ; kludge
-                                 (nth 2 magit-buffer-margin)))))))
+      (set-window-margins
+       nil (car (window-margins))
+       (and (magit-buffer-margin-p)
+            (if (bound-and-true-p magit-log-margin-show-shortstat)
+                16 ; kludge
+              (nth 2 magit-buffer-margin)))))))
 
 (defun magit-make-margin-overlay (&optional string previous-line)
   (if previous-line
