@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-158-g884116790+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-159-gea2446d7a+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-158-g884116790+1).
+This manual is for Magit version 2.13.0 (2.13.0-159-gea2446d7a+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -7994,6 +7994,15 @@ Instead you have to create a script that does something like this:
 Try to use ~emacsclient~ (without using ~--alternate-editor~).  If that
 succeeds, do nothing else.  Otherwise start ~emacs &~ (and ~init.el~ must
 call ~server-start~) and try to use ~emacsclient~ again.
+
+*** Point ends up inside invisible text when jumping to a file-visiting buffer
+
+This can happen when you type ~RET~ on a hunk to visit the respective
+file at the respective position.  One solution to this problem is to
+use ~global-reveal-mode~.  It makes sure that text around point is
+always visible.  It that is too drastic for your taste, then you may
+instead use ~magit-diff-visit-file-hook~ to reveal the text, possibly
+using ~reveal-post-command~ or for Org buffers ~org-reveal~.
 
 * Debugging Tools
 
