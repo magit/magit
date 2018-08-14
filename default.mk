@@ -133,6 +133,13 @@ ifeq "$(GHUB_DIR)" ""
   GHUB_DIR = $(TOP)../ghub
 endif
 
+GRAPHQL_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/graphql-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(GRAPHQL_DIR)" ""
+  GRAPHQL_DIR = $(TOP)../graphql
+endif
+
 MAGIT_POPUP_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/magit-popup-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
@@ -164,12 +171,14 @@ LOAD_PATH = -L $(TOP)/lisp
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(GHUB_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(GRAPHQL_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(MAGIT_POPUP_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(TREEPY_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
 else
   LOAD_PATH += -L $(DASH_DIR)
   LOAD_PATH += -L $(GHUB_DIR)
+  LOAD_PATH += -L $(GRAPHQL_DIR)
   LOAD_PATH += -L $(MAGIT_POPUP_DIR)
   LOAD_PATH += -L $(TREEPY_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
