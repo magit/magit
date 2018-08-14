@@ -25,12 +25,6 @@
 </p>
 <hr>
 
-<div align="center">
-  <a href="https://www.kickstarter.com/projects/1681258897/its-magit-the-magical-git-client/updates">
-    <img src="https://magit.vc/assets/kickstarter-k.png">
-  </a>
-</div>
-<br>
 <div align="justify">
   Thanks to
   <a href="https://github.com/magit/magit/blob/master/Documentation/BACKERS.md">1987 backers</a>
