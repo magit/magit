@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-159-gea2446d7a+1)
+@subtitle for version 2.13.0 (2.13.0-163-g574562a87+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-159-gea2446d7a+1).
+This manual is for Magit version 2.13.0 (2.13.0-163-g574562a87+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -7346,6 +7346,13 @@ the commit at point.  Keep the @code{HEAD} and working tree as-is, so if
 the commit refers to the @code{HEAD}, then this effectively unstages all
 changes.
 
+@kindex X w
+@cindex magit-reset-worktree
+@item @kbd{X w} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-worktree})
+
+Reset the working tree to some commit read from the user and
+defaulting to the commit at point.  Keep the @code{HEAD} and index as-is.
+
 @kindex X f
 @cindex magit-file-checkout
 @item @kbd{X f} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-checkout})
@@ -8738,6 +8745,21 @@ With a negative prefix argument only the worktree wip ref is shown.
 The absolute numeric value of the prefix argument controls how many
 "branches" of each wip ref are shown.
 @end deffn
+
+@table @asis
+@kindex X w
+@cindex magit-reset-worktree
+@item @kbd{X w} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-worktree})
+
+This command resets the working tree to some commit read from the
+user and defaulting to the commit at point, while keeping the @code{HEAD}
+and index as-is.
+
+This can be used to restore files to the state committed to a wip
+ref.  Note that this will discard any unstaged changes that might
+have existed before invoking this command (but of course only after
+committing that to the working tree wip ref).
+@end table
 
 There exists a total of three global modes that save to the wip refs,
 which might seem excessive, but allows fine tuning of when exactly

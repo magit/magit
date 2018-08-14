@@ -33,11 +33,13 @@
 (magit-define-popup magit-reset-popup
   "Popup console for reset commands."
   :man-page "git-reset"
-  :actions '((?m "reset mixed  (HEAD and index)"         magit-reset-head)
-             (?s "reset soft   (HEAD only)"              magit-reset-soft)
-             (?h "reset hard   (HEAD, index, and files)" magit-reset-hard)
-             (?i "reset index  (index only)"             magit-reset-index) nil
-             (?f "reset a file"                          magit-file-checkout))
+  :actions '((?m "reset mixed    (HEAD and index)"         magit-reset-head)
+             (?s "reset soft     (HEAD only)"              magit-reset-soft)
+             (?h "reset hard     (HEAD, index, and files)" magit-reset-hard)
+             (?i "reset index    (only)"                   magit-reset-index)
+             (?w "reset worktree (only)"                   magit-reset-worktree)
+             nil
+             (?f "reset a file"                            magit-file-checkout))
   :max-action-columns 1)
 
 ;;;###autoload
@@ -84,6 +86,16 @@ head this effectively unstages all changes.
 \n(git reset COMMIT .)"
   (interactive (list (magit-read-branch-or-commit "Reset index to")))
   (magit-reset-internal nil commit "."))
+
+;;;###autoload
+(defun magit-reset-worktree (commit)
+  "Reset the worktree to COMMIT.
+Keep the `HEAD' and index as-is."
+  (interactive (list (magit-read-branch-or-commit "Reset worktree to")))
+  (magit-with-temp-index commit nil
+    (magit-wip-commit-before-change nil " before reset")
+    (magit-run-git "checkout-index" "--all" "--force")
+    (magit-wip-commit-after-apply nil " after reset")))
 
 (defun magit-reset-read-branch-or-commit (prompt)
   "Prompt for and return a ref to reset HEAD to.
