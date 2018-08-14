@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-142-g2fc79d08+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-158-g884116790+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-142-g2fc79d08+1).
+This manual is for Magit version 2.13.0 (2.13.0-158-g884116790+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -7933,6 +7933,67 @@ that setting on to other ~git~ process it starts itself.  It does so by
 setting the environment variable ~GIT_LITERAL_PATHSPECS~, not by calling
 subprocesses with the ~--literal-pathspecs~.  You can therefore override
 this setting in hook scripts using ~unset GIT_LITERAL_PATHSPECS~.
+
+*** ~git-commit-mode~ isn't used when committing from the command-line
+
+The reason for this is that ~git-commit.el~ has not been loaded yet
+and/or that the server has not been started yet.  These things have
+always already been taken care of when you commit from Magit because
+in order to do so, Magit has to be loaded and doing that involves
+loading ~git-commit~ and starting the server.
+
+If you want to commit from the command-line, then you have to take
+care of these things yourself. Your ~init.el~ file should contain:
+
+#+BEGIN_SRC emacs-lisp
+  (require 'git-commit)
+  (server-mode)
+#+END_SRC
+
+Instead of `(require 'git-commit)` you may also use:
+
+#+BEGIN_SRC emacs-lisp
+  (load "/path/to/magit-autoloads.el")
+#+END_SRC
+
+You might want to do that because loading ~git-commit~ causes large
+parts of Magit to be loaded.
+
+There are also some variations of ~(server-mode)~ that you might want to
+try. Personally I use:
+
+#+BEGIN_SRC emacs-lisp
+  (use-package server
+    :config (or (server-running-p) (server-mode)))
+#+END_SRC
+
+Now you can use:
+
+#+BEGIN_SRC shell-script
+  $ emacs&
+  $ EDITOR=emacsclient git commit
+#+END_SRC
+
+However you cannot use:
+
+#+BEGIN_SRC shell-script
+  $ killall emacs
+  $ EDITOR="emacsclient --alternate-editor emacs" git commit
+#+END_SRC
+
+This will actually end up using ~emacs~, not ~emacsclient~.  If you do
+this, then can still edit the commit message but ~git-commit-mode~ won't
+be used and you have to exit ~emacs~ to finish the process.
+
+Tautology ahead.  If you want to be able to use ~emacsclient~ to connect
+to a running ~emacs~ instance, even though no ~emacs~ instance is running,
+then you cannot use ~emacsclient~ directly.
+
+Instead you have to create a script that does something like this:
+
+Try to use ~emacsclient~ (without using ~--alternate-editor~).  If that
+succeeds, do nothing else.  Otherwise start ~emacs &~ (and ~init.el~ must
+call ~server-start~) and try to use ~emacsclient~ again.
 
 * Debugging Tools
 

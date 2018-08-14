@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-142-g2fc79d08+1)
+@subtitle for version 2.13.0 (2.13.0-158-g884116790+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-142-g2fc79d08+1).
+This manual is for Magit version 2.13.0 (2.13.0-158-g884116790+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -325,6 +325,7 @@ FAQ - Issues and Errors
 * The mode-line information isn't always up-to-date::
 * A branch and tag sharing the same name breaks SOMETHING::
 * My Git hooks work on the command-line but not inside Magit::
+* @code{git-commit-mode} isn't used when committing from the command-line::
 
 
 @end detailmenu
@@ -10353,6 +10354,7 @@ conflicts.
 * The mode-line information isn't always up-to-date::
 * A branch and tag sharing the same name breaks SOMETHING::
 * My Git hooks work on the command-line but not inside Magit::
+* @code{git-commit-mode} isn't used when committing from the command-line::
 @end menu
 
 @node Magit is slow
@@ -10503,6 +10505,68 @@ that setting on to other @code{git} process it starts itself.  It does so by
 setting the environment variable @code{GIT_LITERAL_PATHSPECS}, not by calling
 subprocesses with the @code{--literal-pathspecs}.  You can therefore override
 this setting in hook scripts using @code{unset GIT_LITERAL_PATHSPECS}.
+
+@node @code{git-commit-mode} isn't used when committing from the command-line
+@appendixsubsec @code{git-commit-mode} isn't used when committing from the command-line
+
+The reason for this is that @code{git-commit.el} has not been loaded yet
+and/or that the server has not been started yet.  These things have
+always already been taken care of when you commit from Magit because
+in order to do so, Magit has to be loaded and doing that involves
+loading @code{git-commit} and starting the server.
+
+If you want to commit from the command-line, then you have to take
+care of these things yourself. Your @code{init.el} file should contain:
+
+@lisp
+(require 'git-commit)
+(server-mode)
+@end lisp
+
+Instead of `(require 'git-commit)` you may also use:
+
+@lisp
+(load "/path/to/magit-autoloads.el")
+@end lisp
+
+You might want to do that because loading @code{git-commit} causes large
+parts of Magit to be loaded.
+
+There are also some variations of @code{(server-mode)} that you might want to
+try. Personally I use:
+
+@lisp
+(use-package server
+  :config (or (server-running-p) (server-mode)))
+@end lisp
+
+Now you can use:
+
+@example
+$ emacs&
+$ EDITOR=emacsclient git commit
+@end example
+
+However you cannot use:
+
+@example
+$ killall emacs
+$ EDITOR="emacsclient --alternate-editor emacs" git commit
+@end example
+
+This will actually end up using @code{emacs}, not @code{emacsclient}.  If you do
+this, then can still edit the commit message but @code{git-commit-mode} won't
+be used and you have to exit @code{emacs} to finish the process.
+
+Tautology ahead.  If you want to be able to use @code{emacsclient} to connect
+to a running @code{emacs} instance, even though no @code{emacs} instance is running,
+then you cannot use @code{emacsclient} directly.
+
+Instead you have to create a script that does something like this:
+
+Try to use @code{emacsclient} (without using @code{--alternate-editor}).  If that
+succeeds, do nothing else.  Otherwise start @code{emacs &} (and @code{init.el} must
+call @code{server-start}) and try to use @code{emacsclient} again.
 
 @node Debugging Tools
 @chapter Debugging Tools
