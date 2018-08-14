@@ -41,15 +41,6 @@
   :max-action-columns 1)
 
 ;;;###autoload
-(defun magit-reset-index (commit)
-  "Reset the index to COMMIT.
-Keep the head and working tree as-is, so if COMMIT refers to the
-head this effectively unstages all changes.
-\n(git reset COMMIT .)"
-  (interactive (list (magit-read-branch-or-commit "Reset index to")))
-  (magit-reset-internal nil commit "."))
-
-;;;###autoload
 (defun magit-reset (commit &optional hard)
   "Reset the head and index to COMMIT, but not the working tree.
 With a prefix argument also reset the working tree.
@@ -84,6 +75,15 @@ With a prefix argument also reset the working tree.
                       (concat (propertize "Hard" 'face 'bold)
                               " reset %s to"))))
   (magit-reset-internal "--hard" commit))
+
+;;;###autoload
+(defun magit-reset-index (commit)
+  "Reset the index to COMMIT.
+Keep the head and working tree as-is, so if COMMIT refers to the
+head this effectively unstages all changes.
+\n(git reset COMMIT .)"
+  (interactive (list (magit-read-branch-or-commit "Reset index to")))
+  (magit-reset-internal nil commit "."))
 
 (defun magit-reset-read-branch-or-commit (prompt)
   "Prompt for and return a ref to reset HEAD to.
