@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-163-g574562a87+1)
+@subtitle for version 2.13.0 (2.13.0-166-g1a7f5440+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-163-g574562a87+1).
+This manual is for Magit version 2.13.0 (2.13.0-166-g1a7f5440+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -10598,7 +10598,7 @@ call @code{server-start}) and try to use @code{emacsclient} again.
 This can happen when you type @code{RET} on a hunk to visit the respective
 file at the respective position.  One solution to this problem is to
 use @code{global-reveal-mode}.  It makes sure that text around point is
-always visible.  It that is too drastic for your taste, then you may
+always visible.  If that is too drastic for your taste, then you may
 instead use @code{magit-diff-visit-file-hook} to reveal the text, possibly
 using @code{reveal-post-command} or for Org buffers @code{org-reveal}.
 
