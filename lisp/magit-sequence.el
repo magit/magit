@@ -276,7 +276,7 @@ the process manually."
                      (magit-run-git "checkout" src)
                    (magit-refresh)))
                 (t
-                 (magit-call-git "checkout" src)
+                 (magit-git "checkout" src)
                  (let ((process-environment process-environment))
                    (push (format "%s=%s -i -ne '/^pick (%s)/ or print'"
                                  "GIT_SEQUENCE_EDITOR"
