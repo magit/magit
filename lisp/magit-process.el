@@ -734,11 +734,30 @@ Magit status buffer."
 
 (defun magit-process-password-auth-source (key)
   "Use `auth-source-search' to get a password.
-If found, return the password.  Otherwise, return nil."
+If found, return the password.  Otherwise, return nil.
+
+To use this function add it to the appropriate hook
+  (add-hook 'magit-process-find-password-functions
+            'magit-process-password-auth-source)
+
+KEY typically derives from a prompt such as:
+  Password for 'https://tarsius@bitbucket.org'
+in which case it would be the string
+  tarsius@bitbucket.org
+which matches the ~/.authinfo.gpg entry
+  machine bitbucket.org login tarsius password 12345
+or iff that is undefined, for backward compatibility
+  machine tarsius@bitbucket.org password 12345"
+  (message "key: %S" key)
   (require 'auth-source)
-  (let ((secret (plist-get (car (auth-source-search :max 1 :host key
-                                                    :require '(:host)))
-                           :secret)))
+  (let ((secret
+         (plist-get
+          (car (or (and (string-match "\\([^@]+\\)@\\([^@]+\\)" key)
+                        (auth-source-search :max 1
+                                            :host (match-string 2 key)
+                                            :login (match-string 1 key)))
+                   (auth-source-search :max 1 :host key)))
+          :secret)))
     (if (functionp secret)
         (funcall secret)
       secret)))
