@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-182-g38fd25ee6+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-200-g30ccf86f1+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-182-g38fd25ee6+1).
+This manual is for Magit version 2.13.0 (2.13.0-200-g30ccf86f1+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -7857,9 +7857,9 @@ tag signing", then you'll also need to synchronize ~$GPG_AGENT_INFO~.
 This happens when you configure Git to always color diffs and/or all
 of its output.  The valid values for relevant Git variables ~color.ui~
 and ~color.diff~ are ~false~, ~true~ and ~always~, and the default is ~true~.
-You should leave it that because then you get colorful output in
-terminals but git's output is consumed by something else, then no
-colors are used.
+You should leave it that way because then you get colorful output in
+terminals by default but when git's output is consumed by something
+else, then no color control sequences are used.
 
 If you actually use some other tool which expects that requires that
 you force git to output control sequences (which is highly unlikely),
