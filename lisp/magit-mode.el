@@ -250,12 +250,6 @@ then fall back to regular region highlighting."
   :type 'hook
   :options '(magit-section-update-region magit-diff-update-hunk-region))
 
-(defcustom magit-refresh-verbose nil
-  "Whether to revert Magit buffers verbosely."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-refresh
-  :type 'boolean)
-
 (defcustom magit-refresh-buffer-hook nil
   "Normal hook for `magit-refresh-buffer' to run after refreshing."
   :package-version '(magit . "2.1.0")
@@ -274,6 +268,12 @@ improve performance."
   :package-version '(magit . "2.4.0")
   :group 'magit-refresh
   :group 'magit-status
+  :type 'boolean)
+
+(defcustom magit-refresh-verbose nil
+  "Whether to revert Magit buffers verbosely."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-refresh
   :type 'boolean)
 
 (defcustom magit-save-repository-buffers t
