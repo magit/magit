@@ -290,21 +290,30 @@ Type \\[magit-commit-popup] to create a commit.
   (setq imenu-create-index-function
         'magit-imenu--status-create-index-function)
   (setq-local bookmark-make-record-function
-              #'magit-bookmark--status-make-record)
-  (add-hook 'magit-refresh-buffer-hook 'magit-status-goto-commits-once nil t))
+              #'magit-bookmark--status-make-record))
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
     (magit-run-section-hook 'magit-status-sections-hook)))
 
-(defun magit-status-goto-commits-once ()
-  "When showing a status buffer for the first time, jump to some log."
+(defun magit-status-goto-commits ()
+  "In a `magit-status-mode' buffer, jump to some log.
+Actually doing so is deferred until `magit-refresh-buffer-hook'
+runs `magit-status-goto-commits-1'.  That function then removes
+itself from the hook, so that this only happens when the status
+buffer is first created."
+  (when (derived-mode-p 'magit-status-mode)
+    (add-hook 'magit-refresh-buffer-hook 'magit-status-goto-commits-1 nil t)))
+
+(defun magit-status-goto-commits-1 ()
+  "In a `magit-status-mode' buffer, jump to some log.
+This function removes itself from `magit-refresh-buffer-hook'."
   (when-let
       ((s (or (magit-get-section '((unpulled . "..@{upstream}") (status)))
               (magit-get-section '((unpushed . "@{upstream}..") (status))))))
     (goto-char (oref s start)))
-  (remove-hook 'magit-refresh-buffer-hook 'magit-status-goto-commits-once t))
+  (remove-hook 'magit-refresh-buffer-hook 'magit-status-goto-commits-1 t))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
   "When moving in the status buffer, update the revision buffer.

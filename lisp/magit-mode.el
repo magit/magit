@@ -250,11 +250,12 @@ then fall back to regular region highlighting."
   :type 'hook
   :options '(magit-section-update-region magit-diff-update-hunk-region))
 
-(defcustom magit-create-buffer-hook nil
+(defcustom magit-create-buffer-hook '(magit-status-goto-commits)
   "Normal hook run after creating a new `magit-mode' buffer."
   :package-version '(magit . "2.90.0")
   :group 'magit-refresh
-  :type 'hook)
+  :type 'hook
+  :options '(magit-status-goto-commits))
 
 (defcustom magit-refresh-buffer-hook nil
   "Normal hook for `magit-refresh-buffer' to run after refreshing."
