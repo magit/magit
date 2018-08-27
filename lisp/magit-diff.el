@@ -594,13 +594,14 @@ and `:slant'."
 
 (defconst magit-diff-popup-common
   '(:variable magit-diff-arguments
-    :man-page "git-diff"
-    :options  ((?f "Limit to files" "-- " magit-read-files)
-               (?u "Context lines"  "-U")
-               (?m "Detect renames" "-M")
-               (?c "Detect copies"  "-C")
-               (?a "Diff algorithm" "--diff-algorithm="
-                   magit-diff-select-algorithm))))
+              :man-page "git-diff"))
+
+(defconst magit-diff-popup-common-options
+  '((?f "Limit to files" "-- " magit-read-files)
+    (?u "Context lines"  "-U")
+    (?m "Detect renames" "-M")
+    (?c "Detect copies"  "-C")
+    (?a "Diff algorithm" "--diff-algorithm=" magit-diff-select-algorithm)))
 
 (defconst magit-diff-popup-common-switches
   '((?f "Show surrounding functions"     "--function-context")
@@ -610,6 +611,7 @@ and `:slant'."
 
 (defvar magit-diff-popup
   `(,@magit-diff-popup-common
+    :options  ,magit-diff-popup-common-options
     :switches (,@magit-diff-popup-common-switches
                (?s "Show stats" "--stat"))
     :actions  ((?d "Dwim"          magit-diff-dwim)
@@ -625,6 +627,7 @@ and `:slant'."
 
 (defvar magit-diff-refresh-popup
   `(,@magit-diff-popup-common
+    :options  ,magit-diff-popup-common-options
     :switches ,magit-diff-popup-common-switches
     :actions  ((?g "Refresh"                magit-diff-refresh)
                (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
@@ -635,6 +638,7 @@ and `:slant'."
 
 (defvar magit-diff-mode-refresh-popup
   `(,@magit-diff-popup-common
+    :options  ,magit-diff-popup-common-options
     :switches (,@magit-diff-popup-common-switches
                (?s "Show stats" "--stat"))
     :actions  ((?g "Refresh"                magit-diff-refresh)
