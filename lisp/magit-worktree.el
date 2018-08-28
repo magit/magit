@@ -35,10 +35,11 @@
 (magit-define-popup magit-worktree-popup
   "Popup console for worktree commands."
   :man-page "git-worktree"
-  :actions  '((?b "Create new worktree"            magit-worktree-checkout)
+  :actions  `((?b "Create new worktree"            magit-worktree-checkout)
               (?c "Create new branch and worktree" magit-worktree-branch)
-              (?p "Create new worktree from pull-request"
-                  magit-worktree-checkout-pull-request)
+              ,@(and (not (require (quote forge) nil t))
+                     '((?p "Create new worktree from pull-request"
+                           magit-worktree-checkout-pull-request)))
               (?k "Delete worktree"                magit-worktree-delete)
               (?g "Show status for worktree"       magit-worktree-status))
   :max-action-columns 1)
