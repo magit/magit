@@ -208,7 +208,7 @@ and change branch related variables."
   :variables (lambda ()
                (and magit-branch-popup-show-variables
                     magit-branch-config-variables))
-  :actions '((?b "Checkout"              magit-checkout) nil
+  :actions `((?b "Checkout"              magit-checkout) nil
              (?C "Configure..."          magit-branch-config-popup)
              (?l "Checkout local branch" magit-branch-checkout)
              (?s "Create new spin-off"   magit-branch-spinoff)
@@ -216,11 +216,12 @@ and change branch related variables."
              (?c "Checkout new branch"   magit-branch-and-checkout)
              (?n "Create new branch"     magit-branch)
              (?x "Reset"                 magit-branch-reset)
-             (?y "Checkout pull-request"    magit-checkout-pull-request)
-             (?Y "Create from pull-request" magit-branch-pull-request)
-             (?k "Delete"                   magit-branch-delete)
              (?w "Checkout new worktree" magit-worktree-checkout)
-             (?W "Create new worktree"   magit-worktree-branch))
+             (?W "Create new worktree"   magit-worktree-branch)
+             (?k "Delete"                magit-branch-delete)
+             ,@(and (not (require (quote forge) nil t))
+                    '((?y "Checkout pull-request"    magit-checkout-pull-request)
+                      (?Y "Create from pull-request" magit-branch-pull-request))))
   :default-action 'magit-checkout
   :max-action-columns 3
   :setup-function 'magit-branch-popup-setup)
