@@ -2055,9 +2055,13 @@ or a ref which is not a branch, then it inserts nothing."
         (when magit-diff-highlight-keywords
           (save-excursion
             (while (re-search-forward "\\[[^[]*\\]" nil t)
-              (put-text-property (match-beginning 0)
-                                 (match-end 0)
-                                 'face 'magit-keyword))))
+              (let ((beg (match-beginning 0))
+                    (end (match-end 0)))
+                (put-text-property
+                 beg end 'face
+                 (if-let ((face (get-text-property beg 'face)))
+                     (list face 'magit-keyword)
+                   'magit-keyword))))))
         (goto-char (point-max))))))
 
 (defun magit-insert-revision-notes (rev)
