@@ -1011,8 +1011,8 @@ for a revision."
                (magit-read-branch-or-commit "Show commit" atpoint))
            args
            files
-           (and mcommit (list (magit-section-parent-value
-                               (magit-current-section)))))))
+           (and mcommit
+                (magit-section-parent-value (magit-current-section))))))
   (require 'magit)
   (magit-with-toplevel
     (when module
