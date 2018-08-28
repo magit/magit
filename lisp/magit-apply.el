@@ -476,8 +476,7 @@ without requiring confirmation."
         (let ((inhibit-magit-refresh t))
           (magit-wip-commit-before-change files " before discard")
           (when resolve
-            (dolist (file (nreverse resolve))
-              (magit-checkout-stage file (magit-checkout-read-stage file))))
+            (magit-discard-files--resolve (nreverse resolve)))
           (when resurrect
             (magit-discard-files--resurrect (nreverse resurrect)))
           (when delete
@@ -489,6 +488,10 @@ without requiring confirmation."
                                           (nreverse discard-new)))
           (magit-wip-commit-after-apply files " after discard"))
       (magit-refresh))))
+
+(defun magit-discard-files--resolve (files)
+  (dolist (file files)
+    (magit-checkout-stage file (magit-checkout-read-stage file))))
 
 (defun magit-discard-files--resurrect (files)
   (magit-confirm-files 'resurrect files)
