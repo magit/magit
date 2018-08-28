@@ -490,8 +490,22 @@ without requiring confirmation."
       (magit-refresh))))
 
 (defun magit-discard-files--resolve (files)
-  (dolist (file files)
-    (magit-checkout-stage file (magit-checkout-read-stage file))))
+  (if-let ((arg (and (cdr files)
+                     (magit-read-char-case
+                         (format "For these %i files\n%s\ncheckout:\n"
+                                 (length files)
+                                 (mapconcat (lambda (file)
+                                              (concat "  " file))
+                                            files "\n"))
+                         t
+                       (?o "[o]ur stage"   "--ours")
+                       (?t "[t]heir stage" "--theirs")
+                       (?c "[c]onflict"    "--merge")
+                       (?i "decide [i]ndividually" nil)))))
+      (dolist (file files)
+        (magit-checkout-stage file arg))
+    (dolist (file files)
+      (magit-checkout-stage file (magit-checkout-read-stage file)))))
 
 (defun magit-discard-files--resurrect (files)
   (magit-confirm-files 'resurrect files)
