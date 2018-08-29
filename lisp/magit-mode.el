@@ -1353,7 +1353,7 @@ Unless specified, REPOSITORY is the current buffer's repository."
 
 (defun magit-zap-caches ()
   "Zap caches for the current repository.
-Remove the repository's entry from `magit-repository-cache'
+Remove the repository's entry from `magit-repository-local-cache'
 and set `magit-section-visibility-cache' to nil in all of the
 repository's Magit buffers."
   (interactive)
