@@ -415,30 +415,32 @@ These sections can be expanded to show the respective commits."
 
 (defun magit--insert-modules-logs (heading type range)
   "For internal use, don't add to a hook."
-  (when-let ((modules (magit-list-module-paths)))
-    (magit-insert-section section ((eval type) nil t)
-      (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
-      (magit-insert-heading
-        (propertize (match-string 1 heading) 'face 'magit-section-heading) " "
-        (propertize (match-string 2 heading) 'face 'magit-branch-remote) ":")
-      (magit-with-toplevel
-        (dolist (module modules)
-          (when (magit-module-worktree-p module)
-            (let ((default-directory
-                    (expand-file-name (file-name-as-directory module))))
-              (when (magit-file-accessible-directory-p default-directory)
-                (magit-insert-section sec (file module t)
-                  (magit-insert-heading
-                    (propertize module 'face 'magit-diff-file-heading) ":")
-                  (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
-                    "-c" "push.default=current" "log" "--oneline" range)
-                  (when (> (point)
-                           (oref sec content))
-                    (delete-char -1))))))))
-      (if (> (point)
-             (oref section content))
-          (insert ?\n)
-        (magit-cancel-section)))))
+  (unless (magit-ignore-submodules-p)
+    (when-let ((modules (magit-list-module-paths)))
+      (magit-insert-section section ((eval type) nil t)
+        (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
+        (magit-insert-heading
+          (propertize (match-string 1 heading) 'face 'magit-section-heading) " "
+          (propertize (match-string 2 heading) 'face 'magit-branch-remote) ":")
+        (magit-with-toplevel
+          (dolist (module modules)
+            (when (magit-module-worktree-p module)
+              (let ((default-directory
+                      (expand-file-name (file-name-as-directory module))))
+                (when (magit-file-accessible-directory-p default-directory)
+                  (magit-insert-section sec (file module t)
+                    (magit-insert-heading
+                      (propertize module 'face 'magit-diff-file-heading) ":")
+                    (magit-git-wash
+                        (apply-partially 'magit-log-wash-log 'module)
+                      "-c" "push.default=current" "log" "--oneline" range)
+                    (when (> (point)
+                             (oref sec content))
+                      (delete-char -1))))))))
+        (if (> (point)
+               (oref section content))
+            (insert ?\n)
+          (magit-cancel-section))))))
 
 ;;; List
 
