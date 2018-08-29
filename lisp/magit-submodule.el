@@ -419,9 +419,8 @@ These sections can be expanded to show the respective commits."
     (magit-insert-section section ((eval type) nil t)
       (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
       (magit-insert-heading
-        (concat
-         (propertize (match-string 1 heading) 'face 'magit-section-heading) " "
-         (propertize (match-string 2 heading) 'face 'magit-branch-remote) ":"))
+        (propertize (match-string 1 heading) 'face 'magit-section-heading) " "
+        (propertize (match-string 2 heading) 'face 'magit-branch-remote) ":")
       (magit-with-toplevel
         (dolist (module modules)
           (when (magit-module-worktree-p module)
@@ -430,7 +429,7 @@ These sections can be expanded to show the respective commits."
               (when (magit-file-accessible-directory-p default-directory)
                 (magit-insert-section sec (file module t)
                   (magit-insert-heading
-                    (concat (propertize module 'face 'magit-diff-file-heading) ":"))
+                    (propertize module 'face 'magit-diff-file-heading) ":")
                   (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
                     "-c" "push.default=current" "log" "--oneline" range)
                   (when (> (point)

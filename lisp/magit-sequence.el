@@ -899,8 +899,8 @@ If no such sequence is in progress, do nothing."
 (defun magit-sequence-insert-commit (type hash face &optional exec)
   (magit-insert-section (commit hash)
     (magit-insert-heading
-      (concat (propertize type 'face face)    "\s"
-              (magit-format-rev-summary hash) "\n"))
+      (propertize type 'face face)    "\s"
+      (magit-format-rev-summary hash) "\n")
     (when exec
       (insert (propertize "exec" 'face 'magit-sequence-onto) "\s" exec "\n"))))
 

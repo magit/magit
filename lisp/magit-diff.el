@@ -1847,19 +1847,19 @@ section or a child thereof."
                                                   "..." range t t 1)))
           (magit-insert-section (file module t)
             (magit-insert-heading
-              (concat (propertize (concat "modified   " module)
-                                  'face 'magit-diff-file-heading)
-                      " ("
-                      (cond (rewind "rewind")
-                            ((string-match-p "\\.\\.\\." range) "non-ff")
-                            (t "new commits"))
-                      (and (or modified untracked)
-                           (concat ", "
-                                   (and modified "modified")
-                                   (and modified untracked " and ")
-                                   (and untracked "untracked")
-                                   " content"))
-                      ")"))
+              (propertize (concat "modified   " module)
+                          'face 'magit-diff-file-heading)
+              " ("
+              (cond (rewind "rewind")
+                    ((string-match-p "\\.\\.\\." range) "non-ff")
+                    (t "new commits"))
+              (and (or modified untracked)
+                   (concat ", "
+                           (and modified "modified")
+                           (and modified untracked " and ")
+                           (and untracked "untracked")
+                           " content"))
+              ")")
             (let ((default-directory
                     (file-name-as-directory
                      (expand-file-name module (magit-toplevel)))))
@@ -1872,19 +1872,19 @@ section or a child thereof."
           (magit-delete-line)
           (magit-insert-section (file module)
             (magit-insert-heading
-              (concat (propertize (concat "submodule  " module)
-                                  'face 'magit-diff-file-heading)
-                      " (" msg ")")))))
+              (propertize (concat "submodule  " module)
+                          'face 'magit-diff-file-heading)
+              " (" msg ")"))))
        (t
         (magit-insert-section (file module)
           (magit-insert-heading
-            (concat (propertize (concat "modified   " module)
-                                'face 'magit-diff-file-heading)
-                    " ("
-                    (and modified "modified")
-                    (and modified untracked " and ")
-                    (and untracked "untracked")
-                    " content)"))))))))
+            (propertize (concat "modified   " module)
+                        'face 'magit-diff-file-heading)
+            " ("
+            (and modified "modified")
+            (and modified untracked " and ")
+            (and untracked "untracked")
+            " content)")))))))
 
 (defun magit-diff-wash-hunk ()
   (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
