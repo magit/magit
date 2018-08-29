@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-166-g1a7f5440+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-182-g38fd25ee6+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-166-g1a7f5440+1).
+This manual is for Magit version 2.13.0 (2.13.0-182-g38fd25ee6+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -8036,7 +8036,7 @@ issue.
 - Key: M-x magit-emacs-Q-command, magit-emacs-Q-command
 
   This command shows a debugging shell command in the echo area and
-  adds it to the kill ring.  Paste that command into a shell an run
+  adds it to the kill ring.  Paste that command into a shell and run
   it.
 
   This shell command starts ~emacs~ with only ~magit~ and its
@@ -8058,9 +8058,9 @@ issue.
 - Key: M-x with-editor-debug, with-editor-debug
 
   This command displays a buffer containing information about the
-  available and used ~git~ executable(s), and can be useful when
-  investigating why Magit (or rather ~with-editor~) cannot find an
-  appropriate ~emacsclient~ executable.
+  available and used ~~emacsclient~ executable(s), and can be useful
+  when investigating why Magit (or rather ~with-editor~) cannot find
+  an appropriate ~emacsclient~ executable.
 
   Also see [[info:with-editor#Debugging]].
 

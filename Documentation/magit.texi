@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-166-g1a7f5440+1)
+@subtitle for version 2.13.0 (2.13.0-182-g38fd25ee6+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-166-g1a7f5440+1).
+This manual is for Magit version 2.13.0 (2.13.0-182-g38fd25ee6+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -10624,7 +10624,7 @@ Magit version.
 @item @kbd{M-x magit-emacs-Q-command} @tie{}@tie{}@tie{}@tie{}(@code{magit-emacs-Q-command})
 
 This command shows a debugging shell command in the echo area and
-adds it to the kill ring.  Paste that command into a shell an run
+adds it to the kill ring.  Paste that command into a shell and run
 it.
 
 This shell command starts @code{emacs} with only @code{magit} and its
@@ -10650,9 +10650,9 @@ Also see @ref{Git Executable}.
 @item @kbd{M-x with-editor-debug} @tie{}@tie{}@tie{}@tie{}(@code{with-editor-debug})
 
 This command displays a buffer containing information about the
-available and used @code{git} executable(s), and can be useful when
-investigating why Magit (or rather @code{with-editor}) cannot find an
-appropriate @code{emacsclient} executable.
+available and used @code{~emacsclient} executable(s), and can be useful
+when investigating why Magit (or rather @code{with-editor}) cannot find
+an appropriate @code{emacsclient} executable.
 
 Also see @ref{Debugging,,,with-editor,}.
 @end table
