@@ -363,11 +363,17 @@ the status buffer causes this section to disappear again."
 
 (defun magit-insert-diff-filter-header ()
   "Insert a header line showing the effective diff filters."
-  (when magit-diff-section-file-args
-    (magit-insert-section (filter 'diff)
+  (let ((ignore-modules (magit-ignore-submodules-p)))
+    (when (or ignore-modules
+              magit-diff-section-file-args)
       (insert (propertize (format "%-10s" "Filter! ")
                           'face 'magit-section-heading))
-      (insert (mapconcat #'identity magit-diff-section-file-args " "))
+      (when ignore-modules
+        (insert ignore-modules)
+        (when magit-diff-section-file-args
+          (insert " -- ")))
+      (when magit-diff-section-file-args
+        (insert (mapconcat #'identity magit-diff-section-file-args " ")))
       (insert ?\n))))
 
 ;;;; Reference Headers
@@ -527,10 +533,12 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
               (magit-insert-heading "Untracked files:")
               (magit-insert-files files base)
               (insert ?\n)))
-        (when-let ((files (--mapcat (and (eq (aref it 0) ??)
-                                         (list (substring it 3)))
-                                    (magit-git-items "status" "-z" "--porcelain"
-                                                     "--" base))))
+        (when-let ((files
+                    (--mapcat (and (eq (aref it 0) ??)
+                                   (list (substring it 3)))
+                              (magit-git-items "status" "-z" "--porcelain"
+                                               (magit-ignore-submodules-p)
+                                               "--" base))))
           (magit-insert-section (untracked)
             (magit-insert-heading "Untracked files:")
             (dolist (file files)
