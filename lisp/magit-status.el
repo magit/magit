@@ -533,10 +533,12 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
               (magit-insert-heading "Untracked files:")
               (magit-insert-files files base)
               (insert ?\n)))
-        (when-let ((files (--mapcat (and (eq (aref it 0) ??)
-                                         (list (substring it 3)))
-                                    (magit-git-items "status" "-z" "--porcelain"
-                                                     "--" base))))
+        (when-let ((files
+                    (--mapcat (and (eq (aref it 0) ??)
+                                   (list (substring it 3)))
+                              (magit-git-items "status" "-z" "--porcelain"
+                                               (magit-ignore-submodules-p)
+                                               "--" base))))
           (magit-insert-section (untracked)
             (magit-insert-heading "Untracked files:")
             (dolist (file files)
