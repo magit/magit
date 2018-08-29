@@ -108,7 +108,10 @@ use \\[universal-argument] \\[magit-describe-section-briefly].
 
 If, for example, you want to jump to the commits that haven't
 been pulled from the upstream, or else the second section, then
-use: (((unpulled . \"..@{upstream}\") (status)) 1)."
+use: (((unpulled . \"..@{upstream}\") (status)) 1).
+
+See option `magit-section-initial-visibility-alist' for how to
+control the initial visibility of the jumped to section."
   :package-version '(magit . "2.90.0")
   :group 'magit-status
   :type '(choice (const :tag "as usual" nil)
@@ -342,7 +345,12 @@ This function removes itself from `magit-refresh-buffer-hook'."
                                                        'next))
                         (magit-get-section it))
                       magit-status-initial-section)))
-    (goto-char (oref section start)))
+    (goto-char (oref section start))
+    (when-let ((vis (cdr (assq 'magit-status-initial-section
+                               magit-section-initial-visibility-alist))))
+      (if (eq vis 'hide)
+          (magit-section-hide section)
+        (magit-section-show section))))
   (remove-hook 'magit-refresh-buffer-hook
                'magit-status-goto-initial-section-1 t))
 

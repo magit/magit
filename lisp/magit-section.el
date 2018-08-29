@@ -143,7 +143,12 @@ and the type is the first element of that vector.  Wildcards can
 be used, see `magit-section-match'.
 
 Currently this option is only used to override hardcoded defaults,
-but in the future it will also be used set the defaults."
+but in the future it will also be used set the defaults.
+
+An entry whose key is `magit-status-initial-section' specifies
+the visibility of the section `magit-status-goto-initial-section'
+jumps to.  This does not only override defaults, but also other
+entries of this alist."
   :package-version '(magit . "2.12.0")
   :group 'magit-section
   :type '(alist :key-type (sexp :tag "Section type/lineage")
