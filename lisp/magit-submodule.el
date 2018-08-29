@@ -393,7 +393,7 @@ These sections can be expanded to show the respective commits."
 (defun magit-insert-modules-unpulled-from-pushremote ()
   "Insert sections for modules that haven't been pulled from the push-remote.
 These sections can be expanded to show the respective commits."
-  (magit--insert-modules-logs "Modules unpulled from ${push}"
+  (magit--insert-modules-logs "Modules unpulled from @{push}"
                               'modules-unpulled-from-pushremote
                               "HEAD..@{push}"))
 
@@ -411,7 +411,7 @@ These sections can be expanded to show the respective commits."
 These sections can be expanded to show the respective commits."
   (magit--insert-modules-logs "Modules unpushed to @{push}"
                               'modules-unpushed-to-pushremote
-                              "${push}..HEAD"))
+                              "@{push}..HEAD"))
 
 (defun magit--insert-modules-logs (heading type range)
   "For internal use, don't add to a hook."
