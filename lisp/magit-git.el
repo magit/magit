@@ -45,6 +45,7 @@
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
 (defvar magit-branch-prefer-remote-upstream)
 (defvar magit-published-branches)
+(defvar magit-diff-section-arguments)
 
 (defvar magit-tramp-process-environment nil)
 
@@ -835,6 +836,11 @@ are considered."
 
 (defun magit-module-no-worktree-p (module)
   (not (magit-module-worktree-p module)))
+
+(defun magit-ignore-submodules-p ()
+  (cl-find-if (lambda (arg)
+                (string-prefix-p "--ignore-submodules" arg))
+              magit-diff-section-arguments))
 
 ;;; Revisions and References
 
