@@ -601,7 +601,15 @@ and `:slant'."
     (?u "Context lines"  "-U")
     (?m "Detect renames" "-M")
     (?c "Detect copies"  "-C")
-    (?a "Diff algorithm" "--diff-algorithm=" magit-diff-select-algorithm)))
+    (?a "Diff algorithm" "--diff-algorithm=" magit-diff-select-algorithm)
+    (?i "Ignore submodules" "--ignore-submodules="
+        magit-diff-select-ignore-submodules)))
+
+(defun magit-diff-select-ignore-submodules (&rest _ignored)
+  (magit-read-char-case "Ignore submodules " t
+    (?u "[u]ntracked" "untracked")
+    (?d "[d]irty"     "dirty")
+    (?a "[a]ll"       "all")))
 
 (defconst magit-diff-popup-common-switches
   '((?f "Show surrounding functions"     "--function-context")
