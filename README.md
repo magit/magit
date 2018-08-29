@@ -110,7 +110,7 @@ Thanks to all of you, may (the history of) the source be with you!
 [![Paren Xkcb](https://img.shields.io/badge/%28-%20%20%20-red.svg)](https://xkcd.com/859)
 
 
-[contrib]: https://github.com/magit/magit/blob/master/Documentation/CONTRIBUTING.md
+[contrib]: https://github.com/magit/magit/blob/master/.github/CONTRIBUTING.md
 [issues]:  https://github.com/magit/magit/issues
 [pulls]:   https://github.com/magit/magit/pulls
 
