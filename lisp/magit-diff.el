@@ -592,7 +592,7 @@ and `:slant'."
 ;;; Commands
 ;;;; Diff popups
 
-(defconst magit-diff-popup-common
+(defconst magit-diff-popup-common-keywords
   '(:variable magit-diff-arguments
               :man-page "git-diff"))
 
@@ -610,7 +610,7 @@ and `:slant'."
     (?x "Disallow external diff drivers" "--no-ext-diff")))
 
 (defvar magit-diff-popup
-  `(,@magit-diff-popup-common
+  `(,@magit-diff-popup-common-keywords
     :options  ,magit-diff-popup-common-options
     :switches (,@magit-diff-popup-common-switches
                (?s "Show stats" "--stat"))
@@ -626,7 +626,7 @@ and `:slant'."
     :max-action-columns 3))
 
 (defvar magit-diff-refresh-popup
-  `(,@magit-diff-popup-common
+  `(,@magit-diff-popup-common-keywords
     :options  ,magit-diff-popup-common-options
     :switches ,magit-diff-popup-common-switches
     :actions  ((?g "Refresh"                magit-diff-refresh)
@@ -637,7 +637,7 @@ and `:slant'."
     :max-action-columns 2))
 
 (defvar magit-diff-mode-refresh-popup
-  `(,@magit-diff-popup-common
+  `(,@magit-diff-popup-common-keywords
     :options  ,magit-diff-popup-common-options
     :switches (,@magit-diff-popup-common-switches
                (?s "Show stats" "--stat"))
@@ -651,7 +651,7 @@ and `:slant'."
     :max-action-columns 2))
 
 (defvar magit-revision-mode-refresh-popup
-  `(,@magit-diff-popup-common
+  `(,@magit-diff-popup-common-keywords
     :switches ((?f "Show surrounding functions"     "--function-context")
                (?b "Ignore whitespace changes"      "--ignore-space-change")
                (?w "Ignore all whitespace"          "--ignore-all-space")
