@@ -675,11 +675,11 @@ edit.  With a prefix argument the old message is reused as-is."
         (if noedit
             (let ((process-environment process-environment))
               (push "GIT_EDITOR=true" process-environment)
-              (magit-run-git-async "rebase" "--continue")
+              (magit-run-git-async (magit--rebase-resume-command) "--continue")
               (set-process-sentinel magit-this-process
                                     #'magit-sequencer-process-sentinel)
               magit-this-process)
-          (magit-run-git-sequencer "rebase" "--continue")))
+          (magit-run-git-sequencer (magit--rebase-resume-command) "--continue")))
     (user-error "No rebase in progress")))
 
 ;;;###autoload
@@ -688,7 +688,7 @@ edit.  With a prefix argument the old message is reused as-is."
   (interactive)
   (unless (magit-rebase-in-progress-p)
     (user-error "No rebase in progress"))
-  (magit-run-git-sequencer "rebase" "--skip"))
+  (magit-run-git-sequencer (magit--rebase-resume-command) "--skip"))
 
 ;;;###autoload
 (defun magit-rebase-edit ()
@@ -705,12 +705,15 @@ edit.  With a prefix argument the old message is reused as-is."
   (unless (magit-rebase-in-progress-p)
     (user-error "No rebase in progress"))
   (magit-confirm 'abort-rebase "Abort this rebase")
-  (magit-run-git "rebase" "--abort"))
+  (magit-run-git (magit--rebase-resume-command) "--abort"))
 
 (defun magit-rebase-in-progress-p ()
   "Return t if a rebase is in progress."
   (or (file-exists-p (magit-git-dir "rebase-merge"))
       (file-exists-p (magit-git-dir "rebase-apply/onto"))))
+
+(defun magit--rebase-resume-command ()
+  (if (file-exists-p (magit-git-dir "rebase-recursive")) "rbr" "rebase"))
 
 ;;; Sections
 
