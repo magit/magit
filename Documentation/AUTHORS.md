@@ -220,6 +220,7 @@ Contributors
 - Nicolas Richard <theonewiththeevillook@yahoo.fr>
 - Nikolay Martynov <mar.kolya@gmail.com>
 - Noam Postavsky <npostavs@users.sourceforge.net>
+- N. Troy de Freitas <me@ntdef.com>
 - Ole Arndt <oliver.arndt@cegedim.com>
 - Oleh Krehel <ohwoeowho@gmail.com>
 - Orivej Desh <orivej@gmx.fr>
