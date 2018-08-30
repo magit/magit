@@ -368,8 +368,9 @@ Currently this only adds the following key bindings.
 If FILE isn't tracked in Git, fallback to using `rename-file'."
   (interactive
    (let* ((file (magit-read-file "Rename file"))
+          (dir (file-name-directory file))
           (newname (read-file-name (format "Rename %s to file: " file)
-                                   (expand-file-name (file-name-directory file)))))
+                                   (and dir (expand-file-name dir)))))
      (list (expand-file-name file (magit-toplevel))
            (expand-file-name newname))))
   (if (magit-file-tracked-p (magit-convert-filename-for-git file))
