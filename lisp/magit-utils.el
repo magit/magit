@@ -444,8 +444,6 @@ acts similarly to `completing-read', except for the following:
         '(metadata (display-sort-function . identity))
       (complete-with-action action collection string pred))))
 
-(defvar ivy-sort-functions-alist)
-
 (defun magit-builtin-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
