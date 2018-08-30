@@ -175,7 +175,7 @@ This is useful if you use really long branch names."
 
 ;;;; Select Mode
 
-(defcustom magit-log-select-arguments '("-n256" "--decorate")
+(defcustom magit-log-select-arguments '("-n256" "--graph" "--decorate")
   "The log arguments used in `magit-log-select-mode' buffers."
   :package-version '(magit . "2.3.0")
   :group 'magit-log
