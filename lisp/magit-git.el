@@ -86,43 +86,31 @@ successfully.")
   ;; than using "bin/git.exe" directly.
   (or (and (eq system-type 'windows-nt)
            (--when-let (executable-find "git")
-             (or (ignore-errors
-                   ;; Git for Windows 2.x provides cygpath so we can
-                   ;; ask it for native paths.  Using an upper case
-                   ;; alias makes this fail on 1.x (which is good,
-                   ;; because we would not want to end up using some
-                   ;; other cygpath).
-                   (let* ((core-exe
-                           (car
-                            (process-lines
-                             it "-c"
-                             "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
-                             "X" "git")))
-                          (hack-entry (assoc core-exe magit-git-w32-path-hack))
-                          ;; Running the libexec/git-core executable
-                          ;; requires some extra PATH entries.
-                          (path-hack
-                           (list (concat "PATH="
-                                         (car (process-lines
-                                               it "-c"
-                                               "alias.P=!cygpath -wp \"$PATH\""
-                                               "P"))))))
-                     ;; The defcustom STANDARD expression can be
-                     ;; evaluated many times, so make sure it is
-                     ;; idempotent.
-                     (if hack-entry
-                         (setcdr hack-entry path-hack)
-                       (push (cons core-exe path-hack) magit-git-w32-path-hack))
-                     core-exe))
-                 ;; For 1.x, we search for bin/ next to cmd/.
-                 (let ((alt (directory-file-name (file-name-directory it))))
-                   (if (and (equal (file-name-nondirectory alt) "cmd")
-                            (setq alt (expand-file-name
-                                       (convert-standard-filename "bin/git.exe")
-                                       (file-name-directory alt)))
-                            (file-executable-p alt))
-                       alt
-                     it)))))
+             (ignore-errors
+               ;; Git for Windows 2.x provides cygpath so we can
+               ;; ask it for native paths.
+               (let* ((core-exe
+                       (car
+                        (process-lines
+                         it "-c"
+                         "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
+                         "X" "git")))
+                      (hack-entry (assoc core-exe magit-git-w32-path-hack))
+                      ;; Running the libexec/git-core executable
+                      ;; requires some extra PATH entries.
+                      (path-hack
+                       (list (concat "PATH="
+                                     (car (process-lines
+                                           it "-c"
+                                           "alias.P=!cygpath -wp \"$PATH\""
+                                           "P"))))))
+                 ;; The defcustom STANDARD expression can be
+                 ;; evaluated many times, so make sure it is
+                 ;; idempotent.
+                 (if hack-entry
+                     (setcdr hack-entry path-hack)
+                   (push (cons core-exe path-hack) magit-git-w32-path-hack))
+                 core-exe))))
       "git")
   "The Git executable used by Magit."
   :group 'magit-process
