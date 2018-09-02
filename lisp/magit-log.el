@@ -976,7 +976,9 @@ Do not add this to a hook variable."
           "\\(?3:[^\0\n]+)\\)?\0"                  ; refs
           "\\(?7:[BGUXYREN]\\)?\0"                 ; gpg
           "\\(?5:[^\0\n]*\\)\0"                    ; author
-          "\\(?6:[^\0\n]+\\)\0"                    ; date
+          ;; Note: Date is optional because, prior to Git v2.19.0,
+          ;; `git rebase -i --root` corrupts the root's author date.
+          "\\(?6:[^\0\n]*\\)\0"                    ; date
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re
