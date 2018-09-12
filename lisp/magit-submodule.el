@@ -181,29 +181,24 @@ it is nil, then PATH also becomes the name."
 ;;;###autoload
 (defun magit-submodule-remove (&optional module-name)
   (interactive)
-  (let ((git-toplevel-dir (magit-toplevel))
-        default-directory)
-    ;; Cd magit toplevel directory make sure `magit-list-module-paths' can work.
-    (cd git-toplevel-dir)
-    (let* ((submodule-name (or module-name (completing-read "Remove submodule: " (magit-list-module-paths))))
-           (submodule-short-name (magit-get-submodule-short-name submodule-name))
-           (submodule-fullpath (concat (magit-toplevel) submodule-name))
-           (submodule-modules-path (concat (magit-toplevel) ".git/" "modules/" (magit-get-submodule-name submodule-name)))
-           )
-      ;; Remove the submodule entry from .git/config
-      (magit-run-git "submodule" "deinit" "-f" submodule-name)
+  (let* ((default-directory (magit-toplevel))
+         (submodule-name (or module-name (completing-read "Remove submodule: " (magit-list-module-paths))))
+         (submodule-short-name (magit-get-submodule-short-name submodule-name))
+         (submodule-fullpath (concat (magit-toplevel) submodule-name))
+         (submodule-modules-path (concat (magit-toplevel) ".git/" "modules/" (magit-get-submodule-name submodule-name))))
+    ;; Remove the submodule entry from .git/config
+    (magit-run-git "submodule" "deinit" "-f" submodule-name)
 
-      ;; Delete the submodule entry from .gitmodules file.
-      (magit-run-git "config" "-f" ".gitmodules" "--remove-section" (format "submodule.%s" submodule-short-name))
+    ;; Delete the submodule entry from .gitmodules file.
+    (magit-run-git "config" "-f" ".gitmodules" "--remove-section" (format "submodule.%s" submodule-short-name))
 
-      ;; Delete submodule directory.
-      (when (file-exists-p submodule-fullpath)
-        (delete-directory submodule-fullpath t))
+    ;; Delete submodule directory.
+    (when (file-exists-p submodule-fullpath)
+      (delete-directory submodule-fullpath t))
 
-      ;; Delete submodule under .git/modules/ directory.
-      (when (file-exists-p submodule-modules-path)
-        (delete-directory submodule-modules-path t))
-      )
+    ;; Delete submodule under .git/modules/ directory.
+    (when (file-exists-p submodule-modules-path)
+      (delete-directory submodule-modules-path t))
     ))
 
 ;;;###autoload
