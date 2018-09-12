@@ -169,6 +169,75 @@ it is nil, then PATH also becomes the name."
     (magit-refresh)))
 
 ;;;###autoload
+(defun magit-submodule-remove (&optional module-name)
+  (interactive)
+  (save-excursion
+    ;; Get current directory for restore after remove submodule.
+    (setq current-directory default-directory)
+    ;; Cd magit toplevel directory make sure `magit-list-module-paths' can work.
+    (cd (magit-toplevel))
+    ;; Get subodule name/path will to remove.
+    (setq submodule-name (or module-name (completing-read "Remove submodule: " (magit-list-module-paths))))
+    (setq submodule-path (concat (magit-toplevel) submodule-name))
+    ;; Delete submodule directory first.
+    (when (file-exists-p submodule-path)
+      (delete-directory submodule-path t))
+    ;; Delete submodule from .gitmodules file.
+    (setq gitmodules-file-path (concat (magit-toplevel) ".gitmodules"))
+    (magit-kill-buffer-match-file gitmodules-file-path)
+    (with-current-buffer (find-file gitmodules-file-path)
+      (goto-char (point-min))
+      (when (search-forward-regexp (format "path\\s-=\\s-%s" submodule-name) nil t)
+        (previous-line)
+        (beginning-of-line)
+        (when (search-forward-regexp "\\[submodule\\s-\"\\(.*\\)\"]" nil t)
+          (setq git-modules-submodule-path (concat (magit-toplevel) ".git/modules/" (match-string 1))))
+        (beginning-of-line)
+        (kill-line 3)
+        (save-buffer)))
+    (message (format "*** '%s'" git-modules-submodule-path))
+    ;; Get submodule url.
+    (magit-kill-buffer-match-file (concat git-modules-submodule-path "/config"))
+    (with-current-buffer (find-file (concat git-modules-submodule-path "/config"))
+      (goto-char (point-min))
+      (when (search-forward-regexp "^\\[remote\\s-\"origin\"\\]" nil t)
+        (when (search-forward-regexp "url\\s-=\\s-" nil t)
+          (setq submodule-url (buffer-substring-no-properties
+                               (point)
+                               (save-excursion
+                                 (end-of-line)
+                                 (point))))
+          )))
+    ;; Delete submodule from .git/config file.
+    (setq git-config-file-path (concat (magit-toplevel) ".git/" "config"))
+    (magit-kill-buffer-match-file git-config-file-path)
+    (with-current-buffer (find-file git-config-file-path)
+      (goto-char (point-min))
+      (when (search-forward-regexp (format "url\\s-=\\s-%s" submodule-url) nil t)
+        (previous-line)
+        (beginning-of-line)
+        (kill-line 3)
+        (save-buffer)))
+    ;; Delete submodule under .git/modules/ directory.
+    (when (file-exists-p git-modules-submodule-path)
+      (delete-directory git-modules-submodule-path t))
+    ;; Kill temp buffer.
+    (magit-kill-buffer-match-file gitmodules-file-path)
+    (magit-kill-buffer-match-file (concat git-modules-submodule-path "/config"))
+    (magit-kill-buffer-match-file git-config-file-path)
+    ;; Restore current directory.
+    (cd current-directory)
+    ))
+
+(defun magit-kill-buffer-match-file (filepath)
+  (catch 'find-match
+    (dolist (buffer (buffer-list))
+      (when (string-equal (buffer-file-name buffer) filepath)
+        (kill-buffer buffer)
+        (throw 'find-match buffer)))
+    nil))
+
+;;;###autoload
 (defun magit-submodule-read-name-for-path (path &optional prefer-short)
   (let* ((path (directory-file-name (file-relative-name path)))
          (name (file-name-nondirectory path)))
