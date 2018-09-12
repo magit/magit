@@ -169,6 +169,49 @@ it is nil, then PATH also becomes the name."
     (magit-refresh)))
 
 ;;;###autoload
+(defun magit-get-submodule-short-name (path)
+  "Return short name of submodule path."
+  (let* ((submodule-lines (magit-git-lines "config" "--list" "-f" ".gitmodules"))
+         (submodule-match-line (car (seq-filter (lambda (l) (string-match (format "submodule.*.path=%s" path) l)) submodule-lines)))
+         submodule-url-title
+         submodule-url-string)
+    (when submodule-match-line
+      (replace-regexp-in-string "submodule." "" (replace-regexp-in-string ".path$" "" (car (split-string submodule-match-line "="))))
+      )))
+
+(defun magit-submodule-remove (&optional module-name)
+  (interactive)
+  (save-excursion
+    (let* (
+           ;; Get current directory for restore after remove submodule.
+           (current-directory default-directory)
+           )
+      ;; Cd magit toplevel directory make sure `magit-list-module-paths' can work.
+      (cd (magit-toplevel))
+      (let* ((submodule-name (or module-name (completing-read "Remove submodule: " (magit-list-module-paths))))
+             (submodule-short-name (magit-get-submodule-short-name submodule-name))
+             (submodule-fullpath (concat (magit-toplevel) submodule-name))
+             (submodule-modules-path (concat (magit-toplevel) ".git/" "modules/" (magit-get-submodule-name submodule-name)))
+             )
+        ;; Remove the submodule entry from .git/config
+        (magit-run-git "submodule" "deinit" "-f" submodule-name)
+
+        ;; Delete the submodule entry from .gitmodules file.
+        (magit-run-git "config" "-f" ".gitmodules" "--remove-section" (format "submodule.%s" submodule-short-name))
+
+        ;; Delete submodule directory.
+        (when (file-exists-p submodule-fullpath)
+          (delete-directory submodule-fullpath t))
+
+        ;; Delete submodule under .git/modules/ directory.
+        (when (file-exists-p submodule-modules-path)
+          (delete-directory submodule-modules-path t))
+        )
+      ;; Restore current directory.
+      (cd current-directory)
+      )))
+
+;;;###autoload
 (defun magit-submodule-read-name-for-path (path &optional prefer-short)
   (let* ((path (directory-file-name (file-relative-name path)))
          (name (file-name-nondirectory path)))
