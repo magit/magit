@@ -455,7 +455,8 @@ This is only used if Magit is available."
             ;; because the maintainer can use the latter
             ;; to enforce conventions, while s/he has no
             ;; control over the former.
-            (magit-toplevel))))
+            (and (fboundp 'magit-toplevel) ; silence byte-compiler
+                 (magit-toplevel)))))
     (let ((buffer-file-name nil)         ; trick hack-dir-local-variables
           (major-mode 'git-commit-mode)) ; trick dir-locals-collect-variables
       (hack-dir-local-variables)
