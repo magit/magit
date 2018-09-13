@@ -21,9 +21,11 @@ install:
   - $CURL -O ${GHRAW}/magnars/dash.el/master/dash.el
   - $CURL -O ${GHRAW}/magit/ghub/master/ghub.el
   - $CURL -O ${GHRAW}/magit/ghub/master/ghub-graphql.el
+  - $CURL -O ${GHRAW}/vermiculus/graphql.el/master/graphql.el
   - $CURL -O ${GHRAW}/magit/magit-popup/master/magit-popup.el
+  - $CURL -O ${GHRAW}/volrath/treepy.el/master/treepy.el
   - $CURL -O ${GHRAW}/magit/with-editor/master/with-editor.el
-  - $EMACS -Q --batch -L . -f batch-byte-compile dash.el ghub.el ghub-graphql.el magit-popup.el with-editor.el
+  - $EMACS -Q --batch -L . -f batch-byte-compile dash.el ghub.el ghub-graphql.el graphql.el magit-popup.el treepy.el with-editor.el
   - $EMACS --version
 script:
   - git config --global user.name "A U Thor"
