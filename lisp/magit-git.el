@@ -884,8 +884,9 @@ string \"true\", otherwise return nil."
   (magit-git-success "diff" "--quiet" a b))
 
 (defun magit-rev-eq (a b)
-  (equal (magit-rev-verify a)
-         (magit-rev-verify b)))
+  (let ((a (magit-rev-verify a))
+        (b (magit-rev-verify b)))
+    (and a b (equal a b))))
 
 (defun magit-rev-ancestor-p (a b)
   "Return non-nil if commit A is an ancestor of commit B."
