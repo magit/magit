@@ -178,17 +178,7 @@ it is nil, then PATH also becomes the name."
 ;;;###autoload
 (defun magit-submodule-remove (&optional module-name)
   (interactive)
-  (let* ((git-file (concat (magit-toplevel) ".git"))
-         (default-directory
-           (if (file-directory-p git-file)
-               ;; Return toplevel if .git is a directory.
-               (magit-toplevel)
-             ;; Otherwise try to parse gitdir if .git just a file in worktree.
-             (with-temp-buffer
-               (insert-file-contents git-file)
-               (if (re-search-forward "gitdir:\\s-\\(.*\\).git")
-                   (match-string 1)
-                 (error "Can't found gitdir string in .git file")))))
+  (let* ((default-directory (caar (magit-list-worktrees)))
          (submodule-name (or module-name (completing-read "Remove submodule: " (magit-list-module-paths))))
          (submodule-short-name (magit-get-submodule-short-name submodule-name))
          (submodule-fullpath (concat default-directory submodule-name))
