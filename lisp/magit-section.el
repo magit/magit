@@ -252,8 +252,10 @@ IDENT has to be a list as returned by `magit-section-ident'."
 
 (defun magit-section-lineage (section)
   "Return the lineage of SECTION.
-The return value has the form [TYPE...]."
-  (mapcar #'car (magit-section-ident section)))
+The return value has the form (TYPE...)."
+  (cons (oref section type)
+        (when-let ((parent (oref section parent)))
+          (magit-section-lineage parent))))
 
 (defvar magit-insert-section--current nil "For internal use only.")
 (defvar magit-insert-section--parent  nil "For internal use only.")
