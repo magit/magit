@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-201-g865c5bdac+1)
+@subtitle for version 2.13.0 (2.13.0-217-g69df245fb+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-201-g865c5bdac+1).
+This manual is for Magit version 2.13.0 (2.13.0-217-g69df245fb+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6305,7 +6305,7 @@ These commands are not available from the branch popup by default.
 @cindex magit-branch-shelve
 @deffn Command magit-branch-shelve
 
-This command shelve a branch.  This is done by deleting the branch,
+This command shelves a branch.  This is done by deleting the branch,
 and creating a new reference "refs/shelved/BRANCH-NAME" pointing at
 the same commit as the branch pointed at.  If the deleted branch had
 a reflog, then that is preserved as the reflog of the new reference.
@@ -6317,7 +6317,7 @@ not ready to completely discard it yet.
 @cindex magit-branch-unshelve
 @deffn Command magit-branch-unshelve
 
-This command unshelve a branch that was previously shelved using
+This command unshelves a branch that was previously shelved using
 @code{magit-branch-shelve}.  This is done by deleting the reference
 "refs/shelved/BRANCH-NAME" and creating a branch "BRANCH-NAME"
 pointing at the same commit as the deleted reference pointed at.

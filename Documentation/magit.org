@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-201-g865c5bdac+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-217-g69df245fb+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-201-g865c5bdac+1).
+This manual is for Magit version 2.13.0 (2.13.0-217-g69df245fb+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -4689,7 +4689,7 @@ These commands are not available from the branch popup by default.
 
 - Command: magit-branch-shelve
 
-  This command shelve a branch.  This is done by deleting the branch,
+  This command shelves a branch.  This is done by deleting the branch,
   and creating a new reference "refs/shelved/BRANCH-NAME" pointing at
   the same commit as the branch pointed at.  If the deleted branch had
   a reflog, then that is preserved as the reflog of the new reference.
@@ -4699,7 +4699,7 @@ These commands are not available from the branch popup by default.
 
 - Command: magit-branch-unshelve
 
-  This command unshelve a branch that was previously shelved using
+  This command unshelves a branch that was previously shelved using
   ~magit-branch-shelve~.  This is done by deleting the reference
   "refs/shelved/BRANCH-NAME" and creating a branch "BRANCH-NAME"
   pointing at the same commit as the deleted reference pointed at.
