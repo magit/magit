@@ -127,17 +127,15 @@ exist, then raise an error."
   (save-match-data
     (and url
          (string-match magit--github-url-regexp url)
-         (let ((host (match-string 1 url))
-               (path (match-string 2 url)))
+         (let ((host (match-string 1 url)))
            ;; Match values like "github.com-as-someone", which are
            ;; translated to just "github.com" according to settings
            ;; in "~/.ssh/config".  Theoretically this could result
            ;; in false-positives, but that's rather unlikely.  #3392
            (and (or (string-match-p (regexp-quote "github.com") host)
-                    (string-match-p (regexp-quote (ghub--host)) host)
-                    ;; Needed for Enterprise instances.  #3572
-                    (string-match-p (regexp-quote (ghub--host))
-                                    (concat host "/" path)))
+                    (string-match-p
+                     (regexp-quote (car (split-string "/" (ghub--host))))
+                     host))
                 host)))))
 
 (defun magit--github-remote-p (remote)
