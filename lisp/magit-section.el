@@ -183,6 +183,12 @@ entries of this alist."
 (defvar magit--current-section-hook nil
   "Internal variable used for `magit-explain-section'.")
 
+(defvar magit--section-type-alist
+  '(
+    (file            . magit-file-section)
+    (hunk            . magit-hunk-section)
+    ))
+
 (defclass magit-section ()
   ((type     :initform nil :initarg :type)
    (value    :initform nil :initarg :value)
@@ -692,18 +698,27 @@ nil.
 
 CONDITION can take the following forms:
   (CONDITION...)  matches if any of the CONDITIONs matches.
-  [TYPE...]       matches if the first TYPE matches the type
-                  of the section, the second matches that of
-                  its parent, and so on.
-  [* TYPE...]     matches sections that match [TYPE...] and
+  [CLASS...]      matches if the section's class is the same
+                  as the first CLASS or a subclass of that;
+                  the section's parent class matches the
+                  second CLASS; and so on.
+  [* CLASS...]    matches sections that match [CLASS...] and
                   also recursively all their child sections.
-  TYPE            matches sections of TYPE regardless of the
-                  types of the parent sections.
+  CLASS           matches if the section's class is the same
+                  as CLASS or a subclass of that; regardless
+                  of the classes of the parent sections.
 
-Each TYPE is a symbol.  Note that it is not necessary to specify
-all TYPEs up to the root section as printed by
-`magit-describe-type', unless of course you want to be that
-precise."
+Each CLASS should be a class symbol, identifying a class that
+derives from `magit-section'.  For backward compatibility CLASS
+can also be a \"type symbol\".  A section matches such a symbol
+if the value of its `type' slot is `eq'.  If a type symbol has
+an entry in `magit--section-type-alist', then a section also
+matches that type if its class is a subclass of the class that
+corresponds to the type as per that alist.
+
+Note that it is not necessary to specify the complete section
+lineage as printed by `magit-describe-section-briefly', unless
+of course you want to be that precise."
   (and section (magit-section-match-1 condition section)))
 
 (defun magit-section-match-1 (condition section)
@@ -724,7 +739,9 @@ precise."
     (and (let ((c (car condition)))
            (if (class-p c)
                (cl-typep section c)
-             (eq (oref section type) c)))
+             (if-let ((class (cdr (assq c magit--section-type-alist))))
+                 (cl-typep section class)
+               (eq (oref section type) c))))
          (or (not (setq condition (cdr condition)))
              (when-let ((parent (oref section parent)))
                (magit-section-match-2 condition parent))))))

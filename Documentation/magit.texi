@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-219-g39fe824f8+1)
+@subtitle for version 2.13.0 (2.13.0-231-g9ffff9acd+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-219-g39fe824f8+1).
+This manual is for Magit version 2.13.0 (2.13.0-231-g9ffff9acd+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -9916,9 +9916,10 @@ returned by @code{magit-section-ident}.
 
 @defun magit-section-match condition &optional section
 
-Return @code{t} if SECTION matches CONDITION@.  SECTION defaults to the
-section at point.  If SECTION is not specified and there also is no
-section at point, then return @code{nil}.
+Return @code{t} if SECTION matches CONDITION@.
+SECTION defaults to the section at point.  If SECTION is not
+specified and there also is no section at point, then return
+@code{nil}.
 
 CONDITION can take the following forms:
 @itemize
@@ -9929,29 +9930,40 @@ matches if any of the CONDITIONs matches.
 
 
 @item
-@code{[TYPE...]}
+@code{[CLASS...]}
 
-matches if the first TYPE matches the type of the section, the
-second matches that of its parent, and so on.
-
-
-@item
-@code{[* TYPE...]}
-
-matches sections that match [TYPE@dots{}] and also recursively all
-their child sections.
+matches if the section's class is the same
+as the first CLASS or a subclass of that;
+the section's parent class matches the
+second CLASS; and so on.
 
 
 @item
-@code{TYPE}
+@code{[* CLASS...]}
 
-matches sections of TYPE regardless of the types of the parent
-sections.
+matches sections that match @code{[CLASS...]} and
+also recursively all their child sections.
+
+
+@item
+@code{CLASS}
+
+matches if the section's class is the same
+as CLASS or a subclass of that; regardless
+of the classes of the parent sections.
 @end itemize
 
-Each TYPE is a symbol.  Note that it is not necessary to specify all
-TYPEs up to the root section as printed by @code{magit-describe-type},
-unless of course you want to be that precise.
+Each CLASS should be a class symbol, identifying a class that
+derives from @code{magit-section}.  For backward compatibility CLASS
+can also be a "type symbol".  A section matches such a symbol
+if the value of its @code{type} slot is @code{eq}.  If a type symbol has
+an entry in @code{magit--section-type-alist}, then a section also
+matches that type if its class is a subclass of the class that
+corresponds to the type as per that alist.
+
+Note that it is not necessary to specify the complete section
+lineage as printed by @code{magit-describe-section-briefly}, unless
+of course you want to be that precise.
 @end defun
 
 @defun magit-section-value-if condition &optional section
