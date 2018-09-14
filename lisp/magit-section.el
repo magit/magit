@@ -707,12 +707,13 @@ precise."
   (and section (magit-section-match-1 condition section)))
 
 (defun magit-section-match-1 (condition section)
-  (if (listp condition)
-      (--first (magit-section-match-1 it section) condition)
-    (magit-section-match-2 (if (symbolp condition)
-                               (list condition)
-                             (cl-coerce condition 'list))
-                           (magit-section-lineage section))))
+  (and section
+       (if (listp condition)
+           (--first (magit-section-match-1 it section) condition)
+         (magit-section-match-2 (if (symbolp condition)
+                                    (list condition)
+                                  (cl-coerce condition 'list))
+                                (magit-section-lineage section)))))
 
 (defun magit-section-match-2 (l1 l2)
   (or (null l1)
