@@ -253,7 +253,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
 (defun magit-section-lineage (section)
   "Return the lineage of SECTION.
 The return value has the form [TYPE...]."
-  (apply #'vector (mapcar #'car (magit-section-ident section))))
+  (mapcar #'car (magit-section-ident section)))
 
 (defvar magit-insert-section--current nil "For internal use only.")
 (defvar magit-insert-section--parent  nil "For internal use only.")
@@ -625,7 +625,7 @@ section lineage.  This command is intended for debugging purposes."
                          val))
                      (if ident
                          (magit-section-ident section)
-                       (magit-section-lineage section))
+                       (apply #'vector (magit-section-lineage section)))
                      (when-let ((m (oref section start)))
                        (marker-position m))
                      (when-let ((m (oref section end)))
@@ -779,7 +779,7 @@ at point."
            (debug (&rest (sexp body))))
   (let ((lineage (cl-gensym "lineage")))
     `(let* ((it (magit-current-section))
-            (,lineage (and it (append (magit-section-lineage it) nil))))
+            (,lineage (and it (magit-section-lineage it))))
        (cond ,@(mapcar (lambda (clause)
                          `(,(or (eq (car clause) t)
                                 `(and it (magit-section-match-1
