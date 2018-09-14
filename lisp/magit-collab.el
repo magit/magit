@@ -134,7 +134,7 @@ exist, then raise an error."
            ;; in false-positives, but that's rather unlikely.  #3392
            (and (or (string-match-p (regexp-quote "github.com") host)
                     (string-match-p
-                     (regexp-quote (car (split-string "/" (ghub--host))))
+                     (regexp-quote (car (split-string (ghub--host) "/")))
                      host))
                 host)))))
 
