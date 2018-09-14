@@ -1070,13 +1070,13 @@ to, or to some other symbolic-ref that points to the same ref."
     (branch (magit-section-parent-value it))))
 
 (defun magit-module-at-point (&optional predicate)
-  (magit-section-when
-      '(submodule
-        [file modules-unpulled-from-upstream]
-        [file modules-unpulled-from-pushremote]
-        [file modules-unpushed-to-upstream]
-        [file modules-unpushed-to-pushremote])
-    (let ((module (oref it value)))
+  (when (magit-section-match
+         '(submodule
+           [file modules-unpulled-from-upstream]
+           [file modules-unpulled-from-pushremote]
+           [file modules-unpushed-to-upstream]
+           [file modules-unpushed-to-pushremote]))
+    (let ((module (oref (magit-current-section) value)))
       (and (or (not predicate)
                (funcall predicate module))
            module))))

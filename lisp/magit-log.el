@@ -818,13 +818,14 @@ is displayed in the current frame."
   "Move to the Nth parent of the current commit."
   (interactive "p")
   (when (derived-mode-p 'magit-log-mode)
-    (magit-section-when commit
-      (let ((parent-rev (format "%s^%s" (oref it value) (or n 1))))
+    (when (magit-section-match 'commit)
+      (let* ((section (magit-current-section))
+             (parent-rev (format "%s^%s" (oref section value) (or n 1))))
         (if-let ((parent-hash (magit-rev-parse "--short" parent-rev)))
-            (if-let ((section (--first (equal (oref it value)
-                                              parent-hash)
-                                       (magit-section-siblings it 'next))))
-                (magit-section-goto section)
+            (if-let ((parent (--first (equal (oref section value)
+                                             parent-hash)
+                                      (magit-section-siblings section 'next))))
+                (magit-section-goto parent)
               (user-error
                (substitute-command-keys
                 (concat "Parent " parent-hash " not found.  Try typing "
