@@ -708,13 +708,13 @@ precise."
        (magit-section-match-1 condition
                               (magit-section-lineage section))))
 
-(defun magit-section-match-1 (condition type-list)
+(defun magit-section-match-1 (condition lineage)
   (if (listp condition)
-      (--first (magit-section-match-1 it type-list) condition)
+      (--first (magit-section-match-1 it lineage) condition)
     (magit-section-match-2 (if (symbolp condition)
                                (list condition)
                              (append condition nil))
-                           type-list)))
+                           lineage)))
 
 (defun magit-section-match-2 (l1 l2)
   (or (null l1)
