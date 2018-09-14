@@ -707,23 +707,25 @@ precise."
   (and section (magit-section-match-1 condition section)))
 
 (defun magit-section-match-1 (condition section)
+  (cl-assert condition)
   (and section
        (if (listp condition)
            (--first (magit-section-match-1 it section) condition)
          (magit-section-match-2 (if (symbolp condition)
                                     (list condition)
                                   (cl-coerce condition 'list))
-                                (magit-section-lineage section)))))
+                                section))))
 
-(defun magit-section-match-2 (l1 l2)
-  (or (null l1)
-      (if (eq (car l1) '*)
-          (or (magit-section-match-2 (cdr l1) l2)
-              (and l2
-                   (magit-section-match-2 l1 (cdr l2))))
-        (and l2
-             (eq (car l1) (car l2))
-             (magit-section-match-2 (cdr l1) (cdr l2))))))
+(defun magit-section-match-2 (condition section)
+  (if (eq (car condition) '*)
+      (or (magit-section-match-2 (cdr condition) section)
+          (when-let ((parent (oref section parent)))
+            (magit-section-match-2 condition parent)))
+    (and (eq (car condition)
+             (oref section type))
+         (or (not (setq condition (cdr condition)))
+             (when-let ((parent (oref section parent)))
+               (magit-section-match-2 condition parent))))))
 
 (defun magit-section-value-if (condition &optional section)
   "If the section at point matches CONDITION, then return its value.
