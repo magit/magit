@@ -704,17 +704,15 @@ Each TYPE is a symbol.  Note that it is not necessary to specify
 all TYPEs up to the root section as printed by
 `magit-describe-type', unless of course you want to be that
 precise."
-  (and section
-       (magit-section-match-1 condition
-                              (magit-section-lineage section))))
+  (and section (magit-section-match-1 condition section)))
 
-(defun magit-section-match-1 (condition lineage)
+(defun magit-section-match-1 (condition section)
   (if (listp condition)
-      (--first (magit-section-match-1 it lineage) condition)
+      (--first (magit-section-match-1 it section) condition)
     (magit-section-match-2 (if (symbolp condition)
                                (list condition)
                              (append condition nil))
-                           lineage)))
+                           (magit-section-lineage section))))
 
 (defun magit-section-match-2 (l1 l2)
   (or (null l1)
@@ -779,22 +777,19 @@ matches if no other CONDITION match, even if there is no section
 at point."
   (declare (indent 0)
            (debug (&rest (sexp body))))
-  (let ((lineage (cl-gensym "lineage")))
-    `(let* ((it (magit-current-section))
-            (,lineage (and it (magit-section-lineage it))))
-       (cond ,@(mapcar (lambda (clause)
-                         `(,(or (eq (car clause) t)
-                                `(and it (magit-section-match-1
-                                          ',(car clause) ,lineage)))
-                           ,@(cdr clause)))
-                       clauses)))))
+  `(let* ((it (magit-current-section)))
+     (cond ,@(mapcar (lambda (clause)
+                       `(,(or (eq (car clause) t)
+                              `(and it
+                                    (magit-section-match-1 ',(car clause) it)))
+                         ,@(cdr clause)))
+                     clauses))))
 
 (defun magit-section-match-assoc (section alist)
   "Return the value associated with SECTION's type or lineage in ALIST."
-  (let ((lineage (magit-section-lineage section)))
-    (-some (pcase-lambda (`(,key . ,val))
-             (and (magit-section-match-1 key lineage) val))
-           alist)))
+  (-some (pcase-lambda (`(,key . ,val))
+           (and (magit-section-match-1 key section) val))
+         alist))
 
 ;;; Create
 
