@@ -706,7 +706,7 @@ all TYPEs up to the root section as printed by
 precise."
   (and section
        (magit-section-match-1 condition
-                              (mapcar #'car (magit-section-ident section)))))
+                              (magit-section-lineage section))))
 
 (defun magit-section-match-1 (condition type-list)
   (if (listp condition)
