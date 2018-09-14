@@ -1571,7 +1571,7 @@ the reference is used.  The first regexp submatch becomes the
                           (replace-regexp-in-string "tag: " "refs/tags/" string)
                           regexp t))))
         (setq names (split-string string regexp t)))
-      (let (state head tags branches remotes other combined)
+      (let (state head upstream tags branches remotes other combined)
         (dolist (ref names)
           (let* ((face (cdr (--first (string-match (car it) ref)
                                      magit-ref-namespaces)))
@@ -1601,20 +1601,42 @@ the reference is used.  The first regexp submatch becomes the
                               name)))
                    name))
                remotes))
-        (dolist (name branches)
-          (let ((push (car (member (magit-get-push-branch name) remotes))))
-            (when push
-              (setq remotes (delete push remotes))
-              (string-match "^[^/]*/" push)
-              (setq push (substring push 0 (match-end 0))))
-            (if (equal name (magit-get-current-branch))
+        (let* ((current (magit-get-current-branch))
+               (target  (magit-get-upstream-branch current t)))
+          (dolist (name branches)
+            (let ((push (car (member (magit-get-push-branch name) remotes))))
+              (when push
+                (setq remotes (delete push remotes))
+                (string-match "^[^/]*/" push)
+                (setq push (substring push 0 (match-end 0))))
+              (cond
+               ((equal name current)
                 (setq head
                       (concat push
-                              (propertize name 'face 'magit-branch-current)))
-              (push (concat push name) combined))))
+                              (propertize name 'face 'magit-branch-current))))
+               ((equal name target)
+                (setq upstream
+                      (concat push
+                              (propertize name 'face '(magit-branch-upstream
+                                                       magit-branch-local)))))
+               (t
+                (push (concat push name) combined)))))
+          (when (and target (not upstream))
+            (if (member target remotes)
+                (progn
+                  (add-face-text-property 0 (length target)
+                                          'magit-branch-upstream nil target)
+                  (setq upstream target)
+                  (setq remotes  (delete target remotes)))
+              (when-let ((target (car (member target combined))))
+                (add-face-text-property 0 (length target)
+                                        'magit-branch-upstream nil target)
+                (setq upstream target)
+                (setq combined (delete target combined))))))
         (mapconcat #'identity
                    (-flatten `(,state
                                ,head
+                               ,upstream
                                ,@(nreverse tags)
                                ,@(nreverse combined)
                                ,@(nreverse remotes)

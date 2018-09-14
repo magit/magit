@@ -121,6 +121,14 @@ own faces for the `header-line', or for parts of the
   "Face for current branch."
   :group 'magit-faces)
 
+(defface magit-branch-upstream
+  '((t :slant italic))
+  "Face for upstream branch.
+This face is only used in logs and it gets combined
+ with `magit-branch-local', `magit-branch-remote'
+and/or `magit-branch-remote-head'."
+  :group 'magit-faces)
+
 (defface magit-head
   '((((class color) (background light)) :inherit magit-branch-local)
     (((class color) (background  dark)) :inherit magit-branch-local))
