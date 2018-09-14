@@ -722,7 +722,7 @@ precise."
               (and l2
                    (magit-section-match-2 l1 (cdr l2))))
         (and l2
-             (equal (car l1) (car l2))
+             (eq (car l1) (car l2))
              (magit-section-match-2 (cdr l1) (cdr l2))))))
 
 (defun magit-section-value-if (condition &optional section)
