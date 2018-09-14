@@ -724,6 +724,19 @@ precise."
              (equal (car l1) (car l2))
              (magit-section-match-2 (cdr l1) (cdr l2))))))
 
+(defun magit-section-value-if (condition &optional section)
+  "If the section at point matches CONDITION, then return its value.
+
+If optional SECTION is non-nil then test whether that matches
+instead.  If there is no section at point and SECTION is nil,
+then return nil.  If the section does not match, then return
+nil.
+
+See `magit-section-match' for the forms CONDITION can take."
+  (when-let ((section (or section (magit-current-section))))
+    (and (magit-section-match condition section)
+         (oref section value))))
+
 (defmacro magit-section-when (condition &rest body)
   "If the section at point matches CONDITION, evaluate BODY.
 
@@ -734,7 +747,10 @@ section.  If the section does not match or if there is no section
 at point, then return nil.
 
 See `magit-section-match' for the forms CONDITION can take."
-  (declare (indent 1)
+  (declare (obsolete
+            "instead use `magit-section-match' or `magit-section-value-if'."
+            "Magit 2.90.0")
+           (indent 1)
            (debug (sexp body)))
   `(--when-let (magit-current-section)
      ;; Quoting CONDITION here often leads to double-quotes, which

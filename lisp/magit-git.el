@@ -1037,7 +1037,7 @@ to, or to some other symbolic-ref that points to the same ref."
                 (magit-name-remote-branch (oref it value))))))
 
 (defun magit-commit-at-point ()
-  (or (magit-section-when commit)
+  (or (magit-section-value-if 'commit)
       (and (derived-mode-p 'magit-revision-mode)
            (car magit-refresh-args))))
 
@@ -1062,7 +1062,7 @@ to, or to some other symbolic-ref that points to the same ref."
     (commit (magit-name-tag (oref it value)))))
 
 (defun magit-stash-at-point ()
-  (magit-section-when stash))
+  (magit-section-value-if 'stash))
 
 (defun magit-remote-at-point ()
   (magit-section-case
@@ -1881,7 +1881,7 @@ the reference is used.  The first regexp submatch becomes the
          (atpoint (magit--painted-branch-at-point)))
     (magit-completing-read prompt (magit-list-branch-names)
                            nil t nil 'magit-revision-history
-                           (or (magit-section-when 'branch)
+                           (or (magit-section-value-if 'branch)
                                atpoint
                                (and (not (cdr atrev)) (car atrev))
                                (--first (not (equal it current)) atrev)

@@ -1010,7 +1010,7 @@ be committed."
 If there is no revision at point or with a prefix argument prompt
 for a revision."
   (interactive
-   (pcase-let* ((mcommit (magit-section-when module-commit))
+   (pcase-let* ((mcommit (magit-section-value-if 'module-commit))
                 (atpoint (or (and (bound-and-true-p magit-blame-mode)
                                   (oref (magit-current-blame-chunk) orig-rev))
                              mcommit

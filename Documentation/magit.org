@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-217-g69df245fb+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-219-g39fe824f8+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-217-g69df245fb+1).
+This manual is for Magit version 2.13.0 (2.13.0-219-g39fe824f8+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -7435,15 +7435,14 @@ And now for the asynchronous variants.
   TYPEs up to the root section as printed by ~magit-describe-type~,
   unless of course you want to be that precise.
 
-- Function: magit-section-when condition &rest body
+- Function: magit-section-value-if condition &optional section
 
-  If the section at point matches CONDITION evaluate BODY.
+  If the section at point matches CONDITION, then return its value.
 
-  If the section matches, then evaluate BODY forms sequentially with
-  ~it~ bound to the section and return the value of the last form.  If
-  there are no BODY forms, then return the value of the section.  If
-  the section does not match or if there is no section at point then
-  return nil.
+  If optional SECTION is non-nil then test whether that matches
+  instead.  If there is no section at point and SECTION is nil,
+  then return nil.  If the section does not match, then return
+  nil.
 
   See ~magit-section-match~ for the forms CONDITION can take.
 

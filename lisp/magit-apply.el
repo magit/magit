@@ -243,7 +243,7 @@ With a prefix argument or when there is no file at point ask for
 the file to be staged.  Otherwise stage the file at point without
 requiring confirmation."
   (interactive
-   (let* ((atpoint (magit-section-when (file)))
+   (let* ((atpoint (magit-section-value-if 'file))
           (current (magit-file-relative-name))
           (choices (nconc (magit-unstaged-files)
                           (magit-untracked-files)))
@@ -355,7 +355,7 @@ With a prefix argument or when there is no file at point ask for
 the file to be unstaged.  Otherwise unstage the file at point
 without requiring confirmation."
   (interactive
-   (let* ((atpoint (magit-section-when (file)))
+   (let* ((atpoint (magit-section-value-if 'file))
           (current (magit-file-relative-name))
           (choices (magit-staged-files))
           (default (car (member (or atpoint current) choices))))

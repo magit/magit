@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-217-g69df245fb+1)
+@subtitle for version 2.13.0 (2.13.0-219-g39fe824f8+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-217-g69df245fb+1).
+This manual is for Magit version 2.13.0 (2.13.0-219-g39fe824f8+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -9954,15 +9954,14 @@ TYPEs up to the root section as printed by @code{magit-describe-type},
 unless of course you want to be that precise.
 @end defun
 
-@defun magit-section-when condition &rest body
+@defun magit-section-value-if condition &optional section
 
-If the section at point matches CONDITION evaluate BODY@.
+If the section at point matches CONDITION, then return its value.
 
-If the section matches, then evaluate BODY forms sequentially with
-@code{it} bound to the section and return the value of the last form.  If
-there are no BODY forms, then return the value of the section.  If
-the section does not match or if there is no section at point then
-return nil.
+If optional SECTION is non-nil then test whether that matches
+instead.  If there is no section at point and SECTION is nil,
+then return nil.  If the section does not match, then return
+nil.
 
 See @code{magit-section-match} for the forms CONDITION can take.
 @end defun

@@ -361,7 +361,7 @@ or, failing that, the abbreviated HEAD commit hash."
   "Visit MODULE by calling `magit-status' on it.
 Offer to initialize MODULE if it's not checked out yet.
 With a prefix argument, visit in another window."
-  (interactive (list (or (magit-section-when submodule)
+  (interactive (list (or (magit-section-value-if 'submodule)
                          (magit-read-module-path "Visit module"))
                      current-prefix-arg))
   (magit-with-toplevel

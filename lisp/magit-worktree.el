@@ -101,7 +101,7 @@ The primary worktree cannot be deleted."
    (list (magit-completing-read "Delete worktree"
                                 (cdr (magit-list-worktrees))
                                 nil t nil nil
-                                (magit-section-when (worktree)))))
+                                (magit-section-value-if 'worktree))))
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "Deleting %s would delete the shared .git directory" worktree)
     (let ((primary (file-name-as-directory (caar (magit-list-worktrees)))))
@@ -125,7 +125,7 @@ minibuffer.  If the worktree at point is the one whose
 status is already being displayed in the current buffer,
 then show it in Dired instead."
   (interactive
-   (list (or (magit-section-when (worktree))
+   (list (or (magit-section-value-if 'worktree)
              (magit-completing-read
               "Show status for worktree"
               (cl-delete (directory-file-name (magit-toplevel))
