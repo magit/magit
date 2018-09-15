@@ -187,6 +187,7 @@ entries of this alist."
   '(
     (file            . magit-file-section)
     (hunk            . magit-hunk-section)
+    (module          . magit-module-section)
     ))
 
 (defclass magit-section ()
@@ -209,6 +210,9 @@ entries of this alist."
 
 (defclass magit-hunk-section (magit-section)
   ((refined  :initform nil)))
+
+(defclass magit-module-section (magit-section)
+  ())
 
 ;;; Core
 

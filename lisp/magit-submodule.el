@@ -320,7 +320,7 @@ or, failing that, the abbreviated HEAD commit hash."
       (dolist (module modules)
         (let ((default-directory
                 (expand-file-name (file-name-as-directory module))))
-          (magit-insert-section (module module t)
+          (magit-insert-section (magit-module-section module t)
             (insert (propertize (format path-format module)
                                 'face 'magit-diff-file-heading))
             (if (not (file-exists-p ".git"))
