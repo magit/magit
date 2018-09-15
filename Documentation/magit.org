@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-217-g69df245fb+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-233-g45e76ef44+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-217-g69df245fb+1).
+This manual is for Magit version 2.13.0 (2.13.0-233-g45e76ef44+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -7358,35 +7358,39 @@ And now for the asynchronous variants.
 
   Return the section at point.
 
-- Function: magit-region-sections
+- Function: magit-region-sections &optional condition multiple
 
   Return a list of the selected sections.
 
-  When the region is active and constitutes a valid section selection,
-  then return a list of all selected sections.  This is the case when
-  the region begins in the heading of a section and ends in the
-  heading of a sibling of that first section.  When the selection is
-  not valid then return nil.  Most commands that can act on the
-  selected sections, then instead just act on the current section, the
-  one point is in.
+  When the region is active and constitutes a valid section
+  selection, then return a list of all selected sections.  This is
+  the case when the region begins in the heading of a section and
+  ends in the heading of the same section or in that of a sibling
+  section.  If optional MULTIPLE is non-nil, then the region cannot
+  begin and end in the same section.
 
-  When the region looks like it would in any other buffer then the
-  selection is invalid.  When the selection is valid then the region
-  uses the ~magit-section-highlight~.  This does not apply to diffs where
-  things get a bit more complicated, but even here if the region looks
-  like it usually does, then that's not a valid selection as far as
-  this function is concerned.
+  When the selection is not valid, then return nil.  In this case,
+  most commands that can act on the selected sections will instead
+  act on the section at point.
 
-- Function: magit-region-values &rest types
+  When the region looks like it would in any other buffer then
+  the selection is invalid.  When the selection is valid then the
+  region uses the ~magit-section-highlight~ face.  This does not
+  apply to diffs where things get a bit more complicated, but even
+  here if the region looks like it usually does, then that's not
+  a valid selection as far as this function is concerned.
+
+  If optional CONDITION is non-nil, then the selection not only
+  has to be valid; all selected sections additionally have to match
+  CONDITION, or nil is returned.  See ~magit-section-match~ for the
+  forms CONDITION can take.
+
+- Function: magit-region-values &optional condition multiple
 
   Return a list of the values of the selected sections.
 
-  Also see ~magit-region-sections~ whose doc-string explains when a
-  region is a valid section selection.  If the region is not active
-  or is not a valid section selection, then return nil.  If optional
-  TYPES is non-nil then the selection not only has to be valid; the
-  types of all selected sections additionally have to match one of
-  TYPES, or nil is returned.
+  Return the values that themselves would be returned by
+  ~magit-region-sections~ (which see).
 
 *** Matching Sections
 
@@ -7395,55 +7399,66 @@ And now for the asynchronous variants.
   Show information about the section at point.  This command is
   intended for debugging purposes.
 
-- Function: magit-section-ident
+- Function: magit-section-ident section
 
   Return an unique identifier for SECTION.  The return value has the
   form ~((TYPE . VALUE)...)~.
 
-- Function: magit-get-section
+- Function: magit-get-section ident &optional root
 
   Return the section identified by IDENT.  IDENT has to be a list as
   returned by ~magit-section-ident~.
 
 - Function: magit-section-match condition &optional section
 
-  Return ~t~ if SECTION matches CONDITION.  SECTION defaults to the
-  section at point.  If SECTION is not specified and there also is no
-  section at point, then return ~nil~.
+  Return ~t~ if SECTION matches CONDITION.
+  SECTION defaults to the section at point.  If SECTION is not
+  specified and there also is no section at point, then return
+  ~nil~.
 
   CONDITION can take the following forms:
   - ~(CONDITION...)~
 
     matches if any of the CONDITIONs matches.
 
-  - ~[TYPE...]~
+  - ~[CLASS...]~
 
-    matches if the first TYPE matches the type of the section, the
-    second matches that of its parent, and so on.
+    matches if the section's class is the same
+    as the first CLASS or a subclass of that;
+    the section's parent class matches the
+    second CLASS; and so on.
 
-  - ~[* TYPE...]~
+  - ~[* CLASS...]~
 
-    matches sections that match [TYPE...] and also recursively all
-    their child sections.
+    matches sections that match ~[CLASS...]~ and
+    also recursively all their child sections.
 
-  - ~TYPE~
+  - ~CLASS~
 
-    matches sections of TYPE regardless of the types of the parent
-    sections.
+    matches if the section's class is the same
+    as CLASS or a subclass of that; regardless
+    of the classes of the parent sections.
 
-  Each TYPE is a symbol.  Note that it is not necessary to specify all
-  TYPEs up to the root section as printed by ~magit-describe-type~,
-  unless of course you want to be that precise.
+  Each CLASS should be a class symbol, identifying a class that
+  derives from ~magit-section~.  For backward compatibility CLASS
+  can also be a "type symbol".  A section matches such a symbol
+  if the value of its ~type~ slot is ~eq~.  If a type symbol has
+  an entry in ~magit--section-type-alist~, then a section also
+  matches that type if its class is a subclass of the class that
+  corresponds to the type as per that alist.
 
-- Function: magit-section-when condition &rest body
+  Note that it is not necessary to specify the complete section
+  lineage as printed by ~magit-describe-section-briefly~, unless
+  of course you want to be that precise.
 
-  If the section at point matches CONDITION evaluate BODY.
+- Function: magit-section-value-if condition &optional section
 
-  If the section matches, then evaluate BODY forms sequentially with
-  ~it~ bound to the section and return the value of the last form.  If
-  there are no BODY forms, then return the value of the section.  If
-  the section does not match or if there is no section at point then
-  return nil.
+  If the section at point matches CONDITION, then return its value.
+
+  If optional SECTION is non-nil then test whether that matches
+  instead.  If there is no section at point and SECTION is nil,
+  then return nil.  If the section does not match, then return
+  nil.
 
   See ~magit-section-match~ for the forms CONDITION can take.
 

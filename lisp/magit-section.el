@@ -178,10 +178,17 @@ entries of this alist."
   "Face for selected section headings."
   :group 'magit-faces)
 
-;;; Core
+;;; Classes
 
 (defvar magit--current-section-hook nil
   "Internal variable used for `magit-explain-section'.")
+
+(defvar magit--section-type-alist
+  '(
+    (file            . magit-file-section)
+    (hunk            . magit-hunk-section)
+    (module          . magit-module-section)
+    ))
 
 (defclass magit-section ()
   ((type     :initform nil :initarg :type)
@@ -203,6 +210,11 @@ entries of this alist."
 
 (defclass magit-hunk-section (magit-section)
   ((refined  :initform nil)))
+
+(defclass magit-module-section (magit-file-section)
+  ())
+
+;;; Core
 
 (defvar-local magit-root-section nil
   "The root section in the current buffer.
@@ -252,8 +264,10 @@ IDENT has to be a list as returned by `magit-section-ident'."
 
 (defun magit-section-lineage (section)
   "Return the lineage of SECTION.
-The return value has the form [TYPE...]."
-  (apply #'vector (mapcar #'car (magit-section-ident section))))
+The return value has the form (TYPE...)."
+  (cons (oref section type)
+        (when-let ((parent (oref section parent)))
+          (magit-section-lineage parent))))
 
 (defvar magit-insert-section--current nil "For internal use only.")
 (defvar magit-insert-section--parent  nil "For internal use only.")
@@ -618,14 +632,18 @@ Sections at higher levels are hidden."
 With a prefix argument show the section identity instead of the
 section lineage.  This command is intended for debugging purposes."
   (interactive (list (magit-current-section) t))
-  (let ((str (format "#<magit-section %S %S %s-%s>"
+  (let ((str (format "#<%s %S %S %s-%s>"
+                     (eieio-object-class section)
                      (let ((val (oref section value)))
-                       (if (stringp val)
-                           (substring-no-properties val)
-                         val))
+                       (cond ((stringp val)
+                              (substring-no-properties val))
+                             ((eieio-object-p val)
+                              (cl-prin1-to-string val))
+                             (t
+                              val)))
                      (if ident
                          (magit-section-ident section)
-                       (magit-section-lineage section))
+                       (apply #'vector (magit-section-lineage section)))
                      (when-let ((m (oref section start)))
                        (marker-position m))
                      (when-let ((m (oref section end)))
@@ -690,39 +708,66 @@ nil.
 
 CONDITION can take the following forms:
   (CONDITION...)  matches if any of the CONDITIONs matches.
-  [TYPE...]       matches if the first TYPE matches the type
-                  of the section, the second matches that of
-                  its parent, and so on.
-  [* TYPE...]     matches sections that match [TYPE...] and
+  [CLASS...]      matches if the section's class is the same
+                  as the first CLASS or a subclass of that;
+                  the section's parent class matches the
+                  second CLASS; and so on.
+  [* CLASS...]    matches sections that match [CLASS...] and
                   also recursively all their child sections.
-  TYPE            matches sections of TYPE regardless of the
-                  types of the parent sections.
+  CLASS           matches if the section's class is the same
+                  as CLASS or a subclass of that; regardless
+                  of the classes of the parent sections.
 
-Each TYPE is a symbol.  Note that it is not necessary to specify
-all TYPEs up to the root section as printed by
-`magit-describe-type', unless of course you want to be that
-precise."
+Each CLASS should be a class symbol, identifying a class that
+derives from `magit-section'.  For backward compatibility CLASS
+can also be a \"type symbol\".  A section matches such a symbol
+if the value of its `type' slot is `eq'.  If a type symbol has
+an entry in `magit--section-type-alist', then a section also
+matches that type if its class is a subclass of the class that
+corresponds to the type as per that alist.
+
+Note that it is not necessary to specify the complete section
+lineage as printed by `magit-describe-section-briefly', unless
+of course you want to be that precise."
+  (and section (magit-section-match-1 condition section)))
+
+(defun magit-section-match-1 (condition section)
+  (cl-assert condition)
   (and section
-       (magit-section-match-1 condition
-                              (mapcar #'car (magit-section-ident section)))))
+       (if (listp condition)
+           (--first (magit-section-match-1 it section) condition)
+         (magit-section-match-2 (if (symbolp condition)
+                                    (list condition)
+                                  (cl-coerce condition 'list))
+                                section))))
 
-(defun magit-section-match-1 (condition type-list)
-  (if (listp condition)
-      (--first (magit-section-match-1 it type-list) condition)
-    (magit-section-match-2 (if (symbolp condition)
-                               (list condition)
-                             (append condition nil))
-                           type-list)))
+(defun magit-section-match-2 (condition section)
+  (if (eq (car condition) '*)
+      (or (magit-section-match-2 (cdr condition) section)
+          (when-let ((parent (oref section parent)))
+            (magit-section-match-2 condition parent)))
+    (and (let ((c (car condition)))
+           (if (class-p c)
+               (cl-typep section c)
+             (if-let ((class (cdr (assq c magit--section-type-alist))))
+                 (cl-typep section class)
+               (eq (oref section type) c))))
+         (or (not (setq condition (cdr condition)))
+             (when-let ((parent (oref section parent)))
+               (magit-section-match-2 condition parent))))))
 
-(defun magit-section-match-2 (l1 l2)
-  (or (null l1)
-      (if (eq (car l1) '*)
-          (or (magit-section-match-2 (cdr l1) l2)
-              (and l2
-                   (magit-section-match-2 l1 (cdr l2))))
-        (and l2
-             (equal (car l1) (car l2))
-             (magit-section-match-2 (cdr l1) (cdr l2))))))
+(defun magit-section-value-if (condition &optional section)
+  "If the section at point matches CONDITION, then return its value.
+
+If optional SECTION is non-nil then test whether that matches
+instead.  If there is no section at point and SECTION is nil,
+then return nil.  If the section does not match, then return
+nil.
+
+See `magit-section-match' for the forms CONDITION can take."
+  (when-let ((section (or section (magit-current-section))))
+    (and (magit-section-match condition section)
+         (oref section value))))
 
 (defmacro magit-section-when (condition &rest body)
   "If the section at point matches CONDITION, evaluate BODY.
@@ -734,7 +779,10 @@ section.  If the section does not match or if there is no section
 at point, then return nil.
 
 See `magit-section-match' for the forms CONDITION can take."
-  (declare (indent 1)
+  (declare (obsolete
+            "instead use `magit-section-match' or `magit-section-value-if'."
+            "Magit 2.90.0")
+           (indent 1)
            (debug (sexp body)))
   `(--when-let (magit-current-section)
      ;; Quoting CONDITION here often leads to double-quotes, which
@@ -761,22 +809,19 @@ matches if no other CONDITION match, even if there is no section
 at point."
   (declare (indent 0)
            (debug (&rest (sexp body))))
-  (let ((lineage (cl-gensym "lineage")))
-    `(let* ((it (magit-current-section))
-            (,lineage (and it (append (magit-section-lineage it) nil))))
-       (cond ,@(mapcar (lambda (clause)
-                         `(,(or (eq (car clause) t)
-                                `(and it (magit-section-match-1
-                                          ',(car clause) ,lineage)))
-                           ,@(cdr clause)))
-                       clauses)))))
+  `(let* ((it (magit-current-section)))
+     (cond ,@(mapcar (lambda (clause)
+                       `(,(or (eq (car clause) t)
+                              `(and it
+                                    (magit-section-match-1 ',(car clause) it)))
+                         ,@(cdr clause)))
+                     clauses))))
 
 (defun magit-section-match-assoc (section alist)
   "Return the value associated with SECTION's type or lineage in ALIST."
-  (let ((ident (mapcar #'car (magit-section-ident section))))
-    (-some (pcase-lambda (`(,key . ,val))
-             (and (magit-section-match-1 key ident) val))
-           alist)))
+  (-some (pcase-lambda (`(,key . ,val))
+           (and (magit-section-match-1 key section) val))
+         alist))
 
 ;;; Create
 
@@ -837,11 +882,16 @@ anything this time around.
                     (if (eq (car-safe type) 'eval)
                         (cadr type)
                       `',type)))
-            (,s (funcall (pcase ,tp
-                           (`file 'magit-file-section)
-                           (`hunk 'magit-hunk-section)
-                           (_     'magit-section))
-                         :type ,tp
+            (,s (funcall (if (class-p ,tp)
+                             ,tp
+                           (or (cdr (assq ,tp magit--section-type-alist))
+                               'magit-section))
+                         :type
+                         (if (class-p ,tp)
+                             (or (car (rassq ,tp magit--section-type-alist))
+                                 (error "BUG: No entry for %s in %s" ,tp
+                                        'magit--section-type-alist))
+                           ,tp)
                          :value ,(nth 1 (car args))
                          :start (point-marker)
                          :parent magit-insert-section--parent)))
@@ -1212,19 +1262,15 @@ excluding SECTION itself."
         (`next  (cdr (member section siblings)))
         (_      (remq section siblings))))))
 
-(defun magit-region-values (&optional types multiple)
+(defun magit-region-values (&optional condition multiple)
   "Return a list of the values of the selected sections.
 
-Also see `magit-region-sections' whose doc-string explains when a
-region is a valid section selection.  If the region is not active
-or is not a valid section selection, then return nil.  If optional
-TYPES is non-nil then the selection not only has to be valid; the
-types of all selected sections additionally have to match one of
-TYPES, or nil is returned."
+Return the values that themselves would be returned by
+`magit-region-sections' (which see)."
   (--map (oref it value)
-         (magit-region-sections types multiple)))
+         (magit-region-sections condition multiple)))
 
-(defun magit-region-sections (&optional types multiple)
+(defun magit-region-sections (&optional condition multiple)
   "Return a list of the selected sections.
 
 When the region is active and constitutes a valid section
@@ -1245,10 +1291,10 @@ apply to diffs where things get a bit more complicated, but even
 here if the region looks like it usually does, then that's not
 a valid selection as far as this function is concerned.
 
-If optional TYPES is non-nil, then the selection not only has to
-be valid; the types of all selected sections additionally have
-to match one of TYPES, or nil is returned.  TYPES can also be a
-single type, instead of a list of types."
+If optional CONDITION is non-nil, then the selection not only
+has to be valid; all selected sections additionally have to match
+CONDITION, or nil is returned.  See `magit-section-match' for the
+forms CONDITION can take."
   (when (region-active-p)
     (let* ((rbeg (region-beginning))
            (rend (region-end))
@@ -1267,10 +1313,8 @@ single type, instead of a list of types."
               (when (eq (pop siblings) send)
                 (setq siblings nil)))
             (setq sections (nreverse sections))
-            (when (and types (symbolp types))
-              (setq types (list types)))
-            (when (or (not types)
-                      (--all-p (memq (oref it type) types) sections))
+            (when (or (not condition)
+                      (--all-p (magit-section-match condition it) sections))
               sections)))))))
 
 (defun magit-section-position-in-heading-p (&optional section pos)

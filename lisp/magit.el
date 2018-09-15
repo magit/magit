@@ -403,7 +403,6 @@ is run in the top-level directory of the current working tree."
        (2 'font-lock-function-name-face nil t))
       (,(concat "(" (regexp-opt '("magit-insert-section"
                                   "magit-section-case"
-                                  "magit-section-when"
                                   "magit-bind-match-strings"
                                   "magit-with-temp-index"
                                   "magit-with-blob"

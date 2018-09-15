@@ -459,8 +459,9 @@ If no commit is in progress, then initiate it.  Use the function
 specified by variable `magit-commit-add-log-insert-function' to
 actually insert the entry."
   (interactive)
-  (let ((hunk (magit-section-when 'hunk it))
-        (log (magit-commit-message-buffer)) buf pos)
+  (let ((hunk (and (magit-section-match 'hunk)
+                   (magit-current-section)))
+        (log  (magit-commit-message-buffer)) buf pos)
     (save-window-excursion
       (call-interactively #'magit-diff-visit-file)
       (setq buf (current-buffer))
