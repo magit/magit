@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-231-g9ffff9acd+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-233-g45e76ef44+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-231-g9ffff9acd+1).
+This manual is for Magit version 2.13.0 (2.13.0-233-g45e76ef44+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -7358,35 +7358,39 @@ And now for the asynchronous variants.
 
   Return the section at point.
 
-- Function: magit-region-sections
+- Function: magit-region-sections &optional condition multiple
 
   Return a list of the selected sections.
 
-  When the region is active and constitutes a valid section selection,
-  then return a list of all selected sections.  This is the case when
-  the region begins in the heading of a section and ends in the
-  heading of a sibling of that first section.  When the selection is
-  not valid then return nil.  Most commands that can act on the
-  selected sections, then instead just act on the current section, the
-  one point is in.
+  When the region is active and constitutes a valid section
+  selection, then return a list of all selected sections.  This is
+  the case when the region begins in the heading of a section and
+  ends in the heading of the same section or in that of a sibling
+  section.  If optional MULTIPLE is non-nil, then the region cannot
+  begin and end in the same section.
 
-  When the region looks like it would in any other buffer then the
-  selection is invalid.  When the selection is valid then the region
-  uses the ~magit-section-highlight~.  This does not apply to diffs where
-  things get a bit more complicated, but even here if the region looks
-  like it usually does, then that's not a valid selection as far as
-  this function is concerned.
+  When the selection is not valid, then return nil.  In this case,
+  most commands that can act on the selected sections will instead
+  act on the section at point.
 
-- Function: magit-region-values &rest types
+  When the region looks like it would in any other buffer then
+  the selection is invalid.  When the selection is valid then the
+  region uses the ~magit-section-highlight~ face.  This does not
+  apply to diffs where things get a bit more complicated, but even
+  here if the region looks like it usually does, then that's not
+  a valid selection as far as this function is concerned.
+
+  If optional CONDITION is non-nil, then the selection not only
+  has to be valid; all selected sections additionally have to match
+  CONDITION, or nil is returned.  See ~magit-section-match~ for the
+  forms CONDITION can take.
+
+- Function: magit-region-values &optional condition multiple
 
   Return a list of the values of the selected sections.
 
-  Also see ~magit-region-sections~ whose doc-string explains when a
-  region is a valid section selection.  If the region is not active
-  or is not a valid section selection, then return nil.  If optional
-  TYPES is non-nil then the selection not only has to be valid; the
-  types of all selected sections additionally have to match one of
-  TYPES, or nil is returned.
+  Return the values that themselves would be returned by
+  ~magit-region-sections~ (which see).
 
 *** Matching Sections
 

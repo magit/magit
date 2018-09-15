@@ -1252,19 +1252,15 @@ excluding SECTION itself."
         (`next  (cdr (member section siblings)))
         (_      (remq section siblings))))))
 
-(defun magit-region-values (&optional types multiple)
+(defun magit-region-values (&optional condition multiple)
   "Return a list of the values of the selected sections.
 
-Also see `magit-region-sections' whose doc-string explains when a
-region is a valid section selection.  If the region is not active
-or is not a valid section selection, then return nil.  If optional
-TYPES is non-nil then the selection not only has to be valid; the
-types of all selected sections additionally have to match one of
-TYPES, or nil is returned."
+Return the values that themselves would be returned by
+`magit-region-sections' (which see)."
   (--map (oref it value)
-         (magit-region-sections types multiple)))
+         (magit-region-sections condition multiple)))
 
-(defun magit-region-sections (&optional types multiple)
+(defun magit-region-sections (&optional condition multiple)
   "Return a list of the selected sections.
 
 When the region is active and constitutes a valid section
@@ -1285,10 +1281,10 @@ apply to diffs where things get a bit more complicated, but even
 here if the region looks like it usually does, then that's not
 a valid selection as far as this function is concerned.
 
-If optional TYPES is non-nil, then the selection not only has to
-be valid; the types of all selected sections additionally have
-to match one of TYPES, or nil is returned.  TYPES can also be a
-single type, instead of a list of types."
+If optional CONDITION is non-nil, then the selection not only
+has to be valid; all selected sections additionally have to match
+CONDITION, or nil is returned.  See `magit-section-match' for the
+forms CONDITION can take."
   (when (region-active-p)
     (let* ((rbeg (region-beginning))
            (rend (region-end))
@@ -1307,10 +1303,8 @@ single type, instead of a list of types."
               (when (eq (pop siblings) send)
                 (setq siblings nil)))
             (setq sections (nreverse sections))
-            (when (and types (symbolp types))
-              (setq types (list types)))
-            (when (or (not types)
-                      (--all-p (memq (oref it type) types) sections))
+            (when (or (not condition)
+                      (--all-p (magit-section-match condition it) sections))
               sections)))))))
 
 (defun magit-section-position-in-heading-p (&optional section pos)
