@@ -1071,7 +1071,7 @@ to, or to some other symbolic-ref that points to the same ref."
 
 (defun magit-module-at-point (&optional predicate)
   (when (magit-section-match
-         '(submodule
+         '(module
            [file modules-unpulled-from-upstream]
            [file modules-unpulled-from-pushremote]
            [file modules-unpushed-to-upstream]
@@ -1980,7 +1980,7 @@ the reference is used.  The first regexp submatch becomes the
                 (user-error "No modules satisfying %s available" predicate)
               (user-error "No modules available"))))
       (setq modules (magit-region-values
-                     '(submodule
+                     '(module
                        [file modules-unpulled-from-upstream]
                        [file modules-unpulled-from-pushremote]
                        [file modules-unpushed-to-upstream]

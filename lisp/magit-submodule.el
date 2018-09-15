@@ -280,7 +280,7 @@ are inserted, and option `magit-module-sections-nested' controls
 whether they are wrapped in an additional section."
   (when-let ((modules (magit-list-module-paths)))
     (if magit-module-sections-nested
-        (magit-insert-section section (submodules nil t)
+        (magit-insert-section section (modules nil t)
           (magit-insert-heading
             (format "%s (%s)"
                     (propertize "Modules" 'face 'magit-section-heading)
@@ -299,7 +299,7 @@ whether they are wrapped in an additional section."
 For each section insert the path and the output of `git describe --tags',
 or, failing that, the abbreviated HEAD commit hash."
   (when-let ((modules (magit-list-module-paths)))
-    (magit-insert-section section (submodules nil t)
+    (magit-insert-section section (modules nil t)
       (magit-insert-heading
         (format "%s (%s)"
                 (propertize "Modules overview" 'face 'magit-section-heading)
@@ -320,7 +320,7 @@ or, failing that, the abbreviated HEAD commit hash."
       (dolist (module modules)
         (let ((default-directory
                 (expand-file-name (file-name-as-directory module))))
-          (magit-insert-section (submodule module t)
+          (magit-insert-section (module module t)
             (insert (propertize (format path-format module)
                                 'face 'magit-diff-file-heading))
             (if (not (file-exists-p ".git"))
