@@ -178,7 +178,7 @@ entries of this alist."
   "Face for selected section headings."
   :group 'magit-faces)
 
-;;; Core
+;;; Classes
 
 (defvar magit--current-section-hook nil
   "Internal variable used for `magit-explain-section'.")
@@ -209,6 +209,8 @@ entries of this alist."
 
 (defclass magit-hunk-section (magit-section)
   ((refined  :initform nil)))
+
+;;; Core
 
 (defvar-local magit-root-section nil
   "The root section in the current buffer.
