@@ -1853,7 +1853,7 @@ section or a child thereof."
           (when rewind
             (setq range (replace-regexp-in-string "[^.]\\(\\.\\.\\)[^.]"
                                                   "..." range t t 1)))
-          (magit-insert-section (file module t)
+          (magit-insert-section (magit-module-section module t)
             (magit-insert-heading
               (propertize (concat "modified   " module)
                           'face 'magit-diff-file-heading)
@@ -1878,13 +1878,13 @@ section or a child thereof."
              (equal (match-string 1) module))
         (magit-bind-match-strings (_module _range msg) nil
           (magit-delete-line)
-          (magit-insert-section (file module)
+          (magit-insert-section (magit-module-section module)
             (magit-insert-heading
               (propertize (concat "submodule  " module)
                           'face 'magit-diff-file-heading)
               " (" msg ")"))))
        (t
-        (magit-insert-section (file module)
+        (magit-insert-section (magit-module-section module)
           (magit-insert-heading
             (propertize (concat "modified   " module)
                         'face 'magit-diff-file-heading)

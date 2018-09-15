@@ -1070,12 +1070,7 @@ to, or to some other symbolic-ref that points to the same ref."
     (branch (magit-section-parent-value it))))
 
 (defun magit-module-at-point (&optional predicate)
-  (when (magit-section-match
-         '(magit-module-section
-           [file modules-unpulled-from-upstream]
-           [file modules-unpulled-from-pushremote]
-           [file modules-unpushed-to-upstream]
-           [file modules-unpushed-to-pushremote]))
+  (when (magit-section-match 'magit-module-section)
     (let ((module (oref (magit-current-section) value)))
       (and (or (not predicate)
                (funcall predicate module))
@@ -1979,12 +1974,7 @@ the reference is used.  The first regexp submatch becomes the
             (if predicate
                 (user-error "No modules satisfying %s available" predicate)
               (user-error "No modules available"))))
-      (setq modules (magit-region-values
-                     '(magit-module-section
-                       [file modules-unpulled-from-upstream]
-                       [file modules-unpulled-from-pushremote]
-                       [file modules-unpushed-to-upstream]
-                       [file modules-unpushed-to-pushremote])))
+      (setq modules (magit-region-values 'magit-module-section))
       (when modules
         (when predicate
           (setq modules (-filter predicate modules)))
