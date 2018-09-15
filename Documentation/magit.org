@@ -7399,12 +7399,12 @@ And now for the asynchronous variants.
   Show information about the section at point.  This command is
   intended for debugging purposes.
 
-- Function: magit-section-ident
+- Function: magit-section-ident section
 
   Return an unique identifier for SECTION.  The return value has the
   form ~((TYPE . VALUE)...)~.
 
-- Function: magit-get-section
+- Function: magit-get-section ident &optional root
 
   Return the section identified by IDENT.  IDENT has to be a list as
   returned by ~magit-section-ident~.
