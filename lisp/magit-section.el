@@ -872,11 +872,16 @@ anything this time around.
                     (if (eq (car-safe type) 'eval)
                         (cadr type)
                       `',type)))
-            (,s (funcall (pcase ,tp
-                           (`file 'magit-file-section)
-                           (`hunk 'magit-hunk-section)
-                           (_     'magit-section))
-                         :type ,tp
+            (,s (funcall (if (class-p ,tp)
+                             ,tp
+                           (or (cdr (assq ,tp magit--section-type-alist))
+                               'magit-section))
+                         :type
+                         (if (class-p ,tp)
+                             (or (car (rassq ,tp magit--section-type-alist))
+                                 (error "BUG: No entry for %s in %s" ,tp
+                                        'magit--section-type-alist))
+                           ,tp)
                          :value ,(nth 1 (car args))
                          :start (point-marker)
                          :parent magit-insert-section--parent)))
