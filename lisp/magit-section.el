@@ -631,9 +631,12 @@ section lineage.  This command is intended for debugging purposes."
   (let ((str (format "#<%s %S %S %s-%s>"
                      (eieio-object-class section)
                      (let ((val (oref section value)))
-                       (if (stringp val)
-                           (substring-no-properties val)
-                         val))
+                       (cond ((stringp val)
+                              (substring-no-properties val))
+                             ((eieio-object-p val)
+                              (cl-prin1-to-string val))
+                             (t
+                              val)))
                      (if ident
                          (magit-section-ident section)
                        (apply #'vector (magit-section-lineage section)))
