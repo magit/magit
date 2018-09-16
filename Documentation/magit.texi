@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-243-gb7b71d5d+1)
+@subtitle for version 2.13.0 (2.13.0-244-g47006165+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-243-gb7b71d5d+1).
+This manual is for Magit version 2.13.0 (2.13.0-244-g47006165+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -711,7 +711,7 @@ usually exists only one buffer per repository.  Separate modes and
 thus buffers exist for commits, diffs, logs, and some other things.
 
 Besides these special purpose buffers, there also exists an overview
-buffer, called the @strong{status buffer}.  Its usually from this buffer that
+buffer, called the @strong{status buffer}.  It's usually from this buffer that
 the user invokes Git commands, or creates or visits other buffers.
 
 In this manual we often speak about "Magit buffers".  By that we mean
@@ -730,7 +730,7 @@ display another value.  The name of a locked buffer contains its
 value, which allows telling it apart from other locked buffers and
 the unlocked buffer.
 
-Not all Magit buffers can be locked to their values, for example it
+Not all Magit buffers can be locked to their values; for example, it
 wouldn't make sense to lock a status buffer.
 
 There can only be a single unlocked buffer using a certain

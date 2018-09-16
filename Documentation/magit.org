@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-243-gb7b71d5d+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-244-g47006165+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-243-gb7b71d5d+1).
+This manual is for Magit version 2.13.0 (2.13.0-244-g47006165+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -391,7 +391,7 @@ usually exists only one buffer per repository.  Separate modes and
 thus buffers exist for commits, diffs, logs, and some other things.
 
 Besides these special purpose buffers, there also exists an overview
-buffer, called the *status buffer*.  Its usually from this buffer that
+buffer, called the *status buffer*.  It's usually from this buffer that
 the user invokes Git commands, or creates or visits other buffers.
 
 In this manual we often speak about "Magit buffers".  By that we mean
@@ -407,7 +407,7 @@ buffers whose major-modes derive from ~magit-mode~.
   value, which allows telling it apart from other locked buffers and
   the unlocked buffer.
 
-  Not all Magit buffers can be locked to their values, for example it
+  Not all Magit buffers can be locked to their values; for example, it
   wouldn't make sense to lock a status buffer.
 
   There can only be a single unlocked buffer using a certain
