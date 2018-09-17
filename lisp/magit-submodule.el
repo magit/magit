@@ -96,6 +96,20 @@ an alist that supports the keys `:right-align' and `:pad-right'."
                                                (symbol))
                                        (sexp   :tag "Value"))))))
 
+(defcustom magit-submodule-remove-trash-gitdirs nil
+  "Whether `magit-submodule-remove' offers to trash module gitdirs.
+
+If this is nil, then that command does not offer to do so unless
+a prefix argument is used.  When this is t, then it does offer to
+do so even without a prefix argument.
+
+In both cases the action still has to be confirmed unless that is
+disabled using the option `magit-no-confirm'.  Doing the latter
+and also setting this variable to t will lead to tears."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;; Popup
 
 ;;;###autoload (autoload 'magit-submodule-popup "magit-submodule" nil t)
@@ -293,6 +307,8 @@ to recover from making a mistake here, but don't count on it."
          current-prefix-arg))
   (when (version< (magit-git-version) "2.12.0")
     (error "This command requires Git v2.12.0"))
+  (when magit-submodule-remove-trash-gitdirs
+    (setq trash-gitdirs t))
   (magit-with-toplevel
     (when-let
         ((modified
