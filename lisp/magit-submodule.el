@@ -168,6 +168,38 @@ it is nil, then PATH also becomes the name."
       (magit-call-git "submodule" "absorbgitdirs" path))
     (magit-refresh)))
 
+(defun magit-get-submodule-short-name (path)
+  "Return short name of submodule path."
+  (let* ((submodule-lines (magit-git-lines "config" "--list" "-f" ".gitmodules"))
+         (submodule-match-line (car (seq-filter (lambda (l) (string-match (format "submodule.*.path=%s" path) l)) submodule-lines))))
+    (when submodule-match-line
+      (string-remove-suffix ".path" (string-remove-prefix "submodule." (car (split-string submodule-match-line "=")))))))
+
+;;;###autoload
+(defun magit-submodule-remove (&optional module-name)
+  (interactive)
+  (let* ((default-directory (caar (magit-list-worktrees)))
+         (submodule-name (or module-name (completing-read "Remove submodule: " (magit-list-module-paths))))
+         (submodule-short-name (magit-get-submodule-short-name submodule-name))
+         (submodule-fullpath (concat default-directory submodule-name))
+         (submodule-modules-path (concat default-directory
+                                         (file-name-as-directory ".git")
+                                         (file-name-as-directory "modules")
+                                         (magit-get-submodule-name submodule-name))))
+    ;; Remove the submodule entry from .git/config
+    (magit-run-git "submodule" "deinit" "-f" submodule-name)
+
+    ;; Delete the submodule entry from .gitmodules file.
+    (magit-run-git "config" "-f" ".gitmodules" "--remove-section" (format "submodule.%s" submodule-short-name))
+
+    ;; Delete submodule directory.
+    (when (file-exists-p submodule-fullpath)
+      (delete-directory submodule-fullpath t))
+
+    ;; Delete submodule under .git/modules/ directory.
+    (when (file-exists-p submodule-modules-path)
+      (delete-directory submodule-modules-path t))))
+
 ;;;###autoload
 (defun magit-submodule-read-name-for-path (path &optional prefer-short)
   (let* ((path (directory-file-name (file-relative-name path)))
