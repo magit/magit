@@ -177,6 +177,7 @@ it is nil, then PATH also becomes the name."
              (magit-submodule-read-name-for-path path)
              (magit-submodule-filtered-arguments "--force")))))
   (magit-with-toplevel
+    (magit-submodule--maybe-reuse-gitdir name path)
     (magit-run-git-async "submodule" "add"
                          (and name (list "--name" name))
                          args "--" url path)
@@ -596,6 +597,33 @@ These sections can be expanded to show the respective commits."
 (defun magit-modulelist-column-path (path)
   "Insert the relative path of the submodule."
   path)
+
+;;; Utilities
+
+(defun magit-submodule--maybe-reuse-gitdir (name path)
+  (let ((gitdir
+         (magit-git-dir (convert-standard-filename (concat "modules/" name)))))
+    (when (and (file-exists-p gitdir)
+               (not (file-exists-p path)))
+      (pcase (read-char-choice
+              (concat
+               gitdir " already exists.\n"
+               "Type [u] to use the existing gitdir and create the working tree\n"
+               "     [r] to rename the existing gitdir and clone again\n"
+               "     [t] to trash the existing gitdir and clone again\n"
+               "   [C-g] to abort ")
+              '(?u ?r ?t))
+        (?u (magit-submodule--restore-worktree (expand-file-name path) gitdir))
+        (?r (rename-file gitdir (concat gitdir "-"
+                                        (format-time-string "%F-%T"))))
+        (?t (delete-directory gitdir t t))))))
+
+(defun magit-submodule--restore-worktree (worktree gitdir)
+  (make-directory worktree t)
+  (with-temp-file (expand-file-name ".git" worktree)
+    (insert "gitdir: " (file-relative-name gitdir worktree) "\n"))
+  (let ((default-directory worktree))
+    (magit-call-git "reset" "--hard" "HEAD")))
 
 (provide 'magit-submodule)
 ;;; magit-submodule.el ends here
