@@ -339,13 +339,13 @@ or, failing that, the abbreviated HEAD commit hash."
             (insert ?\n))))))
   (insert ?\n))
 
-(defvar magit-submodules-section-map
+(defvar magit-modules-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing] 'magit-list-submodules)
     map)
-  "Keymap for `submodules' sections.")
+  "Keymap for `modules' sections.")
 
-(defvar magit-submodule-section-map
+(defvar magit-module-section-map
   (let ((map (make-sparse-keymap)))
     (unless (featurep 'jkl)
       (define-key map "\C-j"   'magit-submodule-visit))
@@ -355,13 +355,13 @@ or, failing that, the abbreviated HEAD commit hash."
     (define-key map "K" 'magit-file-untrack)
     (define-key map "R" 'magit-file-rename)
     map)
-  "Keymap for `submodule' sections.")
+  "Keymap for `module' sections.")
 
 (defun magit-submodule-visit (module &optional other-window)
   "Visit MODULE by calling `magit-status' on it.
 Offer to initialize MODULE if it's not checked out yet.
 With a prefix argument, visit in another window."
-  (interactive (list (or (magit-section-value-if 'submodule)
+  (interactive (list (or (magit-section-value-if 'module)
                          (magit-read-module-path "Visit module"))
                      current-prefix-arg))
   (magit-with-toplevel
