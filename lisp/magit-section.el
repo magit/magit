@@ -930,8 +930,12 @@ anything this time around.
            (magit-insert-child-count ,s)
            (set-marker-insertion-type (oref ,s start) t)
            (let* ((end (oset ,s end (point-marker)))
-                  (map (intern (format "magit-%s-section-map" (oref ,s type))))
-                  (map (and (boundp map) (symbol-value map))))
+                  (magit-map (intern (format "magit-%s-section-map"
+                                             (oref ,s type))))
+                  (forge-map (intern (format "forge-%s-section-map"
+                                             (oref ,s type))))
+                  (map (or (and (boundp magit-map) (symbol-value magit-map))
+                           (and (boundp forge-map) (symbol-value forge-map)))))
              (save-excursion
                (goto-char (oref ,s start))
                (while (< (point) end)
