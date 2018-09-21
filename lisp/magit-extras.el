@@ -520,6 +520,7 @@ that)."
                (choice (regexp :tag "Find index regexp")
                        (const :tag "Don't number entries" nil))))
 
+;;;###autoload
 (defun magit-pop-revision-stack (rev toplevel)
   "Insert a representation of a revision into the current buffer.
 
