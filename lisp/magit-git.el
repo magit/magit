@@ -1726,7 +1726,7 @@ the reference is used.  The first regexp submatch becomes the
                  beg)
                end))))
 
-(defvar magit-thingatpt--git-revision-chars "-./[:alnum:]@{}^~!"
+(defvar magit-thingatpt--git-revision-chars "-_./[:alnum:]@{}^~!"
   "Characters allowable in filenames, excluding space and colon.")
 
 (put 'git-revision 'end-op
