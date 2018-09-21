@@ -482,7 +482,7 @@ which lets you edit the thing at point, likely in another buffer."
   (if (eq magit-current-popup 'magit-dispatch-popup)
       (progn (setq magit-current-popup nil)
              (call-interactively (key-binding (this-command-keys))))
-    (user-error "There is no thing at point that could be visited")))
+    (user-error "There is no thing at point that could be edited")))
 
 (defun magit-browse-thing ()
   "This is a placeholder command.
