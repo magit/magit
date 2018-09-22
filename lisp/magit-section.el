@@ -637,7 +637,8 @@ section lineage.  This command is intended for debugging purposes."
                      (let ((val (oref section value)))
                        (cond ((stringp val)
                               (substring-no-properties val))
-                             ((eieio-object-p val)
+                             ((and (eieio-object-p val)
+                                   (fboundp 'cl-prin1-to-string))
                               (cl-prin1-to-string val))
                              (t
                               val)))
