@@ -2196,8 +2196,9 @@ or a ref which is not a branch, then it inserts nothing."
                           (ceiling (/ size (aref font-obj 7) 1.0))
                           1))
              (gravatar-size (- size 2)))
-        (gravatar-retrieve email 'magit-insert-revision-gravatar-cb
-                           (list rev (point-marker) align-to column))))))
+        (ignore-errors ; service may be unreachable
+          (gravatar-retrieve email 'magit-insert-revision-gravatar-cb
+                             (list rev (point-marker) align-to column)))))))
 
 (defun magit-insert-revision-gravatar-cb (image rev marker align-to column)
   (unless (eq image 'error)
