@@ -494,6 +494,39 @@ into a list."
           (user-error "Nothing selected")))
     input))
 
+(defun magit-completing-read-multiple*
+    (prompt table &optional predicate require-match initial-input
+	    hist def inherit-input-method)
+  "Read multiple strings in the minibuffer, with completion.
+Like `completing-read-multiple' but don't mess with order of
+TABLE.  Also bind `helm-completion-in-region-default-sort-fn'
+to nil."
+  (unwind-protect
+      (cl-letf (((symbol-function 'completion-pcm--all-completions)
+                 #'magit-completion-pcm--all-completions))
+        (add-hook 'choose-completion-string-functions
+                  'crm--choose-completion-string)
+        (let* ((minibuffer-completion-table #'crm--collection-fn)
+               (minibuffer-completion-predicate predicate)
+               ;; see completing_read in src/minibuf.c
+               (minibuffer-completion-confirm
+                (unless (eq require-match t) require-match))
+               (crm-completion-table (magit--completion-table table))
+               (map (if require-match
+                        crm-local-must-match-map
+                      crm-local-completion-map))
+               (helm-completion-in-region-default-sort-fn nil)
+               ;; If the user enters empty input, `read-from-minibuffer'
+               ;; returns the empty string, not DEF.
+               (input (read-from-minibuffer
+                       prompt initial-input map
+                       nil hist def inherit-input-method)))
+          (and def (string-equal input "") (setq input def))
+          ;; Remove empty strings in the list of read strings.
+          (split-string input crm-separator t)))
+    (remove-hook 'choose-completion-string-functions
+                 'crm--choose-completion-string)))
+
 (defun magit-ido-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
   "Ido-based `completing-read' almost-replacement.
