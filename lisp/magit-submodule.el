@@ -325,7 +325,8 @@ to recover from making a mistake here, but don't count on it."
           (-filter (lambda (module)
                      (let ((default-directory (file-name-as-directory
                                                (expand-file-name module))))
-                       (magit-anything-modified-p)))
+                       (and (cddr (directory-files default-directory))
+                            (magit-anything-modified-p))))
                    modules)))
       (if (member "--force" args)
           (if (magit-confirm 'remove-dirty-modules
