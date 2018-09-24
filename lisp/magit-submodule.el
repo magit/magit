@@ -96,6 +96,20 @@ an alist that supports the keys `:right-align' and `:pad-right'."
                                                (symbol))
                                        (sexp   :tag "Value"))))))
 
+(defcustom magit-submodule-remove-trash-gitdirs nil
+  "Whether `magit-submodule-remove' offers to trash module gitdirs.
+
+If this is nil, then that command does not offer to do so unless
+a prefix argument is used.  When this is t, then it does offer to
+do so even without a prefix argument.
+
+In both cases the action still has to be confirmed unless that is
+disabled using the option `magit-no-confirm'.  Doing the latter
+and also setting this variable to t will lead to tears."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;; Popup
 
 ;;;###autoload (autoload 'magit-submodule-popup "magit-submodule" nil t)
@@ -123,6 +137,7 @@ an alist that supports the keys `:right-align' and `:pad-right'."
         magit-submodule-synchronize)
     (?d "Unpopulate     git submodule deinit [--force]"
         magit-submodule-unpopulate)
+    (?k "Remove" magit-submodule-remove)
     nil
     (?l "List all modules"  magit-list-submodules)
     (?f "Fetch all modules" magit-fetch-modules))
@@ -162,11 +177,21 @@ it is nil, then PATH also becomes the name."
              (magit-submodule-read-name-for-path path)
              (magit-submodule-filtered-arguments "--force")))))
   (magit-with-toplevel
-    (magit-call-git "submodule" "add" (and name (list "--name" name))
-                    args "--" url path)
-    (unless (version< (magit-git-version) "2.12.0")
-      (magit-call-git "submodule" "absorbgitdirs" path))
-    (magit-refresh)))
+    (magit-submodule--maybe-reuse-gitdir name path)
+    (magit-run-git-async "submodule" "add"
+                         (and name (list "--name" name))
+                         args "--" url path)
+    (set-process-sentinel
+     magit-this-process
+     (lambda (process event)
+       (when (memq (process-status process) '(exit signal))
+         (if (> (process-exit-status process) 0)
+             (magit-process-sentinel process event)
+           (process-put process 'inhibit-refresh t)
+           (magit-process-sentinel process event)
+           (unless (version< (magit-git-version) "2.12.0")
+             (magit-call-git "submodule" "absorbgitdirs" path))
+           (magit-refresh)))))))
 
 ;;;###autoload
 (defun magit-submodule-read-name-for-path (path &optional prefer-short)
@@ -269,6 +294,81 @@ single module from the user."
          (magit-submodule-filtered-arguments "--force")))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "deinit" args "--" modules)))
+
+;;;###autoload
+(defun magit-submodule-remove (modules args trash-gitdirs)
+  "Unregister MODULES and remove their working directories.
+
+For safety reasons, do not remove the gitdirs and if a module has
+uncomitted changes, then do not remove it at all.  If a module's
+gitdir is located inside the working directory, then move it into
+the gitdir of the superproject first.
+
+With the \"--force\" argument offer to remove dirty working
+directories and with a prefix argument offer to delete gitdirs.
+Both actions are very dangerous and have to be confirmed.  There
+are additional safety precautions in place, so you might be able
+to recover from making a mistake here, but don't count on it."
+  (interactive
+   (list (if-let ((modules (magit-region-values 'magit-module-section t)))
+             (magit-confirm 'remove-modules nil "Remove %i modules" nil modules)
+           (list (magit-read-module-path "Remove module")))
+         (magit-submodule-filtered-arguments "--force")
+         current-prefix-arg))
+  (when (version< (magit-git-version) "2.12.0")
+    (error "This command requires Git v2.12.0"))
+  (when magit-submodule-remove-trash-gitdirs
+    (setq trash-gitdirs t))
+  (magit-with-toplevel
+    (when-let
+        ((modified
+          (-filter (lambda (module)
+                     (let ((default-directory (file-name-as-directory
+                                               (expand-file-name module))))
+                       (magit-anything-modified-p)))
+                   modules)))
+      (if (member "--force" args)
+          (if (magit-confirm 'remove-dirty-modules
+                "Remove dirty module %s"
+                "Remove %i dirty modules"
+                t modified)
+              (dolist (module modified)
+                (let ((default-directory (file-name-as-directory
+                                          (expand-file-name module))))
+                  (magit-git "stash" "push"
+                             "-m" "backup before removal of this module")))
+            (setq modules (cl-set-difference modules modified)))
+        (if (cdr modified)
+            (message "Omitting %s modules with uncommitted changes: %s"
+                     (length modified)
+                     (mapconcat #'identity modified ", "))
+          (message "Omitting module %s, it has uncommitted changes"
+                   (car modified)))
+        (setq modules (cl-set-difference modules modified))))
+    (when modules
+      (let ((alist
+             (and trash-gitdirs
+                  (--map (split-string it "\0")
+                         (magit-git-lines "submodule" "foreach" "-q"
+                                          "printf \"$sm_path\\0$name\n\"")))))
+        (magit-git "submodule" "absorbgitdirs" "--" modules)
+        (magit-git "submodule" "deinit" args "--" modules)
+        (magit-git "rm" args "--" modules)
+        (when (and trash-gitdirs
+                   (magit-confirm 'trash-module-gitdirs
+                     "Trash gitdir of module %s"
+                     "Trash gitdirs of %i modules"
+                     t modules))
+          (dolist (module modules)
+            (if-let ((name (cadr (assoc module alist))))
+                ;; Disregard if `magit-delete-by-moving-to-trash'
+                ;; is nil.  Not doing so would be too dangerous.
+                (delete-directory (magit-git-dir
+                                   (convert-standard-filename
+                                    (concat "modules/" name)))
+                                  t t)
+              (error "BUG: Weird module name and/or path for %s" module)))))
+      (magit-refresh))))
 
 ;;; Sections
 
@@ -497,6 +597,33 @@ These sections can be expanded to show the respective commits."
 (defun magit-modulelist-column-path (path)
   "Insert the relative path of the submodule."
   path)
+
+;;; Utilities
+
+(defun magit-submodule--maybe-reuse-gitdir (name path)
+  (let ((gitdir
+         (magit-git-dir (convert-standard-filename (concat "modules/" name)))))
+    (when (and (file-exists-p gitdir)
+               (not (file-exists-p path)))
+      (pcase (read-char-choice
+              (concat
+               gitdir " already exists.\n"
+               "Type [u] to use the existing gitdir and create the working tree\n"
+               "     [r] to rename the existing gitdir and clone again\n"
+               "     [t] to trash the existing gitdir and clone again\n"
+               "   [C-g] to abort ")
+              '(?u ?r ?t))
+        (?u (magit-submodule--restore-worktree (expand-file-name path) gitdir))
+        (?r (rename-file gitdir (concat gitdir "-"
+                                        (format-time-string "%F-%T"))))
+        (?t (delete-directory gitdir t t))))))
+
+(defun magit-submodule--restore-worktree (worktree gitdir)
+  (make-directory worktree t)
+  (with-temp-file (expand-file-name ".git" worktree)
+    (insert "gitdir: " (file-relative-name gitdir worktree) "\n"))
+  (let ((default-directory worktree))
+    (magit-call-git "reset" "--hard" "HEAD")))
 
 (provide 'magit-submodule)
 ;;; magit-submodule.el ends here

@@ -142,7 +142,7 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const abort-merge)       (const merge-dirty)
     (const drop-stashes)      (const reset-bisect)
     (const kill-process)      (const delete-unmerged-branch)
-    (const delete-pr-branch)
+    (const delete-pr-branch)  (const remove-modules)
     (const stage-all-changes) (const unstage-all-changes)
     (const safe-with-wip)))
 
@@ -251,6 +251,29 @@ Edit published history:
   To disable confirmation completely, add all three symbols here
   or set `magit-published-branches' to nil.
 
+Removing modules:
+
+  `remove-modules' When you remove the working directory of a
+  module that does not contain uncommitted changes, then that is
+  safer than doing so when there are uncommitted changes and/or
+  when you also remove the gitdir.  Still, you don't want to do
+  that by accident.
+
+  `remove-dirty-modules' When you remove the working directory of
+  a module that contains uncommitted changes, then those changes
+  are gone for good.  It is better to go to the module, inspect
+  these changes and only if appropriate discard them manually.
+
+  `trash-module-gitdirs' When you remove the gitdir of a module,
+  then all unpushed changes are gone for good.  It is very easy
+  to forget that you have some unfinished work on an unpublished
+  feature branch or even in a stash.
+
+  Actually there are some safety precautions in place, that might
+  help you out if you make an unwise choice here, but don't count
+  on it.  In case of emergency, stay calm and check the stash and
+  the `trash-directory' for traces of lost work.
+
 Various:
 
   `kill-process' There seldom is a reason to kill a process.
@@ -276,6 +299,9 @@ Global settings:
   :type `(choice (const :tag "Always require confirmation" nil)
                  (const :tag "Never require confirmation" t)
                  (set   :tag "Require confirmation except for"
+                        ;; `remove-dirty-modules' and
+                        ;; `trash-module-gitdirs' intentionally
+                        ;; omitted.
                         ,@magit--confirm-actions)))
 
 (defcustom magit-slow-confirm '(drop-stashes)
