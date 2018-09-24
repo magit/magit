@@ -451,7 +451,7 @@ or, failing that, the abbreviated HEAD commit hash."
       (define-key map "\C-j"   'magit-submodule-visit))
     (define-key map [C-return] 'magit-submodule-visit)
     (define-key map [remap magit-visit-thing]  'magit-submodule-visit)
-    (define-key map [remap magit-delete-thing] 'magit-submodule-deinit)
+    (define-key map [remap magit-delete-thing] 'magit-submodule-unpopulate)
     (define-key map "K" 'magit-file-untrack)
     (define-key map "R" 'magit-file-rename)
     map)
