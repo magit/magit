@@ -894,6 +894,31 @@ and https://github.com/magit/magit/issues/2295."
               (when (equal state "U")
                 (push (expand-file-name file directory) files)))))))))
 
+(when (< emacs-major-version 27)
+  (defun vc-git--call@bug21559 (fn buffer command &rest args)
+    "Backport https://debbugs.gnu.org/cgi/bugreport.cgi?bug=21559."
+    (let ((process-environment process-environment))
+      (when revert-buffer-in-progress-p
+        (push "GIT_OPTIONAL_LOCKS=0" process-environment))
+      (apply fn buffer command args)))
+  (advice-add 'vc-git--call :around 'vc-git--call@bug21559)
+
+  (defun vc-git-command@bug21559
+      (fn buffer okstatus file-or-list &rest flags)
+    "Backport https://debbugs.gnu.org/cgi/bugreport.cgi?bug=21559."
+    (let ((process-environment process-environment))
+      (when revert-buffer-in-progress-p
+        (push "GIT_OPTIONAL_LOCKS=0" process-environment))
+      (apply fn buffer okstatus file-or-list flags)))
+  (advice-add 'vc-git-command :around 'vc-git-command@bug21559)
+
+  (defun auto-revert-handler@bug21559 (fn)
+    "Backport https://debbugs.gnu.org/cgi/bugreport.cgi?bug=21559."
+    (let ((revert-buffer-in-progress-p t))
+      (funcall fn)))
+  (advice-add 'auto-revert-handler :around 'auto-revert-handler@bug21559)
+  )
+
 ;; `completion-pcm--all-completions' reverses the completion list.  To
 ;; preserve the order of our pre-sorted completions, we'll temporarily
 ;; override it with the function below.  bug#24676
