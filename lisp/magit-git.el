@@ -451,8 +451,8 @@ absolute path is returned."
     ;; (unless ...), in case a `--separate-git-dir' repository was switched to
     ;; the standard structure (i.e., "topdir/.git/").
     (setq magit--separated-gitdirs (cl-delete topdir
-                                            magit--separated-gitdirs
-                                            :key #'car :test #'equal))
+                                              magit--separated-gitdirs
+                                              :key #'car :test #'equal))
     (unless (equal (file-name-as-directory (expand-file-name ".git" topdir))
                    gitdir)
       (push (cons topdir gitdir) magit--separated-gitdirs))))
