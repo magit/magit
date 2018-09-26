@@ -447,6 +447,9 @@ absolute path is returned."
 (defun magit--record-separated-gitdir ()
   (let ((topdir (magit-toplevel))
         (gitdir (magit-git-dir)))
+    ;; Kludge: git-annex converts submodule gitdirs to symlinks. See #3599.
+    (when (file-symlink-p (directory-file-name gitdir))
+      (setq gitdir (file-truename gitdir)))
     ;; We want to delete the entry for `topdir' here, rather than within
     ;; (unless ...), in case a `--separate-git-dir' repository was switched to
     ;; the standard structure (i.e., "topdir/.git/").
