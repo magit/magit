@@ -596,12 +596,12 @@ NOERROR is non-nil, in which case return nil."
   (or (file-directory-p default-directory)
       (and (not noerror)
            (let ((exists (file-exists-p default-directory)))
-	     (signal (if exists 'file-error 'file-missing)
-		     (list "Running git in directory"
-		           (if exists
+             (signal (if exists 'file-error 'file-missing)
+                     (list "Running git in directory"
+                           (if exists
                                "Not a directory"
                              "No such file or directory")
-		           default-directory))))))
+                           default-directory))))))
 
 (defun magit-git-repo-p (directory &optional non-bare)
   "Return t if DIRECTORY is a Git repository.
