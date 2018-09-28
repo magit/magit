@@ -83,6 +83,8 @@ other actions from the bisect popup (\
     (user-error
      "The good revision (%s) has to be an ancestor of the bad one (%s)"
      good bad))
+  (when (magit-anything-modified-p)
+    (user-error "Cannot bisect with uncommitted changes"))
   (magit-git-bisect "start" (list bad good) t))
 
 (defun magit-bisect-start-read-args ()
