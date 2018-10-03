@@ -16,7 +16,7 @@ Do NOT use Github to edit files and create commit messages
 
 Unless you are aware of all the pitfalls and take great care to avoid them, the use of Github results in many small defects, including but not limited to trailing whitespace, commit messages containing overlong lines and no newline at the very end, and "GitHub <noreply@github.com>" being used as the committer.  The last one cannot even be avoided, which I consider as an affront.
 
-Github is an insufficient interface for editing files and creating commits.  Please don't do it when contributing to this Magit.
+Github is an insufficient interface for editing files and creating commits.  Please don't do it when contributing to Magit.
 
 =================================================================
 What you should write here
