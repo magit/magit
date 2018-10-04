@@ -1164,6 +1164,15 @@ instead."
       (not (equal "-U0" it))
     t))
 
+(defun magit-diff-ignore-any-space-p ()
+  (let ((args (car (magit-diff-arguments t))))
+    (--any-p (member it args)
+             '("--ignore-cr-at-eol"
+               "--ignore-space-at-eol"
+               "--ignore-space-change" "-b"
+               "--ignore-all-space" "-w"
+               "--ignore-blank-space"))))
+
 (defun magit-diff-toggle-refine-hunk (&optional style)
   "Turn diff-hunk refining on or off.
 
