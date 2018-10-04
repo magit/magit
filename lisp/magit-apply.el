@@ -167,7 +167,7 @@ so causes the change to be applied to the index as well."
                       (match-string 1 command)
                     "apply"))
          (no-context (not (magit-diff-context-p)))
-         )
+         (ignore-context (magit-diff-ignore-any-space-p)))
     (when (and magit-wip-before-change-mode (not inhibit-magit-refresh))
       (magit-wip-commit-before-change files (concat " before " command)))
     (with-temp-buffer
@@ -175,6 +175,7 @@ so causes the change to be applied to the index as well."
       (magit-run-git-with-input
        "apply" args "-p0"
        (and no-context "--unidiff-zero")
+       (and ignore-context "-C0")
        "--ignore-space-change" "-"))
     (unless inhibit-magit-refresh
       (when magit-wip-after-apply-mode
