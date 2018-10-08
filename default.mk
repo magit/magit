@@ -168,6 +168,9 @@ endif
 
 LOAD_PATH = -L $(TOP)/lisp
 
+# When making changes here, then don't forget to
+# adjust magit-emacs-Q-command accordingly.
+
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(GHUB_DIR))
