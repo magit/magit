@@ -1019,7 +1019,7 @@ which creates patches for all commits that are reachable from
                  range
                (format "%s~..%s" range range))))
          (magit-popup-export-file-args (magit-patch-arguments))))
-  (magit-call-git "format-patch" range args "--" files)
+  (magit-run-git "format-patch" range args "--" files)
   (when (member "--cover-letter" args)
     (find-file
      (expand-file-name
