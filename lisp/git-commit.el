@@ -194,7 +194,9 @@ The major mode configured here is turned on by the minor mode
 \\<with-editor-mode-map>\
 This hook is only run after pressing \\[with-editor-finish] in a buffer used
 to edit a commit message.  If a commit is created without the
-user typing a message into a buffer, then this hook is not run."
+user typing a message into a buffer, then this hook is not run.
+
+Also see `magit-post-commit-hook'."
   :group 'git-commit
   :type 'hook
   :get (and (featurep 'magit-utils) 'magit-hook-custom-get))

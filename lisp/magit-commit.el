@@ -79,6 +79,27 @@ an error while using those is harder to recover from."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-post-commit-hook nil
+  "Hook run after creating a commit without the user editing a message.
+
+This hook is run by `magit-refresh' if `this-command' is a member
+of `magit-post-stage-hook-commands'.  This only includes commands
+named `magit-commit-*' that do *not* require that the user edits
+the commit message in a buffer and then finishes by pressing
+\\<with-editor-mode-map>\\[with-editor-finish].
+
+Also see `git-commit-post-finish-hook'."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-commands
+  :type 'hook)
+
+(defvar magit-post-commit-hook-commands
+  '(magit-commit-extend
+    magit-commit-fixup
+    magit-commit-augment
+    magit-commit-instant-fixup
+    magit-commit-instant-squash))
+
 ;;; Popup
 
 (defun magit-commit-popup (&optional arg)

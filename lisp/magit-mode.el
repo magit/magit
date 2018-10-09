@@ -42,6 +42,7 @@
 (defvar magit-diff-show-xref-buttons)
 (defvar magit-revision-show-xref-buttons)
 ;; For `magit-refresh'
+(defvar magit-post-commit-hook-commands)
 (defvar magit-post-stage-hook-commands)
 (defvar magit-post-unstage-hook-commands)
 ;; For `magit-refresh' and `magit-refresh-all'
@@ -1017,6 +1018,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
               (magit-refresh-buffer)))
           (magit-auto-revert-buffers)
           (cond
+            ((memq this-command magit-post-commit-hook-commands)
+             (magit-run-hook-with-benchmark 'magit-post-commit-hook))
             ((memq this-command magit-post-stage-hook-commands)
              (magit-run-hook-with-benchmark 'magit-post-stage-hook))
             ((memq this-command magit-post-unstage-hook-commands)
