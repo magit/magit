@@ -2,12 +2,16 @@
 *~
 /*.tar
 /*.tar.gz
+/Documentation/*.epub
 /Documentation/*.html
 /Documentation/*.info
 /Documentation/*.pdf
+/Documentation/META-INF/
+/Documentation/OEBPS/
 /Documentation/dir
+/Documentation/epub.xml
 /Documentation/magit/
-/Documentation/magit-popup/
+/Documentation/mimetype
 /Documentation/stats/
 /config.mk
 /lisp/magit-autoloads.el

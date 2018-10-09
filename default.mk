@@ -43,6 +43,7 @@ INFOPAGES = $(addsuffix .info,$(filter-out git-commit,$(PACKAGES)))
 HTMLFILES = $(addsuffix .html,$(filter-out git-commit,$(PACKAGES)))
 HTMLDIRS  = $(filter-out git-commit,$(PACKAGES))
 PDFFILES  = $(addsuffix .pdf,$(filter-out git-commit,$(PACKAGES)))
+EPUBFILES = $(addsuffix .epub,$(filter-out git-commit,$(PACKAGES)))
 
 ELS  = git-commit.el
 ELS += magit-utils.el
@@ -195,3 +196,11 @@ ORG_LOAD_PATH += -L ../../org/lisp
 ORG_LOAD_PATH += -L ../../org/contrib/lisp
 ORG_LOAD_PATH += -L ../../ox-texinfo+
 endif
+
+## Publish ###########################################################
+
+PUBLISH_TARGETS ?= html html-dir pdf epub
+
+DOCBOOK_XSL ?= /usr/share/xml/docbook/stylesheet/docbook-xsl/epub/docbook.xsl
+
+EPUBTRASH = epub.xml META-INF OEBPS

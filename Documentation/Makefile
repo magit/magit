@@ -12,6 +12,7 @@ all: info
 info: $(INFOPAGES) dir
 html: $(HTMLFILES)
 pdf:  $(PDFFILES)
+epub: $(EPUBFILES)
 
 %.info: %.texi
 	@printf "Generating $@\n"
@@ -46,6 +47,15 @@ html-dir: $(TEXIFILES)
 	@printf "Generating $@\n"
 	@texi2pdf --clean $< > /dev/null
 
+%.epub: %.texi
+	@printf "Generating $@\n"
+	@makeinfo --docbook $< -o epub.xml
+	@xsltproc $(DOCBOOK_XSL) epub.xml 2> /dev/null
+	@echo "application/epub+zip" > mimetype
+	@zip -X --quiet --recurse-paths -0 $@ mimetype
+	@zip -X --quiet --recurse-paths -9 --no-dir-entries $@ META-INF OEBPS
+	@$(RMDIR) $(EPUBTRASH)
+
 ## Install ###########################################################
 
 install: install-info install-docs
@@ -63,6 +73,7 @@ install-info: info
 clean:
 	@printf "Cleaning Documentation/*...\n"
 	@$(RMDIR) dir $(INFOPAGES) $(HTMLFILES) $(HTMLDIRS) $(PDFFILES)
+	@$(RMDIR) $(EPUBFILES) $(EPUBTRASH)
 
 ## Release management ################################################
 
@@ -122,17 +133,19 @@ publish-stats: stats
 	@aws cloudfront create-invalidation \
 	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
 
-publish-manuals: html html-dir pdf
+publish-manuals: $(PUBLISH_TARGETS)
 	@aws s3 cp $(PKG).html $(PUBLISH_TARGET)
 	@aws s3 cp $(PKG).pdf  $(PUBLISH_TARGET)
+	@aws s3 cp $(PKG).epub $(PUBLISH_TARGET)
 	@aws s3 sync --delete $(PKG) $(PUBLISH_TARGET)$(PKG)/
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(PUBLISH_PATH),$(CFRONT_PATHS)))" > /dev/null
 
-release-manuals: html html-dir pdf
+release-manuals: $(PUBLISH_TARGETS)
 	@aws s3 cp $(PKG).html $(RELEASE_TARGET)
 	@aws s3 cp $(PKG).pdf  $(RELEASE_TARGET)
+	@aws s3 cp $(PKG).epub $(RELEASE_TARGET)
 	@aws s3 sync --delete $(PKG) $(RELEASE_TARGET)$(PKG)/
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
