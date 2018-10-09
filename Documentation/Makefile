@@ -54,7 +54,7 @@ html-dir: $(TEXIFILES)
 	@echo "application/epub+zip" > mimetype
 	@zip -X --quiet --recurse-paths -0 $@ mimetype
 	@zip -X --quiet --recurse-paths -9 --no-dir-entries $@ META-INF OEBPS
-	@$(RM) $(EPUBTRASH)
+	@$(RMDIR) $(EPUBTRASH)
 
 ## Install ###########################################################
 
@@ -72,8 +72,8 @@ install-info: info
 
 clean:
 	@printf "Cleaning Documentation/*...\n"
-	@$(RM) dir $(INFOPAGES) $(HTMLFILES) $(HTMLDIRS) $(PDFFILES)
-	@$(RM) $(EPUBFILES) $(EPUBTRASH)
+	@$(RMDIR) dir $(INFOPAGES) $(HTMLFILES) $(HTMLDIRS) $(PDFFILES)
+	@$(RMDIR) $(EPUBFILES) $(EPUBTRASH)
 
 ## Release management ################################################
 
