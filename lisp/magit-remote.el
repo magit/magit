@@ -997,27 +997,29 @@ To add this command to the push popup add this to your init file:
               (?C "Detect copies"    "-C")
               (?A "Diff algorithm"   "--diff-algorithm="
                   magit-diff-select-algorithm)
-              (?o "Output directory" "--output-directory="))
+              (?o "Output directory" "--output-directory=")
+              (?F "Limit to files"   "-- " magit-read-files))
   :actions  '((?p "Format patches"   magit-format-patch)
               (?r "Request pull"     magit-request-pull))
   :default-action 'magit-format-patch)
 
 ;;;###autoload
-(defun magit-format-patch (range args)
+(defun magit-format-patch (range args files)
   "Create patches for the commits in RANGE.
 When a single commit is given for RANGE, create a patch for the
 changes introduced by that commit (unlike 'git format-patch'
 which creates patches for all commits that are reachable from
 `HEAD' but not from the specified commit)."
   (interactive
-   (list (if-let ((revs (magit-region-values 'commit t)))
+   (cons (if-let ((revs (magit-region-values 'commit t)))
              (concat (car (last revs)) "^.." (car revs))
-           (let ((range (magit-read-range-or-commit "Format range or commit")))
+           (let ((range (magit-read-range-or-commit
+                         "Format range or commit")))
              (if (string-match-p "\\.\\." range)
                  range
                (format "%s~..%s" range range))))
-         (magit-patch-arguments)))
-  (magit-call-git "format-patch" range args)
+         (magit-popup-export-file-args (magit-patch-arguments))))
+  (magit-call-git "format-patch" range args "--" files)
   (when (member "--cover-letter" args)
     (find-file
      (expand-file-name
