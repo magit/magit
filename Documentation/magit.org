@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-244-g47006165+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-292-gb768542a2+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-244-g47006165+1).
+This manual is for Magit version 2.13.0 (2.13.0-292-gb768542a2+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -2989,7 +2989,12 @@ These commands are available in diff buffers.
 
 - User Option: magit-revision-insert-related-refs
 
-  Whether to show related refs in revision buffers.
+  Whether to show related branches in revision buffers.
+
+  - ~nil~ Don't show any related branches.
+  - ~t~ Show related local branches.
+  - ~all~ Show related local and remote branches.
+  - ~mixed~ Show all containing branches and local merged branches.
 
 - User Option: magit-revision-show-gravatar
 

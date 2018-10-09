@@ -30,7 +30,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-244-g47006165+1)
+@subtitle for version 2.13.0 (2.13.0-292-gb768542a2+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -52,7 +52,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-244-g47006165+1).
+This manual is for Magit version 2.13.0 (2.13.0-292-gb768542a2+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4053,7 +4053,21 @@ dimmed at all depends on @code{magit-diff-highlight-hunk-region-functions}.
 
 @defopt magit-revision-insert-related-refs
 
-Whether to show related refs in revision buffers.
+Whether to show related branches in revision buffers.
+
+@itemize
+@item
+@code{nil} Don't show any related branches.
+
+@item
+@code{t} Show related local branches.
+
+@item
+@code{all} Show related local and remote branches.
+
+@item
+@code{mixed} Show all containing branches and local merged branches.
+@end itemize
 @end defopt
 
 @defopt magit-revision-show-gravatar

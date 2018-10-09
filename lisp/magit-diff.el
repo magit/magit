@@ -311,10 +311,18 @@ subject to option `magit-revision-insert-related-refs'."
   :type 'string)
 
 (defcustom magit-revision-insert-related-refs t
-  "Whether to show related refs in revision buffers."
+  "Whether to show related branches in revision buffers
+
+`nil'   Don't show any related branches.
+`t'     Show related local branches.
+`all'   Show related local and remote branches.
+`mixed' Show all containing branches and local merged branches."
   :package-version '(magit . "2.1.0")
   :group 'magit-revision
-  :type 'boolean)
+  :type '(choice (const :tag "don't" nil)
+                 (const :tag "local only" t)
+                 (const :tag "all related" all)
+                 (const :tag "all containing, local merged" mixed)))
 
 (defcustom magit-revision-use-hash-sections 'quicker
   "Whether to turn hashes inside the commit message into sections.
@@ -2140,9 +2148,11 @@ or a ref which is not a branch, then it inserts nothing."
               (insert (propertize hash 'face 'magit-hash))
               (insert " " msg "\n")))))
       (magit--insert-related-refs
-       rev "--merged" "Merged")
+       rev "--merged" "Merged"
+       (eq magit-revision-insert-related-refs 'all))
       (magit--insert-related-refs
-       rev "--contains" "Contained")
+       rev "--contains" "Contained"
+       (eq magit-revision-insert-related-refs '(all mixed)))
       (when-let ((follows (magit-get-current-tag rev t)))
         (let ((tag (car  follows))
               (cnt (cadr follows)))
@@ -2161,8 +2171,8 @@ or a ref which is not a branch, then it inserts nothing."
                                         'face 'magit-tag))))))
       (insert ?\n))))
 
-(defun magit--insert-related-refs (rev arg title)
-  (when-let ((refs (magit-list-related-branches arg rev)))
+(defun magit--insert-related-refs (rev arg title remote)
+  (when-let ((refs (magit-list-related-branches arg rev (and remote "-a"))))
     (insert title ":" (make-string (- 10 (length title)) ?\s))
     (dolist (branch refs)
       (if (<= (+ (current-column) 1 (length branch))
@@ -2170,7 +2180,10 @@ or a ref which is not a branch, then it inserts nothing."
           (insert ?\s)
         (insert ?\n (make-string 12 ?\s)))
       (magit-insert-section (branch branch)
-        (insert (propertize branch 'face 'magit-branch-local))))
+        (insert (propertize branch 'face
+                            (if (string-prefix-p "remotes/" branch)
+                                'magit-branch-remote
+                              'magit-branch-local)))))
     (insert ?\n)))
 
 (defun magit-insert-revision-gravatars (rev beg)
