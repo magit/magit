@@ -22,7 +22,7 @@ statsdir ?= $(TOP)/Documentation/stats
 
 CP       ?= install -p -m 644
 MKDIR    ?= install -p -m 755 -d
-RMDIR    ?= rm -rf
+RM       ?= rm -rf
 TAR      ?= tar
 SED      ?= sed
 
