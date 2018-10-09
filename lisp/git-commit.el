@@ -188,6 +188,17 @@ The major mode configured here is turned on by the minor mode
              bug-reference-mode
              with-editor-usage-message))
 
+(defcustom git-commit-post-finish-hook nil
+  "Hook run after the user finished writing a commit message.
+
+\\<with-editor-mode-map>\
+This hook is only run after pressing \\[with-editor-finish] in a buffer used
+to edit a commit message.  If a commit is created without the
+user typing a message into a buffer, then this hook is not run."
+  :group 'git-commit
+  :type 'hook
+  :get (and (featurep 'magit-utils) 'magit-hook-custom-get))
+
 (defcustom git-commit-finish-query-functions
   '(git-commit-check-style-conventions)
   "List of functions called to query before performing commit.
@@ -482,6 +493,7 @@ This is only used if Magit is available."
             'git-commit-save-message nil t)
   (add-hook 'with-editor-pre-cancel-hook
             'git-commit-save-message nil t)
+  (add-hook 'with-editor-post-finish-hook 'git-commit-run-post-finish-hook)
   (when (bound-and-true-p magit-wip-merge-branch)
     (add-hook 'with-editor-post-finish-hook
               'magit-wip-commit nil t))
@@ -498,6 +510,9 @@ This is only used if Magit is available."
       (open-line 1)))
   (run-hooks 'git-commit-setup-hook)
   (set-buffer-modified-p nil))
+
+(defun git-commit-run-post-finish-hook ()
+  (run-hooks 'git-commit-post-finish-hook))
 
 (define-minor-mode git-commit-mode
   "Auxiliary minor mode used when editing Git commit messages.
