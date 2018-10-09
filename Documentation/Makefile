@@ -134,19 +134,23 @@ publish-stats: stats
 	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
 
 publish-manuals: $(PUBLISH_TARGETS)
+	@printf "Uploading manuals... $(PUBLISH_TARGETS)\n"
 	@aws s3 cp $(PKG).html $(PUBLISH_TARGET)
 	@aws s3 cp $(PKG).pdf  $(PUBLISH_TARGET)
 	@aws s3 cp $(PKG).epub $(PUBLISH_TARGET)
-	@aws s3 sync --delete $(PKG) $(PUBLISH_TARGET)$(PKG)/
+	@printf "upload: ./$(PKG)/* to $(PUBLISH_TARGET)*\n"
+	@aws s3 sync --delete $(PKG) $(PUBLISH_TARGET)$(PKG)/ > /dev/null
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(PUBLISH_PATH),$(CFRONT_PATHS)))" > /dev/null
 
 release-manuals: $(PUBLISH_TARGETS)
+	@printf "Uploading release manuals...\n"
 	@aws s3 cp $(PKG).html $(RELEASE_TARGET)
 	@aws s3 cp $(PKG).pdf  $(RELEASE_TARGET)
 	@aws s3 cp $(PKG).epub $(RELEASE_TARGET)
-	@aws s3 sync --delete $(PKG) $(RELEASE_TARGET)$(PKG)/
+	@printf "upload: ./$(PKG)/* to $(RELEASE_TARGET)*\n"
+	@aws s3 sync --delete $(PKG) $(RELEASE_TARGET)$(PKG)/ > /dev/null
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(RELEASE_PATH),$(CFRONT_PATHS)))" > /dev/null
