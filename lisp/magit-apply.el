@@ -91,6 +91,28 @@ rejected reversals."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-post-stage-hook nil
+  "Hook run after staging changes.
+This hook is run by `magit-refresh' if `this-command'
+is a member of `magit-post-stage-hook-commands'."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-commands
+  :type 'hook)
+
+(defvar magit-post-stage-hook-commands
+  '(magit-stage magit-stage-file magit-stage-modified))
+
+(defcustom magit-post-unstage-hook nil
+  "Hook run after unstaging changes.
+This hook is run by `magit-refresh' if `this-command'
+is a member of `magit-post-unstage-hook-commands'."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-commands
+  :type 'hook)
+
+(defvar magit-post-unstage-hook-commands
+  '(magit-unstage magit-unstage-file magit-unstage-all))
+
 ;;; Commands
 ;;;; Apply
 
