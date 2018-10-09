@@ -716,25 +716,31 @@ See info node `(magit)Debugging Tools' for more information."
                 ,@(cl-mapcan
                    (lambda (dir) (list "-L" dir))
                    (delete-dups
-                    (mapcar (lambda (lib)
-                              (file-name-directory (locate-library lib)))
-                            '(;; Like `LOAD_PATH' in `default.mk'.
-                              "dash"
-                              "ghub"
-                              "graphql"
-                              "lv"
-                              "magit-popup"
-                              "transient"
-                              "treepy"
-                              "with-editor"
-                              ;; Obviously `magit' itself is needed too.
-                              "magit"
-                              ;; While this is part of the Magit repository,
-                              ;; it is distributed as a separate package.
-                              "git-commit"
-                              ;; Even though `async' is a dependency of the
-                              ;; `magit' package, it is not required here.
-                              ))))
+                    (cl-mapcan
+                     (lambda (lib)
+                       (let ((path (locate-library lib)))
+                         (cond
+                          (path
+                           (list (file-name-directory path)))
+                          ((not (member lib '("lv" "transient")))
+                           (error "Cannot find mandatory dependency %s" lib)))))
+                     '(;; Like `LOAD_PATH' in `default.mk'.
+                       "dash"
+                       "ghub"
+                       "graphql"
+                       "lv"
+                       "magit-popup"
+                       "transient"
+                       "treepy"
+                       "with-editor"
+                       ;; Obviously `magit' itself is needed too.
+                       "magit"
+                       ;; While this is part of the Magit repository,
+                       ;; it is distributed as a separate package.
+                       "git-commit"
+                       ;; Even though `async' is a dependency of the
+                       ;; `magit' package, it is not required here.
+                       ))))
                 ;; Avoid Emacs bug#16406 by using full path.
                 "-l" ,(file-name-sans-extension (locate-library "magit")))
               " ")))
