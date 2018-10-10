@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-292-gb768542a2+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-293-g50e05e4ac+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-292-gb768542a2+1).
+This manual is for Magit version 2.13.0 (2.13.0-293-g50e05e4ac+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -165,10 +165,10 @@ Now see [[*Post-Installation Tasks]].
 
 ** Installing from the Git Repository
 
-Magit depends on the ~dash~, ~magit-popup~, ~ghub~ and ~with-editor~ libraries
-which are available from Melpa and Melpa-Stable.  Install them using ~M-x
-package-install RET <package> RET~.  Of course you may also install
-them manually from their development repository.
+Magit depends on the ~dash~, ~ghub~, ~graphql~, ~magit-popup~, ~treepy~ and
+~with-editor~ libraries which are available from Melpa and Melpa-Stable.
+Install them using ~M-x package-install RET <package> RET~.  Of course
+you may also install them manually from their development repository.
 
 (An ancient release of Magit is also available from Marmalade, but
 no new versions will be uploaded.  Marmalade is unmaintained — its
@@ -189,16 +189,19 @@ Then compile the libraries and generate the info manuals:
   $ make
 #+END_SRC
 
-If you haven't installed ~dash~, ~magit-popup~, ~ghub~ and ~with-editor~ from
-Melpa or at ~/path/to/magit/../<package>~, then you have to tell ~make~ where
-to find them.  To do so create the file ~/path/to/magit/config.mk~ with the
-following content before running ~make~:
+If you haven't installed ~dash~, ~ghub~, ~graphql~, ~magit-popup~, ~treepy~ and
+~with-editor~ from Melpa or at ~/path/to/magit/../<package>~, then you
+have to tell ~make~ where to find them.  To do so create the file
+~/path/to/magit/config.mk~ with the following content before running
+~make~:
 
 #+BEGIN_SRC makefile
   LOAD_PATH  = -L /path/to/magit/lisp
   LOAD_PATH += -L /path/to/dash
-  LOAD_PATH += -L /path/to/magit-popup
   LOAD_PATH += -L /path/to/ghub
+  LOAD_PATH += -L /path/to/graphql
+  LOAD_PATH += -L /path/to/magit-popup
+  LOAD_PATH += -L /path/to/treepy
   LOAD_PATH += -L /path/to/with-editor
 #+END_SRC
 

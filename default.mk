@@ -169,8 +169,9 @@ endif
 
 LOAD_PATH = -L $(TOP)/lisp
 
-# When making changes here, then don't forget to
-# adjust magit-emacs-Q-command accordingly.
+# When making changes here, then don't forget to adjust Makefile,
+# .travis.yml, magit-emacs-Q-command and the "Installing from the
+# Git Repository" info node accordingly.
 
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
