@@ -200,8 +200,11 @@ following content before running ~make~:
   LOAD_PATH += -L /path/to/magit-popup
   LOAD_PATH += -L /path/to/ghub
   LOAD_PATH += -L /path/to/with-editor
+  LOAD_PATH += -L /path/to/graphql
+  LOAD_PATH += -L /path/to/treepy
 #+END_SRC
-
+You may want to refer these repositories on github - vermiculus/graphql.el, volrath/treepy.el, magnars/dash.el, magit/magit, magit/magit-popup, magit/ghub, magit/with-editor.
+    
 Finally add this to your init file:
 
 #+BEGIN_SRC emacs-lisp
