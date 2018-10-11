@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-307-g822e762cd+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-308-g728052be4+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-307-g822e762cd+1).
+This manual is for Magit version 2.13.0 (2.13.0-308-g728052be4+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -5485,7 +5485,7 @@ Also see [[man:git-stash]]
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
-- Key: z z, magit-stash
+- Key: z z, magit-stash-both
 
   Create a stash of the index and working tree.  Untracked files are
   included according to popup arguments.  One prefix argument is
@@ -5511,7 +5511,7 @@ Also see [[man:git-stash]]
   prefix argument is equivalent to ~--include-untracked~ while two
   prefix arguments are equivalent to ~--all~.
 
-- Key: z Z, magit-snapshot
+- Key: z Z, magit-snapshot-both
 
   Create a snapshot of the index and working tree.  Untracked files
   are included according to popup arguments.  One prefix argument is

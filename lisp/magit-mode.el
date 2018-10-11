@@ -523,8 +523,8 @@ which visits the thing at point using `browse-url'."
     ["Ignore locally" magit-gitignore-locally t]
     ["Discard" magit-discard t]
     ["Reset head and index" magit-reset-mixed t]
-    ["Stash" magit-stash t]
-    ["Snapshot" magit-snapshot t]
+    ["Stash" magit-stash-both t]
+    ["Snapshot" magit-snapshot-both t]
     "---"
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
