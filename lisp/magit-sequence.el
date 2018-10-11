@@ -475,7 +475,7 @@ This discards all changes made since the sequence started."
               (?u (lambda ()
                     (--when-let (magit-get-upstream-branch) (concat it "\n")))
                   magit-rebase-onto-upstream)
-              (?e "elsewhere"               magit-rebase)
+              (?e "elsewhere" magit-rebase-branch)
               "Rebase"
               (?i "interactively"      magit-rebase-interactive)
               (?m "to modify a commit" magit-rebase-edit-commit)
@@ -517,7 +517,7 @@ If that variable is unset, then rebase onto `remote.pushDefault'."
     (user-error "No branch is checked out")))
 
 ;;;###autoload
-(defun magit-rebase (target args)
+(defun magit-rebase-branch (target args)
   "Rebase the current branch onto a branch read in the minibuffer.
 All commits that are reachable from `HEAD' but not from the
 selected branch TARGET are being rebased."

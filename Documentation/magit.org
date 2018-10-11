@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-301-g7ba277bd1+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-302-ge4ba1386f+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-301-g7ba277bd1+1).
+This manual is for Magit version 2.13.0 (2.13.0-302-ge4ba1386f+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -4946,7 +4946,7 @@ See [[*Information About In-Progress Rebase]].
 
   Rebase the current branch onto its upstream branch.
 
-- Key: r e, magit-rebase
+- Key: r e, magit-rebase-branch
 
   Rebase the current branch onto a branch read in the minibuffer.  All
   commits that are reachable from head but not from the selected

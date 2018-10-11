@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-301-g7ba277bd1+1)
+@subtitle for version 2.13.0 (2.13.0-302-ge4ba1386f+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-301-g7ba277bd1+1).
+This manual is for Magit version 2.13.0 (2.13.0-302-ge4ba1386f+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6638,8 +6638,8 @@ variable is unset, then rebase onto @code{remote.pushDefault}.
 Rebase the current branch onto its upstream branch.
 
 @kindex r e
-@cindex magit-rebase
-@item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase})
+@cindex magit-rebase-branch
+@item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-branch})
 
 Rebase the current branch onto a branch read in the minibuffer.  All
 commits that are reachable from head but not from the selected
