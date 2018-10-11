@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-297-g475b65975+1)
+@subtitle for version 2.13.0 (2.13.0-298-g544d428b8+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-297-g475b65975+1).
+This manual is for Magit version 2.13.0 (2.13.0-298-g544d428b8+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -5719,8 +5719,8 @@ else then @code{HEAD} becomes detached.  Checkout fails if the working tree
 or the staging area contain changes.
 
 @kindex b n
-@cindex magit-branch
-@item @kbd{b n} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch})
+@cindex magit-branch-create
+@item @kbd{b n} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-create})
 
 Create a new branch.  The user is asked for a branch or arbitrary
 revision to use as the starting point of the new branch.  When a

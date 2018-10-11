@@ -214,7 +214,7 @@ and change branch related variables."
              (?s "Create new spin-off"   magit-branch-spinoff)
              (?m "Rename"                magit-branch-rename)
              (?c "Checkout new branch"   magit-branch-and-checkout)
-             (?n "Create new branch"     magit-branch)
+             (?n "Create new branch"     magit-branch-create)
              (?x "Reset"                 magit-branch-reset)
              (?w "Checkout new worktree" magit-worktree-checkout)
              (?W "Create new worktree"   magit-worktree-branch)
@@ -249,7 +249,7 @@ changes.
   (magit-run-git "checkout" revision))
 
 ;;;###autoload
-(defun magit-branch (branch start-point &optional args)
+(defun magit-branch-create (branch start-point &optional args)
   "Create BRANCH at branch or revision START-POINT.
 \n(git branch [ARGS] BRANCH START-POINT)."
   (interactive (magit-branch-read-args "Create branch"))
@@ -393,7 +393,7 @@ Please see the manual for more information."
             (unless (magit-branch-p tracking)
               (magit-call-git "fetch" upstream))
             (let ((inhibit-magit-refresh t))
-              (magit-branch branch tracking))
+              (magit-branch-create branch tracking))
             (magit-set upstream "branch" branch "pushRemote")
             (magit-set upstream "branch" branch "pullRequestRemote"))
         (if (magit-remote-p remote)
@@ -563,7 +563,7 @@ that is being reset."
         (magit-reset-hard to)
         (when (and set-upstream (magit-branch-p to))
           (magit-set-branch*merge/remote branch to)))
-    (magit-branch branch to args)))
+    (magit-branch-create branch to args)))
 
 ;;;###autoload
 (defun magit-branch-delete (branches &optional force)

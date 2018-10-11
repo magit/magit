@@ -258,7 +258,7 @@ branch or `HEAD' as the string-point."
   (interactive (list (magit-read-stash "Branch stash")
                      (magit-read-string-ns "Branch name")))
   (let ((inhibit-magit-refresh t))
-    (magit-branch branch (or (magit-get-current-branch) "HEAD")))
+    (magit-branch-create branch (or (magit-get-current-branch) "HEAD")))
   (magit-stash-apply stash))
 
 ;;;###autoload
