@@ -390,7 +390,7 @@ starts complicating other things, then it will be removed."
            (define-key map (kbd   "P") 'magit-push-popup)
            (define-key map (kbd   "k") 'magit-delete-thing)
            (define-key map (kbd   "K") 'magit-file-untrack)
-           (define-key map (kbd   "i") 'magit-gitignore)
+           (define-key map (kbd   "i") 'magit-gitignore-popup)
            (define-key map (kbd   "I") 'magit-gitignore-popup)))
     (define-key map (kbd "SPC") 'magit-diff-show-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-diff-show-or-scroll-down)
@@ -519,7 +519,7 @@ which visits the thing at point using `browse-url'."
     ["Cherry pick" magit-cherry-pick t]
     ["Revert commit" magit-revert-popup t]
     "---"
-    ["Ignore" magit-gitignore t]
+    ["Ignore globally" magit-gitignore-globally t]
     ["Ignore locally" magit-gitignore-locally t]
     ["Discard" magit-discard t]
     ["Reset head and index" magit-reset-mixed t]
