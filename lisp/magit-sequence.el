@@ -335,7 +335,7 @@ the process manually."
   :options  '((?s "Strategy"       "--strategy=")
               (?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key)
               (?m "Replay merge relative to parent" "--mainline="))
-  :actions  '((?V "Revert commit(s)" magit-revert)
+  :actions  '((?V "Revert commit(s)" magit-revert-and-commit)
               (?v "Revert changes"   magit-revert-no-commit))
   :sequence-actions '((?V "Continue" magit-sequencer-continue)
                       (?s "Skip"     magit-sequencer-skip)
@@ -349,7 +349,7 @@ the process manually."
         (magit-revert-arguments)))
 
 ;;;###autoload
-(defun magit-revert (commit &optional args)
+(defun magit-revert-and-commit (commit &optional args)
   "Revert COMMIT by creating a new commit.
 Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then revert all of them,
