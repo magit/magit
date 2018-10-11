@@ -267,7 +267,7 @@ in `magit-blame-read-only-mode-map' instead.")
            (define-key map (kbd   "I") 'magit-blame-previous-chunk-same-commit)
            (define-key map (kbd   "k") 'magit-blame-next-chunk)
            (define-key map (kbd   "K") 'magit-blame-next-chunk-same-commit)
-           (define-key map (kbd   "j") 'magit-blame)
+           (define-key map (kbd   "j") 'magit-blame-addition)
            (define-key map (kbd   "l") 'magit-blame-removal)
            (define-key map (kbd   "f") 'magit-blame-reverse)
            (define-key map (kbd   "b") 'magit-blame-popup))
@@ -277,7 +277,7 @@ in `magit-blame-read-only-mode-map' instead.")
            (define-key map (kbd   "P") 'magit-blame-previous-chunk-same-commit)
            (define-key map (kbd   "n") 'magit-blame-next-chunk)
            (define-key map (kbd   "N") 'magit-blame-next-chunk-same-commit)
-           (define-key map (kbd   "b") 'magit-blame)
+           (define-key map (kbd   "b") 'magit-blame-addition)
            (define-key map (kbd   "r") 'magit-blame-removal)
            (define-key map (kbd   "f") 'magit-blame-reverse)
            (define-key map (kbd   "B") 'magit-blame-popup)))
@@ -720,12 +720,12 @@ not turn on `read-only-mode'."
               (cons 'eldoc-mode magit-blame-disable-modes))
   (if (not magit-blame-mode)
       (let ((magit-blame-read-only nil))
-        (magit-blame))
+        (magit-blame-addition))
     (read-only-mode -1)
     (magit-blame--update-overlays)))
 
 ;;;###autoload
-(defun magit-blame ()
+(defun magit-blame-addition ()
   "For each line show the revision in which it was added."
   (interactive)
   (magit-blame--pre-blame-assert 'addition)
@@ -882,7 +882,7 @@ instead of the hash, like `kill-ring-save' would."
   :options  '((?M "Detect lines moved or copied within a file" "-M")
               (?C "Detect lines moved or copied between files" "-C"))
   :actions  '("Actions"
-              (?b "Show commits adding lines" magit-blame)
+              (?b "Show commits adding lines" magit-blame-addition)
               (?r (lambda ()
                     (with-current-buffer magit-pre-popup-buffer
                       (and (not buffer-file-name)
@@ -902,7 +902,7 @@ instead of the hash, like `kill-ring-save' would."
               (?c "Cycle style" magit-blame-cycle-style))
   :default-arguments '("-w")
   :max-action-columns 1
-  :default-action 'magit-blame)
+  :default-action 'magit-blame-addition)
 
 ;;; Utilities
 

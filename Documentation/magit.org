@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-302-ge4ba1386f+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-303-g51f946f24+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-302-ge4ba1386f+1).
+This manual is for Magit version 2.13.0 (2.13.0-303-g51f946f24+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -3463,7 +3463,7 @@ blob-visiting buffers.  You can also enter the blame popup from the
 file popup, which is available on ~C-c M-g~, provided ~magit-file-mode~
 is enabled, see [[*Minor Mode for Buffers Visiting Files]].
 
-- Command: magit-blame
+- Command: magit-blame-addition
 
   This command augments each line or chunk of lines in the current
   file- or blob-visiting buffer with information about what commits
@@ -3480,9 +3480,9 @@ is enabled, see [[*Minor Mode for Buffers Visiting Files]].
 
 - Command: magit-blame-echo
 
-  This command is like ~magit-blame~ except that it doesn't turn on
-  ~read-only-mode~ and that it initially uses the visualization style
-  specified by option ~magit-blame-echo-style~.
+  This command is like ~magit-blame-addition~ except that it doesn't
+  turn on ~read-only-mode~ and that it initially uses the visualization
+  style specified by option ~magit-blame-echo-style~.
 
 - Command: magit-blame-removal
 
@@ -3490,7 +3490,7 @@ is enabled, see [[*Minor Mode for Buffers Visiting Files]].
   blob-visiting buffer with information about the revision that
   removes it.  It cannot be used in file-visiting buffers.
 
-  Like ~magit-blame~, this command can be used recursively.
+  Like ~magit-blame-addition~, this command can be used recursively.
 
 - Command: magit-blame-reverse
 
@@ -3498,7 +3498,7 @@ is enabled, see [[*Minor Mode for Buffers Visiting Files]].
   file- or blob-visiting buffer with information about the last
   revision in which a line still existed.
 
-  Like ~magit-blame~, this command can be used recursively.
+  Like ~magit-blame-addition~, this command can be used recursively.
 
 The following key bindings are available when Magit-Blame mode is
 enabled and Read-Only mode is not enabled.  These commands are also
@@ -6583,7 +6583,7 @@ few key bindings, but this might be extended in the future.
   This prefix command shows all blaming suffix command along with the
   appropriate infix arguments in a popup buffer.  See [[*Blaming]].
 
-- Key: C-c M-g b, magit-blame
+- Key: C-c M-g b, magit-blame-addition
 
   This command shows for each line the revision in which it was added.
 
