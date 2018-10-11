@@ -44,8 +44,8 @@
 
 ;;;###autoload
 (defun magit-reset (commit &optional hard)
-  "Reset the `HEAD' and index to COMMIT, but not the working tree.
-With a prefix argument also reset the working tree.
+  "Reset the `HEAD' and index to COMMIT, and possibly the working tree.
+With a prefix argument reset the working tree otherwise don't.
 \n(git reset --mixed|--hard COMMIT)"
   (interactive (list (magit-reset-read-branch-or-commit
                       (if current-prefix-arg
