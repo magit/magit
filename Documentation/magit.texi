@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-305-g55b79be8f+1)
+@subtitle for version 2.13.0 (2.13.0-307-g822e762cd+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-305-g55b79be8f+1).
+This manual is for Magit version 2.13.0 (2.13.0-307-g822e762cd+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6376,8 +6376,8 @@ following commands.
 
 @table @asis
 @kindex m m
-@cindex magit-merge
-@item @kbd{m m} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge})
+@cindex magit-merge-plain
+@item @kbd{m m} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-plain})
 
 This command merges another branch or an arbitrary revision into the
 current branch.  The branch or revision to be merged is read in the

@@ -41,6 +41,7 @@
 (define-obsolete-function-alias 'magit-blame 'magit-blame-addition "Magit 2.90.0")
 (define-obsolete-function-alias 'magit-revert 'magit-revert-and-commit "Magit 2.90.0")
 (define-obsolete-function-alias 'magit-reset 'magit-reset-quickly "Magit 2.90.0")
+(define-obsolete-function-alias 'magit-merge 'magit-merge-plain "Magit 2.90.0")
 
 ;;; _
 (provide 'magit-obsolete)
