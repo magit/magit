@@ -532,7 +532,7 @@ which visits the thing at point using `browse-url'."
     ["Rebase..." magit-rebase-popup t]
     "---"
     ["Push" magit-push t]
-    ["Pull" magit-pull t]
+    ["Pull" magit-pull-branch t]
     ["Remote update" magit-fetch-all t]
     ("Submodule"
      ["Submodule update" magit-submodule-update t]
