@@ -507,7 +507,7 @@ which visits the thing at point using `browse-url'."
     ["Reset index" magit-reset-index t]
     ["Commit" magit-commit-popup t]
     ["Add log entry" magit-commit-add-log t]
-    ["Tag" magit-tag t]
+    ["Tag" magit-tag-create t]
     "---"
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]

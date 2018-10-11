@@ -34,6 +34,7 @@
 (define-obsolete-function-alias 'magit-reset-head 'magit-reset-mixed "Magit 2.90.0")
 (define-obsolete-function-alias 'magit-gitignore 'magit-gitignore-globally "Magit 2.90.0")
 (define-obsolete-function-alias 'magit-branch 'magit-branch-create "Magit 2.90.0")
+(define-obsolete-function-alias 'magit-tag 'magit-tag-create "Magit 2.90.0")
 
 ;;; _
 (provide 'magit-obsolete)

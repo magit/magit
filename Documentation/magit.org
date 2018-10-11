@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-298-g544d428b8+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-299-g27832e7df+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-298-g544d428b8+1).
+This manual is for Magit version 2.13.0 (2.13.0-299-g27832e7df+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -5990,7 +5990,7 @@ Also see [[man:git-tag]]
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
-- Key: t t, magit-tag
+- Key: t t, magit-tag-create
 
   Create a new tag with the given NAME at REV.  With a prefix argument
   annotate the tag.
