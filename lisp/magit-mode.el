@@ -522,7 +522,7 @@ which visits the thing at point using `browse-url'."
     ["Ignore" magit-gitignore t]
     ["Ignore locally" magit-gitignore-locally t]
     ["Discard" magit-discard t]
-    ["Reset head" magit-reset-head t]
+    ["Reset head and index" magit-reset-mixed t]
     ["Stash" magit-stash t]
     ["Snapshot" magit-snapshot t]
     "---"

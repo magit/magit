@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-293-g50e05e4ac+1)
+@subtitle for version 2.13.0 (2.13.0-294-g21f786a15+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-293-g50e05e4ac+1).
+This manual is for Magit version 2.13.0 (2.13.0-294-g21f786a15+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -7335,8 +7335,8 @@ defaulting to the commit at point.  The working tree is kept as-is.
 With a prefix argument also reset the working tree.
 
 @kindex X m
-@cindex magit-reset-head
-@item @kbd{X m} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-head})
+@cindex magit-reset-mixed
+@item @kbd{X m} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-mixed})
 
 Reset the @code{HEAD} and index to some commit read from the user and
 defaulting to the commit at point.  The working tree is kept as-is.

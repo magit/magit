@@ -33,7 +33,7 @@
 (magit-define-popup magit-reset-popup
   "Popup console for reset commands."
   :man-page "git-reset"
-  :actions '((?m "reset mixed    (HEAD and index)"         magit-reset-head)
+  :actions '((?m "reset mixed    (HEAD and index)"         magit-reset-mixed)
              (?s "reset soft     (HEAD only)"              magit-reset-soft)
              (?h "reset hard     (HEAD, index, and files)" magit-reset-hard)
              (?i "reset index    (only)"                   magit-reset-index)
@@ -56,7 +56,7 @@ With a prefix argument also reset the working tree.
   (magit-reset-internal (if hard "--hard" "--mixed") commit))
 
 ;;;###autoload
-(defun magit-reset-head (commit)
+(defun magit-reset-mixed (commit)
   "Reset the `HEAD' and index to COMMIT, but not the working tree.
 \n(git reset --mixed COMMIT)"
   (interactive (list (magit-reset-read-branch-or-commit "Reset %s to")))
