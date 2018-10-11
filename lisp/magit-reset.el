@@ -43,7 +43,7 @@
   :max-action-columns 1)
 
 ;;;###autoload
-(defun magit-reset (commit &optional hard)
+(defun magit-reset-quickly (commit &optional hard)
   "Reset the `HEAD' and index to COMMIT, and possibly the working tree.
 With a prefix argument reset the working tree otherwise don't.
 \n(git reset --mixed|--hard COMMIT)"
