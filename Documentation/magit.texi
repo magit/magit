@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-299-g27832e7df+1)
+@subtitle for version 2.13.0 (2.13.0-300-g34f69987c+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-299-g27832e7df+1).
+This manual is for Magit version 2.13.0 (2.13.0-300-g34f69987c+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -7791,8 +7791,8 @@ Fetch from the push-remote of the current branch.
 Fetch from the upstream of the current branch.
 
 @kindex f e
-@cindex magit-fetch
-@item @kbd{f e} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch})
+@cindex magit-fetch-other
+@item @kbd{f e} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-other})
 
 Fetch from another repository.
 

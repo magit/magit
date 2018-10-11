@@ -451,7 +451,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
               "Fetch from"
               (?p magit-get-push-remote    magit-fetch-from-pushremote)
               (?u magit-get-remote         magit-fetch-from-upstream)
-              (?e "elsewhere"              magit-fetch)
+              (?e "elsewhere"              magit-fetch-other)
               (?a "all remotes"            magit-fetch-all)
               "Fetch"
               (?o "another branch"         magit-fetch-branch)
@@ -485,7 +485,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
       (user-error "No branch is checked out"))))
 
 ;;;###autoload
-(defun magit-fetch (remote args)
+(defun magit-fetch-other (remote args)
   "Fetch from another repository."
   (interactive (list (magit-read-remote "Fetch remote")
                      (magit-fetch-arguments)))
