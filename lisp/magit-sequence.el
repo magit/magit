@@ -335,7 +335,7 @@ the process manually."
   :options  '((?s "Strategy"       "--strategy=")
               (?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key)
               (?m "Replay merge relative to parent" "--mainline="))
-  :actions  '((?V "Revert commit(s)" magit-revert)
+  :actions  '((?V "Revert commit(s)" magit-revert-and-commit)
               (?v "Revert changes"   magit-revert-no-commit))
   :sequence-actions '((?V "Continue" magit-sequencer-continue)
                       (?s "Skip"     magit-sequencer-skip)
@@ -349,7 +349,7 @@ the process manually."
         (magit-revert-arguments)))
 
 ;;;###autoload
-(defun magit-revert (commit &optional args)
+(defun magit-revert-and-commit (commit &optional args)
   "Revert COMMIT by creating a new commit.
 Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then revert all of them,
@@ -475,7 +475,7 @@ This discards all changes made since the sequence started."
               (?u (lambda ()
                     (--when-let (magit-get-upstream-branch) (concat it "\n")))
                   magit-rebase-onto-upstream)
-              (?e "elsewhere"               magit-rebase)
+              (?e "elsewhere" magit-rebase-branch)
               "Rebase"
               (?i "interactively"      magit-rebase-interactive)
               (?m "to modify a commit" magit-rebase-edit-commit)
@@ -517,7 +517,7 @@ If that variable is unset, then rebase onto `remote.pushDefault'."
     (user-error "No branch is checked out")))
 
 ;;;###autoload
-(defun magit-rebase (target args)
+(defun magit-rebase-branch (target args)
   "Rebase the current branch onto a branch read in the minibuffer.
 All commits that are reachable from `HEAD' but not from the
 selected branch TARGET are being rebased."

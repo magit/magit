@@ -38,7 +38,7 @@
   :switches '((?f "Fast-forward only" "--ff-only")
               (?n "No fast-forward"   "--no-ff"))
   :options  '((?s "Strategy" "--strategy="))
-  :actions  '((?m "Merge"                  magit-merge)
+  :actions  '((?m "Merge"                  magit-merge-plain)
               (?p "Preview merge"          magit-merge-preview)
               (?e "Merge and edit message" magit-merge-editmsg) nil
               (?n "Merge but don't commit" magit-merge-nocommit)
@@ -52,7 +52,7 @@
   :max-action-columns 2)
 
 ;;;###autoload
-(defun magit-merge (rev &optional args nocommit)
+(defun magit-merge-plain (rev &optional args nocommit)
   "Merge commit REV into the current branch; using default message.
 
 Unless there are conflicts or a prefix argument is used create a

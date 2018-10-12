@@ -37,13 +37,13 @@
               (?f "Force"    "--force")
               (?s "Sign"     "--sign"))
   :options  '((?f "Sign"     "--local-user=" magit-read-gpg-secret-key))
-  :actions  '((?t "Create"   magit-tag)
+  :actions  '((?t "Create"   magit-tag-create)
               (?k "Delete"   magit-tag-delete)
               (?p "Prune"    magit-tag-prune))
-  :default-action 'magit-tag)
+  :default-action 'magit-tag-create)
 
 ;;;###autoload
-(defun magit-tag (name rev &optional args)
+(defun magit-tag-create (name rev &optional args)
   "Create a new tag with the given NAME at REV.
 With a prefix argument annotate the tag.
 \n(git tag [--annotate] NAME REV)"

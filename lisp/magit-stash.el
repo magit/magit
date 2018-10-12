@@ -87,8 +87,8 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :man-page "git-stash"
   :switches '((?u "Also save untracked files" "--include-untracked")
               (?a "Also save untracked and ignored files" "--all"))
-  :actions  '((?z "Save"               magit-stash)
-              (?Z "Snapshot"           magit-snapshot)
+  :actions  '((?z "Save"               magit-stash-both)
+              (?Z "Snapshot"           magit-snapshot-both)
               (?p "Pop"                magit-stash-pop)
               (?i "Save index"         magit-stash-index)
               (?I "Snapshot index"     magit-snapshot-index)
@@ -107,7 +107,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :max-action-columns 3)
 
 ;;;###autoload
-(defun magit-stash (message &optional include-untracked)
+(defun magit-stash-both (message &optional include-untracked)
   "Create a stash of the index and working tree.
 Untracked files are included according to popup arguments.
 One prefix argument is equivalent to `--include-untracked'
@@ -162,7 +162,7 @@ while two prefix arguments are equivalent to `--all'."
       input)))
 
 ;;;###autoload
-(defun magit-snapshot (&optional include-untracked)
+(defun magit-snapshot-both (&optional include-untracked)
   "Create a snapshot of the index and working tree.
 Untracked files are included according to popup arguments.
 One prefix argument is equivalent to `--include-untracked'
@@ -258,7 +258,7 @@ branch or `HEAD' as the string-point."
   (interactive (list (magit-read-stash "Branch stash")
                      (magit-read-string-ns "Branch name")))
   (let ((inhibit-magit-refresh t))
-    (magit-branch branch (or (magit-get-current-branch) "HEAD")))
+    (magit-branch-create branch (or (magit-get-current-branch) "HEAD")))
   (magit-stash-apply stash))
 
 ;;;###autoload

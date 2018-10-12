@@ -245,15 +245,22 @@ with two prefix arguments remove ignored files only.
   "Popup console for gitignore commands."
   :man-page "gitignore"
   :actions '((?l "ignore locally"  magit-gitignore-locally)
-             (?g "ignore globally" magit-gitignore))
+             (?g "ignore globally" magit-gitignore-globally))
   :max-action-columns 1)
 
 ;;;###autoload
-(defun magit-gitignore (file-or-pattern &optional local)
-  "Instruct Git to ignore FILE-OR-PATTERN.
-With a prefix argument only ignore locally."
-  (interactive (list (magit-gitignore-read-pattern current-prefix-arg)
-                     current-prefix-arg))
+(defun magit-gitignore-globally (file-or-pattern)
+  "Instruct Git to globally ignore FILE-OR-PATTERN."
+  (interactive (list (magit-gitignore-read-pattern nil)))
+  (magit--gitignore file-or-pattern nil))
+
+;;;###autoload
+(defun magit-gitignore-locally (file-or-pattern)
+  "Instruct Git to locally ignore FILE-OR-PATTERN."
+  (interactive (list (magit-gitignore-read-pattern t)))
+  (magit--gitignore file-or-pattern t))
+
+(defun magit--gitignore (file-or-pattern local)
   (let ((gitignore
          (if local
              (magit-git-dir (convert-standard-filename "info/exclude"))
@@ -271,12 +278,6 @@ With a prefix argument only ignore locally."
     (if local
         (magit-refresh)
       (magit-run-git "add" ".gitignore"))))
-
-;;;###autoload
-(defun magit-gitignore-locally (file-or-pattern)
-  "Instruct Git to locally ignore FILE-OR-PATTERN."
-  (interactive (list (magit-gitignore-read-pattern t)))
-  (magit-gitignore file-or-pattern t))
 
 (defun magit-gitignore-read-pattern (local)
   (let* ((default (magit-current-file))

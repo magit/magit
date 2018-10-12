@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-293-g50e05e4ac+1)
+@subtitle for version 2.13.0 (2.13.0-308-g728052be4+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-293-g50e05e4ac+1).
+This manual is for Magit version 2.13.0 (2.13.0-308-g728052be4+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4710,8 +4710,8 @@ blob-visiting buffers.  You can also enter the blame popup from the
 file popup, which is available on @code{C-c M-g}, provided @code{magit-file-mode}
 is enabled, see @ref{Minor Mode for Buffers Visiting Files}.
 
-@cindex magit-blame
-@deffn Command magit-blame
+@cindex magit-blame-addition
+@deffn Command magit-blame-addition
 
 This command augments each line or chunk of lines in the current
 file- or blob-visiting buffer with information about what commits
@@ -4730,9 +4730,9 @@ added the current line or chunk of lines.
 @cindex magit-blame-echo
 @deffn Command magit-blame-echo
 
-This command is like @code{magit-blame} except that it doesn't turn on
-@code{read-only-mode} and that it initially uses the visualization style
-specified by option @code{magit-blame-echo-style}.
+This command is like @code{magit-blame-addition} except that it doesn't
+turn on @code{read-only-mode} and that it initially uses the visualization
+style specified by option @code{magit-blame-echo-style}.
 @end deffn
 
 @cindex magit-blame-removal
@@ -4742,7 +4742,7 @@ This command augments each line or chunk of lines in the current
 blob-visiting buffer with information about the revision that
 removes it.  It cannot be used in file-visiting buffers.
 
-Like @code{magit-blame}, this command can be used recursively.
+Like @code{magit-blame-addition}, this command can be used recursively.
 @end deffn
 
 @cindex magit-blame-reverse
@@ -4752,7 +4752,7 @@ This command augments each line or chunk of lines in the current
 file- or blob-visiting buffer with information about the last
 revision in which a line still existed.
 
-Like @code{magit-blame}, this command can be used recursively.
+Like @code{magit-blame-addition}, this command can be used recursively.
 @end deffn
 
 The following key bindings are available when Magit-Blame mode is
@@ -5719,8 +5719,8 @@ else then @code{HEAD} becomes detached.  Checkout fails if the working tree
 or the staging area contain changes.
 
 @kindex b n
-@cindex magit-branch
-@item @kbd{b n} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch})
+@cindex magit-branch-create
+@item @kbd{b n} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-create})
 
 Create a new branch.  The user is asked for a branch or arbitrary
 revision to use as the starting point of the new branch.  When a
@@ -6376,8 +6376,8 @@ following commands.
 
 @table @asis
 @kindex m m
-@cindex magit-merge
-@item @kbd{m m} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge})
+@cindex magit-merge-plain
+@item @kbd{m m} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-plain})
 
 This command merges another branch or an arbitrary revision into the
 current branch.  The branch or revision to be merged is read in the
@@ -6638,8 +6638,8 @@ variable is unset, then rebase onto @code{remote.pushDefault}.
 Rebase the current branch onto its upstream branch.
 
 @kindex r e
-@cindex magit-rebase
-@item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase})
+@cindex magit-rebase-branch
+@item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-branch})
 
 Rebase the current branch onto a branch read in the minibuffer.  All
 commits that are reachable from head but not from the selected
@@ -7268,8 +7268,8 @@ features the following commands.
 
 @table @asis
 @kindex V V
-@cindex magit-revert
-@item @kbd{V V} @tie{}@tie{}@tie{}@tie{}(@code{magit-revert})
+@cindex magit-revert-and-commit
+@item @kbd{V V} @tie{}@tie{}@tie{}@tie{}(@code{magit-revert-and-commit})
 
 Revert a commit by creating a new commit.  Prompt for a commit,
 defaulting to the commit at point.  If the region selects multiple
@@ -7327,16 +7327,17 @@ the git-reset(1) manpage.
 
 @table @asis
 @kindex x
-@cindex magit-reset
-@item @kbd{x} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset})
+@cindex magit-reset-quickly
+@item @kbd{x} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-quickly})
 
-Reset the head and index to some commit read from the user and
-defaulting to the commit at point.  The working tree is kept as-is.
-With a prefix argument also reset the working tree.
+Reset the @code{HEAD} and index to some commit read from the user and
+defaulting to the commit at point, and possibly also reset the
+working tree.  With a prefix argument reset the working tree
+otherwise don't.
 
 @kindex X m
-@cindex magit-reset-head
-@item @kbd{X m} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-head})
+@cindex magit-reset-mixed
+@item @kbd{X m} @tie{}@tie{}@tie{}@tie{}(@code{magit-reset-mixed})
 
 Reset the @code{HEAD} and index to some commit read from the user and
 defaulting to the commit at point.  The working tree is kept as-is.
@@ -7405,8 +7406,8 @@ This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex z z
-@cindex magit-stash
-@item @kbd{z z} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash})
+@cindex magit-stash-both
+@item @kbd{z z} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-both})
 
 Create a stash of the index and working tree.  Untracked files are
 included according to popup arguments.  One prefix argument is
@@ -7439,8 +7440,8 @@ prefix argument is equivalent to @code{--include-untracked} while two
 prefix arguments are equivalent to @code{--all}.
 
 @kindex z Z
-@cindex magit-snapshot
-@item @kbd{z Z} @tie{}@tie{}@tie{}@tie{}(@code{magit-snapshot})
+@cindex magit-snapshot-both
+@item @kbd{z Z} @tie{}@tie{}@tie{}@tie{}(@code{magit-snapshot-both})
 
 Create a snapshot of the index and working tree.  Untracked files
 are included according to popup arguments.  One prefix argument is
@@ -7790,8 +7791,8 @@ Fetch from the push-remote of the current branch.
 Fetch from the upstream of the current branch.
 
 @kindex f e
-@cindex magit-fetch
-@item @kbd{f e} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch})
+@cindex magit-fetch-other
+@item @kbd{f e} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-other})
 
 Fetch from another repository.
 
@@ -7867,8 +7868,8 @@ Pull from the push-remote of the current branch.
 Pull from the upstream of the current branch.
 
 @kindex F e
-@cindex magit-pull
-@item @kbd{F e} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull})
+@cindex magit-pull-branch
+@item @kbd{F e} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-branch})
 
 Pull from a branch read in the minibuffer.
 @end table
@@ -8191,8 +8192,8 @@ This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex t t
-@cindex magit-tag
-@item @kbd{t t} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag})
+@cindex magit-tag-create
+@item @kbd{t t} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag-create})
 
 Create a new tag with the given NAME at REV@.  With a prefix argument
 annotate the tag.
@@ -8989,8 +8990,8 @@ This prefix command shows all blaming suffix command along with the
 appropriate infix arguments in a popup buffer.  See @ref{Blaming}.
 
 @kindex C-c M-g b
-@cindex magit-blame
-@item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame})
+@cindex magit-blame-addition
+@item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-addition})
 
 This command shows for each line the revision in which it was added.
 

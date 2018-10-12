@@ -390,7 +390,7 @@ starts complicating other things, then it will be removed."
            (define-key map (kbd   "P") 'magit-push-popup)
            (define-key map (kbd   "k") 'magit-delete-thing)
            (define-key map (kbd   "K") 'magit-file-untrack)
-           (define-key map (kbd   "i") 'magit-gitignore)
+           (define-key map (kbd   "i") 'magit-gitignore-popup)
            (define-key map (kbd   "I") 'magit-gitignore-popup)))
     (define-key map (kbd "SPC") 'magit-diff-show-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-diff-show-or-scroll-down)
@@ -441,7 +441,7 @@ starts complicating other things, then it will be removed."
     (define-key map "V" 'magit-revert-popup)
     (define-key map "w" 'magit-am-popup)
     (define-key map "W" 'magit-patch-popup)
-    (define-key map "x" 'magit-reset)
+    (define-key map "x" 'magit-reset-quickly)
     (define-key map "X" 'magit-reset-popup)
     (define-key map "y" 'magit-show-refs-popup)
     (define-key map "Y" 'magit-cherry)
@@ -507,7 +507,7 @@ which visits the thing at point using `browse-url'."
     ["Reset index" magit-reset-index t]
     ["Commit" magit-commit-popup t]
     ["Add log entry" magit-commit-add-log t]
-    ["Tag" magit-tag t]
+    ["Tag" magit-tag-create t]
     "---"
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
@@ -519,12 +519,12 @@ which visits the thing at point using `browse-url'."
     ["Cherry pick" magit-cherry-pick t]
     ["Revert commit" magit-revert-popup t]
     "---"
-    ["Ignore" magit-gitignore t]
+    ["Ignore globally" magit-gitignore-globally t]
     ["Ignore locally" magit-gitignore-locally t]
     ["Discard" magit-discard t]
-    ["Reset head" magit-reset-head t]
-    ["Stash" magit-stash t]
-    ["Snapshot" magit-snapshot t]
+    ["Reset head and index" magit-reset-mixed t]
+    ["Stash" magit-stash-both t]
+    ["Snapshot" magit-snapshot-both t]
     "---"
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
@@ -532,7 +532,7 @@ which visits the thing at point using `browse-url'."
     ["Rebase..." magit-rebase-popup t]
     "---"
     ["Push" magit-push t]
-    ["Pull" magit-pull t]
+    ["Pull" magit-pull-branch t]
     ["Remote update" magit-fetch-all t]
     ("Submodule"
      ["Submodule update" magit-submodule-update t]

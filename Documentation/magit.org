@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-293-g50e05e4ac+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-308-g728052be4+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-293-g50e05e4ac+1).
+This manual is for Magit version 2.13.0 (2.13.0-308-g728052be4+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -3463,7 +3463,7 @@ blob-visiting buffers.  You can also enter the blame popup from the
 file popup, which is available on ~C-c M-g~, provided ~magit-file-mode~
 is enabled, see [[*Minor Mode for Buffers Visiting Files]].
 
-- Command: magit-blame
+- Command: magit-blame-addition
 
   This command augments each line or chunk of lines in the current
   file- or blob-visiting buffer with information about what commits
@@ -3480,9 +3480,9 @@ is enabled, see [[*Minor Mode for Buffers Visiting Files]].
 
 - Command: magit-blame-echo
 
-  This command is like ~magit-blame~ except that it doesn't turn on
-  ~read-only-mode~ and that it initially uses the visualization style
-  specified by option ~magit-blame-echo-style~.
+  This command is like ~magit-blame-addition~ except that it doesn't
+  turn on ~read-only-mode~ and that it initially uses the visualization
+  style specified by option ~magit-blame-echo-style~.
 
 - Command: magit-blame-removal
 
@@ -3490,7 +3490,7 @@ is enabled, see [[*Minor Mode for Buffers Visiting Files]].
   blob-visiting buffer with information about the revision that
   removes it.  It cannot be used in file-visiting buffers.
 
-  Like ~magit-blame~, this command can be used recursively.
+  Like ~magit-blame-addition~, this command can be used recursively.
 
 - Command: magit-blame-reverse
 
@@ -3498,7 +3498,7 @@ is enabled, see [[*Minor Mode for Buffers Visiting Files]].
   file- or blob-visiting buffer with information about the last
   revision in which a line still existed.
 
-  Like ~magit-blame~, this command can be used recursively.
+  Like ~magit-blame-addition~, this command can be used recursively.
 
 The following key bindings are available when Magit-Blame mode is
 enabled and Read-Only mode is not enabled.  These commands are also
@@ -4227,7 +4227,7 @@ features are available from separate popups.
   else then ~HEAD~ becomes detached.  Checkout fails if the working tree
   or the staging area contain changes.
 
-- Key: b n, magit-branch
+- Key: b n, magit-branch-create
 
   Create a new branch.  The user is asked for a branch or arbitrary
   revision to use as the starting point of the new branch.  When a
@@ -4727,7 +4727,7 @@ merge conflicts see the next section.
 When no merge is in progress, then the popup buffer features the
 following commands.
 
-- Key: m m, magit-merge
+- Key: m m, magit-merge-plain
 
   This command merges another branch or an arbitrary revision into the
   current branch.  The branch or revision to be merged is read in the
@@ -4946,7 +4946,7 @@ See [[*Information About In-Progress Rebase]].
 
   Rebase the current branch onto its upstream branch.
 
-- Key: r e, magit-rebase
+- Key: r e, magit-rebase-branch
 
   Rebase the current branch onto a branch read in the minibuffer.  All
   commits that are reachable from head but not from the selected
@@ -5403,7 +5403,7 @@ features these commands instead.
 When no cherry-pick or revert is in progress, then the popup buffer
 features the following commands.
 
-- Key: V V, magit-revert
+- Key: V V, magit-revert-and-commit
 
   Revert a commit by creating a new commit.  Prompt for a commit,
   defaulting to the commit at point.  If the region selects multiple
@@ -5436,13 +5436,14 @@ features these commands instead.
 
 Also see [[man:git-reset]]
 
-- Key: x, magit-reset
+- Key: x, magit-reset-quickly
 
-  Reset the head and index to some commit read from the user and
-  defaulting to the commit at point.  The working tree is kept as-is.
-  With a prefix argument also reset the working tree.
+  Reset the ~HEAD~ and index to some commit read from the user and
+  defaulting to the commit at point, and possibly also reset the
+  working tree.  With a prefix argument reset the working tree
+  otherwise don't.
 
-- Key: X m, magit-reset-head
+- Key: X m, magit-reset-mixed
 
   Reset the ~HEAD~ and index to some commit read from the user and
   defaulting to the commit at point.  The working tree is kept as-is.
@@ -5484,7 +5485,7 @@ Also see [[man:git-stash]]
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
-- Key: z z, magit-stash
+- Key: z z, magit-stash-both
 
   Create a stash of the index and working tree.  Untracked files are
   included according to popup arguments.  One prefix argument is
@@ -5510,7 +5511,7 @@ Also see [[man:git-stash]]
   prefix argument is equivalent to ~--include-untracked~ while two
   prefix arguments are equivalent to ~--all~.
 
-- Key: z Z, magit-snapshot
+- Key: z Z, magit-snapshot-both
 
   Create a snapshot of the index and working tree.  Untracked files
   are included according to popup arguments.  One prefix argument is
@@ -5742,7 +5743,7 @@ Also see [[man:git-fetch]]
 
   Fetch from the upstream of the current branch.
 
-- Key: f e, magit-fetch
+- Key: f e, magit-fetch-other
 
   Fetch from another repository.
 
@@ -5789,7 +5790,7 @@ Also see [[man:git-pull]]
 
   Pull from the upstream of the current branch.
 
-- Key: F e, magit-pull
+- Key: F e, magit-pull-branch
 
   Pull from a branch read in the minibuffer.
 
@@ -5989,7 +5990,7 @@ Also see [[man:git-tag]]
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
-- Key: t t, magit-tag
+- Key: t t, magit-tag-create
 
   Create a new tag with the given NAME at REV.  With a prefix argument
   annotate the tag.
@@ -6582,7 +6583,7 @@ few key bindings, but this might be extended in the future.
   This prefix command shows all blaming suffix command along with the
   appropriate infix arguments in a popup buffer.  See [[*Blaming]].
 
-- Key: C-c M-g b, magit-blame
+- Key: C-c M-g b, magit-blame-addition
 
   This command shows for each line the revision in which it was added.
 

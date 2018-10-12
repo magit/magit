@@ -451,7 +451,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
               "Fetch from"
               (?p magit-get-push-remote    magit-fetch-from-pushremote)
               (?u magit-get-remote         magit-fetch-from-upstream)
-              (?e "elsewhere"              magit-fetch)
+              (?e "elsewhere"              magit-fetch-other)
               (?a "all remotes"            magit-fetch-all)
               "Fetch"
               (?o "another branch"         magit-fetch-branch)
@@ -485,7 +485,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
       (user-error "No branch is checked out"))))
 
 ;;;###autoload
-(defun magit-fetch (remote args)
+(defun magit-fetch-other (remote args)
   "Fetch from another repository."
   (interactive (list (magit-read-remote "Fetch remote")
                      (magit-fetch-arguments)))
@@ -573,7 +573,7 @@ prefix argument fetch all remotes."
                  (propertize "Pull from" 'face 'magit-popup-heading)))
              (?p magit-get-push-branch     magit-pull-from-pushremote)
              (?u magit-get-upstream-branch magit-pull-from-upstream)
-             (?e "elsewhere"               magit-pull))
+             (?e "elsewhere"               magit-pull-branch))
   :default-action 'magit-pull
   :max-action-columns 1)
 
@@ -618,7 +618,7 @@ missing.  To add them use something like:
                  (propertize "Pull from" 'face 'magit-popup-heading)))
              (?p magit-get-push-branch     magit-pull-from-pushremote)
              (?u magit-get-upstream-branch magit-pull-from-upstream)
-             (?e "elsewhere"               magit-pull)
+             (?e "elsewhere"               magit-pull-branch)
              "Fetch from"
              (?f "remotes"           magit-fetch-all-no-prune)
              (?F "remotes and prune" magit-fetch-all-prune)
@@ -664,7 +664,7 @@ missing.  To add them use something like:
       (user-error "No branch is checked out"))))
 
 ;;;###autoload
-(defun magit-pull (source args)
+(defun magit-pull-branch (source args)
   "Pull from a branch read in the minibuffer."
   (interactive (list (magit-read-remote-branch "Pull" nil nil nil t)
                      (magit-pull-arguments)))

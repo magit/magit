@@ -33,7 +33,7 @@
 (magit-define-popup magit-reset-popup
   "Popup console for reset commands."
   :man-page "git-reset"
-  :actions '((?m "reset mixed    (HEAD and index)"         magit-reset-head)
+  :actions '((?m "reset mixed    (HEAD and index)"         magit-reset-mixed)
              (?s "reset soft     (HEAD only)"              magit-reset-soft)
              (?h "reset hard     (HEAD, index, and files)" magit-reset-hard)
              (?i "reset index    (only)"                   magit-reset-index)
@@ -43,20 +43,7 @@
   :max-action-columns 1)
 
 ;;;###autoload
-(defun magit-reset (commit &optional hard)
-  "Reset the `HEAD' and index to COMMIT, but not the working tree.
-With a prefix argument also reset the working tree.
-\n(git reset --mixed|--hard COMMIT)"
-  (interactive (list (magit-reset-read-branch-or-commit
-                      (if current-prefix-arg
-                          (concat (propertize "Hard" 'face 'bold)
-                                  " reset %s to")
-                        "Reset %s to"))
-                     current-prefix-arg))
-  (magit-reset-internal (if hard "--hard" "--mixed") commit))
-
-;;;###autoload
-(defun magit-reset-head (commit)
+(defun magit-reset-mixed (commit)
   "Reset the `HEAD' and index to COMMIT, but not the working tree.
 \n(git reset --mixed COMMIT)"
   (interactive (list (magit-reset-read-branch-or-commit "Reset %s to")))
@@ -96,6 +83,19 @@ Keep the `HEAD' and index as-is."
     (magit-wip-commit-before-change nil " before reset")
     (magit-run-git "checkout-index" "--all" "--force")
     (magit-wip-commit-after-apply nil " after reset")))
+
+;;;###autoload
+(defun magit-reset-quickly (commit &optional hard)
+  "Reset the `HEAD' and index to COMMIT, and possibly the working tree.
+With a prefix argument reset the working tree otherwise don't.
+\n(git reset --mixed|--hard COMMIT)"
+  (interactive (list (magit-reset-read-branch-or-commit
+                      (if current-prefix-arg
+                          (concat (propertize "Hard" 'face 'bold)
+                                  " reset %s to")
+                        "Reset %s to"))
+                     current-prefix-arg))
+  (magit-reset-internal (if hard "--hard" "--mixed") commit))
 
 (defun magit-reset-read-branch-or-commit (prompt)
   "Prompt for and return a ref to reset HEAD to.
