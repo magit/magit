@@ -239,7 +239,7 @@ and/or `magit-branch-remote-head'."
              (?L "Change logs"     magit-log-refresh-popup)
              (?m "Merging"         magit-merge-popup)
              (?M "Remoting"        magit-remote-popup)
-             (?o "Submodules"      magit-submodule-popup)
+             (?o "Submodules"      magit-submodule)
              (?O "Subtrees"        magit-subtree-popup)
              (?P "Pushing"         magit-push-popup)
              (?r "Rebasing"        magit-rebase-popup)

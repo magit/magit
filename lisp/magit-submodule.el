@@ -115,40 +115,40 @@ and also setting this variable to t will lead to tears."
 
 ;;; Popup
 
-;;;###autoload (autoload 'magit-submodule-popup "magit-submodule" nil t)
-(magit-define-popup magit-submodule-popup
-  "Popup console for submodule commands."
+;;;###autoload (autoload 'magit-submodule "magit-submodule" nil t)
+(define-transient-command magit-submodule ()
+  "Act on a submodule."
   :man-page "git-submodule"
-  :switches '((?f "Force"            "--force")
-              (?r "Recursive"        "--recursive")
-              (?N "Do not fetch"     "--no-fetch")
-              (?C "Checkout tip"     "--checkout")
-              (?R "Rebase onto tip"  "--rebase")
-              (?M "Merge tip"        "--merge")
-              (?U "Use upstream tip" "--remote"))
-  :actions
-  '((?a "Add            git submodule add [--force]"
-        magit-submodule-add)
-    (?r "Register       git submodule init"
-        magit-submodule-register)
-    (?p "Populate       git submodule update --init"
-        magit-submodule-populate)
-    (?u "Update         git submodule update [--force] [--no-fetch]
+  ["Switches"
+   ("-f" "Force"            ("-f" "--force"))
+   ("-r" "Recursive"        "--recursive")
+   ("-N" "Do not fetch"     ("-N" "--no-fetch"))
+   ("-C" "Checkout tip"     "--checkout")
+   ("-R" "Rebase onto tip"  "--rebase")
+   ("-M" "Merge tip"        "--merge")
+   ("-U" "Use upstream tip" "--remote")]
+  ["Actions"
+   ("a" "Add            git submodule add [--force]"
+    magit-submodule-add)
+   ("r" "Register       git submodule init"
+    magit-submodule-register)
+   ("p" "Populate       git submodule update --init"
+    magit-submodule-populate)
+   ("u" "Update         git submodule update [--force] [--no-fetch]
                      [--remote] [--recursive] [--checkout|--rebase|--merge]"
-        magit-submodule-update)
-    (?s "Synchronize    git submodule sync [--recursive]"
-        magit-submodule-synchronize)
-    (?d "Unpopulate     git submodule deinit [--force]"
-        magit-submodule-unpopulate)
-    (?k "Remove" magit-submodule-remove)
-    nil
-    (?l "List all modules"  magit-list-submodules)
-    (?f "Fetch all modules" magit-fetch-modules))
-  :max-action-columns 1)
+    magit-submodule-update)
+   ("s" "Synchronize    git submodule sync [--recursive]"
+    magit-submodule-synchronize)
+   ("d" "Unpopulate     git submodule deinit [--force]"
+    magit-submodule-unpopulate)
+   ("k" "Remove" magit-submodule-remove)
+   ?\n
+   ("l" "List all modules"  magit-list-submodules)
+   ("f" "Fetch all modules" magit-fetch-modules)])
 
-(defun magit-submodule-filtered-arguments (&rest filters)
+(defun magit-submodule-arguments (&rest filters)
   (--filter (and (member it filters) it)
-            (magit-submodule-arguments)))
+            (transient-args 'magit-submodule)))
 
 ;;;###autoload
 (defun magit-submodule-add (url &optional path name args)
@@ -178,7 +178,7 @@ it is nil, then PATH also becomes the name."
        (list url
              (directory-file-name path)
              (magit-submodule-read-name-for-path path)
-             (magit-submodule-filtered-arguments "--force")))))
+             (magit-submodule-arguments "--force")))))
   (magit-with-toplevel
     (magit-submodule--maybe-reuse-gitdir name path)
     (magit-run-git-async "submodule" "add"
@@ -257,7 +257,7 @@ single module from the user."
   ;; To do the latter we provide the "setup" command.
   (interactive
    (list (magit-module-confirm "Update" 'magit-module-worktree-p)
-         (magit-submodule-filtered-arguments
+         (magit-submodule-arguments
           "--force" "--remote" "--recursive" "--checkout" "--rebase" "--merge"
           "--no-fetch")))
   (magit-with-toplevel
@@ -273,7 +273,7 @@ there is a module at point, then act on that.  Otherwise read a
 single module from the user."
   (interactive
    (list (magit-module-confirm "Synchronize" 'magit-module-worktree-p)
-         (magit-submodule-filtered-arguments "--recursive")))
+         (magit-submodule-arguments "--recursive")))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "sync" args "--" modules)))
 
@@ -294,7 +294,7 @@ single module from the user."
   ;; directory.
   (interactive
    (list (magit-module-confirm "Unpopulate")
-         (magit-submodule-filtered-arguments "--force")))
+         (magit-submodule-arguments "--force")))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "deinit" args "--" modules)))
 
@@ -316,7 +316,7 @@ to recover from making a mistake here, but don't count on it."
    (list (if-let ((modules (magit-region-values 'magit-module-section t)))
              (magit-confirm 'remove-modules nil "Remove %i modules" nil modules)
            (list (magit-read-module-path "Remove module")))
-         (magit-submodule-filtered-arguments "--force")
+         (magit-submodule-arguments "--force")
          current-prefix-arg))
   (when (version< (magit-git-version) "2.12.0")
     (error "This command requires Git v2.12.0"))
