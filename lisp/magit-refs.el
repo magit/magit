@@ -274,7 +274,7 @@ the outcome.
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map "\C-y" 'magit-refs-set-show-commit-count)
-    (define-key map "L"    'magit-margin-popup)
+    (define-key map "L"    'magit-margin-settings)
     map)
   "Keymap for `magit-refs-mode'.")
 

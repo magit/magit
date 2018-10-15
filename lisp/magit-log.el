@@ -1528,7 +1528,7 @@ commit as argument."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map "q" 'magit-log-bury-buffer)
-    (define-key map "L" 'magit-margin-popup)
+    (define-key map "L" 'magit-margin-settings)
     map)
   "Keymap for `magit-cherry-mode'.")
 
@@ -1584,7 +1584,7 @@ Type \\[magit-cherry-pick-popup] to apply the commit at point.
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
-    (define-key map "L" 'magit-margin-popup)
+    (define-key map "L" 'magit-margin-settings)
     map)
   "Keymap for `magit-reflog-mode'.")
 
