@@ -248,7 +248,7 @@ and/or `magit-branch-remote-head'."
              (?V "Reverting"       magit-revert-popup)
              (?w "Apply patches"   magit-am-popup)
              (?W "Format patches"  magit-patch-popup)
-             (?X "Resetting"       magit-reset-popup)
+             (?X "Resetting"       magit-reset)
              (?y "Show Refs"       magit-show-refs-popup)
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)

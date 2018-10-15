@@ -29,18 +29,18 @@
 
 (require 'magit)
 
-;;;###autoload (autoload 'magit-reset-popup "magit" nil t)
-(magit-define-popup magit-reset-popup
-  "Popup console for reset commands."
+;;;###autoload (autoload 'magit-reset "magit" nil t)
+(define-transient-command magit-reset ()
+  "Reset the `HEAD', index and/or worktree to a previous state."
   :man-page "git-reset"
-  :actions '((?m "reset mixed    (HEAD and index)"         magit-reset-mixed)
-             (?s "reset soft     (HEAD only)"              magit-reset-soft)
-             (?h "reset hard     (HEAD, index, and files)" magit-reset-hard)
-             (?i "reset index    (only)"                   magit-reset-index)
-             (?w "reset worktree (only)"                   magit-reset-worktree)
-             nil
-             (?f "reset a file"                            magit-file-checkout))
-  :max-action-columns 1)
+  ["Reset"
+   ("m" "mixed    (HEAD and index)"        magit-reset-mixed)
+   ("s" "soft     (HEAD only)"             magit-reset-soft)
+   ("h" "hard     (HEAD, index and files)" magit-reset-hard)
+   ("i" "index    (only)"                  magit-reset-index)
+   ("w" "worktree (only)"                  magit-reset-worktree)
+   ?\n
+   ("f" "a file"                           magit-file-checkout)])
 
 ;;;###autoload
 (defun magit-reset-mixed (commit)
