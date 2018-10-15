@@ -34,13 +34,13 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-gitignore-popup "magit-gitignore" nil t)
-(magit-define-popup magit-gitignore-popup
-  "Popup console for gitignore commands."
+;;;###autoload (autoload 'magit-gitignore "magit-gitignore" nil t)
+(define-transient-command magit-gitignore ()
+  "Instruct Git to ignore a file or pattern."
   :man-page "gitignore"
-  :actions '((?l "ignore locally"  magit-gitignore-locally)
-             (?g "ignore globally" magit-gitignore-globally))
-  :max-action-columns 1)
+  ["Gitignore"
+   ("l" "locally"  magit-gitignore-locally)
+   ("g" "globally" magit-gitignore-globally)])
 
 ;;;###autoload
 (defun magit-gitignore-globally (file-or-pattern)
