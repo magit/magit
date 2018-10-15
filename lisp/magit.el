@@ -250,7 +250,7 @@ and/or `magit-branch-remote-head'."
              (?W "Format patches"  magit-patch-popup)
              (?X "Resetting"       magit-reset)
              (?y "Show Refs"       magit-show-refs-popup)
-             (?z "Stashing"        magit-stash-popup)
+             (?z "Stashing"        magit-stash)
              (?! "Running"         magit-run)
              (?% "Worktree"        magit-worktree)
              (lambda ()
