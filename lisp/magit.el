@@ -238,7 +238,7 @@ and/or `magit-branch-remote-head'."
              (?l "Logging"         magit-log-popup)
              (?L "Change logs"     magit-log-refresh-popup)
              (?m "Merging"         magit-merge)
-             (?M "Remoting"        magit-remote-popup)
+             (?M "Remoting"        magit-remote)
              (?o "Submodules"      magit-submodule)
              (?O "Subtrees"        magit-subtree-popup)
              (?P "Pushing"         magit-push)

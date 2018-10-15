@@ -429,7 +429,7 @@ starts complicating other things, then it will be removed."
     (define-key map "l" 'magit-log-popup)
     (define-key map "L" 'magit-log-refresh-popup)
     (define-key map "m" 'magit-merge)
-    (define-key map "M" 'magit-remote-popup)
+    (define-key map "M" 'magit-remote)
     (define-key map "o" 'magit-submodule)
     (define-key map "O" 'magit-subtree-popup)
     (define-key map "q" 'magit-mode-bury-buffer)

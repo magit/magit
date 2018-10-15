@@ -47,10 +47,10 @@ variable isn't already set."
                  (const  :tag "don't set")))
 
 (defcustom magit-remote-popup-show-variables t
-  "Whether the `magit-remote-popup' shows Git variables.
-When set to nil, no variables are displayed directly in this
-popup, instead the sub-popup `magit-remote-configure' has
-to be used to view and change remote related variables."
+  "Whether the command `magit-remote' shows Git variables.
+When set to nil, no variables are displayed by this transient
+command, instead the sub-transient `magit-remote-configure'
+has to be used to view and change remote related variables."
   :package-version '(magit . "2.12.0")
   :group 'magit-commands
   :type 'boolean)
@@ -84,25 +84,31 @@ removed after restarting Emacs."
 
 ;;; Commands
 
-(defvar magit-remote-config-variables)
-
-;;;###autoload (autoload 'magit-remote-popup "magit-remote" nil t)
-(magit-define-popup magit-remote-popup
-  "Popup console for remote commands."
+;;;###autoload (autoload 'magit-remote "magit-remote" nil t)
+(define-transient-command magit-remote (remote)
+  "Add, configure or remove a remote."
   :man-page "git-remote"
-  :default-arguments '("-f")
-  :variables (lambda ()
-               (and magit-remote-popup-show-variables
-                    magit-remote-config-variables))
-  :switches '("Switches for add"
-              (?f "Fetch after add" "-f"))
-  :actions  '((?a "Add"                  magit-remote-add)
-              (?C "Configure..."         magit-remote-configure)
-              (?r "Rename"               magit-remote-rename)
-              (?p "Prune stale branches" magit-remote-prune)
-              (?k "Remove"               magit-remote-remove)
-              (?P "Prune stale refspecs" magit-remote-prune-refspecs))
-  :max-action-columns 2)
+  :value '("-f")
+  ["Variables"
+   :if (lambda ()
+         (and magit-remote-popup-show-variables
+              (oref transient--prefix scope)))
+   ("u" magit-remote.<remote>.url)
+   ("U" magit-remote.<remote>.fetch)
+   ("s" magit-remote.<remote>.pushurl)
+   ("S" magit-remote.<remote>.push)
+   ("O" magit-remote.<remote>.tagopt)]
+  ["Switches for add"
+   ("-f" "Fetch after add" "-f")]
+  ["Actions"
+   [("a" "Add"                  magit-remote-add)
+    ("r" "Rename"               magit-remote-rename)
+    ("k" "Remove"               magit-remote-remove)]
+   [("C" "Configure..."         magit-remote-configure)
+    ("p" "Prune stale branches" magit-remote-prune)
+    ("P" "Prune stale refspecs" magit-remote-prune-refspecs)]]
+  (interactive (list (magit-get-current-remote)))
+  (transient-setup 'magit-remote nil nil :scope remote))
 
 (defun magit-read-url (prompt &optional initial-input)
   (let ((url (magit-read-string-ns prompt initial-input)))
@@ -115,7 +121,7 @@ removed after restarting Emacs."
   "Add a remote named REMOTE and fetch it."
   (interactive (list (magit-read-string-ns "Remote name")
                      (magit-read-url "Remote url")
-                     (magit-remote-arguments)))
+                     (transient-args 'magit-remote)))
   (if (pcase (list magit-remote-add-set-remote.pushDefault
                    (magit-get "remote.pushDefault"))
         (`(,(pred stringp) ,_) t)
