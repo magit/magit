@@ -34,35 +34,36 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-push-popup "magit-push" nil t)
-(magit-define-popup magit-push-popup
-  "Popup console for push commands."
+;;;###autoload (autoload 'magit-push "magit-push" nil t)
+(define-transient-command magit-push ()
+  "Push to another repository."
   :man-page "git-push"
-  :switches `((?f "Force with lease" "--force-with-lease")
-              (?F "Force"            "--force")
-              (?h "Disable hooks"    "--no-verify")
-              (?d "Dry run"          "--dry-run")
-              ,@(and (not magit-remote-set-if-missing)
-                     '((?u "Set upstream"  "--set-upstream"))))
-  :actions '("Configure"
-             (?C "variables..."      magit-branch-configure)
-             (lambda ()
-               (--when-let (magit-get-current-branch)
-                 (concat (propertize "Push " 'face 'magit-popup-heading)
-                         (propertize it      'face 'magit-branch-local)
-                         (propertize " to"   'face 'magit-popup-heading))))
-             (?p magit--pushbranch-suffix-description
-                 magit-push-current-to-pushremote)
-             (?u magit--upstream-suffix-description
-                 magit-push-current-to-upstream)
-             (?e "elsewhere\n"       magit-push-current)
-             "Push"
-             (?o "another branch"    magit-push-other)
-             (?T "a tag"             magit-push-tag)
-             (?r "explicit refspecs" magit-push-refspecs)
-             (?t "all tags"          magit-push-tags)
-             (?m "matching branches" magit-push-matching))
-  :max-action-columns 2)
+  ["Switches"
+   ("-f" "Force with lease" (nil "--force-with-lease"))
+   ("-F" "Force"            ("-f" "--force"))
+   ("-h" "Disable hooks"    "--no-verify")
+   ("-d" "Dry run"          ("-n" "--dry-run"))
+   ("-u" "Set upstream"     "--set-upstream"
+    :if-nil magit-remote-set-if-missing)]
+  [:if magit-get-current-branch
+   :description (lambda ()
+                  (format (propertize "Push %s to" 'face 'transient-heading)
+                          (propertize (magit-get-current-branch)
+                                      'face 'magit-branch-local)))
+   ("p" magit-push-current-to-pushremote)
+   ("u" magit-push-current-to-upstream)
+   ("e" "elsewhere" magit-push-current)]
+  ["Push"
+   [("o" "another branch"    magit-push-other)
+    ("r" "explicit refspecs" magit-push-refspecs)
+    ("m" "matching branches" magit-push-matching)]
+   [("T" "a tag"             magit-push-tag)
+    ("t" "all tags"          magit-push-tags)]]
+  ["Configure"
+   ("C" "Set variables..."  magit-branch-configure)])
+
+(defun magit-push-arguments ()
+  (transient-args 'magit-push))
 
 (defun magit-git-push (branch target args)
   (run-hooks 'magit-credential-hook)
@@ -71,14 +72,16 @@
     (magit-run-git-async "push" "-v" args remote
                          (format "%s:refs/heads/%s" branch target))))
 
-;;;###autoload
-(defun magit-push-current-to-pushremote (args &optional set)
+;;;###autoload (autoload 'magit-push-current-to-pushremote "magit-push" nil t)
+(define-suffix-command magit-push-current-to-pushremote (args &optional set)
   "Push the current branch to its push-remote.
 
 When `magit-remote-set-if-missing' is non-nil and
 the push-remote is not configured, then read the push-remote from
 the user, set it, and then push to it.  With a prefix argument
 the push-remote can be changed before pushed to it."
+  :if 'magit--pushbranch-suffix-predicate
+  :description 'magit--pushbranch-suffix-description
   (interactive (list (magit-push-arguments)
                      (magit--transfer-maybe-read-pushremote "push")))
   (if-let ((branch (magit-get-current-branch)))
@@ -95,14 +98,16 @@ the push-remote can be changed before pushed to it."
                (user-error "No push-remote is configured for %s" branch)))
     (user-error "No branch is checked out")))
 
-;;;###autoload
-(defun magit-push-current-to-upstream (args &optional set)
+;;;###autoload (autoload 'magit-push-current-to-upstream "magit-push" nil t)
+(define-suffix-command magit-push-current-to-upstream (args &optional set)
   "Push the current branch to its upstream branch.
 
 When `magit-remote-set-if-missing' is non-nil and
 the upstream is not configured, then read the upstream from the
 user, set it, and then push to it.  With a prefix argument the
 upstream can be changed before pushed to it."
+  :if 'magit--upstream-suffix-predicate
+  :description 'magit--upstream-suffix-description
   (interactive (list (magit-push-arguments)
                      (magit--transfer-maybe-read-upstream "push")))
   (if-let ((branch (magit-get-current-branch)))
@@ -206,13 +211,6 @@ these Git variables: `push.default', `remote.pushDefault',
 `branch.<branch>.pushRemote', `branch.<branch>.remote',
 `branch.<branch>.merge', and `remote.<remote>.push'.
 
-To add this command to the push popup add this to your init file:
-
-  (with-eval-after-load \\='magit-remote
-    (magit-define-popup-action \\='magit-push-popup ?P
-      \\='magit-push-implicitly--desc
-      \\='magit-push-implicitly ?p t))
-
 The function `magit-push-implicitly--desc' attempts to predict
 what this command will do.  The value it returns is displayed in
 the popup buffer."
@@ -257,14 +255,7 @@ are the arguments specified in the popup buffer.  No refspec
 arguments are used.  Instead the behavior depends on at least
 these Git variables: `push.default', `remote.pushDefault',
 `branch.<branch>.pushRemote', `branch.<branch>.remote',
-`branch.<branch>.merge', and `remote.<remote>.push'.
-
-To add this command to the push popup add this to your init file:
-
-  (with-eval-after-load \\='magit-remote
-    (magit-define-popup-action \\='magit-push-popup ?r
-      \\='magit-push-to-remote--desc
-      \\='magit-push-to-remote ?p t))"
+`branch.<branch>.merge', and `remote.<remote>.push'."
   (interactive (list (magit-read-remote "Push to remote")
                      (magit-push-arguments)))
   (run-hooks 'magit-credential-hook)

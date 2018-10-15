@@ -241,7 +241,7 @@ and/or `magit-branch-remote-head'."
              (?M "Remoting"        magit-remote-popup)
              (?o "Submodules"      magit-submodule)
              (?O "Subtrees"        magit-subtree-popup)
-             (?P "Pushing"         magit-push-popup)
+             (?P "Pushing"         magit-push)
              (?r "Rebasing"        magit-rebase)
              (?t "Tagging"         magit-tag)
              (?T "Notes"           magit-notes)
