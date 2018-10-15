@@ -237,7 +237,7 @@ directory, while reading the FILENAME."
     ("e" "Edit line"  magit-edit-line-commit)]
    [("D" "Diff..."    magit-diff-buffer-file-popup)
     ("d" "Diff"       magit-diff-buffer-file)]
-   [("L" "Log..."     magit-log-buffer-file-popup)
+   [("L" "Log..."     magit-log-buffer-file*)
     ("l" "Log"        magit-log-buffer-file)
     ("t" "Trace"      magit-log-trace-definition)]
    [("B" "Blame..."   magit-blame)

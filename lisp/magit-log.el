@@ -368,107 +368,122 @@ the upstream isn't ahead of the current branch) show."
 ;;; Commands
 ;;;; Popups
 
-(defvar magit-log-popup
-  '(:variable magit-log-arguments
-    :man-page "git-log"
-    :switches ((?g "Show graph"              "--graph")
-               (?c "Show graph in color"     "--color")
-               (?d "Show refnames"           "--decorate")
-               (?S "Show signatures"         "--show-signature")
-               (?u "Show diffs"              "--patch")
-               (?s "Show diffstats"          "--stat")
-               (?h "Show header"             "++header" magit-log++header)
-               (?r "Show in reverse order"   "--reverse")
-               (?D "Simplify by decoration"  "--simplify-by-decoration")
-               (?f "Follow renames when showing single-file log" "--follow"))
-    :options  ((?n "Limit number of commits" "-n")
-               (?f "Limit to files"          "-- " magit-read-files)
-               (?a "Limit to author"         "--author=")
-               (?o "Order commits by"        "++order=" magit-log-select-order)
-               (?g "Search messages"         "--grep=")
-               (?G "Search changes"          "-G")
-               (?S "Search occurrences"      "-S")
-               (?L "Trace line evolution"    "-L" magit-read-file-trace))
-    :actions  ((?l "Log current"             magit-log-current)
-               (?L "Log local branches"      magit-log-branches)
-               (?r "Reflog current"          magit-reflog-current)
-               (?o "Log other"               magit-log-other)
-               (?b "Log all branches"        magit-log-all-branches)
-               (?O "Reflog other"            magit-reflog-other)
-               (?h "Log HEAD"                magit-log-head)
-               (?a "Log all references"      magit-log-all)
-               (?H "Reflog HEAD"             magit-reflog-head))
-    :default-action magit-log-current
-    :max-action-columns 3))
+(define-transient-command magit-log ()
+  "Show a commit or reference log."
+  :man-page "git-log"
+  :value 'magit-log--initial-value
+  ["Switches"
+   ("-g" "Show graph"              "--graph")
+   ("-c" "Show graph in color"     "--color")
+   ("-d" "Show refnames"           "--decorate")
+   ("-S" "Show signatures"         "--show-signature")
+   ("-u" "Show diffs"              ("-u" "--patch"))
+   ("-s" "Show diffstats"          "--stat")
+   ("-h" "Show header"             "++header" magit-log++header)
+   ("-r" "Show in reverse order"   "--reverse")
+   ("-D" "Simplify by decoration"  "--simplify-by-decoration")
+   ("-f" "Follow renames when showing single-file log" "--follow")]
+  ["Options"
+   ("=n" "Limit number of commits" "-n")
+   ("=f" "Limit to files"          "-- " magit-read-files)
+   ("=a" "Limit to author"         "--author=" magit-transient-read-person)
+   ("=o" "Order commits by"        "++order=" magit-log-select-order)
+   ("=g" "Search messages"         "--grep=")
+   ("=G" "Search changes"          "-G")
+   ("=S" "Search occurrences"      "-S")
+   ("=L" "Trace line evolution"    "-L" magit-read-file-trace)]
+  ["Actions"
+   [("l" "Log current"             magit-log-current)
+    ("o" "Log other"               magit-log-other)
+    ("h" "Log HEAD"                magit-log-head)]
+   [("L" "Log local branches"      magit-log-branches)
+    ("b" "Log all branches"        magit-log-all-branches)
+    ("a" "Log all references"      magit-log-all)]
+   [("r" "Reflog current"          magit-reflog-current)
+    ("O" "Reflog other"            magit-reflog-other)
+    ("H" "Reflog HEAD"             magit-reflog-head)]])
 
-(defvar magit-log-mode-refresh-popup
-  '(:variable magit-log-arguments
-    :man-page "git-log"
-    :switches ((?g "Show graph"              "--graph")
-               (?c "Show graph in color"     "--color")
-               (?d "Show refnames"           "--decorate")
-               (?S "Show signatures"         "--show-signature")
-               (?u "Show diffs"              "--patch")
-               (?s "Show diffstats"          "--stat")
-               (?r "Show in reverse order"   "--reverse")
-               (?D "Simplify by decoration"  "--simplify-by-decoration")
-               (?f "Follow renames when showing single-file log" "--follow"))
-    :options  ((?n "Limit number of commits" "-n")
-               (?f "Limit to files"          "-- " magit-read-files)
-               (?a "Limit to author"         "--author=")
-               (?o "Order commits by"        "++order=" magit-log-select-order)
-               (?g "Search messages"         "--grep=")
-               (?G "Search changes"          "-G")
-               (?S "Search occurrences"      "-S")
-               (?L "Trace line evolution"    "-L" magit-read-file-trace))
-    :actions  ((?g "Refresh"       magit-log-refresh)
-               (?L "Toggle margin" magit-toggle-margin)
-               (?s "Set defaults"  magit-log-set-default-arguments) nil
-               (?w "Save defaults" magit-log-save-default-arguments))
-    :max-action-columns 2))
+(define-transient-command magit-log-buffer-file* ()
+  ""
+  :man-page "git-log"
+  :value 'magit-log--initial-value
+  ["Switches"
+   ("-g" "Show graph"              "--graph")
+   ("-c" "Show graph in color"     "--color")
+   ("-d" "Show refnames"           "--decorate")
+   ("-S" "Show signatures"         "--show-signature")
+   ("-u" "Show diffs"              ("-u" "--patch"))
+   ("-s" "Show diffstats"          "--stat")
+   ("-h" "Show header"             "++header")
+   ("-r" "Show in reverse order"   "--reverse")
+   ("-D" "Simplify by decoration"  "--simplify-by-decoration")
+   ("-f" "Follow renames when showing single-file log" "--follow")]
+  ["Options"
+   ("=n" "Limit number of commits" "-n" magit-read-number-string)
+   ("=f" "Limit to files"          "-- " magit-read-files)
+   ("=a" "Limit to author"         "--author=" magit-transient-read-person)
+   ("=o" "Order commits by"        "++order=" magit-log-select-order)
+   ("=g" "Search messages"         "--grep=")
+   ("=G" "Search changes"          "-G" read-string)
+   ("=S" "Search occurrences"      "-S" read-string)
+   ("=L" "Trace line evolution"    "-L" magit-read-file-trace)]
+  [["Log"
+    ("l" "current"        magit-log-current)
+    ("o" "other"          magit-log-other)
+    ("h" "HEAD"           magit-log-head)]
+   [""
+    ("L" "local branches" magit-log-branches)
+    ("b" "all branches"   magit-log-all-branches)
+    ("a" "all references" magit-log-all)]
+   ["Reflog"
+    ("r" "current"        magit-reflog-current)
+    ("O" "other"          magit-reflog-other)
+    ("H" "HEAD"           magit-reflog-head)]
+   ])
 
-(defvar magit-reflog-mode-refresh-popup
-  '(:variable magit-reflog-arguments
-    :man-page "git-reflog"
-    :options  ((?n "Limit number of commits" "-n"))))
-
-(defvar magit-log-refresh-popup
-  '(:variable magit-log-arguments
-    :man-page "git-log"
-    :switches ((?g "Show graph"          "--graph")
-               (?c "Show graph in color" "--color")
-               (?d "Show refnames"       "--decorate"))
-    :options  ((?n "Limit number of commits" "-n")
-               (?o "Order commits by"        "++order=" magit-log-select-order))
-    :actions  ("Refresh"
-               (?g "buffer"                   magit-log-refresh)
-               (?s "buffer and set defaults"  magit-log-set-default-arguments)
-               (?w "buffer and save defaults" magit-log-save-default-arguments)
-               "Margin"
-               (?L "toggle visibility" magit-toggle-margin)
-               (?l "cycle style"       magit-cycle-margin-style)
-               (?d "toggle details"    magit-toggle-margin-details))
-    :max-action-columns 1))
-
-(magit-define-popup-keys-deferred 'magit-log-popup)
-(magit-define-popup-keys-deferred 'magit-log-mode-refresh-popup)
-(magit-define-popup-keys-deferred 'magit-log-refresh-popup)
-
-(defun magit-log-select-order (&rest _ignored)
-  "Set one `--<value>-order' option in Git log.
-This encompasses the options `--author-date-order',
-`--date-order', and `--topo-order'."
-  (magit-read-char-case "Order commits by " t
-    (?t "[t]opography"     "topo")
-    (?a "[a]uthor date"    "author-date")
-    (?c "[c]ommitter date" "date")))
-
-;; This is a dummy procedure used to show help in `magit-log-popup'.
-(defun magit-log++header ()
-  "Insert a header after each revision summary in Git log.
-Customize `magit-log-revision-headers-format' to change this
-header."
-  nil)
+(define-transient-command magit-log-refresh ()
+  "Change the arguments used for the log(s) in the current buffer."
+  :man-page "git-log"
+  :value 'magit-log-refresh--initial-value
+  ["Switches"
+   :if-not-mode magit-log-mode
+   ("-g" "Show graph"              "--graph")
+   ("-c" "Show graph in color"     "--color")
+   ("-d" "Show refnames"           "--decorate")]
+  ["Switches"
+   :if-mode magit-log-mode
+   ("-g" "Show graph"              "--graph")
+   ("-c" "Show graph in color"     "--color")
+   ("-d" "Show refnames"           "--decorate")
+   ("-S" "Show signatures"         "--show-signature")
+   ("-u" "Show diffs"              ("-u" "--patch"))
+   ("-s" "Show diffstats"          "--stat")
+   ("-h" "Show header"             "++header")
+   ("-r" "Show in reverse order"   "--reverse")
+   ("-D" "Simplify by decoration"  "--simplify-by-decoration")
+   ("-f" "Follow renames when showing single-file log" "--follow")]
+  ["Options"
+   :if-not-mode magit-log-mode
+   ("=n" "Limit number of commits" "-n" magit-read-number-string)
+   ("=o" "Order commits by"        "++order=" magit-log-select-order)]
+  ["Options"
+   :if-mode magit-log-mode
+   ("=n" "Limit number of commits" "-n" magit-read-number-string)
+   ("=f" "Limit to files"          "-- " magit-read-files)
+   ("=a" "Limit to author"         "--author=" magit-transient-read-person)
+   ("=o" "Order commits by"        "++order=" magit-log-select-order)
+   ("=g" "Search messages"         "--grep=")
+   ("=G" "Search changes"          "-G" read-string)
+   ("=S" "Search occurrences"      "-S" read-string)
+   ("=L" "Trace line evolution"    "-L" magit-read-file-trace)]
+  [["Refresh"
+    ("g" "buffer"                   magit-log-do-refresh)
+    ("s" "buffer and set defaults"  magit-log-set-default-arguments)
+    ("w" "buffer and save defaults" magit-log-save-default-arguments)]
+   ["Margin"
+    ("L" "toggle visibility"        magit-toggle-margin)
+    ("l" "cycle style"              magit-cycle-margin-style)
+    ("d" "toggle details"           magit-toggle-margin-details)]])
 
 (defun magit-log--initial-value ()
   (if-let ((file (magit-file-relative-name)))
@@ -507,55 +522,23 @@ header."
          (list (default-value 'magit-log-arguments) nil))))
 
 (defun magit-log-arguments (&optional refresh)
-  (cond ((memq magit-current-popup
-               '(magit-log-popup magit-log-refresh-popup))
-         (magit--export-file-args magit-current-popup-args))
-        ((and refresh (not (derived-mode-p 'magit-log-mode)))
-         (list magit-log-section-arguments nil))
-        (t
-         (magit-log-get-buffer-args))))
+  (if-let ((args (or (transient-args 'magit-log)
+                     (transient-args 'magit-log-refresh))))
+      (magit--export-file-args args)
+    (if (and refresh (not (derived-mode-p 'magit-log-mode)))
+        (list magit-log-section-arguments nil)
+      (magit-log-get-buffer-args))))
 
-;;;###autoload
-(defun magit-log-popup (arg)
-  "Popup console for log commands."
-  (interactive "P")
-  (let ((magit-log-refresh-popup
-         (pcase major-mode
-           (`magit-log-mode magit-log-mode-refresh-popup)
-           (_               magit-log-refresh-popup)))
-        (magit-log-arguments (magit-log--initial-value)))
-    (magit-invoke-popup 'magit-log-popup nil arg)))
+;;;; Infix Arguments
 
-;;;###autoload
-(defun magit-log-buffer-file-popup ()
-  "Popup console for log commands.
-
-This is a variant of `magit-log-popup' which shows the same popup
-but which limits the log to the file being visited in the current
-buffer."
-  (interactive)
-  (unless (magit-file-relative-name)
-    (user-error "Buffer isn't visiting a file"))
-  (let ((magit-log-arguments (magit-log--initial-value)))
-    (magit-invoke-popup 'magit-log-popup nil nil)))
-
-(defun magit-log-refresh-popup (arg)
-  "Popup console for changing log arguments in the current buffer."
-  (interactive "P")
-  (magit-log-refresh-assert)
-  (let ((magit-log-refresh-popup
-         (cond ((derived-mode-p 'magit-log-select-mode)
-                magit-log-refresh-popup)
-               ((derived-mode-p 'magit-log-mode)
-                (let ((def (copy-sequence magit-log-refresh-popup)))
-                  (plist-put def :switches (plist-get magit-log-popup :switches))
-                  (plist-put def :options  (plist-get magit-log-popup :options))
-                  def))
-               (t
-                magit-log-refresh-popup)))
-        (magit-log-arguments
-         (magit-log-refresh--initial-value)))
-    (magit-invoke-popup 'magit-log-refresh-popup nil arg)))
+(defun magit-log-select-order (&rest _ignored)
+  "Set one `--<value>-order' option in Git log.
+This encompasses the options `--author-date-order',
+`--date-order', and `--topo-order'."
+  (magit-read-char-case "Order commits by " t
+    (?t "[t]opography"     "topo")
+    (?a "[a]uthor date"    "author-date")
+    (?c "[c]ommitter date" "date")))
 
 (defun magit-read-file-trace (&rest _ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
@@ -564,7 +547,7 @@ buffer."
 
 ;;;; Refresh Commands
 
-(defun magit-log-refresh (args files)
+(defun magit-log-do-refresh (args files)
   "Set the local log arguments for the current buffer."
   (interactive (magit-log-arguments t))
   (magit-log-refresh-assert)

@@ -426,8 +426,8 @@ starts complicating other things, then it will be removed."
     (define-key map "G" 'magit-refresh-all)
     (define-key map "h" 'magit-dispatch-popup)
     (define-key map "?" 'magit-dispatch-popup)
-    (define-key map "l" 'magit-log-popup)
-    (define-key map "L" 'magit-log-refresh-popup)
+    (define-key map "l" 'magit-log)
+    (define-key map "L" 'magit-log-refresh)
     (define-key map "m" 'magit-merge)
     (define-key map "M" 'magit-remote)
     (define-key map "o" 'magit-submodule)
@@ -521,7 +521,7 @@ which visits the thing at point using `browse-url'."
     ("Log"
      ["Log" magit-log-other t]
      ["Reflog" magit-reflog-other t]
-     ["Extended..." magit-log-popup t])
+     ["Extended..." magit-log t])
     "---"
     ["Cherry pick" magit-cherry-pick t]
     ["Revert commit" magit-revert t]
