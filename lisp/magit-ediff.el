@@ -103,19 +103,20 @@ tree at the time of stashing."
 
 (defvar magit-ediff-previous-winconf nil)
 
-;;;###autoload (autoload 'magit-ediff-popup "magit-ediff" nil t)
-(magit-define-popup magit-ediff-popup
-  "Popup console for ediff commands."
-  :actions '((?E "Dwim"          magit-ediff-dwim)
-             (?u "Show unstaged" magit-ediff-show-unstaged)
-             (?s "Stage"         magit-ediff-stage)
-             (?i "Show staged"   magit-ediff-show-staged)
-             (?m "Resolve"       magit-ediff-resolve)
-             (?w "Show worktree" magit-ediff-show-working-tree)
-             (?r "Diff range"    magit-ediff-compare)
-             (?c "Show commit"   magit-ediff-show-commit) nil
-             (?z "Show stash"    magit-ediff-show-stash))
-  :max-action-columns 2)
+;;;###autoload (autoload 'magit-ediff "magit-ediff" nil)
+(define-transient-command magit-ediff ()
+  "Show differences using the Ediff package."
+  :info-manual "(ediff)"
+  ["Ediff"
+   [("E" "Dwim"          magit-ediff-dwim)
+    ("s" "Stage"         magit-ediff-stage)
+    ("m" "Resolve"       magit-ediff-resolve)]
+   [("u" "Show unstaged" magit-ediff-show-unstaged)
+    ("i" "Show staged"   magit-ediff-show-staged)
+    ("w" "Show worktree" magit-ediff-show-working-tree)]
+   [("c" "Show commit"   magit-ediff-show-commit)
+    ("r" "Show range"    magit-ediff-compare)
+    ("z" "Show stash"    magit-ediff-show-stash)]])
 
 ;;;###autoload
 (defun magit-ediff-resolve (file)
