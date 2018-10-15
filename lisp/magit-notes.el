@@ -29,59 +29,68 @@
 
 (require 'magit)
 
-;;; Popup
+;;; Commands
 
-;;;###autoload (autoload 'magit-notes-popup "magit" nil t)
-(magit-define-popup magit-notes-popup
-  "Popup console for notes commands."
+;;;###autoload (autoload 'magit-notes "magit" nil t)
+(define-transient-command magit-notes ()
+  "Edit notes attached to commits."
   :man-page "git-notes"
-  :variables '("Configure local settings"
-               (?c "core.notesRef"
-                   magit-set-core.notesRef
-                   magit-format-core.notesRef)
-               (?d "notes.displayRef"
-                   magit-set-notes.displayRef
-                   magit-format-notes.displayRef)
-               "Configure global settings"
-               (?C "core.notesRef"
-                   magit-set-global-core.notesRef
-                   magit-format-global-core.notesRef)
-               (?D "notes.displayRef"
-                   magit-set-global-notes.displayRef
-                   magit-format-global-notes.displayRef))
-  :switches '("Switch for prune"
-              (?n "Dry run"          "--dry-run"))
-  :options  '("Option for edit and remove"
-              (?r "Manipulate ref"   "--ref=" magit-notes-popup-read-ref)
-              "Option for merge"
-              (?s "Merge strategy"   "--strategy="))
-  :actions  '((?T "Edit"             magit-notes-edit)
-              (?r "Remove"           magit-notes-remove)
-              (?m "Merge"            magit-notes-merge)
-              (?p "Prune"            magit-notes-prune))
-  :sequence-actions '((?c "Commit merge" magit-notes-merge-commit)
-                      (?a "Abort merge"  magit-notes-merge-abort))
-  :sequence-predicate 'magit-notes-merging-p
-  :default-action 'magit-notes-edit)
+  ["Configure local settings"
+   ("c" magit-core.notesRef)
+   ("d" magit-notes.displayRef)]
+  ["Configure global settings"
+   ("C" magit-global-core.notesRef)
+   ("D" magit-global-notes.displayRef)]
+  ["Switch for prune"
+   :if-not magit-notes-merging-p
+   ("-n" "Dry run" ("-n" "--dry-run"))]
+  ["Option for edit and remove"
+   :if-not magit-notes-merging-p
+   ("=r" "Manipulate ref" "--ref=" magit-notes-read-ref)]
+  ["Option for merge"
+   :if-not magit-notes-merging-p
+   ("=s" "Merge strategy" "--strategy=")]
+  ["Actions"
+   :if-not magit-notes-merging-p
+   ("T" "Edit"         magit-notes-edit)
+   ("r" "Remove"       magit-notes-remove)
+   ("m" "Merge"        magit-notes-merge)
+   ("p" "Prune"        magit-notes-prune)]
+  ["Actions"
+   :if magit-notes-merging-p
+   ("c" "Commit merge" magit-notes-merge-commit)
+   ("a" "Abort merge"  magit-notes-merge-abort)])
 
 (defun magit-notes-merging-p ()
   (let ((dir (magit-git-dir "NOTES_MERGE_WORKTREE")))
     (and (file-directory-p dir)
          (directory-files dir nil "^[^.]"))))
 
-(defun magit-format-core.notesRef ()
-  (magit--format-popup-variable:value "core.notesRef" 22))
+(define-infix-command magit-core.notesRef ()
+  :class 'magit--git-variable
+  :variable "core.notesRef"
+  :reader 'magit-notes-read-ref
+  :prompt "Set local core.notesRef")
 
-(defun magit-format-notes.displayRef ()
-  (magit--format-popup-variable:values "notes.displayRef" 22))
+(define-infix-command magit-notes.displayRef ()
+  :class 'magit--git-variable
+  :variable "notes.displayRef"
+  :multi-value t
+  :reader 'magit-notes-read-refs
+  :prompt "Set local notes.displayRef")
 
-(defun magit-format-global-core.notesRef ()
-  (magit--format-popup-variable:value "core.notesRef" 22 t))
+(define-infix-command magit-global-core.notesRef ()
+  :class 'magit--git-variable
+  :variable "core.notesRef"
+  :reader 'magit-notes-read-ref
+  :prompt "Set global core.notesRef")
 
-(defun magit-format-global-notes.displayRef ()
-  (magit--format-popup-variable:values "notes.displayRef" 22 t))
-
-;;; Commands
+(define-infix-command magit-global-notes.displayRef ()
+  :class 'magit--git-variable
+  :variable "notes.displayRef"
+  :multi-value t
+  :reader 'magit-notes-read-refs
+  :prompt "Set global notes.displayRef")
 
 (defun magit-notes-edit (commit &optional ref)
   "Edit the note attached to COMMIT.
@@ -132,46 +141,21 @@ Also see `magit-notes-merge'."
 
 (defun magit-notes-prune (&optional dry-run)
   "Remove notes about unreachable commits."
-  (interactive (list (and (member "--dry-run" (magit-notes-arguments)) t)))
+  (interactive (list (and (member "--dry-run" (transient-args 'magit-notes)) t)))
   (when dry-run
     (magit-process-buffer))
   (magit-run-git-with-editor "notes" "prune" (and dry-run "--dry-run")))
 
-(defun magit-set-core.notesRef (ref)
-  "Set the local value of `core.notesRef' to REF."
-  (interactive (list (magit-notes-read-ref "Set local core.notesRef")))
-  (magit-set ref "core.notesRef")
-  (magit-with-pre-popup-buffer
-    (magit-refresh)))
+;;; Readers
 
-(defun magit-set-global-core.notesRef (ref)
-  "Set the global value of `core.notesRef' to REF."
-  (interactive (list (magit-notes-read-ref "Set global core.notesRef")))
-  (magit-set ref "--global" "core.notesRef")
-  (magit-with-pre-popup-buffer
-    (magit-refresh)))
-
-(defun magit-set-notes.displayRef (refs)
-  "Set the local values of `notes.displayRef' to REFS."
-  (interactive (list (magit-notes-read-refs "Set local notes.displayRef")))
-  (magit-set-all refs "notes.displayRef")
-  (magit-with-pre-popup-buffer
-    (magit-refresh)))
-
-(defun magit-set-global-notes.displayRef (refs)
-  "Set the global values of `notes.displayRef' to REFS."
-  (interactive (list (magit-notes-read-refs "Set global notes.displayRef")))
-  (magit-set-all refs "--global" "notes.displayRef")
-  (magit-with-pre-popup-buffer
-    (magit-refresh)))
-
-(defun magit-notes-read-ref (prompt)
+(defun magit-notes-read-ref (prompt _initial-input history)
   (--when-let (magit-completing-read
                prompt (magit-list-notes-refnames) nil nil
                (--when-let (magit-get "core.notesRef")
                  (if (string-prefix-p "refs/notes/" it)
                      (substring it 11)
-                   it)))
+                   it))
+               history)
     (if (string-prefix-p "refs/" it)
         it
       (concat "refs/notes/" it))))
@@ -194,7 +178,7 @@ Also see `magit-notes-merge'."
 (defun magit-notes-read-args (prompt)
  (list (magit-read-branch-or-commit prompt (magit-stash-at-point))
        (--when-let (--first (string-match "^--ref=\\(.+\\)" it)
-                            (magit-notes-arguments))
+                            (transient-args 'magit-notes))
          (match-string 1 it))))
 
 ;;; _
