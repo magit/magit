@@ -433,7 +433,7 @@ starts complicating other things, then it will be removed."
     (define-key map "o" 'magit-submodule)
     (define-key map "O" 'magit-subtree-popup)
     (define-key map "q" 'magit-mode-bury-buffer)
-    (define-key map "r" 'magit-rebase-popup)
+    (define-key map "r" 'magit-rebase)
     (define-key map "R" 'magit-file-rename)
     (define-key map "t" 'magit-tag)
     (define-key map "T" 'magit-notes)
@@ -536,7 +536,7 @@ which visits the thing at point using `browse-url'."
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
     ["Ediff resolve" magit-ediff-resolve t]
-    ["Rebase..." magit-rebase-popup t]
+    ["Rebase..." magit-rebase t]
     "---"
     ["Push" magit-push t]
     ["Pull" magit-pull-branch t]

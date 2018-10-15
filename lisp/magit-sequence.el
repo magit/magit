@@ -475,42 +475,49 @@ This discards all changes made since the sequence started."
 
 ;;; Rebase
 
-;;;###autoload (autoload 'magit-rebase-popup "magit-sequence" nil t)
-(magit-define-popup magit-rebase-popup
-  "Key menu for rebasing."
+;;;###autoload (autoload 'magit-rebase "magit-sequence" nil t)
+(define-transient-command magit-rebase ()
+  "Transplant commits and/or modify existing commits."
   :man-page "git-rebase"
-  :switches '((?k "Keep empty commits"       "--keep-empty")
-              (?p "Preserve merges"          "--preserve-merges")
-              (?c "Lie about committer date" "--committer-date-is-author-date")
-              (?a "Autosquash"               "--autosquash")
-              (?A "Autostash"                "--autostash")
-              (?i "Interactive"              "--interactive")
-              (?h "Disable hooks"            "--no-verify"))
-  :actions  '((lambda ()
-                (concat (propertize "Rebase " 'face 'magit-popup-heading)
-                        (propertize (or (magit-get-current-branch) "HEAD")
-                                    'face 'magit-branch-local)
-                        (propertize " onto" 'face 'magit-popup-heading)))
-              (?p (lambda ()
-                    (--when-let (magit-get-push-branch) (concat it "\n")))
-                  magit-rebase-onto-pushremote)
-              (?u (lambda ()
-                    (--when-let (magit-get-upstream-branch) (concat it "\n")))
-                  magit-rebase-onto-upstream)
-              (?e "elsewhere" magit-rebase-branch)
-              "Rebase"
-              (?i "interactively"      magit-rebase-interactive)
-              (?m "to modify a commit" magit-rebase-edit-commit)
-              (?s "a subset"           magit-rebase-subset)
-              (?w "to reword a commit" magit-rebase-reword-commit) nil
-              (?k "to remove a commit" magit-rebase-remove-commit) nil
-              (?f "to autosquash"      magit-rebase-autosquash))
-  :sequence-actions '((?r "Continue" magit-rebase-continue)
-                      (?s "Skip"     magit-rebase-skip)
-                      (?e "Edit"     magit-rebase-edit)
-                      (?a "Abort"    magit-rebase-abort))
-  :sequence-predicate 'magit-rebase-in-progress-p
-  :max-action-columns 2)
+  ["Switches"
+   :if-not magit-rebase-in-progress-p
+   ("-k" "Keep empty commits"       "--keep-empty")
+   ("-p" "Preserve merges"          "--preserve-merges")
+   ("-c" "Lie about committer date" "--committer-date-is-author-date")
+   ("-a" "Autosquash"               "--autosquash")
+   ("-A" "Autostash"                "--autostash")
+   ("-i" "Interactive"              "--interactive")
+   ("-h" "Disable hooks"            "--no-verify")]
+  [:if-not magit-rebase-in-progress-p
+   :description (lambda ()
+                  (format (propertize "Rebase %s onto" 'face 'transient-heading)
+                          (propertize (or (magit-get-current-branch) "HEAD")
+                                      'face 'magit-branch-local)))
+   ("p" magit-rebase-onto-pushremote
+    :if 'magit-get-push-branch
+    :description 'magit-get-push-branch)
+   ("u" magit-rebase-onto-upstream
+    :if 'magit-get-upstream-branch
+    :description 'magit-get-upstream-branch)
+   ("e" "elsewhere" magit-rebase-branch)]
+  ["Rebase"
+   :if-not magit-rebase-in-progress-p
+   [("i" "interactively"      magit-rebase-interactive)
+    ("s" "a subset"           magit-rebase-subset)]
+   [("m" "to modify a commit" magit-rebase-edit-commit)
+    ("w" "to reword a commit" magit-rebase-reword-commit)
+    ("k" "to remove a commit" magit-rebase-remove-commit)
+    ("f" "to autosquash"      magit-rebase-autosquash)
+    ]]
+  ["Actions"
+   :if magit-rebase-in-progress-p
+   ("r" "Continue" magit-rebase-continue)
+   ("s" "Skip"     magit-rebase-skip)
+   ("e" "Edit"     magit-rebase-edit)
+   ("a" "Abort"    magit-rebase-abort)])
+
+(defun magit-rebase-arguments ()
+  (transient-args 'magit-rebase))
 
 (defun magit-git-rebase (target args)
   (magit-run-git-sequencer "rebase" target args))
