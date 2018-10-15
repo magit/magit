@@ -222,39 +222,30 @@ directory, while reading the FILENAME."
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-xg"    'magit-status)
     (define-key map "\C-x\M-g" 'magit-dispatch-popup)
-    (define-key map "\C-c\M-g" 'magit-file-popup)
+    (define-key map "\C-c\M-g" 'magit-file-dispatch)
     map)
   "Keymap for `magit-file-mode'.")
 
-;;;###autoload (autoload 'magit-file-popup "magit" nil t)
-(magit-define-popup magit-file-popup
-  "Popup console for Magit commands in file-visiting buffers."
-  :actions '((?s "Stage"     magit-stage-file)
-             (?D "Diff..."   magit-diff-buffer-file-popup)
-             (?L "Log..."    magit-log-buffer-file-popup)
-             (?B "Blame..."  magit-blame-popup) nil
-             (?u "Unstage"   magit-unstage-file)
-             (?d "Diff"      magit-diff-buffer-file)
-             (?l "Log"       magit-log-buffer-file)
-             (?b "Blame"     magit-blame-addition)
-             (?p "Prev blob" magit-blob-previous)
-             (?c "Commit"    magit-commit-popup) nil
-             (?t "Trace"     magit-log-trace-definition)
-             (?r (lambda ()
-                   (with-current-buffer magit-pre-popup-buffer
-                     (and (not buffer-file-name)
-                          (propertize "...removal" 'face 'default))))
-                 magit-blame-removal)
-             (?n "Next blob" magit-blob-next)
-             (?e "Edit line" magit-edit-line-commit)
-             nil nil
-             (?f (lambda ()
-                   (with-current-buffer magit-pre-popup-buffer
-                     (and (not buffer-file-name)
-                          (propertize "...reverse" 'face 'default))))
-                 magit-blame-reverse)
-             nil)
-  :max-action-columns 5)
+;;;###autoload (autoload 'magit-file-dispatch "magit" nil t)
+(define-transient-command magit-file-dispatch ()
+  "Invoke a Magit command that acts on the visited file."
+  :info-manual "(magit) Minor Mode for Buffers Visiting Files"
+  ["Actions"
+   [("s" "Stage"      magit-stage-file)
+    ("u" "Unstage"    magit-unstage-file)
+    ("c" "Commit"     magit-commit-popup)
+    ("e" "Edit line"  magit-edit-line-commit)]
+   [("D" "Diff..."    magit-diff-buffer-file-popup)
+    ("d" "Diff"       magit-diff-buffer-file)]
+   [("L" "Log..."     magit-log-buffer-file-popup)
+    ("l" "Log"        magit-log-buffer-file)
+    ("t" "Trace"      magit-log-trace-definition)]
+   [("B" "Blame..."   magit-blame-popup)
+    ("b" "Blame"      magit-blame-addition)
+    ("r" "...removal" magit-blame-removal :if-nil buffer-file-name)
+    ("f" "...reverse" magit-blame-reverse :if-nil buffer-file-name)]
+   [("p" "Prev blob"  magit-blob-previous)
+    ("n" "Next blob"  magit-blob-next)]])
 
 (defvar magit-file-mode-lighter "")
 
