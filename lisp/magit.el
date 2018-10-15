@@ -251,7 +251,7 @@ and/or `magit-branch-remote-head'."
              (?X "Resetting"       magit-reset)
              (?y "Show Refs"       magit-show-refs-popup)
              (?z "Stashing"        magit-stash-popup)
-             (?! "Running"         magit-run-popup)
+             (?! "Running"         magit-run)
              (?% "Worktree"        magit-worktree-popup)
              (lambda ()
                (and (with-current-buffer magit-pre-popup-buffer
@@ -319,19 +319,20 @@ This affects `magit-git-command', `magit-git-command-topdir',
 
 (defvar magit-git-command-history nil)
 
-;;;###autoload (autoload 'magit-run-popup "magit" nil t)
-(magit-define-popup magit-run-popup
-  "Popup console for running raw Git commands."
-  :actions '((?! "Git Subcommand (in topdir)" magit-git-command-topdir)
-             (?k "Gitk"                       magit-run-gitk)
-             (?p "Git Subcommand (in pwd)"    magit-git-command)
-             (?a "Gitk --all"                 magit-run-gitk-all)
-             (?s "Shell command (in topdir)"  magit-shell-command-topdir)
-             (?b "Gitk --branches"            magit-run-gitk-branches)
-             (?S "Shell command (in pwd)"     magit-shell-command)
-             (?g "Git Gui"                    magit-run-git-gui))
-  :default-action 'magit-git-command
-  :max-action-columns 2)
+;;;###autoload (autoload 'magit-run "magit" nil t)
+(define-transient-command magit-run ()
+  "Run git or another command, or launch a graphical utility."
+  [["Run git subcommand"
+    ("!" "in repository root"   magit-git-command-topdir)
+    ("p" "in working directory" magit-git-command)]
+   ["Run shell command"
+    ("s" "in repository root"   magit-shell-command-topdir)
+    ("S" "in working directory" magit-shell-command)]
+   ["Launch"
+    ("k" "gitk"                 magit-run-gitk)
+    ("a" "gitk --all"           magit-run-gitk-all)
+    ("b" "gitk --branches"      magit-run-gitk-branches)
+    ("g" "git gui"              magit-run-git-gui)]])
 
 ;;;###autoload
 (defun magit-git-command (command)
