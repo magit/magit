@@ -245,7 +245,7 @@ and/or `magit-branch-remote-head'."
              (?r "Rebasing"        magit-rebase-popup)
              (?t "Tagging"         magit-tag)
              (?T "Notes"           magit-notes)
-             (?V "Reverting"       magit-revert-popup)
+             (?V "Reverting"       magit-revert)
              (?w "Apply patches"   magit-am-popup)
              (?W "Format patches"  magit-patch-popup)
              (?X "Resetting"       magit-reset)

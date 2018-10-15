@@ -442,7 +442,7 @@ starts complicating other things, then it will be removed."
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-unstage-all)
     (define-key map "v" 'magit-revert-no-commit)
-    (define-key map "V" 'magit-revert-popup)
+    (define-key map "V" 'magit-revert)
     (define-key map "w" 'magit-am-popup)
     (define-key map "W" 'magit-patch-popup)
     (define-key map "x" 'magit-reset-quickly)
@@ -524,7 +524,7 @@ which visits the thing at point using `browse-url'."
      ["Extended..." magit-log-popup t])
     "---"
     ["Cherry pick" magit-cherry-pick t]
-    ["Revert commit" magit-revert-popup t]
+    ["Revert commit" magit-revert t]
     "---"
     ["Ignore globally" magit-gitignore-globally t]
     ["Ignore locally" magit-gitignore-locally t]
