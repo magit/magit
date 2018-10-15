@@ -233,7 +233,7 @@ and/or `magit-branch-remote-head'."
              (?D "Change diffs"    magit-diff-refresh-popup)
              (?e "Ediff dwimming"  magit-ediff-dwim)
              (?E "Ediffing"        magit-ediff)
-             (?f "Fetching"        magit-fetch-popup)
+             (?f "Fetching"        magit-fetch)
              (?F "Pulling"         magit-pull-popup)
              (?l "Logging"         magit-log-popup)
              (?L "Change logs"     magit-log-refresh-popup)
