@@ -414,7 +414,7 @@ starts complicating other things, then it will be removed."
     (define-key map "a" 'magit-cherry-apply)
     (define-key map "A" 'magit-cherry-pick-popup)
     (define-key map "b" 'magit-branch-popup)
-    (define-key map "B" 'magit-bisect-popup)
+    (define-key map "B" 'magit-bisect)
     (define-key map "c" 'magit-commit-popup)
     (define-key map "d" 'magit-diff-popup)
     (define-key map "D" 'magit-diff-refresh-popup)

@@ -227,7 +227,7 @@ and/or `magit-branch-remote-head'."
   :actions '("Popup and dwim commands"
              (?A "Cherry-picking"  magit-cherry-pick-popup)
              (?b "Branching"       magit-branch-popup)
-             (?B "Bisecting"       magit-bisect-popup)
+             (?B "Bisecting"       magit-bisect)
              (?c "Committing"      magit-commit-popup)
              (?d "Diffing"         magit-diff-popup)
              (?D "Change diffs"    magit-diff-refresh-popup)
