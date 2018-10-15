@@ -48,6 +48,58 @@
 
 (defvar magit-tramp-process-environment nil)
 
+;;; Libgit
+
+(eval-and-compile
+  (defvar magit-inhibit-libgit nil
+    "Whether to prevent Magit from using `libgit'.
+
+If this is non-nil, then Magit never uses `libgit', even if
+doing so were possible.  Even if this is nil, Magit might still
+forgo trying to load `libgit' in cases when it knows that doing
+so would fail, i.e. when `libgit' cannot be found or the current
+Emacs instance does not support modules.")
+
+  (defun magit--libgit-available-p ()
+    (and module-file-suffix
+         (let ((libgit (locate-library "libgit")))
+           (and libgit
+                (or (locate-library "libegit2")
+                    (let ((load-path
+                           (cons (expand-file-name
+                                  (convert-standard-filename "build")
+                                  (file-name-directory libgit))
+                                 load-path)))
+                      (locate-library "libegit2")))))))
+
+  (when (and (not magit-inhibit-libgit)
+             (magit--libgit-available-p))
+    (require 'magit-libgit))
+  )
+
+(defun magit-use-libgit-p ()
+  "Whether to use an implementation that uses `libgit'.
+
+This function is intended to be used like so:
+
+  (defun magit-foo (args)
+    (if (magit-use-libgit-p)
+        (magit-libgit-foo args)  ; defined in magit-libgit.el
+      ...))                      ; slower inline implementation
+
+This function returns nil if `libgit' isn't a loaded feature,
+`default-directory' specifies a location on a remote system, or
+if `magit-inhibit-libgit' is non-nil.  Otherwise it returns t.
+It does not attempt to load `libgit'."
+  (and (not magit-inhibit-libgit)
+       (featurep 'libgit)
+       (not (file-remote-p default-directory))))
+
+;; `magit-libgit' and `magit-git' depend on one another for now.
+;; Don't spew warnings.  Every function defined in `magit-libgit'
+;; has to be declared here.  Sort alphabetically.
+(declare-function magit-libgit-repo "magit-libgit")
+
 ;;; Options
 
 ;; For now this is shared between `magit-process' and `magit-git'.

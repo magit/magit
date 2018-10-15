@@ -223,6 +223,7 @@ bump-versions-1:
         (dash-version \"$(DASH_VERSION)\")\
         (ghub-version \"$(GHUB_VERSION)\")\
         (git-commit-version \"$(GIT_COMMIT_VERSION)\")\
+        (libgit-version \"$(LIBGIT_VERSION)\")\
         (magit-popup-version \"$(MAGIT_POPUP_VERSION)\")\
         (with-editor-version \"$(WITH_EDITOR_VERSION)\"))\
         $$set_package_requires)"
@@ -234,6 +235,7 @@ bump-snapshots:
         (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (ghub-version \"$(GHUB_MELPA_SNAPSHOT)\")\
         (git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
+        (libgit-version \"$(LIBGIT_MELPA_SNAPSHOT)\")\
         (magit-popup-version \"$(MAGIT_POPUP_MELPA_SNAPSHOT)\")\
         (with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\"))\
         $$set_package_requires)"
