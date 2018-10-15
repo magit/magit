@@ -444,7 +444,7 @@ starts complicating other things, then it will be removed."
     (define-key map "v" 'magit-revert-no-commit)
     (define-key map "V" 'magit-revert)
     (define-key map "w" 'magit-am)
-    (define-key map "W" 'magit-patch-popup)
+    (define-key map "W" 'magit-patch)
     (define-key map "x" 'magit-reset-quickly)
     (define-key map "X" 'magit-reset)
     (define-key map "y" 'magit-show-refs-popup)

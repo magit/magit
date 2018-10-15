@@ -48,30 +48,29 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-patch-popup "magit-patch" nil t)
-(magit-define-popup magit-patch-popup
-  "Popup console for patch commands."
+;;;###autoload (autoload 'magit-patch "magit-patch" nil t)
+(define-transient-command magit-patch ()
+  "Create patches."
   :man-page "git-format-patch"
-  :switches '("Switches for formatting patches"
-              (?l "Add cover letter" "--cover-letter"))
-  :options  '("Options for formatting patches"
-              (?f "From"             "--from=")
-              (?t "To"               "--to=")
-              (?c "CC"               "--cc=")
-              (?r "In reply to"      "--in-reply-to=")
-              (?P "Subject Prefix"   "--subject-prefix=")
-              (?v "Reroll count"     "--reroll-count=")
-              (?s "Thread style"     "--thread=")
-              (?U "Context lines"    "-U")
-              (?M "Detect renames"   "-M")
-              (?C "Detect copies"    "-C")
-              (?A "Diff algorithm"   "--diff-algorithm="
-                  magit-diff-select-algorithm)
-              (?o "Output directory" "--output-directory=")
-              (?F "Limit to files"   "-- " magit-read-files))
-  :actions  '((?p "Format patches"   magit-patch-create)
-              (?r "Request pull"     magit-request-pull))
-  :default-action 'magit-patch-create)
+  ["Switches for formatting patches"
+   ("-l" "Add cover letter" "--cover-letter")]
+  ["Options for formatting patches"
+   ("=f" "From"             "--from=")
+   ("=t" "To"               "--to=")
+   ("=c" "CC"               "--cc=")
+   ("=r" "In reply to"      "--in-reply-to=")
+   ("=P" "Subject Prefix"   "--subject-prefix=")
+   ("=v" "Reroll count"     "--reroll-count=")
+   ("=s" "Thread style"     "--thread=")
+   ("=U" "Context lines"    "-U" read-string)
+   ("=M" "Detect renames"   "-M" read-string)
+   ("=C" "Detect copies"    "-C" read-string)
+   ("=A" "Diff algorithm"   "--diff-algorithm=" magit-diff-select-algorithm)
+   ("=o" "Output directory" "--output-directory=")
+   ("=F" "Limit to files"   "-- " magit-read-files)]
+  ["Actions"
+   ("p"  "Format patches"   magit-patch-create)
+   ("r"  "Request pull"     magit-request-pull)])
 
 ;;;###autoload
 (defun magit-patch-create (range args files)
@@ -88,7 +87,7 @@ which creates patches for all commits that are reachable from
              (if (string-match-p "\\.\\." range)
                  range
                (format "%s~..%s" range range))))
-         (magit--export-file-args (magit-patch-arguments))))
+         (magit--export-file-args (transient-args 'magit-patch))))
   (magit-run-git "format-patch" range args "--" files)
   (when (member "--cover-letter" args)
     (find-file
