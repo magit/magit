@@ -98,6 +98,7 @@ It does not attempt to load `libgit'."
 ;; `magit-libgit' and `magit-git' depend on one another for now.
 ;; Don't spew warnings.  Every function defined in `magit-libgit'
 ;; has to be declared here.  Sort alphabetically.
+(declare-function magit-libgit-bare-repo-p "magit-libgit")
 (declare-function magit-libgit-repo "magit-libgit")
 
 ;;; Options
@@ -714,12 +715,14 @@ is non-nil, in which case return nil."
 If it is non-bare, then return nil.  If `default-directory'
 isn't below a Git repository, then signal an error unless
 NOERROR is non-nil, in which case return nil."
-  (and (magit--assert-default-directory noerror)
-       (condition-case nil
-           (magit-rev-parse-true "--is-bare-repository")
-         (magit-invalid-git-boolean
-          (and (not noerror)
-               (signal 'magit-outside-git-repo default-directory))))))
+  (if (magit-use-libgit-p)
+      (magit-libgit-bare-repo-p noerror)
+    (and (magit--assert-default-directory noerror)
+         (condition-case nil
+             (magit-rev-parse-true "--is-bare-repository")
+           (magit-invalid-git-boolean
+            (and (not noerror)
+                 (signal 'magit-outside-git-repo default-directory)))))))
 
 (defun magit--assert-default-directory (&optional noerror)
   (or (file-directory-p default-directory)

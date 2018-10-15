@@ -31,6 +31,7 @@
 ;; Don't spew warnings.  Sort alphabetically.
 (defvar magit--refresh-cache)
 (defvar magit-inhibit-libgit)
+(declare-function magit--assert-default-directory "magit-git")
 (declare-function magit--libgit-available-p "magit-git")
 (declare-function magit-gitdir "magit-git")
 
@@ -43,6 +44,7 @@
        (message "Error while loading `magit-libgit': %S" err)))
   ;; If `libegit2' isn't available, then this file is compiled
   ;; anyway.  Don't spew warnings.  Sort alphabetically.
+  (declare-function libgit-repository-bare-p "libegit2")
   (declare-function libgit-repository-open "libegit2")
   )
 
@@ -69,6 +71,13 @@
     (magit-libgit--with-refresh-cache
         (cons default-directory 'magit-libgit-repo)
       (libgit-repository-open default-directory))))
+
+(defun magit-libgit-bare-repo-p (&optional noerror)
+  (and (magit--assert-default-directory noerror)
+       (if-let ((repo (magit-libgit-repo)))
+           (libgit-repository-bare-p repo)
+         (unless noerror
+           (signal 'magit-outside-git-repo default-directory)))))
 
 ;;; _
 (provide 'magit-libgit)
