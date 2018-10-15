@@ -431,7 +431,7 @@ starts complicating other things, then it will be removed."
     (define-key map "m" 'magit-merge)
     (define-key map "M" 'magit-remote)
     (define-key map "o" 'magit-submodule)
-    (define-key map "O" 'magit-subtree-popup)
+    (define-key map "O" 'magit-subtree)
     (define-key map "q" 'magit-mode-bury-buffer)
     (define-key map "r" 'magit-rebase)
     (define-key map "R" 'magit-file-rename)

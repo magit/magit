@@ -482,11 +482,11 @@ This discards all changes made since the sequence started."
   ["Switches"
    :if-not magit-rebase-in-progress-p
    ("-k" "Keep empty commits"       "--keep-empty")
-   ("-p" "Preserve merges"          "--preserve-merges")
+   ("-p" "Preserve merges"          ("-p" "--preserve-merges"))
    ("-c" "Lie about committer date" "--committer-date-is-author-date")
    ("-a" "Autosquash"               "--autosquash")
    ("-A" "Autostash"                "--autostash")
-   ("-i" "Interactive"              "--interactive")
+   ("-i" "Interactive"              ("-i" "--interactive"))
    ("-h" "Disable hooks"            "--no-verify")]
   [:if-not magit-rebase-in-progress-p
    :description (lambda ()

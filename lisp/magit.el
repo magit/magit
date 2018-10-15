@@ -240,7 +240,7 @@ and/or `magit-branch-remote-head'."
              (?m "Merging"         magit-merge)
              (?M "Remoting"        magit-remote)
              (?o "Submodules"      magit-submodule)
-             (?O "Subtrees"        magit-subtree-popup)
+             (?O "Subtrees"        magit-subtree)
              (?P "Pushing"         magit-push)
              (?r "Rebasing"        magit-rebase)
              (?t "Tagging"         magit-tag)
