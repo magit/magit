@@ -233,7 +233,7 @@ directory, while reading the FILENAME."
   ["Actions"
    [("s" "Stage"      magit-stage-file)
     ("u" "Unstage"    magit-unstage-file)
-    ("c" "Commit"     magit-commit-popup)
+    ("c" "Commit"     magit-commit)
     ("e" "Edit line"  magit-edit-line-commit)]
    [("D" "Diff..."    magit-diff-buffer-file-popup)
     ("d" "Diff"       magit-diff-buffer-file)]

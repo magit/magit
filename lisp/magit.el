@@ -228,7 +228,7 @@ and/or `magit-branch-remote-head'."
              (?A "Cherry-picking"  magit-cherry-pick)
              (?b "Branching"       magit-branch)
              (?B "Bisecting"       magit-bisect)
-             (?c "Committing"      magit-commit-popup)
+             (?c "Committing"      magit-commit)
              (?d "Diffing"         magit-diff-popup)
              (?D "Change diffs"    magit-diff-refresh-popup)
              (?e "Ediff dwimming"  magit-ediff-dwim)

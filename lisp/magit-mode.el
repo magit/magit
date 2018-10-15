@@ -415,7 +415,7 @@ starts complicating other things, then it will be removed."
     (define-key map "A" 'magit-cherry-pick)
     (define-key map "b" 'magit-branch)
     (define-key map "B" 'magit-bisect)
-    (define-key map "c" 'magit-commit-popup)
+    (define-key map "c" 'magit-commit)
     (define-key map "d" 'magit-diff-popup)
     (define-key map "D" 'magit-diff-refresh-popup)
     (define-key map "e" 'magit-ediff-dwim)
@@ -512,7 +512,7 @@ which visits the thing at point using `browse-url'."
     ["Stage modified" magit-stage-modified t]
     ["Unstage" magit-unstage t]
     ["Reset index" magit-reset-index t]
-    ["Commit" magit-commit-popup t]
+    ["Commit" magit-commit t]
     ["Add log entry" magit-commit-add-log t]
     ["Tag" magit-tag-create t]
     "---"

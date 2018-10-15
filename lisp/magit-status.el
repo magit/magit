@@ -335,7 +335,7 @@ Staging and applying changes is documented in info node
 \\[magit-reverse] to reverse it.
 
 \\<magit-status-mode-map>\
-Type \\[magit-commit-popup] to create a commit.
+Type \\[magit-commit] to create a commit.
 
 \\{magit-status-mode-map}"
   :group 'magit-status
