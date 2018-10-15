@@ -429,11 +429,12 @@ call function WASHER with ARGS as its sole argument."
      ,@body))
 
 (defun magit-git-dir (&optional path)
-  "Return absolute path to the control directory of the current repository.
+  "Return the absolute and resolved path of the .git directory.
 
-All symlinks are followed.  If optional PATH is non-nil, then
-it has to be a path relative to the control directory and its
-absolute path is returned."
+If the `GIT_DIR' environment variable is define then return that.
+Otherwise return the .git directory for `default-directory'.  If
+the directory is not located inside a Git repository, then return
+nil."
   (magit--with-refresh-cache (list default-directory 'magit-git-dir path)
     (magit--with-safe-default-directory nil
       (when-let ((dir (magit-rev-parse-safe "--git-dir")))
