@@ -182,7 +182,7 @@ because the latter may make use of Imenu's outdated cache."
 ;;;; File Log
 
 (defcustom magit-log-buffer-file-locked t
-  "Whether `magit-log-buffer-file' uses a dedicated buffer."
+  "Whether `magit-log-buffer-file-quick' uses a dedicated buffer."
   :package-version '(magit . "2.7.0")
   :group 'magit-commands
   :group 'magit-log

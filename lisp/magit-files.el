@@ -235,7 +235,7 @@ directory, while reading the FILENAME."
     ("u" "Unstage"    magit-unstage-file)
     ("c" "Commit"     magit-commit)
     ("e" "Edit line"  magit-edit-line-commit)]
-   [("D" "Diff..."    magit-diff-buffer-file-popup)
+   [("D" "Diff..."    magit-diff-buffer-file*)
     ("d" "Diff"       magit-diff-buffer-file)]
    [("L" "Log..."     magit-log)
     ("l" "Log"        magit-log-buffer-file)

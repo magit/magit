@@ -657,82 +657,93 @@ and `:slant'."
 ;;; Commands
 ;;;; Diff popups
 
-(defconst magit-diff-popup-common-keywords
-  '(:variable magit-diff-arguments
-              :man-page "git-diff"))
+(define-transient-command magit-diff ()
+  "Show changes between different versions."
+  :man-page "git-diff"
+  :value 'magit-diff--initial-value
+  ["Options"
+   ("=f" "Limit to files" "-- " magit-read-files)
+   ("=u" "Context lines"  "-U")
+   ("=m" "Detect renames" "-M")
+   ("=c" "Detect copies"  "-C")
+   ("=a" "Diff algorithm" "--diff-algorithm="
+    magit-diff-select-algorithm)
+   ("=i" "Ignore submodules" "--ignore-submodules="
+    magit-diff-select-ignore-submodules)]
+  ["Switches"
+   ("-f" "Show surrounding functions"     ("-W" "--function-context"))
+   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
+   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
+   ("-x" "Disallow external diff drivers" "--no-ext-diff")
+   ("-s" "Show stats"                     "--stat")]
+  ["Actions"
+   [("d" "Dwim"          magit-diff-dwim)
+    ("r" "Diff range"    magit-diff-range)
+    ("p" "Diff paths"    magit-diff-paths)]
+   [("u" "Diff unstaged" magit-diff-unstaged)
+    ("s" "Diff staged"   magit-diff-staged)
+    ("w" "Diff worktree" magit-diff-working-tree)]
+   [("c" "Show commit"   magit-show-commit)
+    ("t" "Show stash"    magit-stash-show)]])
 
-(defconst magit-diff-popup-common-options
-  '((?f "Limit to files" "-- " magit-read-files)
-    (?u "Context lines"  "-U")
-    (?m "Detect renames" "-M")
-    (?c "Detect copies"  "-C")
-    (?a "Diff algorithm" "--diff-algorithm=" magit-diff-select-algorithm)
-    (?i "Ignore submodules" "--ignore-submodules="
-        magit-diff-select-ignore-submodules)))
+(define-transient-command magit-diff-buffer-file* ()
+  ""
+  :man-page "git-diff"
+  :value 'magit-diff--initial-value
+  ["Switches"
+   ("-f" "Show surrounding functions"     ("-W" "--function-context"))
+   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
+   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
+   ("-x" "Disallow external diff drivers" "--no-ext-diff")
+   ("-s" "Show stats"                     "--stat")]
+  ["Options"
+   ("=f" "Limit to files" "-- " magit-read-files)
+   ("=u" "Context lines"  "-U" read-string)
+   ("=m" "Detect renames" "-M" read-string)
+   ("=c" "Detect copies"  "-C" read-string)
+   ("=a" "Diff algorithm" "--diff-algorithm="
+    magit-diff-select-algorithm)
+   ("=i" "Ignore submodules" "--ignore-submodules="
+    magit-diff-select-ignore-submodules)]
+  ["Actions"
+   [("d" "Dwim"          magit-diff-dwim)
+    ("r" "Diff range"    magit-diff-range)
+    ("p" "Diff paths"    magit-diff-paths)]
+   [("u" "Diff unstaged" magit-diff-unstaged)
+    ("s" "Diff staged"   magit-diff-staged)
+    ("w" "Diff worktree" magit-diff-working-tree)]
+   [("c" "Show commit"   magit-show-commit)
+    ("t" "Show stash"    magit-stash-show)]])
 
-(defconst magit-diff-popup-common-switches
-  '((?f "Show surrounding functions"     "--function-context")
-    (?b "Ignore whitespace changes"      "--ignore-space-change")
-    (?w "Ignore all whitespace"          "--ignore-all-space")
-    (?x "Disallow external diff drivers" "--no-ext-diff")))
-
-(defvar magit-diff-popup
-  `(,@magit-diff-popup-common-keywords
-    :options  ,magit-diff-popup-common-options
-    :switches (,@magit-diff-popup-common-switches
-               (?s "Show stats" "--stat"))
-    :actions  ((?d "Dwim"          magit-diff-dwim)
-               (?u "Diff unstaged" magit-diff-unstaged)
-               (?c "Show commit"   magit-show-commit)
-               (?r "Diff range"    magit-diff-range)
-               (?s "Diff staged"   magit-diff-staged)
-               (?t "Show stash"    magit-stash-show)
-               (?p "Diff paths"    magit-diff-paths)
-               (?w "Diff worktree" magit-diff-working-tree))
-    :default-action magit-diff-dwim
-    :max-action-columns 3))
-
-(defvar magit-diff-refresh-popup
-  `(,@magit-diff-popup-common-keywords
-    :options  ,magit-diff-popup-common-options
-    :switches ,magit-diff-popup-common-switches
-    :actions  ((?g "Refresh"                magit-diff-refresh)
-               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-               (?s "Set defaults"           magit-diff-set-default-arguments)
-               (?F "Toggle file filter"     magit-diff-toggle-file-filter)
-               (?w "Save defaults"          magit-diff-save-default-arguments))
-    :max-action-columns 2))
-
-(defvar magit-diff-mode-refresh-popup
-  `(,@magit-diff-popup-common-keywords
-    :options  ,magit-diff-popup-common-options
-    :switches (,@magit-diff-popup-common-switches
-               (?s "Show stats" "--stat"))
-    :actions  ((?g "Refresh"                magit-diff-refresh)
-               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-               (?s "Set defaults"           magit-diff-set-default-arguments)
-               (?r "Switch range type"      magit-diff-switch-range-type)
-               (?w "Save defaults"          magit-diff-save-default-arguments)
-               (?f "Flip revisions"         magit-diff-flip-revs) nil
-               (?F "Toggle file filter"     magit-diff-toggle-file-filter))
-    :max-action-columns 2))
-
-(defvar magit-revision-mode-refresh-popup
-  `(,@magit-diff-popup-common-keywords
-    :options  ,magit-diff-popup-common-options
-    :switches (,@magit-diff-popup-common-switches
-               (?s "Show stats" "--stat"))
-    :actions  ((?g "Refresh"                magit-diff-refresh)
-               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-               (?s "Set defaults"           magit-diff-set-default-arguments)
-               (?F "Toggle file filter"     magit-diff-toggle-file-filter)
-               (?w "Save defaults"          magit-diff-save-default-arguments))
-    :max-action-columns 2))
-
-(magit-define-popup-keys-deferred 'magit-diff-popup)
-(magit-define-popup-keys-deferred 'magit-diff-refresh-popup)
-(magit-define-popup-keys-deferred 'magit-diff-mode-refresh-popup)
-(magit-define-popup-keys-deferred 'magit-revision-mode-refresh-popup)
+(define-transient-command magit-diff-refresh ()
+  "Change the arguments used for the diff(s) in the current buffer."
+  :man-page "git-diff"
+  :value 'magit-diff-refresh--initial-value
+  ["Switches"
+   ("-f" "Show surrounding functions"     ("-W" "--function-context"))
+   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
+   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
+   ("-x" "Disallow external diff drivers" "--no-ext-diff")
+   ("-s" "Show stats"                     "--stat"
+    :if-derived magit-diff-mode)]
+  ["Options"
+   ("=f" "Limit to files" "-- " magit-read-files)
+   ("=u" "Context lines"  "-U" read-string)
+   ("=m" "Detect renames" "-M" read-string)
+   ("=c" "Detect copies"  "-C" read-string)
+   ("=a" "Diff algorithm" "--diff-algorithm="
+    magit-diff-select-algorithm)
+   ("=i" "Ignore submodules" "--ignore-submodules="
+    magit-diff-select-ignore-submodules)]
+  ["Actions"
+   [("g" "Refresh"                magit-diff-do-refresh)
+    ("s" "Set defaults"           magit-diff-set-default-arguments)
+    ("w" "Save defaults"          magit-diff-save-default-arguments)]
+   [("t" "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+    ("F" "Toggle file filter"     magit-diff-toggle-file-filter)]
+   [:if-mode magit-diff-mode
+    ("r" "Switch range type"      magit-diff-switch-range-type)
+    ("f" "Flip revisions"         magit-diff-flip-revs)]])
 
 (defvar magit-diff-section-file-args nil)
 (put 'magit-diff-section-file-args 'permanent-local t)
@@ -781,45 +792,13 @@ and `:slant'."
          (list (default-value 'magit-diff-arguments) nil))))
 
 (defun magit-diff-arguments (&optional refresh)
-  (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
-         (magit--export-file-args magit-current-popup-args))
-        ((and refresh (not (derived-mode-p 'magit-diff-mode)))
-         (list magit-diff-section-arguments
-               magit-diff-section-file-args))
-        (t
-         (magit-diff-get-buffer-args))))
-
-;;;###autoload
-(defun magit-diff-popup (arg)
-  "Popup console for diff commands."
-  (interactive "P")
-  (let ((magit-diff-arguments (magit-diff--initial-value)))
-    (magit-invoke-popup 'magit-diff-popup nil arg)))
-
-;;;###autoload
-(defun magit-diff-buffer-file-popup ()
-  "Popup console for diff commands.
-
-This is a variant of `magit-diff-popup' which shows the same popup
-but which limits the diff to the file being visited in the current
-buffer."
-  (interactive)
-  (unless (magit-file-relative-name)
-    (user-error "Buffer isn't visiting a file"))
-  (let ((magit-diff-arguments (magit-diff--initial-value)))
-    (magit-invoke-popup 'magit-diff-popup nil nil)))
-
-(defun magit-diff-refresh-popup (arg)
-  "Popup console for changing diff arguments in the current buffer."
-  (interactive "P")
-  (let ((magit-diff-refresh-popup
-         (pcase major-mode
-           (`magit-revision-mode magit-revision-mode-refresh-popup)
-           (`magit-diff-mode     magit-diff-mode-refresh-popup)
-           (_                    magit-diff-refresh-popup)))
-        (magit-diff-arguments
-         (magit-diff-refresh--initial-value)))
-    (magit-invoke-popup 'magit-diff-refresh-popup nil arg)))
+  (if-let ((args (or (transient-args 'magit-diff)
+                     (transient-args 'magit-diff-refresh))))
+      (magit--export-file-args args)
+    (if (and refresh (not (derived-mode-p 'magit-diff-mode)))
+        (list magit-diff-section-arguments
+              magit-diff-section-file-args)
+      (magit-diff-get-buffer-args))))
 
 (defun magit-diff-select-algorithm (&rest _ignore)
   (magit-read-char-case nil t
@@ -1106,7 +1085,7 @@ for a revision."
 
 ;;;; Setting commands
 
-(defun magit-diff-refresh (args files)
+(defun magit-diff-do-refresh (args files)
   "Set the local diff arguments for the current buffer."
   (interactive (magit-diff-arguments t))
   (cond ((derived-mode-p 'magit-diff-mode)
