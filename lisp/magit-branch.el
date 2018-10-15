@@ -184,11 +184,10 @@ Another supported but obsolete value is `github-only'.  It is a
           (const :tag "... but only if remote is on a forge" forge-only)))
 
 (defcustom magit-branch-popup-show-variables t
-  "Whether the `magit-branch-popup' shows Git variables.
-This defaults to t to avoid changing key bindings.  When set to
-nil, no variables are displayed directly in this popup, instead
-the sub-popup `magit-branch-configure' has to be used to view
-and change branch related variables."
+  "Whether the command `magit-branch' shows Git variables.
+When set to nil, no variables are displayed by this transient
+command, instead the sub-transient `magit-branch-configure'
+has to be used to view and change branch related variables."
   :package-version '(magit . "2.7.0")
   :group 'magit-commands
   :type 'boolean)
@@ -199,40 +198,39 @@ and change branch related variables."
   :group 'magit-commands
   :type '(repeat string))
 
-;;; Branch Popup
+;;; Commands
 
-(defvar magit-branch-config-variables)
-
-;;;###autoload (autoload 'magit-branch-popup "magit" nil t)
-(magit-define-popup magit-branch-popup
-  "Popup console for branch commands."
+;;;###autoload (autoload 'magit-branch "magit" nil t)
+(define-transient-command magit-branch (branch)
+  "Add, configure or remove a branch."
   :man-page "git-branch"
-  :variables (lambda ()
-               (and magit-branch-popup-show-variables
-                    magit-branch-config-variables))
-  :actions '((?b "Checkout"              magit-checkout) nil
-             (?C "Configure..."          magit-branch-configure)
-             (?l "Checkout local branch" magit-branch-checkout)
-             (?s "Create new spin-off"   magit-branch-spinoff)
-             (?m "Rename"                magit-branch-rename)
-             (?c "Checkout new branch"   magit-branch-and-checkout)
-             (?n "Create new branch"     magit-branch-create)
-             (?x "Reset"                 magit-branch-reset)
-             (?w "Checkout new worktree" magit-worktree-checkout)
-             (?W "Create new worktree"   magit-worktree-branch)
-             (?k "Delete"                magit-branch-delete))
-  :default-action 'magit-checkout
-  :max-action-columns 3
-  :setup-function 'magit-branch-popup-setup)
+  ["Variables"
+   :if (lambda ()
+         magit-branch-popup-show-variables
+         (oref transient--prefix scope))
+   ("d" magit-branch.<branch>.description)
+   ("u" magit-branch.<branch>.merge/remote)
+   ("r" magit-branch.<branch>.rebase)
+   ("p" magit-branch.<branch>.pushRemote)]
+  [["Checkout"
+    ("l" "local branch"      magit-branch-checkout)
+    ("c" "new branch"        magit-branch-and-checkout)
+    ("w" "new worktree"      magit-worktree-checkout)
+    ("b" "dwim"              magit-checkout)]
+   ["Create"
+    ("s" "new spin-off"      magit-branch-spinoff)
+    ("n" "new branch"        magit-branch-create)
+    ("W" "new worktree"      magit-worktree-branch)]
+   ["Do"
+    ("C" "configure..."      magit-branch-configure)
+    ("m" "rename"            magit-branch-rename)
+    ("x" "reset"             magit-branch-reset)
+    ("k" "delete"            magit-branch-delete)]]
+  (interactive (list (magit-get-current-branch)))
+  (transient-setup 'magit-branch nil nil :scope branch))
 
-(defun magit-branch-popup-setup (val def)
-  (magit-popup-default-setup val def)
-  (use-local-map (copy-keymap magit-popup-mode-map))
-  (dolist (ev (-filter #'magit-popup-event-p (magit-popup-get :variables)))
-    (local-set-key (vector (magit-popup-event-key ev))
-                   'magit-invoke-popup-action)))
-
-;;; Branch Commands
+(defun magit-branch-arguments ()
+  (transient-args 'magit-branch))
 
 ;;;###autoload
 (defun magit-checkout (revision)
