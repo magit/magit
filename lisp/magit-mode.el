@@ -435,7 +435,7 @@ starts complicating other things, then it will be removed."
     (define-key map "q" 'magit-mode-bury-buffer)
     (define-key map "r" 'magit-rebase-popup)
     (define-key map "R" 'magit-file-rename)
-    (define-key map "t" 'magit-tag-popup)
+    (define-key map "t" 'magit-tag)
     (define-key map "T" 'magit-notes-popup)
     (define-key map "s" 'magit-stage-file)
     (define-key map "S" 'magit-stage-modified)
