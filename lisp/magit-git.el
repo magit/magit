@@ -428,6 +428,16 @@ call function WASHER with ARGS as its sole argument."
   `(when-let ((default-directory (magit--safe-default-directory ,file)))
      ,@body))
 
+(defun magit-gitdir (&optional directory)
+  "Return the absolute and resolved path of the .git directory.
+
+If the `GIT_DIR' environment variable is define then return that.
+Otherwise return the .git directory for DIRECTORY, or if that is
+nil, then for `default-directory' instead.  If the directory is
+not located inside a Git repository, then return nil."
+  (let ((default-directory (or directory default-directory)))
+    (magit-git-dir)))
+
 (defun magit-git-dir (&optional path)
   "Return the absolute and resolved path of the .git directory.
 
