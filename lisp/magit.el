@@ -246,7 +246,7 @@ and/or `magit-branch-remote-head'."
              (?t "Tagging"         magit-tag)
              (?T "Notes"           magit-notes)
              (?V "Reverting"       magit-revert)
-             (?w "Apply patches"   magit-am-popup)
+             (?w "Apply patches"   magit-am)
              (?W "Format patches"  magit-patch-popup)
              (?X "Resetting"       magit-reset)
              (?y "Show Refs"       magit-show-refs-popup)

@@ -443,7 +443,7 @@ starts complicating other things, then it will be removed."
     (define-key map "U" 'magit-unstage-all)
     (define-key map "v" 'magit-revert-no-commit)
     (define-key map "V" 'magit-revert)
-    (define-key map "w" 'magit-am-popup)
+    (define-key map "w" 'magit-am)
     (define-key map "W" 'magit-patch-popup)
     (define-key map "x" 'magit-reset-quickly)
     (define-key map "X" 'magit-reset)

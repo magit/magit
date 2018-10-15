@@ -38,7 +38,7 @@
 (require 'magit-wip)
 
 ;; For `magit-apply'
-(declare-function magit-am-popup "magit-sequence" (&optional arg))
+(declare-function magit-am "magit-sequence" ())
 (declare-function magit-patch-apply "magit-files" ())
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage "magit-merge" (file arg))
@@ -129,7 +129,7 @@ so causes the change to be applied to the index as well."
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
       (`(untracked ,(or `file `files))
-       (magit-am-popup))
+       (magit-am))
       (`(,_ region) (magit-apply-region it args))
       (`(,_   hunk) (magit-apply-hunk   it args))
       (`(,_  hunks) (magit-apply-hunks  it args))

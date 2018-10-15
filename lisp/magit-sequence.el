@@ -388,30 +388,36 @@ without prompting."
 
 ;;; Patch
 
-;;;###autoload (autoload 'magit-am-popup "magit-sequence" nil t)
-(magit-define-popup magit-am-popup
-  "Popup console for mailbox commands."
+;;;###autoload (autoload 'magit-am "magit-sequence" nil t)
+(define-transient-command magit-am ()
+  "Apply patches received by email."
   :man-page "git-am"
-  :switches '((?3 "Fall back on 3way merge"           "--3way")
-              (?s "Add Signed-off-by lines"           "--signoff")
-              (?c "Remove text before scissors line"  "--scissors")
-              (?k "Inhibit removal of email cruft"    "--keep")
-              (?b "Limit removal of email cruft"      "--keep-non-patch")
-              (?d "Use author date as committer date"
-                  "--committer-date-is-author-date")
-              (?D "Use committer date as author date" "--ignore-date"))
-  :options  '((?p "Remove leading slashes from paths" "-p"
-                  magit-read-number-string))
-  :actions  '((?m "Apply maildir"     magit-am-apply-maildir)
-              (?w "Apply patches"     magit-am-apply-patches)
-              (?a "Apply plain patch" magit-patch-apply))
-  :default-arguments '("--3way")
-  :default-actions 'magit-am-apply-patches
-  :max-action-columns 1
-  :sequence-actions '((?w "Continue" magit-am-continue)
-                      (?s "Skip"     magit-am-skip)
-                      (?a "Abort"    magit-am-abort))
-  :sequence-predicate 'magit-am-in-progress-p)
+  :value '("--3way")
+  ["Switches"
+   :if-not magit-am-in-progress-p
+   ("-3" "Fall back on 3way merge"           ("-3" "--3way"))
+   ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))
+   ("-c" "Remove text before scissors line"  ("-c" "--scissors"))
+   ("-k" "Inhibit removal of email cruft"    ("-k" "--keep"))
+   ("-b" "Limit removal of email cruft"      "--keep-non-patch")
+   ("-d" "Use author date as committer date" "--committer-date-is-author-date")
+   ("-D" "Use committer date as author date" "--ignore-date")]
+  ["Options"
+   :if-not magit-am-in-progress-p
+   ("=p" "Remove leading slashes from paths" "-p" magit-read-number-string)]
+  ["Apply"
+   :if-not magit-am-in-progress-p
+   ("m" "maildir"     magit-am-apply-maildir)
+   ("w" "patches"     magit-am-apply-patches)
+   ("a" "plain patch" magit-patch-apply)]
+  ["Actions"
+   :if magit-am-in-progress-p
+   ("w" "Continue" magit-am-continue)
+   ("s" "Skip"     magit-am-skip)
+   ("a" "Abort"    magit-am-abort)])
+
+(defun magit-am-arguments ()
+  (transient-args 'magit-am))
 
 ;;;###autoload
 (defun magit-am-apply-patches (&optional files args)

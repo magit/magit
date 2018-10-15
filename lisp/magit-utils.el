@@ -711,7 +711,7 @@ ACTION is a member of option `magit-slow-confirm'."
     (replace-regexp-in-string
      "-" " " (concat (upcase (substring prompt 0 1)) (substring prompt 1)))))
 
-(defun magit-read-number-string (prompt &optional default)
+(defun magit-read-number-string (prompt &optional default _history)
   "Like `read-number' but return value is a string.
 DEFAULT may be a number or a numeric string."
   (number-to-string
