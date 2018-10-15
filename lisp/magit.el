@@ -252,7 +252,7 @@ and/or `magit-branch-remote-head'."
              (?y "Show Refs"       magit-show-refs-popup)
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run)
-             (?% "Worktree"        magit-worktree-popup)
+             (?% "Worktree"        magit-worktree)
              (lambda ()
                (and (with-current-buffer magit-pre-popup-buffer
                       (derived-mode-p 'magit-mode))
