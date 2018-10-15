@@ -249,7 +249,7 @@ and/or `magit-branch-remote-head'."
              (?w "Apply patches"   magit-am)
              (?W "Format patches"  magit-patch)
              (?X "Resetting"       magit-reset)
-             (?y "Show Refs"       magit-show-refs-popup)
+             (?y "Show Refs"       magit-show-refs)
              (?z "Stashing"        magit-stash)
              (?! "Running"         magit-run)
              (?% "Worktree"        magit-worktree)

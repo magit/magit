@@ -447,7 +447,7 @@ starts complicating other things, then it will be removed."
     (define-key map "W" 'magit-patch)
     (define-key map "x" 'magit-reset-quickly)
     (define-key map "X" 'magit-reset)
-    (define-key map "y" 'magit-show-refs-popup)
+    (define-key map "y" 'magit-show-refs)
     (define-key map "Y" 'magit-cherry)
     (define-key map "z" 'magit-stash)
     (define-key map "Z" 'magit-stash)
