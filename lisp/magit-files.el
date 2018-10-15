@@ -221,7 +221,7 @@ directory, while reading the FILENAME."
 (defvar magit-file-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-xg"    'magit-status)
-    (define-key map "\C-x\M-g" 'magit-dispatch-popup)
+    (define-key map "\C-x\M-g" 'magit-dispatch)
     (define-key map "\C-c\M-g" 'magit-file-dispatch)
     map)
   "Keymap for `magit-file-mode'.")

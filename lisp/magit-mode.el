@@ -424,8 +424,8 @@ starts complicating other things, then it will be removed."
     (define-key map "F" 'magit-pull)
     (define-key map "g" 'magit-refresh)
     (define-key map "G" 'magit-refresh-all)
-    (define-key map "h" 'magit-dispatch-popup)
-    (define-key map "?" 'magit-dispatch-popup)
+    (define-key map "h" 'magit-dispatch)
+    (define-key map "?" 'magit-dispatch)
     (define-key map "l" 'magit-log)
     (define-key map "L" 'magit-log-refresh)
     (define-key map "m" 'magit-merge)
@@ -453,7 +453,7 @@ starts complicating other things, then it will be removed."
     (define-key map "Z" 'magit-stash)
     (define-key map ":" 'magit-git-command)
     (define-key map "!" 'magit-run)
-    (define-key map (kbd "C-c C-c") 'magit-dispatch-popup)
+    (define-key map (kbd "C-c C-c") 'magit-dispatch)
     (define-key map (kbd "C-c C-e") 'magit-edit-thing)
     (define-key map (kbd "C-c C-o") 'magit-browse-thing)
     (define-key map (kbd "C-c C-w") 'magit-browse-thing)
@@ -480,9 +480,8 @@ which deletes the thing at point."
 Where applicable, section-specific keymaps bind another command
 which visits the thing at point."
   (interactive)
-  (if (eq magit-current-popup 'magit-dispatch-popup)
-      (progn (setq magit-current-popup nil)
-             (call-interactively (key-binding (this-command-keys))))
+  (if (eq current-transient-command 'magit-dispatch)
+      (call-interactively (key-binding (this-command-keys)))
     (user-error "There is no thing at point that could be visited")))
 
 (defun magit-edit-thing ()
@@ -490,9 +489,8 @@ which visits the thing at point."
 Where applicable, section-specific keymaps bind another command
 which lets you edit the thing at point, likely in another buffer."
   (interactive)
-  (if (eq magit-current-popup 'magit-dispatch-popup)
-      (progn (setq magit-current-popup nil)
-             (call-interactively (key-binding (this-command-keys))))
+  (if (eq current-transient-command 'magit-dispatch)
+      (call-interactively (key-binding (this-command-keys)))
     (user-error "There is no thing at point that could be edited")))
 
 (defun magit-browse-thing ()

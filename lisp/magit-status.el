@@ -322,7 +322,7 @@ Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-section-toggle] to expand or hide the section at point.
 Type \\[magit-visit-thing] to visit the change or commit at point.
 
-Type \\[magit-dispatch-popup] to see available prefix popups.
+Type \\[magit-dispatch] to invoke major commands.
 
 Staging and applying changes is documented in info node
 `(magit)Staging and Unstaging' and info node `(magit)Applying'.

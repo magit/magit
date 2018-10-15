@@ -221,91 +221,53 @@ and/or `magit-branch-remote-head'."
 
 ;;; Dispatch Popup
 
-;;;###autoload (autoload 'magit-dispatch-popup "magit" nil t)
-(magit-define-popup magit-dispatch-popup
-  "Popup console for dispatching other popups."
-  :actions '("Popup and dwim commands"
-             (?A "Cherry-picking"  magit-cherry-pick)
-             (?b "Branching"       magit-branch)
-             (?B "Bisecting"       magit-bisect)
-             (?c "Committing"      magit-commit)
-             (?d "Diffing"         magit-diff)
-             (?D "Change diffs"    magit-diff-refresh)
-             (?e "Ediff dwimming"  magit-ediff-dwim)
-             (?E "Ediffing"        magit-ediff)
-             (?f "Fetching"        magit-fetch)
-             (?F "Pulling"         magit-pull)
-             (?l "Logging"         magit-log)
-             (?L "Change logs"     magit-log-refresh)
-             (?m "Merging"         magit-merge)
-             (?M "Remoting"        magit-remote)
-             (?o "Submodules"      magit-submodule)
-             (?O "Subtrees"        magit-subtree)
-             (?P "Pushing"         magit-push)
-             (?r "Rebasing"        magit-rebase)
-             (?t "Tagging"         magit-tag)
-             (?T "Notes"           magit-notes)
-             (?V "Reverting"       magit-revert)
-             (?w "Apply patches"   magit-am)
-             (?W "Format patches"  magit-patch)
-             (?X "Resetting"       magit-reset)
-             (?y "Show Refs"       magit-show-refs)
-             (?z "Stashing"        magit-stash)
-             (?! "Running"         magit-run)
-             (?% "Worktree"        magit-worktree)
-             (lambda ()
-               (and (with-current-buffer magit-pre-popup-buffer
-                      (derived-mode-p 'magit-mode))
-                    (propertize "Applying changes" 'face 'magit-popup-heading)))
-             (?a "Apply"           magit-apply)
-             (?s "Stage"           magit-stage)
-             (?u "Unstage"         magit-unstage)
-             (?v "Reverse"         magit-reverse)
-             (?S "Stage all"       magit-stage-modified)
-             (?U "Unstage all"     magit-unstage-all)
-             (?k "Discard"         magit-discard)
-             (lambda ()
-               (and (with-current-buffer magit-pre-popup-buffer
-                      (derived-mode-p 'magit-mode))
-                    (propertize "Essential commands" 'face 'magit-popup-heading)))
-             (?g  "    refresh current buffer"   magit-refresh)
-             ;; These bindings only work because of :setup-function.
-             (?\t   "  toggle section at point"  magit-section-toggle)
-             (?\r   "  visit thing at point"     magit-visit-thing)
-             ;; This binding has no effect and only appears to do
-             ;; so because it is identical to the global binding.
-             ("C-h m" "show all key bindings"    describe-mode))
-  :setup-function 'magit-dispatch-popup-setup
-  :max-action-columns (lambda (heading)
-                        (pcase heading
-                          ("Popup and dwim commands" 4)
-                          ("Applying changes" 3)
-                          ("Essential commands" 1))))
-
-(defvar magit-dispatch-popup-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-popup-mode-map)
-    (cond ((featurep 'jkl)
-           (define-key map [tab]    'magit-invoke-popup-action)
-           (define-key map [return] 'magit-invoke-popup-action))
-          (t
-           (define-key map (kbd "C-i") 'magit-invoke-popup-action)
-           (define-key map (kbd "C-m") 'magit-invoke-popup-action)))
-    map)
-  "Keymap used by `magit-dispatch-popup'.")
-
-(defun magit-dispatch-popup-setup (val def)
-  (magit-popup-default-setup val def)
-  (use-local-map magit-dispatch-popup-map)
-  ;; This is necessary for users (i.e. me) who have broken the
-  ;; connection between C-i (aka TAB) and tab, and C-m (aka RET)
-  ;; and return.
-  (magit-popup-put
-   :actions (nconc (magit-popup-get :actions)
-                   (list (make-magit-popup-event :key 'tab
-                                                 :fun 'magit-section-toggle)
-                         (make-magit-popup-event :key 'return
-                                                 :fun 'magit-visit-thing)))))
+;;;###autoload (autoload 'magit-dispatch "magit" nil t)
+(define-transient-command magit-dispatch ()
+  "Invoke a Magit command from a list of available commands."
+  ["Transient and dwim commands"
+   [("A" "Apply"          magit-cherry-pick)
+    ("b" "Branch"         magit-branch)
+    ("B" "Bisect"         magit-bisect)
+    ("c" "Commit"         magit-commit)
+    ("d" "Diff"           magit-diff)
+    ("D" "Diff (change)"  magit-diff-refresh)
+    ("e" "Ediff (dwim)"   magit-ediff-dwim)
+    ("E" "Ediff"          magit-ediff)]
+   [("f" "Fetch"          magit-fetch)
+    ("F" "Pull"           magit-pull)
+    ("l" "Log"            magit-log)
+    ("L" "Log (change)"   magit-log-refresh)
+    ("m" "Merge"          magit-merge)
+    ("M" "Remote"         magit-remote)
+    ("o" "Submodule"      magit-submodule)
+    ("O" "Subtree"        magit-subtree)]
+   [("P" "Push"           magit-push)
+    ("r" "Rebase"         magit-rebase)
+    ("t" "Tag"            magit-tag)
+    ("T" "Note"           magit-notes)
+    ("V" "Revert"         magit-revert)
+    ("w" "Apply patches"  magit-am)
+    ("W" "Format patches" magit-patch)
+    ("X" "Reset"          magit-reset)]
+   [("y" "Show Refs"      magit-show-refs)
+    ("z" "Stash"          magit-stash)
+    ("!" "Run"            magit-run)
+    ("%" "Worktree"       magit-worktree)]]
+  ["Applying changes"
+   :if-derived magit-mode
+   [("a" "Apply"          magit-apply)
+    ("v" "Reverse"        magit-reverse)
+    ("k" "Discard"        magit-discard)]
+   [("s" "Stage"          magit-stage)
+    ("u" "Unstage"        magit-unstage)]
+   [("S" "Stage all"      magit-stage-modified)
+    ("U" "Unstage all"    magit-unstage-all)]]
+  ["Essential commands"
+   :if-derived magit-mode
+   ("g" "       refresh current buffer"   magit-refresh)
+   ("<tab>" "   toggle section at point"  magit-section-toggle)
+   ("<return>" "visit thing at point"     magit-visit-thing)
+   ("C-h m" "   show all key bindings"    describe-mode)])
 
 ;;; Git Popup
 
