@@ -122,34 +122,40 @@ This discards all changes made since the sequence started."
 (defvar magit-perl-executable "perl"
   "The Perl executable.")
 
-;;;###autoload (autoload 'magit-cherry-pick-popup "magit-sequence" nil t)
-(magit-define-popup magit-cherry-pick-popup
-  "Popup console for cherry-pick commands."
+;;;###autoload (autoload 'magit-cherry-pick "magit-sequence" nil t)
+(define-transient-command magit-cherry-pick ()
+  "Apply or transplant commits."
   :man-page "git-cherry-pick"
-  :switches '((?s "Add Signed-off-by lines"            "--signoff")
-              (?e "Edit commit messages"               "--edit")
-              (?x "Reference cherry in commit message" "-x")
-              (?F "Attempt fast-forward"               "--ff"))
-  :options  '((?s "Strategy"                        "--strategy=")
-              (?m "Replay merge relative to parent" "--mainline="))
-  :actions  '("Apply here"
-              (?A "Pick"    magit-cherry-copy)
-              (?a "Apply"   magit-cherry-apply)
-              (?h "Harvest" magit-cherry-harvest)
-              "Apply elsewhere"
-              (?d "Donate"  magit-cherry-donate)
-              (?n "Spinout" magit-cherry-spinout)
-              (?s "Spinoff" magit-cherry-spinoff))
-  :sequence-actions '((?A "Continue" magit-sequencer-continue)
-                      (?s "Skip"     magit-sequencer-skip)
-                      (?a "Abort"    magit-sequencer-abort))
-  :sequence-predicate 'magit-sequencer-in-progress-p
-  :default-arguments '("--ff"))
+  :value '("--ff")
+  ["Switches"
+   :if-not magit-sequencer-in-progress-p
+   ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))
+   ("-e" "Edit commit messages"               ("-e" "--edit"))
+   ("-x" "Reference cherry in commit message" "-x")
+   ("-F" "Attempt fast-forward"               "--ff")]
+  ["Options"
+   :if-not magit-sequencer-in-progress-p
+   ("=s" "Strategy"                        "--strategy=")
+   ("=m" "Replay merge relative to parent" "--mainline=")]
+  [:if-not magit-sequencer-in-progress-p
+   ["Apply here"
+    ("A" "Pick"    magit-cherry-copy)
+    ("a" "Apply"   magit-cherry-apply)
+    ("h" "Harvest" magit-cherry-harvest)]
+   ["Apply elsewhere"
+    ("d" "Donate"  magit-cherry-donate)
+    ("n" "Spinout" magit-cherry-spinout)
+    ("s" "Spinoff" magit-cherry-spinoff)]]
+  ["Actions"
+   :if magit-sequencer-in-progress-p
+   ("A" "Continue" magit-sequencer-continue)
+   ("s" "Skip"     magit-sequencer-skip)
+   ("a" "Abort"    magit-sequencer-abort)])
 
 (defun magit-cherry-pick-read-args (prompt)
   (list (or (nreverse (magit-region-values 'commit))
             (magit-read-other-branch-or-commit prompt))
-        (magit-cherry-pick-arguments)))
+        (transient-args 'magit-cherry-pick)))
 
 (defun magit--cherry-move-read-args (verb away fn)
   (declare (indent defun))
@@ -168,7 +174,7 @@ This discards all changes made since the sequence started."
          (`(t nil) (user-error msg verb "are not"))))
      `(,commits
        ,@(funcall fn commits)
-       ,(magit-cherry-pick-arguments))))
+       ,(transient-args 'magit-cherry-pick))))
 
 (defun magit--cherry-spinoff-read-args (verb)
   (magit--cherry-move-read-args verb t

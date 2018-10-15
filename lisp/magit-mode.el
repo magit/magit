@@ -412,7 +412,7 @@ starts complicating other things, then it will be removed."
     (define-key map "$" 'magit-process-buffer)
     (define-key map "%" 'magit-worktree)
     (define-key map "a" 'magit-cherry-apply)
-    (define-key map "A" 'magit-cherry-pick-popup)
+    (define-key map "A" 'magit-cherry-pick)
     (define-key map "b" 'magit-branch-popup)
     (define-key map "B" 'magit-bisect)
     (define-key map "c" 'magit-commit-popup)

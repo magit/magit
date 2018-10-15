@@ -225,7 +225,7 @@ and/or `magit-branch-remote-head'."
 (magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
   :actions '("Popup and dwim commands"
-             (?A "Cherry-picking"  magit-cherry-pick-popup)
+             (?A "Cherry-picking"  magit-cherry-pick)
              (?b "Branching"       magit-branch-popup)
              (?B "Bisecting"       magit-bisect)
              (?c "Committing"      magit-commit-popup)
