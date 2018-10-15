@@ -36,25 +36,34 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-merge-popup "magit" nil t)
-(magit-define-popup magit-merge-popup
-  "Popup console for merge commands."
+;;;###autoload (autoload 'magit-merge "magit" nil t)
+(define-transient-command magit-merge ()
+  "Merge branches."
   :man-page "git-merge"
-  :switches '((?f "Fast-forward only" "--ff-only")
-              (?n "No fast-forward"   "--no-ff"))
-  :options  '((?s "Strategy" "--strategy="))
-  :actions  '((?m "Merge"                  magit-merge-plain)
-              (?p "Preview merge"          magit-merge-preview)
-              (?e "Merge and edit message" magit-merge-editmsg) nil
-              (?n "Merge but don't commit" magit-merge-nocommit)
-              (?s "Squash merge"           magit-merge-squash)
-              (?a "Absorb"                 magit-merge-absorb)
-              (?i "Merge into"             magit-merge-into))
-  :sequence-actions   '((?m "Commit merge" magit-commit-create)
-                        (?a "Abort merge"  magit-merge-abort))
-  :sequence-predicate 'magit-merge-in-progress-p
-  :default-action 'magit-merge
-  :max-action-columns 2)
+  ["Switches"
+   :if-not magit-merge-in-progress-p
+   ("-f" "Fast-forward only" "--ff-only")
+   ("-n" "No fast-forward"   "--no-ff")]
+  ["Options"
+   :if-not magit-merge-in-progress-p
+   ("=s" "Strategy" "--strategy=")]
+  ["Actions"
+   :if-not magit-merge-in-progress-p
+   [("m" "Merge"                  magit-merge-plain)
+    ("e" "Merge and edit message" magit-merge-editmsg)
+    ("n" "Merge but don't commit" magit-merge-nocommit)
+    ("a" "Absorb"                 magit-merge-absorb)]
+   [("p" "Preview merge"          magit-merge-preview)
+    ?\n
+    ("s" "Squash merge"           magit-merge-squash)
+    ("i" "Merge into"             magit-merge-into)]]
+  ["Actions"
+   :if magit-merge-in-progress-p
+   ("m" "Commit merge" magit-commit-create)
+   ("a" "Abort merge"  magit-merge-abort)])
+
+(defun magit-merge-arguments ()
+  (transient-args 'magit-merge))
 
 ;;;###autoload
 (defun magit-merge-plain (rev &optional args nocommit)
