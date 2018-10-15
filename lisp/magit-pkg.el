@@ -4,5 +4,7 @@
     (async "20180527")
     (dash "20180910")
     (git-commit "20181104")
+    (lv "0")
+    (transient "0")
     (magit-popup "20181003")
     (with-editor "20181103")))
