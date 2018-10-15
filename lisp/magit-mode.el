@@ -421,7 +421,7 @@ starts complicating other things, then it will be removed."
     (define-key map "e" 'magit-ediff-dwim)
     (define-key map "E" 'magit-ediff)
     (define-key map "f" 'magit-fetch)
-    (define-key map "F" 'magit-pull-popup)
+    (define-key map "F" 'magit-pull)
     (define-key map "g" 'magit-refresh)
     (define-key map "G" 'magit-refresh-all)
     (define-key map "h" 'magit-dispatch-popup)
