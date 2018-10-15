@@ -240,7 +240,7 @@ directory, while reading the FILENAME."
    [("L" "Log..."     magit-log-buffer-file-popup)
     ("l" "Log"        magit-log-buffer-file)
     ("t" "Trace"      magit-log-trace-definition)]
-   [("B" "Blame..."   magit-blame-popup)
+   [("B" "Blame..."   magit-blame)
     ("b" "Blame"      magit-blame-addition)
     ("r" "...removal" magit-blame-removal :if-nil buffer-file-name)
     ("f" "...reverse" magit-blame-reverse :if-nil buffer-file-name)]
