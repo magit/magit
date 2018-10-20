@@ -46,7 +46,7 @@ Ignored for Git versions before v2.8.0."
   :man-page "git-fetch"
   :switches '((?p "Prune deleted branches" "--prune"))
   :actions  '("Configure"
-              (?C "variables..."           magit-branch-config-popup)
+              (?C "variables..."           magit-branch-configure)
               "Fetch from"
               (?p magit-get-push-remote    magit-fetch-from-pushremote)
               (?u magit-get-remote         magit-fetch-from-upstream)

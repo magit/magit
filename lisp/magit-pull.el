@@ -39,7 +39,7 @@
                (?r "branch.%s.rebase"
                    magit-cycle-branch*rebase
                    magit-pull-format-branch*rebase)
-               (?C "variables..." magit-branch-config-popup))
+               (?C "variables..." magit-branch-configure))
   :actions '((lambda ()
                (--if-let (magit-get-current-branch)
                    (concat
@@ -84,7 +84,7 @@ missing.  To add them use something like:
                (?r "branch.%s.rebase"
                    magit-cycle-branch*rebase
                    magit-pull-format-branch*rebase)
-               (?C "variables..." magit-branch-config-popup))
+               (?C "variables..." magit-branch-configure))
   :actions '((lambda ()
                (--if-let (magit-get-current-branch)
                    (concat
