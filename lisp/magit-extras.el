@@ -238,67 +238,6 @@ with two prefix arguments remove ignored files only.
 
 (put 'magit-clean 'disabled t)
 
-;;; Gitignore
-
-;;;###autoload (autoload 'magit-gitignore-popup "magit-extras" nil t)
-(magit-define-popup magit-gitignore-popup
-  "Popup console for gitignore commands."
-  :man-page "gitignore"
-  :actions '((?l "ignore locally"  magit-gitignore-locally)
-             (?g "ignore globally" magit-gitignore-globally))
-  :max-action-columns 1)
-
-;;;###autoload
-(defun magit-gitignore-globally (file-or-pattern)
-  "Instruct Git to globally ignore FILE-OR-PATTERN."
-  (interactive (list (magit-gitignore-read-pattern nil)))
-  (magit--gitignore file-or-pattern nil))
-
-;;;###autoload
-(defun magit-gitignore-locally (file-or-pattern)
-  "Instruct Git to locally ignore FILE-OR-PATTERN."
-  (interactive (list (magit-gitignore-read-pattern t)))
-  (magit--gitignore file-or-pattern t))
-
-(defun magit--gitignore (file-or-pattern local)
-  (let ((gitignore
-         (if local
-             (magit-git-dir (convert-standard-filename "info/exclude"))
-           (expand-file-name ".gitignore" (magit-toplevel)))))
-    (make-directory (file-name-directory gitignore) t)
-    (with-temp-buffer
-      (when (file-exists-p gitignore)
-        (insert-file-contents gitignore))
-      (goto-char (point-max))
-      (unless (bolp)
-        (insert "\n"))
-      (insert (replace-regexp-in-string "\\(\\\\*\\)" "\\1\\1" file-or-pattern))
-      (insert "\n")
-      (write-region nil nil gitignore))
-    (if local
-        (magit-refresh)
-      (magit-run-git "add" ".gitignore"))))
-
-(defun magit-gitignore-read-pattern (local)
-  (let* ((default (magit-current-file))
-         (choices
-          (delete-dups
-           (--mapcat
-            (cons (concat "/" it)
-                  (when-let ((ext (file-name-extension it)))
-                    (list (concat "/" (file-name-directory "foo") "*." ext)
-                          (concat "*." ext))))
-            (magit-untracked-files)))))
-    (when default
-      (setq default (concat "/" default))
-      (unless (member default choices)
-        (setq default (concat "*." (file-name-extension default)))
-        (unless (member default choices)
-          (setq default nil))))
-    (magit-completing-read (concat "File or pattern to ignore"
-                                   (and local " locally"))
-                           choices nil nil nil nil default)))
-
 ;;; ChangeLog
 
 ;;;###autoload
