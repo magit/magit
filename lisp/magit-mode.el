@@ -34,7 +34,6 @@
 
 (require 'magit-section)
 (require 'magit-git)
-(require 'magit-popup)
 
 ;; For `magit-display-buffer-fullcolumn-most-v1' from `git-commit'
 (defvar git-commit-mode)

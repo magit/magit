@@ -30,7 +30,6 @@
 
 ;;; Code:
 
-(require 'magit-popup)
 (require 'magit-utils)
 (require 'magit-section)
 (require 'magit-git)

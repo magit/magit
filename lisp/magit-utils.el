@@ -42,6 +42,8 @@
 (require 'dash)
 (require 'subr-x)
 
+(require 'magit-popup)
+
 (require 'crm)
 
 (eval-when-compile (require 'ido))

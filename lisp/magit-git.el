@@ -30,7 +30,6 @@
 (require 'cl-lib)
 (require 'dash)
 
-(require 'magit-popup)
 (require 'magit-utils)
 (require 'magit-section)
 
