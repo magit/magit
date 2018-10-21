@@ -798,7 +798,7 @@ upstream can be changed before pushed to it."
   (--if-let (magit-get-current-branch)
       (progn
         (when upstream
-          (magit-set-branch*merge/remote it upstream))
+          (magit-set-upstream-branch it upstream))
         (if-let ((target (magit-get-upstream-branch it)))
             (magit-git-push it target args)
           (user-error "No upstream is configured for %s" it)))

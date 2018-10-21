@@ -562,7 +562,7 @@ that is being reset."
           (user-error "Abort")
         (magit-reset-hard to)
         (when (and set-upstream (magit-branch-p to))
-          (magit-set-branch*merge/remote branch to)))
+          (magit-set-upstream-branch branch to)))
     (magit-branch-create branch to args)))
 
 ;;;###autoload
@@ -920,14 +920,8 @@ already set.  When nil, then always unset."
    (let ((branch (magit-branch-config-branch "Change upstream of branch")))
      (list branch (and (not (magit-get-upstream-branch branch))
                        (magit-read-upstream-branch branch)))))
-  (if upstream
-      (pcase-let ((`(,remote . ,merge) (magit-split-branch-name upstream)))
-        (setf (magit-get (format "branch.%s.remote" branch)) remote)
-        (setf (magit-get (format "branch.%s.merge"  branch))
-              (concat "refs/heads/" merge)))
-    (magit-call-git "branch" "--unset-upstream" branch))
-  (when (called-interactively-p 'any)
-    (magit-refresh)))
+  (magit-set-upstream-branch branch upstream)
+  (magit-refresh))
 
 (defun magit-format-branch*merge/remote ()
   (let* ((branch (magit-branch-config-branch))

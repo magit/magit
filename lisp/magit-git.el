@@ -1189,6 +1189,14 @@ The amount of time spent searching is limited by
                  ((string-prefix-p "refs/heads/" merge)
                   (concat "refs/remotes/" remote "/" (substring merge 11))))))))
 
+(defun magit-set-upstream-branch (branch upstream)
+  (if upstream
+      (pcase-let ((`(,remote . ,merge) upstream))
+        (setf (magit-get (format "branch.%s.remote" branch)) remote)
+        (setf (magit-get (format "branch.%s.merge"  branch))
+              (concat "refs/heads/" merge)))
+    (magit-call-git "branch" "--unset-upstream" branch)))
+
 (defun magit-get-upstream-branch (&optional branch verify)
   (and (or branch (setq branch (magit-get-current-branch)))
        (when-let ((remote (magit-get "branch" branch "remote"))
