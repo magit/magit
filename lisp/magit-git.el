@@ -1235,9 +1235,13 @@ The amount of time spent searching is limited by
                 (magit-rev-ancestor-p upstream branch)
                 upstream)))))
 
-(defun magit-get-upstream-remote (&optional branch)
-  (and (or branch (setq branch (magit-get-current-branch)))
-       (magit-get "branch" branch "remote")))
+(defun magit-get-upstream-remote (&optional branch non-local)
+  (unless branch
+    (setq branch (magit-get-current-branch)))
+  (and branch
+       (let ((remote (magit-get "branch" branch "remote")))
+         (and (not (and non-local (equal remote ".")))
+              remote))))
 
 (defun magit-get-push-remote (&optional branch)
   (or (and (or branch (setq branch (magit-get-current-branch)))
