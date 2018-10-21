@@ -117,6 +117,7 @@ is asked to pull.  START has to be reachable from that commit."
   (magit-git-insert "request-pull" start url end)
   (set-buffer-modified-p nil))
 
+;;;###autoload (autoload 'magit-patch-apply-popup "magit-patch" nil t)
 (magit-define-popup magit-patch-apply-popup
   "Popup console for applying a patch file."
   :man-page "git-apply"
@@ -126,6 +127,7 @@ is asked to pull.  START has to be reachable from that commit."
   :actions  '((?a "Apply patch" magit-patch-apply))
   :default-action 'magit-patch-apply)
 
+;;;###autoload
 (defun magit-patch-apply (file &rest args)
   "Apply the patch file FILE."
   (interactive (list (expand-file-name
@@ -136,6 +138,7 @@ is asked to pull.  START has to be reachable from that commit."
                      (magit-patch-apply-arguments)))
   (magit-run-git "apply" args "--" (magit-convert-filename-for-git file)))
 
+;;;###autoload
 (defun magit-patch-save (file &optional arg)
   "Write current diff into patch FILE.
 
