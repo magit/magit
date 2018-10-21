@@ -130,7 +130,7 @@ This discards all changes made since the sequence started."
   :options  '((?s "Strategy"                        "--strategy=")
               (?m "Replay merge relative to parent" "--mainline="))
   :actions  '("Apply here"
-              (?A "Pick"    magit-cherry-pick)
+              (?A "Pick"    magit-cherry-copy)
               (?a "Apply"   magit-cherry-apply)
               (?h "Harvest" magit-cherry-harvest)
               "Apply elsewhere"
@@ -174,7 +174,7 @@ This discards all changes made since the sequence started."
                 (format "Create branch from %s cherries" commits))))))
 
 ;;;###autoload
-(defun magit-cherry-pick (commits &optional args)
+(defun magit-cherry-copy (commits &optional args)
   "Copy COMMITS from another branch onto the current branch.
 Prompt for a commit, defaulting to the commit at point.  If
 the region selects multiple commits, then pick all of them,
