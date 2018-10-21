@@ -122,7 +122,7 @@ Also see `git-commit-post-finish-hook'."
                (?S "Sign using gpg"       "--gpg-sign=" magit-read-gpg-secret-key)
                (?C "Reuse commit message" "--reuse-message="
                    magit-read-reuse-message))
-    :actions  ((?c "Commit"         magit-commit)
+    :actions  ((?c "Commit"         magit-commit-create)
                (?e "Extend"         magit-commit-extend)
                (?f "Fixup"          magit-commit-fixup)
                (?F "Instant Fixup"  magit-commit-instant-fixup) nil
@@ -132,7 +132,7 @@ Also see `git-commit-post-finish-hook'."
                (?a "Amend"          magit-commit-amend)
                (?A "Augment"        magit-commit-augment))
     :max-action-columns 4
-    :default-action magit-commit))
+    :default-action magit-commit-create))
 
 (magit-define-popup-keys-deferred 'magit-commit-popup)
 
@@ -168,7 +168,7 @@ Also see `git-commit-post-finish-hook'."
 ;;; Commands
 
 ;;;###autoload
-(defun magit-commit (&optional args)
+(defun magit-commit-create (&optional args)
   "Create a new commit on `HEAD'.
 With a prefix argument, amend to the commit at `HEAD' instead.
 \n(git commit [--amend] ARGS)"
@@ -490,7 +490,7 @@ actually insert the entry."
     (unless log
       (unless (magit-commit-assert nil)
         (user-error "Abort"))
-      (magit-commit)
+      (magit-commit-create)
       (while (not (setq log (magit-commit-message-buffer)))
         (sit-for 0.01)))
     (save-excursion

@@ -45,7 +45,7 @@
               (?s "Squash merge"           magit-merge-squash)
               (?a "Absorb"                 magit-merge-absorb)
               (?i "Merge into"             magit-merge-into))
-  :sequence-actions   '((?m "Commit merge" magit-commit)
+  :sequence-actions   '((?m "Commit merge" magit-commit-create)
                         (?a "Abort merge"  magit-merge-abort))
   :sequence-predicate 'magit-merge-in-progress-p
   :default-action 'magit-merge
