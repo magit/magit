@@ -1253,7 +1253,7 @@ The amount of time spent searching is limited by
                   (push-branch (concat remote "/" branch)))
          (and (or (not verify)
                   (magit-rev-verify push-branch))
-              push-branch))))
+              (propertize push-branch 'face 'magit-branch-remote)))))
 
 (defun magit-get-@{push}-branch (&optional branch)
   (let ((ref (magit-rev-parse "--symbolic-full-name"
