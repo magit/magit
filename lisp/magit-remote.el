@@ -721,7 +721,7 @@ removed after restarting Emacs."
                  magit-push-current-to-upstream)
              (?e "elsewhere\n"       magit-push-current)
              "Push"
-             (?o "another branch"    magit-push)
+             (?o "another branch"    magit-push-other)
              (?T "a tag"             magit-push-tag)
              (?r "explicit refspecs" magit-push-refspecs)
              (?t "all tags"          magit-push-tags)
@@ -829,7 +829,7 @@ upstream can be changed before pushed to it."
   (magit-git-push (magit-get-current-branch) target args))
 
 ;;;###autoload
-(defun magit-push (source target args)
+(defun magit-push-other (source target args)
   "Push an arbitrary branch or commit somewhere.
 Both the source and the target are read in the minibuffer."
   (interactive

@@ -44,6 +44,7 @@
 (define-obsolete-function-alias 'magit-merge 'magit-merge-plain "Magit 2.90.0")
 (define-obsolete-function-alias 'magit-stash 'magit-stash-both "Magit 2.90.0")
 (define-obsolete-function-alias 'magit-snapshot 'magit-snapshot-both "Magit 2.90.0")
+(define-obsolete-function-alias 'magit-push 'magit-push-other "Magit 2.90.0")
 
 ;;; _
 (provide 'magit-obsolete)
