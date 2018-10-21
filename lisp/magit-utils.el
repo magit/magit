@@ -1082,5 +1082,6 @@ Like `message', except that `message-log-max' is bound to nil."
   (let ((message-log-max nil))
     (apply #'message format-string args)))
 
+;;; _
 (provide 'magit-utils)
 ;;; magit-utils.el ends here

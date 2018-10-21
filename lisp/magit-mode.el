@@ -1394,5 +1394,6 @@ repository's Magit buffers."
                    (float-time (time-subtract (current-time) start))))
       (run-hooks hook))))
 
+;;; _
 (provide 'magit-mode)
 ;;; magit-mode.el ends here

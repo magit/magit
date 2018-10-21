@@ -170,5 +170,6 @@ If there is only one worktree, then insert nothing."
               (insert ?\n))))
         (insert ?\n)))))
 
+;;; _
 (provide 'magit-worktree)
 ;;; magit-worktree.el ends here

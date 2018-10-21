@@ -366,5 +366,6 @@ many \"branches\" of each wip ref are shown."
         (cl-decf count))
       (cons wipref (nreverse tips)))))
 
+;;; _
 (provide 'magit-wip)
 ;;; magit-wip.el ends here

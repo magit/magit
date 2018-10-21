@@ -1086,5 +1086,6 @@ When `never' (the default) then the variable is never set."
    '("always" "local" "remote" "never")
    "never" nil 23))
 
+;;; _
 (provide 'magit-branch)
 ;;; magit-branch.el ends here

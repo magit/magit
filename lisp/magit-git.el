@@ -2143,5 +2143,6 @@ the reference is used.  The first regexp submatch becomes the
                                    'magit-popup-option-value))))))
      (propertize "]" 'face 'magit-popup-disabled-argument))))
 
+;;; _
 (provide 'magit-git)
 ;;; magit-git.el ends here

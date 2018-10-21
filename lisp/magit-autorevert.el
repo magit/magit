@@ -256,5 +256,6 @@ located.  If there is no current repository, then return FALLBACK
 (advice-add 'auto-revert-buffers :before
             'auto-revert-buffers--buffer-list-filter)
 
+;;; _
 (provide 'magit-autorevert)
 ;;; magit-autorevert.el ends here

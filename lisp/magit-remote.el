@@ -1050,5 +1050,6 @@ is asked to pull.  START has to be reachable from that commit."
   (magit-git-insert "request-pull" start url end)
   (set-buffer-modified-p nil))
 
+;;; _
 (provide 'magit-remote)
 ;;; magit-remote.el ends here

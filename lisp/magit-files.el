@@ -559,5 +559,6 @@ same differences as those shown in the buffer are always used."
       (magit-git-insert "diff" rev "-p" const args "--" files)))
   (magit-refresh))
 
+;;; _
 (provide 'magit-files)
 ;;; magit-files.el ends here

@@ -121,5 +121,6 @@ or \"detached head\" will be substituted for %s."
     (when (equal cmd "unstage")
       (magit-wip-commit-after-apply nil " after unstage"))))
 
+;;; _
 (provide 'magit-reset)
 ;;; magit-reset.el ends here

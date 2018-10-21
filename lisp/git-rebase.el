@@ -588,5 +588,6 @@ By default, this is the same except for the \"pick\" command."
 
 (add-to-list 'with-editor-file-name-history-exclude git-rebase-filename-regexp)
 
+;;; _
 (provide 'git-rebase)
 ;;; git-rebase.el ends here

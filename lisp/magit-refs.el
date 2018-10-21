@@ -744,5 +744,6 @@ line is inserted at all."
                                (substring line 10)
                                (substring line 0 10)))))
 
+;;; _
 (provide 'magit-refs)
 ;;; magit-refs.el ends here

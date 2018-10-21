@@ -536,5 +536,6 @@ actually insert the entry."
             (insert (format "(%s): \n" defun))
             (backward-char)))))))
 
+;;; _
 (provide 'magit-commit)
 ;;; magit-commit.el ends here

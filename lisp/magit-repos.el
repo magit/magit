@@ -300,5 +300,6 @@ With prefix argument simply read a directory name using
      dict)
     result))
 
+;;; _
 (provide 'magit-repos)
 ;;; magit-repos.el ends here

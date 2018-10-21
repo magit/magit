@@ -237,5 +237,6 @@ beginning of the line."
   (buffer-substring-no-properties (line-beginning-position)
                                   (line-end-position)))
 
+;;; _
 (provide 'magit-imenu)
 ;;; magit-imenu.el ends here

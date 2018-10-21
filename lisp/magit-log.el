@@ -1705,5 +1705,6 @@ all others with \"-\"."
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) "@{upstream}"))))
 
+;;; _
 (provide 'magit-log)
 ;;; magit-log.el ends here

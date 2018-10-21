@@ -212,5 +212,6 @@ bisect run'."
         (magit-insert-section (bisect-item)
           (insert hash " is the first bad commit\n"))))))
 
+;;; _
 (provide 'magit-bisect)
 ;;; magit-bisect.el ends here

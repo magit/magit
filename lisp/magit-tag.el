@@ -128,5 +128,6 @@ the tag popup by default."
    tag)
   (magit-show-refs))
 
+;;; _
 (provide 'magit-tag)
 ;;; magit-tag.el ends here

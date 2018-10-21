@@ -627,5 +627,6 @@ These sections can be expanded to show the respective commits."
   (let ((default-directory worktree))
     (magit-call-git "reset" "--hard" "HEAD")))
 
+;;; _
 (provide 'magit-submodule)
 ;;; magit-submodule.el ends here

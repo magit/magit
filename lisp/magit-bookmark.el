@@ -362,5 +362,6 @@ specifies additional properties to store in the bookmark."
   (magit-bookmark--make-record 'magit-submodule-list-mode
     #'magit-bookmark--submodules-jump))
 
+;;; _
 (provide 'magit-bookmark)
 ;;; magit-bookmark.el ends here

@@ -1448,5 +1448,6 @@ again use `remove-hook'."
                                                magit--current-section-hook)))
         (apply entry args)))))
 
+;;; _
 (provide 'magit-section)
 ;;; magit-section.el ends here

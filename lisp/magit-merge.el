@@ -275,5 +275,6 @@ If no merge is in progress, do nothing."
              (push "--decorate=full" args))
            args))))))
 
+;;; _
 (provide 'magit-merge)
 ;;; magit-merge.el ends here

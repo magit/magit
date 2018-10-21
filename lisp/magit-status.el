@@ -628,5 +628,6 @@ of that variable can be set using \"D = f DIRECTORY RET g\"."
           (setq files (magit-insert-files files dir))))))
   files)
 
+;;; _
 (provide 'magit-status)
 ;;; magit-status.el ends here

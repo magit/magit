@@ -505,5 +505,6 @@ stash that were staged."
 (defun magit-ediff-restore-previous-winconf ()
   (set-window-configuration magit-ediff-previous-winconf))
 
+;;; _
 (provide 'magit-ediff)
 ;;; magit-ediff.el ends here

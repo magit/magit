@@ -169,5 +169,6 @@ exist, then raise an error."
         (user-error "Branch `%s' already exists" branch))
       branch)))
 
+;;; _
 (provide 'magit-collab)
 ;;; magit-collab.el ends here

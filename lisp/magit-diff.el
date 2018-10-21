@@ -2789,5 +2789,6 @@ last (visual) lines of the region."
       (setq patch (buffer-string)))
     patch))
 
+;;; _
 (provide 'magit-diff)
 ;;; magit-diff.el ends here

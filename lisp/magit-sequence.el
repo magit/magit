@@ -907,5 +907,6 @@ If no such sequence is in progress, do nothing."
     (when exec
       (insert (propertize "exec" 'face 'magit-sequence-onto) "\s" exec "\n"))))
 
+;;; _
 (provide 'magit-sequence)
 ;;; magit-sequence.el ends here

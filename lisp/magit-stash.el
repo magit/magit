@@ -488,5 +488,6 @@ that make up the stash."
                                   (magit-git-items "ls-tree" "-z" "--name-only"
                                                    "-r" "--full-tree" rev)))))
 
+;;; _
 (provide 'magit-stash)
 ;;; magit-stash.el ends here

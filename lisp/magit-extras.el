@@ -698,5 +698,6 @@ patch application, a cherry-pick, a revert, or a bisect."
         ((magit-sequencer-in-progress-p) (magit-sequencer-abort))
         ((magit-bisect-in-progress-p)    (magit-bisect-reset))))
 
+;;; _
 (provide 'magit-extras)
 ;;; magit-extras.el ends here

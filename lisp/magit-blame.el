@@ -922,5 +922,6 @@ instead of the hash, like `kill-ring-save' would."
              (let ((magit-display-buffer-noselect t))
                (apply #'magit-show-commit rev (magit-diff-arguments))))))))))
 
+;;; _
 (provide 'magit-blame)
 ;;; magit-blame.el ends here

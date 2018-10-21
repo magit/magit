@@ -236,5 +236,6 @@ English.")
                   date)))
         magit--age-spec)))
 
+;;; _
 (provide 'magit-margin)
 ;;; magit-margin.el ends here

@@ -1115,5 +1115,6 @@ Limited by `magit-process-error-tooltip-max-lines'."
           (setq lines (cons heading lines)))
         (message (mapconcat #'identity lines "\n"))))))
 
+;;; _
 (provide 'magit-process)
 ;;; magit-process.el ends here

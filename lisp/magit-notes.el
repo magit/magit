@@ -197,5 +197,6 @@ Also see `magit-notes-merge'."
                             (magit-notes-arguments))
          (match-string 1 it))))
 
+;;; _
 (provide 'magit-notes)
 ;;; magit-notes.el ends here
