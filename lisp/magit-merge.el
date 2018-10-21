@@ -29,6 +29,8 @@
 
 (require 'magit)
 
+(declare-function magit-git-push "magit-push" (branch target args))
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-merge-popup "magit" nil t)
