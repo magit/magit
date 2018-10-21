@@ -668,6 +668,7 @@ and `:slant'."
 
 (defvar magit-revision-mode-refresh-popup
   `(,@magit-diff-popup-common-keywords
+    :options  ,magit-diff-popup-common-options
     :switches (,@magit-diff-popup-common-switches
                (?s "Show stats" "--stat"))
     :actions  ((?g "Refresh"                magit-diff-refresh)
