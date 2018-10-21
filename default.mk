@@ -78,6 +78,7 @@ ELS += magit-clone.el
 ELS += magit-fetch.el
 ELS += magit-pull.el
 ELS += magit-push.el
+ELS += magit-patch.el
 ELS += magit-bisect.el
 ELS += magit-stash.el
 ELS += magit-blame.el

@@ -45,6 +45,7 @@ magit-clone.elc:	magit.elc
 magit-fetch.elc:	magit.elc
 magit-pull.elc:		magit.elc
 magit-push.elc:		magit.elc
+magit-patch.elc:	magit.elc
 magit-bisect.elc:	magit.elc
 magit-stash.elc:	magit.elc
 magit-blame.elc:	magit.elc
