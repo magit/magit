@@ -409,6 +409,70 @@ call function WASHER with ARGS as its sole argument."
     (if raw it (and (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" it)
                     (match-string 1 it)))))
 
+;;; Variables
+
+(defun magit-config-get-from-cached-list (key)
+  (gethash
+   ;; `git config --list' downcases first and last components of the key.
+   (--> key
+        (replace-regexp-in-string "\\`[^.]+" #'downcase it t t)
+        (replace-regexp-in-string "[^.]+\\'" #'downcase it t t))
+   (magit--with-refresh-cache (cons (magit-toplevel) 'config)
+     (let ((configs (make-hash-table :test 'equal)))
+       (dolist (conf (magit-git-items "config" "--list" "-z"))
+         (let* ((nl-pos (cl-position ?\n conf))
+                (key (substring conf 0 nl-pos))
+                (val (if nl-pos (substring conf (1+ nl-pos)) "")))
+           (puthash key (nconc (gethash key configs) (list val)) configs)))
+       configs))))
+
+(defun magit-get (&rest keys)
+  "Return the value of the Git variable specified by KEYS."
+  (car (last (apply 'magit-get-all keys))))
+
+(defun magit-get-all (&rest keys)
+  "Return all values of the Git variable specified by KEYS."
+  (let ((magit-git-debug nil)
+        (arg (and (or (null (car keys))
+                      (string-prefix-p "--" (car keys)))
+                  (pop keys)))
+        (key (mapconcat 'identity keys ".")))
+    (if (and magit--refresh-cache (not arg))
+        (magit-config-get-from-cached-list key)
+      (magit-git-items "config" arg "-z" "--get-all" key))))
+
+(defun magit-get-boolean (&rest keys)
+  "Return the boolean value of the Git variable specified by KEYS."
+  (let ((key (mapconcat 'identity keys ".")))
+    (if magit--refresh-cache
+        (equal "true" (car (last (magit-config-get-from-cached-list key))))
+      (equal (magit-git-str "config" "--bool" key) "true"))))
+
+(defun magit-set (value &rest keys)
+  "Set the value of the Git variable specified by KEYS to VALUE."
+  (let ((arg (and (or (null (car keys))
+                      (string-prefix-p "--" (car keys)))
+                  (pop keys)))
+        (key (mapconcat 'identity keys ".")))
+    (if value
+        (magit-git-success "config" arg key value)
+      (magit-git-success "config" arg "--unset" key))
+    value))
+
+(gv-define-setter magit-get (val &rest keys)
+  `(magit-set ,val ,@keys))
+
+(defun magit-set-all (values &rest keys)
+  "Set all values of the Git variable specified by KEYS to VALUES."
+  (let ((arg (and (or (null (car keys))
+                      (string-prefix-p "--" (car keys)))
+                  (pop keys)))
+        (var (mapconcat 'identity keys ".")))
+    (when (magit-get var)
+      (magit-call-git "config" arg "--unset-all" var))
+    (dolist (v values)
+      (magit-call-git "config" arg "--add" var v))))
+
 ;;; Files
 
 (defun magit--safe-default-directory (&optional file)
@@ -1998,71 +2062,7 @@ the reference is used.  The first regexp submatch becomes the
         (magit-confirm t nil (format "%s %%i modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
 
-;;; Variables
-
-(defun magit-config-get-from-cached-list (key)
-  (gethash
-   ;; `git config --list' downcases first and last components of the key.
-   (--> key
-        (replace-regexp-in-string "\\`[^.]+" #'downcase it t t)
-        (replace-regexp-in-string "[^.]+\\'" #'downcase it t t))
-   (magit--with-refresh-cache (cons (magit-toplevel) 'config)
-     (let ((configs (make-hash-table :test 'equal)))
-       (dolist (conf (magit-git-items "config" "--list" "-z"))
-         (let* ((nl-pos (cl-position ?\n conf))
-                (key (substring conf 0 nl-pos))
-                (val (if nl-pos (substring conf (1+ nl-pos)) "")))
-           (puthash key (nconc (gethash key configs) (list val)) configs)))
-       configs))))
-
-(defun magit-get (&rest keys)
-  "Return the value of the Git variable specified by KEYS."
-  (car (last (apply 'magit-get-all keys))))
-
-(defun magit-get-all (&rest keys)
-  "Return all values of the Git variable specified by KEYS."
-  (let ((magit-git-debug nil)
-        (arg (and (or (null (car keys))
-                      (string-prefix-p "--" (car keys)))
-                  (pop keys)))
-        (key (mapconcat 'identity keys ".")))
-    (if (and magit--refresh-cache (not arg))
-        (magit-config-get-from-cached-list key)
-      (magit-git-items "config" arg "-z" "--get-all" key))))
-
-(defun magit-get-boolean (&rest keys)
-  "Return the boolean value of the Git variable specified by KEYS."
-  (let ((key (mapconcat 'identity keys ".")))
-    (if magit--refresh-cache
-        (equal "true" (car (last (magit-config-get-from-cached-list key))))
-      (equal (magit-git-str "config" "--bool" key) "true"))))
-
-(defun magit-set (value &rest keys)
-  "Set the value of the Git variable specified by KEYS to VALUE."
-  (let ((arg (and (or (null (car keys))
-                      (string-prefix-p "--" (car keys)))
-                  (pop keys)))
-        (key (mapconcat 'identity keys ".")))
-    (if value
-        (magit-git-success "config" arg key value)
-      (magit-git-success "config" arg "--unset" key))
-    value))
-
-(gv-define-setter magit-get (val &rest keys)
-  `(magit-set ,val ,@keys))
-
-(defun magit-set-all (values &rest keys)
-  "Set all values of the Git variable specified by KEYS to VALUES."
-  (let ((arg (and (or (null (car keys))
-                      (string-prefix-p "--" (car keys)))
-                  (pop keys)))
-        (var (mapconcat 'identity keys ".")))
-    (when (magit-get var)
-      (magit-call-git "config" arg "--unset-all" var))
-    (dolist (v values)
-      (magit-call-git "config" arg "--add" var v))))
-
-;;;; Variables in Popups
+;;; Variables in Popups
 
 (defun magit--format-popup-variable:value (variable width &optional global)
   (concat variable
