@@ -668,11 +668,8 @@ and `:slant'."
 
 (defvar magit-revision-mode-refresh-popup
   `(,@magit-diff-popup-common-keywords
-    :switches ((?f "Show surrounding functions"     "--function-context")
-               (?b "Ignore whitespace changes"      "--ignore-space-change")
-               (?w "Ignore all whitespace"          "--ignore-all-space")
-               (?x "Disallow external diff drivers" "--no-ext-diff")
-               (?s "Show stats"                     "--stat"))
+    :switches (,@magit-diff-popup-common-switches
+               (?s "Show stats" "--stat"))
     :actions  ((?g "Refresh"                magit-diff-refresh)
                (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
                (?s "Set defaults"           magit-diff-set-default-arguments)
