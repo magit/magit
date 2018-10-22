@@ -633,7 +633,7 @@ and `:slant'."
     :actions  ((?d "Dwim"          magit-diff-dwim)
                (?u "Diff unstaged" magit-diff-unstaged)
                (?c "Show commit"   magit-show-commit)
-               (?r "Diff range"    magit-diff)
+               (?r "Diff range"    magit-diff-range)
                (?s "Diff staged"   magit-diff-staged)
                (?t "Show stash"    magit-stash-show)
                (?p "Diff paths"    magit-diff-paths)
@@ -783,12 +783,12 @@ buffer."
            (magit-diff-unmerged args (list file))
          (magit-diff-staged nil args files))))
     (`(commit . ,value)
-     (magit-diff (format "%s^..%s" value value) args files))
+     (magit-diff-range (format "%s^..%s" value value) args files))
     (`(stash  . ,value) (magit-stash-show value args))
     ((and range (pred stringp))
-     (magit-diff range args files))
+     (magit-diff-range range args files))
     (_
-     (call-interactively #'magit-diff))))
+     (call-interactively #'magit-diff-range))))
 
 (defun magit-diff--dwim ()
   "Return information for performing DWIM diff.
@@ -885,7 +885,7 @@ a \"revA...revB\" range.  Otherwise, always construct
   (magit-mode-setup #'magit-diff-mode rev-or-range const args files))
 
 ;;;###autoload
-(defun magit-diff (rev-or-range &optional args files)
+(defun magit-diff-range (rev-or-range &optional args files)
   "Show differences between two commits.
 
 REV-OR-RANGE should be a range or a single revision.  If it is a

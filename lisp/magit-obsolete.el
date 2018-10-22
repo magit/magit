@@ -48,6 +48,7 @@
 (define-obsolete-function-alias 'magit-commit 'magit-commit-create "Magit 2.90.0")
 (define-obsolete-function-alias 'magit-log 'magit-log-other "Magit 2.90.0")
 (define-obsolete-function-alias 'magit-reflog 'magit-reflog-other "Magit 2.90.0")
+(define-obsolete-function-alias 'magit-diff 'magit-diff-range "Magit 2.90.0")
 
 ;;; _
 (provide 'magit-obsolete)
