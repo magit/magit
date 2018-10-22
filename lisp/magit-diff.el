@@ -661,35 +661,6 @@ and `:slant'."
   "Show changes between different versions."
   :man-page "git-diff"
   :value 'magit-diff--initial-value
-  ["Options"
-   ("=f" "Limit to files" "-- " magit-read-files)
-   ("=u" "Context lines"  "-U")
-   ("=m" "Detect renames" "-M")
-   ("=c" "Detect copies"  "-C")
-   ("=a" "Diff algorithm" "--diff-algorithm="
-    magit-diff-select-algorithm)
-   ("=i" "Ignore submodules" "--ignore-submodules="
-    magit-diff-select-ignore-submodules)]
-  ["Switches"
-   ("-f" "Show surrounding functions"     ("-W" "--function-context"))
-   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
-   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
-   ("-x" "Disallow external diff drivers" "--no-ext-diff")
-   ("-s" "Show stats"                     "--stat")]
-  ["Actions"
-   [("d" "Dwim"          magit-diff-dwim)
-    ("r" "Diff range"    magit-diff-range)
-    ("p" "Diff paths"    magit-diff-paths)]
-   [("u" "Diff unstaged" magit-diff-unstaged)
-    ("s" "Diff staged"   magit-diff-staged)
-    ("w" "Diff worktree" magit-diff-working-tree)]
-   [("c" "Show commit"   magit-show-commit)
-    ("t" "Show stash"    magit-stash-show)]])
-
-(define-transient-command magit-diff-buffer-file* ()
-  ""
-  :man-page "git-diff"
-  :value 'magit-diff--initial-value
   ["Switches"
    ("-f" "Show surrounding functions"     ("-W" "--function-context"))
    ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
