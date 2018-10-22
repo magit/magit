@@ -743,24 +743,28 @@ active, restrict the log to the lines that the region touches."
         (goto-char pos)
         (call-interactively #'magit-log-trace-definition)))))
 
-;;;###autoload
-(defun magit-reflog-current ()
-  "Display the reflog of the current branch."
-  (interactive)
-  (magit-reflog (magit-get-current-branch)))
-
-;;;###autoload
-(defun magit-reflog (ref)
-  "Display the reflog of a branch."
-  (interactive (list (magit-read-local-branch-or-ref "Show reflog for")))
+(defun magit-git-reflog (ref args)
   (require 'magit)
-  (magit-mode-setup #'magit-reflog-mode ref magit-reflog-arguments))
+  (magit-mode-setup #'magit-reflog-mode ref args))
 
 ;;;###autoload
-(defun magit-reflog-head ()
+(defun magit-reflog-current (args)
+  "Display the reflog of the current branch."
+  (interactive (list magit-reflog-arguments))
+  (magit-git-reflog (magit-get-current-branch) args))
+
+;;;###autoload
+(defun magit-reflog (ref args)
+  "Display the reflog of a branch."
+  (interactive (list (magit-read-local-branch-or-ref "Show reflog for")
+                     magit-reflog-arguments))
+  (magit-git-reflog ref args))
+
+;;;###autoload
+(defun magit-reflog-head (args)
   "Display the `HEAD' reflog."
-  (interactive)
-  (magit-reflog "HEAD"))
+  (interactive (list magit-reflog-arguments))
+  (magit-git-reflog "HEAD" args))
 
 ;;;; Limit Commands
 
