@@ -613,12 +613,6 @@ and `:slant'."
     (?i "Ignore submodules" "--ignore-submodules="
         magit-diff-select-ignore-submodules)))
 
-(defun magit-diff-select-ignore-submodules (&rest _ignored)
-  (magit-read-char-case "Ignore submodules " t
-    (?u "[u]ntracked" "untracked")
-    (?d "[d]irty"     "dirty")
-    (?a "[a]ll"       "all")))
-
 (defconst magit-diff-popup-common-switches
   '((?f "Show surrounding functions"     "--function-context")
     (?b "Ignore whitespace changes"      "--ignore-space-change")
@@ -766,6 +760,12 @@ buffer."
     (?m "[m]inimal"   "minimal")
     (?p "[p]atience"  "patience")
     (?h "[h]istogram" "histogram")))
+
+(defun magit-diff-select-ignore-submodules (&rest _ignored)
+  (magit-read-char-case "Ignore submodules " t
+    (?u "[u]ntracked" "untracked")
+    (?d "[d]irty"     "dirty")
+    (?a "[a]ll"       "all")))
 
 ;;;; Diff commands
 
