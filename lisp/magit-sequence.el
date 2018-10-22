@@ -385,7 +385,7 @@ without prompting."
                   "--committer-date-is-author-date")
               (?D "Use committer date as author date" "--ignore-date"))
   :options  '((?p "Remove leading slashes from paths" "-p"
-                  magit-popup-read-number))
+                  magit-read-number-string))
   :actions  '((?m "Apply maildir"     magit-am-apply-maildir)
               (?w "Apply patches"     magit-am-apply-patches)
               (?a "Apply plain patch" magit-patch-apply-popup))
