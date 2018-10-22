@@ -119,7 +119,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 ;;;###autoload
 (defun magit-stash-both (message &optional include-untracked)
   "Create a stash of the index and working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-stash-read-args))
@@ -138,7 +138,7 @@ Applying the resulting stash has the inverse effect."
 ;;;###autoload
 (defun magit-stash-worktree (message &optional include-untracked)
   "Create a stash of unstaged changes in the working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-stash-read-args))
@@ -147,7 +147,7 @@ while two prefix arguments are equivalent to `--all'."
 ;;;###autoload
 (defun magit-stash-keep-index (message &optional include-untracked)
   "Create a stash of the index and working tree, keeping index intact.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-stash-read-args))
@@ -174,7 +174,7 @@ while two prefix arguments are equivalent to `--all'."
 ;;;###autoload
 (defun magit-snapshot-both (&optional include-untracked)
   "Create a snapshot of the index and working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-snapshot-read-args))
@@ -190,7 +190,7 @@ Unstaged and untracked changes are not stashed."
 ;;;###autoload
 (defun magit-snapshot-worktree (&optional include-untracked)
   "Create a snapshot of unstaged changes in the working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-snapshot-read-args))

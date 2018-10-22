@@ -23,11 +23,11 @@
 
 ;;; Commentary:
 
-;; This library implements support for branches.  It defines popups
-;; and commands for creating, checking out, manipulating, and
-;; configuring branches.  Commands defined here are mainly concerned
-;; with branches as pointers, commands that deal with what a branch
-;; points at, are defined elsewhere.
+;; This library implements support for branches.  It defines commands
+;; for creating, checking out, manipulating, and configuring branches.
+;; Commands defined here are mainly concerned with branches as
+;; pointers, commands that deal with what a branch points at, are
+;; defined elsewhere.
 
 ;;; Code:
 
