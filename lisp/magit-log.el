@@ -439,11 +439,6 @@ the upstream isn't ahead of the current branch) show."
 (magit-define-popup-keys-deferred 'magit-log-mode-refresh-popup)
 (magit-define-popup-keys-deferred 'magit-log-refresh-popup)
 
-(defun magit-read-file-trace (&rest _ignored)
-  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
-        (trace (magit-read-string "Trace")))
-    (concat trace (or (match-string 2 trace) ":") file)))
-
 (defun magit-log-select-order (&rest _ignored)
   "Set one `--<value>-order' option in Git log.
 This encompasses the options `--author-date-order',
@@ -535,6 +530,11 @@ buffer."
                (t
                 magit-log-section-arguments))))
     (magit-invoke-popup 'magit-log-refresh-popup nil arg)))
+
+(defun magit-read-file-trace (&rest _ignored)
+  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
+        (trace (magit-read-string "Trace")))
+    (concat trace (or (match-string 2 trace) ":") file)))
 
 ;;;; Refresh Commands
 
