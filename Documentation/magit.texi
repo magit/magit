@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-308-g728052be4+1)
+@subtitle for version 2.13.0 (2.13.0-333-ge9104e3f8+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-308-g728052be4+1).
+This manual is for Magit version 2.13.0 (2.13.0-333-ge9104e3f8+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -3056,8 +3056,8 @@ prefix argument, show log for one or more revs read from the
 minibuffer.
 
 @kindex l o
-@cindex magit-log
-@item @kbd{l o} @tie{}@tie{}@tie{}@tie{}(@code{magit-log})
+@cindex magit-log-other
+@item @kbd{l o} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-other})
 
 Show log for one or more revs read from the minibuffer.  The user
 can input any revision or revisions separated by a space, or even
@@ -3456,7 +3456,7 @@ Display the reflog of the current branch.
 @cindex magit-reflog-other
 @item @kbd{l O} @tie{}@tie{}@tie{}@tie{}(@code{magit-reflog-other})
 
-Display the reflog of a branch.
+Display the reflog of a branch or another ref.
 
 @kindex l H
 @cindex magit-reflog-head
@@ -3605,8 +3605,8 @@ the appropriate infix arguments in a popup buffer.
 Show changes for the thing at point.
 
 @kindex d r
-@cindex magit-diff
-@item @kbd{d r} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff})
+@cindex magit-diff-range
+@item @kbd{d r} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-range})
 
 Show differences between two commits.
 
@@ -5199,8 +5199,8 @@ This prefix command shows the following suffix commands along with
 the appropriate infix arguments in a popup buffer.
 
 @kindex c c
-@cindex magit-commit
-@item @kbd{c c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit})
+@cindex magit-commit-create
+@item @kbd{c c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-create})
 
 Create a new commit on @code{HEAD}.  With a prefix argument amend to the
 commit at @code{HEAD} instead.
@@ -7139,8 +7139,8 @@ features the following commands.
 
 @table @asis
 @kindex A A
-@cindex magit-cherry-pick
-@item @kbd{A A} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-pick})
+@cindex magit-cherry-copy
+@item @kbd{A A} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-copy})
 
 This command copies COMMITS from another branch onto the current
 branch.  If the region selects multiple commits, then those are
@@ -7935,8 +7935,8 @@ push-remote can be changed before pushed to it.
 Push the current branch to a branch read in the minibuffer.
 
 @kindex P o
-@cindex magit-push
-@item @kbd{P o} @tie{}@tie{}@tie{}@tie{}(@code{magit-push})
+@cindex magit-push-other
+@item @kbd{P o} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-other})
 
 Push an arbitrary branch or commit somewhere.  Both the source and
 the target are read in the minibuffer.

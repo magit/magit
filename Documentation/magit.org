@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-308-g728052be4+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-333-ge9104e3f8+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-308-g728052be4+1).
+This manual is for Magit version 2.13.0 (2.13.0-333-ge9104e3f8+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -2278,7 +2278,7 @@ The log popup also features several reflog commands.  See [[*Reflog]].
   prefix argument, show log for one or more revs read from the
   minibuffer.
 
-- Key: l o, magit-log
+- Key: l o, magit-log-other
 
   Show log for one or more revs read from the minibuffer.  The user
   can input any revision or revisions separated by a space, or even
@@ -2560,7 +2560,7 @@ These reflog commands are available from the log popup.  See [[*Logging]].
 
 - Key: l O, magit-reflog-other
 
-  Display the reflog of a branch.
+  Display the reflog of a branch or another ref.
 
 - Key: l H, magit-reflog-head
 
@@ -2648,7 +2648,7 @@ Also see [[man:git-diff]]
 
   Show changes for the thing at point.
 
-- Key: d r, magit-diff
+- Key: d r, magit-diff-range
 
   Show differences between two commits.
 
@@ -3806,7 +3806,7 @@ Also see [[man:git-commit]]
   This prefix command shows the following suffix commands along with
   the appropriate infix arguments in a popup buffer.
 
-- Key: c c, magit-commit
+- Key: c c, magit-commit-create
 
   Create a new commit on ~HEAD~.  With a prefix argument amend to the
   commit at ~HEAD~ instead.
@@ -5307,7 +5307,7 @@ Also see [[man:git-cherry-pick]]
 When no cherry-pick or revert is in progress, then the popup buffer
 features the following commands.
 
-- Key: A A, magit-cherry-pick
+- Key: A A, magit-cherry-copy
 
   This command copies COMMITS from another branch onto the current
   branch.  If the region selects multiple commits, then those are
@@ -5833,7 +5833,7 @@ Also see [[man:git-push]]
 
   Push the current branch to a branch read in the minibuffer.
 
-- Key: P o, magit-push
+- Key: P o, magit-push-other
 
   Push an arbitrary branch or commit somewhere.  Both the source and
   the target are read in the minibuffer.
