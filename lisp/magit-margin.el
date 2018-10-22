@@ -36,6 +36,7 @@
   (require 'subr-x))
 
 (require 'magit-section)
+(require 'magit-transient)
 (require 'magit-mode)
 
 (defgroup magit-margin nil

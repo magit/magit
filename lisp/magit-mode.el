@@ -35,6 +35,8 @@
 (eval-when-compile
   (require 'subr-x))
 
+(require 'transient)
+
 (require 'magit-section)
 (require 'magit-git)
 

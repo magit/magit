@@ -17,9 +17,11 @@ magit-mode.elc:		magit-section.elc magit-git.elc
 magit-margin.elc:	magit-section.elc magit-mode.elc
 magit-process.elc:	magit-utils.elc magit-section.elc \
 			magit-git.elc magit-mode.elc
+magit-transient.elc:	magit-git.elc magit-mode.elc magit-process.elc
 magit-autorevert.elc:	magit-git.elc magit-process.elc
 magit-core.elc:		magit-margin.elc magit-utils.elc \
-			magit-section.elc magit-git.elc magit-mode.elc \
+			magit-section.elc magit-git.elc \
+			magit-transient.elc magit-mode.elc \
 			magit-process.elc magit-autorevert.elc
 magit-diff.elc:		git-commit.elc magit-core.elc
 magit-log.elc:		magit-core.elc magit-diff.elc

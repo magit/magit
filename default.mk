@@ -46,6 +46,7 @@ PDFFILES  = $(addsuffix .pdf,$(filter-out git-commit,$(PACKAGES)))
 EPUBFILES = $(addsuffix .epub,$(filter-out git-commit,$(PACKAGES)))
 
 ELS  = git-commit.el
+ELS += magit-transient.el
 ELS += magit-utils.el
 ELS += magit-section.el
 ELS += magit-git.el
