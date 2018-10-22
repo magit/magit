@@ -379,7 +379,7 @@ the upstream isn't ahead of the current branch) show."
                (?r "Reflog current"          magit-reflog-current)
                (?o "Log other"               magit-log-other)
                (?b "Log all branches"        magit-log-all-branches)
-               (?O "Reflog other"            magit-reflog)
+               (?O "Reflog other"            magit-reflog-other)
                (?h "Log HEAD"                magit-log-head)
                (?a "Log all references"      magit-log-all)
                (?H "Reflog HEAD"             magit-reflog-head))
@@ -754,8 +754,8 @@ active, restrict the log to the lines that the region touches."
   (magit-git-reflog (magit-get-current-branch) args))
 
 ;;;###autoload
-(defun magit-reflog (ref args)
-  "Display the reflog of a branch."
+(defun magit-reflog-other (ref args)
+  "Display the reflog of a branch or another ref."
   (interactive (list (magit-read-local-branch-or-ref "Show reflog for")
                      magit-reflog-arguments))
   (magit-git-reflog ref args))
