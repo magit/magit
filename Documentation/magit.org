@@ -165,10 +165,10 @@ Now see [[*Post-Installation Tasks]].
 
 ** Installing from the Git Repository
 
-Magit depends on the ~dash~, ~lv~, ~magit-popup~, ~transient~ and ~with-editor~
-libraries which are available from Melpa and Melpa-Stable.  Install
-them using ~M-x package-install RET <package> RET~.  Of course you may
-also install them manually from their repository.
+Magit depends on the ~dash~, ~lv~, ~transient~ and ~with-editor~ libraries
+which are available from Melpa and Melpa-Stable.  Install them using
+~M-x package-install RET <package> RET~.  Of course you may also install
+them manually from their repository.
 
 Then clone the Magit repository:
 
@@ -183,17 +183,15 @@ Then compile the libraries and generate the info manuals:
   $ make
 #+END_SRC
 
-If you haven't installed ~dash~, ~lv~, ~magit-popup~, ~transient~ and
-~with-editor~ from Melpa or at ~/path/to/magit/../<package>~, then you
-have to tell ~make~ where to find them.  To do so create the file
-~/path/to/magit/config.mk~ with the following content before running
-~make~:
+If you haven't installed ~dash~, ~lv~, ~transient~ and ~with-editor~ from
+Melpa or at ~/path/to/magit/../<package>~, then you have to tell ~make~
+where to find them.  To do so create the file ~/path/to/magit/config.mk~
+with the following content before running ~make~:
 
 #+BEGIN_SRC makefile
   LOAD_PATH  = -L /path/to/magit/lisp
   LOAD_PATH += -L /path/to/dash
   LOAD_PATH += -L /path/to/hydra
-  LOAD_PATH += -L /path/to/magit-popup
   LOAD_PATH += -L /path/to/transient
   LOAD_PATH += -L /path/to/with-editor
 #+END_SRC
@@ -1203,21 +1201,17 @@ certain type of sections.  As you can see there are not many of those.
   Whether to append the number of children to section headings.  This
   only affects sections that could benefit from this information.
 
-** Popup Buffers and Prefix Commands
+** Transient Commands
 
-Many Magit commands are implemented using *popup buffers*.  First the
-user invokes a *popup* or *prefix* command, which causes a popup buffer
-with the available *infix* arguments and *suffix* commands to be
-displayed.  The user then optionally toggles/sets some arguments and
-finally invokes one of the suffix commands.
+Many Magit commands are implemented as *transient* commands.  First the
+user invokes a *prefix* command, which causes its *infix* arguments and
+*suffix* commands to be displayed in the echo area.  The user then
+optionally sets some infix arguments and finally invokes one of the
+suffix commands.
 
-This is implemented in the library ~magit-popup~.  Earlier releases used
-the library ~magit-key-mode~.  A future release will switch to a
-yet-to-be-written successor, which will likely be named ~transient~.
-
-Because ~magit-popup~ can also be used by other packages without having
-to depend on all of Magit, it is documented in its own manual.  See
-[[info:magit-popup]].
+This is implemented in the library ~~transient~.  Earlier Magit releases
+used the package ~magit-popup~ and even earlier versions library
+~magit-key-mode~.
 
 - Key: C-c C-c, magit-dispatch-popup
 
@@ -7031,9 +7025,8 @@ abstractions to extend Magit itself or implement a separate extension.
 
 A few of the low-level features used by Magit have been factored out
 into separate libraries/packages, so that they can be used by other
-packages, without having to depend on Magit.  These libraries are
-described in separate manuals, see [[info:with-editor]] and
-[[info:magit-popup]].
+packages, without having to depend on Magit.  See [[info:with-editor]] for
+information about ~with-editor~.  ~transient~ doesn't have a manual yet.
 
 If you are trying to find an unused key that you can bind to a
 command provided by your own Magit extension, then checkout

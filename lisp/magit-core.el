@@ -102,8 +102,6 @@ are enabled by default by the popup `magit-NAME-popup'."
   "Extensions to Magit."
   :group 'magit)
 
-(custom-add-to-group 'magit-modes   'magit-popup       'custom-group)
-(custom-add-to-group 'magit-faces   'magit-popup-faces 'custom-group)
 (custom-add-to-group 'magit-modes   'git-commit        'custom-group)
 (custom-add-to-group 'magit-faces   'git-commit-faces  'custom-group)
 (custom-add-to-group 'magit-modes   'git-rebase        'custom-group)
