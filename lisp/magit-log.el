@@ -609,6 +609,11 @@ buffer."
                                          magit-log-read-revs-map)
          "[, ]" t))))
 
+(defun magit-git-log (revs args files)
+  (require 'magit)
+  (magit-mode-setup #'magit-log-mode revs args files)
+  (magit-log-goto-same-commit))
+
 ;;;###autoload
 (defun magit-log-current (revs &optional args files)
   "Show log for the current branch.
@@ -616,7 +621,7 @@ When `HEAD' is detached or with a prefix argument show log for
 one or more revs read from the minibuffer."
   (interactive (cons (magit-log-read-revs t)
                      (magit-log-arguments)))
-  (magit-log revs args files))
+  (magit-git-log revs args files))
 
 ;;;###autoload
 (defun magit-log (revs &optional args files)
@@ -627,21 +632,19 @@ representation of the commit at point, are available as
 completion candidates."
   (interactive (cons (magit-log-read-revs)
                      (magit-log-arguments)))
-  (require 'magit)
-  (magit-mode-setup #'magit-log-mode revs args files)
-  (magit-log-goto-same-commit))
+  (magit-git-log revs args files))
 
 ;;;###autoload
 (defun magit-log-head (&optional args files)
   "Show log for `HEAD'."
   (interactive (magit-log-arguments))
-  (magit-log (list "HEAD") args files))
+  (magit-git-log (list "HEAD") args files))
 
 ;;;###autoload
 (defun magit-log-branches (&optional args files)
   "Show log for all local branches and `HEAD'."
   (interactive (magit-log-arguments))
-  (magit-log (if (magit-get-current-branch)
+  (magit-git-log (if (magit-get-current-branch)
                  (list "--branches")
                (list "HEAD" "--branches"))
              args files))
@@ -650,19 +653,19 @@ completion candidates."
 (defun magit-log-all-branches (&optional args files)
   "Show log for all local and remote branches and `HEAD'."
   (interactive (magit-log-arguments))
-  (magit-log (if (magit-get-current-branch)
-                 (list "--branches" "--remotes")
-               (list "HEAD" "--branches" "--remotes"))
-             args files))
+  (magit-git-log (if (magit-get-current-branch)
+                     (list "--branches" "--remotes")
+                   (list "HEAD" "--branches" "--remotes"))
+                 args files))
 
 ;;;###autoload
 (defun magit-log-all (&optional args files)
   "Show log for all references and `HEAD'."
   (interactive (magit-log-arguments))
-  (magit-log (if (magit-get-current-branch)
-                 (list "--all")
-               (list "HEAD" "--all"))
-             args files))
+  (magit-git-log (if (magit-get-current-branch)
+                     (list "--all")
+                   (list "HEAD" "--all"))
+                 args files))
 
 ;;;###autoload
 (defun magit-log-buffer-file (&optional follow beg end)
