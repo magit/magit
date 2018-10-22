@@ -377,7 +377,7 @@ the upstream isn't ahead of the current branch) show."
     :actions  ((?l "Log current"             magit-log-current)
                (?L "Log local branches"      magit-log-branches)
                (?r "Reflog current"          magit-reflog-current)
-               (?o "Log other"               magit-log)
+               (?o "Log other"               magit-log-other)
                (?b "Log all branches"        magit-log-all-branches)
                (?O "Reflog other"            magit-reflog)
                (?h "Log HEAD"                magit-log-head)
@@ -624,7 +624,7 @@ one or more revs read from the minibuffer."
   (magit-git-log revs args files))
 
 ;;;###autoload
-(defun magit-log (revs &optional args files)
+(defun magit-log-other (revs &optional args files)
   "Show log for one or more revs read from the minibuffer.
 The user can input any revision or revisions separated by a
 space, or even ranges, but only branches and tags, and a

@@ -134,7 +134,7 @@ specifies additional properties to store in the bookmark."
 ;;;###autoload
 (defun magit-bookmark--log-jump (bookmark)
   "Handle a Magit log BOOKMARK."
-  (magit-bookmark--jump bookmark #'magit-log
+  (magit-bookmark--jump bookmark #'magit-log-other
     (bookmark-prop-get bookmark 'magit-revs)
     (bookmark-prop-get bookmark 'magit-args)
     (bookmark-prop-get bookmark 'magit-files)))
