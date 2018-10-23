@@ -69,12 +69,12 @@
                   magit-diff-select-algorithm)
               (?o "Output directory" "--output-directory=")
               (?F "Limit to files"   "-- " magit-read-files))
-  :actions  '((?p "Format patches"   magit-format-patch)
+  :actions  '((?p "Format patches"   magit-patch-create)
               (?r "Request pull"     magit-request-pull))
-  :default-action 'magit-format-patch)
+  :default-action 'magit-patch-create)
 
 ;;;###autoload
-(defun magit-format-patch (range args files)
+(defun magit-patch-create (range args files)
   "Create patches for the commits in RANGE.
 When a single commit is given for RANGE, create a patch for the
 changes introduced by that commit (unlike 'git format-patch'
@@ -99,26 +99,6 @@ which creates patches for all commits that are reachable from
                          (expand-file-name (match-string 1 it) topdir))
                     args)
             topdir))))))
-
-;;;###autoload
-(defun magit-request-pull (url start end)
-  "Request upstream to pull from you public repository.
-
-URL is the url of your publically accessible repository.
-START is a commit that already is in the upstream repository.
-END is the last commit, usually a branch name, which upstream
-is asked to pull.  START has to be reachable from that commit."
-  (interactive
-   (list (magit-get "remote" (magit-read-remote "Remote") "url")
-         (magit-read-branch-or-commit "Start" (magit-get-upstream-branch))
-         (magit-read-branch-or-commit "End")))
-  (let ((dir default-directory))
-    ;; mu4e changes default-directory
-    (compose-mail)
-    (setq default-directory dir))
-  (message-goto-body)
-  (magit-git-insert "request-pull" start url end)
-  (set-buffer-modified-p nil))
 
 ;;;###autoload (autoload 'magit-patch-apply-popup "magit-patch" nil t)
 (magit-define-popup magit-patch-apply-popup
@@ -182,6 +162,26 @@ same differences as those shown in the buffer are always used."
     (with-temp-file file
       (magit-git-insert "diff" rev "-p" const args "--" files)))
   (magit-refresh))
+
+;;;###autoload
+(defun magit-request-pull (url start end)
+  "Request upstream to pull from you public repository.
+
+URL is the url of your publically accessible repository.
+START is a commit that already is in the upstream repository.
+END is the last commit, usually a branch name, which upstream
+is asked to pull.  START has to be reachable from that commit."
+  (interactive
+   (list (magit-get "remote" (magit-read-remote "Remote") "url")
+         (magit-read-branch-or-commit "Start" (magit-get-upstream-branch))
+         (magit-read-branch-or-commit "End")))
+  (let ((dir default-directory))
+    ;; mu4e changes default-directory
+    (compose-mail)
+    (setq default-directory dir))
+  (message-goto-body)
+  (magit-git-insert "request-pull" start url end)
+  (set-buffer-modified-p nil))
 
 ;;; _
 (provide 'magit-patch)
