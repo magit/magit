@@ -50,7 +50,20 @@
 
 ;;;###autoload (autoload 'magit-patch "magit-patch" nil t)
 (define-transient-command magit-patch ()
-  "Create patches."
+  "Create or apply patches."
+  ["Actions"
+   ("c"  "Create patches"     magit-patch-create)
+   ("a"  "Apply patch"        magit-patch-apply)
+   ("s"  "Save diff as patch" magit-patch-save)
+   ("r"  "Request pull"       magit-request-pull)])
+
+;;;###autoload (autoload 'magit-patch-create "magit-patch" nil t)
+(define-transient-command magit-patch-create (range args files)
+  "Create patches for the commits in RANGE.
+When a single commit is given for RANGE, create a patch for the
+changes introduced by that commit (unlike 'git format-patch'
+which creates patches for all commits that are reachable from
+`HEAD' but not from the specified commit)."
   :man-page "git-format-patch"
   ["Switches for formatting patches"
    ("-l" "Add cover letter" "--cover-letter")]
@@ -69,35 +82,30 @@
    ("=o" "Output directory" "--output-directory=")
    ("=F" "Limit to files"   "-- " magit-read-files)]
   ["Actions"
-   ("p"  "Format patches"   magit-patch-create)
-   ("r"  "Request pull"     magit-request-pull)])
-
-;;;###autoload
-(defun magit-patch-create (range args files)
-  "Create patches for the commits in RANGE.
-When a single commit is given for RANGE, create a patch for the
-changes introduced by that commit (unlike 'git format-patch'
-which creates patches for all commits that are reachable from
-`HEAD' but not from the specified commit)."
+   ("c" "Create patches" magit-patch-create)]
   (interactive
-   (cons (if-let ((revs (magit-region-values 'commit t)))
-             (concat (car (last revs)) "^.." (car revs))
-           (let ((range (magit-read-range-or-commit
-                         "Format range or commit")))
-             (if (string-match-p "\\.\\." range)
-                 range
-               (format "%s~..%s" range range))))
-         (magit--export-file-args (transient-args 'magit-patch))))
-  (magit-run-git "format-patch" range args "--" files)
-  (when (member "--cover-letter" args)
-    (find-file
-     (expand-file-name
-      "0000-cover-letter.patch"
-      (let ((topdir (magit-toplevel)))
-        (or (--some (and (string-match "--output-directory=\\(.+\\)" it)
-                         (expand-file-name (match-string 1 it) topdir))
-                    args)
-            topdir))))))
+   (if (not (eq current-transient-command 'magit-patch-create))
+       (list nil nil nil)
+     (cons (if-let ((revs (magit-region-values 'commit t)))
+               (concat (car (last revs)) "^.." (car revs))
+             (let ((range (magit-read-range-or-commit
+                           "Format range or commit")))
+               (if (string-match-p "\\.\\." range)
+                   range
+                 (format "%s~..%s" range range))))
+           (magit--export-file-args (transient-args 'magit-patch-create)))))
+  (if (not range)
+      (transient-setup 'magit-patch-create)
+    (magit-run-git "format-patch" range args "--" files)
+    (when (member "--cover-letter" args)
+      (find-file
+       (expand-file-name
+        "0000-cover-letter.patch"
+        (let ((topdir (magit-toplevel)))
+          (or (--some (and (string-match "--output-directory=\\(.+\\)" it)
+                           (expand-file-name (match-string 1 it) topdir))
+                      args)
+              topdir)))))))
 
 ;;;###autoload (autoload 'magit-patch-apply "magit-patch" nil t)
 (define-transient-command magit-patch-apply (file &rest args)
