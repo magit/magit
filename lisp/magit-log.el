@@ -979,7 +979,7 @@ Do not add this to a hook variable."
 
 (defconst magit-log-heading-re
   (concat "^"
-          "\\(?4:[-_/|\\*o. ]*\\)"                 ; graph
+          "\\(?4:[-_/|\\*o<>. ]*\\)"               ; graph
           "\\(?1:[0-9a-fA-F]+\\)"                  ; sha1
           "\\(?3:[^\0\n]+)\\)?\0"                  ; refs
           "\\(?7:[BGUXYREN]\\)?\0"                 ; gpg
@@ -1003,7 +1003,7 @@ Do not add this to a hook variable."
 
 (defconst magit-log-bisect-vis-re
   (concat "^"
-          "\\(?4:[-_/|\\*o. ]*\\)"                 ; graph
+          "\\(?4:[-_/|\\*o<>. ]*\\)"               ; graph
           "\\(?1:[0-9a-fA-F]+\\)"                  ; sha1
           "\\(?3:[^\0\n]+)\\)?\0"                  ; refs
           "\\(?2:.*\\)$"))                         ; msg
@@ -1193,7 +1193,7 @@ Do not add this to a hook variable."
               ;; separator line.
               (save-excursion
                 (forward-line -1)
-                (looking-at "[-_/|\\*o. ]*"))
+                (looking-at "[-_/|\\*o<>. ]*"))
               (setq graph (match-string 0))
               (unless (string-match-p "[/\\]" graph)
                 (insert graph ?\n))))))))
