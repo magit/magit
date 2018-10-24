@@ -648,9 +648,10 @@ so causes the change to be applied to the index as well."
                  (--separate (member (oref it value) bs)
                              sections))))
     (magit-confirm-files 'reverse (--map (oref it value) sections))
-    (if (= (length sections) 1)
-        (magit-reverse-apply (car sections) 'magit-apply-diff args)
-      (magit-reverse-apply sections 'magit-apply-diffs args))
+    (cond ((= (length sections) 1)
+           (magit-reverse-apply (car sections) 'magit-apply-diff args))
+          (sections
+           (magit-reverse-apply sections 'magit-apply-diffs args)))
     (when binaries
       (user-error "Cannot reverse binary files"))))
 
