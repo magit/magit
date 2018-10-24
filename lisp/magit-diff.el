@@ -351,21 +351,25 @@ still visit the commit at point using \"RET\"."
 (defcustom magit-revision-show-gravatars nil
   "Whether to show gravatar images in revision buffers.
 
-If non-nil, then the value has to be a cons-cell which specifies
-where the gravatar images for the author and/or the committer are
-inserted inside the text that was previously inserted according
-to `magit-revision-header-format'.
+If nil, then don't insert any gravatar images.  If t, then insert
+both images.  If `author' or `committer', then insert only the
+respective image.
 
-Both cells are regular expressions.  The car specifies where to
-insert the author gravatar image.  The top half of the image is
-inserted right after the matched text, the bottom half on the
-next line at the same offset.  The cdr specifies where to insert
-the committer image, accordingly.  Either the car or the cdr may
-be nil."
+If you have customized the option `magit-revision-header-format'
+and want to insert the images then you might also have to specify
+where to do so.  In that case the value has to be a cons-cell of
+two regular expressions.  The car specifies where to insert the
+author's image.  The top half of the image is inserted right
+after the matched text, the bottom half on the next line in the
+same column.  The cdr specifies where to insert the committer's
+image, accordingly.  Either the car or the cdr may be nil."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
   :type '(choice (const :tag "Don't show gravatars" nil)
-                 (cons  :tag "Show gravatars"
+                 (const :tag "Show gravatars" t)
+                 (const :tag "Show author gravatar" author)
+                 (const :tag "Show committer gravatar" committer)
+                 (cons  :tag "Show gravatars using custom pattern."
                         (regexp :tag "Author regexp"    "^Author:     ")
                         (regexp :tag "Committer regexp" "^Commit:     "))))
 
@@ -2188,7 +2192,12 @@ or a ref which is not a branch, then it inserts nothing."
   (when (and magit-revision-show-gravatars
              (window-system))
     (require 'gravatar)
-    (pcase-let ((`(,author . ,committer) magit-revision-show-gravatars))
+    (pcase-let ((`(,author . ,committer)
+                 (pcase magit-revision-show-gravatars
+                   (`t '("^Author:     " . "^Commit:     "))
+                   (`author '("^Author:     " . nil))
+                   (`committer '(nil . "^Commit:     "))
+                   (_ magit-revision-show-gravatars))))
       (--when-let (and author (magit-rev-format "%aE" rev))
         (magit-insert-revision-gravatar beg rev it author))
       (--when-let (and committer (magit-rev-format "%cE" rev))

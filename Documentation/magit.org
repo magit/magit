@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-333-ge9104e3f8+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-338-gf4b8fee66+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-333-ge9104e3f8+1).
+This manual is for Magit version 2.13.0 (2.13.0-338-gf4b8fee66+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -3003,17 +3003,18 @@ These commands are available in diff buffers.
 
   Whether to show gravatar images in revision buffers.
 
-  If non-nil, then the value has to be a cons-cell which specifies
-  where the gravatar images for the author and/or the committer are
-  inserted inside the text that was previously inserted according
-  to ~magit-revision-header-format~.
+  If ~nil~, then don't insert any gravatar images.  If ~t~, then insert
+  both images.  If ~author~ or ~committer~, then insert only the
+  respective image.
 
-  Both cells are regular expressions.  The car specifies where to
-  insert the author gravatar image.  The top half of the image is
-  inserted right after the matched text, the bottom half on the
-  next line at the same offset.  The cdr specifies where to insert
-  the committer image, accordingly.  Either the car or the cdr may
-  be nil.
+  If you have customized the option ~magit-revision-header-format~
+  and want to insert the images then you might also have to specify
+  where to do so.  In that case the value has to be a cons-cell of
+  two regular expressions.  The car specifies where to insert the
+  author's image.  The top half of the image is inserted right
+  after the matched text, the bottom half on the next line in the
+  same column.  The cdr specifies where to insert the committer's
+  image, accordingly.  Either the car or the cdr may be nil."
 
 - User Option: magit-revision-use-hash-sections
 
