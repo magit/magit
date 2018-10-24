@@ -25,34 +25,48 @@
 
 (require 'magit)
 
-;;; Popup
+;;; Commands
 
 ;;;###autoload (autoload 'magit-subtree "magit-subtree" nil t)
 (define-transient-command magit-subtree ()
-  ""
+  "Import or export subtrees."
   :man-page "git-subtree"
-  ["Switches for add, merge, push, and pull"
+  ["Actions"
+   ("i" "Import" magit-subtree-import)
+   ("e" "Export" magit-subtree-export)])
+
+;;;###autoload (autoload 'magit-subtree-import "magit-subtree" nil t)
+(define-transient-command magit-subtree-import ()
+  "Import subtrees."
+  :man-page "git-subtree"
+  ["Switches"
    ("-s" "Squash" "--squash")]
-  ["Switches for split"
-   ("-i" "Ignore joins" "--ignore-joins")
-   ("-j" "Rejoin"       "--rejoin")]
   ["Options"
-   ("=p" "Prefix" "--prefix=" magit-subtree-read-prefix)]
-  ["Options for add, merge, and pull"
+   ("=p" "Prefix" "--prefix=" magit-subtree-read-prefix)
    ("=m" "Message" "--message=")]
-  ["Options for split"
-   ("=a" "Annotate"   "--annotate=")
-   ("=b" "Branch"     "--branch=")
-   ("=o" "Onto"       "--onto=" magit-transient-read-revision)]
   ["Actions"
    [("a" "Add"        magit-subtree-add)
     ("c" "Add commit" magit-subtree-add-commit)]
    [("m" "Merge"      magit-subtree-merge)
-    ("f" "Pull"       magit-subtree-pull)]
-   [("p" "Push"       magit-subtree-push)
-    ("s" "Split"      magit-subtree-split)]])
+    ("f" "Pull"       magit-subtree-pull)]])
 
-(defun magit-subtree-read-prefix (prompt &optional default)
+;;;###autoload (autoload 'magit-subtree-export "magit-subtree" nil t)
+(define-transient-command magit-subtree-export ()
+  "Export subtrees."
+  :man-page "git-subtree"
+  ["Switches"
+   ("-i" "Ignore joins" "--ignore-joins")
+   ("-j" "Rejoin"       "--rejoin")]
+  ["Options"
+   ("=p" "Prefix"       "--prefix=" magit-subtree-read-prefix)
+   ("=a" "Annotate"     "--annotate=")
+   ("=b" "Branch"       "--branch=")
+   ("=o" "Onto"         "--onto=" magit-transient-read-revision)]
+  ["Actions"
+   ("p" "Push"          magit-subtree-push)
+   ("s" "Split"         magit-subtree-split)])
+
+(defun magit-subtree-read-prefix (prompt &optional default _history)
   (let* ((insert-default-directory nil)
          (topdir (magit-toplevel))
          (prefix (read-directory-name (concat prompt ": ") topdir default)))
@@ -63,8 +77,6 @@
           (user-error "%s isn't inside the repository at %s" prefix topdir))
       prefix)))
 
-;;; Commands
-
 (defun magit-subtree-prefix (prompt)
   (--if-let (--first (string-prefix-p "--prefix=" it)
                      (transient-args 'magit-subtree))
@@ -72,17 +84,8 @@
     (magit-subtree-read-prefix prompt)))
 
 (defun magit-subtree-arguments ()
-  (-filter (lambda (arg)
-             (if (eq this-command 'magit-subtree-split)
-                 (or (equal arg "--ignore-joins")
-                     (equal arg "--rejoin")
-                     (string-prefix-p "--annotate=" arg)
-                     (string-prefix-p "--branch=" arg)
-                     (string-prefix-p "--onto=" arg))
-               (or (equal arg "--squash")
-                   (and (string-prefix-p "--message=" arg)
-                        (not (eq this-command 'magit-subtree-push))))))
-           (transient-args 'magit-subtree)))
+  (--remove (string-prefix-p "--prefix=" it)
+            (transient-args 'magit-subtree)))
 
 (defun magit-git-subtree (subcmd prefix &rest args)
   (magit-run-git-async "subtree" subcmd (concat "--prefix=" prefix) args))
