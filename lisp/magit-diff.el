@@ -2189,9 +2189,9 @@ or a ref which is not a branch, then it inserts nothing."
              (window-system))
     (require 'gravatar)
     (pcase-let ((`(,author . ,committer) magit-revision-show-gravatars))
-      (--when-let (magit-rev-format "%aE" rev)
+      (--when-let (and author (magit-rev-format "%aE" rev))
         (magit-insert-revision-gravatar beg rev it author))
-      (--when-let (magit-rev-format "%cE" rev)
+      (--when-let (and committer (magit-rev-format "%cE" rev))
         (magit-insert-revision-gravatar beg rev it committer)))))
 
 (defun magit-insert-revision-gravatar (beg rev email regexp)
