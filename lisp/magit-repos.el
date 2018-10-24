@@ -37,14 +37,16 @@
 
 ;;; Options
 
-(defcustom magit-repository-directories nil
+(defcustom magit-repository-directories
+  '(("~/.emacs.d/"     . 0)  ; this should always be a repository
+    ("~/.emacs.d/lib/" . 1)) ; useful for `borg' users
   "List of directories that are or contain Git repositories.
 
 Each element has the form (DIRECTORY . DEPTH).  DIRECTORY has
 to be a directory or a directory file-name, a string.  DEPTH,
 an integer, specifies the maximum depth to look for Git
 repositories.  If it is 0, then only add DIRECTORY itself."
-  :package-version '(magit . "2.8.0")
+  :package-version '(magit . "2.90.0")
   :group 'magit-essentials
   :type '(repeat (cons directory (integer :tag "Depth"))))
 
