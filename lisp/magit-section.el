@@ -129,7 +129,8 @@ then don't do so for any sections."
                  (const  :tag "Cache visibility of all sections" t)
                  (repeat :tag "Cache visibility for section types" symbol)))
 
-(defcustom magit-section-initial-visibility-alist nil
+(defcustom magit-section-initial-visibility-alist
+  '((stashes . hide))
   "Alist controlling the initial visibility of sections.
 
 Each element maps a section type or lineage to the initial
