@@ -455,8 +455,10 @@ starts complicating other things, then it will be removed."
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "C-w")     'magit-copy-section-value)
     (define-key map (kbd "M-w")     'magit-copy-buffer-revision)
+    (define-key map [remap previous-line]      'magit-previous-line)
+    (define-key map [remap next-line]          'magit-next-line)
     (define-key map [remap evil-previous-line] 'evil-previous-visual-line)
-    (define-key map [remap evil-next-line] 'evil-next-visual-line)
+    (define-key map [remap evil-next-line]     'evil-next-visual-line)
     map)
   "Parent keymap for all keymaps of modes derived from `magit-mode'.")
 
