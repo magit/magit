@@ -41,28 +41,39 @@
   :group 'magit-modes
   :group 'magit-essentials)
 
-(defcustom magit-wip-after-save-local-mode-lighter " sWip"
+(defgroup magit-wip-legacy nil
+  "It is better to not use these modes individually."
+  :link '(info-link "(magit)Legacy Wip Modes")
+  :group 'magit-wip)
+
+(defcustom magit-wip-mode-lighter " Wip"
+  "Lighter for Magit-Wip mode."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-wip
+  :type 'string)
+
+(defcustom magit-wip-after-save-local-mode-lighter ""
   "Lighter for Magit-Wip-After-Save-Local mode."
   :package-version '(magit . "2.1.0")
-  :group 'magit-wip
+  :group 'magit-wip-legacy
   :type 'string)
 
-(defcustom magit-wip-after-apply-mode-lighter " aWip"
+(defcustom magit-wip-after-apply-mode-lighter ""
   "Lighter for Magit-Wip-After-Apply mode."
   :package-version '(magit . "2.1.0")
-  :group 'magit-wip
+  :group 'magit-wip-legacy
   :type 'string)
 
-(defcustom magit-wip-before-change-mode-lighter " cWip"
+(defcustom magit-wip-before-change-mode-lighter ""
   "Lighter for Magit-Wip-Before-Change mode."
   :package-version '(magit . "2.1.0")
-  :group 'magit-wip
+  :group 'magit-wip-legacy
   :type 'string)
 
-(defcustom magit-wip-initial-backup-mode-lighter " iWip"
+(defcustom magit-wip-initial-backup-mode-lighter ""
   "Lighter for Magit-Wip-Initial Backup mode."
   :package-version '(magit . "2.1.0")
-  :group 'magit-wip
+  :group 'magit-wip-legacy
   :type 'string)
 
 (defcustom magit-wip-merge-branch nil
@@ -92,6 +103,26 @@ is used as `branch-ref'."
   :type 'string)
 
 ;;; Modes
+
+(define-minor-mode magit-wip-mode
+  "Save uncommitted changes to work-in-progress refs.
+
+Whenever appropriate (i.e. when dataloss would be a possibility
+otherwise) this mode causes uncommitted changes to be committed
+to dedicated work-in-progress refs.
+
+For historic reasons this mode is implemented on top of four
+other `magit-wip-*' modes, which can also be used individually,
+if you want finer control over when the wip refs are updated;
+but that is discouraged."
+  :package-version '(magit . "2.90.0")
+  :lighter magit-wip-mode-lighter
+  :global t
+  (let ((arg (if magit-wip-mode 1 -1)))
+    (magit-wip-after-save-mode arg)
+    (magit-wip-after-apply-mode arg)
+    (magit-wip-before-change-mode arg)
+    (magit-wip-initial-backup-mode arg)))
 
 (define-minor-mode magit-wip-after-save-local-mode
   "After saving, also commit to a worktree work-in-progress ref.
