@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-338-gf4b8fee66+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-349-gca1a696dd+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-338-gf4b8fee66+1).
+This manual is for Magit version 2.13.0 (2.13.0-349-gca1a696dd+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -6307,6 +6307,7 @@ Therefore when the region is active, then both of these commands
 behave like ~kill-ring-save~ instead of as described above.
 
 ** Wip Modes
+*** _ :ignore:
 
 Git keeps *committed* changes around long enough for users to recover
 changes they have accidentally deleted.  It does so by not garbage
@@ -6318,20 +6319,128 @@ and not even the index (the staging area).  Because Magit makes it so
 convenient to modify uncommitted changes, it also makes it easy to
 shoot yourself in the foot in the process.
 
-For that reason Magit provides three global modes that save *tracked*
-files to work-in-progress references after or before certain actions.
-(Untracked files are never saved and these modes also only work after
-the first commit has been created).
+For that reason Magit provides a global mode that saves *tracked* files
+to work-in-progress references after or before certain actions.  (At
+present untracked files are never saved and for technical reasons
+nothing is saved before the first commit has been created).
 
 Two separate work-in-progress references are used to track the state
-of the index and of the working tree: "refs/wip/index/<branchref>" and
-"refs/wip/wtree/<branchref>", where ~<branchref>~ is the full ref of the
-current branch, e.g. "refs/heads/master".  When the ~HEAD~ is detached
-then "HEAD" is in place of ~<branchref>~.
+of the index and of the working tree: ~refs/wip/index/<branchref>~ and
+~refs/wip/wtree/<branchref>~, where ~<branchref>~ is the full ref of the
+current branch, e.g. ~refs/heads/master~.  When the ~HEAD~ is detached
+then ~HEAD~ is used in place of ~<branchref>~.
 
 Checking out another branch (or detaching ~HEAD~) causes the use of
-different wip refs for subsequent changes, but the old refs are not
-deleted.
+different wip refs for subsequent changes.
+
+- User Option: magit-wip-after-save-mode
+
+  When this mode is enabled, then uncommitted changes are committed
+  to dedicated work-in-progress refs whenever appropriate (i.e. when
+  dataloss would be a possibility otherwise).
+
+  Setting this variable directly does not take effect; either use the
+  Custom interface to do so or call the respective mode function.
+
+  For historic reasons this mode is implemented on top of four other
+  ~magit-wip-*~ modes, which can also be used individually, if you want
+  finer control over when the wip refs are updated; but that is
+  discouraged.  See [[*Legacy Wip Modes]].
+
+- User Option: magit-wip-merge-branch
+
+  This option controls whether the current branch is merged into the
+  wip refs after a new commit was created on the branch.
+
+  If non-nil and the current branch has new commits, then it is
+  merged into the wip ref before creating a new wip commit.  This
+  makes it easier to inspect wip history and the wip commits are
+  never garbage collected.
+
+  This is the default.  The commit graph will look like this:
+
+  #+BEGIN_EXAMPLE
+      ,*--*--*--*--*--*       refs/wip/index/refs/heads/master
+     /     /     /
+    A-----B-----C            refs/heads/master
+  #+END_EXAMPLE
+
+  If nil and the current branch has new commits, then the wip ref
+  is reset to the tip of the branch before creating a new wip
+  commit.  With this setting wip commits are eventually garbage
+  collected.
+
+  This used to be the default but complicates things quite a bit.
+  See [[*Legacy Wip Graph]] for more information.
+
+To view the log for a branch and its wip refs use the commands
+~magit-wip-log~ and ~magit-wip-log-current~.  You should use ~--graph~ when
+using these commands.
+
+- Command: magit-wip-log
+
+  This command shows the log for a branch and its wip refs.
+  With a negative prefix argument only the worktree wip ref is shown.
+
+  The absolute numeric value of the prefix argument controls how many
+  "branches" of each wip ref are shown.  This is only relevant if the
+  value of ~magit-wip-merge-branch~ is ~nil~.
+
+- Command: magit-wip-log-current
+
+  This command shows the log for the current branch and its wip refs.
+  With a negative prefix argument only the worktree wip ref is shown.
+
+  The absolute numeric value of the prefix argument controls how many
+  "branches" of each wip ref are shown.  This is only relevant if the
+  value of ~magit-wip-merge-branch~ is ~nil~.
+
+- Key: X w, magit-reset-worktree
+
+  This command resets the working tree to some commit read from the
+  user and defaulting to the commit at point, while keeping the ~HEAD~
+  and index as-is.
+
+  This can be used to restore files to the state committed to a wip
+  ref.  Note that this will discard any unstaged changes that might
+  have existed before invoking this command (but of course only after
+  committing that to the working tree wip ref).
+
+Note that even if you enable ~magit-wip-mode~ this won't give you
+perfect protection.  The most likely scenario for losing changes
+despite the use of ~magit-wip-mode~ is making a change outside Emacs and
+then destroying it also outside Emacs.  In some such a scenario,
+Magit, being an Emacs package, didn't get the opportunity to keep you
+from shooting yourself in the foot.
+
+When you are unsure whether Magit did commit a change to the wip refs,
+then you can explicitly request that all changes to all tracked files
+are being committed.
+
+- Key: M-x magit-wip-commit, magit-wip-commit
+
+  This command commits all changes to all tracked files to the index
+  and working tree work-in-progress refs.  Like the modes described above,
+  it does not commit untracked files, but it does check all tracked
+  files for changes.  Use this command when you suspect that the modes
+  might have overlooked a change made outside Emacs/Magit.
+
+- User Option: magit-wip-namespace
+
+  The namespace used for work-in-progress refs.  It has to end with
+  a slash.  The wip refs are named ~<namespace>index/<branchref>~ and
+  ~<namespace>wtree/<branchref>~.  When snapshots are created while
+  the ~HEAD~ is detached then ~HEAD~ is used in place of ~<branchref>~.
+
+- User Option: magit-wip-mode-lighter
+
+  Mode-line lighter for ~magit-wip--mode~.
+
+*** Legacy Wip Graph
+
+The value of option ~magit-wip-merge-branch~ (which see) is ~t~ by
+default.  If you change it to ~nil~ (which isn't recommended) then the
+following information becomes relevant.
 
 Creating a commit and then making a change causes the wip refs to be
 recreated to fork from the new commit.  But the old commits on the wip
@@ -6369,64 +6478,15 @@ commit does not change the fork-point of the working tree wip ref.  The
 fork-points are not adjusted until there actually is a change that
 should be committed to the respective wip ref.
 
-- User Option: magit-wip-merge-branch
+*** Legacy Wip Modes
 
-  This option controls whether the current branch is merged into the
-  wip refs after a new commit was created on the branch.  If nil
-  (currently the default), then no merge is perfomed and wip refs are
-  reset as described above.
-
-  If this is non-nil and the current branch has new commits, then it
-  is merged into the wip ref before creating a new wip commit.  This
-  makes it easier to inspect wip history and the wip commits are never
-  garbage collected.
-
-  #+BEGIN_EXAMPLE
-      ,*--*--*--*--*--*       refs/wip/index/refs/heads/master
-     /     /     /
-    A-----B-----C            refs/heads/master
-  #+END_EXAMPLE
-
-To view the log for a branch and its wip refs use the commands
-~magit-wip-log~ and ~magit-wip-log-current~.  You should use ~--graph~ when
-using these commands.  Alternatively you can use the reflog to show
-all commits that ever existed on a wip ref.  You can then recover lost
-changes from the commits shown in the log or reflog.
-
-- Command: magit-wip-log
-
-  This command shows the log for a branch and its wip refs.
-
-  With a negative prefix argument only the worktree wip ref is shown.
-  The absolute numeric value of the prefix argument controls how many
-  "branches" of each wip ref are shown.
-
-- Command: magit-wip-log-current
-
-  This command shows the log for the current branch and its wip refs.
-
-  With a negative prefix argument only the worktree wip ref is shown.
-  The absolute numeric value of the prefix argument controls how many
-  "branches" of each wip ref are shown.
-
-- Key: X w, magit-reset-worktree
-
-  This command resets the working tree to some commit read from the
-  user and defaulting to the commit at point, while keeping the ~HEAD~
-  and index as-is.
-
-  This can be used to restore files to the state committed to a wip
-  ref.  Note that this will discard any unstaged changes that might
-  have existed before invoking this command (but of course only after
-  committing that to the working tree wip ref).
-
-There exists a total of three global modes that save to the wip refs,
-which might seem excessive, but allows fine tuning of when exactly
-changes are being committed to the wip refs.  Enabling all modes makes
-it less likely that a change slips through the cracks.
+It is recommended that you use the mode ~magit-wip-mode~ (which see) and
+ignore the existence of the following modes, which are preserved for
+historic reasons.
 
 Setting the following variables directly does not take effect; either
-customize them or call the respective mode function.
+use the Custom interface to do so or call the respective mode
+functions.
 
 - User Option: magit-wip-after-save-mode
 
@@ -6444,7 +6504,7 @@ customize them or call the respective mode function.
 If you only ever edit files using Emacs and only ever interact with
 Git using Magit, then the above two modes should be enough to protect
 each and every change from accidental loss.  In practice nobody does
-that.  So an additional mode exists that does commit to the wip refs
+that.  Two additional modes exists that do commit to the wip refs
 before making changes that could cause the loss of earlier changes.
 
 - User Option: magit-wip-before-change-mode
@@ -6452,41 +6512,22 @@ before making changes that could cause the loss of earlier changes.
   When this mode is enabled, then certain commands commit the existing
   changes to the files they are about to make changes to.
 
-- Function: magit-wip-commit-initial-backup
+- User Option: magit-wip-initial-backup-mode
 
-  Adding this function to ~before-save-hook~ causes the current version
-  of the file to be committed to the worktree wip ref before the
-  modifications in the buffer are saved.  It backs up the same version
-  of the file as ~backup-buffer~ would but, instead of using a backup
-  file as ~backup-buffer~ would, it uses the same worktree wip ref as
-  used by the various Magit Wip modes.  Like ~backup-buffer~, it only
-  does this once; unless you kill the buffer and visit the file again
-  only one backup will be created per Emacs session.
+  When this mode is enabled, then the current version of a file is
+  committed to the worktree wip ref before the buffer visiting that
+  file is saved for the first time since the buffer was created.
 
-  This function ignores the variables that affect ~backup-buffer~ and
-  can be used along-side that function, which is recommended because
-  this function only backs up files that are tracked in a Git
-  repository.
+  This backs up the same version of the file that ~backup-buffer~ would
+  save.  While ~backup-buffer~ uses a backup file, this mode uses the
+  same worktree wip ref as used by the other Magit Wip modes.  Like
+  ~backup-buffer~, it only does this once; unless you kill the buffer
+  and visit the file again only one backup will be created per Emacs
+  session.
 
-Note that even if you enable all three modes and add the above
-function to the intended hook, this won't give you perfect protection.
-The most likely scenario for losing changes despite the use of these
-modes is making a change outside Emacs and then destroying it also
-outside Emacs.  In some such a scenario, Magit, being an Emacs
-package, didn't get the opportunity to keep you from shooting yourself
-in the foot.
-
-When you are unsure whether Magit did commit a change to the wip refs,
-then you can explicitly request that all changes to all tracked files
-are being committed.
-
-- Key: M-x magit-wip-commit, magit-wip-commit
-
-  This command commits all changes to all tracked files to the index
-  and working tree work-in-progress refs.  Like the modes described above,
-  it does not commit untracked files, but it does check all tracked
-  files for changes.  Use this command when you suspect that the modes
-  might have overlooked a change made outside Emacs/Magit.
+  This mode ignores the variables that affect ~backup-buffer~ and can be
+  used along-side that function, which is recommended because it only
+  backs up files that are tracked in a Git repository.
 
 - User Option: magit-wip-after-save-local-mode-lighter
 
@@ -6500,12 +6541,9 @@ are being committed.
 
   Mode-line lighter for ~magit-wip-before-change-mode~.
 
-- User Option: magit-wip-namespace
+- User Option: magit-wip-initial-backup-mode-lighter
 
-  The namespace used for work-in-progress refs.  It has to end with a
-  slash.  The wip refs are named "<namespace>index/<branchref>" and
-  "<namespace>wtree/<branchref>".  When snapshots are created while
-  the ~HEAD~ is detached then "HEAD" is used in place of ~<branchref>~.
+  Mode-line lighter for ~magit-wip-initial-backup-mode~.
 
 ** Minor Mode for Buffers Visiting Files
 
