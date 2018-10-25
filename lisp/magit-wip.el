@@ -59,6 +59,12 @@
   :group 'magit-wip
   :type 'string)
 
+(defcustom magit-wip-initial-backup-mode-lighter " iWip"
+  "Lighter for Magit-Wip-Initial Backup mode."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-wip
+  :type 'string)
+
 (defcustom magit-wip-merge-branch nil
   "Whether to merge the current branch into its wip ref.
 
@@ -177,7 +183,15 @@ command which is about to be called are committed."
     (magit-with-toplevel
       (magit-wip-commit files msg))))
 
-;;; Extras
+(define-minor-mode magit-wip-initial-backup-mode
+  "Before saving a buffer for the first time, commit to a wip ref."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-wip
+  :lighter magit-wip-initial-backup-mode-lighter
+  :global t
+  (if magit-wip-initial-backup-mode
+      (add-hook  'before-save-hook 'magit-wip-commit-initial-backup)
+    (remove-hook 'before-save-hook 'magit-wip-commit-initial-backup)))
 
 (defvar-local magit-wip-buffer-backed-up nil)
 (put 'magit-wip-buffer-backed-up 'permanent-local t)
