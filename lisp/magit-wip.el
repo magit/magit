@@ -76,7 +76,7 @@
   :group 'magit-wip-legacy
   :type 'string)
 
-(defcustom magit-wip-merge-branch nil
+(defcustom magit-wip-merge-branch t
   "Whether to merge the current branch into its wip ref.
 
 If non-nil and the current branch has new commits, then it is
