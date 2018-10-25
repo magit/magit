@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-349-gca1a696dd+1)
+@subtitle for version 2.13.0 (2.13.0-350-gc3d8c5763+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-349-gca1a696dd+1).
+This manual is for Magit version 2.13.0 (2.13.0-350-gc3d8c5763+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -217,7 +217,7 @@ Branching
 * The Two Remotes::
 * The Branch Popup::
 * The Branch Config Popup::
-* Auxillary Branch Commands::
+* Auxiliary Branch Commands::
 
 
 Rebasing
@@ -3967,7 +3967,7 @@ the cache.
 
 @itemize
 @item
-@code{nil} Never ajust tab width.  Use `tab-width's value from the Magit
+@code{nil} Never adjust tab width.  Use `tab-width's value from the Magit
 buffer itself instead.
 
 
@@ -4336,7 +4336,7 @@ commit counts.
 Whether to show the remote prefix in lists of remote branches.
 
 Showing the prefix is redundant because the name of the remote is
-already shown in the heading preceeding the list of its branches.
+already shown in the heading preceding the list of its branches.
 @end defopt
 
 @defopt magit-refs-primary-column-width
@@ -5623,7 +5623,7 @@ To show no diff while committing remove @code{magit-commit-diff} from
 * The Two Remotes::
 * The Branch Popup::
 * The Branch Config Popup::
-* Auxillary Branch Commands::
+* Auxiliary Branch Commands::
 @end menu
 
 @node The Two Remotes
@@ -6323,8 +6323,8 @@ This affects all commands that use @code{magit-read-upstream-branch} or
 the upstream and many which create new branches.
 @end defopt
 
-@node Auxillary Branch Commands
-@subsection Auxillary Branch Commands
+@node Auxiliary Branch Commands
+@subsection Auxiliary Branch Commands
 
 These commands are not available from the branch popup by default.
 

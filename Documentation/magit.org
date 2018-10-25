@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-349-gca1a696dd+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-350-gc3d8c5763+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-349-gca1a696dd+1).
+This manual is for Magit version 2.13.0 (2.13.0-350-gc3d8c5763+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -2910,7 +2910,7 @@ These commands are available in diff buffers.
   variable ~magit-diff--tab-width-cache~.  Set that to nil to invalidate
   the cache.
 
-  - ~nil~ Never ajust tab width.  Use `tab-width's value from the Magit
+  - ~nil~ Never adjust tab width.  Use `tab-width's value from the Magit
     buffer itself instead.
 
   - ~t~ If the corresponding file-visiting buffer exits, then use
@@ -3196,7 +3196,7 @@ information on how to use Ediff itself, see info:ediff.
   Whether to show the remote prefix in lists of remote branches.
 
   Showing the prefix is redundant because the name of the remote is
-  already shown in the heading preceeding the list of its branches.
+  already shown in the heading preceding the list of its branches.
 
 - User Option: magit-refs-primary-column-width
 
@@ -4692,7 +4692,7 @@ man:git-config Also see [[man:git-branch]], [[man:git-checkout]] and [[*Pushing]
   ~magit-read-starting-point~, which includes all commands that change
   the upstream and many which create new branches.
 
-*** Auxillary Branch Commands
+*** Auxiliary Branch Commands
 
 These commands are not available from the branch popup by default.
 
