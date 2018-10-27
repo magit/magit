@@ -102,6 +102,10 @@ blame to center around the line point is on."
 (defun ido-enter-magit-status ()
   "Drop into `magit-status' from file switching.
 
+This command does not work in Emacs 26.  It does work in Emacs 25
+and Emacs 27.  See https://github.com/magit/magit/issues/3634 and
+https://debbugs.gnu.org/cgi/bugreport.cgi?bug=31707.
+
 To make this command available use something like:
 
   (add-hook \\='ido-setup-hook
@@ -117,7 +121,9 @@ like pretty much every other keymap:
     (kbd \"C-x g\") \\='ido-enter-magit-status)"
   (interactive)
   (with-no-warnings ; FIXME these are internal variables
-    (setq ido-exit 'fallback fallback 'magit-status))
+    (setq ido-exit 'fallback)
+    (setq fallback 'magit-status)      ; for Emacs 25
+    (setq ido-fallback 'magit-status)) ; for Emacs 27
   (exit-minibuffer))
 
 ;;;###autoload
