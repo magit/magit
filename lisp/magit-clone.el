@@ -48,6 +48,17 @@ If t, then set without asking.  If nil, then don't set.  If
                  (const :tag "ask" ask)
                  (const :tag "don't set" nil)))
 
+(defcustom magit-clone-default-directory nil
+  "Default directory to use when `magit-clone' reads destination.
+If nil (the default), then use the value of `default-directory'.
+If a directory, then use that.  If a function, then call that
+with the remote url as only argument and use the returned value."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-commands
+  :type '(choice (const     :tag "value of default-directory")
+                 (directory :tag "constant directory")
+                 (function  :tag "function's value")))
+
 ;;; Commands
 
 ;;;###autoload
@@ -57,7 +68,11 @@ Then show the status buffer for the new repository."
   (interactive
    (let  ((url (magit-read-string-ns "Clone repository")))
      (list url (read-directory-name
-                "Clone to: " nil nil nil
+                "Clone to: "
+                (if (functionp magit-clone-default-directory)
+                    (funcall magit-clone-default-directory url)
+                  magit-clone-default-directory)
+                nil nil
                 (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" url)
                      (match-string 1 url))))))
   (setq directory (file-name-as-directory (expand-file-name directory)))
