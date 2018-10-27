@@ -1749,19 +1749,20 @@ the reference is used.  The first regexp submatch becomes the
            (,file (magit-convert-filename-for-git
                    (make-temp-name (magit-git-dir "index.magit.")))))
        (unwind-protect
-           (progn (--when-let ,tree
-                    (or (magit-git-success "read-tree" ,arg it
-                                           (concat "--index-output=" ,file))
-                        (error "Cannot read tree %s" it)))
-                  (if (file-remote-p default-directory)
-                      (let ((magit-tramp-process-environment
-                             (cons (concat "GIT_INDEX_FILE=" ,file)
-                                   magit-tramp-process-environment)))
-                        ,@body)
-                    (let ((process-environment
-                           (cons (concat "GIT_INDEX_FILE=" ,file)
-                                 process-environment)))
-                      ,@body)))
+           (magit-with-toplevel
+             (--when-let ,tree
+               (or (magit-git-success "read-tree" ,arg it
+                                      (concat "--index-output=" ,file))
+                   (error "Cannot read tree %s" it)))
+             (if (file-remote-p default-directory)
+                 (let ((magit-tramp-process-environment
+                        (cons (concat "GIT_INDEX_FILE=" ,file)
+                              magit-tramp-process-environment)))
+                   ,@body)
+               (let ((process-environment
+                      (cons (concat "GIT_INDEX_FILE=" ,file)
+                            process-environment)))
+                 ,@body)))
          (ignore-errors
            (delete-file (concat (file-remote-p default-directory) ,file)))))))
 
