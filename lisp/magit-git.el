@@ -215,15 +215,8 @@ framework ultimately determines how the collection is displayed."
                value)))
        ,@body)))
 
-(defvar magit-with-editor-envvar "GIT_EDITOR"
-  "The environment variable exported by `magit-with-editor'.
-Set this to \"GIT_SEQUENCE_EDITOR\" if you do not want to use
-Emacs to edit commit messages but would like to do so to edit
-rebase sequences.")
-
 (defmacro magit-with-editor (&rest body)
-  "Like `with-editor' but let-bind some more variables.
-Also respect the value of `magit-with-editor-envvar'."
+  "Like `with-editor' but let-bind some more variables."
   (declare (indent 0) (debug (body)))
   `(let ((magit-process-popup-time -1)
          ;; The user may have customized `shell-file-name' to
@@ -238,7 +231,7 @@ Also respect the value of `magit-with-editor-envvar'."
                                    (not magit-cygwin-mount-points))
                               "cmdproxy"
                             shell-file-name)))
-     (with-editor magit-with-editor-envvar
+     (with-editor "GIT_EDITOR"
        ,@body)))
 
 (defun magit-process-git-arguments (args)
