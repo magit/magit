@@ -251,13 +251,14 @@ to the selected repository.
 
 With prefix argument simply read a directory name using
 `read-directory-name'."
-  (if (and (not read-directory-name) magit-repository-directories)
-      (let* ((repos (magit-list-repos-uniquify
-                     (--map (cons (file-name-nondirectory
-                                   (directory-file-name it))
-                                  it)
-                            (magit-list-repos))))
-             (reply (magit-completing-read "Git repository" repos)))
+  (if-let ((repos (and (not read-directory-name)
+                       magit-repository-directories
+                       (magit-list-repos-uniquify
+                        (--map (cons (file-name-nondirectory
+                                      (directory-file-name it))
+                                     it)
+                               (magit-list-repos))))))
+      (let ((reply (magit-completing-read "Git repository" repos)))
         (file-name-as-directory
          (or (cdr (assoc reply repos))
              (if (file-directory-p reply)
