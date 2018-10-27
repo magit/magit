@@ -238,7 +238,7 @@ Also respect the value of `magit-with-editor-envvar'."
                                    (not magit-cygwin-mount-points))
                               "cmdproxy"
                             shell-file-name)))
-     (with-editor* magit-with-editor-envvar
+     (with-editor magit-with-editor-envvar
        ,@body)))
 
 (defun magit-process-git-arguments (args)
