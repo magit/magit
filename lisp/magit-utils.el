@@ -714,43 +714,49 @@ DEFAULT may be a number or a numeric string."
 
 ;;; Debug Utilities
 
+(declare-function file-requires "loadhist" (file))
+(declare-function feature-file "loadhist" (feature))
+
 ;;;###autoload
 (defun magit-emacs-Q-command ()
   "Show a shell command that runs an uncustomized Emacs with only Magit loaded.
 See info node `(magit)Debugging Tools' for more information."
   (interactive)
+  (require 'loadhist)
   (let ((cmd (mapconcat
               #'shell-quote-argument
               `(,(concat invocation-directory invocation-name)
                 "-Q" "--eval" "(setq debug-on-error t)"
                 ,@(cl-mapcan
                    (lambda (dir) (list "-L" dir))
-                   (delete-dups
-                    (cl-mapcan
-                     (lambda (lib)
-                       (let ((path (locate-library lib)))
-                         (cond
-                          (path
-                           (list (file-name-directory path)))
-                          ((not (member lib '("lv" "transient")))
-                           (error "Cannot find mandatory dependency %s" lib)))))
-                     '(;; Like `LOAD_PATH' in `default.mk'.
-                       "dash"
-                       "ghub"
-                       "graphql"
-                       "lv"
-                       "magit-popup"
-                       "transient"
-                       "treepy"
-                       "with-editor"
-                       ;; Obviously `magit' itself is needed too.
-                       "magit"
-                       ;; While this is part of the Magit repository,
-                       ;; it is distributed as a separate package.
-                       "git-commit"
-                       ;; Even though `async' is a dependency of the
-                       ;; `magit' package, it is not required here.
-                       ))))
+                   (let* ((default-load-path
+                            (with-temp-buffer
+                              (call-process
+                               (concat invocation-directory invocation-name)
+                               nil '(t t) nil "-Q" "--batch"
+                               "--eval" "(prin1 load-path)")
+                              (goto-char (point-min))
+                              (mapcar #'directory-file-name
+                                      (read (current-buffer)))))
+                          (reqs nil)
+                          (new-reqs '(magit)))
+                     (while new-reqs
+                       (setq new-reqs
+                             (--remove
+                              (or (not (featurep it))
+                                  (memq it reqs)
+                                  (member (directory-file-name
+                                           (file-name-directory
+                                            (feature-file it)))
+                                          default-load-path))
+                              (delete-dups
+                               (--mapcat (file-requires (feature-file it))
+                                         new-reqs))))
+                       (cl-callf nconc reqs new-reqs))
+                     (delete-dups
+                      (mapcar (lambda (feat)
+                                (file-name-directory (feature-file feat)))
+                              reqs))))
                 ;; Avoid Emacs bug#16406 by using full path.
                 "-l" ,(file-name-sans-extension (locate-library "magit")))
               " ")))
