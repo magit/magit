@@ -350,6 +350,14 @@ commit message."
                 (concat "refs/heads/" branch))
               "HEAD")))
 
+(defun magit-wip-any-enabled-p ()
+  (or magit-wip-mode
+      magit-wip-after-save-local-mode
+      magit-wip-after-save-mode
+      magit-wip-after-apply-mode
+      magit-wip-before-change-mode
+      magit-wip-initial-backup-mode))
+
 ;;; Log
 
 (defun magit-wip-log-index (args files)

@@ -496,7 +496,9 @@ This is only used if Magit is available."
   (add-hook 'with-editor-pre-cancel-hook
             'git-commit-save-message nil t)
   (add-hook 'with-editor-post-finish-hook 'git-commit-run-post-finish-hook)
-  (when (bound-and-true-p magit-wip-merge-branch)
+  (when (and (bound-and-true-p magit-wip-merge-branch)
+             (fboundp 'magit-wip-any-enabled-p)
+             (magit-wip-any-enabled-p))
     (add-hook 'with-editor-post-finish-hook
               'magit-wip-commit nil t))
   (setq with-editor-cancel-message
