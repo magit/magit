@@ -39,6 +39,14 @@
 (require 'magit-transient)
 (require 'magit-autorevert)
 
+(when (magit--libgit-available-p)
+  (condition-case err
+      (require 'magit-libgit)
+    (error
+     (setq magit-inhibit-libgit 'error)
+     (message "Error while loading `magit-libgit': %S" err)
+     (message "That is not fatal.  The `libegit2' module just won't be used."))))
+
 (defgroup magit nil
   "Controlling Git from Emacs."
   :link '(url-link "https://magit.vc")

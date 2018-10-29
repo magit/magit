@@ -4,6 +4,7 @@ env:
   global:
     - CURL="curl -fsSkL --retry 9 --retry-delay 9"
     - GHRAW="https://raw.githubusercontent.com"
+    - BUILD_MAGIT_LIBGIT="false"
   matrix:
     - EMACS_VERSION=25.1
     # 25.2 is identical to 25.3 except for a critical security bug in
