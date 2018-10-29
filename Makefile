@@ -221,6 +221,7 @@ bump-versions-1:
         (async-version \"$(ASYNC_VERSION)\")\
         (dash-version \"$(DASH_VERSION)\")\
         (git-commit-version \"$(GIT_COMMIT_VERSION)\")\
+        (libgit-version \"$(LIBGIT_VERSION)\")\
         (transient-version \"$(TRANSIENT_VERSION)\")\
         (with-editor-version \"$(WITH_EDITOR_VERSION)\"))\
         $$set_package_requires)"
@@ -231,6 +232,7 @@ bump-snapshots:
         (async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
         (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
+        (libgit-version \"$(LIBGIT_MELPA_SNAPSHOT)\")\
         (transient-version \"$(TRANSIENT_MELPA_SNAPSHOT)\")\
         (with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\"))\
         $$set_package_requires)"

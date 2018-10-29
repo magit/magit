@@ -738,10 +738,11 @@ See info node `(magit)Debugging Tools' for more information."
                          (cond
                           (path
                            (list (file-name-directory path)))
-                          ((not (member lib '("transient")))
+                          ((not (member lib '("libgit" "transient")))
                            (error "Cannot find mandatory dependency %s" lib)))))
                      '(;; Like `LOAD_PATH' in `default.mk'.
                        "dash"
+                       "libgit"
                        "transient"
                        "with-editor"
                        ;; Obviously `magit' itself is needed too.

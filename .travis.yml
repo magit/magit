@@ -15,6 +15,7 @@ env:
   allow_failures:
     - env: EMACS_VERSION=master
 install:
+  # TODO libgit
   - $CURL -O https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz
   - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
   - export EMACS=/tmp/emacs/bin/emacs

@@ -54,6 +54,72 @@
 
 (defvar magit-tramp-process-environment nil)
 
+;;; Git implementations
+
+(defconst magit--git-implementations '(git libgit))
+
+(defvar magit-inhibit-libgit nil)
+
+(defvar magit--libgit-available-p eieio-unbound)
+
+(defun magit--libgit-available-p ()
+  (if (eq magit--libgit-available-p eieio-unbound)
+      (setq magit--libgit-available-p
+            (and module-file-suffix
+                 (let ((libgit (locate-library "libgit")))
+                   (and libgit
+                        (or (locate-library "libegit2")
+                            (let ((load-path
+                                   (cons (expand-file-name
+                                          (convert-standard-filename "build")
+                                          (file-name-directory libgit))
+                                         load-path)))
+                              (locate-library "libegit2")))))))
+    magit--libgit-available-p))
+
+(defun magit--git-implementation ()
+  (if (and (not magit-inhibit-libgit)
+           (not (file-remote-p default-directory))
+           (magit--libgit-available-p))
+      'libgit
+    'git))
+
+;; We want to write (&context (gitimpl IMPL)), which is only possible
+;; if a variable `gitimpl' exists.  We don't use it for anything but
+;; satisfying that requirement.  `cl-generic' assumes the use of a
+;; variable, but we use a function to determine the context.
+(with-no-warnings (defvar gitimpl nil))
+(defun cl--generic-gitimpl-tagcode (varsym &rest _)
+  `(progn ,varsym ; silence byte-compiler
+          (let ((val (magit--git-implementation)))
+            (and (memq val magit--git-implementations) val))))
+
+(defun cl--generic-gitimpl-generalizers (tagval &rest _)
+  `((gitimpl ,tagval)))
+
+(cl-generic-define-generalizer cl--generic-gitimpl-generalizer
+  80
+  #'cl--generic-gitimpl-tagcode
+  #'cl--generic-gitimpl-generalizers)
+
+(cl-defmethod cl-generic-generalizers ((_specializer (head gitimpl)))
+  (list cl--generic-gitimpl-generalizer))
+
+(cl-generic-define-context-rewriter gitimpl (impl &rest impls)
+  `(gitimpl ,(if (consp impl)
+                 (progn (cl-assert (null impls)) impl)
+               `(gitimpl ,impl . ,impls))))
+
+;; This is how `gitimpl' generic functions are define.
+(cl-defgeneric magit-which-gitimpl ()
+  "Return the Git implementation used in this repository.")
+(cl-defmethod magit-which-gitimpl (&context (gitimpl git)) 'git)
+(cl-defmethod magit-which-gitimpl (&context (gitimpl libgit)) 'libgit)
+
+;; Don't do this for other `gitimpl' generic functions.
+(cl-defmethod magit-which-gitimpl ()
+  (error "Invalid Git implementation: %s" gitimpl))
+
 ;;; Options
 
 ;; For now this is shared between `magit-process' and `magit-git'.
