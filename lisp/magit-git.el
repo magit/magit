@@ -766,7 +766,7 @@ is non-nil, in which case return nil."
           (and (not noerror)
                (signal 'magit-outside-git-repo default-directory))))))
 
-(defun magit-bare-repo-p (&optional noerror)
+(cl-defgeneric magit-bare-repo-p (&optional noerror)
   "Return t if the current repository is bare.
 If it is non-bare, then return nil.  If `default-directory'
 isn't below a Git repository, then signal an error unless
