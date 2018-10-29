@@ -743,16 +743,19 @@ the remote."
                           (fboundp 'forge--forge-remote-p)
                           (forge--forge-remote-p remote))))
         (let ((old-target (magit-get-push-branch old t))
-              (new-target (magit-get-push-branch new t)))
-          (when (and old-target (not new-target))
+              (new-target (magit-get-push-branch new t))
+              (remote (magit-get-push-remote new)))
+          (when (and old-target
+                     (not new-target)
+                     (magit-y-or-n-p (format "Also rename %S to %S on %S"
+                                             old new remote)))
             ;; Rename on (i.e. within) the remote, but only if the
             ;; destination ref doesn't exist yet.  If that ref already
             ;; exists, then it probably is of some value and we better
             ;; not touch it.  Ignore what the local ref points at,
             ;; i.e. if the local and the remote ref didn't point at
             ;; the same commit before the rename then keep it that way.
-            (magit-call-git "push" "-v"
-                            (magit-get-push-remote new)
+            (magit-call-git "push" "-v" remote
                             (format "%s:refs/heads/%s" old-target new)
                             (format ":refs/heads/%s" old)))))))
   (magit-branch-unset-pushRemote old)
