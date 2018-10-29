@@ -53,6 +53,13 @@
 
 ;;; Methods
 
+(cl-defmethod magit-bare-repo-p (&context (gitimpl libgit) &optional noerror)
+  (and (magit--assert-default-directory noerror)
+       (if-let ((repo (magit-libgit-repo)))
+           (libgit-repository-bare-p repo)
+         (unless noerror
+           (signal 'magit-outside-git-repo default-directory)))))
+
 ;;; _
 (provide 'magit-libgit)
 ;;; magit-libgit.el ends here
