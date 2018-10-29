@@ -742,11 +742,12 @@ tracked file."
                    (and nomodules "--ignore-submodules")
                    (magit-headish) "--" files))
 
-(defun magit-staged-binary-files ()
+(defun magit-binary-files (&rest args)
   (--mapcat (and (string-match "^-\t-\t\\(.+\\)" it)
                  (list (match-string 1 it)))
-            (magit-git-items "diff" "-z" "--cached"
-                             "--numstat" "--ignore-submodules")))
+            (apply #'magit-git-items
+                   "diff" "-z" "--numstat" "--ignore-submodules"
+                   args)))
 
 (defun magit-unmerged-files ()
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))

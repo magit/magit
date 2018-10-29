@@ -586,7 +586,7 @@ without requiring confirmation."
       (when new-files
         (magit-call-git "add"   "--" new-files)
         (magit-call-git "reset" "--" new-files))
-      (let ((binaries (magit-staged-binary-files)))
+      (let ((binaries (magit-binary-files "--cached")))
         (when binaries
           (setq sections
                 (--remove (member (oref it value) binaries)
@@ -644,7 +644,7 @@ so causes the change to be applied to the index as well."
 
 (defun magit-reverse-files (sections args)
   (pcase-let ((`(,binaries ,sections)
-               (let ((bs (magit-staged-binary-files)))
+               (let ((bs (magit-binary-files "--cached")))
                  (--separate (member (oref it value) bs)
                              sections))))
     (magit-confirm-files 'reverse (--map (oref it value) sections))
