@@ -159,7 +159,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 ;;; Commands
 
 ;;;###autoload
-(defun magit-init (directory)
+(defun magit-init (directory &optional separate-git-dir)
   "Initialize a Git repository, then show its status.
 
 If the directory is below an existing repository, then the user
@@ -183,7 +183,8 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
      (list directory)))
   ;; `git init' does not understand the meaning of "~"!
   (magit-call-git "init" (magit-convert-filename-for-git
-                          (expand-file-name directory)))
+                          (expand-file-name directory))
+                  (and separate-git-dir "--separate-git-dir") separate-git-dir)
   (magit-status-internal directory))
 
 ;;;###autoload
