@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.13.0 (2.13.0-350-gc3d8c5763+1)
+@subtitle for version 2.13.0 (2.13.0-365-g14c7b1381+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.13.0 (2.13.0-350-gc3d8c5763+1).
+This manual is for Magit version 2.13.0 (2.13.0-365-g14c7b1381+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -94,7 +94,7 @@ General Public License for more details.
 
 Installation
 
-* Installing from an Elpa Archive::
+* Installing from Melpa::
 * Installing from the Git Repository::
 * Post-Installation Tasks::
 
@@ -426,13 +426,13 @@ Magit can be installed using Emacs' package manager or manually from
 its development repository.
 
 @menu
-* Installing from an Elpa Archive::
+* Installing from Melpa::
 * Installing from the Git Repository::
 * Post-Installation Tasks::
 @end menu
 
-@node Installing from an Elpa Archive
-@section Installing from an Elpa Archive
+@node Installing from Melpa
+@section Installing from Melpa
 
 Magit is available from Melpa and Melpa-Stable.  If you haven't used
 Emacs' package manager before, then it is high time you familiarize
@@ -484,13 +484,7 @@ Now see @ref{Post-Installation Tasks}.
 Magit depends on the @code{dash}, @code{ghub}, @code{graphql}, @code{magit-popup}, @code{treepy} and
 @code{with-editor} libraries which are available from Melpa and Melpa-Stable.
 Install them using @code{M-x package-install RET <package> RET}.  Of course
-you may also install them manually from their development repository.
-
-(An ancient release of Magit is also available from Marmalade, but
-no new versions will be uploaded.  Marmalade is unmaintained — its
-maintainer has stopped responding to support requests from package
-authors or even just to create new accounts so that new authors can
-upload their packages in the first place.)
+you may also install them manually from their repository.
 
 Then clone the Magit repository:
 
