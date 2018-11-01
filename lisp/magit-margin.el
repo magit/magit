@@ -146,9 +146,7 @@ does not carry to other options."
       (set-window-margins
        nil (car (window-margins))
        (and (magit-buffer-margin-p)
-            (if (bound-and-true-p magit-log-margin-show-shortstat)
-                16 ; kludge
-              (nth 2 magit-buffer-margin)))))))
+            (nth 2 magit-buffer-margin))))))
 
 (defun magit-make-margin-overlay (&optional string previous-line)
   (if previous-line

@@ -1358,17 +1358,19 @@ The shortstat style is experimental and rather slow."
      "")))
 
 (defun magit-log-margin-width (style details details-width)
-  (+ (if details (1+ details-width) 0)
-     (if (stringp style)
-         (length (format-time-string style))
-       (+ 2 ; two digits
-          1 ; trailing space
-          (if (eq style 'age-abbreviated)
-              1  ; single character
-            (+ 1 ; gap after digits
-               (apply #'max (--map (max (length (nth 1 it))
-                                        (length (nth 2 it)))
-                                   magit--age-spec))))))))
+  (if magit-log-margin-show-shortstat
+      16
+    (+ (if details (1+ details-width) 0)
+       (if (stringp style)
+           (length (format-time-string style))
+         (+ 2 ; two digits
+            1 ; trailing space
+            (if (eq style 'age-abbreviated)
+                1  ; single character
+              (+ 1 ; gap after digits
+                 (apply #'max (--map (max (length (nth 1 it))
+                                          (length (nth 2 it)))
+                                     magit--age-spec)))))))))
 
 ;;; Select Mode
 
