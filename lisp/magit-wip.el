@@ -350,6 +350,12 @@ commit message."
                 (concat "refs/heads/" branch))
               "HEAD")))
 
+(defun magit-wip-maybe-add-commit-hook ()
+  (when (and magit-wip-merge-branch
+             (magit-wip-any-enabled-p)
+             )
+    (add-hook 'with-editor-post-finish-hook 'magit-wip-commit nil t)))
+
 (defun magit-wip-any-enabled-p ()
   (or magit-wip-mode
       magit-wip-after-save-local-mode
