@@ -435,8 +435,9 @@ This is only used if Magit is available."
   ;; try to handle this in window-nt Emacs.
   (--when-let
       (and (or (string-match-p git-commit-filename-regexp buffer-file-name)
-               (if (boundp 'git-rebase-filename-regexp)
-                   (string-match-p git-rebase-filename-regexp buffer-file-name)))
+               (and (boundp 'git-rebase-filename-regexp)
+                    (string-match-p git-rebase-filename-regexp
+                                    buffer-file-name)))
            (not (file-accessible-directory-p
                  (file-name-directory buffer-file-name)))
            (if (require 'magit-git nil t)
