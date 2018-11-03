@@ -2337,11 +2337,12 @@ Do not confuse this with `magit-diff-scope' (which see)."
              (if (memq stype '(staged unstaged tracked untracked))
                  stype
                (pcase stype
-                 (`file (let* ((parent (oref it parent))
-                               (type   (oref parent type)))
-                          (if (eq type 'file)
-                              (magit-diff-type parent)
-                            type)))
+                 ((or `file `module)
+                  (let* ((parent (oref it parent))
+                         (type   (oref parent type)))
+                    (if (memq type '(file module))
+                        (magit-diff-type parent)
+                      type)))
                  (`hunk (-> it
                             (oref parent)
                             (oref parent)
@@ -2393,6 +2394,8 @@ actually a `diff' but a `diffstat' section."
         (`(hunk  ,_  ,_  ,_) 'hunk)
         (`(file   t   t nil) 'files)
         (`(file  ,_  ,_  ,_) 'file)
+        (`(module   t   t nil) 'files)
+        (`(module  ,_  ,_  ,_) 'file)
         (`(,(or `staged `unstaged `untracked)
            nil ,_ ,_) 'list)))))
 
@@ -2484,6 +2487,8 @@ are highlighted."
                      (not (eq this-command 'mouse-drag-region))))
      (`(file   t) 'magit-diff-file-heading-selection)
      (`(file nil) 'magit-diff-file-heading-highlight)
+     (`(module   t) 'magit-diff-file-heading-selection)
+     (`(module nil) 'magit-diff-file-heading-highlight)
      (`(hunk   t) 'magit-diff-hunk-heading-selection)
      (`(hunk nil) 'magit-diff-hunk-heading-highlight))))
 
