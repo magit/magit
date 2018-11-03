@@ -352,14 +352,7 @@ commit message."
 
 (defun magit-wip-maybe-add-commit-hook ()
   (when (and magit-wip-merge-branch
-             (magit-wip-any-enabled-p)
-             (not (memq last-command
-                        '(magit-sequencer-continue
-                          magit-sequencer-skip
-                          magit-am-continue
-                          magit-am-skip
-                          magit-rebase-continue
-                          magit-rebase-skip))))
+             (magit-wip-any-enabled-p))
     (add-hook 'git-commit-post-finish-hook 'magit-wip-commit nil t)))
 
 (defun magit-wip-any-enabled-p ()
