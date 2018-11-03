@@ -196,6 +196,10 @@ This hook is only run after pressing \\[with-editor-finish] in a buffer used
 to edit a commit message.  If a commit is created without the
 user typing a message into a buffer, then this hook is not run.
 
+This hook is not run until the new commit has been created.  If
+doing so takes Git longer than one second, then this hook isn't
+run at all.
+
 Also see `magit-post-commit-hook'."
   :group 'git-commit
   :type 'hook
@@ -496,10 +500,13 @@ This is only used if Magit is available."
             'git-commit-save-message nil t)
   (add-hook 'with-editor-pre-cancel-hook
             'git-commit-save-message nil t)
-  (add-hook 'with-editor-post-finish-hook
-            'git-commit-run-post-finish-hook nil t)
-  (when (fboundp 'magit-wip-maybe-add-commit-hook)
-    (magit-wip-maybe-add-commit-hook))
+  (when (fboundp 'magit-rev-parse)
+    (add-hook 'with-editor-post-finish-hook
+              (apply-partially 'git-commit-run-post-finish-hook
+                               (magit-rev-parse "HEAD"))
+              nil t)
+    (when (fboundp 'magit-wip-maybe-add-commit-hook)
+      (magit-wip-maybe-add-commit-hook)))
   (setq with-editor-cancel-message
         'git-commit-cancel-message)
   (make-local-variable 'log-edit-comment-ring-index)
@@ -514,8 +521,17 @@ This is only used if Magit is available."
   (run-hooks 'git-commit-setup-hook)
   (set-buffer-modified-p nil))
 
-(defun git-commit-run-post-finish-hook ()
-  (run-hooks 'git-commit-post-finish-hook))
+(defun git-commit-run-post-finish-hook (previous)
+  (when git-commit-post-finish-hook
+    (cl-block nil
+      (let ((start (current-time)))
+        (while (equal (magit-rev-parse "HEAD") previous)
+          (when (> (float-time (time-subtract (current-time) start)) 1)
+            (message "No commit created after 1 second.  Not running %s."
+                     'git-commit-post-finish-hook)
+            (cl-return))
+          (sit-for 0.1))))
+    (run-hooks 'git-commit-post-finish-hook)))
 
 (define-minor-mode git-commit-mode
   "Auxiliary minor mode used when editing Git commit messages.
