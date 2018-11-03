@@ -6327,7 +6327,7 @@ then ~HEAD~ is used in place of ~<branchref>~.
 Checking out another branch (or detaching ~HEAD~) causes the use of
 different wip refs for subsequent changes.
 
-- User Option: magit-wip-after-save-mode
+- User Option: magit-wip-mode
 
   When this mode is enabled, then uncommitted changes are committed
   to dedicated work-in-progress refs whenever appropriate (i.e. when
@@ -6340,32 +6340,6 @@ different wip refs for subsequent changes.
   ~magit-wip-*~ modes, which can also be used individually, if you want
   finer control over when the wip refs are updated; but that is
   discouraged.  See [[*Legacy Wip Modes]].
-
-- User Option: magit-wip-merge-branch
-
-  This option controls whether the current branch is merged into the
-  wip refs after a new commit was created on the branch.
-
-  If non-nil and the current branch has new commits, then it is
-  merged into the wip ref before creating a new wip commit.  This
-  makes it easier to inspect wip history and the wip commits are
-  never garbage collected.
-
-  This is the default.  The commit graph will look like this:
-
-  #+BEGIN_EXAMPLE
-      ,*--*--*--*--*--*       refs/wip/index/refs/heads/master
-     /     /     /
-    A-----B-----C            refs/heads/master
-  #+END_EXAMPLE
-
-  If nil and the current branch has new commits, then the wip ref
-  is reset to the tip of the branch before creating a new wip
-  commit.  With this setting wip commits are eventually garbage
-  collected.
-
-  This used to be the default but complicates things quite a bit.
-  See [[*Legacy Wip Graph]] for more information.
 
 To view the log for a branch and its wip refs use the commands
 ~magit-wip-log~ and ~magit-wip-log-current~.  You should use ~--graph~ when
@@ -6430,18 +6404,38 @@ are being committed.
 
   Mode-line lighter for ~magit-wip--mode~.
 
-*** Legacy Wip Graph
+*** Wip Graph
 
-The value of option ~magit-wip-merge-branch~ (which see) is ~t~ by
-default.  If you change it to ~nil~ (which isn't recommended) then the
-following information becomes relevant.
+- User Option: magit-wip-merge-branch
 
-Creating a commit and then making a change causes the wip refs to be
-recreated to fork from the new commit.  But the old commits on the wip
-refs are not lost.  They are still available from the reflog.  To make
-it easier to see when the fork point of a wip ref was changed, an
-additional commit with the message "restart autosaving" is created on
-it (~xxO~ commits below are such boundary commits).
+  This option controls whether the current branch is merged into the
+  wip refs after a new commit was created on the branch.
+
+  If non-nil and the current branch has new commits, then it is
+  merged into the wip ref before creating a new wip commit.  This
+  makes it easier to inspect wip history and the wip commits are
+  never garbage collected.
+
+  If nil and the current branch has new commits, then the wip ref
+  is reset to the tip of the branch before creating a new wip
+  commit.  With this setting wip commits are eventually garbage
+  collected.
+
+When ~magit-wip-merge-branch~ is ~t~, then the history looks like this:
+
+#+BEGIN_EXAMPLE
+  ,*--*--*--*--*--*       refs/wip/index/refs/heads/master
+ /     /     /
+A-----B-----C            refs/heads/master
+#+END_EXAMPLE
+
+When ~magit-wip-merge-branch~ is ~nil~, then creating a commit on the real
+branch and then making a change causes the wip refs to be recreated to
+fork from the new commit.  But the old commits on the wip refs are not
+lost.  They are still available from the reflog.  To make it easier to
+see when the fork point of a wip ref was changed, an additional commit
+with the message "restart autosaving" is created on it (~xxO~ commits
+below are such boundary commits).
 
 Starting with
 
