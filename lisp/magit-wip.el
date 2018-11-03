@@ -360,7 +360,7 @@ commit message."
                           magit-am-skip
                           magit-rebase-continue
                           magit-rebase-skip))))
-    (add-hook 'with-editor-post-finish-hook 'magit-wip-commit nil t)))
+    (add-hook 'git-commit-post-finish-hook 'magit-wip-commit nil t)))
 
 (defun magit-wip-any-enabled-p ()
   (or magit-wip-mode
