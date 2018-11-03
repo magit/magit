@@ -1019,7 +1019,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
               (magit-refresh-buffer)))
           (magit-auto-revert-buffers)
           (cond
-           ((memq this-command magit-post-commit-hook-commands)
+           ((and (not this-command)
+                 (memq last-command magit-post-commit-hook-commands))
             (magit-run-hook-with-benchmark 'magit-post-commit-hook))
            ((memq this-command magit-post-stage-hook-commands)
             (magit-run-hook-with-benchmark 'magit-post-stage-hook))
