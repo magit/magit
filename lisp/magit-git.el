@@ -1636,8 +1636,12 @@ Return a list of two integers: (A>B B>A)."
 Each entry controls how a certain type of ref is displayed, and
 has the form (REGEXP . FACE).  REGEXP is a regular expression
 used to match full refs.  The first entry whose REGEXP matches
-the reference is used.  The first regexp submatch becomes the
-\"label\" that represents the ref and is propertized with FONT.")
+the reference is used.
+
+In log and revision buffers the first regexp submatch becomes the
+\"label\" that represents the ref and is propertized with FONT.
+In refs buffers the displayed text is controlled by other means
+and this option only controls what face is used.")
 
 (defun magit-format-ref-labels (string)
   ;; To support Git <2.2.0, we remove the surrounding parentheses here

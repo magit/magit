@@ -539,10 +539,10 @@ line is inserted at all."
                   (concat pull (and pull push ", ") push))))
       (let (head)
         (dolist (line (magit-git-lines "for-each-ref" "--format=\
-%(symref:short)%00%(refname:short)%00%(subject)"
+%(symref:short)%00%(refname:short)%00%(refname)%00%(subject)"
                                        (concat "refs/remotes/" remote)
                                        (cadr magit-refresh-args)))
-          (pcase-let ((`(,head-branch ,branch ,msg)
+          (pcase-let ((`(,head-branch ,branch ,ref ,msg)
                        (-replace "" nil (split-string line "\0"))))
             (if head-branch
                 (progn (cl-assert (equal branch (concat remote "/HEAD")))
@@ -555,10 +555,8 @@ line is inserted at all."
                                   (substring branch (1+ (length remote))))))
                     (magit-insert-heading
                       (magit-refs--format-focus-column branch)
-                      (propertize abbrev 'face
-                                  (if headp
-                                      'magit-branch-remote-head
-                                    'magit-branch-remote))
+                      (magit-refs--propertize-branch
+                       abbrev ref (and headp 'magit-branch-remote-head))
                       (make-string (max 1 (- magit-refs-primary-column-width
                                              (length abbrev)))
                                    ?\s)
@@ -591,7 +589,7 @@ line is inserted at all."
                       (magit-git-lines
                        "for-each-ref"
                        (concat "--format=\
-%(HEAD)%00%(refname:short)%00\
+%(HEAD)%00%(refname:short)%00%(refname)%00\
 %(upstream:short)%00%(upstream)%00%(upstream:track)%00"
                                (if magit-refs-show-push-remote "\
 %(push:remotename)%00%(push)%00%(push:track)%00%(subject)"
@@ -600,7 +598,7 @@ line is inserted at all."
                        (cadr magit-refresh-args)))))
     (unless (magit-get-current-branch)
       (push (magit-refs--format-local-branch
-             (concat "*\0\0\0\0\0\0\0" (magit-rev-format "%s")))
+             (concat "*\0\0\0\0\0\0\0\0" (magit-rev-format "%s")))
             lines))
     (setq-local magit-refs-primary-column-width
                 (let ((def (default-value 'magit-refs-primary-column-width)))
@@ -622,7 +620,7 @@ line is inserted at all."
             lines)))
 
 (defun magit-refs--format-local-branch (line)
-  (pcase-let ((`(,head ,branch ,upstream ,u:ref ,u:track
+  (pcase-let ((`(,head ,branch ,ref ,upstream ,u:ref ,u:track
                        ,push ,p:ref ,p:track ,msg)
                (-replace "" nil (split-string line "\0"))))
     (when (or (not branch)
@@ -632,10 +630,11 @@ line is inserted at all."
                          magit-refs-show-push-remote
                          (magit-rev-verify p:ref)
                          (not (equal p:ref u:ref))))
-             (branch-desc (propertize (or branch "(detached)")
-                                      'face (if (and headp branch)
-                                                'magit-branch-current
-                                              'magit-branch-local)))
+             (branch-desc
+              (if branch
+                  (magit-refs--propertize-branch
+                   branch ref (and headp 'magit-branch-current))
+                (propertize "(detached)" 'face 'font-lock-warning-face)))
              (u:ahead  (and u:track
                             (string-match "ahead \\([0-9]+\\)" u:track)
                             (propertize
@@ -669,14 +668,9 @@ line is inserted at all."
               (magit-refs--format-focus-column branch headp)
               branch-desc u:ahead p:ahead u:behind
               (and upstream
-                   (concat (propertize
-                            upstream 'face
-                            (cond ((equal u:track "[gone]")
-                                   'error)
-                                  ((string-prefix-p "refs/heads/" u:ref)
-                                   'magit-branch-local)
-                                  (t
-                                   'magit-branch-remote)))
+                   (concat (if (equal u:track "[gone]")
+                               (propertize upstream 'face 'error)
+                             (magit-refs--propertize-branch upstream u:ref))
                            " "))
               (and pushp
                    (concat p:behind
@@ -710,6 +704,12 @@ line is inserted at all."
                      (t "="))
                'face 'magit-dimmed)))
            (t "")))))
+
+(defun magit-refs--propertize-branch (branch ref &optional head-face)
+  (let ((face (cdr (cl-find-if (pcase-lambda (`(,re . ,_))
+                                 (string-match-p re ref))
+                               magit-ref-namespaces))))
+    (propertize branch 'face (if head-face (list face head-face) face))))
 
 (defun magit-refs--insert-refname-p (refname)
   (--if-let (-first (pcase-lambda (`(,key . ,_))
