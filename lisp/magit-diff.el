@@ -392,6 +392,24 @@ any build."
   :group 'magit-revision
   :type 'boolean)
 
+(defcustom magit-revision-fill-summary-line nil
+  "Whether to fill excessively long summary lines.
+
+If this is an integer, then the summary line is filled if it is
+longer than either the limit specified here or `window-width'.
+
+You may want to only set this locally in \".dir-locals-2.el\" for
+repositories known to contain bad commit messages.
+
+The body of the message is left alone because (a) most people who
+write excessively long summary lines usually don't add a body and
+(b) even people who have the decency to wrap their lines may have
+a good reason to include a long line in the body sometimes."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-revision
+  :type '(choice (const   :tag "Don't fill" nil)
+                 (integer :tag "Fill if longer than")))
+
 ;;;; Diff Sections
 
 (defcustom magit-diff-section-arguments '("--no-ext-diff")
@@ -2049,6 +2067,10 @@ or a ref which is not a branch, then it inserts nothing."
         (save-excursion
           (while (search-forward "\r\n" nil t) ; Remove trailing CRs.
             (delete-region (match-beginning 0) (1+ (match-beginning 0)))))
+        (when magit-revision-fill-summary-line
+          (let ((fill-column (min magit-revision-fill-summary-line
+                                  (window-width))))
+            (fill-region (point) (line-end-position))))
         (when magit-revision-use-hash-sections
           (save-excursion
             (while (not (eobp))
