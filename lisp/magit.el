@@ -471,7 +471,7 @@ and Emacs to it."
                              (package-version-join
                               (package-desc-version (cadr it))))))))
             (progn
-              (push 'debug debug)
+              (push 'dirname debug)
               (let ((dirname (file-name-nondirectory
                               (directory-file-name topdir))))
                 (when (string-match "\\`magit-\\([0-9]\\{8\\}\\.[0-9]*\\)"
