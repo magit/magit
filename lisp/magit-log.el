@@ -141,6 +141,13 @@ This is useful if you use really long branch names."
                  (function-item magit-log-header-line-sentence)
                  function))
 
+(defcustom magit-log-trace-definition-function 'which-function
+  "Function used to determine the function at point.
+This is used by the command `magit-log-trace-definition'."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-log
+  :type '(choice (function-item which-function) function))
+
 (defface magit-log-graph
   '((((class color) (background light)) :foreground "grey30")
     (((class color) (background  dark)) :foreground "grey80"))
@@ -715,7 +722,7 @@ active, restrict the log to the lines that the region touches."
   "Show log for the definition at point."
   (interactive (list (or (magit-file-relative-name)
                          (user-error "Buffer isn't visiting a file"))
-                     (which-function)
+                     (funcall magit-log-trace-definition-function)
                      (or magit-buffer-refname
                          (magit-get-current-branch)
                          "HEAD")))

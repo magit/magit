@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.13.0 (2.13.0-365-g14c7b1381+1)
+#+SUBTITLE: for version 2.13.0 (2.13.0-383-gdc0a2e703+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.13.0 (2.13.0-365-g14c7b1381+1).
+This manual is for Magit version 2.13.0 (2.13.0-383-gdc0a2e703+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -2851,6 +2851,12 @@ These commands are available in diff buffers.
 - Key: C-c C-t, magit-diff-trace-definition
 
   From a diff, show log for the definition at point.
+
+- User Option: magit-log-trace-definition-function
+
+  The function used by ~magit-log-trace-definition~ to determine the
+  function at point.  For major-modes that have special needs, you
+  could set that using the mode's hook.
 
 - Key: C-c C-e, magit-diff-edit-hunk-commit
 
