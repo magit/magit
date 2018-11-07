@@ -33,6 +33,9 @@
 (require 'dash)
 (require 'eieio)
 
+(eval-when-compile
+  (require 'subr-x))
+
 (require 'magit-utils)
 
 (declare-function magit-maybe-make-margin-overlay "magit-margin" ())

@@ -27,9 +27,10 @@
 
 ;;; Code:
 
-(require 'magit)
+(eval-when-compile
+  (require 'subr-x))
 
-(eval-when-compile (require 'subr-x))
+(require 'magit)
 
 (defvar bookmark-make-record-function)
 

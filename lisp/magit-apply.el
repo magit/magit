@@ -30,6 +30,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'subr-x))
+
 (require 'magit-core)
 (require 'magit-diff)
 (require 'magit-wip)

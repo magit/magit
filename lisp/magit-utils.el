@@ -40,9 +40,9 @@
 
 (require 'cl-lib)
 (require 'dash)
-(require 'subr-x)
 
-(require 'magit-popup)
+(eval-when-compile
+  (require 'subr-x))
 
 (require 'crm)
 
@@ -57,6 +57,8 @@
 (declare-function vc-git--run-command-string "vc-git" (file &rest args))
 
 (defvar magit-wip-before-change-mode)
+
+(require 'magit-popup)
 
 ;;; Options
 

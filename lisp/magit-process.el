@@ -35,6 +35,9 @@
 (require 'cl-lib)
 (require 'dash)
 
+(eval-when-compile
+  (require 'subr-x))
+
 (require 'with-editor)
 (require 'magit-utils)
 (require 'magit-section)

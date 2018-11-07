@@ -24,6 +24,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'subr-x))
+
 (require 'magit)
 
 (declare-function dired-read-shell-command "dired-aux" (prompt arg files))

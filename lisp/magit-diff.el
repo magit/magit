@@ -28,6 +28,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'subr-x))
+
 (require 'git-commit)
 (require 'magit-core)
 

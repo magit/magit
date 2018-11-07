@@ -27,6 +27,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'subr-x))
+
 (require 'magit)
 
 (declare-function magit-git-push "magit-push" (branch target args))

@@ -52,6 +52,9 @@
 (require 'crm)
 (require 'which-func)
 
+(eval-when-compile
+  (require 'subr-x))
+
 (defvar bookmark-make-record-function)
 
 ;;; Options
