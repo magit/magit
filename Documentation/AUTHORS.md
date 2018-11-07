@@ -66,6 +66,7 @@ Contributors
 - Andriy Kmit' <dev@madand.net>
 - Andy Sawyer <git@pureabstract.org>
 - Aria Edmonds <aria@ar1as.space>
+- Arialdo Martini <arialdomartini@gmail.com>
 - Barak A. Pearlmutter <barak+git@pearlmutter.net>
 - Bar Magal <bmagamb@gmail.com>
 - Bart Bakker <bart@thesoftwarecraft.com>
@@ -158,6 +159,7 @@ Contributors
 - Jonathan Leech-Pepin <jonathan.leechpepin@gmail.com>
 - Jonathan Roes <jroes@jroes.net>
 - Jon Vanderwijk <jonathn@github.com>
+- Jordan Galby <gravemind2a@gmail.com>
 - Jordan Greenberg <jordan@softwareslave.com>
 - Josiah Schwab <jschwab@gmail.com>
 - Julien Danjou <julien@danjou.info>
@@ -181,8 +183,10 @@ Contributors
 - Li-Yun Chang <michael142536@gmail.com>
 - Lluís Vilanova <vilanova@ac.upc.edu>
 - Loic Dachary <loic@dachary.org>
+- Louis Roché <louis@louisroche.net>
 - Luís Oliveira <luismbo@gmail.com>
 - Luke Amdor <luke.amdor@gmail.com>
+- Mak Kolybabi <mak@kolybabi.com>
 - Manuel Vázquez Acosta <mva.led@gmail.com>
 - Marcel Wolf <mwolf@ml1.net>
 - Marc Herbert <marc.herbert@gmail.com>
