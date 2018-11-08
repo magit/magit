@@ -39,7 +39,8 @@
   "Popup console for gitignore commands."
   :man-page "gitignore"
   :actions '((?l "ignore locally"  magit-gitignore-locally)
-             (?g "ignore in .gitignore" magit-gitignore-globally))
+             (?g "ignore in .gitignore" magit-gitignore-globally)
+             (?s "ignore system-wide" magit-gitignore-system))
   :max-action-columns 1)
 
 ;;;###autoload
@@ -55,14 +56,27 @@ Magit will edit the .gitignore file in the project's working directory root."
   "Instruct Git to ignore FILE-OR-PATTERN in the current checkout only.
 
 Magit will edit the info/exclude file in the project's git directory."
-  (interactive (list (magit-gitignore-read-pattern t)))
+  (interactive (list (magit-gitignore-read-pattern " locally")))
   (magit--gitignore file-or-pattern t))
+
+;;;###autoload
+(defun magit-gitignore-system (file-or-pattern)
+  "Instruct Git to ignore FILE-OR-PATTERN in all repositories on this system.
+
+Magit will edit the file indicated in git's core.excludesfile setting."
+  (interactive (list (magit-gitignore-read-pattern " system-wide")))
+  (magit--gitignore file-or-pattern 'system))
 
 (defun magit--gitignore (file-or-pattern local)
   (let ((gitignore
-         (if local
-             (magit-git-dir (convert-standard-filename "info/exclude"))
-           (expand-file-name ".gitignore" (magit-toplevel)))))
+         (cond
+          ((eq local 'system)
+           (or (magit-get "core.excludesfile")
+               (error "core.excludesfile is not set")))
+          (local
+           (magit-git-dir (convert-standard-filename "info/exclude")))
+          (t
+           (expand-file-name ".gitignore" (magit-toplevel))))))
     (make-directory (file-name-directory gitignore) t)
     (with-temp-buffer
       (when (file-exists-p gitignore)
@@ -77,7 +91,7 @@ Magit will edit the info/exclude file in the project's git directory."
         (magit-refresh)
       (magit-run-git "add" ".gitignore"))))
 
-(defun magit-gitignore-read-pattern (local)
+(defun magit-gitignore-read-pattern (message-suffix)
   (let* ((default (magit-current-file))
          (choices
           (delete-dups
@@ -93,8 +107,7 @@ Magit will edit the info/exclude file in the project's git directory."
         (setq default (concat "*." (file-name-extension default)))
         (unless (member default choices)
           (setq default nil))))
-    (magit-completing-read (concat "File or pattern to ignore"
-                                   (and local " locally"))
+    (magit-completing-read (concat "File or pattern to ignore" message-suffix)
                            choices nil nil nil nil default)))
 
 ;;; _
