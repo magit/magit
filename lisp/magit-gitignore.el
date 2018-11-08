@@ -39,18 +39,22 @@
   "Popup console for gitignore commands."
   :man-page "gitignore"
   :actions '((?l "ignore locally"  magit-gitignore-locally)
-             (?g "ignore globally" magit-gitignore-globally))
+             (?g "ignore in .gitignore" magit-gitignore-globally))
   :max-action-columns 1)
 
 ;;;###autoload
 (defun magit-gitignore-globally (file-or-pattern)
-  "Instruct Git to globally ignore FILE-OR-PATTERN."
+  "Instruct Git to ignore FILE-OR-PATTERN in all checkouts of this repository.
+
+Magit will edit the .gitignore file in the project's working directory root."
   (interactive (list (magit-gitignore-read-pattern nil)))
   (magit--gitignore file-or-pattern nil))
 
 ;;;###autoload
 (defun magit-gitignore-locally (file-or-pattern)
-  "Instruct Git to locally ignore FILE-OR-PATTERN."
+  "Instruct Git to ignore FILE-OR-PATTERN in the current checkout only.
+
+Magit will edit the info/exclude file in the project's git directory."
   (interactive (list (magit-gitignore-read-pattern t)))
   (magit--gitignore file-or-pattern t))
 
