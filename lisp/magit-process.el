@@ -770,14 +770,14 @@ prompt.  If and only if one is found, then call functions in
 `magit-process-find-password-functions' until one of them returns
 the password.  If all function return nil, then read the password
 from the user."
-  (--when-let (magit-process-match-prompt
-               magit-process-password-prompt-regexps string)
+  (when-let ((prompt (magit-process-match-prompt
+                      magit-process-password-prompt-regexps string)))
     (process-send-string
      process (magit-process-kill-on-abort process
-               (concat (or (--when-let (match-string 99 string)
+               (concat (or (when-let ((key (match-string 99 string)))
                              (run-hook-with-args-until-success
-                              'magit-process-find-password-functions it))
-                           (read-passwd it))
+                              'magit-process-find-password-functions key))
+                           (read-passwd prompt))
                        "\n")))))
 
 (defun magit-process-username-prompt (process string)
