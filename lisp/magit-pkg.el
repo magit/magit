@@ -1,9 +1,9 @@
-(define-package "magit" "2.13.1"
+(define-package "magit" "2.90.0"
   "A Git porcelain inside Emacs."
   '((emacs "25.1")
-    (async "20180527")
-    (dash "20180413")
-    (ghub "20180417")
-    (git-commit "20180602")
-    (magit-popup "20180509")
-    (with-editor "20180414")))
+    (async "1.9.3")
+    (dash "2.14.1")
+    (ghub "3.0.0")
+    (git-commit "2.13.0")
+    (magit-popup "2.12.4")
+    (with-editor "2.8.0")))

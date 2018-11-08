@@ -1,4 +1,26 @@
-* Magit v2.90.0 Release Notes (unreleased)
+* It's Magit!  A Git Porcelain inside Emacs
+
+Magit is a text-based Git user interface that puts an unmatched focus
+on streamlining workflows. Commands are invoked using short mnemonic
+key sequences that take the cursor’s position in the highly actionable
+interface into account to provide context-sensitive behavior.
+
+With Magit you can do nearly everything that you can do when using Git
+on the command-line, but at greater speed and while taking advantage
+of advanced features that previously seemed too daunting to use on a
+daily basis. Many users will find that by using Magit they can become
+more effective Git user.
+
+For more information about Magit, see https://magit.vc.
+
+* Magit v2.90.0 Release Notes
+
+Released 8th November 2018 by Jonas Bernoulli.
+
+I am pleased to announce the release of Magit version 2.90.0,
+representing 395 commits by 18 contributors over five months.
+
+Also see https://emacsair.me/2018/11/08/magit-2.90.
 
 ** Breaking changes
 
@@ -391,3 +413,26 @@
 - When a local branch is being renamed, then ~magit-branch-rename~ used
   to also rename the (remote) push-target, which is unsafe in some
   cases.  Now it always asks the user before doing so.  14c7b1381
+
+* Authors
+
+   333  Jonas Bernoulli
+    31  Kyle Meyer
+    13  Noam Postavsky
+     2  Phil Sainty
+     1  Alex Branham
+     1  Aria Edmonds
+     1  Arialdo Martini
+     1  Basil L. Contovounesios
+     1  Benjamin Motz
+     1  Bob Uhl
+     1  Eric Prud'hommeaux
+     1  Felix Yan
+     1  John Morris
+     1  Jordan Galby
+     1  Louis Roché
+     1  Mak Kolybabi
+     1  Miciah Masters
+     1  N. Troy de Freitas
+     1  Pierre Neidhardt
+     1  Raimon Grau
