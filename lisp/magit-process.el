@@ -158,8 +158,8 @@ itself from the hook, to avoid further futile attempts."
 
 (defcustom magit-process-password-prompt-regexps
   '("^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
-    ;; match-group 99 is used to identify a host
-    "^\\(Enter \\)?[Pp]assword\\( for '\\(?99:.*\\)'\\)?: ?$"
+    ;; Match-group 99 is used to identify the "user@host" part.
+    "^\\(Enter \\)?[Pp]assword\\( for '\\(https?://\\)?\\(?99:.*\\)'\\)?: ?$"
     "^.*'s password: ?$"
     "^Yubikey for .*: ?$"
     "^Enter PIN for .*: ?$")
@@ -749,19 +749,18 @@ which matches the ~/.authinfo.gpg entry
   machine bitbucket.org login tarsius password 12345
 or iff that is undefined, for backward compatibility
   machine tarsius@bitbucket.org password 12345"
-  (message "key: %S" key)
   (require 'auth-source)
-  (let ((secret
-         (plist-get
-          (car (or (and (string-match "\\([^@]+\\)@\\([^@]+\\)" key)
-                        (auth-source-search :max 1
-                                            :host (match-string 2 key)
-                                            :login (match-string 1 key)))
-                   (auth-source-search :max 1 :host key)))
-          :secret)))
-    (if (functionp secret)
-        (funcall secret)
-      secret)))
+  (and (string-match "\\`\\([^@]+\\)@\\([^@]+\\)\\'" key)
+       (let* ((user (match-string 1 key))
+              (host (match-string 2 key))
+              (secret
+               (plist-get
+                (car (or (auth-source-search :max 1 :host host :user user)
+                         (auth-source-search :max 1 :host key)))
+                :secret)))
+         (if (functionp secret)
+             (funcall secret)
+           secret))))
 
 (defun magit-process-password-prompt (process string)
   "Find a password based on prompt STRING and send it to git.
