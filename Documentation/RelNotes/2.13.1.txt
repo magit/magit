@@ -1,0 +1,34 @@
+Magit v2.13.1 Release Notes
+===========================
+
+Fixes since v2.13.0
+-------------------
+
+* The prompt used by `magit-rebase-interactive-assert' was wrong.
+  37d76f409
+
+* `magit-rebase-autosquash' asked for confirmation when the user
+  already confirmed earlier.  02e6c75b6
+
+* `magit-log-wash-rev` errored in ~magit-cherry-mode~, starting with
+  Emacs 26.1.  1ee577b35
+
+* Magit used a completion function to make the built-in completion
+  respect the collection's order.  Even though that wasn't necessary
+  for Ivy and Helm it did the same here, which became a problem when a
+  change in Helm caused fuzzy completion to break in combination with
+  a completion function.  Likewise a change in Ivy caused Magit's sort
+  order to be ignored, which we work around now.  #3476, #3477
+
+* When using cygwin, then `git-commit-setup-font-lock' could end up
+  trying to run git in a non-existent directory.  #3505
+
+* `magit-insert-modules-unpushed-to-pushremote' failed to insert
+  anything due to a typo in the used commit range.  d4e159f35
+
+Authors
+-------
+
+    11  Jonas Bernoulli
+     8  Kyle Meyer
+     5  Noam Postavsky
