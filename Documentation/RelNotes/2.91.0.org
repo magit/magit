@@ -1,0 +1,4 @@
+* Magit v2.91.0 Release Notes (unreleased)
+** Breaking changes
+** Changes since v2.90.0
+** Fixes since v2.90.0
