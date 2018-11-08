@@ -602,7 +602,7 @@ and `:slant'."
     (((class color) (background dark))
      :background "grey20"
      :foreground "grey70"))
-  "Face for lines in a diff that have been removed."
+  "Face for lines in the current context in a diff."
   :group 'magit-faces)
 
 (defface magit-diff-whitespace-warning
