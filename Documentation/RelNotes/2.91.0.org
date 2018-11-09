@@ -2,3 +2,6 @@
 ** Breaking changes
 ** Changes since v2.90.0
 ** Fixes since v2.90.0
+
+- Staging and unstaging submodules while ~diff.submodule~'s value is ~log~
+  broke shortly before the v2.90.0 release.  #3654
