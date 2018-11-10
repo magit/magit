@@ -183,9 +183,10 @@ Usually this is just its basename."
                ;; If there are no tags, use the date in MELPA format.
                (magit-git-string "show" "--no-patch" "--format=%cd-g%h"
                                  "--date=format:%Y%m%d.%H%M"))))
-    (if (and v (string-match-p "\\`[0-9]" v))
-        (concat " " v)
-      v)))
+    (save-match-data
+      (if (and v (string-match "\\`[0-9]" v))
+          (concat " " v)
+        v))))
 
 (defun magit-repolist-column-branch (_id)
   "Insert the current branch."
