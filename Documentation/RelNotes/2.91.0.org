@@ -1,6 +1,10 @@
 * Magit v2.91.0 Release Notes (unreleased)
 ** Breaking changes
 ** Changes since v2.90.0
+
+- The "Version" column in ~magit-submodule-list-mode~ and
+  ~magit-repolist-mode~ buffers now shows when a repository is dirty.
+
 ** Fixes since v2.90.0
 
 - Staging and unstaging submodules while ~diff.submodule~'s value is ~log~
