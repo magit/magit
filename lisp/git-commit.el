@@ -175,6 +175,7 @@ The major mode configured here is turned on by the minor mode
     git-commit-setup-changelog-support
     git-commit-turn-on-auto-fill
     git-commit-propertize-diff
+    bug-reference-mode
     with-editor-usage-message)
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
