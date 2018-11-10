@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.0
+@subtitle for version 2.90.0 (v2.90.0-4-g13b32ae1c+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.0.
+This manual is for Magit version 2.90.0 (v2.90.0-4-g13b32ae1c+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4085,7 +4085,7 @@ Whether to show related branches in revision buffers.
 @end itemize
 @end defopt
 
-@defopt magit-revision-show-gravatar
+@defopt magit-revision-show-gravatars
 
 Whether to show gravatar images in revision buffers.
 
