@@ -5,6 +5,16 @@
 - The "Version" column in ~magit-submodule-list-mode~ and
   ~magit-repolist-mode~ buffers now shows when a repository is dirty.
 
+- Added new command ~magit-log-merged~.  This command requires
+  ~git-when-merged~ (https://github.com/mhagger/git-when-merged).  It
+  isn't bound in ~magit-log-popup~ by default.  To add it, you can use
+  something like
+
+  #+BEGIN_SRC emacs-lisp
+    (magit-define-popup-action 'magit-log-popup
+      ?m "Log commit's merge" 'magit-log-merged)
+  #+END_SRC
+
 ** Fixes since v2.90.0
 
 - Staging and unstaging submodules while ~diff.submodule~'s value is ~log~

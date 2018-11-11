@@ -753,6 +753,27 @@ active, restrict the log to the lines that the region touches."
         (goto-char pos)
         (call-interactively #'magit-log-trace-definition)))))
 
+;;;###autoload
+(defun magit-log-merged (commit branch &optional args files)
+  "Show log for the merge of COMMIT into BRANCH.
+More precisely, find merge commit M that brought COMMIT into
+BRANCH, and show the log of the range \"M^..M\".  This command
+requires git-when-merged, which is available from
+https://github.com/mhagger/git-when-merged."
+  (interactive
+   (append (let ((commit (magit-read-branch-or-commit "Commit")))
+             (list commit
+                   (magit-read-other-branch "Merged into" commit)))
+           (magit-log-arguments)))
+  (unless (executable-find "git-when-merged")
+    (user-error "This command requires git-when-merged (%s)"
+                "https://github.com/mhagger/git-when-merged"))
+  (magit-git-log
+   (list (or (magit-git-string "when-merged" "--show-branch" commit branch)
+             (user-error "Could not find when %s was merged into %s"
+                         commit branch)))
+   args files))
+
 (defun magit-git-reflog (ref args)
   (require 'magit)
   (magit-mode-setup #'magit-reflog-mode ref args))
