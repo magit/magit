@@ -137,7 +137,7 @@ branch, then also remove the respective remote branch."
 (defun magit--merge-absort (branch args)
   (when (equal branch "master")
     (unless (yes-or-no-p
-             "Do you really want to to merge `master' into another branch? ")
+             "Do you really want to merge `master' into another branch? ")
       (user-error "Abort")))
   (if-let ((target (magit-get-push-branch branch t)))
       (progn
