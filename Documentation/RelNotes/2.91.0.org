@@ -1,5 +1,15 @@
 * Magit v2.91.0 Release Notes (unreleased)
 ** Breaking changes
+
+- ~C-c C-e~ is no longer bound to ~magit-dispatch-popup~.  It is bound
+  to  ~magit-edit-thing~ now, so that Forge can add section-specific
+  bindings using this key.  ~magit-dispatch-popup~ continues to be
+  available on ~h~, ~?~ and ~C-c C-c~.  #3659
+
+- ~C-c C-b~ is no longer bound to ~magit-browse-thing~ to avoid a conflict
+  with ~magit-go-backward~ in diff and log buffers.  ~C-c C-w~ (as in web)
+  is used instead now.  #3659
+
 ** Changes since v2.90.0
 
 - The "Version" column in ~magit-submodule-list-mode~ and
