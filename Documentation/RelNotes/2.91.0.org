@@ -29,3 +29,7 @@
 
 - Staging and unstaging submodules while ~diff.submodule~'s value is ~log~
   broke shortly before the v2.90.0 release.  #3654
+
+- When another window is already displaying the file buffer, then
+  ~magit-display-file-buffer-other-window~ did additionally display
+  it in the current window.  #3662
