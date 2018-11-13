@@ -902,7 +902,7 @@ latter is displayed in its place."
                                   major-mode value)))
       (user-error "Buffer has no value it could be locked to"))))
 
-(defvar magit-buffer-lock-functions nil
+(defvar magit-buffer-lock-functions '((forge-topic-mode . car))
   "Provide buffer-locking support for third-party modes.
 An alist of symbols to functions.
 
