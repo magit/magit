@@ -25,6 +25,11 @@
       ?m "Log commit's merge" 'magit-log-merged)
   #+END_SRC
 
+- Added new class slot ~keymap~ to allow other packages to define
+  section-specific keymaps without naming them ~magit-TYPE-section-map~,
+  which would mean using a symbol prefix (~magit-~) that does not match
+  the package name.
+
 ** Fixes since v2.90.0
 
 - Staging and unstaging submodules while ~diff.submodule~'s value is ~log~
