@@ -1,5 +1,4 @@
-* Magit v2.91.0 Release Notes (unreleased)
-** Breaking changes
+* Magit v2.90.1 Release Notes
 ** Changes since v2.90.0
 
 - Added ~bug-reference-mode~ to ~git-commit-setup-hook~.  e19e8fb1e
@@ -31,3 +30,10 @@
 
 - Staging and unstaging submodules while ~diff.submodule~'s value is ~log~
   broke shortly before the v2.90.0 release.  #3654
+
+* Authors
+
+    10  Jonas Bernoulli
+     1  Allen Li
+     1  Kevin Brubeck Unhammer
+     1  Kyle Meyer
