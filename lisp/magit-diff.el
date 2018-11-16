@@ -1354,7 +1354,7 @@ whether `magit-diff-visit-file' uses this function."
 With a prefix argument display it in the current window.
 Option `magit-display-file-buffer-function' controls
 whether `magit-diff-visit-file' uses this function."
-  (if (or current-prefix-arg (get-buffer-window buffer))
+  (if current-prefix-arg
       (switch-to-buffer buffer)
     (pop-to-buffer buffer)))
 

@@ -1,5 +1,15 @@
 * Magit v2.91.0 Release Notes (unreleased)
 ** Breaking changes
+
+- ~C-c C-e~ is no longer bound to ~magit-dispatch-popup~.  It is bound
+  to  ~magit-edit-thing~ now, so that Forge can add section-specific
+  bindings using this key.  ~magit-dispatch-popup~ continues to be
+  available on ~h~, ~?~ and ~C-c C-c~.  #3659
+
+- ~C-c C-b~ is no longer bound to ~magit-browse-thing~ to avoid a conflict
+  with ~magit-go-backward~ in diff and log buffers.  ~C-c C-w~ (as in web)
+  is used instead now.  #3659
+
 ** Changes since v2.90.0
 
 - Added ~bug-reference-mode~ to ~git-commit-setup-hook~.  e19e8fb1e
@@ -20,6 +30,11 @@
 
   #3657
 
+- Added new class slot ~keymap~ to allow other packages to define
+  section-specific keymaps without naming them ~magit-TYPE-section-map~,
+  which would mean using a symbol prefix (~magit-~) that does not match
+  the package name.
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
@@ -31,3 +46,7 @@
 
 - Staging and unstaging submodules while ~diff.submodule~'s value is ~log~
   broke shortly before the v2.90.0 release.  #3654
+
+- When another window is already displaying the file buffer, then
+  ~magit-display-file-buffer-other-window~ did additionally display
+  it in the current window.  #3662

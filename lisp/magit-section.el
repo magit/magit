@@ -195,7 +195,8 @@ entries of this alist."
     ))
 
 (defclass magit-section ()
-  ((type     :initform nil :initarg :type)
+  ((keymap   :initform nil :allocation :class)
+   (type     :initform nil :initarg :type)
    (value    :initform nil :initarg :value)
    (start    :initform nil :initarg :start)
    (content  :initform nil)
@@ -935,11 +936,13 @@ anything this time around.
            (magit-insert-child-count ,s)
            (set-marker-insertion-type (oref ,s start) t)
            (let* ((end (oset ,s end (point-marker)))
+                  (class-map (oref-default ,s keymap))
                   (magit-map (intern (format "magit-%s-section-map"
                                              (oref ,s type))))
                   (forge-map (intern (format "forge-%s-section-map"
                                              (oref ,s type))))
-                  (map (or (and (boundp magit-map) (symbol-value magit-map))
+                  (map (or (and         class-map  (symbol-value class-map))
+                           (and (boundp magit-map) (symbol-value magit-map))
                            (and (boundp forge-map) (symbol-value forge-map)))))
              (save-excursion
                (goto-char (oref ,s start))

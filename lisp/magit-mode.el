@@ -451,9 +451,9 @@ starts complicating other things, then it will be removed."
     (define-key map "Z" 'magit-stash-popup)
     (define-key map ":" 'magit-git-command)
     (define-key map "!" 'magit-run-popup)
-    (define-key map (kbd "C-c C-b") 'magit-browse-thing)
     (define-key map (kbd "C-c C-c") 'magit-dispatch-popup)
-    (define-key map (kbd "C-c C-e") 'magit-dispatch-popup)
+    (define-key map (kbd "C-c C-e") 'magit-edit-thing)
+    (define-key map (kbd "C-c C-w") 'magit-browse-thing)
     (define-key map (kbd "C-x a")   'magit-add-change-log-entry)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "C-w")     'magit-copy-section-value)
@@ -902,7 +902,7 @@ latter is displayed in its place."
                                   major-mode value)))
       (user-error "Buffer has no value it could be locked to"))))
 
-(defvar magit-buffer-lock-functions nil
+(defvar magit-buffer-lock-functions '((forge-topic-mode . car))
   "Provide buffer-locking support for third-party modes.
 An alist of symbols to functions.
 
