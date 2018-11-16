@@ -50,6 +50,7 @@ Contributors
 - Alban Gruin <alban@pa1ch.fr>
 - Aleksey Uimanov <s9gf4ult@gmail.com>
 - Alexander Gramiak <fice-t@protonmail.com>
+- Alex Branham <alex.branham@gmail.com>
 - Alex Dunn <adunn@ucsb.edu>
 - Alexey Voinov <alexey.v.voinov@gmail.com>
 - Alex Kost <alezost@gmail.com>
@@ -154,6 +155,7 @@ Contributors
 - Joakim Jalap <JOJA@stoneridge.com>
 - Johann Klähn <kljohann@gmail.com>
 - John Mastro <john.b.mastro@gmail.com>
+- John Morris <john@zultron.com>
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
 - Jonathan Leech-Pepin <jonathan.leechpepin@gmail.com>
@@ -170,6 +172,7 @@ Contributors
 - Kan-Ru Chen <kanru@kanru.info>
 - Kenny Ballou <kballou@devnulllabs.io>
 - Keshav Kini <keshav.kini@gmail.com>
+- Kevin Brubeck Unhammer <unhammer@fsfe.org>
 - Kévin Le Gouguec <kevin.legouguec@gmail.com>
 - Kimberly Wolk <kimwolk@hotmail.com>
 - Kyle Meyer <kyle@kyleam.com>
