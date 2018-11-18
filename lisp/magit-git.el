@@ -957,6 +957,7 @@ string \"true\", otherwise return nil."
   (magit-rev-verify (concat rev "^{commit}")))
 
 (defun magit-rev-equal (a b)
+  "Return t if there are no differences between the commits A and B."
   (magit-git-success "diff" "--quiet" a b))
 
 (defun magit-rev-eq (a b)
