@@ -101,3 +101,7 @@
   ~magit-commit-instant-fixup~ point was no longer placed on the same
   commit as was at point in the buffer from which the command was
   invoked.  #3674
+
+- ~magit-diff-type~ falsely concluded that a diff buffer showed
+  unstaged changes when diffing a range where the right side resolves
+  to the same commit as ~HEAD~.  #3666
