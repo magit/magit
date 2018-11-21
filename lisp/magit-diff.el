@@ -2637,6 +2637,7 @@ are highlighted."
                  (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
         (let ((ov (make-overlay (match-beginning 1) (match-end 1) nil t)))
           (overlay-put ov 'face 'magit-diff-whitespace-warning)
+          (overlay-put ov 'priority 2)
           (overlay-put ov 'evaporate t)))
       (when (or (and (eq indent 'tabs)
                      (looking-at (concat prefix "\\( *\t[ \t]*\\)")))
@@ -2645,6 +2646,7 @@ are highlighted."
                                          prefix indent))))
         (let ((ov (make-overlay (match-beginning 1) (match-end 1) nil t)))
           (overlay-put ov 'face 'magit-diff-whitespace-warning)
+          (overlay-put ov 'priority 2)
           (overlay-put ov 'evaporate t))))))
 
 (defun magit-diff-update-hunk-refinement (&optional section)

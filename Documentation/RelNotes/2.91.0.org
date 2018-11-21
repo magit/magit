@@ -50,3 +50,6 @@
 - When another window is already displaying the file buffer, then
   ~magit-display-file-buffer-other-window~ did additionally display
   it in the current window.  #3662
+
+- It was undefined whether highlighting of word-granularity
+  differences or of whitespace-error had higher priority.  #3671
