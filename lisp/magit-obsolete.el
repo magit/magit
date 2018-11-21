@@ -50,6 +50,11 @@
 (define-obsolete-function-alias 'magit-reflog 'magit-reflog-other "Magit 2.90.0")
 (define-obsolete-function-alias 'magit-diff 'magit-diff-range "Magit 2.90.0")
 
+;;; Obsolete since v2.91.0
+
+(define-obsolete-variable-alias 'magit-push-current-set-remote-if-missing
+  'magit-remote-set-if-missing "Magit 2.91.0")
+
 ;;; _
 (provide 'magit-obsolete)
 ;;; magit-obsolete.el ends here

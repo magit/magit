@@ -32,34 +32,6 @@
 
 (require 'magit)
 
-;;; Options
-
-(defcustom magit-push-current-set-remote-if-missing t
-  "Whether to configure missing remotes before pushing.
-
-When nil, then the command `magit-push-current-to-pushremote' and
-`magit-push-current-to-upstream' do not appear in the push popup
-if the push-remote resp. upstream is not configured.  If the user
-invokes one of these commands anyway, then it raises an error.
-
-When non-nil, then these commands always appear in the push
-popup.  But if the required configuration is missing, then they
-do appear in a way that indicates that this is the case.  If the
-user invokes one of them, then it asks for the necessary
-configuration, stores the configuration, and then uses it to push
-a first time.
-
-This option also affects whether the argument `--set-upstream' is
-available in the popup.  If the value is t, then that argument is
-redundant.  But note that changing the value of this option does
-not take affect immediately, the argument will only be added or
-removed after restarting Emacs."
-  :package-version '(magit . "2.6.0")
-  :group 'magit-commands
-  :type '(choice (const :tag "don't set" nil)
-                 (const :tag "set branch.<name>.pushRemote" t)
-                 (const :tag "set remote.pushDefault" default)))
-
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-push-popup "magit-push" nil t)
@@ -70,7 +42,7 @@ removed after restarting Emacs."
               (?F "Force"            "--force")
               (?h "Disable hooks"    "--no-verify")
               (?d "Dry run"          "--dry-run")
-              ,@(and (not magit-push-current-set-remote-if-missing)
+              ,@(and (not magit-remote-set-if-missing)
                      '((?u "Set upstream"  "--set-upstream"))))
   :actions '("Configure"
              (?C "variables..."      magit-branch-config-popup)
@@ -104,7 +76,7 @@ removed after restarting Emacs."
   "Push the current branch to `branch.<name>.pushRemote'.
 If that variable is unset, then push to `remote.pushDefault'.
 
-When `magit-push-current-set-remote-if-missing' is non-nil and
+When `magit-remote-set-if-missing' is non-nil and
 the push-remote is not configured, then read the push-remote from
 the user, set it, and then push to it.  With a prefix argument
 the push-remote can be changed before pushed to it."
@@ -112,14 +84,14 @@ the push-remote can be changed before pushed to it."
    (list (magit-push-arguments)
          (and (magit--push-current-set-pushremote-p current-prefix-arg)
               (magit-read-remote
-               (if (eq magit-push-current-set-remote-if-missing 'default)
+               (if (eq magit-remote-set-if-missing 'default)
                    "Set `remote.pushDefault' and push there"
                  (format "Set `branch.%s.pushRemote' and push there"
                          (magit-get-current-branch)))))))
   (--if-let (magit-get-current-branch)
       (progn (when push-remote
                (setf (magit-get
-                      (if (eq magit-push-current-set-remote-if-missing 'default)
+                      (if (eq magit-remote-set-if-missing 'default)
                           "remote.pushDefault"
                         (format "branch.%s.pushRemote" it)))
                      push-remote))
@@ -132,7 +104,7 @@ the push-remote can be changed before pushed to it."
 
 (defun magit--push-current-set-pushremote-p (&optional change)
   (and (or change
-           (and magit-push-current-set-remote-if-missing
+           (and magit-remote-set-if-missing
                 (not (magit-get-push-remote))))
        (magit-get-current-branch)))
 
@@ -141,7 +113,7 @@ the push-remote can be changed before pushed to it."
       (concat (magit-branch-set-face it) "\n")
     (and (magit--push-current-set-pushremote-p)
          (concat
-          (propertize (if (eq magit-push-current-set-remote-if-missing 'default)
+          (propertize (if (eq magit-remote-set-if-missing 'default)
                           "pushDefault"
                         "pushRemote")
                       'face 'bold)
@@ -151,7 +123,7 @@ the push-remote can be changed before pushed to it."
 (defun magit-push-current-to-upstream (args &optional upstream)
   "Push the current branch to its upstream branch.
 
-When `magit-push-current-set-remote-if-missing' is non-nil and
+When `magit-remote-set-if-missing' is non-nil and
 the upstream is not configured, then read the upstream from the
 user, set it, and then push to it.  With a prefix argument the
 upstream can be changed before pushed to it."
@@ -170,7 +142,7 @@ upstream can be changed before pushed to it."
 
 (defun magit--push-current-set-upstream-p (&optional change)
   (and (or change
-           (and magit-push-current-set-remote-if-missing
+           (and magit-remote-set-if-missing
                 (not (magit-get-upstream-branch))))
        (magit-get-current-branch)))
 

@@ -42,7 +42,7 @@ magit-commit.elc:	magit.elc magit-sequence.elc
 magit-remote.elc:	magit.elc
 magit-clone.elc:	magit.elc
 magit-fetch.elc:	magit.elc
-magit-pull.elc:		magit.elc
+magit-pull.elc:		magit.elc magit-remote.elc
 magit-push.elc:		magit.elc
 magit-patch.elc:	magit.elc
 magit-bisect.elc:	magit.elc

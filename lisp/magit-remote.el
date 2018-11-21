@@ -55,6 +55,33 @@ to be used to view and change remote related variables."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-remote-set-if-missing t
+  "Whether to configure missing remotes before pushing.
+
+When nil, then the command `magit-push-current-to-pushremote' and
+`magit-push-current-to-upstream' do not appear in the push popup
+if the push-remote resp. upstream is not configured.  If the user
+invokes one of these commands anyway, then it raises an error.
+
+When non-nil, then these commands always appear in the push
+popup.  But if the required configuration is missing, then they
+do appear in a way that indicates that this is the case.  If the
+user invokes one of them, then it asks for the necessary
+configuration, stores the configuration, and then uses it to push
+a first time.
+
+This option also affects whether the argument `--set-upstream' is
+available in the popup.  If the value is t, then that argument is
+redundant.  But note that changing the value of this option does
+not take affect immediately, the argument will only be added or
+removed after restarting Emacs."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-commands
+  :type '(choice
+          (const :tag "don't set" nil)
+          (const :tag "set (using branch.<name>.pushRemote for push-target)" t)
+          (const :tag "set (using remote.pushDefault for push-target" default)))
+
 ;;; Commands
 
 (defvar magit-remote-config-variables)
