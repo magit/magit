@@ -207,10 +207,15 @@ NUMBER    Like `always', but don't visit files larger than NUMBER
 
 (defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.
-See `magit-diff-highlight-trailing',
-`magit-diff-highlight-indentation'.  The symbol t means in all
-diffs, `status' means only in the status buffer, and nil means
-nowhere."
+
+nil       Never highlight whitespace errors.
+t         Highlight whitespace errors everywhere.
+`status'  Only highlight whitespace errors in the
+          status buffer.
+
+The options `magit-diff-highlight-trailing' and
+`magit-diff-highlight-indentation' control what kind of
+whitespace errors are highlighted."
   :group 'magit-diff
   :safe (lambda (val) (memq val '(t nil status)))
   :type '(choice (const :tag "Always" t)
