@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-11-gf75d7ed4e+1)
+@subtitle for version 2.90.1 (v2.90.1-15-g5f586d883+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-11-gf75d7ed4e+1).
+This manual is for Magit version 2.90.1 (v2.90.1-15-g5f586d883+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -3950,13 +3950,13 @@ Whether to show word-granularity differences within diff hunks.
 
 @itemize
 @item
-@code{nil} never show fine differences.
+@code{nil} Never show fine differences.
 
 @item
-@code{t} show fine differences for the current diff hunk only.
+@code{t} Show fine differences for the current diff hunk only.
 
 @item
-@code{all} show fine differences for all displayed diff hunks.
+@code{all} Show fine differences for all displayed diff hunks.
 @end itemize
 @end defopt
 
