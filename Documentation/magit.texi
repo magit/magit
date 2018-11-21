@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-16-g1876eb9e6+1)
+@subtitle for version 2.90.1 (v2.90.1-17-gd9edc0d16+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-16-g1876eb9e6+1).
+This manual is for Magit version 2.90.1 (v2.90.1-17-gd9edc0d16+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4006,6 +4006,19 @@ See @code{magit-diff-highlight-trailing},
 @code{magit-diff-highlight-indentation}.  The symbol @code{t} means in all
 diffs, @code{status} means only in the status buffer, and nil means
 nowhere.
+
+@itemize
+@item
+@code{nil} Never highlight whitespace errors.
+
+@item
+@code{t} Highlight whitespace errors everywhere.
+
+@item
+@code{uncommitted} Only highlight whitespace errors in diffs showing
+uncommitted changes.  For backward compatibility @code{status} is treated
+as a synonym.
+@end itemize
 @end defopt
 
 @defopt magit-diff-paint-whitespace-lines

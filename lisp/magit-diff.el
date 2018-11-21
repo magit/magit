@@ -208,10 +208,13 @@ NUMBER    Like `always', but don't visit files larger than NUMBER
 (defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.
 
-nil       Never highlight whitespace errors.
-t         Highlight whitespace errors everywhere.
-`status'  Only highlight whitespace errors in the
-          status buffer.
+nil            Never highlight whitespace errors.
+t              Highlight whitespace errors everywhere.
+`uncommitted'  Only highlight whitespace errors in diffs
+               showing uncommitted changes.
+
+For backward compatibility `status' is treated as a synonym
+for `uncommitted'.
 
 The option `magit-diff-paint-whitespace-lines' controls for
 what lines (added/remove/context) errors are highlighted.
@@ -220,10 +223,10 @@ The options `magit-diff-highlight-trailing' and
 `magit-diff-highlight-indentation' control what kind of
 whitespace errors are highlighted."
   :group 'magit-diff
-  :safe (lambda (val) (memq val '(t nil status)))
-  :type '(choice (const :tag "Always" t)
-                 (const :tag "Never" nil)
-                 (const :tag "In status buffer" status)))
+  :safe (lambda (val) (memq val '(t nil uncommitted status)))
+  :type '(choice (const :tag "In all diffs" t)
+                 (const :tag "Only in uncommitted changes" uncommitted)
+                 (const :tag "Never" nil)))
 
 (defcustom magit-diff-paint-whitespace-lines t
   "Specify in what kind of lines to highlight whitespace errors.
@@ -2575,6 +2578,7 @@ are highlighted."
         (goto-char (oref section start))
         (let ((end (oref section end))
               (merging (looking-at "@@@"))
+              (diff-type (magit-diff-type))
               (stage nil)
               (tab-width (magit-diff-tab-width
                           (magit-section-parent-value section))))
@@ -2599,16 +2603,16 @@ are highlighted."
                'magit-diff-conflict-heading)
               ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
                (magit-diff-paint-tab merging tab-width)
-               (magit-diff-paint-whitespace merging 'added)
+               (magit-diff-paint-whitespace merging 'added diff-type)
                (or stage
                    (if highlight 'magit-diff-added-highlight 'magit-diff-added)))
               ((looking-at (if merging "^\\(-\\| -\\)" "^-"))
                (magit-diff-paint-tab merging tab-width)
-               (magit-diff-paint-whitespace merging 'removed)
+               (magit-diff-paint-whitespace merging 'removed diff-type)
                (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
               (t
                (magit-diff-paint-tab merging tab-width)
-               (magit-diff-paint-whitespace merging 'context)
+               (magit-diff-paint-whitespace merging 'context diff-type)
                (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
             (forward-line))))))
   (magit-diff-update-hunk-refinement section))
@@ -2650,10 +2654,10 @@ are highlighted."
                          'display (list (list 'space :width width)))
       (forward-char))))
 
-(defun magit-diff-paint-whitespace (merging line-type)
+(defun magit-diff-paint-whitespace (merging line-type diff-type)
   (when (and magit-diff-paint-whitespace
-             (or (derived-mode-p 'magit-status-mode)
-                 (not (eq magit-diff-paint-whitespace 'status)))
+             (or (not (memq magit-diff-paint-whitespace '(uncommitted status)))
+                 (memq diff-type '(staged unstaged)))
              (cl-case line-type
                (added   t)
                (removed (memq magit-diff-paint-whitespace-lines '(all both)))

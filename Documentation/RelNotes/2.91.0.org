@@ -42,6 +42,13 @@
   in what kind of lines (added/removed/context) whitespace errors are
   highlighted.  #3671
 
+- It is now possible to show whitespace errors only in uncommitted
+  changes by setting ~magit-diff-paint-whitespace~ to ~uncommitted~.  The
+  obsolete value ~status~ is treated as a synonym.  The intention always
+  was to allow limiting to uncommitted changes and limiting to changes
+  shown in the status buffer was the closest approximation readily
+  available when this feature was first added.  #3671
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
