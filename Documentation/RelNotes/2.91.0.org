@@ -49,6 +49,13 @@
   shown in the status buffer was the closest approximation readily
   available when this feature was first added.  #3671
 
+- The commands ~magit-commit-instant-fixup~ and
+  ~magit-rebase-instant-squash~ now unconditionally preserve empty
+  commits that were already present before the autosquash rebase
+  performed by these commands.  This is the safe default; if you want
+  to drop such commits, then you have to enable ~--autosquash~ in the
+  popup and then invoke ~magit-rebase-interactive~.  #3670
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

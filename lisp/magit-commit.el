@@ -314,7 +314,7 @@ depending on the value of option `magit-commit-squash-confirm'."
                      rebase)
             (magit-commit-amend-assert commit)
             (magit-rebase-interactive-1 commit
-                (list "--autosquash" "--autostash")
+                (list "--autosquash" "--autostash" "--keep-empty")
               "" "true" nil t)))
         (format "Type %%p on a commit to %s into it,"
                 (substring option 2)))
