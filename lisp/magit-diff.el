@@ -167,6 +167,14 @@ t      show fine differences for the current diff hunk only.
                  (const :tag "Current" t)
                  (const :tag "All" all)))
 
+(defcustom magit-diff-refine-ignore-whitespace smerge-refine-ignore-whitespace
+  "Whether to ignore whitespace changes in word-granularity differences."
+  :package-version '(magit . "2.91.0")
+  :set-after '(smerge-refine-ignore-whitespace)
+  :group 'magit-diff
+  :safe 'booleanp
+  :type 'boolean)
+
 (put 'magit-diff-refine-hunk 'permanent-local t)
 
 (defcustom magit-diff-adjust-tab-width nil
@@ -2661,8 +2669,10 @@ are highlighted."
              (goto-char (oref section start))
              ;; `diff-refine-hunk' does not handle combined diffs.
              (unless (looking-at "@@@")
-               ;; Avoid fsyncing many small temp files
-               (let ((write-region-inhibit-fsync t))
+               (let ((smerge-refine-ignore-whitespace
+                      magit-diff-refine-ignore-whitespace)
+                     ;; Avoid fsyncing many small temp files
+                     (write-region-inhibit-fsync t))
                  (diff-refine-hunk)))))
           ((or `(nil t ,_) `(t t nil))
            (oset section refined nil)

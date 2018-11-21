@@ -35,6 +35,9 @@
   which would mean using a symbol prefix (~magit-~) that does not match
   the package name.
 
+- Added new option ~magit-diff-refine-ignore-whitespace~, overriding and
+  default to the value of ~smerge-refine-ignore-whitespace~.  #3671
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
