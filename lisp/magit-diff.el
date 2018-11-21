@@ -200,10 +200,10 @@ NUMBER    Like `always', but don't visit files larger than NUMBER
           bytes."
   :package-version '(magit . "2.12.0")
   :group 'magit-diff
-  :type '(choice (const :tag "Never" nil)
-                 (const :tag "If file-visiting buffer exists" t)
-                 (const :tag "... or file isn't larger than bytes" all)
-                 (const :tag "Always" always)))
+  :type '(choice (const   :tag "Never" nil)
+                 (const   :tag "If file-visiting buffer exists" t)
+                 (integer :tag "If file isn't larger than N bytes")
+                 (const   :tag "Always" always)))
 
 (defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.

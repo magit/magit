@@ -56,3 +56,6 @@
 
 - It was undefined whether highlighting of word-granularity
   differences or of whitespace-error had higher priority.  #3671
+
+- The Custom type definition of ~magit-diff-adjust-tab-width~ was
+  broken.  #3671
