@@ -625,7 +625,8 @@ START has to be selected from a list of recent commits."
 (defun magit-rebase-autosquash (args)
   "Combine squash and fixup commits with their intended targets."
   (interactive (list (magit-rebase-arguments)))
-  (magit-rebase-interactive-1 :merge-base (cons "--autosquash" args)
+  (magit-rebase-interactive-1 :merge-base
+      (nconc (list "--autosquash" "--keep-empty") args)
     "Type %p on a commit to squash into it and then rebase as necessary,"
     "true" nil t))
 
