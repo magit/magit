@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-15-g5f586d883+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-16-g1876eb9e6+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-15-g5f586d883+1).
+This manual is for Magit version 2.90.1 (v2.90.1-16-g1876eb9e6+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -2936,6 +2936,14 @@ These commands are available in diff buffers.
   ~magit-diff-highlight-indentation~.  The symbol ~t~ means in all
   diffs, ~status~ means only in the status buffer, and nil means
   nowhere.
+
+- User Option: magit-diff-paint-whitespace-lines
+
+  Specify in what kind of lines to highlight whitespace errors.
+
+  - ~t~ Highlight only in added lines.
+  - ~both~ Highlight in added and removed lines.
+  - ~all~ Highlight in added, removed and context lines.
 
 - User Option: magit-diff-highlight-trailing
 

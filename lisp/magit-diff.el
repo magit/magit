@@ -213,6 +213,9 @@ t         Highlight whitespace errors everywhere.
 `status'  Only highlight whitespace errors in the
           status buffer.
 
+The option `magit-diff-paint-whitespace-lines' controls for
+what lines (added/remove/context) errors are highlighted.
+
 The options `magit-diff-highlight-trailing' and
 `magit-diff-highlight-indentation' control what kind of
 whitespace errors are highlighted."
@@ -221,6 +224,19 @@ whitespace errors are highlighted."
   :type '(choice (const :tag "Always" t)
                  (const :tag "Never" nil)
                  (const :tag "In status buffer" status)))
+
+(defcustom magit-diff-paint-whitespace-lines t
+  "Specify in what kind of lines to highlight whitespace errors.
+
+t         Highlight only in added lines.
+`both'    Highlight in added and removed lines.
+`all'     Highlight in added, removed and context lines."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-diff
+  :safe (lambda (val) (memq val '(t both all)))
+  :type '(choice (const :tag "in added lines" t)
+                 (const :tag "in added and removed lines" both)
+                 (const :tag "in added, removed and context lines" all)))
 
 (defcustom magit-diff-highlight-trailing t
   "Whether to highlight whitespace at the end of a line in diffs.
@@ -2583,14 +2599,16 @@ are highlighted."
                'magit-diff-conflict-heading)
               ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
                (magit-diff-paint-tab merging tab-width)
-               (magit-diff-paint-whitespace merging)
+               (magit-diff-paint-whitespace merging 'added)
                (or stage
                    (if highlight 'magit-diff-added-highlight 'magit-diff-added)))
               ((looking-at (if merging "^\\(-\\| -\\)" "^-"))
                (magit-diff-paint-tab merging tab-width)
+               (magit-diff-paint-whitespace merging 'removed)
                (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
               (t
                (magit-diff-paint-tab merging tab-width)
+               (magit-diff-paint-whitespace merging 'context)
                (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
             (forward-line))))))
   (magit-diff-update-hunk-refinement section))
@@ -2632,11 +2650,15 @@ are highlighted."
                          'display (list (list 'space :width width)))
       (forward-char))))
 
-(defun magit-diff-paint-whitespace (merging)
+(defun magit-diff-paint-whitespace (merging line-type)
   (when (and magit-diff-paint-whitespace
              (or (derived-mode-p 'magit-status-mode)
-                 (not (eq magit-diff-paint-whitespace 'status))))
-    (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+]"))
+                 (not (eq magit-diff-paint-whitespace 'status)))
+             (cl-case line-type
+               (added   t)
+               (removed (memq magit-diff-paint-whitespace-lines '(all both)))
+               (context (memq magit-diff-paint-whitespace-lines '(all)))))
+    (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+\s]"))
           (indent
            (if (local-variable-p 'magit-diff-highlight-indentation)
                magit-diff-highlight-indentation

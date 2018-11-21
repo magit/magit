@@ -38,6 +38,10 @@
 - Added new option ~magit-diff-refine-ignore-whitespace~, overriding and
   default to the value of ~smerge-refine-ignore-whitespace~.  #3671
 
+- Added new option ~magit-diff-paint-whitespace-lines~, which controls
+  in what kind of lines (added/removed/context) whitespace errors are
+  highlighted.  #3671
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
