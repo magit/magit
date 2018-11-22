@@ -77,3 +77,8 @@
 
 - The Custom type definition of ~magit-diff-adjust-tab-width~ was
   broken.  #3671
+
+- In the log-select buffer shown by ~magit-commit-instant-squash~ and
+  ~magit-commit-instant-fixup~ point was no longer placed on the same
+  commit as was at point in the buffer from which the command was
+  invoked.  #3674
