@@ -938,8 +938,7 @@ Elisp doc-strings, including this one.  Unlike in doc-strings,
   (setq font-lock-defaults '(git-commit-elisp-text-mode-keywords)))
 
 (defvar git-commit-elisp-text-mode-keywords
-  `((,(concat "[`‘]\\(\\(?:\\sw\\|\\s_\\|\\\\.\\)"
-              lisp-mode-symbol-regexp "\\)['’]")
+  `((,(concat "[`‘]\\(" lisp-mode-symbol-regexp "\\)['’]")
      (1 font-lock-constant-face prepend))
     ("\"[^\"]*\"" (0 font-lock-string-face prepend))))
 
