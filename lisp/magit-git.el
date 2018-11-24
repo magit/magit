@@ -1005,7 +1005,7 @@ string \"true\", otherwise return nil."
   (equal (magit-git-str "rev-parse" args) "true"))
 
 (defun magit-rev-verify (rev)
-  (magit-rev-parse-safe "--verify" rev))
+  (magit-git-string-p "rev-parse" "--verify" rev))
 
 (defun magit-rev-verify-commit (rev)
   "Return full hash for REV if it names an existing commit."
