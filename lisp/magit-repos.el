@@ -258,7 +258,7 @@ parent directories.  The returned value is the actual path
 to the selected repository.
 
 If READ-DIRECTORY-NAME is non-nil or no repositories can be
-found based on the value of ``magit-repository-directories',
+found based on the value of `magit-repository-directories',
 then read an arbitrary directory using `read-directory-name'
 instead."
   (if-let ((repos (and (not read-directory-name)
