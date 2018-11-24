@@ -190,10 +190,36 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
 ;;;###autoload
 (defun magit-status (&optional directory cache)
   "Show the status of the current Git repository in a buffer.
-With a prefix argument prompt for a repository to be shown.
-With two prefix arguments prompt for an arbitrary directory.
-If that directory isn't the root of an existing repository,
-then offer to initialize it as a new repository."
+
+If the current directory isn't located within a Git repository,
+then prompt for an existing repository or an arbitrary directory,
+depending on option `magit-repository-directories' and show the
+status of the selected repository instead.
+
+* If that option specifies any existing repositories, then offer
+  those for completion and show the status buffer for the
+  selected one.
+
+* Otherwise read an arbitrary directory using regular file-name
+  completion.  If the selected directory is the top-level of an
+  existing working tree, then show the status buffer for that.
+
+* Otherwise offer to initialize the selected directory as a new
+  repository.  After creating the repository show its status
+  buffer.
+
+These fallback behaviors can also be forced using one or more
+prefix arguments:
+
+* With two prefix arguments (or more precisely a numeric prefix
+  value of 16 or greater) read an arbitrary directory and act on
+  it as described above.  The same could be accomplished using
+  the command `magit-init'.
+
+* With a single prefix argument read an existing repository, or
+  if none can be found based on `magit-repository-directories',
+  then fall back to the same behavior as with two prefix
+  arguments."
   (interactive
    (let ((magit--refresh-cache (list (cons 0 0))))
      (list (and (or current-prefix-arg (not (magit-toplevel)))
@@ -212,8 +238,7 @@ then offer to initialize it as a new repository."
                        (format "%s is a repository.  Create another in %s? "
                                toplevel directory)
                      (format "Create repository in %s? " directory)))
-              ;; Creating a new repository will invalidate cached
-              ;; values.
+              ;; Creating a new repository invalidates cached values.
               (setq magit--refresh-cache nil)
               (magit-init directory))))
       (magit-status-internal default-directory))))

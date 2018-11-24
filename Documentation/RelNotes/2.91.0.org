@@ -56,6 +56,11 @@
   to drop such commits, then you have to enable ~--autosquash~ in the
   popup and then invoke ~magit-rebase-interactive~.  #3670
 
+- The option ~magit-repository-directories~ defaults to ~nil~ again
+  because the non-nil default added in v2.90.0 lead to surprising
+  changes in behavior.  Related to that, ~magit-status~'s documentation
+  was made less ambigious.  #3673
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

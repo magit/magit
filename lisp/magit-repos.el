@@ -40,16 +40,18 @@
 
 ;;; Options
 
-(defcustom magit-repository-directories
-  '(("~/.emacs.d/"     . 0)  ; this should always be a repository
-    ("~/.emacs.d/lib/" . 1)) ; useful for `borg' users
+(defcustom magit-repository-directories nil
   "List of directories that are or contain Git repositories.
 
 Each element has the form (DIRECTORY . DEPTH).  DIRECTORY has
 to be a directory or a directory file-name, a string.  DEPTH,
 an integer, specifies the maximum depth to look for Git
-repositories.  If it is 0, then only add DIRECTORY itself."
-  :package-version '(magit . "2.90.0")
+repositories.  If it is 0, then only add DIRECTORY itself.
+
+This option controls which repositories are being listed by
+`magit-list-repositories'.  It also affects `magit-status'
+\(which see) in potentially surprising ways."
+  :package-version '(magit . "2.91.0")
   :group 'magit-essentials
   :type '(repeat (cons directory (integer :tag "Depth"))))
 
@@ -255,8 +257,10 @@ the basenames are prefixed with the name of the respective
 parent directories.  The returned value is the actual path
 to the selected repository.
 
-With prefix argument simply read a directory name using
-`read-directory-name'."
+If READ-DIRECTORY-NAME is non-nil or no repositories can be
+found based on the value of ``magit-repository-directories',
+then read an arbitrary directory using `read-directory-name'
+instead."
   (if-let ((repos (and (not read-directory-name)
                        magit-repository-directories
                        (magit-list-repos-uniquify
