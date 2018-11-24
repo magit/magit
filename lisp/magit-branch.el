@@ -286,7 +286,7 @@ does."
   (interactive
    (let ((arg (magit-read-other-branch-or-commit "Checkout")))
      (list arg
-           (and (not (magit-rev-verify-commit arg))
+           (and (not (magit-commit-p arg))
                 (magit-read-starting-point "Create and checkout branch" arg)))))
   (when (string-match "\\`heads/\\(.+\\)" arg)
     (setq arg (match-string 1 arg)))

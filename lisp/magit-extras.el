@@ -627,7 +627,7 @@ above."
                                  (match-string 1 r)
                                r)))
                           ((eq major-mode 'magit-status-mode) "HEAD"))))
-      (when (magit-rev-verify-commit rev)
+      (when (magit-commit-p rev)
         (setq rev (magit-rev-parse rev))
         (push (list rev default-directory) magit-revision-stack)
         (kill-new (message "%s" rev))))))

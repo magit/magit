@@ -1007,7 +1007,7 @@ string \"true\", otherwise return nil."
 (defun magit-rev-verify (rev)
   (magit-git-string-p "rev-parse" "--verify" rev))
 
-(defun magit-rev-verify-commit (rev)
+(defun magit-commit-p (rev)
   "Return full hash for REV if it names an existing commit."
   (magit-rev-verify (concat rev "^{commit}")))
 
@@ -1909,7 +1909,7 @@ and this option only controls what face is used.")
 (defun magit-thingatpt--git-revision ()
   (--when-let (bounds-of-thing-at-point 'git-revision)
     (let ((text (buffer-substring-no-properties (car it) (cdr it))))
-      (and (magit-rev-verify-commit text) text))))
+      (and (magit-commit-p text) text))))
 
 ;;; Completion
 
