@@ -193,7 +193,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
 
 If the current directory isn't located within a Git repository,
 then prompt for an existing repository or an arbitrary directory,
-depending on option `magit-repository-directories' and show the
+depending on option `magit-repository-directories', and show the
 status of the selected repository instead.
 
 * If that option specifies any existing repositories, then offer

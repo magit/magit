@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-21-g2d30dc0a1+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-25-gcc998e85+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-21-g2d30dc0a1+1).
+This manual is for Magit version 2.90.1 (v2.90.1-25-gcc998e85+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -1823,7 +1823,7 @@ that it should be bound globally.  We recommend using ~C-x g~:
 
   If the current directory isn't located within a Git repository, then
   this command prompts for an existing repository or an arbitrary
-  directory, depending on the option ~magit-repository-directories~ and
+  directory, depending on the option ~magit-repository-directories~, and
   the status for the selected repository is shown instead.
 
   - If that option specifies any existing repositories, then the user
@@ -1843,8 +1843,8 @@ that it should be bound globally.  We recommend using ~C-x g~:
 
   - With two prefix arguments (or more precisely a numeric prefix
     value of 16 or greater) an arbitrary directory is read, which is
-    then acted on it as described above.  The same could be
-    accomplished using the command ~magit-init~.
+    then acted on as described above.  The same could be accomplished
+    using the command ~magit-init~.
 
   - With a single prefix argument an existing repository is read from
     the user, or if no repository can be found based on the value of

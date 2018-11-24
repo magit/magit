@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-21-g2d30dc0a1+1)
+@subtitle for version 2.90.1 (v2.90.1-25-gcc998e85+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-21-g2d30dc0a1+1).
+This manual is for Magit version 2.90.1 (v2.90.1-25-gcc998e85+1).
 
 @quotation
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -2506,7 +2506,7 @@ command shows the status of that repository in a buffer.
 
 If the current directory isn't located within a Git repository, then
 this command prompts for an existing repository or an arbitrary
-directory, depending on the option @code{magit-repository-directories} and
+directory, depending on the option @code{magit-repository-directories}, and
 the status for the selected repository is shown instead.
 
 @itemize
@@ -2535,8 +2535,8 @@ prefix arguments:
 @item
 With two prefix arguments (or more precisely a numeric prefix
 value of 16 or greater) an arbitrary directory is read, which is
-then acted on it as described above.  The same could be
-accomplished using the command @code{magit-init}.
+then acted on as described above.  The same could be accomplished
+using the command @code{magit-init}.
 
 
 @item
