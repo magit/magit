@@ -339,13 +339,9 @@ add a section in the respective process buffer."
                       (setq msg (with-temp-buffer
                                   (insert-file-contents log)
                                   (goto-char (point-max))
-                                  (cond
-                                   ((functionp magit-git-debug)
-                                    (funcall magit-git-debug (buffer-string)))
-                                   ((run-hook-wrapped
-                                     'magit-process-error-message-regexps
-                                     (lambda (re) (re-search-backward re nil t)))
-                                    (match-string-no-properties 1)))))
+                                  (if (functionp magit-git-debug)
+                                      (funcall magit-git-debug (buffer-string))
+                                    (magit--locate-error-message))))
                       (let ((magit-git-debug nil))
                         (with-current-buffer (magit-process-buffer t)
                           (magit-process-insert-section default-directory
@@ -356,6 +352,12 @@ add a section in the respective process buffer."
           (ignore-errors (delete-file log))))
     (apply #'magit-process-file magit-git-executable
            nil (list t nil) nil args)))
+
+(defun magit--locate-error-message ()
+  (goto-char (point-max))
+  (and (run-hook-wrapped 'magit-process-error-message-regexps
+                         (lambda (re) (re-search-backward re nil t)))
+       (match-string-no-properties 1)))
 
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
