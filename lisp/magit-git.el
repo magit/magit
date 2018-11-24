@@ -42,7 +42,10 @@
 (declare-function magit-process-file "magit-process" (&rest args))
 (declare-function magit-process-insert-section "magit-process"
                   (pwe program args &optional errcode errlog))
+(declare-function magit-mode-get-buffer "magit-mode"
+                  (mode &optional create frame value))
 (declare-function magit-refresh "magit-mode" ())
+(defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
 (defvar magit-branch-prefer-remote-upstream)
@@ -276,6 +279,56 @@ to do the following.
 (defun magit-git-failure (&rest args)
   "Execute Git with ARGS, returning t if its exit code is 1."
   (= (magit-git-exit-code args) 1))
+
+(defun magit-git-string-p (&rest args)
+  "Execute Git with ARGS, returning the first line of its output.
+If the exit code isn't zero or if there is no output, then return
+nil.  Neither of these results is considered an error, if that is
+what you want, then use `magit-git-string-ng' instead.
+
+This is an experimental replacement for `magit-git-string', and
+still subject to major changes."
+  (magit--with-refresh-cache (cons default-directory args)
+    (with-temp-buffer
+      (and (zerop (apply #'magit-process-file magit-git-executable nil t nil
+                         (magit-process-git-arguments args)))
+           (not (bobp))
+           (progn
+             (goto-char (point-min))
+             (buffer-substring-no-properties (point) (line-end-position)))))))
+
+(defun magit-git-string-ng (&rest args)
+  "Execute Git with ARGS, returning the first line of its output.
+If the exit code isn't zero or if there is no output, then that
+is considered an error, but instead of actually signaling an
+error, return nil.  Additionally the output is put in the process
+buffer (creating it if necessary) and the error message is shown
+in the status buffer (provided it exists).
+
+This is an experimental replacement for `magit-git-string', and
+still subject to major changes.  Also see `magit-git-string-p'."
+  (magit--with-refresh-cache
+      (list default-directory 'magit-git-string-ng args)
+    (with-temp-buffer
+      (let* ((args (magit-process-git-arguments args))
+             (status (apply #'magit-process-file magit-git-executable
+                            nil t nil args)))
+        (if (zerop status)
+            (and (not (bobp))
+                 (progn
+                   (goto-char (point-min))
+                   (buffer-substring-no-properties
+                    (point) (line-end-position))))
+          (let ((buf (current-buffer)))
+            (with-current-buffer (magit-process-buffer t)
+              (magit-process-insert-section default-directory
+                                            magit-git-executable args
+                                            status buf)))
+          (when-let ((status-buf (magit-mode-get-buffer 'magit-status-mode)))
+            (let ((msg (magit--locate-error-message)))
+              (with-current-buffer status-buf
+                (setq magit-this-error msg))))
+          nil)))))
 
 (defun magit-git-str (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
