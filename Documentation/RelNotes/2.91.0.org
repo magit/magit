@@ -61,6 +61,11 @@
   changes in behavior.  Related to that, ~magit-status~'s documentation
   was made less ambigious.  #3673
 
+- Renamed the face ~git-commit-note~ to ~git-commit-keyword~ because that
+  is what text in brackets is called elsewhere in Magit and because
+  the term "note" was ambiguous in this context.  The old face name
+  is still defined as an alias, but that will be removed eventually.
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
