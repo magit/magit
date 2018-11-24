@@ -57,9 +57,9 @@
   popup and then invoke ~magit-rebase-interactive~.  #3670
 
 - The option ~magit-repository-directories~ defaults to ~nil~ again
-  because the non-nil default added in v2.90.0 lead to surprising
-  changes in behavior.  Related to that, ~magit-status~'s documentation
-  was made less ambigious.  #3673
+  because the non-nil default added in v2.90.0 led to surprising
+  changes in behavior.  The documentation of this option and the
+  related ~magit-status~ command were made less ambigious.  #3673
 
 - Renamed the face ~git-commit-note~ to ~git-commit-keyword~ because that
   is what text in brackets is called elsewhere in Magit and because
