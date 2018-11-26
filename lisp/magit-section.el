@@ -1010,6 +1010,20 @@ insert a newline character if necessary."
   (magit-maybe-make-margin-overlay)
   (oset magit-insert-section--current content (point-marker)))
 
+(defmacro magit-insert-section-body (&rest body)
+  "Use BODY to insert the section body, once the section is expanded.
+If the section is expanded when it is created, then this is
+like `progn'.  Otherwise BODY isn't evaluated unil the section
+is explicitly expanded."
+  (declare (indent 0))
+  (let ((f (cl-gensym))
+        (s (cl-gensym)))
+    `(let ((,f (lambda () ,@body))
+           (,s magit-insert-section--current))
+       (if (oref ,s hidden)
+           (oset ,s washer ,f)
+         (funcall ,f)))))
+
 (defun magit-insert-headers (hook)
   (let* ((header-sections nil)
          (magit-insert-section-hook

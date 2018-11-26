@@ -724,20 +724,15 @@ line is inserted at all."
     t))
 
 (defun magit-refs--insert-cherry-commits (ref)
-  (if (oref magit-insert-section--current hidden)
-      (oset magit-insert-section--current washer
-            (apply-partially #'magit-refs--insert-cherry-commits-1 ref))
-    (magit-refs--insert-cherry-commits-1 ref)))
-
-(defun magit-refs--insert-cherry-commits-1 (ref)
-  (let ((start (point))
-        (magit-insert-section--current nil))
-    (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
-      "cherry" "-v" (magit-abbrev-arg)
-      (or (car magit-refresh-args) "HEAD")
-      ref magit-refresh-args)
-    (unless (= (point) start)
-      (magit-make-margin-overlay nil t))))
+  (magit-insert-section-body
+    (let ((start (point))
+          (magit-insert-section--current nil))
+      (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
+        "cherry" "-v" (magit-abbrev-arg)
+        (or (car magit-refresh-args) "HEAD")
+        ref magit-refresh-args)
+      (unless (= (point) start)
+        (magit-make-margin-overlay nil t)))))
 
 (defun magit-refs--format-margin (commit)
   (save-excursion

@@ -384,13 +384,12 @@ are inserted, and option `magit-module-sections-nested' controls
 whether they are wrapped in an additional section."
   (when-let ((modules (magit-list-module-paths)))
     (if magit-module-sections-nested
-        (magit-insert-section section (modules nil t)
+        (magit-insert-section (modules nil t)
           (magit-insert-heading
             (format "%s (%s)"
                     (propertize "Modules" 'face 'magit-section-heading)
                     (length modules)))
-          (if (oref section hidden)
-              (oset section washer 'magit--insert-modules)
+          (magit-insert-section-body
             (magit--insert-modules)))
       (magit--insert-modules))))
 
@@ -403,13 +402,12 @@ whether they are wrapped in an additional section."
 For each section insert the path and the output of `git describe --tags',
 or, failing that, the abbreviated HEAD commit hash."
   (when-let ((modules (magit-list-module-paths)))
-    (magit-insert-section section (modules nil t)
+    (magit-insert-section (modules nil t)
       (magit-insert-heading
         (format "%s (%s)"
                 (propertize "Modules overview" 'face 'magit-section-heading)
                 (length modules)))
-      (if (oref section hidden)
-          (oset section washer 'magit--insert-modules-overview)
+      (magit-insert-section-body
         (magit--insert-modules-overview)))))
 
 (defvar magit-modules-overview-align-numbers t)
