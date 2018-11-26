@@ -731,7 +731,8 @@ line is inserted at all."
         "cherry" "-v" (magit-abbrev-arg)
         (or (car magit-refresh-args) "HEAD")
         ref magit-refresh-args)
-      (unless (= (point) start)
+      (if (= (point) start)
+          (message "No cherries for %s" ref)
         (magit-make-margin-overlay nil t)))))
 
 (defun magit-refs--format-margin (commit)
