@@ -887,6 +887,16 @@ that it will align with the text area."
   (interactive)
   (kill-buffer (current-buffer)))
 
+(cl-defun magit--overlay-at (pos prop &optional (val nil sval) testfn)
+  (cl-find-if (lambda (o)
+                (let ((p (overlay-properties o)))
+                  (and (plist-member p prop)
+                       (or (not sval)
+                           (funcall (or testfn #'eql)
+                                    (plist-get p prop)
+                                    val)))))
+              (overlays-at pos t)))
+
 ;;; Kludges for Emacs Bugs
 
 (defun magit-file-accessible-directory-p (filename)
