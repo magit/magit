@@ -283,7 +283,7 @@ to do the following.
 (defun magit-git-string-p (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
 If the exit code isn't zero or if there is no output, then return
-nil.  Neither of these results is considered an error, if that is
+nil.  Neither of these results is considered an error; if that is
 what you want, then use `magit-git-string-ng' instead.
 
 This is an experimental replacement for `magit-git-string', and
