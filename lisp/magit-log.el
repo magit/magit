@@ -1446,6 +1446,8 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
 
 (defun magit-log-select (pick &optional msg quit branch args initial)
   (declare (indent defun))
+  (unless initial
+    (setq initial (magit-commit-at-point)))
   (magit-mode-setup #'magit-log-select-mode
                     (or branch (magit-get-current-branch) "HEAD")
                     (append args magit-log-select-arguments))
