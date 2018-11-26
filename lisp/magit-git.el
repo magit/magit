@@ -42,7 +42,10 @@
 (declare-function magit-process-file "magit-process" (&rest args))
 (declare-function magit-process-insert-section "magit-process"
                   (pwe program args &optional errcode errlog))
+(declare-function magit-mode-get-buffer "magit-mode"
+                  (mode &optional create frame value))
 (declare-function magit-refresh "magit-mode" ())
+(defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
 (defvar magit-branch-prefer-remote-upstream)
@@ -277,6 +280,56 @@ to do the following.
   "Execute Git with ARGS, returning t if its exit code is 1."
   (= (magit-git-exit-code args) 1))
 
+(defun magit-git-string-p (&rest args)
+  "Execute Git with ARGS, returning the first line of its output.
+If the exit code isn't zero or if there is no output, then return
+nil.  Neither of these results is considered an error, if that is
+what you want, then use `magit-git-string-ng' instead.
+
+This is an experimental replacement for `magit-git-string', and
+still subject to major changes."
+  (magit--with-refresh-cache (cons default-directory args)
+    (with-temp-buffer
+      (and (zerop (apply #'magit-process-file magit-git-executable nil t nil
+                         (magit-process-git-arguments args)))
+           (not (bobp))
+           (progn
+             (goto-char (point-min))
+             (buffer-substring-no-properties (point) (line-end-position)))))))
+
+(defun magit-git-string-ng (&rest args)
+  "Execute Git with ARGS, returning the first line of its output.
+If the exit code isn't zero or if there is no output, then that
+is considered an error, but instead of actually signaling an
+error, return nil.  Additionally the output is put in the process
+buffer (creating it if necessary) and the error message is shown
+in the status buffer (provided it exists).
+
+This is an experimental replacement for `magit-git-string', and
+still subject to major changes.  Also see `magit-git-string-p'."
+  (magit--with-refresh-cache
+      (list default-directory 'magit-git-string-ng args)
+    (with-temp-buffer
+      (let* ((args (magit-process-git-arguments args))
+             (status (apply #'magit-process-file magit-git-executable
+                            nil t nil args)))
+        (if (zerop status)
+            (and (not (bobp))
+                 (progn
+                   (goto-char (point-min))
+                   (buffer-substring-no-properties
+                    (point) (line-end-position))))
+          (let ((buf (current-buffer)))
+            (with-current-buffer (magit-process-buffer t)
+              (magit-process-insert-section default-directory
+                                            magit-git-executable args
+                                            status buf)))
+          (when-let ((status-buf (magit-mode-get-buffer 'magit-status-mode)))
+            (let ((msg (magit--locate-error-message)))
+              (with-current-buffer status-buf
+                (setq magit-this-error msg))))
+          nil)))))
+
 (defun magit-git-str (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
 If there is no output, return nil.  If the output begins with a
@@ -339,13 +392,9 @@ add a section in the respective process buffer."
                       (setq msg (with-temp-buffer
                                   (insert-file-contents log)
                                   (goto-char (point-max))
-                                  (cond
-                                   ((functionp magit-git-debug)
-                                    (funcall magit-git-debug (buffer-string)))
-                                   ((run-hook-wrapped
-                                     'magit-process-error-message-regexps
-                                     (lambda (re) (re-search-backward re nil t)))
-                                    (match-string-no-properties 1)))))
+                                  (if (functionp magit-git-debug)
+                                      (funcall magit-git-debug (buffer-string))
+                                    (magit--locate-error-message))))
                       (let ((magit-git-debug nil))
                         (with-current-buffer (magit-process-buffer t)
                           (magit-process-insert-section default-directory
@@ -356,6 +405,12 @@ add a section in the respective process buffer."
           (ignore-errors (delete-file log))))
     (apply #'magit-process-file magit-git-executable
            nil (list t nil) nil args)))
+
+(defun magit--locate-error-message ()
+  (goto-char (point-max))
+  (and (run-hook-wrapped 'magit-process-error-message-regexps
+                         (lambda (re) (re-search-backward re nil t)))
+       (match-string-no-properties 1)))
 
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
@@ -950,18 +1005,20 @@ string \"true\", otherwise return nil."
   (equal (magit-git-str "rev-parse" args) "true"))
 
 (defun magit-rev-verify (rev)
-  (magit-rev-parse-safe "--verify" rev))
+  (magit-git-string-p "rev-parse" "--verify" rev))
 
-(defun magit-rev-verify-commit (rev)
+(defun magit-commit-p (rev)
   "Return full hash for REV if it names an existing commit."
   (magit-rev-verify (concat rev "^{commit}")))
 
 (defun magit-rev-equal (a b)
+  "Return t if there are no differences between the commits A and B."
   (magit-git-success "diff" "--quiet" a b))
 
 (defun magit-rev-eq (a b)
-  (let ((a (magit-rev-verify a))
-        (b (magit-rev-verify b)))
+  "Return t if A and B refer to the same commit."
+  (let ((a (magit-commit-p a))
+        (b (magit-commit-p b)))
     (and a b (equal a b))))
 
 (defun magit-rev-ancestor-p (a b)
@@ -1852,7 +1909,7 @@ and this option only controls what face is used.")
 (defun magit-thingatpt--git-revision ()
   (--when-let (bounds-of-thing-at-point 'git-revision)
     (let ((text (buffer-substring-no-properties (car it) (cdr it))))
-      (and (magit-rev-verify-commit text) text))))
+      (and (magit-commit-p text) text))))
 
 ;;; Completion
 

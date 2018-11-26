@@ -1090,7 +1090,7 @@ for a revision."
     (when module
       (setq default-directory
             (expand-file-name (file-name-as-directory module))))
-    (unless (magit-rev-verify-commit rev)
+    (unless (magit-commit-p rev)
       (user-error "%s is not a commit" rev))
     (magit-mode-setup #'magit-revision-mode rev nil args files)))
 
@@ -2122,12 +2122,12 @@ or a ref which is not a branch, then it inserts nothing."
                             (`quicker  ; false negatives (number-less hashes)
                              (and (>= (length text) 7)
                                   (string-match-p "[0-9]" text)
-                                  (magit-rev-verify-commit text)))
+                                  (magit-commit-p text)))
                             (`quick    ; false negatives (short hashes)
                              (and (>= (length text) 7)
-                                  (magit-rev-verify-commit text)))
+                                  (magit-commit-p text)))
                             (`slow
-                             (magit-rev-verify-commit text)))
+                             (magit-commit-p text)))
                       (put-text-property beg (point) 'face 'magit-hash)
                       (let ((end (point)))
                         (goto-char beg)

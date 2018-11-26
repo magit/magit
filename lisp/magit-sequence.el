@@ -755,7 +755,7 @@ If no such sequence is in progress, do nothing."
             patch commit)
         (while patches
           (setq patch (pop patches))
-          (setq commit (magit-rev-verify-commit
+          (setq commit (magit-commit-p
                         (cadr (split-string (magit-file-line patch)))))
           (cond ((and commit patches)
                  (magit-sequence-insert-commit
