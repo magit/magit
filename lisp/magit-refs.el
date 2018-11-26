@@ -516,7 +516,7 @@ line is inserted at all."
           (let ((tag (match-string 1 tag))
                 (msg (match-string 2 tag)))
             (when (magit-refs--insert-refname-p tag)
-              (magit-insert-section section (tag tag t)
+              (magit-insert-section (tag tag t)
                 (magit-insert-heading
                   (magit-refs--format-focus-column tag 'tag)
                   (propertize tag 'face 'magit-tag)
@@ -526,7 +526,7 @@ line is inserted at all."
                   (and msg (magit-log-propertize-keywords nil msg)))
                 (when (and magit-refs-margin-for-tags (magit-buffer-margin-p))
                   (magit-refs--format-margin tag))
-                (magit-refs--insert-cherry-commits tag section)))))
+                (magit-refs--insert-cherry-commits tag)))))
         (insert ?\n)
         (magit-make-margin-overlay nil t)))))
 
@@ -551,7 +551,7 @@ line is inserted at all."
                 (progn (cl-assert (equal branch (concat remote "/HEAD")))
                        (setq head head-branch))
               (when (magit-refs--insert-refname-p branch)
-                (magit-insert-section section (branch branch t)
+                (magit-insert-section (branch branch t)
                   (let ((headp (equal branch head))
                         (abbrev (if magit-refs-show-remote-prefix
                                     branch
@@ -566,7 +566,7 @@ line is inserted at all."
                       (and msg (magit-log-propertize-keywords nil msg))))
                   (when (magit-buffer-margin-p)
                     (magit-refs--format-margin branch))
-                  (magit-refs--insert-cherry-commits branch section)))))))
+                  (magit-refs--insert-cherry-commits branch)))))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
 
@@ -576,14 +576,14 @@ line is inserted at all."
     (magit-insert-heading "Branches:")
     (dolist (line (magit-refs--format-local-branches))
       (pcase-let ((`(,branch . ,strings) line))
-        (magit-insert-section section
+        (magit-insert-section
           ((eval (if branch 'branch 'commit))
            (or branch (magit-rev-parse "HEAD"))
            t)
           (apply #'magit-insert-heading strings)
           (when (magit-buffer-margin-p)
             (magit-refs--format-margin branch))
-          (magit-refs--insert-cherry-commits branch section))))
+          (magit-refs--insert-cherry-commits branch))))
     (insert ?\n)
     (magit-make-margin-overlay nil t)))
 
@@ -723,21 +723,17 @@ line is inserted at all."
       (cdr it)
     t))
 
-(defun magit-refs--insert-cherry-commits (ref section)
-  (if (oref section hidden)
-      (oset section washer
-            (apply-partially #'magit-refs--insert-cherry-commits-1 ref section))
-    (magit-refs--insert-cherry-commits-1 ref section)))
-
-(defun magit-refs--insert-cherry-commits-1 (ref _section)
-  (let ((start (point))
-        (magit-insert-section--current nil))
-    (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
-      "cherry" "-v" (magit-abbrev-arg)
-      (or (car magit-refresh-args) "HEAD")
-      ref magit-refresh-args)
-    (unless (= (point) start)
-      (magit-make-margin-overlay nil t))))
+(defun magit-refs--insert-cherry-commits (ref)
+  (magit-insert-section-body
+    (let ((start (point))
+          (magit-insert-section--current nil))
+      (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
+        "cherry" "-v" (magit-abbrev-arg)
+        (or (car magit-refresh-args) "HEAD")
+        ref magit-refresh-args)
+      (if (= (point) start)
+          (message "No cherries for %s" ref)
+        (magit-make-margin-overlay nil t)))))
 
 (defun magit-refs--format-margin (commit)
   (save-excursion

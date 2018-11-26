@@ -160,6 +160,50 @@ entries of this alist."
                                     (const show)
                                     function)))
 
+(defcustom magit-section-visibility-indicator
+  (if (window-system)
+      '(magit-fringe-bitmap> . magit-fringe-bitmapv)
+    '("…" . t))
+  "Whether and how to indicate that a section can be expanded/collapsed.
+
+If nil, then don't show any indicators.
+Otherwise the value has to have one of these two forms:
+
+(EXPANDABLE-BITMAP . COLLAPSIBLE-BITMAP)
+
+  Both values have to by variables whose values are fringe
+  bitmaps.  In this case every section that can be expanded or
+  collapsed gets an indicator in the left fringe.
+
+(STRING . BOOLEAN)
+
+  In this case STRING (usually an ellipsis) is shown at the end
+  of the heading of every collapsed section.  Expanded sections
+  get no indicator.  The cdr controls whether the appearance of
+  these ellipsis take section highlighting into account.  Doing
+  so might potentially have an impact on performance, while not
+  doing so is kinda ugly."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-section
+  :type '(choice (const :tag "No indicators" nil)
+                 (cons  :tag "Use +- fringe indicators"
+                        (const magit-fringe-bitmap+)
+                        (const magit-fringe-bitmap-))
+                 (cons  :tag "Use >v fringe indicators"
+                        (const magit-fringe-bitmap>)
+                        (const magit-fringe-bitmapv))
+                 (cons  :tag "Use bold >v fringe indicators)"
+                        (const magit-fringe-bitmap-bold>)
+                        (const magit-fringe-bitmap-boldv))
+                 (cons  :tag "Use custom fringe indicators"
+                        (variable :tag "Expandable bitmap variable")
+                        (variable :tag "Collapsable bitmap variable"))
+                 (cons  :tag "Use ellipses at end of headings"
+                        (string :tag "Ellipsis" "…")
+                        (choice :tag "Use face kludge"
+                                (const :tag "Yes (potentially slow)" t)
+                                (const :tag "No (kinda ugly)" nil)))))
+
 (defface magit-section-highlight
   '((((class color) (background light)) :background "grey95")
     (((class color) (background  dark)) :background "grey20"))
@@ -424,6 +468,7 @@ With a prefix argument also expand it." heading)
     (magit-section-update-highlight))
   (when-let ((beg (oref section content)))
     (remove-overlays beg (oref section end) 'invisible t))
+  (magit-section-maybe-update-visibility-indicator section)
   (magit-section-maybe-cache-visibility section)
   (dolist (child (oref section children))
     (if (oref child hidden)
@@ -442,6 +487,7 @@ With a prefix argument also expand it." heading)
         (let ((o (make-overlay beg end)))
           (overlay-put o 'evaporate t)
           (overlay-put o 'invisible t))))
+    (magit-section-maybe-update-visibility-indicator section)
     (magit-section-maybe-cache-visibility section)))
 
 (defun magit-section-toggle (section)
@@ -1010,6 +1056,23 @@ insert a newline character if necessary."
   (magit-maybe-make-margin-overlay)
   (oset magit-insert-section--current content (point-marker)))
 
+(defmacro magit-insert-section-body (&rest body)
+  "Use BODY to insert the section body, once the section is expanded.
+If the section is expanded when it is created, then this is
+like `progn'.  Otherwise BODY isn't evaluated unil the section
+is explicitly expanded."
+  (declare (indent 0))
+  (let ((f (cl-gensym))
+        (s (cl-gensym)))
+    `(let ((,f (lambda () ,@body))
+           (,s magit-insert-section--current))
+       (if (oref ,s hidden)
+           (oset ,s washer
+                 (lambda ()
+                   (funcall ,f)
+                   (magit-section-maybe-remove-visibility-indicator ,s)))
+         (funcall ,f)))))
+
 (defun magit-insert-headers (hook)
   (let* ((header-sections nil)
          (magit-insert-section-hook
@@ -1093,7 +1156,8 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
                 (and (not (oref section hidden))
                      section))))
       (when (version< emacs-version "25.1")
-        (setq deactivate-mark nil)))))
+        (setq deactivate-mark nil)))
+    (magit-section-maybe-paint-visibility-ellipses)))
 
 (defun magit-section-highlight (section selection)
   "Highlight SECTION and if non-nil all sections in SELECTION.
@@ -1244,6 +1308,92 @@ invisible."
   (setq magit-section-visibility-cache
         (magit-repository-local-get
          (cons mode 'magit-section-visibility-cache))))
+
+(defun magit-section-maybe-update-visibility-indicator (section)
+  (when magit-section-visibility-indicator
+    (let ((beg (oref section start))
+          (cnt (oref section content))
+          (end (oref section end)))
+      (when (and cnt (or (not (= cnt end)) (oref section washer)))
+        (let ((eoh (save-excursion
+                     (goto-char beg)
+                     (line-end-position))))
+          (cond
+           ((symbolp (car-safe magit-section-visibility-indicator))
+            ;; It would make more sense to put the overlay only on the
+            ;; location we actually don't put it on, but then inserting
+            ;; before that location (while taking care not to mess with
+            ;; the overlay) would cause the fringe bitmap to disappear
+            ;; (but not other effects of the overlay).
+            (let ((ov (magit--overlay-at (1+ beg) 'magit-vis-indicator 'fringe)))
+              (unless ov
+                (setq ov (make-overlay (1+ beg) eoh))
+                (overlay-put ov 'evaporate t)
+                (overlay-put ov 'magit-vis-indicator 'fringe))
+              (overlay-put
+               ov 'before-string
+               (propertize "fringe" 'display
+                           (list 'left-fringe
+                                 (if (oref section hidden)
+                                     (car magit-section-visibility-indicator)
+                                   (cdr magit-section-visibility-indicator))
+                                 "#93a1a1")))))
+           ((stringp (car-safe magit-section-visibility-indicator))
+            (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
+              (cond ((oref section hidden)
+                     (unless ov
+                       (setq ov (make-overlay (1- eoh) eoh))
+                       (overlay-put ov 'evaporate t)
+                       (overlay-put ov 'magit-vis-indicator 'eoh))
+                     (overlay-put ov 'after-string
+                                  (car magit-section-visibility-indicator)))
+                    (ov
+                     (delete-overlay ov)))))))))))
+
+(defvar-local magit--ellipses-sections nil)
+
+(defun magit-section-maybe-paint-visibility-ellipses ()
+  ;; This is needed because we hide the body instead of "the body
+  ;; except the final newline and additionally the newline before
+  ;; the body"; otherwise we could use `buffer-invisibility-spec'.
+  (when (stringp (car-safe magit-section-visibility-indicator))
+    (let* ((sections (append magit--ellipses-sections
+                             (setq magit--ellipses-sections
+                                   (or (magit-region-sections)
+                                       (list (magit-current-section))))))
+           (beg (--map (oref it start) sections))
+           (end (--map (oref it end)   sections)))
+      (when (region-active-p)
+        ;; This ensures that the region face is removed from ellipses
+        ;; when the region becomes inactive, but fails to ensure that
+        ;; all ellipses within the active region use the region face,
+        ;; because the respective overlay has not yet been updated at
+        ;; this time.  The magit-selection face is always applied.
+        (push (region-beginning) beg)
+        (push (region-end)       end))
+      (setq beg (apply #'min beg))
+      (setq end (apply #'max end))
+      (dolist (ov (overlays-in beg end))
+        (when (eq (overlay-get ov 'magit-vis-indicator) 'eoh)
+          (overlay-put
+           ov 'after-string
+           (propertize
+            (car magit-section-visibility-indicator) 'face
+            (let ((pos (overlay-start ov)))
+              (delq nil (nconc (--map (overlay-get it 'face)
+                                      (overlays-at pos))
+                               (list (get-char-property pos 'face))))))))))))
+
+(defun magit-section-maybe-remove-visibility-indicator (section)
+  (when (and magit-section-visibility-indicator
+             (= (oref section content)
+                (oref section end)))
+    (dolist (o (overlays-in (oref section start)
+                            (save-excursion
+                              (goto-char (oref section start))
+                              (1+ (line-end-position)))))
+      (when (overlay-get o 'magit-vis-indicator)
+        (delete-overlay o)))))
 
 ;;; Utilities
 
