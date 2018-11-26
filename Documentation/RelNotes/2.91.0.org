@@ -12,6 +12,15 @@
 
 ** Changes since v2.90.0
 
+- Added new option ~magit-section-visibility-indicator~.
+
+  TODO:
+
+  Decide whether to enable this by default and if so what style to
+  default to.  Enable it for now on the development branch, so that
+  users notice and get a chance to comment on #3679 before the next
+  release.
+
 - Added ~bug-reference-mode~ to ~git-commit-setup-hook~.  e19e8fb1e
 
 - The "Version" column in ~magit-submodule-list-mode~ and
