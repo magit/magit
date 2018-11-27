@@ -1011,6 +1011,8 @@ string \"true\", otherwise return nil."
   "Return full hash for REV if it names an existing commit."
   (magit-rev-verify (concat rev "^{commit}")))
 
+(defalias 'magit-rev-verify-commit 'magit-commit-p)
+
 (defun magit-rev-equal (a b)
   "Return t if there are no differences between the commits A and B."
   (magit-git-success "diff" "--quiet" a b))
