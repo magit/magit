@@ -104,3 +104,8 @@
 - ~magit-diff-type~ falsely concluded that a diff buffer showed
   unstaged changes when diffing a range where the right side resolves
   to the same commit as ~HEAD~.  #3666
+
+- ~magit-log-trace-definition-function~ defaulted to ~which-function~,
+  which isn't reliable because it used Imenu, which uses a cache but
+  by default never invalidates.  Now we use ~magit-which-function~, a
+  replacement that never uses an outdated cache.
