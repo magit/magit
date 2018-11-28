@@ -109,3 +109,7 @@
   which isn't reliable because it used Imenu, which uses a cache but
   by default never invalidates.  Now we use ~magit-which-function~, a
   replacement that never uses an outdated cache.
+
+- ~magit-log-trace-definition~ didn't account for Git treating "-"
+  differently from e.g. "_", leading to false-positives like
+  "foo-suffix" being considered a match for "foo".
