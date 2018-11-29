@@ -877,7 +877,7 @@ is displayed in the current frame."
       (let* ((section (magit-current-section))
              (parent-rev (format "%s^%s" (oref section value) (or n 1))))
         (if-let ((parent-hash (magit-rev-parse "--short" parent-rev)))
-            (if-let ((parent (--first (equal (oref section value)
+            (if-let ((parent (--first (equal (oref it value)
                                              parent-hash)
                                       (magit-section-siblings section 'next))))
                 (magit-section-goto parent)
