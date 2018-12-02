@@ -75,6 +75,7 @@ Then show the status buffer for the new repository."
                 nil nil
                 (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" url)
                      (match-string 1 url))))))
+  (run-hooks 'magit-credential-hook)
   (setq directory (file-name-as-directory (expand-file-name directory)))
   (magit-run-git-async "clone" repository
                        (magit-convert-filename-for-git directory))
