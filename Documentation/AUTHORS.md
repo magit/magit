@@ -115,6 +115,7 @@ Contributors
 - Dean Kariniemi <8913263+d3k4r@users.noreply.github.com>
 - Dennis Paskorz <dennis@walltowall.com>
 - Divye Kapoor <divye@google.com>
+- Dominique Quatravaux <dominique.quatravaux@epfl.ch>
 - Dominique Quatravaux <domq@google.com>
 - Duianto Vebotci <vebotci@openmailbox.org>
 - Eli Barzilay <eli@barzilay.org>
@@ -122,6 +123,7 @@ Contributors
 - Eric Prud'hommeaux <eric@w3.org>
 - Eric Schulte <schulte.eric@gmail.com>
 - Erik Anderson <erikbpanderson@gmail.com>
+- Evan Torrie <etorrie@gmail.com>
 - Evgkeni Sampelnikof <esabof@gmail.com>
 - Eyal Lotem <eyal.lotem@gmail.com>
 - Fabian Wiget <fabacino@gmail.com>
