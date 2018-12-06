@@ -1059,7 +1059,7 @@ insert a newline character if necessary."
 (defmacro magit-insert-section-body (&rest body)
   "Use BODY to insert the section body, once the section is expanded.
 If the section is expanded when it is created, then this is
-like `progn'.  Otherwise BODY isn't evaluated unil the section
+like `progn'.  Otherwise BODY isn't evaluated until the section
 is explicitly expanded."
   (declare (indent 0))
   (let ((f (cl-gensym))
