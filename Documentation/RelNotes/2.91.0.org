@@ -121,3 +121,8 @@
 
 - ~magit-list-repositories~ failed if one of the repositories that it
   tries to list is empty.  #3686
+
+- The summary element from ~git-commit-font-lock-keyword-1~ lost against
+  the elements of ~git-commit-elisp-text-mode-keywords~, causing the
+  summary line to lose its special appearance when a "string" or
+  `symbol' appears in it.

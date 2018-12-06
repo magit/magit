@@ -896,7 +896,7 @@ Added to `font-lock-extend-region-functions'."
   (add-hook 'font-lock-extend-region-functions
             #'git-commit-extend-region-summary-line
             t t)
-  (font-lock-add-keywords nil git-commit-font-lock-keywords t))
+  (font-lock-add-keywords nil git-commit-font-lock-keywords))
 
 (defun git-commit-propertize-diff ()
   (require 'diff-mode)
