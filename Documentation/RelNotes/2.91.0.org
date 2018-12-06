@@ -118,3 +118,6 @@
   job.  #3682
 
 - ~magit-clone~ didn't run ~magit-credential-hook~.  #3683
+
+- ~magit-list-repositories~ failed if one of the repositories that it
+  tries to list is empty.  #3686
