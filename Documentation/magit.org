@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-25-gcc998e85+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-53-g279ae8b47+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-25-gcc998e85+1).
+This manual is for Magit version 2.90.1 (v2.90.1-53-g279ae8b47+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -415,13 +415,17 @@ buffers whose major-modes derive from ~magit-mode~.
 
 *** Switching Buffers
 
-- Function: magit-display-buffer buffer
+- Function: magit-display-buffer buffer &optional display-function
 
   This function is a wrapper around ~display-buffer~ and is used to
   display any Magit buffer.  It displays BUFFER in some window and,
   unlike ~display-buffer~, also selects that window, provided
   ~magit-display-buffer-noselect~ is ~nil~.  It also runs the hooks
   mentioned below.
+
+  If optional DISPLAY-FUNCTION is non-nil, then that is used to
+  display the buffer.  Usually that is ~nil~ and the function specified
+  by ~magit-display-buffer-function~ is used.
 
 - Variable: magit-display-buffer-noselect
 

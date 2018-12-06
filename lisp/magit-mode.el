@@ -646,18 +646,22 @@ locked to its value, which is derived from MODE and ARGS."
 (defvar magit-display-buffer-noselect nil
   "If non-nil, then `magit-display-buffer' doesn't call `select-window'.")
 
-(defun magit-display-buffer (buffer)
+(defun magit-display-buffer (buffer &optional display-function)
   "Display BUFFER in some window and maybe select it.
 
-Display the buffer using `magit-display-buffer-function' and
-then, unless `magit-display-buffer-noselect' is non-nil, select
+If optional DISPLAY-FUNCTION is non-nil, then use that to display
+the buffer.  Otherwise use `magit-display-buffer-function', which
+is the normal case.
+
+Then, unless `magit-display-buffer-noselect' is non-nil, select
 the window which was used to display the buffer.
 
 Also run the hooks `magit-pre-display-buffer-hook'
 and `magit-post-display-buffer-hook'."
   (with-current-buffer buffer
     (run-hooks 'magit-pre-display-buffer-hook))
-  (let ((window (funcall magit-display-buffer-function buffer)))
+  (let ((window (funcall (or display-function magit-display-buffer-function)
+                         buffer)))
     (unless magit-display-buffer-noselect
       (let* ((old-frame (selected-frame))
              (new-frame (window-frame window)))
