@@ -96,7 +96,7 @@ all."
   "The section point is placed on when a status buffer is created.
 
 When such a buffer is merely being refreshed or being shown again
-after it was merely burried, then this option has no effect.
+after it was merely buried, then this option has no effect.
 
 If this is nil, then point remains on the very first section as
 usual.  Otherwise it has to be a list of integers and section
