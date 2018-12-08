@@ -321,6 +321,7 @@ points at it) otherwise."
 
 (put 'magit-edit-line-commit 'disabled t)
 
+;;;###autoload
 (defun magit-diff-edit-hunk-commit ()
   "From a hunk, edit the respective commit and visit the file.
 
