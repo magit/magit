@@ -113,7 +113,7 @@ upstream and the push-remote reference the same related branch
 would be wasteful.  Instead a branch like \"maint\" or \"master\"
 should be used as the upstream.
 
-This option allows specifing the branch that should be used as
+This option allows specifying the branch that should be used as
 the upstream when branching certain remote branches.  The value
 is an alist of the form ((UPSTREAM . RULE)...).  The first
 matching element is used, the following elements are ignored.

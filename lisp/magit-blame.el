@@ -65,10 +65,10 @@ KEYs are recognized:
     Face used to highlight the first line of each chunk.
     If this is nil, then those lines are not highlighted.
  `heading-format'
-    String specifing the information to be shown above each
+    String specifying the information to be shown above each
     chunk of lines.  It must end with a newline character.
  `margin-format'
-    String specifing the information to be shown in the left
+    String specifying the information to be shown in the left
     buffer margin.  It must NOT end with a newline character.
     This can also be a list of formats used for the lines at
     the same positions within the chunk.  If the chunk has
