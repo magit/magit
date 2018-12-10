@@ -91,6 +91,7 @@ alphabetical order, depending on your version of Ivy."
     (magit-stash-format-patch nil t)
     (magit-stash-drop         nil ask)
     (magit-stash-pop          nil ask)
+    (forge-browse-dwim        nil t)
     (forge-browse-commit      nil t)
     (forge-browse-branch      nil t)
     (forge-browse-remote      nil t)
