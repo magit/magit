@@ -1373,10 +1373,13 @@ as into its upstream."
          (pcase-let ((`(,url ,branch) (split-string branch " ")))
            (cons url branch)))
         ((string-match "/" branch)
-         (let ((remote (substring branch 0 (match-beginning 0))))
-           (if (save-match-data (member remote (magit-list-remotes)))
-               (cons remote (substring branch (match-end 0)))
-             (error "Invalid branch name %s" branch))))))
+         (or (-some (lambda (remote)
+                      (and (string-match (format "\\`\\(%s\\)/\\(.+\\)\\'" remote)
+                                         branch)
+                           (cons (match-string 1 branch)
+                                 (match-string 2 branch))))
+                    (magit-list-remotes))
+             (error "Invalid branch name %s" branch)))))
 
 (defun magit-get-current-tag (&optional rev with-distance)
   "Return the closest tag reachable from REV.

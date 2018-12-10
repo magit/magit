@@ -129,3 +129,6 @@
   the elements of ~git-commit-elisp-text-mode-keywords~, causing the
   summary line to lose its special appearance when a "string" or
   `symbol' appears in it.
+
+- ~magit-split-branch-name~ did not take into account that remote names
+  can contain slashes.  #3685.
