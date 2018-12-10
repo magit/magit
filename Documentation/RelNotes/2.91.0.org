@@ -75,6 +75,9 @@
   the term "note" was ambiguous in this context.  The old face name
   is still defined as an alias, but that will be removed eventually.
 
+- The command ~magit-worktree-checkout~ now also offers tags and remote
+  branches as completion candidates.  #3692
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

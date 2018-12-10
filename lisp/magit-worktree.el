@@ -48,7 +48,7 @@
 (defun magit-worktree-checkout (path branch)
   "Checkout BRANCH in a new worktree at PATH."
   (interactive
-   (let ((branch (magit-read-local-branch-or-commit "Checkout")))
+   (let ((branch (magit-read-branch-or-commit "Checkout")))
      (list (read-directory-name (format "Checkout %s in new worktree: " branch))
            branch)))
   (magit-run-git "worktree" "add" (expand-file-name path) branch)
