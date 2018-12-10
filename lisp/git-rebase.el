@@ -383,7 +383,7 @@ remove the command on the current line, if any."
 (defun git-rebase-noop (&optional arg)
   "Add noop action at point.
 
-If the current line already contains a a noop action, leave it
+If the current line already contains a noop action, leave it
 unchanged.  If there is a commented noop action present, remove
 the comment.  Otherwise add a new noop action.  With a prefix
 argument insert a new noop action regardless what is already
