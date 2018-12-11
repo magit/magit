@@ -78,6 +78,10 @@
 - The command ~magit-worktree-checkout~ now also offers tags and remote
   branches as completion candidates.  #3692
 
+- The command ~magit-commit-reword~ now always uses ~--allow-empty~
+  because when you reword an empty commit, then you have already
+  confirmed that you are okay with that commit to being empty.
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

@@ -228,6 +228,7 @@ and ignore the option.
   (let ((process-environment process-environment))
     (unless override-date
       (push (magit-rev-format "GIT_COMMITTER_DATE=%cD") process-environment))
+    (cl-pushnew "--allow-empty" args :test #'equal)
     (magit-run-git-with-editor "commit" "--amend" "--only" args)))
 
 ;;;###autoload
