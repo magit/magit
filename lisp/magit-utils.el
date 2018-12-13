@@ -888,6 +888,19 @@ that it will align with the text area."
   (interactive)
   (kill-buffer (current-buffer)))
 
+(defun magit--buffer-string (&optional min max)
+  "Like `buffer-substring-no-properties' but the arguments are optional.
+This combines the benefits of `buffer-string', `buffer-substring'
+and `buffer-substring-no-properties' into one function that
+is not as painful to use as the latter.  I.e. you can write
+  (magit--buffer-string)
+instead of
+  (buffer-substring-no-properties (point-min)
+                                  (point-max))"
+  ;; Lets write that one last time and be done with it:
+  (buffer-substring-no-properties (or min (point-min))
+                                  (or max (point-max))))
+
 (cl-defun magit--overlay-at (pos prop &optional (val nil sval) testfn)
   (cl-find-if (lambda (o)
                 (let ((p (overlay-properties o)))
