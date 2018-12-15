@@ -45,7 +45,7 @@
   the package name.
 
 - Added new option ~magit-diff-refine-ignore-whitespace~, overriding and
-  default to the value of ~smerge-refine-ignore-whitespace~.  #3671
+  defaulting to the value of ~smerge-refine-ignore-whitespace~.  #3671
 
 - Added new option ~magit-diff-paint-whitespace-lines~, which controls
   in what kind of lines (added/removed/context) whitespace errors are
@@ -68,7 +68,7 @@
 - The option ~magit-repository-directories~ defaults to ~nil~ again
   because the non-nil default added in v2.90.0 led to surprising
   changes in behavior.  The documentation of this option and the
-  related ~magit-status~ command were made less ambigious.  #3673
+  related ~magit-status~ command were made less ambiguous.  #3673
 
 - Renamed the face ~git-commit-note~ to ~git-commit-keyword~ because that
   is what text in brackets is called elsewhere in Magit and because
@@ -80,7 +80,7 @@
 
 - The command ~magit-commit-reword~ now always uses ~--allow-empty~
   because when you reword an empty commit, then you have already
-  confirmed that you are okay with that commit to being empty.
+  confirmed that you are okay with that commit being empty.
 
 ** Fixes since v2.90.0
 
