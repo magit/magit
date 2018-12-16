@@ -492,6 +492,7 @@ header."
         (t
          (magit-log-get-buffer-args))))
 
+;;;###autoload
 (defun magit-log-popup (arg)
   "Popup console for log commands."
   (interactive "P")
