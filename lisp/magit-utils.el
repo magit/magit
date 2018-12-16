@@ -1025,7 +1025,7 @@ and `imenu-extract-index-name-function'."
                           (and (funcall imenu-prev-index-position-function)
                                (funcall imenu-extract-index-name-function)))))
                  (add-log-current-defun))))
-    (if which-func-cleanup-function
+    (if (bound-and-true-p which-func-cleanup-function)
 	(funcall which-func-cleanup-function name)
       name)))
 
