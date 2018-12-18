@@ -82,6 +82,10 @@
   because when you reword an empty commit, then you have already
   confirmed that you are okay with that commit being empty.
 
+- The new buffer-local variable ~git-commit-need-summary-line~, can
+  be of use if you want to write Git notes without separating the
+  first line with an empty line from the rest of the text.  #3676
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
