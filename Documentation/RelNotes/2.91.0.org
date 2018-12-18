@@ -140,3 +140,7 @@
 
 - ~magit-split-branch-name~ did not take into account that remote names
   can contain slashes.  #3685.
+
+- ~magit-which-function~ now simply resets Imenu's cache and then calls
+  ~which-function~.  The old approach that tried to outsmart Imenu was
+  broken.  #3691.

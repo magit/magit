@@ -999,35 +999,11 @@ and https://github.com/magit/magit/issues/2295."
 (defun magit-which-function ()
   "Return current function name based on point.
 
-Try to determine the name using `which-func-functions', functions
-provided by Imenu or `add-log-current-defun', in that order until
-one approach succeeds.  If nothing succeeds, then return nil.
-
-This is like `which-function' except that it doesn't use Imenu's
-cache (`imenu--index-alist') because by default that is never
-invalidated and is therefore unreliable.  Invalidating the cache
-before use could be another viable approach, except that indexing
-the complete buffer just to get the function at point would be
-very inefficient.  (But if you use Imenu for other purposes you
-should set `imenu-auto-rescan' to t.)
-
-The Imenu approach is only used if `imenu-create-index-function'
-is `imenu-default-create-index-function', in which case the work
-is done by `imenu-prev-index-position-function'
-and `imenu-extract-index-name-function'."
-  (when-let
-      ((name (or (run-hook-with-args-until-success 'which-func-functions)
-                 (and (eq imenu-create-index-function
-                          'imenu-default-create-index-function)
-                      (ignore-errors
-                        (save-excursion
-                          (end-of-line)
-                          (and (funcall imenu-prev-index-position-function)
-                               (funcall imenu-extract-index-name-function)))))
-                 (add-log-current-defun))))
-    (if (bound-and-true-p which-func-cleanup-function)
-	(funcall which-func-cleanup-function name)
-      name)))
+This is a simple wrapper around `which-function', that resets
+Imenu's potentially outdated and therefore unreliable cache by
+setting `imenu--index-alist' to nil before calling that function."
+  (setq imenu--index-alist nil)
+  (which-function))
 
 ;;; Kludges for Incompatible Modes
 
