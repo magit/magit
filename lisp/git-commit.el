@@ -203,6 +203,8 @@ run at all.  For certain commands such as `magit-rebase-continue'
 this hook is never run because doing so would lead to a race
 condition.
 
+This hook is only run if `magit' is available.
+
 Also see `magit-post-commit-hook'."
   :group 'git-commit
   :type 'hook
@@ -536,7 +538,9 @@ This is only used if Magit is available."
   (set-buffer-modified-p nil))
 
 (defun git-commit-run-post-finish-hook (previous)
-  (when git-commit-post-finish-hook
+  (when (and git-commit-post-finish-hook
+             (require 'magit nil t)
+             (fboundp 'magit-rev-parse))
     (cl-block nil
       (let ((break (time-add (current-time)
                              (seconds-to-time 1))))
