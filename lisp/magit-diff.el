@@ -2829,8 +2829,10 @@ last (visual) lines of the region."
 (defun magit-diff-inside-hunk-body-p ()
   "Return non-nil if point is inside the body of a hunk."
   (and (magit-section-match 'hunk)
-       (> (point)
-          (oref (magit-current-section) content))))
+       (or
+        (not (oref (magit-current-section) content))
+        (> (point)
+           (oref (magit-current-section) content)))))
 
 ;;; Diff Extract
 
