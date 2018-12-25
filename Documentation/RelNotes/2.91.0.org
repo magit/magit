@@ -144,3 +144,8 @@
 - ~magit-which-function~ now simply resets Imenu's cache and then calls
   ~which-function~.  The old approach that tried to outsmart Imenu was
   broken.  #3691.
+
+- ~magit-describe-section-briefly~ did not actually display a section
+  ident when called interactively, as the docstring claimed.  Now it
+  displays the section ident, which is useful in
+  ~magit-status-initial-section~.
