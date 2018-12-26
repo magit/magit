@@ -700,7 +700,7 @@ section lineage.  This command is intended for debugging purposes."
                        (marker-position m))
                      (when-let ((m (oref section end)))
                        (marker-position m)))))
-    (if (called-interactively-p)
+    (if (called-interactively-p 'any)
         (message "%s" str)
       str)))
 
