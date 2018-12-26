@@ -56,6 +56,9 @@
 (eval-when-compile (require 'vc-git))
 (declare-function vc-git--run-command-string "vc-git" (file &rest args))
 
+(eval-when-compile (require 'which-func))
+(declare-function which-function "which-func" ())
+
 (defvar magit-wip-before-change-mode)
 
 (require 'magit-popup)
