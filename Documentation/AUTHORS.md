@@ -61,6 +61,7 @@ Contributors
 - Andreas Liljeqvist <andreas.liljeqvist@robacks.se>
 - Andreas Rottmann <a.rottmann@gmx.at>
 - Andrei Chițu <andrei.chitu1@gmail.com>
+- Andrew Eggenberger <andrew.eggenberger@gmail.com>
 - Andrew Kirkpatrick <andrew.kirkpatrick@adelaide.edu.au>
 - Andrew Schwartzmeyer <andrew@schwartzmeyer.com>
 - Andrey Smirnov <andrew.smirnov@gmail.com>
