@@ -16,14 +16,15 @@
 
 ** Changes since v2.90.0
 
-- Added new option ~magit-section-visibility-indicator~.
+- It isn't always obvious that a section can be expanded, especially
+  to users who are just getting started with Magit.  Mainly to make
+  it easier for those users, expandable and collapsable sections now
+  get an indicator in the fringe.
 
-  TODO:
-
-  Decide whether to enable this by default and if so what style to
-  default to.  Enable it for now on the development branch, so that
-  users notice and get a chance to comment on #3679 before the next
-  release.
+  The new option ~magit-section-visibility-indicator~ can be used to
+  disable this or to select the alternative style, which shows an
+  ellipsis at the end of the heading of each expandable section
+  instead.  #3679
 
 - Added ~bug-reference-mode~ to ~git-commit-setup-hook~.  e19e8fb1e
 
@@ -143,13 +144,16 @@
   `symbol' appears in it.
 
 - ~magit-split-branch-name~ did not take into account that remote names
-  can contain slashes.  #3685.
+  can contain slashes.  #3685
 
 - ~magit-which-function~ now simply resets Imenu's cache and then calls
   ~which-function~.  The old approach that tried to outsmart Imenu was
-  broken.  #3691.
+  broken.  #3691
 
 - ~magit-describe-section-briefly~ did not actually display a section
   ident when called interactively, as the docstring claimed.  Now it
   displays the section ident, which is useful in
   ~magit-status-initial-section~.
+
+- Section movement commands got confused by type change sections being
+  treated as a special kind of hunk.  #3698
