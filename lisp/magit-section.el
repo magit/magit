@@ -303,11 +303,13 @@ IDENT has to be a list as returned by `magit-section-ident'."
     (when (eq (car (pop ident))
               (oref section type))
       (while (and ident
-                  (setq section
-                        (--first
-                         (and (eq    (caar ident) (oref it type))
-                              (equal (cdar ident) (oref it value)))
-                         (oref section children))))
+                  (pcase-let ((`(,type . ,value) (car ident)))
+                    (setq section
+                          (cl-find-if (lambda (section)
+                                        (and (eq (oref section type) type)
+                                             (equal (oref section value)
+                                                    value)))
+                                      (oref section children)))))
         (pop ident))
       section)))
 
