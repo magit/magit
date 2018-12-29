@@ -281,7 +281,9 @@ never modify it.")
 The return value has the form ((TYPE . VALUE)...)."
   (with-slots (type value parent) section
     (cons (cons type
-                (cond ((not (memq type '(unpulled unpushed))) value)
+                (cond ((eieio-object-p value)
+                       (magit-section-ident-value value))
+                      ((not (memq type '(unpulled unpushed))) value)
                       ((string-match-p "@{upstream}" value) value)
                       ;; Unfortunately Git chokes on "@{push}" when
                       ;; the value of `push.default' does not allow a
@@ -295,6 +297,18 @@ The return value has the form ((TYPE . VALUE)...)."
           (and parent
                (magit-section-ident parent)))))
 
+(cl-defgeneric magit-section-ident-value (VALUE)
+  "Return a constant representation of VALUE.
+VALUE is the value of a `magit-section' object.  If that is an
+object itself, then that is not suitable to be used to identify
+the section because two objects may represent the same thing but
+not be equal.  If possible a method should be addef for such
+objects, which returns a value that is equal.  Otherwise the
+catch-all method is used, which just returns the argument
+itself.")
+
+(cl-defmethod magit-section-ident-value (arg) arg)
+
 (defun magit-get-section (ident &optional root)
   "Return the section identified by IDENT.
 IDENT has to be a list as returned by `magit-section-ident'."
@@ -303,11 +317,13 @@ IDENT has to be a list as returned by `magit-section-ident'."
     (when (eq (car (pop ident))
               (oref section type))
       (while (and ident
-                  (pcase-let ((`(,type . ,value) (car ident)))
+                  (pcase-let* ((`(,type . ,value) (car ident))
+                               (value (magit-section-ident-value value)))
                     (setq section
                           (cl-find-if (lambda (section)
                                         (and (eq (oref section type) type)
-                                             (equal (oref section value)
+                                             (equal (magit-section-ident-value
+                                                     (oref section value))
                                                     value)))
                                       (oref section children)))))
         (pop ident))
