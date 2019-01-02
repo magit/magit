@@ -2,7 +2,7 @@
 :PREAMBLE:
 #+AUTHOR: Jonas Bernoulli
 #+EMAIL: jonas@bernoul.li
-#+DATE: 2015-2018
+#+DATE: 2015-2019
 #+LANGUAGE: en
 
 #+TEXINFO_DIR_CATEGORY: Emacs
@@ -26,7 +26,7 @@ Magit and Git itself deserve to be called porcelains.
 This manual is for Magit version 2.90.1 (v2.90.1-79-g50b5aad12+1).
 
 #+BEGIN_QUOTE
-Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -8109,7 +8109,7 @@ Please also see the [[*FAQ]].
 :END:
 
 #+BEGIN_QUOTE
-Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
