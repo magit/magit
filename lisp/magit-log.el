@@ -413,7 +413,10 @@ the upstream isn't ahead of the current branch) show."
     ("r" "current"        magit-reflog-current)
     ("O" "other"          magit-reflog-other)
     ("H" "HEAD"           magit-reflog-head)]
-   ])
+   [:if-non-nil magit-wip-mode
+    :description "Wiplog"
+    ("i" "index"          magit-wip-log-index)
+    ("w" "worktree"       magit-wip-log-worktree)]])
 
 (define-transient-command magit-log-refresh ()
   "Change the arguments used for the log(s) in the current buffer."
