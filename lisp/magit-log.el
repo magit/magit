@@ -460,7 +460,8 @@ the upstream isn't ahead of the current branch) show."
    ["Margin"
     ("L" "toggle visibility"        magit-toggle-margin)
     ("l" "cycle style"              magit-cycle-margin-style)
-    ("d" "toggle details"           magit-toggle-margin-details)]])
+    ("d" "toggle details"           magit-toggle-margin-details)
+    ("x" "toggle shortstat"         magit-toggle-log-margin-style)]])
 
 (defun magit-log--initial-value ()
   (if-let ((file (magit-file-relative-name)))
