@@ -38,6 +38,7 @@
               (?s "Sign"     "--sign"))
   :options  '((?f "Sign"     "--local-user=" magit-read-gpg-secret-key))
   :actions  '((?t "Create"   magit-tag-create)
+              (?r "Create release" magit-tag-release)
               (?k "Delete"   magit-tag-delete)
               (?p "Prune"    magit-tag-prune))
   :default-action 'magit-tag-create)
@@ -96,37 +97,78 @@ defaulting to the tag at point.
   (when remote-tags
     (magit-run-git-async "push" remote (--map (concat ":" it) remote-tags))))
 
+(defvar magit-release-tag-regexp "\\`\
+\\(?1:\\(?:v\\(?:ersion\\)?\\|r\\(?:elease\\)?\\)?[-_]?\\)?\
+\\(?2:[0-9]+\\(?:\\.[0-9]+\\)*\\)\\'"
+  "Regexp used to parse release tag names.
+The first submatch must match the prefix, if any.
+The second submatch must match the version string.")
+
 ;;;###autoload
-(defun magit-tag-release (tag)
-  "Create an opinionated release tag.
+(defun magit-tag-release (tag msg)
+  "Create an annotated release tag.
 
-Assume version tags that match \"\\\\`v?[0-9]\\\\(\\\\.[0-9]\\\\)*\\\\'\".
-Prompt for the name of the new tag using the highest existing tag
-as initial input and call \"git tag --annotate --sign -m MSG\" TAG,
-regardless of whether these arguments are enabled in the popup.
-Given a TAG \"v1.2.3\" and a repository \"/path/to/foo-bar\", the
-MESSAGE would be \"Foo-Bar 1.2.3\".
+Assume that release tags match `magit-release-tag-regexp'.
 
-Because it is so opinionated, this command is not available from
-the tag popup by default."
+First prompt for the name of the new tag using the highest
+existing tag as initial input and leaving it to the user to
+increment the desired part of the version string.
+
+Then prompt for the message of the new tag.  Base the proposed
+tag message on the message of the highest tag, provided that
+that contains the corresponding version string and substituting
+the new version string for that.  Otherwise propose something
+like \"Foo-Bar 1.2.3\", given, for example, a TAG \"v1.2.3\" and a
+repository located at something like \"/path/to/foo-bar\".
+
+Then call \"git tag --annotate --sign -m MSG TAG\" to create the,
+tag, regardless of whether these arguments are enabled in the
+popup.  Finally show the refs buffer to let the user quickly
+review the result."
   (interactive
-   (list (read-string "Create tag: "
-                      (car (nreverse
-                            (cl-sort (magit-list-tags) #'version<
-                                     :key (lambda (tag)
-                                            (if (string-prefix-p "v" tag)
-                                                (substring tag 1)
-                                              tag))))))))
-  (magit-run-git
-   "tag" "--annotate" "--sign"
-   "-m" (format "%s %s"
-                (capitalize (file-name-nondirectory
-                             (directory-file-name (magit-toplevel))))
-                (if (string-prefix-p "v" tag)
-                    (substring tag 1)
-                  tag))
-   tag)
+   (save-match-data
+     (pcase-let*
+         ((`(,pver ,ptag ,pmsg) (car (magit--list-releases)))
+          (tag (read-string "Create release tag: " ptag))
+          (ver (and (string-match magit-release-tag-regexp tag)
+                    (match-string 2 tag)))
+          (msg (cond ((and pver (string-match (regexp-quote pver) pmsg))
+                      (replace-match ver t t pmsg))
+                     ((and ptag (string-match (regexp-quote ptag) pmsg))
+                      (replace-match tag t t pmsg))
+                     (t (format "%s %s"
+                                (capitalize
+                                 (file-name-nondirectory
+                                  (directory-file-name (magit-toplevel))))
+                                ver)))))
+       (list tag (read-string (format "Message for %S: " tag) msg)))))
+  (magit-run-git "tag" "--annotate" "--sign" "-m" msg tag)
   (magit-show-refs))
+
+(defun magit--list-releases ()
+  "Return a list of releases.
+The list is ordered, beginning with the highest release.
+Each release element has the form (VERSION TAG MESSAGE).
+`magit-release-tag-regexp' is used to determine whether
+a tag qualifies as a release tag."
+  (save-match-data
+    (mapcar
+     #'cdr
+     (nreverse
+      (cl-sort (cl-mapcan
+                (lambda (line)
+                  (and (string-match " +" line)
+                       (let ((tag (substring line 0 (match-beginning 0)))
+                             (msg (substring line (match-end 0))))
+                         (and (string-match magit-release-tag-regexp tag)
+                              (let ((ver (match-string 2 tag)))
+                                (list (list (version-to-list ver)
+                                            ver tag msg)))))))
+                ;; Cannot rely on "--sort=-version:refname" because
+                ;; that gets confused if the version prefix has changed.
+                (magit-git-lines "tag" "-n"))
+               ;; The inverse of this function does not exist.
+               #'version-list-< :key #'car)))))
 
 ;;; _
 (provide 'magit-tag)
