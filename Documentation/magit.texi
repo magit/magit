@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-89-g89f7c0757+1)
+@subtitle for version 2.90.1 (v2.90.1-91-g76426a13+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-89-g89f7c0757+1).
+This manual is for Magit version 2.90.1 (v2.90.1-91-g76426a13+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8187,18 +8187,18 @@ prefix argument it creates an annotate tag.
 This commands creates an annotated release tag.  It assumes that
 release tags match @code{magit-release-tag-regexp}.
 
-First it prompt for the name of the new tag using the highest
+First it prompts for the name of the new tag using the highest
 existing tag as initial input and leaving it to the user to
 increment the desired part of the version string.
 
-Then it prompt for the message of the new tag.  The proposed tag
+Then it prompts for the message of the new tag.  The proposed tag
 message is based on the message of the highest tag, provided that
 that contains the corresponding version string and substituting the
 new version string for that.  Otherwise it proposes something like
 "Foo-Bar 1.2.3", given, for example, a TAG "v1.2.3" and a repository
 located at something like "/path/to/foo-bar".
 
-Then it call "git tag --annotate --sign -m MSG TAG" to create the,
+Then it calls "git tag --annotate --sign -m MSG TAG" to create the
 tag, regardless of whether these arguments are enabled in the popup.
 Finally it shows the refs buffer to let the user quickly review the
 result.
@@ -8208,8 +8208,8 @@ result.
 @item @kbd{t k} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag-delete})
 
 This command deletes one or more tags.  If the region marks multiple
-tags (and nothing else), then it offer to delete those.  Otherwise,
-it prompt for a single tag to be deleted, defaulting to the tag at
+tags (and nothing else), then it offers to delete those.  Otherwise,
+it prompts for a single tag to be deleted, defaulting to the tag at
 point.
 
 @kindex t p
