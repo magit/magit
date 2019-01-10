@@ -384,14 +384,14 @@ the upstream isn't ahead of the current branch) show."
    ("-D" "Simplify by decoration"  "--simplify-by-decoration")
    ("-f" "Follow renames when showing single-file log" "--follow")]
   ["Options"
-   ("=n" "Limit number of commits" "-n" magit-read-number-string)
-   ("=f" "Limit to files"          "-- " magit-read-files)
-   ("=a" "Limit to author"         "--author=" magit-transient-read-person)
-   ("=o" "Order commits by"        "++order=" magit-log-select-order)
-   ("=g" "Search messages"         "--grep=")
-   ("=G" "Search changes"          "-G" read-string)
-   ("=S" "Search occurrences"      "-S" read-string)
-   ("=L" "Trace line evolution"    "-L" magit-read-file-trace)]
+   (magit-log:-n)
+   (magit:--)
+   (magit:--author)
+   (magit-log:--*-order)
+   (magit-log:--grep)
+   (magit-log:-G)
+   (magit-log:-S)
+   (magit-log:-L)]
   [["Log"
     ("l" "current"        magit-log-current)
     ("o" "other"          magit-log-other)
@@ -429,18 +429,18 @@ the upstream isn't ahead of the current branch) show."
    ("-f" "Follow renames when showing single-file log" "--follow")]
   ["Options"
    :if-not-mode magit-log-mode
-   ("=n" "Limit number of commits" "-n" magit-read-number-string)
-   ("=o" "Order commits by"        "++order=" magit-log-select-order)]
+   (magit-log:-n)
+   (magit-log:--*-order)]
   ["Options"
    :if-mode magit-log-mode
-   ("=n" "Limit number of commits" "-n" magit-read-number-string)
-   ("=f" "Limit to files"          "-- " magit-read-files)
-   ("=a" "Limit to author"         "--author=" magit-transient-read-person)
-   ("=o" "Order commits by"        "++order=" magit-log-select-order)
-   ("=g" "Search messages"         "--grep=")
-   ("=G" "Search changes"          "-G" read-string)
-   ("=S" "Search occurrences"      "-S" read-string)
-   ("=L" "Trace line evolution"    "-L" magit-read-file-trace)]
+   (magit-log:-n)
+   (magit:--)
+   (magit:--author)
+   (magit-log:--*-order)
+   (magit-log:--grep)
+   (magit-log:-G)
+   (magit-log:-S)
+   (magit-log:-L)]
   [["Refresh"
     ("g" "buffer"                   magit-log-do-refresh)
     ("s" "buffer and set defaults"  magit-log-set-default-arguments)
@@ -496,6 +496,33 @@ the upstream isn't ahead of the current branch) show."
 
 ;;;; Infix Arguments
 
+(define-infix-argument magit-log:-n ()
+  :description "Limit number of commits"
+  :class 'transient-option
+  :key "=n"
+  ;; For historic reasons (and because it easy to guess what "-n"
+  ;; stands for) this is the only argument where we do not use the
+  ;; long argument ("--max-count").  If we did switch to the long
+  ;; argument, then that would cause breakage for users who have
+  ;; customized `magit-log-arguments'.
+  :shortarg "-n"
+  :argument "-n"
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit:--author ()
+  :description "Limit to author"
+  :class 'transient-option
+  :key "=a"
+  :argument "--author="
+  :reader 'magit-transient-read-person)
+
+(define-infix-argument magit-log:--*-order ()
+  :description "Order commits by"
+  :class 'transient-option
+  :key "=o"
+  :argument "++order="
+  :reader 'magit-log-select-order)
+
 (defun magit-log-select-order (&rest _ignored)
   "Set one `--<value>-order' option in Git log.
 This encompasses the options `--author-date-order',
@@ -504,6 +531,31 @@ This encompasses the options `--author-date-order',
     (?t "[t]opography"     "topo")
     (?a "[a]uthor date"    "author-date")
     (?c "[c]ommitter date" "date")))
+
+(define-infix-argument magit-log:--grep ()
+  :description "Search messages"
+  :class 'transient-option
+  :key "=g"
+  :argument "--grep=")
+
+(define-infix-argument magit-log:-G ()
+  :description "Search changes"
+  :class 'transient-option
+  :key "=G"
+  :argument "-G")
+
+(define-infix-argument magit-log:-S ()
+  :description "Search occurrences"
+  :class 'transient-option
+  :key "=S"
+  :argument "-S")
+
+(define-infix-argument magit-log:-L ()
+  :description "Trace line evolution"
+  :class 'transient-option
+  :key "=L"
+  :argument "-L"
+  :reader 'magit-read-file-trace)
 
 (defun magit-read-file-trace (&rest _ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))

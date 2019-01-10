@@ -111,7 +111,7 @@ Also see `git-commit-post-finish-hook'."
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
    ("-R" "Claim authorship and reset author date" "--reset-author")]
   ["Options"
-   ("=A" "Override the author"  "--author="        magit-transient-read-person)
+   ("=A" "Override the author" magit:--author)
    ("=S" "Sign using gpg"       "--gpg-sign="      magit-read-gpg-secret-key)
    ("=C" "Reuse commit message" "--reuse-message=" magit-read-reuse-message)]
   [["Create"
