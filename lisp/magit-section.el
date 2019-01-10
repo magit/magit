@@ -302,7 +302,7 @@ The return value has the form ((TYPE . VALUE)...)."
 VALUE is the value of a `magit-section' object.  If that is an
 object itself, then that is not suitable to be used to identify
 the section because two objects may represent the same thing but
-not be equal.  If possible a method should be addef for such
+not be equal.  If possible a method should be added for such
 objects, which returns a value that is equal.  Otherwise the
 catch-all method is used, which just returns the argument
 itself.")
