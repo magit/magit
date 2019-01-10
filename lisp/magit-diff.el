@@ -668,14 +668,12 @@ and `:slant'."
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
    ("-s" "Show stats"                     "--stat")]
   ["Options"
-   ("=f" "Limit to files" "-- " magit-read-files)
-   ("=u" "Context lines"  "-U" read-string)
-   ("=m" "Detect renames" "-M" read-string)
-   ("=c" "Detect copies"  "-C" read-string)
-   ("=a" "Diff algorithm" "--diff-algorithm="
-    magit-diff-select-algorithm)
-   ("=i" "Ignore submodules" "--ignore-submodules="
-    magit-diff-select-ignore-submodules)]
+   (magit:--)
+   (magit-diff:-U)
+   (magit-diff:-M)
+   (magit-diff:-C)
+   (magit-diff:--diff-algorithm)
+   (magit-diff:--ignore-submodules)]
   ["Actions"
    [("d" "Dwim"          magit-diff-dwim)
     ("r" "Diff range"    magit-diff-range)
@@ -698,14 +696,12 @@ and `:slant'."
    ("-s" "Show stats"                     "--stat"
     :if-derived magit-diff-mode)]
   ["Options"
-   ("=f" "Limit to files" "-- " magit-read-files)
-   ("=u" "Context lines"  "-U" read-string)
-   ("=m" "Detect renames" "-M" read-string)
-   ("=c" "Detect copies"  "-C" read-string)
-   ("=a" "Diff algorithm" "--diff-algorithm="
-    magit-diff-select-algorithm)
-   ("=i" "Ignore submodules" "--ignore-submodules="
-    magit-diff-select-ignore-submodules)]
+   (magit:--)
+   (magit-diff:-U)
+   (magit-diff:-M)
+   (magit-diff:-C)
+   (magit-diff:--diff-algorithm)
+   (magit-diff:--ignore-submodules)]
   ["Actions"
    [("g" "Refresh"                magit-diff-do-refresh)
     ("s" "Set defaults"           magit-diff-set-default-arguments)
@@ -771,12 +767,57 @@ and `:slant'."
               magit-diff-section-file-args)
       (magit-diff-get-buffer-args))))
 
+;;;; Infix Arguments
+
+(define-infix-argument magit:-- ()
+  :description "Limit to files"
+  :class 'transient-option
+  :key "=f"
+  :argument "-- "
+  :reader 'magit-read-files
+  :multi-value t)
+
+(define-infix-argument magit-diff:-U ()
+  :description "Context lines"
+  :class 'transient-option
+  :key "=u"
+  :argument "-U"
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-diff:-M ()
+  :description "Detect renames"
+  :class 'transient-option
+  :key "=m"
+  :argument "-M"
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-diff:-C ()
+  :description "Detect copies"
+  :class 'transient-option
+  :key "=c"
+  :argument "-C"
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-diff:--diff-algorithm ()
+  :description "Diff algorithm"
+  :class 'transient-option
+  :key "=a"
+  :argument "--diff-algorithm="
+  :reader 'magit-diff-select-algorithm)
+
 (defun magit-diff-select-algorithm (&rest _ignore)
   (magit-read-char-case nil t
     (?d "[d]efault"   "default")
     (?m "[m]inimal"   "minimal")
     (?p "[p]atience"  "patience")
     (?h "[h]istogram" "histogram")))
+
+(define-infix-argument magit-diff:--ignore-submodules ()
+  :description "Ignore submodules"
+  :class 'transient-option
+  :key "-i"
+  :argument "--ignore-submodules="
+  :reader 'magit-diff-select-ignore-submodules)
 
 (defun magit-diff-select-ignore-submodules (&rest _ignored)
   (magit-read-char-case "Ignore submodules " t

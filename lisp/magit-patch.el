@@ -75,12 +75,12 @@ which creates patches for all commits that are reachable from
    ("=P" "Subject Prefix"   "--subject-prefix=")
    ("=v" "Reroll count"     "--reroll-count=")
    ("=s" "Thread style"     "--thread=")
-   ("=U" "Context lines"    "-U" read-string)
-   ("=M" "Detect renames"   "-M" read-string)
-   ("=C" "Detect copies"    "-C" read-string)
-   ("=A" "Diff algorithm"   "--diff-algorithm=" magit-diff-select-algorithm)
+   ("=U" magit-diff:-U)
+   ("=M" magit-diff:-M)
+   ("=C" magit-diff:-C)
+   ("=A" magit-diff:--diff-algorithm)
    ("=o" "Output directory" "--output-directory=")
-   ("=F" "Limit to files"   "-- " magit-read-files)]
+   ("=F" magit:--)]
   ["Actions"
    ("c" "Create patches" magit-patch-create)]
   (interactive
