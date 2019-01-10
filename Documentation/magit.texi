@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-91-g76426a13+1)
+@subtitle for version 2.90.1 (v2.90.1-92-g21a6b757+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-91-g76426a13+1).
+This manual is for Magit version 2.90.1 (v2.90.1-92-g21a6b757+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8180,9 +8180,9 @@ the appropriate infix arguments in a popup buffer.
 This command creates a new tag with the given NAME at REV@.  With a
 prefix argument it creates an annotate tag.
 
-@kindex t t
-@cindex magit-tag-create
-@item @kbd{t t} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag-create})
+@kindex t r
+@cindex magit-tag-release
+@item @kbd{t r} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag-release})
 
 This commands creates an annotated release tag.  It assumes that
 release tags match @code{magit-release-tag-regexp}.
@@ -8218,24 +8218,7 @@ point.
 
 This command offers to delete tags missing locally from REMOTE, and
 vice versa.
-
 @end table
-
-@cindex magit-tag-release
-@deffn Command magit-tag-release
-
-This command creates an opinionated release tag.
-
-It assumes version tags that match "\\`v?[0-9]\*\\'".
-It prompts for the name of the new tag using the highest existing
-tag as initial input and call "git tag --annotate --sign -m MSG"
-TAG, regardless of whether these arguments are enabled in the popup.
-Given a TAG "v1.2.3" and a repository "/path/to/foo-bar", the
-MESSAGE would be "Foo-Bar 1.2.3".
-
-Because it is so opinionated, this command is not available from
-the tag popup by default.
-@end deffn
 
 @node Notes
 @section Notes
