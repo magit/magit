@@ -350,35 +350,53 @@ current line."
         (insert "pick " it ?\n))
     (user-error "Unknown revision")))
 
-(defun git-rebase-exec (arg)
-  "Insert a shell command to be run after the proceeding commit.
+(defun git-rebase-insert-at-point-with-args (regex insn read-fun at-point arg)
+  "Insert a command with a parameter in the buffer.
 
-If there already is such a command on the current line, then edit
-that instead.  With a prefix argument insert a new command even
-when there already is one on the current line.  With empty input
-remove the command on the current line, if any."
-  (interactive "P")
-  (let ((inhibit-read-only t) initial command)
+The command to insert is set by INSN, and its argument is
+prompted from the user with the function READ-FUN.  It takes one
+argument, the initial value.  If AT-POINT is not nil, the command
+will be inserted on the current line instead of the next line.
+
+If there already is such a command on the current
+line (determined by REGEX), then edit that instead.  With a
+prefix argument (ARG) insert a new command even when there
+already is one on the current line.  With empty input remove the
+command on the current line, if any."
+  (let ((inhibit-read-only t) initial value)
     (unless arg
       (goto-char (line-beginning-position))
       (when (looking-at (concat git-rebase-comment-re "?"
-                                "\\(e\\|exec\\) \\(.*\\)"))
+                                regex))
         (setq initial (match-string-no-properties 2))))
-    (setq command (read-shell-command "Execute: " initial))
-    (pcase (list command initial)
+    (setq value (funcall read-fun initial))
+    (pcase (list value initial)
       (`("" nil) (ding))
       (`(""  ,_)
        (delete-region (match-beginning 0) (1+ (match-end 0))))
       (`(,_ nil)
-       (forward-line)
-       (insert (concat "exec " command "\n"))
+       (unless at-point
+         (forward-line))
+       (insert (concat insn " " value "\n"))
        (unless git-rebase-auto-advance
          (forward-line -1)))
       (_
-       (replace-match (concat "exec " command) t t)
+       (replace-match (concat insn " " value) t t)
        (if git-rebase-auto-advance
            (forward-line)
          (goto-char (line-beginning-position)))))))
+
+(defun git-rebase-exec (arg)
+  "Insert a shell command to be run after the proceeding commit.
+
+If there already is such a command on the current line, then edit
+that instead.  With a prefix argument (ARG) insert a new command
+even when there already is one on the current line.  With empty
+input remove the command on the current line, if any."
+  (interactive "P")
+  (git-rebase-insert-at-point-with-args
+   "\\(e\\|exec\\) \\(.*\\)" "exec"
+   (lambda (initial) (read-shell-command "Execute: " initial)) nil arg))
 
 (defun git-rebase-noop (&optional arg)
   "Add noop action at point.
