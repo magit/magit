@@ -605,7 +605,9 @@ START has to be selected from a list of recent commits."
           (setq commit (concat commit "^"))
         (setq args (cons "--root" args)))))
   (when (and commit (not noassert))
-    (setq commit (magit-rebase-interactive-assert commit delay-edit-confirm)))
+    (setq commit (magit-rebase-interactive-assert
+                  commit delay-edit-confirm
+                  (--some (string-prefix-p "--rebase-merges" it) args))))
   (if (and commit (not confirm))
       (let ((process-environment process-environment))
         (when editor
@@ -621,7 +623,8 @@ START has to be selected from a list of recent commits."
 (defvar magit--rebase-published-symbol nil)
 (defvar magit--rebase-public-edit-confirmed nil)
 
-(defun magit-rebase-interactive-assert (since &optional delay-edit-confirm)
+(defun magit-rebase-interactive-assert
+    (since &optional delay-edit-confirm rebase-merges)
   (let* ((commit (if (string-suffix-p "^" since)
                      ;; If SINCE is "REV^", then the user selected
                      ;; "REV", which is the first commit that will
@@ -646,7 +649,8 @@ START has to be selected from a list of recent commits."
           (concat m1 "%i public branches" m2)
           nil branches))
       (push (magit-toplevel) magit--rebase-public-edit-confirmed)))
-  (if (magit-git-lines "rev-list" "--merges" (concat since "..HEAD"))
+  (if (and (magit-git-lines "rev-list" "--merges" (concat since "..HEAD"))
+           (not rebase-merges))
       (magit-read-char-case "Proceed despite merge in rebase range?  " nil
         (?c "[c]ontinue" since)
         (?s "[s]elect other" nil)
