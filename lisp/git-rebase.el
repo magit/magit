@@ -157,6 +157,7 @@
     (define-key map (kbd "e") 'git-rebase-edit)
     (define-key map (kbd "l") 'git-rebase-label)
     (define-key map (kbd "m") 'git-rebase-edit)
+    (define-key map (kbd "M") 'git-rebase-merge)
     (define-key map (kbd "f") 'git-rebase-fixup)
     (define-key map (kbd "q") 'undefined)
     (define-key map (kbd "r") 'git-rebase-reword)
@@ -423,6 +424,19 @@ input remove the command on the current line, if any."
   (git-rebase-insert-at-point-with-args
    "\\(t\\|reset\\) \\(.*\\)" "reset"
    (lambda (initial) (read-from-minibuffer "Reset to label: ")) nil arg))
+
+(defun git-rebase-merge (rev)
+  "Add a merge command to be inserted before the proceeding commit.
+
+REV is the commit to be merged."
+  (interactive (list (magit-read-branch-or-commit "Insert revision")))
+  (goto-char (line-beginning-position))
+  (let ((inhibit-read-only t)
+        (label (read-from-minibuffer "Label: "))
+        (commit-message (read-from-minibuffer "Message for merge commit: ")))
+    (insert (concat "merge " (if (y-or-n-p "Reword the commit message? ")
+                                 "-c "
+                               "-C ") rev " # " commit-message "\n"))))
 
 (defun git-rebase-noop (&optional arg)
   "Add noop action at point.
