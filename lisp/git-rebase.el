@@ -155,10 +155,12 @@
            (define-key map (kbd   "k") 'git-rebase-kill-line)
            (define-key map (kbd "C-k") 'git-rebase-kill-line)))
     (define-key map (kbd "e") 'git-rebase-edit)
+    (define-key map (kbd "l") 'git-rebase-label)
     (define-key map (kbd "m") 'git-rebase-edit)
     (define-key map (kbd "f") 'git-rebase-fixup)
     (define-key map (kbd "q") 'undefined)
     (define-key map (kbd "r") 'git-rebase-reword)
+    (define-key map (kbd "t") 'git-rebase-reset)
     (define-key map (kbd "w") 'git-rebase-reword)
     (define-key map (kbd "s") 'git-rebase-squash)
     (define-key map (kbd "x") 'git-rebase-exec)
@@ -397,6 +399,30 @@ input remove the command on the current line, if any."
   (git-rebase-insert-at-point-with-args
    "\\(e\\|exec\\) \\(.*\\)" "exec"
    (lambda (initial) (read-shell-command "Execute: " initial)) nil arg))
+
+(defun git-rebase-label (arg)
+  "Add a label command to be inserted before the proceeding commit.
+
+If there already is such a command on the current line, then edit
+that instead.  With a prefix argument (ARG) insert a new command
+even when there already is one on the current line.  With empty
+input remove the command on the current line, if any."
+  (interactive "P")
+  (git-rebase-insert-at-point-with-args
+   "\\(l\\|label\\) \\(.*\\)" "label"
+   (lambda (initial) (read-from-minibuffer "Label: " initial)) t arg))
+
+(defun git-rebase-reset (arg)
+  "Add a reset command to be inserted after the proceeding commit.
+
+If there already is such a command on the current line, then edit
+that instead.  With a prefix argument (ARG) insert a new command
+even when there already is one on the current line.  With empty
+input remove the command on the current line, if any."
+  (interactive "P")
+  (git-rebase-insert-at-point-with-args
+   "\\(t\\|reset\\) \\(.*\\)" "reset"
+   (lambda (initial) (read-from-minibuffer "Reset to label: ")) nil arg))
 
 (defun git-rebase-noop (&optional arg)
   "Add noop action at point.
