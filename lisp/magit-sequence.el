@@ -467,6 +467,7 @@ This discards all changes made since the sequence started."
               (?A "Autostash"                "--autostash")
               (?i "Interactive"              "--interactive")
               (?h "Disable hooks"            "--no-verify"))
+  :options  '((?r "Rebase merges" "--rebase-merges=" magit-rebase-merges-select-mode))
   :actions  '((lambda ()
                 (concat (propertize "Rebase " 'face 'magit-popup-heading)
                         (propertize (or (magit-get-current-branch) "HEAD")
@@ -495,6 +496,11 @@ This discards all changes made since the sequence started."
 
 (defun magit-git-rebase (target args)
   (magit-run-git-sequencer "rebase" target args))
+
+(defun magit-rebase-merges-select-mode (&rest _ignore)
+  (magit-read-char-case nil t
+    (?n "[n]o-rebase-cousins" "no-rebase-cousins")
+    (?r "[r]ebase-cousins" "rebase-cousins")))
 
 ;;;###autoload
 (defun magit-rebase-onto-pushremote (args)
