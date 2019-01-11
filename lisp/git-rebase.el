@@ -470,7 +470,7 @@ running 'man git-rebase' at the command line) for details."
   (setq git-rebase-comment-re (concat "^" (regexp-quote comment-start)))
   (setq git-rebase-line
         (concat "^\\(" (regexp-quote comment-start) "? *"
-                "\\(?:[fprse]\\|pick\\|reword\\|edit\\|squash\\|fixup\\|exec\\|noop\\)\\) "
+                "\\(?:[fprsetlm]\\|pick\\|reword\\|edit\\|squash\\|fixup\\|exec\\|noop\\|reset\\|label\\|merge\\)\\) "
                 "\\(?:\\([^ \n]+\\) \\(.*\\)\\)?"))
   (setq font-lock-defaults (list (git-rebase-mode-font-lock-keywords) t t))
   (unless git-rebase-show-instructions
@@ -517,11 +517,19 @@ running 'man git-rebase' at the command line) for details."
        (1 'font-lock-keyword-face)
        (2 'git-rebase-hash)
        (3 'git-rebase-description))
-      ("^\\(exec\\) \\(.*\\)"
+      ("^\\([xlt]\\|exec\\|label\\|reset\\) \\(.*\\)"
        (1 'font-lock-keyword-face)
        (2 'git-rebase-description))
       ("^\\(noop\\)"
        (1 'font-lock-keyword-face))
+      ("^\\(m\\|merge\\) \\(-[Cc]\\) \\([^ \n]+\\) \\(.*\\)"
+       (1 'font-lock-keyword-face)
+       (2 'font-lock-keyword-face)
+       (3 'git-rebase-hash)
+       (4 'git-rebase-description))
+      ("^\\(m\\|merge\\) \\(.*\\)"
+       (1 'font-lock-keyword-face)
+       (2 'git-rebase-description))
       (git-rebase-match-comment-line 0 'font-lock-comment-face)
       (,(concat git-rebase-comment-re " *" action-re)
        0 'git-rebase-killed-action t)
