@@ -497,7 +497,8 @@ This discards all changes made since the sequence started."
    ("-A" "Autostash"                "--autostash")
    ("-i" "Interactive"              ("-i" "--interactive"))
    ("-h" "Disable hooks"            "--no-verify")
-   (5 magit:--gpg-sign)]
+   (5 magit:--gpg-sign)
+   (5 "-r" "Rebase merges" "--rebase-merges=" magit-rebase-merges-select-mode)]
   [:if-not magit-rebase-in-progress-p
    :description (lambda ()
                   (format (propertize "Rebase %s onto" 'face 'transient-heading)
@@ -521,6 +522,11 @@ This discards all changes made since the sequence started."
    ("s" "Skip"     magit-rebase-skip)
    ("e" "Edit"     magit-rebase-edit)
    ("a" "Abort"    magit-rebase-abort)])
+
+(defun magit-rebase-merges-select-mode (&rest _ignore)
+  (magit-read-char-case nil t
+    (?n "[n]o-rebase-cousins" "no-rebase-cousins")
+    (?r "[r]ebase-cousins" "rebase-cousins")))
 
 (defun magit-rebase-arguments ()
   (transient-args 'magit-rebase))
