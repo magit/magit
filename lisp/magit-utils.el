@@ -1093,7 +1093,7 @@ or (last of all) the value of EXP."
               (`woman (require 'woman)
                       (woman (match-string 1 node)))
               (_
-               (user-error "Invalid value for `magit-view-git-documentation'")))
+               (user-error "Invalid value for `magit-view-git-manual-method'")))
           (funcall fn fork)))
     (funcall fn fork)))
 
