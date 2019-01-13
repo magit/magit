@@ -532,19 +532,11 @@ the upstream isn't ahead of the current branch) show."
 
 (define-infix-argument magit-log:--*-order ()
   :description "Order commits by"
-  :class 'transient-option
+  :class 'transient-switches
   :key "=o"
-  :argument "++order="
-  :reader 'magit-log-select-order)
-
-(defun magit-log-select-order (&rest _ignored)
-  "Set one `--<value>-order' option in Git log.
-This encompasses the options `--author-date-order',
-`--date-order', and `--topo-order'."
-  (magit-read-char-case "Order commits by " t
-    (?t "[t]opography"     "topo")
-    (?a "[a]uthor date"    "author-date")
-    (?c "[c]ommitter date" "date")))
+  :argument-format "--%s-order"
+  :argument-regexp "\\(--\\(topo\\|author-date\\|date\\)-order\\)"
+  :choices '("topo" "author-date" "date"))
 
 (define-infix-argument magit-log:--grep ()
   :description "Search messages"
