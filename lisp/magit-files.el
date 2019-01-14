@@ -475,12 +475,6 @@ If DEFAULT is non-nil, use this as the default value instead of
    default
    (concat "No file changed in " rev-or-range)))
 
-(defun magit-read-files (prompt initial-contents _history)
-  (mapconcat 'identity
-             (completing-read-multiple (or prompt "File,s: ")
-                                       (magit-list-files)
-                                       nil nil initial-contents) ","))
-
 ;;; _
 (provide 'magit-files)
 ;;; magit-files.el ends here

@@ -93,7 +93,9 @@ which creates patches for all commits that are reachable from
                (if (string-match-p "\\.\\." range)
                    range
                  (format "%s~..%s" range range))))
-           (magit--export-file-args (transient-args 'magit-patch-create)))))
+           (let ((args (transient-args 'magit-patch-create)))
+             (list (-filter #'stringp args)
+                   (cdr (assoc "--" args)))))))
   (if (not range)
       (transient-setup 'magit-patch-create)
     (magit-run-git "format-patch" range args "--" files)

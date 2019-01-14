@@ -483,7 +483,7 @@ the upstream isn't ahead of the current branch) show."
 
 (defun magit-log--merge-args (args files)
   (if files
-      (cons (concat "-- " (mapconcat #'identity files ",")) args)
+      (cons (cons "--" files) args)
     args))
 
 (defun magit-log-get-buffer-args ()
@@ -502,7 +502,8 @@ the upstream isn't ahead of the current branch) show."
 (defun magit-log-arguments (&optional refresh)
   (if-let ((args (or (transient-args 'magit-log)
                      (transient-args 'magit-log-refresh))))
-      (magit--export-file-args args)
+      (list (-filter #'stringp args)
+            (cdr (assoc "--" args)))
     (if (and refresh (not (derived-mode-p 'magit-log-mode)))
         (list magit-log-section-arguments nil)
       (magit-log-get-buffer-args))))

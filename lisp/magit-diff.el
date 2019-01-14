@@ -744,7 +744,7 @@ and `:slant'."
 
 (defun magit-diff--merge-args (args files)
   (if files
-      (cons (concat "-- " (mapconcat #'identity files ",")) args)
+      (cons (cons "--" files) args)
     args))
 
 (defun magit-diff-get-buffer-args ()
@@ -763,7 +763,8 @@ and `:slant'."
 (defun magit-diff-arguments (&optional refresh)
   (if-let ((args (or (transient-args 'magit-diff)
                      (transient-args 'magit-diff-refresh))))
-      (magit--export-file-args args)
+      (list (-filter #'stringp args)
+            (cdr (assoc "--" args)))
     (if (and refresh (not (derived-mode-p 'magit-diff-mode)))
         (list magit-diff-section-arguments
               magit-diff-section-file-args)
@@ -773,11 +774,17 @@ and `:slant'."
 
 (define-infix-argument magit:-- ()
   :description "Limit to files"
-  :class 'transient-option
+  :class 'transient-files
   :key "=f"
-  :argument "-- "
+  :argument "--"
+  :prompt "Limit to file(s): "
   :reader 'magit-read-files
   :multi-value t)
+
+(defun magit-read-files (prompt initial-input history)
+  (magit-completing-read-multiple* prompt
+                                   (magit-list-files)
+                                   nil nil initial-input history))
 
 (define-infix-argument magit-diff:-U ()
   :description "Context lines"

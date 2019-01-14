@@ -192,15 +192,6 @@
                                        'transient-value))))))
      (propertize "]" 'face 'transient-inactive-value))))
 
-;;; Kludges
-
-(defun magit--export-file-args (args)
-  (let ((files (--first (string-prefix-p "-- " it) args)))
-    (when files
-      (setq args  (remove files args))
-      (setq files (split-string (substring files 3) ",")))
-    (list args files)))
-
 ;;; _
 (provide 'magit-transient)
 ;;; magit-transient.el ends here
