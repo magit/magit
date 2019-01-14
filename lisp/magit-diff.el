@@ -745,8 +745,7 @@ and `:slant'."
   (if-let ((file (magit-file-relative-name)))
       (magit-diff--merge-args
        (if-let ((buffer (magit-mode-get-buffer 'magit-diff-mode)))
-           (with-current-buffer buffer
-             (nth 3 magit-refresh-args))
+           (nth 3 (buffer-local-value 'magit-refresh-args buffer))
          (default-value 'magit-diff-arguments))
        (list file))
     ;; We cannot possibly know what suffix command the user is
@@ -774,10 +773,10 @@ and `:slant'."
          (list (nth 2 magit-refresh-args)
                (nth 3 magit-refresh-args)))
         ((and (eq magit-use-sticky-arguments t)
-              (--when-let (magit-mode-get-buffer 'magit-diff-mode)
-                (with-current-buffer it
-                  (list (nth 2 magit-refresh-args)
-                        (nth 3 magit-refresh-args))))))
+              (when-let ((buffer (magit-mode-get-buffer 'magit-diff-mode)))
+                (let ((args (buffer-local-value 'magit-refresh-args buffer)))
+                  (list (nth 2 args)
+                        (nth 3 args))))))
         (t
          (list (default-value 'magit-diff-arguments) nil))))
 

@@ -474,8 +474,7 @@ header."
   (if-let ((file (magit-file-relative-name)))
       (magit-log--merge-args
        (if-let ((buffer (magit-mode-get-buffer 'magit-log-mode)))
-           (with-current-buffer buffer
-             (nth 2 magit-refresh-args))
+           (nth 2 (buffer-local-value 'magit-refresh-args buffer))
          (default-value 'magit-log-arguments))
        (list file))
     (apply #'magit-log--merge-args (magit-log-get-buffer-args))))
@@ -500,10 +499,10 @@ header."
          (list (nth 1 magit-refresh-args)
                (nth 2 magit-refresh-args)))
         ((and (eq magit-use-sticky-arguments t)
-              (--when-let (magit-mode-get-buffer 'magit-log-mode)
-                (with-current-buffer it
-                  (list (nth 1 magit-refresh-args)
-                        (nth 2 magit-refresh-args))))))
+              (when-let ((buffer (magit-mode-get-buffer 'magit-log-mode)))
+                (let ((args (buffer-local-value 'magit-refresh-args buffer)))
+                  (list (nth 1 args)
+                        (nth 2 args))))))
         (t
          (list (default-value 'magit-log-arguments) nil))))
 
