@@ -472,22 +472,27 @@ header."
 
 (defun magit-log--initial-value ()
   (if-let ((file (magit-file-relative-name)))
-      (magit--import-file-args
+      (magit-log--merge-args
        (if-let ((buffer (magit-mode-get-buffer 'magit-log-mode)))
            (with-current-buffer buffer
              (nth 2 magit-refresh-args))
          (default-value 'magit-log-arguments))
        (list file))
-    (apply #'magit--import-file-args (magit-log-get-buffer-args))))
+    (apply #'magit-log--merge-args (magit-log-get-buffer-args))))
 
 (defun magit-log-refresh--initial-value ()
   (cond ((derived-mode-p 'magit-log-select-mode)
          (cadr magit-refresh-args))
         ((derived-mode-p 'magit-log-mode)
-         (magit--import-file-args (nth 1 magit-refresh-args)
-                                  (nth 2 magit-refresh-args)))
+         (magit-log--merge-args (nth 1 magit-refresh-args)
+                                (nth 2 magit-refresh-args)))
         (t
          magit-log-section-arguments)))
+
+(defun magit-log--merge-args (args files)
+  (if files
+      (cons (concat "-- " (mapconcat #'identity files ",")) args)
+    args))
 
 (defun magit-log-get-buffer-args ()
   (cond ((and magit-use-sticky-arguments

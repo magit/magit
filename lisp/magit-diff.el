@@ -743,7 +743,7 @@ and `:slant'."
 
 (defun magit-diff--initial-value ()
   (if-let ((file (magit-file-relative-name)))
-      (magit--import-file-args
+      (magit-diff--merge-args
        (if-let ((buffer (magit-mode-get-buffer 'magit-diff-mode)))
            (with-current-buffer buffer
              (nth 3 magit-refresh-args))
@@ -754,14 +754,19 @@ and `:slant'."
     ;; we should get the current values.  However it is much
     ;; more likely that we will end up updating the diff buffer,
     ;; and we therefore use the value from that buffer.
-    (apply #'magit--import-file-args (magit-diff-get-buffer-args))))
+    (apply #'magit-diff--merge-args (magit-diff-get-buffer-args))))
 
 (defun magit-diff-refresh--initial-value ()
   (if (derived-mode-p 'magit-diff-mode)
-      (magit--import-file-args (nth 2 magit-refresh-args)
-                               (nth 3 magit-refresh-args))
-    (magit--import-file-args magit-diff-section-arguments
-                             magit-diff-section-file-args)))
+      (magit-diff--merge-args (nth 2 magit-refresh-args)
+                              (nth 3 magit-refresh-args))
+    (magit-diff--merge-args magit-diff-section-arguments
+                            magit-diff-section-file-args)))
+
+(defun magit-diff--merge-args (args files)
+  (if files
+      (cons (concat "-- " (mapconcat #'identity files ",")) args)
+    args))
 
 (defun magit-diff-get-buffer-args ()
   (cond ((and magit-use-sticky-arguments
