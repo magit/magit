@@ -41,9 +41,15 @@
   ["Gitignore"
    ("t" "shared at toplevel (.gitignore)"
     magit-gitignore-in-topdir)
+   ("s" "shared in subdirectory (path/to/.gitignore)"
+    magit-gitignore-in-subdir)
    ("p" "privately (.git/info/exclude)"
     magit-gitignore-in-gitdir)
-   ])
+   ("g" magit-gitignore-on-system
+    :if (lambda () (magit-get "core.excludesfile"))
+    :description (lambda ()
+                   (format "privately for all repositories (%s)"
+                           (magit-get "core.excludesfile"))))])
 
 ;;;###autoload
 (defun magit-gitignore-in-topdir (rule)
@@ -56,11 +62,35 @@ repository.  Also stage the file."
     (magit-run-git "add" ".gitignore")))
 
 ;;;###autoload
+(defun magit-gitignore-in-subdir (rule directory)
+  "Add the Git ignore RULE to a \".gitignore\" file.
+Prompted the user for a directory and add the rule to the
+\".gitignore\" file in that directory.  Since such files are
+tracked, they are shared with other clones of the repository.
+Also stage the file."
+  (interactive (list (magit-gitignore-read-pattern)
+                     (read-directory-name "Limit rule to files in: ")))
+  (magit-with-toplevel
+    (let ((file (expand-file-name ".gitignore" directory)))
+      (magit--gitignore rule file)
+      (magit-run-git "add" ".gitignore"))))
+
+;;;###autoload
 (defun magit-gitignore-in-gitdir (rule)
   "Add the Git ignore RULE to \"$GIT_DIR/info/exclude\".
 Rules in that file only affects this clone of the repository."
   (interactive (list (magit-gitignore-read-pattern)))
   (magit--gitignore rule (magit-git-dir "info/exclude"))
+  (magit-refresh))
+
+;;;###autoload
+(defun magit-gitignore-on-system (rule)
+  "Add the Git ignore RULE to the file specified by `core.excludesFile'.
+Rules that are defined in that file affect all local repositories."
+  (interactive (list (magit-gitignore-read-pattern)))
+  (magit--gitignore rule
+                    (or (magit-get "core.excludesFile")
+                        (error "Variable `core.excludesFile' isn't set")))
   (magit-refresh))
 
 (defun magit--gitignore (rule file)
