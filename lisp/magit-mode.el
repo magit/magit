@@ -453,6 +453,7 @@ starts complicating other things, then it will be removed."
     (define-key map "!" 'magit-run-popup)
     (define-key map (kbd "C-c C-c") 'magit-dispatch-popup)
     (define-key map (kbd "C-c C-e") 'magit-edit-thing)
+    (define-key map (kbd "C-c C-o") 'magit-browse-thing)
     (define-key map (kbd "C-c C-w") 'magit-browse-thing)
     (define-key map (kbd "C-x a")   'magit-add-change-log-entry)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
