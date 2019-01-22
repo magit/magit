@@ -91,6 +91,10 @@
   be of use if you want to write Git notes without separating the
   first line with an empty line from the rest of the text.  #3676
 
+- The command ~magit-copy-section-value~ now removes the +/- diff
+  marker column when a prefix argument is given and the region is
+  active within a hunk.  #3716
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

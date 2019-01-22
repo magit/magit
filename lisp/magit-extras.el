@@ -565,10 +565,21 @@ argument is used, then save the revision at its tip to the
 
 When the region is active, then save that to the `kill-ring',
 like `kill-ring-save' would, instead of behaving as described
-above."
+above.  If a prefix argument is used and the region is within a
+hunk, strip the outer diff marker column."
   (interactive)
-  (if (use-region-p)
-      (copy-region-as-kill nil nil 'region)
+  (cond
+   ((and current-prefix-arg
+         (magit-section-internal-region-p)
+         (magit-section-match 'hunk))
+    (deactivate-mark)
+    (kill-new (replace-regexp-in-string
+               "^[ \\+\\-]" ""
+               (buffer-substring-no-properties
+                (region-beginning) (region-end)))))
+   ((use-region-p)
+    (copy-region-as-kill nil nil 'region))
+   (t
     (when-let ((section (magit-current-section))
                (value (oref section value)))
       (magit-section-case
@@ -586,7 +597,7 @@ above."
            (push (list value default-directory) magit-revision-stack)
            (kill-new (message "%s" (or (and current-prefix-arg ref)
                                        value)))))
-        (t (kill-new (message "%s" value)))))))
+        (t (kill-new (message "%s" value))))))))
 
 ;;;###autoload
 (defun magit-copy-buffer-revision ()
