@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-92-g21a6b757+1)
+@subtitle for version 2.90.1 (v2.90.1-95-g1e119366+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-92-g21a6b757+1).
+This manual is for Magit version 2.90.1 (v2.90.1-95-g1e119366+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8616,6 +8616,10 @@ the @code{magit-revision-stack}.
 When the current section is a branch or a tag, and a prefix argument
 is used, then it saves the revision at its tip to the @code{kill-ring}
 instead of the reference name.
+
+When the region is active, this command saves that to the
+@code{kill-ring}, like @code{kill-ring-save} would, instead of behaving as
+described above.
 
 @kindex C-w
 @cindex magit-copy-buffer-revision
