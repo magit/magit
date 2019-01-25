@@ -56,6 +56,9 @@
 ;;   x        Add a script to be run with the commit at point
 ;;            being checked out.
 ;;   z        Add noop action at point.
+;;   l        Add a label at point.
+;;   t        Add a reset action after the commit at point.
+;;   M        Add a merge action at point.
 ;;
 ;;   SPC      Show the commit at point in another buffer.
 ;;   RET      Show the commit at point in another buffer and
