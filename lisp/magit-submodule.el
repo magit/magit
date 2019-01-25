@@ -128,19 +128,12 @@ and also setting this variable to t will lead to tears."
    ("-M" "Merge tip"        "--merge")
    ("-U" "Use upstream tip" "--remote")]
   ["One module actions"
-   ("a" "Add            git submodule add [--force]"
-    magit-submodule-add)
-   ("r" "Register       git submodule init"
-    magit-submodule-register)
-   ("p" "Populate       git submodule update --init"
-    magit-submodule-populate)
-   ("u" "Update         git submodule update [--force] [--no-fetch]
-                     [--remote] [--recursive] [--checkout|--rebase|--merge]"
-    magit-submodule-update)
-   ("s" "Synchronize    git submodule sync [--recursive]"
-    magit-submodule-synchronize)
-   ("d" "Unpopulate     git submodule deinit [--force]"
-    magit-submodule-unpopulate)
+   ("a" magit-submodule-add)
+   ("r" magit-submodule-register)
+   ("p" magit-submodule-populate)
+   ("u" magit-submodule-update)
+   ("s" magit-submodule-synchronize)
+   ("d" magit-submodule-unpopulate)
    ("k" "Remove" magit-submodule-remove)]
   ["All modules actions"
    ("l" "List all modules"  magit-list-submodules)
@@ -150,14 +143,35 @@ and also setting this variable to t will lead to tears."
   (--filter (and (member it filters) it)
             (transient-args 'magit-submodule)))
 
-;;;###autoload
-(defun magit-submodule-add (url &optional path name args)
+(defclass magit--git-submodule-suffix (transient-suffix)
+  ())
+
+(cl-defmethod transient-format-description ((obj magit--git-submodule-suffix))
+  (let ((value (transient-args transient--prefix)))
+    (replace-regexp-in-string
+     "\\[--[^]]+\\]"
+     (lambda (match)
+       (format (propertize "[%s]" 'face 'transient-inactive-argument)
+               (mapconcat (lambda (arg)
+                            (propertize arg 'face
+                                        (if (member arg value)
+                                            'transient-argument
+                                          'transient-inactive-argument)))
+                          (save-match-data
+                            (split-string (substring match 1 -1) "|"))
+                          (propertize "|" 'face 'transient-inactive-argument))))
+     (cl-call-next-method obj))))
+
+;;;###autoload (autoload 'magit-submodule-add "magit-submodule" nil t)
+(define-suffix-command magit-submodule-add (url &optional path name args)
   "Add the repository at URL as a module.
 
 Optional PATH is the path to the module relative to the root of
 the superproject.  If it is nil, then the path is determined
 based on the URL.  Optional NAME is the name of the module.  If
 it is nil, then PATH also becomes the name."
+  :class 'magit--git-submodule-suffix
+  :description "Add            git submodule add [--force]"
   (interactive
    (magit-with-toplevel
      (let* ((url (magit-read-string-ns "Add submodule (remote url)"))
@@ -209,8 +223,8 @@ it is nil, then PATH also becomes the name."
                  (magit-git-lines "config" "--list" "-f" ".gitmodules"))
          (if prefer-short name path)))))
 
-;;;###autoload
-(defun magit-submodule-register (modules)
+;;;###autoload (autoload 'magit-submodule-register "magit-submodule" nil t)
+(define-suffix-command magit-submodule-register (modules)
   "Register MODULES.
 
 With a prefix argument act on all suitable modules.  Otherwise,
@@ -222,13 +236,14 @@ single module from the user."
   ;; super-projects $GIT_DIR/config file, the purpose of which is to
   ;; allow users to change such values before actually initializing
   ;; the modules.
+  :description "Register       git submodule init"
   (interactive
    (list (magit-module-confirm "Register" 'magit-module-no-worktree-p)))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "init" "--" modules)))
 
-;;;###autoload
-(defun magit-submodule-populate (modules)
+;;;###autoload (autoload 'magit-submodule-populate "magit-submodule" nil t)
+(define-suffix-command magit-submodule-populate (modules)
   "Create MODULES working directories, checking out the recorded commits.
 
 With a prefix argument act on all suitable modules.  Otherwise,
@@ -238,13 +253,14 @@ single module from the user."
   ;; This is the command that actually "initializes" modules.
   ;; A module is initialized when it has a working directory,
   ;; a gitlink, and a .gitmodules entry.
+  :description "Populate       git submodule update --init"
   (interactive
    (list (magit-module-confirm "Populate" 'magit-module-no-worktree-p)))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" "--init" "--" modules)))
 
-;;;###autoload
-(defun magit-submodule-update (modules args)
+;;;###autoload (autoload 'magit-submodule-update "magit-submodule" nil t)
+(define-suffix-command magit-submodule-update (modules args)
   "Update MODULES by checking out the recorded commits.
 
 With a prefix argument act on all suitable modules.  Otherwise,
@@ -255,6 +271,9 @@ single module from the user."
   ;; "initialized" modules by checking out other commits but not
   ;; "initialize" modules by creating the working directories.
   ;; To do the latter we provide the "setup" command.
+  :class 'magit--git-submodule-suffix
+  :description "Update         git submodule update [--force] [--no-fetch]
+                     [--remote] [--recursive] [--checkout|--rebase|--merge]"
   (interactive
    (list (magit-module-confirm "Update" 'magit-module-worktree-p)
          (magit-submodule-arguments
@@ -263,22 +282,24 @@ single module from the user."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" args "--" modules)))
 
-;;;###autoload
-(defun magit-submodule-synchronize (modules args)
+;;;###autoload (autoload 'magit-submodule-synchronize "magit-submodule" nil t)
+(define-suffix-command magit-submodule-synchronize (modules args)
   "Synchronize url configuration of MODULES.
 
 With a prefix argument act on all suitable modules.  Otherwise,
 if the region selects modules, then act on those.  Otherwise, if
 there is a module at point, then act on that.  Otherwise read a
 single module from the user."
+  :class 'magit--git-submodule-suffix
+  :description "Synchronize    git submodule sync [--recursive]"
   (interactive
    (list (magit-module-confirm "Synchronize" 'magit-module-worktree-p)
          (magit-submodule-arguments "--recursive")))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "sync" args "--" modules)))
 
-;;;###autoload
-(defun magit-submodule-unpopulate (modules args)
+;;;###autoload (autoload 'magit-submodule-unpopulate "magit-submodule" nil t)
+(define-suffix-command magit-submodule-unpopulate (modules args)
   "Remove working directories of MODULES.
 
 With a prefix argument act on all suitable modules.  Otherwise,
@@ -292,6 +313,8 @@ single module from the user."
   ;; is to remove the working directory AND to remove the url, this
   ;; command does not limit itself to modules that have no working
   ;; directory.
+  :class 'magit--git-submodule-suffix
+  :description "Unpopulate     git submodule deinit [--force]"
   (interactive
    (list (magit-module-confirm "Unpopulate")
          (magit-submodule-arguments "--force")))
