@@ -38,7 +38,7 @@
 (define-transient-command magit-push ()
   "Push to another repository."
   :man-page "git-push"
-  ["Switches"
+  ["Arguments"
    ("-f" "Force with lease" (nil "--force-with-lease"))
    ("-F" "Force"            ("-f" "--force"))
    ("-h" "Disable hooks"    "--no-verify")

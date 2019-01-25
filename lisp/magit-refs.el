@@ -326,16 +326,15 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (define-transient-command magit-show-refs (&optional transient)
   "List and compare references in a dedicated buffer."
   :man-page "git-branch"
-  ["Switches"
-   ("-m" "Merged to HEAD"            "--merged")
-   ("-M" "Merged to master"          "--merged=master")
-   ("-n" "Not merged to HEAD"        "--no-merged")
-   ("-N" "Not merged to master"      "--no-merged=master")]
-  ["Options"
-   ("=c" "Contains"   "--contains="  magit-transient-read-revision)
-   ("=m" "Merged"     "--merged="    magit-transient-read-revision)
-   ("=n" "Not merged" "--no-merged=" magit-transient-read-revision)
-   ("=s" "Sort"       "--sort="      magit-read-ref-sort)]
+  ["Arguments"
+   ("=c" "Contains"             "--contains=" magit-transient-read-revision)
+   ("=m" "Merged"               "--merged=" magit-transient-read-revision)
+   ("-m" "Merged to HEAD"       "--merged")
+   ("-M" "Merged to master"     "--merged=master")
+   ("=n" "Not merged"           "--no-merged=" magit-transient-read-revision)
+   ("-n" "Not merged to HEAD"   "--no-merged")
+   ("-N" "Not merged to master" "--no-merged=master")
+   ("=s" "Sort"                 "--sort=" magit-read-ref-sort)]
   ["Actions"
    ("y" "Show refs, comparing them with HEAD"           magit-show-refs-head)
    ("c" "Show refs, comparing them with current branch" magit-show-refs-current)

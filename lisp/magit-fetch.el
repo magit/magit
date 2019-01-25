@@ -44,7 +44,7 @@ Ignored for Git versions before v2.8.0."
 (define-transient-command magit-fetch ()
   "Fetch from another repository."
   :man-page "git-fetch"
-  ["Switches"
+  ["Arguments"
    ("-p" "Prune deleted branches" ("-p" "--prune"))]
   ["Fetch from"
    ("p" magit-fetch-from-pushremote

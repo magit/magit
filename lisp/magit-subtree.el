@@ -39,11 +39,10 @@
 (define-transient-command magit-subtree-import ()
   "Import subtrees."
   :man-page "git-subtree"
-  ["Switches"
-   ("-s" "Squash" "--squash")]
-  ["Options"
-   ("=p" "Prefix" "--prefix=" magit-subtree-read-prefix)
-   ("=m" "Message" "--message=")]
+  ["Arguments"
+   ("=p" "Prefix"     "--prefix=" magit-subtree-read-prefix)
+   ("=m" "Message"    "--message=")
+   ("-s" "Squash"     "--squash")]
   ["Actions"
    [("a" "Add"        magit-subtree-add)
     ("c" "Add commit" magit-subtree-add-commit)]
@@ -54,14 +53,13 @@
 (define-transient-command magit-subtree-export ()
   "Export subtrees."
   :man-page "git-subtree"
-  ["Switches"
-   ("-i" "Ignore joins" "--ignore-joins")
-   ("-j" "Rejoin"       "--rejoin")]
-  ["Options"
+  ["Arguments"
    ("=p" "Prefix"       "--prefix=" magit-subtree-read-prefix)
    ("=a" "Annotate"     "--annotate=")
    ("=b" "Branch"       "--branch=")
-   ("=o" "Onto"         "--onto=" magit-transient-read-revision)]
+   ("=o" "Onto"         "--onto=" magit-transient-read-revision)
+   ("-i" "Ignore joins" "--ignore-joins")
+   ("-j" "Rejoin"       "--rejoin")]
   ["Actions"
    ("p" "Push"          magit-subtree-push)
    ("s" "Split"         magit-subtree-split)])

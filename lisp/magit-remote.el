@@ -98,7 +98,7 @@ removed after restarting Emacs."
    ("s" magit-remote.<remote>.pushurl)
    ("S" magit-remote.<remote>.push)
    ("O" magit-remote.<remote>.tagopt)]
-  ["Switches for add"
+  ["Arguments for add"
    ("-f" "Fetch after add" "-f")]
   ["Actions"
    [("a" "Add"                  magit-remote-add)

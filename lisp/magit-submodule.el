@@ -119,7 +119,7 @@ and also setting this variable to t will lead to tears."
 (define-transient-command magit-submodule ()
   "Act on a submodule."
   :man-page "git-submodule"
-  ["Switches"
+  ["Arguments"
    ("-f" "Force"            ("-f" "--force"))
    ("-r" "Recursive"        "--recursive")
    ("-N" "Do not fetch"     ("-N" "--no-fetch"))

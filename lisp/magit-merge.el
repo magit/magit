@@ -40,12 +40,10 @@
 (define-transient-command magit-merge ()
   "Merge branches."
   :man-page "git-merge"
-  ["Switches"
+  ["Arguments"
    :if-not magit-merge-in-progress-p
    ("-f" "Fast-forward only" "--ff-only")
-   ("-n" "No fast-forward"   "--no-ff")]
-  ["Options"
-   :if-not magit-merge-in-progress-p
+   ("-n" "No fast-forward"   "--no-ff")
    ("=s" "Strategy" "--strategy=")]
   ["Actions"
    :if-not magit-merge-in-progress-p

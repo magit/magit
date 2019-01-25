@@ -65,9 +65,8 @@ changes introduced by that commit (unlike 'git format-patch'
 which creates patches for all commits that are reachable from
 `HEAD' but not from the specified commit)."
   :man-page "git-format-patch"
-  ["Switches for formatting patches"
-   ("-l" "Add cover letter" "--cover-letter")]
-  ["Options for formatting patches"
+  ["Arguments"
+   ("-l" "Add cover letter" "--cover-letter")
    ("=f" "From"             "--from=")
    ("=t" "To"               "--to=")
    ("=c" "CC"               "--cc=")
@@ -111,7 +110,7 @@ which creates patches for all commits that are reachable from
 (define-transient-command magit-patch-apply (file &rest args)
   "Apply the patch file FILE."
   :man-page "git-apply"
-  ["Switches"
+  ["Arguments"
    ("-i" "Also apply to index" "--index")
    ("-c" "Only apply to index" "--cached")
    ("-3" "Fall back on 3way merge" ("-3" "--3way"))]

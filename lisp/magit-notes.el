@@ -41,13 +41,13 @@
   ["Configure global settings"
    ("C" magit-global-core.notesRef)
    ("D" magit-global-notes.displayRef)]
-  ["Switch for prune"
+  ["Arguments for prune"
    :if-not magit-notes-merging-p
    ("-n" "Dry run" ("-n" "--dry-run"))]
-  ["Option for edit and remove"
+  ["Arguments for edit and remove"
    :if-not magit-notes-merging-p
    ("=r" "Manipulate ref" "--ref=" magit-notes-read-ref)]
-  ["Option for merge"
+  ["Arguments for merge"
    :if-not magit-notes-merging-p
    ("=s" "Merge strategy" "--strategy=")]
   ["Actions"

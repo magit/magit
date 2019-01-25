@@ -88,7 +88,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 (define-transient-command magit-stash ()
   "Stash uncommitted changes."
   :man-page "git-stash"
-  ["Switches"
+  ["Arguments"
    ("-u" "Also save untracked files" ("-u" "--include-untracked"))
    ("-a" "Also save untracked and ignored files" ("-a" "--all"))]
   [["Stash"

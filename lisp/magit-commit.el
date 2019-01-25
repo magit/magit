@@ -103,14 +103,13 @@ Also see `git-commit-post-finish-hook'."
   "Create a new commit or replace an existing commit."
   :info-manual "(magit)Initiating a Commit"
   :man-page "git-commit"
-  ["Switches"
+  ["Arguments"
    ("-a" "Stage all modified and deleted files"   ("-a" "--all"))
    ("-e" "Allow empty commit"                     "--allow-empty")
    ("-v" "Show diff of changes to be committed"   ("-v" "--verbose"))
    ("-h" "Disable hooks"                          ("-n" "--no-verify"))
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
-   ("-R" "Claim authorship and reset author date" "--reset-author")]
-  ["Options"
+   ("-R" "Claim authorship and reset author date" "--reset-author")
    ("=A" "Override the author" magit:--author)
    ("=S" "Sign using gpg"       "--gpg-sign="      magit-read-gpg-secret-key)
    ("=C" "Reuse commit message" "--reuse-message=" magit-read-reuse-message)]
@@ -395,7 +394,7 @@ history element."
 With a prefix argument use a transient command to select infix
 arguments.  This command requires the git-autofixup script, which
 is available from https://github.com/torbiak/git-autofixup."
-  ["Switches"
+  ["Arguments"
    ("-c" "Diff context lines" ("-c" "--context="))
    ("-s" "Strictness"         ("-s" "--strict="))]
   ["Actions"

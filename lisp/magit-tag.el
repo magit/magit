@@ -33,11 +33,10 @@
 (define-transient-command magit-tag ()
   "Create or delete a tag."
   :man-page "git-tag"
-  ["Switches"
+  ["Arguments"
    ("-f" "Force"    ("-f" "--force"))
    ("-a" "Annotate" ("-a" "--annotate"))
-   ("-s" "Sign"     ("-s" "--sign"))]
-  ["Options"
+   ("-s" "Sign"     ("-s" "--sign"))
    ("=f" "Sign as"  "--local-user=" magit-read-gpg-secret-key)]
   [["Create"
     ("t"  "tag"     magit-tag-create)

@@ -891,10 +891,9 @@ instead of the hash, like `kill-ring-save' would."
   "Show the commits that added or removed lines in the visited file."
   :man-page "git-blame"
   :value '("-w")
-  ["Switches"
+  ["Arguments"
    ("-w" "Ignore whitespace" "-w")
-   ("-r" "Do not treat root commits as boundaries" "--root")]
-  ["Options"
+   ("-r" "Do not treat root commits as boundaries" "--root")
    ("=M" "Detect lines moved or copied within a file" "-M" read-string)
    ("=C" "Detect lines moved or copied between files" "-C" read-string)]
   ["Actions"

@@ -127,16 +127,14 @@ This discards all changes made since the sequence started."
   "Apply or transplant commits."
   :man-page "git-cherry-pick"
   :value '("--ff")
-  ["Switches"
+  ["Arguments"
    :if-not magit-sequencer-in-progress-p
    ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))
    ("-e" "Edit commit messages"               ("-e" "--edit"))
    ("-x" "Reference cherry in commit message" "-x")
-   ("-F" "Attempt fast-forward"               "--ff")]
-  ["Options"
-   :if-not magit-sequencer-in-progress-p
-   ("=s" "Strategy"                        "--strategy=")
-   ("=m" "Replay merge relative to parent" "--mainline=")]
+   ("-F" "Attempt fast-forward"               "--ff")
+   ("=s" "Strategy"                           "--strategy=")
+   ("=m" "Replay merge relative to parent"    "--mainline=")]
   [:if-not magit-sequencer-in-progress-p
    ["Apply here"
     ("A" "Pick"    magit-cherry-copy)
@@ -339,13 +337,11 @@ the process manually."
   "Revert existing commits, with or without creating new commits."
   :man-page "git-revert"
   :value '("--edit")
-  ["Switches"
+  ["Arguments"
    :if-not magit-sequencer-in-progress-p
    ("-s" "Add Signed-off-by lines"   ("-s" "--signoff"))
    ("-e" "Edit commit message"       ("-e" "--edit"))
-   ("-E" "Don't edit commit message" "--no-edit")]
-  ["Options"
-   :if-not magit-sequencer-in-progress-p
+   ("-E" "Don't edit commit message" "--no-edit")
    ("=s" "Strategy"       "--strategy=")
    ("=S" "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key)
    ("=m" "Replay merge relative to parent" "--mainline=")]
@@ -393,18 +389,16 @@ without prompting."
   "Apply patches received by email."
   :man-page "git-am"
   :value '("--3way")
-  ["Switches"
+  ["Arguments"
    :if-not magit-am-in-progress-p
    ("-3" "Fall back on 3way merge"           ("-3" "--3way"))
    ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))
+   ("=p" "Remove leading slashes from paths" "-p" magit-read-number-string)
    ("-c" "Remove text before scissors line"  ("-c" "--scissors"))
    ("-k" "Inhibit removal of email cruft"    ("-k" "--keep"))
    ("-b" "Limit removal of email cruft"      "--keep-non-patch")
    ("-d" "Use author date as committer date" "--committer-date-is-author-date")
    ("-D" "Use committer date as author date" "--ignore-date")]
-  ["Options"
-   :if-not magit-am-in-progress-p
-   ("=p" "Remove leading slashes from paths" "-p" magit-read-number-string)]
   ["Apply"
    :if-not magit-am-in-progress-p
    ("m" "maildir"     magit-am-apply-maildir)
@@ -479,7 +473,7 @@ This discards all changes made since the sequence started."
 (define-transient-command magit-rebase ()
   "Transplant commits and/or modify existing commits."
   :man-page "git-rebase"
-  ["Switches"
+  ["Arguments"
    :if-not magit-rebase-in-progress-p
    ("-k" "Keep empty commits"       "--keep-empty")
    ("-p" "Preserve merges"          ("-p" "--preserve-merges"))
