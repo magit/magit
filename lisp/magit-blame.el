@@ -894,8 +894,8 @@ instead of the hash, like `kill-ring-save' would."
   ["Arguments"
    ("-w" "Ignore whitespace" "-w")
    ("-r" "Do not treat root commits as boundaries" "--root")
-   ("=M" "Detect lines moved or copied within a file" "-M" read-string)
-   ("=C" "Detect lines moved or copied between files" "-C" read-string)]
+   (magit-blame:-M)
+   (magit-blame:-C)]
   ["Actions"
    ("b" "Show commits adding lines" magit-blame-addition)
    ("r" "Show commits removing lines" magit-blame-removal)
@@ -908,6 +908,20 @@ instead of the hash, like `kill-ring-save' would."
 
 (defun magit-blame-arguments ()
   (transient-args 'magit-blame))
+
+(define-infix-argument magit-blame:-M ()
+  :description "Detect lines moved or copied within a file"
+  :class 'transient-option
+  :key "=M"
+  :argument "-M"
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-blame:-C ()
+  :description "Detect lines moved or copied between files"
+  :class 'transient-option
+  :key "=C"
+  :argument "-C"
+  :reader 'transient-read-number-N+)
 
 ;;; Utilities
 
