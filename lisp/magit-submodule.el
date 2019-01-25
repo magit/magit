@@ -127,7 +127,7 @@ and also setting this variable to t will lead to tears."
    ("-R" "Rebase onto tip"  "--rebase")
    ("-M" "Merge tip"        "--merge")
    ("-U" "Use upstream tip" "--remote")]
-  ["Actions"
+  ["One module actions"
    ("a" "Add            git submodule add [--force]"
     magit-submodule-add)
    ("r" "Register       git submodule init"
@@ -141,8 +141,8 @@ and also setting this variable to t will lead to tears."
     magit-submodule-synchronize)
    ("d" "Unpopulate     git submodule deinit [--force]"
     magit-submodule-unpopulate)
-   ("k" "Remove" magit-submodule-remove)
-   ?\n
+   ("k" "Remove" magit-submodule-remove)]
+  ["All modules actions"
    ("l" "List all modules"  magit-list-submodules)
    ("f" "Fetch all modules" magit-fetch-modules)])
 
