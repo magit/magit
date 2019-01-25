@@ -131,7 +131,7 @@ This discards all changes made since the sequence started."
    :if-not magit-sequencer-in-progress-p
    ("-F" "Attempt fast-forward"               "--ff")
    ("=m" "Replay merge relative to parent"    "--mainline=")
-   ("=s" "Strategy"                           "--strategy=")
+   ("=s" magit-merge:--strategy)
    ("-e" "Edit commit messages"               ("-e" "--edit"))
    ("-x" "Reference cherry in commit message" "-x")
    ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))]
@@ -342,7 +342,7 @@ the process manually."
    ("=m" "Replay merge relative to parent" "--mainline=")
    ("-e" "Edit commit message"       ("-e" "--edit"))
    ("-E" "Don't edit commit message" "--no-edit")
-   ("=s" "Strategy"                  "--strategy=")
+   ("=s" magit-merge:--strategy)
    ("-s" "Add Signed-off-by lines"   ("-s" "--signoff"))
    (magit:--gpg-sign)]
   ["Actions"

@@ -49,7 +49,7 @@
    ("=r" "Manipulate ref" "--ref=" magit-notes-read-ref)]
   ["Arguments for merge"
    :if-not magit-notes-merging-p
-   ("=s" "Merge strategy" "--strategy=")]
+   (magit-notes:--strategy)]
   ["Actions"
    :if-not magit-notes-merging-p
    ("T" "Edit"         magit-notes-edit)
@@ -91,6 +91,14 @@
   :multi-value t
   :reader 'magit-notes-read-refs
   :prompt "Set global notes.displayRef")
+
+(define-infix-argument magit-notes:--strategy ()
+  :description "Merge strategy"
+  :class 'transient-option
+  :key "=s"
+  :shortarg "-s"
+  :argument "--strategy="
+  :choices '("manual" "ours" "theirs" "union" "cat_sort_uniq"))
 
 (defun magit-notes-edit (commit &optional ref)
   "Edit the note attached to COMMIT.

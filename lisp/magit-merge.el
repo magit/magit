@@ -44,7 +44,7 @@
    :if-not magit-merge-in-progress-p
    ("-f" "Fast-forward only" "--ff-only")
    ("-n" "No fast-forward"   "--no-ff")
-   ("=s" "Strategy" "--strategy=")]
+   (magit-merge:--strategy)]
   ["Actions"
    :if-not magit-merge-in-progress-p
    [("m" "Merge"                  magit-merge-plain)
@@ -62,6 +62,15 @@
 
 (defun magit-merge-arguments ()
   (transient-args 'magit-merge))
+
+(define-infix-argument magit-merge:--strategy ()
+  :description "Strategy"
+  :class 'transient-option
+  :key "=s"
+  ;; shortarg for merge: "-s"
+  ;; shortarg for cherry-pick and revert: none
+  :argument "--strategy="
+  :choices '("resolve" "recursive" "octopus" "ours" "subtree"))
 
 ;;;###autoload
 (defun magit-merge-plain (rev &optional args nocommit)
