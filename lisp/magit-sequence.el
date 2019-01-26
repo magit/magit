@@ -344,7 +344,7 @@ the process manually."
    ("-E" "Don't edit commit message" "--no-edit")
    ("=s" "Strategy"                  "--strategy=")
    ("-s" "Add Signed-off-by lines"   ("-s" "--signoff"))
-   ("=S" "Sign using gpg"            "--gpg-sign=" magit-read-gpg-secret-key)]
+   (magit:--gpg-sign)]
   ["Actions"
    :if-not magit-sequencer-in-progress-p
    ("V" "Revert commit(s)" magit-revert-and-commit)

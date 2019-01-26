@@ -111,7 +111,7 @@ Also see `git-commit-post-finish-hook'."
    ("-R" "Claim authorship and reset author date" "--reset-author")
    ("=A" "Override the author" magit:--author)
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
-   ("=S" "Sign using gpg"       "--gpg-sign="      magit-read-gpg-secret-key)
+   (magit:--gpg-sign)
    ("=C" "Reuse commit message" "--reuse-message=" magit-read-reuse-message)]
   [["Create"
     ("c" "Commit"         magit-commit-create)]
@@ -136,9 +136,18 @@ Also see `git-commit-post-finish-hook'."
 (defun magit-commit-arguments nil
   (transient-args 'magit-commit))
 
+(define-infix-argument magit:--gpg-sign ()
+  :description "Sign using gpg"
+  :class 'transient-option
+  :key "=S"
+  :shortarg "-S"
+  :argument "--gpg-sign="
+  :allow-empty t
+  :reader 'magit-read-gpg-secret-key)
+
 (defvar magit-gpg-secret-key-hist nil)
 
-(defun magit-read-gpg-secret-key (prompt &optional _initial-input _history)
+(defun magit-read-gpg-secret-key (prompt &optional _initial-input history)
   (require 'epa)
   (let ((keys (--map (concat (epg-sub-key-id (car (epg-key-sub-key-list it)))
                              " "
@@ -149,8 +158,8 @@ Also see `git-commit-post-finish-hook'."
                                    (epg-decode-dn id-obj)))))
                      (epg-list-keys (epg-make-context epa-protocol) nil t))))
     (car (split-string (magit-completing-read
-                        prompt keys nil nil nil 'magit-gpg-secret-key-hist
-                        (car (or magit-gpg-secret-key-hist keys)))
+                        prompt keys nil nil nil history
+                        (car (or history keys)))
                        " "))))
 
 (defun magit-read-reuse-message (prompt &optional default _history)

@@ -37,7 +37,7 @@
    ("-f" "Force"    ("-f" "--force"))
    ("-a" "Annotate" ("-a" "--annotate"))
    ("-s" "Sign"     ("-s" "--sign"))
-   ("=f" "Sign as"  "--local-user=" magit-read-gpg-secret-key)]
+   (magit-tag:--local-user)]
   [["Create"
     ("t"  "tag"     magit-tag-create)
     ("r"  "release" magit-tag-release)]
@@ -47,6 +47,15 @@
 
 (defun magit-tag-arguments ()
   (transient-args 'magit-tag))
+
+(define-infix-argument magit-tag:--local-user ()
+  :description "Sign as"
+  :class 'transient-option
+  :key "=f"
+  :shortarg "-u"
+  :argument "--local-user="
+  :reader 'magit-read-gpg-secret-key
+  :history-key 'magit:--gpg-sign)
 
 ;;;###autoload
 (defun magit-tag-create (name rev &optional args)
