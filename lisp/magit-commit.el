@@ -112,7 +112,7 @@ Also see `git-commit-post-finish-hook'."
    ("=A" "Override the author" magit:--author)
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
    (magit:--gpg-sign)
-   ("=C" "Reuse commit message" "--reuse-message=" magit-read-reuse-message)]
+   (magit-commit:--reuse-message)]
   [["Create"
     ("c" "Commit"         magit-commit-create)]
    ["Edit HEAD"
@@ -162,9 +162,18 @@ Also see `git-commit-post-finish-hook'."
                         (car (or history keys)))
                        " "))))
 
-(defun magit-read-reuse-message (prompt &optional default _history)
+(define-infix-argument magit-commit:--reuse-message ()
+  :description "Reuse commit message"
+  :class 'transient-option
+  :arg "=C"
+  :shortarg "-C"
+  :argument "--reuse-message="
+  :reader 'magit-read-reuse-message
+  :history-key 'magit-revision-history)
+
+(defun magit-read-reuse-message (prompt &optional default history)
   (magit-completing-read prompt (magit-list-refnames)
-                         nil nil nil 'magit-revision-history
+                         nil nil nil history
                          (or default
                              (and (magit-rev-verify "ORIG_HEAD")
                                   "ORIG_HEAD"))))
