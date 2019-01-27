@@ -661,19 +661,20 @@ and `:slant'."
   "Show changes between different versions."
   :man-page "git-diff"
   :value 'magit-diff--initial-value
-  ["Switches"
-   ("-f" "Show surrounding functions"     ("-W" "--function-context"))
-   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
-   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
-   ("-x" "Disallow external diff drivers" "--no-ext-diff")
-   ("-s" "Show stats"                     "--stat")]
-  ["Options"
+  ["Limit arguments"
    (magit:--)
+   (magit-diff:--ignore-submodules)
+   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
+   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))]
+  ["Context arguments"
    (magit-diff:-U)
+   ("-f" "Show surrounding functions"     ("-W" "--function-context"))]
+  ["Tune arguments"
+   (magit-diff:--diff-algorithm)
    (magit-diff:-M)
    (magit-diff:-C)
-   (magit-diff:--diff-algorithm)
-   (magit-diff:--ignore-submodules)]
+   ("-x" "Disallow external diff drivers" "--no-ext-diff")
+   ("-s" "Show stats"                     "--stat")]
   ["Actions"
    [("d" "Dwim"          magit-diff-dwim)
     ("r" "Diff range"    magit-diff-range)
@@ -688,20 +689,21 @@ and `:slant'."
   "Change the arguments used for the diff(s) in the current buffer."
   :man-page "git-diff"
   :value 'magit-diff-refresh--initial-value
-  ["Switches"
-   ("-f" "Show surrounding functions"     ("-W" "--function-context"))
+  ["Limit arguments"
+   (magit:--)
+   (magit-diff:--ignore-submodules)
    ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
-   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
+   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))]
+  ["Context arguments"
+   (magit-diff:-U)
+   ("-f" "Show surrounding functions"     ("-W" "--function-context"))]
+  ["Tune arguments"
+   (magit-diff:--diff-algorithm)
+   (magit-diff:-M)
+   (magit-diff:-C)
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
    ("-s" "Show stats"                     "--stat"
     :if-derived magit-diff-mode)]
-  ["Options"
-   (magit:--)
-   (magit-diff:-U)
-   (magit-diff:-M)
-   (magit-diff:-C)
-   (magit-diff:--diff-algorithm)
-   (magit-diff:--ignore-submodules)]
   ["Actions"
    [("g" "Refresh"                magit-diff-do-refresh)
     ("s" "Set defaults"           magit-diff-set-default-arguments)
