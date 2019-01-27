@@ -51,7 +51,8 @@
     (highlight
      (highlight-face   . magit-blame-highlight))
     (lines
-     (show-lines       . t)))
+     (show-lines       . t)
+     (show-message     . t)))
   "List of styles used to visualize blame information.
 
 Each entry has the form (IDENT (KEY . VALUE)...).  IDENT has
@@ -61,6 +62,9 @@ KEYs are recognized:
  `show-lines'
     Whether to prefix each chunk of lines with a thin line.
     This has no effect if `heading-format' is non-nil.
+ `show-message'
+    Whether to display a commit's summary line in the echo area
+    when crossing chunks.
  `highlight-face'
     Face used to highlight the first line of each chunk.
     If this is nil, then those lines are not highlighted.
@@ -697,7 +701,7 @@ modes is toggled, then this mode also gets toggled automatically.
 (defun magit-blame-maybe-show-message ()
   (when (magit-blame--style-get 'show-message)
     (let ((message-log-max 0))
-      (if-let ((msg (cdr (assq 'heading
+      (if-let ((msg (cdr (assoc "summary"
                                (gethash (oref (magit-current-blame-chunk)
                                               orig-rev)
                                         magit-blame-cache)))))
