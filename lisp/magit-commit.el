@@ -108,9 +108,9 @@ Also see `git-commit-post-finish-hook'."
    ("-e" "Allow empty commit"                     "--allow-empty")
    ("-v" "Show diff of changes to be committed"   ("-v" "--verbose"))
    ("-h" "Disable hooks"                          ("-n" "--no-verify"))
-   ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
    ("-R" "Claim authorship and reset author date" "--reset-author")
    ("=A" "Override the author" magit:--author)
+   ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
    ("=S" "Sign using gpg"       "--gpg-sign="      magit-read-gpg-secret-key)
    ("=C" "Reuse commit message" "--reuse-message=" magit-read-reuse-message)]
   [["Create"
