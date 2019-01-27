@@ -65,20 +65,21 @@ changes introduced by that commit (unlike 'git format-patch'
 which creates patches for all commits that are reachable from
 `HEAD' but not from the specified commit)."
   :man-page "git-format-patch"
-  ["Arguments"
+  ["Mail arguments"
+   ("=r" "In reply to"      "--in-reply-to=")
+   ("=s" "Thread style"     "--thread=")
+   ("=v" "Reroll count"     "--reroll-count=")
+   ("=P" "Subject Prefix"   "--subject-prefix=")
    ("-l" "Add cover letter" "--cover-letter")
    ("=f" "From"             "--from=")
    ("=t" "To"               "--to=")
    ("=c" "CC"               "--cc=")
-   ("=r" "In reply to"      "--in-reply-to=")
-   ("=P" "Subject Prefix"   "--subject-prefix=")
-   ("=v" "Reroll count"     "--reroll-count=")
-   ("=s" "Thread style"     "--thread=")
+   ("=o" "Output directory" "--output-directory=")]
+  ["Diff arguments"
    ("=U" magit-diff:-U)
    ("=M" magit-diff:-M)
    ("=C" magit-diff:-C)
    ("=A" magit-diff:--diff-algorithm)
-   ("=o" "Output directory" "--output-directory=")
    ("=F" magit:--)]
   ["Actions"
    ("c" "Create patches" magit-patch-create)]
