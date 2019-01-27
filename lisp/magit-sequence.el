@@ -392,13 +392,13 @@ without prompting."
   ["Arguments"
    :if-not magit-am-in-progress-p
    ("-3" "Fall back on 3way merge"           ("-3" "--3way"))
-   ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))
    ("=p" "Remove leading slashes from paths" "-p" magit-read-number-string)
    ("-c" "Remove text before scissors line"  ("-c" "--scissors"))
    ("-k" "Inhibit removal of email cruft"    ("-k" "--keep"))
    ("-b" "Limit removal of email cruft"      "--keep-non-patch")
    ("-d" "Use author date as committer date" "--committer-date-is-author-date")
-   ("-D" "Use committer date as author date" "--ignore-date")]
+   ("-D" "Use committer date as author date" "--ignore-date")
+   ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))]
   ["Apply"
    :if-not magit-am-in-progress-p
    ("m" "maildir"     magit-am-apply-maildir)
