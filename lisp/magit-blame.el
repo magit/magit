@@ -705,8 +705,7 @@ modes is toggled, then this mode also gets toggled automatically.
                                (gethash (oref (magit-current-blame-chunk)
                                               orig-rev)
                                         magit-blame-cache)))))
-          (progn (setq msg (substring msg 0 -1))
-                 (set-text-properties 0 (length msg) nil msg)
+          (progn (set-text-properties 0 (length msg) nil msg)
                  (message msg))
         (message "Commit data not available yet.  Still blaming.")))))
 
