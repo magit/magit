@@ -129,12 +129,12 @@ This discards all changes made since the sequence started."
   :value '("--ff")
   ["Arguments"
    :if-not magit-sequencer-in-progress-p
-   ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))
+   ("-F" "Attempt fast-forward"               "--ff")
+   ("=m" "Replay merge relative to parent"    "--mainline=")
+   ("=s" "Strategy"                           "--strategy=")
    ("-e" "Edit commit messages"               ("-e" "--edit"))
    ("-x" "Reference cherry in commit message" "-x")
-   ("-F" "Attempt fast-forward"               "--ff")
-   ("=s" "Strategy"                           "--strategy=")
-   ("=m" "Replay merge relative to parent"    "--mainline=")]
+   ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))]
   [:if-not magit-sequencer-in-progress-p
    ["Apply here"
     ("A" "Pick"    magit-cherry-copy)
@@ -339,12 +339,12 @@ the process manually."
   :value '("--edit")
   ["Arguments"
    :if-not magit-sequencer-in-progress-p
-   ("-s" "Add Signed-off-by lines"   ("-s" "--signoff"))
+   ("=m" "Replay merge relative to parent" "--mainline=")
    ("-e" "Edit commit message"       ("-e" "--edit"))
    ("-E" "Don't edit commit message" "--no-edit")
-   ("=s" "Strategy"       "--strategy=")
-   ("=S" "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key)
-   ("=m" "Replay merge relative to parent" "--mainline=")]
+   ("=s" "Strategy"                  "--strategy=")
+   ("-s" "Add Signed-off-by lines"   ("-s" "--signoff"))
+   ("=S" "Sign using gpg"            "--gpg-sign=" magit-read-gpg-secret-key)]
   ["Actions"
    :if-not magit-sequencer-in-progress-p
    ("V" "Revert commit(s)" magit-revert-and-commit)
