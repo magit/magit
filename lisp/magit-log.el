@@ -372,26 +372,35 @@ the upstream isn't ahead of the current branch) show."
   "Show a commit or reference log."
   :man-page "git-log"
   :value 'magit-log--initial-value
-  ["Switches"
-   ("-g" "Show graph"              "--graph")
-   ("-c" "Show graph in color"     "--color")
-   ("-d" "Show refnames"           "--decorate")
-   ("-S" "Show signatures"         "--show-signature")
-   ("-u" "Show diffs"              ("-u" "--patch"))
-   ("-s" "Show diffstats"          "--stat")
-   ("-h" "Show header"             "++header")
-   ("-r" "Show in reverse order"   "--reverse")
-   ("-D" "Simplify by decoration"  "--simplify-by-decoration")
-   ("-f" "Follow renames when showing single-file log" "--follow")]
-  ["Options"
+  ;; The grouping in git-log(1) appears to be guided by implementation
+  ;; details, so our logical grouping only follows it to an extend.
+  ;; Arguments that are "misplaced" here:
+  ;;   1. From "Commit Formatting".
+  ;;   2. From "Common Diff Options".
+  ;;   3. From unnamed first group.
+  ;;   4. Implemented by Magit.
+  ["Commit limiting"
    (magit-log:-n)
-   (magit:--)
    (magit:--author)
-   (magit-log:--*-order)
    (magit-log:--grep)
-   (magit-log:-G)
-   (magit-log:-S)
-   (magit-log:-L)]
+   (magit-log:-G)     ;2
+   (magit-log:-S)     ;2
+   (magit-log:-L)]    ;2
+  ["History simplification"
+   (magit:--)
+   ("-f" "Follow renames when showing single-file log" "--follow") ;3
+   ("-D" "Simplify by decoration" "--simplify-by-decoration")]
+  ["Commit ordering"
+   (magit-log:--*-order)
+   ("-r" "Reverse order" "--reverse")]
+  ["Formatting"
+   ("-g" "Show graph"          "--graph")          ;1
+   ("-c" "Show graph in color" "--color")          ;2
+   ("-d" "Show refnames"       "--decorate")       ;3
+   ("-S" "Show signatures"     "--show-signature") ;1
+   ("-h" "Show header"         "++header")         ;4
+   ("-u" "Show diffs"          ("-u" "--patch"))   ;2
+   ("-s" "Show diffstats"      "--stat")]          ;2
   [["Log"
     ("l" "current"        magit-log-current)
     ("o" "other"          magit-log-other)
@@ -410,37 +419,37 @@ the upstream isn't ahead of the current branch) show."
   "Change the arguments used for the log(s) in the current buffer."
   :man-page "git-log"
   :value 'magit-log-refresh--initial-value
-  ["Switches"
-   :if-not-mode magit-log-mode
-   ("-g" "Show graph"              "--graph")
-   ("-c" "Show graph in color"     "--color")
-   ("-d" "Show refnames"           "--decorate")]
-  ["Switches"
-   :if-mode magit-log-mode
-   ("-g" "Show graph"              "--graph")
-   ("-c" "Show graph in color"     "--color")
-   ("-d" "Show refnames"           "--decorate")
-   ("-S" "Show signatures"         "--show-signature")
-   ("-u" "Show diffs"              ("-u" "--patch"))
-   ("-s" "Show diffstats"          "--stat")
-   ("-h" "Show header"             "++header")
-   ("-r" "Show in reverse order"   "--reverse")
-   ("-D" "Simplify by decoration"  "--simplify-by-decoration")
-   ("-f" "Follow renames when showing single-file log" "--follow")]
-  ["Options"
-   :if-not-mode magit-log-mode
+  [:if-mode magit-log-mode
+   :class transient-subgroups
+   ["Commit limiting"
+    (magit-log:-n)
+    (magit:--author)
+    (magit-log:--grep)
+    (magit-log:-G)
+    (magit-log:-S)
+    (magit-log:-L)]
+   ["History simplification"
+    (magit:--)
+    ("-f" "Follow renames when showing single-file log" "--follow")
+    ("-D" "Simplify by decoration" "--simplify-by-decoration")]
+   ["Commit ordering"
+    (magit-log:--*-order)
+    ("-r" "Reverse order" "--reverse")]
+   ["Formatting"
+    ("-g" "Show graph"              "--graph")
+    ("-c" "Show graph in color"     "--color")
+    ("-d" "Show refnames"           "--decorate")
+    ("-S" "Show signatures"         "--show-signature")
+    ("-h" "Show header"             "++header")
+    ("-u" "Show diffs"              ("-u" "--patch"))
+    ("-s" "Show diffstats"          "--stat")]]
+  [:if-not-mode magit-log-mode
+   :description "Arguments"
    (magit-log:-n)
-   (magit-log:--*-order)]
-  ["Options"
-   :if-mode magit-log-mode
-   (magit-log:-n)
-   (magit:--)
-   (magit:--author)
    (magit-log:--*-order)
-   (magit-log:--grep)
-   (magit-log:-G)
-   (magit-log:-S)
-   (magit-log:-L)]
+   ("-g" "Show graph"               "--graph")
+   ("-c" "Show graph in color"      "--color")
+   ("-d" "Show refnames"            "--decorate")]
   [["Refresh"
     ("g" "buffer"                   magit-log-do-refresh)
     ("s" "buffer and set defaults"  magit-log-set-default-arguments)
