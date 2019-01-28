@@ -895,7 +895,8 @@ instead of the hash, like `kill-ring-save' would."
    ("r" "Show commits removing lines" magit-blame-removal
     :if-nil buffer-file-name)
    ("f" "Show last commits that still have lines" magit-blame-reverse
-    :if-nil buffer-file-name)]
+    :if-nil buffer-file-name)
+   ("q" "Quit blaming" magit-blame-quit :if-non-nil magit-blame-mode)]
   ["Refresh"
    :if-non-nil magit-blame-mode
    ("c" "Cycle style" magit-blame-cycle-style)])
