@@ -244,6 +244,7 @@ directory, while reading the FILENAME."
     ("b" "Blame"      magit-blame-addition)
     ("r" "...removal" magit-blame-removal :if-nil buffer-file-name)
     ("f" "...reverse" magit-blame-reverse :if-nil buffer-file-name)
+    ("m" "Blame echo" magit-blame-echo)
     ("q" "Quit blame" magit-blame-quit :if-non-nil magit-blame-mode)]
    [("p" "Prev blob"  magit-blob-previous)
     ("n" "Next blob"  magit-blob-next)]])

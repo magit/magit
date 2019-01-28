@@ -711,12 +711,16 @@ modes is toggled, then this mode also gets toggled automatically.
 
 ;;; Commands
 
-;;;###autoload
-(defun magit-blame-echo ()
+;;;###autoload (autoload 'magit-blame-echo "magit-blame" nil t)
+(define-suffix-command magit-blame-echo ()
   "For each line show the revision in which it was added.
 Show the information about the chunk at point in the echo area
 when moving between chunks.  Unlike other blaming commands, do
 not turn on `read-only-mode'."
+  :if (lambda ()
+        (and buffer-file-name
+             (or (not magit-blame-mode)
+                 buffer-read-only)))
   (interactive)
   (when magit-buffer-file-name
     (user-error "Blob buffers aren't supported"))
@@ -896,6 +900,7 @@ instead of the hash, like `kill-ring-save' would."
     :if-nil buffer-file-name)
    ("f" "Show last commits that still have lines" magit-blame-reverse
     :if-nil buffer-file-name)
+   ("m" "Blame echo" magit-blame-echo)
    ("q" "Quit blaming" magit-blame-quit :if-non-nil magit-blame-mode)]
   ["Refresh"
    :if-non-nil magit-blame-mode
