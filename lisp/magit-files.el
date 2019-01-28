@@ -242,10 +242,10 @@ directory, while reading the FILENAME."
     ("t" "Trace"      magit-log-trace-definition)]
    [("B" "Blame..."   magit-blame)
     ("b" "Blame"      magit-blame-addition)
-    ("r" "...removal" magit-blame-removal :if-nil buffer-file-name)
-    ("f" "...reverse" magit-blame-reverse :if-nil buffer-file-name)
+    ("r" "...removal" magit-blame-removal)
+    ("f" "...reverse" magit-blame-reverse)
     ("m" "Blame echo" magit-blame-echo)
-    ("q" "Quit blame" magit-blame-quit :if-non-nil magit-blame-mode)]
+    ("q" "Quit blame" magit-blame-quit)]
    [("p" "Prev blob"  magit-blob-previous)
     ("n" "Next blob"  magit-blob-next)]])
 
