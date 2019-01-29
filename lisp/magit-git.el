@@ -1049,18 +1049,19 @@ be used to limit the result to a matching ref.  When structured
 as \"refs/<subdir>/*\", PATTERN is taken as a namespace.  In this
 case, the name returned by `git-name-rev' is discarded if it
 corresponds to a ref outside of the namespace."
-  (--when-let (magit-git-string "name-rev" "--name-only" "--no-undefined"
-                                (and pattern (concat "--refs=" pattern))
-                                rev)
+  (when-let
+      ((ref (magit-git-string "name-rev" "--name-only" "--no-undefined"
+                              (and pattern (concat "--refs=" pattern))
+                              rev)))
     ;; We can't use name-rev's --exclude to filter out "*/PATTERN"
     ;; because --exclude wasn't added until Git v2.13.0.
     (if (and pattern
              (string-match-p "\\`refs/[^/]+/\\*\\'" pattern))
         (let ((namespace (substring pattern 0 -1)))
-          (unless (and (string-match-p namespace it)
-                       (not (magit-rev-verify (concat namespace it))))
-            it))
-      it)))
+          (and (not (and (string-match-p namespace ref)
+                         (not (magit-rev-verify (concat namespace ref)))))
+               ref))
+      ref)))
 
 (defun magit-rev-branch (rev)
   (--when-let (magit-rev-name rev "refs/heads/*")
