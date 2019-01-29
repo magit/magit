@@ -1042,26 +1042,41 @@ of REV."
   (or (equal (magit-get "user.name")  (magit-rev-format "%an" rev))
       (equal (magit-get "user.email") (magit-rev-format "%ae" rev))))
 
-(defun magit-rev-name (rev &optional pattern)
-  "Return a symbolic name for REV.
-PATTERN is passed to the `--refs' flag of `git-name-rev' and can
-be used to limit the result to a matching ref.  When structured
-as \"refs/<subdir>/*\", PATTERN is taken as a namespace.  In this
-case, the name returned by `git-name-rev' is discarded if it
-corresponds to a ref outside of the namespace."
-  (when-let
-      ((ref (magit-git-string "name-rev" "--name-only" "--no-undefined"
-                              (and pattern (concat "--refs=" pattern))
-                              rev)))
-    ;; We can't use name-rev's --exclude to filter out "*/PATTERN"
-    ;; because --exclude wasn't added until Git v2.13.0.
-    (if (and pattern
-             (string-match-p "\\`refs/[^/]+/\\*\\'" pattern))
-        (let ((namespace (substring pattern 0 -1)))
-          (and (not (and (string-match-p namespace ref)
-                         (not (magit-rev-verify (concat namespace ref)))))
-               ref))
-      ref)))
+(defun magit-rev-name (rev &optional pattern not-anchored)
+  "Return a symbolic name for REV using `git-name-rev'.
+
+PATTERN can be used to limit the result to a matching ref.
+Unless NOT-ANCHORED is non-nil, the beginning of the ref must
+match PATTERN.
+
+An anchored lookup is done using the arguments
+\"--exclude=*/<PATTERN>\" in addition to
+\"--refs=<PATTERN>\", provided at least version v2.13 of Git is
+used.  Older versions did not support the \"--exclude\" argument.
+When \"--exclude\" cannot be used and `git-name-rev' returns a
+ref that should have been excluded, then that is discarded and
+this function returns nil instead.  This is unfortunate because
+there might be other refs that do match.  To fix that, update
+Git."
+  (if (version< (magit-git-version) "2.13")
+      (when-let
+          ((ref (magit-git-string "name-rev" "--name-only" "--no-undefined"
+                                  (and pattern (concat "--refs=" pattern))
+                                  rev)))
+        (if (and pattern
+                 (string-match-p "\\`refs/[^/]+/\\*\\'" pattern))
+            (let ((namespace (substring pattern 0 -1)))
+              (and (not (and (string-match-p namespace ref)
+                             (not (magit-rev-verify
+                                   (concat namespace ref)))))
+                   ref))
+          ref))
+    (magit-git-string "name-rev" "--name-only" "--no-undefined"
+                      (and pattern (concat "--refs=" pattern))
+                      (and pattern
+                           (not not-anchored)
+                           (concat "--exclude=*/" pattern))
+                      rev)))
 
 (defun magit-rev-branch (rev)
   (--when-let (magit-rev-name rev "refs/heads/*")
