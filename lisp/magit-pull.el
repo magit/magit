@@ -51,12 +51,8 @@
           (propertize branch       'face 'magit-branch-local)
           (propertize " from"      'face 'transient-heading))
        (propertize "Pull from" 'face 'transient-heading)))
-   ("p" magit-pull-from-pushremote
-    :if 'magit-get-push-branch
-    :description 'magit-get-push-branch)
-   ("u" magit-pull-from-upstream
-    :if 'magit-get-upstream-branch
-    :description 'magit-get-upstream-branch)
+   ("p" magit-pull-from-pushremote)
+   ("u" magit-pull-from-upstream)
    ("e" "elsewhere"         magit-pull-branch)]
   ["Fetch from"
    :if-non-nil magit-pull-or-fetch
@@ -82,9 +78,11 @@
                (magit-split-branch-name source)))
     (magit-run-git-with-editor "pull" args remote branch)))
 
-;;;###autoload
-(defun magit-pull-from-pushremote (args)
+;;;###autoload (autoload 'magit-pull-from-pushremote "magit-pull" nil t)
+(define-suffix-command magit-pull-from-pushremote (args)
   "Pull from the push-remote of the current branch."
+  :if 'magit-get-push-branch
+  :description 'magit-get-push-branch
   (interactive (list (magit-pull-arguments)))
   (--if-let (magit-get-push-branch)
       (magit-git-pull it args)
@@ -92,9 +90,11 @@
         (user-error "No push-remote is configured for %s" it)
       (user-error "No branch is checked out"))))
 
-;;;###autoload
-(defun magit-pull-from-upstream (args)
+;;;###autoload (autoload 'magit-pull-from-upstream "magit-pull" nil t)
+(define-suffix-command magit-pull-from-upstream (args)
   "Pull from the upstream of the current branch."
+  :if 'magit-get-upstream-branch
+  :description 'magit-get-upstream-branch
   (interactive (list (magit-pull-arguments)))
   (--if-let (magit-get-upstream-branch)
       (magit-git-pull it args)
