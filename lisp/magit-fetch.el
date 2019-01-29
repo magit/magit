@@ -47,12 +47,8 @@ Ignored for Git versions before v2.8.0."
   ["Arguments"
    ("-p" "Prune deleted branches" ("-p" "--prune"))]
   ["Fetch from"
-   ("p" magit-fetch-from-pushremote
-    :if 'magit--pushbranch-suffix-predicate
-    :description 'magit--pushbranch-suffix-description)
-   ("u" magit-fetch-from-upstream
-    :if 'magit--upstream-suffix-predicate
-    :description 'magit--upstream-suffix-description)
+   ("p" magit-fetch-from-pushremote)
+   ("u" magit-fetch-from-upstream)
    ("e" "elsewhere"        magit-fetch-other)
    ("a" "all remotes"      magit-fetch-all)]
   ["Fetch"
@@ -69,9 +65,11 @@ Ignored for Git versions before v2.8.0."
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "fetch" remote args))
 
-;;;###autoload
-(defun magit-fetch-from-pushremote (args)
+;;;###autoload (autoload 'magit-fetch-from-pushremote "magit-fetch" nil t)
+(define-suffix-command magit-fetch-from-pushremote (args)
   "Fetch from the push-remote of the current branch."
+  :if 'magit-get-push-remote
+  :description 'magit-get-push-remote
   (interactive (list (magit-fetch-arguments)))
   (--if-let (magit-get-push-remote)
       (magit-git-fetch it args)
@@ -79,9 +77,11 @@ Ignored for Git versions before v2.8.0."
         (user-error "No push-remote is configured for %s" it)
       (user-error "No branch is checked out"))))
 
-;;;###autoload
-(defun magit-fetch-from-upstream (args)
+;;;###autoload (autoload 'magit-fetch-from-upstream "magit-fetch" nil t)
+(define-suffix-command magit-fetch-from-upstream (args)
   "Fetch from the upstream repository of the current branch."
+  :if 'magit-get-upstream-remote
+  :description 'magit-get-upstream-remote
   (interactive (list (magit-fetch-arguments)))
   (--if-let (magit-get-remote)
       (magit-git-fetch it args)
