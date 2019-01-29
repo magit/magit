@@ -80,14 +80,8 @@ When `magit-remote-set-if-missing' is non-nil and
 the push-remote is not configured, then read the push-remote from
 the user, set it, and then push to it.  With a prefix argument
 the push-remote can be changed before pushed to it."
-  (interactive
-   (list (magit-push-arguments)
-         (and (magit--transfer-set-pushremote-p current-prefix-arg)
-              (magit-read-remote
-               (if (eq magit-remote-set-if-missing 'default)
-                   "Set `remote.pushDefault' and push there"
-                 (format "Set `branch.%s.pushRemote' and push there"
-                         (magit-get-current-branch)))))))
+  (interactive (list (magit-push-arguments)
+                     (magit--transfer-maybe-read-pushremote "push")))
   (if-let ((branch (magit-get-current-branch)))
       (progn (when set
                (setf (magit-get
@@ -123,10 +117,8 @@ When `magit-remote-set-if-missing' is non-nil and
 the upstream is not configured, then read the upstream from the
 user, set it, and then push to it.  With a prefix argument the
 upstream can be changed before pushed to it."
-  (interactive
-   (list (magit-push-arguments)
-         (and (magit--transfer-set-upstream-p current-prefix-arg)
-              (magit-read-upstream-branch))))
+  (interactive (list (magit-push-arguments)
+                     (magit--transfer-maybe-read-upstream "push")))
   (if-let ((branch (magit-get-current-branch)))
       (progn
         (when set
