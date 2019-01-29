@@ -1050,7 +1050,7 @@ Unless NOT-ANCHORED is non-nil, the beginning of the ref must
 match PATTERN.
 
 An anchored lookup is done using the arguments
-\"--exclude=*/<PATTERN>\" in addition to
+\"--exclude=*/<PATTERN> --exclude=*/HEAD\" in addition to
 \"--refs=<PATTERN>\", provided at least version v2.13 of Git is
 used.  Older versions did not support the \"--exclude\" argument.
 When \"--exclude\" cannot be used and `git-name-rev' returns a
@@ -1066,16 +1066,18 @@ Git."
         (if (and pattern
                  (string-match-p "\\`refs/[^/]+/\\*\\'" pattern))
             (let ((namespace (substring pattern 0 -1)))
-              (and (not (and (string-match-p namespace ref)
-                             (not (magit-rev-verify
-                                   (concat namespace ref)))))
+              (and (not (or (string-suffix-p "HEAD" ref)
+                            (and (string-match-p namespace ref)
+                                 (not (magit-rev-verify
+                                       (concat namespace ref))))))
                    ref))
           ref))
     (magit-git-string "name-rev" "--name-only" "--no-undefined"
                       (and pattern (concat "--refs=" pattern))
                       (and pattern
                            (not not-anchored)
-                           (concat "--exclude=*/" pattern))
+                           (list "--exclude=*/HEAD"
+                                 (concat "--exclude=*/" pattern)))
                       rev)))
 
 (defun magit-rev-branch (rev)
