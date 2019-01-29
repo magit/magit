@@ -354,11 +354,14 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (or (magit-get-upstream-branch)
       magit-remote-set-if-missing))
 
-(defun magit--pushbranch-suffix-description ()
+(defun magit--pushbranch-suffix-description (&optional pushp)
   (if-let ((branch (magit-get-push-branch)))
-      (if (magit-rev-verify branch)
-          branch
-        (concat branch ", creating it"))
+      (cond ((magit-rev-verify branch) branch)
+            (pushp (concat branch ", creating it"))
+            ;; This shouldn't happen often and even if it does, then
+            ;; transfering would still succeed iff the branch exists
+            ;; on the remote (only the tracking branch is missing).
+            (t (concat branch ", which appears to be missing")))
     (and (magit--transfer-set-pushremote-p)
          (concat (propertize
                   (if (eq magit-remote-set-if-missing 'default)
@@ -384,11 +387,14 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (or (magit-get-push-branch)
       magit-remote-set-if-missing))
 
-(defun magit--upstream-suffix-description ()
+(defun magit--upstream-suffix-description (&optional pushp)
   (if-let ((branch (magit-get-upstream-branch)))
-      (if (magit-rev-verify branch)
-          branch
-        (concat branch ", creating it"))
+      (cond ((magit-rev-verify branch) branch)
+            (pushp (concat branch ", creating it"))
+            ;; This shouldn't happen often and even if it does, then
+            ;; transfering would still succeed iff the branch exists
+            ;; on the remote (only the tracking branch is missing).
+            (t (concat branch ", which appears to be missing")))
     (and (magit--transfer-set-upstream-p)
          (concat (propertize "@{upstream}" 'face 'bold)
                  ", after setting that"))))

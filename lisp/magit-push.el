@@ -82,7 +82,7 @@ the push-remote is not configured, then read the push-remote from
 the user, set it, and then push to it.  With a prefix argument
 the push-remote can be changed before pushed to it."
   :if 'magit--pushbranch-suffix-predicate
-  :description 'magit--pushbranch-suffix-description
+  :description (lambda () (magit--pushbranch-suffix-description t))
   (interactive (list (magit-push-arguments)
                      (magit--transfer-maybe-read-pushremote "push")))
   (if-let ((branch (magit-get-current-branch)))
@@ -108,7 +108,7 @@ the upstream is not configured, then read the upstream from the
 user, set it, and then push to it.  With a prefix argument the
 upstream can be changed before pushed to it."
   :if 'magit--upstream-suffix-predicate
-  :description 'magit--upstream-suffix-description
+  :description (lambda () (magit--upstream-suffix-description t))
   (interactive (list (magit-push-arguments)
                      (magit--transfer-maybe-read-upstream "push")))
   (if-let ((branch (magit-get-current-branch)))
