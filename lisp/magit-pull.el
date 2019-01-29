@@ -79,28 +79,36 @@
     (magit-run-git-with-editor "pull" args remote branch)))
 
 ;;;###autoload (autoload 'magit-pull-from-pushremote "magit-pull" nil t)
-(define-suffix-command magit-pull-from-pushremote (args)
-  "Pull from the push-remote of the current branch."
-  :if 'magit-get-push-branch
-  :description 'magit-get-push-branch
-  (interactive (list (magit-pull-arguments)))
-  (--if-let (magit-get-push-branch)
-      (magit-git-pull it args)
-    (--if-let (magit-get-current-branch)
-        (user-error "No push-remote is configured for %s" it)
-      (user-error "No branch is checked out"))))
+(define-suffix-command magit-pull-from-pushremote (args &optional set)
+  "Pull from the push-remote of the current branch.
+
+When `magit-remote-set-if-missing' is non-nil and
+the push-remote is not configured, then read the push-remote from
+the user, set it, and then pull from it.  With a prefix argument
+the push-remote can be changed before pulling from it."
+  :if 'magit--pushbranch-suffix-predicate
+  :description 'magit--pushbranch-suffix-description
+  (interactive (list (magit-pull-arguments)
+                     (magit--transfer-maybe-read-pushremote "pull from")))
+  (magit--transfer-pushremote set
+    (lambda (_ __ remote/branch)
+      (magit-git-pull remote/branch args))))
 
 ;;;###autoload (autoload 'magit-pull-from-upstream "magit-pull" nil t)
-(define-suffix-command magit-pull-from-upstream (args)
-  "Pull from the upstream of the current branch."
-  :if 'magit-get-upstream-branch
-  :description 'magit-get-upstream-branch
-  (interactive (list (magit-pull-arguments)))
-  (--if-let (magit-get-upstream-branch)
-      (magit-git-pull it args)
-    (--if-let (magit-get-current-branch)
-        (user-error "No upstream is configured for %s" it)
-      (user-error "No branch is checked out"))))
+(define-suffix-command magit-pull-from-upstream (args &optional set)
+  "Pull from the upstream of the current branch.
+
+When `magit-remote-set-if-missing' is non-nil and
+the push-remote is not configured, then read the upstream from
+the user, set it, and then pull from it.  With a prefix argument
+the upstream can be changed before pulling from it."
+  :if 'magit--upstream-suffix-predicate
+  :description 'magit--upstream-suffix-description
+  (interactive (list (magit-pull-arguments)
+                     (magit--transfer-maybe-read-upstream "pull from")))
+  (magit--transfer-upstream set
+    (lambda (_ upstream)
+      (magit-git-pull upstream args))))
 
 ;;;###autoload
 (defun magit-pull-branch (source args)

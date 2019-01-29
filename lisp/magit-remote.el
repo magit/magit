@@ -56,25 +56,24 @@ has to be used to view and change remote related variables."
   :type 'boolean)
 
 (defcustom magit-remote-set-if-missing t
-  "Whether to configure missing remotes before pushing.
+  "Whether to configure missing remotes before transfering refs.
 
-When nil, then the command `magit-push-current-to-pushremote' and
-`magit-push-current-to-upstream' do not appear in the push popup
-if the push-remote resp. upstream is not configured.  If the user
-invokes one of these commands anyway, then it raises an error.
+When nil and the upstream and/or push-remote is not configure,
+then the push, fetch, pull and rebase transient commands do not
+feature a suffix to act on the missing remote(s).
 
-When non-nil, then these commands always appear in the push
-popup.  But if the required configuration is missing, then they
-do appear in a way that indicates that this is the case.  If the
-user invokes one of them, then it asks for the necessary
-configuration, stores the configuration, and then uses it to push
-a first time.
+When non-nil, then these suffix commands are always available,
+and if the required configuration is missing, then they do appear
+in a way that indicates that this is the case.  These commands
+then configure the missing remote before acting on it.
 
 This option also affects whether the argument `--set-upstream' is
-available in the popup.  If the value is t, then that argument is
-redundant.  But note that changing the value of this option does
-not take affect immediately, the argument will only be added or
-removed after restarting Emacs."
+available from `magit-push'.  If the value is non-nil, then that
+argument is redundant and it is not made available.
+
+If the value is `default', then `remote.pushDefault' is used to
+set the push-remote, `branch.<name>.pushRemote' for other non-nil
+values."
   :package-version '(magit . "2.91.0")
   :group 'magit-commands
   :type '(choice
