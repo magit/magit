@@ -2068,8 +2068,10 @@ and this option only controls what face is used.")
                                (magit-get-previous-branch)
                                (car atrev)))))
 
-(cl-defun magit-read-upstream-branch
-    (&optional (branch (magit-get-current-branch)) prompt)
+(defun magit-read-upstream-branch (&optional branch prompt)
+  (unless branch
+    (setq branch (or (magit-get-current-branch)
+                     (error "Need a branch to set its upstream"))))
   (magit-completing-read
    (or prompt (format "Change upstream of %s to" branch))
    (-union (--map (concat it "/" branch)
