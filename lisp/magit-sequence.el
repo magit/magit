@@ -503,12 +503,8 @@ This discards all changes made since the sequence started."
                   (format (propertize "Rebase %s onto" 'face 'transient-heading)
                           (propertize (or (magit-get-current-branch) "HEAD")
                                       'face 'magit-branch-local)))
-   ("p" magit-rebase-onto-pushremote
-    :if 'magit-get-push-branch
-    :description 'magit-get-push-branch)
-   ("u" magit-rebase-onto-upstream
-    :if 'magit-get-upstream-branch
-    :description 'magit-get-upstream-branch)
+   ("p" magit-rebase-onto-pushremote)
+   ("u" magit-rebase-onto-upstream)
    ("e" "elsewhere" magit-rebase-branch)]
   ["Rebase"
    :if-not magit-rebase-in-progress-p
@@ -532,10 +528,12 @@ This discards all changes made since the sequence started."
 (defun magit-git-rebase (target args)
   (magit-run-git-sequencer "rebase" target args))
 
-;;;###autoload
-(defun magit-rebase-onto-pushremote (args)
+;;;###autoload (autoload 'magit-rebase-onto-pushremote "magit-sequence" nil t)
+(define-suffix-command magit-rebase-onto-pushremote (args)
   "Rebase the current branch onto `branch.<name>.pushRemote'.
 If that variable is unset, then rebase onto `remote.pushDefault'."
+  :if 'magit-get-push-branch
+  :description 'magit-get-push-branch
   (interactive (list (magit-rebase-arguments)))
   (--if-let (magit-get-current-branch)
       (if-let ((remote (magit-get-push-remote it)))
@@ -545,9 +543,11 @@ If that variable is unset, then rebase onto `remote.pushDefault'."
         (user-error "No push-remote is configured for %s" it))
     (user-error "No branch is checked out")))
 
-;;;###autoload
-(defun magit-rebase-onto-upstream (args)
+;;;###autoload (autoload 'magit-rebase-onto-upstream "magit-sequence" nil t)
+(define-suffix-command magit-rebase-onto-upstream (args)
   "Rebase the current branch onto its upstream branch."
+  :if 'magit-get-upstream-branch
+  :description 'magit-get-upstream-branch
   (interactive (list (magit-rebase-arguments)))
   (--if-let (magit-get-current-branch)
       (if-let ((target (magit-get-upstream-branch it)))
