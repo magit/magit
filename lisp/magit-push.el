@@ -82,7 +82,7 @@ the user, set it, and then push to it.  With a prefix argument
 the push-remote can be changed before pushed to it."
   (interactive
    (list (magit-push-arguments)
-         (and (magit--push-current-set-pushremote-p current-prefix-arg)
+         (and (magit--transfer-set-pushremote-p current-prefix-arg)
               (magit-read-remote
                (if (eq magit-remote-set-if-missing 'default)
                    "Set `remote.pushDefault' and push there"
@@ -101,12 +101,6 @@ the push-remote can be changed before pushed to it."
                    (user-error "Remote `%s' doesn't exist" remote))
                (user-error "No push-remote is configured for %s" branch)))
     (user-error "No branch is checked out")))
-
-(defun magit--push-current-set-pushremote-p (&optional change)
-  (and (or change
-           (and magit-remote-set-if-missing
-                (not (magit-get-push-remote))))
-       (magit-get-current-branch)))
 
 (defun magit--push-current-to-pushremote-desc ()
   (if-let ((branch (magit-get-push-branch)))
@@ -131,7 +125,7 @@ user, set it, and then push to it.  With a prefix argument the
 upstream can be changed before pushed to it."
   (interactive
    (list (magit-push-arguments)
-         (and (magit--push-current-set-upstream-p current-prefix-arg)
+         (and (magit--transfer-set-upstream-p current-prefix-arg)
               (magit-read-upstream-branch))))
   (if-let ((branch (magit-get-current-branch)))
       (progn
@@ -141,12 +135,6 @@ upstream can be changed before pushed to it."
             (magit-git-push branch target args)
           (user-error "No upstream is configured for %s" branch)))
     (user-error "No branch is checked out")))
-
-(defun magit--push-current-set-upstream-p (&optional change)
-  (and (or change
-           (and magit-remote-set-if-missing
-                (not (magit-get-upstream-branch))))
-       (magit-get-current-branch)))
 
 (defun magit--push-current-to-upstream-desc ()
   (if-let ((branch (magit-get-upstream-branch)))

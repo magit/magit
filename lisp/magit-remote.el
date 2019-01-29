@@ -398,6 +398,23 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
    (format "remote.%s.%s" (magit-remote-config--remote) variable)
    25))
 
+;;; Transfer Utilities
+;;;; Push-Remote
+
+(defun magit--transfer-set-pushremote-p (&optional change)
+  (and (or change
+           (and magit-remote-set-if-missing
+                (not (magit-get-push-remote))))
+       (magit-get-current-branch)))
+
+;;;; Upstream
+
+(defun magit--transfer-set-upstream-p (&optional change)
+  (and (or change
+           (and magit-remote-set-if-missing
+                (not (magit-get-upstream-branch))))
+       (magit-get-current-branch)))
+
 ;;; _
 (provide 'magit-remote)
 ;;; magit-remote.el ends here
