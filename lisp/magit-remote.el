@@ -335,6 +335,22 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 ;;; Transfer Utilities
 ;;;; Push-Remote
 
+(defun magit--transfer-pushremote (remote fn)
+  (declare (indent defun))
+  (if-let ((branch (magit-get-current-branch)))
+      (progn
+        (when remote
+          (setf (magit-get (if (eq magit-remote-set-if-missing 'default)
+                               "remote.pushDefault"
+                             (format "branch.%s.pushRemote" branch)))
+                remote))
+        (if-let ((remote (or remote (magit-get-push-remote branch))))
+            (if (member remote (magit-list-remotes))
+                (funcall fn remote branch (concat remote "/" branch))
+              (user-error "Remote `%s' doesn't exist" remote))
+          (user-error "No push-remote is configured for %s" branch)))
+    (user-error "No branch is checked out")))
+
 (defun magit--transfer-set-pushremote-p (&optional change)
   (and (or change
            (and magit-remote-set-if-missing
@@ -371,6 +387,17 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
                  ", after setting that"))))
 
 ;;;; Upstream
+
+(defun magit--transfer-upstream (upstream fn)
+  (declare (indent defun))
+  (if-let ((current (magit-get-current-branch)))
+      (progn
+        (when upstream
+          (magit-set-upstream-branch current upstream))
+        (if-let ((upstream (or upstream (magit-get-upstream-branch current))))
+            (funcall fn current upstream)
+          (user-error "No upstream is configured for %s" current)))
+    (user-error "No branch is checked out")))
 
 (defun magit--transfer-set-upstream-p (&optional change)
   (and (or change
