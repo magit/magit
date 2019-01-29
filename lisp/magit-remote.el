@@ -416,6 +416,19 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
                   (magit-get-current-branch)
                   action)))))
 
+(defun magit--pushbranch-suffix-description ()
+  (if-let ((branch (magit-get-push-branch)))
+      (if (magit-rev-verify branch)
+          (concat branch "\n")
+        (concat branch ", creating it\n"))
+    (and (magit--transfer-set-pushremote-p)
+         (concat (propertize
+                  (if (eq magit-remote-set-if-missing 'default)
+                      "pushDefault"
+                    "pushRemote")
+                  'face 'bold)
+                 ", after setting that\n"))))
+
 ;;;; Upstream
 
 (defun magit--transfer-set-upstream-p (&optional change)
@@ -428,6 +441,15 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (and (magit--transfer-set-upstream-p current-prefix-arg)
        (magit-read-upstream-branch
         nil (format "Set upstream and %s there" action))))
+
+(defun magit--upstream-suffix-description ()
+  (if-let ((branch (magit-get-upstream-branch)))
+      (if (magit-rev-verify branch)
+          (concat branch "\n")
+        (concat branch ", creating it\n"))
+    (and (magit--transfer-set-upstream-p)
+         (concat (propertize "@{upstream}" 'face 'bold)
+                 ", after setting that\n"))))
 
 ;;; _
 (provide 'magit-remote)

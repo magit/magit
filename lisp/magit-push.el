@@ -51,9 +51,9 @@
                  (concat (propertize "Push " 'face 'magit-popup-heading)
                          (propertize it      'face 'magit-branch-local)
                          (propertize " to"   'face 'magit-popup-heading))))
-             (?p magit--push-current-to-pushremote-desc
+             (?p magit--pushbranch-suffix-description
                  magit-push-current-to-pushremote)
-             (?u magit--push-current-to-upstream-desc
+             (?u magit--upstream-suffix-description
                  magit-push-current-to-upstream)
              (?e "elsewhere\n"       magit-push-current)
              "Push"
@@ -96,19 +96,6 @@ the push-remote can be changed before pushed to it."
                (user-error "No push-remote is configured for %s" branch)))
     (user-error "No branch is checked out")))
 
-(defun magit--push-current-to-pushremote-desc ()
-  (if-let ((branch (magit-get-push-branch)))
-      (if (magit-rev-verify branch)
-          (concat branch "\n")
-        (concat branch ", creating it\n"))
-    (and (magit--push-current-set-pushremote-p)
-         (concat (propertize
-                  (if (eq magit-remote-set-if-missing 'default)
-                      "pushDefault"
-                    "pushRemote")
-                  'face 'bold)
-                 ", after setting that\n"))))
-
 ;;;###autoload
 (defun magit-push-current-to-upstream (args &optional set)
   "Push the current branch to its upstream branch.
@@ -127,15 +114,6 @@ upstream can be changed before pushed to it."
             (magit-git-push branch target args)
           (user-error "No upstream is configured for %s" branch)))
     (user-error "No branch is checked out")))
-
-(defun magit--push-current-to-upstream-desc ()
-  (if-let ((branch (magit-get-upstream-branch)))
-      (if (magit-rev-verify branch)
-          (concat branch "\n")
-        (concat branch ", creating it\n"))
-    (and (magit--push-current-set-upstream-p)
-         (concat (propertize "@{upstream}" 'face 'bold)
-                 ", after setting that\n"))))
 
 ;;;###autoload
 (defun magit-push-current (target args)
