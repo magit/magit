@@ -73,8 +73,7 @@
 
 ;;;###autoload
 (defun magit-push-current-to-pushremote (args &optional set)
-  "Push the current branch to `branch.<name>.pushRemote'.
-If that variable is unset, then push to `remote.pushDefault'.
+  "Push the current branch to its push-remote.
 
 When `magit-remote-set-if-missing' is non-nil and
 the push-remote is not configured, then read the push-remote from
