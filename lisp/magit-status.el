@@ -465,7 +465,9 @@ detached `HEAD'."
         (magit-insert-section (commit commit)
           (insert (format "%-10s" "Head: "))
           (insert (propertize commit 'face 'magit-hash))
-          (insert ?\s summary ?\n))))))
+          (insert ?\s)
+          (insert (funcall magit-log-format-message-function nil summary))
+          (insert ?\n))))))
 
 (cl-defun magit-insert-upstream-branch-header
     (&optional (branch (magit-get-current-branch))
@@ -490,8 +492,9 @@ detached `HEAD'."
         (insert pull " ")
         (if (magit-rev-verify pull)
             (insert (funcall magit-log-format-message-function pull
-                             (or (magit-rev-format "%s" pull)
-                                 "(no commit message)")))
+                             (funcall magit-log-format-message-function nil
+                                      (or (magit-rev-format "%s" pull)
+                                          "(no commit message)"))))
           (insert (propertize "is missing" 'face 'font-lock-warning-face))))
       (insert ?\n))))
 
@@ -508,8 +511,9 @@ detached `HEAD'."
       (insert (propertize push 'face 'magit-branch-remote) ?\s)
       (if (magit-rev-verify push)
           (insert (funcall magit-log-format-message-function push
-                           (or (magit-rev-format "%s" push)
-                               "(no commit message)")))
+                           (funcall magit-log-format-message-function nil
+                                    (or (magit-rev-format "%s" push)
+                                        "(no commit message)"))))
         (insert (propertize "is missing" 'face 'font-lock-warning-face)))
       (insert ?\n))))
 
