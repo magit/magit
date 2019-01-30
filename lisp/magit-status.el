@@ -451,6 +451,8 @@ detached `HEAD'."
   (let ((output (magit-rev-format "%h %s" (or branch "HEAD"))))
     (string-match "^\\([^ ]+\\) \\(.*\\)" output)
     (magit-bind-match-strings (commit summary) output
+      (when (equal summary "")
+        (setq summary "(no commit message)"))
       (if branch
           (magit-insert-section (branch branch)
             (insert (format "%-10s" "Head: "))
@@ -486,9 +488,10 @@ detached `HEAD'."
           (pcase-let ((`(,url ,branch) (split-string pull " ")))
             (insert branch " from " url " "))
         (insert pull " ")
-        (--if-let (and (magit-rev-verify pull)
-                       (magit-rev-format "%s" pull))
-            (insert (funcall magit-log-format-message-function pull it))
+        (if (magit-rev-verify pull)
+            (insert (funcall magit-log-format-message-function pull
+                             (or (magit-rev-format "%s" pull)
+                                 "(no commit message)")))
           (insert (propertize "is missing" 'face 'font-lock-warning-face))))
       (insert ?\n))))
 
@@ -503,9 +506,10 @@ detached `HEAD'."
                        (magit-rev-format "%h" push))
         (insert (propertize it 'face 'magit-hash) ?\s))
       (insert (propertize push 'face 'magit-branch-remote) ?\s)
-      (--if-let (and (magit-rev-verify push)
-                     (magit-rev-format "%s" push))
-          (insert (funcall magit-log-format-message-function push it))
+      (if (magit-rev-verify push)
+          (insert (funcall magit-log-format-message-function push
+                           (or (magit-rev-format "%s" push)
+                               "(no commit message)")))
         (insert (propertize "is missing" 'face 'font-lock-warning-face)))
       (insert ?\n))))
 
