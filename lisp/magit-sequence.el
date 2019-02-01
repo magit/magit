@@ -130,7 +130,7 @@ This discards all changes made since the sequence started."
   ["Arguments"
    :if-not magit-sequencer-in-progress-p
    ("-F" "Attempt fast-forward"               "--ff")
-   ("=m" "Replay merge relative to parent"    "--mainline=")
+   (magit-cherry-pick:--mainline)
    ("=s" magit-merge:--strategy)
    ("-e" "Edit commit messages"               ("-e" "--edit"))
    ("-x" "Reference cherry in commit message" "-x")
@@ -149,6 +149,14 @@ This discards all changes made since the sequence started."
    ("A" "Continue" magit-sequencer-continue)
    ("s" "Skip"     magit-sequencer-skip)
    ("a" "Abort"    magit-sequencer-abort)])
+
+(define-infix-argument magit-cherry-pick:--mainline ()
+  :description "Replay merge relative to parent"
+  :class 'transient-option
+  :key "=m"
+  :shortarg "-m"
+  :argument "--mainline="
+  :reader 'transient-read-natural-number-N+)
 
 (defun magit-cherry-pick-read-args (prompt)
   (list (or (nreverse (magit-region-values 'commit))
@@ -339,7 +347,7 @@ the process manually."
   :value '("--edit")
   ["Arguments"
    :if-not magit-sequencer-in-progress-p
-   ("=m" "Replay merge relative to parent" "--mainline=")
+   (magit-cherry-pick:--mainline)
    ("-e" "Edit commit message"       ("-e" "--edit"))
    ("-E" "Don't edit commit message" "--no-edit")
    ("=s" magit-merge:--strategy)
