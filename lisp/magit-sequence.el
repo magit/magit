@@ -400,7 +400,7 @@ without prompting."
   ["Arguments"
    :if-not magit-am-in-progress-p
    ("-3" "Fall back on 3way merge"           ("-3" "--3way"))
-   ("=p" "Remove leading slashes from paths" "-p" magit-read-number-string)
+   (magit-apply:-p)
    ("-c" "Remove text before scissors line"  ("-c" "--scissors"))
    ("-k" "Inhibit removal of email cruft"    ("-k" "--keep"))
    ("-b" "Limit removal of email cruft"      "--keep-non-patch")
@@ -420,6 +420,13 @@ without prompting."
 
 (defun magit-am-arguments ()
   (transient-args 'magit-am))
+
+(define-infix-argument magit-apply:-p ()
+  :description "Remove leading slashes from paths"
+  :class 'transient-option
+  :key "=p"
+  :argument "-p"
+  :reader 'transient-read-number-N+)
 
 ;;;###autoload
 (defun magit-am-apply-patches (&optional files args)
