@@ -40,9 +40,9 @@
   "Import subtrees."
   :man-page "git-subtree"
   ["Arguments"
-   ("=p" "Prefix"     "--prefix=" magit-subtree-read-prefix)
-   ("=m" "Message"    "--message=")
-   ("-s" "Squash"     "--squash")]
+   (magit-subtree:--prefix)
+   (magit-subtree:--message)
+   ("-s" "Squash" "--squash")]
   ["Actions"
    [("a" "Add"        magit-subtree-add)
     ("c" "Add commit" magit-subtree-add-commit)]
@@ -54,15 +54,23 @@
   "Export subtrees."
   :man-page "git-subtree"
   ["Arguments"
-   ("=p" "Prefix"       "--prefix=" magit-subtree-read-prefix)
-   ("=a" "Annotate"     "--annotate=")
-   ("=b" "Branch"       "--branch=")
-   ("=o" "Onto"         "--onto=" magit-transient-read-revision)
+   (magit-subtree:--prefix)
+   (magit-subtree:--annotate)
+   (magit-subtree:--branch)
+   (magit-subtree:--onto)
    ("-i" "Ignore joins" "--ignore-joins")
    ("-j" "Rejoin"       "--rejoin")]
   ["Actions"
    ("p" "Push"          magit-subtree-push)
    ("s" "Split"         magit-subtree-split)])
+
+(define-infix-argument magit-subtree:--prefix ()
+  :description "Prefix"
+  :class 'transient-option
+  :key "=p"
+  :shortarg "-P"
+  :argument "--prefix="
+  :reader 'magit-subtree-read-prefix)
 
 (defun magit-subtree-read-prefix (prompt &optional default _history)
   (let* ((insert-default-directory nil)
@@ -74,6 +82,33 @@
             (file-relative-name prefix topdir)
           (user-error "%s isn't inside the repository at %s" prefix topdir))
       prefix)))
+
+(define-infix-argument magit-subtree:--message ()
+  :description "Message"
+  :class 'transient-option
+  :key "=m"
+  :shortarg "-m"
+  :argument "--message=")
+
+(define-infix-argument magit-subtree:--annotate ()
+  :description "Annotate"
+  :class 'transient-option
+  :key "=a"
+  :argument "--annotate=")
+
+(define-infix-argument magit-subtree:--branch ()
+  :description "Branch"
+  :class 'transient-option
+  :key "=b"
+  :shortarg "-b"
+  :argument "--branch=")
+
+(define-infix-argument magit-subtree:--onto ()
+  :description "Onto"
+  :class 'transient-option
+  :key "=o"
+  :argument "--onto="
+  :reader 'magit-transient-read-revision)
 
 (defun magit-subtree-prefix (prompt)
   (--if-let (--first (string-prefix-p "--prefix=" it)
