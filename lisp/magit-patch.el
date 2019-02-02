@@ -88,7 +88,7 @@ which creates patches for all commits that are reachable from
              (if (string-match-p "\\.\\." range)
                  range
                (format "%s~..%s" range range))))
-         (magit-popup-export-file-args (magit-patch-arguments))))
+         (magit--export-file-args (magit-patch-arguments))))
   (magit-run-git "format-patch" range args "--" files)
   (when (member "--cover-letter" args)
     (find-file

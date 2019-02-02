@@ -1201,6 +1201,20 @@ Like `message', except that `message-log-max' is bound to nil."
   (let ((message-log-max nil))
     (apply #'message format-string args)))
 
+;;; Popup Utilities
+
+(defun magit--import-file-args (args files)
+  (if files
+      (cons (concat "-- " (mapconcat #'identity files ",")) args)
+    args))
+
+(defun magit--export-file-args (args)
+  (let ((files (--first (string-prefix-p "-- " it) args)))
+    (when files
+      (setq args  (remove files args))
+      (setq files (split-string (substring files 3) ",")))
+    (list args files)))
+
 ;;; _
 (provide 'magit-utils)
 ;;; magit-utils.el ends here

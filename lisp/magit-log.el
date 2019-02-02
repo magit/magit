@@ -486,7 +486,7 @@ header."
 (defun magit-log-arguments (&optional refresh)
   (cond ((memq magit-current-popup
                '(magit-log-popup magit-log-refresh-popup))
-         (magit-popup-export-file-args magit-current-popup-args))
+         (magit--export-file-args magit-current-popup-args))
         ((and refresh (not (derived-mode-p 'magit-log-mode)))
          (list magit-log-section-arguments nil))
         (t
@@ -501,7 +501,7 @@ header."
            (`magit-log-mode magit-log-mode-refresh-popup)
            (_               magit-log-refresh-popup)))
         (magit-log-arguments
-         (apply #'magit-popup-import-file-args (magit-log-get-buffer-args))))
+         (apply #'magit--import-file-args (magit-log-get-buffer-args))))
     (magit-invoke-popup 'magit-log-popup nil arg)))
 
 ;;;###autoload
@@ -514,7 +514,7 @@ buffer."
   (interactive)
   (if-let ((file (magit-file-relative-name)))
       (let ((magit-log-arguments
-             (magit-popup-import-file-args
+             (magit--import-file-args
               (if-let ((buffer (magit-mode-get-buffer 'magit-log-mode)))
                   (with-current-buffer buffer
                     (nth 2 magit-refresh-args))
@@ -541,8 +541,8 @@ buffer."
          (cond ((derived-mode-p 'magit-log-select-mode)
                 (cadr magit-refresh-args))
                ((derived-mode-p 'magit-log-mode)
-                (magit-popup-import-file-args (nth 1 magit-refresh-args)
-                                              (nth 2 magit-refresh-args)))
+                (magit--import-file-args (nth 1 magit-refresh-args)
+                                         (nth 2 magit-refresh-args)))
                (t
                 magit-log-section-arguments))))
     (magit-invoke-popup 'magit-log-refresh-popup nil arg)))
