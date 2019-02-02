@@ -413,8 +413,8 @@ With a prefix argument use a transient command to select infix
 arguments.  This command requires the git-autofixup script, which
 is available from https://github.com/torbiak/git-autofixup."
   ["Arguments"
-   ("-c" "Diff context lines" ("-c" "--context="))
-   ("-s" "Strictness"         ("-s" "--strict="))]
+   (magit-autofixup:--context)
+   (magit-autofixup:--strict)]
   ["Actions"
    ("x"  "Absorb" magit-commit-absorb)]
   (interactive (if current-prefix-arg
@@ -439,6 +439,20 @@ is available from https://github.com/torbiak/git-autofixup."
         (lambda (commit)
           (magit-commit-absorb 'run commit args))
         nil nil nil nil commit))))
+
+(define-infix-argument magit-autofixup:--context ()
+  :description "Diff context lines"
+  :class 'transient-option
+  :shortarg "-c"
+  :argument "--context="
+  :reader 'transient-read-number-N0)
+
+(define-infix-argument magit-autofixup:--strict ()
+  :description "Strictness"
+  :class 'transient-option
+  :shortarg "-s"
+  :argument "--strict="
+  :reader 'transient-read-number-N0)
 
 ;;; Pending Diff
 
