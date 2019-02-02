@@ -1326,7 +1326,7 @@ The amount of time spent searching is limited by
   (unless branch
     (setq branch (magit-get-current-branch)))
   (and branch
-       (let ((remote (magit-get "branch" branch "remote")))
+       (when-let ((remote (magit-get "branch" branch "remote")))
          (and (not (and non-local (equal remote ".")))
               (propertize remote 'face 'magit-branch-remote)))))
 
