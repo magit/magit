@@ -327,14 +327,14 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   "List and compare references in a dedicated buffer."
   :man-page "git-branch"
   ["Arguments"
-   ("=c" "Contains"             "--contains=" magit-transient-read-revision)
+   (magit-for-each-ref:--contains)
    ("=m" "Merged"               "--merged=" magit-transient-read-revision)
    ("-m" "Merged to HEAD"       "--merged")
    ("-M" "Merged to master"     "--merged=master")
    ("=n" "Not merged"           "--no-merged=" magit-transient-read-revision)
    ("-n" "Not merged to HEAD"   "--no-merged")
    ("-N" "Not merged to master" "--no-merged=master")
-   ("=s" "Sort"                 "--sort=" magit-read-ref-sort)]
+   (magit-for-each-ref:--sort)]
   ["Actions"
    ("y" "Show refs, comparing them with HEAD"           magit-show-refs-head)
    ("c" "Show refs, comparing them with current branch" magit-show-refs-current)
@@ -344,6 +344,20 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (if transient
       (transient-setup 'magit-show-refs)
     (call-interactively 'magit-show-refs-head)))
+
+(define-infix-argument magit-for-each-ref:--contains ()
+  :description "Contains"
+  :class 'transient-option
+  :key "=c"
+  :argument "--contains="
+  :reader 'magit-transient-read-revision)
+
+(define-infix-argument magit-for-each-ref:--sort ()
+  :description "Sort"
+  :class 'transient-option
+  :key "=s"
+  :argument "--sort="
+  :reader 'magit-read-ref-sort)
 
 (defun magit-read-ref-sort (prompt initial-input _history)
   (magit-completing-read prompt
