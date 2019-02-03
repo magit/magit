@@ -66,15 +66,15 @@ which creates patches for all commits that are reachable from
 `HEAD' but not from the specified commit)."
   :man-page "git-format-patch"
   ["Mail arguments"
-   ("=r" "In reply to"      "--in-reply-to=")
-   ("=s" "Thread style"     "--thread=")
-   ("=v" "Reroll count"     "--reroll-count=")
-   ("=P" "Subject Prefix"   "--subject-prefix=")
+   (magit-format-patch:--in-reply-to)
+   (magit-format-patch:--thread)
+   (magit-format-patch:--reroll-count)
+   (magit-format-patch:--subject-prefix)
    ("-l" "Add cover letter" "--cover-letter")
-   ("=f" "From"             "--from=")
-   ("=t" "To"               "--to=")
-   ("=c" "CC"               "--cc=")
-   ("=o" "Output directory" "--output-directory=")]
+   (magit-format-patch:--from)
+   (magit-format-patch:--to)
+   (magit-format-patch:--cc)
+   (magit-format-patch:--output-directory)]
   ["Diff arguments"
    ("=U" magit-diff:-U)
    ("=M" magit-diff:-M)
@@ -108,6 +108,61 @@ which creates patches for all commits that are reachable from
                            (expand-file-name (match-string 1 it) topdir))
                       args)
               topdir)))))))
+
+(define-infix-argument magit-format-patch:--in-reply-to ()
+  :description "In reply to"
+  :class 'transient-option
+  :key "=r"
+  :argument "--in-reply-to=")
+
+(define-infix-argument magit-format-patch:--thread ()
+  :description "Thread style"
+  :class 'transient-option
+  :key "=s"
+  :argument "--thread=")
+
+(define-infix-argument magit-format-patch:--reroll-count ()
+  :description "Reroll count"
+  :class 'transient-option
+  :key "=v"
+  :shortarg "-v"
+  :argument "--reroll-count="
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-format-patch:--subject-prefix ()
+  :description "Subject Prefix"
+  :class 'transient-option
+  :key "=P"
+  :argument "--subject-prefix=")
+
+(define-infix-argument magit-format-patch:--from ()
+  :description "From"
+  :class 'transient-option
+  :key "=f"
+  :argument "--from="
+  :reader 'magit-transient-read-person)
+
+(define-infix-argument magit-format-patch:--to ()
+  :description "To"
+  :class 'transient-option
+  :key "=t"
+  :argument "--to="
+  :reader 'magit-transient-read-person)
+
+(define-infix-argument magit-format-patch:--cc ()
+  :description "CC"
+  :class 'transient-option
+  :key "=c"
+  :argument "--cc="
+  :reader 'magit-transient-read-person)
+
+(define-infix-argument magit-format-patch:--output-directory ()
+  :description "Output directory"
+  :class 'transient-option
+  :key "=o"
+  :shortarg "-o"
+  :argument "--output-directory="
+  :reader 'transient-read-existing-directory)
 
 ;;;###autoload (autoload 'magit-patch-apply "magit-patch" nil t)
 (define-transient-command magit-patch-apply (file &rest args)
