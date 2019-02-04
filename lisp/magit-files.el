@@ -247,7 +247,11 @@ directory, while reading the FILENAME."
     ("m" "Blame echo" magit-blame-echo)
     ("q" "Quit blame" magit-blame-quit)]
    [("p" "Prev blob"  magit-blob-previous)
-    ("n" "Next blob"  magit-blob-next)]])
+    ("n" "Next blob"  magit-blob-next)]
+   [(5 "C-c r" "Rename file"   magit-file-rename)
+    (5 "C-c d" "Delete file"   magit-file-delete)
+    (5 "C-c u" "Untrack file"  magit-file-untrack)
+    (5 "C-c c" "Checkout file" magit-file-checkout)]])
 
 (defvar magit-file-mode-lighter "")
 
