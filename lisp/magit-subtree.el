@@ -67,7 +67,6 @@
 (define-infix-argument magit-subtree:--prefix ()
   :description "Prefix"
   :class 'transient-option
-  :key "=p"
   :shortarg "-P"
   :argument "--prefix="
   :reader 'magit-subtree-read-prefix)
@@ -86,7 +85,6 @@
 (define-infix-argument magit-subtree:--message ()
   :description "Message"
   :class 'transient-option
-  :key "=m"
   :shortarg "-m"
   :argument "--message=")
 
@@ -99,7 +97,6 @@
 (define-infix-argument magit-subtree:--branch ()
   :description "Branch"
   :class 'transient-option
-  :key "=b"
   :shortarg "-b"
   :argument "--branch=")
 
