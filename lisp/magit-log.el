@@ -382,10 +382,14 @@ the upstream isn't ahead of the current branch) show."
   ["Commit limiting"
    (magit-log:-n)
    (magit:--author)
+   (7 "=s" "Limit to commits since" "--since=" transient-read-date)
+   (7 "=u" "Limit to commits until" "--until=" transient-read-date)
    (magit-log:--grep)
    (magit-log:-G)     ;2
    (magit-log:-S)     ;2
-   (magit-log:-L)]    ;2
+   (magit-log:-L)     ;2
+   (7 "=m" "Omit merges"            "--no-merges")
+   (7 "=p" "First parent"           "--first-parent")]
   ["History simplification"
    (magit:--)
    ("-f" "Follow renames when showing single-file log" "--follow") ;3
