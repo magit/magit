@@ -789,21 +789,18 @@ and `:slant'."
 (define-infix-argument magit-diff:-U ()
   :description "Context lines"
   :class 'transient-option
-  :key "=u"
   :argument "-U"
   :reader 'transient-read-number-N+)
 
 (define-infix-argument magit-diff:-M ()
   :description "Detect renames"
   :class 'transient-option
-  :key "=m"
   :argument "-M"
   :reader 'transient-read-number-N+)
 
 (define-infix-argument magit-diff:-C ()
   :description "Detect copies"
   :class 'transient-option
-  :key "=c"
   :argument "-C"
   :reader 'transient-read-number-N+)
 

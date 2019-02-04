@@ -76,9 +76,9 @@ which creates patches for all commits that are reachable from
    (magit-format-patch:--cc)
    (magit-format-patch:--output-directory)]
   ["Diff arguments"
-   ("=U" magit-diff:-U)
-   ("=M" magit-diff:-M)
-   ("=C" magit-diff:-C)
+   (magit-diff:-U)
+   (magit-diff:-M)
+   (magit-diff:-C)
    ("=A" magit-diff:--diff-algorithm)
    (magit:--)]
   ["Actions"
