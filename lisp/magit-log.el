@@ -513,7 +513,6 @@ the upstream isn't ahead of the current branch) show."
 (define-infix-argument magit-log:-n ()
   :description "Limit number of commits"
   :class 'transient-option
-  :key "=n"
   ;; For historic reasons (and because it easy to guess what "-n"
   ;; stands for) this is the only argument where we do not use the
   ;; long argument ("--max-count").  If we did switch to the long
