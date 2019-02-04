@@ -107,7 +107,7 @@ Also see `git-commit-post-finish-hook'."
    ("-a" "Stage all modified and deleted files"   ("-a" "--all"))
    ("-e" "Allow empty commit"                     "--allow-empty")
    ("-v" "Show diff of changes to be committed"   ("-v" "--verbose"))
-   ("-h" "Disable hooks"                          ("-n" "--no-verify"))
+   ("-n" "Disable hooks"                          ("-n" "--no-verify"))
    ("-R" "Claim authorship and reset author date" "--reset-author")
    (magit:--author :description "Override the author")
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
