@@ -153,7 +153,6 @@ This discards all changes made since the sequence started."
 (define-infix-argument magit-cherry-pick:--mainline ()
   :description "Replay merge relative to parent"
   :class 'transient-option
-  :key "=m"
   :shortarg "-m"
   :argument "--mainline="
   :reader 'transient-read-natural-number-N+)
