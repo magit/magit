@@ -125,7 +125,7 @@ Also see `git-commit-post-finish-hook'."
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
     ("A" "Augment"        magit-commit-augment)
-    ]
+    (6 "x" "Absorb changes" magit-commit-absorb)]
    [""
     ("F" "Instant fixup"  magit-commit-instant-fixup)
     ("S" "Instant squash" magit-commit-instant-squash)]]
