@@ -42,7 +42,7 @@
    ("-f" "Force with lease" (nil "--force-with-lease"))
    ("-F" "Force"            ("-f" "--force"))
    ("-h" "Disable hooks"    "--no-verify")
-   ("-d" "Dry run"          ("-n" "--dry-run"))
+   ("-n" "Dry run"          ("-n" "--dry-run"))
    ("-u" "Set upstream"     "--set-upstream"
     :if-nil magit-remote-set-if-missing)]
   [:if magit-get-current-branch
