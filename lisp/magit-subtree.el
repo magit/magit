@@ -91,7 +91,7 @@
 (define-infix-argument magit-subtree:--annotate ()
   :description "Annotate"
   :class 'transient-option
-  :key "=a"
+  :key "-a"
   :argument "--annotate=")
 
 (define-infix-argument magit-subtree:--branch ()
@@ -103,7 +103,7 @@
 (define-infix-argument magit-subtree:--onto ()
   :description "Onto"
   :class 'transient-option
-  :key "=o"
+  :key "-o"
   :argument "--onto="
   :reader 'magit-transient-read-revision)
 
