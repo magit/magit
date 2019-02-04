@@ -46,7 +46,7 @@
    ("-n" "Dry run" ("-n" "--dry-run"))]
   ["Arguments for edit and remove"
    :if-not magit-notes-merging-p
-   ("=r" "Manipulate ref" "--ref=" magit-notes-read-ref)]
+   (magit-notes:--ref)]
   ["Arguments for merge"
    :if-not magit-notes-merging-p
    (magit-notes:--strategy)]
@@ -91,6 +91,13 @@
   :multi-value t
   :reader 'magit-notes-read-refs
   :prompt "Set global notes.displayRef")
+
+(define-infix-argument magit-notes:--ref ()
+  :description "Merge strategy"
+  :class 'transient-option
+  :key "=r"
+  :argument "--ref="
+  :reader 'magit-notes-read-ref)
 
 (define-infix-argument magit-notes:--strategy ()
   :description "Merge strategy"
