@@ -399,7 +399,7 @@ the upstream isn't ahead of the current branch) show."
    ("-d" "Show refnames"       "--decorate")       ;3
    ("=S" "Show signatures"     "--show-signature") ;1
    ("-h" "Show header"         "++header")         ;4
-   ("-u" "Show diffs"          ("-u" "--patch"))   ;2
+   ("-p" "Show diffs"          ("-p" "--patch"))   ;2
    ("-s" "Show diffstats"      "--stat")]          ;2
   [["Log"
     ("l" "current"        magit-log-current)
@@ -444,7 +444,7 @@ the upstream isn't ahead of the current branch) show."
     ("-d" "Show refnames"           "--decorate")
     ("=S" "Show signatures"         "--show-signature")
     ("-h" "Show header"             "++header")
-    ("-u" "Show diffs"              ("-u" "--patch"))
+    ("-p" "Show diffs"              ("-p" "--patch"))
     ("-s" "Show diffstats"          "--stat")]]
   [:if-not-mode magit-log-mode
    :description "Arguments"
