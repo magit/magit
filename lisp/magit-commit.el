@@ -112,7 +112,7 @@ Also see `git-commit-post-finish-hook'."
    (magit:--author :description "Override the author")
    (7 "-D" "Override the author date" "--date=" transient-read-date)
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
-   (magit:--gpg-sign)
+   (5 magit:--gpg-sign)
    (magit-commit:--reuse-message)]
   [["Create"
     ("c" "Commit"         magit-commit-create)]

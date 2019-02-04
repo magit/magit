@@ -351,7 +351,7 @@ the process manually."
    ("-E" "Don't edit commit message" "--no-edit")
    ("=s" magit-merge:--strategy)
    ("-s" "Add Signed-off-by lines"   ("-s" "--signoff"))
-   (magit:--gpg-sign)]
+   (5 magit:--gpg-sign)]
   ["Actions"
    :if-not magit-sequencer-in-progress-p
    ("V" "Revert commit(s)" magit-revert-and-commit)
