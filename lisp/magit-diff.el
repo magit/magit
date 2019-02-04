@@ -775,7 +775,7 @@ and `:slant'."
 (define-infix-argument magit:-- ()
   :description "Limit to files"
   :class 'transient-files
-  :key "=f"
+  :key "--"
   :argument "--"
   :prompt "Limit to file(s): "
   :reader 'magit-read-files
