@@ -95,7 +95,7 @@
 (define-infix-argument magit-notes:--ref ()
   :description "Merge strategy"
   :class 'transient-option
-  :key "=r"
+  :key "-r"
   :argument "--ref="
   :reader 'magit-notes-read-ref)
 
