@@ -397,7 +397,7 @@ the upstream isn't ahead of the current branch) show."
    ("-g" "Show graph"          "--graph")          ;1
    ("-c" "Show graph in color" "--color")          ;2
    ("-d" "Show refnames"       "--decorate")       ;3
-   ("-S" "Show signatures"     "--show-signature") ;1
+   ("=S" "Show signatures"     "--show-signature") ;1
    ("-h" "Show header"         "++header")         ;4
    ("-u" "Show diffs"          ("-u" "--patch"))   ;2
    ("-s" "Show diffstats"      "--stat")]          ;2
@@ -442,7 +442,7 @@ the upstream isn't ahead of the current branch) show."
     ("-g" "Show graph"              "--graph")
     ("-c" "Show graph in color"     "--color")
     ("-d" "Show refnames"           "--decorate")
-    ("-S" "Show signatures"         "--show-signature")
+    ("=S" "Show signatures"         "--show-signature")
     ("-h" "Show header"             "++header")
     ("-u" "Show diffs"              ("-u" "--patch"))
     ("-s" "Show diffstats"          "--stat")]]
@@ -547,19 +547,16 @@ the upstream isn't ahead of the current branch) show."
 (define-infix-argument magit-log:-G ()
   :description "Search changes"
   :class 'transient-option
-  :key "=G"
   :argument "-G")
 
 (define-infix-argument magit-log:-S ()
   :description "Search occurrences"
   :class 'transient-option
-  :key "=S"
   :argument "-S")
 
 (define-infix-argument magit-log:-L ()
   :description "Trace line evolution"
   :class 'transient-option
-  :key "=L"
   :argument "-L"
   :reader 'magit-read-file-trace)
 
