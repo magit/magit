@@ -109,7 +109,7 @@ Also see `git-commit-post-finish-hook'."
    ("-v" "Show diff of changes to be committed"   ("-v" "--verbose"))
    ("-h" "Disable hooks"                          ("-n" "--no-verify"))
    ("-R" "Claim authorship and reset author date" "--reset-author")
-   ("=A" "Override the author" magit:--author)
+   (magit:--author :description "Override the author")
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
    (magit:--gpg-sign)
    (magit-commit:--reuse-message)]

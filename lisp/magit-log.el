@@ -525,7 +525,7 @@ the upstream isn't ahead of the current branch) show."
 (define-infix-argument magit:--author ()
   :description "Limit to author"
   :class 'transient-option
-  :key "=a"
+  :key "-A"
   :argument "--author="
   :reader 'magit-transient-read-person)
 
