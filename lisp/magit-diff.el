@@ -668,7 +668,7 @@ and `:slant'."
    ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))]
   ["Context arguments"
    (magit-diff:-U)
-   ("-f" "Show surrounding functions"     ("-W" "--function-context"))]
+   ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
   ["Tune arguments"
    (magit-diff:--diff-algorithm)
    (magit-diff:-M)
@@ -696,7 +696,7 @@ and `:slant'."
    ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))]
   ["Context arguments"
    (magit-diff:-U)
-   ("-f" "Show surrounding functions"     ("-W" "--function-context"))]
+   ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
   ["Tune arguments"
    (magit-diff:--diff-algorithm)
    (magit-diff:-M)
