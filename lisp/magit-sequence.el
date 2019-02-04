@@ -423,7 +423,6 @@ without prompting."
 (define-infix-argument magit-apply:-p ()
   :description "Remove leading slashes from paths"
   :class 'transient-option
-  :key "=p"
   :argument "-p"
   :reader 'transient-read-number-N+)
 
