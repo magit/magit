@@ -79,7 +79,7 @@ which creates patches for all commits that are reachable from
    (magit-diff:-U)
    (magit-diff:-M)
    (magit-diff:-C)
-   ("=A" magit-diff:--diff-algorithm)
+   (magit-diff:--diff-algorithm)
    (magit:--)]
   ["Actions"
    ("c" "Create patches" magit-patch-create)]

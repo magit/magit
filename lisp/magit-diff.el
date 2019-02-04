@@ -807,7 +807,7 @@ and `:slant'."
 (define-infix-argument magit-diff:--diff-algorithm ()
   :description "Diff algorithm"
   :class 'transient-option
-  :key "=a"
+  :key "-A"
   :argument "--diff-algorithm="
   :reader 'magit-diff-select-algorithm)
 
