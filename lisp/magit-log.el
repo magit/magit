@@ -532,7 +532,7 @@ the upstream isn't ahead of the current branch) show."
 (define-infix-argument magit-log:--*-order ()
   :description "Order commits by"
   :class 'transient-switches
-  :key "=o"
+  :key "-o"
   :argument-format "--%s-order"
   :argument-regexp "\\(--\\(topo\\|author-date\\|date\\)-order\\)"
   :choices '("topo" "author-date" "date"))
@@ -540,7 +540,7 @@ the upstream isn't ahead of the current branch) show."
 (define-infix-argument magit-log:--grep ()
   :description "Search messages"
   :class 'transient-option
-  :key "=g"
+  :key "-F"
   :argument "--grep=")
 
 (define-infix-argument magit-log:-G ()
