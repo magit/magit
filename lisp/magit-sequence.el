@@ -134,7 +134,8 @@ This discards all changes made since the sequence started."
    ("=s" magit-merge:--strategy)
    ("-e" "Edit commit messages"               ("-e" "--edit"))
    ("-x" "Reference cherry in commit message" "-x")
-   ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))]
+   ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))
+   (5 magit:--gpg-sign)]
   [:if-not magit-sequencer-in-progress-p
    ["Apply here"
     ("A" "Pick"    magit-cherry-copy)
@@ -405,7 +406,8 @@ without prompting."
    ("-b" "Limit removal of email cruft"      "--keep-non-patch")
    ("-d" "Use author date as committer date" "--committer-date-is-author-date")
    ("-D" "Use committer date as author date" "--ignore-date")
-   ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))]
+   ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))
+   (5 magit:--gpg-sign)]
   ["Apply"
    :if-not magit-am-in-progress-p
    ("m" "maildir"     magit-am-apply-maildir)
@@ -494,7 +496,8 @@ This discards all changes made since the sequence started."
    ("-a" "Autosquash"               "--autosquash")
    ("-A" "Autostash"                "--autostash")
    ("-i" "Interactive"              ("-i" "--interactive"))
-   ("-h" "Disable hooks"            "--no-verify")]
+   ("-h" "Disable hooks"            "--no-verify")
+   (5 magit:--gpg-sign)]
   [:if-not magit-rebase-in-progress-p
    :description (lambda ()
                   (format (propertize "Rebase %s onto" 'face 'transient-heading)
