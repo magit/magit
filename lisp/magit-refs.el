@@ -348,14 +348,14 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (define-infix-argument magit-for-each-ref:--contains ()
   :description "Contains"
   :class 'transient-option
-  :key "=c"
+  :key "-c"
   :argument "--contains="
   :reader 'magit-transient-read-revision)
 
 (define-infix-argument magit-for-each-ref:--sort ()
   :description "Sort"
   :class 'transient-option
-  :key "=s"
+  :key "-s"
   :argument "--sort="
   :reader 'magit-read-ref-sort)
 
