@@ -51,7 +51,6 @@
 (define-infix-argument magit-tag:--local-user ()
   :description "Sign as"
   :class 'transient-option
-  :key "=f"
   :shortarg "-u"
   :argument "--local-user="
   :reader 'magit-read-gpg-secret-key
