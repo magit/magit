@@ -110,6 +110,7 @@ Also see `git-commit-post-finish-hook'."
    ("-n" "Disable hooks"                          ("-n" "--no-verify"))
    ("-R" "Claim authorship and reset author date" "--reset-author")
    (magit:--author :description "Override the author")
+   (7 "-D" "Override the author date" "--date=" transient-read-date)
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
    (magit:--gpg-sign)
    (magit-commit:--reuse-message)]
