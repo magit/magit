@@ -164,7 +164,6 @@ Also see `git-commit-post-finish-hook'."
 (define-infix-argument magit-commit:--reuse-message ()
   :description "Reuse commit message"
   :class 'transient-option
-  :arg "=C"
   :shortarg "-C"
   :argument "--reuse-message="
   :reader 'magit-read-reuse-message
