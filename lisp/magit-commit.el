@@ -120,7 +120,7 @@ Also see `git-commit-post-finish-hook'."
     ("e" "Extend"         magit-commit-extend)
     ("w" "Reword"         magit-commit-reword)
     ("a" "Amend"          magit-commit-amend)
-    ]
+    (6 "n" "Reshelve"     magit-commit-reshelve)]
    ["Edit"
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
