@@ -44,7 +44,8 @@
    ("-h" "Disable hooks"    "--no-verify")
    ("-n" "Dry run"          ("-n" "--dry-run"))
    ("-u" "Set upstream"     "--set-upstream"
-    :if-nil magit-remote-set-if-missing)]
+    :if-nil magit-remote-set-if-missing)
+   (7 "=t" "Follow tags" "--follow-tags")]
   [:if magit-get-current-branch
    :description (lambda ()
                   (format (propertize "Push %s to" 'face 'transient-heading)
