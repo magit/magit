@@ -139,7 +139,6 @@ Also see `git-commit-post-finish-hook'."
 (define-infix-argument magit:--gpg-sign ()
   :description "Sign using gpg"
   :class 'transient-option
-  :key "=S"
   :shortarg "-S"
   :argument "--gpg-sign="
   :allow-empty t
