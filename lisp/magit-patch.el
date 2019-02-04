@@ -70,7 +70,7 @@ which creates patches for all commits that are reachable from
    (magit-format-patch:--thread)
    (magit-format-patch:--reroll-count)
    (magit-format-patch:--subject-prefix)
-   ("-l" "Add cover letter" "--cover-letter")
+   ("C-m l  " "Add cover letter" "--cover-letter")
    (magit-format-patch:--from)
    (magit-format-patch:--to)
    (magit-format-patch:--cc)
@@ -112,19 +112,19 @@ which creates patches for all commits that are reachable from
 (define-infix-argument magit-format-patch:--in-reply-to ()
   :description "In reply to"
   :class 'transient-option
-  :key "=r"
+  :key "C-m r  "
   :argument "--in-reply-to=")
 
 (define-infix-argument magit-format-patch:--thread ()
   :description "Thread style"
   :class 'transient-option
-  :key "=s"
+  :key "C-m s  "
   :argument "--thread=")
 
 (define-infix-argument magit-format-patch:--reroll-count ()
   :description "Reroll count"
   :class 'transient-option
-  :key "=v"
+  :key "C-m v  "
   :shortarg "-v"
   :argument "--reroll-count="
   :reader 'transient-read-number-N+)
@@ -132,34 +132,34 @@ which creates patches for all commits that are reachable from
 (define-infix-argument magit-format-patch:--subject-prefix ()
   :description "Subject Prefix"
   :class 'transient-option
-  :key "=P"
+  :key "C-m p  "
   :argument "--subject-prefix=")
 
 (define-infix-argument magit-format-patch:--from ()
   :description "From"
   :class 'transient-option
-  :key "=f"
+  :key "C-m C-f"
   :argument "--from="
   :reader 'magit-transient-read-person)
 
 (define-infix-argument magit-format-patch:--to ()
   :description "To"
   :class 'transient-option
-  :key "=t"
+  :key "C-m C-t"
   :argument "--to="
   :reader 'magit-transient-read-person)
 
 (define-infix-argument magit-format-patch:--cc ()
   :description "CC"
   :class 'transient-option
-  :key "=c"
+  :key "C-m C-c"
   :argument "--cc="
   :reader 'magit-transient-read-person)
 
 (define-infix-argument magit-format-patch:--output-directory ()
   :description "Output directory"
   :class 'transient-option
-  :key "=o"
+  :key "C-m o  "
   :shortarg "-o"
   :argument "--output-directory="
   :reader 'transient-read-existing-directory)
