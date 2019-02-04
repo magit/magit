@@ -102,7 +102,6 @@
 (define-infix-argument magit-notes:--strategy ()
   :description "Merge strategy"
   :class 'transient-option
-  :key "=s"
   :shortarg "-s"
   :argument "--strategy="
   :choices '("manual" "ours" "theirs" "union" "cat_sort_uniq"))

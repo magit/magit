@@ -66,9 +66,11 @@
 (define-infix-argument magit-merge:--strategy ()
   :description "Strategy"
   :class 'transient-option
-  :key "=s"
+  ;; key for merge: "-s"
+  ;; key for cherry-pick and revert: "=s"
   ;; shortarg for merge: "-s"
   ;; shortarg for cherry-pick and revert: none
+  :key "-s"
   :argument "--strategy="
   :choices '("resolve" "recursive" "octopus" "ours" "subtree"))
 
