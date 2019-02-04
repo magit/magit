@@ -912,14 +912,12 @@ instead of the hash, like `kill-ring-save' would."
 (define-infix-argument magit-blame:-M ()
   :description "Detect lines moved or copied within a file"
   :class 'transient-option
-  :key "=M"
   :argument "-M"
   :reader 'transient-read-number-N+)
 
 (define-infix-argument magit-blame:-C ()
   :description "Detect lines moved or copied between files"
   :class 'transient-option
-  :key "=C"
   :argument "-C"
   :reader 'transient-read-number-N+)
 
