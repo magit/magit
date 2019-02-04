@@ -80,7 +80,9 @@ which creates patches for all commits that are reachable from
    (magit-diff:-M)
    (magit-diff:-C)
    (magit-diff:--diff-algorithm)
-   (magit:--)]
+   (magit:--)
+   (7 "-b" "Ignore whitespace changes" ("-b" "--ignore-space-change"))
+   (7 "-w" "Ignore all whitespace"     ("-w" "--ignore-all-space"))]
   ["Actions"
    ("c" "Create patches" magit-patch-create)]
   (interactive
