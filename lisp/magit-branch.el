@@ -215,12 +215,12 @@ has to be used to view and change branch related variables."
   [["Checkout"
     ("l" "local branch"      magit-branch-checkout)
     ("c" "new branch"        magit-branch-and-checkout)
-    ("w" "new worktree"      magit-worktree-checkout)
+    (5 "w" "new worktree"    magit-worktree-checkout)
     ("b" "dwim"              magit-checkout)]
    ["Create"
     ("s" "new spin-off"      magit-branch-spinoff)
     ("n" "new branch"        magit-branch-create)
-    ("W" "new worktree"      magit-worktree-branch)]
+    (5 "W" "new worktree"    magit-worktree-branch)]
    ["Do"
     ("C" "configure..."      magit-branch-configure)
     ("m" "rename"            magit-branch-rename)
