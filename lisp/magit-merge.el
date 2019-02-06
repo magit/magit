@@ -40,8 +40,9 @@
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
   :man-page "git-merge"
-  :switches '((?f "Fast-forward only" "--ff-only")
-              (?n "No fast-forward"   "--no-ff"))
+  :switches '((?f "Fast-forward only"      "--ff-only")
+              (?n "No fast-forward"        "--no-ff")
+              (?o "Add Signed-off-by line" "--signoff"))
   :options  '((?s "Strategy" "--strategy="))
   :actions  '((?m "Merge"                  magit-merge-plain)
               (?p "Preview merge"          magit-merge-preview)
