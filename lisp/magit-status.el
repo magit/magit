@@ -449,6 +449,8 @@ the status buffer causes this section to disappear again."
 When BRANCH is nil, use the current branch or, if none, the
 detached `HEAD'."
   (let ((output (magit-rev-format "%h %s" (or branch "HEAD"))))
+    (unless output
+      (error "Magit: Failed to get header line"))
     (string-match "^\\([^ ]+\\) \\(.*\\)" output)
     (magit-bind-match-strings (commit summary) output
       (when (equal summary "")
