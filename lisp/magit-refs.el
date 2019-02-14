@@ -274,7 +274,7 @@ the outcome.
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map "\C-y" 'magit-refs-set-show-commit-count)
-    (define-key map "L"    'magit-margin-popup)
+    (define-key map "L"    'magit-margin-settings)
     map)
   "Keymap for `magit-refs-mode'.")
 
@@ -289,9 +289,9 @@ Type \\[magit-section-toggle] to expand or hide the section at point.
 Type \\[magit-visit-thing] or \\[magit-diff-show-or-scroll-up] \
 to visit the commit or branch at point.
 
-Type \\[magit-branch-popup] to see available branch commands.
-Type \\[magit-merge-popup] to merge the branch or commit at point.
-Type \\[magit-cherry-pick-popup] to apply the commit at point.
+Type \\[magit-branch] to see available branch commands.
+Type \\[magit-merge] to merge the branch or commit at point.
+Type \\[magit-cherry-pick] to apply the commit at point.
 Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 \\{magit-refs-mode-map}"
@@ -322,41 +322,54 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   :group 'magit-refs
   :type '(repeat (string :tag "Argument")))
 
-(defvar magit-show-refs-popup
-  (list
-   :variable 'magit-show-refs-arguments
-   :man-page "git-branch"
-   :switches '((?m "Merged to HEAD"            "--merged")
-               (?M "Merged to master"          "--merged=master")
-               (?n "Not merged to HEAD"        "--no-merged")
-               (?N "Not merged to master"      "--no-merged=master"))
-   :options  '((?c "Contains"   "--contains="  magit-read-branch-or-commit)
-               (?m "Merged"     "--merged="    magit-read-branch-or-commit)
-               (?n "Not merged" "--no-merged=" magit-read-branch-or-commit)
-               (?s "Sort"       "--sort="      magit-read-ref-sort))
-   :actions  '((?y "Show refs, comparing them with HEAD"
-                   magit-show-refs-head)
-               (?c "Show refs, comparing them with current branch"
-                   magit-show-refs-current)
-               (?o "Show refs, comparing them with other branch"
-                   magit-show-refs))
-   :default-action 'magit-show-refs-head
-   :max-action-columns 1
-   :use-prefix (lambda ()
-                 (if (derived-mode-p 'magit-refs-mode)
-                     (if current-prefix-arg 'popup 'default)
-                   'popup))))
+;;;###autoload (autoload 'magit-show-refs "magit-refs" nil t)
+(define-transient-command magit-show-refs (&optional transient)
+  "List and compare references in a dedicated buffer."
+  :man-page "git-branch"
+  ["Arguments"
+   (magit-for-each-ref:--contains)
+   ("=m" "Merged"               "--merged=" magit-transient-read-revision)
+   ("-m" "Merged to HEAD"       "--merged")
+   ("-M" "Merged to master"     "--merged=master")
+   ("=n" "Not merged"           "--no-merged=" magit-transient-read-revision)
+   ("-n" "Not merged to HEAD"   "--no-merged")
+   ("-N" "Not merged to master" "--no-merged=master")
+   (magit-for-each-ref:--sort)]
+  ["Actions"
+   ("y" "Show refs, comparing them with HEAD"           magit-show-refs-head)
+   ("c" "Show refs, comparing them with current branch" magit-show-refs-current)
+   ("o" "Show refs, comparing them with other branch"   magit-show-refs-other)]
+  (interactive (list (or (derived-mode-p 'magit-refs-mode)
+                         current-prefix-arg)))
+  (if transient
+      (transient-setup 'magit-show-refs)
+    (call-interactively 'magit-show-refs-head)))
 
-(magit-define-popup-keys-deferred 'magit-show-refs-popup)
+(define-infix-argument magit-for-each-ref:--contains ()
+  :description "Contains"
+  :class 'transient-option
+  :key "-c"
+  :argument "--contains="
+  :reader 'magit-transient-read-revision)
 
-(defun magit-read-ref-sort (prompt initial-input)
+(define-infix-argument magit-for-each-ref:--sort ()
+  :description "Sort"
+  :class 'transient-option
+  :key "-s"
+  :argument "--sort="
+  :reader 'magit-read-ref-sort)
+
+(defun magit-read-ref-sort (prompt initial-input _history)
   (magit-completing-read prompt
                          '("-committerdate" "-authordate"
                            "committerdate" "authordate")
                          nil nil initial-input))
 
-(defun magit-show-refs-get-buffer-args ()
-  (cond ((and magit-use-sticky-arguments
+(defun magit-show-refs-arguments ()
+  (cond ((eq current-transient-command 'magit-show-refs)
+         (transient-args 'magit-show-refs))
+        ;; TODO `transient-args' should cover this:
+        ((and magit-use-sticky-arguments
               (derived-mode-p 'magit-refs-mode))
          (cadr magit-refresh-args))
         ((and (eq magit-use-sticky-arguments t)
@@ -366,37 +379,24 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         (t
          (default-value 'magit-show-refs-arguments))))
 
-(defun magit-show-refs-arguments ()
-  (if (eq magit-current-popup 'magit-show-refs-popup)
-      magit-current-popup-args
-    (magit-show-refs-get-buffer-args)))
-
-;;;###autoload
-(defun magit-show-refs-popup (&optional arg)
-  "Popup console for `magit-show-refs'."
-  (interactive "P")
-  (let ((magit-show-refs-arguments (magit-show-refs-get-buffer-args)))
-    (magit-invoke-popup 'magit-show-refs-popup nil arg)))
-
 ;;;###autoload
 (defun magit-show-refs-head (&optional args)
   "List and compare references in a dedicated buffer.
-Refs are compared with `HEAD'."
+Compared with `HEAD'."
   (interactive (list (magit-show-refs-arguments)))
-  (magit-show-refs nil args))
+  (magit-mode-setup #'magit-refs-mode nil args))
 
 ;;;###autoload
 (defun magit-show-refs-current (&optional args)
   "List and compare references in a dedicated buffer.
-Refs are compared with the current branch or `HEAD' if
-it is detached."
+Compare with the current branch or `HEAD' if it is detached."
   (interactive (list (magit-show-refs-arguments)))
-  (magit-show-refs (magit-get-current-branch) args))
+  (magit-mode-setup #'magit-refs-mode (magit-get-current-branch) args))
 
 ;;;###autoload
-(defun magit-show-refs (&optional ref args)
+(defun magit-show-refs-other (&optional ref args)
   "List and compare references in a dedicated buffer.
-Refs are compared with a branch read from the user."
+Compared with a branch read from the user."
   (interactive (list (magit-read-other-branch "Compare with")
                      (magit-show-refs-arguments)))
   (magit-mode-setup #'magit-refs-mode ref args))

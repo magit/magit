@@ -1330,6 +1330,13 @@ The amount of time spent searching is limited by
          (and (not (and non-local (equal remote ".")))
               (propertize remote 'face 'magit-branch-remote)))))
 
+(defun magit-get-current-remote ()
+  (or (magit-get-upstream-remote nil t)
+      (let ((remotes (magit-list-remotes)))
+        (if (= (length remotes) 1)
+            (car remotes)
+          (car (member "origin" remotes))))))
+
 (defun magit-get-push-remote (&optional branch)
   (when-let ((remote
               (or (and (or branch (setq branch (magit-get-current-branch)))
@@ -2172,87 +2179,6 @@ and this option only controls what face is used.")
     (if (> (length modules) 1)
         (magit-confirm t nil (format "%s %%i modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
-
-;;; Variables in Popups
-
-(defun magit--format-popup-variable:value (variable width &optional global)
-  (concat variable
-          (make-string (max 1 (- width 3 (length variable))) ?\s)
-          (if-let ((value (magit-get (and global "--global") variable)))
-              (propertize value 'face 'magit-popup-option-value)
-            (propertize "unset" 'face 'magit-popup-disabled-argument))))
-
-(defun magit--format-popup-variable:values (variable width &optional global)
-  (concat variable
-          (make-string (max 1 (- width 3 (length variable))) ?\s)
-          (if-let ((values (magit-get-all (and global "--global") variable)))
-              (concat
-               (propertize (car values) 'face 'magit-popup-option-value)
-               (mapconcat
-                (lambda (value)
-                  (concat "\n" (make-string width ?\s)
-                          (propertize value
-                                      'face 'magit-popup-option-value)))
-                (cdr values) ""))
-            (propertize "unset" 'face 'magit-popup-disabled-argument))))
-
-(defun magit--set-popup-variable
-    (variable choices &optional default other)
-  (magit-set (--if-let (magit-git-string "config" "--local" variable)
-                 (cadr (member it choices))
-               (car choices))
-             variable)
-  (magit-with-pre-popup-buffer
-    (magit-refresh))
-  (message "%s %s" variable
-           (magit--format-popup-variable:choices*
-            variable choices default other)))
-
-(defun magit--format-popup-variable:choices
-    (variable choices &optional default other width)
-  (concat variable
-          (if width (make-string (- width (length variable)) ?\s) " ")
-          (magit--format-popup-variable:choices*
-           variable choices default other)))
-
-(defun magit--format-popup-variable:choices*
-    (variable choices &optional default other)
-  (let ((local  (magit-git-string "config" "--local"  variable))
-        (global (magit-git-string "config" "--global" variable)))
-    (when other
-      (setq other (--when-let (magit-get other)
-                    (concat other ":" it))))
-    (concat
-     (propertize "[" 'face 'magit-popup-disabled-argument)
-     (mapconcat
-      (lambda (choice)
-        (propertize choice 'face (if (equal choice local)
-                                     'magit-popup-option-value
-                                   'magit-popup-disabled-argument)))
-      choices
-      (propertize "|" 'face 'magit-popup-disabled-argument))
-     (when (or global other default)
-       (concat
-        (propertize "|" 'face 'magit-popup-disabled-argument)
-        (cond (global
-               (propertize (concat "global:" global)
-                           'face (cond (local
-                                        'magit-popup-disabled-argument)
-                                       ((member global choices)
-                                        'magit-popup-option-value)
-                                       (t
-                                        'font-lock-warning-face))))
-              (other
-               (propertize other
-                           'face (if local
-                                     'magit-popup-disabled-argument
-                                   'magit-popup-option-value)))
-              (default
-               (propertize (concat "default:" default)
-                           'face (if local
-                                     'magit-popup-disabled-argument
-                                   'magit-popup-option-value))))))
-     (propertize "]" 'face 'magit-popup-disabled-argument))))
 
 ;;; _
 (provide 'magit-git)

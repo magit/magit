@@ -35,6 +35,8 @@
 (eval-when-compile
   (require 'subr-x))
 
+(require 'transient)
+
 (require 'magit-section)
 (require 'magit-git)
 
@@ -371,10 +373,10 @@ starts complicating other things, then it will be removed."
            (define-key map (kbd   "k") 'magit-section-forward)
            (define-key map (kbd "M-i") 'magit-section-backward-sibling)
            (define-key map (kbd "M-k") 'magit-section-forward-sibling)
-           (define-key map (kbd   "p") 'magit-push-popup)
+           (define-key map (kbd   "p") 'magit-push)
            (define-key map (kbd   ",") 'magit-delete-thing)
            (define-key map (kbd   ";") 'magit-file-untrack)
-           (define-key map (kbd "C-c C-i") 'magit-gitignore-popup))
+           (define-key map (kbd "C-c C-i") 'magit-gitignore))
           (t
            (define-key map [C-return]  'magit-visit-thing)
            (define-key map (kbd "C-m") 'magit-visit-thing)
@@ -389,11 +391,11 @@ starts complicating other things, then it will be removed."
            (define-key map (kbd   "n") 'magit-section-forward)
            (define-key map (kbd "M-p") 'magit-section-backward-sibling)
            (define-key map (kbd "M-n") 'magit-section-forward-sibling)
-           (define-key map (kbd   "P") 'magit-push-popup)
+           (define-key map (kbd   "P") 'magit-push)
            (define-key map (kbd   "k") 'magit-delete-thing)
            (define-key map (kbd   "K") 'magit-file-untrack)
-           (define-key map (kbd   "i") 'magit-gitignore-popup)
-           (define-key map (kbd   "I") 'magit-gitignore-popup)))
+           (define-key map (kbd   "i") 'magit-gitignore)
+           (define-key map (kbd   "I") 'magit-gitignore)))
     (define-key map (kbd "SPC") 'magit-diff-show-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-diff-show-or-scroll-down)
     (define-key map "+"         'magit-diff-more-context)
@@ -408,50 +410,50 @@ starts complicating other things, then it will be removed."
     (define-key map (kbd "M-3") 'magit-section-show-level-3-all)
     (define-key map (kbd "M-4") 'magit-section-show-level-4-all)
     (define-key map "$" 'magit-process-buffer)
-    (define-key map "%" 'magit-worktree-popup)
+    (define-key map "%" 'magit-worktree)
     (define-key map "a" 'magit-cherry-apply)
-    (define-key map "A" 'magit-cherry-pick-popup)
-    (define-key map "b" 'magit-branch-popup)
-    (define-key map "B" 'magit-bisect-popup)
-    (define-key map "c" 'magit-commit-popup)
-    (define-key map "d" 'magit-diff-popup)
-    (define-key map "D" 'magit-diff-refresh-popup)
+    (define-key map "A" 'magit-cherry-pick)
+    (define-key map "b" 'magit-branch)
+    (define-key map "B" 'magit-bisect)
+    (define-key map "c" 'magit-commit)
+    (define-key map "d" 'magit-diff)
+    (define-key map "D" 'magit-diff-refresh)
     (define-key map "e" 'magit-ediff-dwim)
-    (define-key map "E" 'magit-ediff-popup)
-    (define-key map "f" 'magit-fetch-popup)
-    (define-key map "F" 'magit-pull-popup)
+    (define-key map "E" 'magit-ediff)
+    (define-key map "f" 'magit-fetch)
+    (define-key map "F" 'magit-pull)
     (define-key map "g" 'magit-refresh)
     (define-key map "G" 'magit-refresh-all)
-    (define-key map "h" 'magit-dispatch-popup)
-    (define-key map "?" 'magit-dispatch-popup)
-    (define-key map "l" 'magit-log-popup)
-    (define-key map "L" 'magit-log-refresh-popup)
-    (define-key map "m" 'magit-merge-popup)
-    (define-key map "M" 'magit-remote-popup)
-    (define-key map "o" 'magit-submodule-popup)
-    (define-key map "O" 'magit-subtree-popup)
+    (define-key map "h" 'magit-dispatch)
+    (define-key map "?" 'magit-dispatch)
+    (define-key map "l" 'magit-log)
+    (define-key map "L" 'magit-log-refresh)
+    (define-key map "m" 'magit-merge)
+    (define-key map "M" 'magit-remote)
+    (define-key map "o" 'magit-submodule)
+    (define-key map "O" 'magit-subtree)
     (define-key map "q" 'magit-mode-bury-buffer)
-    (define-key map "r" 'magit-rebase-popup)
+    (define-key map "r" 'magit-rebase)
     (define-key map "R" 'magit-file-rename)
-    (define-key map "t" 'magit-tag-popup)
-    (define-key map "T" 'magit-notes-popup)
+    (define-key map "t" 'magit-tag)
+    (define-key map "T" 'magit-notes)
     (define-key map "s" 'magit-stage-file)
     (define-key map "S" 'magit-stage-modified)
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-unstage-all)
     (define-key map "v" 'magit-revert-no-commit)
-    (define-key map "V" 'magit-revert-popup)
-    (define-key map "w" 'magit-am-popup)
-    (define-key map "W" 'magit-patch-popup)
+    (define-key map "V" 'magit-revert)
+    (define-key map "w" 'magit-am)
+    (define-key map "W" 'magit-patch)
     (define-key map "x" 'magit-reset-quickly)
-    (define-key map "X" 'magit-reset-popup)
-    (define-key map "y" 'magit-show-refs-popup)
+    (define-key map "X" 'magit-reset)
+    (define-key map "y" 'magit-show-refs)
     (define-key map "Y" 'magit-cherry)
-    (define-key map "z" 'magit-stash-popup)
-    (define-key map "Z" 'magit-stash-popup)
+    (define-key map "z" 'magit-stash)
+    (define-key map "Z" 'magit-stash)
     (define-key map ":" 'magit-git-command)
-    (define-key map "!" 'magit-run-popup)
-    (define-key map (kbd "C-c C-c") 'magit-dispatch-popup)
+    (define-key map "!" 'magit-run)
+    (define-key map (kbd "C-c C-c") 'magit-dispatch)
     (define-key map (kbd "C-c C-e") 'magit-edit-thing)
     (define-key map (kbd "C-c C-o") 'magit-browse-thing)
     (define-key map (kbd "C-c C-w") 'magit-browse-thing)
@@ -478,9 +480,8 @@ which deletes the thing at point."
 Where applicable, section-specific keymaps bind another command
 which visits the thing at point."
   (interactive)
-  (if (eq magit-current-popup 'magit-dispatch-popup)
-      (progn (setq magit-current-popup nil)
-             (call-interactively (key-binding (this-command-keys))))
+  (if (eq current-transient-command 'magit-dispatch)
+      (call-interactively (key-binding (this-command-keys)))
     (user-error "There is no thing at point that could be visited")))
 
 (defun magit-edit-thing ()
@@ -488,9 +489,8 @@ which visits the thing at point."
 Where applicable, section-specific keymaps bind another command
 which lets you edit the thing at point, likely in another buffer."
   (interactive)
-  (if (eq magit-current-popup 'magit-dispatch-popup)
-      (progn (setq magit-current-popup nil)
-             (call-interactively (key-binding (this-command-keys))))
+  (if (eq current-transient-command 'magit-dispatch)
+      (call-interactively (key-binding (this-command-keys)))
     (user-error "There is no thing at point that could be edited")))
 
 (defun magit-browse-thing ()
@@ -510,7 +510,7 @@ which visits the thing at point using `browse-url'."
     ["Stage modified" magit-stage-modified t]
     ["Unstage" magit-unstage t]
     ["Reset index" magit-reset-index t]
-    ["Commit" magit-commit-popup t]
+    ["Commit" magit-commit t]
     ["Add log entry" magit-commit-add-log t]
     ["Tag" magit-tag-create t]
     "---"
@@ -519,10 +519,10 @@ which visits the thing at point using `browse-url'."
     ("Log"
      ["Log" magit-log-other t]
      ["Reflog" magit-reflog-other t]
-     ["Extended..." magit-log-popup t])
+     ["Extended..." magit-log t])
     "---"
     ["Cherry pick" magit-cherry-pick t]
-    ["Revert commit" magit-revert-popup t]
+    ["Revert commit" magit-revert t]
     "---"
     ["Ignore globally" magit-gitignore-globally t]
     ["Ignore locally" magit-gitignore-locally t]
@@ -534,7 +534,7 @@ which visits the thing at point using `browse-url'."
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
     ["Ediff resolve" magit-ediff-resolve t]
-    ["Rebase..." magit-rebase-popup t]
+    ["Rebase..." magit-rebase t]
     "---"
     ["Push" magit-push t]
     ["Pull" magit-pull-branch t]

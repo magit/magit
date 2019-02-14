@@ -277,7 +277,7 @@ in `magit-blame-read-only-mode-map' instead.")
            (define-key map (kbd   "j") 'magit-blame-addition)
            (define-key map (kbd   "l") 'magit-blame-removal)
            (define-key map (kbd   "f") 'magit-blame-reverse)
-           (define-key map (kbd   "b") 'magit-blame-popup))
+           (define-key map (kbd   "b") 'magit-blame))
           (t
            (define-key map (kbd "C-m") 'magit-show-commit)
            (define-key map (kbd   "p") 'magit-blame-previous-chunk)
@@ -287,7 +287,7 @@ in `magit-blame-read-only-mode-map' instead.")
            (define-key map (kbd   "b") 'magit-blame-addition)
            (define-key map (kbd   "r") 'magit-blame-removal)
            (define-key map (kbd   "f") 'magit-blame-reverse)
-           (define-key map (kbd   "B") 'magit-blame-popup)))
+           (define-key map (kbd   "B") 'magit-blame)))
     (define-key map (kbd   "c") 'magit-blame-cycle-style)
     (define-key map (kbd   "q") 'magit-blame-quit)
     (define-key map (kbd "M-w") 'magit-blame-copy-hash)
@@ -323,7 +323,7 @@ in `magit-blame-read-only-mode-map' instead.")
            (setq magit-blame-mode nil)
            (user-error
             (concat "Don't call `magit-blame-mode' directly; "
-                    "instead use `magit-blame' or `magit-blame-popup'")))
+                    "instead use `magit-blame'")))
          (add-hook 'after-save-hook     'magit-blame--run t t)
          (add-hook 'post-command-hook   'magit-blame-goto-chunk-hook t t)
          (add-hook 'before-revert-hook  'magit-blame--remove-overlays t t)
@@ -711,12 +711,16 @@ modes is toggled, then this mode also gets toggled automatically.
 
 ;;; Commands
 
-;;;###autoload
-(defun magit-blame-echo ()
+;;;###autoload (autoload 'magit-blame-echo "magit-blame" nil t)
+(define-suffix-command magit-blame-echo ()
   "For each line show the revision in which it was added.
 Show the information about the chunk at point in the echo area
 when moving between chunks.  Unlike other blaming commands, do
 not turn on `read-only-mode'."
+  :if (lambda ()
+        (and buffer-file-name
+             (or (not magit-blame-mode)
+                 buffer-read-only)))
   (interactive)
   (when magit-buffer-file-name
     (user-error "Blob buffers aren't supported"))
@@ -730,17 +734,18 @@ not turn on `read-only-mode'."
     (read-only-mode -1)
     (magit-blame--update-overlays)))
 
-;;;###autoload
-(defun magit-blame-addition ()
+;;;###autoload (autoload 'magit-blame-addition "magit-blame" nil t)
+(define-suffix-command magit-blame-addition ()
   "For each line show the revision in which it was added."
   (interactive)
   (magit-blame--pre-blame-assert 'addition)
   (magit-blame--pre-blame-setup  'addition)
   (magit-blame--run))
 
-;;;###autoload
-(defun magit-blame-removal ()
+;;;###autoload (autoload 'magit-blame-removal "magit-blame" nil t)
+(define-suffix-command magit-blame-removal ()
   "For each line show the revision in which it was removed."
+  :if-nil 'buffer-file-name
   (interactive)
   (unless magit-buffer-file-name
     (user-error "Only blob buffers can be blamed in reverse"))
@@ -748,9 +753,10 @@ not turn on `read-only-mode'."
   (magit-blame--pre-blame-setup  'removal)
   (magit-blame--run))
 
-;;;###autoload
-(defun magit-blame-reverse ()
+;;;###autoload (autoload 'magit-blame-reverse "magit-blame" nil t)
+(define-suffix-command magit-blame-reverse ()
   "For each line show the last revision in which it still exists."
+  :if-nil 'buffer-file-name
   (interactive)
   (unless magit-buffer-file-name
     (user-error "Only blob buffers can be blamed in reverse"))
@@ -807,10 +813,11 @@ not turn on `read-only-mode'."
     (goto-char (point-min))
     (forward-line (1- orig-line))))
 
-(defun magit-blame-quit ()
+(define-suffix-command magit-blame-quit ()
   "Turn off Magit-Blame mode.
 If the buffer was created during a recursive blame,
 then also kill the buffer."
+  :if-non-nil 'magit-blame-mode
   (interactive)
   (magit-blame-mode -1)
   (when magit-blame-recursive-p
@@ -879,36 +886,40 @@ instead of the hash, like `kill-ring-save' would."
 
 ;;; Popup
 
-;;;###autoload (autoload 'magit-blame-popup "magit-blame" nil t)
-(magit-define-popup magit-blame-popup
-  "Popup console for blame commands."
+;;;###autoload (autoload 'magit-blame "magit-blame" nil t)
+(define-transient-command magit-blame ()
+  "Show the commits that added or removed lines in the visited file."
   :man-page "git-blame"
-  :switches '((?w "Ignore whitespace" "-w")
-              (?r "Do not treat root commits as boundaries" "--root"))
-  :options  '((?M "Detect lines moved or copied within a file" "-M")
-              (?C "Detect lines moved or copied between files" "-C"))
-  :actions  '("Actions"
-              (?b "Show commits adding lines" magit-blame-addition)
-              (?r (lambda ()
-                    (with-current-buffer magit-pre-popup-buffer
-                      (and (not buffer-file-name)
-                           (propertize "Show commits removing lines"
-                                       'face 'default))))
-                  magit-blame-removal)
-              (?f (lambda ()
-                    (with-current-buffer magit-pre-popup-buffer
-                      (and (not buffer-file-name)
-                           (propertize "Show last commits that still have lines"
-                                       'face 'default))))
-                  magit-blame-reverse)
-              (lambda ()
-                (and (with-current-buffer magit-pre-popup-buffer
-                       magit-blame-mode)
-                     (propertize "Refresh" 'face 'magit-popup-heading)))
-              (?c "Cycle style" magit-blame-cycle-style))
-  :default-arguments '("-w")
-  :max-action-columns 1
-  :default-action 'magit-blame-addition)
+  :value '("-w")
+  ["Arguments"
+   ("-w" "Ignore whitespace" "-w")
+   ("-r" "Do not treat root commits as boundaries" "--root")
+   (magit-blame:-M)
+   (magit-blame:-C)]
+  ["Actions"
+   ("b" "Show commits adding lines" magit-blame-addition)
+   ("r" "Show commits removing lines" magit-blame-removal)
+   ("f" "Show last commits that still have lines" magit-blame-reverse)
+   ("m" "Blame echo" magit-blame-echo)
+   ("q" "Quit blaming" magit-blame-quit)]
+  ["Refresh"
+   :if-non-nil magit-blame-mode
+   ("c" "Cycle style" magit-blame-cycle-style)])
+
+(defun magit-blame-arguments ()
+  (transient-args 'magit-blame))
+
+(define-infix-argument magit-blame:-M ()
+  :description "Detect lines moved or copied within a file"
+  :class 'transient-option
+  :argument "-M"
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-blame:-C ()
+  :description "Detect lines moved or copied between files"
+  :class 'transient-option
+  :argument "-C"
+  :reader 'transient-read-number-N+)
 
 ;;; Utilities
 

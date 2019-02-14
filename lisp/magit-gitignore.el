@@ -34,46 +34,79 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-gitignore-popup "magit-gitignore" nil t)
-(magit-define-popup magit-gitignore-popup
-  "Popup console for gitignore commands."
+;;;###autoload (autoload 'magit-gitignore "magit-gitignore" nil t)
+(define-transient-command magit-gitignore ()
+  "Instruct Git to ignore a file or pattern."
   :man-page "gitignore"
-  :actions '((?l "ignore locally"  magit-gitignore-locally)
-             (?g "ignore globally" magit-gitignore-globally))
-  :max-action-columns 1)
+  ["Gitignore"
+   ("t" "shared at toplevel (.gitignore)"
+    magit-gitignore-in-topdir)
+   ("s" "shared in subdirectory (path/to/.gitignore)"
+    magit-gitignore-in-subdir)
+   ("p" "privately (.git/info/exclude)"
+    magit-gitignore-in-gitdir)
+   ("g" magit-gitignore-on-system
+    :if (lambda () (magit-get "core.excludesfile"))
+    :description (lambda ()
+                   (format "privately for all repositories (%s)"
+                           (magit-get "core.excludesfile"))))])
 
 ;;;###autoload
-(defun magit-gitignore-globally (file-or-pattern)
-  "Instruct Git to globally ignore FILE-OR-PATTERN."
-  (interactive (list (magit-gitignore-read-pattern nil)))
-  (magit--gitignore file-or-pattern nil))
+(defun magit-gitignore-in-topdir (rule)
+  "Add the Git ignore RULE to the top-level \".gitignore\" file.
+Since this file is tracked, it is shared with other clones of the
+repository.  Also stage the file."
+  (interactive (list (magit-gitignore-read-pattern)))
+  (magit-with-toplevel
+    (magit--gitignore rule ".gitignore")
+    (magit-run-git "add" ".gitignore")))
 
 ;;;###autoload
-(defun magit-gitignore-locally (file-or-pattern)
-  "Instruct Git to locally ignore FILE-OR-PATTERN."
-  (interactive (list (magit-gitignore-read-pattern t)))
-  (magit--gitignore file-or-pattern t))
-
-(defun magit--gitignore (file-or-pattern local)
-  (let ((gitignore
-         (if local
-             (magit-git-dir (convert-standard-filename "info/exclude"))
-           (expand-file-name ".gitignore" (magit-toplevel)))))
-    (make-directory (file-name-directory gitignore) t)
-    (with-temp-buffer
-      (when (file-exists-p gitignore)
-        (insert-file-contents gitignore))
-      (goto-char (point-max))
-      (unless (bolp)
-        (insert "\n"))
-      (insert (replace-regexp-in-string "\\(\\\\*\\)" "\\1\\1" file-or-pattern))
-      (insert "\n")
-      (write-region nil nil gitignore))
-    (if local
-        (magit-refresh)
+(defun magit-gitignore-in-subdir (rule directory)
+  "Add the Git ignore RULE to a \".gitignore\" file.
+Prompted the user for a directory and add the rule to the
+\".gitignore\" file in that directory.  Since such files are
+tracked, they are shared with other clones of the repository.
+Also stage the file."
+  (interactive (list (magit-gitignore-read-pattern)
+                     (read-directory-name "Limit rule to files in: ")))
+  (magit-with-toplevel
+    (let ((file (expand-file-name ".gitignore" directory)))
+      (magit--gitignore rule file)
       (magit-run-git "add" ".gitignore"))))
 
-(defun magit-gitignore-read-pattern (local)
+;;;###autoload
+(defun magit-gitignore-in-gitdir (rule)
+  "Add the Git ignore RULE to \"$GIT_DIR/info/exclude\".
+Rules in that file only affects this clone of the repository."
+  (interactive (list (magit-gitignore-read-pattern)))
+  (magit--gitignore rule (magit-git-dir "info/exclude"))
+  (magit-refresh))
+
+;;;###autoload
+(defun magit-gitignore-on-system (rule)
+  "Add the Git ignore RULE to the file specified by `core.excludesFile'.
+Rules that are defined in that file affect all local repositories."
+  (interactive (list (magit-gitignore-read-pattern)))
+  (magit--gitignore rule
+                    (or (magit-get "core.excludesFile")
+                        (error "Variable `core.excludesFile' isn't set")))
+  (magit-refresh))
+
+(defun magit--gitignore (rule file)
+  (when-let ((directory (file-name-directory file)))
+    (make-directory directory t))
+  (with-temp-buffer
+    (when (file-exists-p file)
+      (insert-file-contents file))
+    (goto-char (point-max))
+    (unless (bolp)
+      (insert "\n"))
+    (insert (replace-regexp-in-string "\\(\\\\*\\)" "\\1\\1" rule))
+    (insert "\n")
+    (write-region nil nil file)))
+
+(defun magit-gitignore-read-pattern ()
   (let* ((default (magit-current-file))
          (choices
           (delete-dups
@@ -89,8 +122,7 @@
         (setq default (concat "*." (file-name-extension default)))
         (unless (member default choices)
           (setq default nil))))
-    (magit-completing-read (concat "File or pattern to ignore"
-                                   (and local " locally"))
+    (magit-completing-read "File or pattern to ignore"
                            choices nil nil nil nil default)))
 
 ;;; _

@@ -84,35 +84,42 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-stash-popup "magit-stash" nil t)
-(magit-define-popup magit-stash-popup
-  "Popup console for stash commands."
+;;;###autoload (autoload 'magit-stash "magit-stash" nil t)
+(define-transient-command magit-stash ()
+  "Stash uncommitted changes."
   :man-page "git-stash"
-  :switches '((?u "Also save untracked files" "--include-untracked")
-              (?a "Also save untracked and ignored files" "--all"))
-  :actions  '((?z "Save"               magit-stash-both)
-              (?Z "Snapshot"           magit-snapshot-both)
-              (?p "Pop"                magit-stash-pop)
-              (?i "Save index"         magit-stash-index)
-              (?I "Snapshot index"     magit-snapshot-index)
-              (?a "Apply"              magit-stash-apply)
-              (?w "Save worktree"      magit-stash-worktree)
-              (?W "Snapshot worktree"  magit-snapshot-worktree)
-              (?l "List"               magit-stash-list)
-              (?x "Save keeping index" magit-stash-keep-index)
-              (?r "Snapshot to wipref" magit-wip-commit)
-              (?v "Show"               magit-stash-show)
-              (?b "Branch"             magit-stash-branch)
-              (?k "Drop"               magit-stash-drop) nil
-              (?B "Branch here"        magit-stash-branch-here) nil nil
-              (?f "Format patch"       magit-stash-format-patch))
-  :default-action 'magit-stash
-  :max-action-columns 3)
+  ["Arguments"
+   ("-u" "Also save untracked files" ("-u" "--include-untracked"))
+   ("-a" "Also save untracked and ignored files" ("-a" "--all"))]
+  [["Stash"
+    ("z" "both"          magit-stash-both)
+    ("i" "index"         magit-stash-index)
+    ("w" "worktree"      magit-stash-worktree)
+    ("x" "keeping index" magit-stash-keep-index)]
+   ["Snapshot"
+    ("Z" "both"          magit-snapshot-both)
+    ("I" "index"         magit-snapshot-index)
+    ("W" "worktree"      magit-snapshot-worktree)
+    ("r" "to wip ref"    magit-wip-commit)]
+   ["Use"
+    ("a" "Apply"         magit-stash-apply)
+    ("p" "Pop"           magit-stash-pop)
+    ("k" "Drop"          magit-stash-drop)]
+   ["Inspect"
+    ("l" "List"          magit-stash-list)
+    ("v" "Show"          magit-stash-show)]
+   ["Transform"
+    ("b" "Branch"        magit-stash-branch)
+    ("B" "Branch here"   magit-stash-branch-here)
+    ("f" "Format patch"  magit-stash-format-patch)]])
+
+(defun magit-stash-arguments ()
+  (transient-args 'magit-stash))
 
 ;;;###autoload
 (defun magit-stash-both (message &optional include-untracked)
   "Create a stash of the index and working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-stash-read-args))
@@ -131,7 +138,7 @@ Applying the resulting stash has the inverse effect."
 ;;;###autoload
 (defun magit-stash-worktree (message &optional include-untracked)
   "Create a stash of unstaged changes in the working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-stash-read-args))
@@ -140,7 +147,7 @@ while two prefix arguments are equivalent to `--all'."
 ;;;###autoload
 (defun magit-stash-keep-index (message &optional include-untracked)
   "Create a stash of the index and working tree, keeping index intact.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-stash-read-args))
@@ -167,7 +174,7 @@ while two prefix arguments are equivalent to `--all'."
 ;;;###autoload
 (defun magit-snapshot-both (&optional include-untracked)
   "Create a snapshot of the index and working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-snapshot-read-args))
@@ -183,7 +190,7 @@ Unstaged and untracked changes are not stashed."
 ;;;###autoload
 (defun magit-snapshot-worktree (&optional include-untracked)
   "Create a snapshot of unstaged changes in the working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-snapshot-read-args))

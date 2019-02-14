@@ -29,19 +29,32 @@
 
 (require 'magit)
 
-;;;###autoload (autoload 'magit-tag-popup "magit" nil t)
-(magit-define-popup magit-tag-popup
-  "Popup console for tag commands."
+;;;###autoload (autoload 'magit-tag "magit" nil t)
+(define-transient-command magit-tag ()
+  "Create or delete a tag."
   :man-page "git-tag"
-  :switches '((?a "Annotate" "--annotate")
-              (?f "Force"    "--force")
-              (?s "Sign"     "--sign"))
-  :options  '((?f "Sign"     "--local-user=" magit-read-gpg-secret-key))
-  :actions  '((?t "Create"   magit-tag-create)
-              (?r "Create release" magit-tag-release)
-              (?k "Delete"   magit-tag-delete)
-              (?p "Prune"    magit-tag-prune))
-  :default-action 'magit-tag-create)
+  ["Arguments"
+   ("-f" "Force"    ("-f" "--force"))
+   ("-a" "Annotate" ("-a" "--annotate"))
+   ("-s" "Sign"     ("-s" "--sign"))
+   (magit-tag:--local-user)]
+  [["Create"
+    ("t"  "tag"     magit-tag-create)
+    ("r"  "release" magit-tag-release)]
+   ["Do"
+    ("k"  "delete"  magit-tag-delete)
+    ("p"  "prune"   magit-tag-prune)]])
+
+(defun magit-tag-arguments ()
+  (transient-args 'magit-tag))
+
+(define-infix-argument magit-tag:--local-user ()
+  :description "Sign as"
+  :class 'transient-option
+  :shortarg "-u"
+  :argument "--local-user="
+  :reader 'magit-read-gpg-secret-key
+  :history-key 'magit:--gpg-sign)
 
 ;;;###autoload
 (defun magit-tag-create (name rev &optional args)

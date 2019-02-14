@@ -54,18 +54,21 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-bisect-popup "magit-bisect" nil t)
-(magit-define-popup magit-bisect-popup
-  "Popup console for bisect commands."
+;;;###autoload (autoload 'magit-bisect "magit-bisect" nil t)
+(define-transient-command magit-bisect ()
+  "Narrow in on the commit that introduced a bug."
   :man-page "git-bisect"
-  :actions            '((?B "Start"        magit-bisect-start)
-                        (?s "Start script" magit-bisect-run))
-  :sequence-actions   '((?b "Bad"          magit-bisect-bad)
-                        (?g "Good"         magit-bisect-good)
-                        (?k "Skip"         magit-bisect-skip)
-                        (?r "Reset"        magit-bisect-reset)
-                        (?s "Run script"   magit-bisect-run))
-  :sequence-predicate 'magit-bisect-in-progress-p)
+  ["Actions"
+   :if-not magit-bisect-in-progress-p
+   ("B" "Start"        magit-bisect-start)
+   ("s" "Start script" magit-bisect-run)]
+  ["Actions"
+   :if magit-bisect-in-progress-p
+   ("B" "Bad"          magit-bisect-bad)
+   ("g" "Good"         magit-bisect-good)
+   ("k" "Skip"         magit-bisect-skip)
+   ("r" "Reset"        magit-bisect-reset)
+   ("s" "Run script"   magit-bisect-run)])
 
 ;;;###autoload
 (defun magit-bisect-start (bad good)
@@ -74,8 +77,8 @@
 Bisecting a bug means to find the commit that introduced it.
 This command starts such a bisect session by asking for a know
 good and a bad commit.  To move the session forward use the
-other actions from the bisect popup (\
-\\<magit-status-mode-map>\\[magit-bisect-popup])."
+other actions from the bisect transient command (\
+\\<magit-status-mode-map>\\[magit-bisect])."
   (interactive (if (magit-bisect-in-progress-p)
                    (user-error "Already bisecting")
                  (magit-bisect-start-read-args)))

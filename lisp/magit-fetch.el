@@ -40,48 +40,62 @@ Ignored for Git versions before v2.8.0."
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-fetch-popup "magit-fetch" nil t)
-(magit-define-popup magit-fetch-popup
-  "Popup console for fetch commands."
+;;;###autoload (autoload 'magit-fetch "magit-fetch" nil t)
+(define-transient-command magit-fetch ()
+  "Fetch from another repository."
   :man-page "git-fetch"
-  :switches '((?p "Prune deleted branches" "--prune"))
-  :actions  '("Configure"
-              (?C "variables..."           magit-branch-config-popup)
-              "Fetch from"
-              (?p magit-get-push-remote    magit-fetch-from-pushremote)
-              (?u magit-get-remote         magit-fetch-from-upstream)
-              (?e "elsewhere"              magit-fetch-other)
-              (?a "all remotes"            magit-fetch-all)
-              "Fetch"
-              (?o "another branch"         magit-fetch-branch)
-              (?r "explicit refspec"       magit-fetch-refspec)
-              (?m "submodules"             magit-fetch-modules))
-  :default-action 'magit-fetch
-  :max-action-columns 1)
+  ["Arguments"
+   ("-p" "Prune deleted branches" ("-p" "--prune"))]
+  ["Fetch from"
+   ("p" magit-fetch-from-pushremote)
+   ("u" magit-fetch-from-upstream)
+   ("e" "elsewhere"        magit-fetch-other)
+   ("a" "all remotes"      magit-fetch-all)]
+  ["Fetch"
+   ("o" "another branch"   magit-fetch-branch)
+   ("r" "explicit refspec" magit-fetch-refspec)
+   ("m" "submodules"       magit-fetch-modules)]
+  ["Configure"
+   ("C" "variables..." magit-branch-configure)])
+
+(defun magit-fetch-arguments ()
+  (transient-args 'magit-fetch))
 
 (defun magit-git-fetch (remote args)
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "fetch" remote args))
 
-;;;###autoload
-(defun magit-fetch-from-pushremote (args)
-  "Fetch from the push-remote of the current branch."
-  (interactive (list (magit-fetch-arguments)))
-  (--if-let (magit-get-push-remote)
-      (magit-git-fetch it args)
-    (--if-let (magit-get-current-branch)
-        (user-error "No push-remote is configured for %s" it)
-      (user-error "No branch is checked out"))))
+;;;###autoload (autoload 'magit-fetch-from-pushremote "magit-fetch" nil t)
+(define-suffix-command magit-fetch-from-pushremote (args &optional set)
+  "Fetch from the push-remote of the current branch.
 
-;;;###autoload
-(defun magit-fetch-from-upstream (args)
-  "Fetch from the upstream repository of the current branch."
-  (interactive (list (magit-fetch-arguments)))
-  (--if-let (magit-get-remote)
-      (magit-git-fetch it args)
-    (--if-let (magit-get-current-branch)
-        (user-error "No upstream is configured for %s" it)
-      (user-error "No branch is checked out"))))
+When `magit-remote-set-if-missing' is non-nil and
+the push-remote is not configured, then read the push-remote from
+the user, set it, and then fetch from it.  With a prefix argument
+the push-remote can be changed before fetching from it."
+  :if 'magit--pushbranch-suffix-predicate
+  :description 'magit--pushbranch-suffix-description
+  (interactive (list (magit-fetch-arguments)
+                     (magit--transfer-maybe-read-pushremote "fetch from")))
+  (magit--transfer-pushremote set
+    (lambda (remote _ __)
+      (magit-git-fetch remote args))))
+
+;;;###autoload (autoload 'magit-fetch-from-upstream "magit-fetch" nil t)
+(define-suffix-command magit-fetch-from-upstream (args &optional set)
+  "Fetch from the upstream repository of the current branch.
+
+When `magit-remote-set-if-missing' is non-nil and
+the push-remote is not configured, then read the upstream from
+the user, set it, and then fetch from it.  With a prefix argument
+the upstream can be changed before fetching from it."
+  :if 'magit--upstream-suffix-predicate
+  :description 'magit--upstream-suffix-description
+  (interactive (list (magit-fetch-arguments)
+                     (magit--transfer-maybe-read-upstream "fetch from")))
+  (magit--transfer-upstream set
+    (lambda (_ upstream)
+      (magit-git-fetch (car (magit-split-branch-name upstream)) args))))
 
 ;;;###autoload
 (defun magit-fetch-other (remote args)

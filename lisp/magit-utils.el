@@ -61,8 +61,6 @@
 
 (defvar magit-wip-before-change-mode)
 
-(require 'magit-popup)
-
 ;;; Options
 
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
@@ -711,7 +709,7 @@ ACTION is a member of option `magit-slow-confirm'."
     (replace-regexp-in-string
      "-" " " (concat (upcase (substring prompt 0 1)) (substring prompt 1)))))
 
-(defun magit-read-number-string (prompt &optional default)
+(defun magit-read-number-string (prompt &optional default _history)
   "Like `read-number' but return value is a string.
 DEFAULT may be a number or a numeric string."
   (number-to-string
@@ -744,7 +742,6 @@ See info node `(magit)Debugging Tools' for more information."
                      '(;; Like `LOAD_PATH' in `default.mk'.
                        "dash"
                        "lv"
-                       "magit-popup"
                        "transient"
                        "with-editor"
                        ;; Obviously `magit' itself is needed too.
@@ -1200,15 +1197,6 @@ FORMAT-STRING to be displayed, then don't."
 Like `message', except that `message-log-max' is bound to nil."
   (let ((message-log-max nil))
     (apply #'message format-string args)))
-
-;;; Popup Utilities
-
-(defun magit--export-file-args (args)
-  (let ((files (--first (string-prefix-p "-- " it) args)))
-    (when files
-      (setq args  (remove files args))
-      (setq files (split-string (substring files 3) ",")))
-    (list args files)))
 
 ;;; _
 (provide 'magit-utils)

@@ -122,34 +122,46 @@ This discards all changes made since the sequence started."
 (defvar magit-perl-executable "perl"
   "The Perl executable.")
 
-;;;###autoload (autoload 'magit-cherry-pick-popup "magit-sequence" nil t)
-(magit-define-popup magit-cherry-pick-popup
-  "Popup console for cherry-pick commands."
+;;;###autoload (autoload 'magit-cherry-pick "magit-sequence" nil t)
+(define-transient-command magit-cherry-pick ()
+  "Apply or transplant commits."
   :man-page "git-cherry-pick"
-  :switches '((?s "Add Signed-off-by lines"            "--signoff")
-              (?e "Edit commit messages"               "--edit")
-              (?x "Reference cherry in commit message" "-x")
-              (?F "Attempt fast-forward"               "--ff"))
-  :options  '((?s "Strategy"                        "--strategy=")
-              (?m "Replay merge relative to parent" "--mainline="))
-  :actions  '("Apply here"
-              (?A "Pick"    magit-cherry-copy)
-              (?a "Apply"   magit-cherry-apply)
-              (?h "Harvest" magit-cherry-harvest)
-              "Apply elsewhere"
-              (?d "Donate"  magit-cherry-donate)
-              (?n "Spinout" magit-cherry-spinout)
-              (?s "Spinoff" magit-cherry-spinoff))
-  :sequence-actions '((?A "Continue" magit-sequencer-continue)
-                      (?s "Skip"     magit-sequencer-skip)
-                      (?a "Abort"    magit-sequencer-abort))
-  :sequence-predicate 'magit-sequencer-in-progress-p
-  :default-arguments '("--ff"))
+  :value '("--ff")
+  ["Arguments"
+   :if-not magit-sequencer-in-progress-p
+   ("-F" "Attempt fast-forward"               "--ff")
+   (magit-cherry-pick:--mainline)
+   ("=s" magit-merge:--strategy)
+   ("-e" "Edit commit messages"               ("-e" "--edit"))
+   ("-x" "Reference cherry in commit message" "-x")
+   ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))
+   (5 magit:--gpg-sign)]
+  [:if-not magit-sequencer-in-progress-p
+   ["Apply here"
+    ("A" "Pick"    magit-cherry-copy)
+    ("a" "Apply"   magit-cherry-apply)
+    ("h" "Harvest" magit-cherry-harvest)]
+   ["Apply elsewhere"
+    ("d" "Donate"  magit-cherry-donate)
+    ("n" "Spinout" magit-cherry-spinout)
+    ("s" "Spinoff" magit-cherry-spinoff)]]
+  ["Actions"
+   :if magit-sequencer-in-progress-p
+   ("A" "Continue" magit-sequencer-continue)
+   ("s" "Skip"     magit-sequencer-skip)
+   ("a" "Abort"    magit-sequencer-abort)])
+
+(define-infix-argument magit-cherry-pick:--mainline ()
+  :description "Replay merge relative to parent"
+  :class 'transient-option
+  :shortarg "-m"
+  :argument "--mainline="
+  :reader 'transient-read-natural-number-N+)
 
 (defun magit-cherry-pick-read-args (prompt)
   (list (or (nreverse (magit-region-values 'commit))
             (magit-read-other-branch-or-commit prompt))
-        (magit-cherry-pick-arguments)))
+        (transient-args 'magit-cherry-pick)))
 
 (defun magit--cherry-move-read-args (verb away fn)
   (declare (indent defun))
@@ -168,7 +180,7 @@ This discards all changes made since the sequence started."
          (`(t nil) (user-error msg verb "are not"))))
      `(,commits
        ,@(funcall fn commits)
-       ,(magit-cherry-pick-arguments))))
+       ,(transient-args 'magit-cherry-pick))))
 
 (defun magit--cherry-spinoff-read-args (verb)
   (magit--cherry-move-read-args verb t
@@ -328,28 +340,33 @@ the process manually."
 
 ;;; Revert
 
-;;;###autoload (autoload 'magit-revert-popup "magit-sequence" nil t)
-(magit-define-popup magit-revert-popup
-  "Popup console for revert commands."
+;;;###autoload (autoload 'magit-revert "magit-sequence" nil t)
+(define-transient-command magit-revert ()
+  "Revert existing commits, with or without creating new commits."
   :man-page "git-revert"
-  :switches '((?s "Add Signed-off-by lines"   "--signoff")
-              (?e "Edit commit message"       "--edit")
-              (?E "Don't edit commit message" "--no-edit"))
-  :options  '((?s "Strategy"       "--strategy=")
-              (?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key)
-              (?m "Replay merge relative to parent" "--mainline="))
-  :actions  '((?V "Revert commit(s)" magit-revert-and-commit)
-              (?v "Revert changes"   magit-revert-no-commit))
-  :sequence-actions '((?V "Continue" magit-sequencer-continue)
-                      (?s "Skip"     magit-sequencer-skip)
-                      (?a "Abort"    magit-sequencer-abort))
-  :sequence-predicate 'magit-sequencer-in-progress-p
-  :default-arguments '("--edit"))
+  :value '("--edit")
+  ["Arguments"
+   :if-not magit-sequencer-in-progress-p
+   (magit-cherry-pick:--mainline)
+   ("-e" "Edit commit message"       ("-e" "--edit"))
+   ("-E" "Don't edit commit message" "--no-edit")
+   ("=s" magit-merge:--strategy)
+   ("-s" "Add Signed-off-by lines"   ("-s" "--signoff"))
+   (5 magit:--gpg-sign)]
+  ["Actions"
+   :if-not magit-sequencer-in-progress-p
+   ("V" "Revert commit(s)" magit-revert-and-commit)
+   ("v" "Revert changes"   magit-revert-no-commit)]
+  ["Actions"
+   :if magit-sequencer-in-progress-p
+   ("V" "Continue" magit-sequencer-continue)
+   ("s" "Skip"     magit-sequencer-skip)
+   ("a" "Abort"    magit-sequencer-abort)])
 
 (defun magit-revert-read-args (prompt)
   (list (or (magit-region-values 'commit)
             (magit-read-branch-or-commit prompt))
-        (magit-revert-arguments)))
+        (transient-args 'magit-revert)))
 
 ;;;###autoload
 (defun magit-revert-and-commit (commit &optional args)
@@ -375,30 +392,41 @@ without prompting."
 
 ;;; Patch
 
-;;;###autoload (autoload 'magit-am-popup "magit-sequence" nil t)
-(magit-define-popup magit-am-popup
-  "Popup console for mailbox commands."
+;;;###autoload (autoload 'magit-am "magit-sequence" nil t)
+(define-transient-command magit-am ()
+  "Apply patches received by email."
   :man-page "git-am"
-  :switches '((?3 "Fall back on 3way merge"           "--3way")
-              (?s "Add Signed-off-by lines"           "--signoff")
-              (?c "Remove text before scissors line"  "--scissors")
-              (?k "Inhibit removal of email cruft"    "--keep")
-              (?b "Limit removal of email cruft"      "--keep-non-patch")
-              (?d "Use author date as committer date"
-                  "--committer-date-is-author-date")
-              (?D "Use committer date as author date" "--ignore-date"))
-  :options  '((?p "Remove leading slashes from paths" "-p"
-                  magit-read-number-string))
-  :actions  '((?m "Apply maildir"     magit-am-apply-maildir)
-              (?w "Apply patches"     magit-am-apply-patches)
-              (?a "Apply plain patch" magit-patch-apply-popup))
-  :default-arguments '("--3way")
-  :default-actions 'magit-am-apply-patches
-  :max-action-columns 1
-  :sequence-actions '((?w "Continue" magit-am-continue)
-                      (?s "Skip"     magit-am-skip)
-                      (?a "Abort"    magit-am-abort))
-  :sequence-predicate 'magit-am-in-progress-p)
+  :value '("--3way")
+  ["Arguments"
+   :if-not magit-am-in-progress-p
+   ("-3" "Fall back on 3way merge"           ("-3" "--3way"))
+   (magit-apply:-p)
+   ("-c" "Remove text before scissors line"  ("-c" "--scissors"))
+   ("-k" "Inhibit removal of email cruft"    ("-k" "--keep"))
+   ("-b" "Limit removal of email cruft"      "--keep-non-patch")
+   ("-d" "Use author date as committer date" "--committer-date-is-author-date")
+   ("-D" "Use committer date as author date" "--ignore-date")
+   ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))
+   (5 magit:--gpg-sign)]
+  ["Apply"
+   :if-not magit-am-in-progress-p
+   ("m" "maildir"     magit-am-apply-maildir)
+   ("w" "patches"     magit-am-apply-patches)
+   ("a" "plain patch" magit-patch-apply)]
+  ["Actions"
+   :if magit-am-in-progress-p
+   ("w" "Continue" magit-am-continue)
+   ("s" "Skip"     magit-am-skip)
+   ("a" "Abort"    magit-am-abort)])
+
+(defun magit-am-arguments ()
+  (transient-args 'magit-am))
+
+(define-infix-argument magit-apply:-p ()
+  :description "Remove leading slashes from paths"
+  :class 'transient-option
+  :argument "-p"
+  :reader 'transient-read-number-N+)
 
 ;;;###autoload
 (defun magit-am-apply-patches (&optional files args)
@@ -456,68 +484,81 @@ This discards all changes made since the sequence started."
 
 ;;; Rebase
 
-;;;###autoload (autoload 'magit-rebase-popup "magit-sequence" nil t)
-(magit-define-popup magit-rebase-popup
-  "Key menu for rebasing."
+;;;###autoload (autoload 'magit-rebase "magit-sequence" nil t)
+(define-transient-command magit-rebase ()
+  "Transplant commits and/or modify existing commits."
   :man-page "git-rebase"
-  :switches '((?k "Keep empty commits"       "--keep-empty")
-              (?p "Preserve merges"          "--preserve-merges")
-              (?c "Lie about committer date" "--committer-date-is-author-date")
-              (?a "Autosquash"               "--autosquash")
-              (?A "Autostash"                "--autostash")
-              (?i "Interactive"              "--interactive")
-              (?h "Disable hooks"            "--no-verify"))
-  :actions  '((lambda ()
-                (concat (propertize "Rebase " 'face 'magit-popup-heading)
-                        (propertize (or (magit-get-current-branch) "HEAD")
-                                    'face 'magit-branch-local)
-                        (propertize " onto" 'face 'magit-popup-heading)))
-              (?p (lambda ()
-                    (--when-let (magit-get-push-branch) (concat it "\n")))
-                  magit-rebase-onto-pushremote)
-              (?u (lambda ()
-                    (--when-let (magit-get-upstream-branch) (concat it "\n")))
-                  magit-rebase-onto-upstream)
-              (?e "elsewhere" magit-rebase-branch)
-              "Rebase"
-              (?i "interactively"      magit-rebase-interactive)
-              (?m "to modify a commit" magit-rebase-edit-commit)
-              (?s "a subset"           magit-rebase-subset)
-              (?w "to reword a commit" magit-rebase-reword-commit) nil
-              (?k "to remove a commit" magit-rebase-remove-commit) nil
-              (?f "to autosquash"      magit-rebase-autosquash))
-  :sequence-actions '((?r "Continue" magit-rebase-continue)
-                      (?s "Skip"     magit-rebase-skip)
-                      (?e "Edit"     magit-rebase-edit)
-                      (?a "Abort"    magit-rebase-abort))
-  :sequence-predicate 'magit-rebase-in-progress-p
-  :max-action-columns 2)
+  ["Arguments"
+   :if-not magit-rebase-in-progress-p
+   ("-k" "Keep empty commits"       "--keep-empty")
+   ("-p" "Preserve merges"          ("-p" "--preserve-merges"))
+   ("-d" "Lie about committer date" "--committer-date-is-author-date")
+   ("-a" "Autosquash"               "--autosquash")
+   ("-A" "Autostash"                "--autostash")
+   ("-i" "Interactive"              ("-i" "--interactive"))
+   ("-h" "Disable hooks"            "--no-verify")
+   (5 magit:--gpg-sign)]
+  [:if-not magit-rebase-in-progress-p
+   :description (lambda ()
+                  (format (propertize "Rebase %s onto" 'face 'transient-heading)
+                          (propertize (or (magit-get-current-branch) "HEAD")
+                                      'face 'magit-branch-local)))
+   ("p" magit-rebase-onto-pushremote)
+   ("u" magit-rebase-onto-upstream)
+   ("e" "elsewhere" magit-rebase-branch)]
+  ["Rebase"
+   :if-not magit-rebase-in-progress-p
+   [("i" "interactively"      magit-rebase-interactive)
+    ("s" "a subset"           magit-rebase-subset)]
+   [("m" "to modify a commit" magit-rebase-edit-commit)
+    ("w" "to reword a commit" magit-rebase-reword-commit)
+    ("k" "to remove a commit" magit-rebase-remove-commit)
+    ("f" "to autosquash"      magit-rebase-autosquash)
+    (6 "t" "to change dates"  magit-reshelve-since)]]
+  ["Actions"
+   :if magit-rebase-in-progress-p
+   ("r" "Continue" magit-rebase-continue)
+   ("s" "Skip"     magit-rebase-skip)
+   ("e" "Edit"     magit-rebase-edit)
+   ("a" "Abort"    magit-rebase-abort)])
+
+(defun magit-rebase-arguments ()
+  (transient-args 'magit-rebase))
 
 (defun magit-git-rebase (target args)
   (magit-run-git-sequencer "rebase" target args))
 
-;;;###autoload
-(defun magit-rebase-onto-pushremote (args)
-  "Rebase the current branch onto `branch.<name>.pushRemote'.
-If that variable is unset, then rebase onto `remote.pushDefault'."
-  (interactive (list (magit-rebase-arguments)))
-  (--if-let (magit-get-current-branch)
-      (if-let ((remote (magit-get-push-remote it)))
-          (if (member remote (magit-list-remotes))
-              (magit-git-rebase (concat remote "/" it) args)
-            (user-error "Remote `%s' doesn't exist" remote))
-        (user-error "No push-remote is configured for %s" it))
-    (user-error "No branch is checked out")))
+;;;###autoload (autoload 'magit-rebase-onto-pushremote "magit-sequence" nil t)
+(define-suffix-command magit-rebase-onto-pushremote (args &optional set)
+  "Rebase the current branch onto its push-remote branch.
 
-;;;###autoload
-(defun magit-rebase-onto-upstream (args)
-  "Rebase the current branch onto its upstream branch."
-  (interactive (list (magit-rebase-arguments)))
-  (--if-let (magit-get-current-branch)
-      (if-let ((target (magit-get-upstream-branch it)))
-          (magit-git-rebase target args)
-        (user-error "No upstream is configured for %s" it))
-    (user-error "No branch is checked out")))
+When `magit-remote-set-if-missing' is non-nil and
+the push-remote is not configured, then read the push-remote from
+the user, set it, and then rebase onto it.  With a prefix argument
+the push-remote can be changed before rebasing onto to it."
+  :if 'magit--pushbranch-suffix-predicate
+  :description 'magit--pushbranch-suffix-description
+  (interactive (list (magit-rebase-arguments)
+                     (magit--transfer-maybe-read-pushremote "rebase onto")))
+  (magit--transfer-pushremote set
+    (lambda (_ __ remote/branch)
+      (magit-git-rebase remote/branch args))))
+
+;;;###autoload (autoload 'magit-rebase-onto-upstream "magit-sequence" nil t)
+(define-suffix-command magit-rebase-onto-upstream (args &optional set)
+  "Rebase the current branch onto its upstream branch.
+
+When `magit-remote-set-if-missing' is non-nil and
+the upstream is not configured, then read the upstream from the
+user, set it, and then rebase onto it.  With a prefix argument
+the upstream can be changed before rebasing onto it."
+  :if 'magit--upstream-suffix-predicate
+  :description 'magit--upstream-suffix-description
+  (interactive (list (magit-rebase-arguments)
+                     (magit--transfer-maybe-read-upstream "rebase onto")))
+  (magit--transfer-upstream set
+    (lambda (_ upstream)
+      (magit-git-rebase upstream args))))
 
 ;;;###autoload
 (defun magit-rebase-branch (target args)

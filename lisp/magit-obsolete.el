@@ -29,27 +29,6 @@
 
 (require 'magit)
 
-;;; Obsolete since v2.90.0
-
-(define-obsolete-function-alias 'magit-reset-head 'magit-reset-mixed "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-gitignore 'magit-gitignore-globally "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-branch 'magit-branch-create "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-tag 'magit-tag-create "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-fetch 'magit-fetch-other "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-pull 'magit-pull-branch "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-rebase 'magit-rebase-branch "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-blame 'magit-blame-addition "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-revert 'magit-revert-and-commit "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-reset 'magit-reset-quickly "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-merge 'magit-merge-plain "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-stash 'magit-stash-both "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-snapshot 'magit-snapshot-both "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-push 'magit-push-other "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-commit 'magit-commit-create "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-log 'magit-log-other "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-reflog 'magit-reflog-other "Magit 2.90.0")
-(define-obsolete-function-alias 'magit-diff 'magit-diff-range "Magit 2.90.0")
-
 ;;; Obsolete since v2.91.0
 
 (define-obsolete-variable-alias 'magit-push-current-set-remote-if-missing
