@@ -740,11 +740,11 @@ and also rename the respective reflog file."
    ("r"   magit-branch.<branch>.rebase)
    ("p"   magit-branch.<branch>.pushRemote)]
   ["Configure repository defaults"
-   ("M-r" magit-pull.rebase)
-   ("M-p" magit-remote.pushDefault)]
+   ("R" magit-pull.rebase)
+   ("P" magit-remote.pushDefault)]
   ["Configure branch creation"
-   ("U"   magit-branch.autoSetupMerge)
-   ("R"   magit-branch.autoSetupRebase)]
+   ("a m" magit-branch.autoSetupMerge)
+   ("a r" magit-branch.autoSetupRebase)]
   (interactive
    (list (or (and (not current-prefix-arg)
                   (not (and magit-branch-popup-show-variables
