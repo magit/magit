@@ -37,6 +37,8 @@
 (require 'magit-diff)
 (require 'magit-wip)
 
+(require 'transient) ; See #3732.
+
 ;; For `magit-apply'
 (declare-function magit-am "magit-sequence" ())
 (declare-function magit-patch-apply "magit-files" ())
