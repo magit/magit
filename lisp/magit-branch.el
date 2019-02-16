@@ -673,7 +673,7 @@ the remote."
               (remote (magit-get-push-remote new)))
           (when (and old-target
                      (not new-target)
-                     (magit-y-or-n-p (format "Also rename %S to %S on %S"
+                     (magit-y-or-n-p (format "Also rename %S to %S on \"%s\""
                                              old new remote)))
             ;; Rename on (i.e. within) the remote, but only if the
             ;; destination ref doesn't exist yet.  If that ref already
