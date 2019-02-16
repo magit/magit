@@ -54,6 +54,8 @@
 ;; For `magit-diff-unmerged'
 (declare-function magit-merge-in-progress-p "magit-merge" ())
 (declare-function magit--merge-range "magit-merge" (&optional head))
+;; For `magit-diff--dwim'
+(declare-function forge--pullreq-ref "forge-pullreq" (pullreq))
 
 (require 'diff-mode)
 (require 'smerge-mode)
@@ -910,7 +912,11 @@ If no DWIM context is found, nil is returned."
                           (or current "HEAD")
                           atpoint))))
       (commit (cons 'commit (oref it value)))
-      (stash (cons 'stash (oref it value)))))))
+      (stash (cons 'stash (oref it value)))
+      (pullreq (let ((pullreq (oref it value)))
+                 (format "%s...%s"
+                         (oref pullreq base-ref)
+                         (forge--pullreq-ref pullreq))))))))
 
 (defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
   "Read range or revision with special diff range treatment.
