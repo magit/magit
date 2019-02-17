@@ -1123,7 +1123,7 @@ the %s(1) manpage.
 
 ;;; Bitmaps
 
-(when (window-system)
+(when (fboundp 'define-fringe-bitmap)
   (define-fringe-bitmap 'magit-fringe-bitmap+
     [#b00000000
      #b00011000
