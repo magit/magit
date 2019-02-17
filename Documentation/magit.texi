@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-96-g8a87e935+1)
+@subtitle for version 2.90.1 (v2.90.1-245-g732de659a+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-96-g8a87e935+1).
+This manual is for Magit version 2.90.1 (v2.90.1-245-g732de659a+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -102,7 +102,7 @@ Interface Concepts
 
 * Modes and Buffers::
 * Sections::
-* Popup Buffers and Prefix Commands::
+* Transient Commands::
 * Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
 * Running Git::
 
@@ -481,7 +481,7 @@ Now see @ref{Post-Installation Tasks}.
 @node Installing from the Git Repository
 @section Installing from the Git Repository
 
-Magit depends on the @code{dash}, @code{magit-popup}, and @code{with-editor} libraries
+Magit depends on the @code{dash}, @code{lv}, @code{transient} and @code{with-editor} libraries
 which are available from Melpa and Melpa-Stable.  Install them using
 @code{M-x package-install RET <package> RET}.  Of course you may also install
 them manually from their repository.
@@ -499,17 +499,20 @@ Then compile the libraries and generate the info manuals:
 $ make
 @end example
 
-If you haven't installed @code{dash}, @code{magit-popup} and @code{with-editor} from Melpa
-or at @code{/path/to/magit/../<package>}, then you have to tell @code{make} where to
-find them.  To do so create the file @code{/path/to/magit/config.mk} with the
-following content before running @code{make}:
+If you haven't installed @code{dash}, @code{lv}, @code{transient} and @code{with-editor} from
+Melpa or at @code{/path/to/magit/../<package>}, then you have to tell @code{make}
+where to find them.  To do so create the file @code{/path/to/magit/config.mk}
+with the following content before running @code{make}:
 
 @example
 LOAD_PATH  = -L /path/to/magit/lisp
 LOAD_PATH += -L /path/to/dash
-LOAD_PATH += -L /path/to/magit-popup
+LOAD_PATH += -L /path/to/hydra
+LOAD_PATH += -L /path/to/transient
 LOAD_PATH += -L /path/to/with-editor
 @end example
+
+Note that @code{lv.el} is part of the @code{hydra} repository.
 
 Finally add this to your init file:
 
@@ -699,7 +702,7 @@ then it is highly recommended that you read the next section too.
 @menu
 * Modes and Buffers::
 * Sections::
-* Popup Buffers and Prefix Commands::
+* Transient Commands::
 * Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
 * Running Git::
 @end menu
@@ -1694,22 +1697,18 @@ Whether to append the number of children to section headings.  This
 only affects sections that could benefit from this information.
 @end defopt
 
-@node Popup Buffers and Prefix Commands
-@section Popup Buffers and Prefix Commands
+@node Transient Commands
+@section Transient Commands
 
-Many Magit commands are implemented using @strong{popup buffers}.  First the
-user invokes a @strong{popup} or @strong{prefix} command, which causes a popup buffer
-with the available @strong{infix} arguments and @strong{suffix} commands to be
-displayed.  The user then optionally toggles/sets some arguments and
-finally invokes one of the suffix commands.
+Many Magit commands are implemented as @strong{transient} commands.  First the
+user invokes a @strong{prefix} command, which causes its @strong{infix} arguments and
+@strong{suffix} commands to be displayed in the echo area.  The user then
+optionally sets some infix arguments and finally invokes one of the
+suffix commands.
 
-This is implemented in the library @code{magit-popup}.  Earlier releases used
-the library @code{magit-key-mode}.  A future release will switch to a
-yet-to-be-written successor, which will likely be named @code{transient}.
-
-Because @code{magit-popup} can also be used by other packages without having
-to depend on all of Magit, it is documented in its own manual.  See
-@ref{Top,,,magit-popup,}.
+This is implemented in the library @code{~transient}.  Earlier Magit releases
+used the package @code{magit-popup} and even earlier versions library
+@code{magit-key-mode}.
 
 @table @asis
 @kindex C-c C-c
@@ -3083,7 +3082,7 @@ Like other popups, the log popup also features several arguments that
 can be changed before invoking one of the suffix commands.  However,
 in the case of the log popup, these arguments may be taken from those
 currently in use in the current repository's log buffer, depending on
-the value of @code{magit-use-sticky-arguments} (see @ref{Popup Buffers and Prefix Commands}).
+the value of @code{magit-use-sticky-arguments} (see [BROKEN LINK: *Popup Buffers and Prefix Commands]).
 
 For information about the various arguments, see 
 @ifinfo
@@ -3639,7 +3638,7 @@ Like other popups, the diff popup also features several arguments that
 can be changed before invoking one of the suffix commands.  However,
 in the case of the diff popup, these arguments may be taken from those
 currently in use in the current repository's log buffer, depending on
-the value of @code{magit-use-sticky-arguments} (see @ref{Popup Buffers and Prefix Commands}).
+the value of @code{magit-use-sticky-arguments} (see [BROKEN LINK: *Popup Buffers and Prefix Commands]).
 
 Also see 
 @ifinfo
@@ -9057,7 +9056,7 @@ Visit the previous blob which modified the current file.
 @end table
 
 There are a few additional commands that operate on a single file but
-are not available from the file popup by default:
+are not enabled in the file transient command by default:
 
 @cindex magit-file-rename
 @deffn Command magit-file-rename
@@ -9085,18 +9084,9 @@ contents from a revision.  Both the revision and file are read
 from the user.
 @end deffn
 
-You could add them to the popup like so:
-
-@lisp
-(magit-define-popup-action 'magit-file-popup
-  ?R "Rename file" 'magit-file-rename)
-(magit-define-popup-action 'magit-file-popup
-  ?K "Delete file" 'magit-file-delete)
-(magit-define-popup-action 'magit-file-popup
-  ?U "Untrack file" 'magit-file-untrack)
-(magit-define-popup-action 'magit-file-popup
-  ?C "Checkout file" 'magit-file-checkout)
-@end lisp
+To enable them invoke the transient (@code{C-c M-g}), enter "edit mode" (@code{C-x
+l}), set the "transient level" (@code{C-x l} again), enter @code{5}, and leave edit
+mode (@code{C-g}).  Also see @ref{Enabling and Disabling Suffixes,,,transient,}.
 
 @node Minor Mode for Buffers Visiting Blobs
 @section Minor Mode for Buffers Visiting Blobs
@@ -9505,9 +9495,8 @@ abstractions to extend Magit itself or implement a separate extension.
 
 A few of the low-level features used by Magit have been factored out
 into separate libraries/packages, so that they can be used by other
-packages, without having to depend on Magit.  These libraries are
-described in separate manuals, see @ref{Top,,,with-editor,} and
-@ref{Top,,,magit-popup,}.
+packages, without having to depend on Magit.  See @ref{Top,,,with-editor,} for
+information about @code{with-editor}.  @code{transient} doesn't have a manual yet.
 
 If you are trying to find an unused key that you can bind to a
 command provided by your own Magit extension, then checkout

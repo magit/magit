@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-96-g8a87e935+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-245-g732de659a+1)
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
@@ -23,7 +23,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-96-g8a87e935+1).
+This manual is for Magit version 2.90.1 (v2.90.1-245-g732de659a+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -6617,7 +6617,7 @@ few key bindings, but this might be extended in the future.
   Visit the previous blob which modified the current file.
 
 There are a few additional commands that operate on a single file but
-are not available from the file popup by default:
+are not enabled in the file transient command by default:
 
 - Command: magit-file-rename
 
@@ -6637,18 +6637,9 @@ are not available from the file popup by default:
   contents from a revision.  Both the revision and file are read
   from the user.
 
-You could add them to the popup like so:
-
-#+BEGIN_SRC emacs-lisp
-  (magit-define-popup-action 'magit-file-popup
-    ?R "Rename file" 'magit-file-rename)
-  (magit-define-popup-action 'magit-file-popup
-    ?K "Delete file" 'magit-file-delete)
-  (magit-define-popup-action 'magit-file-popup
-    ?U "Untrack file" 'magit-file-untrack)
-  (magit-define-popup-action 'magit-file-popup
-    ?C "Checkout file" 'magit-file-checkout)
-#+END_SRC
+To enable them invoke the transient (~C-c M-g~), enter "edit mode" (~C-x
+l~), set the "transient level" (~C-x l~ again), enter ~5~, and leave edit
+mode (~C-g~).  Also see [[info:transient#Enabling and Disabling Suffixes]].
 
 ** Minor Mode for Buffers Visiting Blobs
 
