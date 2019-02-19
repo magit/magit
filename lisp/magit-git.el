@@ -1177,8 +1177,8 @@ to, or to some other symbolic-ref that points to the same ref."
            (memq (get-text-property (point) 'face)
                  (list 'magit-branch-local
                        'magit-branch-current))
-           (cdr (magit-split-branch-name
-                 (thing-at-point 'git-revision t))))
+           (when-let ((branch (thing-at-point 'git-revision t)))
+             (cdr (magit-split-branch-name branch))))
       (and (not (eq type 'local))
            (memq (get-text-property (point) 'face)
                  (list 'magit-branch-remote
