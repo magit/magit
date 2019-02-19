@@ -50,8 +50,7 @@
 (require 'cl-lib)
 (require 'dash)
 
-(eval-when-compile
-  (require 'subr-x))
+(require 'subr-x)
 
 (require 'with-editor)
 (require 'git-commit)
