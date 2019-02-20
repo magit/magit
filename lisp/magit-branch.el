@@ -206,8 +206,8 @@ has to be used to view and change branch related variables."
   :man-page "git-branch"
   ["Variables"
    :if (lambda ()
-         magit-branch-popup-show-variables
-         (oref transient--prefix scope))
+         (and magit-branch-popup-show-variables
+              (oref transient--prefix scope)))
    ("d" magit-branch.<branch>.description)
    ("u" magit-branch.<branch>.merge/remote)
    ("r" magit-branch.<branch>.rebase)
