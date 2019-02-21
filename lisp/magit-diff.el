@@ -48,7 +48,8 @@
 (declare-function magit-current-blame-chunk "magit-blame" ())
 (declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
-(defvar git-rebase-line)
+;; For `magit-diff-show-or-scroll'
+(declare-function git-rebase-current-line "git-rebase" ())
 ;; For `magit-diff-unmerged'
 (declare-function magit-merge-in-progress-p "magit-merge" ())
 (declare-function magit--merge-range "magit-merge" (&optional head))
@@ -57,7 +58,9 @@
 
 (eval-when-compile
   (cl-pushnew 'base-ref eieio--known-slot-names)
-  (cl-pushnew 'orig-rev eieio--known-slot-names))
+  (cl-pushnew 'orig-rev eieio--known-slot-names)
+  (cl-pushnew 'action-type eieio--known-slot-names)
+  (cl-pushnew 'target eieio--known-slot-names))
 
 (require 'diff-mode)
 (require 'smerge-mode)
@@ -1580,15 +1583,13 @@ commit or stash at point, then prompt for a commit."
       (setq cmd 'magit-show-commit)
       (setq buf (magit-mode-get-buffer 'magit-revision-mode)))
      ((derived-mode-p 'git-rebase-mode)
-      (save-excursion
-        (goto-char (line-beginning-position))
-        (--if-let (and git-rebase-line
-                       (looking-at git-rebase-line)
-                       (match-string 2))
-            (progn (setq rev it)
-                   (setq cmd 'magit-show-commit)
-                   (setq buf (magit-mode-get-buffer 'magit-revision-mode)))
-          (user-error "No commit on this line"))))
+      (with-slots (action-type target)
+          (git-rebase-current-line)
+        (if (not (eq action-type 'commit))
+            (user-error "No commit on this line")
+          (setq rev target)
+          (setq cmd 'magit-show-commit)
+          (setq buf (magit-mode-get-buffer 'magit-revision-mode)))))
      (t
       (magit-section-case
         (branch
