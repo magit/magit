@@ -285,10 +285,19 @@ current line."
     (save-restriction
       (narrow-to-region
        (point-min)
-       (1+ (save-excursion
-             (goto-char (point-min))
-             (while (re-search-forward git-rebase-line nil t))
-             (point))))
+       (1-
+        (if git-rebase-show-instructions
+            (save-excursion
+              (goto-char (point-min))
+              (while (or (git-rebase-line-p)
+                         ;; The output for --rebase-merges has empty
+                         ;; lines and "Branch" comments interspersed.
+                         (looking-at-p "^$")
+                         (looking-at-p (concat git-rebase-comment-re
+                                               " Branch")))
+                (forward-line))
+              (line-beginning-position))
+          (point-max))))
       (if (or (and (< n 0) (= beg (point-min)))
               (and (> n 0) (= end (point-max)))
               (> end (point-max)))
