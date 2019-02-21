@@ -577,7 +577,8 @@ For X11 something like ~/.xinitrc should work.\n"
     (require 'magit-extras)
     (require 'git-rebase)
     (require 'magit-imenu)
-    (require 'magit-bookmark)))
+    (require 'magit-bookmark)
+    (require 'magit-gitignore)))
 
 (eval-after-load 'bookmark
   '(require 'magit-bookmark))
