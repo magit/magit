@@ -53,6 +53,7 @@
 ;;   e        Edit the commit at point.
 ;;   s        Squash the commit at point, into the one above.
 ;;   f        Like "s" but don't also edit the commit message.
+;;   b        Break for editing at this point in the sequence.
 ;;   x        Add a script to be run with the commit at point
 ;;            being checked out.
 ;;   z        Add noop action at point.
@@ -154,6 +155,7 @@
            (define-key map (kbd   "c") 'git-rebase-pick)
            (define-key map (kbd   "k") 'git-rebase-kill-line)
            (define-key map (kbd "C-k") 'git-rebase-kill-line)))
+    (define-key map (kbd "b") 'git-rebase-break)
     (define-key map (kbd "e") 'git-rebase-edit)
     (define-key map (kbd "m") 'git-rebase-edit)
     (define-key map (kbd "f") 'git-rebase-fixup)
@@ -244,7 +246,8 @@
 (defvar-local git-rebase-comment-re nil)
 
 (defvar git-rebase-short-options
-  '((?e . "edit")
+  '((?b . "break")
+    (?e . "edit")
     (?f . "fixup")
     (?p . "pick")
     (?r . "reword")
@@ -277,7 +280,7 @@
                             "\\(?1:")
                 " \\(?3:[^ \n]+\\) \\(?4:.*\\)"))
     (exec . "\\(?1:x\\|exec\\) \\(?3:.*\\)")
-    (bare . ,(concat (regexp-opt '("noop") "\\(?1:")
+    (bare . ,(concat (regexp-opt '("b" "break" "noop") "\\(?1:")
                      " *$"))))
 
 ;;;###autoload
@@ -495,6 +498,20 @@ no commits are selected.  Without the noop action present, git
 would see an empty file and therefore do nothing."
   (interactive "P")
   (git-rebase-set-bare-action "noop" arg))
+
+(defun git-rebase-break (&optional arg)
+  "Add break action at point.
+
+If there is a commented break action present, remove the comment.
+If the current line already contains a break action, add another
+break action only if a prefix argument is given.
+
+A break action can be used to interrupt the rebase at the
+specified point.  It is particularly useful for pausing before
+the first commit in the sequence.  For other cases, the
+equivalent behavior can be achieved with `git-rebase-edit'."
+  (interactive "P")
+  (git-rebase-set-bare-action "break" arg))
 
 (defun git-rebase-undo (&optional arg)
   "Undo some previous changes.
