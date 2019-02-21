@@ -121,6 +121,10 @@
   "Face for commit hashes."
   :group 'git-rebase-faces)
 
+(defface git-rebase-label '((t (:inherit magit-refname)))
+  "Face for labels in label, merge, and reset lines."
+  :group 'git-rebase-faces)
+
 (defface git-rebase-description nil
   "Face for commit descriptions."
   :group 'git-rebase-faces)
@@ -721,6 +725,18 @@ running 'man git-rebase' at the command line) for details."
      (3 'git-rebase-description))
     (,(concat "^" (cdr (assq 'bare git-rebase-line-regexps)))
      (1 'font-lock-keyword-face))
+    (,(concat "^" (cdr (assq 'label git-rebase-line-regexps)))
+     (1 'font-lock-keyword-face)
+     (3 'git-rebase-label)
+     (4 'font-lock-comment-face))
+    ("^\\(m\\(?:erge\\)?\\) -[Cc] \\([^ \n]+\\) \\([^ \n]+\\)\\( #.*\\)?"
+     (1 'font-lock-keyword-face)
+     (2 'git-rebase-hash)
+     (3 'git-rebase-label)
+     (4 'font-lock-comment-face))
+    ("^\\(m\\(?:erge\\)?\\) \\([^ \n]+\\)"
+     (1 'font-lock-keyword-face)
+     (2 'git-rebase-label))
     (,(concat git-rebase-comment-re " *"
               (cdr (assq 'commit git-rebase-line-regexps)))
      0 'git-rebase-killed-action t)
@@ -731,7 +747,9 @@ running 'man git-rebase' at the command line) for details."
      (1 'git-rebase-comment-hash t)
      (2 'git-rebase-comment-hash t))
     (,(format "^%s \\(Commands:\\)" comment-start)
-     (1 'git-rebase-comment-heading t))))
+     (1 'git-rebase-comment-heading t))
+    (,(format "^%s Branch \\(.*\\)" comment-start)
+     (1 'git-rebase-label t))))
 
 (defun git-rebase-mode-show-keybindings ()
   "Modify the \"Commands:\" section of the comment Git generates
