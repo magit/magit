@@ -31,6 +31,9 @@
 
 ;;; Obsolete since v2.91.0
 
+(define-obsolete-function-alias 'magit-dispatch-popup
+  'magit-dispatch "Magit 2.91.0")
+
 (define-obsolete-variable-alias 'magit-push-current-set-remote-if-missing
   'magit-remote-set-if-missing "Magit 2.91.0")
 
