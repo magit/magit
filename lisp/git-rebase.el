@@ -65,6 +65,9 @@
 ;;
 ;;   Commands for --rebase-merges:
 ;;   l        Associate label with current HEAD in sequence.
+;;   MM       Merge specified revisions into HEAD.
+;;   Mt       Toggle whether the merge will invoke an editor
+;;            before committing.
 ;;   t        Reset HEAD to the specified label.
 
 ;; You should probably also read the `git-rebase' manpage.
@@ -162,6 +165,8 @@
     (define-key map (kbd "b") 'git-rebase-break)
     (define-key map (kbd "e") 'git-rebase-edit)
     (define-key map (kbd "l") 'git-rebase-label)
+    (define-key map (kbd "MM") 'git-rebase-merge)
+    (define-key map (kbd "Mt") 'git-rebase-merge-toggle-editmsg)
     (define-key map (kbd "m") 'git-rebase-edit)
     (define-key map (kbd "f") 'git-rebase-fixup)
     (define-key map (kbd "q") 'undefined)
@@ -256,6 +261,7 @@
     (?e . "edit")
     (?f . "fixup")
     (?l . "label")
+    (?m . "merge")
     (?p . "pick")
     (?r . "reword")
     (?s . "squash")
@@ -264,7 +270,7 @@
   "Alist mapping single key of an action to the full name.")
 
 (defclass git-rebase-action ()
-  (;; action-type: commit, exec, bare, label
+  (;; action-type: commit, exec, bare, label, merge
    (action-type    :initarg :action-type    :initform nil)
    ;; Examples for each action type:
    ;; | action | action options | target  | trailer |
@@ -273,6 +279,7 @@
    ;; | exec   |                | command |         |
    ;; | noop   |                |         |         |
    ;; | reset  |                | name    | subject |
+   ;; | merge  | -C hash        | name    | subject |
    (action         :initarg :action         :initform nil)
    (action-options :initarg :action-options :initform nil)
    (target         :initarg :target         :initform nil)
@@ -294,7 +301,11 @@
     (label . ,(concat (regexp-opt '("l" "label"
                                     "t" "reset")
                                   "\\(?1:")
-                      " \\(?3:[^ \n]+\\) ?\\(?4:.*\\)"))))
+                      " \\(?3:[^ \n]+\\) ?\\(?4:.*\\)"))
+    (merge . ,(concat "\\(?1:m\\|merge\\) "
+                      "\\(?:\\(?2:-[cC] [^ \n]+\\) \\)?"
+                      "\\(?3:[^ \n]+\\)"
+                      " ?\\(?4:.*\\)"))))
 
 ;;;###autoload
 (defun git-rebase-current-line ()
@@ -516,6 +527,42 @@ input, remove the reset command on the current line, if any."
                                 nil t initial)
          ""))
    arg))
+
+(defun git-rebase-merge (arg)
+  "Add a merge command after the current commit.
+If there is already a merge command on the current line, then
+replace that command instead.  With a prefix argument, insert a
+new merge command even when there is already one on the current
+line.  With empty input, remove the merge command on the current
+line, if any."
+  (interactive "P")
+  (git-rebase-set-noncommit-action
+   "merge"
+   (lambda (_)
+     (or (magit-completing-read "Merge" (git-rebase-buffer-labels))
+         ""))
+   arg))
+
+(defun git-rebase-merge-toggle-editmsg ()
+  "Toggle whether an editor is invoked when performing the merge at point.
+When a merge command uses a lower-case -c, the message for the
+specified commit will be opened in an editor before creating the
+commit.  For an upper-case -C, the message will be used as is."
+  (interactive)
+  (with-slots (action-type target action-options trailer)
+      (git-rebase-current-line)
+    (if (eq action-type 'merge)
+        (let ((inhibit-read-only t))
+          (magit-delete-line)
+          (insert
+           (format "merge %s %s %s\n"
+                   (replace-regexp-in-string
+                    "-[cC]" (lambda (c)
+                              (if (equal c "-c") "-C" "-c"))
+                    action-options t t)
+                   target
+                   trailer)))
+      (ding))))
 
 (defun git-rebase-set-bare-action (action arg)
   (goto-char (line-beginning-position))
