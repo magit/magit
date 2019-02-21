@@ -34,6 +34,14 @@
 
 (require 'magit)
 
+;; For `magit-rebase--todo'.
+(declare-function git-rebase-current-line "git-rebase" ())
+(eval-when-compile
+  (cl-pushnew 'action-type eieio--known-slot-names)
+  (cl-pushnew 'action eieio--known-slot-names)
+  (cl-pushnew 'action-options eieio--known-slot-names)
+  (cl-pushnew 'target eieio--known-slot-names))
+
 ;;; Options
 ;;;; Faces
 
@@ -853,22 +861,40 @@ If no such sequence is in progress, do nothing."
           (magit-rebase-insert-apply-sequence onto))
         (insert ?\n)))))
 
+(defun magit-rebase--todo ()
+  "Return `git-rebase-action' instances for remaining rebase actions.
+These are ordered in that the same way they'll be sorted in the
+status buffer (i.e. the reverse of how they will be applied)."
+  (let ((comment-start (or (magit-get "core.commentChar") "#"))
+        lines)
+    (with-temp-buffer
+      (insert-file-contents (magit-git-dir "rebase-merge/git-rebase-todo"))
+      (while (not (eobp))
+        (let ((ln (git-rebase-current-line)))
+          (when (oref ln action-type)
+            (push ln lines)))
+        (forward-line)))
+    lines))
+
 (defun magit-rebase-insert-merge-sequence (onto)
-  (let (exec)
-    (dolist (line (nreverse
-                   (magit-file-lines
-                    (magit-git-dir "rebase-merge/git-rebase-todo"))))
-      (cond ((string-prefix-p "exec" line)
-             (setq exec (substring line 5)))
-            ((string-match (format "^\\([^%c ]+\\) \\([^ ]+\\) .*$"
-                                   (string-to-char
-                                    (or (magit-get "core.commentChar") "#")))
-                           line)
-             (magit-bind-match-strings (action hash) line
-               (unless (equal action "exec")
-                 (magit-sequence-insert-commit
-                  action hash 'magit-sequence-pick exec)))
-             (setq exec nil)))))
+  (dolist (line (magit-rebase--todo))
+    (with-slots (action-type action action-options target) line
+      (pcase action-type
+        (`commit
+         (magit-sequence-insert-commit action target 'magit-sequence-pick))
+        ((or (or `exec `label)
+             (and `merge (guard (not action-options))))
+         (insert (propertize action 'face 'magit-sequence-onto) "\s"
+                 (propertize target 'face 'git-rebase-label) "\n"))
+        (`merge
+         (if-let ((hash (and (string-match "-[cC] \\([^ ]+\\)" action-options)
+                             (match-string 1 action-options))))
+             (magit-insert-section (commit hash)
+               (magit-insert-heading
+                 (propertize "merge" 'face 'magit-sequence-pick)
+                 "\s"
+                 (magit-format-rev-summary hash) "\n"))
+           (error "failed to parse merge message hash"))))))
   (magit-sequence-insert-sequence
    (magit-file-line (magit-git-dir "rebase-merge/stopped-sha"))
    onto
