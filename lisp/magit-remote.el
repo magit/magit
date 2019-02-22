@@ -46,7 +46,7 @@ variable isn't already set."
                  (string :tag "set if named")
                  (const  :tag "don't set")))
 
-(defcustom magit-remote-popup-show-variables t
+(defcustom magit-remote-direct-configure t
   "Whether the command `magit-remote' shows Git variables.
 When set to nil, no variables are displayed by this transient
 command, instead the sub-transient `magit-remote-configure'
@@ -90,7 +90,7 @@ values."
   :value '("-f")
   ["Variables"
    :if (lambda ()
-         (and magit-remote-popup-show-variables
+         (and magit-remote-direct-configure
               (oref transient--prefix scope)))
    ("u" magit-remote.<remote>.url)
    ("U" magit-remote.<remote>.fetch)
@@ -286,7 +286,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
    ("O" magit-remote.<remote>.tagopt)]
   (interactive
    (list (or (and (not current-prefix-arg)
-                  (not (and magit-remote-popup-show-variables
+                  (not (and magit-remote-direct-configure
                             (eq current-transient-command 'magit-remote)))
                   (magit-get-current-remote))
              (magit--read-remote-scope))))

@@ -183,7 +183,7 @@ Another supported but obsolete value is `github-only'.  It is a
           (const :tag "... and rename corresponding branch on remote" t)
           (const :tag "... but only if remote is on a forge" forge-only)))
 
-(defcustom magit-branch-popup-show-variables t
+(defcustom magit-branch-direct-configure t
   "Whether the command `magit-branch' shows Git variables.
 When set to nil, no variables are displayed by this transient
 command, instead the sub-transient `magit-branch-configure'
@@ -206,7 +206,7 @@ has to be used to view and change branch related variables."
   :man-page "git-branch"
   ["Variables"
    :if (lambda ()
-         (and magit-branch-popup-show-variables
+         (and magit-branch-direct-configure
               (oref transient--prefix scope)))
    ("d" magit-branch.<branch>.description)
    ("u" magit-branch.<branch>.merge/remote)
@@ -747,7 +747,7 @@ and also rename the respective reflog file."
    ("a r" magit-branch.autoSetupRebase)]
   (interactive
    (list (or (and (not current-prefix-arg)
-                  (not (and magit-branch-popup-show-variables
+                  (not (and magit-branch-direct-configure
                             (eq current-transient-command 'magit-branch)))
                   (magit-get-current-branch))
              (magit--read-remote-scope))))
