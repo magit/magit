@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-245-g732de659a+1)
+@subtitle for version 2.90.1 (v2.90.1-252-g8df54f151+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-245-g732de659a+1).
+This manual is for Magit version 2.90.1 (v2.90.1-252-g8df54f151+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -215,8 +215,8 @@ Committing
 Branching
 
 * The Two Remotes::
-* The Branch Popup::
-* The Branch Config Popup::
+* Branch Commands::
+* Branch Git Variables::
 * Auxiliary Branch Commands::
 
 
@@ -237,13 +237,13 @@ Transferring
 * Fetching::
 * Pulling::
 * Pushing::
-* Creating and Sending Patches::
-* Applying Patches::
+* Plain Patches::
+* Maildir Patches::
 
 Remotes
 
-* The Remote Popup::
-* The Remote Config Popup::
+* Remote Commands::
+* Remote Git Variables::
 
 
 Miscellaneous
@@ -261,7 +261,7 @@ Miscellaneous
 Submodules
 
 * Listing Submodules::
-* Submodule Popup::
+* Submodule Transient::
 
 
 Wip Modes
@@ -652,10 +652,10 @@ like it does in other buffers, then it doesn't select Magit sections
 that can be acted on as a unit.
 
 And then of course you want to commit your changes.  Type @code{c}.  This
-shows the committing popup buffer featuring various commit variants
-and arguments that can be passed to @code{git commit}.  Do not worry about
-those for now.  We want to create a "normal" commit, which is done by
-typing @code{c} again.
+shows the available commit commands and arguments in a buffer at the
+bottom of the frame.  Each command and argument is prefixed with the
+key that invokes/sets it.  Do not worry about this for now.  We want
+to create a "normal" commit, which is done by typing @code{c} again.
 
 Now two new buffers appear.  One is for writing the commit message,
 the other shows a diff with the changes that you are about to
@@ -664,29 +664,29 @@ the commit.
 
 You probably don't want to push the commit you just created because
 you just committed some random changes, but if that is not the case
-you could push it by typing @code{P} to bring up the push popup and then @code{p}
-to push to a branch with the same name as the local branch onto the
-remote configured as the push-remote.  (If the push-remote is not
-configured yet, then you would first be prompted for the remote to
-push to.)
+you could push it by typing @code{P} to show all the available push commands
+and arguments and then @code{p} to push to a branch with the same name as the
+local branch onto the remote configured as the push-remote.  (If the
+push-remote is not configured yet, then you would first be prompted
+for the remote to push to.)
 
-So far we have mentioned the commit, push, and log popups.  These are
-probably among the popups you will be using the most, but many others
-exist.  To show a popup that lists all other popups (as well as the
-various apply commands and some other fundamental commands), type @code{h}.
-Try a few.
+So far we have mentioned the commit, push, and log transient prefix
+commands.  These are probably among the transients you will be using
+the most, but many others exist.  To show a transient that lists all
+other transients (as well as the various apply commands and some other
+essential commands), type @code{h}.  Try a few.
 
-The key bindings in that popup correspond to the bindings in Magit
+The key bindings in that transient correspond to the bindings in Magit
 buffers, including but not limited to the status buffer.  So you could
-type @code{h d} to bring up the diff popup, but once you remember that "d"
-stands for "diff", you would usually do so by just typing @code{d}.  But the
-"popup of popups" is useful even once you have memorized all the
-bindings, as it can provide easy access to Magit commands from
+type @code{h d} to bring up the diff transient, but once you remember that
+"d" stands for "diff", you would usually do so by just typing @code{d}.  But
+this "prefix of prefixes" is useful even once you have memorized all
+the bindings, as it can provide easy access to Magit commands from
 non-Magit buffers.  You should create a global key binding for this
 command too:
 
 @lisp
-(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+(global-set-key (kbd "C-x M-g") 'magit-dispatch)
 @end lisp
 
 In the same vein, you might also want to enable @code{global-magit-file-mode}
@@ -1706,45 +1706,49 @@ user invokes a @strong{prefix} command, which causes its @strong{infix} argument
 optionally sets some infix arguments and finally invokes one of the
 suffix commands.
 
-This is implemented in the library @code{~transient}.  Earlier Magit releases
+This is implemented in the library @code{transient}.  Earlier Magit releases
 used the package @code{magit-popup} and even earlier versions library
 @code{magit-key-mode}.
 
+Transient is documented in @ref{Top,,,transient,}.
+
 @table @asis
 @kindex C-c C-c
-@cindex magit-dispatch-popup
-@item @kbd{C-c C-c} @tie{}@tie{}@tie{}@tie{}(@code{magit-dispatch-popup})
+@cindex magit-dispatch
+@item @kbd{C-c C-c} @tie{}@tie{}@tie{}@tie{}(@code{magit-dispatch})
 
-This popup command shows a buffer featuring all other Magit popup
-commands as well as some other commands that are not popup commands
-themselves.
+This transient prefix command binds most of Magit's other prefix
+commands as suffix commands and displays them in a temporary buffer
+until one of them is invoked.  Invoking such a sub-prefix causes the
+suffixes of that command to be bound and displayed instead of those
+of @code{magit-dispatch}.
 @end table
 
 This command is also, or especially, useful outside Magit buffers, so
 you should setup a global binding:
 
 @lisp
-(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+(global-set-key (kbd "C-x M-g") 'magit-dispatch)
 @end lisp
 
-Most popups set their initial arguments according to the corresponding
-@code{magit-*-arguments} variable.  Two popups, the log and diff popups
-(see @ref{Logging} and @ref{Diffing}), may behave a bit differently, depending
-on the value of @code{magit-use-sticky-arguments}.
+Transient commands remember the used arguments for subsequent
+invocations.  Two transients, the log and diff transients (see
+@ref{Logging} and @ref{Diffing}), may behave a bit differently, depending on the
+value of @code{magit-use-sticky-arguments}.
 
 @defopt magit-use-sticky-arguments
 
-This option controls how diff and log commands reuse arguments from
-existing buffers.
+This option controls how the diff and log transients reuse arguments
+from existing buffers.
 
-When @code{t} (the default value), the log or diff popup reuses the
-arguments from the current repository's log or diff buffer,
+When @code{t} (the default value), then the log or diff transients reuses
+the arguments from the current repository's log or diff buffer,
 respectively.  When no log or diff buffer exists for the current
-repository, these popups use the default value of
+repository, these transients use the default value of
 @code{magit-log-arguments} or @code{magit-diff-arguments}.
 
-When @code{current}, log and diff popups will only reuse the arguments if
-the current buffer is derived from @code{magit-log-mode} or
+When @code{current}, log and diff transients will only reuse the arguments
+if the current buffer is derived from @code{magit-log-mode} or
 @code{magit-diff-mode}, respectively.
 
 When @code{nil}, the default value of @code{magit-log-arguments} or
@@ -1920,9 +1924,9 @@ branches listed in @code{magit-published-branches}.
 
 @item
 @code{rebase-published} Affects commands that perform interactive
-rebases.  This includes commands from the commit popup that
-modify a commit other than "HEAD", namely the various fixup
-and squash variants.
+rebases.  This includes commands from the commit transient that
+modify a commit other than "HEAD", namely the various fixup and
+squash variants.
 
 
 @item
@@ -2312,10 +2316,11 @@ switch to a shell.
 
 @table @asis
 @kindex !
-@cindex magit-run-popup
-@item @kbd{!} @tie{}@tie{}@tie{}@tie{}(@code{magit-run-popup})
+@cindex magit-run
+@item @kbd{!} @tie{}@tie{}@tie{}@tie{}(@code{magit-run})
 
-Shows the popup buffer featuring the below suffix commands.
+This transient prefix command binds the following suffix commands
+and displays them in a temporary buffer until a suffix is invoked.
 
 @kindex ! !
 @cindex magit-git-command-topdir
@@ -3074,15 +3079,16 @@ but not its push branch.
 @section Logging
 
 The status buffer contains logs for the unpushed and unpulled commits,
-but that obviously isn't enough.  The prefix command @code{magit-log-popup},
-on @code{l}, features several suffix commands, which show a specific log in a
-separate log buffer.
+but that obviously isn't enough.  The transient prefix command
+@code{magit-log}, on @code{l}, features several suffix commands, which show a
+specific log in a separate log buffer.
 
-Like other popups, the log popup also features several arguments that
-can be changed before invoking one of the suffix commands.  However,
-in the case of the log popup, these arguments may be taken from those
-currently in use in the current repository's log buffer, depending on
-the value of @code{magit-use-sticky-arguments} (see [BROKEN LINK: *Popup Buffers and Prefix Commands]).
+Like other transient prefix commands, @code{magit-log} also features several
+infix arguments that can be changed before invoking one of the suffix
+commands.  However, in the case of the log transient, these arguments
+may be taken from those currently in use in the current repository's
+log buffer, depending on the value of @code{magit-use-sticky-arguments} (see
+@ref{Transient Commands}).
 
 For information about the various arguments, see 
 @ifinfo
@@ -3100,15 +3106,16 @@ the git-log(1) manpage.
 The switch @code{++order=VALUE} is converted to one of @code{--author-date-order},
 @code{--date-order}, or @code{--topo-order} before being passed to @code{git log}.
 
-The log popup also features several reflog commands.  See @ref{Reflog}.
+The log transient also features several reflog commands.  See @ref{Reflog}.
 
 @table @asis
 @kindex l
-@cindex magit-log-popup
-@item @kbd{l} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-popup})
+@cindex magit-log
+@item @kbd{l} @tie{}@tie{}@tie{}@tie{}(@code{magit-log})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex l l
 @cindex magit-log-current
@@ -3169,18 +3176,19 @@ see @ref{Cherries}.
 @node Refreshing Logs
 @subsection Refreshing Logs
 
-The prefix command @code{magit-log-refresh-popup}, on @code{L}, can be used to
+The transient prefix command @code{magit-log-refresh}, on @code{L}, can be used to
 change the log arguments used in the current buffer, without changing
 which log is shown.  This works in dedicated log buffers, but also in
 the status buffer.
 
 @table @asis
 @kindex L
-@cindex magit-log-refresh-popup
-@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-popup})
+@cindex magit-log-refresh
+@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex L g
 @cindex magit-log-refresh
@@ -3219,11 +3227,14 @@ Show or hide the margin.
 
 @table @asis
 @kindex L
-@cindex magit-log-refresh-popup
-@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh-popup})
+@cindex magit-log-refresh
+@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-refresh})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.  See @ref{Refreshing Logs}.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
+
+See @ref{Refreshing Logs}.
 
 @kindex q
 @cindex magit-log-bury-buffer
@@ -3335,11 +3346,11 @@ feature origin/feature
 [blue-] [green-------]
 @end example
 
-Also note that while the popup features the @code{--show-signature} argument,
-that won't actually be used when enabled, because Magit defaults to
-use just one line per commit.  Instead the commit colorized to
-indicate the validity of the signed commit object, using the faces
-named @code{magit-signature-*} (which see).
+Also note that while the transient features the @code{--show-signature}
+argument, that won't actually be used when enabled, because Magit
+defaults to use just one line per commit.  Instead the commit
+colorized to indicate the validity of the signed commit object,
+using the faces named @code{magit-signature-*} (which see).
 
 For a description of @code{magit-log-margin} see @ref{Log Margin}.
 
@@ -3394,16 +3405,16 @@ options.
 
 @table @asis
 @kindex L
-@cindex magit-margin-popup
-@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-margin-popup})
+@cindex magit-margin-settings
+@item @kbd{L} @tie{}@tie{}@tie{}@tie{}(@code{magit-margin-settings})
 
-This prefix command features the following commands for changing the
-appearance of the margin.
+This transient prefix command binds the following suffix commands,
+each of which changes the appearance of the margin in some way.
 @end table
 
-In some buffers that support the margin, "L" is bound to
-@code{magit-log-refresh-popup}, but that popup features the same commands,
-and then some other unrelated commands.
+In some buffers that support the margin, @code{L} is instead bound to
+@code{magit-log-refresh}, but that transient features the same commands, and
+then some other unrelated commands.
 
 @table @asis
 @kindex L L
@@ -3506,7 +3517,8 @@ the <a href="http://git-scm.com/docs/git-reflog">git-reflog(1)</a> manpage.
 the git-reflog(1) manpage.
 @end iftex
 
-These reflog commands are available from the log popup.  See @ref{Logging}.
+These reflog commands are available from the log transient.  See
+@ref{Logging}.
 
 @table @asis
 @kindex l r
@@ -3630,15 +3642,16 @@ is shown, then this specifies how much space is used to do so.
 @section Diffing
 
 The status buffer contains diffs for the staged and unstaged commits,
-but that obviously isn't enough.  The prefix command @code{magit-diff-popup},
-on @code{d}, features several suffix commands, which show a specific diff in
-a separate diff buffer.
+but that obviously isn't enough.  The transient prefix command
+@code{magit-diff}, on @code{d}, features several suffix commands, which show a
+specific diff in a separate diff buffer.
 
-Like other popups, the diff popup also features several arguments that
-can be changed before invoking one of the suffix commands.  However,
-in the case of the diff popup, these arguments may be taken from those
-currently in use in the current repository's log buffer, depending on
-the value of @code{magit-use-sticky-arguments} (see [BROKEN LINK: *Popup Buffers and Prefix Commands]).
+Like other transient prefix commands, @code{magit-diff} also features several
+infix arguments that can be changed before invoking one of the suffix
+commands.  However, in the case of the diff transient, these arguments may
+be taken from those currently in use in the current repository's diff
+buffer, depending on the value of @code{magit-use-sticky-arguments} (see
+@ref{Transient Commands}).
 
 Also see 
 @ifinfo
@@ -3655,11 +3668,12 @@ the git-diff(1) manpage.
 
 @table @asis
 @kindex d
-@cindex magit-diff-popup
-@item @kbd{d} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-popup})
+@cindex magit-diff
+@item @kbd{d} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex d d
 @cindex magit-diff-dwim
@@ -3713,8 +3727,8 @@ Show changes between any two files on disk.
 @end table
 
 All of the above suffix commands update the repository's diff buffer.
-The diff popup also features two commands which show differences in
-another buffer:
+The diff transient also features two commands which show differences
+in another buffer:
 
 @table @asis
 @kindex d c
@@ -3744,18 +3758,19 @@ is being visited in the current buffer exists, see @ref{Minor Mode for Buffers V
 @node Refreshing Diffs
 @subsection Refreshing Diffs
 
-The prefix command @code{magit-diff-refresh-popup}, on @code{D}, can be used to
+The transient prefix command @code{magit-diff-refresh}, on @code{D}, can be used to
 change the diff arguments used in the current buffer, without changing
 which diff is shown.  This works in dedicated diff buffers, but also
 in the status buffer.
 
 @table @asis
 @kindex D
-@cindex magit-diff-refresh-popup
-@item @kbd{D} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-refresh-popup})
+@cindex magit-diff-refresh
+@item @kbd{D} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-refresh})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex D g
 @cindex magit-diff-refresh
@@ -3815,9 +3830,9 @@ useful when you display a revision from a log buffer that is
 restricted to a file or files.
 @end table
 
-In addition to the above popup, which allows changing any of the
-supported arguments, there also exist some commands which change a
-particular argument.
+In addition to the above transient, which allows changing any of the
+supported arguments, there also exist some commands that change only
+a particular argument.
 
 @table @asis
 @kindex -
@@ -3840,7 +3855,7 @@ This command resets the context for diff hunks to the default height.
 @end table
 
 The following commands quickly change what diff is being displayed
-without having to using one of the diff popups.
+without having to using one of the diff transient.
 
 @table @asis
 @kindex C-c C-d
@@ -4235,7 +4250,7 @@ from a log buffer, the revision buffer will share the same file
 restriction as that log buffer (also see the command
 @code{magit-diff-toggle-file-filter}).  Note, however, that the log's file
 restriction will be ignored when @code{magit-log-arguments} includes
-@code{--follow}.  In this case, the @code{-u} argument of the log popup can be
+@code{--follow}.  In this case, the @code{-u} argument of the log transient can be
 used to show the file-restricted diffs inline.
 
 If the revision buffer is not displayed from a log buffer, the file
@@ -4265,11 +4280,11 @@ explicitly.  If it cannot read the user's mind at all, then it asks
 the user for a command to run.
 
 @kindex E
-@cindex magit-ediff-popup
-@item @kbd{E} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff-popup})
+@cindex magit-ediff
+@item @kbd{E} @tie{}@tie{}@tie{}@tie{}(@code{magit-ediff})
 
-This prefix command shows the following suffix commands in a popup
-buffer.
+This transient prefix command binds the following suffix commands
+and displays them in a temporary buffer until a suffix is invoked.
 
 @kindex E r
 @cindex magit-ediff-compare
@@ -4369,35 +4384,45 @@ that were created using a Magit command.
 
 @table @asis
 @kindex y
-@cindex magit-show-refs-popup
-@item @kbd{y} @tie{}@tie{}@tie{}@tie{}(@code{magit-show-refs-popup})
+@cindex magit-show-refs
+@item @kbd{y} @tie{}@tie{}@tie{}@tie{}(@code{magit-show-refs})
 
-List and compare references in a dedicated buffer.  By default all
-refs are compared with @code{HEAD}, but with a prefix argument this command
-instead acts as a prefix command and shows the following suffix
-commands along with the appropriate infix arguments in a popup
-buffer.
+This command lists branches and tags in a dedicated buffer.
 
+However if this command is invoked again from this buffer or if it
+is invoked with a prefix argument, then it acts as a transient
+prefix command, which binds the following suffix commands and some
+infix arguments.
+@end table
+
+All of the following suffix commands list exactly the same branches
+and tags.  The only difference the optional feature that can be
+enabled by changing the value of @code{magit-refs-show-commit-count} (see
+below).  These commands specify a different branch or commit against
+which all the other references are compared.
+
+@table @asis
 @kindex y y
 @cindex magit-show-refs-head
 @item @kbd{y y} @tie{}@tie{}@tie{}@tie{}(@code{magit-show-refs-head})
 
-List and compare references in a dedicated buffer.  Refs are
-compared with @code{HEAD}.
+This command lists branches and tags in a dedicated buffer.  Each
+reference is being compared with @code{HEAD}.
 
 @kindex y c
 @cindex magit-show-refs-current
 @item @kbd{y c} @tie{}@tie{}@tie{}@tie{}(@code{magit-show-refs-current})
 
-List and compare references in a dedicated buffer.  Refs are
-compared with the current branch or @code{HEAD} if it is detached.
+This command lists branches and tags in a dedicated buffer.  Each
+reference is being compared with the current branch or @code{HEAD} if it
+is detached.
 
 @kindex y o
-@cindex magit-show-refs
-@item @kbd{y o} @tie{}@tie{}@tie{}@tie{}(@code{magit-show-refs})
+@cindex magit-show-refs-other
+@item @kbd{y o} @tie{}@tie{}@tie{}@tie{}(@code{magit-show-refs-other})
 
-List and compare references in a dedicated buffer.  Refs are
-compared with a branch read from the user.
+This command lists branches and tags in a dedicated buffer.  Each
+reference is being compared with a branch read from the user.
 
 @end table
 
@@ -4705,15 +4730,15 @@ the git-bisect(1) manpage.
 
 @table @asis
 @kindex B
-@cindex magit-bisect-popup
-@item @kbd{B} @tie{}@tie{}@tie{}@tie{}(@code{magit-bisect-popup})
+@cindex magit-bisect
+@item @kbd{B} @tie{}@tie{}@tie{}@tie{}(@code{magit-bisect})
 
-This prefix command shows the following suffix commands in a
-popup buffer.
+This transient prefix command binds the following suffix commands
+and displays them in a temporary buffer until a suffix is invoked.
 @end table
 
-When bisecting is not in progress, then the popup buffer features the
-following commands.
+When bisecting is not in progress, then the transient features the
+following suffix commands.
 
 @table @asis
 @kindex B B
@@ -4733,8 +4758,8 @@ good and a bad commit.
 Bisect automatically by running commands after each step.
 @end table
 
-When bisecting is in progress, then the popup buffer features these
-commands instead.
+When bisecting in progress, then the transient instead features the
+following suffix commands.
 
 @table @asis
 @kindex B b
@@ -4811,20 +4836,44 @@ the <a href="http://git-scm.com/docs/git-blame">git-blame(1)</a> manpage.
 the git-blame(1) manpage.
 @end iftex
 
-To start blaming you can use @code{M-x} in a file-visiting buffer to invoke
-one of the following commands.  You can also invoke these commands
-using the blame popup, which is available on @code{b} in file-visiting
-buffers that already contain blame information and, also on @code{b}, in all
-blob-visiting buffers.  You can also enter the blame popup from the
-file popup, which is available on @code{C-c M-g}, provided @code{magit-file-mode}
-is enabled, see @ref{Minor Mode for Buffers Visiting Files}.
+To start blaming invoke the @code{magit-file-dispatch} transient prefix
+command by pressing @code{C-c M-g}.  (This is only the default binding and
+the recommended binding is @code{C-c g}.  Also neither binding may be
+available if you disabled @code{global-magit-file-mode}.  Also see @ref{Minor Mode for Buffers Visiting Files}.)
 
+The blaming suffix commands can be invoked from the dispatch
+transient.  However if you want to set an infix argument, then you
+have to enter the blaming sub-transient first.
+
+The key bindings shown below assume that you enter the dispatch
+transient using the default binding.
+
+@table @asis
+@kindex C-c M-g B
+@cindex magit-blame
+@item @kbd{C-c M-g B} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame})
+
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
+@end table
+
+Note that not all of the following suffixes are available at all
+times.  For example if @code{magit-blame-mode} is not enabled, then the
+command whose purpose is to turn of that mode would not be of any
+use and therefore isn't available.
+
+@table @asis
+@kindex C-c M-g b
 @cindex magit-blame-addition
-@deffn Command magit-blame-addition
+@item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-addition})
+@kindex C-c M-g B b
+@cindex magit-blame-addition
+@item @kbd{C-c M-g B b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-addition})
 
 This command augments each line or chunk of lines in the current
-file- or blob-visiting buffer with information about what commits
-last touched these lines.
+file-visiting or blob-visiting buffer with information about what
+commits last touched these lines.
 
 If the buffer visits a revision of that file, then history up to
 that revision is considered.  Otherwise, the file's full history is
@@ -4834,35 +4883,44 @@ If Magit-Blame mode is already turned on in the current buffer then
 blaming is done recursively, by visiting REVISION:FILE (using
 @code{magit-find-file}), where REVISION is a parent of the revision that
 added the current line or chunk of lines.
-@end deffn
 
-@cindex magit-blame-echo
-@deffn Command magit-blame-echo
-
-This command is like @code{magit-blame-addition} except that it doesn't
-turn on @code{read-only-mode} and that it initially uses the visualization
-style specified by option @code{magit-blame-echo-style}.
-@end deffn
-
+@kindex C-c M-g r
 @cindex magit-blame-removal
-@deffn Command magit-blame-removal
+@item @kbd{C-c M-g r} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-removal})
+@kindex C-c M-g B r
+@cindex magit-blame-removal
+@item @kbd{C-c M-g B r} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-removal})
 
 This command augments each line or chunk of lines in the current
 blob-visiting buffer with information about the revision that
 removes it.  It cannot be used in file-visiting buffers.
 
 Like @code{magit-blame-addition}, this command can be used recursively.
-@end deffn
 
+@kindex C-c M-g f
 @cindex magit-blame-reverse
-@deffn Command magit-blame-reverse
+@item @kbd{C-c M-g f} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-reverse})
+@kindex C-c M-g B f
+@cindex magit-blame-reverse
+@item @kbd{C-c M-g B f} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-reverse})
 
 This command augments each line or chunk of lines in the current
-file- or blob-visiting buffer with information about the last
-revision in which a line still existed.
+file-visiting or blob-visiting buffer with information about the
+last revision in which a line still existed.
 
 Like @code{magit-blame-addition}, this command can be used recursively.
-@end deffn
+
+@kindex C-c M-g e
+@cindex magit-blame-echo
+@item @kbd{C-c M-g e} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-echo})
+@kindex C-c M-g B e
+@cindex magit-blame-echo
+@item @kbd{C-c M-g B e} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-echo})
+
+This command is like @code{magit-blame-addition} except that it doesn't
+turn on @code{read-only-mode} and that it initially uses the visualization
+style specified by option @code{magit-blame-echo-style}.
+@end table
 
 The following key bindings are available when Magit-Blame mode is
 enabled and Read-Only mode is not enabled.  These commands are also
@@ -4899,16 +4957,15 @@ in the current frame and if that buffer contains information about
 that commit, then the buffer is scrolled down instead.
 @end table
 
-The following key bindings are available when Magit-Blame mode is
-enabled and Read-Only mode is not enabled.
+The following key bindings are available when both Magit-Blame mode
+and Read-Only mode are enabled.
 
 @table @asis
 @kindex b
-@cindex magit-blame-popup
-@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
+@cindex magit-blame
+@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame})
 
-This prefix command shows the above suffix command along with the
-appropriate infix arguments in a popup buffer.
+See above.
 
 @kindex n
 @cindex magit-blame-next-chunk
@@ -5301,11 +5358,12 @@ the git-commit(1) manpage.
 
 @table @asis
 @kindex c
-@cindex magit-commit-popup
-@item @kbd{c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-popup})
+@cindex magit-commit
+@item @kbd{c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex c c
 @cindex magit-commit-create
@@ -5665,10 +5723,10 @@ finally check current non-comment text.
 
 Propertize the diff shown inside the commit message buffer.  Git
 inserts such diffs into the commit message template when the
-@code{--verbose} argument is used.  Magit's commit popup by default does
-not offer that argument because the diff that is shown in a separate
-buffer is more useful.  But some users disagree, which is why this
-function exists.
+@code{--verbose} argument is used.  @code{magit-commit} by default does not offer
+that argument because the diff that is shown in a separate buffer is
+more useful.  But some users disagree, which is why this function
+exists.
 @end defun
 
 @defun with-editor-usage-message
@@ -5723,8 +5781,8 @@ To show no diff while committing remove @code{magit-commit-diff} from
 
 @menu
 * The Two Remotes::
-* The Branch Popup::
-* The Branch Config Popup::
+* Branch Commands::
+* Branch Git Variables::
 * Auxiliary Branch Commands::
 @end menu
 
@@ -5759,64 +5817,86 @@ variables @code{branch.<name>.pushRemote} and @code{remote.pushDefault}.  So we 
 longer have to choose which of the two remotes should be used as "the
 remote".
 
-Each of the fetching, pulling, and pushing popups features three
-commands that act on the current branch and some other branch.  Of
-these, @code{p} is bound to a command which acts on the push-remote, @code{u} is
-bound to a command which acts on the upstream, and @code{e} is bound to a
-command which acts on any other branch.  The status buffer shows
-unpushed and unpulled commits for both the push-remote and the
-upstream.
+Each of the fetching, pulling, and pushing transient commands features
+three suffix commands that act on the current branch and some other
+branch.  Of these, @code{p} is bound to a command which acts on the
+push-remote, @code{u} is bound to a command which acts on the upstream, and @code{e}
+is bound to a command which acts on any other branch.  The status
+buffer shows unpushed and unpulled commits for both the push-remote
+and the upstream.
 
 It's fairly simple to configure these two remotes.  The values of all
 the variables that are related to fetching, pulling, and pushing (as
 well as some other branch-related variables) can be inspected and
-changed using the popup @code{magit-branch-config-popup}, which is a
-sub-popup of many popups that deal with branches.  It is also possible
-to set the push-remote or upstream while pushing (see @ref{Pushing}).
+changed using the command @code{magit-branch-configure}, which is available
+from many transient prefix commands that deal with branches.  It is
+also possible to set the push-remote or upstream while pushing (see
+@ref{Pushing}).
 
-@node The Branch Popup
-@subsection The Branch Popup
+@node Branch Commands
+@subsection Branch Commands
 
-The popup @code{magit-branch-popup} is used to create and checkout branches,
-and to make changes to existing branches.  It is not used to fetch,
-pull, merge, rebase, or push branches, i.e. this popup deals with
-branches themselves, not with the commits reachable from them.  Those
-features are available from separate popups.
+The transient prefix command @code{magit-branch} is used to create and
+checkout branches, and to make changes to existing branches.  It is
+not used to fetch, pull, merge, rebase, or push branches, i.e. this
+command deals with branches themselves, not with the commits reachable
+from them.  Those features are available from separate transient
+command.
 
 @table @asis
 @kindex b
-@cindex magit-branch-popup
-@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-popup})
+@cindex magit-branch
+@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch})
 
-This prefix command shows the following suffix commands in a popup
-buffer.
+This transient prefix command binds the following suffix commands
+and displays them in a temporary buffer until a suffix is invoked.
 
-By default it also displays the values of some branch-related Git
-variables and allows changing their values, just like the
-specialized @code{magit-branch-config-popup} does.
+By default it also binds and displays the values of some
+branch-related Git variables and allows changing their values.
 
 @end table
 
-@defopt magit-branch-popup-show-variables
+@defopt magit-branch-direct-configure
 
-Whether the @code{magit-branch-popup} shows Git variables.  This defaults
-to t to avoid changing key bindings.  When set to nil, no variables
-are displayed directly in this popup, and the sub-popup
-@code{magit-branch-config-popup} has to be used instead to view and change
-branch related variables.
+This option controls whether the transient command @code{magit-branch} can
+be used directly change the values Git variables.  This defaults to
+@code{t} (to avoid changing key bindings).  When set to @code{nil}, then no
+variables are displayed by that transient command, and its suffix
+command @code{magit-branch-configure} has to be used instead to view and
+change branch related variables.
 @end defopt
 
 @table @asis
 @kindex b C
-@cindex magit-branch-config-popup
-@item @kbd{b C} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-config-popup})
+@cindex magit-branch-configure
+@item @kbd{b C} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-configure})
+@kindex f C
+@cindex magit-branch-configure
+@item @kbd{f C} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-configure})
+@kindex F C
+@cindex magit-branch-configure
+@item @kbd{F C} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-configure})
+@kindex P C
+@cindex magit-branch-configure
+@item @kbd{P C} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-configure})
 
-This command shows branch related variables in a separate popup.  By
-default this asks the user for which branch the variables should be
-shown.  When @code{magit-branch-popup-show-variables} is @code{nil}, then it shows
-the variables for the current branch, unless a prefix argument is
-used.
+This transient prefix command binds commands that set the value of
+branch-related variables and displays them in a temporary buffer
+until the transient is exited.
 
+With a prefix argument, this command always prompts for a branch.
+
+Without a prefix argument this depends on whether it was invoked as
+a suffix of @code{magit-branch} and on the @code{magit-branch-direct-configure}
+option.  If @code{magit-branch} already displays the variables for the
+current branch, then it isn't useful to invoke another transient
+that displays them for the same branch.  In that case this command
+prompts for a branch.
+@end table
+
+The variables are described in @ref{Branch Git Variables}.
+
+@table @asis
 @kindex b b
 @cindex magit-checkout
 @item @kbd{b b} @tie{}@tie{}@tie{}@tie{}(@code{magit-checkout})
@@ -6064,7 +6144,7 @@ contents from a given revision.
 
 This command is a hybrid between @code{magit-checkout} and
 @code{magit-branch-and-checkout} and is intended as a replacement for the
-former in @code{magit-branch-popup}.
+former in @code{magit-branch}.
 
 It first asks the user for an existing branch or revision.  If the
 user input actually can be resolved as a branch or revision, then it
@@ -6078,32 +6158,17 @@ To use this command instead of @code{magit-checkout} add this to your init
 file:
 
 @lisp
-(magit-remove-popup-key 'magit-branch-popup :action ?b)
-(magit-define-popup-action 'magit-branch-popup
-  ?b "Checkout" 'magit-branch-or-checkout
-  'magit-branch t)
+(transient-replace-suffix 'magit-branch 'magit-checkout
+  '("b" "dwim" magit-branch-or-checkout))
 @end lisp
 @end deffn
 
-@node The Branch Config Popup
-@subsection The Branch Config Popup
+@node Branch Git Variables
+@subsection Branch Git Variables
 
-@cindex magit-branch-config-popup
-@deffn Command magit-branch-config-popup
-
-This prefix command shows the following branch-related Git variables
-in a popup buffer.  The values can be changed from that buffer.
-
-This popup is a sub-popup of several popups that deal with branches,
-including @code{magit-branch-popup}, @code{magit-pull-popup}, @code{magit-fetch-popup},
-@code{magit-pull-and-fetch-popup}, and @code{magit-push-popup}.  In all of these
-popups "C" is bound to this popup.
-@end deffn
-
-The following variables are used to configure a specific branch.  The
-values are being displayed for the current branch (if any).  To change
-the value for another branch invoke @code{magit-branch-config-popup} with a
-prefix argument.
+These variables can be set from the transient prefix command
+@code{magit-branch-configure}.  By default they can also be set from
+@code{magit-branch}.  See @ref{Branch Commands}.
 
 @defvar branch.NAME.merge
 
@@ -6300,7 +6365,8 @@ the upstream and many which create new branches.
 @node Auxiliary Branch Commands
 @subsection Auxiliary Branch Commands
 
-These commands are not available from the branch popup by default.
+These commands are not available from the transient @code{magit-branch} by
+default.
 
 @cindex magit-branch-shelve
 @deffn Command magit-branch-shelve
@@ -6345,15 +6411,16 @@ merge conflicts see the next section.
 
 @table @asis
 @kindex m
-@cindex magit-merge-popup
-@item @kbd{m} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge-popup})
+@cindex magit-merge
+@item @kbd{m} @tie{}@tie{}@tie{}@tie{}(@code{magit-merge})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 @end table
 
-When no merge is in progress, then the popup buffer features the
-following commands.
+When no merge is in progress, then the transient features the
+following suffix commands.
 
 @table @asis
 @kindex m m
@@ -6425,7 +6492,7 @@ This command squashes the changes introduced by another branch or an
 arbitrary revision into the current branch.  This only applies the
 changes made by the squashed commits.  No information is preserved
 that would allow creating an actual merge commit.  Instead of this
-command you should probably use a command from the apply popup.
+command you should probably use a command from the apply transient.
 
 @kindex m p
 @cindex magit-merge-preview
@@ -6435,8 +6502,8 @@ This command shows a preview of merging another branch or an
 arbitrary revision into the current branch.
 @end table
 
-When a merge is in progress, then the popup buffer features these
-commands instead.
+When a merge is in progress, then the transient instead features the
+following suffix commands.
 
 @table @asis
 @kindex m m
@@ -6587,15 +6654,16 @@ conflicts that occur during rebases see the preceding section.
 
 @table @asis
 @kindex r
-@cindex magit-rebase-popup
-@item @kbd{r} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-popup})
+@cindex magit-rebase
+@item @kbd{r} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 @end table
 
-When no rebase is in progress, then the popup buffer features the
-following commands.
+When no rebase is in progress, then the transient features the
+following suffix commands.
 
 Using one of these commands @emph{starts} a rebase sequence.  Git might then
 stop somewhere along the way, either because you told it to do so, or
@@ -6604,35 +6672,45 @@ happens, then the status buffer shows information about the rebase
 sequence which is in progress in a section similar to a log section.
 See @ref{Information About In-Progress Rebase}.
 
+For information about the upstream and the push-remote, see @ref{The Two Remotes}.
+
 @table @asis
 @kindex r p
 @cindex magit-rebase-onto-pushremote
 @item @kbd{r p} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-onto-pushremote})
 
-Rebase the current branch onto @code{branch.<name>.pushRemote}.  If that
-variable is unset, then rebase onto @code{remote.pushDefault}.
+This command rebases the current branch onto its push-remote.
+
+When @code{magit-remote-set-if-missing} is non-nil and the push-remote is
+not configured, then configure it before rebasing.  With a prefix
+argument let the user change the push-remote before rebasing onto
+it.
 
 @kindex r u
 @cindex magit-rebase-onto-upstream
 @item @kbd{r u} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-onto-upstream})
 
-Rebase the current branch onto its upstream branch.
+This command rebases the current branch onto its upstream branch.
+
+When @code{magit-remote-set-if-missing} is non-nil and the upstream is
+not configured, then configure it before rebasing.  With a prefix
+argument let the user change the upstream before rebasing onto it.
 
 @kindex r e
 @cindex magit-rebase-branch
 @item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-branch})
 
-Rebase the current branch onto a branch read in the minibuffer.  All
-commits that are reachable from head but not from the selected
-branch TARGET are being rebased."
+This command rebases the current branch onto a branch read in the
+minibuffer.  All commits that are reachable from head but not from
+the selected branch TARGET are being rebased.
 
 @kindex r s
 @cindex magit-rebase-subset
 @item @kbd{r s} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-subset})
 
-Start a non-interactive rebase sequence with commits from START to
-@code{HEAD} onto NEWBASE@.  START has to be selected from a list of recent
-commits.
+This command starts a non-interactive rebase sequence to transfer
+commits from START to @code{HEAD} onto NEWBASE@.  START has to be selected
+from a list of recent commits.
 @end table
 
 By default Magit uses the @code{--autostash} argument, which causes
@@ -6643,9 +6721,9 @@ stash is not removed.  In case something goes wrong when resolving
 the conflicts, this allows you to start over.
 
 Even though one of the actions is dedicated to interactive rebases,
-the popup also features the infix argument @code{--interactive}.  This can be
-used to turn one of the other, non-interactive rebase variants into an
-interactive rebase.
+the transient also features the infix argument @code{--interactive}.  This
+can be used to turn one of the other, non-interactive rebase variants
+into an interactive rebase.
 
 For example if you want to clean up a feature branch and at the same
 time rebase it onto @code{master}, then you could use @code{r-iu}.  But we recommend
@@ -6657,49 +6735,52 @@ to redo half the work.
 
 Explicitly enabling @code{--interactive} won't have an effect on the
 following commands as they always use that argument anyway, even if it
-is not enabled in the popup.
+is not enabled in the transient.
 
 @table @asis
 @kindex r i
 @cindex magit-rebase-interactive
 @item @kbd{r i} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-interactive})
 
-Start an interactive rebase sequence.
+This command starts an interactive rebase sequence.
 
 @kindex r f
 @cindex magit-rebase-autosquash
 @item @kbd{r f} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-autosquash})
 
-Combine squash and fixup commits with their intended targets.
+This command combines squash and fixup commits with their intended
+targets.
 
 @kindex r m
 @cindex magit-rebase-edit-commit
 @item @kbd{r m} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-edit-commit})
 
-Edit a single older commit using rebase.
+This command starts an interactive rebase sequence that lets the
+user edit a single older commit.
 
 @kindex r w
 @cindex magit-rebase-reword-commit
 @item @kbd{r w} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-reword-commit})
 
-Reword a single older commit using rebase.
+This command starts an interactive rebase sequence that lets the
+user reword a single older commit.
 
 @kindex r k
 @cindex magit-rebase-remove-commit
 @item @kbd{r k} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-remove-commit})
 
-Remove a single older commit using rebase.
+This command removes a single older commit using rebase.
 @end table
 
-When a rebase is in progress, then the popup buffer features these
-commands instead.
+When a rebase is in progress, then the transient instead features
+the following suffix commands.
 
 @table @asis
 @kindex r r
 @cindex magit-rebase-continue
 @item @kbd{r r} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-continue})
 
-Restart the current rebasing operation.
+This command restart the current rebasing operation.
 
 In some cases this pops up a commit message buffer for you do edit.
 With a prefix argument the old message is reused as-is.
@@ -6708,19 +6789,22 @@ With a prefix argument the old message is reused as-is.
 @cindex magit-rebase-skip
 @item @kbd{r s} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-skip})
 
-Skip the current commit and restart the current rebase operation.
+This command skips the current commit and restarts the current
+rebase operation.
 
 @kindex r e
 @cindex magit-rebase-edit
 @item @kbd{r e} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-edit})
 
-Edit the todo list of the current rebase operation.
+This command lets the user edit the todo list of the current rebase
+operation.
 
 @kindex r a
 @cindex magit-rebase-abort
 @item @kbd{r a} @tie{}@tie{}@tie{}@tie{}(@code{magit-rebase-abort})
 
-Abort the current rebase operation, restoring the original branch.
+This command aborts the current rebase operation, restoring the
+original branch.
 @end table
 
 @menu
@@ -7108,15 +7192,16 @@ the git-cherry-pick(1) manpage.
 
 @table @asis
 @kindex A
-@cindex magit-cherry-pick-popup
-@item @kbd{A} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-pick-popup})
+@cindex magit-cherry-pick
+@item @kbd{A} @tie{}@tie{}@tie{}@tie{}(@code{magit-cherry-pick})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 @end table
 
-When no cherry-pick or revert is in progress, then the popup buffer
-features the following commands.
+When no cherry-pick or revert is in progress, then the transient
+features the following suffix commands.
 
 @table @asis
 @kindex A A
@@ -7137,8 +7222,8 @@ the current branch.  If the region selects multiple commits, then
 those are used, without prompting.  Otherwise the user is prompted
 for a commit or range, defaulting to the commit at point.
 
-This command also has a top-level binding, which can be invoked without
-using the popup by typing @code{a} at the top-level.
+This command also has a top-level binding, which can be invoked
+without using the transient by typing @code{a} at the top-level.
 @end table
 
 The following commands not only apply some commits to some branch, but
@@ -7204,8 +7289,8 @@ command stops and you have to resolve the conflicts and then finish
 the process manually.
 @end table
 
-When a cherry-pick or revert is in progress, then the popup buffer
-features these commands instead.
+When a cherry-pick or revert is in progress, then the transient
+instead features the following suffix commands.
 
 @table @asis
 @kindex A A
@@ -7237,15 +7322,16 @@ changes made since the sequence started.
 
 @table @asis
 @kindex V
-@cindex magit-revert-popup
-@item @kbd{V} @tie{}@tie{}@tie{}@tie{}(@code{magit-revert-popup})
+@cindex magit-revert
+@item @kbd{V} @tie{}@tie{}@tie{}@tie{}(@code{magit-revert})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 @end table
 
-When no cherry-pick or revert is in progress, then the popup buffer
-features the following commands.
+When no cherry-pick or revert is in progress, then the transient
+features the following suffix commands.
 
 @table @asis
 @kindex V V
@@ -7266,8 +7352,8 @@ region selects multiple commits, then revert all of them, without
 prompting.
 @end table
 
-When a cherry-pick or revert is in progress, then the popup buffer
-features these commands instead.
+When a cherry-pick or revert is in progress, then the transient
+instead features the following suffix commands.
 
 @table @asis
 @kindex V A
@@ -7380,18 +7466,19 @@ the git-stash(1) manpage.
 
 @table @asis
 @kindex z
-@cindex magit-stash-popup
-@item @kbd{z} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-popup})
+@cindex magit-stash
+@item @kbd{z} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex z z
 @cindex magit-stash-both
 @item @kbd{z z} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-both})
 
 Create a stash of the index and working tree.  Untracked files are
-included according to popup arguments.  One prefix argument is
+included according to infix arguments.  One prefix argument is
 equivalent to @code{--include-untracked} while two prefix arguments are
 equivalent to @code{--all}.
 
@@ -7407,7 +7494,7 @@ are not stashed.
 @item @kbd{z w} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-worktree})
 
 Create a stash of unstaged changes in the working tree.  Untracked
-files are included according to popup arguments.  One prefix
+files are included according to infix arguments.  One prefix
 argument is equivalent to @code{--include-untracked} while two prefix
 arguments are equivalent to @code{--all}.
 
@@ -7416,7 +7503,7 @@ arguments are equivalent to @code{--all}.
 @item @kbd{z x} @tie{}@tie{}@tie{}@tie{}(@code{magit-stash-keep-index})
 
 Create a stash of the index and working tree, keeping index intact.
-Untracked files are included according to popup arguments.  One
+Untracked files are included according to infix arguments.  One
 prefix argument is equivalent to @code{--include-untracked} while two
 prefix arguments are equivalent to @code{--all}.
 
@@ -7425,7 +7512,7 @@ prefix arguments are equivalent to @code{--all}.
 @item @kbd{z Z} @tie{}@tie{}@tie{}@tie{}(@code{magit-snapshot-both})
 
 Create a snapshot of the index and working tree.  Untracked files
-are included according to popup arguments.  One prefix argument is
+are included according to infix arguments.  One prefix argument is
 equivalent to @code{--include-untracked} while two prefix arguments are
 equivalent to @code{--all}.
 
@@ -7441,7 +7528,7 @@ are not stashed.
 @item @kbd{z W} @tie{}@tie{}@tie{}@tie{}(@code{magit-snapshot-worktree})
 
 Create a snapshot of unstaged changes in the working tree.
-Untracked files are included according to popup arguments.  One
+Untracked files are included according to infix arguments.  One
 prefix argument is equivalent to @code{--include-untracked} while two
 prefix arguments are equivalent to @code{--all}-.
 
@@ -7549,25 +7636,25 @@ is shown, then this specifies how much space is used to do so.
 * Fetching::
 * Pulling::
 * Pushing::
-* Creating and Sending Patches::
-* Applying Patches::
+* Plain Patches::
+* Maildir Patches::
 @end menu
 
 @node Remotes
 @section Remotes
 
 @menu
-* The Remote Popup::
-* The Remote Config Popup::
+* Remote Commands::
+* Remote Git Variables::
 @end menu
 
-@node The Remote Popup
-@subsection The Remote Popup
+@node Remote Commands
+@subsection Remote Commands
 
-The popup @code{magit-remote-popup} is used to add remotes and to make
-changes to existing remotes.  This popup only deals with remotes
-themselves, not with branches or the transfer of commits.  Those
-features are available from separate popups.
+The transient prefix command @code{magit-remote} is used to add remotes and
+to make changes to existing remotes.  This command only deals with
+remotes themselves, not with branches or the transfer of commits.
+Those features are available from separate transient commands.
 
 Also see 
 @ifinfo
@@ -7584,34 +7671,51 @@ the git-remote(1) manpage.
 
 @table @asis
 @kindex M
-@cindex magit-remote-popup
-@item @kbd{M} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-popup})
+@cindex magit-remote
+@item @kbd{M} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+and displays them in a temporary buffer until a suffix is invoked.
+
+By default it also binds and displays the values of some
+remote-related Git variables and allows changing their values.
 
 @end table
 
-@defopt magit-remote-popup-show-variables
+@defopt magit-remote-direct-configure
 
-This option controls whether the @code{magit-remote-popup} shows remote
-related Git variables.  When set to nil, no variables are displayed
-directly in this popup, and the sub-popup @code{magit-remote-config-popup}
-has to be used instead to view and change remote related variables.
+This option controls whether remote-related Git variables are
+accessible directly from the transient @code{magit-remote}.
+
+If @code{t} (the default) and a local branch is checked out, then
+@code{magit-remote} features the variables for the upstream remote of that
+branch, or if @code{HEAD} is detached, for @code{origin}, provided that exists.
+
+If @code{nil}, then @code{magit-remote-configure} has to be used to do so.
 @end defopt
 
 @table @asis
 @kindex M C
-@cindex magit-remote-config-popup
-@item @kbd{M C} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-config-popup})
+@cindex magit-remote-configure
+@item @kbd{M C} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-configure})
 
-This command shows remote related variables in a separate popup.  By
-default this asks the user for which remote the variables should be
-shown.  When @code{magit-remote-popup-show-variables} is @code{nil}, then it shows
-the variables for the upstream of the current branch or "origin" it
-that branch has no remote upstream.  To select another remote use a
-prefix argument.
+This transient prefix command binds commands that set the value of
+remote-related variables and displays them in a temporary buffer
+until the transient is exited.
 
+With a prefix argument, this command always prompts for a remote.
+
+Without a prefix argument this depends on whether it was invoked as
+a suffix of @code{magit-remote} and on the @code{magit-remote-direct-configure}
+option.  If @code{magit-remote} already displays the variables for the
+upstream, then it does not make sense to invoke another transient
+that displays them for the same remote.  In that case this command
+prompts for a remote.
+@end table
+
+The variables are described in @ref{Remote Git Variables}.
+
+@table @asis
 @kindex M a
 @cindex magit-remote-add
 @item @kbd{M a} @tie{}@tie{}@tie{}@tie{}(@code{magit-remote-add})
@@ -7681,23 +7785,12 @@ name of the added remote is equal to that string and the variable
 isn't already set.
 @end defopt
 
-@node The Remote Config Popup
-@subsection The Remote Config Popup
+@node Remote Git Variables
+@subsection Remote Git Variables
 
-@cindex magit-remote-config-popup
-@deffn Command magit-remote-config-popup
-
-This prefix command shows the following remote-related Git variables
-in a popup buffer.  The values can be changed from that buffer.
-
-This popup is a sub-popup of the @code{magit-remote-popup} in which "C" is
-bound to this popup.
-@end deffn
-
-The following variables are used to configure a specific remote.  The
-values are being displayed for the upstream remote of the current
-branch.  To change the value for another remote invoke
-@code{magit-remote-config-popup} with a prefix argument.
+These variables can be set from the transient prefix command
+@code{magit-remote-configure}.  By default they can also be set from
+@code{magit-remote}.  See @ref{Remote Commands}.
 
 @defvar remote.NAME.url
 
@@ -7728,15 +7821,35 @@ have multiple values.
 
 This variable specifies what tags are fetched by default.  If the
 value is @code{--no-tags} then no tags are fetched.  If the value is
-@code{--tags}, then all tags are fetched.  If this variable has not value,
+@code{--tags}, then all tags are fetched.  If this variable has no value,
 then only tags are fetched that are reachable from fetched branches.
 @end defvar
 
+@defopt magit-remote-set-if-missing
+
+This option controls whether missing remotes are configured before
+fetching, pulling, pushing and rebasing.
+
+When @code{nil}, then commands such as @code{magit-pull-from-upstream} and
+@code{magit-rebase-onto-uptream} are not available as suffix commands if
+the push-remote or upstream is not configured.
+
+When @code{non-nil}, then these commands are always available in their
+respective transient, but if the required configuration is missing,
+then they do appear in a way that indicates that this is the case.
+If the user invokes such a command, then it asks for the necessary
+configuration, stores the configuration, and only then performs the
+action.
+
+This option also affects whether the argument @code{--set-upstream} is
+available in @code{magit-push}.  If the value is @code{non-nil}, then that
+argument would be redundant.  But note that changing the value of
+this option does not take affect immediately, the argument will only
+be added or removed after restarting Emacs.
+@end defopt
+
 @node Fetching
 @section Fetching
-
-For information about the differences between the @emph{upstream} and the
-@emph{push-remote}, see @ref{Branching}.
 
 Also see 
 @ifinfo
@@ -7750,70 +7863,92 @@ the <a href="http://git-scm.com/docs/git-fetch">git-fetch(1)</a> manpage.
 @iftex
 the git-fetch(1) manpage.
 @end iftex
+ For information about the upstream and the
+push-remote, see @ref{The Two Remotes}.
 
 @table @asis
 @kindex f
-@cindex magit-fetch-popup
-@item @kbd{f} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-popup})
+@cindex magit-fetch
+@item @kbd{f} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex f p
 @cindex magit-fetch-from-pushremote
 @item @kbd{f p} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-from-pushremote})
 
-Fetch from the push-remote of the current branch.
+This command fetches from the push-remote of the current branch.
+
+When @code{magit-remote-set-if-missing} is non-nil and the push-remote is
+not configured, then configure it before fetching.  With a prefix
+argument let the user change the push-remote before fetching from
+it.
 
 @kindex f u
 @cindex magit-fetch-from-upstream
 @item @kbd{f u} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-from-upstream})
 
-Fetch from the upstream of the current branch.
+This command fetch from the upstream of the current branch.
+
+When @code{magit-remote-set-if-missing} is non-nil and the upstream is
+not configured, then configure it before fetching.  With a prefix
+argument let the user change the upstream before fetching from it.
 
 @kindex f e
 @cindex magit-fetch-other
 @item @kbd{f e} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-other})
 
-Fetch from another repository.
+This command fetch from a repository read from the minibuffer.
 
 @kindex f o
 @cindex magit-fetch-branch
 @item @kbd{f o} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-branch})
 
-Fetch a branch from a remote, both of which are read from the
-minibuffer.
+This command fetches a branch from a remote, both of which are read
+from the minibuffer.
 
 @kindex f r
 @cindex magit-fetch-refspec
 @item @kbd{f r} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-refspec})
 
-Fetch from a remote using an explicit refspec, both of which are
-read from the minibuffer.
+This command fetches from a remote using an explicit refspec, both
+of which are read from the minibuffer.
 
 @kindex f a
 @cindex magit-fetch-all
 @item @kbd{f a} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-all})
 
-Fetch from all remotes.
+This command fetches from all remotes.
 
 @kindex f m
 @cindex magit-submodule-fetch
 @item @kbd{f m} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-fetch})
 
-Fetch all submodules.  With a prefix argument fetch all remotes of
-all submodules.
+This command fetches all submodules.  With a prefix argument it
+fetches all remotes of all submodules.
+
 @end table
 
-Instead of using one popup for fetching and another for pulling, you
-could also use @code{magit-pull-and-fetch-popup}.  See its doc-string for
-more information.
+@defopt magit-pull-or-fetch
+
+By default fetch and pull commands are available from separate
+transient prefix command.  Setting this to @code{t} adds some (but not all)
+of the above suffix commands to the @code{magit-pull} transient.
+
+If you do that, then you might also want to change the key binding
+for these prefix commands, e.g.:
+
+@lisp
+(setq magit-pull-or-fetch t)
+(define-key magit-mode-map "f" 'magit-pull) ; was magit-fetch
+(define-key magit-mode-map "F" nil)         ; was magit-pull
+@end lisp
+@end defopt
 
 @node Pulling
 @section Pulling
-
-For information about the differences between the @emph{upstream} and the
-@emph{push-remote}, see @ref{Branching}.
 
 Also see 
 @ifinfo
@@ -7827,43 +7962,46 @@ the <a href="http://git-scm.com/docs/git-pull">git-pull(1)</a> manpage.
 @iftex
 the git-pull(1) manpage.
 @end iftex
+ For information about the upstream and the
+push-remote, see @ref{The Two Remotes}.
 
 @table @asis
 @kindex F
-@cindex magit-pull-popup
-@item @kbd{F} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-popup})
+@cindex magit-pull
+@item @kbd{F} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull})
 
-This prefix command shows the following suffix commands in a popup
-buffer.
+This transient prefix command binds the following suffix commands
+and displays them in a temporary buffer until a suffix is invoked.
 
 @kindex F p
 @cindex magit-pull-from-pushremote
 @item @kbd{F p} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-from-pushremote})
 
-Pull from the push-remote of the current branch.
+This command pulls from the push-remote of the current branch.
+
+When @code{magit-remote-set-if-missing} is non-nil and the push-remote is
+not configured, then configure it before pulling.  With a prefix
+argument let the user change the push-remote before pulling from it.
 
 @kindex F u
 @cindex magit-pull-from-upstream
 @item @kbd{F u} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-from-upstream})
 
-Pull from the upstream of the current branch.
+This command pulls from the upstream of the current branch.
+
+When @code{magit-remote-set-if-missing} is non-nil and the upstream is
+not configured, then configure it before pulling.  With a prefix
+argument let the user change the upstream before pulling from it.
 
 @kindex F e
 @cindex magit-pull-branch
 @item @kbd{F e} @tie{}@tie{}@tie{}@tie{}(@code{magit-pull-branch})
 
-Pull from a branch read in the minibuffer.
+This command pulls from a branch read in the minibuffer.
 @end table
-
-Instead of using one popup for fetching and another for pulling, you
-could also use @code{magit-pull-and-fetch-popup}.  See its doc-string for
-more information.
 
 @node Pushing
 @section Pushing
-
-For information about the differences between the @emph{upstream} and the
-@emph{push-remote}, see @ref{Branching}.
 
 Also see 
 @ifinfo
@@ -7877,57 +8015,58 @@ the <a href="http://git-scm.com/docs/git-push">git-push(1)</a> manpage.
 @iftex
 the git-push(1) manpage.
 @end iftex
+ For information about the upstream and the
+push-remote, see @ref{The Two Remotes}.
 
 @table @asis
 @kindex P
-@cindex magit-push-popup
-@item @kbd{P} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-popup})
+@cindex magit-push
+@item @kbd{P} @tie{}@tie{}@tie{}@tie{}(@code{magit-push})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex P p
 @cindex magit-push-current-to-pushremote
 @item @kbd{P p} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current-to-pushremote})
 
-Push the current branch to @code{branch.<name>.pushRemote} or if that
-is unset to @code{remote.pushDefault}.
+This command pushes the current branch to its push-remote.
 
-When @code{magit-push-current-set-remote-if-missing} is non-nil and the
-push-remote is not configured, then read the push-remote from the
-user, set it, and then push to it.  With a prefix argument the
-push-remote can be changed before pushed to it.
+When @code{magit-remote-set-if-missing} is non-nil and the push-remote is
+not configured, then configure it before pushing.  With a prefix
+argument let the user change the push-remote before pushing to it.
 
 @kindex P u
 @cindex magit-push-current-to-upstream
 @item @kbd{P u} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current-to-upstream})
 
-Push the current branch to its upstream branch.
+This command pushes the current branch to its upstream branch.
 
-When @code{magit-push-current-set-remote-if-missing} is non-nil and the
-push-remote is not configured, then read the upstream from the
-user, set it, and then push to it.  With a prefix argument the
-push-remote can be changed before pushed to it.
+When @code{magit-remote-set-if-missing} is non-nil and the upstream is
+not configured, then configure it before pushing.  With a prefix
+argument let the user change the upstream before pushing to it.
 
 @kindex P e
 @cindex magit-push-current
 @item @kbd{P e} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-current})
 
-Push the current branch to a branch read in the minibuffer.
+This command pushes the current branch to a branch read in the
+minibuffer.
 
 @kindex P o
 @cindex magit-push-other
 @item @kbd{P o} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-other})
 
-Push an arbitrary branch or commit somewhere.  Both the source and
-the target are read in the minibuffer.
+This command pushes an arbitrary branch or commit somewhere.  Both
+the source and the target are read in the minibuffer.
 
 @kindex P r
 @cindex magit-push-refspecs
 @item @kbd{P r} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-refspecs})
 
-Push one or multiple refspecs to a remote, both of which are read
-in the minibuffer.
+This command pushes one or multiple refspecs to a remote, both of
+which are read in the minibuffer.
 
 To use multiple refspecs, separate them with commas.  Completion is
 only available for the part before the colon, or when no colon is
@@ -7937,38 +8076,42 @@ used.
 @cindex magit-push-matching
 @item @kbd{P m} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-matching})
 
-Push all matching branches to another repository.  If multiple
-remotes exit, then read one from the user.  If just one exists, use
-that without requiring confirmation.
+This command pushes all matching branches to another repository.
+
+If only one remote exists, then push to that.  Otherwise prompt for
+a remote, offering the remote configured for the current branch as
+default.
 
 @kindex P t
 @cindex magit-push-tags
 @item @kbd{P t} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-tags})
 
-Push all tags to another repository.  If only one remote exists,
-then push to that.  Otherwise prompt for a remote, offering the
-remote configured for the current branch as default.
+This command pushes all tags to another repository.
+
+If only one remote exists, then push to that.  Otherwise prompt for
+a remote, offering the remote configured for the current branch as
+default.
 
 @kindex P T
 @cindex magit-push-tag
 @item @kbd{P T} @tie{}@tie{}@tie{}@tie{}(@code{magit-push-tag})
 
-Push a tag to another repository.
+This command pushes a tag to another repository.
 @end table
 
 Two more push commands exist, which by default are not available from
-the push popup.  See their doc-strings for instructions on how to add
-them to the popup.
+the push transient.  See their doc-strings for instructions on how to
+add them to the transient.
 
 @cindex magit-push-implicitly args
 @deffn Command magit-push-implicitly args
 
-Push somewhere without using an explicit refspec.
+This command pushes somewhere without using an explicit refspec.
 
-This command simply runs @code{git push -v [ARGS]}.  ARGS are the arguments
-specified in the popup buffer.  No explicit refspec arguments are
-used.  Instead the behavior depends on at least these Git variables:
-@code{push.default}, @code{remote.pushDefault}, @code{branch.<branch>.pushRemote},
+This command simply runs @code{git push -v [ARGS]}.  ARGS are the infix
+arguments.  No explicit refspec arguments are used.  Instead the
+behavior depends on at least these Git variables: @code{push.default},
+@code{remote.pushDefault}, @code{branch.<branch>.pushRemote},
 @code{branch.<branch>.remote}, @code{branch.<branch>.merge}, and
 @code{remote.<remote>.push}.
 @end deffn
@@ -7976,71 +8119,65 @@ used.  Instead the behavior depends on at least these Git variables:
 @cindex magit-push-to-remote remote args
 @deffn Command magit-push-to-remote remote args
 
-Push to the remote REMOTE without using an explicit refspec.  The
-remote is read in the minibuffer.
+This command pushes to the remote REMOTE without using an explicit
+refspec.  The remote is read in the minibuffer.
 
 This command simply runs @code{git push -v [ARGS] REMOTE}.  ARGS are the
-arguments specified in the popup buffer.  No refspec arguments are
-used.  Instead the behavior depends on at least these Git variables:
-@code{push.default}, @code{remote.pushDefault}, @code{branch.<branch>.pushRemote},
+infix arguments.  No refspec arguments are used.  Instead the
+behavior depends on at least these Git variables: @code{push.default},
+@code{remote.pushDefault}, @code{branch.<branch>.pushRemote},
 @code{branch.<branch>.remote}, @code{branch.<branch>.merge}, and
 @code{remote.<remote>.push}.
 @end deffn
 
-@defopt magit-push-current-set-remote-if-missing
-
-This option controls whether missing remotes are configured before
-pushing.
-
-When @code{nil}, then the command @code{magit-push-current-to-pushremote} and
-@code{magit-push-current-to-upstream} do not appear in the push popup if
-the push-remote resp. upstream is not configured.  If the user
-invokes one of these commands anyway, then it raises an error.
-
-When @code{non-nil}, then these commands always appear in the push popup.
-But if the required configuration is missing, then they do appear in
-a way that indicates that this is the case.  If the user invokes one
-of them, then it asks for the necessary configuration, stores the
-configuration, and then uses it to push a first time.
-
-This option also affects whether the argument @code{--set-upstream} is
-available in the popup.  If the value is @code{non-nil}, then that argument
-is redundant.  But note that changing the value of this option does
-not take affect immediately, the argument will only be added or
-removed after restarting Emacs.
-@end defopt
-
-@node Creating and Sending Patches
-@section Creating and Sending Patches
+@node Plain Patches
+@section Plain Patches
 
 @table @asis
 @kindex W
-@cindex magit-patch-popup
-@item @kbd{W} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-popup})
+@cindex magit-patch
+@item @kbd{W} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
-@kindex W p
-@cindex magit-format-patch
-@item @kbd{W p} @tie{}@tie{}@tie{}@tie{}(@code{magit-format-patch})
+@kindex W c
+@cindex magit-patch-create
+@item @kbd{W c} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-create})
 
-Create patches for a set commits.  If the region marks commits, then
-create patches for those.  Otherwise prompt for a range or a single
-commit, defaulting to the commit at point.
+This command creates patches for a set commits.  If the region marks
+several commits, then it creates patches for all of them.  Otherwise
+it functions as a transient prefix command, which features several
+infix arguments and binds itself as a suffix command.  When this
+command is invoked as a suffix of itself, then it creates a patch
+using the specified infix arguments.
 
-@kindex W r
-@cindex magit-request-pull
-@item @kbd{W r} @tie{}@tie{}@tie{}@tie{}(@code{magit-request-pull})
+@kindex w a
+@cindex magit-patch-apply
+@item @kbd{w a} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-apply})
 
-Request that upstream pulls from your public repository.
+This command applies a patch.  This is a transient prefix command,
+which features several infix arguments and binds itself as a suffix
+command.  When this command is invoked as a suffix of itself, then
+it applies a patch using the specified infix arguments.
+
+@kindex W s
+@cindex magit-patch-save
+@item @kbd{W s} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-save})
+
+This command creates a patch from the current diff.
+
+Inside @code{magit-diff-mode} or @code{magit-revision-mode} buffers, @code{C-x C-w} is
+also bound to this command.
 @end table
 
+FIXME
 It is also possible to save a plain patch file by using @code{C-x C-w} inside
 a @code{magit-diff-mode} or @code{magit-revision-mode} buffer.
 
-@node Applying Patches
-@section Applying Patches
+@node Maildir Patches
+@section Maildir Patches
 
 Also see 
 @ifinfo
@@ -8069,68 +8206,60 @@ the git-apply(1) manpage.
 
 @table @asis
 @kindex w
-@cindex magit-am-popup
-@item @kbd{w} @tie{}@tie{}@tie{}@tie{}(@code{magit-am-popup})
+@cindex magit-am
+@item @kbd{w} @tie{}@tie{}@tie{}@tie{}(@code{magit-am})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex w w
 @cindex magit-am-apply-patches
 @item @kbd{w w} @tie{}@tie{}@tie{}@tie{}(@code{magit-am-apply-patches})
 
-Apply one or more patches.  If the region marks files, then apply
-those patches.  Otherwise read a file name in the minibuffer
-defaulting to the file at point.
+This command applies one or more patches.  If the region marks
+files, then those are applied as patches.  Otherwise this command
+reads a file-name in the minibuffer, defaulting to the file at
+point.
 
 @kindex w m
 @cindex magit-am-apply-maildir
 @item @kbd{w m} @tie{}@tie{}@tie{}@tie{}(@code{magit-am-apply-maildir})
 
-Apply the patches from a maildir.
+This command applies patches from a maildir.
+
+@kindex w a
+@cindex magit-patch-apply
+@item @kbd{w a} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-apply})
+
+This command applies a plain patch.  For a longer description see
+@ref{Plain Patches}.  This command is only available from the @code{magit-am}
+transient for historic reasons.
 @end table
 
-When an "am" operation is in progress, then the popup buffer features
-these commands instead.
+When an "am" operation is in progress, then the transient instead
+features the following suffix commands.
 
 @table @asis
 @kindex w w
 @cindex magit-am-continue
 @item @kbd{w w} @tie{}@tie{}@tie{}@tie{}(@code{magit-am-continue})
 
-Resume the current patch applying sequence.
+This command resumes the current patch applying sequence.
 
 @kindex w s
 @cindex magit-am-skip
 @item @kbd{w s} @tie{}@tie{}@tie{}@tie{}(@code{magit-am-skip})
 
-Skip the stopped at patch during a patch applying sequence.
+This command skips the stopped at patch during a patch applying
+sequence.
 
 @kindex w a
 @cindex magit-am-abort
 @item @kbd{w a} @tie{}@tie{}@tie{}@tie{}(@code{magit-am-abort})
 
-Abort the current patch applying sequence.  This discards all
-changes made since the sequence started.
-@end table
-
-In addition to the commands listed at the top, the "am" popup also has
-a binding for the related "patch" popup.
-
-@table @asis
-@kindex w a
-@cindex magit-patch-apply-popup
-@item @kbd{w a} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-apply-popup})
-
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
-
-@kindex w a a
-@cindex magit-patch-apply
-@item @kbd{w a a} @tie{}@tie{}@tie{}@tie{}(@code{magit-patch-apply})
-
-This command applies a simple patch file, which may not contain any
-Git metadata in addition to the actual diff.
+This command aborts the current patch applying sequence.  This
+discards all changes made since the sequence started.
 @end table
 
 @node Miscellaneous
@@ -8166,11 +8295,12 @@ the git-tag(1) manpage.
 
 @table @asis
 @kindex t
-@cindex magit-tag-popup
-@item @kbd{t} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag-popup})
+@cindex magit-tag
+@item @kbd{t} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex t t
 @cindex magit-tag-create
@@ -8198,9 +8328,9 @@ new version string for that.  Otherwise it proposes something like
 located at something like "/path/to/foo-bar".
 
 Then it calls "git tag --annotate --sign -m MSG TAG" to create the
-tag, regardless of whether these arguments are enabled in the popup.
-Finally it shows the refs buffer to let the user quickly review the
-result.
+tag, regardless of whether these arguments are enabled in the
+transient.  Finally it shows the refs buffer to let the user quickly
+review the result.
 
 @kindex t k
 @cindex magit-tag-delete
@@ -8237,11 +8367,12 @@ the git-notes(1) manpage.
 
 @table @asis
 @kindex T
-@cindex magit-notes-popup
-@item @kbd{T} @tie{}@tie{}@tie{}@tie{}(@code{magit-notes-popup})
+@cindex magit-notes
+@item @kbd{T} @tie{}@tie{}@tie{}@tie{}(@code{magit-notes})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
 @kindex T T
 @cindex magit-notes-edit
@@ -8284,7 +8415,7 @@ ref.  The current notes ref is the value of Git variable
 @code{core.notesRef} or "refs/notes/commits" if that is undefined.
 @end table
 
-When a notes merge is in progress then the popup features the
+When a notes merge is in progress then the transient features the
 following suffix commands, instead of those listed above.
 
 @table @asis
@@ -8338,7 +8469,7 @@ the git-submodule(1) manpage.
 
 @menu
 * Listing Submodules::
-* Submodule Popup::
+* Submodule Transient::
 @end menu
 
 @node Listing Submodules
@@ -8386,16 +8517,17 @@ in a separate buffer.  This shows additional information not
 displayed in the super-repository's status buffer.
 @end defun
 
-@node Submodule Popup
-@subsection Submodule Popup
+@node Submodule Transient
+@subsection Submodule Transient
 
 @table @asis
 @kindex o
-@cindex magit-submodule-popup
-@item @kbd{o} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule-popup})
+@cindex magit-submodule
+@item @kbd{o} @tie{}@tie{}@tie{}@tie{}(@code{magit-submodule})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 @end table
 
 Some of the below commands default to act on the modules that are
@@ -8488,57 +8620,76 @@ the git-subtree(1) manpage.
 
 @table @asis
 @kindex O
-@cindex magit-tree-popup
-@item @kbd{O} @tie{}@tie{}@tie{}@tie{}(@code{magit-tree-popup})
+@cindex magit-subtree
+@item @kbd{O} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree})
 
-This prefix command shows the following suffix commands along with
-the appropriate infix arguments in a popup buffer.
-@end table
+This transient prefix command binds the two sub-transients; one for
+importing a subtree and one for exporting a subtree.
 
-Most infix arguments only apply to some of the @code{git subtree}
-subcommands.  When an argument that does not apply to the invoked
-command is set, then it is silently ignored.
+@kindex O i
+@cindex magit-subtree-import
+@item @kbd{O i} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-import})
 
-When the @code{--prefix} argument is set in the popup buffer, then that is
-used.  Otherwise the prefix is read in the minibuffer.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
-@table @asis
-@kindex O a
+The suffixes of this command import subtrees.
+
+If the @code{--prefix} argument is set, then the suffix commands use that
+prefix without prompting the user.  If it is unset, then they read
+the prefix in the minibuffer.
+
+@kindex O i a
 @cindex magit-subtree-add
-@item @kbd{O a} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-add})
+@item @kbd{O i a} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-add})
 
-Add COMMIT from REPOSITORY as a new subtree at PREFIX@.
+This command adds COMMIT from REPOSITORY as a new subtree at PREFIX@.
 
-@kindex O c
+@kindex O i c
 @cindex magit-subtree-add-commit
-@item @kbd{O c} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-add-commit})
+@item @kbd{O i c} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-add-commit})
 
-Add COMMIT as a new subtree at PREFIX@.
+This command add COMMIT as a new subtree at PREFIX@.
 
-@kindex O m
+@kindex O i m
 @cindex magit-subtree-merge
-@item @kbd{O m} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-merge})
+@item @kbd{O i m} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-merge})
 
-Merge COMMIT into the PREFIX subtree.
+This command merges COMMIT into the PREFIX subtree.
 
-@kindex O f
+@kindex O i f
 @cindex magit-subtree-pull
-@item @kbd{O f} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-pull})
+@item @kbd{O i f} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-pull})
 
-Pull COMMIT from REPOSITORY into the PREFIX subtree.
+This command pulls COMMIT from REPOSITORY into the PREFIX subtree.
 
-@kindex O p
+@kindex O e
+@cindex magit-subtree-export
+@item @kbd{O e} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-export})
+
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
+
+The suffixes of this command export subtrees.
+
+If the @code{--prefix} argument is set, then the suffix commands use that
+prefix without prompting the user.  If it is unset, then they read
+the prefix in the minibuffer.
+
+@kindex O e p
 @cindex magit-subtree-push
-@item @kbd{O p} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-push})
+@item @kbd{O e p} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-push})
 
-Extract the history of the subtree PREFIX and push it to REF on
-REPOSITORY@.
+This command extract the history of the subtree PREFIX and pushes it
+to REF on REPOSITORY@.
 
-@kindex O s
+@kindex O e s
 @cindex magit-subtree-split
-@item @kbd{O s} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-split})
+@item @kbd{O e s} @tie{}@tie{}@tie{}@tie{}(@code{magit-subtree-split})
 
-Extract the history of the subtree PREFIX@.
+This command extracts the history of the subtree PREFIX@.
 @end table
 
 @node Worktree
@@ -8559,11 +8710,11 @@ the git-worktree(1) manpage.
 
 @table @asis
 @kindex %
-@cindex magit-worktree-popup
-@item @kbd{%} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-popup})
+@cindex magit-worktree
+@item @kbd{%} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree})
 
-This prefix command shows the following suffix commands in a popup
-buffer.
+This transient prefix command binds the following suffix commands
+and displays them in a temporary buffer until a suffix is invoked.
 
 @kindex % b
 @cindex magit-worktree-checkout
@@ -8911,26 +9062,65 @@ Mode-line lighter for @code{magit-wip-initial-backup-mode}.
 @node Minor Mode for Buffers Visiting Files
 @section Minor Mode for Buffers Visiting Files
 
-The @code{magit-file-mode} enables certain Magit features in file-visiting
-buffers belonging to a Git repository.  It should be enabled globally
-using @code{global-magit-file-mode}.  Currently this mode only establishes a
-few key bindings, but this might be extended in the future.
+The minor-mode @code{magit-file-mode} enables certain Magit features in
+file-visiting buffers belonging to a Git repository.  The globalized
+variant @code{global-magit-file-mode} enables the local mode in all such
+buffers.  It is enabled by default.  Currently the local mode only
+establishes a few key bindings, but this might be extended in the
+future.
 
-@defopt magit-file-mode
+@defopt global-magit-file-mode
 
 Whether to establish certain Magit key bindings in all file-visiting
-buffers belonging to a Git repository.  This establishes the
-bindings suggested in @ref{Getting Started} (but only for file-visiting
-buffers), and additionally binds @code{C-c M-g} to @code{magit-file-popup}.
+buffers belonging to any Git repository.  This is enabled by default.
+This globalized mode turns on the local minor-mode @code{magit-file-mode}
+in all suitable buffers.
 @end defopt
+
+@defvar magit-file-mode-map
+
+This keymap is used by the local minor-mode @code{magit-file-mode} and
+establishes the key bindings described below.
+
+Note that the default binding for @code{magit-file-dispatch} is very
+cumbersome to use and that we recommend that you add a better
+binding.
+
+Instead of @code{C-c M-g} I would have preferred to use @code{C-c g} because (1)
+it is similar to @code{C-x g} (the recommended global binding for
+@code{~magit-status}), (2) we cannot use @code{C-c C-g} because we have been
+recommending that that be bound to @code{magit-dispatch} for a long time,
+(3) we cannot use @code{C-x C-g} because that is a convenient way of
+aborting the incomplete key sequence @code{C-x}, and most importantly (4)
+it would make it much easier to type the next key (a suffix binding)
+because most of those are letters.
+
+For example @code{C-c g b} is much easier to type than @code{C-c M-g b}.  For
+suffix bindings that use uppercase letters, the default is just
+horrible—having to use e.g. @code{C-c M-g B} (@code{Control+c Meta+g Shift+b})
+would drive anyone up the walls (or to Vim).
+
+However @code{C-c LETTER} bindings are reserved for users (see
+@ref{Key Binding Conventions,,,elisp,}).  Packages are forbidden from
+using those.  Doing so anyway is considered heresy.  Therefore if
+you want a better binding, you have to add it yourself:
+
+@lisp
+(define-key magit-file-mode-map
+  (kbd "C-c g") 'magit-file-dispatch)
+@end lisp
+@end defvar
+
+The key bindings shown below assume that you have not improved the
+binding for @code{magit-file-dispatch}.
 
 @table @asis
 @kindex C-c M-g
-@cindex magit-file-popup
-@item @kbd{C-c M-g} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-popup})
+@cindex magit-file-dispatch
+@item @kbd{C-c M-g} @tie{}@tie{}@tie{}@tie{}(@code{magit-file-dispatch})
 
-This prefix command shows a popup buffer featuring suffix commands
-that operate on the file being visited in the current buffer.
+This transient prefix command binds the following suffix commands
+and displays them in a temporary buffer until a suffix is invoked.
 
 @kindex C-c M-g s
 @cindex magit-stage-file
@@ -8945,20 +9135,25 @@ Stage all changes to the file being visited in the current buffer.
 Unstage all changes to the file being visited in the current buffer.
 
 @kindex C-c M-g c
-@cindex magit-commit-popup
-@item @kbd{C-c M-g c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit-popup})
+@cindex magit-commit
+@item @kbd{C-c M-g c} @tie{}@tie{}@tie{}@tie{}(@code{magit-commit})
 
-This prefix command shows suffix commands along with the appropriate
-infix arguments in a popup buffer.  See @ref{Initiating a Commit}.
+This transient prefix command binds the following suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.  See @ref{Initiating a Commit}.
 
 @kindex C-c M-g D
-@cindex magit-diff-buffer-file-popup
-@item @kbd{C-c M-g D} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-buffer-file-popup})
+@cindex magit-diff
+@item @kbd{C-c M-g D} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff})
 
-This prefix command shows the same suffix commands and infix
-arguments in a popup buffer as @code{magit-diff-popup}.  But this variant
-has to be called from a file-visiting buffer and the visited file
-is automatically used in the popup to limit the diff to that file.
+This transient prefix command binds several diff suffix commands and
+infix arguments and displays them in a temporary buffer until a
+suffix is invoked.  See @ref{Diffing}.
+
+This is the same command that @code{d} is bound to in Magit buffers.
+If this command is invoked from a file-visiting buffer, then the
+initial value of the option (@code{--}) that limits the diff to certain
+file(s) is set to the visited file.
 
 @kindex C-c M-g d
 @cindex magit-diff-buffer-file
@@ -8977,13 +9172,17 @@ buffer.  See @ref{Modes and Buffers}.
 
 @table @asis
 @kindex C-c M-g L
-@cindex magit-log-buffer-file-popup
-@item @kbd{C-c M-g L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-buffer-file-popup})
+@cindex magit-log
+@item @kbd{C-c M-g L} @tie{}@tie{}@tie{}@tie{}(@code{magit-log})
 
-This prefix command shows the same suffix commands and infix
-arguments in a popup buffer as @code{magit-log-popup}.  But this variant
-has to be called from a file-visiting buffer and the visited file
-is automatically used in the popup to limit the log to that file.
+This transient prefix command binds several log suffix commands and
+infix arguments and displays them in a temporary buffer until a
+suffix is invoked.  See @ref{Logging}.
+
+This is the same command that @code{l} is bound to in Magit buffers.
+If this command is invoked from a file-visiting buffer, then the
+initial value of the option (@code{--}) that limits the log to certain
+file(s) is set to the visited file.
 
 @kindex C-c M-g l
 @cindex magit-log-buffer-file
@@ -9010,32 +9209,22 @@ buffer.  See @ref{Modes and Buffers}.
 
 @table @asis
 @kindex C-c M-g B
-@cindex magit-blame-popup
-@item @kbd{C-c M-g B} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-popup})
+@cindex magit-blame
+@item @kbd{C-c M-g B} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame})
 
-This prefix command shows all blaming suffix command along with the
-appropriate infix arguments in a popup buffer.  See @ref{Blaming}.
+This transient prefix command binds all blaming suffix commands
+along with the appropriate infix arguments and displays them in a
+temporary buffer until a suffix is invoked.
 
-@kindex C-c M-g b
-@cindex magit-blame-addition
-@item @kbd{C-c M-g b} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-addition})
+For more information about this and the following commands also see
+@ref{Blaming}.
+@end table
 
-This command shows for each line the revision in which it was added.
+In addition to the @code{magit-blame} sub-transient, the dispatch transient
+also binds several blaming suffix commands directly.  See @ref{Blaming} for
+information about those commands and bindings.
 
-@kindex C-c M-g r
-@cindex magit-blame-removal
-@item @kbd{C-c M-g r} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-removal})
-
-This command shows for each line the revision in which it was removed.
-This command is only available in blob-visiting buffers.
-
-@kindex C-c M-g f
-@cindex magit-blame-reverse
-@item @kbd{C-c M-g f} @tie{}@tie{}@tie{}@tie{}(@code{magit-blame-reverse})
-
-This command shows for each line the last revision in which it still
-exists.  This command is only available in blob-visiting buffers.
-
+@table @asis
 @kindex C-c M-g e
 @cindex magit-edit-line-commit
 @item @kbd{C-c M-g e} @tie{}@tie{}@tie{}@tie{}(@code{magit-edit-line-commit})
@@ -9142,11 +9331,10 @@ overriding the value for Magit only by appending something like
 @item
 Certain settings like @code{fetch.prune=true} are respected by Magit
 commands (because they simply call the respective Git command) but
-their value is not reflected in the respective popup buffers.  In
-this case the @code{--prune} argument in @code{magit-fetch-popup} might be active
-or inactive depending on the value of @code{magit-fetch-arguments} only,
-but that doesn't keep the Git variable from being honored by the
-suffix commands anyway.  So pruning might happen despite the
+their value is not reflected in the respective transient buffers.
+In this case the @code{--prune} argument in @code{magit-fetch} might be active or
+inactive, but that doesn't keep the Git variable from being honored
+by the suffix commands anyway.  So pruning might happen despite the
 @code{--prune} arguments being displayed in a way that seems to indicate
 that no pruning will happen.
 @end itemize
@@ -10147,11 +10335,11 @@ current buffer.  @code{magit-refresh-function} is called with these
 arguments.
 
 The value is usually set using @code{magit-mode-setup}, but in some cases
-it's also useful to provide commands which can change the value.  For
-example, the @code{magit-diff-refresh-popup} can be used to change any of
-the arguments used to display the diff, without having to specify
-again which differences should be shown.  @code{magit-diff-more-context},
-@code{magit-diff-less-context}, and @code{magit-diff-default-context} change just
+it's also useful to provide commands that can change the value.  For
+example, the @code{magit-diff-refresh} transient can be used to change any
+of the arguments used to display the diff, without having to specify
+again which differences should be shown, but @code{magit-diff-more-context},
+@code{magit-diff-less-context} and @code{magit-diff-default-context} change just
 the @code{-U<N>} argument.  In both case this is done by changing the value
 of this variable and then calling this @code{magit-refresh-function}.
 @end defvar
