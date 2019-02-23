@@ -119,7 +119,7 @@
 
 (defface git-rebase-killed-action
   '((t (:inherit font-lock-comment-face :strike-through t)))
-  "Face for commented action and exec lines."
+  "Face for commented commit action lines."
   :group 'git-rebase-faces)
 
 (defface git-rebase-comment-hash
