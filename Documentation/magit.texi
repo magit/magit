@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-252-g8df54f151+1)
+@subtitle for version 2.90.1 (v2.90.1-258-g052936849+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-252-g8df54f151+1).
+This manual is for Magit version 2.90.1 (v2.90.1-258-g052936849+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -1591,9 +1591,17 @@ value has to have one of these two forms:
 @item
 @code{(EXPANDABLE-BITMAP . COLLAPSIBLE-BITMAP)}
 
-Both values have to by variables whose values are fringe
+Both values have to be variables whose values are fringe
 bitmaps.  In this case every section that can be expanded
 or collapsed gets an indicator in the left fringe.
+
+To provide extra padding around the indicator, set
+@code{left-fringe-width} in @code{magit-mode-hook}, e.g.:
+
+@lisp
+(add-hook 'magit-mode-hook (lambda ()
+                             (setq left-fringe-width 20)))
+@end lisp
 
 
 @item
