@@ -171,9 +171,12 @@ Otherwise the value has to have one of these two forms:
 
 (EXPANDABLE-BITMAP . COLLAPSIBLE-BITMAP)
 
-  Both values have to by variables whose values are fringe
+  Both values have to be variables whose values are fringe
   bitmaps.  In this case every section that can be expanded or
   collapsed gets an indicator in the left fringe.
+
+  To provide extra padding around the indicator, set
+  `left-fringe-width' in `magit-mode-hook'.
 
 (STRING . BOOLEAN)
 
