@@ -351,7 +351,7 @@ current line."
     (user-error "Unknown revision")))
 
 (defun git-rebase-exec (arg)
-  "Insert a shell command to be run after the proceeding commit.
+  "Insert a shell command to be run after the current commit.
 
 If there already is such a command on the current line, then edit
 that instead.  With a prefix argument insert a new command even
