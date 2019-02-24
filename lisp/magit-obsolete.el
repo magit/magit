@@ -32,10 +32,7 @@
 ;;; Obsolete since v2.91.0
 
 (define-obsolete-variable-alias 'magit-branch-popup-show-variables
-  magit-branch-direct-configure "Magit 2.91.0")
-
-(define-obsolete-variable-alias 'magit-remote-popup-show-variables
-  magit-remote-direct-configure "Magit 2.91.0")
+  'magit-branch-direct-configure "Magit 2.91.0")
 
 (define-obsolete-function-alias 'magit-dispatch-popup
   'magit-dispatch "Magit 2.91.0")
