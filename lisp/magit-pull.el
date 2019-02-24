@@ -44,6 +44,9 @@
   "Pull from another repository."
   :man-page "git-pull"
   [:description
+   (lambda () (if magit-pull-or-fetch "Pull arguments" "Arguments"))
+   ("-r" "Rebase local commits" ("-r" "--rebase"))]
+  [:description
    (lambda ()
      (if-let ((branch (magit-get-current-branch)))
          (concat
