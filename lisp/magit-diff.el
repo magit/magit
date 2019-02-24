@@ -2878,10 +2878,11 @@ last (visual) lines of the region."
               ((equal op (match-string-no-properties 1))
                (push (concat " " (match-string-no-properties 2)) patch)))
         (forward-line)))
-    (with-temp-buffer
-      (insert (mapconcat 'identity (reverse patch) ""))
-      (diff-fixup-modifs (point-min) (point-max))
-      (setq patch (buffer-string)))
+    (let ((buffer-list-update-hook nil)) ; #3759
+      (with-temp-buffer
+        (insert (mapconcat #'identity (reverse patch) ""))
+        (diff-fixup-modifs (point-min) (point-max))
+        (setq patch (buffer-string))))
     patch))
 
 ;;; _
