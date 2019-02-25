@@ -56,8 +56,9 @@
 (require 'git-commit)
 (require 'magit-core)
 (require 'magit-diff)
-(require 'magit-apply)
 (require 'magit-log)
+(require 'magit-wip)
+(require 'magit-apply)
 (require 'magit-repos)
 
 (require 'format-spec)
@@ -572,13 +573,14 @@ For X11 something like ~/.xinitrc should work.\n"
   (require 'magit-obsolete)
   (require 'magit-submodule)
   (unless (load "magit-autoloads" t t)
+    (require 'magit-patch)
     (require 'magit-subtree)
     (require 'magit-ediff)
+    (require 'magit-gitignore)
     (require 'magit-extras)
     (require 'git-rebase)
     (require 'magit-imenu)
-    (require 'magit-bookmark)
-    (require 'magit-gitignore)))
+    (require 'magit-bookmark)))
 
 (eval-after-load 'bookmark
   '(require 'magit-bookmark))

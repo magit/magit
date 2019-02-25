@@ -36,6 +36,7 @@
 (require 'magit-mode)
 (require 'magit-margin)
 (require 'magit-process)
+(require 'magit-transient)
 (require 'magit-autorevert)
 
 (defgroup magit nil
