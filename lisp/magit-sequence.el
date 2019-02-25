@@ -886,7 +886,7 @@ If no such sequence is in progress, do nothing."
   (let ((head (magit-rev-parse "HEAD")) done)
     (setq onto (if onto (magit-rev-parse onto) head))
     (setq done (magit-git-lines "log" "--format=%H" (concat onto "..HEAD")))
-    (when (and stop (not (member stop done)))
+    (when (and stop (not (member (magit-rev-parse stop) done)))
       (let ((id (magit-patch-id stop)))
         (--if-let (--first (equal (magit-patch-id it) id) done)
             (setq stop it)
