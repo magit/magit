@@ -178,7 +178,7 @@ which creates patches for all commits that are reachable from
   ["Actions"
    ("a"  "Apply patch" magit-patch-apply)]
   (interactive
-   (if (not (eq transient--prefix 'magit-patch-apply))
+   (if (not (eq current-transient-command 'magit-patch-apply))
        (list nil)
      (list (expand-file-name
             (read-file-name "Apply patch: "
