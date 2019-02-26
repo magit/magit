@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-259-g0d59db318+1)
+@subtitle for version 2.90.1 (v2.90.1-275-g3e73ff19d+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-259-g0d59db318+1).
+This manual is for Magit version 2.90.1 (v2.90.1-275-g3e73ff19d+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4868,7 +4868,7 @@ temporary buffer until a suffix is invoked.
 
 Note that not all of the following suffixes are available at all
 times.  For example if @code{magit-blame-mode} is not enabled, then the
-command whose purpose is to turn of that mode would not be of any
+command whose purpose is to turn off that mode would not be of any
 use and therefore isn't available.
 
 @table @asis
