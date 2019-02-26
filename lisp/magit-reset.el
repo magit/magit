@@ -81,7 +81,7 @@ Keep the `HEAD' and index as-is."
   (interactive (list (magit-read-branch-or-commit "Reset worktree to")))
   (magit-wip-commit-before-change nil " before reset")
   (magit-with-temp-index commit nil
-    (magit-run-git "checkout-index" "--all" "--force"))
+    (magit-call-git "checkout-index" "--all" "--force"))
   (magit-wip-commit-after-apply nil " after reset")
   (magit-refresh))
 
