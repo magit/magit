@@ -602,7 +602,8 @@ defaulting to the branch at point."
             (if (and (= (length refspecs) 1)
                      (magit-confirm 'delete-pr-remote
                        (format "Also delete remote %s (%s)" remote
-                               "no pull-request branch remains")))
+                               "no pull-request branch remains")
+                       nil t))
                 (magit-call-git "remote" "rm" remote)
               (magit-call-git "config" "--unset" variable
                               (regexp-quote refspec)))))))))
