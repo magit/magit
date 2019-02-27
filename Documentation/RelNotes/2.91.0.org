@@ -33,16 +33,8 @@
   0b86dbfd6
 
 - Added new command ~magit-log-merged~.  This command requires
-  ~git-when-merged~ (https://github.com/mhagger/git-when-merged).  It
-  isn't bound in ~magit-log-popup~ by default.  To add it, you can use
-  something like
-
-  #+BEGIN_SRC emacs-lisp
-    (magit-define-popup-action 'magit-log-popup
-      ?m "Log commit's merge" 'magit-log-merged)
-  #+END_SRC
-
-  #3657
+  ~git-when-merged~ (https://github.com/mhagger/git-when-merged).
+  It is a suffix of ~magit-log~ but is disabled by default.  #3657
 
 - Added new class slot ~keymap~ to allow other packages to define
   section-specific keymaps without naming them ~magit-TYPE-section-map~,

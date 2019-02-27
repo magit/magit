@@ -412,7 +412,8 @@ the upstream isn't ahead of the current branch) show."
    [""
     ("L" "local branches" magit-log-branches)
     ("b" "all branches"   magit-log-all-branches)
-    ("a" "all references" magit-log-all)]
+    ("a" "all references" magit-log-all)
+    (7 "m" "merged"       magit-log-merged)]
    ["Reflog"
     ("r" "current"        magit-reflog-current)
     ("O" "other"          magit-reflog-other)
