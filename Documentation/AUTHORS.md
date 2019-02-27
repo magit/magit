@@ -50,6 +50,7 @@ Contributors
 - Alban Gruin <alban@pa1ch.fr>
 - Aleksey Uimanov <s9gf4ult@gmail.com>
 - Alexander Gramiak <fice-t@protonmail.com>
+- Alexander Miller <alexanderm@web.de>
 - Alex Branham <alex.branham@gmail.com>
 - Alex Dunn <adunn@ucsb.edu>
 - Alexey Voinov <alexey.v.voinov@gmail.com>
@@ -107,6 +108,7 @@ Contributors
 - Daniel Kraus <daniel@kraus.my>
 - Daniel Mai <daniel@danielmai.net>
 - Dan LaManna <dan.lamanna@gmail.com>
+- Danny Zhu <dzhu@dzhu.us>
 - Dato Simó <dato@net.com.org.es>
 - David Abrahams <dave@boostpro.com>
 - David Ellison <davide@voicebox.com>
