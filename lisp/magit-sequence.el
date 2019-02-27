@@ -980,13 +980,11 @@ status buffer (i.e. the reverse of how they will be applied)."
                                     'magit-sequence-head
                                   'magit-sequence-onto))))
 
-(defun magit-sequence-insert-commit (type hash face &optional exec)
-  (magit-insert-section (commit hash)
+(defun magit-sequence-insert-commit (type hash face)
+ (magit-insert-section (commit hash)
     (magit-insert-heading
       (propertize type 'face face)    "\s"
-      (magit-format-rev-summary hash) "\n")
-    (when exec
-      (insert (propertize "exec" 'face 'magit-sequence-onto) "\s" exec "\n"))))
+      (magit-format-rev-summary hash) "\n")))
 
 ;;; _
 (provide 'magit-sequence)
