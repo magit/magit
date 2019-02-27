@@ -1,14 +1,28 @@
 * Magit v2.91.0 Release Notes (unreleased)
 ** Breaking changes
 
+- After some users intervened I have decided to NOT drop support for
+  Emacs 25 in this release as I had intended to do.  Emacs 25 should
+  remain supported for at least a few more releases.
+
+- Magit now uses Transient instead of Magit-Popup.
+TODO
+e8c063c4d * magit--push-current-set-{upstream,pushremote}-desc: Mention creation
+1ed3febfb * Merge branch 'transient' [#3728]
+d65dbc0c0 * [key] magit-branch-configure: Avoid key binding conflict
+8df54f151 * Rename variables that still had "popup" in their names
+d24296c20 * magit-pull: Add --rebase
+c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
+
 - The commands ~magit-branch-pull-request~, ~magit-checkout-pull-request~
   and ~magit-worktree-checkout-pull-request~ were removed in favor of
   improved implementations provided by the new Forge package.
 
-- ~C-c C-e~ is no longer bound to ~magit-dispatch-popup~.  It is bound
-  to  ~magit-edit-thing~ now, so that Forge can add section-specific
-  bindings using this key.  ~magit-dispatch-popup~ continues to be
-  available on ~h~, ~?~ and ~C-c C-c~.  #3659
+- ~C-c C-e~ is no longer bound to ~magit-dispatch-popup~.  It is bound to
+  ~magit-edit-thing~ now, so that Forge can add section-specific
+  bindings using this key.  ~magit-dispatch-popup~ has been renamed to
+  ~magit-dispatch~ and continues to be available on ~h~, ~?~ and ~C-c C-c~.
+  #3659
 
 - ~C-c C-b~ is no longer bound to ~magit-browse-thing~ to avoid a conflict
   with ~magit-go-backward~ in diff and log buffers.  ~C-c C-w~ (as in web)
@@ -87,6 +101,20 @@
   marker column when a prefix argument is given and the region is
   active within a hunk.  #3716
 
+- Made ~magit-tag-release~ more flexible and added it as a suffix of
+  ~magit-tag~.  2d14f84b2
+
+- Bound "C-c C-o" (in addition to "C-c C-w") ~to ~magit-browse-thing~ for
+  consistency with ~org-open-at-point~'s binding.  1e1193666
+
+- ~magit-copy-section-value~ now supports stripping diff markers.  #3716
+
+- ~magit-insert-*-branch-header~ now colorizes keywords in the message.
+  98e328200
+
+- ~magit-unstage~ can now unstage files that were staged using
+  ~--intent-to-add~ #3753
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
@@ -153,3 +181,20 @@
 
 - Section movement commands got confused by type change sections being
   treated as a special kind of hunk.  #3698
+
+- ~x-strech-cursor~ was set globally.  #3707
+
+- ~magit-blame-echo~ was broken.  #3720
+
+- ~magit-rev-name~ sometimes returned ~nil~ even when it could return a
+  name and it returned e.g. "origin/HEAD" instead of "origin/master".
+  2042957a7, d500c442
+
+- ~magit-insert-*-branch-header~ did not account for empty commit
+  messages.  #3719
+
+- ~magit--painted-branch-at-point~ failed in some cases, causing an
+  error.  e7e612e3c
+
+- In newer Git versions the rebase list shown in the status buffer
+  could contain duplicated entries for the current commit.  1e1cd0e28
