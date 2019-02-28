@@ -368,6 +368,7 @@ the upstream isn't ahead of the current branch) show."
 ;;; Commands
 ;;;; Popups
 
+;;;###autoload (autoload 'magit-log "magit-log" nil t)
 (define-transient-command magit-log ()
   "Show a commit or reference log."
   :man-page "git-log"
@@ -423,6 +424,7 @@ the upstream isn't ahead of the current branch) show."
     ("i" "index"          magit-wip-log-index)
     ("w" "worktree"       magit-wip-log-worktree)]])
 
+;;;###autoload (autoload 'magit-log-refresh "magit-log" nil t)
 (define-transient-command magit-log-refresh ()
   "Change the arguments used for the log(s) in the current buffer."
   :man-page "git-log"
