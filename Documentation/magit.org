@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-288-g35271d95+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-301-g3cc12771+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-288-g35271d95+1).
+This manual is for Magit version 2.90.1 (v2.90.1-301-g3cc12771+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -5138,6 +5138,11 @@ the following suffix commands.
   there already is one on the current line.  With empty input remove
   the command on the current line, if any.
 
+- Key: b, git-rebase-break
+
+  Insert a break action before the current line, instructing Git to
+  return control to the user.
+
 - Key: y, git-rebase-insert
 
   Read an arbitrary commit and insert it below current line.
@@ -5158,6 +5163,35 @@ the following suffix commands.
 - User Option: git-rebase-confirm-cancel
 
   Whether confirmation is required to cancel.
+
+When a rebase is performed with the ~--rebase-merges~ option, the
+sequence will include a few other types of actions and the following
+commands become relevant.
+
+- Key: l, git-rebase-label
+
+  This commands inserts a label action or edits the one at point.
+
+- Key: t, git-rebase-reset
+
+  This command inserts a reset action or edits the one at point.  The
+  prompt will offer the labels that are currently present in the
+  buffer.
+
+- Key: MM, git-rebase-merge
+
+  The command inserts a merge action or edits the one at point.  The
+  prompt will offer the labels that are currently present in the
+  buffer.  Specifying a message to reuse via ~-c~ or ~-C~ is not
+  supported; an editor will always be invoked for the merge.
+
+- Key: Mt, git-rebase-merge-toggle-editmsg
+
+  This command toggles between the ~-C~ and ~-c~ options of the merge
+  action at point.  These options both specify a commit whose message
+  should be reused.  The lower-case variant instructs Git to invoke
+  the editor when creating the merge, allowing the user to edit the
+  message.
 
 *** Information About In-Progress Rebase
 
@@ -5202,7 +5236,8 @@ The following words are used:
 - Commits prefixed with ~pick~, ~reword~, ~edit~, ~squash~, and ~fixup~ have not
   been applied yet.  These words have the same meaning here as they do
   in the buffer used to edit the rebase sequence.  See [[*Editing Rebase
-  Sequences]].
+  Sequences]].  When the ~--rebase-merges~ option was specified,
+  ~reset~, ~label~, and ~merge~ lines may also be present.
 
 - Commits prefixed with ~done~ and ~onto~ have already been applied.
   It is possible for such a commit to be the ~HEAD~, in which case it

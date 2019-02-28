@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-288-g35271d95+1)
+@subtitle for version 2.90.1 (v2.90.1-301-g3cc12771+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-288-g35271d95+1).
+This manual is for Magit version 2.90.1 (v2.90.1-301-g3cc12771+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6932,6 +6932,13 @@ that instead.  With a prefix argument insert a new command even when
 there already is one on the current line.  With empty input remove
 the command on the current line, if any.
 
+@kindex b
+@cindex git-rebase-break
+@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-break})
+
+Insert a break action before the current line, instructing Git to
+return control to the user.
+
 @kindex y
 @cindex git-rebase-insert
 @item @kbd{y} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-insert})
@@ -6961,6 +6968,45 @@ Whether to show usage instructions inside the rebase buffer.
 
 Whether confirmation is required to cancel.
 @end defopt
+
+When a rebase is performed with the @code{--rebase-merges} option, the
+sequence will include a few other types of actions and the following
+commands become relevant.
+
+@table @asis
+@kindex l
+@cindex git-rebase-label
+@item @kbd{l} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-label})
+
+This commands inserts a label action or edits the one at point.
+
+@kindex t
+@cindex git-rebase-reset
+@item @kbd{t} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-reset})
+
+This command inserts a reset action or edits the one at point.  The
+prompt will offer the labels that are currently present in the
+buffer.
+
+@kindex MM
+@cindex git-rebase-merge
+@item @kbd{MM} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-merge})
+
+The command inserts a merge action or edits the one at point.  The
+prompt will offer the labels that are currently present in the
+buffer.  Specifying a message to reuse via @code{-c} or @code{-C} is not
+supported; an editor will always be invoked for the merge.
+
+@kindex Mt
+@cindex git-rebase-merge-toggle-editmsg
+@item @kbd{Mt} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-merge-toggle-editmsg})
+
+This command toggles between the @code{-C} and @code{-c} options of the merge
+action at point.  These options both specify a commit whose message
+should be reused.  The lower-case variant instructs Git to invoke
+the editor when creating the merge, allowing the user to edit the
+message.
+@end table
 
 @node Information About In-Progress Rebase
 @subsection Information About In-Progress Rebase
@@ -7018,7 +7064,8 @@ The following words are used:
 @item
 Commits prefixed with @code{pick}, @code{reword}, @code{edit}, @code{squash}, and @code{fixup} have not
 been applied yet.  These words have the same meaning here as they do
-in the buffer used to edit the rebase sequence.  See @ref{Editing Rebase Sequences}.
+in the buffer used to edit the rebase sequence.  See @ref{Editing Rebase Sequences}.  When the @code{--rebase-merges} option was specified,
+@code{reset}, @code{label}, and @code{merge} lines may also be present.
 
 
 @item
