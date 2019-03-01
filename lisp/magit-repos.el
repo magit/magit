@@ -263,11 +263,7 @@ then read an arbitrary directory using `read-directory-name'
 instead."
   (if-let ((repos (and (not read-directory-name)
                        magit-repository-directories
-                       (magit-list-repos-uniquify
-                        (--map (cons (file-name-nondirectory
-                                      (directory-file-name it))
-                                     it)
-                               (magit-list-repos))))))
+                       (magit-repos-alist))))
       (let ((reply (magit-completing-read "Git repository" repos)))
         (file-name-as-directory
          (or (cdr (assoc reply repos))
@@ -312,6 +308,11 @@ instead."
                                value))))))
      dict)
     result))
+
+(defun magit-repos-alist ()
+  (magit-list-repos-uniquify
+   (--map (cons (file-name-nondirectory (directory-file-name it)) it)
+          (magit-list-repos))))
 
 ;;; _
 (provide 'magit-repos)
