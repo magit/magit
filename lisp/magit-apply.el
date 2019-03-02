@@ -556,6 +556,8 @@ without requiring confirmation."
                        files)
   (let ((delete-by-moving-to-trash magit-delete-by-moving-to-trash))
     (dolist (file files)
+      (when (string-match-p "\\`\\\\?~" file)
+        (error "Refusing to delete %S, too dangerous" file))
       (pcase (nth 3 (assoc file status))
         ((guard (memq (magit-diff-type) '(unstaged untracked)))
          (dired-delete-file file dired-recursive-deletes
