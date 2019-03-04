@@ -427,7 +427,8 @@ different, but only if you have customized the option
       (let ((ref (oref (magit-current-section) value)))
         (cond (current-prefix-arg
                (cond ((memq 'focus-on-ref magit-visit-ref-behavior)
-                      (magit-show-refs ref))
+                      (magit-mode-setup #'magit-refs-mode ref
+                                        (magit-show-refs-arguments)))
                      (magit-visit-ref-behavior
                       ;; Don't prompt for commit to visit.
                       (let ((current-prefix-arg nil))

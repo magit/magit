@@ -156,7 +156,7 @@ review the result."
                                 ver)))))
        (list tag (read-string (format "Message for %S: " tag) msg)))))
   (magit-run-git "tag" "--annotate" "--sign" "-m" msg tag)
-  (magit-show-refs))
+  (magit-mode-setup #'magit-refs-mode nil (magit-show-refs-arguments)))
 
 (defun magit--list-releases ()
   "Return a list of releases.
