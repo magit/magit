@@ -730,7 +730,9 @@ not turn on `read-only-mode'."
               (cons 'eldoc-mode magit-blame-disable-modes))
   (if (not magit-blame-mode)
       (let ((magit-blame-read-only nil))
-        (magit-blame-addition))
+        (magit-blame--pre-blame-assert 'addition)
+        (magit-blame--pre-blame-setup  'addition)
+        (magit-blame--run))
     (read-only-mode -1)
     (magit-blame--update-overlays)))
 

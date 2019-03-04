@@ -436,7 +436,8 @@ is available from https://github.com/torbiak/git-autofixup."
         (progn (magit-run-git-async "autofixup" "-vv" args commit) t)
       (magit-log-select
         (lambda (commit)
-          (magit-commit-absorb 'run commit args))
+          (with-no-warnings ; about non-interactive use
+            (magit-commit-absorb 'run commit args)))
         nil nil nil nil commit))))
 
 (define-infix-argument magit-autofixup:--context ()
