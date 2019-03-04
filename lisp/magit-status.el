@@ -595,7 +595,7 @@ be expanded using \"TAB\".
 
 If the first element of `magit-diff-section-arguments' is a
 directory, then limit the list to files below that.  The value
-value of that variable can be set using \"D = f DIRECTORY RET g\"."
+value of that variable can be set using \"D -- DIRECTORY RET g\"."
   (let* ((show (or (magit-get "status.showUntrackedFiles") "normal"))
          (base (car magit-diff-section-file-args))
          (base (and base (file-directory-p base) base)))
@@ -626,7 +626,7 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
 
 If the first element of `magit-diff-section-arguments' is a
 directory, then limit the list to files below that.  The value
-value of that variable can be set using \"D = f DIRECTORY RET g\"."
+value of that variable can be set using \"D -- DIRECTORY RET g\"."
   (when-let ((files (magit-list-files)))
     (let* ((base (car magit-diff-section-file-args))
            (base (and base (file-directory-p base) base)))
@@ -640,7 +640,7 @@ value of that variable can be set using \"D = f DIRECTORY RET g\"."
 
 If the first element of `magit-diff-section-arguments' is a
 directory, then limit the list to files below that.  The value
-of that variable can be set using \"D = f DIRECTORY RET g\"."
+of that variable can be set using \"D -- DIRECTORY RET g\"."
   (when-let ((files (magit-ignored-files)))
     (let* ((base (car magit-diff-section-file-args))
            (base (and base (file-directory-p base) base)))
