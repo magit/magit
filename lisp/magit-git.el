@@ -821,6 +821,11 @@ tracked file."
   (magit-git-items "ls-files" "-z" "--others" "--ignored"
                    "--exclude-standard" "--directory"))
 
+(defun magit-skip-worktree-files ()
+  (--keep (and (and (= (aref it 0) ?S)
+                    (substring it 2)))
+          (magit-git-items "ls-files" "-z" "-t")))
+
 (defun magit-revision-files (rev)
   (magit-with-toplevel
     (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))

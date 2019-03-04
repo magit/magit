@@ -649,6 +649,20 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
         (magit-insert-files files base)
         (insert ?\n)))))
 
+(defun magit-insert-skip-worktree-files ()
+  "Insert a tree of skip-worktree files.
+
+If the first element of `magit-diff-section-arguments' is a
+directory, then limit the list to files below that.  The value
+of that variable can be set using \"D -- DIRECTORY RET g\"."
+  (when-let ((files (magit-skip-worktree-files)))
+    (let* ((base (car magit-diff-section-file-args))
+           (base (and base (file-directory-p base) base)))
+      (magit-insert-section (skip-worktree nil t)
+        (magit-insert-heading "Skip-worktree files:")
+        (magit-insert-files files base)
+        (insert ?\n)))))
+
 (defun magit-insert-files (files directory)
   (while (and files (string-prefix-p (or directory "") (car files)))
     (let ((dir (file-name-directory (car files))))
