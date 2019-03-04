@@ -1513,8 +1513,20 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
                         name)))
             (magit-git-lines "show-ref"))))
 
-(defun magit-list-refnames (&optional namespaces)
-  (magit-list-refs namespaces "%(refname:short)"))
+(defun magit-list-refnames (&optional namespaces include-special)
+  (nconc (magit-list-refs namespaces "%(refname:short)")
+         (and include-special
+              (magit-list-special-refnames))))
+
+(defvar magit-special-refnames
+  '("HEAD" "ORIG_HEAD" "FETCH_HEAD" "MERGE_HEAD" "CHERRY_PICK_HEAD"))
+
+(defun magit-list-special-refnames ()
+  (let ((gitdir (magit-gitdir)))
+    (cl-mapcan (lambda (name)
+                 (and (file-exists-p (expand-file-name name gitdir))
+                      (list name)))
+               magit-special-refnames)))
 
 (defun magit-list-branch-names ()
   (magit-list-refnames (list "refs/heads" "refs/remotes")))
@@ -1955,7 +1967,7 @@ and this option only controls what face is used.")
                              (magit-get-current-branch))))
 
 (defun magit-read-branch-or-commit (prompt &optional secondary-default)
-  (or (magit-completing-read prompt (cons "HEAD" (magit-list-refnames))
+  (or (magit-completing-read prompt (magit-list-refnames nil t)
                              nil nil nil 'magit-revision-history
                              (or (magit-branch-or-commit-at-point)
                                  secondary-default
@@ -2007,10 +2019,12 @@ and this option only controls what face is used.")
                              (magit-get-current-branch))))
 
 (defun magit-read-local-branch-or-commit (prompt)
-  (let ((branches (magit-list-local-branch-names))
+  (let ((choices (nconc (magit-list-local-branch-names)
+                        (magit-list-special-refnames)))
         (commit (magit-commit-at-point)))
-    (or (magit-completing-read prompt
-                               (if commit (cons commit branches) branches)
+    (when commit
+      (push commit choices))
+    (or (magit-completing-read prompt choices
                                nil nil nil 'magit-revision-history
                                (or (magit-local-branch-at-point) commit))
                      (user-error "Nothing selected"))))

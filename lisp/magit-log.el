@@ -631,9 +631,7 @@ the upstream isn't ahead of the current branch) show."
 
 (defun magit-log-read-revs (&optional use-current)
   (or (and use-current (--when-let (magit-get-current-branch) (list it)))
-      (let ((collection `(,@(and (file-exists-p (magit-git-dir "FETCH_HEAD"))
-                                 (list "FETCH_HEAD"))
-                          ,@(magit-list-refnames))))
+      (let ((collection (magit-list-refnames nil t)))
         (split-string
          (magit-completing-read-multiple "Log rev,s" collection
                                          "\\(\\.\\.\\.?\\|[, ]\\)"
