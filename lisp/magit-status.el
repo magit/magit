@@ -68,7 +68,8 @@ all."
              magit-insert-head-branch-header
              magit-insert-upstream-branch-header
              magit-insert-push-branch-header
-             magit-insert-tags-header))
+             magit-insert-tags-header)
+  :safe (lambda (val) (and (listp val) (cl-every 'symbolp val))))
 
 (defcustom magit-status-sections-hook
   '(magit-insert-status-headers
@@ -90,7 +91,8 @@ all."
   "Hook run to insert sections into a status buffer."
   :package-version '(magit . "2.12.0")
   :group 'magit-status
-  :type 'hook)
+  :type 'hook
+  :safe (lambda (val) (and (listp val) (cl-every 'symbolp val))))
 
 (defcustom magit-status-initial-section '(1)
   "The section point is placed on when a status buffer is created.
