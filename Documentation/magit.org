@@ -6978,6 +6978,10 @@ current buffer.
   (setq magit-refresh-status-buffer nil)
 #+END_SRC
 
+If showing the status buffer is slow, some of the information
+displayed can be disabled by removing hooks from
+~magit-status-headers-hook~ and ~magit-status-sections-hook~.
+
 You should also check whether any third-party packages have added
 anything to ~magit-refresh-buffer-hook~, ~magit-status-refresh-hook~,
 ~magit-pre-refresh-hook~, and ~magit-post-refresh-hook~.  If so, then
