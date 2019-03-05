@@ -1061,39 +1061,34 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                                  (substring (symbol-name major-mode) 0 -5))))
         (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0)))))
     (when (functionp refresh)
-      (when magit-refresh-verbose
-        (message "Refreshing buffer `%s'..." (buffer-name)))
-      (let* ((buffer (current-buffer))
-             (windows
-              (--mapcat (with-selected-window it
-                          (with-current-buffer buffer
-                            (when-let ((section (magit-current-section)))
-                              (list
-                               (nconc (list it section)
-                                      (magit-refresh-get-relative-position))))))
-                        (or (get-buffer-window-list buffer nil t)
-                            (list (selected-window))))))
-        (deactivate-mark)
-        (setq magit-section-highlight-overlays nil)
-        (setq magit-section-highlighted-section nil)
-        (setq magit-section-highlighted-sections nil)
-        (setq magit-section-unhighlight-sections nil)
-        (magit-process-unset-mode-line-error-status)
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (save-excursion
-            (apply refresh magit-refresh-args)))
-        (dolist (window windows)
-          (with-selected-window (car window)
-            (with-current-buffer buffer
-              (apply #'magit-section-goto-successor (cdr window)))))
-        (run-hooks 'magit-refresh-buffer-hook)
-        (magit-section-update-highlight)
-        (set-buffer-modified-p nil))
-      (when magit-refresh-verbose
-        (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
-                 (float-time (time-subtract (current-time)
-                                            magit-refresh-start-time)))))))
+      (magit-time-it (format "refresh buffer `%s'" (buffer-name))
+        (let* ((buffer (current-buffer))
+               (windows
+                (--mapcat (with-selected-window it
+                            (with-current-buffer buffer
+                              (when-let ((section (magit-current-section)))
+                                        (list
+                                         (nconc (list it section)
+                                                (magit-refresh-get-relative-position))))))
+                          (or (get-buffer-window-list buffer nil t)
+                              (list (selected-window))))))
+          (deactivate-mark)
+          (setq magit-section-highlight-overlays nil)
+          (setq magit-section-highlighted-section nil)
+          (setq magit-section-highlighted-sections nil)
+          (setq magit-section-unhighlight-sections nil)
+          (magit-process-unset-mode-line-error-status)
+          (let ((inhibit-read-only t))
+            (erase-buffer)
+            (save-excursion
+              (apply refresh magit-refresh-args)))
+          (dolist (window windows)
+            (with-selected-window (car window)
+              (with-current-buffer buffer
+                (apply #'magit-section-goto-successor (cdr window)))))
+          (run-hooks 'magit-refresh-buffer-hook)
+          (magit-section-update-highlight)
+          (set-buffer-modified-p nil))))))
 
 (defun magit-refresh-get-relative-position ()
   (when-let ((section (magit-current-section)))
@@ -1390,12 +1385,7 @@ repository's Magit buffers."
 
 (defun magit-run-hook-with-benchmark (hook)
   (when hook
-    (if magit-refresh-verbose
-        (let ((start (current-time)))
-          (message "Running %s..." hook)
-          (run-hooks hook)
-          (message "Running %s...done (%.3fs)" hook
-                   (float-time (time-subtract (current-time) start))))
+    (magit-time-it hook
       (run-hooks hook))))
 
 ;;; _

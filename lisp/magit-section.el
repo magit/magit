@@ -1626,7 +1626,8 @@ again use `remove-hook'."
     (dolist (entry entries)
       (let ((magit--current-section-hook (cons (list hook entry)
                                                magit--current-section-hook)))
-        (apply entry args)))))
+        (magit-time-it (format "section hook %S" entry)
+          (apply entry args))))))
 
 ;;; _
 (provide 'magit-section)
