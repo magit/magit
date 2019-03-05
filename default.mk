@@ -101,14 +101,12 @@ VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0 | cut -c
 ASYNC_VERSION       = 1.9.3
 DASH_VERSION        = 2.14.1
 GIT_COMMIT_VERSION  = 2.91.0
-LV_VERSION          = 0
 TRANSIENT_VERSION   = 0
 WITH_EDITOR_VERSION = 2.8.0
 
 ASYNC_MELPA_SNAPSHOT       = 20180527
 DASH_MELPA_SNAPSHOT        = 20180910
 GIT_COMMIT_MELPA_SNAPSHOT  = 20181104
-LV_MELPA_SNAPSHOT          = 0
 TRANSIENT_MELPA_SNAPSHOT   = 0
 WITH_EDITOR_MELPA_SNAPSHOT = 20181103
 
@@ -133,13 +131,6 @@ ifeq "$(DASH_DIR)" ""
   DASH_DIR = $(TOP)../dash
 endif
 
-LV_DIR ?= $(shell \
-  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/lv-[.0-9]*' 2> /dev/null | \
-  sort | tail -n 1)
-ifeq "$(LV_DIR)" ""
-  LV_DIR = $(TOP)../hydra
-endif
-
 TRANSIENT_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/transient-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
@@ -161,18 +152,17 @@ endif
 
 LOAD_PATH = -L $(TOP)/lisp
 
-# When making changes here, then don't forget to adjust Makefile,
-# .travis.yml, magit-emacs-Q-command and the "Installing from the
-# Git Repository" info node accordingly.
+# When making changes here, then don't forget to adjust "Makefile",
+# ".travis.yml", ".github/ISSUE_TEMPLATE/bug_report.md",
+# `magit-emacs-Q-command' and the "Installing from the Git Repository"
+# info node accordingly.  Also don't forget to "rgrep \b<pkg>\b".
 
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
-  LOAD_PATH += -L $(shell cygpath --mixed $(LV_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(TRANSIENT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
 else
   LOAD_PATH += -L $(DASH_DIR)
-  LOAD_PATH += -L $(LV_DIR)
   LOAD_PATH += -L $(TRANSIENT_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
 endif

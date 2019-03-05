@@ -19,10 +19,9 @@ install:
   - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
   - export EMACS=/tmp/emacs/bin/emacs
   - $CURL -O ${GHRAW}/magnars/dash.el/master/dash.el
-  - $CURL -O ${GHRAW}/abo-abo/hydra/master/lv.el
   - $CURL -O ${GHRAW}/magit/transient/master/lisp/transient.el
   - $CURL -O ${GHRAW}/magit/with-editor/master/with-editor.el
-  - $EMACS -Q --batch -L . -f batch-byte-compile dash.el lv.el transient.el with-editor.el
+  - $EMACS -Q --batch -L . -f batch-byte-compile dash.el transient.el with-editor.el
   - $EMACS --version
 script:
   - git config --global user.name "A U Thor"
