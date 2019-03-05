@@ -286,12 +286,6 @@ improve performance."
   :group 'magit-status
   :type 'boolean)
 
-(defcustom magit-refresh-verbose nil
-  "Whether to revert Magit buffers verbosely."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-refresh
-  :type 'boolean)
-
 (defcustom magit-save-repository-buffers t
   "Whether to save file-visiting buffers when appropriate.
 

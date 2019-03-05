@@ -394,6 +394,12 @@ and delay of your graphical environment or operating system."
                  (const :tag "view manpage using `man'" man)
                  (const :tag "view manpage using `woman'" woman)))
 
+(defcustom magit-refresh-verbose nil
+  "Whether to revert Magit buffers verbosely."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-refresh
+  :type 'boolean)
+
 ;;; User Input
 
 (defvar helm-completion-in-region-default-sort-fn)
@@ -1196,6 +1202,27 @@ FORMAT-STRING to be displayed, then don't."
 Like `message', except that `message-log-max' is bound to nil."
   (let ((message-log-max nil))
     (apply #'message format-string args)))
+
+
+(defmacro magit-time-it (nameform &rest codeform)
+  "Display messages tracking how long CODEFORM ran.
+Useful to debug slow parts of magit.  Displays a message before
+and after CODEFORM is run.
+
+Messages are only logged if `magit-refresh-verbose' is non-nil."
+  (declare (indent 1))
+  (let ((start (cl-gensym))
+        (res (cl-gensym))
+        (name (cl-gensym)))
+    `(let ((,start (current-time))
+           (,name ,nameform))
+       (when magit-refresh-verbose
+         (message "Magit running %-50.50s..." ,name))
+       (prog1 (progn ,@codeform)
+         (when magit-refresh-verbose
+           (message "Magit running %-50.50s...done (%.3fs)"
+                    ,name
+                    (float-time (time-subtract (current-time) ,start))))))))
 
 ;;; _
 (provide 'magit-utils)
