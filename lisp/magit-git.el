@@ -1282,10 +1282,7 @@ The amount of time spent searching is limited by
 
 (defun magit-set-upstream-branch (branch upstream)
   (if upstream
-      (pcase-let ((`(,remote . ,merge) (magit-split-branch-name upstream)))
-        (setf (magit-get (format "branch.%s.remote" branch)) remote)
-        (setf (magit-get (format "branch.%s.merge"  branch))
-              (concat "refs/heads/" merge)))
+      (magit-call-git "branch" "--set-upstream-to" upstream branch)
     (magit-call-git "branch" "--unset-upstream" branch)))
 
 (defun magit-get-upstream-branch (&optional branch verify)
