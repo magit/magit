@@ -1274,12 +1274,11 @@ The amount of time spent searching is limited by
 
 (defun magit-get-upstream-ref (&optional branch)
   (and (or branch (setq branch (magit-get-current-branch)))
-       (let ((remote (magit-get "branch" branch "remote"))
-             (merge  (magit-get "branch" branch "merge")))
-         (when (and remote merge)
-           (cond ((string-equal remote ".") merge)
-                 ((string-prefix-p "refs/heads/" merge)
-                  (concat "refs/remotes/" remote "/" (substring merge 11))))))))
+       (when-let ((remote (magit-get "branch" branch "remote"))
+                  (merge  (magit-get "branch" branch "merge")))
+         (cond ((string-equal remote ".") merge)
+               ((string-prefix-p "refs/heads/" merge)
+                (concat "refs/remotes/" remote "/" (substring merge 11)))))))
 
 (defun magit-set-upstream-branch (branch upstream)
   (if upstream
