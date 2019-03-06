@@ -131,9 +131,9 @@ branch, then also remove the respective remote branch."
    (list (magit-read-other-local-branch
           (format "Merge `%s' into" (magit-get-current-branch))
           nil
-          (when-let ((upstream (magit-get-upstream-branch)))
-            (when-let ((upstream (cdr (magit-split-branch-name upstream))))
-              (and (magit-branch-p upstream) upstream))))
+          (when-let ((upstream (magit-get-upstream-branch))
+                     (upstream (cdr (magit-split-branch-name upstream))))
+            (and (magit-branch-p upstream) upstream)))
          (magit-merge-arguments)))
   (let ((current (magit-get-current-branch)))
     (when (zerop (magit-call-git "checkout" branch))
