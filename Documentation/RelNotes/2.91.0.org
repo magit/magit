@@ -115,6 +115,13 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
 - ~magit-unstage~ can now unstage files that were staged using
   ~--intent-to-add~ #3753
 
+- ~--rebase-merges~, an option available in Git version 2.18.0 and
+  later, is now supported.  The ~--rebase-merges~ infix of
+  ~magit-rebase~ is disabled by default.  #3762
+
+- New command ~git-rebase-break~ inserts a "break" action in the
+  rebase to-do sequence (available as of Git v2.20).  #3762
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
