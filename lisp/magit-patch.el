@@ -103,14 +103,18 @@ which creates patches for all commits that are reachable from
       (transient-setup 'magit-patch-create)
     (magit-run-git "format-patch" range args "--" files)
     (when (member "--cover-letter" args)
-      (find-file
-       (expand-file-name
-        "0000-cover-letter.patch"
-        (let ((topdir (magit-toplevel)))
-          (or (--some (and (string-match "--output-directory=\\(.+\\)" it)
-                           (expand-file-name (match-string 1 it) topdir))
-                      args)
-              topdir)))))))
+      (save-match-data
+        (find-file
+         (expand-file-name
+          (concat (--some (and (string-match "\\`--reroll-count=\\(.+\\)" it)
+                               (format "v%s-" (match-string 1 it)))
+                          args)
+                  "0000-cover-letter.patch")
+          (let ((topdir (magit-toplevel)))
+            (or (--some (and (string-match "\\`--output-directory=\\(.+\\)" it)
+                             (expand-file-name (match-string 1 it) topdir))
+                        args)
+                topdir))))))))
 
 (define-infix-argument magit-format-patch:--in-reply-to ()
   :description "In reply to"
