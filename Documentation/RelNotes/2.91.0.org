@@ -124,6 +124,10 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
 - New command ~git-rebase-break~ inserts a "break" action in the
   rebase to-do sequence (available as of Git v2.20).  #3762
 
+- The ~--color-moved~ diff argument is supported now, but isn't
+  available from the diff transients by default.  To enable it
+  use "C-x l" in those transients.  #3424
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

@@ -212,7 +212,7 @@ then also remove the respective remote branch."
                                           rev
                                           (or branch "HEAD")))
     (magit-insert-section (diffbuf)
-      (magit-git-wash #'magit-diff-wash-diffs
+      (magit--insert-diff
         "merge-tree" (magit-git-string "merge-base" head rev) head rev))))
 
 ;;;###autoload
