@@ -230,9 +230,6 @@ has to be used to view and change branch related variables."
   (interactive (list (magit-get-current-branch)))
   (transient-setup 'magit-branch nil nil :scope branch))
 
-(defun magit-branch-arguments ()
-  (transient-args 'magit-branch))
-
 ;;;###autoload
 (defun magit-checkout (revision)
   "Checkout REVISION, updating the index and the working tree.
@@ -247,22 +244,20 @@ changes.
   (magit-run-git "checkout" revision))
 
 ;;;###autoload
-(defun magit-branch-create (branch start-point &optional args)
-  "Create BRANCH at branch or revision START-POINT.
-\n(git branch [ARGS] BRANCH START-POINT)."
+(defun magit-branch-create (branch start-point)
+  "Create BRANCH at branch or revision START-POINT."
   (interactive (magit-branch-read-args "Create branch"))
-  (magit-call-git "branch" args branch start-point)
+  (magit-call-git "branch" branch start-point)
   (magit-branch-maybe-adjust-upstream branch start-point)
   (magit-refresh))
 
 ;;;###autoload
-(defun magit-branch-and-checkout (branch start-point &optional args)
-  "Create and checkout BRANCH at branch or revision START-POINT.
-\n(git checkout [ARGS] -b BRANCH START-POINT)."
+(defun magit-branch-and-checkout (branch start-point)
+  "Create and checkout BRANCH at branch or revision START-POINT."
   (interactive (magit-branch-read-args "Create and checkout branch"))
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
-    (magit-call-git "checkout" args "-b" branch start-point)
+    (magit-call-git "checkout" "-b" branch start-point)
     (magit-branch-maybe-adjust-upstream branch start-point)
     (magit-refresh)))
 
@@ -286,7 +281,7 @@ does."
   (when (string-match "\\`heads/\\(.+\\)" arg)
     (setq arg (match-string 1 arg)))
   (if start-point
-      (magit-branch-and-checkout arg start-point (magit-branch-arguments))
+      (magit-branch-and-checkout arg start-point)
     (magit-checkout arg)))
 
 ;;;###autoload
@@ -342,7 +337,7 @@ when using `magit-branch-and-checkout'."
       (magit-checkout branch)
     (when (magit-anything-modified-p)
       (user-error "Cannot checkout when there are uncommitted changes"))
-    (magit-branch-and-checkout branch start-point (magit-branch-arguments))
+    (magit-branch-and-checkout branch start-point)
     (when (magit-remote-branch-p start-point)
       (pcase-let ((`(,remote . ,remote-branch)
                    (magit-split-branch-name start-point)))
@@ -363,38 +358,34 @@ when using `magit-branch-and-checkout'."
     (magit-call-git "branch" (concat "--set-upstream-to=" it) branch)))
 
 ;;;###autoload
-(defun magit-branch-orphan (branch start-point &optional args)
-  "Create and checkout an orphan BRANCH with contents from revision START-POINT.
-\n(git checkout --orphan [ARGS] BRANCH START-POINT)."
+(defun magit-branch-orphan (branch start-point)
+  "Create and checkout an orphan BRANCH with contents from revision START-POINT."
   (interactive (magit-branch-read-args "Create and checkout orphan branch"))
-  (magit-run-git "checkout" "--orphan" args branch start-point))
+  (magit-run-git "checkout" "--orphan" branch start-point))
 
 (defun magit-branch-read-args (prompt)
-  (let ((args (magit-branch-arguments)))
-    (if magit-branch-read-upstream-first
-        (let ((choice (magit-read-starting-point prompt)))
-          (if (magit-rev-verify choice)
-              (list (magit-read-string-ns
-                     (if magit-completing-read--silent-default
-                         (format "%s (starting at `%s')" prompt choice)
-                       "Name for new branch")
-                     (let ((def (mapconcat #'identity
-                                           (cdr (split-string choice "/"))
-                                           "/")))
-                       (and (member choice (magit-list-remote-branch-names))
-                            (not (member def (magit-list-local-branch-names)))
-                            def)))
-                    choice args)
-            (if (eq magit-branch-read-upstream-first 'fallback)
-                (list choice (magit-read-starting-point prompt choice) args)
-              (user-error "Not a valid starting-point: %s" choice))))
-      (let ((branch (magit-read-string-ns (concat prompt " named"))))
-        (list branch
-              (magit-read-starting-point prompt branch)
-              args)))))
+  (if magit-branch-read-upstream-first
+      (let ((choice (magit-read-starting-point prompt)))
+        (if (magit-rev-verify choice)
+            (list (magit-read-string-ns
+                   (if magit-completing-read--silent-default
+                       (format "%s (starting at `%s')" prompt choice)
+                     "Name for new branch")
+                   (let ((def (mapconcat #'identity
+                                         (cdr (split-string choice "/"))
+                                         "/")))
+                     (and (member choice (magit-list-remote-branch-names))
+                          (not (member def (magit-list-local-branch-names)))
+                          def)))
+                  choice)
+          (if (eq magit-branch-read-upstream-first 'fallback)
+              (list choice (magit-read-starting-point prompt choice))
+            (user-error "Not a valid starting-point: %s" choice))))
+    (let ((branch (magit-read-string-ns (concat prompt " named"))))
+      (list branch (magit-read-starting-point prompt branch)))))
 
 ;;;###autoload
-(defun magit-branch-spinoff (branch &optional from &rest args)
+(defun magit-branch-spinoff (branch &optional from)
   "Create new branch from the unpushed commits.
 
 Create and checkout a new branch starting at and tracking the
@@ -424,8 +415,7 @@ matter, all commits between FROM and `HEAD' are moved to the new
 branch.  If FROM is not reachable from `HEAD' or is reachable
 from the source branch's upstream, then an error is raised."
   (interactive (list (magit-read-string-ns "Spin off branch")
-                     (car (last (magit-region-values 'commit)))
-                     (magit-branch-arguments)))
+                     (car (last (magit-region-values 'commit)))))
   (when (magit-branch-p branch)
     (user-error "Cannot spin off %s.  It already exists" branch))
   (if-let ((current (magit-get-current-branch)))
@@ -440,7 +430,7 @@ from the source branch's upstream, then an error is raised."
             (user-error "Cannot spin off %s.  %s is ancestor of upstream %s"
                         branch from tracked)))
         (let ((magit-process-raise-error t))
-          (magit-call-git "checkout" args "-b" branch current))
+          (magit-call-git "checkout" "-b" branch current))
         (--when-let (magit-get-indirect-upstream-branch current)
           (magit-call-git "branch" "--set-upstream-to" it branch))
         (when (and tracked
@@ -456,7 +446,7 @@ from the source branch's upstream, then an error is raised."
     (magit-run-git "checkout" "-b" branch)))
 
 ;;;###autoload
-(defun magit-branch-reset (branch to &optional args set-upstream)
+(defun magit-branch-reset (branch to &optional set-upstream)
   "Reset a branch to the tip of another branch or any other commit.
 
 When the branch being reset is the current branch, then do a
@@ -478,10 +468,7 @@ that is being reset."
                                   nil nil nil 'magit-revision-history
                                   (or (and (not (equal branch atpoint)) atpoint)
                                       (magit-get-upstream-branch branch)))
-           (magit-branch-arguments)
            current-prefix-arg)))
-  (unless (member "--force" args)
-    (setq args (cons "--force" args)))
   (if (equal branch (magit-get-current-branch))
       (if (and (magit-anything-modified-p)
                (not (yes-or-no-p "Uncommitted changes will be lost.  Proceed? ")))
@@ -489,7 +476,9 @@ that is being reset."
         (magit-reset-hard to)
         (when (and set-upstream (magit-branch-p to))
           (magit-set-upstream-branch branch to)))
-    (magit-branch-create branch to args)))
+    (magit-call-git "branch" "--force" branch start-point)
+    (magit-branch-maybe-adjust-upstream branch start-point)
+    (magit-refresh)))
 
 ;;;###autoload
 (defun magit-branch-delete (branches &optional force)
