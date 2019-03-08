@@ -29,6 +29,7 @@
 ;;; Code:
 
 (eval-when-compile
+  (require 'ansi-color)
   (require 'subr-x))
 
 (require 'git-commit)
@@ -55,6 +56,8 @@
 (declare-function magit--merge-range "magit-merge" (&optional head))
 ;; For `magit-diff--dwim'
 (declare-function forge--pullreq-ref "forge-pullreq" (pullreq))
+;; For `magit-diff-wash-diff'
+(declare-function ansi-color-apply-on-region "ansi-color" (begin end))
 
 (eval-when-compile
   (cl-pushnew 'base-ref eieio--known-slot-names)
@@ -682,7 +685,8 @@ and `:slant'."
    (magit-diff:-M)
    (magit-diff:-C)
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
-   ("-s" "Show stats"                     "--stat")]
+   ("-s" "Show stats"                     "--stat")
+   (5 magit-diff:--color-moved)]
   ["Actions"
    [("d" "Dwim"          magit-diff-dwim)
     ("r" "Diff range"    magit-diff-range)
@@ -712,7 +716,8 @@ and `:slant'."
    (magit-diff:-C)
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
    ("-s" "Show stats"                     "--stat"
-    :if-derived magit-diff-mode)]
+    :if-derived magit-diff-mode)
+   (5 magit-diff:--color-moved)]
   ["Actions"
    [("g" "Refresh"                magit-diff-do-refresh)
     ("s" "Set defaults"           magit-diff-set-default-arguments)
@@ -839,6 +844,21 @@ and `:slant'."
     (?u "[u]ntracked" "untracked")
     (?d "[d]irty"     "dirty")
     (?a "[a]ll"       "all")))
+
+(define-infix-argument magit-diff:--color-moved ()
+  :description "Color moved lines"
+  :class 'transient-option
+  :key "-m"
+  :argument "--color-moved="
+  :reader 'magit-diff-select-color-moved-mode)
+
+(defun magit-diff-select-color-moved-mode (&rest _ignore)
+  (magit-read-char-case "Color moved " t
+    (?d "[d]efault" "default")
+    (?p "[p]lain"   "plain")
+    (?b "[b]locks"  "blocks")
+    (?z "[z]ebra"   "zebra")
+    (?Z "[Z] dimmed-zebra" "dimmed-zebra")))
 
 ;;;; Diff commands
 
@@ -1752,10 +1772,32 @@ is set in `magit-mode-setup'."
           "\\(\\+*\\)"   ; add
           "\\(-*\\)$"))  ; del
 
+(defvar magit-diff--reset-non-color-moved
+  (list
+   "-c" "color.diff.context=normal"
+   "-c" "color.diff.plain=normal" ; historical synonym for context
+   "-c" "color.diff.meta=normal"
+   "-c" "color.diff.frag=normal"
+   "-c" "color.diff.func=normal"
+   "-c" "color.diff.old=normal"
+   "-c" "color.diff.new=normal"
+   "-c" "color.diff.commit=normal"
+   "-c" "color.diff.whitespace=normal"
+   ;; "git-range-diff" does not support "--color-moved", so we don't
+   ;; need to reset contextDimmed, oldDimmed, newDimmed, contextBold,
+   ;; oldBold, and newBold.
+   ))
+
 (defun magit--insert-diff (&rest args)
   (declare (indent 0))
   (let ((magit-git-global-arguments
          (remove "--literal-pathspecs" magit-git-global-arguments)))
+    (setq args (-flatten args))
+    (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)
+      (push "--color=always" (cdr args))
+      (setq magit-git-global-arguments
+            (append magit-diff--reset-non-color-moved
+                    magit-git-global-arguments)))
     (magit-git-wash #'magit-diff-wash-diffs args)))
 
 (defun magit-diff-wash-diffs (args &optional limit)
@@ -1821,6 +1863,9 @@ section or a child thereof."
         (if (looking-at "^$") (forward-line) (insert "\n"))))))
 
 (defun magit-diff-wash-diff (args)
+  (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)
+    (require 'ansi-color)
+    (ansi-color-apply-on-region (point-min) (point-max)))
   (cond
    ((looking-at "^Submodule")
     (magit-diff-wash-submodule))
