@@ -250,6 +250,7 @@ and/or `magit-branch-remote-head'."
     ("W" "Format patches" magit-patch)
     ("X" "Reset"          magit-reset)]
    [("y" "Show Refs"      magit-show-refs)
+    ("Y" "Cherries"       magit-cherry)
     ("z" "Stash"          magit-stash)
     ("!" "Run"            magit-run)
     ("%" "Worktree"       magit-worktree)]]
