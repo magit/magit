@@ -469,16 +469,22 @@ that is being reset."
                                   (or (and (not (equal branch atpoint)) atpoint)
                                       (magit-get-upstream-branch branch)))
            current-prefix-arg)))
-  (if (equal branch (magit-get-current-branch))
-      (if (and (magit-anything-modified-p)
-               (not (yes-or-no-p "Uncommitted changes will be lost.  Proceed? ")))
-          (user-error "Abort")
-        (magit-reset-hard to)
-        (when (and set-upstream (magit-branch-p to))
-          (magit-set-upstream-branch branch to)))
-    (magit-call-git "branch" "--force" branch start-point)
-    (magit-branch-maybe-adjust-upstream branch start-point)
-    (magit-refresh)))
+  (let ((inhibit-magit-refresh t))
+    (if (equal branch (magit-get-current-branch))
+        (if (and (magit-anything-modified-p)
+                 (not (yes-or-no-p
+                       "Uncommitted changes will be lost.  Proceed? ")))
+            (user-error "Abort")
+          (magit-reset-hard to))
+      (magit-call-git "update-ref"
+                      "-m" (format "reset: moving to %s" to)
+                      (magit-git-string "rev-parse" "--symbolic-full-name"
+                                        branch)
+                      to))
+    (when (and set-upstream (magit-branch-p to))
+      (magit-set-upstream-branch branch to)
+      (magit-branch-maybe-adjust-upstream branch to)))
+  (magit-refresh))
 
 ;;;###autoload
 (defun magit-branch-delete (branches &optional force)
