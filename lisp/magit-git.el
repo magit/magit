@@ -1749,12 +1749,6 @@ In refs buffers the displayed text is controlled by other means
 and this option only controls what face is used.")
 
 (defun magit-format-ref-labels (string)
-  ;; To support Git <2.2.0, we remove the surrounding parentheses here
-  ;; rather than specifying that STRING should be generated with Git's
-  ;; "%D" placeholder.
-  (setq string (->> string
-                    (replace-regexp-in-string "\\`\\s-*(" "")
-                    (replace-regexp-in-string ")\\s-*\\'" "")))
   (save-match-data
     (let ((regexp "\\(, \\|tag: \\|HEAD -> \\)")
           names)
