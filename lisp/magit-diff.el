@@ -1698,7 +1698,7 @@ is set in `magit-mode-setup'."
   "Insert the diff into this `magit-diff-mode' buffer."
   (let ((magit-git-global-arguments
          (remove "--literal-pathspecs" magit-git-global-arguments)))
-    (magit-git-wash #'magit-diff-wash-diffs
+    (magit--insert-diff
       "diff" rev-or-range "-p" "--no-prefix"
       (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
       (nth 1 magit-refresh-args)
@@ -1753,6 +1753,10 @@ is set in `magit-mode-setup'."
           "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\) ?"
           "\\(\\+*\\)"   ; add
           "\\(-*\\)$"))  ; del
+
+(defun magit--insert-diff (&rest args)
+  (declare (indent 0))
+  (magit-git-wash #'magit-diff-wash-diffs args))
 
 (defun magit-diff-wash-diffs (args &optional limit)
   (when (member "--stat" args)
@@ -2051,7 +2055,7 @@ Staging and applying changes is documented in info node
   "Insert the diff into this `magit-revision-mode' buffer."
   (let ((magit-git-global-arguments
          (remove "--literal-pathspecs" magit-git-global-arguments)))
-    (magit-git-wash #'magit-diff-wash-diffs
+    (magit--insert-diff
       "show" "-p" "--cc" "--format=" "--no-prefix"
       (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
       (nth 2 magit-refresh-args) (concat rev "^{commit}") "--"
@@ -2334,7 +2338,7 @@ or a ref which is not a branch, then it inserts nothing."
   "Insert section showing unstaged changes."
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
-    (magit-git-wash #'magit-diff-wash-diffs
+    (magit--insert-diff
       "diff" magit-diff-section-arguments "--no-prefix"
       "--" magit-diff-section-file-args)))
 
@@ -2356,7 +2360,7 @@ or a ref which is not a branch, then it inserts nothing."
   (unless (magit-bare-repo-p)
     (magit-insert-section (staged)
       (magit-insert-heading "Staged changes:")
-      (magit-git-wash #'magit-diff-wash-diffs
+      (magit--insert-diff
         "diff" "--cached" magit-diff-section-arguments "--no-prefix"
         "--" magit-diff-section-file-args))))
 
