@@ -2051,13 +2051,8 @@ Staging and applying changes is documented in info node
   "Insert the diff into this `magit-revision-mode' buffer."
   (let ((magit-git-global-arguments
          (remove "--literal-pathspecs" magit-git-global-arguments)))
-    ;; Before v2.2.0, "--format=" did not mean "no output".
-    ;; Instead the default format was used.  So use "--format=%n"
-    ;; and then delete the empty lines.
-    (magit-git-wash (lambda (args)
-                      (delete-region (point) (progn (forward-line 3) (point)))
-                      (magit-diff-wash-diffs args))
-      "show" "-p" "--cc" "--format=%n" "--no-prefix"
+    (magit-git-wash #'magit-diff-wash-diffs
+      "show" "-p" "--cc" "--format=" "--no-prefix"
       (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
       (nth 2 magit-refresh-args) (concat rev "^{commit}") "--"
       (nth 3 magit-refresh-args))))
@@ -2206,8 +2201,7 @@ or a ref which is not a branch, then it inserts nothing."
 (defun magit-insert-revision-headers (rev)
   "Insert headers about the commit into a revision buffer."
   (magit-insert-section (headers)
-    ;; Before v2.2.0, "%D" was not supported.
-    (--when-let (magit-rev-format "%d" rev "--decorate=full")
+    (--when-let (magit-rev-format "%D" rev "--decorate=full")
       (insert (magit-format-ref-labels it) ?\s))
     (insert (propertize (magit-rev-parse (concat rev "^{commit}"))
                         'face 'magit-hash))

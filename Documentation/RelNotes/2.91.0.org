@@ -1,6 +1,8 @@
 * Magit v2.91.0 Release Notes (unreleased)
 ** Breaking changes
 
+- Dropped support for Git v2.0 and v2.1.
+
 - After some users intervened I have decided to NOT drop support for
   Emacs 25 in this release as I had intended to do.  Emacs 25 should
   remain supported for at least a few more releases.
