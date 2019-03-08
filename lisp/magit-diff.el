@@ -1696,14 +1696,12 @@ is set in `magit-mode-setup'."
 
 (defun magit-insert-diff (rev-or-range)
   "Insert the diff into this `magit-diff-mode' buffer."
-  (let ((magit-git-global-arguments
-         (remove "--literal-pathspecs" magit-git-global-arguments)))
-    (magit--insert-diff
-      "diff" rev-or-range "-p" "--no-prefix"
-      (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
-      (nth 1 magit-refresh-args)
-      (nth 2 magit-refresh-args) "--"
-      (nth 3 magit-refresh-args))))
+  (magit--insert-diff
+    "diff" rev-or-range "-p" "--no-prefix"
+    (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
+    (nth 1 magit-refresh-args)
+    (nth 2 magit-refresh-args) "--"
+    (nth 3 magit-refresh-args)))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
@@ -1756,7 +1754,9 @@ is set in `magit-mode-setup'."
 
 (defun magit--insert-diff (&rest args)
   (declare (indent 0))
-  (magit-git-wash #'magit-diff-wash-diffs args))
+  (let ((magit-git-global-arguments
+         (remove "--literal-pathspecs" magit-git-global-arguments)))
+    (magit-git-wash #'magit-diff-wash-diffs args)))
 
 (defun magit-diff-wash-diffs (args &optional limit)
   (when (member "--stat" args)
@@ -2053,13 +2053,11 @@ Staging and applying changes is documented in info node
 
 (defun magit-insert-revision-diff (rev)
   "Insert the diff into this `magit-revision-mode' buffer."
-  (let ((magit-git-global-arguments
-         (remove "--literal-pathspecs" magit-git-global-arguments)))
-    (magit--insert-diff
-      "show" "-p" "--cc" "--format=" "--no-prefix"
-      (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
-      (nth 2 magit-refresh-args) (concat rev "^{commit}") "--"
-      (nth 3 magit-refresh-args))))
+  (magit--insert-diff
+    "show" "-p" "--cc" "--format=" "--no-prefix"
+    (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
+    (nth 2 magit-refresh-args) (concat rev "^{commit}") "--"
+    (nth 3 magit-refresh-args)))
 
 (defun magit-insert-revision-tag (rev)
   "Insert tag message and headers into a revision buffer.
