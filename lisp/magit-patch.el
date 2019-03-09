@@ -34,9 +34,14 @@
 
 ;;; Options
 
-;; ???
 (defcustom magit-patch-save-arguments '(exclude "--stat")
-  "Arguments used by `magit-patch-save-arguments' (which see)"
+  "Control arguments used by the command `magit-patch-save'.
+
+`magit-patch-save' (which see) saves a diff for the changes
+shown in the current buffer in a patch file.  It may use the
+same arguments as used in the buffer or a subset thereof, or
+a constant list of arguments, depending on this optiona and
+the prefix argument."
   :package-version '(magit . "2.12.0")
   :group 'magit-diff
   :type '(choice (const :tag "use buffer arguments" buffer)
