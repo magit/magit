@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-319-g4e4f6203+1)
+@subtitle for version 2.90.1 (v2.90.1-324-g3200eecc+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-319-g4e4f6203+1).
+This manual is for Magit version 2.90.1 (v2.90.1-324-g3200eecc+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4253,10 +4253,22 @@ The diffs shown in the revision buffer may be automatically restricted
 to a subset of the changed files.  If the revision buffer is displayed
 from a log buffer, the revision buffer will share the same file
 restriction as that log buffer (also see the command
-@code{magit-diff-toggle-file-filter}).  Note, however, that the log's file
-restriction will be ignored when @code{magit-log-arguments} includes
-@code{--follow}.  In this case, the @code{--patch} argument of the log transient
-can be used to show the file-restricted diffs inline.
+@code{magit-diff-toggle-file-filter}).
+
+@defopt magit-revision-filter-files-on-follow
+
+Whether showing a commit from a log buffer honors the log's file
+filter when the log arguments include @code{--follow}.
+
+When this option is nil, displaying a commit from a log ignores the
+log's file filter if the log arguments include @code{--follow}.  Doing so
+avoids showing an empty diff in revision buffers for commits before
+a rename event.  In such cases, the @code{--patch} argument of the log
+transient can be used to show the file-restricted diffs inline.
+
+Set this option to non-nil to keep the log's file restriction even
+if @code{--follow} is present in the log arguments.
+@end defopt
 
 If the revision buffer is not displayed from a log buffer, the file
 restriction is determined by the file restriction in the repository's

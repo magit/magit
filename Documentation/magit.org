@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-319-g4e4f6203+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-324-g3200eecc+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-319-g4e4f6203+1).
+This manual is for Magit version 2.90.1 (v2.90.1-324-g3200eecc+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -3122,10 +3122,21 @@ The diffs shown in the revision buffer may be automatically restricted
 to a subset of the changed files.  If the revision buffer is displayed
 from a log buffer, the revision buffer will share the same file
 restriction as that log buffer (also see the command
-~magit-diff-toggle-file-filter~).  Note, however, that the log's file
-restriction will be ignored when ~magit-log-arguments~ includes
-~--follow~.  In this case, the ~--patch~ argument of the log transient
-can be used to show the file-restricted diffs inline.
+~magit-diff-toggle-file-filter~).
+
+- User Option: magit-revision-filter-files-on-follow
+
+  Whether showing a commit from a log buffer honors the log's file
+  filter when the log arguments include ~--follow~.
+
+  When this option is nil, displaying a commit from a log ignores the
+  log's file filter if the log arguments include ~--follow~.  Doing so
+  avoids showing an empty diff in revision buffers for commits before
+  a rename event.  In such cases, the ~--patch~ argument of the log
+  transient can be used to show the file-restricted diffs inline.
+
+  Set this option to non-nil to keep the log's file restriction even
+  if ~--follow~ is present in the log arguments.
 
 If the revision buffer is not displayed from a log buffer, the file
 restriction is determined by the file restriction in the repository's

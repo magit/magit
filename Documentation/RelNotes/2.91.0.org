@@ -128,6 +128,11 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
   available from the diff transients by default.  To enable it
   use "C-x l" in those transients.  #3424
 
+- Added new option ~magit-revision-filter-files-on-follow~ that
+  controls whether a revision buffer shown from a log shares the log's
+  file restriction despite ~--follow~ being in the log arguments.
+  #3680
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
