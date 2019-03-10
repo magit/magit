@@ -216,3 +216,7 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
 
 - In newer Git versions the rebase list shown in the status buffer
   could contain duplicated entries for the current commit.  1e1cd0e28
+
+- When deleting a remote branch failed, the logic for deciding whether
+  to prune the local remote-tracking ref was too loose, leading to
+  false positives.  #3650

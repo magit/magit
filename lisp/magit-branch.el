@@ -536,7 +536,7 @@ defaulting to the branch at point."
         ;; If that is not the case, then this deletes the tracking branches.
         (set-process-sentinel
          magit-this-process
-         (apply-partially 'magit-delete-remote-branch-sentinel refs))))
+         (apply-partially 'magit-delete-remote-branch-sentinel remote refs))))
      ((> (length branches) 1)
       (setq branches (delete (magit-get-current-branch) branches))
       (mapc 'magit-branch-maybe-delete-pr-remote branches)
@@ -606,22 +606,26 @@ defaulting to the branch at point."
 (defun magit-branch-unset-pushRemote (branch)
   (magit-set nil "branch" branch "pushRemote"))
 
-(defun magit-delete-remote-branch-sentinel (refs process event)
+(defun magit-delete-remote-branch-sentinel (remote refs process event)
   (when (memq (process-status process) '(exit signal))
-    (if (= (process-exit-status process) 0)
-        (magit-process-sentinel process event)
-      (if-let ((rest (-filter #'magit-ref-exists-p refs)))
-          (progn
-            (process-put process 'inhibit-refresh t)
-            (magit-process-sentinel process event)
-            (setq magit-this-error nil)
-            (message "Some remote branches no longer exist.  %s"
-                     "Deleting just the local tracking refs instead...")
-            (dolist (ref rest)
-              (magit-call-git "update-ref" "-d" ref))
-            (magit-refresh)
-            (message "Deleting local remote-tracking refs...done"))
-        (magit-process-sentinel process event)))))
+    (if (= (process-exit-status process) 1)
+        (if-let ((on-remote (--map (concat "refs/remotes/" remote "/" it)
+                                   (magit-remote-list-branches remote)))
+                 (rest (--filter (and (not (member it on-remote))
+                                      (magit-ref-exists-p it))
+                                 refs)))
+            (progn
+              (process-put process 'inhibit-refresh t)
+              (magit-process-sentinel process event)
+              (setq magit-this-error nil)
+              (message "Some remote branches no longer exist.  %s"
+                       "Deleting just the local tracking refs instead...")
+              (dolist (ref rest)
+                (magit-call-git "update-ref" "-d" ref))
+              (magit-refresh)
+              (message "Deleting local remote-tracking refs...done"))
+          (magit-process-sentinel process event))
+      (magit-process-sentinel process event))))
 
 ;;;###autoload
 (defun magit-branch-rename (old new &optional force)
