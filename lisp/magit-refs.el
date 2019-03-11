@@ -353,8 +353,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
          (cadr magit-refresh-args))
         ((and (eq magit-use-sticky-arguments t)
               (--when-let (magit-mode-get-buffer 'magit-refs-mode)
-                (with-current-buffer it
-                  (cadr magit-refresh-args)))))
+                (cadr (buffer-local-value 'magit-refresh-args it)))))
         (t
          (default-value 'magit-show-refs-arguments))))
 
