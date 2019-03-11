@@ -338,7 +338,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                          current-prefix-arg)))
   (if transient
       (transient-setup 'magit-show-refs)
-    (call-interactively 'magit-show-refs-head)))
+    (magit-mode-setup #'magit-refs-mode nil (magit-show-refs-arguments))))
 
 (defun magit-show-refs-arguments ()
   (cond ((eq current-transient-command 'magit-show-refs)
