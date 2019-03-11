@@ -320,6 +320,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (define-transient-command magit-show-refs (&optional transient)
   "List and compare references in a dedicated buffer."
   :man-page "git-branch"
+  :value 'magit-show-refs-arguments
   ["Arguments"
    (magit-for-each-ref:--contains)
    ("=m" "Merged"               "--merged=" magit-transient-read-revision)
