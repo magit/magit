@@ -1299,9 +1299,9 @@ instead."
   (magit-refresh))
 
 (defun magit-diff-context-p ()
-  (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it)
-                     (car (magit-diff-arguments t)))
-      (not (equal "-U0" it))
+  (if-let ((arg (--first (string-match "^-U\\([0-9]+\\)$" it)
+                         (car (magit-diff-arguments t)))))
+      (not (equal arg "-U0"))
     t))
 
 (defun magit-diff-ignore-any-space-p ()
