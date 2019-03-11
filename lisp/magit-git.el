@@ -1324,12 +1324,10 @@ The amount of time spent searching is limited by
                 upstream)))))
 
 (defun magit-get-upstream-remote (&optional branch non-local)
-  (unless branch
-    (setq branch (magit-get-current-branch)))
-  (and branch
-       (when-let ((remote (magit-get "branch" branch "remote")))
-         (and (not (and non-local (equal remote ".")))
-              (propertize remote 'face 'magit-branch-remote)))))
+  (when-let ((branch (or branch (magit-get-current-branch)))
+             (remote (magit-get "branch" branch "remote")))
+    (and (not (and non-local (equal remote ".")))
+         (propertize remote 'face 'magit-branch-remote))))
 
 (defun magit-get-current-remote ()
   (or (magit-get-upstream-remote nil t)
