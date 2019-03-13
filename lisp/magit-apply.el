@@ -47,7 +47,7 @@
 (declare-function magit-checkout-read-stage "magit-merge" (file))
 (defvar auto-revert-verbose)
 ;; For `magit-stage-untracked'
-(declare-function magit-submodule-add "magit-submodule"
+(declare-function magit-submodule-add-1 "magit-submodule"
                   (url &optional path name args))
 (declare-function magit-submodule-read-name-for-path "magit-submodule"
                   (path &optional prefer-short))
@@ -131,11 +131,12 @@ so causes the change to be applied to the index as well."
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
       (`(untracked ,(or `file `files))
-       (magit-am))
+       (call-interactively 'magit-am))
       (`(,_ region) (magit-apply-region it args))
       (`(,_   hunk) (magit-apply-hunk   it args))
       (`(,_  hunks) (magit-apply-hunks  it args))
-      (`(rebase-sequence file) (magit-patch-apply))
+      (`(rebase-sequence file)
+       (call-interactively 'magit-patch-apply))
       (`(,_   file) (magit-apply-diff   it args))
       (`(,_  files) (magit-apply-diffs  it args)))))
 
@@ -333,7 +334,7 @@ ignored) files."
                 (and (equal (bound-and-true-p borg-user-emacs-directory)
                             topdir)
                      (file-name-nondirectory (directory-file-name repo)))))
-          (magit-submodule-add
+          (magit-submodule-add-1
            (let ((default-directory
                    (file-name-as-directory (expand-file-name repo))))
              (or (magit-get "remote" (magit-get-some-remote) "url")

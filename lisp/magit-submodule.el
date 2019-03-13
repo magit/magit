@@ -193,6 +193,9 @@ it is nil, then PATH also becomes the name."
              (directory-file-name path)
              (magit-submodule-read-name-for-path path)
              (magit-submodule-arguments "--force")))))
+  (magit-submodule-add-1 url path name args))
+
+(defun magit-submodule-add-1 (url &optional path name args)
   (magit-with-toplevel
     (magit-submodule--maybe-reuse-gitdir name path)
     (magit-run-git-async "submodule" "add"
