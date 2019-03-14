@@ -160,9 +160,9 @@ conflicts, including those already resolved by Git, use
   "Stage and unstage changes to FILE using Ediff.
 FILE has to be relative to the top directory of the repository."
   (interactive
-   (list (magit-completing-read "Selectively stage file"
-                                (magit-tracked-files) nil nil nil nil
-                                (magit-current-file))))
+   (let ((files (magit-tracked-files)))
+     (list (magit-completing-read "Selectively stage file" files nil t nil nil
+                                  (car (member (magit-current-file) files))))))
   (magit-with-toplevel
     (let* ((conf (current-window-configuration))
            (bufA (magit-get-revision-buffer "HEAD" file))
