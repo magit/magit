@@ -363,9 +363,9 @@ when using `magit-branch-and-checkout'."
   (interactive (magit-branch-read-args "Create and checkout orphan branch"))
   (magit-run-git "checkout" "--orphan" branch start-point))
 
-(defun magit-branch-read-args (prompt)
+(defun magit-branch-read-args (prompt &optional default-start)
   (if magit-branch-read-upstream-first
-      (let ((choice (magit-read-starting-point prompt)))
+      (let ((choice (magit-read-starting-point prompt nil default-start)))
         (if (magit-rev-verify choice)
             (list (magit-read-string-ns
                    (if magit-completing-read--silent-default
@@ -379,10 +379,11 @@ when using `magit-branch-and-checkout'."
                           def)))
                   choice)
           (if (eq magit-branch-read-upstream-first 'fallback)
-              (list choice (magit-read-starting-point prompt choice))
+              (list choice
+                    (magit-read-starting-point prompt choice default-start))
             (user-error "Not a valid starting-point: %s" choice))))
     (let ((branch (magit-read-string-ns (concat prompt " named"))))
-      (list branch (magit-read-starting-point prompt branch)))))
+      (list branch (magit-read-starting-point prompt branch default-start)))))
 
 ;;;###autoload
 (defun magit-branch-spinoff (branch &optional from)

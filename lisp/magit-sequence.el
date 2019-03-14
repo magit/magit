@@ -194,7 +194,8 @@ This discards all changes made since the sequence started."
   (magit--cherry-move-read-args verb t
     (lambda (commits)
       (magit-branch-read-args
-       (format "Create branch from %s cherries" (length commits))))))
+       (format "Create branch from %s cherries" (length commits))
+       (magit-get-upstream-branch)))))
 
 ;;;###autoload
 (defun magit-cherry-copy (commits &optional args)

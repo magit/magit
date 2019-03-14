@@ -2106,7 +2106,7 @@ and this option only controls what face is used.")
        (let ((previous (magit-get-previous-branch)))
          (and (not (equal previous branch)) previous)))))
 
-(defun magit-read-starting-point (prompt &optional branch)
+(defun magit-read-starting-point (prompt &optional branch default)
   (or (magit-completing-read
        (concat prompt
                (and branch
@@ -2120,7 +2120,7 @@ and this option only controls what face is used.")
               (magit-list-refnames)
               (directory-files (magit-git-dir) nil "_HEAD\\'"))
        nil nil nil 'magit-revision-history
-       (magit--default-starting-point))
+       (or default (magit--default-starting-point)))
       (user-error "Nothing selected")))
 
 (defun magit--default-starting-point ()
