@@ -724,7 +724,7 @@ line is inserted at all."
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg)
         (or (car magit-refresh-args) "HEAD")
-        ref magit-refresh-args)
+        ref)
       (if (= (point) start)
           (message "No cherries for %s" ref)
         (magit-make-margin-overlay nil t)))))
