@@ -765,18 +765,15 @@ and `:slant'."
             (-all-p #'stringp val))))
 
 (defun magit-diff--initial-value ()
-  (if-let ((file (magit-file-relative-name)))
-      (magit-diff--merge-args
-       (if-let ((buffer (magit-mode-get-buffer 'magit-diff-mode)))
-           (nth 3 (buffer-local-value 'magit-refresh-args buffer))
-         (default-value 'magit-diff-arguments))
-       (list file))
-    ;; We cannot possibly know what suffix command the user is
-    ;; about to invoke, so we also don't know from which buffer
-    ;; we should get the current values.  However it is much
-    ;; more likely that we will end up updating the diff buffer,
-    ;; and we therefore use the value from that buffer.
-    (apply #'magit-diff--merge-args (magit-diff-get-buffer-args))))
+  ;; We cannot possibly know what suffix command the user is
+  ;; about to invoke, so we also don't know from which buffer
+  ;; we should get the current values.  However it is much
+  ;; more likely that we will end up updating the diff buffer,
+  ;; and we therefore use the value from that buffer.
+  (pcase-let ((`(,args ,files) (magit-diff-get-buffer-args)))
+    (when-let ((file (magit-file-relative-name)))
+      (setq files (list file)))
+    (magit-diff--merge-args args files)))
 
 (defun magit-diff-refresh--initial-value ()
   (if (derived-mode-p 'magit-diff-mode)
