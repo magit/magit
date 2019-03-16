@@ -685,6 +685,13 @@ and `:slant'."
 ;;; Commands
 ;;;; Diff popups
 
+(defvar magit-diff-section-file-args nil)
+(put 'magit-diff-section-file-args 'permanent-local t)
+(put 'magit-diff-section-file-args 'safe-local-variable
+     (lambda (val)
+       (and (listp val)
+            (-all-p #'stringp val))))
+
 ;;;###autoload (autoload 'magit-diff "magit-diff" nil t)
 (define-transient-command magit-diff ()
   "Show changes between different versions."
@@ -750,19 +757,12 @@ and `:slant'."
   (interactive)
   (if (not (eq current-transient-command 'magit-diff-refresh))
       (transient-setup 'magit-diff-refresh)
-    (pcase-let ((`(,args ,files) (magit-diff-arguments)))
+    (pcase-let ((`(,args ,files) (magit-diff-arguments t)))
       (if (derived-mode-p 'magit-diff-mode)
           (setcdr (cdr magit-refresh-args) (list args files))
         (setq-local magit-diff-section-arguments args)
         (setq-local magit-diff-section-file-args files)))
     (magit-refresh)))
-
-(defvar magit-diff-section-file-args nil)
-(put 'magit-diff-section-file-args 'permanent-local t)
-(put 'magit-diff-section-file-args 'safe-local-variable
-     (lambda (val)
-       (and (listp val)
-            (-all-p #'stringp val))))
 
 (defun magit-diff--initial-value ()
   ;; We cannot possibly know what suffix command the user is
