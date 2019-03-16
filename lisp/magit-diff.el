@@ -739,14 +739,23 @@ and `:slant'."
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
   ["Actions"
-   [("g" "Refresh"                magit-diff-do-refresh)
+   [("g" "Refresh"                magit-diff-refresh)
     ("s" "Set defaults"           magit-diff-set-default-arguments)
     ("w" "Save defaults"          magit-diff-save-default-arguments)]
    [("t" "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
     ("F" "Toggle file filter"     magit-diff-toggle-file-filter)]
    [:if-mode magit-diff-mode
     ("r" "Switch range type"      magit-diff-switch-range-type)
-    ("f" "Flip revisions"         magit-diff-flip-revs)]])
+    ("f" "Flip revisions"         magit-diff-flip-revs)]]
+  (interactive)
+  (if (not (eq current-transient-command 'magit-diff-refresh))
+      (transient-setup 'magit-diff-refresh)
+    (pcase-let ((`(,args ,files) (magit-diff-arguments)))
+      (if (derived-mode-p 'magit-diff-mode)
+          (setcdr (cdr magit-refresh-args) (list args files))
+        (setq-local magit-diff-section-arguments args)
+        (setq-local magit-diff-section-file-args files)))
+    (magit-refresh)))
 
 (defvar magit-diff-section-file-args nil)
 (put 'magit-diff-section-file-args 'permanent-local t)
@@ -1172,16 +1181,6 @@ for a revision."
     (magit-mode-setup #'magit-revision-mode rev nil args files)))
 
 ;;;; Setting commands
-
-(defun magit-diff-do-refresh (args files)
-  "Set the local diff arguments for the current buffer."
-  (interactive (magit-diff-arguments t))
-  (cond ((derived-mode-p 'magit-diff-mode)
-         (setcdr (cdr magit-refresh-args) (list args files)))
-        (t
-         (setq-local magit-diff-section-arguments args)
-         (setq-local magit-diff-section-file-args files)))
-  (magit-refresh))
 
 (defun magit-diff-set-default-arguments (args files)
   "Set the global diff arguments for the current buffer."
