@@ -483,13 +483,10 @@ the upstream isn't ahead of the current branch) show."
     (magit-refresh)))
 
 (defun magit-log--initial-value ()
-  (if-let ((file (magit-file-relative-name)))
-      (magit-log--merge-args
-       (if-let ((buffer (magit-mode-get-buffer 'magit-log-mode)))
-           (nth 2 (buffer-local-value 'magit-refresh-args buffer))
-         (default-value 'magit-log-arguments))
-       (list file))
-    (apply #'magit-log--merge-args (magit-log-get-buffer-args))))
+  (pcase-let ((`(,args ,files) (magit-log-get-buffer-args)))
+    (when-let ((file (magit-file-relative-name)))
+      (setq files (list file)))
+    (magit-log--merge-args args files)))
 
 (defun magit-log-refresh--initial-value ()
   (cond ((derived-mode-p 'magit-log-select-mode)
