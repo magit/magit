@@ -127,10 +127,6 @@ seconds of user inactivity.  That is not desirable."
   ;; - In all other cases enable the mode because if buffers are not
   ;;   automatically reverted that would make many very common tasks
   ;;   much more cumbersome.
-  ;; - When `magit-revert-buffers' is nil, then the user has opted out
-  ;;   of the automatic reverts while a very old implementation was
-  ;;   still in use.  We continued to respect that setting for another
-  ;;   two and a half years, but no longer do so now.
   :init-value (and (not global-auto-revert-mode)
                    (not noninteractive)))
 ;; - Unfortunately `:init-value t' only sets the value of the mode
@@ -140,9 +136,6 @@ seconds of user inactivity.  That is not desirable."
 ;; - If the user has set the variable `magit-auto-revert-mode' to nil
 ;;   after loading magit (instead of doing so before loading magit or
 ;;   by using the function), then we should still respect that setting.
-;; - If the user has set the obsolete variable `magit-revert-buffers'
-;;   to nil before or after loading magit, then we should still respect
-;;   that setting.
 ;; - If the user sets one of these variables after loading magit and
 ;;   after `after-init-hook' has run, then that won't have an effect
 ;;   and there is nothing we can do about it.
