@@ -102,7 +102,7 @@ the push-remote can be changed before pulling from it."
   "Pull from the upstream of the current branch.
 
 When `magit-remote-set-if-missing' is non-nil and
-the push-remote is not configured, then read the upstream from
+the upstream is not configured, then read the upstream from
 the user, set it, and then pull from it.  With a prefix argument
 the upstream can be changed before pulling from it."
   :if 'magit--upstream-suffix-predicate
