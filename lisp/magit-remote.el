@@ -351,10 +351,10 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
     (user-error "No branch is checked out")))
 
 (defun magit--transfer-set-pushremote-p (&optional change)
-  (and (or change
-           (and magit-remote-set-if-missing
-                (not (magit-get-push-remote))))
-       (magit-get-current-branch)))
+  (when-let ((current (magit-get-current-branch)))
+    (or change
+        (and magit-remote-set-if-missing
+             (not (magit-get-push-remote current))))))
 
 (defun magit--transfer-maybe-read-pushremote (action)
   (and (magit--transfer-set-pushremote-p current-prefix-arg)
@@ -400,10 +400,10 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
     (user-error "No branch is checked out")))
 
 (defun magit--transfer-set-upstream-p (&optional change)
-  (and (or change
-           (and magit-remote-set-if-missing
-                (not (magit-get-upstream-branch))))
-       (magit-get-current-branch)))
+  (when-let ((current (magit-get-current-branch)))
+    (or change
+        (and magit-remote-set-if-missing
+             (not (magit-get-upstream-branch current))))))
 
 (defun magit--transfer-maybe-read-upstream (action)
   (and (magit--transfer-set-upstream-p current-prefix-arg)
