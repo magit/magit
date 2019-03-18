@@ -366,8 +366,9 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
                   action)))))
 
 (defun magit--pushbranch-suffix-predicate ()
-  (or (magit-get-push-branch)
-      magit-remote-set-if-missing))
+  (when-let ((branch (magit-get-current-branch)))
+    (or (magit-get-push-branch branch)
+        magit-remote-set-if-missing)))
 
 (defun magit--pushbranch-suffix-description (&optional pushp)
   (if-let ((branch (magit-get-push-branch)))
@@ -410,8 +411,9 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
         nil (format "Set upstream and %s there" action))))
 
 (defun magit--upstream-suffix-predicate ()
-  (or (magit-get-upstream-branch)
-      magit-remote-set-if-missing))
+  (when-let ((branch (magit-get-current-branch)))
+    (or (magit-get-upstream-branch branch)
+        magit-remote-set-if-missing)))
 
 (defun magit--upstream-suffix-description (&optional pushp)
   (if-let ((branch (magit-get-upstream-branch)))
