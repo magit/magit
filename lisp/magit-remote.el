@@ -366,18 +366,18 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
                   action)))))
 
 (defun magit--pushbranch-suffix-predicate ()
-  (when-let ((branch (magit-get-current-branch)))
-    (or (magit-get-push-branch branch)
+  (when-let ((current (magit-get-current-branch)))
+    (or (magit-get-push-branch current)
         magit-remote-set-if-missing)))
 
 (defun magit--pushbranch-suffix-description (&optional pushp)
-  (if-let ((branch (magit-get-push-branch)))
-      (cond ((magit-rev-verify branch) branch)
-            (pushp (concat branch ", creating it"))
+  (if-let ((target (magit-get-push-branch)))
+      (cond ((magit-rev-verify target) target)
+            (pushp (concat target ", creating it"))
             ;; This shouldn't happen often and even if it does, then
             ;; transfering would still succeed iff the branch exists
             ;; on the remote (only the tracking branch is missing).
-            (t (concat branch ", which appears to be missing")))
+            (t (concat target ", which appears to be missing")))
     (and (magit--transfer-set-pushremote-p)
          (concat (propertize
                   (if (eq magit-remote-set-if-missing 'default)
@@ -411,18 +411,18 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
         nil (format "Set upstream and %s there" action))))
 
 (defun magit--upstream-suffix-predicate ()
-  (when-let ((branch (magit-get-current-branch)))
-    (or (magit-get-upstream-branch branch)
+  (when-let ((current (magit-get-current-branch)))
+    (or (magit-get-upstream-branch current)
         magit-remote-set-if-missing)))
 
 (defun magit--upstream-suffix-description (&optional pushp)
-  (if-let ((branch (magit-get-upstream-branch)))
-      (cond ((magit-rev-verify branch) branch)
-            (pushp (concat branch ", creating it"))
+  (if-let ((upstream (magit-get-upstream-branch)))
+      (cond ((magit-rev-verify upstream) upstream)
+            (pushp (concat upstream ", creating it"))
             ;; This shouldn't happen often and even if it does, then
             ;; transfering would still succeed iff the branch exists
             ;; on the remote (only the tracking branch is missing).
-            (t (concat branch ", which appears to be missing")))
+            (t (concat upstream ", which appears to be missing")))
     (and (magit--transfer-set-upstream-p)
          (concat (propertize "@{upstream}" 'face 'bold)
                  ", after setting that"))))
