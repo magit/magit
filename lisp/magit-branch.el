@@ -779,17 +779,13 @@ and also rename the respective reflog file."
   ((format :initform " %k %m  %M\n   %r %R")))
 
 (define-infix-command magit-branch.<branch>.merge/remote ()
-  :class 'magit--git-branch:upstream
-  :variable '("branch.%s.remote" . "branch.%s.merge"))
+  :class 'magit--git-branch:upstream)
 
 (cl-defmethod transient-init-value ((obj magit--git-branch:upstream))
-  (let ((branch (oref transient--prefix scope)))
-    (pcase-let ((`(,r . ,m) (oref obj variable)))
-      (oset obj variable (cons (format r branch)
-                               (format m branch))))
-    (when-let ((r (magit-get "branch" branch "remote"))
-               (m (magit-get "branch" branch "merge")))
-      (oset obj value (list r m)))))
+  (when-let ((branch (oref transient--prefix scope))
+             (remote (magit-get "branch" branch "remote"))
+             (merge  (magit-get "branch" branch "merge")))
+    (oset obj value (list remote merge))))
 
 (cl-defmethod transient-infix-read ((obj magit--git-branch:upstream))
   (if (oref obj value)
@@ -806,12 +802,12 @@ and also rename the respective reflog file."
   (magit-refresh))
 
 (cl-defmethod transient-format ((obj magit--git-branch:upstream))
-  (pcase-let ((`(,remote . ,merge) (oref obj variable)))
+  (let ((branch (oref transient--prefix scope)))
     (format-spec
      (oref obj format)
      `((?k . ,(transient-format-key obj))
-       (?m . ,merge)
-       (?r . ,remote)
+       (?r . ,(format "branch.%s.remote" branch))
+       (?m . ,(format "branch.%s.merge" branch))
        (?R . ,(transient-format-value obj #'car))
        (?M . ,(transient-format-value obj #'cadr))))))
 
