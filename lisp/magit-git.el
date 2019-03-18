@@ -1925,26 +1925,18 @@ and this option only controls what face is used.")
                  beg)
                end))))
 
-(defvar magit-thingatpt--git-revision-chars "-_./[:alnum:]@{}^~!"
-  "Characters allowable in filenames, excluding space and colon.")
-
-(put 'git-revision 'end-op
-     (lambda ()
-       (re-search-forward
-        (concat "\\=[" magit-thingatpt--git-revision-chars "]*")
-        nil t)))
-
-(put 'git-revision 'beginning-op
-     (lambda ()
-       (if (re-search-backward
-            (concat "[^" magit-thingatpt--git-revision-chars "]") nil t)
-           (forward-char)
-         (goto-char (point-min)))))
-
 (put 'git-revision 'thing-at-point 'magit-thingatpt--git-revision)
-
 (defun magit-thingatpt--git-revision ()
-  (--when-let (bounds-of-thing-at-point 'git-revision)
+  (--when-let
+      (let ((c "-_./[:alnum:]@{}^~!"))
+        (cl-letf (((get 'git-revision 'beginning-op)
+                   (if (re-search-backward (format "[^%s]" c) nil t)
+                       (forward-char)
+                     (goto-char (point-min))))
+                  ((get 'git-revision 'end-op)
+                   (lambda ()
+                     (re-search-forward (format "\\=[%s]*" c) nil t))))
+          (bounds-of-thing-at-point 'git-revision)))
     (let ((text (buffer-substring-no-properties (car it) (cdr it))))
       (and (magit-commit-p text) text))))
 
