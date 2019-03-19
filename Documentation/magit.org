@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-324-g3200eecc+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-361-g3a213ef9a+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-324-g3200eecc+1).
+This manual is for Magit version 2.90.1 (v2.90.1-361-g3a213ef9a+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -4432,6 +4432,12 @@ The variables are described in [[*Branch Git Variables]].
   matter, all commits between FROM and ~HEAD~ are moved to the new
   branch.  If FROM is not reachable from ~HEAD~ or is reachable from the
   source branch's upstream, then an error is raised.
+
+- Key: b S, magit-branch-spinout
+
+  This command behaves like ~magit-branch-spinoff~, except that it does
+  not change the current branch.  If there are any uncommitted changes,
+  then it behaves exactly like ~magit-branch-spinoff~.
 
 - Key: b x, magit-branch-reset
 

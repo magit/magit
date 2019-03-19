@@ -213,14 +213,15 @@ has to be used to view and change branch related variables."
    ("r" magit-branch.<branch>.rebase)
    ("p" magit-branch.<branch>.pushRemote)]
   [["Checkout"
-    ("l" "local branch"      magit-branch-checkout)
     ("c" "new branch"        magit-branch-and-checkout)
+    ("s" "new spin-out"      magit-branch-spinout)
     (5 "w" "new worktree"    magit-worktree-checkout)
     (6 "o" "new orphan"      magit-branch-orphan)
+    ("l" "local branch"      magit-branch-checkout)
     ("b" "dwim"              magit-checkout)]
    ["Create"
-    ("s" "new spin-off"      magit-branch-spinoff)
     ("n" "new branch"        magit-branch-create)
+    ("S" "new spin-off"      magit-branch-spinoff)
     (5 "W" "new worktree"    magit-worktree-branch)]
    ["Do"
     ("C" "configure..."      magit-branch-configure)
@@ -386,6 +387,16 @@ when using `magit-branch-and-checkout'."
       (list branch (magit-read-starting-point prompt branch default-start)))))
 
 ;;;###autoload
+(defun magit-branch-spinout (branch &optional from)
+  "Create new branch from the unpushed commits.
+Like `magit-branch-spinoff' but remain on the current branch.
+If there are any uncommitted changes, then behave exactly like
+`magit-branch-spinoff'."
+  (interactive (list (magit-read-string-ns "Spin out branch")
+                     (car (last (magit-region-values 'commit)))))
+  (magit--branch-spinoff branch from nil))
+
+;;;###autoload
 (defun magit-branch-spinoff (branch &optional from)
   "Create new branch from the unpushed commits.
 
@@ -417,8 +428,15 @@ branch.  If FROM is not reachable from `HEAD' or is reachable
 from the source branch's upstream, then an error is raised."
   (interactive (list (magit-read-string-ns "Spin off branch")
                      (car (last (magit-region-values 'commit)))))
+  (magit--branch-spinoff branch from t))
+
+(defun magit--branch-spinoff (branch from checkout)
   (when (magit-branch-p branch)
     (user-error "Cannot spin off %s.  It already exists" branch))
+  (when (and (not checkout)
+             (magit-anything-modified-p))
+    (message "Staying on HEAD due to uncommitted changes")
+    (setq checkout t))
   (if-let ((current (magit-get-current-branch)))
       (let ((tracked (magit-get-upstream-branch current))
             base)
@@ -431,7 +449,9 @@ from the source branch's upstream, then an error is raised."
             (user-error "Cannot spin off %s.  %s is ancestor of upstream %s"
                         branch from tracked)))
         (let ((magit-process-raise-error t))
-          (magit-call-git "checkout" "-b" branch current))
+          (if checkout
+              (magit-call-git "checkout" "-b" branch current)
+            (magit-call-git "branch" branch current)))
         (--when-let (magit-get-indirect-upstream-branch current)
           (magit-call-git "branch" "--set-upstream-to" it branch))
         (when (and tracked
@@ -440,11 +460,15 @@ from the source branch's upstream, then an error is raised."
                              (concat from "^")
                            (magit-git-string "merge-base" current tracked)))
                    (not (magit-rev-eq base current)))
-          (magit-call-git "update-ref" "-m"
-                          (format "reset: moving to %s" base)
-                          (concat "refs/heads/" current) base))
-        (magit-refresh))
-    (magit-run-git "checkout" "-b" branch)))
+          (if checkout
+              (magit-call-git "update-ref" "-m"
+                              (format "reset: moving to %s" base)
+                              (concat "refs/heads/" current) base)
+            (magit-call-git "reset" "--hard" base))))
+    (if checkout
+        (magit-call-git "checkout" "-b" branch)
+      (magit-call-git "branch" branch)))
+  (magit-refresh))
 
 ;;;###autoload
 (defun magit-branch-reset (branch to &optional set-upstream)
