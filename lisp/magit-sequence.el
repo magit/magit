@@ -164,7 +164,7 @@ This discards all changes made since the sequence started."
   :class 'transient-option
   :shortarg "-m"
   :argument "--mainline="
-  :reader 'transient-read-natural-number-N+)
+  :reader 'transient-read-number-N+)
 
 (defun magit-cherry-pick-read-args (prompt)
   (list (or (nreverse (magit-region-values 'commit))
