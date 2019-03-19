@@ -2001,7 +2001,8 @@ section or a child thereof."
     (oset section header header)
     (when modes
       (magit-insert-section (hunk)
-        (insert modes)))
+        (insert modes)
+        (magit-insert-heading)))
     (magit-wash-sequence #'magit-diff-wash-hunk)))
 
 (defun magit-diff-wash-submodule ()
