@@ -776,7 +776,7 @@ and also rename the respective reflog file."
        (string-match-p "/\\(BRANCH\\|EDIT\\)_DESCRIPTION\\'" buffer-file-name)))
 
 (defclass magit--git-branch:upstream (magit--git-variable)
-  ((format :initform " %k %m  %M\n   %r %R")))
+  ((format :initform " %k %m %M\n   %r %R")))
 
 (define-infix-command magit-branch.<branch>.merge/remote ()
   :class 'magit--git-branch:upstream)
