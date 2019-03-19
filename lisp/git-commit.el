@@ -420,7 +420,7 @@ This is only used if Magit is available."
 
 ;;;###autoload
 (defconst git-commit-filename-regexp "/\\(\
-\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\
+\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|MERGEREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\
 \\|\\(BRANCH\\|EDIT\\)_DESCRIPTION\\)\\'")
 
 (eval-after-load 'recentf
