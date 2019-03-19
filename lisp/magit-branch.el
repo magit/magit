@@ -218,7 +218,7 @@ has to be used to view and change branch related variables."
     (5 "w" "new worktree"    magit-worktree-checkout)
     (6 "o" "new orphan"      magit-branch-orphan)
     ("l" "local branch"      magit-branch-checkout)
-    ("b" "dwim"              magit-checkout)]
+    ("b" "branch/revision"   magit-checkout)]
    ["Create"
     ("n" "new branch"        magit-branch-create)
     ("S" "new spin-off"      magit-branch-spinoff)
