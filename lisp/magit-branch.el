@@ -213,12 +213,13 @@ has to be used to view and change branch related variables."
    ("r" magit-branch.<branch>.rebase)
    ("p" magit-branch.<branch>.pushRemote)]
   [["Checkout"
+    ("b" "branch/revision"   magit-checkout)
+    ("l" "local branch"      magit-branch-checkout)
+    (6 "o" "new orphan"      magit-branch-orphan)]
+   [""
     ("c" "new branch"        magit-branch-and-checkout)
     ("s" "new spin-out"      magit-branch-spinout)
-    (5 "w" "new worktree"    magit-worktree-checkout)
-    (6 "o" "new orphan"      magit-branch-orphan)
-    ("l" "local branch"      magit-branch-checkout)
-    ("b" "branch/revision"   magit-checkout)]
+    (5 "w" "new worktree"    magit-worktree-checkout)]
    ["Create"
     ("n" "new branch"        magit-branch-create)
     ("S" "new spin-off"      magit-branch-spinoff)
