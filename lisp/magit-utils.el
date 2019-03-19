@@ -646,12 +646,13 @@ This is similar to `read-string', but
 (defmacro magit-read-char-case (prompt verbose &rest clauses)
   (declare (indent 2)
            (debug (form form &rest (characterp form body))))
-  `(pcase (read-char-choice
-           (concat ,prompt
-                   ,(concat (mapconcat 'cadr clauses ", ")
-                            (and verbose ", or [C-g] to abort") " "))
-           ',(mapcar 'car clauses))
-     ,@(--map `(,(car it) ,@(cddr it)) clauses)))
+  `(prog1 (pcase (read-char-choice
+                  (concat ,prompt
+                          ,(concat (mapconcat 'cadr clauses ", ")
+                                   (and verbose ", or [C-g] to abort") " "))
+                  ',(mapcar 'car clauses))
+            ,@(--map `(,(car it) ,@(cddr it)) clauses))
+     (message "")))
 
 (defun magit-y-or-n-p (prompt &optional action)
   "Ask user a \"y or n\" or a \"yes or no\" question using PROMPT.
