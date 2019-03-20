@@ -1146,14 +1146,15 @@ as \"^1\" and \"~3\".  "
   (magit-git-success "show-ref" "--verify" ref))
 
 (defun magit-ref-equal (a b)
-  "Return t if the refs A and B are `equal'.
+  "Return t if the refnames A and B are `equal'.
 A symbolic-ref pointing to some ref, is `equal' to that ref,
-as are two symbolic-refs pointing to the same ref."
+as are two symbolic-refs pointing to the same ref.  Refnames
+may be abbreviated."
   (equal (magit-ref-fullname a)
          (magit-ref-fullname b)))
 
 (defun magit-ref-eq (a b)
-  "Return t if the refs A and B are `eq'.
+  "Return t if the refnames A and B are `eq'.
 A symbolic-ref is `eq' to itself, but not to the ref it points
 to, or to some other symbolic-ref that points to the same ref."
   (let ((symbolic-a (magit-symbolic-ref-p a))
