@@ -1125,7 +1125,7 @@ Git."
 (defun magit-ref-fullname (refname)
   "Return fully qualified refname for REFNAME.
 If REFNAME is ambiguous, return nil."
-  (magit-rev-parse "--symbolic-full-name" refname))
+  (magit-rev-parse "--verify" "--symbolic-full-name" refname))
 
 (defun magit-ref-ambiguous-p (refname)
   (save-match-data
