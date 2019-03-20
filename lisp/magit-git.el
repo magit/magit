@@ -1150,8 +1150,9 @@ as \"^1\" and \"~3\".  "
 A symbolic-ref pointing to some ref, is `equal' to that ref,
 as are two symbolic-refs pointing to the same ref.  Refnames
 may be abbreviated."
-  (equal (magit-ref-fullname a)
-         (magit-ref-fullname b)))
+  (let ((a (magit-ref-fullname a))
+        (b (magit-ref-fullname b)))
+    (and a b (equal a b))))
 
 (defun magit-ref-eq (a b)
   "Return t if the refnames A and B are `eq'.
