@@ -1122,6 +1122,10 @@ Git."
     (and (or lax (not (string-match-p "[~^]" it)))
          (substring it 5))))
 
+(defun magit-ref-abbrev (refname)
+  "Return an unambigious abbreviation of REFNAME."
+  (magit-rev-parse "--verify" "--abbrev-ref" refname))
+
 (defun magit-ref-fullname (refname)
   "Return fully qualified refname for REFNAME.
 If REFNAME is ambiguous, return nil."
