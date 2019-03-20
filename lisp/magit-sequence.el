@@ -640,13 +640,7 @@ START has to be selected from a list of recent commits."
 
 (defun magit-rebase-interactive-assert
     (since &optional delay-edit-confirm rebase-merges)
-  (let* ((commit (if (string-suffix-p "^" since)
-                     ;; If SINCE is "REV^", then the user selected
-                     ;; "REV", which is the first commit that will
-                     ;; be replaced. (from^..to] <=> [from..to].
-                     (substring since 0 -1)
-                   ;; The "--root" argument is being used.
-                   since))
+  (let* ((commit (magit-rebase--target-commit since))
          (branches (magit-list-publishing-branches commit)))
     (setq magit--rebase-public-edit-confirmed
           (delete (magit-toplevel) magit--rebase-public-edit-confirmed))
@@ -670,6 +664,15 @@ START has to be selected from a list of recent commits."
         (?c "[c]ontinue" since)
         (?s "[s]elect other" nil)
         (?a "[a]bort" (user-error "Quit")))
+    since))
+
+(defun magit-rebase--target-commit (since)
+  (if (string-suffix-p "^" since)
+      ;; If SINCE is "REV^", then the user selected
+      ;; "REV", which is the first commit that will
+      ;; be replaced.  (from^..to] <=> [from..to]
+      (substring since 0 -1)
+    ;; The "--root" argument is being used.
     since))
 
 ;;;###autoload
