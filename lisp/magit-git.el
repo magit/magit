@@ -1344,12 +1344,12 @@ The amount of time spent searching is limited by
     (propertize remote 'face 'magit-branch-remote)))
 
 (defun magit-get-push-branch (&optional branch verify)
-  (and (or branch (setq branch (magit-get-current-branch)))
-       (when-let ((remote (magit-get-push-remote branch))
-                  (push-branch (concat remote "/" branch)))
-         (and (or (not verify)
-                  (magit-rev-verify push-branch))
-              (propertize push-branch 'face 'magit-branch-remote)))))
+  (when-let ((branch (or branch (setq branch (magit-get-current-branch))))
+             (remote (magit-get-push-remote branch))
+             (target (concat remote "/" branch)))
+    (and (or (not verify)
+             (magit-rev-verify target))
+         (propertize target 'face 'magit-branch-remote))))
 
 (defun magit-get-@{push}-branch (&optional branch)
   (let ((ref (magit-rev-parse "--symbolic-full-name"
