@@ -626,7 +626,11 @@ START has to be selected from a list of recent commits."
   (if (and commit (not confirm))
       (let ((process-environment process-environment))
         (when editor
-          (push (concat "GIT_SEQUENCE_EDITOR=" editor) process-environment))
+          (push (concat "GIT_SEQUENCE_EDITOR="
+                        (if (functionp editor)
+                            (funcall editor commit)
+                          editor))
+                process-environment))
         (magit-run-git-sequencer "rebase" "-i" args
                                  (unless (member "--root" args) commit)))
     (magit-log-select
@@ -700,8 +704,7 @@ START has to be selected from a list of recent commits."
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to edit it,"
-    (concat magit-perl-executable
-            " -i -p -e '++$x if not $x and s/^pick/edit/'")
+    (apply-partially #'magit-rebase--perl-editor 'edit)
     t))
 
 ;;;###autoload
@@ -711,8 +714,7 @@ START has to be selected from a list of recent commits."
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to reword its message,"
-    (concat magit-perl-executable
-            " -i -p -e '++$x if not $x and s/^pick/reword/'")))
+    (apply-partially #'magit-rebase--perl-editor 'reword)))
 
 ;;;###autoload
 (defun magit-rebase-remove-commit (commit args)
@@ -721,9 +723,20 @@ START has to be selected from a list of recent commits."
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to remove it,"
-    (concat magit-perl-executable
-            " -i -p -e '++$x if not $x and s/^pick/# pick/'")
+    (apply-partially #'magit-rebase--perl-editor 'remove)
     nil nil t))
+
+(defun magit-rebase--perl-editor (action since)
+  (let ((commit (magit-rev-abbrev (magit-rebase--target-commit since))))
+    (format "%s -i -p -e '++$x if not $x and s/^pick %s/%s %s/'"
+            magit-perl-executable
+            commit
+            (cl-case action
+              (edit   "edit")
+              (remove "# pick")
+              (reword "reword")
+              (t      (error "unknown action: %s" action)))
+            commit)))
 
 ;;;###autoload
 (defun magit-rebase-continue (&optional noedit)
