@@ -218,11 +218,11 @@ has to be used to view and change branch related variables."
     (6 "o" "new orphan"      magit-branch-orphan)]
    [""
     ("c" "new branch"        magit-branch-and-checkout)
-    ("s" "new spin-out"      magit-branch-spinout)
+    ("s" "new spin-off"      magit-branch-spinoff)
     (5 "w" "new worktree"    magit-worktree-checkout)]
    ["Create"
     ("n" "new branch"        magit-branch-create)
-    ("S" "new spin-off"      magit-branch-spinoff)
+    ("S" "new spin-out"      magit-branch-spinout)
     (5 "W" "new worktree"    magit-worktree-branch)]
    ["Do"
     ("C" "configure..."      magit-branch-configure)
