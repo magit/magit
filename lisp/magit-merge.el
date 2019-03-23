@@ -103,7 +103,8 @@ edit it.
   (magit-merge-assert)
   (cl-pushnew "--no-ff" args :test #'equal)
   (apply #'magit-run-git-with-editor "merge" "--edit"
-         (append args (list rev))))
+         (append (delete "--ff-only" args)
+                 (list rev))))
 
 ;;;###autoload
 (defun magit-merge-nocommit (rev &optional args)
