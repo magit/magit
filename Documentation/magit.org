@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-361-g3a213ef9a+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-380-g0d0d97638+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-361-g3a213ef9a+1).
+This manual is for Magit version 2.90.1 (v2.90.1-380-g0d0d97638+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -1345,8 +1345,8 @@ telling Magit to ask fewer questions.
       (or selecting another branch), but when a branch has not been
       merged yet, also make sure the user is aware of that.
 
-    - ~delete-pr-branch~ When deleting a branch that was created from a
-      pull request and if no other branches still exist on that
+    - ~delete-pr-remote~ When deleting a branch that was created from a
+      pull-request and if no other branches still exist on that
       remote, then `magit-branch-delete' offers to delete the remote
       as well.  This should be safe because it only happens if no
       other refs exist in the remotes namespace, and you can recreate

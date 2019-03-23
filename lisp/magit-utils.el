@@ -221,8 +221,8 @@ References:
   choice (or selecting another branch), but when a branch has
   not been merged yet, also make sure the user is aware of that.
 
-  `delete-pr-branch' When deleting a branch that was created from
-  a pull request and if no other branches still exist on that
+  `delete-pr-remote' When deleting a branch that was created from
+  a pull-request and if no other branches still exist on that
   remote, then `magit-branch-delete' offers to delete the remote
   as well.  This should be safe because it only happens if no
   other refs exist in the remotes namespace, and you can recreate
