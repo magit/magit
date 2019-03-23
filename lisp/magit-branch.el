@@ -626,8 +626,8 @@ defaulting to the branch at point."
                                "no pull-request branch remains")
                        nil t))
                 (magit-call-git "remote" "rm" remote)
-              (magit-call-git "config" "--unset" variable
-                              (regexp-quote refspec)))))))))
+              (magit-call-git "config" "--unset-all" variable
+                              (format "^%s$" (regexp-quote refspec))))))))))
 
 (defun magit-branch-unset-pushRemote (branch)
   (magit-set nil "branch" branch "pushRemote"))
