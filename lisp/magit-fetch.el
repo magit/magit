@@ -63,7 +63,7 @@ Ignored for Git versions before v2.8.0."
 
 (defun magit-git-fetch (remote args)
   (run-hooks 'magit-credential-hook)
-  (magit-run-git-async "fetch" args remote))
+  (magit-run-git-async "fetch" remote args))
 
 ;;;###autoload (autoload 'magit-fetch-from-pushremote "magit-fetch" nil t)
 (define-suffix-command magit-fetch-from-pushremote (args &optional set)
