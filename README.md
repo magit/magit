@@ -25,34 +25,6 @@
 </p>
 <hr>
 
-<div align="justify">
-  <a href="https://github.com/magit/magit/blob/master/Documentation/BACKERS.md">1987 backers</a>
-  made sure the Kickstarter campaign was a huge success!
-  Thanks for your generosity and enthusiastic support!
-</div>
-<div align="center">
-  <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em><br><br>
-  <img src="https://magit.vc/assets/pixel-heart.png">
-</div>
-<br>
-<div align="center">
-  <em>My thanks also go to these three sponsors!</em><br><br>
-  <a href="https://www.mojotech.com">
-    <img title="Mojotech"
-         alt="Mojotech"
-         src="https://magit.vc/assets/mojotech.png"></a>
-  <a href="https://opensource.google.com">
-    <img title="Google Open Source"
-         alt="Google Open Source"
-         src="https://magit.vc/assets/google-os.png"></a>
-  <a href="http://www.directangular.com">
-    <img title="Directangular"
-         alt="Directangular"
-         src="https://magit.vc/assets/directangular.png"></a>
-</div>
-<br>
-<hr>
-
 <div align="center">
   Keeping its users <a href= "https://magit.vc/quotes">this excited</a> is
   <a href="https://magit.vc/stats/authors.html#cumulated_added_lines_of_code_per_author">
@@ -87,6 +59,34 @@
 <div align="center">
   Some alternative donation methods are <a href="https://magit.vc/donate">available</a>.
 </div>
+<hr>
+
+<div align="justify">
+  <a href="https://github.com/magit/magit/blob/master/Documentation/BACKERS.md">1987 backers</a>
+  made sure the Kickstarter campaign was a huge success!
+  Thanks for your generosity and enthusiastic support!
+</div>
+<div align="center">
+  <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em><br><br>
+  <img src="https://magit.vc/assets/pixel-heart.png">
+</div>
+<br>
+<div align="center">
+  <em>My thanks also go to these three sponsors!</em><br><br>
+  <a href="https://www.mojotech.com">
+    <img title="Mojotech"
+         alt="Mojotech"
+         src="https://magit.vc/assets/mojotech.png"></a>
+  <a href="https://opensource.google.com">
+    <img title="Google Open Source"
+         alt="Google Open Source"
+         src="https://magit.vc/assets/google-os.png"></a>
+  <a href="http://www.directangular.com">
+    <img title="Directangular"
+         alt="Directangular"
+         src="https://magit.vc/assets/directangular.png"></a>
+</div>
+<br>
 <hr>
 
 Support
