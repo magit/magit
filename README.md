@@ -61,14 +61,13 @@
 </div>
 <hr>
 
-<div align="justify">
+<div align="center">
   <a href="https://github.com/magit/magit/blob/master/Documentation/BACKERS.md">1987 backers</a>
-  made sure the Kickstarter campaign was a huge success!
+  made sure the 2017 Kickstarter campaign was a huge success!<br>
   Thanks for your generosity and enthusiastic support!
 </div>
 <div align="center">
   <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em><br><br>
-  <img src="https://magit.vc/assets/pixel-heart.png">
 </div>
 <br>
 <div align="center">
