@@ -753,7 +753,7 @@ which matches the ~/.authinfo.gpg entry
 or iff that is undefined, for backward compatibility
   machine tarsius@bitbucket.org password 12345"
   (require 'auth-source)
-  (and (string-match "\\`\\([^@]+\\)@\\([^@]+\\)\\'" key)
+  (and (string-match "\\`\\(.+\\)@\\([^@]+\\)\\'" key)
        (let* ((user (match-string 1 key))
               (host (match-string 2 key))
               (secret
