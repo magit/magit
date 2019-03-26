@@ -1137,10 +1137,11 @@ If REFNAME is ambiguous, return nil."
         (not (magit-ref-fullname (match-string 1 refname)))
       (error "%S has an unrecognized format" refname))))
 
-(cl-defun magit-ref-maybe-qualify (name &optional (prefix "heads/"))
-  "If NAME is ambiguous, prepend PREFIX to it."
+(defun magit-ref-maybe-qualify (name &optional prefix)
+  "If NAME is ambiguous, prepend PREFIX to it.
+If optional PREFIX is nil, then use \"refs/heads/\"."
   (concat (and (magit-ref-ambiguous-p name)
-               prefix)
+               (or prefix "refs/heads/"))
           name))
 
 (defun magit-ref-exists-p (ref)
