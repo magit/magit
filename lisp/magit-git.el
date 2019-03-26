@@ -1134,7 +1134,7 @@ If REFNAME is ambiguous, return nil."
 (defun magit-ref-ambiguous-p (refname)
   (save-match-data
     (if (string-match "\\`\\([^^~]+\\)\\(.*\\)" refname)
-        (magit-ref-fullname (match-string 1 refname))
+        (not (magit-ref-fullname (match-string 1 refname)))
       (error "%S has an unrecognized format" refname))))
 
 (cl-defun magit-ref-maybe-qualify (name &optional (prefix "heads/"))
