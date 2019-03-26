@@ -1140,9 +1140,9 @@ If REFNAME is ambiguous, return nil."
 (defun magit-ref-maybe-qualify (name &optional prefix)
   "If NAME is ambiguous, prepend PREFIX to it.
 If optional PREFIX is nil, then use \"refs/heads/\"."
-  (concat (and (magit-ref-ambiguous-p name)
-               (or prefix "refs/heads/"))
-          name))
+  (magit-ref-fullname (concat (and (magit-ref-ambiguous-p name)
+                                   (or prefix "refs/heads/"))
+                              name)))
 
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))
