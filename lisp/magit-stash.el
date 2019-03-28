@@ -299,7 +299,7 @@ branch or `HEAD' as the string-point."
           (unless (eq keep t)
             (if (eq keep 'index)
                 (magit-call-git "checkout" "--" ".")
-              (magit-call-git "reset" "--hard" "HEAD"))
+              (magit-call-git "reset" "--hard" "HEAD" "--"))
             (when untracked
               (magit-call-git "clean" "--force" "-d"
                               (and (eq untracked 'all) "-x")))))

@@ -653,7 +653,7 @@ These sections can be expanded to show the respective commits."
   (with-temp-file (expand-file-name ".git" worktree)
     (insert "gitdir: " (file-relative-name gitdir worktree) "\n"))
   (let ((default-directory worktree))
-    (magit-call-git "reset" "--hard" "HEAD")))
+    (magit-call-git "reset" "--hard" "HEAD" "--")))
 
 ;;; _
 (provide 'magit-submodule)
