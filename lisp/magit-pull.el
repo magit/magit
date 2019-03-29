@@ -97,19 +97,47 @@ argument the push-remote can be changed before pulling from it."
       (magit-git-pull remote/branch args))))
 
 ;;;###autoload (autoload 'magit-pull-from-upstream "magit-pull" nil t)
-(define-suffix-command magit-pull-from-upstream (args &optional set)
+(define-suffix-command magit-pull-from-upstream (args)
   "Pull from the upstream of the current branch.
 
-When the upstream is not configured, then read the upstream from
-the user, set it, and then pull from it.  With a prefix argument
-the upstream can be changed before pulling from it."
+With a prefix argument or when the upstream is either not
+configured or unusable, then let the user first configure
+the upstream."
   :if 'magit-get-current-branch
-  :description 'magit--upstream-suffix-description
-  (interactive (list (magit-pull-arguments)
-                     (magit--transfer-maybe-read-upstream "pull from")))
-  (magit--transfer-upstream set
-    (lambda (_ upstream)
-      (magit-git-pull upstream args))))
+  :description 'magit-pull--upstream-description
+  (interactive (list (magit-pull-arguments)))
+  (let* ((branch (or (magit-get-current-branch)
+                     (user-error "No branch is checked out")))
+         (remote (magit-get "branch" branch "remote"))
+         (merge  (magit-get "branch" branch "merge")))
+    (when (or current-prefix-arg
+              (not (or (magit-get-upstream-branch branch)
+                       (magit--unnamed-upstream-p remote merge))))
+      (magit-set-upstream-branch
+       branch (magit-read-upstream-branch
+               branch (format "Set upstream of %s and pull from there" branch)))
+      (setq remote (magit-get "branch" branch "remote"))
+      (setq merge  (magit-get "branch" branch "merge")))
+    (run-hooks 'magit-credential-hook)
+    (magit-run-git-with-editor "pull" args remote merge)))
+
+(defun magit-pull--upstream-description ()
+  (when-let ((branch (magit-get-current-branch)))
+    (or (magit-get-upstream-branch branch)
+        (let ((remote (magit-get "branch" branch "remote"))
+              (merge  (magit-get "branch" branch "merge"))
+              (u (propertize "@{upstream}" 'face 'bold)))
+          (cond
+           ((magit--unnamed-upstream-p remote merge)
+            (format "%s of %s"
+                    (propertize merge  'face 'magit-branch-remote)
+                    (propertize remote 'face 'bold)))
+           ((magit--valid-upstream-p remote merge)
+            (concat u ", replacing non-existent"))
+           ((or remote merge)
+            (concat u ", replacing invalid"))
+           (t
+            (concat u ", setting that")))))))
 
 ;;;###autoload
 (defun magit-pull-branch (source args)

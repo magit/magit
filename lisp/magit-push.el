@@ -88,28 +88,64 @@ argument the push-remote can be changed before pushed to it."
       (magit-git-push branch remote/branch args))))
 
 ;;;###autoload (autoload 'magit-push-current-to-upstream "magit-push" nil t)
-(define-suffix-command magit-push-current-to-upstream (args &optional set)
+(define-suffix-command magit-push-current-to-upstream (args)
   "Push the current branch to its upstream branch.
 
-When the upstream is not configured, then read the upstream from
-the user, set it, and then push to it.  With a prefix argument
-the upstream can be changed before pushed to it."
+With a prefix argument or when the upstream is either not
+configured or unusable, then let the user first configure
+the upstream."
   :if 'magit-get-current-branch
-  :description (lambda () (magit--upstream-suffix-description t))
-  (interactive
-   (list (magit-push-arguments)
-         (and (magit--transfer-set-upstream-p current-prefix-arg)
-              (let ((branches (-union (--map (concat it "/" branch)
-                                             (magit-list-remotes))
-                                      (magit-list-remote-branch-names))))
-                (magit-completing-read
-                 "Set upstream and push there"
-                 branches nil nil nil 'magit-revision-history
-                 (or (car (member (magit-remote-branch-at-point) branches))
-                     (car (member "origin/master" branches))))))))
-  (magit--transfer-upstream set
-    (lambda (current upstream)
-      (magit-git-push current upstream args))))
+  :description 'magit-push--upstream-description
+  (interactive (list (magit-push-arguments)))
+  (let* ((branch (or (magit-get-current-branch)
+                     (user-error "No branch is checked out")))
+         (remote (magit-get "branch" branch "remote"))
+         (merge  (magit-get "branch" branch "merge")))
+    (when (or current-prefix-arg
+              (not (or (magit-get-upstream-branch branch)
+                       (magit--unnamed-upstream-p remote merge)
+                       (magit--valid-upstream-p remote merge))))
+      (let* ((branches (-union (--map (concat it "/" branch)
+                                      (magit-list-remotes))
+                               (magit-list-remote-branch-names)))
+             (upstream (magit-completing-read
+                        (format "Set upstream of %s and push there" branch)
+                        branches nil nil nil 'magit-revision-history
+                        (or (car (member (magit-remote-branch-at-point) branches))
+                            (car (member "origin/master" branches)))))
+             (upstream (or (magit-get-tracked upstream)
+                           (magit-split-branch-name upstream))))
+        (setq remote (car upstream))
+        (setq merge  (cdr upstream))
+        (unless (string-prefix-p "refs/" merge)
+          ;; User selected a non-existent remote-tracking branch.
+          ;; It is very likely, but not certain, that this is the
+          ;; correct thing to do.  It is even more likely that it
+          ;; is what the user wants to happen.
+          (setq merge (concat "refs/heads/" merge))))
+      (cl-pushnew "--set-upstream" args :test #'equal))
+    (run-hooks 'magit-credential-hook)
+    (magit-run-git-async "push" "-v" args remote (concat branch ":" merge))))
+
+(defun magit-push--upstream-description ()
+  (when-let ((branch (magit-get-current-branch)))
+    (or (magit-get-upstream-branch branch)
+        (let ((remote (magit-get "branch" branch "remote"))
+              (merge  (magit-get "branch" branch "merge"))
+              (u (propertize "@{upstream}" 'face 'bold)))
+          (cond
+           ((magit--unnamed-upstream-p remote merge)
+            (format "%s as %s"
+                    (propertize remote 'face 'bold)
+                    (propertize merge  'face 'magit-branch-remote)))
+           ((magit--valid-upstream-p remote merge)
+            (format "%s creating %s"
+                    (propertize remote 'face 'magit-branch-remote)
+                    (propertize merge  'face 'magit-branch-remote)))
+           ((or remote merge)
+            (concat u ", creating it and replacing invalid"))
+           (t
+            (concat u ", creating it")))))))
 
 ;;;###autoload
 (defun magit-push-current (target args)

@@ -312,7 +312,6 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   :choices '("--no-tags" "--tags"))
 
 ;;; Transfer Utilities
-;;;; Push-Remote
 
 (defun magit--push-remote-variable (&optional branch short)
   (unless branch
@@ -358,42 +357,6 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
            (concat (magit--push-remote-variable branch)
                    ", after setting that")))))
 
-;;;; Upstream
-
-(defun magit--transfer-upstream (upstream fn)
-  (declare (indent defun))
-  (if-let ((current (magit-get-current-branch)))
-      (progn
-        (when upstream
-          (magit-set-upstream-branch current upstream))
-        (if-let ((upstream (or upstream (magit-get-upstream-branch current t))))
-            (funcall fn current upstream)
-          (user-error "No upstream is configured for %s" current)))
-    (user-error "No branch is checked out")))
-
-(defun magit--transfer-set-upstream-p (&optional change)
-  (when-let ((current (magit-get-current-branch)))
-    (or change (not (magit-get-upstream-branch current t)))))
-
-(defun magit--transfer-maybe-read-upstream (action)
-  (and (magit--transfer-set-upstream-p current-prefix-arg)
-       (magit-read-upstream-branch
-        nil (format "Set upstream and %s there" action))))
-
-(defun magit--upstream-suffix-description (&optional pushp)
-  (if-let ((upstream (magit-get-upstream-branch nil t)))
-      (cond ((consp upstream)
-             (pcase-let ((`(,url ,ref) upstream))
-               (insert ref " from " (propertize url 'face 'bold) " ")))
-            ((magit-rev-verify upstream) upstream)
-            (pushp (concat upstream ", creating it"))
-            ;; This shouldn't happen often and even if it does, then
-            ;; transfering would still succeed iff the branch exists
-            ;; on the remote (only the tracking branch is missing).
-            (t (concat upstream ", which appears to be missing")))
-    (and (magit--transfer-set-upstream-p)
-         (concat (propertize "@{upstream}" 'face 'bold)
-                 ", after setting that"))))
 
 ;;; _
 (provide 'magit-remote)
