@@ -82,20 +82,24 @@ the push-remote can be changed before fetching from it."
       (magit-git-fetch remote args))))
 
 ;;;###autoload (autoload 'magit-fetch-from-upstream "magit-fetch" nil t)
-(define-suffix-command magit-fetch-from-upstream (args &optional set)
-  "Fetch from the upstream repository of the current branch.
+(define-suffix-command magit-fetch-from-upstream (remote args)
+  "Fetch from the \"current\" remote, usually the upstream.
 
-When `magit-remote-set-if-missing' is non-nil and
-the upstream is not configured, then read the upstream from
-the user, set it, and then fetch from it.  With a prefix argument
-the upstream can be changed before fetching from it."
-  :if 'magit--upstream-suffix-predicate
-  :description 'magit--upstream-suffix-description
-  (interactive (list (magit-fetch-arguments)
-                     (magit--transfer-maybe-read-upstream "fetch from")))
-  (magit--transfer-upstream set
-    (lambda (_ upstream)
-      (magit-git-fetch (car (magit-split-branch-name upstream)) args))))
+If the upstream is configured for the current branch and names
+an existing remote, then use that.  Otherwise try to use another
+remote: If only a single remote is configured, then use that.
+Otherwise if a remote named \"origin\" exists, then use that.
+
+If no remote can be determined, then this command is not available
+from the `magit-fetch' transient prefix and invoking it directly
+results in an error."
+  :if          (lambda () (magit-get-current-remote t))
+  :description (lambda () (magit-get-current-remote t))
+  (interactive (list (magit-get-current-remote t)
+                     (magit-fetch-arguments)))
+  (unless remote
+    (error "The \"current\" remote could not be determined"))
+  (magit-git-fetch remote args))
 
 ;;;###autoload
 (defun magit-fetch-other (remote args)
