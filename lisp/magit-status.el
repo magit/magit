@@ -444,9 +444,9 @@ the status buffer causes this section to disappear again."
 ;;;; Reference Headers
 
 (defun magit-insert-head-branch-header (&optional branch)
-  "Insert a header line about BRANCH.
-When BRANCH is nil, use the current branch or, if none, the
-detached `HEAD'."
+  "Insert a header line about the current branch.
+If `HEAD' is detached, then insert information about that commit
+instead.  The optional BRANCH argument is for internal use only."
   (let ((branch (or branch (magit-get-current-branch)))
         (output (magit-rev-format "%h %s" (or branch "HEAD"))))
     (string-match "^\\([^ ]+\\) \\(.*\\)" output)
@@ -470,7 +470,9 @@ detached `HEAD'."
           (insert ?\n))))))
 
 (defun magit-insert-upstream-branch-header (&optional branch upstream keyword)
-  "Insert a header line about branch usually pulled into current branch."
+  "Insert a header line about the upstream of the current branch.
+If no branch is checked out, then insert nothing.  The optional
+arguments are for internal use only."
   (when-let ((branch (or branch (magit-get-current-branch)))
              (upstream (or upstream
                            (magit-get-upstream-branch branch)
