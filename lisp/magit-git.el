@@ -2113,7 +2113,7 @@ and this option only controls what face is used.")
        branches))
    nil nil nil 'magit-revision-history
    (or (let ((r (magit-remote-branch-at-point))
-             (l (magit-branch-at-point)))
+             (l (magit-local-branch-at-point)))
          (when (and l (equal l branch))
            (setq l nil))
          (if magit-prefer-remote-upstream (or r l) (or l r)))
