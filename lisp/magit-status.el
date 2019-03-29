@@ -499,21 +499,20 @@ arguments are for internal use only."
           (insert (propertize "is missing" 'face 'font-lock-warning-face))))
       (insert ?\n))))
 
-(cl-defun magit-insert-push-branch-header
-    (&optional (branch (magit-get-current-branch))
-               (push   (magit-get-push-branch branch)))
+(defun magit-insert-push-branch-header ()
   "Insert a header line about the branch the current branch is pushed to."
-  (when push
-    (magit-insert-section (branch push)
+  (when-let ((branch (magit-get-current-branch))
+             (target (magit-get-push-branch branch)))
+    (magit-insert-section (branch target)
       (insert (format "%-10s" "Push: "))
       (--when-let (and magit-status-show-hashes-in-headers
-                       (magit-rev-format "%h" push))
+                       (magit-rev-format "%h" target))
         (insert (propertize it 'face 'magit-hash) ?\s))
-      (insert (propertize push 'face 'magit-branch-remote) ?\s)
-      (if (magit-rev-verify push)
-          (insert (funcall magit-log-format-message-function push
+      (insert (propertize target 'face 'magit-branch-remote) ?\s)
+      (if (magit-rev-verify target)
+          (insert (funcall magit-log-format-message-function target
                            (funcall magit-log-format-message-function nil
-                                    (or (magit-rev-format "%s" push)
+                                    (or (magit-rev-format "%s" target)
                                         "(no commit message)"))))
         (insert (propertize "is missing" 'face 'font-lock-warning-face)))
       (insert ?\n))))
