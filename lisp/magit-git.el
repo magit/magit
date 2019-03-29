@@ -1353,8 +1353,8 @@ according to the branch type.  LAX is for internal use only."
                      (string-match-p "\\(\\`.\\{0,2\\}/\\|[:@]\\)" remote))
                 (propertize remote 'face 'bold))))))
 
-(defun magit-get-current-remote ()
-  (or (magit-get-upstream-remote nil t)
+(defun magit-get-current-remote (&optional allow-unnamed)
+  (or (magit-get-upstream-remote nil allow-unnamed)
       (let ((remotes (magit-list-remotes)))
         (if (= (length remotes) 1)
             (car remotes)
