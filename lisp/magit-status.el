@@ -443,14 +443,12 @@ the status buffer causes this section to disappear again."
 
 ;;;; Reference Headers
 
-(defun magit-insert-head-branch-header ()
-  "Insert a header line about BRANCH.
-When BRANCH is nil, use the current branch or, if none, the
-detached `HEAD'."
-  (magit--insert-head-branch-header (magit-get-current-branch)))
-
-(defun magit--insert-head-branch-header (branch)
-  (let ((output (magit-rev-format "%h %s" (or branch "HEAD"))))
+(defun magit-insert-head-branch-header (&optional branch)
+  "Insert a header line about the current branch.
+If `HEAD' is detached, then insert information about that commit
+instead.  The optional BRANCH argument is for internal use only."
+  (let ((branch (or branch (magit-get-current-branch)))
+        (output (magit-rev-format "%h %s" (or branch "HEAD"))))
     (string-match "^\\([^ ]+\\) \\(.*\\)" output)
     (magit-bind-match-strings (commit summary) output
       (when (equal summary "")
@@ -471,52 +469,74 @@ detached `HEAD'."
           (insert (funcall magit-log-format-message-function nil summary))
           (insert ?\n))))))
 
-(defun magit-insert-upstream-branch-header ()
-  "Insert a header line about branch usually pulled into current branch."
-  (when-let ((branch (magit-get-current-branch))
-             (upstream (magit-get-upstream-branch branch)))
-    (magit--insert-upstream-branch-header branch upstream)))
+(defun magit-insert-upstream-branch-header (&optional branch upstream keyword)
+  "Insert a header line about the upstream of the current branch.
+If no branch is checked out, then insert nothing.  The optional
+arguments are for internal use only."
+  (when-let ((branch (or branch (magit-get-current-branch))))
+    (let ((remote (magit-get "branch" branch "remote"))
+          (merge  (magit-get "branch" branch "merge"))
+          (rebase (magit-get "branch" branch "rebase")))
+      (when (or remote merge)
+        (pcase rebase
+          ("true")
+          ("false" (setq rebase nil))
+          (_       (setq rebase (magit-get-boolean "pull.rebase"))))
+        (insert (format "%-10s" (or keyword (if rebase "Rebase: " "Merge: "))))
+        (insert
+         (if-let ((upstream (or upstream (magit-get-upstream-branch branch))))
+             (concat upstream " "
+                     (and magit-status-show-hashes-in-headers
+                          (concat (propertize (magit-rev-format "%h" upstream)
+                                              'face 'magit-hash)
+                                  " "))
+                     (funcall magit-log-format-message-function upstream
+                              (funcall magit-log-format-message-function nil
+                                       (or (magit-rev-format "%s" upstream)
+                                           "(no commit message)"))))
+           (cond
+            ((magit--unnamed-upstream-p remote merge)
+             (concat (propertize merge  'face 'magit-branch-remote) " from "
+                     (propertize remote 'face 'bold)))
+            ((magit--valid-upstream-p remote merge)
+             (if (equal remote ".")
+                 (concat
+                  (propertize merge 'face 'magit-branch-local)
+                  (propertize " does not exist" 'face 'font-lock-warning-face))
+               (concat
+                (propertize merge 'face 'magit-branch-remote)
+                (propertize " does not exist on " 'face 'font-lock-warning-face)
+                (propertize remote 'face 'magit-branch-remote))))
+            (t
+             (propertize "invalid upstream configuration"
+                         'face 'font-lock-warning-face)))))
+        (insert ?\n)))))
 
-(defun magit--insert-upstream-branch-header (branch pull &optional keyword)
-  (magit-insert-section (branch pull)
-    (let ((rebase (magit-get "branch" branch "rebase")))
-      (pcase rebase
-        ("true")
-        ("false" (setq rebase nil))
-        (_       (setq rebase (magit-get-boolean "pull.rebase"))))
-      (insert (format "%-10s" (or keyword (if rebase "Rebase: " "Merge: ")))))
-    (if (string-match-p " " pull)
-        (pcase-let ((`(,url ,branch) (split-string pull " ")))
-          (insert branch " from " url " "))
-      (when-let ((hash (and magit-status-show-hashes-in-headers
-                            (magit-rev-format "%h" pull))))
-        (insert (propertize hash 'face 'magit-hash) " "))
-      (insert pull " ")
-      (if (magit-rev-verify pull)
-          (insert (funcall magit-log-format-message-function pull
-                           (funcall magit-log-format-message-function nil
-                                    (or (magit-rev-format "%s" pull)
-                                        "(no commit message)"))))
-        (insert (propertize "is missing" 'face 'font-lock-warning-face))))
-    (insert ?\n)))
-
-(cl-defun magit-insert-push-branch-header
-    (&optional (branch (magit-get-current-branch))
-               (push   (magit-get-push-branch branch)))
+(defun magit-insert-push-branch-header ()
   "Insert a header line about the branch the current branch is pushed to."
-  (when push
-    (magit-insert-section (branch push)
+  (when-let ((branch (magit-get-current-branch))
+             (target (magit-get-push-branch branch)))
+    (magit-insert-section (branch target)
       (insert (format "%-10s" "Push: "))
-      (--when-let (and magit-status-show-hashes-in-headers
-                       (magit-rev-format "%h" push))
-        (insert (propertize it 'face 'magit-hash) ?\s))
-      (insert (propertize push 'face 'magit-branch-remote) ?\s)
-      (if (magit-rev-verify push)
-          (insert (funcall magit-log-format-message-function push
-                           (funcall magit-log-format-message-function nil
-                                    (or (magit-rev-format "%s" push)
-                                        "(no commit message)"))))
-        (insert (propertize "is missing" 'face 'font-lock-warning-face)))
+      (insert
+       (if (magit-rev-verify target)
+           (concat target " "
+                   (and magit-status-show-hashes-in-headers
+                        (concat (propertize (magit-rev-format "%h" target)
+                                            'face 'magit-hash)
+                                " "))
+                   (funcall magit-log-format-message-function target
+                            (funcall magit-log-format-message-function nil
+                                     (or (magit-rev-format "%s" target)
+                                         "(no commit message)"))))
+         (let ((remote (magit-get-push-remote branch)))
+           (if (magit-remote-p remote)
+               (concat target
+                       (propertize " does not exist"
+                                   'face 'font-lock-warning-face))
+             (concat remote
+                     (propertize " remote does not exist"
+                                 'face 'font-lock-warning-face))))))
       (insert ?\n))))
 
 (defun magit-insert-tags-header ()

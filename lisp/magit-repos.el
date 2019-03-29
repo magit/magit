@@ -213,7 +213,7 @@ Only one letter is shown, the first that applies."
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
-  (--when-let (magit-get-upstream-branch nil t)
+  (--when-let (magit-get-upstream-branch)
     (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 
@@ -225,7 +225,7 @@ Only one letter is shown, the first that applies."
 
 (defun magit-repolist-column-unpushed-to-upstream (_id)
   "Insert number of commits in the current branch but not its upstream."
-  (--when-let (magit-get-upstream-branch nil t)
+  (--when-let (magit-get-upstream-branch)
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
       (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
 

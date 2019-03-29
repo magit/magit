@@ -55,31 +55,11 @@ has to be used to view and change remote related variables."
   :group 'magit-commands
   :type 'boolean)
 
-(defcustom magit-remote-set-if-missing t
-  "Whether to configure missing remotes before transfering refs.
-
-When nil and the upstream and/or push-remote is not configure,
-then the push, fetch, pull and rebase transient commands do not
-feature a suffix to act on the missing remote(s).
-
-When non-nil, then these suffix commands are always available,
-and if the required configuration is missing, then they do appear
-in a way that indicates that this is the case.  These commands
-then configure the missing remote before acting on it.
-
-This option also affects whether the argument `--set-upstream' is
-available from `magit-push'.  If the value is non-nil, then that
-argument is redundant and it is not made available.
-
-If the value is `default', then `remote.pushDefault' is used to
-set the push-remote, `branch.<name>.pushRemote' for other non-nil
-values."
+(defcustom magit-prefer-push-default nil
+  "Whether to prefer `remote.pushDefault' over per-branch variables."
   :package-version '(magit . "2.91.0")
   :group 'magit-commands
-  :type '(choice
-          (const :tag "don't set" nil)
-          (const :tag "set (using branch.<name>.pushRemote for push-target)" t)
-          (const :tag "set (using remote.pushDefault for push-target" default)))
+  :type 'boolean)
 
 ;;; Commands
 
@@ -332,100 +312,28 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   :choices '("--no-tags" "--tags"))
 
 ;;; Transfer Utilities
-;;;; Push-Remote
 
-(defun magit--transfer-pushremote (remote fn)
-  (declare (indent defun))
-  (if-let ((branch (magit-get-current-branch)))
-      (progn
-        (when remote
-          (setf (magit-get (if (eq magit-remote-set-if-missing 'default)
-                               "remote.pushDefault"
-                             (format "branch.%s.pushRemote" branch)))
-                remote))
-        (if-let ((remote (or remote (magit-get-push-remote branch))))
-            (if (member remote (magit-list-remotes))
-                (funcall fn remote branch (concat remote "/" branch))
-              (user-error "Remote `%s' doesn't exist" remote))
-          (user-error "No push-remote is configured for %s" branch)))
-    (user-error "No branch is checked out")))
+(defun magit--push-remote-variable (&optional branch short)
+  (unless branch
+    (setq branch (magit-get-current-branch)))
+  (propertize (if (or (not branch) magit-prefer-push-default)
+                  (if short "pushDefault" "remote.pushDefault")
+                (if short "pushRemote" (format "branch.%s.pushRemote" branch)))
+              'face 'bold))
 
-(defun magit--transfer-set-pushremote-p (&optional change)
-  (when-let ((current (magit-get-current-branch)))
-    (or change
-        (and magit-remote-set-if-missing
-             (not (magit-get-push-remote current))))))
-
-(defun magit--transfer-maybe-read-pushremote (action)
-  (and (magit--transfer-set-pushremote-p current-prefix-arg)
-       (magit-read-remote
-        (if (eq magit-remote-set-if-missing 'default)
-            (format "Set `remote.pushDefault' and %s there" action)
-          (format "Set `branch.%s.pushRemote' and %s there"
-                  (magit-get-current-branch)
-                  action)))))
-
-(defun magit--pushbranch-suffix-predicate ()
-  (when-let ((current (magit-get-current-branch)))
-    (or (magit-get-push-branch current)
-        magit-remote-set-if-missing)))
-
-(defun magit--pushbranch-suffix-description (&optional pushp)
-  (if-let ((target (magit-get-push-branch)))
-      (cond ((magit-rev-verify target) target)
-            (pushp (concat target ", creating it"))
-            ;; This shouldn't happen often and even if it does, then
-            ;; transfering would still succeed iff the branch exists
-            ;; on the remote (only the tracking branch is missing).
-            (t (concat target ", which appears to be missing")))
-    (and (magit--transfer-set-pushremote-p)
-         (concat (propertize
-                  (if (eq magit-remote-set-if-missing 'default)
-                      "pushDefault"
-                    "pushRemote")
-                  'face 'bold)
-                 ", after setting that"))))
-
-;;;; Upstream
-
-(defun magit--transfer-upstream (upstream fn)
-  (declare (indent defun))
-  (if-let ((current (magit-get-current-branch)))
-      (progn
-        (when upstream
-          (magit-set-upstream-branch current upstream))
-        (if-let ((upstream (or upstream (magit-get-upstream-branch current))))
-            (funcall fn current upstream)
-          (user-error "No upstream is configured for %s" current)))
-    (user-error "No branch is checked out")))
-
-(defun magit--transfer-set-upstream-p (&optional change)
-  (when-let ((current (magit-get-current-branch)))
-    (or change
-        (and magit-remote-set-if-missing
-             (not (magit-get-upstream-branch current))))))
-
-(defun magit--transfer-maybe-read-upstream (action)
-  (and (magit--transfer-set-upstream-p current-prefix-arg)
-       (magit-read-upstream-branch
-        nil (format "Set upstream and %s there" action))))
-
-(defun magit--upstream-suffix-predicate ()
-  (when-let ((current (magit-get-current-branch)))
-    (or (magit-get-upstream-branch current)
-        magit-remote-set-if-missing)))
-
-(defun magit--upstream-suffix-description (&optional pushp)
-  (if-let ((upstream (magit-get-upstream-branch)))
-      (cond ((magit-rev-verify upstream) upstream)
-            (pushp (concat upstream ", creating it"))
-            ;; This shouldn't happen often and even if it does, then
-            ;; transfering would still succeed iff the branch exists
-            ;; on the remote (only the tracking branch is missing).
-            (t (concat upstream ", which appears to be missing")))
-    (and (magit--transfer-set-upstream-p)
-         (concat (propertize "@{upstream}" 'face 'bold)
-                 ", after setting that"))))
+(defun magit--select-push-remote (prompt-suffix)
+  (let* ((branch (or (magit-get-current-branch)
+                     (user-error "No branch is checked out")))
+         (remote (magit-get-push-remote branch)))
+    (when (or current-prefix-arg
+              (not remote)
+              (not (member remote (magit-list-remotes))))
+      (setq remote
+            (magit-read-remote (format "Set %s and %s"
+                                       (magit--push-remote-variable)
+                                       prompt-suffix)))
+      (setf (magit-get (magit--push-remote-variable branch)) remote))
+    (list branch remote)))
 
 ;;; _
 (provide 'magit-remote)

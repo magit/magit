@@ -33,9 +33,9 @@
 (require 'magit-diff)
 
 (declare-function magit-blob-visit "magit-files" (blob-or-file line))
-(declare-function magit--insert-head-branch-header "magit-status"
+(declare-function magit-insert-head-branch-header "magit-status"
                   (&optional branch))
-(declare-function magit--insert-upstream-branch-header "magit-status"
+(declare-function magit-insert-upstream-branch-header "magit-status"
                   (&optional branch pull keyword))
 (declare-function magit-read-file-from-rev "magit-files"
                   (rev prompt &optional default))
@@ -1570,11 +1570,16 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 
 (defun magit-insert-cherry-headers ()
   "Insert headers appropriate for `magit-cherry-mode' buffers."
-  (magit--insert-head-branch-header (nth 1 magit-refresh-args))
-  (magit--insert-upstream-branch-header (nth 1 magit-refresh-args)
-                                        (nth 0 magit-refresh-args)
-                                        "Upstream: ")
-  (insert ?\n))
+  (let* ((branch (propertize (cadr magit-refresh-args) 'face
+                             'magit-branch-local))
+         (upstream (car magit-refresh-args))
+         (upstream (propertize upstream 'face
+                               (if (magit-local-branch-p upstream)
+                                   'magit-branch-local
+                                 'magit-branch-remote))))
+    (magit-insert-head-branch-header branch)
+    (magit-insert-upstream-branch-header branch upstream "Upstream: ")
+    (insert ?\n)))
 
 (defun magit-insert-cherry-commits ()
   "Insert commit sections into a `magit-cherry-mode' buffer."
@@ -1665,7 +1670,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 (defun magit-insert-unpulled-from-upstream ()
   "Insert commits that haven't been pulled from the upstream yet."
-  (when-let ((upstream (magit-get-upstream-branch nil t)))
+  (when-let ((upstream (magit-get-upstream-branch)))
     (magit-insert-section (unpulled "..@{upstream}" t)
       (magit-insert-heading
         (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
@@ -1709,7 +1714,6 @@ configured or if the upstream is not behind of the current branch,
 then show the last `magit-log-section-commit-count' commits."
   (let ((upstream (magit-get-upstream-branch)))
     (if (or (not upstream)
-            (string-match-p " " upstream)
             (magit-rev-ancestor-p "HEAD" upstream))
         (magit-insert-recent-commits 'unpushed "@{upstream}..")
       (magit-insert-unpushed-to-upstream))))

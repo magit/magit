@@ -544,36 +544,55 @@ This discards all changes made since the sequence started."
   (magit-run-git-sequencer "rebase" args target))
 
 ;;;###autoload (autoload 'magit-rebase-onto-pushremote "magit-sequence" nil t)
-(define-suffix-command magit-rebase-onto-pushremote (args &optional set)
+(define-suffix-command magit-rebase-onto-pushremote (args)
   "Rebase the current branch onto its push-remote branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the push-remote is not configured, then read the push-remote from
-the user, set it, and then rebase onto it.  With a prefix argument
-the push-remote can be changed before rebasing onto to it."
-  :if 'magit--pushbranch-suffix-predicate
-  :description 'magit--pushbranch-suffix-description
-  (interactive (list (magit-rebase-arguments)
-                     (magit--transfer-maybe-read-pushremote "rebase onto")))
-  (magit--transfer-pushremote set
-    (lambda (_ __ remote/branch)
-      (magit-git-rebase remote/branch args))))
+When the push-remote is not configured, then read the push-remote
+from the user, set it, and then rebase onto it.  With a prefix
+argument the push-remote can be changed before rebasing onto to
+it."
+  :if 'magit-get-current-branch
+  :description 'magit-pull--pushbranch-description
+  (interactive (list (magit-rebase-arguments)))
+  (pcase-let ((`(,branch ,remote)
+               (magit--select-push-remote "rebase onto that")))
+    (magit-git-rebase (concat remote "/" branch) args)))
 
 ;;;###autoload (autoload 'magit-rebase-onto-upstream "magit-sequence" nil t)
-(define-suffix-command magit-rebase-onto-upstream (args &optional set)
+(define-suffix-command magit-rebase-onto-upstream (args)
   "Rebase the current branch onto its upstream branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the upstream is not configured, then read the upstream from the
-user, set it, and then rebase onto it.  With a prefix argument
-the upstream can be changed before rebasing onto it."
-  :if 'magit--upstream-suffix-predicate
-  :description 'magit--upstream-suffix-description
-  (interactive (list (magit-rebase-arguments)
-                     (magit--transfer-maybe-read-upstream "rebase onto")))
-  (magit--transfer-upstream set
-    (lambda (_ upstream)
-      (magit-git-rebase upstream args))))
+With a prefix argument or when the upstream is either not
+configured or unusable, then let the user first configure
+the upstream."
+  :if 'magit-get-current-branch
+  :description 'magit-rebase--upstream-description
+  (interactive (list (magit-rebase-arguments)))
+  (let* ((branch (or (magit-get-current-branch)
+                     (user-error "No branch is checked out")))
+         (upstream (magit-get-upstream-branch branch)))
+    (when (or current-prefix-arg (not upstream))
+      (setq upstream
+            (magit-read-upstream-branch
+             branch (format "Set upstream of %s and rebase onto that" branch)))
+      (magit-set-upstream-branch branch upstream))
+    (magit-git-rebase upstream args)))
+
+(defun magit-rebase--upstream-description ()
+  (when-let ((branch (magit-get-current-branch)))
+    (or (magit-get-upstream-branch branch)
+        (let ((remote (magit-get "branch" branch "remote"))
+              (merge  (magit-get "branch" branch "merge"))
+              (u (propertize "@{upstream}" 'face 'bold)))
+          (cond
+           ((magit--unnamed-upstream-p remote merge)
+            (concat u ", replacing unnamed"))
+           ((magit--valid-upstream-p remote merge)
+            (concat u ", replacing non-existent"))
+           ((or remote merge)
+            (concat u ", replacing invalid"))
+           (t
+            (concat u ", setting that")))))))
 
 ;;;###autoload
 (defun magit-rebase-branch (target args)

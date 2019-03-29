@@ -75,50 +75,88 @@
 (defun magit-pull-arguments ()
   (transient-args 'magit-pull))
 
-(defun magit-git-pull (source args)
-  (run-hooks 'magit-credential-hook)
-  (pcase-let ((`(,remote . ,branch)
-               (magit-split-branch-name source)))
-    (magit-run-git-with-editor "pull" args remote branch)))
-
 ;;;###autoload (autoload 'magit-pull-from-pushremote "magit-pull" nil t)
-(define-suffix-command magit-pull-from-pushremote (args &optional set)
+(define-suffix-command magit-pull-from-pushremote (args)
   "Pull from the push-remote of the current branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the push-remote is not configured, then read the push-remote from
-the user, set it, and then pull from it.  With a prefix argument
-the push-remote can be changed before pulling from it."
-  :if 'magit--pushbranch-suffix-predicate
-  :description 'magit--pushbranch-suffix-description
-  (interactive (list (magit-pull-arguments)
-                     (magit--transfer-maybe-read-pushremote "pull from")))
-  (magit--transfer-pushremote set
-    (lambda (_ __ remote/branch)
-      (magit-git-pull remote/branch args))))
+When the push-remote is not configured, then read the push-remote
+from the user, set it, and then pull from it.  With a prefix
+argument the push-remote can be changed before pulling from it."
+  :if 'magit-get-current-branch
+  :description 'magit-pull--pushbranch-description
+  (interactive (list (magit-pull-arguments)))
+  (pcase-let ((`(,branch ,remote)
+               (magit--select-push-remote "push there")))
+    (run-hooks 'magit-credential-hook)
+    (magit-run-git-async "pull" args remote branch)))
+
+(defun magit-pull--pushbranch-description ()
+  ;; Also used by `magit-rebase-onto-pushremote'.
+  (let* ((branch (magit-get-current-branch))
+         (target (magit-get-push-branch branch t))
+         (remote (magit-get-push-remote branch))
+         (v (magit--push-remote-variable branch t)))
+    (cond
+     (target)
+     ((member remote (magit-list-remotes))
+      (format "%s, replacing non-existent" v))
+     (remote
+      (format "%s, replacing invalid" v))
+     (t
+      (format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-pull-from-upstream "magit-pull" nil t)
-(define-suffix-command magit-pull-from-upstream (args &optional set)
+(define-suffix-command magit-pull-from-upstream (args)
   "Pull from the upstream of the current branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the upstream is not configured, then read the upstream from
-the user, set it, and then pull from it.  With a prefix argument
-the upstream can be changed before pulling from it."
-  :if 'magit--upstream-suffix-predicate
-  :description 'magit--upstream-suffix-description
-  (interactive (list (magit-pull-arguments)
-                     (magit--transfer-maybe-read-upstream "pull from")))
-  (magit--transfer-upstream set
-    (lambda (_ upstream)
-      (magit-git-pull upstream args))))
+With a prefix argument or when the upstream is either not
+configured or unusable, then let the user first configure
+the upstream."
+  :if 'magit-get-current-branch
+  :description 'magit-pull--upstream-description
+  (interactive (list (magit-pull-arguments)))
+  (let* ((branch (or (magit-get-current-branch)
+                     (user-error "No branch is checked out")))
+         (remote (magit-get "branch" branch "remote"))
+         (merge  (magit-get "branch" branch "merge")))
+    (when (or current-prefix-arg
+              (not (or (magit-get-upstream-branch branch)
+                       (magit--unnamed-upstream-p remote merge))))
+      (magit-set-upstream-branch
+       branch (magit-read-upstream-branch
+               branch (format "Set upstream of %s and pull from there" branch)))
+      (setq remote (magit-get "branch" branch "remote"))
+      (setq merge  (magit-get "branch" branch "merge")))
+    (run-hooks 'magit-credential-hook)
+    (magit-run-git-with-editor "pull" args remote merge)))
+
+(defun magit-pull--upstream-description ()
+  (when-let ((branch (magit-get-current-branch)))
+    (or (magit-get-upstream-branch branch)
+        (let ((remote (magit-get "branch" branch "remote"))
+              (merge  (magit-get "branch" branch "merge"))
+              (u (propertize "@{upstream}" 'face 'bold)))
+          (cond
+           ((magit--unnamed-upstream-p remote merge)
+            (format "%s of %s"
+                    (propertize merge  'face 'magit-branch-remote)
+                    (propertize remote 'face 'bold)))
+           ((magit--valid-upstream-p remote merge)
+            (concat u ", replacing non-existent"))
+           ((or remote merge)
+            (concat u ", replacing invalid"))
+           (t
+            (concat u ", setting that")))))))
 
 ;;;###autoload
 (defun magit-pull-branch (source args)
   "Pull from a branch read in the minibuffer."
   (interactive (list (magit-read-remote-branch "Pull" nil nil nil t)
                      (magit-pull-arguments)))
-  (magit-git-pull source args))
+  (run-hooks 'magit-credential-hook)
+  (pcase-let ((`(,remote . ,branch)
+               (magit-get-tracked source)))
+    (magit-run-git-with-editor "pull" args remote branch)))
 
 ;;; _
 (provide 'magit-pull)
