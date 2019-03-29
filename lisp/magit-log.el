@@ -1570,11 +1570,16 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 
 (defun magit-insert-cherry-headers ()
   "Insert headers appropriate for `magit-cherry-mode' buffers."
-  (magit-insert-head-branch-header (nth 1 magit-refresh-args))
-  (magit-insert-upstream-branch-header (nth 1 magit-refresh-args)
-                                       (nth 0 magit-refresh-args)
-                                       "Upstream: ")
-  (insert ?\n))
+  (let* ((branch (propertize (cadr magit-refresh-args) 'face
+                             'magit-branch-local))
+         (upstream (car magit-refresh-args))
+         (upstream (propertize upstream 'face
+                               (if (magit-local-branch-p upstream)
+                                   'magit-branch-local
+                                 'magit-branch-remote))))
+    (magit-insert-head-branch-header branch)
+    (magit-insert-upstream-branch-header branch upstream "Upstream: ")
+    (insert ?\n)))
 
 (defun magit-insert-cherry-commits ()
   "Insert commit sections into a `magit-cherry-mode' buffer."
