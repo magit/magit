@@ -1429,6 +1429,26 @@ as into its upstream."
          (--when-let (or target (magit-get-current-branch))
            (magit-git-success "merge-base" "--is-ancestor" branch it)))))
 
+(defun magit-get-tracked (refname)
+  "Return the remote branch tracked by the remote-tracking branch REFNAME.
+The returned value has the form (REMOTE . REF), where REMOTE is
+the name of a remote and REF is the ref local to the remote."
+  (when-let ((ref (magit-ref-fullname refname)))
+    (save-match-data
+      (-some (lambda (line)
+               (and (string-match "\
+\\`remote\\.\\([^.]+\\)\\.fetch=\\+?\\([^:]+\\):\\(.+\\)" line)
+                    (let ((rmt (match-string 1 line))
+                          (src (match-string 2 line))
+                          (dst (match-string 3 line)))
+                      (and (string-match (format "\\`%s\\'"
+                                                 (replace-regexp-in-string
+                                                  "*" "\\(.+\\)" dst t t))
+                                         ref)
+                           (cons rmt (replace-regexp-in-string
+                                      "*" (match-string 1 ref) src))))))
+             (magit-git-lines "config" "--local" "--list")))))
+
 (defun magit-split-branch-name (branch)
   (cond ((member branch (magit-list-local-branch-names))
          (cons "." branch))
