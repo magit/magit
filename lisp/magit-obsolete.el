@@ -37,9 +37,6 @@
 (define-obsolete-function-alias 'magit-dispatch-popup
   'magit-dispatch "Magit 2.91.0")
 
-(define-obsolete-variable-alias 'magit-push-current-set-remote-if-missing
-  'magit-remote-set-if-missing "Magit 2.91.0")
-
 (defun magit--magit-popup-warning ()
   (display-warning 'magit "\
 Magit no longer uses Magit-Popup.

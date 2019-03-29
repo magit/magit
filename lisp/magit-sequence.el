@@ -547,11 +547,11 @@ This discards all changes made since the sequence started."
 (define-suffix-command magit-rebase-onto-pushremote (args &optional set)
   "Rebase the current branch onto its push-remote branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the push-remote is not configured, then read the push-remote from
-the user, set it, and then rebase onto it.  With a prefix argument
-the push-remote can be changed before rebasing onto to it."
-  :if 'magit--pushbranch-suffix-predicate
+When the push-remote is not configured, then read the push-remote
+from the user, set it, and then rebase onto it.  With a prefix
+argument the push-remote can be changed before rebasing onto to
+it."
+  :if 'magit-get-current-branch
   :description 'magit--pushbranch-suffix-description
   (interactive (list (magit-rebase-arguments)
                      (magit--transfer-maybe-read-pushremote "rebase onto")))
@@ -563,11 +563,10 @@ the push-remote can be changed before rebasing onto to it."
 (define-suffix-command magit-rebase-onto-upstream (args &optional set)
   "Rebase the current branch onto its upstream branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the upstream is not configured, then read the upstream from the
-user, set it, and then rebase onto it.  With a prefix argument
-the upstream can be changed before rebasing onto it."
-  :if 'magit--upstream-suffix-predicate
+When the upstream is not configured, then read the upstream from
+the user, set it, and then rebase onto it.  With a prefix
+argument the upstream can be changed before rebasing onto it."
+  :if 'magit-get-current-branch
   :description 'magit--upstream-suffix-description
   (interactive (list (magit-rebase-arguments)
                      (magit--transfer-maybe-read-upstream "rebase onto")))

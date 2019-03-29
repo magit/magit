@@ -69,11 +69,9 @@ Ignored for Git versions before v2.8.0."
 (define-suffix-command magit-fetch-from-pushremote (args &optional set)
   "Fetch from the push-remote of the current branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the push-remote is not configured, then read the push-remote from
-the user, set it, and then fetch from it.  With a prefix argument
-the push-remote can be changed before fetching from it."
-  :if 'magit--pushbranch-suffix-predicate
+When the push-remote is not configured, then read the push-remote
+from the user, set it, and then fetch from it.  With a prefix
+argument the push-remote can be changed before fetching from it."
   :description 'magit--pushbranch-suffix-description
   (interactive (list (magit-fetch-arguments)
                      (magit--transfer-maybe-read-pushremote "fetch from")))

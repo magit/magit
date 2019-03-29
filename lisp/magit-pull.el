@@ -85,11 +85,10 @@
 (define-suffix-command magit-pull-from-pushremote (args &optional set)
   "Pull from the push-remote of the current branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the push-remote is not configured, then read the push-remote from
-the user, set it, and then pull from it.  With a prefix argument
-the push-remote can be changed before pulling from it."
-  :if 'magit--pushbranch-suffix-predicate
+When the push-remote is not configured, then read the push-remote
+from the user, set it, and then pull from it.  With a prefix
+argument the push-remote can be changed before pulling from it."
+  :if 'magit-get-current-branch
   :description 'magit--pushbranch-suffix-description
   (interactive (list (magit-pull-arguments)
                      (magit--transfer-maybe-read-pushremote "pull from")))
@@ -101,11 +100,10 @@ the push-remote can be changed before pulling from it."
 (define-suffix-command magit-pull-from-upstream (args &optional set)
   "Pull from the upstream of the current branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the upstream is not configured, then read the upstream from
+When the upstream is not configured, then read the upstream from
 the user, set it, and then pull from it.  With a prefix argument
 the upstream can be changed before pulling from it."
-  :if 'magit--upstream-suffix-predicate
+  :if 'magit-get-current-branch
   :description 'magit--upstream-suffix-description
   (interactive (list (magit-pull-arguments)
                      (magit--transfer-maybe-read-upstream "pull from")))

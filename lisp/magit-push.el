@@ -43,9 +43,8 @@
    ("-F" "Force"            ("-f" "--force"))
    ("-h" "Disable hooks"    "--no-verify")
    ("-n" "Dry run"          ("-n" "--dry-run"))
-   ("-u" "Set upstream"     "--set-upstream"
-    :if-nil magit-remote-set-if-missing)
-   (7 "-t" "Follow tags" "--follow-tags")]
+   (5 "-u" "Set upstream"   "--set-upstream")
+   (7 "-t" "Follow tags"    "--follow-tags")]
   [:if magit-get-current-branch
    :description (lambda ()
                   (format (propertize "Push %s to" 'face 'transient-heading)
@@ -77,11 +76,10 @@
 (define-suffix-command magit-push-current-to-pushremote (args &optional set)
   "Push the current branch to its push-remote.
 
-When `magit-remote-set-if-missing' is non-nil and
-the push-remote is not configured, then read the push-remote from
-the user, set it, and then push to it.  With a prefix argument
-the push-remote can be changed before pushed to it."
-  :if 'magit--pushbranch-suffix-predicate
+When the push-remote is not configured, then read the push-remote
+from the user, set it, and then push to it.  With a prefix
+argument the push-remote can be changed before pushed to it."
+  :if 'magit-get-current-branch
   :description (lambda () (magit--pushbranch-suffix-description t))
   (interactive (list (magit-push-arguments)
                      (magit--transfer-maybe-read-pushremote "push")))
@@ -93,11 +91,10 @@ the push-remote can be changed before pushed to it."
 (define-suffix-command magit-push-current-to-upstream (args &optional set)
   "Push the current branch to its upstream branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the upstream is not configured, then read the upstream from the
-user, set it, and then push to it.  With a prefix argument the
-upstream can be changed before pushed to it."
-  :if 'magit--upstream-suffix-predicate
+When the upstream is not configured, then read the upstream from
+the user, set it, and then push to it.  With a prefix argument
+the upstream can be changed before pushed to it."
+  :if 'magit-get-current-branch
   :description (lambda () (magit--upstream-suffix-description t))
   (interactive
    (list (magit-push-arguments)
