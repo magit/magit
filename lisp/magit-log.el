@@ -33,9 +33,9 @@
 (require 'magit-diff)
 
 (declare-function magit-blob-visit "magit-files" (blob-or-file line))
-(declare-function magit--insert-head-branch-header "magit-status"
+(declare-function magit-insert-head-branch-header "magit-status"
                   (&optional branch))
-(declare-function magit--insert-upstream-branch-header "magit-status"
+(declare-function magit-insert-upstream-branch-header "magit-status"
                   (&optional branch pull keyword))
 (declare-function magit-read-file-from-rev "magit-files"
                   (rev prompt &optional default))
@@ -1570,10 +1570,10 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 
 (defun magit-insert-cherry-headers ()
   "Insert headers appropriate for `magit-cherry-mode' buffers."
-  (magit--insert-head-branch-header (nth 1 magit-refresh-args))
-  (magit--insert-upstream-branch-header (nth 1 magit-refresh-args)
-                                        (nth 0 magit-refresh-args)
-                                        "Upstream: ")
+  (magit-insert-head-branch-header (nth 1 magit-refresh-args))
+  (magit-insert-upstream-branch-header (nth 1 magit-refresh-args)
+                                       (nth 0 magit-refresh-args)
+                                       "Upstream: ")
   (insert ?\n))
 
 (defun magit-insert-cherry-commits ()
