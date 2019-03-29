@@ -474,7 +474,8 @@ detached `HEAD'."
 (defun magit-insert-upstream-branch-header ()
   "Insert a header line about branch usually pulled into current branch."
   (when-let ((branch (magit-get-current-branch))
-             (upstream (magit-get-upstream-branch branch t)))
+             (upstream (or (magit-get-upstream-branch branch)
+                           (magit-get-unnamed-upstream branch))))
     (magit--insert-upstream-branch-header branch upstream)))
 
 (defun magit--insert-upstream-branch-header (branch pull &optional keyword)

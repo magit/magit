@@ -1353,6 +1353,18 @@ according to the branch type.  LAX is for internal use only."
                      (string-match-p "\\(\\`.\\{0,2\\}/\\|[:@]\\)" remote))
                 (propertize remote 'face 'bold))))))
 
+(defun magit-get-unnamed-upstream (&optional branch)
+  (when-let ((branch (or branch (magit-get-current-branch)))
+             (remote (magit-get "branch" branch "remote"))
+             (merge  (magit-get "branch" branch "merge")))
+    (and (magit--unnamed-upstream-p remote merge)
+         (list (propertize remote 'face 'bold)
+               (propertize merge  'face 'magit-branch-remote)))))
+
+(defun magit--unnamed-upstream-p (remote merge)
+  (and remote (string-match-p "\\(\\`\\.\\{0,2\\}/\\|[:@]\\)" remote)
+       merge  (string-prefix-p "refs/" merge)))
+
 (defun magit-get-current-remote (&optional allow-unnamed)
   (or (magit-get-upstream-remote nil allow-unnamed)
       (when-let ((remotes (magit-list-remotes))
