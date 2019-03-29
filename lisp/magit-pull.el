@@ -75,12 +75,6 @@
 (defun magit-pull-arguments ()
   (transient-args 'magit-pull))
 
-(defun magit-git-pull (source args)
-  (run-hooks 'magit-credential-hook)
-  (pcase-let ((`(,remote . ,branch)
-               (magit-split-branch-name source)))
-    (magit-run-git-with-editor "pull" args remote branch)))
-
 ;;;###autoload (autoload 'magit-pull-from-pushremote "magit-pull" nil t)
 (define-suffix-command magit-pull-from-pushremote (args)
   "Pull from the push-remote of the current branch.
@@ -159,7 +153,10 @@ the upstream."
   "Pull from a branch read in the minibuffer."
   (interactive (list (magit-read-remote-branch "Pull" nil nil nil t)
                      (magit-pull-arguments)))
-  (magit-git-pull source args))
+  (run-hooks 'magit-credential-hook)
+  (pcase-let ((`(,remote . ,branch)
+               (magit-get-tracked source)))
+    (magit-run-git-with-editor "pull" args remote branch)))
 
 ;;; _
 (provide 'magit-pull)
