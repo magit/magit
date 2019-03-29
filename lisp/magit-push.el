@@ -99,8 +99,17 @@ user, set it, and then push to it.  With a prefix argument the
 upstream can be changed before pushed to it."
   :if 'magit--upstream-suffix-predicate
   :description (lambda () (magit--upstream-suffix-description t))
-  (interactive (list (magit-push-arguments)
-                     (magit--transfer-maybe-read-upstream "push")))
+  (interactive
+   (list (magit-push-arguments)
+         (and (magit--transfer-set-upstream-p current-prefix-arg)
+              (let ((branches (-union (--map (concat it "/" branch)
+                                             (magit-list-remotes))
+                                      (magit-list-remote-branch-names))))
+                (magit-completing-read
+                 "Set upstream and push there"
+                 branches nil nil nil 'magit-revision-history
+                 (or (car (member (magit-remote-branch-at-point) branches))
+                     (car (member "origin/master" branches))))))))
   (magit--transfer-upstream set
     (lambda (current upstream)
       (magit-git-push current upstream args))))

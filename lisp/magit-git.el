@@ -171,8 +171,8 @@ and then set it as the upstream branch, offer a local or a remote
 branch as default completion candidate, when they have the choice.
 
 This affects all commands that use `magit-read-upstream-branch'
-or `magit-read-starting-point', which includes all commands that
-change the upstream and many which create new branches."
+or `magit-read-starting-point', which includes most commands
+that change the upstream and many that create new branches."
   :package-version '(magit . "2.4.2")
   :group 'magit-commands
   :type 'boolean)
@@ -2134,33 +2134,25 @@ and this option only controls what face is used.")
                                (magit-get-previous-branch)
                                (car atrev)))))
 
-(defun magit-read-upstream-branch (&optional branch prompt allow-missing)
+(defun magit-read-upstream-branch (&optional branch prompt)
+  "Read the upstream for BRANCH using PROMPT.
+If optional BRANCH is nil, then read the upstream for the
+current branch, or raise an error if no branch is checked
+out.  Only existing branches can be selected."
   (unless branch
     (setq branch (or (magit-get-current-branch)
                      (error "Need a branch to set its upstream"))))
-  (magit-completing-read
-   (or prompt (format "Change upstream of %s to" branch))
-   (let ((branches (delete branch (magit-list-branch-names))))
-     (if allow-missing
-         (-union (--map (concat it "/" branch)
-                        (magit-list-remotes))
-                 branches)
-       branches))
-   nil nil nil 'magit-revision-history
-   (or (let ((r (magit-remote-branch-at-point))
-             (l (magit-local-branch-at-point)))
-         (when (and l (equal l branch))
-           (setq l nil))
-         (if magit-prefer-remote-upstream (or r l) (or l r)))
-       (let ((r (magit-branch-p "origin/master"))
-             (l (and (not (equal branch "master"))
-                     (magit-branch-p "master"))))
-         (unless allow-missing
-           (unless (magit-branch-p r) (setq r nil))
-           (unless (magit-branch-p l) (setq l nil)))
-         (if magit-prefer-remote-upstream (or r l) (or l r)))
-       (let ((previous (magit-get-previous-branch)))
-         (and (not (equal previous branch)) previous)))))
+  (let ((branches (delete branch (magit-list-branch-names))))
+    (magit-completing-read
+     (or prompt (format "Change upstream of %s to" branch))
+     branches nil t nil 'magit-revision-history
+     (or (let ((r (car (member (magit-remote-branch-at-point) branches)))
+               (l (car (member (magit-local-branch-at-point) branches))))
+           (if magit-prefer-remote-upstream (or r l) (or l r)))
+         (let ((r (car (member "origin/master" branches)))
+               (l (car (member "master" branches))))
+           (if magit-prefer-remote-upstream (or r l) (or l r)))
+         (car (member (magit-get-previous-branch) branches))))))
 
 (defun magit-read-starting-point (prompt &optional branch default)
   (or (magit-completing-read
