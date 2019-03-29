@@ -1355,10 +1355,11 @@ according to the branch type.  LAX is for internal use only."
 
 (defun magit-get-current-remote (&optional allow-unnamed)
   (or (magit-get-upstream-remote nil allow-unnamed)
-      (let ((remotes (magit-list-remotes)))
-        (if (= (length remotes) 1)
-            (car remotes)
-          (car (member "origin" remotes))))))
+      (when-let ((remotes (magit-list-remotes))
+                 (remote (if (= (length remotes) 1)
+                             (car remotes)
+                           (car (member "origin" remotes)))))
+        (propertize remote 'face 'magit-branch-remote))))
 
 (defun magit-get-push-remote (&optional branch)
   (when-let ((remote
