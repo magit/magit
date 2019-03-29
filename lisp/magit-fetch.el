@@ -66,18 +66,33 @@ Ignored for Git versions before v2.8.0."
   (magit-run-git-async "fetch" remote args))
 
 ;;;###autoload (autoload 'magit-fetch-from-pushremote "magit-fetch" nil t)
-(define-suffix-command magit-fetch-from-pushremote (args &optional set)
-  "Fetch from the push-remote of the current branch.
+(define-suffix-command magit-fetch-from-pushremote (args)
+  "Fetch from the current push-remote.
 
 When the push-remote is not configured, then read the push-remote
 from the user, set it, and then fetch from it.  With a prefix
 argument the push-remote can be changed before fetching from it."
-  :description 'magit--pushbranch-suffix-description
-  (interactive (list (magit-fetch-arguments)
-                     (magit--transfer-maybe-read-pushremote "fetch from")))
-  (magit--transfer-pushremote set
-    (lambda (remote _ __)
-      (magit-git-fetch remote args))))
+  :description 'magit-fetch--pushremote-description
+  (interactive (list (magit-fetch-arguments)))
+  (let ((remote (magit-get-push-remote)))
+    (when (or current-prefix-arg
+              (not (member remote (magit-list-remotes))))
+      (let ((var (magit--push-remote-variable)))
+        (setq remote
+              (magit-read-remote (format "Set %s and fetch from there" var)))
+        (magit-set remote var)))
+    (magit-git-fetch remote args)))
+
+(defun magit-fetch--pushremote-description ()
+  (let* ((branch (magit-get-current-branch))
+         (remote (magit-get-push-remote branch))
+         (v (magit--push-remote-variable branch t)))
+    (cond
+     ((member remote (magit-list-remotes)) remote)
+     (remote
+      (format "%s, replacing invalid" v))
+     (t
+      (format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-fetch-from-upstream "magit-fetch" nil t)
 (define-suffix-command magit-fetch-from-upstream (remote args)
