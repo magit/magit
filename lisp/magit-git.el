@@ -1281,6 +1281,9 @@ The amount of time spent searching is limited by
     prev))
 
 (defun magit-set-upstream-branch (branch upstream)
+  "Set UPSTREAM as the upstream of BRANCH.
+If UPSTREAM is nil, then unset BRANCH's upstream.
+Otherwise UPSTREAM has to be an existing branch."
   (if upstream
       (magit-call-git "branch" "--set-upstream-to" upstream branch)
     (magit-call-git "branch" "--unset-upstream" branch)))
