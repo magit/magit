@@ -544,7 +544,7 @@ This discards all changes made since the sequence started."
   (magit-run-git-sequencer "rebase" args target))
 
 ;;;###autoload (autoload 'magit-rebase-onto-pushremote "magit-sequence" nil t)
-(define-suffix-command magit-rebase-onto-pushremote (args &optional set)
+(define-suffix-command magit-rebase-onto-pushremote (args)
   "Rebase the current branch onto its push-remote branch.
 
 When the push-remote is not configured, then read the push-remote
@@ -552,12 +552,11 @@ from the user, set it, and then rebase onto it.  With a prefix
 argument the push-remote can be changed before rebasing onto to
 it."
   :if 'magit-get-current-branch
-  :description 'magit--pushbranch-suffix-description
-  (interactive (list (magit-rebase-arguments)
-                     (magit--transfer-maybe-read-pushremote "rebase onto")))
-  (magit--transfer-pushremote set
-    (lambda (_ __ remote/branch)
-      (magit-git-rebase remote/branch args))))
+  :description 'magit-pull--pushbranch-description
+  (interactive (list (magit-rebase-arguments)))
+  (pcase-let ((`(,branch ,remote)
+               (magit--select-push-remote "rebase onto that")))
+    (magit-git-rebase (concat remote "/" branch) args)))
 
 ;;;###autoload (autoload 'magit-rebase-onto-upstream "magit-sequence" nil t)
 (define-suffix-command magit-rebase-onto-upstream (args)

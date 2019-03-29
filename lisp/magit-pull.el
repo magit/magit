@@ -82,19 +82,34 @@
     (magit-run-git-with-editor "pull" args remote branch)))
 
 ;;;###autoload (autoload 'magit-pull-from-pushremote "magit-pull" nil t)
-(define-suffix-command magit-pull-from-pushremote (args &optional set)
+(define-suffix-command magit-pull-from-pushremote (args)
   "Pull from the push-remote of the current branch.
 
 When the push-remote is not configured, then read the push-remote
 from the user, set it, and then pull from it.  With a prefix
 argument the push-remote can be changed before pulling from it."
   :if 'magit-get-current-branch
-  :description 'magit--pushbranch-suffix-description
-  (interactive (list (magit-pull-arguments)
-                     (magit--transfer-maybe-read-pushremote "pull from")))
-  (magit--transfer-pushremote set
-    (lambda (_ __ remote/branch)
-      (magit-git-pull remote/branch args))))
+  :description 'magit-pull--pushbranch-description
+  (interactive (list (magit-pull-arguments)))
+  (pcase-let ((`(,branch ,remote)
+               (magit--select-push-remote "push there")))
+    (run-hooks 'magit-credential-hook)
+    (magit-run-git-async "pull" args remote branch)))
+
+(defun magit-pull--pushbranch-description ()
+  ;; Also used by `magit-rebase-onto-pushremote'.
+  (let* ((branch (magit-get-current-branch))
+         (target (magit-get-push-branch branch t))
+         (remote (magit-get-push-remote branch))
+         (v (magit--push-remote-variable branch t)))
+    (cond
+     (target)
+     ((member remote (magit-list-remotes))
+      (format "%s, replacing non-existent" v))
+     (remote
+      (format "%s, replacing invalid" v))
+     (t
+      (format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-pull-from-upstream "magit-pull" nil t)
 (define-suffix-command magit-pull-from-upstream (args)
