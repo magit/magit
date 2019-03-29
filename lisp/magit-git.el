@@ -1343,11 +1343,15 @@ according to the branch type.  LAX is for internal use only."
                 (magit-rev-ancestor-p upstream branch)
                 upstream)))))
 
-(defun magit-get-upstream-remote (&optional branch non-local)
+(defun magit-get-upstream-remote (&optional branch allow-unnamed)
   (when-let ((branch (or branch (magit-get-current-branch)))
              (remote (magit-get "branch" branch "remote")))
-    (and (not (and non-local (equal remote ".")))
-         (propertize remote 'face 'magit-branch-remote))))
+    (and (not (equal remote "."))
+         (cond ((member remote (magit-list-remotes))
+                (propertize remote 'face 'magit-branch-remote))
+               ((and allow-unnamed
+                     (string-match-p "\\(\\`.\\{0,2\\}/\\|[:@]\\)" remote))
+                (propertize remote 'face 'bold))))))
 
 (defun magit-get-current-remote ()
   (or (magit-get-upstream-remote nil t)
