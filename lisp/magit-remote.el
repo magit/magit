@@ -334,15 +334,21 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 ;;; Transfer Utilities
 ;;;; Push-Remote
 
+(defun magit--push-remote-variable (&optional branch short)
+  (unless branch
+    (setq branch (magit-get-current-branch)))
+  (propertize (if (or (not branch)
+                      (eq magit-remote-set-if-missing 'default))
+                  (if short "pushDefault" "remote.pushDefault")
+                (if short "pushRemote" (format "branch.%s.pushRemote" branch)))
+              'face 'bold))
+
 (defun magit--transfer-pushremote (remote fn)
   (declare (indent defun))
   (if-let ((branch (magit-get-current-branch)))
       (progn
         (when remote
-          (setf (magit-get (if (eq magit-remote-set-if-missing 'default)
-                               "remote.pushDefault"
-                             (format "branch.%s.pushRemote" branch)))
-                remote))
+          (setf (magit-get (magit--push-remote-variable branch)) remote))
         (if-let ((remote (or remote (magit-get-push-remote branch))))
             (if (member remote (magit-list-remotes))
                 (funcall fn remote branch (concat remote "/" branch))
@@ -358,12 +364,9 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 
 (defun magit--transfer-maybe-read-pushremote (action)
   (and (magit--transfer-set-pushremote-p current-prefix-arg)
-       (magit-read-remote
-        (if (eq magit-remote-set-if-missing 'default)
-            (format "Set `remote.pushDefault' and %s there" action)
-          (format "Set `branch.%s.pushRemote' and %s there"
-                  (magit-get-current-branch)
-                  action)))))
+       (magit-read-remote (format "Set %s and %s there"
+                                  (magit--push-remote-variable)
+                                  action))))
 
 (defun magit--pushbranch-suffix-predicate ()
   (when-let ((current (magit-get-current-branch)))
@@ -371,20 +374,17 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
         magit-remote-set-if-missing)))
 
 (defun magit--pushbranch-suffix-description (&optional pushp)
-  (if-let ((target (magit-get-push-branch)))
-      (cond ((magit-rev-verify target) target)
-            (pushp (concat target ", creating it"))
-            ;; This shouldn't happen often and even if it does, then
-            ;; transfering would still succeed iff the branch exists
-            ;; on the remote (only the tracking branch is missing).
-            (t (concat target ", which appears to be missing")))
-    (and (magit--transfer-set-pushremote-p)
-         (concat (propertize
-                  (if (eq magit-remote-set-if-missing 'default)
-                      "pushDefault"
-                    "pushRemote")
-                  'face 'bold)
-                 ", after setting that"))))
+  (let ((branch (magit-get-current-branch)))
+    (if-let ((target (magit-get-push-branch branch)))
+        (cond ((magit-rev-verify target) target)
+              (pushp (concat target ", creating it"))
+              ;; This shouldn't happen often and even if it does, then
+              ;; transfering would still succeed iff the branch exists
+              ;; on the remote (only the tracking branch is missing).
+              (t (concat target ", which appears to be missing")))
+      (and (magit--transfer-set-pushremote-p)
+           (concat (magit--push-remote-variable branch)
+                   ", after setting that")))))
 
 ;;;; Upstream
 
