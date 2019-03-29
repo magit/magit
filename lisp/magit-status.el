@@ -478,25 +478,25 @@ detached `HEAD'."
                            (magit-get-unnamed-upstream branch))))
     (magit--insert-upstream-branch-header branch upstream)))
 
-(defun magit--insert-upstream-branch-header (branch pull &optional keyword)
-  (magit-insert-section (branch pull)
+(defun magit--insert-upstream-branch-header (branch upstream &optional keyword)
+  (magit-insert-section (branch upstream)
     (let ((rebase (magit-get "branch" branch "rebase")))
       (pcase rebase
         ("true")
         ("false" (setq rebase nil))
         (_       (setq rebase (magit-get-boolean "pull.rebase"))))
       (insert (format "%-10s" (or keyword (if rebase "Rebase: " "Merge: ")))))
-    (if (consp pull)
-        (pcase-let ((`(,url ,ref) pull))
+    (if (consp upstream)
+        (pcase-let ((`(,url ,ref) upstream))
           (insert ref " from " (propertize url 'face 'bold) " "))
       (when-let ((hash (and magit-status-show-hashes-in-headers
-                            (magit-rev-format "%h" pull))))
+                            (magit-rev-format "%h" upstream))))
         (insert (propertize hash 'face 'magit-hash) " "))
-      (insert pull " ")
-      (if (magit-rev-verify pull)
-          (insert (funcall magit-log-format-message-function pull
+      (insert upstream " ")
+      (if (magit-rev-verify upstream)
+          (insert (funcall magit-log-format-message-function upstream
                            (funcall magit-log-format-message-function nil
-                                    (or (magit-rev-format "%s" pull)
+                                    (or (magit-rev-format "%s" upstream)
                                         "(no commit message)"))))
         (insert (propertize "is missing" 'face 'font-lock-warning-face))))
     (insert ?\n)))
