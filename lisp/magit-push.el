@@ -67,10 +67,14 @@
 
 (defun magit-git-push (branch target args)
   (run-hooks 'magit-credential-hook)
-  (pcase-let ((`(,remote . ,target)
+  ;; If the remote branch already exists, then we do not have to
+  ;; qualify the target, which we prefer to avoid doing because
+  ;; using the default namespace is wrong in obscure cases.
+  (pcase-let ((namespace (if (magit-get-tracked target) "" "refs/heads/"))
+              (`(,remote . ,target)
                (magit-split-branch-name target)))
     (magit-run-git-async "push" "-v" args remote
-                         (format "%s:refs/heads/%s" branch target))))
+                         (format "%s:%s%s" branch namespace target))))
 
 ;;;###autoload (autoload 'magit-push-current-to-pushremote "magit-push" nil t)
 (define-suffix-command magit-push-current-to-pushremote (args)
