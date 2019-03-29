@@ -1286,33 +1286,43 @@ The amount of time spent searching is limited by
     (magit-call-git "branch" "--unset-upstream" branch)))
 
 (defun magit-get-upstream-ref (&optional branch)
-  (and (or branch (setq branch (magit-get-current-branch)))
-       (when-let ((remote (magit-get "branch" branch "remote"))
-                  (merge  (magit-get "branch" branch "merge")))
-         (cond ((string-equal remote ".") merge)
-               ((string-prefix-p "refs/heads/" merge)
-                (concat "refs/remotes/" remote "/" (substring merge 11)))))))
+  "Return the upstream branch of BRANCH as a fully qualified ref.
+It BRANCH is nil, then return the upstream of the current branch,
+if any, nil otherwise.  If the upstream is not configured, the
+configured remote is an url, or the named branch does not exist,
+then return nil.  I.e.  return an existing local or
+remote-tracking branch ref."
+  (when-let ((branch (or branch (magit-get-current-branch))))
+    (magit-ref-fullname (concat branch "@{upstream}"))))
 
-(defun magit-get-upstream-branch (&optional branch verify)
-  (and (or branch (setq branch (magit-get-current-branch)))
-       (when-let ((remote (magit-get "branch" branch "remote"))
-                  (merge  (magit-get "branch" branch "merge")))
-         (and (string-prefix-p "refs/heads/" merge)
-              (let* ((upstream (substring merge 11))
-                     (upstream
-                      (cond ((string-equal remote ".")
-                             (propertize upstream 'face 'magit-branch-local))
-                            ((string-match-p "[@:]" remote)
-                             (list remote
-                                   (propertize upstream
-                                               'face 'magit-branch-remote)))
-                            (t
-                             (propertize (concat remote "/" upstream)
-                                         'face 'magit-branch-remote)))))
-                (and (or (not verify)
-                         (and (stringp upstream)
-                              (magit-rev-verify upstream)))
-                     upstream))))))
+(defun magit-get-upstream-branch (&optional branch lax)
+  "Return the name of the upstream branch of BRANCH.
+It BRANCH is nil, then return the upstream of the current branch
+if any, nil otherwise.  If the upstream is not configured, the
+configured remote is an url, or the named branch does not exist,
+then return nil.  I.e.  return the name of an existing local or
+remote-tracking branch.  The returned string is colorized
+according to the branch type.  LAX is for internal use only."
+  (when-let ((branch (or branch (magit-get-current-branch))))
+    (if-let ((upstream (magit-ref-abbrev (concat branch "@{upstream}"))))
+        (propertize upstream 'face
+                    (if (equal (magit-get "branch" branch "remote") ".")
+                        'magit-branch-local
+                      'magit-branch-remote))
+      (and lax
+           (when-let ((remote (magit-get "branch" branch "remote"))
+                      (merge  (magit-get "branch" branch "merge")))
+             (and (string-prefix-p "refs/heads/" merge)
+                  (let ((upstream (substring merge 11)))
+                    (cond ((string-equal remote ".")
+                           (propertize upstream 'face 'magit-branch-local))
+                          ((string-match-p "[@:]" remote)
+                           (list remote
+                                 (propertize upstream
+                                             'face 'magit-branch-remote)))
+                          (t
+                           (propertize (concat remote "/" upstream)
+                                       'face 'magit-branch-remote))))))))))
 
 (defun magit-get-indirect-upstream-branch (branch &optional force)
   (let ((remote (magit-get "branch" branch "remote")))
@@ -1803,7 +1813,7 @@ and this option only controls what face is used.")
                    name))
                remotes))
         (let* ((current (magit-get-current-branch))
-               (target  (magit-get-upstream-branch current t)))
+               (target  (magit-get-upstream-branch current)))
           (dolist (name branches)
             (let ((push (car (member (magit-get-push-branch name) remotes))))
               (when push

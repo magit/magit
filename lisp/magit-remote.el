@@ -394,7 +394,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
       (progn
         (when upstream
           (magit-set-upstream-branch current upstream))
-        (if-let ((upstream (or upstream (magit-get-upstream-branch current))))
+        (if-let ((upstream (or upstream (magit-get-upstream-branch current t))))
             (funcall fn current upstream)
           (user-error "No upstream is configured for %s" current)))
     (user-error "No branch is checked out")))
@@ -403,7 +403,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (when-let ((current (magit-get-current-branch)))
     (or change
         (and magit-remote-set-if-missing
-             (not (magit-get-upstream-branch current))))))
+             (not (magit-get-upstream-branch current t))))))
 
 (defun magit--transfer-maybe-read-upstream (action)
   (and (magit--transfer-set-upstream-p current-prefix-arg)
@@ -412,11 +412,11 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 
 (defun magit--upstream-suffix-predicate ()
   (when-let ((current (magit-get-current-branch)))
-    (or (magit-get-upstream-branch current)
+    (or (magit-get-upstream-branch current t)
         magit-remote-set-if-missing)))
 
 (defun magit--upstream-suffix-description (&optional pushp)
-  (if-let ((upstream (magit-get-upstream-branch)))
+  (if-let ((upstream (magit-get-upstream-branch nil t)))
       (cond ((consp upstream)
              (pcase-let ((`(,url ,ref) upstream))
                (insert ref " from " (propertize url 'face 'bold) " ")))
