@@ -1709,7 +1709,7 @@ configured or if the upstream is not behind of the current branch,
 then show the last `magit-log-section-commit-count' commits."
   (let ((upstream (magit-get-upstream-branch)))
     (if (or (not upstream)
-            (string-match-p " " upstream)
+            (consp upstream)
             (magit-rev-ancestor-p "HEAD" upstream))
         (magit-insert-recent-commits 'unpushed "@{upstream}..")
       (magit-insert-unpushed-to-upstream))))

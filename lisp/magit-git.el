@@ -1303,13 +1303,15 @@ The amount of time spent searching is limited by
                       (cond ((string-equal remote ".")
                              (propertize upstream 'face 'magit-branch-local))
                             ((string-match-p "[@:]" remote)
-                             (propertize (concat remote " " upstream)
-                                         'face 'magit-branch-remote))
+                             (list remote
+                                   (propertize upstream
+                                               'face 'magit-branch-remote)))
                             (t
                              (propertize (concat remote "/" upstream)
                                          'face 'magit-branch-remote)))))
                 (and (or (not verify)
-                         (magit-rev-verify upstream))
+                         (and (stringp upstream)
+                              (magit-rev-verify upstream)))
                      upstream))))))
 
 (defun magit-get-indirect-upstream-branch (branch &optional force)
@@ -1403,9 +1405,7 @@ as into its upstream."
 (defun magit-split-branch-name (branch)
   (cond ((member branch (magit-list-local-branch-names))
          (cons "." branch))
-        ((string-match " " branch)
-         (pcase-let ((`(,url ,branch) (split-string branch " ")))
-           (cons url branch)))
+        ((consp branch) branch)
         ((string-match "/" branch)
          (or (-some (lambda (remote)
                       (and (string-match (format "\\`\\(%s\\)/\\(.+\\)\\'" remote)

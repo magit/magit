@@ -417,7 +417,10 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 
 (defun magit--upstream-suffix-description (&optional pushp)
   (if-let ((upstream (magit-get-upstream-branch)))
-      (cond ((magit-rev-verify upstream) upstream)
+      (cond ((consp upstream)
+             (pcase-let ((`(,url ,ref) upstream))
+               (insert ref " from " (propertize url 'face 'bold) " ")))
+            ((magit-rev-verify upstream) upstream)
             (pushp (concat upstream ", creating it"))
             ;; This shouldn't happen often and even if it does, then
             ;; transfering would still succeed iff the branch exists

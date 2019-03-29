@@ -485,9 +485,9 @@ detached `HEAD'."
         ("false" (setq rebase nil))
         (_       (setq rebase (magit-get-boolean "pull.rebase"))))
       (insert (format "%-10s" (or keyword (if rebase "Rebase: " "Merge: ")))))
-    (if (string-match-p " " pull)
-        (pcase-let ((`(,url ,branch) (split-string pull " ")))
-          (insert branch " from " url " "))
+    (if (consp pull)
+        (pcase-let ((`(,url ,ref) pull))
+          (insert ref " from " (propertize url 'face 'bold) " "))
       (when-let ((hash (and magit-status-show-hashes-in-headers
                             (magit-rev-format "%h" pull))))
         (insert (propertize hash 'face 'magit-hash) " "))
