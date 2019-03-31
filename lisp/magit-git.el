@@ -470,7 +470,7 @@ call function WASHER with ARGS as its sole argument."
 (defun magit-git-version (&optional raw)
   (--when-let (let (magit-git-global-arguments)
                 (ignore-errors (substring (magit-git-string "version") 12)))
-    (if raw it (and (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" it)
+    (if raw it (and (string-match "\\`\\([0-9]+\\(\\.[0-9]+\\)\\{1,2\\}\\)" it)
                     (match-string 1 it)))))
 
 ;;; Variables
