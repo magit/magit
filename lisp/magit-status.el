@@ -485,11 +485,11 @@ arguments are for internal use only."
         (insert (format "%-10s" (or keyword (if rebase "Rebase: " "Merge: "))))
         (insert
          (if-let ((upstream (or upstream (magit-get-upstream-branch branch))))
-             (concat upstream " "
-                     (and magit-status-show-hashes-in-headers
+             (concat (and magit-status-show-hashes-in-headers
                           (concat (propertize (magit-rev-format "%h" upstream)
                                               'face 'magit-hash)
                                   " "))
+                     upstream " "
                      (funcall magit-log-format-message-function upstream
                               (funcall magit-log-format-message-function nil
                                        (or (magit-rev-format "%s" upstream)
