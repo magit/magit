@@ -289,8 +289,8 @@ specifies additional properties to store in the bookmark."
   "Handle a Magit revision BOOKMARK."
   (magit-bookmark--jump bookmark #'magit-show-commit
     (bookmark-prop-get bookmark 'magit-rev)
-    (bookmark-prop-get bookmark 'args)
-    (bookmark-prop-get bookmark 'files)))
+    (bookmark-prop-get bookmark 'magit-args)
+    (bookmark-prop-get bookmark 'magit-files)))
 
 (defun magit-bookmark--revision-make-name (buffer-name rev _args files)
   "Generate a default name for a revision bookmark."
