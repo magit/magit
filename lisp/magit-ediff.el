@@ -329,7 +329,7 @@ mind at all, then it asks the user for a command to run."
        (cond ((not command)
               (call-interactively
                (magit-read-char-case
-                   "Failed to read your mind; do you want to " t
+                   "Do you want to " t
                  (?c "[c]ommit"  'magit-ediff-show-commit)
                  (?r "[r]ange"   'magit-ediff-compare)
                  (?s "[s]tage"   'magit-ediff-stage)
