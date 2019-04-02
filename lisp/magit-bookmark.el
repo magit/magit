@@ -47,7 +47,7 @@ This function will:
 3. Restore the expanded/collapsed status of top level sections
    and the point position."
   (declare (indent 2))
-  (let* ((default-directory (bookmark-get-filename bookmark)))
+  (let ((default-directory (bookmark-get-filename bookmark)))
     (if default-directory
         (apply fn args)
       (signal 'bookmark-error-no-filename (list 'stringp default-directory)))
