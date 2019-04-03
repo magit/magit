@@ -127,8 +127,8 @@ seconds of user inactivity.  That is not desirable."
   ;; - In all other cases enable the mode because if buffers are not
   ;;   automatically reverted that would make many very common tasks
   ;;   much more cumbersome.
-  :init-value (and (not global-auto-revert-mode)
-                   (not noninteractive)))
+  :init-value (not (or global-auto-revert-mode
+                       noninteractive)))
 ;; - Unfortunately `:init-value t' only sets the value of the mode
 ;;   variable but does not cause the mode function to be called.
 ;; - I don't think it works like this on purpose, but since one usually
@@ -150,7 +150,7 @@ and code surrounding the definition of this function."
         (magit-auto-revert-mode 1)
         (magit-message
          "Turning on magit-auto-revert-mode...done%s"
-         (let ((elapsed (float-time (time-subtract (current-time) start))))
+         (let ((elapsed (float-time (time-subtract nil start))))
            (if (> elapsed 0.2)
                (format " (%.3fs, %s buffers checked)" elapsed
                        (length (buffer-list)))
@@ -202,7 +202,7 @@ This function calls the hook `magit-auto-revert-mode-hook'.")
                  (and magit-auto-revert-mode auto-revert-buffer-list)))
     (let ((auto-revert-buffer-list-filter
            (or auto-revert-buffer-list-filter
-               'magit-auto-revert-repository-buffer-p)))
+               #'magit-auto-revert-repository-buffer-p)))
       (auto-revert-buffers))))
 
 (defvar magit-auto-revert-toplevel nil)
