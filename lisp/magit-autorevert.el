@@ -43,15 +43,15 @@
 (defcustom auto-revert-buffer-list-filter nil
   "Filter that determines which buffers `auto-revert-buffers' reverts.
 
-This option is provided by `magit', which also redefines
+This option is provided by Magit, which also advises
 `auto-revert-buffers' to respect it.  Magit users who do not turn
 on the local mode `auto-revert-mode' themselves, are best served
-by setting the value to `magit-auto-revert-repository-buffers-p'.
+by setting the value to `magit-auto-revert-repository-buffer-p'.
 
-However the default is nil, to not disturb users who do use the
-local mode directly.  If you experience delays when running Magit
-commands, then you should consider using one of the predicates
-provided by Magit - especially if you also use Tramp.
+However the default is nil, so as not to disturb users who do use
+the local mode directly.  If you experience delays when running
+Magit commands, then you should consider using one of the
+predicates provided by Magit - especially if you also use Tramp.
 
 Users who do turn on `auto-revert-mode' in buffers in which Magit
 doesn't do that for them, should likely not use any filter.
@@ -62,7 +62,7 @@ is enabled."
   :group 'auto-revert
   :group 'magit-auto-revert
   :group 'magit-related
-  :type '(radio (const :tag "no filter" nil)
+  :type '(radio (const :tag "No filter" nil)
                 (function-item magit-auto-revert-buffer-p)
                 (function-item magit-auto-revert-repository-buffer-p)
                 function))
@@ -85,7 +85,7 @@ is enabled."
 If this is non-nil and either `global-auto-revert-mode' or
 `magit-auto-revert-mode' is enabled, then Magit immediately
 reverts buffers by explicitly calling `auto-revert-buffers'
-after running git for side-effects.
+after running Git for side-effects.
 
 If `auto-revert-use-notify' is non-nil (and file notifications
 are actually supported), then `magit-auto-revert-immediately'
@@ -166,9 +166,10 @@ and code surrounding the definition of this function."
 
 (put 'magit-auto-revert-mode 'function-documentation
      "Toggle Magit Auto Revert mode.
-With a prefix argument ARG, enable Magit Auto Revert mode if ARG
-is positive, and disable it otherwise.  If called from Lisp,
-enable the mode if ARG is omitted or nil.
+If called interactively, enable Magit Auto Revert mode if ARG is
+positive, and disable it if ARG is zero or negative.  If called
+from Lisp, also enable the mode if ARG is omitted or nil, and
+toggle it if ARG is `toggle'; disable the mode otherwise.
 
 Magit Auto Revert mode is a global minor mode that reverts
 buffers associated with a file that is located inside a Git
@@ -211,17 +212,16 @@ This function calls the hook `magit-auto-revert-mode-hook'.")
     "Incremented each time `auto-revert-buffers' is called"))
 
 (defun magit-auto-revert-buffer-p (buffer)
-  "Return t if BUFFER visits a file inside the current repository.
-The current repository is the one in which `default-directory' is
-located.  If there is no current repository, then return t for
-any BUFFER."
+  "Return non-nil if BUFFER visits a file inside the current repository.
+The current repository is the one containing `default-directory'.
+If there is no current repository, then return t for any BUFFER."
   (magit-auto-revert-repository-buffer-p buffer t))
 
 (defun magit-auto-revert-repository-buffer-p (buffer &optional fallback)
-  "Return t if BUFFER visits a file inside the current repository.
-The current repository is the one in which `default-directory' is
-located.  If there is no current repository, then return FALLBACK
-\(which defaults to nil) for any BUFFER."
+  "Return non-nil if BUFFER visits a file inside the current repository.
+The current repository is the one containing `default-directory'.
+If there is no current repository, then return FALLBACK (which
+defaults to nil) for any BUFFER."
   ;; Call `magit-toplevel' just once per cycle.
   (unless (and magit-auto-revert-toplevel
                (= (cdr magit-auto-revert-toplevel)

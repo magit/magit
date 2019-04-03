@@ -720,7 +720,7 @@ refresh explicitly.
 By default Magit automatically reverts buffers that are visiting files
 that are being tracked in a Git repository, after they have changed on
 disk.  When using Magit one often changes files on disk by running
-git, i.e. "outside Emacs", making this a rather important feature.
+Git, i.e. "outside Emacs", making this a rather important feature.
 
 For example, if you discard a change in the status buffer, then that
 is done by running ~git apply --reverse ...~, and Emacs considers the
@@ -730,13 +730,13 @@ the visiting buffer before you could continue making changes.
 
 - User Option: magit-auto-revert-mode
 
-  When this mode is enabled, then buffers that visit tracked files,
-  are automatically reverted after the visited files changed on disk.
+  When this mode is enabled, then buffers that visit tracked files
+  are automatically reverted after the visited files change on disk.
 
 - User Option: global-auto-revert-mode
 
   When this mode is enabled, then any file-visiting buffer is
-  automatically reverted after the visited file changed on disk.
+  automatically reverted after the visited file changes on disk.
 
   If you like buffers that visit tracked files to be automatically
   reverted, then you might also like any buffer to be reverted, not
@@ -749,7 +749,7 @@ the visiting buffer before you could continue making changes.
 
   If this is non-nil and either ~global-auto-revert-mode~ or
   ~magit-auto-revert-mode~ is enabled, then Magit immediately reverts
-  buffers by explicitly calling ~auto-revert-buffers~ after running git
+  buffers by explicitly calling ~auto-revert-buffers~ after running Git
   for side-effects.
 
   If ~auto-revert-use-notify~ is non-nil (and file notifications are
@@ -773,7 +773,7 @@ the visiting buffer before you could continue making changes.
   including untracked files and files located inside Git's control
   directory.
 
-- Command: auto-revert-mode
+- User Option: auto-revert-mode
 
   The global mode ~magit-auto-revert-mode~ works by turning on this
   local mode in the appropriate buffers (but ~global-auto-revert-mode~
@@ -788,7 +788,7 @@ the visiting buffer before you could continue making changes.
 
 - User Option: auto-revert-interval
 
-  This option controls for how many seconds Emacs waits before
+  This option controls how many seconds Emacs waits for before
   resuming suspended reverts.
 
 - User Option: auto-revert-buffer-list-filter
@@ -797,12 +797,12 @@ the visiting buffer before you could continue making changes.
   ~auto-revert-buffers~ to determine whether a buffer should be reverted
   or not.
 
-  This option is provided by ~magit~, which also redefines
+  This option is provided by Magit, which also advises
   ~auto-revert-buffers~ to respect it.  Magit users who do not turn on
   the local mode ~auto-revert-mode~ themselves, are best served by
-  setting the value to ~magit-auto-revert-repository-buffers-p~.
+  setting the value to ~magit-auto-revert-repository-buffer-p~.
 
-  However the default is nil, to not disturb users who do use the
+  However the default is nil, so as not to disturb users who do use the
   local mode directly.  If you experience delays when running Magit
   commands, then you should consider using one of the predicates
   provided by Magit - especially if you also use Tramp.
@@ -818,7 +818,7 @@ the visiting buffer before you could continue making changes.
   reverted.
 
 The options with the ~auto-revert-~ prefix are located in the Custom
-group named ~auto-revert~.  The other, magit-specific, options are
+group named ~auto-revert~.  The other, Magit-specific, options are
 located in the ~magit~ group.
 
 **** Risk of Reverting Automatically
@@ -826,20 +826,20 @@ located in the ~magit~ group.
 :TEXINFO-NODE: t
 :END:
 
-For the vast majority users automatically reverting file-visiting
+For the vast majority of users, automatically reverting file-visiting
 buffers after they have changed on disk is harmless.
 
 If a buffer is modified (i.e. it contains changes that haven't been
-saved yet), then Emacs would refuse to automatically revert it.  If
+saved yet), then Emacs will refuse to automatically revert it.  If
 you save a previously modified buffer, then that results in what is
-seen by Git as an uncommitted change.  Git would then refuse to carry
+seen by Git as an uncommitted change.  Git will then refuse to carry
 out any commands that would cause these changes to be lost.  In other
 words, if there is anything that could be lost, then either Git or
-Emacs would refuse to discard the changes.
+Emacs will refuse to discard the changes.
 
-However if you do use file-visiting buffers as a sort of ad hoc
+However, if you use file-visiting buffers as a sort of ad hoc
 "staging area", then the automatic reverts could potentially cause
-data loss.  So far I have only heard from one user who uses such a
+data loss.  So far I have heard from only one user who uses such a
 workflow.
 
 An example: You visit some file in a buffer, edit it, and save the
@@ -859,7 +859,7 @@ If your workflow depends on Emacs preserving the intermediate version
 in the buffer, then you have to disable all Auto-Revert modes.  But
 please consider that such a workflow would be dangerous even without
 using an Auto-Revert mode, and should therefore be avoided.  If Emacs
-crashed or if you quit Emacs by mistake, then you would also lose the
+crashes or if you quit Emacs by mistake, then you would also lose the
 buffer content.  There would be no autosave file still containing the
 intermediate version (because that was deleted when you saved the
 buffer) and you would not be asked whether you want to save the buffer
@@ -7047,7 +7047,7 @@ should help.
 
 #+BEGIN_SRC emacs-lisp
   (setq auto-revert-buffer-list-filter
-        'magit-auto-revert-repository-buffers-p)
+        'magit-auto-revert-repository-buffer-p)
 #+END_SRC
 
 For alternative approaches see [[*Automatic Reverting of File-Visiting
