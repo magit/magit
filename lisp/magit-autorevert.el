@@ -243,8 +243,8 @@ located.  If there is no current repository, then return FALLBACK
     (cl-incf auto-revert-buffers-counter))
   (when auto-revert-buffer-list-filter
     (setq auto-revert-buffer-list
-          (--filter auto-revert-buffer-list-filter
-                    auto-revert-buffer-list))))
+          (-filter auto-revert-buffer-list-filter
+                   auto-revert-buffer-list))))
 
 (advice-add 'auto-revert-buffers :before
             'auto-revert-buffers--buffer-list-filter)
