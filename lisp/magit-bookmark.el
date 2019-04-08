@@ -51,15 +51,14 @@ This function will:
     (if default-directory
         (apply fn args)
       (signal 'bookmark-error-no-filename (list 'stringp default-directory)))
-    (when (derived-mode-p 'magit-mode)
-      (when-let ((hidden-sections (bookmark-prop-get bookmark
-                                                     'magit-hidden-sections)))
-        (dolist (child (oref magit-root-section children))
-          (if (member (cons (oref child type)
-                            (oref child value))
-                      hidden-sections)
-              (magit-section-hide child)
-            (magit-section-show child)))))
+    (when-let ((hidden-sections (bookmark-prop-get bookmark
+                                                   'magit-hidden-sections)))
+      (dolist (child (oref magit-root-section children))
+        (if (member (cons (oref child type)
+                          (oref child value))
+                    hidden-sections)
+            (magit-section-hide child)
+          (magit-section-show child))))
     (--when-let (bookmark-get-position bookmark)
       (goto-char it))
     (--when-let (bookmark-get-front-context-string bookmark)
@@ -88,13 +87,12 @@ specifies additional properties to store in the bookmark."
   (let ((bookmark (bookmark-make-record-default 'no-file)))
     (bookmark-prop-set bookmark 'handler handler)
     (bookmark-set-filename bookmark (magit-toplevel))
-    (when (derived-mode-p 'magit-mode)
-      (bookmark-prop-set
-       bookmark 'magit-hidden-sections
-       (--map (cons (oref it type)
-                    (oref it value))
-              (--filter (oref it hidden)
-                        (oref magit-root-section children)))))
+    (bookmark-prop-set
+     bookmark 'magit-hidden-sections
+     (--map (cons (oref it type)
+                  (oref it value))
+            (--filter (oref it hidden)
+                      (oref magit-root-section children))))
     (when make-props
       (pcase-dolist (`(,prop . ,value) (apply make-props magit-refresh-args))
         (bookmark-prop-set bookmark prop value)))
