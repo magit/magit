@@ -90,7 +90,12 @@ specifies additional properties to store in the bookmark."
     (bookmark-prop-set
      bookmark 'magit-hidden-sections
      (--map (cons (oref it type)
-                  (oref it value))
+                  (if (derived-mode-p 'magit-stash-mode)
+                      (replace-regexp-in-string
+                       (regexp-quote (car magit-refresh-args))
+                       magit-buffer-revision-hash
+                       (oref it value))
+                    (oref it value)))
             (--filter (oref it hidden)
                       (oref magit-root-section children))))
     (when make-props
@@ -338,14 +343,7 @@ specifies additional properties to store in the bookmark."
                           args files)))
         (magit-stash . ,magit-buffer-revision-hash)
         (magit-args  . ,args)
-        (magit-files . ,files)
-        (magit-hidden-sections
-         . ,(--map `(,(oref it type)
-                     . ,(replace-regexp-in-string (regexp-quote stash)
-                                                  magit-buffer-revision-hash
-                                                  (oref it value)))
-                   (--filter (oref it hidden)
-                             (oref magit-root-section children))))))))
+        (magit-files . ,files)))))
 
 ;;; Submodules
 
