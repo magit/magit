@@ -142,12 +142,12 @@ specifies additional properties to store in the bookmark."
     (bookmark-prop-get bookmark 'magit-args)
     (bookmark-prop-get bookmark 'magit-files)))
 
-(defun magit-bookmark--log-make-name (buffer-name revs _args files)
+(defun magit-bookmark--log-make-name (revs _args files)
   "Generate the default name for a log bookmark."
-  (concat
-   buffer-name " " (mapconcat #'identity revs " ")
-   (and files
-        (concat " touching " (mapconcat #'identity files " ")))))
+  (concat (buffer-name) " "
+          (mapconcat #'identity revs " ")
+          (and files
+               (concat " touching " (mapconcat #'identity files " ")))))
 
 ;;;###autoload
 (defun magit-bookmark--log-make-record ()
@@ -155,8 +155,7 @@ specifies additional properties to store in the bookmark."
   (magit-bookmark--make-record 'magit-log-mode
     #'magit-bookmark--log-jump
     (lambda (revs args files)
-      `((defaults    . (,(magit-bookmark--log-make-name
-                          (buffer-name) revs args files)))
+      `((defaults    . (,(magit-bookmark--log-make-name revs args files)))
         (magit-revs  . ,revs)
         (magit-args  . ,args)
         (magit-files . ,files)))))
@@ -171,9 +170,9 @@ specifies additional properties to store in the bookmark."
       (magit-git-reflog (bookmark-prop-get bookmark 'magit-ref)
                         (bookmark-prop-get bookmark 'magit-args)))))
 
-(defun magit-bookmark--reflog-make-name (buffer-name ref)
+(defun magit-bookmark--reflog-make-name (ref)
   "Generate the default name for a reflog bookmark."
-  (concat buffer-name " " ref))
+  (concat (buffer-name) " " ref))
 
 ;;;###autoload
 (defun magit-bookmark--reflog-make-record ()
@@ -181,7 +180,7 @@ specifies additional properties to store in the bookmark."
   (magit-bookmark--make-record 'magit-reflog-mode
     #'magit-bookmark--reflog-jump
     (lambda (ref args)
-      `((defaults   . (,(magit-bookmark--reflog-make-name (buffer-name) ref)))
+      `((defaults   . (,(magit-bookmark--reflog-make-name ref)))
         (magit-ref  . ,ref)
         (magit-args . ,args)))))
 
@@ -207,9 +206,9 @@ specifies additional properties to store in the bookmark."
     (bookmark-prop-get bookmark 'magit-head)
     (bookmark-prop-get bookmark 'magit-upstream)))
 
-(defun magit-bookmark--cherry-make-name (buffer-name head upstream)
+(defun magit-bookmark--cherry-make-name (head upstream)
   "Generate the default name for a cherry bookmark."
-  (concat buffer-name " " head " upstream " upstream))
+  (concat (buffer-name) " " head " upstream " upstream))
 
 ;;;###autoload
 (defun magit-bookmark--cherry-make-record ()
@@ -217,8 +216,7 @@ specifies additional properties to store in the bookmark."
   (magit-bookmark--make-record 'magit-cherry-mode
     #'magit-bookmark--cherry-jump
     (lambda (upstream head)
-      `((defaults       . (,(magit-bookmark--cherry-make-name
-                             (buffer-name) head upstream)))
+      `((defaults       . (,(magit-bookmark--cherry-make-name head upstream)))
         (magit-head     . ,head)
         (magit-upstream . ,upstream)))))
 
@@ -255,12 +253,11 @@ specifies additional properties to store in the bookmark."
     (_
      rev-or-range)))
 
-(defun magit-bookmark--diff-make-name
-    (buffer-name rev-or-range const _args files)
+(defun magit-bookmark--diff-make-name (rev-or-range const _args files)
   "Generate a default name for a diff bookmark."
   (if (member "--no-index" const)
       (apply #'format "*magit-diff %s %s" files)
-    (concat buffer-name " "
+    (concat (buffer-name) " "
             (cond (rev-or-range)
                   ((member "--cached" const) "staged")
                   (t                       "unstaged"))
@@ -275,7 +272,7 @@ specifies additional properties to store in the bookmark."
     (lambda (rev-or-range const args files)
       (let ((resolved (magit-bookmark--resolve rev-or-range)))
         `((defaults           . (,(magit-bookmark--diff-make-name
-                                   (buffer-name) resolved const args files)))
+                                   resolved const args files)))
           (magit-rev-or-range . ,resolved)
           (magit-const        . ,const)
           (magit-args         . ,args)
@@ -291,9 +288,9 @@ specifies additional properties to store in the bookmark."
     (bookmark-prop-get bookmark 'magit-args)
     (bookmark-prop-get bookmark 'magit-files)))
 
-(defun magit-bookmark--revision-make-name (buffer-name rev _args files)
+(defun magit-bookmark--revision-make-name (rev _args files)
   "Generate a default name for a revision bookmark."
-  (concat buffer-name " "
+  (concat (buffer-name) " "
           (magit-rev-abbrev rev)
           (if files
               (concat " " (mapconcat #'identity files " "))
@@ -309,7 +306,7 @@ specifies additional properties to store in the bookmark."
     #'magit-bookmark--revision-jump
     (lambda (_rev _ args files)
       `((defaults    . (,(magit-bookmark--revision-make-name
-                          (buffer-name) magit-buffer-revision-hash
+                          magit-buffer-revision-hash
                           args files)))
         (magit-rev   . ,magit-buffer-revision-hash)
         (magit-args  . ,args)
@@ -325,9 +322,9 @@ specifies additional properties to store in the bookmark."
     (bookmark-prop-get bookmark 'magit-args)
     (bookmark-prop-get bookmark 'magit-files)))
 
-(defun magit-bookmark--stash-make-name (buffer-name stash _args files)
+(defun magit-bookmark--stash-make-name (stash _args files)
   "Generate the default name for a stash bookmark."
-  (concat buffer-name " " stash " "
+  (concat (buffer-name) " " stash " "
           (if files
               (mapconcat #'identity files " ")
             (magit-rev-format "%s" stash))))
@@ -339,7 +336,6 @@ specifies additional properties to store in the bookmark."
     #'magit-bookmark--stash-jump
     (lambda (stash _ args files)
       `((defaults    . (,(magit-bookmark--stash-make-name
-                          (buffer-name)
                           (magit-rev-abbrev magit-buffer-revision-hash)
                           args files)))
         (magit-stash . ,magit-buffer-revision-hash)
