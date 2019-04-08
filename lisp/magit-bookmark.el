@@ -86,7 +86,7 @@ specifies additional properties to store in the bookmark."
     (user-error "Not in a %s buffer" mode))
   (let ((bookmark (bookmark-make-record-default 'no-file)))
     (bookmark-prop-set bookmark 'handler handler)
-    (bookmark-set-filename bookmark (magit-toplevel))
+    (bookmark-prop-set bookmark 'filename (magit-toplevel))
     (bookmark-prop-set
      bookmark 'magit-hidden-sections
      (--map (cons (oref it type)
