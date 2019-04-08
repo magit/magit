@@ -168,9 +168,8 @@ specifies additional properties to store in the bookmark."
   "Handle a Magit reflog BOOKMARK."
   (magit-bookmark--jump bookmark
     (lambda ()
-      (let ((magit-reflog-arguments (bookmark-prop-get bookmark 'magit-args)))
-        (magit-git-reflog (bookmark-prop-get bookmark 'magit-ref)
-                          magit-reflog-arguments)))))
+      (magit-git-reflog (bookmark-prop-get bookmark 'magit-ref)
+                        (bookmark-prop-get bookmark 'magit-args)))))
 
 (defun magit-bookmark--reflog-make-name (buffer-name ref)
   "Generate the default name for a reflog bookmark."
