@@ -294,11 +294,12 @@ specifies additional properties to store in the bookmark."
 
 (defun magit-bookmark--revision-make-name (buffer-name rev _args files)
   "Generate a default name for a revision bookmark."
-  (let ((subject (magit-rev-format "%s" rev)))
-    (concat buffer-name " "
-            (magit-rev-abbrev rev)
-            (cond (files   (concat " " (mapconcat #'identity files " ")))
-                  (subject (concat " " subject))))))
+  (concat buffer-name " "
+          (magit-rev-abbrev rev)
+          (if files
+              (concat " " (mapconcat #'identity files " "))
+            (when-let ((subject (magit-rev-format "%s" rev)))
+              (concat " " subject)))))
 
 ;;;###autoload
 (defun magit-bookmark--revision-make-record ()
