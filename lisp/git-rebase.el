@@ -781,7 +781,8 @@ By default, this is the same except for the \"pick\" command."
                (format "%-8s"
                        (mapconcat #'key-description
                                   (--remove (eq (elt it 0) 'menu-bar)
-                                            (reverse (where-is-internal cmd)))
+                                            (reverse (where-is-internal
+                                                      cmd git-rebase-mode-map)))
                                   ", "))
                t t nil 2))))))))
 
