@@ -5,4 +5,6 @@
     (dash "20180910")
     (git-commit "20181104")
     (transient "0")
-    (with-editor "20181103")))
+    (with-editor "20181103"))
+  :keywords
+  '("git" "tools" "vc"))

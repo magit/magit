@@ -206,7 +206,8 @@ define set_package_requires
      (dash ,dash-version)
      (git-commit ,git-commit-version)
      (transient ,transient-version)
-     (with-editor ,with-editor-version)))))
+     (with-editor ,with-editor-version))
+   :keywords '("git" "tools" "vc")))) ;'
   (goto-char (point-min))
   (re-search-forward " \"A")
   (goto-char (match-beginning 0))
