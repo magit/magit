@@ -265,8 +265,8 @@ specifies additional properties to store in the bookmark."
             (cond (rev-or-range)
                   ((member "--cached" const) "staged")
                   (t                       "unstaged"))
-            (when files
-              (concat " in " (mapconcat #'identity files ", "))))))
+            (and files
+                 (concat " in " (mapconcat #'identity files ", "))))))
 
 ;;;###autoload
 (defun magit-bookmark--diff-make-record ()
