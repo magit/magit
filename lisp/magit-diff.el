@@ -1205,7 +1205,7 @@ for a revision."
 
 (defun magit-diff-switch-range-type ()
   "Convert diff range type.
-Change \"revA..revB\" to \"revB...revA\", or vice versa."
+Change \"revA..revB\" to \"revA...revB\", or vice versa."
   (interactive)
   (let ((range (car magit-refresh-args)))
     (if (and range
