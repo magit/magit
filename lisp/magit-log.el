@@ -1023,7 +1023,7 @@ Do not add this to a hook variable."
   (let ((magit-log-count 0))
     (magit-wash-sequence (apply-partially 'magit-log-wash-rev style
                                           (magit-abbrev-length)))
-    (if (derived-mode-p 'magit-log-mode)
+    (if (derived-mode-p 'magit-log-mode 'magit-reflog-mode)
         (when (eq magit-log-count (magit-log-get-commit-limit))
           (magit-insert-section (longer)
             (insert-text-button
@@ -1038,7 +1038,7 @@ Do not add this to a hook variable."
       (insert ?\n))))
 
 (cl-defun magit-log-wash-rev (style abbrev)
-  (when (derived-mode-p 'magit-log-mode)
+  (when (derived-mode-p 'magit-log-mode 'magit-reflog-mode)
     (cl-incf magit-log-count))
   (looking-at (pcase style
                 (`log        magit-log-heading-re)
@@ -1206,7 +1206,7 @@ exists mostly for backward compatibility reasons."
 (defun magit-log-maybe-update-revision-buffer (&optional _)
   "When moving in a log or cherry buffer, update the revision buffer.
 If there is no revision buffer in the same frame, then do nothing."
-  (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode)
+  (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode 'magit-reflog-mode)
     (magit-log-maybe-update-revision-buffer-1)))
 
 (defun magit-log-maybe-update-revision-buffer-1 ()
@@ -1232,7 +1232,7 @@ If there is no revision buffer in the same frame, then do nothing."
 (defun magit-log-maybe-update-blob-buffer (&optional _)
   "When moving in a log or cherry buffer, update the blob buffer.
 If there is no blob buffer in the same frame, then do nothing."
-  (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode)
+  (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode 'magit-reflog-mode)
     (magit-log-maybe-update-blob-buffer-1)))
 
 (defun magit-log-maybe-update-blob-buffer-1 ()

@@ -137,7 +137,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
     map)
   "Keymap for `magit-reflog-mode'.")
 
-(define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
+(define-derived-mode magit-reflog-mode magit-mode "Magit Reflog"
   "Mode for looking at Git reflog.
 
 This mode is documented in info node `(magit)Reflog'.
