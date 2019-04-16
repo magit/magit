@@ -1296,9 +1296,9 @@ exists mostly for backward compatibility reasons."
 (defvar magit--update-revision-buffer nil)
 
 (defun magit-log-maybe-update-revision-buffer (&optional _)
-  "When moving in the log buffer, update the revision buffer.
+  "When moving in a log or cherry buffer, update the revision buffer.
 If there is no revision buffer in the same frame, then do nothing."
-  (when (derived-mode-p 'magit-log-mode)
+  (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode)
     (magit-log-maybe-update-revision-buffer-1)))
 
 (defun magit-log-maybe-update-revision-buffer-1 ()
@@ -1322,9 +1322,9 @@ If there is no revision buffer in the same frame, then do nothing."
 (defvar magit--update-blob-buffer nil)
 
 (defun magit-log-maybe-update-blob-buffer (&optional _)
-  "When moving in the log buffer, update the blob buffer.
+  "When moving in a log or cherry buffer, update the blob buffer.
 If there is no blob buffer in the same frame, then do nothing."
-  (when (derived-mode-p 'magit-log-mode)
+  (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode)
     (magit-log-maybe-update-blob-buffer-1)))
 
 (defun magit-log-maybe-update-blob-buffer-1 ()
