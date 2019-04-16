@@ -985,9 +985,6 @@ See also `magit-toggle-buffer-lock'.")
 
 (defun magit-buffer-lock-value (mode args)
   (cl-case mode
-    (magit-cherry-mode
-     (pcase-let ((`(,upstream ,head) args))
-       (concat head ".." upstream)))
     (magit-diff-mode
      (pcase-let ((`(,rev-or-range ,const ,_args ,files) args))
        (nconc (cons (or rev-or-range

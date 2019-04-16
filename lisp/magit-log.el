@@ -1557,6 +1557,10 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   (magit-insert-section (cherry)
     (magit-run-section-hook 'magit-cherry-sections-hook)))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-cherry-mode))
+  (pcase-let ((`(,upstream ,head) magit-refresh-args))
+    (concat head ".." upstream)))
+
 ;;;###autoload
 (defun magit-cherry (head upstream)
   "Show commits in a branch that are not merged in the upstream branch."
