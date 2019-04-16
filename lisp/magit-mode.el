@@ -957,28 +957,10 @@ latter is displayed in its place."
       (user-error "Buffer has no value it could be locked to"))))
 
 (defvar magit-buffer-lock-functions nil
-  "Provide buffer-locking support for third-party modes.
-An alist of symbols to functions.
-
-The symbol must be the major-mode the locked buffer will have.
-
-The function must take a single argument, a list of refresh
-arguments (the value of `magit-refresh-args') and return a
-value that identifies the buffer (i.e., its 'lock value').
-If the third-party mode is invoked as
-
-    (magit-mode-setup-internal #\\='my-mode \\='(1 2 3) t)
-
-the function will be invoked as
-
-    (funcall lock-func \\='(1 2 3))
-
-if the cons (my-mode . lock-func) is in this list.
-
-This variable is intended for third-party extensions;
-`magit-buffer-value' implements all built-in behavior.
-
-See also `magit-toggle-buffer-lock'.")
+  "Obsolete buffer-locking support for third-party modes.
+Implement the generic function `magit-buffer-value' for
+your mode instead of adding an entry to this variable.")
+(make-obsolete-variable 'magit-buffer-lock-functions nil "Magit 2.91.0")
 
 (cl-defgeneric magit-buffer-value ()
   (when-let ((fn (cdr (assq major-mode magit-buffer-lock-functions))))
