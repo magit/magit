@@ -414,18 +414,19 @@ instead of \"Stashes:\"."
   (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-stashes-setup-buffer ()
-  (magit-setup-buffer #'magit-stashes-mode))
+  (magit-setup-buffer #'magit-stashes-mode nil
+    (magit-buffer-refname "refs/stash")))
 
-(defun magit-stashes-refresh-buffer (ref)
+(defun magit-stashes-refresh-buffer ()
   (magit-insert-section (stashesbuf)
-    (magit-insert-heading (if (equal ref "refs/stash")
+    (magit-insert-heading (if (equal magit-buffer-refname "refs/stash")
                               "Stashes:"
-                            (format "Stashes [%s]:" ref)))
+                            (format "Stashes [%s]:" magit-buffer-refname)))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-      "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)))
+      "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" magit-buffer-refname)))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-stashes-mode))
-  (car magit-refresh-args))
+  magit-buffer-refname)
 
 ;;; Show Stash
 

@@ -631,7 +631,7 @@ above."
                             magit-reflog-mode
                             magit-revision-mode
                             magit-stash-mode
-                            magit-stashes-mode)
+                            )
                            (car magit-refresh-args))
                           (magit-diff-mode
                            (let ((r (car magit-refresh-args)))
