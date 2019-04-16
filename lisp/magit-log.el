@@ -1469,6 +1469,10 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
 
+(defun magit-log-select-setup-buffer (revs args)
+  (require 'magit)
+  (magit-mode-setup #'magit-reflog-mode ref args))
+
 (defun magit-log-select-refresh-buffer (rev args)
   (magit-insert-section (logbuf)
     (magit-insert-log rev args)))
@@ -1480,9 +1484,9 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   (declare (indent defun))
   (unless initial
     (setq initial (magit-commit-at-point)))
-  (magit-mode-setup #'magit-log-select-mode
-                    (or branch (magit-get-current-branch) "HEAD")
-                    (append args magit-log-select-arguments))
+  (magit-log-select-setup-buffer
+   (or branch (magit-get-current-branch) "HEAD")
+   (append args magit-log-select-arguments))
   (magit-log-goto-same-commit initial)
   (setq magit-log-select-pick-function pick)
   (setq magit-log-select-quit-function quit)
