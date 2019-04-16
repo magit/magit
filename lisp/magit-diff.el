@@ -2124,6 +2124,10 @@ Staging and applying changes is documented in info node
   (magit-insert-section (commitbuf)
     (magit-run-section-hook 'magit-revision-sections-hook)))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-revision-mode))
+  (cons (nth 0 magit-revision-args)
+        (nth 3 magit-revision-args)))
+
 (defun magit-insert-revision-diff ()
   "Insert the diff into this `magit-revision-mode' buffer."
   (magit--insert-diff
