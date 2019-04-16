@@ -57,7 +57,7 @@
   "Create a new BRANCH and check it out in a new worktree at PATH."
   (interactive
    `(,(read-directory-name "Create worktree: ")
-     ,@(butlast (magit-branch-read-args "Create and checkout branch"))
+     ,@(magit-branch-read-args "Create and checkout branch")
      ,current-prefix-arg))
   (magit-run-git "worktree" "add" (if force "-B" "-b")
                  branch (expand-file-name path) start-point)
