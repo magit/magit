@@ -758,9 +758,11 @@ a bare repository."
                 (file-directory-p (expand-file-name "objects" directory))))))
 
 (defvar-local magit-buffer-revision  nil)
+(defvar-local magit-buffer-revision-hash nil)
 (defvar-local magit-buffer-refname   nil)
 (defvar-local magit-buffer-file-name nil)
 (put 'magit-buffer-revision  'permanent-local t)
+(put 'magit-buffer-revision-hash 'permanent-local t)
 (put 'magit-buffer-refname   'permanent-local t)
 (put 'magit-buffer-file-name 'permanent-local t)
 

@@ -1137,8 +1137,6 @@ be committed."
                               (magit-convert-filename-for-git
                                (expand-file-name b)))))
 
-(defvar-local magit-buffer-revision-hash nil)
-
 (defun magit-show-commit--arguments ()
   (pcase-let ((`(,args ,diff-files) (magit-diff-arguments)))
     (list args (if (derived-mode-p 'magit-log-mode)
