@@ -339,7 +339,7 @@ Type \\[magit-commit] to create a commit.
 (defun magit-status-setup-buffer (directory)
   (magit--tramp-asserts directory)
   (let ((default-directory directory))
-    (magit-mode-setup #'magit-status-mode)))
+    (magit-setup-buffer #'magit-status-mode)))
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
