@@ -1222,21 +1222,18 @@ toggle the file restriction in the repository's revision buffer
 instead."
   (interactive)
   (cl-flet ((toggle ()
-                    (cond (magit-buffer-diff-files
-                           (setq magit-buffer-diff-files-suspened
-                                 magit-buffer-diff-files)
-                           nil)
-                          (magit-buffer-diff-files-suspened)
-                          (t
-                           (user-error "No diff file filter to toggle")))
+                    (if (or magit-buffer-diff-files
+                            magit-buffer-diff-files-suspended)
+                        (cl-rotatef magit-buffer-diff-files
+                                    magit-buffer-diff-files-suspended)
+                      (user-error "No diff file filter to toggle"))
                     (magit-refresh)))
     (--if-let (and (derived-mode-p 'magit-log-mode
                                    'magit-cherry-mode
                                    'magit-reflog-mode)
                    (magit-get-mode-buffer 'magit-revision-mode))
-        (with-current-buffer it
-          (setq magit-buffer-diff-files (toggle)))
-      (setq magit-buffer-diff-files (toggle)))))
+        (with-current-buffer it (toggle))
+      (toggle))))
 
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
