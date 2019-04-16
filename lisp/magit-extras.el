@@ -629,7 +629,6 @@ above."
                           ((magit-cherry-mode
                             magit-log-select-mode
                             magit-reflog-mode
-                            magit-refs-mode
                             magit-revision-mode
                             magit-stash-mode
                             magit-stashes-mode)
