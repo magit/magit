@@ -337,6 +337,8 @@ Type \\[magit-commit] to create a commit.
 
 (put 'magit-status-mode 'magit-diff-default-arguments
      '("--no-ext-diff"))
+(put 'magit-status-mode 'magit-log-default-arguments
+     '("-n256" "--decorate"))
 
 ;;;###autoload
 (defun magit-status-setup-buffer (&optional directory)
@@ -345,11 +347,12 @@ Type \\[magit-commit] to create a commit.
   (magit--tramp-asserts directory)
   (let* ((default-directory directory)
          (d (magit-diff--get-value 'magit-status-mode))
-         )
+         (l (magit-log--get-value  'magit-status-mode)))
     (magit-setup-buffer #'magit-status-mode nil
       (magit-buffer-diff-args  (nth 0 d))
       (magit-buffer-diff-files (nth 1 d))
-      )))
+      (magit-buffer-log-args   (nth 0 l))
+      (magit-buffer-log-files  (nth 1 l)))))
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")

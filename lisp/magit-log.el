@@ -68,13 +68,6 @@
   :group 'magit-log
   :type 'hook)
 
-(defcustom magit-log-arguments '("-n256" "--graph" "--decorate")
-  "The log arguments used in `magit-log-mode' buffers."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-git-arguments
-  :group 'magit-log
-  :type '(repeat (string :tag "Argument")))
-
 (defcustom magit-log-remove-graph-args '("--follow" "--grep" "-G" "-S" "-L")
   "The log arguments that cause the `--graph' argument to be dropped."
   :package-version '(magit . "2.3.0")
@@ -187,12 +180,6 @@ because the latter may make use of Imenu's outdated cache."
   :type 'boolean)
 
 ;;;; Select Mode
-
-(defcustom magit-log-select-arguments '("-n256" "--graph" "--decorate")
-  "The log arguments used in `magit-log-select-mode' buffers."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-log
-  :type '(repeat (string :tag "Argument")))
 
 (defcustom magit-log-select-show-usage 'both
   "Whether to show usage information when selecting a commit from a log.
@@ -355,13 +342,86 @@ the upstream isn't ahead of the current branch) show."
   :group 'magit-status
   :type 'number)
 
-(defcustom magit-log-section-arguments '("-n256" "--decorate")
-  "The log arguments used in buffers that show other things besides logs."
-  :package-version '(magit . "2.4.0")
-  :group 'magit-git-arguments
-  :group 'magit-log
-  :group 'magit-status
-  :type '(repeat (string :tag "Argument")))
+;;; Arguments
+;;;; Prefix Classes
+
+(defclass magit-log-prefix (transient-prefix)
+  ((history-key :initform 'magit-log)
+   (major-mode  :initform 'magit-log-mode)))
+
+(defclass magit-log-refresh-prefix (magit-log-prefix)
+  ((history-key :initform 'magit-log)
+   (major-mode  :initform nil)))
+
+;;;; Prefix Methods
+
+(cl-defmethod transient-init-value ((obj magit-log-prefix))
+  (pcase-let ((`(,args ,files)
+               (magit-log--get-value 'magit-log-mode)))
+    (when-let ((file (magit-file-relative-name)))
+      (setq files (list file)))
+    (oset obj value (if files `(("--" ,@files) ,args) args))))
+
+(cl-defmethod transient-init-value ((obj magit-log-refresh-prefix))
+  (oset obj value (if magit-buffer-log-files
+                      `(("--" ,@magit-buffer-log-files)
+                        ,magit-buffer-log-args)
+                    magit-buffer-log-args)))
+
+(cl-defmethod transient-set-value ((obj magit-log-prefix))
+  (magit-log--set-value obj))
+
+(cl-defmethod transient-save-value ((obj magit-log-prefix))
+  (magit-log--set-value obj 'save))
+
+;;;; Argument Access
+
+(defun magit-log-arguments (&optional mode)
+  "Return the current log arguments."
+  (if (memq current-transient-command '(magit-log magit-log-refresh))
+      (pcase-let ((`(,args ,alist)
+                   (transient-args nil t)))
+        (list args (cdr (assoc "--" alist))))
+    (magit-log--get-value (or mode 'magit-log-mode))))
+
+(defun magit-log--get-value (mode)
+  (let (args files)
+    (cond
+     ((and magit-use-sticky-arguments
+           (eq major-mode mode))
+      (setq args  magit-buffer-log-args)
+      (setq files magit-buffer-log-files))
+     ((and (eq magit-use-sticky-arguments t)
+           (when-let ((buffer (magit-mode-get-buffer mode)))
+             (setq args  (buffer-local-value 'magit-buffer-log-args buffer))
+             (setq files (buffer-local-value 'magit-buffer-log-files buffer))
+             t)))
+     ((plist-member (symbol-plist mode) 'magit-log-current-arguments)
+      (setq args (get mode 'magit-log-current-arguments)))
+     ((when-let ((elt (assq (intern (format "magit-log:%s" mode))
+                            transient-values)))
+        (setq args (cdr elt))
+        t))
+     (t
+      (setq args (get mode 'magit-log-default-arguments))))
+    (list args files)))
+
+(defun magit-log--set-value (obj &optional save)
+  (pcase-let* ((obj  (oref obj prototype))
+               (mode (or (oref obj major-mode) major-mode))
+               (key  (intern (format "magit-log:%s" mode)))
+               (`(,args ,alist)
+                (-separate #'atom (transient-args)))
+               (files (cdr (assoc "--" alist))))
+    (put mode 'magit-log-current-arguments args)
+    (when save
+      (setf (alist-get key transient-values) args)
+      (transient-save-values))
+    (transient--history-push obj)
+    (setq magit-buffer-log-args args)
+    (unless (derived-mode-p 'magit-log-select-mode)
+      (setq magit-buffer-log-files files))
+    (magit-refresh)))
 
 ;;; Commands
 ;;;; Prefix Commands
@@ -370,7 +430,7 @@ the upstream isn't ahead of the current branch) show."
 (define-transient-command magit-log ()
   "Show a commit or reference log."
   :man-page "git-log"
-  :value 'magit-log--initial-value
+  :class 'magit-log-prefix
   ;; The grouping in git-log(1) appears to be guided by implementation
   ;; details, so our logical grouping only follows it to an extend.
   ;; Arguments that are "misplaced" here:
@@ -426,7 +486,7 @@ the upstream isn't ahead of the current branch) show."
 (define-transient-command magit-log-refresh ()
   "Change the arguments used for the log(s) in the current buffer."
   :man-page "git-log"
-  :value 'magit-log-refresh--initial-value
+  :class 'magit-log-refresh-prefix
   [:if-mode magit-log-mode
    :class transient-subgroups
    ["Commit limiting"
@@ -460,8 +520,8 @@ the upstream isn't ahead of the current branch) show."
    ("-d" "Show refnames"            "--decorate")]
   [["Refresh"
     ("g" "buffer"                   magit-log-refresh)
-    ("s" "buffer and set defaults"  magit-log-set-default-arguments)
-    ("w" "buffer and save defaults" magit-log-save-default-arguments)]
+    ("s" "buffer and set defaults"  transient-set  :transient nil)
+    ("w" "buffer and save defaults" transient-save :transient nil)]
    ["Margin"
     ("L" "toggle visibility"        magit-toggle-margin)
     ("l" "cycle style"              magit-cycle-margin-style)
@@ -470,57 +530,18 @@ the upstream isn't ahead of the current branch) show."
   (interactive)
   (cond
    ((not (eq current-transient-command 'magit-log-refresh))
-    (magit-log-refresh-assert)
+    (pcase major-mode
+      (`magit-reflog-mode
+       (user-error "Cannot change log arguments in reflog buffers"))
+      (`magit-cherry-mode
+       (user-error "Cannot change log arguments in cherry buffers")))
     (transient-setup 'magit-log-refresh))
    (t
-    (pcase-let ((`(,args ,files) (magit-log-arguments t)))
-      (cond ((derived-mode-p 'magit-log-select-mode)
-             (setq magit-buffer-log-args args))
-            ((derived-mode-p 'magit-log-mode)
-             (setq magit-buffer-log-args args)
-             (setq magit-buffer-log-files files))
-            (t
-             (setq-local magit-log-section-arguments args))))
+    (pcase-let ((`(,args ,files) (magit-log-arguments)))
+      (setq magit-buffer-log-args args)
+      (unless (derived-mode-p 'magit-log-select-mode)
+        (setq magit-buffer-log-files files)))
     (magit-refresh))))
-
-(defun magit-log--initial-value ()
-  (pcase-let ((`(,args ,files) (magit-log-get-buffer-args)))
-    (when-let ((file (magit-file-relative-name)))
-      (setq files (list file)))
-    (magit-log--merge-args args files)))
-
-(defun magit-log-refresh--initial-value ()
-  (cond ((derived-mode-p 'magit-log-select-mode)
-         magit-buffer-log-args)
-        ((derived-mode-p 'magit-log-mode)
-         (magit-log--merge-args magit-buffer-log-args magit-buffer-log-files))
-        (t
-         magit-log-section-arguments)))
-
-(defun magit-log--merge-args (args files)
-  (if files
-      (cons (cons "--" files) args)
-    args))
-
-(defun magit-log-get-buffer-args ()
-  (cond ((and magit-use-sticky-arguments
-              (derived-mode-p 'magit-log-mode))
-         (list magit-buffer-log-args magit-buffer-log-files))
-        ((and (eq magit-use-sticky-arguments t)
-              (when-let ((buffer (magit-mode-get-buffer 'magit-log-mode)))
-                (list (buffer-local-value 'magit-buffer-log-args buffer)
-                      (buffer-local-value 'magit-buffer-log-files buffer)))))
-        (t
-         (list (default-value 'magit-log-arguments) nil))))
-
-(defun magit-log-arguments (&optional refresh)
-  (if-let ((args (or (transient-args 'magit-log)
-                     (transient-args 'magit-log-refresh))))
-      (list (-filter #'stringp args)
-            (cdr (assoc "--" args)))
-    (if (and refresh (not (derived-mode-p 'magit-log-mode)))
-        (list magit-log-section-arguments nil)
-      (magit-log-get-buffer-args))))
 
 ;;;; Infix Commands
 
@@ -577,46 +598,6 @@ the upstream isn't ahead of the current branch) show."
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
         (trace (magit-read-string "Trace")))
     (concat trace (or (match-string 2 trace) ":") file)))
-
-;;;; Refresh Commands
-
-(defun magit-log-set-default-arguments (args files)
-  "Set the global log arguments for the current buffer."
-  (interactive (magit-log-arguments t))
-  (magit-log-refresh-assert)
-  (cond ((derived-mode-p 'magit-log-select-mode)
-         (customize-set-variable 'magit-log-select-arguments args)
-         (setq magit-buffer-log-args args))
-        ((derived-mode-p 'magit-log-mode)
-         (customize-set-variable 'magit-log-arguments args)
-         (setq magit-buffer-log-args args)
-         (setq magit-buffer-log-files files))
-        (t
-         (customize-set-variable 'magit-log-section-arguments args)
-         (kill-local-variable    'magit-log-section-arguments)))
-  (magit-refresh))
-
-(defun magit-log-save-default-arguments (args files)
-  "Set and save the global log arguments for the current buffer."
-  (interactive (magit-log-arguments t))
-  (magit-log-refresh-assert)
-  (cond ((derived-mode-p 'magit-log-select-mode)
-         (customize-save-variable 'magit-log-select-arguments args)
-         (setq magit-buffer-log-args args))
-        ((derived-mode-p 'magit-log-mode)
-         (customize-save-variable 'magit-log-arguments args)
-         (setq magit-buffer-log-args args)
-         (setq magit-buffer-log-files files))
-        (t
-         (customize-save-variable 'magit-log-section-arguments args)
-         (kill-local-variable     'magit-log-section-arguments)))
-  (magit-refresh))
-
-(defun magit-log-refresh-assert ()
-  (cond ((derived-mode-p 'magit-reflog-mode)
-         (user-error "Cannot change log arguments in reflog buffers"))
-        ((derived-mode-p 'magit-cherry-mode)
-         (user-error "Cannot change log arguments in cherry buffers"))))
 
 ;;;; Setup Commands
 
@@ -839,7 +820,7 @@ limit.  Otherwise set it to 256."
   (magit-log-set-commit-limit '/))
 
 (defun magit-log-set-commit-limit (fn)
-  (let* ((val (car (magit-log-arguments t)))
+  (let* ((val magit-buffer-log-args)
          (arg (--first (string-match "^-n\\([0-9]+\\)?$" it) val))
          (num (and arg (string-to-number (match-string 1 arg))))
          (num (if num (funcall fn num 2) 256)))
@@ -852,7 +833,7 @@ limit.  Otherwise set it to 256."
 
 (defun magit-log-get-commit-limit ()
   (--when-let (--first (string-match "^-n\\([0-9]+\\)?$" it)
-                       (car (magit-log-arguments t)))
+                       magit-buffer-log-args)
     (string-to-number (match-string 1 it))))
 
 ;;;; Mode Commands
@@ -933,6 +914,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         'magit-imenu--log-prev-index-position-function)
   (setq imenu-extract-index-name-function
         'magit-imenu--log-extract-index-name-function))
+
+(put 'magit-log-mode 'magit-log-default-arguments
+     '("--graph" "-n256" "--decorate"))
 
 (defun magit-log-setup-buffer (revs args files &optional locked)
   (require 'magit)
@@ -1478,6 +1462,9 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
 
+(put 'magit-log-select-mode 'magit-log-default-arguments
+     '("--graph" "-n256" "--decorate"))
+
 (defun magit-log-select-setup-buffer (revs args)
   (magit-setup-buffer #'magit-log-select-mode nil
     (magit-buffer-revisions revs)
@@ -1500,7 +1487,8 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
     (setq initial (magit-commit-at-point)))
   (magit-log-select-setup-buffer
    (or branch (magit-get-current-branch) "HEAD")
-   (append args magit-log-select-arguments))
+   (append args
+           (car (magit-log--get-value 'magit-log-select-mode))))
   (magit-log-goto-same-commit initial)
   (setq magit-log-select-pick-function pick)
   (setq magit-log-select-quit-function quit)
@@ -1707,7 +1695,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (magit-insert-heading
         (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
                 upstream))
-      (magit-insert-log "..@{upstream}" magit-log-section-arguments))))
+      (magit-insert-log "..@{upstream}" magit-buffer-log-args))))
 
 (magit-define-section-jumper magit-jump-to-unpulled-from-pushremote
   "Unpulled from <push-remote>" unpulled
@@ -1726,7 +1714,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         (magit-insert-heading
           (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
                   (propertize it 'face 'magit-branch-remote)))
-        (magit-insert-log (concat ".." it) magit-log-section-arguments)))))
+        (magit-insert-log (concat ".." it) magit-buffer-log-args)))))
 
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
@@ -1757,7 +1745,7 @@ then show the last `magit-log-section-commit-count' commits."
       (magit-insert-heading
         (format (propertize "Unmerged into %s:" 'face 'magit-section-heading)
                 (magit-get-upstream-branch)))
-      (magit-insert-log "@{upstream}.." magit-log-section-arguments))))
+      (magit-insert-log "@{upstream}.." magit-buffer-log-args))))
 
 (defun magit-insert-recent-commits (&optional type value)
   "Insert section showing recent commits.
@@ -1772,7 +1760,7 @@ Show the last `magit-log-section-commit-count' commits."
       (magit-insert-log range
                         (cons (format "-n%d" magit-log-section-commit-count)
                               (--remove (string-prefix-p "-n" it)
-                                        magit-log-section-arguments))))))
+                                        magit-buffer-log-args))))))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
   "Unpushed to <push-remote>" unpushed
@@ -1791,7 +1779,7 @@ Show the last `magit-log-section-commit-count' commits."
         (magit-insert-heading
           (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
                   (propertize it 'face 'magit-branch-remote)))
-        (magit-insert-log (concat it "..") magit-log-section-arguments)))))
+        (magit-insert-log (concat it "..") magit-buffer-log-args)))))
 
 ;;;; Auxiliary Log Sections
 

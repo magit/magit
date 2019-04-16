@@ -280,8 +280,8 @@ If no merge is in progress, do nothing."
           (format "Merging %s:" (mapconcat #'identity heads ", ")))
         (magit-insert-log
          range
-         (let ((args magit-log-section-arguments))
-           (unless (member "--decorate=full" magit-log-section-arguments)
+         (let ((args magit-buffer-log-args))
+           (unless (member "--decorate=full" magit-buffer-log-args)
              (push "--decorate=full" args))
            args))))))
 
