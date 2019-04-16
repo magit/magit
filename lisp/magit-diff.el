@@ -1112,14 +1112,13 @@ be committed."
   (interactive)
   (require 'magit)
   (if-let ((file (magit-file-relative-name)))
-      (magit-mode-setup-internal #'magit-diff-mode
-                                 (list (or magit-buffer-refname
-                                           (magit-get-current-branch)
-                                           "HEAD")
-                                       nil
-                                       (cadr (magit-diff-arguments))
-                                       (list file))
-                                 magit-diff-buffer-file-locked)
+      (magit-diff-setup-buffer (or magit-buffer-refname
+                                   (magit-get-current-branch)
+                                   "HEAD")
+                               nil
+                               (cadr (magit-diff-arguments))
+                               (list file)
+                               magit-diff-buffer-file-locked)
     (user-error "Buffer isn't visiting a file")))
 
 ;;;###autoload
