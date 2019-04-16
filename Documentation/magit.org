@@ -1237,29 +1237,6 @@ you should setup a global binding:
   (global-set-key (kbd "C-x M-g") 'magit-dispatch)
 #+END_SRC
 
-Transient commands remember the used arguments for subsequent
-invocations.  Two transients, the log and diff transients (see
-[[*Logging]] and [[*Diffing]]), may behave a bit differently, depending on the
-value of ~magit-use-sticky-arguments~.
-
-- User Option: magit-use-sticky-arguments
-
-  This option controls how the diff and log transients reuse arguments
-  from existing buffers.
-
-  When ~t~ (the default value), then the log or diff transients reuses
-  the arguments from the current repository's log or diff buffer,
-  respectively.  When no log or diff buffer exists for the current
-  repository, these transients use the default value of
-  ~magit-log-arguments~ or ~magit-diff-arguments~.
-
-  When ~current~, log and diff transients will only reuse the arguments
-  if the current buffer is derived from ~magit-log-mode~ or
-  ~magit-diff-mode~, respectively.
-
-  When ~nil~, the default value of ~magit-log-arguments~ or
-  ~magit-diff-arguments~ is always used.
-
 ** Completion, Confirmation and the Selection
 *** Action Confirmation
 

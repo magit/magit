@@ -212,36 +212,7 @@ support additional %-sequences."
                 (function :tag "Function")))
 
 (defcustom magit-use-sticky-arguments t
-  "How to reuse arguments from existing diff and log buffers.
-
-nil       Always use the default value of the variable
-          `magit-log-arguments' for log commands.  Likewise,
-          always use the default value of the variable
-          `magit-diff-arguments' for diff command calls.
-
-current   If the mode of the current buffer is derived from
-          `magit-log-mode' or `magit-diff-mode', reuse the
-          arguments from that buffer instead of those given by
-          the variable `magit-log-arguments' or
-          `magit-diff-arguments', respectively.
-
-t         Like `current', but if the mode of the current buffer
-          is not derived from `magit-log-mode' or
-          `magit-diff-mode', use the arguments from the current
-          repository's active (i.e. non-locked) `magit-log-mode'
-          or `magit-diff-mode' buffer, respectively, if it
-          exists.
-
-          Note that commands that generate a
-          `magit-revision-mode' or `magit-stash-mode' buffer will
-          also collect their diff arguments from the active
-          `magit-diff-mode' buffer.
-
-In general, there is a separation between the \"sticky\"
-arguments for log and diff buffers, but there is one special
-case: if the current buffer is a log buffer,
-`magit-show-commit' (considered a diff command) uses the file
-filter from the log buffer."
+  "How to reuse arguments from buffers."
   :package-version '(magit . "2.11.0")
   :group 'magit-buffers
   :type '(choice (const :tag "disabled" nil)
