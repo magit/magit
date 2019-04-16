@@ -615,7 +615,7 @@ Note that even if the value is `all', Magit still initially
 only shows directories.  But the directory sections can then
 be expanded using \"TAB\".
 
-If the first element of `magit-diff-section-arguments' is a
+If the first element of `magit-diff-section-file-args' is a
 directory, then limit the list to files below that.  The value
 value of that variable can be set using \"D -- DIRECTORY RET g\"."
   (let* ((show (or (magit-get "status.showUntrackedFiles") "normal"))
@@ -646,7 +646,7 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
 (defun magit-insert-tracked-files ()
   "Insert a tree of tracked files.
 
-If the first element of `magit-diff-section-arguments' is a
+If the first element of `magit-diff-section-file-args' is a
 directory, then limit the list to files below that.  The value
 value of that variable can be set using \"D -- DIRECTORY RET g\"."
   (when-let ((files (magit-list-files)))
@@ -660,7 +660,7 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
 (defun magit-insert-ignored-files ()
   "Insert a tree of ignored files.
 
-If the first element of `magit-diff-section-arguments' is a
+If the first element of `magit-diff-section-file-args' is a
 directory, then limit the list to files below that.  The value
 of that variable can be set using \"D -- DIRECTORY RET g\"."
   (when-let ((files (magit-ignored-files)))
@@ -674,7 +674,7 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
 (defun magit-insert-skip-worktree-files ()
   "Insert a tree of skip-worktree files.
 
-If the first element of `magit-diff-section-arguments' is a
+If the first element of `magit-diff-section-file-args' is a
 directory, then limit the list to files below that.  The value
 of that variable can be set using \"D -- DIRECTORY RET g\"."
   (when-let ((files (magit-skip-worktree-files)))
