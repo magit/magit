@@ -1141,9 +1141,8 @@ be committed."
   (pcase-let ((`(,args ,diff-files) (magit-diff-arguments)))
     (list args (if (derived-mode-p 'magit-log-mode)
                    (and (or magit-revision-filter-files-on-follow
-                            (not (member "--follow"
-                                         (nth 1 magit-refresh-args))))
-                        (nth 2 magit-refresh-args))
+                            (not (member "--follow" magit-buffer-log-args)))
+                        magit-buffer-log-files)
                  diff-files))))
 
 ;;;###autoload
@@ -1973,8 +1972,7 @@ section or a child thereof."
       (setq file (magit-decode-git-path file))
       ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
       (when (and (derived-mode-p 'magit-log-mode)
-                 (--first (string-match-p "\\`-L" it)
-                          (nth 1 magit-refresh-args)))
+                 (--first (string-match-p "\\`-L" it) magit-buffer-log-args))
         (setq file (substring file 2))
         (when orig
           (setq orig (substring orig 2))))
