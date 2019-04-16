@@ -35,11 +35,13 @@
 
 ;;; Options
 
-(defcustom magit-reflog-arguments '("-n256")
-  "The log arguments used in `magit-reflog-mode' buffers."
-  :package-version '(magit . "2.3.0")
+(defcustom magit-reflog-limit 256
+  "Maximal number of entries initially shown in reflog buffers.
+The limit in the current buffer can be changed using \"+\"
+and \"-\"."
+  :package-version '(magit . "2.91.0")
   :group 'magit-git-arguments
-  :type '(repeat (string :tag "Argument")))
+  :type 'number)
 
 (defcustom magit-reflog-margin
   (list (nth 0 magit-log-margin)
@@ -110,24 +112,23 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 ;;; Commands
 
 ;;;###autoload
-(defun magit-reflog-current (args)
+(defun magit-reflog-current ()
   "Display the reflog of the current branch.
 If `HEAD' is detached, then show the reflog for that instead."
-  (interactive (list magit-reflog-arguments))
-  (magit-reflog-setup-buffer (or (magit-get-current-branch) "HEAD") args))
+  (interactive)
+  (magit-reflog-setup-buffer (or (magit-get-current-branch) "HEAD")))
 
 ;;;###autoload
-(defun magit-reflog-other (ref args)
+(defun magit-reflog-other (ref)
   "Display the reflog of a branch or another ref."
-  (interactive (list (magit-read-local-branch-or-ref "Show reflog for")
-                     magit-reflog-arguments))
-  (magit-reflog-setup-buffer ref args))
+  (interactive (list (magit-read-local-branch-or-ref "Show reflog for")))
+  (magit-reflog-setup-buffer ref))
 
 ;;;###autoload
-(defun magit-reflog-head (args)
+(defun magit-reflog-head ()
   "Display the `HEAD' reflog."
-  (interactive (list magit-reflog-arguments))
-  (magit-reflog-setup-buffer "HEAD" args))
+  (interactive)
+  (magit-reflog-setup-buffer "HEAD"))
 
 ;;; Mode
 
@@ -156,11 +157,11 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-reflog-setup-buffer (ref args)
+(defun magit-reflog-setup-buffer (ref)
   (require 'magit)
   (magit-setup-buffer #'magit-reflog-mode nil
     (magit-buffer-refname ref)
-    (magit-buffer-log-args args)))
+    (magit-buffer-log-args (list (format "-n%s" magit-reflog-limit)))))
 
 (defun magit-reflog-refresh-buffer ()
   (magit-set-header-line-format (concat "Reflog for " magit-buffer-refname))
