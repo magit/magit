@@ -2357,17 +2357,18 @@ or a ref which is not a branch, then it inserts nothing."
   (save-excursion
     (goto-char beg)
     (when (re-search-forward regexp nil t)
-      (let* ((column   (length (match-string 0)))
-             (font-obj (query-font (font-at (point) (get-buffer-window))))
-             (size     (* 2 (+ (aref font-obj 4)
-                               (aref font-obj 5))))
-             (align-to (+ column
-                          (ceiling (/ size (aref font-obj 7) 1.0))
-                          1))
-             (gravatar-size (- size 2)))
-        (ignore-errors ; service may be unreachable
-          (gravatar-retrieve email 'magit-insert-revision-gravatar-cb
-                             (list rev (point-marker) align-to column)))))))
+      (when-let ((window (get-buffer-window)))
+        (let* ((column   (length (match-string 0)))
+               (font-obj (query-font (font-at (point) window)))
+               (size     (* 2 (+ (aref font-obj 4)
+                                 (aref font-obj 5))))
+               (align-to (+ column
+                            (ceiling (/ size (aref font-obj 7) 1.0))
+                            1))
+               (gravatar-size (- size 2)))
+          (ignore-errors ; service may be unreachable
+            (gravatar-retrieve email 'magit-insert-revision-gravatar-cb
+                               (list rev (point-marker) align-to column))))))))
 
 (defun magit-insert-revision-gravatar-cb (image rev marker align-to column)
   (unless (eq image 'error)
