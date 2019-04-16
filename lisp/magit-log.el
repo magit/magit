@@ -1472,6 +1472,9 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   (magit-insert-section (logbuf)
     (magit-insert-log rev args)))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-log-select-mode))
+  (car magit-refresh-args))
+
 (defvar-local magit-log-select-pick-function nil)
 (defvar-local magit-log-select-quit-function nil)
 
