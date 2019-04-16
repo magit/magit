@@ -1016,10 +1016,6 @@ a \"revA...revB\" range.  Otherwise, always construct
                           secondary-default
                           (magit-get-current-branch)))))
 
-(defun magit-diff-setup (rev-or-range const args files)
-  (require 'magit)
-  (magit-mode-setup #'magit-diff-mode rev-or-range const args files))
-
 ;;;###autoload
 (defun magit-diff-range (rev-or-range &optional args files)
   "Show differences between two commits.
@@ -1037,7 +1033,7 @@ revisions (i.e., use a \"...\" range)."
   (interactive (cons (magit-diff-read-range-or-commit "Diff for range"
                                                       nil current-prefix-arg)
                      (magit-diff-arguments)))
-  (magit-diff-setup rev-or-range nil args files))
+  (magit-diff-setup-buffer rev-or-range nil args files))
 
 ;;;###autoload
 (defun magit-diff-working-tree (&optional rev args files)
@@ -1048,7 +1044,7 @@ a commit read from the minibuffer."
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff working tree and commit"))
          (magit-diff-arguments)))
-  (magit-diff-setup (or rev "HEAD") nil args files))
+  (magit-diff-setup-buffer (or rev "HEAD") nil args files))
 
 ;;;###autoload
 (defun magit-diff-staged (&optional rev args files)
@@ -1059,13 +1055,13 @@ a commit read from the minibuffer."
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff index and commit"))
          (magit-diff-arguments)))
-  (magit-diff-setup rev (list "--cached") args files))
+  (magit-diff-setup-buffer rev (list "--cached") args files))
 
 ;;;###autoload
 (defun magit-diff-unstaged (&optional args files)
   "Show changes between the working tree and the index."
   (interactive (magit-diff-arguments))
-  (magit-diff-setup nil nil args files))
+  (magit-diff-setup-buffer nil nil args files))
 
 ;;;###autoload
 (defun magit-diff-unmerged (&optional args files)
@@ -1073,7 +1069,7 @@ a commit read from the minibuffer."
   (interactive (magit-diff-arguments))
   (unless (magit-merge-in-progress-p)
     (user-error "No merge is in progress"))
-  (magit-diff-setup (magit--merge-range) nil args files))
+  (magit-diff-setup-buffer (magit--merge-range) nil args files))
 
 ;;;###autoload
 (defun magit-diff-while-committing (&optional args)
@@ -1108,7 +1104,7 @@ be committed."
   (kbd "C-c C-d") 'magit-diff-while-committing)
 
 (defun magit-diff-while-amending (&optional args)
-  (magit-diff-setup "HEAD^" (list "--cached") args nil))
+  (magit-diff-setup-buffer "HEAD^" (list "--cached") args nil))
 
 ;;;###autoload
 (defun magit-diff-buffer-file ()
@@ -1131,11 +1127,11 @@ be committed."
   "Show changes between any two files on disk."
   (interactive (list (read-file-name "First file: " nil nil t)
                      (read-file-name "Second file: " nil nil t)))
-  (magit-diff-setup nil (list "--no-index")
-                    nil (list (magit-convert-filename-for-git
-                               (expand-file-name a))
-                              (magit-convert-filename-for-git
-                               (expand-file-name b)))))
+  (magit-diff-setup-buffer nil (list "--no-index")
+                           nil (list (magit-convert-filename-for-git
+                                      (expand-file-name a))
+                                     (magit-convert-filename-for-git
+                                      (expand-file-name b)))))
 
 (defun magit-show-commit--arguments ()
   (pcase-let ((`(,args ,diff-files) (magit-diff-arguments)))
@@ -1714,6 +1710,10 @@ Staging and applying changes is documented in info node
         'magit-imenu--diff-prev-index-position-function)
   (setq imenu-extract-index-name-function
         'magit-imenu--diff-extract-index-name-function))
+
+(defun magit-diff-setup-buffer (rev-or-range const args files)
+  (require 'magit)
+  (magit-mode-setup #'magit-diff-mode rev-or-range const args files))
 
 (defun magit-diff-refresh-buffer (rev-or-range const _args files)
   "Refresh the current `magit-diff-mode' buffer.
