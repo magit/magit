@@ -626,7 +626,6 @@ above."
     (when-let ((rev (or magit-buffer-revision
                         (cl-case major-mode
                           ((
-                            magit-log-select-mode
                             magit-revision-mode
                             magit-stash-mode
                             )
