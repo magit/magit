@@ -1228,6 +1228,7 @@ to, or to some other symbolic-ref that points to the same ref."
 (defun magit-commit-at-point ()
   (or (magit-section-value-if 'commit)
       (and (derived-mode-p 'magit-stash-mode) magit-buffer-revision)
+      (and (derived-mode-p 'magit-merge-preview-mode) magit-buffer-revision)
       (and (derived-mode-p 'magit-revision-mode)
            (car magit-refresh-args))))
 
@@ -1244,8 +1245,8 @@ to, or to some other symbolic-ref that points to the same ref."
         (tag (magit-ref-maybe-qualify (oref it value) "tags/")))
       (thing-at-point 'git-revision t)
       (and (derived-mode-p 'magit-stash-mode) magit-buffer-revision)
-      (and (derived-mode-p 'magit-revision-mode
-                           'magit-merge-preview-mode)
+      (and (derived-mode-p 'magit-merge-preview-mode) magit-buffer-revision)
+      (and (derived-mode-p 'magit-revision-mode)
            (car magit-refresh-args))))
 
 (defun magit-tag-at-point ()
