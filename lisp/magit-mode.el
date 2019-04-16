@@ -327,7 +327,7 @@ starts complicating other things, then it will be removed."
   :group 'magit-miscellaneous
   :type 'boolean)
 
-;;; Magit Mode
+;;; Key Bindings
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
@@ -521,6 +521,8 @@ which visits the thing at point using `browse-url'."
     ["Display Git output" magit-process-buffer t]
     ["Quit Magit" magit-mode-bury-buffer t]))
 
+;;; Mode
+
 (defun magit-load-config-extensions ()
   "Load Magit extensions that are defined at the Git config layer."
   (dolist (ext (magit-get-all "magit.extension"))
@@ -557,6 +559,8 @@ Magit is documented in info node `(magit)'."
     (display-line-numbers-mode -1))
   (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache))
 
+;;; Highlighting
+
 (defvar-local magit-region-overlays nil)
 
 (defun magit-delete-region-overlays ()
@@ -581,12 +585,16 @@ Magit is documented in info node `(magit)'."
   (magit-delete-region-overlays)
   (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
+;;; Local Variables
+
 (defvar-local magit-refresh-args nil
   "The arguments used to refresh the current buffer.")
 (put 'magit-refresh-args 'permanent-local t)
 
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
+
+;;; Setup Buffer
 
 (defun magit-mode-setup (mode &rest args)
   "Setup up a MODE buffer using ARGS to generate its content."
@@ -614,6 +622,8 @@ locked to its value, which is derived from MODE and ARGS."
     (with-current-buffer buffer
       (run-hooks 'magit-mode-setup-hook)
       (magit-refresh-buffer))))
+
+;;; Display Buffer
 
 (defvar magit-display-buffer-noselect nil
   "If non-nil, then `magit-display-buffer' doesn't call `select-window'.")
@@ -768,6 +778,8 @@ Magit buffer is buried."
                (not (window-prev-buffers window)))
       (set-window-parameter window 'magit-dedicated t))))
 
+;;; Get Buffer
+
 (defvar-local magit--default-directory nil
   "Value of `default-directory' when buffer is generated.
 This exists to prevent a let-bound `default-directory' from
@@ -842,6 +854,8 @@ account."
        (?t . ,n)
        (?x . ,(if magit-uniquify-buffer-names "" "*"))
        (?T . ,(if magit-uniquify-buffer-names n (concat n "*")))))))
+
+;;; Buffer Lock
 
 (defun magit-toggle-buffer-lock ()
   "Lock the current buffer to its value or unlock it.
@@ -939,6 +953,8 @@ See also `magit-buffer-lock-functions'."
      (--when-let (cdr (assq mode magit-buffer-lock-functions))
        (funcall it args)))))
 
+;;; Bury Buffer
+
 (defun magit-mode-bury-buffer (&optional kill-buffer)
   "Bury the current buffer.
 With a prefix argument, kill the buffer instead.
@@ -969,7 +985,7 @@ window."
       (when (window-live-p window)
         (delete-window window)))))
 
-;;; Refresh Magit Buffers
+;;; Refresh Buffers
 
 (defvar inhibit-magit-refresh nil)
 
