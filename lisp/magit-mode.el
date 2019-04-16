@@ -633,7 +633,7 @@ Magit is documented in info node `(magit)'."
                          (pcase-dolist (`(,var ,val) bindings)
                            (set (make-local-variable var) val))
                          (let ((major-mode mode))
-                           (magit-buffer-lock-value)))))
+                           (magit-buffer-value)))))
          (buffer  (magit-mode-get-buffer mode nil nil value))
          (section (and buffer (magit-current-section)))
          (created (not buffer)))
@@ -663,7 +663,11 @@ Magit is documented in info node `(magit)'."
   "Setup up a MODE buffer using ARGS to generate its content.
 When optional LOCKED is non-nil, then create a buffer that is
 locked to its value, which is derived from MODE and ARGS."
-  (let* ((value   (and locked (magit-buffer-lock-value mode args)))
+  (let* ((value   (and locked
+                       (with-temp-buffer
+                         (setq magit-refresh-args args)
+                         (let ((major-mode mode))
+                           (magit-buffer-value)))))
          (buffer  (magit-mode-get-buffer mode nil nil value))
          (section (and buffer (magit-current-section)))
          (created (not buffer)))
@@ -866,7 +870,7 @@ thinking a buffer belongs to a repo that it doesn't.")
                       (equal magit--default-directory topdir)
                       (if value
                           (and magit-buffer-locked-p
-                               (equal (magit-buffer-lock-value) value))
+                               (equal (magit-buffer-value) value))
                         (not magit-buffer-locked-p))))
                (if frame
                    (mapcar #'window-buffer
@@ -942,7 +946,7 @@ latter is displayed in its place."
         (setq magit-buffer-locked-p nil)
         (rename-buffer (funcall magit-generate-buffer-name-function
                                 major-mode)))
-    (if-let ((value (magit-buffer-lock-value)))
+    (if-let ((value (magit-buffer-value)))
         (if-let ((locked (magit-mode-get-buffer major-mode nil nil value)))
             (let ((unlocked (current-buffer)))
               (switch-to-buffer locked nil t)
@@ -976,11 +980,10 @@ This variable is intended for third-party extensions;
 
 See also `magit-toggle-buffer-lock'.")
 
-(cl-defun magit-buffer-lock-value
-    (&optional (mode major-mode)
-               (args magit-refresh-args))
-  "Find an appropriate buffer lock value for MODE under ARGS.
-See also `magit-buffer-lock-functions'."
+(cl-defgeneric magit-buffer-value ()
+  (magit-buffer-lock-value major-mode magit-refresh-args))
+
+(defun magit-buffer-lock-value (mode args)
   (cl-case mode
     (magit-cherry-mode
      (pcase-let ((`(,upstream ,head) args))
