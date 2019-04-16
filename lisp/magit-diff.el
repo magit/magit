@@ -2419,6 +2419,9 @@ or a ref which is not a branch, then it inserts nothing."
       (magit--insert-diff
         "merge-tree" (magit-git-string "merge-base" head rev) head rev))))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-merge-preview-mode))
+  (car magit-refresh-args))
+
 ;;; Diff Sections
 
 (defvar magit-unstaged-section-map
