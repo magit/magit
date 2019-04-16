@@ -424,6 +424,9 @@ instead of \"Stashes:\"."
     (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
       "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-stashes-mode))
+  (car magit-refresh-args))
+
 ;;; Show Stash
 
 ;;;###autoload
