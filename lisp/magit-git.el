@@ -36,22 +36,32 @@
 (require 'magit-utils)
 (require 'magit-section)
 
-(declare-function magit-call-git "magit-process" (&rest args))
+;; From `magit-branch'.
+(defvar magit-branch-prefer-remote-upstream)
+(defvar magit-published-branches)
+
+;; From `magit-diff'.
+(defvar magit-diff-section-arguments)
+
+;; From `magit-margin'.
 (declare-function magit-maybe-make-margin-overlay "magit-margin" ())
-(declare-function magit-process-buffer "magit-process" (&optional nodisplay))
-(declare-function magit-process-file "magit-process" (&rest args))
-(declare-function magit-process-insert-section "magit-process"
-                  (pwe program args &optional errcode errlog))
+
+;; From `magit-mode'.
 (declare-function magit-mode-get-buffer "magit-mode"
                   (mode &optional create frame value))
 (declare-function magit-refresh "magit-mode" ())
+(defvar magit-refresh-args)
+
+;; From `magit-process'.
+(declare-function magit-call-git "magit-process" (&rest args))
+(declare-function magit-process-buffer "magit-process" (&optional nodisplay))
+(declare-function magit-process-file "magit-process" (&rest args))
+(declare-function magit-process-insert-section "magit-process"
+                  (pwd program args &optional errcode errlog))
 (defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
-(defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
-(defvar magit-branch-prefer-remote-upstream)
-(defvar magit-published-branches)
-(defvar magit-diff-section-arguments)
 
+;; From later in `magit-git'.
 (defvar magit-tramp-process-environment nil)
 
 ;;; Options
