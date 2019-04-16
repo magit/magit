@@ -627,7 +627,6 @@ above."
                         (cl-case major-mode
                           ((
                             magit-log-select-mode
-                            magit-reflog-mode
                             magit-revision-mode
                             magit-stash-mode
                             )

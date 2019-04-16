@@ -1631,17 +1631,19 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 (defun magit-reflog-setup-buffer (ref args)
   (require 'magit)
-  (magit-mode-setup #'magit-reflog-mode ref args))
+  (magit-setup-buffer #'magit-reflog-mode nil
+    (magit-buffer-refname ref)
+    (magit-buffer-log-args args)))
 
-(defun magit-reflog-refresh-buffer (ref args)
-  (magit-set-header-line-format (concat "Reflog for " ref))
+(defun magit-reflog-refresh-buffer ()
+  (magit-set-header-line-format (concat "Reflog for " magit-buffer-refname))
   (magit-insert-section (reflogbuf)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
       "reflog" "show" "--format=%h%x00%aN%x00%gd%x00%gs" "--date=raw"
-      args ref "--")))
+      magit-buffer-log-args magit-buffer-refname "--")))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-reflog-mode))
-  (car magit-refresh-args))
+  magit-buffer-refname)
 
 (defvar magit-reflog-labels
   '(("commit"      . magit-reflog-commit)
