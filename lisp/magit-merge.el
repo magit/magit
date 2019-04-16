@@ -199,7 +199,7 @@ then also remove the respective remote branch."
 (defun magit-merge-preview (rev)
   "Preview result of merging REV into the current branch."
   (interactive (list (magit-read-other-branch-or-commit "Preview merge")))
-  (magit-mode-setup #'magit-merge-preview-mode rev))
+  (magit-merge-preview-setup-buffer rev))
 
 ;;;###autoload
 (defun magit-merge-abort ()

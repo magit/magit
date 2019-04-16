@@ -2403,6 +2403,9 @@ or a ref which is not a branch, then it inserts nothing."
   :group 'magit-diff
   (hack-dir-local-variables-non-file-buffer))
 
+(defun magit-merge-preview-setup-buffer (rev)
+  (magit-mode-setup #'magit-merge-preview-mode rev))
+
 (defun magit-merge-preview-refresh-buffer (rev)
   (let* ((branch (magit-get-current-branch))
          (head (or branch (magit-rev-verify "HEAD"))))
