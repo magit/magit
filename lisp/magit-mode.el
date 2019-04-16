@@ -55,6 +55,8 @@
 (declare-function magit-process-unset-mode-line-error-status "magit-process" ())
 ;; For `magit-mode-setup-internal'
 (declare-function magit-status-goto-initial-section "magit-status" ())
+;; For `magit-mode' from `bookmark'
+(defvar bookmark-make-record-function)
 
 (require 'format-spec)
 (require 'help-mode)
@@ -605,7 +607,8 @@ Magit is documented in info node `(magit)'."
   (when (and (fboundp 'display-line-numbers-mode)
              (bound-and-true-p global-display-line-numbers-mode))
     (display-line-numbers-mode -1))
-  (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache))
+  (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache)
+  (setq-local bookmark-make-record-function 'magit--make-bookmark))
 
 ;;; Highlighting
 

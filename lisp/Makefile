@@ -58,6 +58,7 @@ magit-gitignore.elc:    magit.elc
 magit-extras.elc:       magit.elc magit-merge.elc
 git-rebase.elc:         magit.elc
 magit-imenu.elc:        magit.elc git-rebase.elc
+magit-bookmark.elc:     magit.elc
 magit-obsolete.elc:     magit.elc
 
 ## Build #############################################################
