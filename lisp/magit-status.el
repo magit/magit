@@ -336,7 +336,9 @@ Type \\[magit-commit] to create a commit.
         'magit-imenu--status-create-index-function))
 
 ;;;###autoload
-(defun magit-status-setup-buffer (directory)
+(defun magit-status-setup-buffer (&optional directory)
+  (unless directory
+    (setq directory default-directory))
   (magit--tramp-asserts directory)
   (let ((default-directory directory))
     (magit-setup-buffer #'magit-status-mode)))
