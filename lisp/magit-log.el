@@ -55,8 +55,6 @@
 (eval-when-compile
   (require 'subr-x))
 
-(defvar bookmark-make-record-function)
-
 ;;; Options
 ;;;; Log Mode
 
@@ -938,9 +936,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (setq imenu-prev-index-position-function
         'magit-imenu--log-prev-index-position-function)
   (setq imenu-extract-index-name-function
-        'magit-imenu--log-extract-index-name-function)
-  (setq-local bookmark-make-record-function
-              'magit-bookmark--log-make-record))
+        'magit-imenu--log-extract-index-name-function))
 
 (defvar magit-log-disable-graph-hack-args
   '("-G" "--grep" "--author")
@@ -1552,9 +1548,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer)
   (setq imenu-create-index-function
-        'magit-imenu--cherry-create-index-function)
-  (setq-local bookmark-make-record-function
-              'magit-bookmark--cherry-make-record))
+        'magit-imenu--cherry-create-index-function))
 
 ;;;###autoload
 (defun magit-cherry (head upstream)
@@ -1614,9 +1608,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 \\{magit-reflog-mode-map}"
   :group 'magit-log
-  (hack-dir-local-variables-non-file-buffer)
-  (setq-local bookmark-make-record-function
-              'magit-bookmark--reflog-make-record))
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-reflog-refresh-buffer (ref args)
   (magit-set-header-line-format (concat "Reflog for " ref))

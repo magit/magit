@@ -29,8 +29,6 @@
 (require 'magit)
 
 (defvar x-stretch-cursor)
-(defvar bookmark-make-record-function)
-
 ;;; Options
 
 (defcustom magit-module-sections-hook
@@ -608,9 +606,7 @@ These sections can be expanded to show the respective commits."
   (setq imenu-prev-index-position-function
         #'magit-imenu--submodule-prev-index-position-function)
   (setq imenu-extract-index-name-function
-        #'magit-imenu--submodule-extract-index-name-function)
-  (setq-local bookmark-make-record-function
-              #'magit-bookmark--submodules-make-record))
+        #'magit-imenu--submodule-extract-index-name-function))
 
 (defun magit-submodule-list-refresh ()
   (setq tabulated-list-entries

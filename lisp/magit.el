@@ -580,11 +580,7 @@ For X11 something like ~/.xinitrc should work.\n"
     (require 'magit-gitignore)
     (require 'magit-extras)
     (require 'git-rebase)
-    (require 'magit-imenu)
-    (require 'magit-bookmark)))
-
-(eval-after-load 'bookmark
-  '(require 'magit-bookmark))
+    (require 'magit-imenu)))
 
 (if after-init-time
     (progn (magit-startup-asserts)

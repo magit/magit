@@ -68,8 +68,6 @@
 (require 'diff-mode)
 (require 'smerge-mode)
 
-(defvar bookmark-make-record-function)
-
 ;;; Options
 ;;;; Diff Mode
 
@@ -1718,9 +1716,7 @@ Staging and applying changes is documented in info node
   (setq imenu-prev-index-position-function
         'magit-imenu--diff-prev-index-position-function)
   (setq imenu-extract-index-name-function
-        'magit-imenu--diff-extract-index-name-function)
-  (setq-local bookmark-make-record-function
-              'magit-bookmark--diff-make-record))
+        'magit-imenu--diff-extract-index-name-function))
 
 (defun magit-diff-refresh-buffer (rev-or-range const _args files)
   "Refresh the current `magit-diff-mode' buffer.
@@ -2112,9 +2108,7 @@ Staging and applying changes is documented in info node
 
 \\{magit-revision-mode-map}"
   :group 'magit-revision
-  (hack-dir-local-variables-non-file-buffer)
-  (setq-local bookmark-make-record-function
-              'magit-bookmark--revision-make-record))
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-revision-refresh-buffer (rev __const _args files)
   (magit-set-header-line-format
