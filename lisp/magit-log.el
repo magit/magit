@@ -801,28 +801,26 @@ https://github.com/mhagger/git-when-merged."
                          commit branch)))
    args files))
 
-(defun magit-git-reflog (ref args)
-  (require 'magit)
-  (magit-mode-setup #'magit-reflog-mode ref args))
+;;;; Reflog Commands
 
 ;;;###autoload
 (defun magit-reflog-current (args)
   "Display the reflog of the current branch."
   (interactive (list magit-reflog-arguments))
-  (magit-git-reflog (magit-get-current-branch) args))
+  (magit-reflog-setup-buffer (magit-get-current-branch) args))
 
 ;;;###autoload
 (defun magit-reflog-other (ref args)
   "Display the reflog of a branch or another ref."
   (interactive (list (magit-read-local-branch-or-ref "Show reflog for")
                      magit-reflog-arguments))
-  (magit-git-reflog ref args))
+  (magit-reflog-setup-buffer ref args))
 
 ;;;###autoload
 (defun magit-reflog-head (args)
   "Display the `HEAD' reflog."
   (interactive (list magit-reflog-arguments))
-  (magit-git-reflog "HEAD" args))
+  (magit-reflog-setup-buffer "HEAD" args))
 
 ;;;; Limit Commands
 
@@ -1624,6 +1622,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 \\{magit-reflog-mode-map}"
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
+
+(defun magit-reflog-setup-buffer (ref args)
+  (require 'magit)
+  (magit-mode-setup #'magit-reflog-mode ref args))
 
 (defun magit-reflog-refresh-buffer (ref args)
   (magit-set-header-line-format (concat "Reflog for " ref))
