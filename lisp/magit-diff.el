@@ -1226,14 +1226,22 @@ instead."
                             magit-buffer-diff-files-suspended)
                         (cl-rotatef magit-buffer-diff-files
                                     magit-buffer-diff-files-suspended)
-                      (user-error "No diff file filter to toggle"))
+                      (setq magit-buffer-diff-files
+                            (magit-read-files "Limit to file(s): "
+                                              (magit-file-at-point)
+                                              nil)))
                     (magit-refresh)))
-    (--if-let (and (derived-mode-p 'magit-log-mode
-                                   'magit-cherry-mode
-                                   'magit-reflog-mode)
-                   (magit-get-mode-buffer 'magit-revision-mode))
-        (with-current-buffer it (toggle))
-      (toggle))))
+    (cond
+     ((derived-mode-p 'magit-log-mode
+                      'magit-cherry-mode
+                      'magit-reflog-mode)
+      (if-let ((buffer (magit-get-mode-buffer 'magit-revision-mode)))
+          (with-current-buffer buffer (toggle))
+        (message "No revision buffer")))
+     ((local-variable-p 'magit-buffer-diff-files)
+      (toggle))
+     (t
+      (user-error "Cannot toggle file filter in this buffer")))))
 
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
