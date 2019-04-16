@@ -641,6 +641,7 @@ Magit is documented in info node `(magit)'."
 (defvar-local magit-buffer-arguments nil)
 (defvar-local magit-buffer-diff-args nil)
 (defvar-local magit-buffer-diff-files nil)
+(defvar-local magit-buffer-diff-files-suspended nil)
 (defvar-local magit-buffer-file-name nil)
 (defvar-local magit-buffer-files nil)
 (defvar-local magit-buffer-log-args nil)

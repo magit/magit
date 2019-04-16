@@ -1215,12 +1215,11 @@ Change \"revA..revB\" to \"revB..revA\"."
         (magit-refresh))
     (user-error "No range to swap")))
 
-(defvar-local magit-diff--last-file-args nil)
 (defun magit-diff--toggle-file-args (files)
   (cond (files
-         (setq magit-diff--last-file-args files)
+         (setq magit-buffer-diff-files-suspened files)
                nil)
-        (magit-diff--last-file-args)
+        (magit-buffer-diff-files-suspened)
         (t
          (user-error "No diff file filter to toggle"))))
 
