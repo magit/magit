@@ -639,11 +639,6 @@ the upstream isn't ahead of the current branch) show."
                                          magit-log-read-revs-map)
          "[, ]" t))))
 
-(defun magit-git-log (revs args files)
-  (require 'magit)
-  (magit-mode-setup #'magit-log-mode revs args files)
-  (magit-log-goto-same-commit))
-
 ;;;###autoload
 (defun magit-log-current (revs &optional args files)
   "Show log for the current branch.
@@ -651,7 +646,7 @@ When `HEAD' is detached or with a prefix argument show log for
 one or more revs read from the minibuffer."
   (interactive (cons (magit-log-read-revs t)
                      (magit-log-arguments)))
-  (magit-git-log revs args files))
+  (magit-log-setup-buffer revs args files))
 
 ;;;###autoload
 (defun magit-log-other (revs &optional args files)
@@ -662,40 +657,40 @@ representation of the commit at point, are available as
 completion candidates."
   (interactive (cons (magit-log-read-revs)
                      (magit-log-arguments)))
-  (magit-git-log revs args files))
+  (magit-log-setup-buffer revs args files))
 
 ;;;###autoload
 (defun magit-log-head (&optional args files)
   "Show log for `HEAD'."
   (interactive (magit-log-arguments))
-  (magit-git-log (list "HEAD") args files))
+  (magit-log-setup-buffer (list "HEAD") args files))
 
 ;;;###autoload
 (defun magit-log-branches (&optional args files)
   "Show log for all local branches and `HEAD'."
   (interactive (magit-log-arguments))
-  (magit-git-log (if (magit-get-current-branch)
-                 (list "--branches")
-               (list "HEAD" "--branches"))
-             args files))
+  (magit-log-setup-buffer (if (magit-get-current-branch)
+                              (list "--branches")
+                            (list "HEAD" "--branches"))
+                          args files))
 
 ;;;###autoload
 (defun magit-log-all-branches (&optional args files)
   "Show log for all local and remote branches and `HEAD'."
   (interactive (magit-log-arguments))
-  (magit-git-log (if (magit-get-current-branch)
-                     (list "--branches" "--remotes")
-                   (list "HEAD" "--branches" "--remotes"))
-                 args files))
+  (magit-log-setup-buffer (if (magit-get-current-branch)
+                              (list "--branches" "--remotes")
+                            (list "HEAD" "--branches" "--remotes"))
+                          args files))
 
 ;;;###autoload
 (defun magit-log-all (&optional args files)
   "Show log for all references and `HEAD'."
   (interactive (magit-log-arguments))
-  (magit-git-log (if (magit-get-current-branch)
-                     (list "--all")
-                   (list "HEAD" "--all"))
-                 args files))
+  (magit-log-setup-buffer (if (magit-get-current-branch)
+                              (list "--all")
+                            (list "HEAD" "--all"))
+                          args files))
 
 ;;;###autoload
 (defun magit-log-buffer-file (&optional follow beg end)
@@ -800,7 +795,7 @@ https://github.com/mhagger/git-when-merged."
   (unless (executable-find "git-when-merged")
     (user-error "This command requires git-when-merged (%s)"
                 "https://github.com/mhagger/git-when-merged"))
-  (magit-git-log
+  (magit-log-setup-buffer
    (list (or (magit-git-string "when-merged" "--show-branch" commit branch)
              (user-error "Could not find when %s was merged into %s"
                          commit branch)))
@@ -943,6 +938,11 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         'magit-imenu--log-prev-index-position-function)
   (setq imenu-extract-index-name-function
         'magit-imenu--log-extract-index-name-function))
+
+(defun magit-log-setup-buffer (revs args files)
+  (require 'magit)
+  (magit-mode-setup #'magit-log-mode revs args files)
+  (magit-log-goto-same-commit))
 
 (defun magit-log-refresh-buffer (revs args files)
   (magit-set-header-line-format
