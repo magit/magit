@@ -984,19 +984,8 @@ See also `magit-toggle-buffer-lock'.")
   (magit-buffer-lock-value major-mode magit-refresh-args))
 
 (defun magit-buffer-lock-value (mode args)
-  (cl-case mode
-    (magit-diff-mode
-     (pcase-let ((`(,rev-or-range ,const ,_args ,files) args))
-       (nconc (cons (or rev-or-range
-                        (if (member "--cached" const)
-                            (progn (setq const (delete "--cached" const))
-                                   'staged)
-                          'unstaged))
-                    const)
-              (and files (cons "--" files)))))
-    (t
-     (--when-let (cdr (assq mode magit-buffer-lock-functions))
-       (funcall it args)))))
+  (--when-let (cdr (assq mode magit-buffer-lock-functions))
+    (funcall it args)))
 
 ;;; Bury Buffer
 

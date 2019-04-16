@@ -1741,6 +1741,16 @@ is set in `magit-mode-setup'."
   (magit-insert-section (diffbuf)
     (magit-run-section-hook 'magit-diff-sections-hook rev-or-range)))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-diff-mode))
+  (pcase-let ((`(,rev-or-range ,const ,_args ,files) magit-refresh-args))
+    (nconc (cons (or rev-or-range
+                     (if (member "--cached" const)
+                         (progn (setq const (delete "--cached" const))
+                                'staged)
+                       'unstaged))
+                 const)
+           (and files (cons "--" files)))))
+
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
     (unless (featurep 'jkl)
