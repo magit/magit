@@ -1805,10 +1805,10 @@ is set in `magit-mode-setup'."
    ;; oldBold, and newBold.
    ))
 
-(defun magit-insert-diff (rev-or-range)
+(defun magit-insert-diff ()
   "Insert the diff into this `magit-diff-mode' buffer."
   (magit--insert-diff
-    "diff" rev-or-range "-p" "--no-prefix"
+    "diff" (car magit-refresh-args) "-p" "--no-prefix"
     (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
     (nth 1 magit-refresh-args)
     (nth 2 magit-refresh-args) "--"
