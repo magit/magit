@@ -1713,45 +1713,46 @@ Staging and applying changes is documented in info node
   (setq imenu-extract-index-name-function
         'magit-imenu--diff-extract-index-name-function))
 
-(defun magit-diff-setup-buffer (rev-or-range const args files &optional locked)
+(defun magit-diff-setup-buffer (range typearg args files &optional locked)
   (require 'magit)
   (magit-setup-buffer #'magit-diff-mode locked
-    (magit-refresh-args (list rev-or-range const args files))))
+    (magit-refresh-args (list range typearg args files))
+    (magit-buffer-range range)
+    (magit-buffer-typearg typearg)
+    (magit-buffer-diff-args args)
+    (magit-buffer-diff-files files)))
 
-(defun magit-diff-refresh-buffer (rev-or-range const _args files)
-  "Refresh the current `magit-diff-mode' buffer.
-
-In such buffers the buffer-local value of `magit-refresh-args'
-has the same form as the arguments of this function.  The value
-is set in `magit-mode-setup'."
+(defun magit-diff-refresh-buffer (&rest _)
+  "Refresh the current `magit-diff-mode' buffer."
   (magit-set-header-line-format
-   (if (equal const "--no-index")
-       (apply #'format "Differences between %s and %s" files)
-     (concat (if rev-or-range
+   (if (equal magit-buffer-typearg "--no-index")
+       (apply #'format "Differences between %s and %s" magit-buffer-diff-files)
+     (concat (if magit-buffer-range
                  (if (string-match-p "\\(\\.\\.\\|\\^-\\)"
-                                     rev-or-range)
-                     (format "Changes in %s" rev-or-range)
-                   (format "Changes from %s to working tree" rev-or-range))
-               (if (equal const "--cached")
+                                     magit-buffer-range)
+                     (format "Changes in %s" magit-buffer-range)
+                   (format "Changes from %s to working tree" magit-buffer-range))
+               (if (equal magit-buffer-typearg "--cached")
                    "Staged changes"
                  "Unstaged changes"))
-             (pcase (length files)
+             (pcase (length magit-buffer-diff-files)
                (0)
-               (1 (concat " in file " (car files)))
+               (1 (concat " in file " (car magit-buffer-diff-files)))
                (_ (concat " in files "
-                          (mapconcat #'identity files ", ")))))))
+                          (mapconcat #'identity magit-buffer-diff-files ", ")))))))
+  (setq magit-buffer-range-hashed
+        (and magit-buffer-range (magit-hash-range magit-buffer-range)))
   (magit-insert-section (diffbuf)
-    (magit-run-section-hook 'magit-diff-sections-hook rev-or-range)))
+    (magit-run-section-hook 'magit-diff-sections-hook)))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-diff-mode))
-  (pcase-let ((`(,rev-or-range ,const ,_args ,files) magit-refresh-args))
-    (nconc (cons (or rev-or-range
-                     (if (member "--cached" const)
-                         (progn (setq const (delete "--cached" const))
-                                'staged)
-                       'unstaged))
-                 const)
-           (and files (cons "--" files)))))
+  (nconc (cond (magit-buffer-range
+                (delq nil (list magit-buffer-range magit-buffer-typearg)))
+               ((equal magit-buffer-typearg "--cached")
+                (list 'staged))
+               (t
+                (list 'unstaged magit-buffer-typearg)))
+         (and magit-buffer-diff-files (cons "--" magit-buffer-diff-files))))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
