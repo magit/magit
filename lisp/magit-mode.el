@@ -586,10 +586,21 @@ Magit is documented in info node `(magit)'."
 
 ;;; Local Variables
 
+(defvar-local magit-buffer-arguments nil)
+(defvar-local magit-buffer-diff-args nil)
+(defvar-local magit-buffer-diff-files nil)
 (defvar-local magit-buffer-file-name nil)
+(defvar-local magit-buffer-files nil)
+(defvar-local magit-buffer-log-args nil)
+(defvar-local magit-buffer-log-files nil)
+(defvar-local magit-buffer-range nil)
+(defvar-local magit-buffer-range-hashed nil)
 (defvar-local magit-buffer-refname nil)
 (defvar-local magit-buffer-revision nil)
 (defvar-local magit-buffer-revision-hash nil)
+(defvar-local magit-buffer-revisions nil)
+(defvar-local magit-buffer-typearg nil)
+(defvar-local magit-buffer-upstream nil)
 
 ;; These variables are also used in file-visiting buffers.
 ;; Because the user may change the major-mode, they have
