@@ -627,7 +627,6 @@ above."
                         (cl-case major-mode
                           ((
                             magit-revision-mode
-                            magit-stash-mode
                             )
                            (car magit-refresh-args))
                           (magit-diff-mode
