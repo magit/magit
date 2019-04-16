@@ -50,6 +50,9 @@
 (declare-function magit-mode-get-buffer "magit-mode"
                   (mode &optional create frame value))
 (declare-function magit-refresh "magit-mode" ())
+(defvar magit-buffer-file-name)
+(defvar magit-buffer-refname)
+(defvar magit-buffer-revision)
 (defvar magit-refresh-args)
 
 ;; From `magit-process'.
@@ -766,15 +769,6 @@ a bare repository."
                 (file-regular-p (expand-file-name "HEAD" directory))
                 (file-directory-p (expand-file-name "refs" directory))
                 (file-directory-p (expand-file-name "objects" directory))))))
-
-(defvar-local magit-buffer-revision  nil)
-(defvar-local magit-buffer-revision-hash nil)
-(defvar-local magit-buffer-refname   nil)
-(defvar-local magit-buffer-file-name nil)
-(put 'magit-buffer-revision  'permanent-local t)
-(put 'magit-buffer-revision-hash 'permanent-local t)
-(put 'magit-buffer-refname   'permanent-local t)
-(put 'magit-buffer-file-name 'permanent-local t)
 
 (defun magit-file-relative-name (&optional file tracked)
   "Return the path of FILE relative to the repository root.

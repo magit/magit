@@ -586,6 +586,19 @@ Magit is documented in info node `(magit)'."
 
 ;;; Local Variables
 
+(defvar-local magit-buffer-file-name nil)
+(defvar-local magit-buffer-refname nil)
+(defvar-local magit-buffer-revision nil)
+(defvar-local magit-buffer-revision-hash nil)
+
+;; These variables are also used in file-visiting buffers.
+;; Because the user may change the major-mode, they have
+;; to be permanent buffer-local.
+(put 'magit-buffer-file-name 'permanent-local t)
+(put 'magit-buffer-refname 'permanent-local t)
+(put 'magit-buffer-revision 'permanent-local t)
+(put 'magit-buffer-revision-hash 'permanent-local t)
+
 (defvar-local magit-refresh-args nil
   "The arguments used to refresh the current buffer.")
 (put 'magit-refresh-args 'permanent-local t)
