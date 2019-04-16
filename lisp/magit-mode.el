@@ -616,6 +616,16 @@ Some third-party packages might still use this, but Magit does not.")
 (put 'magit-refresh-args 'permanent-local t)
 (make-obsolete-variable 'magit-refresh-args nil "Magit 2.91.0")
 
+(defvar magit-buffer-lock-functions nil
+  "Obsolete buffer-locking support for third-party modes.
+Implement the generic function `magit-buffer-value' for
+your mode instead of adding an entry to this variable.")
+(make-obsolete-variable 'magit-buffer-lock-functions nil "Magit 2.91.0")
+
+(cl-defgeneric magit-buffer-value ()
+  (when-let ((fn (cdr (assq major-mode magit-buffer-lock-functions))))
+    (funcall fn (with-no-warnings magit-refresh-args))))
+
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
 
@@ -962,16 +972,6 @@ latter is displayed in its place."
           (rename-buffer (funcall magit-generate-buffer-name-function
                                   major-mode value)))
       (user-error "Buffer has no value it could be locked to"))))
-
-(defvar magit-buffer-lock-functions nil
-  "Obsolete buffer-locking support for third-party modes.
-Implement the generic function `magit-buffer-value' for
-your mode instead of adding an entry to this variable.")
-(make-obsolete-variable 'magit-buffer-lock-functions nil "Magit 2.91.0")
-
-(cl-defgeneric magit-buffer-value ()
-  (when-let ((fn (cdr (assq major-mode magit-buffer-lock-functions))))
-    (funcall fn (with-no-warnings magit-refresh-args))))
 
 ;;; Bury Buffer
 
