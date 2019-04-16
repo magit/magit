@@ -619,6 +619,42 @@ Magit is documented in info node `(magit)'."
 
 ;;; Setup Buffer
 
+(defmacro magit-setup-buffer (mode &optional locked &rest bindings)
+  (declare (indent 2))
+  `(magit-setup-buffer-internal
+    ,mode ,locked
+    ,(cons 'list (mapcar (pcase-lambda (`(,var ,form))
+                           `(list ',var ,form))
+                         bindings))))
+
+(defun magit-setup-buffer-internal (mode locked bindings)
+  (let* ((value   (and locked
+                       (with-temp-buffer
+                         (pcase-dolist (`(,var ,val) bindings)
+                           (set (make-local-variable var) val))
+                         (let ((major-mode mode))
+                           (magit-buffer-lock-value)))))
+         (buffer  (magit-mode-get-buffer mode nil nil value))
+         (section (and buffer (magit-current-section)))
+         (created (not buffer)))
+    (unless buffer
+      (setq buffer (magit-with-toplevel
+                     (magit-generate-new-buffer mode value))))
+    (with-current-buffer buffer
+      (setq magit-previous-section section)
+      (funcall mode)
+      (magit-xref-setup 'magit-setup-buffer-internal bindings)
+      (pcase-dolist (`(,var ,val) bindings)
+        (set (make-local-variable var) val))
+      (when created
+        (magit-status-goto-initial-section)
+        (run-hooks 'magit-create-buffer-hook)))
+    (magit-display-buffer buffer)
+    (with-current-buffer buffer
+      (run-hooks 'magit-mode-setup-hook)
+      (magit-refresh-buffer))
+    buffer))
+
 (defun magit-mode-setup (mode &rest args)
   "Setup up a MODE buffer using ARGS to generate its content."
   (magit-mode-setup-internal mode args))
