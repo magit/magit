@@ -1740,15 +1740,6 @@ is set in `magit-mode-setup'."
   (magit-insert-section (diffbuf)
     (magit-run-section-hook 'magit-diff-sections-hook rev-or-range)))
 
-(defun magit-insert-diff (rev-or-range)
-  "Insert the diff into this `magit-diff-mode' buffer."
-  (magit--insert-diff
-    "diff" rev-or-range "-p" "--no-prefix"
-    (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
-    (nth 1 magit-refresh-args)
-    (nth 2 magit-refresh-args) "--"
-    (nth 3 magit-refresh-args)))
-
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
     (unless (featurep 'jkl)
@@ -1813,6 +1804,15 @@ is set in `magit-mode-setup'."
    ;; need to reset contextDimmed, oldDimmed, newDimmed, contextBold,
    ;; oldBold, and newBold.
    ))
+
+(defun magit-insert-diff (rev-or-range)
+  "Insert the diff into this `magit-diff-mode' buffer."
+  (magit--insert-diff
+    "diff" rev-or-range "-p" "--no-prefix"
+    (and (member "--stat" (nth 2 magit-refresh-args)) "--numstat")
+    (nth 1 magit-refresh-args)
+    (nth 2 magit-refresh-args) "--"
+    (nth 3 magit-refresh-args)))
 
 (defun magit--insert-diff (&rest args)
   (declare (indent 0))
