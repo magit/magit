@@ -1631,6 +1631,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       "reflog" "show" "--format=%h%x00%aN%x00%gd%x00%gs" "--date=raw"
       args ref "--")))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-reflog-mode))
+  (car magit-refresh-args))
+
 (defvar magit-reflog-labels
   '(("commit"      . magit-reflog-commit)
     ("amend"       . magit-reflog-amend)

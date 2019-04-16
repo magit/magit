@@ -1002,9 +1002,7 @@ See also `magit-toggle-buffer-lock'.")
     (magit-revision-mode
      (pcase-let ((`(,rev ,_const ,_args ,files) args))
        (if files (cons rev files) (list rev))))
-    ((magit-reflog-mode   ; (ref ~args)
-      magit-stash-mode    ; (stash _const _args _files)
-      )
+    (magit-stash-mode ; (stash _const _args _files)
      (car args))
     (t
      (--when-let (cdr (assq mode magit-buffer-lock-functions))
