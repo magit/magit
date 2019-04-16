@@ -1055,7 +1055,7 @@ a commit read from the minibuffer."
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff index and commit"))
          (magit-diff-arguments)))
-  (magit-diff-setup-buffer rev (list "--cached") args files))
+  (magit-diff-setup-buffer rev "--cached" args files))
 
 ;;;###autoload
 (defun magit-diff-unstaged (&optional args files)
@@ -1087,10 +1087,10 @@ be committed."
         (with-current-buffer diff-buf
           (pcase-let ((`(,rev ,arg . ,_) magit-refresh-args))
             (cond ((and (equal rev "HEAD^")
-                        (equal arg '("--cached")))
+                        (equal arg "--cached"))
                    (magit-diff-staged nil args))
                   ((and (equal rev nil)
-                        (equal arg '("--cached")))
+                        (equal arg "--cached"))
                    (magit-diff-while-amending args))
                   ((magit-anything-staged-p)
                    (magit-diff-staged nil args))
@@ -1104,7 +1104,7 @@ be committed."
   (kbd "C-c C-d") 'magit-diff-while-committing)
 
 (defun magit-diff-while-amending (&optional args)
-  (magit-diff-setup-buffer "HEAD^" (list "--cached") args nil))
+  (magit-diff-setup-buffer "HEAD^" "--cached" args nil))
 
 ;;;###autoload
 (defun magit-diff-buffer-file ()
@@ -1126,7 +1126,7 @@ be committed."
   "Show changes between any two files on disk."
   (interactive (list (read-file-name "First file: " nil nil t)
                      (read-file-name "Second file: " nil nil t)))
-  (magit-diff-setup-buffer nil (list "--no-index")
+  (magit-diff-setup-buffer nil "--no-index"
                            nil (list (magit-convert-filename-for-git
                                       (expand-file-name a))
                                      (magit-convert-filename-for-git
@@ -1723,14 +1723,14 @@ In such buffers the buffer-local value of `magit-refresh-args'
 has the same form as the arguments of this function.  The value
 is set in `magit-mode-setup'."
   (magit-set-header-line-format
-   (if (member "--no-index" const)
+   (if (equal const "--no-index")
        (apply #'format "Differences between %s and %s" files)
      (concat (if rev-or-range
                  (if (string-match-p "\\(\\.\\.\\|\\^-\\)"
                                      rev-or-range)
                      (format "Changes in %s" rev-or-range)
                    (format "Changes from %s to working tree" rev-or-range))
-               (if (member "--cached" const)
+               (if (equal const "--cached")
                    "Staged changes"
                  "Unstaged changes"))
              (pcase (length files)
@@ -2492,13 +2492,13 @@ Do not confuse this with `magit-diff-scope' (which see)."
           ((derived-mode-p 'magit-diff-mode)
            (let ((range (nth 0 magit-refresh-args))
                  (const (nth 1 magit-refresh-args)))
-             (cond ((member "--no-index" const) 'undefined)
+             (cond ((equal const "--no-index") 'undefined)
                    ((or (not range)
                         (magit-rev-eq range "HEAD"))
-                    (if (member "--cached" const)
+                    (if (equal const "--cached")
                         'staged
                       'unstaged))
-                   ((member "--cached" const)
+                   ((equal const "--cached")
                     (if (magit-rev-head-p range)
                         'staged
                       'undefined)) ; i.e. committed and staged
