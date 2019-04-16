@@ -804,15 +804,17 @@ and `:slant'."
     :if-derived magit-diff-mode)
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
-  ["Actions"
-   [("g" "Refresh"                magit-diff-refresh)
-    ("s" "Set defaults"           transient-set  :transient nil)
-    ("w" "Save defaults"          transient-save :transient nil)]
-   [("t" "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-    ("F" "Toggle file filter"     magit-diff-toggle-file-filter)]
+  [["Refresh"
+    ("g" "buffer"                   magit-diff-refresh)
+    ("s" "buffer and set defaults"  transient-set  :transient nil)
+    ("w" "buffer and save defaults" transient-save :transient nil)]
+   ["Toggle"
+    ("t" "hunk refinement"          magit-diff-toggle-refine-hunk)
+    ("F" "file filter"              magit-diff-toggle-file-filter)]
    [:if-mode magit-diff-mode
-    ("r" "Switch range type"      magit-diff-switch-range-type)
-    ("f" "Flip revisions"         magit-diff-flip-revs)]]
+    :description "Do"
+    ("r" "switch range type"        magit-diff-switch-range-type)
+    ("f" "flip revisions"           magit-diff-flip-revs)]]
   (interactive)
   (if (not (eq current-transient-command 'magit-diff-refresh))
       (transient-setup 'magit-diff-refresh)
