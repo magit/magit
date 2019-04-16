@@ -56,7 +56,6 @@
 (defvar magit-buffer-log-files)
 (defvar magit-buffer-refname)
 (defvar magit-buffer-revision)
-(defvar magit-refresh-args)
 
 ;; From `magit-process'.
 (declare-function magit-call-git "magit-process" (&rest args))
