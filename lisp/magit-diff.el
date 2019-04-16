@@ -1711,9 +1711,11 @@ Staging and applying changes is documented in info node
   (setq imenu-extract-index-name-function
         'magit-imenu--diff-extract-index-name-function))
 
-(defun magit-diff-setup-buffer (rev-or-range const args files)
+(defun magit-diff-setup-buffer (rev-or-range const args files &optional locked)
   (require 'magit)
-  (magit-mode-setup #'magit-diff-mode rev-or-range const args files))
+  (magit-mode-setup-internal #'magit-diff-mode
+                             (list rev-or-range const args files)
+                             locked))
 
 (defun magit-diff-refresh-buffer (rev-or-range const _args files)
   "Refresh the current `magit-diff-mode' buffer.
