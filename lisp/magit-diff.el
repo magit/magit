@@ -2395,6 +2395,23 @@ or a ref which is not a branch, then it inserts nothing."
                 (insert (propertize " " 'display bot))
                 (insert (propertize " " 'display align))))))))))
 
+;;; Merge-Preview Mode
+
+(define-derived-mode magit-merge-preview-mode magit-diff-mode "Magit Merge"
+  "Mode for previewing a merge."
+  :group 'magit-diff
+  (hack-dir-local-variables-non-file-buffer))
+
+(defun magit-merge-preview-refresh-buffer (rev)
+  (let* ((branch (magit-get-current-branch))
+         (head (or branch (magit-rev-verify "HEAD"))))
+    (magit-set-header-line-format (format "Preview merge of %s into %s"
+                                          rev
+                                          (or branch "HEAD")))
+    (magit-insert-section (diffbuf)
+      (magit--insert-diff
+        "merge-tree" (magit-git-string "merge-base" head rev) head rev))))
+
 ;;; Diff Sections
 
 (defvar magit-unstaged-section-map
