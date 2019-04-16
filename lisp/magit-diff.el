@@ -678,7 +678,8 @@ and `:slant'."
 
 (cl-defmethod transient-init-value ((obj magit-diff-prefix))
   (pcase-let ((`(,args ,files)
-               (magit-diff--get-value 'magit-diff-mode)))
+               (magit-diff--get-value 'magit-diff-mode
+                                      magit-prefix-use-buffer-arguments)))
     (when-let ((file (magit-file-relative-name)))
       (setq files (list file)))
     (oset obj value (if files `(("--" ,@files) ,args) args))))
@@ -705,15 +706,19 @@ and `:slant'."
         (list args (cdr (assoc "--" alist))))
     (magit-diff--get-value (or mode 'magit-diff-mode))))
 
-(defun magit-diff--get-value (mode)
+(defun magit-diff--get-value (mode &optional use-buffer-args)
+  (unless use-buffer-args
+    (setq use-buffer-args magit-direct-use-buffer-arguments))
   (let (args files)
     (cond
-     ((and magit-use-sticky-arguments
+     ((and (memq use-buffer-args '(always selected current))
            (eq major-mode mode))
       (setq args  magit-buffer-diff-args)
       (setq files magit-buffer-diff-files))
-     ((and (eq magit-use-sticky-arguments t)
-           (when-let ((buffer (magit-get-mode-buffer mode)))
+     ((and (memq use-buffer-args '(always selected))
+           (when-let ((buffer (magit-get-mode-buffer
+                               mode nil
+                               (or (eq use-buffer-args 'selected) 'all))))
              (setq args  (buffer-local-value 'magit-buffer-diff-args buffer))
              (setq files (buffer-local-value 'magit-buffer-diff-files buffer))
              t)))

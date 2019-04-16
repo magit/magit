@@ -357,7 +357,8 @@ the upstream isn't ahead of the current branch) show."
 
 (cl-defmethod transient-init-value ((obj magit-log-prefix))
   (pcase-let ((`(,args ,files)
-               (magit-log--get-value 'magit-log-mode)))
+               (magit-log--get-value 'magit-log-mode
+                                     magit-prefix-use-buffer-arguments)))
     (when-let ((file (magit-file-relative-name)))
       (setq files (list file)))
     (oset obj value (if files `(("--" ,@files) ,args) args))))
@@ -384,15 +385,19 @@ the upstream isn't ahead of the current branch) show."
         (list args (cdr (assoc "--" alist))))
     (magit-log--get-value (or mode 'magit-log-mode))))
 
-(defun magit-log--get-value (mode)
+(defun magit-log--get-value (mode &optional use-buffer-args)
+  (unless use-buffer-args
+    (setq use-buffer-args magit-direct-use-buffer-arguments))
   (let (args files)
     (cond
-     ((and magit-use-sticky-arguments
+     ((and (memq use-buffer-args '(always selected current))
            (eq major-mode mode))
       (setq args  magit-buffer-log-args)
       (setq files magit-buffer-log-files))
-     ((and (eq magit-use-sticky-arguments t)
-           (when-let ((buffer (magit-get-mode-buffer mode)))
+     ((and (memq use-buffer-args '(always selected))
+           (when-let ((buffer (magit-get-mode-buffer
+                               mode nil
+                               (or (eq use-buffer-args 'selected) 'all))))
              (setq args  (buffer-local-value 'magit-buffer-log-args buffer))
              (setq files (buffer-local-value 'magit-buffer-log-files buffer))
              t)))
@@ -1303,7 +1308,9 @@ If there is no revision buffer in the same frame, then do nothing."
       (setq magit--update-revision-buffer (list commit buffer))
       (run-with-idle-timer
        magit-update-other-window-delay nil
-       (let ((args (magit-show-commit--arguments)))
+       (let ((args (with-current-buffer buffer
+                     (let ((magit-direct-use-buffer-arguments 'selected))
+                       (magit-show-commit--arguments)))))
          (lambda ()
            (pcase-let ((`(,rev ,buf) magit--update-revision-buffer))
              (setq magit--update-revision-buffer nil)
@@ -1488,7 +1495,8 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   (magit-log-select-setup-buffer
    (or branch (magit-get-current-branch) "HEAD")
    (append args
-           (car (magit-log--get-value 'magit-log-select-mode))))
+           (car (magit-log--get-value 'magit-log-select-mode
+                                      magit-direct-use-buffer-arguments))))
   (magit-log-goto-same-commit initial)
   (setq magit-log-select-pick-function pick)
   (setq magit-log-select-quit-function quit)

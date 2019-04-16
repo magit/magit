@@ -210,13 +210,62 @@ support additional %-sequences."
                 (function-item magit-restore-window-configuration)
                 (function :tag "Function")))
 
-(defcustom magit-use-sticky-arguments t
-  "How to reuse arguments from buffers."
-  :package-version '(magit . "2.11.0")
+(defcustom magit-prefix-use-buffer-arguments 'selected
+  "Whether certain prefix commands reuse arguments active in relevant buffer.
+
+This affects the transient prefix commands `magit-diff',
+`magit-log' and `magit-show-refs'.
+
+Valid values are:
+
+`always': Always use the set of arguments that is currently
+  active in the respective buffer, provided that buffer exists
+  of course.
+`selected' or t: Use the set of arguments from the respective
+  buffer, but only if it is displayed in a window of the current
+  frame.  This is the default.
+`current': Use the set of arguments from the respective buffer,
+  but only if it is the current buffer.
+`never': Never use the set of arguments from the respective
+  buffer.
+
+For more information see info node `(magit)Transient Arguments
+and Buffer Arguments'."
+  :package-version '(magit . "2.91.0")
   :group 'magit-buffers
-  :type '(choice (const :tag "disabled" nil)
-                 (const :tag "sticky for current" current)
-                 (const :tag "sticky" t)))
+  :group 'magit-commands
+  :type '(choice (const :tag "always use args from buffer" always)
+                 (const :tag "use args from buffer if it is current" current)
+                 (const :tag "never use args from buffer" never)))
+
+(defcustom magit-direct-use-buffer-arguments 'selected
+  "Whether certain commands reuse arguments active in relevant buffer.
+
+This affects certain commands such as `magit-show-commit' that
+are suffixes of the diff or log transient prefix commands, but
+only if they are invoked directly, i.e. *not* as a suffix.
+
+Valid values are:
+
+`always': Always use the set of arguments that is currently
+  active in the respective buffer, provided that buffer exists
+  of course.
+`selected' or t: Use the set of arguments from the respective
+  buffer, but only if it is displayed in a window of the current
+  frame.  This is the default.
+`current': Use the set of arguments from the respective buffer,
+  but only if it is the current buffer.
+`never': Never use the set of arguments from the respective
+  buffer.
+
+For more information see info node `(magit)Transient Arguments
+and Buffer Arguments'."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-buffers
+  :group 'magit-commands
+  :type '(choice (const :tag "always use args from buffer" always)
+                 (const :tag "use args from buffer if it is current" current)
+                 (const :tag "never use args from buffer" never)))
 
 (defcustom magit-region-highlight-hook
   '(magit-section-update-region magit-diff-update-hunk-region)
