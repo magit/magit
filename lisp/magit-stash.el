@@ -31,6 +31,7 @@
   (require 'subr-x))
 
 (require 'magit)
+(require 'magit-reflog)
 
 ;;; Options
 
