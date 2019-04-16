@@ -626,7 +626,7 @@ above."
       (copy-region-as-kill nil nil 'region)
     (when-let ((rev (or magit-buffer-revision
                         (cl-case major-mode
-                          ((magit-cherry-mode
+                          ((
                             magit-log-select-mode
                             magit-reflog-mode
                             magit-revision-mode

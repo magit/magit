@@ -1551,15 +1551,17 @@ Type \\[magit-cherry-pick] to apply the commit at point.
         'magit-imenu--cherry-create-index-function))
 
 (defun magit-cherry-setup-buffer (head upstream)
-  (magit-mode-setup #'magit-cherry-mode head upstream))
+  (magit-setup-buffer #'magit-cherry-mode nil
+    (magit-buffer-refname head)
+    (magit-buffer-upstream upstream)
+    (magit-buffer-range (concat upstream ".." head))))
 
-(defun magit-cherry-refresh-buffer (_upstream _head)
+(defun magit-cherry-refresh-buffer ()
   (magit-insert-section (cherry)
     (magit-run-section-hook 'magit-cherry-sections-hook)))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-cherry-mode))
-  (pcase-let ((`(,upstream ,head) magit-refresh-args))
-    (concat head ".." upstream)))
+  magit-buffer-range)
 
 ;;;###autoload
 (defun magit-cherry (head upstream)
@@ -1573,13 +1575,11 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 
 (defun magit-insert-cherry-headers ()
   "Insert headers appropriate for `magit-cherry-mode' buffers."
-  (let* ((branch (propertize (cadr magit-refresh-args) 'face
-                             'magit-branch-local))
-         (upstream (car magit-refresh-args))
-         (upstream (propertize upstream 'face
-                               (if (magit-local-branch-p upstream)
-                                   'magit-branch-local
-                                 'magit-branch-remote))))
+  (let ((branch (propertize magit-buffer-refname 'face 'magit-branch-local))
+        (upstream (propertize magit-buffer-upstream 'face
+                              (if (magit-local-branch-p magit-buffer-upstream)
+                                  'magit-branch-local
+                                'magit-branch-remote))))
     (magit-insert-head-branch-header branch)
     (magit-insert-upstream-branch-header branch upstream "Upstream: ")
     (insert ?\n)))
@@ -1589,7 +1589,9 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   (magit-insert-section (cherries)
     (magit-insert-heading "Cherry commits:")
     (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
-      "cherry" "-v" "--abbrev" magit-refresh-args)))
+      "cherry" "-v" "--abbrev"
+      magit-buffer-upstream
+      magit-buffer-refname)))
 
 ;;; Reflog Mode
 
