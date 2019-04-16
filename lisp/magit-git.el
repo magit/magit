@@ -1232,7 +1232,8 @@ to, or to some other symbolic-ref that points to the same ref."
            (car magit-refresh-args))))
 
 (defun magit-branch-or-commit-at-point ()
-  (or magit-buffer-refname
+  (or (and magit-buffer-file-name
+           magit-buffer-refname)
       (magit-section-case
         (branch (magit-ref-maybe-qualify (oref it value)))
         (commit (or (magit--painted-branch-at-point)
