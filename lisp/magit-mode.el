@@ -1296,7 +1296,7 @@ Later, when the buffer is buried, it may be restored by
       (help-xref-go-forward (current-buffer))
     (user-error "No next entry in buffer's history")))
 
-(defun magit-insert-xref-buttons (&optional _)
+(defun magit-insert-xref-buttons ()
   "Insert xref buttons."
   (when (or help-xref-stack help-xref-forward-stack)
     (when help-xref-stack
