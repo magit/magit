@@ -364,7 +364,7 @@ the upstream isn't ahead of the current branch) show."
   :type '(repeat (string :tag "Argument")))
 
 ;;; Commands
-;;;; Popups
+;;;; Prefix Commands
 
 ;;;###autoload (autoload 'magit-log "magit-log" nil t)
 (define-transient-command magit-log ()
@@ -522,7 +522,7 @@ the upstream isn't ahead of the current branch) show."
         (list magit-log-section-arguments nil)
       (magit-log-get-buffer-args))))
 
-;;;; Infix Arguments
+;;;; Infix Commands
 
 (define-infix-argument magit-log:-n ()
   :description "Limit number of commits"
@@ -618,7 +618,7 @@ the upstream isn't ahead of the current branch) show."
         ((derived-mode-p 'magit-cherry-mode)
          (user-error "Cannot change log arguments in cherry buffers"))))
 
-;;;; Log Commands
+;;;; Setup Commands
 
 (defvar magit-log-read-revs-map
   (let ((map (make-sparse-keymap)))
@@ -855,7 +855,7 @@ limit.  Otherwise set it to 256."
                        (car (magit-log-arguments t)))
     (string-to-number (match-string 1 it))))
 
-;;;; Other Commands
+;;;; Mode Commands
 
 (defun magit-log-bury-buffer (&optional arg)
   "Bury the current buffer or the revision buffer in the same frame.

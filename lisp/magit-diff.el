@@ -681,7 +681,7 @@ and `:slant'."
   :group 'magit-faces)
 
 ;;; Commands
-;;;; Diff popups
+;;;; Prefix Commands
 
 (defvar magit-diff-section-file-args nil)
 (put 'magit-diff-section-file-args 'permanent-local t)
@@ -806,7 +806,7 @@ and `:slant'."
               magit-diff-section-file-args)
       (magit-diff-get-buffer-args))))
 
-;;;; Infix Arguments
+;;;; Infix Commands
 
 (define-infix-argument magit:-- ()
   :description "Limit to files"
@@ -897,7 +897,7 @@ and `:slant'."
     (?a "[a]ll space"    "ignore-all-space")
     (?n "[n]o"           "no")))
 
-;;;; Diff commands
+;;;; Setup Commands
 
 ;;;###autoload
 (defun magit-diff-dwim (&optional args files)
@@ -1167,7 +1167,7 @@ for a revision."
 (cl-defmethod magit-buffer-value (&context (major-mode magit-revision-mode))
   (cons magit-buffer-range magit-buffer-diff-files))
 
-;;;; Setting commands
+;;;; Setting Commands
 
 (defun magit-diff-set-default-arguments (args files)
   "Set the global diff arguments for the current buffer."
@@ -1318,7 +1318,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                 (not magit-diff-refine-hunk)))
   (magit-diff-update-hunk-refinement))
 
-;;;; Visit commands
+;;;; Visit Commands
 
 (defun magit-diff-visit-file
     (file &optional other-window force-worktree display-fn)
@@ -1592,7 +1592,7 @@ or `HEAD'."
              '(display-buffer-same-window))))
       (magit-status-setup-buffer directory))))
 
-;;;; Scroll commands
+;;;; Scroll Commands
 
 (defun magit-diff-show-or-scroll-up ()
   "Update the commit or diff buffer for the thing at point.
