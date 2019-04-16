@@ -1229,7 +1229,9 @@ If the current buffer's mode is derived from `magit-log-mode',
 toggle the file restriction in the repository's revision buffer
 instead."
   (interactive)
-  (--if-let (and (derived-mode-p 'magit-log-mode)
+  (--if-let (and (derived-mode-p 'magit-log-mode
+                                 'magit-cherry-mode
+                                 'magit-reflog-mode)
                  (magit-get-mode-buffer 'magit-revision-mode))
       (with-current-buffer it
         (setq magit-buffer-diff-files
