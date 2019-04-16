@@ -976,16 +976,13 @@ the function will be invoked as
 if the cons (my-mode . lock-func) is in this list.
 
 This variable is intended for third-party extensions;
-`magit-buffer-lock-value' implements all built-in behavior.
+`magit-buffer-value' implements all built-in behavior.
 
 See also `magit-toggle-buffer-lock'.")
 
 (cl-defgeneric magit-buffer-value ()
-  (magit-buffer-lock-value major-mode magit-refresh-args))
-
-(defun magit-buffer-lock-value (mode args)
-  (--when-let (cdr (assq mode magit-buffer-lock-functions))
-    (funcall it args)))
+  (when-let ((fn (cdr (assq major-mode magit-buffer-lock-functions))))
+    (funcall fn magit-refresh-args)))
 
 ;;; Bury Buffer
 
