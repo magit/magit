@@ -971,6 +971,12 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (magit-insert-section (logbuf)
     (magit-insert-log revs args files)))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-log-mode))
+  (pcase-let ((`(,revs ,_args ,files) magit-refresh-args))
+    (if (and revs files)
+        (append revs (cons "--" files))
+      (append revs files))))
+
 (defun magit-log-header-line-arguments (revs args files)
   "Return string describing some of the used arguments."
   (mapconcat (lambda (arg)

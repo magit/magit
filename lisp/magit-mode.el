@@ -994,11 +994,6 @@ See also `magit-toggle-buffer-lock'.")
                           'unstaged))
                     const)
               (and files (cons "--" files)))))
-    (magit-log-mode
-     (pcase-let ((`(,revs ,_args ,files) args))
-       (if (and revs files)
-           (append revs (cons "--" files))
-         (append revs files))))
     (magit-revision-mode
      (pcase-let ((`(,rev ,_const ,_args ,files) args))
        (if files (cons rev files) (list rev))))
