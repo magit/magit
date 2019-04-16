@@ -62,13 +62,12 @@
 ;;; Options
 
 (defcustom magit-mode-hook
-  '(magit-load-config-extensions
-    magit-xref-setup)
+  '(magit-load-config-extensions)
   "Hook run when entering a mode derived from Magit mode."
+  :package-version '(magit . "2.91.0")
   :group 'magit-modes
   :type 'hook
   :options '(magit-load-config-extensions
-             magit-xref-setup
              bug-reference-mode))
 
 (defcustom magit-mode-setup-hook
@@ -615,6 +614,7 @@ locked to its value, which is derived from MODE and ARGS."
       (setq magit-previous-section section)
       (setq magit-refresh-args args)
       (funcall mode)
+      (magit-xref-setup 'magit-mode-setup-internal args)
       (when created
         (magit-status-goto-initial-section)
         (run-hooks 'magit-create-buffer-hook)))
@@ -1271,14 +1271,15 @@ Later, when the buffer is buried, it may be restored by
   'mouse-face 'magit-section-highlight
   'help-echo (purecopy "mouse-2, RET: go back to next history entry"))
 
-(defun magit-xref-setup ()
-  "Insert backward/forward buttons if the major-mode supports it.
-Currently `magit-log-mode', `magit-reflog-mode',
-`magit-diff-mode', and `magit-revision-mode' support it"
-  (when (memq major-mode '(magit-log-mode
-                           magit-reflog-mode
-                           magit-diff-mode
-                           magit-revision-mode))
+(defvar magit-xref-modes
+  '(magit-log-mode
+    magit-reflog-mode
+    magit-diff-mode
+    magit-revision-mode)
+  "List of modes for which to insert navigation buttons.")
+
+(defun magit-xref-setup (fn args)
+  (when (memq major-mode magit-xref-modes)
     (when help-xref-stack-item
       (push (cons (point) help-xref-stack-item) help-xref-stack)
       (setq help-xref-forward-stack nil))
@@ -1286,12 +1287,11 @@ Currently `magit-log-mode', `magit-reflog-mode',
       (--when-let (nthcdr 10 help-xref-stack)
         (setcdr it nil)))
     (setq help-xref-stack-item
-          `(magit-xref-restore ,default-directory ,@magit-refresh-args))))
+          (list 'magit-xref-restore fn default-directory args))))
 
-(defun magit-xref-restore (&rest args)
-  (magit-xref-setup)
-  (setq default-directory  (car args))
-  (setq magit-refresh-args (cdr args))
+(defun magit-xref-restore (fn dir args)
+  (setq default-directory dir)
+  (funcall fn major-mode nil args)
   (magit-refresh-buffer))
 
 ;;; Repository-Local Cache
