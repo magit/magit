@@ -577,7 +577,7 @@ These sections can be expanded to show the respective commits."
   "Display a list of the current repository's submodules."
   (interactive)
   (magit-display-buffer
-   (or (magit-mode-get-buffer 'magit-submodule-list-mode)
+   (or (magit-get-mode-buffer 'magit-submodule-list-mode)
        (magit-with-toplevel
          (magit-generate-new-buffer 'magit-submodule-list-mode))))
   (magit-submodule-list-mode)

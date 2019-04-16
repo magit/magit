@@ -392,7 +392,7 @@ the upstream isn't ahead of the current branch) show."
       (setq args  magit-buffer-log-args)
       (setq files magit-buffer-log-files))
      ((and (eq magit-use-sticky-arguments t)
-           (when-let ((buffer (magit-mode-get-buffer mode)))
+           (when-let ((buffer (magit-get-mode-buffer mode)))
              (setq args  (buffer-local-value 'magit-buffer-log-args buffer))
              (setq files (buffer-local-value 'magit-buffer-log-files buffer))
              t)))
@@ -845,7 +845,7 @@ prefix argument instead bury the revision buffer, provided it
 is displayed in the current frame."
   (interactive "p")
   (if (< arg 0)
-      (let* ((buf (magit-mode-get-buffer 'magit-revision-mode))
+      (let* ((buf (magit-get-mode-buffer 'magit-revision-mode))
              (win (and buf (get-buffer-window buf (selected-frame)))))
         (if win
             (with-selected-window win
@@ -1299,7 +1299,7 @@ If there is no revision buffer in the same frame, then do nothing."
 (defun magit-log-maybe-update-revision-buffer-1 ()
   (unless magit--update-revision-buffer
     (when-let ((commit (magit-section-value-if 'commit))
-               (buffer (magit-mode-get-buffer 'magit-revision-mode nil t)))
+               (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
       (setq magit--update-revision-buffer (list commit buffer))
       (run-with-idle-timer
        magit-update-other-window-delay nil

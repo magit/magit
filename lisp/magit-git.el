@@ -44,8 +44,8 @@
 (declare-function magit-maybe-make-margin-overlay "magit-margin" ())
 
 ;; From `magit-mode'.
-(declare-function magit-mode-get-buffer "magit-mode"
-                  (mode &optional create frame value))
+(declare-function magit-get-mode-buffer "magit-mode"
+                  (mode &optional value frame))
 (declare-function magit-refresh "magit-mode" ())
 (defvar magit-buffer-diff-args)
 (defvar magit-buffer-file-name)
@@ -336,7 +336,7 @@ still subject to major changes.  Also see `magit-git-string-p'."
               (magit-process-insert-section default-directory
                                             magit-git-executable args
                                             status buf)))
-          (when-let ((status-buf (magit-mode-get-buffer 'magit-status-mode)))
+          (when-let ((status-buf (magit-get-mode-buffer 'magit-status-mode)))
             (let ((msg (magit--locate-error-message)))
               (with-current-buffer status-buf
                 (setq magit-this-error msg))))

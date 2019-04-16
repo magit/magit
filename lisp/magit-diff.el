@@ -713,7 +713,7 @@ and `:slant'."
       (setq args  magit-buffer-diff-args)
       (setq files magit-buffer-diff-files))
      ((and (eq magit-use-sticky-arguments t)
-           (when-let ((buffer (magit-mode-get-buffer mode)))
+           (when-let ((buffer (magit-get-mode-buffer mode)))
              (setq args  (buffer-local-value 'magit-buffer-diff-args buffer))
              (setq files (buffer-local-value 'magit-buffer-diff-files buffer))
              t)))
@@ -1089,7 +1089,7 @@ be committed."
   (unless (magit-commit-message-buffer)
     (user-error "No commit in progress"))
   (let ((magit-display-buffer-noselect t)
-        (diff-buf (magit-mode-get-buffer 'magit-diff-mode)))
+        (diff-buf (magit-get-mode-buffer 'magit-diff-mode)))
     (if (and diff-buf
              (get-buffer-window diff-buf))
         (with-current-buffer diff-buf
@@ -1226,7 +1226,7 @@ toggle the file restriction in the repository's revision buffer
 instead."
   (interactive)
   (--if-let (and (derived-mode-p 'magit-log-mode)
-                 (magit-mode-get-buffer 'magit-revision-mode))
+                 (magit-get-mode-buffer 'magit-revision-mode))
       (with-current-buffer it
         (setq magit-buffer-diff-files
               (magit-diff--toggle-file-args magit-buffer-diff-files))
@@ -1601,7 +1601,7 @@ commit or stash at point, then prompt for a commit."
      (magit-blame-mode
       (setq rev (oref (magit-current-blame-chunk) orig-rev))
       (setq cmd 'magit-show-commit)
-      (setq buf (magit-mode-get-buffer 'magit-revision-mode)))
+      (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
      ((derived-mode-p 'git-rebase-mode)
       (with-slots (action-type target)
           (git-rebase-current-line)
@@ -1609,21 +1609,21 @@ commit or stash at point, then prompt for a commit."
             (user-error "No commit on this line")
           (setq rev target)
           (setq cmd 'magit-show-commit)
-          (setq buf (magit-mode-get-buffer 'magit-revision-mode)))))
+          (setq buf (magit-get-mode-buffer 'magit-revision-mode)))))
      (t
       (magit-section-case
         (branch
          (setq rev (magit-ref-maybe-qualify (oref it value)))
          (setq cmd 'magit-show-commit)
-         (setq buf (magit-mode-get-buffer 'magit-revision-mode)))
+         (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
         (commit
          (setq rev (oref it value))
          (setq cmd 'magit-show-commit)
-         (setq buf (magit-mode-get-buffer 'magit-revision-mode)))
+         (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
         (stash
          (setq rev (oref it value))
          (setq cmd 'magit-stash-show)
-         (setq buf (magit-mode-get-buffer 'magit-stash-mode))))))
+         (setq buf (magit-get-mode-buffer 'magit-stash-mode))))))
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))

@@ -646,7 +646,7 @@ your mode instead of adding an entry to this variable.")
                            (set (make-local-variable var) val))
                          (let ((major-mode mode))
                            (magit-buffer-value)))))
-         (buffer  (magit-mode-get-buffer mode nil nil value))
+         (buffer  (magit-get-mode-buffer mode value))
          (section (and buffer (magit-current-section)))
          (created (not buffer)))
     (unless buffer
@@ -684,7 +684,7 @@ locked to its value, which is derived from MODE and ARGS."
                            (setq magit-refresh-args args))
                          (let ((major-mode mode))
                            (magit-buffer-value)))))
-         (buffer  (magit-mode-get-buffer mode nil nil value))
+         (buffer  (magit-get-mode-buffer mode value))
          (section (and buffer (magit-current-section)))
          (created (not buffer)))
     (unless buffer
@@ -864,8 +864,8 @@ Magit buffer is buried."
 (defvar-local magit--default-directory nil
   "Value of `default-directory' when buffer is generated.
 This exists to prevent a let-bound `default-directory' from
-tricking `magit-mode-get-buffer' or `magit-mode-get-buffers' into
-thinking a buffer belongs to a repo that it doesn't.")
+tricking `magit-get-mode-buffer' or `magit-mode-get-buffers'
+into thinking a buffer belongs to a repo that it doesn't.")
 (put 'magit--default-directory 'permanent-local t)
 
 (defun magit-mode-get-buffers ()
@@ -878,7 +878,47 @@ thinking a buffer belongs to a repo that it doesn't.")
 (defvar-local magit-buffer-locked-p nil)
 (put 'magit-buffer-locked-p 'permanent-local t)
 
+(defun magit-get-mode-buffer (mode &optional value frame)
+  "Return buffer belonging to the current repository whose major-mode is MODE.
+
+If no such buffer exists then return nil.  Multiple buffers with
+the same major-mode may exist for a repository but only one can
+exist that hasn't been looked to its value.  Return that buffer
+\(or nil if there is no such buffer) unless VALUE is non-nil, in
+which case return the buffer that has been looked to that value.
+
+If FRAME nil or omitted, then consider all buffers.  Otherwise
+  only consider buffers that are displayed in some live window
+  on some frame.
+If `all', then consider all buffers on all frames.
+If `visible', then only consider buffers on all visible frames.
+If `selected' or t, then only consider buffers on the selected
+  frame.
+If a frame, then only consider buffers on that frame."
+  (if-let ((topdir (magit-toplevel)))
+      (cl-flet* ((b (buffer)
+                    (with-current-buffer buffer
+                      (and (eq major-mode mode)
+                           (equal magit--default-directory topdir)
+                           (if value
+                               (and magit-buffer-locked-p
+                                    (equal (magit-buffer-value) value))
+                             (not magit-buffer-locked-p))
+                           buffer)))
+                 (w (window)
+                    (b (window-buffer window)))
+                 (f (frame)
+                    (-some #'w (window-list frame 'no-minibuf))))
+        (pcase-exhaustive frame
+          (`nil                   (-some #'b (buffer-list)))
+          (`all                   (-some #'f (frame-list)))
+          (`visible               (-some #'f (visible-frame-list)))
+          ((or `selected `t)      (-some #'w (window-list (selected-frame))))
+          ((guard (framep frame)) (-some #'w (window-list frame)))))
+    (magit--not-inside-repository-error)))
+
 (defun magit-mode-get-buffer (mode &optional create frame value)
+  (declare (obsolete magit-get-mode-buffer "Magit 2.91.0"))
   (when create
     (error "`magit-mode-get-buffer's CREATE argument is obsolete"))
   (if-let ((topdir (magit-toplevel)))
@@ -956,7 +996,7 @@ repository, then the former buffer is instead deleted and the
 latter is displayed in its place."
   (interactive)
   (if magit-buffer-locked-p
-      (if-let ((unlocked (magit-mode-get-buffer major-mode)))
+      (if-let ((unlocked (magit-get-mode-buffer major-mode)))
           (let ((locked (current-buffer)))
             (switch-to-buffer unlocked nil t)
             (kill-buffer locked))
@@ -964,7 +1004,7 @@ latter is displayed in its place."
         (rename-buffer (funcall magit-generate-buffer-name-function
                                 major-mode)))
     (if-let ((value (magit-buffer-value)))
-        (if-let ((locked (magit-mode-get-buffer major-mode nil nil value)))
+        (if-let ((locked (magit-get-mode-buffer major-mode value)))
             (let ((unlocked (current-buffer)))
               (switch-to-buffer locked nil t)
               (kill-buffer unlocked))
@@ -1029,7 +1069,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
             (magit-refresh-buffer))
           (--when-let (and magit-refresh-status-buffer
                            (not (derived-mode-p 'magit-status-mode))
-                           (magit-mode-get-buffer 'magit-status-mode))
+                           (magit-get-mode-buffer 'magit-status-mode))
             (with-current-buffer it
               (magit-refresh-buffer)))
           (magit-auto-revert-buffers)
@@ -1161,7 +1201,7 @@ If you are not satisfied with Magit's performance, then you
 should obviously not add this function to that hook."
   (when (and (not disable-magit-save-buffers)
              (magit-inside-worktree-p t))
-    (--when-let (ignore-errors (magit-mode-get-buffer 'magit-status-mode))
+    (--when-let (ignore-errors (magit-get-mode-buffer 'magit-status-mode))
       (add-to-list 'magit-after-save-refresh-buffers it)
       (add-hook 'post-command-hook 'magit-after-save-refresh-buffers))))
 
