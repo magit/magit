@@ -657,12 +657,15 @@ Magit is documented in info node `(magit)'."
 
 (defun magit-mode-setup (mode &rest args)
   "Setup up a MODE buffer using ARGS to generate its content."
-  (magit-mode-setup-internal mode args))
+  (declare (obsolete magit-setup-buffer "Magit 2.91.0"))
+  (with-no-warnings
+    (magit-mode-setup-internal mode args)))
 
 (defun magit-mode-setup-internal (mode args &optional locked)
   "Setup up a MODE buffer using ARGS to generate its content.
 When optional LOCKED is non-nil, then create a buffer that is
 locked to its value, which is derived from MODE and ARGS."
+  (declare (obsolete magit-setup-buffer "Magit 2.91.0"))
   (let* ((value   (and locked
                        (with-temp-buffer
                          (setq magit-refresh-args args)
