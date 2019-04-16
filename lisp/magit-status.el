@@ -183,7 +183,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   ;; `git init' does not understand the meaning of "~"!
   (magit-call-git "init" (magit-convert-filename-for-git
                           (expand-file-name directory)))
-  (magit-status-internal directory))
+  (magit-status-setup-buffer directory))
 
 ;;;###autoload
 (defun magit-status (&optional directory cache)
@@ -230,7 +230,7 @@ prefix arguments:
           (setq directory (file-name-as-directory
                            (expand-file-name directory)))
           (if (and toplevel (file-equal-p directory toplevel))
-              (magit-status-internal directory)
+              (magit-status-setup-buffer directory)
             (when (y-or-n-p
                    (if toplevel
                        (format "%s is a repository.  Create another in %s? "
@@ -239,9 +239,9 @@ prefix arguments:
               ;; Creating a new repository invalidates cached values.
               (setq magit--refresh-cache nil)
               (magit-init directory))))
-      (magit-status-internal default-directory))))
+      (magit-status-setup-buffer default-directory))))
 
-(put 'magit-status 'interactive-only 'magit-status-internal)
+(put 'magit-status 'interactive-only 'magit-status-setup-buffer)
 
 (defalias 'magit 'magit-status
   "An alias for `magit-status' for better discoverability.
@@ -250,12 +250,6 @@ Instead of invoking this alias for `magit-status' using
 \"M-x magit RET\", you should bind a key to `magit-status'
 and read the info node `(magit)Getting Started', which
 also contains other useful hints.")
-
-;;;###autoload
-(defun magit-status-internal (directory)
-  (magit--tramp-asserts directory)
-  (let ((default-directory directory))
-    (magit-mode-setup #'magit-status-mode)))
 
 (defvar magit--remotes-using-recent-git nil)
 
@@ -340,6 +334,12 @@ Type \\[magit-commit] to create a commit.
   (hack-dir-local-variables-non-file-buffer)
   (setq imenu-create-index-function
         'magit-imenu--status-create-index-function))
+
+;;;###autoload
+(defun magit-status-setup-buffer (directory)
+  (magit--tramp-asserts directory)
+  (let ((default-directory directory))
+    (magit-mode-setup #'magit-status-mode)))
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")

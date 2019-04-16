@@ -97,7 +97,7 @@ Then show the status buffer for the new repository."
          (unless magit-clone-set-remote-head
            (magit-remote-unset-head "origin")))
        (with-current-buffer (process-get process 'command-buf)
-         (magit-status-internal directory))))))
+         (magit-status-setup-buffer directory))))))
 
 ;;; _
 (provide 'magit-clone)

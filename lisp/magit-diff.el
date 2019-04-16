@@ -40,7 +40,7 @@
 ;; For `magit-diff-visit-file'
 (declare-function dired-jump "dired-x" (&optional other-window file-name))
 (declare-function magit-find-file-noselect "magit-files" (rev file))
-(declare-function magit-status-internal "magit-status" (directory))
+(declare-function magit-status-setup-buffer "magit-status" (directory))
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer "magit-commit" ())
 ;; For `magit-insert-revision-gravatar'
@@ -1598,7 +1598,7 @@ or `HEAD'."
            (if other-window
                '(nil (inhibit-same-window t))
              '(display-buffer-same-window))))
-      (magit-status-internal directory))))
+      (magit-status-setup-buffer directory))))
 
 ;;;; Scroll commands
 

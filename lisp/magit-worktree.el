@@ -85,7 +85,7 @@ The primary worktree cannot be deleted."
           (magit-run-git "worktree" "prune"))
         (when (derived-mode-p 'magit-status-mode)
           (kill-buffer)
-          (magit-status-internal primary))))))
+          (magit-status-setup-buffer primary))))))
 
 (defun magit-worktree-status (worktree)
   "Show the status for the worktree at point.

@@ -34,7 +34,7 @@
 
 (require 'magit-core)
 
-(declare-function magit-status-internal "magit-status" (directory))
+(declare-function magit-status-setup-buffer "magit-status" (directory))
 
 (defvar x-stretch-cursor)
 
@@ -136,7 +136,7 @@ repositories are displayed."
   "Show the status for the repository at point."
   (interactive)
   (--if-let (tabulated-list-get-id)
-      (magit-status-internal (expand-file-name it))
+      (magit-status-setup-buffer (expand-file-name it))
     (user-error "There is no repository at point")))
 
 (define-derived-mode magit-repolist-mode tabulated-list-mode "Repos"
