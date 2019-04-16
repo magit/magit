@@ -317,7 +317,7 @@ mind at all, then it asks the user for a command to run."
             (pcase (magit-diff-type)
               (`committed (pcase-let ((`(,a ,b)
                                        (magit-ediff-compare--read-revisions
-                                        (car magit-refresh-args))))
+                                        magit-buffer-range)))
                             (setq revA a)
                             (setq revB b)))
               ((guard (not magit-ediff-dwim-show-on-hunks))

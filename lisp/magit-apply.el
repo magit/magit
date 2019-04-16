@@ -662,8 +662,7 @@ so causes the change to be applied to the index as well."
   (pcase-let ((`(,binaries ,sections)
                (let ((bs (magit-binary-files
                           (cond ((derived-mode-p 'magit-revision-mode)
-                                 (let ((rev (car magit-refresh-args)))
-                                   (format "%s^..%s" rev rev)))
+                                 magit-buffer-range)
                                 ((derived-mode-p 'magit-diff-mode)
                                  (car magit-refresh-args))
                                 (t

@@ -625,10 +625,6 @@ above."
       (copy-region-as-kill nil nil 'region)
     (when-let ((rev (or magit-buffer-revision
                         (cl-case major-mode
-                          ((
-                            magit-revision-mode
-                            )
-                           (car magit-refresh-args))
                           (magit-diff-mode
                            (let ((r (car magit-refresh-args)))
                              (if (string-match "\\.\\.\\.?\\(.+\\)" r)

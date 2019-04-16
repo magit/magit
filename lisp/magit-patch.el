@@ -228,7 +228,7 @@ same differences as those shown in the buffer are always used."
     (user-error "Only diff buffers can be saved as patches"))
   (pcase-let ((`(,rev ,const ,args ,files) magit-refresh-args))
     (when (derived-mode-p 'magit-revision-mode)
-      (setq rev (format "%s~..%s" rev rev)))
+      (setq rev magit-buffer-range))
     (cond ((eq magit-patch-save-arguments 'buffer)
            (when arg
              (setq args nil)))
