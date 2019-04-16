@@ -744,26 +744,24 @@ active, restrict the log to the lines that the region touches."
                          (magit-get-current-branch)
                          "HEAD")))
   (require 'magit)
-  (magit-mode-setup-internal
-   #'magit-log-mode
-   (list (list rev)
-         (cons (format "-L:%s%s:%s"
-                       (regexp-quote fn)
-                       (if (derived-mode-p 'lisp-mode 'emacs-lisp-mode)
-                           ;; Git doesn't treat "-" the same way as
-                           ;; "_", leading to false-positives such as
-                           ;; "foo-suffix" being considered a match
-                           ;; for "foo".  Wing it.
-                           "\\( \\|$\\)"
-                         ;; We could use "\\b" here, but since Git
-                         ;; already does something equivalent, that
-                         ;; isn't necessary.
-                         "")
-                       file)
-               (cl-delete "-L" (car (magit-log-arguments))
-                          :test 'string-prefix-p))
-         nil)
-   magit-log-buffer-file-locked)
+  (magit-log-setup-buffer
+   (list rev)
+   (cons (format "-L:%s%s:%s"
+                 (regexp-quote fn)
+                 (if (derived-mode-p 'lisp-mode 'emacs-lisp-mode)
+                     ;; Git doesn't treat "-" the same way as
+                     ;; "_", leading to false-positives such as
+                     ;; "foo-suffix" being considered a match
+                     ;; for "foo".  Wing it.
+                     "\\( \\|$\\)"
+                   ;; We could use "\\b" here, but since Git
+                   ;; already does something equivalent, that
+                   ;; isn't necessary.
+                   "")
+                 file)
+         (cl-delete "-L" (car (magit-log-arguments))
+                    :test 'string-prefix-p))
+   nil magit-log-buffer-file-locked)
   (magit-log-goto-same-commit))
 
 (defun magit-diff-trace-definition ()
