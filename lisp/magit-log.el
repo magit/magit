@@ -714,23 +714,22 @@ active, restrict the log to the lines that the region touches."
                            (1- end)))))))))
   (require 'magit)
   (if-let ((file (magit-file-relative-name)))
-      (magit-mode-setup-internal
-       #'magit-log-mode
-       (list (list (or magit-buffer-refname
-                       (magit-get-current-branch)
-                       "HEAD"))
-             (let ((args (car (magit-log-arguments))))
-               (when (and follow (not (member "--follow" args)))
-                 (push "--follow" args))
-               (when (and (file-regular-p
-                           (expand-file-name file (magit-toplevel)))
-                          beg end)
-                 (setq args (cons (format "-L%s,%s:%s" beg end file)
-                                  (cl-delete "-L" args :test
-                                             'string-prefix-p)))
-                 (setq file nil))
-               args)
-             (and file (list file)))
+      (magit-log-setup-buffer
+       (list (or magit-buffer-refname
+                 (magit-get-current-branch)
+                 "HEAD"))
+       (let ((args (car (magit-log-arguments))))
+         (when (and follow (not (member "--follow" args)))
+           (push "--follow" args))
+         (when (and (file-regular-p
+                     (expand-file-name file (magit-toplevel)))
+                    beg end)
+           (setq args (cons (format "-L%s,%s:%s" beg end file)
+                            (cl-delete "-L" args :test
+                                       'string-prefix-p)))
+           (setq file nil))
+         args)
+       (and file (list file))
        magit-log-buffer-file-locked)
     (user-error "Buffer isn't visiting a file"))
   (magit-log-goto-same-commit))
