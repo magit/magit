@@ -232,7 +232,7 @@ so causes the change to be applied to the index as well."
 
 (defun magit-apply--diff-ignores-whitespace-p ()
   (and (cl-intersection (if (derived-mode-p 'magit-diff-mode)
-                            (nth 2 magit-refresh-args)
+                            magit-buffer-diff-args
                           magit-diff-section-arguments)
                         '("--ignore-space-at-eol"
                           "--ignore-space-change"
@@ -664,7 +664,7 @@ so causes the change to be applied to the index as well."
                           (cond ((derived-mode-p 'magit-revision-mode)
                                  magit-buffer-range)
                                 ((derived-mode-p 'magit-diff-mode)
-                                 (car magit-refresh-args))
+                                 magit-buffer-range)
                                 (t
                                  "--cached")))))
                  (--separate (member (oref it value) bs)

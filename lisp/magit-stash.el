@@ -447,13 +447,12 @@ instead of \"Stashes:\"."
 
 (defun magit-stash-setup-buffer (stash args files)
   (magit-setup-buffer #'magit-stash-mode nil
-    (magit-refresh-args (list stash nil args files))
     (magit-buffer-revision stash)
     (magit-buffer-range (format "%s^..%s" stash stash))
     (magit-buffer-diff-args args)
     (magit-buffer-diff-files files)))
 
-(defun magit-stash-refresh-buffer (&rest _)
+(defun magit-stash-refresh-buffer ()
   (magit-set-header-line-format
    (concat (propertize (capitalize magit-buffer-revision)
                        'face 'magit-section-heading)
