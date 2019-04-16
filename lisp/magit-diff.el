@@ -1215,31 +1215,28 @@ Change \"revA..revB\" to \"revB..revA\"."
         (magit-refresh))
     (user-error "No range to swap")))
 
-(defun magit-diff--toggle-file-args (files)
-  (cond (files
-         (setq magit-buffer-diff-files-suspened files)
-               nil)
-        (magit-buffer-diff-files-suspened)
-        (t
-         (user-error "No diff file filter to toggle"))))
-
 (defun magit-diff-toggle-file-filter ()
   "Toggle the file restriction of the current buffer's diffs.
 If the current buffer's mode is derived from `magit-log-mode',
 toggle the file restriction in the repository's revision buffer
 instead."
   (interactive)
-  (--if-let (and (derived-mode-p 'magit-log-mode
-                                 'magit-cherry-mode
-                                 'magit-reflog-mode)
-                 (magit-get-mode-buffer 'magit-revision-mode))
-      (with-current-buffer it
-        (setq magit-buffer-diff-files
-              (magit-diff--toggle-file-args magit-buffer-diff-files))
-        (magit-refresh))
-    (setq magit-buffer-diff-files
-          (magit-diff--toggle-file-args magit-buffer-diff-files))
-    (magit-refresh)))
+  (cl-flet ((toggle ()
+                    (cond (magit-buffer-diff-files
+                           (setq magit-buffer-diff-files-suspened
+                                 magit-buffer-diff-files)
+                           nil)
+                          (magit-buffer-diff-files-suspened)
+                          (t
+                           (user-error "No diff file filter to toggle")))
+                    (magit-refresh)))
+    (--if-let (and (derived-mode-p 'magit-log-mode
+                                   'magit-cherry-mode
+                                   'magit-reflog-mode)
+                   (magit-get-mode-buffer 'magit-revision-mode))
+        (with-current-buffer it
+          (setq magit-buffer-diff-files (toggle)))
+      (setq magit-buffer-diff-files (toggle)))))
 
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
