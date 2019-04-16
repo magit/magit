@@ -436,7 +436,8 @@ instead of \"Stashes:\"."
   (interactive (cons (or (and (not current-prefix-arg)
                               (magit-stash-at-point))
                          (magit-read-stash "Show stash"))
-                     (pcase-let ((`(,args ,files) (magit-diff-arguments)))
+                     (pcase-let ((`(,args ,files)
+                                  (magit-diff-arguments 'magit-stash-mode)))
                        (list (delete "--stat" args) files))))
   (magit-stash-setup-buffer stash args files))
 

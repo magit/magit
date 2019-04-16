@@ -939,7 +939,8 @@ instead of the hash, like `kill-ring-save' would."
            (setq magit--update-revision-buffer nil)
            (when (buffer-live-p buf)
              (let ((magit-display-buffer-noselect t))
-               (apply #'magit-show-commit rev (magit-diff-arguments))))))))))
+               (apply #'magit-show-commit rev
+                      (magit-diff-arguments 'magit-revision-mode))))))))))
 
 ;;; _
 (provide 'magit-blame)

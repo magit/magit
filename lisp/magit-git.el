@@ -40,9 +40,6 @@
 (defvar magit-branch-prefer-remote-upstream)
 (defvar magit-published-branches)
 
-;; From `magit-diff'.
-(defvar magit-diff-section-arguments)
-
 ;; From `magit-margin'.
 (declare-function magit-maybe-make-margin-overlay "magit-margin" ())
 
@@ -984,7 +981,7 @@ are considered."
 (defun magit-ignore-submodules-p ()
   (cl-find-if (lambda (arg)
                 (string-prefix-p "--ignore-submodules" arg))
-              magit-diff-section-arguments))
+              magit-buffer-diff-args))
 
 ;;; Revisions and References
 

@@ -630,7 +630,8 @@ Like `undo' but works in read-only buffers."
           (pcase scroll
             (`up   (magit-diff-show-or-scroll-up))
             (`down (magit-diff-show-or-scroll-down))
-            (_     (apply #'magit-show-commit it (magit-diff-arguments))))
+            (_     (apply #'magit-show-commit it
+                          (magit-diff-arguments 'magit-revision-mode))))
         (ding)))))
 
 (defun git-rebase-show-commit ()

@@ -231,9 +231,7 @@ so causes the change to be applied to the index as well."
     (t sections)))
 
 (defun magit-apply--diff-ignores-whitespace-p ()
-  (and (cl-intersection (if (derived-mode-p 'magit-diff-mode)
-                            magit-buffer-diff-args
-                          magit-diff-section-arguments)
+  (and (cl-intersection magit-buffer-diff-args
                         '("--ignore-space-at-eol"
                           "--ignore-space-change"
                           "--ignore-all-space"
@@ -297,7 +295,7 @@ ignored) files."
   (when (magit-anything-staged-p)
     (magit-confirm 'stage-all-changes))
   (magit-with-toplevel
-    (magit-stage-1 (if all "--all" "-u") magit-diff-section-file-args)))
+    (magit-stage-1 (if all "--all" "-u") magit-buffer-diff-files)))
 
 (defun magit-stage-1 (arg &optional files)
   (magit-wip-commit-before-change files " before stage")
@@ -420,7 +418,7 @@ without requiring confirmation."
             (magit-untracked-files))
     (magit-confirm 'unstage-all-changes))
   (magit-wip-commit-before-change nil " before unstage")
-  (magit-run-git "reset" "HEAD" "--" magit-diff-section-file-args)
+  (magit-run-git "reset" "HEAD" "--" magit-buffer-diff-files)
   (magit-wip-commit-after-apply nil " after unstage"))
 
 ;;;; Discard
