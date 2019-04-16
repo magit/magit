@@ -70,10 +70,10 @@
   :options '(magit-load-config-extensions
              bug-reference-mode))
 
-(defcustom magit-mode-setup-hook
+(defcustom magit-setup-buffer-hook
   '(magit-maybe-save-repository-buffers
     magit-set-buffer-margin)
-  "Hook run by `magit-mode-setup'.
+  "Hook run by `magit-setup-buffer'.
 
 This is run right after displaying the buffer and right before
 generating or updating its content.  `magit-mode-hook' and other,
@@ -651,7 +651,7 @@ Magit is documented in info node `(magit)'."
         (run-hooks 'magit-create-buffer-hook)))
     (magit-display-buffer buffer)
     (with-current-buffer buffer
-      (run-hooks 'magit-mode-setup-hook)
+      (run-hooks 'magit-setup-buffer-hook)
       (magit-refresh-buffer))
     buffer))
 
