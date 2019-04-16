@@ -904,6 +904,10 @@ is displayed in the current frame."
 
 ;;; Log Mode
 
+(defvar magit-log-disable-graph-hack-args
+  '("-G" "--grep" "--author")
+  "Arguments which disable the graph speedup hack.")
+
 (defvar magit-log-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
@@ -939,10 +943,6 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         'magit-imenu--log-prev-index-position-function)
   (setq imenu-extract-index-name-function
         'magit-imenu--log-extract-index-name-function))
-
-(defvar magit-log-disable-graph-hack-args
-  '("-G" "--grep" "--author")
-  "Arguments which disable the graph speedup hack.")
 
 (defun magit-log-refresh-buffer (revs args files)
   (magit-set-header-line-format
