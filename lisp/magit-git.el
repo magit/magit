@@ -1027,6 +1027,8 @@ string \"true\", otherwise return nil."
 
 (defalias 'magit-rev-verify-commit 'magit-commit-p)
 
+(defalias 'magit-rev-hash 'magit-commit-p)
+
 (defun magit-rev-equal (a b)
   "Return t if there are no differences between the commits A and B."
   (magit-git-success "diff" "--quiet" a b))
@@ -1982,6 +1984,13 @@ and this option only controls what face is used.")
                    (magit-git-string "merge-base" beg end)
                  beg)
                end))))
+
+(defun magit-hash-range (range)
+  (if (string-match magit-range-re range)
+      (concat (magit-rev-hash (match-string 1 range))
+              (match-string 2 range)
+              (magit-rev-hash (match-string 3 range)))
+    (magit-rev-hash range)))
 
 (put 'git-revision 'thing-at-point 'magit-thingatpt--git-revision)
 (defun magit-thingatpt--git-revision ()
