@@ -313,6 +313,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (magit-run-section-hook 'magit-refs-sections-hook))
   (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-refs-mode))
+  (pcase-let ((`(,ref ,args) magit-refresh-args))
+    (cons (or ref "HEAD") args)))
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-show-refs "magit-refs" nil t)

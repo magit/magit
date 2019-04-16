@@ -1002,9 +1002,6 @@ See also `magit-toggle-buffer-lock'.")
        (if (and revs files)
            (append revs (cons "--" files))
          (append revs files))))
-    (magit-refs-mode
-     (pcase-let ((`(,ref ,args) args))
-       (cons (or ref "HEAD") args)))
     (magit-revision-mode
      (pcase-let ((`(,rev ,_const ,_args ,files) args))
        (if files (cons rev files) (list rev))))
