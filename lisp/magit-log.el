@@ -1550,6 +1550,10 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   (setq imenu-create-index-function
         'magit-imenu--cherry-create-index-function))
 
+(defun magit-cherry-refresh-buffer (_upstream _head)
+  (magit-insert-section (cherry)
+    (magit-run-section-hook 'magit-cherry-sections-hook)))
+
 ;;;###autoload
 (defun magit-cherry (head upstream)
   "Show commits in a branch that are not merged in the upstream branch."
@@ -1559,10 +1563,6 @@ Type \\[magit-cherry-pick] to apply the commit at point.
                                          (magit-get-upstream-branch head)))))
   (require 'magit)
   (magit-mode-setup #'magit-cherry-mode upstream head))
-
-(defun magit-cherry-refresh-buffer (_upstream _head)
-  (magit-insert-section (cherry)
-    (magit-run-section-hook 'magit-cherry-sections-hook)))
 
 (defun magit-insert-cherry-headers ()
   "Insert headers appropriate for `magit-cherry-mode' buffers."
