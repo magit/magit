@@ -457,6 +457,9 @@ instead of \"Stashes:\"."
   (magit-insert-section (stash)
     (magit-run-section-hook 'magit-stash-sections-hook)))
 
+(cl-defmethod magit-buffer-value (&context (major-mode magit-stash-mode))
+  (car magit-refresh-args))
+
 (defun magit-stash-insert-section (commit range message &optional files)
   (magit-insert-section (commit commit)
     (magit-insert-heading message)
