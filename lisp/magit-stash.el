@@ -413,7 +413,7 @@ instead of \"Stashes:\"."
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer))
 
-(cl-defun magit-stashes-refresh-buffer (ref)
+(defun magit-stashes-refresh-buffer (ref)
   (magit-insert-section (stashesbuf)
     (magit-insert-heading (if (equal ref "refs/stash")
                               "Stashes:"
