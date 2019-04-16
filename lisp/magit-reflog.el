@@ -111,9 +111,10 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 
 ;;;###autoload
 (defun magit-reflog-current (args)
-  "Display the reflog of the current branch."
+  "Display the reflog of the current branch.
+If `HEAD' is detached, then show the reflog for that instead."
   (interactive (list magit-reflog-arguments))
-  (magit-reflog-setup-buffer (magit-get-current-branch) args))
+  (magit-reflog-setup-buffer (or (magit-get-current-branch) "HEAD") args))
 
 ;;;###autoload
 (defun magit-reflog-other (ref args)
