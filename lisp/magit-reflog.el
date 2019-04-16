@@ -133,6 +133,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
+    (define-key map "\C-c\C-n" 'undefined)
     (define-key map "L" 'magit-margin-settings)
     map)
   "Keymap for `magit-reflog-mode'.")
