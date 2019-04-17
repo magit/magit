@@ -371,12 +371,12 @@ commit message."
 (defun magit-wip-log-index (args files)
   "Show log for the index wip ref of the current branch."
   (interactive (magit-log-arguments))
-  (magit-git-log (list (magit--wip-index-ref)) args files))
+  (magit-log-setup-buffer (list (magit--wip-index-ref)) args files))
 
 (defun magit-wip-log-worktree (args files)
   "Show log for the worktree wip ref of the current branch."
   (interactive (magit-log-arguments))
-  (magit-git-log (list (magit--wip-wtree-ref)) args files))
+  (magit-log-setup-buffer (list (magit--wip-wtree-ref)) args files))
 
 (defun magit-wip-log-current (branch args files count)
   "Show log for the current branch and its wip refs.
@@ -404,15 +404,15 @@ many \"branches\" of each wip ref are shown."
                      "HEAD")))
           (magit-log-arguments)
           (list (prefix-numeric-value current-prefix-arg))))
-  (magit-git-log (nconc (list branch)
-                        (magit-wip-log-get-tips
-                         (magit--wip-wtree-ref branch)
-                         (abs count))
-                        (and (>= count 0)
-                             (magit-wip-log-get-tips
-                              (magit--wip-index-ref branch)
-                              (abs count))))
-                 args files))
+  (magit-log-setup-buffer (nconc (list branch)
+                                 (magit-wip-log-get-tips
+                                  (magit--wip-wtree-ref branch)
+                                  (abs count))
+                                 (and (>= count 0)
+                                      (magit-wip-log-get-tips
+                                       (magit--wip-index-ref branch)
+                                       (abs count))))
+                          args files))
 
 (defun magit-wip-log-get-tips (wipref count)
   (when-let ((reflog (magit-git-lines "reflog" wipref)))

@@ -36,22 +36,34 @@
 (require 'magit-utils)
 (require 'magit-section)
 
-(declare-function magit-call-git "magit-process" (&rest args))
+;; From `magit-branch'.
+(defvar magit-branch-prefer-remote-upstream)
+(defvar magit-published-branches)
+
+;; From `magit-margin'.
 (declare-function magit-maybe-make-margin-overlay "magit-margin" ())
+
+;; From `magit-mode'.
+(declare-function magit-get-mode-buffer "magit-mode"
+                  (mode &optional value frame))
+(declare-function magit-refresh "magit-mode" ())
+(defvar magit-buffer-diff-args)
+(defvar magit-buffer-file-name)
+(defvar magit-buffer-log-args)
+(defvar magit-buffer-log-files)
+(defvar magit-buffer-refname)
+(defvar magit-buffer-revision)
+
+;; From `magit-process'.
+(declare-function magit-call-git "magit-process" (&rest args))
 (declare-function magit-process-buffer "magit-process" (&optional nodisplay))
 (declare-function magit-process-file "magit-process" (&rest args))
 (declare-function magit-process-insert-section "magit-process"
-                  (pwe program args &optional errcode errlog))
-(declare-function magit-mode-get-buffer "magit-mode"
-                  (mode &optional create frame value))
-(declare-function magit-refresh "magit-mode" ())
+                  (pwd program args &optional errcode errlog))
 (defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
-(defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
-(defvar magit-branch-prefer-remote-upstream)
-(defvar magit-published-branches)
-(defvar magit-diff-section-arguments)
 
+;; From later in `magit-git'.
 (defvar magit-tramp-process-environment nil)
 
 ;;; Options
@@ -324,7 +336,7 @@ still subject to major changes.  Also see `magit-git-string-p'."
               (magit-process-insert-section default-directory
                                             magit-git-executable args
                                             status buf)))
-          (when-let ((status-buf (magit-mode-get-buffer 'magit-status-mode)))
+          (when-let ((status-buf (magit-get-mode-buffer 'magit-status-mode)))
             (let ((msg (magit--locate-error-message)))
               (with-current-buffer status-buf
                 (setq magit-this-error msg))))
@@ -757,13 +769,6 @@ a bare repository."
                 (file-directory-p (expand-file-name "refs" directory))
                 (file-directory-p (expand-file-name "objects" directory))))))
 
-(defvar-local magit-buffer-revision  nil)
-(defvar-local magit-buffer-refname   nil)
-(defvar-local magit-buffer-file-name nil)
-(put 'magit-buffer-revision  'permanent-local t)
-(put 'magit-buffer-refname   'permanent-local t)
-(put 'magit-buffer-file-name 'permanent-local t)
-
 (defun magit-file-relative-name (&optional file tracked)
   "Return the path of FILE relative to the repository root.
 
@@ -925,7 +930,7 @@ Sorted from longest to shortest CYGWIN name."
   (or (magit-file-relative-name)
       (magit-file-at-point)
       (and (derived-mode-p 'magit-log-mode)
-           (car (nth 2 magit-refresh-args)))))
+           (car magit-buffer-log-files))))
 
 ;;; Predicates
 
@@ -976,7 +981,7 @@ are considered."
 (defun magit-ignore-submodules-p ()
   (cl-find-if (lambda (arg)
                 (string-prefix-p "--ignore-submodules" arg))
-              magit-diff-section-arguments))
+              magit-buffer-diff-args))
 
 ;;; Revisions and References
 
@@ -1017,6 +1022,8 @@ string \"true\", otherwise return nil."
   (magit-rev-verify (concat rev "^{commit}")))
 
 (defalias 'magit-rev-verify-commit 'magit-commit-p)
+
+(defalias 'magit-rev-hash 'magit-commit-p)
 
 (defun magit-rev-equal (a b)
   "Return t if there are no differences between the commits A and B."
@@ -1216,11 +1223,14 @@ to, or to some other symbolic-ref that points to the same ref."
 
 (defun magit-commit-at-point ()
   (or (magit-section-value-if 'commit)
-      (and (derived-mode-p 'magit-revision-mode)
-           (car magit-refresh-args))))
+      (and (derived-mode-p 'magit-stash-mode
+                           'magit-merge-preview-mode
+                           'magit-revision-mode)
+           magit-buffer-revision)))
 
 (defun magit-branch-or-commit-at-point ()
-  (or magit-buffer-refname
+  (or (and magit-buffer-file-name
+           magit-buffer-refname)
       (magit-section-case
         (branch (magit-ref-maybe-qualify (oref it value)))
         (commit (or (magit--painted-branch-at-point)
@@ -1230,9 +1240,10 @@ to, or to some other symbolic-ref that points to the same ref."
                           rev))))
         (tag (magit-ref-maybe-qualify (oref it value) "tags/")))
       (thing-at-point 'git-revision t)
-      (and (derived-mode-p 'magit-revision-mode
-                           'magit-merge-preview-mode)
-           (car magit-refresh-args))))
+      (and (derived-mode-p 'magit-stash-mode
+                           'magit-merge-preview-mode
+                           'magit-revision-mode)
+           magit-buffer-revision)))
 
 (defun magit-tag-at-point ()
   (magit-section-case
@@ -1799,7 +1810,7 @@ and this option only controls what face is used.")
     (let ((regexp "\\(, \\|tag: \\|HEAD -> \\)")
           names)
       (if (and (derived-mode-p 'magit-log-mode)
-               (member "--simplify-by-decoration" (cadr magit-refresh-args)))
+               (member "--simplify-by-decoration" magit-buffer-log-args))
           (let ((branches (magit-list-local-branch-names))
                 (re (format "^%s/.+" (regexp-opt (magit-list-remotes)))))
             (setq names
@@ -1972,6 +1983,13 @@ and this option only controls what face is used.")
                    (magit-git-string "merge-base" beg end)
                  beg)
                end))))
+
+(defun magit-hash-range (range)
+  (if (string-match magit-range-re range)
+      (concat (magit-rev-hash (match-string 1 range))
+              (match-string 2 range)
+              (magit-rev-hash (match-string 3 range)))
+    (magit-rev-hash range)))
 
 (put 'git-revision 'thing-at-point 'magit-thingatpt--git-revision)
 (defun magit-thingatpt--git-revision ()

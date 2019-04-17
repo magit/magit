@@ -154,12 +154,11 @@ is no file at point, then instead visit `default-directory'."
                    (not (member "--follow" args))
                    (not (cdr files)))
           (push "--follow" args))
-        (magit-mode-setup-internal
-         #'magit-log-mode
-         (list (list (or (magit-get-current-branch) "HEAD"))
-               args
-               (let ((default-directory topdir))
-                 (mapcar #'file-relative-name files)))
+        (magit-log-setup-buffer
+         (list (or (magit-get-current-branch) "HEAD"))
+         args
+         (let ((default-directory topdir))
+           (mapcar #'file-relative-name files))
          magit-log-buffer-file-locked))
     (magit--not-inside-repository-error)))
 
@@ -624,21 +623,14 @@ above."
   (interactive)
   (if (use-region-p)
       (copy-region-as-kill nil nil 'region)
-    (when-let ((rev (cl-case major-mode
-                      ((magit-cherry-mode
-                        magit-log-select-mode
-                        magit-reflog-mode
-                        magit-refs-mode
-                        magit-revision-mode
-                        magit-stash-mode
-                        magit-stashes-mode)
-                       (car magit-refresh-args))
-                      ((magit-diff-mode magit-log-mode)
-                       (let ((r (caar magit-refresh-args)))
-                         (if (string-match "\\.\\.\\.?\\(.+\\)" r)
-                             (match-string 1 r)
-                           r)))
-                      (magit-status-mode "HEAD"))))
+    (when-let ((rev (or magit-buffer-revision
+                        (cl-case major-mode
+                          (magit-diff-mode
+                           (if (string-match "\\.\\.\\.?\\(.+\\)"
+                                             magit-buffer-range)
+                               (match-string 1 magit-buffer-range)
+                             magit-buffer-range))
+                          (magit-status-mode "HEAD")))))
       (when (magit-commit-p rev)
         (setq rev (magit-rev-parse rev))
         (push (list rev default-directory) magit-revision-stack)

@@ -226,9 +226,10 @@ same differences as those shown in the buffer are always used."
                      current-prefix-arg))
   (unless (derived-mode-p 'magit-diff-mode)
     (user-error "Only diff buffers can be saved as patches"))
-  (pcase-let ((`(,rev ,const ,args ,files) magit-refresh-args))
-    (when (derived-mode-p 'magit-revision-mode)
-      (setq rev (format "%s~..%s" rev rev)))
+  (let ((rev     magit-buffer-range)
+        (typearg magit-buffer-typearg)
+        (args    magit-buffer-diff-args)
+        (files   magit-buffer-diff-files))
     (cond ((eq magit-patch-save-arguments 'buffer)
            (when arg
              (setq args nil)))
@@ -238,7 +239,7 @@ same differences as those shown in the buffer are always used."
           ((not arg)
            (setq args magit-patch-save-arguments)))
     (with-temp-file file
-      (magit-git-insert "diff" rev "-p" const args "--" files)))
+      (magit-git-insert "diff" rev "-p" typearg args "--" files)))
   (magit-refresh))
 
 ;;;###autoload

@@ -31,8 +31,7 @@
   (require 'subr-x))
 
 (require 'magit)
-
-(defvar bookmark-make-record-function)
+(require 'magit-reflog)
 
 ;;; Options
 
@@ -408,22 +407,27 @@ instead of \"Stashes:\"."
 (defun magit-stash-list ()
   "List all stashes in a buffer."
   (interactive)
-  (magit-mode-setup #'magit-stashes-mode "refs/stash"))
+  (magit-stashes-setup-buffer))
 
 (define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
   "Mode for looking at lists of stashes."
   :group 'magit-log
-  (hack-dir-local-variables-non-file-buffer)
-  (setq-local bookmark-make-record-function
-              #'magit-bookmark--stashes-make-record))
+  (hack-dir-local-variables-non-file-buffer))
 
-(cl-defun magit-stashes-refresh-buffer (ref)
+(defun magit-stashes-setup-buffer ()
+  (magit-setup-buffer #'magit-stashes-mode nil
+    (magit-buffer-refname "refs/stash")))
+
+(defun magit-stashes-refresh-buffer ()
   (magit-insert-section (stashesbuf)
-    (magit-insert-heading (if (equal ref "refs/stash")
+    (magit-insert-heading (if (equal magit-buffer-refname "refs/stash")
                               "Stashes:"
-                            (format "Stashes [%s]:" ref)))
+                            (format "Stashes [%s]:" magit-buffer-refname)))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-      "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)))
+      "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" magit-buffer-refname)))
+
+(cl-defmethod magit-buffer-value (&context (major-mode magit-stashes-mode))
+  magit-buffer-refname)
 
 ;;; Show Stash
 
@@ -433,33 +437,40 @@ instead of \"Stashes:\"."
   (interactive (cons (or (and (not current-prefix-arg)
                               (magit-stash-at-point))
                          (magit-read-stash "Show stash"))
-                     (pcase-let ((`(,args ,files) (magit-diff-arguments)))
+                     (pcase-let ((`(,args ,files)
+                                  (magit-diff-arguments 'magit-stash-mode)))
                        (list (delete "--stat" args) files))))
-  (magit-mode-setup #'magit-stash-mode stash nil args files))
+  (magit-stash-setup-buffer stash args files))
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
   :group 'magit-diff
-  (hack-dir-local-variables-non-file-buffer)
-  (setq-local bookmark-make-record-function
-              #'magit-bookmark--stash-make-record))
+  (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-stash-refresh-buffer (stash _const _args _files)
+(defun magit-stash-setup-buffer (stash args files)
+  (magit-setup-buffer #'magit-stash-mode nil
+    (magit-buffer-revision stash)
+    (magit-buffer-range (format "%s^..%s" stash stash))
+    (magit-buffer-diff-args args)
+    (magit-buffer-diff-files files)))
+
+(defun magit-stash-refresh-buffer ()
   (magit-set-header-line-format
-   (concat (propertize (capitalize stash) 'face 'magit-section-heading)
-           " "
-           (magit-rev-format "%s" stash)))
-  (setq magit-buffer-revision-hash (magit-rev-parse stash))
+   (concat (propertize (capitalize magit-buffer-revision)
+                       'face 'magit-section-heading)
+           " " (magit-rev-format "%s" magit-buffer-revision)))
+  (setq magit-buffer-revision-hash (magit-rev-parse magit-buffer-revision))
   (magit-insert-section (stash)
     (magit-run-section-hook 'magit-stash-sections-hook)))
+
+(cl-defmethod magit-buffer-value (&context (major-mode magit-stash-mode))
+  magit-buffer-revision)
 
 (defun magit-stash-insert-section (commit range message &optional files)
   (magit-insert-section (commit commit)
     (magit-insert-heading message)
-    (magit--insert-diff
-      "diff" range "-p" "--no-prefix"
-      (nth 2 magit-refresh-args)
-      "--" (or files (nth 3 magit-refresh-args)))))
+    (magit--insert-diff "diff" range "-p" "--no-prefix" magit-buffer-diff-args
+                        "--" (or files magit-buffer-diff-files))))
 
 (defun magit-insert-stash-notes ()
   "Insert section showing notes for a stash.
@@ -467,7 +478,7 @@ This shows the notes for stash@{N} but not for the other commits
 that make up the stash."
   (magit-insert-section section (note)
     (magit-insert-heading "Notes")
-    (magit-git-insert "notes" "show" (car magit-refresh-args))
+    (magit-git-insert "notes" "show" magit-buffer-revision)
     (if (= (point)
            (oref section content))
         (magit-cancel-section)
@@ -475,22 +486,22 @@ that make up the stash."
 
 (defun magit-insert-stash-index ()
   "Insert section showing staged changes of the stash."
-  (let ((stash (car magit-refresh-args)))
-    (magit-stash-insert-section (format "%s^2" stash)
-                                (format "%s^..%s^2" stash stash)
-                                "Staged")))
+  (magit-stash-insert-section
+   (format "%s^2" magit-buffer-revision)
+   (format "%s^..%s^2" magit-buffer-revision magit-buffer-revision)
+   "Staged"))
 
 (defun magit-insert-stash-worktree ()
   "Insert section showing unstaged changes of the stash."
-  (let ((stash (car magit-refresh-args)))
-    (magit-stash-insert-section stash
-                                (format "%s^2..%s" stash stash)
-                                "Unstaged")))
+  (magit-stash-insert-section
+   magit-buffer-revision
+   (format "%s^2..%s" magit-buffer-revision magit-buffer-revision)
+   "Unstaged"))
 
 (defun magit-insert-stash-untracked ()
   "Insert section showing the untracked files commit of the stash."
-  (let ((stash (car magit-refresh-args))
-        (rev   (concat (car magit-refresh-args) "^3")))
+  (let ((stash magit-buffer-revision)
+        (rev (concat magit-buffer-revision "^3")))
     (when (magit-rev-verify rev)
       (magit-stash-insert-section (format "%s^3" stash)
                                   (format "%s^..%s^3" stash stash)

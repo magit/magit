@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-430-g619698b64+1)
+@subtitle for version 2.90.1 (v2.90.1-524-ge2d745f11+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-430-g619698b64+1).
+This manual is for Magit version 2.90.1 (v2.90.1-524-ge2d745f11+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -103,6 +103,7 @@ Interface Concepts
 * Modes and Buffers::
 * Sections::
 * Transient Commands::
+* Transient Arguments and Buffer Variables::
 * Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
 * Running Git::
 
@@ -700,6 +701,7 @@ then it is highly recommended that you read the next section too.
 * Modes and Buffers::
 * Sections::
 * Transient Commands::
+* Transient Arguments and Buffer Variables::
 * Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
 * Running Git::
 @end menu
@@ -1735,29 +1737,156 @@ you should setup a global binding:
 (global-set-key (kbd "C-x M-g") 'magit-dispatch)
 @end lisp
 
-Transient commands remember the used arguments for subsequent
-invocations.  Two transients, the log and diff transients (see
-@ref{Logging} and @ref{Diffing}), may behave a bit differently, depending on the
-value of @code{magit-use-sticky-arguments}.
+@node Transient Arguments and Buffer Variables
+@section Transient Arguments and Buffer Variables
 
-@defopt magit-use-sticky-arguments
+The infix arguments of many of Magit's transient prefix commands cease
+to have an effect once the @code{git} command that is called with those
+arguments has returned.  Commands that create a commit are a good
+example for this.  If the user changes the arguments, then that only
+affects the next invocation of a suffix command.  If the same
+transient prefix command is later invoked again, then the arguments
+are initially reset to the default value.  This default value can be
+set for the current Emacs session or saved permanently, see
+@ref{Saving Values,,,transient,}.  It is also possible to cycle through
+previously used sets of arguments using @code{M-p} and @code{M-n}, see
+@ref{Using History,,,transient,}.
 
-This option controls how the diff and log transients reuse arguments
-from existing buffers.
+However the infix arguments of many other transient commands continue
+to have an effect even after the @code{git} command that was called with
+those arguments has returned.  The most important commands like this
+are those that display a diff or log in a dedicated buffer.  Their
+arguments obviously continue to have an effect for as long as the
+respective diff or log is being displayed.  Furthermore the used
+arguments are stored in buffer-local variables for future reference.
 
-When @code{t} (the default value), then the log or diff transients reuses
-the arguments from the current repository's log or diff buffer,
-respectively.  When no log or diff buffer exists for the current
-repository, these transients use the default value of
-@code{magit-log-arguments} or @code{magit-diff-arguments}.
+For commands in the second group it isn't always desirable to reset
+their arguments to the global value when the transient prefix command
+is invoked again.
 
-When @code{current}, log and diff transients will only reuse the arguments
-if the current buffer is derived from @code{magit-log-mode} or
-@code{magit-diff-mode}, respectively.
+As mentioned above, it is possible to cycle through previously used
+sets of arguments while a transient popup is visible.  That means that
+we could always reset the infix arguments to the default because the
+set of arguments that is active in the existing buffer is only a few
+@code{M-p} away.  Magit can be configured to behave like that, but because I
+expect that most users would not find that very convenient, it is not
+the default.
 
-When @code{nil}, the default value of @code{magit-log-arguments} or
-@code{magit-diff-arguments} is always used.
+Also note that it is possible to change the diff and log arguments
+used in the current buffer (including the status buffer, which
+contains both diff and log sections) using the respective "refresh"
+transient prefix commands on @code{D} and @code{L}.  (@code{d} and @code{l} on the other hand are
+intended to change @strong{what} diff or log is being displayed.  It is
+possible to also change @strong{how} the diff or log is being displayed at the
+same time, but if you only want to do the latter, then you should use
+the refresh variants.)  Because these secondary diff and log transient
+prefixes are about @strong{changing} the arguments used in the current buffer,
+they @strong{always} start out with the set of arguments that are currently in
+effect in that buffer.
+
+Some commands are usually invoked directly even though they can also
+be invoked as the suffix of a transient prefix command.  Most
+prominently @code{magit-show-commit} is usually invoked by typing @code{RET} while
+point is on a commit in a log, but it can also be invoked from the
+@code{magit-diff} transient prefix.
+
+When such a command is invoked directly, then it is important to reuse
+the arguments as specified by the respective buffer-local values,
+instead of using the default arguments.  Imagine you press @code{RET} in a
+log to display the commit at point in a different buffer and then use
+@code{D} to change how the diff is displayed in that buffer.  And then you
+press @code{RET} on another commit to show that instead and the diff
+arguments are reset to the default.  Not cool; so Magit does not do
+that by default.
+
+@defopt magit-prefix-use-buffer-arguments
+
+This option controls whether the infix arguments initially shown in
+certain transient prefix commands are based on the arguments that
+are currently in effect in the buffer that their suffixes update.
+
+The @code{magit-diff} and @code{magit-log} transient prefix commands are affected
+by this option.
 @end defopt
+
+@defopt magit-direct-use-buffer-arguments
+
+This option controls whether certain commands, when invoked directly
+(i.e. not as the suffix of a transient prefix command), use the
+arguments that are currently active in the buffer that they are
+about to update.  The alternative is to use the default value for
+these arguments, which might change the arguments that are used in
+the buffer.
+@end defopt
+
+@noindent
+Valid values for both of the above options are:
+
+@itemize
+@item
+@code{always}: Always use the set of arguments that is currently active
+in the respective buffer, provided that buffer exists of course.
+
+@item
+@code{selected} or @code{t}: Use the set of arguments from the respective
+buffer, but only if it is displayed in a window of the current
+frame.  This is the default for both variables.
+
+@item
+@code{current}: Use the set of arguments from the respective buffer, but
+only if it is the current buffer.
+
+@item
+@code{never}: Never use the set of arguments from the respective buffer.
+@end itemize
+
+@noindent
+I am afraid it gets more complicated still:
+
+@itemize
+@item
+The global diff and log arguments are set for each support mode
+individually.  The diff arguments for example have different values
+in @code{magit-diff-mode}, @code{magit-revision-mode}, @code{magit-merge-preview-mode}
+and @code{magit-status-mode} buffers.  Setting or saving the value for one
+mode does not change the value for other modes.  The history however
+is shared.
+
+
+@item
+When @code{magit-show-commit} is invoked directly from a log buffer, then
+the file filter is picked up from that buffer, not from the revision
+buffer and or the mode's global diff arguments.
+
+
+@item
+Even though they are suffixes of the diff prefix @code{magit-show-commit}
+and @code{magit-stash-show} do not use the diff buffer used by the diff
+commands, instead they use the dedicated revision and stash buffers.
+
+At the time you invoke the diff prefix it is unknown to Magit which
+of the suffix commands you are going to invoke.  While not certain,
+more often than not users invoke one of the commands that use the
+diff buffer, so the initial infix arguments are those used in that
+buffer.  However if you invoke one of these commands directly, then
+Magit knows that it should use the arguments from the revision resp.
+stash buffer.
+
+
+@item
+The log prefix also features reflog commands, but these commands do
+not use the log arguments.
+
+
+@item
+If @code{magit-show-refs} is invoked from a @code{magit-refs-mode} buffer, then it
+acts as a refresh prefix and therefore unconditionally uses the
+buffer's arguments as initial arguments. If it is invoked elsewhere
+with a prefix argument, then it acts as regular prefix and therefore
+respects @code{magit-prefix-use-buffer-arguments}.  If it is invoked
+elsewhere without a prefix argument, then it acts as a direct
+command and therefore respects @code{magit-direct-use-buffer-arguments}.
+@end itemize
 
 @node Completion Confirmation and the Selection
 @section Completion, Confirmation and the Selection

@@ -31,6 +31,12 @@
 
 ;;; Obsolete since v2.91.0
 
+(define-obsolete-function-alias 'magit-status-internal
+  'magit-status-setup-buffer "Magit 2.91.0")
+
+(define-obsolete-variable-alias 'magit-mode-setup-hook
+  'magit-setup-buffer-hook "Magit 2.91.0")
+
 (define-obsolete-variable-alias 'magit-branch-popup-show-variables
   'magit-branch-direct-configure "Magit 2.91.0")
 
