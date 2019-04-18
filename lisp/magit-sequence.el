@@ -135,6 +135,7 @@ This discards all changes made since the sequence started."
   "Apply or transplant commits."
   :man-page "git-cherry-pick"
   :value '("--ff")
+  :incompatible '(("--ff" "-x"))
   ["Arguments"
    :if-not magit-sequencer-in-progress-p
    (magit-cherry-pick:--mainline)
