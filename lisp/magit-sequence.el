@@ -137,11 +137,11 @@ This discards all changes made since the sequence started."
   :value '("--ff")
   ["Arguments"
    :if-not magit-sequencer-in-progress-p
-   ("-F" "Attempt fast-forward"               "--ff")
    (magit-cherry-pick:--mainline)
    ("=s" magit-merge:--strategy)
-   ("-e" "Edit commit messages"               ("-e" "--edit"))
+   ("-F" "Attempt fast-forward"               "--ff")
    ("-x" "Reference cherry in commit message" "-x")
+   ("-e" "Edit commit messages"               ("-e" "--edit"))
    ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))
    (5 magit:--gpg-sign)]
   [:if-not magit-sequencer-in-progress-p
