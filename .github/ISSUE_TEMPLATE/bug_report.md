@@ -4,10 +4,18 @@ name: Bug report
 about: Report a defect
 ---
 
+Please do not ignore these instructions.
+
 Please explain
   (1) what behavior you expected
   (2) what behavior you observed
   (3) and how we can reproduce the issue.
+
+Please include a backtrace in your report.  In most cases doing
+
+  M-x toggle-debug-on-error
+
+and then going through the steps again should result in a backtrace.
 
 Also post the output of
 
