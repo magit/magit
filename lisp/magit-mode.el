@@ -42,9 +42,6 @@
 
 ;; For `magit-display-buffer-fullcolumn-most-v1' from `git-commit'
 (defvar git-commit-mode)
-;; For `magit-xref-insert-buttons' from `magit'
-(defvar magit-diff-show-xref-buttons)
-(defvar magit-revision-show-xref-buttons)
 ;; For `magit-refresh'
 (defvar magit-post-commit-hook-commands)
 (defvar magit-post-stage-hook-commands)
