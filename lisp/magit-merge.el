@@ -40,6 +40,7 @@
 (define-transient-command magit-merge ()
   "Merge branches."
   :man-page "git-merge"
+  :incompatible '(("--ff-only" "--no-ff"))
   ["Arguments"
    :if-not magit-merge-in-progress-p
    ("-f" "Fast-forward only" "--ff-only")
