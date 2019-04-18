@@ -29,6 +29,17 @@
 
 (require 'magit)
 
+;;; Options
+
+(defcustom magit-worktree-read-directory-name-function 'read-directory-name
+  "Function used to read a directory for worktree commands.
+This is called with one argument, the prompt, and can be used
+to e.g. use a base directory other than `default-directory'.
+Used by `magit-worktree-checkout' and `magit-worktree-branch'."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-commands
+  :type 'function)
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-worktree "magit-worktree" nil t)
@@ -47,7 +58,8 @@
   "Checkout BRANCH in a new worktree at PATH."
   (interactive
    (let ((branch (magit-read-branch-or-commit "Checkout")))
-     (list (read-directory-name (format "Checkout %s in new worktree: " branch))
+     (list (funcall magit-worktree-read-directory-name-function
+                    (format "Checkout %s in new worktree: " branch))
            branch)))
   (magit-run-git "worktree" "add" (expand-file-name path) branch)
   (magit-diff-visit-directory path))
@@ -56,7 +68,8 @@
 (defun magit-worktree-branch (path branch start-point &optional force)
   "Create a new BRANCH and check it out in a new worktree at PATH."
   (interactive
-   `(,(read-directory-name "Create worktree: ")
+   `(,(funcall magit-worktree-read-directory-name-function
+               "Create worktree: ")
      ,@(magit-branch-read-args "Create and checkout branch")
      ,current-prefix-arg))
   (magit-run-git "worktree" "add" (if force "-B" "-b")
