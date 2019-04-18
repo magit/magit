@@ -6,6 +6,10 @@ about: Report a defect
 
 Please do not ignore these instructions.
 
+If you have just updated Magit, then restart Emacs. If that does not fix the issue, then also uninstall Magit and all dependencies that were updated at the same time, restart Emacs and then reinstall Magit.
+
+The reason why this might fix the issue is that updating a package does not cause the old version to be unloaded, so you might end up with a franken-version; a mixture of parts of the old and new version being loaded at the same time. Worse it is possible for the old version to leak into the byte-code of the new version, which is why reinstalling might help.
+
 Please explain
   (1) what behavior you expected
   (2) what behavior you observed
