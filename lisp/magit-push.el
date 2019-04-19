@@ -47,9 +47,10 @@
    (7 "-t" "Follow tags"    "--follow-tags")]
   [:if magit-get-current-branch
    :description (lambda ()
-                  (format (propertize "Push %s to" 'face 'transient-heading)
+                  (format (propertize "Push %s to"
+                                      'font-lock-face 'transient-heading)
                           (propertize (magit-get-current-branch)
-                                      'face 'magit-branch-local)))
+                                      'font-lock-face 'magit-branch-local)))
    ("p" magit-push-current-to-pushremote)
    ("u" magit-push-current-to-upstream)
    ("e" "elsewhere" magit-push-current)]
@@ -103,7 +104,7 @@ argument the push-remote can be changed before pushed to it."
      ((member remote (magit-list-remotes))
       (format "%s, creating it"
               (propertize (concat remote "/" branch)
-                          'face 'magit-branch-remote)))
+                          'font-lock-face 'magit-branch-remote)))
      (remote
       (format "%s, replacing invalid" v))
      (t
@@ -154,16 +155,16 @@ the upstream."
     (or (magit-get-upstream-branch branch)
         (let ((remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge"))
-              (u (propertize "@{upstream}" 'face 'bold)))
+              (u (propertize "@{upstream}" 'font-lock-face 'bold)))
           (cond
            ((magit--unnamed-upstream-p remote merge)
             (format "%s as %s"
-                    (propertize remote 'face 'bold)
-                    (propertize merge  'face 'magit-branch-remote)))
+                    (propertize remote 'font-lock-face 'bold)
+                    (propertize merge  'font-lock-face 'magit-branch-remote)))
            ((magit--valid-upstream-p remote merge)
             (format "%s creating %s"
-                    (propertize remote 'face 'magit-branch-remote)
-                    (propertize merge  'face 'magit-branch-remote)))
+                    (propertize remote 'font-lock-face 'magit-branch-remote)
+                    (propertize merge  'font-lock-face 'magit-branch-remote)))
            ((or remote merge)
             (concat u ", creating it and replacing invalid"))
            (t
@@ -275,25 +276,25 @@ the popup buffer."
                                  (magit-remote-p "origin")))
                      (refspec (magit-get "remote" remote "push")))
             (format "%s using %s"
-                    (propertize remote  'face 'magit-branch-remote)
-                    (propertize refspec 'face 'bold)))
+                    (propertize remote  'font-lock-face 'magit-branch-remote)
+                    (propertize refspec 'font-lock-face 'bold)))
           (--when-let (and (not (magit-get-push-branch))
                            (magit-get-upstream-branch))
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
-                    (propertize "@{upstream}" 'face 'bold)))
+                    (propertize "@{upstream}" 'font-lock-face 'bold)))
           (--when-let (magit-get-push-branch)
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
-                    (propertize "pushRemote" 'face 'bold)))
+                    (propertize "pushRemote" 'font-lock-face 'bold)))
           (--when-let (magit-get-@{push}-branch)
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
-                    (propertize "@{push}" 'face 'bold)))
+                    (propertize "@{push}" 'font-lock-face 'bold)))
           (format "using %s (%s is %s)\n"
-                  (propertize "git push"     'face 'bold)
-                  (propertize "push.default" 'face 'bold)
-                  (propertize default        'face 'bold))))))
+                  (propertize "git push"     'font-lock-face 'bold)
+                  (propertize "push.default" 'font-lock-face 'bold)
+                  (propertize default        'font-lock-face 'bold))))))
 
 ;;;###autoload
 (defun magit-push-to-remote (remote args)
@@ -312,7 +313,7 @@ these Git variables: `push.default', `remote.pushDefault',
   (magit-run-git-async "push" "-v" args remote))
 
 (defun magit-push-to-remote--desc ()
-  (format "using %s\n" (propertize "git push <remote>" 'face 'bold)))
+  (format "using %s\n" (propertize "git push <remote>" 'font-lock-face 'bold)))
 
 ;;; _
 (provide 'magit-push)

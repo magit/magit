@@ -1098,21 +1098,23 @@ Do not add this to a hook variable."
           (when (and (derived-mode-p 'magit-refs-mode)
                      magit-refs-show-commit-count)
             (insert (make-string (1- magit-refs-focus-column-width) ?\s)))
-          (insert (propertize cherry 'face (if (string= cherry "-")
-                                               'magit-cherry-equivalent
-                                             'magit-cherry-unmatched)))
+          (insert (propertize cherry 'font-lock-face
+                              (if (string= cherry "-")
+                                  'magit-cherry-equivalent
+                                'magit-cherry-unmatched)))
           (insert ?\s))
         (when side
-          (insert (propertize side 'face (if (string= side "<")
-                                             'magit-cherry-equivalent
-                                           'magit-cherry-unmatched)))
+          (insert (propertize side 'font-lock-face
+                              (if (string= side "<")
+                                  'magit-cherry-equivalent
+                                'magit-cherry-unmatched)))
           (insert ?\s))
         (when align
-          (insert (propertize hash 'face 'magit-hash) ?\s))
+          (insert (propertize hash 'font-lock-face 'magit-hash) ?\s))
         (when graph
           (insert graph))
         (unless align
-          (insert (propertize hash 'face 'magit-hash) ?\s))
+          (insert (propertize hash 'font-lock-face 'magit-hash) ?\s))
         (when (and refs (not magit-log-show-refname-after-summary))
           (insert (magit-format-ref-labels refs) ?\s))
         (when (eq style 'reflog)
@@ -1122,7 +1124,7 @@ Do not add this to a hook variable."
                      (substring refsub 0 (if (string-match-p ":" refsub) -2 -1))))))
         (when msg
           (when gpg
-            (setq msg (propertize msg 'face
+            (setq msg (propertize msg 'font-lock-face
                                   (pcase (aref gpg 0)
                                     (?G 'magit-signature-good)
                                     (?B 'magit-signature-bad)
@@ -1201,13 +1203,13 @@ Do not add this to a hook variable."
       (setq start (match-end 0))
       (put-text-property (match-beginning 0)
                          (match-end 0)
-                         'face 'magit-keyword-squash msg))
+                         'font-lock-face 'magit-keyword-squash msg))
     (while (string-match "\\[[^[]*\\]" msg start)
       (setq start (match-end 0))
       (when magit-log-highlight-keywords
         (put-text-property (match-beginning 0)
                            (match-end 0)
-                           'face 'magit-keyword msg))))
+                           'font-lock-face 'magit-keyword msg))))
   msg)
 
 (defun magit-log-maybe-show-more-commits (section)
@@ -1319,7 +1321,7 @@ The shortstat style is experimental and rather slow."
                                            (or author "")
                                            details-width
                                            nil ?\s (make-string 1 magit-ellipsis))
-                                          'face 'magit-log-author)
+                                          'font-lock-face 'magit-log-author)
                               " "))
                  (propertize
                   (if (stringp style)
@@ -1331,7 +1333,7 @@ The shortstat style is experimental and rather slow."
                       (format (format (if abbr "%%2i%%-%ic" "%%2i %%-%is")
                                       (- width (if details (1+ details-width) 0)))
                               cnt unit)))
-                  'face 'magit-log-date)))))))
+                  'font-lock-face 'magit-log-date)))))))
 
 (defun magit-log-format-shortstat-margin (rev)
   (magit-make-margin-overlay
@@ -1345,10 +1347,12 @@ The shortstat style is experimental and rather slow."
              (format
               "%5s %5s%4s"
               (if add
-                  (propertize (format "%s+" add) 'face 'magit-diffstat-added)
+                  (propertize (format "%s+" add)
+                              'font-lock-face 'magit-diffstat-added)
                 "")
               (if del
-                  (propertize (format "%s-" del) 'face 'magit-diffstat-removed)
+                  (propertize (format "%s-" del)
+                              'font-lock-face 'magit-diffstat-removed)
                 "")
               files))
          "")
@@ -1438,11 +1442,11 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   (when magit-log-select-show-usage
     (let ((pick (propertize (substitute-command-keys
                              "\\[magit-log-select-pick]")
-                            'face
+                            'font-lock-face
                             'magit-header-line-key))
           (quit (propertize (substitute-command-keys
                              "\\[magit-log-select-quit]")
-                            'face
+                            'font-lock-face
                             'magit-header-line-key)))
       (setq msg (format-spec
                  (if msg
@@ -1526,8 +1530,9 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 
 (defun magit-insert-cherry-headers ()
   "Insert headers appropriate for `magit-cherry-mode' buffers."
-  (let ((branch (propertize magit-buffer-refname 'face 'magit-branch-local))
-        (upstream (propertize magit-buffer-upstream 'face
+  (let ((branch (propertize magit-buffer-refname
+                            'font-lock-face 'magit-branch-local))
+        (upstream (propertize magit-buffer-upstream 'font-lock-face
                               (if (magit-local-branch-p magit-buffer-upstream)
                                   'magit-branch-local
                                 'magit-branch-remote))))
@@ -1561,7 +1566,8 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   (when-let ((upstream (magit-get-upstream-branch)))
     (magit-insert-section (unpulled "..@{upstream}" t)
       (magit-insert-heading
-        (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
+        (format (propertize "Unpulled from %s:"
+                            'font-lock-face 'magit-section-heading)
                 upstream))
       (magit-insert-log "..@{upstream}" magit-buffer-log-args))))
 
@@ -1580,8 +1586,9 @@ Type \\[magit-cherry-pick] to apply the commit at point.
                            magit-status-sections-hook)))
       (magit-insert-section (unpulled (concat ".." it) t)
         (magit-insert-heading
-          (format (propertize "Unpulled from %s:" 'face 'magit-section-heading)
-                  (propertize it 'face 'magit-branch-remote)))
+          (format (propertize "Unpulled from %s:"
+                              'font-lock-face 'magit-section-heading)
+                  (propertize it 'font-lock-face 'magit-branch-remote)))
         (magit-insert-log (concat ".." it) magit-buffer-log-args)))))
 
 (defvar magit-unpushed-section-map
@@ -1611,7 +1618,8 @@ then show the last `magit-log-section-commit-count' commits."
   (when (magit-git-success "rev-parse" "@{upstream}")
     (magit-insert-section (unpushed "@{upstream}..")
       (magit-insert-heading
-        (format (propertize "Unmerged into %s:" 'face 'magit-section-heading)
+        (format (propertize "Unmerged into %s:"
+                            'font-lock-face 'magit-section-heading)
                 (magit-get-upstream-branch)))
       (magit-insert-log "@{upstream}.." magit-buffer-log-args))))
 
@@ -1645,8 +1653,9 @@ Show the last `magit-log-section-commit-count' commits."
                            magit-status-sections-hook)))
       (magit-insert-section (unpushed (concat it "..") t)
         (magit-insert-heading
-          (format (propertize "Unpushed to %s:" 'face 'magit-section-heading)
-                  (propertize it 'face 'magit-branch-remote)))
+          (format (propertize "Unpushed to %s:"
+                              'font-lock-face 'magit-section-heading)
+                  (propertize it 'font-lock-face 'magit-branch-remote)))
         (magit-insert-log (concat it "..") magit-buffer-log-args)))))
 
 ;;;; Auxiliary Log Sections

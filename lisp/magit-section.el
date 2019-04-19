@@ -1076,9 +1076,10 @@ insert a newline character if necessary."
   (declare (indent defun))
   (when args
     (let ((heading (apply #'concat args)))
-      (insert (if (text-property-not-all 0 (length heading) 'face nil heading)
+      (insert (if (text-property-not-all 0 (length heading)
+                                         'font-lock-face nil heading)
                   heading
-                (propertize heading 'face 'magit-section-heading)))))
+                (propertize heading 'font-lock-face 'magit-section-heading)))))
   (unless (bolp)
     (insert ?\n))
   (magit-maybe-make-margin-overlay)
@@ -1241,7 +1242,7 @@ invisible."
                           magit-diff-hunk-heading-selection)))
     (setq face (list :foreground (face-foreground face))))
   (let ((ov (make-overlay start end nil t)))
-    (overlay-put ov 'face face)
+    (overlay-put ov 'font-lock-face face)
     (overlay-put ov 'evaporate t)
     (push ov magit-section-highlight-overlays)
     ov))
@@ -1406,11 +1407,12 @@ invisible."
           (overlay-put
            ov 'after-string
            (propertize
-            (car magit-section-visibility-indicator) 'face
+            (car magit-section-visibility-indicator) 'font-lock-face
             (let ((pos (overlay-start ov)))
-              (delq nil (nconc (--map (overlay-get it 'face)
+              (delq nil (nconc (--map (overlay-get it 'font-lock-face)
                                       (overlays-at pos))
-                               (list (get-char-property pos 'face))))))))))))
+                               (list (get-char-property
+                                      pos 'font-lock-face))))))))))))
 
 (defun magit-section-maybe-remove-visibility-indicator (section)
   (when (and magit-section-visibility-indicator

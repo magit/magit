@@ -249,6 +249,10 @@
   now also kills all other Magit buffers associated with the current
   repository.  #3863
 
+- Magit buffers are now compatible with ~whitespace-mode~ (and other
+  modes which use font lock).  #3840
+
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

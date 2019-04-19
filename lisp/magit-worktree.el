@@ -132,15 +132,16 @@ If there is only one worktree, then insert nothing."
       (magit-insert-section (worktrees)
         (magit-insert-heading "Worktrees:")
         (let* ((cols
-                (mapcar (pcase-lambda (`(,path ,barep ,commit ,branch))
-                          (cons (cond
-                                 (branch (propertize branch
-                                                     'face 'magit-branch-local))
-                                 (commit (propertize (magit-rev-abbrev commit)
-                                                     'face 'magit-hash))
-                                 (barep  "(bare)"))
-                                path))
-                        worktrees))
+                (mapcar
+                 (pcase-lambda (`(,path ,barep ,commit ,branch))
+                   (cons (cond
+                          (branch (propertize
+                                   branch 'font-lock-face 'magit-branch-local))
+                          (commit (propertize (magit-rev-abbrev commit)
+                                              'font-lock-face 'magit-hash))
+                          (barep  "(bare)"))
+                         path))
+                 worktrees))
                (align (1+ (-max (--map (string-width (car it)) cols)))))
           (pcase-dolist (`(,head . ,path) cols)
             (magit-insert-section (worktree path)

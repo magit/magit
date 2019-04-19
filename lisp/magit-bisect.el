@@ -187,7 +187,7 @@ bisect run'."
                              (and bad-line (match-string 1 bad-line)))
         (magit-insert-heading
           (propertize (or bad-line (pop lines))
-                      'face 'magit-section-heading))
+                      'font-lock-face 'magit-section-heading))
         (dolist (line lines)
           (insert line "\n"))))
     (insert "\n")))
@@ -220,7 +220,8 @@ bisect run'."
           (narrow-to-region beg (point))
           (goto-char (point-min))
           (magit-insert-section (bisect-item heading t)
-            (insert (propertize heading 'face 'magit-section-secondary-heading))
+            (insert (propertize heading 'font-lock-face
+                                'magit-section-secondary-heading))
             (magit-insert-heading)
             (magit-wash-sequence
              (apply-partially 'magit-log-wash-rev 'bisect-log

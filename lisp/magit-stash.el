@@ -388,7 +388,7 @@ instead of \"Stashes:\"."
                               autostash))
                         "\0")))
             (magit-insert-section (stash autostash)
-              (insert (propertize "AUTOSTASH" 'face 'magit-hash))
+              (insert (propertize "AUTOSTASH" 'font-lock-face 'magit-hash))
               (insert " " msg "\n")
               (save-excursion
                 (backward-char)
@@ -458,8 +458,9 @@ instead of \"Stashes:\"."
   (magit-set-header-line-format
    (concat (capitalize magit-buffer-revision) " "
            (propertize (magit-rev-format "%s" magit-buffer-revision)
-                       'face (list :weight 'normal :foreground
-                                   (face-attribute 'default :foreground)))))
+                       'font-lock-face
+                       (list :weight 'normal :foreground
+                             (face-attribute 'default :foreground)))))
   (setq magit-buffer-revision-hash (magit-rev-parse magit-buffer-revision))
   (magit-insert-section (stash)
     (magit-run-section-hook 'magit-stash-sections-hook)))

@@ -759,8 +759,9 @@ and also rename the respective reflog file."
   [:description
    (lambda ()
      (concat
-      (propertize "Configure " 'face 'transient-heading)
-      (propertize (oref transient--prefix scope) 'face 'magit-branch-local)))
+      (propertize "Configure " 'font-lock-face 'transient-heading)
+      (propertize (oref transient--prefix scope)
+                  'font-lock-face 'magit-branch-local)))
    ("d"   magit-branch.<branch>.description)
    ("u"   magit-branch.<branch>.merge/remote)
    ("r"   magit-branch.<branch>.rebase)
@@ -838,8 +839,8 @@ and also rename the respective reflog file."
 
 (cl-defmethod transient-format-value ((obj magit--git-branch:upstream) key)
   (if-let ((value (funcall key (oref obj value))))
-      (propertize value 'face 'transient-argument)
-    (propertize "unset" 'face 'transient-inactive-argument)))
+      (propertize value 'font-lock-face 'transient-argument)
+    (propertize "unset" 'font-lock-face 'transient-inactive-argument)))
 
 (define-infix-command magit-branch.<branch>.rebase ()
   :class 'magit--git-variable:choices

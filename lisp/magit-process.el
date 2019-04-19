@@ -617,7 +617,7 @@ Magit status buffer."
     (magit-insert-section (process)
       (insert (if errcode
                   (format "%3s " (propertize (number-to-string errcode)
-                                             'face 'magit-process-ng))
+                                             'font-lock-face 'magit-process-ng))
                 "run "))
       (unless (equal (expand-file-name pwd)
                      (expand-file-name default-directory))
@@ -626,20 +626,21 @@ Magit status buffer."
        ((and args (equal program magit-git-executable))
         (setq args (-split-at (length magit-git-global-arguments) args))
         (insert (propertize (file-name-nondirectory program)
-                            'face 'magit-section-heading) " ")
+                            'font-lock-face 'magit-section-heading) " ")
         (insert (propertize (char-to-string magit-ellipsis)
-                            'face 'magit-section-heading
+                            'font-lock-face 'magit-section-heading
                             'help-echo (mapconcat #'identity (car args) " ")))
         (insert " ")
         (insert (propertize (mapconcat #'shell-quote-argument (cadr args) " ")
-                            'face 'magit-section-heading)))
+                            'font-lock-face 'magit-section-heading)))
        ((and args (equal program shell-file-name))
-        (insert (propertize (cadr args) 'face 'magit-section-heading)))
+        (insert (propertize (cadr args)
+                            'font-lock-face 'magit-section-heading)))
        (t
         (insert (propertize (file-name-nondirectory program)
-                            'face 'magit-section-heading) " ")
+                            'font-lock-face 'magit-section-heading) " ")
         (insert (propertize (mapconcat #'shell-quote-argument args " ")
-                            'face 'magit-section-heading))))
+                            'font-lock-face 'magit-section-heading))))
       (magit-insert-heading)
       (when errlog
         (if (bufferp errlog)
@@ -906,7 +907,7 @@ as argument."
                           'mouse-face 'highlight
                           'keymap magit-mode-line-process-map
                           'help-echo "mouse-1: Show process buffer"
-                          'face 'magit-mode-line-process))))
+                          'font-lock-face 'magit-mode-line-process))))
     (magit-repository-local-set 'mode-line-process str)
     (dolist (buf (magit-mode-get-buffers))
       (with-current-buffer buf
@@ -930,7 +931,7 @@ If STR is supplied, it replaces the `mode-line-process' text."
                            'mouse-face 'highlight
                            'keymap magit-mode-line-process-map
                            'help-echo error
-                           'face 'magit-mode-line-process-error)))
+                           'font-lock-face 'magit-mode-line-process-error)))
     (magit-repository-local-set 'mode-line-process str)
     (dolist (buf (magit-mode-get-buffers))
       (with-current-buffer buf
@@ -966,7 +967,7 @@ If STR is supplied, it replaces the `mode-line-process' text."
   (let ((status (or mode-line-process
                     (magit-repository-local-get 'mode-line-process))))
     (when (and status
-               (eq (get-text-property 1 'face status)
+               (eq (get-text-property 1 'font-lock-face status)
                    'magit-mode-line-process-error))
       (magit-process-unset-mode-line))))
 
@@ -1053,9 +1054,9 @@ Limited by `magit-process-error-tooltip-max-lines'."
           (set-marker-insertion-type marker nil)
           (insert (propertize (format "%3s" arg)
                               'magit-section section
-                              'face (if (= arg 0)
-                                        'magit-process-ok
-                                      'magit-process-ng)))
+                              'font-lock-face (if (= arg 0)
+                                                  'magit-process-ok
+                                                'magit-process-ng)))
           (set-marker-insertion-type marker t))
         (when magit-process-finish-apply-ansi-colors
           (ansi-color-apply-on-region (oref section content)
