@@ -28,6 +28,7 @@
 ;;; Code:
 
 (require 'magit)
+(require 'calendar)
 
 ;;; Options
 
@@ -61,24 +62,120 @@ with the remote url as only argument and use the returned value."
 
 ;;; Commands
 
+;; Local Clone
+
+(define-infix-argument magit-clone:=T ()
+  :description "Local Clone Type"
+  :class 'transient-switches
+  :key "=T"
+  :argument-format "--%s"
+  :argument-regexp "--\\(?:no-hardlinks\\|shared\\)"
+  :choices '("shared" "no-hardlinks"))
+
+
+;; Shallow Clone
+
+(define-infix-argument magit-clone:--depth ()
+  :description "Limit number of clone depth"
+  :class 'transient-option
+  :key "=n"
+  :argument "--depth="
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-clone:--shallow-since ()
+  :description "Shallow clone since date"
+  :class 'transient-option
+  :key "=S"
+  :argument "--shallow-since="
+  :reader 'magit-read-date)
+
+;; (define-infix-argument magit-clone:--shallow-exclude ())
+
+;; Submodules
+
+;; (define-infix-argument magit-clone:--jobs ()
+;;   :description "Specific the how many jobs to clone submodules."
+;;   :class 'transient-option
+;;   :argument "-j"
+;;   :reader 'transient-read-number-N+)
+
+
+(defun magit-read-date (&rest _)
+  "Read a date from minibuffer, format it to \"YYYY-MM-DD\"."
+  (->> (calendar-read-date)
+       (nreverse)
+       (apply #'format "%04d-%02d-%02d")))
+
+;;;###autoload (autoload 'magit-clone-transient "magit-clone" nil t)
+(define-transient-command magit-clone-transient ()
+  "Clone a repo from remote."
+  :man-page "git-clone"
+  ["Local Clone"
+   ("-l" "Clone from local remote" "--local")
+   (magit-clone:=T)]
+  ["Shallow Clone"
+   (magit-clone:--depth)
+   (magit-clone:--shallow-since)
+   ("=t" "Don't clone any tags" "--no-tags")]
+  ["Submodules"
+   ("=R" "Recursive Clone" "--recursive")
+   ("=M" "Shallow Clone Submodules" "--shallow-submodules")]
+  ["Actions"
+   ("RET" "Continue" magit-clone)])
+
+
+(defun magit-clone--arguments ()
+  "Get Arguments from `magit-clone-transient'."
+  (-when-let (args (transient-args (and (eq current-transient-prefix
+                                            'magit-clone-transient)
+                                        current-transient-prefix)))
+    ;; "--no-hardlinks" and "--shared" only available when do local clone
+    ;; TODO Prevent user set these settings in transient
+    (cond
+     ((not (member "--local" args))
+      (setq args (--remove (string-match-p "--\\(?:no-hardlinks\\|shared\\)" it)
+                           args)))
+     ((not (member "--recursive" args))
+      (setq args (-remove-item "--shallow-submodules" args))))
+    args))
+
 ;;;###autoload
-(defun magit-clone (repository directory)
+(defun magit-clone (repository directory &optional args)
   "Clone the REPOSITORY to DIRECTORY.
 Then show the status buffer for the new repository."
   (interactive
-   (let  ((url (magit-read-string-ns "Clone repository")))
-     (list url (read-directory-name
+   (let* ((transient-arg (magit-clone--arguments))
+          (localp (member "--local" transient-arg))
+          (source (if localp
+                      (read-directory-name "Clone repository: ")
+                    (magit-read-string-ns "Clone repository"))))
+     (if localp
+         (list source
+               (read-directory-name
                 "Clone to: "
                 (if (functionp magit-clone-default-directory)
-                    (funcall magit-clone-default-directory url)
+                    (funcall magit-clone-default-directory source)
                   magit-clone-default-directory)
-                nil nil
-                (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" url)
-                     (match-string 1 url))))))
+                nil nil nil)
+               transient-arg)
+       (list source
+             (read-directory-name
+              "Clone to: "
+              (if (functionp magit-clone-default-directory)
+                  (funcall magit-clone-default-directory source)
+                magit-clone-default-directory)
+              nil nil
+              (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" source)
+                   (match-string 1 source)))
+             transient-arg))))
+  (magit-clone--internal repository directory args))
+
+(defun magit-clone--internal (repository directory args)
+  "Do the real job for `magit-clone'"
   (run-hooks 'magit-credential-hook)
   (setq directory (file-name-as-directory (expand-file-name directory)))
-  (magit-run-git-async "clone" repository
-                       (magit-convert-filename-for-git directory))
+  (apply #'magit-run-git-async "clone"
+         `(,@args "--" ,repository ,(magit-convert-filename-for-git directory)))
   ;; Don't refresh the buffer we're calling from.
   (process-put magit-this-process 'inhibit-refresh t)
   (set-process-sentinel
