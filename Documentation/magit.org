@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-524-ge2d745f11+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-554-gaf28fc1e6+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-524-ge2d745f11+1).
+This manual is for Magit version 2.90.1 (v2.90.1-554-gaf28fc1e6+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -638,9 +638,13 @@ buffers whose major-modes derive from ~magit-mode~.
 
 After running a command which may change the state of the current
 repository, the current Magit buffer and the corresponding status
-buffer are refreshed.  The status buffer may optionally be
-automatically refreshed whenever a buffer is saved to a file inside
-the respective repository.
+buffer are refreshed. The status buffer can be automatically refreshed
+whenever a buffer is saved to a file inside the respective repository
+by adding a hook, like so:
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
+#+END_SRC
 
 Automatically refreshing Magit buffers ensures that the displayed
 information is up-to-date most of the time but can lead to a
