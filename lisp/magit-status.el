@@ -487,39 +487,44 @@ arguments are for internal use only."
           (merge  (magit-get "branch" branch "merge"))
           (rebase (magit-get "branch" branch "rebase")))
       (when (or remote merge)
-        (pcase rebase
-          ("true")
-          ("false" (setq rebase nil))
-          (_       (setq rebase (magit-get-boolean "pull.rebase"))))
-        (insert (format "%-10s" (or keyword (if rebase "Rebase: " "Merge: "))))
-        (insert
-         (if-let ((upstream (or upstream (magit-get-upstream-branch branch))))
-             (concat (and magit-status-show-hashes-in-headers
-                          (concat (propertize (magit-rev-format "%h" upstream)
-                                              'face 'magit-hash)
-                                  " "))
-                     upstream " "
-                     (funcall magit-log-format-message-function upstream
-                              (funcall magit-log-format-message-function nil
-                                       (or (magit-rev-format "%s" upstream)
-                                           "(no commit message)"))))
-           (cond
-            ((magit--unnamed-upstream-p remote merge)
-             (concat (propertize merge  'face 'magit-branch-remote) " from "
-                     (propertize remote 'face 'bold)))
-            ((magit--valid-upstream-p remote merge)
-             (if (equal remote ".")
+        (unless upstream
+          (setq upstream (magit-get-upstream-branch branch)))
+        (magit-insert-section (branch upstream)
+          (pcase rebase
+            ("true")
+            ("false" (setq rebase nil))
+            (_       (setq rebase (magit-get-boolean "pull.rebase"))))
+          (insert (format "%-10s" (or keyword (if rebase "Rebase: " "Merge: "))))
+          (insert
+           (if upstream
+               (concat (and magit-status-show-hashes-in-headers
+                            (concat (propertize (magit-rev-format "%h" upstream)
+                                                'face 'magit-hash)
+                                    " "))
+                       upstream " "
+                       (funcall magit-log-format-message-function upstream
+                                (funcall magit-log-format-message-function nil
+                                         (or (magit-rev-format "%s" upstream)
+                                             "(no commit message)"))))
+             (cond
+              ((magit--unnamed-upstream-p remote merge)
+               (concat (propertize merge  'face 'magit-branch-remote) " from "
+                       (propertize remote 'face 'bold)))
+              ((magit--valid-upstream-p remote merge)
+               (if (equal remote ".")
+                   (concat
+                    (propertize merge 'face 'magit-branch-local)
+                    (propertize " does not exist"
+                                'face 'font-lock-warning-face))
                  (concat
-                  (propertize merge 'face 'magit-branch-local)
-                  (propertize " does not exist" 'face 'font-lock-warning-face))
-               (concat
-                (propertize merge 'face 'magit-branch-remote)
-                (propertize " does not exist on " 'face 'font-lock-warning-face)
-                (propertize remote 'face 'magit-branch-remote))))
-            (t
-             (propertize "invalid upstream configuration"
-                         'face 'font-lock-warning-face)))))
-        (insert ?\n)))))
+                  (propertize merge 'face 'magit-branch-remote)
+                  (propertize " does not exist on "
+                              'face 'font-lock-warning-face)
+                  (propertize remote 'face 'magit-branch-remote))))
+              (t
+               (propertize "invalid upstream configuration"
+                           'face 'font-lock-warning-face)))))
+          (insert ?\n))))))
 
 (defun magit-insert-push-branch-header ()
   "Insert a header line about the branch the current branch is pushed to."
