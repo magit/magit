@@ -267,6 +267,9 @@
   ~magit-jump-to-skip-worktree~ and ~magit-jump-to-assume-unchanged~, and
   section inserter ~magit-insert-assume-unchanged-files~.  2d0de8614 ff
 
+- Magit buffers are now compatible with ~whitespace-mode~ (and other
+  modes which use font-lock).  #3840
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

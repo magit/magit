@@ -1239,13 +1239,13 @@ to, or to some other symbolic-ref that points to the same ref."
 
 (defun magit--painted-branch-at-point (&optional type)
   (or (and (not (eq type 'remote))
-           (memq (get-text-property (point) 'face)
+           (memq (get-text-property (point) 'font-lock-face)
                  (list 'magit-branch-local
                        'magit-branch-current))
            (when-let ((branch (thing-at-point 'git-revision t)))
              (cdr (magit-split-branch-name branch))))
       (and (not (eq type 'local))
-           (memq (get-text-property (point) 'face)
+           (memq (get-text-property (point) 'font-lock-face)
                  (list 'magit-branch-remote
                        'magit-branch-remote-head))
            (thing-at-point 'git-revision t))))
@@ -1367,10 +1367,10 @@ remote-tracking branch.  The returned string is colorized
 according to the branch type."
   (when-let ((branch (or branch (magit-get-current-branch)))
              (upstream (magit-ref-abbrev (concat branch "@{upstream}"))))
-    (propertize upstream 'face
-                (if (equal (magit-get "branch" branch "remote") ".")
-                    'magit-branch-local
-                  'magit-branch-remote))))
+    (magit--propertize-face
+     upstream (if (equal (magit-get "branch" branch "remote") ".")
+                  'magit-branch-local
+                'magit-branch-remote))))
 
 (defun magit-get-indirect-upstream-branch (branch &optional force)
   (let ((remote (magit-get "branch" branch "remote")))
@@ -1396,18 +1396,18 @@ according to the branch type."
              (remote (magit-get "branch" branch "remote")))
     (and (not (equal remote "."))
          (cond ((member remote (magit-list-remotes))
-                (propertize remote 'face 'magit-branch-remote))
+                (magit--propertize-face remote 'magit-branch-remote))
                ((and allow-unnamed
                      (string-match-p "\\(\\`.\\{0,2\\}/\\|[:@]\\)" remote))
-                (propertize remote 'face 'bold))))))
+                (magit--propertize-face remote 'bold))))))
 
 (defun magit-get-unnamed-upstream (&optional branch)
   (when-let ((branch (or branch (magit-get-current-branch)))
              (remote (magit-get "branch" branch "remote"))
              (merge  (magit-get "branch" branch "merge")))
     (and (magit--unnamed-upstream-p remote merge)
-         (list (propertize remote 'face 'bold)
-               (propertize merge  'face 'magit-branch-remote)))))
+         (list (magit--propertize-face remote 'bold)
+               (magit--propertize-face merge 'magit-branch-remote)))))
 
 (defun magit--unnamed-upstream-p (remote merge)
   (and remote (string-match-p "\\(\\`\\.\\{0,2\\}/\\|[:@]\\)" remote)
@@ -1424,14 +1424,14 @@ according to the branch type."
                  (remote (if (= (length remotes) 1)
                              (car remotes)
                            (car (member "origin" remotes)))))
-        (propertize remote 'face 'magit-branch-remote))))
+        (magit--propertize-face remote 'magit-branch-remote))))
 
 (defun magit-get-push-remote (&optional branch)
   (when-let ((remote
               (or (and (or branch (setq branch (magit-get-current-branch)))
                        (magit-get "branch" branch "pushRemote"))
                   (magit-get "remote.pushDefault"))))
-    (propertize remote 'face 'magit-branch-remote)))
+    (magit--propertize-face remote 'magit-branch-remote)))
 
 (defun magit-get-push-branch (&optional branch verify)
   (when-let ((branch (or branch (setq branch (magit-get-current-branch))))
@@ -1439,7 +1439,7 @@ according to the branch type."
              (target (concat remote "/" branch)))
     (and (or (not verify)
              (magit-rev-verify target))
-         (propertize target 'face 'magit-branch-remote))))
+         (magit--propertize-face target 'magit-branch-remote))))
 
 (defun magit-get-@{push}-branch (&optional branch)
   (let ((ref (magit-rev-parse "--symbolic-full-name"
@@ -1751,9 +1751,9 @@ PATH has to be relative to the super-repository."
       (car (member rev (magit-list-remote-branch-names)))))
 
 (defun magit-branch-set-face (branch)
-  (propertize branch 'face (if (magit-local-branch-p branch)
-                               'magit-branch-local
-                             'magit-branch-remote)))
+  (magit--propertize-face branch (if (magit-local-branch-p branch)
+                                     'magit-branch-local
+                                   'magit-branch-remote)))
 
 (defun magit-tag-p (rev)
   (car (member rev (magit-list-tags))))
@@ -1823,7 +1823,7 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-format-rev-summary (rev)
   (--when-let (magit-rev-format "%h %s" rev)
     (string-match " " it)
-    (put-text-property 0 (match-beginning 0) 'face 'magit-hash it)
+    (magit--put-face 0 (match-beginning 0) 'magit-hash it)
     it))
 
 (defvar magit-ref-namespaces
@@ -1875,12 +1875,13 @@ and this option only controls what face is used.")
         (dolist (ref names)
           (let* ((face (cdr (--first (string-match (car it) ref)
                                      magit-ref-namespaces)))
-                 (name (propertize (or (match-string 1 ref) ref) 'face face)))
+                 (name (magit--propertize-face
+                        (or (match-string 1 ref) ref) face)))
             (cl-case face
               ((magit-bisect-bad magit-bisect-skip magit-bisect-good)
                (setq state name))
               (magit-head
-               (setq head (propertize "@" 'face 'magit-head)))
+               (setq head (magit--propertize-face "@" 'magit-head)))
               (magit-tag            (push name tags))
               (magit-branch-local   (push name branches))
               (magit-branch-remote  (push name remotes))
@@ -1896,8 +1897,8 @@ and this option only controls what face is used.")
                                        (magit-git-string
                                         "symbolic-ref"
                                         (format "refs/remotes/%s/HEAD" r)))
-                                (propertize name
-                                            'face 'magit-branch-remote-head)
+                                (magit--propertize-face
+                                 name 'magit-branch-remote-head)
                               name)))
                    name))
                remotes))
@@ -1913,12 +1914,14 @@ and this option only controls what face is used.")
                ((equal name current)
                 (setq head
                       (concat push
-                              (propertize name 'face 'magit-branch-current))))
+                              (magit--propertize-face
+                               name 'magit-branch-current))))
                ((equal name target)
                 (setq upstream
                       (concat push
-                              (propertize name 'face '(magit-branch-upstream
-                                                       magit-branch-local)))))
+                              (magit--propertize-face
+                               name '(magit-branch-upstream
+                                      magit-branch-local)))))
                (t
                 (push (concat push name) combined)))))
           (when (and target (not upstream))
@@ -2220,8 +2223,8 @@ out.  Only existing branches can be selected."
                     (if (bound-and-true-p ivy-mode)
                         ;; Ivy-mode strips faces from prompt.
                         (format  " `%s'" branch)
-                      (concat " "
-                              (propertize branch 'face 'magit-branch-local))))
+                      (concat " " (magit--propertize-face
+                                   branch 'magit-branch-local))))
                " starting at")
        (nconc (list "HEAD")
               (magit-list-refnames)

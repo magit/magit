@@ -135,12 +135,12 @@ the upstream."
     (or (magit-get-upstream-branch branch)
         (let ((remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge"))
-              (u (propertize "@{upstream}" 'face 'bold)))
+              (u (magit--propertize-face "@{upstream}" 'bold)))
           (cond
            ((magit--unnamed-upstream-p remote merge)
             (format "%s of %s"
-                    (propertize merge  'face 'magit-branch-remote)
-                    (propertize remote 'face 'bold)))
+                    (magit--propertize-face merge 'magit-branch-remote)
+                    (magit--propertize-face remote 'bold)))
            ((magit--valid-upstream-p remote merge)
             (concat u ", replacing non-existent"))
            ((or remote merge)

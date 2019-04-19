@@ -102,8 +102,8 @@ argument the push-remote can be changed before pushed to it."
      (target)
      ((member remote (magit-list-remotes))
       (format "%s, creating it"
-              (propertize (concat remote "/" branch)
-                          'face 'magit-branch-remote)))
+              (magit--propertize-face (concat remote "/" branch)
+                                      'magit-branch-remote)))
      (remote
       (format "%s, replacing invalid" v))
      (t
@@ -154,16 +154,16 @@ the upstream."
     (or (magit-get-upstream-branch branch)
         (let ((remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge"))
-              (u (propertize "@{upstream}" 'face 'bold)))
+              (u (magit--propertize-face "@{upstream}" 'bold)))
           (cond
            ((magit--unnamed-upstream-p remote merge)
             (format "%s as %s"
-                    (propertize remote 'face 'bold)
-                    (propertize merge  'face 'magit-branch-remote)))
+                    (magit--propertize-face remote 'bold)
+                    (magit--propertize-face merge 'magit-branch-remote)))
            ((magit--valid-upstream-p remote merge)
             (format "%s creating %s"
-                    (propertize remote 'face 'magit-branch-remote)
-                    (propertize merge  'face 'magit-branch-remote)))
+                    (magit--propertize-face remote 'magit-branch-remote)
+                    (magit--propertize-face merge 'magit-branch-remote)))
            ((or remote merge)
             (concat u ", creating it and replacing invalid"))
            (t
@@ -275,25 +275,25 @@ the popup buffer."
                                  (magit-remote-p "origin")))
                      (refspec (magit-get "remote" remote "push")))
             (format "%s using %s"
-                    (propertize remote  'face 'magit-branch-remote)
-                    (propertize refspec 'face 'bold)))
+                    (magit--propertize-face remote 'magit-branch-remote)
+                    (magit--propertize-face refspec 'bold)))
           (--when-let (and (not (magit-get-push-branch))
                            (magit-get-upstream-branch))
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
-                    (propertize "@{upstream}" 'face 'bold)))
+                    (magit--propertize-face "@{upstream}" 'bold)))
           (--when-let (magit-get-push-branch)
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
-                    (propertize "pushRemote" 'face 'bold)))
+                    (magit--propertize-face "pushRemote" 'bold)))
           (--when-let (magit-get-@{push}-branch)
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
-                    (propertize "@{push}" 'face 'bold)))
+                    (magit--propertize-face "@{push}" 'bold)))
           (format "using %s (%s is %s)\n"
-                  (propertize "git push"     'face 'bold)
-                  (propertize "push.default" 'face 'bold)
-                  (propertize default        'face 'bold))))))
+                  (magit--propertize-face "git push"     'bold)
+                  (magit--propertize-face "push.default" 'bold)
+                  (magit--propertize-face default        'bold))))))
 
 ;;;###autoload
 (defun magit-push-to-remote (remote args)
@@ -312,7 +312,7 @@ these Git variables: `push.default', `remote.pushDefault',
   (magit-run-git-async "push" "-v" args remote))
 
 (defun magit-push-to-remote--desc ()
-  (format "using %s\n" (propertize "git push <remote>" 'face 'bold)))
+  (format "using %s\n" (magit--propertize-face "git push <remote>" 'bold)))
 
 ;;; _
 (provide 'magit-push)

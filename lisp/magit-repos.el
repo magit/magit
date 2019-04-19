@@ -187,7 +187,7 @@ Usually this is just its basename."
                                       "--date=format:%Y%m%d.%H%M"))))
     (save-match-data
       (when (string-match "-dirty\\'" v)
-        (put-text-property (1+ (match-beginning 0)) (length v) 'face 'error v))
+        (magit--put-face (1+ (match-beginning 0)) (length v) 'error v))
       (if (and v (string-match "\\`[0-9]" v))
           (concat " " v)
         v))))
@@ -215,35 +215,39 @@ Only one letter is shown, the first that applies."
   "Insert number of upstream commits not in the current branch."
   (--when-let (magit-get-upstream-branch)
     (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
-      (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
+      (magit--propertize-face
+       (number-to-string n) (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpulled-from-pushremote (_id)
   "Insert number of commits in the push branch but not the current branch."
   (--when-let (magit-get-push-branch nil t)
     (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
-      (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
+      (magit--propertize-face
+       (number-to-string n) (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpushed-to-upstream (_id)
   "Insert number of commits in the current branch but not its upstream."
   (--when-let (magit-get-upstream-branch)
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
-      (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
+      (magit--propertize-face
+       (number-to-string n) (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpushed-to-pushremote (_id)
   "Insert number of commits in the current branch but not its push branch."
   (--when-let (magit-get-push-branch nil t)
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
-      (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow)))))
+      (magit--propertize-face
+       (number-to-string n) (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-branches (_id)
   "Insert number of branches."
   (let ((n (length (magit-list-local-branches))))
-    (propertize (number-to-string n) 'face (if (> n 1) 'bold 'shadow))))
+    (magit--propertize-face (number-to-string n) (if (> n 1) 'bold 'shadow))))
 
 (defun magit-repolist-column-stashes (_id)
   "Insert number of stashes."
   (let ((n (length (magit-list-stashes))))
-    (propertize (number-to-string n) 'face (if (> n 0) 'bold 'shadow))))
+    (magit--propertize-face (number-to-string n) (if (> n 0) 'bold 'shadow))))
 
 ;;; Read Repository
 

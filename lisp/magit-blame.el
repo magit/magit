@@ -622,7 +622,7 @@ modes is toggled, then this mode also gets toggled automatically.
           magit-blame-separator))))
 
 (defun magit-blame--update-highlight-overlay (ov)
-  (overlay-put ov 'face (magit-blame--style-get 'highlight-face)))
+  (overlay-put ov 'font-lock-face (magit-blame--style-get 'highlight-face)))
 
 (defun magit-blame--format-string (ov format face)
   (let* ((chunk   (overlay-get ov 'magit-blame-chunk))
@@ -643,15 +643,16 @@ modes is toggled, then this mode also gets toggled automatically.
              (propertize (concat (if (string-prefix-p "\s" format) "\s" "")
                                  "Not Yet Committed"
                                  (if (string-suffix-p "\n" format) "\n" ""))
-                         'face face)
+                         'font-lock-face face)
            (magit--format-spec
-            (propertize format 'face face)
+            (propertize format 'font-lock-face face)
             (cl-flet* ((p0 (s f)
-                           (propertize s 'face (if face
-                                                   (if (listp face)
-                                                       face
-                                                     (list f face))
-                                                 f)))
+                           (propertize s 'font-lock-face
+                                       (if face
+                                           (if (listp face)
+                                               face
+                                             (list f face))
+                                         f)))
                        (p1 (k f)
                            (p0 (cdr (assoc k revinfo)) f))
                        (p2 (k1 k2 f)
@@ -670,15 +671,16 @@ modes is toggled, then this mode also gets toggled automatically.
                          (magit-blame--style-get 'margin-width))))
         (concat str
                 (propertize (make-string (max 0 (- width (length str))) ?\s)
-                            'face face))
+                            'font-lock-face face))
       str)))
 
 (defun magit-blame--format-separator ()
   (propertize
    (concat (propertize "\s" 'display '(space :height (2)))
            (propertize "\n" 'line-height t))
-   'face (list :background
-               (face-attribute 'magit-blame-heading :background nil t))))
+   'font-lock-face (list :background
+                         (face-attribute 'magit-blame-heading
+                                         :background nil t))))
 
 (defun magit-blame--format-time-string (time tz)
   (let* ((time-format (or (magit-blame--style-get 'time-format)

@@ -316,10 +316,11 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
 (defun magit--push-remote-variable (&optional branch short)
   (unless branch
     (setq branch (magit-get-current-branch)))
-  (propertize (if (or (not branch) magit-prefer-push-default)
-                  (if short "pushDefault" "remote.pushDefault")
-                (if short "pushRemote" (format "branch.%s.pushRemote" branch)))
-              'face 'bold))
+  (magit--propertize-face
+   (if (or (not branch) magit-prefer-push-default)
+       (if short "pushDefault" "remote.pushDefault")
+     (if short "pushRemote" (format "branch.%s.pushRemote" branch)))
+   'bold))
 
 (defun magit--select-push-remote (prompt-suffix)
   (let* ((branch (or (magit-get-current-branch)

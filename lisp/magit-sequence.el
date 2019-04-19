@@ -584,7 +584,7 @@ the upstream."
     (or (magit-get-upstream-branch branch)
         (let ((remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge"))
-              (u (propertize "@{upstream}" 'face 'bold)))
+              (u (magit--propertize-face "@{upstream}" 'bold)))
           (cond
            ((magit--unnamed-upstream-p remote merge)
             (concat u ", replacing unnamed"))
@@ -831,8 +831,8 @@ If no such sequence is in progress, do nothing."
                    "^\\(pick\\|revert\\) \\([^ ]+\\) \\(.*\\)$" line)
               (magit-bind-match-strings (cmd hash msg) line
                 (magit-insert-section (commit hash)
-                  (insert (propertize cmd 'face 'magit-sequence-pick)
-                          " " (propertize hash 'face 'magit-hash)
+                  (insert (propertize cmd 'font-lock-face 'magit-sequence-pick)
+                          " " (propertize hash 'font-lock-face 'magit-hash)
                           " " msg "\n"))))))
         (magit-sequence-insert-sequence
          (magit-file-line (magit-git-dir (if picking
@@ -875,8 +875,9 @@ If no such sequence is in progress, do nothing."
              (unless (re-search-forward "^Subject: " nil t)
                (goto-char (point-min)))
              (buffer-substring (point) (line-end-position)))))
-      (insert (propertize type 'face face)
-              ?\s (propertize (file-name-nondirectory patch) 'face 'magit-hash)
+      (insert (propertize type 'font-lock-face face)
+              ?\s (propertize (file-name-nondirectory patch)
+                              'font-lock-face 'magit-hash)
               ?\s title
               ?\n))))
 
@@ -921,14 +922,14 @@ status buffer (i.e. the reverse of how they will be applied)."
          (magit-sequence-insert-commit action target 'magit-sequence-pick))
         ((or (or `exec `label)
              (and `merge (guard (not action-options))))
-         (insert (propertize action 'face 'magit-sequence-onto) "\s"
-                 (propertize target 'face 'git-rebase-label) "\n"))
+         (insert (propertize action 'font-lock-face 'magit-sequence-onto) "\s"
+                 (propertize target 'font-lock-face 'git-rebase-label) "\n"))
         (`merge
          (if-let ((hash (and (string-match "-[cC] \\([^ ]+\\)" action-options)
                              (match-string 1 action-options))))
              (magit-insert-section (commit hash)
                (magit-insert-heading
-                 (propertize "merge" 'face 'magit-sequence-pick)
+                 (propertize "merge" 'font-lock-face 'magit-sequence-pick)
                  "\s"
                  (magit-format-rev-summary hash) "\n"))
            (error "failed to parse merge message hash"))))))
@@ -1020,7 +1021,7 @@ status buffer (i.e. the reverse of how they will be applied)."
 (defun magit-sequence-insert-commit (type hash face)
  (magit-insert-section (commit hash)
     (magit-insert-heading
-      (propertize type 'face face)    "\s"
+      (propertize type 'font-lock-face face)    "\s"
       (magit-format-rev-summary hash) "\n")))
 
 ;;; _

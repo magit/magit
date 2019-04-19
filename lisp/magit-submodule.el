@@ -411,7 +411,8 @@ whether they are wrapped in an additional section."
         (magit-insert-section (modules nil t)
           (magit-insert-heading
             (format "%s (%s)"
-                    (propertize "Modules" 'face 'magit-section-heading)
+                    (propertize "Modules"
+                                'font-lock-face 'magit-section-heading)
                     (length modules)))
           (magit-insert-section-body
             (magit--insert-modules)))
@@ -429,7 +430,8 @@ or, failing that, the abbreviated HEAD commit hash."
     (magit-insert-section (modules nil t)
       (magit-insert-heading
         (format "%s (%s)"
-                (propertize "Modules overview" 'face 'magit-section-heading)
+                (propertize "Modules overview"
+                            'font-lock-face 'magit-section-heading)
                 (length modules)))
       (magit-insert-section-body
         (magit--insert-modules-overview)))))
@@ -448,20 +450,21 @@ or, failing that, the abbreviated HEAD commit hash."
                 (expand-file-name (file-name-as-directory module))))
           (magit-insert-section (magit-module-section module t)
             (insert (propertize (format path-format module)
-                                'face 'magit-diff-file-heading))
+                                'font-lock-face 'magit-diff-file-heading))
             (if (not (file-exists-p ".git"))
                 (insert "(unpopulated)")
-              (insert (format branch-format
-                              (--if-let (magit-get-current-branch)
-                                  (propertize it 'face 'magit-branch-local)
-                                (propertize "(detached)" 'face 'warning))))
+              (insert (format
+                       branch-format
+                       (--if-let (magit-get-current-branch)
+                           (propertize it 'font-lock-face 'magit-branch-local)
+                         (propertize "(detached)" 'font-lock-face 'warning))))
               (--if-let (magit-git-string "describe" "--tags")
                   (progn (when (and magit-modules-overview-align-numbers
                                     (string-match-p "\\`[0-9]" it))
                            (insert ?\s))
-                         (insert (propertize it 'face 'magit-tag)))
+                         (insert (propertize it 'font-lock-face 'magit-tag)))
                 (--when-let (magit-rev-format "%h")
-                  (insert (propertize it 'face 'magit-hash)))))
+                  (insert (propertize it 'font-lock-face 'magit-hash)))))
             (insert ?\n))))))
   (insert ?\n))
 
@@ -548,8 +551,12 @@ These sections can be expanded to show the respective commits."
       (magit-insert-section section ((eval type) nil t)
         (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
         (magit-insert-heading
-          (propertize (match-string 1 heading) 'face 'magit-section-heading) " "
-          (propertize (match-string 2 heading) 'face 'magit-branch-remote) ":")
+          (propertize (match-string 1 heading)
+                      'font-lock-face 'magit-section-heading)
+          " "
+          (propertize (match-string 2 heading)
+                      'font-lock-face 'magit-branch-remote)
+          ":")
         (magit-with-toplevel
           (dolist (module modules)
             (when (magit-module-worktree-p module)
@@ -558,7 +565,9 @@ These sections can be expanded to show the respective commits."
                 (when (magit-file-accessible-directory-p default-directory)
                   (magit-insert-section sec (magit-module-section module t)
                     (magit-insert-heading
-                      (propertize module 'face 'magit-diff-file-heading) ":")
+                      (propertize module
+                                  'font-lock-face 'magit-diff-file-heading)
+                      ":")
                     (magit-git-wash
                         (apply-partially 'magit-log-wash-log 'module)
                       "-c" "push.default=current" "log" "--oneline" range)

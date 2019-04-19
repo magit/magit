@@ -202,9 +202,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                             (delq nil (list command option type))
                             " "))))
     (format "%-16s "
-            (propertize text 'face
-                        (or (cdr (assoc label magit-reflog-labels))
-                            'magit-reflog-other)))))
+            (magit--propertize-face
+             text (or (cdr (assoc label magit-reflog-labels))
+                      'magit-reflog-other)))))
 
 ;;; _
 (provide 'magit-reflog)

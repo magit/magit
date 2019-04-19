@@ -430,8 +430,9 @@ the status buffer causes this section to disappear again."
   (when magit-this-error
     (magit-insert-section (error 'git)
       (insert (propertize (format "%-10s" "GitError! ")
-                          'face 'magit-section-heading))
-      (insert (propertize magit-this-error 'face 'font-lock-warning-face))
+                          'font-lock-face 'magit-section-heading))
+      (insert (propertize magit-this-error
+                          'font-lock-face 'font-lock-warning-face))
       (when-let ((key (car (where-is-internal 'magit-process-buffer))))
         (insert (format "  [Type `%s' for details]" (key-description key))))
       (insert ?\n))
@@ -443,7 +444,7 @@ the status buffer causes this section to disappear again."
     (when (or ignore-modules
               magit-buffer-diff-files)
       (insert (propertize (format "%-10s" "Filter! ")
-                          'face 'magit-section-heading))
+                          'font-lock-face 'magit-section-heading))
       (when ignore-modules
         (insert ignore-modules)
         (when magit-buffer-diff-files
@@ -468,14 +469,14 @@ instead.  The optional BRANCH argument is for internal use only."
           (magit-insert-section (branch branch)
             (insert (format "%-10s" "Head: "))
             (when magit-status-show-hashes-in-headers
-              (insert (propertize commit 'face 'magit-hash) ?\s))
-            (insert (propertize branch 'face 'magit-branch-local))
+              (insert (propertize commit 'font-lock-face 'magit-hash) ?\s))
+            (insert (propertize branch 'font-lock-face 'magit-branch-local))
             (insert ?\s)
             (insert (funcall magit-log-format-message-function branch summary))
             (insert ?\n))
         (magit-insert-section (commit commit)
           (insert (format "%-10s" "Head: "))
-          (insert (propertize commit 'face 'magit-hash))
+          (insert (propertize commit 'font-lock-face 'magit-hash))
           (insert ?\s)
           (insert (funcall magit-log-format-message-function nil summary))
           (insert ?\n))))))
@@ -501,7 +502,7 @@ arguments are for internal use only."
            (if upstream
                (concat (and magit-status-show-hashes-in-headers
                             (concat (propertize (magit-rev-format "%h" upstream)
-                                                'face 'magit-hash)
+                                                'font-lock-face 'magit-hash)
                                     " "))
                        upstream " "
                        (funcall magit-log-format-message-function upstream
@@ -510,22 +511,23 @@ arguments are for internal use only."
                                              "(no commit message)"))))
              (cond
               ((magit--unnamed-upstream-p remote merge)
-               (concat (propertize merge  'face 'magit-branch-remote) " from "
-                       (propertize remote 'face 'bold)))
+               (concat (propertize merge  'font-lock-face 'magit-branch-remote)
+                       " from "
+                       (propertize remote 'font-lock-face 'bold)))
               ((magit--valid-upstream-p remote merge)
                (if (equal remote ".")
                    (concat
-                    (propertize merge 'face 'magit-branch-local)
+                    (propertize merge 'font-lock-face 'magit-branch-local)
                     (propertize " does not exist"
-                                'face 'font-lock-warning-face))
+                                'font-lock-face 'font-lock-warning-face))
                  (concat
-                  (propertize merge 'face 'magit-branch-remote)
+                  (propertize merge 'font-lock-face 'magit-branch-remote)
                   (propertize " does not exist on "
-                              'face 'font-lock-warning-face)
-                  (propertize remote 'face 'magit-branch-remote))))
+                              'font-lock-face 'font-lock-warning-face)
+                  (propertize remote 'font-lock-face 'magit-branch-remote))))
               (t
                (propertize "invalid upstream configuration"
-                           'face 'font-lock-warning-face)))))
+                           'font-lock-face 'font-lock-warning-face)))))
           (insert ?\n))))))
 
 (defun magit-insert-push-branch-header ()
@@ -539,7 +541,7 @@ arguments are for internal use only."
            (concat target " "
                    (and magit-status-show-hashes-in-headers
                         (concat (propertize (magit-rev-format "%h" target)
-                                            'face 'magit-hash)
+                                            'font-lock-face 'magit-hash)
                                 " "))
                    (funcall magit-log-format-message-function target
                             (funcall magit-log-format-message-function nil
@@ -549,10 +551,10 @@ arguments are for internal use only."
            (if (magit-remote-p remote)
                (concat target
                        (propertize " does not exist"
-                                   'face 'font-lock-warning-face))
+                                   'font-lock-face 'font-lock-warning-face))
              (concat remote
                      (propertize " remote does not exist"
-                                 'face 'font-lock-warning-face))))))
+                                 'font-lock-face 'font-lock-warning-face))))))
       (insert ?\n))))
 
 (defun magit-insert-tags-header ()
@@ -569,11 +571,12 @@ arguments are for internal use only."
         (insert (format "%-10s" (if both-tags "Tags: " "Tag: ")))
         (cl-flet ((insert-count
                    (tag count face)
-                   (insert (concat (propertize tag 'face 'magit-tag)
+                   (insert (concat (propertize tag 'font-lock-face 'magit-tag)
                                    (and (> count 0)
                                         (format " (%s)"
-                                                (propertize (format "%s" count)
-                                                            'face face)))))))
+                                                (propertize
+                                                 (format "%s" count)
+                                                 'font-lock-face face)))))))
           (when this-tag  (insert-count this-tag this-cnt 'magit-branch-local))
           (when both-tags (insert ", "))
           (when next-tag  (insert-count next-tag next-cnt 'magit-tag)))
@@ -588,7 +591,7 @@ arguments are for internal use only."
     (when (and name email)
       (magit-insert-section (user name)
         (insert (format "%-10s" "User: "))
-        (insert (propertize name 'face 'magit-log-author))
+        (insert (propertize name 'font-lock-face 'magit-log-author))
         (insert " <" email ">\n")))))
 
 (defun magit-insert-repo-header ()
@@ -609,7 +612,7 @@ remote in alphabetic order."
              (url (magit-get "remote" name "url")))
     (magit-insert-section (remote name)
       (insert (format "%-10s" "Remote: "))
-      (insert (propertize name 'face 'magit-branch-remote) ?\s)
+      (insert (propertize name 'font-lock-face 'magit-branch-remote) ?\s)
       (insert url ?\n))))
 
 ;;;; File Sections
@@ -654,7 +657,7 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
             (magit-insert-heading "Untracked files:")
             (dolist (file files)
               (magit-insert-section (file file)
-                (insert (propertize file 'face 'magit-filename) ?\n)))
+                (insert (propertize file 'font-lock-face 'magit-filename) ?\n)))
             (insert ?\n)))))))
 
 (magit-define-section-jumper magit-jump-to-tracked "Tracked files" tracked)
@@ -725,7 +728,7 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
       (if (equal dir directory)
           (let ((file (pop files)))
             (magit-insert-section (file file)
-              (insert (propertize file 'face 'magit-filename) ?\n)))
+              (insert (propertize file 'font-lock-face 'magit-filename) ?\n)))
         (magit-insert-section (file dir t)
           (insert (propertize dir 'file 'magit-filename) ?\n)
           (magit-insert-heading)
