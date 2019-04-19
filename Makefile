@@ -196,7 +196,7 @@ define set_package_requires
   (insert (format "%S"
 `((emacs ,emacs-version) ;`
   (dash ,dash-version)
-  (with-editor ,with-editor-version))))
+  (with-editor ,with-editor-version)))))
 (with-temp-file "lisp/magit-pkg.el"
   (insert (pp-to-string
 `(define-package "magit" "$(VERSION)" ;`
@@ -211,7 +211,7 @@ define set_package_requires
   (goto-char (point-min))
   (re-search-forward " \"A")
   (goto-char (match-beginning 0))
-  (insert "\n ")))
+  (insert "\n "))
 endef
 export set_package_requires
 
