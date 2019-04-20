@@ -143,9 +143,27 @@ bisect run'."
 (defun magit-git-bisect (subcommand &optional args no-assert)
   (unless (or no-assert (magit-bisect-in-progress-p))
     (user-error "Not bisecting"))
+  (message "Bisecting...")
   (magit-with-toplevel
-    (magit-run-git-with-logfile
-     (magit-git-dir "BISECT_CMD_OUTPUT") "bisect" subcommand args)))
+    (magit-run-git-async "bisect" subcommand args))
+  (set-process-sentinel
+   magit-this-process
+   (lambda (process event)
+     (when (memq (process-status process) '(exit signal))
+       (if (> (process-exit-status process) 0)
+           (magit-process-sentinel process event)
+         (process-put process 'inhibit-refresh t)
+         (magit-process-sentinel process event)
+         (when (buffer-live-p (process-buffer process))
+           (with-current-buffer (process-buffer process)
+             (when-let ((section (get-text-property (point) 'magit-section))
+                        (output (buffer-substring-no-properties
+                                 (oref section content)
+                                 (oref section end))))
+               (with-temp-file (magit-git-dir "BISECT_CMD_OUTPUT")
+                 (insert output)))))
+         (magit-refresh))
+       (message "Bisecting...done")))))
 
 ;;; Sections
 

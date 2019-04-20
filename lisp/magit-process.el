@@ -420,13 +420,6 @@ flattened before use."
               magit-git-executable nil process-buf nil flat-args)
        process-buf nil default-directory section))))
 
-(defun magit-run-git-with-logfile (file &rest args)
-  "Call Git in a separate process and log its output to FILE.
-This function might have a short halflive."
-  (apply #'magit-process-file magit-git-executable nil `(:file ,file) nil
-         (magit-process-git-arguments args))
-  (magit-refresh))
-
 ;;; Asynchronous Processes
 
 (defun magit-run-git-async (&rest args)
