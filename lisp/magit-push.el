@@ -87,7 +87,7 @@ argument the push-remote can be changed before pushed to it."
   :description 'magit-push--pushbranch-description
   (interactive (list (magit-push-arguments)))
   (pcase-let ((`(,_ ,remote)
-               (magit--select-push-remote "pull from there")))
+               (magit--select-push-remote "push there")))
     (run-hooks 'magit-credential-hook)
     (magit-run-git-async "push" "-v" args remote "HEAD")))
 
