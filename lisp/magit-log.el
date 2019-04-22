@@ -1285,16 +1285,17 @@ If there is no blob buffer in the same frame, then do nothing."
                                               magit-buffer-file-name))
                                        (line-number-at-pos))))))))))))
 
-(defun magit-log-goto-same-commit (&optional default)
-  (let ((prev magit-previous-section))
-    (when-let ((rev (cond ((and prev (magit-section-match 'commit prev))
-                           (oref prev value))
-                          ((and prev (magit-section-match 'branch prev))
-                           (magit-rev-format "%h" (oref prev value)))
-                          (default (magit-rev-format "%h" default))))
-               (same (--first (equal (oref it value) rev)
-                              (oref magit-root-section children))))
-      (goto-char (oref same start)))))
+(defun magit-log-goto-commit-section (rev)
+  (let ((abbrev (magit-rev-format "%h" rev)))
+    (when-let ((section (--first (equal (oref it value) abbrev)
+                                 (oref magit-root-section children))))
+      (goto-char (oref section start)))))
+
+(defun magit-log-goto-same-commit ()
+  (when (and magit-previous-section
+             (magit-section-match '(commit branch)
+                                  magit-previous-section))
+    (magit-log-goto-commit-section (oref magit-previous-section value))))
 
 ;;; Log Margin
 
@@ -1433,7 +1434,8 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
    (append args
            (car (magit-log--get-value 'magit-log-select-mode
                                       magit-direct-use-buffer-arguments))))
-  (magit-log-goto-same-commit initial)
+  (when initial
+    (magit-log-goto-commit-section initial))
   (setq magit-log-select-pick-function pick)
   (setq magit-log-select-quit-function quit)
   (when magit-log-select-show-usage
