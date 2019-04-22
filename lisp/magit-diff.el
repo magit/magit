@@ -1310,6 +1310,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-diff-update-hunk-refinement))
 
 ;;;; Visit Commands
+;;;;; Commands
 
 (defun magit-diff-visit-file
     (file &optional other-window force-worktree display-fn)
@@ -1411,37 +1412,6 @@ for the commit whose changes are being shown."
                        (user-error "No file at point"))))
   (magit-diff-visit-file file t))
 
-(defvar magit-display-file-buffer-function
-  'magit-display-file-buffer-traditional
-  "The function used by `magit-diff-visit-file' to display blob buffers.
-
-Other commands such as `magit-find-file' do not use this
-function.  Instead they use high-level functions to select the
-window to be used to display the buffer.  This variable and the
-related functions are an experimental feature and should be
-treated as such.")
-
-(defun magit-display-file-buffer (buffer)
-  (funcall magit-display-file-buffer-function buffer))
-
-(defun magit-display-file-buffer-traditional (buffer)
-  "Display BUFFER in the current window.
-With a prefix argument display it in another window.
-Option `magit-display-file-buffer-function' controls
-whether `magit-diff-visit-file' uses this function."
-  (if (or current-prefix-arg (get-buffer-window buffer))
-      (pop-to-buffer buffer)
-    (switch-to-buffer buffer)))
-
-(defun magit-display-file-buffer-other-window (buffer)
-  "Display BUFFER in another window.
-With a prefix argument display it in the current window.
-Option `magit-display-file-buffer-function' controls
-whether `magit-diff-visit-file' uses this function."
-  (if current-prefix-arg
-      (switch-to-buffer buffer)
-    (pop-to-buffer buffer)))
-
 (defun magit-diff-visit-file-worktree (file &optional other-window)
   "From a diff, visit the corresponding file at the appropriate position.
 
@@ -1462,25 +1432,19 @@ or `HEAD'."
                      current-prefix-arg))
   (magit-diff-visit-file file other-window t))
 
-(defun magit-diff-visit--range-end ()
-  (let ((rev (magit-diff--dwim)))
-    (if (symbolp rev)
-        rev
-      (setq rev (if (consp rev)
-                    (cdr rev)
-                  (cdr (magit-split-range rev))))
-      (if (magit-rev-head-p rev)
-          'unstaged
-        rev))))
+;;;;; Internal
 
-(defun magit-diff-visit--range-beginning ()
-  (let ((rev (magit-diff--dwim)))
-    (cond ((consp rev)
-           (concat (cdr rev) "^"))
-          ((stringp rev)
-           (car (magit-split-range rev)))
-          (t
-           rev))))
+(defun magit-diff-visit-directory (directory &optional other-window)
+  (if (equal (magit-toplevel directory)
+             (magit-toplevel))
+      (dired-jump other-window (concat directory "/."))
+    (let ((display-buffer-overriding-action
+           (if other-window
+               '(nil (inhibit-same-window t))
+             '(display-buffer-same-window))))
+      (magit-status-setup-buffer directory))))
+
+;;;;; Position
 
 (defun magit-diff-visit--hunk ()
   (when-let ((scope (magit-diff-scope)))
@@ -1502,36 +1466,6 @@ or `HEAD'."
        ;; Such sections have no value.
        (oref section value)
        section))))
-
-(defun magit-diff-visit--offset (file rev hunk-start line-offset)
-  (let ((offset 0))
-    (with-temp-buffer
-      (save-excursion
-        (magit-with-toplevel
-          (magit-git-insert "diff" rev "--" file)))
-      (catch 'found
-        (while (re-search-forward
-                "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@"
-                nil t)
-          (let* ((abeg (string-to-number (match-string 1)))
-                 (alen (string-to-number (match-string 2)))
-                 (bbeg (string-to-number (match-string 3)))
-                 (blen (string-to-number (match-string 4)))
-                 (aend (+ abeg alen))
-                 (bend (+ bbeg blen))
-                 (hend (+ hunk-start line-offset)))
-            (if (<= abeg hunk-start)
-                (if (or (>= aend hend)
-                        (>= bend hend))
-                    (let ((line 0))
-                      (while (<= line alen)
-                        (forward-line 1)
-                        (cl-incf line)
-                        (cond ((looking-at "^\\+") (cl-incf offset))
-                              ((looking-at "^-")   (cl-decf offset)))))
-                  (cl-incf offset (- blen alen)))
-              (throw 'found nil))))))
-    (+ hunk-start line-offset offset)))
 
 (defun magit-diff-hunk-line (section)
   (let* ((value  (oref section value))
@@ -1573,15 +1507,88 @@ or `HEAD'."
     (max 0 (- (+ (current-column) 2)
               (length (oref section value))))))
 
-(defun magit-diff-visit-directory (directory &optional other-window)
-  (if (equal (magit-toplevel directory)
-             (magit-toplevel))
-      (dired-jump other-window (concat directory "/."))
-    (let ((display-buffer-overriding-action
-           (if other-window
-               '(nil (inhibit-same-window t))
-             '(display-buffer-same-window))))
-      (magit-status-setup-buffer directory))))
+(defun magit-diff-visit--range-beginning ()
+  (let ((rev (magit-diff--dwim)))
+    (cond ((consp rev)
+           (concat (cdr rev) "^"))
+          ((stringp rev)
+           (car (magit-split-range rev)))
+          (t
+           rev))))
+
+(defun magit-diff-visit--range-end ()
+  (let ((rev (magit-diff--dwim)))
+    (if (symbolp rev)
+        rev
+      (setq rev (if (consp rev)
+                    (cdr rev)
+                  (cdr (magit-split-range rev))))
+      (if (magit-rev-head-p rev)
+          'unstaged
+        rev))))
+
+(defun magit-diff-visit--offset (file rev hunk-start line-offset)
+  (let ((offset 0))
+    (with-temp-buffer
+      (save-excursion
+        (magit-with-toplevel
+          (magit-git-insert "diff" rev "--" file)))
+      (catch 'found
+        (while (re-search-forward
+                "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@"
+                nil t)
+          (let* ((abeg (string-to-number (match-string 1)))
+                 (alen (string-to-number (match-string 2)))
+                 (bbeg (string-to-number (match-string 3)))
+                 (blen (string-to-number (match-string 4)))
+                 (aend (+ abeg alen))
+                 (bend (+ bbeg blen))
+                 (hend (+ hunk-start line-offset)))
+            (if (<= abeg hunk-start)
+                (if (or (>= aend hend)
+                        (>= bend hend))
+                    (let ((line 0))
+                      (while (<= line alen)
+                        (forward-line 1)
+                        (cl-incf line)
+                        (cond ((looking-at "^\\+") (cl-incf offset))
+                              ((looking-at "^-")   (cl-decf offset)))))
+                  (cl-incf offset (- blen alen)))
+              (throw 'found nil))))))
+    (+ hunk-start line-offset offset)))
+
+;;;;; Display
+
+(defvar magit-display-file-buffer-function
+  'magit-display-file-buffer-traditional
+  "The function used by `magit-diff-visit-file' to display blob buffers.
+
+Other commands such as `magit-find-file' do not use this
+function.  Instead they use high-level functions to select the
+window to be used to display the buffer.  This variable and the
+related functions are an experimental feature and should be
+treated as such.")
+
+(defun magit-display-file-buffer (buffer)
+  (funcall magit-display-file-buffer-function buffer))
+
+(defun magit-display-file-buffer-traditional (buffer)
+  "Display BUFFER in the current window.
+With a prefix argument display it in another window.
+Option `magit-display-file-buffer-function' controls
+whether `magit-diff-visit-file' uses this function."
+  (if (or current-prefix-arg (get-buffer-window buffer))
+      (pop-to-buffer buffer)
+    (switch-to-buffer buffer)))
+
+(defun magit-display-file-buffer-other-window (buffer)
+  "Display BUFFER in another window.
+With a prefix argument display it in the current window.
+Option `magit-display-file-buffer-function' controls
+whether `magit-diff-visit-file' uses this function."
+  (if current-prefix-arg
+      (switch-to-buffer buffer)
+    (pop-to-buffer buffer)))
 
 ;;;; Scroll Commands
 
