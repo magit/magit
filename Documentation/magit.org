@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-576-gabf03b54c+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-585-g157aaca67+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-576-gabf03b54c+1).
+This manual is for Magit version 2.90.1 (v2.90.1-585-g157aaca67+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -2967,14 +2967,15 @@ These commands are available in diff buffers.
 
   From a diff, visit the corresponding file at the appropriate position.
 
-  If the diff shows changes in the worktree, the index, or ~HEAD~, then
-  visit the actual file.  Otherwise, when the diff is about an older
-  commit or a range, then visit the appropriate blob.
-
   If point is on a removed line, then visit the blob for the first
   parent of the commit which removed that line, i.e. the last
   commit where that line still existed.  Otherwise visit the blob
   for the commit whose changes are being shown.
+
+  If point is on a added or context line, then visit the blob that
+  adds that line, or if the diff shows changes in multiple commits,
+  then the last of those commits.  If the diff shows unstaged or
+  staged changes, then visit the worktree file.
 
   Interactively, when the file or blob to be displayed is already
   being displayed in another window of the same frame, then just

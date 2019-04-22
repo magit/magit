@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-576-gabf03b54c+1)
+@subtitle for version 2.90.1 (v2.90.1-585-g157aaca67+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-576-gabf03b54c+1).
+This manual is for Magit version 2.90.1 (v2.90.1-585-g157aaca67+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4033,14 +4033,15 @@ These commands are available in diff buffers.
 
 From a diff, visit the corresponding file at the appropriate position.
 
-If the diff shows changes in the worktree, the index, or @code{HEAD}, then
-visit the actual file.  Otherwise, when the diff is about an older
-commit or a range, then visit the appropriate blob.
-
 If point is on a removed line, then visit the blob for the first
 parent of the commit which removed that line, i.e. the last
 commit where that line still existed.  Otherwise visit the blob
 for the commit whose changes are being shown.
+
+If point is on a added or context line, then visit the blob that
+adds that line, or if the diff shows changes in multiple commits,
+then the last of those commits.  If the diff shows unstaged or
+staged changes, then visit the worktree file.
 
 Interactively, when the file or blob to be displayed is already
 being displayed in another window of the same frame, then just

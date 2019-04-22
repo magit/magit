@@ -467,6 +467,20 @@ visits the file in the working tree."
   :group 'magit-diff
   :type 'boolean)
 
+(defcustom magit-diff-visit-avoid-head-blob nil
+  "Whether `magit-diff-visit-file' avoids visiting a blob from `HEAD'.
+
+By default `magit-diff-visit-file' always visits the blob that
+added the current line, while `magit-diff-visit-file-worktree'
+visits the respective file in the working tree.  For the `HEAD'
+commit, the former command used to visit the worktree file too,
+but that made it impossible to visit a blob from `HEAD'.
+
+If you prefer the old behavior, then set this to t."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 ;;; Faces
 
 (defface magit-diff-file-heading
@@ -1318,14 +1332,15 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (file &optional other-window force-worktree display-fn)
   "From a diff, visit the corresponding file at the appropriate position.
 
-If the diff shows changes in the worktree, the index, or `HEAD',
-then visit the actual file.  Otherwise, when the diff is about an
-older commit or a range, then visit the appropriate blob.
-
 If point is on a removed line, then visit the blob for the first
 parent of the commit which removed that line, i.e. the last
 commit where that line still existed.  Otherwise visit the blob
 for the commit whose changes are being shown.
+
+If point is on a added or context line, then visit the blob that
+adds that line, or if the diff shows changes in multiple commits,
+then the last of those commits.  If the diff shows unstaged or
+staged changes, then visit the worktree file.
 
 Interactively, when the file or blob to be displayed is already
 being displayed in another window of the same frame, then just
@@ -1340,7 +1355,10 @@ function explicitly, in which case OTHER-WINDOW is ignored.
 
 The optional FORCE-WORKTREE means to force visiting the worktree
 version of the file.  To do this interactively use the command
-`magit-diff-visit-file-worktree' instead."
+`magit-diff-visit-file-worktree' instead.  Also note that for the
+`HEAD' commit this command used to always visit the worktree file.
+Now the worktree variant has to be used.  If you prefer the old
+behavior, then customize option `magit-diff-visit-never-head'."
   (interactive (list (magit-file-at-point t t)))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
@@ -1530,7 +1548,8 @@ or `HEAD'."
       (setq rev (if (consp rev)
                     (cdr rev)
                   (cdr (magit-split-range rev))))
-      (if (magit-rev-head-p rev)
+      (if (and magit-diff-visit-avoid-head-blob
+               (magit-rev-head-p rev))
           'unstaged
         rev))))
 
