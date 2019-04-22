@@ -866,7 +866,8 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         (magit-buffer-revisions revs)
         (magit-buffer-log-args args)
         (magit-buffer-log-files files))
-    (magit-log-goto-same-commit)
+    (when (magit-log-goto-same-commit)
+      (magit-section-update-highlight))
     (current-buffer)))
 
 (defun magit-log-refresh-buffer ()
