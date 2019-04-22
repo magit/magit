@@ -510,13 +510,10 @@ If no commit is in progress, then initiate it.  Use the function
 specified by variable `magit-commit-add-log-insert-function' to
 actually insert the entry."
   (interactive)
-  (let ((hunk (and (magit-section-match 'hunk)
-                   (magit-current-section)))
-        (log  (magit-commit-message-buffer)) buf pos)
-    (save-window-excursion
-      (call-interactively #'magit-diff-visit-file)
-      (setq buf (current-buffer))
-      (setq pos (point)))
+  (pcase-let* ((hunk (and (magit-section-match 'hunk)
+                          (magit-current-section)))
+               (log  (magit-commit-message-buffer))
+               (`(,buf ,pos) (magit-diff-visit-file--noselect)))
     (unless log
       (unless (magit-commit-assert nil)
         (user-error "Abort"))
