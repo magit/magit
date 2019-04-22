@@ -1419,9 +1419,7 @@ or `HEAD'."
          (last (and magit-diff-visit-previous-blob
                     (not in-worktree)
                     (magit-section-match 'hunk)
-                    (save-excursion
-                      (goto-char (line-beginning-position))
-                      (looking-at "-"))))
+                    (= (char-after (line-beginning-position)) ?-)))
          (line (and hunk (magit-diff-hunk-line   hunk)))
          (col  (and hunk (magit-diff-hunk-column hunk last)))
          (rev  (if last
