@@ -1412,7 +1412,9 @@ or `HEAD'."
 
 ;;;;; Position
 
-(defun magit-diff-visit-file--noselect (file &optional in-worktree)
+(defun magit-diff-visit-file--noselect (&optional file in-worktree)
+  (unless file
+    (setq file (magit-file-at-point t t)))
   (let* ((hunk (magit-diff-visit--hunk))
          (last (and magit-diff-visit-previous-blob
                     (not in-worktree)
