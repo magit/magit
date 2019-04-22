@@ -1339,10 +1339,7 @@ function explicitly, in which case OTHER-WINDOW is ignored.
 The optional FORCE-WORKTREE means to force visiting the worktree
 version of the file.  To do this interactively use the command
 `magit-diff-visit-file-worktree' instead."
-  (interactive (list (--if-let (magit-file-at-point)
-                         (expand-file-name it)
-                       (user-error "No file at point"))
-                     current-prefix-arg))
+  (interactive (list (magit-file-at-point t t)))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (let* ((hunk (magit-diff-visit--hunk))
@@ -1407,9 +1404,7 @@ If point is on a removed line, then visit the blob for the first
 parent of the commit which removed that line, i.e. the last
 commit where that line still existed.  Otherwise visit the blob
 for the commit whose changes are being shown."
-  (interactive (list (--if-let (magit-file-at-point)
-                         (expand-file-name it)
-                       (user-error "No file at point"))))
+  (interactive (list (magit-file-at-point t t)))
   (magit-diff-visit-file file t))
 
 (defun magit-diff-visit-file-worktree (file &optional other-window)
@@ -1427,9 +1422,7 @@ reliable.
 Also see `magit-diff-visit-file' which visits the respective
 blob, unless the diff shows changes in the worktree, the index,
 or `HEAD'."
-  (interactive (list (or (magit-file-at-point)
-                         (user-error "No file at point"))
-                     current-prefix-arg))
+  (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (magit-diff-visit-file file other-window t))
 
 ;;;;; Internal
