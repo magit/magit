@@ -724,7 +724,7 @@ https://github.com/mhagger/git-when-merged."
         (magit-log-setup-buffer (list (if (member "--graph" args)
                                           (format "%s^1^..%s" m m)
                                         (format "%s^1..%s" m m)))
-                                args files)
+                                args files nil commit)
       (setq m (string-trim-left (substring m (string-match " " m))))
       (if (equal m "Commit is directly on this branch.")
           (let* ((from (concat commit "~10"))
@@ -737,7 +737,7 @@ https://github.com/mhagger/git-when-merged."
                                            commit)))
             (magit-log-setup-buffer (list (concat from ".." to))
                                     (cons "--first-parent" args)
-                                    files))
+                                    files nil commit))
         (user-error "Could not find when %s was merged into %s: %s"
                     commit branch m)))))
 
@@ -859,14 +859,16 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (put 'magit-log-mode 'magit-log-default-arguments
      '("--graph" "-n256" "--decorate"))
 
-(defun magit-log-setup-buffer (revs args files &optional locked)
+(defun magit-log-setup-buffer (revs args files &optional locked focus)
   (require 'magit)
   (with-current-buffer
       (magit-setup-buffer #'magit-log-mode locked
         (magit-buffer-revisions revs)
         (magit-buffer-log-args args)
         (magit-buffer-log-files files))
-    (when (magit-log-goto-same-commit)
+    (when (if focus
+              (magit-log-goto-commit-section focus)
+            (magit-log-goto-same-commit))
       (magit-section-update-highlight))
     (current-buffer)))
 
