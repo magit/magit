@@ -646,8 +646,7 @@ active, restrict the log to the lines that the region touches."
          args)
        (and file (list file))
        magit-log-buffer-file-locked)
-    (user-error "Buffer isn't visiting a file"))
-  (magit-log-goto-same-commit))
+    (user-error "Buffer isn't visiting a file")))
 
 ;;;###autoload
 (defun magit-log-trace-definition (file fn rev)
@@ -676,8 +675,7 @@ active, restrict the log to the lines that the region touches."
                  file)
          (cl-delete "-L" (car (magit-log-arguments))
                     :test 'string-prefix-p))
-   nil magit-log-buffer-file-locked)
-  (magit-log-goto-same-commit))
+   nil magit-log-buffer-file-locked))
 
 (defun magit-diff-trace-definition ()
   "Show log for the definition at point in a diff."
@@ -695,9 +693,15 @@ active, restrict the log to the lines that the region touches."
 ;;;###autoload
 (defun magit-log-merged (commit branch &optional args files)
   "Show log for the merge of COMMIT into BRANCH.
+
 More precisely, find merge commit M that brought COMMIT into
-BRANCH, and show the log of the range \"M^..M\".  This command
-requires git-when-merged, which is available from
+BRANCH, and show the log of the range \"M^1..M\" or if \"--graph\"
+is a member of ARGS, then \"M^1^..M\" to include the merge-base.
+
+If COMMIT is directly on BRANCH, then show approximately twenty
+surrounding commits instead.
+
+This command requires git-when-merged, which is available from
 https://github.com/mhagger/git-when-merged."
   (interactive
    (append (let ((commit (magit-read-branch-or-commit "Commit")))
@@ -707,11 +711,35 @@ https://github.com/mhagger/git-when-merged."
   (unless (executable-find "git-when-merged")
     (user-error "This command requires git-when-merged (%s)"
                 "https://github.com/mhagger/git-when-merged"))
-  (magit-log-setup-buffer
-   (list (or (magit-git-string "when-merged" "--show-branch" commit branch)
-             (user-error "Could not find when %s was merged into %s"
-                         commit branch)))
-   args files))
+  (let (exit m)
+    (with-temp-buffer
+      (save-excursion
+        (setq exit (magit-process-file
+                    magit-git-executable nil t nil
+                    "when-merged" "-c"
+                    "--abbrev" (number-to-string (magit-abbrev-length))
+                    commit branch)))
+      (setq m (buffer-substring-no-properties (point) (line-end-position))))
+    (if (zerop exit)
+        (magit-log-setup-buffer (list (if (member "--graph" args)
+                                          (format "%s^1^..%s" m m)
+                                        (format "%s^1..%s" m m)))
+                                args files nil commit)
+      (setq m (string-trim-left (substring m (string-match " " m))))
+      (if (equal m "Commit is directly on this branch.")
+          (let* ((from (concat commit "~10"))
+                 (to (- (car (magit-rev-diff-count branch commit)) 10))
+                 (to (if (<= to 0)
+                         branch
+                       (format branch "%s~%s" branch to))))
+            (unless (magit-rev-verify-commit from)
+              (setq from (magit-git-string "rev-list" "--max-parents=0"
+                                           commit)))
+            (magit-log-setup-buffer (list (concat from ".." to))
+                                    (cons "--first-parent" args)
+                                    files nil commit))
+        (user-error "Could not find when %s was merged into %s: %s"
+                    commit branch m)))))
 
 ;;;; Limit Commands
 
@@ -831,14 +859,17 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (put 'magit-log-mode 'magit-log-default-arguments
      '("--graph" "-n256" "--decorate"))
 
-(defun magit-log-setup-buffer (revs args files &optional locked)
+(defun magit-log-setup-buffer (revs args files &optional locked focus)
   (require 'magit)
   (with-current-buffer
       (magit-setup-buffer #'magit-log-mode locked
         (magit-buffer-revisions revs)
         (magit-buffer-log-args args)
         (magit-buffer-log-files files))
-    (magit-log-goto-same-commit)
+    (when (if focus
+              (magit-log-goto-commit-section focus)
+            (magit-log-goto-same-commit))
+      (magit-section-update-highlight))
     (current-buffer)))
 
 (defun magit-log-refresh-buffer ()
@@ -1257,16 +1288,17 @@ If there is no blob buffer in the same frame, then do nothing."
                                               magit-buffer-file-name))
                                        (line-number-at-pos))))))))))))
 
-(defun magit-log-goto-same-commit (&optional default)
-  (let ((prev magit-previous-section))
-    (when-let ((rev (cond ((and prev (magit-section-match 'commit prev))
-                           (oref prev value))
-                          ((and prev (magit-section-match 'branch prev))
-                           (magit-rev-format "%h" (oref prev value)))
-                          (default (magit-rev-format "%h" default))))
-               (same (--first (equal (oref it value) rev)
-                              (oref magit-root-section children))))
-      (goto-char (oref same start)))))
+(defun magit-log-goto-commit-section (rev)
+  (let ((abbrev (magit-rev-format "%h" rev)))
+    (when-let ((section (--first (equal (oref it value) abbrev)
+                                 (oref magit-root-section children))))
+      (goto-char (oref section start)))))
+
+(defun magit-log-goto-same-commit ()
+  (when (and magit-previous-section
+             (magit-section-match '(commit branch)
+                                  magit-previous-section))
+    (magit-log-goto-commit-section (oref magit-previous-section value))))
 
 ;;; Log Margin
 
@@ -1405,7 +1437,8 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
    (append args
            (car (magit-log--get-value 'magit-log-select-mode
                                       magit-direct-use-buffer-arguments))))
-  (magit-log-goto-same-commit initial)
+  (when initial
+    (magit-log-goto-commit-section initial))
   (setq magit-log-select-pick-function pick)
   (setq magit-log-select-quit-function quit)
   (when magit-log-select-show-usage
