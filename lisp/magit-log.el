@@ -646,8 +646,7 @@ active, restrict the log to the lines that the region touches."
          args)
        (and file (list file))
        magit-log-buffer-file-locked)
-    (user-error "Buffer isn't visiting a file"))
-  (magit-log-goto-same-commit))
+    (user-error "Buffer isn't visiting a file")))
 
 ;;;###autoload
 (defun magit-log-trace-definition (file fn rev)
@@ -676,8 +675,7 @@ active, restrict the log to the lines that the region touches."
                  file)
          (cl-delete "-L" (car (magit-log-arguments))
                     :test 'string-prefix-p))
-   nil magit-log-buffer-file-locked)
-  (magit-log-goto-same-commit))
+   nil magit-log-buffer-file-locked))
 
 (defun magit-diff-trace-definition ()
   "Show log for the definition at point in a diff."
