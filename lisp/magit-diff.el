@@ -1354,16 +1354,7 @@ version of the file.  To do this interactively use the command
              (switch-to-buffer-other-window buf))
             (t
              (pop-to-buffer buf)))
-      (with-selected-window
-          (or (get-buffer-window buf 'visible)
-              (error "File buffer is not visible"))
-        (when pos
-          (unless (<= (point-min) pos (point-max))
-            (widen))
-          (goto-char pos))
-        (when (magit-anything-unmerged-p file)
-          (smerge-start-session))
-        (run-hooks 'magit-diff-visit-file-hook)))))
+      (magit-diff-visit--setup buf pos))))
 
 (defun magit-diff-visit-file-other-window (file)
   "From a diff, visit the corresponding file at the appropriate position.
@@ -1409,6 +1400,19 @@ or `HEAD'."
                '(nil (inhibit-same-window t))
              '(display-buffer-same-window))))
       (magit-status-setup-buffer directory))))
+
+(defun magit-diff-visit--setup (buf pos)
+  (if-let ((win (get-buffer-window buf 'visible)))
+      (with-selected-window win
+        (when pos
+          (unless (<= (point-min) pos (point-max))
+            (widen))
+          (goto-char pos))
+        (when (and buffer-file-name
+                   (magit-anything-unmerged-p buffer-file-name))
+          (smerge-start-session))
+        (run-hooks 'magit-diff-visit-file-hook))
+    (error "File buffer is not visible")))
 
 ;;;;; Position
 
