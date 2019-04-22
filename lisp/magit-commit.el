@@ -523,8 +523,8 @@ actually insert the entry."
       (magit-commit-create)
       (while (not (setq log (magit-commit-message-buffer)))
         (sit-for 0.01)))
-    (save-excursion
-      (with-current-buffer buf
+    (with-current-buffer buf
+      (save-excursion
         (goto-char pos)
         (funcall magit-commit-add-log-insert-function log
                  (magit-file-relative-name)

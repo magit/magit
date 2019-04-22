@@ -261,8 +261,8 @@ a position in a file-visiting buffer."
       (call-interactively #'magit-diff-visit-file)
       (setq buf (current-buffer))
       (setq pos (point)))
-    (save-excursion
-      (with-current-buffer buf
+    (with-current-buffer buf
+      (save-excursion
         (goto-char pos)
         (add-change-log-entry whoami file-name other-window)))))
 

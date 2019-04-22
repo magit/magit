@@ -688,8 +688,8 @@ active, restrict the log to the lines that the region touches."
       (call-interactively #'magit-diff-visit-file)
       (setq buf (current-buffer))
       (setq pos (point)))
-    (save-excursion
-      (with-current-buffer buf
+    (with-current-buffer buf
+      (save-excursion
         (goto-char pos)
         (call-interactively #'magit-log-trace-definition)))))
 
@@ -1283,9 +1283,9 @@ If there is no blob buffer in the same frame, then do nothing."
            (pcase-let ((`(,rev ,buf) magit--update-blob-buffer))
              (setq magit--update-blob-buffer nil)
              (when (buffer-live-p buf)
-               (save-excursion
-                 (with-selected-window (get-buffer-window buf)
-                   (with-current-buffer buf
+               (with-selected-window (get-buffer-window buf)
+                 (with-current-buffer buf
+                   (save-excursion
                      (magit-blob-visit (list (magit-rev-parse rev)
                                              (magit-file-relative-name
                                               magit-buffer-file-name))
