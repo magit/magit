@@ -520,12 +520,10 @@ actually insert the entry."
       (magit-commit-create)
       (while (not (setq log (magit-commit-message-buffer)))
         (sit-for 0.01)))
-    (with-current-buffer buf
-      (save-excursion
-        (goto-char pos)
-        (funcall magit-commit-add-log-insert-function log
-                 (magit-file-relative-name)
-                 (and hunk (add-log-current-defun)))))))
+    (magit--with-temp-position buf pos
+      (funcall magit-commit-add-log-insert-function log
+               (magit-file-relative-name)
+               (and hunk (add-log-current-defun))))))
 
 (defun magit-commit-add-log-insert (buffer file defun)
   (with-current-buffer buffer

@@ -1188,6 +1188,15 @@ Like `message', except that `message-log-max' is bound to nil."
   (let ((message-log-max nil))
     (apply #'message format-string args)))
 
+(defmacro magit--with-temp-position (buf pos &rest body)
+  (declare (indent 2))
+  `(with-current-buffer ,buf
+     (save-excursion
+       (save-restriction
+         (widen)
+         (goto-char ,pos)
+         ,@body))))
+
 ;;; _
 (provide 'magit-utils)
 ;;; magit-utils.el ends here

@@ -257,10 +257,8 @@ a position in a file-visiting buffer."
   (interactive (list current-prefix-arg
                      (prompt-for-change-log-name)))
   (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect)))
-    (with-current-buffer buf
-      (save-excursion
-        (goto-char pos)
-        (add-change-log-entry whoami file-name other-window)))))
+    (magit--with-temp-position buf pos
+      (add-change-log-entry whoami file-name other-window))))
 
 ;;;###autoload
 (defun magit-add-change-log-entry-other-window (&optional whoami file-name)

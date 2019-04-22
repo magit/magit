@@ -684,10 +684,8 @@ active, restrict the log to the lines that the region touches."
   "Show log for the definition at point in a diff."
   (interactive)
   (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect)))
-    (with-current-buffer buf
-      (save-excursion
-        (goto-char pos)
-        (call-interactively #'magit-log-trace-definition)))))
+    (magit--with-temp-position buf pos
+      (call-interactively #'magit-log-trace-definition))))
 
 ;;;###autoload
 (defun magit-log-merged (commit branch &optional args files)
