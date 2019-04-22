@@ -1344,23 +1344,8 @@ version of the file.  To do this interactively use the command
   (interactive (list (magit-file-at-point t t)))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
-    (let* ((hunk (magit-diff-visit--hunk))
-           (last (and magit-diff-visit-previous-blob
-                      (not force-worktree)
-                      (magit-section-match 'hunk)
-                      (save-excursion
-                        (goto-char (line-beginning-position))
-                        (looking-at "-"))))
-           (line (and hunk (magit-diff-hunk-line   hunk)))
-           (col  (and hunk (magit-diff-hunk-column hunk last)))
-           (rev  (if last
-                     (magit-diff-visit--range-beginning)
-                   (magit-diff-visit--range-end)))
-           (buf  (if (and (not force-worktree)
-                          (stringp rev))
-                     (magit-find-file-noselect rev file)
-                   (or (get-file-buffer file)
-                       (find-file-noselect file)))))
+    (pcase-let ((`(,buf ,pos)
+                 (magit-diff-visit-file--noselect file force-worktree)))
       (cond ((called-interactively-p 'any)
              (magit-display-file-buffer buf))
             (display-fn
@@ -1372,24 +1357,10 @@ version of the file.  To do this interactively use the command
       (with-selected-window
           (or (get-buffer-window buf 'visible)
               (error "File buffer is not visible"))
-        (when line
-          (setq line
-                (cond ((eq rev 'staged)
-                       (apply 'magit-diff-visit--offset file nil line))
-                      ((and force-worktree
-                            (stringp rev))
-                       (apply 'magit-diff-visit--offset file rev line))
-                      (t
-                       (apply '+ line))))
-          (let ((pos (save-restriction
-                       (widen)
-                       (goto-char (point-min))
-                       (forward-line (1- line))
-                       (move-to-column col)
-                       (point))))
-            (unless (<= (point-min) pos (point-max))
-              (widen)
-              (goto-char pos))))
+        (when pos
+          (unless (<= (point-min) pos (point-max))
+            (widen))
+          (goto-char pos))
         (when (magit-anything-unmerged-p file)
           (smerge-start-session))
         (run-hooks 'magit-diff-visit-file-hook)))))
@@ -1440,6 +1411,43 @@ or `HEAD'."
       (magit-status-setup-buffer directory))))
 
 ;;;;; Position
+
+(defun magit-diff-visit-file--noselect (file &optional in-worktree)
+  (let* ((hunk (magit-diff-visit--hunk))
+         (last (and magit-diff-visit-previous-blob
+                    (not in-worktree)
+                    (magit-section-match 'hunk)
+                    (save-excursion
+                      (goto-char (line-beginning-position))
+                      (looking-at "-"))))
+         (line (and hunk (magit-diff-hunk-line   hunk)))
+         (col  (and hunk (magit-diff-hunk-column hunk last)))
+         (rev  (if last
+                   (magit-diff-visit--range-beginning)
+                 (magit-diff-visit--range-end)))
+         (buf  (if (and (not in-worktree)
+                        (stringp rev))
+                   (magit-find-file-noselect rev file)
+                 (or (get-file-buffer file)
+                     (find-file-noselect file))))
+         pos)
+    (when line
+      (with-current-buffer buf
+        (setq line (cond
+                    ((eq rev 'staged)
+                     (apply 'magit-diff-visit--offset file nil line))
+                    ((and in-worktree
+                          (stringp rev))
+                     (apply 'magit-diff-visit--offset file rev line))
+                    (t
+                     (apply '+ line))))
+        (setq pos  (save-restriction
+                     (widen)
+                     (goto-char (point-min))
+                     (forward-line (1- line))
+                     (move-to-column col)
+                     (point)))))
+    (list buf pos)))
 
 (defun magit-diff-visit--hunk ()
   (when-let ((scope (magit-diff-scope)))
