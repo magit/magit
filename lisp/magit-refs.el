@@ -344,20 +344,23 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (magit-refs-setup-buffer "HEAD" (magit-show-refs-arguments))))
 
 (defun magit-show-refs-arguments ()
-  (cond ((eq current-transient-command 'magit-show-refs)
-         (transient-args 'magit-show-refs))
-        ((eq major-mode 'magit-show-refs-mode)
-         magit-buffer-arguments)
-        ((and (memq magit-prefix-use-buffer-arguments '(always selected))
-              (when-let ((buffer (magit-get-mode-buffer
-                                  'magit-refs-mode nil
-                                  (or (eq magit-prefix-use-buffer-arguments
-                                          'selected)
-                                      'all))))
-                (buffer-local-value 'magit-buffer-arguments buffer)
-                t)))
-        (t
-         (alist-get 'magit-show-refs transient-values))))
+  (let (args)
+    (cond
+     ((eq current-transient-command 'magit-show-refs)
+      (setq args (transient-args 'magit-show-refs)))
+     ((eq major-mode 'magit-show-refs-mode)
+      (setq args magit-buffer-arguments))
+     ((and (memq magit-prefix-use-buffer-arguments '(always selected))
+           (when-let ((buffer (magit-get-mode-buffer
+                               'magit-refs-mode nil
+                               (or (eq magit-prefix-use-buffer-arguments
+                                       'selected)
+                                   'all))))
+             (setq args (buffer-local-value 'magit-buffer-arguments buffer))
+             t)))
+     (t
+      (setq args (alist-get 'magit-show-refs transient-values))))
+    args))
 
 (define-infix-argument magit-for-each-ref:--contains ()
   :description "Contains"
