@@ -276,20 +276,6 @@ many spaces.  Otherwise, highlight neither."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-visit-previous-blob t
-  "Whether `magit-diff-visit-file' may visit the previous blob.
-
-When this is t and point is on a removed line in a diff for a
-committed change, then `magit-diff-visit-file' visits the blob
-from the last revision which still had that line.
-
-Currently this is only supported for committed changes, for
-staged and unstaged changes `magit-diff-visit-file' always
-visits the file in the working tree."
-  :package-version '(magit . "2.9.0")
-  :group 'magit-diff
-  :type 'boolean)
-
 (defcustom magit-diff-highlight-keywords t
   "Whether to highlight bracketed keywords in commit messages."
   :package-version '(magit . "2.12.0")
@@ -463,6 +449,22 @@ filter if the log arguments include --follow.  If non-nil, the
 log's file filter is always honored."
   :package-version '(magit . "2.91.0")
   :group 'magit-revision
+  :type 'boolean)
+
+;;;; Visit Commands
+
+(defcustom magit-diff-visit-previous-blob t
+  "Whether `magit-diff-visit-file' may visit the previous blob.
+
+When this is t and point is on a removed line in a diff for a
+committed change, then `magit-diff-visit-file' visits the blob
+from the last revision which still had that line.
+
+Currently this is only supported for committed changes, for
+staged and unstaged changes `magit-diff-visit-file' always
+visits the file in the working tree."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-diff
   :type 'boolean)
 
 ;;; Faces
