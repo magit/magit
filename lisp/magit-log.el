@@ -700,6 +700,9 @@ More precisely, find merge commit M that brought COMMIT into
 BRANCH, and show the log of the range \"M^1..M\" or if \"--graph\"
 is a member of ARGS, then \"M^1^..M\" to include the merge-base.
 
+If COMMIT is directly on BRANCH, then show approximately twenty
+surrounding commits instead.
+
 This command requires git-when-merged, which is available from
 https://github.com/mhagger/git-when-merged."
   (interactive
@@ -710,14 +713,34 @@ https://github.com/mhagger/git-when-merged."
   (unless (executable-find "git-when-merged")
     (user-error "This command requires git-when-merged (%s)"
                 "https://github.com/mhagger/git-when-merged"))
-  (let ((m (magit-git-string "when-merged" "-c" commit branch)))
-    (if m
+  (let (exit m)
+    (with-temp-buffer
+      (save-excursion
+        (setq exit (magit-process-file
+                    magit-git-executable nil t nil
+                    "when-merged" "-c"
+                    commit branch)))
+      (setq m (buffer-substring-no-properties (point) (line-end-position))))
+    (if (zerop exit)
         (magit-log-setup-buffer (list (if (member "--graph" args)
                                           (format "%s^1^..%s" m m)
                                         (format "%s^1..%s" m m)))
                                 args files)
-      (user-error "Could not find when %s was merged into %s"
-                  commit branch))))
+      (setq m (string-trim-left (substring m (string-match " " m))))
+      (if (equal m "Commit is directly on this branch.")
+          (let* ((from (concat commit "~10"))
+                 (to (- (car (magit-rev-diff-count branch commit)) 10))
+                 (to (if (<= to 0)
+                         branch
+                       (format branch "%s~%s" branch to))))
+            (unless (magit-rev-verify-commit from)
+              (setq from (magit-git-string "rev-list" "--max-parents=0"
+                                           commit)))
+            (magit-log-setup-buffer (list (concat from ".." to))
+                                    (cons "--first-parent" args)
+                                    files))
+        (user-error "Could not find when %s was merged into %s: %s"
+                    commit branch m)))))
 
 ;;;; Limit Commands
 
