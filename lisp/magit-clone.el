@@ -185,17 +185,26 @@ Then show the status buffer for the new repository."
          (magit-status-setup-buffer directory))))))
 
 (defun magit-clone-read-args ()
-  (let  ((url (magit-read-string-ns "Clone repository")))
-    (list url
+  (let ((repo (magit-clone-read-repository)))
+    (list repo
           (read-directory-name
            "Clone to: "
            (if (functionp magit-clone-default-directory)
-               (funcall magit-clone-default-directory url)
+               (funcall magit-clone-default-directory repo)
              magit-clone-default-directory)
            nil nil
-           (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" url)
-                (match-string 1 url)))
+           (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" repo)
+                (match-string 1 repo)))
           (transient-args 'magit-clone))))
+
+(defun magit-clone-read-repository ()
+  (magit-read-char-case "Clone from " nil
+    (?u "[u]rl"
+        (magit-read-string-ns "Clone from url"))
+    (?p "[p]ath"
+        (read-directory-name "Clone repository: "))
+    (?l "or [l]ocal url"
+        (concat "file://" (read-directory-name "Clone repository: file://")))))
 
 ;;; _
 (provide 'magit-clone)
