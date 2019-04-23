@@ -68,6 +68,39 @@ directly."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-clone-name-alist
+  '(("\\`\\(?:github:\\|gh:\\)?\\([^:]+\\)\\'" "github.com" "github.user")
+    ("\\`\\(?:gitlab:\\|gl:\\)\\([^:]+\\)\\'"  "gitlab.com" "gitlab.user"))
+  "Alist mapping repository names to repository urls.
+
+Each element has the form (REGEXP HOSTNAME USER).  When the user
+enters a name when a cloning command asks for a name or url, then
+that is looked up in this list.  The first element whose REGEXP
+matches is used.
+
+The format specified by option `magit-clone-url-format' is used
+to turn the name into an url, using HOSTNAME and the repository
+name.  If the provided name contains a slash, then that is used.
+Otherwise if the name omits the owner of the repository, then the
+default user specified in the matched entry is used.
+
+If USER contains a dot, then it is treated as a Git variable and
+the value of that is used as the username.  Otherwise it is used
+as the username itself."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-commands
+  :type '(repeat (list regexp
+                       (string :tag "hostname")
+                       (string :tag "user name or git variable"))))
+
+(defcustom magit-clone-url-format "git@%h:%n.git"
+  "Format used when turning repository names into urls.
+%h is the hostname and %n is the repository name, including
+the name of the owner.  Also see `magit-clone-name-alist'."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-commands
+  :type 'regexp)
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-clone "magit-clone" nil t)
@@ -199,12 +232,35 @@ Then show the status buffer for the new repository."
 
 (defun magit-clone-read-repository ()
   (magit-read-char-case "Clone from " nil
-    (?u "[u]rl"
-        (magit-read-string-ns "Clone from url"))
+    (?u "[u]rl or name"
+        (let ((str (magit-read-string-ns "Clone from url or name")))
+          (if (string-match-p "\\(://\\|@\\)" str)
+              str
+            (magit-clone--name-to-url str))))
     (?p "[p]ath"
         (read-directory-name "Clone repository: "))
     (?l "or [l]ocal url"
         (concat "file://" (read-directory-name "Clone repository: file://")))))
+
+(defun magit-clone--name-to-url (name)
+  (or (-some
+       (pcase-lambda (`(,re ,host ,user))
+         (and (string-match re name)
+              (let ((repo (match-string 1 name)))
+                (format-spec
+                 magit-clone-url-format
+                 `((?h . ,host)
+                   (?n . ,(if (string-match-p "/" repo)
+                              repo
+                            (if (string-match-p "\\." user)
+                                (if-let ((user (magit-get user)))
+                                    (concat user "/" repo)
+                                  (user-error
+                                   "Set %S or specify owner explicitly" user))
+                              (concat user "/" repo)))))))))
+       magit-clone-name-alist)
+      (user-error "Not an url and no matching entry in `%s'"
+                  'magit-clone-name-alist)))
 
 ;;; _
 (provide 'magit-clone)
