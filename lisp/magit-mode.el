@@ -434,6 +434,7 @@ starts complicating other things, then it will be removed."
     (define-key map "b" 'magit-branch)
     (define-key map "B" 'magit-bisect)
     (define-key map "c" 'magit-commit)
+    (define-key map "C" 'magit-clone)
     (define-key map "d" 'magit-diff)
     (define-key map "D" 'magit-diff-refresh)
     (define-key map "e" 'magit-ediff-dwim)
