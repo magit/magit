@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-570-gc09993112+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-576-gabf03b54c+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-570-gc09993112+1).
+This manual is for Magit version 2.90.1 (v2.90.1-576-gabf03b54c+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -2419,8 +2419,8 @@ Like other transient prefix commands, ~magit-log~ also features several
 infix arguments that can be changed before invoking one of the suffix
 commands.  However, in the case of the log transient, these arguments
 may be taken from those currently in use in the current repository's
-log buffer, depending on the value of ~magit-prefix-use-buffer-arguments~
-(see [[*Transient Arguments and Buffer Variables]]).
+log buffer, depending on the value of ~magit-use-sticky-arguments~ (see
+[[*Transient Commands]]).
 
 For information about the various arguments, see [[man:git-log]]
 The switch ~++order=VALUE~ is converted to one of ~--author-date-order~,
@@ -2800,8 +2800,8 @@ Like other transient prefix commands, ~magit-diff~ also features several
 infix arguments that can be changed before invoking one of the suffix
 commands.  However, in the case of the diff transient, these arguments may
 be taken from those currently in use in the current repository's diff
-buffer, depending on the value of ~magit-prefix-use-buffer-arguments~
-(see [[*Transient Arguments and Buffer Variables]]).
+buffer, depending on the value of ~magit-use-sticky-arguments~ (see
+[[*Transient Commands]]).
 
 Also see [[man:git-diff]]
 
@@ -3248,8 +3248,9 @@ restriction as that log buffer (also see the command
   if ~--follow~ is present in the log arguments.
 
 If the revision buffer is not displayed from a log buffer, the file
-restriction is determined as usual (see [[*Transient Arguments and
-Buffer Variables]]).
+restriction is determined by the file restriction in the repository's
+diff buffer, if it exists, and the value of the option
+~magit-use-sticky-arguments~.
 
 ** Ediffing
 
@@ -3835,7 +3836,7 @@ Blaming is also controlled using the following options.
   This hook is run when moving between chunks.
 
 * Manipulating
-** Repository Setup
+** Creating Repository
 
 - Key: M-x magit-init, magit-init
 
@@ -3847,19 +3848,126 @@ Blaming is also controlled using the following options.
   directory is the root of the existing repository, then the user has
   to confirm that it should be reinitialized.
 
-- Key: M-x magit-clone, magit-clone
+** Cloning Repository
 
-  This command clones a repository and then shows the status buffer
-  for the new repository.
+To clone a remote or local repository use ~C~, which is bound to the
+command ~magit-clone~.  This command either act as a transient prefix
+command, which binds several infix arguments and suffix commands, or
+it can invoke ~git clone~ directly, depending on whether a prefix
+argument is used and on the value of ~magit-clone-always-transient~.
 
-  The user is queried for a remote url and a local directory.
+- User Option: magit-clone-always-transient
+
+  This option controls whether the command ~magit-clone~ always acts as
+  a transient prefix command, regardless of whether a prefix argument
+  is used or not.  If ~t~, then that command always acts as a transient
+  prefix.  If ~nil~, then a prefix argument has to be used for it to act
+  as a transient.
+
+- Key: C, magit-clone
+
+  This command either acts as a transient prefix command as described
+  above or does the same thing as ~transient-clone-regular~ as described
+  below.
+
+  If it acts as a transient prefix, then it binds the following suffix
+  commands and several infix arguments.
+
+- Key: C C, magit-clone-regular
+
+  This command creates a regular clone of an existing repository.
+  The repository and the target directory are read from the user.
+
+- Key: C s, magit-clone-shallow
+
+  This command creates a shallow clone of an existing repository.
+  The repository and the target directory are read from the user.
+  By default the depth of the cloned history is a single commit,
+  but with a prefix argument the depth is read from the user.
+
+- Key: C b, magit-clone-bare
+
+  This command creates a bare clone of an existing repository.
+  The repository and the target directory are read from the user.
+
+- Key: C m, magit-clone-mirror
+
+  This command creates a mirror of an existing repository.
+  The repository and the target directory are read from the user.
+
+The following suffixes are disabled by default. See
+[[info:transient#Enabling and Disabling Suffixes]] for how to enable them.
+
+- Key: C d, magit-clone-shallow-since
+
+  This command creates a shallow clone of an existing repository.
+  Only commits that were committed after a date are cloned, which
+  is read from the user.  The repository and the target directory
+  are also read from the user.
+
+- Key: C e, magit-clone-shallow-exclude
+
+  This command creates a shallow clone of an existing repository.
+  This reads a branch or tag from the user.  Commits that are
+  reachable from that are not cloned.  The repository and the target
+  directory are also read from the user.
+
+- User Option: magit-clone-set-remote-head
+
+  This option controls whether cloning causes the reference
+  ~refs/remotes/<remote>/HEAD~ to be created in the clone.  The default
+  is to do so.
+
+  Actually ~git clone~ itself does that and cannot be told to not do it.
+  Therefore setting this to ~nil~ causes Magit to remove that reference
+  after cloning.
 
 - User Option: magit-clone-set-remote.pushDefault
 
-  Whether to set the value of ~remote.pushDefault~ after cloning.
+  This option controls whether the value of the Git variable
+  ~remote.pushDefault~ is set after cloning.
 
-  If ~t~, then set without asking.  If ~nil~, then don't set.  If ~ask~,
-  then ask the user every time she clones a repository.
+  - If ~t~, then it is always set without asking.
+  - If ~ask~, then the users are asked every time they clone a
+    repository.
+  - If ~nil~, then it is never set.
+
+- User Option: magit-clone-default-directory
+
+  This option control the default directory name used when reading the
+  destination for a cloning operation.
+
+  - If ~nil~ (the default), then the value of ~default-directory~ is used.
+  - If a directory, then that is used.
+  - If a function, then that is called with the remote url as the only
+    argument and the returned value is used.
+
+- User Option: magit-clone-name-alist
+
+  This option maps regular expressions, which match repository names,
+  to repository urls, making it possible for users to enter short
+  names instead of urls when cloning repositories.
+
+  Each element has the form ~(REGEXP HOSTNAME USER)~.  When the user
+  enters a name when a cloning command asks for a name or url, then
+  that is looked up in this list.  The first element whose REGEXP
+  matches is used.
+
+  The format specified by option ~magit-clone-url-format~ is used to
+  turn the name into an url, using HOSTNAME and the repository name.
+  If the provided name contains a slash, then that is used.  Otherwise
+  if the name omits the owner of the repository, then the default user
+  specified in the matched entry is used.
+
+  If USER contains a dot, then it is treated as a Git variable and the
+  value of that is used as the username.  Otherwise it is used as the
+  username itself.
+
+- User Option: magit-clone-url-format
+
+  The format specified by this option is used when turning repository
+  names into urls. ~%h~ is the hostname and ~%n~ is the repository name,
+  including the name of the owner.
 
 ** Staging and Unstaging
 *** _ :ignore:
