@@ -1267,9 +1267,7 @@ to, or to some other symbolic-ref that points to the same ref."
         (branch (magit-ref-maybe-qualify (oref it value)))
         (commit (or (magit--painted-branch-at-point)
                     (let ((rev (oref it value)))
-                      (or (magit-name-branch rev)
-                          (magit-get-shortname rev)
-                          rev))))
+                      (or (magit-name-branch rev) rev))))
         (tag (magit-ref-maybe-qualify (oref it value) "tags/")))
       (thing-at-point 'git-revision t)
       (and (derived-mode-p 'magit-stash-mode
