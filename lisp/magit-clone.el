@@ -59,25 +59,94 @@ with the remote url as only argument and use the returned value."
                  (directory :tag "constant directory")
                  (function  :tag "function's value")))
 
+(defcustom magit-clone-always-transient nil
+  "Whether `magit-clone' always acts as a transient prefix command.
+If nil, then a prefix argument has to be used to show the transient
+popup instead of invoking the default suffix `magit-clone-regular'
+directly."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;; Commands
 
+;;;###autoload (autoload 'magit-clone "magit-clone" nil t)
+(define-transient-command magit-clone (&optional transient)
+  "Clone a repository."
+  :man-page "git-clone"
+  ["Clone"
+   ("C" "regular"            magit-clone-regular)
+   ("s" "shallow"            magit-clone-shallow)
+   ("d" "shallow since date" magit-clone-shallow-since :level 7)
+   ("e" "shallow excluding"  magit-clone-shallow-exclude :level 7)
+   ("b" "bare"               magit-clone-bare)
+   ("m" "mirror"             magit-clone-mirror)]
+  (interactive (list (or magit-clone-always-transient current-prefix-arg)))
+  (if transient
+      (transient-setup #'magit-clone)
+    (call-interactively #'magit-clone-regular)))
+
 ;;;###autoload
-(defun magit-clone (repository directory)
-  "Clone the REPOSITORY to DIRECTORY.
+(defun magit-clone-regular (repository directory args)
+  "Create a clone of REPOSITORY in DIRECTORY.
 Then show the status buffer for the new repository."
-  (interactive
-   (let  ((url (magit-read-string-ns "Clone repository")))
-     (list url (read-directory-name
-                "Clone to: "
-                (if (functionp magit-clone-default-directory)
-                    (funcall magit-clone-default-directory url)
-                  magit-clone-default-directory)
-                nil nil
-                (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" url)
-                     (match-string 1 url))))))
+  (interactive (magit-clone-read-args))
+  (magit-clone-internal repository directory args))
+
+;;;###autoload
+(defun magit-clone-shallow (repository directory args depth)
+  "Create a shallow clone of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository.
+With a prefix argument read the DEPTH of the clone;
+otherwise use 1."
+  (interactive (append (magit-clone-read-args)
+                       (list (if current-prefix-arg
+                                 (read-number "Depth: " 1)
+                               1))))
+  (magit-clone-internal repository directory
+                        (cons (format "--depth=%s" depth) args)))
+
+;;;###autoload
+(defun magit-clone-shallow-since (repository directory args date)
+  "Create a shallow clone of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository.
+Exclude commits before DATE, which is read from the
+user."
+  (interactive (append (magit-clone-read-args)
+                       (list (transient-read-date "Exclude commits before: "
+                                                  nil nil))))
+  (magit-clone-internal repository directory
+                        (cons (format "--shallow-since=%s" date) args)))
+
+;;;###autoload
+(defun magit-clone-shallow-exclude (repository directory args exclude)
+  "Create a shallow clone of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository.
+Exclude commits reachable from EXCLUDE, which is a
+branch or tag read from the user."
+  (interactive (append (magit-clone-read-args)
+                       (list (read-string "Exclude commits reachable from: "))))
+  (magit-clone-internal repository directory
+                        (cons (format "--shallow-exclude=%s" exclude) args)))
+
+;;;###autoload
+(defun magit-clone-bare (repository directory args)
+  "Create a bare clone of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository."
+  (interactive (magit-clone-read-args))
+  (magit-clone-internal repository directory (cons "--bare" args)))
+
+;;;###autoload
+(defun magit-clone-mirror (repository directory args)
+  "Create a mirror of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository."
+  (interactive (magit-clone-read-args))
+  (magit-clone-internal repository directory (cons "--mirror" args)))
+
+(defun magit-clone-internal (repository directory args)
   (run-hooks 'magit-credential-hook)
   (setq directory (file-name-as-directory (expand-file-name directory)))
-  (magit-run-git-async "clone" repository
+  (magit-run-git-async "clone" args "--" repository
                        (magit-convert-filename-for-git directory))
   ;; Don't refresh the buffer we're calling from.
   (process-put magit-this-process 'inhibit-refresh t)
@@ -89,15 +158,29 @@ Then show the status buffer for the new repository."
          (magit-process-sentinel process event)))
      (when (and (eq (process-status process) 'exit)
                 (= (process-exit-status process) 0))
-       (let ((default-directory directory))
-         (when (or (eq  magit-clone-set-remote.pushDefault t)
-                   (and magit-clone-set-remote.pushDefault
-                        (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
-           (setf (magit-get "remote.pushDefault") "origin"))
-         (unless magit-clone-set-remote-head
-           (magit-remote-unset-head "origin")))
+       (unless (memq (car args) '("--bare" "--mirror"))
+         (let ((default-directory directory))
+           (when (or (eq  magit-clone-set-remote.pushDefault t)
+                     (and magit-clone-set-remote.pushDefault
+                          (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
+             (setf (magit-get "remote.pushDefault") "origin"))
+           (unless magit-clone-set-remote-head
+             (magit-remote-unset-head "origin"))))
        (with-current-buffer (process-get process 'command-buf)
          (magit-status-setup-buffer directory))))))
+
+(defun magit-clone-read-args ()
+  (let  ((url (magit-read-string-ns "Clone repository")))
+    (list url
+          (read-directory-name
+           "Clone to: "
+           (if (functionp magit-clone-default-directory)
+               (funcall magit-clone-default-directory url)
+             magit-clone-default-directory)
+           nil nil
+           (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" url)
+                (match-string 1 url)))
+          (transient-args 'magit-clone))))
 
 ;;; _
 (provide 'magit-clone)
