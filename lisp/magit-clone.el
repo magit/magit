@@ -74,6 +74,21 @@ directly."
 (define-transient-command magit-clone (&optional transient)
   "Clone a repository."
   :man-page "git-clone"
+  ["Fetch arguments"
+   ("-B" "Clone a single branch"  "--single-branch")
+   ("-n" "Do not clone tags"      "--no-tags")
+   ("-S" "Clones submodules"      "--recurse-submodules" :level 6)
+   ("-l" "Do not optimize"        "--no-local" :level 7)]
+  ["Setup arguments"
+   ("-o" "Set name of remote"     ("-o" "--origin="))
+   ("-b" "Set HEAD branch"        ("-b" "--branch="))
+   ("-g" "Separate git directory" "--separate-git-dir="
+    transient-read-directory :level 7)
+   ("-t" "Use template directory" "--template="
+    transient-read-existing-directory :level 6)]
+  ["Local sharing arguments"
+   ("-s" "Share objects"          ("-s" "--shared" :level 7))
+   ("-h" "Do not use hardlinks"   "--no-hardlinks")]
   ["Clone"
    ("C" "regular"            magit-clone-regular)
    ("s" "shallow"            magit-clone-shallow)
