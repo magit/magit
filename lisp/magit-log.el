@@ -731,7 +731,7 @@ https://github.com/mhagger/git-when-merged."
                  (to (- (car (magit-rev-diff-count branch commit)) 10))
                  (to (if (<= to 0)
                          branch
-                       (format branch "%s~%s" branch to))))
+                       (format "%s~%s" branch to))))
             (unless (magit-rev-verify-commit from)
               (setq from (magit-git-string "rev-list" "--max-parents=0"
                                            commit)))
