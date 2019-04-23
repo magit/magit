@@ -456,9 +456,10 @@ instead of \"Stashes:\"."
 
 (defun magit-stash-refresh-buffer ()
   (magit-set-header-line-format
-   (concat (propertize (capitalize magit-buffer-revision)
-                       'face 'magit-section-heading)
-           " " (magit-rev-format "%s" magit-buffer-revision)))
+   (concat (capitalize magit-buffer-revision) " "
+           (propertize (magit-rev-format "%s" magit-buffer-revision)
+                       'face (list :weight 'normal :foreground
+                                   (face-attribute 'default :foreground)))))
   (setq magit-buffer-revision-hash (magit-rev-parse magit-buffer-revision))
   (magit-insert-section (stash)
     (magit-run-section-hook 'magit-stash-sections-hook)))
