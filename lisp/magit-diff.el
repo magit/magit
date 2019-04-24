@@ -810,7 +810,9 @@ and `:slant'."
     ("w" "buffer and save defaults" transient-save :transient nil)]
    ["Toggle"
     ("t" "hunk refinement"          magit-diff-toggle-refine-hunk)
-    ("F" "file filter"              magit-diff-toggle-file-filter)]
+    ("F" "file filter"              magit-diff-toggle-file-filter)
+    ("b" "toggle buffer lock"       magit-toggle-buffer-lock
+     :if-mode (magit-diff-mode magit-revision-mode magit-stash-mode))]
    [:if-mode magit-diff-mode
     :description "Do"
     ("r" "switch range type"        magit-diff-switch-range-type)

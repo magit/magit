@@ -460,7 +460,10 @@ the upstream isn't ahead of the current branch) show."
     ("L" "toggle visibility"        magit-toggle-margin)
     ("l" "cycle style"              magit-cycle-margin-style)
     ("d" "toggle details"           magit-toggle-margin-details)
-    ("x" "toggle shortstat"         magit-toggle-log-margin-style)]]
+    ("x" "toggle shortstat"         magit-toggle-log-margin-style)]
+   [:if-mode magit-log-mode
+    :description "Toggle"
+    ("b" "buffer lock"              magit-toggle-buffer-lock)]]
   (interactive)
   (cond
    ((not (eq current-transient-command 'magit-log-refresh))
