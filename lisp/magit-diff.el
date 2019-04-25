@@ -276,20 +276,6 @@ many spaces.  Otherwise, highlight neither."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-visit-previous-blob t
-  "Whether `magit-diff-visit-file' may visit the previous blob.
-
-When this is t and point is on a removed line in a diff for a
-committed change, then `magit-diff-visit-file' visits the blob
-from the last revision which still had that line.
-
-Currently this is only supported for committed changes, for
-staged and unstaged changes `magit-diff-visit-file' always
-visits the file in the working tree."
-  :package-version '(magit . "2.9.0")
-  :group 'magit-diff
-  :type 'boolean)
-
 (defcustom magit-diff-highlight-keywords t
   "Whether to highlight bracketed keywords in commit messages."
   :package-version '(magit . "2.12.0")
@@ -463,6 +449,36 @@ filter if the log arguments include --follow.  If non-nil, the
 log's file filter is always honored."
   :package-version '(magit . "2.91.0")
   :group 'magit-revision
+  :type 'boolean)
+
+;;;; Visit Commands
+
+(defcustom magit-diff-visit-previous-blob t
+  "Whether `magit-diff-visit-file' may visit the previous blob.
+
+When this is t and point is on a removed line in a diff for a
+committed change, then `magit-diff-visit-file' visits the blob
+from the last revision which still had that line.
+
+Currently this is only supported for committed changes, for
+staged and unstaged changes `magit-diff-visit-file' always
+visits the file in the working tree."
+  :package-version '(magit . "2.9.0")
+  :group 'magit-diff
+  :type 'boolean)
+
+(defcustom magit-diff-visit-avoid-head-blob nil
+  "Whether `magit-diff-visit-file' avoids visiting a blob from `HEAD'.
+
+By default `magit-diff-visit-file' always visits the blob that
+added the current line, while `magit-diff-visit-file-worktree'
+visits the respective file in the working tree.  For the `HEAD'
+commit, the former command used to visit the worktree file too,
+but that made it impossible to visit a blob from `HEAD'.
+
+If you prefer the old behavior, then set this to t."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-diff
   :type 'boolean)
 
 ;;; Faces
@@ -1310,19 +1326,21 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-diff-update-hunk-refinement))
 
 ;;;; Visit Commands
+;;;;; Commands
 
 (defun magit-diff-visit-file
     (file &optional other-window force-worktree display-fn)
   "From a diff, visit the corresponding file at the appropriate position.
 
-If the diff shows changes in the worktree, the index, or `HEAD',
-then visit the actual file.  Otherwise, when the diff is about an
-older commit or a range, then visit the appropriate blob.
-
 If point is on a removed line, then visit the blob for the first
 parent of the commit which removed that line, i.e. the last
 commit where that line still existed.  Otherwise visit the blob
 for the commit whose changes are being shown.
+
+If point is on a added or context line, then visit the blob that
+adds that line, or if the diff shows changes in multiple commits,
+then the last of those commits.  If the diff shows unstaged or
+staged changes, then visit the worktree file.
 
 Interactively, when the file or blob to be displayed is already
 being displayed in another window of the same frame, then just
@@ -1337,30 +1355,15 @@ function explicitly, in which case OTHER-WINDOW is ignored.
 
 The optional FORCE-WORKTREE means to force visiting the worktree
 version of the file.  To do this interactively use the command
-`magit-diff-visit-file-worktree' instead."
-  (interactive (list (--if-let (magit-file-at-point)
-                         (expand-file-name it)
-                       (user-error "No file at point"))
-                     current-prefix-arg))
+`magit-diff-visit-file-worktree' instead.  Also note that for the
+`HEAD' commit this command used to always visit the worktree file.
+Now the worktree variant has to be used.  If you prefer the old
+behavior, then customize option `magit-diff-visit-never-head'."
+  (interactive (list (magit-file-at-point t t)))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
-    (let* ((hunk (magit-diff-visit--hunk))
-           (last (and magit-diff-visit-previous-blob
-                      (not force-worktree)
-                      (magit-section-match 'hunk)
-                      (save-excursion
-                        (goto-char (line-beginning-position))
-                        (looking-at "-"))))
-           (line (and hunk (magit-diff-hunk-line   hunk)))
-           (col  (and hunk (magit-diff-hunk-column hunk last)))
-           (rev  (if last
-                     (magit-diff-visit--range-beginning)
-                   (magit-diff-visit--range-end)))
-           (buf  (if (and (not force-worktree)
-                          (stringp rev))
-                     (magit-find-file-noselect rev file)
-                   (or (get-file-buffer file)
-                       (find-file-noselect file)))))
+    (pcase-let ((`(,buf ,pos)
+                 (magit-diff-visit-file--noselect file force-worktree)))
       (cond ((called-interactively-p 'any)
              (magit-display-file-buffer buf))
             (display-fn
@@ -1369,30 +1372,7 @@ version of the file.  To do this interactively use the command
              (switch-to-buffer-other-window buf))
             (t
              (pop-to-buffer buf)))
-      (with-selected-window
-          (or (get-buffer-window buf 'visible)
-              (error "File buffer is not visible"))
-        (when line
-          (setq line
-                (cond ((eq rev 'staged)
-                       (apply 'magit-diff-visit--offset file nil line))
-                      ((and force-worktree
-                            (stringp rev))
-                       (apply 'magit-diff-visit--offset file rev line))
-                      (t
-                       (apply '+ line))))
-          (let ((pos (save-restriction
-                       (widen)
-                       (goto-char (point-min))
-                       (forward-line (1- line))
-                       (move-to-column col)
-                       (point))))
-            (unless (<= (point-min) pos (point-max))
-              (widen)
-              (goto-char pos))))
-        (when (magit-anything-unmerged-p file)
-          (smerge-start-session))
-        (run-hooks 'magit-diff-visit-file-hook)))))
+      (magit-diff-visit--setup buf pos))))
 
 (defun magit-diff-visit-file-other-window (file)
   "From a diff, visit the corresponding file at the appropriate position.
@@ -1406,41 +1386,12 @@ If point is on a removed line, then visit the blob for the first
 parent of the commit which removed that line, i.e. the last
 commit where that line still existed.  Otherwise visit the blob
 for the commit whose changes are being shown."
-  (interactive (list (--if-let (magit-file-at-point)
-                         (expand-file-name it)
-                       (user-error "No file at point"))))
-  (magit-diff-visit-file file t))
-
-(defvar magit-display-file-buffer-function
-  'magit-display-file-buffer-traditional
-  "The function used by `magit-diff-visit-file' to display blob buffers.
-
-Other commands such as `magit-find-file' do not use this
-function.  Instead they use high-level functions to select the
-window to be used to display the buffer.  This variable and the
-related functions are an experimental feature and should be
-treated as such.")
-
-(defun magit-display-file-buffer (buffer)
-  (funcall magit-display-file-buffer-function buffer))
-
-(defun magit-display-file-buffer-traditional (buffer)
-  "Display BUFFER in the current window.
-With a prefix argument display it in another window.
-Option `magit-display-file-buffer-function' controls
-whether `magit-diff-visit-file' uses this function."
-  (if (or current-prefix-arg (get-buffer-window buffer))
-      (pop-to-buffer buffer)
-    (switch-to-buffer buffer)))
-
-(defun magit-display-file-buffer-other-window (buffer)
-  "Display BUFFER in another window.
-With a prefix argument display it in the current window.
-Option `magit-display-file-buffer-function' controls
-whether `magit-diff-visit-file' uses this function."
-  (if current-prefix-arg
-      (switch-to-buffer buffer)
-    (pop-to-buffer buffer)))
+  (interactive (list (magit-file-at-point t t)))
+  (if (magit-file-accessible-directory-p file)
+      (magit-diff-visit-directory file t)
+    (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file)))
+      (switch-to-buffer-other-window buf)
+      (magit-diff-visit--setup buf pos))))
 
 (defun magit-diff-visit-file-worktree (file &optional other-window)
   "From a diff, visit the corresponding file at the appropriate position.
@@ -1457,30 +1408,76 @@ reliable.
 Also see `magit-diff-visit-file' which visits the respective
 blob, unless the diff shows changes in the worktree, the index,
 or `HEAD'."
-  (interactive (list (or (magit-file-at-point)
-                         (user-error "No file at point"))
-                     current-prefix-arg))
-  (magit-diff-visit-file file other-window t))
+  (interactive (list (magit-file-at-point t t) current-prefix-arg))
+  (if (magit-file-accessible-directory-p file)
+      (magit-diff-visit-directory file other-window)
+    (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file t)))
+      (magit-display-file-buffer buf)
+      (magit-diff-visit--setup buf pos))))
 
-(defun magit-diff-visit--range-end ()
-  (let ((rev (magit-diff--dwim)))
-    (if (symbolp rev)
-        rev
-      (setq rev (if (consp rev)
-                    (cdr rev)
-                  (cdr (magit-split-range rev))))
-      (if (magit-rev-head-p rev)
-          'unstaged
-        rev))))
+;;;;; Internal
 
-(defun magit-diff-visit--range-beginning ()
-  (let ((rev (magit-diff--dwim)))
-    (cond ((consp rev)
-           (concat (cdr rev) "^"))
-          ((stringp rev)
-           (car (magit-split-range rev)))
-          (t
-           rev))))
+(defun magit-diff-visit-directory (directory &optional other-window)
+  (if (equal (magit-toplevel directory)
+             (magit-toplevel))
+      (dired-jump other-window (concat directory "/."))
+    (let ((display-buffer-overriding-action
+           (if other-window
+               '(nil (inhibit-same-window t))
+             '(display-buffer-same-window))))
+      (magit-status-setup-buffer directory))))
+
+(defun magit-diff-visit--setup (buf pos)
+  (if-let ((win (get-buffer-window buf 'visible)))
+      (with-selected-window win
+        (when pos
+          (unless (<= (point-min) pos (point-max))
+            (widen))
+          (goto-char pos))
+        (when (and buffer-file-name
+                   (magit-anything-unmerged-p buffer-file-name))
+          (smerge-start-session))
+        (run-hooks 'magit-diff-visit-file-hook))
+    (error "File buffer is not visible")))
+
+;;;;; Position
+
+(defun magit-diff-visit-file--noselect (&optional file in-worktree)
+  (unless file
+    (setq file (magit-file-at-point t t)))
+  (let* ((hunk (magit-diff-visit--hunk))
+         (last (and magit-diff-visit-previous-blob
+                    (not in-worktree)
+                    (magit-section-match 'hunk)
+                    (= (char-after (line-beginning-position)) ?-)))
+         (line (and hunk (magit-diff-hunk-line   hunk)))
+         (col  (and hunk (magit-diff-hunk-column hunk last)))
+         (rev  (if last
+                   (magit-diff-visit--range-beginning)
+                 (magit-diff-visit--range-end)))
+         (buf  (if (and (not in-worktree)
+                        (stringp rev))
+                   (magit-find-file-noselect rev file)
+                 (or (get-file-buffer file)
+                     (find-file-noselect file))))
+         pos)
+    (when line
+      (with-current-buffer buf
+        (setq line (cond
+                    ((eq rev 'staged)
+                     (apply 'magit-diff-visit--offset file nil line))
+                    ((and in-worktree
+                          (stringp rev))
+                     (apply 'magit-diff-visit--offset file rev line))
+                    (t
+                     (apply '+ line))))
+        (setq pos  (save-restriction
+                     (widen)
+                     (goto-char (point-min))
+                     (forward-line (1- line))
+                     (move-to-column col)
+                     (point)))))
+    (list buf pos)))
 
 (defun magit-diff-visit--hunk ()
   (when-let ((scope (magit-diff-scope)))
@@ -1502,36 +1499,6 @@ or `HEAD'."
        ;; Such sections have no value.
        (oref section value)
        section))))
-
-(defun magit-diff-visit--offset (file rev hunk-start line-offset)
-  (let ((offset 0))
-    (with-temp-buffer
-      (save-excursion
-        (magit-with-toplevel
-          (magit-git-insert "diff" rev "--" file)))
-      (catch 'found
-        (while (re-search-forward
-                "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@"
-                nil t)
-          (let* ((abeg (string-to-number (match-string 1)))
-                 (alen (string-to-number (match-string 2)))
-                 (bbeg (string-to-number (match-string 3)))
-                 (blen (string-to-number (match-string 4)))
-                 (aend (+ abeg alen))
-                 (bend (+ bbeg blen))
-                 (hend (+ hunk-start line-offset)))
-            (if (<= abeg hunk-start)
-                (if (or (>= aend hend)
-                        (>= bend hend))
-                    (let ((line 0))
-                      (while (<= line alen)
-                        (forward-line 1)
-                        (cl-incf line)
-                        (cond ((looking-at "^\\+") (cl-incf offset))
-                              ((looking-at "^-")   (cl-decf offset)))))
-                  (cl-incf offset (- blen alen)))
-              (throw 'found nil))))))
-    (+ hunk-start line-offset offset)))
 
 (defun magit-diff-hunk-line (section)
   (let* ((value  (oref section value))
@@ -1573,15 +1540,89 @@ or `HEAD'."
     (max 0 (- (+ (current-column) 2)
               (length (oref section value))))))
 
-(defun magit-diff-visit-directory (directory &optional other-window)
-  (if (equal (magit-toplevel directory)
-             (magit-toplevel))
-      (dired-jump other-window (concat directory "/."))
-    (let ((display-buffer-overriding-action
-           (if other-window
-               '(nil (inhibit-same-window t))
-             '(display-buffer-same-window))))
-      (magit-status-setup-buffer directory))))
+(defun magit-diff-visit--range-beginning ()
+  (let ((rev (magit-diff--dwim)))
+    (cond ((consp rev)
+           (concat (cdr rev) "^"))
+          ((stringp rev)
+           (car (magit-split-range rev)))
+          (t
+           rev))))
+
+(defun magit-diff-visit--range-end ()
+  (let ((rev (magit-diff--dwim)))
+    (if (symbolp rev)
+        rev
+      (setq rev (if (consp rev)
+                    (cdr rev)
+                  (cdr (magit-split-range rev))))
+      (if (and magit-diff-visit-avoid-head-blob
+               (magit-rev-head-p rev))
+          'unstaged
+        rev))))
+
+(defun magit-diff-visit--offset (file rev hunk-start line-offset)
+  (let ((offset 0))
+    (with-temp-buffer
+      (save-excursion
+        (magit-with-toplevel
+          (magit-git-insert "diff" rev "--" file)))
+      (catch 'found
+        (while (re-search-forward
+                "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@"
+                nil t)
+          (let* ((abeg (string-to-number (match-string 1)))
+                 (alen (string-to-number (match-string 2)))
+                 (bbeg (string-to-number (match-string 3)))
+                 (blen (string-to-number (match-string 4)))
+                 (aend (+ abeg alen))
+                 (bend (+ bbeg blen))
+                 (hend (+ hunk-start line-offset)))
+            (if (<= abeg hunk-start)
+                (if (or (>= aend hend)
+                        (>= bend hend))
+                    (let ((line 0))
+                      (while (<= line alen)
+                        (forward-line 1)
+                        (cl-incf line)
+                        (cond ((looking-at "^\\+") (cl-incf offset))
+                              ((looking-at "^-")   (cl-decf offset)))))
+                  (cl-incf offset (- blen alen)))
+              (throw 'found nil))))))
+    (+ hunk-start line-offset offset)))
+
+;;;;; Display
+
+(defvar magit-display-file-buffer-function
+  'magit-display-file-buffer-traditional
+  "The function used by `magit-diff-visit-file' to display blob buffers.
+
+Other commands such as `magit-find-file' do not use this
+function.  Instead they use high-level functions to select the
+window to be used to display the buffer.  This variable and the
+related functions are an experimental feature and should be
+treated as such.")
+
+(defun magit-display-file-buffer (buffer)
+  (funcall magit-display-file-buffer-function buffer))
+
+(defun magit-display-file-buffer-traditional (buffer)
+  "Display BUFFER in the current window.
+With a prefix argument display it in another window.
+Option `magit-display-file-buffer-function' controls
+whether `magit-diff-visit-file' uses this function."
+  (if (or current-prefix-arg (get-buffer-window buffer))
+      (pop-to-buffer buffer)
+    (switch-to-buffer buffer)))
+
+(defun magit-display-file-buffer-other-window (buffer)
+  "Display BUFFER in another window.
+With a prefix argument display it in the current window.
+Option `magit-display-file-buffer-function' controls
+whether `magit-diff-visit-file' uses this function."
+  (if current-prefix-arg
+      (switch-to-buffer buffer)
+    (pop-to-buffer buffer)))
 
 ;;;; Scroll Commands
 
@@ -2192,10 +2233,9 @@ or a ref which is not a branch, then it inserts nothing."
     (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
     (let ((beg (point))
           (rev magit-buffer-revision))
-      (insert (save-excursion ; The risky var query can move point.
-                (with-temp-buffer
-                  (magit-rev-insert-format "%B" rev)
-                  (magit-revision--wash-message))))
+      (insert (with-temp-buffer
+                (magit-rev-insert-format "%B" rev)
+                (magit-revision--wash-message)))
       (if (= (point) (+ beg 2))
           (progn (backward-delete-char 2)
                  (insert "(no message)\n"))

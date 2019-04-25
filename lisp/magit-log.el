@@ -683,15 +683,9 @@ active, restrict the log to the lines that the region touches."
 (defun magit-diff-trace-definition ()
   "Show log for the definition at point in a diff."
   (interactive)
-  (let (buf pos)
-    (save-window-excursion
-      (call-interactively #'magit-diff-visit-file)
-      (setq buf (current-buffer))
-      (setq pos (point)))
-    (save-excursion
-      (with-current-buffer buf
-        (goto-char pos)
-        (call-interactively #'magit-log-trace-definition)))))
+  (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect)))
+    (magit--with-temp-position buf pos
+      (call-interactively #'magit-log-trace-definition))))
 
 ;;;###autoload
 (defun magit-log-merged (commit branch &optional args files)
@@ -1283,9 +1277,9 @@ If there is no blob buffer in the same frame, then do nothing."
            (pcase-let ((`(,rev ,buf) magit--update-blob-buffer))
              (setq magit--update-blob-buffer nil)
              (when (buffer-live-p buf)
-               (save-excursion
-                 (with-selected-window (get-buffer-window buf)
-                   (with-current-buffer buf
+               (with-selected-window (get-buffer-window buf)
+                 (with-current-buffer buf
+                   (save-excursion
                      (magit-blob-visit (list (magit-rev-parse rev)
                                              (magit-file-relative-name
                                               magit-buffer-file-name))

@@ -953,10 +953,15 @@ Sorted from longest to shortest CYGWIN name."
                             t)
     path))
 
-(defun magit-file-at-point ()
-  (magit-section-case
-    (file (oref it value))
-    (hunk (magit-section-parent-value it))))
+(defun magit-file-at-point (&optional expand assert)
+  (if-let ((file (magit-section-case
+                   (file (oref it value))
+                   (hunk (magit-section-parent-value it)))))
+      (if expand
+          (expand-file-name file (magit-toplevel))
+        file)
+    (when assert
+      (user-error "No file at point"))))
 
 (defun magit-current-file ()
   (or (magit-file-relative-name)
