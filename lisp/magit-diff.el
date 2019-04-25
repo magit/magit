@@ -827,7 +827,7 @@ and `:slant'."
    ["Toggle"
     ("t" "hunk refinement"          magit-diff-toggle-refine-hunk)
     ("F" "file filter"              magit-diff-toggle-file-filter)
-    ("b" "toggle buffer lock"       magit-toggle-buffer-lock
+    ("b" "buffer lock"              magit-toggle-buffer-lock
      :if-mode (magit-diff-mode magit-revision-mode magit-stash-mode))]
    [:if-mode magit-diff-mode
     :description "Do"
