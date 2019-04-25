@@ -229,6 +229,7 @@ and/or `magit-branch-remote-head'."
     ("b" "Branch"         magit-branch)
     ("B" "Bisect"         magit-bisect)
     ("c" "Commit"         magit-commit)
+    ("C" "Clone"          magit-clone)
     ("d" "Diff"           magit-diff)
     ("D" "Diff (change)"  magit-diff-refresh)
     ("e" "Ediff (dwim)"   magit-ediff-dwim)
