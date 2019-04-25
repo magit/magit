@@ -288,8 +288,9 @@ the upstream isn't ahead of the current branch) show."
   (pcase-let ((`(,args ,files)
                (magit-log--get-value 'magit-log-mode
                                      magit-prefix-use-buffer-arguments)))
-    (when-let ((file (magit-file-relative-name)))
-      (setq files (list file)))
+    (unless (eq current-transient-command 'magit-dispatch)
+      (when-let ((file (magit-file-relative-name)))
+        (setq files (list file))))
     (oset obj value (if files `(("--" ,@files) ,args) args))))
 
 (cl-defmethod transient-init-value ((obj magit-log-refresh-prefix))

@@ -696,8 +696,9 @@ and `:slant'."
   (pcase-let ((`(,args ,files)
                (magit-diff--get-value 'magit-diff-mode
                                       magit-prefix-use-buffer-arguments)))
-    (when-let ((file (magit-file-relative-name)))
-      (setq files (list file)))
+    (unless (eq current-transient-command 'magit-dispatch)
+      (when-let ((file (magit-file-relative-name)))
+        (setq files (list file))))
     (oset obj value (if files `(("--" ,@files) ,args) args))))
 
 (cl-defmethod transient-init-value ((obj magit-diff-refresh-prefix))
