@@ -1451,8 +1451,8 @@ or `HEAD'."
          (line (and hunk (magit-diff-hunk-line   hunk goto-from)))
          (col  (and hunk (magit-diff-hunk-column hunk goto-from)))
          (rev  (if goto-from
-                   (magit-diff-visit--range-beginning)
-                 (magit-diff-visit--range-end)))
+                   (magit-diff-visit--range-from)
+                 (magit-diff-visit--range-to)))
          (buf  (if (and (not in-worktree)
                         (stringp rev))
                    (magit-find-file-noselect rev file)
@@ -1534,7 +1534,7 @@ or `HEAD'."
     (max 0 (- (+ (current-column) 2)
               (length (oref section value))))))
 
-(defun magit-diff-visit--range-beginning ()
+(defun magit-diff-visit--range-from ()
   (let ((rev (magit-diff--dwim)))
     (cond ((consp rev)
            (concat (cdr rev) "^"))
@@ -1543,7 +1543,7 @@ or `HEAD'."
           (t
            rev))))
 
-(defun magit-diff-visit--range-end ()
+(defun magit-diff-visit--range-to ()
   (let ((rev (magit-diff--dwim)))
     (if (symbolp rev)
         rev
