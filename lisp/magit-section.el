@@ -261,7 +261,12 @@ Otherwise the value has to have one of these two forms:
    (header   :initform nil)))
 
 (defclass magit-hunk-section (magit-section)
-  ((refined  :initform nil)))
+  ((refined     :initform nil)
+   (combined    :initform nil)
+   (from-range  :initform nil)
+   (from-ranges :initform nil)
+   (to-range    :initform nil)
+   (about       :initform nil)))
 
 (defclass magit-module-section (magit-file-section)
   ())
