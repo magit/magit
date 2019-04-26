@@ -1450,9 +1450,10 @@ or `HEAD'."
          (goto-from (magit-diff-visit--goto-from-p hunk in-worktree))
          (line (and hunk (magit-diff-hunk-line   hunk goto-from)))
          (col  (and hunk (magit-diff-hunk-column hunk goto-from)))
+         (spec (magit-diff--dwim))
          (rev  (if goto-from
-                   (magit-diff-visit--range-from)
-                 (magit-diff-visit--range-to)))
+                   (magit-diff-visit--range-from spec)
+                 (magit-diff-visit--range-to spec)))
          (buf  (if (and (not in-worktree)
                         (stringp rev))
                    (magit-find-file-noselect rev file)
@@ -1534,24 +1535,22 @@ or `HEAD'."
     (max 0 (- (+ (current-column) 2)
               (length (oref section value))))))
 
-(defun magit-diff-visit--range-from ()
-  (let ((rev (magit-diff--dwim)))
-    (cond ((consp rev)
-           (concat (cdr rev) "^"))
-          ((stringp rev)
-           (car (magit-split-range rev)))
-          (t
-           rev))))
+(defun magit-diff-visit--range-from (spec)
+  (cond ((consp spec)
+         (concat (cdr spec) "^"))
+        ((stringp spec)
+         (car (magit-split-range spec)))
+        (t
+         spec)))
 
-(defun magit-diff-visit--range-to ()
-  (let ((rev (magit-diff--dwim)))
-    (if (symbolp rev)
-        rev
-      (setq rev (if (consp rev)
-                    (cdr rev)
-                  (cdr (magit-split-range rev))))
+(defun magit-diff-visit--range-to (spec)
+  (if (symbolp spec)
+      spec
+    (let ((rev (if (consp spec)
+                   (cdr spec)
+                 (cdr (magit-split-range spec)))))
       (if (and magit-diff-visit-avoid-head-blob
-               (magit-rev-head-p rev))
+               (magit-rev-head-p spec))
           'unstaged
         rev))))
 
