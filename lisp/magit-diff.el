@@ -1461,14 +1461,11 @@ or `HEAD'."
                      (find-file-noselect file)))))
     (if line
         (with-current-buffer buf
-          (setq line (cond
-                      ((eq rev 'staged)
-                       (apply 'magit-diff-visit--offset file nil line))
-                      ((and goto-worktree
-                            (stringp rev))
-                       (apply 'magit-diff-visit--offset file rev line))
-                      (t
-                       (apply '+ line))))
+          (cond ((eq rev 'staged)
+                 (setq line (magit-diff-visit--offset file nil line)))
+                ((and goto-worktree
+                      (stringp rev))
+                 (setq line (magit-diff-visit--offset file rev line))))
           (list buf (save-restriction
                       (widen)
                       (goto-char (point-min))
@@ -1512,18 +1509,18 @@ or `HEAD'."
       (when (< (point) content)
         (goto-char content)
         (re-search-forward "^[-+]"))
-      (list (car (if goto-from from-range to-range))
-            (let ((prefix (if combined (length from-ranges) 1))
-                  (target (point))
-                  (offset 0))
-              (goto-char content)
-              (while (< (point) target)
-                (unless (string-match-p
-                         (if goto-from "\\+" "-")
-                         (buffer-substring (point) (+ (point) prefix)))
-                  (cl-incf offset))
-                (forward-line))
-              offset)))))
+      (+ (car (if goto-from from-range to-range))
+         (let ((prefix (if combined (length from-ranges) 1))
+               (target (point))
+               (offset 0))
+           (goto-char content)
+           (while (< (point) target)
+             (unless (string-match-p
+                      (if goto-from "\\+" "-")
+                      (buffer-substring (point) (+ (point) prefix)))
+               (cl-incf offset))
+             (forward-line))
+           offset)))))
 
 (defun magit-diff-hunk-column (section goto-from)
   (if (or (< (point)
@@ -1553,7 +1550,7 @@ or `HEAD'."
           'unstaged
         rev))))
 
-(defun magit-diff-visit--offset (file rev hunk-start line-offset)
+(defun magit-diff-visit--offset (file rev line)
   (let ((offset 0))
     (with-temp-buffer
       (save-excursion
@@ -1561,27 +1558,23 @@ or `HEAD'."
           (magit-git-insert "diff" rev "--" file)))
       (catch 'found
         (while (re-search-forward
-                "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@"
+                "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@.*\n"
                 nil t)
-          (let* ((abeg (string-to-number (match-string 1)))
-                 (alen (string-to-number (match-string 2)))
-                 (bbeg (string-to-number (match-string 3)))
-                 (blen (string-to-number (match-string 4)))
-                 (aend (+ abeg alen))
-                 (bend (+ bbeg blen))
-                 (hend (+ hunk-start line-offset)))
-            (if (<= abeg hunk-start)
-                (if (or (>= aend hend)
-                        (>= bend hend))
-                    (let ((line 0))
-                      (while (<= line alen)
-                        (forward-line 1)
-                        (cl-incf line)
-                        (cond ((looking-at "^\\+") (cl-incf offset))
-                              ((looking-at "^-")   (cl-decf offset)))))
-                  (cl-incf offset (- blen alen)))
+          (let ((from-beg (string-to-number (match-string 1)))
+                (from-len (string-to-number (match-string 2)))
+                (  to-len (string-to-number (match-string 4))))
+            (if (<= from-beg line)
+                (if (< (+ from-beg from-len) line)
+                    (cl-incf offset (- to-len from-len))
+                  (let ((rest (- line from-beg)))
+                    (while (> rest 0)
+                      (pcase (char-after)
+                        (?\s                  (cl-decf rest))
+                        (?-  (cl-decf offset) (cl-decf rest))
+                        (?+  (cl-incf offset)))
+                      (forward-line))))
               (throw 'found nil))))))
-    (+ hunk-start line-offset offset)))
+    (+ line offset)))
 
 ;;;;; Display
 
