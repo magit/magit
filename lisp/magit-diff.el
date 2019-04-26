@@ -1502,28 +1502,28 @@ or `HEAD'."
        section))))
 
 (defun magit-diff-hunk-line (section)
-  (let* ((pos (marker-position (oref section content)))
-         (stop (line-number-at-pos (point)))
-         (combined (oref section combined))
-         (prior (and (not combined)
-                     (= (char-after (line-beginning-position)) ?-)))
-         (prefix (if combined (length (oref section from-ranges)) 1))
-         (line (car (eieio-oref section (if prior 'from-range 'to-range))))
-         (offset 0))
-    (when (> (line-number-at-pos pos) stop)
-      (save-excursion
-        (goto-char pos)
-        (re-search-forward "^[-+]")
-        (setq stop (line-number-at-pos))))
-    (save-excursion
-      (goto-char pos)
-      (while (< (line-number-at-pos) stop)
-        (unless (string-match-p
-                 (if prior "\\+" "-")
-                 (buffer-substring (point) (+ (point) prefix)))
-          (cl-incf offset))
-        (forward-line)))
-    (list line offset)))
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (with-slots (content combined from-ranges from-range to-range) section
+      (let ((goto-from
+             (cond ((< (point) content)
+                    (goto-char content)
+                    (re-search-forward "^[-+]")
+                    nil)
+                   (combined nil)
+                   ((= (char-after) ?-) t))))
+        (list (car (if goto-from from-range to-range))
+              (let ((prefix (if combined (length from-ranges) 1))
+                    (target (point))
+                    (offset 0))
+                (goto-char content)
+                (while (< (point) target)
+                  (unless (string-match-p
+                           (if goto-from "\\+" "-")
+                           (buffer-substring (point) (+ (point) prefix)))
+                    (cl-incf offset))
+                  (forward-line))
+                offset))))))
 
 (defun magit-diff-hunk-column (section visit-beginning)
   (if (or (< (point)
