@@ -1536,7 +1536,7 @@ or `HEAD'."
   (if (or (< (point)
              (oref section content))
           (and (not visit-beginning)
-               (save-excursion (beginning-of-line) (looking-at-p "-"))))
+               (= (char-after (line-beginning-position)) ?-)))
       0
     (max 0 (- (+ (current-column) 2)
               (length (oref section value))))))
