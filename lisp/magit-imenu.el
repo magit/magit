@@ -29,7 +29,7 @@
 ;; a programming major mode).  Selecting an item from this list moves
 ;; point to this item.
 
-;; magit-imenu.el adds Imenu support to every major mode in Magit
+;; magit-imenu.el adds Imenu support to every major mode in Magit.
 
 ;;; Code:
 
@@ -38,6 +38,8 @@
 
 (require 'magit)
 (require 'git-rebase)
+
+;;; Core
 
 (defun magit-imenu--index-function (entry-types menu-types)
   "Return an alist of imenu entries in current buffer.
