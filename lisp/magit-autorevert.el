@@ -232,7 +232,7 @@ defaults to nil) for any BUFFER."
   (let ((top (car magit-auto-revert-toplevel)))
     (if (eq top 'no-repo)
         fallback
-      (let ((dir (with-current-buffer buffer default-directory)))
+      (let ((dir (buffer-local-value 'default-directory buffer)))
         (and (equal (file-remote-p dir)
                     (file-remote-p top))
              ;; ^ `tramp-handle-file-in-directory-p' lacks this optimization.
