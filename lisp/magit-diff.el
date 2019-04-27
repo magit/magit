@@ -1443,42 +1443,36 @@ or `HEAD'."
 
 ;;;;; Position
 
-(defun magit-diff-visit-file--noselect (&optional file in-worktree)
+(defun magit-diff-visit-file--noselect (&optional file goto-worktree)
   (unless file
     (setq file (magit-file-at-point t t)))
   (let* ((hunk (magit-diff-visit--hunk))
-         (last (and magit-diff-visit-previous-blob
-                    (not in-worktree)
-                    (magit-section-match 'hunk)
-                    (= (char-after (line-beginning-position)) ?-)))
-         (line (and hunk (magit-diff-hunk-line   hunk)))
-         (col  (and hunk (magit-diff-hunk-column hunk last)))
-         (rev  (if last
-                   (magit-diff-visit--range-beginning)
-                 (magit-diff-visit--range-end)))
-         (buf  (if (and (not in-worktree)
+         (goto-from (magit-diff-visit--goto-from-p hunk goto-worktree))
+         (line (and hunk (magit-diff-hunk-line   hunk goto-from)))
+         (col  (and hunk (magit-diff-hunk-column hunk goto-from)))
+         (spec (magit-diff--dwim))
+         (rev  (if goto-from
+                   (magit-diff-visit--range-from spec)
+                 (magit-diff-visit--range-to spec)))
+         (buf  (if (and (not goto-worktree)
                         (stringp rev))
                    (magit-find-file-noselect rev file)
                  (or (get-file-buffer file)
-                     (find-file-noselect file))))
-         pos)
-    (when line
-      (with-current-buffer buf
-        (setq line (cond
-                    ((eq rev 'staged)
-                     (apply 'magit-diff-visit--offset file nil line))
-                    ((and in-worktree
-                          (stringp rev))
-                     (apply 'magit-diff-visit--offset file rev line))
-                    (t
-                     (apply '+ line))))
-        (setq pos  (save-restriction
-                     (widen)
-                     (goto-char (point-min))
-                     (forward-line (1- line))
-                     (move-to-column col)
-                     (point)))))
-    (list buf pos)))
+                     (find-file-noselect file)))))
+    (if line
+        (with-current-buffer buf
+          (cond ((eq rev 'staged)
+                 (setq line (magit-diff-visit--offset file nil line)))
+                ((and goto-worktree
+                      (stringp rev))
+                 (setq line (magit-diff-visit--offset file rev line))))
+          (list buf (save-restriction
+                      (widen)
+                      (goto-char (point-min))
+                      (forward-line (1- line))
+                      (move-to-column col)
+                      (point))))
+      (list buf nil))))
 
 (defun magit-diff-visit--hunk ()
   (when-let ((scope (magit-diff-scope)))
@@ -1501,68 +1495,62 @@ or `HEAD'."
        (oref section value)
        section))))
 
-(defun magit-diff-hunk-line (section)
-  (let* ((value  (oref section value))
-         (prefix (- (length value) 2))
-         (cpos   (marker-position (oref section content)))
-         (stop   (line-number-at-pos))
-         (cstart (save-excursion (goto-char cpos)
-                                 (line-number-at-pos)))
-         (prior  (and (= (length value) 3)
-                      (save-excursion (goto-char (line-beginning-position))
-                                      (looking-at "-"))))
-         (offset 0)
-         (line   (if prior
-                     (cadr value)
-                   (car (last value)))))
-    (string-match (format "^%s\\([0-9]+\\)" (if prior "-" "\\+")) line)
-    (setq line (string-to-number (match-string 1 line)))
-    (when (> cstart stop)
-      (save-excursion
-        (goto-char cpos)
-        (re-search-forward "^[-+]")
-        (setq stop (line-number-at-pos))))
-    (save-excursion
-      (goto-char cpos)
-      (while (< (line-number-at-pos) stop)
-        (unless (string-match-p
-                 (if prior "\\+" "-")
-                 (buffer-substring (point) (+ (point) prefix)))
-          (cl-incf offset))
-        (forward-line)))
-    (list line offset)))
+(defun magit-diff-visit--goto-from-p (section in-worktree)
+  (and magit-diff-visit-previous-blob
+       (not in-worktree)
+       (not (oref section combined))
+       (not (< (point) (oref section content)))
+       (= (char-after (line-beginning-position)) ?-)))
 
-(defun magit-diff-hunk-column (section visit-beginning)
+(defun magit-diff-hunk-line (section goto-from)
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (with-slots (content combined from-ranges from-range to-range) section
+      (when (< (point) content)
+        (goto-char content)
+        (re-search-forward "^[-+]"))
+      (+ (car (if goto-from from-range to-range))
+         (let ((prefix (if combined (length from-ranges) 1))
+               (target (point))
+               (offset 0))
+           (goto-char content)
+           (while (< (point) target)
+             (unless (string-match-p
+                      (if goto-from "\\+" "-")
+                      (buffer-substring (point) (+ (point) prefix)))
+               (cl-incf offset))
+             (forward-line))
+           offset)))))
+
+(defun magit-diff-hunk-column (section goto-from)
   (if (or (< (point)
              (oref section content))
-          (and (not visit-beginning)
-               (save-excursion (beginning-of-line) (looking-at-p "-"))))
+          (and (not goto-from)
+               (= (char-after (line-beginning-position)) ?-)))
       0
     (max 0 (- (+ (current-column) 2)
               (length (oref section value))))))
 
-(defun magit-diff-visit--range-beginning ()
-  (let ((rev (magit-diff--dwim)))
-    (cond ((consp rev)
-           (concat (cdr rev) "^"))
-          ((stringp rev)
-           (car (magit-split-range rev)))
-          (t
-           rev))))
+(defun magit-diff-visit--range-from (spec)
+  (cond ((consp spec)
+         (concat (cdr spec) "^"))
+        ((stringp spec)
+         (car (magit-split-range spec)))
+        (t
+         spec)))
 
-(defun magit-diff-visit--range-end ()
-  (let ((rev (magit-diff--dwim)))
-    (if (symbolp rev)
-        rev
-      (setq rev (if (consp rev)
-                    (cdr rev)
-                  (cdr (magit-split-range rev))))
+(defun magit-diff-visit--range-to (spec)
+  (if (symbolp spec)
+      spec
+    (let ((rev (if (consp spec)
+                   (cdr spec)
+                 (cdr (magit-split-range spec)))))
       (if (and magit-diff-visit-avoid-head-blob
-               (magit-rev-head-p rev))
+               (magit-rev-head-p spec))
           'unstaged
         rev))))
 
-(defun magit-diff-visit--offset (file rev hunk-start line-offset)
+(defun magit-diff-visit--offset (file rev line)
   (let ((offset 0))
     (with-temp-buffer
       (save-excursion
@@ -1570,27 +1558,23 @@ or `HEAD'."
           (magit-git-insert "diff" rev "--" file)))
       (catch 'found
         (while (re-search-forward
-                "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@"
+                "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@.*\n"
                 nil t)
-          (let* ((abeg (string-to-number (match-string 1)))
-                 (alen (string-to-number (match-string 2)))
-                 (bbeg (string-to-number (match-string 3)))
-                 (blen (string-to-number (match-string 4)))
-                 (aend (+ abeg alen))
-                 (bend (+ bbeg blen))
-                 (hend (+ hunk-start line-offset)))
-            (if (<= abeg hunk-start)
-                (if (or (>= aend hend)
-                        (>= bend hend))
-                    (let ((line 0))
-                      (while (<= line alen)
-                        (forward-line 1)
-                        (cl-incf line)
-                        (cond ((looking-at "^\\+") (cl-incf offset))
-                              ((looking-at "^-")   (cl-decf offset)))))
-                  (cl-incf offset (- blen alen)))
+          (let ((from-beg (string-to-number (match-string 1)))
+                (from-len (string-to-number (match-string 2)))
+                (  to-len (string-to-number (match-string 4))))
+            (if (<= from-beg line)
+                (if (< (+ from-beg from-len) line)
+                    (cl-incf offset (- to-len from-len))
+                  (let ((rest (- line from-beg)))
+                    (while (> rest 0)
+                      (pcase (char-after)
+                        (?\s                  (cl-decf rest))
+                        (?-  (cl-decf offset) (cl-decf rest))
+                        (?+  (cl-incf offset)))
+                      (forward-line))))
               (throw 'found nil))))))
-    (+ hunk-start line-offset offset)))
+    (+ line offset)))
 
 ;;;;; Display
 
@@ -2105,16 +2089,28 @@ section or a child thereof."
 
 (defun magit-diff-wash-hunk ()
   (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
-    (let ((heading (match-string 0))
-          (value (cons (match-string 2) (split-string (match-string 1)))))
+    (let* ((heading  (match-string 0))
+           (ranges   (mapcar (lambda (str)
+                               (mapcar (lambda (n) (string-to-number n))
+                                       (split-string (substring str 1) ",")))
+                             (split-string (match-string 1))))
+           (about    (match-string 2))
+           (combined (= (length ranges) 3))
+           (value    (cons about ranges)))
       (magit-delete-line)
-      (magit-insert-section it (hunk value)
+      (magit-insert-section section (hunk value)
         (insert (propertize (concat heading "\n") 'face 'magit-diff-hunk-heading))
         (magit-insert-heading)
         (while (not (or (eobp) (looking-at "^[^-+\s\\]")))
           (forward-line))
-        (oset it end (point))
-        (oset it washer 'magit-diff-paint-hunk)))
+        (oset section end (point))
+        (oset section washer 'magit-diff-paint-hunk)
+        (oset section combined combined)
+        (if combined
+            (oset section from-ranges (butlast ranges))
+          (oset section from-range (car ranges)))
+        (oset section to-range (car (last ranges)))
+        (oset section about about)))
     t))
 
 (defun magit-diff-expansion-threshold (section)
