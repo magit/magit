@@ -220,3 +220,6 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
 - When deleting a remote branch failed, the logic for deciding whether
   to prune the local remote-tracking ref was too loose, leading to
   false positives.  #3650
+
+- Fix handling of passphrase prompts which are output with leading
+  carriage return, such as those produced by Openssh 8.0.  #3843

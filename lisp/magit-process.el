@@ -684,22 +684,19 @@ Magit status buffer."
   "Default filter used by `magit-start-process'."
   (with-current-buffer (process-buffer proc)
     (let ((inhibit-read-only t))
-      (magit-process-yes-or-no-prompt proc string)
-      (magit-process-username-prompt  proc string)
-      (magit-process-password-prompt  proc string)
       (goto-char (process-mark proc))
-      (setq string (propertize string 'magit-section
-                               (process-get proc 'section)))
       ;; Find last ^M in string.  If one was found, ignore
       ;; everything before it and delete the current line.
-      (let ((ret-pos (length string)))
-        (while (and (>= (cl-decf ret-pos) 0)
-                    (/= ?\r (aref string ret-pos))))
-        (if (< ret-pos 0)
-            (insert string)
-          (delete-region (line-beginning-position) (point))
-          (insert (substring string (1+ ret-pos)))))
-      (set-marker (process-mark proc) (point)))))
+      (when-let ((ret-pos (cl-position ?\r string :from-end t)))
+        (cl-callf substring string (1+ ret-pos))
+        (delete-region (line-beginning-position) (point)))
+      (insert (propertize string 'magit-section
+                          (process-get proc 'section)))
+      (set-marker (process-mark proc) (point))
+      ;; Make sure prompts are matched after removing ^M.
+      (magit-process-yes-or-no-prompt proc string)
+      (magit-process-username-prompt  proc string)
+      (magit-process-password-prompt  proc string))))
 
 (defmacro magit-process-kill-on-abort (proc &rest body)
   (declare (indent 1) (debug (form body)))
