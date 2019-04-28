@@ -1327,7 +1327,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-diff-update-hunk-refinement))
 
 ;;;; Visit Commands
-;;;;; Commands
+;;;;; Dwim Variants
 
 (defun magit-diff-visit-file (file &optional other-window)
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
@@ -1344,12 +1344,22 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (interactive (list (magit-file-at-point t t)))
   (magit-diff-visit-file--internal file nil #'switch-to-buffer-other-frame))
 
+;;;;; Worktree Variants
+
 (defun magit-diff-visit-worktree-file (file &optional other-window)
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (magit-diff-visit-file--internal file t
                                    (if other-window
                                        #'switch-to-buffer-other-window
                                      #'pop-to-buffer-same-window)))
+
+(defun magit-diff-visit-worktree-file-other-window (file)
+  (interactive (list (magit-file-at-point t t)))
+  (magit-diff-visit-file--internal file t #'switch-to-buffer-other-window))
+
+(defun magit-diff-visit-worktree-file-other-frame (file)
+  (interactive (list (magit-file-at-point t t)))
+  (magit-diff-visit-file--internal file t #'switch-to-buffer-other-frame))
 
 ;;;;; Internal
 
