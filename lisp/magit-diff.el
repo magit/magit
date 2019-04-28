@@ -1330,24 +1330,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 ;;;;; Commands
 
 (defun magit-diff-visit-file (file &optional other-window)
-  "From a diff, visit the corresponding file at the appropriate position.
-
-If point is on a removed line, then visit the blob for the first
-parent of the commit which removed that line, i.e. the last
-commit where that line still existed.  Otherwise visit the blob
-for the commit whose changes are being shown.
-
-If point is on a added or context line, then visit the blob that
-adds that line, or if the diff shows changes in multiple commits,
-then the last of those commits.  If the diff shows unstaged or
-staged changes, then visit the worktree file.
-
-When the file or blob to be displayed is already being displayed
-in another window of the same frame, then just select that window
-and adjust point.  Otherwise, or with a prefix argument, display
-the buffer in another window.  The meaning of the prefix argument
-can be inverted or further modified using the option
-`magit-display-file-buffer-function'."
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
@@ -1356,17 +1338,6 @@ can be inverted or further modified using the option
       (magit-diff-visit--setup buf pos))))
 
 (defun magit-diff-visit-file-other-window (file)
-  "From a diff, visit the corresponding file at the appropriate position.
-The file is shown in another window.
-
-If the diff shows changes in the worktree, the index, or `HEAD',
-then visit the actual file.  Otherwise, when the diff is about an
-older commit or a range, then visit the appropriate blob.
-
-If point is on a removed line, then visit the blob for the first
-parent of the commit which removed that line, i.e. the last
-commit where that line still existed.  Otherwise visit the blob
-for the commit whose changes are being shown."
   (interactive (list (magit-file-at-point t t)))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file t)
@@ -1375,20 +1346,6 @@ for the commit whose changes are being shown."
       (magit-diff-visit--setup buf pos))))
 
 (defun magit-diff-visit-file-worktree (file &optional other-window)
-  "From a diff, visit the corresponding file at the appropriate position.
-
-When the file is already being displayed in another window of the
-same frame, then just select that window and adjust point.  With
-a prefix argument also display in another window.
-
-The actual file in the worktree is visited. The positions in the
-hunk headers get less useful the \"older\" the changes are, and
-as a result, jumping to the appropriate position gets less
-reliable.
-
-Also see `magit-diff-visit-file' which visits the respective
-blob, unless the diff shows changes in the worktree, the index,
-or `HEAD'."
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)

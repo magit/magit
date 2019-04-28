@@ -2961,67 +2961,7 @@ without having to using one of the diff transient.
 
 *** Diff Buffer
 
-These commands are available in diff buffers.
-
-- Key: RET, magit-diff-visit-file
-
-  From a diff, visit the corresponding file at the appropriate position.
-
-  If point is on a removed line, then visit the blob for the first
-  parent of the commit which removed that line, i.e. the last
-  commit where that line still existed.  Otherwise visit the blob
-  for the commit whose changes are being shown.
-
-  If point is on a added or context line, then visit the blob that
-  adds that line, or if the diff shows changes in multiple commits,
-  then the last of those commits.  If the diff shows unstaged or
-  staged changes, then visit the worktree file.
-
-  Interactively, when the file or blob to be displayed is already
-  being displayed in another window of the same frame, then just
-  select that window and adjust point.  Otherwise, or with a prefix
-  argument, display the buffer in another window.  The meaning of
-  the prefix argument can be inverted or further modified using the
-  option ~magit-display-file-buffer-function~.
-
-  Non-interactively the optional OTHER-WINDOW argument is taken
-  literally.  DISPLAY-FN can be used to specify the display
-  function explicitly, in which case OTHER-WINDOW is ignored.
-
-  The optional FORCE-WORKTREE means to force visiting the worktree
-  version of the file.  To do this interactively use the command
-  ~magit-diff-visit-file-worktree~ instead.
-
-- User Option: magit-diff-visit-previous-blob
-
-  This option controls whether ~magit-diff-visit-file~ may visit the
-  previous blob.  When this is ~t~ and point is on a removed line in a
-  diff for a committed change, then ~magit-diff-visit-file~ visits the
-  blob from the last revision which still had that line.
-
-  Currently this is only supported for committed changes, for staged
-  and unstaged changes ~magit-diff-visit-file~ always visits the file in
-  the working tree.
-
-- Key: C-<return>, magit-diff-visit-file-worktree
-
-  From a diff, visit the corresponding file at the appropriate position.
-
-  When the file is already being displayed in another window of the
-  same frame, then just select that window and adjust point.  With
-  a prefix argument also display in another window.
-
-  The actual file in the worktree is visited. The positions in the
-  hunk headers get less useful the "older" the changes are, and as a
-  result, jumping to the appropriate position gets less reliable.
-
-  Also see ~magit-diff-visit-file~, which visits the respective blob,
-  unless the diff shows changes in the worktree, the index, or ~HEAD~.
-
-- Command: magit-diff-visit-file-other-window
-
-  From a diff, visit the corresponding file at the appropriate
-  position in another window.
+These are some of the commands that are available in diff buffers.
 
 - Key: C-c C-t, magit-diff-trace-definition
 
