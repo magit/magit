@@ -1334,7 +1334,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file)))
-      (magit-display-file-buffer buf other-window)
+      (if (or other-window (get-buffer-window buf))
+          (pop-to-buffer buf)
+        (switch-to-buffer buf))
       (magit-diff-visit--setup buf pos))))
 
 (defun magit-diff-visit-file-other-window (file)
@@ -1350,7 +1352,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file t)))
-      (magit-display-file-buffer buf other-window)
+      (if (or other-window (get-buffer-window buf))
+          (pop-to-buffer buf)
+        (switch-to-buffer buf))
       (magit-diff-visit--setup buf pos))))
 
 ;;;;; Internal
@@ -1512,41 +1516,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                       (forward-line))))
               (throw 'found nil))))))
     (+ line offset)))
-
-;;;;; Display
-
-(defvar magit-display-file-buffer-function
-  'magit-display-file-buffer-traditional
-  "The function used by `magit-diff-visit-file' to display blob buffers.
-
-Other commands such as `magit-find-file' do not use this
-function.  Instead they use high-level functions to select the
-window to be used to display the buffer.  This variable and the
-related functions are an experimental feature and should be
-treated as such.")
-
-(defun magit-display-file-buffer (buffer other-window)
-  (funcall magit-display-file-buffer-function buffer other-window))
-
-(defun magit-display-file-buffer-traditional (buffer other-window)
-  "Display BUFFER in the current window.
-If OTHER-WINDOW is non-nil, then display it in another window.
-Option `magit-display-file-buffer-function' controls whether
-`magit-diff-visit-file' and `magit-diff-visit-file-worktree'
-use this function."
-  (if (or other-window (get-buffer-window buffer))
-      (pop-to-buffer buffer)
-    (switch-to-buffer buffer)))
-
-(defun magit-display-file-buffer-other-window (buffer this-window)
-  "Display BUFFER in another window.
-If OTHER-WINDOW is non-nil, then display it in current window.
-Option `magit-display-file-buffer-function' controls whether
-`magit-diff-visit-file' and `magit-diff-visit-file-worktree'
-use this function."
-  (if this-window
-      (switch-to-buffer buffer)
-    (pop-to-buffer buffer)))
 
 ;;;; Scroll Commands
 
