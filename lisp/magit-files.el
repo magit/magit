@@ -56,6 +56,14 @@ existing one."
   (interactive (magit-find-file-read-args "Find file in other window"))
   (switch-to-buffer-other-window (magit-find-file-noselect rev file)))
 
+;;;###autoload
+(defun magit-find-file-other-frame (rev file)
+  "View FILE from REV, in another window.
+Like `magit-find-file', but create a new frame or reuse an
+existing one."
+  (interactive (magit-find-file-read-args "Find file in other frame"))
+  (switch-to-buffer-other-frame (magit-find-file-noselect rev file)))
+
 (defun magit-find-file-read-args (prompt)
   (let  ((rev (magit-read-branch-or-commit "Find file from revision")))
     (list rev (magit-read-file-from-rev rev prompt))))
