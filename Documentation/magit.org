@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-627-gba7b09cca+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-628-gabc75923d+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-627-gba7b09cca+1).
+This manual is for Magit version 2.90.1 (v2.90.1-628-gabc75923d+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -2419,8 +2419,8 @@ Like other transient prefix commands, ~magit-log~ also features several
 infix arguments that can be changed before invoking one of the suffix
 commands.  However, in the case of the log transient, these arguments
 may be taken from those currently in use in the current repository's
-log buffer, depending on the value of ~magit-use-sticky-arguments~ (see
-[[*Transient Commands]]).
+log buffer, depending on the value of ~magit-prefix-use-buffer-arguments~
+(see [[*Transient Arguments and Buffer Variables]]).
 
 For information about the various arguments, see [[man:git-log]]
 The switch ~++order=VALUE~ is converted to one of ~--author-date-order~,
@@ -2800,8 +2800,8 @@ Like other transient prefix commands, ~magit-diff~ also features several
 infix arguments that can be changed before invoking one of the suffix
 commands.  However, in the case of the diff transient, these arguments may
 be taken from those currently in use in the current repository's diff
-buffer, depending on the value of ~magit-use-sticky-arguments~ (see
-[[*Transient Commands]]).
+buffer, depending on the value of ~magit-prefix-use-buffer-arguments~
+(see [[*Transient Arguments and Buffer Variables]]).
 
 Also see [[man:git-diff]]
 
@@ -3202,9 +3202,8 @@ restriction as that log buffer (also see the command
   if ~--follow~ is present in the log arguments.
 
 If the revision buffer is not displayed from a log buffer, the file
-restriction is determined by the file restriction in the repository's
-diff buffer, if it exists, and the value of the option
-~magit-use-sticky-arguments~.
+restriction is determined as usual (see [[*Transient Arguments and
+Buffer Variables]]).
 
 ** Ediffing
 
