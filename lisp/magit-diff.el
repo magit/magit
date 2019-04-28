@@ -1340,6 +1340,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (interactive (list (magit-file-at-point t t)))
   (magit-diff-visit-file--internal file nil #'switch-to-buffer-other-window))
 
+(defun magit-diff-visit-file-other-frame (file)
+  (interactive (list (magit-file-at-point t t)))
+  (magit-diff-visit-file--internal file nil #'switch-to-buffer-other-frame))
+
 (defun magit-diff-visit-worktree-file (file &optional other-window)
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (magit-diff-visit-file--internal file t
