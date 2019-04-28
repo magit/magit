@@ -1467,7 +1467,8 @@ the Magit-Status buffer for DIRECTORY."
   (unless file
     (setq file (magit-file-at-point t t)))
   (let* ((hunk (magit-diff-visit--hunk))
-         (goto-from (magit-diff-visit--goto-from-p hunk goto-worktree))
+         (goto-from (and hunk
+                         (magit-diff-visit--goto-from-p hunk goto-worktree)))
          (line (and hunk (magit-diff-hunk-line   hunk goto-from)))
          (col  (and hunk (magit-diff-hunk-column hunk goto-from)))
          (spec (magit-diff--dwim))
