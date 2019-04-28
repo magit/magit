@@ -1360,7 +1360,7 @@ version of the file.  To do this interactively use the command
 `HEAD' commit this command used to always visit the worktree file.
 Now the worktree variant has to be used.  If you prefer the old
 behavior, then customize option `magit-diff-visit-never-head'."
-  (interactive (list (magit-file-at-point t t)))
+  (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (pcase-let ((`(,buf ,pos)
