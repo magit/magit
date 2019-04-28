@@ -1334,9 +1334,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file)))
-      (if (or other-window (get-buffer-window buf))
-          (pop-to-buffer buf)
-        (switch-to-buffer buf))
+      (if other-window
+          (switch-to-buffer-other-window buf)
+        (pop-to-buffer-same-window buf))
       (magit-diff-visit--setup buf pos))))
 
 (defun magit-diff-visit-file-other-window (file)
@@ -1352,9 +1352,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file t)))
-      (if (or other-window (get-buffer-window buf))
-          (pop-to-buffer buf)
-        (switch-to-buffer buf))
+      (if other-window
+          (switch-to-buffer-other-window buf)
+        (pop-to-buffer-same-window buf))
       (magit-diff-visit--setup buf pos))))
 
 ;;;;; Internal
