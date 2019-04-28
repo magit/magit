@@ -1331,33 +1331,36 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-diff-visit-file (file &optional other-window)
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
-  (if (magit-file-accessible-directory-p file)
-      (magit-diff-visit-directory file other-window)
-    (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file)))
-      (if other-window
-          (switch-to-buffer-other-window buf)
-        (pop-to-buffer-same-window buf))
-      (magit-diff-visit--setup buf pos))))
+  (magit-diff-visit-file--internal file nil
+                                   (if other-window
+                                       #'switch-to-buffer-other-window
+                                     #'pop-to-buffer-same-window)))
 
 (defun magit-diff-visit-file-other-window (file)
   (interactive (list (magit-file-at-point t t)))
-  (if (magit-file-accessible-directory-p file)
-      (magit-diff-visit-directory file t)
-    (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file)))
-      (switch-to-buffer-other-window buf)
-      (magit-diff-visit--setup buf pos))))
+  (magit-diff-visit-file--internal file nil #'switch-to-buffer-other-window))
 
 (defun magit-diff-visit-worktree-file (file &optional other-window)
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
-  (if (magit-file-accessible-directory-p file)
-      (magit-diff-visit-directory file other-window)
-    (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file t)))
-      (if other-window
-          (switch-to-buffer-other-window buf)
-        (pop-to-buffer-same-window buf))
-      (magit-diff-visit--setup buf pos))))
+  (magit-diff-visit-file--internal file t
+                                   (if other-window
+                                       #'switch-to-buffer-other-window
+                                     #'pop-to-buffer-same-window)))
 
 ;;;;; Internal
+
+(defun magit-diff-visit-file--internal (file force-worktree fn)
+  "From a diff visit the appropriate version of FILE.
+If FORCE-WORKTREE is non-nil, the visit the worktree version of
+the file, even if the diff is about a committed change.  USE FN
+to display the buffer in some window."
+  (if (magit-file-accessible-directory-p file)
+      (magit-diff-visit-directory file force-worktree)
+    (pcase-let ((`(,buf ,pos)
+                 (magit-diff-visit-file--noselect file force-worktree)))
+      (funcall fn buf)
+      (magit-diff-visit--setup buf pos)
+      buf)))
 
 (defun magit-diff-visit-directory (directory &optional other-window)
   (if (equal (magit-toplevel directory)
