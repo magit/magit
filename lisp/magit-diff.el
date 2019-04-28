@@ -1330,6 +1330,36 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 ;;;;; Dwim Variants
 
 (defun magit-diff-visit-file (file &optional other-window)
+  "From a diff visit the appropriate version of FILE.
+
+Display the buffer in the selected window.  With a prefix
+argument OTHER-WINDOW display the buffer in another window
+instead.
+
+Visit the worktree version of the appropriate file.  The location
+of point inside the diff determines which file is being visited.
+The visited version depends on what changes the diff is about.
+
+1. If the diff shows uncommitted changes (i.e. stage or unstaged
+   changes), then visit the file in the working tree (i.e. the
+   same \"real\" file that `find-file' would visit.  In all other
+   cases visit a \"blob\" (i.e. the version of a file as stored
+   in some commit).
+
+2. If point is on a removed line, then visit the blob for the
+   first parent of the commit that removed that line, i.e. the
+   last commit where that line still exists.
+
+3. If point is on an added or context line, then visit the blob
+   that adds that line, or if the diff shows from more than a
+   single commit, then visit the blob from the last of these
+   commits.
+
+In the file-visiting buffer also go to the line that corresponds
+to the line that point is on in the diff.
+
+Note that this command only works if point is inside a diff.  In
+other cases `magit-find-file' (which see) had to be used."
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (magit-diff-visit-file--internal file nil
                                    (if other-window
@@ -1337,16 +1367,38 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                      #'pop-to-buffer-same-window)))
 
 (defun magit-diff-visit-file-other-window (file)
+  "From a diff visit the appropriate version of FILE in another window.
+Like `magit-diff-visit-file' but use
+`switch-to-buffer-other-window'."
   (interactive (list (magit-file-at-point t t)))
   (magit-diff-visit-file--internal file nil #'switch-to-buffer-other-window))
 
 (defun magit-diff-visit-file-other-frame (file)
+  "From a diff visit the appropriate version of FILE in another frame.
+Like `magit-diff-visit-file' but use
+`switch-to-buffer-other-frame'."
   (interactive (list (magit-file-at-point t t)))
   (magit-diff-visit-file--internal file nil #'switch-to-buffer-other-frame))
 
 ;;;;; Worktree Variants
 
 (defun magit-diff-visit-worktree-file (file &optional other-window)
+  "From a diff visit the worktree version of FILE.
+
+Display the buffer in the selected window.  With a prefix
+argument OTHER-WINDOW display the buffer in another window
+instead.
+
+Visit the worktree version of the appropriate file.  The location
+of point inside the diff determines which file is being visited.
+
+Unlike `magit-diff-visit-file' always visits the \"real\" file in
+the working tree, i.e the \"current version\" of the file.
+
+In the file-visiting buffer also go to the line that corresponds
+to the line that point is on in the diff.  Lines that were added
+or removed in the working tree, the index and other commits in
+between are automatically accounted for."
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (magit-diff-visit-file--internal file t
                                    (if other-window
@@ -1354,10 +1406,16 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                      #'pop-to-buffer-same-window)))
 
 (defun magit-diff-visit-worktree-file-other-window (file)
+  "From a diff visit the worktree version of FILE in another window.
+Like `magit-diff-visit-worktree-file' but use
+`switch-to-buffer-other-window'."
   (interactive (list (magit-file-at-point t t)))
   (magit-diff-visit-file--internal file t #'switch-to-buffer-other-window))
 
 (defun magit-diff-visit-worktree-file-other-frame (file)
+  "From a diff visit the worktree version of FILE in another frame.
+Like `magit-diff-visit-worktree-file' but use
+`switch-to-buffer-other-frame'."
   (interactive (list (magit-file-at-point t t)))
   (magit-diff-visit-file--internal file t #'switch-to-buffer-other-frame))
 
@@ -1377,6 +1435,12 @@ to display the buffer in some window."
       buf)))
 
 (defun magit-diff-visit-directory (directory &optional other-window)
+  "Visit DIRECTORY in some window.
+Display the buffer in the selected window unless OTHER-WINDOW is
+non-nil.  If DIRECTORY is the top-level directory of the current
+repository, then visit the containing directory using Dired and
+in the Dired buffer put point on DIRECTORY.  Otherwise display
+the Magit-Status buffer for DIRECTORY."
   (if (equal (magit-toplevel directory)
              (magit-toplevel))
       (dired-jump other-window (concat directory "/."))
@@ -1398,8 +1462,6 @@ to display the buffer in some window."
           (smerge-start-session))
         (run-hooks 'magit-diff-visit-file-hook))
     (error "File buffer is not visible")))
-
-;;;;; Position
 
 (defun magit-diff-visit-file--noselect (&optional file goto-worktree)
   (unless file
