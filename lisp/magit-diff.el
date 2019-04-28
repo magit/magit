@@ -1359,7 +1359,7 @@ to display the buffer in some window."
     (pcase-let ((`(,buf ,pos)
                  (magit-diff-visit-file--noselect file force-worktree)))
       (funcall fn buf)
-      (magit-diff-visit--setup buf pos)
+      (magit-diff-visit-file--setup buf pos)
       buf)))
 
 (defun magit-diff-visit-directory (directory &optional other-window)
@@ -1372,7 +1372,7 @@ to display the buffer in some window."
              '(display-buffer-same-window))))
       (magit-status-setup-buffer directory))))
 
-(defun magit-diff-visit--setup (buf pos)
+(defun magit-diff-visit-file--setup (buf pos)
   (if-let ((win (get-buffer-window buf 'visible)))
       (with-selected-window win
         (when pos
