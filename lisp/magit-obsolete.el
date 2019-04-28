@@ -31,6 +31,9 @@
 
 ;;; Obsolete since v2.91.0
 
+(define-obsolete-function-alias 'magit-diff-visit-file-worktree
+  'magit-diff-visit-worktree-file "Magit 2.91.0")
+
 (define-obsolete-function-alias 'magit-status-internal
   'magit-status-setup-buffer "Magit 2.91.0")
 

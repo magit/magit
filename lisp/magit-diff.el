@@ -1345,7 +1345,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (switch-to-buffer-other-window buf)
       (magit-diff-visit--setup buf pos))))
 
-(defun magit-diff-visit-file-worktree (file &optional other-window)
+(defun magit-diff-visit-worktree-file (file &optional other-window)
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
