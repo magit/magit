@@ -46,7 +46,7 @@
 Switch to a buffer visiting blob REV:FILE,
 creating one if none already exists."
   (interactive (magit-find-file-read-args "Find file"))
-  (switch-to-buffer (magit-find-file-noselect rev file)))
+  (pop-to-buffer-same-window (magit-find-file-noselect rev file)))
 
 ;;;###autoload
 (defun magit-find-file-other-window (rev file)
