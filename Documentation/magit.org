@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-585-g157aaca67+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-614-g9c8067b3a+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-585-g157aaca67+1).
+This manual is for Magit version 2.90.1 (v2.90.1-614-g9c8067b3a+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -2959,94 +2959,42 @@ without having to using one of the diff transient.
 
   This command moves forward in current buffer's history.
 
-*** Diff Buffer
+*** Commands Available in Diffs
 
-These commands are available in diff buffers.
+Some commands are only available if point is inside a diff.
 
-- Key: RET, magit-diff-visit-file
-
-  From a diff, visit the corresponding file at the appropriate position.
-
-  If point is on a removed line, then visit the blob for the first
-  parent of the commit which removed that line, i.e. the last
-  commit where that line still existed.  Otherwise visit the blob
-  for the commit whose changes are being shown.
-
-  If point is on a added or context line, then visit the blob that
-  adds that line, or if the diff shows changes in multiple commits,
-  then the last of those commits.  If the diff shows unstaged or
-  staged changes, then visit the worktree file.
-
-  Interactively, when the file or blob to be displayed is already
-  being displayed in another window of the same frame, then just
-  select that window and adjust point.  Otherwise, or with a prefix
-  argument, display the buffer in another window.  The meaning of
-  the prefix argument can be inverted or further modified using the
-  option ~magit-display-file-buffer-function~.
-
-  Non-interactively the optional OTHER-WINDOW argument is taken
-  literally.  DISPLAY-FN can be used to specify the display
-  function explicitly, in which case OTHER-WINDOW is ignored.
-
-  The optional FORCE-WORKTREE means to force visiting the worktree
-  version of the file.  To do this interactively use the command
-  ~magit-diff-visit-file-worktree~ instead.
-
-- User Option: magit-diff-visit-previous-blob
-
-  This option controls whether ~magit-diff-visit-file~ may visit the
-  previous blob.  When this is ~t~ and point is on a removed line in a
-  diff for a committed change, then ~magit-diff-visit-file~ visits the
-  blob from the last revision which still had that line.
-
-  Currently this is only supported for committed changes, for staged
-  and unstaged changes ~magit-diff-visit-file~ always visits the file in
-  the working tree.
-
-- Key: C-<return>, magit-diff-visit-file-worktree
-
-  From a diff, visit the corresponding file at the appropriate position.
-
-  When the file is already being displayed in another window of the
-  same frame, then just select that window and adjust point.  With
-  a prefix argument also display in another window.
-
-  The actual file in the worktree is visited. The positions in the
-  hunk headers get less useful the "older" the changes are, and as a
-  result, jumping to the appropriate position gets less reliable.
-
-  Also see ~magit-diff-visit-file~, which visits the respective blob,
-  unless the diff shows changes in the worktree, the index, or ~HEAD~.
-
-- Command: magit-diff-visit-file-other-window
-
-  From a diff, visit the corresponding file at the appropriate
-  position in another window.
+~magit-diff-visit-file~ and related commands visit the appropriate
+version of the file that the diff at point is about.  Likewise
+~magit-diff-visit-worktree-file~ and related commands visit the worktree
+version of the file that the diff at point is about.  See [[*Visiting
+Files and Blobs from a Diff]] for more information and the key bindings.
 
 - Key: C-c C-t, magit-diff-trace-definition
 
-  From a diff, show log for the definition at point.
+  This command shows a log for the definition at point.
 
 - User Option: magit-log-trace-definition-function
 
-  The function used by ~magit-log-trace-definition~ to determine the
-  function at point.  For major-modes that have special needs, you
-  could set that using the mode's hook.
+  The function specfied by this option is used by
+  ~magit-log-trace-definition~ to determine the function at point.  For
+  major-modes that have special needs, you could set the local value
+  using the mode's hook.
 
 - Key: C-c C-e, magit-diff-edit-hunk-commit
 
-  From a hunk, edit the respective commit and visit the file.
+  From a hunk, this command edits the respective commit and visits
+  the file.
 
-  First visit the file being modified by the hunk at the correct
-  location using ~magit-diff-visit-file~.  This actually visits a
-  blob.  When point is on a diff header, not within an individual
-  hunk, then this visits the blob the first hunk is about.
+  First it visits the file being modified by the hunk at the correct
+  location using ~magit-diff-visit-file~.  This actually visits a blob.
+  When point is on a diff header, not within an individual hunk, then
+  this visits the blob the first hunk is about.
 
-  Then invoke ~magit-edit-line-commit~, which uses an interactive
+  Then it invokes ~magit-edit-line-commit~, which uses an interactive
   rebase to make the commit editable, or if that is not possible
-  because the commit is not reachable from ~HEAD~ by checking out
-  that commit directly.  This also causes the actual worktree file
-  to be visited.
+  because the commit is not reachable from ~HEAD~ by checking out that
+  commit directly.  This also causes the actual worktree file to be
+  visited.
 
   Neither the blob nor the file buffer are killed when finishing
   the rebase.  If that is undesirable, then it might be better to
@@ -3054,17 +3002,22 @@ These commands are available in diff buffers.
 
 - Key: j, magit-jump-to-diffstat-or-diff
 
-  Jump to the diffstat or diff.  When point is on a file inside the
-  diffstat section, then jump to the respective diff section.
-  Otherwise, jump to the diffstat section or a child thereof.
+  This command jumps to the diffstat or diff.  When point is on a file
+  inside the diffstat section, then jump to the respective diff
+  section.  Otherwise, jump to the diffstat section or a child
+  thereof.
+
+The next two commands are not specific to Magit-Diff mdoe (or and
+Magit buffer for that matter), but it might be worth pointing out
+that they are available here too.
 
 - Key: SPC, scroll-up
 
-  Scroll text upward.
+  This command scrolls text upward.
 
 - Key: DEL, scroll-down
 
-  Scroll text downward.
+  This command scrolls text downward.
 
 *** Diff Options
 
@@ -3653,17 +3606,109 @@ bisect session.
   This option controls whether a graph is displayed for the log of
   commits that still have to be bisected.
 
-** Visiting Blobs
+** Visiting Files and Blobs
 
-- Key: M-x magit-find-file, magit-find-file
+Magit provides several commands that visit a file or blob (the version
+of a file that is stored in a certain commit).  Actually it provides
+several *groups* of such commands and the several *variants* within each
+group.
 
-  View FILE from REV.  Switch to a buffer visiting blob REV:FILE,
-  creating one if none already exists.
+*** General-Purpose Visit Commands
 
-- Key: M-x magit-find-file-other-window, magit-find-file-other-window
+These commands can be used anywhere to open any blob.  Currently no
+keys are bound to these commands by default, but that is likely to
+change.
 
-  View FILE from REV, in another window.  Like ~magit-find-file~, but
-  create a new window or reuse an existing one.
+- Command: magit-find-file
+
+  This command reads a filename and revision from the user and visits
+  the respective blob in a buffer.  The buffer is displayed in the
+  selected window.
+
+- Command: magit-find-file-other-window
+
+  This command reads a filename and revision from the user and visits
+  the respective blob in a buffer.  The buffer is displayed in another
+  window.
+
+- Command: magit-find-file-other-window
+
+  This command reads a filename and revision from the user and visits
+  the respective blob in a buffer.  The buffer is displayed in another
+  frame.
+
+*** Visiting Files and Blobs from a Diff
+
+These commands can only be used when point is inside a diff.
+
+- Key: RET, magit-diff-visit-file
+
+  This command visits the appropriate version of the file that the
+  diff at point is about.
+
+  This commands visits the worktree version of the appropriate file.
+  The location of point inside the diff determines which file is being
+  visited.  The visited version depends on what changes the diff is
+  about.
+
+  1. If the diff shows uncommitted changes (i.e. staged or unstaged
+     changes), then visit the file in the working tree (i.e. the
+     same "real" file that ~find-file~ would visit.  In all other
+     cases visit a "blob" (i.e. the version of a file as stored
+     in some commit).
+
+  2. If point is on a removed line, then visit the blob for the
+     first parent of the commit that removed that line, i.e. the
+     last commit where that line still exists.
+
+  3. If point is on an added or context line, then visit the blob
+     that adds that line, or if the diff shows from more than a
+     single commit, then visit the blob from the last of these
+     commits.
+
+  In the file-visiting buffer this command goes to the line that
+  corresponds to the line that point is on in the diff.
+
+  The buffer is displayed in the selected window.  With a prefix
+  argument the buffer is displayed in another window instead.
+
+- User Option: magit-diff-visit-previous-blob
+
+  This option controls whether ~magit-diff-visit-file~ may visit the
+  previous blob.  When this is ~t~ (the default) and point is on a
+  removed line in a diff for a committed change, then
+  ~magit-diff-visit-file~ visits the blob from the last revision which
+  still had that line.
+
+  Currently this is only supported for committed changes, for staged
+  and unstaged changes ~magit-diff-visit-file~ always visits the file in
+  the working tree.
+
+- Key: C-<return>, magit-diff-visit-file-worktree
+
+  This command visits the worktree version of the appropriate file.
+  The location of point inside the diff determines which file is being
+  visited.  Unlike ~magit-diff-visit-file~ it always visits the "real"
+  file in the working tree, i.e the "current version" of the file.
+
+  In the file-visiting buffer this command goes to the line that
+  corresponds to the line that point is on in the diff.  Lines that
+  were added or removed in the working tree, the index and other
+  commits in between are automatically accounted for.
+
+  The buffer is displayed in the selected window.  With a prefix
+  argument the buffer is displayed in another window instead.
+
+Variants of the above two commands exist that instead visit the file
+in another window or in another frame.  If you prefer such behavior,
+then you may want to change the above key bindings, but note that the
+above commands also use another window when invoked with a prefix
+argument.
+
+- Command: magit-diff-visit-file-other-window
+- Command: magit-diff-visit-file-other-frame
+- Command: magit-diff-visit-worktree-file-other-window
+- Command: magit-diff-visit-worktree-file-other-frame
 
 ** Blaming
 

@@ -315,7 +315,7 @@ points at it) otherwise."
 (put 'magit-edit-line-commit 'disabled t)
 
 ;;;###autoload
-(defun magit-diff-edit-hunk-commit ()
+(defun magit-diff-edit-hunk-commit (file)
   "From a hunk, edit the respective commit and visit the file.
 
 First visit the file being modified by the hunk at the correct
@@ -332,13 +332,11 @@ to be visited.
 Neither the blob nor the file buffer are killed when finishing
 the rebase.  If that is undesirable, then it might be better to
 use `magit-rebase-edit-command' instead of this command."
-  (interactive)
-  (pcase-let ((`(,buf ,pos)
-               (let ((magit-diff-visit-previous-blob nil))
-                 (magit-diff-visit-file--noselect))))
-    (switch-to-buffer buf)
-    (magit-diff-visit--setup buf pos)
-    (magit-edit-line-commit)))
+  (interactive (list (magit-file-at-point t t)))
+  (let ((magit-diff-visit-previous-blob nil))
+    (with-current-buffer
+        (magit-diff-visit-file--internal file nil #'pop-to-buffer-same-window)
+      (magit-edit-line-commit))))
 
 (put 'magit-diff-edit-hunk-commit 'disabled t)
 
