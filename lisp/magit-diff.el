@@ -1329,8 +1329,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 ;;;; Visit Commands
 ;;;;; Commands
 
-(defun magit-diff-visit-file
-    (file &optional other-window force-worktree display-fn)
+(defun magit-diff-visit-file (file &optional other-window)
   "From a diff, visit the corresponding file at the appropriate position.
 
 If point is on a removed line, then visit the blob for the first
@@ -1343,36 +1342,17 @@ adds that line, or if the diff shows changes in multiple commits,
 then the last of those commits.  If the diff shows unstaged or
 staged changes, then visit the worktree file.
 
-Interactively, when the file or blob to be displayed is already
-being displayed in another window of the same frame, then just
-select that window and adjust point.  Otherwise, or with a prefix
-argument, display the buffer in another window.  The meaning of
-the prefix argument can be inverted or further modified using the
-option `magit-display-file-buffer-function'.
-
-Non-interactively the optional OTHER-WINDOW argument is taken
-literally.  DISPLAY-FN can be used to specify the display
-function explicitly, in which case OTHER-WINDOW is ignored.
-
-The optional FORCE-WORKTREE means to force visiting the worktree
-version of the file.  To do this interactively use the command
-`magit-diff-visit-file-worktree' instead.  Also note that for the
-`HEAD' commit this command used to always visit the worktree file.
-Now the worktree variant has to be used.  If you prefer the old
-behavior, then customize option `magit-diff-visit-never-head'."
+When the file or blob to be displayed is already being displayed
+in another window of the same frame, then just select that window
+and adjust point.  Otherwise, or with a prefix argument, display
+the buffer in another window.  The meaning of the prefix argument
+can be inverted or further modified using the option
+`magit-display-file-buffer-function'."
   (interactive (list (magit-file-at-point t t) current-prefix-arg))
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
-    (pcase-let ((`(,buf ,pos)
-                 (magit-diff-visit-file--noselect file force-worktree)))
-      (cond ((called-interactively-p 'any)
-             (magit-display-file-buffer buf other-window))
-            (display-fn
-             (funcall display-fn buf))
-            ((or other-window (get-buffer-window buf))
-             (switch-to-buffer-other-window buf))
-            (t
-             (pop-to-buffer buf)))
+    (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file)))
+      (magit-display-file-buffer buf other-window)
       (magit-diff-visit--setup buf pos))))
 
 (defun magit-diff-visit-file-other-window (file)
