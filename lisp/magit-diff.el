@@ -1366,7 +1366,7 @@ behavior, then customize option `magit-diff-visit-never-head'."
     (pcase-let ((`(,buf ,pos)
                  (magit-diff-visit-file--noselect file force-worktree)))
       (cond ((called-interactively-p 'any)
-             (magit-display-file-buffer buf))
+             (magit-display-file-buffer buf other-window))
             (display-fn
              (funcall display-fn buf))
             ((or other-window (get-buffer-window buf))
@@ -1413,7 +1413,7 @@ or `HEAD'."
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect file t)))
-      (magit-display-file-buffer buf)
+      (magit-display-file-buffer buf other-window)
       (magit-diff-visit--setup buf pos))))
 
 ;;;;; Internal
@@ -1588,24 +1588,26 @@ window to be used to display the buffer.  This variable and the
 related functions are an experimental feature and should be
 treated as such.")
 
-(defun magit-display-file-buffer (buffer)
-  (funcall magit-display-file-buffer-function buffer))
+(defun magit-display-file-buffer (buffer other-window)
+  (funcall magit-display-file-buffer-function buffer other-window))
 
-(defun magit-display-file-buffer-traditional (buffer)
+(defun magit-display-file-buffer-traditional (buffer other-window)
   "Display BUFFER in the current window.
-With a prefix argument display it in another window.
-Option `magit-display-file-buffer-function' controls
-whether `magit-diff-visit-file' uses this function."
-  (if (or current-prefix-arg (get-buffer-window buffer))
+If OTHER-WINDOW is non-nil, then display it in another window.
+Option `magit-display-file-buffer-function' controls whether
+`magit-diff-visit-file' and `magit-diff-visit-file-worktree'
+use this function."
+  (if (or other-window (get-buffer-window buffer))
       (pop-to-buffer buffer)
     (switch-to-buffer buffer)))
 
-(defun magit-display-file-buffer-other-window (buffer)
+(defun magit-display-file-buffer-other-window (buffer this-window)
   "Display BUFFER in another window.
-With a prefix argument display it in the current window.
-Option `magit-display-file-buffer-function' controls
-whether `magit-diff-visit-file' uses this function."
-  (if current-prefix-arg
+If OTHER-WINDOW is non-nil, then display it in current window.
+Option `magit-display-file-buffer-function' controls whether
+`magit-diff-visit-file' and `magit-diff-visit-file-worktree'
+use this function."
+  (if this-window
       (switch-to-buffer buffer)
     (pop-to-buffer buffer)))
 
