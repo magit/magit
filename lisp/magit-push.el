@@ -86,10 +86,11 @@ argument the push-remote can be changed before pushed to it."
   :if 'magit-get-current-branch
   :description 'magit-push--pushbranch-description
   (interactive (list (magit-push-arguments)))
-  (pcase-let ((`(,_ ,remote)
+  (pcase-let ((`(,branch ,remote)
                (magit--select-push-remote "push there")))
     (run-hooks 'magit-credential-hook)
-    (magit-run-git-async "push" "-v" args remote "HEAD")))
+    (magit-run-git-async "push" "-v" args remote
+                         (concat "refs/heads/" branch)))) ; see #3847
 
 (defun magit-push--pushbranch-description ()
   (let* ((branch (magit-get-current-branch))
