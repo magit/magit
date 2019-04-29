@@ -195,6 +195,35 @@ non-nil, then the password is read from the user instead."
   :group 'magit-process
   :type '(repeat (regexp)))
 
+(defcustom magit-process-prompt-functions nil
+  "List of functions used to forward arbitrary questions to the user.
+
+Magit has dedicated support for forwarding username and password
+prompts and Yes-or-No questions asked by Git and its subprocesses
+to the user.  This can be customized using other options in the
+`magit-process' customization group.
+
+If you encounter a new question that isn't handled by default,
+then those options should be used instead of this hook.
+
+However subprocesses may also ask questions that differ too much
+from what the code related to the above options assume, and this
+hook allows users to deal with such questions explicitly.
+
+Each function is called with the process and the output string
+as arguments until one of the functions returns non-nil.  The
+function is responsible for asking the user the appropriate
+question using e.g. `read-char-choice' and then forwarding the
+answer to the process using `process-send-string'.
+
+While functions such as `magit-process-yes-or-no-prompt' may not
+be sufficient to handle some prompt, it may still be of benefit
+to look at the implementations to gain some insights on how to
+implement such functions."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-process
+  :type 'hook)
+
 (defcustom magit-process-ensure-unix-line-ending t
   "Whether Magit should ensure a unix coding system when talking to Git."
   :package-version '(magit . "2.6.0")
@@ -696,7 +725,9 @@ Magit status buffer."
       ;; Make sure prompts are matched after removing ^M.
       (magit-process-yes-or-no-prompt proc string)
       (magit-process-username-prompt  proc string)
-      (magit-process-password-prompt  proc string))))
+      (magit-process-password-prompt  proc string)
+      (run-hook-with-args-until-success 'magit-process-prompt-functions
+                                        proc string))))
 
 (defmacro magit-process-kill-on-abort (proc &rest body)
   (declare (indent 1) (debug (form body)))
