@@ -795,6 +795,7 @@ and `:slant'."
     ("p" "Diff paths"    magit-diff-paths)]
    [("u" "Diff unstaged" magit-diff-unstaged)
     ("s" "Diff staged"   magit-diff-staged)
+    ("m" "Diff upstream" magit-diff-upstream)
     ("w" "Diff worktree" magit-diff-working-tree)]
    [("c" "Show commit"   magit-show-commit)
     ("t" "Show stash"    magit-stash-show)]])
@@ -1070,6 +1071,13 @@ revisions (i.e., use a \"...\" range)."
   (magit-diff-setup-buffer rev-or-range nil args files))
 
 ;;;###autoload
+(defun magit-diff-upstream (&optional args files)
+  "Show difference between a commit and its upstream."
+  (interactive)
+  (let ((rev "HEAD"))
+    (magit-diff-range (format "@{upstream}..%s" rev) args files)))
+
+;;;###autoload
 (defun magit-diff-working-tree (&optional rev args files)
   "Show changes between the current working tree and the `HEAD' commit.
 With a prefix argument show changes between the working tree and
@@ -1096,6 +1104,17 @@ a commit read from the minibuffer."
   "Show changes between the working tree and the index."
   (interactive (magit-diff-arguments))
   (magit-diff-setup-buffer nil nil args files))
+
+;;;###autoload
+(defun magit-diff-upstream (&optional rev args files)
+  "Show changes between the index and the `HEAD' commit.
+With a prefix argument show changes between the index and
+a commit read from the minibuffer."
+  (interactive
+   (cons (and current-prefix-arg
+              (magit-read-branch-or-commit "Diff index and commit"))
+         (magit-diff-arguments)))
+  (magit-diff-setup rev (list "--cached") args files))
 
 ;;;###autoload
 (defun magit-diff-unmerged (&optional args files)
