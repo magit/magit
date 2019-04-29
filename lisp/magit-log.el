@@ -693,11 +693,9 @@ active, restrict the log to the lines that the region touches."
   "Show log for the merge of COMMIT into BRANCH.
 
 More precisely, find merge commit M that brought COMMIT into
-BRANCH, and show the log of the range \"M^1..M\" or if \"--graph\"
-is a member of ARGS, then \"M^1^..M\" to include the merge-base.
-
-If COMMIT is directly on BRANCH, then show approximately twenty
-surrounding commits instead.
+BRANCH, and show the log of the range \"M^1..M\".  If COMMIT is
+directly on BRANCH, then show approximately twenty surrounding
+commits instead.
 
 This command requires git-when-merged, which is available from
 https://github.com/mhagger/git-when-merged."
@@ -719,9 +717,7 @@ https://github.com/mhagger/git-when-merged."
                     commit branch)))
       (setq m (buffer-substring-no-properties (point) (line-end-position))))
     (if (zerop exit)
-        (magit-log-setup-buffer (list (if (member "--graph" args)
-                                          (format "%s^1^..%s" m m)
-                                        (format "%s^1..%s" m m)))
+        (magit-log-setup-buffer (list (format "%s^1..%s" m m))
                                 args files nil commit)
       (setq m (string-trim-left (substring m (string-match " " m))))
       (if (equal m "Commit is directly on this branch.")
