@@ -309,7 +309,7 @@ directory, while reading the FILENAME."
    [("p" "Prev blob"  magit-blob-previous)
     ("n" "Next blob"  magit-blob-next)
     ("g" "Goto blob"  magit-find-file)
-    ]
+    ("w" "Goto file"  magit-blob-visit-file)]
    [(5 "C-c r" "Rename file"   magit-file-rename)
     (5 "C-c d" "Delete file"   magit-file-delete)
     (5 "C-c u" "Untrack file"  magit-file-untrack)
@@ -394,6 +394,16 @@ Currently this only adds the following key bindings.
           (magit-blob-visit it)
         (user-error "You have reached the beginning of time"))
     (user-error "Buffer isn't visiting a file or blob")))
+
+;;;###autoload
+(defun magit-blob-visit-file ()
+  "View the file from the worktree corresponding to the current blob.
+When visiting a blob or the version from the index, then go to
+the same location in the respective file in the working tree."
+  (interactive)
+  (if-let ((file (magit-file-relative-name)))
+      (magit-find-file--internal "{worktree}" file #'pop-to-buffer-same-window)
+    (user-error "Not visiting a blob")))
 
 (defun magit-blob-visit (blob-or-file)
   (if (stringp blob-or-file)
