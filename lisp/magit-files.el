@@ -46,7 +46,7 @@
 Switch to a buffer visiting blob REV:FILE,
 creating one if none already exists."
   (interactive (magit-find-file-read-args "Find file"))
-  (pop-to-buffer-same-window (magit-find-file-noselect rev file)))
+  (magit-find-file--internal rev file #'pop-to-buffer-same-window))
 
 ;;;###autoload
 (defun magit-find-file-other-window (rev file)
@@ -54,7 +54,7 @@ creating one if none already exists."
 Like `magit-find-file', but create a new window or reuse an
 existing one."
   (interactive (magit-find-file-read-args "Find file in other window"))
-  (switch-to-buffer-other-window (magit-find-file-noselect rev file)))
+  (magit-find-file--internal rev file #'switch-to-buffer-other-frame))
 
 ;;;###autoload
 (defun magit-find-file-other-frame (rev file)
@@ -62,11 +62,17 @@ existing one."
 Like `magit-find-file', but create a new frame or reuse an
 existing one."
   (interactive (magit-find-file-read-args "Find file in other frame"))
-  (switch-to-buffer-other-frame (magit-find-file-noselect rev file)))
+  (magit-find-file--internal rev file #'switch-to-buffer-other-frame))
 
 (defun magit-find-file-read-args (prompt)
   (let  ((rev (magit-read-branch-or-commit "Find file from revision")))
     (list rev (magit-read-file-from-rev rev prompt))))
+
+(defun magit-find-file--internal (rev file fn)
+  (let ((buf (magit-find-file-noselect rev file))
+        )
+    (funcall fn buf)
+    buf))
 
 (defun magit-find-file-noselect (rev file)
   "Read FILE from REV into a buffer and return the buffer.
