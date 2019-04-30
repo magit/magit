@@ -1141,17 +1141,24 @@ be committed."
 
 ;;;###autoload
 (defun magit-diff-buffer-file ()
-  "Show diff for the blob or file visited in the current buffer."
+  "Show diff for the blob or file visited in the current buffer.
+
+When the buffer visits a blob, then show the respective commit.
+When the buffer visits a file, then show the differenced between
+`HEAD' and the working tree.  In both cases limit the diff to
+the file or blob."
   (interactive)
   (require 'magit)
   (if-let ((file (magit-file-relative-name)))
-      (magit-diff-setup-buffer (or magit-buffer-refname
-                                   (magit-get-current-branch)
-                                   "HEAD")
-                               nil
-                               (car (magit-diff-arguments))
-                               (list file)
-                               magit-diff-buffer-file-locked)
+      (if magit-buffer-refname
+          (magit-show-commit magit-buffer-refname
+                             (car (magit-show-commit--arguments))
+                             (list file))
+        (magit-diff-setup-buffer (or (magit-get-current-branch) "HEAD")
+                                 nil
+                                 (car (magit-diff-arguments))
+                                 (list file)
+                                 magit-diff-buffer-file-locked))
     (user-error "Buffer isn't visiting a file")))
 
 ;;;###autoload
