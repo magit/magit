@@ -77,9 +77,9 @@ existing one."
 (defun magit-find-file-noselect (rev file)
   "Read FILE from REV into a buffer and return the buffer.
 FILE must be relative to the top directory of the repository."
-  (magit-find-file-noselect-1 rev file 'magit-find-file-hook))
+  (magit-find-file-noselect-1 rev file))
 
-(defun magit-find-file-noselect-1 (rev file hookvar &optional revert)
+(defun magit-find-file-noselect-1 (rev file &optional revert)
   "Read FILE from REV into a buffer and return the buffer.
 FILE must be relative to the top directory of the repository.
 An empty REV stands for index."
@@ -103,7 +103,9 @@ An empty REV stands for index."
                 (if (file-exists-p dir) dir topdir)))
         (setq-local revert-buffer-function #'magit-revert-rev-file-buffer)
         (revert-buffer t t)
-        (run-hooks hookvar))
+        (run-hooks (if (equal rev "{index}")
+                       'magit-find-index-hook
+                     'magit-find-file-hook)))
       (current-buffer))))
 
 (defun magit-get-revision-buffer-create (rev file)
@@ -148,8 +150,7 @@ An empty REV stands for index."
 (defun magit-find-file-index-noselect (file &optional revert)
   "Read FILE from the index into a buffer and return the buffer.
 FILE must to be relative to the top directory of the repository."
-  (magit-find-file-noselect-1 "{index}" file 'magit-find-index-hook
-                              (or revert 'ask-revert)))
+  (magit-find-file-noselect-1 "{index}" file (or revert 'ask-revert)))
 
 (defun magit-update-index ()
   "Update the index with the contents of the current buffer.
