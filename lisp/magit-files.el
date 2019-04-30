@@ -65,11 +65,23 @@ existing one."
   (magit-find-file--internal rev file #'switch-to-buffer-other-frame))
 
 (defun magit-find-file-read-args (prompt)
-  (let  ((rev (magit-read-branch-or-commit "Find file from revision")))
-    (list rev (magit-read-file-from-rev rev prompt))))
+  (let ((pseudo-revs '("{worktree}" "{index}")))
+    (if-let ((rev (magit-completing-read "Find file from revision"
+                                         (append pseudo-revs
+                                                 (magit-list-refnames nil t))
+                                         nil nil nil 'magit-revision-history
+                                         (or (magit-branch-or-commit-at-point)
+                                             (magit-get-current-branch)))))
+        (list rev (magit-read-file-from-rev (if (member rev pseudo-revs)
+                                                "HEAD"
+                                              rev)
+                                            prompt))
+      (user-error "Nothing selected"))))
 
 (defun magit-find-file--internal (rev file fn)
-  (let ((buf (magit-find-file-noselect rev file))
+  (let ((buf  (if (equal rev "{worktree}")
+                  (find-file-noselect (expand-file-name file (magit-toplevel)))
+                (magit-find-file-noselect rev file)))
         )
     (funcall fn buf)
     buf))
