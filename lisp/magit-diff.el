@@ -1154,6 +1154,7 @@ the file or blob."
           (magit-show-commit magit-buffer-refname
                              (car (magit-show-commit--arguments))
                              (list file))
+        (save-buffer)
         (magit-diff-setup-buffer (or (magit-get-current-branch) "HEAD")
                                  nil
                                  (car (magit-diff-arguments))
