@@ -1201,13 +1201,49 @@ for a revision."
            (and mcommit
                 (magit-section-parent-value (magit-current-section))))))
   (require 'magit)
-  (magit-with-toplevel
-    (when module
-      (setq default-directory
-            (expand-file-name (file-name-as-directory module))))
-    (unless (magit-commit-p rev)
-      (user-error "%s is not a commit" rev))
-    (magit-revision-setup-buffer rev args files)))
+  (let ((file (magit-file-relative-name)))
+    (magit-with-toplevel
+      (when module
+        (setq default-directory
+              (expand-file-name (file-name-as-directory module))))
+      (unless (magit-commit-p rev)
+        (user-error "%s is not a commit" rev))
+      (let ((buf (magit-revision-setup-buffer rev args files)))
+        (when file
+          (save-buffer)
+          (let ((line (magit-diff-visit--offset file (list "-R" rev)
+                                                (line-number-at-pos)))
+                (col (current-column)))
+            (with-current-buffer buf
+              (magit-diff--goto-position file line col))))))))
+
+(defun magit-diff--goto-position (file line column)
+  (when-let ((diff (cl-find-if (lambda (section)
+                                 (and (cl-typep section 'magit-file-section)
+                                      (equal (oref section value) file)))
+                               (oref magit-root-section children))))
+    (goto-char (oref diff start))
+    (let (hunk (hunks (oref diff children)))
+      (while (setq hunk (pop hunks))
+        (pcase-let* ((`(,beg ,len) (oref hunk to-range))
+                     (end (+ beg len)))
+          (cond ((<= beg line end)
+                 (goto-char (oref hunk content))
+                 (let ((pos beg))
+                   (while (or (< pos line)
+                              (= (char-after) ?-))
+                     (unless (= (char-after) ?-)
+                       (cl-incf pos))
+                     (forward-line)))
+                 (move-to-column (1+ column))
+                 (setq hunks nil))
+                ((> end line)
+                 (goto-char (oref hunk start))
+                 (setq hunks nil))
+                ;; ((not hunks)
+                ;;  (goto-char (oref hunk end))
+                ;;  (forward-line -1))
+                ))))))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-revision-mode))
   (cons magit-buffer-range magit-buffer-diff-files))
