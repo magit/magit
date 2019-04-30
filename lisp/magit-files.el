@@ -255,7 +255,9 @@ directory, while reading the FILENAME."
     ("m" "Blame echo" magit-blame-echo)
     ("q" "Quit blame" magit-blame-quit)]
    [("p" "Prev blob"  magit-blob-previous)
-    ("n" "Next blob"  magit-blob-next)]
+    ("n" "Next blob"  magit-blob-next)
+    ("g" "Goto blob"  magit-find-file)
+    ]
    [(5 "C-c r" "Rename file"   magit-file-rename)
     (5 "C-c d" "Delete file"   magit-file-delete)
     (5 "C-c u" "Untrack file"  magit-file-untrack)
