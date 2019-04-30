@@ -1155,11 +1155,15 @@ the file or blob."
                              (car (magit-show-commit--arguments))
                              (list file))
         (save-buffer)
-        (magit-diff-setup-buffer (or (magit-get-current-branch) "HEAD")
-                                 nil
-                                 (car (magit-diff-arguments))
-                                 (list file)
-                                 magit-diff-buffer-file-locked))
+        (let ((line (line-number-at-pos))
+              (col (current-column)))
+          (with-current-buffer
+              (magit-diff-setup-buffer (or (magit-get-current-branch) "HEAD")
+                                       nil
+                                       (car (magit-diff-arguments))
+                                       (list file)
+                                       magit-diff-buffer-file-locked)
+            (magit-diff--goto-position file line col))))
     (user-error "Buffer isn't visiting a file")))
 
 ;;;###autoload
