@@ -43,24 +43,30 @@
 ;;;###autoload
 (defun magit-find-file (rev file)
   "View FILE from REV.
-Switch to a buffer visiting blob REV:FILE,
-creating one if none already exists."
+Switch to a buffer visiting blob REV:FILE, creating one if none
+already exists.  If prior to calling this command the current
+buffer and/or cursor position is about the same file, then go
+to the line and column corresponding to that location."
   (interactive (magit-find-file-read-args "Find file"))
   (magit-find-file--internal rev file #'pop-to-buffer-same-window))
 
 ;;;###autoload
 (defun magit-find-file-other-window (rev file)
   "View FILE from REV, in another window.
-Like `magit-find-file', but create a new window or reuse an
-existing one."
+Switch to a buffer visiting blob REV:FILE, creating one if none
+already exists.  If prior to calling this command the current
+buffer and/or cursor position is about the same file, then go to
+the line and column corresponding to that location."
   (interactive (magit-find-file-read-args "Find file in other window"))
   (magit-find-file--internal rev file #'switch-to-buffer-other-frame))
 
 ;;;###autoload
 (defun magit-find-file-other-frame (rev file)
   "View FILE from REV, in another window.
-Like `magit-find-file', but create a new frame or reuse an
-existing one."
+Switch to a buffer visiting blob REV:FILE, creating one if none
+already exists.  If prior to calling this command the current
+buffer and/or cursor position is about the same file, then go to
+the line and column corresponding to that location."
   (interactive (magit-find-file-read-args "Find file in other frame"))
   (magit-find-file--internal rev file #'switch-to-buffer-other-frame))
 
@@ -82,19 +88,43 @@ existing one."
   (let ((buf  (if (equal rev "{worktree}")
                   (find-file-noselect (expand-file-name file (magit-toplevel)))
                 (magit-find-file-noselect rev file)))
-        )
+        line col)
+    (when-let ((visited-file (magit-file-relative-name)))
+      (setq line (line-number-at-pos))
+      (setq col (current-column))
+      (cond
+       ((not (equal visited-file file)))
+       ((equal magit-buffer-revision rev))
+       ((equal rev "{worktree}")
+        (setq line (magit-diff-visit--offset file magit-buffer-revision line)))
+       ((equal rev "{index}")
+        (setq line (magit-diff-visit--offset file nil line)))
+       (magit-buffer-revision
+        (setq line (magit-diff-visit--offset
+                    file (concat magit-buffer-revision ".." rev) line)))
+       (t
+        (setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
     (funcall fn buf)
+    (when line
+      (with-current-buffer buf
+        (widen)
+        (goto-char (point-min))
+        (forward-line (1- line))
+        (move-to-column col)))
     buf))
 
 (defun magit-find-file-noselect (rev file)
   "Read FILE from REV into a buffer and return the buffer.
+REV is a revision or one of \"{worktree}\" or \"{index}\".
 FILE must be relative to the top directory of the repository."
   (magit-find-file-noselect-1 rev file))
 
 (defun magit-find-file-noselect-1 (rev file &optional revert)
   "Read FILE from REV into a buffer and return the buffer.
+REV is a revision or one of \"{worktree}\" or \"{index}\".
 FILE must be relative to the top directory of the repository.
-An empty REV stands for index."
+Non-nil REVERT means to revert the buffer.  If `ask-revert',
+then only after asking."
   (let ((topdir (magit-toplevel)))
     (when (file-name-absolute-p file)
       (setq file (file-relative-name file topdir)))
