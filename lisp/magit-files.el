@@ -93,7 +93,9 @@ An empty REV stands for index."
                                       (buffer-name))))
                 revert)
         (setq magit-buffer-revision
-              (if (string= rev "") "{index}" (magit-rev-format "%H" rev)))
+              (if (equal rev "{index}")
+                  "{index}"
+                (magit-rev-format "%H" rev)))
         (setq magit-buffer-refname rev)
         (setq magit-buffer-file-name (expand-file-name file topdir))
         (setq default-directory
@@ -146,7 +148,7 @@ An empty REV stands for index."
 (defun magit-find-file-index-noselect (file &optional revert)
   "Read FILE from the index into a buffer and return the buffer.
 FILE must to be relative to the top directory of the repository."
-  (magit-find-file-noselect-1 "" file 'magit-find-index-hook
+  (magit-find-file-noselect-1 "{index}" file 'magit-find-index-hook
                               (or revert 'ask-revert)))
 
 (defun magit-update-index ()
