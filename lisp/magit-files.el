@@ -109,7 +109,8 @@ An empty REV stands for index."
 
 (defun magit-get-revision-buffer (rev file &optional create)
   (funcall (if create 'get-buffer-create 'get-buffer)
-           (format "%s.~%s~" file (if (equal rev "") "index"
+           (format "%s.~%s~" file (if (equal rev "")
+                                      "{index}"
                                     (subst-char-in-string ?/ ?_ rev)))))
 
 (defun magit-revert-rev-file-buffer (_ignore-auto noconfirm)
