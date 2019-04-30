@@ -207,9 +207,8 @@ This function calls the hook `magit-auto-revert-mode-hook'.")
 
 (defvar magit-auto-revert-toplevel nil)
 
-(when (< emacs-major-version 25)
-  (defvar auto-revert-buffers-counter 1
-    "Incremented each time `auto-revert-buffers' is called"))
+(defvar magit-auto-revert-counter 1
+  "Incremented each time `auto-revert-buffers' is called.")
 
 (defun magit-auto-revert-buffer-p (buffer)
   "Return non-nil if BUFFER visits a file inside the current repository.
@@ -225,10 +224,10 @@ defaults to nil) for any BUFFER."
   ;; Call `magit-toplevel' just once per cycle.
   (unless (and magit-auto-revert-toplevel
                (= (cdr magit-auto-revert-toplevel)
-                  auto-revert-buffers-counter))
+                  magit-auto-revert-counter))
     (setq magit-auto-revert-toplevel
           (cons (or (magit-toplevel) 'no-repo)
-                auto-revert-buffers-counter)))
+                magit-auto-revert-counter)))
   (let ((top (car magit-auto-revert-toplevel)))
     (if (eq top 'no-repo)
         fallback
@@ -239,8 +238,7 @@ defaults to nil) for any BUFFER."
              (file-in-directory-p dir top))))))
 
 (defun auto-revert-buffers--buffer-list-filter ()
-  (when (< emacs-major-version 25)
-    (cl-incf auto-revert-buffers-counter))
+  (cl-incf magit-auto-revert-counter)
   (when auto-revert-buffer-list-filter
     (setq auto-revert-buffer-list
           (-filter auto-revert-buffer-list-filter
