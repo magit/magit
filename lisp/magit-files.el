@@ -380,8 +380,7 @@ Currently this only adds the following key bindings.
   (if magit-buffer-file-name
       (magit-blob-visit (or (magit-blob-successor magit-buffer-revision
                                                   magit-buffer-file-name)
-                            magit-buffer-file-name)
-                        (line-number-at-pos))
+                            magit-buffer-file-name))
     (if (buffer-file-name (buffer-base-buffer))
         (user-error "You have reached the end of time")
       (user-error "Buffer isn't visiting a file or blob"))))
@@ -392,20 +391,18 @@ Currently this only adds the following key bindings.
   (if-let ((file (or magit-buffer-file-name
                      (buffer-file-name (buffer-base-buffer)))))
       (--if-let (magit-blob-ancestor magit-buffer-revision file)
-          (magit-blob-visit it (line-number-at-pos))
+          (magit-blob-visit it)
         (user-error "You have reached the beginning of time"))
     (user-error "Buffer isn't visiting a file or blob")))
 
-(defun magit-blob-visit (blob-or-file line)
+(defun magit-blob-visit (blob-or-file)
   (if (stringp blob-or-file)
       (find-file blob-or-file)
     (pcase-let ((`(,rev ,file) blob-or-file))
       (magit-find-file rev file)
       (apply #'message "%s (%s %s ago)"
              (magit-rev-format "%s" rev)
-             (magit--age (magit-rev-format "%ct" rev)))))
-  (goto-char (point-min))
-  (forward-line (1- line)))
+             (magit--age (magit-rev-format "%ct" rev))))))
 
 (defun magit-blob-ancestor (rev file)
   (let ((lines (magit-with-toplevel
