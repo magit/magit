@@ -561,7 +561,8 @@ arguments are for internal use only."
          (next-cnt (cadr next-tag))
          (this-tag (car this-tag))
          (next-tag (car next-tag))
-         (both-tags (and this-tag next-tag t)))
+         (both-tags (and this-tag next-tag t))
+         (hash (magit-rev-parse "--short" "HEAD")))
     (when (or this-tag next-tag)
       (magit-insert-section (tag (or this-tag next-tag))
         (insert (format "%-10s" (if both-tags "Tags: " "Tag: ")))
@@ -575,6 +576,9 @@ arguments are for internal use only."
           (when this-tag  (insert-count this-tag this-cnt 'magit-branch-local))
           (when both-tags (insert ", "))
           (when next-tag  (insert-count next-tag next-cnt 'magit-tag)))
+        (when (and this-tag (> this-cnt 0))
+          (insert " ")
+          (insert (propertize hash 'face 'magit-hash)))
         (insert ?\n)))))
 
 ;;;; Auxiliary Headers
