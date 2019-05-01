@@ -960,15 +960,13 @@ Added to `font-lock-extend-region-functions'."
 This is intended for use as `git-commit-major-mode' for projects
 that expect `symbols' to look like this.  I.e. like they look in
 Elisp doc-strings, including this one.  Unlike in doc-strings,
-\"strings\" and *bold text* also look different than the other
-text."
+\"strings\" also look different than the other text."
   (setq font-lock-defaults '(git-commit-elisp-text-mode-keywords)))
 
 (defvar git-commit-elisp-text-mode-keywords
   `((,(concat "[`‘]\\(" lisp-mode-symbol-regexp "\\)['’]")
      (1 font-lock-constant-face prepend))
-    ("\"[^\"]*\"" (0 font-lock-string-face prepend))
-    ("\\*[^*]*\\*" (0 'bold prepend))))
+    ("\"[^\"]*\"" (0 font-lock-string-face prepend))))
 
 ;;; _
 (provide 'git-commit)
