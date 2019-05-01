@@ -155,7 +155,10 @@ review the result."
                                   (directory-file-name (magit-toplevel))))
                                 ver)))))
        (list tag (read-string (format "Message for %S: " tag) msg)))))
-  (magit-run-git "tag" "--annotate" "--sign" "-m" msg tag)
+  (let ((proc (magit-run-git-async "tag" "--annotate" "--sign" "-m" msg tag)))
+    ;; Allow Emacs to handle pinentry for signing.
+    (while (eq (process-status proc) 'run)
+      (accept-process-output proc)))
   (magit-refs-setup-buffer nil (magit-show-refs-arguments)))
 
 (defun magit--list-releases ()
