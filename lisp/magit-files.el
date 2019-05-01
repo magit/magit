@@ -43,40 +43,88 @@
 ;;;###autoload
 (defun magit-find-file (rev file)
   "View FILE from REV.
-Switch to a buffer visiting blob REV:FILE,
-creating one if none already exists."
+Switch to a buffer visiting blob REV:FILE, creating one if none
+already exists.  If prior to calling this command the current
+buffer and/or cursor position is about the same file, then go
+to the line and column corresponding to that location."
   (interactive (magit-find-file-read-args "Find file"))
-  (pop-to-buffer-same-window (magit-find-file-noselect rev file)))
+  (magit-find-file--internal rev file #'pop-to-buffer-same-window))
 
 ;;;###autoload
 (defun magit-find-file-other-window (rev file)
   "View FILE from REV, in another window.
-Like `magit-find-file', but create a new window or reuse an
-existing one."
+Switch to a buffer visiting blob REV:FILE, creating one if none
+already exists.  If prior to calling this command the current
+buffer and/or cursor position is about the same file, then go to
+the line and column corresponding to that location."
   (interactive (magit-find-file-read-args "Find file in other window"))
-  (switch-to-buffer-other-window (magit-find-file-noselect rev file)))
+  (magit-find-file--internal rev file #'switch-to-buffer-other-frame))
 
 ;;;###autoload
 (defun magit-find-file-other-frame (rev file)
   "View FILE from REV, in another window.
-Like `magit-find-file', but create a new frame or reuse an
-existing one."
+Switch to a buffer visiting blob REV:FILE, creating one if none
+already exists.  If prior to calling this command the current
+buffer and/or cursor position is about the same file, then go to
+the line and column corresponding to that location."
   (interactive (magit-find-file-read-args "Find file in other frame"))
-  (switch-to-buffer-other-frame (magit-find-file-noselect rev file)))
+  (magit-find-file--internal rev file #'switch-to-buffer-other-frame))
 
 (defun magit-find-file-read-args (prompt)
-  (let  ((rev (magit-read-branch-or-commit "Find file from revision")))
-    (list rev (magit-read-file-from-rev rev prompt))))
+  (let ((pseudo-revs '("{worktree}" "{index}")))
+    (if-let ((rev (magit-completing-read "Find file from revision"
+                                         (append pseudo-revs
+                                                 (magit-list-refnames nil t))
+                                         nil nil nil 'magit-revision-history
+                                         (or (magit-branch-or-commit-at-point)
+                                             (magit-get-current-branch)))))
+        (list rev (magit-read-file-from-rev (if (member rev pseudo-revs)
+                                                "HEAD"
+                                              rev)
+                                            prompt))
+      (user-error "Nothing selected"))))
+
+(defun magit-find-file--internal (rev file fn)
+  (let ((buf  (if (equal rev "{worktree}")
+                  (find-file-noselect (expand-file-name file (magit-toplevel)))
+                (magit-find-file-noselect rev file)))
+        line col)
+    (when-let ((visited-file (magit-file-relative-name)))
+      (setq line (line-number-at-pos))
+      (setq col (current-column))
+      (cond
+       ((not (equal visited-file file)))
+       ((equal magit-buffer-revision rev))
+       ((equal rev "{worktree}")
+        (setq line (magit-diff-visit--offset file magit-buffer-revision line)))
+       ((equal rev "{index}")
+        (setq line (magit-diff-visit--offset file nil line)))
+       (magit-buffer-revision
+        (setq line (magit-diff-visit--offset
+                    file (concat magit-buffer-revision ".." rev) line)))
+       (t
+        (setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
+    (funcall fn buf)
+    (when line
+      (with-current-buffer buf
+        (widen)
+        (goto-char (point-min))
+        (forward-line (1- line))
+        (move-to-column col)))
+    buf))
 
 (defun magit-find-file-noselect (rev file)
   "Read FILE from REV into a buffer and return the buffer.
+REV is a revision or one of \"{worktree}\" or \"{index}\".
 FILE must be relative to the top directory of the repository."
-  (magit-find-file-noselect-1 rev file 'magit-find-file-hook))
+  (magit-find-file-noselect-1 rev file))
 
-(defun magit-find-file-noselect-1 (rev file hookvar &optional revert)
+(defun magit-find-file-noselect-1 (rev file &optional revert)
   "Read FILE from REV into a buffer and return the buffer.
+REV is a revision or one of \"{worktree}\" or \"{index}\".
 FILE must be relative to the top directory of the repository.
-An empty REV stands for index."
+Non-nil REVERT means to revert the buffer.  If `ask-revert',
+then only after asking."
   (let ((topdir (magit-toplevel)))
     (when (file-name-absolute-p file)
       (setq file (file-relative-name file topdir)))
@@ -87,7 +135,9 @@ An empty REV stands for index."
                                       (buffer-name))))
                 revert)
         (setq magit-buffer-revision
-              (if (string= rev "") "{index}" (magit-rev-format "%H" rev)))
+              (if (equal rev "{index}")
+                  "{index}"
+                (magit-rev-format "%H" rev)))
         (setq magit-buffer-refname rev)
         (setq magit-buffer-file-name (expand-file-name file topdir))
         (setq default-directory
@@ -95,7 +145,9 @@ An empty REV stands for index."
                 (if (file-exists-p dir) dir topdir)))
         (setq-local revert-buffer-function #'magit-revert-rev-file-buffer)
         (revert-buffer t t)
-        (run-hooks hookvar))
+        (run-hooks (if (equal rev "{index}")
+                       'magit-find-index-hook
+                     'magit-find-file-hook)))
       (current-buffer))))
 
 (defun magit-get-revision-buffer-create (rev file)
@@ -103,7 +155,8 @@ An empty REV stands for index."
 
 (defun magit-get-revision-buffer (rev file &optional create)
   (funcall (if create 'get-buffer-create 'get-buffer)
-           (format "%s.~%s~" file (if (equal rev "") "index"
+           (format "%s.~%s~" file (if (equal rev "")
+                                      "{index}"
                                     (subst-char-in-string ?/ ?_ rev)))))
 
 (defun magit-revert-rev-file-buffer (_ignore-auto noconfirm)
@@ -139,8 +192,7 @@ An empty REV stands for index."
 (defun magit-find-file-index-noselect (file &optional revert)
   "Read FILE from the index into a buffer and return the buffer.
 FILE must to be relative to the top directory of the repository."
-  (magit-find-file-noselect-1 "" file 'magit-find-index-hook
-                              (or revert 'ask-revert)))
+  (magit-find-file-noselect-1 "{index}" file (or revert 'ask-revert)))
 
 (defun magit-update-index ()
   "Update the index with the contents of the current buffer.
@@ -255,7 +307,9 @@ directory, while reading the FILENAME."
     ("m" "Blame echo" magit-blame-echo)
     ("q" "Quit blame" magit-blame-quit)]
    [("p" "Prev blob"  magit-blob-previous)
-    ("n" "Next blob"  magit-blob-next)]
+    ("n" "Next blob"  magit-blob-next)
+    ("g" "Goto blob"  magit-find-file)
+    ("w" "Goto file"  magit-blob-visit-file)]
    [(5 "C-c r" "Rename file"   magit-file-rename)
     (5 "C-c d" "Delete file"   magit-file-delete)
     (5 "C-c u" "Untrack file"  magit-file-untrack)
@@ -326,8 +380,7 @@ Currently this only adds the following key bindings.
   (if magit-buffer-file-name
       (magit-blob-visit (or (magit-blob-successor magit-buffer-revision
                                                   magit-buffer-file-name)
-                            magit-buffer-file-name)
-                        (line-number-at-pos))
+                            magit-buffer-file-name))
     (if (buffer-file-name (buffer-base-buffer))
         (user-error "You have reached the end of time")
       (user-error "Buffer isn't visiting a file or blob"))))
@@ -338,20 +391,28 @@ Currently this only adds the following key bindings.
   (if-let ((file (or magit-buffer-file-name
                      (buffer-file-name (buffer-base-buffer)))))
       (--if-let (magit-blob-ancestor magit-buffer-revision file)
-          (magit-blob-visit it (line-number-at-pos))
+          (magit-blob-visit it)
         (user-error "You have reached the beginning of time"))
     (user-error "Buffer isn't visiting a file or blob")))
 
-(defun magit-blob-visit (blob-or-file line)
+;;;###autoload
+(defun magit-blob-visit-file ()
+  "View the file from the worktree corresponding to the current blob.
+When visiting a blob or the version from the index, then go to
+the same location in the respective file in the working tree."
+  (interactive)
+  (if-let ((file (magit-file-relative-name)))
+      (magit-find-file--internal "{worktree}" file #'pop-to-buffer-same-window)
+    (user-error "Not visiting a blob")))
+
+(defun magit-blob-visit (blob-or-file)
   (if (stringp blob-or-file)
       (find-file blob-or-file)
     (pcase-let ((`(,rev ,file) blob-or-file))
       (magit-find-file rev file)
       (apply #'message "%s (%s %s ago)"
              (magit-rev-format "%s" rev)
-             (magit--age (magit-rev-format "%ct" rev)))))
-  (goto-char (point-min))
-  (forward-line (1- line)))
+             (magit--age (magit-rev-format "%ct" rev))))))
 
 (defun magit-blob-ancestor (rev file)
   (let ((lines (magit-with-toplevel
