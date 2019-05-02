@@ -155,8 +155,13 @@ review the result."
                                   (directory-file-name (magit-toplevel))))
                                 ver)))))
        (list tag (read-string (format "Message for %S: " tag) msg)))))
-  (magit-run-git "tag" "--annotate" "--sign" "-m" msg tag)
-  (magit-refs-setup-buffer nil (magit-show-refs-arguments)))
+  (magit-run-git-async "tag" "--annotate" "--sign" "-m" msg tag)
+  (set-process-sentinel
+   magit-this-process
+   (lambda (process event)
+     (when (memq (process-status process) '(exit signal))
+       (magit-process-sentinel process event)
+       (magit-refs-setup-buffer nil (magit-show-refs-arguments))))))
 
 (defun magit--list-releases ()
   "Return a list of releases.
