@@ -139,7 +139,7 @@ branch, then also remove the respective remote branch."
          (magit-merge-arguments)))
   (let ((current (magit-get-current-branch)))
     (when (zerop (magit-call-git "checkout" branch))
-      (magit--merge-absort current args))))
+      (magit--merge-absorb current args))))
 
 ;;;###autoload
 (defun magit-merge-absorb (branch &optional args)
@@ -153,9 +153,9 @@ if `forge-branch-pullreq' was used to create the merged branch,
 then also remove the respective remote branch."
   (interactive (list (magit-read-other-local-branch "Absorb branch")
                      (magit-merge-arguments)))
-  (magit--merge-absort branch args))
+  (magit--merge-absorb branch args))
 
-(defun magit--merge-absort (branch args)
+(defun magit--merge-absorb (branch args)
   (when (equal branch "master")
     (unless (yes-or-no-p
              "Do you really want to merge `master' into another branch? ")
@@ -171,10 +171,10 @@ then also remove the respective remote branch."
                  (magit-process-sentinel process event)
                (process-put process 'inhibit-refresh t)
                (magit-process-sentinel process event)
-               (magit--merge-absort-1 branch args))))))
-    (magit--merge-absort-1 branch args)))
+               (magit--merge-absorb-1 branch args))))))
+    (magit--merge-absorb-1 branch args)))
 
-(defun magit--merge-absort-1 (branch args)
+(defun magit--merge-absorb-1 (branch args)
   (magit-run-git-async "merge" args "--no-edit" branch)
   (set-process-sentinel
    magit-this-process
