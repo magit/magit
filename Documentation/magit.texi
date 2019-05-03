@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-628-gabc75923d+1)
+@subtitle for version 2.90.1 (v2.90.1-652-gab4811f54+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-628-gabc75923d+1).
+This manual is for Magit version 2.90.1 (v2.90.1-652-gab4811f54+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -985,8 +985,11 @@ control how buffer names are uniquified.
 @cindex magit-mode-bury-buffer
 @item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-mode-bury-buffer})
 
-This command buries the current Magit buffer.  With a prefix
-argument, it instead kills the buffer.
+This command buries the current Magit buffer.
+
+With a prefix argument, it instead kills the buffer.  With a double
+prefix argument, also kills all other Magit buffers associated with
+the current project.
 
 @end table
 
