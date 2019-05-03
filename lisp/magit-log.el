@@ -1046,7 +1046,7 @@ Do not add this to a hook variable."
          (remove "--literal-pathspecs" magit-git-global-arguments)))
     (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
       "log"
-      (format "--format=%s%%h%%x0c%s%%x0c%s%%x0c%%aN%%x0c%s%%x0c%%s%s"
+      (format "--format=%s%%h%%x0c%s%%x0c%s%%x0c%%aN%%x0c%s%%x0c%%s%s%%>|(1,ltrunc)%% b"
               (if (and (member "--left-right" args)
                        (not (member "--graph" args)))
                   "%m "
