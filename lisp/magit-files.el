@@ -174,7 +174,10 @@ then only after asking."
            (file (file-relative-name magit-buffer-file-name))
            (coding-system-for-read (or coding-system-for-read 'undecided)))
       (erase-buffer)
-      (magit-git-insert "cat-file" "-p" (concat magit-buffer-refname ":" file))
+      (magit-git-insert "cat-file" "-p"
+                        (if (equal magit-buffer-refname "{index}")
+                            (concat ":" file)
+                          (concat magit-buffer-refname ":" file)))
       (setq buffer-file-coding-system last-coding-system-used))
     (let ((buffer-file-name magit-buffer-file-name)
           (after-change-major-mode-hook
