@@ -161,7 +161,7 @@ review the result."
    (lambda (process event)
      (when (memq (process-status process) '(exit signal))
        (magit-process-sentinel process event)
-       (magit-refs-setup-buffer nil (magit-show-refs-arguments))))))
+       (magit-refs-setup-buffer "HEAD" (magit-show-refs-arguments))))))
 
 (defun magit--list-releases ()
   "Return a list of releases.
