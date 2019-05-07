@@ -1113,10 +1113,8 @@ be committed."
   (interactive (list (car (magit-diff-arguments))))
   (unless (magit-commit-message-buffer)
     (user-error "No commit in progress"))
-  (let ((magit-display-buffer-noselect t)
-        (diff-buf (magit-get-mode-buffer 'magit-diff-mode)))
-    (if (and diff-buf
-             (get-buffer-window diff-buf))
+  (let ((magit-display-buffer-noselect t))
+    (if-let ((diff-buf (magit-get-mode-buffer 'magit-diff-mode 'selected)))
         (with-current-buffer diff-buf
           (cond ((and (equal magit-buffer-range "HEAD^")
                       (equal magit-buffer-typearg "--cached"))
