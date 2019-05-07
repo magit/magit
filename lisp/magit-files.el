@@ -155,9 +155,7 @@ then only after asking."
 
 (defun magit-get-revision-buffer (rev file &optional create)
   (funcall (if create 'get-buffer-create 'get-buffer)
-           (format "%s.~%s~" file (if (equal rev "")
-                                      "{index}"
-                                    (subst-char-in-string ?/ ?_ rev)))))
+           (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
 
 (defun magit-revert-rev-file-buffer (_ignore-auto noconfirm)
   (when (or noconfirm
@@ -166,8 +164,9 @@ then only after asking."
                    (dolist (regexp revert-without-query)
                      (when (string-match regexp magit-buffer-file-name)
                        (throw 'found t)))))
-            (yes-or-no-p (format "Revert buffer from git %s? "
-                                 (if (equal magit-buffer-refname "") "{index}"
+            (yes-or-no-p (format "Revert buffer from Git %s? "
+                                 (if (equal magit-buffer-refname "{index}")
+                                     "index"
                                    (concat "revision " magit-buffer-refname)))))
     (let* ((inhibit-read-only t)
            (default-directory (magit-toplevel))
@@ -203,7 +202,7 @@ The current buffer has to be visiting a file in the index, which
 is done using `magit-find-index-noselect'."
   (interactive)
   (let ((file (magit-file-relative-name)))
-    (unless (equal magit-buffer-refname "")
+    (unless (equal magit-buffer-refname "{index}")
       (user-error "%s isn't visiting the index" file))
     (if (y-or-n-p (format "Update index with contents of %s" (buffer-name)))
         (let ((index (make-temp-file "index"))
