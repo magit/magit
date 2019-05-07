@@ -469,19 +469,18 @@ is available from https://github.com/torbiak/git-autofixup."
               (magit-display-buffer-noselect t)
               (inhibit-quit nil))
           (message "Diffing changes to be committed (C-g to abort diffing)")
-          (if-let ((fn (cl-case last-command
-                         (magit-commit
-                          (apply-partially 'magit-diff-staged nil))
-                         (magit-commit-all
-                          (apply-partially 'magit-diff-working-tree nil))
-                         ((magit-commit-amend
-                           magit-commit-reword
-                           magit-rebase-reword-commit)
-                          'magit-diff-while-amending))))
-              (funcall fn args)
-            (if (magit-anything-staged-p)
-                (magit-diff-staged nil args)
-              (magit-diff-while-amending args))))
+          (cl-case last-command
+            (magit-commit
+             (magit-diff-staged nil args))
+            (magit-commit-all
+             (magit-diff-working-tree nil args))
+            ((magit-commit-amend
+              magit-commit-reword
+              magit-rebase-reword-commit)
+             (magit-diff-while-amending args))
+            (t (if (magit-anything-staged-p)
+                   (magit-diff-staged nil args)
+                 (magit-diff-while-amending args)))))
       (quit))))
 
 ;; Mention `magit-diff-while-committing' because that's
