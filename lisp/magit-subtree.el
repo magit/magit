@@ -107,15 +107,15 @@
   :argument "--onto="
   :reader 'magit-transient-read-revision)
 
-(defun magit-subtree-prefix (prompt)
+(defun magit-subtree-prefix (transient prompt)
   (--if-let (--first (string-prefix-p "--prefix=" it)
-                     (transient-args 'magit-subtree))
+                     (transient-args transient))
       (substring it 9)
     (magit-subtree-read-prefix prompt)))
 
-(defun magit-subtree-arguments ()
+(defun magit-subtree-arguments (transient)
   (--remove (string-prefix-p "--prefix=" it)
-            (transient-args 'magit-subtree)))
+            (transient-args transient)))
 
 (defun magit-git-subtree (subcmd prefix &rest args)
   (magit-run-git-async "subtree" subcmd (concat "--prefix=" prefix) args))
@@ -124,55 +124,57 @@
 (defun magit-subtree-add (prefix repository ref args)
   "Add REF from REPOSITORY as a new subtree at PREFIX."
   (interactive
-   (cons (magit-subtree-prefix "Add subtree")
+   (cons (magit-subtree-prefix 'magit-subtree-import "Add subtree")
          (let ((remote (magit-read-remote-or-url "From repository")))
            (list remote
                  (magit-read-refspec "Ref" remote)
-                 (magit-subtree-arguments)))))
+                 (magit-subtree-arguments 'magit-subtree-import)))))
   (magit-git-subtree "add" prefix args repository ref))
 
 ;;;###autoload
 (defun magit-subtree-add-commit (prefix commit args)
   "Add COMMIT as a new subtree at PREFIX."
-  (interactive (list (magit-subtree-prefix "Add subtree")
-                     (magit-read-string-ns "Commit")
-                     (magit-subtree-arguments)))
+  (interactive
+   (list (magit-subtree-prefix 'magit-subtree-import "Add subtree")
+         (magit-read-string-ns "Commit")
+         (magit-subtree-arguments 'magit-subtree-import)))
   (magit-git-subtree "add" prefix args commit))
 
 ;;;###autoload
 (defun magit-subtree-merge (prefix commit args)
   "Merge COMMIT into the PREFIX subtree."
-  (interactive (list (magit-subtree-prefix "Merge into subtree")
-                     (magit-read-string-ns "Commit")
-                     (magit-subtree-arguments)))
+  (interactive
+   (list (magit-subtree-prefix 'magit-subtree-import "Merge into subtree")
+         (magit-read-string-ns "Commit")
+         (magit-subtree-arguments 'magit-subtree-import)))
   (magit-git-subtree "merge" prefix args commit))
 
 ;;;###autoload
 (defun magit-subtree-pull (prefix repository ref args)
   "Pull REF from REPOSITORY into the PREFIX subtree."
   (interactive
-   (cons (magit-subtree-prefix "Pull into subtree")
+   (cons (magit-subtree-prefix 'magit-subtree-import "Pull into subtree")
          (let ((remote (magit-read-remote-or-url "From repository")))
            (list remote
                  (magit-read-refspec "Ref" remote)
-                 (magit-subtree-arguments)))))
+                 (magit-subtree-arguments 'magit-subtree-import)))))
   (magit-git-subtree "pull" prefix args repository ref))
 
 ;;;###autoload
 (defun magit-subtree-push (prefix repository ref args)
   "Extract the history of the subtree PREFIX and push it to REF on REPOSITORY."
-  (interactive (list (magit-subtree-prefix "Push subtree")
+  (interactive (list (magit-subtree-prefix 'magit-subtree-export "Push subtree")
                      (magit-read-remote-or-url "To repository")
                      (magit-read-string-ns "To reference")
-                     (magit-subtree-arguments)))
+                     (magit-subtree-arguments 'magit-subtree-export)))
   (magit-git-subtree "push" prefix args repository ref))
 
 ;;;###autoload
 (defun magit-subtree-split (prefix commit args)
   "Extract the history of the subtree PREFIX."
-  (interactive (list (magit-subtree-prefix "Split subtree")
+  (interactive (list (magit-subtree-prefix 'magit-subtree-export "Split subtree")
                      (magit-read-string-ns "Commit")
-                     (magit-subtree-arguments)))
+                     (magit-subtree-arguments 'magit-subtree-export)))
   (magit-git-subtree "split" prefix args commit))
 
 ;;; _
