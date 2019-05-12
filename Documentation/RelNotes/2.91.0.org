@@ -223,3 +223,6 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
 
 - Fix handling of passphrase prompts which are output with leading
   carriage return, such as those produced by Openssh 8.0.  #3843
+
+- The default value for ~magit-view-git-manual-method~ was treated as
+  invalid.  #3873
