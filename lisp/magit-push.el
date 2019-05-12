@@ -90,7 +90,8 @@ argument the push-remote can be changed before pushed to it."
                (magit--select-push-remote "push there")))
     (run-hooks 'magit-credential-hook)
     (magit-run-git-async "push" "-v" args remote
-                         (concat "refs/heads/" branch)))) ; see #3847
+                         (format "refs/heads/%s:refs/heads/%s"
+                                 branch branch)))) ; see #3847 and #3872
 
 (defun magit-push--pushbranch-description ()
   (let* ((branch (magit-get-current-branch))
