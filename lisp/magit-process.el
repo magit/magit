@@ -970,13 +970,14 @@ If STR is supplied, it replaces the `mode-line-process' text."
                    'magit-mode-line-process-error))
       (magit-process-unset-mode-line))))
 
-(defun magit-process-unset-mode-line ()
+(defun magit-process-unset-mode-line (&optional directory)
   "Remove the git command from the mode line."
-  (unless (magit-repository-local-get 'inhibit-magit-process-unset-mode-line)
-    (magit-repository-local-set 'mode-line-process nil)
-    (dolist (buf (magit-mode-get-buffers))
-      (with-current-buffer buf (setq mode-line-process nil)))
-    (force-mode-line-update t)))
+  (let ((default-directory (or directory default-directory)))
+    (unless (magit-repository-local-get 'inhibit-magit-process-unset-mode-line)
+      (magit-repository-local-set 'mode-line-process nil)
+      (dolist (buf (magit-mode-get-buffers))
+        (with-current-buffer buf (setq mode-line-process nil)))
+      (force-mode-line-update t))))
 
 (defvar magit-process-error-message-regexps
   (list "^\\*ERROR\\*: Canceled by user$"
@@ -1072,7 +1073,7 @@ Limited by `magit-process-error-tooltip-max-lines'."
               (magit-section-hide section)))))))
   (if (= arg 0)
       ;; Unset the `mode-line-process' value upon success.
-      (magit-process-unset-mode-line)
+      (magit-process-unset-mode-line default-dir)
     ;; Otherwise process the error.
     (let ((msg (magit-process-error-summary process-buf section)))
       ;; Change `mode-line-process' to an error face upon failure.
@@ -1080,7 +1081,7 @@ Limited by `magit-process-error-tooltip-max-lines'."
           (magit-process-set-mode-line-error-status
            (or (magit-process-error-tooltip process-buf section)
                msg))
-        (magit-process-unset-mode-line))
+        (magit-process-unset-mode-line default-dir))
       ;; Either signal the error, or else display the error summary in
       ;; the status buffer and with a message in the echo area.
       (cond
