@@ -73,7 +73,10 @@ that for.
 * If you add additional arguments and/or actions to Magit's popups,
   then you have to port that to modify the new \"transients\" instead.
   See https://github.com/magit/magit/wiki/\
-Converting-popup-modifications-to-transient-modifications"))
+Converting-popup-modifications-to-transient-modifications
+
+To find installed packages that still use `magit-popup' you can
+use e.g. \"M-x rgrep RET magit-popup RET RET ~/.emacs.d/ RET\"."))
 (cl-eval-when (eval load)
   (unless (require 'magit-popup nil t)
     (defun magit-define-popup-switch (&rest _)
