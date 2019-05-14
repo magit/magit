@@ -580,6 +580,7 @@ defaulting to the branch at point."
                    (magit-read-char-case prompt nil
                      (?d "[d]etach HEAD & delete"     'detach)
                      (?c "[c]heckout master & delete" 'master)
+                     (?o "checkout [o]ther & delete"  'other)
                      (?a "[a]bort"                    'abort)))
             (`detach (unless (or (equal force '(4))
                                  (member branch force)
@@ -595,6 +596,14 @@ defaulting to the branch at point."
                          "Delete unmerged branch %s" ""
                          nil (list branch)))
                      (magit-call-git "checkout" "master"))
+            (`other (let ((other (magit-read-other-branch-or-commit "Checkout branch")))
+                      (unless (or (equal force '(4))
+                                  (member branch force)
+                                  (magit-branch-merged-p branch other))
+                        (magit-confirm 'delete-unmerged-branch
+                          "Delete unmerged bnrach %s" ""
+                          nil (list branch)))
+                      (magit-call-git "checkout" other)))
             (`abort  (user-error "Abort")))
           (setq force t))
         (magit-branch-maybe-delete-pr-remote branch)
