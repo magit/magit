@@ -8,13 +8,7 @@
   remain supported for at least a few more releases.
 
 - Magit now uses Transient instead of Magit-Popup.
-TODO
-e8c063c4d * magit--push-current-set-{upstream,pushremote}-desc: Mention creation
-1ed3febfb * Merge branch 'transient' [#3728]
-d65dbc0c0 * [key] magit-branch-configure: Avoid key binding conflict
-8df54f151 * Rename variables that still had "popup" in their names
-d24296c20 * magit-pull: Add --rebase
-c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
+  https://emacsair.me/2019/02/14/transient-0.1/
 
 - The commands ~magit-branch-pull-request~, ~magit-checkout-pull-request~
   and ~magit-worktree-checkout-pull-request~ were removed in favor of
@@ -29,6 +23,16 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
 - ~C-c C-b~ is no longer bound to ~magit-browse-thing~ to avoid a conflict
   with ~magit-go-backward~ in diff and log buffers.  ~C-c C-w~ (as in web)
   is used instead now.  #3659
+
+- The option ~magit-display-file-buffer-function~ was removed.  8a214c9fb
+
+- The buffer-local variable ~magit-refresh-arguments~ was replaced with
+  several variables because ~(nth N magit-refresh-arguments)~ just isn't
+  very informative.  Several related API functions had to be changed
+  in incompatible ways.  This was done by adding new functions and
+  keeping the old variable and functions around for backward
+  compatibility.  Packages using the obsolete variable and functions
+  should be adjusted soon.  #3836
 
 ** Changes since v2.90.0
 
@@ -115,7 +119,18 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
   98e328200
 
 - ~magit-unstage~ can now unstage files that were staged using
-  ~--intent-to-add~ #3753
+  ~--intent-to-add~.  #3753
+
+- ~magit-read-branch-or-commit~ now offers symbolic refnames such as
+  ~ORIG_HEAD~ as completion candidates.   #3766
+
+- ~magit-stage-modified~ and ~magit-unstage-all~ now take the log file
+  filter into account.  #3767
+
+- New command ~magit-skip-worktree~ can be use to tell Git to pretend
+  that the working tree version is up-to-date; ~magit-no-skip-worktree~
+  does the opposite.  Both commands are available from the
+  ~magit-gitignore~ prefix but are disabled by default.  #3710
 
 - ~--rebase-merges~, an option available in Git version 2.18.0 and
   later, is now supported.  The ~--rebase-merges~ infix of
@@ -132,6 +147,107 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
   controls whether a revision buffer shown from a log shares the log's
   file restriction despite ~--follow~ being in the log arguments.
   #3680
+
+- ~magit-cherry~ is now available from the ~magit-dispatch~ prefix.
+  ef311f378
+
+~ ~magit-cherry-spinoff~ now offer the upstream as the default
+  starting-point.  e5a2a0ac2
+
+- Added new command ~magit-branch-spinout~.  #3794.
+
+- ~magit-process-password-auth-source~ now allows the use of emails as
+  usernames.  05d82d501
+
+- Added new option ~magit-prefer-push-default~, which controls whether
+  commands that configure the push-remote do so by setting the value
+  of ~remote.pushDefault~ or ~branch.<name>.pushRemote~.  Also removed
+  option ~magit-remote-set-if-missing~.  07ca042b6
+
+- Support for bookmarks was rewritten from scratch.  #3836, cd391a035
+
+- The new options ~magit-prefix-use-buffer-arguments~ and
+  ~magit-direct-use-buffer-arguments~ replace the old option
+  ~magit-use-sticky-arguments~.  The default "stickiness" of arguments
+  has changed.  #3836, 0e67ca9eb
+
+- Like when moving through a log, moving moving through a list of
+  cherries now automatically updates the revision or blob buffer.  #3836
+
+- Added new option ~magit-worktree-read-directory-name-function~.  #3820
+
+- TODO Added basic support for libgit2.  #3841
+
+- ~git bisect~ is now run asynchronously.  #3802
+
+- ~magit-branch-or-commit-at-point~ now falls back to an abbreviated
+  hash instead of something like "master~2", because the latter often
+  leads to undesirable behavior.  fd5eb5b43
+
+- ~magit-toggle-buffer-lock~ is now a suffix of both ~magit-diff~ and
+  ~magit-log~.  c09993112
+
+- When invoked with a prefix argument, then ~magit-clone~ now acts as a
+  prefix command.  If the new option ~magit-clone-always-transient~ is
+  non-nil, then it always acts as a prefix command.  #3846
+
+- Clone commands now accept repository names and similar abbreviations
+  in addition to complete urls.  The new options ~magit-clone-name-alist~
+  and ~magit-clone-url-format~ control how the translation is done.  #3846
+
+- When called from ~magit-dispatch~, then ~magit-diff~ and ~magit-log~ no
+  longer set the file limit to the file visited in the current buffer.
+  ccc72469e
+
+- ~RET~ (~magit-diff-visit-file~) on a committed change now always visits
+  the respective commit.  Previously it did that for all commits
+  except the ~HEAD~ commit.  This made it impossible to visit the ~HEAD~
+  commit using this or a related command and also was inconsistent.
+  ~C-RET~ (~magit-diff-visit-worktree~) should be used to visit the file
+  in the working tree for any commit.  Setting the new option
+  ~magit-diff-visit-avoid-head-blob~ to a non-nil value, restores the
+  old behavior of ~magit-diff-visit-file~.  #3848
+
+- ~magit-diff-visit-worktree~ now does a much better job at jumping to
+  the correct location in the file.  c9e5425cd
+
+- Added new command ~magit-find-file-other-frame~.  9a69c74ca
+
+- Renamed command ~magit-diff-visit-file-worktree~ to
+  ~magit-diff-visit-worktree-file~.  4f739cd35
+
+- Added new commands ~magit-diff-visit-file-other-frame~,
+  ~magit-diff-visit-worktree-file-other-window~, and
+  ~magit-diff-visit-worktree-file-other-frame~.  756d61911, 6704b3248
+
+- Added new option ~magit-process-prompt-functions~.  #3845
+
+- ~magit-find-file~ is now available from ~magit-file-dispatch~.
+  9c587d458
+
+- ~magit-find-file~ and related commands learned to visit a file from
+  the worktree or index.  #3860
+
+- ~magit-find-file~ and related commands learned to go to the position
+  in the visited file that corresponds to the position in the
+  previously current buffer.  #3860
+
+- ~magit-diff-buffer-file~ learned to visit a commit instead of a range
+  when appropriate.  #3860
+
+- ~magit-show-commit~ and ~magit-diff-buffer-file~ learned to go to the
+  position in the diff that corresponds to the position in the
+  previously current file-visiting buffer.  #3860
+
+- Added new command ~magit-blob-visit-file~.  When visiting a blob, then
+  it goes to the same location in the respective file in the working
+  tree.  #3860
+
+- ~magit-tag-release~ now runs ~git~ asynchronously.  #3855
+
+- When invoked with two prefix arguments, then ~magit-mode-burry-buffer~
+  now also kills all other Magit buffers associated with the current
+  repository.  #3863
 
 ** Fixes since v2.90.0
 
@@ -221,8 +337,25 @@ c47913461 * Rename magit-{push-current-set-remote => remote-set}-if-missing
   to prune the local remote-tracking ref was too loose, leading to
   false positives.  #3650
 
+- ~magit-ediff-state~ offered untracked files as completion candidates
+  even though it cannot handle those.  8dd612dfb
+
 - Fix handling of passphrase prompts which are output with leading
   carriage return, such as those produced by Openssh 8.0.  #3843
 
 - The default value for ~magit-view-git-manual-method~ was treated as
   invalid.  #3873
+
+- Various bug fixes to ~magit-branch-delete~ (3e73ff19d),
+  ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),
+  ~magit-patch-create~ (470272a0f), ~magit--cherry-spinoff-read-args~
+  (add276810), ~magit-refs--insert-cherry-commits~ (3b37e6dc1),
+  ~magit--{pushbranch,upstream}-suffix-predicate~ (cef3b1217),
+  ~magit-diff-insert-file-section~ (01cf0c165),
+  ~magit-insert-unpushed-to-upstream-or-recent~ (02445d6e3),
+  ~magit-ref-equal~ (46862d9d2), ~magit-ref-fullname~ (66b85daea),
+  ~magit-insert-unpulled-from-upstream~ (0363e9bac),
+  ~magit-insert-unpulled-from-upstream~ (0363e9bac), ~magit-git-version~
+  (0abc761f5), ~auto-revert-buffers--buffer-list-filter~ (713bd64bf),
+  ~magit-insert-revision-gravatar~ (1f7e84c26) and
+  ~magit-process-unset-mode-line~ (457a685e5).
