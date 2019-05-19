@@ -99,7 +99,7 @@
   because when you reword an empty commit, then you have already
   confirmed that you are okay with that commit being empty.
 
-- The new buffer-local variable ~git-commit-need-summary-line~, can
+- The new buffer-local variable ~git-commit-need-summary-line~ can
   be of use if you want to write Git notes without separating the
   first line with an empty line from the rest of the text.  #3676
 
@@ -110,7 +110,7 @@
 - Made ~magit-tag-release~ more flexible and added it as a suffix of
   ~magit-tag~.  2d14f84b2
 
-- Bound "C-c C-o" (in addition to "C-c C-w") ~to ~magit-browse-thing~ for
+- Bound "C-c C-o" (in addition to "C-c C-w") to ~magit-browse-thing~ for
   consistency with ~org-open-at-point~'s binding.  1e1193666
 
 - ~magit-copy-section-value~ now supports stripping diff markers.  #3716
@@ -171,8 +171,8 @@
   ~magit-use-sticky-arguments~.  The default "stickiness" of arguments
   has changed.  #3836, 0e67ca9eb
 
-- Like when moving through a log, moving moving through a list of
-  cherries now automatically updates the revision or blob buffer.  #3836
+- Like when moving through a log, moving through a list of cherries
+  now automatically updates the revision or blob buffer.  #3836
 
 - Added new option ~magit-worktree-read-directory-name-function~.  #3820
 
@@ -205,7 +205,7 @@
   commit using this or a related command and also was inconsistent.
   ~C-RET~ (~magit-diff-visit-worktree~) should be used to visit the file
   in the working tree for any commit.  Setting the new option
-  ~magit-diff-visit-avoid-head-blob~ to a non-nil value, restores the
+  ~magit-diff-visit-avoid-head-blob~ to a non-nil value restores the
   old behavior of ~magit-diff-visit-file~.  #3848
 
 - ~magit-diff-visit-worktree~ now does a much better job at jumping to
@@ -354,7 +354,6 @@
   ~magit-diff-insert-file-section~ (01cf0c165),
   ~magit-insert-unpushed-to-upstream-or-recent~ (02445d6e3),
   ~magit-ref-equal~ (46862d9d2), ~magit-ref-fullname~ (66b85daea),
-  ~magit-insert-unpulled-from-upstream~ (0363e9bac),
   ~magit-insert-unpulled-from-upstream~ (0363e9bac), ~magit-git-version~
   (0abc761f5), ~auto-revert-buffers--buffer-list-filter~ (713bd64bf),
   ~magit-insert-revision-gravatar~ (1f7e84c26) and
