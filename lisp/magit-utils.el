@@ -570,7 +570,8 @@ drop-in replacement for `completing-read', instead we use
 same name."
   (if (require 'ido-completing-read+ nil t)
       (ido-completing-read+ prompt choices predicate require-match
-                            initial-input hist def)
+                            initial-input hist
+                            (or def (and require-match (car choices))))
     (display-warning 'magit "ido-completing-read+ is not installed
 
 To use Ido completion with Magit you need to install the
