@@ -69,7 +69,7 @@
 If you have enabled `ivy-mode' or `helm-mode', then you don't
 have to customize this option; `magit-builtin-completing-read'
 will work just fine.  However, if you use Ido completion, then
-you do have to use `magit-ido-completion-read', because Ido is
+you do have to use `magit-ido-completing-read', because Ido is
 less well behaved than the former, more modern alternatives.
 
 If you would like to use Ivy or Helm completion with Magit but
