@@ -6687,6 +6687,16 @@ Also see [[man:git-worktree]]
   If the worktree at point is the one whose status is already being
   displayed in the current buffer, then show it in Dired instead.
 
+- User Option: magit-workspace-create-hook
+
+  Hook called right after new workspace has been created with workspace
+  directory as an argument.
+
+- User Option: magit-workspace-delete-hook
+
+  Hook called right after new workspace has been delete with workspace
+  directory as an argument.
+
 ** Common Commands
 
 These are some of the commands that can be used in all buffers whose

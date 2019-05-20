@@ -40,6 +40,22 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
   :group 'magit-commands
   :type 'function)
 
+(defcustom magit-worktree-create-hook nil
+  "Hook executed after new worktree is created.
+It is called with one argument, worktree directory."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-commands
+  :options '(projectile-add-known-project)
+  :type 'hook)
+
+(defcustom magit-worktree-delete-hook nil
+  "Hook executed after worktree is removed.
+It is called with one argument, worktree directory."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-commands
+  :options '(projectile-remove-known-project)
+  :type 'hook)
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-worktree "magit-worktree" nil t)
@@ -62,7 +78,9 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
                     (format "Checkout %s in new worktree: " branch))
            branch)))
   (magit-run-git "worktree" "add" (expand-file-name path) branch)
-  (magit-diff-visit-directory path))
+  (magit-diff-visit-directory path)
+  (if magit-worktree-create-hook
+      (run-hook-with-args 'magit-worktree-create-hook path)))
 
 ;;;###autoload
 (defun magit-worktree-branch (path branch start-point &optional force)
@@ -74,7 +92,9 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
      ,current-prefix-arg))
   (magit-run-git "worktree" "add" (if force "-B" "-b")
                  branch (expand-file-name path) start-point)
-  (magit-diff-visit-directory path))
+  (magit-diff-visit-directory path)
+  (if magit-worktree-create-hook
+      (run-hook-with-args 'magit-worktree-create-hook path)))
 
 (defun magit-worktree-delete (worktree)
   "Delete a worktree, defaulting to the worktree at point.
@@ -98,7 +118,9 @@ The primary worktree cannot be deleted."
           (magit-run-git "worktree" "prune"))
         (when (derived-mode-p 'magit-status-mode)
           (kill-buffer)
-          (magit-status-setup-buffer primary))))))
+          (magit-status-setup-buffer primary)))
+      (if magit-worktree-delete-hook
+          (run-hook-with-args 'magit-worktree-delete-hook worktree)))))
 
 (defun magit-worktree-status (worktree)
   "Show the status for the worktree at point.
