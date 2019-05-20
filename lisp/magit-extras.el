@@ -31,6 +31,9 @@
 
 (declare-function dired-read-shell-command "dired-aux" (prompt arg files))
 
+(defvar ido-exit)
+(defvar ido-fallback)
+
 (defgroup magit-extras nil
   "Additional functionality for Magit."
   :group 'magit-extensions)
@@ -105,9 +108,9 @@ blame to center around the line point is on."
 (defun ido-enter-magit-status ()
   "Drop into `magit-status' from file switching.
 
-This command does not work in Emacs 26.  It does work in Emacs 25
-and Emacs 27.  See https://github.com/magit/magit/issues/3634 and
-https://debbugs.gnu.org/cgi/bugreport.cgi?bug=31707.
+This command does not work in Emacs 26.1.
+See https://github.com/magit/magit/issues/3634
+and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=31707.
 
 To make this command available use something like:
 
@@ -123,10 +126,9 @@ like pretty much every other keymap:
   (define-key ido-common-completion-map
     (kbd \"C-x g\") \\='ido-enter-magit-status)"
   (interactive)
-  (with-no-warnings ; FIXME these are internal variables
-    (setq ido-exit 'fallback)
-    (setq fallback 'magit-status)      ; for Emacs 25
-    (setq ido-fallback 'magit-status)) ; for Emacs 27
+  (setq ido-exit 'fallback)
+  (setq ido-fallback 'magit-status)                ; for Emacs >= 26.2
+  (with-no-warnings (setq fallback 'magit-status)) ; for Emacs 25
   (exit-minibuffer))
 
 ;;;###autoload
