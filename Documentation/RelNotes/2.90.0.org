@@ -327,7 +327,7 @@ Also see https://emacsair.me/2018/11/08/magit-2.90.
 - When using cygwin, then ~git-commit-setup-font-lock~ could end up
   trying to run git in a non-existent directory.  #3505
 
-- ~magit-completion-read~ did not protect the value of ~this-command~ even
+- ~magit-completing-read~ did not protect the value of ~this-command~ even
   though there is code that assumes it does.  #3529
 
 - ~magit-read-file-trace~ in some cases claimed that valid user input
