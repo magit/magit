@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-669-ge9b87c76f+1)
+@subtitle for version 2.90.1 (v2.90.1-670-g01efbb2de+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-669-ge9b87c76f+1).
+This manual is for Magit version 2.90.1 (v2.90.1-670-g01efbb2de+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -2336,6 +2336,11 @@ If it does read a value in the minibuffer, then this function acts
 similar to @code{completing-read}, except for the following:
 
 @itemize
+@item
+COLLECTION must be a list of choices.  A function is not
+supported.
+
+
 @item
 If REQUIRE-MATCH is @code{nil} and the user exits without a choice, then
 @code{nil} is returned instead of an empty string.

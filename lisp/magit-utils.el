@@ -425,6 +425,9 @@ to t, otherwise nil.
 If it does read a value in the minibuffer, then this function
 acts similarly to `completing-read', except for the following:
 
+- COLLECTION must be a list of choices.  A function is not
+  supported.
+
 - If REQUIRE-MATCH is nil and the user exits without a choice,
   then nil is returned instead of an empty string.
 
