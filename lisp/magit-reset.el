@@ -39,7 +39,7 @@
    ("h" "hard     (HEAD, index and files)" magit-reset-hard)
    ("i" "index    (only)"                  magit-reset-index)
    ("w" "worktree (only)"                  magit-reset-worktree)
-   ?\n
+   ""
    ("f" "a file"                           magit-file-checkout)])
 
 ;;;###autoload

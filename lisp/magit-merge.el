@@ -54,7 +54,7 @@
     ("n" "Merge but don't commit" magit-merge-nocommit)
     ("a" "Absorb"                 magit-merge-absorb)]
    [("p" "Preview merge"          magit-merge-preview)
-    ?\n
+    ""
     ("s" "Squash merge"           magit-merge-squash)
     ("i" "Merge into"             magit-merge-into)]]
   ["Actions"
