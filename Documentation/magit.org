@@ -3902,7 +3902,7 @@ Blaming is also controlled using the following options.
 
   This hook is run when moving between chunks.
 
-1* Manipulating
+* Manipulating
 ** Creating Repository
 
 - Key: M-x magit-init, magit-init
