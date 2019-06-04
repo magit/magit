@@ -2346,6 +2346,18 @@ variable.
   - AUTHOR-WIDTH has to be an integer.  When the name of the author
     is shown, then this specifies how much space is used to do so.
 
+  e.g. to enable the "Recent commits" pane, and show the author column in it,
+  when you run
+
+  #+BEGIN_EXAMPLE
+M-x magit-status RET
+  #+END_EXAMPLE
+
+  you can set the following in your ~.emacs~:
+  #+BEGIN_SRC emacs-lisp
+(setq magit-status-margin '(t age magit-log-margin-width t 18))
+  #+END_SRC
+
 - User Option: magit-log-section-args
 
   Additional Git arguments used when creating log sections.  Only
@@ -3890,7 +3902,7 @@ Blaming is also controlled using the following options.
 
   This hook is run when moving between chunks.
 
-* Manipulating
+1* Manipulating
 ** Creating Repository
 
 - Key: M-x magit-init, magit-init
