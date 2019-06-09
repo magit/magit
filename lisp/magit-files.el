@@ -476,7 +476,8 @@ staged as well as unstaged changes."
                                (magit-confirm-files 'untrack it "Untrack"))
                            (list (magit-read-tracked-file "Untrack file"))))
                      current-prefix-arg))
-  (magit-run-git "rm" "--cached" (and force "--force") "--" files))
+  (magit-with-toplevel
+    (magit-run-git "rm" "--cached" (and force "--force") "--" files)))
 
 (defun magit-file-delete (files &optional force)
   "Delete the selected FILES or one file read in the minibuffer.
