@@ -1265,7 +1265,7 @@ Change \"revA..revB\" to \"revA...revB\", or vice versa."
             (replace-match (if (string= (match-string 2 magit-buffer-range) "..")
                                "..."
                              "..")
-                           t t magit-buffer-range))
+                           t t magit-buffer-range 2))
     (user-error "No range to change"))
   (magit-refresh))
 
