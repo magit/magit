@@ -488,9 +488,7 @@ the upstream isn't ahead of the current branch) show."
   :class 'transient-option
   ;; For historic reasons (and because it easy to guess what "-n"
   ;; stands for) this is the only argument where we do not use the
-  ;; long argument ("--max-count").  If we did switch to the long
-  ;; argument, then that would cause breakage for users who have
-  ;; customized `magit-log-arguments'.
+  ;; long argument ("--max-count").
   :shortarg "-n"
   :argument "-n"
   :reader 'transient-read-number-N+)
@@ -614,9 +612,9 @@ completion candidates."
 ;;;###autoload
 (defun magit-log-buffer-file (&optional follow beg end)
   "Show log for the blob or file visited in the current buffer.
-With a prefix argument or when `--follow' is part of
-`magit-log-arguments', then follow renames.  When the region is
-active, restrict the log to the lines that the region touches."
+With a prefix argument or when `--follow' is an active log
+argument, then follow renames.  When the region is active,
+restrict the log to the lines that the region touches."
   (interactive
    (cons current-prefix-arg
          (and (region-active-p)
