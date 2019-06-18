@@ -64,6 +64,7 @@ and the buffer-local values of the variables referenced in its
         bookmark)
     (user-error "Bookmarking is not implemented for %s buffers" major-mode)))
 
+;;;###autoload
 (defun magit--handle-bookmark (bookmark)
   "Open a bookmark created by `magit--make-bookmark'.
 Call the `magit-*-setup-buffer' function of the the major-mode
