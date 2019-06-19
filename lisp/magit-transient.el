@@ -165,9 +165,13 @@
      (propertize "[" 'face 'transient-inactive-value)
      (mapconcat (lambda (choice)
                   (propertize choice 'face (if (equal choice local)
-                                               'transient-value
+                                               (if (member choice choices)
+                                                   'transient-value
+                                                 'font-lock-warning-face)
                                              'transient-inactive-value)))
-                choices
+                (if (and local (not (member local choices)))
+                    (cons local choices)
+                  choices)
                 (propertize "|" 'face 'transient-inactive-value))
      (and (or global fallback default)
           (concat
