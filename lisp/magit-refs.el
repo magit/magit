@@ -182,16 +182,21 @@ change the verbosity of this column."
 (defcustom magit-refs-filter-alist nil
   "Alist controlling which refs are omitted from `magit-refs-mode' buffers.
 
+The purpose of this option is to forgo displaying certain refs
+based on their name.  If you want to not display any refs of a
+certain type, then you should remove the appropriate function
+from `magit-refs-sections-hook' instead.
+
 All keys are tried in order until one matches.  Then its value
 is used and subsequent elements are ignored.  If the value is
 non-nil, then the reference is displayed, otherwise it is not.
 If no element matches, then the reference is displayed.
 
-A key can either be a regular expression that the refname has
-to match, or a function that takes the refname as only argument
-and returns a boolean.  Contrary to how they are displayed in
-the buffer, for comparison each tag begins with \"tags/\" and
-each remote branch with \"<remote>/\"."
+A key can either be a regular expression that the refname has to
+match, or a function that takes the refname as only argument and
+returns a boolean.  A remote branch such as \"origin/master\" is
+displayed as just \"master\", however for this comparison the
+former is used."
   :package-version '(magit . "2.12.0")
   :group 'magit-refs
   :type '(alist :key-type   (choice  :tag "Key" regexp function)

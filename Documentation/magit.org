@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-678-gfd93746a4+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-681-g251d86909+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-678-gfd93746a4+1).
+This manual is for Magit version 2.90.1 (v2.90.1-681-g251d86909+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -3447,6 +3447,11 @@ should also change the others to keep things aligned.  The following
 
 - User Option: magit-refs-filter-alist
 
+  The purpose of this option is to forgo displaying certain refs
+  based on their name.  If you want to not display any refs of a
+  certain type, then you should remove the appropriate function
+  from ~magit-refs-sections-hook~ instead.
+
   This alist controls which tags and branches are omitted from being
   displayed in ~magit-refs-mode~ buffers.  If it is ~nil~, then all refs
   are displayed (subject to ~magit-refs-sections-hook~).
@@ -3458,9 +3463,9 @@ should also change the others to keep things aligned.  The following
 
   A key can either be a regular expression that the refname has to
   match, or a function that takes the refname as only argument and
-  returns a boolean.  Contrary to how they are displayed in the
-  buffer, for comparison each tag begins with "tags/" and each remote
-  branch with "<remote>/".
+  returns a boolean.  A remote branch such as "origin/master" is
+  displayed as just "master", however for this comparison the
+  former is used.
 
 - Key: RET, magit-visit-ref
 
