@@ -66,6 +66,9 @@
 ;; From later in `magit-git'.
 (defvar magit-tramp-process-environment nil)
 
+(eval-when-compile
+  (cl-pushnew 'number eieio--known-slot-names))
+
 ;;; Git implementations
 
 (defvar magit-inhibit-libgit nil
@@ -1273,7 +1276,12 @@ to, or to some other symbolic-ref that points to the same ref."
         (commit (or (magit--painted-branch-at-point)
                     (let ((rev (oref it value)))
                       (or (magit-name-branch rev) rev))))
-        (tag (magit-ref-maybe-qualify (oref it value) "tags/")))
+        (tag (magit-ref-maybe-qualify (oref it value) "tags/"))
+        (pullreq (or (and (fboundp 'forge--pullreq-branch)
+                          (magit-branch-p
+                           (forge--pullreq-branch (oref it value))))
+                     (magit-ref-p (format "refs/pullreqs/%s"
+                                          (oref (oref it value) number))))))
       (thing-at-point 'git-revision t)
       (and (derived-mode-p 'magit-stash-mode
                            'magit-merge-preview-mode
