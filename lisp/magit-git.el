@@ -1722,8 +1722,8 @@ PATH has to be relative to the super-repository."
   (magit-git-success "symbolic-ref" "--quiet" name))
 
 (defun magit-ref-p (rev)
-  (or (car (member rev (magit-list-refs)))
-      (car (member rev (magit-list-refnames)))))
+  (or (car (member rev (magit-list-refs "refs/")))
+      (car (member rev (magit-list-refnames "refs/")))))
 
 (defun magit-branch-p (rev)
   (or (car (member rev (magit-list-branches)))
