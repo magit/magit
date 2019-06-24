@@ -175,7 +175,16 @@ then also remove the respective remote branch."
     (magit--merge-absorb-1 branch args)))
 
 (defun magit--merge-absorb-1 (branch args)
-  (magit-run-git-async "merge" args "--no-edit" branch)
+  (if-let ((pr (magit-get "branch" branch "pullRequest")))
+      (magit-run-git-async
+       "merge" args "-m"
+       (format "Merge branch '%s'%s [%s]"
+               branch
+               (let ((current (magit-get-current-branch)))
+                 (if (equal current "master") "" (format " into %s" current)))
+               pr)
+       branch)
+    (magit-run-git-async "merge" args "--no-edit" branch))
   (set-process-sentinel
    magit-this-process
    (lambda (process event)
