@@ -155,14 +155,26 @@ because the latter may make use of Imenu's outdated cache."
   :group 'magit-faces)
 
 (defface magit-log-author
-  '((((class color) (background light)) :foreground "firebrick")
-    (((class color) (background  dark)) :foreground "tomato"))
+  '((((class color) (background light))
+     :foreground "firebrick"
+     :slant normal
+     :weight normal)
+    (((class color) (background  dark))
+     :foreground "tomato"
+     :slant normal
+     :weight normal))
   "Face for the author part of the log output."
   :group 'magit-faces)
 
 (defface magit-log-date
-  '((((class color) (background light)) :foreground "grey30")
-    (((class color) (background  dark)) :foreground "grey80"))
+  '((((class color) (background light))
+     :foreground "grey30"
+     :slant normal
+     :weight normal)
+    (((class color) (background  dark))
+     :foreground "grey80"
+     :slant normal
+     :weight normal))
   "Face for the date part of the log output."
   :group 'magit-faces)
 
