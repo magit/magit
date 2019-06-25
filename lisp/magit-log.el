@@ -1320,28 +1320,32 @@ The shortstat style is experimental and rather slow."
   (when-let ((option (magit-margin-option)))
     (if magit-log-margin-show-shortstat
         (magit-log-format-shortstat-margin rev)
-      (pcase-let ((`(,_ ,style ,width ,details ,details-width)
-                   (or magit-buffer-margin
-                       (symbol-value option))))
-        (magit-make-margin-overlay
-         (concat (and details
-                      (concat (propertize (truncate-string-to-width
-                                           (or author "")
-                                           details-width
-                                           nil ?\s (make-string 1 magit-ellipsis))
-                                          'face 'magit-log-author)
-                              " "))
-                 (propertize
-                  (if (stringp style)
-                      (format-time-string
-                       style
-                       (seconds-to-time (string-to-number date)))
-                    (pcase-let* ((abbr (eq style 'age-abbreviated))
-                                 (`(,cnt ,unit) (magit--age date abbr)))
-                      (format (format (if abbr "%%2i%%-%ic" "%%2i %%-%is")
-                                      (- width (if details (1+ details-width) 0)))
-                              cnt unit)))
-                  'face 'magit-log-date)))))))
+      (magit-log-format-author-margin author date))))
+
+(defun magit-log-format-author-margin (author date &optional previous-line)
+  (pcase-let ((`(,_ ,style ,width ,details ,details-width)
+               (or magit-buffer-margin
+                   (symbol-value option))))
+    (magit-make-margin-overlay
+     (concat (and details
+                  (concat (propertize (truncate-string-to-width
+                                       (or author "")
+                                       details-width
+                                       nil ?\s (make-string 1 magit-ellipsis))
+                                      'face 'magit-log-author)
+                          " "))
+             (propertize
+              (if (stringp style)
+                  (format-time-string
+                   style
+                   (seconds-to-time (string-to-number date)))
+                (pcase-let* ((abbr (eq style 'age-abbreviated))
+                             (`(,cnt ,unit) (magit--age date abbr)))
+                  (format (format (if abbr "%%2i%%-%ic" "%%2i %%-%is")
+                                  (- width (if details (1+ details-width) 0)))
+                          cnt unit)))
+              'face 'magit-log-date))
+     previous-line)))
 
 (defun magit-log-format-shortstat-margin (rev)
   (magit-make-margin-overlay
