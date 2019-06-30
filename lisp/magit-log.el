@@ -1317,7 +1317,7 @@ The shortstat style is experimental and rather slow."
   (magit-set-buffer-margin nil t))
 
 (defun magit-log-format-margin (rev author date)
-  (when-let ((option (magit-margin-option)))
+  (when (magit-margin-option)
     (if magit-log-margin-show-shortstat
         (magit-log-format-shortstat-margin rev)
       (magit-log-format-author-margin author date))))
@@ -1325,7 +1325,7 @@ The shortstat style is experimental and rather slow."
 (defun magit-log-format-author-margin (author date &optional previous-line)
   (pcase-let ((`(,_ ,style ,width ,details ,details-width)
                (or magit-buffer-margin
-                   (symbol-value option))))
+                   (symbol-value (magit-margin-option)))))
     (magit-make-margin-overlay
      (concat (and details
                   (concat (propertize (truncate-string-to-width
