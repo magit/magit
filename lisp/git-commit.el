@@ -574,7 +574,8 @@ Don't use it directly, instead enable `global-git-commit-mode'."
 (put 'git-commit-mode 'permanent-local t)
 
 (defun git-commit-setup-changelog-support ()
-  "Treat ChangeLog entries as paragraphs."
+  "Treat ChangeLog entries as unindented paragraphs."
+  (setq-local fill-indent-according-to-mode t)
   (setq-local paragraph-start (concat paragraph-start "\\|\\*\\|(")))
 
 (defun git-commit-turn-on-auto-fill ()
