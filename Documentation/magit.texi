@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-681-g251d86909+1)
+@subtitle for version 2.90.1 (v2.90.1-691-g23267cf33+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-681-g251d86909+1).
+This manual is for Magit version 2.90.1 (v2.90.1-691-g23267cf33+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4304,7 +4304,7 @@ If @code{nil}, then don't insert any gravatar images.  If @code{t}, then insert
 both images.  If @code{author} or @code{committer}, then insert only the
 respective image.
 
-If you have customized the option @code{magit-revision-header-format}
+If you have customized the option @code{magit-revision-headers-format}
 and want to insert the images then you might also have to specify
 where to do so.  In that case the value has to be a cons-cell of
 two regular expressions.  The car specifies where to insert the
