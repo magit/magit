@@ -683,8 +683,7 @@ modes is toggled, then this mode also gets toggled automatically.
 (defun magit-blame--format-time-string (time tz)
   (let* ((time-format (or (magit-blame--style-get 'time-format)
                           magit-blame-time-format))
-         (tz-in-second (and (not (version< emacs-version "25"))
-                            (string-match "%z" time-format)
+         (tz-in-second (and (string-match "%z" time-format)
                             (car (last (parse-time-string tz))))))
     (format-time-string time-format
                         (seconds-to-time (string-to-number time))

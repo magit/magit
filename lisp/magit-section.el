@@ -1182,9 +1182,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (unless (eq magit-section-highlighted-section section)
           (setq magit-section-highlighted-section
                 (and (not (oref section hidden))
-                     section))))
-      (when (version< emacs-version "25.1")
-        (setq deactivate-mark nil)))
+                     section)))))
     (magit-section-maybe-paint-visibility-ellipses)))
 
 (defun magit-section-highlight (section selection)

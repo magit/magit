@@ -2664,16 +2664,14 @@ actually a `diff' but a `diffstat' section."
 
 (defun magit-diff-use-hunk-region-p ()
   (and (region-active-p)
-       (not (and (if (version< emacs-version "25.1")
-                     (eq this-command 'mouse-drag-region)
-                   ;; TODO implement this from first principals
-                   ;; currently it's trial-and-error
-                   (or (eq this-command 'mouse-drag-region)
-                       (eq last-command 'mouse-drag-region)
-                       ;; When another window was previously
-                       ;; selected then the last-command is
-                       ;; some byte-code function.
-                       (byte-code-function-p last-command)))
+       ;; TODO implement this from first principals
+       ;; currently it's trial-and-error
+       (not (and (or (eq this-command 'mouse-drag-region)
+                     (eq last-command 'mouse-drag-region)
+                     ;; When another window was previously
+                     ;; selected then the last-command is
+                     ;; some byte-code function.
+                     (byte-code-function-p last-command))
                  (eq (region-end) (region-beginning))))))
 
 ;;; Diff Highlight
