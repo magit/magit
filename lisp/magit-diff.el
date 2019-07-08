@@ -1926,9 +1926,13 @@ section or a child thereof."
           (while (looking-at "^[-0-9]+\t[-0-9]+\t\\(.+\\)$")
             (push (magit-decode-git-path
                    (let ((f (match-string 1)))
-                     (if (string-match " => " f)
-                         (substring f (match-end 0))
-                       f)))
+                     (cond
+                      ((string-match "\\`\\([^{]+\\){\\(.+\\) => \\(.+\\)}\\'" f)
+                       (concat (match-string 1 f)
+                               (match-string 3 f)))
+                      ((string-match " => " f)
+                       (substring f (match-end 0)))
+                      (t f))))
                   files)
             (magit-delete-line))
           (setq files (nreverse files))
