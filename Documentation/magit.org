@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-691-g23267cf33+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-696-g2dd1e5a94+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-691-g23267cf33+1).
+This manual is for Magit version 2.90.1 (v2.90.1-696-g2dd1e5a94+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -3017,7 +3017,7 @@ Files and Blobs from a Diff]] for more information and the key bindings.
   section.  Otherwise, jump to the diffstat section or a child
   thereof.
 
-The next two commands are not specific to Magit-Diff mdoe (or and
+The next two commands are not specific to Magit-Diff mode (or and
 Magit buffer for that matter), but it might be worth pointing out
 that they are available here too.
 

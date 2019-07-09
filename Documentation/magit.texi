@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-691-g23267cf33+1)
+@subtitle for version 2.90.1 (v2.90.1-696-g2dd1e5a94+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-691-g23267cf33+1).
+This manual is for Magit version 2.90.1 (v2.90.1-696-g2dd1e5a94+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4099,7 +4099,7 @@ section.  Otherwise, jump to the diffstat section or a child
 thereof.
 @end table
 
-The next two commands are not specific to Magit-Diff mdoe (or and
+The next two commands are not specific to Magit-Diff mode (or and
 Magit buffer for that matter), but it might be worth pointing out
 that they are available here too.
 
