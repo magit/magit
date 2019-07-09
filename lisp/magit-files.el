@@ -458,7 +458,7 @@ If FILE isn't tracked in Git, fallback to using `rename-file'."
     (when oldbuf
       (with-current-buffer oldbuf
         (let ((buffer-read-only buffer-read-only))
-          (set-visited-file-name newname))
+          (set-visited-file-name newname nil t))
         (if (fboundp 'vc-refresh-state)
             (vc-refresh-state)
           (with-no-warnings
