@@ -445,25 +445,25 @@ If FILE isn't tracked in Git, fallback to using `rename-file'."
                                    (and dir (expand-file-name dir)))))
      (list (expand-file-name file (magit-toplevel))
            (expand-file-name newname))))
-  (if (magit-file-tracked-p (magit-convert-filename-for-git file))
-      (let ((oldbuf (get-file-buffer file)))
-        (when (and oldbuf (buffer-modified-p oldbuf))
-          (user-error "Save %s before moving it" file))
-        (when (file-exists-p newname)
-          (user-error "%s already exists" newname))
-        (magit-run-git "mv"
-                       (magit-convert-filename-for-git file)
-                       (magit-convert-filename-for-git newname))
-        (when oldbuf
-          (with-current-buffer oldbuf
-            (let ((buffer-read-only buffer-read-only))
-              (set-visited-file-name newname))
-            (if (fboundp 'vc-refresh-state)
-                (vc-refresh-state)
-              (with-no-warnings
-                (vc-find-file-hook))))))
-    (rename-file file newname current-prefix-arg)
-    (magit-refresh)))
+  (let ((oldbuf (get-file-buffer file)))
+    (when (and oldbuf (buffer-modified-p oldbuf))
+      (user-error "Save %s before moving it" file))
+    (when (file-exists-p newname)
+      (user-error "%s already exists" newname))
+    (if (magit-file-tracked-p (magit-convert-filename-for-git file))
+        (magit-call-git "mv"
+                        (magit-convert-filename-for-git file)
+                        (magit-convert-filename-for-git newname))
+      (rename-file file newname current-prefix-arg))
+    (when oldbuf
+      (with-current-buffer oldbuf
+        (let ((buffer-read-only buffer-read-only))
+          (set-visited-file-name newname))
+        (if (fboundp 'vc-refresh-state)
+            (vc-refresh-state)
+          (with-no-warnings
+            (vc-find-file-hook))))))
+  (magit-refresh))
 
 (defun magit-file-untrack (files &optional force)
   "Untrack the selected FILES or one file read in the minibuffer.
