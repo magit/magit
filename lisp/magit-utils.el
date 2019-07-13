@@ -101,6 +101,7 @@ alphabetical order, depending on your version of Ivy."
     (forge-edit-topic-title   nil t)
     (forge-edit-topic-state   nil t)
     (forge-edit-topic-labels  nil t)
+    (forge-edit-topic-marks   nil t)
     (forge-edit-topic-assignees nil t)
     (forge-edit-topic-review-requests nil t)
     (forge-visit-issue        nil t)
