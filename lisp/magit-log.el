@@ -397,9 +397,14 @@ the upstream isn't ahead of the current branch) show."
    (7 "=m" "Omit merges"            "--no-merges")
    (7 "=p" "First parent"           "--first-parent")]
   ["History simplification"
+   (  "-D" "Simplify by decoration"                  "--simplify-by-decoration")
    (magit:--)
-   ("-f" "Follow renames when showing single-file log" "--follow") ;3
-   ("-D" "Simplify by decoration" "--simplify-by-decoration")]
+   (  "-f" "Follow renames when showing single-file log"     "--follow") ;3
+   (6 "/s" "Only commits changing given paths"               "--sparse")
+   (7 "/d" "Only selected commits plus meaningful history"   "--dense")
+   (7 "/a" "Only commits existing directly on ancestry path" "--ancestry-path")
+   (6 "/f" "Do not prune history"                            "--full-history")
+   (7 "/m" "Prune some history"                              "--simplify-merges")]
   ["Commit ordering"
    (magit-log:--*-order)
    ("-r" "Reverse order" "--reverse")]
@@ -444,9 +449,14 @@ the upstream isn't ahead of the current branch) show."
     (magit-log:-S)
     (magit-log:-L)]
    ["History simplification"
+    (  "-D" "Simplify by decoration"                  "--simplify-by-decoration")
     (magit:--)
-    ("-f" "Follow renames when showing single-file log" "--follow")
-    ("-D" "Simplify by decoration" "--simplify-by-decoration")]
+    (  "-f" "Follow renames when showing single-file log"     "--follow") ;3
+    (6 "/s" "Only commits changing given paths"               "--sparse")
+    (7 "/d" "Only selected commits plus meaningful history"   "--dense")
+    (7 "/a" "Only commits existing directly on ancestry path" "--ancestry-path")
+    (6 "/f" "Do not prune history"                            "--full-history")
+    (7 "/m" "Prune some history"                              "--simplify-merges")]
    ["Commit ordering"
     (magit-log:--*-order)
     ("-r" "Reverse order" "--reverse")]
