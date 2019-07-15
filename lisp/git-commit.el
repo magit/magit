@@ -471,13 +471,13 @@ This is only used if Magit is available."
 
 ;;;###autoload
 (defun git-commit-setup ()
-  ;; Pretend that git-commit-mode is a major-mode,
-  ;; so that directory-local settings can be used.
   (when (fboundp 'magit-toplevel)
     ;; `magit-toplevel' is autoloaded and defined in magit-git.el,
     ;; That library declares this functions without loading
     ;; magit-process.el, which defines it.
     (require 'magit-process nil t))
+  ;; Pretend that git-commit-mode is a major-mode,
+  ;; so that directory-local settings can be used.
   (let ((default-directory
           (or (and (not (file-exists-p ".dir-locals.el"))
                    ;; When $GIT_DIR/.dir-locals.el doesn't exist,
