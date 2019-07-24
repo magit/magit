@@ -296,6 +296,8 @@ doesn't find the executable, then consult the info node
     (define-key map "jn" 'magit-jump-to-untracked)
     (define-key map "ju" 'magit-jump-to-unstaged)
     (define-key map "js" 'magit-jump-to-staged)
+    (define-key map "ja" 'magit-jump-to-assume-unchanged)
+    (define-key map "jw" 'magit-jump-to-skip-worktree)
     (define-key map "jfu" 'magit-jump-to-unpulled-from-upstream)
     (define-key map "jfp" 'magit-jump-to-unpulled-from-pushremote)
     (define-key map "jpu" 'magit-jump-to-unpushed-to-upstream)
@@ -685,6 +687,22 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
         (magit-insert-files files base)
         (insert ?\n)))))
 
+(defun magit-insert-assume-unchanged-files ()
+  "Insert a tree of assume unchanged files.
+
+If the first element of `magit-buffer-diff-files' is a
+directory, then limit the list to files below that.  The value
+of that variable can be set using \"D -- DIRECTORY RET g\"."
+  (when-let ((files (magit-assume-unchanged-files)))
+    (let* ((base (car magit-buffer-diff-files))
+           (base (and base (file-directory-p base) base)))
+      (magit-insert-section (assume-unchanged nil t)
+        (magit-insert-heading "Assume-unchanged files:")
+        (magit-insert-files files base)
+        (insert ?\n)))))
+
+(magit-define-section-jumper magit-jump-to-assume-unchanged "Assume-unchanged files" assume-unchanged)
+
 (defun magit-insert-skip-worktree-files ()
   "Insert a tree of skip-worktree files.
 
@@ -698,6 +716,8 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
         (magit-insert-heading "Skip-worktree files:")
         (magit-insert-files files base)
         (insert ?\n)))))
+
+(magit-define-section-jumper magit-jump-to-skip-worktree "Skip-worktree files" skip-worktree)
 
 (defun magit-insert-files (files directory)
   (while (and files (string-prefix-p (or directory "") (car files)))

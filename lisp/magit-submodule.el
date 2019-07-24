@@ -36,7 +36,10 @@
     magit-insert-modules-unpulled-from-upstream
     magit-insert-modules-unpulled-from-pushremote
     magit-insert-modules-unpushed-to-upstream
-    magit-insert-modules-unpushed-to-pushremote)
+    magit-insert-modules-unpushed-to-pushremote
+    magit-insert-assume-unchanged-files
+    magit-insert-skip-worktree-files
+    )
   "Hook run by `magit-insert-modules'.
 
 That function isn't part of `magit-status-sections-hook's default

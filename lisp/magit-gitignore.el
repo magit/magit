@@ -130,6 +130,26 @@ Rules that are defined in that file affect all local repositories."
     (magit-completing-read "File or pattern to ignore"
                            choices nil nil nil nil default)))
 
+;;; Assume unchanged Commands
+;;;###autoload
+(defun magit-assume-unchanged (file)
+  "Call \"git update-index --assume-unchanged FILE\"."
+  (interactive (list (magit-read-file-choice "Assume unchanged for: "
+                                             (cl-set-difference
+                                              (magit-list-all-files)
+                                              (magit-assume-unchanged-files)))))
+  (magit-with-toplevel
+    (magit-run-git "update-index" "--assume-unchanged" "--" file)))
+
+;;;###autoload
+(defun magit-no-assume-unchanged (file)
+  "Call \"git update-index --no-assume-unchanged FILE\"."
+  (interactive (list (magit-read-file-choice "Do not assume unchanged for: "
+                                             (magit-assume-unchanged-files))))
+  (magit-with-toplevel
+    (magit-run-git "update-index" "--no-assume-unchanged" "--" file)))
+
+
 ;;; Skip Worktree Commands
 
 ;;;###autoload
