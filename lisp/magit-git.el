@@ -828,6 +828,13 @@ tracked file."
 (defun magit-file-tracked-p (file)
   (magit-git-success "ls-files" "--error-unmatch" file))
 
+ 
+(defun magit-list-all-files ()
+  (magit-with-toplevel
+    (with-temp-buffer
+      (apply #'magit-git-insert '("ls-files" "-z" "--full-name"))
+      (split-string (buffer-string) "\0" t))))
+
 (defun magit-list-files (&rest args)
   (apply #'magit-git-items "ls-files" "-z" "--full-name" args))
 
