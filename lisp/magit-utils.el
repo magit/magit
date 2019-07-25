@@ -104,6 +104,7 @@ alphabetical order, depending on your version of Ivy."
     (forge-edit-topic-marks   nil t)
     (forge-edit-topic-assignees nil t)
     (forge-edit-topic-review-requests nil t)
+    (forge-pull-pullreq       nil t)
     (forge-visit-issue        nil t)
     (forge-visit-pullreq      nil t))
   "When not to offer alternatives and ask for confirmation.
