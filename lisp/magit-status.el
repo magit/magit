@@ -300,6 +300,8 @@ doesn't find the executable, then consult the info node
     (define-key map "jfp" 'magit-jump-to-unpulled-from-pushremote)
     (define-key map "jpu" 'magit-jump-to-unpushed-to-upstream)
     (define-key map "jpp" 'magit-jump-to-unpushed-to-pushremote)
+    (define-key map "ja" 'magit-jump-to-assume-unchanged)
+    (define-key map "jw" 'magit-jump-to-skip-worktree)
     (define-key map [remap dired-jump] 'magit-dired-jump)
     map)
   "Keymap for `magit-status-mode'.")
@@ -685,6 +687,8 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
         (magit-insert-files files base)
         (insert ?\n)))))
 
+(magit-define-section-jumper magit-jump-to-skip-worktree "Skip-worktree files" skip-worktree)
+
 (defun magit-insert-skip-worktree-files ()
   "Insert a tree of skip-worktree files.
 
@@ -698,6 +702,8 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
         (magit-insert-heading "Skip-worktree files:")
         (magit-insert-files files base)
         (insert ?\n)))))
+
+(magit-define-section-jumper magit-jump-to-assume-unchanged "Assume-unchanged files" assume-unchanged)
 
 (defun magit-insert-assume-unchanged-files ()
   "Insert a tree of files that are assumed to be unchanged.
