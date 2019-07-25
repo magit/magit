@@ -137,9 +137,10 @@ Rules that are defined in that file affect all local repositories."
   "Call \"git update-index --skip-worktree -- FILE\"."
   (interactive
    (list (magit-read-file-choice "Skip worktree for"
-                                 (cl-set-difference
-                                  (magit-list-files)
-                                  (magit-skip-worktree-files)))))
+                                 (magit-with-toplevel
+                                   (cl-set-difference
+                                    (magit-list-files)
+                                    (magit-skip-worktree-files))))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--skip-worktree" "--" file)))
 
@@ -148,7 +149,8 @@ Rules that are defined in that file affect all local repositories."
   "Call \"git update-index --no-skip-worktree -- FILE\"."
   (interactive
    (list (magit-read-file-choice "Do not skip worktree for"
-                                 (magit-skip-worktree-files))))
+                                 (magit-with-toplevel
+                                   (magit-skip-worktree-files)))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--no-skip-worktree" "--" file)))
 
