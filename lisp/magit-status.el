@@ -699,6 +699,20 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
         (magit-insert-files files base)
         (insert ?\n)))))
 
+(defun magit-insert-assume-unchanged-files ()
+  "Insert a tree of files that are assumed to be unchanged.
+
+If the first element of `magit-buffer-diff-files' is a
+directory, then limit the list to files below that.  The value
+of that variable can be set using \"D -- DIRECTORY RET g\"."
+  (when-let ((files (magit-assume-unchanged-files)))
+    (let* ((base (car magit-buffer-diff-files))
+           (base (and base (file-directory-p base) base)))
+      (magit-insert-section (assume-unchanged nil t)
+        (magit-insert-heading "Assume-unchanged files:")
+        (magit-insert-files files base)
+        (insert ?\n)))))
+
 (defun magit-insert-files (files directory)
   (while (and files (string-prefix-p (or directory "") (car files)))
     (let ((dir (file-name-directory (car files))))
