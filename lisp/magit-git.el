@@ -866,6 +866,11 @@ tracked file."
                     (substring it 2)))
           (magit-list-files "-t")))
 
+(defun magit-assume-unchanged-files ()
+  (--keep (and (and (memq (aref it 0) '(?h ?s ?m ?r ?c ?k))
+                    (substring it 2)))
+          (magit-list-files "-v")))
+
 (defun magit-revision-files (rev)
   (magit-with-toplevel
     (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
