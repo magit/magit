@@ -237,14 +237,20 @@ defaults to nil) for any BUFFER."
              ;; ^ `tramp-handle-file-in-directory-p' lacks this optimization.
              (file-in-directory-p dir top))))))
 
-(defun auto-revert-buffers--buffer-list-filter ()
+(defun auto-revert-buffers--buffer-list-filter (fn)
   (cl-incf magit-auto-revert-counter)
-  (when auto-revert-buffer-list-filter
-    (setq auto-revert-buffer-list
-          (-filter auto-revert-buffer-list-filter
-                   auto-revert-buffer-list))))
+  (if (or global-auto-revert-mode
+          (not auto-revert-buffer-list)
+          (not auto-revert-buffer-list-filter))
+      (funcall fn)
+    (let ((auto-revert-buffer-list
+           (-filter auto-revert-buffer-list-filter
+                    auto-revert-buffer-list)))
+      (funcall fn))
+    (unless auto-revert-timer
+      (auto-revert-set-timer))))
 
-(advice-add 'auto-revert-buffers :before
+(advice-add 'auto-revert-buffers :around
             'auto-revert-buffers--buffer-list-filter)
 
 ;;; _
