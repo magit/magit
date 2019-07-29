@@ -193,6 +193,7 @@ The major mode configured here is turned on by the minor mode
   :get (and (featurep 'magit-utils) 'magit-hook-custom-get)
   :options '(git-commit-save-message
              git-commit-setup-changelog-support
+             magit-generate-changelog   ; New in Emacs 27.
              git-commit-turn-on-auto-fill
              git-commit-turn-on-flyspell
              git-commit-propertize-diff
@@ -574,8 +575,39 @@ Don't use it directly, instead enable `global-git-commit-mode'."
 
 (put 'git-commit-mode 'permanent-local t)
 
+(declare-function diff-add-log-current-defuns "diff-mode" ())
+(declare-function change-log-insert-entries "add-log" (changelogs))
+(declare-function magit-commit-message-buffer "magit-commit" ())
+
+(defun magit-generate-changelog ()
+  "Insert ChangeLog entries into the current buffer.
+The entries are generated from the diff being committed."
+  (interactive)
+  (unless (magit-commit-message-buffer)
+    (user-error "No commit in progress"))
+  (require 'diff-mode) ;; `diff-add-log-current-defuns'.
+  (require 'vc-git)    ;; `vc-git-diff'.
+  (let ((rev1 nil)
+        (rev2 nil))
+    (unless (magit-anything-staged-p)
+      ;; Amending.
+      (setq rev1 "HEAD^1"))
+    ;; Magit may have updated the files without notifying vc, but
+    ;; `diff-add-log-current-defuns' relies on vc being up-to-date.
+    (mapc #'vc-file-clearprops (magit-staged-files))
+    (change-log-insert-entries
+     (with-temp-buffer
+       (vc-git-diff nil rev1 rev2 (current-buffer))
+       ;; `diff-find-source-location' consults these vars.
+       (defvar diff-vc-revisions)
+       (setq-local diff-vc-revisions (list rev1 rev2))
+       (setq-local diff-vc-backend 'Git)
+       (diff-add-log-current-defuns)))))
+
 (defun git-commit-setup-changelog-support ()
   "Treat ChangeLog entries as unindented paragraphs."
+  (when (fboundp 'log-indent-fill-entry) ; New in Emacs 27.
+    (setq-local fill-paragraph-function #'log-indent-fill-entry))
   (setq-local fill-indent-according-to-mode t)
   (setq-local paragraph-start (concat paragraph-start "\\|\\*\\|(")))
 
