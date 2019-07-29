@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-696-g2dd1e5a94+1)
+@subtitle for version 2.90.1 (v2.90.1-718-gfb762f459+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-696-g2dd1e5a94+1).
+This manual is for Magit version 2.90.1 (v2.90.1-718-gfb762f459+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4221,18 +4221,18 @@ only when @code{magit-diff-paint-whitespace} is non-nil.
 
 @defopt magit-diff-highlight-indentation
 
-Highlight the "wrong" indentation style.  Used only when
-@code{magit-diff-paint-whitespace} is non-nil.
+This option controls whether to highlight the indentaion in case it
+used the "wrong" indentation style.  Indentation is only highlighted
+if @code{magit-diff-paint-whitespace} is also non-nil.
 
-The value is a list of cons cells.  The car is a regular expression,
-and the cdr is the value that applies to repositories whose
-directory matches the regular expression.  If more than one element
-matches, then the @strong{last} element in the list applies.  The default
-value should therefore come first in the list.
+The value is an alist of the form @code{((REGEXP . INDENT)...)}.  The path
+to the current repository is matched against each element in reverse
+order.  Therefore if a REGEXP matches, then earlier elements are not
+tried.
 
-If the value is @code{tabs}, highlight indentation with tabs.  If the value
-is an integer, highlight indentation with at least that many spaces.
-Otherwise, highlight neither.
+If the used INDENT is @code{tabs}, highlight indentation with tabs.  If
+INDENT is an integer, highlight indentation with at least that many
+spaces.  Otherwise, highlight neither.
 @end defopt
 
 @defopt magit-diff-hide-trailing-cr-characters
