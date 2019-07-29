@@ -160,7 +160,7 @@ Rules that are defined in that file affect all local repositories."
 (defun magit-assume-unchanged (file)
   "Call \"git update-index --assume-unchanged -- FILE\"."
   (interactive
-   (list (magit-read-file-choice "Assume file to be unchanged for"
+   (list (magit-read-file-choice "Assume file to be unchanged"
                                  (magit-with-toplevel
                                    (cl-set-difference
                                     (magit-list-files)
@@ -172,7 +172,7 @@ Rules that are defined in that file affect all local repositories."
 (defun magit-no-assume-unchanged (file)
   "Call \"git update-index --no-assume-unchanged -- FILE\"."
   (interactive
-   (list (magit-read-file-choice "Do not assume file to be unchanged for"
+   (list (magit-read-file-choice "Do not assume file to be unchanged"
                                  (magit-with-toplevel
                                    (magit-assume-unchanged-files)))))
   (magit-with-toplevel
