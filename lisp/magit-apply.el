@@ -161,21 +161,56 @@ so causes the change to be applied to the index as well."
                      (concat (magit-diff-file-header section)
                              (magit-apply--section-content section))))
 
+(defun magit-apply--adjust-hunk-new-starts (hunks)
+  "Adjust new line numbers in headers of HUNKS for partial application.
+HUNKS should be a list of ordered, contiguous hunks to be applied
+from a file.  For example, if there is a sequence of hunks with
+the headers
+
+  @@ -2,6 +2,7 @@
+  @@ -10,6 +11,7 @@
+  @@ -18,6 +20,7 @@
+
+and only the second and third are to be applied, they would be
+adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
+  (let* ((first-hunk (car hunks))
+         (offset (if (string-match diff-hunk-header-re-unified first-hunk)
+                     (- (string-to-number (match-string 3 first-hunk))
+                        (string-to-number (match-string 1 first-hunk)))
+                   (error "Hunk does not have expected header"))))
+    (if (= offset 0)
+        hunks
+      (mapcar (lambda (hunk)
+                (if (string-match diff-hunk-header-re-unified hunk)
+                    (replace-match (number-to-string
+                                    (- (string-to-number (match-string 3 hunk))
+                                       offset))
+                                   t t hunk 3)
+                  (error "Hunk does not have expected header")))
+              hunks))))
+
+(defun magit-apply--adjust-hunk-new-start (hunk)
+  (car (magit-apply--adjust-hunk-new-starts (list hunk))))
+
 (defun magit-apply-hunks (sections &rest args)
   (let ((section (oref (car sections) parent)))
     (when (string-match "^diff --cc" (oref section value))
       (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-    (magit-apply-patch section args
-                       (concat (oref section header)
-                               (mapconcat 'magit-apply--section-content
-                                          sections "")))))
+    (magit-apply-patch
+     section args
+     (concat (oref section header)
+             (mapconcat #'identity
+                        (magit-apply--adjust-hunk-new-starts
+                         (mapcar #'magit-apply--section-content sections))
+                        "")))))
 
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (magit-apply-patch (oref section parent) args
                      (concat (magit-diff-file-header section)
-                             (magit-apply--section-content section))))
+                             (magit-apply--adjust-hunk-new-start
+                              (magit-apply--section-content section)))))
 
 (defun magit-apply-region (section &rest args)
   (unless (magit-diff-context-p)
@@ -184,7 +219,8 @@ so causes the change to be applied to the index as well."
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (magit-apply-patch (oref section parent) args
                      (concat (magit-diff-file-header section)
-                             (magit-diff-hunk-region-patch section args))))
+                             (magit-apply--adjust-hunk-new-start
+                              (magit-diff-hunk-region-patch section args)))))
 
 (defun magit-apply-patch (section:s args patch)
   (let* ((files (if (atom section:s)

@@ -371,6 +371,10 @@
   paths relative to the current directory instead of the top-level of
   the repository.  6d3f12d58
 
+- Staging a hunk applied the change to the wrong location in rare
+  cases where repetitive diff context prevented ~git apply~ from
+  finding the correct location.  #3924
+
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),
   ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),
