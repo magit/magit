@@ -171,6 +171,7 @@ Contributors
 - Jon Vanderwijk <jonathn@github.com>
 - Jordan Galby <gravemind2a@gmail.com>
 - Jordan Greenberg <jordan@softwareslave.com>
+- Josh Elsasser <jelsasser@appneta.com>
 - Josiah Schwab <jschwab@gmail.com>
 - Julien Danjou <julien@danjou.info>
 - Justin Burkett <justin@burkett.cc>
@@ -298,6 +299,7 @@ Contributors
 - Sylvain Rousseau <thisirs@gmail.com>
 - Syohei Yoshida <syohex@gmail.com>
 - Takafumi Arakaki <aka.tkf@gmail.com>
+- Tassilo Horn <tsdh@gnu.org>
 - Teemu Likonen <tlikonen@iki.fi>
 - Teruki Shigitani <teruki.shigitani@gmail.com>
 - Thierry Volpiatto <thierry.volpiatto@gmail.com>
@@ -312,6 +314,7 @@ Contributors
 - Tim Wraight <tim@wraight.net>
 - Ting-Yu Lin <aethanyc@gmail.com>
 - Tom Feist <shabble@metavore.org>
+- Topi Miettinen <toiwoton@gmail.com>
 - Troy Hinckley <t.macman@gmail.com>
 - Tunc Uzlu <bb2020@users.noreply.github.com>
 - Vineet Naik <vineet@helpshift.com>
@@ -324,8 +327,11 @@ Contributors
 - Xavier Noria <fxn@hashref.com>
 - Xu Chunyang <mail@xuchunyang.me>
 - Yann Hodique <yann.hodique@gmail.com>
+- Ynilu <ynilu.chang@gmail.com>
 - York Zhao <gtdplatform@gmail.com>
 - Yuichi Higashi <aaa707b@gmail.com>
 - Yuri Khan <yurivkhan@gmail.com>
 - Zach Latta <zach@zachlatta.com>
 - zakora <zakora@users.noreply.github.com>
+- Zhu Zihao <all_but_last@163.com>
+- zilongshanren <guanghui8827@126.com>
