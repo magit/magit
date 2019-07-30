@@ -128,7 +128,10 @@ or the diff of staged changes.
 
 If the previously current buffer does not visit a file, or if
 the file has neither unstaged nor staged changes then this has
-no effect."
+no effect.
+
+The command `magit-status-here' tries to go to that position,
+regardless of the value of this option."
   :package-version '(magit . "2.91.0")
   :group 'magit-status
   :type 'boolean)
@@ -266,6 +269,14 @@ Instead of invoking this alias for `magit-status' using
 \"M-x magit RET\", you should bind a key to `magit-status'
 and read the info node `(magit)Getting Started', which
 also contains other useful hints.")
+
+(defun magit-status-here ()
+  "Like `magit-status' but with non-nil `magit-status-goto-file-position'."
+  (interactive)
+  (let ((magit-status-goto-file-position t))
+    (call-interactively #'magit-status)))
+
+(put 'magit-status-here 'interactive-only 'magit-status-setup-buffer)
 
 (defvar magit--remotes-using-recent-git nil)
 
