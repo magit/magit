@@ -249,6 +249,24 @@
   now also kills all other Magit buffers associated with the current
   repository.  #3863
 
+- ~magit-branch-or-commit-at-point~ was taught about Forge pull-requests.
+  9447edd12
+
+- When merging a branch that corresponds to a Forge pull-request, then
+  the commit message is modified to contain the pull-request number.
+  15331d7c0
+
+- For consistency ~magit-file-rename~ now also renames buffers that
+  visit untracked files.  #3916
+
+- Additional history simplification arguments were added to the log
+  transients.  Because only a minority of users will use those, they
+  were put on levels that are not show by default.  8f8a2f1cf
+
+- Added new commands ~magit-assume-unchanged, ~magit-no-assume-unchanged~,
+  ~magit-jump-to-skip-worktree~ and ~magit-jump-to-assume-unchanged~, and
+  section inserter ~magit-insert-assume-unchanged-files~.  2d0de8614 ff
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
@@ -346,15 +364,31 @@
 - The default value for ~magit-view-git-manual-method~ was treated as
   invalid.  #3873
 
-- Various bug fixes to ~magit-branch-delete~ (3e73ff19d),
+- Unlike other ~magit-*-files~ functions, ~magit-ignored-files~ returned
+  paths relative to the current directory instead of the top-level of
+  the repository.  6d3f12d58
+
+- Various bug fixes to
+  ~magit-branch-delete~ (3e73ff19d),
   ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),
-  ~magit-patch-create~ (470272a0f), ~magit--cherry-spinoff-read-args~
-  (add276810), ~magit-refs--insert-cherry-commits~ (3b37e6dc1),
+  ~magit-patch-create~ (470272a0f),
+  ~magit--cherry-spinoff-read-args~ (add276810),
+  ~magit-refs--insert-cherry-commits~ (3b37e6dc1),
   ~magit--{pushbranch,upstream}-suffix-predicate~ (cef3b1217),
   ~magit-diff-insert-file-section~ (01cf0c165),
   ~magit-insert-unpushed-to-upstream-or-recent~ (02445d6e3),
-  ~magit-ref-equal~ (46862d9d2), ~magit-ref-fullname~ (66b85daea),
-  ~magit-insert-unpulled-from-upstream~ (0363e9bac), ~magit-git-version~
-  (0abc761f5), ~auto-revert-buffers--buffer-list-filter~ (713bd64bf),
-  ~magit-insert-revision-gravatar~ (1f7e84c26) and
-  ~magit-process-unset-mode-line~ (457a685e5).
+  ~magit-ref-equal~ (46862d9d2),
+  ~magit-ref-fullname~ (66b85daea),
+  ~magit-insert-unpulled-from-upstream~ (0363e9bac),
+  ~magit-git-version~ (0abc761f5),
+  ~auto-revert-buffers--buffer-list-filter~ (713bd64bf),
+  ~magit-insert-revision-gravatar~ (1f7e84c26),
+  ~magit-process-unset-mode-line~ (457a685e5),
+  ~magit-ido-completing-read~ (f52ab7977),
+  ~magit-file-untrack~ (0984d77fb),
+  ~magit-ref-p~ (8b33bc7c7),
+  ~git-commit-setup~ (675b75ded),
+  ~magit-{,no-}skip-worktree~ (34d6ac27d),
+
+This release also contains other minor improvements, bug fixes, typo
+fixes, and documentation fixes.
