@@ -1218,11 +1218,11 @@ for a revision."
             (with-current-buffer buf
               (magit-diff--goto-position file line col))))))))
 
-(defun magit-diff--goto-position (file line column)
+(defun magit-diff--goto-position (file line column &optional parent)
   (when-let ((diff (cl-find-if (lambda (section)
                                  (and (cl-typep section 'magit-file-section)
                                       (equal (oref section value) file)))
-                               (oref magit-root-section children))))
+                               (oref (or parent magit-root-section) children))))
     (goto-char (oref diff start))
     (let (hunk (hunks (oref diff children)))
       (while (setq hunk (pop hunks))
