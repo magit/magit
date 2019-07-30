@@ -1236,7 +1236,7 @@ for a revision."
                      (unless (= (char-after) ?-)
                        (cl-incf pos))
                      (forward-line)))
-                 (move-to-column (1+ column))
+                 (forward-char (1+ column))
                  (setq hunks nil))
                 ((> end line)
                  (goto-char (oref hunk start))
