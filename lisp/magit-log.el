@@ -1345,7 +1345,7 @@ The shortstat style is experimental and rather slow."
                             (or author "")
                             details-width
                             nil ?\s (make-string 1 magit-ellipsis))
-                           'face 'magit-log-author)
+                           'magit-log-author)
                           " "))
              (magit--propertize-face
               (if (stringp style)
@@ -1357,7 +1357,7 @@ The shortstat style is experimental and rather slow."
                   (format (format (if abbr "%%2i%%-%ic" "%%2i %%-%is")
                                   (- width (if details (1+ details-width) 0)))
                           cnt unit)))
-              'face 'magit-log-date))
+              'magit-log-date))
      previous-line)))
 
 (defun magit-log-format-shortstat-margin (rev)
