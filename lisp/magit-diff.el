@@ -1247,7 +1247,13 @@ for a revision."
                  (forward-line)))
              (forward-char (1+ column)))
             (t
-             (goto-char (oref section start)))))))
+             (goto-char (oref section start))
+             (setq section (oref section parent))))
+      (while section
+        (when (oref section hidden)
+          (magit-section-show section))
+        (setq section (oref section parent))))
+    (magit-section-update-highlight)))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-revision-mode))
   (cons magit-buffer-range magit-buffer-diff-files))
