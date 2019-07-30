@@ -1253,7 +1253,8 @@ for a revision."
         (when (oref section hidden)
           (magit-section-show section))
         (setq section (oref section parent))))
-    (magit-section-update-highlight)))
+    (magit-section-update-highlight)
+    t))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-revision-mode))
   (cons magit-buffer-range magit-buffer-diff-files))
