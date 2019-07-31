@@ -1079,8 +1079,10 @@ insert a newline character if necessary."
   (declare (indent defun))
   (when args
     (let ((heading (apply #'concat args)))
-      (insert (if (text-property-not-all 0 (length heading)
-                                         'font-lock-face nil heading)
+      (insert (if (or (text-property-not-all 0 (length heading)
+                                             'font-lock-face nil heading)
+                      (text-property-not-all 0 (length heading)
+                                             'face nil heading))
                   heading
                 (propertize heading 'font-lock-face 'magit-section-heading)))))
   (unless (bolp)
