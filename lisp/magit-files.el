@@ -299,7 +299,8 @@ directory, while reading the FILENAME."
     ("c" "Commit"     magit-commit)
     ("e" "Edit line"  magit-edit-line-commit)]
    [("D" "Diff..."    magit-diff)
-    ("d" "Diff"       magit-diff-buffer-file)]
+    ("d" "Diff"       magit-diff-buffer-file)
+    ("g" "Status"     magit-status-here)]
    [("L" "Log..."     magit-log)
     ("l" "Log"        magit-log-buffer-file)
     ("t" "Trace"      magit-log-trace-definition)]
@@ -311,8 +312,8 @@ directory, while reading the FILENAME."
     ("q" "Quit blame" magit-blame-quit)]
    [("p" "Prev blob"  magit-blob-previous)
     ("n" "Next blob"  magit-blob-next)
-    ("g" "Goto blob"  magit-find-file)
-    ("w" "Goto file"  magit-blob-visit-file)]
+    ("v" "Goto blob"  magit-find-file)
+    ("V" "Goto file"  magit-blob-visit-file)]
    [(5 "C-c r" "Rename file"   magit-file-rename)
     (5 "C-c d" "Delete file"   magit-file-delete)
     (5 "C-c u" "Untrack file"  magit-file-untrack)
