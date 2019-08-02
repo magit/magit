@@ -144,11 +144,8 @@ results in an error."
 ;;;###autoload
 (defun magit-fetch-all (args)
   "Fetch from all remotes."
-  (interactive (list (cl-intersection (magit-fetch-arguments)
-                                      (list "--verbose" "--prune")
-                                      :test #'equal)))
-  (run-hooks 'magit-credential-hook)
-  (magit-run-git-async "remote" "update" args))
+  (interactive (list (magit-fetch-arguments)))
+  (magit-git-fetch remote (cons "--all" args)))
 
 ;;;###autoload
 (defun magit-fetch-all-prune ()
