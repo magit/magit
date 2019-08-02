@@ -381,6 +381,10 @@
   cases where repetitive diff context prevented ~git apply~ from
   finding the correct location.  #3924
 
+- Staging a hunk with no context now aborts, as staging a region
+  within such a hunk already did, to avoid unintended and confusing
+  results.  #3924
+
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),
   ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),

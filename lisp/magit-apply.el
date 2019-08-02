@@ -213,8 +213,6 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
                               (magit-apply--section-content section)))))
 
 (defun magit-apply-region (section &rest args)
-  (unless (magit-diff-context-p)
-    (user-error "Not enough context to apply region.  Increase the context"))
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (magit-apply-patch (oref section parent) args
@@ -230,15 +228,15 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
          (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
                       (match-string 1 command)
                     "apply"))
-         (no-context (not (magit-diff-context-p)))
          (ignore-context (magit-diff-ignore-any-space-p)))
+    (unless (magit-diff-context-p)
+      (user-error "Not enough context to apply patch.  Increase the context"))
     (when (and magit-wip-before-change-mode (not inhibit-magit-refresh))
       (magit-wip-commit-before-change files (concat " before " command)))
     (with-temp-buffer
       (insert patch)
       (magit-run-git-with-input
        "apply" args "-p0"
-       (and no-context "--unidiff-zero")
        (and ignore-context "-C0")
        "--ignore-space-change" "-"))
     (unless inhibit-magit-refresh
