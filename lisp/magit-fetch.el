@@ -146,7 +146,7 @@ results in an error."
 (defun magit-fetch-all (args)
   "Fetch from all remotes."
   (interactive (list (magit-fetch-arguments)))
-  (magit-git-fetch remote (cons "--all" args)))
+  (magit-git-fetch nil (cons "--all" args)))
 
 ;;;###autoload
 (defun magit-fetch-all-prune ()
