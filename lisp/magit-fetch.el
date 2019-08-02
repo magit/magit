@@ -45,7 +45,8 @@ Ignored for Git versions before v2.8.0."
   "Fetch from another repository."
   :man-page "git-fetch"
   ["Arguments"
-   ("-p" "Prune deleted branches" ("-p" "--prune"))]
+   ("-p" "Prune deleted branches" ("-p" "--prune"))
+   ("-t" "Fetch all tags" ("-t" "--tags"))]
   ["Fetch from"
    ("p" magit-fetch-from-pushremote)
    ("u" magit-fetch-from-upstream)
