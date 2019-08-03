@@ -67,7 +67,7 @@ Each of these options falls into one or more of these categories:
   :group 'magit)
 
 (defgroup magit-miscellaneous nil
-  "Miscellanous Magit options."
+  "Miscellaneous Magit options."
   :group 'magit)
 
 (defgroup magit-commands nil

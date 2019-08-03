@@ -246,7 +246,7 @@ to `magit-completing-read' or, for commands that support reading
 multiple strings, `read-from-minibuffer'.  The completion
 framework ultimately determines how the collection is displayed."
   :package-version '(magit . "2.11.0")
-  :group 'magit-miscellanous
+  :group 'magit-miscellaneous
   :type '(choice string (repeat string)))
 
 ;;; Git
