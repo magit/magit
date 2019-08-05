@@ -1478,7 +1478,7 @@ Like `magit-diff-visit-worktree-file' but use
 
 (defun magit-diff-visit-file--internal (file force-worktree fn)
   "From a diff visit the appropriate version of FILE.
-If FORCE-WORKTREE is non-nil, the visit the worktree version of
+If FORCE-WORKTREE is non-nil, then visit the worktree version of
 the file, even if the diff is about a committed change.  USE FN
 to display the buffer in some window."
   (if (magit-file-accessible-directory-p file)
