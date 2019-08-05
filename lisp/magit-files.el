@@ -347,7 +347,7 @@ Currently this only adds the following key bindings.
 ;; variable but does not cause the mode function to be called, and we
 ;; cannot use `:initialize' to call that explicitly because the option
 ;; is defined before the functions, so we have to do it here.
-(cl-eval-when (load)
+(cl-eval-when (load eval)
   (when global-magit-file-mode
     (global-magit-file-mode 1)))
 
