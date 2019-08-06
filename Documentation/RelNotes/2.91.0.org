@@ -203,10 +203,16 @@
   the respective commit.  Previously it did that for all commits
   except the ~HEAD~ commit.  This made it impossible to visit the ~HEAD~
   commit using this or a related command and also was inconsistent.
-  ~C-RET~ (~magit-diff-visit-worktree~) should be used to visit the file
-  in the working tree for any commit.  Setting the new option
-  ~magit-diff-visit-avoid-head-blob~ to a non-nil value restores the
-  old behavior of ~magit-diff-visit-file~.  #3848
+
+  Likewise ~RET~ on an uncommitted removal now visits ~HEAD~, the last
+  commit that still had those lines.  Previously it visited the file
+  in the working tree, making it difficult to blame the previous
+  version of modified lines.
+
+  Now ~C-RET~ (~magit-diff-visit-worktree~) has to be used to visit the
+  file in the working tree for any commit or uncommitted removals.
+  Setting the new option ~magit-diff-visit-avoid-head-blob~ to a non-nil
+  value restores the old behavior of ~magit-diff-visit-file~.  #3848
 
 - ~magit-diff-visit-worktree~ now does a much better job at jumping to
   the correct location in the file.  c9e5425cd
