@@ -167,7 +167,7 @@ ifeq ($(SYSTYPE), windows-nt)
   CYGPATH := $(shell cygpath --version 2>/dev/null)
 endif
 
-LOAD_PATH = -L $(TOP)/lisp
+LOAD_PATH = -L $(TOP)lisp
 
 # When making changes here, then don't forget to adjust "Makefile",
 # ".travis.yml", ".github/ISSUE_TEMPLATE/bug_report.md",
