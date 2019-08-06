@@ -103,6 +103,21 @@ actually support that yet."
                                                (symbol))
                                        (sexp   :tag "Value"))))))
 
+(defcustom magit-repolist-column-flag-alist
+  '((magit-untracked-files . "N")
+    (magit-unstaged-files . "U")
+    (magit-staged-files . "S"))
+  "Association list of predicates and flags for `magit-repolist-column-flag'.
+
+Each element is of the form (FUNCTION . FLAG).  Each FUNCTION is
+called with no arguments, with `default-directory' bound to the
+top level of a repository working tree, until one of them returns
+a non-nil value.  FLAG corresponding to that function is returned
+as the value of `magit-repolist-column-flag'."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-repolist
+  :type '(alist :key-type (function :tag "Predicate Function")
+                :value-type (string :tag "Flag")))
 
 ;;; List Repositories
 ;;;; Command
@@ -200,16 +215,17 @@ Usually this is just its basename."
   "Insert the upstream branch of the current branch."
   (magit-get-upstream-branch))
 
-(defun magit-repolist-column-dirty (_id)
-  "Insert a letter if there are uncommitted changes.
+(defun magit-repolist-column-flag (_id)
+  "Insert a flag as specified by `magit-repolist-column-flag-alist'.
 
-Show N if there is at least one untracked file.
-Show U if there is at least one unstaged file.
-Show S if there is at least one staged file.
+By default this indicates whether there are uncommitted changes.
+- N if there is at least one untracked file.
+- U if there is at least one unstaged file.
+- S if there is at least one staged file.
 Only one letter is shown, the first that applies."
-  (cond ((magit-untracked-files) "N")
-        ((magit-unstaged-files)  "U")
-        ((magit-staged-files)    "S")))
+  (-some (pcase-lambda (`(,fun . ,flag))
+           (and (funcall fun) flag))
+         magit-repolist-column-flag-alist))
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."

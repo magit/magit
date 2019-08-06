@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-750-g7e6b544aa+1)
+@subtitle for version 2.90.1 (v2.90.1-752-gbea3eff81+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-750-g7e6b544aa+1).
+This manual is for Magit version 2.90.1 (v2.90.1-752-gbea3eff81+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -3243,19 +3243,22 @@ This function inserts the number of branches.
 This function inserts the number of stashes.
 @end defun
 
-@defun magit-repolist-column-dirty
+@defun magit-repolist-column-flag
 
-This function inserts a letter if there are uncommitted changes:
+This function inserts a flag as specified by
+@code{magit-repolist-column-flag-alist}.
+
+By default this indicates whether there are uncommitted changes.
 
 @itemize
 @item
-N if there is at least one untracked file.
+@code{N} if there is at least one untracked file.
 
 @item
-U if there is at least one unstaged file.
+@code{U} if there is at least one unstaged file.
 
 @item
-S if there is at least one staged file.
+@code{S} if there is at least one staged file.
 @end itemize
 
 Only the first one of these that applies is shown.

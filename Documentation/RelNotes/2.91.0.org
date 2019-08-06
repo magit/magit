@@ -36,6 +36,10 @@
 
 ** Changes since v2.90.0
 
+- Replaced ~magit-repolist-column-dirty~ with ~magit-repolist-column-flag~
+  which allows specifying arbitrary flags and predicates in custom order
+  using ~magit-repolist-column-flag-alist~.  #3936 #3937
+
 - It isn't always obvious that a section can be expanded, especially
   to users who are just getting started with Magit.  Mainly to make
   it easier for those users, expandable and collapsable sections now

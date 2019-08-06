@@ -46,6 +46,9 @@
 (define-obsolete-function-alias 'magit-dispatch-popup
   'magit-dispatch "Magit 2.91.0")
 
+(define-obsolete-function-alias 'magit-repolist-column-dirty
+  'magit-repolist-column-flag "Magit 2.91.0")
+
 (defun magit--magit-popup-warning ()
   (display-warning 'magit "\
 Magit no longer uses Magit-Popup.
