@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-721-g2657293c6+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-750-g7e6b544aa+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-721-g2657293c6+1).
+This manual is for Magit version 2.90.1 (v2.90.1-750-g7e6b544aa+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -2409,6 +2409,33 @@ The following functions can be added to the above option:
 - Function: magit-repolist-column-version
 
   This function inserts a description of the repository's ~HEAD~ revision.
+
+- Function: magit-repolist-column-branch
+
+  This function inserts the name of the current branch.
+
+- Function: magit-repolist-column-upstream
+
+  This function inserts the name of the upstream branch of the current
+  branch.
+
+- Function: magit-repolist-column-branches
+
+  This function inserts the number of branches.
+
+- Function: magit-repolist-column-stashes
+
+  This function inserts the number of stashes.
+
+- Function: magit-repolist-column-dirty
+
+  This function inserts a letter if there are uncommitted changes:
+
+  - N if there is at least one untracked file.
+  - U if there is at least one unstaged file.
+  - S if there is at least one staged file.
+
+  Only the first one of these that applies is shown.
 
 - Function: magit-repolist-column-unpulled-from-upstream
 
