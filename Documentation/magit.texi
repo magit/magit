@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-752-gbea3eff81+1)
+@subtitle for version 2.90.1 (v2.90.1-753-g71ed6f0d8+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-752-gbea3eff81+1).
+This manual is for Magit version 2.90.1 (v2.90.1-753-g71ed6f0d8+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8665,7 +8665,6 @@ Inside @code{magit-diff-mode} or @code{magit-revision-mode} buffers, @code{C-x C
 also bound to this command.
 @end table
 
-FIXME
 It is also possible to save a plain patch file by using @code{C-x C-w} inside
 a @code{magit-diff-mode} or @code{magit-revision-mode} buffer.
 
