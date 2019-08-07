@@ -400,7 +400,7 @@ modes is toggled, then this mode also gets toggled automatically.
 
 ;;; Process
 
-(defun magit-blame--run ()
+(defun magit-blame--run (args)
   (magit-with-toplevel
     (unless magit-blame-mode
       (magit-blame-mode 1))
@@ -409,8 +409,8 @@ modes is toggled, then this mode also gets toggled automatically.
      (or magit-buffer-refname magit-buffer-revision)
      (magit-file-relative-name nil (not magit-buffer-file-name))
      (if (memq magit-blame-type '(final removal))
-         (cons "--reverse" (magit-blame-arguments))
-       (magit-blame-arguments))
+         (cons "--reverse" args)
+       args)
      (list (line-number-at-pos (window-start))
            (line-number-at-pos (1- (window-end nil t)))))
     (set-process-sentinel magit-this-process
@@ -713,7 +713,7 @@ modes is toggled, then this mode also gets toggled automatically.
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-blame-echo "magit-blame" nil t)
-(define-suffix-command magit-blame-echo ()
+(define-suffix-command magit-blame-echo (args)
   "For each line show the revision in which it was added.
 Show the information about the chunk at point in the echo area
 when moving between chunks.  Unlike other blaming commands, do
@@ -722,7 +722,7 @@ not turn on `read-only-mode'."
         (and buffer-file-name
              (or (not magit-blame-mode)
                  buffer-read-only)))
-  (interactive)
+  (interactive (list (magit-blame-arguments)))
   (when magit-buffer-file-name
     (user-error "Blob buffers aren't supported"))
   (setq-local magit-blame--style
@@ -733,39 +733,39 @@ not turn on `read-only-mode'."
       (let ((magit-blame-read-only nil))
         (magit-blame--pre-blame-assert 'addition)
         (magit-blame--pre-blame-setup  'addition)
-        (magit-blame--run))
+        (magit-blame--run args))
     (read-only-mode -1)
     (magit-blame--update-overlays)))
 
 ;;;###autoload (autoload 'magit-blame-addition "magit-blame" nil t)
-(define-suffix-command magit-blame-addition ()
+(define-suffix-command magit-blame-addition (args)
   "For each line show the revision in which it was added."
-  (interactive)
+  (interactive (list (magit-blame-arguments)))
   (magit-blame--pre-blame-assert 'addition)
   (magit-blame--pre-blame-setup  'addition)
-  (magit-blame--run))
+  (magit-blame--run args))
 
 ;;;###autoload (autoload 'magit-blame-removal "magit-blame" nil t)
-(define-suffix-command magit-blame-removal ()
+(define-suffix-command magit-blame-removal (args)
   "For each line show the revision in which it was removed."
   :if-nil 'buffer-file-name
-  (interactive)
+  (interactive (list (magit-blame-arguments)))
   (unless magit-buffer-file-name
     (user-error "Only blob buffers can be blamed in reverse"))
   (magit-blame--pre-blame-assert 'removal)
   (magit-blame--pre-blame-setup  'removal)
-  (magit-blame--run))
+  (magit-blame--run args))
 
 ;;;###autoload (autoload 'magit-blame-reverse "magit-blame" nil t)
-(define-suffix-command magit-blame-reverse ()
+(define-suffix-command magit-blame-reverse (args)
   "For each line show the last revision in which it still exists."
   :if-nil 'buffer-file-name
-  (interactive)
+  (interactive (list (magit-blame-arguments)))
   (unless magit-buffer-file-name
     (user-error "Only blob buffers can be blamed in reverse"))
   (magit-blame--pre-blame-assert 'final)
   (magit-blame--pre-blame-setup  'final)
-  (magit-blame--run))
+  (magit-blame--run args))
 
 (defun magit-blame--pre-blame-assert (type)
   (unless (magit-toplevel)
