@@ -263,7 +263,7 @@ When the region is active offer to drop all contained stashes."
 (defun magit-stash-branch-here (stash branch)
   "Create and checkout a new BRANCH and apply STASH.
 The branch is created using `magit-branch', using the current
-branch or `HEAD' as the string-point."
+branch or `HEAD' as the start-point."
   (interactive (list (magit-read-stash "Branch stash")
                      (magit-read-string-ns "Branch name")))
   (let ((inhibit-magit-refresh t))
