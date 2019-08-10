@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-753-g71ed6f0d8+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-757-gd3cee7f8c+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-753-g71ed6f0d8+1).
+This manual is for Magit version 2.90.1 (v2.90.1-757-gd3cee7f8c+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -1844,7 +1844,7 @@ switch to a shell.
 
 - User Option: magit-shell-command-verbose-prompt
 
-  Whether the prompt, used by the the above commands when reading a
+  Whether the prompt, used by the above commands when reading a
   shell command, shows the directory in which it will be run.
 
 These suffix commands start external gui tools.
