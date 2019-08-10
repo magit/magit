@@ -395,6 +395,9 @@
   within such a hunk already did, to avoid unintended and confusing
   results.  #3924
 
+- ~magit-stash-branch-here~ applied the stash without checking out the
+  new branch.
+
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),
   ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),
