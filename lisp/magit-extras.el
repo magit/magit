@@ -308,11 +308,11 @@ points at it) otherwise."
                      (find-file file)
                      (when blame-type
                        (magit-blame--pre-blame-setup blame-type)
-                       (magit-blame--run)))))
+                       (magit-blame--run (magit-blame-arguments))))))
               (find-file file)
               (when blame-type
                 (magit-blame--pre-blame-setup blame-type)
-                (magit-blame--run)))))))))
+                (magit-blame--run (magit-blame-arguments))))))))))
 
 (put 'magit-edit-line-commit 'disabled t)
 
