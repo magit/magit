@@ -323,7 +323,7 @@ the upstream isn't ahead of the current branch) show."
   "Return the current log arguments."
   (if (memq current-transient-command '(magit-log magit-log-refresh))
       (pcase-let ((`(,args ,alist)
-                   (transient-args nil t)))
+                   (-separate #'atom (transient-get-value))))
         (list args (cdr (assoc "--" alist))))
     (magit-log--get-value (or mode 'magit-log-mode))))
 
@@ -358,7 +358,7 @@ the upstream isn't ahead of the current branch) show."
                (mode (or (oref obj major-mode) major-mode))
                (key  (intern (format "magit-log:%s" mode)))
                (`(,args ,alist)
-                (-separate #'atom (transient-args)))
+                (-separate #'atom (transient-get-value)))
                (files (cdr (assoc "--" alist))))
     (put mode 'magit-log-current-arguments args)
     (when save
