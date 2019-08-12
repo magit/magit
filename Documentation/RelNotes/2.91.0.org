@@ -281,7 +281,7 @@
   modes which use font-lock).  #3840
 
 - Added new command ~magit-status-here~ available from file-visiting
-  buffers at ~C-c M-g s~.  This command tries to go to the position in
+  buffers at ~C-c M-g g~.  This command tries to go to the position in
   the status buffer that corresponds to the position in the current
   file-visiting buffer.  Setting ~magit-status-goto-file-position~ to
   a non-nil value causes ~magit-status~ to behave the same way.  #3930
