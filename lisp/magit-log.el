@@ -1591,10 +1591,11 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   (when-let ((upstream (magit-get-upstream-branch)))
     (magit-insert-section (unpulled "..@{upstream}" t)
       (magit-insert-heading
-        (format (propertize "Unpulled from %s:"
+        (format (propertize "Unpulled from %s."
                             'font-lock-face 'magit-section-heading)
                 upstream))
-      (magit-insert-log "..@{upstream}" magit-buffer-log-args))))
+      (magit-insert-log "..@{upstream}" magit-buffer-log-args)
+      (magit-log-insert-child-count))))
 
 (magit-define-section-jumper magit-jump-to-unpulled-from-pushremote
   "Unpulled from <push-remote>" unpulled
@@ -1611,10 +1612,11 @@ Type \\[magit-cherry-pick] to apply the commit at point.
                            magit-status-sections-hook)))
       (magit-insert-section (unpulled (concat ".." it) t)
         (magit-insert-heading
-          (format (propertize "Unpulled from %s:"
+          (format (propertize "Unpulled from %s."
                               'font-lock-face 'magit-section-heading)
                   (propertize it 'font-lock-face 'magit-branch-remote)))
-        (magit-insert-log (concat ".." it) magit-buffer-log-args)))))
+        (magit-insert-log (concat ".." it) magit-buffer-log-args)
+        (magit-log-insert-child-count)))))
 
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
@@ -1643,10 +1645,11 @@ then show the last `magit-log-section-commit-count' commits."
   (when (magit-git-success "rev-parse" "@{upstream}")
     (magit-insert-section (unpushed "@{upstream}..")
       (magit-insert-heading
-        (format (propertize "Unmerged into %s:"
+        (format (propertize "Unmerged into %s."
                             'font-lock-face 'magit-section-heading)
                 (magit-get-upstream-branch)))
-      (magit-insert-log "@{upstream}.." magit-buffer-log-args))))
+      (magit-insert-log "@{upstream}.." magit-buffer-log-args)
+      (magit-log-insert-child-count))))
 
 (defun magit-insert-recent-commits (&optional type value)
   "Insert section showing recent commits.
@@ -1678,10 +1681,22 @@ Show the last `magit-log-section-commit-count' commits."
                            magit-status-sections-hook)))
       (magit-insert-section (unpushed (concat it "..") t)
         (magit-insert-heading
-          (format (propertize "Unpushed to %s:"
+          (format (propertize "Unpushed to %s."
                               'font-lock-face 'magit-section-heading)
                   (propertize it 'font-lock-face 'magit-branch-remote)))
-        (magit-insert-log (concat it "..") magit-buffer-log-args)))))
+        (magit-insert-log (concat it "..") magit-buffer-log-args)
+        (magit-log-insert-child-count)))))
+
+(defun magit-log-insert-child-count ()
+  (when magit-section-show-child-count
+    (let ((count (length (oref magit-insert-section--current children))))
+      (when (> count 0)
+        (when (= count (magit-log-get-commit-limit))
+          (setq count (format "%s+" count)))
+        (save-excursion
+          (goto-char (- (oref magit-insert-section--current content) 2))
+          (insert (format " (%s)" count))
+          (delete-char 1))))))
 
 ;;;; Auxiliary Log Sections
 
