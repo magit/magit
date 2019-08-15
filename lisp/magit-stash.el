@@ -429,6 +429,32 @@ instead of \"Stashes:\"."
 (cl-defmethod magit-buffer-value (&context (major-mode magit-stashes-mode))
   magit-buffer-refname)
 
+(defvar magit--update-stash-buffer nil)
+
+(defun magit-stashes-maybe-update-stash-buffer (&optional _)
+  "When moving in the stashes buffer, update the stash buffer.
+If there is no stash buffer in the same frame, then do nothing."
+  (when (derived-mode-p 'magit-stashes-mode)
+    (magit--maybe-update-stash-buffer)))
+
+(defun magit--maybe-update-stash-buffer ()
+  (unless magit--update-stash-buffer
+    (when-let ((stash  (magit-section-value-if 'stash))
+               (buffer (magit-get-mode-buffer 'magit-stash-mode nil t)))
+      (setq magit--update-stash-buffer (list stash buffer))
+      (run-with-idle-timer
+       magit-update-other-window-delay nil
+       (let ((args (with-current-buffer buffer
+                     (let ((magit-direct-use-buffer-arguments 'selected))
+                       (magit-show-commit--arguments)))))
+         (lambda ()
+           (pcase-let ((`(,stash ,buf) magit--update-stash-buffer))
+             (setq magit--update-stash-buffer nil)
+             (when (buffer-live-p buf)
+               (let ((magit-display-buffer-noselect t))
+                 (apply #'magit-stash-show stash args))))
+           (setq magit--update-stash-buffer nil)))))))
+
 ;;; Show Stash
 
 ;;;###autoload

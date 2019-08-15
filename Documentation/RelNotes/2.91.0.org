@@ -286,6 +286,12 @@
   file-visiting buffer.  Setting ~magit-status-goto-file-position~ to
   a non-nil value causes ~magit-status~ to behave the same way.  #3930
 
+- The buffer that shows a stash is now updated automatically when
+  moving through a list of stashes if the user added the new
+  ~magit-status-maybe-update-stash-buffer~ and/or
+  ~magit-stashes-maybe-update-stash-buffer~ to
+  ~magit-section-movement-hook~.  #3943
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

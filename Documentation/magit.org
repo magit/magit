@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-757-gd3cee7f8c+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-763-gb88c86043+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-757-gd3cee7f8c+1).
+This manual is for Magit version 2.90.1 (v2.90.1-763-gb88c86043+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -966,11 +966,23 @@ Any of the functions listed below can be used as members of this hook.
   revision buffer, provided it is already being displayed in another
   window of the same frame.
 
+- Function: magit-status-maybe-update-stash-buffer
+
+  When moving inside a status buffer, then this function updates the
+  stash buffer, provided it is already being displayed in another
+  window of the same frame.
+
 - Function: magit-status-maybe-update-blob-buffer
 
   When moving inside a status buffer and another window of the same
   frame displays a blob buffer, then this function instead displays
   the blob buffer for the commit at point in that window.
+
+- Function: magit-stashes-maybe-update-stash-buffer
+
+  When moving inside a buffer listing stashes, then this function
+  updates the stash buffer, provided it is already being displayed
+  in another window of the same frame.
 
 - User Option: magit-update-other-window-delay
 
