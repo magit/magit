@@ -34,6 +34,7 @@
 (require 'eieio)
 
 (eval-when-compile
+  (require 'benchmark)
   (require 'subr-x))
 
 (require 'magit-utils)
@@ -1636,7 +1637,10 @@ again use `remove-hook'."
     (dolist (entry entries)
       (let ((magit--current-section-hook (cons (list hook entry)
                                                magit--current-section-hook)))
-        (apply entry args)))))
+        (if magit-refresh-verbose
+            (message "  %-50s %s" entry
+                     (benchmark-elapse (apply entry args)))
+          (apply entry args))))))
 
 ;;; _
 (provide 'magit-section)
