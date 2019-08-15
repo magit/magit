@@ -1254,9 +1254,9 @@ exists mostly for backward compatibility reasons."
   "When moving in a log or cherry buffer, update the revision buffer.
 If there is no revision buffer in the same frame, then do nothing."
   (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode 'magit-reflog-mode)
-    (magit-log-maybe-update-revision-buffer-1)))
+    (magit--maybe-update-revision-buffer)))
 
-(defun magit-log-maybe-update-revision-buffer-1 ()
+(defun magit--maybe-update-revision-buffer ()
   (unless magit--update-revision-buffer
     (when-let ((commit (magit-section-value-if 'commit))
                (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
@@ -1280,9 +1280,9 @@ If there is no revision buffer in the same frame, then do nothing."
   "When moving in a log or cherry buffer, update the blob buffer.
 If there is no blob buffer in the same frame, then do nothing."
   (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode 'magit-reflog-mode)
-    (magit-log-maybe-update-blob-buffer-1)))
+    (magit--maybe-update-blob-buffer)))
 
-(defun magit-log-maybe-update-blob-buffer-1 ()
+(defun magit--maybe-update-blob-buffer ()
   (unless magit--update-revision-buffer
     (when-let ((commit (magit-section-value-if 'commit))
                (buffer (--first (with-current-buffer it

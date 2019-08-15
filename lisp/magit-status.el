@@ -438,13 +438,13 @@ This function removes itself from `magit-refresh-buffer-hook'."
   "When moving in the status buffer, update the revision buffer.
 If there is no revision buffer in the same frame, then do nothing."
   (when (derived-mode-p 'magit-status-mode)
-    (magit-log-maybe-update-revision-buffer-1)))
+    (magit--maybe-update-revision-buffer)))
 
 (defun magit-status-maybe-update-blob-buffer (&optional _)
   "When moving in the status buffer, update the blob buffer.
 If there is no blob buffer in the same frame, then do nothing."
   (when (derived-mode-p 'magit-status-mode)
-    (magit-log-maybe-update-blob-buffer-1)))
+    (magit--maybe-update-blob-buffer)))
 
 ;;; Sections
 ;;;; Special Headers
