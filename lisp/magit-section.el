@@ -71,10 +71,12 @@ That function in turn is used by all section movement commands."
   :type 'hook
   :options '(magit-hunk-set-window-start
              magit-status-maybe-update-revision-buffer
+             magit-status-maybe-update-stash-buffer
              magit-status-maybe-update-blob-buffer
              magit-log-maybe-update-revision-buffer
              magit-log-maybe-update-blob-buffer
-             magit-log-maybe-show-more-commits))
+             magit-log-maybe-show-more-commits
+             magit-stashes-maybe-update-stash-buffer))
 
 (defcustom magit-section-highlight-hook
   '(magit-diff-highlight
