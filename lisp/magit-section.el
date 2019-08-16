@@ -45,6 +45,7 @@
 (declare-function magit-repository-local-set "magit-mode"
                   (key value &optional repository))
 (defvar magit-keep-region-overlay)
+(defvar magit-refresh-verbose)
 
 ;;; Options
 
