@@ -1257,9 +1257,10 @@ If there is no revision buffer in the same frame, then do nothing."
     (magit--maybe-update-revision-buffer)))
 
 (defun magit--maybe-update-revision-buffer ()
-  (unless magit--update-revision-buffer
-    (when-let ((commit (magit-section-value-if 'commit))
-               (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
+  (when-let ((commit (magit-section-value-if 'commit))
+             (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
+    (if magit--update-revision-buffer
+        (setq magit--update-revision-buffer (list commit buffer))
       (setq magit--update-revision-buffer (list commit buffer))
       (run-with-idle-timer
        magit-update-other-window-delay nil
@@ -1283,26 +1284,27 @@ If there is no blob buffer in the same frame, then do nothing."
     (magit--maybe-update-blob-buffer)))
 
 (defun magit--maybe-update-blob-buffer ()
-  (unless magit--update-blob-buffer
-    (when-let ((commit (magit-section-value-if 'commit))
-               (buffer (--first (with-current-buffer it
-                                  (eq revert-buffer-function
-                                      'magit-revert-rev-file-buffer))
-                                (mapcar #'window-buffer (window-list)))))
+  (when-let ((commit (magit-section-value-if 'commit))
+             (buffer (--first (with-current-buffer it
+                                (eq revert-buffer-function
+                                    'magit-revert-rev-file-buffer))
+                              (mapcar #'window-buffer (window-list)))))
+    (if magit--update-blob-buffer
         (setq magit--update-blob-buffer (list commit buffer))
-        (run-with-idle-timer
-         magit-update-other-window-delay nil
-         (lambda ()
-           (pcase-let ((`(,rev ,buf) magit--update-blob-buffer))
-             (setq magit--update-blob-buffer nil)
-             (when (buffer-live-p buf)
-               (with-selected-window (get-buffer-window buf)
-                 (with-current-buffer buf
-                   (save-excursion
-                     (magit-blob-visit (list (magit-rev-parse rev)
-                                             (magit-file-relative-name
-                                              magit-buffer-file-name))
-                                       (line-number-at-pos))))))))))))
+      (setq magit--update-blob-buffer (list commit buffer))
+      (run-with-idle-timer
+       magit-update-other-window-delay nil
+       (lambda ()
+         (pcase-let ((`(,rev ,buf) magit--update-blob-buffer))
+           (setq magit--update-blob-buffer nil)
+           (when (buffer-live-p buf)
+             (with-selected-window (get-buffer-window buf)
+               (with-current-buffer buf
+                 (save-excursion
+                   (magit-blob-visit (list (magit-rev-parse rev)
+                                           (magit-file-relative-name
+                                            magit-buffer-file-name))
+                                     (line-number-at-pos))))))))))))
 
 (defun magit-log-goto-commit-section (rev)
   (let ((abbrev (magit-rev-format "%h" rev)))

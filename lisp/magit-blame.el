@@ -927,11 +927,11 @@ instead of the hash, like `kill-ring-save' would."
 ;;; Utilities
 
 (defun magit-blame-maybe-update-revision-buffer ()
-  (unless magit--update-revision-buffer
-    (setq magit--update-revision-buffer nil)
-    (when-let ((chunk  (magit-current-blame-chunk))
-               (commit (oref chunk orig-rev))
-               (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
+  (when-let ((chunk  (magit-current-blame-chunk))
+             (commit (oref chunk orig-rev))
+             (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
+    (if magit--update-revision-buffer
+        (setq magit--update-revision-buffer (list commit buffer))
       (setq magit--update-revision-buffer (list commit buffer))
       (run-with-idle-timer
        magit-update-other-window-delay nil
