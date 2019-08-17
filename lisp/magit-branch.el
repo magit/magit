@@ -776,7 +776,7 @@ and also rename the respective reflog file."
                   (not (and magit-branch-direct-configure
                             (eq current-transient-command 'magit-branch)))
                   (magit-get-current-branch))
-             (magit--read-remote-scope))))
+             (magit--read-branch-scope))))
   (transient-setup 'magit-branch-configure nil nil :scope branch))
 
 (defun magit--read-branch-scope (&optional obj)
