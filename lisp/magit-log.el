@@ -557,7 +557,7 @@ the upstream isn't ahead of the current branch) show."
 (defun magit-read-file-trace (&rest _ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
         (trace (magit-read-string "Trace")))
-    (concat trace (or (match-string 2 trace) ":") file)))
+    (concat trace ":" file)))
 
 ;;;; Setup Commands
 
