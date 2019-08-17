@@ -1283,7 +1283,7 @@ If there is no blob buffer in the same frame, then do nothing."
     (magit--maybe-update-blob-buffer)))
 
 (defun magit--maybe-update-blob-buffer ()
-  (unless magit--update-revision-buffer
+  (unless magit--update-blob-buffer
     (when-let ((commit (magit-section-value-if 'commit))
                (buffer (--first (with-current-buffer it
                                   (eq revert-buffer-function
