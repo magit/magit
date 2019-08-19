@@ -550,6 +550,16 @@ lose of information.  Good properties to set here are `:weight'
 and `:slant'."
   :group 'magit-faces)
 
+(defface magit-diff-revision-summary
+  '((t :inherit magit-diff-hunk-heading))
+  "Face for commit message summaries."
+  :group 'magit-faces)
+
+(defface magit-diff-revision-summary-highlight
+  '((t :inherit magit-diff-hunk-heading-highlight))
+  "Face for highlighted commit message summaries."
+  :group 'magit-faces)
+
 (defface magit-diff-lines-heading
   '((((class color) (background light))
      :inherit magit-diff-hunk-heading-highlight
@@ -2300,7 +2310,7 @@ or a ref which is not a branch, then it inserts nothing."
 (defun magit-insert-revision-message ()
   "Insert the commit message into a revision buffer."
   (magit-insert-section section (commit-message)
-    (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
+    (oset section heading-highlight-face 'magit-diff-revision-summary-highlight)
     (let ((beg (point))
           (rev magit-buffer-revision))
       (insert (with-temp-buffer
@@ -2347,7 +2357,8 @@ or a ref which is not a branch, then it inserts nothing."
                           (goto-char end))))))))))
         (save-excursion
           (forward-line)
-          (magit--add-face-text-property beg (point) 'magit-diff-hunk-heading)
+          (magit--add-face-text-property
+           beg (point) 'magit-diff-revision-summary)
           (magit-insert-heading))
         (when magit-diff-highlight-keywords
           (save-excursion

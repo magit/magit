@@ -295,6 +295,9 @@
 - Added new command ~magit-move-worktree~ to allow you to move an
   existing worktree to a new directory.
 
+- Introduced two new faces to customize the appearance of commit messages:
+  ~magit-diff-revision-summary~ and ~magit-diff-revision-summary-highlight~.
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
