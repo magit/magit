@@ -1927,13 +1927,13 @@ and this option only controls what face is used.")
           (when (and target (not upstream))
             (if (member target remotes)
                 (progn
-                  (add-face-text-property 0 (length target)
-                                          'magit-branch-upstream nil target)
+                  (magit--add-face-text-property
+                   0 (length target) 'magit-branch-upstream nil target)
                   (setq upstream target)
                   (setq remotes  (delete target remotes)))
               (when-let ((target (car (member target combined))))
-                (add-face-text-property 0 (length target)
-                                        'magit-branch-upstream nil target)
+                (magit--add-face-text-property
+                 0 (length target) 'magit-branch-upstream nil target)
                 (setq upstream target)
                 (setq combined (delete target combined))))))
         (mapconcat #'identity

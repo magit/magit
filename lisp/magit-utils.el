@@ -826,8 +826,8 @@ it aligns with the text area."
                                 ,@(and (eq (car (window-current-scroll-bars))
                                            'left)
                                        '(scroll-bar)))))))
-  (add-face-text-property 0 (1- (length header-line-format))
-                          'magit-header-line t header-line-format))
+  (magit--add-face-text-property 0 (1- (length header-line-format))
+                                 'magit-header-line t header-line-format))
 
 (defun magit-face-property-all (face string)
   "Return non-nil if FACE is present in all of STRING."
@@ -840,6 +840,22 @@ it aligns with the text area."
                       (memq face current)
                     (eq face current))
              return nil))
+
+(defun magit--add-face-text-property (beg end face &optional append object)
+  "Like `add-face-text-property' but for `font-lock-face'."
+  (cl-loop for pos = (next-single-property-change
+                      beg 'font-lock-face object end)
+           for current = (get-text-property beg 'font-lock-face object)
+           for newface = (if (listp current)
+                             (if append
+                                 (append current (list face))
+                               (cons face current))
+                           (if append
+                               (list current face)
+                             (list face current)))
+           do (progn (put-text-property beg pos 'font-lock-face newface object)
+                     (setq beg pos))
+           while (< beg end)))
 
 (defun magit--propertize-face (string face)
   (propertize string 'face face 'font-lock-face face))

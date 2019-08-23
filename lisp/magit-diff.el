@@ -2335,7 +2335,7 @@ or a ref which is not a branch, then it inserts nothing."
                           (goto-char end))))))))))
         (save-excursion
           (forward-line)
-          (add-face-text-property beg (point) 'magit-diff-hunk-heading)
+          (magit--add-face-text-property beg (point) 'magit-diff-hunk-heading)
           (magit-insert-heading))
         (when magit-diff-highlight-keywords
           (save-excursion
@@ -2372,7 +2372,7 @@ or a ref which is not a branch, then it inserts nothing."
                                           ref)
                                         'font-lock-face 'magit-refname)))
             (forward-char)
-            (add-face-text-property beg (point) 'magit-diff-hunk-heading)
+            (magit--add-face-text-property beg (point) 'magit-diff-hunk-heading)
             (magit-insert-heading)
             (goto-char (point-max))
             (insert ?\n)))))))

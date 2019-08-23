@@ -324,6 +324,14 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
              '(unpushed . "@{upstream}..")
              (magit-rev-parse "--short" "master")))))
 
+;;; Utils
+
+(ert-deftest magit-utils:add-face-text-property ()
+  (let ((str (concat (propertize "ab" 'font-lock-face 'highlight) "cd")))
+    (magit--add-face-text-property 0 (length str) 'bold nil str)
+    (should (equal (get-text-property 0 'font-lock-face str) '(bold highlight)))
+    (should (equal (get-text-property 2 'font-lock-face str) '(bold)))))
+
 ;;; magit-tests.el ends soon
 (provide 'magit-tests)
 ;; Local Variables:
