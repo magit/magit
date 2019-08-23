@@ -592,7 +592,10 @@ Magit is documented in info node `(magit)'."
   (setq truncate-lines t)
   (setq buffer-read-only t)
   (setq-local line-move-visual t) ; see #1771
-  (setq font-lock-defaults '(nil t))
+  ;; Turn off syntactic font locking, but not by setting
+  ;; `font-lock-defaults' because that would enable font locking, and
+  ;; not all magit plugins may be ready for that (see #3950).
+  (setq-local font-lock-syntactic-face-function #'ignore)
   (setq show-trailing-whitespace nil)
   (setq list-buffers-directory (abbreviate-file-name default-directory))
   (hack-dir-local-variables-non-file-buffer)
