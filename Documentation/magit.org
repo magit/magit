@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-763-gb88c86043+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-776-g2bebacf71+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-763-gb88c86043+1).
+This manual is for Magit version 2.90.1 (v2.90.1-776-g2bebacf71+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -7535,29 +7535,18 @@ performance.
 
 **** MacOS Performance
 
-On macOS Emacs currently creates child processes using ~fork~.  It
-appears that this also copies GUI resources.  The result is that
-forking takes about 30 times as long on Darwin than on Linux.  And
-because Magit starts many ~git~ processes even when doing simple things,
-that makes quite a difference.
+Before Emacs 26.1 child processes were created using ~fork~ on macOS.
+That needlessly copied GUI resources, which is expensive.  The result
+was that forking took about 30 times as long on Darwin than on Linux,
+and because Magit starts many ~git~ processes that made quite a
+difference.
 
-On the ~master~ branch Emacs now uses ~vfork~ when possible, like this was
-already done on Linux, and now child creation only takes about twice
-as long on Darwin.  See [fn:mac1] for more information.
-
-Nobody knows when the changes on the ~master~ branch will be released as
-~26.1~, but it is still a long way off.  You might want to get your
-hands on this change before then.  The easiest way to get a patched
-Emacs is to install the ~emacs-plus~ formula [fn:mac2] using ~homebrew~.
-The change has been backported, so you get it not only when using
-~--HEAD~, but also when using ~--devel~ or when installing the latest
-release (by not using a version argument).
-
-Alternatively you can apply the backport [fn:mac3] manually.
+So make sure that you are using at least Emacs 26.1, in which case the
+faster ~vfork~ will be used.  (The creation of child processes still
+takes about twice as long on Darwin compared to Linux.)  See [fn:mac1]
+for more information.
 
 [fn:mac1] https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html
-[fn:mac2] https://github.com/d12frosted/homebrew-emacs-plus
-[fn:mac3] https://gist.githubusercontent.com/aaronjensen/f45894ddf431ecbff78b1bcf533d3e6b/raw/6a5cd7f57341aba673234348d8b0d2e776f86719/Emacs-25-OS-X-use-vfork.patch
 
 * Plumbing
 ** _ :ignore:
