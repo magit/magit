@@ -147,20 +147,23 @@ Also see `git-commit-post-finish-hook'."
 
 (defvar magit-gpg-secret-key-hist nil)
 
-(defun magit-read-gpg-secret-key (prompt &optional _initial-input history)
+(defun magit-read-gpg-secret-key (prompt &optional initial-input history)
   (require 'epa)
-  (let ((keys (--map (concat (epg-sub-key-id (car (epg-key-sub-key-list it)))
-                             " "
-                             (when-let ((id-obj (car (epg-key-user-id-list it))))
-                               (let ((id-str (epg-user-id-string id-obj)))
-                                 (if (stringp id-str)
-                                     id-str
-                                   (epg-decode-dn id-obj)))))
-                     (epg-list-keys (epg-make-context epa-protocol) nil t))))
-    (car (split-string (magit-completing-read
-                        prompt keys nil nil nil history
-                        (car (or history keys)))
-                       " "))))
+  (let* ((keys (mapcar
+                (lambda (obj)
+                  (let ((key (epg-sub-key-id (car (epg-key-sub-key-list obj))))
+                        (author
+                         (when-let ((id-obj (car (epg-key-user-id-list obj))))
+                           (let ((id-str (epg-user-id-string id-obj)))
+                             (if (stringp id-str)
+                                 id-str
+                               (epg-decode-dn id-obj))))))
+                    (propertize key 'display (concat key " " author))))
+                (epg-list-keys (epg-make-context epa-protocol) nil t)))
+         (choice (completing-read prompt keys nil nil nil
+                                  history nil initial-input)))
+    (set-text-properties 0 (length choice) nil choice)
+    choice))
 
 (define-infix-argument magit-commit:--reuse-message ()
   :description "Reuse commit message"
