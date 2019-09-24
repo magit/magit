@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-776-g2bebacf71+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-781-gc19d8bb4f+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-776-g2bebacf71+1).
+This manual is for Magit version 2.90.1 (v2.90.1-781-gc19d8bb4f+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -8506,8 +8506,9 @@ When Magit calls ~git~ it adds a few global arguments including
 ~--literal-pathspecs~ and the ~git~ process started by Magit then passes
 that setting on to other ~git~ process it starts itself.  It does so by
 setting the environment variable ~GIT_LITERAL_PATHSPECS~, not by calling
-subprocesses with the ~--literal-pathspecs~.  You can therefore override
-this setting in hook scripts using ~unset GIT_LITERAL_PATHSPECS~.
+subprocesses with the ~--literal-pathspecs~ argument.  You can therefore
+override this setting in hook scripts using ~unset
+GIT_LITERAL_PATHSPECS~.
 
 *** ~git-commit-mode~ isn't used when committing from the command-line
 

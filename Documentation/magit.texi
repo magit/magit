@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-776-g2bebacf71+1)
+@subtitle for version 2.90.1 (v2.90.1-781-gc19d8bb4f+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-776-g2bebacf71+1).
+This manual is for Magit version 2.90.1 (v2.90.1-781-gc19d8bb4f+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -11262,8 +11262,9 @@ When Magit calls @code{git} it adds a few global arguments including
 @code{--literal-pathspecs} and the @code{git} process started by Magit then passes
 that setting on to other @code{git} process it starts itself.  It does so by
 setting the environment variable @code{GIT_LITERAL_PATHSPECS}, not by calling
-subprocesses with the @code{--literal-pathspecs}.  You can therefore override
-this setting in hook scripts using @code{unset GIT_LITERAL_PATHSPECS}.
+subprocesses with the @code{--literal-pathspecs} argument.  You can therefore
+override this setting in hook scripts using @code{unset
+GIT_LITERAL_PATHSPECS}.
 
 @node @code{git-commit-mode} isn't used when committing from the command-line
 @appendixsubsec @code{git-commit-mode} isn't used when committing from the command-line
