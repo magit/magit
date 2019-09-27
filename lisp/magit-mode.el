@@ -379,7 +379,7 @@ starts complicating other things, then it will be removed."
 
 Some users who turn on `global-disable-line-numbers-mode' (or
 `global-nlinum-mode' or `global-linum-mode') expect line numbers
-to displayed everywhere except in Magit buffers.  Other users do
+to be displayed everywhere except in Magit buffers.  Other users do
 not expect Magit buffers to be treated differently.  At least in
 theory users in the first group should not use the global mode,
 but that ship has sailed, thus this option."
