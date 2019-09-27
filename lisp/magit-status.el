@@ -262,6 +262,7 @@ prefix arguments:
 
 (put 'magit-status 'interactive-only 'magit-status-setup-buffer)
 
+;;;###autoload
 (defalias 'magit 'magit-status
   "An alias for `magit-status' for better discoverability.
 
@@ -270,6 +271,7 @@ Instead of invoking this alias for `magit-status' using
 and read the info node `(magit)Getting Started', which
 also contains other useful hints.")
 
+;;;###autoload
 (defun magit-status-here ()
   "Like `magit-status' but with non-nil `magit-status-goto-file-position'."
   (interactive)
