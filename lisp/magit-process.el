@@ -150,7 +150,11 @@ itself from the hook, to avoid further futile attempts."
                  (const :tag "Don't start a cache daemon" nil)))
 
 (defcustom magit-process-yes-or-no-prompt-regexp
-  " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])] ?[?:] ?$"
+  (concat " [\[(]"
+          "\\([Yy]\\(?:es\\)?\\)"
+          "[/|]"
+          "\\([Nn]o?\\)"
+          "[\])] ?[?:] ?$")
   "Regexp matching Yes-or-No prompts of Git and its subprocesses."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
