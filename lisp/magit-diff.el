@@ -792,6 +792,7 @@ and `:slant'."
    (magit-diff:-C)
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
    ("-s" "Show stats"                     "--stat")
+   ("=g" "Show signature"                 "--show-signature")
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
   ["Actions"
@@ -823,6 +824,8 @@ and `:slant'."
    (magit-diff:-C)
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
    ("-s" "Show stats"                     "--stat"
+    :if-derived magit-diff-mode)
+   ("=g" "Show signature"                 "--show-signature"
     :if-derived magit-diff-mode)
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
@@ -1907,6 +1910,8 @@ Staging and applying changes is documented in info node
     (magit-git-wash #'magit-diff-wash-diffs args)))
 
 (defun magit-diff-wash-diffs (args &optional limit)
+  (when (member "--show-signature" args)
+    (magit-diff-wash-signature))
   (when (member "--stat" args)
     (magit-diff-wash-diffstat))
   (when (re-search-forward magit-diff-headline-re limit t)
@@ -1928,6 +1933,13 @@ section or a child thereof."
                      (magit-section-ident magit-root-section)))
       (magit-section-goto it)
     (user-error "No diffstat in this buffer")))
+
+(defun magit-diff-wash-signature ()
+  (when (looking-at "^gpg: ")
+    (magit-insert-section (signature)
+      (while (looking-at "^gpg: ")
+        (forward-line))
+      (insert "\n"))))
 
 (defun magit-diff-wash-diffstat ()
   (let (heading (beg (point)))
