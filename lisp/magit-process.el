@@ -154,6 +154,8 @@ itself from the hook, to avoid further futile attempts."
           "\\([Yy]\\(?:es\\)?\\)"
           "[/|]"
           "\\([Nn]o?\\)"
+          ;; OpenSSH v8 prints this.  See #3969.
+          "\\(?:/\\[fingerprint\\]\\)?"
           "[\])] ?[?:] ?$")
   "Regexp matching Yes-or-No prompts of Git and its subprocesses."
   :package-version '(magit . "2.1.0")
