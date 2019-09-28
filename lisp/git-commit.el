@@ -269,7 +269,8 @@ already using it, then you probably shouldn't start doing so."
 
 (defcustom git-commit-known-pseudo-headers
   '("Signed-off-by" "Acked-by" "Modified-by" "Cc"
-    "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by")
+    "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by"
+    "Co-authored-by")
   "A list of Git pseudo headers to be highlighted."
   :group 'git-commit
   :safe (lambda (val) (and (listp val) (-all-p 'stringp val)))
@@ -411,6 +412,8 @@ This is only used if Magit is available."
      :help "Insert a 'Reported-by' header"]
     ["Suggested" git-commit-suggested t
      :help "Insert a 'Suggested-by' header"]
+    ["Co-authored-by" git-commit-co-authored t
+     :help "Insert a 'Co-authored-by' header"]
     "-"
     ["Save" git-commit-save-message t]
     ["Cancel" with-editor-cancel t]
@@ -736,6 +739,11 @@ With a numeric prefix ARG, go forward ARG comments."
   "Insert a header mentioning the person who suggested the change."
   (interactive (git-commit-read-ident))
   (git-commit-insert-header "Suggested-by" name mail))
+
+(defun git-commit-co-authored-by (name mail)
+  "Insert a header mentioning the person who co-authored the commit."
+  (interactive (git-commit-read-ident))
+  (git-commit-insert-header "Co-authored-by" name mail))
 
 (defun git-commit-self-ident ()
   (list (or (getenv "GIT_AUTHOR_NAME")
