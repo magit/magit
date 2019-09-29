@@ -763,9 +763,11 @@ See info node `(magit)Debugging Tools' for more information."
                 ;; Avoid Emacs bug#16406 by using full path.
                 "-l" ,(file-name-sans-extension (locate-library "magit")))
               " ")))
-    (message "Uncustomized Magit command saved to kill-ring, %s"
+    (message "Uncustomized Magit command saved to clipboard, %s"
              "please run it in a terminal.")
-    (kill-new cmd)))
+    (with-temp-buffer
+      (insert cmd)
+      (clipboard-kill-ring-save (point-min) (point-max)))))
 
 ;;; Text Utilities
 
