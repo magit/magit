@@ -98,10 +98,12 @@ Only considered when moving past the last entry with
 The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-STYLE controls how to format the committer date.  It can be one
-  of `age' (to show the age of the commit), `age-abbreviated' (to
-  abbreviate the time unit to a character), or a string (suitable
-  for `format-time-string') to show the actual date.
+STYLE controls how to format the author or committer date.
+  It can be one of `age' (to show the age of the commit),
+  `age-abbreviated' (to abbreviate the time unit to a character),
+  or a string (suitable for `format-time-string') to show the
+  actual date.  Option `magit-log-margin-show-committer-date'
+  controls which date is being displayed.
 WIDTH controls the width of the margin.  This exists for forward
   compatibility and currently the value should not be changed.
 AUTHOR controls whether the name of the author is also shown by
@@ -114,6 +116,18 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :type magit-log-margin--custom-type
   :initialize 'magit-custom-initialize-reset
   :set (apply-partially #'magit-margin-set-variable 'magit-log-mode))
+
+(defcustom magit-log-margin-show-committer-date nil
+  "Whether to show the committer date in the margin.
+
+This option only controls whether the committer date is displayed
+instead of the author date.  Whether some date is displayed in
+the margin and whether the margin is displayed at all is
+controlled by other options."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-log
+  :group 'magit-margin
+  :type 'boolean)
 
 (defcustom magit-log-show-refname-after-summary nil
   "Whether to show refnames after commit summaries.
@@ -216,10 +230,12 @@ be nil, in which case no usage information is shown."
 The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-STYLE controls how to format the committer date.  It can be one
-  of `age' (to show the age of the commit), `age-abbreviated' (to
-  abbreviate the time unit to a character), or a string (suitable
-  for `format-time-string') to show the actual date.
+STYLE controls how to format the author or committer date.
+  It can be one of `age' (to show the age of the commit),
+  `age-abbreviated' (to abbreviate the time unit to a character),
+  or a string (suitable for `format-time-string') to show the
+  actual date.  Option `magit-log-margin-show-committer-date'
+  controls which date is being displayed.
 WIDTH controls the width of the margin.  This exists for forward
   compatibility and currently the value should not be changed.
 AUTHOR controls whether the name of the author is also shown by
@@ -254,10 +270,12 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 The value has the form (INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH).
 
 If INIT is non-nil, then the margin is shown initially.
-STYLE controls how to format the committer date.  It can be one
-  of `age' (to show the age of the commit), `age-abbreviated' (to
-  abbreviate the time unit to a character), or a string (suitable
-  for `format-time-string') to show the actual date.
+STYLE controls how to format the author or committer date.
+  It can be one of `age' (to show the age of the commit),
+  `age-abbreviated' (to abbreviate the time unit to a character),
+  or a string (suitable for `format-time-string') to show the
+  actual date.  Option `magit-log-margin-show-committer-date'
+  controls which date is being displayed.
 WIDTH controls the width of the margin.  This exists for forward
   compatibility and currently the value should not be changed.
 AUTHOR controls whether the name of the author is also shown by
@@ -970,7 +988,7 @@ Do not add this to a hook variable."
          (remove "--literal-pathspecs" magit-git-global-arguments)))
     (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
       "log"
-      (format "--format=%s%%h%%x00%s%%x00%s%%x00%%aN%%x00%%at%%x00%%s%s"
+      (format "--format=%s%%h%%x00%s%%x00%s%%x00%%aN%%x00%s%%x00%%s%s"
               (if (and (member "--left-right" args)
                        (not (member "--graph" args)))
                   "%m "
@@ -979,6 +997,7 @@ Do not add this to a hook variable."
               (if (member "--show-signature" args)
                   (progn (setq args (remove "--show-signature" args)) "%G?")
                 "")
+              (if magit-log-margin-show-committer-date "%ct" "%at")
               (if (member "++header" args)
                   (if (member "--graph" (setq args (remove "++header" args)))
                       (concat "\n" magit-log-revision-headers-format "\n")

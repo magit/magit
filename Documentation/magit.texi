@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-781-gc19d8bb4f+1)
+@subtitle for version 2.90.1 (v2.90.1-789-g3add5310b+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-781-gc19d8bb4f+1).
+This manual is for Magit version 2.90.1 (v2.90.1-789-g3add5310b+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -3158,10 +3158,12 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-STYLE controls how to format the committer date.  It can be one
-of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+STYLE controls how to format the author or committer date.  It can
+be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
 abbreviate the time unit to a character), or a string (suitable
-for @code{format-time-string}) to show the actual date.
+for @code{format-time-string}) to show the actual date.  Option
+@code{magit-log-margin-show-committer-date} controls which date is being
+displayed.
 
 @item
 WIDTH controls the width of the margin.  This exists for forward
@@ -3602,10 +3604,12 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-STYLE controls how to format the committer date.  It can be one
-of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+STYLE controls how to format the author or committer date.  It can
+be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
 abbreviate the time unit to a character), or a string (suitable
-for @code{format-time-string}) to show the actual date.
+for @code{format-time-string}) to show the actual date.  Option
+@code{magit-log-margin-show-committer-date} controls which date is being
+displayed.
 
 @item
 WIDTH controls the width of the margin.  This exists for forward
@@ -3629,6 +3633,15 @@ Likewise if you set INIT in @code{magit-log-margin} to @code{nil}, then that is 
 in the default of all other options.  But setting it to @code{t}, i.e.
 re-enforcing the default for that option, does not carry to other
 options.
+
+@defopt magit-log-margin-show-committer-date
+
+This option specifies whether to show the committer date in the
+margin.  This option only controls whether the committer date is
+displayed instead of the author date.  Whether some date is
+displayed in the margin and whether the margin is displayed at all
+is controlled by other options.
+@end defopt
 
 @table @asis
 @kindex L
@@ -3709,10 +3722,12 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-STYLE controls how to format the committer date.  It can be one
-of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+STYLE controls how to format the author or committer date.  It can
+be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
 abbreviate the time unit to a character), or a string (suitable
-for @code{format-time-string}) to show the actual date.
+for @code{format-time-string}) to show the actual date.  Option
+@code{magit-log-margin-show-committer-date} controls which date is being
+displayed.
 
 @item
 WIDTH controls the width of the margin.  This exists for forward
@@ -3780,10 +3795,12 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-STYLE controls how to format the committer date.  It can be one
-of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+STYLE controls how to format the author or committer date.  It can
+be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
 abbreviate the time unit to a character), or a string (suitable
-for @code{format-time-string}) to show the actual date.
+for @code{format-time-string}) to show the actual date.  Option
+@code{magit-log-margin-show-committer-date} controls which date is being
+displayed.
 
 @item
 WIDTH controls the width of the margin.  This exists for forward
@@ -3846,10 +3863,12 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-STYLE controls how to format the committer date.  It can be one
-of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+STYLE controls how to format the author or committer date.  It can
+be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
 abbreviate the time unit to a character), or a string (suitable
-for @code{format-time-string}) to show the actual date.
+for @code{format-time-string}) to show the actual date.  Option
+@code{magit-log-margin-show-committer-date} controls which date is being
+displayed.
 
 @item
 WIDTH controls the width of the margin.  This exists for forward
@@ -4687,10 +4706,12 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-STYLE controls how to format the committer date.  It can be one
-of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+STYLE controls how to format the author or committer date.  It can
+be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
 abbreviate the time unit to a character), or a string (suitable
-for @code{format-time-string}) to show the actual date.
+for @code{format-time-string}) to show the actual date.  Option
+@code{magit-log-margin-show-committer-date} controls which date is being
+displayed.
 
 @item
 WIDTH controls the width of the margin.  This exists for forward
@@ -8116,10 +8137,12 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 If INIT is non-nil, then the margin is shown initially.
 
 @item
-STYLE controls how to format the committer date.  It can be one
-of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
+STYLE controls how to format the author or committer date.  It can
+be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
 abbreviate the time unit to a character), or a string (suitable
-for @code{format-time-string}) to show the actual date.
+for @code{format-time-string}) to show the actual date.  Option
+@code{magit-log-margin-show-committer-date} controls which date is being
+displayed.
 
 @item
 WIDTH controls the width of the margin.  This exists for forward
