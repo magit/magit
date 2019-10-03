@@ -50,6 +50,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
     ("b" "worktree"              magit-worktree-checkout)
     ("c" "branch and worktree"   magit-worktree-branch)]
    ["Commands"
+    ("m" "Move worktree"         magit-worktree-move)
     ("k" "Delete worktree"       magit-worktree-delete)
     ("g" "Visit worktree"        magit-worktree-status)]])
 
@@ -75,6 +76,31 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
   (magit-run-git "worktree" "add" (if force "-B" "-b")
                  branch (expand-file-name path) start-point)
   (magit-diff-visit-directory path))
+
+;;;###autoload
+(defun magit-worktree-move (worktree path)
+  "Move WORKTREE to PATH."
+  (interactive
+   (list (magit-completing-read "Move worktree"
+                                (cdr (magit-list-worktrees))
+                                nil t nil nil
+                                (magit-section-value-if 'worktree))
+         (funcall magit-worktree-read-directory-name-function
+                  "Move worktree to: ")))
+  (if (file-directory-p (expand-file-name ".git" worktree))
+      (user-error "You may not move the main working tree")
+    (let ((preexisting-directory (file-directory-p path)))
+      (when (and (zerop (magit-call-git "worktree" "move" worktree
+                                        (expand-file-name path)))
+                 (not (file-exists-p default-directory))
+                 (derived-mode-p 'magit-status-mode))
+        (kill-buffer)
+        (magit-diff-visit-directory
+         (if preexisting-directory
+             (concat (file-name-as-directory path)
+                     (file-name-nondirectory worktree))
+           path)))
+      (magit-refresh))))
 
 (defun magit-worktree-delete (worktree)
   "Delete a worktree, defaulting to the worktree at point.

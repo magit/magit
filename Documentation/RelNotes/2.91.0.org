@@ -292,6 +292,9 @@
   ~magit-stashes-maybe-update-stash-buffer~ to
   ~magit-section-movement-hook~.  #3943
 
+- Added new command ~magit-move-worktree~ to allow you to move an
+  existing worktree to a new directory.
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
