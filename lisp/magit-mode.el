@@ -1337,10 +1337,13 @@ argument (the prefix) non-nil means save all with no questions."
        arg (lambda ()
              (and (not magit-inhibit-refresh-save)
                   buffer-file-name
-                  (file-exists-p (file-name-directory buffer-file-name))
                   ;; Avoid needlessly connecting to unrelated remotes.
                   (equal (file-remote-p buffer-file-name)
                          remote)
+                  ;; For remote files this makes network requests and
+                  ;; therefore has to come after the above to avoid
+                  ;; unnecessarily waiting for unrelated hosts.
+                  (file-exists-p (file-name-directory buffer-file-name))
                   (string-prefix-p topdir (file-truename buffer-file-name))
                   (equal (magit-rev-parse-safe "--show-toplevel")
                          topdir)))))))
