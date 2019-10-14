@@ -599,9 +599,9 @@ the upstream isn't ahead of the current branch) show."
                                          magit-log-read-revs-map)
          "[, ]" t))))
 
-(defun magit-log-read-pattern ()
-  "Read a string from the user to use as --branches= pattern."
-  (magit-read-string "Type a pattern to pass to --branches"))
+(defun magit-log-read-pattern (option)
+  "Read a string from the user to pass as parameter to OPTION."
+  (magit-read-string (format "Type a pattern to pass to %s" option)))
 
 ;;;###autoload
 (defun magit-log-current (revs &optional args files)
@@ -641,7 +641,7 @@ completion candidates."
 ;;;###autoload
 (defun magit-log-matching-branches (pattern &optional args files)
   "Show log for all branches matching PATTERN and `HEAD'."
-  (interactive (cons (magit-log-read-pattern) (magit-log-arguments)))
+  (interactive (cons (magit-log-read-pattern "--branches") (magit-log-arguments)))
   (magit-log-setup-buffer
    (list "HEAD" (format "--branches=%s" pattern))
    args files))
