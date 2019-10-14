@@ -442,6 +442,7 @@ the upstream isn't ahead of the current branch) show."
    [""
     ("L" "local branches" magit-log-branches)
     (7 "B" "matching branches" magit-log-matching-branches)
+    (7 "T" "matching tags" magit-log-matching-tags)
     ("b" "all branches"   magit-log-all-branches)
     ("a" "all references" magit-log-all)
     (7 "m" "merged"       magit-log-merged)]
@@ -644,6 +645,14 @@ completion candidates."
   (interactive (cons (magit-log-read-pattern "--branches") (magit-log-arguments)))
   (magit-log-setup-buffer
    (list "HEAD" (format "--branches=%s" pattern))
+   args files))
+
+;;;###autoload
+(defun magit-log-matching-tags (pattern &optional args files)
+  "Show log for all tags matching PATTERN and `HEAD'."
+  (interactive (cons (magit-log-read-pattern "--tags") (magit-log-arguments)))
+  (magit-log-setup-buffer
+   (list "HEAD" (format "--tags=%s" pattern))
    args files))
 
 ;;;###autoload
