@@ -116,6 +116,8 @@ Rules that are defined in that file affect all local repositories."
 
 (defun magit-gitignore-read-pattern ()
   (let* ((default (magit-current-file))
+         (base (car magit-buffer-diff-files))
+         (base (and base (file-directory-p base) base))
          (choices
           (delete-dups
            (--mapcat
@@ -123,7 +125,16 @@ Rules that are defined in that file affect all local repositories."
                   (when-let ((ext (file-name-extension it)))
                     (list (concat "/" (file-name-directory it) "*." ext)
                           (concat "*." ext))))
-            (magit-untracked-files)))))
+            (sort (nconc
+                   (magit-untracked-files nil base)
+                   ;; The untracked section of the status buffer lists
+                   ;; directories containing only untracked files.
+                   ;; Add those as candidates.
+                   (-filter #'directory-name-p
+                            (magit-list-files
+                             "--other" "--exclude-standard" "--directory"
+                             "--no-empty-directory" "--" base)))
+                  #'string-lessp)))))
     (when default
       (setq default (concat "/" default))
       (unless (member default choices)

@@ -308,6 +308,9 @@
 - Introduced two new faces to customize the appearance of commit messages:
   ~magit-diff-revision-summary~ and ~magit-diff-revision-summary-highlight~.
 
+- Commands under the ~magit-gitignore~ prefix now include directories
+  that contain only untracked files as completion candidates.  #3985
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
