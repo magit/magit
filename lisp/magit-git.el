@@ -1313,7 +1313,7 @@ to, or to some other symbolic-ref that points to the same ref."
                (funcall predicate module))
            module))))
 
-(defun magit-get-current-branch ()
+(cl-defgeneric magit-get-current-branch ()
   "Return the refname of the currently checked out branch.
 Return nil if no branch is currently checked out."
   (magit-git-string "symbolic-ref" "--short" "HEAD"))
