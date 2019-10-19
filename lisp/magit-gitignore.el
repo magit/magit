@@ -121,7 +121,7 @@ Rules that are defined in that file affect all local repositories."
            (--mapcat
             (cons (concat "/" it)
                   (when-let ((ext (file-name-extension it)))
-                    (list (concat "/" (file-name-directory "foo") "*." ext)
+                    (list (concat "/" (file-name-directory it) "*." ext)
                           (concat "*." ext))))
             (magit-untracked-files)))))
     (when default
