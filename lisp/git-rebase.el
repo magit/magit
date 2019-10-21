@@ -747,6 +747,8 @@ running 'man git-rebase' at the command line) for details."
     (git-rebase-match-comment-line 0 'font-lock-comment-face)
     ("\\[[^[]*\\]"
      0 'magit-keyword t)
+    ("\\(?:fixup!\\|squash!\\)"
+     0 'magit-keyword-squash t)
     (,(format "^%s Rebase \\([^ ]*\\) onto \\([^ ]*\\)" comment-start)
      (1 'git-rebase-comment-hash t)
      (2 'git-rebase-comment-hash t))
