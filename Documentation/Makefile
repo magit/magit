@@ -49,7 +49,7 @@ html-dir: $(TEXIFILES)
 
 %.epub: %.texi
 	@printf "Generating $@\n"
-	@makeinfo --docbook $< -o epub.xml
+	@$(MAKEINFO) --docbook $< -o epub.xml
 	@xsltproc $(DOCBOOK_XSL) epub.xml 2> /dev/null
 	@echo "application/epub+zip" > mimetype
 	@zip -X --quiet --recurse-paths -0 $@ mimetype
