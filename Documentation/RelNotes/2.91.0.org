@@ -7,8 +7,13 @@
   Emacs 25 in this release as I had intended to do.  Emacs 25 should
   remain supported for at least a few more releases.
 
-- Magit now uses Transient instead of Magit-Popup.
-  https://emacsair.me/2019/02/14/transient-0.1/
+- Magit now uses Transient instead of Magit-Popup.  In the transition
+  many popups gained new arguments and/or commands, most of which are
+  not mentioned explicitly in these release notes.  Many of these
+  commands are hidden by default because they are only useful to a
+  subset of users.  See https://emacsair.me/2019/02/14/transient-0.1
+  for information about the new Transient library and how to enable
+  hidden commands, among other things.
 
 - The commands ~magit-branch-pull-request~, ~magit-checkout-pull-request~
   and ~magit-worktree-checkout-pull-request~ were removed in favor of
@@ -36,10 +41,6 @@
 
 ** Changes since v2.90.0
 
-- Replaced ~magit-repolist-column-dirty~ with ~magit-repolist-column-flag~
-  which allows specifying arbitrary flags and predicates in custom order
-  using ~magit-repolist-column-flag-alist~.  #3936 #3937
-
 - It isn't always obvious that a section can be expanded, especially
   to users who are just getting started with Magit.  Mainly to make
   it easier for those users, expandable and collapsable sections now
@@ -49,8 +50,6 @@
   disable this or to select the alternative style, which shows an
   ellipsis at the end of the heading of each expandable section
   instead.  #3679
-
-- Added ~bug-reference-mode~ to ~git-commit-setup-hook~.  e19e8fb1e
 
 - The "Version" column in ~magit-submodule-list-mode~ and
   ~magit-repolist-mode~ buffers now shows when a repository is dirty.
@@ -286,13 +285,24 @@
   file-visiting buffer.  Setting ~magit-status-goto-file-position~ to
   a non-nil value causes ~magit-status~ to behave the same way.  #3930
 
+- Replaced ~magit-repolist-column-dirty~ with ~magit-repolist-column-flag~
+  which allows specifying arbitrary flags and predicates in custom order
+  using ~magit-repolist-column-flag-alist~.  #3936 #3937
+
 - The buffer that shows a stash is now updated automatically when
   moving through a list of stashes if the user added the new
   ~magit-status-maybe-update-stash-buffer~ and/or
   ~magit-stashes-maybe-update-stash-buffer~ to
   ~magit-section-movement-hook~.  #3943
 
-- Added new command ~magit-move-worktree~ to allow you to move an
+- Added new commands ~magit-log-matching-branches~ and
+  ~magit-log-matching-tags~.  #3958, #3983
+
+- Added new option ~magit-disable-line-numbers~.  #3971
+
+- Added new option ~magit-log-margin-show-committer-date~.  1b9995238
+
+- Added new command ~magit-worktree-move~ to allow you to move an
   existing worktree to a new directory.
 
 - Introduced two new faces to customize the appearance of commit messages:
@@ -431,6 +441,11 @@
   ~magit-ref-p~ (8b33bc7c7),
   ~git-commit-setup~ (675b75ded),
   ~magit-{,no-}skip-worktree~ (34d6ac27d),
+  ~magit-fetch-all~ (904bb82ca),
+  ~magit-branch-configure~ (7246bf291),
+  ~magit--maybe-update-blob-buffer~ (1d57893a6),
+  ~magit-...-maybe-update-...-buffer~ (8d3459b55),
+  ~magit-read-gpg-secret-key~ (9d68a455d),
 
 This release also contains other minor improvements, bug fixes, typo
 fixes, and documentation fixes.
