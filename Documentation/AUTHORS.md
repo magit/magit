@@ -166,6 +166,7 @@ Contributors
 - John Morris <john@zultron.com>
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
+- Jonathan Arnett <jonathan@scriptdrop.co>
 - Jonathan Leech-Pepin <jonathan.leechpepin@gmail.com>
 - Jonathan Roes <jroes@jroes.net>
 - Jon Vanderwijk <jonathn@github.com>
