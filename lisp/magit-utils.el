@@ -607,6 +607,11 @@ back to built-in `completing-read' for now." :error)
   (setq defining-kbd-macro nil)
   (force-mode-line-update))
 
+(defun magit-prettify-string (str)
+  (let* ((str (replace-regexp-in-string (rx bos (one-or-more (not alnum))) "" str))
+         (str (replace-regexp-in-string (rx (one-or-more (not alnum)) eos) "" str)))
+    (downcase (replace-regexp-in-string (rx (one-or-more (not alnum))) "-" str))))
+
 (defun magit-read-string (prompt &optional initial-input history default-value
                                  inherit-input-method no-whitespace)
   "Read a string from the minibuffer, prompting with string PROMPT.
@@ -641,7 +646,9 @@ This is similar to `read-string', but
     (cond ((string= val "")
            (user-error "Need non-empty input"))
           ((and no-whitespace (string-match-p "[\s\t\n]" val))
-           (user-error "Input contains whitespace"))
+           (magit-read-string
+            prompt initial-input history (magit-prettify-string val)
+            inherit-input-method no-whitespace))
           (t val))))
 
 (defun magit-read-string-ns (prompt &optional initial-input history
