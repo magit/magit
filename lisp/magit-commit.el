@@ -44,6 +44,7 @@
   :group 'magit-commands
   :type '(choice (const :tag "Ask" t)
                  (const :tag "Ask showing diff" verbose)
+                 (const :tag "Stage without confirmation" stage)
                  (const :tag "Don't ask" nil)))
 
 (defcustom magit-commit-show-diff t
@@ -372,7 +373,8 @@ depending on the value of option `magit-commit-squash-confirm'."
    (magit-commit-ask-to-stage
     (when (eq magit-commit-ask-to-stage 'verbose)
       (magit-diff-unstaged))
-    (prog1 (when (y-or-n-p "Nothing staged.  Stage and commit all unstaged changes? ")
+    (prog1 (when (or (eq magit-commit-ask-to-stage 'stage)
+                     (y-or-n-p "Nothing staged.  Stage and commit all unstaged changes? "))
              (magit-run-git "add" "-u" ".")
              (or args (list "--")))
       (when (and (eq magit-commit-ask-to-stage 'verbose)
