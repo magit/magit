@@ -98,9 +98,16 @@ has to be used to view and change remote related variables."
 ;;;###autoload
 (defun magit-remote-add (remote url &optional args)
   "Add a remote named REMOTE and fetch it."
-  (interactive (list (magit-read-string-ns "Remote name")
-                     (magit-read-url "Remote url")
-                     (transient-args 'magit-remote)))
+  (interactive (let* ((remote-name (magit-read-string-ns "Remote name"))
+                      (url (magit-get "remote.origin.url"))
+                      (repo-name (and (string-match "\\`git@github\\.com:\\([^/]+\\)/\\(.+\\)\\.git\\'" url)
+                                      (match-string 2 url))))
+                 (list remote-name
+                       (magit-read-url
+                        "Remote url"
+                        (and repo-name
+                             (format "git@github.com:%s/%s.git" remote-name repo-name)))
+                       (transient-args 'magit-remote))))
   (if (pcase (list magit-remote-add-set-remote.pushDefault
                    (magit-get "remote.pushDefault"))
         (`(,(pred stringp) ,_) t)
