@@ -42,8 +42,8 @@
   "Whether to ask to stage all unstaged changes when committing and nothing is staged."
   :package-version '(magit . "2.3.0")
   :group 'magit-commands
-  :type '(choice (const :tag "Ask showing diff" verbose)
-                 (const :tag "Ask" t)
+  :type '(choice (const :tag "Ask" t)
+                 (const :tag "Ask showing diff" verbose)
                  (const :tag "Don't ask" nil)))
 
 (defcustom magit-commit-show-diff t
