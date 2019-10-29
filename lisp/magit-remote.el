@@ -61,6 +61,12 @@ has to be used to view and change remote related variables."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-remote-guess-url nil
+  "Whether to guess remote URL using remote name."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-remote "magit-remote" nil t)
@@ -105,7 +111,8 @@ has to be used to view and change remote related variables."
                  (list remote-name
                        (magit-read-url
                         "Remote url"
-                        (and repo-name
+                        (and magit-remote-guess-url
+                             repo-name
                              (format "git@github.com:%s/%s.git" remote-name repo-name)))
                        (transient-args 'magit-remote))))
   (if (pcase (list magit-remote-add-set-remote.pushDefault
