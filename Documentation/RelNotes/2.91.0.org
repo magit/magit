@@ -106,10 +106,6 @@
   be of use if you want to write Git notes without separating the
   first line with an empty line from the rest of the text.  #3676
 
-- The command ~magit-copy-section-value~ now removes the +/- diff
-  marker column when a prefix argument is given and the region is
-  active within a hunk.  #3716
-
 - Made ~magit-tag-release~ more flexible and added it as a suffix of
   ~magit-tag~.  2d14f84b2
 
@@ -130,7 +126,7 @@
 - ~magit-stage-modified~ and ~magit-unstage-all~ now take the log file
   filter into account.  #3767
 
-- New command ~magit-skip-worktree~ can be use to tell Git to pretend
+- New command ~magit-skip-worktree~ can be used to tell Git to pretend
   that the working tree version is up-to-date; ~magit-no-skip-worktree~
   does the opposite.  Both commands are available from the
   ~magit-gitignore~ prefix but are disabled by default.  #3710
@@ -154,7 +150,7 @@
 - ~magit-cherry~ is now available from the ~magit-dispatch~ prefix.
   ef311f378
 
-~ ~magit-cherry-spinoff~ now offer the upstream as the default
+~ ~magit-cherry-spinoff~ now offers the upstream as the default
   starting-point.  e5a2a0ac2
 
 - Added new command ~magit-branch-spinout~.  #3794.
@@ -270,7 +266,7 @@
 
 - Additional history simplification arguments were added to the log
   transients.  Because only a minority of users will use those, they
-  were put on levels that are not show by default.  8f8a2f1cf
+  were put on levels that are not shown by default.  8f8a2f1cf
 
 - Added new commands ~magit-assume-unchanged, ~magit-no-assume-unchanged~,
   ~magit-jump-to-skip-worktree~ and ~magit-jump-to-assume-unchanged~, and
@@ -303,10 +299,11 @@
 - Added new option ~magit-log-margin-show-committer-date~.  1b9995238
 
 - Added new command ~magit-worktree-move~ to allow you to move an
-  existing worktree to a new directory.
+  existing worktree to a new directory.  #3978
 
 - Introduced two new faces to customize the appearance of commit messages:
   ~magit-diff-revision-summary~ and ~magit-diff-revision-summary-highlight~.
+  #3988
 
 - Commands under the ~magit-gitignore~ prefix now include directories
   that contain only untracked files as completion candidates.  #3985
@@ -399,7 +396,7 @@
   to prune the local remote-tracking ref was too loose, leading to
   false positives.  #3650
 
-- ~magit-ediff-state~ offered untracked files as completion candidates
+- ~magit-ediff-stage~ offered untracked files as completion candidates
   even though it cannot handle those.  8dd612dfb
 
 - Fix handling of passphrase prompts which are output with leading
@@ -421,7 +418,7 @@
   results.  #3924
 
 - ~magit-stash-branch-here~ applied the stash without checking out the
-  new branch.
+  new branch.  d3cee7f8c
 
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),
