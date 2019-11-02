@@ -446,6 +446,7 @@
   ~magit--maybe-update-blob-buffer~ (1d57893a6),
   ~magit-...-maybe-update-...-buffer~ (8d3459b55),
   ~magit-read-gpg-secret-key~ (9d68a455d),
+  ~magit-gitignore-in-subdir~,
 
 This release also contains other minor improvements, bug fixes, typo
 fixes, and documentation fixes.

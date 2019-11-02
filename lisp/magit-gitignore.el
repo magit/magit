@@ -81,7 +81,7 @@ Also stage the file."
   (magit-with-toplevel
     (let ((file (expand-file-name ".gitignore" directory)))
       (magit--gitignore rule file)
-      (magit-run-git "add" ".gitignore"))))
+      (magit-run-git "add" file))))
 
 ;;;###autoload
 (defun magit-gitignore-in-gitdir (rule)
