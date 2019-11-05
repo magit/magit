@@ -43,7 +43,7 @@
 
 - It isn't always obvious that a section can be expanded, especially
   to users who are just getting started with Magit.  Mainly to make
-  it easier for those users, expandable and collapsable sections now
+  it easier for those users, expandable and collapsible sections now
   get an indicator in the fringe.
 
   The new option ~magit-section-visibility-indicator~ can be used to

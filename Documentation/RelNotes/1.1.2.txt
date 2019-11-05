@@ -12,7 +12,7 @@ Changes since v1.1.1
 
  * Uninteresting refs are no longer shown in logs.
 
- * The deprecated `assoc' libary is no longer used.
+ * The deprecated `assoc' library is no longer used.
 
  * Several other fixes and improvements.
 

@@ -527,7 +527,7 @@ c9689c670 magit-popup: locally set another display-buffer variable
 * The command `magit-completing-read' didn't offer any completion
   candidates.  387257f20
 
-* In some cases an error occured when showing the remote popup because
+* In some cases an error occurred when showing the remote popup because
   the length of the remotes name was not taken into account.  a9177e5b9
 
 * The command `magit-branch-rename' failed to rename a local branch if

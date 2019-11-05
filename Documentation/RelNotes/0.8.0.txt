@@ -7,7 +7,7 @@ Changes since v0.7.0
 --------------------
 
  * By setting magit-repo-dirs, you can get better repo completion.
-   Magit will offer all subdirectories (upto magit-repo-dirs level
+   Magit will offer all subdirectories (up to magit-repo-dirs level
    deep) of the listed directories when magit-status asks for a
    directory to work on.  You can get the old behavior with a double
    prefix to magit-status.

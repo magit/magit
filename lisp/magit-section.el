@@ -204,7 +204,7 @@ Otherwise the value has to have one of these two forms:
                         (const magit-fringe-bitmap-boldv))
                  (cons  :tag "Use custom fringe indicators"
                         (variable :tag "Expandable bitmap variable")
-                        (variable :tag "Collapsable bitmap variable"))
+                        (variable :tag "Collapsible bitmap variable"))
                  (cons  :tag "Use ellipses at end of headings"
                         (string :tag "Ellipsis" "…")
                         (choice :tag "Use face kludge"

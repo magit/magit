@@ -1175,7 +1175,7 @@ Git."
          (substring it 5))))
 
 (defun magit-ref-abbrev (refname)
-  "Return an unambigious abbreviation of REFNAME."
+  "Return an unambiguous abbreviation of REFNAME."
   (magit-rev-parse "--verify" "--abbrev-ref" refname))
 
 (defun magit-ref-fullname (refname)
@@ -1191,7 +1191,7 @@ If REFNAME is ambiguous, return nil."
 
 (defun magit-ref-maybe-qualify (refname &optional prefix)
   "If REFNAME is ambiguous, try to disambiguate it by prepend PREFIX to it.
-Return an unambigious refname, either REFNAME or that prefixed
+Return an unambiguous refname, either REFNAME or that prefixed
 with PREFIX, nil otherwise.  If REFNAME has an offset suffix
 such as \"~1\", then that is preserved.  If optional PREFIX is
 nil, then use \"heads/\".  "

@@ -474,7 +474,7 @@ The sections are inserted by running the functions on the hook
   "Keymap for `error' sections.")
 
 (defun magit-insert-error-header ()
-  "Insert the message about the Git error that just occured.
+  "Insert the message about the Git error that just occurred.
 
 This function is only aware of the last error that occur when Git
 was run for side-effects.  If, for example, an error occurs while

@@ -344,7 +344,7 @@ in `magit-blame-read-only-mode-map' instead.")
          (when (process-live-p magit-blame-process)
            (kill-process magit-blame-process)
            (while magit-blame-process
-             (sit-for 0.01))) ; avoid racing the sentinal
+             (sit-for 0.01))) ; avoid racing the sentinel
          (remove-hook 'after-save-hook     'magit-blame--run t)
          (remove-hook 'post-command-hook   'magit-blame-goto-chunk-hook t)
          (remove-hook 'before-revert-hook  'magit-blame--remove-overlays t)

@@ -42,7 +42,7 @@ Changes since v0.6.1
    and unpulled commits, 'N r' runs git svn rebase, and 'N c' runs git
    svn dcommit.
 
- * Magit now also works when the direcory is accessed via tramp.
+ * Magit now also works when the directory is accessed via tramp.
 
  * M-x magit-status can also create new repositories when given a
    directory that is not a Git repository.

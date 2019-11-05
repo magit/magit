@@ -127,7 +127,7 @@ This function should not be removed from the value of this option.
 
 `magit-diff-highlight-hunk-region-using-overlays' and
 `magit-diff-highlight-hunk-region-using-underline' emphasize the
-region by placing delimiting horizonal lines before and after it.
+region by placing delimiting horizontal lines before and after it.
 The underline variant was implemented because Eli said that is
 how we should do it.  However the overlay variant actually works
 better.  Also see https://github.com/magit/magit/issues/2758.
@@ -542,7 +542,7 @@ If you prefer the old behaviors, then set this to t."
   '((t :inherit bold))
   "Face used by `magit-diff-highlight-hunk-region-using-face'.
 
-This face is overlayed over text that uses other hunk faces,
+This face is overlaid over text that uses other hunk faces,
 and those normally set the foreground and background colors.
 The `:foreground' and especially the `:background' properties
 should be avoided here.  Setting the latter would cause the
