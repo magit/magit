@@ -120,7 +120,9 @@
 (require 'server)
 (require 'with-editor)
 
-(eval-when-compile (require 'recentf))
+(eval-when-compile
+  (require 'recentf)
+  (require 'subr-x))
 
 ;;;; Declarations
 
