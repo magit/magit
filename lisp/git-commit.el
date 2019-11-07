@@ -673,10 +673,10 @@ With a numeric prefix ARG, go forward ARG comments."
 (defun git-commit-save-message ()
   "Save current message to `log-edit-comment-ring'."
   (interactive)
-  (when-let ((message (git-commit-buffer-message)))
-    (when-let ((index (ring-member log-edit-comment-ring message)))
+  (when-let ((commit-message (git-commit-buffer-message)))
+    (when-let ((index (ring-member log-edit-comment-ring commit-message)))
       (ring-remove log-edit-comment-ring index))
-    (ring-insert log-edit-comment-ring message)))
+    (ring-insert log-edit-comment-ring commit-message)))
 
 (defun git-commit-buffer-message ()
   (let ((flush (concat "^" comment-start))
