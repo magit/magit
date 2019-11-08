@@ -54,6 +54,8 @@
 (declare-function magit-status-goto-initial-section "magit-status" ())
 ;; For `magit-mode' from `bookmark'
 (defvar bookmark-make-record-function)
+;; For `magit-mode' from third-party `symbol-overlay'
+(defvar symbol-overlay-inhibit-map)
 
 (require 'format-spec)
 (require 'help-mode)
@@ -610,6 +612,7 @@ Magit is documented in info node `(magit)'."
   ;; not all magit plugins may be ready for that (see #3950).
   (setq-local font-lock-syntactic-face-function #'ignore)
   (setq show-trailing-whitespace nil)
+  (setq-local symbol-overlay-inhibit-map t)
   (setq list-buffers-directory (abbreviate-file-name default-directory))
   (hack-dir-local-variables-non-file-buffer)
   (make-local-variable 'text-property-default-nonsticky)
