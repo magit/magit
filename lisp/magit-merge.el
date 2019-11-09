@@ -46,6 +46,7 @@
    ("-f" "Fast-forward only" "--ff-only")
    ("-n" "No fast-forward"   "--no-ff")
    (magit-merge:--strategy)
+   (magit-merge:--diff-algorithm)
    (5 magit:--gpg-sign)]
   ["Actions"
    :if-not magit-merge-in-progress-p
@@ -75,6 +76,20 @@
   :key "-s"
   :argument "--strategy="
   :choices '("resolve" "recursive" "octopus" "ours" "subtree"))
+
+(define-infix-argument magit-merge:--diff-algorithm ()
+  :description "Diff algorithm"
+  :class 'transient-option
+  :key "-A"
+  :argument "-Xdiff-algorithm="
+  :reader 'magit-merge-select-algorithm)
+
+(defun magit-merge-select-algorithm (&rest _ignore)
+  (magit-read-char-case nil t
+    (?d "[d]efault"   "default")
+    (?m "[m]inimal"   "minimal")
+    (?p "[p]atience"  "patience")
+    (?h "[h]istogram" "histogram")))
 
 ;;;###autoload
 (defun magit-merge-plain (rev &optional args nocommit)
