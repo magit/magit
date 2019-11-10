@@ -41,7 +41,7 @@ magit-refs.elc:         magit.elc
 magit-files.elc:        magit.elc
 magit-reset.elc:        magit.elc
 magit-branch.elc:       magit.elc magit-reset.elc
-magit-merge.elc:        magit.elc
+magit-merge.elc:        magit.elc magit-diff.elc
 magit-tag.elc:          magit.elc
 magit-worktree.elc:     magit.elc
 magit-notes.elc:        magit.elc

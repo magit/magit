@@ -31,6 +31,7 @@
   (require 'subr-x))
 
 (require 'magit)
+(require 'magit-diff)
 
 (declare-function magit-git-push "magit-push" (branch target args))
 
@@ -46,6 +47,7 @@
    ("-f" "Fast-forward only" "--ff-only")
    ("-n" "No fast-forward"   "--no-ff")
    (magit-merge:--strategy)
+   (5 magit-diff:--diff-algorithm :argument "--Xdiff-algorithm=")
    (5 magit:--gpg-sign)]
   ["Actions"
    :if-not magit-merge-in-progress-p
