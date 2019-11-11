@@ -161,10 +161,12 @@ and then turned on again when turning off the latter."
 ;;; Faces
 
 (defface magit-blame-highlight
-  '((((class color) (background light))
+  `((((class color) (background light))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
      :background "grey80"
      :foreground "black")
     (((class color) (background dark))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
      :background "grey25"
      :foreground "white"))
   "Face used for highlighting when blaming.
@@ -188,7 +190,8 @@ Also see option `magit-blame-styles'."
   :group 'magit-faces)
 
 (defface magit-blame-heading
-  '((t :inherit magit-blame-highlight
+  `((t ,@(and (>= emacs-major-version 27) '(:extend t))
+       :inherit magit-blame-highlight
        :weight normal
        :slant normal))
   "Face used for blame headings by default when blaming.

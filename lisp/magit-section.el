@@ -212,24 +212,40 @@ Otherwise the value has to have one of these two forms:
                                 (const :tag "No (kinda ugly)" nil)))))
 
 (defface magit-section-highlight
-  '((((class color) (background light)) :background "grey95")
-    (((class color) (background  dark)) :background "grey20"))
+  `((((class color) (background light))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
+     :background "grey95")
+    (((class color) (background  dark))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
+     :background "grey20"))
   "Face for highlighting the current section."
   :group 'magit-faces)
 
 (defface magit-section-heading
-  '((((class color) (background light)) :foreground "DarkGoldenrod4" :weight bold)
-    (((class color) (background  dark)) :foreground "LightGoldenrod2" :weight bold))
+  `((((class color) (background light))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
+     :foreground "DarkGoldenrod4"
+     :weight bold)
+    (((class color) (background  dark))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
+     :foreground "LightGoldenrod2"
+     :weight bold))
   "Face for section headings."
   :group 'magit-faces)
 
-(defface magit-section-secondary-heading '((t :weight bold))
+(defface magit-section-secondary-heading
+  '((t ,@(and (>= emacs-major-version 27) '(:extend t))
+       :weight bold))
   "Face for section headings of some secondary headings."
   :group 'magit-faces)
 
 (defface magit-section-heading-selection
-  '((((class color) (background light)) :foreground "salmon4")
-    (((class color) (background  dark)) :foreground "LightSalmon3"))
+  `((((class color) (background light))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
+     :foreground "salmon4")
+    (((class color) (background  dark))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
+     :foreground "LightSalmon3"))
   "Face for selected section headings."
   :group 'magit-faces)
 
