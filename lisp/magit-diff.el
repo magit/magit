@@ -546,7 +546,7 @@ This face is overlaid over text that uses other hunk faces,
 and those normally set the foreground and background colors.
 The `:foreground' and especially the `:background' properties
 should be avoided here.  Setting the latter would cause the
-lose of information.  Good properties to set here are `:weight'
+loss of information.  Good properties to set here are `:weight'
 and `:slant'."
   :group 'magit-faces)
 
