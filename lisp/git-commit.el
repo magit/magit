@@ -743,7 +743,7 @@ With a numeric prefix ARG, go forward ARG comments."
   (interactive (git-commit-read-ident))
   (git-commit-insert-header "Suggested-by" name mail))
 
-(defun git-commit-co-authored-by (name mail)
+(defun git-commit-co-authored (name mail)
   "Insert a header mentioning the person who co-authored the commit."
   (interactive (git-commit-read-ident))
   (git-commit-insert-header "Co-authored-by" name mail))
