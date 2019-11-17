@@ -887,7 +887,7 @@ When the region is active, then save the region's content
 instead of the hash, like `kill-ring-save' would."
   (interactive)
   (if (use-region-p)
-      (copy-region-as-kill nil nil 'region)
+      (call-interactively #'copy-region-as-kill)
     (kill-new (message "%s" (oref (magit-current-blame-chunk) orig-rev)))))
 
 ;;; Popup

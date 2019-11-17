@@ -571,7 +571,7 @@ hunk, strip the outer diff marker column."
                (buffer-substring-no-properties
                 (region-beginning) (region-end)))))
    ((use-region-p)
-    (copy-region-as-kill nil nil 'region))
+    (call-interactively #'copy-region-as-kill))
    (t
     (when-let ((section (magit-current-section))
                (value (oref section value)))
@@ -616,7 +616,7 @@ like `kill-ring-save' would, instead of behaving as described
 above."
   (interactive)
   (if (use-region-p)
-      (copy-region-as-kill nil nil 'region)
+      (call-interactively #'copy-region-as-kill)
     (when-let ((rev (or magit-buffer-revision
                         (cl-case major-mode
                           (magit-diff-mode
