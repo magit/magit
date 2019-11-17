@@ -61,33 +61,6 @@
 </div>
 <hr>
 
-<div align="center">
-  <a href="https://github.com/magit/magit/blob/master/Documentation/BACKERS.md">1987 backers</a>
-  made sure the 2017 Kickstarter campaign was a huge success!<br>
-  Thanks for your generosity and enthusiastic support!
-</div>
-<div align="center">
-  <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em><br><br>
-</div>
-<br>
-<div align="center">
-  <em>My thanks also go to these three sponsors!</em><br><br>
-  <a href="https://www.mojotech.com">
-    <img title="Mojotech"
-         alt="Mojotech"
-         src="https://magit.vc/assets/mojotech.png"></a>
-  <a href="https://opensource.google.com">
-    <img title="Google Open Source"
-         alt="Google Open Source"
-         src="https://magit.vc/assets/google-os.png"></a>
-  <a href="http://www.directangular.com">
-    <img title="Directangular"
-         alt="Directangular"
-         src="https://magit.vc/assets/directangular.png"></a>
-</div>
-<br>
-<hr>
-
 Support
 =======
 
@@ -121,6 +94,10 @@ by [Jonas Bernoulli][jonas], [Kyle Meyer][kyle], and
 Many more people have [contributed code][authors] and suggested
 features.
 
+Over the years a lot of people supported development financially,
+including the [1987 backers][backers] of the 2017 crowdfunding
+campaign.
+
 Thanks to all of you, may (the history of) the source be with you!
 
 ***
@@ -135,6 +112,7 @@ Thanks to all of you, may (the history of) the source be with you!
 [![Netscape](https://magit.vc/assets/netscape-20px.png)](https://en.wikipedia.org/wiki/Browser_wars)
 
 
+[backers]: https://github.com/magit/magit/blob/master/Documentation/BACKERS.md
 [contrib]: https://github.com/magit/magit/blob/master/.github/CONTRIBUTING.md
 [issues]:  https://github.com/magit/magit/issues
 [pulls]:   https://github.com/magit/magit/pulls
