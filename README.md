@@ -38,22 +38,25 @@
 </div>
 <br>
 <div align="center">
+  <a href="https://github.com/sponsors/tarsius">
+    <img title="Donate using Github Sponsors"
+         alt="Donate using Github Sponsors"
+         src="https://magit.vc/assets/github-sponsors-50px.png"></a>
+  &nbsp;&nbsp;
+  <a href="https://magit.vc/donate/#iban">
+     <img title="Donate using IBAN"
+          alt="Donate using IBAN"
+          src="https://magit.vc/assets/iban-50px.png"></a>
+  &nbsp;&nbsp;
+  <a href="https://magit.vc/donate/#zelle">
+     <img title="Donate using Zelle (USA bank transfer)"
+          alt="Donate using Zelle (USA bank transfer)"
+          src="https://magit.vc/assets/zelle-50px.png"></a>
+  &nbsp;&nbsp;
   <a href="https://www.paypal.me/JonasBernoulli/20">
     <img title="Donate using PayPal"
          alt="Donate using PayPal"
-		 style="height: 50px; width: auto;"
          src="https://magit.vc/assets/paypal.png"></a>
-  &nbsp;&nbsp;
-  <a href="https://www.patreon.com/tarsius">
-    <img title="Donate monthly using Patreon"
-         alt="Donate monthly using Patreon"
-		 style="height: 50px; width: auto;"
-         src="https://magit.vc/assets/patreon-50px.png"></a>
-  &nbsp;&nbsp;
-  <a href="https://liberapay.com/magit">
-     <img title="Donate weekly using Liberapay"
-          alt="Donate weekly using Liberapay"
-          src="https://magit.vc/assets/liberapay-50px.png"></a>
 </div>
 <br>
 <div align="center">
