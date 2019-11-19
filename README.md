@@ -66,7 +66,7 @@
 Getting Started
 ===============
 
-If you are new too Magit, then either one of the following two
+If you are new to Magit, then either one of the following two
 articles should help understanding how it differs from other Git
 clients.
 
