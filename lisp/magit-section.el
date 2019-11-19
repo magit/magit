@@ -234,7 +234,7 @@ Otherwise the value has to have one of these two forms:
   :group 'magit-faces)
 
 (defface magit-section-secondary-heading
-  '((t ,@(and (>= emacs-major-version 27) '(:extend t))
+  `((t ,@(and (>= emacs-major-version 27) '(:extend t))
        :weight bold))
   "Face for section headings of some secondary headings."
   :group 'magit-faces)

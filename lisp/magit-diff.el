@@ -573,7 +573,7 @@ and `:slant'."
   :group 'magit-faces)
 
 (defface magit-diff-lines-heading
-  '((((class color) (background light))
+  `((((class color) (background light))
      ,@(and (>= emacs-major-version 27) '(:extend t))
      :inherit magit-diff-hunk-heading-highlight
      :background "LightSalmon3")
