@@ -40,7 +40,7 @@
 The limit in the current buffer can be changed using \"+\"
 and \"-\"."
   :package-version '(magit . "2.91.0")
-  :group 'magit-git-arguments
+  :group 'magit-commands
   :type 'number)
 
 (defcustom magit-reflog-margin

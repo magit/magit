@@ -187,7 +187,7 @@ know what you are doing.  And think very hard before adding
 something; it will be used every time Magit runs Git for any
 purpose."
   :package-version '(magit . "2.9.0")
-  :group 'magit-git-arguments
+  :group 'magit-commands
   :group 'magit-process
   :type '(repeat string))
 
