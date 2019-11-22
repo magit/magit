@@ -37,8 +37,6 @@
   (require 'benchmark)
   (require 'subr-x))
 
-(require 'magit-utils)
-
 (declare-function magit-maybe-make-margin-overlay "magit-margin" ())
 (declare-function magit-repository-local-get "magit-mode"
                   (key &optional default repository))
@@ -1673,6 +1671,16 @@ Configuration'."
               (message "  %-50s %s" entry
                        (benchmark-elapse (apply entry args)))
             (apply entry args)))))))
+
+(cl-defun magit--overlay-at (pos prop &optional (val nil sval) testfn)
+  (cl-find-if (lambda (o)
+                (let ((p (overlay-properties o)))
+                  (and (plist-member p prop)
+                       (or (not sval)
+                           (funcall (or testfn #'eql)
+                                    (plist-get p prop)
+                                    val)))))
+              (overlays-at pos t)))
 
 ;;; _
 (provide 'magit-section)
