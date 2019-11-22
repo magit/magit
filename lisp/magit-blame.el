@@ -365,7 +365,7 @@ in `magit-blame-read-only-mode-map' instead.")
          (magit-blame--remove-overlays))))
 
 (defun magit-blame--refresh ()
-  (magit-blame--refresh (magit-blame-arguments)))
+  (magit-blame--run (magit-blame-arguments)))
 
 (defun magit-blame-goto-chunk-hook ()
   (let ((chunk (magit-blame-chunk-at (point))))
