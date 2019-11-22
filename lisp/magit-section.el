@@ -173,7 +173,7 @@ entries of this alist."
 If nil, then don't show any indicators.
 Otherwise the value has to have one of these two forms:
 
-(EXPANDABLE-BITMAP . COLLAPSIBLE-BITMAP)
+\(EXPANDABLE-BITMAP . COLLAPSIBLE-BITMAP)
 
   Both values have to be variables whose values are fringe
   bitmaps.  In this case every section that can be expanded or
@@ -182,7 +182,7 @@ Otherwise the value has to have one of these two forms:
   To provide extra padding around the indicator, set
   `left-fringe-width' in `magit-mode-hook'.
 
-(STRING . BOOLEAN)
+\(STRING . BOOLEAN)
 
   In this case STRING (usually an ellipsis) is shown at the end
   of the heading of every collapsed section.  Expanded sections
