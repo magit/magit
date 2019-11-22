@@ -497,8 +497,6 @@ stash that were staged."
            (delete-frame ctl-frm))
           ((window-live-p ctl-win)
            (delete-window ctl-win)))
-    (unless (ediff-multiframe-setup-p)
-      (ediff-kill-bottom-toolbar))
     (ediff-kill-buffer-carefully ctl-buf)
     (when (frame-live-p main-frame)
       (select-frame main-frame))))
