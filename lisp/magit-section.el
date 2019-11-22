@@ -38,10 +38,6 @@
   (require 'subr-x))
 
 (declare-function magit-maybe-make-margin-overlay "magit-margin" ())
-(declare-function magit-repository-local-get "magit-mode"
-                  (key &optional default repository))
-(declare-function magit-repository-local-set "magit-mode"
-                  (key value &optional repository))
 (defvar magit-keep-region-overlay)
 (defvar magit-refresh-verbose)
 
@@ -1347,17 +1343,6 @@ invisible."
             (memq (oref section type)
                   magit-section-cache-visibility))
     (magit-section-cache-visibility section)))
-
-(defun magit-preserve-section-visibility-cache ()
-  (when (derived-mode-p 'magit-status-mode 'magit-refs-mode)
-    (magit-repository-local-set
-     (cons major-mode 'magit-section-visibility-cache)
-     magit-section-visibility-cache)))
-
-(defun magit-restore-section-visibility-cache (mode)
-  (setq magit-section-visibility-cache
-        (magit-repository-local-get
-         (cons mode 'magit-section-visibility-cache))))
 
 (defun magit-section-maybe-update-visibility-indicator (section)
   (when magit-section-visibility-indicator

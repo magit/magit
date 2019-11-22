@@ -1516,6 +1516,17 @@ Unless specified, REPOSITORY is the current buffer's repository."
       (setf (cdr cache)
             (cl-delete key (cdr cache) :key #'car :test #'equal)))))
 
+(defun magit-preserve-section-visibility-cache ()
+  (when (derived-mode-p 'magit-status-mode 'magit-refs-mode)
+    (magit-repository-local-set
+     (cons major-mode 'magit-section-visibility-cache)
+     magit-section-visibility-cache)))
+
+(defun magit-restore-section-visibility-cache (mode)
+  (setq magit-section-visibility-cache
+        (magit-repository-local-get
+         (cons mode 'magit-section-visibility-cache))))
+
 (defun magit-zap-caches ()
   "Zap caches for the current repository.
 Remove the repository's entry from `magit-repository-local-cache'
