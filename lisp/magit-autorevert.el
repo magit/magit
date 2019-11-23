@@ -194,7 +194,13 @@ buffers that are not visiting files.
 The behavior of this mode can be customized using the options
 in the `autorevert' and `magit-autorevert' groups.
 
-This function calls the hook `magit-auto-revert-mode-hook'.")
+This function calls the hook `magit-auto-revert-mode-hook'.
+
+Like nearly every mode, this mode should be enabled or disabled
+by calling the respective mode function, the reason being that
+changing the state of a mode involves more than merely toggling
+a single switch, so setting the mode variable is not enough.
+Also, you should not use `after-init-hook' to disable this mode.")
 
 (defun magit-auto-revert-buffers ()
   (when (and magit-auto-revert-immediately
