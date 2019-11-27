@@ -1024,9 +1024,11 @@ are considered."
   (not (magit-module-worktree-p module)))
 
 (defun magit-ignore-submodules-p ()
-  (cl-find-if (lambda (arg)
-                (string-prefix-p "--ignore-submodules" arg))
-              magit-buffer-diff-args))
+  (or (cl-find-if (lambda (arg)
+                    (string-prefix-p "--ignore-submodules" arg))
+                  magit-buffer-diff-args)
+      (when-let ((value (magit-get "diff.ignoreSubmodules")))
+        (concat "diff.ignoreSubmodules=" value))))
 
 ;;; Revisions and References
 
