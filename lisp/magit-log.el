@@ -1262,14 +1262,14 @@ Do not add this to a hook variable."
 
 (defun magit-log-propertize-keywords (_rev msg)
   (let ((start 0))
-    (when (string-match "^\\(squash\\|fixup\\)! " msg start)
+    (when (string-match "^\\(?:squash\\|fixup\\)! " msg start)
       (setq start (match-end 0))
-      (magit--put-face (match-beginning 0) (match-end 0)
+      (magit--put-face (match-beginning 0) (1- start)
                        'magit-keyword-squash msg))
-    (while (string-match "\\[[^[]*\\]" msg start)
-      (setq start (match-end 0))
-      (when magit-log-highlight-keywords
-        (magit--put-face (match-beginning 0) (match-end 0)
+    (when magit-log-highlight-keywords
+      (while (string-match "\\[[^[]*?]" msg start)
+        (setq start (match-end 0))
+        (magit--put-face (match-beginning 0) start
                          'magit-keyword msg))))
   msg)
 
