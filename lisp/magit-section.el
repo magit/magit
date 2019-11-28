@@ -1612,7 +1612,8 @@ should not be abused for other side-effects.  To remove FUNCTION
 again use `remove-hook'."
   (unless (boundp hook)
     (error "Cannot add function to undefined hook variable %s" hook))
-  (or (default-boundp hook) (set-default hook nil))
+  (unless (default-boundp hook)
+    (set-default hook nil))
   (let ((value (if local
                    (if (local-variable-p hook)
                        (symbol-value hook)
