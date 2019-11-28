@@ -325,7 +325,7 @@ The return value has the form ((TYPE . VALUE)...)."
           (and parent
                (magit-section-ident parent)))))
 
-(cl-defgeneric magit-section-ident-value (VALUE)
+(cl-defgeneric magit-section-ident-value (value)
   "Return a constant representation of VALUE.
 VALUE is the value of a `magit-section' object.  If that is an
 object itself, then that is not suitable to be used to identify
