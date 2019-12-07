@@ -108,6 +108,7 @@ seconds of user inactivity.  That is not desirable."
           (magit-turn-on-auto-revert-mode-if-desired)))
     (when (and buffer-file-name
                (file-readable-p buffer-file-name)
+               (executable-find magit-git-executable t) ; see #3684
                (magit-toplevel)
                (or (not magit-auto-revert-tracked-only)
                    (magit-file-tracked-p buffer-file-name))
