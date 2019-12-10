@@ -3035,7 +3035,8 @@ for added and removed lines as for context lines."
                   'magit-diff-context-highlight
                 'magit-diff-context)))
     (when magit-diff-unmarked-lines-keep-foreground
-      (setq face (list :background (face-attribute face :background))))
+      (setq face `(,@(and (>= emacs-major-version 27) '(:extend t))
+                   :background ,(face-attribute face :background))))
     (magit-diff--make-hunk-overlay (oref section content)
                                    (magit-diff-hunk-region-beginning)
                                    'font-lock-face face
