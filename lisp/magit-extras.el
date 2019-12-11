@@ -463,6 +463,12 @@ that)."
                (choice (regexp :tag "Find index regexp")
                        (const :tag "Don't number entries" nil))))
 
+(defcustom magit-copy-revision-abbreviated nil
+  "Whether to save abbreviated revision to `kill-ring' and `magit-revision-stack'."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-miscellaneous
+  :type 'boolean)
+
 ;;;###autoload
 (defun magit-pop-revision-stack (rev toplevel)
   "Insert a representation of a revision into the current buffer.
@@ -552,6 +558,10 @@ the current section is a commit, branch, or tag section, push
 the (referenced) revision to the `magit-revision-stack' for use
 with `magit-pop-revision-stack'.
 
+When `magit-copy-revision-abbreviated' is non-nil, save the
+abbreviated revision to the `kill-ring' and the
+`magit-revision-stack'.
+
 When the current section is a branch or a tag, and a prefix
 argument is used, then save the revision at its tip to the
 `kill-ring' instead of the reference name.
@@ -586,7 +596,9 @@ hunk, strip the outer diff marker column."
                     (file-name-as-directory
                      (expand-file-name (magit-section-parent-value section)
                                        (magit-toplevel))))))
-           (setq value (magit-rev-parse value))
+           (setq value (magit-rev-parse
+                        (and magit-copy-revision-abbreviated "--short")
+                        value))
            (push (list value default-directory) magit-revision-stack)
            (kill-new (message "%s" (or (and current-prefix-arg ref)
                                        value)))))
@@ -613,7 +625,11 @@ the current section instead, using `magit-copy-section-value'.
 
 When the region is active, then save that to the `kill-ring',
 like `kill-ring-save' would, instead of behaving as described
-above."
+above.
+
+When `magit-copy-revision-abbreviated' is non-nil, save the
+abbreviated revision to the `kill-ring' and the
+`magit-revision-stack'."
   (interactive)
   (if (use-region-p)
       (call-interactively #'copy-region-as-kill)
@@ -626,7 +642,9 @@ above."
                              magit-buffer-range))
                           (magit-status-mode "HEAD")))))
       (when (magit-commit-p rev)
-        (setq rev (magit-rev-parse rev))
+        (setq rev (magit-rev-parse
+                   (and magit-copy-revision-abbreviated "--short")
+                   rev))
         (push (list rev default-directory) magit-revision-stack)
         (kill-new (message "%s" rev))))))
 
