@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-844-g954b0745+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-845-g4b97f23ac+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-844-g954b0745+1).
+This manual is for Magit version 2.90.1 (v2.90.1-845-g4b97f23ac+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -4367,17 +4367,15 @@ Also see [[man:git-commit]]
 *** Editing Commit Messages
 
 After initiating a commit as described in the previous section, two new
-buffers appear.  One shows the changes that are about to committed,
-while the other is used to write the message.  All regular editing
-commands are available in the commit message buffer.  This section
-only describes the additional commands.
+buffers appear.  One shows the changes that are about to be committed,
+while the other is used to write the message.
 
-Commit messages are edited in an edit session - in the background Git
-is waiting for the editor, in our case the Emacsclient, to save the
-commit message in a file (in most cases ~.git/COMMIT_EDITMSG~) and then
-return.  If the Emacsclient returns with a non-zero exit status then
-Git does not create the commit.  So the most important commands are
-those for finishing and aborting the commit.
+Commit messages are edited in an edit session - in the background ~git~
+is waiting for the editor, in our case ~emacsclient~, to save the commit
+message in a file (in most cases ~.git/COMMIT_EDITMSG~) and then return.
+If the editor returns with a non-zero exit status then ~git~ does not
+create the commit.  So the most important commands are those for
+finishing and aborting the commit.
 
 - Key: C-c C-c, with-editor-finish
 
@@ -4389,11 +4387,11 @@ those for finishing and aborting the commit.
   Cancel the current editing session by returning with exit code 1.
   Git then cancels the commit, but leaves the file untouched.
 
-In addition to being used by Git, these messages may also be stored in
-a ring that persists until Emacs is closed.  By default the message is
-stored at the beginning and the end of an edit session (regardless of
-whether the session is finished successfully or was canceled).  It is
-sometimes useful to bring back messages from that ring.
+In addition to being used by ~git commit~, messages may also be stored
+in a ring that persists until Emacs is closed.  By default the message
+is stored at the beginning and the end of an edit session (regardless
+of whether the session is finished successfully or was canceled).  It
+is sometimes useful to bring back messages from that ring.
 
 - Key: C-c M-s, git-commit-save-message
 
@@ -4412,16 +4410,20 @@ sometimes useful to bring back messages from that ring.
   ARG comments.
 
 By default the diff for the changes that are about to be committed are
-automatically shown when invoking the commit.  When amending to an
-existing commit it may be useful to show either the changes that are
-about to be added to that commit or to show those changes together
-with those that are already committed.
+automatically shown when invoking the commit.  To prevent that, remove
+~magit-commit-diff~ from ~server-switch-hook~.
+
+When amending to an existing commit it may be useful to show either
+the changes that are about to be added to that commit or to show those
+changes alongside those that have already been committed.
 
 - Key: C-c C-d, magit-diff-while-committing
 
   While committing, show the changes that are about to be committed.
   While amending, invoking the command again toggles between showing
   just the new changes or all the changes that will be committed.
+
+**** Using the Revision Stack
 
 - Key: C-c C-w, magit-pop-revision-stack
 
@@ -4480,6 +4482,8 @@ with those that are already committed.
   expansion of EOB-FORMAT is inserted at the end of the buffer (if the
   buffer ends with a comment, then it is inserted right before that).
 
+**** Commit Pseudo Headers
+
 Some projects use pseudo headers in commit messages.  Magit colorizes
 such headers and provides some commands to insert such headers.
 
@@ -4516,10 +4520,12 @@ such headers and provides some commands to insert such headers.
 
   Insert a header mentioning the person who suggested the change.
 
-~git-commit-mode~ is a minor mode that is only used to establish
-the above key bindings.  This allows using an arbitrary major mode
-when editing the commit message.  It's even possible to use a
-different major mode in different repositories, which is useful when
+**** Commit Mode and Hooks
+
+~git-commit-mode~ is a minor mode that is only used to establish certain
+key bindings.  This makes it possible to use an arbitrary major mode
+in buffers used to edit commit messages.  It is even possible to use
+different major modes in different repositories, which is useful when
 different projects impose different commit message conventions.
 
 - User Option: git-commit-major-mode
@@ -4530,20 +4536,15 @@ different projects impose different commit message conventions.
 Because ~git-commit-mode~ is a minor mode, we don't use its mode hook
 to setup the buffer, except for the key bindings.  All other setup
 happens in the function ~git-commit-setup~, which among other things runs
-the hook ~git-commit-setup-hook~.  The following functions are suitable
-for that hook.
+the hook ~git-commit-setup-hook~.
+
 
 - User Option: git-commit-setup-hook
 
   Hook run at the end of ~git-commit-setup~.
 
-- Function: magit-revert-buffers &optional force
-
-  Revert unmodified file-visiting buffers of the current repository.
-
-  If either ~magit-revert-buffers~ is non-nil and ~inhibit-magit-revert~
-  is nil, or if optional FORCE is non-nil, then revert all unmodified
-  buffers that visit files being tracked in the current repository.
+#+TEXINFO: @noindent
+The following functions are suitable for this hook:
 
 - Function: git-commit-save-message
 
@@ -4573,12 +4574,39 @@ for that hook.
   more useful.  But some users disagree, which is why this function
   exists.
 
+- Function: bug-reference-mode
+
+  Hyperlink bug references in the buffer.
+
 - Function: with-editor-usage-message
 
   Show usage information in the echo area.
 
-Magit also helps with writing *good* commit messages by complaining when
-certain rules are violated.
+- User Option: git-commit-setup-hook
+
+  Hook run after the user finished writing a commit message.
+
+  This hook is only run after pressing ~C-c C-c~ in a buffer used to
+  edit a commit message.  If a commit is created without the user
+  typing a message into a buffer, then this hook is not run.
+
+  This hook is not run until the new commit has been created.  If
+  doing so takes Git longer than one second, then this hook isn't run
+  at all.  For certain commands such as ~magit-rebase-continue~ this
+  hook is never run because doing so would lead to a race condition.
+
+  This hook is only run if ~magit~ is available.
+
+  Also see ~magit-post-commit-hook~.
+
+**** Commit Message Conventions
+
+Git-Commit highlights certain violations of commonly accepted commit
+message conventions.  Certain violations even cause Git-Commit to ask
+you to confirm that you really want to do that.  This nagging can of
+course be turned off, but the result of doing that ususally is that
+instead of some code its now the human who is reviewing your commits
+who has to waste some time telling you to fix your commits.
 
 - User Option: git-commit-summary-max-length
 
@@ -4605,15 +4633,20 @@ certain rules are violated.
   finishing the session despite issues.  Functions should usually
   honor this wish and return non-nil.
 
+  By default the only member is ~git-commit-check-style-conventions~.
+
 - Function: git-commit-check-style-conventions
 
-  Check for violations of certain basic style conventions.  For each
-  violation ask the user if she wants to proceed anyway.  This makes
-  sure the summary line isn't too long and that the second line is
-  empty.
+  This function checks for violations of certain basic style
+  conventions.  For each violation it asks users if they want to
+  proceed anyway.
 
-To show no diff while committing remove ~magit-commit-diff~ from
-~server-switch-hook~.
+- User Option: git-commit-style-convention-checks
+
+  This option controls what conventions the function by the same name
+  tries to enforce.  The value is a list of self-explanatory symbols
+  identifying certain conventions; ~non-empty-second-line~ and
+  ~overlong-summary-line~.
 
 ** Branching
 *** The Two Remotes
