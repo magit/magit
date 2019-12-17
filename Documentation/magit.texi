@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-845-g4b97f23ac+1)
+@subtitle for version 2.90.1 (v2.90.1-846-ge4bd04cb6+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-845-g4b97f23ac+1).
+This manual is for Magit version 2.90.1 (v2.90.1-846-ge4bd04cb6+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6248,8 +6248,8 @@ Also see @code{magit-post-commit-hook}.
 Git-Commit highlights certain violations of commonly accepted commit
 message conventions.  Certain violations even cause Git-Commit to ask
 you to confirm that you really want to do that.  This nagging can of
-course be turned off, but the result of doing that ususally is that
-instead of some code its now the human who is reviewing your commits
+course be turned off, but the result of doing that usually is that
+instead of some code it's now the human who is reviewing your commits
 who has to waste some time telling you to fix your commits.
 
 @defopt git-commit-summary-max-length

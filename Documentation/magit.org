@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-845-g4b97f23ac+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-846-ge4bd04cb6+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-845-g4b97f23ac+1).
+This manual is for Magit version 2.90.1 (v2.90.1-846-ge4bd04cb6+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -4604,8 +4604,8 @@ The following functions are suitable for this hook:
 Git-Commit highlights certain violations of commonly accepted commit
 message conventions.  Certain violations even cause Git-Commit to ask
 you to confirm that you really want to do that.  This nagging can of
-course be turned off, but the result of doing that ususally is that
-instead of some code its now the human who is reviewing your commits
+course be turned off, but the result of doing that usually is that
+instead of some code it's now the human who is reviewing your commits
 who has to waste some time telling you to fix your commits.
 
 - User Option: git-commit-summary-max-length
