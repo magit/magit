@@ -268,8 +268,7 @@ and Buffer Arguments'."
                  (const :tag "use args from buffer if it is current" current)
                  (const :tag "never use args from buffer" never)))
 
-(defcustom magit-region-highlight-hook
-  '(magit-section-update-region magit-diff-update-hunk-region)
+(defcustom magit-region-highlight-hook '(magit-diff-update-hunk-region)
   "Functions used to highlight the region.
 
 Each function is run with the current section as only argument
@@ -278,7 +277,7 @@ then fall back to regular region highlighting."
   :package-version '(magit . "2.1.0")
   :group 'magit-refresh
   :type 'hook
-  :options '(magit-section-update-region magit-diff-update-hunk-region))
+  :options '(magit-diff-update-hunk-region))
 
 (defcustom magit-create-buffer-hook nil
   "Normal hook run after creating a new `magit-mode' buffer."

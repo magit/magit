@@ -1216,15 +1216,6 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 (defvar-local magit-section-highlighted-section nil)
 (defvar-local magit-section-highlighted-sections nil)
 (defvar-local magit-section-unhighlight-sections nil)
-
-(defun magit-section-update-region (_)
-  "When the region is a valid section-selection, highlight them all."
-  ;; At least that's what it does conceptually.  In actuality it just
-  ;; returns a list of those sections, and it doesn't even matter if
-  ;; this is a member of `magit-region-highlight-hook'.  It probably
-  ;; should be removed, but I want to make sure before removing it.
-  (magit-region-sections))
-
 (defun magit-section-update-highlight ()
   (let ((section (magit-current-section)))
     (unless (eq section magit-section-highlighted-section)
@@ -1372,8 +1363,9 @@ invisible."
 (defun magit-section--highlight-region (start end window rol)
   (magit-section--delete-region-overlays)
   (if (and (not magit-keep-region-overlay)
-           (run-hook-with-args-until-success 'magit-region-highlight-hook
-                                             (magit-current-section))
+           (or (magit-region-sections)
+               (run-hook-with-args-until-success 'magit-region-highlight-hook
+                                                 (magit-current-section)))
            (not (= (line-number-at-pos start)
                    (line-number-at-pos end)))
            ;; (not (eq (car-safe last-command-event) 'mouse-movement))
