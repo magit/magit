@@ -248,6 +248,19 @@ starts complicating other things, then it will be removed."
   :group 'magit-section
   :type 'boolean)
 
+(defcustom magit-section-disable-line-numbers t
+  "In Magit buffers, whether to disable modes that display line numbers.
+
+Some users who turn on `global-display-line-numbers-mode' (or
+`global-nlinum-mode' or `global-linum-mode') expect line numbers
+to be displayed everywhere except in Magit buffers.  Other users
+do not expect Magit buffers to be treated differently.  At least
+in theory users in the first group should not use the global mode,
+but that ship has sailed, thus this option."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-section
+  :type 'boolean)
+
 (defface magit-section-highlight
   `((((class color) (background light))
      ,@(and (>= emacs-major-version 27) '(:extend t))

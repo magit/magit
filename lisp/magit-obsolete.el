@@ -49,6 +49,9 @@
 (define-obsolete-function-alias 'magit-repolist-column-dirty
   'magit-repolist-column-flag "Magit 2.91.0")
 
+(define-obsolete-variable-alias 'magit-disable-line-numbers
+  'magit-section-disable-line-numbers "Magit 2.91.0")
+
 (defun magit--magit-popup-warning ()
   (display-warning 'magit "\
 Magit no longer uses Magit-Popup.

@@ -328,19 +328,6 @@ recommended value."
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
 
-(defcustom magit-disable-line-numbers t
-  "In Magit buffers, whether to disable modes that display line numbers.
-
-Some users who turn on `global-display-line-numbers-mode' (or
-`global-nlinum-mode' or `global-linum-mode') expect line numbers
-to be displayed everywhere except in Magit buffers.  Other users
-do not expect Magit buffers to be treated differently.  At least
-in theory users in the first group should not use the global mode,
-but that ship has sailed, thus this option."
-  :package-version '(magit . "2.91.0")
-  :group 'magit-miscellaneous
-  :type 'boolean)
-
 ;;; Key Bindings
 
 (defvar magit-mode-map
@@ -576,7 +563,7 @@ Magit is documented in info node `(magit)'."
   (setq-local redisplay-unhighlight-region-function
               'magit-section--unhighlight-region)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
-  (when magit-disable-line-numbers
+  (when magit-section-disable-line-numbers
     (when (bound-and-true-p global-linum-mode)
       (linum-mode -1))
     (when (and (fboundp 'nlinum-mode)
