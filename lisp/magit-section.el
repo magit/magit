@@ -429,7 +429,9 @@ itself.")
 
 (defun magit-get-section (ident &optional root)
   "Return the section identified by IDENT.
-IDENT has to be a list as returned by `magit-section-ident'."
+IDENT has to be a list as returned by `magit-section-ident'.
+If optional ROOT is non-nil, then search in that section tree
+instead of in the one whose root `magit-root-section' is."
   (setq ident (reverse ident))
   (let ((section (or root magit-root-section)))
     (when (eq (car (pop ident))
@@ -1151,6 +1153,8 @@ anything this time around.
          ,s))))
 
 (defun magit-cancel-section ()
+  "Cancel inserting the section that is currently being inserted.
+Remove all traces of that section."
   (when magit-insert-section--current
     (if (not (oref magit-insert-section--current parent))
         (insert "(empty)\n")
