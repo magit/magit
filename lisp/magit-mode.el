@@ -589,30 +589,6 @@ Magit is documented in info node `(magit)'."
 
 ;;; Highlighting
 
-(defvar-local magit-region-overlays nil)
-
-(defun magit-delete-region-overlays ()
-  (mapc #'delete-overlay magit-region-overlays)
-  (setq magit-region-overlays nil))
-
-(defun magit-highlight-region (start end window rol)
-  (magit-delete-region-overlays)
-  (if (and (run-hook-with-args-until-success 'magit-region-highlight-hook
-                                             (magit-current-section))
-           (not magit-keep-region-overlay)
-           (not (= (line-number-at-pos start)
-                   (line-number-at-pos end)))
-           ;; (not (eq (car-safe last-command-event) 'mouse-movement))
-           )
-      (funcall (default-value 'redisplay-unhighlight-region-function) rol)
-    (funcall (default-value 'redisplay-highlight-region-function)
-             start end window rol)))
-
-(defun magit-unhighlight-region (rol)
-  (setq magit-section-highlighted-section nil)
-  (magit-delete-region-overlays)
-  (funcall (default-value 'redisplay-unhighlight-region-function) rol))
-
 ;;; Local Variables
 
 (defvar-local magit-buffer-arguments nil)
