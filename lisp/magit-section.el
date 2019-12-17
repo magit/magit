@@ -1363,14 +1363,14 @@ invisible."
 
 ;;; Region
 
-(defvar-local magit-region-overlays nil)
+(defvar-local magit-section--region-overlays nil)
 
-(defun magit-delete-region-overlays ()
-  (mapc #'delete-overlay magit-region-overlays)
-  (setq magit-region-overlays nil))
+(defun magit-section--delete-region-overlays ()
+  (mapc #'delete-overlay magit-section--region-overlays)
+  (setq magit-section--region-overlays nil))
 
-(defun magit-highlight-region (start end window rol)
-  (magit-delete-region-overlays)
+(defun magit-section--highlight-region (start end window rol)
+  (magit-section--delete-region-overlays)
   (if (and (run-hook-with-args-until-success 'magit-region-highlight-hook
                                              (magit-current-section))
            (not magit-keep-region-overlay)
@@ -1382,9 +1382,9 @@ invisible."
     (funcall (default-value 'redisplay-highlight-region-function)
              start end window rol)))
 
-(defun magit-unhighlight-region (rol)
+(defun magit-section--unhighlight-region (rol)
   (setq magit-section-highlighted-section nil)
-  (magit-delete-region-overlays)
+  (magit-section--delete-region-overlays)
   (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
 ;;; Visibility

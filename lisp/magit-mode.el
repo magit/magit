@@ -572,8 +572,10 @@ Magit is documented in info node `(magit)'."
   (push (cons 'keymap t) text-property-default-nonsticky)
   (add-hook 'post-command-hook #'magit-section-update-highlight t t)
   (add-hook 'deactivate-mark-hook #'magit-section-update-highlight t t)
-  (setq-local redisplay-highlight-region-function 'magit-highlight-region)
-  (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region)
+  (setq-local redisplay-highlight-region-function
+              'magit-section--highlight-region)
+  (setq-local redisplay-unhighlight-region-function
+              'magit-section--unhighlight-region)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
   (when magit-disable-line-numbers
     (when (bound-and-true-p global-linum-mode)

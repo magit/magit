@@ -3097,7 +3097,7 @@ last (visual) lines of the region."
   (let ((ov (make-overlay start end nil t)))
     (overlay-put ov 'evaporate t)
     (while args (overlay-put ov (pop args) (pop args)))
-    (push ov magit-region-overlays)
+    (push ov magit-section--region-overlays)
     ov))
 
 (defun magit-diff--hunk-after-string (face)
