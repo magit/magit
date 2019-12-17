@@ -1371,9 +1371,9 @@ invisible."
 
 (defun magit-section--highlight-region (start end window rol)
   (magit-section--delete-region-overlays)
-  (if (and (run-hook-with-args-until-success 'magit-region-highlight-hook
+  (if (and (not magit-keep-region-overlay)
+           (run-hook-with-args-until-success 'magit-region-highlight-hook
                                              (magit-current-section))
-           (not magit-keep-region-overlay)
            (not (= (line-number-at-pos start)
                    (line-number-at-pos end)))
            ;; (not (eq (car-safe last-command-event) 'mouse-movement))
