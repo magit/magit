@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-847-g18d4e7eaf+1)
+@subtitle for version 2.90.1 (v2.90.1-848-gbe6f12540+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-847-g18d4e7eaf+1).
+This manual is for Magit version 2.90.1 (v2.90.1-848-gbe6f12540+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -10074,8 +10074,11 @@ You should also check whether any third-party packages have added
 anything to @code{magit-refresh-buffer-hook}, @code{magit-status-refresh-hook},
 @code{magit-pre-refresh-hook}, and @code{magit-post-refresh-hook}.  If so, then
 check whether those additions impact performance significantly.
-Setting @code{magit-refresh-verbose} and then inspecting the output in the
-@code{*Messages*} buffer, should help doing so.
+
+Magit can be told to refresh buffers verbosely using @code{M-x
+magit-toggle-verbose-refresh}.  Enabling this helps figuring out which
+sections are bottlenecks.  The additional output can be found in the
+@code{*Messages*} buffer.
 
 Magit also reverts buffers for visited files located inside the
 current repository when the visited file changes on disk.  That is
@@ -11447,6 +11450,14 @@ issue lays with Magit or something else.
 
 If you run Magit from its Git repository, then you should be able to
 use @code{make emacs-Q} instead of the output of this command.
+
+@kindex M-x magit-toggle-verbose-refresh
+@cindex magit-toggle-verbose-refresh
+@item @kbd{M-x magit-toggle-verbose-refresh} @tie{}@tie{}@tie{}@tie{}(@code{magit-toggle-verbose-refresh})
+
+This command toggles whether Magit refreshes buffers verbosely.
+Enabling this helps figuring out which sections are bottlenecks.
+The additional output can be found in the @code{*Messages*} buffer.
 
 @kindex M-x magit-debug-git-executable
 @cindex magit-debug-git-executable

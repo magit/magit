@@ -1534,6 +1534,15 @@ repository's Magit buffers."
 
 ;;; Utilities
 
+(defun magit-toggle-verbose-refresh ()
+  "Toggle whether Magit refreshes buffers verbosely.
+Enabling this helps figuring out which sections are bottlenecks.
+The additional output can be found in the *Messages* buffer."
+  (interactive)
+  (setq magit-refresh-verbose (not magit-refresh-verbose))
+  (message "%s verbose refreshing"
+           (if magit-refresh-verbose "Enabled" "Disabled")))
+
 (defun magit-run-hook-with-benchmark (hook)
   (when hook
     (if magit-refresh-verbose

@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-847-g18d4e7eaf+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-848-gbe6f12540+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-847-g18d4e7eaf+1).
+This manual is for Magit version 2.90.1 (v2.90.1-848-gbe6f12540+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -7423,8 +7423,11 @@ You should also check whether any third-party packages have added
 anything to ~magit-refresh-buffer-hook~, ~magit-status-refresh-hook~,
 ~magit-pre-refresh-hook~, and ~magit-post-refresh-hook~.  If so, then
 check whether those additions impact performance significantly.
-Setting ~magit-refresh-verbose~ and then inspecting the output in the
-~*Messages*~ buffer, should help doing so.
+
+Magit can be told to refresh buffers verbosely using ~M-x
+magit-toggle-verbose-refresh~.  Enabling this helps figuring out which
+sections are bottlenecks.  The additional output can be found in the
+~*Messages*~ buffer.
 
 Magit also reverts buffers for visited files located inside the
 current repository when the visited file changes on disk.  That is
@@ -8665,6 +8668,12 @@ issue.
 
   If you run Magit from its Git repository, then you should be able to
   use ~make emacs-Q~ instead of the output of this command.
+
+- Key: M-x magit-toggle-verbose-refresh, magit-toggle-verbose-refresh
+
+  This command toggles whether Magit refreshes buffers verbosely.
+  Enabling this helps figuring out which sections are bottlenecks.
+  The additional output can be found in the ~*Messages*~ buffer.
 
 - Key: M-x magit-debug-git-executable, magit-debug-git-executable
 
