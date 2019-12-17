@@ -541,7 +541,7 @@ which visits the thing at point using `browse-url'."
   "Parent major mode from which Magit major modes inherit.
 
 Magit is documented in info node `(magit)'."
-  :group 'magit-modes
+  :group 'magit
   (buffer-disable-undo)
   (setq truncate-lines t)
   (setq buffer-read-only t)
