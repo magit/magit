@@ -42,6 +42,7 @@
    ("-f" "Force with lease" (nil "--force-with-lease"))
    ("-F" "Force"            ("-f" "--force"))
    ("-h" "Disable hooks"    "--no-verify")
+   ("-T" "Push tags"        "--tags")
    ("-n" "Dry run"          ("-n" "--dry-run"))
    (5 "-u" "Set upstream"   "--set-upstream")
    (7 "-t" "Follow tags"    "--follow-tags")]
