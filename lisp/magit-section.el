@@ -341,6 +341,46 @@ but that ship has sailed, thus this option."
 (defclass magit-module-section (magit-file-section)
   ())
 
+;;; Mode
+
+(defvar symbol-overlay-inhibit-map)
+
+(define-derived-mode magit-section-mode special-mode "Magit-Sections"
+  "Parent major mode from which major modes with Magit-like sections inherit.
+
+Magit-Section is documented in info node `(magit-section)'."
+  :group 'magit-section
+  (buffer-disable-undo)
+  (setq truncate-lines t)
+  (setq buffer-read-only t)
+  (setq-local line-move-visual t) ; see #1771
+  ;; Turn off syntactic font locking, but not by setting
+  ;; `font-lock-defaults' because that would enable font locking, and
+  ;; not all magit plugins may be ready for that (see #3950).
+  (setq-local font-lock-syntactic-face-function #'ignore)
+  (setq show-trailing-whitespace nil)
+  (setq-local symbol-overlay-inhibit-map t)
+  (setq list-buffers-directory (abbreviate-file-name default-directory))
+  ;; (hack-dir-local-variables-non-file-buffer)
+  (make-local-variable 'text-property-default-nonsticky)
+  (push (cons 'keymap t) text-property-default-nonsticky)
+  (add-hook 'post-command-hook #'magit-section-update-highlight t t)
+  (add-hook 'deactivate-mark-hook #'magit-section-update-highlight t t)
+  (setq-local redisplay-highlight-region-function
+              'magit-section--highlight-region)
+  (setq-local redisplay-unhighlight-region-function
+              'magit-section--unhighlight-region)
+  (when magit-section-disable-line-numbers
+    (when (bound-and-true-p global-linum-mode)
+      (linum-mode -1))
+    (when (and (fboundp 'nlinum-mode)
+               (bound-and-true-p global-nlinum-mode))
+      (nlinum-mode -1))
+    (when (and (fboundp 'display-line-numbers-mode)
+               (bound-and-true-p global-display-line-numbers-mode))
+      (display-line-numbers-mode -1)))
+  (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache))
+
 ;;; Core
 
 (defvar-local magit-root-section nil

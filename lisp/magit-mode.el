@@ -54,8 +54,6 @@
 (declare-function magit-status-goto-initial-section "magit-status" ())
 ;; For `magit-mode' from `bookmark'
 (defvar bookmark-make-record-function)
-;; For `magit-mode' from third-party `symbol-overlay'
-(defvar symbol-overlay-inhibit-map)
 
 (require 'format-spec)
 (require 'help-mode)
@@ -537,42 +535,13 @@ which visits the thing at point using `browse-url'."
       (when (fboundp sym)
         (funcall sym 1)))))
 
-(define-derived-mode magit-mode special-mode "Magit"
+(define-derived-mode magit-mode magit-section-mode "Magit"
   "Parent major mode from which Magit major modes inherit.
 
 Magit is documented in info node `(magit)'."
   :group 'magit
-  (buffer-disable-undo)
-  (setq truncate-lines t)
-  (setq buffer-read-only t)
-  (setq-local line-move-visual t) ; see #1771
-  ;; Turn off syntactic font locking, but not by setting
-  ;; `font-lock-defaults' because that would enable font locking, and
-  ;; not all magit plugins may be ready for that (see #3950).
-  (setq-local font-lock-syntactic-face-function #'ignore)
-  (setq show-trailing-whitespace nil)
-  (setq-local symbol-overlay-inhibit-map t)
-  (setq list-buffers-directory (abbreviate-file-name default-directory))
   (hack-dir-local-variables-non-file-buffer)
-  (make-local-variable 'text-property-default-nonsticky)
-  (push (cons 'keymap t) text-property-default-nonsticky)
-  (add-hook 'post-command-hook #'magit-section-update-highlight t t)
-  (add-hook 'deactivate-mark-hook #'magit-section-update-highlight t t)
-  (setq-local redisplay-highlight-region-function
-              'magit-section--highlight-region)
-  (setq-local redisplay-unhighlight-region-function
-              'magit-section--unhighlight-region)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
-  (when magit-section-disable-line-numbers
-    (when (bound-and-true-p global-linum-mode)
-      (linum-mode -1))
-    (when (and (fboundp 'nlinum-mode)
-               (bound-and-true-p global-nlinum-mode))
-      (nlinum-mode -1))
-    (when (and (fboundp 'display-line-numbers-mode)
-               (bound-and-true-p global-display-line-numbers-mode))
-      (display-line-numbers-mode -1)))
-  (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache)
   (setq-local bookmark-make-record-function 'magit--make-bookmark))
 
 ;;; Highlighting
