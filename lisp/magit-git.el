@@ -1029,8 +1029,8 @@ are considered."
                   magit-buffer-diff-args)
       (when-let ((value (magit-get "diff.ignoreSubmodules")))
         (if return-argument
-            (concat "diff.ignoreSubmodules=" value)
-          (concat "--ignore-submodules=" value)))))
+            (concat "--ignore-submodules=" value)
+          (concat "diff.ignoreSubmodules=" value)))))
 
 ;;; Revisions and References
 
