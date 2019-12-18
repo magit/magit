@@ -1023,12 +1023,14 @@ are considered."
 (defun magit-module-no-worktree-p (module)
   (not (magit-module-worktree-p module)))
 
-(defun magit-ignore-submodules-p ()
+(defun magit-ignore-submodules-p (&optional return-argument)
   (or (cl-find-if (lambda (arg)
                     (string-prefix-p "--ignore-submodules" arg))
                   magit-buffer-diff-args)
       (when-let ((value (magit-get "diff.ignoreSubmodules")))
-        (concat "diff.ignoreSubmodules=" value))))
+        (if return-argument
+            (concat "diff.ignoreSubmodules=" value)
+          (concat "--ignore-submodules=" value)))))
 
 ;;; Revisions and References
 

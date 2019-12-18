@@ -704,7 +704,7 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
                     (--mapcat (and (eq (aref it 0) ??)
                                    (list (substring it 3)))
                               (magit-git-items "status" "-z" "--porcelain"
-                                               (magit-ignore-submodules-p)
+                                               (magit-ignore-submodules-p t)
                                                "--" base))))
           (magit-insert-section (untracked)
             (magit-insert-heading "Untracked files:")
