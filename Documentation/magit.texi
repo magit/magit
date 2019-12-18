@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-848-gbe6f12540+1)
+@subtitle for version 2.90.1 (v2.90.1-850-g6b0d1af12+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-848-gbe6f12540+1).
+This manual is for Magit version 2.90.1 (v2.90.1-850-g6b0d1af12+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -9964,6 +9964,29 @@ just one huge repository use this:
 @end lisp
 @end itemize
 
+It might only be costly to insert certain information into Magit
+buffers for repositories that are exceptionally large, in which case
+you can disable the respective section inserters just for that
+repository:
+
+@itemize
+@item
+@code{/path/to/tag/invested/repo/.dir-locals.el}
+
+@lisp
+((magit-status-mode
+  . ((eval . (magit-disable-section-inserter 'magit-insert-tags-header)))))
+@end lisp
+
+@end itemize
+
+@defun magit-disable-section-inserter fn
+
+This function disables the section inserter FN in the current
+repository.  It is only intended for use in @code{.dir-locals.el} and
+@code{.dir-locals-2.el}.
+@end defun
+
 If you want to apply the same settings to several, but not all,
 repositories then keeping the repository-local config files in sync
 would quickly become annoying.  To avoid that you can create config
@@ -10103,7 +10126,10 @@ they reduce performance at least in large repositories.
 If performance is only slow inside certain unusually large
 repositories, then you might want to disable certain features on a
 per-repository or per-repository-class basis only.  See
-@ref{Per-Repository Configuration}.
+@ref{Per-Repository Configuration}.  For example it takes a long time to
+determine the next and current tag in repository with exceptional
+numbers of tags.  It would therefore be a good idea to disable
+@code{magit-insert-tags-headers}, as explained at the mentioned node.
 
 @menu
 * Microsoft Windows Performance::

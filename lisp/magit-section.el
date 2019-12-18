@@ -1642,6 +1642,17 @@ again use `remove-hook'."
         (set hook value)
       (set-default hook value))))
 
+(defvar-local magit-disabled-section-inserters nil)
+
+(defun magit-disable-section-inserter (fn)
+  "Disable the section inserter FN in the current repository.
+It is only intended for use in \".dir-locals.el\" and
+\".dir-locals-2.el\".  Also see info node `(magit)Per-Repository
+Configuration'."
+  (cl-pushnew fn magit-disabled-section-inserters))
+
+(put 'magit-disable-section-inserter 'safe-local-eval-function t)
+
 (defun magit-run-section-hook (hook &rest args)
   "Run HOOK with ARGS, warning about invalid entries."
   (let ((entries (symbol-value hook)))
@@ -1657,10 +1668,11 @@ again use `remove-hook'."
     (dolist (entry entries)
       (let ((magit--current-section-hook (cons (list hook entry)
                                                magit--current-section-hook)))
-        (if magit-refresh-verbose
-            (message "  %-50s %s" entry
-                     (benchmark-elapse (apply entry args)))
-          (apply entry args))))))
+        (unless (memq entry magit-disabled-section-inserters)
+          (if (bound-and-true-p magit-refresh-verbose)
+              (message "  %-50s %s" entry
+                       (benchmark-elapse (apply entry args)))
+            (apply entry args)))))))
 
 ;;; _
 (provide 'magit-section)
