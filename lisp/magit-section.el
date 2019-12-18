@@ -252,7 +252,7 @@ Otherwise the value has to have one of these two forms:
 ;;; Classes
 
 (defvar magit--current-section-hook nil
-  "Internal variable used for `magit-explain-section'.")
+  "Internal variable used for `magit-describe-section'.")
 
 (defvar magit--section-type-alist
   '(
