@@ -322,20 +322,38 @@ doesn't find the executable, then consult the info node
 (defvar magit-status-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "jz" 'magit-jump-to-stashes)
-    (define-key map "jt" 'magit-jump-to-tracked)
-    (define-key map "jn" 'magit-jump-to-untracked)
-    (define-key map "ju" 'magit-jump-to-unstaged)
-    (define-key map "js" 'magit-jump-to-staged)
-    (define-key map "jfu" 'magit-jump-to-unpulled-from-upstream)
-    (define-key map "jfp" 'magit-jump-to-unpulled-from-pushremote)
-    (define-key map "jpu" 'magit-jump-to-unpushed-to-upstream)
-    (define-key map "jpp" 'magit-jump-to-unpushed-to-pushremote)
-    (define-key map "ja" 'magit-jump-to-assume-unchanged)
-    (define-key map "jw" 'magit-jump-to-skip-worktree)
+    (define-key map "j" 'magit-status-jump)
     (define-key map [remap dired-jump] 'magit-dired-jump)
     map)
   "Keymap for `magit-status-mode'.")
+
+(define-transient-command magit-status-jump ()
+  "In a Magit-Status buffer, jump to a section."
+  ["Jump to"
+   [("z " "Stashes" magit-jump-to-stashes
+     :if (lambda () (memq 'magit-insert-stashes magit-status-sections-hook)))
+    ("t " "Tracked" magit-jump-to-tracked
+     :if (lambda () (memq 'magit-insert-tracked-files magit-status-sections-hook)))
+    ("n " "Untracked" magit-jump-to-untracked
+     :if (lambda () (memq 'magit-insert-untracked-files magit-status-sections-hook)))
+    ("u " "Unstaged" magit-jump-to-unstaged
+     :if (lambda () (memq 'magit-insert-unstaged-changes magit-status-sections-hook)))
+    ("s " "Staged" magit-jump-to-staged
+     :if (lambda () (memq 'magit-insert-staged-changes magit-status-sections-hook)))]
+   [("fu" "Unpulled from upstream" magit-jump-to-unpulled-from-upstream
+     :if (lambda () (memq 'magit-insert-unpulled-from-upstream magit-status-sections-hook)))
+    ("fp" "Unpulled from pushremote" magit-jump-to-unpulled-from-pushremote
+     :if (lambda () (memq 'magit-insert-unpulled-from-pushremote magit-status-sections-hook)))
+    ("pu" "Unpushed to upstream" magit-jump-to-unpushed-to-upstream
+     :if (lambda ()
+           (or (memq 'magit-insert-unpushed-to-upstream-or-recent magit-status-sections-hook)
+               (memq 'magit-insert-unpushed-to-upstream magit-status-sections-hook))))
+    ("pp" "Unpushed to pushremote" magit-jump-to-unpushed-to-pushremote
+     :if (lambda () (memq 'magit-insert-unpushed-to-pushremote magit-status-sections-hook)))
+    ("a " "Assumed unstaged" magit-jump-to-assume-unchanged
+     :if (lambda () (memq 'magit-insert-assume-unchanged-files magit-status-sections-hook)))
+    ("w " "Skip worktree" magit-jump-to-skip-worktree
+     :if (lambda () (memq 'magit-insert-skip-worktree-files magit-status-sections-hook)))]])
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at Git status.
