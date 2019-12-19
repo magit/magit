@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-850-g6b0d1af12+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-854-g534766702+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-850-g6b0d1af12+1).
+This manual is for Magit version 2.90.1 (v2.90.1-854-g534766702+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -4476,7 +4476,7 @@ changes alongside those that have already been committed.
   determined in the previous step.
 
   Both formats, if non-nil and after removing %N, are then expanded
-  using `git show --format=FORMAT ...' inside TOPLEVEL.
+  using ~git show --format=FORMAT ...~ inside TOPLEVEL.
 
   The expansion of POINT-FORMAT is inserted at point, and the
   expansion of EOB-FORMAT is inserted at the end of the buffer (if the
@@ -4886,7 +4886,7 @@ The variables are described in [[*Branch Git Variables]].
   to trigger interpretation as a regexp are "*" and "^".  Some
   other characters which you might expect to be invalid, actually
   are not, e.g. ".+$" are all perfectly valid.  More precisely,
-  if `git check-ref-format --branch STRING' exits with a non-zero
+  if ~git check-ref-format --branch STRING~ exits with a non-zero
   status, then treat STRING as a regexp.
 
   Assuming the chosen branch matches these conditions you would end
