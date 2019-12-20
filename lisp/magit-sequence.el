@@ -626,6 +626,8 @@ START has to be selected from a list of recent commits."
       (concat "Type %p on a commit to rebase it "
               "and commits above it onto " newbase ","))))
 
+(defvar magit-rebase-interactive-include-selected t)
+
 (defun magit-rebase-interactive-1
     (commit args message &optional editor delay-edit-confirm noassert confirm)
   (declare (indent 2))
@@ -637,7 +639,9 @@ START has to be selected from a list of recent commits."
       (unless (magit-rev-ancestor-p commit "HEAD")
         (user-error "%s isn't an ancestor of HEAD" commit))
       (if (magit-commit-parents commit)
-          (setq commit (concat commit "^"))
+          (when (or (not (eq this-command 'magit-rebase-interactive))
+                    magit-rebase-interactive-include-selected)
+            (setq commit (concat commit "^")))
         (setq args (cons "--root" args)))))
   (when (and commit (not noassert))
     (setq commit (magit-rebase-interactive-assert
