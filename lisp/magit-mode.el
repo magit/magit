@@ -54,8 +54,6 @@
 (declare-function magit-status-goto-initial-section "magit-status" ())
 ;; For `magit-mode' from `bookmark'
 (defvar bookmark-make-record-function)
-;; For `magit-mode' from third-party `symbol-overlay'
-(defvar symbol-overlay-inhibit-map)
 
 (require 'format-spec)
 (require 'help-mode)
@@ -268,8 +266,7 @@ and Buffer Arguments'."
                  (const :tag "use args from buffer if it is current" current)
                  (const :tag "never use args from buffer" never)))
 
-(defcustom magit-region-highlight-hook
-  '(magit-section-update-region magit-diff-update-hunk-region)
+(defcustom magit-region-highlight-hook '(magit-diff-update-hunk-region)
   "Functions used to highlight the region.
 
 Each function is run with the current section as only argument
@@ -278,7 +275,7 @@ then fall back to regular region highlighting."
   :package-version '(magit . "2.1.0")
   :group 'magit-refresh
   :type 'hook
-  :options '(magit-section-update-region magit-diff-update-hunk-region))
+  :options '(magit-diff-update-hunk-region))
 
 (defcustom magit-create-buffer-hook nil
   "Normal hook run after creating a new `magit-mode' buffer."
@@ -328,66 +325,6 @@ recommended value."
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
-
-(defcustom magit-keep-region-overlay nil
-  "Whether to keep the region overlay when there is a valid selection.
-
-By default Magit removes the regular region overlay if, and only
-if, that region constitutes a valid selection as understood by
-Magit commands.  Otherwise it does not remove that overlay, and
-the region looks like it would in other buffers.
-
-There are two types of such valid selections: hunk-internal
-regions and regions that select two or more sibling sections.
-In such cases Magit removes the region overlay and instead
-highlights a slightly larger range.  All text (for hunk-internal
-regions) or the headings of all sections (for sibling selections)
-that are inside that range (not just inside the region) are acted
-on by commands such as the staging command.  This buffer range
-begins at the beginning of the line on which the region begins
-and ends at the end of the line on which the region ends.
-
-Because Magit acts on this larger range and not the region, it is
-actually quite important to visualize that larger range.  If we
-don't do that, then one might think that these commands act on
-the region instead.  If you want to *also* visualize the region,
-then set this option to t.  But please note that when the region
-does *not* constitute a valid selection, then the region is
-*always* visualized as usual, and that it is usually under such
-circumstances that you want to use a non-magit command to act on
-the region.
-
-Besides keeping the region overlay, setting this option to t also
-causes all face properties, except for `:foreground', to be
-ignored for the faces used to highlight headings of selected
-sections.  This avoids the worst conflicts that result from
-displaying the region and the selection overlays at the same
-time.  We are not interested in dealing with other conflicts.
-In fact we *already* provide a way to avoid all of these
-conflicts: *not* changing the value of this option.
-
-It should be clear by now that we consider it a mistake to set
-this to display the region when the Magit selection is also
-visualized, but since it has been requested a few times and
-because it doesn't cost much to offer this option we do so.
-However that might change.  If the existence of this option
-starts complicating other things, then it will be removed."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-miscellaneous
-  :type 'boolean)
-
-(defcustom magit-disable-line-numbers t
-  "In Magit buffers, whether to disable modes that display line numbers.
-
-Some users who turn on `global-display-line-numbers-mode' (or
-`global-nlinum-mode' or `global-linum-mode') expect line numbers
-to be displayed everywhere except in Magit buffers.  Other users
-do not expect Magit buffers to be treated differently.  At least
-in theory users in the first group should not use the global mode,
-but that ship has sailed, thus this option."
-  :package-version '(magit . "2.91.0")
-  :group 'magit-miscellaneous
-  :type 'boolean)
 
 ;;; Key Bindings
 
@@ -598,67 +535,16 @@ which visits the thing at point using `browse-url'."
       (when (fboundp sym)
         (funcall sym 1)))))
 
-(define-derived-mode magit-mode special-mode "Magit"
+(define-derived-mode magit-mode magit-section-mode "Magit"
   "Parent major mode from which Magit major modes inherit.
 
 Magit is documented in info node `(magit)'."
-  :group 'magit-modes
-  (buffer-disable-undo)
-  (setq truncate-lines t)
-  (setq buffer-read-only t)
-  (setq-local line-move-visual t) ; see #1771
-  ;; Turn off syntactic font locking, but not by setting
-  ;; `font-lock-defaults' because that would enable font locking, and
-  ;; not all magit plugins may be ready for that (see #3950).
-  (setq-local font-lock-syntactic-face-function #'ignore)
-  (setq show-trailing-whitespace nil)
-  (setq-local symbol-overlay-inhibit-map t)
-  (setq list-buffers-directory (abbreviate-file-name default-directory))
+  :group 'magit
   (hack-dir-local-variables-non-file-buffer)
-  (make-local-variable 'text-property-default-nonsticky)
-  (push (cons 'keymap t) text-property-default-nonsticky)
-  (add-hook 'post-command-hook #'magit-section-update-highlight t t)
-  (add-hook 'deactivate-mark-hook #'magit-section-update-highlight t t)
-  (setq-local redisplay-highlight-region-function 'magit-highlight-region)
-  (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
-  (when magit-disable-line-numbers
-    (when (bound-and-true-p global-linum-mode)
-      (linum-mode -1))
-    (when (and (fboundp 'nlinum-mode)
-               (bound-and-true-p global-nlinum-mode))
-      (nlinum-mode -1))
-    (when (and (fboundp 'display-line-numbers-mode)
-               (bound-and-true-p global-display-line-numbers-mode))
-      (display-line-numbers-mode -1)))
-  (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache)
   (setq-local bookmark-make-record-function 'magit--make-bookmark))
 
 ;;; Highlighting
-
-(defvar-local magit-region-overlays nil)
-
-(defun magit-delete-region-overlays ()
-  (mapc #'delete-overlay magit-region-overlays)
-  (setq magit-region-overlays nil))
-
-(defun magit-highlight-region (start end window rol)
-  (magit-delete-region-overlays)
-  (if (and (run-hook-with-args-until-success 'magit-region-highlight-hook
-                                             (magit-current-section))
-           (not magit-keep-region-overlay)
-           (not (= (line-number-at-pos start)
-                   (line-number-at-pos end)))
-           ;; (not (eq (car-safe last-command-event) 'mouse-movement))
-           )
-      (funcall (default-value 'redisplay-unhighlight-region-function) rol)
-    (funcall (default-value 'redisplay-highlight-region-function)
-             start end window rol)))
-
-(defun magit-unhighlight-region (rol)
-  (setq magit-section-highlighted-section nil)
-  (magit-delete-region-overlays)
-  (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
 ;;; Local Variables
 
@@ -1515,6 +1401,17 @@ Unless specified, REPOSITORY is the current buffer's repository."
       ;; There is no `assoc-delete-all'.
       (setf (cdr cache)
             (cl-delete key (cdr cache) :key #'car :test #'equal)))))
+
+(defun magit-preserve-section-visibility-cache ()
+  (when (derived-mode-p 'magit-status-mode 'magit-refs-mode)
+    (magit-repository-local-set
+     (cons major-mode 'magit-section-visibility-cache)
+     magit-section-visibility-cache)))
+
+(defun magit-restore-section-visibility-cache (mode)
+  (setq magit-section-visibility-cache
+        (magit-repository-local-get
+         (cons mode 'magit-section-visibility-cache))))
 
 (defun magit-zap-caches ()
   "Zap caches for the current repository.
