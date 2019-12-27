@@ -730,22 +730,22 @@ With a numeric prefix ARG, go forward ARG comments."
 
 (defun git-commit-cc (name mail)
   "Insert a header mentioning someone who might be interested."
-  (interactive (git-commit-read-ident))
+  (interactive (git-commit-read-ident "Cc"))
   (git-commit-insert-header "Cc" name mail))
 
 (defun git-commit-reported (name mail)
   "Insert a header mentioning the person who reported the issue."
-  (interactive (git-commit-read-ident))
+  (interactive (git-commit-read-ident "Reported-by"))
   (git-commit-insert-header "Reported-by" name mail))
 
 (defun git-commit-suggested (name mail)
   "Insert a header mentioning the person who suggested the change."
-  (interactive (git-commit-read-ident))
+  (interactive (git-commit-read-ident "Suggested-by"))
   (git-commit-insert-header "Suggested-by" name mail))
 
 (defun git-commit-co-authored (name mail)
   "Insert a header mentioning the person who co-authored the commit."
-  (interactive (git-commit-read-ident))
+  (interactive (git-commit-read-ident "Co-authored-by"))
   (git-commit-insert-header "Co-authored-by" name mail))
 
 (defun git-commit-self-ident ()
@@ -760,10 +760,10 @@ With a numeric prefix ARG, go forward ARG comments."
             (ignore-errors (car (process-lines "git" "config" "user.email")))
             (read-string "Email: "))))
 
-(defun git-commit-read-ident ()
+(defun git-commit-read-ident (prompt)
   (if (require 'magit-git nil t)
       (let ((str (magit-completing-read
-                  "Person"
+                  prompt
                   (sort (delete-dups
                          (magit-git-lines "log" "-n9999" "--format=%aN <%ae>"))
                         'string<)
