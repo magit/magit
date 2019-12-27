@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-854-g534766702+1)
+@subtitle for version 2.90.1 (v2.90.1-873-ge88242679+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-854-g534766702+1).
+This manual is for Magit version 2.90.1 (v2.90.1-873-ge88242679+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6108,6 +6108,12 @@ A list of Git pseudo headers to be highlighted.
 @end defopt
 
 @table @asis
+@kindex C-c C-i
+@cindex git-commit-insert-pseudo-header
+@item @kbd{C-c C-i} @tie{}@tie{}@tie{}@tie{}(@code{git-commit-insert-pseudo-header})
+
+Insert a commit message pseudo header.
+
 @kindex C-c C-a
 @cindex git-commit-ack
 @item @kbd{C-c C-a} @tie{}@tie{}@tie{}@tie{}(@code{git-commit-ack})
@@ -6145,9 +6151,9 @@ Insert a header mentioning someone who might be interested.
 Insert a header mentioning the person who reported the issue being
 fixed by the commit.
 
-@kindex C-c C-i
+@kindex C-c M-i
 @cindex git-commit-suggested
-@item @kbd{C-c C-i} @tie{}@tie{}@tie{}@tie{}(@code{git-commit-suggested})
+@item @kbd{C-c M-i} @tie{}@tie{}@tie{}@tie{}(@code{git-commit-suggested})
 
 Insert a header mentioning the person who suggested the change.
 @end table

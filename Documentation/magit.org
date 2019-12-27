@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-854-g534766702+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-873-ge88242679+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-854-g534766702+1).
+This manual is for Magit version 2.90.1 (v2.90.1-873-ge88242679+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -4491,6 +4491,10 @@ such headers and provides some commands to insert such headers.
 
   A list of Git pseudo headers to be highlighted.
 
+- Key: C-c C-i, git-commit-insert-pseudo-header
+
+  Insert a commit message pseudo header.
+
 - Key: C-c C-a, git-commit-ack
 
   Insert a header acknowledging that you have looked at the commit.
@@ -4516,7 +4520,7 @@ such headers and provides some commands to insert such headers.
   Insert a header mentioning the person who reported the issue being
   fixed by the commit.
 
-- Key: C-c C-i, git-commit-suggested
+- Key: C-c M-i, git-commit-suggested
 
   Insert a header mentioning the person who suggested the change.
 
