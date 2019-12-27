@@ -761,8 +761,20 @@ With a numeric prefix ARG, go forward ARG comments."
             (read-string "Email: "))))
 
 (defun git-commit-read-ident ()
-  (list (read-string "Name: ")
-        (read-string "Email: ")))
+  (if (require 'magit-git nil t)
+      (let ((str (magit-completing-read
+                  "Person"
+                  (sort (delete-dups
+                         (magit-git-lines "log" "-n9999" "--format=%aN <%ae>"))
+                        'string<)
+                  nil nil nil 'git-commit-read-ident-history)))
+        (save-match-data
+          (if (string-match "\\`\\([^<]+\\) *<\\([^>]+\\)>\\'" str)
+              (list (string-trim (match-string 1 str))
+                    (string-trim (match-string 2 str)))
+            (user-error "Invalid input"))))
+    (list (read-string "Name: ")
+          (read-string "Email: "))))
 
 (defun git-commit-insert-header (header name email)
   (setq header (format "%s: %s <%s>" header name email))
