@@ -196,6 +196,7 @@ define set_package_requires
   (insert (format "%S"
 `((emacs ,emacs-version) ;`
   (dash ,dash-version)
+  (transient ,transient-version)
   (with-editor ,with-editor-version)))))
 (with-temp-file "lisp/magit-libgit.el"
   (insert-file-contents "lisp/magit-libgit.el")

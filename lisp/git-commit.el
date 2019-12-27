@@ -11,7 +11,7 @@
 ;;	Marius Vollmer <marius.vollmer@gmail.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "25.1") (dash "20180910") (with-editor "20181103"))
+;; Package-Requires: ((emacs "25.1") (dash "20180910") (transient "20190812") (with-editor "20181103"))
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
 
@@ -118,6 +118,7 @@
 (require 'magit-utils nil t)
 (require 'ring)
 (require 'server)
+(require 'transient)
 (require 'with-editor)
 
 (eval-when-compile
@@ -131,7 +132,11 @@
 (defvar font-lock-beg)
 (defvar font-lock-end)
 
+(declare-function magit-completing-read "magit-utils"
+                  (prompt collection &optional predicate require-match
+                          initial-input hist def fallback))
 (declare-function magit-expand-git-file-name "magit-git" (filename))
+(declare-function magit-git-lines "magit-git" (&rest args))
 (declare-function magit-list-local-branch-names "magit-git" ())
 (declare-function magit-list-remote-branch-names "magit-git"
                   (&optional remote relative))
@@ -367,18 +372,10 @@ This is only used if Magit is available."
            (define-key map (kbd "C-M-k") 'git-commit-next-message))
           (t
            (define-key map (kbd "M-p") 'git-commit-prev-message)
-           (define-key map (kbd "M-n") 'git-commit-next-message)
-           ;; Old bindings to avoid confusion
-           (define-key map (kbd "C-c C-x a") 'git-commit-ack)
-           (define-key map (kbd "C-c C-x i") 'git-commit-suggested)
-           (define-key map (kbd "C-c C-x m") 'git-commit-modified)
-           (define-key map (kbd "C-c C-x o") 'git-commit-cc)
-           (define-key map (kbd "C-c C-x p") 'git-commit-reported)
-           (define-key map (kbd "C-c C-x r") 'git-commit-review)
-           (define-key map (kbd "C-c C-x s") 'git-commit-signoff)
-           (define-key map (kbd "C-c C-x t") 'git-commit-test)))
+           (define-key map (kbd "M-n") 'git-commit-next-message)))
+    (define-key map (kbd "C-c C-i") 'git-commit-insert-pseudo-header)
     (define-key map (kbd "C-c C-a") 'git-commit-ack)
-    (define-key map (kbd "C-c C-i") 'git-commit-suggested)
+    (define-key map (kbd "C-c M-i") 'git-commit-suggested)
     (define-key map (kbd "C-c C-m") 'git-commit-modified)
     (define-key map (kbd "C-c C-o") 'git-commit-cc)
     (define-key map (kbd "C-c C-p") 'git-commit-reported)
@@ -702,6 +699,20 @@ With a numeric prefix ARG, go forward ARG comments."
       str)))
 
 ;;; Headers
+
+(define-transient-command git-commit-insert-pseudo-header ()
+  "Insert a commit message pseudo header."
+  [["Insert ... by yourself"
+    ("a"   "Ack"         git-commit-ack)
+    ("m"   "Modified"    git-commit-modified)
+    ("r"   "Reviewed"    git-commit-review)
+    ("s"   "Signed-off"  git-commit-signoff)
+    ("t"   "Tested"      git-commit-test)]
+   ["Insert ... by someone"
+    ("C-c" "Cc"          git-commit-cc)
+    ("C-r" "Reported"    git-commit-reported)
+    ("C-i" "Suggested"   git-commit-suggested)
+    ("C-a" "Co-authored" git-commit-co-authored)]])
 
 (defun git-commit-ack (name mail)
   "Insert a header acknowledging that you have looked at the commit."
