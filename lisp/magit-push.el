@@ -58,7 +58,8 @@
     ("r" "explicit refspecs" magit-push-refspecs)
     ("m" "matching branches" magit-push-matching)]
    [("T" "a tag"             magit-push-tag)
-    ("t" "all tags"          magit-push-tags)]]
+    ("t" "all tags"          magit-push-tags)
+    (6 "n" "a note ref"      magit-push-notes-ref)]]
   ["Configure"
    ("C" "Set variables..."  magit-branch-configure)])
 
@@ -249,6 +250,17 @@ branch as default."
            (magit-push-arguments))))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" remote tag args))
+
+;;;###autoload
+(defun magit-push-notes-ref (ref remote &optional args)
+  "Push a notes ref to another repository."
+  (interactive
+   (let ((note (magit-notes-read-ref "Push notes" nil nil)))
+     (list note
+           (magit-read-remote (format "Push %s to remote" note) nil t)
+           (magit-push-arguments))))
+  (run-hooks 'magit-credential-hook)
+  (magit-run-git-async "push" remote ref args))
 
 ;;;###autoload
 (defun magit-push-implicitly (args)
