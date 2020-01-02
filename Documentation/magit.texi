@@ -8,7 +8,7 @@
 
 @copying
 @quotation
-Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-873-ge88242679+1)
+@subtitle for version 2.90.1 (v2.90.1-875-gdff0bca6f+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,10 +53,10 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-873-ge88242679+1).
+This manual is for Magit version 2.90.1 (v2.90.1-875-gdff0bca6f+1).
 
 @quotation
-Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -801,7 +801,7 @@ Instead of using a wrapper around @code{display-buffer}, that function
 itself can be used here, in which case the display actions have to
 be specified by adding them to @code{display-buffer-alist} instead.
 
-To learn about display actions, see @ref{Choosing a Window for Display,,,elisp,}.
+To learn about display actions, see @ref{Choosing Window,,,elisp,}.
 @end defopt
 
 @defun magit-display-buffer-traditional buffer
@@ -11174,7 +11174,7 @@ echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 @node How does branching and pushing work?
 @appendixsubsec How does branching and pushing work?
 
-Please see @ref{Branching} and @uref{http://emacsair.me/2016/01/17/magit-2.4}
+Please see @ref{Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
 
 @node Can Magit be used as @code{ediff-version-control-package}?
 @appendixsubsec Can Magit be used as @code{ediff-version-control-package}?
