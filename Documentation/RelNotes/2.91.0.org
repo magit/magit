@@ -419,6 +419,10 @@
   within such a hunk already did, to avoid unintended and confusing
   results.  #3924
 
+- The ability to stage regions from within intent-to-add files broke
+  for users running Git v2.19.0 or later due to a change in the
+  default display of these files in the diff output.  #4026
+
 - ~magit-stash-branch-here~ applied the stash without checking out the
   new branch.  d3cee7f8c
 
