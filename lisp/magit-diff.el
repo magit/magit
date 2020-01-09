@@ -1940,21 +1940,21 @@ Staging and applying changes is documented in info node
     magit-buffer-diff-args "--"
     magit-buffer-diff-files))
 
-;; As of Git 2.19.0, `magit--insert-diff' needs to generate diffs with
-;; --ita-visible-in-index so that `magit-stage' can work with
-;; intent-to-add files (see #4026).  Cache the result for the session
-;; to avoid a `git version' call for every diff insertion.
-(defvar magit--diff-needs-ita-kludge-p)
-
 (defun magit--insert-diff (&rest args)
   (declare (indent 0))
   (let ((magit-git-global-arguments
          (remove "--literal-pathspecs" magit-git-global-arguments)))
     (setq args (-flatten args))
-    (when (if (boundp 'magit--diff-needs-ita-kludge-p)
-              magit--diff-needs-ita-kludge-p
-            (setq magit--diff-needs-ita-kludge-p
-                  (version<= "2.19.0" (magit-git-version))))
+    ;; As of Git 2.19.0, we need to generate diffs with
+    ;; --ita-visible-in-index so that `magit-stage' can work with
+    ;; intent-to-add files (see #4026).  Cache the result for each
+    ;; repo to avoid a `git version' call for every diff insertion.
+    (when (pcase (magit-repository-local-get 'diff-ita-kludge-p 'unset)
+            (`unset
+             (let ((val (version<= "2.19.0" (magit-git-version))))
+               (magit-repository-local-set 'diff-ita-kludge-p val)
+               val))
+            (val val))
       (push "--ita-visible-in-index" (cdr args)))
     (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)
       (push "--color=always" (cdr args))
