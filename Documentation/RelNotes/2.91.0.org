@@ -308,7 +308,21 @@
 - Commands under the ~magit-gitignore~ prefix now include directories
   that contain only untracked files as completion candidates.  #3985
 
+- Added new command ~magit-toggle-verbose-refresh~.  c63ec3920
+
+- Added new function ~magit-disable-section-inserter~, which can be used
+  to disable a section only in the current repository.  This mechanism
+  is useful for exceptionally large repositories.  #4017
+
+- Added new transient prefix command ~magit-status-jump~ and turned the
+  existing jumper commands into suffixes.  655950f40
+
 - Added new option ~magit-copy-revision-abbreviated~.  #4014
+
+- Added new transient prefix command ~git-commit-insert-pseudo-header~
+  and turned the existing inserter commands into suffixes.  e88242679
+
+- Added new command ~magit-push-notes-ref~.  dff0bca6f
 
 ** Fixes since v2.90.0
 
@@ -419,6 +433,10 @@
   within such a hunk already did, to avoid unintended and confusing
   results.  #3924
 
+- Adjusted many faces so that they continue to extend to the edge of
+  the window as intended.  This was made necessary by a backward
+  incompatible change in Emacs 27.  #3986
+
 - The ability to stage regions from within intent-to-add files broke
   for users running Git v2.19.0 or later due to a change in the
   default display of these files in the diff output.  #4026
@@ -452,7 +470,11 @@
   ~magit--maybe-update-blob-buffer~ (1d57893a6),
   ~magit-...-maybe-update-...-buffer~ (8d3459b55),
   ~magit-read-gpg-secret-key~ (9d68a455d),
-  ~magit-gitignore-in-subdir~,
+  ~magit-gitignore-in-subdir~ (8c4e8ed74),
+  ~magit-save-repository-buffers~ (82136796f),
+  ~magit-stash-drop~ (a4972766a),
+  ~magit-ignore-submodules-p~ (a7699f868),
+  ~magit-log-propertize-keywords~ (ac1ee3df5),
 
 This release also contains other minor improvements, bug fixes, typo
 fixes, and documentation fixes.
