@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-875-gdff0bca6f+1)
+@subtitle for version 2.90.1 (v2.90.1-880-gf63077242+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-875-gdff0bca6f+1).
+This manual is for Magit version 2.90.1 (v2.90.1-880-gf63077242+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -7216,10 +7216,9 @@ For information about the upstream and the push-remote, see @ref{The Two Remotes
 
 This command rebases the current branch onto its push-remote.
 
-When @code{magit-remote-set-if-missing} is non-nil and the push-remote is
-not configured, then configure it before rebasing.  With a prefix
-argument let the user change the push-remote before rebasing onto
-it.
+With a prefix argument or when the push-remote is either not
+configured or unusable, then let the user first configure the
+push-remote.
 
 @kindex r u
 @cindex magit-rebase-onto-upstream
@@ -7227,9 +7226,9 @@ it.
 
 This command rebases the current branch onto its upstream branch.
 
-When @code{magit-remote-set-if-missing} is non-nil and the upstream is
-not configured, then configure it before rebasing.  With a prefix
-argument let the user change the upstream before rebasing onto it.
+With a prefix argument or when the upstream is either not
+configured or unusable, then let the user first configure
+the upstream.
 
 @kindex r e
 @cindex magit-rebase-branch
@@ -8409,29 +8408,6 @@ value is @code{--no-tags} then no tags are fetched.  If the value is
 then only tags are fetched that are reachable from fetched branches.
 @end defvar
 
-@defopt magit-remote-set-if-missing
-
-This option controls whether missing remotes are configured before
-fetching, pulling, pushing and rebasing.
-
-When @code{nil}, then commands such as @code{magit-pull-from-upstream} and
-@code{magit-rebase-onto-uptream} are not available as suffix commands if
-the push-remote or upstream is not configured.
-
-When @code{non-nil}, then these commands are always available in their
-respective transient, but if the required configuration is missing,
-then they do appear in a way that indicates that this is the case.
-If the user invokes such a command, then it asks for the necessary
-configuration, stores the configuration, and only then performs the
-action.
-
-This option also affects whether the argument @code{--set-upstream} is
-available in @code{magit-push}.  If the value is @code{non-nil}, then that
-argument would be redundant.  But note that changing the value of
-this option does not take affect immediately, the argument will only
-be added or removed after restarting Emacs.
-@end defopt
-
 @node Fetching
 @section Fetching
 
@@ -8463,12 +8439,11 @@ temporary buffer until a suffix is invoked.
 @cindex magit-fetch-from-pushremote
 @item @kbd{f p} @tie{}@tie{}@tie{}@tie{}(@code{magit-fetch-from-pushremote})
 
-This command fetches from the push-remote of the current branch.
+This command fetches from the current push-remote.
 
-When @code{magit-remote-set-if-missing} is non-nil and the push-remote is
-not configured, then configure it before fetching.  With a prefix
-argument let the user change the push-remote before fetching from
-it.
+With a prefix argument or when the push-remote is either not
+configured or unusable, then let the user first configure the
+push-remote.
 
 @kindex f u
 @cindex magit-fetch-from-upstream
@@ -8476,9 +8451,14 @@ it.
 
 This command fetch from the upstream of the current branch.
 
-When @code{magit-remote-set-if-missing} is non-nil and the upstream is
-not configured, then configure it before fetching.  With a prefix
-argument let the user change the upstream before fetching from it.
+If the upstream is configured for the current branch and names
+an existing remote, then use that.  Otherwise try to use another
+remote: If only a single remote is configured, then use that.
+Otherwise if a remote named "origin" exists, then use that.
+
+If no remote can be determined, then this command is not available
+from the @code{magit-fetch} transient prefix and invoking it directly
+results in an error.
 
 @kindex f e
 @cindex magit-fetch-other
@@ -8563,9 +8543,9 @@ and displays them in a temporary buffer until a suffix is invoked.
 
 This command pulls from the push-remote of the current branch.
 
-When @code{magit-remote-set-if-missing} is non-nil and the push-remote is
-not configured, then configure it before pulling.  With a prefix
-argument let the user change the push-remote before pulling from it.
+With a prefix argument or when the push-remote is either not
+configured or unusable, then let the user first configure the
+push-remote.
 
 @kindex F u
 @cindex magit-pull-from-upstream
@@ -8573,9 +8553,9 @@ argument let the user change the push-remote before pulling from it.
 
 This command pulls from the upstream of the current branch.
 
-When @code{magit-remote-set-if-missing} is non-nil and the upstream is
-not configured, then configure it before pulling.  With a prefix
-argument let the user change the upstream before pulling from it.
+With a prefix argument or when the upstream is either not
+configured or unusable, then let the user first configure
+the upstream.
 
 @kindex F e
 @cindex magit-pull-branch
@@ -8617,9 +8597,9 @@ temporary buffer until a suffix is invoked.
 
 This command pushes the current branch to its push-remote.
 
-When @code{magit-remote-set-if-missing} is non-nil and the push-remote is
-not configured, then configure it before pushing.  With a prefix
-argument let the user change the push-remote before pushing to it.
+With a prefix argument or when the push-remote is either not
+configured or unusable, then let the user first configure the
+push-remote.
 
 @kindex P u
 @cindex magit-push-current-to-upstream
@@ -8627,9 +8607,9 @@ argument let the user change the push-remote before pushing to it.
 
 This command pushes the current branch to its upstream branch.
 
-When @code{magit-remote-set-if-missing} is non-nil and the upstream is
-not configured, then configure it before pushing.  With a prefix
-argument let the user change the upstream before pushing to it.
+With a prefix argument or when the upstream is either not
+configured or unusable, then let the user first configure
+the upstream.
 
 @kindex P e
 @cindex magit-push-current

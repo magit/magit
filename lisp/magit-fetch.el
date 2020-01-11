@@ -70,9 +70,9 @@ Ignored for Git versions before v2.8.0."
 (define-suffix-command magit-fetch-from-pushremote (args)
   "Fetch from the current push-remote.
 
-When the push-remote is not configured, then read the push-remote
-from the user, set it, and then fetch from it.  With a prefix
-argument the push-remote can be changed before fetching from it."
+With a prefix argument or when the push-remote is either not
+configured or unusable, then let the user first configure the
+push-remote."
   :description 'magit-fetch--pushremote-description
   (interactive (list (magit-fetch-arguments)))
   (let ((remote (magit-get-push-remote)))

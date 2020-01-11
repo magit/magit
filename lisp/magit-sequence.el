@@ -548,10 +548,9 @@ This discards all changes made since the sequence started."
 (define-suffix-command magit-rebase-onto-pushremote (args)
   "Rebase the current branch onto its push-remote branch.
 
-When the push-remote is not configured, then read the push-remote
-from the user, set it, and then rebase onto it.  With a prefix
-argument the push-remote can be changed before rebasing onto to
-it."
+With a prefix argument or when the push-remote is either not
+configured or unusable, then let the user first configure the
+push-remote."
   :if 'magit-get-current-branch
   :description 'magit-pull--pushbranch-description
   (interactive (list (magit-rebase-arguments)))

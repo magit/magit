@@ -79,9 +79,9 @@
 (define-suffix-command magit-pull-from-pushremote (args)
   "Pull from the push-remote of the current branch.
 
-When the push-remote is not configured, then read the push-remote
-from the user, set it, and then pull from it.  With a prefix
-argument the push-remote can be changed before pulling from it."
+With a prefix argument or when the push-remote is either not
+configured or unusable, then let the user first configure the
+push-remote."
   :if 'magit-get-current-branch
   :description 'magit-pull--pushbranch-description
   (interactive (list (magit-pull-arguments)))
