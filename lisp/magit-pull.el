@@ -33,7 +33,7 @@
 
 (defcustom magit-pull-or-fetch nil
   "Whether `magit-pull' also offers some fetch suffixes."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-commands
   :type 'boolean)
 

@@ -171,7 +171,7 @@ t      Show fine differences for the current diff hunk only.
 
 (defcustom magit-diff-refine-ignore-whitespace smerge-refine-ignore-whitespace
   "Whether to ignore whitespace changes in word-granularity differences."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :set-after '(smerge-refine-ignore-whitespace)
   :group 'magit-diff
   :safe 'booleanp
@@ -236,7 +236,7 @@ whitespace errors are highlighted."
 t         Highlight only in added lines.
 `both'    Highlight in added and removed lines.
 `all'     Highlight in added, removed and context lines."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-diff
   :safe (lambda (val) (memq val '(t both all)))
   :type '(choice (const :tag "in added lines" t)
@@ -446,7 +446,7 @@ for commits before the rename event.
 When this option is nil, the revision buffer ignores the log's
 filter if the log arguments include --follow.  If non-nil, the
 log's file filter is always honored."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-revision
   :type 'boolean)
 
@@ -482,7 +482,7 @@ Previously this function used to visit the worktree file not
 only for added lines but also for such removed lines.
 
 If you prefer the old behaviors, then set this to t."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-diff
   :type 'boolean)
 

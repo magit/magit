@@ -1,4 +1,4 @@
-* Magit v2.91.0 Release Notes (unreleased)
+* Magit v3.0.0 Release Notes (unreleased)
 ** Breaking changes
 
 - Dropped support for Git v2.0 and v2.1.

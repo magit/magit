@@ -36,7 +36,7 @@
 This is called with one argument, the prompt, and can be used
 to e.g. use a base directory other than `default-directory'.
 Used by `magit-worktree-checkout' and `magit-worktree-branch'."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-commands
   :type 'function)
 

@@ -180,7 +180,7 @@ Otherwise the value has to have one of these two forms:
   these ellipsis take section highlighting into account.  Doing
   so might potentially have an impact on performance, while not
   doing so is kinda ugly."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-section
   :type '(choice (const :tag "No indicators" nil)
                  (cons  :tag "Use +- fringe indicators"
@@ -257,7 +257,7 @@ to be displayed everywhere except in Magit buffers.  Other users
 do not expect Magit buffers to be treated differently.  At least
 in theory users in the first group should not use the global mode,
 but that ship has sailed, thus this option."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-section
   :type 'boolean)
 

@@ -63,7 +63,7 @@
 (defcustom magit-mode-hook
   '(magit-load-config-extensions)
   "Hook run when entering a mode derived from Magit mode."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-modes
   :type 'hook
   :options '(magit-load-config-extensions
@@ -230,7 +230,7 @@ Valid values are:
 
 For more information see info node `(magit)Transient Arguments
 and Buffer Arguments'."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-buffers
   :group 'magit-commands
   :type '(choice (const :tag "always use args from buffer" always)
@@ -259,7 +259,7 @@ Valid values are:
 
 For more information see info node `(magit)Transient Arguments
 and Buffer Arguments'."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-buffers
   :group 'magit-commands
   :type '(choice (const :tag "always use args from buffer" always)
@@ -577,13 +577,13 @@ Magit is documented in info node `(magit)'."
   "Obsolete.  Possibly the arguments used to refresh the current buffer.
 Some third-party packages might still use this, but Magit does not.")
 (put 'magit-refresh-args 'permanent-local t)
-(make-obsolete-variable 'magit-refresh-args nil "Magit 2.91.0")
+(make-obsolete-variable 'magit-refresh-args nil "Magit 3.0.0")
 
 (defvar magit-buffer-lock-functions nil
   "Obsolete buffer-locking support for third-party modes.
 Implement the generic function `magit-buffer-value' for
 your mode instead of adding an entry to this variable.")
-(make-obsolete-variable 'magit-buffer-lock-functions nil "Magit 2.91.0")
+(make-obsolete-variable 'magit-buffer-lock-functions nil "Magit 3.0.0")
 
 (cl-defgeneric magit-buffer-value ()
   (when-let ((fn (cdr (assq major-mode magit-buffer-lock-functions))))
@@ -632,7 +632,7 @@ your mode instead of adding an entry to this variable.")
 
 (defun magit-mode-setup (mode &rest args)
   "Setup up a MODE buffer using ARGS to generate its content."
-  (declare (obsolete magit-setup-buffer "Magit 2.91.0"))
+  (declare (obsolete magit-setup-buffer "Magit 3.0.0"))
   (with-no-warnings
     (magit-mode-setup-internal mode args)))
 
@@ -640,7 +640,7 @@ your mode instead of adding an entry to this variable.")
   "Setup up a MODE buffer using ARGS to generate its content.
 When optional LOCKED is non-nil, then create a buffer that is
 locked to its value, which is derived from MODE and ARGS."
-  (declare (obsolete magit-setup-buffer "Magit 2.91.0"))
+  (declare (obsolete magit-setup-buffer "Magit 3.0.0"))
   (let* ((value   (and locked
                        (with-temp-buffer
                          (with-no-warnings
@@ -883,7 +883,7 @@ If a frame, then only consider buffers on that frame."
     (magit--not-inside-repository-error)))
 
 (defun magit-mode-get-buffer (mode &optional create frame value)
-  (declare (obsolete magit-get-mode-buffer "Magit 2.91.0"))
+  (declare (obsolete magit-get-mode-buffer "Magit 3.0.0"))
   (when create
     (error "`magit-mode-get-buffer's CREATE argument is obsolete"))
   (if-let ((topdir (magit-toplevel)))

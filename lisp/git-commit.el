@@ -313,7 +313,7 @@ In this context a \"keyword\" is text surrounded be brackets."
   :group 'git-commit-faces)
 
 (define-obsolete-face-alias 'git-commit-note
-  'git-commit-keyword "Git-Commit 2.91.0")
+  'git-commit-keyword "Git-Commit 3.0.0")
 
 (defface git-commit-pseudo-header
   '((t :inherit font-lock-string-face))

@@ -51,7 +51,7 @@ repositories.  If it is 0, then only add DIRECTORY itself.
 This option controls which repositories are being listed by
 `magit-list-repositories'.  It also affects `magit-status'
 \(which see) in potentially surprising ways."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-essentials
   :type '(repeat (cons directory (integer :tag "Depth"))))
 
@@ -114,7 +114,7 @@ called with no arguments, with `default-directory' bound to the
 top level of a repository working tree, until one of them returns
 a non-nil value.  FLAG corresponding to that function is returned
 as the value of `magit-repolist-column-flag'."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-repolist
   :type '(alist :key-type (function :tag "Predicate Function")
                 :value-type (string :tag "Flag")))

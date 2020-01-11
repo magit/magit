@@ -64,7 +64,7 @@ with the remote url as only argument and use the returned value."
 If nil, then a prefix argument has to be used to show the transient
 popup instead of invoking the default suffix `magit-clone-regular'
 directly."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-commands
   :type 'boolean)
 
@@ -87,7 +87,7 @@ default user specified in the matched entry is used.
 If USER contains a dot, then it is treated as a Git variable and
 the value of that is used as the username.  Otherwise it is used
 as the username itself."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-commands
   :type '(repeat (list regexp
                        (string :tag "hostname")
@@ -97,7 +97,7 @@ as the username itself."
   "Format used when turning repository names into urls.
 %h is the hostname and %n is the repository name, including
 the name of the owner.  Also see `magit-clone-name-alist'."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-commands
   :type 'regexp)
 

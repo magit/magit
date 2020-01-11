@@ -105,7 +105,7 @@ VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0 | cut -c
 
 ASYNC_VERSION       = 1.9.3
 DASH_VERSION        = 2.14.1
-GIT_COMMIT_VERSION  = 2.91.0
+GIT_COMMIT_VERSION  = 3.0.0
 LIBGIT_VERSION      = 0
 TRANSIENT_VERSION   = 0
 WITH_EDITOR_VERSION = 2.8.0

@@ -57,7 +57,7 @@ has to be used to view and change remote related variables."
 
 (defcustom magit-prefer-push-default nil
   "Whether to prefer `remote.pushDefault' over per-branch variables."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-commands
   :type 'boolean)
 

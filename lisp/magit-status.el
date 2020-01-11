@@ -132,7 +132,7 @@ no effect.
 
 The command `magit-status-here' tries to go to that position,
 regardless of the value of this option."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-status
   :type 'boolean)
 

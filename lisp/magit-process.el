@@ -226,7 +226,7 @@ While functions such as `magit-process-yes-or-no-prompt' may not
 be sufficient to handle some prompt, it may still be of benefit
 to look at the implementations to gain some insights on how to
 implement such functions."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-process
   :type 'hook)
 

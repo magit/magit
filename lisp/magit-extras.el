@@ -465,7 +465,7 @@ that)."
 
 (defcustom magit-copy-revision-abbreviated nil
   "Whether to save abbreviated revision to `kill-ring' and `magit-revision-stack'."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-miscellaneous
   :type 'boolean)
 

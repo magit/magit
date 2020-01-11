@@ -39,7 +39,7 @@
   "Maximal number of entries initially shown in reflog buffers.
 The limit in the current buffer can be changed using \"+\"
 and \"-\"."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-commands
   :type 'number)
 
