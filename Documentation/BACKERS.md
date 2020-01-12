@@ -34,11 +34,14 @@ here but are not, then please fill out the backer survey.)
 - @seriousben
 - A.I.
 - A.Weiher
+- Aaditya Sood
+- Aaron Jacobs
 - Aaron Lee
 - Aaron Madlon-Kay
 - Aaron Mathews
 - Aaron Schumacher
 - Abdullah Alleweeth
+- Abhijit Rao
 - Abrahán Fernández Nieto
 - Ada
 - Adam Benzan
@@ -63,12 +66,14 @@ here but are not, then please fill out the backer survey.)
 - Alex Bennée
 - Alex Branham
 - Alex Dempsey
+- Alex Ermolov
 - Alex Murray
 - Alex Reinhart
 - Alex Schroeder
 - Alex Speed Kjeldsen
 - Alex Wiles
 - Alex ter Weele
+- Alexander Berezovsky
 - Alexander Goldstein
 - Alexander Lamaison
 - Alexander Simms
@@ -120,6 +125,7 @@ here but are not, then please fill out the backer survey.)
 - Andrzej Skiba
 - András Simonyi
 - Andy Bold
+- Andy Drop
 - Andy Moreland
 - Anntoin
 - Anonymous
@@ -146,12 +152,15 @@ here but are not, then please fill out the backer survey.)
 - Asilata Bapat
 - Audun Gevelt
 - August Lilleaas
+- Axie Infinity
+- Azundris
 - Baishampayan Ghose
 - Balaji Sivaraman
 - Baldur
 - Barak
 - Barry Gitarts
 - Barry McLarnon
+- Bas Alberts
 - Bascht
 - Ben Hollis
 - Ben Leggett
@@ -163,6 +172,7 @@ here but are not, then please fill out the backer survey.)
 - Beni Cherniavsky-Paskin
 - Benjamin Beckwith
 - Benjamin Hipple
+- Benjamin Klüglein
 - Benjamin Kudria
 - Benjamin Ragheb
 - Benjamin Savs
@@ -270,9 +280,11 @@ here but are not, then please fill out the backer survey.)
 - Clay Haapala
 - Cliff Wulfman
 - Clément Pit-Claudel
+- Cody Canning
 - Colin McLear
 - Colin P. D. Powell
 - Constantine Khrulev
+- Correl Roush
 - Courtland Jones
 - Craig Andera
 - Craig Hawco
@@ -283,21 +295,26 @@ here but are not, then please fill out the backer survey.)
 - Damien Merenne
 - Damien Pollet
 - Dan Davison
+- Dan Forest
 - Dan Harms
 - Dan Jones
 - Dan LaManna
 - Dan Torop
+- Danger Salad
 - Daniel
 - Daniel Bowman
 - Daniel Caixinha
 - Daniel Cowgill
+- Daniel Gempesaw
 - Daniel Grady
 - Daniel J. Rothblatt
 - Daniel Kraus
 - Daniel Luna
 - Daniel Ma
 - Daniel Mai
+- Daniel Martín
 - Daniel Molina
+- Daniel Moore (drmrd)
 - Daniel S. F. Alves
 - Daniel Skarda
 - Daniel Tamai
@@ -312,6 +329,7 @@ here but are not, then please fill out the backer survey.)
 - Dave Liepmann
 - Dave Pearson
 - Dave Pretty
+- Dave Rolsky
 - David Arnold
 - David Berg Marklund
 - David Duncan
@@ -359,9 +377,11 @@ here but are not, then please fill out the backer survey.)
 - Dominique Dumont
 - Don Spencer
 - DonBørn
+- Doru Mihai Leonte
 - Doug MacEachern
 - Dr. Jobo
 - Drew Raines
+- Durant Schoon
 - Dustin Maas
 - Dustin Paluch
 - Dylan Fitzgerald
@@ -407,6 +427,7 @@ here but are not, then please fill out the backer survey.)
 - Eugene Tan
 - Evan Rowley
 - Evgeniy Tyurkin
+- Ewan Dawson
 - Ezekiel Elin
 - Fabian
 - Fabian Otto
@@ -434,6 +455,7 @@ here but are not, then please fill out the backer survey.)
 - Fred Boiteux
 - Fred Kroon
 - Frederic Dumont
+- Frederik Banis
 - Frederik Beaujean
 - Fritz Grabo
 - Frontside Software
@@ -457,6 +479,7 @@ here but are not, then please fill out the backer survey.)
 - Gergely Polonkai
 - Giang-Son Nguyen
 - Giorgos Logiotatidis
+- Giovanni Azua
 - Gitty McGitface
 - Gitty McGitface
 - Glenn R. Martin
@@ -496,6 +519,7 @@ here but are not, then please fill out the backer survey.)
 - Håkan Nilsson
 - Ian Johnson
 - Ian Kerins
+- Ian McCowan
 - Ian Warford
 - Ibrahim Awwal
 - Icarus Sparry
@@ -520,6 +544,7 @@ here but are not, then please fill out the backer survey.)
 - Jack Kelly
 - Jack Letourneau
 - Jack Moffitt
+- Jack Nai-Chieh Chou
 - Jack Wong
 - Jacob Covington
 - Jacob Ilsø Christensen
@@ -575,6 +600,7 @@ here but are not, then please fill out the backer survey.)
 - Joachim 'Troglobit' Nilsson
 - Joakim Ohlrogge
 - Joakim Verona
+- Joao Azevedo
 - Joe Balancio
 - Joe DeVivo
 - Joe Gallo
@@ -602,10 +628,12 @@ here but are not, then please fill out the backer survey.)
 - John Peloquin
 - John Urquhart Ferguson
 - Johnny Chadda
+- Jojo
 - Jon Irving
 - Jon M. Dugan
 - Jon Raphaelson
 - Jon Snader
+- Jonas Ransjö
 - Jonas Serych
 - Jonas Strømsodd
 - Jonathan Arnett (J3RN)
@@ -649,6 +677,7 @@ here but are not, then please fill out the backer survey.)
 - Julian Kniephoff
 - Julien Blanchard
 - Julio Borja Barra
+- Justin Guenther
 - Justin Kaipada
 - Justin Schell
 - Justin Smestad
@@ -657,6 +686,7 @@ here but are not, then please fill out the backer survey.)
 - Justine Tunney
 - Jörg Ramb
 - Jürgen Hackl
+- Kaloian Doganov
 - Kamen Naydenov
 - Kamil & Hassan
 - Kara Woo
@@ -675,9 +705,11 @@ here but are not, then please fill out the backer survey.)
 - Ken Olstad
 - Kent Primrose
 - Kevin Christen
+- Kevin D Saunders
 - Kevin Grimes, II
 - Kevin J Foley
 - Kevin Kelley
+- Kevin Orr
 - Khan Thompson
 - Kieran Healy
 - Kieran Trezona-le Comte
@@ -736,6 +768,7 @@ here but are not, then please fill out the backer survey.)
 - Mahinshaw@gmail.com
 - Mak Kolybabi
 - Maksym Planeta
+- Man Roy
 - Mandy
 - Manfred Kroehnert
 - Manish Sharma
@@ -814,6 +847,7 @@ here but are not, then please fill out the backer survey.)
 - Mauricio Collares
 - Max B. Hansson
 - Max Diefenbach
+- Max Regan
 - Max Tweddell
 - Max Willsey
 - Maxim Ivanov
@@ -920,6 +954,7 @@ here but are not, then please fill out the backer survey.)
 - Oleg Matrokhin
 - Oliver Caldwell
 - Oliver Eidel
+- Oliver Holworthy
 - Oliver Marks
 - Oliver Reiter
 - Olivier Berger
@@ -954,8 +989,10 @@ here but are not, then please fill out the backer survey.)
 - Peter Borocz
 - Peter Brachwitz
 - Peter Buckley
+- Peter C. Norton
 - Peter Cheng
 - Peter Christensen
+- Peter Perron
 - Peter Vasil
 - Phil Austin
 - Phil Dixon
@@ -971,6 +1008,7 @@ here but are not, then please fill out the backer survey.)
 - Pierre Neidhardt
 - Praveen Perera
 - Radon Rosborough
+- Rafal Kowalski
 - Ramanathan Sivagurunathan
 - Rami Massoud
 - Rami Ylimäki
@@ -989,7 +1027,9 @@ here but are not, then please fill out the backer survey.)
 - Richard Petri
 - Richard Thames
 - Rickard Sundin
+- Riverprawn
 - Rob Donnelly
+- Robert Boone
 - Robert Helgesson
 - Robert Postill
 - Robert Steward
@@ -1053,6 +1093,7 @@ here but are not, then please fill out the backer survey.)
 - Sean J Williamson
 - Sean McAfee
 - Sean Patrick Hagen
+- Sean Smith
 - Seb Kri
 - Sebastian Nørgaard
 - Sebastian Schlag
@@ -1084,6 +1125,7 @@ here but are not, then please fill out the backer survey.)
 - Stelian Ionescu
 - Stephan Schmitt
 - Stephan Schubert
+- Stephen C. Gilardi
 - Stephen Childs
 - Stephen Pegoraro
 - Stephen Whipple
@@ -1101,6 +1143,7 @@ here but are not, then please fill out the backer survey.)
 - Swaroop C H
 - Sylvain Rousseau
 - Szabolcs Szilágyi
+- Sébastien André
 - Søren Lund
 - Taavi Tani
 - Takaaki Ishikawa
@@ -1121,6 +1164,7 @@ here but are not, then please fill out the backer survey.)
 - Thomas Skardal
 - Thommy H.
 - Thor Adam
+- Tiago Luchini
 - Tianxiang Xiong
 - Tibor Csögör
 - Tilmann Singer
@@ -1162,7 +1206,9 @@ here but are not, then please fill out the backer survey.)
 - Vaibhav Jain
 - Valtteri
 - Varun Madiath
+- Vedang Manerikar
 - Venkateswara Rao Mandela
+- Victor Arias
 - Victor Shulyak
 - Victory Ejevika
 - Vincent Demeester
@@ -1178,6 +1224,7 @@ here but are not, then please fill out the backer survey.)
 - Wei Tang
 - Wei-ju Wu
 - Wendel Scardua
+- Wes Hardaker
 - Wilfred Hughes
 - Will Fleming
 - Will Hughes
@@ -1191,6 +1238,7 @@ here but are not, then please fill out the backer survey.)
 - Willy Rempel
 - Wolfgang Stief
 - Xi Omicron Sigma
+- Xi Shen
 - Xuan Bi
 - Yanko Simeonov - Zecho
 - Yasushi SHOJI (""yashi"")
@@ -1215,6 +1263,7 @@ here but are not, then please fill out the backer survey.)
 - Zsolt Botykai
 - agzam.ibragimov@gmail.com
 - alex@olkhovskiy.com
+- anderspree
 - andrew.smirnov@gmail.com
 - andron94
 - aneesh.kumar@gmail.com
@@ -1222,6 +1271,7 @@ here but are not, then please fill out the backer survey.)
 - baby-gnu.org
 - bigjust
 - bmac
+- brandon.eltiste@gmail.com
 - bsdmatburt@gmail.com
 - bzg
 - cbbrowne
@@ -1262,6 +1312,7 @@ here but are not, then please fill out the backer survey.)
 - jao
 - jarvisschultz
 - joesmoe10@gmail.com
+- jonas.bulow@gmail.com
 - jonasac
 - joranvar
 - jvshahid
@@ -1286,6 +1337,7 @@ here but are not, then please fill out the backer survey.)
 - marco 'rho lambda pi' rolappe
 - mats manet
 - mds2
+- mgdelacroix
 - miguelgr
 - milan.v.mitrovic@gmail.com
 - mr.adtaylor@gmail.com
@@ -1314,6 +1366,7 @@ here but are not, then please fill out the backer survey.)
 - rouadec
 - runejuhl
 - sbaker617
+- shapr
 - shino
 - simon.leinen@gmail.com
 - snowball
