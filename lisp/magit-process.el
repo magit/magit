@@ -165,7 +165,7 @@ itself from the hook, to avoid further futile attempts."
 (defcustom magit-process-password-prompt-regexps
   '("^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
     ;; Match-group 99 is used to identify the "user@host" part.
-    "^\\(Enter \\)?[Pp]assword\\( for '\\(https?://\\)?\\(?99:.*\\)'\\)?: ?$"
+    "^\\(Enter \\)?[Pp]assword\\( for '?\\(https?://\\)?\\(?99:.*\\)'?\\)?: ?$"
     "^.*'s password: ?$"
     "^Yubikey for .*: ?$"
     "^Enter PIN for .*: ?$")
