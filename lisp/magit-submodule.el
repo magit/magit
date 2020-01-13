@@ -477,9 +477,8 @@ or, failing that, the abbreviated HEAD commit hash."
 (defvar magit-module-section-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-file-section-map)
-    (unless (featurep 'jkl)
-      (define-key map "\C-j"   'magit-submodule-visit))
-    (define-key map [C-return] 'magit-submodule-visit)
+    (define-key map (kbd "C-j") 'magit-submodule-visit)
+    (define-key map [C-return]  'magit-submodule-visit)
     (define-key map [remap magit-visit-thing]  'magit-submodule-visit)
     (define-key map [remap magit-delete-thing] 'magit-submodule-unpopulate)
     (define-key map "K" 'magit-file-untrack)

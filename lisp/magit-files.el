@@ -355,18 +355,11 @@ Currently this only adds the following key bindings.
 
 (defvar magit-blob-mode-map
   (let ((map (make-sparse-keymap)))
-    (cond ((featurep 'jkl)
-           (define-key map "i" 'magit-blob-previous)
-           (define-key map "k" 'magit-blob-next)
-           (define-key map "j" 'magit-blame-addition)
-           (define-key map "l" 'magit-blame-removal)
-           (define-key map "f" 'magit-blame-reverse))
-          (t
-           (define-key map "p" 'magit-blob-previous)
-           (define-key map "n" 'magit-blob-next)
-           (define-key map "b" 'magit-blame-addition)
-           (define-key map "r" 'magit-blame-removal)
-           (define-key map "f" 'magit-blame-reverse)))
+    (define-key map "p" 'magit-blob-previous)
+    (define-key map "n" 'magit-blob-next)
+    (define-key map "b" 'magit-blame-addition)
+    (define-key map "r" 'magit-blame-removal)
+    (define-key map "f" 'magit-blame-reverse)
     (define-key map "q" 'magit-kill-this-buffer)
     map)
   "Keymap for `magit-blob-mode'.")

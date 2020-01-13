@@ -367,12 +367,8 @@ This is only used if Magit is available."
 
 (defvar git-commit-mode-map
   (let ((map (make-sparse-keymap)))
-    (cond ((featurep 'jkl)
-           (define-key map (kbd "C-M-i") 'git-commit-prev-message)
-           (define-key map (kbd "C-M-k") 'git-commit-next-message))
-          (t
-           (define-key map (kbd "M-p") 'git-commit-prev-message)
-           (define-key map (kbd "M-n") 'git-commit-next-message)))
+    (define-key map (kbd "M-p")     'git-commit-prev-message)
+    (define-key map (kbd "M-n")     'git-commit-next-message)
     (define-key map (kbd "C-c C-i") 'git-commit-insert-pseudo-header)
     (define-key map (kbd "C-c C-a") 'git-commit-ack)
     (define-key map (kbd "C-c M-i") 'git-commit-suggested)
