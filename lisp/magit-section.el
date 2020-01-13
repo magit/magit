@@ -1028,13 +1028,11 @@ what you are doing and are sure there is no other way.")
 (defmacro magit-insert-section (&rest args)
   "Insert a section at point.
 
-TYPE is the section type, a symbol.  Many commands that act on
-the current section behave differently depending on that type.
-Also if a variable `magit-TYPE-section-map' exists, then use
-that as the text-property `keymap' of all text belonging to the
-section (but this may be overwritten in subsections).  TYPE can
-also have the form `(eval FORM)' in which case FORM is evaluated
-at runtime.
+TYPE is the section type, a symbol which is prefixed with the
+name of the package.  (For historic reasons the types used by
+Magit and Forge do not use a package prefix.)  Many commands
+that act on the current section behave differently depending
+on its type.
 
 Optional VALUE is the value of the section, usually a string
 that is required when acting on the section.
@@ -1049,7 +1047,7 @@ still honored).
 
 BODY is any number of forms that actually insert the section's
 heading and body.  Optional NAME, if specified, has to be a
-symbol, which is then bound to the struct of the section being
+symbol, which is then bound to the object of the section being
 inserted.
 
 Before BODY is evaluated the `start' of the section object is set
@@ -1062,6 +1060,12 @@ If it turns out inside BODY that the section is empty, then
 of the partially inserted section.  This can happen when creating
 a section by washing Git's output and Git didn't actually output
 anything this time around.
+
+For historic reasons, if a variable `magit-TYPE-section-map'
+or `forge-TYPE-section-map' exists, then use that as the
+text-property `keymap' of all text belonging to the section (but
+this may be overwritten in subsections).  TYPE can also have the
+form `(eval FORM)' in which case FORM is evaluated at runtime.
 
 \(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
   (declare (indent defun)
