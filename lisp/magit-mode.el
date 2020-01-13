@@ -1094,10 +1094,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
           (erase-buffer)
           (save-excursion
             (apply refresh (with-no-warnings magit-refresh-args))))
-        (dolist (window windows)
-          (with-selected-window (car window)
+        (pcase-dolist (`(,window . ,args) windows)
+          (with-selected-window window
             (with-current-buffer buffer
-              (apply #'magit-section-goto-successor (cdr window)))))
+              (apply #'magit-section-goto-successor args))))
         (run-hooks 'magit-refresh-buffer-hook)
         (magit-section-update-highlight)
         (set-buffer-modified-p nil))
