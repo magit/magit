@@ -1181,7 +1181,7 @@ anywhere inside any of these strings, then insert all of them
 unchanged.  Otherwise use the `magit-section-heading' face for
 all inserted text.
 
-The `content' property of the section struct is the end of the
+The `content' property of the section object is the end of the
 heading (which lasts from `start' to `content') and the beginning
 of the the body (which lasts from `content' to `end').  If the
 value of `content' is nil, then the section has no heading and
