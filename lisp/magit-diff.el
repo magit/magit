@@ -813,6 +813,27 @@ and `:slant'."
     (setq magit-buffer-diff-files files)
     (magit-refresh)))
 
+;;; Section Classes
+
+(defclass magit-file-section (magit-section)
+  ((source   :initform nil)
+   (header   :initform nil)))
+
+(defclass magit-module-section (magit-file-section)
+  ())
+
+(defclass magit-hunk-section (magit-section)
+  ((refined     :initform nil)
+   (combined    :initform nil)
+   (from-range  :initform nil)
+   (from-ranges :initform nil)
+   (to-range    :initform nil)
+   (about       :initform nil)))
+
+(setf (alist-get 'hunk   magit--section-type-alist) 'magit-hunk-section)
+(setf (alist-get 'module magit--section-type-alist) 'magit-module-section)
+(setf (alist-get 'file   magit--section-type-alist) 'magit-file-section)
+
 ;;; Commands
 ;;;; Prefix Commands
 
@@ -1780,6 +1801,36 @@ commit or stash at point, then prompt for a commit."
               (funcall cmd rev))))
       (call-interactively #'magit-show-commit))))
 
+;;;; Section Commands
+
+(defun magit-section-cycle-diffs ()
+  "Cycle visibility of diff-related sections in the current buffer."
+  (interactive)
+  (when-let ((sections
+              (cond ((derived-mode-p 'magit-status-mode)
+                     (--mapcat
+                      (when it
+                        (when (oref it hidden)
+                          (magit-section-show it))
+                        (oref it children))
+                      (list (magit-get-section '((staged)   (status)))
+                            (magit-get-section '((unstaged) (status))))))
+                    ((derived-mode-p 'magit-diff-mode)
+                     (-filter #'magit-file-section-p
+                              (oref magit-root-section children))))))
+    (if (--any-p (oref it hidden) sections)
+        (dolist (s sections)
+          (magit-section-show s)
+          (magit-section-hide-children s))
+      (let ((children (--mapcat (oref it children) sections)))
+        (cond ((and (--any-p (oref it hidden)   children)
+                    (--any-p (oref it children) children))
+               (mapc 'magit-section-show-headings sections))
+              ((-any-p 'magit-section-hidden-body children)
+               (mapc 'magit-section-show-children sections))
+              (t
+               (mapc 'magit-section-hide sections)))))))
+
 ;;; Diff Mode
 
 (defvar magit-diff-mode-map
@@ -2606,6 +2657,14 @@ or a ref which is not a branch, then it inserts nothing."
   magit-buffer-revision)
 
 ;;; Diff Sections
+
+(defun magit-hunk-set-window-start (section)
+  "When SECTION is a `hunk', ensure that its beginning is visible.
+It the SECTION has a different type, then do nothing."
+  (when (magit-hunk-section-p section)
+    (magit-section-set-window-start section)))
+
+(add-hook 'magit-section-movement-hook #'magit-hunk-set-window-start)
 
 (defun magit-hunk-goto-successor (section arg)
   (and (magit-hunk-section-p section)

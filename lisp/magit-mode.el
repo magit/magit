@@ -50,6 +50,8 @@
 (declare-function magit-auto-revert-buffers "magit-autorevert" ())
 ;; For `magit-refresh-buffer'
 (declare-function magit-process-unset-mode-line-error-status "magit-process" ())
+;; For `magit-refresh-get-relative-position'
+(declare-function magit-hunk-section-p "magit-diff" (obj))
 ;; For `magit-mode-setup-internal'
 (declare-function magit-status-goto-initial-section "magit-status" ())
 ;; For `magit-mode' from `bookmark'

@@ -280,12 +280,7 @@ but that ship has sailed, thus this option."
 (defvar magit--current-section-hook nil
   "Internal variable used for `magit-describe-section'.")
 
-(defvar magit--section-type-alist
-  '(
-    (file            . magit-file-section)
-    (hunk            . magit-hunk-section)
-    (module          . magit-module-section)
-    ))
+(defvar magit--section-type-alist nil)
 
 (defclass magit-section ()
   ((keymap   :initform nil :allocation :class)
@@ -301,21 +296,6 @@ but that ship has sailed, thus this option."
    (inserter :initform (symbol-value 'magit--current-section-hook))
    (parent   :initform nil :initarg :parent)
    (children :initform nil)))
-
-(defclass magit-file-section (magit-section)
-  ((source   :initform nil)
-   (header   :initform nil)))
-
-(defclass magit-hunk-section (magit-section)
-  ((refined     :initform nil)
-   (combined    :initform nil)
-   (from-range  :initform nil)
-   (from-ranges :initform nil)
-   (to-range    :initform nil)
-   (about       :initform nil)))
-
-(defclass magit-module-section (magit-file-section)
-  ())
 
 ;;; Mode
 
@@ -560,14 +540,6 @@ If there is no previous sibling section, then move to the parent."
   (unless (pos-visible-in-window-p (oref section end))
     (set-window-start (selected-window) (oref section start))))
 
-(defun magit-hunk-set-window-start (section)
-  "When SECTION is a `hunk', ensure that its beginning is visible.
-It the SECTION has a different type, then do nothing."
-  (when (magit-hunk-section-p section)
-    (magit-section-set-window-start section)))
-
-(add-hook 'magit-section-movement-hook #'magit-hunk-set-window-start)
-
 (defmacro magit-define-section-jumper (name heading type &optional value)
   "Define an interactive function to go some section.
 Together TYPE and VALUE identify the section.
@@ -716,34 +688,6 @@ hidden."
            (magit-section-show-children magit-root-section))
           (t
            (mapc 'magit-section-hide children)))))
-
-(defun magit-section-cycle-diffs ()
-  "Cycle visibility of diff-related sections in the current buffer."
-  (interactive)
-  (when-let ((sections
-              (cond ((derived-mode-p 'magit-status-mode)
-                     (--mapcat
-                      (when it
-                        (when (oref it hidden)
-                          (magit-section-show it))
-                        (oref it children))
-                      (list (magit-get-section '((staged)   (status)))
-                            (magit-get-section '((unstaged) (status))))))
-                    ((derived-mode-p 'magit-diff-mode)
-                     (-filter #'magit-file-section-p
-                              (oref magit-root-section children))))))
-    (if (--any-p (oref it hidden) sections)
-        (dolist (s sections)
-          (magit-section-show s)
-          (magit-section-hide-children s))
-      (let ((children (--mapcat (oref it children) sections)))
-        (cond ((and (--any-p (oref it hidden)   children)
-                    (--any-p (oref it children) children))
-               (mapc 'magit-section-show-headings sections))
-              ((-any-p 'magit-section-hidden-body children)
-               (mapc 'magit-section-show-children sections))
-              (t
-               (mapc 'magit-section-hide sections)))))))
 
 (defun magit-section-hidden-body (section &optional pred)
   (--if-let (oref section children)
