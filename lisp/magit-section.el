@@ -66,6 +66,11 @@ value should be `show', `hide' or nil.  If no function returns
 non-nil, determine the visibility as usual, i.e. use the
 hardcoded section specific default (see `magit-insert-section').")
 
+(defvar magit-section-goto-successor-hook nil
+  "Hook used to go to the same section as was current before a refresh.
+This is only used if the standard mechanism for doing so did not
+succeed.")
+
 ;;; Options
 
 (defgroup magit-section nil
@@ -1367,27 +1372,8 @@ invisible."
               (forward-char char))
             (unless (eq (magit-current-section) it)
               (goto-char start))))
-      (or (and (magit-hunk-section-p section)
-               (when-let ((parent (magit-get-section
-                                   (magit-section-ident
-                                    (oref section parent)))))
-                 (let* ((children (oref parent children))
-                        (siblings (magit-section-siblings section 'prev))
-                        (previous (nth (length siblings) children)))
-                   (if (not arg)
-                       (--when-let (or previous (car (last children)))
-                         (magit-section-goto it)
-                         t)
-                     (when previous
-                       (magit-section-goto previous))
-                     (if (and (stringp arg)
-                              (re-search-forward arg (oref parent end) t))
-                         (goto-char (match-beginning 0))
-                       (goto-char (oref (car (last children)) end))
-                       (forward-line -1)
-                       (while (looking-at "^ ")    (forward-line -1))
-                       (while (looking-at "^[-+]") (forward-line -1))
-                       (forward-line))))))
+      (or (run-hook-with-args-until-success
+           'magit-section-goto-successor-hook section arg)
           (goto-char (--if-let (magit-section-goto-successor-1 section)
                          (if (eq (oref it type) 'button)
                              (point-min)

@@ -2607,6 +2607,31 @@ or a ref which is not a branch, then it inserts nothing."
 
 ;;; Diff Sections
 
+(defun magit-hunk-goto-successor (section arg)
+  (and (magit-hunk-section-p section)
+       (when-let ((parent (magit-get-section
+                           (magit-section-ident
+                            (oref section parent)))))
+         (let* ((children (oref parent children))
+                (siblings (magit-section-siblings section 'prev))
+                (previous (nth (length siblings) children)))
+           (if (not arg)
+               (--when-let (or previous (car (last children)))
+                 (magit-section-goto it)
+                 t)
+             (when previous
+               (magit-section-goto previous))
+             (if (and (stringp arg)
+                      (re-search-forward arg (oref parent end) t))
+                 (goto-char (match-beginning 0))
+               (goto-char (oref (car (last children)) end))
+               (forward-line -1)
+               (while (looking-at "^ ")    (forward-line -1))
+               (while (looking-at "^[-+]") (forward-line -1))
+               (forward-line)))))))
+
+(add-hook 'magit-section-goto-successor-hook #'magit-hunk-goto-successor)
+
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing]  'magit-diff-unstaged)
