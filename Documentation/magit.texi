@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-880-gf63077242+1)
+@subtitle for version 2.90.1 (v2.90.1-895-g1f79b3d77+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-880-gf63077242+1).
+This manual is for Magit version 2.90.1 (v2.90.1-895-g1f79b3d77+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -1358,6 +1358,16 @@ Move to the beginning of the parent of the current section.
 The above commands all call the hook @code{magit-section-movement-hook}.
 Any of the functions listed below can be used as members of this hook.
 
+You might want to remove some of the functions that Magit adds using
+@code{add-hook}.  In doing so you have to make sure you do not attempt to
+remove function that haven't even been added yet, for example:
+
+@lisp
+(with-eval-after-load 'magit-diff
+  (remove-hook 'magit-section-movement-hook
+               'magit-hunk-set-window-start))
+@end lisp
+
 @defvar magit-section-movement-hook
 
 This hook is run by all of the above movement commands, after
@@ -1368,7 +1378,9 @@ arriving at the destination.
 
 This hook function ensures that the beginning of the current section
 is visible, provided it is a @code{hunk} section.  Otherwise, it does
-nothing.  This function is a member of the hook's default value.
+nothing.
+
+Loading @code{magit-diff} adds this function to the hook.
 @end defun
 
 @defun magit-section-set-window-start
@@ -1383,16 +1395,18 @@ variant in turn.
 
 This hook function only has an effect in log buffers, and @code{point} is
 on the "show more" section.  If that is the case, then it doubles
-the number of commits that are being shown.  This function is a
-member of the hook's default value.
+the number of commits that are being shown.
+
+Loading @code{magit-log} adds this function to the hook.
 @end defun
 
 @defun magit-log-maybe-update-revision-buffer
 
 When moving inside a log buffer, then this function updates the
 revision buffer, provided it is already being displayed in another
-window of the same frame.  This function is a member of the hook's
-default value.
+window of the same frame.
+
+Loading @code{magit-log} adds this function to the hook.
 @end defun
 
 @defun magit-log-maybe-update-blob-buffer
@@ -1554,7 +1568,7 @@ Toggle visibility of bodies of children of the current section.
 
 When a buffer is first created then some sections are shown expanded
 while others are not.  This is hard coded.  When a buffer is refreshed
-then the previous visibility is preserved. The initial visibility of
+then the previous visibility is preserved.  The initial visibility of
 certain sections can also be overwritten using the hook
 @code{magit-section-set-visibility-hook}.
 

@@ -43,7 +43,7 @@
 (defgroup magit-section nil
   "Expandable sections."
   :link '(info-link "(magit)Sections")
-  :group 'magit)
+  :group 'extensions)
 
 (defcustom magit-section-show-child-count t
   "Whether to append the number of children to section headings.
@@ -52,63 +52,31 @@ This only applies to sections for which doing so makes sense."
   :group 'magit-section
   :type 'boolean)
 
-(defcustom magit-section-movement-hook
-  '(magit-hunk-set-window-start
-    magit-log-maybe-update-revision-buffer
-    magit-log-maybe-show-more-commits)
+(defvar magit-section-movement-hook nil
   "Hook run by `magit-section-goto'.
-That function in turn is used by all section movement commands."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-section
-  :type 'hook
-  :options '(magit-hunk-set-window-start
-             magit-status-maybe-update-revision-buffer
-             magit-status-maybe-update-stash-buffer
-             magit-status-maybe-update-blob-buffer
-             magit-log-maybe-update-revision-buffer
-             magit-log-maybe-update-blob-buffer
-             magit-log-maybe-show-more-commits
-             magit-stashes-maybe-update-stash-buffer))
+That function in turn is used by all section movement commands.")
 
-(defcustom magit-section-highlight-hook
-  '(magit-diff-highlight
-    magit-section-highlight
+(defvar magit-section-highlight-hook
+  '(magit-section-highlight
     magit-section-highlight-selection)
   "Functions used to highlight the current section.
 Each function is run with the current section as only argument
-until one of them returns non-nil."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-section
-  :type 'hook
-  :options '(magit-diff-highlight
-             magit-section-highlight
-             magit-section-highlight-selection))
+until one of them returns non-nil.")
 
-(defcustom magit-section-unhighlight-hook
-  '(magit-diff-unhighlight)
+(defvar magit-section-unhighlight-hook nil
   "Functions used to unhighlight the previously current section.
 Each function is run with the current section as only argument
 until one of them returns non-nil.  Most sections are properly
 unhighlighted without requiring a specialized unhighlighter,
-diff-related sections being the only exception."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-section
-  :type 'hook
-  :options '(magit-diff-unhighlight))
+diff-related sections being the only exception.")
 
-(defcustom magit-section-set-visibility-hook
-  '(magit-diff-expansion-threshold
-    magit-section-cached-visibility)
+(defvar magit-section-set-visibility-hook
+  '(magit-section-cached-visibility)
   "Hook used to set the initial visibility of a section.
 Stop at the first function that returns non-nil.  The returned
 value should be `show', `hide' or nil.  If no function returns
 non-nil, determine the visibility as usual, i.e. use the
-hardcoded section specific default (see `magit-insert-section')."
-  :package-version '(magit . "2.4.0")
-  :group 'magit-section
-  :type 'hook
-  :options '(magit-diff-expansion-threshold
-             magit-section-cached-visibility))
+hardcoded section specific default (see `magit-insert-section').")
 
 (defcustom magit-section-cache-visibility t
   "Whether to cache visibility of sections.
@@ -590,6 +558,8 @@ If there is no previous sibling section, then move to the parent."
 It the SECTION has a different type, then do nothing."
   (when (magit-hunk-section-p section)
     (magit-section-set-window-start section)))
+
+(add-hook 'magit-section-movement-hook #'magit-hunk-set-window-start)
 
 (defmacro magit-define-section-jumper (name heading type &optional value)
   "Define an interactive function to go some section.

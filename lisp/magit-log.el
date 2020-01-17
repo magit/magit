@@ -1289,6 +1289,8 @@ exists mostly for backward compatibility reasons."
     (forward-line -1)
     (magit-section-forward)))
 
+(add-hook 'magit-section-movement-hook #'magit-log-maybe-show-more-commits)
+
 (defvar magit--update-revision-buffer nil)
 
 (defun magit-log-maybe-update-revision-buffer (&optional _)
@@ -1296,6 +1298,8 @@ exists mostly for backward compatibility reasons."
 If there is no revision buffer in the same frame, then do nothing."
   (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode 'magit-reflog-mode)
     (magit--maybe-update-revision-buffer)))
+
+(add-hook 'magit-section-movement-hook #'magit-log-maybe-update-revision-buffer)
 
 (defun magit--maybe-update-revision-buffer ()
   (when-let ((commit (magit-section-value-if 'commit))

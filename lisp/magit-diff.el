@@ -2244,6 +2244,8 @@ section or a child thereof."
           magit-diff-expansion-threshold)
        'hide))
 
+(add-hook 'magit-section-set-visibility-hook #'magit-diff-expansion-threshold)
+
 ;;; Revision Mode
 
 (define-derived-mode magit-revision-mode magit-diff-mode "Magit Rev"
@@ -2767,6 +2769,9 @@ actually a `diff' but a `diffstat' section."
                  (eq (region-end) (region-beginning))))))
 
 ;;; Diff Highlight
+
+(add-hook 'magit-section-unhighlight-hook #'magit-diff-unhighlight)
+(add-hook 'magit-section-highlight-hook #'magit-diff-highlight)
 
 (defun magit-diff-unhighlight (section selection)
   "Remove the highlighting of the diff-related SECTION."
