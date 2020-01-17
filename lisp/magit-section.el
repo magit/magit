@@ -346,6 +346,29 @@ but that ship has sailed, thus this option."
 
 (defvar symbol-overlay-inhibit-map)
 
+(defvar magit-section-mode-map
+  (let ((map (make-keymap)))
+    (suppress-keymap map t)
+    (define-key map (kbd "C-i") 'magit-section-toggle)
+    (define-key map [C-tab]     'magit-section-cycle)
+    (define-key map [M-tab]     'magit-section-cycle)
+    ;; [backtab] is the most portable binding for Shift+Tab.
+    (define-key map [backtab]   'magit-section-cycle-global)
+    (define-key map (kbd   "^") 'magit-section-up)
+    (define-key map (kbd   "p") 'magit-section-backward)
+    (define-key map (kbd   "n") 'magit-section-forward)
+    (define-key map (kbd "M-p") 'magit-section-backward-sibling)
+    (define-key map (kbd "M-n") 'magit-section-forward-sibling)
+    (define-key map "1"         'magit-section-show-level-1)
+    (define-key map "2"         'magit-section-show-level-2)
+    (define-key map "3"         'magit-section-show-level-3)
+    (define-key map "4"         'magit-section-show-level-4)
+    (define-key map (kbd "M-1") 'magit-section-show-level-1-all)
+    (define-key map (kbd "M-2") 'magit-section-show-level-2-all)
+    (define-key map (kbd "M-3") 'magit-section-show-level-3-all)
+    (define-key map (kbd "M-4") 'magit-section-show-level-4-all)
+    map))
+
 (define-derived-mode magit-section-mode special-mode "Magit-Sections"
   "Parent major mode from which major modes with Magit-like sections inherit.
 
