@@ -45,7 +45,8 @@
   :man-page "git-pull"
   [:description
    (lambda () (if magit-pull-or-fetch "Pull arguments" "Arguments"))
-   ("-r" "Rebase local commits" ("-r" "--rebase"))]
+   ("-r" "Rebase local commits" ("-r" "--rebase"))
+   ("-a" "Autostash local changes and pop after pull" ("-a" "--autostash"))]
   [:description
    (lambda ()
      (if-let ((branch (magit-get-current-branch)))
