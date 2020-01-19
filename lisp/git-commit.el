@@ -781,9 +781,8 @@ With a numeric prefix ARG, go forward ARG comments."
                   nil nil nil 'git-commit-read-ident-history)))
         (save-match-data
           (if (string-match "\\`\\([^<]+\\) *<\\([^>]+\\)>\\'" str)
-              (mapcar #'string-trim
-                      (list (match-string 1 str)
-                            (match-string 2 str)))
+              (list (save-match-data (string-trim (match-string 1 str)))
+                    (string-trim (match-string 2 str)))
             (user-error "Invalid input"))))
     (list (read-string "Name: ")
           (read-string "Email: "))))
