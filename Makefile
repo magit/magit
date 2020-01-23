@@ -252,7 +252,7 @@ bump-snapshots:
         (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
         (libgit-version \"$(LIBGIT_MELPA_SNAPSHOT)\")\
-        (magit-section-version \"$(MAGIT_SECTION_SNAPSHOT)\")\
+        (magit-section-version \"$(MAGIT_SECTION_MELPA_SNAPSHOT)\")\
         (transient-version \"$(TRANSIENT_MELPA_SNAPSHOT)\")\
         (with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\"))\
         $$set_package_requires)"
