@@ -150,6 +150,8 @@ publish-manuals: $(PUBLISH_TARGETS)
 	@printf "upload: ./$(PKG)/* to $(PUBLISH_TARGET)*\n"
 	@aws s3 sync --delete $(PKG) $(PUBLISH_TARGET)$(PKG)/ > /dev/null
 	@aws s3 cp magit-section.html $(PUBLISH_TARGET)
+	@aws s3 cp magit-section.pdf  $(PUBLISH_TARGET)
+	@aws s3 cp magit-section.epub $(PUBLISH_TARGET)
 	@printf "upload: ./magit-section/* to $(PUBLISH_TARGET)*\n"
 	@aws s3 sync --delete magit-section $(PUBLISH_TARGET)magit-section/ > /dev/null
 	@printf "Generating CDN invalidation\n"
@@ -163,6 +165,11 @@ release-manuals: $(PUBLISH_TARGETS)
 	@aws s3 cp $(PKG).epub $(RELEASE_TARGET)
 	@printf "upload: ./$(PKG)/* to $(RELEASE_TARGET)*\n"
 	@aws s3 sync --delete $(PKG) $(RELEASE_TARGET)$(PKG)/ > /dev/null
+	@aws s3 cp magit-section.html $(RELEASE_TARGET)
+	@aws s3 cp magit-section.pdf  $(RELEASE_TARGET)
+	@aws s3 cp magit-section.epub $(RELEASE_TARGET)
+	@printf "upload: ./magit-section/* to $(RELEASE_TARGET)*\n"
+	@aws s3 sync --delete magit-section $(RELEASE_TARGET)magit-section/ > /dev/null
 	@aws s3 cp $(PUBLISH_TARGET)dir.html $(RELEASE_TARGET)dir.html
 	@aws s3 cp $(PUBLISH_TARGET)dir/index.html $(RELEASE_TARGET)dir/index.html
 	@printf "Generating CDN invalidation\n"

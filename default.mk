@@ -38,7 +38,7 @@ BUILD_MAGIT_LIBGIT ?= true
 ## Files #############################################################
 
 PKG       = magit
-PACKAGES  = magit git-commit
+PACKAGES  = magit magit-section git-commit
 
 TEXIPAGES = $(addsuffix .texi,$(filter-out git-commit,$(PACKAGES)))
 INFOPAGES = $(addsuffix .info,$(filter-out git-commit,$(PACKAGES)))
