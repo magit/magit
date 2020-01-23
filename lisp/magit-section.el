@@ -8,15 +8,19 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Magit is free software; you can redistribute it and/or modify it
-;; under the terms of the GNU General Public License as published by
+;; Package-Requires: ((emacs "26.1") (dash "0"))
+;; Keywords: tools
+;; Homepage: https://github.com/magit/magit
+
+;; Magit-Section is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 ;;
-;; Magit is distributed in the hope that it will be useful, but WITHOUT
-;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-;; License for more details.
+;; Magit-Section is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
@@ -237,6 +241,13 @@ but that ship has sailed, thus this option."
   :group 'magit-section
   :type 'boolean)
 
+;;; Faces
+
+(defgroup magit-section-faces nil
+  "Faces used by Magit-Section."
+  :group 'magit-section
+  :group 'faces)
+
 (defface magit-section-highlight
   `((((class color) (background light))
      ,@(and (>= emacs-major-version 27) '(:extend t))
@@ -245,7 +256,7 @@ but that ship has sailed, thus this option."
      ,@(and (>= emacs-major-version 27) '(:extend t))
      :background "grey20"))
   "Face for highlighting the current section."
-  :group 'magit-faces)
+  :group 'magit-section-faces)
 
 (defface magit-section-heading
   `((((class color) (background light))
@@ -257,13 +268,13 @@ but that ship has sailed, thus this option."
      :foreground "LightGoldenrod2"
      :weight bold))
   "Face for section headings."
-  :group 'magit-faces)
+  :group 'magit-section-faces)
 
 (defface magit-section-secondary-heading
   `((t ,@(and (>= emacs-major-version 27) '(:extend t))
        :weight bold))
   "Face for section headings of some secondary headings."
-  :group 'magit-faces)
+  :group 'magit-section-faces)
 
 (defface magit-section-heading-selection
   `((((class color) (background light))
@@ -273,7 +284,7 @@ but that ship has sailed, thus this option."
      ,@(and (>= emacs-major-version 27) '(:extend t))
      :foreground "LightSalmon3"))
   "Face for selected section headings."
-  :group 'magit-faces)
+  :group 'magit-section-faces)
 
 ;;; Classes
 

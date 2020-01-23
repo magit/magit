@@ -102,6 +102,8 @@ Each of these options falls into one or more of these categories:
 (custom-add-to-group 'magit-faces   'git-commit-faces  'custom-group)
 (custom-add-to-group 'magit-modes   'git-rebase        'custom-group)
 (custom-add-to-group 'magit-faces   'git-rebase-faces  'custom-group)
+(custom-add-to-group 'magit         'magit-section     'custom-group)
+(custom-add-to-group 'magit-faces   'magit-section-faces 'custom-group)
 (custom-add-to-group 'magit-process 'with-editor       'custom-group)
 
 (defgroup magit-related nil
