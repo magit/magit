@@ -38,19 +38,7 @@
   (require 'benchmark)
   (require 'subr-x))
 
-;;; Options
-
-(defgroup magit-section nil
-  "Expandable sections."
-  :link '(info-link "(magit)Sections")
-  :group 'extensions)
-
-(defcustom magit-section-show-child-count t
-  "Whether to append the number of children to section headings.
-This only applies to sections for which doing so makes sense."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-section
-  :type 'boolean)
+;;; Hooks
 
 (defvar magit-section-movement-hook nil
   "Hook run by `magit-section-goto'.
@@ -77,6 +65,20 @@ Stop at the first function that returns non-nil.  The returned
 value should be `show', `hide' or nil.  If no function returns
 non-nil, determine the visibility as usual, i.e. use the
 hardcoded section specific default (see `magit-insert-section').")
+
+;;; Options
+
+(defgroup magit-section nil
+  "Expandable sections."
+  :link '(info-link "(magit)Sections")
+  :group 'extensions)
+
+(defcustom magit-section-show-child-count t
+  "Whether to append the number of children to section headings.
+This only applies to sections for which doing so makes sense."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-section
+  :type 'boolean)
 
 (defcustom magit-section-cache-visibility t
   "Whether to cache visibility of sections.
