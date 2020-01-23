@@ -142,8 +142,7 @@ repositories are displayed."
 (defvar magit-repolist-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map (if (featurep 'jkl) [return] (kbd "C-m"))
-      'magit-repolist-status)
+    (define-key map (kbd "C-m") 'magit-repolist-status)
     map)
   "Local keymap for Magit-Repolist mode buffers.")
 

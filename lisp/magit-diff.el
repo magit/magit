@@ -813,6 +813,27 @@ and `:slant'."
     (setq magit-buffer-diff-files files)
     (magit-refresh)))
 
+;;; Section Classes
+
+(defclass magit-file-section (magit-section)
+  ((source   :initform nil)
+   (header   :initform nil)))
+
+(defclass magit-module-section (magit-file-section)
+  ())
+
+(defclass magit-hunk-section (magit-section)
+  ((refined     :initform nil)
+   (combined    :initform nil)
+   (from-range  :initform nil)
+   (from-ranges :initform nil)
+   (to-range    :initform nil)
+   (about       :initform nil)))
+
+(setf (alist-get 'hunk   magit--section-type-alist) 'magit-hunk-section)
+(setf (alist-get 'module magit--section-type-alist) 'magit-module-section)
+(setf (alist-get 'file   magit--section-type-alist) 'magit-file-section)
+
 ;;; Commands
 ;;;; Prefix Commands
 
@@ -1780,6 +1801,36 @@ commit or stash at point, then prompt for a commit."
               (funcall cmd rev))))
       (call-interactively #'magit-show-commit))))
 
+;;;; Section Commands
+
+(defun magit-section-cycle-diffs ()
+  "Cycle visibility of diff-related sections in the current buffer."
+  (interactive)
+  (when-let ((sections
+              (cond ((derived-mode-p 'magit-status-mode)
+                     (--mapcat
+                      (when it
+                        (when (oref it hidden)
+                          (magit-section-show it))
+                        (oref it children))
+                      (list (magit-get-section '((staged)   (status)))
+                            (magit-get-section '((unstaged) (status))))))
+                    ((derived-mode-p 'magit-diff-mode)
+                     (-filter #'magit-file-section-p
+                              (oref magit-root-section children))))))
+    (if (--any-p (oref it hidden) sections)
+        (dolist (s sections)
+          (magit-section-show s)
+          (magit-section-hide-children s))
+      (let ((children (--mapcat (oref it children) sections)))
+        (cond ((and (--any-p (oref it hidden)   children)
+                    (--any-p (oref it children) children))
+               (mapc 'magit-section-show-headings sections))
+              ((-any-p 'magit-section-hidden-body children)
+               (mapc 'magit-section-show-children sections))
+              (t
+               (mapc 'magit-section-hide sections)))))))
+
 ;;; Diff Mode
 
 (defvar magit-diff-mode-map
@@ -1868,9 +1919,8 @@ Staging and applying changes is documented in info node
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
-    (unless (featurep 'jkl)
-      (define-key map (kbd "C-j") 'magit-diff-visit-worktree-file))
-    (define-key map [C-return] 'magit-diff-visit-worktree-file)
+    (define-key map (kbd "C-j") 'magit-diff-visit-worktree-file)
+    (define-key map [C-return]  'magit-diff-visit-worktree-file)
     (define-key map [remap magit-visit-thing]      'magit-diff-visit-file)
     (define-key map [remap magit-delete-thing]     'magit-discard)
     (define-key map [remap magit-revert-no-commit] 'magit-reverse)
@@ -1886,8 +1936,7 @@ Staging and applying changes is documented in info node
 
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
-    (unless (featurep 'jkl)
-      (define-key map (kbd "C-j") 'magit-diff-visit-worktree-file))
+    (define-key map (kbd "C-j") 'magit-diff-visit-worktree-file)
     (define-key map [C-return] 'magit-diff-visit-worktree-file)
     (define-key map [remap magit-visit-thing]      'magit-diff-visit-file)
     (define-key map [remap magit-delete-thing]     'magit-discard)
@@ -2245,6 +2294,8 @@ section or a child thereof."
        (> (float-time (time-subtract (current-time) magit-refresh-start-time))
           magit-diff-expansion-threshold)
        'hide))
+
+(add-hook 'magit-section-set-visibility-hook #'magit-diff-expansion-threshold)
 
 ;;; Revision Mode
 
@@ -2607,6 +2658,39 @@ or a ref which is not a branch, then it inserts nothing."
 
 ;;; Diff Sections
 
+(defun magit-hunk-set-window-start (section)
+  "When SECTION is a `hunk', ensure that its beginning is visible.
+It the SECTION has a different type, then do nothing."
+  (when (magit-hunk-section-p section)
+    (magit-section-set-window-start section)))
+
+(add-hook 'magit-section-movement-hook #'magit-hunk-set-window-start)
+
+(defun magit-hunk-goto-successor (section arg)
+  (and (magit-hunk-section-p section)
+       (when-let ((parent (magit-get-section
+                           (magit-section-ident
+                            (oref section parent)))))
+         (let* ((children (oref parent children))
+                (siblings (magit-section-siblings section 'prev))
+                (previous (nth (length siblings) children)))
+           (if (not arg)
+               (--when-let (or previous (car (last children)))
+                 (magit-section-goto it)
+                 t)
+             (when previous
+               (magit-section-goto previous))
+             (if (and (stringp arg)
+                      (re-search-forward arg (oref parent end) t))
+                 (goto-char (match-beginning 0))
+               (goto-char (oref (car (last children)) end))
+               (forward-line -1)
+               (while (looking-at "^ ")    (forward-line -1))
+               (while (looking-at "^[-+]") (forward-line -1))
+               (forward-line)))))))
+
+(add-hook 'magit-section-goto-successor-hook #'magit-hunk-goto-successor)
+
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing]  'magit-diff-unstaged)
@@ -2769,6 +2853,9 @@ actually a `diff' but a `diffstat' section."
                  (eq (region-end) (region-beginning))))))
 
 ;;; Diff Highlight
+
+(add-hook 'magit-section-unhighlight-hook #'magit-diff-unhighlight)
+(add-hook 'magit-section-highlight-hook #'magit-diff-highlight)
 
 (defun magit-diff-unhighlight (section selection)
   "Remove the highlighting of the diff-related SECTION."

@@ -1,4 +1,4 @@
-;;; magit-section.el --- section functionality  -*- lexical-binding: t -*-
+;;; magit-section.el --- Sections for read-only buffers  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2020  The Magit Project Contributors
 ;;
@@ -8,24 +8,29 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Magit is free software; you can redistribute it and/or modify it
-;; under the terms of the GNU General Public License as published by
+;; Package-Requires: ((emacs "26.1") (dash "0"))
+;; Keywords: tools
+;; Homepage: https://github.com/magit/magit
+
+;; Magit-Section is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 ;;
-;; Magit is distributed in the hope that it will be useful, but WITHOUT
-;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-;; License for more details.
+;; Magit-Section is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
 ;;; Commentary:
 
-;; This library implements "sections" as used in all Magit buffers.
-;; If you have used Magit before, then you probably know what that
-;; means, otherwise think "read-only Org-Mode for Git", kinda.
+;; This package implements the main user interface of Magit — the
+;; collapsible sections that make up its buffers.  This package used
+;; to be distributed as part of Magit but now it can also be used by
+;; other packages that have nothing to do with Magit or Git.
 
 ;;; Code:
 
@@ -37,12 +42,45 @@
   (require 'benchmark)
   (require 'subr-x))
 
+;;; Hooks
+
+(defvar magit-section-movement-hook nil
+  "Hook run by `magit-section-goto'.
+That function in turn is used by all section movement commands.")
+
+(defvar magit-section-highlight-hook
+  '(magit-section-highlight
+    magit-section-highlight-selection)
+  "Functions used to highlight the current section.
+Each function is run with the current section as only argument
+until one of them returns non-nil.")
+
+(defvar magit-section-unhighlight-hook nil
+  "Functions used to unhighlight the previously current section.
+Each function is run with the current section as only argument
+until one of them returns non-nil.  Most sections are properly
+unhighlighted without requiring a specialized unhighlighter,
+diff-related sections being the only exception.")
+
+(defvar magit-section-set-visibility-hook
+  '(magit-section-cached-visibility)
+  "Hook used to set the initial visibility of a section.
+Stop at the first function that returns non-nil.  The returned
+value should be `show', `hide' or nil.  If no function returns
+non-nil, determine the visibility as usual, i.e. use the
+hardcoded section specific default (see `magit-insert-section').")
+
+(defvar magit-section-goto-successor-hook nil
+  "Hook used to go to the same section as was current before a refresh.
+This is only used if the standard mechanism for doing so did not
+succeed.")
+
 ;;; Options
 
 (defgroup magit-section nil
   "Expandable sections."
   :link '(info-link "(magit)Sections")
-  :group 'magit)
+  :group 'extensions)
 
 (defcustom magit-section-show-child-count t
   "Whether to append the number of children to section headings.
@@ -50,64 +88,6 @@ This only applies to sections for which doing so makes sense."
   :package-version '(magit . "2.1.0")
   :group 'magit-section
   :type 'boolean)
-
-(defcustom magit-section-movement-hook
-  '(magit-hunk-set-window-start
-    magit-log-maybe-update-revision-buffer
-    magit-log-maybe-show-more-commits)
-  "Hook run by `magit-section-goto'.
-That function in turn is used by all section movement commands."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-section
-  :type 'hook
-  :options '(magit-hunk-set-window-start
-             magit-status-maybe-update-revision-buffer
-             magit-status-maybe-update-stash-buffer
-             magit-status-maybe-update-blob-buffer
-             magit-log-maybe-update-revision-buffer
-             magit-log-maybe-update-blob-buffer
-             magit-log-maybe-show-more-commits
-             magit-stashes-maybe-update-stash-buffer))
-
-(defcustom magit-section-highlight-hook
-  '(magit-diff-highlight
-    magit-section-highlight
-    magit-section-highlight-selection)
-  "Functions used to highlight the current section.
-Each function is run with the current section as only argument
-until one of them returns non-nil."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-section
-  :type 'hook
-  :options '(magit-diff-highlight
-             magit-section-highlight
-             magit-section-highlight-selection))
-
-(defcustom magit-section-unhighlight-hook
-  '(magit-diff-unhighlight)
-  "Functions used to unhighlight the previously current section.
-Each function is run with the current section as only argument
-until one of them returns non-nil.  Most sections are properly
-unhighlighted without requiring a specialized unhighlighter,
-diff-related sections being the only exception."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-section
-  :type 'hook
-  :options '(magit-diff-unhighlight))
-
-(defcustom magit-section-set-visibility-hook
-  '(magit-diff-expansion-threshold
-    magit-section-cached-visibility)
-  "Hook used to set the initial visibility of a section.
-Stop at the first function that returns non-nil.  The returned
-value should be `show', `hide' or nil.  If no function returns
-non-nil, determine the visibility as usual, i.e. use the
-hardcoded section specific default (see `magit-insert-section')."
-  :package-version '(magit . "2.4.0")
-  :group 'magit-section
-  :type 'hook
-  :options '(magit-diff-expansion-threshold
-             magit-section-cached-visibility))
 
 (defcustom magit-section-cache-visibility t
   "Whether to cache visibility of sections.
@@ -261,6 +241,13 @@ but that ship has sailed, thus this option."
   :group 'magit-section
   :type 'boolean)
 
+;;; Faces
+
+(defgroup magit-section-faces nil
+  "Faces used by Magit-Section."
+  :group 'magit-section
+  :group 'faces)
+
 (defface magit-section-highlight
   `((((class color) (background light))
      ,@(and (>= emacs-major-version 27) '(:extend t))
@@ -269,7 +256,7 @@ but that ship has sailed, thus this option."
      ,@(and (>= emacs-major-version 27) '(:extend t))
      :background "grey20"))
   "Face for highlighting the current section."
-  :group 'magit-faces)
+  :group 'magit-section-faces)
 
 (defface magit-section-heading
   `((((class color) (background light))
@@ -281,13 +268,13 @@ but that ship has sailed, thus this option."
      :foreground "LightGoldenrod2"
      :weight bold))
   "Face for section headings."
-  :group 'magit-faces)
+  :group 'magit-section-faces)
 
 (defface magit-section-secondary-heading
   `((t ,@(and (>= emacs-major-version 27) '(:extend t))
        :weight bold))
   "Face for section headings of some secondary headings."
-  :group 'magit-faces)
+  :group 'magit-section-faces)
 
 (defface magit-section-heading-selection
   `((((class color) (background light))
@@ -297,19 +284,14 @@ but that ship has sailed, thus this option."
      ,@(and (>= emacs-major-version 27) '(:extend t))
      :foreground "LightSalmon3"))
   "Face for selected section headings."
-  :group 'magit-faces)
+  :group 'magit-section-faces)
 
 ;;; Classes
 
 (defvar magit--current-section-hook nil
   "Internal variable used for `magit-describe-section'.")
 
-(defvar magit--section-type-alist
-  '(
-    (file            . magit-file-section)
-    (hunk            . magit-hunk-section)
-    (module          . magit-module-section)
-    ))
+(defvar magit--section-type-alist nil)
 
 (defclass magit-section ()
   ((keymap   :initform nil :allocation :class)
@@ -326,24 +308,32 @@ but that ship has sailed, thus this option."
    (parent   :initform nil :initarg :parent)
    (children :initform nil)))
 
-(defclass magit-file-section (magit-section)
-  ((source   :initform nil)
-   (header   :initform nil)))
-
-(defclass magit-hunk-section (magit-section)
-  ((refined     :initform nil)
-   (combined    :initform nil)
-   (from-range  :initform nil)
-   (from-ranges :initform nil)
-   (to-range    :initform nil)
-   (about       :initform nil)))
-
-(defclass magit-module-section (magit-file-section)
-  ())
-
 ;;; Mode
 
 (defvar symbol-overlay-inhibit-map)
+
+(defvar magit-section-mode-map
+  (let ((map (make-keymap)))
+    (suppress-keymap map t)
+    (define-key map (kbd "C-i") 'magit-section-toggle)
+    (define-key map [C-tab]     'magit-section-cycle)
+    (define-key map [M-tab]     'magit-section-cycle)
+    ;; [backtab] is the most portable binding for Shift+Tab.
+    (define-key map [backtab]   'magit-section-cycle-global)
+    (define-key map (kbd   "^") 'magit-section-up)
+    (define-key map (kbd   "p") 'magit-section-backward)
+    (define-key map (kbd   "n") 'magit-section-forward)
+    (define-key map (kbd "M-p") 'magit-section-backward-sibling)
+    (define-key map (kbd "M-n") 'magit-section-forward-sibling)
+    (define-key map "1"         'magit-section-show-level-1)
+    (define-key map "2"         'magit-section-show-level-2)
+    (define-key map "3"         'magit-section-show-level-3)
+    (define-key map "4"         'magit-section-show-level-4)
+    (define-key map (kbd "M-1") 'magit-section-show-level-1-all)
+    (define-key map (kbd "M-2") 'magit-section-show-level-2-all)
+    (define-key map (kbd "M-3") 'magit-section-show-level-3-all)
+    (define-key map (kbd "M-4") 'magit-section-show-level-4-all)
+    map))
 
 (define-derived-mode magit-section-mode special-mode "Magit-Sections"
   "Parent major mode from which major modes with Magit-like sections inherit.
@@ -561,12 +551,6 @@ If there is no previous sibling section, then move to the parent."
   (unless (pos-visible-in-window-p (oref section end))
     (set-window-start (selected-window) (oref section start))))
 
-(defun magit-hunk-set-window-start (section)
-  "When SECTION is a `hunk', ensure that its beginning is visible.
-It the SECTION has a different type, then do nothing."
-  (when (magit-hunk-section-p section)
-    (magit-section-set-window-start section)))
-
 (defmacro magit-define-section-jumper (name heading type &optional value)
   "Define an interactive function to go some section.
 Together TYPE and VALUE identify the section.
@@ -715,34 +699,6 @@ hidden."
            (magit-section-show-children magit-root-section))
           (t
            (mapc 'magit-section-hide children)))))
-
-(defun magit-section-cycle-diffs ()
-  "Cycle visibility of diff-related sections in the current buffer."
-  (interactive)
-  (when-let ((sections
-              (cond ((derived-mode-p 'magit-status-mode)
-                     (--mapcat
-                      (when it
-                        (when (oref it hidden)
-                          (magit-section-show it))
-                        (oref it children))
-                      (list (magit-get-section '((staged)   (status)))
-                            (magit-get-section '((unstaged) (status))))))
-                    ((derived-mode-p 'magit-diff-mode)
-                     (-filter #'magit-file-section-p
-                              (oref magit-root-section children))))))
-    (if (--any-p (oref it hidden) sections)
-        (dolist (s sections)
-          (magit-section-show s)
-          (magit-section-hide-children s))
-      (let ((children (--mapcat (oref it children) sections)))
-        (cond ((and (--any-p (oref it hidden)   children)
-                    (--any-p (oref it children) children))
-               (mapc 'magit-section-show-headings sections))
-              ((-any-p 'magit-section-hidden-body children)
-               (mapc 'magit-section-show-children sections))
-              (t
-               (mapc 'magit-section-hide sections)))))))
 
 (defun magit-section-hidden-body (section &optional pred)
   (--if-let (oref section children)
@@ -1028,13 +984,11 @@ what you are doing and are sure there is no other way.")
 (defmacro magit-insert-section (&rest args)
   "Insert a section at point.
 
-TYPE is the section type, a symbol.  Many commands that act on
-the current section behave differently depending on that type.
-Also if a variable `magit-TYPE-section-map' exists, then use
-that as the text-property `keymap' of all text belonging to the
-section (but this may be overwritten in subsections).  TYPE can
-also have the form `(eval FORM)' in which case FORM is evaluated
-at runtime.
+TYPE is the section type, a symbol which is prefixed with the
+name of the package.  (For historic reasons the types used by
+Magit and Forge do not use a package prefix.)  Many commands
+that act on the current section behave differently depending
+on its type.
 
 Optional VALUE is the value of the section, usually a string
 that is required when acting on the section.
@@ -1049,7 +1003,7 @@ still honored).
 
 BODY is any number of forms that actually insert the section's
 heading and body.  Optional NAME, if specified, has to be a
-symbol, which is then bound to the struct of the section being
+symbol, which is then bound to the object of the section being
 inserted.
 
 Before BODY is evaluated the `start' of the section object is set
@@ -1062,6 +1016,12 @@ If it turns out inside BODY that the section is empty, then
 of the partially inserted section.  This can happen when creating
 a section by washing Git's output and Git didn't actually output
 anything this time around.
+
+For historic reasons, if a variable `magit-TYPE-section-map'
+or `forge-TYPE-section-map' exists, then use that as the
+text-property `keymap' of all text belonging to the section (but
+this may be overwritten in subsections).  TYPE can also have the
+form `(eval FORM)' in which case FORM is evaluated at runtime.
 
 \(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
   (declare (indent defun)
@@ -1181,7 +1141,7 @@ anywhere inside any of these strings, then insert all of them
 unchanged.  Otherwise use the `magit-section-heading' face for
 all inserted text.
 
-The `content' property of the section struct is the end of the
+The `content' property of the section object is the end of the
 heading (which lasts from `start' to `content') and the beginning
 of the the body (which lasts from `content' to `end').  If the
 value of `content' is nil, then the section has no heading and
@@ -1367,27 +1327,8 @@ invisible."
               (forward-char char))
             (unless (eq (magit-current-section) it)
               (goto-char start))))
-      (or (and (magit-hunk-section-p section)
-               (when-let ((parent (magit-get-section
-                                   (magit-section-ident
-                                    (oref section parent)))))
-                 (let* ((children (oref parent children))
-                        (siblings (magit-section-siblings section 'prev))
-                        (previous (nth (length siblings) children)))
-                   (if (not arg)
-                       (--when-let (or previous (car (last children)))
-                         (magit-section-goto it)
-                         t)
-                     (when previous
-                       (magit-section-goto previous))
-                     (if (and (stringp arg)
-                              (re-search-forward arg (oref parent end) t))
-                         (goto-char (match-beginning 0))
-                       (goto-char (oref (car (last children)) end))
-                       (forward-line -1)
-                       (while (looking-at "^ ")    (forward-line -1))
-                       (while (looking-at "^[-+]") (forward-line -1))
-                       (forward-line))))))
+      (or (run-hook-with-args-until-success
+           'magit-section-goto-successor-hook section arg)
           (goto-char (--if-let (magit-section-goto-successor-1 section)
                          (if (eq (oref it type) 'button)
                              (point-min)
