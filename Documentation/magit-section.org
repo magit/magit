@@ -1,0 +1,287 @@
+#+TITLE: Magit-Section Developer Manual
+:PREAMBLE:
+#+AUTHOR: Jonas Bernoulli
+#+EMAIL: jonas@bernoul.li
+#+DATE: 2015-2020
+#+LANGUAGE: en
+
+#+TEXINFO_DIR_CATEGORY: Emacs
+#+TEXINFO_DIR_TITLE: Magit-Section: (magit-section).
+#+TEXINFO_DIR_DESC: Use Magit sections in your own packages.
+#+SUBTITLE: for version 2.90.1 (v2.90.1-900-g14c70a5ac+1)
+
+#+TEXINFO_DEFFN: t
+#+OPTIONS: H:4 num:3 toc:2
+#+PROPERTY: header-args :eval never
+#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-copyright-years
+#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
+
+This package implements the main user interface of Magit — the
+collapsible sections that make up its buffers.  This package used
+to be distributed as part of Magit but how it can also be used by
+other packages that have nothing to do with Magit or Git.
+
+To learn more about the section abstraction and available commands and
+user options see [[info:magit#Sections]].  This manual documents how you
+can use sections in your own packages.
+
+#+TEXINFO: @noindent
+This manual is for Magit-Section version 2.90.1 (v2.90.1-900-g14c70a5ac+1).
+
+#+BEGIN_QUOTE
+Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
+
+You can redistribute this document and/or modify it under the terms
+of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+#+END_QUOTE
+:END:
+* Introduction
+
+This package implements the main user interface of Magit — the
+collapsible sections that make up its buffers.  This package used
+to be distributed as part of Magit but how it can also be used by
+other packages that have nothing to do with Magit or Git.
+
+To learn more about the section abstraction and available commands
+and user options see [[info:magit#Sections]].  This manual documents
+how you can use sections in your own packages.
+
+When the documentation leaves something unaddressed, then please
+consider that Magit uses this library extensively and search its
+source for suitable examples before asking me for help.  Thanks!
+
+
+* Creating Sections
+
+- Function: magit-insert-section [name] (type &optional value hide) &rest body
+
+  Insert a section at point.
+
+  TYPE is the section type, a symbol.  Many commands that act on
+  the current section behave differently depending on that type.
+  Like functions and variables, TYPE must be prefixed with the
+  package name.  (For historic reasons the types used by Magit
+  and Forge do not use a package prefix.)
+
+  Optional VALUE is the value of the section, usually a string
+  that is required when acting on the section.
+
+  When optional HIDE is non-nil collapse the section body by
+  default, i.e. when first creating the section, but not when
+  refreshing the buffer.  Else expand it by default.  This can be
+  overwritten using ~magit-section-set-visibility-hook~.  When a
+  section is recreated during a refresh, then the visibility of
+  predecessor is inherited and HIDE is ignored (but the hook is
+  still honored).
+
+  BODY is any number of forms that actually insert the section's
+  heading and body.  Optional NAME, if specified, has to be a
+  symbol, which is then bound to the object of the section being
+  inserted.
+
+  Before BODY is evaluated the ~start~ of the section object is set
+  to the value of `point' and after BODY was evaluated its ~end~ is
+  set to the new value of ~point~; BODY is responsible for moving
+  ~point~ forward.
+
+  If it turns out inside BODY that the section is empty, then
+  ~magit-cancel-section~ can be used to abort and remove all traces
+  of the partially inserted section.  This can happen when creating
+  a section by washing Git's output and Git didn't actually output
+  anything this time around.
+
+  For historic reasons, if a variable ~magit-TYPE-section-map~
+  or ~forge-TYPE-section-map~ exists, then use that as the
+  text-property keymap~ of all text belonging to the section (but
+  this may be overwritten in subsections).  TYPE can also have the
+  form ~(eval FORM)~ in which case FORM is evaluated at runtime.
+
+- Function: magit-insert-heading &rest args
+
+  Insert the heading for the section currently being inserted.
+
+  This function should only be used inside ~magit-insert-section~.
+
+  When called without any arguments, then just set the ~content~
+  slot of the object representing the section being inserted to
+  a marker at ~point~.  The section should only contain a single
+  line when this function is used like this.
+
+  When called with arguments ARGS, which have to be strings, or
+  nil, then insert those strings at point.  The section should not
+  contain any text before this happens and afterwards it should
+  again only contain a single line.  If the ~face~ property is set
+  anywhere inside any of these strings, then insert all of them
+  unchanged.  Otherwise use the `magit-section-heading' face for
+  all inserted text.
+
+  The ~content~ property of the section object is the end of the
+  heading (which lasts from ~start~ to ~content~) and the beginning
+  of the the body (which lasts from ~content~ to ~end~).  If the
+  value of ~content~ is nil, then the section has no heading and
+  its body cannot be collapsed.  If a section does have a heading,
+  then its height must be exactly one line, including a trailing
+  newline character.  This isn't enforced, you are responsible for
+  getting it right.  The only exception is that this function does
+  insert a newline character if necessary.
+
+- Macro: magit-insert-section-body &rest body
+
+  Use BODY to insert the section body, once the section is expanded.
+  If the section is expanded when it is created, then this is
+  like ~progn~.  Otherwise BODY isn't evaluated until the section
+  is explicitly expanded.
+
+- Function: magit-cancel-section
+
+  Cancel inserting the section that is currently being inserted.
+  Remove all traces of that section.
+
+- Function: magit-wash-sequence function
+
+  Repeatedly call FUNCTION until it returns ~nil~ or the end of the
+  buffer is reached.  FUNCTION has to move point forward or return
+  ~nil~.
+
+* Core Functions
+
+- Function: magit-current-section
+
+  Return the section at point.
+
+- Function: magit-section-ident section
+
+  Return an unique identifier for SECTION. The return value has the
+  form ~((TYPE . VALUE)...)~.
+
+- Function: magit-section-ident-value value
+
+  Return a constant representation of VALUE.
+
+  VALUE is the value of a ~magit-section~ object.  If that is an
+  object itself, then that is not suitable to be used to identify
+  the section because two objects may represent the same thing but
+  not be equal.  If possible a method should be added for such
+  objects, which returns a value that is equal.  Otherwise the
+  catch-all method is used, which just returns the argument
+  itself.
+
+- Function: magit-get-section ident &optional root
+
+  Return the section identified by IDENT.
+  IDENT has to be a list as returned by ~magit-section-ident~.
+  If optional ROOT is non-nil, then search in that section tree
+  instead of in the one whose root ~magit-root-section~ is.
+
+- Function: magit-section-lineage section
+
+  Return the lineage of SECTION.
+  The return value has the form ~(TYPE...)~.
+
+* Matching Functions
+
+- Function: magit-section-match condition &optional (section (magit-current-section))
+
+  Return t if SECTION matches CONDITION.
+
+  SECTION defaults to the section at point.  If SECTION is not
+  specified and there also is no section at point, then return
+  nil.
+
+  CONDITION can take the following forms:
+
+  - ~(CONDITION...)~ matches if any of the CONDITIONs matches.
+  - ~[CLASS...]~ matches if the section's class is the same
+                  as the first CLASS or a subclass of that;
+                  the section's parent class matches the
+                  second CLASS; and so on.
+
+  - ~[* CLASS...]~ matches sections that match [CLASS...] and
+                  also recursively all their child sections.
+  - ~CLASS~ matches if the section's class is the same
+                  as CLASS or a subclass of that; regardless
+                  of the classes of the parent sections.
+
+  Each CLASS should be a class symbol, identifying a class that
+  derives from ~magit-section~.  For backward compatibility CLASS
+  can also be a "type symbol".  A section matches such a symbol
+  if the value of its ~type~ slot is ~eq~.  If a type symbol has
+  an entry in ~magit--section-type-alist~, then a section also
+  matches that type if its class is a subclass of the class that
+  corresponds to the type as per that alist.
+
+  Note that it is not necessary to specify the complete section
+  lineage as printed by ~magit-describe-section-briefly~, unless
+  of course you want to be that precise.
+
+- Function: magit-section-value-if condition &optional section
+
+  If the section at point matches CONDITION, then return its value.
+
+  If optional SECTION is non-nil then test whether that matches
+  instead.  If there is no section at point and SECTION is nil,
+  then return nil.  If the section does not match, then return
+  nil.
+
+  See ~magit-section-match~ for the forms CONDITION can take.
+
+- Macro: magit-section-case &rest clauses
+
+  Choose among clauses on the type of the section at point.
+
+  Each clause looks like ~(CONDITION BODY...)~.  The type of the
+  section is compared against each CONDITION; the BODY forms of the
+  first match are evaluated sequentially and the value of the last
+  form is returned.  Inside BODY the symbol ~it~ is bound to the
+  section at point.  If no clause succeeds or if there is no
+  section at point, return nil.
+
+  See ~magit-section-match~ for the forms CONDITION can take.
+  Additionally a CONDITION of t is allowed in the final clause, and
+  matches if no other CONDITION match, even if there is no section
+  at point.
+
+* _ Copying
+:PROPERTIES:
+:COPYING:    t
+:END:
+
+#+BEGIN_QUOTE
+Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
+
+You can redistribute this document and/or modify it under the terms
+of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+#+END_QUOTE
+
+* _ :ignore:
+
+#  LocalWords:  ARGS CONDITIONs EVAL Git Git's IDENT
+#  LocalWords:  LocalWords MERCHANTABILITY Magit Makefile
+#  LocalWords:  alist eval featurep ident keymap magit ol
+#  LocalWords:  runtime src texinfo utils
+
+# IMPORTANT: Also update ORG_ARGS and ORG_EVAL in the Makefile.
+# Local Variables:
+# eval: (require 'magit-utils nil t)
+# eval: (require 'org-man     nil t)
+# eval: (require 'ol-man      nil t)
+# eval: (require 'ox-extra    nil t)
+# eval: (require 'ox-texinfo+ nil t)
+# eval: (and (featurep 'ox-extra) (ox-extras-activate '(ignore-headlines)))
+# indent-tabs-mode: nil
+# org-src-preserve-indentation: nil
+# End:

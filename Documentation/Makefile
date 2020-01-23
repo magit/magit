@@ -18,7 +18,7 @@ epub: $(EPUBFILES)
 	@printf "Generating $@\n"
 	@$(MAKEINFO) --no-split $< -o $@
 
-dir: magit.info
+dir: magit.info magit-section.info
 	@printf "Generating dir\n"
 	@echo $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
 
@@ -40,6 +40,11 @@ html-dir: $(TEXIFILES)
 	@printf "Generating magit/*.html\n"
 	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit.texi
 	@for f in $$(find magit -name '*.html') ; do \
+	sed -i -e $(HTML_FIXUP_CSS) -e $(HTML_FIXUP_ONLOAD) -e $(HTML_FIXUP_MENU) $$f ; \
+	done
+	@printf "Generating magit-section/*.html\n"
+	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit-section.texi
+	@for f in $$(find magit-section -name '*.html') ; do \
 	sed -i -e $(HTML_FIXUP_CSS) -e $(HTML_FIXUP_ONLOAD) -e $(HTML_FIXUP_MENU) $$f ; \
 	done
 
@@ -96,6 +101,9 @@ texi:
 	@$(EMACSBIN) $(ORG_ARGS) $(PKG).org $(ORG_EVAL)
 	@printf "\n" >> $(PKG).texi
 	@rm -f $(PKG).texi~
+	@$(EMACSBIN) $(ORG_ARGS) magit-section.org $(ORG_EVAL)
+	@printf "\n" >> magit-section.texi
+	@rm -f magit-section.texi~
 
 stats:
 	@printf "Generating statistics\n"
@@ -141,6 +149,9 @@ publish-manuals: $(PUBLISH_TARGETS)
 	@aws s3 cp $(PKG).epub $(PUBLISH_TARGET)
 	@printf "upload: ./$(PKG)/* to $(PUBLISH_TARGET)*\n"
 	@aws s3 sync --delete $(PKG) $(PUBLISH_TARGET)$(PKG)/ > /dev/null
+	@aws s3 cp magit-section.html $(PUBLISH_TARGET)
+	@printf "upload: ./magit-section/* to $(PUBLISH_TARGET)*\n"
+	@aws s3 sync --delete magit-section $(PUBLISH_TARGET)magit-section/ > /dev/null
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(PUBLISH_PATH),$(CFRONT_PATHS)))" > /dev/null
