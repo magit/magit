@@ -221,7 +221,7 @@ define set_package_requires
      (async ,async-version)
      (dash ,dash-version)
      (git-commit ,git-commit-version)
-     (magit-section ,magit-section-version)
+     ;; FIXME (magit-section ,magit-section-version)
      (transient ,transient-version)
      (with-editor ,with-editor-version))
    :keywords '("git" "tools" "vc")))) ;'
