@@ -53,6 +53,7 @@ HTMLFILES = $(addsuffix .html,$(filter-out git-commit,$(PACKAGES)))
 HTMLDIRS  = $(filter-out git-commit,$(PACKAGES))
 PDFFILES  = $(addsuffix .pdf,$(filter-out git-commit,$(PACKAGES)))
 EPUBFILES = $(addsuffix .epub,$(filter-out git-commit,$(PACKAGES)))
+REFCARDS  = magit-refcard.pdf
 
 ELS  = git-commit.el
 ELS += magit-section.el

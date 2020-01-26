@@ -1,0 +1,98 @@
+\documentclass[9pt]{extarticle}
+
+\usepackage[
+  paper=a4paper,
+  landscape=true,
+  margin=0.75cm,
+  ignoreall=true,
+  showframe=false
+]{geometry}
+
+\usepackage{multicol}
+\columnsep=1.5cm
+\raggedcolumns
+\columnseprule=0.5pt
+
+\usepackage{array}
+\tabcolsep=0pt
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1\linewidth}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1\linewidth}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1\linewidth}}
+
+\newcommand{\kbd}[1]{\texttt{\textbf{#1}}}
+
+\parindent=0pt
+\parskip=0pt
+\topsep=0pt
+\partopsep=0pt
+\pagestyle{empty}
+
+%\usepackage{textcomp}
+%\usepackage[utf]{inputenc}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{lipsum}
+\usepackage{txfonts}
+
+\begin{document}
+\begin{multicols}{3}
+
+  \begin{center}
+    %{\huge \textbf{Magit Reference Card}}
+    \includegraphics[scale=0.35]{magit.png}
+  \end{center}
+
+  \vspace{3ex}
+
+  \subsection*{Alphabetic}
+  \begin{tabular}{L{0.10} L{0.45} L{0.10} L{0.45}}
+    \kbd{a} & magit-cherry-apply     & \kbd{A} & magit-cherry-pick \\
+    \kbd{b} & magit-branch           & \kbd{B} & magit-bisect \\
+    \kbd{c} & magit-commit           & \kbd{C} & magit-clone \\
+    \kbd{d} & magit-diff             & \kbd{D} & magit-diff-refresh \\
+    \kbd{e} & magit-ediff-dwim       & \kbd{E} & magit-ediff \\
+    \kbd{f} & magit-fetch            & \kbd{F} & magit-pull \\
+    \kbd{g} & magit-refresh          & \kbd{G} & magit-refresh-all \\
+    \kbd{h}, \kbd{?} & magit-dispatch & \kbd{H} &  \\
+    \kbd{i} &                        & \kbd{I} &  \\
+    \kbd{j} &                        & \kbd{J} &  \\
+    \kbd{k} &                        & \kbd{K} &  \\
+    \kbd{l} & magit-log              & \kbd{L} & magit-log-refresh \\
+    \kbd{m} & magit-merge            & \kbd{M} & magit-remote \\
+    \kbd{n} &                        & \kbd{N} &  \\
+    \kbd{o} & magit-submodule        & \kbd{O} & magit-subtree \\
+    \kbd{p} &                        & \kbd{P} &  \\
+    \kbd{q} & magit-mode-bury-buffer & \kbd{Q} &  \\
+    \kbd{r} & magit-rebase           & \kbd{R} & magit-file-rename \\
+    \kbd{s} & magit-stage-file       & \kbd{S} & magit-stage-modified \\
+    \kbd{t} & magit-tag              & \kbd{T} & magit-notes \\
+    \kbd{u} & magit-unstage-file     & \kbd{U} & magit-unstage-all \\
+    \kbd{v} & magit-revert-no-commit & \kbd{V} & magit-revert \\
+    \kbd{w} & magit-am               & \kbd{W} & magit-patch \\
+    \kbd{x} & magit-reset-quickly    & \kbd{X} & magit-reset \\
+    \kbd{y} & magit-show-refs        & \kbd{Y} & \cellcolor[HTML]{AA0000} magit-cherry \\
+    \rowcolor[HTML]{AA0000} \kbd{z} & magit-stash            & \kbd{Z} & magit-stash \\
+  \end{tabular}
+
+  %\vspace{\stretch{1}}
+  %\columnbreak{}
+  %\textbullet\
+
+  \subsection*{TODO}
+  \lipsum[1-24]
+
+  \vspace{\stretch{1}}
+
+  \begin{center}
+    \linespread{1.2}
+    Reference Card for Magit v3.0 \\
+    Copyright \textcopyright\ 2020 Jonas Bernoulli \\
+    \ensuremath\varheartsuit\\
+    Get reference cards and more at https://magit.vc/buy. \\
+    Sponsor development at https://magit.vc/donate. \\
+    Read the manual at https://magit.vc/manual. \\
+  \end{center}
+
+\end{multicols}
+\end{document}

@@ -13,6 +13,7 @@ info: $(INFOPAGES) dir
 html: $(HTMLFILES)
 pdf:  $(PDFFILES)
 epub: $(EPUBFILES)
+refcard: $(REFCARDS)
 
 %.info: %.texi
 	@printf "Generating $@\n"
@@ -61,6 +62,10 @@ html-dir: $(TEXIFILES)
 	@zip -X --quiet --recurse-paths -0 $@ mimetype
 	@zip -X --quiet --recurse-paths -9 --no-dir-entries $@ META-INF OEBPS
 	@$(RMDIR) $(EPUBTRASH)
+
+magit-refcard.pdf: magit-refcard.tex
+	@printf "Generating $@\n"
+	pdflatex $<
 
 ## Install ###########################################################
 

@@ -1,6 +1,9 @@
 /config.mk
+/docs/*.aux
 /docs/*.html
 /docs/*.info
+/docs/*.log
+/docs/*.out
 /docs/*.pdf
 /docs/*.texi
 /docs/dir
