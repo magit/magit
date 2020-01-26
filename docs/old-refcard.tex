@@ -1,0 +1,188 @@
+% Reference Card for Magit
+% Copyright (C) 2008-2015  The Magit Project Contributors
+
+\documentclass[a4paper,10pt]{extarticle}
+
+\usepackage{textcomp}
+\usepackage{fullpage}
+\usepackage{boxedminipage}
+\usepackage{multicol}
+\pagestyle{empty}
+\usepackage[T1]{fontenc}
+\renewcommand{\baselinestretch}{1.3}
+
+\newcommand{\docheader}[1]{\Huge\centering{#1}\normalsize\bigskip}
+\newcommand{\boxedgroup}[1]{\par\noindent\centering{\textbf{\large#1}\medskip}}
+\newcommand{\helpkey}[2]{\par~~\noindent\textbf{#1}\hfill{#2}~~}
+\newcommand{\group}[1]{\bigskip\par\noindent\textbf{\large#1}\bigskip}
+\newcommand{\key}[2]{\par\noindent\textbf{#1}\hfill{#2}}
+\newcommand{\meta}[1]{\textlangle{#1}\textrangle}
+
+\begin{document}
+
+\docheader{Magit Reference Card}
+
+\begin{boxedminipage}[t]{11cm}
+
+  \medskip
+
+  \boxedgroup{Getting help in Emacs}
+
+  \helpkey{C-h k \meta{key}}{describe function bound to \meta{key}}
+  \helpkey{C-h b}{list the current key-bindings for the focus buffer}
+  \helpkey{C-h m}{describe mode}
+  \helpkey{C-h l}{show the keys you have pressed}
+  \helpkey{\meta{prefix} C-h}{show all key-bindings beginning with \meta{prefix}}
+
+  \medskip
+
+\end{boxedminipage}
+
+\bigskip
+
+\setlength{\columnsep}{1cm}
+
+\begin{multicols}{2}
+
+  \group{Section Movement}
+
+  \key{p}{previous section}
+  \key{n}{next section}
+  \key{P}{previous sibling section}
+  \key{N}{next sibling section}
+  \key{\^}{parent section}
+
+  \columnbreak
+
+  \group{Section Visibility}
+
+  \key{TAB}{toggle visibility of current section}
+  \key{C-TAB}{cycle visibility of section and children}
+  \key{M-TAB}{cycle visibility of diff-related sections}
+  \key{S-TAB}{cycle visibility of all sections in buffer}
+
+\end{multicols}
+
+\begin{multicols}{2}
+
+  \group{Staging}
+
+  \key{s}{stage change at point}
+  \key{u}{unstage change at point}
+  \key{S}{stage all changes in worktree}
+  \key{U}{reset index to some commit}
+  \key{M-x magit-unstage-all}{remove all changes}
+  \key{M-x magit-stage-file}{stage current file}
+  \key{M-x magit-unstage-file}{unstage current file}
+
+  \group{View Git Output}
+
+  \key{\$}{display process buffer for current repository}
+  \key{k}{kill process represented by section at point}
+
+  \columnbreak
+
+  \group{Status/Diff/Log Buffer}
+
+  \key{SPC}{update commit/diff buffer or scroll up}
+  \key{DEL}{update commit/diff buffer or scroll down}
+  \key{h}{show dispatch popup}
+  \key{g}{refresh}
+  \key{G}{refresh all}
+  \key{q}{bury current buffer}
+  \key{L}{toggle margin}
+  \key{x}{soft reset (hard when argument is given)}
+  \key{y}{show references (tags and branches)}
+  \key{Y}{cherry}
+  \key{C-c C-b}{move backward in buffer's history}
+  \key{C-c C-f}{move forward in buffer's history}
+
+\end{multicols}
+
+\begin{boxedminipage}[t]{11cm}
+
+  \medskip
+
+  \boxedgroup{Popups}
+
+  \begin{multicols}{3}
+
+    \key{!}{running git}
+    \key{b}{branching}
+    \key{B}{bisecting}
+    \key{c}{committing}
+    \key{d}{diffing}
+    \key{E}{ediff}
+    \key{f}{fetching}
+    \key{F}{pulling}
+    \key{l}{logging}
+    \key{m}{merging}
+    \key{M}{remoting}
+    \key{P}{pushing}
+    \key{o}{submoduling}
+    \key{r}{rebasing}
+    \key{w}{apply patches}
+    \key{W}{format patches}
+    \key{t}{tagging}
+    \key{z}{stashing}
+
+  \end{multicols}
+
+  \medskip
+
+\end{boxedminipage}
+
+\newpage
+
+\begin{multicols}{2}
+
+  \group{Status/Diff/Log Buffer}
+
+  \key{e}{ediff DWIM}
+  \key{i}{gitignore}
+  \key{I}{gitignore locally}
+
+  \group{Diff Buffer}
+
+  \key{RET}{visit file (or blob) at appropriate position}
+  \key{C-RET}{visit file at appropriate position}
+  \key{$-$}{decrease context of diff hunks} % minus looks better
+  \key{+}{increase context of diff hunks}
+  \key{0}{reset context of diff hunks to default height}
+  \key{j}{jump to diff stat $\leftrightarrow$ diff section}
+
+  \group{Log Buffer}
+
+  \key{+}{show more history}
+  \key{C-c C-c}{select commit at point and act on it}
+  \key{C-c C-k}{abort selecting commit}
+
+  \columnbreak
+
+  \group{References Buffer}
+
+  \key{y}{compare references with HEAD}
+  \key{c}{compare references with current branch}
+  \key{o}{compare references with other branch}
+
+  \group{Blaming}
+
+  \key{M-x magit-blame}{display edit history of file}
+  \key{RET}{show the commit at point}
+  \key{SPC}{update commit/diff buffer or scroll up}
+  \key{DEL}{update commit/diff buffer or scroll down}
+  \key{n}{move to the next chunk}
+  \key{N}{move to the next chunk (same commit)}
+  \key{p}{move to the previous chunk}
+  \key{P}{move to the previous chunk (same commit)}
+  \key{q}{turn off magit blame mode}
+  \key{t}{show or hide blame chunk headings}
+
+  \group{Repository Setup}
+
+  \key{M-x magit-init}{initialize a Git repository}
+  \key{M-x magit-clone}{clone a repository}
+
+\end{multicols}
+
+\end{document}
