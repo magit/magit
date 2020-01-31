@@ -131,6 +131,7 @@
 (defvar flyspell-generic-check-word-predicate)
 (defvar font-lock-beg)
 (defvar font-lock-end)
+(defvar git-commit-read-ident-history nil)
 
 (declare-function magit-completing-read "magit-utils"
                   (prompt collection &optional predicate require-match
