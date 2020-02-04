@@ -767,6 +767,8 @@ With a numeric prefix ARG, go forward ARG comments."
             (ignore-errors (car (process-lines "git" "config" "user.email")))
             (read-string "Email: "))))
 
+(defvar git-commit-read-ident-history nil)
+
 (defun git-commit-read-ident (prompt)
   (if (require 'magit-git nil t)
       (let ((str (magit-completing-read
