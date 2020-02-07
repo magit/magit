@@ -877,7 +877,7 @@ Added to `font-lock-extend-region-functions'."
   `(,@git-commit-font-lock-keywords-1
     ;; Comments
     (eval . `(,(format "^%s.*" comment-start)
-              (0 'font-lock-comment-face)))
+              (0 'font-lock-comment-face append)))
     (eval . `(,(format "^%s On branch \\(.*\\)" comment-start)
               (1 'git-commit-comment-branch-local t)))
     (eval . `(,(format "^%s \\(HEAD\\) detached at" comment-start)
