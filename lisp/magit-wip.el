@@ -283,7 +283,11 @@ commit message."
          (parent (magit-wip-get-parent ref wipref))
          (tree (magit-with-temp-index parent "--reset"
                  (if files
-                     (magit-call-git "add" "--" files)
+                     ;; Note: `update-index' is used instead of `add'
+                     ;; because `add' will fail if a file is already
+                     ;; deleted in the temporary index.
+                     (magit-call-git "update-index" "--add" "--remove"
+                                     "--" files)
                    (magit-with-toplevel
                      (magit-call-git "add" "-u" ".")))
                  (magit-git-string "write-tree"))))
