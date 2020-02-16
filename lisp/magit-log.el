@@ -938,9 +938,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         (unless (magit-file-tracked-p (car files))
           (setq args (cons "--full-history" args)))
       (setq args (remove "--follow" args)))
-    (when (--any-p (string-match-p
-                    (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
-                   args)
+    (when (and (car magit-log-remove-graph-args)
+               (--any-p (string-match-p
+                         (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
+                        args))
       (setq args (remove "--graph" args)))
     (unless (member "--graph" args)
       (setq args (remove "--color" args)))
