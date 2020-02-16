@@ -545,6 +545,10 @@ Magit is documented in info node `(magit)'."
 (put 'magit-buffer-revision 'permanent-local t)
 (put 'magit-buffer-revision-hash 'permanent-local t)
 
+;; `magit-status' re-enables mode function but its refresher
+;; function does not reinstate this.
+(put 'magit-buffer-diff-files-suspended 'permanent-local t)
+
 (defvar-local magit-refresh-args nil
   "Obsolete.  Possibly the arguments used to refresh the current buffer.
 Some third-party packages might still use this, but Magit does not.")
