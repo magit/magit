@@ -1110,6 +1110,8 @@ Do not add this to a hook variable."
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
   (let ((magit-log-count 0))
+    (when (looking-at "^\\.\\.\\.")
+      (magit-delete-line))
     (magit-wash-sequence (apply-partially 'magit-log-wash-rev style
                                           (magit-abbrev-length)))
     (if (derived-mode-p 'magit-log-mode 'magit-reflog-mode)
@@ -1257,7 +1259,7 @@ Do not add this to a hook variable."
                 (forward-line -1)
                 (looking-at "[-_/|\\*o<>. ]*"))
               (setq graph (match-string 0))
-              (unless (string-match-p "[/\\]" graph)
+              (unless (string-match-p "[/\\.]" graph)
                 (insert graph ?\n))))))))
   t)
 
