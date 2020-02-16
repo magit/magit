@@ -1129,7 +1129,7 @@ Do not add this to a hook variable."
 (cl-defun magit-log-wash-rev (style abbrev)
   (when (derived-mode-p 'magit-log-mode 'magit-reflog-mode)
     (cl-incf magit-log-count))
-  (looking-at (pcase style
+  (unless (looking-at (pcase style
                 (`log        magit-log-heading-re)
                 (`cherry     magit-log-cherry-re)
                 (`module     magit-log-module-re)
@@ -1137,6 +1137,10 @@ Do not add this to a hook variable."
                 (`stash      magit-log-stash-re)
                 (`bisect-vis magit-log-bisect-vis-re)
                 (`bisect-log magit-log-bisect-log-re)))
+    ;; Here, the regexp did not match, leave text as-is (known to
+    ;; happen with "log --graph -G...", "log --follow -- files").
+    (forward-line)
+    (cl-return-from magit-log-wash-rev t))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry _ refsub side) nil
     (setq msg (substring-no-properties msg))
