@@ -448,6 +448,10 @@
   prefix>/refs/heads/HEAD" rather than "<wip prefix>/HEAD" when on a
   detached head.
 
+- Modifying a file, marking it with a "skip-worktree" or "assume
+  unchanged" bit, and then modifying it again triggered a failure in
+  ~magit-wip-commit-worktree~.  #4037
+
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),
   ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),

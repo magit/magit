@@ -281,7 +281,7 @@ commit message."
 (defun magit-wip-commit-worktree (ref files msg)
   (let* ((wipref (magit--wip-wtree-ref ref))
          (parent (magit-wip-get-parent ref wipref))
-         (tree (magit-with-temp-index parent "--reset"
+         (tree (magit-with-temp-index parent (list "--reset" "-i")
                  (if files
                      ;; Note: `update-index' is used instead of `add'
                      ;; because `add' will fail if a file is already
