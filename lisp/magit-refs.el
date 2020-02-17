@@ -330,7 +330,8 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (define-transient-command magit-show-refs (&optional transient)
   "List and compare references in a dedicated buffer."
   :man-page "git-branch"
-  :value 'magit-show-refs-arguments
+  :value (lambda ()
+           (magit-show-refs-arguments magit-prefix-use-buffer-arguments))
   ["Arguments"
    (magit-for-each-ref:--contains)
    ("=m" "Merged"               "--merged=" magit-transient-read-revision)
@@ -350,18 +351,19 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (transient-setup 'magit-show-refs)
     (magit-refs-setup-buffer "HEAD" (magit-show-refs-arguments))))
 
-(defun magit-show-refs-arguments ()
+(defun magit-show-refs-arguments (&optional use-buffer-args)
+  (unless use-buffer-args
+    (setq use-buffer-args magit-direct-use-buffer-arguments))
   (let (args)
     (cond
      ((eq current-transient-command 'magit-show-refs)
       (setq args (transient-args 'magit-show-refs)))
      ((eq major-mode 'magit-refs-mode)
       (setq args magit-buffer-arguments))
-     ((and (memq magit-prefix-use-buffer-arguments '(always selected))
+     ((and (memq use-buffer-args '(always selected))
            (when-let ((buffer (magit-get-mode-buffer
                                'magit-refs-mode nil
-                               (eq magit-prefix-use-buffer-arguments
-                                   'selected))))
+                               (eq use-buffer-args 'selected))))
              (setq args (buffer-local-value 'magit-buffer-arguments buffer))
              t)))
      (t
