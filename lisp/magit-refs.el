@@ -360,9 +360,8 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
      ((and (memq magit-prefix-use-buffer-arguments '(always selected))
            (when-let ((buffer (magit-get-mode-buffer
                                'magit-refs-mode nil
-                               (or (eq magit-prefix-use-buffer-arguments
-                                       'selected)
-                                   'all))))
+                               (eq magit-prefix-use-buffer-arguments
+                                   'selected))))
              (setq args (buffer-local-value 'magit-buffer-arguments buffer))
              t)))
      (t
