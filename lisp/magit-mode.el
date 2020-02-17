@@ -222,7 +222,7 @@ Valid values are:
 `always': Always use the set of arguments that is currently
   active in the respective buffer, provided that buffer exists
   of course.
-`selected' or t: Use the set of arguments from the respective
+`selected': Use the set of arguments from the respective
   buffer, but only if it is displayed in a window of the current
   frame.  This is the default.
 `current': Use the set of arguments from the respective buffer,
@@ -253,7 +253,7 @@ Valid values are:
 `always': Always use the set of arguments that is currently
   active in the respective buffer, provided that buffer exists
   of course.
-`selected' or t: Use the set of arguments from the respective
+`selected': Use the set of arguments from the respective
   buffer, but only if it is displayed in a window of the current
   frame.  This is the default.
 `current': Use the set of arguments from the respective buffer,
