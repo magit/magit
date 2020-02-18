@@ -369,7 +369,8 @@ Magit-Section is documented in info node `(magit-section)'."
     (when (and (fboundp 'display-line-numbers-mode)
                (bound-and-true-p global-display-line-numbers-mode))
       (display-line-numbers-mode -1)))
-  (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache))
+  (when (fboundp 'magit-preserve-section-visibility-cache)
+    (add-hook 'kill-buffer-hook #'magit-preserve-section-visibility-cache)))
 
 ;;; Core
 
