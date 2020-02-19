@@ -444,6 +444,10 @@
 - ~magit-stash-branch-here~ applied the stash without checking out the
   new branch.  d3cee7f8c
 
+- A regression in v2.90.0 led to ~magit-wip-mode~ committing to "<wip
+  prefix>/refs/heads/HEAD" rather than "<wip prefix>/HEAD" when on a
+  detached head.
+
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),
   ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),

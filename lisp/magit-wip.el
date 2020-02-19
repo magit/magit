@@ -353,7 +353,8 @@ commit message."
 (defun magit--wip-ref (namespace &optional ref)
   (concat magit-wip-namespace namespace
           (or (and ref (string-prefix-p "refs/" ref) ref)
-              (when-let ((branch (or ref (magit-get-current-branch))))
+              (when-let ((branch (and (not (equal ref "HEAD"))
+                                      (or ref (magit-get-current-branch)))))
                 (concat "refs/heads/" branch))
               "HEAD")))
 
