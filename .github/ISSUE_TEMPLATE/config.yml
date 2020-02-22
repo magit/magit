@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Emacs StackExchange
+    url: https://emacs.stackexchange.com/questions/tagged/magit
+    about: Please search, ask and answer questions here.
+  - name: Emacs Reddit
+    url: https://www.reddit.com/r/emacs
+    about: Another place to ask questions.
+  - name: Magit FAQ
+    url: https://magit.vc/manual/magit/FAQ.html
+    about: It might be that many others had the same question.
+  - name: Magit Manual
+    url: https://magit.vc/manual/magit/#Top
+    about: The fine manual may also be of use.
