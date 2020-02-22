@@ -719,7 +719,8 @@ restrict the log to the lines that the region touches."
   "Show log for the definition at point."
   (interactive (list (or (magit-file-relative-name)
                          (user-error "Buffer isn't visiting a file"))
-                     (funcall magit-log-trace-definition-function)
+                     (or (funcall magit-log-trace-definition-function)
+                         (user-error "No function at point found"))
                      (or magit-buffer-refname
                          (magit-get-current-branch)
                          "HEAD")))
