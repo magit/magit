@@ -363,6 +363,9 @@
   differently from e.g. "_", leading to false-positives like
   "foo-suffix" being considered a match for "foo".
 
+- ~magit-log-trace-definition~ didn't do the escaping that Git expects
+  for function names with colons.  #4051
+
 - A regression in ~magit-log-move-to-parent~ prevented it from doing its
   job.  #3682
 
