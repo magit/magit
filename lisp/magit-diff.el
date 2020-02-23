@@ -2713,7 +2713,7 @@ It the SECTION has a different type, then do nothing."
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
     (magit--insert-diff
-      "diff" magit-buffer-diff-args "--no-prefix"
+      "diff" (if magit-diff-hide-deleted-file-patches (append magit-buffer-diff-args '("-D")) magit-buffer-diff-args) "--no-prefix"
       "--" magit-buffer-diff-files)))
 
 (defvar magit-staged-section-map
@@ -2735,7 +2735,7 @@ It the SECTION has a different type, then do nothing."
     (magit-insert-section (staged)
       (magit-insert-heading "Staged changes:")
       (magit--insert-diff
-        "diff" "--cached" magit-buffer-diff-args "--no-prefix"
+        "diff" "--cached" (if magit-diff-hide-deleted-file-patches (append magit-buffer-diff-args '("-D")) magit-buffer-diff-args) "--no-prefix"
         "--" magit-buffer-diff-files))))
 
 ;;; Diff Type
