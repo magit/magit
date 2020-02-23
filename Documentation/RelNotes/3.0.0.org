@@ -324,6 +324,10 @@
 
 - Added new command ~magit-push-notes-ref~.  dff0bca6f
 
+- The ~--irreversible-delete~ diff argument is supported now, but isn't
+  available from the diff transients by default.  To enable it use
+  "C-x l" in those transients.  #4056
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct

@@ -846,7 +846,8 @@ and `:slant'."
    (magit:--)
    (magit-diff:--ignore-submodules)
    ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
-   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))]
+   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
+   (5 "-D" "Omit preimage for deletes"    ("-D" "--irreversible-delete"))]
   ["Context arguments"
    (magit-diff:-U)
    ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
@@ -878,7 +879,8 @@ and `:slant'."
    (magit:--)
    (magit-diff:--ignore-submodules)
    ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
-   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))]
+   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
+   (5 "-D" "Omit preimage for deletes"    ("-D" "--irreversible-delete"))]
   ["Context arguments"
    (magit-diff:-U)
    ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
