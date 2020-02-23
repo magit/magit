@@ -268,6 +268,12 @@ that many spaces.  Otherwise, highlight neither."
                                (integer :tag "Spaces" :value ,tab-width)
                                (const :tag "Neither" nil)))))
 
+(defcustom magit-diff-hide-deleted-file-patches nil
+  "Whether to hide deleted file patches (for performance reasons)."
+  :package-version '(magit . "3.0.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 (defcustom magit-diff-hide-trailing-cr-characters
   (and (memq system-type '(ms-dos windows-nt)) t)
   "Whether to hide ^M characters at the end of a line in diffs."
