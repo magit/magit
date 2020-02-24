@@ -515,6 +515,9 @@ that is being reset."
       (magit-branch-maybe-adjust-upstream branch to)))
   (magit-refresh))
 
+(defvar magit-branch-delete-never-verify nil
+  "Whether `magit-branch-delete' always pushes with \"--no-verify\".")
+
 ;;;###autoload
 (defun magit-branch-delete (branches &optional force)
   "Delete one or multiple branches.
@@ -561,7 +564,10 @@ defaulting to the branch at point."
              (offset (1+ (length remote))))
         ;; Assume the branches actually still exists on the remote.
         (magit-run-git-async
-         "push" remote (--map (concat ":" (substring it offset)) branches))
+         "push"
+         (and (or force magit-branch-delete-never-verify) "--no-verify")
+         remote
+         (--map (concat ":" (substring it offset)) branches))
         ;; If that is not the case, then this deletes the tracking branches.
         (set-process-sentinel
          magit-this-process
