@@ -227,6 +227,14 @@ command which is about to be called are committed."
       (add-hook  'before-save-hook 'magit-wip-commit-initial-backup)
     (remove-hook 'before-save-hook 'magit-wip-commit-initial-backup)))
 
+(defun magit--any-wip-mode-enabled-p ()
+  "Return non-nil if any global wip mode is enabled."
+  (or magit-wip-mode
+      magit-wip-after-save-mode
+      magit-wip-after-apply-mode
+      magit-wip-before-change-mode
+      magit-wip-initial-backup-mode))
+
 (defvar-local magit-wip-buffer-backed-up nil)
 (put 'magit-wip-buffer-backed-up 'permanent-local t)
 
