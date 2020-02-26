@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-900-g14c70a5ac+1)
+@subtitle for version 2.90.1 (v2.90.1-930-ge3b4ed55e+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-900-g14c70a5ac+1).
+This manual is for Magit version 2.90.1 (v2.90.1-930-ge3b4ed55e+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -10177,6 +10177,14 @@ can be quite expensive given certain circumstances.  If looking at
 a commit using @code{magit-revision-mode} takes considerably more time than
 looking at the same commit in @code{magit-diff-mode}, then consider setting
 @code{magit-revision-insert-related-refs} to @code{nil}.
+
+When you are often confronted with diffs that contain deleted files,
+then you might want to enable the @code{--irreversible-delete} argument.  If
+you do that then diffs still show that a file was deleted but without
+also showing the complete deleted content of the file.  This argument
+is not available by default, see @ref{Enabling and Disabling Suffixes,,,transient,}.  Once you have done that you should enable it and save that
+setting, see @ref{Saving Values,,,transient,}.  You should do this in both
+the diff (@code{d}) and the diff refresh (@code{D}) transient popups.
 
 @unnumberedsubsubsec Refs Buffer Performance
 
