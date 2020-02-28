@@ -247,20 +247,22 @@ Then show the status buffer for the new repository."
        (pcase-lambda (`(,re ,host ,user))
          (and (string-match re name)
               (let ((repo (match-string 1 name)))
-                (format-spec
-                 magit-clone-url-format
-                 `((?h . ,host)
-                   (?n . ,(if (string-match-p "/" repo)
-                              repo
-                            (if (string-match-p "\\." user)
-                                (if-let ((user (magit-get user)))
-                                    (concat user "/" repo)
-                                  (user-error
-                                   "Set %S or specify owner explicitly" user))
-                              (concat user "/" repo)))))))))
+                (magit-clone--format-url host user repo))))
        magit-clone-name-alist)
       (user-error "Not an url and no matching entry in `%s'"
                   'magit-clone-name-alist)))
+
+(defun magit-clone--format-url (host user repo)
+  (format-spec
+   magit-clone-url-format
+   `((?h . ,host)
+     (?n . ,(if (string-match-p "/" repo)
+                repo
+              (if (string-match-p "\\." user)
+                  (if-let ((user (magit-get user)))
+                      (concat user "/" repo)
+                    (user-error "Set %S or specify owner explicitly" user))
+                (concat user "/" repo)))))))
 
 ;;; _
 (provide 'magit-clone)
