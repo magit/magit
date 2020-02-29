@@ -132,7 +132,13 @@ which creates patches for all commits that are reachable from
   :description "Thread style"
   :class 'transient-option
   :key "C-m s  "
-  :argument "--thread=")
+  :argument "--thread="
+  :reader #'magit-format-patch-select-thread-style)
+
+(defun magit-format-patch-select-thread-style (&rest _ignore)
+  (magit-read-char-case "Thread style " t
+    (?d "[d]eep" "deep")
+    (?s "[s]hallow" "shallow")))
 
 (define-infix-argument magit-format-patch:--reroll-count ()
   :description "Reroll count"
