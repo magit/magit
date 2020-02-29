@@ -72,11 +72,11 @@ which creates patches for all commits that are reachable from
 `HEAD' but not from the specified commit)."
   :man-page "git-format-patch"
   ["Mail arguments"
-   (magit-format-patch:--in-reply-to)
-   (magit-format-patch:--thread)
-   (magit-format-patch:--from)
-   (magit-format-patch:--to)
-   (magit-format-patch:--cc)]
+   (6 magit-format-patch:--in-reply-to)
+   (6 magit-format-patch:--thread)
+   (6 magit-format-patch:--from)
+   (6 magit-format-patch:--to)
+   (6 magit-format-patch:--cc)]
   ["Patch arguments"
    (magit-format-patch:--reroll-count)
    (magit-format-patch:--subject-prefix)
