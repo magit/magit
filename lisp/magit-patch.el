@@ -83,6 +83,8 @@ which creates patches for all commits that are reachable from
    (magit-format-patch:--subject-prefix)
    ("C-m r  " "RFC subject prefix" "--rfc")
    ("C-m l  " "Add cover letter" "--cover-letter")
+   (5 magit-format-patch:--cover-from-description)
+   (5 magit-format-patch:--notes)
    (magit-format-patch:--output-directory)]
   ["Diff arguments"
    (magit-diff:-U)
@@ -155,6 +157,27 @@ which creates patches for all commits that are reachable from
   :class 'transient-option
   :key "C-m p  "
   :argument "--subject-prefix=")
+
+(define-infix-argument magit-format-patch:--cover-from-description ()
+  :description "Use branch description"
+  :class 'transient-option
+  :key "C-m D  "
+  :argument "--cover-from-description="
+  :reader #'magit-format-patch-select-description-mode)
+
+(defun magit-format-patch-select-description-mode (&rest _ignore)
+  (magit-read-char-case "Use description as " t
+    (?m "[m]essage" "message")
+    (?s "[s]ubject" "subject")
+    (?a "[a]uto"    "auto")
+    (?n "[n]othing" "none")))
+
+(define-infix-argument magit-format-patch:--notes ()
+  :description "Insert commentary from notes"
+  :class 'transient-option
+  :key "C-m n  "
+  :argument "--notes="
+  :reader #'magit-notes-read-ref)
 
 (define-infix-argument magit-format-patch:--from ()
   :description "From"
