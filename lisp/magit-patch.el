@@ -80,6 +80,8 @@ which creates patches for all commits that are reachable from
    (6 magit-format-patch:--cc)]
   ["Patch arguments"
    (magit-format-patch:--reroll-count)
+   (5 magit-format-patch:--interdiff)
+   (magit-format-patch:--range-diff)
    (magit-format-patch:--subject-prefix)
    ("C-m r  " "RFC subject prefix" "--rfc")
    ("C-m l  " "Add cover letter" "--cover-letter")
@@ -151,6 +153,23 @@ which creates patches for all commits that are reachable from
   :shortarg "-v"
   :argument "--reroll-count="
   :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-format-patch:--interdiff ()
+  :description "Insert interdiff"
+  :class 'transient-option
+  :key "C-m d i"
+  :argument "--interdiff="
+  :reader #'magit-transient-read-revision)
+
+(define-infix-argument magit-format-patch:--range-diff ()
+  :description "Insert range-diff"
+  :class 'transient-option
+  :key "C-m d r"
+  :argument "--range-diff="
+  :reader #'magit-format-patch-select-range-diff)
+
+(defun magit-format-patch-select-range-diff (prompt _initial-input _history)
+  (magit-read-range-or-commit prompt))
 
 (define-infix-argument magit-format-patch:--subject-prefix ()
   :description "Subject Prefix"
