@@ -71,6 +71,7 @@ changes introduced by that commit (unlike 'git format-patch'
 which creates patches for all commits that are reachable from
 `HEAD' but not from the specified commit)."
   :man-page "git-format-patch"
+  :incompatible '(("--subject-prefix=" "--rfc"))
   ["Mail arguments"
    (6 magit-format-patch:--in-reply-to)
    (6 magit-format-patch:--thread)
@@ -80,6 +81,7 @@ which creates patches for all commits that are reachable from
   ["Patch arguments"
    (magit-format-patch:--reroll-count)
    (magit-format-patch:--subject-prefix)
+   ("C-m r  " "RFC subject prefix" "--rfc")
    ("C-m l  " "Add cover letter" "--cover-letter")
    (magit-format-patch:--output-directory)]
   ["Diff arguments"
