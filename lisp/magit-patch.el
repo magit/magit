@@ -79,6 +79,7 @@ which creates patches for all commits that are reachable from
    (6 magit-format-patch:--to)
    (6 magit-format-patch:--cc)]
   ["Patch arguments"
+   (magit-format-patch:--base)
    (magit-format-patch:--reroll-count)
    (5 magit-format-patch:--interdiff)
    (magit-format-patch:--range-diff)
@@ -145,6 +146,18 @@ which creates patches for all commits that are reachable from
   (magit-read-char-case "Thread style " t
     (?d "[d]eep" "deep")
     (?s "[s]hallow" "shallow")))
+
+(define-infix-argument magit-format-patch:--base ()
+  :description "Insert base commit"
+  :class 'transient-option
+  :key "C-m b  "
+  :argument "--base="
+  :reader #'magit-format-patch-select-base)
+
+(defun magit-format-patch-select-base (prompt initial-input history)
+  (or (magit-completing-read prompt (cons "auto" (magit-list-refnames))
+                             nil nil initial-input history "auto")
+      (user-error "Nothing selected")))
 
 (define-infix-argument magit-format-patch:--reroll-count ()
   :description "Reroll count"
