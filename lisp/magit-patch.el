@@ -124,7 +124,7 @@ which creates patches for all commits that are reachable from
 (define-infix-argument magit-format-patch:--in-reply-to ()
   :description "In reply to"
   :class 'transient-option
-  :key "C-m r  "
+  :key "C-m C-r"
   :argument "--in-reply-to=")
 
 (define-infix-argument magit-format-patch:--thread ()
