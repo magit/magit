@@ -502,6 +502,7 @@ This discards all changes made since the sequence started."
    :if-not magit-rebase-in-progress-p
    ("-k" "Keep empty commits"       "--keep-empty")
    ("-p" "Preserve merges"          ("-p" "--preserve-merges"))
+   (7 magit-merge:--strategy)
    ("-d" "Lie about committer date" "--committer-date-is-author-date")
    ("-a" "Autosquash"               "--autosquash")
    ("-A" "Autostash"                "--autostash")

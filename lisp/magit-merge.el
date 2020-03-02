@@ -70,9 +70,9 @@
 (define-infix-argument magit-merge:--strategy ()
   :description "Strategy"
   :class 'transient-option
-  ;; key for merge: "-s"
+  ;; key for merge and rebase: "-s"
   ;; key for cherry-pick and revert: "=s"
-  ;; shortarg for merge: "-s"
+  ;; shortarg for merge and rebase: "-s"
   ;; shortarg for cherry-pick and revert: none
   :key "-s"
   :argument "--strategy="
