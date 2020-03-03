@@ -71,15 +71,23 @@ changes introduced by that commit (unlike 'git format-patch'
 which creates patches for all commits that are reachable from
 `HEAD' but not from the specified commit)."
   :man-page "git-format-patch"
+  :incompatible '(("--subject-prefix=" "--rfc"))
   ["Mail arguments"
-   (magit-format-patch:--in-reply-to)
-   (magit-format-patch:--thread)
+   (6 magit-format-patch:--in-reply-to)
+   (6 magit-format-patch:--thread)
+   (6 magit-format-patch:--from)
+   (6 magit-format-patch:--to)
+   (6 magit-format-patch:--cc)]
+  ["Patch arguments"
+   (magit-format-patch:--base)
    (magit-format-patch:--reroll-count)
+   (5 magit-format-patch:--interdiff)
+   (magit-format-patch:--range-diff)
    (magit-format-patch:--subject-prefix)
+   ("C-m r  " "RFC subject prefix" "--rfc")
    ("C-m l  " "Add cover letter" "--cover-letter")
-   (magit-format-patch:--from)
-   (magit-format-patch:--to)
-   (magit-format-patch:--cc)
+   (5 magit-format-patch:--cover-from-description)
+   (5 magit-format-patch:--notes)
    (magit-format-patch:--output-directory)]
   ["Diff arguments"
    (magit-diff:-U)
@@ -124,14 +132,32 @@ which creates patches for all commits that are reachable from
 (define-infix-argument magit-format-patch:--in-reply-to ()
   :description "In reply to"
   :class 'transient-option
-  :key "C-m r  "
+  :key "C-m C-r"
   :argument "--in-reply-to=")
 
 (define-infix-argument magit-format-patch:--thread ()
   :description "Thread style"
   :class 'transient-option
   :key "C-m s  "
-  :argument "--thread=")
+  :argument "--thread="
+  :reader #'magit-format-patch-select-thread-style)
+
+(defun magit-format-patch-select-thread-style (&rest _ignore)
+  (magit-read-char-case "Thread style " t
+    (?d "[d]eep" "deep")
+    (?s "[s]hallow" "shallow")))
+
+(define-infix-argument magit-format-patch:--base ()
+  :description "Insert base commit"
+  :class 'transient-option
+  :key "C-m b  "
+  :argument "--base="
+  :reader #'magit-format-patch-select-base)
+
+(defun magit-format-patch-select-base (prompt initial-input history)
+  (or (magit-completing-read prompt (cons "auto" (magit-list-refnames))
+                             nil nil initial-input history "auto")
+      (user-error "Nothing selected")))
 
 (define-infix-argument magit-format-patch:--reroll-count ()
   :description "Reroll count"
@@ -141,11 +167,49 @@ which creates patches for all commits that are reachable from
   :argument "--reroll-count="
   :reader 'transient-read-number-N+)
 
+(define-infix-argument magit-format-patch:--interdiff ()
+  :description "Insert interdiff"
+  :class 'transient-option
+  :key "C-m d i"
+  :argument "--interdiff="
+  :reader #'magit-transient-read-revision)
+
+(define-infix-argument magit-format-patch:--range-diff ()
+  :description "Insert range-diff"
+  :class 'transient-option
+  :key "C-m d r"
+  :argument "--range-diff="
+  :reader #'magit-format-patch-select-range-diff)
+
+(defun magit-format-patch-select-range-diff (prompt _initial-input _history)
+  (magit-read-range-or-commit prompt))
+
 (define-infix-argument magit-format-patch:--subject-prefix ()
   :description "Subject Prefix"
   :class 'transient-option
   :key "C-m p  "
   :argument "--subject-prefix=")
+
+(define-infix-argument magit-format-patch:--cover-from-description ()
+  :description "Use branch description"
+  :class 'transient-option
+  :key "C-m D  "
+  :argument "--cover-from-description="
+  :reader #'magit-format-patch-select-description-mode)
+
+(defun magit-format-patch-select-description-mode (&rest _ignore)
+  (magit-read-char-case "Use description as " t
+    (?m "[m]essage" "message")
+    (?s "[s]ubject" "subject")
+    (?a "[a]uto"    "auto")
+    (?n "[n]othing" "none")))
+
+(define-infix-argument magit-format-patch:--notes ()
+  :description "Insert commentary from notes"
+  :class 'transient-option
+  :key "C-m n  "
+  :argument "--notes="
+  :reader #'magit-notes-read-ref)
 
 (define-infix-argument magit-format-patch:--from ()
   :description "From"
