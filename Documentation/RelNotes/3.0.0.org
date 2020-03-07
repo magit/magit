@@ -248,6 +248,9 @@
   it goes to the same location in the respective file in the working
   tree.  #3860
 
+- ~magit-add-change-log-entry{,-other-window}~ learned to extract the
+  file name from blob-visiting buffers.
+
 - ~magit-tag-release~ now runs ~git~ asynchronously.  #3855
 
 - When invoked with two prefix arguments, then ~magit-mode-burry-buffer~
