@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-930-ge3b4ed55e+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-944-g1916e83aa+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-930-ge3b4ed55e+1).
+This manual is for Magit version 2.90.1 (v2.90.1-944-g1916e83aa+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -2385,15 +2385,6 @@ variable.
     default.
   - AUTHOR-WIDTH has to be an integer.  When the name of the author
     is shown, then this specifies how much space is used to do so.
-
-- User Option: magit-log-section-args
-
-  Additional Git arguments used when creating log sections.  Only
-  ~--graph~, ~--decorate~, and ~--show-signature~ are supported.  This
-  option is only a temporary kludge and will be removed.
-
-  Note that due to an issue in Git the use of ~--graph~ is very slow
-  with long histories, so you probably don't want to add this here.
 
 Also see the proceeding section for more options concerning status
 buffers.
