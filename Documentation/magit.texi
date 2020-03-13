@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-944-g1916e83aa+1)
+@subtitle for version 2.90.1 (v2.90.1-945-g99d09ff72+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-944-g1916e83aa+1).
+This manual is for Magit version 2.90.1 (v2.90.1-945-g99d09ff72+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -10273,6 +10273,12 @@ So make sure that you are using at least Emacs 26.1, in which case the
 faster @code{vfork} will be used.  (The creation of child processes still
 takes about twice as long on Darwin compared to Linux.)  See @footnote{@uref{https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html}}
 for more information.
+
+On Catalina, and potentially other macOS releases, there may be a
+performance problem where any action takes 20 times longer on Darwin
+than on Linux.  This can be fixed by setting @code{magit-git-executable} to
+the absolute path of the @code{git} executable, instead of relying on
+resolving the @code{$PATH}.
 
 @node Plumbing
 @chapter Plumbing
