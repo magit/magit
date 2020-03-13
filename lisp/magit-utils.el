@@ -434,8 +434,8 @@ acts similarly to `completing-read', except for the following:
 - If REQUIRE-MATCH is nil and the user exits without a choice,
   then nil is returned instead of an empty string.
 
-- If REQUIRE-MATCH is non-nil and the users exits without a
-  choice, an user-error is raised.
+- If REQUIRE-MATCH is non-nil and the user exits without a
+  choice, `user-error' is raised.
 
 - FALLBACK specifies a secondary default that is only used if
   the primary default DEF is nil.  The secondary default is not
