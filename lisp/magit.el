@@ -78,7 +78,7 @@ own faces for the `header-line', or for parts of the
   :group 'magit-faces)
 
 (defface magit-header-line-key
-  '((t :inherit magit-popup-key))
+  '((t :inherit font-lock-builtin-face))
   "Face for keys in the `header-line'."
   :group 'magit-faces)
 
