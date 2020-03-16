@@ -113,9 +113,13 @@ seconds of user inactivity.  That is not desirable."
                      (condition-case nil
                          (executable-find magit-git-executable t) ; see #3684
                        (wrong-number-of-arguments t)))) ; very old 27 built
-               (magit-toplevel)
-               (or (not magit-auto-revert-tracked-only)
-                   (magit-file-tracked-p buffer-file-name))
+               (if magit-auto-revert-tracked-only
+                   ;; We're only interested in working tree files, so
+                   ;; avoid `magit-toplevel'.
+                   (and (magit--with-safe-default-directory nil
+                          (magit-rev-parse-safe "--show-toplevel"))
+                        (magit-file-tracked-p buffer-file-name))
+                 (magit-toplevel))
                (not auto-revert-mode)         ; see #3014
                (not global-auto-revert-mode)) ; see #3460
       (auto-revert-mode 1))))
