@@ -110,12 +110,27 @@ defaulting to the tag at point.
   (when remote-tags
     (magit-run-git-async "push" remote (--map (concat ":" it) remote-tags))))
 
+(defvar magit-tag-version-regexp-alist
+  '(("^[-._+ ]?alpha\\.?$" . -3)
+    ("^[-._+ ]?beta\\.?$" . -2)
+    ("^[-._+ ]?\\(pre\\|rc\\)\\.?$" . -1))
+  "Value to use for `version-regexp-alist' when parsing and sorting versions.
+The default value matches some common SemVer pre-release formats.
+See also `magit-release-tag-regexp'.")
+
 (defvar magit-release-tag-regexp "\\`\
 \\(?1:\\(?:v\\(?:ersion\\)?\\|r\\(?:elease\\)?\\)?[-_]?\\)?\
-\\(?2:[0-9]+\\(?:\\.[0-9]+\\)*\\)\\'"
+\\(?2:[0-9]+\\(?:\\.[0-9]+\\)*\
+\\(?:-[a-zA-Z0-9-]+\\(?:\\.[a-zA-Z0-9-]+\\)*\\)?\\)\\'"
   "Regexp used to parse release tag names.
 The first submatch must match the prefix, if any.
-The second submatch must match the version string.")
+The second submatch must match the version string.
+The default value matches SemVer version numbers, including
+pre-release versions.
+
+If this will match versions that are not dot separated numbers, you
+also need to set `magit-tag-version-regexp-alist' to recognize them
+and give them a sorting order.")
 
 ;;;###autoload
 (defun magit-tag-release (tag msg)
@@ -179,7 +194,9 @@ a tag qualifies as a release tag."
                        (let ((tag (substring line 0 (match-beginning 0)))
                              (msg (substring line (match-end 0))))
                          (and (string-match magit-release-tag-regexp tag)
-                              (let ((ver (match-string 2 tag)))
+                              (let ((ver (match-string 2 tag))
+                                    (version-regexp-alist
+                                     magit-tag-version-regexp-alist))
                                 (list (list (version-to-list ver)
                                             ver tag msg)))))))
                 ;; Cannot rely on "--sort=-version:refname" because

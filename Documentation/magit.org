@@ -6504,7 +6504,10 @@ Also see [[man:git-tag]]
 
   First it prompts for the name of the new tag using the highest
   existing tag as initial input and leaving it to the user to
-  increment the desired part of the version string.
+  increment the desired part of the version string.  If you use
+  unconventional release tags or version numbers (e.g.,
+  ~v1.2.3-custom.1~), you can set the ~magit-release-tag-regexp~ and
+  ~magit-tag-version-regexp-alist~ variables.
 
   Then it prompts for the message of the new tag.  The proposed tag
   message is based on the message of the highest tag, provided that
