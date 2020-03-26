@@ -1,4 +1,3 @@
-sudo: false
 language: generic
 env:
   global:
@@ -13,6 +12,7 @@ env:
     - EMACS_VERSION=26.1
     - EMACS_VERSION=26     # 26.1.50, emacs-26 branch, built daily
     - EMACS_VERSION=master # 27.0.50, master branch, built daily
+matrix:
   allow_failures:
     - env: EMACS_VERSION=master
 install:
