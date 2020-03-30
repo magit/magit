@@ -746,7 +746,7 @@ returning the truename."
       (signal 'magit-outside-git-repo default-directory)
     (signal 'magit-git-executable-not-found magit-git-executable)))
 
-(defun magit-inside-gitdir-p (&optioal noerror)
+(defun magit-inside-gitdir-p (&optional noerror)
   "Return t if `default-directory' is below the repository directory.
 If it is below the working directory, then return nil.
 If it isn't below either, then signal an error unless NOERROR
