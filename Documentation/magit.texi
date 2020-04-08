@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-948-ge293416ce+1)
+@subtitle for version 2.90.1 (v2.90.1-954-g509e97b7+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-948-ge293416ce+1).
+This manual is for Magit version 2.90.1 (v2.90.1-954-g509e97b7+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -5512,11 +5512,11 @@ directory are also read from the user.
 
 This option controls whether cloning causes the reference
 @code{refs/remotes/<remote>/HEAD} to be created in the clone.  The default
-is to do so.
-
-Actually @code{git clone} itself does that and cannot be told to not do it.
-Therefore setting this to @code{nil} causes Magit to remove that reference
-after cloning.
+is to delete the reference after running @code{git clone}, which insists on
+creating it.  This is because the reference has not been found to be
+particularly useful as it is not automatically updated when the @code{HEAD}
+of the remote changes.  Setting this option to @code{t} preserves Git's
+default behavior of creating the reference.
 @end defopt
 
 @defopt magit-clone-set-remote.pushDefault

@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-948-ge293416ce+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-954-g509e97b7+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-948-ge293416ce+1).
+This manual is for Magit version 2.90.1 (v2.90.1-954-g509e97b7+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -4055,11 +4055,11 @@ The following suffixes are disabled by default. See
 
   This option controls whether cloning causes the reference
   ~refs/remotes/<remote>/HEAD~ to be created in the clone.  The default
-  is to do so.
-
-  Actually ~git clone~ itself does that and cannot be told to not do it.
-  Therefore setting this to ~nil~ causes Magit to remove that reference
-  after cloning.
+  is to delete the reference after running ~git clone~, which insists on
+  creating it.  This is because the reference has not been found to be
+  particularly useful as it is not automatically updated when the ~HEAD~
+  of the remote changes.  Setting this option to ~t~ preserves Git's
+  default behavior of creating the reference.
 
 - User Option: magit-clone-set-remote.pushDefault
 
