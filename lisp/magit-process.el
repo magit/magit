@@ -170,7 +170,8 @@ itself from the hook, to avoid further futile attempts."
     "Please enter the passphrase to unlock the OpenPGP secret key"
     "^.*'s password: ?$"
     "^Yubikey for .*: ?$"
-    "^Enter PIN for .*: ?$")
+    "^Enter PIN for .*: ?$"
+    "^\\[sudo\\] password for .*: ?$")
   "List of regexps matching password prompts of Git and its subprocesses.
 Also see `magit-process-find-password-functions'."
   :package-version '(magit . "2.8.0")
