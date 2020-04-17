@@ -180,7 +180,7 @@ then also remove the respective remote branch."
   (if-let ((pr (magit-get "branch" branch "pullRequest")))
       (magit-run-git-async
        "merge" args "-m"
-       (format "Merge branch '%s'%s [%s]"
+       (format "Merge branch '%s'%s [#%s]"
                branch
                (let ((current (magit-get-current-branch)))
                  (if (equal current "master") "" (format " into %s" current)))
