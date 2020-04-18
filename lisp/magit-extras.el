@@ -367,7 +367,7 @@ be used on highly rearranged and unpublished history."
                           (magit-get-current-branch))))
       (when (and (magit-ref-p backup)
                  (not (magit-y-or-n-p
-                       "Backup ref %s already exists.  Override? " backup)))
+                       (format "Backup ref %s already exists.  Override? " backup))))
         (user-error "Abort")))
     (magit-log-select 'magit-reshelve-since
       "Type %p on a commit to reshelve it and the commits above it,"))
