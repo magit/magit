@@ -361,53 +361,53 @@ on.
 This command is only intended for interactive use and should only
 be used on highly rearranged and unpublished history."
   (interactive (list nil))
-  (cond
-   ((not rev)
-    (let ((backup (concat "refs/original/refs/heads/"
-                          (magit-get-current-branch))))
+  (let* ((current (magit-get-current-branch))
+         (backup (concat "refs/original/refs/heads/" current)))
+    (cond
+     ((not rev)
       (when (and (magit-ref-p backup)
                  (not (magit-y-or-n-p
                        (format "Backup ref %s already exists.  Override? " backup))))
-        (user-error "Abort")))
-    (magit-log-select 'magit-reshelve-since
-      "Type %p on a commit to reshelve it and the commits above it,"))
-   (t
-    (cl-flet ((adjust (time offset)
-                      (format-time-string
-                       "%F %T %z"
-                       (+ (floor time)
-                          (* offset 60)
-                          (- (car (decode-time time)))))))
-      (let* ((start (concat rev "^"))
-             (range (concat start ".." (magit-get-current-branch)))
-             (time-rev (adjust (float-time (string-to-number
-                                            (magit-rev-format "%at" start)))
-                               1))
-             (time-now (adjust (float-time)
-                               (- (string-to-number
-                                   (magit-git-string "rev-list" "--count"
-                                                     range))))))
-        (push time-rev magit--reshelve-history)
-        (let ((date (floor
-                     (float-time
-                      (date-to-time
-                       (read-string "Date for first commit: "
-                                    time-now 'magit--reshelve-history)))))
-              (process-environment process-environment))
-          (push "FILTER_BRANCH_SQUELCH_WARNING=1" process-environment)
-          (magit-with-toplevel
-            (magit-run-git-async
-             "filter-branch" "--force" "--env-filter"
-             (format "case $GIT_COMMIT in %s\nesac"
-                     (mapconcat (lambda (rev)
-                                  (prog1 (format "%s) \
+        (user-error "Abort"))
+      (magit-log-select 'magit-reshelve-since
+        "Type %p on a commit to reshelve it and the commits above it,"))
+     (t
+      (cl-flet ((adjust (time offset)
+                        (format-time-string
+                         "%F %T %z"
+                         (+ (floor time)
+                            (* offset 60)
+                            (- (car (decode-time time)))))))
+        (let* ((start (concat rev "^"))
+               (range (concat start ".." current))
+               (time-rev (adjust (float-time (string-to-number
+                                              (magit-rev-format "%at" start)))
+                                 1))
+               (time-now (adjust (float-time)
+                                 (- (string-to-number
+                                     (magit-git-string "rev-list" "--count"
+                                                       range))))))
+          (push time-rev magit--reshelve-history)
+          (let ((date (floor
+                       (float-time
+                        (date-to-time
+                         (read-string "Date for first commit: "
+                                      time-now 'magit--reshelve-history)))))
+                (process-environment process-environment))
+            (push "FILTER_BRANCH_SQUELCH_WARNING=1" process-environment)
+            (magit-with-toplevel
+              (magit-run-git-async
+               "filter-branch" "--force" "--env-filter"
+               (format "case $GIT_COMMIT in %s\nesac"
+                       (mapconcat (lambda (rev)
+                                    (prog1 (format "%s) \
 export GIT_AUTHOR_DATE=\"%s\"; \
 export GIT_COMMITTER_DATE=\"%s\";;" rev date date)
-                                    (cl-incf date 60)))
-                                (magit-git-lines "rev-list" "--reverse"
-                                                 range)
-                                " "))
-             range "--")
+                                      (cl-incf date 60)))
+                                  (magit-git-lines "rev-list" "--reverse"
+                                                   range)
+                                  " "))
+               range "--"))
             (set-process-sentinel
              magit-this-process
              (lambda (process event)
@@ -416,9 +416,7 @@ export GIT_COMMITTER_DATE=\"%s\";;" rev date date)
                      (magit-process-sentinel process event)
                    (process-put process 'inhibit-refresh t)
                    (magit-process-sentinel process event)
-                   (magit-run-git "update-ref" "-d"
-                                  (concat "refs/original/refs/heads/"
-                                          (magit-get-current-branch))))))))))))))
+                   (magit-run-git "update-ref" "-d" backup))))))))))))
 
 ;;; Revision Stack
 
