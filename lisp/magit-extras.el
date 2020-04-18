@@ -361,7 +361,8 @@ on.
 This command is only intended for interactive use and should only
 be used on highly rearranged and unpublished history."
   (interactive (list nil))
-  (let* ((current (magit-get-current-branch))
+  (let* ((current (or (magit-get-current-branch)
+                      (user-error "Refusing to reshelve detached head")))
          (backup (concat "refs/original/refs/heads/" current)))
     (cond
      ((not rev)
