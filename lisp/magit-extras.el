@@ -363,13 +363,23 @@ be used on highly rearranged and unpublished history."
   (interactive (list nil))
   (let* ((current (or (magit-get-current-branch)
                       (user-error "Refusing to reshelve detached head")))
-         (backup (concat "refs/original/refs/heads/" current)))
+         ;; fast-export didn't gain --reference-excluded-parents until
+         ;; Git v2.21.0.
+         (filter-branch-p (version< (magit-git-version) "2.21.0"))
+         (ref (concat (if filter-branch-p
+                          "refs/original/refs/heads/"
+                        "refs/magit-reshelved-since/")
+                      current)))
     (cond
      ((not rev)
-      (when (and (magit-ref-p backup)
-                 (not (magit-y-or-n-p
-                       (format "Backup ref %s already exists.  Override? " backup))))
-        (user-error "Abort"))
+      (when (magit-ref-p ref)
+        (if (magit-y-or-n-p
+             (format "%s ref %s already exists.  Override? "
+                     (if filter-branch-p "Backup" "Reshelve")
+                     ref))
+            (unless filter-branch-p
+              (magit-run-git "update-ref" "-d" ref))
+          (user-error "Abort")))
       (magit-log-select 'magit-reshelve-since
         "Type %p on a commit to reshelve it and the commits above it,"))
      (t
@@ -389,13 +399,19 @@ be used on highly rearranged and unpublished history."
                                      (magit-git-string "rev-list" "--count"
                                                        range))))))
           (push time-rev magit--reshelve-history)
-          (let ((tstamp (floor
-                         (float-time
-                          (date-to-time
-                           (read-string "Date for first commit: "
-                                        time-now 'magit--reshelve-history))))))
+          (let* ((date (read-string "Date for first commit: "
+                                    time-now 'magit--reshelve-history))
+                 (tstamp (floor (float-time (date-to-time date))))
+                 export-buf)
             (magit-with-toplevel
-              (magit--reshelve-filter-branch tstamp range)
+              (if filter-branch-p
+                  (magit--reshelve-filter-branch tstamp range)
+                (setq export-buf
+                      (magit--reshelve-range
+                       ref tstamp
+                       (and (string-match "\\([+-][0-9]+\\)\\S-*\\'" date)
+                            (match-string 1 date))
+                       range)))
               (set-process-sentinel
                magit-this-process
                (lambda (process event)
@@ -404,7 +420,55 @@ be used on highly rearranged and unpublished history."
                        (magit-process-sentinel process event)
                      (process-put process 'inhibit-refresh t)
                      (magit-process-sentinel process event)
-                     (magit-run-git "update-ref" "-d" backup)))))))))))))
+                     (cond
+                      (filter-branch-p
+                       (magit-run-git "update-ref" "-d" ref))
+                      ((magit-git-failure "diff-tree" "--quiet"
+                                          "--exit-code" current ref)
+                       (display-warning
+                        'magit
+                        (format "\
+The reshelved ref %s and
+the original branch %s should be identical but are not.
+Leaving the original branch in place."
+                                ref current)
+                        :error))
+                      (t
+                       (kill-buffer export-buf)
+                       (magit-update-ref (concat "refs/heads/" current)
+                                         (format "reset: moving to %s"
+                                                 (magit-rev-abbrev ref))
+                                         ref)
+                       (magit-run-git "update-ref" "-d" ref)))))))))))))))
+
+(defun magit--reshelve-range (ref tstamp tz range)
+  (let ((buffer (get-buffer-create (format " *magit: %s*" ref))))
+    (with-current-buffer buffer
+      (erase-buffer)
+      (magit-git-insert "fast-export" "--reference-excluded-parents"
+                        "--no-data" range)
+      (goto-char (point-min))
+      (while (re-search-forward "^commit \\(.+\\)$" nil t)
+        (replace-match ref t t nil 1)
+        (catch 'data
+          (while (forward-line 1)
+            (cond
+             ((looking-at
+               "^\\(?:author\\|committer\\) .* \\([0-9]+\\(?: [+-][0-9]+\\)?\\)$")
+              (replace-match
+               (format "%d %s" tstamp (or tz "+0000"))
+               ;; ^ tz could be nil if the user deleted the time zone
+               ;; from the prompt, in which case `date-to-time'
+               ;; treated it as GMT.
+               t t nil 1))
+             ((looking-at "^data \\([0-9]+\\)$")
+              (forward-line)
+              ;; Skip past the arbitrary commit message text.
+              (forward-char (string-to-number (match-string 1)))
+              (throw 'data nil)))))
+        (cl-incf tstamp 60)))
+    (magit-start-git buffer "fast-import" "--quiet")
+    buffer))
 
 (defun magit--reshelve-filter-branch (tstamp range)
   (let ((process-environment process-environment))
