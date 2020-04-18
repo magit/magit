@@ -389,11 +389,11 @@ be used on highly rearranged and unpublished history."
                                      (magit-git-string "rev-list" "--count"
                                                        range))))))
           (push time-rev magit--reshelve-history)
-          (let ((date (floor
-                       (float-time
-                        (date-to-time
-                         (read-string "Date for first commit: "
-                                      time-now 'magit--reshelve-history)))))
+          (let ((tstamp (floor
+                         (float-time
+                          (date-to-time
+                           (read-string "Date for first commit: "
+                                        time-now 'magit--reshelve-history)))))
                 (process-environment process-environment))
             (push "FILTER_BRANCH_SQUELCH_WARNING=1" process-environment)
             (magit-with-toplevel
@@ -403,8 +403,8 @@ be used on highly rearranged and unpublished history."
                        (mapconcat (lambda (rev)
                                     (prog1 (format "%s) \
 export GIT_AUTHOR_DATE=\"%s\"; \
-export GIT_COMMITTER_DATE=\"%s\";;" rev date date)
-                                      (cl-incf date 60)))
+export GIT_COMMITTER_DATE=\"%s\";;" rev tstamp tstamp)
+                                      (cl-incf tstamp 60)))
                                   (magit-git-lines "rev-list" "--reverse"
                                                    range)
                                   " "))
