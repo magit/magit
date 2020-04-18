@@ -392,7 +392,9 @@ be used on highly rearranged and unpublished history."
                      (float-time
                       (date-to-time
                        (read-string "Date for first commit: "
-                                    time-now 'magit--reshelve-history))))))
+                                    time-now 'magit--reshelve-history)))))
+              (process-environment process-environment))
+          (push "FILTER_BRANCH_SQUELCH_WARNING=1" process-environment)
           (magit-with-toplevel
             (magit-run-git-async
              "filter-branch" "--force" "--env-filter"
