@@ -393,31 +393,34 @@ be used on highly rearranged and unpublished history."
                          (float-time
                           (date-to-time
                            (read-string "Date for first commit: "
-                                        time-now 'magit--reshelve-history)))))
-                (process-environment process-environment))
-            (push "FILTER_BRANCH_SQUELCH_WARNING=1" process-environment)
+                                        time-now 'magit--reshelve-history))))))
             (magit-with-toplevel
-              (magit-run-git-async
-               "filter-branch" "--force" "--env-filter"
-               (format "case $GIT_COMMIT in %s\nesac"
-                       (mapconcat (lambda (rev)
-                                    (prog1 (format "%s) \
+              (magit--reshelve-filter-branch tstamp range)
+              (set-process-sentinel
+               magit-this-process
+               (lambda (process event)
+                 (when (memq (process-status process) '(exit signal))
+                   (if (> (process-exit-status process) 0)
+                       (magit-process-sentinel process event)
+                     (process-put process 'inhibit-refresh t)
+                     (magit-process-sentinel process event)
+                     (magit-run-git "update-ref" "-d" backup)))))))))))))
+
+(defun magit--reshelve-filter-branch (tstamp range)
+  (let ((process-environment process-environment))
+    (push "FILTER_BRANCH_SQUELCH_WARNING=1" process-environment)
+    (magit-run-git-async
+     "filter-branch" "--force" "--env-filter"
+     (format "case $GIT_COMMIT in %s\nesac"
+             (mapconcat (lambda (rev)
+                          (prog1 (format "%s) \
 export GIT_AUTHOR_DATE=\"%s\"; \
 export GIT_COMMITTER_DATE=\"%s\";;" rev tstamp tstamp)
-                                      (cl-incf tstamp 60)))
-                                  (magit-git-lines "rev-list" "--reverse"
-                                                   range)
-                                  " "))
-               range "--"))
-            (set-process-sentinel
-             magit-this-process
-             (lambda (process event)
-               (when (memq (process-status process) '(exit signal))
-                 (if (> (process-exit-status process) 0)
-                     (magit-process-sentinel process event)
-                   (process-put process 'inhibit-refresh t)
-                   (magit-process-sentinel process event)
-                   (magit-run-git "update-ref" "-d" backup))))))))))))
+                            (cl-incf tstamp 60)))
+                        (magit-git-lines "rev-list" "--reverse"
+                                         range)
+                        " "))
+     range "--")))
 
 ;;; Revision Stack
 
