@@ -243,6 +243,33 @@ t         Highlight only in added lines.
                  (const :tag "in added and removed lines" both)
                  (const :tag "in added, removed and context lines" all)))
 
+(defcustom magit-diff-preprocess-git-output-always
+  nil
+  "Whether to always call the git output preprocessor function.
+
+If non-nil, always preprocess git output using
+`magit-diff-preprocess-git-output-function'. If nil, this is done
+only when the current git arguments imply that ANSI escape
+sequences are to be expected in the git output (an example of
+such a git argument is --color-moved)."
+  :group 'magit-diff
+  :type 'boolean)
+
+(defcustom magit-diff-preprocess-git-output-function
+  #'magit-diff-convert-ansi-escape-sequences
+  "Function to perform initial processing of git output.
+
+The function will be called without arguments, with the current
+buffer containing raw git output. At a minimum, it must remove
+any ANSI escape sequences in the buffer and apply Emacs faces to
+the remaining text, creating the same visual effects as were
+implied by the ANSI escape sequences. The faces must be applied
+as overlays, not as text properties. It must leave point at the
+beginning of the buffer."
+  :group 'magit-diff
+  :type '(choice (function-item magit-diff-convert-ansi-escape-sequences)
+                 function))
+
 (defcustom magit-diff-highlight-trailing t
   "Whether to highlight whitespace at the end of a line in diffs.
 Used only when `magit-diff-paint-whitespace' is non-nil."
@@ -1982,6 +2009,10 @@ Staging and applying changes is documented in info node
    ;; oldBold, and newBold.
    ))
 
+(defun magit-diff-convert-ansi-escape-sequences ()
+  (require 'ansi-color)
+  (ansi-color-apply-on-region (point-min) (point-max)))
+
 (defun magit-insert-diff ()
   "Insert the diff into this `magit-diff-mode' buffer."
   (magit--insert-diff
@@ -2015,9 +2046,9 @@ Staging and applying changes is documented in info node
     (magit-git-wash #'magit-diff-wash-diffs args)))
 
 (defun magit-diff-wash-diffs (args &optional limit)
-  (when (--some (string-prefix-p "--color-moved" it) args)
-    (require 'ansi-color)
-    (ansi-color-apply-on-region (point-min) (point-max)))
+  (when (or magit-diff-preprocess-git-output-always
+         (--some (string-prefix-p "--color-moved" it) args))
+    (funcall magit-diff-preprocess-git-output-function))
   (when (member "--show-signature" args)
     (magit-diff-wash-signature))
   (when (member "--stat" args)
