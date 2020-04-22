@@ -56,7 +56,7 @@
 (declare-function magit--merge-range "magit-merge" (&optional head))
 ;; For `magit-diff--dwim'
 (declare-function forge--pullreq-ref "forge-pullreq" (pullreq))
-;; For `magit-diff-wash-diff'
+;; For `magit-diff-wash-diffs'
 (declare-function ansi-color-apply-on-region "ansi-color" (begin end))
 
 (eval-when-compile
@@ -2015,6 +2015,9 @@ Staging and applying changes is documented in info node
     (magit-git-wash #'magit-diff-wash-diffs args)))
 
 (defun magit-diff-wash-diffs (args &optional limit)
+  (when (--some (string-prefix-p "--color-moved" it) args)
+    (require 'ansi-color)
+    (ansi-color-apply-on-region (point-min) (point-max)))
   (when (member "--show-signature" args)
     (magit-diff-wash-signature))
   (when (member "--stat" args)
@@ -2093,9 +2096,6 @@ section or a child thereof."
         (if (looking-at "^$") (forward-line) (insert "\n"))))))
 
 (defun magit-diff-wash-diff (args)
-  (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)
-    (require 'ansi-color)
-    (ansi-color-apply-on-region (point-min) (point-max)))
   (cond
    ((looking-at "^Submodule")
     (magit-diff-wash-submodule))
