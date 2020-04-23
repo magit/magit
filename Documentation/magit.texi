@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-954-g509e97b7+1)
+@subtitle for version 2.90.1 (v2.90.1-962-g9269e536+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-954-g509e97b7+1).
+This manual is for Magit version 2.90.1 (v2.90.1-962-g9269e536+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8884,7 +8884,10 @@ release tags match @code{magit-release-tag-regexp}.
 
 First it prompts for the name of the new tag using the highest
 existing tag as initial input and leaving it to the user to
-increment the desired part of the version string.
+increment the desired part of the version string.  If you use
+unconventional release tags or version numbers (e.g.,
+@code{v1.2.3-custom.1}), you can set the @code{magit-release-tag-regexp} and
+@code{magit-tag-version-regexp-alist} variables.
 
 Then it prompts for the message of the new tag.  The proposed tag
 message is based on the message of the highest tag, provided that
@@ -9326,9 +9329,9 @@ major-modes derive from @code{magit-mode}.  There are other common commands
 beside the ones below, but these didn't fit well anywhere else.
 
 @table @asis
-@kindex M-w
+@kindex C-w
 @cindex magit-copy-section-value
-@item @kbd{M-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-copy-section-value})
+@item @kbd{C-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-copy-section-value})
 
 This command saves the value of the current section to the
 @code{kill-ring}, and, provided that the current section is a commit,
@@ -9345,9 +9348,9 @@ described above.  If a prefix argument is used and the region is
 within a hunk, it strips the outer diff marker column before saving
 the text.
 
-@kindex C-w
+@kindex M-w
 @cindex magit-copy-buffer-revision
-@item @kbd{C-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-copy-buffer-revision})
+@item @kbd{M-w} @tie{}@tie{}@tie{}@tie{}(@code{magit-copy-buffer-revision})
 
 This command saves the revision being displayed in the current buffer
 to the @code{kill-ring} and also pushes it to the @code{magit-revision-stack}.  It
