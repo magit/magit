@@ -249,7 +249,8 @@ which creates patches for all commits that are reachable from
    ("-c" "Only apply to index" "--cached")
    ("-3" "Fall back on 3way merge" ("-3" "--3way"))]
   ["Actions"
-   ("a"  "Apply patch" magit-patch-apply)]
+   ("a"  "Apply patch" magit-patch-apply)
+   (6 "b"  "Apply patch in buffer" magit-patch-apply-buffer)]
   (interactive
    (if (not (eq current-transient-command 'magit-patch-apply))
        (list nil)
@@ -262,6 +263,17 @@ which creates patches for all commits that are reachable from
   (if (not file)
       (transient-setup 'magit-patch-apply)
     (magit-run-git "apply" args "--" (magit-convert-filename-for-git file))))
+
+;;;###autoload
+(defun magit-patch-apply-buffer (buffer &rest args)
+  "Apply the patch buffer BUFFER."
+  (interactive
+   (list (read-buffer "Apply patch in buffer: " nil t)
+         (transient-args 'magit-patch-apply)))
+  (with-temp-buffer
+    (insert-buffer-substring-no-properties buffer)
+    (magit-run-git-with-input "apply" args "-")
+    (magit-refresh)))
 
 ;;;###autoload
 (defun magit-patch-save (file &optional arg)
