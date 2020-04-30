@@ -350,13 +350,14 @@ is run in the top-level directory of the current working tree."
   (magit-process-buffer))
 
 (defun magit-read-shell-command (&optional toplevel initial-input)
-  (let ((dir (abbreviate-file-name
-              (if (or toplevel current-prefix-arg)
-                  (or (magit-toplevel)
-                      (magit--not-inside-repository-error))
-                default-directory))))
+  (let ((default-directory
+          (if (or toplevel current-prefix-arg)
+              (or (magit-toplevel)
+                  (magit--not-inside-repository-error))
+            default-directory)))
     (read-shell-command (if magit-shell-command-verbose-prompt
-                            (format "Async shell command in %s: " dir)
+                            (format "Async shell command in %s: "
+                                    (abbreviate-file-name default-directory))
                           "Async shell command: ")
                         initial-input 'magit-git-command-history)))
 
