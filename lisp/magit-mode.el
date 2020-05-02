@@ -347,6 +347,7 @@ recommended value."
     (define-key map (kbd   "i") 'magit-gitignore)
     (define-key map (kbd   "I") 'magit-gitignore)
     (define-key map (kbd "SPC") 'magit-diff-show-or-scroll-up)
+    (define-key map (kbd "S-SPC") 'magit-diff-show-or-scroll-down)
     (define-key map (kbd "DEL") 'magit-diff-show-or-scroll-down)
     (define-key map "+"         'magit-diff-more-context)
     (define-key map "-"         'magit-diff-less-context)
