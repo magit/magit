@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-963-gec719a49b+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-970-gea059763+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-963-gec719a49b+1).
+This manual is for Magit version 2.90.1 (v2.90.1-970-gea059763+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -4862,7 +4862,7 @@ The variables are described in [[*Branch Git Variables]].
 - User Option: magit-branch-read-upstream-first
 
   When creating a branch, whether to read the upstream branch before
-  the name of the branch that is to be created.  The default is ~nil~,
+  the name of the branch that is to be created.  The default is ~t~,
   and I recommend you leave it at that.
 
 - User Option: magit-branch-prefer-remote-upstream
