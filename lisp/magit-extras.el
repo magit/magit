@@ -348,6 +348,13 @@ use `magit-rebase-edit-command' instead of this command."
 
 ;;; Reshelve
 
+(defcustom magit-reshelve-since-committer-only nil
+  "Whether `magit-reshelve-since' changes only the committer dates.
+Otherwise the author dates are also changed."
+  :package-version '(magit . "3.0.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 ;;;###autoload
 (defun magit-reshelve-since (rev)
   "Change the author and committer dates of the commits since REV.
@@ -399,15 +406,18 @@ be used on highly rearranged and unpublished history."
             (magit-with-toplevel
               (magit-run-git-async
                "filter-branch" "--force" "--env-filter"
-               (format "case $GIT_COMMIT in %s\nesac"
-                       (mapconcat (lambda (rev)
-                                    (prog1 (format "%s) \
-export GIT_AUTHOR_DATE=\"%s\"; \
-export GIT_COMMITTER_DATE=\"%s\";;" rev date date)
-                                      (cl-incf date 60)))
-                                  (magit-git-lines "rev-list" "--reverse"
-                                                   range)
-                                  " "))
+               (format
+                "case $GIT_COMMIT in %s\nesac"
+                (mapconcat
+                 (lambda (rev)
+                   (prog1 (concat
+                           (format "%s) " rev)
+                           (and (not magit-reshelve-since-committer-only)
+                                (format "export GIT_AUTHOR_DATE=\"%s\"; " date))
+                           (format "export GIT_COMMITTER_DATE=\"%s\";;" date))
+                     (cl-incf date 60)))
+                 (magit-git-lines "rev-list" "--reverse" range)
+                        " "))
                range "--"))
             (set-process-sentinel
              magit-this-process
