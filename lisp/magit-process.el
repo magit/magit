@@ -576,7 +576,7 @@ Magit status buffer."
     (process-put process 'default-dir default-directory)
     (when inhibit-magit-refresh
       (process-put process 'inhibit-refresh t))
-    (oset section process process)
+    (setf (oref section process) process)
     (with-current-buffer process-buf
       (set-marker (process-mark process) (point)))
     (when input
@@ -584,7 +584,7 @@ Magit status buffer."
         (process-send-region process (point-min) (point-max))
         (process-send-eof    process)))
     (setq magit-this-process process)
-    (oset section value process)
+    (setf (oref section value) process)
     (magit-process-display-buffer process)
     process))
 
@@ -676,7 +676,7 @@ Magit status buffer."
                 (t
                  (push section head))))
         (pop tail))
-      (oset magit-root-section children
+      (setf (oref magit-root-section children)
             (nconc (reverse head) tail)))))
 
 (defun magit-process-sentinel (process event)
@@ -1074,7 +1074,7 @@ Limited by `magit-process-error-tooltip-max-lines'."
             (save-excursion
               (goto-char (1+ (line-end-position)))
               (delete-char -1)
-              (oset section content nil))
+              (setf (oref section content) nil))
           (let ((buf (magit-process-buffer t)))
             (when (and (= arg 0)
                        (not (--any-p (eq (window-buffer it) buf)

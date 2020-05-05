@@ -321,13 +321,13 @@ the upstream isn't ahead of the current branch) show."
     (unless (eq current-transient-command 'magit-dispatch)
       (when-let ((file (magit-file-relative-name)))
         (setq files (list file))))
-    (oset obj value (if files `(("--" ,@files) ,args) args))))
+    (setf (oref obj value) (if files `(("--" ,@files) ,args) args))))
 
 (cl-defmethod transient-init-value ((obj magit-log-refresh-prefix))
-  (oset obj value (if magit-buffer-log-files
-                      `(("--" ,@magit-buffer-log-files)
-                        ,magit-buffer-log-args)
-                    magit-buffer-log-args)))
+  (setf (oref obj value) (if magit-buffer-log-files
+                             `(("--" ,@magit-buffer-log-files)
+                               ,magit-buffer-log-args)
+                           magit-buffer-log-args)))
 
 (cl-defmethod transient-set-value ((obj magit-log-prefix))
   (magit-log--set-value obj))
@@ -1158,8 +1158,8 @@ Do not add this to a hook variable."
         (cl-return-from magit-log-wash-rev t))
       (magit-insert-section section (commit hash)
         (pcase style
-          (`stash      (oset section type 'stash))
-          (`module     (oset section type 'module-commit))
+          (`stash      (setf (oref section type) 'stash))
+          (`module     (setf (oref section type) 'module-commit))
           (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
         (when cherry
           (when (and (derived-mode-p 'magit-refs-mode)

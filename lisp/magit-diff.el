@@ -747,13 +747,13 @@ and `:slant'."
     (unless (eq current-transient-command 'magit-dispatch)
       (when-let ((file (magit-file-relative-name)))
         (setq files (list file))))
-    (oset obj value (if files `(("--" ,@files) ,args) args))))
+    (setf (oref obj value) (if files `(("--" ,@files) ,args) args))))
 
 (cl-defmethod transient-init-value ((obj magit-diff-refresh-prefix))
-  (oset obj value (if magit-buffer-diff-files
-                      `(("--" ,@magit-buffer-diff-files)
-                        ,magit-buffer-diff-args)
-                    magit-buffer-diff-args)))
+  (setf (oref obj value) (if magit-buffer-diff-files
+                             `(("--" ,@magit-buffer-diff-files)
+                               ,magit-buffer-diff-args)
+                           magit-buffer-diff-args)))
 
 (cl-defmethod transient-set-value ((obj magit-diff-prefix))
   (magit-diff--set-value obj))
@@ -2194,8 +2194,8 @@ section or a child thereof."
                         'font-lock-face 'magit-diff-file-heading))
     (magit-insert-heading)
     (unless (equal orig file)
-      (oset section source orig))
-    (oset section header header)
+      (setf (oref section source) orig))
+    (setf (oref section header) header)
     (when modes
       (magit-insert-section (hunk)
         (insert modes)
@@ -2281,14 +2281,14 @@ section or a child thereof."
         (magit-insert-heading)
         (while (not (or (eobp) (looking-at "^[^-+\s\\]")))
           (forward-line))
-        (oset section end (point))
-        (oset section washer 'magit-diff-paint-hunk)
-        (oset section combined combined)
+        (setf (oref section end) (point))
+        (setf (oref section washer) 'magit-diff-paint-hunk)
+        (setf (oref section combined) combined)
         (if combined
-            (oset section from-ranges (butlast ranges))
-          (oset section from-range (car ranges)))
-        (oset section to-range (car (last ranges)))
-        (oset section about about)))
+            (setf (oref section from-ranges) (butlast ranges))
+          (setf (oref section from-range) (car ranges)))
+        (setf (oref section to-range) (car (last ranges)))
+        (setf (oref section about) about)))
     t))
 
 (defun magit-diff-expansion-threshold (section)
@@ -2408,7 +2408,7 @@ or a ref which is not a branch, then it inserts nothing."
 (defun magit-insert-revision-message ()
   "Insert the commit message into a revision buffer."
   (magit-insert-section section (commit-message)
-    (oset section heading-highlight-face 'magit-diff-revision-summary-highlight)
+    (setf (oref section heading-highlight-face) 'magit-diff-revision-summary-highlight)
     (let ((beg (point))
           (rev magit-buffer-revision))
       (insert (with-temp-buffer
@@ -2476,7 +2476,7 @@ or a ref which is not a branch, then it inserts nothing."
          (def (or (magit-get var) "refs/notes/commits")))
     (dolist (ref (or (magit-list-active-notes-refs)))
       (magit-insert-section section (notes ref (not (equal ref def)))
-        (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
+        (setf (oref section heading-highlight-face) 'magit-diff-hunk-heading-highlight)
         (let ((beg (point))
               (rev magit-buffer-revision))
           (insert (with-temp-buffer
@@ -3083,7 +3083,7 @@ are highlighted."
                      (oref section refined)
                      (eq section (magit-current-section)))
           ((or `(all nil ,_) `(t nil t))
-           (oset section refined t)
+           (setf (oref section refined) t)
            (save-excursion
              (goto-char (oref section start))
              ;; `diff-refine-hunk' does not handle combined diffs.
@@ -3094,7 +3094,7 @@ are highlighted."
                      (write-region-inhibit-fsync t))
                  (diff-refine-hunk)))))
           ((or `(nil t ,_) `(t t nil))
-           (oset section refined nil)
+           (setf (oref section refined) nil)
            (remove-overlays (oref section start)
                             (oref section end)
                             'diff-mode 'fine))))

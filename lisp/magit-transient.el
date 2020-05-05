@@ -54,7 +54,7 @@
 ;;;; Init
 
 (cl-defmethod transient-init-scope ((obj magit--git-variable))
-  (oset obj scope
+  (setf (oref obj scope)
         (cond (transient--prefix
                (oref transient--prefix scope))
               ((slot-boundp obj 'scope)
@@ -63,8 +63,8 @@
 (cl-defmethod transient-init-value ((obj magit--git-variable))
   (let ((variable (format (oref obj variable)
                           (oref obj scope))))
-    (oset obj variable variable)
-    (oset obj value
+    (setf (oref obj variable) variable)
+    (setf (oref obj value)
           (cond ((oref obj multi-value)
                  (magit-get-all variable))
                 (t
@@ -110,7 +110,7 @@
 
 (cl-defmethod transient-infix-set ((obj magit--git-variable) value)
   (let ((variable (oref obj variable)))
-    (oset obj value value)
+    (setf (oref obj value) value)
     (if (oref obj multi-value)
         (magit-set-all value variable)
       (magit-set value variable))
@@ -122,7 +122,7 @@
   (let ((previous (oref obj value))
         (seturl   (oref obj seturl-arg))
         (remote   (oref transient--prefix scope)))
-    (oset obj value values)
+    (setf (oref obj value) values)
     (dolist (v (-difference values previous))
       (magit-call-git "remote" "set-url" seturl "--add" remote v))
     (dolist (v (-difference previous values))

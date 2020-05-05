@@ -819,16 +819,16 @@ and also rename the respective reflog file."
   (when-let ((branch (oref transient--prefix scope))
              (remote (magit-get "branch" branch "remote"))
              (merge  (magit-get "branch" branch "merge")))
-    (oset obj value (list remote merge))))
+    (setf (oref obj value) (list remote merge))))
 
 (cl-defmethod transient-infix-read ((obj magit--git-branch:upstream))
   (if (oref obj value)
-      (oset obj value nil)
+      (setf (oref obj value) nil)
     (magit-read-upstream-branch (oref transient--prefix scope) "Upstream")))
 
 (cl-defmethod transient-infix-set ((obj magit--git-branch:upstream) refname)
   (magit-set-upstream-branch (oref transient--prefix scope) refname)
-  (oset obj value
+  (setf (oref obj value)
         (let ((branch (oref transient--prefix scope)))
           (when-let ((r (magit-get "branch" branch "remote"))
                      (m (magit-get "branch" branch "merge")))
