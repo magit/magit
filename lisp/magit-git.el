@@ -324,11 +324,11 @@ to do the following.
 
 (defun magit-git-success (&rest args)
   "Execute Git with ARGS, returning t if its exit code is 0."
-  (= (magit-git-exit-code args) 0))
+  (eq (magit-git-exit-code args) 0))
 
 (defun magit-git-failure (&rest args)
   "Execute Git with ARGS, returning t if its exit code is 1."
-  (= (magit-git-exit-code args) 1))
+  (eq (magit-git-exit-code args) 1))
 
 (defun magit-git-string-p (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
