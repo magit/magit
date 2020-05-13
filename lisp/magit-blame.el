@@ -56,7 +56,7 @@
   "List of styles used to visualize blame information.
 
 Each entry has the form (IDENT (KEY . VALUE)...).  IDENT has
-to be a symbol uniquely identifing the style.  The following
+to be a symbol uniquely identifying the style.  The following
 KEYs are recognized:
 
  `show-lines'

@@ -327,7 +327,7 @@ single module from the user."
   "Unregister MODULES and remove their working directories.
 
 For safety reasons, do not remove the gitdirs and if a module has
-uncomitted changes, then do not remove it at all.  If a module's
+uncommitted changes, then do not remove it at all.  If a module's
 gitdir is located inside the working directory, then move it into
 the gitdir of the superproject first.
 

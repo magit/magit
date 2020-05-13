@@ -426,7 +426,7 @@ conversion."
   "Call Git in a separate process.
 ARGS is flattened and then used as arguments to Git.
 
-The current buffer's content is used as the process' standard
+The current buffer's content is used as the process's standard
 input.
 
 Option `magit-git-executable' specifies the Git executable and
