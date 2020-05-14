@@ -1603,7 +1603,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
   (magit-list-related-branches "--contains" commit args))
 
 (defun magit-list-publishing-branches (&optional commit)
-  (--filter (magit-rev-ancestor-p commit it)
+  (--filter (magit-rev-ancestor-p (or commit "HEAD") it)
             magit-published-branches))
 
 (defun magit-list-merged-branches (&optional commit &rest args)
