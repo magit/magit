@@ -55,7 +55,7 @@
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-bisect "magit-bisect" nil t)
-(define-transient-command magit-bisect ()
+(transient-define-prefix magit-bisect ()
   "Narrow in on the commit that introduced a bug."
   :man-page "git-bisect"
   ["Actions"

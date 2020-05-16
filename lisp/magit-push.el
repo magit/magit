@@ -35,7 +35,7 @@
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-push "magit-push" nil t)
-(define-transient-command magit-push ()
+(transient-define-prefix magit-push ()
   "Push to another repository."
   :man-page "git-push"
   ["Arguments"
@@ -78,7 +78,7 @@
                          (format "%s:%s%s" branch namespace target))))
 
 ;;;###autoload (autoload 'magit-push-current-to-pushremote "magit-push" nil t)
-(define-suffix-command magit-push-current-to-pushremote (args)
+(transient-define-suffix magit-push-current-to-pushremote (args)
   "Push the current branch to its push-remote.
 
 When the push-remote is not configured, then read the push-remote
@@ -111,7 +111,7 @@ argument the push-remote can be changed before pushed to it."
       (format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-push-current-to-upstream "magit-push" nil t)
-(define-suffix-command magit-push-current-to-upstream (args)
+(transient-define-suffix magit-push-current-to-upstream (args)
   "Push the current branch to its upstream branch.
 
 With a prefix argument or when the upstream is either not

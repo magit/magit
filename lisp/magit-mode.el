@@ -424,7 +424,7 @@ which deletes the thing at point."
 Where applicable, section-specific keymaps bind another command
 which visits the thing at point."
   (interactive)
-  (if (eq current-transient-command 'magit-dispatch)
+  (if (eq transient-current-command 'magit-dispatch)
       (call-interactively (key-binding (this-command-keys)))
     (user-error "There is no thing at point that could be visited")))
 
@@ -433,7 +433,7 @@ which visits the thing at point."
 Where applicable, section-specific keymaps bind another command
 which lets you edit the thing at point, likely in another buffer."
   (interactive)
-  (if (eq current-transient-command 'magit-dispatch)
+  (if (eq transient-current-command 'magit-dispatch)
       (call-interactively (key-binding (this-command-keys)))
     (user-error "There is no thing at point that could be edited")))
 

@@ -38,7 +38,7 @@
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-merge "magit" nil t)
-(define-transient-command magit-merge ()
+(transient-define-prefix magit-merge ()
   "Merge branches."
   :man-page "git-merge"
   :incompatible '(("--ff-only" "--no-ff"))
@@ -67,7 +67,7 @@
 (defun magit-merge-arguments ()
   (transient-args 'magit-merge))
 
-(define-infix-argument magit-merge:--strategy ()
+(transient-define-argument magit-merge:--strategy ()
   :description "Strategy"
   :class 'transient-option
   ;; key for merge and rebase: "-s"

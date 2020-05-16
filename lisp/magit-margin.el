@@ -62,7 +62,7 @@ does not carry to other options."
 
 ;;; Commands
 
-(define-transient-command magit-margin-settings ()
+(transient-define-prefix magit-margin-settings ()
   "Change what information is displayed in the margin."
   :info-manual "(magit) Log Margin"
   ["Margin"

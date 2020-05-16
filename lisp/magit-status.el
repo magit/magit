@@ -327,7 +327,7 @@ doesn't find the executable, then consult the info node
     map)
   "Keymap for `magit-status-mode'.")
 
-(define-transient-command magit-status-jump ()
+(transient-define-prefix magit-status-jump ()
   "In a Magit-Status buffer, jump to a section."
   ["Jump to"
    [("z " "Stashes" magit-jump-to-stashes

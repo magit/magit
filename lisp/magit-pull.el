@@ -40,7 +40,7 @@
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-pull "magit-pull" nil t)
-(define-transient-command magit-pull ()
+(transient-define-prefix magit-pull ()
   "Pull from another repository."
   :man-page "git-pull"
   [:description
@@ -77,7 +77,7 @@
   (transient-args 'magit-pull))
 
 ;;;###autoload (autoload 'magit-pull-from-pushremote "magit-pull" nil t)
-(define-suffix-command magit-pull-from-pushremote (args)
+(transient-define-suffix magit-pull-from-pushremote (args)
   "Pull from the push-remote of the current branch.
 
 With a prefix argument or when the push-remote is either not
@@ -107,7 +107,7 @@ push-remote."
       (format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-pull-from-upstream "magit-pull" nil t)
-(define-suffix-command magit-pull-from-upstream (args)
+(transient-define-suffix magit-pull-from-upstream (args)
   "Pull from the upstream of the current branch.
 
 With a prefix argument or when the upstream is either not

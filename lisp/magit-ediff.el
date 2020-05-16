@@ -104,7 +104,7 @@ tree at the time of stashing."
 (defvar magit-ediff-previous-winconf nil)
 
 ;;;###autoload (autoload 'magit-ediff "magit-ediff" nil)
-(define-transient-command magit-ediff ()
+(transient-define-prefix magit-ediff ()
   "Show differences using the Ediff package."
   :info-manual "(ediff)"
   ["Ediff"

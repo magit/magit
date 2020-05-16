@@ -709,7 +709,7 @@ modes is toggled, then this mode also gets toggled automatically.
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-blame-echo "magit-blame" nil t)
-(define-suffix-command magit-blame-echo (args)
+(transient-define-suffix magit-blame-echo (args)
   "For each line show the revision in which it was added.
 Show the information about the chunk at point in the echo area
 when moving between chunks.  Unlike other blaming commands, do
@@ -734,7 +734,7 @@ not turn on `read-only-mode'."
     (magit-blame--update-overlays)))
 
 ;;;###autoload (autoload 'magit-blame-addition "magit-blame" nil t)
-(define-suffix-command magit-blame-addition (args)
+(transient-define-suffix magit-blame-addition (args)
   "For each line show the revision in which it was added."
   (interactive (list (magit-blame-arguments)))
   (magit-blame--pre-blame-assert 'addition)
@@ -742,7 +742,7 @@ not turn on `read-only-mode'."
   (magit-blame--run args))
 
 ;;;###autoload (autoload 'magit-blame-removal "magit-blame" nil t)
-(define-suffix-command magit-blame-removal (args)
+(transient-define-suffix magit-blame-removal (args)
   "For each line show the revision in which it was removed."
   :if-nil 'buffer-file-name
   (interactive (list (magit-blame-arguments)))
@@ -753,7 +753,7 @@ not turn on `read-only-mode'."
   (magit-blame--run args))
 
 ;;;###autoload (autoload 'magit-blame-reverse "magit-blame" nil t)
-(define-suffix-command magit-blame-reverse (args)
+(transient-define-suffix magit-blame-reverse (args)
   "For each line show the last revision in which it still exists."
   :if-nil 'buffer-file-name
   (interactive (list (magit-blame-arguments)))
@@ -812,7 +812,7 @@ not turn on `read-only-mode'."
     (goto-char (point-min))
     (forward-line (1- orig-line))))
 
-(define-suffix-command magit-blame-quit ()
+(transient-define-suffix magit-blame-quit ()
   "Turn off Magit-Blame mode.
 If the buffer was created during a recursive blame,
 then also kill the buffer."
@@ -886,7 +886,7 @@ instead of the hash, like `kill-ring-save' would."
 ;;; Popup
 
 ;;;###autoload (autoload 'magit-blame "magit-blame" nil t)
-(define-transient-command magit-blame ()
+(transient-define-prefix magit-blame ()
   "Show the commits that added or removed lines in the visited file."
   :man-page "git-blame"
   :value '("-w")
@@ -908,13 +908,13 @@ instead of the hash, like `kill-ring-save' would."
 (defun magit-blame-arguments ()
   (transient-args 'magit-blame))
 
-(define-infix-argument magit-blame:-M ()
+(transient-define-argument magit-blame:-M ()
   :description "Detect lines moved or copied within a file"
   :class 'transient-option
   :argument "-M"
   :reader 'transient-read-number-N+)
 
-(define-infix-argument magit-blame:-C ()
+(transient-define-argument magit-blame:-C ()
   :description "Detect lines moved or copied between files"
   :class 'transient-option
   :argument "-C"

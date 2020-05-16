@@ -104,7 +104,7 @@ the name of the owner.  Also see `magit-clone-name-alist'."
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-clone "magit-clone" nil t)
-(define-transient-command magit-clone (&optional transient)
+(transient-define-prefix magit-clone (&optional transient)
   "Clone a repository."
   :man-page "git-clone"
   ["Fetch arguments"

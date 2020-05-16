@@ -30,7 +30,7 @@
 (require 'magit)
 
 ;;;###autoload (autoload 'magit-tag "magit" nil t)
-(define-transient-command magit-tag ()
+(transient-define-prefix magit-tag ()
   "Create or delete a tag."
   :man-page "git-tag"
   ["Arguments"
@@ -48,7 +48,7 @@
 (defun magit-tag-arguments ()
   (transient-args 'magit-tag))
 
-(define-infix-argument magit-tag:--local-user ()
+(transient-define-argument magit-tag:--local-user ()
   :description "Sign as"
   :class 'transient-option
   :shortarg "-u"

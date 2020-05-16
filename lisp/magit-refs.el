@@ -327,7 +327,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-show-refs "magit-refs" nil t)
-(define-transient-command magit-show-refs (&optional transient)
+(transient-define-prefix magit-show-refs (&optional transient)
   "List and compare references in a dedicated buffer."
   :man-page "git-branch"
   :value (lambda ()
@@ -356,7 +356,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (setq use-buffer-args magit-direct-use-buffer-arguments))
   (let (args)
     (cond
-     ((eq current-transient-command 'magit-show-refs)
+     ((eq transient-current-command 'magit-show-refs)
       (setq args (transient-args 'magit-show-refs)))
      ((eq major-mode 'magit-refs-mode)
       (setq args magit-buffer-arguments))
@@ -370,14 +370,14 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (setq args (alist-get 'magit-show-refs transient-values))))
     args))
 
-(define-infix-argument magit-for-each-ref:--contains ()
+(transient-define-argument magit-for-each-ref:--contains ()
   :description "Contains"
   :class 'transient-option
   :key "-c"
   :argument "--contains="
   :reader 'magit-transient-read-revision)
 
-(define-infix-argument magit-for-each-ref:--sort ()
+(transient-define-argument magit-for-each-ref:--sort ()
   :description "Sort"
   :class 'transient-option
   :key "-s"

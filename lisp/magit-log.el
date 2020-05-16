@@ -318,7 +318,7 @@ the upstream isn't ahead of the current branch) show."
   (pcase-let ((`(,args ,files)
                (magit-log--get-value 'magit-log-mode
                                      magit-prefix-use-buffer-arguments)))
-    (unless (eq current-transient-command 'magit-dispatch)
+    (unless (eq transient-current-command 'magit-dispatch)
       (when-let ((file (magit-file-relative-name)))
         (setq files (list file))))
     (oset obj value (if files `(("--" ,@files) ,args) args))))
@@ -339,7 +339,7 @@ the upstream isn't ahead of the current branch) show."
 
 (defun magit-log-arguments (&optional mode)
   "Return the current log arguments."
-  (if (memq current-transient-command '(magit-log magit-log-refresh))
+  (if (memq transient-current-command '(magit-log magit-log-refresh))
       (pcase-let ((`(,args ,alist)
                    (-separate #'atom (transient-get-value))))
         (list args (cdr (assoc "--" alist))))
@@ -392,7 +392,7 @@ the upstream isn't ahead of the current branch) show."
 ;;;; Prefix Commands
 
 ;;;###autoload (autoload 'magit-log "magit-log" nil t)
-(define-transient-command magit-log ()
+(transient-define-prefix magit-log ()
   "Show a commit or reference log."
   :man-page "git-log"
   :class 'magit-log-prefix
@@ -456,7 +456,7 @@ the upstream isn't ahead of the current branch) show."
     ("w" "worktree"       magit-wip-log-worktree)]])
 
 ;;;###autoload (autoload 'magit-log-refresh "magit-log" nil t)
-(define-transient-command magit-log-refresh ()
+(transient-define-prefix magit-log-refresh ()
   "Change the arguments used for the log(s) in the current buffer."
   :man-page "git-log"
   :class 'magit-log-refresh-prefix
@@ -511,7 +511,7 @@ the upstream isn't ahead of the current branch) show."
     ("b" "buffer lock"              magit-toggle-buffer-lock)]]
   (interactive)
   (cond
-   ((not (eq current-transient-command 'magit-log-refresh))
+   ((not (eq transient-current-command 'magit-log-refresh))
     (pcase major-mode
       (`magit-reflog-mode
        (user-error "Cannot change log arguments in reflog buffers"))
@@ -527,7 +527,7 @@ the upstream isn't ahead of the current branch) show."
 
 ;;;; Infix Commands
 
-(define-infix-argument magit-log:-n ()
+(transient-define-argument magit-log:-n ()
   :description "Limit number of commits"
   :class 'transient-option
   ;; For historic reasons (and because it easy to guess what "-n"
@@ -537,14 +537,14 @@ the upstream isn't ahead of the current branch) show."
   :argument "-n"
   :reader 'transient-read-number-N+)
 
-(define-infix-argument magit:--author ()
+(transient-define-argument magit:--author ()
   :description "Limit to author"
   :class 'transient-option
   :key "-A"
   :argument "--author="
   :reader 'magit-transient-read-person)
 
-(define-infix-argument magit-log:--*-order ()
+(transient-define-argument magit-log:--*-order ()
   :description "Order commits by"
   :class 'transient-switches
   :key "-o"
@@ -552,23 +552,23 @@ the upstream isn't ahead of the current branch) show."
   :argument-regexp "\\(--\\(topo\\|author-date\\|date\\)-order\\)"
   :choices '("topo" "author-date" "date"))
 
-(define-infix-argument magit-log:--grep ()
+(transient-define-argument magit-log:--grep ()
   :description "Search messages"
   :class 'transient-option
   :key "-F"
   :argument "--grep=")
 
-(define-infix-argument magit-log:-G ()
+(transient-define-argument magit-log:-G ()
   :description "Search changes"
   :class 'transient-option
   :argument "-G")
 
-(define-infix-argument magit-log:-S ()
+(transient-define-argument magit-log:-S ()
   :description "Search occurrences"
   :class 'transient-option
   :argument "-S")
 
-(define-infix-argument magit-log:-L ()
+(transient-define-argument magit-log:-L ()
   :description "Trace line evolution"
   :class 'transient-option
   :argument "-L"

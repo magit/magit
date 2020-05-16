@@ -30,7 +30,7 @@
 (require 'magit)
 
 ;;;###autoload (autoload 'magit-reset "magit" nil t)
-(define-transient-command magit-reset ()
+(transient-define-prefix magit-reset ()
   "Reset the `HEAD', index and/or worktree to a previous state."
   :man-page "git-reset"
   ["Reset"

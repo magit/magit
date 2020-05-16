@@ -222,7 +222,7 @@ and/or `magit-branch-remote-head'."
 ;;; Dispatch Popup
 
 ;;;###autoload (autoload 'magit-dispatch "magit" nil t)
-(define-transient-command magit-dispatch ()
+(transient-define-prefix magit-dispatch ()
   "Invoke a Magit command from a list of available commands."
   ["Transient and dwim commands"
    [("A" "Apply"          magit-cherry-pick)
@@ -284,7 +284,7 @@ This affects `magit-git-command', `magit-git-command-topdir',
 (defvar magit-git-command-history nil)
 
 ;;;###autoload (autoload 'magit-run "magit" nil t)
-(define-transient-command magit-run ()
+(transient-define-prefix magit-run ()
   "Run git or another command, or launch a graphical utility."
   [["Run git subcommand"
     ("!" "in repository root"   magit-git-command-topdir)

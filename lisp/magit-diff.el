@@ -744,7 +744,7 @@ and `:slant'."
   (pcase-let ((`(,args ,files)
                (magit-diff--get-value 'magit-diff-mode
                                       magit-prefix-use-buffer-arguments)))
-    (unless (eq current-transient-command 'magit-dispatch)
+    (unless (eq transient-current-command 'magit-dispatch)
       (when-let ((file (magit-file-relative-name)))
         (setq files (list file))))
     (oset obj value (if files `(("--" ,@files) ,args) args))))
@@ -765,7 +765,7 @@ and `:slant'."
 
 (defun magit-diff-arguments (&optional mode)
   "Return the current diff arguments."
-  (if (memq current-transient-command '(magit-diff magit-diff-refresh))
+  (if (memq transient-current-command '(magit-diff magit-diff-refresh))
       (pcase-let ((`(,args ,alist)
                    (-separate #'atom (transient-get-value))))
         (list args (cdr (assoc "--" alist))))
@@ -838,7 +838,7 @@ and `:slant'."
 ;;;; Prefix Commands
 
 ;;;###autoload (autoload 'magit-diff "magit-diff" nil t)
-(define-transient-command magit-diff ()
+(transient-define-prefix magit-diff ()
   "Show changes between different versions."
   :man-page "git-diff"
   :class 'magit-diff-prefix
@@ -871,7 +871,7 @@ and `:slant'."
     ("t" "Show stash"    magit-stash-show)]])
 
 ;;;###autoload (autoload 'magit-diff-refresh "magit-diff" nil t)
-(define-transient-command magit-diff-refresh ()
+(transient-define-prefix magit-diff-refresh ()
   "Change the arguments used for the diff(s) in the current buffer."
   :man-page "git-diff"
   :class 'magit-diff-refresh-prefix
@@ -909,7 +909,7 @@ and `:slant'."
     ("r" "switch range type"        magit-diff-switch-range-type)
     ("f" "flip revisions"           magit-diff-flip-revs)]]
   (interactive)
-  (if (not (eq current-transient-command 'magit-diff-refresh))
+  (if (not (eq transient-current-command 'magit-diff-refresh))
       (transient-setup 'magit-diff-refresh)
     (pcase-let ((`(,args ,files) (magit-diff-arguments)))
       (setq magit-buffer-diff-args args)
@@ -918,7 +918,7 @@ and `:slant'."
 
 ;;;; Infix Commands
 
-(define-infix-argument magit:-- ()
+(transient-define-argument magit:-- ()
   :description "Limit to files"
   :class 'transient-files
   :key "--"
@@ -932,25 +932,25 @@ and `:slant'."
                                    (magit-list-files)
                                    nil nil initial-input history))
 
-(define-infix-argument magit-diff:-U ()
+(transient-define-argument magit-diff:-U ()
   :description "Context lines"
   :class 'transient-option
   :argument "-U"
   :reader 'transient-read-number-N+)
 
-(define-infix-argument magit-diff:-M ()
+(transient-define-argument magit-diff:-M ()
   :description "Detect renames"
   :class 'transient-option
   :argument "-M"
   :reader 'transient-read-number-N+)
 
-(define-infix-argument magit-diff:-C ()
+(transient-define-argument magit-diff:-C ()
   :description "Detect copies"
   :class 'transient-option
   :argument "-C"
   :reader 'transient-read-number-N+)
 
-(define-infix-argument magit-diff:--diff-algorithm ()
+(transient-define-argument magit-diff:--diff-algorithm ()
   :description "Diff algorithm"
   :class 'transient-option
   :key "-A"
@@ -964,7 +964,7 @@ and `:slant'."
     (?p "[p]atience"  "patience")
     (?h "[h]istogram" "histogram")))
 
-(define-infix-argument magit-diff:--ignore-submodules ()
+(transient-define-argument magit-diff:--ignore-submodules ()
   :description "Ignore submodules"
   :class 'transient-option
   :key "-i"
@@ -977,7 +977,7 @@ and `:slant'."
     (?d "[d]irty"     "dirty")
     (?a "[a]ll"       "all")))
 
-(define-infix-argument magit-diff:--color-moved ()
+(transient-define-argument magit-diff:--color-moved ()
   :description "Color moved lines"
   :class 'transient-option
   :key "-m"
@@ -992,7 +992,7 @@ and `:slant'."
     (?z "[z]ebra"   "zebra")
     (?Z "[Z] dimmed-zebra" "dimmed-zebra")))
 
-(define-infix-argument magit-diff:--color-moved-ws ()
+(transient-define-argument magit-diff:--color-moved-ws ()
   :description "Whitespace treatment for --color-moved"
   :class 'transient-option
   :key "=w"

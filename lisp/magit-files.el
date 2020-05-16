@@ -290,7 +290,7 @@ directory, while reading the FILENAME."
   "Keymap for `magit-file-mode'.")
 
 ;;;###autoload (autoload 'magit-file-dispatch "magit" nil t)
-(define-transient-command magit-file-dispatch ()
+(transient-define-prefix magit-file-dispatch ()
   "Invoke a Magit command that acts on the visited file."
   :info-manual "(magit) Minor Mode for Buffers Visiting Files"
   ["Actions"

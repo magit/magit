@@ -43,7 +43,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-worktree "magit-worktree" nil t)
-(define-transient-command magit-worktree ()
+(transient-define-prefix magit-worktree ()
   "Act on a worktree."
   :man-page "git-worktree"
   [["Create new"

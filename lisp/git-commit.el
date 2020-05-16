@@ -696,7 +696,7 @@ With a numeric prefix ARG, go forward ARG comments."
 
 ;;; Headers
 
-(define-transient-command git-commit-insert-pseudo-header ()
+(transient-define-prefix git-commit-insert-pseudo-header ()
   "Insert a commit message pseudo header."
   [["Insert ... by yourself"
     ("a"   "Ack"         git-commit-ack)

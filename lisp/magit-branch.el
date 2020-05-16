@@ -201,7 +201,7 @@ has to be used to view and change branch related variables."
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-branch "magit" nil t)
-(define-transient-command magit-branch (branch)
+(transient-define-prefix magit-branch (branch)
   "Add, configure or remove a branch."
   :man-page "git-branch"
   ["Variables"
@@ -762,7 +762,7 @@ and also rename the respective reflog file."
 ;;; Configure
 
 ;;;###autoload (autoload 'magit-branch-configure "magit-branch" nil t)
-(define-transient-command magit-branch-configure (branch)
+(transient-define-prefix magit-branch-configure (branch)
   "Configure a branch."
   :man-page "git-branch"
   [:description
@@ -783,7 +783,7 @@ and also rename the respective reflog file."
   (interactive
    (list (or (and (not current-prefix-arg)
                   (not (and magit-branch-direct-configure
-                            (eq current-transient-command 'magit-branch)))
+                            (eq transient-current-command 'magit-branch)))
                   (magit-get-current-branch))
              (magit--read-branch-scope))))
   (transient-setup 'magit-branch-configure nil nil :scope branch))
@@ -795,12 +795,12 @@ and also rename the respective reflog file."
                (format (oref obj variable) "<name>"))
      "Configure branch")))
 
-(define-suffix-command magit-branch.<branch>.description (branch)
+(transient-define-suffix magit-branch.<branch>.description (branch)
   "Edit the description of BRANCH."
   :class 'magit--git-variable
   :transient nil
   :variable "branch.%s.description"
-  (interactive (list (oref current-transient-prefix scope)))
+  (interactive (list (oref transient-current-prefix scope)))
   (magit-run-git-with-editor "branch" "--edit-description" branch))
 
 (add-hook 'find-file-hook 'magit-branch-description-check-buffers)
@@ -812,7 +812,7 @@ and also rename the respective reflog file."
 (defclass magit--git-branch:upstream (magit--git-variable)
   ((format :initform " %k %m %M\n   %r %R")))
 
-(define-infix-command magit-branch.<branch>.merge/remote ()
+(transient-define-infix magit-branch.<branch>.merge/remote ()
   :class 'magit--git-branch:upstream)
 
 (cl-defmethod transient-init-value ((obj magit--git-branch:upstream))
@@ -850,7 +850,7 @@ and also rename the respective reflog file."
       (propertize value 'face 'transient-argument)
     (propertize "unset" 'face 'transient-inactive-argument)))
 
-(define-infix-command magit-branch.<branch>.rebase ()
+(transient-define-infix magit-branch.<branch>.rebase ()
   :class 'magit--git-variable:choices
   :scope 'magit--read-branch-scope
   :variable "branch.%s.rebase"
@@ -858,31 +858,31 @@ and also rename the respective reflog file."
   :choices '("true" "false")
   :default "false")
 
-(define-infix-command magit-branch.<branch>.pushRemote ()
+(transient-define-infix magit-branch.<branch>.pushRemote ()
   :class 'magit--git-variable:choices
   :scope 'magit--read-branch-scope
   :variable "branch.%s.pushRemote"
   :fallback "remote.pushDefault"
   :choices 'magit-list-remotes)
 
-(define-infix-command magit-pull.rebase ()
+(transient-define-infix magit-pull.rebase ()
   :class 'magit--git-variable:choices
   :variable "pull.rebase"
   :choices '("true" "false")
   :default "false")
 
-(define-infix-command magit-remote.pushDefault ()
+(transient-define-infix magit-remote.pushDefault ()
   :class 'magit--git-variable:choices
   :variable "remote.pushDefault"
   :choices 'magit-list-remotes)
 
-(define-infix-command magit-branch.autoSetupMerge ()
+(transient-define-infix magit-branch.autoSetupMerge ()
   :class 'magit--git-variable:choices
   :variable "branch.autoSetupMerge"
   :choices '("always" "true" "false")
   :default "true")
 
-(define-infix-command magit-branch.autoSetupRebase ()
+(transient-define-infix magit-branch.autoSetupRebase ()
   :class 'magit--git-variable:choices
   :variable "branch.autoSetupRebase"
   :choices '("always" "local" "remote" "never")

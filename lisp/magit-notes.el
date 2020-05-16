@@ -32,7 +32,7 @@
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-notes "magit" nil t)
-(define-transient-command magit-notes ()
+(transient-define-prefix magit-notes ()
   "Edit notes attached to commits."
   :man-page "git-notes"
   ["Configure local settings"
@@ -66,40 +66,40 @@
     (and (file-directory-p dir)
          (directory-files dir nil "^[^.]"))))
 
-(define-infix-command magit-core.notesRef ()
+(transient-define-infix magit-core.notesRef ()
   :class 'magit--git-variable
   :variable "core.notesRef"
   :reader 'magit-notes-read-ref
   :prompt "Set local core.notesRef")
 
-(define-infix-command magit-notes.displayRef ()
+(transient-define-infix magit-notes.displayRef ()
   :class 'magit--git-variable
   :variable "notes.displayRef"
   :multi-value t
   :reader 'magit-notes-read-refs
   :prompt "Set local notes.displayRef")
 
-(define-infix-command magit-global-core.notesRef ()
+(transient-define-infix magit-global-core.notesRef ()
   :class 'magit--git-variable
   :variable "core.notesRef"
   :reader 'magit-notes-read-ref
   :prompt "Set global core.notesRef")
 
-(define-infix-command magit-global-notes.displayRef ()
+(transient-define-infix magit-global-notes.displayRef ()
   :class 'magit--git-variable
   :variable "notes.displayRef"
   :multi-value t
   :reader 'magit-notes-read-refs
   :prompt "Set global notes.displayRef")
 
-(define-infix-argument magit-notes:--ref ()
+(transient-define-argument magit-notes:--ref ()
   :description "Merge strategy"
   :class 'transient-option
   :key "-r"
   :argument "--ref="
   :reader 'magit-notes-read-ref)
 
-(define-infix-argument magit-notes:--strategy ()
+(transient-define-argument magit-notes:--strategy ()
   :description "Merge strategy"
   :class 'transient-option
   :shortarg "-s"

@@ -131,7 +131,7 @@ This discards all changes made since the sequence started."
   "The Perl executable.")
 
 ;;;###autoload (autoload 'magit-cherry-pick "magit-sequence" nil t)
-(define-transient-command magit-cherry-pick ()
+(transient-define-prefix magit-cherry-pick ()
   "Apply or transplant commits."
   :man-page "git-cherry-pick"
   :value '("--ff")
@@ -160,7 +160,7 @@ This discards all changes made since the sequence started."
    ("s" "Skip"     magit-sequencer-skip)
    ("a" "Abort"    magit-sequencer-abort)])
 
-(define-infix-argument magit-cherry-pick:--mainline ()
+(transient-define-argument magit-cherry-pick:--mainline ()
   :description "Replay merge relative to parent"
   :class 'transient-option
   :shortarg "-m"
@@ -351,7 +351,7 @@ the process manually."
 ;;; Revert
 
 ;;;###autoload (autoload 'magit-revert "magit-sequence" nil t)
-(define-transient-command magit-revert ()
+(transient-define-prefix magit-revert ()
   "Revert existing commits, with or without creating new commits."
   :man-page "git-revert"
   :value '("--edit")
@@ -403,7 +403,7 @@ without prompting."
 ;;; Patch
 
 ;;;###autoload (autoload 'magit-am "magit-sequence" nil t)
-(define-transient-command magit-am ()
+(transient-define-prefix magit-am ()
   "Apply patches received by email."
   :man-page "git-am"
   :value '("--3way")
@@ -432,7 +432,7 @@ without prompting."
 (defun magit-am-arguments ()
   (transient-args 'magit-am))
 
-(define-infix-argument magit-apply:-p ()
+(transient-define-argument magit-apply:-p ()
   :description "Remove leading slashes from paths"
   :class 'transient-option
   :argument "-p"
@@ -495,7 +495,7 @@ This discards all changes made since the sequence started."
 ;;; Rebase
 
 ;;;###autoload (autoload 'magit-rebase "magit-sequence" nil t)
-(define-transient-command magit-rebase ()
+(transient-define-prefix magit-rebase ()
   "Transplant commits and/or modify existing commits."
   :man-page "git-rebase"
   ["Arguments"
@@ -535,7 +535,7 @@ This discards all changes made since the sequence started."
    ("e" "Edit"     magit-rebase-edit)
    ("a" "Abort"    magit-rebase-abort)])
 
-(define-infix-argument magit-rebase:--exec ()
+(transient-define-argument magit-rebase:--exec ()
   :description "Run command after commits"
   :class 'transient-option
   :shortarg "-x"
@@ -554,7 +554,7 @@ This discards all changes made since the sequence started."
   (magit-run-git-sequencer "rebase" args target))
 
 ;;;###autoload (autoload 'magit-rebase-onto-pushremote "magit-sequence" nil t)
-(define-suffix-command magit-rebase-onto-pushremote (args)
+(transient-define-suffix magit-rebase-onto-pushremote (args)
   "Rebase the current branch onto its push-remote branch.
 
 With a prefix argument or when the push-remote is either not
@@ -568,7 +568,7 @@ push-remote."
     (magit-git-rebase (concat remote "/" branch) args)))
 
 ;;;###autoload (autoload 'magit-rebase-onto-upstream "magit-sequence" nil t)
-(define-suffix-command magit-rebase-onto-upstream (args)
+(transient-define-suffix magit-rebase-onto-upstream (args)
   "Rebase the current branch onto its upstream branch.
 
 With a prefix argument or when the upstream is either not

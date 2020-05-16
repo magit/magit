@@ -100,7 +100,7 @@ Also see `git-commit-post-finish-hook'."
 ;;; Popup
 
 ;;;###autoload (autoload 'magit-commit "magit-commit" nil t)
-(define-transient-command magit-commit ()
+(transient-define-prefix magit-commit ()
   "Create a new commit or replace an existing commit."
   :info-manual "(magit)Initiating a Commit"
   :man-page "git-commit"
@@ -138,7 +138,7 @@ Also see `git-commit-post-finish-hook'."
 (defun magit-commit-arguments nil
   (transient-args 'magit-commit))
 
-(define-infix-argument magit:--gpg-sign ()
+(transient-define-argument magit:--gpg-sign ()
   :description "Sign using gpg"
   :class 'transient-option
   :shortarg "-S"
@@ -166,7 +166,7 @@ Also see `git-commit-post-finish-hook'."
     (set-text-properties 0 (length choice) nil choice)
     choice))
 
-(define-infix-argument magit-commit:--reuse-message ()
+(transient-define-argument magit-commit:--reuse-message ()
   :description "Reuse commit message"
   :class 'transient-option
   :shortarg "-C"
@@ -411,7 +411,7 @@ history element."
                         (concat "--date=" date)))))
 
 ;;;###autoload (autoload 'magit-commit-absorb "magit-commit" nil t)
-(define-transient-command magit-commit-absorb (phase commit args)
+(transient-define-prefix magit-commit-absorb (phase commit args)
   "Spread unstaged changes across recent commits.
 With a prefix argument use a transient command to select infix
 arguments.  This command requires the git-autofixup script, which
@@ -445,14 +445,14 @@ is available from https://github.com/torbiak/git-autofixup."
             (magit-commit-absorb 'run commit args)))
         nil nil nil nil commit))))
 
-(define-infix-argument magit-autofixup:--context ()
+(transient-define-argument magit-autofixup:--context ()
   :description "Diff context lines"
   :class 'transient-option
   :shortarg "-c"
   :argument "--context="
   :reader 'transient-read-number-N0)
 
-(define-infix-argument magit-autofixup:--strict ()
+(transient-define-argument magit-autofixup:--strict ()
   :description "Strictness"
   :class 'transient-option
   :shortarg "-s"
