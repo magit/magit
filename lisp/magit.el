@@ -445,7 +445,19 @@ and Emacs to it."
                               (directory-file-name topdir))))
                 (when (string-match "\\`magit-\\([0-9]\\{8\\}\\.[0-9]*\\)"
                                     dirname)
-                  (setq magit-version (match-string 1 dirname))))))))
+                  (setq magit-version (match-string 1 dirname)))))
+            ;; If all else fails, just report the commit hash. It's
+            ;; better than nothing and we cannot do better in the case
+            ;; of e.g. a shallow clone.
+            (progn
+              (push 'hash debug)
+              ;; Same check as above to see if it's really the Magit repo.
+              (when (and (file-exists-p gitdir)
+                         (file-exists-p
+                          (expand-file-name "../lisp/magit.el" gitdir)))
+                (setq magit-version
+                      (let ((default-directory topdir))
+                        (magit-git-string "rev-parse" "HEAD"))))))))
     (if (stringp magit-version)
         (when print-dest
           (princ (format "Magit %s, Git %s, Emacs %s, %s"
