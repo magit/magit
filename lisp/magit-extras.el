@@ -590,11 +590,11 @@ hunk, strip the outer diff marker column."
    ((and current-prefix-arg
          (magit-section-internal-region-p)
          (magit-section-match 'hunk))
-    (deactivate-mark)
     (kill-new (replace-regexp-in-string
                "^[ \\+\\-]" ""
                (buffer-substring-no-properties
-                (region-beginning) (region-end)))))
+                (region-beginning) (region-end))))
+    (deactivate-mark))
    ((use-region-p)
     (call-interactively #'copy-region-as-kill))
    (t
