@@ -410,12 +410,52 @@ history element."
                    (and (magit-rev-author-p "HEAD")
                         (concat "--date=" date)))))
 
+;;;###autoload (autoload 'magit-commit-absorb "magit-commit" nil t)
+(transient-define-prefix magit-commit-absorb (phase commit args)
+  "Spread staged changes across recent commits.
+With a prefix argument use a transient command to select infix
+arguments.  This command requires git-absorb executable, which
+is available from https://github.com/tummychow/git-absorb.
+See `magit-commit-autofixup' for an alternative implementation."
+  ["Arguments"
+   ("-f" "Skip safety checks"       ("-f" "--force"))
+   ("-v" "Display more output"      ("-v" "--verbose"))]
+  ["Actions"
+   ("x"  "Absorb" magit-commit-absorb)]
+  (interactive (if current-prefix-arg
+                   (list 'transient nil nil)
+                 (list 'select
+                       (magit-get-upstream-branch)
+                       (transient-args 'magit-commit-absorb))))
+  (if (eq phase 'transient)
+      (transient-setup 'magit-commit-absorb)
+    (unless (executable-find "git-absorb")
+      (user-error "This command requires the git-absorb executable, which %s"
+                  "is available from https://github.com/tummychow/git-absorb"))
+    (unless (magit-anything-staged-p)
+      (if (magit-anything-unstaged-p)
+          (if (y-or-n-p "Nothing staged.  Absorb all unstaged changes? ")
+              (magit-with-toplevel
+                (magit-run-git "add" "-u" "."))
+            (user-error "Abort"))
+        (user-error "There are no changes that could be absorbed")))
+    (when commit
+      (setq commit (magit-rebase-interactive-assert commit t)))
+    (if (and commit (eq phase 'run))
+        (progn (magit-run-git-async "absorb" "-v" args "-b" commit) t)
+      (magit-log-select
+        (lambda (commit)
+          (with-no-warnings ; about non-interactive use
+            (magit-commit-absorb 'run commit args)))
+        nil nil nil nil commit))))
+
 ;;;###autoload (autoload 'magit-commit-autofixup "magit-commit" nil t)
 (transient-define-prefix magit-commit-autofixup (phase commit args)
   "Spread unstaged changes across recent commits.
 With a prefix argument use a transient command to select infix
 arguments.  This command requires the git-autofixup script, which
-is available from https://github.com/torbiak/git-autofixup."
+is available from https://github.com/torbiak/git-autofixup.
+See `magit-commit-absorb' for an alternative implementation."
   ["Arguments"
    (magit-autofixup:--context)
    (magit-autofixup:--strict)]
