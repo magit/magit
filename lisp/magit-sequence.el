@@ -783,7 +783,8 @@ edit.  With a prefix argument the old message is reused as-is."
                    (file-exists-p (magit-git-dir "rebase-merge"))
                    (not (member (magit-toplevel)
                                 magit--rebase-public-edit-confirmed)))
-          (magit-commit-amend-assert))
+          (magit-commit-amend-assert
+           (magit-file-line (magit-git-dir "rebase-merge/orig-head"))))
         (if noedit
             (let ((process-environment process-environment))
               (push "GIT_EDITOR=true" process-environment)
