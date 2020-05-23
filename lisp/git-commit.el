@@ -579,25 +579,36 @@ Don't use it directly, instead enable `global-git-commit-mode'."
 (declare-function change-log-insert-entries "add-log" (changelogs))
 (declare-function magit-commit-message-buffer "magit-commit" ())
 
-(defun magit-generate-changelog ()
+(defun magit-generate-changelog (&optional amending)
   "Insert ChangeLog entries into the current buffer.
-The entries are generated from the diff being committed."
-  (interactive)
+The entries are generated from the diff being committed.  If
+prefix argument, AMENDING, is non-nil, include changes in HEAD as
+well as staged changes in the diff to check."
+  (interactive "P")
   (unless (magit-commit-message-buffer)
     (user-error "No commit in progress"))
   (require 'diff-mode) ;; `diff-add-log-current-defuns'.
   (require 'vc-git)    ;; `vc-git-diff'.
-  (let ((rev1 nil)
+  (require 'add-log)   ;; `change-log-insert-entries'.
+  (unless (and (fboundp 'change-log-insert-entries)
+               (fboundp 'diff-add-log-current-defuns))
+    (user-error "`magit-generate-changelog' requires Emacs 27 or better"))
+  (setq default-directory
+        (if (and (file-regular-p "gitdir")
+                 (not (magit-git-true "rev-parse" "--is-inside-work-tree"))
+                 (magit-git-true "rev-parse" "--is-inside-git-dir"))
+            (file-name-directory (magit-file-line "gitdir"))
+          (magit-toplevel)))
+  (let ((rev1 (if amending "HEAD^1" "HEAD"))
         (rev2 nil))
-    (unless (magit-anything-staged-p)
-      ;; Amending.
-      (setq rev1 "HEAD^1"))
     ;; Magit may have updated the files without notifying vc, but
     ;; `diff-add-log-current-defuns' relies on vc being up-to-date.
     (mapc #'vc-file-clearprops (magit-staged-files))
     (change-log-insert-entries
      (with-temp-buffer
-       (vc-git-diff nil rev1 rev2 (current-buffer))
+       (vc-git-command (current-buffer) 1 nil "diff-index" "--exit-code" "--patch"
+                       (and (magit-anything-staged-p) "--cached")
+                       rev1 "--")
        ;; `diff-find-source-location' consults these vars.
        (defvar diff-vc-revisions)
        (setq-local diff-vc-revisions (list rev1 rev2))
