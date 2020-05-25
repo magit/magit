@@ -462,6 +462,9 @@
   unchanged" bit, and then modifying it again triggered a failure in
   ~magit-wip-commit-worktree~.  #4037
 
+- ~magit-abbrev-length~ returned an incorrect result when
+  ~core.abbrev~ was explicitly set to "auto".
+
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),
   ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),

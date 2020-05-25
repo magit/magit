@@ -1778,15 +1778,16 @@ Return a list of two integers: (A>B B>A)."
                         "\t")))
 
 (defun magit-abbrev-length ()
-  (--if-let (magit-get "core.abbrev")
-      (string-to-number it)
-    ;; Guess the length git will be using based on an example
-    ;; abbreviation.  Actually HEAD's abbreviation might be an
-    ;; outlier, so use the shorter of the abbreviations for two
-    ;; commits.  When a commit does not exist, then fall back
-    ;; to the default of 7.  See #3034.
-    (min (--if-let (magit-rev-parse "--short" "HEAD")  (length it) 7)
-         (--if-let (magit-rev-parse "--short" "HEAD~") (length it) 7))))
+  (let ((abbrev (magit-get "core.abbrev")))
+    (if (and abbrev (not (equal abbrev "auto")))
+        (string-to-number abbrev)
+      ;; Guess the length git will be using based on an example
+      ;; abbreviation.  Actually HEAD's abbreviation might be an
+      ;; outlier, so use the shorter of the abbreviations for two
+      ;; commits.  When a commit does not exist, then fall back
+      ;; to the default of 7.  See #3034.
+      (min (--if-let (magit-rev-parse "--short" "HEAD") (length it) 7)
+           (--if-let (magit-rev-parse "--short" "HEAD~") (length it) 7)))))
 
 (defun magit-abbrev-arg (&optional arg)
   (format "--%s=%d" (or arg "abbrev") (magit-abbrev-length)))
