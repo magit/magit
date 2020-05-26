@@ -695,7 +695,7 @@ other buffers in the selected window."
   (display-buffer
    buffer (if (with-current-buffer buffer
                 (derived-mode-p 'magit-diff-mode 'magit-process-mode))
-              nil  ; display in another window
+              '(nil (inhibit-same-window . t))
             '(display-buffer-same-window))))
 
 (defun magit--display-buffer-fullframe (buffer alist)
