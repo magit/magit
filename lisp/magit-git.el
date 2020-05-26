@@ -133,7 +133,7 @@ successfully.")
 (defcustom magit-git-executable
   ;; Git might be installed in a different location on a remote, so
   ;; it is better not to use the full path to the executable, except
-  ;; on Window were we would otherwise end up using one one of the
+  ;; on Window where we would otherwise end up using one of the
   ;; wrappers "cmd/git.exe" or "cmd/git.cmd", which are much slower
   ;; than using "bin/git.exe" directly.
   (or (and (eq system-type 'windows-nt)
