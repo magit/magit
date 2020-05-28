@@ -344,10 +344,16 @@ doesn't find the executable, then consult the info node
      :if (lambda () (memq 'magit-insert-unpulled-from-upstream magit-status-sections-hook)))
     ("fp" "Unpulled from pushremote" magit-jump-to-unpulled-from-pushremote
      :if (lambda () (memq 'magit-insert-unpulled-from-pushremote magit-status-sections-hook)))
-    ("pu" "Unpushed to upstream" magit-jump-to-unpushed-to-upstream
+    ("pu" magit-jump-to-unpushed-to-upstream
      :if (lambda ()
            (or (memq 'magit-insert-unpushed-to-upstream-or-recent magit-status-sections-hook)
-               (memq 'magit-insert-unpushed-to-upstream magit-status-sections-hook))))
+               (memq 'magit-insert-unpushed-to-upstream magit-status-sections-hook)))
+     :description (lambda ()
+                    (let ((upstream (magit-get-upstream-branch)))
+                      (if (or (not upstream)
+                              (magit-rev-ancestor-p "HEAD" upstream))
+                          "Recent commits"
+                        "Unmerged into upstream"))))
     ("pp" "Unpushed to pushremote" magit-jump-to-unpushed-to-pushremote
      :if (lambda () (memq 'magit-insert-unpushed-to-pushremote magit-status-sections-hook)))
     ("a " "Assumed unstaged" magit-jump-to-assume-unchanged
