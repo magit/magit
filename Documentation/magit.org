@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-973-g78e37d0d0+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-986-gf6e8bb71e+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-973-g78e37d0d0+1).
+This manual is for Magit version 2.90.1 (v2.90.1-986-gf6e8bb71e+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -7575,27 +7575,6 @@ but doing it this way has the advantage that you usually get to see
 the diff, which is useful because it increases the odds that you spot
 potential issues.
 
-**** The Built-In VC Package
-:PROPERTIES:
-:NONODE: t
-:END:
-
-Emacs comes with a version control interface called "VC", see
-[[info:emacs#Version Control]].  It is enabled be default, and if you don't
-use it in addition to Magit, then you should disable it to keep it
-from performing unnecessary work:
-
-#+BEGIN_SRC emacs-lisp
-  (setq vc-handled-backends nil)
-#+END_SRC
-
-You can also disable its use for Git but keep using it when using
-another version control system:
-
-#+BEGIN_SRC emacs-lisp
-  (setq vc-handled-backends (delq 'Git vc-handled-backends))
-#+END_SRC
-
 **** Microsoft Windows Performance
 
 In order to update the status buffer, ~git~ has to be run a few dozen
@@ -8465,6 +8444,19 @@ conflicts, in which case you *can* use these commands, which then use
 ~ediff-magit-merge-internal~.  Instead we provide the more useful
 command ~magit-ediff-resolve~ which only shows yet-to-be resolved
 conflicts.
+
+*** Should I disable VC?
+
+If you don't use VC (the built-in version control interface) then
+you might be tempted to disable it, not least because we used to
+recommend that you do that.
+
+We no longer recommend that you disable VC.  Doing so would break
+useful third-party packages (such as ~diff-hl~), which depend on VC
+being enabled.
+
+If you choose to disable VC anyway, then you can do so by changing
+the value of ~vc-handled-backends~.
 
 ** FAQ - Issues and Errors
 *** Magit is slow

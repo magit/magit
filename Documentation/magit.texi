@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-973-g78e37d0d0+1)
+@subtitle for version 2.90.1 (v2.90.1-986-gf6e8bb71e+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-973-g78e37d0d0+1).
+This manual is for Magit version 2.90.1 (v2.90.1-986-gf6e8bb71e+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -326,6 +326,7 @@ FAQ - How to @dots{}?
 * How to show diffs for gpg-encrypted files?::
 * How does branching and pushing work?::
 * Can Magit be used as @code{ediff-version-control-package}?::
+* Should I disable VC@?::
 
 
 FAQ - Issues and Errors
@@ -10224,24 +10225,6 @@ but doing it this way has the advantage that you usually get to see
 the diff, which is useful because it increases the odds that you spot
 potential issues.
 
-@unnumberedsubsubsec The Built-In VC Package
-
-Emacs comes with a version control interface called "VC", see
-@ref{Version Control,,,emacs,}.  It is enabled be default, and if you don't
-use it in addition to Magit, then you should disable it to keep it
-from performing unnecessary work:
-
-@lisp
-(setq vc-handled-backends nil)
-@end lisp
-
-You can also disable its use for Git but keep using it when using
-another version control system:
-
-@lisp
-(setq vc-handled-backends (delq 'Git vc-handled-backends))
-@end lisp
-
 @node Microsoft Windows Performance
 @unnumberedsubsubsec Microsoft Windows Performance
 
@@ -11131,6 +11114,7 @@ Please also use the @ref{Debugging Tools}.
 * How to show diffs for gpg-encrypted files?::
 * How does branching and pushing work?::
 * Can Magit be used as @code{ediff-version-control-package}?::
+* Should I disable VC@?::
 @end menu
 
 @node How to show git's output?
@@ -11216,6 +11200,20 @@ conflicts, in which case you @strong{can} use these commands, which then use
 @code{ediff-magit-merge-internal}.  Instead we provide the more useful
 command @code{magit-ediff-resolve} which only shows yet-to-be resolved
 conflicts.
+
+@node Should I disable VC@?
+@appendixsubsec Should I disable VC@?
+
+If you don't use VC (the built-in version control interface) then
+you might be tempted to disable it, not least because we used to
+recommend that you do that.
+
+We no longer recommend that you disable VC@.  Doing so would break
+useful third-party packages (such as @code{diff-hl}), which depend on VC
+being enabled.
+
+If you choose to disable VC anyway, then you can do so by changing
+the value of @code{vc-handled-backends}.
 
 @node FAQ - Issues and Errors
 @appendixsec FAQ - Issues and Errors
