@@ -340,7 +340,7 @@ when using `magit-branch-and-checkout'."
             (list choice (magit-read-starting-point "Create" choice))))))
   (if (not start-point)
       (magit-checkout branch)
-    (when (magit-anything-modified-p)
+    (when (magit-anything-modified-p t)
       (user-error "Cannot checkout when there are uncommitted changes"))
     (magit-branch-and-checkout branch start-point)
     (when (magit-remote-branch-p start-point)
