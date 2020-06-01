@@ -512,7 +512,8 @@ See `magit-commit-absorb' for an alternative implementation."
         (let ((args (car (magit-diff-arguments)))
               (magit-inhibit-save-previous-winconf 'unset)
               (magit-display-buffer-noselect t)
-              (inhibit-quit nil))
+              (inhibit-quit nil)
+              (display-buffer-overriding-action '(nil (inhibit-same-window t))))
           (message "Diffing changes to be committed (C-g to abort diffing)")
           (cl-case last-command
             (magit-commit
