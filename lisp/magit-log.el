@@ -999,7 +999,7 @@ Do not add this to a hook variable."
          (remove "--literal-pathspecs" magit-git-global-arguments)))
     (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
       "log"
-      (format "--format=%s%%h%%x00%s%%x00%s%%x00%%aN%%x00%s%%x00%%s%s"
+      (format "--format=%s%%h%%x0c%s%%x0c%s%%x0c%%aN%%x0c%s%%x0c%%s%s"
               (if (and (member "--left-right" args)
                        (not (member "--graph" args)))
                   "%m "
@@ -1039,15 +1039,18 @@ Do not add this to a hook variable."
   "Keymap for `module-commit' sections.")
 
 (defconst magit-log-heading-re
+  ;; Note: A form feed instead of a null byte is used as the delimiter
+  ;; because using the latter interferes with the graph prefix when
+  ;; ++header is used.
   (concat "^"
           "\\(?4:[-_/|\\*o<>. ]*\\)"               ; graph
-          "\\(?1:[0-9a-fA-F]+\\)?\0"               ; sha1
-          "\\(?3:[^\0\n]+\\)?\0"                   ; refs
-          "\\(?7:[BGUXYREN]\\)?\0"                 ; gpg
-          "\\(?5:[^\0\n]*\\)\0"                    ; author
+          "\\(?1:[0-9a-fA-F]+\\)?"               ; sha1
+          "\\(?3:[^\n]+\\)?"                   ; refs
+          "\\(?7:[BGUXYREN]\\)?"                 ; gpg
+          "\\(?5:[^\n]*\\)"                    ; author
           ;; Note: Date is optional because, prior to Git v2.19.0,
           ;; `git rebase -i --root` corrupts the root's author date.
-          "\\(?6:[^\0\n]*\\)\0"                    ; date
+          "\\(?6:[^\n]*\\)"                    ; date
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re

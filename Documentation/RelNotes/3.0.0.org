@@ -376,6 +376,10 @@
 - A regression in ~magit-log-move-to-parent~ prevented it from doing its
   job.  #3682
 
+- Since v2.11.0 ~magit-log-revision-headers-format~ lines in the log
+  output (shown via ~++header~) weren't displayed properly when
+  ~--graph~ was enabled.  #4129
+
 - ~magit-clone~ didn't run ~magit-credential-hook~.  #3683
 
 - ~magit-list-repositories~ failed if one of the repositories that it
