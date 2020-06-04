@@ -445,8 +445,7 @@ and Emacs to it."
               (push 'dirname debug)
               (let ((dirname (file-name-nondirectory
                               (directory-file-name topdir))))
-                (when (string-match "\\`magit-\\([0-9]\\{8\\}\\.[0-9]*\\)"
-                                    dirname)
+                (when (string-match "\\`magit-\\([0-9].*\\)" dirname)
                   (setq magit-version (match-string 1 dirname)))))
             ;; If all else fails, just report the commit hash. It's
             ;; better than nothing and we cannot do better in the case
