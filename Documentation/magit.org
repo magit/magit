@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-987-g663e2b47c+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-996-g6b88fab39+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-987-g663e2b47c+1).
+This manual is for Magit version 2.90.1 (v2.90.1-996-g6b88fab39+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -6505,8 +6505,8 @@ Also see [[man:git-tag]]
 
 - Key: t r, magit-tag-release
 
-  This commands creates an annotated release tag.  It assumes that
-  release tags match ~magit-release-tag-regexp~.
+  This commands creates a release tag.  It assumes that release tags
+  match ~magit-release-tag-regexp~.
 
   First it prompts for the name of the new tag using the highest
   existing tag as initial input and leaving it to the user to
@@ -6515,17 +6515,13 @@ Also see [[man:git-tag]]
   ~v1.2.3-custom.1~), you can set the ~magit-release-tag-regexp~ and
   ~magit-tag-version-regexp-alist~ variables.
 
-  Then it prompts for the message of the new tag.  The proposed tag
-  message is based on the message of the highest tag, provided that
-  that contains the corresponding version string and substituting the
-  new version string for that.  Otherwise it proposes something like
-  "Foo-Bar 1.2.3", given, for example, a TAG "v1.2.3" and a repository
-  located at something like "/path/to/foo-bar".
-
-  Then it calls "git tag --annotate --sign -m MSG TAG" to create the
-  tag, regardless of whether these arguments are enabled in the
-  transient.  Finally it shows the refs buffer to let the user quickly
-  review the result.
+  If ~--annotate~ is enabled then it prompts for the message of the
+  new tag.  The proposed tag message is based on the message of the
+  highest tag, provided that that contains the corresponding version
+  string and substituting the new version string for that.  Otherwise
+  it proposes something like "Foo-Bar 1.2.3", given, for example, a
+  TAG "v1.2.3" and a repository located at something like
+  "/path/to/foo-bar".
 
 - Key: t k, magit-tag-delete
 
