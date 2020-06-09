@@ -532,6 +532,7 @@ See `magit-commit-absorb' for an alternative implementation."
 ;; Mention `magit-diff-while-committing' because that's
 ;; always what I search for when I try to find this line.
 (add-hook 'server-switch-hook 'magit-commit-diff)
+(add-hook 'with-editor-filter-visit-hook 'magit-commit-diff)
 
 (add-to-list 'with-editor-server-window-alist
              (cons git-commit-filename-regexp 'switch-to-buffer))
