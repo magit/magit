@@ -1104,6 +1104,23 @@ the %s(1) manpage.
 (advice-add 'org-man-export :around
             'org-man-export--magit-gitman)
 
+;;; Kludges for Package Managers
+
+(defun magit--straight-chase-links (filename)
+  "Chase links in FILENAME until a name that is not a link.
+
+This is the same as `file-chase-links', except that it also
+handles fake symlinks that are created by the package manager
+straight.el on Windows.
+
+See <https://github.com/raxod502/straight.el/issues/520>."
+  (when (and (bound-and-true-p straight-symlink-emulation-mode)
+             (fboundp 'straight-chase-emulated-symlink))
+    (when-let ((target (straight-chase-emulated-symlink filename)))
+      (unless (eq target 'broken)
+        (setq filename target))))
+  (file-chase-links filename))
+
 ;;; Bitmaps
 
 (when (fboundp 'define-fringe-bitmap)
