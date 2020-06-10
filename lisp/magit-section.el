@@ -1027,7 +1027,7 @@ form `(eval FORM)' in which case FORM is evaluated at runtime.
 \(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
   (declare (indent defun)
            (debug ([&optional symbolp]
-                   (&or [("eval" symbolp) &optional form form]
+                   (&or [("eval" form) &optional form form]
                         [symbolp &optional form form])
                    body)))
   (let ((tp (cl-gensym "type"))
