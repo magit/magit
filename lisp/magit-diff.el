@@ -3419,6 +3419,50 @@ are highlighted."
                       (recurse child)))))
       (recurse magit-root-section))))
 
+(defun magit-diff-update-hunk-syntax (&optional section)
+  (interactive)
+  (unless section
+    (setq section (magit-current-section)))
+  (with-slots (start content end value) section
+    (pcase-let* ((`(,b ,e)
+                  (split-string (substring (nth (if 'add 2 1) value) 1) ","))
+                 (b (+ (string-to-number b) 3))
+                 (e (string-to-number e))
+                 (file "~/.emacs.d/lib/magit/lisp/magit-diff.el")
+                 (props nil)
+                 (old nil))
+      (remove-overlays start end 'diff-mode 'syntax)
+      (message "--- %s-%s %s,%s"
+               (marker-position start)
+               (marker-position end)
+               b e)
+      (with-temp-buffer
+        (insert-file-contents file)
+        (setq props (diff-syntax-fontify-props file nil (list b e))))
+      (message "--- %S" props)
+      (save-excursion
+        (goto-char content)
+        (forward-line 2)
+        (when (and props) ; (eq (diff-hunk-style) 'unified))
+          (while (< (progn (forward-line 1) (point)) end)
+            (when (or (and (not old) (not (looking-at-p "[-<]")))
+                      (and      old  (not (looking-at-p "[+>]"))))
+              (unless (looking-at-p "\\\\") ; skip "\ No newline at end of file"
+                (if (and old (not (looking-at-p "[-<]")))
+                    ;; Fontify context lines only from new source,
+                    ;; don't refontify context lines from old source.
+                    (pop props)
+                  (let ((line-props (pop props))
+                        (bol (1+ (point))))
+                    (dolist (prop line-props)
+                      (let ((ol (make-overlay (+ bol (nth 0 prop))
+                                              (+ bol (nth 1 prop))
+                                              nil 'front-advance nil)))
+                        (overlay-put ol 'diff-mode 'syntax)
+                        (overlay-put ol 'evaporate t)
+                        (overlay-put ol 'face (nth 2 prop)))))))))))
+      )))
+
 
 ;;; Hunk Region
 
