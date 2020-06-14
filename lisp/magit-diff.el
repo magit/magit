@@ -55,12 +55,12 @@
 (declare-function magit-merge-in-progress-p "magit-merge" ())
 (declare-function magit--merge-range "magit-merge" (&optional head))
 ;; For `magit-diff--dwim'
+(declare-function forge--pullreq-range "forge-pullreq" (pullreq))
 (declare-function forge--pullreq-ref "forge-pullreq" (pullreq))
 ;; For `magit-diff-wash-diff'
 (declare-function ansi-color-apply-on-region "ansi-color" (begin end))
 
 (eval-when-compile
-  (cl-pushnew 'base-ref eieio--known-slot-names)
   (cl-pushnew 'orig-rev eieio--known-slot-names)
   (cl-pushnew 'action-type eieio--known-slot-names)
   (cl-pushnew 'target eieio--known-slot-names))
@@ -1087,10 +1087,7 @@ If no DWIM context is found, nil is returned."
                           atpoint))))
       (commit (cons 'commit (oref it value)))
       (stash (cons 'stash (oref it value)))
-      (pullreq (let ((pullreq (oref it value)))
-                 (format "%s...%s"
-                         (oref pullreq base-ref)
-                         (forge--pullreq-ref pullreq))))))))
+      (pullreq (forge--pullreq-range (oref it value) t))))))
 
 (defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
   "Read range or revision with special diff range treatment.
