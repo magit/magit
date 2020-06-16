@@ -2120,12 +2120,15 @@ section or a child thereof."
           (insert ?\n))))
     t)
    ((looking-at (concat "^\\(merged\\|changed in both\\|"
-                        "added in remote\\|removed in remote\\)"))
+                        "added in remote\\|removed in remote\\|"
+                        "added in both\\|removed in local\\)"))
     (let ((status (pcase (match-string 1)
                     ("merged" "merged")
                     ("changed in both" "conflict")
                     ("added in remote" "new file")
-                    ("removed in remote" "deleted")))
+                    ("added in both" "conflict")
+                    ("removed in remote" "deleted")
+                    ("removed in local" "l.deleted")))
           file orig base modes)
       (magit-delete-line)
       (while (looking-at
