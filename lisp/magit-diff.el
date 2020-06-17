@@ -1699,7 +1699,7 @@ the Magit-Status buffer for DIRECTORY."
                    (cdr spec)
                  (cdr (magit-split-range spec)))))
       (if (and magit-diff-visit-avoid-head-blob
-               (magit-rev-head-p spec))
+               (magit-rev-head-p rev))
           'unstaged
         rev))))
 
