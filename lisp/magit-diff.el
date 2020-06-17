@@ -2120,9 +2120,18 @@ section or a child thereof."
                    'font-lock-face 'magit-diff-file-heading))
           (insert ?\n))))
     t)
-   ((looking-at (concat "^\\(merged\\|changed in both\\|"
-                        "added in remote\\|removed in remote\\)"))
-    (let ((status (pcase (match-string 1)
+   ((looking-at
+     (concat "^" (regexp-opt
+                  ;; Defined in merge-tree.c in this order.
+                  '("merged"
+                    "added in remote"
+                    "added in both"
+                    "added in local"
+                    "removed in both"
+                    "changed in both"
+                    "removed in local"
+                    "removed in remote"))))
+    (let ((status (pcase (match-string 0)
                     ("merged" "merged")
                     ("changed in both" "conflict")
                     ("added in remote" "new file")
@@ -2188,7 +2197,7 @@ section or a child thereof."
   (magit-insert-section section
     (file file (or (equal status "deleted")
                    (derived-mode-p 'magit-status-mode)))
-    (insert (propertize (format "%-10s %s\n" status
+    (insert (propertize (format "%-17s %s\n" status
                                 (if (or (not orig) (equal orig file))
                                     file
                                   (format "%s -> %s" orig file)))
