@@ -1379,9 +1379,7 @@ instead."
                         (cl-rotatef magit-buffer-diff-files
                                     magit-buffer-diff-files-suspended)
                       (setq magit-buffer-diff-files
-                            (magit-read-files "Limit to file(s): "
-                                              (magit-file-at-point)
-                                              nil)))
+                            (transient-infix-read 'magit:--)))
                     (magit-refresh)))
     (cond
      ((derived-mode-p 'magit-log-mode
