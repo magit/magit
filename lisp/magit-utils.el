@@ -1204,7 +1204,7 @@ Like `message', except that `message-log-max' is bound to nil."
      (save-excursion
        (save-restriction
          (widen)
-         (goto-char ,pos)
+         (goto-char (or ,pos 1))
          ,@body))))
 
 ;;; _
