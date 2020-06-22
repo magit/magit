@@ -1931,6 +1931,8 @@ Staging and applying changes is documented in info node
     (define-key map "u" 'magit-unstage)
     (define-key map "&" 'magit-do-async-shell-command)
     (define-key map "C"             'magit-commit-add-log)
+    (define-key map (kbd "C-x a")   'magit-add-change-log-entry)
+    (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "C-c C-t") 'magit-diff-trace-definition)
     (define-key map (kbd "C-c C-e") 'magit-diff-edit-hunk-commit)
     map)
