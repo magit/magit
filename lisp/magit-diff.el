@@ -1919,7 +1919,7 @@ Staging and applying changes is documented in info node
                 (list 'unstaged magit-buffer-typearg)))
          (and magit-buffer-diff-files (cons "--" magit-buffer-diff-files))))
 
-(defvar magit-file-section-map
+(defvar magit-diff-section-base-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-j") 'magit-diff-visit-worktree-file)
     (define-key map [C-return]  'magit-diff-visit-worktree-file)
@@ -1934,22 +1934,17 @@ Staging and applying changes is documented in info node
     (define-key map "\C-c\C-t" 'magit-diff-trace-definition)
     (define-key map "\C-c\C-e" 'magit-diff-edit-hunk-commit)
     map)
+  "Parent of `magit-{hunk,file}-section-map'.")
+
+(defvar magit-file-section-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-diff-section-base-map)
+    map)
   "Keymap for `file' sections.")
 
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-j") 'magit-diff-visit-worktree-file)
-    (define-key map [C-return] 'magit-diff-visit-worktree-file)
-    (define-key map [remap magit-visit-thing]      'magit-diff-visit-file)
-    (define-key map [remap magit-delete-thing]     'magit-discard)
-    (define-key map [remap magit-revert-no-commit] 'magit-reverse)
-    (define-key map "a" 'magit-apply)
-    (define-key map "C" 'magit-commit-add-log)
-    (define-key map "s" 'magit-stage)
-    (define-key map "u" 'magit-unstage)
-    (define-key map "&" 'magit-do-async-shell-command)
-    (define-key map "\C-c\C-t" 'magit-diff-trace-definition)
-    (define-key map "\C-c\C-e" 'magit-diff-edit-hunk-commit)
+    (set-keymap-parent map magit-diff-section-base-map)
     map)
   "Keymap for `hunk' sections.")
 
