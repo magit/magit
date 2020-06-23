@@ -1261,7 +1261,8 @@ Later, when the buffer is buried, it may be restored by
 
 (defun magit-insert-xref-buttons ()
   "Insert xref buttons."
-  (when (or help-xref-stack help-xref-forward-stack)
+  (when (and (not magit-buffer-locked-p)
+             (or help-xref-stack help-xref-forward-stack))
     (when help-xref-stack
       (magit-xref-insert-button help-back-label 'magit-xref-backward))
     (when help-xref-forward-stack
