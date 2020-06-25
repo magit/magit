@@ -179,7 +179,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 (defcustom magit-status-use-buffer-arguments 'selected
   "Whether `magit-status' reuses arguments when the buffer already exists.
 
-This option has no affect when merely refreshing the status
+This option has no effect when merely refreshing the status
 buffer using `magit-refresh'.
 
 Valid values are:
