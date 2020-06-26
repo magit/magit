@@ -1950,10 +1950,23 @@ Staging and applying changes is documented in info node
     map)
   "Keymap for `hunk' sections.")
 
+(defconst magit-diff-conflict-headline-re
+  (concat "^" (regexp-opt
+               ;; Defined in merge-tree.c in this order.
+               '("merged"
+                 "added in remote"
+                 "added in both"
+                 "added in local"
+                 "removed in both"
+                 "changed in both"
+                 "removed in local"
+                 "removed in remote"))))
+
 (defconst magit-diff-headline-re
   (concat "^\\(@@@?\\|diff\\|Submodule\\|"
-          "\\* Unmerged path\\|merged\\|changed in both\\|"
-          "added in remote\\|removed in remote\\)"))
+          "\\* Unmerged path\\|"
+          (substring magit-diff-conflict-headline-re 1)
+          "\\)"))
 
 (defconst magit-diff-statline-re
   (concat "^ ?"
@@ -2117,14 +2130,21 @@ section or a child thereof."
                    'font-lock-face 'magit-diff-file-heading))
           (insert ?\n))))
     t)
-   ((looking-at (concat "^\\(merged\\|changed in both\\|"
-                        "added in remote\\|removed in remote\\)"))
-    (let ((status (pcase (match-string 1)
-                    ("merged" "merged")
-                    ("changed in both" "conflict")
-                    ("added in remote" "new file")
-                    ("removed in remote" "deleted")))
+   ((looking-at magit-diff-conflict-headline-re)
+    (let ((long-status (match-string 0))
+          (status "BUG")
           file orig base modes)
+      (if (equal long-status "merged")
+          (progn (setq status long-status)
+                 (setq long-status nil))
+        (setq status (pcase-exhaustive long-status
+                       ("added in remote"   "new file")
+                       ("added in both"     "new file")
+                       ("added in local"    "new file")
+                       ("removed in both"   "removed")
+                       ("changed in both"   "changed")
+                       ("removed in local"  "removed")
+                       ("removed in remote" "removed"))))
       (magit-delete-line)
       (while (looking-at
               "^  \\([^ ]+\\) +[0-9]\\{6\\} \\([a-z0-9]\\{40\\}\\) \\(.+\\)$")
@@ -2137,7 +2157,8 @@ section or a child thereof."
         (magit-delete-line))
       (when orig (setq orig (magit-decode-git-path orig)))
       (when file (setq file (magit-decode-git-path file)))
-      (magit-diff-insert-file-section (or file base) orig status modes nil)))
+      (magit-diff-insert-file-section
+       (or file base) orig status modes nil long-status)))
    ((looking-at
      "^diff --\\(?:\\(git\\) \\(?:\\(.+?\\) \\2\\)?\\|\\(cc\\|combined\\) \\(.+\\)\\)")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
@@ -2181,15 +2202,18 @@ section or a child thereof."
           (setq orig (substring orig 2))))
       (magit-diff-insert-file-section file orig status modes header)))))
 
-(defun magit-diff-insert-file-section (file orig status modes header)
+(defun magit-diff-insert-file-section
+    (file orig status modes header &optional long-status)
   (magit-insert-section section
     (file file (or (equal status "deleted")
                    (derived-mode-p 'magit-status-mode)))
-    (insert (propertize (format "%-10s %s\n" status
+    (insert (propertize (format "%-10s %s" status
                                 (if (or (not orig) (equal orig file))
                                     file
                                   (format "%s -> %s" orig file)))
                         'font-lock-face 'magit-diff-file-heading))
+    (when long-status
+      (insert (format " (%s)" long-status)))
     (magit-insert-heading)
     (unless (equal orig file)
       (oset section source orig))
