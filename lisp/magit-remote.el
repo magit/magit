@@ -104,7 +104,8 @@ has to be used to view and change remote related variables."
      (list remote
            (magit-read-url
             "Remote url"
-            (and (string-match "\\([^:/]+\\)/[^/]+\\(\\.git\\)?\\'" origin)
+            (and origin
+                 (string-match "\\([^:/]+\\)/[^/]+\\(\\.git\\)?\\'" origin)
                  (replace-match remote t t origin 1)))
            (transient-args 'magit-remote))))
   (if (pcase (list magit-remote-add-set-remote.pushDefault
