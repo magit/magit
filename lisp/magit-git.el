@@ -719,7 +719,8 @@ returning the truename."
                      ;; Git bug.  See #2364.
                      (not (equal wtree ".git")))
                 ;; Return the linked working tree.
-                (file-name-directory wtree))
+                (concat (file-remote-p default-directory)
+                        (file-name-directory wtree)))
                ;; The working directory may not be the parent directory of
                ;; .git if it was set up with `git init --separate-git-dir'.
                ;; See #2955.
