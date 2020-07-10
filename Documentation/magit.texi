@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-996-g6b88fab39+1)
+@subtitle for version 2.90.1 (v2.90.1-1023-g7d4bcd72+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-996-g6b88fab39+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1023-g7d4bcd72+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -9052,7 +9052,7 @@ the git-submodule(1) manpage.
 The command @code{magit-list-submodules} displays a list of the current
 repository's submodules in a separate buffer.  It's also possible to
 display information about submodules directly in the status buffer of
-the super-repository by adding @code{magit-insert-submodules} to the hook
+the super-repository by adding @code{magit-insert-modules} to the hook
 @code{magit-status-sections-hook} as described in @ref{Status Module Sections}.
 
 @cindex magit-list-submodules
@@ -9078,18 +9078,6 @@ the repository identification (usually its basename), and with
 has to return a string to be inserted or nil.  PROPS is an alist
 that supports the keys @code{:right-align} and @code{:pad-right}.
 @end defopt
-
-@defun magit-insert-submodules
-
-Insert sections for all submodules.  For each section insert the
-path, the branch, and the output of @code{git describe --tags},
-or, failing that, the abbreviated HEAD commit hash.
-
-Press @code{RET} on such a submodule section to show its own status buffer.
-Press @code{RET} on the "Modules" section to display a list of submodules
-in a separate buffer.  This shows additional information not
-displayed in the super-repository's status buffer.
-@end defun
 
 @node Submodule Transient
 @subsection Submodule Transient
