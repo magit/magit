@@ -192,30 +192,34 @@ Then show the status buffer for the new repository."
   (magit-clone-internal repository directory (cons "--mirror" args)))
 
 (defun magit-clone-internal (repository directory args)
-  (run-hooks 'magit-credential-hook)
-  (setq directory (file-name-as-directory (expand-file-name directory)))
-  (magit-run-git-async "clone" args "--" repository
-                       (magit-convert-filename-for-git directory))
-  ;; Don't refresh the buffer we're calling from.
-  (process-put magit-this-process 'inhibit-refresh t)
-  (set-process-sentinel
-   magit-this-process
-   (lambda (process event)
-     (when (memq (process-status process) '(exit signal))
-       (let ((magit-process-raise-error t))
-         (magit-process-sentinel process event)))
-     (when (and (eq (process-status process) 'exit)
-                (= (process-exit-status process) 0))
-       (unless (memq (car args) '("--bare" "--mirror"))
-         (let ((default-directory directory))
-           (when (or (eq  magit-clone-set-remote.pushDefault t)
-                     (and magit-clone-set-remote.pushDefault
-                          (y-or-n-p "Set `remote.pushDefault' to \"origin\"? ")))
-             (setf (magit-get "remote.pushDefault") "origin"))
-           (unless magit-clone-set-remote-head
-             (magit-remote-unset-head "origin"))))
-       (with-current-buffer (process-get process 'command-buf)
-         (magit-status-setup-buffer directory))))))
+  (let* ((checkout (not (memq (car args) '("--bare" "--mirror"))))
+         (set-push-default
+          (and checkout
+               (or (eq  magit-clone-set-remote.pushDefault t)
+                   (and magit-clone-set-remote.pushDefault
+                        (y-or-n-p "Set `remote.pushDefault' to \"origin\"? "))))))
+    (run-hooks 'magit-credential-hook)
+    (setq directory (file-name-as-directory (expand-file-name directory)))
+    (magit-run-git-async "clone" args "--" repository
+                         (magit-convert-filename-for-git directory))
+    ;; Don't refresh the buffer we're calling from.
+    (process-put magit-this-process 'inhibit-refresh t)
+    (set-process-sentinel
+     magit-this-process
+     (lambda (process event)
+       (when (memq (process-status process) '(exit signal))
+         (let ((magit-process-raise-error t))
+           (magit-process-sentinel process event)))
+       (when (and (eq (process-status process) 'exit)
+                  (= (process-exit-status process) 0))
+         (when checkout
+           (let ((default-directory directory))
+             (when set-push-default
+               (setf (magit-get "remote.pushDefault") "origin"))
+             (unless magit-clone-set-remote-head
+               (magit-remote-unset-head "origin"))))
+         (with-current-buffer (process-get process 'command-buf)
+           (magit-status-setup-buffer directory)))))))
 
 (defun magit-clone-read-args ()
   (let ((repo (magit-clone-read-repository)))
