@@ -297,6 +297,19 @@ Also respect the value of `magit-with-editor-envvar'."
      (with-editor* magit-with-editor-envvar
        ,@body)))
 
+(defmacro magit--with-temp-process-buffer (&rest body)
+  "Like `with-temp-buffer', but always propagate `process-environment'.
+When that var is buffer-local in the calling buffer, it is not
+propagated by `with-temp-buffer', so we explicitly ensure that
+happens, so that processes will be invoked consistently.  BODY is
+as for that macro."
+  (declare (indent 0) (debug (body)))
+  (let ((p (cl-gensym)))
+    `(let ((,p process-environment))
+       (with-temp-buffer
+         (setq-local process-environment ,p)
+         ,@body))))
+
 (defun magit-process-git-arguments (args)
   "Prepare ARGS for a function that invokes Git.
 
@@ -339,7 +352,7 @@ what you want, then use `magit-git-string-ng' instead.
 This is an experimental replacement for `magit-git-string', and
 still subject to major changes."
   (magit--with-refresh-cache (cons default-directory args)
-    (with-temp-buffer
+    (magit--with-temp-process-buffer
       (and (zerop (apply #'magit-process-file magit-git-executable nil t nil
                          (magit-process-git-arguments args)))
            (not (bobp))
@@ -359,7 +372,7 @@ This is an experimental replacement for `magit-git-string', and
 still subject to major changes.  Also see `magit-git-string-p'."
   (magit--with-refresh-cache
       (list default-directory 'magit-git-string-ng args)
-    (with-temp-buffer
+    (magit--with-temp-process-buffer
       (let* ((args (magit-process-git-arguments args))
              (status (apply #'magit-process-file magit-git-executable
                             nil t nil args)))
@@ -387,7 +400,7 @@ newline, return an empty string.  Like `magit-git-string' but
 ignore `magit-git-debug'."
   (setq args (-flatten args))
   (magit--with-refresh-cache (cons default-directory args)
-    (with-temp-buffer
+    (magit--with-temp-process-buffer
       (apply #'magit-process-file magit-git-executable nil (list t nil) nil
              (magit-process-git-arguments args))
       (unless (bobp)
@@ -398,7 +411,7 @@ ignore `magit-git-debug'."
   "Execute Git with ARGS, returning its output."
   (setq args (-flatten args))
   (magit--with-refresh-cache (cons default-directory args)
-    (with-temp-buffer
+    (magit--with-temp-process-buffer
       (apply #'magit-process-file magit-git-executable nil (list t nil) nil
              (magit-process-git-arguments args))
       (buffer-substring-no-properties (point-min) (point-max)))))
@@ -468,7 +481,7 @@ If there is no output, return nil.  If the output begins with a
 newline, return an empty string."
   (setq args (-flatten args))
   (magit--with-refresh-cache (cons default-directory args)
-    (with-temp-buffer
+    (magit--with-temp-process-buffer
       (apply #'magit-git-insert args)
       (unless (bobp)
         (goto-char (point-min))
@@ -480,7 +493,7 @@ Empty lines anywhere in the output are omitted.
 
 If Git exits with a non-zero exit status, then report show a
 message and add a section in the respective process buffer."
-  (with-temp-buffer
+  (magit--with-temp-process-buffer
     (apply #'magit-git-insert args)
     (split-string (buffer-string) "\n" t)))
 
@@ -490,7 +503,7 @@ Empty items anywhere in the output are omitted.
 
 If Git exits with a non-zero exit status, then report show a
 message and add a section in the respective process buffer."
-  (with-temp-buffer
+  (magit--with-temp-process-buffer
     (apply #'magit-git-insert args)
     (split-string (buffer-string) "\0" t)))
 
@@ -894,7 +907,7 @@ range.  Otherwise, it can be any revision or range accepted by
                         revA revB))))
 
 (defun magit-file-status (&rest args)
-  (with-temp-buffer
+  (magit--with-temp-process-buffer
     (save-excursion (magit-git-insert "status" "-z" args))
     (let ((pos (point)) status)
       (while (> (skip-chars-forward "[:print:]") 0)
@@ -1820,7 +1833,7 @@ Return a list of two integers: (A>B B>A)."
     (cdr (split-string it))))
 
 (defun magit-patch-id (rev)
-  (with-temp-buffer
+  (magit--with-temp-process-buffer
     (magit-process-file
      shell-file-name nil '(t nil) nil shell-command-switch
      (let ((exec (shell-quote-argument magit-git-executable)))
@@ -1971,7 +1984,7 @@ and this option only controls what face is used.")
 (defmacro magit-with-blob (commit file &rest body)
   (declare (indent 2)
            (debug (form form body)))
-  `(with-temp-buffer
+  `(magit--with-temp-process-buffer
      (let ((buffer-file-name ,file))
        (save-excursion
          (magit-git-insert "cat-file" "-p"
