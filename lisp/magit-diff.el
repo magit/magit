@@ -939,7 +939,7 @@ and `:slant'."
   :description "Context lines"
   :class 'transient-option
   :argument "-U"
-  :reader 'transient-read-number-N+)
+  :reader 'transient-read-number-N0)
 
 (transient-define-argument magit-diff:-M ()
   :description "Detect renames"
