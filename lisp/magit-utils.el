@@ -402,6 +402,7 @@ and delay of your graphical environment or operating system."
 ;;; User Input
 
 (defvar helm-completion-in-region-default-sort-fn)
+(defvar helm-crm-default-separator)
 (defvar ivy-sort-functions-alist)
 
 (defvar magit-completing-read--silent-default nil)
@@ -523,6 +524,7 @@ into a list."
          (minibuffer-completion-table #'crm--collection-fn)
          (minibuffer-completion-confirm t)
          (helm-completion-in-region-default-sort-fn nil)
+         (helm-crm-default-separator nil)
          (input
           (cl-letf (((symbol-function 'completion-pcm--all-completions)
                      #'magit-completion-pcm--all-completions))
