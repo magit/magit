@@ -1433,7 +1433,7 @@ invisible."
                                  (if (oref section hidden)
                                      (car magit-section-visibility-indicator)
                                    (cdr magit-section-visibility-indicator))
-                                 (face-foreground 'fringe))))))
+                                 'fringe)))))
            ((stringp (car-safe magit-section-visibility-indicator))
             (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
               (cond ((oref section hidden)
