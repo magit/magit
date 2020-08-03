@@ -1332,9 +1332,6 @@ for a revision."
     (magit-section-update-highlight)
     t))
 
-(cl-defmethod magit-buffer-value (&context (major-mode magit-revision-mode))
-  (cons magit-buffer-range magit-buffer-diff-files))
-
 ;;;; Setting Commands
 
 (defun magit-diff-switch-range-type ()
