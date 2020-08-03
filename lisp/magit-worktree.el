@@ -179,6 +179,23 @@ If there is only one worktree, then insert nothing."
               (insert ?\n))))
         (insert ?\n)))))
 
+
+(autoload 'magit-read-file-from-rev "magit-files")
+
+(defun magit-find-file-in-other-worktree ()
+  "View file from other worktree, in another window."
+  (interactive )
+  (--if-let (cl-delete (directory-file-name (magit-toplevel))
+                       (magit-list-worktrees)
+                       :test #'equal :key #'car)
+      (let* ((default-directory (magit-completing-read
+                                 "Find file from worktree"
+                                 it)))
+        (find-file-other-window
+           (expand-file-name (magit-read-file-from-rev
+                              "HEAD" "Find file in other workspace"))))
+    (user-error "No other worktree is available")))
+
 ;;; _
 (provide 'magit-worktree)
 ;;; magit-worktree.el ends here
