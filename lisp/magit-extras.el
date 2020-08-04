@@ -35,6 +35,8 @@
 
 (defvar ido-exit)
 (defvar ido-fallback)
+(defvar project-prefix-map)
+(defvar project-switch-commands)
 
 (defgroup magit-extras nil
   "Additional functionality for Magit."
