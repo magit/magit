@@ -516,8 +516,6 @@ Magit is documented in info node `(magit)'."
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
   (setq-local bookmark-make-record-function 'magit--make-bookmark))
 
-;;; Highlighting
-
 ;;; Local Variables
 
 (defvar-local magit-buffer-arguments nil)
