@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1023-g7d4bcd72+1)
+@subtitle for version 2.90.1 (v2.90.1-1034-g3b21e89d7+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1023-g7d4bcd72+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1034-g3b21e89d7+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -11390,8 +11390,8 @@ $ EDITOR="emacsclient --alternate-editor emacs" git commit
 @end example
 
 This will actually end up using @code{emacs}, not @code{emacsclient}.  If you do
-this, then can still edit the commit message but @code{git-commit-mode} won't
-be used and you have to exit @code{emacs} to finish the process.
+this, then you can still edit the commit message but @code{git-commit-mode}
+won't be used and you have to exit @code{emacs} to finish the process.
 
 Tautology ahead.  If you want to be able to use @code{emacsclient} to connect
 to a running @code{emacs} instance, even though no @code{emacs} instance is running,
