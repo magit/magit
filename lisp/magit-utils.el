@@ -817,21 +817,11 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
   "Set the header-line using STRING.
 Propertize STRING with the `magit-header-line'.  If the `face'
 property of any part of STRING is already set, then that takes
-precedence.  Also pad the left and right sides of STRING so that
-it aligns with the text area."
+precedence.  Also pad the left side of STRING so that it aligns
+with the text area."
   (setq header-line-format
-        (concat
-         (propertize " " 'display '(space :align-to 0))
-         string
-         (propertize " " 'display
-                     `(space :width
-                             (+ left-fringe
-                                left-margin
-                                ,@(and (eq (car (window-current-scroll-bars))
-                                           'left)
-                                       '(scroll-bar)))))))
-  (magit--add-face-text-property 0 (1- (length header-line-format))
-                                 'magit-header-line t header-line-format))
+        (concat (propertize " " 'display '(space :align-to 0))
+                string)))
 
 (defun magit-face-property-all (face string)
   "Return non-nil if FACE is present in all of STRING."
