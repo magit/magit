@@ -477,7 +477,7 @@ acts similarly to `completing-read', except for the following:
                           predicate
                           require-match initial-input hist def)))
       (setq this-command command)
-      (if (string= reply "")
+      (if (equal reply "")
           (if require-match
               (user-error "Nothing selected")
             nil)
