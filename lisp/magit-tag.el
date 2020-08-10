@@ -29,6 +29,9 @@
 
 (require 'magit)
 
+;; For `magit-tag-delete'.
+(defvar helm-comp-read-use-marked)
+
 ;;;###autoload (autoload 'magit-tag "magit" nil t)
 (transient-define-prefix magit-tag ()
   "Create or delete a tag."
@@ -78,7 +81,8 @@ defaulting to the tag at point.
 \n(git tag -d TAGS)"
   (interactive (list (--if-let (magit-region-values 'tag)
                          (magit-confirm t nil "Delete %i tags" nil it)
-                       (magit-read-tag "Delete tag" t))))
+                       (let ((helm-comp-read-use-marked t))
+                         (magit-read-tag "Delete tag" t)))))
   (magit-run-git "tag" "-d" tags))
 
 ;;;###autoload

@@ -33,6 +33,9 @@
 (require 'magit)
 (require 'magit-reflog)
 
+;; For `magit-stash-drop'.
+(defvar helm-comp-read-use-marked)
+
 ;;; Options
 
 (defgroup magit-stash nil
@@ -231,7 +234,8 @@ When the region is active offer to drop all contained stashes."
   (interactive
    (list (--if-let (magit-region-values 'stash)
              (magit-confirm 'drop-stashes nil "Drop %i stashes" nil it)
-           (magit-read-stash "Drop stash"))))
+           (let ((helm-comp-read-use-marked t))
+             (magit-read-stash "Drop stash")))))
   (dolist (stash (if (listp stash)
                      (nreverse (prog1 stash (setq stash (car stash))))
                    (list stash)))
