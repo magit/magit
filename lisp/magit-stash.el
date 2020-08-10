@@ -224,6 +224,8 @@ and forgo removing the stash."
       (magit-stash-drop stash)
     (magit-run-git "stash" "apply" stash)))
 
+(defvar helm-comp-read-use-marked)
+
 ;;;###autoload
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
