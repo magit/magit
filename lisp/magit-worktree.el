@@ -162,7 +162,10 @@ If there is only one worktree, then insert nothing."
                  (pcase-lambda (`(,path ,barep ,commit ,branch))
                    (cons (cond
                           (branch (propertize
-                                   branch 'font-lock-face 'magit-branch-local))
+                                   branch 'font-lock-face
+                                   (if (equal branch (magit-get-current-branch))
+                                       'magit-branch-current
+                                     'magit-branch-local)))
                           (commit (propertize (magit-rev-abbrev commit)
                                               'font-lock-face 'magit-hash))
                           (barep  "(bare)"))
