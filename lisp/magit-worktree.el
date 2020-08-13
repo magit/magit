@@ -172,7 +172,7 @@ If there is only one worktree, then insert nothing."
           (pcase-dolist (`(,head . ,path) cols)
             (magit-insert-section (worktree path)
               (insert head)
-              (indent-to align)
+              (insert (make-string (- align (length head)) ?\s))
               (insert (let ((r (file-relative-name path))
                             (a (abbreviate-file-name path)))
                         (if (< (string-width r) (string-width a)) r a)))
