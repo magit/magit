@@ -127,7 +127,8 @@ which creates patches for all commits that are reachable from
             (or (--some (and (string-match "\\`--output-directory=\\(.+\\)" it)
                              (expand-file-name (match-string 1 it) topdir))
                         args)
-                topdir))))))))
+                topdir))))))
+    (message "Creating patch done.")))
 
 (transient-define-argument magit-format-patch:--in-reply-to ()
   :description "In reply to"
