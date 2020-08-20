@@ -308,7 +308,7 @@ same differences as those shown in the buffer are always used."
 
 ;;;###autoload
 (defun magit-request-pull (url start end)
-  "Request upstream to pull from you public repository.
+  "Request upstream to pull from your public repository.
 
 URL is the url of your publicly accessible repository.
 START is a commit that already is in the upstream repository.
