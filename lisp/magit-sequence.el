@@ -765,7 +765,7 @@ START has to be selected from a list of recent commits."
             commit
             (cl-case action
               (edit   "edit")
-              (remove "# pick")
+              (remove "noop\n# pick")
               (reword "reword")
               (t      (error "unknown action: %s" action)))
             commit)))
