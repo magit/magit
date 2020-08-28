@@ -312,7 +312,7 @@ already using it, then you probably shouldn't start doing so."
 (defface git-commit-keyword
   '((t :inherit font-lock-string-face))
   "Face used for keywords in commit messages.
-In this context a \"keyword\" is text surrounded be brackets."
+In this context a \"keyword\" is text surrounded by brackets."
   :group 'git-commit-faces)
 
 (define-obsolete-face-alias 'git-commit-note
