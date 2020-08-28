@@ -379,11 +379,11 @@ instead of \"Stashes:\"."
   (let ((verified (magit-rev-verify ref))
         (autostash
          (and (magit-rebase-in-progress-p)
-              (magit-file-line
-               (magit-git-dir
-                (-> (if (file-directory-p (magit-git-dir "rebase-merge"))
-                        "rebase-merge/autostash"
-                      "rebase-apply/autostash")))))))
+              (-> (if (file-directory-p (magit-git-dir "rebase-merge"))
+                      "rebase-merge/autostash"
+                    "rebase-apply/autostash")
+                  magit-git-dir
+                  magit-file-line))))
     (when (or autostash verified)
       (magit-insert-section (stashes ref)
         (magit-insert-heading heading)
