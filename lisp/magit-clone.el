@@ -200,6 +200,16 @@ Then show the status buffer for the new repository."
                         (y-or-n-p "Set `remote.pushDefault' to \"origin\"? "))))))
     (run-hooks 'magit-credential-hook)
     (setq directory (file-name-as-directory (expand-file-name directory)))
+    (when (file-exists-p directory)
+      (if (file-directory-p directory)
+          (when (> (length (directory-files directory)) 2)
+            (let ((name (magit-clone--url-to-name repository)))
+              (unless (and name
+                           (setq directory (file-name-as-directory
+                                            (expand-file-name name directory)))
+                           (not (file-exists-p directory)))
+                (user-error "%s already exits"))))
+        (user-error "%s already exists and is not a directory")))
     (magit-run-git-async "clone" args "--" repository
                          (magit-convert-filename-for-git directory))
     ;; Don't refresh the buffer we're calling from.
