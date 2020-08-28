@@ -971,9 +971,9 @@ at point."
 
 (defun magit-section-match-assoc (section alist)
   "Return the value associated with SECTION's type or lineage in ALIST."
-  (-some (pcase-lambda (`(,key . ,val))
-           (and (magit-section-match-1 key section) val))
-         alist))
+  (seq-some (pcase-lambda (`(,key . ,val))
+              (and (magit-section-match-1 key section) val))
+            alist))
 
 ;;; Create
 

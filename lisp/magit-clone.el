@@ -260,7 +260,7 @@ Then show the status buffer for the new repository."
        (match-string 1 url)))
 
 (defun magit-clone--name-to-url (name)
-  (or (-some
+  (or (seq-some
        (pcase-lambda (`(,re ,host ,user))
          (and (string-match re name)
               (let ((repo (match-string 1 name)))

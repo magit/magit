@@ -309,11 +309,11 @@ instance with all nil values is returned."
     (goto-char (line-beginning-position))
     (if-let ((re-start (concat "^\\(?5:" (regexp-quote comment-start)
                                "\\)? *"))
-             (type (-some (lambda (arg)
-                            (let ((case-fold-search nil))
-                              (and (looking-at (concat re-start (cdr arg)))
-                                   (car arg))))
-                          git-rebase-line-regexps)))
+             (type (seq-some (lambda (arg)
+                               (let ((case-fold-search nil))
+                                 (and (looking-at (concat re-start (cdr arg)))
+                                      (car arg))))
+                             git-rebase-line-regexps)))
         (git-rebase-action
          :action-type    type
          :action         (when-let ((action (match-string-no-properties 1)))

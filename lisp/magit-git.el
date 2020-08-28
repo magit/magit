@@ -1509,30 +1509,31 @@ The returned value has the form (REMOTE . REF), where REMOTE is
 the name of a remote and REF is the ref local to the remote."
   (when-let ((ref (magit-ref-fullname refname)))
     (save-match-data
-      (-some (lambda (line)
-               (and (string-match "\
+      (seq-some (lambda (line)
+                  (and (string-match "\
 \\`remote\\.\\([^.]+\\)\\.fetch=\\+?\\([^:]+\\):\\(.+\\)" line)
-                    (let ((rmt (match-string 1 line))
-                          (src (match-string 2 line))
-                          (dst (match-string 3 line)))
-                      (and (string-match (format "\\`%s\\'"
-                                                 (replace-regexp-in-string
-                                                  "*" "\\(.+\\)" dst t t))
-                                         ref)
-                           (cons rmt (replace-regexp-in-string
-                                      "*" (match-string 1 ref) src))))))
-             (magit-git-lines "config" "--local" "--list")))))
+                       (let ((rmt (match-string 1 line))
+                             (src (match-string 2 line))
+                             (dst (match-string 3 line)))
+                         (and (string-match (format "\\`%s\\'"
+                                                    (replace-regexp-in-string
+                                                     "*" "\\(.+\\)" dst t t))
+                                            ref)
+                              (cons rmt (replace-regexp-in-string
+                                         "*" (match-string 1 ref) src))))))
+                (magit-git-lines "config" "--local" "--list")))))
 
 (defun magit-split-branch-name (branch)
   (cond ((member branch (magit-list-local-branch-names))
          (cons "." branch))
         ((string-match "/" branch)
-         (or (-some (lambda (remote)
-                      (and (string-match (format "\\`\\(%s\\)/\\(.+\\)\\'" remote)
-                                         branch)
-                           (cons (match-string 1 branch)
-                                 (match-string 2 branch))))
-                    (magit-list-remotes))
+         (or (seq-some (lambda (remote)
+                         (and (string-match
+                               (format "\\`\\(%s\\)/\\(.+\\)\\'" remote)
+                               branch)
+                              (cons (match-string 1 branch)
+                                    (match-string 2 branch))))
+                       (magit-list-remotes))
              (error "Invalid branch name %s" branch)))))
 
 (defun magit-get-current-tag (&optional rev with-distance)

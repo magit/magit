@@ -222,9 +222,9 @@ By default this indicates whether there are uncommitted changes.
 - U if there is at least one unstaged file.
 - S if there is at least one staged file.
 Only one letter is shown, the first that applies."
-  (-some (pcase-lambda (`(,fun . ,flag))
-           (and (funcall fun) flag))
-         magit-repolist-column-flag-alist))
+  (seq-some (pcase-lambda (`(,fun . ,flag))
+              (and (funcall fun) flag))
+            magit-repolist-column-flag-alist))
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
