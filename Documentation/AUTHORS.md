@@ -83,6 +83,7 @@ Contributors
 - Bob Uhl <buhl@zvelo.com>
 - Bradley Wright <brad@intranation.com>
 - Brandon W Maister <quodlibetor@gmail.com>
+- Brian Leung <leungbk@mailfence.com>
 - Brian Warner <warner@lothar.com>
 - Bryan Shell <bryan.shell@orbitz.com>
 - Buster Copley <buster@buster.me.uk>
@@ -103,6 +104,7 @@ Contributors
 - Craig Andera <candera@wangdera.com>
 - Dale Hagglund <dale.hagglund@gmail.com>
 - Damien Cassou <damien@cassou.me>
+- Dan Davison <dandavison7@gmail.com>
 - Dan Erikson <derikson3@gmail.com>
 - Daniel Brockman <daniel@gointeractive.se>
 - Daniel Farina <drfarina@acm.org>
@@ -128,6 +130,7 @@ Contributors
 - Duianto Vebotci <vebotci@openmailbox.org>
 - Eli Barzilay <eli@barzilay.org>
 - Eric Davis <ed@npri.org>
+- Eric <e.a.gebhart@gmail.com>
 - Eric Prud'hommeaux <eric@w3.org>
 - Eric Schulte <schulte.eric@gmail.com>
 - Erik Anderson <erikbpanderson@gmail.com>
@@ -147,6 +150,7 @@ Contributors
 - Graham Dobbins <gdobbins@protonmail.com>
 - Greg A. Woods <woods@planix.com>
 - Greg Lucas <greg@glucas.net>
+- Gregory Heytings <ghe@sdf.org>
 - Greg Sexton <gregsexton@gmail.com>
 - Guillaume Martres <smarter@ubuntu.com>
 - Hannu Koivisto <azure@iki.fi>
@@ -170,7 +174,9 @@ Contributors
 - John Morris <john@zultron.com>
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
+- Jonas Galvão Xavier <jonas.agx@gmail.com>
 - Jonathan Arnett <jonathan@scriptdrop.co>
+- Jonathan del Strother <me@delstrother.com>
 - Jonathan Leech-Pepin <jonathan.leechpepin@gmail.com>
 - Jonathan Roes <jroes@jroes.net>
 - Jon Vanderwijk <jonathn@github.com>
@@ -198,6 +204,7 @@ Contributors
 - Lele Gaifax <lele@metapensiero.it>
 - Leo Liu <sdl.web@gmail.com>
 - Leonardo Etcheverry <leo@kalio.net>
+- Leo Vivier <leo.vivier+dev@gmail.com>
 - Lingchao Xin <douglarek@users.noreply.github.com>
 - Li-Yun Chang <michael142536@gmail.com>
 - Lluís Vilanova <vilanova@ac.upc.edu>
@@ -223,6 +230,7 @@ Contributors
 - Matthew Fluet <matthew.fluet@gmail.com>
 - Matthieu Hauglustaine <matt.hauglustaine@gmail.com>
 - Matus Goljer <dota.keys@gmail.com>
+- Maxim Cournoyer <maxim.cournoyer@gmail.com>
 - Michael Fogleman <michaelwfogleman@gmail.com>
 - Michael Griffiths <mikey@cich.li>
 - Michael Heerdegen <michael_heerdegen@web.de>
@@ -330,12 +338,15 @@ Contributors
 - Vineet Naik <vineet@helpshift.com>
 - Vitaly Ostashov <hotosho@yandex-team.ru>
 - Vladimir Panteleev <git@thecybershadow.net>
+- Vladimir Sedach <vas@oneofus.la>
 - Wei Huang <weih@opera.com>
 - Wilfred Hughes <me@wilfred.me.uk>
 - Win Treese <treese@acm.org>
+- Wojciech Siewierski <wojciech@siewierski.eu>
 - Wouter Bolsterlee <wouter@bolsterl.ee>
 - Xavier Noria <fxn@hashref.com>
 - Xu Chunyang <mail@xuchunyang.me>
+- Yann Herklotz <git@yannherklotz.com>
 - Yann Hodique <yann.hodique@gmail.com>
 - Ynilu <ynilu.chang@gmail.com>
 - York Zhao <gtdplatform@gmail.com>
