@@ -1827,7 +1827,7 @@ commit or stash at point, then prompt for a commit."
         (cond ((and (--any-p (oref it hidden)   children)
                     (--any-p (oref it children) children))
                (mapc 'magit-section-show-headings sections))
-              ((-any-p 'magit-section-hidden-body children)
+              ((seq-some 'magit-section-hidden-body children)
                (mapc 'magit-section-show-children sections))
               (t
                (mapc 'magit-section-hide sections)))))))
