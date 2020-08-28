@@ -230,8 +230,7 @@ Then show the status buffer for the new repository."
                (funcall magit-clone-default-directory repo)
              magit-clone-default-directory)
            nil nil
-           (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" repo)
-                (match-string 1 repo)))
+           (magit-clone--url-to-name repo))
           (transient-args 'magit-clone))))
 
 (defun magit-clone-read-repository ()
@@ -245,6 +244,10 @@ Then show the status buffer for the new repository."
         (read-directory-name "Clone repository: "))
     (?l "or [l]ocal url"
         (concat "file://" (read-directory-name "Clone repository: file://")))))
+
+(defun magit-clone--url-to-name (url)
+  (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" url)
+       (match-string 1 url)))
 
 (defun magit-clone--name-to-url (name)
   (or (-some
