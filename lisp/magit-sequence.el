@@ -900,8 +900,12 @@ If no such sequence is in progress, do nothing."
   (when (magit-rebase-in-progress-p)
     (let* ((interactive (file-directory-p (magit-git-dir "rebase-merge")))
            (dir  (if interactive "rebase-merge/" "rebase-apply/"))
-           (name (-> (concat dir "head-name") magit-git-dir magit-file-line))
-           (onto (-> (concat dir "onto")      magit-git-dir magit-file-line))
+           (name (thread-first (concat dir "head-name")
+                   magit-git-dir
+                   magit-file-line))
+           (onto (thread-first (concat dir "onto")
+                   magit-git-dir
+                   magit-file-line))
            (onto (or (magit-rev-name onto name)
                      (magit-rev-name onto "refs/heads/*") onto))
            (name (or (magit-rev-name name "refs/heads/*") name)))

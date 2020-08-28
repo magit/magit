@@ -1062,13 +1062,13 @@ If no DWIM context is found, nil is returned."
     (cons 'commit
           (magit-section-case
             (commit (oref it value))
-            (file (-> it
-                      (oref parent)
-                      (oref value)))
-            (hunk (-> it
-                      (oref parent)
-                      (oref parent)
-                      (oref value))))))
+            (file (thread-first it
+                    (oref parent)
+                    (oref value)))
+            (hunk (thread-first it
+                    (oref parent)
+                    (oref parent)
+                    (oref value))))))
    ((derived-mode-p 'magit-revision-mode)
     (cons 'commit magit-buffer-revision))
    ((derived-mode-p 'magit-diff-mode)
@@ -2810,10 +2810,10 @@ Do not confuse this with `magit-diff-scope' (which see)."
                     (if (memq type '(file module))
                         (magit-diff-type parent)
                       type)))
-                 (`hunk (-> it
-                            (oref parent)
-                            (oref parent)
-                            (oref type)))))))
+                 (`hunk (thread-first it
+                          (oref parent)
+                          (oref parent)
+                          (oref type)))))))
           ((derived-mode-p 'magit-log-mode)
            (if (or (and (magit-section-match 'commit section)
                         (oref section children))
