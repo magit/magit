@@ -298,11 +298,14 @@ that many spaces.  Otherwise, highlight neither."
   :link '(info-link "(magit)Revision Buffer")
   :group 'magit-modes)
 
-(defcustom magit-revision-mode-hook '(bug-reference-mode)
+(defcustom magit-revision-mode-hook
+  '(bug-reference-mode
+    goto-address-mode)
   "Hook run after entering Magit-Revision mode."
   :group 'magit-revision
   :type 'hook
-  :options '(bug-reference-mode))
+  :options '(bug-reference-mode
+             goto-address-mode))
 
 (defcustom magit-revision-sections-hook
   '(magit-insert-revision-tag
