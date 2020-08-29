@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1034-g3b21e89d7+1)
+@subtitle for version 2.90.1 (v2.90.1-1046-gf5ea9b2fe+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1034-g3b21e89d7+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1046-gf5ea9b2fe+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -321,6 +321,7 @@ FAQ
 
 FAQ - How to @dots{}?
 
+* How to pronounce Magit?::
 * How to show git's output?::
 * How to install the gitman info manual?::
 * How to show diffs for gpg-encrypted files?::
@@ -11093,6 +11094,7 @@ Please also use the @ref{Debugging Tools}.
 @appendixsec FAQ - How to @dots{}?
 
 @menu
+* How to pronounce Magit?::
 * How to show git's output?::
 * How to install the gitman info manual?::
 * How to show diffs for gpg-encrypted files?::
@@ -11100,6 +11102,25 @@ Please also use the @ref{Debugging Tools}.
 * Can Magit be used as @code{ediff-version-control-package}?::
 * Should I disable VC@?::
 @end menu
+
+@node How to pronounce Magit?
+@appendixsubsec How to pronounce Magit?
+
+Either @code{mu[m's] git} or @code{magi@{c => t@}} is fine.
+
+The slogan is "It's Magit! The magical Git client", so it makes sense
+to pronounce Magit like magic, while taking into account that C and T
+do not sound the same.
+
+The German "Magie" is not pronounced the same as the English "magic",
+so if you speak German then you can use the above rational to justify
+using the former pronunciation; @code{Mag@{ie => it@}}.
+
+You can also choose to use the former pronunciation just because you
+like it better.
+
+Also see @uref{https://magit.vc/assets/videos/magic.mp4}.
+Also see @uref{https://emacs.stackexchange.com/questions/13696}.
 
 @node How to show git's output?
 @appendixsubsec How to show git's output?

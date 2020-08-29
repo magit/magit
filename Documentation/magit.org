@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-1034-g3b21e89d7+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-1046-gf5ea9b2fe+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1034-g3b21e89d7+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1046-gf5ea9b2fe+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -8351,6 +8351,24 @@ https://github.com/magit/magit/wiki/FAQ.
 Please also use the [[*Debugging Tools]].
 
 ** FAQ - How to ...?
+*** How to pronounce Magit?
+
+Either ~mu[m's] git~ or ~magi{c => t}~ is fine.
+
+The slogan is "It's Magit! The magical Git client", so it makes sense
+to pronounce Magit like magic, while taking into account that C and T
+do not sound the same.
+
+The German "Magie" is not pronounced the same as the English "magic",
+so if you speak German then you can use the above rational to justify
+using the former pronunciation; ~Mag{ie => it}~.
+
+You can also choose to use the former pronunciation just because you
+like it better.
+
+Also see https://magit.vc/assets/videos/magic.mp4.
+Also see https://emacs.stackexchange.com/questions/13696.
+
 *** How to show git's output?
 
 To show the output of recently run git commands, press ~$~ (or, if that
