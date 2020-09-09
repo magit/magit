@@ -1,7 +1,7 @@
 ---
 title: 
 name: Bug report
-about: Report a defect
+about: Report a defect.
 ---
 
 Please do not ignore these instructions.
