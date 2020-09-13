@@ -674,9 +674,10 @@ modes is toggled, then this mode also gets toggled automatically.
   (propertize
    (concat (propertize "\s" 'display '(space :height (2)))
            (propertize "\n" 'line-height t))
-   'font-lock-face (list :background
-                         (face-attribute 'magit-blame-heading
-                                         :background nil t))))
+   'font-lock-face `(:background
+                     ,(face-attribute 'magit-blame-heading
+                                      :background nil t)
+                     ,@(and (>= emacs-major-version 27) '(:extend t)))))
 
 (defun magit-blame--format-time-string (time tz)
   (let* ((time-format (or (magit-blame--style-get 'time-format)
