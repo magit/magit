@@ -23,7 +23,8 @@ dir: magit.info magit-section.info
 	@echo $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
 
 HTML_FIXUP_CSS    = '/<link rel="stylesheet" type="text\/css" href="\/assets\/page.css">/a\
-<link class="s-css-s--style" rel="stylesheet"           title="Default"               href="/assets/themes/default.css">\
+<link rel="icon" href="/assets/magit_alt1.ico">\
+\n<link class="s-css-s--style" rel="stylesheet"           title="Default"               href="/assets/themes/default.css">\
 \n<link class="s-css-s--style" rel="stylesheet alternate" title="Default high contrast" href="/assets/themes/default-high-contrast.css">\
 \n<link class="s-css-s--style" rel="stylesheet alternate" title="Solarized dark xterm"  href="/assets/themes/solarized-dark-xterm.css">\
 \n<link class="s-css-s--style" rel="stylesheet alternate" title="Black on white"        href="/assets/themes/black-on-white.css">\
