@@ -101,7 +101,9 @@ ELGS = magit-autoloads.el magit-version.el
 
 ## Versions ##########################################################
 
-VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0 | cut -c2-)
+VERSION ?= $(shell \
+  test -e $(TOP).git && \
+  git describe --tags --abbrev=0 --always | cut -c2-)
 
 ASYNC_VERSION       = 1.9.4
 DASH_VERSION        = 2.17.0
