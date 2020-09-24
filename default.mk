@@ -51,6 +51,7 @@ ELS  = git-commit.el
 ELS += magit-transient.el
 ELS += magit-utils.el
 ELS += magit-section.el
+ELS += magit-file-modes.el
 ifeq "$(BUILD_MAGIT_LIBGIT)" "true"
 ELS += magit-libgit.el
 endif

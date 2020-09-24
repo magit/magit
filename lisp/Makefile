@@ -12,6 +12,7 @@ all: lisp
 git-commit.elc:
 magit-utils.elc:
 magit-section.elc:
+magit-file-modes.elc:
 ifeq "$(BUILD_MAGIT_LIBGIT)" "true"
 magit-libgit.elc:
 magit-git.elc:          magit-utils.elc magit-section.elc magit-libgit.elc

@@ -400,6 +400,7 @@ Process output goes into a new section in the buffer returned by
        (apply #'magit-process-file program nil process-buf nil args))
      process-buf (current-buffer) default-directory section)))
 
+;;;###autoload
 (defun magit-process-file (process &optional infile buffer display &rest args)
   "Process files synchronously in a separate process.
 Identical to `process-file' but temporarily enable Cygwin's

@@ -774,6 +774,7 @@ is non-nil, in which case return nil."
                (noerror nil)
                (t (signal 'magit-outside-git-repo default-directory))))))
 
+;;;###autoload
 (defun magit-inside-worktree-p (&optional noerror)
   "Return t if `default-directory' is below the working directory.
 If it is below the repository directory, then return nil.
