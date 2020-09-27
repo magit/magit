@@ -450,7 +450,9 @@ the upstream isn't ahead of the current branch) show."
     ("r" "current"        magit-reflog-current)
     ("O" "other"          magit-reflog-other)
     ("H" "HEAD"           magit-reflog-head)]
-   [:if magit--any-wip-mode-enabled-p
+   [:if (lambda ()
+          (require 'magit-wip)
+          (magit--any-wip-mode-enabled-p))
     :description "Wiplog"
     ("i" "index"          magit-wip-log-index)
     ("w" "worktree"       magit-wip-log-worktree)]])
