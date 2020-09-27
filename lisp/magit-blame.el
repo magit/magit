@@ -475,7 +475,9 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame--parse-chunk (type)
   (let (chunk revinfo)
-    (looking-at "^\\(.\\{40\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)")
+    (unless (looking-at "^\\(.\\{40\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)")
+      (error "Blaming failed due to unexpected output: %s"
+             (buffer-substring-no-properties (point) (line-end-position))))
     (with-slots (orig-rev orig-file prev-rev prev-file)
         (setq chunk (magit-blame-chunk
                      :orig-rev                     (match-string 1)
