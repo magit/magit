@@ -99,6 +99,13 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   :type '(choice (const :tag "Never remove old sections" nil) integer))
 
+(defvar magit-process-extreme-logging nil
+  "Whether `magit-process-file' logs to *Messages* buffer.
+Only intended for temporary use when you try to figure out how
+Magit uses Git behind the scene.  Output that normally goes to
+the magit-process buffer continues to go there.  Not all output
+goes to either of these two buffers.")
+
 (defcustom magit-process-error-tooltip-max-lines 20
   "The number of lines for `magit-process-error-lines' to return.
 
@@ -398,6 +405,9 @@ Process output goes into a new section in the buffer returned by
 Identical to `process-file' but temporarily enable Cygwin's
 \"noglob\" option during the call and ensure unix eol
 conversion."
+  (when magit-process-extreme-logging
+    (let ((inhibit-message t))
+      (message "$ %s" (magit-process--format-arguments process args))))
   (let ((process-environment (magit-process-environment))
         (default-process-coding-system (magit--process-coding-system)))
     (apply #'process-file process infile buffer display args)))
