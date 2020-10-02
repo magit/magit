@@ -630,25 +630,7 @@ Magit status buffer."
       (unless (equal (expand-file-name pwd)
                      (expand-file-name default-directory))
         (insert (file-relative-name pwd default-directory) ?\s))
-      (cond
-       ((and args (equal program magit-git-executable))
-        (setq args (-split-at (length magit-git-global-arguments) args))
-        (insert (propertize (file-name-nondirectory program)
-                            'font-lock-face 'magit-section-heading) " ")
-        (insert (propertize (char-to-string magit-ellipsis)
-                            'font-lock-face 'magit-section-heading
-                            'help-echo (mapconcat #'identity (car args) " ")))
-        (insert " ")
-        (insert (propertize (mapconcat #'shell-quote-argument (cadr args) " ")
-                            'font-lock-face 'magit-section-heading)))
-       ((and args (equal program shell-file-name))
-        (insert (propertize (cadr args)
-                            'font-lock-face 'magit-section-heading)))
-       (t
-        (insert (propertize (file-name-nondirectory program)
-                            'font-lock-face 'magit-section-heading) " ")
-        (insert (propertize (mapconcat #'shell-quote-argument args " ")
-                            'font-lock-face 'magit-section-heading))))
+      (insert (magit-process--format-arguments program args))
       (magit-insert-heading)
       (when errlog
         (if (bufferp errlog)
@@ -657,6 +639,29 @@ Magit status buffer."
           (insert-file-contents errlog)
           (goto-char (1- (point-max)))))
       (insert "\n"))))
+
+(defun magit-process--format-arguments (program args)
+  (cond
+   ((and args (equal program magit-git-executable))
+    (setq args (-split-at (length magit-git-global-arguments) args))
+    (concat (propertize (file-name-nondirectory program)
+                        'font-lock-face 'magit-section-heading)
+            " "
+            (propertize (char-to-string magit-ellipsis)
+                        'font-lock-face 'magit-section-heading
+                        'help-echo (mapconcat #'identity (car args) " "))
+            " "
+            (propertize (mapconcat #'shell-quote-argument (cadr args) " ")
+                        'font-lock-face 'magit-section-heading)))
+   ((and args (equal program shell-file-name))
+    (propertize (cadr args)
+                'font-lock-face 'magit-section-heading))
+   (t
+    (concat (propertize (file-name-nondirectory program)
+                        'font-lock-face 'magit-section-heading)
+            " "
+            (propertize (mapconcat #'shell-quote-argument args " ")
+                        'font-lock-face 'magit-section-heading)))))
 
 (defun magit-process-truncate-log ()
   (let* ((head nil)
