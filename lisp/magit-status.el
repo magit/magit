@@ -317,7 +317,7 @@ also contains other useful hints.")
       (if-let ((version (let ((default-directory directory))
                           (magit-git-version))))
           (if (version<= magit--minimal-git version)
-              (push version magit--remotes-using-recent-git)
+              (push remote magit--remotes-using-recent-git)
             (display-warning 'magit (format "\
 Magit requires Git >= %s, but on %s the version is %s.
 
