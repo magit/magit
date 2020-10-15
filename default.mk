@@ -54,6 +54,7 @@ ELS += magit-section.el
 ifeq "$(BUILD_MAGIT_LIBGIT)" "true"
 ELS += magit-libgit.el
 endif
+ELS += magit-git.el
 ELS += magit-mode.el
 ELS += magit-margin.el
 ELS += magit-process.el
