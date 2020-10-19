@@ -208,8 +208,8 @@ Then show the status buffer for the new repository."
                            (setq directory (file-name-as-directory
                                             (expand-file-name name directory)))
                            (not (file-exists-p directory)))
-                (user-error "%s already exits"))))
-        (user-error "%s already exists and is not a directory")))
+                (user-error "%s already exists" directory))))
+        (user-error "%s already exists and is not a directory" directory)))
     (magit-run-git-async "clone" args "--" repository
                          (magit-convert-filename-for-git directory))
     ;; Don't refresh the buffer we're calling from.
