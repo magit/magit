@@ -2277,10 +2277,17 @@ out.  Only existing branches can be selected."
                          (magit-tag-at-point)))
 
 (defun magit-read-stash (prompt)
-  (let ((stashes (magit-list-stashes)))
-    (magit-completing-read prompt stashes nil t nil nil
-                           (magit-stash-at-point)
-                           (car stashes))))
+  (let* ((atpoint (magit-stash-at-point))
+         (default (and atpoint
+                       (concat atpoint (magit-rev-format "  %s" atpoint))))
+         (choices (magit-list-stashes "%gd  %s"))
+         (choice  (magit-completing-read prompt choices
+                                         nil t nil nil
+                                         default
+                                         (car choices))))
+    (and choice
+         (string-match "^\\([^ ]+\\)  \\(.+\\)" choice)
+         (match-string 1 choice))))
 
 (defun magit-read-remote (prompt &optional default use-only)
   (let ((remotes (magit-list-remotes)))
