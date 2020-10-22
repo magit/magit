@@ -1495,6 +1495,35 @@ invisible."
       (when (overlay-get o 'magit-vis-indicator)
         (delete-overlay o)))))
 
+(defvar-local magit-section--opened-sections nil)
+
+(defun magit-section--open-temporarily (beg end)
+  (save-excursion
+    (goto-char beg)
+    (let ((section (magit-current-section)))
+      (while section
+        (if (and (magit-section-invisible-p section)
+                 (<= (oref section content) beg (oref section end)))
+            (progn
+              (magit-section-show section)
+              (push section magit-section--opened-sections)
+              (setq section (oref section parent)))
+          (setq section nil)))))
+  (or (eq search-invisible t)
+      (not (isearch-range-invisible beg end))))
+
+(defun isearch-clean-overlays@magit-mode (fn)
+  (if (derived-mode-p 'magit-mode)
+      (let ((pos (point)))
+        (dolist (section magit-section--opened-sections)
+          (unless (<= (oref section content) pos (oref section end))
+            (magit-section-hide section)))
+        (setq magit-section--opened-sections nil))
+    (funcall fn)))
+
+(advice-add 'isearch-clean-overlays :around
+            'isearch-clean-overlays@magit-mode)
+
 ;;; Utilities
 
 (cl-defun magit-section-selected-p (section &optional (selection nil sselection))

@@ -514,7 +514,8 @@ Magit is documented in info node `(magit)'."
   (hack-dir-local-variables-non-file-buffer)
   (face-remap-add-relative 'header-line 'magit-header-line)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
-  (setq-local bookmark-make-record-function 'magit--make-bookmark))
+  (setq-local bookmark-make-record-function 'magit--make-bookmark)
+  (setq-local isearch-filter-predicate 'magit-section--open-temporarily))
 
 ;;; Local Variables
 
