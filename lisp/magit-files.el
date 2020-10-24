@@ -430,20 +430,27 @@ the same location in the respective file in the working tree."
 ;;; File Commands
 
 (defun magit-file-rename (file newname)
-  "Rename the FILE to NEWNAME.
-If FILE isn't tracked in Git, fallback to using `rename-file'."
+  "Rename or move FILE to NEWNAME.
+NEWNAME may be a file or directory name.  If FILE isn't tracked in
+Git, fallback to using `rename-file'."
   (interactive
    (let* ((file (magit-read-file "Rename file"))
           (dir (file-name-directory file))
-          (newname (read-file-name (format "Rename %s to file: " file)
+          (newname (read-file-name (format "Move %s to destination: " file)
                                    (and dir (expand-file-name dir)))))
      (list (expand-file-name file (magit-toplevel))
            (expand-file-name newname))))
-  (let ((oldbuf (get-file-buffer file)))
+  (let ((oldbuf (get-file-buffer file))
+        (dstdir (file-name-directory newname))
+        (dstfile (if (directory-name-p newname)
+                     (concat newname (file-name-nondirectory file))
+                   newname)))
     (when (and oldbuf (buffer-modified-p oldbuf))
       (user-error "Save %s before moving it" file))
-    (when (file-exists-p newname)
-      (user-error "%s already exists" newname))
+    (when (file-exists-p dstfile)
+      (user-error "%s already exists" dstfile))
+    (unless (file-exists-p dstdir)
+      (user-error "Destination directory %s does not exist" dstdir))
     (if (magit-file-tracked-p (magit-convert-filename-for-git file))
         (magit-call-git "mv"
                         (magit-convert-filename-for-git file)
@@ -452,7 +459,7 @@ If FILE isn't tracked in Git, fallback to using `rename-file'."
     (when oldbuf
       (with-current-buffer oldbuf
         (let ((buffer-read-only buffer-read-only))
-          (set-visited-file-name newname nil t))
+          (set-visited-file-name dstfile nil t))
         (if (fboundp 'vc-refresh-state)
             (vc-refresh-state)
           (with-no-warnings
