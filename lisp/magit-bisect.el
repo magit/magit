@@ -58,10 +58,15 @@
 (transient-define-prefix magit-bisect ()
   "Narrow in on the commit that introduced a bug."
   :man-page "git-bisect"
-  ["Actions"
+  [:class transient-subgroups
    :if-not magit-bisect-in-progress-p
-   ("B" "Start"        magit-bisect-start)
-   ("s" "Start script" magit-bisect-run)]
+   ["Arguments"
+    ("-n" "Don't checkout commits"              "--no-checkout")
+    ("-p" "Follow only first parent of a merge" "--first-parent"
+     :if (lambda () (version<= "2.29" (magit-git-version))))]
+   ["Actions"
+    ("B" "Start"        magit-bisect-start)
+    ("s" "Start script" magit-bisect-run)]]
   ["Actions"
    :if magit-bisect-in-progress-p
    ("B" "Bad"          magit-bisect-bad)
@@ -71,7 +76,7 @@
    ("s" "Run script"   magit-bisect-run)])
 
 ;;;###autoload
-(defun magit-bisect-start (bad good)
+(defun magit-bisect-start (bad good args)
   "Start a bisect session.
 
 Bisecting a bug means to find the commit that introduced it.
@@ -88,11 +93,13 @@ other actions from the bisect transient command (\
      good bad))
   (when (magit-anything-modified-p)
     (user-error "Cannot bisect with uncommitted changes"))
-  (magit-git-bisect "start" (list bad good) t))
+  (magit-git-bisect "start" (list args bad good) t))
 
 (defun magit-bisect-start-read-args ()
-  (let  ((b (magit-read-branch-or-commit "Start bisect with bad revision")))
-    (list b (magit-read-other-branch-or-commit "Good revision" b))))
+  (let ((bad (magit-read-branch-or-commit "Start bisect with bad revision")))
+    (list bad
+          (magit-read-other-branch-or-commit "Good revision" bad)
+          (transient-args 'magit-bisect))))
 
 ;;;###autoload
 (defun magit-bisect-reset ()
@@ -127,7 +134,7 @@ to test.  This command lets Git choose a different one."
   (magit-git-bisect "skip"))
 
 ;;;###autoload
-(defun magit-bisect-run (cmdline &optional bad good)
+(defun magit-bisect-run (cmdline &optional bad good args)
   "Bisect automatically by running commands after each step.
 
 Unlike `git bisect run' this can be used before bisecting has
@@ -137,7 +144,7 @@ bisect run'."
                                 (magit-bisect-start-read-args))))
                  (cons (read-shell-command "Bisect shell command: ") args)))
   (when (and bad good)
-    (magit-bisect-start bad good))
+    (magit-bisect-start bad good args))
   (magit-git-bisect "run" (list shell-file-name shell-command-switch cmdline)))
 
 (defun magit-git-bisect (subcommand &optional args no-assert)
