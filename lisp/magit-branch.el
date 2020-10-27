@@ -39,7 +39,7 @@
 
 ;;; Options
 
-(defcustom magit-branch-read-upstream-first t
+(defcustom magit-branch-read-upstream-first nil
   "Whether to read upstream before name of new branch when creating a branch.
 
 `nil'      Read the branch name first.
