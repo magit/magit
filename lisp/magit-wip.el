@@ -107,6 +107,7 @@ is used as `branch-ref'."
 
 ;;; Modes
 
+;;;###autoload
 (define-minor-mode magit-wip-mode
   "Save uncommitted changes to work-in-progress refs.
 
