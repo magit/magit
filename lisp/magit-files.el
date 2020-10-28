@@ -355,6 +355,7 @@ Currently this only adds the following key bindings.
 
 (defvar magit-blob-mode-map
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-file-mode-map)
     (define-key map "p" 'magit-blob-previous)
     (define-key map "n" 'magit-blob-next)
     (define-key map "b" 'magit-blame-addition)
