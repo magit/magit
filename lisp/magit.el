@@ -219,6 +219,46 @@ and/or `magit-branch-remote-head'."
   "Face for filenames."
   :group 'magit-faces)
 
+;;; Global Bindings
+
+;;;###autoload
+(define-obsolete-variable-alias 'global-magit-file-mode
+  'magit-define-global-key-bindings "Magit 3.0.0")
+
+;;;###autoload
+(defcustom magit-define-global-key-bindings t
+  "Whether to bind some Magit commands in the global keymap.
+
+If this variable is non-nil, then the following bindings are
+added to the global keymap.  The default is t.
+
+key             binding
+---             -------
+C-x g           magit-status
+C-x M-g         magit-dispatch
+C-c M-g         magit-file-dispatch
+
+To prevent this, you must set this variable to nil *before*
+`magit' is loaded or autoloaded, afterwards it has no effect.
+
+Even if you use the above bindings, you may still wish to
+bind \"C-c g\" instead of \"C-c M-g\" to `magit-file-dispatch'.
+The former is a much better binding but the \"C-c <letter>\"
+namespace is strictly reserved for users; preventing Magit
+from using it by default.
+
+Also see info node `(magit)Commands for Buffers Visiting Files'."
+  :package-version '(magit . "3.0.0")
+  :group 'magit-essentials
+  :type 'boolean)
+
+;;;###autoload
+(when magit-define-global-key-bindings
+  (let ((map (current-global-map)))
+    (define-key map (kbd "C-x g")   'magit-status)
+    (define-key map (kbd "C-x M-g") 'magit-dispatch)
+    (define-key map (kbd "C-c M-g") 'magit-file-dispatch)))
+
 ;;; Dispatch Popup
 
 ;;;###autoload (autoload 'magit-dispatch "magit" nil t)

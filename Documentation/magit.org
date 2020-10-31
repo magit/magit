@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-1078-gff8a616cd+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-1083-gb18be6c14+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1078-gff8a616cd+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1083-gb18be6c14+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -282,13 +282,8 @@ tutorial.  Alternatively you can use an existing local repository, but
 if you do that, then you should commit all uncommitted changes before
 proceeding.
 
-To display information about the current Git repository, type ~M-x
-magit-status RET~.  You will be using this command a lot, and should
-therefore give it a global key binding.  This is what we recommend:
-
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x g") 'magit-status)
-#+END_SRC
+Type ~C-x g~ to display information about the current Git repository in
+a dedicated buffer, called the status buffer.
 
 Most Magit commands are commonly invoked from the status buffer.  It
 can be considered the primary interface for interacting with Git using
@@ -351,28 +346,24 @@ local branch onto the remote configured as the push-remote.  (If the
 push-remote is not configured yet, then you would first be prompted
 for the remote to push to.)
 
-So far we have mentioned the commit, push, and log transient prefix
-commands.  These are probably among the transients you will be using
-the most, but many others exist.  To show a transient that lists all
-other transients (as well as the various apply commands and some other
-essential commands), type ~h~.  Try a few.
+So far we have mentioned the commit, push, and log menu commands.
+These are probably among the menus you will be using the most, but
+many others exist.  To show a menu that lists all other menus (as well
+as the various apply commands and some other essential commands), type
+~h~.  Try a few.  (Such menus are also called "transient prefix
+commands" or just "transients".)
 
-The key bindings in that transient correspond to the bindings in Magit
+The key bindings in that menu correspond to the bindings in Magit
 buffers, including but not limited to the status buffer.  So you could
-type ~h d~ to bring up the diff transient, but once you remember that
-"d" stands for "diff", you would usually do so by just typing ~d~.  But
-this "prefix of prefixes" is useful even once you have memorized all
-the bindings, as it can provide easy access to Magit commands from
-non-Magit buffers.  You should create a global key binding for this
-command too:
+type ~h d~ to bring up the diff menu, but once you remember that "d"
+stands for "diff", you would usually do so by just typing ~d~.  But this
+"prefix of prefixes" is useful even once you have memorized all the
+bindings, as it can provide easy access to Magit commands from
+non-Magit buffers.  The global binding is ~C-x M-g~.
 
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x M-g") 'magit-dispatch)
-#+END_SRC
-
-In the same vein, you might also want to enable ~global-magit-file-mode~
-to get some more Magit key bindings in regular file-visiting buffers
-(see [[*Minor Mode for Buffers Visiting Files]]).
+In file visiting buffers ~C-c M-g~ brings up a similar menu featuring
+commands that act on just the visited file, see [[*Commands for Buffers
+Visiting Files]].
 
 It is not necessary that you do so now, but if you stick with Magit,
 then it is highly recommended that you read the next section too.
@@ -2534,11 +2525,10 @@ The log transient also features several reflog commands.  See [[*Reflog]].
 
   Show log for all references and ~HEAD~.
 
-
-Two additional commands that show the log for the file or blob that
-is being visited in the current buffer exists, see [[*Minor Mode for
-Buffers Visiting Files]].  The command ~magit-cherry~ also shows a log,
-see [[*Cherries]].
+Two additional commands that show the log for the file or blob that is
+being visited in the current buffer exists, see [[*Commands for Buffers
+Visiting Files]].  The command ~magit-cherry~ also shows a log, see
+[[*Cherries]].
 
 *** Refreshing Logs
 
@@ -2950,7 +2940,7 @@ in another buffer:
   Show all diffs of a stash in a buffer.
 
 Two additional commands that show the diff for the file or blob that
-is being visited in the current buffer exists, see [[*Minor Mode for
+is being visited in the current buffer exists, see [[*Commands for
 Buffers Visiting Files]].
 
 *** Refreshing Diffs
@@ -3808,10 +3798,7 @@ argument.
 Also see [[man:git-blame]]
 
 To start blaming invoke the ~magit-file-dispatch~ transient prefix
-command by pressing ~C-c M-g~.  (This is only the default binding and
-the recommended binding is ~C-c g~.  Also neither binding may be
-available if you disabled ~global-magit-file-mode~.  Also see [[*Minor
-Mode for Buffers Visiting Files]].)
+command by pressing ~C-c M-g~.
 
 The blaming suffix commands can be invoked from the dispatch
 transient.  However if you want to set an infix argument, then you
@@ -7074,54 +7061,21 @@ before making changes that could cause the loss of earlier changes.
 
   Mode-line lighter for ~magit-wip-initial-backup-mode~.
 
-** Minor Mode for Buffers Visiting Files
+** Commands for Buffers Visiting Files
 
-The minor-mode ~magit-file-mode~ enables certain Magit features in
-file-visiting buffers belonging to a Git repository.  The globalized
-variant ~global-magit-file-mode~ enables the local mode in all such
-buffers.  It is enabled by default.  Currently the local mode only
-establishes a few key bindings, but this might be extended in the
-future.
+Magit defines a few global key bindings unless the user sets
+~magit-define-global-key-bindings~ to ~nil~.  This includes binding ~C-c
+M-g~ to ~magit-file-dispatch~.  ~C-c g~ would be a much better binding
+but the ~C-c <letter>~ namespace is reserved for users, meaning that
+packages are not allowed to use it.  If you want to use ~C-c g~, then
+you have to add that binding yourself.  Also see [[*Default Bindings]]
+and [[info:elisp#Key Binding Conventions]].
 
-- User Option: global-magit-file-mode
+If you want a better binding, you have to add it yourself:
 
-  Whether to establish certain Magit key bindings in all file-visiting
-  buffers belonging to any Git repository.  This is enabled by default.
-  This globalized mode turns on the local minor-mode ~magit-file-mode~
-  in all suitable buffers.
-
-- Variable: magit-file-mode-map
-
-  This keymap is used by the local minor-mode ~magit-file-mode~ and
-  establishes the key bindings described below.
-
-  Note that the default binding for ~magit-file-dispatch~ is very
-  cumbersome to use and that we recommend that you add a better
-  binding.
-
-  Instead of ~C-c M-g~ I would have preferred to use ~C-c g~ because (1)
-  it is similar to ~C-x g~ (the recommended global binding for
-  ~~magit-status~), (2) we cannot use ~C-c C-g~ because we have been
-  recommending that that be bound to ~magit-dispatch~ for a long time,
-  (3) we cannot use ~C-x C-g~ because that is a convenient way of
-  aborting the incomplete key sequence ~C-x~, and most importantly (4)
-  it would make it much easier to type the next key (a suffix binding)
-  because most of those are letters.
-
-  For example ~C-c g b~ is much easier to type than ~C-c M-g b~.  For
-  suffix bindings that use uppercase letters, the default is just
-  horrible—having to use e.g. ~C-c M-g B~ (~Control+c Meta+g Shift+b~)
-  would drive anyone up the walls (or to Vim).
-
-  However ~C-c LETTER~ bindings are reserved for users (see
-  [[info:elisp#Key Binding Conventions]]).  Packages are forbidden from
-  using those.  Doing so anyway is considered heresy.  Therefore if
-  you want a better binding, you have to add it yourself:
-
-  #+BEGIN_SRC emacs-lisp
-    (define-key magit-file-mode-map
-      (kbd "C-c g") 'magit-file-dispatch)
-  #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c g") 'magit-file-dispatch)
+#+END_SRC
 
 The key bindings shown below assume that you have not improved the
 binding for ~magit-file-dispatch~.
@@ -7130,6 +7084,9 @@ binding for ~magit-file-dispatch~.
 
   This transient prefix command binds the following suffix commands
   and displays them in a temporary buffer until a suffix is invoked.
+
+  When invoked in a buffer that does not visit a file, then it falls
+  back to regular ~magit-dispatch~.
 
 - Key: C-c M-g s, magit-stage-file
 
@@ -7616,6 +7573,38 @@ the absolute path of the ~git~ executable, instead of relying on
 resolving the ~$PATH~.
 
 [fn:mac1] https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html
+
+*** Default Bindings
+
+- User Option: magit-define-global-key-bindings
+
+  This option controls whether to bind some Magit commands in the
+  global keymap.
+
+  If this variable is non-nil, which it is by default, then the
+  following bindings are added to the global keymap.
+
+  | ~C-x g~   | ~magit-status~        |
+  | ~C-x M-g~ | ~magit-dispatch~      |
+  | ~C-c M-g~ | ~magit-file-dispatch~ |
+
+  To prevent this, you must set this variable to nil *before*
+  ~magit~ is loaded or autoloaded, afterwards it has no effect.
+
+  Even if you use the above bindings, you may still wish to
+  bind ~C-c g~ instead of ~C-c M-g~ to `magit-file-dispatch'.
+  The former is a much better binding but the ~C-c <letter>~
+  namespace is strictly reserved for users; preventing Magit
+  from using it by default.
+
+  If you want a better binding, you have to add it yourself:
+
+  #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "C-c g") 'magit-file-dispatch)
+  #+END_SRC
+
+  Also see [[*Commands for Buffers Visiting Files]] and [[info:elisp#Key
+  Binding Conventions]].
 
 * Plumbing
 ** _ :ignore:

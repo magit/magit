@@ -279,19 +279,13 @@ directory, while reading the FILENAME."
                           (confirm-nonexistent-file-or-buffer))))
   (find-file-other-frame filename wildcards))
 
-;;; File Mode
-
-(defvar magit-file-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\C-xg"    'magit-status)
-    (define-key map "\C-x\M-g" 'magit-dispatch)
-    (define-key map "\C-c\M-g" 'magit-file-dispatch)
-    map)
-  "Keymap for `magit-file-mode'.")
+;;; File Dispatch
 
 ;;;###autoload (autoload 'magit-file-dispatch "magit" nil t)
 (transient-define-prefix magit-file-dispatch ()
-  "Invoke a Magit command that acts on the visited file."
+  "Invoke a Magit command that acts on the visited file.
+When invoked outside a file-visiting buffer, then fall back
+to `magit-dispatch'."
   :info-manual "(magit) Minor Mode for Buffers Visiting Files"
   ["Actions"
    [("s" "Stage"      magit-stage-file)
@@ -317,45 +311,17 @@ directory, while reading the FILENAME."
    [(5 "C-c r" "Rename file"   magit-file-rename)
     (5 "C-c d" "Delete file"   magit-file-delete)
     (5 "C-c u" "Untrack file"  magit-file-untrack)
-    (5 "C-c c" "Checkout file" magit-file-checkout)]])
-
-(defvar magit-file-mode-lighter "")
-
-(define-minor-mode magit-file-mode
-  "Enable some Magit features in a file-visiting buffer.
-
-Currently this only adds the following key bindings.
-\n\\{magit-file-mode-map}"
-  :package-version '(magit . "2.2.0")
-  :lighter magit-file-mode-lighter
-  :keymap  magit-file-mode-map)
-
-(defun magit-file-mode-turn-on ()
-  (and buffer-file-name
-       (magit-inside-worktree-p t)
-       (magit-file-mode)))
-
-;;;###autoload
-(define-globalized-minor-mode global-magit-file-mode
-  magit-file-mode magit-file-mode-turn-on
-  :package-version '(magit . "2.13.0")
-  :link '(info-link "(magit)Minor Mode for Buffers Visiting Files")
-  :group 'magit-essentials
-  :group 'magit-modes
-  :init-value t)
-;; Unfortunately `:init-value t' only sets the value of the mode
-;; variable but does not cause the mode function to be called, and we
-;; cannot use `:initialize' to call that explicitly because the option
-;; is defined before the functions, so we have to do it here.
-(cl-eval-when (load eval)
-  (when global-magit-file-mode
-    (global-magit-file-mode 1)))
+    (5 "C-c c" "Checkout file" magit-file-checkout)]]
+  (interactive)
+  (transient-setup
+   (if (or buffer-file-name magit-buffer-file-name)
+       'magit-file-dispatch
+     'magit-dispatch)))
 
 ;;; Blob Mode
 
 (defvar magit-blob-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-file-mode-map)
     (define-key map "p" 'magit-blob-previous)
     (define-key map "n" 'magit-blob-next)
     (define-key map "b" 'magit-blame-addition)
