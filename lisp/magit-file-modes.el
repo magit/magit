@@ -66,13 +66,27 @@ Currently this only adds the following key bindings.
   :group 'magit-essentials
   :group 'magit-modes
   :init-value t)
+
 ;; Unfortunately `:init-value t' only sets the value of the mode
 ;; variable but does not cause the mode function to be called, and we
 ;; cannot use `:initialize' to call that explicitly because the option
 ;; is defined before the functions, so we have to do it here.
+
+;;;###autoload
+(defvar global-magit-file-mode--activated nil)
+
 (cl-eval-when (load eval)
-  (when global-magit-file-mode
+  (when (and global-magit-file-mode
+             (not global-magit-file-mode--activated))
+    (setq global-magit-file-mode--activated t)
     (global-magit-file-mode 1)))
+
+;; Autoload the same form without `cl-eval-when' so that the loaddefs
+;; file does not need to require cl-lib.
+;;;###autoload(when (and global-magit-file-mode
+;;;###autoload           (not global-magit-file-mode--activated))
+;;;###autoload  (setq global-magit-file-mode--activated t)
+;;;###autoload  (global-magit-file-mode 1))
 
 ;;; Blob Mode
 
