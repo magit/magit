@@ -163,7 +163,12 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const delete-unmerged-branch)
     (const delete-pr-remote)
     (const drop-stashes)
+    (const amend-published)
+    (const rebase-published)
+    (const edit-published)
     (const remove-modules)
+    (const remove-dirty-modules)
+    (const trash-module-gitdirs)
     (const kill-process)
     (const safe-with-wip)))
 
