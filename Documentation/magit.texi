@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1046-gf5ea9b2fe+1)
+@subtitle for version 2.90.1 (v2.90.1-1078-gff8a616cd+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1046-gf5ea9b2fe+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1078-gff8a616cd+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8691,6 +8691,15 @@ behavior depends on at least these Git variables: @code{push.default},
 @code{remote.pushDefault}, @code{branch.<branch>.pushRemote},
 @code{branch.<branch>.remote}, @code{branch.<branch>.merge}, and
 @code{remote.<remote>.push}.
+
+If you add this suffix to a transient prefix without explicitly
+specifying the description, then an attempt is made to predict
+what this command will do.  For example:
+
+@lisp
+(transient-insert-suffix 'magit-push \"p\"
+  '(\"i\" magit-push-implicitly))"
+@end lisp
 @end deffn
 
 @cindex magit-push-to-remote remote args

@@ -262,8 +262,8 @@ branch as default."
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" remote ref args))
 
-;;;###autoload
-(defun magit-push-implicitly (args)
+;;;###autoload (autoload 'magit-push-implicitly "magit-push" nil t)
+(transient-define-suffix magit-push-implicitly (args)
   "Push somewhere without using an explicit refspec.
 
 This command simply runs \"git push -v [ARGS]\".  ARGS are the
@@ -273,9 +273,13 @@ these Git variables: `push.default', `remote.pushDefault',
 `branch.<branch>.pushRemote', `branch.<branch>.remote',
 `branch.<branch>.merge', and `remote.<remote>.push'.
 
-The function `magit-push-implicitly--desc' attempts to predict
-what this command will do.  The value it returns is displayed in
-the popup buffer."
+If you add this suffix to a transient prefix without explicitly
+specifying the description, then an attempt is made to predict
+what this command will do.  For example:
+
+  (transient-insert-suffix 'magit-push \"p\"
+    '(\"i\" magit-push-implicitly))"
+  :description 'magit-push-implicitly--desc
   (interactive (list (magit-push-arguments)))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" "-v" args))
