@@ -161,7 +161,7 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const abort-merge)
     (const merge-dirty)
     (const delete-unmerged-branch)
-    (const delete-pr-branch)
+    (const delete-pr-remote)
     (const drop-stashes)
     (const remove-modules)
     (const kill-process)
