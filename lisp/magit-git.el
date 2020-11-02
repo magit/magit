@@ -2276,11 +2276,30 @@ out.  Only existing branches can be selected."
                          require-match nil 'magit-revision-history
                          (magit-tag-at-point)))
 
+(defun magit--propertize-stash (stash)
+  "Propertize STASH, a line as returned by git stash list.
+Add `magit-hash' as the `font-lock-face' to the first occurrence
+of stash@{...}. Additional property transformations may be added
+in the future."
+  (save-match-data
+    (string-match "\\(stash@{[[:digit:]]+}\\)" stash)
+    (when-let ((start (match-beginning 1))
+               (end (match-end 1)))
+      (add-text-properties start end '(face magit-hash) stash)
+      stash)))
+
+(defun magit--list-stashes-pretty ()
+  "Like `magit-list-stashes', but propertized.
+Each stash has the format \"%gd: %s\", and the stash part is
+propertized using `magit--propertize-stash'."
+  (mapcar #'magit--propertize-stash (magit-list-stashes "%gd: %s")))
+
 (defun magit-read-stash (prompt)
+  "Prompt the user to select a stash with PROMPT."
   (let* ((atpoint (magit-stash-at-point))
          (default (and atpoint
                        (concat atpoint (magit-rev-format "  %s" atpoint))))
-         (choices (magit-list-stashes "%gd  %s"))
+         (choices (magit--list-stashes-pretty))
          (choice  (magit-completing-read prompt choices
                                          nil t nil nil
                                          default
