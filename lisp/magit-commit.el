@@ -217,7 +217,7 @@ to inverse the meaning of the prefix argument.  \n(git commit
                      (if current-prefix-arg
                          (not magit-commit-extend-override-date)
                        magit-commit-extend-override-date)))
-  (when (setq args (magit-commit-assert args (not override-date)))
+  (when (setq args (magit-commit-assert args))
     (magit-commit-amend-assert)
     (let ((process-environment process-environment))
       (unless override-date
@@ -357,7 +357,11 @@ depending on the value of option `magit-commit-squash-confirm'."
         (and (not strict)
              ;; ^ For amend variants that don't make sense otherwise.
              (or (member "--amend" args)
-                 (member "--allow-empty" args))))
+                 (member "--allow-empty" args)
+                 (member "--reset-author" args)
+                 (member "--author" args)
+                 (member "--signoff" args)
+                 (cl-find-if (lambda (a) (string-match-p "\\`--date=" a)) args))))
     (or args (list "--")))
    ((and (magit-rebase-in-progress-p)
          (not (magit-anything-unstaged-p))
