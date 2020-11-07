@@ -229,8 +229,8 @@ and/or `magit-branch-remote-head'."
 (defcustom magit-define-global-key-bindings t
   "Whether to bind some Magit commands in the global keymap.
 
-If this variable is non-nil, then the following bindings are
-added to the global keymap.  The default is t.
+If this variable is non-nil, then the following bindings may
+be added to the global keymap.  The default is t.
 
 key             binding
 ---             -------
@@ -238,8 +238,10 @@ C-x g           magit-status
 C-x M-g         magit-dispatch
 C-c M-g         magit-file-dispatch
 
-To prevent this, you must set this variable to nil *before*
-`magit' is loaded or autoloaded, afterwards it has no effect.
+These bindings are added when `after-init-hook' is called, so you
+can set this variable `magit-define-global-key-bindings' anywhere
+in your init file, but once that hook has run, then doing so does
+not have any effect until you restart Emacs.
 
 Even if you use the above bindings, you may still wish to
 bind \"C-c g\" instead of \"C-c M-g\" to `magit-file-dispatch'.
@@ -253,11 +255,19 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
   :type 'boolean)
 
 ;;;###autoload
-(when magit-define-global-key-bindings
-  (let ((map (current-global-map)))
-    (define-key map (kbd "C-x g")   'magit-status)
-    (define-key map (kbd "C-x M-g") 'magit-dispatch)
-    (define-key map (kbd "C-c M-g") 'magit-file-dispatch)))
+(progn
+  (defun magit-maybe-define-global-key-bindings ()
+    (when magit-define-global-key-bindings
+      (let ((map (current-global-map)))
+        (unless (lookup-key map (kbd "C-x g"))
+          (define-key map (kbd "C-x g") 'magit-status))
+        (unless (lookup-key map (kbd "C-x M-g"))
+          (define-key map (kbd "C-x M-g") 'magit-dispatch))
+        (unless (lookup-key map (kbd "C-c M-g"))
+          (define-key map (kbd "C-c M-g") 'magit-file-dispatch)))))
+  (if after-init-time
+      (magit-maybe-define-global-key-bindings)
+    (add-hook 'after-init-hook 'magit-maybe-define-global-key-bindings t)))
 
 ;;; Dispatch Popup
 

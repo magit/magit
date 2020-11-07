@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1083-gb18be6c14+1)
+@subtitle for version 2.90.1 (v2.90.1-1084-g5a38e1bb0+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1083-gb18be6c14+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1084-g5a38e1bb0+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -10233,7 +10233,7 @@ This option controls whether to bind some Magit commands in the
 global keymap.
 
 If this variable is non-nil, which it is by default, then the
-following bindings are added to the global keymap.
+following bindings may be added to the global keymap.
 
 @multitable {aaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaa}
 @item @code{C-x g}
@@ -10244,8 +10244,10 @@ following bindings are added to the global keymap.
 @tab @code{magit-file-dispatch}
 @end multitable
 
-To prevent this, you must set this variable to nil @strong{before}
-@code{magit} is loaded or autoloaded, afterwards it has no effect.
+These bindings are added when @code{after-init-hook} is called, so you
+can set this variable @code{magit-define-global-key-bindings} anywhere
+in your init file, but once that hook has run, then doing so does
+not have any effect until you restart Emacs.
 
 Even if you use the above bindings, you may still wish to
 bind @code{C-c g} instead of @code{C-c M-g} to `magit-file-dispatch'.

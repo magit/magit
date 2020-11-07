@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-1083-gb18be6c14+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-1084-g5a38e1bb0+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1083-gb18be6c14+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1084-g5a38e1bb0+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -7582,14 +7582,16 @@ resolving the ~$PATH~.
   global keymap.
 
   If this variable is non-nil, which it is by default, then the
-  following bindings are added to the global keymap.
+  following bindings may be added to the global keymap.
 
   | ~C-x g~   | ~magit-status~        |
   | ~C-x M-g~ | ~magit-dispatch~      |
   | ~C-c M-g~ | ~magit-file-dispatch~ |
 
-  To prevent this, you must set this variable to nil *before*
-  ~magit~ is loaded or autoloaded, afterwards it has no effect.
+  These bindings are added when ~after-init-hook~ is called, so you
+  can set this variable ~magit-define-global-key-bindings~ anywhere
+  in your init file, but once that hook has run, then doing so does
+  not have any effect until you restart Emacs.
 
   Even if you use the above bindings, you may still wish to
   bind ~C-c g~ instead of ~C-c M-g~ to `magit-file-dispatch'.
