@@ -61,7 +61,7 @@ the prefix argument."
    [("r"  "Request pull"       magit-request-pull)]])
 
 ;;;###autoload (autoload 'magit-patch-create "magit-patch" nil t)
-(transient-define-prefix magit-patch-create (range args files)
+(transient-define-prefix magit-patch-create (range args files subject)
   "Create patches for the commits in RANGE.
 When a single commit is given for RANGE, create a patch for the
 changes introduced by that commit (unlike 'git format-patch'
@@ -98,7 +98,7 @@ which creates patches for all commits that are reachable from
    ("c" "Create patches" magit-patch-create)]
   (interactive
    (if (not (eq transient-current-command 'magit-patch-create))
-       (list nil nil nil)
+       (list nil nil nil nil)
      (cons (if-let ((revs (magit-region-values 'commit t)))
                (concat (car (last revs)) "^.." (car revs))
              (let ((range (magit-read-range-or-commit
@@ -108,9 +108,20 @@ which creates patches for all commits that are reachable from
                  (format "%s~..%s" range range))))
            (let ((args (transient-args 'magit-patch-create)))
              (list (seq-filter #'stringp args)
-                   (cdr (assoc "--" args)))))))
+                   (cdr (assoc "--" args))
+                   (read-string "Subject: ")
+                   )))))
   (if (not range)
       (transient-setup 'magit-patch-create)
+    (unless (transient-arg-value "--output-directory" args)
+      (let ((dir (file-name-as-directory
+                  (expand-file-name
+                   (format "%s/v%s"
+                           (replace-regexp-in-string "[/\\]" "" subject)
+                           (or (transient-arg-value "--reroll-count" args) 0))
+                   ".gitpatches"))))
+        (make-directory dir t)
+        (push (concat "--output-directory=" dir) args)))
     (magit-run-git "format-patch" range args "--" files)
     (when (member "--cover-letter" args)
       (save-match-data
@@ -122,7 +133,13 @@ which creates patches for all commits that are reachable from
           (let ((topdir (magit-toplevel)))
             (if-let ((dir (transient-arg-value "--output-directory=" args)))
                 (expand-file-name dir topdir)
-              topdir))))))))
+              topdir))))
+        (when (re-search-forward "^Subject: ")
+          (let ((eol (line-end-position)))
+            (if (re-search-forward "\\*\\*\\* SUBJECT HERE \\*\\*\\*" eol t)
+                (replace-match subject t t)
+              (goto-char eol)
+              (insert subject))))))))
 
 (transient-define-argument magit-format-patch:--in-reply-to ()
   :description "In reply to"
@@ -322,6 +339,30 @@ is asked to pull.  START has to be reachable from that commit."
   (message-goto-body)
   (magit-git-insert "request-pull" start url end)
   (set-buffer-modified-p nil))
+
+;;; Sections
+
+;; (magit-add-section-hook 'magit-status-sections-hook 'magit-insert-patches nil t)
+
+(defun magit-insert-patches ()
+  (let ((dir ".gitpatches"))
+    (when (and (file-directory-p dir)
+               (directory-files dir nil "\\`[^.]"))
+      (magit--insert-file-tree nil dir 0 "Patches:"))))
+
+(defun magit--insert-file-tree (dir file level &optional heading)
+  (let ((path (file-relative-name (expand-file-name file dir))))
+    (magit-insert-section (file file t)
+      (if heading
+          (magit-insert-heading heading)
+        (insert (make-string (* 2 level) ?\s))
+        (insert (propertize file 'file 'magit-filename))
+        (insert (format " (%s)" path))
+        (magit-insert-heading))
+      (setq dir (expand-file-name file dir))
+      (when (file-directory-p dir)
+        (dolist (file (directory-files dir nil "\\`[^.]"))
+          (magit--insert-file-tree dir file (1+ level)))))))
 
 ;;; _
 (provide 'magit-patch)
