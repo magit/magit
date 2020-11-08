@@ -238,16 +238,27 @@ C-x g           magit-status
 C-x M-g         magit-dispatch
 C-c M-g         magit-file-dispatch
 
-These bindings are added when `after-init-hook' is called, so you
-can set this variable `magit-define-global-key-bindings' anywhere
-in your init file, but once that hook has run, then doing so does
-not have any effect until you restart Emacs.
+These bindings may be added when `after-init-hook' is called.
+Each binding is added if and only if at that time no other key
+is bound to the same command and no other command is bound to
+the same key.  In other words we try to avoid adding bindings
+that are unnecessary, as well as bindings that conflict with
+other bindings.
 
-Even if you use the above bindings, you may still wish to
-bind \"C-c g\" instead of \"C-c M-g\" to `magit-file-dispatch'.
-The former is a much better binding but the \"C-c <letter>\"
-namespace is strictly reserved for users; preventing Magit
-from using it by default.
+Adding the above bindings is delayed until `after-init-hook'
+is called to allow users to set the variable anywhere in their
+init file (without having to make sure to do so before `magit'
+is loaded or autoloaded) and to increase the likelihood that
+all the potentially conflicting user bindings have already
+been added.
+
+Setting this variable after the hook has already been called
+has no effect.
+
+We recommend that you bind \"C-c g\" instead of \"C-c M-g\" to
+`magit-file-dispatch'.  The former is a much better binding
+but the \"C-c <letter>\" namespace is strictly reserved for
+users; preventing Magit from using it by default.
 
 Also see info node `(magit)Commands for Buffers Visiting Files'."
   :package-version '(magit . "3.0.0")
@@ -259,12 +270,14 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
   (defun magit-maybe-define-global-key-bindings ()
     (when magit-define-global-key-bindings
       (let ((map (current-global-map)))
-        (unless (lookup-key map (kbd "C-x g"))
-          (define-key map (kbd "C-x g") 'magit-status))
-        (unless (lookup-key map (kbd "C-x M-g"))
-          (define-key map (kbd "C-x M-g") 'magit-dispatch))
-        (unless (lookup-key map (kbd "C-c M-g"))
-          (define-key map (kbd "C-c M-g") 'magit-file-dispatch)))))
+        (dolist (elt '(("C-x g"   . magit-status)
+                       ("C-x M-g" . magit-dispatch)
+                       ("C-c M-g" . magit-file-dispatch)))
+          (let ((key (kbd (car elt)))
+                (def (cdr elt)))
+            (unless (or (lookup-key map key)
+                        (where-is-internal def (make-sparse-keymap) t))
+              (define-key map key def)))))))
   (if after-init-time
       (magit-maybe-define-global-key-bindings)
     (add-hook 'after-init-hook 'magit-maybe-define-global-key-bindings t)))
