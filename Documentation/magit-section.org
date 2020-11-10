@@ -62,16 +62,23 @@ source for suitable examples before asking me for help.  Thanks!
 
 - Function: magit-insert-section [name] (type &optional value hide) &rest body
 
-  Insert a section at point.
+  Create a section object of type CLASS, storing VALUE in its
+  ~value~ slot, and insert the section at point.  CLASS is a
+  subclass of `magit-section' or has the form ~(eval FORM)~, in
+  which case FORM is evaluated at runtime and should return a
+  subclass.  In other places a sections class is oftern referred
+  to as its "type".
 
-  TYPE is the section type, a symbol.  Many commands that act on
-  the current section behave differently depending on that type.
-  Like functions and variables, TYPE must be prefixed with the
-  package name.  (For historic reasons the types used by Magit
-  and Forge do not use a package prefix.)
+  Many commands behave differently depending on the class of the
+  current section and sections of a certain class can have their
+  own keymap, which is specified using the `keymap' class slot.
+  The value of that slot should be a variable whose value is a
+  keymap.
 
-  Optional VALUE is the value of the section, usually a string
-  that is required when acting on the section.
+  For historic reasons Magit and Forge in most cases use symbols
+  as CLASS that don't actually identify a class and that lack the
+  appropriate package prefix.  This works due to some undocumented
+  kludges, which are not available to other packages.
 
   When optional HIDE is non-nil collapse the section body by
   default, i.e. when first creating the section, but not when
@@ -96,12 +103,6 @@ source for suitable examples before asking me for help.  Thanks!
   of the partially inserted section.  This can happen when creating
   a section by washing Git's output and Git didn't actually output
   anything this time around.
-
-  For historic reasons, if a variable ~magit-TYPE-section-map~
-  or ~forge-TYPE-section-map~ exists, then use that as the
-  text-property keymap~ of all text belonging to the section (but
-  this may be overwritten in subsections).  TYPE can also have the
-  form ~(eval FORM)~ in which case FORM is evaluated at runtime.
 
 - Function: magit-insert-heading &rest args
 

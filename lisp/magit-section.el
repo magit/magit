@@ -985,14 +985,23 @@ what you are doing and are sure there is no other way.")
 (defmacro magit-insert-section (&rest args)
   "Insert a section at point.
 
-TYPE is the section type, a symbol which is prefixed with the
-name of the package.  (For historic reasons the types used by
-Magit and Forge do not use a package prefix.)  Many commands
-that act on the current section behave differently depending
-on its type.
+Create a section object of type CLASS, storing VALUE in its
+`value' slot, and insert the section at point.  CLASS is a
+subclass of `magit-section' or has the form `(eval FORM)', in
+which case FORM is evaluated at runtime and should return a
+subclass.  In other places a sections class is oftern referred
+to as its \"type\".
 
-Optional VALUE is the value of the section, usually a string
-that is required when acting on the section.
+Many commands behave differently depending on the class of the
+current section and sections of a certain class can have their
+own keymap, which is specified using the `keymap' class slot.
+The value of that slot should be a variable whose value is a
+keymap.
+
+For historic reasons Magit and Forge in most cases use symbols
+as CLASS that don't actually identify a class and that lack the
+appropriate package prefix.  This works due to some undocumented
+kludges, which are not available to other packages.
 
 When optional HIDE is non-nil collapse the section body by
 default, i.e. when first creating the section, but not when
@@ -1018,13 +1027,7 @@ of the partially inserted section.  This can happen when creating
 a section by washing Git's output and Git didn't actually output
 anything this time around.
 
-For historic reasons, if a variable `magit-TYPE-section-map'
-or `forge-TYPE-section-map' exists, then use that as the
-text-property `keymap' of all text belonging to the section (but
-this may be overwritten in subsections).  TYPE can also have the
-form `(eval FORM)' in which case FORM is evaluated at runtime.
-
-\(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
+\(fn [NAME] (CLASS &optional VALUE HIDE) &rest BODY)"
   (declare (indent defun)
            (debug ([&optional symbolp]
                    (&or [("eval" form) &optional form form]
@@ -1043,11 +1046,9 @@ form `(eval FORM)' in which case FORM is evaluated at runtime.
                            (or (cdr (assq ,tp magit--section-type-alist))
                                'magit-section))
                          :type
-                         (if (class-p ,tp)
-                             (or (car (rassq ,tp magit--section-type-alist))
-                                 (error "BUG: No entry for %s in %s" ,tp
-                                        'magit--section-type-alist))
-                           ,tp)
+                         (or (and (class-p ,tp)
+                                  (car (rassq ,tp magit--section-type-alist)))
+                             ,tp)
                          :value ,(nth 1 (car args))
                          :start (point-marker)
                          :parent magit-insert-section--parent)))
