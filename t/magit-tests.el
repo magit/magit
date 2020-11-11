@@ -68,7 +68,9 @@
              ;; require a functioning `sudo'.
              (sudo-method (cdr (assoc "sudo" tramp-methods)))
              ((cdr (assq 'tramp-login-program sudo-method))
-              (list shell-file-name))
+              (list (if (file-executable-p "/bin/sh")
+                        "/bin/sh"
+                      shell-file-name)))
              ((cdr (assq 'tramp-login-args sudo-method)) nil))
     (magit-with-test-directory
      (setq default-directory
