@@ -843,31 +843,28 @@ with the text area."
 
 (defun magit-face-property-all (face string)
   "Return non-nil if FACE is present in all of STRING."
-  (cl-loop for pos = 0 then (next-single-property-change
-                             pos 'font-lock-face string)
-           unless pos
-             return t
-           for current = (get-text-property pos 'font-lock-face string)
-           unless (if (consp current)
-                      (memq face current)
-                    (eq face current))
-             return nil))
+  (catch 'missing
+    (let ((pos 0))
+      (while (setq pos (next-single-property-change pos 'font-lock-face string))
+        (let ((val (get-text-property pos 'font-lock-face string)))
+          (unless (if (consp val)
+                      (memq face val)
+                    (eq face val))
+            (throw 'missing nil))))
+      (not pos))))
 
 (defun magit--add-face-text-property (beg end face &optional append object)
   "Like `add-face-text-property' but for `font-lock-face'."
-  (cl-loop for pos = (next-single-property-change
-                      beg 'font-lock-face object end)
-           for current = (get-text-property beg 'font-lock-face object)
-           for newface = (if (listp current)
-                             (if append
-                                 (append current (list face))
-                               (cons face current))
-                           (if append
-                               (list current face)
-                             (list face current)))
-           do (progn (put-text-property beg pos 'font-lock-face newface object)
-                     (setq beg pos))
-           while (< beg end)))
+  (while (< beg end)
+    (let* ((pos (next-single-property-change beg 'font-lock-face object end))
+           (val (get-text-property beg 'font-lock-face object))
+           (val (if (listp val) val (list val))))
+      (put-text-property beg pos 'font-lock-face
+                         (if append
+                             (append val (list face))
+                           (cons face val))
+                         object)
+      (setq beg pos))))
 
 (defun magit--propertize-face (string face)
   (propertize string 'face face 'font-lock-face face))
