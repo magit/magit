@@ -294,19 +294,20 @@ but that ship has sailed, thus this option."
 (defvar magit--section-type-alist nil)
 
 (defclass magit-section ()
-  ((keymap   :initform nil :allocation :class)
-   (type     :initform nil :initarg :type)
-   (value    :initform nil :initarg :value)
-   (start    :initform nil :initarg :start)
-   (content  :initform nil)
-   (end      :initform nil)
-   (hidden   :initform nil)
-   (washer   :initform nil)
-   (process  :initform nil)
+  ((keymap     :initform nil :allocation :class)
+   (type       :initform nil :initarg :type)
+   (value      :initform nil :initarg :value)
+   (start      :initform nil :initarg :start)
+   (content    :initform nil)
+   (end        :initform nil)
+   (hidden     :initform nil)
+   (unexpanded :initform nil)
+   (washer     :initform nil)
+   (process    :initform nil)
    (heading-highlight-face :initform nil)
-   (inserter :initform (symbol-value 'magit--current-section-hook))
-   (parent   :initform nil :initarg :parent)
-   (children :initform nil)))
+   (inserter   :initform (symbol-value 'magit--current-section-hook))
+   (parent     :initform nil :initarg :parent)
+   (children   :initform nil)))
 
 ;;; Mode
 
@@ -451,6 +452,17 @@ The return value has the form (TYPE...)."
 (defvar magit-insert-section--parent  nil "For internal use only.")
 (defvar magit-insert-section--oldroot nil "For internal use only.")
 
+(defun magit-section-keymap (section)
+  "Return the keymap of SECTION."
+  (let ((class-map (oref-default section keymap))
+        (magit-map (intern (format "magit-%s-section-map"
+                                   (oref section type))))
+        (forge-map (intern (format "forge-%s-section-map"
+                                   (oref section type)))))
+    (or (and class-map (symbol-value class-map))
+        (and (boundp magit-map) (symbol-value magit-map))
+        (and (boundp forge-map) (symbol-value forge-map)))))
+
 ;;; Commands
 ;;;; Movement
 
@@ -572,10 +584,38 @@ With a prefix argument also expand it." heading)
 
 ;;;; Visibility
 
+(cl-defmethod magit-section-insert-body ((section magit-section))
+  "Insert the SECTION body.")
+
+(cl-defmethod magit-section-insert-body :around ((section magit-section))
+  (when (oref section unexpanded)
+    (when-let ((pos (oref section content)))
+      (cl-loop for s = section then (oref s parent) while s
+               do (set-marker-insertion-type (oref s end) 't))
+      (save-excursion (goto-char pos)
+                      (let ((inhibit-read-only 't)
+                            (magit-insert-section--parent section))
+                        (cl-call-next-method)))
+      (cl-loop for s = section then (oref s parent) while s
+               do (set-marker-insertion-type (oref s end) nil)))
+    (oset section unexpanded nil)))
+
+(cl-defmethod magit-section-insert-body :after ((section magit-section))
+  (cl-loop with end = (oref section end)
+           with map = (magit-section-keymap section)
+           for cur = (oref section content) then next
+           for next = (or (next-single-property-change cur 'magit-section) end)
+           while (< cur end)
+           unless (get-text-property cur 'magit-section)
+           do
+           (put-text-property cur next 'magit-section section)
+           (when map (put-text-property cur next 'keymap map))))
+
 (defun magit-section-show (section)
   "Show the body of the current section."
   (interactive (list (magit-current-section)))
   (oset section hidden nil)
+  (magit-section-insert-body section)
   (magit-section--maybe-wash section)
   (when-let ((beg (oref section content)))
     (remove-overlays beg (oref section end) 'invisible t))
@@ -1413,7 +1453,7 @@ invisible."
     (let ((beg (oref section start))
           (cnt (oref section content))
           (end (oref section end)))
-      (when (and cnt (or (not (= cnt end)) (oref section washer)))
+      (when (and cnt (or (not (= cnt end)) (oref section washer) (oref section unexpanded)))
         (let ((eoh (save-excursion
                      (goto-char beg)
                      (line-end-position))))
@@ -1487,7 +1527,8 @@ invisible."
 (defun magit-section-maybe-remove-visibility-indicator (section)
   (when (and magit-section-visibility-indicator
              (= (oref section content)
-                (oref section end)))
+                (oref section end))
+             (not (oref section unexpanded)))
     (dolist (o (overlays-in (oref section start)
                             (save-excursion
                               (goto-char (oref section start))
