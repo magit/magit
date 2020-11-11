@@ -820,8 +820,23 @@ and `:slant'."
 ;;; Section Classes
 
 (defclass magit-file-section (magit-section)
-  ((source   :initform nil)
-   (header   :initform nil)))
+  ((file      :initform nil)
+   (source    :initform nil)
+   (status    :initform nil)
+   (diff-args :initform nil)
+   (header    :initform nil)))
+
+(defmethod magit-section-insert-body ((section magit-file-section))
+  (with-slots (file source diff-args) section
+    (apply 'magit-git-wash
+           (lambda (args)
+             (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)
+               (require 'ansi-color)
+               (ansi-color-apply-on-region (point-min) (point-max)))
+             (magit-wash-sequence
+              (apply-partially 'magit-diff-wash-file-diff section))
+             (delete-region (point) (point-max)))
+        "diff" `(,@diff-args "--" ,source ,file))))
 
 (defclass magit-module-section (magit-file-section)
   ())
@@ -2035,6 +2050,32 @@ Staging and applying changes is documented in info node
     (goto-char (line-beginning-position))
     (magit-wash-sequence (apply-partially 'magit-diff-wash-diff args))
     (insert ?\n)))
+
+(defun magit-diff-wash-file-diff (section)
+  (let ((start (point)))
+    (rx-let ((orig (literal (or (oref section source) (oref section file))))
+             (file (literal (oref section file))))
+      (unless
+          (and (re-search-forward
+                (if (equal (oref section status) "unmerged")
+                    (rx "diff --" (| "cc" "combined") " " file "\n")
+                  (rx "diff --git " orig " " file "\n"))
+                nil 1)
+               (progn
+                 (goto-char (match-beginning 0))
+                 (delete-region start (point))
+                 (cl-loop until
+                          (progn (forward-line)
+                                 (or (eobp) (looking-at magit-diff-headline-re)))
+                          never (and (looking-at (rx (or "copy" "rename" "new file" "deleted")))
+                                     (not (equal (oref section status) (match-string 0))))))
+               (progn
+                 (oset section header (buffer-substring start (point)))
+                 (delete-region start (point))
+                 (magit-wash-sequence 'magit-diff-wash-hunk)
+                 t))
+        (delete-region start (point)))))
+  t)
 
 (defun magit-jump-to-diffstat-or-diff ()
   "Jump to the diffstat or diff.
