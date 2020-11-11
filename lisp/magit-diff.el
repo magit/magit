@@ -2091,19 +2091,7 @@ Staging and applying changes is documented in info node
                   (`("U" ,file . ,tail)
                    (unless (and (derived-mode-p 'magit-status-mode)
                                 (not (member "--cached" args)))
-                     (magit-insert-section (file file)
-                       (insert (propertize
-                                (format "unmerged   %s%s" file
-                                        (pcase (cddr (car (magit-file-status file)))
-                                          (`(?D ?D) " (both deleted)")
-                                          (`(?D ?U) " (deleted by us)")
-                                          (`(?U ?D) " (deleted by them)")
-                                          (`(?A ?A) " (both added)")
-                                          (`(?A ?U) " (added by us)")
-                                          (`(?U ?A) " (added by them)")
-                                          (`(?U ?U) "")))
-                                'font-lock-face 'magit-diff-file-heading))
-                       (insert ?\n)))
+                     (magit--insert-unmerged-file-section file))
                    (setq items tail))
                   (_ (signal 'error items))))
     (insert ?\n)))
@@ -2225,19 +2213,7 @@ section or a child thereof."
       (magit-delete-line)
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
-        (magit-insert-section (file file)
-          (insert (propertize
-                   (format "unmerged   %s%s" file
-                           (pcase (cddr (car (magit-file-status file)))
-                             (`(?D ?D) " (both deleted)")
-                             (`(?D ?U) " (deleted by us)")
-                             (`(?U ?D) " (deleted by them)")
-                             (`(?A ?A) " (both added)")
-                             (`(?A ?U) " (added by us)")
-                             (`(?U ?A) " (added by them)")
-                             (`(?U ?U) "")))
-                   'font-lock-face 'magit-diff-file-heading))
-          (insert ?\n))))
+        (magit--insert-unmerged-file-section file)))
     t)
    ((looking-at magit-diff-conflict-headline-re)
     (let ((long-status (match-string 0))
@@ -2357,6 +2333,22 @@ section or a child thereof."
       (magit-insert-section (hunk)
         (insert modes)
         (magit-insert-heading)))))
+
+(defun magit--insert-unmerged-file-section (file)
+  "Insert a bodyless file section for an unmerged file FILE."
+  (magit-insert-section (file file)
+    (insert (propertize
+             (format "unmerged   %s%s" file
+                     (pcase (cddr (car (magit-file-status file)))
+                       (`(?D ?D) " (both deleted)")
+                       (`(?D ?U) " (deleted by us)")
+                       (`(?U ?D) " (deleted by them)")
+                       (`(?A ?A) " (both added)")
+                       (`(?A ?U) " (added by us)")
+                       (`(?U ?A) " (added by them)")
+                       (`(?U ?U) "")))
+             'font-lock-face 'magit-diff-file-heading))
+    (insert ?\n)))
 
 (defun magit-diff-wash-submodule ()
   ;; See `show_submodule_summary' in submodule.c and "this" commit.
