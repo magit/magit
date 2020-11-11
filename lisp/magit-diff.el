@@ -30,7 +30,8 @@
 
 (eval-when-compile
   (require 'ansi-color)
-  (require 'subr-x))
+  (require 'subr-x)
+  (require 'rx))
 
 (require 'git-commit)
 (require 'magit-core)
@@ -2040,6 +2041,72 @@ Staging and applying changes is documented in info node
                     magit-git-global-arguments)))
     (magit-git-wash #'magit-diff-wash-diffs args)))
 
+(defun magit--insert-name-status-diff (args &rest files)
+  "Insert unexpanded file sections from the output of git diff --name-status."
+  (let ((magit-git-global-arguments
+         (remove "--literal-pathspecs" magit-git-global-arguments)))
+    ;; As of Git 2.19.0, we need to generate diffs with
+    ;; --ita-visible-in-index so that `magit-stage' can work with
+    ;; intent-to-add files (see #4026).  Cache the result for each
+    ;; repo to avoid a `git version' call for every diff insertion.
+    (when (pcase (magit-repository-local-get 'diff-ita-kludge-p 'unset)
+            (`unset
+             (let ((val (version<= "2.19.0" (magit-git-version))))
+               (magit-repository-local-set 'diff-ita-kludge-p val)
+               val))
+            (val val))
+      (push "--ita-visible-in-index" args))
+    (when (--any (or (equal "--stat" it) (equal "--numstat" it)) args)
+      (let ((beg (point)))
+        (magit-git-insert `("diff" ,@args ,@files))
+        (save-restriction
+          (narrow-to-region beg (point))
+          (goto-char beg)
+          (magit-diff-wash-diffstat)))
+      (setq args (--remove (or (equal it "--stat") (equal it "--numstat")) args)))
+    (cl-loop with items = (magit-git-items `("diff" "-z" "--name-status" "--diff-filter=MADRCTU"
+                                                           ,@args "--" ,@files))
+             initially (unless items (magit-cancel-section))
+             while items
+             do (pcase items
+                  (`(,(or (and "M" (let status "modified"))
+                          (and "A" (let status "new file"))
+                          (and "D" (let status "deleted")))
+                     ,file . ,tail)
+                   (magit-diff-insert-unexpanded-file-section file nil status :diff-args args)
+                   (setq items tail))
+                  (`(,(or (and (rx "R" (= 3 digit)) (let status "renamed"))
+                          (and (rx "C" (= 3 digit)) (let status "new file")))
+                     ,orig ,file . ,tail)
+                   (magit-diff-insert-unexpanded-file-section file orig status :diff-args args)
+                   (setq items tail))
+                  (`("T" ,file . ,tail)
+                   (magit-diff-insert-unexpanded-file-section file nil "deleted" :diff-args args)
+                   (magit-diff-insert-unexpanded-file-section file nil "new file" :diff-args args)
+                   (setq items tail))
+                  (`("U" ,file "M" ,(pred (lambda (f) (equal f file))) . ,tail)
+                   (magit-diff-insert-unexpanded-file-section file nil "unmerged" :diff-args args)
+                   (setq items tail))
+                  (`("U" ,file . ,tail)
+                   (unless (and (derived-mode-p 'magit-status-mode)
+                                (not (member "--cached" args)))
+                     (magit-insert-section (file file)
+                       (insert (propertize
+                                (format "unmerged   %s%s" file
+                                        (pcase (cddr (car (magit-file-status file)))
+                                          (`(?D ?D) " (both deleted)")
+                                          (`(?D ?U) " (deleted by us)")
+                                          (`(?U ?D) " (deleted by them)")
+                                          (`(?A ?A) " (both added)")
+                                          (`(?A ?U) " (added by us)")
+                                          (`(?U ?A) " (added by them)")
+                                          (`(?U ?U) "")))
+                                'font-lock-face 'magit-diff-file-heading))
+                       (insert ?\n)))
+                   (setq items tail))
+                  (_ (signal 'error items))))
+    (insert ?\n)))
+
 (defun magit-diff-wash-diffs (args &optional limit)
   (run-hooks 'magit-diff-wash-diffs-hook)
   (when (member "--show-signature" args)
@@ -2264,6 +2331,31 @@ section or a child thereof."
         (insert modes)
         (magit-insert-heading)))
     (magit-wash-sequence #'magit-diff-wash-hunk)))
+
+(cl-defun magit-diff-insert-unexpanded-file-section
+    (file orig status &key modes &key long-status &key diff-args)
+  "Insert an unexpanded section for FILE."
+  (magit-insert-section section
+    (file file (or (equal status "deleted")
+                   (derived-mode-p 'magit-status-mode)))
+    (insert (propertize (format "%-10s %s" status
+                                (if (or (not orig) (equal orig file))
+                                    file
+                                  (format "%s -> %s" orig file)))
+                        'font-lock-face 'magit-diff-file-heading))
+    (when long-status
+      (insert (format " (%s)" long-status)))
+    (magit-insert-heading)
+    (oset section unexpanded 't)
+    (oset section file file)
+    (unless (equal orig file)
+      (oset section source orig))
+    (oset section status status)
+    (oset section diff-args diff-args)
+    (when modes
+      (magit-insert-section (hunk)
+        (insert modes)
+        (magit-insert-heading)))))
 
 (defun magit-diff-wash-submodule ()
   ;; See `show_submodule_summary' in submodule.c and "this" commit.
