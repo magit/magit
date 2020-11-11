@@ -2010,12 +2010,13 @@ Staging and applying changes is documented in info node
 
 (defun magit-insert-diff ()
   "Insert the diff into this `magit-diff-mode' buffer."
-  (magit--insert-diff
-    "diff" magit-buffer-range "-p" "--no-prefix"
-    (and (member "--stat" magit-buffer-diff-args) "--numstat")
-    magit-buffer-typearg
-    magit-buffer-diff-args "--"
-    magit-buffer-diff-files))
+  (magit--insert-name-status-diff
+   (apply 'list
+          magit-buffer-range "--no-prefix"
+          (and (member "--stat" magit-buffer-diff-args) "--numstat")
+          magit-buffer-typearg
+          magit-buffer-diff-args)
+   magit-buffer-diff-files))
 
 (defun magit--insert-diff (&rest args)
   (declare (indent 0))
@@ -2865,9 +2866,9 @@ It the SECTION has a different type, then do nothing."
   "Insert section showing unstaged changes."
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
-    (magit--insert-diff
-      "diff" magit-buffer-diff-args "--no-prefix"
-      "--" magit-buffer-diff-files)))
+    (magit--insert-name-status-diff
+     `(,@magit-buffer-diff-args "--no-prefix")
+     magit-buffer-diff-files)))
 
 (defvar magit-staged-section-map
   (let ((map (make-sparse-keymap)))
@@ -2887,9 +2888,9 @@ It the SECTION has a different type, then do nothing."
   (unless (magit-bare-repo-p)
     (magit-insert-section (staged)
       (magit-insert-heading "Staged changes:")
-      (magit--insert-diff
-        "diff" "--cached" magit-buffer-diff-args "--no-prefix"
-        "--" magit-buffer-diff-files))))
+      (magit--insert-name-status-diff
+       `("--cached" ,@magit-buffer-diff-args "--no-prefix")
+       magit-buffer-diff-files))))
 
 ;;; Diff Type
 
