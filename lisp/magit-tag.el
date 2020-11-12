@@ -40,7 +40,8 @@
    ("-f" "Force"    ("-f" "--force"))
    ("-a" "Annotate" ("-a" "--annotate"))
    ("-s" "Sign"     ("-s" "--sign"))
-   (magit-tag:--local-user)]
+   (magit-tag:--local-user)
+   (magit-tag:--message)]
   [["Create"
     ("t"  "tag"     magit-tag-create)
     ("r"  "release" magit-tag-release)]
@@ -58,6 +59,15 @@
   :argument "--local-user="
   :reader 'magit-read-gpg-secret-key
   :history-key 'magit:--gpg-sign)
+
+(transient-define-argument magit-tag:--message ()
+  :description "Use message"
+  :class 'transient-option
+  :shortarg "-m"
+  :argument "--message="
+  ;; Empty (annotated)tag messages must be permitted because it is
+  ;; impossible to create them interactively.
+  :allow-empty t)
 
 ;;;###autoload
 (defun magit-tag-create (name rev &optional args)
