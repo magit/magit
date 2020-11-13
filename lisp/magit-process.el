@@ -163,7 +163,7 @@ itself from the hook, to avoid further futile attempts."
           "\\([Nn]o?\\)"
           ;; OpenSSH v8 prints this.  See #3969.
           "\\(?:/\\[fingerprint\\]\\)?"
-          "[\])] ?[?:] ?$")
+          "[\])] ?[?:]? ?$")
   "Regexp matching Yes-or-No prompts of Git and its subprocesses."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
