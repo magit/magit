@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1087-gcb8c2ee78+1)
+@subtitle for version 2.90.1 (v2.90.1-1092-g4b9c2d26a+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1087-gcb8c2ee78+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1092-g4b9c2d26a+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -515,10 +515,10 @@ where to find them.  To do so create the file @code{/path/to/magit/config.mk}
 with the following content before running @code{make}:
 
 @example
-LOAD_PATH  = -L /path/to/magit/lisp
-LOAD_PATH += -L /path/to/dash
-LOAD_PATH += -L /path/to/transient
-LOAD_PATH += -L /path/to/with-editor
+LOAD_PATH  = -L ~/.emacs.d/site-lisp/magit/lisp
+LOAD_PATH += -L ~/.emacs.d/site-lisp/dash
+LOAD_PATH += -L ~/.emacs.d/site-lisp/transient/lisp
+LOAD_PATH += -L ~/.emacs.d/site-lisp/with-editor
 @end example
 
 Finally add this to your init file:
@@ -531,6 +531,15 @@ Finally add this to your init file:
   (info-initialize)
   (add-to-list 'Info-directory-list
                "~/.emacs.d/site-lisp/magit/Documentation/"))
+@end lisp
+
+Of course if you installed the dependencies manually as well, then
+you have to tell Emacs about them too, by prefixing the above with:
+
+@lisp
+(add-to-list 'load-path "~/.emacs.d/site-lisp/dash")
+(add-to-list 'load-path "~/.emacs.d/site-lisp/transient/lisp")
+(add-to-list 'load-path "~/.emacs.d/site-lisp/with-editor")
 @end lisp
 
 Note that you have to add the @code{lisp} subdirectory to the @code{load-path}, not

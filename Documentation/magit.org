@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-1087-gcb8c2ee78+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-1092-g4b9c2d26a+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1087-gcb8c2ee78+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1092-g4b9c2d26a+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -191,10 +191,10 @@ where to find them.  To do so create the file ~/path/to/magit/config.mk~
 with the following content before running ~make~:
 
 #+BEGIN_SRC makefile
-  LOAD_PATH  = -L /path/to/magit/lisp
-  LOAD_PATH += -L /path/to/dash
-  LOAD_PATH += -L /path/to/transient
-  LOAD_PATH += -L /path/to/with-editor
+  LOAD_PATH  = -L ~/.emacs.d/site-lisp/magit/lisp
+  LOAD_PATH += -L ~/.emacs.d/site-lisp/dash
+  LOAD_PATH += -L ~/.emacs.d/site-lisp/transient/lisp
+  LOAD_PATH += -L ~/.emacs.d/site-lisp/with-editor
 #+END_SRC
 
 Finally add this to your init file:
@@ -207,6 +207,15 @@ Finally add this to your init file:
     (info-initialize)
     (add-to-list 'Info-directory-list
                  "~/.emacs.d/site-lisp/magit/Documentation/"))
+#+END_SRC
+
+Of course if you installed the dependencies manually as well, then
+you have to tell Emacs about them too, by prefixing the above with:
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path "~/.emacs.d/site-lisp/dash")
+  (add-to-list 'load-path "~/.emacs.d/site-lisp/transient/lisp")
+  (add-to-list 'load-path "~/.emacs.d/site-lisp/with-editor")
 #+END_SRC
 
 Note that you have to add the ~lisp~ subdirectory to the ~load-path~, not
