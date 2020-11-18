@@ -73,6 +73,25 @@
     (magit-run-git-async "push" "-v" args remote
                          (format "%s:%s%s" branch namespace target))))
 
+(defun magit-maybe-confirm-push-target (target &optional source)
+  (when-let ((protected (magit-get-all "magit.confirmPush"))
+             (prevented (magit-get "magit.preventUpstreamPush")))
+    (pcase-let ((`(,remote . ,branch)
+                 (magit-split-branch-name target)))
+      (when (string-prefix-p "refs/heads/" source)
+        (setq source (substring source 11)))
+      (when (and prevented source (not (equal source branch)))
+        (user-error "`magit.preventUpstreamPush' prevented pushing %S to %S"
+                    source target))
+      (when (and (or (member target protected)
+                     (member (format "%s/*" remote) protected)
+                     (member (format "*/%s" branch) protected))
+                 (not (y-or-n-p
+                       (format
+                        "Really push to %s"
+                        (propertize target 'face 'magit-branch-remote)))))
+        (user-error "Abort")))))
+
 ;;;###autoload (autoload 'magit-push-current-to-pushremote "magit-push" nil t)
 (transient-define-suffix magit-push-current-to-pushremote (args)
   "Push the current branch to its push-remote.
@@ -85,6 +104,7 @@ argument the push-remote can be changed before pushed to it."
   (interactive (list (magit-push-arguments)))
   (pcase-let ((`(,branch ,remote ,changed)
                (magit--select-push-remote "push there")))
+    (magit-maybe-confirm-push-target (concat remote "/" branch))
     (when changed
       (magit-confirm 'set-and-push
         (string-replace
@@ -155,6 +175,7 @@ the upstream."
            (format "Really use \"%s\" as upstream and push \"%s\" there"
                    upstream branch))))
       (cl-pushnew "--set-upstream" args :test #'equal))
+    ;; (magit-maybe-confirm-push-target )
     (run-hooks 'magit-credential-hook)
     (magit-run-git-async "push" "-v" args remote (concat branch ":" merge))))
 
