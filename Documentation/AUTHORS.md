@@ -157,6 +157,7 @@ Contributors
 - Hans-Peter Deifel <hpdeifel@gmx.de>
 - Hussein Ait-Lahcen <hussein.ait-lahcen@fretlink.com>
 - Ian Eure <ian.eure@gmail.com>
+- Ian Milligan <ianmllgn@gmail.com>
 - Ingo Lohmar <i.lohmar@gmail.com>
 - Ioan-Adrian Ratiu <adi@adirat.com>
 - Ivan Brennan <ivan.brennan@gmail.com>
@@ -169,7 +170,7 @@ Contributors
 - Jim Blandy <jimb@red-bean.com>
 - Joakim Jalap <JOJA@stoneridge.com>
 - Johannes Altmanninger <aclopte@gmail.com>
-- Johann Klähn <kljohann@gmail.com>
+- Johann Klähn <johann@jklaehn.de>
 - John Mastro <john.b.mastro@gmail.com>
 - John Morris <john@zultron.com>
 - John Wiegley <johnw@newartisans.com>
@@ -266,6 +267,7 @@ Contributors
 - Peter J. Weisberg <pj@irregularexpressions.net>
 - Peter Vasil <mail@petervasil.net>
 - Philippe Vaucher <philippe.vaucher@gmail.com>
+- Philipp Fehre <pfehre@twitter.com>
 - Philipp Haselwarter <philipp@haselwarter.org>
 - Philipp Stephani <phst@google.com>
 - Philip Weaver <philip.weaver@gmail.com>
@@ -306,6 +308,7 @@ Contributors
 - Sergey Vinokurov <serg.foo@gmail.com>
 - Servilio Afre Puentes <afrepues@mcmaster.ca>
 - Silent Sphere <silentsphere110@gmail.com>
+- Simon Pintarelli <simon.pintarelli@cscs.ch>
 - Štěpán Němec <stepnem@gmail.com>
 - Steven Chow <steve@myfreestuffapp.com>
 - Steven E. Harris <seh@panix.com>
@@ -319,7 +322,7 @@ Contributors
 - Tassilo Horn <tsdh@gnu.org>
 - Teemu Likonen <tlikonen@iki.fi>
 - Teruki Shigitani <teruki.shigitani@gmail.com>
-- Thierry Volpiatto <thierry.volpiatto@gmail.com>
+- Thierry Volpiatto <thievol@posteo.net>
 - Thomas A Caswell <tcaswell@gmail.com>
 - Thomas Fini Hansen <xen@xen.dk>
 - Thomas Frössman <thomasf@jossystem.se>
