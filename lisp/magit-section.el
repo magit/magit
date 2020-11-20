@@ -1503,13 +1503,17 @@ invisible."
     (goto-char beg)
     (let ((section (magit-current-section)))
       (while section
-        (if (and (magit-section-invisible-p section)
-                 (<= (oref section content) beg (oref section end)))
-            (progn
-              (magit-section-show section)
-              (push section magit-section--opened-sections)
-              (setq section (oref section parent)))
-          (setq section nil)))))
+        (let ((content (oref section content)))
+          (if (and (magit-section-invisible-p section)
+                   (<= (or content (oref section start))
+                       beg
+                       (oref section end)))
+              (progn
+                (when content
+                  (magit-section-show section)
+                  (push section magit-section--opened-sections))
+                (setq section (oref section parent)))
+            (setq section nil))))))
   (or (eq search-invisible t)
       (not (isearch-range-invisible beg end))))
 
