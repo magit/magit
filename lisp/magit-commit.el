@@ -126,7 +126,8 @@ Also see `git-commit-post-finish-hook'."
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
     ("A" "Augment"        magit-commit-augment)
-    (6 "x" "Absorb changes" magit-commit-autofixup)]
+    (6 "x" "Absorb changes" magit-commit-autofixup)
+    (6 "X" "Absorb modules" magit-commit-absorb-modules)]
    [""
     ("F" "Instant fixup"  magit-commit-instant-fixup)
     ("S" "Instant squash" magit-commit-instant-squash)]]
@@ -413,6 +414,30 @@ history element."
     (magit-run-git "commit" "--amend" "--no-edit"
                    (and (magit-rev-author-p "HEAD")
                         (concat "--date=" date)))))
+
+;;;###autoload
+(defun magit-commit-absorb-modules (phase commit)
+  "Spread modified modules across recent commits."
+  (interactive (list 'select (magit-get-upstream-branch)))
+  (let ((modules (magit-list-modified-modules)))
+    (unless modules
+      (user-error "There are no modified modules that could be absorbed"))
+    (when commit
+      (setq commit (magit-rebase-interactive-assert commit t)))
+    (if (and commit (eq phase 'run))
+        (progn
+          (dolist (module modules)
+            (when-let ((msg (magit-git-string
+                             "log" "-1" "--format=%s"
+                             (concat commit "..") "--" module)))
+              (magit-git "commit" "-m" (concat "fixup! " msg)
+                         "--only" "--" module)))
+          (magit-refresh)
+          t)
+      (magit-log-select
+        (lambda (commit)
+          (magit-commit-absorb-modules 'run commit))
+        nil nil nil nil commit))))
 
 ;;;###autoload (autoload 'magit-commit-absorb "magit-commit" nil t)
 (transient-define-prefix magit-commit-absorb (phase commit args)
