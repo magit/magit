@@ -906,7 +906,7 @@ instead of the hash, like `kill-ring-save' would."
    ("q" "Quit blaming" magit-blame-quit)]
   ["Refresh"
    :if-non-nil magit-blame-mode
-   ("c" "Cycle style" magit-blame-cycle-style)])
+   ("c" "Cycle style" magit-blame-cycle-style :transient t)])
 
 (defun magit-blame-arguments ()
   (transient-args 'magit-blame))
