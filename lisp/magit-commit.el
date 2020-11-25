@@ -480,10 +480,14 @@ See `magit-commit-autofixup' for an alternative implementation."
 
 ;;;###autoload (autoload 'magit-commit-autofixup "magit-commit" nil t)
 (transient-define-prefix magit-commit-autofixup (phase commit args)
-  "Spread unstaged changes across recent commits.
-With a prefix argument use a transient command to select infix
-arguments.  This command requires the git-autofixup script, which
-is available from https://github.com/torbiak/git-autofixup.
+  "Spread staged or unstaged changes across recent commits.
+
+If there are any staged then spread only those, otherwise
+spread all unstaged changes. With a prefix argument use a
+transient command to select infix arguments.
+
+This command requires the git-autofixup script, which is
+available from https://github.com/torbiak/git-autofixup.
 See `magit-commit-absorb' for an alternative implementation."
   ["Arguments"
    (magit-autofixup:--context)
@@ -500,10 +504,8 @@ See `magit-commit-absorb' for an alternative implementation."
     (unless (executable-find "git-autofixup")
       (user-error "This command requires the git-autofixup script, which %s"
                   "is available from https://github.com/torbiak/git-autofixup"))
-    (when (magit-anything-staged-p)
-      (user-error "Cannot absorb when there are staged changes"))
-    (unless (magit-anything-unstaged-p)
-      (user-error "There are no unstaged changes that could be absorbed"))
+    (unless (magit-anything-modified-p)
+      (user-error "There are no changes that could be absorbed"))
     (when commit
       (setq commit (magit-rebase-interactive-assert commit t)))
     (if (and commit (eq phase 'run))
