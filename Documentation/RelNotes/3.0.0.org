@@ -141,6 +141,10 @@
 - New command ~git-rebase-break~ inserts a "break" action in the
   rebase to-do sequence (available as of Git v2.20).  #3762
 
+- ~git-rebase-kill-line~ and the commands for changing the action of a
+  commit line (e.g., ~git-rebase-squash~) learned to work on all lines
+  selected by the region.  #4172
+
 - The ~--color-moved~ diff argument is supported now, but isn't
   available from the diff transients by default.  To enable it
   use "C-x l" in those transients.  #3424

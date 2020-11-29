@@ -223,27 +223,32 @@
 ;;; Commands
 
 (defun git-rebase-pick ()
-  "Use commit on current line."
+  "Use commit on current line.
+If the region is active, act on all lines touched by the region."
   (interactive)
   (git-rebase-set-action "pick"))
 
 (defun git-rebase-reword ()
-  "Edit message of commit on current line."
+  "Edit message of commit on current line.
+If the region is active, act on all lines touched by the region."
   (interactive)
   (git-rebase-set-action "reword"))
 
 (defun git-rebase-edit ()
-  "Stop at the commit on the current line."
+  "Stop at the commit on the current line.
+If the region is active, act on all lines touched by the region."
   (interactive)
   (git-rebase-set-action "edit"))
 
 (defun git-rebase-squash ()
-  "Meld commit on current line into previous commit, edit message."
+  "Meld commit on current line into previous commit, edit message.
+If the region is active, act on all lines touched by the region."
   (interactive)
   (git-rebase-set-action "squash"))
 
 (defun git-rebase-fixup ()
-  "Meld commit on current line into previous commit, discard its message."
+  "Meld commit on current line into previous commit, discard its message.
+If the region is active, act on all lines touched by the region."
   (interactive)
   (git-rebase-set-action "fixup"))
 
@@ -328,26 +333,39 @@ instance with all nil values is returned."
 
 (defun git-rebase-set-action (action)
   "Set action of commit line to ACTION.
-As a special case, an ACTION of nil comments the rebase line,
-regardless of its action type."
-  (goto-char (line-beginning-position))
-  (with-slots (action-type target trailer comment-p)
-      (git-rebase-current-line)
-    (cond
-     ((and action (eq action-type 'commit))
-      (let ((inhibit-read-only t))
-        (magit-delete-line)
-        (insert (concat action " " target " " trailer "\n")))
-      (unless git-rebase-auto-advance
-        (forward-line -1)))
-     (action
-      (ding))
-     ((not comment-p)
-      (let ((inhibit-read-only t))
-        (insert comment-start " "))
-      (goto-char (line-beginning-position))
-      (when git-rebase-auto-advance
-        (forward-line))))))
+If the region is active, operate on all lines that it touches.
+Otherwise, operate on the current line.  As a special case, an
+ACTION of nil comments the rebase line, regardless of its action
+type."
+  (pcase (git-rebase-region-bounds t)
+    (`(,beg ,end)
+     (let ((end-marker (copy-marker end))
+           (pt-below-p (and mark-active (< (mark) (point)))))
+       (set-marker-insertion-type end-marker t)
+       (goto-char beg)
+       (while (< (point) end-marker)
+         (with-slots (action-type target trailer comment-p)
+             (git-rebase-current-line)
+           (cond
+            ((and action (eq action-type 'commit))
+             (let ((inhibit-read-only t))
+               (magit-delete-line)
+               (insert (concat action " " target " " trailer "\n"))))
+            ((and action-type (not (or action comment-p)))
+             (let ((inhibit-read-only t))
+               (insert comment-start " "))
+             (forward-line))
+            (t
+             ;; In the case of --rebase-merges, commit lines may have
+             ;; other lines with other action types, empty lines, and
+             ;; "Branch" comments interspersed.  Move along.
+             (forward-line)))))
+       (goto-char
+        (if git-rebase-auto-advance
+            end-marker
+          (if pt-below-p (1- end-marker) beg)))
+       (goto-char (line-beginning-position))))
+    (_ (ding))))
 
 (defun git-rebase-line-p (&optional pos)
   (save-excursion
@@ -443,7 +461,8 @@ current line."
   (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
 (defun git-rebase-kill-line ()
-  "Kill the current action line."
+  "Kill the current action line.
+If the region is active, act on all lines touched by the region."
   (interactive)
   (git-rebase-set-action nil))
 
