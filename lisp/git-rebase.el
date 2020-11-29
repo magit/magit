@@ -327,16 +327,27 @@ instance with all nil values is returned."
       (git-rebase-action))))
 
 (defun git-rebase-set-action (action)
+  "Set action of commit line to ACTION.
+As a special case, an ACTION of nil comments the rebase line,
+regardless of its action type."
   (goto-char (line-beginning-position))
-  (with-slots (action-type target trailer)
+  (with-slots (action-type target trailer comment-p)
       (git-rebase-current-line)
-    (if (eq action-type 'commit)
-        (let ((inhibit-read-only t))
-          (magit-delete-line)
-          (insert (concat action " " target " " trailer "\n"))
-          (unless git-rebase-auto-advance
-            (forward-line -1)))
-      (ding))))
+    (cond
+     ((and action (eq action-type 'commit))
+      (let ((inhibit-read-only t))
+        (magit-delete-line)
+        (insert (concat action " " target " " trailer "\n")))
+      (unless git-rebase-auto-advance
+        (forward-line -1)))
+     (action
+      (ding))
+     ((not comment-p)
+      (let ((inhibit-read-only t))
+        (insert comment-start " "))
+      (goto-char (line-beginning-position))
+      (when git-rebase-auto-advance
+        (forward-line))))))
 
 (defun git-rebase-line-p (&optional pos)
   (save-excursion
@@ -425,13 +436,7 @@ current line."
 (defun git-rebase-kill-line ()
   "Kill the current action line."
   (interactive)
-  (goto-char (line-beginning-position))
-  (unless (oref (git-rebase-current-line) comment-p)
-    (let ((inhibit-read-only t))
-      (insert comment-start " "))
-    (goto-char (line-beginning-position))
-    (when git-rebase-auto-advance
-      (forward-line))))
+  (git-rebase-set-action nil))
 
 (defun git-rebase-insert (rev)
   "Read an arbitrary commit and insert it below current line."
