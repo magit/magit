@@ -355,15 +355,24 @@ regardless of its action type."
     (and (oref (git-rebase-current-line) action-type)
          t)))
 
-(defun git-rebase-region-bounds ()
-  (when (use-region-p)
+(defun git-rebase-region-bounds (&optional fallback)
+  "Return region bounds if both ends touch rebase lines.
+Each bound is extended to include the entire line touched by the
+point or mark.  If the region isn't active and FALLBACK is
+non-nil, return the beginning and end of the current rebase line,
+if any."
+  (cond
+   ((use-region-p)
     (let ((beg (save-excursion (goto-char (region-beginning))
                                (line-beginning-position)))
           (end (save-excursion (goto-char (region-end))
                                (line-end-position))))
       (when (and (git-rebase-line-p beg)
                  (git-rebase-line-p end))
-        (list beg (1+ end))))))
+        (list beg (1+ end)))))
+   ((and fallback (git-rebase-line-p))
+    (list (line-beginning-position)
+          (1+ (line-end-position))))))
 
 (defun git-rebase-move-line-down (n)
   "Move the current commit (or command) N lines down.
