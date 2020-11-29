@@ -428,8 +428,7 @@ current line."
   (goto-char (line-beginning-position))
   (unless (oref (git-rebase-current-line) comment-p)
     (let ((inhibit-read-only t))
-      (insert comment-start)
-      (insert " "))
+      (insert comment-start " "))
     (goto-char (line-beginning-position))
     (when git-rebase-auto-advance
       (forward-line))))
