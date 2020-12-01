@@ -1736,8 +1736,8 @@ Show the last `magit-log-section-commit-count' commits."
 
 (defun magit--insert-pushremote-log-p ()
   (magit--with-refresh-cache 'magit--insert-pushremote-log-p
-    (not (and (equal (magit-rev-name it)
-                     (magit-rev-name "@{upstream}"))
+    (not (and (equal (magit-get-push-branch)
+                     (magit-get-upstream-branch))
               (or (memq 'magit-insert-unpulled-from-upstream
                         magit-status-sections-hook)
                   (memq 'magit-insert-unpulled-from-upstream-or-recent
