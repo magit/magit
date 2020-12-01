@@ -1661,12 +1661,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 (defun magit-insert-unpulled-from-pushremote ()
   "Insert commits that haven't been pulled from the push-remote yet."
   (--when-let (magit-get-push-branch)
-    (unless (and (equal (magit-rev-name it)
-                        (magit-rev-name "@{upstream}"))
-                 (or (memq 'magit-insert-unpulled-from-upstream
-                           magit-status-sections-hook)
-                     (memq 'magit-insert-unpulled-from-upstream-or-recent
-                           magit-status-sections-hook)))
+    (when (magit--insert-pushremote-log-p)
       (magit-insert-section (unpulled (concat ".." it) t)
         (magit-insert-heading
           (format (propertize "Unpulled from %s."
@@ -1730,12 +1725,7 @@ Show the last `magit-log-section-commit-count' commits."
 (defun magit-insert-unpushed-to-pushremote ()
   "Insert commits that haven't been pushed to the push-remote yet."
   (--when-let (magit-get-push-branch)
-    (unless (and (equal (magit-rev-name it)
-                        (magit-rev-name "@{upstream}"))
-                 (or (memq 'magit-insert-unpushed-to-upstream
-                           magit-status-sections-hook)
-                     (memq 'magit-insert-unpushed-to-upstream-or-recent
-                           magit-status-sections-hook)))
+    (when (magit--insert-pushremote-log-p)
       (magit-insert-section (unpushed (concat it "..") t)
         (magit-insert-heading
           (format (propertize "Unpushed to %s."
@@ -1743,6 +1733,15 @@ Show the last `magit-log-section-commit-count' commits."
                   (propertize it 'font-lock-face 'magit-branch-remote)))
         (magit-insert-log (concat it "..") magit-buffer-log-args)
         (magit-log-insert-child-count)))))
+
+(defun magit--insert-pushremote-log-p ()
+  (magit--with-refresh-cache 'magit--insert-pushremote-log-p
+    (not (and (equal (magit-rev-name it)
+                     (magit-rev-name "@{upstream}"))
+              (or (memq 'magit-insert-unpulled-from-upstream
+                        magit-status-sections-hook)
+                  (memq 'magit-insert-unpulled-from-upstream-or-recent
+                        magit-status-sections-hook))))))
 
 (defun magit-log-insert-child-count ()
   (when magit-section-show-child-count
