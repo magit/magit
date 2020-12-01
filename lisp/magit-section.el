@@ -1751,8 +1751,11 @@ Configuration'."
                                                magit--current-section-hook)))
         (unless (memq entry magit-disabled-section-inserters)
           (if (bound-and-true-p magit-refresh-verbose)
-              (message "  %-50s %s" entry
-                       (benchmark-elapse (apply entry args)))
+              (let ((time (benchmark-elapse (apply entry args))))
+                (message "  %-50s %s %s" entry time
+                         (cond ((> time 0.03) "!!")
+                               ((> time 0.01) "!")
+                               (t ""))))
             (apply entry args)))))))
 
 (cl-defun magit--overlay-at (pos prop &optional (val nil sval) testfn)

@@ -1033,11 +1033,11 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
             (magit-run-hook-with-benchmark 'magit-post-unstage-hook)))
           (magit-run-hook-with-benchmark 'magit-post-refresh-hook)
           (when magit-refresh-verbose
-            (message "Refreshing magit...done (%.3fs, cached %s/%s)"
-                     (float-time (time-subtract (current-time) start))
-                     (caar magit--refresh-cache)
-                     (+ (caar magit--refresh-cache)
-                        (cdar magit--refresh-cache)))))
+            (let* ((c (caar magit--refresh-cache))
+                   (a (+ c (cdar magit--refresh-cache))))
+              (message "Refreshing magit...done (%.3fs, cached %s/%s (%.0f%%))"
+                       (float-time (time-subtract (current-time) start))
+                       c a (* (/ c (* a 1.0)) 100)))))
       (run-hooks 'magit-unwind-refresh-hook))))
 
 (defun magit-refresh-all ()
