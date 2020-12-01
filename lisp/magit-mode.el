@@ -1344,15 +1344,15 @@ then the value is not cached, and we return nil."
 (defun magit-repository-local-exists-p (key &optional repository)
   "Non-nil when a repository-local value exists for KEY.
 
-Returns a (KEY . value) cons cell.
+Return a (KEY . VALUE) cons cell.
 
 The KEY is matched using `equal'.
 
 Unless specified, REPOSITORY is the current buffer's repository."
-  (let* ((repokey (or repository (magit-repository-local-repository)))
-         (cache (assoc repokey magit-repository-local-cache)))
-    (and cache
-         (assoc key (cdr cache)))))
+  (when-let ((cache (assoc (or repository
+                               (magit-repository-local-repository))
+                           magit-repository-local-cache)))
+    (assoc key (cdr cache))))
 
 (defun magit-repository-local-get (key &optional default repository)
   "Return the repository-local value for KEY.
@@ -1362,21 +1362,20 @@ Return DEFAULT if no value for KEY exists.
 The KEY is matched using `equal'.
 
 Unless specified, REPOSITORY is the current buffer's repository."
-  (let ((keyvalue (magit-repository-local-exists-p key repository)))
-    (if keyvalue
-        (cdr keyvalue)
-      default)))
+  (if-let ((keyvalue (magit-repository-local-exists-p key repository)))
+      (cdr keyvalue)
+    default))
 
 (defun magit-repository-local-delete (key &optional repository)
   "Delete the repository-local value for KEY.
 
 Unless specified, REPOSITORY is the current buffer's repository."
-  (let* ((repokey (or repository (magit-repository-local-repository)))
-         (cache (assoc repokey magit-repository-local-cache)))
-    (when cache
-      ;; There is no `assoc-delete-all'.
-      (setf (cdr cache)
-            (cl-delete key (cdr cache) :key #'car :test #'equal)))))
+  (when-let ((cache (assoc (or repository
+                               (magit-repository-local-repository))
+                           magit-repository-local-cache)))
+    ;; There is no `assoc-delete-all'.
+    (setf (cdr cache)
+          (cl-delete key (cdr cache) :key #'car :test #'equal))))
 
 (defun magit-preserve-section-visibility-cache ()
   (when (derived-mode-p 'magit-status-mode 'magit-refs-mode)
