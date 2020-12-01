@@ -1386,12 +1386,13 @@ configured remote is an url, or the named branch does not exist,
 then return nil.  I.e.  return the name of an existing local or
 remote-tracking branch.  The returned string is colorized
 according to the branch type."
-  (when-let ((branch (or branch (magit-get-current-branch)))
-             (upstream (magit-ref-abbrev (concat branch "@{upstream}"))))
-    (magit--propertize-face
-     upstream (if (equal (magit-get "branch" branch "remote") ".")
-                  'magit-branch-local
-                'magit-branch-remote))))
+  (magit--with-refresh-cache (list 'magit-get-upstream-branch branch)
+    (when-let ((branch (or branch (magit-get-current-branch)))
+               (upstream (magit-ref-abbrev (concat branch "@{upstream}"))))
+      (magit--propertize-face
+       upstream (if (equal (magit-get "branch" branch "remote") ".")
+                    'magit-branch-local
+                  'magit-branch-remote)))))
 
 (defun magit-get-indirect-upstream-branch (branch &optional force)
   (let ((remote (magit-get "branch" branch "remote")))
@@ -1455,12 +1456,13 @@ according to the branch type."
     (magit--propertize-face remote 'magit-branch-remote)))
 
 (defun magit-get-push-branch (&optional branch verify)
-  (when-let ((branch (or branch (setq branch (magit-get-current-branch))))
-             (remote (magit-get-push-remote branch))
-             (target (concat remote "/" branch)))
-    (and (or (not verify)
-             (magit-rev-verify target))
-         (magit--propertize-face target 'magit-branch-remote))))
+  (magit--with-refresh-cache (list 'magit-get-push-branch branch verify)
+    (when-let ((branch (or branch (setq branch (magit-get-current-branch))))
+               (remote (magit-get-push-remote branch))
+               (target (concat remote "/" branch)))
+      (and (or (not verify)
+               (magit-rev-verify target))
+           (magit--propertize-face target 'magit-branch-remote)))))
 
 (defun magit-get-@{push}-branch (&optional branch)
   (let ((ref (magit-rev-parse "--symbolic-full-name"
