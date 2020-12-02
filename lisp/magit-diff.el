@@ -75,6 +75,7 @@
 (defgroup magit-diff nil
   "Inspect and manipulate Git diffs."
   :link '(info-link "(magit)Diffing")
+  :group 'magit-commands
   :group 'magit-modes)
 
 (defcustom magit-diff-mode-hook nil
