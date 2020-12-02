@@ -235,6 +235,8 @@ and Buffer Arguments'."
   :package-version '(magit . "3.0.0")
   :group 'magit-buffers
   :group 'magit-commands
+  :group 'magit-diff
+  :group 'magit-log
   :type '(choice
           (const :tag "always use args from buffer" always)
           (const :tag "use args from buffer if displayed in frame" selected)
@@ -266,6 +268,8 @@ and Buffer Arguments'."
   :package-version '(magit . "3.0.0")
   :group 'magit-buffers
   :group 'magit-commands
+  :group 'magit-diff
+  :group 'magit-log
   :type '(choice
           (const :tag "always use args from buffer" always)
           (const :tag "use args from buffer if displayed in frame" selected)
