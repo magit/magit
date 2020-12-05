@@ -503,6 +503,7 @@ This discards all changes made since the sequence started."
    ("-k" "Keep empty commits"       "--keep-empty")
    ("-p" "Preserve merges"          ("-p" "--preserve-merges"))
    (7 magit-merge:--strategy)
+   (7 "=X" magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
    ("-d" "Lie about committer date" "--committer-date-is-author-date")
    ("-a" "Autosquash"               "--autosquash")
    ("-A" "Autostash"                "--autostash")
