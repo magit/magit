@@ -47,6 +47,7 @@
    ("-f" "Fast-forward only" "--ff-only")
    ("-n" "No fast-forward"   "--no-ff")
    (magit-merge:--strategy)
+   (5 magit-merge:--strategy-option)
    (5 magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
    (5 magit:--gpg-sign)]
   ["Actions"
@@ -77,6 +78,13 @@
   :key "-s"
   :argument "--strategy="
   :choices '("resolve" "recursive" "octopus" "ours" "subtree"))
+
+(transient-define-argument magit-merge:--strategy-option ()
+  :description "Strategy Option"
+  :class 'transient-option
+  :key "-X"
+  :argument "--strategy-option="
+  :choices '("ours" "theirs" "patience"))
 
 ;;;###autoload
 (defun magit-merge-plain (rev &optional args nocommit)
