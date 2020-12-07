@@ -6,5 +6,5 @@
     (git-commit "20200516")
     (transient "20200601")
     (with-editor "20200522"))
-  :keywords
-  '("git" "tools" "vc"))
+  :homepage "https://magit.vc"
+  :keywords '("git" "tools" "vc"))
