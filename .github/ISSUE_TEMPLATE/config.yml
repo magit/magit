@@ -1,11 +1,14 @@
 blank_issues_enabled: false
 contact_links:
-  - name: "Support ☛ Emacs StackExchange"
+  - name: "SUPPORT ☛ The Discussions feature of this repository"
+    url: https://github.com/magit/magit/discussions
+    about: Please search, ask and answer questions here.
+  - name: "SUPPORT ☛ Emacs StackExchange"
     url: https://emacs.stackexchange.com/questions/tagged/magit
-    about: Please search, ASK and answer QUESTIONS HERE.
-  - name: "Support ☛ Emacs Reddit"
+    about: Another place to search, ask and answer questions.
+  - name: "SUPPORT ☛ Emacs Reddit"
     url: https://www.reddit.com/r/emacs
-    about: Another place to ask questions.
+    about: Another place to search, ask and answer questions.
   - name: "Magit FAQ"
     url: https://magit.vc/manual/magit/FAQ.html
     about: It might be that many others had the same question.

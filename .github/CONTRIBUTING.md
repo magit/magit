@@ -1,3 +1,13 @@
+Asking for help
+===============
+
+To ask for help please use the **Discussions** feature.  To open
+a new discussion, click [here][new] and then click on <kbd>Select
+Category</kbd>, most likely to select the **Q&A** category.
+
+Alternatively you can ask for help on the Emacs [StackExchange][se]
+site (using the `magit` tag) or on the Emacs [subreddit].
+
 Reporting issues and suggesting features
 ========================================
 
@@ -33,7 +43,11 @@ Please also consider to contribute by making a
 [monetary donation][donations].
 
 
-[donations]: https://magit.vc/donate/
-[issues]:    https://github.com/magit/magit/issues
-[metadocs]:  https://github.com/magit/magit/wiki/Documentation-tools-and-conventions
-[pulls]:     https://github.com/magit/magit/pulls
+[discussions]: https://github.com/magit/magit/discussions
+[donations]:   https://magit.vc/donate/
+[issues]:      https://github.com/magit/magit/issues
+[metadocs]:    https://github.com/magit/magit/wiki/Documentation-tools-and-conventions
+[new]:         https://github.com/magit/magit/discussions/new
+[pulls]:       https://github.com/magit/magit/pulls
+[se]:          https://emacs.stackexchange.com
+[subreddit]:   https://www.reddit.com/r/emacs
