@@ -287,6 +287,7 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
 ;;;###autoload (autoload 'magit-dispatch "magit" nil t)
 (transient-define-prefix magit-dispatch ()
   "Invoke a Magit command from a list of available commands."
+  :info-manual "(magit)Top"
   ["Transient and dwim commands"
    [("A" "Apply"          magit-cherry-pick)
     ("b" "Branch"         magit-branch)
