@@ -137,7 +137,15 @@ endif
 
 ifndef LOAD_PATH
 
-ELPA_DIR ?= $(HOME)/.emacs.d/elpa
+USER_EMACS_DIR = $(HOME)/.emacs.d
+ifeq "$(wildcard $(USER_EMACS_DIR))" ""
+  XDG_CONFIG_DIR = $(or $(XDG_CONFIG_HOME),$(HOME)/.config)
+  ifneq "$(wildcard $(XDG_CONFIG_DIR)/emacs)" ""
+    USER_EMACS_DIR = $(XDG_CONFIG_DIR)/emacs
+  endif
+endif
+
+ELPA_DIR ?= $(USER_EMACS_DIR)/elpa
 
 DASH_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
