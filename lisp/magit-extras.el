@@ -582,7 +582,7 @@ the minibuffer too."
 (define-key git-commit-mode-map
   (kbd "C-c C-w") 'magit-pop-revision-stack)
 
-(defun magit-filter-hunk-substring (input arg)
+(defun magit--filter-hunk-substring (input arg)
   "Maybe strip some diff markers and lines from INPUT, depending on ARG.
 
 When ARG is a list, strip the outer diff marker column from
@@ -593,7 +593,7 @@ unchanged lines. When ARG is nil, return INPUT unchanged."
       (let* ((magit-diff-sign-regexp
               (cond
                ((listp arg) "-\\|\\+")
-               ((< (prefix-numeric-value arg) 0) "-")
+               ((or (eq '- arg) (< (prefix-numeric-value arg) 0)) "-")
                (t "\\+")))
              (magit-diff-filter-func
               (lambda (str)
@@ -640,7 +640,7 @@ lines."
    ((and current-prefix-arg
          (magit-section-internal-region-p)
          (magit-section-match 'hunk))
-    (kill-new (magit-filter-hunk-substring
+    (kill-new (magit--filter-hunk-substring
                (buffer-substring-no-properties
                 (region-beginning) (region-end))
                current-prefix-arg))
