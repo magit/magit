@@ -1046,21 +1046,26 @@ Do not add this to a hook variable."
          (remove "--literal-pathspecs" magit-git-global-arguments)))
     (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
       "log"
-      (format "--format=%s%%h%%x0c%s%%x0c%s%%x0c%%aN%%x0c%s%%x0c%%s%s%%>|(1,ltrunc)%% b"
+      (concat "--format="
               (if (and (member "--left-right" args)
                        (not (member "--graph" args)))
                   "%m "
                 "")
+              "%h%x0c" ; commit hash
               (if (member "--decorate" args) "%D" "")
+              "%x0c"
               (if (member "--show-signature" args)
                   (progn (setq args (remove "--show-signature" args)) "%G?")
                 "")
+              "%x0c%aN%x0c" ; author name
               (if magit-log-margin-show-committer-date "%ct" "%at")
+              "%x0c%s" ; subject
               (if (member "++header" args)
                   (if (member "--graph" (setq args (remove "++header" args)))
                       (concat "\n" magit-log-revision-headers-format "\n")
                     (concat "\n" magit-log-revision-headers-format "\n"))
-                ""))
+                "")
+              "%>|(1,ltrunc)% b")
       (progn
         (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
           (setq args (cons (format "--%s-order" (match-string 1 it))
