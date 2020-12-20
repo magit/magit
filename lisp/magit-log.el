@@ -435,7 +435,8 @@ the upstream isn't ahead of the current branch) show."
    ("=S" "Show signatures"     "--show-signature") ;1
    ("-h" "Show header"         "++header")         ;4
    ("-p" "Show diffs"          ("-p" "--patch"))   ;2
-   ("-s" "Show diffstats"      "--stat")]          ;2
+   ("-s" "Show diffstats"      "--stat")           ;2
+   ("-b" "Show body indicator" "++body")]
   [["Log"
     ("l" "current"        magit-log-current)
     ("o" "other"          magit-log-other)
@@ -494,7 +495,8 @@ the upstream isn't ahead of the current branch) show."
     ("=S" "Show signatures"         "--show-signature")
     ("-h" "Show header"             "++header")
     ("-p" "Show diffs"              ("-p" "--patch"))
-    ("-s" "Show diffstats"          "--stat")]]
+    ("-s" "Show diffstats"          "--stat")
+    ("-b" "Show body indicator"     "++body")]]
   [:if-not-mode magit-log-mode
    :description "Arguments"
    (magit-log:-n)
@@ -1065,7 +1067,9 @@ Do not add this to a hook variable."
                       (concat "\n" magit-log-revision-headers-format "\n")
                     (concat "\n" magit-log-revision-headers-format "\n"))
                 "")
-              "%>|(1,ltrunc)% b")
+              (if (member "++body" args)
+                  (progn (setq args (remove "++body" args)) "%>|(1,ltrunc)% b")
+                ""))
       (progn
         (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
           (setq args (cons (format "--%s-order" (match-string 1 it))
