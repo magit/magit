@@ -589,27 +589,20 @@ When ARG is a list, strip the outer diff marker column from
 INPUT. With a positive/negative numeric ARG, strip the outer diff
 marker column and copy only added/removed lines, as well as
 unchanged lines. When ARG is nil, return INPUT unchanged."
-  (if arg
-      (let* ((magit-diff-sign-regexp
-              (cond
-               ((listp arg) "-\\|\\+")
-               ((or (eq '- arg) (< (prefix-numeric-value arg) 0)) "-")
-               (t "\\+")))
-             (magit-diff-filter-func
-              (lambda (str)
-                (if (listp arg) t
-                  (if (string-match-p
-                       (format "^\\(%s\\| \\)" magit-diff-sign-regexp) str)
-                      t
-                    nil)))))
-        (mapconcat
-         (lambda (str)
-           (replace-regexp-in-string
-            (format "^\\(%s\\| \\)" magit-diff-sign-regexp) "" str))
-         (-filter (apply-partially magit-diff-filter-func)
-                  (split-string input "\n"))
-         "\n"))
-    input))
+  (if (null arg)
+      input
+    (mapconcat
+     (lambda (str)
+       (replace-regexp-in-string "^\\(\\+\\|-\\| \\)" "" str))
+     (seq-filter (lambda (str)
+                   (string-match-p
+                    (format "^\\(%s\\| \\)"
+                            (cond
+                             ((listp arg) "-\\|\\+")
+                             ((or (eq '- arg) (< (prefix-numeric-value arg) 0)) "-")
+                             (t "\\+"))) str))
+                 (split-string input "\n"))
+     "\n")))
 
 ;;;###autoload
 (defun magit-copy-section-value ()
