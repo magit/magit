@@ -1062,13 +1062,13 @@ Do not add this to a hook variable."
               "%x0c%aN%x0c" ; author name
               (if magit-log-margin-show-committer-date "%ct" "%at")
               "%x0c%s" ; subject
+              (when (member "++body" args)
+                  (unless (member "++header" (setq args (remove "++body" args)))
+                    "%>|(1,ltrunc)% b"))
               (if (member "++header" args)
                   (if (member "--graph" (setq args (remove "++header" args)))
                       (concat "\n" magit-log-revision-headers-format "\n")
                     (concat "\n" magit-log-revision-headers-format "\n"))
-                "")
-              (if (member "++body" args)
-                  (progn (setq args (remove "++body" args)) "%>|(1,ltrunc)% b")
                 ""))
       (progn
         (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
