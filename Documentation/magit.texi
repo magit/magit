@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1097-g10b4bec5+1)
+@subtitle for version 2.90.1 (v2.90.1-1123-ga9c4371a0+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1097-g10b4bec5+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1123-ga9c4371a0+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -2084,6 +2084,17 @@ to confirm by accepting the default (or selecting another).
 This action only concerns the deletion of multiple stashes at
 once.
 @end itemize
+
+
+@item
+Publishing:
+
+@code{set-and-push} When pushing to the upstream or the push-remote
+and that isn't actually configured yet, then the user can first
+set the target.  If s/he confirms the default too quickly, then
+s/he might end up pushing to the wrong branch and if the remote
+repository is configured to disallow fixing such mistakes, then
+that can be quite embarassing and annoying.
 
 
 @item

@@ -163,6 +163,7 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const delete-unmerged-branch)
     (const delete-pr-remote)
     (const drop-stashes)
+    (const set-and-push)
     (const amend-published)
     (const rebase-published)
     (const edit-published)
@@ -172,7 +173,7 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const kill-process)
     (const safe-with-wip)))
 
-(defcustom magit-no-confirm nil
+(defcustom magit-no-confirm '(set-and-push)
   "A list of symbols for actions Magit should not confirm, or t.
 
 Many potentially dangerous commands by default ask the user for
@@ -254,6 +255,15 @@ References:
   to confirm by accepting the default (or selecting another).
   This action only concerns the deletion of multiple stashes at
   once.
+
+Publishing:
+
+  `set-and-push' When pushing to the upstream or the push-remote
+  and that isn't actually configured yet, then the user can first
+  set the target.  If s/he confirms the default too quickly, then
+  s/he might end up pushing to the wrong branch and if the remote
+  repository is configured to disallow fixing such mistakes, then
+  that can be quite embarassing and annoying.
 
 Edit published history:
 
