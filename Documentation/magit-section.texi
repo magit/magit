@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit-Section Developer Manual
-@subtitle for version 2.90.1 (v2.90.1-996-g6b88fab39+1)
+@subtitle for version 2.90.1 (v2.90.1-1126-g1a89a8474+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -54,7 +54,7 @@ user options see @ref{Sections,,,magit,}.  This manual documents how you
 can use sections in your own packages.
 
 @noindent
-This manual is for Magit-Section version 2.90.1 (v2.90.1-996-g6b88fab39+1).
+This manual is for Magit-Section version 2.90.1 (v2.90.1-1126-g1a89a8474+1).
 
 @quotation
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -100,16 +100,23 @@ source for suitable examples before asking me for help.  Thanks!
 
 @defun magit-insert-section [name] (type &optional value hide) &rest body
 
-Insert a section at point.
+Create a section object of type CLASS, storing VALUE in its
+@code{value} slot, and insert the section at point.  CLASS is a
+subclass of `magit-section' or has the form @code{(eval FORM)}, in
+which case FORM is evaluated at runtime and should return a
+subclass.  In other places a sections class is oftern referred
+to as its "type".
 
-TYPE is the section type, a symbol.  Many commands that act on
-the current section behave differently depending on that type.
-Like functions and variables, TYPE must be prefixed with the
-package name.  (For historic reasons the types used by Magit
-and Forge do not use a package prefix.)
+Many commands behave differently depending on the class of the
+current section and sections of a certain class can have their
+own keymap, which is specified using the `keymap' class slot.
+The value of that slot should be a variable whose value is a
+keymap.
 
-Optional VALUE is the value of the section, usually a string
-that is required when acting on the section.
+For historic reasons Magit and Forge in most cases use symbols
+as CLASS that don't actually identify a class and that lack the
+appropriate package prefix.  This works due to some undocumented
+kludges, which are not available to other packages.
 
 When optional HIDE is non-nil collapse the section body by
 default, i.e. when first creating the section, but not when
@@ -134,12 +141,6 @@ If it turns out inside BODY that the section is empty, then
 of the partially inserted section.  This can happen when creating
 a section by washing Git's output and Git didn't actually output
 anything this time around.
-
-For historic reasons, if a variable @code{magit-TYPE-section-map}
-or @code{forge-TYPE-section-map} exists, then use that as the
-text-property keymap~ of all text belonging to the section (but
-this may be overwritten in subsections).  TYPE can also have the
-form @code{(eval FORM)} in which case FORM is evaluated at runtime.
 @end defun
 
 @defun magit-insert-heading &rest args

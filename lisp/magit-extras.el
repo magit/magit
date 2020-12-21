@@ -583,7 +583,7 @@ the minibuffer too."
   (kbd "C-c C-w") 'magit-pop-revision-stack)
 
 ;;;###autoload
-(defun magit-copy-section-value ()
+(defun magit-copy-section-value (arg)
   "Save the value of the current section for later use.
 
 Save the section value to the `kill-ring', and, provided that
@@ -601,17 +601,23 @@ argument is used, then save the revision at its tip to the
 
 When the region is active, then save that to the `kill-ring',
 like `kill-ring-save' would, instead of behaving as described
-above.  If a prefix argument is used and the region is within a
-hunk, strip the outer diff marker column."
-  (interactive)
+above.  If a prefix argument is used and the region is within
+a hunk, then strip the diff marker column and keep only either
+the added or removed lines, depending on the sign of the prefix
+argument."
+  (interactive "P")
   (cond
-   ((and current-prefix-arg
+   ((and arg
          (magit-section-internal-region-p)
          (magit-section-match 'hunk))
-    (kill-new (replace-regexp-in-string
-               "^[ \\+\\-]" ""
-               (buffer-substring-no-properties
-                (region-beginning) (region-end))))
+    (kill-new
+     (thread-last (buffer-substring-no-properties
+                   (region-beginning)
+                   (region-end))
+       (replace-regexp-in-string
+        (format "^\\%c.*\n" (if (< (prefix-numeric-value arg) 0) ?+ ?-))
+        "")
+       (replace-regexp-in-string "^[ \\+\\-]" "")))
     (deactivate-mark))
    ((use-region-p)
     (call-interactively #'copy-region-as-kill))

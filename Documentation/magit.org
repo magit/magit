@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-1125-ga56ad2752+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-1126-g1a89a8474+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1125-ga56ad2752+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1126-g1a89a8474+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -6824,9 +6824,10 @@ beside the ones below, but these didn't fit well anywhere else.
 
   When the region is active, this command saves that to the
   ~kill-ring~, like ~kill-ring-save~ would, instead of behaving as
-  described above.  If a prefix argument is used and the region is
-  within a hunk, it strips the outer diff marker column before saving
-  the text.
+  described above. If a prefix argument is used and the region is
+  within a hunk, then it strips the diff marker column and keeps
+  only either the added or removed lines, depending on the sign of
+  the prefix argument.
 
 - Key: M-w, magit-copy-buffer-revision
 
