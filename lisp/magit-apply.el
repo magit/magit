@@ -53,6 +53,7 @@
                   (path &optional prefer-short))
 (declare-function borg--maybe-absorb-gitdir "borg" (pkg))
 (declare-function borg--sort-submodule-sections "borg" (file))
+(declare-function borg-assimilate "borg" (package url &optional partially))
 (defvar borg-user-emacs-directory)
 
 ;;; Options
