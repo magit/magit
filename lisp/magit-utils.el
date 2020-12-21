@@ -263,7 +263,7 @@ Publishing:
   set the target.  If s/he confirms the default too quickly, then
   s/he might end up pushing to the wrong branch and if the remote
   repository is configured to disallow fixing such mistakes, then
-  that can be quite embarassing and annoying.
+  that can be quite embarrassing and annoying.
 
 Edit published history:
 
