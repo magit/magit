@@ -654,7 +654,7 @@ argument."
                    (region-beginning)
                    (region-end))
        (replace-regexp-in-string
-        (format "^\\%c.*\n" (if (< (prefix-numeric-value arg) 0) ?+ ?-))
+        (format "^\\%c.*\n?" (if (< (prefix-numeric-value arg) 0) ?+ ?-))
         "")
        (replace-regexp-in-string "^[ \\+\\-]" "")))
     (deactivate-mark))
