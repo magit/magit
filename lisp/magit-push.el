@@ -87,11 +87,12 @@ argument the push-remote can be changed before pushed to it."
   :if 'magit-get-current-branch
   :description 'magit-push--pushbranch-description
   (interactive (list (magit-push-arguments)))
-  (pcase-let ((`(,branch ,remote)
+  (pcase-let ((`(,branch ,remote ,changed)
                (magit--select-push-remote "push there")))
-    (magit-confirm 'set-and-push
-      (format "Really use %S as push-remote and push %S there"
-              remote branch))
+    (when changed
+      (magit-confirm 'set-and-push
+        (format "Really use \"%s\" as push-remote and push \"%s\" there"
+                remote branch)))
     (run-hooks 'magit-credential-hook)
     (magit-run-git-async "push" "-v" args remote
                          (format "refs/heads/%s:refs/heads/%s"
@@ -150,7 +151,7 @@ the upstream."
           ;; is what the user wants to happen.
           (setq merge (concat "refs/heads/" merge)))
         (magit-confirm 'set-and-push
-          (format "Really use %S as upstream and push %S there"
+          (format "Really use \"%s\" as upstream and push \"%s\" there"
                   upstream branch)))
       (cl-pushnew "--set-upstream" args :test #'equal))
     (run-hooks 'magit-credential-hook)
