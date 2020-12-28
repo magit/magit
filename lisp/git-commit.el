@@ -866,8 +866,6 @@ Added to `font-lock-extend-region-functions'."
                        (regexp-opt git-commit-known-pseudo-headers))
               (1 'git-commit-known-pseudo-header)
               (2 'git-commit-pseudo-header)))
-    ("^[-a-zA-Z]+: [^<]+? <[^>]+>"
-     (0 'git-commit-pseudo-header))
     ;; Summary
     (eval . `(,(git-commit-summary-regexp)
               (1 'git-commit-summary)))
