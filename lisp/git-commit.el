@@ -117,6 +117,7 @@
 (require 'magit-git nil t)
 (require 'magit-utils nil t)
 (require 'ring)
+(require 'rx)
 (require 'server)
 (require 'transient)
 (require 'with-editor)
@@ -858,7 +859,8 @@ Added to `font-lock-extend-region-functions'."
     "Changes not staged for commit:"
     "Unmerged paths:"
     "Author:"
-    "Date:"))
+    "Date:")
+  "Also fontified outside of comments in `git-commit-font-lock-keywords-2'.")
 
 (defconst git-commit-font-lock-keywords-1
   '(;; Pseudo headers
@@ -891,7 +893,13 @@ Added to `font-lock-extend-region-functions'."
               (1 'git-commit-comment-heading t)))
     (eval . `(,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
               (1 'git-commit-comment-action t t)
-              (2 'git-commit-comment-file t)))))
+              (2 'git-commit-comment-file t)))
+    ;; "commit HASH"
+    (eval . `(,(rx bol "commit " (1+ alnum) eol)
+              (0 'git-commit-pseudo-header)))
+    ;; `git-commit-comment-headings' (but not in commented lines)
+    (eval . `(,(rx-to-string `(seq bol (or ,@git-commit-comment-headings) (1+ blank) (1+ nonl) eol))
+              (0 'git-commit-pseudo-header)))))
 
 (defconst git-commit-font-lock-keywords-3
   `(,@git-commit-font-lock-keywords-2
