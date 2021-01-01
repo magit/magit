@@ -1121,7 +1121,7 @@ Do not add this to a hook variable."
 
 (defconst magit-log-bisect-log-re
   (concat "^# "
-          "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
+          "\\(?3:[^: \n]+:\\) "                    ; "refs"
           "\\[\\(?1:[^]\n]+\\)\\] "                ; sha1
           "\\(?2:.*\\)$"))                         ; msg
 
