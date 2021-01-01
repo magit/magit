@@ -186,6 +186,10 @@
 
 - ~git bisect~ is now run asynchronously.  #3802
 
+- ~magit-bisect~ now supports specifying alternate terms.  The new
+  infixes and suffix related to this functionality are disabled by
+  default.
+
 - ~magit-branch-or-commit-at-point~ now falls back to an abbreviated
   hash instead of something like "master~2", because the latter often
   leads to undesirable behavior.  fd5eb5b43
