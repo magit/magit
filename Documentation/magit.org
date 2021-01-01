@@ -3669,7 +3669,7 @@ following suffix commands.
 
   Bisecting a bug means to find the commit that introduced it.
   This command starts such a bisect session by asking for a known
-  good and a bad commit.
+  good commit and a known bad commit.
 
 - Key: B s, magit-bisect-run
 

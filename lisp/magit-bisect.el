@@ -80,8 +80,8 @@
   "Start a bisect session.
 
 Bisecting a bug means to find the commit that introduced it.
-This command starts such a bisect session by asking for a know
-good and a bad commit.  To move the session forward use the
+This command starts such a bisect session by asking for a known
+good and a known bad commit.  To move the session forward use the
 other actions from the bisect transient command (\
 \\<magit-status-mode-map>\\[magit-bisect])."
   (interactive (if (magit-bisect-in-progress-p)
