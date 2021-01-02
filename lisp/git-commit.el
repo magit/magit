@@ -1,6 +1,6 @@
 ;;; git-commit.el --- Edit Git commit messages  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2020  The Magit Project Contributors
+;; Copyright (C) 2010-2021  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -654,17 +654,29 @@ conventions are checked."
   "Cycle backward through message history, after saving current message.
 With a numeric prefix ARG, go back ARG comments."
   (interactive "*p")
-  (when (and (git-commit-save-message) (> arg 0))
-    (setq log-edit-comment-ring-index
-          (log-edit-new-comment-index
-           arg (ring-length log-edit-comment-ring))))
-  (save-restriction
-    (goto-char (point-min))
-    (narrow-to-region (point)
-                      (if (re-search-forward (concat "^" comment-start) nil t)
-                          (max 1 (- (point) 2))
-                        (point-max)))
-    (log-edit-previous-comment arg)))
+  (let ((len (ring-length log-edit-comment-ring)))
+    (if (<= len 0)
+        (progn (message "Empty comment ring") (ding))
+      ;; Unlike `log-edit-previous-comment' we save the current
+      ;; non-empty and newly written comment, because otherwise
+      ;; it would be irreversibly lost.
+      (when-let ((message (git-commit-buffer-message)))
+        (unless (ring-member log-edit-comment-ring message)
+          (ring-insert log-edit-comment-ring message)
+          (cl-incf arg)
+          (setq len (ring-length log-edit-comment-ring))))
+      ;; Delete the message but not the instructions at the end.
+      (save-restriction
+        (goto-char (point-min))
+        (narrow-to-region
+         (point)
+         (if (re-search-forward (concat "^" comment-start) nil t)
+             (max 1 (- (point) 2))
+           (point-max)))
+        (delete-region (point-min) (point)))
+      (setq log-edit-comment-ring-index (log-edit-new-comment-index arg len))
+      (message "Comment %d" (1+ log-edit-comment-ring-index))
+      (insert (ring-ref log-edit-comment-ring log-edit-comment-ring-index)))))
 
 (defun git-commit-next-message (arg)
   "Cycle forward through message history, after saving current message.
