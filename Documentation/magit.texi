@@ -8,7 +8,7 @@
 
 @copying
 @quotation
-Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1126-g1a89a8474+1)
+@subtitle for version 2.90.1 (v2.90.1-1133-g2fb44690b+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,10 +53,10 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1126-g1a89a8474+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1133-g2fb44690b+1).
 
 @quotation
-Copyright (C) 2015-2020 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -10241,9 +10241,11 @@ for more information.
 
 On Catalina, and potentially other macOS releases, there may be a
 performance problem where any action takes 20 times longer on Darwin
-than on Linux.  This can be fixed by setting @code{magit-git-executable} to
-the absolute path of the @code{git} executable, instead of relying on
-resolving the @code{$PATH}.
+than on Linux.  This can be worked around by setting
+@code{magit-git-executable} to the absolute path of the @code{git} executable,
+instead of relying on resolving the @code{$PATH}.  You should not do that if
+you want to use Magit on remote machines using Tramp and if @code{git} is not
+installed in the same location on those machines.
 
 @node Default Bindings
 @subsection Default Bindings
