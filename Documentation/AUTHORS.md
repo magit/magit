@@ -229,6 +229,7 @@ Contributors
 - Mark Karpov <markkarpov@opmbx.org>
 - Mark Oteiza <mvoteiza@udel.edu>
 - Matthew Fluet <matthew.fluet@gmail.com>
+- Matthew Kraai <kraai@ftbfs.org>
 - Matthieu Hauglustaine <matt.hauglustaine@gmail.com>
 - Matus Goljer <dota.keys@gmail.com>
 - Maxim Cournoyer <maxim.cournoyer@gmail.com>
@@ -318,6 +319,7 @@ Contributors
 - Suhail Shergill <suhailshergill@gmail.com>
 - Sylvain Rousseau <thisirs@gmail.com>
 - Syohei Yoshida <syohex@gmail.com>
+- Szunti <Szunti@users.noreply.github.com>
 - Takafumi Arakaki <aka.tkf@gmail.com>
 - Tassilo Horn <tsdh@gnu.org>
 - Teemu Likonen <tlikonen@iki.fi>
