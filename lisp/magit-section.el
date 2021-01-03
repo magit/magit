@@ -781,7 +781,7 @@ Sections at higher levels are hidden."
 With a prefix argument show the section identity instead of the
 section lineage.  This command is intended for debugging purposes."
   (interactive (list (magit-current-section) current-prefix-arg))
-  (let ((str (format "#<%s %S %S %s-%s>"
+  (let ((str (format "#<%s %S %S %s-%s%s>"
                      (eieio-object-class section)
                      (let ((val (oref section value)))
                        (cond ((stringp val)
@@ -796,6 +796,9 @@ section lineage.  This command is intended for debugging purposes."
                        (apply #'vector (magit-section-lineage section)))
                      (when-let ((m (oref section start)))
                        (marker-position m))
+                     (if-let ((m (oref section content)))
+                         (format "[%s-]" (marker-position m))
+                       "")
                      (when-let ((m (oref section end)))
                        (marker-position m)))))
     (if (called-interactively-p 'any)
