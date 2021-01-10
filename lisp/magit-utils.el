@@ -519,7 +519,8 @@ acts similarly to `completing-read', except for the following:
   (prompt choices &optional predicate require-match initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
   (unless (or (bound-and-true-p helm-mode)
-              (bound-and-true-p ivy-mode))
+              (bound-and-true-p ivy-mode)
+              (bound-and-true-p selectrum-mode))
     (setq prompt (magit-prompt-with-default prompt def))
     (setq choices (magit--completion-table choices)))
   (cl-letf (((symbol-function 'completion-pcm--all-completions)
