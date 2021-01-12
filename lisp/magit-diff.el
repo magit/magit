@@ -40,6 +40,7 @@
 ;; For `magit-diff-visit-file'
 (declare-function dired-jump "dired-x" (&optional other-window file-name))
 (declare-function magit-find-file-noselect "magit-files" (rev file))
+(declare-function magit-find-file-noselect-1 "magit-files" (rev file &optional revert))
 (declare-function magit-status-setup-buffer "magit-status" (directory))
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer "magit-commit" ())
@@ -1089,6 +1090,7 @@ If no DWIM context is found, nil is returned."
     magit-buffer-range)
    (t
     (magit-section-case
+      ([* unsaved] 'unsaved)
       ([* unstaged] 'unstaged)
       ([* staged] 'staged)
       (unmerged 'unmerged)
@@ -1618,14 +1620,20 @@ the Magit-Status buffer for DIRECTORY."
          (rev  (if goto-from
                    (magit-diff-visit--range-from spec)
                  (magit-diff-visit--range-to spec)))
-         (buf  (if (or goto-worktree
-                       (and (not (stringp rev))
-                            (or magit-diff-visit-avoid-head-blob
-                                (not goto-from))))
-                   (or (get-file-buffer file)
-                       (find-file-noselect file))
+         (buf  (cond
+                ((and (eq rev 'unsaved)
+                      goto-from
+                      (not goto-worktree))
+                 (magit-find-file-noselect-1 "{orig-worktree}" file 'ask-revert))
+                ((or goto-worktree
+                     (and (not (stringp rev))
+                          (or magit-diff-visit-avoid-head-blob
+                              (not goto-from))))
+                 (or (get-file-buffer file)
+                     (find-file-noselect file)))
+                (t
                  (magit-find-file-noselect (if (stringp rev) rev "HEAD")
-                                           file))))
+                                           file)))))
     (if line
         (with-current-buffer buf
           (cond ((eq rev 'staged)
