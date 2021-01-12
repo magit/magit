@@ -110,17 +110,18 @@ the line and column corresponding to that location."
 
 (defun magit-find-file-noselect (rev file)
   "Read FILE from REV into a buffer and return the buffer.
-REV is a revision or one of \"{worktree}\" or \"{index}\".
-FILE must be relative to the top directory of the repository."
+REV is a revision or one of \"{worktree}\", \"{index}\", or
+\"{orig-worktree}\".  FILE must be relative to the top directory
+of the repository."
   (magit-find-file-noselect-1 rev file))
 
 (defun magit-find-file-noselect-1 (rev file &optional revert)
   "Read FILE from REV into a buffer and return the buffer.
-REV is a revision or one of \"{worktree}\" or \"{index}\".
-FILE must be relative to the top directory of the repository.
-Non-nil REVERT means to revert the buffer.  If `ask-revert',
-then only after asking.  A non-nil value for REVERT is ignored if REV is
-\"{worktree}\"."
+REV is a revision or one of \"{worktree}\", \"{index}\", or
+\"{orig-worktree}\".  FILE must be relative to the top directory
+of the repository.  Non-nil REVERT means to revert the buffer.
+If `ask-revert', then only after asking.  A non-nil value for
+REVERT is ignored if REV is \"{worktree}\"."
   (if (equal rev "{worktree}")
       (find-file-noselect (expand-file-name file (magit-toplevel)))
     (let ((topdir (magit-toplevel)))
@@ -133,8 +134,8 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
                                         (buffer-name))))
                   revert)
           (setq magit-buffer-revision
-                (if (equal rev "{index}")
-                    "{index}"
+                (if (member rev '("{index}" "{orig-worktree}"))
+                    rev
                   (magit-rev-format "%H" rev)))
           (setq magit-buffer-refname rev)
           (setq magit-buffer-file-name (expand-file-name file topdir))
@@ -171,10 +172,12 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
            (file (file-relative-name magit-buffer-file-name))
            (coding-system-for-read (or coding-system-for-read 'undecided)))
       (erase-buffer)
-      (magit-git-insert "cat-file" "-p"
-                        (if (equal magit-buffer-refname "{index}")
-                            (concat ":" file)
-                          (concat magit-buffer-refname ":" file)))
+      (if (equal magit-buffer-refname "{orig-worktree}")
+          (insert-file-contents magit-buffer-file-name)
+        (magit-git-insert "cat-file" "-p"
+                          (if (equal magit-buffer-refname "{index}")
+                              (concat ":" file)
+                            (concat magit-buffer-refname ":" file))))
       (setq buffer-file-coding-system last-coding-system-used))
     (let ((buffer-file-name magit-buffer-file-name)
           (after-change-major-mode-hook
