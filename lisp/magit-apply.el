@@ -513,15 +513,20 @@ without requiring confirmation."
   (let ((auto-revert-verbose nil)
         (type (magit-diff-type (car sections)))
         (status (magit-file-status))
-        files delete resurrect rename discard discard-new resolve)
+        files delete resurrect rename discard discard-new resolve
+        close revert)
     (dolist (section sections)
       (let ((file (oref section value)))
         (push file files)
         (pcase (cons (pcase type
+                       (`unsaved ?W)
                        (`staged ?X)
                        (`unstaged ?Y)
                        (`untracked ?Z))
                      (cddr (assoc file status)))
+          ((or `(?W) `(?W ,_ ,_)) (if (equal (oref section status) "new file")
+                                      (push file close)
+                                    (push file revert)))
           (`(?Z) (dolist (f (magit-untracked-files nil file))
                    (push f delete)))
           ((or `(?Z ?? ??) `(?Z ?! ?!)) (push file delete))
@@ -551,6 +556,10 @@ without requiring confirmation."
           (when (or discard discard-new)
             (magit-discard-files--discard (nreverse discard)
                                           (nreverse discard-new)))
+          (when close
+            (magit-discard-files--close (nreverse close)))
+          (when revert
+            (magit-discard-files--revert (nreverse revert)))
           (magit-wip-commit-after-apply files " after discard"))
       (magit-refresh))))
 
@@ -647,6 +656,15 @@ without requiring confirmation."
              (concat
               "Cannot discard staged changes to binary files, "
               "which also have unstaged changes.  Unstage instead."))))))))
+
+(defun magit-discard-files--close (files)
+  (kill-some-buffers (mapcar #'find-buffer-visiting files)))
+
+(defun magit-discard-files--revert (files)
+  (mapc (lambda (file)
+          (with-current-buffer (find-buffer-visiting file)
+            (revert-buffer t)))
+        files))
 
 ;;;; Reverse
 
