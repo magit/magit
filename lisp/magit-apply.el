@@ -135,6 +135,10 @@ so causes the change to be applied to the index as well."
       (`(,_  hunks) (magit-apply-hunks  it args))
       (`(rebase-sequence file)
        (call-interactively 'magit-patch-apply))
+      (`(unsaved file)
+       (magit--apply-unsaved-file it))
+      (`(unsaved ,(or `files `list))
+       (magit--apply-unsaved-files it))
       (`(,_   file) (magit-apply-diff   it args))
       (`(,_  files) (magit-apply-diffs  it args)))))
 
@@ -270,6 +274,13 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
                           "--ignore-blank-lines")
                         :test #'equal)
        t))
+
+(defun magit--apply-unsaved-file (section)
+  (magit--apply-unsaved-files (list section)))
+
+(defun magit--apply-unsaved-files (sections)
+  (when-let ((buffers (--map (find-buffer-visiting (oref it value)) sections)))
+    (save-some-buffers nil (lambda () (member (current-buffer) buffers)))))
 
 ;;;; Stage
 

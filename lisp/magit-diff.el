@@ -2761,6 +2761,7 @@ It the SECTION has a different type, then do nothing."
 (defvar magit-unsaved-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-delete-thing] 'magit-discard)
+    (define-key map [remap magit-cherry-apply] 'magit-apply)
     map)
   "Keymap for the `unsaved' section.")
 
