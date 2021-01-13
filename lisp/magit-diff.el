@@ -835,7 +835,8 @@ and `:slant'."
 (defclass magit-file-section (magit-section)
   ((keymap :initform magit-file-section-map)
    (source :initform nil)
-   (header :initform nil)))
+   (header :initform nil)
+   (status :initform nil)))
 
 (defclass magit-module-section (magit-file-section)
   ((keymap :initform magit-hunk-section-map)))
@@ -2257,6 +2258,7 @@ section or a child thereof."
     (unless (equal orig file)
       (oset section source orig))
     (oset section header header)
+    (oset section status status)
     (when modes
       (magit-insert-section (hunk)
         (insert modes)
