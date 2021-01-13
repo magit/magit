@@ -247,7 +247,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
       (let ((section (magit-current-section)))
         (pcase (oref section type)
           ((or `hunk `file `module) section)
-          ((or `staged `unstaged `untracked
+          ((or `staged `unstaged `unsaved `untracked
                `stashed-index `stashed-worktree `stashed-untracked)
            (oref section children))
           (_ (user-error "Cannot apply this, it's not a change"))))))

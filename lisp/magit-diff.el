@@ -2758,6 +2758,12 @@ It the SECTION has a different type, then do nothing."
 
 (add-hook 'magit-section-goto-successor-hook #'magit-hunk-goto-successor)
 
+(defvar magit-unsaved-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-delete-thing] 'magit-discard)
+    map)
+  "Keymap for the `unsaved' section.")
+
 (magit-define-section-jumper magit-jump-to-unsaved "Unsaved changes" unsaved)
 
 (defun magit--insert-unsaved-diff (buffer)
@@ -2850,12 +2856,12 @@ It the SECTION has a different type, then do nothing."
   "Return the diff type of SECTION.
 
 The returned type is one of the symbols `staged', `unstaged',
-`committed', or `undefined'.  This type serves a similar purpose
-as the general type common to all sections (which is stored in
-the `type' slot of the corresponding `magit-section' struct) but
-takes additional information into account.  When the SECTION
-isn't related to diffs and the buffer containing it also isn't
-a diff-only buffer, then return nil.
+`unsaved', `committed', or `undefined'.  This type serves a
+similar purpose as the general type common to all sections (which
+is stored in the `type' slot of the corresponding `magit-section'
+struct) but takes additional information into account.  When the
+SECTION isn't related to diffs and the buffer containing it also
+isn't a diff-only buffer, then return nil.
 
 Currently the type can also be one of `tracked' and `untracked'
 but these values are not handled explicitly everywhere they
@@ -2887,7 +2893,7 @@ Do not confuse this with `magit-diff-scope' (which see)."
                    (t 'committed))))
           ((derived-mode-p 'magit-status-mode)
            (let ((stype (oref it type)))
-             (if (memq stype '(staged unstaged tracked untracked))
+             (if (memq stype '(staged unstaged unsaved tracked untracked))
                  stype
                (pcase stype
                  ((or `file `module)
@@ -2949,7 +2955,7 @@ actually a `diff' but a `diffstat' section."
         (`(file  ,_  ,_  ,_) 'file)
         (`(module   t   t nil) 'files)
         (`(module  ,_  ,_  ,_) 'file)
-        (`(,(or `staged `unstaged `untracked)
+        (`(,(or `staged `unstaged `unsaved `untracked)
            nil ,_ ,_) 'list)))))
 
 (defun magit-diff-use-hunk-region-p ()
