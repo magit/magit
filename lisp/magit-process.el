@@ -437,7 +437,8 @@ conversion."
 ARGS is flattened and then used as arguments to Git.
 
 The current buffer's content is used as the process's standard
-input.
+input.  The buffer is assumed to be temporary and thus OK to
+modify.
 
 Option `magit-git-executable' specifies the Git executable and
 option `magit-git-global-arguments' specifies constant arguments.
