@@ -2762,9 +2762,12 @@ It the SECTION has a different type, then do nothing."
   "Insert diff for unsaved changes in BUFFER."
   (let* ((file-name     (buffer-file-name buffer))
          (relative-name (magit-file-relative-name file-name))
+         (diff-path     (if (file-exists-p file-name)
+                            relative-name
+                          "/dev/null"))
          (args          (-flatten (list "diff" magit-buffer-diff-args
                                         "--no-index" "--no-prefix" "--"
-                                        relative-name "-")))
+                                        diff-path "-")))
          (beg           (point)))
     (apply #'magit--git-insert-with-input buffer args)
     (when (< beg (point))
