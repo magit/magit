@@ -226,25 +226,79 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
   (let* ((files (if (atom section:s)
                     (list (oref section:s value))
                   (--map (oref it value) section:s)))
-         (command (symbol-name this-command))
-         (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
-                      (match-string 1 command)
-                    "apply"))
-         (ignore-context (magit-diff-ignore-any-space-p)))
+         (ignore-context (magit-diff-ignore-any-space-p))
+         (args (append args
+                       '("-p0" "--ignore-space-change")
+                       (and ignore-context '("-C0")))))
     (unless (magit-diff-context-p)
       (user-error "Not enough context to apply patch.  Increase the context"))
+    (if (memq 'unsaved args)
+        (magit--apply-patch-to-buffers files (delq 'unsaved args) patch)
+      (magit--apply-patch-to-worktree files args patch))))
+
+(defun magit--apply-patch-to-worktree (files args patch)
+  (let* ((command (symbol-name this-command))
+         (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
+                      (match-string 1 command)
+                    "apply")))
     (when (and magit-wip-before-change-mode (not magit-inhibit-refresh))
       (magit-wip-commit-before-change files (concat " before " command)))
     (with-temp-buffer
       (insert patch)
       (magit-run-git-with-input
-       "apply" args "-p0"
-       (and ignore-context "-C0")
-       "--ignore-space-change" "-"))
+       "apply" args "-"))
     (unless magit-inhibit-refresh
       (when magit-wip-after-apply-mode
         (magit-wip-commit-after-apply files (concat " after " command)))
       (magit-refresh))))
+
+(defun magit--apply-patch-to-buffers (files args patch)
+  (let ((old-buffer (current-buffer)))
+    (with-temp-buffer
+      (insert patch)
+      (let ((patch-buffer (current-buffer)))
+        (with-current-buffer old-buffer
+          (apply
+           #'magit--calc-apply
+           (lambda (dir)
+             (mapc
+              (lambda (file)
+                (let ((full-path (expand-file-name file dir)))
+                  (make-directory (file-name-directory full-path) t)
+                  (with-current-buffer (find-buffer-visiting file)
+                    (write-region nil nil full-path nil 'silent))))
+              files))
+           patch-buffer
+           (lambda (dir)
+             (mapc
+              (lambda (file)
+                (let ((full-path (expand-file-name file dir)))
+                  (with-current-buffer (find-buffer-visiting file)
+                    (insert-file-contents full-path nil nil nil t))))
+              files))
+           args)))))
+  (unless magit-inhibit-refresh
+    (magit-refresh)))
+
+(defun magit--calc-apply (old-writer diff-buffer new-reader &rest args)
+  "Obtain the result of applying a diff onto arbitrary data.
+
+OLD-WRITER takes a directory name, and should write the data to
+be patched to it.  DIFF-BUFFER is a buffer which contains the
+patch to apply.  ARGS may contain additional arguments to
+git-apply.  NEW-READER is called with the directory name
+containing the result.  (The directory is deleted when
+`magit--calc-apply' exits.)
+
+Returns the return value of NEW-READER."
+  (let ((dir (make-temp-file "magit-diff" t)))
+    (unwind-protect
+        (progn
+          (funcall old-writer dir)
+          (let ((default-directory dir))
+            (apply #'magit--process-input "git" diff-buffer nil nil "apply" args))
+          (funcall new-reader dir))
+      (delete-directory dir t))))
 
 (defun magit-apply--get-selection ()
   (or (magit-region-sections '(hunk file module) t)
@@ -485,17 +539,21 @@ without requiring confirmation."
   (magit-discard-apply section 'magit-apply-hunk))
 
 (defun magit-discard-apply (section apply)
-  (if (eq (magit-diff-type section) 'unstaged)
-      (funcall apply section "--reverse")
-    (if (magit-anything-unstaged-p
-         nil (if (magit-file-section-p section)
-                 (oref section value)
-               (magit-section-parent-value section)))
-        (progn (let ((magit-inhibit-refresh t))
-                 (funcall apply section "--reverse" "--cached")
-                 (funcall apply section "--reverse" "--reject"))
-               (magit-refresh))
-      (funcall apply section "--reverse" "--index"))))
+  (cond
+   ((eq (magit-diff-type section) 'unstaged)
+    (funcall apply section "--reverse"))
+   ((eq (magit-diff-type section) 'unsaved)
+    (funcall apply section "--reverse" 'unsaved))
+   ((magit-anything-unstaged-p
+     nil (if (magit-file-section-p section)
+             (oref section value)
+           (magit-section-parent-value section)))
+    (let ((magit-inhibit-refresh t))
+      (funcall apply section "--reverse" "--cached")
+      (funcall apply section "--reverse" "--reject"))
+    (magit-refresh))
+   (t
+    (funcall apply section "--reverse" "--index"))))
 
 (defun magit-discard-hunks (sections)
   (magit-confirm 'discard (format "Discard %s hunks from %s"
@@ -505,17 +563,21 @@ without requiring confirmation."
 
 (defun magit-discard-apply-n (sections apply)
   (let ((section (car sections)))
-    (if (eq (magit-diff-type section) 'unstaged)
-        (funcall apply sections "--reverse")
-      (if (magit-anything-unstaged-p
-           nil (if (magit-file-section-p section)
-                   (oref section value)
-                 (magit-section-parent-value section)))
-          (progn (let ((magit-inhibit-refresh t))
-                   (funcall apply sections "--reverse" "--cached")
-                   (funcall apply sections "--reverse" "--reject"))
-                 (magit-refresh))
-        (funcall apply sections "--reverse" "--index")))))
+    (cond
+     ((eq (magit-diff-type section) 'unstaged)
+      (funcall apply sections "--reverse"))
+     ((eq (magit-diff-type section) 'unsaved)
+      (funcall apply sections "--reverse" 'unsaved))
+     ((magit-anything-unstaged-p
+       nil (if (magit-file-section-p section)
+               (oref section value)
+             (magit-section-parent-value section)))
+      (let ((magit-inhibit-refresh t))
+        (funcall apply sections "--reverse" "--cached")
+        (funcall apply sections "--reverse" "--reject"))
+      (magit-refresh))
+     (t
+      (funcall apply sections "--reverse" "--index")))))
 
 (defun magit-discard-file (section)
   (magit-discard-files (list section)))
