@@ -625,7 +625,7 @@ finally check current non-comment text."
   "Check for violations of certain basic style conventions.
 
 For each violation ask the user if she wants to proceed anyway.
-Option `git-commit-check-style-conventions' controls which
+Option `git-commit-style-convention-checks' controls which
 conventions are checked."
   (or force
       (save-excursion
