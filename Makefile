@@ -218,7 +218,6 @@ define set_package_requires
 `(define-package "magit" "$(VERSION)" ;`
    "A Git porcelain inside Emacs."
    '((emacs ,emacs-version) ;'
-     (async ,async-version)
      (dash ,dash-version)
      (git-commit ,git-commit-version)
      ;; FIXME (magit-section ,magit-section-version)
@@ -236,7 +235,6 @@ bump-versions: bump-versions-1 texi
 bump-versions-1:
 	@$(BATCH) --eval "(let (\
 	(emacs-version \"$(EMACS_VERSION)\")\
-        (async-version \"$(ASYNC_VERSION)\")\
         (dash-version \"$(DASH_VERSION)\")\
         (git-commit-version \"$(GIT_COMMIT_VERSION)\")\
         (libgit-version \"$(LIBGIT_VERSION)\")\
@@ -248,7 +246,6 @@ bump-versions-1:
 bump-snapshots:
 	@$(BATCH) --eval "(let (\
 	(emacs-version \"$(EMACS_VERSION)\")\
-        (async-version \"$(ASYNC_MELPA_SNAPSHOT)\")\
         (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
         (libgit-version \"$(LIBGIT_MELPA_SNAPSHOT)\")\
