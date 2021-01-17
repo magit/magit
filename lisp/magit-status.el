@@ -360,6 +360,8 @@ doesn't find the executable, then consult the info node
      :if (lambda () (memq 'magit-insert-tracked-files magit-status-sections-hook)))
     ("n " "Untracked" magit-jump-to-untracked
      :if (lambda () (memq 'magit-insert-untracked-files magit-status-sections-hook)))
+    ("m " "Unsaved" magit-jump-to-unsaved
+     :if (lambda () (memq 'magit-insert-unsaved-changes magit-status-sections-hook)))
     ("u " "Unstaged" magit-jump-to-unstaged
      :if (lambda () (memq 'magit-insert-unstaged-changes magit-status-sections-hook)))
     ("s " "Staged" magit-jump-to-staged

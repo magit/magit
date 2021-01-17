@@ -2127,6 +2127,10 @@ By default the following functions are also members of that hook:
   directories.  But the directory sections can then be expanded using
   ~TAB~.
 
+- Function: magit-insert-unsaved-changes
+
+  Insert section showing a list of unsaved buffers.
+
 - Function: magit-insert-unstaged-changes
 
   Insert section showing unstaged changes.

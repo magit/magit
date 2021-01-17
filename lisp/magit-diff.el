@@ -2748,6 +2748,33 @@ It the SECTION has a different type, then do nothing."
 
 (add-hook 'magit-section-goto-successor-hook #'magit-hunk-goto-successor)
 
+(magit-define-section-jumper magit-jump-to-unsaved "Unsaved changes" unsaved)
+
+(defun magit-insert-unsaved-changes ()
+  "Insert section showing a list of unsaved buffers."
+  (magit-insert-section (unsaved)
+    (magit-insert-heading "Unsaved changes:")
+    (let* ((topdir (magit-toplevel))
+           (remote (file-remote-p topdir))
+           have-unsaved)
+      (dolist (buffer (buffer-list))
+        (when (with-current-buffer buffer
+                (and
+                 (buffer-modified-p)
+                 buffer-file-name
+                 ;; As per magit-save-repository-buffers.
+                 (equal (file-remote-p buffer-file-name)
+                        remote)
+                 (string-prefix-p topdir (file-truename buffer-file-name))
+                 (equal (magit-toplevel) topdir)))
+          (let ((file (magit-file-relative-name (buffer-file-name buffer))))
+            (magit-insert-section (file file)
+              (insert (propertize file 'font-lock-face 'magit-filename) ?\n)))
+          (setq have-unsaved t)))
+      (if have-unsaved
+          (insert ?\n)
+        (magit-cancel-section)))))
+
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing]  'magit-diff-unstaged)
