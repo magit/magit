@@ -491,6 +491,37 @@ If you prefer the old behaviors, then set this to t."
   :group 'magit-diff
   :type 'boolean)
 
+(defcustom magit-diffstat-width 'window-width
+  "The maximum width used by the diffstat filename and graph.
+
+The filename and the graph part can be individually limited by
+the `magit-diffstat-name-width' and `magit-diffstat-graph-width'
+respectively."
+  :package-version '(magit . "3.0.0")
+  :group 'magit-diff
+  :type '(choice (integer :tag "Fixed width")
+                 (function :tag "Function returning the width")))
+
+(defcustom magit-diffstat-name-width nil
+  "The maximum width used by the filename part of the diffstat.
+
+See `magit-diffstat-width' for more information."
+  :package-version '(magit . "3.0.0")
+  :group 'magit-diff
+  :type '(choice (const :tag "Unlimited" nil)
+                 (integer :tag "Fixed width")
+                 (function :tag "Function returning the width")))
+
+(defcustom magit-diffstat-graph-width nil
+  "The maximum width used by the graph part of the diffstat.
+
+See `magit-diffstat-width' for more information."
+  :package-version '(magit . "3.0.0")
+  :group 'magit-diff
+  :type '(choice (const :tag "Unlimited" nil)
+                 (integer :tag "Fixed width")
+                 (function :tag "Function returning the width")))
+
 ;;; Faces
 
 (defface magit-diff-file-heading
@@ -1995,6 +2026,27 @@ Staging and applying changes is documented in info node
    ;; oldBold, and newBold.
    ))
 
+(defun magit-diffstat-add-width-arguments (args)
+  ;; Don't add any of width arguments unless --stat is present - adding
+  ;; any of these arguments implies a --stat.
+  (if (member "--stat" args)
+      (progn
+        (when magit-diffstat-graph-width
+          (push (format "--stat-graph-width=%d" (if (symbolp magit-diffstat-graph-width)
+                                                    (funcall magit-diffstat-graph-width)
+                                                  magit-diffstat-graph-width))
+                args))
+        (when magit-diffstat-name-width
+          (push (format "--stat-name-width=%d" (if (symbolp magit-diffstat-name-width)
+                                                   (funcall magit-diffstat-name-width)
+                                                 magit-diffstat-name-width))
+                args))
+        (push (format "--stat-width=%d" (if (symbolp magit-diffstat-width)
+                                            (funcall magit-diffstat-width)
+                                          magit-diffstat-width))
+              args))
+    args))
+
 (defun magit-insert-diff ()
   "Insert the diff into this `magit-diff-mode' buffer."
   (magit--insert-diff
@@ -2026,6 +2078,7 @@ Staging and applying changes is documented in info node
       (setq magit-git-global-arguments
             (append magit-diff--reset-non-color-moved
                     magit-git-global-arguments)))
+    (setq args (cons (car args) (magit-diffstat-add-width-arguments (cdr args))))
     (magit-git-wash #'magit-diff-wash-diffs args)))
 
 (defun magit-diff-wash-diffs (args &optional limit)
