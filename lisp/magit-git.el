@@ -52,6 +52,7 @@
 (declare-function magit-call-git "magit-process" (&rest args))
 (declare-function magit-process-buffer "magit-process" (&optional nodisplay))
 (declare-function magit-process-file "magit-process" (&rest args))
+(declare-function magit--process-input "magit-process" (&rest args))
 (declare-function magit-process-insert-section "magit-process"
                   (pwd program args &optional errcode errlog))
 (defvar magit-this-error)
@@ -434,6 +435,10 @@ signal `magit-invalid-git-boolean'."
   "Execute Git with ARGS, inserting its output at point.
 If Git exits with a non-zero exit status, then show a message and
 add a section in the respective process buffer."
+  (apply #'magit--git-insert-with-input nil args))
+
+(defun magit--git-insert-with-input (input &rest args)
+  "Extend `magit-git-insert' by allowing to specify an INPUT buffer."
   (setq args (magit-process-git-arguments args))
   (if magit-git-debug
       (let (log)
@@ -441,8 +446,8 @@ add a section in the respective process buffer."
             (progn
               (setq log (make-temp-file "magit-stderr"))
               (delete-file log)
-              (let ((exit (apply #'magit-process-file magit-git-executable
-                                 nil (list t log) nil args)))
+              (let ((exit (apply #'magit--process-input magit-git-executable
+                                 input (list t log) nil args)))
                 (when (> exit 0)
                   (let ((msg "Git failed"))
                     (when (file-exists-p log)
@@ -460,8 +465,8 @@ add a section in the respective process buffer."
                     (message "%s" msg)))
                 exit))
           (ignore-errors (delete-file log))))
-    (apply #'magit-process-file magit-git-executable
-           nil (list t nil) nil args)))
+    (apply #'magit--process-input magit-git-executable
+           input (list t nil) nil args)))
 
 (defun magit--locate-error-message ()
   (goto-char (point-max))
@@ -508,9 +513,16 @@ output, call `magit-cancel-section'.  Otherwise temporarily narrow
 the buffer to the inserted text, move to its beginning, and then
 call function WASHER with ARGS as its sole argument."
   (declare (indent 1))
+  (setq args (-flatten args))
+  (apply #'magit--git-wash-fun
+         washer
+         (lambda () (magit-git-insert args))
+         args))
+
+(defun magit--git-wash-fun (washer fun &rest args)
+  "As `magit-git-wash', but assume FUN inserts Git output congruous with ARGS."
   (let ((beg (point)))
-    (setq args (-flatten args))
-    (magit-git-insert args)
+    (funcall fun)
     (if (= (point) beg)
         (magit-cancel-section)
       (unless (bolp)

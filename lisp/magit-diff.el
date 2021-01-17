@@ -2750,30 +2750,45 @@ It the SECTION has a different type, then do nothing."
 
 (magit-define-section-jumper magit-jump-to-unsaved "Unsaved changes" unsaved)
 
+(defun magit--insert-unsaved-diff (buffer)
+  "Insert diff for unsaved changes in BUFFER."
+  (let* ((file-name     (buffer-file-name buffer))
+         (relative-name (magit-file-relative-name file-name))
+         (args          (-flatten (list "diff" magit-buffer-diff-args
+                                        "--no-index" "--no-prefix" "--"
+                                        relative-name "-")))
+         (beg           (point)))
+    (apply #'magit--git-insert-with-input buffer args)
+    (when (< beg (point))
+      ;; Patch in the buffer's file name instead of "-".
+      (save-excursion
+        (goto-char beg)
+        (re-search-forward "^\\+\\+\\+ -$")
+        (delete-char -1)
+        (insert relative-name)))))
+
 (defun magit-insert-unsaved-changes ()
-  "Insert section showing a list of unsaved buffers."
+  "Insert section showing unsaved changes in buffers."
   (magit-insert-section (unsaved)
     (magit-insert-heading "Unsaved changes:")
-    (let* ((topdir (magit-toplevel))
-           (remote (file-remote-p topdir))
-           have-unsaved)
-      (dolist (buffer (buffer-list))
-        (when (with-current-buffer buffer
-                (and
-                 (buffer-modified-p)
-                 buffer-file-name
-                 ;; As per magit-save-repository-buffers.
-                 (equal (file-remote-p buffer-file-name)
-                        remote)
-                 (string-prefix-p topdir (file-truename buffer-file-name))
-                 (equal (magit-toplevel) topdir)))
-          (let ((file (magit-file-relative-name (buffer-file-name buffer))))
-            (magit-insert-section (file file)
-              (insert (propertize file 'font-lock-face 'magit-filename) ?\n)))
-          (setq have-unsaved t)))
-      (if have-unsaved
-          (insert ?\n)
-        (magit-cancel-section)))))
+    ;; Wash the output of multiple git invocations at once.
+    (magit--git-wash-fun
+     #'magit-diff-wash-diffs
+     (lambda ()
+       (let* ((topdir (magit-toplevel))
+              (remote (file-remote-p topdir)))
+         (dolist (buffer (buffer-list))
+           (when (with-current-buffer buffer
+                   (and
+                    (buffer-modified-p)
+                    buffer-file-name
+                    ;; As per magit-save-repository-buffers.
+                    (equal (file-remote-p buffer-file-name)
+                           remote)
+                    (string-prefix-p topdir (file-truename buffer-file-name))
+                    (equal (magit-toplevel) topdir)))
+             (magit--insert-unsaved-diff buffer)))))
+     "diff" "-")))
 
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))

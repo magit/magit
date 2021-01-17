@@ -2129,7 +2129,7 @@ By default the following functions are also members of that hook:
 
 - Function: magit-insert-unsaved-changes
 
-  Insert section showing a list of unsaved buffers.
+  Insert section showing unsaved changes in buffers.
 
 - Function: magit-insert-unstaged-changes
 

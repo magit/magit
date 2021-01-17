@@ -396,6 +396,41 @@ Process output goes into a new section in the buffer returned by
        (apply #'magit-process-file program nil process-buf nil args))
      process-buf (current-buffer) default-directory section)))
 
+(defun magit--process-input (process input buffer display &rest args)
+  "Process files with input synchronously in a separate process.
+Similar to `magit-process-file', but allow specifying a buffer as the input."
+  (if (bufferp input)
+      (if (file-remote-p default-directory)
+          ;; TODO: creating a temporary file could be avoided by
+          ;; invoking the make-process handler
+          (let ((infile (make-temp-file "magit-stdin")))
+            (unwind-protect
+                (progn
+                  (with-current-buffer input
+                    (write-region (point-min) (point-max) infile nil 'silent))
+                  (apply #'magit-process-file
+                         process infile buffer display args))
+              (delete-file infile)))
+        (when magit-process-extreme-logging
+          (let ((inhibit-message t))
+            (message "$ %s" (magit-process--format-arguments process args))))
+        ;; Translate t to explicit (current-buffer), as we will need
+        ;; it for the input.
+        (setq buffer
+              (if (consp buffer)
+                  (cons
+                   (if (eq t (car buffer)) (current-buffer) (car buffer))
+                   (if (eq t (cdr buffer)) (current-buffer) (cdr buffer)))
+                (if (eq t buffer) (current-buffer) buffer)))
+        (let ((process-environment (magit-process-environment))
+              (default-process-coding-system (magit--process-coding-system))
+              (process-directory default-directory))
+          (with-current-buffer input
+            (let ((default-directory process-directory))
+              (apply #'call-process-region
+                     (point-min) (point-max) process nil buffer display args)))))
+    (apply #'magit-process-file process input buffer display args)))
+
 (defun magit-process-file (process &optional infile buffer display &rest args)
   "Process files synchronously in a separate process.
 Identical to `process-file' but temporarily enable Cygwin's
