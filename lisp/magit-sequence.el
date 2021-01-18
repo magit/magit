@@ -669,8 +669,13 @@ START has to be selected from a list of recent commits."
                                  (unless (member "--root" args) commit)))
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-interactive-1 commit (list ,@args)
-           ,message ,editor ,delay-edit-confirm ,noassert))
+         ;; In some cases (currently just magit-rebase-remove-commit), "-c
+         ;; commentChar=#" is added to the global arguments for git.  Ensure
+         ;; that the same happens when we chose the commit via
+         ;; magit-log-select, below.
+         (let ((magit-git-global-arguments (list ,@magit-git-global-arguments)))
+           (magit-rebase-interactive-1 commit (list ,@args)
+             ,message ,editor ,delay-edit-confirm ,noassert)))
       message)))
 
 (defvar magit--rebase-published-symbol nil)
@@ -755,10 +760,14 @@ START has to be selected from a list of recent commits."
   "Remove a single older commit using rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-rebase-arguments)))
-  (magit-rebase-interactive-1 commit args
-    "Type %p on a commit to remove it,"
-    (apply-partially #'magit-rebase--perl-editor 'remove)
-    nil nil t))
+  ;; magit-rebase--perl-editor assumes that the comment character is "#".
+  (let ((magit-git-global-arguments
+         (nconc (list "-c" "core.commentChar=#")
+                magit-git-global-arguments)))
+    (magit-rebase-interactive-1 commit args
+      "Type %p on a commit to remove it,"
+      (apply-partially #'magit-rebase--perl-editor 'remove)
+      nil nil t)))
 
 (defun magit-rebase--perl-editor (action since)
   (let ((commit (magit-rev-abbrev (magit-rebase--target-commit since))))
