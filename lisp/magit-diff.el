@@ -491,36 +491,26 @@ If you prefer the old behaviors, then set this to t."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diffstat-width 'window-width
-  "The maximum width used by the diffstat filename and graph.
+(defcustom magit-diffstat-width 'magit-diffstat-use-window-width
+  "The maximum width used by the diffstat section.
 
-The filename and the graph part can be individually limited by
-the `magit-diffstat-name-width' and `magit-diffstat-graph-width'
-respectively."
+The value can be a list or a function that returns a list of one
+to three elements where each value represents in succession the
+maximum width of the total, the file name and the graph.  Maximum
+width of the file name and graphic are optional and can be
+omitted."
   :package-version '(magit . "3.0.0")
   :group 'magit-diff
-  :type '(choice (integer :tag "Fixed width")
-                 (function :tag "Function returning the width")))
-
-(defcustom magit-diffstat-name-width nil
-  "The maximum width used by the filename part of the diffstat.
-
-See `magit-diffstat-width' for more information."
-  :package-version '(magit . "3.0.0")
-  :group 'magit-diff
-  :type '(choice (const :tag "Unlimited" nil)
-                 (integer :tag "Fixed width")
-                 (function :tag "Function returning the width")))
-
-(defcustom magit-diffstat-graph-width nil
-  "The maximum width used by the graph part of the diffstat.
-
-See `magit-diffstat-width' for more information."
-  :package-version '(magit . "3.0.0")
-  :group 'magit-diff
-  :type '(choice (const :tag "Unlimited" nil)
-                 (integer :tag "Fixed width")
-                 (function :tag "Function returning the width")))
+  :type '(radio (function-item magit-diffstat-use-window-width)
+                (function :tag "Other function")
+                (list :tag "Maximum fixed width"
+                      (integer :tag "Maximum total width")
+                      (choice :tag "Maximum file name width"
+                              (const :tag "Unlimited" nil)
+                              (integer :tag "Fixed value"))
+                      (choice :tag "Maximum graph width"
+                              (const :tag "Unlimited" nil)
+                              (integer :tag "Fixed value")))))
 
 ;;; Faces
 
@@ -2026,25 +2016,22 @@ Staging and applying changes is documented in info node
    ;; oldBold, and newBold.
    ))
 
+(defun magit-diffstat-use-window-width ()
+  "Return a list with the window width."
+  (list (window-width) nil nil))
+
 (defun magit-diffstat-add-width-arguments (args)
   ;; Don't add any of width arguments unless --stat is present - adding
   ;; any of these arguments implies a --stat.
   (if (member "--stat" args)
-      (progn
-        (when magit-diffstat-graph-width
-          (push (format "--stat-graph-width=%d" (if (symbolp magit-diffstat-graph-width)
-                                                    (funcall magit-diffstat-graph-width)
-                                                  magit-diffstat-graph-width))
-                args))
-        (when magit-diffstat-name-width
-          (push (format "--stat-name-width=%d" (if (symbolp magit-diffstat-name-width)
-                                                   (funcall magit-diffstat-name-width)
-                                                 magit-diffstat-name-width))
-                args))
-        (push (format "--stat-width=%d" (if (symbolp magit-diffstat-width)
-                                            (funcall magit-diffstat-width)
-                                          magit-diffstat-width))
-              args))
+      (let ((diffstat-width (if (functionp magit-diffstat-width)
+                                (funcall magit-diffstat-width)
+                              magit-diffstat-width)))
+        (when-let ((graph-width (nth 2 diffstat-width)))
+          (push (format "--stat-graph-width=%d" graph-width) args))
+        (when-let ((name-width (nth 1 diffstat-width)))
+          (push (format "--stat-name-width=%d" name-width) args))
+        (push (format "--stat-width=%d" (car diffstat-width)) args))
     args))
 
 (defun magit-insert-diff ()
