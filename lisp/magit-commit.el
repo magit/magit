@@ -151,19 +151,20 @@ Also see `git-commit-post-finish-hook'."
 
 (defun magit-read-gpg-secret-key (prompt &optional initial-input history)
   (require 'epa)
-  (let* ((keys (mapcar
-                (lambda (obj)
-                  (let ((key (epg-sub-key-id (car (epg-key-sub-key-list obj))))
-                        (author
-                         (when-let ((id-obj (car (epg-key-user-id-list obj))))
-                           (let ((id-str (epg-user-id-string id-obj)))
-                             (if (stringp id-str)
-                                 id-str
-                               (epg-decode-dn id-obj))))))
-                    (propertize key 'display (concat key " " author))))
-                (epg-list-keys (epg-make-context epa-protocol) nil t)))
-         (choice (completing-read prompt keys nil nil nil
-                                  history nil initial-input)))
+  (require 'cl-lib)
+  (let* ((all-keys (epg-list-keys (epg-make-context epa-protocol) nil t))
+         (by-subkeys (cl-loop for key in all-keys
+                              for author = (when-let ((id-obj (car (epg-key-user-id-list key))))
+                                             (let ((id-str (epg-user-id-string id-obj)))
+                                               (if (stringp id-str)
+                                                   id-str
+                                                 (epg-decode-dn id-obj))))
+                              append (cl-loop for subkey in (epg-key-sub-key-list key)
+                                              if (memq 'sign (epg-sub-key-capability subkey))
+                                              collect (let ((subkey-id (epg-sub-key-id subkey)))
+                                                        (propertize
+                                                         subkey-id 'display (string-join (list subkey-id author) " "))))))
+         (choice (completing-read "Some stutff:" by-subkeys)))
     (set-text-properties 0 (length choice) nil choice)
     choice))
 
