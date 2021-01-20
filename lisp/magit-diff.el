@@ -2024,14 +2024,16 @@ Staging and applying changes is documented in info node
   ;; Don't add any of width arguments unless --stat is present - adding
   ;; any of these arguments implies a --stat.
   (if (member "--stat" args)
-      (let ((diffstat-width (if (functionp magit-diffstat-width)
-                                (funcall magit-diffstat-width)
-                              magit-diffstat-width)))
-        (when-let ((graph-width (nth 2 diffstat-width)))
-          (push (format "--stat-graph-width=%d" graph-width) args))
-        (when-let ((name-width (nth 1 diffstat-width)))
-          (push (format "--stat-name-width=%d" name-width) args))
-        (push (format "--stat-width=%d" (car diffstat-width)) args))
+      (if-let ((window (get-buffer-window (current-buffer) 'visible)))
+          (with-selected-window window
+            (let ((diffstat-width (if (functionp magit-diffstat-width)
+                                      (funcall magit-diffstat-width)
+                                    magit-diffstat-width)))
+              (when-let ((graph-width (nth 2 diffstat-width)))
+                (push (format "--stat-graph-width=%d" graph-width) args))
+              (when-let ((name-width (nth 1 diffstat-width)))
+                (push (format "--stat-name-width=%d" name-width) args))
+              (push (format "--stat-width=%d" (car diffstat-width)) args))))
     args))
 
 (defun magit-insert-diff ()
