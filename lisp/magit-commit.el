@@ -164,7 +164,8 @@ Also see `git-commit-post-finish-hook'."
                                               collect (let ((subkey-id (epg-sub-key-id subkey)))
                                                         (propertize
                                                          subkey-id 'display (string-join (list subkey-id author) " "))))))
-         (choice (completing-read "Some stutff:" by-subkeys)))
+         (choice (completing-read prompt by-subkeys nil nil nil
+                                  history nil initial-input)))
     (set-text-properties 0 (length choice) nil choice)
     choice))
 
