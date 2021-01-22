@@ -1069,7 +1069,7 @@ Do not add this to a hook variable."
           (setq args (cons "--decorate=full" (remove "--decorate" args))))
         (when (member "--reverse" args)
           (setq args (remove "--graph" args)))
-        (setq args (magit-diffstat-add-width-arguments args))
+        (setq args (magit-diffstat-maybe-add-width-arguments args))
         args)
       "--use-mailmap" "--no-prefix" revs "--" files)))
 
