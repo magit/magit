@@ -541,7 +541,7 @@ and Emacs to it."
       (setq magit-version 'error)
       (when magit-version
         (push magit-version debug))
-      (unless (equal (getenv "TRAVIS") "true")
+      (unless (equal (getenv "CI") "true")
         ;; The repository is a sparse clone.
         (message "Cannot determine Magit's version %S" debug)))
     magit-version))
@@ -596,7 +596,7 @@ https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
   (let ((version (magit-git-version)))
     (when (and version
                (version< version magit--minimal-git)
-               (not (equal (getenv "TRAVIS") "true")))
+               (not (equal (getenv "CI") "true")))
       (display-warning 'magit (format "\
 Magit requires Git >= %s, you are using %s.
 

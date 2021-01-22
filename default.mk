@@ -181,7 +181,7 @@ endif
 LOAD_PATH = -L $(TOP)lisp
 
 # When making changes here, then don't forget to adjust "Makefile",
-# ".travis.yml", ".github/ISSUE_TEMPLATE/bug_report.md",
+# ".github/workflows/test.yml", ".github/ISSUE_TEMPLATE/bug_report.md",
 # `magit-emacs-Q-command' and the "Installing from the Git Repository"
 # info node accordingly.  Also don't forget to "rgrep \b<pkg>\b".
 
