@@ -122,6 +122,16 @@ emacs-Q: clean-lisp
 	(require 'magit)\
 	(global-set-key \"\\C-xg\" 'magit-status))"
 
+coverage:
+	@find -name '*.elc' -delete
+	@$(BATCH) --eval "(progn\
+	(load-file \"shut-up.el\")\
+	(load-file \"undercover.el\")\
+	(undercover \"lisp/*.el\")\
+        $$suppress_warnings\
+	(load-file \"t/magit-tests.el\")\
+	(ert-run-tests-batch-and-exit))"
+
 ## Clean #############################################################
 
 clean: clean-lisp clean-docs clean-archives

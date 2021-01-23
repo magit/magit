@@ -28,6 +28,8 @@ jobs:
         $CURL -O ${GHRAW}/magnars/dash.el/master/dash.el
         $CURL -O ${GHRAW}/magit/transient/master/lisp/transient.el
         $CURL -O ${GHRAW}/magit/with-editor/master/with-editor.el
+        $CURL -O ${GHRAW}/cask/shut-up/master/shut-up.el
+        $CURL -O ${GHRAW}/undercover-el/undercover.el/master/undercover.el
         emacs -Q --batch -L . -f batch-byte-compile dash.el transient.el with-editor.el
         emacs --version
         git config --global user.name "A U Thor"
@@ -39,3 +41,19 @@ jobs:
     - name: Test
       run: |
         make test DASH_DIR=$PWD
+    - name: Coverage
+      env:
+        COVERALLS_FLAG_NAME: Emacs ${{ matrix.emacs_version }}
+        COVERALLS_PARALLEL: 1
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        make coverage DASH_DIR=$PWD
+  finalize:
+    runs-on: ubuntu-20.04
+    if: always()
+    needs: test
+    steps:
+    - run: >
+        url=$(printf -- "https://coveralls.io/webhook?repo_name=%s&repo_token=%s" \
+              "$GITHUB_REPOSITORY" "${{ secrets.GITHUB_TOKEN }}")
+        curl "$url" -d "payload[build_num]=$GITHUB_RUN_NUMBER&payload[status]=done"
