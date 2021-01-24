@@ -576,17 +576,18 @@ defaulting to the branch at point."
       (magit-run-git "branch" (if force "-D" "-d") branches))
      (t ; And now for something completely different.
       (let* ((branch (car branches))
-             (prompt (format "Branch %s is checked out.  " branch)))
+             (prompt (format "Branch %s is checked out.  " branch))
+             (main (magit-main-branch)))
         (when (equal branch (magit-get-current-branch))
-          (pcase (if (or (equal branch "master")
-                         (not (magit-rev-verify "master")))
+          (pcase (if (or (equal branch main)
+                         (not main))
                      (magit-read-char-case prompt nil
                        (?d "[d]etach HEAD & delete" 'detach)
                        (?a "[a]bort"                'abort))
                    (magit-read-char-case prompt nil
-                     (?d "[d]etach HEAD & delete"     'detach)
-                     (?c "[c]heckout master & delete" 'master)
-                     (?a "[a]bort"                    'abort)))
+                     (?d "[d]etach HEAD & delete" 'detach)
+                     (?c (format "[c]heckout %s & delete" main) 'main)
+                     (?a "[a]bort" 'abort)))
             (`detach (unless (or (equal force '(4))
                                  (member branch force)
                                  (magit-branch-merged-p branch t))
@@ -594,13 +595,13 @@ defaulting to the branch at point."
                          "Delete unmerged branch %s" ""
                          nil (list branch)))
                      (magit-call-git "checkout" "--detach"))
-            (`master (unless (or (equal force '(4))
+            (`main   (unless (or (equal force '(4))
                                  (member branch force)
-                                 (magit-branch-merged-p branch "master"))
+                                 (magit-branch-merged-p branch main))
                        (magit-confirm 'delete-unmerged-branch
                          "Delete unmerged branch %s" ""
                          nil (list branch)))
-                     (magit-call-git "checkout" "master"))
+                     (magit-call-git "checkout" main))
             (`abort  (user-error "Abort")))
           (setq force t))
         (magit-branch-maybe-delete-pr-remote branch)

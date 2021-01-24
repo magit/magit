@@ -1472,8 +1472,8 @@ according to the branch type."
 
 (defun magit-get-some-remote (&optional branch)
   (or (magit-get-remote branch)
-      (and (magit-branch-p "master")
-           (magit-get-remote "master"))
+      (when-let ((main (magit-main-branch)))
+        (magit-get-remote main))
       (let ((remotes (magit-list-remotes)))
         (or (car (member "origin" remotes))
             (car remotes)))))
@@ -1779,6 +1779,27 @@ PATH has to be relative to the super-repository."
 
 (defun magit-remote-p (string)
   (car (member string (magit-list-remotes))))
+
+(defvar magit-main-branch-names
+  ;; These are the names that Git suggests
+  ;; if `init.defaultBranch' is undefined.
+  '("main" "master" "trunk" "development"))
+
+(defun magit-main-branch ()
+  "Return the main branch.
+
+If a branch exists whose name that matches `init.defaultBranch'
+then that is considered the main branch.  If no branch by that
+name exists, then the branch names in `magit-main-branch-names'
+are tried in order.  The first matching branch that actually
+exists in the current repository is considered its main branch."
+  (let ((branches (magit-list-local-branch-names)))
+    (seq-find (lambda (name)
+                (member name branches))
+              (delete-dups
+               (delq nil
+                     (cons (magit-get "init.defaultBranch")
+                           magit-main-branch-names))))))
 
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
@@ -2242,9 +2263,10 @@ out.  Only existing branches can be selected."
      (or (let ((r (car (member (magit-remote-branch-at-point) branches)))
                (l (car (member (magit-local-branch-at-point) branches))))
            (if magit-prefer-remote-upstream (or r l) (or l r)))
-         (let ((r (car (member "origin/master" branches)))
-               (l (car (member "master" branches))))
-           (if magit-prefer-remote-upstream (or r l) (or l r)))
+         (when-let ((main (magit-main-branch)))
+           (let ((r (car (member (concat "origin/" main) branches)))
+                 (l (car (member main branches))))
+             (if magit-prefer-remote-upstream (or r l) (or l r))))
          (car (member (magit-get-previous-branch) branches))))))
 
 (defun magit-read-starting-point (prompt &optional branch default)
