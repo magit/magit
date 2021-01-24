@@ -123,8 +123,9 @@
 (require 'with-editor)
 
 (eval-when-compile
-  (require 'recentf)
   (require 'subr-x))
+
+(defvar recentf-exclude)
 
 ;;;; Declarations
 

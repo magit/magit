@@ -80,7 +80,7 @@
 (require 'with-editor)
 (require 'magit)
 
-(eval-when-compile (require 'recentf))
+(defvar recentf-exclude)
 
 ;;; Options
 ;;;; Variables
