@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1144-g0da583448+1)
+@subtitle for version 2.90.1 (v2.90.1-1157-g10a931f15+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1144-g0da583448+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1157-g10a931f15+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -4377,6 +4377,28 @@ This option controls whether added and removed lines outside the
 hunk-internal region only lose their distinct background color or
 also the foreground color.  Whether the outside of the region is
 dimmed at all depends on @code{magit-diff-highlight-hunk-region-functions}.
+@end defopt
+
+@defopt magit-diff-extra-stat-arguments
+
+This option specifies additional arguments to be used alongside
+@code{--stat}.
+
+The value is a list of zero or more arguments or a function that
+takes no argument and returns such a list.  These arguments are
+allowed here: @code{--stat-width}, @code{--stat-name-width},
+@code{--stat-graph-width} and @code{--compact-summary}.  Also see 
+@ifinfo
+@ref{git-diff,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-diff">git-diff(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the git-diff(1) manpage.
+@end iftex
 @end defopt
 
 @node Revision Buffer
