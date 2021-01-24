@@ -28,10 +28,12 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'ansi-color))
-
-(require 'git-commit)
 (require 'magit-core)
+(require 'git-commit)
+
+(eval-when-compile (require 'ansi-color))
+(require 'diff-mode)
+(require 'smerge-mode)
 
 ;; For `magit-diff-popup'
 (declare-function magit-stash-show "magit-stash" (stash &optional args files))
@@ -63,9 +65,6 @@
   (cl-pushnew 'orig-rev eieio--known-slot-names)
   (cl-pushnew 'action-type eieio--known-slot-names)
   (cl-pushnew 'target eieio--known-slot-names))
-
-(require 'diff-mode)
-(require 'smerge-mode)
 
 ;;; Options
 ;;;; Diff Mode

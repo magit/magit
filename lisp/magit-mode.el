@@ -29,10 +29,12 @@
 
 ;;; Code:
 
-(require 'transient)
-
 (require 'magit-section)
 (require 'magit-git)
+
+(require 'format-spec)
+(require 'help-mode)
+(require 'transient)
 
 ;; For `magit-display-buffer-fullcolumn-most-v1' from `git-commit'
 (defvar git-commit-mode)
@@ -50,9 +52,6 @@
 (declare-function magit-status-goto-initial-section "magit-status" ())
 ;; For `magit-mode' from `bookmark'
 (defvar bookmark-make-record-function)
-
-(require 'format-spec)
-(require 'help-mode)
 
 ;;; Options
 

@@ -26,6 +26,7 @@
 (require 'magit)
 
 (defvar x-stretch-cursor)
+
 ;;; Options
 
 (defcustom magit-module-sections-hook

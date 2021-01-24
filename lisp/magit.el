@@ -47,17 +47,17 @@
 
 ;;; Code:
 
-(require 'with-editor)
-(require 'git-commit)
 (require 'magit-core)
 (require 'magit-diff)
 (require 'magit-log)
 (require 'magit-wip)
 (require 'magit-apply)
 (require 'magit-repos)
+(require 'git-commit)
 
 (require 'format-spec)
 (require 'package nil t) ; used in `magit-version'
+(require 'with-editor)
 
 (defconst magit--minimal-git "2.2.0")
 (defconst magit--minimal-emacs "25.1")

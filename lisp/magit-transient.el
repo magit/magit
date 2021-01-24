@@ -28,11 +28,11 @@
 
 ;;; Code:
 
-(require 'transient)
-
 (require 'magit-git)
 (require 'magit-mode)
 (require 'magit-process)
+
+(require 'transient)
 
 ;;; Classes
 

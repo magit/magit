@@ -74,10 +74,11 @@
 
 ;;; Code:
 
+(require 'magit)
+
 (require 'easymenu)
 (require 'server)
 (require 'with-editor)
-(require 'magit)
 
 (defvar recentf-exclude)
 

@@ -115,9 +115,10 @@
 (require 'dash)
 (require 'subr-x)
 
-(require 'log-edit)
 (require 'magit-git nil t)
 (require 'magit-utils nil t)
+
+(require 'log-edit)
 (require 'ring)
 (require 'rx)
 (require 'server)

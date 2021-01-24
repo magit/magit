@@ -31,13 +31,13 @@
 
 ;;; Code:
 
-(require 'ansi-color)
-
-(require 'with-editor)
 (require 'magit-utils)
 (require 'magit-section)
 (require 'magit-git)
 (require 'magit-mode)
+
+(require 'ansi-color)
+(require 'with-editor)
 
 (declare-function auth-source-search "auth-source"
                   (&rest spec &key max require create delete &allow-other-keys))

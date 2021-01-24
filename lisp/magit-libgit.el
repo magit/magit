@@ -48,6 +48,7 @@
 (require 'subr-x)
 
 (require 'magit-git)
+
 (require 'libgit)
 
 ;;; Utilities
