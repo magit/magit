@@ -29,9 +29,6 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'subr-x))
-
 (require 'magit)
 
 ;; For `magit-rebase--todo'.

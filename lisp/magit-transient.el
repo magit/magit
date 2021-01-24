@@ -28,9 +28,6 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'subr-x))
-
 (require 'transient)
 
 (require 'magit-git)

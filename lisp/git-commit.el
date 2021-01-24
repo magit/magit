@@ -113,6 +113,8 @@
 ;;;; Dependencies
 
 (require 'dash)
+(require 'subr-x)
+
 (require 'log-edit)
 (require 'magit-git nil t)
 (require 'magit-utils nil t)
@@ -121,9 +123,6 @@
 (require 'server)
 (require 'transient)
 (require 'with-editor)
-
-(eval-when-compile
-  (require 'subr-x))
 
 (defvar recentf-exclude)
 

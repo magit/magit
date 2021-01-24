@@ -30,11 +30,6 @@
 
 ;;; Code:
 
-(require 'dash)
-
-(eval-when-compile
-  (require 'subr-x))
-
 (require 'magit-section)
 (require 'magit-transient)
 (require 'magit-mode)

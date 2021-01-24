@@ -23,9 +23,6 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'subr-x))
-
 (require 'magit)
 
 (defvar x-stretch-cursor)

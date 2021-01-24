@@ -29,9 +29,6 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'subr-x))
-
 (require 'magit-core)
 
 (declare-function magit-status-setup-buffer "magit-status" (directory))

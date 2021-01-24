@@ -28,9 +28,7 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'ansi-color)
-  (require 'subr-x))
+(eval-when-compile (require 'ansi-color))
 
 (require 'git-commit)
 (require 'magit-core)

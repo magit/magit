@@ -37,10 +37,10 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'eieio)
+(require 'seq)
+(require 'subr-x)
 
-(eval-when-compile
-  (require 'benchmark)
-  (require 'subr-x))
+(eval-when-compile (require 'benchmark))
 
 ;;; Hooks
 

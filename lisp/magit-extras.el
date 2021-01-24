@@ -24,9 +24,6 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'subr-x))
-
 (require 'magit)
 
 (declare-function change-log-insert-entries "add-log" (changelogs))

@@ -29,12 +29,6 @@
 
 ;;; Code:
 
-(require 'cl-lib)
-(require 'dash)
-
-(eval-when-compile
-  (require 'subr-x))
-
 (require 'transient)
 
 (require 'magit-section)

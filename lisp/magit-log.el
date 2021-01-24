@@ -53,9 +53,6 @@
 (require 'crm)
 (require 'which-func)
 
-(eval-when-compile
-  (require 'subr-x))
-
 ;;; Options
 ;;;; Log Mode
 

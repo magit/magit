@@ -40,9 +40,9 @@
 
 (require 'cl-lib)
 (require 'dash)
-
-(eval-when-compile
-  (require 'subr-x))
+(require 'eieio)
+(require 'seq)
+(require 'subr-x)
 
 (require 'crm)
 

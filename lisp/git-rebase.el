@@ -74,7 +74,6 @@
 
 ;;; Code:
 
-(require 'dash)
 (require 'easymenu)
 (require 'server)
 (require 'with-editor)

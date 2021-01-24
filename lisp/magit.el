@@ -47,11 +47,6 @@
 
 ;;; Code:
 
-(require 'cl-lib)
-(require 'dash)
-
-(require 'subr-x)
-
 (require 'with-editor)
 (require 'git-commit)
 (require 'magit-core)

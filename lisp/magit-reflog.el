@@ -30,9 +30,6 @@
 (require 'magit-core)
 (require 'magit-log)
 
-(eval-when-compile
-  (require 'subr-x))
-
 ;;; Options
 
 (defcustom magit-reflog-limit 256

@@ -34,7 +34,6 @@
 
 (eval-when-compile (require 'epa)) ; for `epa-protocol'
 (eval-when-compile (require 'epg))
-(eval-when-compile (require 'subr-x))
 
 ;;; Options
 
