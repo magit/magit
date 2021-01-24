@@ -2003,27 +2003,28 @@ Staging and applying changes is documented in info node
 
 (defun magit--insert-diff (&rest args)
   (declare (indent 0))
-  (let ((magit-git-global-arguments
-         (remove "--literal-pathspecs" magit-git-global-arguments)))
-    (setq args (-flatten args))
+  (pcase-let ((`(,cmd . ,args)
+               (-flatten args))
+              (magit-git-global-arguments
+                (remove "--literal-pathspecs" magit-git-global-arguments)))
     ;; As of Git 2.19.0, we need to generate diffs with
     ;; --ita-visible-in-index so that `magit-stage' can work with
     ;; intent-to-add files (see #4026).  Cache the result for each
     ;; repo to avoid a `git version' call for every diff insertion.
-    (when (and (not (equal (car args) "merge-tree"))
+    (when (and (not (equal cmd "merge-tree"))
                (pcase (magit-repository-local-get 'diff-ita-kludge-p 'unset)
                  (`unset
                   (let ((val (version<= "2.19.0" (magit-git-version))))
                     (magit-repository-local-set 'diff-ita-kludge-p val)
                     val))
                  (val val)))
-      (push "--ita-visible-in-index" (cdr args)))
+      (push "--ita-visible-in-index" args))
     (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)
-      (push "--color=always" (cdr args))
+      (push "--color=always" args)
       (setq magit-git-global-arguments
             (append magit-diff--reset-non-color-moved
                     magit-git-global-arguments)))
-    (magit-git-wash #'magit-diff-wash-diffs args)))
+    (magit-git-wash #'magit-diff-wash-diffs cmd args)))
 
 (defun magit-diff-wash-diffs (args &optional limit)
   (run-hooks 'magit-diff-wash-diffs-hook)
