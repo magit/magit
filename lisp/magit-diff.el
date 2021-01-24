@@ -1935,8 +1935,10 @@ Staging and applying changes is documented in info node
 
 (defvar magit-diff-section-base-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-j") 'magit-diff-visit-worktree-file)
-    (define-key map [C-return]  'magit-diff-visit-worktree-file)
+    (define-key map (kbd "C-j")            'magit-diff-visit-worktree-file)
+    (define-key map (kbd "C-<return>")     'magit-diff-visit-worktree-file)
+    (define-key map (kbd "C-x 4 <return>") 'magit-diff-visit-file-other-window)
+    (define-key map (kbd "C-x 5 <return>") 'magit-diff-visit-file-other-frame)
     (define-key map [remap magit-visit-thing]      'magit-diff-visit-file)
     (define-key map [remap magit-delete-thing]     'magit-discard)
     (define-key map [remap magit-revert-no-commit] 'magit-reverse)
