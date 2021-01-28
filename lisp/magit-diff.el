@@ -2321,7 +2321,7 @@ section or a child thereof."
   (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
     (let* ((heading  (match-string 0))
            (ranges   (mapcar (lambda (str)
-                               (mapcar (lambda (n) (string-to-number n))
+                               (mapcar #'string-to-number
                                        (split-string (substring str 1) ",")))
                              (split-string (match-string 1))))
            (about    (match-string 2))
