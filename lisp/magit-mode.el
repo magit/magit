@@ -468,8 +468,8 @@ which visits the thing at point using `browse-url'."
     ["Cherry pick" magit-cherry-pick t]
     ["Revert commit" magit-revert t]
     "---"
-    ["Ignore globally" magit-gitignore-globally t]
-    ["Ignore locally" magit-gitignore-locally t]
+    ["Ignore at toplevel" magit-gitignore-in-topdir t]
+    ["Ignore in subdirectory" magit-gitignore-in-subdir t]
     ["Discard" magit-discard t]
     ["Reset head and index" magit-reset-mixed t]
     ["Stash" magit-stash-both t]
