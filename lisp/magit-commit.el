@@ -152,14 +152,19 @@ Also see `git-commit-post-finish-hook'."
   (require 'epa)
   (let* ((keys (mapcar
                 (lambda (cert)
-                  (let ((key (epg-sub-key-id (car (epg-key-sub-key-list cert))))
-                        (author
-                         (when-let ((id-obj (car (epg-key-user-id-list cert))))
-                           (let ((id-str (epg-user-id-string id-obj)))
-                             (if (stringp id-str)
-                                 id-str
-                               (epg-decode-dn id-obj))))))
-                    (propertize key 'display (concat key " " author))))
+                  (let* ((key (car (epg-key-sub-key-list cert)))
+                         (fpr (epg-sub-key-fingerprint key))
+                         (id  (epg-sub-key-id key))
+                         (author
+                          (when-let ((id-obj (car (epg-key-user-id-list cert))))
+                            (let ((id-str (epg-user-id-string id-obj)))
+                              (if (stringp id-str)
+                                  id-str
+                                (epg-decode-dn id-obj))))))
+                    (propertize fpr 'display
+                                (concat (substring fpr 0 (- (length id)))
+                                        (propertize id 'face 'highlight)
+                                        " " author))))
                 (epg-list-keys (epg-make-context epa-protocol) nil t)))
          (choice (completing-read prompt keys nil nil nil
                                   history nil initial-input)))
