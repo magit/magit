@@ -56,7 +56,7 @@
   :class 'transient-option
   :shortarg "-u"
   :argument "--local-user="
-  :reader 'magit-read-gpg-secret-key
+  :reader 'magit-read-gpg-signing-key
   :history-key 'magit:--gpg-sign)
 
 ;;;###autoload

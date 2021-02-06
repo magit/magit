@@ -144,7 +144,7 @@ Also see `git-commit-post-finish-hook'."
   :shortarg "-S"
   :argument "--gpg-sign="
   :allow-empty t
-  :reader 'magit-read-gpg-secret-key)
+  :reader 'magit-read-gpg-signing-key)
 
 (defvar magit-gpg-secret-key-hist nil)
 
@@ -175,6 +175,14 @@ Also see `git-commit-post-finish-hook'."
                                   history nil initial-input)))
     (set-text-properties 0 (length choice) nil choice)
     choice))
+
+(defun magit-read-gpg-signing-key (prompt &optional initial-input history)
+  (magit-read-gpg-secret-key
+   prompt initial-input history
+   (lambda (cert)
+     (cl-some (lambda (key)
+                (memq 'sign (epg-sub-key-capability key)))
+              (epg-key-sub-key-list cert)))))
 
 (transient-define-argument magit-commit:--reuse-message ()
   :description "Reuse commit message"
