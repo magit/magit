@@ -161,7 +161,7 @@ Also see `git-commit-post-finish-hook'."
                                                  (epg-decode-dn id-obj))))
                               append (cl-loop for subkey in (epg-key-sub-key-list key)
                                               if (and (memq 'sign (epg-sub-key-capability subkey))
-                                                      (time-less-p (float-time nil) (epg-sub-key-expiration-time subkey)))
+                                                      (time-less-p (float-time) (epg-sub-key-expiration-time subkey)))
                                               collect (let ((subkey-id (epg-sub-key-id subkey)))
                                                         (propertize
                                                          subkey-id 'display (string-join (list subkey-id author) " "))))))
