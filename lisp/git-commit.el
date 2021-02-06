@@ -152,13 +152,21 @@
   :link '(info-link "(magit)Editing Commit Messages")
   :group 'tools)
 
-;;;###autoload
 (define-minor-mode global-git-commit-mode
   "Edit Git commit messages.
+
 This global mode arranges for `git-commit-setup' to be called
 when a Git commit message file is opened.  That usually happens
 when Git uses the Emacsclient as $GIT_EDITOR to have the user
-provide such a commit message."
+provide such a commit message.
+
+Loading the library `git-commit' by default enables this mode,
+but the library is not automatically loaded because doing that
+would pull in many dependencies and increase startup time too
+much.  You can either rely on `magit' loading this library or
+you can load it explicitly.  Autoloading is not an alternative
+because in this case autoloading would immediately trigger
+full loading."
   :group 'git-commit
   :type 'boolean
   :global t
@@ -422,7 +430,6 @@ This is only used if Magit is available."
 
 ;;; Hooks
 
-;;;###autoload
 (defconst git-commit-filename-regexp "/\\(\
 \\(\\(COMMIT\\|NOTES\\|PULLREQ\\|MERGEREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\
 \\|\\(BRANCH\\|EDIT\\)_DESCRIPTION\\)\\'")
@@ -439,7 +446,6 @@ This is only used if Magit is available."
 
 (add-hook 'after-change-major-mode-hook 'git-commit-setup-font-lock-in-buffer)
 
-;;;###autoload
 (defun git-commit-setup-check-buffer ()
   (and buffer-file-name
        (string-match-p git-commit-filename-regexp buffer-file-name)
@@ -479,7 +485,6 @@ Type \\[with-editor-finish] to finish, \
 \\[git-commit-prev-message] and \\[git-commit-next-message] \
 to recover older messages")
 
-;;;###autoload
 (defun git-commit-setup ()
   (when (fboundp 'magit-toplevel)
     ;; `magit-toplevel' is autoloaded and defined in magit-git.el,
