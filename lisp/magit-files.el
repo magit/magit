@@ -203,21 +203,25 @@ is done using `magit-find-index-noselect'."
     (unless (equal magit-buffer-refname "{index}")
       (user-error "%s isn't visiting the index" file))
     (if (y-or-n-p (format "Update index with contents of %s" (buffer-name)))
-        (let ((index (make-temp-file "index"))
+        (let ((index (make-temp-name (magit-git-dir "magit-update-index-")))
               (buffer (current-buffer)))
           (when magit-wip-before-change-mode
             (magit-wip-commit-before-change (list file) " before un-/stage"))
-          (let ((coding-system-for-write buffer-file-coding-system))
-            (with-temp-file index
-              (insert-buffer-substring buffer)))
-          (magit-with-toplevel
-            (magit-call-git "update-index" "--cacheinfo"
-                            (substring (magit-git-string "ls-files" "-s" file)
-                                       0 6)
-                            (magit-git-string "hash-object" "-t" "blob" "-w"
-                                              (concat "--path=" file)
-                                              "--" index)
-                            file))
+          (unwind-protect
+              (progn
+                (let ((coding-system-for-write buffer-file-coding-system))
+                  (with-temp-file index
+                    (insert-buffer-substring buffer)))
+                (magit-with-toplevel
+                  (magit-call-git
+                   "update-index" "--cacheinfo"
+                   (substring (magit-git-string "ls-files" "-s" file)
+                              0 6)
+                   (magit-git-string "hash-object" "-t" "blob" "-w"
+                                     (concat "--path=" file)
+                                     "--" (magit-convert-filename-for-git index))
+                   file)))
+            (ignore-errors (delete-file index)))
           (set-buffer-modified-p nil)
           (when magit-wip-after-apply-mode
             (magit-wip-commit-after-apply (list file) " after un-/stage")))
