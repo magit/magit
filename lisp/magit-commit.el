@@ -151,10 +151,10 @@ Also see `git-commit-post-finish-hook'."
 (defun magit-read-gpg-secret-key (prompt &optional initial-input history)
   (require 'epa)
   (let* ((keys (mapcar
-                (lambda (obj)
-                  (let ((key (epg-sub-key-id (car (epg-key-sub-key-list obj))))
+                (lambda (cert)
+                  (let ((key (epg-sub-key-id (car (epg-key-sub-key-list cert))))
                         (author
-                         (when-let ((id-obj (car (epg-key-user-id-list obj))))
+                         (when-let ((id-obj (car (epg-key-user-id-list cert))))
                            (let ((id-str (epg-user-id-string id-obj)))
                              (if (stringp id-str)
                                  id-str
