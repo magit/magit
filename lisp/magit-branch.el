@@ -684,15 +684,15 @@ the remote."
   (magit-call-git "branch" (if force "-M" "-m") old new)
   (when magit-branch-rename-push-target
     (let ((remote (magit-get-push-remote old))
-          (old-specific (magit-get "branch" old "pushRemote"))
-          (new-specific (magit-get "branch" new "pushRemote")))
-      (when (and old-specific (or force (not new-specific)))
-        ;; Keep the target setting branch specific, even if that is
+          (old-specified (magit-get "branch" old "pushRemote"))
+          (new-specified (magit-get "branch" new "pushRemote")))
+      (when (and old-specified (or force (not new-specified)))
+        ;; Keep the target setting branch specified, even if that is
         ;; redundant.  But if a branch by the same name existed before
         ;; and the rename isn't forced, then do not change a leftover
         ;; setting.  Such a leftover setting may or may not conform to
         ;; what we expect here...
-        (magit-set old-specific "branch" new "pushRemote"))
+        (magit-set old-specified "branch" new "pushRemote"))
       (when (and (equal (magit-get-push-remote new) remote)
                  ;; ...and if it does not, then we must abort.
                  (not (eq magit-branch-rename-push-target 'local-only))
