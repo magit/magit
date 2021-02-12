@@ -229,7 +229,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
          (ignore-context (magit-diff-ignore-any-space-p)))
     (unless (magit-diff-context-p)
       (user-error "Not enough context to apply patch.  Increase the context"))
-    (when (and magit-wip-before-change-mode (not inhibit-magit-refresh))
+    (when (and magit-wip-before-change-mode (not magit-inhibit-refresh))
       (magit-wip-commit-before-change files (concat " before " command)))
     (with-temp-buffer
       (insert patch)
@@ -237,7 +237,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
        "apply" args "-p0"
        (and ignore-context "-C0")
        "--ignore-space-change" "-"))
-    (unless inhibit-magit-refresh
+    (unless magit-inhibit-refresh
       (when magit-wip-after-apply-mode
         (magit-wip-commit-after-apply files (concat " after " command)))
       (magit-refresh))))
@@ -480,7 +480,7 @@ without requiring confirmation."
          nil (if (magit-file-section-p section)
                  (oref section value)
                (magit-section-parent-value section)))
-        (progn (let ((inhibit-magit-refresh t))
+        (progn (let ((magit-inhibit-refresh t))
                  (funcall apply section "--reverse" "--cached")
                  (funcall apply section "--reverse" "--reject"))
                (magit-refresh))
@@ -500,7 +500,7 @@ without requiring confirmation."
            nil (if (magit-file-section-p section)
                    (oref section value)
                  (magit-section-parent-value section)))
-          (progn (let ((inhibit-magit-refresh t))
+          (progn (let ((magit-inhibit-refresh t))
                    (funcall apply sections "--reverse" "--cached")
                    (funcall apply sections "--reverse" "--reject"))
                  (magit-refresh))
@@ -538,7 +538,7 @@ without requiring confirmation."
           (`(?Y ,_            ?D ) (push file resurrect))
           (`(?X ?R ,(or ?  ?M ?D)) (push file rename)))))
     (unwind-protect
-        (let ((inhibit-magit-refresh t))
+        (let ((magit-inhibit-refresh t))
           (magit-wip-commit-before-change files " before discard")
           (when resolve
             (magit-discard-files--resolve (nreverse resolve)))

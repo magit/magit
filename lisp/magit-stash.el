@@ -270,7 +270,7 @@ The branch is created using `magit-branch-and-checkout', using the
 current branch or `HEAD' as the start-point."
   (interactive (list (magit-read-stash "Branch stash")
                      (magit-read-string-ns "Branch name")))
-  (let ((inhibit-magit-refresh t))
+  (let ((magit-inhibit-refresh t))
     (magit-branch-and-checkout branch (or (magit-get-current-branch) "HEAD")))
   (magit-stash-apply stash))
 

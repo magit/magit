@@ -580,7 +580,7 @@ Magit status buffer."
     (process-put process 'section section)
     (process-put process 'command-buf (current-buffer))
     (process-put process 'default-dir default-directory)
-    (when inhibit-magit-refresh
+    (when magit-inhibit-refresh
       (process-put process 'inhibit-refresh t))
     (oset section process process)
     (with-current-buffer process-buf

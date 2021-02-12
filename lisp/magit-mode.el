@@ -992,7 +992,7 @@ window."
 
 ;;; Refresh Buffers
 
-(defvar inhibit-magit-refresh nil)
+(defvar magit-inhibit-refresh nil)
 
 (defun magit-refresh ()
   "Refresh some buffers belonging to the current repository.
@@ -1002,7 +1002,7 @@ Refresh the current buffer if its major mode derives from
 
 Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (interactive)
-  (unless inhibit-magit-refresh
+  (unless magit-inhibit-refresh
     (unwind-protect
         (let ((start (current-time))
               (magit--refresh-cache (or magit--refresh-cache

@@ -495,7 +495,7 @@ that is being reset."
                                   (or (and (not (equal branch atpoint)) atpoint)
                                       (magit-get-upstream-branch branch)))
            current-prefix-arg)))
-  (let ((inhibit-magit-refresh t))
+  (let ((magit-inhibit-refresh t))
     (if (equal branch (magit-get-current-branch))
         (if (and (magit-anything-modified-p)
                  (not (yes-or-no-p
