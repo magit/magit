@@ -408,7 +408,7 @@ depending on the value of option `magit-commit-squash-confirm'."
 (defvar magit--reshelve-history nil)
 
 ;;;###autoload
-(defun magit-commit-reshelve (date update-author)
+(defun magit-commit-reshelve (date update-author &optional args)
   "Change the committer date and possibly the author date of `HEAD'.
 
 The current time is used as the initial minibuffer input and the
@@ -432,11 +432,13 @@ is updated:
                           "Change committer date to: ")
                         (cons (format-time-string "%F %T %z") 17)
                         'magit--reshelve-history)
-           update-author)))
+           update-author
+           (magit-commit-arguments))))
   (let ((process-environment process-environment))
     (push (concat "GIT_COMMITTER_DATE=" date) process-environment)
     (magit-run-git "commit" "--amend" "--no-edit"
-                   (and update-author (concat "--date=" date)))))
+                   (and update-author (concat "--date=" date))
+                   args)))
 
 ;;;###autoload
 (defun magit-commit-absorb-modules (phase commit)
