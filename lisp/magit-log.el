@@ -1209,6 +1209,17 @@ Do not add this to a hook variable."
           (`stash      (oset section type 'stash))
           (`module     (oset section type 'module-commit))
           (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
+        (setq hash (propertize hash 'font-lock-face
+                               (pcase (and gpg (aref gpg 0))
+                                 (?G 'magit-signature-good)
+                                 (?B 'magit-signature-bad)
+                                 (?U 'magit-signature-untrusted)
+                                 (?X 'magit-signature-expired)
+                                 (?Y 'magit-signature-expired-key)
+                                 (?R 'magit-signature-revoked)
+                                 (?E 'magit-signature-error)
+                                 (?N 'magit-hash)
+                                 (_  'magit-hash))))
         (when cherry
           (when (and (derived-mode-p 'magit-refs-mode)
                      magit-refs-show-commit-count)
@@ -1225,11 +1236,11 @@ Do not add this to a hook variable."
                                 'magit-cherry-unmatched)))
           (insert ?\s))
         (when align
-          (insert (propertize hash 'font-lock-face 'magit-hash) ?\s))
+          (insert hash ?\s))
         (when graph
           (insert graph))
         (unless align
-          (insert (propertize hash 'font-lock-face 'magit-hash) ?\s))
+          (insert hash ?\s))
         (when (and refs (not magit-log-show-refname-after-summary))
           (insert (magit-format-ref-labels refs) ?\s))
         (when (eq style 'reflog)
@@ -1238,16 +1249,6 @@ Do not add this to a hook variable."
             (insert (magit-reflog-format-subject
                      (substring refsub 0 (if (string-match-p ":" refsub) -2 -1))))))
         (when msg
-          (when gpg
-            (setq msg (propertize msg 'font-lock-face
-                                  (pcase (aref gpg 0)
-                                    (?G 'magit-signature-good)
-                                    (?B 'magit-signature-bad)
-                                    (?U 'magit-signature-untrusted)
-                                    (?X 'magit-signature-expired)
-                                    (?Y 'magit-signature-expired-key)
-                                    (?R 'magit-signature-revoked)
-                                    (?E 'magit-signature-error)))))
           (insert (funcall magit-log-format-message-function hash msg)))
         (when (and refs magit-log-show-refname-after-summary)
           (insert ?\s)
