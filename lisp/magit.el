@@ -195,7 +195,7 @@ and/or `magit-branch-remote-head'."
   :group 'magit-faces)
 
 (defface magit-signature-error
-  '((t :foreground "firebrick3"))
+  '((t :foreground "light blue"))
   "Face for signatures that cannot be checked (e.g. missing key)."
   :group 'magit-faces)
 
