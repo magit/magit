@@ -787,13 +787,38 @@ To use this function add it to the appropriate hook
             'magit-process-password-auth-source)
 
 KEY typically derives from a prompt such as:
-  Password for 'https://tarsius@bitbucket.org'
+  Password for 'https://yourname@github.com'
 in which case it would be the string
-  tarsius@bitbucket.org
+  yourname@github.com
 which matches the ~/.authinfo.gpg entry
-  machine bitbucket.org login tarsius password 12345
+  machine github.com login yourname password 12345
 or iff that is undefined, for backward compatibility
-  machine tarsius@bitbucket.org password 12345"
+  machine yourname@github.com password 12345
+
+On github.com you should not use your password but a
+personal access token, see [1].  For information about
+the peculiarities of other forges, please consult the
+respective documentation.
+
+After manually editing ~/.authinfo.gpg you must reset
+the cache using
+  M-x auth-source-forget-all-cached RET
+
+The above will save you from having to repeatedly type
+your token or password, but you might still repeatedly
+be asked for your username.  To prevent that, change an
+URL like
+  https://github.com/foo/bar.git
+to
+  https://yourname@github.com/foo/bar.git
+
+Instead of changing all such URLs manually, they can
+be translated on the fly by doing this once
+  git config --global \
+    url.https://yourname@github.com.insteadOf \
+    https://github.com
+
+[1]: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token."
   (require 'auth-source)
   (and (string-match "\\`\\(.+\\)@\\([^@]+\\)\\'" key)
        (let* ((user (match-string 1 key))
