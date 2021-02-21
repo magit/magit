@@ -473,7 +473,7 @@ be used on highly rearranged and unpublished history."
                            (format "export GIT_COMMITTER_DATE=\"%s\";;" date))
                      (cl-incf date 60)))
                  (magit-git-lines "rev-list" "--reverse" range)
-                        " "))
+                 " "))
                range "--"))
             (set-process-sentinel
              magit-this-process
