@@ -412,7 +412,7 @@ Otherwise the author dates are also changed."
   :type 'boolean)
 
 ;;;###autoload
-(defun magit-reshelve-since (rev)
+(defun magit-reshelve-since (rev keyid)
   "Change the author and committer dates of the commits since REV.
 
 Ask the user for the first reachable commit whose dates should
@@ -422,8 +422,14 @@ values.  The next commit will be created one minute later and so
 on.
 
 This command is only intended for interactive use and should only
-be used on highly rearranged and unpublished history."
-  (interactive (list nil))
+be used on highly rearranged and unpublished history.
+
+If KEYID is non-nil, then use that to sign all reshelved commits.
+Interactively use the value of the \"--gpg-sign\" option in the
+list returned by `magit-rebase-arguments'."
+  (interactive (list nil
+                     (transient-arg-value "--gpg-sign="
+                                          (magit-rebase-arguments))))
   (let* ((current (or (magit-get-current-branch)
                       (user-error "Refusing to reshelve detached head")))
          (backup (concat "refs/original/refs/heads/" current)))
@@ -433,7 +439,9 @@ be used on highly rearranged and unpublished history."
                  (not (magit-y-or-n-p
                        (format "Backup ref %s already exists.  Override? " backup))))
         (user-error "Abort"))
-      (magit-log-select 'magit-reshelve-since
+      (magit-log-select
+        (lambda (rev)
+          (magit-reshelve-since rev keyid))
         "Type %p on a commit to reshelve it and the commits above it,"))
      (t
       (cl-flet ((adjust (time offset)
@@ -474,6 +482,10 @@ be used on highly rearranged and unpublished history."
                      (cl-incf date 60)))
                  (magit-git-lines "rev-list" "--reverse" range)
                  " "))
+               (and keyid
+                    (list "--commit-filter"
+                          (format "git commit-tree --gpg-sign=%s \"$@\";"
+                                  keyid)))
                range "--"))
             (set-process-sentinel
              magit-this-process
