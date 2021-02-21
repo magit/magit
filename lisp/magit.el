@@ -175,7 +175,7 @@ and/or `magit-branch-remote-head'."
   :group 'magit-faces)
 
 (defface magit-signature-untrusted
-  '((t :foreground "cyan"))
+  '((t :foreground "medium aquamarine"))
   "Face for good untrusted signatures."
   :group 'magit-faces)
 
