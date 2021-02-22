@@ -201,6 +201,10 @@ has to be used to view and change branch related variables."
 (transient-define-prefix magit-branch (branch)
   "Add, configure or remove a branch."
   :man-page "git-branch"
+  ["Arguments"
+   (7 "-r" "Recurse submodules when checking out an existing branch"
+      "--recurse-submodules"
+      :if (lambda () (version<= "2.13" (magit-git-version))))]
   ["Variables"
    :if (lambda ()
          (and magit-branch-direct-configure
@@ -232,18 +236,22 @@ has to be used to view and change branch related variables."
   (interactive (list (magit-get-current-branch)))
   (transient-setup 'magit-branch nil nil :scope branch))
 
+(defun magit-branch-arguments ()
+  (transient-args 'magit-branch))
+
 ;;;###autoload
-(defun magit-checkout (revision)
+(defun magit-checkout (revision &optional args)
   "Checkout REVISION, updating the index and the working tree.
 If REVISION is a local branch, then that becomes the current
 branch.  If it is something else, then `HEAD' becomes detached.
 Checkout fails if the working tree or the staging area contain
 changes.
 \n(git checkout REVISION)."
-  (interactive (list (magit-read-other-branch-or-commit "Checkout")))
+  (interactive (list (magit-read-other-branch-or-commit "Checkout")
+                     (magit-branch-arguments)))
   (when (string-match "\\`heads/\\(.+\\)" revision)
     (setq revision (match-string 1 revision)))
-  (magit-run-git "checkout" revision))
+  (magit-run-git "checkout" args revision))
 
 ;;;###autoload
 (defun magit-branch-create (branch start-point)
@@ -254,12 +262,13 @@ changes.
   (magit-refresh))
 
 ;;;###autoload
-(defun magit-branch-and-checkout (branch start-point)
+(defun magit-branch-and-checkout (branch start-point &optional args)
   "Create and checkout BRANCH at branch or revision START-POINT."
-  (interactive (magit-branch-read-args "Create and checkout branch"))
+  (interactive (append (magit-branch-read-args "Create and checkout branch")
+                       (list (magit-branch-arguments))))
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
-    (magit-call-git "checkout" "-b" branch start-point)
+    (magit-call-git "checkout" args "-b" branch start-point)
     (magit-branch-maybe-adjust-upstream branch start-point)
     (magit-refresh)))
 
@@ -336,7 +345,7 @@ when using `magit-branch-and-checkout'."
            (t
             (list choice (magit-read-starting-point "Create" choice))))))
   (if (not start-point)
-      (magit-checkout branch)
+      (magit-checkout branch (magit-branch-arguments))
     (when (magit-anything-modified-p t)
       (user-error "Cannot checkout when there are uncommitted changes"))
     (magit-branch-and-checkout branch start-point)
