@@ -379,14 +379,21 @@ Messages which can currently be suppressed using this option are:
   :group 'magit-miscellaneous
   :type '(repeat string))
 
-(defcustom magit-ellipsis ?…
-  "Character used to abbreviate text.
+(defcustom magit-ellipsis (if (char-displayable-p ?…) "…" "...")
+  "String used to abbreviate text in process buffers.
 
-Currently this is used to abbreviate author names in the margin
-and in process buffers to elide `magit-git-global-arguments'."
-  :package-version '(magit . "2.1.0")
+Currently this is only used to elide `magit-git-global-arguments'
+in process buffers.  In the future it may be used in other places
+as well, but not the following:
+
+- Author names in the log margin are always abbreviated using
+  \"…\" or if that is not displayable, then \">\".
+
+- Whether collapsed sections are indicated using ellipsis is
+  controlled by `magit-section-visibility-indicator'."
+  :package-version '(magit . "3.0.0")
   :group 'magit-miscellaneous
-  :type 'character)
+  :type 'string)
 
 (defcustom magit-update-other-window-delay 0.2
   "Delay before automatically updating the other window.

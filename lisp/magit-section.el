@@ -137,7 +137,8 @@ entries of this alist."
 (defcustom magit-section-visibility-indicator
   (if (window-system)
       '(magit-fringe-bitmap> . magit-fringe-bitmapv)
-    '("…" . t))
+    (cons (if (char-displayable-p ?…) "…" "...")
+          t))
   "Whether and how to indicate that a section can be expanded/collapsed.
 
 If nil, then don't show any indicators.

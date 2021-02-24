@@ -1444,7 +1444,8 @@ The shortstat style is experimental and rather slow."
                            (truncate-string-to-width
                             (or author "")
                             details-width
-                            nil ?\s (make-string 1 magit-ellipsis))
+                            nil ?\s
+                            (if (char-displayable-p ?…) "…" ">"))
                            'magit-log-author)
                           " "))
              (magit--propertize-face
