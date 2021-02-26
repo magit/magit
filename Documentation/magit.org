@@ -4749,8 +4749,8 @@ command.
 - User Option: magit-branch-direct-configure
 
   This option controls whether the transient command ~magit-branch~ can
-  be used directly change the values Git variables.  This defaults to
-  ~t~ (to avoid changing key bindings).  When set to ~nil~, then no
+  be used to directly change the values of Git variables.  This defaults
+  to ~t~ (to avoid changing key bindings).  When set to ~nil~, then no
   variables are displayed by that transient command, and its suffix
   command ~magit-branch-configure~ has to be used instead to view and
   change branch related variables.
