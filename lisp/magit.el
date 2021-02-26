@@ -295,6 +295,7 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
     ("E" "Ediff"          magit-ediff)]
    [("f" "Fetch"          magit-fetch)
     ("F" "Pull"           magit-pull)
+    ("I" "Init"           magit-init)
     ("l" "Log"            magit-log)
     ("L" "Log (change)"   magit-log-refresh)
     ("m" "Merge"          magit-merge)
