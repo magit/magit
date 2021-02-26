@@ -645,7 +645,8 @@ whenever a buffer is saved to a file inside the respective repository
 by adding a hook, like so:
 
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
+  (with-eval-after-load 'magit-mode
+    (add-hook 'after-save-hook 'magit-after-save-refresh-status t))
 #+END_SRC
 
 Automatically refreshing Magit buffers ensures that the displayed
