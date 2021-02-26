@@ -68,8 +68,8 @@ repository.  Also stage the file."
 
 ;;;###autoload
 (defun magit-gitignore-in-subdir (rule directory)
-  "Add the Git ignore RULE to a \".gitignore\" file.
-Prompted the user for a directory and add the rule to the
+  "Add the Git ignore RULE to a \".gitignore\" file in DIRECTORY.
+Prompt the user for a directory and add the rule to the
 \".gitignore\" file in that directory.  Since such files are
 tracked, they are shared with other clones of the repository.
 Also stage the file."
@@ -78,7 +78,7 @@ Also stage the file."
   (magit-with-toplevel
     (let ((file (expand-file-name ".gitignore" directory)))
       (magit--gitignore rule file)
-      (magit-run-git "add" file))))
+      (magit-run-git "add" (magit-convert-filename-for-git file)))))
 
 ;;;###autoload
 (defun magit-gitignore-in-gitdir (rule)
