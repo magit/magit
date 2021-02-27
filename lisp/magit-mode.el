@@ -824,7 +824,7 @@ exist that hasn't been looked to its value.  Return that buffer
 \(or nil if there is no such buffer) unless VALUE is non-nil, in
 which case return the buffer that has been looked to that value.
 
-If FRAME nil or omitted, then consider all buffers.  Otherwise
+If FRAME is nil or omitted, then consider all buffers.  Otherwise
   only consider buffers that are displayed in some live window
   on some frame.
 If `all', then consider all buffers on all frames.
