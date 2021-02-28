@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-1193-g49fbb7c2d+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-1196-gdb1c7ecc8+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1193-g49fbb7c2d+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1196-gdb1c7ecc8+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -4377,6 +4377,10 @@ Also see [[man:git-commit]]
   Whether to ask to stage all unstaged changes when committing and nothing is
   staged.
 
+- User Option: magit-commit-show-diff
+
+  Whether the relevant diff is automatically shown when committing.
+
 - User Option: magit-commit-extend-override-date
 
   Whether using ~magit-commit-extend~ changes the committer date.
@@ -4393,6 +4397,17 @@ Also see [[man:git-commit]]
   ~magit-commit-squash~ and ~magit-commit-fixup~.  The "instant" variants
   always require confirmation because making an error while using
   those is harder to recover from.
+
+- User Option magit-post-commit-hook
+
+  Hook run after creating a commit without the user editing a message.
+
+  This hook is run by ~magit-refresh~ if ~this-command~ is a member
+  of ~magit-post-stage-hook-commands~.  This only includes commands
+  named ~magit-commit-*~ that do *not* require that the user edits
+  the commit message in a buffer.
+
+  Also see ~git-commit-post-finish-hook~.
 
 *** Editing Commit Messages
 
