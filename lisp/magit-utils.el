@@ -108,7 +108,8 @@ alphabetical order, depending on your version of Ivy."
     (forge-edit-topic-note    nil t)
     (forge-pull-pullreq       nil t)
     (forge-visit-issue        nil t)
-    (forge-visit-pullreq      nil t))
+    (forge-visit-pullreq      nil t)
+    (forge-visit-topic        nil t))
   "When not to offer alternatives and ask for confirmation.
 
 Many commands by default ask the user to select from a list of
