@@ -822,7 +822,11 @@ as STRING."
         (i 0))
     `(let ((,s ,string))
        (let ,(save-match-data
-               (--map (list it (list 'match-string (cl-incf i) s)) varlist))
+               (cl-mapcan (lambda (sym)
+                            (cl-incf i)
+                            (and (not (eq (aref (symbol-name sym) 0) ?_))
+                                 (list (list sym (list 'match-string i s)))))
+                          varlist))
          ,@body))))
 
 (defun magit-delete-line ()
