@@ -573,6 +573,11 @@ defaulting to the branch at point."
             "Delete %s on the remote (not just locally)"
             "Delete %i branches on the remote (not just locally)"
             'noabort branches)
+          ;; The ref may actually point at another rev on the remote,
+          ;; but this is better than nothing.
+          (dolist (ref refs)
+            (message "Delete %s (was %s)" ref
+                     (magit-rev-parse "--short" ref)))
           ;; Assume the branches actually still exist on the remote.
           (magit-run-git-async
            "push"
@@ -585,6 +590,8 @@ defaulting to the branch at point."
            (apply-partially 'magit-delete-remote-branch-sentinel remote refs)))
          (t
           (dolist (ref refs)
+            (message "Delete %s (was %s)" ref
+                     (magit-rev-parse "--short" ref))
             (magit-call-git "update-ref" "-d" ref))
           (magit-refresh)))))
      ((> (length branches) 1)
