@@ -568,16 +568,25 @@ defaulting to the branch at point."
      ((string-match "^refs/remotes/\\([^/]+\\)" (car refs))
       (let* ((remote (match-string 1 (car refs)))
              (offset (1+ (length remote))))
-        ;; Assume the branches actually still exists on the remote.
-        (magit-run-git-async
-         "push"
-         (and (or force magit-branch-delete-never-verify) "--no-verify")
-         remote
-         (--map (concat ":" (substring it offset)) branches))
-        ;; If that is not the case, then this deletes the tracking branches.
-        (set-process-sentinel
-         magit-this-process
-         (apply-partially 'magit-delete-remote-branch-sentinel remote refs))))
+        (cond
+         ((magit-confirm 'delete-branch-on-remote
+            "Delete %s on the remote (not just locally)"
+            "Delete %i branches on the remote (not just locally)"
+            'noabort branches)
+          ;; Assume the branches actually still exist on the remote.
+          (magit-run-git-async
+           "push"
+           (and (or force magit-branch-delete-never-verify) "--no-verify")
+           remote
+           (--map (concat ":" (substring it offset)) branches))
+          ;; If that is not the case, then this deletes the tracking branches.
+          (set-process-sentinel
+           magit-this-process
+           (apply-partially 'magit-delete-remote-branch-sentinel remote refs)))
+         (t
+          (dolist (ref refs)
+            (magit-call-git "update-ref" "-d" ref))
+          (magit-refresh)))))
      ((> (length branches) 1)
       (setq branches (delete (magit-get-current-branch) branches))
       (mapc 'magit-branch-maybe-delete-pr-remote branches)

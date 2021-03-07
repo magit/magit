@@ -162,6 +162,7 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const abort-merge)
     (const merge-dirty)
     (const delete-unmerged-branch)
+    (const delete-branch-on-remote)
     (const delete-pr-remote)
     (const drop-stashes)
     (const set-and-push)
@@ -241,6 +242,13 @@ References:
   to confirm the deletion of a branch by accepting the default
   choice (or selecting another branch), but when a branch has
   not been merged yet, also make sure the user is aware of that.
+
+  `delete-branch-on-remote' Deleting a \"remote branch\" may mean
+  deleting the (local) \"remote-tracking\" branch only, or also
+  removing it from the remote itself.  The latter often makes more
+  sense because otherwise simply fetching from the remote would
+  restore the remote-tracking branch, but doing that can be
+  surprising and hard to recover from, so we ask.
 
   `delete-pr-remote' When deleting a branch that was created from
   a pull-request and if no other branches still exist on that
