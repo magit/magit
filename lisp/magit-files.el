@@ -315,7 +315,7 @@ to `magit-dispatch'."
     (5 "C-c c" "Checkout file" magit-file-checkout)]]
   (interactive)
   (transient-setup
-   (if (or buffer-file-name magit-buffer-file-name)
+   (if (magit-file-relative-name)
        'magit-file-dispatch
      'magit-dispatch)))
 
