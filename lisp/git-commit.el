@@ -187,6 +187,7 @@ The major mode configured here is turned on by the minor mode
   :type '(choice (function-item text-mode)
                  (function-item markdown-mode)
                  (function-item org-mode)
+                 (function-item git-commit-elisp-text-mode)
                  (function :tag "Another mode")
                  (const :tag "No major mode")))
 
