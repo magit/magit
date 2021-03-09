@@ -187,12 +187,16 @@ The major mode configured here is turned on by the minor mode
   :type '(choice (function-item text-mode)
                  (function-item markdown-mode)
                  (function-item org-mode)
+                 (function-item fundamental-mode)
                  (function-item git-commit-elisp-text-mode)
                  (function :tag "Another mode")
                  (const :tag "No major mode")))
 ;;;###autoload(put 'git-commit-major-mode 'safe-local-variable
 ;;;###autoload     (lambda (val)
-;;;###autoload       (memq val '(text-mode markdown-mode org-mode
+;;;###autoload       (memq val '(text-mode
+;;;###autoload                   markdown-mode
+;;;###autoload                   org-mode
+;;;###autoload                   fundamental-mode
 ;;;###autoload                   git-commit-elisp-text-mode))))
 
 (defcustom git-commit-setup-hook
