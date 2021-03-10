@@ -145,9 +145,8 @@ like pretty much every other keymap:
   ;; Only more recent versions of project.el have `project-prefix-map' and
   ;; `project-switch-commands', though project.el is available in Emacs 25.
   (when (boundp 'project-prefix-map)
-    (define-key project-prefix-map "m" #'magit-project-status))
-  (when (boundp 'project-switch-commands)
-    (add-to-list 'project-switch-commands '(?m "Magit" magit-status))))
+    (define-key project-prefix-map "m" #'magit-project-status)
+    (add-to-list 'project-switch-commands '(magit-project-status "Magit"))))
 
 ;;;###autoload
 (defun magit-dired-jump (&optional other-window)
