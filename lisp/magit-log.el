@@ -407,7 +407,8 @@ the upstream isn't ahead of the current branch) show."
    (7 "=s" "Limit to commits since" "--since=" transient-read-date)
    (7 "=u" "Limit to commits until" "--until=" transient-read-date)
    (magit-log:--grep)
-   (7 "-I" "Invert search pattern"  "--invert-grep")
+   (7 "-i" "Search case-insensitive" ("-i" "--regexp-ignore-case"))
+   (7 "-I" "Invert search pattern"   "--invert-grep")
    (magit-log:-G)     ;2
    (magit-log:-S)     ;2
    (magit-log:-L)     ;2
@@ -468,7 +469,8 @@ the upstream isn't ahead of the current branch) show."
     (magit-log:-n)
     (magit:--author)
     (magit-log:--grep)
-    (7 "-I" "Invert search pattern" "--invert-grep")
+    (7 "-i" "Search case-insensitive" ("-i" "--regexp-ignore-case"))
+    (7 "-I" "Invert search pattern"   "--invert-grep")
     (magit-log:-G)
     (magit-log:-S)
     (magit-log:-L)]
