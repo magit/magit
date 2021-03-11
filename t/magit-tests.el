@@ -29,7 +29,7 @@
        (push "GIT_AUTHOR_EMAIL=a.u.thor@example.com" process-environment)
        (condition-case err
            (cl-letf (((symbol-function #'message) (lambda (&rest _))))
-             (let ((default-directory ,dir))
+             (let ((default-directory (file-truename ,dir)))
                ,@body))
          (error (message "Keeping test directory:\n  %s" ,dir)
                 (signal (car err) (cdr err))))
