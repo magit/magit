@@ -2391,15 +2391,15 @@ Staging and applying changes is documented in info node
     (magit-buffer-diff-files-suspended nil)))
 
 (defun magit-revision-refresh-buffer ()
+  (setq magit-buffer-revision-hash (magit-rev-parse magit-buffer-revision))
   (magit-set-header-line-format
-   (concat (capitalize (magit-object-type magit-buffer-revision))
+   (concat (magit-object-type magit-buffer-revision-hash)
            " "  magit-buffer-revision
            (pcase (length magit-buffer-diff-files)
              (0)
              (1 (concat " limited to file " (car magit-buffer-diff-files)))
              (_ (concat " limited to files "
                         (mapconcat #'identity magit-buffer-diff-files ", "))))))
-  (setq magit-buffer-revision-hash (magit-rev-parse magit-buffer-revision))
   (magit-insert-section (commitbuf)
     (magit-run-section-hook 'magit-revision-sections-hook)))
 
