@@ -2107,7 +2107,10 @@ and this option only controls what face is used.")
                      (re-search-forward (format "\\=[^%s]*" c) nil t))))
           (bounds-of-thing-at-point 'git-revision)))
     (let ((text (buffer-substring-no-properties (car it) (cdr it))))
-      (and (magit-commit-p text) text))))
+      (and (>= (length text) 7)
+           (string-match-p "[a-z]" text)
+           (magit-commit-p text)
+           text))))
 
 ;;; Completion
 
