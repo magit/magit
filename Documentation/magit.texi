@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1200-g5ece7e463+1)
+@subtitle for version 2.90.1 (v2.90.1-1210-gfb25d4e9c+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1200-g5ece7e463+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1210-gfb25d4e9c+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8957,7 +8957,7 @@ temporary buffer until a suffix is invoked.
 @item @kbd{t t} @tie{}@tie{}@tie{}@tie{}(@code{magit-tag-create})
 
 This command creates a new tag with the given NAME at REV@.  With a
-prefix argument it creates an annotate tag.
+prefix argument it creates an annotated tag.
 
 @kindex t r
 @cindex magit-tag-release
