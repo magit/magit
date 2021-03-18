@@ -14,11 +14,14 @@
 
 (require 'magit)
 
-(defun magit-test-init-repo (dir)
+(defun magit-test-init-repo (dir &optional args)
   (let ((magit-git-global-arguments
          (nconc (list "-c" "init.defaultBranch=master")
-                magit-git-global-arguments)))
-    (magit-git "init" dir)))
+                magit-git-global-arguments))
+        (args (if args
+                  (append (cons "init" args) (list dir))
+                (list "init" dir))))
+    (apply 'magit-git args)))
 
 (defmacro magit-with-test-directory (&rest body)
   (declare (indent 0) (debug t))
@@ -34,6 +37,10 @@
          (error (message "Keeping test directory:\n  %s" ,dir)
                 (signal (car err) (cdr err))))
        (delete-directory ,dir t))))
+
+(defmacro magit-with-test-repository-custom-init (args &rest body)
+  (declare (indent 1) (debug t))
+  `(magit-with-test-directory (magit-test-init-repo "." ,args) ,@body))
 
 (defmacro magit-with-test-repository (&rest body)
   (declare (indent 0) (debug t))
@@ -378,6 +385,18 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
     (should (magit-test-get-section
              '(unpushed . "@{upstream}..")
              (magit-rev-parse "--short" "master")))))
+
+;; libgit
+
+(magit-deftest-with-git-and-libgit magit-in-bare-repo ()
+  "Test `magit-bare-repo-p' in a bare repository."
+  (magit-with-test-repository-custom-init '("--bare")
+    (should (magit-bare-repo-p))))
+
+(magit-deftest-with-git-and-libgit magit-in-non-bare-repo ()
+  "Test `magit-bare-repo-p' in a non-bare repository."
+  (magit-with-test-repository
+      (should-not (magit-bare-repo-p))))
 
 ;;; Utils
 
