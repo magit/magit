@@ -39,9 +39,56 @@
   (declare (indent 0) (debug t))
   `(magit-with-test-directory (magit-test-init-repo ".") ,@body))
 
+(cl-defmacro magit-deftest-with-git (name () &body docstring-keys-and-body)
+  "Defines a magit test where all Git commands are run using the Git CLI."
+  (declare (debug (&define :name test
+                           name sexp [&optional stringp]
+                           [&rest keywordp sexp] def-body))
+           (doc-string 3)
+           (indent 2))
+  `(ert-deftest ,name ()
+     (let ((magit-inhibit-libgit t))
+       (should (eq (magit-gitimpl) 'git))
+       ,@docstring-keys-and-body)))
+
+(cl-defmacro magit-deftest-with-libgit (name () &body docstring-keys-and-body)
+  "Defines a magit test where libgit is used whenever possible.
+If libgit is not available, the test will not be defined unless the
+variable `magit--ensure-libgit-tests-run' is non-NIL.  This option is
+provided for CI environments where tests should fail loudly if libgit
+is not available."
+  (declare (debug (&define :name test
+                           name sexp [&optional stringp]
+                           [&rest keywordp sexp] def-body))
+           (doc-string 3)
+           (indent 2))
+  (when (or (magit--libgit-available-p)
+            (and (boundp 'magit--ensure-libgit-tests-run)
+                 magit--ensure-libgit-tests-run))
+    `(ert-deftest ,name ()
+       (let ((magit-inhibit-libgit nil))
+         (should (eq (magit-gitimpl) 'libgit))
+         ,@docstring-keys-and-body))))
+
+(cl-defmacro magit-deftest-with-git-and-libgit (name () &body docstring-keys-and-body)
+  "Defines a magit test that will run with both the Git CLI and libgit.
+Internally, this macro defines 2 ERT tests: NAME-with-git and
+NAME-with-libgit.  Then, when ERT is run, results for each Git
+implementation can easily be differentiated."
+  (declare (debug (&define :name test
+                           name sexp [&optional stringp]
+                           [&rest keywordp sexp] def-body))
+           (doc-string 3)
+           (indent 2))
+  `(progn
+     (magit-deftest-with-git ,(intern (concat (symbol-name name) "-with-git")) ()
+       ,@docstring-keys-and-body)
+     (magit-deftest-with-libgit ,(intern (concat (symbol-name name) "-with-libgit")) ()
+       ,@docstring-keys-and-body)))
+
 ;;; Git
 
-(ert-deftest magit--with-safe-default-directory ()
+(magit-deftest-with-git magit--with-safe-default-directory ()
   (magit-with-test-directory
     (let ((find-file-visit-truename nil))
       (should (equal (magit-toplevel "repo/")
@@ -49,7 +96,7 @@
       (should (equal (magit-toplevel "repo")
                      (magit-toplevel (expand-file-name "repo/")))))))
 
-(ert-deftest magit-toplevel:basic ()
+(magit-deftest-with-git magit-toplevel:basic ()
   (let ((find-file-visit-truename nil))
     (magit-with-test-directory
       (magit-test-init-repo "repo")
@@ -68,7 +115,7 @@
                      ;; But in the doc-string we say we cannot do it.
                      (expand-file-name "repo/"))))))
 
-(ert-deftest magit-toplevel:tramp ()
+(magit-deftest-with-git magit-toplevel:tramp ()
   (cl-letf* ((find-file-visit-truename nil)
              ;; Override tramp method so that we don't actually
              ;; require a functioning `sudo'.
@@ -93,7 +140,7 @@
      (should (equal (magit-toplevel   "repo-link/.git/objects/")
                     (expand-file-name "repo/"))))))
 
-(ert-deftest magit-toplevel:submodule ()
+(magit-deftest-with-git magit-toplevel:submodule ()
   (let ((find-file-visit-truename nil))
     (magit-with-test-directory
       (magit-test-init-repo "remote")
@@ -160,7 +207,7 @@
   (should (equal (magit-get "CAM.El.Case.VAR") "value"))
   (should (equal (magit-get "a.b2") "line1\nline2")))
 
-(ert-deftest magit-get ()
+(magit-deftest-with-git magit-get ()
   (magit-with-test-directory
    (magit-test-init-repo "remote")
    (let ((default-directory (expand-file-name "remote/")))
@@ -183,7 +230,7 @@
    (let ((magit--refresh-cache (list (cons 0 0))))
      (magit-test-magit-get))))
 
-(ert-deftest magit-get-boolean ()
+(magit-deftest-with-git magit-get-boolean ()
   (magit-with-test-repository
     (magit-git "config" "a.b" "true")
     (should     (magit-get-boolean "a.b"))
@@ -197,7 +244,7 @@
     (let ((magit--refresh-cache (list (cons 0 0))))
      (should    (magit-get-boolean "a.b")))))
 
-(ert-deftest magit-get-{current|next}-tag ()
+(magit-deftest-with-git magit-get-{current|next}-tag ()
   (magit-with-test-repository
     (magit-git "commit" "-m" "1" "--allow-empty")
     (should (equal (magit-get-current-tag) nil))
@@ -218,7 +265,7 @@
     (should (equal (magit-get-current-tag) "2"))
     (should (equal (magit-get-next-tag)    "4"))))
 
-(ert-deftest magit-list-{|local-|remote-}branch-names ()
+(magit-deftest-with-git magit-list-{|local-|remote-}branch-names ()
   (magit-with-test-repository
     (magit-git "commit" "-m" "init" "--allow-empty")
     (magit-git "update-ref" "refs/remotes/foobar/master" "master")
@@ -234,27 +281,27 @@
     (should (equal (magit-list-remote-branch-names "origin" t)
                    (list "master")))))
 
-(ert-deftest magit-process:match-prompt-nil-when-no-match ()
+(magit-deftest-with-git magit-process:match-prompt-nil-when-no-match ()
   (should (null (magit-process-match-prompt '("^foo: ?$") "bar: "))))
 
-(ert-deftest magit-process:match-prompt-non-nil-when-match ()
+(magit-deftest-with-git magit-process:match-prompt-non-nil-when-match ()
   (should (magit-process-match-prompt '("^foo: ?$") "foo: ")))
 
-(ert-deftest magit-process:match-prompt-match-non-first-prompt ()
+(magit-deftest-with-git magit-process:match-prompt-match-non-first-prompt ()
   (should (magit-process-match-prompt '("^bar: ?$ " "^foo: ?$") "foo: ")))
 
-(ert-deftest magit-process:match-prompt-suffixes-prompt ()
+(magit-deftest-with-git magit-process:match-prompt-suffixes-prompt ()
   (let ((prompts '("^foo: ?$")))
     (should (equal (magit-process-match-prompt prompts "foo:")  "foo: "))
     (should (equal (magit-process-match-prompt prompts "foo: ") "foo: "))))
 
-(ert-deftest magit-process:match-prompt-preserves-match-group ()
+(magit-deftest-with-git magit-process:match-prompt-preserves-match-group ()
   (let* ((prompts '("^foo '\\(?99:.*\\)': ?$"))
          (prompt (magit-process-match-prompt prompts "foo 'bar':")))
     (should (equal prompt "foo 'bar': "))
     (should (equal (match-string 99 "foo 'bar':") "bar"))))
 
-(ert-deftest magit-process:password-prompt ()
+(magit-deftest-with-git magit-process:password-prompt ()
   (let ((magit-process-find-password-functions
          (list (lambda (host) (when (string= host "www.host.com") "mypasswd")))))
     (cl-letf (((symbol-function 'process-send-string)
@@ -263,7 +310,7 @@
                              nil "Password for 'www.host.com':")
                             "mypasswd\n")))))
 
-(ert-deftest magit-process:password-prompt-observed ()
+(magit-deftest-with-git magit-process:password-prompt-observed ()
   (with-temp-buffer
     (cl-letf* ((test-proc (start-process
                            "dummy-proc" (current-buffer)
@@ -294,7 +341,7 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
            (oref (magit-get-section `(,list (status)))
                  children)))
 
-(ert-deftest magit-status:file-sections ()
+(magit-deftest-with-git magit-status:file-sections ()
   (magit-with-test-repository
     (cl-flet ((modify (file) (with-temp-file file
                                (insert (make-temp-name "content")))))
@@ -316,7 +363,7 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
       (should (magit-test-get-section '(unstaged) "file with space"))
       (should (magit-test-get-section '(unstaged) "file with äöüéλ")))))
 
-(ert-deftest magit-status:log-sections ()
+(magit-deftest-with-git magit-status:log-sections ()
   (magit-with-test-repository
     (magit-git "commit" "-m" "common" "--allow-empty")
     (magit-git "commit" "-m" "unpulled" "--allow-empty")
