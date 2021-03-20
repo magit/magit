@@ -51,6 +51,7 @@ help:
 	$(info )
 	$(info make test             - run tests)
 	$(info make test-interactive - run tests interactively)
+	$(info make test-in-ci       - run tests in CI environment)
 	$(info make emacs-Q          - run emacs -Q plus Magit)
 	$(info )
 	$(info Release Management)
@@ -108,6 +109,13 @@ install-info: info
 test:
 	@$(BATCH) --eval "(progn\
         $$suppress_warnings\
+	(load-file \"t/magit-tests.el\")\
+	(ert-run-tests-batch-and-exit))"
+
+test-in-ci:
+	@$(BATCH) --eval "(progn\
+		$$suppress_warnings\
+	(setq magit--ensure-libgit-tests-run t)\
 	(load-file \"t/magit-tests.el\")\
 	(ert-run-tests-batch-and-exit))"
 
