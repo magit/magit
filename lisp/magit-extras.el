@@ -149,7 +149,7 @@ like pretty much every other keymap:
              (equal project-switch-commands
                     (custom--standard-value 'project-switch-commands)))
     (define-key project-prefix-map "m" #'magit-project-status)
-    (add-to-list 'project-switch-commands '(magit-project-status "Magit"))))
+    (add-to-list 'project-switch-commands '(magit-project-status "Magit") t)))
 
 ;;;###autoload
 (defun magit-dired-jump (&optional other-window)
