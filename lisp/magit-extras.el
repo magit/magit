@@ -144,7 +144,10 @@ like pretty much every other keymap:
 (with-eval-after-load 'project
   ;; Only more recent versions of project.el have `project-prefix-map' and
   ;; `project-switch-commands', though project.el is available in Emacs 25.
-  (when (boundp 'project-prefix-map)
+  (when (and (boundp 'project-prefix-map)
+             ;; Only modify if it hasn't already been modified.
+             (equal project-switch-commands
+                    (custom--standard-value 'project-switch-commands)))
     (define-key project-prefix-map "m" #'magit-project-status)
     (add-to-list 'project-switch-commands '(magit-project-status "Magit"))))
 
