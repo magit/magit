@@ -147,7 +147,8 @@ like pretty much every other keymap:
   (when (and (boundp 'project-prefix-map)
              ;; Only modify if it hasn't already been modified.
              (equal project-switch-commands
-                    (custom--standard-value 'project-switch-commands)))
+                    (eval (car (get 'project-switch-commands 'standard-value))
+                          t)))
     (define-key project-prefix-map "m" #'magit-project-status)
     (add-to-list 'project-switch-commands '(magit-project-status "Magit") t)))
 
