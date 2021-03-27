@@ -2164,7 +2164,7 @@ section or a child thereof."
    ((looking-at magit-diff-conflict-headline-re)
     (let ((long-status (match-string 0))
           (status "BUG")
-          file orig base modes)
+          file orig base)
       (if (equal long-status "merged")
           (progn (setq status long-status)
                  (setq long-status nil))
@@ -2189,7 +2189,7 @@ section or a child thereof."
       (when orig (setq orig (magit-decode-git-path orig)))
       (when file (setq file (magit-decode-git-path file)))
       (magit-diff-insert-file-section
-       (or file base) orig status modes nil long-status)))
+       (or file base) orig status nil nil long-status)))
    ((looking-at
      "^diff --\\(?:\\(git\\) \\(?:\\(.+?\\) \\2\\)?\\|\\(cc\\|combined\\) \\(.+\\)\\)")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
