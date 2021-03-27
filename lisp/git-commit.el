@@ -115,6 +115,7 @@
 (require 'dash)
 (require 'subr-x)
 
+(require 'git-commit-global)
 (require 'magit-git nil t)
 (require 'magit-utils nil t)
 
@@ -151,33 +152,6 @@
   :prefix "git-commit-"
   :link '(info-link "(magit)Editing Commit Messages")
   :group 'tools)
-
-(define-minor-mode global-git-commit-mode
-  "Edit Git commit messages.
-
-This global mode arranges for `git-commit-setup' to be called
-when a Git commit message file is opened.  That usually happens
-when Git uses the Emacsclient as $GIT_EDITOR to have the user
-provide such a commit message.
-
-Loading the library `git-commit' by default enables this mode,
-but the library is not automatically loaded because doing that
-would pull in many dependencies and increase startup time too
-much.  You can either rely on `magit' loading this library or
-you can load it explicitly.  Autoloading is not an alternative
-because in this case autoloading would immediately trigger
-full loading."
-  :group 'git-commit
-  :type 'boolean
-  :global t
-  :init-value t
-  :initialize (lambda (symbol exp)
-                (custom-initialize-default symbol exp)
-                (when global-git-commit-mode
-                  (add-hook 'find-file-hook 'git-commit-setup-check-buffer)))
-  (if global-git-commit-mode
-      (add-hook  'find-file-hook 'git-commit-setup-check-buffer)
-    (remove-hook 'find-file-hook 'git-commit-setup-check-buffer)))
 
 (defcustom git-commit-major-mode 'text-mode
   "Major mode used to edit Git commit messages.
@@ -439,10 +413,6 @@ This is only used if Magit is available."
 
 ;;; Hooks
 
-(defconst git-commit-filename-regexp "/\\(\
-\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|MERGEREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\
-\\|\\(BRANCH\\|EDIT\\)_DESCRIPTION\\)\\'")
-
 (eval-after-load 'recentf
   '(add-to-list 'recentf-exclude git-commit-filename-regexp))
 
@@ -454,11 +424,6 @@ This is only used if Magit is available."
        (git-commit-setup-font-lock)))
 
 (add-hook 'after-change-major-mode-hook 'git-commit-setup-font-lock-in-buffer)
-
-(defun git-commit-setup-check-buffer ()
-  (and buffer-file-name
-       (string-match-p git-commit-filename-regexp buffer-file-name)
-       (git-commit-setup)))
 
 (defvar git-commit-mode)
 
@@ -494,6 +459,7 @@ Type \\[with-editor-finish] to finish, \
 \\[git-commit-prev-message] and \\[git-commit-next-message] \
 to recover older messages")
 
+;;;###autoload
 (defun git-commit-setup ()
   (when (fboundp 'magit-toplevel)
     ;; `magit-toplevel' is autoloaded and defined in magit-git.el,
