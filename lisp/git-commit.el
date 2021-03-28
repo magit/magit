@@ -944,7 +944,7 @@ Added to `font-lock-extend-region-functions'."
      ;; Your branch is up to date with 'master'.
      ;; Your branch and 'master' have diverged,
      . `(,(format
-           "^%s Your branch \\(?:is up-to-date with\\|and\\) '%s'"
+           "^%s Your branch \\(?:is up[- ]to[- ]date with\\|and\\) '%s'"
            comment-start git-commit--branch-name-regexp)
          (1 'git-commit-comment-branch-local t)
          (2 'git-commit-comment-branch-remote t)))
