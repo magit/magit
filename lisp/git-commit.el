@@ -956,7 +956,7 @@ Added to `font-lock-extend-region-functions'."
          (1 'bold t)
          (2 'bold t)))))
 
-(defvar git-commit-font-lock-keywords git-commit-font-lock-keywords-2
+(defvar git-commit-font-lock-keywords git-commit-font-lock-keywords-3
   "Font-Lock keywords for Git-Commit mode.")
 
 (defun git-commit-setup-font-lock ()
