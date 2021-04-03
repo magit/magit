@@ -84,6 +84,9 @@ with the variables' values as arguments, which were recorded by
                       hidden)
               (magit-section-hide child)
             (magit-section-show child)))))
+    ;; Compatibility with `bookmark+' package.  See #4356.
+    (when (bound-and-true-p bmkp-jump-display-function)
+      (funcall bmkp-jump-display-function (current-buffer)))
     nil))
 
 (cl-defgeneric magit-bookmark-name ()
