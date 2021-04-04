@@ -480,6 +480,10 @@
 - ~magit-abbrev-length~ returned an incorrect result when
   ~core.abbrev~ was explicitly set to "auto".
 
+- Calling ~magit-status~ in a repository with a corrupt Git
+  configuration didn't propagate the error and instead preseted the
+  directory as though it was uninitialized.  #4337
+
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),
   ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),

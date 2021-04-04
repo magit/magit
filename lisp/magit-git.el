@@ -746,13 +746,25 @@ returning the truename."
          (magit--not-inside-repository-error)))))
 
 (define-error 'magit-outside-git-repo "Not inside Git repository")
+(define-error 'magit-corrupt-git-config "Corrupt Git configuration")
 (define-error 'magit-git-executable-not-found
   "Git executable cannot be found (see https://magit.vc/goto/e6a78ed2)")
 
+(defun magit--assert-usable-git ()
+  (if (not (executable-find magit-git-executable))
+      (signal 'magit-git-executable-not-found magit-git-executable)
+    (let ((magit-git-debug
+           (lambda (err)
+             (signal 'magit-corrupt-git-config
+                     (format "%s: %s" default-directory err)))))
+      ;; This should always succeed unless there's a corrupt config (or
+      ;; at least a similarly severe failing state).
+      (magit-git-string "config" "--default=_" "core.bare"))
+    nil))
+
 (defun magit--not-inside-repository-error ()
-  (if (executable-find magit-git-executable)
-      (signal 'magit-outside-git-repo default-directory)
-    (signal 'magit-git-executable-not-found magit-git-executable)))
+  (magit--assert-usable-git)
+  (signal 'magit-outside-git-repo default-directory))
 
 (defun magit-inside-gitdir-p (&optional noerror)
   "Return t if `default-directory' is below the repository directory.
