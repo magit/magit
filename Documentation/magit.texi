@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-1210-gfb25d4e9c+1)
+@subtitle for version 2.90.1 (v2.90.1-1221-g99291801+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-1210-gfb25d4e9c+1).
+This manual is for Magit version 2.90.1 (v2.90.1-1221-g99291801+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8740,6 +8740,16 @@ default.
 
 This command pushes a tag to another repository.
 @end table
+
+One of the infix arguments, @code{--force-with-lease}, deserves a word of
+caution.  It is passed without a value, which means "permit a force
+push as long as the remote-tracking branches match their counterparts
+on the remote end".  If you've set up a tool to do automatic fetches
+(Magit itself does not provide such functionality), using
+@code{--force-with-lease} can be dangerous because you don't actually
+control or know the state of the remote-tracking refs.  In that case,
+you should consider setting @code{push.useForceIfIncludes} to @code{true}
+(available since Git 2.30).
 
 Two more push commands exist, which by default are not available from
 the push transient.  See their doc-strings for instructions on how to
