@@ -93,7 +93,7 @@
   :prompt "Set global notes.displayRef")
 
 (transient-define-argument magit-notes:--ref ()
-  :description "Merge strategy"
+  :description "Manipulate ref"
   :class 'transient-option
   :key "-r"
   :argument "--ref="
