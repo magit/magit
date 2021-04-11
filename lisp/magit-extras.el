@@ -141,16 +141,15 @@ like pretty much every other keymap:
   (interactive)
   (magit-status-setup-buffer (project-root (project-current t))))
 
-(with-eval-after-load 'project
+;;;###autoload
+(defun magit-project-maybe-setup-defaults ()
+  "Setup the default magit and project integration."
   ;; Only more recent versions of project.el have `project-prefix-map' and
   ;; `project-switch-commands', though project.el is available in Emacs 25.
-  (when (and (boundp 'project-prefix-map)
-             ;; Only modify if it hasn't already been modified.
-             (equal project-switch-commands
-                    (eval (car (get 'project-switch-commands 'standard-value))
-                          t)))
+  (when (boundp 'project-prefix-map)
     (define-key project-prefix-map "m" #'magit-project-status)
-    (add-to-list 'project-switch-commands '(magit-project-status "Magit") t)))
+    (when (boundp 'project-switch-commands)
+      (add-to-list 'project-switch-commands '(magit-project-status "Magit") t))))
 
 ;;;###autoload
 (defun magit-dired-jump (&optional other-window)
