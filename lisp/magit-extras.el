@@ -141,10 +141,17 @@ like pretty much every other keymap:
   (interactive)
   (magit-status-setup-buffer (project-root (project-current t))))
 
+(defvar magit-bind-magit-project-status t
+  "Whether to bind \"m\" to `magit-project-status' in `project-prefix-map'.
+If so, then an entry is added to `project-switch-commands' as
+well.  If you want to use another key, then you must set this
+to nil before loading Magit to prevent \"m\" from being bound.")
+
 (with-eval-after-load 'project
   ;; Only more recent versions of project.el have `project-prefix-map' and
   ;; `project-switch-commands', though project.el is available in Emacs 25.
-  (when (and (boundp 'project-prefix-map)
+  (when (and magit-bind-magit-project-status
+             (boundp 'project-prefix-map)
              ;; Only modify if it hasn't already been modified.
              (equal project-switch-commands
                     (eval (car (get 'project-switch-commands 'standard-value))
