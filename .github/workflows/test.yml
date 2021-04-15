@@ -1,9 +1,5 @@
 name: test
 on: [ push, pull_request ]
-env:
-  CURL: "curl -fsSkL --retry 9 --retry-delay 9"
-  GHRAW: "https://raw.githubusercontent.com"
-  BUILD_MAGIT_LIBGIT: "false"
 jobs:
   test:
     runs-on: ubuntu-20.04
@@ -19,17 +15,21 @@ jobs:
         - 27.1
         - snapshot
     steps:
-    - uses: purcell/setup-emacs@master
+    - uses: cachix/install-nix-action@v12
       with:
-        version: ${{ matrix.emacs_version }}
+        nix_path: nixpkgs=channel:nixos-unstable
+    - uses: cachix/cachix-action@v8
+      with:
+        name: emacs-ci
     - uses: actions/checkout@v2
     - name: Install
       run: |
-        $CURL -O ${GHRAW}/magnars/dash.el/master/dash.el
-        $CURL -O ${GHRAW}/magit/transient/master/lisp/transient.el
-        $CURL -O ${GHRAW}/magit/with-editor/master/with-editor.el
-        emacs -Q --batch -L . -f batch-byte-compile dash.el transient.el with-editor.el
+        # Build and install Emacs (+ magit dependencies) using Nix
+        emacs_ci_version=$(echo "emacs-${{ matrix.emacs_version }}" | sed -e "s/\./-/g")
+        nix-env -f ./t/default.nix -iA $emacs_ci_version
         emacs --version
+
+        # Configure Git
         git config --global user.name "A U Thor"
         git config --global user.email a.u.thor@example.com
         git tag 0
