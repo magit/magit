@@ -14,6 +14,9 @@ jobs:
         - 26.3
         - 27.1
         - snapshot
+        git_impl:
+        - git
+        - libgit
     steps:
     - uses: cachix/install-nix-action@v12
       with:
@@ -33,9 +36,11 @@ jobs:
         git config --global user.name "A U Thor"
         git config --global user.email a.u.thor@example.com
         git tag 0
-    - name: Compile
+    - name: Test with Git
+      if: ${{ matrix.git_impl == 'git' }}
       run: |
-        make lisp DASH_DIR=$PWD
-    - name: Test
+        make test-git DASH_DIR=$PWD
+    - name: Test with libgit
+      if: ${{ matrix.git_impl == 'libgit' }}
       run: |
-        make test DASH_DIR=$PWD
+        make test-libgit DASH_DIR=$PWD
