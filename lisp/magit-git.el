@@ -1800,10 +1800,10 @@ PATH has to be relative to the super-repository."
 (defun magit-main-branch ()
   "Return the main branch.
 
-If a branch exists whose name that matches `init.defaultBranch'
-then that is considered the main branch.  If no branch by that
-name exists, then the branch names in `magit-main-branch-names'
-are tried in order.  The first matching branch that actually
+If a branch exists whose name matches `init.defaultBranch', then
+that is considered the main branch.  If no branch by that name
+exists, then the branch names in `magit-main-branch-names' are
+tried in order.  The first branch from that list that actually
 exists in the current repository is considered its main branch."
   (let ((branches (magit-list-local-branch-names)))
     (seq-find (lambda (name)
