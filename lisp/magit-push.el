@@ -292,7 +292,7 @@ what this command will do.  For example:
   (let ((default (magit-get "push.default")))
     (unless (equal default "nothing")
       (or (when-let ((remote (or (magit-get-remote)
-                                 (magit-remote-p "origin")))
+                                 (magit-primary-remote)))
                      (refspec (magit-get "remote" remote "push")))
             (format "%s using %s"
                     (magit--propertize-face remote 'magit-branch-remote)

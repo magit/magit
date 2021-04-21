@@ -1453,7 +1453,7 @@ according to the branch type."
       (when-let ((remotes (magit-list-remotes))
                  (remote (if (= (length remotes) 1)
                              (car remotes)
-                           (car (member "origin" remotes)))))
+                           (magit-primary-remote))))
         (magit--propertize-face remote 'magit-branch-remote))))
 
 (defun magit-get-push-remote (&optional branch)
@@ -1488,9 +1488,34 @@ according to the branch type."
   (or (magit-get-remote branch)
       (when-let ((main (magit-main-branch)))
         (magit-get-remote main))
-      (let ((remotes (magit-list-remotes)))
-        (or (car (member "origin" remotes))
-            (car remotes)))))
+      (magit-primary-remote)
+      (car (magit-list-remotes))))
+
+(defvar magit-primary-remote-names
+  '("upstream" "origin"))
+
+(defun magit-primary-remote ()
+  "Return the primary remote.
+
+The primary remote is the remote that tracks the repository that
+other repositories are forked from.  It often is called \"origin\"
+but because many people name their own fork \"origin\", using that
+term would be ambigious.  Likewise we avoid the term \"upstream\"
+because a branch's @{upstream} branch may be a local branch or a
+branch from a remote other than the primary remote.
+
+If a remote exists whose name matches `magit.primaryRemote', then
+that is considered the primary remote.  If no remote by that name
+exists, then remotes in `magit-primary-remote-names' are tried in
+order and the first remote from that list that actually exists in
+the current repository is considered its primary remote."
+  (let ((remotes (magit-list-remotes)))
+    (seq-find (lambda (name)
+                (member name remotes))
+              (delete-dups
+               (delq nil
+                     (cons (magit-get "magit.primaryRemote")
+                           magit-primary-remote-names))))))
 
 (defun magit-branch-merged-p (branch &optional target)
   "Return non-nil if BRANCH is merged into its upstream and TARGET.
