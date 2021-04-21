@@ -193,11 +193,15 @@ Then show the status buffer for the new repository."
 
 (defun magit-clone-internal (repository directory args)
   (let* ((checkout (not (memq (car args) '("--bare" "--mirror"))))
+         (remote (or (transient-arg-value "--origin" args)
+                     (magit-get "clone.defaultRemote")
+                     "origin"))
          (set-push-default
           (and checkout
                (or (eq  magit-clone-set-remote.pushDefault t)
                    (and magit-clone-set-remote.pushDefault
-                        (y-or-n-p "Set `remote.pushDefault' to \"origin\"? "))))))
+                        (y-or-n-p (format "Set `remote.pushDefault' to %S? "
+                                          remote)))))))
     (run-hooks 'magit-credential-hook)
     (setq directory (file-name-as-directory (expand-file-name directory)))
     (when (file-exists-p directory)
@@ -225,9 +229,9 @@ Then show the status buffer for the new repository."
          (when checkout
            (let ((default-directory directory))
              (when set-push-default
-               (setf (magit-get "remote.pushDefault") "origin"))
+               (setf (magit-get "remote.pushDefault") remote))
              (unless magit-clone-set-remote-head
-               (magit-remote-unset-head "origin"))))
+               (magit-remote-unset-head remote))))
          (with-current-buffer (process-get process 'command-buf)
            (magit-status-setup-buffer directory)))))))
 
