@@ -124,7 +124,7 @@ is a member of `magit-post-unstage-hook-commands'."
 With a prefix argument fallback to a 3-way merge.  Doing
 so causes the change to be applied to the index as well."
   (interactive (and current-prefix-arg (list "--3way")))
-  (--when-let (magit-apply--get-selection)
+  (when-let ((it (magit-apply--get-selection)))
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
@@ -221,7 +221,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
 (defun magit-apply-patch (section:s args patch)
   (let* ((files (if (atom section:s)
                     (list (oref section:s value))
-                  (--map (oref it value) section:s)))
+                  (mapcar (lambda (it) (oref it value)) section:s)))
          (command (symbol-name this-command))
          (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
                       (match-string 1 command)
@@ -255,11 +255,12 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
 (defun magit-apply--get-diffs (sections)
   (magit-section-case
     ([file diffstat]
-     (--map (or (magit-get-section
-                 (append `((file . ,(oref it value)))
-                         (magit-section-ident magit-root-section)))
-                (error "Cannot get required diff headers"))
-            sections))
+     (mapcar (lambda (it)
+               (or (magit-get-section
+                    (append `((file . ,(oref it value)))
+                            (magit-section-ident magit-root-section)))
+                   (error "Cannot get required diff headers")))
+             sections))
     (t sections)))
 
 (defun magit-apply--diff-ignores-whitespace-p ()
@@ -278,7 +279,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
 With a prefix argument, INTENT, and an untracked file (or files)
 at point, stage the file but not its content."
   (interactive "P")
-  (--if-let (and (derived-mode-p 'magit-mode) (magit-apply--get-selection))
+  (if-let ((it (and (derived-mode-p 'magit-mode) (magit-apply--get-selection))))
       (pcase (list (magit-diff-type)
                    (magit-diff-scope)
                    (magit-apply--diff-ignores-whitespace-p))
@@ -385,7 +386,7 @@ ignored) files."
 (defun magit-unstage ()
   "Remove the change at point from the staging area."
   (interactive)
-  (--when-let (magit-apply--get-selection)
+  (when-let ((it (magit-apply--get-selection)))
     (pcase (list (magit-diff-type)
                  (magit-diff-scope)
                  (magit-apply--diff-ignores-whitespace-p))
@@ -434,7 +435,7 @@ without requiring confirmation."
 
 (defun magit-unstage-intent (files)
   (if-let ((staged (magit-staged-files))
-           (intent (--filter (member it staged) files)))
+           (intent (seq-filter (lambda (it) (member it staged)) files)))
       (magit-unstage-1 intent)
     (user-error "Already unstaged")))
 
@@ -454,7 +455,7 @@ without requiring confirmation."
 (defun magit-discard ()
   "Remove the change at point."
   (interactive)
-  (--when-let (magit-apply--get-selection)
+  (when-let ((it (magit-apply--get-selection)))
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(committed ,_) (user-error "Cannot discard committed changes"))
       (`(undefined ,_) (user-error "Cannot discard this change"))
@@ -613,14 +614,14 @@ without requiring confirmation."
     (let ((orig (cadr (assoc file status))))
       (if (file-exists-p file)
           (progn
-            (--when-let (file-name-directory orig)
+            (when-let ((it (file-name-directory orig)))
               (make-directory it t))
             (magit-call-git "mv" file orig))
         (magit-call-git "rm" "--cached" "--" file)
         (magit-call-git "reset" "--" orig)))))
 
 (defun magit-discard-files--discard (sections new-files)
-  (let ((files (--map (oref it value) sections)))
+  (let ((files (mapcar (lambda (it) (oref it value)) sections)))
     (magit-confirm-files 'discard (append files new-files)
                          (format "Discard %s changes in" (magit-diff-type)))
     (if (eq (magit-diff-type (car sections)) 'unstaged)
@@ -631,22 +632,25 @@ without requiring confirmation."
       (let ((binaries (magit-binary-files "--cached")))
         (when binaries
           (setq sections
-                (--remove (member (oref it value) binaries)
-                          sections)))
+                (seq-remove (lambda (it) (member (oref it value) binaries))
+                            sections)))
         (cond ((= (length sections) 1)
                (magit-discard-apply (car sections) 'magit-apply-diff))
               (sections
                (magit-discard-apply-n sections 'magit-apply-diffs)))
         (when binaries
           (let ((modified (magit-unstaged-files t)))
-            (setq binaries (--separate (member it modified) binaries)))
-          (when (cadr binaries)
-            (magit-call-git "reset" "--" (cadr binaries)))
-          (when (car binaries)
-            (user-error
-             (concat
-              "Cannot discard staged changes to binary files, "
-              "which also have unstaged changes.  Unstage instead."))))))))
+            (map-let ((t   modified-binaries)
+                      (nil unmodified-binaries))
+                (seq-group-by (lambda (it) (member it modified))
+                              binaries)
+              (when unmodified-binaries
+                (magit-call-git "reset" "--" unmodified-binaries))
+              (when modified-binaries
+                (user-error
+                 (concat
+                  "Cannot discard staged changes to binary files, "
+                  "which also have unstaged changes.  Unstage instead."))))))))))
 
 ;;;; Reverse
 
@@ -655,7 +659,7 @@ without requiring confirmation."
 With a prefix argument fallback to a 3-way merge.  Doing
 so causes the change to be applied to the index as well."
   (interactive (and current-prefix-arg (list "--3way")))
-  (--when-let (magit-apply--get-selection)
+  (when-let ((it (magit-apply--get-selection)))
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(untracked ,_) (user-error "Cannot reverse untracked changes"))
       (`(unstaged  ,_) (user-error "Cannot reverse unstaged changes"))
@@ -685,17 +689,17 @@ so causes the change to be applied to the index as well."
   (magit-reverse-files (list section) args))
 
 (defun magit-reverse-files (sections args)
-  (pcase-let ((`(,binaries ,sections)
-               (let ((bs (magit-binary-files
-                          (cond ((derived-mode-p 'magit-revision-mode)
-                                 magit-buffer-range)
-                                ((derived-mode-p 'magit-diff-mode)
-                                 magit-buffer-range)
-                                (t
-                                 "--cached")))))
-                 (--separate (member (oref it value) bs)
-                             sections))))
-    (magit-confirm-files 'reverse (--map (oref it value) sections))
+  (map-let ((t   binaries)
+            (nil sections))
+      (let ((bs (magit-binary-files
+                 (if (derived-mode-p 'magit-diff-mode 'magit-revision-mode)
+                     magit-buffer-range
+                   "--cached"))))
+        (seq-group-by (lambda (it)
+                        (member (oref it value) bs))
+                      sections))
+    (magit-confirm-files 'reverse
+                         (mapcar (lambda (it) (oref it value)) sections))
     (cond ((= (length sections) 1)
            (magit-reverse-apply (car sections) 'magit-apply-diff args))
           (sections
