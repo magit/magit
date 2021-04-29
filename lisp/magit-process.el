@@ -114,21 +114,22 @@ displays the text of `magit-process-error-summary' instead."
                  integer))
 
 (defcustom magit-credential-cache-daemon-socket
-  (--some (pcase-let ((`(,prog . ,args) (split-string it)))
-            (if (and prog
-                     (string-match-p
-                      "\\`\\(?:\\(?:/.*/\\)?git-credential-\\)?cache\\'" prog))
-                (or (cl-loop for (opt val) on args
-                             if (string= opt "--socket")
-                             return val)
-                    (expand-file-name "~/.git-credential-cache/socket"))))
-          ;; Note: `magit-process-file' is not yet defined when
-          ;; evaluating this form, so we use `process-lines'.
-          (ignore-errors
-            (let ((process-environment
-                   (append magit-git-environment process-environment)))
-              (process-lines magit-git-executable
-                             "config" "--get-all" "credential.helper"))))
+  (seq-some (lambda (it)
+              (pcase-let ((`(,prog . ,args) (split-string it)))
+                (if (and prog
+                         (string-match-p
+                          "\\`\\(?:\\(?:/.*/\\)?git-credential-\\)?cache\\'" prog))
+                    (or (cl-loop for (opt val) on args
+                                 if (string= opt "--socket")
+                                 return val)
+                        (expand-file-name "~/.git-credential-cache/socket")))))
+            ;; Note: `magit-process-file' is not yet defined when
+            ;; evaluating this form, so we use `process-lines'.
+            (ignore-errors
+              (let ((process-environment
+                     (append magit-git-environment process-environment)))
+                (process-lines magit-git-executable
+                               "config" "--get-all" "credential.helper"))))
   "If non-nil, start a credential cache daemon using this socket.
 
 When using Git's cache credential helper in the normal way, Emacs
@@ -301,10 +302,11 @@ optional NODISPLAY is non-nil also display it."
           (while (not (equal topdir prev))
             (setq prev topdir)
             (setq topdir (file-name-directory (directory-file-name topdir)))))))
-    (let ((buffer (or (--first (with-current-buffer it
-                                 (and (eq major-mode 'magit-process-mode)
-                                      (equal default-directory topdir)))
-                               (buffer-list))
+    (let ((buffer (or (seq-find (lambda (it)
+                                  (with-current-buffer it
+                                    (and (eq major-mode 'magit-process-mode)
+                                         (equal default-directory topdir))))
+                                (buffer-list))
                       (let ((default-directory topdir))
                         (magit-generate-new-buffer 'magit-process-mode)))))
       (with-current-buffer buffer
@@ -420,7 +422,7 @@ conversion."
                  (cdr (assoc magit-git-executable magit-git-w32-path-hack)))
             (and local magit-need-cygwin-noglob
                  (mapcar (lambda (var)
-                           (concat var "=" (--if-let (getenv var)
+                           (concat var "=" (if-let ((it (getenv var)))
                                                (concat it " noglob")
                                              "noglob")))
                          '("CYGWIN" "MSYS")))
@@ -478,7 +480,7 @@ and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' for more information."
   (message "Running %s %s" magit-git-executable
-           (let ((m (mapconcat #'identity (-flatten args) " ")))
+           (let ((m (mapconcat #'identity (flatten-tree args) " ")))
              (remove-list-of-text-properties 0 (length m) '(face) m)
              m))
   (magit-start-git nil args))
@@ -650,19 +652,21 @@ Magit status buffer."
 (defun magit-process--format-arguments (program args)
   (cond
    ((and args (equal program magit-git-executable))
-    (setq args (-split-at (length magit-git-global-arguments) args))
-    (concat (propertize (file-name-nondirectory program)
-                        'font-lock-face 'magit-section-heading)
-            " "
-            (propertize (if (stringp magit-ellipsis)
-                            magit-ellipsis
-                          ;; For backward compatibility.
-                          (char-to-string magit-ellipsis))
-                        'font-lock-face 'magit-section-heading
-                        'help-echo (mapconcat #'identity (car args) " "))
-            " "
-            (propertize (mapconcat #'shell-quote-argument (cadr args) " ")
-                        'font-lock-face 'magit-section-heading)))
+    (let* ((split-at (length magit-git-global-arguments))
+           (global-args (seq-take args split-at))
+           (specific-args (seq-drop args split-at)))
+      (concat (propertize (file-name-nondirectory program)
+                          'font-lock-face 'magit-section-heading)
+              " "
+              (propertize (if (stringp magit-ellipsis)
+                              magit-ellipsis
+                            ;; For backward compatibility.
+                            (char-to-string magit-ellipsis))
+                          'font-lock-face 'magit-section-heading
+                          'help-echo (mapconcat #'identity global-args " "))
+              " "
+              (propertize (mapconcat #'shell-quote-argument specific-args " ")
+                          'font-lock-face 'magit-section-heading))))
    ((and args (equal program shell-file-name))
     (propertize (cadr args)
                 'font-lock-face 'magit-section-heading))
@@ -721,15 +725,14 @@ Magit status buffer."
         (when-let ((status-buf (with-current-buffer process-buf
                                  (magit-get-mode-buffer 'magit-status-mode))))
           (with-current-buffer status-buf
-            (--when-let
-                (magit-get-section
-                 `((commit . ,(magit-rev-parse "HEAD"))
-                   (,(pcase (car (cadr (-split-at
-                                        (1+ (length magit-git-global-arguments))
-                                        (process-command process))))
-                       ((or "rebase" "am")   'rebase-sequence)
-                       ((or "cherry-pick" "revert") 'sequence)))
-                   (status)))
+            (when-let
+                ((it (magit-get-section
+                      `((commit . ,(magit-rev-parse "HEAD"))
+                        (,(pcase (nth (length magit-git-global-arguments)
+                                      (process-command process))
+                            ((or "rebase" "am")   'rebase-sequence)
+                            ((or "cherry-pick" "revert") 'sequence)))
+                        (status)))))
               (goto-char (oref it start))
               (magit-section-update-highlight))))))))
 
@@ -867,8 +870,8 @@ from the user."
 
 (defun magit-process-username-prompt (process string)
   "Forward username prompts to the user."
-  (--when-let (magit-process-match-prompt
-               magit-process-username-prompt-regexps string)
+  (when-let ((it (magit-process-match-prompt
+                  magit-process-username-prompt-regexps string)))
     (process-send-string
      process (magit-process-kill-on-abort process
                (concat (read-string it nil nil (user-login-name)) "\n")))))
@@ -876,7 +879,7 @@ from the user."
 (defun magit-process-match-prompt (prompts string)
   "Match STRING against PROMPTS and set match data.
 Return the matched string suffixed with \": \", if needed."
-  (when (--any-p (string-match it string) prompts)
+  (when (seq-contains-p prompts string #'string-match)
     (let ((prompt (match-string 0 string)))
       (cond ((string-suffix-p ": " prompt) prompt)
             ((string-suffix-p ":"  prompt) (concat prompt " "))
@@ -908,12 +911,13 @@ as argument."
               (memq magit-credential-cache-daemon-process
                     (list-system-processes)))
     (setq magit-credential-cache-daemon-process
-          (or (--first (let* ((attr (process-attributes it))
-                              (comm (cdr (assq 'comm attr)))
-                              (user (cdr (assq 'user attr))))
-                         (and (string= comm "git-credential-cache--daemon")
-                              (string= user user-login-name)))
-                       (list-system-processes))
+          (or (seq-find (lambda (it)
+                          (let* ((attr (process-attributes it))
+                                 (comm (cdr (assq 'comm attr)))
+                                 (user (cdr (assq 'user attr))))
+                            (and (string= comm "git-credential-cache--daemon")
+                                 (string= user user-login-name))))
+                        (list-system-processes))
               (condition-case nil
                   (start-process "git-credential-cache--daemon"
                                  " *git-credential-cache--daemon*"
@@ -1130,8 +1134,9 @@ Limited by `magit-process-error-tooltip-max-lines'."
               (oset section content nil))
           (let ((buf (magit-process-buffer t)))
             (when (and (= arg 0)
-                       (not (--any-p (eq (window-buffer it) buf)
-                                     (window-list))))
+                       (not (seq-some (lambda (it)
+                                        (eq buf (window-buffer it)))
+                                      (window-list))))
               (magit-section-hide section)))))))
   (if (= arg 0)
       ;; Unset the `mode-line-process' value upon success.
