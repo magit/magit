@@ -496,7 +496,7 @@ and Emacs to it."
             (when (featurep 'package)
               (push 'elpa debug)
               (ignore-errors
-                (--when-let (assq 'magit package-alist)
+                (when-let ((it (assq 'magit package-alist)))
                   (push t debug)
                   (setq magit-version
                         (and (fboundp 'package-desc-version)
@@ -560,11 +560,11 @@ See info node `(magit)Debugging Tools' for more information."
                             (magit-git-debug (lambda (err) (setq errmsg err))))
                        (or (magit-git-version t) errmsg)))))
     (insert (format "exec-path: %S\n" exec-path))
-    (--when-let (cl-set-difference
-                 (-filter #'file-exists-p (remq nil (parse-colon-path
-                                                     (getenv "PATH"))))
-                 (-filter #'file-exists-p (remq nil exec-path))
-                 :test #'file-equal-p)
+    (when-let ((it (cl-set-difference
+                    (seq-filter #'file-exists-p (remq nil (parse-colon-path
+                                                           (getenv "PATH"))))
+                    (seq-filter #'file-exists-p (remq nil exec-path))
+                    :test #'file-equal-p)))
       (insert (format "  entries in PATH, but not in exec-path: %S\n" it)))
     (dolist (execdir exec-path)
       (insert (format "  %s (%s)\n" execdir (car (file-attributes execdir))))
