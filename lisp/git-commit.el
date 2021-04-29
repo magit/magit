@@ -11,7 +11,7 @@
 ;;	Marius Vollmer <marius.vollmer@gmail.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "25.1") (dash "20200524") (transient "20200601") (with-editor "20200522"))
+;; Package-Requires: ((emacs "25.1") (transient "20200601") (with-editor "20200522"))
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
 
@@ -112,7 +112,6 @@
 ;;; Code:
 ;;;; Dependencies
 
-(require 'dash)
 (require 'subr-x)
 
 (require 'magit-git nil t)
@@ -303,7 +302,7 @@ already using it, then you probably shouldn't start doing so."
     "Co-authored-by")
   "A list of Git pseudo headers to be highlighted."
   :group 'git-commit
-  :safe (lambda (val) (and (listp val) (-all-p 'stringp val)))
+  :safe (lambda (val) (and (listp val) (seq-every-p #'stringp val)))
   :type '(repeat string))
 
 ;;;; Faces
@@ -465,25 +464,26 @@ This is only used if Magit is available."
 (defun git-commit-file-not-found ()
   ;; cygwin git will pass a cygwin path (/cygdrive/c/foo/.git/...),
   ;; try to handle this in window-nt Emacs.
-  (--when-let
-      (and (or (string-match-p git-commit-filename-regexp buffer-file-name)
-               (and (boundp 'git-rebase-filename-regexp)
-                    (string-match-p git-rebase-filename-regexp
-                                    buffer-file-name)))
-           (not (file-accessible-directory-p
-                 (file-name-directory buffer-file-name)))
-           (if (require 'magit-git nil t)
-               ;; Emacs prepends a "c:".
-               (magit-expand-git-file-name (substring buffer-file-name 2))
-             ;; Fallback if we can't load `magit-git'.
-             (and (string-match "\\`[a-z]:/\\(cygdrive/\\)?\\([a-z]\\)/\\(.*\\)"
-                                buffer-file-name)
-                  (concat (match-string 2 buffer-file-name) ":/"
-                          (match-string 3 buffer-file-name)))))
-    (when (file-accessible-directory-p (file-name-directory it))
-      (let ((inhibit-read-only t))
-        (insert-file-contents it t)
-        t))))
+  (and (or (string-match-p git-commit-filename-regexp buffer-file-name)
+           (and (boundp 'git-rebase-filename-regexp)
+                (string-match-p git-rebase-filename-regexp
+                                buffer-file-name)))
+       (not (file-accessible-directory-p
+             (file-name-directory buffer-file-name)))
+       (when-let
+           ((it (if (require 'magit-git nil t)
+                    ;; Emacs prepends a "c:".
+                    (magit-expand-git-file-name (substring buffer-file-name 2))
+                  ;; Fallback if we can't load `magit-git'.
+                  (and (string-match
+                        "\\`[a-z]:/\\(cygdrive/\\)?\\([a-z]\\)/\\(.*\\)"
+                        buffer-file-name)
+                       (concat (match-string 2 buffer-file-name) ":/"
+                               (match-string 3 buffer-file-name))))))
+         (when (file-accessible-directory-p (file-name-directory it))
+           (let ((inhibit-read-only t))
+             (insert-file-contents it t)
+             t)))))
 
 (when (eq system-type 'windows-nt)
   (add-hook 'find-file-not-found-functions #'git-commit-file-not-found))
