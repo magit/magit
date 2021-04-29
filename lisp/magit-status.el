@@ -474,12 +474,13 @@ status buffer is first created."
   "In a `magit-status-mode' buffer, jump `magit-status-initial-section'.
 This function removes itself from `magit-refresh-buffer-hook'."
   (when-let ((section
-              (--some (if (integerp it)
-                          (nth (1- it)
-                               (magit-section-siblings (magit-current-section)
-                                                       'next))
-                        (magit-get-section it))
-                      magit-status-initial-section)))
+              (seq-some (lambda (it)
+                          (if (integerp it)
+                              (nth (1- it)
+                                   (magit-section-siblings (magit-current-section)
+                                                           'next))
+                            (magit-get-section it)))
+                        magit-status-initial-section)))
     (goto-char (oref section start))
     (when-let ((vis (cdr (assq 'magit-status-initial-section
                                magit-section-initial-visibility-alist))))
@@ -752,11 +753,12 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
               (magit-insert-files files base)
               (insert ?\n)))
         (when-let ((files
-                    (--mapcat (and (eq (aref it 0) ??)
-                                   (list (substring it 3)))
-                              (magit-git-items "status" "-z" "--porcelain"
-                                               (magit-ignore-submodules-p t)
-                                               "--" base))))
+                    (mapcan (lambda (it)
+                              (when (eq (aref it 0) ??)
+                                (list (substring it 3))))
+                            (magit-git-items "status" "-z" "--porcelain"
+                                             (magit-ignore-submodules-p t)
+                                             "--" base))))
           (magit-insert-section (untracked)
             (magit-insert-heading "Untracked files:")
             (dolist (file files)
