@@ -42,7 +42,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'dash)
 (require 'eieio)
 (require 'seq)
 (require 'subr-x)
