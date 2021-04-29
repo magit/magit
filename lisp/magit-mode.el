@@ -807,10 +807,11 @@ into thinking a buffer belongs to a repo that it doesn't.")
 
 (defun magit-mode-get-buffers ()
   (let ((topdir (magit-toplevel)))
-    (--filter (with-current-buffer it
-                (and (derived-mode-p 'magit-mode)
-                     (equal magit--default-directory topdir)))
-              (buffer-list))))
+    (seq-filter (lambda (it)
+                  (with-current-buffer it
+                    (and (derived-mode-p 'magit-mode)
+                         (equal magit--default-directory topdir))))
+                (buffer-list))))
 
 (defvar-local magit-buffer-locked-p nil)
 (put 'magit-buffer-locked-p 'permanent-local t)
@@ -859,17 +860,18 @@ If a frame, then only consider buffers on that frame."
   (when create
     (error "`magit-mode-get-buffer's CREATE argument is obsolete"))
   (if-let ((topdir (magit-toplevel)))
-      (--first (with-current-buffer it
-                 (and (eq major-mode mode)
-                      (equal magit--default-directory topdir)
-                      (if value
-                          (and magit-buffer-locked-p
-                               (equal (magit-buffer-value) value))
-                        (not magit-buffer-locked-p))))
-               (if frame
-                   (mapcar #'window-buffer
-                           (window-list (unless (eq frame t) frame)))
-                 (buffer-list)))
+      (seq-find (lambda (it)
+                  (with-current-buffer it
+                    (and (eq major-mode mode)
+                         (equal magit--default-directory topdir)
+                         (if value
+                             (and magit-buffer-locked-p
+                                  (equal (magit-buffer-value) value))
+                           (not magit-buffer-locked-p)))))
+                (if frame
+                    (mapcar #'window-buffer
+                            (window-list (unless (eq frame t) frame)))
+                  (buffer-list)))
     (magit--not-inside-repository-error)))
 
 (defun magit-generate-new-buffer (mode &optional value)
@@ -976,14 +978,15 @@ current buffer is the last remaining Magit buffer that was
 ever displayed in the selected window, then delete that
 window."
   (if (or (one-window-p)
-          (--first (let ((buffer (car it)))
-                     (and (not (eq buffer (current-buffer)))
-                          (buffer-live-p buffer)
-                          (or (not (window-parameter nil 'magit-dedicated))
-                              (with-current-buffer buffer
-                                (derived-mode-p 'magit-mode
-                                                'magit-process-mode)))))
-                   (window-prev-buffers)))
+          (seq-find (lambda (it)
+                      (let ((buffer (car it)))
+                        (and (not (eq buffer (current-buffer)))
+                             (buffer-live-p buffer)
+                             (or (not (window-parameter nil 'magit-dedicated))
+                                 (with-current-buffer buffer
+                                   (derived-mode-p 'magit-mode
+                                                   'magit-process-mode))))))
+                    (window-prev-buffers)))
       (quit-window kill-buffer)
     (let ((window (selected-window)))
       (quit-window kill-buffer)
@@ -1014,9 +1017,9 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                  (magit-refresh-buffer))
                 ((derived-mode-p 'tabulated-list-mode)
                  (revert-buffer)))
-          (--when-let (and magit-refresh-status-buffer
-                           (not (derived-mode-p 'magit-status-mode))
-                           (magit-get-mode-buffer 'magit-status-mode))
+          (when-let ((it (and magit-refresh-status-buffer
+                              (not (derived-mode-p 'magit-status-mode))
+                              (magit-get-mode-buffer 'magit-status-mode))))
             (with-current-buffer it
               (magit-refresh-buffer)))
           (magit-auto-revert-buffers)
@@ -1065,14 +1068,15 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (message "Refreshing buffer `%s'..." (buffer-name)))
       (let* ((buffer (current-buffer))
              (windows
-              (--mapcat (with-selected-window it
+              (mapcan (lambda (it)
+                        (with-selected-window it
                           (with-current-buffer buffer
                             (when-let ((section (magit-current-section)))
                               (list
                                (nconc (list it section)
-                                      (magit-refresh-get-relative-position))))))
-                        (or (get-buffer-window-list buffer nil t)
-                            (list (selected-window))))))
+                                      (magit-refresh-get-relative-position)))))))
+                      (or (get-buffer-window-list buffer nil t)
+                          (list (selected-window))))))
         (deactivate-mark)
         (setq magit-section-highlight-overlays nil)
         (setq magit-section-highlighted-section nil)
@@ -1148,7 +1152,7 @@ If you are not satisfied with Magit's performance, then you
 should obviously not add this function to that hook."
   (when (and (not disable-magit-save-buffers)
              (magit-inside-worktree-p t))
-    (--when-let (ignore-errors (magit-get-mode-buffer 'magit-status-mode))
+    (when-let ((it (ignore-errors (magit-get-mode-buffer 'magit-status-mode))))
       (add-to-list 'magit-after-save-refresh-buffers it)
       (add-hook 'post-command-hook 'magit-after-save-refresh-buffers))))
 
@@ -1295,7 +1299,7 @@ Later, when the buffer is buried, it may be restored by
       (push (cons (point) help-xref-stack-item) help-xref-stack)
       (setq help-xref-forward-stack nil))
     (when (called-interactively-p 'interactive)
-      (--when-let (nthcdr 10 help-xref-stack)
+      (when-let ((it (nthcdr 10 help-xref-stack)))
         (setcdr it nil)))
     (setq help-xref-stack-item
           (list 'magit-xref-restore fn default-directory args))))
