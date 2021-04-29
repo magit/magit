@@ -8,7 +8,7 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "25.1") (dash "20200524"))
+;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: tools
 ;; Homepage: https://github.com/magit/magit
 
@@ -35,7 +35,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'dash)
 (require 'eieio)
 (require 'seq)
 (require 'subr-x)
@@ -515,7 +514,7 @@ the beginning of the current section."
 (defun magit-section-up ()
   "Move to the beginning of the parent section."
   (interactive)
-  (--if-let (oref (magit-current-section) parent)
+  (if-let ((it (oref (magit-current-section) parent)))
       (magit-section-goto it)
     (user-error "No parent section")))
 
@@ -525,7 +524,7 @@ If there is no next sibling section, then move to the parent."
   (interactive)
   (let ((current (magit-current-section)))
     (if (oref current parent)
-        (--if-let (car (magit-section-siblings current 'next))
+        (if-let ((it (car (magit-section-siblings current 'next))))
             (magit-section-goto it)
           (magit-section-forward))
       (magit-section-goto 1))))
@@ -536,7 +535,7 @@ If there is no previous sibling section, then move to the parent."
   (interactive)
   (let ((current (magit-current-section)))
     (if (oref current parent)
-        (--if-let (car (magit-section-siblings current 'prev))
+        (if-let ((it (car (magit-section-siblings current 'prev))))
             (magit-section-goto it)
           (magit-section-backward))
       (magit-section-goto -1))))
@@ -558,13 +557,14 @@ If there is no previous sibling section, then move to the parent."
 Together TYPE and VALUE identify the section.
 HEADING is the displayed heading of the section."
   (declare (indent defun))
-  `(defun ,name (&optional expand) ,(format "\
+  `(defun ,name (&optional expand)
+     ,(format "\
 Jump to the section \"%s\".
 With a prefix argument also expand it." heading)
      (interactive "P")
-     (--if-let (magit-get-section
-                (cons (cons ',type ,value)
-                      (magit-section-ident magit-root-section)))
+     (if-let ((it (magit-get-section
+                   (cons (cons ',type ,value)
+                         (magit-section-ident magit-root-section)))))
          (progn (goto-char (oref it start))
                 (when expand
                   (with-local-quit (magit-section-show it))
@@ -632,7 +632,9 @@ With a prefix argument also expand it." heading)
   (interactive (list (magit-current-section)))
   (goto-char (oref section start))
   (let* ((children (oref section children))
-         (show (--any-p (oref it hidden) children)))
+         (show (seq-some (lambda (it)
+                           (oref it hidden))
+                         children)))
     (dolist (c children)
       (oset c hidden show)))
   (magit-section-show section))
@@ -682,8 +684,12 @@ hidden."
       (progn (magit-section-show section)
              (magit-section-hide-children section))
     (let ((children (oref section children)))
-      (cond ((and (--any-p (oref it hidden)   children)
-                  (--any-p (oref it children) children))
+      (cond ((and (seq-some (lambda (it)
+                              (oref it hidden))
+                            children)
+                  (seq-some (lambda (it)
+                              (oref it children))
+                            children))
              (magit-section-show-headings section))
             ((seq-some 'magit-section-hidden-body children)
              (magit-section-show-children section))
@@ -694,8 +700,12 @@ hidden."
   "Cycle visibility of all sections in the current buffer."
   (interactive)
   (let ((children (oref magit-root-section children)))
-    (cond ((and (--any-p (oref it hidden)   children)
-                (--any-p (oref it children) children))
+    (cond ((and (seq-some (lambda (it)
+                            (oref it hidden))
+                          children)
+                (seq-some (lambda (it)
+                            (oref it children))
+                          children))
            (magit-section-show-headings magit-root-section))
           ((seq-some 'magit-section-hidden-body children)
            (magit-section-show-children magit-root-section))
@@ -703,8 +713,8 @@ hidden."
            (mapc 'magit-section-hide children)))))
 
 (defun magit-section-hidden-body (section &optional pred)
-  (--if-let (oref section children)
-      (funcall (or pred '-any-p) 'magit-section-hidden-body it)
+  (if-let ((it (oref section children)))
+      (funcall (or pred #'seq-some) 'magit-section-hidden-body it)
     (and (oref section content)
          (oref section hidden))))
 
@@ -713,7 +723,7 @@ hidden."
 When the body of an ancestor of SECTION is collapsed then
 SECTION's body (and heading) obviously cannot be visible."
   (or (oref section hidden)
-      (--when-let (oref section parent)
+      (when-let ((it (oref section parent)))
         (magit-section-invisible-p it))))
 
 (defun magit-section-show-level (level)
@@ -891,7 +901,9 @@ of course you want to be that precise."
   (cl-assert condition)
   (and section
        (if (listp condition)
-           (--first (magit-section-match-1 it section) condition)
+           (seq-find (lambda (it)
+                       (magit-section-match-1 it section))
+                     condition)
          (magit-section-match-2 (if (symbolp condition)
                                     (list condition)
                                   (cl-coerce condition 'list))
@@ -940,7 +952,7 @@ See `magit-section-match' for the forms CONDITION can take."
             "Magit 2.90.0")
            (indent 1)
            (debug (sexp body)))
-  `(--when-let (magit-current-section)
+  `(when-let ((it (magit-current-section)))
      ;; Quoting CONDITION here often leads to double-quotes, which
      ;; isn't an issue because `magit-section-match-1' implicitly
      ;; deals with that.  We shouldn't force users of this function
@@ -1327,7 +1339,7 @@ invisible."
 
 (defun magit-section-goto-successor (section line char arg)
   (let ((ident (magit-section-ident section)))
-    (--if-let (magit-get-section ident)
+    (if-let ((it (magit-get-section ident)))
         (let ((start (oref it start)))
           (goto-char start)
           (unless (eq it magit-root-section)
@@ -1338,24 +1350,24 @@ invisible."
               (goto-char start))))
       (or (run-hook-with-args-until-success
            'magit-section-goto-successor-hook section arg)
-          (goto-char (--if-let (magit-section-goto-successor-1 section)
+          (goto-char (if-let ((it (magit-section-goto-successor-1 section)))
                          (if (eq (oref it type) 'button)
                              (point-min)
                            (oref it start))
                        (point-min)))))))
 
 (defun magit-section-goto-successor-1 (section)
-  (or (--when-let (pcase (oref section type)
-                    (`staged 'unstaged)
-                    (`unstaged 'staged)
-                    (`unpushed 'unpulled)
-                    (`unpulled 'unpushed))
+  (or (when-let ((it (pcase (oref section type)
+                       (`staged 'unstaged)
+                       (`unstaged 'staged)
+                       (`unpushed 'unpulled)
+                       (`unpulled 'unpushed))))
         (magit-get-section `((,it) (status))))
-      (--when-let (car (magit-section-siblings section 'next))
+      (when-let ((it (car (magit-section-siblings section 'next))))
         (magit-get-section (magit-section-ident it)))
-      (--when-let (car (magit-section-siblings section 'prev))
+      (when-let ((it (car (magit-section-siblings section 'prev))))
         (magit-get-section (magit-section-ident it)))
-      (--when-let (oref section parent)
+      (when-let ((it (oref section parent)))
         (or (magit-get-section (magit-section-ident it))
             (magit-section-goto-successor-1 it)))))
 
@@ -1465,8 +1477,12 @@ invisible."
                              (setq magit--ellipses-sections
                                    (or (magit-region-sections)
                                        (list (magit-current-section))))))
-           (beg (--map (oref it start) sections))
-           (end (--map (oref it end)   sections)))
+           (beg (mapcar (lambda (it)
+                          (oref it start))
+                        sections))
+           (end (mapcar (lambda (it)
+                          (oref it end))
+                        sections)))
       (when (region-active-p)
         ;; This ensures that the region face is removed from ellipses
         ;; when the region becomes inactive, but fails to ensure that
@@ -1484,8 +1500,9 @@ invisible."
            (propertize
             (car magit-section-visibility-indicator) 'font-lock-face
             (let ((pos (overlay-start ov)))
-              (delq nil (nconc (--map (overlay-get it 'font-lock-face)
-                                      (overlays-at pos))
+              (delq nil (nconc (mapcar (lambda (it)
+                                         (overlay-get it 'font-lock-face))
+                                       (overlays-at pos))
                                (list (get-char-property
                                       pos 'font-lock-face))))))))))))
 
@@ -1541,7 +1558,7 @@ invisible."
             (memq section (if sselection
                               selection
                             (setq selection (magit-region-sections))))
-            (--when-let (oref section parent)
+            (when-let ((it (oref section parent)))
               (magit-section-selected-p it selection)))))
 
 (defun magit-section-parent-value (section)
@@ -1567,8 +1584,9 @@ excluding SECTION itself."
 
 Return the values that themselves would be returned by
 `magit-region-sections' (which see)."
-  (--map (oref it value)
-         (magit-region-sections condition multiple)))
+  (mapcar (lambda (it)
+            (oref it value))
+          (magit-region-sections condition multiple)))
 
 (defun magit-region-sections (&optional condition multiple)
   "Return a list of the selected sections.
@@ -1614,7 +1632,9 @@ forms CONDITION can take."
                 (setq siblings nil)))
             (setq sections (nreverse sections))
             (when (or (not condition)
-                      (--all-p (magit-section-match condition it) sections))
+                      (seq-every-p (lambda (it)
+                                     (magit-section-match condition it))
+                                   sections))
               sections)))))))
 
 (defun magit-section-position-in-heading-p (&optional section pos)
@@ -1743,7 +1763,7 @@ Configuration'."
   (let ((entries (symbol-value hook)))
     (unless (listp entries)
       (setq entries (list entries)))
-    (--when-let (-remove #'functionp entries)
+    (when-let ((it (seq-remove #'functionp entries)))
       (message "`%s' contains entries that are no longer valid.
 %s\nUsing standard value instead.  Please re-configure hook variable."
                hook
