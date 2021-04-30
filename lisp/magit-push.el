@@ -129,9 +129,9 @@ the upstream."
               (not (or (magit-get-upstream-branch branch)
                        (magit--unnamed-upstream-p remote merge)
                        (magit--valid-upstream-p remote merge))))
-      (let* ((branches (-union (--map (concat it "/" branch)
-                                      (magit-list-remotes))
-                               (magit-list-remote-branch-names)))
+      (let* ((branches (cl-union (mapcar (lambda (it) (concat it "/" branch))
+                                         (magit-list-remotes))
+                                 (magit-list-remote-branch-names)))
              (upstream (magit-completing-read
                         (format "Set upstream of %s and push there" branch)
                         branches nil nil nil 'magit-revision-history
@@ -178,7 +178,7 @@ the upstream."
 (defun magit-push-current (target args)
   "Push the current branch to a branch read in the minibuffer."
   (interactive
-   (--if-let (magit-get-current-branch)
+   (if-let ((it (magit-get-current-branch)))
        (list (magit-read-remote-branch (format "Push %s to" it)
                                        nil nil it 'confirm)
              (magit-push-arguments))
@@ -297,16 +297,16 @@ what this command will do.  For example:
             (format "%s using %s"
                     (magit--propertize-face remote 'magit-branch-remote)
                     (magit--propertize-face refspec 'bold)))
-          (--when-let (and (not (magit-get-push-branch))
-                           (magit-get-upstream-branch))
+          (when-let ((it (and (not (magit-get-push-branch))
+                              (magit-get-upstream-branch))))
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
                     (magit--propertize-face "@{upstream}" 'bold)))
-          (--when-let (magit-get-push-branch)
+          (when-let ((it (magit-get-push-branch)))
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
                     (magit--propertize-face "pushRemote" 'bold)))
-          (--when-let (magit-get-@{push}-branch)
+          (when-let ((it (magit-get-@{push}-branch)))
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
                     (magit--propertize-face "@{push}" 'bold)))
