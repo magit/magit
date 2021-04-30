@@ -79,7 +79,7 @@ If the region marks multiple tags (and nothing else), then offer
 to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
 \n(git tag -d TAGS)"
-  (interactive (list (--if-let (magit-region-values 'tag)
+  (interactive (list (if-let ((it (magit-region-values 'tag)))
                          (magit-confirm t nil "Delete %i tags" nil it)
                        (let ((helm-comp-read-use-marked t))
                          (magit-read-tag "Delete tag" t)))))
@@ -94,8 +94,8 @@ defaulting to the tag at point.
           (rtags  (prog2 (message "Determining remote tags...")
                       (magit-remote-list-tags remote)
                     (message "Determining remote tags...done")))
-          (ltags  (-difference tags rtags))
-          (rtags  (-difference rtags tags)))
+          (ltags  (cl-set-difference tags rtags))
+          (rtags  (cl-set-difference rtags tags)))
      (unless (or ltags rtags)
        (message "Same tags exist locally and remotely"))
      (unless (magit-confirm t
@@ -112,7 +112,8 @@ defaulting to the tag at point.
   (when tags
     (magit-call-git "tag" "-d" tags))
   (when remote-tags
-    (magit-run-git-async "push" remote (--map (concat ":" it) remote-tags))))
+    (magit-run-git-async "push" remote
+                         (mapcar (apply-partially #'concat ":") remote-tags))))
 
 (defvar magit-tag-version-regexp-alist
   '(("^[-._+ ]?snapshot\\.?$" . -4)
