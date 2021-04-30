@@ -246,15 +246,16 @@ Also see option `magit-blame-styles'."
                  (car (magit-blame--parse-chunk type))))))))
 
 (defun magit-blame-chunk-at (pos)
-  (--some (overlay-get it 'magit-blame-chunk)
-          (overlays-at pos)))
+  (seq-some (lambda (it)
+              (overlay-get it 'magit-blame-chunk))
+            (overlays-at pos)))
 
 (defun magit-blame--overlay-at (&optional pos key)
   (unless pos
     (setq pos (point)))
-  (--first (overlay-get it (or key 'magit-blame-chunk))
-           (nconc (overlays-at pos)
-                  (overlays-in pos pos))))
+  (seq-find (lambda (it) (overlay-get it (or key 'magit-blame-chunk)))
+            (nconc (overlays-at pos)
+                   (overlays-in pos pos))))
 
 ;;; Keymaps
 
@@ -383,8 +384,8 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame-put-keymap-before-view-mode ()
   "Put `magit-blame-read-only-mode' ahead of `view-mode' in `minor-mode-map-alist'."
-  (--when-let (assq 'magit-blame-read-only-mode
-                    (cl-member 'view-mode minor-mode-map-alist :key #'car))
+  (when-let ((it (assq 'magit-blame-read-only-mode
+                       (cl-member 'view-mode minor-mode-map-alist :key #'car))))
     (setq minor-mode-map-alist
           (cons it (delq it minor-mode-map-alist))))
   (remove-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode))
@@ -603,7 +604,7 @@ modes is toggled, then this mode also gets toggled automatically.
 (defun magit-blame--update-heading-overlay (ov)
   (overlay-put
    ov 'before-string
-   (--if-let (magit-blame--style-get 'heading-format)
+   (if-let ((it (magit-blame--style-get 'heading-format)))
        (magit-blame--format-string ov it 'magit-blame-heading)
      (and (magit-blame--style-get 'show-lines)
           (or (not (magit-blame--style-get 'margin-format))
@@ -825,14 +826,14 @@ then also kill the buffer."
 (defun magit-blame-next-chunk ()
   "Move to the next chunk."
   (interactive)
-  (--if-let (next-single-char-property-change (point) 'magit-blame-chunk)
+  (if-let ((it (next-single-char-property-change (point) 'magit-blame-chunk)))
       (goto-char it)
     (user-error "No more chunks")))
 
 (defun magit-blame-previous-chunk ()
   "Move to the previous chunk."
   (interactive)
-  (--if-let (previous-single-char-property-change (point) 'magit-blame-chunk)
+  (if-let ((it (previous-single-char-property-change (point) 'magit-blame-chunk)))
       (goto-char it)
     (user-error "No more chunks")))
 
@@ -849,7 +850,7 @@ then also kill the buffer."
                                      'previous-single-char-property-change
                                    'next-single-char-property-change)
                                  pos 'magit-blame-chunk)))
-            (--when-let (magit-blame--overlay-at pos)
+            (when-let ((it (magit-blame--overlay-at pos)))
               (when (equal (oref (magit-blame-chunk-at pos) orig-rev) rev)
                 (setq ov it)))))
         (if ov
