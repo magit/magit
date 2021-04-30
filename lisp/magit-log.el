@@ -338,8 +338,8 @@ the upstream isn't ahead of the current branch) show."
 (defun magit-log-arguments (&optional mode)
   "Return the current log arguments."
   (if (memq transient-current-command '(magit-log magit-log-refresh))
-      (pcase-let ((`(,args ,alist)
-                   (-separate #'atom (transient-get-value))))
+      (map-let ((t args) (nil alist))
+          (seq-group-by #'atom (transient-get-value))
         (list args (cdr (assoc "--" alist))))
     (magit-log--get-value (or mode 'magit-log-mode))))
 
@@ -373,8 +373,8 @@ the upstream isn't ahead of the current branch) show."
   (pcase-let* ((obj  (oref obj prototype))
                (mode (or (oref obj major-mode) major-mode))
                (key  (intern (format "magit-log:%s" mode)))
-               (`(,args ,alist)
-                (-separate #'atom (transient-get-value)))
+               ((map (t args) (nil alist))
+                (seq-group-by #'atom (transient-get-value)))
                (files (cdr (assoc "--" alist))))
     (put mode 'magit-log-current-arguments args)
     (when save
@@ -592,7 +592,7 @@ the upstream isn't ahead of the current branch) show."
     map))
 
 (defun magit-log-read-revs (&optional use-current)
-  (or (and use-current (--when-let (magit-get-current-branch) (list it)))
+  (or (and use-current (when-let ((it (magit-get-current-branch))) (list it)))
       (let ((collection (magit-list-refnames nil t)))
         (split-string
          (magit-completing-read-multiple "Log rev,s" collection
@@ -823,7 +823,8 @@ limit.  Otherwise set it to 256."
 
 (defun magit-log-set-commit-limit (fn)
   (let* ((val magit-buffer-log-args)
-         (arg (--first (string-match "^-n\\([0-9]+\\)?$" it) val))
+         (arg (seq-find (lambda (it) (string-match "^-n\\([0-9]+\\)?$" it))
+                        val))
          (num (and arg (string-to-number (match-string 1 arg))))
          (num (if num (funcall fn num 2) 256)))
     (setq val (delete arg val))
@@ -834,8 +835,8 @@ limit.  Otherwise set it to 256."
   (magit-refresh))
 
 (defun magit-log-get-commit-limit ()
-  (--when-let (--first (string-match "^-n\\([0-9]+\\)?$" it)
-                       magit-buffer-log-args)
+  (when-let ((it (seq-find (lambda (it) (string-match "^-n\\([0-9]+\\)?$" it))
+                           magit-buffer-log-args)))
     (string-to-number (match-string 1 it))))
 
 ;;;; Mode Commands
@@ -865,8 +866,8 @@ is displayed in the current frame."
       (let* ((section (magit-current-section))
              (parent-rev (format "%s^%s" (oref section value) (or n 1))))
         (if-let ((parent-hash (magit-rev-parse "--short" parent-rev)))
-            (if-let ((parent (--first (equal (oref it value)
-                                             parent-hash)
+            (if-let ((parent (seq-find (lambda (it)
+                                         (equal (oref it value) parent-hash))
                                       (magit-section-siblings section 'next))))
                 (magit-section-goto parent)
               (user-error
@@ -986,9 +987,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
           (setq args (cons "--full-history" args)))
       (setq args (remove "--follow" args)))
     (when (and (car magit-log-remove-graph-args)
-               (--any-p (string-match-p
-                         (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
-                        args))
+               (let ((regexp
+                      (concat "^" (regexp-opt magit-log-remove-graph-args))))
+                 (seq-some (lambda (it) (string-match-p regexp it))
+                           args)))
       (setq args (remove "--graph" args)))
     (unless (member "--graph" args)
       (setq args (remove "--color" args)))
@@ -999,10 +1001,13 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                            (setq revs (car revs))
                            (not (string-match-p "\\.\\." revs))
                            (not (member revs '("--all" "--branches")))
-                           (-none-p (lambda (arg)
-                                      (--any-p (string-prefix-p it arg)
-                                               magit-log-disable-graph-hack-args))
-                                    args)
+                           (seq-every-p
+                            (lambda (arg)
+                              (seq-every-p
+                               (lambda (it)
+                                 (not (string-prefix-p it arg)))
+                               magit-log-disable-graph-hack-args))
+                            args)
                            (magit-git-string "rev-list" "--count"
                                              "--first-parent" args revs))))
       (setq revs (if (< (string-to-number count) limit)
@@ -1034,9 +1039,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                " in reverse")
           (and files (concat " touching "
                              (mapconcat 'identity files " ")))
-          (--some (and (string-prefix-p "-L" it)
-                       (concat " " it))
-                  args)))
+          (seq-some (lambda (it)
+                      (and (string-prefix-p "-L" it)
+                           (concat " " it)))
+                    args)))
 
 (defun magit-insert-log (revs &optional args files)
   "Insert a log section.
@@ -1061,7 +1067,9 @@ Do not add this to a hook variable."
                     (concat "\n" magit-log-revision-headers-format "\n"))
                 ""))
       (progn
-        (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
+        (when-let ((it (seq-find (lambda (it)
+                                   (string-match "^\\+\\+order=\\(.+\\)$" it))
+                                 args)))
           (setq args (cons (format "--%s-order" (match-string 1 it))
                            (remove it args))))
         (when (member "--decorate" args)
@@ -1150,7 +1158,7 @@ Do not add this to a hook variable."
 (defvar magit-log-format-message-function 'magit-log-propertize-keywords)
 
 (defun magit-log-wash-log (style args)
-  (setq args (-flatten args))
+  (setq args (flatten-tree args))
   (when (and (member "--graph" args)
              (member "--color" args))
     (let ((ansi-color-apply-face-function
@@ -1385,10 +1393,11 @@ If there is no blob buffer in the same frame, then do nothing."
 
 (defun magit--maybe-update-blob-buffer ()
   (when-let ((commit (magit-section-value-if 'commit))
-             (buffer (--first (with-current-buffer it
-                                (eq revert-buffer-function
-                                    'magit-revert-rev-file-buffer))
-                              (mapcar #'window-buffer (window-list)))))
+             (buffer (seq-find (lambda (it)
+                                 (with-current-buffer it
+                                   (eq revert-buffer-function
+                                       'magit-revert-rev-file-buffer)))
+                               (mapcar #'window-buffer (window-list)))))
     (if magit--update-blob-buffer
         (setq magit--update-blob-buffer (list commit buffer))
       (setq magit--update-blob-buffer (list commit buffer))
@@ -1408,8 +1417,9 @@ If there is no blob buffer in the same frame, then do nothing."
 
 (defun magit-log-goto-commit-section (rev)
   (let ((abbrev (magit-rev-format "%h" rev)))
-    (when-let ((section (--first (equal (oref it value) abbrev)
-                                 (oref magit-root-section children))))
+    (when-let ((section (seq-find (lambda (it)
+                                    (equal (oref it value) abbrev))
+                                  (oref magit-root-section children))))
       (goto-char (oref section start)))))
 
 (defun magit-log-goto-same-commit ()
@@ -1497,9 +1507,12 @@ The shortstat style is experimental and rather slow."
             (if (eq style 'age-abbreviated)
                 1  ; single character
               (+ 1 ; gap after digits
-                 (apply #'max (--map (max (length (nth 1 it))
-                                          (length (nth 2 it)))
-                                     magit--age-spec)))))))))
+                 (seq-reduce (lambda (acc it)
+                               (max acc
+                                    (length (nth 1 it))
+                                    (length (nth 2 it))))
+                             magit--age-spec
+                             0))))))))
 
 ;;; Select Mode
 
@@ -1707,7 +1720,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 
 (defun magit-insert-unpulled-from-pushremote ()
   "Insert commits that haven't been pulled from the push-remote yet."
-  (--when-let (magit-get-push-branch)
+  (when-let ((it (magit-get-push-branch)))
     (when (magit--insert-pushremote-log-p)
       (magit-insert-section (unpulled (concat ".." it) t)
         (magit-insert-heading
@@ -1762,8 +1775,9 @@ Show the last `magit-log-section-commit-count' commits."
       (magit-insert-heading "Recent commits")
       (magit-insert-log range
                         (cons (format "-n%d" magit-log-section-commit-count)
-                              (--remove (string-prefix-p "-n" it)
-                                        magit-buffer-log-args))))))
+                              (seq-remove (lambda (it)
+                                            (string-prefix-p "-n" it))
+                                          magit-buffer-log-args))))))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
   "Unpushed to <push-remote>" unpushed
@@ -1771,7 +1785,7 @@ Show the last `magit-log-section-commit-count' commits."
 
 (defun magit-insert-unpushed-to-pushremote ()
   "Insert commits that haven't been pushed to the push-remote yet."
-  (--when-let (magit-get-push-branch)
+  (when-let ((it (magit-get-push-branch)))
     (when (magit--insert-pushremote-log-p)
       (magit-insert-section (unpushed (concat it "..") t)
         (magit-insert-heading
