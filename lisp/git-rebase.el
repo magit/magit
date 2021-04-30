@@ -462,7 +462,7 @@ If the region is active, act on all lines touched by the region."
   "Read an arbitrary commit and insert it below current line."
   (interactive (list (magit-read-branch-or-commit "Insert revision")))
   (forward-line)
-  (--if-let (magit-rev-format "%h %s" rev)
+  (if-let ((it (magit-rev-format "%h %s" rev)))
       (let ((inhibit-read-only t))
         (insert "pick " it ?\n))
     (user-error "Unknown revision")))
@@ -637,9 +637,9 @@ Like `undo' but works in read-only buffers."
   (let ((disable-magit-save-buffers t))
     (save-excursion
       (goto-char (line-beginning-position))
-      (--if-let (with-slots (action-type target) (git-rebase-current-line)
-                  (and (eq action-type 'commit)
-                       target))
+      (if-let ((it (with-slots (action-type target) (git-rebase-current-line)
+                     (and (eq action-type 'commit)
+                          target))))
           (pcase scroll
             (`up   (magit-diff-show-or-scroll-up))
             (`down (magit-diff-show-or-scroll-down))
@@ -718,11 +718,11 @@ running 'man git-rebase' at the command line) for details."
       (magit-confirm 'abort-rebase "Abort this rebase" nil 'noabort)))
 
 (defun git-rebase-autostash-save ()
-  (--when-let (magit-file-line (magit-git-dir "rebase-merge/autostash"))
+  (when-let ((it (magit-file-line (magit-git-dir "rebase-merge/autostash"))))
     (push (cons 'stash it) with-editor-cancel-alist)))
 
 (defun git-rebase-autostash-apply ()
-  (--when-let (cdr (assq 'stash with-editor-cancel-alist))
+  (when-let ((it (cdr (assq 'stash with-editor-cancel-alist))))
     (magit-stash-apply it)))
 
 (defun git-rebase-match-comment-line (limit)
@@ -796,9 +796,10 @@ By default, this is the same except for the \"pick\" command."
               (replace-match
                (format "%-8s"
                        (mapconcat #'key-description
-                                  (--remove (eq (elt it 0) 'menu-bar)
-                                            (reverse (where-is-internal
-                                                      cmd git-rebase-mode-map)))
+                                  (seq-remove (lambda (it)
+                                                (eq (elt it 0) 'menu-bar))
+                                              (reverse (where-is-internal
+                                                        cmd git-rebase-mode-map)))
                                   ", "))
                t t nil 2))))))))
 
