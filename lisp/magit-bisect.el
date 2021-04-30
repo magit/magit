@@ -242,7 +242,8 @@ bisect run'."
            (done-re "^\\([a-z0-9]\\{40\\}\\) is the first bad commit$")
            (bad-line (or (and (string-match done-re (car lines))
                               (pop lines))
-                         (--first (string-match done-re it) lines))))
+                         (seq-find (lambda (it) (string-match done-re it))
+                                   lines))))
       (magit-insert-section ((eval (if bad-line 'commit 'bisect-output))
                              (and bad-line (match-string 1 bad-line)))
         (magit-insert-heading
