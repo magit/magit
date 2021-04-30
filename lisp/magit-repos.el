@@ -146,7 +146,7 @@ repositories are displayed."
 (defun magit-repolist-status (&optional _button)
   "Show the status for the repository at point."
   (interactive)
-  (--if-let (tabulated-list-get-id)
+  (if-let ((it (tabulated-list-get-id)))
       (magit-status-setup-buffer (expand-file-name it))
     (user-error "There is no repository at point")))
 
@@ -161,7 +161,7 @@ repositories are displayed."
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)
-                                  (-flatten props)))
+                                  (flatten-tree props)))
                          magit-repolist-columns)))
   (tabulated-list-init-header)
   (add-hook 'tabulated-list-revert-hook 'magit-repolist-refresh nil t)
@@ -175,11 +175,14 @@ repositories are displayed."
         (mapcar (pcase-lambda (`(,id . ,path))
                   (let ((default-directory path))
                     (list path
-                          (vconcat (--map (or (funcall (nth 2 it) id) "")
-                                          magit-repolist-columns)))))
+                          (vconcat (mapcar (lambda (it)
+                                             (or (funcall (nth 2 it) id) ""))
+                                           magit-repolist-columns)))))
                 (magit-list-repos-uniquify
-                 (--map (cons (file-name-nondirectory (directory-file-name it))
-                              it)
+                 (mapcar (lambda (it)
+                           (cons (file-name-nondirectory
+                                  (directory-file-name it))
+                                 it))
                         (magit-list-repos))))))
 
 ;;;; Columns
@@ -228,28 +231,28 @@ Only one letter is shown, the first that applies."
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
-  (--when-let (magit-get-upstream-branch)
+  (when-let ((it (magit-get-upstream-branch)))
     (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
       (magit--propertize-face
        (number-to-string n) (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpulled-from-pushremote (_id)
   "Insert number of commits in the push branch but not the current branch."
-  (--when-let (magit-get-push-branch nil t)
+  (when-let ((it (magit-get-push-branch nil t)))
     (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
       (magit--propertize-face
        (number-to-string n) (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpushed-to-upstream (_id)
   "Insert number of commits in the current branch but not its upstream."
-  (--when-let (magit-get-upstream-branch)
+  (when-let ((it (magit-get-upstream-branch)))
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
       (magit--propertize-face
        (number-to-string n) (if (> n 0) 'bold 'shadow)))))
 
 (defun magit-repolist-column-unpushed-to-pushremote (_id)
   "Insert number of commits in the current branch but not its push branch."
-  (--when-let (magit-get-push-branch nil t)
+  (when-let ((it (magit-get-push-branch nil t)))
     (let ((n (car (magit-rev-diff-count "HEAD" it))))
       (magit--propertize-face
        (number-to-string n) (if (> n 0) 'bold 'shadow)))))
@@ -302,10 +305,11 @@ instead."
   (cond ((file-readable-p (expand-file-name ".git" directory))
          (list (file-name-as-directory directory)))
         ((and (> depth 0) (magit-file-accessible-directory-p directory))
-         (--mapcat (and (file-directory-p it)
-                        (magit-list-repos-1 it (1- depth)))
-                   (directory-files directory t
-                                    directory-files-no-dot-files-regexp t)))))
+         (mapcan (lambda (it)
+                   (when (file-directory-p it)
+                     (magit-list-repos-1 it (1- depth))))
+                 (directory-files directory t
+                                  directory-files-no-dot-files-regexp t)))))
 
 (defun magit-list-repos-uniquify (alist)
   (let (result (dict (make-hash-table :test 'equal)))
@@ -318,20 +322,23 @@ instead."
          (setq result
                (append result
                        (magit-list-repos-uniquify
-                        (--map (cons (concat
-                                      key "\\"
-                                      (file-name-nondirectory
-                                       (directory-file-name
-                                        (substring it 0 (- (1+ (length key)))))))
-                                     it)
-                               value))))))
+                        (mapcar (lambda (it)
+                                  (cons
+                                   (concat
+                                    key "\\"
+                                    (file-name-nondirectory
+                                     (directory-file-name
+                                      (substring it 0 (- (1+ (length key)))))))
+                                   it))
+                                value))))))
      dict)
     result))
 
 (defun magit-repos-alist ()
   (magit-list-repos-uniquify
-   (--map (cons (file-name-nondirectory (directory-file-name it)) it)
-          (magit-list-repos))))
+   (mapcar (lambda (it)
+             (cons (file-name-nondirectory (directory-file-name it)) it))
+           (magit-list-repos))))
 
 ;;; _
 (provide 'magit-repos)
