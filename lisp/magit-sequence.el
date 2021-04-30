@@ -270,7 +270,7 @@ the process manually."
     (unless (magit-branch-p dst)
       (let ((magit-process-raise-error t))
         (magit-call-git "branch" dst start-point))
-      (--when-let (magit-get-indirect-upstream-branch start-point)
+      (when-let ((it (magit-get-indirect-upstream-branch start-point)))
         (magit-call-git "branch" "--set-upstream-to" it dst)))
     (unless (equal dst current)
       (let ((magit-process-raise-error t))
@@ -325,15 +325,15 @@ the process manually."
                       (list commits))))
     (magit-run-git-sequencer
      (if revert "revert" "cherry-pick")
-     (pcase-let ((`(,merge ,non-merge)
-                  (-separate 'magit-merge-commit-p commits)))
+     (map-let ((t merge) (nil non-merge))
+         (seq-group-by #'magit-merge-commit-p commits)
        (cond
         ((not merge)
-         (--remove (string-prefix-p "--mainline=" it) args))
+         (seq-remove (lambda (it) (string-prefix-p "--mainline=" it)) args))
         (non-merge
          (user-error "Cannot %s merge and non-merge commits at once"
                      command))
-        ((--first (string-prefix-p "--mainline=" it) args)
+        ((seq-find (lambda (it) (string-prefix-p "--mainline=" it)) args)
          args)
         (t
          (cons (format "--mainline=%s"
@@ -447,9 +447,10 @@ without prompting."
                                   nil default))))
                      (magit-am-arguments)))
   (magit-run-git-sequencer "am" args "--"
-                           (--map (magit-convert-filename-for-git
-                                   (expand-file-name it))
-                                  files)))
+                           (mapcar (lambda (it)
+                                     (magit-convert-filename-for-git
+                                      (expand-file-name it)))
+                                   files)))
 
 ;;;###autoload
 (defun magit-am-apply-maildir (&optional maildir args)
@@ -640,7 +641,7 @@ START has to be selected from a list of recent commits."
   (declare (indent 2))
   (when commit
     (if (eq commit :merge-base)
-        (setq commit (--if-let (magit-get-upstream-branch)
+        (setq commit (if-let ((it (magit-get-upstream-branch)))
                          (magit-git-string "merge-base" it "HEAD")
                        nil))
       (unless (magit-rev-ancestor-p commit "HEAD")
@@ -653,7 +654,8 @@ START has to be selected from a list of recent commits."
   (when (and commit (not noassert))
     (setq commit (magit-rebase-interactive-assert
                   commit delay-edit-confirm
-                  (--some (string-prefix-p "--rebase-merges" it) args))))
+                  (seq-some (lambda (it) (string-prefix-p "--rebase-merges" it))
+                            args))))
   (if (and commit (not confirm))
       (let ((process-environment process-environment))
         (when editor
@@ -690,7 +692,8 @@ START has to be selected from a list of recent commits."
                    ;; merely to add new commits *after* it.  Try not to
                    ;; ask users whether they really want to edit public
                    ;; commits, when they don't actually intend to do so.
-                   (not (--all-p (magit-rev-equal it commit) branches))))
+                   (not (seq-every-p (lambda (it) (magit-rev-equal it commit))
+                                     branches))))
       (let ((m1 "Some of these commits have already been published to ")
             (m2 ".\nDo you really want to modify them"))
         (magit-confirm (or magit--rebase-published-symbol 'rebase-published)
@@ -961,13 +964,13 @@ status buffer (i.e. the reverse of how they will be applied)."
   (magit-sequence-insert-sequence
    (magit-file-line (magit-git-dir "rebase-merge/stopped-sha"))
    onto
-   (--when-let (magit-file-lines (magit-git-dir "rebase-merge/done"))
+   (when-let ((it (magit-file-lines (magit-git-dir "rebase-merge/done"))))
      (cadr (split-string (car (last it)))))))
 
 (defun magit-rebase-insert-apply-sequence (onto)
   (let ((rewritten
-         (--map (car (split-string it))
-                (magit-file-lines (magit-git-dir "rebase-apply/rewritten"))))
+         (mapcar (lambda (it) (car (split-string it)))
+                 (magit-file-lines (magit-git-dir "rebase-apply/rewritten"))))
         (stop (magit-file-line (magit-git-dir "rebase-apply/original-commit"))))
     (dolist (patch (nreverse (cdr (magit-rebase-patches))))
       (let ((hash (cadr (split-string (magit-file-line patch)))))
@@ -987,10 +990,11 @@ status buffer (i.e. the reverse of how they will be applied)."
     (setq done (magit-git-lines "log" "--format=%H" (concat onto "..HEAD")))
     (when (and stop (not (member (magit-rev-parse stop) done)))
       (let ((id (magit-patch-id stop)))
-        (--if-let (--first (equal (magit-patch-id it) id) done)
+        (if-let ((it (seq-find (lambda (it) (equal (magit-patch-id it) id))
+                               done)))
             (setq stop it)
           (cond
-           ((--first (magit-rev-equal it stop) done)
+           ((seq-contains-p done stop #'magit-rev-equal)
             ;; The commit's testament has been executed.
             (magit-sequence-insert-commit "void" stop 'magit-sequence-drop))
            ;; The faith of the commit is still undecided...
@@ -1014,7 +1018,7 @@ status buffer (i.e. the reverse of how they will be applied)."
                 (t "work")))
              stop 'magit-sequence-part))
            ;; The commit is definitely gone...
-           ((--first (magit-rev-equal it stop) done)
+           ((seq-contains-p done stop #'magit-rev-equal)
             ;; ...but all of its changes are still in effect.
             (magit-sequence-insert-commit "poof" stop 'magit-sequence-drop))
            (t
