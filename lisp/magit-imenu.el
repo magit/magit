@@ -58,8 +58,8 @@ This function is used as a helper for functions set as
                      (type (oref section type))
                      (parent (oref section parent))
                      (parent-type (oref parent type)))
-                (and (-contains-p entry-types type)
-                     (-contains-p menu-types parent-type)))))
+                (and (seq-contains-p entry-types type)
+                     (seq-contains-p menu-types parent-type)))))
       (let* ((section (magit-current-section))
              (name (buffer-substring-no-properties
                     (line-beginning-position)
@@ -85,8 +85,8 @@ This function is used as a value for
 `imenu-prev-index-position-function'."
   (magit-section--backward-find
    (lambda ()
-     (-contains-p '(commit stash)
-                  (oref (magit-current-section) type)))))
+     (memq (oref (magit-current-section) type)
+           '(commit stash)))))
 
 ;;;###autoload
 (defun magit-imenu--log-extract-index-name-function ()
