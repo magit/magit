@@ -161,7 +161,7 @@ variant `magit-wip-after-save-mode'."
 Also see `magit-wip-after-save-mode' which calls this function
 automatically whenever a buffer visiting a tracked file is saved."
   (interactive)
-  (--when-let (magit-wip-get-ref)
+  (when-let ((it (magit-wip-get-ref)))
     (magit-with-toplevel
       (let ((file (file-relative-name buffer-file-name)))
         (magit-wip-commit-worktree
@@ -274,7 +274,7 @@ commit message."
   (interactive (list nil (if current-prefix-arg
                              (magit-read-string "Wip commit message")
                            "wip-save tracked files")))
-  (--when-let (magit-wip-get-ref)
+  (when-let ((it (magit-wip-get-ref)))
     (magit-wip-commit-index it files msg)
     (magit-wip-commit-worktree it files msg)))
 
@@ -419,7 +419,7 @@ many \"branches\" of each wip ref are shown."
   (interactive
    (nconc (list (magit-completing-read
                  "Log branch and its wip refs"
-                 (-snoc (magit-list-local-branch-names) "HEAD")
+                 (append (magit-list-local-branch-names) (list "HEAD"))
                  nil t nil 'magit-revision-history
                  (or (magit-branch-at-point)
                      (magit-get-current-branch)
