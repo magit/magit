@@ -226,7 +226,7 @@ is done using `magit-find-index-noselect'."
           (when magit-wip-after-apply-mode
             (magit-wip-commit-after-apply (list file) " after un-/stage")))
       (message "Abort")))
-  (--when-let (magit-get-mode-buffer 'magit-status-mode)
+  (when-let ((it (magit-get-mode-buffer 'magit-status-mode)))
     (with-current-buffer it (magit-refresh)))
   t)
 
@@ -355,7 +355,7 @@ Currently this only adds the following key bindings.
   (interactive)
   (if-let ((file (or magit-buffer-file-name
                      (buffer-file-name (buffer-base-buffer)))))
-      (--if-let (magit-blob-ancestor magit-buffer-revision file)
+      (if-let ((it (magit-blob-ancestor magit-buffer-revision file)))
           (magit-blob-visit it)
         (user-error "You have reached the beginning of time"))
     (user-error "Buffer isn't visiting a file or blob")))
@@ -439,7 +439,7 @@ Git, fallback to using `rename-file'."
 
 With a prefix argument FORCE do so even when the files have
 staged as well as unstaged changes."
-  (interactive (list (or (--if-let (magit-region-values 'file t)
+  (interactive (list (or (if-let ((it (magit-region-values 'file t)))
                              (progn
                                (unless (magit-file-tracked-p (car it))
                                  (user-error "Already untracked"))
@@ -455,7 +455,7 @@ staged as well as unstaged changes."
 With a prefix argument FORCE do so even when the files have
 uncommitted changes.  When the files aren't being tracked in
 Git, then fallback to using `delete-file'."
-  (interactive (list (--if-let (magit-region-values 'file t)
+  (interactive (list (if-let ((it (magit-region-values 'file t)))
                          (magit-confirm-files 'delete it "Delete")
                        (list (magit-read-file "Delete file")))
                      current-prefix-arg))
