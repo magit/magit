@@ -229,7 +229,7 @@ and forgo removing the stash."
   "Remove a stash from the stash list.
 When the region is active offer to drop all contained stashes."
   (interactive
-   (list (--if-let (magit-region-values 'stash)
+   (list (if-let ((it (magit-region-values 'stash)))
              (magit-confirm 'drop-stashes nil "Drop %i stashes" nil it)
            (let ((helm-comp-read-use-marked t))
              (magit-read-stash "Drop stash")))))
