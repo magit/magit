@@ -136,8 +136,9 @@ and also setting this variable to t will lead to tears."
    ("f" "Fetch all modules" magit-fetch-modules)])
 
 (defun magit-submodule-arguments (&rest filters)
-  (--filter (and (member it filters) it)
-            (transient-args 'magit-submodule)))
+  (seq-filter (lambda (it)
+                (and (member it filters) it))
+              (transient-args 'magit-submodule)))
 
 (defclass magit--git-submodule-suffix (transient-suffix)
   ())
@@ -212,13 +213,15 @@ it is nil, then PATH also becomes the name."
 ;;;###autoload
 (defun magit-submodule-read-name-for-path (path &optional prefer-short)
   (let* ((path (directory-file-name (file-relative-name path)))
-         (name (file-name-nondirectory path)))
+         (name (file-name-nondirectory path))
+         (regexp (concat
+                  "^[^.]*\\.\\([^.]*\\)\\.[^.]*=" (regexp-quote path) "$")))
     (push (if prefer-short path name) minibuffer-history)
     (magit-read-string-ns
      "Submodule name" nil (cons 'minibuffer-history 2)
-     (or (--keep (pcase-let ((`(,var ,val) (split-string it "=")))
-                   (and (equal val path)
-                        (cadr (split-string var "\\."))))
+     (or (mapcan (lambda (it)
+                   (when (string-match regexp it)
+                     (list (match-string 1))))
                  (magit-git-lines "config" "--list" "-f" ".gitmodules"))
          (if prefer-short name path)))))
 
@@ -347,12 +350,12 @@ to recover from making a mistake here, but don't count on it."
   (magit-with-toplevel
     (when-let
         ((modified
-          (-filter (lambda (module)
-                     (let ((default-directory (file-name-as-directory
-                                               (expand-file-name module))))
-                       (and (cddr (directory-files default-directory))
-                            (magit-anything-modified-p))))
-                   modules)))
+          (seq-filter (lambda (module)
+                        (let ((default-directory (file-name-as-directory
+                                                  (expand-file-name module))))
+                          (and (cddr (directory-files default-directory))
+                               (magit-anything-modified-p))))
+                      modules)))
       (if (member "--force" args)
           (if (magit-confirm 'remove-dirty-modules
                 "Remove dirty module %s"
@@ -374,9 +377,9 @@ to recover from making a mistake here, but don't count on it."
     (when modules
       (let ((alist
              (and trash-gitdirs
-                  (--map (split-string it "\0")
-                         (magit-git-lines "submodule" "foreach" "-q"
-                                          "printf \"$sm_path\\0$name\n\"")))))
+                  (mapcar (lambda (it) (split-string it "\0"))
+                          (magit-git-lines "submodule" "foreach" "-q"
+                                           "printf \"$sm_path\\0$name\n\"")))))
         (magit-git "submodule" "absorbgitdirs" "--" modules)
         (magit-git "submodule" "deinit" args "--" modules)
         (magit-git "rm" args "--" modules)
@@ -453,15 +456,15 @@ or, failing that, the abbreviated HEAD commit hash."
                 (insert "(unpopulated)")
               (insert (format
                        branch-format
-                       (--if-let (magit-get-current-branch)
+                       (if-let ((it (magit-get-current-branch)))
                            (propertize it 'font-lock-face 'magit-branch-local)
                          (propertize "(detached)" 'font-lock-face 'warning))))
-              (--if-let (magit-git-string "describe" "--tags")
+              (if-let ((it (magit-git-string "describe" "--tags")))
                   (progn (when (and magit-modules-overview-align-numbers
                                     (string-match-p "\\`[0-9]" it))
                            (insert ?\s))
                          (insert (propertize it 'font-lock-face 'magit-tag)))
-                (--when-let (magit-rev-format "%h")
+                (when-let ((it (magit-rev-format "%h")))
                   (insert (propertize it 'font-lock-face 'magit-hash)))))
             (insert ?\n))))))
   (insert ?\n))
@@ -605,7 +608,7 @@ These sections can be expanded to show the respective commits."
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)
-                                  (-flatten props)))
+                                  (flatten-tree props)))
                          magit-submodule-list-columns)))
   (tabulated-list-init-header)
   (add-hook 'tabulated-list-revert-hook 'magit-submodule-list-refresh nil t)
@@ -616,15 +619,18 @@ These sections can be expanded to show the respective commits."
 
 (defun magit-submodule-list-refresh ()
   (setq tabulated-list-entries
-        (-keep (lambda (module)
-                 (let ((default-directory
-                         (expand-file-name (file-name-as-directory module))))
-                   (and (file-exists-p ".git")
-                        (list module
-                              (vconcat
-                               (--map (or (funcall (nth 2 it) module) "")
-                                      magit-submodule-list-columns))))))
-               (magit-list-module-paths))))
+        (remq
+         nil
+         (mapcar (lambda (module)
+                   (let ((default-directory
+                           (expand-file-name (file-name-as-directory module))))
+                     (and (file-exists-p ".git")
+                          (list module
+                                (vconcat
+                                 (mapcar (lambda (it)
+                                           (or (funcall (nth 2 it) module) ""))
+                                         magit-submodule-list-columns))))))
+                 (magit-list-module-paths)))))
 
 (defun magit-modulelist-column-path (path)
   "Insert the relative path of the submodule."
