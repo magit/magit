@@ -100,7 +100,7 @@ seconds of user inactivity.  That is not desirable."
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
   (if file
-      (--when-let (find-buffer-visiting file)
+      (when-let ((it (find-buffer-visiting file)))
         (with-current-buffer it
           (magit-turn-on-auto-revert-mode-if-desired)))
     (when (and buffer-file-name
@@ -252,8 +252,8 @@ defaults to nil) for any BUFFER."
           (not auto-revert-buffer-list-filter))
       (funcall fn)
     (let ((auto-revert-buffer-list
-           (-filter auto-revert-buffer-list-filter
-                    auto-revert-buffer-list)))
+           (seq-filter auto-revert-buffer-list-filter
+                       auto-revert-buffer-list)))
       (funcall fn))
     (unless auto-revert-timer
       (auto-revert-set-timer))))
