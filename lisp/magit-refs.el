@@ -551,8 +551,9 @@ line is inserted at all."
 %(symref:short)%00%(refname:short)%00%(refname)%00%(subject)"
                                        (concat "refs/remotes/" remote)
                                        magit-buffer-arguments))
-          (pcase-let ((`(,head-branch ,branch ,ref ,msg)
-                       (-replace "" nil (split-string line "\0"))))
+          (seq-let (head-branch branch ref msg)
+              (mapcar (lambda (it) (unless (equal "" it) it))
+                      (split-string line "\0"))
             (if head-branch
                 (progn (cl-assert (equal branch (concat remote "/HEAD")))
                        (setq head head-branch))
@@ -594,17 +595,18 @@ line is inserted at all."
     (magit-make-margin-overlay nil t)))
 
 (defun magit-refs--format-local-branches ()
-  (let ((lines (-keep 'magit-refs--format-local-branch
-                      (magit-git-lines
-                       "for-each-ref"
-                       (concat "--format=\
+  (let ((lines (remq nil
+                     (mapcar #'magit-refs--format-local-branch
+                             (magit-git-lines
+                              "for-each-ref"
+                              (concat "--format=\
 %(HEAD)%00%(refname:short)%00%(refname)%00\
 %(upstream:short)%00%(upstream)%00%(upstream:track)%00"
-                               (if magit-refs-show-push-remote "\
+                                      (if magit-refs-show-push-remote "\
 %(push:remotename)%00%(push)%00%(push:track)%00%(subject)"
-                                 "%00%00%00%(subject)"))
-                       "refs/heads"
-                       magit-buffer-arguments))))
+                                        "%00%00%00%(subject)"))
+                              "refs/heads"
+                              magit-buffer-arguments)))))
     (unless (magit-get-current-branch)
       (push (magit-refs--format-local-branch
              (concat "*\0\0\0\0\0\0\0\0" (magit-rev-format "%s")))
@@ -629,9 +631,8 @@ line is inserted at all."
             lines)))
 
 (defun magit-refs--format-local-branch (line)
-  (pcase-let ((`(,head ,branch ,ref ,upstream ,u:ref ,u:track
-                       ,push ,p:ref ,p:track ,msg)
-               (-replace "" nil (split-string line "\0"))))
+  (seq-let (head branch ref upstream u:ref u:track push p:ref p:track msg)
+      (mapcar (lambda (it) (unless (equal "" it) it)) (split-string line "\0"))
     (when (or (not branch)
               (magit-refs--insert-refname-p branch))
       (let* ((headp (equal head "*"))
@@ -722,11 +723,11 @@ line is inserted at all."
      branch (if head-face (list face head-face) face))))
 
 (defun magit-refs--insert-refname-p (refname)
-  (--if-let (-first (pcase-lambda (`(,key . ,_))
-                      (if (functionp key)
-                          (funcall key refname)
-                        (string-match-p key refname)))
-                    magit-refs-filter-alist)
+  (if-let ((it (seq-find (pcase-lambda (`(,key . ,_))
+                           (if (functionp key)
+                               (funcall key refname)
+                             (string-match-p key refname)))
+                         magit-refs-filter-alist)))
       (cdr it)
     t))
 
