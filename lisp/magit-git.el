@@ -1500,7 +1500,7 @@ according to the branch type."
 The primary remote is the remote that tracks the repository that
 other repositories are forked from.  It often is called \"origin\"
 but because many people name their own fork \"origin\", using that
-term would be ambigious.  Likewise we avoid the term \"upstream\"
+term would be ambiguous.  Likewise we avoid the term \"upstream\"
 because a branch's @{upstream} branch may be a local branch or a
 branch from a remote other than the primary remote.
 
