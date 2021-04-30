@@ -322,9 +322,10 @@ when using `magit-branch-and-checkout'."
   (interactive
    (let* ((current (magit-get-current-branch))
           (local   (magit-list-local-branch-names))
-          (remote  (--filter (and (string-match "[^/]+/" it)
-                                  (not (member (substring it (match-end 0))
-                                               (cons "HEAD" local))))
+          (remote  (seq-filter (lambda (it)
+                                 (and (string-match "[^/]+/" it)
+                                      (not (member (substring it (match-end 0))
+                                                   (cons "HEAD" local)))))
                              (magit-list-remote-branch-names)))
           (choices (nconc (delete current local) remote))
           (atpoint (magit-branch-at-point))
@@ -357,15 +358,18 @@ when using `magit-branch-and-checkout'."
           (magit-set remote "branch" branch "pushRemote"))))))
 
 (defun magit-branch-maybe-adjust-upstream (branch start-point)
-  (--when-let
-      (or (and (magit-get-upstream-branch branch)
-               (magit-get-indirect-upstream-branch start-point))
-          (and (magit-remote-branch-p start-point)
-               (let ((name (cdr (magit-split-branch-name start-point))))
-                 (car (--first (if (listp (cdr it))
-                                   (not (member name (cdr it)))
-                                 (string-match-p (cdr it) name))
-                               magit-branch-adjust-remote-upstream-alist)))))
+  (when-let
+      ((it
+        (or (and (magit-get-upstream-branch branch)
+                 (magit-get-indirect-upstream-branch start-point))
+            (and (magit-remote-branch-p start-point)
+                 (let ((name (cdr (magit-split-branch-name start-point))))
+                   (car
+                    (seq-find (lambda (it)
+                                (if (listp (cdr it))
+                                    (not (member name (cdr it)))
+                                  (string-match-p (cdr it) name)))
+                              magit-branch-adjust-remote-upstream-alist)))))))
     (magit-call-git "branch" (concat "--set-upstream-to=" it) branch)))
 
 ;;;###autoload
@@ -462,7 +466,7 @@ from the source branch's upstream, then an error is raised."
           (if checkout
               (magit-call-git "checkout" "-b" branch current)
             (magit-call-git "branch" branch current)))
-        (--when-let (magit-get-indirect-upstream-branch current)
+        (when-let ((it (magit-get-indirect-upstream-branch current)))
           (magit-call-git "branch" "--set-upstream-to" it branch))
         (when (and tracked
                    (setq base
@@ -542,24 +546,24 @@ defaulting to the branch at point."
              (list (magit-read-branch-prefer-other
                     (if force "Force delete branch" "Delete branch")))))
      (unless force
-       (when-let ((unmerged (-remove #'magit-branch-merged-p branches)))
+       (when-let ((unmerged (seq-remove #'magit-branch-merged-p branches)))
          (if (magit-confirm 'delete-unmerged-branch
                "Delete unmerged branch %s"
                "Delete %i unmerged branches"
                'noabort unmerged)
              (setq force branches)
-           (or (setq branches (-difference branches unmerged))
+           (or (setq branches (cl-set-difference branches unmerged))
                (user-error "Abort")))))
      (list branches force)))
   (let* ((refs (mapcar #'magit-ref-fullname branches))
-         (ambiguous (--remove it refs)))
+         (ambiguous (seq-remove #'identity refs)))
     (when ambiguous
       (user-error
        "%s ambiguous.  Please cleanup using git directly."
        (let ((len (length ambiguous)))
          (cond
           ((= len 1)
-           (format "%s is" (-first #'magit-ref-ambiguous-p branches)))
+           (format "%s is" (seq-find #'magit-ref-ambiguous-p branches)))
           ((= len (length refs))
            (format "These %s names are" len))
           (t
@@ -583,7 +587,7 @@ defaulting to the branch at point."
            "push"
            (and (or force magit-branch-delete-never-verify) "--no-verify")
            remote
-           (--map (concat ":" (substring it offset)) branches))
+           (mapcar (lambda (it) (concat ":" (substring it offset))) branches))
           ;; If that is not the case, then this deletes the tracking branches.
           (set-process-sentinel
            magit-this-process
@@ -667,11 +671,13 @@ defaulting to the branch at point."
 (defun magit-delete-remote-branch-sentinel (remote refs process event)
   (when (memq (process-status process) '(exit signal))
     (if (= (process-exit-status process) 1)
-        (if-let ((on-remote (--map (concat "refs/remotes/" remote "/" it)
+        (if-let ((on-remote (mapcar (lambda (it)
+                                      (concat "refs/remotes/" remote "/" it))
                                    (magit-remote-list-branches remote)))
-                 (rest (--filter (and (not (member it on-remote))
-                                      (magit-ref-exists-p it))
-                                 refs)))
+                 (rest (seq-filter (lambda (it)
+                                     (and (not (member it on-remote))
+                                          (magit-ref-exists-p it)))
+                                   refs)))
             (progn
               (process-put process 'inhibit-refresh t)
               (magit-process-sentinel process event)
@@ -766,8 +772,8 @@ and also rename the respective reflog file."
   (interactive
    (list (magit-completing-read
           "Unshelve branch"
-          (--map (substring it 8)
-                 (magit-list-refnames "refs/shelved"))
+          (mapcar (lambda (it) (substring it 8))
+                  (magit-list-refnames "refs/shelved"))
           nil t)))
   (let ((old (concat "refs/shelved/" branch))
         (new (concat "refs/heads/"   branch)))
