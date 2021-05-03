@@ -401,6 +401,9 @@ Process output goes into a new section in the buffer returned by
 Identical to `process-file' but temporarily enable Cygwin's
 \"noglob\" option during the call and ensure unix eol
 conversion."
+  (when (bound-and-true-p vc-tor)
+    (push process args)
+    (setq process "torsocks"))
   (when magit-process-extreme-logging
     (let ((inhibit-message t))
       (message "$ %s" (magit-process--format-arguments process args))))
