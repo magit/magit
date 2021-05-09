@@ -8,7 +8,6 @@ builtins.mapAttrs
   (version: emacs:
     (pkgs.emacsPackagesGen emacs).emacsWithPackages
       (emacsPackages: [
-        emacsPackages.dash
         emacsPackages.transient
       ] ++ (with emacsPackages.melpaPackages; [
         libgit

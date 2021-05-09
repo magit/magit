@@ -218,7 +218,6 @@ define set_package_requires
   (delete-region (point) (line-end-position))
   (insert (format "%S"
 `((emacs ,emacs-version) ;`
-  (dash ,dash-version)
   (transient ,transient-version)
   (with-editor ,with-editor-version)))))
 (with-temp-file "lisp/magit-libgit.el"
@@ -234,14 +233,12 @@ define set_package_requires
   (re-search-forward "^;; Package-Requires: ")
   (delete-region (point) (line-end-position))
   (insert (format "%S"
-`((emacs ,emacs-version) ;`
-  (dash ,dash-version)))))
+`((emacs ,emacs-version))))) ;`
 (with-temp-file "lisp/magit-pkg.el"
   (insert (pp-to-string
 `(define-package "magit" "$(VERSION)" ;`
    "A Git porcelain inside Emacs."
    '((emacs ,emacs-version) ;'
-     (dash ,dash-version)
      (git-commit ,git-commit-version)
      ;; FIXME (magit-section ,magit-section-version)
      (transient ,transient-version)
@@ -258,7 +255,6 @@ bump-versions: bump-versions-1 texi
 bump-versions-1:
 	@$(BATCH) --eval "(let (\
 	(emacs-version \"$(EMACS_VERSION)\")\
-        (dash-version \"$(DASH_VERSION)\")\
         (git-commit-version \"$(GIT_COMMIT_VERSION)\")\
         (libgit-version \"$(LIBGIT_VERSION)\")\
         (magit-section-version \"$(MAGIT_SECTION_VERSION)\")\
@@ -269,7 +265,6 @@ bump-versions-1:
 bump-snapshots:
 	@$(BATCH) --eval "(let (\
 	(emacs-version \"$(EMACS_VERSION)\")\
-        (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
         (libgit-version \"$(LIBGIT_MELPA_SNAPSHOT)\")\
         (magit-section-version \"$(MAGIT_SECTION_MELPA_SNAPSHOT)\")\

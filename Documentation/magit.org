@@ -167,9 +167,9 @@ Now see [[*Post-Installation Tasks]].
 
 ** Installing from the Git Repository
 
-Magit depends on the ~dash~, ~transient~ and ~with-editor~ libraries
-which are available from Melpa and Melpa-Stable.  Install them using
-~M-x package-install RET <package> RET~.  Of course you may also install
+Magit depends on the ~transient~ and ~with-editor~ libraries which are
+available from Melpa and Melpa-Stable. Install them using ~M-x
+package-install RET <package> RET~. Of course you may also install
 them manually from their repository.
 
 Then clone the Magit repository:
@@ -185,14 +185,13 @@ Then compile the libraries and generate the info manuals:
   $ make
 #+END_SRC
 
-If you haven't installed ~dash~, ~transient~ and ~with-editor~ from
-Melpa or at ~/path/to/magit/../<package>~, then you have to tell ~make~
-where to find them.  To do so create the file ~/path/to/magit/config.mk~
-with the following content before running ~make~:
+If you haven't installed ~transient~ and ~with-editor~ from Melpa or
+at ~/path/to/magit/../<package>~, then you have to tell ~make~ where
+to find them. To do so create the file ~/path/to/magit/config.mk~ with
+the following content before running ~make~:
 
 #+BEGIN_SRC makefile
   LOAD_PATH  = -L ~/.emacs.d/site-lisp/magit/lisp
-  LOAD_PATH += -L ~/.emacs.d/site-lisp/dash
   LOAD_PATH += -L ~/.emacs.d/site-lisp/transient/lisp
   LOAD_PATH += -L ~/.emacs.d/site-lisp/with-editor
 #+END_SRC
@@ -213,7 +212,6 @@ Of course if you installed the dependencies manually as well, then
 you have to tell Emacs about them too, by prefixing the above with:
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/site-lisp/dash")
   (add-to-list 'load-path "~/.emacs.d/site-lisp/transient/lisp")
   (add-to-list 'load-path "~/.emacs.d/site-lisp/with-editor")
 #+END_SRC
