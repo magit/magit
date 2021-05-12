@@ -443,8 +443,8 @@ This is only used if Magit is available."
 \\(\\(COMMIT\\|NOTES\\|PULLREQ\\|MERGEREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\
 \\|\\(BRANCH\\|EDIT\\)_DESCRIPTION\\)\\'")
 
-(eval-after-load 'recentf
-  '(add-to-list 'recentf-exclude git-commit-filename-regexp))
+(with-eval-after-load 'recentf
+  (add-to-list 'recentf-exclude git-commit-filename-regexp))
 
 (add-to-list 'with-editor-file-name-history-exclude git-commit-filename-regexp)
 

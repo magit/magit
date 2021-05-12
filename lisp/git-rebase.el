@@ -818,8 +818,8 @@ By default, this is the same except for the \"pick\" command."
 (add-to-list 'with-editor-server-window-alist
              (cons git-rebase-filename-regexp 'switch-to-buffer))
 
-(eval-after-load 'recentf
-  '(add-to-list 'recentf-exclude git-rebase-filename-regexp))
+(with-eval-after-load 'recentf
+  (add-to-list 'recentf-exclude git-rebase-filename-regexp))
 
 (add-to-list 'with-editor-file-name-history-exclude git-rebase-filename-regexp)
 
