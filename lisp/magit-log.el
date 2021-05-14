@@ -580,7 +580,10 @@ the upstream isn't ahead of the current branch) show."
 
 (defun magit-read-file-trace (&rest _ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
-        (trace (magit-read-string "Trace")))
+        (trace (magit-read-string
+                "Trace" nil nil
+                ;; By default, suggest to trace the evolution of the current line.
+                (concat (number-to-string (1+ (current-line))) ",+1"))))
     (concat trace ":" file)))
 
 ;;;; Setup Commands
