@@ -1072,7 +1072,11 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                                `(( ,window
                                    ,section
                                    ,@(magit-refresh-get-relative-position)))))))
-                       (or (get-buffer-window-list buffer nil t)
+                       ;; If it qualifies, then the selected window
+                       ;; comes first, but we want to handle it last
+                       ;; so that its `magit-section-movement-hook'
+                       ;; run can override the effects of other runs.
+                       (or (nreverse (get-buffer-window-list buffer nil t))
                            (list (selected-window))))))
         (deactivate-mark)
         (setq magit-section-highlight-overlays nil)
