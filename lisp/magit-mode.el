@@ -1064,15 +1064,16 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'..." (buffer-name)))
       (let* ((buffer (current-buffer))
-             (windows
-              (--mapcat (with-selected-window it
-                          (with-current-buffer buffer
-                            (when-let ((section (magit-current-section)))
-                              (list
-                               (nconc (list it section)
-                                      (magit-refresh-get-relative-position))))))
-                        (or (get-buffer-window-list buffer nil t)
-                            (list (selected-window))))))
+             (windows (cl-mapcan
+                       (lambda (window)
+                         (with-selected-window window
+                           (with-current-buffer buffer
+                             (when-let ((section (magit-current-section)))
+                               `(( ,window
+                                   ,section
+                                   ,@(magit-refresh-get-relative-position)))))))
+                       (or (get-buffer-window-list buffer nil t)
+                           (list (selected-window))))))
         (deactivate-mark)
         (setq magit-section-highlight-overlays nil)
         (setq magit-section-highlighted-section nil)
