@@ -1084,9 +1084,12 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
           (save-excursion
             (apply refresh (with-no-warnings magit-refresh-args))))
         (pcase-dolist (`(,window . ,args) windows)
-          (with-selected-window window
+          (if (eq buffer (window-buffer window))
+              (with-selected-window window
+                (apply #'magit-section-goto-successor args))
             (with-current-buffer buffer
-              (apply #'magit-section-goto-successor args))))
+              (let ((magit-section-movement-hook nil))
+                (apply #'magit-section-goto-successor args)))))
         (run-hooks 'magit-refresh-buffer-hook)
         (magit-section-update-highlight)
         (set-buffer-modified-p nil))
