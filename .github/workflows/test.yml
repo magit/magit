@@ -36,11 +36,6 @@ jobs:
         git config --global user.name "A U Thor"
         git config --global user.email a.u.thor@example.com
         git tag 0
-    - name: Test with Git
-      if: ${{ matrix.git_impl == 'git' }}
+    - name: Test
       run: |
-        make test-git DASH_DIR=$PWD
-    - name: Test with libgit
-      if: ${{ matrix.git_impl == 'libgit' }}
-      run: |
-        make test-libgit DASH_DIR=$PWD
+        make test-${{ matrix.git_impl }} DASH_DIR=$PWD
