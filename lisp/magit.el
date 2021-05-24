@@ -6,6 +6,7 @@
 ;; lists all contributors.  If not, see http://magit.vc/authors.
 
 ;; Author: Marius Vollmer <marius.vollmer@gmail.com>
+;;      Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 ;;      Kyle Meyer <kyle@kyleam.com>
 ;;      Noam Postavsky <npostavs@users.sourceforge.net>
