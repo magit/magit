@@ -73,6 +73,7 @@ Contributors
 - Aria Edmonds <aria@ar1as.space>
 - Arialdo Martini <arialdomartini@gmail.com>
 - Arnau Roig Ninerola <arnau.ninerola@outlook.com>
+- Ashlynn Anderson <pea@pea.sh>
 - Barak A. Pearlmutter <barak+git@pearlmutter.net>
 - Bar Magal <bmagamb@gmail.com>
 - Bart Bakker <bart@thesoftwarecraft.com>
@@ -109,7 +110,7 @@ Contributors
 - Dan Erikson <derikson3@gmail.com>
 - Daniel Brockman <daniel@gointeractive.se>
 - Daniel Farina <drfarina@acm.org>
-- Daniel Fleischer <daniel.fleischer@amobee.com>
+- Daniel Fleischer <danflscr@gmail.com>
 - Daniel Gröber <daniel@dps.uibk.ac.at>
 - Daniel Hackney <dan@haxney.org>
 - Daniel Kraus <daniel@kraus.my>
@@ -305,6 +306,7 @@ Contributors
 - Rüdiger Sonderfeld <ruediger@c-plusplus.net>
 - Russell Black <black.russell@gmail.com>
 - Ryan C. Thompson <rct@thompsonclan.org>
+- Sam Cedarbaum <scedarbaum@gmail.com>
 - Samuel Bronson <naesten@gmail.com>
 - Samuel W. Flint <swflint@flintfam.org>
 - Sanjoy Das <sanjoy@playingwithpointers.com>
