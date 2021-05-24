@@ -7,14 +7,14 @@
 
 ;; Author: Marius Vollmer <marius.vollmer@gmail.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
-;;	Kyle Meyer        <kyle@kyleam.com>
-;;	Noam Postavsky    <npostavs@users.sourceforge.net>
+;;      Kyle Meyer <kyle@kyleam.com>
+;;      Noam Postavsky <npostavs@users.sourceforge.net>
 ;; Former-Maintainers:
-;;	Nicolas Dudebout  <nicolas.dudebout@gatech.edu>
-;;	Peter J. Weisberg <pj@irregularexpressions.net>
-;;	Phil Jackson      <phil@shellarchive.co.uk>
-;;	Rémi Vanicat      <vanicat@debian.org>
-;;	Yann Hodique      <yann.hodique@gmail.com>
+;;      Nicolas Dudebout <nicolas.dudebout@gatech.edu>
+;;      Peter J. Weisberg <pj@irregularexpressions.net>
+;;      Phil Jackson <phil@shellarchive.co.uk>
+;;      Rémi Vanicat <vanicat@debian.org>
+;;      Yann Hodique <yann.hodique@gmail.com>
 
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
