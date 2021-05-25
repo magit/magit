@@ -17,7 +17,9 @@
 
 - The commands ~magit-branch-pull-request~, ~magit-checkout-pull-request~
   and ~magit-worktree-checkout-pull-request~ were removed in favor of
-  improved implementations provided by the new Forge package.
+  improved implementations provided by the new Forge package.  (See
+  https://emacsair.me/2018/12/19/forge-0.1 for more information about
+  Forge.)
 
 - ~C-c C-e~ is no longer bound to ~magit-dispatch-popup~.  It is bound to
   ~magit-edit-thing~ now, so that Forge can add section-specific
@@ -38,6 +40,24 @@
   keeping the old variable and functions around for backward
   compatibility.  Packages using the obsolete variable and functions
   should be adjusted soon.  #3836
+
+- Magit-Section is now distributed as a separate package, as announced
+  here: https://emacsair.me/2020/01/23/magit-section.  #4003
+
+- Magit now adds three global key bindings, which can be prevented
+  by setting the new option ~magit-define-global-key-bindings~ before
+  loading ~magit~.  Note that if you bind these keys to other commands
+  anywhere in your init file (even *after* loading ~magit~), then Magit
+  won't override those bindings.  See the options doc-string for
+  more information.  #4237
+
+- Magit no longer depends on ~async-bytecomp~ to avoid a certain class
+  of mystery bugs because this effort backfired.  86eec7ba3
+
+- ~global-git-commit-mode~ is no longer autoloaded.  Users who commit
+  from the command-line but still want to use ~git-commit-mode~, might
+  now have to load ~git-commit~ explicitly in their init file.
+  13f20763a
 
 ** Changes since v2.90.0
 
@@ -157,7 +177,7 @@
 - ~magit-cherry~ is now available from the ~magit-dispatch~ prefix.
   ef311f378
 
-~ ~magit-cherry-spinoff~ now offers the upstream as the default
+- ~magit-cherry-spinoff~ now offers the upstream as the default
   starting-point.  e5a2a0ac2
 
 - Added new command ~magit-branch-spinout~.  #3794.
@@ -182,7 +202,9 @@
 
 - Added new option ~magit-worktree-read-directory-name-function~.  #3820
 
-- TODO Added basic support for libgit2.  #3841
+- Basic optional support for ~libgit2~ was added, but because so few
+  functions are currently implemented using that library, opting in
+  currently has almost no effect.  #3841
 
 - ~git bisect~ is now run asynchronously.  #3802
 
@@ -342,6 +364,46 @@
   available from the diff transients by default.  To enable it use
   "C-x l" in those transients.  #4056
 
+- Added new command ~magit-reset-keep~.  0ea8b0ef6
+
+- Added new option ~magit-reshelve-since-committer-only~.  #4101
+
+- Added new command ~magit-commit-absorb~ as an alternative to
+  ~magit-commit-autofixup~.  9423edc0b
+
+- Added new option ~magit-status-use-buffer-arguments~.  #4046
+
+- Added new command ~magit-project-status~.  #4173
+
+- Added new variable ~magit-process-extreme-logging~ for debugging
+  purposes.  #4217
+
+- Taught Isearch and Swiper how to expand Magit sections when the
+  current match is inside a hidden section and how to close sections
+  again.  #3999
+
+- Added new command ~magit-commit-absorb-modules~.  10b4bec53
+
+- Added new transient command ~magit-shortlog~.  #4262
+
+- Added new command ~magit-generate-changelog~.  c5e118111
+
+- The name of the main branch is no longer hard-coded to "master".
+  Now we use the value of ~init.defaultBranch~ if that is set and the
+  named branch exists.  If not, then some other names that are
+  commonly used for the main branch are tried as a potential fallback.
+  c4494ac0b
+
+- Added new option ~magit-diff-extra-stat-arguments~.  1bd4fe26e
+
+- Added support for ~git-credential-manager-core~.  #4318
+
+- The name of the upstream remote is no longer hard-code to "origin".
+  See the doc-string of function ~magit-primary-remote~ to learn how to
+  customize this.  f883b62fe
+
+This release also contains numerous other improvements.
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
@@ -484,6 +546,11 @@
   configuration didn't propagate the error and instead preseted the
   directory as though it was uninitialized.  #4337
 
+- When the status buffer is not shown in any buffer but point is on
+  a hunk, and editing and saving the respective file causes, that
+  hunk to disappear or change,  then Magit ended up changing point
+  in the file-visiting buffer.  #4196
+
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),
   ~magit--{upstream,pushbranch}-suffix-predicate~ (0ce7fbbc2),
@@ -515,6 +582,7 @@
   ~magit-stash-drop~ (a4972766a),
   ~magit-ignore-submodules-p~ (a7699f868),
   ~magit-log-propertize-keywords~ (ac1ee3df5),
+  and then I stopped adding to this list.
 
-This release also contains other minor improvements, bug fixes, typo
-fixes, and documentation fixes.
+This release also contains numerous other bug fixes, typo fixes, and
+documentation fixes.
