@@ -5,10 +5,10 @@
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
 
-;; Authors: Jonas Bernoulli <jonas@bernoul.li>
-;;	Sebastian Wiesner <lunaryorn@gmail.com>
-;;	Florian Ragwitz <rafl@debian.org>
-;;	Marius Vollmer <marius.vollmer@gmail.com>
+;; Author: Jonas Bernoulli <jonas@bernoul.li>
+;;      Sebastian Wiesner <lunaryorn@gmail.com>
+;;      Florian Ragwitz <rafl@debian.org>
+;;      Marius Vollmer <marius.vollmer@gmail.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
 ;; Package-Requires: ((emacs "25.1") (dash "20200524") (transient "20200601") (with-editor "20200522"))
