@@ -1364,9 +1364,8 @@ If there is no revision buffer in the same frame, then do nothing."
       (setq magit--update-revision-buffer (list commit buffer))
       (run-with-idle-timer
        magit-update-other-window-delay nil
-       (let ((args (with-current-buffer buffer
-                     (let ((magit-direct-use-buffer-arguments 'selected))
-                       (magit-show-commit--arguments)))))
+       (let ((args (let ((magit-direct-use-buffer-arguments 'selected))
+                     (magit-show-commit--arguments))))
          (lambda ()
            (pcase-let ((`(,rev ,buf) magit--update-revision-buffer))
              (setq magit--update-revision-buffer nil)
