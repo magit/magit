@@ -237,16 +237,23 @@ define set_package_requires
 `((emacs ,emacs-version) ;`
   (dash ,dash-version)))))
 (with-temp-file "lisp/magit-pkg.el"
-  (insert (pp-to-string
-`(define-package "magit" "$(VERSION)" ;`
-   "A Git porcelain inside Emacs."
-   '((emacs ,emacs-version) ;'
-     (dash ,dash-version)
-     (git-commit ,git-commit-version)
-     ;; FIXME (magit-section ,magit-section-version)
-     (transient ,transient-version)
-     (with-editor ,with-editor-version))
-   :keywords '("git" "tools" "vc")))) ;'
+  (insert (format
+"(define-package \"magit\" \"$(VERSION)\"\
+  \"A Git porcelain inside Emacs.\"
+  '((emacs %S)
+    (dash %S)
+    (git-commit %S)
+    ;; FIXME (magit-section %S)
+    (transient %S)
+    (with-editor %S))
+  :homepage \"https://magit.vc\"
+  :keywords '(\"git\" \"tools\" \"vc\"))
+"   emacs-version
+    dash-version
+    git-commit-version
+    ;; magit-section-version
+    transient-version
+    with-editor-version))
   (goto-char (point-min))
   (re-search-forward " \"A")
   (goto-char (match-beginning 0))
