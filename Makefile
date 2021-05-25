@@ -220,7 +220,11 @@ define set_package_requires
 `((emacs ,emacs-version) ;`
   (dash ,dash-version)
   (transient ,transient-version)
-  (with-editor ,with-editor-version)))))
+  (with-editor ,with-editor-version))))
+  (re-search-forward "^;; Package-Version: ")
+  (delete-region (point) (line-end-position))
+  (insert git-commit-version))
+
 (with-temp-file "lisp/magit-libgit.el"
   (insert-file-contents "lisp/magit-libgit.el")
   (re-search-forward "^;; Package-Requires: ")
@@ -228,14 +232,20 @@ define set_package_requires
   (insert (format "%S"
 `((emacs "$(LIBGIT_EMACS_VERSION)") ;`
   (magit "$(LIBGIT_MAGIT_VERSION)")
-  (libgit ,libgit-version)))))
+  (libgit ,libgit-version))))
+  (re-search-forward "^;; Package-Version: ")
+  (delete-region (point) (line-end-position))
+  (insert magit-libgit-version))
 (with-temp-file "lisp/magit-section.el"
   (insert-file-contents "lisp/magit-section.el")
   (re-search-forward "^;; Package-Requires: ")
   (delete-region (point) (line-end-position))
   (insert (format "%S"
 `((emacs ,emacs-version) ;`
-  (dash ,dash-version)))))
+  (dash ,dash-version))))
+  (re-search-forward "^;; Package-Version: ")
+  (delete-region (point) (line-end-position))
+  (insert magit-section-version))
 (with-temp-file "lisp/magit-pkg.el"
   (insert (format
 "(define-package \"magit\" \"$(VERSION)\"\
@@ -243,7 +253,7 @@ define set_package_requires
   '((emacs %S)
     (dash %S)
     (git-commit %S)
-    ;; FIXME (magit-section %S)
+    (magit-section %S)
     (transient %S)
     (with-editor %S))
   :homepage \"https://magit.vc\"
@@ -251,7 +261,7 @@ define set_package_requires
 "   emacs-version
     dash-version
     git-commit-version
-    ;; magit-section-version
+    magit-section-version
     transient-version
     with-editor-version))
   (goto-char (point-min))
@@ -268,6 +278,7 @@ bump-versions-1:
         (dash-version \"$(DASH_VERSION)\")\
         (git-commit-version \"$(GIT_COMMIT_VERSION)\")\
         (libgit-version \"$(LIBGIT_VERSION)\")\
+        (magit-libgit-version \"$(MAGIT_LIBGIT_VERSION)\")\
         (magit-section-version \"$(MAGIT_SECTION_VERSION)\")\
         (transient-version \"$(TRANSIENT_VERSION)\")\
         (with-editor-version \"$(WITH_EDITOR_VERSION)\"))\
@@ -279,6 +290,7 @@ bump-snapshots:
         (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
         (git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
         (libgit-version \"$(LIBGIT_MELPA_SNAPSHOT)\")\
+        (magit-libgit-version \"$(MAGIT_LIBGIT_MELPA_SNAPSHOT)\")\
         (magit-section-version \"$(MAGIT_SECTION_MELPA_SNAPSHOT)\")\
         (transient-version \"$(TRANSIENT_MELPA_SNAPSHOT)\")\
         (with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\"))\

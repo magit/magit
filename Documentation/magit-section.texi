@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit-Section Developer Manual
-@subtitle for version 2.90.1 (v2.90.1-1138-gd583ea35d+1)
+@subtitle for version 3.0.0
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -54,7 +54,7 @@ user options see @ref{Sections,,,magit,}.  This manual documents how you
 can use sections in your own packages.
 
 @noindent
-This manual is for Magit-Section version 2.90.1 (v2.90.1-1138-gd583ea35d+1).
+This manual is for Magit-Section version 3.0.0.
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>

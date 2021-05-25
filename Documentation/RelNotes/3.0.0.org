@@ -1,4 +1,27 @@
-* Magit v3.0.0 Release Notes (unreleased)
+* It's Magit!  A Git Porcelain inside Emacs
+
+Magit is a text-based Git user interface that puts an unmatched focus
+on streamlining workflows.  Commands are invoked using short mnemonic
+key sequences that take the cursor’s position in the highly actionable
+interface into account to provide context-sensitive behavior.
+
+With Magit you can do nearly everything that you can do when using Git
+on the command-line, but at greater speed and while taking advantage
+of advanced features that previously seemed too daunting to use on a
+daily basis.  Many users will find that by using Magit they can become
+more effective Git user.
+
+For more information about Magit, see https://magit.vc.
+
+* Magit v3.0.0 Release Notes
+
+Released 25th May 2021 by Jonas Bernoulli.
+
+I am pleased to announce the release of Magit version 3.0.0,
+representing 1264 commits by 87 contributors over 2.5 years.
+
+Also see https://emacsair.me/2021/05/25/magit-3.0.
+
 ** Breaking changes
 
 - Dropped support for Git v2.0 and v2.1.
@@ -586,3 +609,93 @@ This release also contains numerous other improvements.
 
 This release also contains numerous other bug fixes, typo fixes, and
 documentation fixes.
+
+* Authors
+
+  1001  Jonas Bernoulli
+   120  Kyle Meyer
+    10  Basil L. Contovounesios
+     9  Noam Postavsky
+     5  Vladimir Panteleev
+     4  Damien Cassou
+     4  Daniel Martín
+     4  Sam Cedarbaum
+     4  Štěpán Němec
+     3  Adam Porter
+     3  Benjamin Motz
+     3  Kévin Le Gouguec
+     2  Alban Gruin
+     2  Allen Li
+     2  Bastian Beischer
+     2  Clément Pit-Claudel
+     2  Daniel Fleischer
+     2  Evan Torrie
+     2  Ingmar Sittl
+     2  Leo Vivier
+     2  Martin Polden
+     2  Naoya Yamashita
+     2  Phil Sainty
+     2  Philipp Stephani
+     2  Radon Rosborough
+     2  Ryan C. Thompson
+     2  Szunti
+     2  Tassilo Horn
+     2  Thierry Volpiatto
+     2  Troy Hinckley
+     2  zilongshanren
+     1  Adam Kruszewski
+     1  Adam Spiers
+     1  Alexander Miller
+     1  Andrew Eggenberger
+     1  Andrew Psaltis
+     1  Andrew Schwartzmeyer
+     1  Arnau Roig Ninerola
+     1  Ashlynn Anderson
+     1  Ben North
+     1  Brian Leung
+     1  Dan Davison
+     1  Danny Zhu
+     1  David Ellison
+     1  Dominique Quatravaux
+     1  Eric
+     1  Fritz Grabo
+     1  Gregory Heytings
+     1  Hussein Ait-Lahcen
+     1  Ian Milligan
+     1  Ilya Grigoriev
+     1  Johann Klähn
+     1  Johannes Altmanninger
+     1  Jonas Galvão Xavier
+     1  Jonathan Arnett
+     1  Jonathan del Strother
+     1  Jordan Galby
+     1  Josh Elsasser
+     1  Justin Guenther
+     1  Keshav Kini
+     1  Kevin Brubeck Unhammer
+     1  Kevin J. Foley
+     1  Knut Olav Bøhmer
+     1  Magnus Malm
+     1  Mario Rodas
+     1  Martin Joerg
+     1  Matthew Kraai
+     1  Maxim Cournoyer
+     1  Michael Griffiths
+     1  Ola x Nilsson
+     1  Pancho Horrillo
+     1  Philipp Fehre
+     1  Pritam Baral
+     1  Roey Darwish Dror
+     1  Sean Whitton
+     1  Simon Pintarelli
+     1  Steve Purcell
+     1  Thomas Fini Hansen
+     1  Topi Miettinen
+     1  Tsuyoshi Kitamoto
+     1  Vitaly Ostashov
+     1  Vladimir Sedach
+     1  Wojciech Siewierski
+     1  Yann Herklotz
+     1  Ynilu
+     1  Zhu Zihao
+     1  zakora

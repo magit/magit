@@ -13,7 +13,8 @@
 
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
-;; Package-Requires: ((emacs "25.1") (dash "20200524") (transient "20200601") (with-editor "20200522"))
+;; Package-Requires: ((emacs "25.1") (dash "2.18.1") (transient "0.3.3") (with-editor "3.0.4"))
+;; Package-Version: 3.0.0
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is free software; you can redistribute it and/or modify
