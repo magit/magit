@@ -19,8 +19,7 @@
 
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
-
-;; Magit requires at least GNU Emacs 25.1 and Git 2.2.0.
+;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -34,6 +33,8 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
+
+;; Magit requires at least GNU Emacs 25.1 and Git 2.2.0.
 
 ;;; Commentary:
 

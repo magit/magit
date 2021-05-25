@@ -8,9 +8,10 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "25.1") (dash "20200524"))
 ;; Keywords: tools
 ;; Homepage: https://github.com/magit/magit
+;; Package-Requires: ((emacs "25.1") (dash "20200524"))
+;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; Magit-Section is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
