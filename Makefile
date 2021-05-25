@@ -223,8 +223,7 @@ define set_package_requires
   (with-editor ,with-editor-version))))
   (re-search-forward "^;; Package-Version: ")
   (delete-region (point) (line-end-position))
-  (insert git-commit-version))
-
+  (insert "$(GIT_COMMIT_VERSION)"))
 (with-temp-file "lisp/magit-libgit.el"
   (insert-file-contents "lisp/magit-libgit.el")
   (re-search-forward "^;; Package-Requires: ")
@@ -235,7 +234,7 @@ define set_package_requires
   (libgit ,libgit-version))))
   (re-search-forward "^;; Package-Version: ")
   (delete-region (point) (line-end-position))
-  (insert magit-libgit-version))
+  (insert "$(MAGIT_LIBGIT_VERSION)"))
 (with-temp-file "lisp/magit-section.el"
   (insert-file-contents "lisp/magit-section.el")
   (re-search-forward "^;; Package-Requires: ")
@@ -245,7 +244,7 @@ define set_package_requires
   (dash ,dash-version))))
   (re-search-forward "^;; Package-Version: ")
   (delete-region (point) (line-end-position))
-  (insert magit-section-version))
+  (insert "$(MAGIT_SECTION_VERSION)"))
 (with-temp-file "lisp/magit-pkg.el"
   (insert (format
 "(define-package \"magit\" \"$(VERSION)\"\
@@ -295,4 +294,4 @@ bump-snapshots:
         (transient-version \"$(TRANSIENT_MELPA_SNAPSHOT)\")\
         (with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\"))\
         $$set_package_requires)"
-	@git commit -a -m "Reset Package-Requires for Melpa"
+	@git commit -a --gpg-sign -m "Reset Package-Requires for Melpa"
