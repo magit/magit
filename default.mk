@@ -175,6 +175,10 @@ ifeq "$(WITH_EDITOR_DIR)" ""
   WITH_EDITOR_DIR = $(TOP)../with-editor
 endif
 
+MAGIT_SECTION_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/magit-section-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+
 SYSTYPE := $(shell $(EMACSBIN) -Q --batch --eval "(princ system-type)")
 ifeq ($(SYSTYPE), windows-nt)
   CYGPATH := $(shell cygpath --version 2>/dev/null)
@@ -192,11 +196,17 @@ ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(LIBGIT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(TRANSIENT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
+  ifneq "$(MAGIT_SECTION_DIR)" ""
+    LOAD_PATH += -L $(shell cygpath --mixed $(MAGIT_SECTION_DIR))
+  endif
 else
   LOAD_PATH += -L $(DASH_DIR)
   LOAD_PATH += -L $(LIBGIT_DIR)
   LOAD_PATH += -L $(TRANSIENT_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
+  ifneq "$(MAGIT_SECTION_DIR)" ""
+    LOAD_PATH += -L $(MAGIT_SECTION_DIR)
+  endif
 endif
 
 endif # ifndef LOAD_PATH
