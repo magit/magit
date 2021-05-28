@@ -610,7 +610,8 @@ to nil."
                (input (read-from-minibuffer
                        prompt initial-input map
                        nil hist def inherit-input-method)))
-          (and def (string-equal input "") (setq input def))
+          (when (and def (string-equal input ""))
+            (setq input (if (consp def) (car def) def)))
           ;; Remove empty strings in the list of read strings.
           (split-string input crm-separator t)))
     (remove-hook 'choose-completion-string-functions
