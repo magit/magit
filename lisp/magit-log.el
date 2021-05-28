@@ -595,16 +595,17 @@ the upstream isn't ahead of the current branch) show."
 
 (defun magit-log-read-revs (&optional use-current)
   (or (and use-current (--when-let (magit-get-current-branch) (list it)))
-      (let ((collection (magit-list-refnames nil t)))
-        (split-string
-         (magit-completing-read-multiple "Log rev,s" collection
-                                         "\\(\\.\\.\\.?\\|[, ]\\)"
-                                         (or (magit-branch-or-commit-at-point)
-                                             (unless use-current
-                                               (magit-get-previous-branch)))
-                                         'magit-revision-history
-                                         magit-log-read-revs-map)
-         "[, ]" t))))
+      (let ((crm-separator "\\(\\.\\.\\.?\\|[, ]\\)")
+            (crm-local-completion-map magit-log-read-revs-map))
+        (split-string (magit-completing-read-multiple*
+                       "Log rev,s: "
+                       (magit-list-refnames nil t)
+                       nil nil nil 'magit-revision-history
+                       (or (magit-branch-or-commit-at-point)
+                           (unless use-current
+                             (magit-get-previous-branch)))
+                       nil t)
+                      "[, ]" t))))
 
 (defun magit-log-read-pattern (option)
   "Read a string from the user to pass as parameter to OPTION."

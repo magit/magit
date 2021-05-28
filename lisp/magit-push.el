@@ -217,11 +217,10 @@ only available for the part before the colon, or when no colon
 is used."
   (interactive
    (list (magit-read-remote "Push to remote")
-         (split-string (magit-completing-read-multiple
-                        "Push refspec,s"
-                        (cons "HEAD" (magit-list-local-branch-names))
-                        nil nil 'magit-push-refspecs-history)
-                       crm-default-separator t)
+         (magit-completing-read-multiple*
+          "Push refspec,s: "
+          (cons "HEAD" (magit-list-local-branch-names))
+          nil nil nil 'magit-push-refspecs-history)
          (magit-push-arguments)))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" "-v" args remote refspecs))

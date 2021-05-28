@@ -1,5 +1,8 @@
 * Magit v3.1.0 Release Notes (unreleased)
 ** Breaking changes
+
+- Deprecated ~magit-completing-read-multiple~.
+
 ** Changes since v3.0.0
 ** Fixes since v3.0.0
 
