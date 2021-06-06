@@ -118,6 +118,47 @@ as the value of `magit-repolist-column-flag'."
   :type '(alist :key-type (function :tag "Predicate Function")
                 :value-type (string :tag "Flag")))
 
+;; (defcustom magit-repolist-sort-column "Path"
+(defcustom magit-repolist-sort-column "Name"
+ "Default sort column for function `magit-list-repositories'.
+  This string should be the CAR of an entry in variable
+  `magit-repolist-columns'."
+  :type 'string
+  :group 'magit-repolist)
+
+(defcustom magit-repolist-styles
+  '((simple .
+      (("Name" 25 magit-repolist-column-ident nil)
+       ("Path" 99 magit-repolist-column-path nil)))
+    (versioned .
+      (("Name" 25 magit-repolist-column-ident nil)
+       ("Version" 25 magit-repolist-column-version nil)))
+    (status .
+      (("Unpushed" 8 magit-repolist-column-unpushed-to-upstream
+        ((:right-align t)
+         (:help-echo "Local changes not in upstream")))
+       ("Unpulled" 8 magit-repolist-column-unpulled-from-upstream
+        ((:right-align t)
+         (:help-echo "Upstream changes not in branch")))
+       ("Flags"    (length magit-repolist-column-flag-alist) magit-repolist-column-flags nil)
+       ("Name"     25  magit-repolist-column-ident nil)
+       ("b"         2  magit-repolist-column-branches ((:right-align t)))
+       ("branch"   15  magit-repolist-column-branch   nil)
+       ("stashes"   2  magit-repolist-column-stashes  ((:right-align t))))))
+  "List of display styles for function `magit-list-repositories'.
+Each entry should be a CONS whose car is a symbol identifying the
+style, and whose CDR is of a form suitable for variable
+`magit-repolist-columns'."
+  :type 'list
+  :group 'magit-repolist)
+
+(defcustom magit-repolist-current-style 0
+  "Index into variable `magit-repolist-styles'.
+It will be the initial style presented when evaluating function
+`magit-list-repositories-next'."
+  :type 'integer
+  :group 'magit-repolist)
+
 ;;; List Repositories
 ;;;; Command
 ;;;###autoload
@@ -136,12 +177,40 @@ repositories are displayed."
     (message "You need to customize `magit-repository-directories' %s"
              "before you can list repositories")))
 
+(defun magit-list-repositories-next (&optional style)
+  "Cycle through the repository display styles.
+See variable `magit-repolist-styles' and function
+`magit-list-repositories'."
+  (interactive)
+  (let* ((buf (unless (eq major-mode 'magit-repolist-mode)
+                (get-buffer "*Magit Repositories*")))
+         (next-style
+           (progn (when buf (pop-to-buffer buf))
+                  (mod (1+ magit-repolist-current-style)
+                       (length magit-repolist-styles))))
+         (magit-repolist-columns
+           (mapcar
+             (lambda (x)
+               (unless (numberp (nth 1 x))
+                 (condition-case err
+                   (setf (nth 1 x) (eval (nth 1 x)))
+                   (error (error "Malformed variable: magit-repolist-styles"))))
+               x)
+             (cdr (nth next-style magit-repolist-styles)))))
+    (setq-local magit-repolist-current-style next-style)
+    (message "magit-list-repositories: working...")
+    (magit-list-repositories)
+    (setq-local magit-repolist-current-style next-style)
+    (message "Listing style: %s"
+             (car (nth next-style magit-repolist-styles)))))
+
 ;;;; Mode
 
 (defvar magit-repolist-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map (kbd "C-m") 'magit-repolist-status)
+    (define-key map (kbd "n")   'magit-list-repositories-next)
     map)
   "Local keymap for Magit-Repolist mode buffers.")
 
@@ -157,7 +226,8 @@ repositories are displayed."
   (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key
-        (cons (or (car (assoc "Path" magit-repolist-columns))
+        (cons (or (car (assoc magit-repolist-sort-column
+                              magit-repolist-columns))
                   (caar magit-repolist-columns))
               nil))
   (setq tabulated-list-format
@@ -227,6 +297,15 @@ Only one letter is shown, the first that applies."
   (seq-some (pcase-lambda (`(,fun . ,flag))
               (and (funcall fun) flag))
             magit-repolist-column-flag-alist))
+
+(defun magit-repolist-column-flags (id)
+  "Insert all flags as specified by `magit-repolist-column-flag-alist'.
+This is an alternative to function `magit-repolist-column-flag',
+which only lists the first one found."
+  (mapconcat
+    (lambda (x) (if (apply (car x) (list id)) (cdr x) " "))
+    magit-repolist-column-flag-alist
+    ""))
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
