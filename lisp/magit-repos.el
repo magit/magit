@@ -131,20 +131,13 @@ as the value of `magit-repolist-column-flag'."
       (("Name" 25 magit-repolist-column-ident nil)
        ("Path" 99 magit-repolist-column-path nil)))
     (versioned .
-      (("Name" 25 magit-repolist-column-ident nil)
+      (("Name"    25 magit-repolist-column-ident nil)
        ("Version" 25 magit-repolist-column-version nil)))
     (status .
-      (("Unpushed" 8 magit-repolist-column-unpushed-to-upstream
-        ((:right-align t)
-         (:help-echo "Local changes not in upstream")))
-       ("Unpulled" 8 magit-repolist-column-unpulled-from-upstream
-        ((:right-align t)
-         (:help-echo "Upstream changes not in branch")))
-       ("Flags"    (length magit-repolist-column-flag-alist) magit-repolist-column-flags nil)
+      (("NUS ↓↑z"   7  magit-repolist-status-flags nil)
        ("Name"     25  magit-repolist-column-ident nil)
        ("b"         2  magit-repolist-column-branches ((:right-align t)))
-       ("branch"   15  magit-repolist-column-branch   nil)
-       ("stashes"   2  magit-repolist-column-stashes  ((:right-align t))))))
+       ("branch"   15  magit-repolist-column-branch   nil))))
   "List of display styles for function `magit-list-repositories'.
 Each entry should be a CONS whose car is a symbol identifying the
 style, and whose CDR is of a form suitable for variable
@@ -152,12 +145,24 @@ style, and whose CDR is of a form suitable for variable
   :type 'list
   :group 'magit-repolist)
 
-(defcustom magit-repolist-current-style 0
-  "Index into variable `magit-repolist-styles'.
-It will be the initial style presented when evaluating function
-`magit-list-repositories-next'."
-  :type 'integer
+(defcustom magit-repolist-desired-styles (list 'simple 'versioned 'status)
+  "A list of styles to cycle through.
+Each element of the list should be a CAR value of variable
+`magit-repolist-styles'."
+  :type '(repeat (symbol :match (lambda (w v)
+                                   (memq v (mapcar 'car magit-repolist-styles)))))
   :group 'magit-repolist)
+
+(defvar-local magit-repolist-current-style (car magit-repolist-desired-styles))
+
+(defvar magit-repolist-status-flag-alist
+  '(("N" . magit-untracked-files)
+    ("U" . magit-unstaged-files)
+    ("S" . magit-staged-files)
+    (" " . (lambda (x) " "))
+    ("↓" . magit-repolist-column-unpulled-from-upstream)
+    ("↑" . magit-repolist-column-unpushed-to-upstream)
+    ("z" . magit-repolist-column-stashes)))
 
 ;;; List Repositories
 ;;;; Command
@@ -186,8 +191,9 @@ See variable `magit-repolist-styles' and function
                 (get-buffer "*Magit Repositories*")))
          (next-style
            (progn (when buf (pop-to-buffer buf))
-                  (mod (1+ magit-repolist-current-style)
-                       (length magit-repolist-styles))))
+                  (or (cadr (memq magit-repolist-current-style
+                                  magit-repolist-desired-styles))
+                      (car  magit-repolist-desired-styles))))
          (magit-repolist-columns
            (mapcar
              (lambda (x)
@@ -196,13 +202,12 @@ See variable `magit-repolist-styles' and function
                    (setf (nth 1 x) (eval (nth 1 x)))
                    (error (error "Malformed variable: magit-repolist-styles"))))
                x)
-             (cdr (nth next-style magit-repolist-styles)))))
+             (cdr (assq next-style magit-repolist-styles)))))
     (setq-local magit-repolist-current-style next-style)
     (message "magit-list-repositories: working...")
     (magit-list-repositories)
     (setq-local magit-repolist-current-style next-style)
-    (message "Listing style: %s"
-             (car (nth next-style magit-repolist-styles)))))
+    (message "Listing style: %s" next-style)))
 
 ;;;; Mode
 
@@ -305,6 +310,28 @@ which only lists the first one found."
   (mapconcat
     (lambda (x) (if (apply (car x) (list id)) (cdr x) " "))
     magit-repolist-column-flag-alist
+    ""))
+
+(defun magit-repolist-status-flags (id)
+  "Insert all flags as specified by `magit-repolist-status-flag-alist'.
+This is an alternative to function `magit-repolist-column-flags'."
+  (mapconcat
+    (lambda (x)
+      (let ((result (apply (cdr x) (list id))))
+        (when (listp result)
+          (setq result (length result)))
+        (cond
+         ((not result) " ")
+         ((numberp result)
+           (cond ((< 9 result) "+")
+                 ((< 0 result) (number-to-string result))
+                 (t " ")))
+         ((stringp result)
+           (if (or (zerop (length result))
+                   (string= "0" result))
+             " "
+            (substring-no-properties result -1))))))
+    magit-repolist-status-flag-alist
     ""))
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
