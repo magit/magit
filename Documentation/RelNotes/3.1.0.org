@@ -4,3 +4,6 @@
 ** Fixes since v3.0.0
 
 - Fixed ~magit-emacs-Q-command~ and ~make build~ for ELPA users.
+
+- ~magit-blame~ didn't account for quoted file names when parsing
+  output from ~git blame~.  #4400
