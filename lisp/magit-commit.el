@@ -283,7 +283,10 @@ depending on the value of option `magit-commit-squash-confirm'."
 
 With a prefix argument the target COMMIT has to be confirmed.
 Otherwise the commit at point may be used without confirmation
-depending on the value of option `magit-commit-squash-confirm'."
+depending on the value of option `magit-commit-squash-confirm'.
+
+If you want to immediately add a message to the squash commit,
+then use `magit-commit-augment' instead of this command."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
   (magit-commit-squash-internal "--squash" commit args))
