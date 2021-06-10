@@ -596,36 +596,36 @@ into a list."
 Like `completing-read-multiple' but don't mess with order of
 TABLE and take an additional argument NO-SPLIT, which causes
 the user input to be returned as a single unmodified string."
-  (cl-letf (;;
-            ((symbol-function 'completion-pcm--all-completions)
-             (if (< emacs-major-version 26)
-                 'magit-completion-pcm--all-completions
-               (symbol-function 'completion-pcm--all-completions)))
-            ;;
-            ((symbol-function '--orig--split-string)
-             (symbol-function 'split-string))
-            ((symbol-function 'split-string)
-             (lambda (string &optional separators omit-nulls trim)
-               (if (and no-split
-                        (equal separators crm-separator)
-                        (equal omit-nulls t))
-                   string
-                 (with-no-warnings
-                   (--orig--split-string
-                    string separators omit-nulls trim))))))
-    (let (;;
-          (helm-crm-default-separator
-           (if no-split nil helm-crm-default-separator))
-          ;;
-          (helm-completion-in-region-default-sort-fn nil)
-          ;;
-          (ivy-sort-matches-functions-alist nil))
-      ;;
-      (setq table (magit--completion-table table))
-      ;; And now:
-      (completing-read-multiple
-       prompt table predicate require-match initial-input
-       hist def inherit-input-method))))
+  (cl-letf*
+      (;;
+       ((symbol-function 'completion-pcm--all-completions)
+        (if (< emacs-major-version 26)
+            'magit-completion-pcm--all-completions
+          (symbol-function 'completion-pcm--all-completions)))
+       ;;
+       (orig-split-string (symbol-function 'split-string))
+       ((symbol-function 'split-string)
+        (lambda (string &optional separators omit-nulls trim)
+          (if (and no-split
+                   (equal separators crm-separator)
+                   (equal omit-nulls t))
+              string
+            (with-no-warnings
+              (funcall orig-split-string
+                       string separators omit-nulls trim)))))
+       ;;
+       (helm-crm-default-separator
+        (if no-split nil helm-crm-default-separator))
+       ;;
+       (helm-completion-in-region-default-sort-fn nil)
+       ;;
+       (ivy-sort-matches-functions-alist nil))
+    ;;
+    (setq table (magit--completion-table table))
+    ;; And now:
+    (completing-read-multiple
+     prompt table predicate require-match initial-input
+     hist def inherit-input-method)))
 
 (defun magit-ido-completing-read
     (prompt choices &optional predicate require-match initial-input hist def)
