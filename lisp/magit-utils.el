@@ -603,29 +603,33 @@ the user input to be returned as a single unmodified string."
             'magit-completion-pcm--all-completions
           (symbol-function 'completion-pcm--all-completions)))
        ;;
+       (pre-split-string "")
        (orig-split-string (symbol-function 'split-string))
        ((symbol-function 'split-string)
         (lambda (string &optional separators omit-nulls trim)
-          (if (and no-split
-                   (equal separators crm-separator)
-                   (equal omit-nulls t))
-              string
-            (with-no-warnings
-              (funcall orig-split-string
-                       string separators omit-nulls trim)))))
+          (and no-split
+               (equal separators crm-separator)
+               (equal omit-nulls t)
+               (setq pre-split-string string))
+          (with-no-warnings
+            (funcall orig-split-string
+                     string separators omit-nulls trim))))
        ;;
        (helm-crm-default-separator
         (if no-split nil helm-crm-default-separator))
        ;;
        (helm-completion-in-region-default-sort-fn nil)
        ;;
-       (ivy-sort-matches-functions-alist nil))
-    ;;
-    (setq table (magit--completion-table table))
-    ;; And now:
-    (completing-read-multiple
-     prompt table predicate require-match initial-input
-     hist def inherit-input-method)))
+       (ivy-sort-matches-functions-alist nil)
+       ;;
+       (table (magit--completion-table table))
+       ;; And now:
+       (result (completing-read-multiple
+                prompt table predicate require-match initial-input
+                hist def inherit-input-method)))
+    (if no-split
+        pre-split-string
+      result)))
 
 (defun magit-ido-completing-read
     (prompt choices &optional predicate require-match initial-input hist def)
