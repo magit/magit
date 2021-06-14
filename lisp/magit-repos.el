@@ -37,6 +37,17 @@
 
 (defvar x-stretch-cursor)
 
+(defvar magit-repolist-status-flag-alist
+  '(("N" . magit-untracked-files)
+    ("U" . magit-unstaged-files)
+    ("S" . magit-staged-files)
+    (" " . (lambda (x) " "))
+    ("↓" . magit-repolist-column-unpulled-from-upstream)
+    ("↑" . magit-repolist-column-unpushed-to-upstream)
+    ("z" . magit-repolist-column-stashes))
+  "Comprehensive alist of status flags and operations.
+To be used by function `magit-repolist-status-flags'.")
+
 ;;; Options
 
 (defcustom magit-repository-directories nil
@@ -229,6 +240,37 @@ Only one letter is shown, the first that applies."
   (seq-some (pcase-lambda (`(,fun . ,flag))
               (and (funcall fun) flag))
             magit-repolist-column-flag-alist))
+
+(defun magit-repolist-status-flags (id)
+  "Insert all flags as specified by `magit-repolist-status-flag-alist'.
+This is an alternative to function `magit-repolist-column-flags'."
+  (mapconcat
+    (lambda (x)
+      (let ((result (apply (cdr x) (list id))))
+        (when (listp result)
+          (setq result (length result)))
+        (cond
+         ((not result) " ")
+         ((numberp result)
+           (cond ((< 9 result) "+")
+                 ((< 0 result) (number-to-string result))
+                 (t " ")))
+         ((stringp result)
+           (if (or (zerop (length result))
+                   (string= "0" result))
+             " "
+            (substring-no-properties result -1))))))
+    magit-repolist-status-flag-alist
+    ""))
+
+(defun magit-repolist-column-flags (id)
+  "Insert all flags as specified by `magit-repolist-column-flag-alist'.
+This is an alternative to function `magit-repolist-column-flag',
+which only lists the first one found."
+  (mapconcat
+    (lambda (x) (if (apply (car x) (list id)) (cdr x) " "))
+    magit-repolist-column-flag-alist
+    ""))
 
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
