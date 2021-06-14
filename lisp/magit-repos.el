@@ -129,10 +129,12 @@ repositories are displayed."
   (interactive)
   (if magit-repository-directories
       (with-current-buffer (get-buffer-create "*Magit Repositories*")
+        (message "Listing repositories...")
         (magit-repolist-mode)
         (magit-repolist-refresh)
         (tabulated-list-print)
-        (switch-to-buffer (current-buffer)))
+        (switch-to-buffer (current-buffer))
+        (message "Listing repositories...done"))
     (message "You need to customize `magit-repository-directories' %s"
              "before you can list repositories")))
 
