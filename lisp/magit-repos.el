@@ -129,6 +129,7 @@ repositories are displayed."
   (interactive)
   (if magit-repository-directories
       (with-current-buffer (get-buffer-create "*Magit Repositories*")
+        (message "magit-list-repositories: working...")
         (magit-repolist-mode)
         (magit-repolist-refresh)
         (tabulated-list-print)
