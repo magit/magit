@@ -584,13 +584,15 @@ These sections can be expanded to show the respective commits."
 (defun magit-list-submodules ()
   "Display a list of the current repository's submodules."
   (interactive)
+  (message "Listing submodules...")
   (magit-display-buffer
    (or (magit-get-mode-buffer 'magit-submodule-list-mode)
        (magit-with-toplevel
          (magit-generate-new-buffer 'magit-submodule-list-mode))))
   (magit-submodule-list-mode)
   (magit-submodule-list-refresh)
-  (tabulated-list-print))
+  (tabulated-list-print)
+  (message "Listing submodules...done"))
 
 (defvar magit-submodule-list-mode-map
   (let ((map (make-sparse-keymap)))
