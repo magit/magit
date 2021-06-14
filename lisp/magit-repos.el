@@ -118,6 +118,13 @@ as the value of `magit-repolist-column-flag'."
   :type '(alist :key-type (function :tag "Predicate Function")
                 :value-type (string :tag "Flag")))
 
+(defcustom magit-repolist-sort-column "Name"
+ "Default sort column for function `magit-list-repositories'.
+This string should be the CAR of an entry in variable
+`magit-repolist-columns'."
+  :type 'string
+  :group 'magit-repolist)
+
 ;;; List Repositories
 ;;;; Command
 ;;;###autoload
@@ -159,9 +166,10 @@ repositories are displayed."
   (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key
-        (cons (or (car (assoc "Path" magit-repolist-columns))
+        (cons (or (car (assoc magit-repolist-sort-column
+                              magit-repolist-columns))
                   (caar magit-repolist-columns))
-              nil))
+                                nil))
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)
