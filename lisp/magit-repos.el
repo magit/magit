@@ -153,7 +153,7 @@ Each element of the list should be a CAR value of variable
                                    (memq v (mapcar 'car magit-repolist-styles)))))
   :group 'magit-repolist)
 
-(defvar-local magit-repolist-current-style (car magit-repolist-desired-styles))
+(defvar-local magit-repolist-current-style nil)
 
 (defvar magit-repolist-status-flag-alist
   '(("N" . magit-untracked-files)
