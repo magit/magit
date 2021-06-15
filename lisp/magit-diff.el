@@ -914,6 +914,8 @@ and `:slant'."
     :if-derived magit-diff-mode)
    ("=g" "Show signature"                 "--show-signature"
     :if-derived magit-diff-mode)
+   ("-R" "Reverse direction"              "-R"
+    :if-derived magit-diff-mode)
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
   [["Refresh"
@@ -1913,7 +1915,11 @@ Staging and applying changes is documented in info node
                  (if (string-match-p "\\(\\.\\.\\|\\^-\\)"
                                      magit-buffer-range)
                      (format "Changes in %s" magit-buffer-range)
-                   (format "Changes from %s to working tree" magit-buffer-range))
+                   (let ((from-to (list magit-buffer-range "working tree")))
+                     (apply #'format "Changes from %s to %s"
+                            (if (member "-R" magit-buffer-diff-args)
+                                (reverse from-to)
+                              from-to))))
                (if (equal magit-buffer-typearg "--cached")
                    "Staged changes"
                  "Unstaged changes"))
