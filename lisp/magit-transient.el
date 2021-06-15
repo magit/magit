@@ -198,4 +198,3 @@
 ;;; _
 (provide 'magit-transient)
 ;;; magit-transient.el ends here
-

@@ -67,9 +67,9 @@
     ("-p" "Follow only first parent of a merge" "--first-parent"
      :if (lambda () (version<= "2.29" (magit-git-version))))
     (6 magit-bisect:--term-old
-     :if (lambda () (version<= "2.7" (magit-git-version))))
+       :if (lambda () (version<= "2.7" (magit-git-version))))
     (6 magit-bisect:--term-new
-     :if (lambda () (version<= "2.7" (magit-git-version))))]
+       :if (lambda () (version<= "2.7" (magit-git-version))))]
    ["Actions"
     ("B" "Start"        magit-bisect-start)
     ("s" "Start script" magit-bisect-run)]]
@@ -78,7 +78,7 @@
    ("B" "Bad"          magit-bisect-bad)
    ("g" "Good"         magit-bisect-good)
    (6 "m" "Mark"       magit-bisect-mark
-    :if (lambda () (version<= "2.7" (magit-git-version))))
+      :if (lambda () (version<= "2.7" (magit-git-version))))
    ("k" "Skip"         magit-bisect-skip)
    ("r" "Reset"        magit-bisect-reset)
    ("s" "Run script"   magit-bisect-run)])

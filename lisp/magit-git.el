@@ -538,8 +538,8 @@ call function WASHER with ARGS as its sole argument."
   (gethash
    ;; `git config --list' downcases first and last components of the key.
    (--> key
-        (replace-regexp-in-string "\\`[^.]+" #'downcase it t t)
-        (replace-regexp-in-string "[^.]+\\'" #'downcase it t t))
+     (replace-regexp-in-string "\\`[^.]+" #'downcase it t t)
+     (replace-regexp-in-string "[^.]+\\'" #'downcase it t t))
    (magit--with-refresh-cache (cons (magit-toplevel) 'config)
      (let ((configs (make-hash-table :test 'equal)))
        (dolist (conf (magit-git-items "config" "--list" "-z"))
@@ -1671,7 +1671,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 
 (defun magit-list-branches-pointing-at (commit)
   (let ((re (format "\\`%s refs/\\(heads\\|remotes\\)/\\(.*\\)\\'"
-                   (magit-rev-verify commit))))
+                    (magit-rev-verify commit))))
     (--keep (and (string-match re it)
                  (let ((name (match-string 2 it)))
                    (and (not (string-suffix-p "HEAD" name))
@@ -2225,7 +2225,7 @@ and this option only controls what face is used.")
     (or (magit-completing-read prompt choices
                                nil nil nil 'magit-revision-history
                                (or (magit-local-branch-at-point) commit))
-                     (user-error "Nothing selected"))))
+        (user-error "Nothing selected"))))
 
 (defun magit-read-local-branch-or-ref (prompt &optional secondary-default)
   (magit-completing-read prompt (nconc (magit-list-local-branch-names)

@@ -192,10 +192,10 @@ Also see `magit-notes-merge'."
                       ","))))
 
 (defun magit-notes-read-args (prompt)
- (list (magit-read-branch-or-commit prompt (magit-stash-at-point))
-       (--when-let (--first (string-match "^--ref=\\(.+\\)" it)
-                            (transient-args 'magit-notes))
-         (match-string 1 it))))
+  (list (magit-read-branch-or-commit prompt (magit-stash-at-point))
+        (--when-let (--first (string-match "^--ref=\\(.+\\)" it)
+                             (transient-args 'magit-notes))
+          (match-string 1 it))))
 
 ;;; _
 (provide 'magit-notes)

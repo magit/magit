@@ -563,15 +563,15 @@ HEADING is the displayed heading of the section."
   `(defun ,name (&optional expand) ,(format "\
 Jump to the section \"%s\".
 With a prefix argument also expand it." heading)
-     (interactive "P")
-     (--if-let (magit-get-section
-                (cons (cons ',type ,value)
-                      (magit-section-ident magit-root-section)))
-         (progn (goto-char (oref it start))
-                (when expand
-                  (with-local-quit (magit-section-show it))
-                  (recenter 0)))
-       (message ,(format "Section \"%s\" wasn't found" heading)))))
+          (interactive "P")
+          (--if-let (magit-get-section
+                     (cons (cons ',type ,value)
+                           (magit-section-ident magit-root-section)))
+              (progn (goto-char (oref it start))
+                     (when expand
+                       (with-local-quit (magit-section-show it))
+                       (recenter 0)))
+            (message ,(format "Section \"%s\" wasn't found" heading)))))
 
 ;;;; Visibility
 

@@ -534,7 +534,7 @@ acts similarly to `completing-read', except for the following:
       (complete-with-action action collection string pred))))
 
 (defun magit-builtin-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
+    (prompt choices &optional predicate require-match initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
   (unless (or (bound-and-true-p helm-mode)
               (bound-and-true-p ivy-mode))
@@ -548,7 +548,7 @@ acts similarly to `completing-read', except for the following:
                        initial-input hist def))))
 
 (defun magit-completing-read-multiple
-  (prompt choices &optional sep default hist keymap)
+    (prompt choices &optional sep default hist keymap)
   "Read multiple items from CHOICES, separated by SEP.
 
 Set up the `crm' variables needed to read multiple values with
@@ -584,7 +584,7 @@ into a list."
 
 (defun magit-completing-read-multiple*
     (prompt table &optional predicate require-match initial-input
-	    hist def inherit-input-method)
+            hist def inherit-input-method)
   "Read multiple strings in the minibuffer, with completion.
 Like `completing-read-multiple' but don't mess with order of
 TABLE.  Also bind `helm-completion-in-region-default-sort-fn'
@@ -617,7 +617,7 @@ to nil."
                  'crm--choose-completion-string)))
 
 (defun magit-ido-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
+    (prompt choices &optional predicate require-match initial-input hist def)
   "Ido-based `completing-read' almost-replacement.
 
 Unfortunately `ido-completing-read' is not suitable as a

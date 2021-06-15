@@ -173,22 +173,22 @@ This discards all changes made since the sequence started."
 
 (defun magit--cherry-move-read-args (verb away fn)
   (declare (indent defun))
-   (let ((commits (or (nreverse (magit-region-values 'commit))
-                      (list (funcall (if away
-                                         'magit-read-branch-or-commit
-                                       'magit-read-other-branch-or-commit)
-                                     (format "%s cherry" (capitalize verb))))))
-         (current (magit-get-current-branch)))
-     (unless current
-       (user-error "Cannot %s cherries while HEAD is detached" verb))
-     (let ((reachable (magit-rev-ancestor-p (car commits) current))
-           (msg "Cannot %s cherries that %s reachable from HEAD"))
-       (pcase (list away reachable)
-         (`(nil t) (user-error msg verb "are"))
-         (`(t nil) (user-error msg verb "are not"))))
-     `(,commits
-       ,@(funcall fn commits)
-       ,(transient-args 'magit-cherry-pick))))
+  (let ((commits (or (nreverse (magit-region-values 'commit))
+                     (list (funcall (if away
+                                        'magit-read-branch-or-commit
+                                      'magit-read-other-branch-or-commit)
+                                    (format "%s cherry" (capitalize verb))))))
+        (current (magit-get-current-branch)))
+    (unless current
+      (user-error "Cannot %s cherries while HEAD is detached" verb))
+    (let ((reachable (magit-rev-ancestor-p (car commits) current))
+          (msg "Cannot %s cherries that %s reachable from HEAD"))
+      (pcase (list away reachable)
+        (`(nil t) (user-error msg verb "are"))
+        (`(t nil) (user-error msg verb "are not"))))
+    `(,commits
+      ,@(funcall fn commits)
+      ,(transient-args 'magit-cherry-pick))))
 
 (defun magit--cherry-spinoff-read-args (verb)
   (magit--cherry-move-read-args verb t
@@ -1041,12 +1041,12 @@ status buffer (i.e. the reverse of how they will be applied)."
                    (t
                     (list "done" rev 'magit-sequence-done)))))
     (magit-sequence-insert-commit "onto" onto
-                                (if (equal onto head)
-                                    'magit-sequence-head
-                                  'magit-sequence-onto))))
+                                  (if (equal onto head)
+                                      'magit-sequence-head
+                                    'magit-sequence-onto))))
 
 (defun magit-sequence-insert-commit (type hash face)
- (magit-insert-section (commit hash)
+  (magit-insert-section (commit hash)
     (magit-insert-heading
       (propertize type 'font-lock-face face)    "\s"
       (magit-format-rev-summary hash) "\n")))

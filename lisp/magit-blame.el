@@ -701,9 +701,9 @@ modes is toggled, then this mode also gets toggled automatically.
   (when (magit-blame--style-get 'show-message)
     (let ((message-log-max 0))
       (if-let ((msg (cdr (assoc "summary"
-                               (gethash (oref (magit-current-blame-chunk)
-                                              orig-rev)
-                                        magit-blame-cache)))))
+                                (gethash (oref (magit-current-blame-chunk)
+                                               orig-rev)
+                                         magit-blame-cache)))))
           (progn (set-text-properties 0 (length msg) nil msg)
                  (message msg))
         (message "Commit data not available yet.  Still blaming.")))))
