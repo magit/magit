@@ -834,15 +834,15 @@ and `:slant'."
 ;;; Section Classes
 
 (defclass magit-file-section (magit-section)
-  ((keymap :initform magit-file-section-map)
+  ((keymap :initform 'magit-file-section-map)
    (source :initform nil)
    (header :initform nil)))
 
 (defclass magit-module-section (magit-file-section)
-  ((keymap :initform magit-hunk-section-map)))
+  ((keymap :initform 'magit-hunk-section-map)))
 
 (defclass magit-hunk-section (magit-section)
-  ((keymap      :initform magit-hunk-section-map)
+  ((keymap      :initform 'magit-hunk-section-map)
    (refined     :initform nil)
    (combined    :initform nil)
    (from-range  :initform nil)
