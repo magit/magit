@@ -70,12 +70,12 @@
 (defvar magit-inhibit-libgit nil
   "Whether to inhibit the use of libgit.")
 
-(defvar magit--libgit-available-p eieio-unbound
+(defvar magit--libgit-available-p 'unknown
   "Whether libgit is available.
 Use the function by the same name instead of this variable.")
 
 (defun magit--libgit-available-p ()
-  (if (eq magit--libgit-available-p eieio-unbound)
+  (if (eq magit--libgit-available-p 'unknown)
       (setq magit--libgit-available-p
             (and module-file-suffix
                  (let ((libgit (locate-library "libgit")))

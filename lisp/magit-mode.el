@@ -1419,7 +1419,7 @@ repository's Magit buffers."
   (dolist (buffer (magit-mode-get-buffers))
     (with-current-buffer buffer
       (setq magit-section-visibility-cache nil)))
-  (setq magit--libgit-available-p eieio-unbound))
+  (setq magit--libgit-available-p 'unknown))
 
 ;;; Utilities
 
