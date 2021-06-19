@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.0.0
+#+SUBTITLE: for version 3.0.0 (v3.0.0-11-g54a0019f3+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.0.0.
+This manual is for Magit version 3.0.0 (v3.0.0-11-g54a0019f3+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -7492,7 +7492,7 @@ numbers of tags.  It would therefore be a good idea to disable
 
 **** Log Performance
 :PROPERTIES:
-:NONODE: t
+:UNNUMBERED: notoc
 :END:
 
 When showing logs, Magit limits the number of commits initially shown
@@ -7522,7 +7522,7 @@ Consider leaving it at that.
 
 **** Diff Performance
 :PROPERTIES:
-:NONODE: t
+:UNNUMBERED: notoc
 :END:
 
 If diffs are slow, then consider turning off some optional diff
@@ -7549,7 +7549,7 @@ the diff (~d~) and the diff refresh (~D~) transient popups.
 
 **** Refs Buffer Performance
 :PROPERTIES:
-:NONODE: t
+:UNNUMBERED: notoc
 :END:
 
 When refreshing the "references buffer" is slow, then that's usually
@@ -7569,7 +7569,7 @@ exist using ~f-pa~.
 
 **** Committing Performance
 :PROPERTIES:
-:NONODE: t
+:UNNUMBERED: notoc
 :END:
 
 When you initiate a commit, then Magit by default automatically shows

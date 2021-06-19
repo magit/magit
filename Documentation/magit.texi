@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.0.0
+@subtitle for version 3.0.0 (v3.0.0-11-g54a0019f3+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.0.0.
+This manual is for Magit version 3.0.0 (v3.0.0-11-g54a0019f3+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -10176,7 +10176,8 @@ numbers of tags.  It would therefore be a good idea to disable
 * MacOS Performance::
 @end menu
 
-@unnumberedsubsubsec Log Performance
+@anchor{Log Performance}
+@subsubheading Log Performance
 
 When showing logs, Magit limits the number of commits initially shown
 in the hope that this avoids unnecessary work.  When using @code{--graph} is
@@ -10203,7 +10204,8 @@ and this is quite noticeable when showing a log with many branches and
 merges.  For that reason @code{--color} is not enabled by default anymore.
 Consider leaving it at that.
 
-@unnumberedsubsubsec Diff Performance
+@anchor{Diff Performance}
+@subsubheading Diff Performance
 
 If diffs are slow, then consider turning off some optional diff
 features by setting all or some of the following variables to @code{nil}:
@@ -10226,7 +10228,8 @@ is not available by default, see @ref{Enabling and Disabling Suffixes,,,transien
 setting, see @ref{Saving Values,,,transient,}.  You should do this in both
 the diff (@code{d}) and the diff refresh (@code{D}) transient popups.
 
-@unnumberedsubsubsec Refs Buffer Performance
+@anchor{Refs Buffer Performance}
+@subsubheading Refs Buffer Performance
 
 When refreshing the "references buffer" is slow, then that's usually
 because several hundred refs are being displayed.  The best way to
@@ -10243,7 +10246,8 @@ Then you should also make sure that the listed remote branches
 actually all exist.  You can do so by pruning branches which no longer
 exist using @code{f-pa}.
 
-@unnumberedsubsubsec Committing Performance
+@anchor{Committing Performance}
+@subsubheading Committing Performance
 
 When you initiate a commit, then Magit by default automatically shows
 a diff of the changes you are about to commit.  For large commits this
