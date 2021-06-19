@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.0.0 (v3.0.0-11-g54a0019f3+1)
+#+SUBTITLE: for version 3.0.0 (v3.0.0-12-gd33fc279b+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.0.0 (v3.0.0-11-g54a0019f3+1).
+This manual is for Magit version 3.0.0 (v3.0.0-12-gd33fc279b+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -4398,7 +4398,7 @@ Also see [[man:git-commit]]
   always require confirmation because making an error while using
   those is harder to recover from.
 
-- User Option magit-post-commit-hook
+- User Option: magit-post-commit-hook
 
   Hook run after creating a commit without the user editing a message.
 

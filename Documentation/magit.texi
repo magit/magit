@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.0.0 (v3.0.0-11-g54a0019f3+1)
+@subtitle for version 3.0.0 (v3.0.0-12-gd33fc279b+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.0.0 (v3.0.0-11-g54a0019f3+1).
+This manual is for Magit version 3.0.0 (v3.0.0-12-gd33fc279b+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6001,9 +6001,7 @@ always require confirmation because making an error while using
 those is harder to recover from.
 @end defopt
 
-@itemize
-@item
-User Option magit-post-commit-hook
+@defopt magit-post-commit-hook
 
 Hook run after creating a commit without the user editing a message.
 
@@ -6013,7 +6011,7 @@ named @code{magit-commit-*} that do @strong{not} require that the user edits
 the commit message in a buffer.
 
 Also see @code{git-commit-post-finish-hook}.
-@end itemize
+@end defopt
 
 @node Editing Commit Messages
 @subsection Editing Commit Messages
