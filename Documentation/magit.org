@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.0.0 (v3.0.0-12-gd33fc279b+1)
+#+SUBTITLE: for version 3.0.0 (v3.0.0-13-g3820ca58+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.0.0 (v3.0.0-12-gd33fc279b+1).
+This manual is for Magit version 3.0.0 (v3.0.0-13-g3820ca58+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -7849,15 +7849,6 @@ the refresh because that also automatically moves to the next change.
   filesystem, this function actually runs git asynchronously.  But
   then it waits for the process to return, so the function itself is
   synchronous.
-
-- Function: magit-run-git-with-logfile file &rest args
-
-  Calls git synchronously with ARGS.  The process's output is saved in
-  FILE.  This is rarely useful and so this function might be removed
-  in the future.
-
-  This function actually runs git asynchronously.  But then it waits
-  for the process to return, so the function itself is synchronous.
 
 - Function: magit-git &rest args
 

@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.0.0 (v3.0.0-12-gd33fc279b+1)
+@subtitle for version 3.0.0 (v3.0.0-13-g3820ca58+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.0.0 (v3.0.0-12-gd33fc279b+1).
+This manual is for Magit version 3.0.0 (v3.0.0-13-g3820ca58+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -10558,16 +10558,6 @@ If the current buffer's @code{default-directory} is on a remote
 filesystem, this function actually runs git asynchronously.  But
 then it waits for the process to return, so the function itself is
 synchronous.
-@end defun
-
-@defun magit-run-git-with-logfile file &rest args
-
-Calls git synchronously with ARGS@.  The process's output is saved in
-FILE@.  This is rarely useful and so this function might be removed
-in the future.
-
-This function actually runs git asynchronously.  But then it waits
-for the process to return, so the function itself is synchronous.
 @end defun
 
 @defun magit-git &rest args
