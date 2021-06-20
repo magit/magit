@@ -7,3 +7,6 @@
 
 - ~magit-blame~ didn't account for quoted file names when parsing
   output from ~git blame~.  #4400
+
+- A regression in v3.0.0 prevented ~magit-bisect-run~ from executing
+  ~git bisect run~ unless ~magit-bisect-start~ was called beforehand.
