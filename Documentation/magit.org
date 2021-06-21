@@ -2616,6 +2616,11 @@ the status buffer.
   first parent, but a numeric prefix can be used to specify another
   parent.
 
+- Key: j, magit-log-jump
+
+  Cursor jump to a given branch, tag or commit. If item does not
+  appear in the current log buffer, do nothing. 
+
 - Key: SPC, magit-diff-show-or-scroll-up
 
   Update the commit or diff buffer for the thing at point.

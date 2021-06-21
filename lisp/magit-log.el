@@ -934,6 +934,7 @@ is displayed in the current frame."
     (define-key map "=" 'magit-log-toggle-commit-limit)
     (define-key map "+" 'magit-log-double-commit-limit)
     (define-key map "-" 'magit-log-half-commit-limit)
+    (define-key map "j" 'magit-log-jump)
     (define-key map "q" 'magit-log-bury-buffer)
     map)
   "Keymap for `magit-log-mode'.")
@@ -1418,6 +1419,13 @@ If there is no blob buffer in the same frame, then do nothing."
              (magit-section-match '(commit branch)
                                   magit-previous-section))
     (magit-log-goto-commit-section (oref magit-previous-section value))))
+
+(defun magit-log-jump (rev)
+  (interactive (list (magit-read-other-branch-or-commit "Jump")))
+  (when (string-match "\\`heads/\\(.+\\)" rev)
+    (setq rev (match-string 1 rev)))
+  (unless (magit-log-goto-commit-section rev)
+    (user-error "Commit `%s' does not appear in the log buffer." rev)))
 
 ;;; Log Margin
 
