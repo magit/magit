@@ -544,8 +544,10 @@ acts similarly to `completing-read', except for the following:
   (unless (or (bound-and-true-p helm-mode)
               (bound-and-true-p ivy-mode))
     (setq choices (magit--completion-table choices)))
-  (cl-letf (((symbol-function 'completion-pcm--all-completions)
-             #'magit-completion-pcm--all-completions))
+  (cl-letf (((symbol-function 'completion-pcm--all-completions)))
+    (when (< emacs-major-version 26)
+      (fset 'completion-pcm--all-completions
+            'magit-completion-pcm--all-completions))
     (let ((ivy-sort-functions-alist nil))
       (completing-read prompt choices
                        predicate require-match
@@ -575,8 +577,10 @@ into a list."
          (helm-crm-default-separator nil)
          (ivy-sort-matches-functions-alist nil)
          (input
-          (cl-letf (((symbol-function 'completion-pcm--all-completions)
-                     #'magit-completion-pcm--all-completions))
+          (cl-letf (((symbol-function 'completion-pcm--all-completions)))
+            (when (< emacs-major-version 26)
+              (fset 'completion-pcm--all-completions
+                    'magit-completion-pcm--all-completions))
             (read-from-minibuffer
              (concat prompt (and default (format " (%s)" default)) ": ")
              nil (or keymap crm-local-completion-map)
@@ -594,8 +598,10 @@ Like `completing-read-multiple' but don't mess with order of
 TABLE.  Also bind `helm-completion-in-region-default-sort-fn'
 to nil."
   (unwind-protect
-      (cl-letf (((symbol-function 'completion-pcm--all-completions)
-                 #'magit-completion-pcm--all-completions))
+      (cl-letf (((symbol-function 'completion-pcm--all-completions)))
+        (when (< emacs-major-version 26)
+          (fset 'completion-pcm--all-completions
+                'magit-completion-pcm--all-completions))
         (add-hook 'choose-completion-string-functions
                   'crm--choose-completion-string)
         (let* ((minibuffer-completion-table #'crm--collection-fn)
@@ -1029,27 +1035,26 @@ and https://github.com/magit/magit/issues/2295."
   (advice-add 'auto-revert-handler :around 'auto-revert-handler@bug21559)
   )
 
-;; `completion-pcm--all-completions' reverses the completion list.  To
-;; preserve the order of our pre-sorted completions, we'll temporarily
-;; override it with the function below.  bug#24676
-(defun magit-completion-pcm--all-completions (prefix pattern table pred)
-  (if (completion-pcm--pattern-trivial-p pattern)
-      (all-completions (concat prefix (car pattern)) table pred)
-    (let* ((regex (completion-pcm--pattern->regex pattern))
-           (case-fold-search completion-ignore-case)
-           (completion-regexp-list (cons regex completion-regexp-list))
-           (compl (all-completions
-                   (concat prefix
-                           (if (stringp (car pattern)) (car pattern) ""))
-                   table pred)))
-      (if (not (functionp table))
-          compl
-        (let ((poss ()))
-          (dolist (c compl)
-            (when (string-match-p regex c) (push c poss)))
-          ;; This `nreverse' call is the only code change made to the
-          ;; `completion-pcm--all-completions' that shipped with Emacs 25.1.
-          (nreverse poss))))))
+(when (< emacs-major-version 26)
+  ;; In Emacs 25 `completion-pcm--all-completions' reverses the
+  ;; completion list.  This is the version from Emacs 26, which
+  ;; fixes that issue.  bug#24676
+  (defun magit-completion-pcm--all-completions (prefix pattern table pred)
+    (if (completion-pcm--pattern-trivial-p pattern)
+        (all-completions (concat prefix (car pattern)) table pred)
+      (let* ((regex (completion-pcm--pattern->regex pattern))
+             (case-fold-search completion-ignore-case)
+             (completion-regexp-list (cons regex completion-regexp-list))
+             (compl (all-completions
+                     (concat prefix
+                             (if (stringp (car pattern)) (car pattern) ""))
+                     table pred)))
+        (if (not (functionp table))
+            compl
+          (let ((poss ()))
+            (dolist (c compl)
+              (when (string-match-p regex c) (push c poss)))
+            (nreverse poss)))))))
 
 (defun magit-which-function ()
   "Return current function name based on point.
