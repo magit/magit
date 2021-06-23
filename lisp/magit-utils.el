@@ -567,6 +567,7 @@ When KEYMAP is nil, it defaults to `crm-local-completion-map'.
 
 Unlike `completing-read-multiple', the return value is not split
 into a list."
+  (declare (obsolete magit-completing-read-multiple* "Magit 3.1.0"))
   (let* ((crm-separator (or sep crm-default-separator))
          (crm-completion-table (magit--completion-table choices))
          (choose-completion-string-functions
@@ -592,40 +593,52 @@ into a list."
 
 (defun magit-completing-read-multiple*
     (prompt table &optional predicate require-match initial-input
-            hist def inherit-input-method)
+            hist def inherit-input-method
+            no-split)
   "Read multiple strings in the minibuffer, with completion.
 Like `completing-read-multiple' but don't mess with order of
-TABLE.  Also bind `helm-completion-in-region-default-sort-fn'
-to nil."
-  (unwind-protect
-      (cl-letf (((symbol-function 'completion-pcm--all-completions)))
-        (when (< emacs-major-version 26)
-          (fset 'completion-pcm--all-completions
-                'magit-completion-pcm--all-completions))
-        (add-hook 'choose-completion-string-functions
-                  'crm--choose-completion-string)
-        (let* ((minibuffer-completion-table #'crm--collection-fn)
-               (minibuffer-completion-predicate predicate)
-               ;; see completing_read in src/minibuf.c
-               (minibuffer-completion-confirm
-                (unless (eq require-match t) require-match))
-               (crm-completion-table (magit--completion-table table))
-               (map (if require-match
-                        crm-local-must-match-map
-                      crm-local-completion-map))
-               (helm-completion-in-region-default-sort-fn nil)
-               (ivy-sort-matches-functions-alist nil)
-               ;; If the user enters empty input, `read-from-minibuffer'
-               ;; returns the empty string, not DEF.
-               (input (read-from-minibuffer
-                       prompt initial-input map
-                       nil hist def inherit-input-method)))
-          (when (and def (string-equal input ""))
-            (setq input (if (consp def) (car def) def)))
-          ;; Remove empty strings in the list of read strings.
-          (split-string input crm-separator t)))
-    (remove-hook 'choose-completion-string-functions
-                 'crm--choose-completion-string)))
+TABLE and take an additional argument NO-SPLIT, which causes
+the user input to be returned as a single unmodified string.
+Also work around various misfeatures of various third-party
+completion frameworks."
+  (cl-letf*
+      (;; To implement NO-SPLIT we have to manipulate the respective
+       ;; `split-string' invocation.  We cannot simply advice it to
+       ;; return the input string because `SELECTRUM' would choke on
+       ;; it that string.  Use a variable to pass along the raw user
+       ;; input string. aa5f098ab
+       (input nil)
+       (split-string (symbol-function 'split-string))
+       ((symbol-function 'split-string)
+        (lambda (string &optional separators omit-nulls trim)
+          (when (and no-split
+                     (equal separators crm-separator)
+                     (equal omit-nulls t))
+            (setq input string))
+          (funcall split-string string separators omit-nulls trim)))
+       ;; In Emacs 25 this function has a bug, so we use a copy of the
+       ;; version from Emacs 26. bef9c7aa3
+       ((symbol-function 'completion-pcm--all-completions)
+        (if (< emacs-major-version 26)
+            'magit-completion-pcm--all-completions
+          (symbol-function 'completion-pcm--all-completions)))
+       ;; Prevent `BUILT-IN' completion from messing up our existing
+       ;; order of the completion candidates. aa5f098ab
+       (table (magit--completion-table table))
+       ;; Prevent `IVY' from messing up our existing order. c7af78726
+       (ivy-sort-matches-functions-alist nil)
+       ;; Prevent `HELM' from messing up our existing order.  6fcf994bd
+       (helm-completion-in-region-default-sort-fn nil)
+       ;; Prevent `HELM' from automatically appending the separator,
+       ;; which is counterproductive when NO-SPLIT is non-nil and/or
+       ;; when reading commit ranges. 798aff564
+       (helm-crm-default-separator
+        (if no-split nil helm-crm-default-separator))
+       ;; And now, the moment we have all been waiting for...
+       (values (completing-read-multiple
+                prompt table predicate require-match initial-input
+                hist def inherit-input-method)))
+    (if no-split input values)))
 
 (defun magit-ido-completing-read
     (prompt choices &optional predicate require-match initial-input hist def)

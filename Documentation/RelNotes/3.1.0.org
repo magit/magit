@@ -1,5 +1,11 @@
 * Magit v3.1.0 Release Notes (unreleased)
 ** Breaking changes
+
+- The function signature of ~magit-completing-read-multiple~ was not
+  compatible with that of ~completing-read-multiple~, so we deprecate
+  it.  Use the improved ~magit-completing-read-multiple*~ instead.
+  #4420
+
 ** Changes since v3.0.0
 
 - Added new command ~magit-log-move-to-revision~.  #4418

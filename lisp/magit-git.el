@@ -2194,10 +2194,11 @@ and this option only controls what face is used.")
        (magit-get-current-branch))))
 
 (defun magit-read-range (prompt &optional default)
-  (magit-completing-read-multiple prompt
-                                  (magit-list-refnames)
-                                  "\\.\\.\\.?"
-                                  default 'magit-revision-history))
+  (let ((crm-separator "\\.\\.\\.?"))
+    (magit-completing-read-multiple*
+     (concat prompt ": ")
+     (magit-list-refnames)
+     nil nil nil 'magit-revision-history default nil t)))
 
 (defun magit-read-remote-branch
     (prompt &optional remote default local-branch require-match)
