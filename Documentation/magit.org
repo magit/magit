@@ -2616,6 +2616,17 @@ the status buffer.
   first parent, but a numeric prefix can be used to specify another
   parent.
 
+- Key: j, magit-log-move-to-revision
+
+  Read a revision and move to it in current log buffer.
+
+  If the chosen reference or revision isn't being displayed in
+  the current log buffer, then inform the user about that and do
+  nothing else.
+
+  If invoked outside any log buffer, then display the log buffer
+  of the current repository first; creating it if necessary.
+
 - Key: SPC, magit-diff-show-or-scroll-up
 
   Update the commit or diff buffer for the thing at point.

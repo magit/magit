@@ -1,6 +1,9 @@
 * Magit v3.1.0 Release Notes (unreleased)
 ** Breaking changes
 ** Changes since v3.0.0
+
+- Added new command ~magit-log-move-to-revision~.  #4418
+
 ** Fixes since v3.0.0
 
 - Fixed ~magit-emacs-Q-command~ and ~make build~ for ELPA users.
