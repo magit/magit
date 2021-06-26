@@ -951,7 +951,7 @@ of the current repository first; creating it if necessary."
     (define-key map "\C-c\C-b" 'magit-go-backward)
     (define-key map "\C-c\C-f" 'magit-go-forward)
     (define-key map "\C-c\C-n" 'magit-log-move-to-parent)
-    (define-key map "m" 'magit-log-move-to-revision)
+    (define-key map "j" 'magit-log-move-to-revision)
     (define-key map "=" 'magit-log-toggle-commit-limit)
     (define-key map "+" 'magit-log-double-commit-limit)
     (define-key map "-" 'magit-log-half-commit-limit)
