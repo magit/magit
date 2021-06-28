@@ -1624,11 +1624,12 @@ commit as argument."
     (funcall fun rev)))
 
 (defun magit-log-select-quit ()
-  "Abort selecting a commit, don't act on any commit."
+  "Abort selecting a commit, don't act on any commit.
+Call `magit-log-select-quit-function' if set."
   (interactive)
-  (magit-mode-bury-buffer 'kill)
-  (when magit-log-select-quit-function
-    (funcall magit-log-select-quit-function)))
+  (let ((fun magit-log-select-quit-function))
+    (magit-mode-bury-buffer 'kill)
+    (when fun (funcall fun))))
 
 ;;; Cherry Mode
 

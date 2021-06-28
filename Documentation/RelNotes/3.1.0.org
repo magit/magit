@@ -13,3 +13,6 @@
 
 - A regression in v3.0.0 prevented ~magit-bisect-run~ from executing
   ~git bisect run~ unless ~magit-bisect-start~ was called beforehand.
+
+- ~magit-log-select-quit~ failed to call ~magit-log-select-quit-function~.
+  #4423
