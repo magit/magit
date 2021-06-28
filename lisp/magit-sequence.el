@@ -148,7 +148,8 @@ This discards all changes made since the sequence started."
    ["Apply here"
     ("A" "Pick"    magit-cherry-copy)
     ("a" "Apply"   magit-cherry-apply)
-    ("h" "Harvest" magit-cherry-harvest)]
+    ("h" "Harvest" magit-cherry-harvest)
+    ("m" "Squash"  magit-merge-squash)]
    ["Apply elsewhere"
     ("d" "Donate"  magit-cherry-donate)
     ("n" "Spinout" magit-cherry-spinout)
