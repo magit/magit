@@ -227,7 +227,7 @@ that change the upstream and many that create new branches."
   '("refs/heads"
     "refs/remotes"
     "refs/tags"
-    "refs/pull")
+    "refs/pullreqs")
   "List of ref namespaces considered when reading a ref.
 
 This controls the order of refs returned by `magit-list-refs',
