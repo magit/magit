@@ -223,6 +223,20 @@ that change the upstream and many that create new branches."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-list-refs-namespaces
+  '("refs/heads"
+    "refs/remotes"
+    "refs/tags"
+    "refs/pull")
+  "List of ref namespaces considered when reading a ref.
+
+This controls the order of refs returned by `magit-list-refs',
+which is called by functions like `magit-list-branch-names' to
+generate the collection of refs."
+  :package-version '(magit . "3.1.0")
+  :group 'magit-commands
+  :type '(repeat string))
+
 (defcustom magit-list-refs-sortby nil
   "How to sort the ref collection in the prompt.
 
@@ -1608,9 +1622,6 @@ where COMMITS is the number of commits in TAG but not in REV."
           (if with-distance
               (list it (car (magit-rev-diff-count it rev)))
             it))))))
-
-(defvar magit-list-refs-namespaces
-  '("refs/heads" "refs/remotes" "refs/tags" "refs/pull"))
 
 (defun magit-list-refs (&optional namespaces format sortby)
   "Return list of references.
