@@ -878,6 +878,7 @@ and `:slant'."
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
    ("-s" "Show stats"                     "--stat")
    ("=g" "Show signature"                 "--show-signature")
+   (5 "-R" "Reverse sides"                "-R")
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
   ["Actions"
@@ -912,6 +913,8 @@ and `:slant'."
    ("-s" "Show stats"                     "--stat"
     :if-derived magit-diff-mode)
    ("=g" "Show signature"                 "--show-signature"
+    :if-derived magit-diff-mode)
+   (5 "-R" "Reverse sides"                "-R"
     :if-derived magit-diff-mode)
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
@@ -1909,10 +1912,14 @@ Staging and applying changes is documented in info node
    (if (equal magit-buffer-typearg "--no-index")
        (apply #'format "Differences between %s and %s" magit-buffer-diff-files)
      (concat (if magit-buffer-range
-                 (if (string-match-p "\\(\\.\\.\\|\\^-\\)"
-                                     magit-buffer-range)
-                     (format "Changes in %s" magit-buffer-range)
-                   (format "Changes from %s to working tree" magit-buffer-range))
+                 (cond
+                  ((string-match-p "\\(\\.\\.\\|\\^-\\)"
+                                   magit-buffer-range)
+                   (format "Changes in %s" magit-buffer-range))
+                  ((member "-R" magit-buffer-diff-args)
+                   (format "Changes from working tree to %s" magit-buffer-range))
+                  (t
+                   (format "Changes from %s to working tree" magit-buffer-range)))
                (if (equal magit-buffer-typearg "--cached")
                    "Staged changes"
                  "Unstaged changes"))
