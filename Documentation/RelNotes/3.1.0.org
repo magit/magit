@@ -6,19 +6,38 @@
   it.  Use the improved ~magit-completing-read-multiple*~ instead.
   #4420
 
+- The description of ~magit-merge-into~ in the merge menu was changed
+  to "dissolve" (from "merge into").  In the future we are going to
+  change the key binding from "i" to "d" as well, to keep it mnemonic.
+  We don't make both changes at once in the hope that this makes the
+  transition easier for existing users.  4c096921f
+
 ** Changes since v3.0.0
 
+- Adjusted to changes to Eieio in Emacs 28.  a3626277c, 54a0019f3
+
 - Added new command ~magit-log-move-to-revision~.  #4418
+
+- ~A m~ is now also bound to ~magit-merge-squash~.  Despite the name it
+  fits better there.  51152fdec
 
 ** Fixes since v3.0.0
 
 - Fixed ~magit-emacs-Q-command~ and ~make build~ for ELPA users.
+  f50c3aa56
+
+- Fixed reading choice in ~magit-process-git-credential-manager-core~.
+  #4396
 
 - ~magit-blame~ didn't account for quoted file names when parsing
   output from ~git blame~.  #4400
 
 - A regression in v3.0.0 prevented ~magit-bisect-run~ from executing
   ~git bisect run~ unless ~magit-bisect-start~ was called beforehand.
+  f592e367d
 
 - ~magit-log-select-quit~ failed to call ~magit-log-select-quit-function~.
   #4423
+
+- The entry for pull-requests in ~magit-list-refs-namespaces~ did not
+  match the ref names used by Forge for that purpose.  4c3373f9a
