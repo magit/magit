@@ -633,7 +633,7 @@ completion frameworks."
        ;; which is counterproductive when NO-SPLIT is non-nil and/or
        ;; when reading commit ranges. 798aff564
        (helm-crm-default-separator
-        (if no-split nil helm-crm-default-separator))
+        (if no-split nil (bound-and-true-p helm-crm-default-separator)))
        ;; And now, the moment we have all been waiting for...
        (values (completing-read-multiple
                 prompt table predicate require-match initial-input

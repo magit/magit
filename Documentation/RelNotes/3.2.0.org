@@ -4,3 +4,6 @@
 ** Fixes since v3.1.0
 
 - In the normal case ~magit-name-tag~ failed to return the tag.
+
+- ~magit-completing-read-multiple*~ tired to use variable that is
+  unbound if ~helm~ isn't loaded.
