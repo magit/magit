@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.0.0 (v3.0.0-15-gf592e367d+1)
+@subtitle for version 3.1.0
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.0.0 (v3.0.0-15-gf592e367d+1).
+This manual is for Magit version 3.1.0.
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -3514,6 +3514,19 @@ Move forward in current buffer's history.
 Move to a parent of the current commit.  By default, this is the
 first parent, but a numeric prefix can be used to specify another
 parent.
+
+@kindex j
+@cindex magit-log-move-to-revision
+@item @kbd{j} @tie{}@tie{}@tie{}@tie{}(@code{magit-log-move-to-revision})
+
+Read a revision and move to it in current log buffer.
+
+If the chosen reference or revision isn't being displayed in
+the current log buffer, then inform the user about that and do
+nothing else.
+
+If invoked outside any log buffer, then display the log buffer
+of the current repository first; creating it if necessary.
 
 @kindex SPC
 @cindex magit-diff-show-or-scroll-up

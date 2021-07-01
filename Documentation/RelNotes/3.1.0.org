@@ -1,4 +1,27 @@
-* Magit v3.1.0 Release Notes (unreleased)
+* It's Magit!  A Git Porcelain inside Emacs
+
+Magit is a text-based Git user interface that puts an unmatched focus
+on streamlining workflows.  Commands are invoked using short mnemonic
+key sequences that take the cursor’s position in the highly actionable
+interface into account to provide context-sensitive behavior.
+
+With Magit you can do nearly everything that you can do when using Git
+on the command-line, but at greater speed and while taking advantage
+of advanced features that previously seemed too daunting to use on a
+daily basis.  Many users will find that by using Magit they can become
+more effective Git user.
+
+For more information about Magit, see https://magit.vc.
+
+* Magit v3.1.0 Release Notes
+
+Released 1st July 2021 by Jonas Bernoulli.
+
+I am pleased to announce the release of Magit version 3.1.0,
+representing 31 commits by 4 contributors over one month.
+
+Also see https://emacsair.me/2021/07/01/magit-3.1.
+
 ** Breaking changes
 
 - The function signature of ~magit-completing-read-multiple~ was not
@@ -41,3 +64,10 @@
 
 - The entry for pull-requests in ~magit-list-refs-namespaces~ did not
   match the ref names used by Forge for that purpose.  4c3373f9a
+
+* Authors
+
+    24  Jonas Bernoulli
+     3  Kyle Meyer
+     1  Siavash Askari Nasr
+     1  TEC
