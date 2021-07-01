@@ -2,3 +2,5 @@
 ** Breaking changes
 ** Changes since v3.1.0
 ** Fixes since v3.1.0
+
+- In the normal case ~magit-name-tag~ failed to return the tag.

@@ -1215,9 +1215,11 @@ Git."
          (substring it 8))))
 
 (defun magit-name-tag (rev &optional lax)
-  (--when-let (magit-rev-name rev "refs/tags/*")
-    (and (or lax (not (string-match-p "[~^]" it)))
-         (substring it 5))))
+  (when-let ((name (magit-rev-name rev "refs/tags/*")))
+    (when (string-suffix-p "^0" name)
+      (setq name (substring name 0 -2)))
+    (and (or lax (not (string-match-p "[~^]" name)))
+         (substring name 5))))
 
 (defun magit-ref-abbrev (refname)
   "Return an unambiguous abbreviation of REFNAME."
