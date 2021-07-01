@@ -58,7 +58,7 @@
    [("p" "Preview merge"          magit-merge-preview)
     ""
     ("s" "Squash merge"           magit-merge-squash)
-    ("i" "Merge into"             magit-merge-into)]]
+    ("i" "Dissolve"               magit-merge-into)]]
   ["Actions"
    :if magit-merge-in-progress-p
    ("m" "Commit merge" magit-commit-create)
