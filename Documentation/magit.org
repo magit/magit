@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.1.1
+#+SUBTITLE: for version 3.1.1 (v3.1.1-2-g5e734c022+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.1.1.
+This manual is for Magit version 3.1.1 (v3.1.1-2-g5e734c022+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -4997,7 +4997,7 @@ The variables are described in [[*Branch Git Variables]].
   repositories, then you might use something like:
 
   #+BEGIN_SRC emacs-lisp
-    (("origin/master" "master" "next" "maint"))
+    (("origin/master" . ("master" "next" "maint")))
   #+END_SRC
 
   Or if the names of all your ephemeral branches contain a slash,
@@ -5012,6 +5012,20 @@ The variables are described in [[*Branch Git Variables]].
   #+BEGIN_SRC emacs-lisp
     (("origin/maint" . "\\`hotfix/")
      ("origin/master" . "\\`feature/"))
+  #+END_SRC
+
+  UPSTREAM can be a local branch:
+
+  #+BEGIN_SRC emacs-lisp
+    (("master" . ("master" "next" "maint")))
+  #+END_SRC
+
+Because the main branch is no longer almost always named "master"
+you should also account for other common names:
+
+  #+BEGIN_SRC emacs-lisp
+    (("main"  . ("main" "master" "next" "maint"))
+     ("master" . ("main" "master" "next" "maint")))
   #+END_SRC
 
 - Command: magit-branch-orphan

@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.1.1
+@subtitle for version 3.1.1 (v3.1.1-2-g5e734c022+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.1.1.
+This manual is for Magit version 3.1.1 (v3.1.1-2-g5e734c022+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -6732,7 +6732,7 @@ If you use a finite set of non-ephemeral branches across all your
 repositories, then you might use something like:
 
 @lisp
-(("origin/master" "master" "next" "maint"))
+(("origin/master" . ("master" "next" "maint")))
 @end lisp
 
 Or if the names of all your ephemeral branches contain a slash,
@@ -6748,7 +6748,21 @@ Of course you can also fine-tune:
 (("origin/maint" . "\\`hotfix/")
  ("origin/master" . "\\`feature/"))
 @end lisp
+
+UPSTREAM can be a local branch:
+
+@lisp
+(("master" . ("master" "next" "maint")))
+@end lisp
 @end defopt
+
+Because the main branch is no longer almost always named "master"
+you should also account for other common names:
+
+@lisp
+(("main"  . ("main" "master" "next" "maint"))
+ ("master" . ("main" "master" "next" "maint")))
+@end lisp
 
 @cindex magit-branch-orphan
 @deffn Command magit-branch-orphan
