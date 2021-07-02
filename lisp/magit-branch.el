@@ -364,10 +364,12 @@ when using `magit-branch-and-checkout'."
                (magit-get-indirect-upstream-branch start-point))
           (and (magit-remote-branch-p start-point)
                (let ((name (cdr (magit-split-branch-name start-point))))
-                 (car (--first (if (listp (cdr it))
-                                   (not (member name (cdr it)))
-                                 (string-match-p (cdr it) name))
-                               magit-branch-adjust-remote-upstream-alist)))))
+                 (-some (pcase-lambda (`(,upstream . ,rule))
+                          (and (if (listp rule)
+                                   (not (member name rule))
+                                 (string-match-p rule name))
+                               upstream))
+                        magit-branch-adjust-remote-upstream-alist))))
     (magit-call-git "branch" (concat "--set-upstream-to=" it) branch)))
 
 ;;;###autoload
