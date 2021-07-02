@@ -5,5 +5,5 @@
 
 - In the normal case ~magit-name-tag~ failed to return the tag.
 
-- ~magit-completing-read-multiple*~ tired to use variable that is
+- ~magit-completing-read-multiple*~ tried to use variable that is
   unbound if ~helm~ isn't loaded.
