@@ -527,9 +527,12 @@ line is inserted at all."
                 (magit-insert-heading
                   (magit-refs--format-focus-column tag 'tag)
                   (propertize tag 'font-lock-face 'magit-tag)
-                  (make-string (max 1 (- magit-refs-primary-column-width
-                                         (length tag)))
-                               ?\s)
+                  (make-string
+                   (max 1 (- (if (consp magit-refs-primary-column-width)
+                                 (car magit-refs-primary-column-width)
+                               magit-refs-primary-column-width)
+                             (length tag)))
+                   ?\s)
                   (and msg (magit-log-propertize-keywords nil msg)))
                 (when (and magit-refs-margin-for-tags (magit-buffer-margin-p))
                   (magit-refs--format-margin tag))
@@ -568,9 +571,12 @@ line is inserted at all."
                       (magit-refs--format-focus-column branch)
                       (magit-refs--propertize-branch
                        abbrev ref (and headp 'magit-branch-remote-head))
-                      (make-string (max 1 (- magit-refs-primary-column-width
-                                             (length abbrev)))
-                                   ?\s)
+                      (make-string
+                       (max 1 (- (if (consp magit-refs-primary-column-width)
+                                     (car magit-refs-primary-column-width)
+                                   magit-refs-primary-column-width)
+                                 (length abbrev)))
+                       ?\s)
                       (and msg (magit-log-propertize-keywords nil msg))))
                   (when (magit-buffer-margin-p)
                     (magit-refs--format-margin branch))
