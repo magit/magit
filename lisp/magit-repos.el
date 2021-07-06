@@ -250,6 +250,15 @@ Only one letter is shown, the first that applies."
               (and (funcall fun) flag))
             magit-repolist-column-flag-alist))
 
+(defun magit-repolist-column-flags (_)
+  "Insert all flags as specified by `magit-repolist-column-flag-alist'.
+This is an alternative to function `magit-repolist-column-flag',
+which only lists the first one found."
+  (mapconcat (pcase-lambda (`(,fun . ,flag))
+               (if (funcall fun) flag " "))
+             magit-repolist-column-flag-alist
+             ""))
+
 (defun magit-repolist-column-unpulled-from-upstream (spec)
   "Insert number of upstream commits not in the current branch."
   (--when-let (magit-get-upstream-branch)
