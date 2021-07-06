@@ -176,7 +176,7 @@ Also see `magit-notes-merge'."
         it
       (concat "refs/notes/" it))))
 
-(defun magit-notes-read-refs (prompt)
+(defun magit-notes-read-refs (prompt &optional _initial-input _history)
   (mapcar (lambda (ref)
             (if (string-prefix-p "refs/" ref)
                 ref
