@@ -918,11 +918,13 @@ of the current repository first; creating it if necessary."
    ("r" "range" magit-shortlog-range)])
 
 (defun magit-git-shortlog (rev args)
-  (with-current-buffer (get-buffer-create "*magit-shortlog*")
-    (erase-buffer)
-    (save-excursion
-      (magit-git-insert "shortlog" args rev))
-    (switch-to-buffer-other-window (current-buffer))))
+  (let ((dir default-directory))
+    (with-current-buffer (get-buffer-create "*magit-shortlog*")
+      (setq default-directory dir)
+      (erase-buffer)
+      (save-excursion
+        (magit-git-insert "shortlog" args rev))
+      (switch-to-buffer-other-window (current-buffer)))))
 
 ;;;###autoload
 (defun magit-shortlog-since (rev args)
