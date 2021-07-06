@@ -282,11 +282,11 @@ Edit published history:
   editing commits that have already been pushed to one of the
   branches listed in `magit-published-branches'.
 
-  `amend-published' Affects most commands that amend to \"HEAD\".
+  `amend-published' Affects most commands that amend to `HEAD'.
 
   `rebase-published' Affects commands that perform interactive
   rebases.  This includes commands from the commit popup that
-  modify a commit other than \"HEAD\", namely the various fixup
+  modify a commit other than `HEAD', namely the various fixup
   and squash variants.
 
   `edit-published' Affects the commands `magit-edit-line-commit'

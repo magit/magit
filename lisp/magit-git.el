@@ -1273,7 +1273,7 @@ to, or to some other symbolic-ref that points to the same ref."
              (magit-ref-equal a b)))))
 
 (defun magit-headish ()
-  "Return \"HEAD\" or if that doesn't exist the hash of the empty tree."
+  "Return the `HEAD' or if that doesn't exist the hash of the empty tree."
   (if (magit-no-commit-p)
       (magit-git-string "mktree")
     "HEAD"))
@@ -1633,7 +1633,7 @@ rather than those from `magit-list-refs-namespaces'.
 
 FORMAT is passed to the `--format' flag of `git for-each-ref'
 and defaults to \"%(refname)\".  If the format is \"%(refname)\"
-or \"%(refname:short)\", then drop the symbolic-ref \"HEAD\".
+or \"%(refname:short)\", then drop the symbolic-ref `HEAD'.
 
 SORTBY is a key or list of keys to pass to the `--sort' flag of
 `git for-each-ref'.  When nil, use `magit-list-refs-sortby'"
