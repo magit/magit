@@ -433,6 +433,7 @@ the upstream isn't ahead of the current branch) show."
    ("-c" "Show graph in color" "--color")          ;2
    ("-d" "Show refnames"       "--decorate")       ;3
    ("=S" "Show signatures"     "--show-signature") ;1
+   ("-n" "Show notes in header""--notes") ;1
    ("-h" "Show header"         "++header")         ;4
    ("-p" "Show diffs"          ("-p" "--patch"))   ;2
    ("-s" "Show diffstats"      "--stat")]          ;2
@@ -493,6 +494,7 @@ the upstream isn't ahead of the current branch) show."
     ("-c" "Show graph in color"     "--color")
     ("-d" "Show refnames"           "--decorate")
     ("=S" "Show signatures"         "--show-signature")
+    ("-n" "Show notes"              "--notes") ;1
     ("-h" "Show header"             "++header")
     ("-p" "Show diffs"              ("-p" "--patch"))
     ("-s" "Show diffstats"          "--stat")]]
@@ -1080,9 +1082,10 @@ Do not add this to a hook variable."
                 "")
               (if magit-log-margin-show-committer-date "%ct" "%at")
               (if (member "++header" args)
-                  (if (member "--graph" (setq args (remove "++header" args)))
-                      (concat "\n" magit-log-revision-headers-format "\n")
-                    (concat "\n" magit-log-revision-headers-format "\n"))
+                  (concat
+                   (if (member "--graph" (setq args (remove "++header" args)))
+                       (concat "\n" magit-log-revision-headers-format (if (member "--notes" args) "\n\nNotes:\n%N" "") "\n")
+                     (concat "\n" magit-log-revision-headers-format (if (member "--notes" args) "\n\nNotes:\n%N" "") "\n")))
                 ""))
       (progn
         (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
