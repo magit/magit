@@ -518,7 +518,7 @@ list returned by `magit-rebase-arguments'."
 
 (defcustom magit-pop-revision-stack-format
   '("[%N: %h] "
-    "%N: %H\n   %s\n"
+    "%N: %cs %H\n   %s\n"
     "\\[\\([0-9]+\\)[]:]")
   "Control how `magit-pop-revision-stack' inserts a revision.
 
@@ -550,7 +550,7 @@ The expansion of POINT-FORMAT is inserted at point, and the
 expansion of EOB-FORMAT is inserted at the end of the buffer (if
 the buffer ends with a comment, then it is inserted right before
 that)."
-  :package-version '(magit . "2.3.0")
+  :package-version '(magit . "3.1.0")
   :group 'magit-commands
   :type '(list (choice (string :tag "Insert at point format")
                        (cons (string :tag "Insert at point format")
