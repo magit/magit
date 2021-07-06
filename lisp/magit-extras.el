@@ -517,7 +517,9 @@ list returned by `magit-rebase-arguments'."
 (defvar magit-revision-stack nil)
 
 (defcustom magit-pop-revision-stack-format
-  '("[%N: %h] " "%N: %H\n   %s\n" "\\[\\([0-9]+\\)[]:]")
+  '("[%N: %h] "
+    "%N: %H\n   %s\n"
+    "\\[\\([0-9]+\\)[]:]")
   "Control how `magit-pop-revision-stack' inserts a revision.
 
 The command `magit-pop-revision-stack' inserts a representation
