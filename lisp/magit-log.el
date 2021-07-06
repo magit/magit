@@ -77,11 +77,11 @@
   :options '("--follow" "--grep" "-G" "-S" "-L"))
 
 (defcustom magit-log-revision-headers-format "\
-%+b
+%+b%+N
 Author:    %aN <%aE>
 Committer: %cN <%cE>"
   "Additional format string used with the `++header' argument."
-  :package-version '(magit . "2.3.0")
+  :package-version '(magit . "3.2.0")
   :group 'magit-log
   :type 'string)
 
