@@ -241,40 +241,35 @@ Only one letter is shown, the first that applies."
 (defun magit-repolist-column-unpulled-from-upstream (_id)
   "Insert number of upstream commits not in the current branch."
   (--when-let (magit-get-upstream-branch)
-    (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
-      (magit--propertize-face
-       (number-to-string n) (if (> n 0) 'bold 'shadow)))))
+    (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" it)))))
 
 (defun magit-repolist-column-unpulled-from-pushremote (_id)
   "Insert number of commits in the push branch but not the current branch."
   (--when-let (magit-get-push-branch nil t)
-    (let ((n (cadr (magit-rev-diff-count "HEAD" it))))
-      (magit--propertize-face
-       (number-to-string n) (if (> n 0) 'bold 'shadow)))))
+    (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" it)))))
 
 (defun magit-repolist-column-unpushed-to-upstream (_id)
   "Insert number of commits in the current branch but not its upstream."
   (--when-let (magit-get-upstream-branch)
-    (let ((n (car (magit-rev-diff-count "HEAD" it))))
-      (magit--propertize-face
-       (number-to-string n) (if (> n 0) 'bold 'shadow)))))
+    (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" it)))))
 
 (defun magit-repolist-column-unpushed-to-pushremote (_id)
   "Insert number of commits in the current branch but not its push branch."
   (--when-let (magit-get-push-branch nil t)
-    (let ((n (car (magit-rev-diff-count "HEAD" it))))
-      (magit--propertize-face
-       (number-to-string n) (if (> n 0) 'bold 'shadow)))))
+    (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" it)))))
 
 (defun magit-repolist-column-branches (_id)
   "Insert number of branches."
-  (let ((n (length (magit-list-local-branches))))
-    (magit--propertize-face (number-to-string n) (if (> n 1) 'bold 'shadow))))
+  (magit-repolist-insert-count (length (magit-list-local-branches))))
 
 (defun magit-repolist-column-stashes (_id)
   "Insert number of stashes."
-  (let ((n (length (magit-list-stashes))))
-    (magit--propertize-face (number-to-string n) (if (> n 0) 'bold 'shadow))))
+  (magit-repolist-insert-count (length (magit-list-stashes))))
+
+(defun magit-repolist-insert-count (n)
+  (magit--propertize-face
+   (number-to-string n)
+   (if (> n 0) 'bold 'shadow)))
 
 ;;; Read Repository
 
