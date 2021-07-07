@@ -83,7 +83,13 @@ of the column.  FORMAT is a function that is called with one
 argument, the repository identification (usually its basename),
 and with `default-directory' bound to the toplevel of its working
 tree.  It has to return a string to be inserted or nil.  PROPS is
-an alist that supports the keys `:right-align' and `:pad-right'."
+an alist that supports the keys `:right-align' and `:pad-right'.
+
+You may wish to display a range of numeric columns using just one
+character per column and without any padding between columns, in
+which case you should use an appropriat HEADER, set WIDTH to 1,
+and set `:pad-right' to 0.  \"+\" is substituted for numbers higher
+than 9."
   :package-version '(magit . "2.8.0")
   :group 'magit-repolist-mode
   :type `(repeat (list :tag "Column"

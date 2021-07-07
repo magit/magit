@@ -88,7 +88,13 @@ and with `default-directory' bound to the toplevel of its working
 tree.  It has to return a string to be inserted or nil.  PROPS is
 an alist that supports the keys `:right-align' and `:pad-right'.
 Some entries also use `:help-echo', but `tabulated-list' does not
-actually support that yet."
+actually support that yet.
+
+You may wish to display a range of numeric columns using just one
+character per column and without any padding between columns, in
+which case you should use an appropriat HEADER, set WIDTH to 1,
+and set `:pad-right' to 0.  \"+\" is substituted for numbers higher
+than 9."
   :package-version '(magit . "2.12.0")
   :group 'magit-repolist
   :type `(repeat (list :tag "Column"
@@ -272,9 +278,11 @@ Only one letter is shown, the first that applies."
   "Insert number of stashes."
   (magit-repolist-insert-count (length (magit-list-stashes)) spec))
 
-(defun magit-repolist-insert-count (n _spec)
+(defun magit-repolist-insert-count (n spec)
   (magit--propertize-face
-   (number-to-string n)
+   (if (and  (> n 9) (= (cadr (assq :width spec)) 1))
+       "+"
+     (number-to-string n))
    (if (> n 0) 'bold 'shadow)))
 
 ;;; Read Repository
