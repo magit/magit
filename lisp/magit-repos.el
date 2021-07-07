@@ -281,7 +281,8 @@ which only lists the first one found."
 
 (defun magit-repolist-column-branches (spec)
   "Insert number of branches."
-  (magit-repolist-insert-count (length (magit-list-local-branches)) spec))
+  (magit-repolist-insert-count (length (magit-list-local-branches))
+                               `((:normal-count 1) ,@spec)))
 
 (defun magit-repolist-column-stashes (spec)
   "Insert number of stashes."
@@ -292,7 +293,7 @@ which only lists the first one found."
    (if (and  (> n 9) (= (cadr (assq :width spec)) 1))
        "+"
      (number-to-string n))
-   (if (> n 0) 'bold 'shadow)))
+   (if (> n (or (cadr (assq :normal-count spec)) 0)) 'bold 'shadow)))
 
 ;;; Read Repository
 
