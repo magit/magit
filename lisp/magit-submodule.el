@@ -626,13 +626,18 @@ These sections can be expanded to show the respective commits."
                    (and (file-exists-p ".git")
                         (list module
                               (vconcat
-                               (--map (or (funcall (nth 2 it) module) "")
-                                      magit-submodule-list-columns))))))
+                               (mapcar (pcase-lambda (`(,title ,width ,fn ,props))
+                                         (or (funcall fn `((:path  ,module)
+                                                           (:title ,title)
+                                                           (:width ,width)
+                                                           ,@props))
+                                             ""))
+                                       magit-submodule-list-columns))))))
                (magit-list-module-paths))))
 
-(defun magit-modulelist-column-path (path)
+(defun magit-modulelist-column-path (spec)
   "Insert the relative path of the submodule."
-  path)
+  (cadr (assq :path spec)))
 
 ;;; Utilities
 

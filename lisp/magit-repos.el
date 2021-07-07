@@ -187,8 +187,14 @@ repositories are displayed."
         (mapcar (pcase-lambda (`(,id . ,path))
                   (let ((default-directory path))
                     (list path
-                          (vconcat (--map (or (funcall (nth 2 it) id) "")
-                                          magit-repolist-columns)))))
+                          (vconcat
+                           (mapcar (pcase-lambda (`(,title ,width ,fn ,props))
+                                     (or (funcall fn `((:id ,id)
+                                                       (:title ,title)
+                                                       (:width ,width)
+                                                       ,@props))
+                                         ""))
+                                   magit-repolist-columns)))))
                 (magit-list-repos-uniquify
                  (--map (cons (file-name-nondirectory (directory-file-name it))
                               it)
@@ -196,16 +202,16 @@ repositories are displayed."
 
 ;;;; Columns
 
-(defun magit-repolist-column-ident (id)
+(defun magit-repolist-column-ident (spec)
   "Insert the identification of the repository.
 Usually this is just its basename."
-  id)
+  (cadr (assq :id spec)))
 
-(defun magit-repolist-column-path (_id)
+(defun magit-repolist-column-path (_)
   "Insert the absolute path of the repository."
   (abbreviate-file-name default-directory))
 
-(defun magit-repolist-column-version (_id)
+(defun magit-repolist-column-version (_)
   "Insert a description of the repository's `HEAD' revision."
   (when-let ((v (or (magit-git-string "describe" "--tags" "--dirty")
                     ;; If there are no tags, use the date in MELPA format.
@@ -218,15 +224,15 @@ Usually this is just its basename."
           (concat " " v)
         v))))
 
-(defun magit-repolist-column-branch (_id)
+(defun magit-repolist-column-branch (_)
   "Insert the current branch."
   (magit-get-current-branch))
 
-(defun magit-repolist-column-upstream (_id)
+(defun magit-repolist-column-upstream (_)
   "Insert the upstream branch of the current branch."
   (magit-get-upstream-branch))
 
-(defun magit-repolist-column-flag (_id)
+(defun magit-repolist-column-flag (_)
   "Insert a flag as specified by `magit-repolist-column-flag-alist'.
 
 By default this indicates whether there are uncommitted changes.
@@ -238,35 +244,35 @@ Only one letter is shown, the first that applies."
               (and (funcall fun) flag))
             magit-repolist-column-flag-alist))
 
-(defun magit-repolist-column-unpulled-from-upstream (_id)
+(defun magit-repolist-column-unpulled-from-upstream (spec)
   "Insert number of upstream commits not in the current branch."
   (--when-let (magit-get-upstream-branch)
-    (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" it)))))
+    (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" it)) spec)))
 
-(defun magit-repolist-column-unpulled-from-pushremote (_id)
+(defun magit-repolist-column-unpulled-from-pushremote (spec)
   "Insert number of commits in the push branch but not the current branch."
   (--when-let (magit-get-push-branch nil t)
-    (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" it)))))
+    (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" it)) spec)))
 
-(defun magit-repolist-column-unpushed-to-upstream (_id)
+(defun magit-repolist-column-unpushed-to-upstream (spec)
   "Insert number of commits in the current branch but not its upstream."
   (--when-let (magit-get-upstream-branch)
-    (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" it)))))
+    (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" it)) spec)))
 
-(defun magit-repolist-column-unpushed-to-pushremote (_id)
+(defun magit-repolist-column-unpushed-to-pushremote (spec)
   "Insert number of commits in the current branch but not its push branch."
   (--when-let (magit-get-push-branch nil t)
-    (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" it)))))
+    (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" it)) spec)))
 
-(defun magit-repolist-column-branches (_id)
+(defun magit-repolist-column-branches (spec)
   "Insert number of branches."
-  (magit-repolist-insert-count (length (magit-list-local-branches))))
+  (magit-repolist-insert-count (length (magit-list-local-branches)) spec))
 
-(defun magit-repolist-column-stashes (_id)
+(defun magit-repolist-column-stashes (spec)
   "Insert number of stashes."
-  (magit-repolist-insert-count (length (magit-list-stashes))))
+  (magit-repolist-insert-count (length (magit-list-stashes)) spec))
 
-(defun magit-repolist-insert-count (n)
+(defun magit-repolist-insert-count (n _spec)
   (magit--propertize-face
    (number-to-string n)
    (if (> n 0) 'bold 'shadow)))
