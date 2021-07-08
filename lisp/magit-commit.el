@@ -318,7 +318,7 @@ depending on the value of option `magit-commit-squash-confirm'."
 
 (defun magit-commit-squash-internal
     (option commit &optional args rebase edit confirmed)
-  (when-let ((args (magit-commit-assert args t)))
+  (when-let ((args (magit-commit-assert args (not edit))))
     (when commit
       (when (and rebase (not (magit-rev-ancestor-p commit "HEAD")))
         (magit-read-char-case
