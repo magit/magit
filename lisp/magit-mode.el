@@ -512,7 +512,6 @@ Magit is documented in info node `(magit)'."
   :group 'magit
   (hack-dir-local-variables-non-file-buffer)
   (face-remap-add-relative 'header-line 'magit-header-line)
-  (setq revert-buffer-function 'magit--revert-buffer)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
   (setq-local bookmark-make-record-function 'magit--make-bookmark)
   (setq-local isearch-filter-predicate 'magit-section--open-temporarily))
@@ -1125,9 +1124,6 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                                  (regexp-quote (buffer-substring-no-properties
                                                 beg (line-end-position))))
                                 (t t)))))))))
-
-(defun magit--revert-buffer (_ignore-auto _noconfirm)
-  (magit-refresh))
 
 ;;; Save File-Visiting Buffers
 
