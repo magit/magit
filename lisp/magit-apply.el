@@ -177,7 +177,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
          (offset (if (string-match diff-hunk-header-re-unified first-hunk)
                      (- (string-to-number (match-string 3 first-hunk))
                         (string-to-number (match-string 1 first-hunk)))
-                   (error "Hunk does not have expected header"))))
+                   (error "Header hunks have to be applied individually"))))
     (if (= offset 0)
         hunks
       (mapcar (lambda (hunk)
@@ -207,10 +207,15 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (magit-apply-patch (oref section parent) args
-                     (concat (magit-diff-file-header section)
-                             (magit-apply--adjust-hunk-new-start
-                              (magit-apply--section-content section)))))
+  (let* ((header (car (oref section value)))
+         (header (and (symbolp header) header))
+         (content (magit-apply--section-content section)))
+    (magit-apply-patch
+     (oref section parent) args
+     (concat (magit-diff-file-header section)
+             (if header
+                 content
+               (magit-apply--adjust-hunk-new-start content))))))
 
 (defun magit-apply-region (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))

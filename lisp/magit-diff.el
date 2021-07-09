@@ -2296,7 +2296,7 @@ section or a child thereof."
       (oset section source orig))
     (oset section header header)
     (when modes
-      (magit-insert-section (hunk)
+      (magit-insert-section (hunk '(chmod))
         (insert modes)
         (magit-insert-heading)))
     (magit-wash-sequence #'magit-diff-wash-hunk)))
