@@ -212,7 +212,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
          (content (magit-apply--section-content section)))
     (magit-apply-patch
      (oref section parent) args
-     (concat (magit-diff-file-header section)
+     (concat (magit-diff-file-header section (not (eq header 'rename)))
              (if header
                  content
                (magit-apply--adjust-hunk-new-start content))))))
