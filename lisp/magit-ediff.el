@@ -180,28 +180,29 @@ FILE has to be relative to the top directory of the repository."
          (setq buffer-read-only nil)
          (current-buffer))
        fileBufC
-       `((lambda ()
-           (setq-local
-            ediff-quit-hook
-            (lambda ()
-              (and (buffer-live-p ediff-buffer-B)
-                   (buffer-modified-p ediff-buffer-B)
-                   (with-current-buffer ediff-buffer-B
-                     (magit-update-index)))
-              (and (buffer-live-p ediff-buffer-C)
-                   (buffer-modified-p ediff-buffer-C)
-                   (with-current-buffer ediff-buffer-C
-                     (when (y-or-n-p
-                            (format "Save file %s? " buffer-file-name))
-                       (save-buffer))))
-              ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
-              ,@(if bufB
-                    (unless bufBrw '((with-current-buffer ediff-buffer-B
-                                       (setq buffer-read-only t))))
-                  '((ediff-kill-buffer-carefully ediff-buffer-B)))
-              ,@(unless bufC '((ediff-kill-buffer-carefully ediff-buffer-C)))
-              (let ((magit-ediff-previous-winconf ,conf))
-                (run-hooks 'magit-ediff-quit-hook))))))
+       (list (lambda ()
+               (setq-local
+                ediff-quit-hook
+                (lambda ()
+                  (and (buffer-live-p ediff-buffer-B)
+                       (buffer-modified-p ediff-buffer-B)
+                       (with-current-buffer ediff-buffer-B
+                         (magit-update-index)))
+                  (and (buffer-live-p ediff-buffer-C)
+                       (buffer-modified-p ediff-buffer-C)
+                       (with-current-buffer ediff-buffer-C
+                         (when (y-or-n-p
+                                (format "Save file %s? " buffer-file-name))
+                           (save-buffer))))
+                  (unless bufA (ediff-kill-buffer-carefully ediff-buffer-A))
+                  (if bufB
+                      (unless bufBrw
+                        (with-current-buffer ediff-buffer-B
+                          (setq buffer-read-only t)))
+                    (ediff-kill-buffer-carefully ediff-buffer-B))
+                  (unless bufC (ediff-kill-buffer-carefully ediff-buffer-C))
+                  (let ((magit-ediff-previous-winconf conf))
+                    (run-hooks 'magit-ediff-quit-hook))))))
        'ediff-buffers3))))
 
 ;;;###autoload
@@ -237,14 +238,14 @@ range)."
        (or bufB (if revB
                     (magit-find-file-noselect revB fileB)
                   (find-file-noselect fileB)))
-       `((lambda ()
-           (setq-local
-            ediff-quit-hook
-            (lambda ()
-              ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
-              ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
-              (let ((magit-ediff-previous-winconf ,conf))
-                (run-hooks 'magit-ediff-quit-hook))))))
+       (list (lambda ()
+               (setq-local
+                ediff-quit-hook
+                (lambda ()
+                  (unless bufA (ediff-kill-buffer-carefully ediff-buffer-A))
+                  (unless bufB (ediff-kill-buffer-carefully ediff-buffer-B))
+                  (let ((magit-ediff-previous-winconf conf))
+                    (run-hooks 'magit-ediff-quit-hook))))))
        'ediff-revision))))
 
 (defun magit-ediff-compare--read-revisions (&optional arg mbase)
@@ -366,14 +367,14 @@ FILE must be relative to the top directory of the repository."
     (ediff-buffers
      (or bufA (magit-find-file-noselect "HEAD" file))
      (or bufB (magit-find-file-index-noselect file t))
-     `((lambda ()
-         (setq-local
-          ediff-quit-hook
-          (lambda ()
-            ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
-            ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
-            (let ((magit-ediff-previous-winconf ,conf))
-              (run-hooks 'magit-ediff-quit-hook))))))
+     (list (lambda ()
+             (setq-local
+              ediff-quit-hook
+              (lambda ()
+                (unless bufA (ediff-kill-buffer-carefully ediff-buffer-A))
+                (unless bufB (ediff-kill-buffer-carefully ediff-buffer-B))
+                (let ((magit-ediff-previous-winconf conf))
+                  (run-hooks 'magit-ediff-quit-hook))))))
      'ediff-buffers)))
 
 ;;;###autoload
@@ -395,14 +396,14 @@ FILE must be relative to the top directory of the repository."
       (ediff-buffers
        (or bufA (magit-find-file-index-noselect file t))
        (or bufB (find-file-noselect file))
-       `((lambda ()
-           (setq-local
-            ediff-quit-hook
-            (lambda ()
-              ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
-              ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
-              (let ((magit-ediff-previous-winconf ,conf))
-                (run-hooks 'magit-ediff-quit-hook))))))
+       (list (lambda ()
+               (setq-local
+                ediff-quit-hook
+                (lambda ()
+                  (unless bufA (ediff-kill-buffer-carefully ediff-buffer-A))
+                  (unless bufB (ediff-kill-buffer-carefully ediff-buffer-B))
+                  (let ((magit-ediff-previous-winconf conf))
+                    (run-hooks 'magit-ediff-quit-hook))))))
        'ediff-buffers))))
 
 ;;;###autoload
@@ -420,14 +421,14 @@ FILE must be relative to the top directory of the repository."
       (ediff-buffers
        (or bufA (magit-find-file-noselect "HEAD" file))
        (or bufB (find-file-noselect file))
-       `((lambda ()
-           (setq-local
-            ediff-quit-hook
-            (lambda ()
-              ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
-              ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
-              (let ((magit-ediff-previous-winconf ,conf))
-                (run-hooks 'magit-ediff-quit-hook))))))
+       (list (lambda ()
+               (setq-local
+                ediff-quit-hook
+                (lambda ()
+                  (unless bufA (ediff-kill-buffer-carefully ediff-buffer-A))
+                  (unless bufB (ediff-kill-buffer-carefully ediff-buffer-B))
+                  (let ((magit-ediff-previous-winconf conf))
+                    (run-hooks 'magit-ediff-quit-hook))))))
        'ediff-buffers))))
 
 ;;;###autoload
@@ -462,18 +463,15 @@ stash that were staged."
            (or bufA (magit-find-file-noselect revA fileA))
            (or bufB (magit-find-file-noselect revB fileB))
            (or bufC (magit-find-file-noselect revC fileC))
-           `((lambda ()
-               (setq-local
-                ediff-quit-hook
-                (lambda ()
-                  ,@(unless bufA
-                      '((ediff-kill-buffer-carefully ediff-buffer-A)))
-                  ,@(unless bufB
-                      '((ediff-kill-buffer-carefully ediff-buffer-B)))
-                  ,@(unless bufC
-                      '((ediff-kill-buffer-carefully ediff-buffer-C)))
-                  (let ((magit-ediff-previous-winconf ,conf))
-                    (run-hooks 'magit-ediff-quit-hook))))))
+           (list (lambda ()
+                   (setq-local
+                    ediff-quit-hook
+                    (lambda ()
+                      (unless bufA (ediff-kill-buffer-carefully ediff-buffer-A))
+                      (unless bufB (ediff-kill-buffer-carefully ediff-buffer-B))
+                      (unless bufC (ediff-kill-buffer-carefully ediff-buffer-C))
+                      (let ((magit-ediff-previous-winconf conf))
+                        (run-hooks 'magit-ediff-quit-hook))))))
            'ediff-buffers3))
       (magit-ediff-compare revA revC fileA fileC))))
 
