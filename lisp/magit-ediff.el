@@ -166,39 +166,37 @@ FILE has to be relative to the top directory of the repository."
      (list (magit-completing-read "Selectively stage file" files nil t nil nil
                                   (car (member (magit-current-file) files))))))
   (magit-with-toplevel
-    (let* ((conf (current-window-configuration))
-           (bufA (magit-get-revision-buffer "HEAD" file))
-           (bufB (magit-get-revision-buffer "{index}" file))
-           (bufBrw (and bufB (with-current-buffer bufB (not buffer-read-only))))
-           (bufC (get-file-buffer file))
-           (fileBufC (or bufC (find-file-noselect file)))
+    (let* ((conf  (current-window-configuration))
+           (bufA  (magit-get-revision-buffer "HEAD" file))
+           (bufB  (magit-get-revision-buffer "{index}" file))
+           (lockB (and bufB (buffer-local-value 'buffer-read-only bufB)))
+           (bufC  (get-file-buffer file))
+           (bufC* (or bufC (find-file-noselect file)))
            (coding-system-for-read
-            (with-current-buffer fileBufC buffer-file-coding-system)))
+            (buffer-local-value 'buffer-file-coding-system bufC*)))
       (ediff-buffers3
        (or bufA (magit-find-file-noselect "HEAD" file))
        (with-current-buffer (magit-find-file-index-noselect file t)
          (setq buffer-read-only nil)
          (current-buffer))
-       fileBufC
+       bufC*
        (list (lambda ()
                (setq-local
                 ediff-quit-hook
                 (lambda ()
-                  (and (buffer-live-p ediff-buffer-B)
-                       (buffer-modified-p ediff-buffer-B)
-                       (with-current-buffer ediff-buffer-B
-                         (magit-update-index)))
-                  (and (buffer-live-p ediff-buffer-C)
-                       (buffer-modified-p ediff-buffer-C)
-                       (with-current-buffer ediff-buffer-C
-                         (when (y-or-n-p
-                                (format "Save file %s? " buffer-file-name))
-                           (save-buffer))))
+                  (when (and (buffer-live-p ediff-buffer-B)
+                             (buffer-modified-p ediff-buffer-B))
+                    (with-current-buffer ediff-buffer-B
+                      (magit-update-index)))
+                  (when (and (buffer-live-p ediff-buffer-C)
+                             (buffer-modified-p ediff-buffer-C))
+                    (with-current-buffer ediff-buffer-C
+                      (when (y-or-n-p (format "Save file %s? " buffer-file-name))
+                        (save-buffer))))
                   (unless bufA (ediff-kill-buffer-carefully ediff-buffer-A))
                   (if bufB
-                      (unless bufBrw
-                        (with-current-buffer ediff-buffer-B
-                          (setq buffer-read-only t)))
+                      (when lockB
+                        (setf (buffer-local-value 'buffer-read-only bufB) t))
                     (ediff-kill-buffer-carefully ediff-buffer-B))
                   (unless bufC (ediff-kill-buffer-carefully ediff-buffer-C))
                   (let ((magit-ediff-previous-winconf conf))
