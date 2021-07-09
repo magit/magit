@@ -2215,16 +2215,22 @@ section or a child thereof."
       (magit-diff-insert-file-section
        (or file base) orig status nil nil long-status)))
    ((looking-at "^diff --\
-\\(?:\\(git\\) \\(?:\\(.+?\\) \\2\\)?\
-\\|\\(cc\\|combined\\) \\(.+\\)\\)")
+\\(?:\\(?1:git\\) \\(?:\\(?2:.+?\\) \\(?3:.+?\\)\\)?\
+\\|\\(?:cc\\|combined\\) \\(?4:.+\\)\\)")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
                         (t                                     "unmerged")))
-          (orig nil)
-          (file (or (match-string 2) (match-string 4)))
+          (orig (match-string 2))
+          (file (or (match-string 3) (match-string 4)))
           (beg (point))
           (header nil)
           (modes nil))
+      ;; `git-diff' ignores `--no-prefix' for new files and renames at least.
+      (when (and file orig
+                 (string-prefix-p "a/" orig)
+                 (string-prefix-p "b/" file))
+        (setq orig (substring orig 2))
+        (setq file (substring file 2)))
       (save-excursion
         (forward-line 1)
         (setq header (buffer-substring
