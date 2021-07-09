@@ -1324,11 +1324,12 @@ for a revision."
     (let (hunk (hunks (oref diff children)))
       (cl-block nil
         (while (setq hunk (pop hunks))
-          (pcase-let* ((`(,beg ,len) (oref hunk to-range))
-                       (end (+ beg len)))
-            (cond ((>  beg line)     (cl-return (list diff nil)))
-                  ((<= beg line end) (cl-return (list hunk t)))
-                  ((null hunks)      (cl-return (list hunk nil))))))))))
+          (when-let ((range (oref hunk to-range)))
+            (pcase-let* ((`(,beg ,len) range)
+                         (end (+ beg len)))
+              (cond ((>  beg line)     (cl-return (list diff nil)))
+                    ((<= beg line end) (cl-return (list hunk t)))
+                    ((null hunks)      (cl-return (list hunk nil)))))))))))
 
 (defun magit-diff--goto-position (file line column &optional parent)
   (when-let ((pos (magit-diff--locate-hunk file line parent)))
