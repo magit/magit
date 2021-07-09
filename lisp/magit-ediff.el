@@ -171,15 +171,16 @@ FILE has to be relative to the top directory of the repository."
            (bufB  (magit-get-revision-buffer "{index}" file))
            (lockB (and bufB (buffer-local-value 'buffer-read-only bufB)))
            (bufC  (get-file-buffer file))
+           ;; Use the same encoding for all three buffers or we
+           ;; may end up changing the file in an unintended way.
            (bufC* (or bufC (find-file-noselect file)))
            (coding-system-for-read
-            (buffer-local-value 'buffer-file-coding-system bufC*)))
+            (buffer-local-value 'buffer-file-coding-system bufC*))
+           (bufA* (magit-find-file-noselect-1 "HEAD" file t))
+           (bufB* (magit-find-file-index-noselect file t)))
+      (setf (buffer-local-value 'buffer-read-only bufB) nil)
       (ediff-buffers3
-       (or bufA (magit-find-file-noselect "HEAD" file))
-       (with-current-buffer (magit-find-file-index-noselect file t)
-         (setq buffer-read-only nil)
-         (current-buffer))
-       bufC*
+       bufA* bufB* bufC*
        (list (lambda ()
                (setq-local
                 ediff-quit-hook
