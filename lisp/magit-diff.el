@@ -2093,10 +2093,25 @@ section or a child thereof."
 
 (defun magit-diff-wash-signature ()
   (when (looking-at "^gpg: ")
-    (magit-insert-section (signature)
-      (while (looking-at "^gpg: ")
-        (forward-line))
-      (insert "\n"))))
+    (let (title end)
+      (save-excursion
+        (while (looking-at "^gpg: ")
+          (cond
+           ((looking-at "^gpg: Good signature from")
+            (setq title (propertize
+                         (buffer-substring (point) (line-end-position))
+                         'face 'magit-signature-good)))
+           ((looking-at "^gpg: Can't check signature")
+            (setq title (propertize
+                         (buffer-substring (point) (line-end-position))
+                         'face '(italic bold)))))
+          (forward-line))
+        (setq end (point-marker)))
+        (magit-insert-section (signature magit-buffer-revision title)
+          (when title
+            (magit-insert-heading title))
+          (goto-char end)
+          (insert "\n")))))
 
 (defun magit-diff-wash-diffstat ()
   (let (heading (beg (point)))
