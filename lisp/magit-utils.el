@@ -634,10 +634,25 @@ third-party completion frameworks."
        ;; when reading commit ranges. 798aff564
        (helm-crm-default-separator
         (if no-split nil (bound-and-true-p helm-crm-default-separator)))
-       ;; And now, the moment we have all been waiting for...
-       (values (completing-read-multiple
-                prompt table predicate require-match initial-input
-                hist def inherit-input-method)))
+       (values
+        (if (and no-split
+                 (advice-member-p 'consult-completing-read-multiple
+                                  'completing-read-multiple))
+            ;; Our NO-SPLIT hack is not compatible with `CONSULT's
+            ;; implemenation so fall back to the original function.
+            ;; #4437
+            (unwind-protect
+                (progn
+                  (advice-remove 'completing-read-multiple
+                                 'consult-completing-read-multiple)
+                  (completing-read-multiple
+                   prompt table predicate require-match initial-input
+                   hist def inherit-input-method))
+              (advice-add 'completing-read-multiple :override
+                          'consult-completing-read-multiple))
+          (completing-read-multiple
+           prompt table predicate require-match initial-input
+           hist def inherit-input-method))))
     (if no-split input values)))
 
 (defun magit-ido-completing-read
