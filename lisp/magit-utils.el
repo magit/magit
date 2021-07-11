@@ -599,13 +599,13 @@ into a list."
 Like `completing-read-multiple' but don't mess with order of
 TABLE and take an additional argument NO-SPLIT, which causes
 the user input to be returned as a single unmodified string.
-Also work around various misfeatures of various third-party
-completion frameworks."
+Also work around various incompatible features of various
+third-party completion frameworks."
   (cl-letf*
       (;; To implement NO-SPLIT we have to manipulate the respective
        ;; `split-string' invocation.  We cannot simply advice it to
        ;; return the input string because `SELECTRUM' would choke on
-       ;; it that string.  Use a variable to pass along the raw user
+       ;; that string.  Use a variable to pass along the raw user
        ;; input string. aa5f098ab
        (input nil)
        (split-string (symbol-function 'split-string))
