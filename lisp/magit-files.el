@@ -300,7 +300,8 @@ to `magit-dispatch'."
     ("g" "Status"     magit-status-here)]
    [("L" "Log..."     magit-log)
     ("l" "Log"        magit-log-buffer-file)
-    ("t" "Trace"      magit-log-trace-definition)]
+    ("t" "Trace"      magit-log-trace-definition)
+    (7 "M" "Merged"   magit-log-merged)]
    [("B" "Blame..."   magit-blame)
     ("b" "Blame"      magit-blame-addition)
     ("r" "...removal" magit-blame-removal)
