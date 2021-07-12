@@ -1324,11 +1324,12 @@ for a revision."
     (let (hunk (hunks (oref diff children)))
       (cl-block nil
         (while (setq hunk (pop hunks))
-          (pcase-let* ((`(,beg ,len) (oref hunk to-range))
-                       (end (+ beg len)))
-            (cond ((>  beg line)     (cl-return (list diff nil)))
-                  ((<= beg line end) (cl-return (list hunk t)))
-                  ((null hunks)      (cl-return (list hunk nil))))))))))
+          (when-let ((range (oref hunk to-range)))
+            (pcase-let* ((`(,beg ,len) range)
+                         (end (+ beg len)))
+              (cond ((>  beg line)     (cl-return (list diff nil)))
+                    ((<= beg line end) (cl-return (list hunk t)))
+                    ((null hunks)      (cl-return (list hunk nil)))))))))))
 
 (defun magit-diff--goto-position (file line column &optional parent)
   (when-let ((pos (magit-diff--locate-hunk file line parent)))
@@ -2213,39 +2214,60 @@ section or a child thereof."
       (when orig (setq orig (magit-decode-git-path orig)))
       (when file (setq file (magit-decode-git-path file)))
       (magit-diff-insert-file-section
-       (or file base) orig status nil nil long-status)))
-   ((looking-at
-     "^diff --\\(?:\\(git\\) \\(?:\\(.+?\\) \\2\\)?\\|\\(cc\\|combined\\) \\(.+\\)\\)")
+       (or file base) orig status nil nil nil long-status)))
+   ((looking-at "^diff --\
+\\(?:\\(?1:git\\) \\(?:\\(?2:.+?\\) \\(?3:.+?\\)\\)?\
+\\|\\(?:cc\\|combined\\) \\(?4:.+\\)\\)\n")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
                         (t                                     "unmerged")))
-          (file (or (match-string 2) (match-string 4)))
-          (beg (point))
-          orig header modes)
-      (save-excursion
-        (forward-line 1)
-        (setq header (buffer-substring
-                      beg (if (re-search-forward magit-diff-headline-re nil t)
-                              (match-beginning 0)
-                            (point-max)))))
+          (orig (match-string 2))
+          (file (or (match-string 3) (match-string 4)))
+          (header (list (match-string 0)))
+          (modes nil)
+          (rename nil))
+      ;; `git-diff' ignores `--no-prefix' for new files and renames at least.
+      (when (and file orig
+                 (string-prefix-p "a/" orig)
+                 (string-prefix-p "b/" file))
+        (setq orig (substring orig 2))
+        (setq file (substring file 2)))
       (magit-delete-line)
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
-        (if (looking-at "^old mode \\([^\n]+\\)\nnew mode \\([^\n]+\\)\n")
-            (progn (setq modes (match-string 0))
-                   (magit-delete-match))
-          (cond
-           ((looking-at "^--- \\([^/].*?\\)\t?$") ; i.e. not /dev/null
-            (setq orig (match-string 1)))
-           ((looking-at "^\\+\\+\\+ \\([^/].*?\\)\t?$")
-            (setq file (match-string 1)))
-           ((looking-at "^\\(copy\\|rename\\) from \\(.+\\)$")
-            (setq orig (match-string 2)))
-           ((looking-at "^\\(copy\\|rename\\) to \\(.+\\)$")
-            (setq file (match-string 2))
-            (setq status (if (equal (match-string 1) "copy") "new file" "renamed")))
-           ((looking-at "^\\(new file\\|deleted\\)")
-            (setq status (match-string 1))))
-          (magit-delete-line)))
+        (cond
+         ((looking-at "old mode \\(?:[^\n]+\\)\nnew mode \\(?:[^\n]+\\)\n")
+          (setq modes (match-string 0)))
+         ((looking-at "deleted file .+\n")
+          (setq status "deleted"))
+         ((looking-at "new file .+\n")
+          (setq status "new file"))
+         ((looking-at "rename from \\(.+\\)\nrename to \\(.+\\)\n")
+          (setq rename (match-string 0))
+          (setq orig (match-string 1))
+          (setq file (match-string 2))
+          (setq status "renamed"))
+         ((looking-at "copy from \\(.+\\)\ncopy to \\(.+\\)\n")
+          (setq orig (match-string 1))
+          (setq file (match-string 2))
+          (setq status "new file"))
+         ((looking-at "similarity index .+\n"))
+         ((looking-at "dissimilarity index .+\n"))
+         ((looking-at "^index .+\n"))
+         ((looking-at "--- \\(.+?\\)\t?\n")
+          (unless (equal (match-string 1) "/dev/null")
+            (setq orig (match-string 1))))
+         ((looking-at "\\+\\+\\+ \\(.+?\\)\t?\n")
+          (unless (equal (match-string 1) "/dev/null")
+            (setq file (match-string 1))))
+         (t
+          (error "BUG: Unknown extended header: %S"
+                 (buffer-substring (point) (line-end-position)))))
+        ;; These headers are treated as some sort of special hunk.
+        (unless (or (string-prefix-p "old mode" (match-string 0))
+                    (string-prefix-p "rename"   (match-string 0)))
+          (push (match-string 0) header))
+        (magit-delete-match))
+      (setq header (mapconcat #'identity (nreverse header) ""))
       (when orig
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
@@ -2255,10 +2277,10 @@ section or a child thereof."
         (setq file (substring file 2))
         (when orig
           (setq orig (substring orig 2))))
-      (magit-diff-insert-file-section file orig status modes header)))))
+      (magit-diff-insert-file-section file orig status modes rename header)))))
 
 (defun magit-diff-insert-file-section
-    (file orig status modes header &optional long-status)
+    (file orig status modes rename header &optional long-status)
   (magit-insert-section section
     (file file (or (equal status "deleted")
                    (derived-mode-p 'magit-status-mode)))
@@ -2274,8 +2296,12 @@ section or a child thereof."
       (oset section source orig))
     (oset section header header)
     (when modes
-      (magit-insert-section (hunk)
+      (magit-insert-section (hunk '(chmod))
         (insert modes)
+        (magit-insert-heading)))
+    (when rename
+      (magit-insert-section (hunk '(rename))
+        (insert rename)
         (magit-insert-heading)))
     (magit-wash-sequence #'magit-diff-wash-hunk)))
 
@@ -3301,11 +3327,15 @@ last (visual) lines of the region."
 
 ;;; Diff Extract
 
-(defun magit-diff-file-header (section)
+(defun magit-diff-file-header (section &optional no-rename)
   (when (magit-hunk-section-p section)
     (setq section (oref section parent)))
-  (when (magit-file-section-p section)
-    (oref section header)))
+  (and (magit-file-section-p section)
+       (let ((header (oref section header)))
+         (if no-rename
+             (replace-regexp-in-string
+              "^--- \\(.+\\)" (oref section value) header t t 1)
+           header))))
 
 (defun magit-diff-hunk-region-header (section)
   (let ((patch (magit-diff-hunk-region-patch section)))
