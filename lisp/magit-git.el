@@ -62,7 +62,12 @@
 ;; From later in `magit-git'.
 (defvar magit-tramp-process-environment nil)
 
+;; From `magit-blame'.
+(declare-function magit-current-blame-chunk "magit-blame"
+                  (&optional type noerror))
+
 (eval-when-compile
+  (cl-pushnew 'orig-rev eieio--known-slot-names)
   (cl-pushnew 'number eieio--known-slot-names))
 
 ;;; Git implementations
@@ -1316,6 +1321,8 @@ to, or to some other symbolic-ref that points to the same ref."
 (defun magit-commit-at-point ()
   (or (magit-section-value-if 'commit)
       (thing-at-point 'git-revision t)
+      (when-let ((chunk (magit-current-blame-chunk 'addition t)))
+        (oref chunk orig-rev))
       (and (derived-mode-p 'magit-stash-mode
                            'magit-merge-preview-mode
                            'magit-revision-mode)
@@ -1336,6 +1343,8 @@ to, or to some other symbolic-ref that points to the same ref."
                      (magit-ref-p (format "refs/pullreqs/%s"
                                           (oref (oref it value) number))))))
       (thing-at-point 'git-revision t)
+      (when-let ((chunk (magit-current-blame-chunk 'addition t)))
+        (oref chunk orig-rev))
       (and (derived-mode-p 'magit-stash-mode
                            'magit-merge-preview-mode
                            'magit-revision-mode)
