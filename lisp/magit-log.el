@@ -770,7 +770,7 @@ commits instead.
 This command requires git-when-merged, which is available from
 https://github.com/mhagger/git-when-merged."
   (interactive
-   (append (let ((commit (magit-read-branch-or-commit "Commit")))
+   (append (let ((commit (magit-read-branch-or-commit "Log merge of commit")))
              (list commit
                    (magit-read-other-branch "Merged into" commit)))
            (magit-log-arguments)))
