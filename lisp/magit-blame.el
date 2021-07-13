@@ -895,6 +895,7 @@ instead of the hash, like `kill-ring-save' would."
   ["Arguments"
    ("-w" "Ignore whitespace" "-w")
    ("-r" "Do not treat root commits as boundaries" "--root")
+   ("-P" "Follow only first parent" "--first-parent")
    (magit-blame:-M)
    (magit-blame:-C)]
   ["Actions"
