@@ -180,7 +180,10 @@ conflicts, including those already resolved by Git, use
                      ,b)
                  ,m)
               make)
-        (push `(unless ,b (ediff-kill-buffer-carefully ediff-buffer-A)) kill)))
+        (push `(unless ,b
+                 (ediff-kill-buffer-carefully
+                  ,(intern (format "ediff-buffer-%c" char))))
+              kill)))
     (setq get  (nreverse get))
     (setq make (nreverse make))
     (setq kill (nreverse kill))
