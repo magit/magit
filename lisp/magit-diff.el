@@ -2257,6 +2257,7 @@ section or a child thereof."
          ((looking-at "\\+\\+\\+ \\(.+?\\)\t?\n")
           (unless (equal (match-string 1) "/dev/null")
             (setq file (match-string 1))))
+         ((looking-at "Binary files .+ and .+ differ\n"))
          (t
           (error "BUG: Unknown extended header: %S"
                  (buffer-substring (point) (line-end-position)))))
