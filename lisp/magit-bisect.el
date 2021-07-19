@@ -199,10 +199,10 @@ bisect run'."
     ;; Avoid `magit-git-bisect' because it's asynchronous, but the
     ;; next `git bisect run' call requires the bisect to be started.
     (magit-with-toplevel
-      (apply #'magit-process-file magit-git-executable
-             nil (list :file (magit-git-dir "BISECT_CMD_OUTPUT")) nil
-             (magit-process-git-arguments
-              (list "bisect" "start" bad good args)))
+      (magit-process-git
+       (list :file (magit-git-dir "BISECT_CMD_OUTPUT"))
+       (magit-process-git-arguments
+        (list "bisect" "start" bad good args)))
       (magit-refresh)))
   (magit-git-bisect "run" (list shell-file-name shell-command-switch cmdline)))
 

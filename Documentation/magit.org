@@ -7813,6 +7813,20 @@ commands that have side-effects, but that should be avoided.
   add a section containing git's standard error in the current
   repository's process buffer.
 
+- Function: magit-process-git destination &rest args
+
+  Calls Git synchronously in a separate process, returning its exit
+  code.  DESTINATION specifies how to handle the output, like for
+  ~call-process~, except that file handlers are supported.  Enables
+  Cygwin's "noglob" option during the call and ensures unix eol
+  conversion.
+
+- Function: magit-process-file process &optional infile buffer display &rest args
+
+  Processes files synchronously in a separate process.  Identical to
+  ~process-file~ but temporarily enables Cygwin's "noglob" option during
+  the call and ensures unix eol conversion.
+
 If an error occurs when using one of the above functions, then that
 is usually due to a bug, i.e. using an argument which is not
 actually supported.  Such errors are usually not reported, but when

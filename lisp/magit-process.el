@@ -398,6 +398,17 @@ Process output goes into a new section in the buffer returned by
        (apply #'magit-process-file program nil process-buf nil args))
      process-buf (current-buffer) default-directory section)))
 
+(defun magit-process-git (destination &rest args)
+  "Call Git synchronously in a separate process, returning its exit code.
+DESTINATION specifies how to handle the output, like for
+`call-process', except that file handlers are supported.
+Enable Cygwin's \"noglob\" option during the call and
+ensure unix eol conversion."
+  (apply #'magit-process-file
+         magit-git-executable
+         nil destination nil
+         (magit-process-git-arguments args)))
+
 (defun magit-process-file (process &optional infile buffer display &rest args)
   "Process files synchronously in a separate process.
 Identical to `process-file' but temporarily enable Cygwin's

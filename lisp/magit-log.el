@@ -780,11 +780,9 @@ https://github.com/mhagger/git-when-merged."
   (let (exit m)
     (with-temp-buffer
       (save-excursion
-        (setq exit (magit-process-file
-                    magit-git-executable nil t nil
-                    "when-merged" "-c"
-                    "--abbrev" (number-to-string (magit-abbrev-length))
-                    commit branch)))
+        (setq exit (magit-process-git t "when-merged" "-c"
+                                      (magit-abbrev-arg)
+                                      commit branch)))
       (setq m (buffer-substring-no-properties (point) (line-end-position))))
     (if (zerop exit)
         (magit-log-setup-buffer (list (format "%s^1..%s" m m))

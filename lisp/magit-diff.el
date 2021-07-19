@@ -2497,8 +2497,7 @@ or a ref which is not a branch, then it inserts nothing."
               (re-search-forward "-----END PGP SIGNATURE-----")
               (delete-region beg (point)))
             (insert ?\n)
-            (magit-process-file magit-git-executable nil t nil
-                                "verify-tag" magit-buffer-revision))
+            (magit-process-git t "verify-tag" magit-buffer-revision))
         (goto-char (point-max)))
       (insert ?\n))))
 
