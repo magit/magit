@@ -550,11 +550,14 @@ and Emacs to it."
 
 (defun magit-debug-git-executable ()
   "Display a buffer with information about `magit-git-executable'.
+Also include information about `magit-remote-git-executable'.
 See info node `(magit)Debugging Tools' for more information."
   (interactive)
   (with-current-buffer (get-buffer-create "*magit-git-debug*")
     (pop-to-buffer (current-buffer))
     (erase-buffer)
+    (insert (format "magit-remote-git-executable: %S\n"
+                    magit-remote-git-executable))
     (insert (concat
              (format "magit-git-executable: %S" magit-git-executable)
              (and (not (file-name-absolute-p magit-git-executable))

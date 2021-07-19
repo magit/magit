@@ -324,25 +324,14 @@ Magit requires Git >= %s, but on %s the version is %s.
 If multiple Git versions are installed on the host, then the
 problem might be that TRAMP uses the wrong executable.
 
-First check the value of `magit-git-executable'.  Its value is
-used when running git locally as well as when running it on a
-remote host.  The default value is \"git\", except on Windows
-where an absolute path is used for performance reasons.
-
-If the value already is just \"git\" but TRAMP never-the-less
-doesn't use the correct executable, then consult the info node
-`(tramp)Remote programs'.\n" magit--minimal-git remote version) :error))
+Check the value of `magit-remote-git-executable' and consult
+the info node `(tramp)Remote programs'.
+" magit--minimal-git remote version) :error))
         (display-warning 'magit (format "\
 Magit cannot find Git on %s.
 
-First check the value of `magit-git-executable'.  Its value is
-used when running git locally as well as when running it on a
-remote host.  The default value is \"git\", except on Windows
-where an absolute path is used for performance reasons.
-
-If the value already is just \"git\" but TRAMP never-the-less
-doesn't find the executable, then consult the info node
-`(tramp)Remote programs'.\n" remote) :error)))))
+Check the value of `magit-remote-git-executable' and consult
+the info node `(tramp)Remote programs'." remote) :error)))))
 
 ;;; Mode
 

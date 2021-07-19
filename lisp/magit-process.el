@@ -353,7 +353,7 @@ then raise an error."
 (defun magit-run-git (&rest args)
   "Call Git synchronously in a separate process, and refresh.
 
-Option `magit-git-executable' specifies the Git executable and
+Function `magit-git-executable' specifies the Git executable and
 option `magit-git-global-arguments' specifies constant arguments.
 The arguments ARGS specify arguments to Git, they are flattened
 before use.
@@ -375,7 +375,7 @@ Process output goes into a new section in the buffer returned by
 (defun magit-call-git (&rest args)
   "Call Git synchronously in a separate process.
 
-Option `magit-git-executable' specifies the Git executable and
+Function `magit-git-executable' specifies the Git executable and
 option `magit-git-global-arguments' specifies constant arguments.
 The arguments ARGS specify arguments to Git, they are flattened
 before use.
@@ -384,7 +384,8 @@ Process output goes into a new section in the buffer returned by
 `magit-process-buffer'."
   (run-hooks 'magit-pre-call-git-hook)
   (let ((default-process-coding-system (magit--process-coding-system)))
-    (apply #'magit-call-process magit-git-executable
+    (apply #'magit-call-process
+           (magit-git-executable)
            (magit-process-git-arguments args))))
 
 (defun magit-call-process (program &rest args)
@@ -405,7 +406,7 @@ DESTINATION specifies how to handle the output, like for
 Enable Cygwin's \"noglob\" option during the call and
 ensure unix eol conversion."
   (apply #'magit-process-file
-         magit-git-executable
+         (magit-git-executable)
          nil destination nil
          (magit-process-git-arguments args)))
 
@@ -449,7 +450,7 @@ The current buffer's content is used as the process's standard
 input.  The buffer is assumed to be temporary and thus OK to
 modify.
 
-Option `magit-git-executable' specifies the Git executable and
+Function `magit-git-executable' specifies the Git executable and
 option `magit-git-global-arguments' specifies constant arguments.
 The remaining arguments ARGS specify arguments to Git, they are
 flattened before use."
@@ -470,11 +471,11 @@ flattened before use."
                  (default-process-coding-system (magit--process-coding-system))
                  (flat-args (magit-process-git-arguments args))
                  (`(,process-buf . ,section)
-                  (magit-process-setup magit-git-executable flat-args))
+                  (magit-process-setup (magit-git-executable) flat-args))
                  (inhibit-read-only t))
       (magit-process-finish
        (apply #'call-process-region (point-min) (point-max)
-              magit-git-executable nil process-buf nil flat-args)
+              (magit-git-executable) nil process-buf nil flat-args)
        process-buf nil default-directory section))))
 
 ;;; Asynchronous Processes
@@ -490,7 +491,7 @@ current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' for more information."
-  (message "Running %s %s" magit-git-executable
+  (message "Running %s %s" (magit-git-executable)
            (let ((m (mapconcat #'identity (-flatten args) " ")))
              (remove-list-of-text-properties 0 (length m) '(face) m)
              m))
@@ -538,7 +539,7 @@ If INPUT is non-nil, it has to be a buffer or the name of an
 existing buffer.  The buffer content becomes the processes
 standard input.
 
-Option `magit-git-executable' specifies the Git executable and
+Function `magit-git-executable' specifies the Git executable and
 option `magit-git-global-arguments' specifies constant arguments.
 The remaining arguments ARGS specify arguments to Git, they are
 flattened before use.
@@ -550,7 +551,7 @@ and still alive), as well as the respective Magit status buffer.
 See `magit-start-process' for more information."
   (run-hooks 'magit-pre-start-git-hook)
   (let ((default-process-coding-system (magit--process-coding-system)))
-    (apply #'magit-start-process magit-git-executable input
+    (apply #'magit-start-process (magit-git-executable) input
            (magit-process-git-arguments args))))
 
 (defun magit-start-process (program &optional input &rest args)
@@ -621,7 +622,7 @@ Magit status buffer."
                    (default-process-coding-system
                      (magit--process-coding-system)))
                (apply #'start-file-process "git" process-buf
-                      magit-git-executable args))))
+                      (magit-git-executable) args))))
         (process-put process 'command-buf command-buf)
         (process-put process 'parsed (point))
         (setq magit-this-process process)
@@ -662,7 +663,7 @@ Magit status buffer."
 
 (defun magit-process--format-arguments (program args)
   (cond
-   ((and args (equal program magit-git-executable))
+   ((and args (equal program (magit-git-executable)))
     (setq args (-split-at (length magit-git-global-arguments) args))
     (concat (propertize (file-name-nondirectory program)
                         'font-lock-face 'magit-section-heading)
@@ -931,7 +932,7 @@ as argument."
               (condition-case nil
                   (start-process "git-credential-cache--daemon"
                                  " *git-credential-cache--daemon*"
-                                 magit-git-executable
+                                 (magit-git-executable)
                                  "credential-cache--daemon"
                                  magit-credential-cache-daemon-socket)
                 ;; Some Git implementations (e.g. Windows) won't have
@@ -974,7 +975,7 @@ as argument."
 
 (defun magit-process-set-mode-line (program args)
   "Display the git command (sans arguments) in the mode line."
-  (when (equal program magit-git-executable)
+  (when (equal program (magit-git-executable))
     (setq args (nthcdr (length magit-git-global-arguments) args)))
   (let ((str (concat " " (propertize
                           (concat (file-name-nondirectory program)

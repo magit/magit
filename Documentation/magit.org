@@ -1902,48 +1902,55 @@ These suffix commands start external gui tools.
 
 *** Git Executable
 
-Except on MS Windows, Magit defaults to running Git without specifying
-the path to the git executable.  Instead the first executable found by
-Emacs on ~exec-path~ is used (whose value in turn is set based on the
-value of the environment variable ~$PATH~ when Emacs was started).
+When Magit calls Git, then it may do so using the absolute path to the
+~git~ executable, or using just its name.
 
-This has the advantage that it continues to work even when using Tramp
-to connect to a remote machine on which the executable is found in a
-different place.  The downside is that if you have multiple versions
-of Git installed, then you might end up using another version than the
-one you think you are using.
+When running ~git~ locally and the ~system-type~ is ~windows-nt~ (any
+Windows version) or ~darwin~ (macOS) then ~magit-git-executable~ is set
+to an absolute path when Magit is loaded.
+
+On Windows it is necessary to use an absolute path because Git comes
+with several wrapper scripts for the actual ~git~ binary, which are also
+placed on ~$PATH~, and using one of these wrappers instead of the binary
+would degrade performance horribly.  On other platforms, using just the
+name seems to work just fine.
+
+Using an absolute path when running ~git~ on a remote machine over
+Tramp, would be problematic to use an absolute path that is suitable
+on the local machine, so a separate option is used to control the name
+or path that is used on remote machines.
+
+- User Option: magit-git-executable
+
+  The ~git~ executable used by Magit on the local host.  This should be
+  either the absolute path to the executable, or the string "git" to
+  let Emacs find the executable itself, using the standard mechanism
+  for doing such things.
+
+- User Option: magit-remote-git-executable
+
+  The ~git~ executable used by Magit on remote machines over Tramp.
+  Normally this should be just the string "git".
+
+If Emacs is unable find the correct executable, then you can work
+around that by explicitly setting the value of these two options.
+Doing that should be considered a kludge; it is better to make sure
+that the order in the environment variable ~$PATH~ is correct, and
+that Emacs is started with that environment in effect.
+
+The command ~magit-debug-git-executable~ can be useful to find out where
+Emacs is searching for ~git~.
+
+- Key: M-x magit-debug-git-executable, magit-debug-git-executable
+
+  This command displays a buffer with information about
+  ~magit-git-executable~ and  ~magit-remote-git-executable~.
 
 - Key: M-x magit-version, magit-version
 
   This command shows the currently used versions of Magit, Git, and
   Emacs in the echo area.  Non-interactively this just returns the
   Magit version.
-
-When the ~system-type~ is ~windows-nt~, then ~magit-git-executable~ is set
-to an absolute path when Magit is first loaded.  This is necessary
-because Git on that platform comes with several wrapper scripts for
-the actual git binary, which are also placed on ~$PATH~, and using one
-of these wrappers instead of the binary would degrade performance
-horribly.
-
-If Magit doesn't find the correct executable then you *can* work
-around that by setting ~magit-git-executable~ to an absolute path.
-But note that doing so is a kludge.  It is better to make sure the
-order in the environment variable ~$PATH~ is correct, and that Emacs
-is started with that environment in effect.  The command
-~magit-debug-git-executable~ can be useful to find out where Emacs is
-searching for git.  If you have to connect from Windows to a
-non-Windows machine, then you must change the value to "git".
-
-- User Option: magit-git-executable
-
-  The git executable used by Magit, either the full path to the
-  executable or the string "git" to let Emacs find the executable
-  itself, using the standard mechanism for doing such things.
-
-- Key: M-x magit-debug-git-executable, magit-debug-git-executable
-
-  Display a buffer with information about ~magit-git-executable~.
 
 *** Global Git Arguments
 

@@ -166,7 +166,15 @@ successfully.")
                    (push (cons core-exe path-hack) magit-git-w32-path-hack))
                  core-exe))))
       "git")
-  "The Git executable used by Magit."
+  "The Git executable used by Magit on the local host.
+On remote machines `magit-remote-git-executable' is used instead."
+  :group 'magit-process
+  :type 'string)
+
+(defcustom magit-remote-git-executable "git"
+  "The Git executable used by Magit on remote machines.
+On the local host `magit-git-executable' is used instead."
+  :package-version '(magit . "3.2.0")
   :group 'magit-process
   :type 'string)
 
@@ -325,6 +333,14 @@ as for that macro."
        (with-temp-buffer
          (setq-local process-environment ,p)
          ,@body))))
+
+(defsubst magit-git-executable ()
+  "Return value of `magit-git-executable' or `magit-remote-git-executable'.
+The variable is chosen depending on whether `default-directory'
+is remote."
+  (if (file-remote-p default-directory)
+      magit-remote-git-executable
+    magit-git-executable))
 
 (defun magit-process-git-arguments (args)
   "Prepare ARGS for a function that invokes Git.
@@ -766,8 +782,8 @@ returning the truename."
   "Git executable cannot be found (see https://magit.vc/goto/e6a78ed2)")
 
 (defun magit--assert-usable-git ()
-  (if (not (executable-find magit-git-executable))
-      (signal 'magit-git-executable-not-found magit-git-executable)
+  (if (not (executable-find (magit-git-executable)))
+      (signal 'magit-git-executable-not-found (magit-git-executable))
     (let ((magit-git-debug
            (lambda (err)
              (signal 'magit-corrupt-git-config
@@ -1913,7 +1929,7 @@ Return a list of two integers: (A>B B>A)."
   (magit--with-temp-process-buffer
     (magit-process-file
      shell-file-name nil '(t nil) nil shell-command-switch
-     (let ((exec (shell-quote-argument magit-git-executable)))
+     (let ((exec (shell-quote-argument (magit-git-executable))))
        (format "%s diff-tree -u %s | %s patch-id" exec rev exec)))
     (car (split-string (buffer-string)))))
 
