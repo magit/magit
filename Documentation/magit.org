@@ -1912,7 +1912,9 @@ to an absolute path when Magit is loaded.
 On Windows it is necessary to use an absolute path because Git comes
 with several wrapper scripts for the actual ~git~ binary, which are also
 placed on ~$PATH~, and using one of these wrappers instead of the binary
-would degrade performance horribly.  On other platforms, using just the
+would degrade performance horribly.  For some macOS users using just
+the name of the executable also performs horribly, so we avoid doing
+that on that platform as well.  On other platforms, using just the
 name seems to work just fine.
 
 Using an absolute path when running ~git~ on a remote machine over
@@ -7668,14 +7670,6 @@ So make sure that you are using at least Emacs 26.1, in which case the
 faster ~vfork~ will be used.  (The creation of child processes still
 takes about twice as long on Darwin compared to Linux.)  See [fn:mac1]
 for more information.
-
-On Catalina, and potentially other macOS releases, there may be a
-performance problem where any action takes 20 times longer on Darwin
-than on Linux.  This can be worked around by setting
-~magit-git-executable~ to the absolute path of the ~git~ executable,
-instead of relying on resolving the ~$PATH~.  You should not do that if
-you want to use Magit on remote machines using Tramp and if ~git~ is not
-installed in the same location on those machines.
 
 [fn:mac1] https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html
 

@@ -165,9 +165,12 @@ successfully.")
                      (setcdr hack-entry path-hack)
                    (push (cons core-exe path-hack) magit-git-w32-path-hack))
                  core-exe))))
+      (and (eq system-type 'darwin)
+           (executable-find "git"))
       "git")
   "The Git executable used by Magit on the local host.
 On remote machines `magit-remote-git-executable' is used instead."
+  :package-version '(magit . "3.2.0")
   :group 'magit-process
   :type 'string)
 
