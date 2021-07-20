@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.1.1 (v3.1.1-53-gcbe1c0948+1)
+#+SUBTITLE: for version 3.1.1 (v3.1.1-54-gd5ce70d3b+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.1.1 (v3.1.1-53-gcbe1c0948+1).
+This manual is for Magit version 3.1.1 (v3.1.1-54-gd5ce70d3b+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -1934,11 +1934,18 @@ or path that is used on remote machines.
   The ~git~ executable used by Magit on remote machines over Tramp.
   Normally this should be just the string "git".
 
-If Emacs is unable find the correct executable, then you can work
-around that by explicitly setting the value of these two options.
-Doing that should be considered a kludge; it is better to make sure
-that the order in the environment variable ~$PATH~ is correct, and
-that Emacs is started with that environment in effect.
+If Emacs is unable to find the correct executable, then you can
+work around that by explicitly setting the value of one of these two
+options.  Doing that should be considered a kludge; it is better to
+make sure that the order in ~exec-path~ or ~tramp-remote-path~ is correct.
+
+Note that ~exec-path~ is set based on the value of the ~PATH~ environment
+variable that is in effect when Emacs is started.  If you set ~PATH~ in
+your shell's init files, then that only has an effect on Emacs if you
+start it from that shell (because the environment of a process is only
+passed to its child processes, not to arbitrary other processes).  If
+that is not how you start Emacs, then the ~exec-path-from-shell~ package
+can help; though honestly I consider that a kludge too.
 
 The command ~magit-debug-git-executable~ can be useful to find out where
 Emacs is searching for ~git~.
