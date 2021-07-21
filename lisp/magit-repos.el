@@ -140,16 +140,7 @@ This has to be the key of an entry in `magit-repolist-columns'."
 Use the options `magit-repository-directories' to control which
 repositories are displayed."
   (interactive)
-  (if magit-repository-directories
-      (with-current-buffer (get-buffer-create "*Magit Repositories*")
-        (message "Listing repositories...")
-        (magit-repolist-mode)
-        (magit-repolist-refresh)
-        (tabulated-list-print)
-        (switch-to-buffer (current-buffer))
-        (message "Listing repositories...done"))
-    (message "You need to customize `magit-repository-directories' %s"
-             "before you can list repositories")))
+  (magit-repolist-setup (default-value 'magit-repolist-columns)))
 
 ;;;; Mode
 
@@ -171,6 +162,23 @@ repositories are displayed."
   "Major mode for browsing a list of Git repositories."
   (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
+  (add-hook 'tabulated-list-revert-hook 'magit-repolist-refresh nil t)
+  (setq imenu-prev-index-position-function
+        'magit-imenu--repolist-prev-index-position-function)
+  (setq imenu-extract-index-name-function
+        'magit-imenu--repolist-extract-index-name-function))
+
+(defun magit-repolist-setup (columns)
+  (unless magit-repository-directories
+    (user-error "You need to customize `magit-repository-directories' %s"
+                "before you can list repositories"))
+  (with-current-buffer (get-buffer-create "*Magit Repositories*")
+    (magit-repolist-mode)
+    (setq-local magit-repolist-columns columns)
+    (magit-repolist-refresh)
+    (switch-to-buffer (current-buffer))))
+
+(defun magit-repolist-refresh ()
   (setq tabulated-list-sort-key
         (cons (or (car (assoc magit-repolist-sort-column
                               magit-repolist-columns))
@@ -181,14 +189,6 @@ repositories are displayed."
                            (nconc (list title width t)
                                   (-flatten props)))
                          magit-repolist-columns)))
-  (tabulated-list-init-header)
-  (add-hook 'tabulated-list-revert-hook 'magit-repolist-refresh nil t)
-  (setq imenu-prev-index-position-function
-        'magit-imenu--repolist-prev-index-position-function)
-  (setq imenu-extract-index-name-function
-        'magit-imenu--repolist-extract-index-name-function))
-
-(defun magit-repolist-refresh ()
   (setq tabulated-list-entries
         (mapcar (pcase-lambda (`(,id . ,path))
                   (let ((default-directory path))
@@ -204,7 +204,11 @@ repositories are displayed."
                 (magit-list-repos-uniquify
                  (--map (cons (file-name-nondirectory (directory-file-name it))
                               it)
-                        (magit-list-repos))))))
+                        (magit-list-repos)))))
+  (message "Listing repositories...")
+  (tabulated-list-init-header)
+  (tabulated-list-print)
+  (message "Listing repositories...done"))
 
 ;;;; Columns
 
