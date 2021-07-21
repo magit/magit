@@ -237,7 +237,7 @@ C-x g           magit-status
 C-x M-g         magit-dispatch
 C-c M-g         magit-file-dispatch
 
-These bindings may be added when `after-init-hook' is called.
+These bindings may be added when `after-init-hook' is run.
 Each binding is added if and only if at that time no other key
 is bound to the same command and no other command is bound to
 the same key.  In other words we try to avoid adding bindings
@@ -251,8 +251,14 @@ is loaded or autoloaded) and to increase the likelihood that
 all the potentially conflicting user bindings have already
 been added.
 
-Setting this variable after the hook has already been called
-has no effect.
+To set this variable use either `setq' or the Custom interface.
+Do not use the function `customize-set-variable' because doing
+that would cause Magit to be loaded immediately when that form
+is evaluated (this differs from `custom-set-variables', which
+doesn't load the libraries that define the customized variables).
+
+Setting this variable to nil has no effect if that is done after
+the key bindings have already been added.
 
 We recommend that you bind \"C-c g\" instead of \"C-c M-g\" to
 `magit-file-dispatch'.  The former is a much better binding

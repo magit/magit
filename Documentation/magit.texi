@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.1.1 (v3.1.1-54-gd5ce70d3b+1)
+@subtitle for version 3.1.1 (v3.1.1-55-gda5ac05e0+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.1.1 (v3.1.1-54-gd5ce70d3b+1).
+This manual is for Magit version 3.1.1 (v3.1.1-55-gda5ac05e0+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -10379,7 +10379,7 @@ following bindings may be added to the global keymap.
 @tab @code{magit-file-dispatch}
 @end multitable
 
-These bindings may be added when @code{after-init-hook} is called.
+These bindings may be added when @code{after-init-hook} is run.
 Each binding is added if and only if at that time no other key
 is bound to the same command and no other command is bound to
 the same key.  In other words we try to avoid adding bindings
@@ -10393,8 +10393,14 @@ is loaded or autoloaded) and to increase the likelihood that
 all the potentially conflicting user bindings have already
 been added.
 
-Setting this variable after the hook has already been called
-has no effect.
+To set this variable use either @code{setq} or the Custom interface.
+Do not use the function @code{customize-set-variable} because doing
+that would cause Magit to be loaded immediately when that form
+is evaluated (this differs from @code{custom-set-variables}, which
+doesn't load the libraries that define the customized variables).
+
+Setting this variable to nil has no effect if that is done after
+the key bindings have already been added.
 
 We recommend that you bind @code{C-c g} instead of @code{C-c M-g} to
 @code{magit-file-dispatch}.  The former is a much better binding
