@@ -103,6 +103,13 @@ than 9."
                                                (symbol))
                                        (sexp   :tag "Value"))))))
 
+(defcustom magit-submodule-list-sort-column "Path"
+  "Default sort column for `magit-list-submodules'.
+This has to be the key of an entry in `magit-submodule-list-columns'."
+  :package-version '(magit . "3.2.0")
+  :group 'magit-repolist
+  :type 'string)
+
 (defcustom magit-submodule-remove-trash-gitdirs nil
   "Whether `magit-submodule-remove' offers to trash module gitdirs.
 
@@ -619,7 +626,11 @@ These sections can be expanded to show the respective commits."
   (magit-submodule-list-refresh))
 
 (defun magit-submodule-list-refresh ()
-  (setq tabulated-list-sort-key (cons "Path" nil))
+  (setq tabulated-list-sort-key
+        (cons (or (car (assoc magit-submodule-list-sort-column
+                              magit-submodule-list-columns))
+                  (caar magit-submodule-list-columns))
+              nil))
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)
