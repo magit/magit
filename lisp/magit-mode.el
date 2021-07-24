@@ -197,9 +197,9 @@ support additional %-sequences."
   :group 'magit-buffers
   :type 'boolean)
 
-(defcustom magit-bury-buffer-function 'magit-restore-window-configuration
+(defcustom magit-bury-buffer-function 'magit-mode-quit-window
   "The function used to bury or kill the current Magit buffer."
-  :package-version '(magit . "2.3.0")
+  :package-version '(magit . "3.2.0")
   :group 'magit-buffers
   :type '(radio (function-item quit-window)
                 (function-item magit-mode-quit-window)
