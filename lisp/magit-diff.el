@@ -2261,6 +2261,8 @@ section or a child thereof."
           (unless (equal (match-string 1) "/dev/null")
             (setq file (match-string 1))))
          ((looking-at "Binary files .+ and .+ differ\n"))
+         ;; TODO Use all combined diff extended headers.
+         ((looking-at "mode .+\n"))
          (t
           (error "BUG: Unknown extended header: %S"
                  (buffer-substring (point) (line-end-position)))))
