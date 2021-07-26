@@ -2216,15 +2216,18 @@ section or a child thereof."
       (when file (setq file (magit-decode-git-path file)))
       (magit-diff-insert-file-section
        (or file base) orig status nil nil nil long-status)))
+   ;; The files on this line may be ambigious due to whitespace.
+   ;; That's okay. We can get their names from subsequent headers.
    ((looking-at "^diff --\
-\\(?:\\(?1:git\\) \\(?:\\(?2:.+?\\) \\(?3:.+?\\)\\)?\
-\\|\\(?:cc\\|combined\\) \\(?4:.+\\)\\)\n")
+\\(?:\\(?1:git\\) \\(?:\\(?2:.+?\\) \\2\\)?\
+\\|\\(?:cc\\|combined\\) \\(?3:.+\\)\\)")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
                         (t                                     "unmerged")))
-          (orig (match-string 2))
-          (file (or (match-string 3) (match-string 4)))
-          (header (list (match-string 0)))
+          (orig nil)
+          (file (or (match-string 2) (match-string 3)))
+          (header (list (buffer-substring-no-properties
+                         (line-beginning-position) (1+ (line-end-position)))))
           (modes nil)
           (rename nil))
       (magit-delete-line)
