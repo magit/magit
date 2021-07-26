@@ -1111,6 +1111,9 @@ If no DWIM context is found, nil is returned."
                           (or current "HEAD")
                           atpoint))))
       (commit (cons 'commit (oref it value)))
+      ([file commit] (cons 'commit (oref (oref it parent) value)))
+      ([hunk file commit]
+       (cons 'commit (oref (oref (oref it parent) parent) value)))
       (stash (cons 'stash (oref it value)))
       (pullreq (forge--pullreq-range (oref it value) t))))))
 
