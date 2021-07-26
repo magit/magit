@@ -2253,7 +2253,7 @@ section or a child thereof."
           (setq status "new file"))
          ((looking-at "similarity index .+\n"))
          ((looking-at "dissimilarity index .+\n"))
-         ((looking-at "^index .+\n"))
+         ((looking-at "index .+\n"))
          ((looking-at "--- \\(.+?\\)\t?\n")
           (unless (equal (match-string 1) "/dev/null")
             (setq orig (match-string 1))))
