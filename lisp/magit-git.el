@@ -599,9 +599,10 @@ call function WASHER with ARGS as its sole argument."
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of the Git variable specified by KEYS."
   (let ((key (mapconcat 'identity keys ".")))
-    (if magit--refresh-cache
-        (equal "true" (car (last (magit-config-get-from-cached-list key))))
-      (equal (magit-git-str "config" "--bool" key) "true"))))
+    (equal (if magit--refresh-cache
+               (car (last (magit-config-get-from-cached-list key)))
+             (magit-git-str "config" "--bool" key))
+           "true")))
 
 (defun magit-set (value &rest keys)
   "Set the value of the Git variable specified by KEYS to VALUE."
