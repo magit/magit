@@ -455,7 +455,7 @@ signal `magit-invalid-git-boolean'."
   (pcase (magit-git-output args)
     ((or "true"  "true\n")  t)
     ((or "false" "false\n") nil)
-    (output (signal 'magit-invalid-git-boolean output))))
+    (output (signal 'magit-invalid-git-boolean (list output)))))
 
 (defun magit-git-false (&rest args)
   "Execute Git with ARGS, returning t if it prints \"false\".
@@ -464,7 +464,7 @@ signal `magit-invalid-git-boolean'."
   (pcase (magit-git-output args)
     ((or "true"  "true\n")  nil)
     ((or "false" "false\n") t)
-    (output (signal 'magit-invalid-git-boolean output))))
+    (output (signal 'magit-invalid-git-boolean (list output)))))
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point.
