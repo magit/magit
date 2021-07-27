@@ -466,6 +466,21 @@ signal `magit-invalid-git-boolean'."
     ((or "false" "false\n") t)
     (output (signal 'magit-invalid-git-boolean (list output)))))
 
+(defun magit-git-config-p (variable &optional default)
+  "Return the boolean value of the Git variable VARIABLE.
+VARIABLE has to be specified as a string.  Return DEFAULT (which
+defaults to nil) if VARIABLE is unset.  If VARIABLE's value isn't
+a boolean, then raise an error."
+  (let ((args (list "config" "--bool" "--default" (if default "true" "false")
+                    variable)))
+    (magit--with-refresh-cache (cons default-directory args)
+      (magit--with-temp-process-buffer
+        (let ((status (magit-process-git t args))
+              (output (buffer-substring (point-min) (1- (point-max)))))
+          (if (zerop status)
+              (equal output "true")
+            (signal 'magit-invalid-git-boolean (list output))))))))
+
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point.
 If Git exits with a non-zero exit status, then show a message and
@@ -597,7 +612,8 @@ call function WASHER with ARGS as its sole argument."
       (magit-git-items "config" arg "-z" "--get-all" key))))
 
 (defun magit-get-boolean (&rest keys)
-  "Return the boolean value of the Git variable specified by KEYS."
+  "Return the boolean value of the Git variable specified by KEYS.
+Also see `magit-git-config-p'."
   (let ((key (mapconcat 'identity keys ".")))
     (equal (if magit--refresh-cache
                (car (last (magit-config-get-from-cached-list key)))
