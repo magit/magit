@@ -1342,9 +1342,7 @@ to, or to some other symbolic-ref that points to the same ref."
            magit-buffer-revision)))
 
 (defun magit-branch-or-commit-at-point ()
-  (or (and magit-buffer-file-name
-           magit-buffer-refname)
-      (magit-section-case
+  (or (magit-section-case
         (branch (magit-ref-maybe-qualify (oref it value)))
         (commit (or (magit--painted-branch-at-point)
                     (let ((rev (oref it value)))
@@ -1358,6 +1356,8 @@ to, or to some other symbolic-ref that points to the same ref."
       (thing-at-point 'git-revision t)
       (when-let ((chunk (magit-current-blame-chunk 'addition t)))
         (oref chunk orig-rev))
+      (and magit-buffer-file-name
+           magit-buffer-refname)
       (and (derived-mode-p 'magit-stash-mode
                            'magit-merge-preview-mode
                            'magit-revision-mode)
