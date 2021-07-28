@@ -124,12 +124,17 @@ as the value of `magit-repolist-column-flag'."
   :type '(alist :key-type (function :tag "Predicate Function")
                 :value-type (string :tag "Flag")))
 
-(defcustom magit-repolist-sort-column "Path"
-  "Default sort column for `magit-list-repositories'.
-This has to be the key of an entry in `magit-repolist-columns'."
+(defcustom magit-repolist-sort-key '("Path" . nil)
+  "Initial sort key for buffer created by `magit-list-repositories'.
+If nil, no additional sorting is performed.  Otherwise, this
+should be a cons cell (NAME . FLIP).  NAME is a string matching
+one of the column names in `magit-repolist-columns'.  FLIP, if
+non-nil, means to invert the resulting sort."
   :package-version '(magit . "3.2.0")
   :group 'magit-repolist
-  :type 'string)
+  :type '(choice (const nil)
+                 (cons (string :tag "Column name")
+                       (boolean :tag "Flip order"))))
 
 ;;; List Repositories
 ;;;; Command
@@ -181,10 +186,10 @@ repositories are displayed."
 (defun magit-repolist-refresh ()
   (unless tabulated-list-sort-key
     (setq tabulated-list-sort-key
-          (cons (or (car (assoc magit-repolist-sort-column
-                                magit-repolist-columns))
-                    (caar magit-repolist-columns))
-                nil)))
+          (pcase-let ((`(,column . ,flip) magit-repolist-sort-key))
+            (cons (or (car (assoc column magit-repolist-columns))
+                      (caar magit-repolist-columns))
+                  flip))))
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)

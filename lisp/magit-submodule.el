@@ -103,12 +103,17 @@ than 9."
                                                (symbol))
                                        (sexp   :tag "Value"))))))
 
-(defcustom magit-submodule-list-sort-column "Path"
-  "Default sort column for `magit-list-submodules'.
-This has to be the key of an entry in `magit-submodule-list-columns'."
+(defcustom magit-submodule-list-sort-key '("Path" . nil)
+  "Initial sort key for buffer created by `magit-list-submodules'.
+If nil, no additional sorting is performed.  Otherwise, this
+should be a cons cell (NAME . FLIP).  NAME is a string matching
+one of the column names in `magit-submodule-list-columns'.  FLIP,
+if non-nil, means to invert the resulting sort."
   :package-version '(magit . "3.2.0")
   :group 'magit-repolist
-  :type 'string)
+  :type '(choice (const nil)
+                 (cons (string :tag "Column name")
+                       (boolean :tag "Flip order"))))
 
 (defcustom magit-submodule-remove-trash-gitdirs nil
   "Whether `magit-submodule-remove' offers to trash module gitdirs.
@@ -628,10 +633,10 @@ These sections can be expanded to show the respective commits."
 (defun magit-submodule-list-refresh ()
   (unless tabulated-list-sort-key
     (setq tabulated-list-sort-key
-          (cons (or (car (assoc magit-submodule-list-sort-column
-                                magit-submodule-list-columns))
-                    (caar magit-submodule-list-columns))
-                nil)))
+          (pcase-let ((`(,column . ,flip) magit-submodule-list-sort-key))
+            (cons (or (car (assoc column magit-submodule-list-columns))
+                      (caar magit-submodule-list-columns))
+                  flip))))
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)
