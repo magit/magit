@@ -97,7 +97,7 @@ and set `:pad-right' to 0.  \"+\" is substituted for numbers higher
 than 9."
   :package-version '(magit . "2.12.0")
   :group 'magit-repolist
-  :type `(repeat (list :tag "Column"
+  :type '(repeat (list :tag "Column"
                        (string   :tag "Header Label")
                        (integer  :tag "Column Width")
                        (function :tag "Inserter Function")
