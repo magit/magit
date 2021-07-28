@@ -131,6 +131,12 @@ This has to be the key of an entry in `magit-repolist-columns'."
   :group 'magit-repolist
   :type 'string)
 
+(defcustom magit-repolist-sort-reverse nil
+  "Whether `magit-list-repositories' initially sorts in reverse order."
+  :package-version '(magit . "3.2.0")
+  :group 'magit-repolist
+  :type 'boolean)
+
 ;;; List Repositories
 ;;;; Command
 ;;;###autoload
@@ -183,7 +189,7 @@ repositories are displayed."
         (cons (or (car (assoc magit-repolist-sort-column
                               magit-repolist-columns))
                   (caar magit-repolist-columns))
-              nil))
+              magit-repolist-sort-reverse))
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)
