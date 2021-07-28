@@ -626,11 +626,12 @@ These sections can be expanded to show the respective commits."
   (magit-submodule-list-refresh))
 
 (defun magit-submodule-list-refresh ()
-  (setq tabulated-list-sort-key
-        (cons (or (car (assoc magit-submodule-list-sort-column
-                              magit-submodule-list-columns))
-                  (caar magit-submodule-list-columns))
-              nil))
+  (unless tabulated-list-sort-key
+    (setq tabulated-list-sort-key
+          (cons (or (car (assoc magit-submodule-list-sort-column
+                                magit-submodule-list-columns))
+                    (caar magit-submodule-list-columns))
+                nil)))
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)

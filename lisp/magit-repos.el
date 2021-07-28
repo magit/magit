@@ -179,11 +179,12 @@ repositories are displayed."
     (switch-to-buffer (current-buffer))))
 
 (defun magit-repolist-refresh ()
-  (setq tabulated-list-sort-key
-        (cons (or (car (assoc magit-repolist-sort-column
-                              magit-repolist-columns))
-                  (caar magit-repolist-columns))
-              nil))
+  (unless tabulated-list-sort-key
+    (setq tabulated-list-sort-key
+          (cons (or (car (assoc magit-repolist-sort-column
+                                magit-repolist-columns))
+                    (caar magit-repolist-columns))
+                nil)))
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)
