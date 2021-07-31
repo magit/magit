@@ -2216,7 +2216,7 @@ section or a child thereof."
       (when file (setq file (magit-decode-git-path file)))
       (magit-diff-insert-file-section
        (or file base) orig status nil nil nil long-status)))
-   ;; The files on this line may be ambigious due to whitespace.
+   ;; The files on this line may be ambiguous due to whitespace.
    ;; That's okay. We can get their names from subsequent headers.
    ((looking-at "^diff --\
 \\(?:\\(?1:git\\) \\(?:\\(?2:.+?\\) \\2\\)?\
