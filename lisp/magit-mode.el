@@ -823,9 +823,9 @@ into thinking a buffer belongs to a repo that it doesn't.")
 
 If no such buffer exists then return nil.  Multiple buffers with
 the same major-mode may exist for a repository but only one can
-exist that hasn't been looked to its value.  Return that buffer
+exist that hasn't been locked to its value.  Return that buffer
 \(or nil if there is no such buffer) unless VALUE is non-nil, in
-which case return the buffer that has been looked to that value.
+which case return the buffer that has been locked to that value.
 
 If FRAME is nil or omitted, then consider all buffers.  Otherwise
   only consider buffers that are displayed in some live window
