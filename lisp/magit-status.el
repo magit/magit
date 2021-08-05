@@ -612,12 +612,13 @@ arguments are for internal use only."
               ((magit--valid-upstream-p remote merge)
                (if (equal remote ".")
                    (concat
-                    (propertize merge 'font-lock-face 'magit-branch-local)
-                    (propertize " does not exist"
+                    (propertize merge 'font-lock-face 'magit-branch-local) " "
+                    (propertize "does not exist"
                                 'font-lock-face 'font-lock-warning-face))
-                 (concat
+                 (format
+                  "%s %s %s"
                   (propertize merge 'font-lock-face 'magit-branch-remote)
-                  (propertize " does not exist on "
+                  (propertize "does not exist on"
                               'font-lock-face 'font-lock-warning-face)
                   (propertize remote 'font-lock-face 'magit-branch-remote))))
               (t
@@ -644,11 +645,11 @@ arguments are for internal use only."
                                          "(no commit message)"))))
          (let ((remote (magit-get-push-remote branch)))
            (if (magit-remote-p remote)
-               (concat target
-                       (propertize " does not exist"
+               (concat target " "
+                       (propertize "does not exist"
                                    'font-lock-face 'font-lock-warning-face))
-             (concat remote
-                     (propertize " remote does not exist"
+             (concat remote " "
+                     (propertize "remote does not exist"
                                  'font-lock-face 'font-lock-warning-face))))))
       (insert ?\n))))
 
