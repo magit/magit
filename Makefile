@@ -214,7 +214,7 @@ magit-$(VERSION).tar.gz: lisp versionlib info
 	@$(TAR) cz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	@$(RMDIR) magit-$(VERSION)
 
-define set_package_requires
+define set_package_requires_nongnu
 
 (with-temp-file "lisp/git-commit.el"
   (insert-file-contents "lisp/git-commit.el")
@@ -228,6 +228,21 @@ define set_package_requires
   (re-search-forward "^;; Package-Version: ")
   (delete-region (point) (line-end-position))
   (insert "$(GIT_COMMIT_VERSION)"))
+
+(with-temp-file "lisp/magit.el"
+  (insert-file-contents "lisp/magit.el")
+  (re-search-forward "^;; Package-Requires: ")
+  (delete-region (point) (line-end-position))
+  (insert (format "%S"
+`((emacs ,emacs-version) ;`
+  (dash ,dash-version)
+  (git-commit ,git-commit-version)
+  (magit-section ,magit-section-version)
+  (transient ,transient-version)
+  (with-editor ,with-editor-version))))
+  (re-search-forward "^;; Package-Version: ")
+  (delete-region (point) (line-end-position))
+  (insert "$(MAGIT_SECTION_VERSION)"))
 
 (with-temp-file "lisp/magit-libgit.el"
   (insert-file-contents "lisp/magit-libgit.el")
@@ -251,6 +266,25 @@ define set_package_requires
   (re-search-forward "^;; Package-Version: ")
   (delete-region (point) (line-end-position))
   (insert "$(MAGIT_SECTION_VERSION)"))
+endef
+export set_package_requires_nongnu
+
+define set_package_requires_melpa
+
+(with-temp-file "lisp/git-commit-pkg.el"
+  (insert (format
+"(define-package \"git-commit\" \"$(GIT_COMMIT_VERSION)\"
+  \"Edit Git commit messages.\"
+  '((emacs %S)
+    (dash %S)
+    (transient %S)
+    (with-editor %S))
+  :homepage \"https://magit.vc\"
+  :keywords '(\"git\" \"tools\" \"vc\"))
+"   emacs-version
+    dash-version
+    transient-version
+    with-editor-version)))
 
 (with-temp-file "lisp/magit-pkg.el"
   (insert (format
@@ -270,8 +304,32 @@ define set_package_requires
     magit-section-version
     transient-version
     with-editor-version)))
+
+(with-temp-file "lisp/magit-libgit-pkg.el"
+  (insert (format
+"(define-package \"magit-libgit\" \"$(MAGIT_LIBGIT_VERSION)\"
+  \".\"
+  '((emacs %S)
+    (libgit %S)
+    (magit %S))
+  :homepage \"https://magit.vc\"
+  :keywords '(\"git\" \"tools\" \"vc\"))
+"   emacs-version
+    libgit-version
+    magit-version)))
+
+(with-temp-file "lisp/magit-section-pkg.el"
+  (insert (format
+"(define-package \"magit-section\" \"$(MAGIT_SECTION_VERSION)\"
+  \"Sections for read-only buffers\"
+  '((emacs %S)
+    (dash %S))
+  :homepage \"https://magit.vc\"
+  :keywords '(\"tools\"))
+"   emacs-version
+    dash-version)))
 endef
-export set_package_requires
+export set_package_requires_melpa
 
 define set_package_versions
 (emacs-version "$(EMACS_VERSION)")
@@ -303,11 +361,15 @@ bump-versions: _bump-versions texi
 _bump-versions:
 	@$(BATCH) --eval "(let (\
         $$set_package_versions)\
-        $$set_package_requires)"
+        $$set_package_requires_nongnu\
+        $$set_package_requires_melpa)"
 
 bump-snapshots:
 	@$(BATCH) --eval "(let (\
+        $$set_package_versions)\
+        $$set_package_requires_nongnu)"
+	@$(BATCH) --eval "(let (\
         $$set_package_snapshots)\
-        $$set_package_requires)"
+        $$set_package_requires_melpa)"
 	@git commit -a --gpg-sign -m "Reset Package-Requires for Melpa"
 	@git show --pretty= -p HEAD
