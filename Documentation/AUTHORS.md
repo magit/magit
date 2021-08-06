@@ -82,6 +82,7 @@ Contributors
 - Ben North <ben@redfrontdoor.org>
 - Ben Walton <bwalton@artsci.utoronto.ca>
 - Bob Uhl <buhl@zvelo.com>
+- Boruch Baum <boruch_baum@gmx.com>
 - Bradley Wright <brad@intranation.com>
 - Brandon W Maister <quodlibetor@gmail.com>
 - Brian Leung <leungbk@mailfence.com>
@@ -347,6 +348,7 @@ Contributors
 - Tim Wraight <tim@wraight.net>
 - Ting-Yu Lin <aethanyc@gmail.com>
 - Tom Feist <shabble@metavore.org>
+- Toon Claes <toon@iotcl.com>
 - Topi Miettinen <toiwoton@gmail.com>
 - Troy Hinckley <t.macman@gmail.com>
 - Tsuyoshi Kitamoto <tsuyoshi.kitamoto@gmail.com>
