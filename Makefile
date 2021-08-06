@@ -178,6 +178,9 @@ stats:
 
 authors:
 	@$(MAKE) -C Documentation authors
+	@git commit --gpg-sign -m "AUTHORS.md: Update list of contributors" \
+	-o -- Documentation/AUTHORS.md
+	@git show --pretty= -p HEAD
 
 publish-stats:
 	@$(MAKE) -C Documentation publish-stats
