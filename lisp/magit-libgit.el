@@ -7,11 +7,11 @@
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
-
-;; Package-Requires: ((emacs "26.1") (magit "3.2.0") (libgit "0"))
-;; Package-Version: 0
+;; Package-Requires: ((emacs "26.1") (libgit "0") (magit "3.2.0"))
+;; Package-Version: 3.2.0
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; Magit is free software; you can redistribute it and/or modify it

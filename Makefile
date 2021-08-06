@@ -7,7 +7,7 @@ include default.mk
 	install install-lisp install-docs install-info \
 	test test-interactive magit \
 	clean clean-lisp clean-docs clean-archives \
-	stats bump-version melpa-post-release \
+	stats bump-versions bump-snapshots \
 	dist versionlib magit-$(VERSION).tar.gz
 
 all: lisp docs
@@ -215,6 +215,7 @@ magit-$(VERSION).tar.gz: lisp versionlib info
 	@$(RMDIR) magit-$(VERSION)
 
 define set_package_requires
+
 (with-temp-file "lisp/git-commit.el"
   (insert-file-contents "lisp/git-commit.el")
   (re-search-forward "^;; Package-Requires: ")
@@ -227,17 +228,19 @@ define set_package_requires
   (re-search-forward "^;; Package-Version: ")
   (delete-region (point) (line-end-position))
   (insert "$(GIT_COMMIT_VERSION)"))
+
 (with-temp-file "lisp/magit-libgit.el"
   (insert-file-contents "lisp/magit-libgit.el")
   (re-search-forward "^;; Package-Requires: ")
   (delete-region (point) (line-end-position))
   (insert (format "%S"
 `((emacs "$(LIBGIT_EMACS_VERSION)") ;`
-  (magit "$(LIBGIT_MAGIT_VERSION)")
-  (libgit ,libgit-version))))
+  (libgit ,libgit-version)
+  (magit ,magit-version))))
   (re-search-forward "^;; Package-Version: ")
   (delete-region (point) (line-end-position))
   (insert "$(MAGIT_LIBGIT_VERSION)"))
+
 (with-temp-file "lisp/magit-section.el"
   (insert-file-contents "lisp/magit-section.el")
   (re-search-forward "^;; Package-Requires: ")
@@ -248,9 +251,10 @@ define set_package_requires
   (re-search-forward "^;; Package-Version: ")
   (delete-region (point) (line-end-position))
   (insert "$(MAGIT_SECTION_VERSION)"))
+
 (with-temp-file "lisp/magit-pkg.el"
   (insert (format
-"(define-package \"magit\" \"$(VERSION)\"\
+"(define-package \"magit\" \"$(MAGIT_VERSION)\"
   \"A Git porcelain inside Emacs.\"
   '((emacs %S)
     (dash %S)
@@ -265,36 +269,45 @@ define set_package_requires
     git-commit-version
     magit-section-version
     transient-version
-    with-editor-version))
-  (goto-char (point-min))
-  (re-search-forward " \"A")
-  (goto-char (match-beginning 0))
-  (insert "\n "))
+    with-editor-version)))
 endef
 export set_package_requires
 
-bump-versions: bump-versions-1 texi
-bump-versions-1:
+define set_package_versions
+(emacs-version "$(EMACS_VERSION)")
+(dash-version "$(DASH_VERSION)")
+(git-commit-version "$(GIT_COMMIT_VERSION)")
+(libgit-version "$(LIBGIT_VERSION)")
+(magit-version "$(MAGIT_VERSION)")
+(magit-libgit-version "$(MAGIT_LIBGIT_VERSION)")
+(magit-section-version "$(MAGIT_SECTION_VERSION)")
+(transient-version "$(TRANSIENT_VERSION)")
+(with-editor-version "$(WITH_EDITOR_VERSION)")
+endef
+export set_package_versions
+
+define set_package_snapshots
+(emacs-version "$(EMACS_VERSION)")
+(dash-version "$(DASH_MELPA_SNAPSHOT)")
+(git-commit-version "$(GIT_COMMIT_MELPA_SNAPSHOT)")
+(libgit-version "$(LIBGIT_MELPA_SNAPSHOT)")
+(magit-version "$(MAGIT_MELPA_SNAPSHOT)")
+(magit-libgit-version "$(MAGIT_LIBGIT_MELPA_SNAPSHOT)")
+(magit-section-version "$(MAGIT_SECTION_MELPA_SNAPSHOT)")
+(transient-version "$(TRANSIENT_MELPA_SNAPSHOT)")
+(with-editor-version "$(WITH_EDITOR_MELPA_SNAPSHOT)")
+endef
+export set_package_snapshots
+
+bump-versions: _bump-versions texi
+_bump-versions:
 	@$(BATCH) --eval "(let (\
-	(emacs-version \"$(EMACS_VERSION)\")\
-        (dash-version \"$(DASH_VERSION)\")\
-        (git-commit-version \"$(GIT_COMMIT_VERSION)\")\
-        (libgit-version \"$(LIBGIT_VERSION)\")\
-        (magit-libgit-version \"$(MAGIT_LIBGIT_VERSION)\")\
-        (magit-section-version \"$(MAGIT_SECTION_VERSION)\")\
-        (transient-version \"$(TRANSIENT_VERSION)\")\
-        (with-editor-version \"$(WITH_EDITOR_VERSION)\"))\
+        $$set_package_versions)\
         $$set_package_requires)"
 
 bump-snapshots:
 	@$(BATCH) --eval "(let (\
-	(emacs-version \"$(EMACS_VERSION)\")\
-        (dash-version \"$(DASH_MELPA_SNAPSHOT)\")\
-        (git-commit-version \"$(GIT_COMMIT_MELPA_SNAPSHOT)\")\
-        (libgit-version \"$(LIBGIT_MELPA_SNAPSHOT)\")\
-        (magit-libgit-version \"$(MAGIT_LIBGIT_MELPA_SNAPSHOT)\")\
-        (magit-section-version \"$(MAGIT_SECTION_MELPA_SNAPSHOT)\")\
-        (transient-version \"$(TRANSIENT_MELPA_SNAPSHOT)\")\
-        (with-editor-version \"$(WITH_EDITOR_MELPA_SNAPSHOT)\"))\
+        $$set_package_snapshots)\
         $$set_package_requires)"
 	@git commit -a --gpg-sign -m "Reset Package-Requires for Melpa"
+	@git show --pretty= -p HEAD
