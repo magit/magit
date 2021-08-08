@@ -129,7 +129,7 @@ while two prefix arguments are equivalent to `--all'."
    (progn (when (and (magit-merge-in-progress-p)
                      (not (magit-y-or-n-p "\
 Stashing and resetting during a merge conflict. \
-Applying the resulting stash won't restored the merge state. \
+Applying the resulting stash won't restore the merge state. \
 Proceed anyway? ")))
             (user-error "Abort"))
           (magit-stash-read-args)))
