@@ -108,8 +108,8 @@ own faces for the `header-line', or for parts of the
   :group 'magit-faces)
 
 (defface magit-branch-remote-head
-  '((((class color) (background light)) :inherit magit-branch-remote :box t)
-    (((class color) (background  dark)) :inherit magit-branch-remote :box t))
+  '((((supports (:box t))) :inherit magit-branch-remote :box t)
+    (t                     :inherit magit-branch-remote :inverse-video t))
   "Face for current branch."
   :group 'magit-faces)
 
@@ -120,8 +120,8 @@ own faces for the `header-line', or for parts of the
   :group 'magit-faces)
 
 (defface magit-branch-current
-  '((((class color) (background light)) :inherit magit-branch-local :box t)
-    (((class color) (background  dark)) :inherit magit-branch-local :box t))
+  '((((supports (:box t))) :inherit magit-branch-local :box t)
+    (t                     :inherit magit-branch-local :inverse-video t))
   "Face for current branch."
   :group 'magit-faces)
 

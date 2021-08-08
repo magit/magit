@@ -6,3 +6,9 @@
   single file that isn't being tracked anymore.  #4381
 
 ** Fixes since v3.2.0
+
+- Make ~magit-branch-remote-head~ and ~magit-branch-current~ fall back
+  to ~:inverse-video~ when the ~:box~ attribute isn't support, i.e. in
+  a terminal.  If this change does not have any effect for you then
+  your theme probably changes these faces and should stop doing so.
+  #4206
