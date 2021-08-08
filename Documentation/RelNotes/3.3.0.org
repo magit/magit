@@ -1,4 +1,8 @@
 * Magit v3.3.0 Release Notes (unreleased)
 ** Breaking changes
 ** Changes since v3.2.0
+
+- No longer automatically add ~--full-history~ when showing log for a
+  single file that isn't being tracked anymore.  #4381
+
 ** Fixes since v3.2.0

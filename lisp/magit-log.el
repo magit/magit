@@ -1007,9 +1007,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         (files magit-buffer-log-files))
     (magit-set-header-line-format
      (funcall magit-log-header-line-function revs args files))
-    (if (= (length files) 1)
-        (unless (magit-file-tracked-p (car files))
-          (setq args (cons "--full-history" args)))
+    (unless (= (length files) 1)
       (setq args (remove "--follow" args)))
     (when (and (car magit-log-remove-graph-args)
                (--any-p (string-match-p
