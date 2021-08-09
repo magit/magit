@@ -967,12 +967,14 @@ and `:slant'."
   :description "Detect renames"
   :class 'transient-option
   :argument "-M"
+  :allow-empty t
   :reader 'transient-read-number-N+)
 
 (transient-define-argument magit-diff:-C ()
   :description "Detect copies"
   :class 'transient-option
   :argument "-C"
+  :allow-empty t
   :reader 'transient-read-number-N+)
 
 (transient-define-argument magit-diff:--diff-algorithm ()

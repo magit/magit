@@ -7,6 +7,10 @@
 
 - ~magit-stash-both~ now asks before discarding merge state.  #4345
 
+- Several infix arguments that previously could only be disabled
+  or have a numeric value can now also be enabled without having
+  an explicit numeric value.  #4379
+
 ** Fixes since v3.2.0
 
 - Make ~magit-branch-remote-head~ and ~magit-branch-current~ fall back

@@ -436,6 +436,7 @@ without prompting."
   :description "Remove leading slashes from paths"
   :class 'transient-option
   :argument "-p"
+  :allow-empty t
   :reader 'transient-read-number-N+)
 
 ;;;###autoload
