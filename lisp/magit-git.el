@@ -133,12 +133,9 @@ the environment in order to run the non-wrapper git executables
 successfully.")
 
 (defcustom magit-git-executable
-  ;; Git might be installed in a different location on a remote, so
-  ;; it is better not to use the full path to the executable, except
-  ;; on Window where we would otherwise end up using one of the
-  ;; wrappers "cmd/git.exe" or "cmd/git.cmd", which are much slower
-  ;; than using "bin/git.exe" directly.
   (or (and (eq system-type 'windows-nt)
+           ;; Avoid the wrappers "cmd/git.exe" and "cmd/git.cmd",
+           ;; which are much slower than using "bin/git.exe" directly.
            (--when-let (executable-find "git")
              (ignore-errors
                ;; Git for Windows 2.x provides cygpath so we can
