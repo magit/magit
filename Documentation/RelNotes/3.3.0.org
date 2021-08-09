@@ -11,6 +11,10 @@
   or have a numeric value can now also be enabled without having
   an explicit numeric value.  #4379
 
+- Added ~-Xignore-space-change~ and ~-Xignore-all-space~ to ~magit-merge~.
+  Like most newly added expert arguments they have to be explicitly
+  [[https://magit.vc/manual/transient/Enabling-and-Disabling-Suffixes.html][revealed]].  #4387
+
 ** Fixes since v3.2.0
 
 - Make ~magit-branch-remote-head~ and ~magit-branch-current~ fall back
