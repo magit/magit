@@ -534,8 +534,19 @@ and Emacs to it."
                         (magit-git-string "rev-parse" "HEAD"))))))))
     (if (stringp magit-version)
         (when print-dest
-          (princ (format "Magit %s, Git %s, Emacs %s, %s"
+          (princ (format "Magit %s%s, Git %s, Emacs %s, %s"
                          (or magit-version "(unknown)")
+                         (or (and (ignore-errors (version< "2008" magit-version))
+                                  (ignore-errors
+                                    (require 'lisp-mnt)
+                                    (and (fboundp 'lm-header)
+                                         (format
+                                          " [>= %s]"
+                                          (with-temp-buffer
+                                            (insert-file-contents
+                                             (locate-library "magit.el" t))
+                                            (lm-header "Package-Version"))))))
+                             "")
                          (or (let ((magit-git-debug
                                     (lambda (err)
                                       (display-warning '(magit git)
