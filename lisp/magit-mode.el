@@ -226,7 +226,7 @@ Valid values are:
   buffer.
 
 For more information see info node `(magit)Transient Arguments
-and Buffer Arguments'."
+and Buffer Variables'."
   :package-version '(magit . "3.0.0")
   :group 'magit-buffers
   :group 'magit-commands
@@ -259,7 +259,7 @@ Valid values are:
   buffer.
 
 For more information see info node `(magit)Transient Arguments
-and Buffer Arguments'."
+and Buffer Variables'."
   :package-version '(magit . "3.0.0")
   :group 'magit-buffers
   :group 'magit-commands

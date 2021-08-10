@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.2.1
+#+SUBTITLE: for version 3.2.1 (v3.2.1-11-g16316ed16+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.2.1.
+This manual is for Magit version 3.2.1 (v3.2.1-11-g16316ed16+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -1364,7 +1364,7 @@ Valid values for both of the above options are:
 #+TEXINFO: @noindent
 I am afraid it gets more complicated still:
 
-- The global diff and log arguments are set for each support mode
+- The global diff and log arguments are set for each supported mode
   individually.  The diff arguments for example have different values
   in ~magit-diff-mode~, ~magit-revision-mode~, ~magit-merge-preview-mode~
   and ~magit-status-mode~ buffers.  Setting or saving the value for one
@@ -1373,7 +1373,7 @@ I am afraid it gets more complicated still:
 
 - When ~magit-show-commit~ is invoked directly from a log buffer, then
   the file filter is picked up from that buffer, not from the revision
-  buffer and or the mode's global diff arguments.
+  buffer or the mode's global diff arguments.
 
 - Even though they are suffixes of the diff prefix ~magit-show-commit~
   and ~magit-stash-show~ do not use the diff buffer used by the diff
