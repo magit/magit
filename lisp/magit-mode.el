@@ -373,8 +373,11 @@ recommended value."
     (define-key map "L" 'magit-log-refresh)
     (define-key map "m" 'magit-merge)
     (define-key map "M" 'magit-remote)
+    ;;  section-map "n"  magit-section-forward
+    ;;     reserved "N"  forge-dispatch
     (define-key map "o" 'magit-submodule)
     (define-key map "O" 'magit-subtree)
+    ;;  section-map "p"  magit-section-backward
     (define-key map "P" 'magit-push)
     (define-key map "q" 'magit-mode-bury-buffer)
     (define-key map "Q" 'magit-git-command)
