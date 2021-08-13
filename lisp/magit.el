@@ -365,8 +365,6 @@ This affects `magit-git-command', `magit-git-command-topdir',
 ;;;###autoload (autoload 'magit-run "magit" nil t)
 (transient-define-prefix magit-run ()
   "Run git or another command, or launch a graphical utility."
-
-
   [["Run git subcommand"
     ("!" "in repository root"   magit-git-command-topdir)
     ("p" "in working directory" magit-git-command)]
