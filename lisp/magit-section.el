@@ -318,7 +318,7 @@ but that ship has sailed, thus this option."
 (defvar magit-section-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
-    (define-key map (kbd "C-i") 'magit-section-toggle)
+    (define-key map (kbd "TAB") 'magit-section-toggle)
     (define-key map [C-tab]     'magit-section-cycle)
     (define-key map [M-tab]     'magit-section-cycle)
     ;; [backtab] is the most portable binding for Shift+Tab.
