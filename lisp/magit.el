@@ -308,6 +308,7 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
    [("f" "Fetch"          magit-fetch)
     ("F" "Pull"           magit-pull)
     ("h" "Help"           magit-help)
+    ("H" "Section info"   magit-describe-section :if-derived magit-mode)
     ("i" "Ignore"         magit-gitignore)
     ("I" "Init"           magit-init)
     ("j" "Jump to section"magit-status-jump  :if-mode     magit-status-mode)
@@ -320,6 +321,7 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
     ("o" "Submodule"      magit-submodule)
     ("O" "Subtree"        magit-subtree)]
    [("P" "Push"           magit-push)
+    ("Q" "Command"        magit-git-command)
     ("r" "Rebase"         magit-rebase)
     ("t" "Tag"            magit-tag)
     ("T" "Note"           magit-notes)
@@ -330,8 +332,8 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
    [("y" "Show Refs"      magit-show-refs)
     ("Y" "Cherries"       magit-cherry)
     ("z" "Stash"          magit-stash)
-    ("!" "Run"            magit-run)
-    ("%" "Worktree"       magit-worktree)]]
+    ("Z" "Worktree"       magit-worktree)
+    ("!" "Run"            magit-run)]]
   ["Applying changes"
    :if-derived magit-mode
    [("a" "Apply"          magit-apply)

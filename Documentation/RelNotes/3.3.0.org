@@ -23,6 +23,9 @@
   and variants for switching to any existing Magit buffer belonging
   to the current repository.  #4259
 
+- A few existing commands got a new or better binding in
+  ~magit-dispatch~ and/or ~magit-mode-map~.
+
 ** Fixes since v3.2.0
 
 - Make ~magit-branch-remote-head~ and ~magit-branch-current~ fall back
