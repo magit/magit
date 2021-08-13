@@ -33,3 +33,6 @@
   a terminal.  If this change does not have any effect for you then
   your theme probably changes these faces and should stop doing so.
   #4206
+
+- In some cases refreshing a buffer caused the cursor to jump to a
+  different position.  #4148
