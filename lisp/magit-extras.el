@@ -753,6 +753,51 @@ abbreviated revision to the `kill-ring' and the
         (push (list rev default-directory) magit-revision-stack)
         (kill-new (message "%s" rev))))))
 
+;;; Buffer Switching
+
+(defun magit-display-repository-buffer (buffer)
+  "Display a Magit buffer belonging to the current Git repository.
+The buffer is displayed using `magit-display-buffer', which see."
+  (interactive (list (magit--read-repository-buffer
+                      "Display magit buffer: ")))
+  (magit-display-buffer buffer))
+
+(defun magit-switch-to-repository-buffer (buffer)
+  "Switch to a Magit buffer belonging to the current Git repository."
+  (interactive (list (magit--read-repository-buffer
+                      "Switch to magit buffer: ")))
+  (switch-to-buffer buffer))
+
+(defun magit-switch-to-repository-buffer-other-window (buffer)
+  "Switch to a Magit buffer belonging to the current Git repository."
+  (interactive (list (magit--read-repository-buffer
+                      "Switch to magit buffer in another window: ")))
+  (switch-to-buffer-other-window buffer))
+
+(defun magit-switch-to-repository-buffer-other-frame (buffer)
+  "Switch to a Magit buffer belonging to the current Git repository."
+  (interactive (list (magit--read-repository-buffer
+                      "Switch to magit buffer in another frame: ")))
+  (switch-to-buffer-other-frame buffer))
+
+(defun magit--read-repository-buffer (prompt)
+  (if-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
+      (read-buffer
+       prompt (magit-get-mode-buffer 'magit-status-mode) t
+       (pcase-lambda (`(,_ . ,buf))
+         (and buf
+              (with-current-buffer buf
+                (and (or (derived-mode-p 'magit-mode
+                                         'magit-repolist-mode
+                                         'magit-submodule-list-mode
+                                         'git-rebase-mode)
+                         (and buffer-file-name
+                              (string-match-p git-commit-filename-regexp
+                                              buffer-file-name)))
+                     (equal (magit-rev-parse-safe "--show-toplevel")
+                            topdir))))))
+    (user-error "Not inside a Git repository")))
+
 ;;; Miscellaneous
 
 ;;;###autoload

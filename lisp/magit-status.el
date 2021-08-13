@@ -309,6 +309,29 @@ also contains other useful hints.")
 
 (put 'magit-status-here 'interactive-only 'magit-status-setup-buffer)
 
+(defun magit-status-quick ()
+  "Show the status of the current Git repository, maybe without refreshing.
+
+If the status buffer of the current Git repository exists but
+isn't being displayed in the selected frame, then display it
+without refreshing it.
+
+If the status buffer is being displayed in the selected frame,
+then also refresh it.
+
+Prefix arguments have the same meaning as for `magit-status',
+and additionally cause the buffer to be refresh.
+
+To use this function instead of `magit-status', add this to your
+init file: (global-set-key (kbd \"C-x g\") 'magit-status-quick)."
+  (interactive)
+  (if-let ((buffer
+            (and (not current-prefix-arg)
+                 (not (magit-get-mode-buffer 'magit-status-mode nil 'selected))
+                 (magit-get-mode-buffer 'magit-status-mode))))
+      (magit-display-buffer buffer)
+    (call-interactively #'magit-status)))
+
 (defvar magit--remotes-using-recent-git nil)
 
 (defun magit--tramp-asserts (directory)

@@ -15,6 +15,14 @@
   Like most newly added expert arguments they have to be explicitly
   [[https://magit.vc/manual/transient/Enabling-and-Disabling-Suffixes.html][revealed]].  #4387
 
+- Added new command ~magit-status-quick~, which shows the status buffer
+  but avoids refreshing it for performance reasons.  #4259
+
+- Added new commands ~magit-display-repository-buffer~ (bound to ~j~ in
+  Magit buffers) and ~magit-switch-to-repository-buffer~ (bound to ~J~)
+  and variants for switching to any existing Magit buffer belonging
+  to the current repository.  #4259
+
 ** Fixes since v3.2.0
 
 - Make ~magit-branch-remote-head~ and ~magit-branch-current~ fall back

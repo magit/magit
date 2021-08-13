@@ -369,6 +369,8 @@ recommended value."
     (define-key map "G" 'magit-refresh-all)
     (define-key map "h" 'magit-dispatch)
     (define-key map "?" 'magit-dispatch)
+    (define-key map "j" 'magit-status-quick)
+    (define-key map "J" 'magit-display-repository-buffer)
     (define-key map "l" 'magit-log)
     (define-key map "L" 'magit-log-refresh)
     (define-key map "m" 'magit-merge)

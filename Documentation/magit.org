@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.2.1 (v3.2.1-11-g16316ed16+1)
+#+SUBTITLE: for version 3.2.1 (v3.2.1-13-g0348f1f87+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-11-g16316ed16+1).
+This manual is for Magit version 3.2.1 (v3.2.1-13-g0348f1f87+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -2064,6 +2064,34 @@ that it should be bound globally.  We recommend using ~C-x g~:
   This option controls which repositories are being listed by
   ~magit-list-repositories~.  It also affects ~magit-status~ (which see)
   in potentially surprising ways (see above).
+
+- Command: magit-status-quick
+
+  This command is an alternative to ~magit-status~ that usually avoids
+  refreshing the status buffer.
+
+  If the status buffer of the current Git repository exists but isn't
+  being displayed in the selected frame, then it is displayed without
+  being refreshed.
+
+  If the status buffer is being displayed in the selected frame,
+  then this command refreshes it.
+
+  Prefix arguments have the same meaning as for ~magit-status~,
+  and additionally cause the buffer to be refresh.
+
+  To use this command add this to your init file:
+
+  #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "C-x g") 'magit-status-quick).
+  #+END_SRC
+
+  If you do that and then for once want to redisplay the buffer and
+  also immediately refresh it, then type ~C-x g~ followed by ~g~.
+
+  A possible alternative command is ~magit-display-repository-buffer~.
+  It supports displaying any existing Magit buffer that belongs to the
+  current repository; not just the status buffer.
 
 - Command: ido-enter-magit-status
 
@@ -6899,6 +6927,18 @@ Also see [[man:git-worktree]]
   displayed in the current buffer, then show it in Dired instead.
 
 ** Common Commands
+
+- Command: magit-switch-to-repository-buffer
+- Command: magit-switch-to-repository-buffer-other-window
+- Command: magit-switch-to-repository-buffer-other-frame
+- Command: magit-display-repository-buffer
+
+  These commands read any existing Magit buffer that belongs to the
+  current repository from the user and then switch to the selected
+  buffer (without refreshing it).
+
+  The last variant uses ~magit-display-buffer~ to do so and thus
+  respects ~magit-display-buffer-function~.
 
 These are some of the commands that can be used in all buffers whose
 major-modes derive from ~magit-mode~.  There are other common commands
