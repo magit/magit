@@ -363,7 +363,7 @@ recommended value."
     (define-key map "h" 'magit-dispatch)
     (define-key map "?" 'magit-dispatch)
     (define-key map "i" 'magit-gitignore)
-    (define-key map "I" 'magit-gitignore)
+    (define-key map "I" 'magit-init)
     (define-key map "j" 'magit-status-quick)
     (define-key map "J" 'magit-display-repository-buffer)
     (define-key map "k" 'magit-delete-thing)
