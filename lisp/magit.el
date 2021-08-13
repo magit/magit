@@ -308,6 +308,7 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
    [("f" "Fetch"          magit-fetch)
     ("F" "Pull"           magit-pull)
     ("h" "Help"           magit-help)
+    ("i" "Ignore"         magit-gitignore)
     ("I" "Init"           magit-init)
     ("j" "Jump to section"magit-status-jump  :if-mode     magit-status-mode)
     ("j" "Display status" magit-status-quick :if-not-mode magit-status-mode)
