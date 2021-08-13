@@ -772,7 +772,7 @@ Magit status buffer."
   (let ((map (cl-gensym)))
     `(let ((,map (make-sparse-keymap)))
        (set-keymap-parent ,map minibuffer-local-map)
-       (define-key ,map "\C-g"
+       (define-key ,map (kbd "C-g")
          (lambda ()
            (interactive)
            (ignore-errors (kill-process ,proc))
