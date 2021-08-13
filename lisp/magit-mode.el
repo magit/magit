@@ -443,6 +443,11 @@ which visits the thing at point using `browse-url'."
   (interactive)
   (user-error "There is no thing at point that could be browsed"))
 
+(defun magit-help ()
+  "Visit the Magit manual."
+  (interactive)
+  (info "magit"))
+
 (defvar bug-reference-map)
 (with-eval-after-load 'bug-reference
   (define-key bug-reference-map [remap magit-visit-thing]
