@@ -57,11 +57,11 @@ the prefix argument."
 (transient-define-prefix magit-patch ()
   "Create or apply patches."
   ["Actions"
-   ("c"  "Create patches"     magit-patch-create)
-   ("w"  "Apply patches"      magit-am)
-   ("a"  "Apply plain patch"  magit-patch-apply)
-   ("s"  "Save diff as patch" magit-patch-save)
-   ("r"  "Request pull"       magit-request-pull)])
+   [("c"  "Create patches"     magit-patch-create)
+    ("w"  "Apply patches"      magit-am)]
+   [("a"  "Apply plain patch"  magit-patch-apply)
+    ("s"  "Save diff as patch" magit-patch-save)]
+   [("r"  "Request pull"       magit-request-pull)]])
 
 ;;;###autoload (autoload 'magit-patch-create "magit-patch" nil t)
 (transient-define-prefix magit-patch-create (range args files)
