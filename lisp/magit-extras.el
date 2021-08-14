@@ -197,6 +197,18 @@ is no file at point, then instead visit `default-directory'."
     (magit--not-inside-repository-error)))
 
 ;;;###autoload
+(defun magit-dired-am-apply-patches (repo &optional arg)
+  "In Dired, apply the marked (or next ARG) files as patches.
+If inside a repository, then apply in that.  Otherwise prompt
+for a repository."
+  (interactive (list (or (magit-toplevel)
+                         (magit-read-repository t))
+                     current-prefix-arg))
+  (let ((files (dired-get-marked-files nil arg nil nil t)))
+    (magit-status-setup-buffer repo)
+    (magit-am-apply-patches files)))
+
+;;;###autoload
 (defun magit-do-async-shell-command (file)
   "Open FILE with `dired-do-async-shell-command'.
 Interactively, open the file at point."

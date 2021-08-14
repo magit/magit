@@ -26,6 +26,9 @@
 - A few existing commands got a new or better binding in
   ~magit-dispatch~ and/or ~magit-mode-map~.
 
+- Added new command ~magit-dired-am-apply-patches~ for use in Dired.
+  #4094.
+
 ** Fixes since v3.2.0
 
 - Make ~magit-branch-remote-head~ and ~magit-branch-current~ fall back
