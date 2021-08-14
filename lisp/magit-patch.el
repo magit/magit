@@ -58,7 +58,8 @@ the prefix argument."
   "Create or apply patches."
   ["Actions"
    ("c"  "Create patches"     magit-patch-create)
-   ("a"  "Apply patch"        magit-patch-apply)
+   ("w"  "Apply patches"      magit-am)
+   ("a"  "Apply plain patch"  magit-patch-apply)
    ("s"  "Save diff as patch" magit-patch-save)
    ("r"  "Request pull"       magit-request-pull)])
 
