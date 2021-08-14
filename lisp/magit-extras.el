@@ -767,6 +767,7 @@ abbreviated revision to the `kill-ring' and the
 
 ;;; Buffer Switching
 
+;;;###autoload
 (defun magit-display-repository-buffer (buffer)
   "Display a Magit buffer belonging to the current Git repository.
 The buffer is displayed using `magit-display-buffer', which see."
@@ -774,18 +775,21 @@ The buffer is displayed using `magit-display-buffer', which see."
                       "Display magit buffer: ")))
   (magit-display-buffer buffer))
 
+;;;###autoload
 (defun magit-switch-to-repository-buffer (buffer)
   "Switch to a Magit buffer belonging to the current Git repository."
   (interactive (list (magit--read-repository-buffer
                       "Switch to magit buffer: ")))
   (switch-to-buffer buffer))
 
+;;;###autoload
 (defun magit-switch-to-repository-buffer-other-window (buffer)
   "Switch to a Magit buffer belonging to the current Git repository."
   (interactive (list (magit--read-repository-buffer
                       "Switch to magit buffer in another window: ")))
   (switch-to-buffer-other-window buffer))
 
+;;;###autoload
 (defun magit-switch-to-repository-buffer-other-frame (buffer)
   "Switch to a Magit buffer belonging to the current Git repository."
   (interactive (list (magit--read-repository-buffer
