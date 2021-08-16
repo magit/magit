@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.2.1 (v3.2.1-13-g0348f1f87+1)
+@subtitle for version 3.2.1 (v3.2.1-24-gb8e64dcb9+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-13-g0348f1f87+1).
+This manual is for Magit version 3.2.1 (v3.2.1-24-gb8e64dcb9+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -2626,7 +2626,8 @@ for doing such things.
 @defopt magit-remote-git-executable
 
 The @code{git} executable used by Magit on remote machines over Tramp.
-Normally this should be just the string "git".
+Normally this should be just the string "git".  Consider customizing
+@code{tramp-remote-path} instead of this option.
 @end defopt
 
 If Emacs is unable to find the correct executable, then you can

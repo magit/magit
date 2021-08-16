@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.2.1 (v3.2.1-13-g0348f1f87+1)
+#+SUBTITLE: for version 3.2.1 (v3.2.1-24-gb8e64dcb9+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-13-g0348f1f87+1).
+This manual is for Magit version 3.2.1 (v3.2.1-24-gb8e64dcb9+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -1932,7 +1932,8 @@ or path that is used on remote machines.
 - User Option: magit-remote-git-executable
 
   The ~git~ executable used by Magit on remote machines over Tramp.
-  Normally this should be just the string "git".
+  Normally this should be just the string "git".  Consider customizing
+  ~tramp-remote-path~ instead of this option.
 
 If Emacs is unable to find the correct executable, then you can
 work around that by explicitly setting the value of one of these two

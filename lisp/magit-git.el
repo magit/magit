@@ -173,7 +173,9 @@ On remote machines `magit-remote-git-executable' is used instead."
 
 (defcustom magit-remote-git-executable "git"
   "The Git executable used by Magit on remote machines.
-On the local host `magit-git-executable' is used instead."
+On the local host `magit-git-executable' is used instead.
+Consider customizing `tramp-remote-path' instead of this
+option."
   :package-version '(magit . "3.2.0")
   :group 'magit-process
   :type 'string)
