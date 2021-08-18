@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit-Section: (magit-section).
 #+TEXINFO_DIR_DESC: Use Magit sections in your own packages.
-#+SUBTITLE: for version 3.2.1
+#+SUBTITLE: for version 3.2.1 (v3.2.1-33-g421be65a3+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -26,7 +26,7 @@ user options see [[info:magit#Sections]].  This manual documents how you
 can use sections in your own packages.
 
 #+TEXINFO: @noindent
-This manual is for Magit-Section version 3.2.1.
+This manual is for Magit-Section version 3.2.1 (v3.2.1-33-g421be65a3+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -60,7 +60,7 @@ source for suitable examples before asking me for help.  Thanks!
 
 * Creating Sections
 
-- Function: magit-insert-section [name] (type &optional value hide) &rest body
+- Macro: magit-insert-section [name] (type &optional value hide) &rest body
 
   Create a section object of type CLASS, storing VALUE in its
   ~value~ slot, and insert the section at point.  CLASS is a

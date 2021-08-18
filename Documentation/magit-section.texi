@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit-Section Developer Manual
-@subtitle for version 3.2.1
+@subtitle for version 3.2.1 (v3.2.1-33-g421be65a3+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -54,7 +54,7 @@ user options see @ref{Sections,,,magit,}.  This manual documents how you
 can use sections in your own packages.
 
 @noindent
-This manual is for Magit-Section version 3.2.1.
+This manual is for Magit-Section version 3.2.1 (v3.2.1-33-g421be65a3+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -98,7 +98,7 @@ source for suitable examples before asking me for help.  Thanks!
 @node Creating Sections
 @chapter Creating Sections
 
-@defun magit-insert-section [name] (type &optional value hide) &rest body
+@defmac magit-insert-section [name] (type &optional value hide) &rest body
 
 Create a section object of type CLASS, storing VALUE in its
 @code{value} slot, and insert the section at point.  CLASS is a
@@ -141,7 +141,7 @@ If it turns out inside BODY that the section is empty, then
 of the partially inserted section.  This can happen when creating
 a section by washing Git's output and Git didn't actually output
 anything this time around.
-@end defun
+@end defmac
 
 @defun magit-insert-heading &rest args
 
