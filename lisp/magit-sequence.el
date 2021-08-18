@@ -499,6 +499,7 @@ This discards all changes made since the sequence started."
 (transient-define-prefix magit-rebase ()
   "Transplant commits and/or modify existing commits."
   :man-page "git-rebase"
+  :value '("--autostash")
   ["Arguments"
    :if-not magit-rebase-in-progress-p
    ("-k" "Keep empty commits"       "--keep-empty")
