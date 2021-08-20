@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.2.1 (v3.2.1-24-gb8e64dcb9+1)
+#+SUBTITLE: for version 3.2.1 (v3.2.1-40-g678df30c3+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-24-gb8e64dcb9+1).
+This manual is for Magit version 3.2.1 (v3.2.1-40-g678df30c3+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -1215,10 +1215,16 @@ section of type ~file~, for example, is a file name.
 Users usually do not have to worry about a section's type and value,
 but knowing them can be handy at times.
 
-- Key: M-x magit-describe-section-briefly, magit-describe-section-briefly
+- Key: H, magit-describe-section
 
-  Show information about the section at point in the echo area, as
-  "#<magit-section VALUE [TYPE PARENT-TYPE...] BEGINNING-END>".
+  This command shows information about the section at point in a
+  separate buffer.
+
+- Command: magit-describe-section-briefly
+
+  This command shows information about the section at point in the
+  echo area, as ~#<magit-section VALUE [TYPE PARENT-TYPE...]
+  BEGINNING-END>~.
 
 Many commands behave differently depending on the type of the section
 at point and/or somehow consume the value of that section.  But that
@@ -1857,6 +1863,7 @@ switch to a shell.
   The string "git " is used as initial input when prompting the user
   for the command.  It can be removed to run another command.
 
+- Key: :, magit-git-command
 - Key: ! p, magit-git-command
 
   This command reads a command from the user and executes it in
@@ -4065,7 +4072,7 @@ Blaming is also controlled using the following options.
 * Manipulating
 ** Creating Repository
 
-- Key: M-x magit-init, magit-init
+- Key: I, magit-init
 
   This command initializes a repository and then shows the status
   buffer for the new repository.
@@ -6897,29 +6904,29 @@ Also see [[man:git-subtree]]
 
 Also see [[man:git-worktree]]
 
-- Key: %, magit-worktree
+- Key: Z, magit-worktree
 
   This transient prefix command binds the following suffix commands
   and displays them in a temporary buffer until a suffix is invoked.
 
-- Key: % b, magit-worktree-checkout
+- Key: Z b, magit-worktree-checkout
 
   Checkout BRANCH in a new worktree at PATH.
 
-- Key: % c, magit-worktree-branch
+- Key: Z c, magit-worktree-branch
 
   Create a new BRANCH and check it out in a new worktree at PATH.
 
-- Key: % m, magit-worktree-move
+- Key: Z m, magit-worktree-move
 
   Move an existing worktree to a new PATH.
 
-- Key: % k, magit-worktree-delete
+- Key: Z k, magit-worktree-delete
 
   Delete a worktree, defaulting to the worktree at point.
   The primary worktree cannot be deleted.
 
-- Key: % g, magit-worktree-status
+- Key: Z g, magit-worktree-status
 
   Show the status for the worktree at point.
 

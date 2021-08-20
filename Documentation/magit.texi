@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.2.1 (v3.2.1-24-gb8e64dcb9+1)
+@subtitle for version 3.2.1 (v3.2.1-40-g678df30c3+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-24-gb8e64dcb9+1).
+This manual is for Magit version 3.2.1 (v3.2.1-40-g678df30c3+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -1718,13 +1718,22 @@ Users usually do not have to worry about a section's type and value,
 but knowing them can be handy at times.
 
 @table @asis
-@kindex M-x magit-describe-section-briefly
-@cindex magit-describe-section-briefly
-@item @kbd{M-x magit-describe-section-briefly} @tie{}@tie{}@tie{}@tie{}(@code{magit-describe-section-briefly})
+@kindex H
+@cindex magit-describe-section
+@item @kbd{H} @tie{}@tie{}@tie{}@tie{}(@code{magit-describe-section})
 
-Show information about the section at point in the echo area, as
-"#<magit-section VALUE [TYPE PARENT-TYPE@dots{}] BEGINNING-END>".
+This command shows information about the section at point in a
+separate buffer.
+
 @end table
+
+@cindex magit-describe-section-briefly
+@deffn Command magit-describe-section-briefly
+
+This command shows information about the section at point in the
+echo area, as @code{#<magit-section VALUE [TYPE PARENT-TYPE...]
+  BEGINNING-END>}.
+@end deffn
 
 Many commands behave differently depending on the type of the section
 at point and/or somehow consume the value of that section.  But that
@@ -2530,6 +2539,9 @@ top-level directory of the current working tree.
 The string "git " is used as initial input when prompting the user
 for the command.  It can be removed to run another command.
 
+@kindex :
+@cindex magit-git-command
+@item @kbd{:} @tie{}@tie{}@tie{}@tie{}(@code{magit-git-command})
 @kindex ! p
 @cindex magit-git-command
 @item @kbd{! p} @tie{}@tie{}@tie{}@tie{}(@code{magit-git-command})
@@ -5525,9 +5537,9 @@ This hook is run when moving between chunks.
 @section Creating Repository
 
 @table @asis
-@kindex M-x magit-init
+@kindex I
 @cindex magit-init
-@item @kbd{M-x magit-init} @tie{}@tie{}@tie{}@tie{}(@code{magit-init})
+@item @kbd{I} @tie{}@tie{}@tie{}@tie{}(@code{magit-init})
 
 This command initializes a repository and then shows the status
 buffer for the new repository.
@@ -9435,41 +9447,41 @@ the git-worktree(1) manpage.
 @end iftex
 
 @table @asis
-@kindex %
+@kindex Z
 @cindex magit-worktree
-@item @kbd{%} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree})
+@item @kbd{Z} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree})
 
 This transient prefix command binds the following suffix commands
 and displays them in a temporary buffer until a suffix is invoked.
 
-@kindex % b
+@kindex Z b
 @cindex magit-worktree-checkout
-@item @kbd{% b} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-checkout})
+@item @kbd{Z b} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-checkout})
 
 Checkout BRANCH in a new worktree at PATH@.
 
-@kindex % c
+@kindex Z c
 @cindex magit-worktree-branch
-@item @kbd{% c} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-branch})
+@item @kbd{Z c} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-branch})
 
 Create a new BRANCH and check it out in a new worktree at PATH@.
 
-@kindex % m
+@kindex Z m
 @cindex magit-worktree-move
-@item @kbd{% m} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-move})
+@item @kbd{Z m} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-move})
 
 Move an existing worktree to a new PATH@.
 
-@kindex % k
+@kindex Z k
 @cindex magit-worktree-delete
-@item @kbd{% k} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-delete})
+@item @kbd{Z k} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-delete})
 
 Delete a worktree, defaulting to the worktree at point.
 The primary worktree cannot be deleted.
 
-@kindex % g
+@kindex Z g
 @cindex magit-worktree-status
-@item @kbd{% g} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-status})
+@item @kbd{Z g} @tie{}@tie{}@tie{}@tie{}(@code{magit-worktree-status})
 
 Show the status for the worktree at point.
 
