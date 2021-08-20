@@ -138,7 +138,7 @@ This function is used as a value for
    '(file commit stash pullreq issue)
    '(unpushed unstaged unpulled untracked staged stashes pullreqs issues)))
 
-;;;; Refs mode
+;;; Refs mode
 
 ;;;###autoload
 (defun magit-imenu--refs-create-index-function ()
@@ -149,7 +149,7 @@ This function is used as a value for
    '(branch commit tag)
    '(local remote tags)))
 
-;;;; Cherry mode
+;;; Cherry mode
 
 ;;;###autoload
 (defun magit-imenu--cherry-create-index-function ()
@@ -160,7 +160,7 @@ This function is used as a value for
    '(commit)
    '(cherries)))
 
-;;;; Submodule list mode
+;;; Submodule list mode
 
 ;;;###autoload
 (defun magit-imenu--submodule-prev-index-position-function ()
@@ -178,7 +178,7 @@ This function is used as a value for
 beginning of the line."
   (elt (tabulated-list-get-entry) 0))
 
-;;;; Repolist mode
+;;; Repolist mode
 
 ;;;###autoload
 (defun magit-imenu--repolist-prev-index-position-function ()
@@ -199,7 +199,7 @@ beginning of the line."
             (elt entry 0)
             (elt entry (1- (length entry))))))
 
-;;;; Process mode
+;;; Process mode
 
 ;;;###autoload
 (defun magit-imenu--process-prev-index-position-function ()
@@ -219,7 +219,7 @@ beginning of the line."
   (buffer-substring-no-properties (line-beginning-position)
                                   (line-end-position)))
 
-;;;; Rebase mode
+;;; Rebase mode
 
 ;;;###autoload
 (defun magit-imenu--rebase-prev-index-position-function ()
