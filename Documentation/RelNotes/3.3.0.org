@@ -29,6 +29,9 @@
 - Added new command ~magit-dired-am-apply-patches~ for use in Dired.
   #4094.
 
+- Added new tranient prefix command ~magit-bundle~, which provides
+  support for ~git bundle~.  #4392
+
 ** Fixes since v3.2.0
 
 - Make ~magit-branch-remote-head~ and ~magit-branch-current~ fall back

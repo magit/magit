@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.2.1 (v3.2.1-40-g678df30c3+1)
+#+SUBTITLE: for version 3.2.1 (v3.2.1-43-g534ef5a64+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-40-g678df30c3+1).
+This manual is for Magit version 3.2.1 (v3.2.1-43-g534ef5a64+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -6933,6 +6933,16 @@ Also see [[man:git-worktree]]
   If there is no worktree at point, then read one in the minibuffer.
   If the worktree at point is the one whose status is already being
   displayed in the current buffer, then show it in Dired instead.
+
+** Bundle
+
+Also see [[man:git-bundle]]
+
+- Command: magit-bundle
+
+  This transient prefix command binds several suffix commands for
+  running ~git bundle~ subcommands and displays them in a temporary
+  buffer until a suffix is invoked.
 
 ** Common Commands
 

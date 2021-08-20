@@ -92,6 +92,7 @@ ELS += magit-submodule.el
 ELS += magit-subtree.el
 ELS += magit-ediff.el
 ELS += magit-gitignore.el
+ELS += magit-bundle.el
 ELS += magit-extras.el
 ELS += git-rebase.el
 ELS += magit-imenu.el

@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.2.1 (v3.2.1-40-g678df30c3+1)
+@subtitle for version 3.2.1 (v3.2.1-43-g534ef5a64+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-40-g678df30c3+1).
+This manual is for Magit version 3.2.1 (v3.2.1-43-g534ef5a64+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -261,6 +261,7 @@ Miscellaneous
 * Submodules::
 * Subtree::
 * Worktree::
+* Bundle::
 * Common Commands::
 * Wip Modes::
 * Commands for Buffers Visiting Files::
@@ -9022,6 +9023,7 @@ discards all changes made since the sequence started.
 * Submodules::
 * Subtree::
 * Worktree::
+* Bundle::
 * Common Commands::
 * Wip Modes::
 * Commands for Buffers Visiting Files::
@@ -9489,6 +9491,30 @@ If there is no worktree at point, then read one in the minibuffer.
 If the worktree at point is the one whose status is already being
 displayed in the current buffer, then show it in Dired instead.
 @end table
+
+@node Bundle
+@section Bundle
+
+Also see 
+@ifinfo
+@ref{git-bundle,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-bundle">git-bundle(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the git-bundle(1) manpage.
+@end iftex
+
+@cindex magit-bundle
+@deffn Command magit-bundle
+
+This transient prefix command binds several suffix commands for
+running @code{git bundle} subcommands and displays them in a temporary
+buffer until a suffix is invoked.
+@end deffn
 
 @node Common Commands
 @section Common Commands
