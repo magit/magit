@@ -135,8 +135,8 @@ beginning of the line."
 This function is used as a value for
 `imenu-create-index-function'."
   (magit-imenu--index-function
-   '(file commit stash)
-   '(unpushed unstaged unpulled untracked staged stashes)))
+   '(file commit stash pullreq issue)
+   '(unpushed unstaged unpulled untracked staged stashes pullreqs issues)))
 
 ;;;; Refs mode
 
