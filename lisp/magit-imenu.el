@@ -47,7 +47,7 @@ ENTRY-TYPES is a list of section types to be selected through
 `imenu'.
 
 MENU-TYPES is a list of section types containing elements of
-ENTRY-TYPES.  Elements of MENU-TYPES are are used to categories
+ENTRY-TYPES.  Elements of MENU-TYPES are used to categorize
 elements of ENTRY-TYPES.
 
 This function is used as a helper for functions set as
