@@ -398,7 +398,8 @@ the info node `(tramp)Remote programs'." remote) :error)))))
     ("a " "Assumed unstaged" magit-jump-to-assume-unchanged
      :if (lambda () (memq 'magit-insert-assume-unchanged-files magit-status-sections-hook)))
     ("w " "Skip worktree" magit-jump-to-skip-worktree
-     :if (lambda () (memq 'magit-insert-skip-worktree-files magit-status-sections-hook)))]])
+     :if (lambda () (memq 'magit-insert-skip-worktree-files magit-status-sections-hook)))]
+   [("i" "Using Imenu" imenu)]])
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at Git status.
