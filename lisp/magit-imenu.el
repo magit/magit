@@ -70,6 +70,8 @@ This function is used as a helper for functions set as
              (parent-title (buffer-substring-no-properties
                             (oref parent start)
                             (1- (oref parent content)))))
+        (when (string-match " ([0-9]*)\\'" parent-title)
+          (setq parent-title (substring parent-title 0 (match-beginning 0))))
         (puthash parent-title
                  (cons (cons name (point))
                        (gethash parent-title entries (list)))
