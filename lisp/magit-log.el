@@ -406,8 +406,8 @@ the upstream isn't ahead of the current branch) show."
   ["Commit limiting"
    (magit-log:-n)
    (magit:--author)
-   (7 "=s" "Limit to commits since" "--since=" transient-read-date)
-   (7 "=u" "Limit to commits until" "--until=" transient-read-date)
+   (7 magit-log:--since)
+   (7 magit-log:--until)
    (magit-log:--grep)
    (7 "-i" "Search case-insensitive" ("-i" "--regexp-ignore-case"))
    (7 "-I" "Invert search pattern"   "--invert-grep")
@@ -549,6 +549,20 @@ the upstream isn't ahead of the current branch) show."
   :key "-A"
   :argument "--author="
   :reader 'magit-transient-read-person)
+
+(transient-define-argument magit-log:--since ()
+  :description "Limit to commits since"
+  :class 'transient-option
+  :key "=s"
+  :argument "--since="
+  :reader 'transient-read-date)
+
+(transient-define-argument magit-log:--until ()
+  :description "Limit to commits until"
+  :class 'transient-option
+  :key "=u"
+  :argument "--until="
+  :reader 'transient-read-date)
 
 (transient-define-argument magit-log:--*-order ()
   :description "Order commits by"
