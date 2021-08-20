@@ -60,8 +60,8 @@ This function is used as a helper for functions set as
                      (type (oref section type))
                      (parent (oref section parent))
                      (parent-type (oref parent type)))
-                (and (-contains-p entry-types type)
-                     (-contains-p menu-types parent-type)))))
+                (and (memq type entry-types)
+                     (memq parent-type menu-types)))))
       (let* ((section (magit-current-section))
              (name (buffer-substring-no-properties
                     (line-beginning-position)
