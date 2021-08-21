@@ -54,6 +54,8 @@ This function is used as a helper for functions set as
 `imenu-create-index-function'."
   (let ((entries (make-hash-table :test 'equal)))
     (goto-char (point-max))
+    (unless (oref (magit-current-section) parent)
+      (forward-line -1))
     (while (magit-section--backward-find
             (lambda ()
               (let* ((section (magit-current-section))
