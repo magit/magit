@@ -42,3 +42,8 @@
 
 - In some cases refreshing a buffer caused the cursor to jump to a
   different position.  #4148
+
+- Due to a regression in v2.90.0, ~magit-wip-log~ and
+  ~magit-wip-log-current~ failed to extract the previous tips of the
+  wip refs from the reflog (which is relevant when
+  ~~magit-wip-merge-branch~ is nil).

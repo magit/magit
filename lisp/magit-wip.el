@@ -442,7 +442,10 @@ many \"branches\" of each wip ref are shown."
   (when-let ((reflog (magit-git-lines "reflog" wipref)))
     (let (tips)
       (while (and reflog (> count 1))
-        (setq reflog (cl-member "^[^ ]+ [^:]+: restart autosaving"
+        ;; "start autosaving ..." is the current message, but it used
+        ;; to be "restart autosaving ...", and those messages may
+        ;; still be around (e.g., if gc.reflogExpire is to "never").
+        (setq reflog (cl-member "^[^ ]+ [^:]+: \\(?:re\\)?start autosaving"
                                 reflog :test #'string-match-p))
         (when (and (cadr reflog)
                    (string-match "^[^ ]+ \\([^:]+\\)" (cadr reflog)))
