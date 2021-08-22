@@ -93,10 +93,10 @@
 (defcustom magit-diff-expansion-threshold 60
   "After how many seconds not to expand anymore diffs.
 
-Except in status buffers, diffs are usually start out fully
-expanded.  Because that can take a long time, all diffs that
-haven't been fontified during a refresh before the threshold
-defined here are instead displayed with their bodies collapsed.
+Except in status buffers, diffs usually start out fully expanded.
+Because that can take a long time, all diffs that haven't been
+fontified during a refresh before the threshold defined here are
+instead displayed with their bodies collapsed.
 
 Note that this can cause sections that were previously expanded
 to be collapsed.  So you should not pick a very low value here.
