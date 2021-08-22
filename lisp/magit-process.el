@@ -772,7 +772,9 @@ Magit status buffer."
   (let ((map (cl-gensym)))
     `(let ((,map (make-sparse-keymap)))
        (set-keymap-parent ,map minibuffer-local-map)
-       (define-key ,map (kbd "C-g")
+       ;; Note: Leaving (kbd ...) unevaluated leads to the
+       ;; magit-process:password-prompt test failing.
+       (define-key ,map ,(kbd "C-g")
          (lambda ()
            (interactive)
            (ignore-errors (kill-process ,proc))
