@@ -3,9 +3,6 @@ contact_links:
   - name: "SUPPORT ☛ The Discussions feature of this repository"
     url: https://github.com/magit/magit/discussions
     about: Please search, ask and answer questions here.
-  - name: "SUPPORT ☛ Emacs StackExchange"
-    url: https://emacs.stackexchange.com/questions/tagged/magit
-    about: Another place to search, ask and answer questions.
   - name: "SUPPORT ☛ Emacs Reddit"
     url: https://www.reddit.com/r/emacs
     about: Another place to search, ask and answer questions.
