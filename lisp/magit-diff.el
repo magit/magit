@@ -3229,7 +3229,8 @@ are highlighted."
 
 (defun magit-diff-update-hunk-region (section)
   "Highlight the hunk-internal region if any."
-  (when (eq (magit-diff-scope section t) 'region)
+  (when (and (eq (oref section type) 'hunk)
+             (eq (magit-diff-scope section t) 'region))
     (magit-diff--make-hunk-overlay
      (oref section start)
      (1- (oref section content))
