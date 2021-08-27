@@ -47,3 +47,6 @@
   ~magit-wip-log-current~ failed to extract the previous tips of the
   wip refs from the reflog (which is relevant when
   ~~magit-wip-merge-branch~ is nil).
+
+- An old attempt to avoid needlessly updating section highlighting
+  did not actually succeed.  #3976
