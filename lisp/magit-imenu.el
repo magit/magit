@@ -52,9 +52,14 @@ elements of ENTRY-TYPES.
 
 This function is used as a helper for functions set as
 `imenu-create-index-function'."
-  (let ((entries (make-hash-table :test 'equal)))
+  ;; If `which-function-mode' is active, then the create-index
+  ;; function is called at the time the major-mode is being enabled.
+  ;; Modes that derive from `magit-mode' have not populated the buffer
+  ;; at that time yet, so we have to abort.
+  (when-let ((section (magit-current-section))
+             (entries (make-hash-table :test 'equal)))
     (goto-char (point-max))
-    (unless (oref (magit-current-section) parent)
+    (unless (oref section parent)
       (forward-line -1))
     (while (magit-section--backward-find
             (lambda ()
