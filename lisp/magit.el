@@ -478,8 +478,10 @@ and Emacs to it."
         (toplib (or load-file-name buffer-file-name))
         debug)
     (unless (and toplib
-                 (equal (file-name-nondirectory toplib) "magit.el"))
-      (setq toplib (locate-library "magit.el")))
+                 (equal (file-name-sans-extension
+                         (file-name-nondirectory toplib))
+                        "magit"))
+      (setq toplib (locate-library "magit")))
     (setq toplib (and toplib (magit--straight-chase-links toplib)))
     (push toplib debug)
     (when toplib
