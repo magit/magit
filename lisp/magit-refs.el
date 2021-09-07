@@ -341,7 +341,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   ["Actions"
    ("y" "Show refs, comparing them with HEAD"           magit-show-refs-head)
    ("c" "Show refs, comparing them with current branch" magit-show-refs-current)
-   ("o" "Show refs, comparing them with other branch"   magit-show-refs-other)]
+   ("o" "Show refs, comparing them with other branch"   magit-show-refs-other)
+   ("r" "Show refs, changing commit count display"
+    magit-refs-set-show-commit-count)]
   (interactive (list (or (derived-mode-p 'magit-refs-mode)
                          current-prefix-arg)))
   (if transient
