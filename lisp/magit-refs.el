@@ -63,7 +63,7 @@ branch Show counts for branches only.
 nil    Never show counts.
 
 To change the value in an existing buffer use the command
-`magit-refs-show-commit-count'"
+`magit-refs-set-show-commit-count'."
   :package-version '(magit . "2.1.0")
   :group 'magit-refs
   :safe (lambda (val) (memq val '(all branch nil)))
