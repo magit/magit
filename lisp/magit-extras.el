@@ -204,7 +204,10 @@ for a repository."
   (interactive (list (or (magit-toplevel)
                          (magit-read-repository t))
                      current-prefix-arg))
-  (let ((files (dired-get-marked-files nil arg nil nil t)))
+  ;; Note: The ERROR argument of `dired-get-marked-files' isn't
+  ;; available until Emacs 27.
+  (let ((files (or (dired-get-marked-files nil arg)
+                   (user-error "No files specified"))))
     (magit-status-setup-buffer repo)
     (magit-am-apply-patches files)))
 
