@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.2.1 (v3.2.1-58-g2fe42f63+1)
+#+SUBTITLE: for version 3.2.1 (v3.2.1-61-ge404aa75a+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-58-g2fe42f63+1).
+This manual is for Magit version 3.2.1 (v3.2.1-61-ge404aa75a+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -4481,6 +4481,33 @@ Also see [[man:git-commit]]
   the commit message in a buffer.
 
   Also see ~git-commit-post-finish-hook~.
+
+- User Option: magit-commit-diff-inhibit-same-window
+
+  Whether to inhibit use of same window when showing diff while
+  committing.
+
+  When writing a commit, then a diff of the changes to be committed
+  is automatically shown.  The idea is that the diff is shown in a
+  different window of the same frame and for most users that just
+  works.  In other words most users can completely ignore this
+  option because its value doesn't make a difference for them.
+
+  However for users who configured Emacs to never create a new
+  window even when the package explicitly tries to do so, then
+  displaying two new buffers necessarily means that the first is
+  immediately replaced by the second.  In our case the message
+  buffer is immediately replaced by the diff buffer, which is of
+  course highly undesirable.
+
+  A workaround is to suppress this user configuration in this
+  particular case.  Users have to explicitly opt-in by toggling
+  this option.  We cannot enable the workaround unconditionally
+  because that again causes issues for other users: if the frame
+  is too tiny or the relevant settings too aggressive, then the
+  diff buffer would end up being displayed in a new frame.
+
+  Also see https://github.com/magit/magit/issues/4132.
 
 *** Editing Commit Messages
 

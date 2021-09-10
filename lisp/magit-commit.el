@@ -91,6 +91,34 @@ Also see `git-commit-post-finish-hook'."
   :group 'magit-commands
   :type 'hook)
 
+(defcustom magit-commit-diff-inhibit-same-window nil
+  "Whether to inhibit use of same window when showing diff while committing.
+
+When writing a commit, then a diff of the changes to be committed
+is automatically shown.  The idea is that the diff is shown in a
+different window of the same frame and for most users that just
+works.  In other words most users can completely ignore this
+option because its value doesn't make a difference for them.
+
+However for users who configured Emacs to never create a new
+window even when the package explicitly tries to do so, then
+displaying two new buffers necessarily means that the first is
+immediately replaced by the second.  In our case the message
+buffer is immediately replaced by the diff buffer, which is of
+course highly undesirable.
+
+A workaround is to suppress this user configuration in this
+particular case.  Users have to explicitly opt-in by toggling
+this option.  We cannot enable the workaround unconditionally
+because that again causes issues for other users: if the frame
+is too tiny or the relevant settings too aggressive, then the
+diff buffer would end up being displayed in a new frame.
+
+Also see https://github.com/magit/magit/issues/4132."
+  :package-version '(magit . "3.3.0")
+  :group 'magit-commands
+  :type 'boolean)
+
 (defvar magit-post-commit-hook-commands
   '(magit-commit-extend
     magit-commit-fixup
@@ -574,7 +602,11 @@ See `magit-commit-absorb' for an alternative implementation."
               (magit-inhibit-save-previous-winconf 'unset)
               (magit-display-buffer-noselect t)
               (inhibit-quit nil)
-              (display-buffer-overriding-action '(nil (inhibit-same-window t))))
+              (display-buffer-overriding-action
+               display-buffer-overriding-action))
+          (when magit-commit-diff-inhibit-same-window
+            (setq display-buffer-overriding-action
+                  '(nil (inhibit-same-window t))))
           (message "Diffing changes to be committed (C-g to abort diffing)")
           (cl-case last-command
             (magit-commit
