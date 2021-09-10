@@ -97,11 +97,14 @@ When this is nil, no sections are ever removed."
   :type '(choice (const :tag "Never remove old sections" nil) integer))
 
 (defvar magit-process-extreme-logging nil
-  "Whether `magit-process-file' logs to *Messages* buffer.
+  "Whether `magit-process-file' logs to the *Messages* buffer.
+
 Only intended for temporary use when you try to figure out how
 Magit uses Git behind the scene.  Output that normally goes to
 the magit-process buffer continues to go there.  Not all output
-goes to either of these two buffers.")
+goes to either of these two buffers.
+
+Also see `magit-git-debug'.")
 
 (defcustom magit-process-error-tooltip-max-lines 20
   "The number of lines for `magit-process-error-lines' to return.

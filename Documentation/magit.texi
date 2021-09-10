@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.2.1 (v3.2.1-61-ge404aa75a+1)
+@subtitle for version 3.2.1 (v3.2.1-62-g5a8e3aec3+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-61-ge404aa75a+1).
+This manual is for Magit version 3.2.1 (v3.2.1-62-g5a8e3aec3+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -2485,12 +2485,36 @@ This command kills the process represented by the section at point.
 
 @end table
 
-@defopt magit-git-debug
+@defvar magit-git-debug
 
-When this is non-nil then the output of all calls to git are logged
-in the process buffer.  This is useful when debugging, otherwise it
-just negatively affects performance.
-@end defopt
+This option controls whether additional reporting of git errors is
+enabled.
+
+Magit basically calls git for one of these two reasons: for
+side-effects or to do something with its standard output.
+
+When git is run for side-effects then its output, including error
+messages, go into the process buffer which is shown when using @code{$}.
+
+When git's output is consumed in some way, then it would be too
+expensive to also insert it into this buffer, but when this
+option is non-nil and git returns with a non-zero exit status,
+then at least its standard error is inserted into this buffer.
+
+This is only intended for debugging purposes.  Do not enable this
+permanently, that would negatively affect performance.
+@end defvar
+
+@defvar magit-process-extreme-logging
+
+This option controls whether @code{magit-process-file} logs to the
+@code{*Messages*} buffer.
+
+Only intended for temporary use when you try to figure out how
+Magit uses Git behind the scene.  Output that normally goes to
+the magit-process buffer continues to go there.  Not all output
+goes to either of these two buffers.
+@end defvar
 
 @node Git Process Status
 @subsection Git Process Status
