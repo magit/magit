@@ -2702,17 +2702,18 @@ or a ref which is not a branch, then it inserts nothing."
       (when-let ((window (get-buffer-window)))
         (let* ((column   (length (match-string 0)))
                (font-obj (query-font (font-at (point) window)))
-               (size     (* 2 (+ (aref font-obj 4)
-                                 (aref font-obj 5))))
+               (size     (* 2 (aref font-obj 4)))
                (align-to (+ column
                             (ceiling (/ size (aref font-obj 7) 1.0))
                             1))
                (gravatar-size (- size 2)))
           (ignore-errors ; service may be unreachable
             (gravatar-retrieve email 'magit-insert-revision-gravatar-cb
-                               (list rev (point-marker) align-to column))))))))
+                               (list gravatar-size rev
+                                     (point-marker)
+                                     align-to column))))))))
 
-(defun magit-insert-revision-gravatar-cb (image rev marker align-to column)
+(defun magit-insert-revision-gravatar-cb (image size rev marker align-to column)
   (unless (eq image 'error)
     (when-let ((buffer (marker-buffer marker)))
       (with-current-buffer buffer
@@ -2726,9 +2727,11 @@ or a ref which is not a branch, then it inserts nothing."
                                (car-safe
                                 (get-text-property (point) 'display)))
                               'image)))
-            (let ((top `((,@image :ascent center :relief 1)
+            (let ((top `((,@image
+                          :ascent center :relief 1 :scale 1 :height ,size)
                          (slice 0.0 0.0 1.0 0.5)))
-                  (bot `((,@image :ascent center :relief 1)
+                  (bot `((,@image
+                          :ascent center :relief 1 :scale 1 :height ,size)
                          (slice 0.0 0.5 1.0 1.0)))
                   (align `((space :align-to ,align-to))))
               (when magit-revision-use-gravatar-kludge
