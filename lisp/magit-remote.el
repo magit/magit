@@ -87,7 +87,8 @@ has to be used to view and change remote related variables."
     ("k" "Remove"               magit-remote-remove)]
    [("C" "Configure..."         magit-remote-configure)
     ("p" "Prune stale branches" magit-remote-prune)
-    ("P" "Prune stale refspecs" magit-remote-prune-refspecs)]]
+    ("P" "Prune stale refspecs" magit-remote-prune-refspecs)
+    (7 "z" "Unshallow remote"   magit-remote-unshallow)]]
   (interactive (list (magit-get-current-remote)))
   (transient-setup 'magit-remote nil nil :scope remote))
 
@@ -256,6 +257,24 @@ doing that."
 Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (interactive (list (magit-read-remote "Unset HEAD for remote")))
   (magit-run-git "remote" "set-head" remote "--delete"))
+
+;;;###autoload
+(defun magit-remote-unshallow (remote)
+  "Convert a shallow remote into a full one.
+If only a single refspec is set and it does not contain a
+wildcard, then also offer to replace it with the standard
+refspec."
+  (interactive (list (or (magit-get-current-remote)
+                         (magit-read-remote "Delete remote"))))
+  (let ((refspecs (magit-get-all "remote" remote "fetch"))
+        (standard (format "+refs/heads/*:refs/remotes/%s/*" remote)))
+    (when (and (= (length refspecs) 1)
+               (not (string-match-p "\\*" (car refspecs)))
+               (yes-or-no-p (format "Also replace refspec %s with %s? "
+                                    (car refspecs)
+                                    standard)))
+      (magit-set standard "remote" remote "fetch"))
+    (magit-git-fetch "--unshallow" remote)))
 
 ;;; Configure
 
