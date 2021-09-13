@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 3.2.1 (v3.2.1-62-g5a8e3aec3+1)
+#+SUBTITLE: for version 3.2.1 (v3.2.1-64-g8771401d4+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,7 +25,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 3.2.1 (v3.2.1-62-g5a8e3aec3+1).
+This manual is for Magit version 3.2.1 (v3.2.1-64-g8771401d4+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -4377,6 +4377,10 @@ variants.
 
   Remove the change at point from the working tree.
 
+  On a hunk or file with unresolved conflicts prompt which side to
+  keep (while discarding the other).  If point is within the text
+  of a side, then keep that side without prompting.
+
 - Key: v, magit-reverse
 
   Reverse the change at point in the working tree.
@@ -5505,6 +5509,13 @@ to the Magit status buffer.  The file should now be shown as
 "modified", no longer as "unmerged", because Smerge automatically
 stages the file when you save the buffer after resolving the last
 conflict.
+
+Magit now wraps the mentioned Smerge commands, allowing you to use
+these key bindings without having to go to the file-visiting buffer.
+Additionally ~k~ (~magit-discard~) on a hunk with unresolved conflicts
+asks which side to keep or, if point is on a side, then it keeps it
+without prompting.  Similarly ~k~ on a unresolved file ask which side
+to keep.
 
 Alternatively you could use Ediff, which uses separate buffers for the
 different versions of the file.  To resolve conflicts in a file using

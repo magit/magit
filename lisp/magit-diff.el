@@ -1678,11 +1678,13 @@ the Magit-Status buffer for DIRECTORY."
        (not (< (point) (oref section content)))
        (= (char-after (line-beginning-position)) ?-)))
 
+(defvar magit-diff-visit-jump-to-change t)
+
 (defun magit-diff-hunk-line (section goto-from)
   (save-excursion
     (goto-char (line-beginning-position))
     (with-slots (content combined from-ranges from-range to-range) section
-      (when (< (point) content)
+      (when (and magit-diff-visit-jump-to-change (< (point) content))
         (goto-char content)
         (re-search-forward "^[-+]"))
       (+ (car (if goto-from from-range to-range))
@@ -1976,6 +1978,12 @@ Staging and applying changes is documented in info node
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-diff-section-base-map)
+    (let ((m (make-sparse-keymap)))
+      (define-key m (kbd "RET") 'magit-smerge-keep-current)
+      (define-key m (kbd "u")   'magit-smerge-keep-upper)
+      (define-key m (kbd "b")   'magit-smerge-keep-base)
+      (define-key m (kbd "l")   'magit-smerge-keep-lower)
+      (define-key map smerge-command-prefix m))
     map)
   "Keymap for `hunk' sections.")
 
