@@ -685,6 +685,7 @@ For X11 something like ~/.xinitrc should work.\n"
   (require 'magit-reset)
   (require 'magit-branch)
   (require 'magit-merge)
+  (require 'magit-smerge)
   (require 'magit-tag)
   (require 'magit-worktree)
   (require 'magit-notes)
