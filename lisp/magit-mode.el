@@ -110,7 +110,7 @@ inside your function."
   :type 'hook)
 
 (defcustom magit-display-buffer-function 'magit-display-buffer-traditional
-  "The function used display a Magit buffer.
+  "The function used to display a Magit buffer.
 
 All Magit buffers (buffers whose major-modes derive from
 `magit-mode') are displayed using `magit-display-buffer',
