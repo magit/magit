@@ -223,6 +223,7 @@ are staged changes, apply without preserving the stash index."
       (magit-refresh)
     (magit-run-git "stash" "apply" stash)))
 
+;;;###autoload
 (defun magit-stash-pop (stash)
   "Apply a stash to the working tree and remove it from stash list.
 Try to preserve the stash index.  If that fails because there
