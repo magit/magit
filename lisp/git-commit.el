@@ -306,6 +306,14 @@ already using it, then you probably shouldn't start doing so."
   :safe (lambda (val) (and (listp val) (-all-p 'stringp val)))
   :type '(repeat string))
 
+(defcustom git-commit-use-local-message-ring nil
+  "Whether to use a local message ring instead of the global one.
+This can be set globally, in which case every repository gets its
+own commit message ring, or locally for a single repository."
+  :group 'git-commit
+  :safe 'booleanp
+  :type 'boolean)
+
 ;;;; Faces
 
 (defgroup git-commit-faces nil
@@ -555,9 +563,9 @@ to recover older messages")
       (magit-wip-maybe-add-commit-hook)))
   (setq with-editor-cancel-message
         'git-commit-cancel-message)
-  (make-local-variable 'log-edit-comment-ring-index)
   (git-commit-mode 1)
   (git-commit-setup-font-lock)
+  (git-commit-prepare-message-ring)
   (when (boundp 'save-place)
     (setq save-place nil))
   (save-excursion
@@ -705,7 +713,18 @@ With a numeric prefix ARG, go forward ARG comments."
   (when-let ((message (git-commit-buffer-message)))
     (when-let ((index (ring-member log-edit-comment-ring message)))
       (ring-remove log-edit-comment-ring index))
-    (ring-insert log-edit-comment-ring message)))
+    (ring-insert log-edit-comment-ring message)
+    (when git-commit-use-local-message-ring
+      (magit-repository-local-set 'log-edit-comment-ring
+                                  log-edit-comment-ring))))
+
+(defun git-commit-prepare-message-ring ()
+  (make-local-variable 'log-edit-comment-ring-index)
+  (when git-commit-use-local-message-ring
+    (setq-local log-edit-comment-ring
+                (magit-repository-local-get
+                 'log-edit-comment-ring
+                 (make-ring log-edit-maximum-comment-ring-size)))))
 
 (defun git-commit-buffer-message ()
   (let ((flush (concat "^" comment-start))
