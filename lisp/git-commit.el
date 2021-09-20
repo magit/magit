@@ -500,6 +500,17 @@ to recover older messages")
     ;; That library declares this functions without loading
     ;; magit-process.el, which defines it.
     (require 'magit-process nil t))
+  (when git-commit-major-mode
+    (let ((auto-mode-alist (list (cons (concat "\\`"
+                                               (regexp-quote buffer-file-name)
+                                               "\\'")
+                                       git-commit-major-mode)))
+          ;; The major-mode hook might want to consult these minor
+          ;; modes, while the minor-mode hooks might want to consider
+          ;; the major mode.
+          (git-commit-mode t)
+          (with-editor-mode t))
+      (normal-mode t)))
   ;; Pretend that git-commit-mode is a major-mode,
   ;; so that directory-local settings can be used.
   (let ((default-directory
@@ -516,17 +527,6 @@ to recover older messages")
           (major-mode 'git-commit-mode)) ; trick dir-locals-collect-variables
       (hack-dir-local-variables)
       (hack-local-variables-apply)))
-  (when git-commit-major-mode
-    (let ((auto-mode-alist (list (cons (concat "\\`"
-                                               (regexp-quote buffer-file-name)
-                                               "\\'")
-                                       git-commit-major-mode)))
-          ;; The major-mode hook might want to consult these minor
-          ;; modes, while the minor-mode hooks might want to consider
-          ;; the major mode.
-          (git-commit-mode t)
-          (with-editor-mode t))
-      (normal-mode t)))
   ;; Show our own message using our hook.
   (setq with-editor-show-usage nil)
   (setq with-editor-usage-message git-commit-usage-message)
