@@ -873,7 +873,7 @@ To use this function add it to the appropriate hook
 Use `magit-process-password-prompt-regexps' to find a known
 prompt.  If and only if one is found, then call functions in
 `magit-process-find-password-functions' until one of them returns
-the password.  If all function return nil, then read the password
+the password.  If all functions return nil, then read the password
 from the user."
   (when-let ((prompt (magit-process-match-prompt
                       magit-process-password-prompt-regexps string)))
