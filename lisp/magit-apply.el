@@ -449,6 +449,8 @@ without requiring confirmation."
 (defun magit-unstage-all ()
   "Remove all changes from the staging area."
   (interactive)
+  (unless (magit-anything-staged-p)
+    (user-error "Nothing to unstage"))
   (when (or (magit-anything-unstaged-p)
             (magit-untracked-files))
     (magit-confirm 'unstage-all-changes))
