@@ -268,8 +268,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
 #+END_QUOTE
 
-* _ :ignore:
-
 #  LocalWords:  ARGS CONDITIONs EVAL Git Git's IDENT
 #  LocalWords:  LocalWords MERCHANTABILITY Magit Makefile
 #  LocalWords:  alist eval featurep ident keymap magit ol
@@ -280,9 +278,8 @@ General Public License for more details.
 # eval: (require 'magit-utils nil t)
 # eval: (require 'org-man     nil t)
 # eval: (require 'ol-man      nil t)
-# eval: (require 'ox-extra    nil t)
 # eval: (require 'ox-texinfo+ nil t)
-# eval: (and (featurep 'ox-extra) (ox-extras-activate '(ignore-headlines)))
+# org-texinfo+-dissolve-noexport-headlines: t
 # indent-tabs-mode: nil
 # org-src-preserve-indentation: nil
 # End:

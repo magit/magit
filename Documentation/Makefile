@@ -83,10 +83,9 @@ clean:
 
 ## Release management ################################################
 
-ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH)
-ORG_ARGS += -l magit-utils.el -l ox-extra -l ox-texinfo+.el
+ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l magit-utils.el -l ox-texinfo+.el
 ORG_ARGS += --eval "(or (require 'org-man nil t) (require 'ol-man))"
-ORG_EVAL  = --eval "(ox-extras-activate '(ignore-headlines))"
+ORG_EVAL  = --eval "(setq org-texinfo+-dissolve-noexport-headlines t)"
 ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo
