@@ -1,14 +1,51 @@
-* Magit v3.3.0 Release Notes (unreleased)
+* It's Magit!  A Git Porcelain inside Emacs
+
+Magit is a text-based Git user interface that puts an unmatched focus
+on streamlining workflows.  Commands are invoked using short mnemonic
+key sequences that take the cursor’s position in the highly actionable
+interface into account to provide context-sensitive behavior.
+
+With Magit you can do nearly everything that you can do when using Git
+on the command-line, but at greater speed and while taking advantage
+of advanced features that previously seemed too daunting to use on a
+daily basis.  Many users will find that by using Magit they can become
+more effective Git user.
+
+For more information about Magit, see https://magit.vc.
+
+* Magit v3.3.0 Release Notes
+
+Released 4th October 2021 by Jonas Bernoulli.
+
+I am pleased to announce the release of Magit version 3.3.0,
+representing 88 commits by 6 contributors over two month.
+
+Also see https://emacsair.me/2021/10/04/magit-3.3.
+
 ** Breaking changes
+
+- The last remaining alphabetic keys (both lower- and uppercase) are
+  now bound in ~magit-mode-map~.  ~H~ to ~magit-describe-section~, ~j~ to the
+  new ~magit-status-quick~ (or ~magit-status-jump~ in status buffers), ~J~
+  to the new ~magit-display-repository-buffer~, ~Q~ to ~magit-git-command~
+  and ~Z~ to ~magit-worktree~, and once Forge is loaded, then ~N~ to
+  ~forge-dispatch~.  (~Z~ used to be bound to ~magit-stash~, which now is
+  only available on ~z~.)  #4259, 9bec1c54a, e401bd4d3
+
+- ~I~ is now bound to ~magit-init~ instead of ~magit-gitignore~, which
+  continues to be available on ~i~.  Users of the ~magit-imerge~ package
+  (which previously bound ~i~) should consult its library header for a
+  suggestion on how to resolve the resulting conflict.  b54b537db
+
 ** Changes since v3.2.0
 
-- No longer automatically add ~--full-history~ when showing log for a
+- No longer automatically add ~--full-history~ when showing a log for a
   single file that isn't being tracked anymore.  #4381
 
 - ~magit-stash-both~ now asks before discarding merge state.  #4345
 
-- Several infix arguments that previously could only be disabled
-  or have a numeric value can now also be enabled without having
+- Several infix arguments, which previously could only be disabled
+  or have a numeric value, can now also be enabled without having
   an explicit numeric value.  #4379
 
 - Added ~-Xignore-space-change~ and ~-Xignore-all-space~ to ~magit-merge~.
@@ -23,19 +60,44 @@
   and variants for switching to any existing Magit buffer belonging
   to the current repository.  #4259
 
-- A few existing commands got a new or better binding in
-  ~magit-dispatch~ and/or ~magit-mode-map~.
-
 - Added new command ~magit-dired-am-apply-patches~ for use in Dired.
   #4094.
 
-- Added new tranient prefix command ~magit-bundle~, which provides
+- Rearranged ~magit-patch~ and added a binding for ~magit-am~.  8ec3a1a21,
+  8cadf302b
+
+- Added new command ~magit-help~ (bound to ~h~ in ~magit-dispatch~), which
+  simply shows Magit's Info manual.  5bba62629
+
+- When listing entries for Imenu, then remove entry counts from group
+  titles for the benefit of third-party packages that need stable
+  titles.  #4477
+
+- Include Forge's ~pullreq~ and ~issue~ sections when listing entries for
+  Imenu.  f4016f734
+
+- Bound ~imenu~ in the ~magit-status-jump~ prefix.  678df30c3
+
+- Added new transient prefix command ~magit-bundle~, which provides
   support for ~git bundle~.  #4392
 
 - When minibuffer completion allows for a branch or a commit to be
   selected and the former is preferred and thus offered as default
-  if possible, then offer the commit at point as the first choice
+  then, if possible, offer the commit at point as the first choice
   initially accessible with ~next-history-element~.  #4291
+
+- Bound ~magit-refs-set-show-commit-count~ in the ~magit-show-refs~
+  prefix.  2fe42f63d
+
+- Added new option ~magit-commit-diff-inhibit-same-window~.  #4132
+
+- Added support for invoking Smerge's "keep" commands when point is on
+  a hunk in a Magit buffer.  They can be invoked using the same key
+  bindings as in file-visiting buffers or ~RET~, ~u~, ~b~ and ~l~.  #4458
+
+- Added new command ~magit-remote-unshallow~.  #4480
+
+- Added new option ~git-commit-use-local-message-ring~.  #4503
 
 ** Fixes since v3.2.0
 
@@ -48,10 +110,43 @@
 - In some cases refreshing a buffer caused the cursor to jump to a
   different position.  #4148
 
+- ~magit-convert-filename-for-git~ did not expand absolute filenames,
+  which is necessary because Git does not understand ~~/~.  de1dc8e74
+
+- ~magit-rebase~ did not enable ~--autostash~ by default but the
+  documentation says it does.  421be65a3
+
+- ~magit-clone-read-repository~ did not convert filenames before passing
+  them to Git.  4aa7d2928
+
 - Due to a regression in v2.90.0, ~magit-wip-log~ and
   ~magit-wip-log-current~ failed to extract the previous tips of the
   wip refs from the reflog (which is relevant when
-  ~~magit-wip-merge-branch~ is nil).
+  ~~magit-wip-merge-branch~ is nil).  c327824b0
 
 - An old attempt to avoid needlessly updating section highlighting
   did not actually succeed.  #3976
+
+- An error occurred when first showing a status buffer and
+  ~which-function-mode~ is enabled because that caused Imenu to collect
+  items at a time when that is not possible yet.  #4481
+
+- A change in Git v2.32.0 made it necessary to explicitly filter out
+  directories when committing to wip worktree refs.  #4499
+
+- Fixed appearance of Gravatar images by forcing their size instead
+  relying the service to return the promised size as advertised.
+  8771401d4
+
+- ~git-commit-setup~ enabled the major-mode after setting local
+  variables, which caused non-permanent variables to be reset.
+  ece2cb84d
+
+* Authors
+
+    76  Jonas Bernoulli
+     8  Kyle Meyer
+     1  Daniel Nagy
+     1  Franklin Delehelle
+     1  Jonathon McKitrick
+     1  Lin Sun

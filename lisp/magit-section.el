@@ -10,8 +10,8 @@
 
 ;; Keywords: tools
 ;; Homepage: https://github.com/magit/magit
-;; Package-Requires: ((emacs "25.1") (dash "2.18.1"))
-;; Package-Version: 3.2.1
+;; Package-Requires: ((emacs "25.1") (dash "2.19.1"))
+;; Package-Version: 3.3.0
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; Magit-Section is free software; you can redistribute it and/or modify
