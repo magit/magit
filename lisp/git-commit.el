@@ -116,6 +116,7 @@
 (require 'subr-x)
 
 (require 'magit-git nil t)
+(require 'magit-mode nil t)
 (require 'magit-utils nil t)
 
 (require 'log-edit)
@@ -309,7 +310,9 @@ already using it, then you probably shouldn't start doing so."
 (defcustom git-commit-use-local-message-ring nil
   "Whether to use a local message ring instead of the global one.
 This can be set globally, in which case every repository gets its
-own commit message ring, or locally for a single repository."
+own commit message ring, or locally for a single repository.  If
+Magit isn't available, then setting this to a non-nil value has
+no effect."
   :group 'git-commit
   :safe 'booleanp
   :type 'boolean)
@@ -714,13 +717,15 @@ With a numeric prefix ARG, go forward ARG comments."
     (when-let ((index (ring-member log-edit-comment-ring message)))
       (ring-remove log-edit-comment-ring index))
     (ring-insert log-edit-comment-ring message)
-    (when git-commit-use-local-message-ring
+    (when (and git-commit-use-local-message-ring
+               (fboundp 'magit-repository-local-set))
       (magit-repository-local-set 'log-edit-comment-ring
                                   log-edit-comment-ring))))
 
 (defun git-commit-prepare-message-ring ()
   (make-local-variable 'log-edit-comment-ring-index)
-  (when git-commit-use-local-message-ring
+  (when (and git-commit-use-local-message-ring
+             (fboundp 'magit-repository-local-get))
     (setq-local log-edit-comment-ring
                 (magit-repository-local-get
                  'log-edit-comment-ring
