@@ -251,7 +251,7 @@ reading the FILENAME."
   (find-file filename wildcards))
 
 (defun magit-find-git-config-file-other-window (filename &optional wildcards)
-  "Edit a file located in the current repository's git directory, in another window.
+  "Edit a file located in the current repo's git directory, in another window.
 
 When \".git\", located at the root of the working tree, is a
 regular file, then that makes it cumbersome to open a file
@@ -267,7 +267,7 @@ directory, while reading the FILENAME."
   (find-file-other-window filename wildcards))
 
 (defun magit-find-git-config-file-other-frame (filename &optional wildcards)
-  "Edit a file located in the current repository's git directory, in another frame.
+  "Edit a file located in the current repo's git directory, in another frame.
 
 When \".git\", located at the root of the working tree, is a
 regular file, then that makes it cumbersome to open a file
