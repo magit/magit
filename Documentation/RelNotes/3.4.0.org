@@ -1,0 +1,4 @@
+* Magit v3.4.0 Release Notes (unreleased)
+** Breaking changes
+** Changes since v3.3.0
+** Fixes since v3.3.0
