@@ -116,6 +116,7 @@ Contributors
 - Daniel Kraus <daniel@kraus.my>
 - Daniel Mai <daniel@danielmai.net>
 - Daniel Martín <mardani29@yahoo.es>
+- Daniel Nagy <danielnagy@posteo.de>
 - Dan LaManna <dan.lamanna@gmail.com>
 - Danny Zhu <dzhu@dzhu.us>
 - Dato Simó <dato@net.com.org.es>
@@ -143,6 +144,7 @@ Contributors
 - Felix Yan <felixonmars@archlinux.org>
 - Feng Li <fengli@blackmagicdesign.com>
 - Florian Ragwitz <rafl@debian.org>
+- Franklin Delehelle <franklin.delehelle@odena.eu>
 - Fritz Grabo <fritz.grabo@gmail.com>
 - Fritz Stelzer <brotzeitmacher@gmail.com>
 - Geoff Shannon <geoffpshannon@gmail.com>
@@ -183,6 +185,7 @@ Contributors
 - Jonathan del Strother <me@delstrother.com>
 - Jonathan Leech-Pepin <jonathan.leechpepin@gmail.com>
 - Jonathan Roes <jroes@jroes.net>
+- Jonathon McKitrick <jonathon.mckitrick@doublethedonation.com>
 - Jon Vanderwijk <jonathn@github.com>
 - Jordan Galby <gravemind2a@gmail.com>
 - Jordan Greenberg <jordan@softwareslave.com>
@@ -210,6 +213,7 @@ Contributors
 - Leonardo Etcheverry <leo@kalio.net>
 - Leo Vivier <leo.vivier+dev@gmail.com>
 - Lingchao Xin <douglarek@users.noreply.github.com>
+- Lin Sun <sunlin7@yahoo.com>
 - Li-Yun Chang <michael142536@gmail.com>
 - Lluís Vilanova <vilanova@ac.upc.edu>
 - Loic Dachary <loic@dachary.org>
