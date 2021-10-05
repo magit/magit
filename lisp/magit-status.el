@@ -309,6 +309,7 @@ also contains other useful hints.")
 
 (put 'magit-status-here 'interactive-only 'magit-status-setup-buffer)
 
+;;;###autoload
 (defun magit-status-quick ()
   "Show the status of the current Git repository, maybe without refreshing.
 
