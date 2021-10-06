@@ -215,6 +215,7 @@ The major mode configured here is turned on by the minor mode
              git-commit-setup-changelog-support
              magit-generate-changelog
              git-commit-turn-on-auto-fill
+             git-commit-turn-on-orglink
              git-commit-turn-on-flyspell
              git-commit-propertize-diff
              bug-reference-mode
@@ -619,6 +620,13 @@ to `git-commit-fill-column'."
     (setq fill-column git-commit-fill-column))
   (setq-local comment-auto-fill-only-comments nil)
   (turn-on-auto-fill))
+
+(defun git-commit-turn-on-orglink ()
+  "Turn on Orglink mode if it is available."
+  (when (and (boundp 'orglink-match-anywhere)
+             (fboundp 'orglink-mode))
+    (setq-local orglink-match-anywhere t)
+    (orglink-mode 1)))
 
 (defun git-commit-turn-on-flyspell ()
   "Unconditionally turn on Flyspell mode.
