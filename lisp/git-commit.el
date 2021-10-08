@@ -625,7 +625,7 @@ to `git-commit-fill-column'."
   "Turn on Orglink mode if it is available.
 If `git-commit-major-mode' is `org-mode', then silently forgo
 turning on `orglink-mode'."
-  (when (and (not (derived-mode 'org-mode))
+  (when (and (not (derived-mode-p 'org-mode))
              (boundp 'orglink-match-anywhere)
              (fboundp 'orglink-mode))
     (setq-local orglink-match-anywhere t)
