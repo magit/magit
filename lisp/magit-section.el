@@ -184,7 +184,9 @@ Otherwise the value has to have one of these two forms:
                                 (const :tag "Yes (potentially slow)" t)
                                 (const :tag "No (kinda ugly)" nil)))))
 
-(defcustom magit-keep-region-overlay nil
+(define-obsolete-variable-alias 'magit-keep-region-overlay
+  'magit-section-keep-region-overlay "Magit-Section 3.4.0")
+(defcustom magit-section-keep-region-overlay nil
   "Whether to keep the region overlay when there is a valid selection.
 
 By default Magit removes the regular region overlay if, and only
@@ -1320,7 +1322,7 @@ invisible."
 (defun magit-section-make-overlay (start end face)
   ;; Yes, this doesn't belong here.  But the alternative of
   ;; spreading this hack across the code base is even worse.
-  (when (and magit-keep-region-overlay
+  (when (and magit-section-keep-region-overlay
              (memq face '(magit-section-heading-selection
                           magit-diff-file-heading-selection
                           magit-diff-hunk-heading-selection)))
@@ -1375,7 +1377,7 @@ invisible."
 
 (defun magit-section--highlight-region (start end window rol)
   (magit-section--delete-region-overlays)
-  (if (and (not magit-keep-region-overlay)
+  (if (and (not magit-section-keep-region-overlay)
            (or (magit-region-sections)
                (run-hook-with-args-until-success 'magit-region-highlight-hook
                                                  (magit-current-section)))

@@ -443,7 +443,7 @@ current line."
     (when bounds
       (magit-section-make-overlay (car bounds) (cadr bounds)
                                   'magit-section-heading-selection))
-    (if (and bounds (not magit-keep-region-overlay))
+    (if (and bounds (not magit-section-keep-region-overlay))
         (funcall (default-value 'redisplay-unhighlight-region-function) rol)
       (funcall (default-value 'redisplay-highlight-region-function)
                start end window rol))))
