@@ -87,7 +87,7 @@ succeed.")
 (defcustom magit-section-show-child-count t
   "Whether to append the number of children to section headings.
 This only applies to sections for which doing so makes sense."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit-section . "2.1.0")
   :group 'magit-section
   :type 'boolean)
 
@@ -102,7 +102,7 @@ the case.
 If t, then cache the visibility of all sections.  If a list of
 section types, then only do so for matching sections.  If nil,
 then don't do so for any sections."
-  :package-version '(magit . "2.12.0")
+  :package-version '(magit-section . "2.12.0")
   :group 'magit-section
   :type '(choice (const  :tag "Don't cache visibility" nil)
                  (const  :tag "Cache visibility of all sections" t)
@@ -129,7 +129,7 @@ An entry whose key is `magit-status-initial-section' specifies
 the visibility of the section `magit-status-goto-initial-section'
 jumps to.  This does not only override defaults, but also other
 entries of this alist."
-  :package-version '(magit . "2.12.0")
+  :package-version '(magit-section . "2.12.0")
   :group 'magit-section
   :type '(alist :key-type (sexp :tag "Section type/lineage")
                 :value-type (choice (const hide)
@@ -163,7 +163,7 @@ Otherwise the value has to have one of these two forms:
   these ellipsis take section highlighting into account.  Doing
   so might potentially have an impact on performance, while not
   doing so is kinda ugly."
-  :package-version '(magit . "3.0.0")
+  :package-version '(magit-section . "3.0.0")
   :group 'magit-section
   :type '(choice (const :tag "No indicators" nil)
                  (cons  :tag "Use +- fringe indicators"
@@ -229,7 +229,7 @@ visualized, but since it has been requested a few times and
 because it doesn't cost much to offer this option we do so.
 However that might change.  If the existence of this option
 starts complicating other things, then it will be removed."
-  :package-version '(magit . "2.3.0")
+  :package-version '(magit-section . "2.3.0")
   :group 'magit-section
   :type 'boolean)
 
@@ -242,7 +242,7 @@ to be displayed everywhere except in Magit buffers.  Other users
 do not expect Magit buffers to be treated differently.  At least
 in theory users in the first group should not use the global mode,
 but that ship has sailed, thus this option."
-  :package-version '(magit . "3.0.0")
+  :package-version '(magit-section . "3.0.0")
   :group 'magit-section
   :type 'boolean)
 
