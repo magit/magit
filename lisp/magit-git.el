@@ -1833,6 +1833,11 @@ PATH has to be relative to the super-repository."
              (let ((path (substring line 9)))
                (when remote
                  (setq path (concat remote path)))
+               ;; If the git directory is separate from the main
+               ;; worktree, then "git worktree" returns the git
+               ;; directory instead of the worktree, which isn't
+               ;; what it is supposed to do and now what we want.
+               (setq path (magit-toplevel path))
                (setq worktree (list path nil nil nil))
                (push worktree worktrees)))
             ((string-equal line "bare")

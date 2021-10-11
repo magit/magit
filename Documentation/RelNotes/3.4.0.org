@@ -9,3 +9,7 @@
 
 - Automatic saving of file-visiting buffers was broken inside remote
   repositories that are accessed using Tramp.  #4292
+
+- Worktree commands and listing worktrees in the status buffer were
+  broken inside remote repositories that are accessed using Tramp.
+  #4326
