@@ -1243,12 +1243,14 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 
 ;;; Highlight
 
+(defvar-local magit-section-pre-command-region-p nil)
 (defvar-local magit-section-pre-command-section nil)
 (defvar-local magit-section-highlight-overlays nil)
 (defvar-local magit-section-highlighted-sections nil)
 (defvar-local magit-section-unhighlight-sections nil)
 
 (defun magit-section-pre-command-hook ()
+  (setq magit-section-pre-command-region-p (region-active-p))
   (setq magit-section-pre-command-section (magit-current-section)))
 
 (defun magit-section-deactivate-mark ()
@@ -1256,7 +1258,11 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 
 (defun magit-section-update-highlight (&optional force)
   (let ((section (magit-current-section)))
-    (when (or force (not (eq magit-section-pre-command-section section)))
+    (when (or force
+              (cond ; `xor' wasn't added until 27.1.
+               ((not magit-section-pre-command-region-p) (region-active-p))
+               ((not (region-active-p)) magit-section-pre-command-region-p))
+              (not (eq magit-section-pre-command-section section)))
       (let ((inhibit-read-only t)
             (deactivate-mark nil)
             (selection (magit-region-sections)))
