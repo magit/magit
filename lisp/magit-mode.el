@@ -1206,7 +1206,7 @@ buffer which visits a file in the current repository.  Optional
 argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
   (when-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
-    (let ((remote (file-remote-p topdir))
+    (let ((remote (file-remote-p default-directory))
           (save-some-buffers-action-alist
            `((?Y (lambda (buffer)
                    (with-current-buffer buffer
@@ -1223,15 +1223,12 @@ argument (the prefix) non-nil means save all with no questions."
              (and (not magit-inhibit-refresh-save)
                   buffer-file-name
                   ;; Avoid needlessly connecting to unrelated remotes.
-                  (equal (file-remote-p buffer-file-name)
-                         remote)
+                  (equal (file-remote-p buffer-file-name) remote)
                   ;; For remote files this makes network requests and
                   ;; therefore has to come after the above to avoid
                   ;; unnecessarily waiting for unrelated hosts.
                   (file-exists-p (file-name-directory buffer-file-name))
-                  (string-prefix-p topdir (file-truename buffer-file-name))
-                  (equal (magit-rev-parse-safe "--show-toplevel")
-                         topdir)))))))
+                  (equal (magit-rev-parse-safe "--show-toplevel") topdir)))))))
 
 ;;; Restore Window Configuration
 

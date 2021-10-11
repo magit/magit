@@ -6,3 +6,6 @@
   ~git-commit-setup-hook~.
 
 ** Fixes since v3.3.0
+
+- Automatic saving of file-visiting buffers was broken inside remote
+  repositories that are accessed using Tramp.  #4292
