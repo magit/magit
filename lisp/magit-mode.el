@@ -1220,15 +1220,19 @@ argument (the prefix) non-nil means save all with no questions."
              ,@save-some-buffers-action-alist)))
       (save-some-buffers
        arg (lambda ()
-             (and (not magit-inhibit-refresh-save)
-                  buffer-file-name
-                  ;; Avoid needlessly connecting to unrelated remotes.
+             (and buffer-file-name
+                  ;; - Check whether refreshing is disabled.
+                  (not magit-inhibit-refresh-save)
+                  ;; - Check whether the visited file is either on the
+                  ;;   same remote as the repository, or both are on
+                  ;;   the local system.
                   (equal (file-remote-p buffer-file-name) remote)
-                  ;; For remote files this makes network requests and
-                  ;; therefore has to come after the above to avoid
-                  ;; unnecessarily waiting for unrelated hosts.
-                  (file-writable-p buffer-file-name)
-                  (equal (magit-rev-parse-safe "--show-toplevel") topdir)))))))
+                  ;; Delayed checks that are more expensive for remote
+                  ;; repositories, due to the required network access.
+                  ;; - Check whether the file is inside the repository.
+                  (equal (magit-rev-parse-safe "--show-toplevel") topdir)
+                  ;; - Check whether the file is actually writable.
+                  (file-writable-p buffer-file-name)))))))
 
 ;;; Restore Window Configuration
 
