@@ -498,7 +498,7 @@ and Emacs to it."
     (unless (and toplib
                  (member (file-name-nondirectory toplib)
                          '("magit.el" "magit.el.gz")))
-      (let ((load-suffixes '(".el")))
+      (let ((load-suffixes (reverse load-suffixes))) ; prefer .el than .elc
         (setq toplib (locate-library "magit"))))
     (setq toplib (and toplib (magit--straight-chase-links toplib)))
     (push toplib debug)
