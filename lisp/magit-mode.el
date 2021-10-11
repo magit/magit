@@ -1227,7 +1227,7 @@ argument (the prefix) non-nil means save all with no questions."
                   ;; For remote files this makes network requests and
                   ;; therefore has to come after the above to avoid
                   ;; unnecessarily waiting for unrelated hosts.
-                  (file-exists-p (file-name-directory buffer-file-name))
+                  (file-writable-p buffer-file-name)
                   (equal (magit-rev-parse-safe "--show-toplevel") topdir)))))))
 
 ;;; Restore Window Configuration
