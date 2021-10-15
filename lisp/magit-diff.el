@@ -2268,6 +2268,7 @@ section or a child thereof."
           (unless (equal (match-string 1) "/dev/null")
             (setq file (match-string 1))))
          ((looking-at "Binary files .+ and .+ differ\n"))
+         ((looking-at "Binary files differ\n"))
          ;; TODO Use all combined diff extended headers.
          ((looking-at "mode .+\n"))
          (t
