@@ -16,3 +16,5 @@
 
 - Due to a regression in v3.3.0 setting the mark did not highlight the
   current and only selected section until a second section is selected.
+
+- Fixed calculation of gravatar image size.
