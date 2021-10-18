@@ -2667,11 +2667,13 @@ and this option only controls what face is used.")
 
 (defun magit-read-range (prompt &optional default)
   (let ((minibuffer-default-add-function (magit--minibuf-default-add-commit))
-        (crm-separator "\\.\\.\\.?"))
+        (crm-separator "\\.\\.\\.?")
+        (choices (magit-list-refnames)))
+    (when default
+      (cl-pushnew default choices :test #'equal))
     (magit-completing-read-multiple
      (concat prompt ": ")
-     (magit-list-refnames)
-     nil nil nil 'magit-revision-history default nil t)))
+     choices nil nil nil 'magit-revision-history default nil t)))
 
 (defun magit-read-remote-branch
     (prompt &optional remote default local-branch require-match)
