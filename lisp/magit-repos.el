@@ -234,10 +234,17 @@ Usually this is just its basename."
                     (magit-git-string "show" "--no-patch" "--format=%cd-g%h"
                                       "--date=format:%Y%m%d.%H%M"))))
     (save-match-data
-      (when (string-match "-dirty\\'" v)
-        (magit--put-face (1+ (match-beginning 0)) (length v) 'error v))
+      (when (string-match
+             "\\(?:-\\([0-9]*\\)-g[a-z0-9]*\\)?\\(?:-\\(dirty\\)\\)?\\'" v)
+        (magit--put-face (match-beginning 0) (match-end 0) 'shadow v)
+        (when (match-end 1)
+          (magit--put-face (match-beginning 1) (match-end 1) 'bold v))
+        (when (match-end 2)
+          (magit--put-face (match-beginning 2) (match-end 2) 'error v)))
       (if (and v (string-match "\\`[0-9]" v))
           (concat " " v)
+        (when (and v (string-match "\\`[^0-9]+" v))
+          (magit--put-face 0 (match-end 0) 'shadow v))
         v))))
 
 (defun magit-repolist-column-branch (_)
