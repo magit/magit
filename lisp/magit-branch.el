@@ -361,13 +361,15 @@ when using `magit-branch-and-checkout'."
       (magit-checkout branch (magit-branch-arguments))
     (when (magit-anything-modified-p t)
       (user-error "Cannot checkout when there are uncommitted changes"))
-    (magit-branch-and-checkout branch start-point)
+    (let ((magit-inhibit-refresh t))
+      (magit-branch-and-checkout branch start-point))
     (when (magit-remote-branch-p start-point)
       (pcase-let ((`(,remote . ,remote-branch)
                    (magit-split-branch-name start-point)))
         (when (and (equal branch remote-branch)
                    (not (equal remote (magit-get "remote.pushDefault"))))
-          (magit-set remote "branch" branch "pushRemote"))))))
+          (magit-set remote "branch" branch "pushRemote"))))
+    (magit-refresh)))
 
 (defun magit-branch-maybe-adjust-upstream (branch start-point)
   (--when-let
