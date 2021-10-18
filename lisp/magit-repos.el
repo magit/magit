@@ -249,7 +249,10 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-branch (_)
   "Insert the current branch."
-  (magit-get-current-branch))
+  (let ((branch (magit-get-current-branch)))
+    (if (member branch magit-main-branch-names)
+        (magit--propertize-face branch 'shadow)
+      branch)))
 
 (defun magit-repolist-column-upstream (_)
   "Insert the upstream branch of the current branch."

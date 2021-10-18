@@ -5,6 +5,8 @@
 - Added new function ~git-commit-turn-on-orglink~ intended for use in
   ~git-commit-setup-hook~.
 
+- Some repository and submodule list columns got a bit fancier.
+
 ** Fixes since v3.3.0
 
 - Automatic saving of file-visiting buffers was broken inside remote
