@@ -621,13 +621,16 @@ These sections can be expanded to show the respective commits."
   (setq imenu-extract-index-name-function
         #'magit-imenu--submodule-extract-index-name-function))
 
-(defun magit-submodule-list-setup (columns)
+(defvar-local magit-submodule-list-predicate nil)
+
+(defun magit-submodule-list-setup (columns &optional predicate)
   (magit-display-buffer
    (or (magit-get-mode-buffer 'magit-submodule-list-mode)
        (magit-with-toplevel
          (magit-generate-new-buffer 'magit-submodule-list-mode))))
   (magit-submodule-list-mode)
   (setq-local magit-repolist-columns columns)
+  (setq-local magit-submodule-list-predicate predicate)
   (magit-submodule-list-refresh))
 
 (defun magit-submodule-list-refresh ()
@@ -647,6 +650,8 @@ These sections can be expanded to show the respective commits."
                  (let ((default-directory
                          (expand-file-name (file-name-as-directory module))))
                    (and (file-exists-p ".git")
+                        (or (not magit-submodule-list-predicate)
+                            (funcall magit-submodule-list-predicate module))
                         (list module
                               (vconcat
                                (mapcar (pcase-lambda (`(,title ,width ,fn ,props))
