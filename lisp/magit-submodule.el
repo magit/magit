@@ -659,7 +659,7 @@ These sections can be expanded to show the respective commits."
                (magit-list-module-paths)))
   (message "Listing submodules...")
   (tabulated-list-init-header)
-  (tabulated-list-print)
+  (tabulated-list-print t)
   (message "Listing submodules...done"))
 
 (defun magit-modulelist-column-path (spec)

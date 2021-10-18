@@ -7,6 +7,9 @@
 
 - Some repository and submodule list columns got a bit fancier.
 
+- Refreshing a repository or submodule list buffer now restores the
+  previous position.
+
 ** Fixes since v3.3.0
 
 - Automatic saving of file-visiting buffers was broken inside remote

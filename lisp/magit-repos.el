@@ -213,7 +213,7 @@ repositories are displayed."
                         (magit-list-repos)))))
   (message "Listing repositories...")
   (tabulated-list-init-header)
-  (tabulated-list-print)
+  (tabulated-list-print t)
   (message "Listing repositories...done"))
 
 ;;;; Columns
