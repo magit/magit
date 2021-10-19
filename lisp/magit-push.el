@@ -286,8 +286,8 @@ If you add this suffix to a transient prefix without explicitly
 specifying the description, then an attempt is made to predict
 what this command will do.  For example:
 
-  (transient-insert-suffix 'magit-push \"p\"
-    '(\"i\" magit-push-implicitly))"
+  (transient-insert-suffix \\='magit-push \"p\"
+    \\='(\"i\" magit-push-implicitly))"
   :description 'magit-push-implicitly--desc
   (interactive (list (magit-push-arguments)))
   (run-hooks 'magit-credential-hook)
