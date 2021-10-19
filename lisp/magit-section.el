@@ -605,7 +605,7 @@ With a prefix argument also expand it." heading)
           (oset section content (point-marker))
           (funcall washer)
           (oset section end (point-marker)))))
-    (magit-section-update-highlight)))
+    (magit-section-update-highlight t)))
 
 (defun magit-section-hide (section)
   "Hide the body of the current section."
