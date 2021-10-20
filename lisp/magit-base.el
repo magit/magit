@@ -566,30 +566,39 @@ acts similarly to `completing-read', except for the following:
   `magit-completing-read-function' is set to its default value of
   `magit-builtin-completing-read'."
   (setq magit-completing-read--silent-default nil)
-  (if-let ((dwim (and def
-                      (nth 2 (seq-find (pcase-lambda (`(,cmd ,re ,_))
-                                         (and (eq this-command cmd)
-                                              (or (not re)
-                                                  (string-match-p re prompt))))
-                                       magit-dwim-selection)))))
+  (if-let ((defatom (if (atom def) def (car def)))
+           (dwim (and def
+                      (nth 2 (seq-first (pcase-lambda (`(,cmd ,re ,_))
+                                          (and (eq this-command cmd)
+                                               (or (not re)
+                                                   (string-match-p re prompt))))
+                                        magit-dwim-selection)))))
       (if (eq dwim 'ask)
-          (if (y-or-n-p (format "%s %s? " prompt def))
-              def
+          (if (y-or-n-p (format "%s %s? " prompt defatom))
+              defatom
             (user-error "Abort"))
         (setq magit-completing-read--silent-default t)
-        def)
+        defatom)
     (unless def
       (setq def fallback))
+    (when (and def
+               (not (functionp collection))
+               (not (member def collection)))
+      (setq collection
+            ;; If COLLECTION is an alist, then the caller may do
+            ;; something like (cdr (assoc SELECTED COLLECTION)),
+            ;; SELECTED being the atom that we return.  Since we
+            ;; may replace a member of COLLECTION with DEF, which
+            ;; may be an atom, we have to make sure we don't modify
+            ;; COLLECTION destructively or such lookups would break.
+            (cons def (cl-remove-if
+                       (lambda (elt) (equal (if (atom elt) elt (car elt)) defatom))
+                       collection))))
     (let ((command this-command)
           (reply (funcall magit-completing-read-function
                           (concat prompt ": ")
-                          (if (and (not (functionp collection))
-                                   def
-                                   (not (member def collection)))
-                              (cons def collection)
-                            collection)
-                          predicate
-                          require-match initial-input hist def)))
+                          collection predicate require-match
+                          initial-input hist def)))
       (setq this-command command)
       ;; Note: Avoid `string=' to support `helm-comp-read-use-marked'.
       (if (equal reply "")
