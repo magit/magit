@@ -286,6 +286,7 @@ Used when `magit-process-display-mode-line-error' is non-nil."
   "Mode for looking at Git process output."
   :group 'magit-process
   (hack-dir-local-variables-non-file-buffer)
+  (goto-address-mode)
   (setq imenu-prev-index-position-function
         'magit-imenu--process-prev-index-position-function)
   (setq imenu-extract-index-name-function
