@@ -1452,7 +1452,7 @@ remote-tracking branch ref."
 It BRANCH is nil, then return the upstream of the current branch
 if any, nil otherwise.  If the upstream is not configured, the
 configured remote is an url, or the named branch does not exist,
-then return nil.  I.e.  return the name of an existing local or
+then return nil.  I.e. return the name of an existing local or
 remote-tracking branch.  The returned string is colorized
 according to the branch type."
   (magit--with-refresh-cache (list 'magit-get-upstream-branch branch)
