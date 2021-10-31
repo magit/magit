@@ -366,7 +366,7 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
    ("g" "       refresh current buffer"   magit-refresh)
    ("<tab>" "   toggle section at point"  magit-section-toggle)
    ("<return>" "visit thing at point"     magit-visit-thing)
-   ("C-h m" "   show all key bindings"    describe-mode)])
+   ("C-x m" "   show all key bindings"    describe-mode)])
 
 ;;; Git Popup
 
