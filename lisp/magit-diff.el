@@ -2338,7 +2338,7 @@ section or a child thereof."
              (equal (match-string 1) module))
         (magit-bind-match-strings (_module range rewind) nil
           (magit-delete-line)
-          (while (looking-at "^  \\([<>]\\) \\(.+\\)$")
+          (while (looking-at "^  \\([<>]\\) \\(.*\\)$")
             (magit-delete-line))
           (when rewind
             (setq range (replace-regexp-in-string "[^.]\\(\\.\\.\\)[^.]"
