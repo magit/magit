@@ -1169,9 +1169,9 @@ or if no rename is detected."
       (and-let* ((renamed (magit-renamed-files rev other-rev)))
         (car (rassoc file renamed)))))
 
-(defun magit-file-status (&rest args)
+(defun magit-file-status (&optional file &rest args)
   (magit--with-temp-process-buffer
-    (save-excursion (magit-git-insert "status" "-z" args))
+    (save-excursion (magit-git-insert "status" "-z" args "--" file))
     (let ((pos (point)) status)
       (while (> (skip-chars-forward "[:print:]") 0)
         (let ((x (char-after     pos))
