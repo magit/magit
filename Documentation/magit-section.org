@@ -2,19 +2,19 @@
 :PREAMBLE:
 #+AUTHOR: Jonas Bernoulli
 #+EMAIL: jonas@bernoul.li
-#+DATE: 2015-2021
+#+DATE: 2015-{{{year}}}
 #+LANGUAGE: en
 
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit-Section: (magit-section).
 #+TEXINFO_DIR_DESC: Use Magit sections in your own packages.
-#+SUBTITLE: for version 3.3.0
+#+SUBTITLE: for version {{{version}}}
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
 #+PROPERTY: header-args :eval never
-#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-copyright-years
-#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
+#+MACRO: version (eval (ox-texinfo+-get-version 'mixed))
+#+MACRO: year (eval (format-time-string "%Y"))
 
 This package implements the main user interface of Magit — the
 collapsible sections that make up its buffers.  This package used
@@ -26,10 +26,10 @@ user options see [[info:magit#Sections]].  This manual documents how you
 can use sections in your own packages.
 
 #+TEXINFO: @noindent
-This manual is for Magit-Section version 3.3.0.
+This manual is for Magit-Section version {{{version}}}.
 
 #+BEGIN_QUOTE
-Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2015-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -255,7 +255,7 @@ source for suitable examples before asking me for help.  Thanks!
 :END:
 
 #+BEGIN_QUOTE
-Copyright (C) 2015-2021 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2015-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -276,7 +276,6 @@ General Public License for more details.
 # IMPORTANT: Also update ORG_ARGS and ORG_EVAL in the Makefile.
 # Local Variables:
 # eval: (require 'magit-utils nil t)
-# eval: (require 'org-man     nil t)
 # eval: (require 'ol-man      nil t)
 # eval: (require 'ox-texinfo+ nil t)
 # org-texinfo+-dissolve-noexport-headlines: t

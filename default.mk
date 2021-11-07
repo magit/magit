@@ -216,7 +216,6 @@ endif # ifndef LOAD_PATH
 ifndef ORG_LOAD_PATH
 ORG_LOAD_PATH  = $(LOAD_PATH)
 ORG_LOAD_PATH += -L ../../org/lisp
-ORG_LOAD_PATH += -L ../../org-contrib/lisp
 ORG_LOAD_PATH += -L ../../ox-texinfo+
 endif
 
