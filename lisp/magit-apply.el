@@ -55,6 +55,11 @@
 (declare-function borg-assimilate "borg" (package url &optional partially))
 (defvar borg-user-emacs-directory)
 
+(cl-eval-when (compile load)
+  (when (< emacs-major-version 26)
+    (defalias 'smerge-keep-upper 'smerge-keep-mine)
+    (defalias 'smerge-keep-lower 'smerge-keep-other)))
+
 ;;; Options
 
 (defcustom magit-delete-by-moving-to-trash t

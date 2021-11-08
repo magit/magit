@@ -181,7 +181,7 @@ Also see https://github.com/magit/magit/issues/4132."
 (defun magit-read-gpg-secret-key
     (prompt &optional initial-input history predicate)
   (require 'epa)
-  (let* ((keys (mapcan
+  (let* ((keys (cl-mapcan
                 (lambda (cert)
                   (and (or (not predicate)
                            (funcall predicate cert))
