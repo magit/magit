@@ -50,8 +50,6 @@ help:
 	$(info ====)
 	$(info )
 	$(info make test             - run tests)
-	$(info make test-git         - run tests using Git functions)
-	$(info make test-libgit      - run tests using libgit functions)
 	$(info make test-interactive - run tests interactively)
 	$(info make emacs-Q          - run emacs -Q plus Magit)
 	$(info )
@@ -110,27 +108,6 @@ install-info: info
 test:
 	@$(BATCH) --eval "(progn\
         $$suppress_warnings\
-	(load-file \"t/magit-tests.el\")\
-	(ert-run-tests-batch-and-exit))"
-
-test-git:
-	@$(BATCH) --eval "(progn\
-        $$suppress_warnings\
-	(require 'magit)\
-	(setq magit-inhibit-libgit t)\
-	(unless (eq 'git (magit-gitimpl))\
-	  (message \"Git implementation not being used.\")\
-	  (kill-emacs 1))\
-	(load-file \"t/magit-tests.el\")\
-	(ert-run-tests-batch-and-exit))"
-
-test-libgit:
-	@$(BATCH) --eval "(progn\
-		$$suppress_warnings\
-	(require 'magit)\
-	(unless (eq 'libgit (magit-gitimpl))\
-	  (message \"libgit not available.\")\
-	  (kill-emacs 1))\
 	(load-file \"t/magit-tests.el\")\
 	(ert-run-tests-batch-and-exit))"
 

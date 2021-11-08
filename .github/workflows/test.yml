@@ -1,42 +1,51 @@
 name: test
 on: [ push, pull_request ]
+env:
+  BUILD_MAGIT_LIBGIT: "false"
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         emacs_version:
         - 25.1
-        # 25.2 is identical to 25.3 except for a critical security bug in
-        # enriched text mode (see Emacs Bug#28350).
         - 25.3
-        - 26.1   # Debian is on this version.
+        - 26.1
+        - 26.2
         - 26.3
         - 27.1
+        - 27.2
         - snapshot
-        git_impl:
-        - git
-        # FIXME Broken due to glibc version mismatch. See #4456.
-        # - libgit
     steps:
-    - uses: cachix/install-nix-action@v12
-      with:
-        nix_path: nixpkgs=channel:nixos-unstable
-    - uses: cachix/cachix-action@v8
-      with:
-        name: emacs-ci
-    - uses: actions/checkout@v2
-    - name: Install
+    - name: Configure git
       run: |
-        # Build and install Emacs (+ magit dependencies) using Nix
-        emacs_ci_version=$(echo "emacs-${{ matrix.emacs_version }}" | sed -e "s/\./-/g")
-        nix-env -f ./t/default.nix -iA $emacs_ci_version
-        emacs --version
-
-        # Configure Git
         git config --global user.name "A U Thor"
         git config --global user.email a.u.thor@example.com
-        git tag 0
-    - name: Test
-      run: |
-        make test-${{ matrix.git_impl }} DASH_DIR=$PWD
+    - name: Install emacs
+      uses: purcell/setup-emacs@master
+      with:
+        version: ${{ matrix.emacs_version }}
+    - name: Checkout dash
+      uses: actions/checkout@v2
+      with:
+        repository: magnars/dash.el
+        path: dash
+    - name: Checkout transient
+      uses: actions/checkout@v2
+      with:
+        repository: magit/transient
+        path: transient
+    - name: Checkout with-editor
+      uses: actions/checkout@v2
+      with:
+        repository: magit/with-editor
+        path: with-editor
+    - name: Checkout magit
+      uses: actions/checkout@v2
+      with:
+        repository: magit/magit
+        path: magit
+    - name: Build magit
+      run: make -C magit all
+    - name: Test magit
+      run: make -C magit test
