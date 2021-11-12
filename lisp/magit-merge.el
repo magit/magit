@@ -139,7 +139,7 @@ provided the respective remote branch already exists, ensuring
 that the respective pull-request (if any) won't get stuck on some
 obsolete version of the commits that are being merged.  Finally
 if `forge-branch-pullreq' was used to create the merged branch,
-branch, then also remove the respective remote branch."
+then also remove the respective remote branch."
   (interactive
    (list (magit-read-other-local-branch
           (format "Merge `%s' into"
