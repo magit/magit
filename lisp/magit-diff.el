@@ -1100,8 +1100,8 @@ If no DWIM context is found, nil is returned."
       ([* unstaged] 'unstaged)
       ([* staged] 'staged)
       (unmerged 'unmerged)
-      (unpushed (oref it value))
-      (unpulled (oref it value))
+      (unpushed (magit-diff--range-to-endpoints (oref it value)))
+      (unpulled (magit-diff--range-to-endpoints (oref it value)))
       (branch (let ((current (magit-get-current-branch))
                     (atpoint (oref it value)))
                 (if (equal atpoint current)
@@ -1119,6 +1119,11 @@ If no DWIM context is found, nil is returned."
        (cons 'commit (oref (oref (oref it parent) parent) value)))
       (stash (cons 'stash (oref it value)))
       (pullreq (forge--pullreq-range (oref it value) t))))))
+
+(defun magit-diff--range-to-endpoints (range)
+  (cond ((string-match "\\.\\.\\." range) (replace-match ".."  nil nil range))
+        ((string-match "\\.\\."    range) (replace-match "..." nil nil range))
+        (t range)))
 
 (defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
   "Read range or revision with special diff range treatment.
