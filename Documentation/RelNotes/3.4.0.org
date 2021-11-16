@@ -10,6 +10,9 @@
 - Refreshing a repository or submodule list buffer now restores the
   previous position.
 
+- Added new face ~git-rebase-action~ to allow customization of the face
+  used for the action words in git-rebase-todo files.
+
 ** Fixes since v3.3.0
 
 - Automatic saving of file-visiting buffers was broken inside remote

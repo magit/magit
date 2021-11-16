@@ -124,6 +124,11 @@
   "Face for commit descriptions."
   :group 'git-rebase-faces)
 
+(defface git-rebase-action
+  '((t :inherit font-lock-keyword-face))
+  "Face for action keywords."
+  :group 'git-rebase-faces)
+
 (defface git-rebase-killed-action
   '((t :inherit font-lock-comment-face :strike-through t))
   "Face for commented commit action lines."
@@ -731,25 +736,25 @@ running 'man git-rebase' at the command line) for details."
 (defun git-rebase-mode-font-lock-keywords ()
   "Font lock keywords for Git-Rebase mode."
   `((,(concat "^" (cdr (assq 'commit git-rebase-line-regexps)))
-     (1 'font-lock-keyword-face)
+     (1 'git-rebase-action)
      (3 'git-rebase-hash)
      (4 'git-rebase-description))
     (,(concat "^" (cdr (assq 'exec git-rebase-line-regexps)))
-     (1 'font-lock-keyword-face)
+     (1 'git-rebase-action)
      (3 'git-rebase-description))
     (,(concat "^" (cdr (assq 'bare git-rebase-line-regexps)))
-     (1 'font-lock-keyword-face))
+     (1 'git-rebase-action))
     (,(concat "^" (cdr (assq 'label git-rebase-line-regexps)))
-     (1 'font-lock-keyword-face)
+     (1 'git-rebase-action)
      (3 'git-rebase-label)
      (4 'font-lock-comment-face))
     ("^\\(m\\(?:erge\\)?\\) -[Cc] \\([^ \n]+\\) \\([^ \n]+\\)\\( #.*\\)?"
-     (1 'font-lock-keyword-face)
+     (1 'git-rebase-action)
      (2 'git-rebase-hash)
      (3 'git-rebase-label)
      (4 'font-lock-comment-face))
     ("^\\(m\\(?:erge\\)?\\) \\([^ \n]+\\)"
-     (1 'font-lock-keyword-face)
+     (1 'git-rebase-action)
      (2 'git-rebase-label))
     (,(concat git-rebase-comment-re " *"
               (cdr (assq 'commit git-rebase-line-regexps)))
