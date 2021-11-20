@@ -137,7 +137,7 @@
 (defface git-rebase-comment-heading
   '((t :inherit font-lock-keyword-face))
   "Face for headings in rebase message comments."
-  :group 'git-commit-faces)
+  :group 'git-rebase-faces)
 
 ;;; Keymaps
 
