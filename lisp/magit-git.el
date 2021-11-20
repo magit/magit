@@ -1836,7 +1836,7 @@ PATH has to be relative to the super-repository."
                ;; If the git directory is separate from the main
                ;; worktree, then "git worktree" returns the git
                ;; directory instead of the worktree, which isn't
-               ;; what it is supposed to do and now what we want.
+               ;; what it is supposed to do and not what we want.
                (setq path (magit-toplevel path))
                (setq worktree (list path nil nil nil))
                (push worktree worktrees)))
