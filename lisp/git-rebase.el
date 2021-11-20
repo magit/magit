@@ -112,11 +112,11 @@
   :group 'faces
   :group 'git-rebase)
 
-(defface git-rebase-hash '((t (:inherit magit-hash)))
+(defface git-rebase-hash '((t :inherit magit-hash))
   "Face for commit hashes."
   :group 'git-rebase-faces)
 
-(defface git-rebase-label '((t (:inherit magit-refname)))
+(defface git-rebase-label '((t :inherit magit-refname))
   "Face for labels in label, merge, and reset lines."
   :group 'git-rebase-faces)
 
@@ -125,12 +125,12 @@
   :group 'git-rebase-faces)
 
 (defface git-rebase-killed-action
-  '((t (:inherit font-lock-comment-face :strike-through t)))
+  '((t :inherit font-lock-comment-face :strike-through t))
   "Face for commented commit action lines."
   :group 'git-rebase-faces)
 
 (defface git-rebase-comment-hash
-  '((t (:inherit git-rebase-hash :weight bold)))
+  '((t :inherit git-rebase-hash :weight bold))
   "Face for commit hashes in commit message comments."
   :group 'git-rebase-faces)
 
