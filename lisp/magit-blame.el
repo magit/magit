@@ -197,19 +197,19 @@ Also see option `magit-blame-styles'."
 Also see option `magit-blame-styles'."
   :group 'magit-faces)
 
-(defface magit-blame-summary nil
+(defface magit-blame-summary '((t nil))
   "Face used for commit summaries when blaming."
   :group 'magit-faces)
 
-(defface magit-blame-hash nil
+(defface magit-blame-hash '((t nil))
   "Face used for commit hashes when blaming."
   :group 'magit-faces)
 
-(defface magit-blame-name nil
+(defface magit-blame-name '((t nil))
   "Face used for author and committer names when blaming."
   :group 'magit-faces)
 
-(defface magit-blame-date nil
+(defface magit-blame-date '((t nil))
   "Face used for dates when blaming."
   :group 'magit-faces)
 

@@ -120,7 +120,7 @@
   "Face for labels in label, merge, and reset lines."
   :group 'git-rebase-faces)
 
-(defface git-rebase-description nil
+(defface git-rebase-description '((t nil))
   "Face for commit descriptions."
   :group 'git-rebase-faces)
 
