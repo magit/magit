@@ -96,6 +96,9 @@ Each of these options falls into one or more of these categories:
   :group 'magit
   :group 'faces)
 
+(custom-add-to-group 'magit-faces 'diff-refine-added   'custom-face)
+(custom-add-to-group 'magit-faces 'diff-refine-removed 'custom-face)
+
 (defgroup magit-extensions nil
   "Extensions to Magit."
   :group 'magit)
