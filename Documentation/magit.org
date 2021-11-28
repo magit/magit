@@ -8546,9 +8546,9 @@ cater to that.
 ~magit-diff-highlight-trailing~, and ~magit-diff-paint-whitespace~; and
 insert some whitespace errors into the code you use for testing.)
 
-For e.g. "added lines" you have to adjust three faces:
+For added lines you have to adjust three faces:
 ~magit-diff-added~, ~magit-diff-added-highlight~, and
-~smerge-refined-added~.  Make sure that the latter works well with both
+~diff-refined-added~.  Make sure that the latter works well with both
 of the former, as well as ~smerge-other~ and ~diff-added~.  Then do the
 same for the removed lines, context lines, lines added by us, and
 lines added by them.  Also make sure the respective added, removed,

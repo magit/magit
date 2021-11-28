@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.3.0
+@subtitle for version 3.3.0 (v3.3.0-40-g6da7771b6+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.3.0.
+This manual is for Magit version 3.3.0 (v3.3.0-40-g6da7771b6+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -11354,9 +11354,9 @@ cater to that.
 @code{magit-diff-highlight-trailing}, and @code{magit-diff-paint-whitespace}; and
 insert some whitespace errors into the code you use for testing.)
 
-For e.g. "added lines" you have to adjust three faces:
+For added lines you have to adjust three faces:
 @code{magit-diff-added}, @code{magit-diff-added-highlight}, and
-@code{smerge-refined-added}.  Make sure that the latter works well with both
+@code{diff-refined-added}.  Make sure that the latter works well with both
 of the former, as well as @code{smerge-other} and @code{diff-added}.  Then do the
 same for the removed lines, context lines, lines added by us, and
 lines added by them.  Also make sure the respective added, removed,
