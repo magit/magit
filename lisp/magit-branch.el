@@ -620,16 +620,19 @@ defaulting to the branch at point."
      (t ; And now for something completely different.
       (let* ((branch (car branches))
              (prompt (format "Branch %s is checked out.  " branch))
-             (main (magit-main-branch)))
+             (target (magit-get-upstream-branch)))
         (when (equal branch (magit-get-current-branch))
-          (pcase (if (or (equal branch main)
-                         (not main))
+          (when (or (equal branch target)
+                    (not target))
+            (setq target (magit-main-branch)))
+          (pcase (if (or (equal branch target)
+                         (not target))
                      (magit-read-char-case prompt nil
                        (?d "[d]etach HEAD & delete" 'detach)
                        (?a "[a]bort"                'abort))
                    (magit-read-char-case prompt nil
                      (?d "[d]etach HEAD & delete" 'detach)
-                     (?c (format "[c]heckout %s & delete" main) 'main)
+                     (?c (format "[c]heckout %s & delete" target) 'target)
                      (?a "[a]bort" 'abort)))
             (`detach (unless (or (equal force '(4))
                                  (member branch force)
@@ -638,13 +641,13 @@ defaulting to the branch at point."
                          "Delete unmerged branch %s" ""
                          nil (list branch)))
                      (magit-call-git "checkout" "--detach"))
-            (`main   (unless (or (equal force '(4))
+            (`target (unless (or (equal force '(4))
                                  (member branch force)
-                                 (magit-branch-merged-p branch main))
+                                 (magit-branch-merged-p branch target))
                        (magit-confirm 'delete-unmerged-branch
                          "Delete unmerged branch %s" ""
                          nil (list branch)))
-                     (magit-call-git "checkout" main))
+                     (magit-call-git "checkout" target))
             (`abort  (user-error "Abort")))
           (setq force t))
         (magit-branch-maybe-delete-pr-remote branch)
