@@ -31,14 +31,11 @@
 
 (require 'magit)
 
-;;; Options
-
-(defcustom magit-fetch-modules-jobs 4
-  "Number of submodules to fetch in parallel.
-Ignored for Git versions before v2.8.0."
-  :package-version '(magit . "2.12.0")
-  :group 'magit-commands
-  :type '(choice (const :tag "one at a time" nil) number))
+(defvar magit-fetch-modules-jobs nil)
+(make-obsolete-variable
+ 'magit-fetch-modules-jobs
+ "invoke `magit-fetch-modules' with a prefix argument instead."
+ "Magit 3.0.0")
 
 ;;; Commands
 
@@ -167,22 +164,39 @@ removed on the respective remote."
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "remote" "update"))
 
-;;;###autoload
-(defun magit-fetch-modules (&optional all)
+;;;###autoload (autoload 'magit-fetch-modules "magit-fetch" nil t)
+(transient-define-prefix magit-fetch-modules (&optional transient args)
   "Fetch all submodules.
 
-Option `magit-fetch-modules-jobs' controls how many submodules
-are being fetched in parallel.  Also fetch the super-repository,
-because `git-fetch' does not support not doing that.  With a
-prefix argument fetch all remotes."
-  (interactive "P")
-  (magit-with-toplevel
-    (magit-run-git-async
-     "fetch" "--verbose" "--recurse-submodules"
-     (and magit-fetch-modules-jobs
-          (version<= "2.8.0" (magit-git-version))
-          (list "-j" (number-to-string magit-fetch-modules-jobs)))
-     (and all "--all"))))
+Fetching is done using \"git fetch --recurse-submodules\", which
+means that the super-repository and recursively all submodules
+are also fetched.
+
+To set and potentially save other arguments invoke this command
+with a prefix argument."
+  :man-page "git-fetch"
+  :value (list "--verbose"
+               (cond (magit-fetch-modules-jobs
+                      (format "--jobs=%s" magit-fetch-modules-jobs))
+                     (t "--jobs=4")))
+  ["Arguments"
+   ("-v" "verbose"        "--verbose")
+   ("-a" "all remotes"    "--all")
+   ("-j" "number of jobs" "--jobs=" :reader transient-read-number-N+)]
+  ["Action"
+   ("m" "fetch modules" magit-fetch-modules)]
+  (interactive (if current-prefix-arg
+                   (list t)
+                 (list nil (transient-args 'magit-fetch-modules))))
+  (if transient
+      (transient-setup 'magit-fetch-modules)
+    (let ((git-version (magit-git-version)))
+      (when (version<= "2.8.0" git-version)
+        (when-let ((value (transient-arg-value "--jobs=" args)))
+          (message "Dropping --jobs; not supported by Git v%s" git-version)
+          (setq args (remove (format "--jobs=%s" value) args)))))
+    (magit-with-toplevel
+      (magit-run-git-async "fetch" "--recurse-submodules" args))))
 
 ;;; _
 (provide 'magit-fetch)
