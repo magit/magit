@@ -1394,7 +1394,7 @@ to, or to some other symbolic-ref that points to the same ref."
 (defun magit-remote-at-point ()
   (magit-section-case
     (remote (oref it value))
-    (branch (magit-section-parent-value it))))
+    ([branch remote] (magit-section-parent-value it))))
 
 (defun magit-module-at-point (&optional predicate)
   (when (magit-section-match 'magit-module-section)
