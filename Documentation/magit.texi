@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.3.0 (v3.3.0-40-g6da7771b6+1)
+@subtitle for version 3.3.0 (v3.3.0-46-g5a8bbe1a8+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.3.0 (v3.3.0-40-g6da7771b6+1).
+This manual is for Magit version 3.3.0 (v3.3.0-46-g5a8bbe1a8+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -8067,7 +8067,8 @@ the process manually.
 
 This command moves the selected COMMITS from the current branch onto
 another existing BRANCH, removing them from the former.  When this
-command succeeds, then the same branch is current as before.
+command succeeds, then the same branch is current as before.  @code{HEAD}
+is allowed to be detached initially.
 
 Applying the commits on the other branch or removing them from the
 current branch can lead to conflicts.  When that happens, then this

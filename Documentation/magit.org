@@ -6014,7 +6014,8 @@ same way you would have to if these commands didn't exist at all.
 
   This command moves the selected COMMITS from the current branch onto
   another existing BRANCH, removing them from the former.  When this
-  command succeeds, then the same branch is current as before.
+  command succeeds, then the same branch is current as before.  ~HEAD~
+  is allowed to be detached initially.
 
   Applying the commits on the other branch or removing them from the
   current branch can lead to conflicts.  When that happens, then this
