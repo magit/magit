@@ -746,7 +746,7 @@ Save current message first."
                       nil nil log-edit-last-comment-match)))
   (cl-letf (((symbol-function #'log-edit-previous-comment)
              (symbol-function #'git-commit-prev-message)))
-    (log-edit-comment-search-forward str stride)))
+    (log-edit-comment-search-forward string)))
 
 (defun git-commit-save-message ()
   "Save current message to `log-edit-comment-ring'."
