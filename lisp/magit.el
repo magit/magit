@@ -134,7 +134,7 @@ and/or `magit-branch-remote-head'."
   :group 'magit-faces)
 
 (defface magit-branch-warning
-  '((t :inherit font-lock-warning-face))
+  '((t :inherit warning))
   "Face for warning about (missing) branch."
   :group 'magit-faces)
 
