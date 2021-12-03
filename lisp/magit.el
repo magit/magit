@@ -133,6 +133,11 @@ This face is only used in logs and it gets combined
 and/or `magit-branch-remote-head'."
   :group 'magit-faces)
 
+(defface magit-branch-warning
+  '((t :inherit font-lock-warning-face))
+  "Face for warning about (missing) branch."
+  :group 'magit-faces)
+
 (defface magit-head
   '((((class color) (background light)) :inherit magit-branch-local)
     (((class color) (background  dark)) :inherit magit-branch-local))

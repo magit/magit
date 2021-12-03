@@ -653,8 +653,7 @@ line is inserted at all."
               (if branch
                   (magit-refs--propertize-branch
                    branch ref (and headp 'magit-branch-current))
-                (magit--propertize-face "(detached)"
-                                        'font-lock-warning-face)))
+                (magit--propertize-face "(detached)" 'magit-branch-warning)))
              (u:ahead  (and u:track
                             (string-match "ahead \\([0-9]+\\)" u:track)
                             (magit--propertize-face

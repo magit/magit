@@ -638,16 +638,16 @@ arguments are for internal use only."
                    (concat
                     (propertize merge 'font-lock-face 'magit-branch-local) " "
                     (propertize "does not exist"
-                                'font-lock-face 'font-lock-warning-face))
+                                'font-lock-face 'magit-branch-warning))
                  (format
                   "%s %s %s"
                   (propertize merge 'font-lock-face 'magit-branch-remote)
                   (propertize "does not exist on"
-                              'font-lock-face 'font-lock-warning-face)
+                              'font-lock-face 'magit-branch-warning)
                   (propertize remote 'font-lock-face 'magit-branch-remote))))
               (t
                (propertize "invalid upstream configuration"
-                           'font-lock-face 'font-lock-warning-face)))))
+                           'font-lock-face 'magit-branch-warning)))))
           (insert ?\n))))))
 
 (defun magit-insert-push-branch-header ()
@@ -671,10 +671,10 @@ arguments are for internal use only."
            (if (magit-remote-p remote)
                (concat target " "
                        (propertize "does not exist"
-                                   'font-lock-face 'font-lock-warning-face))
+                                   'font-lock-face 'magit-branch-warning))
              (concat remote " "
                      (propertize "remote does not exist"
-                                 'font-lock-face 'font-lock-warning-face))))))
+                                 'font-lock-face 'magit-branch-warning))))))
       (insert ?\n))))
 
 (defun magit-insert-tags-header ()
