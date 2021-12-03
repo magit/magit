@@ -404,6 +404,8 @@ This is only used if Magit is available."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-p")     'git-commit-prev-message)
     (define-key map (kbd "M-n")     'git-commit-next-message)
+    (define-key map (kbd "C-c M-p") 'git-commit-search-message-backward)
+    (define-key map (kbd "C-c M-n") 'git-commit-search-message-forward)
     (define-key map (kbd "C-c C-i") 'git-commit-insert-pseudo-header)
     (define-key map (kbd "C-c C-a") 'git-commit-ack)
     (define-key map (kbd "C-c M-i") 'git-commit-suggested)
@@ -723,6 +725,28 @@ With a numeric prefix ARG, go back ARG comments."
 With a numeric prefix ARG, go forward ARG comments."
   (interactive "*p")
   (git-commit-prev-message (- arg)))
+
+(defun git-commit-search-message-backward (string)
+  "Search backward through message history for a match for STRING.
+Save current message first."
+  (interactive
+   (list (read-string (format-prompt "Comment substring"
+                                     log-edit-last-comment-match)
+                      nil nil log-edit-last-comment-match)))
+  (cl-letf (((symbol-function #'log-edit-previous-comment)
+             (symbol-function #'git-commit-prev-message)))
+    (log-edit-comment-search-backward string)))
+
+(defun git-commit-search-message-forward (string)
+  "Search forward through message history for a match for STRING.
+Save current message first."
+  (interactive
+   (list (read-string (format-prompt "Comment substring"
+                                     log-edit-last-comment-match)
+                      nil nil log-edit-last-comment-match)))
+  (cl-letf (((symbol-function #'log-edit-previous-comment)
+             (symbol-function #'git-commit-prev-message)))
+    (log-edit-comment-search-forward str stride)))
 
 (defun git-commit-save-message ()
   "Save current message to `log-edit-comment-ring'."
