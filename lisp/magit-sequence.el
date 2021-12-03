@@ -231,7 +231,10 @@ process manually."
                  (0 nil)
                  (1 (car branches))
                  (_ (magit-completing-read
-                     (format "Remove %s cherries from branch" (length commits))
+                     (let ((len (length commits)))
+                       (if (= len 1)
+                           "Remove 1 cherry from branch"
+                         (format "Remove %s cherries from branch" len)))
                      branches nil t))))))))
   (magit--cherry-move commits branch (magit-get-current-branch) args nil t))
 
@@ -244,8 +247,11 @@ process manually.  `HEAD' is allowed to be detached initially."
   (interactive
    (magit--cherry-move-read-args "donate" t
      (lambda (commits)
-       (list (magit-read-other-branch (format "Move %s cherries to branch"
-                                              (length commits)))))
+       (list (magit-read-other-branch
+              (let ((len (length commits)))
+                (if (= len 1)
+                    "Move 1 cherry to branch"
+                  (format "Move %s cherries to branch" len))))))
      'allow-detached))
   (magit--cherry-move commits
                       (or (magit-get-current-branch)
