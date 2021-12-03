@@ -551,8 +551,7 @@ the status buffer causes this section to disappear again."
     (magit-insert-section (error 'git)
       (insert (propertize (format "%-10s" "GitError! ")
                           'font-lock-face 'magit-section-heading))
-      (insert (propertize magit-this-error
-                          'font-lock-face 'font-lock-warning-face))
+      (insert (propertize magit-this-error 'font-lock-face 'error))
       (when-let ((key (car (where-is-internal 'magit-process-buffer))))
         (insert (format "  [Type `%s' for details]" (key-description key))))
       (insert ?\n))
