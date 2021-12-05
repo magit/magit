@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 3.3.0 (v3.3.0-46-g5a8bbe1a8+1)
+@subtitle for version 3.3.0 (v3.3.0-53-g463a3550+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 3.3.0 (v3.3.0-46-g5a8bbe1a8+1).
+This manual is for Magit version 3.3.0 (v3.3.0-53-g463a3550+1).
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -403,7 +403,7 @@ gotten their hands on Magit earlier.
 While one has to know the basic features of Emacs to be able to make
 full use of Magit, acquiring just enough Emacs skills doesn't take
 long and is worth it, even for users who prefer other editors.  Vim
-users are advised to give @uref{https://bitbucket.org/lyro/evil/wiki/Home, Evil}, the "Extensible VI Layer for Emacs",
+users are advised to give @uref{https://github.com/emacs-evil/evil, Evil}, the "Extensible VI Layer for Emacs",
 and @uref{https://github.com/syl20bnr/spacemacs, Spacemacs}, an "Emacs starter-kit focused on Evil" a try.
 
 Magit provides a consistent and efficient Git porcelain.  After a

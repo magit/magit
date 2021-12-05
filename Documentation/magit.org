@@ -90,7 +90,7 @@ gotten their hands on Magit earlier.
 While one has to know the basic features of Emacs to be able to make
 full use of Magit, acquiring just enough Emacs skills doesn't take
 long and is worth it, even for users who prefer other editors.  Vim
-users are advised to give [[https://bitbucket.org/lyro/evil/wiki/Home][Evil]], the "Extensible VI Layer for Emacs",
+users are advised to give [[https://github.com/emacs-evil/evil][Evil]], the "Extensible VI Layer for Emacs",
 and [[https://github.com/syl20bnr/spacemacs][Spacemacs]], an "Emacs starter-kit focused on Evil" a try.
 
 Magit provides a consistent and efficient Git porcelain.  After a
