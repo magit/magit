@@ -249,7 +249,7 @@ source for suitable examples before asking me for help.  Thanks!
   matches if no other CONDITION match, even if there is no section
   at point.
 
-* _ Copying
+* Copying
 :PROPERTIES:
 :COPYING:    t
 :END:
@@ -278,7 +278,6 @@ General Public License for more details.
 # eval: (require 'magit-utils nil t)
 # eval: (require 'ol-man      nil t)
 # eval: (require 'ox-texinfo+ nil t)
-# org-texinfo+-dissolve-noexport-headlines: t
 # indent-tabs-mode: nil
 # org-src-preserve-indentation: nil
 # End:
