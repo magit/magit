@@ -53,7 +53,8 @@
 ;; From `magit-process'.
 (declare-function magit-call-git "magit-process" (&rest args))
 (declare-function magit-process-buffer "magit-process" (&optional nodisplay))
-(declare-function magit-process-file "magit-process" (&rest args))
+(declare-function magit-process-file "magit-process"
+                  (process &optional infile buffer display &rest args))
 (declare-function magit-process-git "magit-process" (destination &rest args))
 (declare-function magit-process-insert-section "magit-process"
                   (pwd program args &optional errcode errlog))

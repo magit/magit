@@ -41,15 +41,16 @@
 ;; For `magit-diff-popup'
 (declare-function magit-stash-show "magit-stash" (stash &optional args files))
 ;; For `magit-diff-visit-file'
-(declare-function dired-jump "dired-x" (&optional other-window file-name))
+(declare-function dired-jump "dired" ; dired-x before 27.1
+                  (&optional other-window file-name))
 (declare-function magit-find-file-noselect "magit-files" (rev file))
-(declare-function magit-status-setup-buffer "magit-status" (directory))
+(declare-function magit-status-setup-buffer "magit-status" (&optional directory))
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer "magit-commit" ())
 ;; For `magit-insert-revision-gravatar'
 (defvar gravatar-size)
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
-(declare-function magit-current-blame-chunk "magit-blame" ())
+(declare-function magit-current-blame-chunk "magit-blame" (&optional type noerror))
 (declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
 ;; For `magit-diff-show-or-scroll'
@@ -62,7 +63,7 @@
                   (pullreq &optional endpoints))
 (declare-function forge--pullreq-ref "forge-pullreq" (pullreq))
 ;; For `magit-diff-wash-diff'
-(declare-function ansi-color-apply-on-region "ansi-color" (begin end))
+(declare-function ansi-color-apply-on-region "ansi-color")
 
 (eval-when-compile
   (cl-pushnew 'orig-rev eieio--known-slot-names)

@@ -33,7 +33,7 @@
 
 (require 'magit-core)
 
-(declare-function magit-status-setup-buffer "magit-status" (directory))
+(declare-function magit-status-setup-buffer "magit-status" (&optional directory))
 
 (defvar x-stretch-cursor)
 

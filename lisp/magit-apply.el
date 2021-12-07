@@ -39,8 +39,8 @@
 (require 'transient) ; See #3732.
 
 ;; For `magit-apply'
-(declare-function magit-am "magit-sequence" ())
-(declare-function magit-patch-apply "magit-files" ())
+(declare-function magit-am "magit-sequence" () t)
+(declare-function magit-patch-apply "magit-patch" () t)
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage "magit-merge" (file arg))
 (declare-function magit-checkout-read-stage "magit-merge" (file))
