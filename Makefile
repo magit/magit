@@ -52,6 +52,7 @@ help:
 	$(info make test             - run tests)
 	$(info make test-interactive - run tests interactively)
 	$(info make emacs-Q          - run emacs -Q plus Magit)
+	$(info make check-declare    - check function declarations)
 	$(info )
 	$(info Release Management)
 	$(info ==================)
@@ -121,6 +122,9 @@ emacs-Q: clean-lisp
 	(setq debug-on-error t)\
 	(require 'magit)\
 	(global-set-key \"\\C-xg\" 'magit-status))"
+
+check-declare:
+	@$(MAKE) -C lisp check-declare
 
 ## Clean #############################################################
 

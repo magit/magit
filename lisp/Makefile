@@ -3,7 +3,7 @@ include ../default.mk
 
 ## ###################################################################
 
-.PHONY: magit-version.el install
+.PHONY: magit-version.el check-declare install
 
 all: lisp
 
@@ -70,7 +70,7 @@ magit-obsolete.elc:     magit.elc
 
 ## Build #############################################################
 
-lisp:       $(ELCS) loaddefs
+lisp:       $(ELCS) loaddefs $(LISP_EXTRA_TARGETS)
 loaddefs:   $(PKG)-autoloads.el
 versionlib: $(PKG)-version.el
 
@@ -98,6 +98,11 @@ $(PKG)-autoloads.el: $(ELS)
 $(PKG)-version.el:
 	@printf "Generating $@\n"
 	@printf "%s" "$$VERSIONLIB_TMPL" > $@
+
+check-declare:
+	@printf "Checking function declarations\n"
+	@$(BATCH) -L $(TOP)../borg -L $(TOP)../forge/lisp \
+	--eval "(check-declare-directory default-directory)"
 
 ## Install ###########################################################
 
