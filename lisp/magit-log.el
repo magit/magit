@@ -1440,8 +1440,7 @@ If there is no blob buffer in the same frame, then do nothing."
                  (save-excursion
                    (magit-blob-visit (list (magit-rev-parse rev)
                                            (magit-file-relative-name
-                                            magit-buffer-file-name))
-                                     (line-number-at-pos))))))))))))
+                                            magit-buffer-file-name)))))))))))))
 
 (defun magit-log-goto-commit-section (rev)
   (let ((abbrev (magit-rev-format "%h" rev)))
