@@ -34,7 +34,7 @@
 (require 'magit-core)
 (require 'magit-diff)
 
-(declare-function magit-blob-visit "magit-files" (blob-or-file line))
+(declare-function magit-blob-visit "magit-files" (blob-or-file))
 (declare-function magit-insert-head-branch-header "magit-status"
                   (&optional branch))
 (declare-function magit-insert-upstream-branch-header "magit-status"
