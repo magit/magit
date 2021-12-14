@@ -1028,9 +1028,9 @@ Sorted from longest to shortest CYGWIN name."
                 (cl-rassoc filename magit-cygwin-mount-points
                            :test (lambda (f win) (string-prefix-p win f))))
           (concat cyg (substring filename (length win)))
-        (expand-file-name
-         (or (file-remote-p filename 'localname)
-             filename)))
+        (let ((expanded (expand-file-name filename)))
+          (or (file-remote-p expanded 'localname)
+              expanded)))
     filename))
 
 (defun magit-decode-git-path (path)
