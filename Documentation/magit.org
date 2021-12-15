@@ -167,7 +167,7 @@ Now see [[*Post-Installation Tasks]].
 
 ** Installing from the Git Repository
 
-Magit depends on the ~dash~, ~transient~ and ~with-editor~ libraries
+Magit depends on the ~dash~, ~transient~, ~with-editor~ and ~libgit~ libraries
 which are available from Melpa and Melpa-Stable.  Install them using
 ~M-x package-install RET <package> RET~.  Of course you may also install
 them manually from their repository.
