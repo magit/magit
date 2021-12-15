@@ -232,7 +232,9 @@ Also see option `magit-blame-styles'."
            (magit-blame-chunk-at (point)))
       (and type
            (let ((rev  (or magit-buffer-refname magit-buffer-revision))
-                 (file (magit-file-relative-name nil (not magit-buffer-file-name)))
+                 (file (and (not (derived-mode-p 'dired-mode))
+                            (magit-file-relative-name
+                             nil (not magit-buffer-file-name))))
                  (line (format "%i,+1" (line-number-at-pos))))
              (cond (file (with-temp-buffer
                            (magit-with-toplevel

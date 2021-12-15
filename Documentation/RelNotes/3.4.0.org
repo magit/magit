@@ -26,3 +26,8 @@
   current and only selected section until a second section is selected.
 
 - Fixed calculation of gravatar image size.
+
+- The helper function ~magit-current-blame-chunk~ passed the directory
+  visited by a Dired buffer to ~git blame~, leading to some commands
+  (e.g., ~magit-checkout~) erroring when called from a Dired buffer.
+  #4560
