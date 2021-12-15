@@ -45,8 +45,10 @@
 (transient-define-prefix magit-pull ()
   "Pull from another repository."
   :man-page "git-pull"
+  :incompatible '(("--ff-only" "--rebase"))
   [:description
    (lambda () (if magit-pull-or-fetch "Pull arguments" "Arguments"))
+   ("-f" "Fast-forward only" "--ff-only")
    ("-r" "Rebase local commits" ("-r" "--rebase"))
    ("-A" "Autostash" "--autostash" :level 7)]
   [:description
