@@ -55,7 +55,7 @@ source for suitable examples before asking me for help.  Thanks!
 
 * Creating Sections
 
-- Macro: magit-insert-section [name] (type &optional value hide) &rest body
+- Macro: magit-insert-section [name] (type &optional value hide) &rest body ::
 
   Create a section object of type CLASS, storing VALUE in its
   ~value~ slot, and insert the section at point.  CLASS is a
@@ -99,7 +99,7 @@ source for suitable examples before asking me for help.  Thanks!
   a section by washing Git's output and Git didn't actually output
   anything this time around.
 
-- Function: magit-insert-heading &rest args
+- Function: magit-insert-heading &rest args ::
 
   Insert the heading for the section currently being inserted.
 
@@ -128,19 +128,19 @@ source for suitable examples before asking me for help.  Thanks!
   getting it right.  The only exception is that this function does
   insert a newline character if necessary.
 
-- Macro: magit-insert-section-body &rest body
+- Macro: magit-insert-section-body &rest body ::
 
   Use BODY to insert the section body, once the section is expanded.
   If the section is expanded when it is created, then this is
   like ~progn~.  Otherwise BODY isn't evaluated until the section
   is explicitly expanded.
 
-- Function: magit-cancel-section
+- Function: magit-cancel-section ::
 
   Cancel inserting the section that is currently being inserted.
   Remove all traces of that section.
 
-- Function: magit-wash-sequence function
+- Function: magit-wash-sequence function ::
 
   Repeatedly call FUNCTION until it returns ~nil~ or the end of the
   buffer is reached.  FUNCTION has to move point forward or return
@@ -148,16 +148,16 @@ source for suitable examples before asking me for help.  Thanks!
 
 * Core Functions
 
-- Function: magit-current-section
+- Function: magit-current-section ::
 
   Return the section at point.
 
-- Function: magit-section-ident section
+- Function: magit-section-ident section ::
 
   Return an unique identifier for SECTION. The return value has the
   form ~((TYPE . VALUE)...)~.
 
-- Function: magit-section-ident-value value
+- Function: magit-section-ident-value value ::
 
   Return a constant representation of VALUE.
 
@@ -169,21 +169,21 @@ source for suitable examples before asking me for help.  Thanks!
   catch-all method is used, which just returns the argument
   itself.
 
-- Function: magit-get-section ident &optional root
+- Function: magit-get-section ident &optional root ::
 
   Return the section identified by IDENT.
   IDENT has to be a list as returned by ~magit-section-ident~.
   If optional ROOT is non-nil, then search in that section tree
   instead of in the one whose root ~magit-root-section~ is.
 
-- Function: magit-section-lineage section
+- Function: magit-section-lineage section ::
 
   Return the lineage of SECTION.
   The return value has the form ~(TYPE...)~.
 
 * Matching Functions
 
-- Function: magit-section-match condition &optional (section (magit-current-section))
+- Function: magit-section-match condition &optional (section (magit-current-section)) ::
 
   Return t if SECTION matches CONDITION.
 
@@ -217,7 +217,7 @@ source for suitable examples before asking me for help.  Thanks!
   lineage as printed by ~magit-describe-section-briefly~, unless
   of course you want to be that precise.
 
-- Function: magit-section-value-if condition &optional section
+- Function: magit-section-value-if condition &optional section ::
 
   If the section at point matches CONDITION, then return its value.
 
@@ -228,7 +228,7 @@ source for suitable examples before asking me for help.  Thanks!
 
   See ~magit-section-match~ for the forms CONDITION can take.
 
-- Macro: magit-section-case &rest clauses
+- Macro: magit-section-case &rest clauses ::
 
   Choose among clauses on the type of the section at point.
 
