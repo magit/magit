@@ -107,15 +107,10 @@ install-info: info
 ## Test ##############################################################
 
 test:
-	@$(BATCH) --eval "(progn\
-        $$suppress_warnings\
-	(load-file \"t/magit-tests.el\")\
-	(ert-run-tests-batch-and-exit))"
+	@$(MAKE) -C test test
 
 test-interactive:
-	@$(EMACSBIN) -Q $(LOAD_PATH) --eval "(progn\
-	(load-file \"t/magit-tests.el\")\
-	(ert t))"
+	@$(MAKE) -C test test-interactive
 
 emacs-Q: clean-lisp
 	@$(EMACSBIN) -Q $(LOAD_PATH) --debug-init --eval "(progn\
