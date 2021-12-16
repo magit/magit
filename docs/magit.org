@@ -1,20 +1,20 @@
-#+TITLE: Magit User Manual
+#+title: Magit User Manual
 :PREAMBLE:
-#+AUTHOR: Jonas Bernoulli
-#+EMAIL: jonas@bernoul.li
-#+DATE: 2015-{{{year}}}
-#+LANGUAGE: en
+#+author: Jonas Bernoulli
+#+email: jonas@bernoul.li
+#+date: 2015-{{{year}}}
+#+language: en
 
-#+TEXINFO_DIR_CATEGORY: Emacs
-#+TEXINFO_DIR_TITLE: Magit: (magit).
-#+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version {{{version}}}
+#+texinfo_dir_category: Emacs
+#+texinfo_dir_title: Magit: (magit).
+#+texinfo_dir_desc: Using Git from Emacs with Magit.
+#+subtitle: for version {{{version}}}
 
-#+TEXINFO_DEFFN: t
-#+OPTIONS: H:4 num:3 toc:2
-#+PROPERTY: header-args :eval never
-#+MACRO: version (eval (ox-texinfo+-get-version 'mixed))
-#+MACRO: year (eval (format-time-string "%Y"))
+#+texinfo_deffn: t
+#+options: H:4 num:3 toc:2
+#+property: header-args :eval never
+#+macro: version (eval (ox-texinfo+-get-version 'mixed))
+#+macro: year (eval (format-time-string "%Y"))
 
 Magit is an interface to the version control system Git, implemented
 as an Emacs package.  Magit aspires to be a complete Git porcelain.
@@ -24,10 +24,10 @@ Git users to perform almost all of their daily version control tasks
 directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
-#+TEXINFO: @noindent
+#+texinfo: @noindent
 This manual is for Magit version {{{version}}}.
 
-#+BEGIN_QUOTE
+#+begin_quote
 Copyright (C) 2015-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
@@ -39,7 +39,7 @@ This document is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
-#+END_QUOTE
+#+end_quote
 :END:
 * Introduction
 
@@ -134,33 +134,33 @@ yourself with it by reading the documentation in the Emacs manual, see
 
 - To use Melpa:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (require 'package)
   (add-to-list 'package-archives
                '("melpa" . "http://melpa.org/packages/") t)
-#+END_SRC
+#+end_src
 
 - To use Melpa-Stable:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (require 'package)
   (add-to-list 'package-archives
                '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-#+END_SRC
+#+end_src
 
 Once you have added your preferred archive, you need to update the
 local package list using:
 
-#+BEGIN_EXAMPLE
+#+begin_example
   M-x package-refresh-contents RET
-#+END_EXAMPLE
+#+end_example
 
 Once you have done that, you can install Magit and its dependencies
 using:
 
-#+BEGIN_EXAMPLE
+#+begin_example
   M-x package-install RET magit RET
-#+END_EXAMPLE
+#+end_example
 
 Now see [[*Post-Installation Tasks]].
 
@@ -173,32 +173,32 @@ them manually from their repository.
 
 Then clone the Magit repository:
 
-#+BEGIN_SRC shell-script
+#+begin_src shell-script
   $ git clone https://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
   $ cd ~/.emacs.d/site-lisp/magit
-#+END_SRC
+#+end_src
 
 Then compile the libraries and generate the info manuals:
 
-#+BEGIN_SRC shell-script
+#+begin_src shell-script
   $ make
-#+END_SRC
+#+end_src
 
 If you haven't installed ~dash~, ~transient~ and ~with-editor~ from
 Melpa or at ~/path/to/magit/../<package>~, then you have to tell ~make~
 where to find them.  To do so create the file ~/path/to/magit/config.mk~
 with the following content before running ~make~:
 
-#+BEGIN_SRC makefile
+#+begin_src makefile
   LOAD_PATH  = -L ~/.emacs.d/site-lisp/magit/lisp
   LOAD_PATH += -L ~/.emacs.d/site-lisp/dash
   LOAD_PATH += -L ~/.emacs.d/site-lisp/transient/lisp
   LOAD_PATH += -L ~/.emacs.d/site-lisp/with-editor
-#+END_SRC
+#+end_src
 
 Finally add this to your init file:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (add-to-list 'load-path "~/.emacs.d/site-lisp/magit/lisp")
   (require 'magit)
 
@@ -206,16 +206,16 @@ Finally add this to your init file:
     (info-initialize)
     (add-to-list 'Info-directory-list
                  "~/.emacs.d/site-lisp/magit/Documentation/"))
-#+END_SRC
+#+end_src
 
 Of course if you installed the dependencies manually as well, then
 you have to tell Emacs about them too, by prefixing the above with:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (add-to-list 'load-path "~/.emacs.d/site-lisp/dash")
   (add-to-list 'load-path "~/.emacs.d/site-lisp/transient/lisp")
   (add-to-list 'load-path "~/.emacs.d/site-lisp/with-editor")
-#+END_SRC
+#+end_src
 
 Note that you have to add the ~lisp~ subdirectory to the ~load-path~, not
 the top-level of the repository, and that elements of ~load-path~ should
@@ -224,9 +224,9 @@ not end with a slash, while those of ~Info-directory-list~ should.
 Instead of requiring the feature ~magit~, you could load just the
 autoload definitions, by loading the file ~magit-autoloads.el~.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (load "/path/to/magit/lisp/magit-autoloads")
-#+END_SRC
+#+end_src
 
 Instead of running Magit directly from the repository by adding that
 to the ~load-path~, you might want to instead install it in some other
@@ -234,10 +234,10 @@ directory using ~sudo make install~ and setting ~load-path~ accordingly.
 
 To update Magit use:
 
-#+BEGIN_SRC shell-script
+#+begin_src shell-script
   $ git pull
   $ make
-#+END_SRC
+#+end_src
 
 At times it might be necessary to run ~make clean all~ instead.
 
@@ -252,15 +252,15 @@ Magit, Git, and Emacs releases you think you are using.  It's best to
 restart Emacs before doing so, to make sure you are not using an
 outdated value for ~load-path~.
 
-#+BEGIN_EXAMPLE
+#+begin_example
   M-x magit-version RET
-#+END_EXAMPLE
+#+end_example
 
 should display something like
 
-#+BEGIN_EXAMPLE
+#+begin_example
   Magit 2.8.0, Git 2.10.2, Emacs 25.1.1, gnu/linux
-#+END_EXAMPLE
+#+end_example
 
 Then you might also want to read about options that many users likely
 want to customize.  See [[*Essential Settings]].
@@ -642,10 +642,10 @@ buffer are refreshed. The status buffer can be automatically refreshed
 whenever a buffer is saved to a file inside the respective repository
 by adding a hook, like so:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (with-eval-after-load 'magit-mode
     (add-hook 'after-save-hook 'magit-after-save-refresh-status t))
-#+END_SRC
+#+end_src
 
 Automatically refreshing Magit buffers ensures that the displayed
 information is up-to-date most of the time but can lead to a
@@ -923,11 +923,11 @@ You might want to remove some of the functions that Magit adds using
 ~add-hook~.  In doing so you have to make sure you do not attempt to
 remove function that haven't even been added yet, for example:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (with-eval-after-load 'magit-diff
     (remove-hook 'magit-section-movement-hook
                  'magit-hunk-set-window-start))
-#+END_SRC
+#+end_src
 
 - Variable: magit-section-movement-hook
 
@@ -1269,9 +1269,9 @@ Transient is documented in [[info:transient]].
 This command is also, or especially, useful outside Magit buffers, so
 you should setup a global binding:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (global-set-key (kbd "C-x M-g") 'magit-dispatch)
-#+END_SRC
+#+end_src
 
 ** Transient Arguments and Buffer Variables
 
@@ -1352,7 +1352,7 @@ that by default.
   these arguments, which might change the arguments that are used in
   the buffer.
 
-#+TEXINFO: @noindent
+#+texinfo: @noindent
 Valid values for both of the above options are:
 
   - ~always~: Always use the set of arguments that is currently active
@@ -1364,7 +1364,7 @@ Valid values for both of the above options are:
     only if it is the current buffer.
   - ~never~: Never use the set of arguments from the respective buffer.
 
-#+TEXINFO: @noindent
+#+texinfo: @noindent
 I am afraid it gets more complicated still:
 
 - The global diff and log arguments are set for each supported mode
@@ -2038,9 +2038,9 @@ The command ~magit-status~ displays the status buffer belonging to the
 current repository in another window.  This command is used so often
 that it should be bound globally.  We recommend using ~C-x g~:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (global-set-key (kbd "C-x g") 'magit-status)
-#+END_SRC
+#+end_src
 
 - Key: C-x g, magit-status
 
@@ -2759,7 +2759,7 @@ If a local branch and its push-target point at the same commit, then
 their names are combined to preserve space and to make that
 relationship visible.  For example:
 
-#+BEGIN_EXAMPLE
+#+begin_example
   origin/feature
   [green][blue-]
 
@@ -2767,7 +2767,7 @@ relationship visible.  For example:
 
   feature origin/feature
   [blue-] [green-------]
-#+END_EXAMPLE
+#+end_example
 
 Also note that while the transient features the ~--show-signature~
 argument, that won't actually be used when enabled, because Magit
@@ -4709,7 +4709,7 @@ the hook ~git-commit-setup-hook~.
 
   Hook run at the end of ~git-commit-setup~.
 
-#+TEXINFO: @noindent
+#+texinfo: @noindent
 The following functions are suitable for this hook:
 
 - Function: git-commit-save-message
@@ -5267,9 +5267,9 @@ values.  If you want to change the global value, which is used when
 the local value is undefined, then you have to do so on the command
 line, e.g.:
 
-#+BEGIN_SRC shell-script
+#+begin_src shell-script
   git config --global remote.autoSetupMerge always
-#+END_SRC
+#+end_src
 
 For more information about these variables you should also see
 man:git-config Also see [[man:git-branch]], [[man:git-checkout]] and [[*Pushing]].
@@ -5421,13 +5421,13 @@ begin with the strings consisting of six times the same character, one
 of ~<~, ~|~, ~=~ and ~>~ and are followed by information about the source of
 the respective versions, e.g.:
 
-#+BEGIN_EXAMPLE
+#+begin_example
   <<<<<<< HEAD
   Take the blue pill.
   =======
   Take the red pill.
   >>>>>>> feature
-#+END_EXAMPLE
+#+end_example
 
 In this case you have chosen to take the red pill on one branch and on
 another you picked the blue pill.  Now that you are merging these two
@@ -5440,22 +5440,22 @@ it in order to bring in the changes from the other side, remove the
 other versions as well as the markers, and then stage the result.  A
 possible resolution might be:
 
-#+BEGIN_EXAMPLE
+#+begin_example
   Take both pills.
-#+END_EXAMPLE
+#+end_example
 
 Often it is useful to see not only the two sides of the conflict but
 also the "original" version from before the same area of the file was
 modified twice on different branches.  Instruct Git to insert that
 version as well by running this command once:
 
-#+BEGIN_SRC shell-script
+#+begin_src shell-script
   git config --global merge.conflictStyle diff3
-#+END_SRC
+#+end_src
 
 The above conflict might then have looked like this:
 
-#+BEGIN_EXAMPLE
+#+begin_example
   <<<<<<< HEAD
   Take the blue pill.
   ||||||| merged common ancestors
@@ -5463,7 +5463,7 @@ The above conflict might then have looked like this:
   =======
   Take the red pill.
   >>>>>>> feature
-#+END_EXAMPLE
+#+end_example
 
 If that were the case, then the above conflict resolution would not
 have been correct, which demonstrates why seeing the original version
@@ -7173,11 +7173,11 @@ are being committed.
 
 When ~magit-wip-merge-branch~ is ~t~, then the history looks like this:
 
-#+BEGIN_EXAMPLE
+#+begin_example
   ,*--*--*--*--*--*       refs/wip/index/refs/heads/master
  /     /     /
 A-----B-----C            refs/heads/master
-#+END_EXAMPLE
+#+end_example
 
 When ~magit-wip-merge-branch~ is ~nil~, then creating a commit on the real
 branch and then making a change causes the wip refs to be recreated to
@@ -7189,18 +7189,18 @@ below are such boundary commits).
 
 Starting with
 
-#+BEGIN_EXAMPLE
+#+begin_example
       BI0---BI1    refs/wip/index/refs/heads/master
      /
 A---B              refs/heads/master
      \
       BW0---BW1    refs/wip/wtree/refs/heads/master
-#+END_EXAMPLE
+#+end_example
 
 and committing the staged changes and editing and saving a file would
 result in
 
-#+BEGIN_EXAMPLE
+#+begin_example
       BI0---BI1        refs/wip/index/refs/heads/master
      /
 A---B---C              refs/heads/master
@@ -7208,7 +7208,7 @@ A---B---C              refs/heads/master
       \   CW0---CW1    refs/wip/wtree/refs/heads/master
        \
         BW0---BW1      refs/wip/wtree/refs/heads/master@{2}
-#+END_EXAMPLE
+#+end_example
 
 The fork-point of the index wip ref is not changed until some change
 is being staged.  Likewise just checking out a branch or creating a
@@ -7295,9 +7295,9 @@ and [[info:elisp#Key Binding Conventions]].
 
 If you want a better binding, you have to add it yourself:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (global-set-key (kbd "C-c g") 'magit-file-dispatch)
-#+END_SRC
+#+end_src
 
 The key bindings shown below assume that you have not improved the
 binding for ~magit-file-dispatch~.
@@ -7601,9 +7601,9 @@ Magit buffer, but not the status buffer.  If you do that, then the
 status buffer is only refreshed automatically if it is the
 current buffer.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq magit-refresh-status-buffer nil)
-#+END_SRC
+#+end_src
 
 You should also check whether any third-party packages have added
 anything to ~magit-refresh-buffer-hook~, ~magit-status-refresh-hook~,
@@ -7623,10 +7623,10 @@ whether performance is significantly worse, when many buffers exist
 and/or when some buffers visit files using TRAMP.  If so, then this
 should help.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq auto-revert-buffer-list-filter
         'magit-auto-revert-repository-buffer-p)
-#+END_SRC
+#+end_src
 
 For alternative approaches see [[*Automatic Reverting of File-Visiting
 Buffers]].
@@ -7713,9 +7713,9 @@ address that is to display fewer refs, obviously.
 If you are not, or only mildly, interested in seeing the list of tags,
 then start by not displaying them:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
-#+END_SRC
+#+end_src
 
 Then you should also make sure that the listed remote branches
 actually all exist.  You can do so by pruning branches which no longer
@@ -7733,9 +7733,9 @@ committing large amounts of generated data which you don't actually
 intend to inspect before committing.  This behavior can be turned off
 using:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (remove-hook 'server-switch-hook 'magit-commit-diff)
-#+END_SRC
+#+end_src
 
 Then you can type ~C-c C-d~ to show the diff when you actually want to
 see it, but only then.  Alternatively you can leave the hook alone and
@@ -7763,11 +7763,11 @@ Windows-specific issues.
 According to some sources, setting the following Git variables can also
 help.
 
-#+BEGIN_SRC shell-script
+#+begin_src shell-script
   git config --global core.preloadindex true   # default since v2.1
   git config --global core.fscache true        # default since v2.8
   git config --global gc.auto 256
-#+END_SRC
+#+end_src
 
 You should also check whether an anti-virus program is affecting
 performance.
@@ -8621,9 +8621,9 @@ Info manual by instead viewing the respective manpage.  If you prefer
 that approach, then set the value of ~magit-view-git-manual-method~ to
 one of the supported packages ~man~ or ~woman~, e.g.:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq magit-view-git-manual-method 'man)
-#+END_SRC
+#+end_src
 
 *** How to show diffs for gpg-encrypted files?
 
@@ -8631,10 +8631,10 @@ Git supports showing diffs for encrypted files, but has to be told to
 do so.  Since Magit just uses Git to get the diffs, configuring Git
 also affects the diffs displayed inside Magit.
 
-#+BEGIN_SRC shell-script
+#+begin_src shell-script
   git config --global diff.gpg.textconv "gpg --no-tty --decrypt"
   echo "*.gpg filter=gpg diff=gpg" > .gitattributes
-#+END_SRC
+#+end_src
 
 *** How does branching and pushing work?
 
@@ -8746,14 +8746,14 @@ So you have to figure out which package is doing.  ~saveplace~,
 ~pointback~, and ~session~ are likely candidates.  These snippets might
 help:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq session-name-disable-regexp "\\(?:\\`'\\.git/[A-Z_]+\\'\\)")
 
   (with-eval-after-load 'pointback
     (lambda ()
       (when (or git-commit-mode git-rebase-mode)
 	(pointback-mode -1))))
-#+END_SRC
+#+end_src
 
 *** The mode-line information isn't always up-to-date
 
@@ -8762,9 +8762,9 @@ being displayed in the mode-line and looks something like ~Git-master~.
 The built-in "Version Control" package, also known as "VC", updates
 that information, and can be told to do so more often:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq auto-revert-check-vc-info t)
-#+END_SRC
+#+end_src
 
 But doing so isn't good for performance.  For more (overly optimistic)
 information see [[info:emacs#VC Mode Line]].
@@ -8773,10 +8773,10 @@ If you don't really care about seeing this information in the
 mode-line, but just don't want to see /incorrect/ information,
 then consider simply not displaying it in the mode-line:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq-default mode-line-format
                 (delete '(vc-mode vc-mode) mode-line-format))
-#+END_SRC
+#+end_src
 
 *** A branch and tag sharing the same name breaks SOMETHING
 
@@ -8811,16 +8811,16 @@ loading ~git-commit~ and starting the server.
 If you want to commit from the command-line, then you have to take
 care of these things yourself. Your ~init.el~ file should contain:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (require 'git-commit)
   (server-mode)
-#+END_SRC
+#+end_src
 
 Instead of `(require 'git-commit)` you may also use:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (load "/path/to/magit-autoloads.el")
-#+END_SRC
+#+end_src
 
 You might want to do that because loading ~git-commit~ causes large
 parts of Magit to be loaded.
@@ -8828,24 +8828,24 @@ parts of Magit to be loaded.
 There are also some variations of ~(server-mode)~ that you might want to
 try. Personally I use:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package server
     :config (or (server-running-p) (server-mode)))
-#+END_SRC
+#+end_src
 
 Now you can use:
 
-#+BEGIN_SRC shell-script
+#+begin_src shell-script
   $ emacs&
   $ EDITOR=emacsclient git commit
-#+END_SRC
+#+end_src
 
 However you cannot use:
 
-#+BEGIN_SRC shell-script
+#+begin_src shell-script
   $ killall emacs
   $ EDITOR="emacsclient --alternate-editor emacs" git commit
-#+END_SRC
+#+end_src
 
 This will actually end up using ~emacs~, not ~emacsclient~.  If you do
 this, then you can still edit the commit message but ~git-commit-mode~
@@ -8978,7 +8978,7 @@ Please also see the [[*FAQ]].
 :COPYING:    t
 :END:
 
-#+BEGIN_QUOTE
+#+begin_quote
 Copyright (C) 2015-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
@@ -8990,7 +8990,7 @@ This document is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
-#+END_QUOTE
+#+end_quote
 
 #  LocalWords:  ARG ARGS CONDITIONs ChangeLog DNS Dired Ediff Ediffing
 #  LocalWords:  Elpa Emacsclient FUNC Flyspell Git Git's Gitk HOOK's
