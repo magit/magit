@@ -223,6 +223,9 @@ endif
 
 ## Publish ###########################################################
 
+DOMAIN      ?= magit.vc
+CFRONT_DIST ?= E2LUHBKU1FBV02
+
 PUBLISH_TARGETS ?= html html-dir pdf epub
 
 DOCBOOK_XSL ?= /usr/share/xml/docbook/stylesheet/docbook-xsl/epub/docbook.xsl

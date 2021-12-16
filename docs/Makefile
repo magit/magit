@@ -122,15 +122,11 @@ AUTHORS.md:
 	&& printf "done\n" ; ) \
 	|| printf "FAILED (non-fatal)\n"
 
-DOMAIN         ?= magit.vc
 PUBLISH_PATH   ?= /manual/
 RELEASE_PATH   ?= /manual/$(VERSION)/
-
 S3_BUCKET      ?= s3://$(DOMAIN)
 PUBLISH_TARGET  = $(S3_BUCKET)$(PUBLISH_PATH)
 RELEASE_TARGET  = $(S3_BUCKET)$(RELEASE_PATH)
-
-CFRONT_DIST    ?= E2LUHBKU1FBV02
 CFRONT_PATHS    = $(PKG).html $(PKG).pdf $(PKG)/*
 
 comma := ,
