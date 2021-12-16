@@ -19,8 +19,6 @@ lispdir  ?= $(sharedir)/emacs/site-lisp/magit
 infodir  ?= $(sharedir)/info
 docdir   ?= $(sharedir)/doc/magit
 
-STATSDIR ?= $(TOP)docs/stats
-
 CP       ?= install -p -m 644
 MKDIR    ?= install -p -m 755 -d
 RMDIR    ?= rm -rf
@@ -33,6 +31,9 @@ BATCH     = $(EMACSBIN) -Q --batch $(LOAD_PATH)
 INSTALL_INFO     ?= $(shell command -v ginstall-info || printf install-info)
 MAKEINFO         ?= makeinfo
 MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
+
+GITSTATS_DIR  ?= $(TOP)docs/stats
+GITSTATS_ARGS ?= -c style=https://magit.vc/assets/stats.css -c max_authors=999
 
 BUILD_MAGIT_LIBGIT ?= true
 
@@ -175,7 +176,7 @@ WITH_EDITOR_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/with-editor-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
 ifeq "$(WITH_EDITOR_DIR)" ""
-  WITH_EDITOR_DIR = $(TOP)../with-editor
+  WITH_EDITOR_DIR = $(TOP)../with-editor/lisp
 endif
 
 MAGIT_SECTION_DIR ?= $(shell \

@@ -82,7 +82,7 @@ clean:
 	@$(RMDIR) $(EPUBFILES) $(EPUBTRASH)
 
 clean-stats:
-	@$(RMDIR) $(statsdir)
+	@$(RMDIR) $(GENSTATS_DIR)
 
 ## Release management ################################################
 
@@ -110,7 +110,7 @@ texi:
 
 stats:
 	@printf "Generating statistics\n"
-	@gitstats -c style=https://magit.vc/assets/stats.css -c max_authors=999 $(TOP) $(STATSDIR)
+	@gitstats $(GITSTATS_ARGS) $(TOP) $(GITSTATS_DIR)
 
 authors: AUTHORS.md
 
@@ -139,7 +139,7 @@ space := $(empty) $(empty)
 
 publish-stats: stats
 	@printf "Uploading statistics...\n"
-	@aws s3 sync $(STATSDIR) $(S3_BUCKET)/stats/
+	@aws s3 sync $(GITSTATS_DIR) $(S3_BUCKET)/stats/
 	@printf "Uploaded to $(PUBLISH_URL)/stats/\n"
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation \
