@@ -385,7 +385,7 @@ the user invokes Git commands, or creates or visits other buffers.
 In this manual we often speak about "Magit buffers".  By that we mean
 buffers whose major-modes derive from ~magit-mode~.
 
-- Key: M-x magit-toggle-buffer-lock (magit-toggle-buffer-lock) ::
+- Key: M-x magit-toggle-buffer-lock ::
 
   This command locks the current buffer to its value or if the buffer
   is already locked, then it unlocks it.
@@ -1027,16 +1027,16 @@ but all you need to get started are the next two.
   Cycle the visibility of all sections in the current buffer.
 
 - Key: 1 (magit-section-show-level-1) ::
-- Key: 2 (magit-section-show-level-2) ::
-- Key: 3 (magit-section-show-level-3) ::
-- Key: 4 (magit-section-show-level-4) ::
++ Key: 2 (magit-section-show-level-2) ::
++ Key: 3 (magit-section-show-level-3) ::
++ Key: 4 (magit-section-show-level-4) ::
 
   Show sections surrounding the current section up to level N.
 
 - Key: M-1 (magit-section-show-level-1-all) ::
-- Key: M-2 (magit-section-show-level-2-all) ::
-- Key: M-3 (magit-section-show-level-3-all) ::
-- Key: M-4 (magit-section-show-level-4-all) ::
++ Key: M-2 (magit-section-show-level-2-all) ::
++ Key: M-3 (magit-section-show-level-3-all) ::
++ Key: M-4 (magit-section-show-level-4-all) ::
 
   Show all sections up to level N.
 
@@ -1879,7 +1879,7 @@ switch to a shell.
   for the command.  It can be removed to run another command.
 
 - Key: : (magit-git-command) ::
-- Key: ! p (magit-git-command) ::
+- Key: ! p ::
 
   This command reads a command from the user and executes it in
   ~default-directory~.  With a prefix argument the command is executed
@@ -1973,12 +1973,12 @@ can help; though honestly I consider that a kludge too.
 The command ~magit-debug-git-executable~ can be useful to find out where
 Emacs is searching for ~git~.
 
-- Key: M-x magit-debug-git-executable (magit-debug-git-executable) ::
+- Key: M-x magit-debug-git-executable ::
 
   This command displays a buffer with information about
   ~magit-git-executable~ and  ~magit-remote-git-executable~.
 
-- Key: M-x magit-version (magit-version) ::
+- Key: M-x magit-version ::
 
   This command shows the currently used versions of Magit, Git, and
   Emacs in the echo area.  Non-interactively this just returns the
@@ -3626,6 +3626,7 @@ should also change the others to keep things aligned.  The following
 - ~%U~ Upstream of this local branch and additional local vs. upstream
   information.
 
+# new list
 - User Option: magit-refs-filter-alist ::
 
   The purpose of this option is to forgo displaying certain refs
@@ -3911,9 +3912,9 @@ above commands also use another window when invoked with a prefix
 argument.
 
 - Command: magit-diff-visit-file-other-window ::
-- Command: magit-diff-visit-file-other-frame ::
-- Command: magit-diff-visit-worktree-file-other-window ::
-- Command: magit-diff-visit-worktree-file-other-frame ::
++ Command: magit-diff-visit-file-other-frame ::
++ Command: magit-diff-visit-worktree-file-other-window ::
++ Command: magit-diff-visit-worktree-file-other-frame ::
 
 ** Blaming
 
@@ -3941,7 +3942,7 @@ command whose purpose is to turn off that mode would not be of any
 use and therefore isn't available.
 
 - Key: C-c M-g b (magit-blame-addition) ::
-- Key: C-c M-g B b (magit-blame-addition) ::
+- Key: C-c M-g B b ::
 
   This command augments each line or chunk of lines in the current
   file-visiting or blob-visiting buffer with information about what
@@ -3957,7 +3958,7 @@ use and therefore isn't available.
   added the current line or chunk of lines.
 
 - Key: C-c M-g r (magit-blame-removal) ::
-- Key: C-c M-g B r (magit-blame-removal) ::
+- Key: C-c M-g B r ::
 
   This command augments each line or chunk of lines in the current
   blob-visiting buffer with information about the revision that
@@ -3966,7 +3967,7 @@ use and therefore isn't available.
   Like ~magit-blame-addition~, this command can be used recursively.
 
 - Key: C-c M-g f (magit-blame-reverse) ::
-- Key: C-c M-g B f (magit-blame-reverse) ::
+- Key: C-c M-g B f ::
 
   This command augments each line or chunk of lines in the current
   file-visiting or blob-visiting buffer with information about the
@@ -3975,7 +3976,7 @@ use and therefore isn't available.
   Like ~magit-blame-addition~, this command can be used recursively.
 
 - Key: C-c M-g e (magit-blame-echo) ::
-- Key: C-c M-g B e (magit-blame-echo) ::
+- Key: C-c M-g B e ::
 
   This command is like ~magit-blame-addition~ except that it doesn't
   turn on ~read-only-mode~ and that it initially uses the visualization
@@ -4275,7 +4276,7 @@ You can also use Ediff to stage and unstage.  See [[*Ediffing]].
   changes by reversing them in the index but not the working tree.
   The alternative is to raise an error.
 
-- Key: M-x magit-reverse-in-index (magit-reverse-in-index) ::
+- Key: M-x magit-reverse-in-index ::
 
   This command reverses the committed change at point in the index but
   not the working tree.  By default no key is bound directly to this
@@ -4296,7 +4297,7 @@ You can also use Ediff to stage and unstage.  See [[*Ediffing]].
   4. Optionally stage the remaining changes using ~s~ or ~S~ and then
      type ~c c~ to create a new commit.
 
-- Key: M-x magit-reset-index (magit-reset-index) ::
+- Key: M-x magit-reset-index ::
 
   Reset the index to some commit.  The commit is read from the user
   and defaults to the commit at point.  If there is no commit at
@@ -4308,7 +4309,7 @@ Fine-grained un-/staging has to be done from the status or a diff
 buffer, but it's also possible to un-/stage all changes made to the
 file visited in the current buffer right from inside that buffer.
 
-- Key: M-x magit-stage-file (magit-stage-file) ::
+- Key: M-x magit-stage-file ::
 
   When invoked inside a file-visiting buffer, then stage all changes
   to that file.  In a Magit buffer, stage the file at point if any.
@@ -4316,7 +4317,7 @@ file visited in the current buffer right from inside that buffer.
   always prompt the user for a file, even in a file-visiting buffer or
   when there is a file section at point.
 
-- Key: M-x magit-unstage-file (magit-unstage-file) ::
+- Key: M-x magit-unstage-file ::
 
   When invoked inside a file-visiting buffer, then unstage all changes
   to that file.  In a Magit buffer, unstage the file at point if any.
@@ -4883,9 +4884,9 @@ command.
   change branch related variables.
 
 - Key: b C (magit-branch-configure) ::
-- Key: f C (magit-branch-configure) ::
-- Key: F C (magit-branch-configure) ::
-- Key: P C (magit-branch-configure) ::
++ Key: f C ::
++ Key: F C ::
++ Key: P C ::
 
   This transient prefix command binds commands that set the value of
   branch-related variables and displays them in a temporary buffer
@@ -6995,9 +6996,9 @@ Also see [[man:git-bundle]]
 ** Common Commands
 
 - Command: magit-switch-to-repository-buffer ::
-- Command: magit-switch-to-repository-buffer-other-window ::
-- Command: magit-switch-to-repository-buffer-other-frame ::
-- Command: magit-display-repository-buffer ::
++ Command: magit-switch-to-repository-buffer-other-window ::
++ Command: magit-switch-to-repository-buffer-other-frame ::
++ Command: magit-display-repository-buffer ::
 
   These commands read any existing Magit buffer that belongs to the
   current repository from the user and then switch to the selected
@@ -7130,7 +7131,7 @@ When you are unsure whether Magit did commit a change to the wip refs,
 then you can explicitly request that all changes to all tracked files
 are being committed.
 
-- Key: M-x magit-wip-commit (magit-wip-commit) ::
+- Key: M-x magit-wip-commit ::
 
   This command commits all changes to all tracked files to the index
   and working tree work-in-progress refs.  Like the modes described above,
@@ -7501,6 +7502,7 @@ repository:
       . ((eval . (magit-disable-section-inserter 'magit-insert-tags-header)))))
   #+END_SRC
 
+# new list
 - Function: magit-disable-section-inserter fn ::
 
   This function disables the section inserter FN in the current
@@ -8219,7 +8221,7 @@ And now for the asynchronous variants.
 
 *** Matching Sections
 
-- Key: M-x magit-describe-section-briefly (magit-describe-section-briefly) ::
+- Key: M-x magit-describe-section-briefly ::
 
   Show information about the section at point.  This command is
   intended for debugging purposes.
@@ -8901,13 +8903,13 @@ appreciate it very much if you use those tools before reporting an
 issue.  Please include all relevant output when reporting an
 issue.
 
-- Key: M-x magit-version (magit-version) ::
+- Key: M-x magit-version ::
 
   This command shows the currently used versions of Magit, Git, and
   Emacs in the echo area.  Non-interactively this just returns the
   Magit version.
 
-- Key: M-x magit-emacs-Q-command (magit-emacs-Q-command) ::
+- Key: M-x magit-emacs-Q-command ::
 
   This command shows a debugging shell command in the echo area and
   adds it to the kill ring.  Paste that command into a shell and run
@@ -8921,13 +8923,13 @@ issue.
   If you run Magit from its Git repository, then you should be able to
   use ~make emacs-Q~ instead of the output of this command.
 
-- Key: M-x magit-toggle-verbose-refresh (magit-toggle-verbose-refresh) ::
+- Key: M-x magit-toggle-verbose-refresh ::
 
   This command toggles whether Magit refreshes buffers verbosely.
   Enabling this helps figuring out which sections are bottlenecks.
   The additional output can be found in the ~*Messages*~ buffer.
 
-- Key: M-x magit-debug-git-executable (magit-debug-git-executable) ::
+- Key: M-x magit-debug-git-executable ::
 
   This command displays a buffer containing information about the
   available and used ~git~ executable(s), and can be useful when
@@ -8935,7 +8937,7 @@ issue.
 
   Also see [[*Git Executable]].
 
-- Key: M-x with-editor-debug (with-editor-debug) ::
+- Key: M-x with-editor-debug ::
 
   This command displays a buffer containing information about the
   available and used ~emacsclient~ executable(s), and can be useful
@@ -8952,12 +8954,7 @@ Please also see the [[*FAQ]].
 :INDEX:      ky
 :COOKIE_DATA: recursive
 :END:
-* Command Index
-:PROPERTIES:
-:APPENDIX:   t
-:INDEX:      cp
-:END:
-* Function Index
+* Function and Command Index
 :PROPERTIES:
 :APPENDIX:   t
 :INDEX:      fn

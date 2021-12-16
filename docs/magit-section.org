@@ -52,7 +52,6 @@ When the documentation leaves something unaddressed, then please
 consider that Magit uses this library extensively and search its
 source for suitable examples before asking me for help.  Thanks!
 
-
 * Creating Sections
 
 - Macro: magit-insert-section [name] (type &optional value hide) &rest body ::
