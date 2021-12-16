@@ -78,6 +78,7 @@ Contributors
 - Bart Bakker <bart@thesoftwarecraft.com>
 - Basil L. Contovounesios <contovob@tcd.ie>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
+- Bastian Beranek <bastian.beranek@inovex.de>
 - Benjamin Motz <benjamin.motz@mailbox.org>
 - Ben North <ben@redfrontdoor.org>
 - Ben Walton <bwalton@artsci.utoronto.ca>
@@ -145,6 +146,7 @@ Contributors
 - Feng Li <fengli@blackmagicdesign.com>
 - Florian Ragwitz <rafl@debian.org>
 - Franklin Delehelle <franklin.delehelle@odena.eu>
+- Frédéric Giquel <frederic.giquel@laposte.net>
 - Fritz Grabo <fritz.grabo@gmail.com>
 - Fritz Stelzer <brotzeitmacher@gmail.com>
 - Geoff Shannon <geoffpshannon@gmail.com>
