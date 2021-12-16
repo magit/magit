@@ -18,7 +18,8 @@ sharedir ?= $(PREFIX)/share
 lispdir  ?= $(sharedir)/emacs/site-lisp/magit
 infodir  ?= $(sharedir)/info
 docdir   ?= $(sharedir)/doc/magit
-statsdir ?= $(TOP)/Documentation/stats
+
+STATSDIR ?= $(TOP)docs/stats
 
 CP       ?= install -p -m 644
 MKDIR    ?= install -p -m 755 -d

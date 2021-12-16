@@ -74,22 +74,22 @@ lisp:
 	@$(MAKE) -C lisp lisp
 
 docs:
-	@$(MAKE) -C Documentation all
+	@$(MAKE) -C docs all
 
 info:
-	@$(MAKE) -C Documentation info
+	@$(MAKE) -C docs info
 
 html:
-	@$(MAKE) -C Documentation html
+	@$(MAKE) -C docs html
 
 html-dir:
-	@$(MAKE) -C Documentation html-dir
+	@$(MAKE) -C docs html-dir
 
 pdf:
-	@$(MAKE) -C Documentation pdf
+	@$(MAKE) -C docs pdf
 
 epub:
-	@$(MAKE) -C Documentation epub
+	@$(MAKE) -C docs epub
 
 ## Install ###########################################################
 
@@ -99,10 +99,10 @@ install-lisp: lisp
 	@$(MAKE) -C lisp install
 
 install-docs: docs
-	@$(MAKE) -C Documentation install-docs
+	@$(MAKE) -C docs install-docs
 
 install-info: info
-	@$(MAKE) -C Documentation install-info
+	@$(MAKE) -C docs install-info
 
 ## Test ##############################################################
 
@@ -131,14 +131,14 @@ check-declare:
 clean: clean-lisp clean-docs clean-archives
 	@printf "Cleaning...\n"
 	@$(RM) *.elc $(ELGS) # temporary cleanup kludge
-	@$(RM) Documentation/*.texi~ Documentation/*.info-1 Documentation/*.info-2
+	@$(RM) docs/*.texi~ docs/*.info-1 docs/*.info-2
 	@$(RM) magit-pkg.el t/magit-tests.elc
 
 clean-lisp:
 	@$(MAKE) -C lisp clean
 
 clean-docs:
-	@$(MAKE) -C Documentation clean
+	@$(MAKE) -C docs clean
 
 clean-archives:
 	@$(RM) *.tar.gz *.tar lisp/magit-version.el
@@ -147,30 +147,30 @@ clean-archives:
 clean-all: clean clean-stats
 
 clean-stats:
-	@$(RMDIR) $(statsdir)
+	@$(MAKE) -C docs clean-stats
 
 ## Release management ################################################
 
 texi:
-	@$(MAKE) -C Documentation texi
+	@$(MAKE) -C docs texi
 
 stats:
-	@$(MAKE) -C Documentation stats
+	@$(MAKE) -C docs stats
 
 authors:
-	@$(MAKE) -C Documentation authors
+	@$(MAKE) -C docs authors
 	@git commit --gpg-sign -m "AUTHORS.md: Update list of contributors" \
-	-o -- Documentation/AUTHORS.md
+	-o -- docs/AUTHORS.md
 	@git show --pretty= -p HEAD
 
 publish-stats:
-	@$(MAKE) -C Documentation publish-stats
+	@$(MAKE) -C docs publish-stats
 
 publish-manuals:
-	@$(MAKE) -C Documentation publish-manuals
+	@$(MAKE) -C docs publish-manuals
 
 release-manuals:
-	@$(MAKE) -C Documentation release-manuals
+	@$(MAKE) -C docs release-manuals
 
 dist: magit-$(VERSION).tar.gz
 
@@ -179,9 +179,9 @@ versionlib:
 
 DIST_ROOT_FILES = LICENSE default.mk Makefile README.md
 DIST_LISP_FILES = $(addprefix lisp/,$(ELS) magit-version.el Makefile)
-DIST_DOCS_FILES = $(addprefix Documentation/,$(TEXIPAGES) AUTHORS.md Makefile)
-ifneq ("$(wildcard Documentation/RelNotes/$(VERSION).txt)","")
-  DIST_DOCS_FILES += Documentation/RelNotes/$(VERSION).txt
+DIST_DOCS_FILES = $(addprefix docs/,$(TEXIPAGES) AUTHORS.md Makefile)
+ifneq ("$(wildcard docs/RelNotes/$(VERSION).txt)","")
+  DIST_DOCS_FILES += docs/RelNotes/$(VERSION).txt
 endif
 
 magit-$(VERSION).tar.gz: lisp versionlib info
@@ -190,8 +190,8 @@ magit-$(VERSION).tar.gz: lisp versionlib info
 	@$(CP) $(DIST_ROOT_FILES) magit-$(VERSION)
 	@$(MKDIR) magit-$(VERSION)/lisp
 	@$(CP) $(DIST_LISP_FILES) magit-$(VERSION)/lisp
-	@$(MKDIR) magit-$(VERSION)/Documentation
-	@$(CP) $(DIST_DOCS_FILES) magit-$(VERSION)/Documentation
+	@$(MKDIR) magit-$(VERSION)/docs
+	@$(CP) $(DIST_DOCS_FILES) magit-$(VERSION)/docs
 	@$(TAR) cz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	@$(RMDIR) magit-$(VERSION)
 

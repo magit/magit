@@ -77,9 +77,12 @@ install-info: info
 ## Clean #############################################################
 
 clean:
-	@printf "Cleaning Documentation/*...\n"
+	@printf "Cleaning docs/*...\n"
 	@$(RMDIR) dir $(INFOPAGES) $(HTMLFILES) $(HTMLDIRS) $(PDFFILES)
 	@$(RMDIR) $(EPUBFILES) $(EPUBTRASH)
+
+clean-stats:
+	@$(RMDIR) $(statsdir)
 
 ## Release management ################################################
 
@@ -107,7 +110,7 @@ texi:
 
 stats:
 	@printf "Generating statistics\n"
-	@gitstats -c style=https://magit.vc/assets/stats.css -c max_authors=999 $(TOP) $(statsdir)
+	@gitstats -c style=https://magit.vc/assets/stats.css -c max_authors=999 $(TOP) $(STATSDIR)
 
 authors: AUTHORS.md
 
@@ -136,7 +139,7 @@ space := $(empty) $(empty)
 
 publish-stats: stats
 	@printf "Uploading statistics...\n"
-	@aws s3 sync $(statsdir) $(S3_BUCKET)/stats/
+	@aws s3 sync $(STATSDIR) $(S3_BUCKET)/stats/
 	@printf "Uploaded to $(PUBLISH_URL)/stats/\n"
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation \
