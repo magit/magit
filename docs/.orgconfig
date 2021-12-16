@@ -3,8 +3,8 @@
 #+options: H:4 num:3 toc:2
 #+property: header-args :eval never
 
-#+texinfo_deffn: t
+#+macro: kbd (eval (let ((case-fold-search nil) (regexp (regexp-opt '("SPC" "RET" "LFD" "TAB" "BS" "ESC" "DELETE" "SHIFT" "Ctrl" "Meta" "Alt" "Cmd" "Super" "UP" "LEFT" "RIGHT" "DOWN") 'words))) (format "@@texinfo:@kbd{@@%s@@texinfo:}@@" (replace-regexp-in-string regexp "@@texinfo:@key{@@\\&@@texinfo:}@@" $1 t))))
 #+macro: year (eval (format-time-string "%Y"))
-#+macro: version (eval (ox-texinfo+-get-version 'mixed))
+#+macro: version (eval (or (getenv "PACKAGE-VERSION") (ignore-errors (car (process-lines "git" "describe" "--exact"))) (ignore-errors (concat (car (process-lines "git" "describe" (if (getenv "AMEND") "HEAD~" "HEAD"))) "+1"))))
 
 #+language: en

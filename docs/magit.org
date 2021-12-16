@@ -9011,7 +9011,6 @@ General Public License for more details.
 # Local Variables:
 # eval: (require 'magit-utils nil t)
 # eval: (require 'ol-man      nil t)
-# eval: (require 'ox-texinfo+ nil t)
 # indent-tabs-mode: nil
 # org-src-preserve-indentation: nil
 # End:
