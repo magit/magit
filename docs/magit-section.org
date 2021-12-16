@@ -3,18 +3,13 @@
 #+author: Jonas Bernoulli
 #+email: jonas@bernoul.li
 #+date: 2015-{{{year}}}
-#+language: en
 
 #+texinfo_dir_category: Emacs
 #+texinfo_dir_title: Magit-Section: (magit-section).
 #+texinfo_dir_desc: Use Magit sections in your own packages.
 #+subtitle: for version {{{version}}}
 
-#+texinfo_deffn: t
-#+options: H:4 num:3 toc:2
-#+property: header-args :eval never
-#+macro: version (eval (ox-texinfo+-get-version 'mixed))
-#+macro: year (eval (format-time-string "%Y"))
+#+setupfile: .orgconfig
 
 This package implements the main user interface of Magit — the
 collapsible sections that make up its buffers.  This package used

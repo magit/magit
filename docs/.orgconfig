@@ -1,0 +1,10 @@
+# -*- mode:org -*-
+
+#+options: H:4 num:3 toc:2
+#+property: header-args :eval never
+
+#+texinfo_deffn: t
+#+macro: year (eval (format-time-string "%Y"))
+#+macro: version (eval (ox-texinfo+-get-version 'mixed))
+
+#+language: en
