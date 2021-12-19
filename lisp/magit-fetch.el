@@ -191,7 +191,7 @@ with a prefix argument."
   (if transient
       (transient-setup 'magit-fetch-modules)
     (let ((git-version (magit-git-version)))
-      (when (version>= "2.8.0" git-version)
+      (when (version< git-version "2.8.0")
         (when-let ((value (transient-arg-value "--jobs=" args)))
           (message "Dropping --jobs; not supported by Git v%s" git-version)
           (setq args (remove (format "--jobs=%s" value) args)))))
