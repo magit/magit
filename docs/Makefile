@@ -86,9 +86,8 @@ clean-stats:
 
 ## Release management ################################################
 
-ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l ox-texinfo+
+ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH)
 ORG_ARGS += -l magit-utils -l ol-man
-ORG_EVAL  = --eval "(setq org-texinfo+-dissolve-noexport-headlines t)"
 ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo

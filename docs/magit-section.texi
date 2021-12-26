@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit-Section Developer Manual
-@subtitle for version 3.3.0
+@subtitle for version v3.3.0-72-geb0d359dc+1
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -54,7 +54,7 @@ user options see @ref{Sections,,,magit,}.  This manual documents how you
 can use sections in your own packages.
 
 @noindent
-This manual is for Magit-Section version 3.3.0.
+This manual is for Magit-Section version v3.3.0-72-geb0d359dc+1.
 
 @quotation
 Copyright (C) 2015-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -99,7 +99,6 @@ source for suitable examples before asking me for help.  Thanks!
 @chapter Creating Sections
 
 @defmac magit-insert-section [name] (type &optional value hide) &rest body
-
 Create a section object of type CLASS, storing VALUE in its
 @code{value} slot, and insert the section at point.  CLASS is a
 subclass of `magit-section' or has the form @code{(eval FORM)}, in
@@ -144,7 +143,6 @@ anything this time around.
 @end defmac
 
 @defun magit-insert-heading &rest args
-
 Insert the heading for the section currently being inserted.
 
 This function should only be used inside @code{magit-insert-section}.
@@ -174,7 +172,6 @@ insert a newline character if necessary.
 @end defun
 
 @defmac magit-insert-section-body &rest body
-
 Use BODY to insert the section body, once the section is expanded.
 If the section is expanded when it is created, then this is
 like @code{progn}.  Otherwise BODY isn't evaluated until the section
@@ -182,13 +179,11 @@ is explicitly expanded.
 @end defmac
 
 @defun magit-cancel-section
-
 Cancel inserting the section that is currently being inserted.
 Remove all traces of that section.
 @end defun
 
 @defun magit-wash-sequence function
-
 Repeatedly call FUNCTION until it returns @code{nil} or the end of the
 buffer is reached.  FUNCTION has to move point forward or return
 @code{nil}.
@@ -198,18 +193,15 @@ buffer is reached.  FUNCTION has to move point forward or return
 @chapter Core Functions
 
 @defun magit-current-section
-
 Return the section at point.
 @end defun
 
 @defun magit-section-ident section
-
 Return an unique identifier for SECTION@. The return value has the
 form @code{((TYPE . VALUE)...)}.
 @end defun
 
 @defun magit-section-ident-value value
-
 Return a constant representation of VALUE@.
 
 VALUE is the value of a @code{magit-section} object.  If that is an
@@ -222,7 +214,6 @@ itself.
 @end defun
 
 @defun magit-get-section ident &optional root
-
 Return the section identified by IDENT@.
 IDENT has to be a list as returned by @code{magit-section-ident}.
 If optional ROOT is non-nil, then search in that section tree
@@ -230,7 +221,6 @@ instead of in the one whose root @code{magit-root-section} is.
 @end defun
 
 @defun magit-section-lineage section
-
 Return the lineage of SECTION@.
 The return value has the form @code{(TYPE...)}.
 @end defun
@@ -239,7 +229,6 @@ The return value has the form @code{(TYPE...)}.
 @chapter Matching Functions
 
 @defun magit-section-match condition &optional (section (magit-current-section))
-
 Return t if SECTION matches CONDITION@.
 
 SECTION defaults to the section at point.  If SECTION is not
@@ -251,18 +240,15 @@ CONDITION can take the following forms:
 @itemize
 @item
 @code{(CONDITION...)} matches if any of the CONDITIONs matches.
-
 @item
 @code{[CLASS...]} matches if the section's class is the same
 as the first CLASS or a subclass of that;
 the section's parent class matches the
 second CLASS; and so on.
 
-
 @item
 @code{[* CLASS...]} matches sections that match [CLASS@dots{}] and
 also recursively all their child sections.
-
 @item
 @code{CLASS} matches if the section's class is the same
 as CLASS or a subclass of that; regardless
@@ -283,7 +269,6 @@ of course you want to be that precise.
 @end defun
 
 @defun magit-section-value-if condition &optional section
-
 If the section at point matches CONDITION, then return its value.
 
 If optional SECTION is non-nil then test whether that matches
@@ -295,7 +280,6 @@ See @code{magit-section-match} for the forms CONDITION can take.
 @end defun
 
 @defmac magit-section-case &rest clauses
-
 Choose among clauses on the type of the section at point.
 
 Each clause looks like @code{(CONDITION BODY...)}.  The type of the
