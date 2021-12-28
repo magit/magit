@@ -447,8 +447,9 @@ is run in the top-level directory of the current working tree."
   (let ((default-directory (or directory default-directory))
         (process-environment process-environment))
     (push "GIT_PAGER=cat" process-environment)
-    (magit-start-process shell-file-name nil
-                         shell-command-switch command))
+    (magit--with-connection-local-variables
+     (magit-start-process shell-file-name nil
+                          shell-command-switch command)))
   (magit-process-buffer))
 
 (defun magit-read-shell-command (&optional toplevel initial-input)
