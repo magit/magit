@@ -204,7 +204,9 @@ bisect run'."
        (magit-process-git-arguments
         (list "bisect" "start" bad good args)))
       (magit-refresh)))
-  (magit-git-bisect "run" (list shell-file-name shell-command-switch cmdline)))
+  (magit--with-connection-local-variables
+   (magit-git-bisect "run" (list shell-file-name
+                                 shell-command-switch cmdline))))
 
 (defun magit-git-bisect (subcommand &optional args no-assert)
   (unless (or no-assert (magit-bisect-in-progress-p))
