@@ -1198,6 +1198,31 @@ See <https://github.com/raxod502/straight.el/issues/520>."
         (setq filename target))))
   (file-chase-links filename))
 
+;;; Kludges for older Emacs versions
+
+(if (fboundp 'with-connection-local-variables)
+    (defalias 'magit--with-connection-local-variables
+      'with-connection-local-variables)
+  (defmacro magit--with-connection-local-variables (&rest body)
+    "Abridged `with-connection-local-variables' for pre Emacs 27 compatibility.
+Bind shell file name and switch for remote execution.
+`with-connection-local-variables' isn't available until Emacs 27.
+This kludge provides the minimal functionality required by
+Magit."
+    `(if (file-remote-p default-directory)
+         (let* ((vec (tramp-dissect-file-name default-directory))
+                (shell-file-name (tramp-get-method-parameter
+                                  vec
+                                  'tramp-remote-shell))
+                (shell-command-switch (mapconcat
+                                       #'identity
+                                       (tramp-get-method-parameter
+                                        vec
+                                        'tramp-remote-shell-args)
+                                       " ")))
+           (progn ,@body))
+       ,@body)))
+
 ;;; Miscellaneous
 
 (defun magit-message (format-string &rest args)
