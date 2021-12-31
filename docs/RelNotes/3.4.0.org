@@ -31,3 +31,6 @@
   visited by a Dired buffer to ~git blame~, leading to some commands
   (e.g., ~magit-checkout~) erroring when called from a Dired buffer.
   #4560
+
+- For Helm users, calling ~magit-stash-drop~ on the "Stashes" section
+  has been broken since v3.0.0.  #4571
