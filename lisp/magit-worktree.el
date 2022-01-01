@@ -129,18 +129,18 @@ status is already being displayed in the current buffer,
 then show it in Dired instead."
   (interactive
    (list (or (magit-section-value-if 'worktree)
-             (magit-completing-read
-              "Show status for worktree"
-              (cl-delete (directory-file-name (magit-toplevel))
-                         (magit-list-worktrees)
-                         :test #'equal :key #'car)))))
+             (magit-read-worktree "Show status for worktree" t))))
   (magit-diff-visit-directory worktree))
 
-(defun magit-read-worktree (prompt)
+(defun magit-read-worktree (prompt &optional exclude-current)
   (magit-completing-read
    prompt
-   (magit-list-worktrees)
-   nil t nil nil
+   (let ((dirs (magit-list-worktrees)))
+     (if exclude-current
+         (cl-delete (directory-file-name (magit-toplevel))
+                    dirs :test #'equal :key #'car)
+       dirs))
+   nil exclude-current nil nil
    (magit-section-value-if 'worktree)))
 
 (defun magit--expand-worktree (path)
