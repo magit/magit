@@ -139,7 +139,7 @@ then show it in Dired instead."
 (defun magit-read-worktree (prompt)
   (magit-completing-read
    prompt
-   (cdr (magit-list-worktrees))
+   (magit-list-worktrees)
    nil t nil nil
    (magit-section-value-if 'worktree)))
 
