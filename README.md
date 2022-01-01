@@ -132,12 +132,10 @@ Thanks to all of you, may (the history of) the source be with you!
 [![Paren Xkcb](https://img.shields.io/badge/%28-%20%20%20-red.svg)](https://xkcd.com/859)
 [![GPL v3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![Build Status](https://github.com/magit/magit/workflows/test/badge.svg?branch=master)](https://github.com/magit/magit/actions)
+[![NonGNU ELPA devel](https://elpa.nongnu.org/nongnu-devel/magit.svg)](https://elpa.nongnu.org/nongnu-devel/magit.html)
 [![NonGNU ELPA](https://elpa.nongnu.org/nongnu/magit.svg)](https://elpa.nongnu.org/nongnu/magit.html)
 [![Melpa](https://melpa.org/packages/magit-badge.svg)](https://melpa.org/#/magit)
 [![Melpa Stable](https://stable.melpa.org/packages/magit-badge.svg)](https://stable.melpa.org/#/magit)
-[![Eierlegende Wollmilchsau](https://img.shields.io/badge/eierlegende-Wollmilchsau-green.svg)](https://magit.vc/manual/magit)
-[![Swiss Made](https://img.shields.io/badge/swiss-made-red.svg?colorA=E11A27&colorB=555555)](https://magit.vc/stats/authors.html#commits_per_author)
-[![Netscape](https://magit.vc/assets/netscape-20px.png)](https://en.wikipedia.org/wiki/Browser_wars)
 
 
 [backers]: https://github.com/magit/magit/blob/master/Documentation/BACKERS.md
