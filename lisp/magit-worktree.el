@@ -83,10 +83,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
 (defun magit-worktree-move (worktree path)
   "Move WORKTREE to PATH."
   (interactive
-   (list (magit-completing-read "Move worktree"
-                                (cdr (magit-list-worktrees))
-                                nil t nil nil
-                                (magit-section-value-if 'worktree))
+   (list (magit-read-worktree "Move worktree")
          (funcall magit-worktree-read-directory-name-function
                   "Move worktree to: ")))
   (if (file-directory-p (expand-file-name ".git" worktree))
@@ -107,11 +104,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
 (defun magit-worktree-delete (worktree)
   "Delete a worktree, defaulting to the worktree at point.
 The primary worktree cannot be deleted."
-  (interactive
-   (list (magit-completing-read "Delete worktree"
-                                (cdr (magit-list-worktrees))
-                                nil t nil nil
-                                (magit-section-value-if 'worktree))))
+  (interactive (list (magit-read-worktree "Delete worktree")))
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "Deleting %s would delete the shared .git directory" worktree)
     (let ((primary (file-name-as-directory (caar (magit-list-worktrees)))))
@@ -142,6 +135,13 @@ then show it in Dired instead."
                          (magit-list-worktrees)
                          :test #'equal :key #'car)))))
   (magit-diff-visit-directory worktree))
+
+(defun magit-read-worktree (prompt)
+  (magit-completing-read
+   prompt
+   (cdr (magit-list-worktrees))
+   nil t nil nil
+   (magit-section-value-if 'worktree)))
 
 (defun magit--expand-worktree (path)
   (magit-convert-filename-for-git (expand-file-name path)))
