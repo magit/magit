@@ -1,6 +1,6 @@
 ;;; magit-commit.el --- create Git commits  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2008-2021  The Magit Project Contributors
+;; Copyright (C) 2008-2022  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
