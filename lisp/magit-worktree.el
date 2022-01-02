@@ -83,7 +83,10 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
 (defun magit-worktree-move (worktree path)
   "Move WORKTREE to PATH."
   (interactive
-   (list (magit-read-worktree "Move worktree")
+   (list (magit-completing-read "Move worktree"
+                                (cdr (magit-list-worktrees))
+                                nil t nil nil
+                                (magit-section-value-if 'worktree))
          (funcall magit-worktree-read-directory-name-function
                   "Move worktree to: ")))
   (if (file-directory-p (expand-file-name ".git" worktree))
@@ -104,7 +107,11 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
 (defun magit-worktree-delete (worktree)
   "Delete a worktree, defaulting to the worktree at point.
 The primary worktree cannot be deleted."
-  (interactive (list (magit-read-worktree "Delete worktree")))
+  (interactive
+   (list (magit-completing-read "Delete worktree"
+                                (cdr (magit-list-worktrees))
+                                nil t nil nil
+                                (magit-section-value-if 'worktree))))
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "Deleting %s would delete the shared .git directory" worktree)
     (let ((primary (file-name-as-directory (caar (magit-list-worktrees)))))
@@ -129,19 +136,12 @@ status is already being displayed in the current buffer,
 then show it in Dired instead."
   (interactive
    (list (or (magit-section-value-if 'worktree)
-             (magit-read-worktree "Show status for worktree" t))))
+             (magit-completing-read
+              "Show status for worktree"
+              (cl-delete (directory-file-name (magit-toplevel))
+                         (magit-list-worktrees)
+                         :test #'equal :key #'car)))))
   (magit-diff-visit-directory worktree))
-
-(defun magit-read-worktree (prompt &optional exclude-current)
-  (magit-completing-read
-   prompt
-   (let ((dirs (magit-list-worktrees)))
-     (if exclude-current
-         (cl-delete (directory-file-name (magit-toplevel))
-                    dirs :test #'equal :key #'car)
-       dirs))
-   nil exclude-current nil nil
-   (magit-section-value-if 'worktree)))
 
 (defun magit--expand-worktree (path)
   (magit-convert-filename-for-git (expand-file-name path)))
