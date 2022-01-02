@@ -327,11 +327,11 @@ in `magit-blame-read-only-mode-map' instead."
            (user-error
             (concat "Don't call `magit-blame-mode' directly; "
                     "instead use `magit-blame'")))
-         (add-hook 'after-save-hook     #'magit-blame--refresh t t)
-         (add-hook 'post-command-hook   #'magit-blame-goto-chunk-hook t t)
-         (add-hook 'before-revert-hook  #'magit-blame--remove-overlays t t)
-         (add-hook 'after-revert-hook   #'magit-blame--refresh t t)
-         (add-hook 'read-only-mode-hook #'magit-blame-toggle-read-only t t)
+         ;; (add-hook 'after-save-hook     #'magit-blame--refresh t t)
+         ;; (add-hook 'post-command-hook   #'magit-blame-goto-chunk-hook t t)
+         ;; (add-hook 'before-revert-hook  #'magit-blame--remove-overlays t t)
+         ;; (add-hook 'after-revert-hook   #'magit-blame--refresh t t)
+         ;; (add-hook 'read-only-mode-hook #'magit-blame-toggle-read-only t t)
          (setq magit-blame-buffer-read-only buffer-read-only)
          (when (or magit-blame-read-only magit-buffer-file-name)
            (read-only-mode 1))
@@ -589,11 +589,10 @@ modes is toggled, then this mode also gets toggled automatically.
     (magit-blame--update-margin-overlay ov)))
 
 (defun magit-blame--make-heading-overlay (chunk revinfo beg end)
-  (let ((ov (make-overlay beg end)))
-    (overlay-put ov 'magit-blame-chunk chunk)
-    (overlay-put ov 'magit-blame-revinfo revinfo)
-    (overlay-put ov 'magit-blame-heading t)
-    (magit-blame--update-heading-overlay ov)))
+  (put-text-property beg end 'magit-blame-chunk chunk)
+  (put-text-property beg end 'magit-blame-revinfo revinfo)
+  (put-text-property beg end 'magit-blame-heading t)
+  (magit-blame--update-heading-overlay beg end))
 
 (defun magit-blame--make-highlight-overlay (chunk beg)
   (let ((ov (make-overlay beg (save-excursion
@@ -612,7 +611,8 @@ modes is toggled, then this mode also gets toggled automatically.
     (widen)
     (dolist (ov (overlays-in (point-min) (point-max)))
       (cond ((overlay-get ov 'magit-blame-heading)
-             (magit-blame--update-heading-overlay ov))
+             ;;(magit-blame--update-heading-overlay ov)
+             )
             ((overlay-get ov 'magit-blame-margin)
              (magit-blame--update-margin-overlay ov))
             ((overlay-get ov 'magit-blame-highlight)
@@ -639,9 +639,9 @@ modes is toggled, then this mode also gets toggled automatically.
                       face
                       'magit-blame-margin))))))))
 
-(defun magit-blame--update-heading-overlay (ov)
-  (overlay-put
-   ov 'before-string
+(defun magit-blame--update-heading-overlay (beg end)
+  (put-text-property
+   beg end 'before-string
    (if-let ((format (magit-blame--style-get 'heading-format)))
        (magit-blame--format-string ov format 'magit-blame-heading)
      (and (magit-blame--style-get 'show-lines)
