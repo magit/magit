@@ -1879,7 +1879,7 @@ switch to a shell.
   for the command.  It can be removed to run another command.
 
 - Key: : (magit-git-command) ::
-- Key: ! p ::
++ Key: ! p ::
 
   This command reads a command from the user and executes it in
   ~default-directory~.  With a prefix argument the command is executed
@@ -3942,7 +3942,7 @@ command whose purpose is to turn off that mode would not be of any
 use and therefore isn't available.
 
 - Key: C-c M-g b (magit-blame-addition) ::
-- Key: C-c M-g B b ::
++ Key: C-c M-g B b ::
 
   This command augments each line or chunk of lines in the current
   file-visiting or blob-visiting buffer with information about what
@@ -3958,7 +3958,7 @@ use and therefore isn't available.
   added the current line or chunk of lines.
 
 - Key: C-c M-g r (magit-blame-removal) ::
-- Key: C-c M-g B r ::
++ Key: C-c M-g B r ::
 
   This command augments each line or chunk of lines in the current
   blob-visiting buffer with information about the revision that
@@ -3967,7 +3967,7 @@ use and therefore isn't available.
   Like ~magit-blame-addition~, this command can be used recursively.
 
 - Key: C-c M-g f (magit-blame-reverse) ::
-- Key: C-c M-g B f ::
++ Key: C-c M-g B f ::
 
   This command augments each line or chunk of lines in the current
   file-visiting or blob-visiting buffer with information about the
@@ -3976,7 +3976,7 @@ use and therefore isn't available.
   Like ~magit-blame-addition~, this command can be used recursively.
 
 - Key: C-c M-g e (magit-blame-echo) ::
-- Key: C-c M-g B e ::
++ Key: C-c M-g B e ::
 
   This command is like ~magit-blame-addition~ except that it doesn't
   turn on ~read-only-mode~ and that it initially uses the visualization

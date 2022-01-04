@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version v3.3.0-73-g03f495f35+1
+@subtitle for version v3.3.0-79-g2e73b66c2+1
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version v3.3.0-73-g03f495f35+1.
+This manual is for Magit version v3.3.0-79-g2e73b66c2+1.
 
 @quotation
 Copyright (C) 2015-2022 Jonas Bernoulli <jonas@@bernoul.li>
@@ -2421,11 +2421,10 @@ The string "git " is used as initial input when prompting the user
 for the command.  It can be removed to run another command.
 
 @item @kbd{:} (@code{magit-git-command})
+@itemx @kbd{! p}
 @kindex :
-@findex magit-git-command
-
-@item @kbd{! p}
 @kindex ! p
+@findex magit-git-command
 This command reads a command from the user and executes it in
 @code{default-directory}.  With a prefix argument the command is executed
 in the top-level directory of the current working tree instead.
@@ -3373,7 +3372,7 @@ and contains information about that commit or stash, then instead
 scroll the buffer up.  If there is no commit or stash at point, then
 prompt for a commit.
 
-@item @kbd{DEL} (@code{magit-diff-show-or-scroll-down})
+@item @kbd{@key{DEL}} (@code{magit-diff-show-or-scroll-down})
 @kindex DEL
 @findex magit-diff-show-or-scroll-down
 Update the commit or diff buffer for the thing at point.
@@ -3997,7 +3996,7 @@ that they are available here too.
 @findex scroll-up
 This command scrolls text upward.
 
-@item @kbd{DEL} (@code{scroll-down})
+@item @kbd{@key{DEL}} (@code{scroll-down})
 @kindex DEL
 @findex scroll-down
 This command scrolls text downward.
@@ -4919,11 +4918,10 @@ use and therefore isn't available.
 
 @table @asis
 @item @kbd{C-c M-g b} (@code{magit-blame-addition})
+@itemx @kbd{C-c M-g B b}
 @kindex C-c M-g b
-@findex magit-blame-addition
-
-@item @kbd{C-c M-g B b}
 @kindex C-c M-g B b
+@findex magit-blame-addition
 This command augments each line or chunk of lines in the current
 file-visiting or blob-visiting buffer with information about what
 commits last touched these lines.
@@ -4938,11 +4936,10 @@ blaming is done recursively, by visiting REVISION:FILE (using
 added the current line or chunk of lines.
 
 @item @kbd{C-c M-g r} (@code{magit-blame-removal})
+@itemx @kbd{C-c M-g B r}
 @kindex C-c M-g r
-@findex magit-blame-removal
-
-@item @kbd{C-c M-g B r}
 @kindex C-c M-g B r
+@findex magit-blame-removal
 This command augments each line or chunk of lines in the current
 blob-visiting buffer with information about the revision that
 removes it.  It cannot be used in file-visiting buffers.
@@ -4950,11 +4947,10 @@ removes it.  It cannot be used in file-visiting buffers.
 Like @code{magit-blame-addition}, this command can be used recursively.
 
 @item @kbd{C-c M-g f} (@code{magit-blame-reverse})
+@itemx @kbd{C-c M-g B f}
 @kindex C-c M-g f
-@findex magit-blame-reverse
-
-@item @kbd{C-c M-g B f}
 @kindex C-c M-g B f
+@findex magit-blame-reverse
 This command augments each line or chunk of lines in the current
 file-visiting or blob-visiting buffer with information about the
 last revision in which a line still existed.
@@ -4962,11 +4958,10 @@ last revision in which a line still existed.
 Like @code{magit-blame-addition}, this command can be used recursively.
 
 @item @kbd{C-c M-g e} (@code{magit-blame-echo})
+@itemx @kbd{C-c M-g B e}
 @kindex C-c M-g e
-@findex magit-blame-echo
-
-@item @kbd{C-c M-g B e}
 @kindex C-c M-g B e
+@findex magit-blame-echo
 This command is like @code{magit-blame-addition} except that it doesn't
 turn on @code{read-only-mode} and that it initially uses the visualization
 style specified by option @code{magit-blame-echo-style}.
@@ -4993,7 +4988,7 @@ the appropriate buffer, or if that buffer is already being displayed
 in the current frame and if that buffer contains information about
 that commit, then the buffer is scrolled up instead.
 
-@item @kbd{DEL} (@code{magit-diff-show-or-scroll-down})
+@item @kbd{@key{DEL}} (@code{magit-diff-show-or-scroll-down})
 @kindex DEL
 @findex magit-diff-show-or-scroll-down
 This command updates the commit buffer.
@@ -6983,7 +6978,7 @@ selecting that buffer.  If the revision buffer is already visible in
 another window of the current frame, then instead scroll that window
 up.
 
-@item @kbd{DEL} (@code{git-rebase-show-or-scroll-down})
+@item @kbd{@key{DEL}} (@code{git-rebase-show-or-scroll-down})
 @kindex DEL
 @findex git-rebase-show-or-scroll-down
 Show the commit on the current line in another buffer without
