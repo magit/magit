@@ -3,7 +3,7 @@ include default.mk
 
 ## ###################################################################
 
-.PHONY: lisp \
+.PHONY: lisp docs \
 	install install-lisp install-docs install-info \
 	test test-interactive magit \
 	clean clean-lisp clean-docs clean-archives \
