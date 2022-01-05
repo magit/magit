@@ -1959,12 +1959,13 @@ Return a list of two integers: (A>B B>A)."
     (cdr (split-string it))))
 
 (defun magit-patch-id (rev)
-  (magit--with-temp-process-buffer
-    (magit-process-file
-     shell-file-name nil '(t nil) nil shell-command-switch
-     (let ((exec (shell-quote-argument (magit-git-executable))))
-       (format "%s diff-tree -u %s | %s patch-id" exec rev exec)))
-    (car (split-string (buffer-string)))))
+  (magit--with-connection-local-variables
+   (magit--with-temp-process-buffer
+     (magit-process-file
+      shell-file-name nil '(t nil) nil shell-command-switch
+      (let ((exec (shell-quote-argument (magit-git-executable))))
+        (format "%s diff-tree -u %s | %s patch-id" exec rev exec)))
+     (car (split-string (buffer-string))))))
 
 (defun magit-rev-format (format &optional rev args)
   (let ((str (magit-git-string "show" "--no-patch"
