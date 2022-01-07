@@ -1691,7 +1691,9 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
                                         ((and val (pred listp)) val)))
                                (or namespaces magit-list-refs-namespaces))))
     (if (member format '("%(refname)" "%(refname:short)"))
-        (--remove (string-match-p "\\(\\`\\|/\\)HEAD\\'" it) refs)
+        (let ((case-fold-search nil))
+          (--remove (string-match-p "\\(\\`\\|/\\)HEAD\\'" it)
+                    refs))
       refs)))
 
 (defun magit-list-branches ()
