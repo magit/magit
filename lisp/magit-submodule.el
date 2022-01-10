@@ -225,7 +225,7 @@ it is nil, then PATH also becomes the name."
              (magit-process-sentinel process event)
            (process-put process 'inhibit-refresh t)
            (magit-process-sentinel process event)
-           (when (magit--version>= (magit-git-version) "2.12.0")
+           (when (magit-git-version>= "2.12.0")
              (magit-call-git "submodule" "absorbgitdirs" path))
            (magit-refresh)))))))
 
@@ -360,7 +360,7 @@ to recover from making a mistake here, but don't count on it."
            (list (magit-read-module-path "Remove module")))
          (magit-submodule-arguments "--force")
          current-prefix-arg))
-  (when (version< (magit-git-version) "2.12.0")
+  (when (magit-git-version< "2.12.0")
     (error "This command requires Git v2.12.0"))
   (when magit-submodule-remove-trash-gitdirs
     (setq trash-gitdirs t))

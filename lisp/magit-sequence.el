@@ -515,10 +515,10 @@ This discards all changes made since the sequence started."
    :if-not magit-rebase-in-progress-p
    ("-k" "Keep empty commits"       "--keep-empty")
    ("-p" "Preserve merges"          ("-p" "--preserve-merges")
-    :if (lambda () (version< (magit-git-version) "2.33.0")))
+    :if (apply-partially #'magit-git-version< "2.33.0"))
    ("-r" "Rebase merges"            ("-r" "--rebase-merges=")
     magit-rebase-merges-select-mode
-    :if (lambda () (magit--version>= (magit-git-version) "2.18.0")))
+    :if (apply-partially #'magit-git-version>= "2.18.0"))
    (7 magit-merge:--strategy)
    (7 magit-merge:--strategy-option)
    (7 "=X" magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
