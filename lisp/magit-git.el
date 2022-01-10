@@ -575,10 +575,19 @@ call function WASHER with ARGS as its sole argument."
       (magit-maybe-make-margin-overlay))))
 
 (defun magit-git-version (&optional raw)
+  "Return the installed Git version."
   (--when-let (let (magit-git-global-arguments)
                 (ignore-errors (substring (magit-git-string "version") 12)))
     (if raw it (and (string-match "\\`\\([0-9]+\\(\\.[0-9]+\\)\\{1,2\\}\\)" it)
                     (match-string 1 it)))))
+
+(defun magit-git-version>= (n)
+  "Return t if `magit-git-version's value is greater than or equal to N."
+  (magit--version>= (magit-git-version) n))
+
+(defun magit-git-version< (n)
+  "Return t if `magit-git-version's value is smaller than N."
+  (version< (magit-git-version) n))
 
 ;;; Variables
 
@@ -1199,7 +1208,7 @@ ref that should have been excluded, then that is discarded and
 this function returns nil instead.  This is unfortunate because
 there might be other refs that do match.  To fix that, update
 Git."
-  (if (version< (magit-git-version) "2.13")
+  (if (magit-git-version< "2.13")
       (when-let
           ((ref (magit-git-string "name-rev" "--name-only" "--no-undefined"
                                   (and pattern (concat "--refs=" pattern))
@@ -2163,7 +2172,7 @@ and this option only controls what face is used.")
 
 (defun magit-update-ref (ref message rev &optional stashish)
   (let ((magit--refresh-cache nil))
-    (or (if (magit--version>= (magit-git-version) "2.6.0")
+    (or (if (magit-git-version>= "2.6.0")
             (zerop (magit-call-git "update-ref" "--create-reflog"
                                    "-m" message ref rev
                                    (or (magit-rev-verify ref) "")))

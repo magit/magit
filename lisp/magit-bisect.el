@@ -65,11 +65,11 @@
    ["Arguments"
     ("-n" "Don't checkout commits"              "--no-checkout")
     ("-p" "Follow only first parent of a merge" "--first-parent"
-     :if (lambda () (magit--version>= (magit-git-version) "2.29")))
+     :if (lambda () (magit-git-version>= "2.29")))
     (6 magit-bisect:--term-old
-       :if (lambda () (magit--version>= (magit-git-version) "2.7")))
+       :if (lambda () (magit-git-version>= "2.7")))
     (6 magit-bisect:--term-new
-       :if (lambda () (magit--version>= (magit-git-version) "2.7")))]
+       :if (lambda () (magit-git-version>= "2.7")))]
    ["Actions"
     ("B" "Start"        magit-bisect-start)
     ("s" "Start script" magit-bisect-run)]]
@@ -78,7 +78,7 @@
    ("B" "Bad"          magit-bisect-bad)
    ("g" "Good"         magit-bisect-good)
    (6 "m" "Mark"       magit-bisect-mark
-      :if (lambda () (magit--version>= (magit-git-version) "2.7")))
+      :if (lambda () (magit-git-version>= "2.7")))
    ("k" "Skip"         magit-bisect-skip)
    ("r" "Reset"        magit-bisect-reset)
    ("s" "Run script"   magit-bisect-run)])
