@@ -217,7 +217,7 @@ has to be used to view and change branch related variables."
   ["Arguments"
    (7 "-r" "Recurse submodules when checking out an existing branch"
       "--recurse-submodules"
-      :if (lambda () (version<= "2.13" (magit-git-version))))]
+      :if (lambda () (magit--version>= (magit-git-version) "2.13")))]
   ["Variables"
    :if (lambda ()
          (and magit-branch-direct-configure

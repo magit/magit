@@ -1010,6 +1010,16 @@ one trailing newline is added."
                 (and (eq trim ?\n) "\n"))
       str)))
 
+(defun magit--version> (v1 v2)
+  "Return t if version V1 is higher (younger) than V2.
+This function should be named `version>' and be part of Emacs."
+  (version-list-< (version-to-list v2) (version-to-list v1)))
+
+(defun magit--version>= (v1 v2)
+  "Return t if version V1 is higher (younger) than or equal to V2.
+This function should be named `version>=' and be part of Emacs."
+  (version-list-<= (version-to-list v2) (version-to-list v1)))
+
 ;;; Kludges for Emacs Bugs
 
 (defun magit-file-accessible-directory-p (filename)
@@ -1019,7 +1029,7 @@ and https://github.com/magit/magit/issues/2295."
   (and (file-directory-p filename)
        (file-accessible-directory-p filename)))
 
-(when (version<= "25.1" emacs-version)
+(when (magit--version>= emacs-version "25.1")
   (with-eval-after-load 'vc-git
     (defun vc-git-conflicted-files (directory)
       "Return the list of files with conflicts in DIRECTORY."

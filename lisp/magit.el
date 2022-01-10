@@ -567,7 +567,8 @@ and Emacs to it."
         (when print-dest
           (princ (format "Magit %s%s, Git %s, Emacs %s, %s"
                          (or magit-version "(unknown)")
-                         (or (and (ignore-errors (version< "2008" magit-version))
+                         (or (and (ignore-errors
+                                    (magit--version>= magit-version "2008"))
                                   (ignore-errors
                                     (require 'lisp-mnt)
                                     (and (fboundp 'lm-header)

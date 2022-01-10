@@ -2163,7 +2163,7 @@ and this option only controls what face is used.")
 
 (defun magit-update-ref (ref message rev &optional stashish)
   (let ((magit--refresh-cache nil))
-    (or (if (not (version< (magit-git-version) "2.6.0"))
+    (or (if (magit--version>= (magit-git-version) "2.6.0")
             (zerop (magit-call-git "update-ref" "--create-reflog"
                                    "-m" message ref rev
                                    (or (magit-rev-verify ref) "")))

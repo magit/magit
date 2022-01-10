@@ -304,8 +304,8 @@ commit message."
                         (and (pcase (magit-repository-local-get
                                      'update-index-has-ignore-sw-p 'unset)
                                (`unset
-                                (let ((val (version<= "2.25.0"
-                                                      (magit-git-version))))
+                                (let ((val (magit--version>= (magit-git-version)
+                                                             "2.25.0")))
                                   (magit-repository-local-set
                                    'update-index-has-ignore-sw-p val)
                                   val))

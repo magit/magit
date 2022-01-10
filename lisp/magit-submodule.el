@@ -225,7 +225,7 @@ it is nil, then PATH also becomes the name."
              (magit-process-sentinel process event)
            (process-put process 'inhibit-refresh t)
            (magit-process-sentinel process event)
-           (unless (version< (magit-git-version) "2.12.0")
+           (when (magit--version>= (magit-git-version) "2.12.0")
              (magit-call-git "submodule" "absorbgitdirs" path))
            (magit-refresh)))))))
 

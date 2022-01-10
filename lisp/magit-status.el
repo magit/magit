@@ -340,7 +340,7 @@ init file: (global-set-key (kbd \"C-x g\") 'magit-status-quick)."
     (unless (member remote magit--remotes-using-recent-git)
       (if-let ((version (let ((default-directory directory))
                           (magit-git-version))))
-          (if (version<= magit--minimal-git version)
+          (if (magit--version>= version magit--minimal-git)
               (push remote magit--remotes-using-recent-git)
             (display-warning 'magit (format "\
 Magit requires Git >= %s, but on %s the version is %s.
