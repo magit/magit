@@ -514,7 +514,11 @@ This discards all changes made since the sequence started."
   ["Arguments"
    :if-not magit-rebase-in-progress-p
    ("-k" "Keep empty commits"       "--keep-empty")
-   ("-p" "Preserve merges"          ("-p" "--preserve-merges"))
+   ("-p" "Preserve merges"          ("-p" "--preserve-merges")
+    :if (lambda () (version< (magit-git-version) "2.33.0")))
+   ("-r" "Rebase merges"            ("-r" "--rebase-merges=")
+    magit-rebase-merges-select-mode
+    :if-not (lambda () (version< (magit-git-version) "2.18.0")))
    (7 magit-merge:--strategy)
    (7 magit-merge:--strategy-option)
    (7 "=X" magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
@@ -524,8 +528,7 @@ This discards all changes made since the sequence started."
    ("-i" "Interactive"              ("-i" "--interactive"))
    ("-h" "Disable hooks"            "--no-verify")
    (7 magit-rebase:--exec)
-   (5 magit:--gpg-sign)
-   (5 "-r" "Rebase merges" "--rebase-merges=" magit-rebase-merges-select-mode)]
+   (5 magit:--gpg-sign)]
   [:if-not magit-rebase-in-progress-p
    :description (lambda ()
                   (format (propertize "Rebase %s onto" 'face 'transient-heading)
