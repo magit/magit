@@ -514,7 +514,7 @@ This discards all changes made since the sequence started."
   ["Arguments"
    :if-not magit-rebase-in-progress-p
    ("-k" "Keep empty commits"       "--keep-empty")
-   ("-p" "Preserve merges"          ("-p" "--preserve-merges"))
+   ("-r" "Rebase merges"          ("-r" "--rebase-merges"))
    (7 magit-merge:--strategy)
    (7 magit-merge:--strategy-option)
    (7 "=X" magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
