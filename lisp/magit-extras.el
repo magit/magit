@@ -297,6 +297,7 @@ with two prefix arguments remove ignored files only.
 
 ;;; ChangeLog
 
+;;;###autoload
 (defun magit-generate-changelog (&optional amending)
   "Insert ChangeLog entries into the current buffer.
 
