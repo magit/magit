@@ -426,7 +426,7 @@ without prompting."
    ("-k" "Inhibit removal of email cruft"    ("-k" "--keep"))
    ("-b" "Limit removal of email cruft"      "--keep-non-patch")
    ("-d" "Use author date as committer date" "--committer-date-is-author-date")
-   ("-D" "Use committer date as author date" "--ignore-date")
+   ("-t" "Use current time as author date"   "--ignore-date")
    ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))
    (5 magit:--gpg-sign)]
   ["Apply"
@@ -522,8 +522,8 @@ This discards all changes made since the sequence started."
    (7 magit-merge:--strategy)
    (7 magit-merge:--strategy-option)
    (7 "=X" magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
-   ("-c" "Use current time as author date"   "--ignore-date")
    ("-d" "Use author date as committer date" "--committer-date-is-author-date")
+   ("-t" "Use current time as author date"   "--ignore-date")
    ("-a" "Autosquash"               "--autosquash")
    ("-A" "Autostash"                "--autostash")
    ("-i" "Interactive"              ("-i" "--interactive"))
