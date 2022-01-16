@@ -383,14 +383,14 @@ to recover from making a mistake here, but don't count on it."
                                           (expand-file-name module))))
                   (magit-git "stash" "push"
                              "-m" "backup before removal of this module")))
-            (setq modules (cl-set-difference modules modified)))
+            (setq modules (cl-set-difference modules modified :test #'equal)))
         (if (cdr modified)
             (message "Omitting %s modules with uncommitted changes: %s"
                      (length modified)
                      (mapconcat #'identity modified ", "))
           (message "Omitting module %s, it has uncommitted changes"
                    (car modified)))
-        (setq modules (cl-set-difference modules modified))))
+        (setq modules (cl-set-difference modules modified :test #'equal))))
     (when modules
       (let ((alist
              (and trash-gitdirs

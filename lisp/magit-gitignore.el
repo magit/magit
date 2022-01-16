@@ -153,7 +153,8 @@ Rules that are defined in that file affect all local repositories."
                                  (magit-with-toplevel
                                    (cl-set-difference
                                     (magit-list-files)
-                                    (magit-skip-worktree-files))))))
+                                    (magit-skip-worktree-files)
+                                    :test #'equal)))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--skip-worktree" "--" file)))
 
@@ -177,7 +178,8 @@ Rules that are defined in that file affect all local repositories."
                                  (magit-with-toplevel
                                    (cl-set-difference
                                     (magit-list-files)
-                                    (magit-assume-unchanged-files))))))
+                                    (magit-assume-unchanged-files)
+                                    :test #'equal)))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--assume-unchanged" "--" file)))
 
