@@ -6990,6 +6990,61 @@ Also see [[man:git-worktree]]
   If the worktree at point is the one whose status is already being
   displayed in the current buffer, then show it in Dired instead.
 
+** Sparse checkouts
+
+Sparse checkouts provide a way to restrict the working tree to a
+subset of directories.  See [[man:git-sparse-checkout]]
+
+*Warning*: Git introduced the ~git sparse-checkout~ command in version
+2.25 and still advertises it as experimental and subject to change.
+Magit's interface should be considered the same.  In particular, if
+Git introduces a backward incompatible change, Magit's sparse checkout
+functionality may be updated in a way that requires a more recent Git
+version.
+
+- Key: > (magit-sparse-checkout) ::
+
+  This transient prefix command binds the following suffix commands
+  and displays them in a temporary buffer until a suffix is invoked.
+
+- Key: > e (magit-sparse-checkout-enable) ::
+
+  This command initializes a sparse checkout that includes only the
+  files in the top-level directory.
+
+  Note that ~magit-sparse-checkout-set~ and
+  ~magit-sparse-checkout-add~ automatically initialize a sparse
+  checkout if necessary.  However, you may want to call
+  ~magit-sparse-checkout-enable~ explicitly to re-initialize a sparse
+  checkout after calling ~magit-sparse-checkout-disable~, to pass
+  additional arguments to ~git sparse-checkout init~, or to execute
+  the initialization asynchronously.
+
+- Key: > s (magit-sparse-checkout-set) ::
+
+  This command takes a list of directories and configures the sparse
+  checkout to include only files in those subdirectories.  Any
+  previously included directories are excluded unless they are in the
+  provided list of directories.
+
+- Key: > a (magit-sparse-checkout-add) ::
+
+  This command is like ~magit-sparse-checkout-set~, but instead adds
+  the specified list of directories to the set of directories that is
+  already included in the sparse checkout.
+
+- Key: > r (magit-sparse-checkout-reapply) ::
+
+  This command applies the currently configured sparse checkout
+  patterns to the working tree.  This is useful to call if excluded
+  files have been checked out after operations such as merging or
+  rebasing.
+
+- Key: > d (magit-sparse-checkout-disable) ::
+
+  This command restores the full checkout.  To return to the previous
+  sparse checkout, call ~magit-sparse-checkout-enable~.
+
 ** Bundle
 
 Also see [[man:git-bundle]]

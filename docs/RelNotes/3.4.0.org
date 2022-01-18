@@ -13,6 +13,9 @@
 - Added new face ~git-rebase-action~ to allow customization of the face
   used for the action words in git-rebase-todo files.
 
+- New transient ~magit-sparse-checkout~ provides an interface to the
+  ~git sparse-checkout~ command, introduced in Git v2.25.  #4102
+
 ** Fixes since v3.3.0
 
 - Automatic saving of file-visiting buffers was broken inside remote

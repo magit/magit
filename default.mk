@@ -90,6 +90,7 @@ ELS += magit-patch.el
 ELS += magit-bisect.el
 ELS += magit-stash.el
 ELS += magit-blame.el
+ELS += magit-sparse-checkout.el
 ELS += magit-submodule.el
 ELS += magit-subtree.el
 ELS += magit-ediff.el

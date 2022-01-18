@@ -403,6 +403,7 @@ recommended value."
     (define-key map "%" 'magit-worktree)
     (define-key map "$" 'magit-process-buffer)
     (define-key map "!" 'magit-run)
+    (define-key map ">" 'magit-sparse-checkout)
     (define-key map (kbd "C-c C-c") 'magit-dispatch)
     (define-key map (kbd "C-c C-e") 'magit-edit-thing)
     (define-key map (kbd "C-c C-o") 'magit-browse-thing)
