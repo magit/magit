@@ -7045,6 +7045,10 @@ version.
   This command restores the full checkout.  To return to the previous
   sparse checkout, call ~magit-sparse-checkout-enable~.
 
+If you want the status buffer to indicate when a sparse checkout is
+enabled, add the function ~magit-sparse-checkout-insert-header~ to
+~magit-status-headers-hook~.
+
 ** Bundle
 
 Also see [[man:git-bundle]]

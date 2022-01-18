@@ -151,6 +151,23 @@ restore the previous sparse checkout."
   (magit-sparse-checkout--assert-version)
   (magit-run-git-async "sparse-checkout" "disable"))
 
+;;; Miscellaneous
+
+(defun magit-sparse-checkout-insert-header ()
+  "Insert header line with sparse checkout information.
+This header is not inserted by default.  To enable it, add it to
+`magit-status-headers-hook'."
+  (when (magit-sparse-checkout-enabled-p)
+    (insert (propertize (format "%-10s" "Sparse! ")
+                        'font-lock-face 'magit-section-heading))
+    (insert
+     (let ((dirs (magit-sparse-checkout-directories)))
+       (pcase (length dirs)
+         (0 "top-level directory")
+         (1 (car dirs))
+         (n (format "%d directories" n)))))
+    (insert ?\n)))
+
 ;;; _
 (provide 'magit-sparse-checkout)
 ;;; magit-sparse-checkout.el ends here
