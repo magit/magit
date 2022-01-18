@@ -117,6 +117,9 @@ the name of the owner.  Also see `magit-clone-name-alist'."
   ["Setup arguments"
    ("-o" "Set name of remote"     ("-o" "--origin="))
    ("-b" "Set HEAD branch"        ("-b" "--branch="))
+   (magit-clone:--filter
+    :if (lambda () (magit-git-version>= "2.17.0"))
+    :level 7)
    ("-g" "Separate git directory" "--separate-git-dir="
     transient-read-directory :level 7)
    ("-t" "Use template directory" "--template="
@@ -138,6 +141,18 @@ the name of the owner.  Also see `magit-clone-name-alist'."
   (if transient
       (transient-setup #'magit-clone)
     (call-interactively #'magit-clone-regular)))
+
+(transient-define-argument magit-clone:--filter ()
+  :description "Filter some objects"
+  :class 'transient-option
+  :key "-f"
+  :argument "--filter="
+  :reader 'magit-clone-read-filter)
+
+(defun magit-clone-read-filter (prompt initial-input history)
+  (magit-completing-read prompt
+                         (list "blob:none" "tree:0")
+                         nil nil initial-input history))
 
 ;;;###autoload
 (defun magit-clone-regular (repository directory args)

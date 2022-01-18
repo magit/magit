@@ -20,6 +20,10 @@
   repository and then immediately enable a sparse checkout, avoiding a
   checkout of the full working tree.  #4102
 
+- The ~magit-clone~ transient now includes ~--filter~ (hidden by
+  default) to support partial cloning, a feature that is available as
+  of Git v2.17.  #4102
+
 ** Fixes since v3.3.0
 
 - Automatic saving of file-visiting buffers was broken inside remote
