@@ -76,6 +76,9 @@ See the `git sparse-checkout' manpage for details about
 (transient-define-prefix magit-sparse-checkout ()
   "Create and manage sparse checkouts."
   :man-page "git-sparse-checkout"
+  ["Arguments for enabling"
+   :if-not magit-sparse-checkout-enabled-p
+   ("-i" "Use sparse index" "--sparse-index")]
   ["Actions"
    [:if-not magit-sparse-checkout-enabled-p
     ("e" "Enable sparse checkout" magit-sparse-checkout-enable)]
@@ -86,11 +89,11 @@ See the `git sparse-checkout' manpage for details about
     ("a" "Add directories" magit-sparse-checkout-add)]])
 
 ;;;###autoload
-(defun magit-sparse-checkout-enable ()
+(defun magit-sparse-checkout-enable (&optional args)
   "Convert the working tree to a sparse checkout."
-  (interactive)
+  (interactive (list (transient-args 'magit-sparse-checkout)))
   (magit-sparse-checkout--assert-version)
-  (magit-run-git-async "sparse-checkout" "init" "--cone"))
+  (magit-run-git-async "sparse-checkout" "init" "--cone" args))
 
 ;;;###autoload
 (defun magit-sparse-checkout-set (directories)
