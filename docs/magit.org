@@ -4141,6 +4141,13 @@ argument is used and on the value of ~magit-clone-always-transient~.
   By default the depth of the cloned history is a single commit,
   but with a prefix argument the depth is read from the user.
 
+- Key: C > (magit-clone-sparse) ::
+
+  This command creates a clone of an existing repository and
+  initializes a sparse checkout, avoiding a checkout of the full
+  working tree.  To add more directories, use the
+  ~magit-sparse-checkout~ transient (see [[*Sparse checkouts]]).
+
 - Key: C b (magit-clone-bare) ::
 
   This command creates a bare clone of an existing repository.
@@ -7044,6 +7051,10 @@ version.
 
   This command restores the full checkout.  To return to the previous
   sparse checkout, call ~magit-sparse-checkout-enable~.
+
+A sparse checkout can also be initiated when cloning a repository by
+using the ~magit-clone-sparse~ command in the ~magit-clone~ transient
+(see [[*Cloning Repository]]).
 
 If you want the status buffer to indicate when a sparse checkout is
 enabled, add the function ~magit-sparse-checkout-insert-header~ to

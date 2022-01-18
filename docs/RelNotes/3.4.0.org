@@ -16,6 +16,10 @@
 - New transient ~magit-sparse-checkout~ provides an interface to the
   ~git sparse-checkout~ command, introduced in Git v2.25.  #4102
 
+- New command ~magit-clone-sparse~ makes it possible to clone a
+  repository and then immediately enable a sparse checkout, avoiding a
+  checkout of the full working tree.  #4102
+
 ** Fixes since v3.3.0
 
 - Automatic saving of file-visiting buffers was broken inside remote
