@@ -437,20 +437,20 @@ the upstream isn't ahead of the current branch) show."
    ("-p" "Show diffs"          ("-p" "--patch"))   ;2
    ("-s" "Show diffstats"      "--stat")]          ;2
   [["Log"
-    ("l" "current"        magit-log-current)
-    ("o" "other"          magit-log-other)
-    ("h" "HEAD"           magit-log-head)]
+    ("l" "current"             magit-log-current)
+    ("o" "other"               magit-log-other)
+    ("h" "HEAD"                magit-log-head)]
    [""
-    ("L" "local branches" magit-log-branches)
+    ("L" "local branches"      magit-log-branches)
     (7 "B" "matching branches" magit-log-matching-branches)
-    (7 "T" "matching tags" magit-log-matching-tags)
-    ("b" "all branches"   magit-log-all-branches)
-    ("a" "all references" magit-log-all)
-    (7 "m" "merged"       magit-log-merged)]
+    (7 "T" "matching tags"     magit-log-matching-tags)
+    ("b" "all branches"        magit-log-all-branches)
+    ("a" "all references"      magit-log-all)
+    (7 "m" "merged"            magit-log-merged)]
    ["Reflog"
-    ("r" "current"        magit-reflog-current)
-    ("O" "other"          magit-reflog-other)
-    ("H" "HEAD"           magit-reflog-head)]
+    ("r" "current"             magit-reflog-current)
+    ("O" "other"               magit-reflog-other)
+    ("H" "HEAD"                magit-reflog-head)]
    [:if (lambda ()
           (require 'magit-wip)
           (magit--any-wip-mode-enabled-p))
