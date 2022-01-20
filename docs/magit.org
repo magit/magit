@@ -2595,6 +2595,13 @@ The log transient also features several reflog commands.  See [[*Reflog]].
 
   Show log for ~HEAD~.
 
+- Key: l u (magit-log-related) ::
+
+  Show log for the current branch, its upstream and its push target.
+  When the upstream is a local branch, then also show its own
+  upstream.  When ~HEAD~ is detached, then show log for that, the
+  previously checked out branch and its upstream and push-target.
+
 - Key: l o (magit-log-other) ::
 
   Show log for one or more revs read from the minibuffer.  The user

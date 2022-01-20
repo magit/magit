@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version v3.3.0-99-g2914b9202+1
+@subtitle for version v3.3.0-100-g5f23bcd77+1
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version v3.3.0-99-g2914b9202+1.
+This manual is for Magit version v3.3.0-100-g5f23bcd77+1.
 
 @quotation
 Copyright (C) 2015-2022 Jonas Bernoulli <jonas@@bernoul.li>
@@ -3229,6 +3229,14 @@ minibuffer.
 @kindex l h
 @findex magit-log-head
 Show log for @code{HEAD}.
+
+@item @kbd{l u} (@code{magit-log-related})
+@kindex l u
+@findex magit-log-related
+Show log for the current branch, its upstream and its push target.
+When the upstream is a local branch, then also show its own
+upstream.  When @code{HEAD} is detached, then show log for that, the
+previously checked out branch and its upstream and push-target.
 
 @item @kbd{l o} (@code{magit-log-other})
 @kindex l o

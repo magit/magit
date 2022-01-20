@@ -41,6 +41,8 @@
                   (&optional branch pull keyword))
 (declare-function magit-read-file-from-rev "magit-files"
                   (rev prompt &optional default))
+(declare-function magit-rebase--get-state-lines "magit-sequence"
+                  (file))
 (declare-function magit-show-commit "magit-diff"
                   (arg1 &optional arg2 arg3 arg4))
 (declare-function magit-reflog-format-subject "magit-reflog" (subject))
@@ -439,6 +441,7 @@ the upstream isn't ahead of the current branch) show."
   [["Log"
     ("l" "current"             magit-log-current)
     ("h" "HEAD"                magit-log-head)
+    ("u" "related"             magit-log-related)
     ("o" "other"               magit-log-other)]
    [""
     ("L" "local branches"      magit-log-branches)
@@ -639,6 +642,35 @@ one or more revs read from the minibuffer."
   "Show log for `HEAD'."
   (interactive (magit-log-arguments))
   (magit-log-setup-buffer (list "HEAD") args files))
+
+;;;###autoload
+(defun magit-log-related (revs &optional args files)
+  "Show log for the current branch, its upstream and its push target.
+When the upstream is a local branch, then also show its own
+upstream.  When `HEAD' is detached, then show log for that, the
+previously checked out branch and its upstream and push-target."
+  (interactive
+   (cons (let ((current (magit-get-current-branch))
+               head rebase target upstream upup)
+           (unless current
+             (setq rebase (magit-rebase--get-state-lines "head-name"))
+             (cond (rebase
+                    (setq rebase (magit-ref-abbrev rebase))
+                    (setq current rebase)
+                    (setq head "HEAD"))
+                   (t (setq current (magit-get-previous-branch)))))
+           (cond (current
+                  (setq current
+                        (magit--propertize-face current'magit-branch-local))
+                  (setq target (magit-get-push-branch current t))
+                  (setq upstream (magit-get-upstream-branch current))
+                  (when upstream
+                    (setq upup (and (magit-local-branch-p upstream)
+                                    (magit-get-upstream-branch upstream)))))
+                 (t (setq head "HEAD")))
+           (delq nil (list current head target upstream upup)))
+         (magit-log-arguments)))
+  (magit-log-setup-buffer revs args files))
 
 ;;;###autoload
 (defun magit-log-other (revs &optional args files)
