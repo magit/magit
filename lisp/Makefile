@@ -53,7 +53,7 @@ magit-fetch.elc:        magit.elc
 magit-pull.elc:         magit.elc magit-remote.elc
 magit-push.elc:         magit.elc
 magit-bisect.elc:       magit.elc
-magit-stash.elc:        magit.elc magit-reflog.elc
+magit-stash.elc:        magit.elc magit-sequence.elc magit-reflog.elc
 magit-blame.elc:        magit.elc
 magit-obsolete.elc:     magit.elc
 magit-submodule.elc:    magit.elc

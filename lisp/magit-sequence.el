@@ -856,6 +856,15 @@ edit.  With a prefix argument the old message is reused as-is."
 (defun magit--rebase-resume-command ()
   (if (file-exists-p (magit-git-dir "rebase-recursive")) "rbr" "rebase"))
 
+(defun magit-rebase--get-state-lines (file)
+  (and (magit-rebase-in-progress-p)
+       (magit-file-line
+        (magit-git-dir
+         (concat (if (file-directory-p (magit-git-dir "rebase-merge"))
+                     "rebase-merge/"
+                   "rebase-apply/")
+                 file)))))
+
 ;;; Sections
 
 (defun magit-insert-sequencer-sequence ()

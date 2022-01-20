@@ -31,6 +31,7 @@
 
 (require 'magit)
 (require 'magit-reflog)
+(require 'magit-sequence)
 
 ;;; Options
 
@@ -374,14 +375,7 @@ If optional REF is non-nil, show reflog for that instead.
 If optional HEADING is non-nil, use that as section heading
 instead of \"Stashes:\"."
   (let ((verified (magit-rev-verify ref))
-        (autostash
-         (and (magit-rebase-in-progress-p)
-              (thread-first
-                  (if (file-directory-p (magit-git-dir "rebase-merge"))
-                      "rebase-merge/autostash"
-                    "rebase-apply/autostash")
-                magit-git-dir
-                magit-file-line))))
+        (autostash (magit-rebase--get-state-lines "autostash")))
     (when (or autostash verified)
       (magit-insert-section (stashes ref)
         (magit-insert-heading heading)
