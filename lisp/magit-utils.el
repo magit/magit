@@ -1168,6 +1168,9 @@ or (last of all) the value of EXP."
 (advice-add 'Info-follow-nearest-node :around
             'Info-follow-nearest-node--magit-gitman)
 
+;; When making changes here, then also adjust the copy in docs/Makefile.
+;;;###autoload
+(advice-add 'org-man-export :around 'org-man-export--magit-gitman)
 ;;;###autoload
 (defun org-man-export--magit-gitman (fn link description format)
   (if (and (eq format 'texinfo)
@@ -1186,10 +1189,6 @@ the %s(1) manpage.
 @end iftex
 ")
     (funcall fn link description format)))
-
-;;;###autoload
-(advice-add 'org-man-export :around
-            'org-man-export--magit-gitman)
 
 ;;; Kludges for Package Managers
 

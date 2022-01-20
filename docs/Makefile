@@ -86,8 +86,8 @@ clean-stats:
 
 ## Release management ################################################
 
-ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH)
-ORG_ARGS += -l magit-utils -l ol-man
+ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l ol-man
+ORG_EVAL += --eval "(progn $$ORG_MAN_EXPORT)"
 ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo
@@ -173,6 +173,31 @@ release-manuals: $(PUBLISH_TARGETS)
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(RELEASE_PATH),$(CFRONT_PATHS)))" > /dev/null
+
+# Lisp ###############################################################
+
+# When making changes here, then also adjust the copy in magit-utils.el.
+define ORG_MAN_EXPORT
+(advice-add 'org-man-export :around 'org-man-export--magit-gitman)
+(defun org-man-export--magit-gitman (fn link description format)
+  (if (and (eq format 'texinfo) ;'
+           (string-match-p "\\`git" link))
+      (replace-regexp-in-string "%s" link "
+@ifinfo
+@ref{%s,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href=\"http://git-scm.com/docs/%s\">%s(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the %s(1) manpage.
+@end iftex
+")
+    (funcall fn link description format)))
+endef
+export ORG_MAN_EXPORT
 
 # Templates ##########################################################
 
