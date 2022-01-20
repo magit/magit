@@ -438,19 +438,19 @@ the upstream isn't ahead of the current branch) show."
    ("-s" "Show diffstats"      "--stat")]          ;2
   [["Log"
     ("l" "current"             magit-log-current)
-    ("o" "other"               magit-log-other)
-    ("h" "HEAD"                magit-log-head)]
+    ("h" "HEAD"                magit-log-head)
+    ("o" "other"               magit-log-other)]
    [""
     ("L" "local branches"      magit-log-branches)
-    (7 "B" "matching branches" magit-log-matching-branches)
-    (7 "T" "matching tags"     magit-log-matching-tags)
     ("b" "all branches"        magit-log-all-branches)
     ("a" "all references"      magit-log-all)
+    (7 "B" "matching branches" magit-log-matching-branches)
+    (7 "T" "matching tags"     magit-log-matching-tags)
     (7 "m" "merged"            magit-log-merged)]
    ["Reflog"
     ("r" "current"             magit-reflog-current)
-    ("O" "other"               magit-reflog-other)
-    ("H" "HEAD"                magit-reflog-head)]
+    ("H" "HEAD"                magit-reflog-head)
+    ("O" "other"               magit-reflog-other)]
    [:if (lambda ()
           (require 'magit-wip)
           (magit--any-wip-mode-enabled-p))
@@ -635,6 +635,12 @@ one or more revs read from the minibuffer."
   (magit-log-setup-buffer revs args files))
 
 ;;;###autoload
+(defun magit-log-head (&optional args files)
+  "Show log for `HEAD'."
+  (interactive (magit-log-arguments))
+  (magit-log-setup-buffer (list "HEAD") args files))
+
+;;;###autoload
 (defun magit-log-other (revs &optional args files)
   "Show log for one or more revs read from the minibuffer.
 The user can input any revision or revisions separated by a
@@ -644,12 +650,6 @@ completion candidates."
   (interactive (cons (magit-log-read-revs)
                      (magit-log-arguments)))
   (magit-log-setup-buffer revs args files))
-
-;;;###autoload
-(defun magit-log-head (&optional args files)
-  "Show log for `HEAD'."
-  (interactive (magit-log-arguments))
-  (magit-log-setup-buffer (list "HEAD") args files))
 
 ;;;###autoload
 (defun magit-log-branches (&optional args files)

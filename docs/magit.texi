@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version v3.3.0-79-g2e73b66c2+1
+@subtitle for version v3.3.0-99-g2914b9202+1
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version v3.3.0-79-g2e73b66c2+1.
+This manual is for Magit version v3.3.0-99-g2914b9202+1.
 
 @quotation
 Copyright (C) 2015-2022 Jonas Bernoulli <jonas@@bernoul.li>
@@ -3225,6 +3225,11 @@ Show log for the current branch.  When @code{HEAD} is detached or with a
 prefix argument, show log for one or more revs read from the
 minibuffer.
 
+@item @kbd{l h} (@code{magit-log-head})
+@kindex l h
+@findex magit-log-head
+Show log for @code{HEAD}.
+
 @item @kbd{l o} (@code{magit-log-other})
 @kindex l o
 @findex magit-log-other
@@ -3232,11 +3237,6 @@ Show log for one or more revs read from the minibuffer.  The user
 can input any revision or revisions separated by a space, or even
 ranges, but only branches, tags, and a representation of the
 commit at point are available as completion candidates.
-
-@item @kbd{l h} (@code{magit-log-head})
-@kindex l h
-@findex magit-log-head
-Show log for @code{HEAD}.
 
 @item @kbd{l L} (@code{magit-log-branches})
 @kindex l L

@@ -2591,16 +2591,16 @@ The log transient also features several reflog commands.  See [[*Reflog]].
   prefix argument, show log for one or more revs read from the
   minibuffer.
 
+- Key: l h (magit-log-head) ::
+
+  Show log for ~HEAD~.
+
 - Key: l o (magit-log-other) ::
 
   Show log for one or more revs read from the minibuffer.  The user
   can input any revision or revisions separated by a space, or even
   ranges, but only branches, tags, and a representation of the
   commit at point are available as completion candidates.
-
-- Key: l h (magit-log-head) ::
-
-  Show log for ~HEAD~.
 
 - Key: l L (magit-log-branches) ::
 
