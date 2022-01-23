@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version v3.3.0-100-g5f23bcd77+1
+@subtitle for version v3.3.0-108-geb56b14bc+1
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version v3.3.0-100-g5f23bcd77+1.
+This manual is for Magit version v3.3.0-108-geb56b14bc+1.
 
 @quotation
 Copyright (C) 2015-2022 Jonas Bernoulli <jonas@@bernoul.li>
@@ -260,6 +260,7 @@ Miscellaneous
 * Submodules::
 * Subtree::
 * Worktree::
+* Sparse checkouts::
 * Bundle::
 * Common Commands::
 * Wip Modes::
@@ -5168,6 +5169,14 @@ The repository and the target directory are read from the user.
 By default the depth of the cloned history is a single commit,
 but with a prefix argument the depth is read from the user.
 
+@item @kbd{C >} (@code{magit-clone-sparse})
+@kindex C >
+@findex magit-clone-sparse
+This command creates a clone of an existing repository and
+initializes a sparse checkout, avoiding a checkout of the full
+working tree.  To add more directories, use the
+@code{magit-sparse-checkout} transient (see @ref{Sparse checkouts}).
+
 @item @kbd{C b} (@code{magit-clone-bare})
 @kindex C b
 @findex magit-clone-bare
@@ -8328,6 +8337,7 @@ discards all changes made since the sequence started.
 * Submodules::
 * Subtree::
 * Worktree::
+* Sparse checkouts::
 * Bundle::
 * Common Commands::
 * Wip Modes::
@@ -8755,6 +8765,89 @@ If there is no worktree at point, then read one in the minibuffer.
 If the worktree at point is the one whose status is already being
 displayed in the current buffer, then show it in Dired instead.
 @end table
+
+@node Sparse checkouts
+@section Sparse checkouts
+
+Sparse checkouts provide a way to restrict the working tree to a
+subset of directories.  See 
+@ifinfo
+@ref{git-sparse-checkout,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-sparse-checkout">git-sparse-checkout(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the git-sparse-checkout(1) manpage.
+@end iftex
+
+@strong{Warning}: Git introduced the @code{git sparse-checkout} command in version
+2.25 and still advertises it as experimental and subject to change.
+Magit's interface should be considered the same.  In particular, if
+Git introduces a backward incompatible change, Magit's sparse checkout
+functionality may be updated in a way that requires a more recent Git
+version.
+
+@table @asis
+@item @kbd{>} (@code{magit-sparse-checkout})
+@kindex >
+@findex magit-sparse-checkout
+This transient prefix command binds the following suffix commands
+and displays them in a temporary buffer until a suffix is invoked.
+
+@item @kbd{> e} (@code{magit-sparse-checkout-enable})
+@kindex > e
+@findex magit-sparse-checkout-enable
+This command initializes a sparse checkout that includes only the
+files in the top-level directory.
+
+Note that @code{magit-sparse-checkout-set} and
+@code{magit-sparse-checkout-add} automatically initialize a sparse
+checkout if necessary.  However, you may want to call
+@code{magit-sparse-checkout-enable} explicitly to re-initialize a sparse
+checkout after calling @code{magit-sparse-checkout-disable}, to pass
+additional arguments to @code{git sparse-checkout init}, or to execute
+the initialization asynchronously.
+
+@item @kbd{> s} (@code{magit-sparse-checkout-set})
+@kindex > s
+@findex magit-sparse-checkout-set
+This command takes a list of directories and configures the sparse
+checkout to include only files in those subdirectories.  Any
+previously included directories are excluded unless they are in the
+provided list of directories.
+
+@item @kbd{> a} (@code{magit-sparse-checkout-add})
+@kindex > a
+@findex magit-sparse-checkout-add
+This command is like @code{magit-sparse-checkout-set}, but instead adds
+the specified list of directories to the set of directories that is
+already included in the sparse checkout.
+
+@item @kbd{> r} (@code{magit-sparse-checkout-reapply})
+@kindex > r
+@findex magit-sparse-checkout-reapply
+This command applies the currently configured sparse checkout
+patterns to the working tree.  This is useful to call if excluded
+files have been checked out after operations such as merging or
+rebasing.
+
+@item @kbd{> d} (@code{magit-sparse-checkout-disable})
+@kindex > d
+@findex magit-sparse-checkout-disable
+This command restores the full checkout.  To return to the previous
+sparse checkout, call @code{magit-sparse-checkout-enable}.
+@end table
+
+A sparse checkout can also be initiated when cloning a repository by
+using the @code{magit-clone-sparse} command in the @code{magit-clone} transient
+(see @ref{Cloning Repository}).
+
+If you want the status buffer to indicate when a sparse checkout is
+enabled, add the function @code{magit-sparse-checkout-insert-header} to
+@code{magit-status-headers-hook}.
 
 @node Bundle
 @section Bundle
