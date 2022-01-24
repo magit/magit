@@ -1219,16 +1219,15 @@ Bind shell file name and switch for remote execution.
 This kludge provides the minimal functionality required by
 Magit."
     `(if (file-remote-p default-directory)
-         (let* ((vec (tramp-dissect-file-name default-directory))
-                (shell-file-name (tramp-get-method-parameter
-                                  vec
-                                  'tramp-remote-shell))
-                (shell-command-switch (mapconcat
-                                       #'identity
-                                       (tramp-get-method-parameter
-                                        vec
-                                        'tramp-remote-shell-args)
-                                       " ")))
+         (pcase-let ((`(,shell-file-name ,shell-command-switch)
+                      (let ((vec (tramp-dissect-file-name
+                                  default-directory)))
+                        (list (tramp-get-method-parameter
+                               vec 'tramp-remote-shell)
+                              (mapconcat #'identity
+                                         (tramp-get-method-parameter
+                                          vec 'tramp-remote-shell-args)
+                                         " ")))))
            ,@body)
        ,@body)))
 
