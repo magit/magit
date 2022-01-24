@@ -1229,7 +1229,7 @@ Magit."
                                         vec
                                         'tramp-remote-shell-args)
                                        " ")))
-           (progn ,@body))
+           ,@body)
        ,@body)))
 
 ;;; Miscellaneous
