@@ -1220,14 +1220,16 @@ This kludge provides the minimal functionality required by
 Magit."
     `(if (file-remote-p default-directory)
          (pcase-let ((`(,shell-file-name ,shell-command-switch)
-                      (let ((vec (tramp-dissect-file-name
-                                  default-directory)))
-                        (list (tramp-get-method-parameter
-                               vec 'tramp-remote-shell)
-                              (mapconcat #'identity
-                                         (tramp-get-method-parameter
-                                          vec 'tramp-remote-shell-args)
-                                         " ")))))
+                      (with-no-warnings ; about unknown tramp functions
+                        (require 'tramp)
+                        (let ((vec (tramp-dissect-file-name
+                                    default-directory)))
+                          (list (tramp-get-method-parameter
+                                 vec 'tramp-remote-shell)
+                                (mapconcat #'identity
+                                           (tramp-get-method-parameter
+                                            vec 'tramp-remote-shell-args)
+                                           " "))))))
            ,@body)
        ,@body)))
 
