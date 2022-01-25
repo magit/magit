@@ -1833,7 +1833,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
           (magit-git-lines "submodule" "status")))
 
 (defun magit-list-module-paths ()
-  (--mapcat (and (string-match "^160000 [0-9a-z]\\{40\\} 0\t\\(.+\\)$" it)
+  (--mapcat (and (string-match "^160000 [0-9a-z]\\{40,\\} 0\t\\(.+\\)$" it)
                  (list (match-string 1 it)))
             (magit-git-items "ls-files" "-z" "--stage")))
 

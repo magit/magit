@@ -476,7 +476,7 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame--parse-chunk (type)
   (let (chunk revinfo)
-    (unless (looking-at "^\\(.\\{40\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)")
+    (unless (looking-at "^\\(.\\{40,\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)")
       (error "Blaming failed due to unexpected output: %s"
              (buffer-substring-no-properties (point) (line-end-position))))
     (with-slots (orig-rev orig-file prev-rev prev-file)
@@ -491,7 +491,7 @@ modes is toggled, then this mode also gets toggled automatically.
           (cond ((looking-at "^filename \\(.+\\)")
                  (setq done t)
                  (setf orig-file (magit-decode-git-path (match-string 1))))
-                ((looking-at "^previous \\(.\\{40\\}\\) \\(.+\\)")
+                ((looking-at "^previous \\(.\\{40,\\}\\) \\(.+\\)")
                  (setf prev-rev  (match-string 1))
                  (setf prev-file (magit-decode-git-path (match-string 2))))
                 ((looking-at "^\\([^ ]+\\) \\(.+\\)")

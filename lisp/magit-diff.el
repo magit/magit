@@ -2221,7 +2221,7 @@ section or a child thereof."
                        ("removed in remote" "removed"))))
       (magit-delete-line)
       (while (looking-at
-              "^  \\([^ ]+\\) +[0-9]\\{6\\} \\([a-z0-9]\\{40\\}\\) \\(.+\\)$")
+              "^  \\([^ ]+\\) +[0-9]\\{6\\} \\([a-z0-9]\\{40,\\}\\) \\(.+\\)$")
         (magit-bind-match-strings (side _blob name) nil
           (pcase side
             ("result" (setq file name))

@@ -250,7 +250,7 @@ bisect run'."
                       "It appears you have invoked `git bisect' from a shell."
                       "There is nothing wrong with that, we just cannot display"
                       "anything useful here.  Consult the shell output instead.")))
-           (done-re "^\\([a-z0-9]\\{40\\}\\) is the first bad commit$")
+           (done-re "^\\([a-z0-9]\\{40,\\}\\) is the first bad commit$")
            (bad-line (or (and (string-match done-re (car lines))
                               (pop lines))
                          (--first (string-match done-re it) lines))))
@@ -299,7 +299,7 @@ bisect run'."
                               (magit-abbrev-length)))
             (insert ?\n)))))
     (when (re-search-forward
-           "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
+           "# first bad commit: \\[\\([a-z0-9]\\{40,\\}\\)\\] [^\n]+\n" nil t)
       (magit-bind-match-strings (hash) nil
         (magit-delete-match)
         (magit-insert-section (bisect-item)
