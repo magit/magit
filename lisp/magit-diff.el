@@ -952,9 +952,9 @@ and `:slant'."
   :reader 'magit-read-files
   :multi-value t)
 
-(defun magit-read-files (prompt initial-input history)
+(defun magit-read-files (prompt initial-input history &optional list-fn)
   (magit-completing-read-multiple* prompt
-                                   (magit-list-files)
+                                   (funcall (or list-fn #'magit-list-files))
                                    nil nil
                                    (or initial-input (magit-file-at-point))
                                    history))
