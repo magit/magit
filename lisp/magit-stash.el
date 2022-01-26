@@ -96,7 +96,8 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
     ("z" "both"          magit-stash-both)
     ("i" "index"         magit-stash-index)
     ("w" "worktree"      magit-stash-worktree)
-    ("x" "keeping index" magit-stash-keep-index)]
+    ("x" "keeping index" magit-stash-keep-index)
+    ("P" "push"          magit-stash-push :level 5)]
    ["Snapshot"
     ("Z" "both"          magit-snapshot-both)
     ("I" "index"         magit-snapshot-index)
@@ -210,6 +211,30 @@ while two prefix arguments are equivalent to `--all'."
 (defun magit-snapshot-save (index worktree untracked &optional refresh)
   (magit-stash-save (concat "WIP on " (magit-stash-summary))
                     index worktree untracked refresh t))
+
+;;;###autoload (autoload 'magit-stash-push "magit-stash" nil t)
+(transient-define-prefix magit-stash-push (&optional transient args)
+  "Create stash using \"git stash push\".
+
+This differs from Magit's other stashing commands, which don't
+use \"git stash\" and are generally more flexible but don't allow
+specifying a list of files to be stashed."
+  :man-page "git-stash"
+  ["Arguments"
+   (magit:-- :reader ,(-rpartial #'magit-read-files
+                                 #'magit-modified-files))
+   ("-u" "Also save untracked files" ("-u" "--include-untracked"))
+   ("-a" "Also save untracked and ignored files" ("-a" "--all"))
+   ("-k" "Keep index" ("-k" "--keep-index"))
+   ("-K" "Don't keep index" "--no-keep-index")]
+  ["Actions"
+   ("P" "push" magit-stash-push)]
+  (interactive (if (eq transient-current-command 'magit-stash-push)
+                   (list nil (transient-args 'magit-stash-push))
+                 (list t)))
+  (if transient
+      (transient-setup 'magit-stash-push)
+    (magit-run-git "stash" "push" args)))
 
 ;;;###autoload
 (defun magit-stash-apply (stash)
