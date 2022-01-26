@@ -923,6 +923,12 @@ tracked file."
 (defun magit-untracked-files (&optional all files)
   (magit-list-files "--other" (unless all "--exclude-standard") "--" files))
 
+(defun magit-modified-files (&optional nomodules files)
+  (delete-consecutive-dups
+   (sort (nconc (magit-staged-files nomodules files)
+                (magit-unstaged-files nomodules files))
+         #'string<)))
+
 (defun magit-unstaged-files (&optional nomodules files)
   (magit-git-items "diff-files" "-z" "--name-only"
                    (and nomodules "--ignore-submodules")
