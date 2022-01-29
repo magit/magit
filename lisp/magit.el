@@ -368,11 +368,11 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
     ("U" "Unstage all"    magit-unstage-all)]]
   ["Essential commands"
    :if-derived magit-mode
-   ("g" "       refresh current buffer"   magit-refresh)
-   ("q" "       bury current buffer"      magit-mode-bury-buffer)
-   ("<tab>" "   toggle section at point"  magit-section-toggle)
-   ("<return>" "visit thing at point"     magit-visit-thing)
-   ("C-x m" "   show all key bindings"    describe-mode)])
+   [("g" "       refresh current buffer"   magit-refresh)
+    ("q" "       bury current buffer"      magit-mode-bury-buffer)
+    ("<tab>" "   toggle section at point"  magit-section-toggle)
+    ("<return>" "visit thing at point"     magit-visit-thing)]
+   [("C-x m"    "show all key bindings"    describe-mode)]])
 
 ;;; Git Popup
 
