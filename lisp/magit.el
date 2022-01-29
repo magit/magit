@@ -372,7 +372,14 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
     ("q" "       bury current buffer"      magit-mode-bury-buffer)
     ("<tab>" "   toggle section at point"  magit-section-toggle)
     ("<return>" "visit thing at point"     magit-visit-thing)]
-   [("C-x m"    "show all key bindings"    describe-mode)]])
+   [("C-x m"    "show all key bindings"    describe-mode)
+    ("C-x i"    "show Info manual"         magit-info)]])
+
+;;;###autoload
+(defun magit-info ()
+  "Show Magit's Info manual."
+  (interactive)
+  (info "magit"))
 
 ;;; Git Popup
 
