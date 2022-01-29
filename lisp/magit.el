@@ -92,7 +92,7 @@ own faces for the `header-line', or for parts of the
 (defface magit-hash
   '((((class color) (background light)) :foreground "grey60")
     (((class color) (background  dark)) :foreground "grey40"))
-  "Face for the sha1 part of the log output."
+  "Face for the commit object name in the log output."
   :group 'magit-faces)
 
 (defface magit-tag

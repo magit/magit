@@ -1161,7 +1161,7 @@ Do not add this to a hook variable."
   ;; ++header is used.
   (concat "^"
           "\\(?4:[-_/|\\*o<>. ]*\\)"               ; graph
-          "\\(?1:[0-9a-fA-F]+\\)?"               ; sha1
+          "\\(?1:[0-9a-fA-F]+\\)?"               ; hash
           "\\(?3:[^\n]+\\)?"                   ; refs
           "\\(?7:[BGUXYREN]\\)?"                 ; gpg
           "\\(?5:[^\n]*\\)"                    ; author
@@ -1173,31 +1173,31 @@ Do not add this to a hook variable."
 (defconst magit-log-cherry-re
   (concat "^"
           "\\(?8:[-+]\\) "                         ; cherry
-          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; hash
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-module-re
   (concat "^"
           "\\(?:\\(?11:[<>]\\) \\)?"               ; side
-          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; hash
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-bisect-vis-re
   (concat "^"
           "\\(?4:[-_/|\\*o<>. ]*\\)"               ; graph
-          "\\(?1:[0-9a-fA-F]+\\)?\0"               ; sha1
+          "\\(?1:[0-9a-fA-F]+\\)?\0"               ; hash
           "\\(?3:[^\0\n]+\\)?\0"                   ; refs
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-bisect-log-re
   (concat "^# "
           "\\(?3:[^: \n]+:\\) "                    ; "refs"
-          "\\[\\(?1:[^]\n]+\\)\\] "                ; sha1
+          "\\[\\(?1:[^]\n]+\\)\\] "                ; hash
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-reflog-re
   (concat "^"
-          "\\(?1:[^\0\n]+\\)\0"                    ; sha1
+          "\\(?1:[^\0\n]+\\)\0"                    ; hash
           "\\(?5:[^\0\n]*\\)\0"                    ; author
           "\\(?:\\(?:[^@\n]+@{\\(?6:[^}\n]+\\)}\0" ; date
           "\\(?10:merge \\|autosave \\|restart \\|[^:\n]+: \\)?" ; refsub
@@ -1210,7 +1210,7 @@ Do not add this to a hook variable."
 
 (defconst magit-log-stash-re
   (concat "^"
-          "\\(?1:[^\0\n]+\\)\0"                    ; "sha1"
+          "\\(?1:[^\0\n]+\\)\0"                    ; "hash"
           "\\(?5:[^\0\n]*\\)\0"                    ; author
           "\\(?6:[^\0\n]+\\)\0"                    ; date
           "\\(?2:.*\\)$"))                         ; msg
