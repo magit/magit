@@ -638,7 +638,7 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame--format-string-1 (rev revinfo format face)
   (let ((str
-         (if (equal rev "0000000000000000000000000000000000000000")
+         (if (string-match-p "\\`0\\{40,\\}\\'" rev)
              (propertize (concat (if (string-prefix-p "\s" format) "\s" "")
                                  "Not Yet Committed"
                                  (if (string-suffix-p "\n" format) "\n" ""))
