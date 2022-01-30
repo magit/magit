@@ -2,6 +2,7 @@
 /docs/*.html
 /docs/*.info
 /docs/*.pdf
+/docs/*.texi
 /docs/dir
 /docs/stats/
 /lisp/*-autoloads.el
