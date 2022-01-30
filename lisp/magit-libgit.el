@@ -11,7 +11,7 @@
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
 ;; Package-Requires: ((emacs "26.1") (libgit "0") (magit "3.3.0"))
-;; Package-Version: 3.3.0
+;; Package-Version: 3.3.0-git
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; Magit is free software; you can redistribute it and/or modify it

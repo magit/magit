@@ -7,7 +7,7 @@
 #+texinfo_dir_category: Emacs
 #+texinfo_dir_title: Magit-Section: (magit-section).
 #+texinfo_dir_desc: Use Magit sections in your own packages.
-#+subtitle: for version {{{version}}}
+#+subtitle: for version 3.3.0-git
 
 #+setupfile: .orgconfig
 
@@ -21,7 +21,7 @@ user options see [[info:magit#Sections]].  This manual documents how you
 can use sections in your own packages.
 
 #+texinfo: @noindent
-This manual is for Magit-Section version {{{version}}}.
+This manual is for Magit-Section version 3.3.0-git.
 
 #+begin_quote
 Copyright (C) 2015-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>

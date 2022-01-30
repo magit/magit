@@ -1,4 +1,4 @@
-(define-package "git-commit" "3.3.0"
+(define-package "git-commit" "3.3.0-git"
   "Edit Git commit messages."
   '((emacs "25.1")
     (dash "20210826")

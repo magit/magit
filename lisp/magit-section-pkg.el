@@ -1,4 +1,4 @@
-(define-package "magit-section" "3.3.0"
+(define-package "magit-section" "3.3.0-git"
   "Sections for read-only buffers"
   '((emacs "25.1")
     (dash "20210826"))

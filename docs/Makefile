@@ -92,13 +92,6 @@ ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo
 
-# This target first bumps version strings in the Org source.  The
-# necessary tools might be missing so other targets do not depend
-# on this target and it has to be run explicitly when appropriate.
-#
-#   AMEND=t make texi    Update manual to be amended to HEAD.
-#   VERSION=N make texi  Update manual for release.
-#
 texi:
 	@$(EMACSBIN) $(ORG_ARGS) $(PKG).org $(ORG_EVAL)
 	@printf "\n" >> $(PKG).texi
