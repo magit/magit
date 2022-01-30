@@ -253,7 +253,6 @@ define set_package_requires_melpa
 "(define-package \"git-commit\" \"$(GIT_COMMIT_VERSION)$(DEV_SUFFIX)\"
   \"Edit Git commit messages.\"
   '((emacs %S)
-    (dash %S)
     (transient %S)
     (with-editor %S))
   :homepage \"https://magit.vc\"
