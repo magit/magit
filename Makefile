@@ -161,6 +161,7 @@ authors:
 publish-stats:
 	@$(MAKE) -C docs publish-stats
 
+publish: publish-manuals
 publish-manuals:
 	@$(MAKE) -C docs publish-manuals
 
