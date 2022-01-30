@@ -1010,6 +1010,7 @@ remove function that haven't even been added yet, for example:
 Magit provides many commands for changing the visibility of sections,
 but all you need to get started are the next two.
 
+#+attr_texinfo: :compact t
 - Key: TAB (magit-section-toggle) ::
 
   Toggle the visibility of the body of the current section.
@@ -1027,16 +1028,16 @@ but all you need to get started are the next two.
   Cycle the visibility of all sections in the current buffer.
 
 - Key: 1 (magit-section-show-level-1) ::
-+ Key: 2 (magit-section-show-level-2) ::
-+ Key: 3 (magit-section-show-level-3) ::
-+ Key: 4 (magit-section-show-level-4) ::
+- Key: 2 (magit-section-show-level-2) ::
+- Key: 3 (magit-section-show-level-3) ::
+- Key: 4 (magit-section-show-level-4) ::
 
   Show sections surrounding the current section up to level N.
 
 - Key: M-1 (magit-section-show-level-1-all) ::
-+ Key: M-2 (magit-section-show-level-2-all) ::
-+ Key: M-3 (magit-section-show-level-3-all) ::
-+ Key: M-4 (magit-section-show-level-4-all) ::
+- Key: M-2 (magit-section-show-level-2-all) ::
+- Key: M-3 (magit-section-show-level-3-all) ::
+- Key: M-4 (magit-section-show-level-4-all) ::
 
   Show all sections up to level N.
 
@@ -1865,6 +1866,7 @@ come in handy.  Magit provides some commands for running arbitrary Git
 commands by typing them into the minibuffer, instead of having to
 switch to a shell.
 
+#+attr_texinfo: :compact t
 - Key: ! (magit-run) ::
 
   This transient prefix command binds the following suffix commands
@@ -1879,7 +1881,7 @@ switch to a shell.
   for the command.  It can be removed to run another command.
 
 - Key: : (magit-git-command) ::
-+ Key: ! p ::
+- Key: ! p ::
 
   This command reads a command from the user and executes it in
   ~default-directory~.  With a prefix argument the command is executed
@@ -3919,9 +3921,9 @@ above commands also use another window when invoked with a prefix
 argument.
 
 - Command: magit-diff-visit-file-other-window ::
-+ Command: magit-diff-visit-file-other-frame ::
-+ Command: magit-diff-visit-worktree-file-other-window ::
-+ Command: magit-diff-visit-worktree-file-other-frame ::
+- Command: magit-diff-visit-file-other-frame ::
+- Command: magit-diff-visit-worktree-file-other-window ::
+- Command: magit-diff-visit-worktree-file-other-frame ::
 
 ** Blaming
 
@@ -3948,8 +3950,9 @@ times.  For example if ~magit-blame-mode~ is not enabled, then the
 command whose purpose is to turn off that mode would not be of any
 use and therefore isn't available.
 
+#+attr_texinfo: :compact t
 - Key: C-c M-g b (magit-blame-addition) ::
-+ Key: C-c M-g B b ::
+- Key: C-c M-g B b ::
 
   This command augments each line or chunk of lines in the current
   file-visiting or blob-visiting buffer with information about what
@@ -3965,7 +3968,7 @@ use and therefore isn't available.
   added the current line or chunk of lines.
 
 - Key: C-c M-g r (magit-blame-removal) ::
-+ Key: C-c M-g B r ::
+- Key: C-c M-g B r ::
 
   This command augments each line or chunk of lines in the current
   blob-visiting buffer with information about the revision that
@@ -3974,7 +3977,7 @@ use and therefore isn't available.
   Like ~magit-blame-addition~, this command can be used recursively.
 
 - Key: C-c M-g f (magit-blame-reverse) ::
-+ Key: C-c M-g B f ::
+- Key: C-c M-g B f ::
 
   This command augments each line or chunk of lines in the current
   file-visiting or blob-visiting buffer with information about the
@@ -3983,7 +3986,7 @@ use and therefore isn't available.
   Like ~magit-blame-addition~, this command can be used recursively.
 
 - Key: C-c M-g e (magit-blame-echo) ::
-+ Key: C-c M-g B e ::
+- Key: C-c M-g B e ::
 
   This command is like ~magit-blame-addition~ except that it doesn't
   turn on ~read-only-mode~ and that it initially uses the visualization
@@ -4880,6 +4883,7 @@ command deals with branches themselves, not with the commits reachable
 from them.  Those features are available from separate transient
 command.
 
+#+attr_texinfo: :compact t
 - Key: b (magit-branch) ::
 
   This transient prefix command binds the following suffix commands
@@ -4898,9 +4902,9 @@ command.
   change branch related variables.
 
 - Key: b C (magit-branch-configure) ::
-+ Key: f C ::
-+ Key: F C ::
-+ Key: P C ::
+- Key: f C ::
+- Key: F C ::
+- Key: P C ::
 
   This transient prefix command binds commands that set the value of
   branch-related variables and displays them in a temporary buffer
