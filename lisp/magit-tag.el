@@ -140,15 +140,21 @@ If this matches versions that are not dot separated numbers,
 then `magit-tag-version-regexp-alist' has to contain entries
 for the separators allowed here.")
 
+(defvar magit-release-commit-regexp "\\`Release version \\(.+\\)\\'"
+  "Regexp used by `magit-tag-release' to parse release commit messages.
+The first submatch must match the version string.")
+
 ;;;###autoload
 (defun magit-tag-release (tag msg &optional args)
-  "Create a release tag.
+  "Create a release tag for `HEAD'.
 
 Assume that release tags match `magit-release-tag-regexp'.
 
-First prompt for the name of the new tag using the highest
-existing tag as initial input and leaving it to the user to
-increment the desired part of the version string.
+If `HEAD's message matches `magit-release-commit-regexp', then
+base the tag on the version string specified by that.  Otherwise
+prompt for the name of the new tag using the highest existing
+tag as initial input and leaving it to the user to increment the
+desired part of the version string.
 
 If `--annotate' is enabled, then prompt for the message of the
 new tag.  Base the proposed tag message on the message of the
@@ -161,7 +167,16 @@ like \"/path/to/foo-bar\"."
    (save-match-data
      (pcase-let*
          ((`(,pver ,ptag ,pmsg) (car (magit--list-releases)))
-          (tag (read-string "Create release tag: " ptag))
+          (msg (magit-rev-format "%s"))
+          (ver (and (string-match magit-release-commit-regexp msg)
+                    (match-string 1 msg)))
+          (tag (if ver
+                   (concat (and (string-match magit-release-tag-regexp ptag)
+                                (match-string 1 ptag))
+                           ver)
+                 (read-string
+                  (format "Create release tag (previous was %s): " ptag)
+                  ptag)))
           (ver (and (string-match magit-release-tag-regexp tag)
                     (match-string 2 tag)))
           (args (magit-tag-arguments)))
