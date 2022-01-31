@@ -658,11 +658,11 @@ arguments are for internal use only."
       (insert (format "%-10s" "Push: "))
       (insert
        (if (magit-rev-verify target)
-           (concat target " "
-                   (and magit-status-show-hashes-in-headers
+           (concat (and magit-status-show-hashes-in-headers
                         (concat (propertize (magit-rev-format "%h" target)
                                             'font-lock-face 'magit-hash)
                                 " "))
+                   target " "
                    (funcall magit-log-format-message-function target
                             (funcall magit-log-format-message-function nil
                                      (or (magit-rev-format "%s" target)
