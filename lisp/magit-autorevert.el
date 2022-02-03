@@ -105,7 +105,9 @@ seconds of user inactivity.  That is not desirable."
       (--when-let (find-buffer-visiting file)
         (with-current-buffer it
           (magit-turn-on-auto-revert-mode-if-desired)))
-    (when (and buffer-file-name
+    (when (and (not auto-revert-mode)        ; see #3014
+               (not global-auto-revert-mode) ; see #3460
+               buffer-file-name
                (file-readable-p buffer-file-name)
                (or (< emacs-major-version 27)
                    (with-no-warnings
@@ -114,9 +116,7 @@ seconds of user inactivity.  That is not desirable."
                        (wrong-number-of-arguments t)))) ; very old 27 built
                (magit-toplevel)
                (or (not magit-auto-revert-tracked-only)
-                   (magit-file-tracked-p buffer-file-name))
-               (not auto-revert-mode)         ; see #3014
-               (not global-auto-revert-mode)) ; see #3460
+                   (magit-file-tracked-p buffer-file-name)))
       (auto-revert-mode 1))))
 
 ;;;###autoload
