@@ -1010,7 +1010,6 @@ remove function that haven't even been added yet, for example:
 Magit provides many commands for changing the visibility of sections,
 but all you need to get started are the next two.
 
-#+attr_texinfo: :compact t
 - Key: TAB (magit-section-toggle) ::
 
   Toggle the visibility of the body of the current section.
@@ -1866,7 +1865,6 @@ come in handy.  Magit provides some commands for running arbitrary Git
 commands by typing them into the minibuffer, instead of having to
 switch to a shell.
 
-#+attr_texinfo: :compact t
 - Key: ! (magit-run) ::
 
   This transient prefix command binds the following suffix commands
@@ -3950,7 +3948,6 @@ times.  For example if ~magit-blame-mode~ is not enabled, then the
 command whose purpose is to turn off that mode would not be of any
 use and therefore isn't available.
 
-#+attr_texinfo: :compact t
 - Key: C-c M-g b (magit-blame-addition) ::
 - Key: C-c M-g B b ::
 
@@ -4883,7 +4880,6 @@ command deals with branches themselves, not with the commits reachable
 from them.  Those features are available from separate transient
 command.
 
-#+attr_texinfo: :compact t
 - Key: b (magit-branch) ::
 
   This transient prefix command binds the following suffix commands
