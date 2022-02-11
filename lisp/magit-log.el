@@ -1863,7 +1863,7 @@ Show the last `magit-log-section-commit-count' commits."
   (when magit-section-show-child-count
     (let ((count (length (oref magit-insert-section--current children))))
       (when (> count 0)
-        (when (= count (magit-log-get-commit-limit))
+        (when (eq count (magit-log-get-commit-limit))
           (setq count (format "%s+" count)))
         (save-excursion
           (goto-char (- (oref magit-insert-section--current content) 2))
