@@ -170,6 +170,11 @@ like \"/path/to/foo-bar\"."
           (msg (magit-rev-format "%s"))
           (ver (and (string-match magit-release-commit-regexp msg)
                     (match-string 1 msg)))
+          (_   (and (not ver)
+                    (require (quote sisyphus) nil t)
+                    (string-match magit-release-commit-regexp
+                                  (magit-rev-format "%s" ptag))
+                    (user-error "Use `sisyphus-create-release' first")))
           (tag (if ver
                    (concat (and (string-match magit-release-tag-regexp ptag)
                                 (match-string 1 ptag))
