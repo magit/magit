@@ -227,6 +227,15 @@ Usually this is just its basename."
   "Insert the absolute path of the repository."
   (abbreviate-file-name default-directory))
 
+(defvar magit-repolist-column-version-regexp "\
+\\(?1:-\\(?2:[0-9]*\\)\
+\\(?3:-g[a-z0-9]*\\)\\)?\
+\\(?:-\\(?4:dirty\\)\\)\
+?\\'")
+
+(defvar magit-repolist-column-version-resume-regexp
+   "\\`Resume development\\'")
+
 (defun magit-repolist-column-version (_)
   "Insert a description of the repository's `HEAD' revision."
   (when-let ((v (or (magit-git-string "describe" "--tags" "--dirty")
@@ -234,13 +243,16 @@ Usually this is just its basename."
                     (magit-git-string "show" "--no-patch" "--format=%cd-g%h"
                                       "--date=format:%Y%m%d.%H%M"))))
     (save-match-data
-      (when (string-match
-             "\\(?:-\\([0-9]*\\)-g[a-z0-9]*\\)?\\(?:-\\(dirty\\)\\)?\\'" v)
+      (when (string-match magit-repolist-column-version-regexp v)
         (magit--put-face (match-beginning 0) (match-end 0) 'shadow v)
-        (when (match-end 1)
-          (magit--put-face (match-beginning 1) (match-end 1) 'bold v))
         (when (match-end 2)
-          (magit--put-face (match-beginning 2) (match-end 2) 'error v)))
+          (magit--put-face (match-beginning 2) (match-end 2) 'bold v))
+        (when (match-end 4)
+          (magit--put-face (match-beginning 4) (match-end 4) 'error v))
+        (when (and (equal (match-string 2 v) "1")
+                   (string-match-p magit-repolist-column-version-resume-regexp
+                                   (magit-rev-format "%s")))
+          (setq v (replace-match (propertize "+" 'face 'shadow) t t v 1))))
       (if (and v (string-match "\\`[0-9]" v))
           (concat " " v)
         (when (and v (string-match "\\`[^0-9]+" v))
