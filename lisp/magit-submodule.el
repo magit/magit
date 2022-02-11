@@ -637,8 +637,8 @@ These sections can be expanded to show the respective commits."
   (unless tabulated-list-sort-key
     (setq tabulated-list-sort-key
           (pcase-let ((`(,column . ,flip) magit-submodule-list-sort-key))
-            (cons (or (car (assoc column magit-submodule-list-columns))
-                      (caar magit-submodule-list-columns))
+            (cons (or (car (assoc column magit-repolist-columns))
+                      (caar magit-repolist-columns))
                   flip))))
   (setq tabulated-list-format
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
