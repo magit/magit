@@ -45,3 +45,6 @@
 
 - For Helm users, calling ~magit-stash-drop~ on the "Stashes" section
   has been broken since v3.0.0.  #4571
+
+- ~magit-discard~ didn't properly handle conflicts resulting from a
+  file being renamed on both sides.  #4225
