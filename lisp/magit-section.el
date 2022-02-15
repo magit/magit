@@ -291,6 +291,10 @@ but that ship has sailed, thus this option."
   "Face for selected section headings."
   :group 'magit-section-faces)
 
+(defface magit-section-child-count '((t nil))
+  "Face used for child counts at the end of some section headings."
+  :group 'magit-section-faces)
+
 ;;; Classes
 
 (defvar magit--current-section-hook nil
@@ -1238,7 +1242,9 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
                (eq (char-before (1- content)) ?:))
       (save-excursion
         (goto-char (- content 2))
-        (insert (format " (%s)" count))
+        (insert (concat (magit--propertize-face " " 'magit-section-heading)
+                        (magit--propertize-face (format "(%s)" count)
+                                                'magit-section-child-count)))
         (delete-char 1)))))
 
 ;;; Highlight
