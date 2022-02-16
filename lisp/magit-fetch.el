@@ -181,7 +181,6 @@ with a prefix argument."
                      (t "--jobs=4")))
   ["Arguments"
    ("-v" "verbose"        "--verbose")
-   ("-a" "all remotes"    "--all")
    ("-j" "number of jobs" "--jobs=" :reader transient-read-number-N+)]
   ["Action"
    ("m" "fetch modules" magit-fetch-modules)]
