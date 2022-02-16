@@ -910,38 +910,6 @@ with the text area."
         (concat (propertize " " 'display '(space :align-to 0))
                 string)))
 
-(defun magit-face-property-all (face string)
-  "Return non-nil if FACE is present in all of STRING."
-  (catch 'missing
-    (let ((pos 0))
-      (while (setq pos (next-single-property-change pos 'font-lock-face string))
-        (let ((val (get-text-property pos 'font-lock-face string)))
-          (unless (if (consp val)
-                      (memq face val)
-                    (eq face val))
-            (throw 'missing nil))))
-      (not pos))))
-
-(defun magit--add-face-text-property (beg end face &optional append object)
-  "Like `add-face-text-property' but for `font-lock-face'."
-  (while (< beg end)
-    (let* ((pos (next-single-property-change beg 'font-lock-face object end))
-           (val (get-text-property beg 'font-lock-face object))
-           (val (if (listp val) val (list val))))
-      (put-text-property beg pos 'font-lock-face
-                         (if append
-                             (append val (list face))
-                           (cons face val))
-                         object)
-      (setq beg pos))))
-
-(defun magit--propertize-face (string face)
-  (propertize string 'face face 'font-lock-face face))
-
-(defun magit--put-face (beg end face string)
-  (put-text-property beg end 'face face string)
-  (put-text-property beg end 'font-lock-face face string))
-
 (defun magit--format-spec (format specification)
   "Like `format-spec' but preserve text properties in SPECIFICATION."
   (with-temp-buffer
