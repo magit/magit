@@ -795,6 +795,13 @@ Save current message first."
         (setq str (replace-match "\n" t t str)))
       str)))
 
+;;; Utilities
+
+(defsubst git-commit-executable ()
+  (if (fboundp 'magit-git-executable)
+      (magit-git-executable)
+    "git"))
+
 ;;; Headers
 
 (transient-define-prefix git-commit-insert-pseudo-header ()
@@ -859,13 +866,17 @@ Save current message first."
 (defun git-commit-self-ident ()
   (list (or (getenv "GIT_AUTHOR_NAME")
             (getenv "GIT_COMMITTER_NAME")
-            (ignore-errors (car (process-lines "git" "config" "user.name")))
+            (ignore-errors
+              (car (process-lines
+                    (git-commit-executable) "config" "user.name")))
             user-full-name
             (read-string "Name: "))
         (or (getenv "GIT_AUTHOR_EMAIL")
             (getenv "GIT_COMMITTER_EMAIL")
             (getenv "EMAIL")
-            (ignore-errors (car (process-lines "git" "config" "user.email")))
+            (ignore-errors
+              (car (process-lines
+                    (git-commit-executable) "config" "user.email")))
             (read-string "Email: "))))
 
 (defvar git-commit-read-ident-history nil)
@@ -1037,8 +1048,9 @@ Added to `font-lock-extend-region-functions'."
     (set-syntax-table table))
   (setq-local comment-start
               (or (with-temp-buffer
-                    (call-process "git" nil (current-buffer) nil
-                                  "config" "core.commentchar")
+                    (call-process
+                     (git-commit-executable) nil (current-buffer) nil
+                     "config" "core.commentchar")
                     (unless (bobp)
                       (goto-char (point-min))
                       (buffer-substring (point) (line-end-position))))
