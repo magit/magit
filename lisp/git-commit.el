@@ -1038,52 +1038,53 @@ Added to `font-lock-extend-region-functions'."
   "Font-Lock keywords for Git-Commit mode.")
 
 (defun git-commit-setup-font-lock ()
-  (let ((table (make-syntax-table (syntax-table))))
-    (when comment-start
-      (modify-syntax-entry (string-to-char comment-start) "." table))
-    (modify-syntax-entry ?#  "." table)
-    (modify-syntax-entry ?\" "." table)
-    (modify-syntax-entry ?\' "." table)
-    (modify-syntax-entry ?`  "." table)
-    (set-syntax-table table))
-  (setq-local comment-start
-              (or (with-temp-buffer
-                    (and (zerop
-                          (call-process
-                           (git-commit-executable) nil (list t nil) nil
-                           "config" "core.commentchar"))
-                         (not (bobp))
-                         (progn
-                           (goto-char (point-min))
-                           (buffer-substring (point) (line-end-position)))))
-                  "#"))
-  (setq-local comment-start-skip (format "^%s+[\s\t]*" comment-start))
-  (setq-local comment-end-skip "\n")
-  (setq-local comment-use-syntax nil)
-  (setq-local git-commit--branch-name-regexp
-              (if (and (featurep 'magit-git)
-                       ;; When using cygwin git, we may end up in a
-                       ;; non-existing directory, which would cause
-                       ;; any git calls to signal an error.
-                       (file-accessible-directory-p default-directory))
-                  (progn
-                    ;; Make sure the below functions are available.
-                    (require 'magit)
-                    ;; Font-Lock wants every submatch to succeed, so
-                    ;; also match the empty string.  Avoid listing
-                    ;; remote branches and using `regexp-quote',
-                    ;; because in repositories have thousands of
-                    ;; branches that would be very slow.  See #4353.
-                    (format "\\(\\(?:%s\\)\\|\\)\\([^']+\\)"
-                            (mapconcat #'identity
-                                       (magit-list-local-branch-names)
-                                       "\\|")))
-                "\\([^']*\\)"))
-  (setq-local font-lock-multiline t)
-  (add-hook 'font-lock-extend-region-functions
-            #'git-commit-extend-region-summary-line
-            t t)
-  (font-lock-add-keywords nil git-commit-font-lock-keywords))
+  (with-demoted-errors "Error running git-commit-setup-font-lock: %S"
+    (let ((table (make-syntax-table (syntax-table))))
+      (when comment-start
+        (modify-syntax-entry (string-to-char comment-start) "." table))
+      (modify-syntax-entry ?#  "." table)
+      (modify-syntax-entry ?\" "." table)
+      (modify-syntax-entry ?\' "." table)
+      (modify-syntax-entry ?`  "." table)
+      (set-syntax-table table))
+    (setq-local comment-start
+                (or (with-temp-buffer
+                      (and (zerop
+                            (call-process
+                             (git-commit-executable) nil (list t nil) nil
+                             "config" "core.commentchar"))
+                           (not (bobp))
+                           (progn
+                             (goto-char (point-min))
+                             (buffer-substring (point) (line-end-position)))))
+                    "#"))
+    (setq-local comment-start-skip (format "^%s+[\s\t]*" comment-start))
+    (setq-local comment-end-skip "\n")
+    (setq-local comment-use-syntax nil)
+    (setq-local git-commit--branch-name-regexp
+                (if (and (featurep 'magit-git)
+                         ;; When using cygwin git, we may end up in a
+                         ;; non-existing directory, which would cause
+                         ;; any git calls to signal an error.
+                         (file-accessible-directory-p default-directory))
+                    (progn
+                      ;; Make sure the below functions are available.
+                      (require 'magit)
+                      ;; Font-Lock wants every submatch to succeed, so
+                      ;; also match the empty string.  Avoid listing
+                      ;; remote branches and using `regexp-quote',
+                      ;; because in repositories have thousands of
+                      ;; branches that would be very slow.  See #4353.
+                      (format "\\(\\(?:%s\\)\\|\\)\\([^']+\\)"
+                              (mapconcat #'identity
+                                         (magit-list-local-branch-names)
+                                         "\\|")))
+                  "\\([^']*\\)"))
+    (setq-local font-lock-multiline t)
+    (add-hook 'font-lock-extend-region-functions
+              #'git-commit-extend-region-summary-line
+              t t)
+    (font-lock-add-keywords nil git-commit-font-lock-keywords)))
 
 (defun git-commit-propertize-diff ()
   (require 'diff-mode)
