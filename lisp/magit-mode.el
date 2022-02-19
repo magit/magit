@@ -1421,20 +1421,31 @@ Unless specified, REPOSITORY is the current buffer's repository."
         (magit-repository-local-get
          (cons mode 'magit-section-visibility-cache))))
 
-(defun magit-zap-caches ()
+(defun magit-zap-caches (&optional all)
   "Zap caches for the current repository.
+
 Remove the repository's entry from `magit-repository-local-cache'
 and set `magit-section-visibility-cache' to nil in all of the
-repository's Magit buffers."
+repository's Magit buffers.
+
+With a prefix argument or if optional ALL is non-nil, discard the
+mentioned caches completely."
   (interactive)
-  (magit-with-toplevel
-    (setq magit-repository-local-cache
-          (cl-delete default-directory
-                     magit-repository-local-cache
-                     :key #'car :test #'equal)))
-  (dolist (buffer (magit-mode-get-buffers))
-    (with-current-buffer buffer
-      (setq magit-section-visibility-cache nil)))
+  (cond (all
+         (setq magit-repository-local-cache nil)
+         (dolist (buffer (buffer-list))
+           (with-current-buffer buffer
+             (when (derived-mode-p 'magit-mode)
+               (setq magit-section-visibility-cache nil)))))
+        (t
+         (magit-with-toplevel
+           (setq magit-repository-local-cache
+                 (cl-delete default-directory
+                            magit-repository-local-cache
+                            :key #'car :test #'equal)))
+         (dolist (buffer (magit-mode-get-buffers))
+           (with-current-buffer buffer
+             (setq magit-section-visibility-cache nil)))))
   (setq magit--libgit-available-p 'unknown))
 
 ;;; Utilities
