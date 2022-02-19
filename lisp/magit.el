@@ -657,8 +657,7 @@ https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
 https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
   (let ((version (magit-git-version)))
     (when (and version
-               (version< version magit--minimal-git)
-               (not (equal (getenv "CI") "true")))
+               (version< version magit--minimal-git))
       (display-warning 'magit (format "\
 Magit requires Git >= %s, you are using %s.
 
