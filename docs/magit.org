@@ -8646,7 +8646,7 @@ frequently *and recently* asked questions, i.e. questions that haven't
 made it into the manual yet, see
 https://github.com/magit/magit/wiki/FAQ.
 
-Please also use the [[*Debugging Tools]].
+Please also see [[*Debugging Tools]].
 
 ** FAQ - How to ...?
 *** How to pronounce Magit?
@@ -9023,7 +9023,8 @@ issue.
 
   Also see [[info:with-editor#Debugging]].
 
-Please also see the [[*FAQ]].
+#+texinfo: @noindent
+Please also see [[*FAQ]].
 
 * Keystroke Index
 :PROPERTIES:

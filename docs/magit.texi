@@ -10573,7 +10573,7 @@ frequently @strong{and recently} asked questions, i.e. questions that haven't
 made it into the manual yet, see
 @uref{https://github.com/magit/magit/wiki/FAQ}.
 
-Please also use the @ref{Debugging Tools}.
+Please also see @ref{Debugging Tools}.
 
 @menu
 * FAQ - How to @dots{}?::
@@ -11010,7 +11010,8 @@ an appropriate @code{emacsclient} executable.
 Also see @ref{Debugging,,,with-editor,}.
 @end table
 
-Please also see the @ref{FAQ}.
+@noindent
+Please also see @ref{FAQ}.
 
 @node Keystroke Index
 @appendix Keystroke Index
