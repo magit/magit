@@ -655,9 +655,9 @@ https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
     (setenv "GIT_WORK_TREE")
     (message "Magit unset $GIT_WORK_TREE (was %S).  See \
 https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
-  (let ((version (magit-git-version)))
-    (when (and version
-               (version< version magit--minimal-git))
+  ;; Git isn't required while building Magit.
+  (cl-eval-when (load eval)
+    (when (magit-git-version< magit--minimal-git)
       (display-warning 'magit (format "\
 Magit requires Git >= %s, you are using %s.
 
@@ -672,7 +672,7 @@ For X11 something like ~/.xinitrc should work.
 
 If you use Tramp to work inside remote Git repositories, then you
 have to make sure a suitable Git is used on the remote machines
-too.\n" magit--minimal-git version) :error)))
+too.\n" magit--minimal-git (magit-git-version)) :error)))
   (when (version< emacs-version magit--minimal-emacs)
     (display-warning 'magit (format "\
 Magit requires Emacs >= %s, you are using %s.
