@@ -1048,12 +1048,14 @@ Added to `font-lock-extend-region-functions'."
     (set-syntax-table table))
   (setq-local comment-start
               (or (with-temp-buffer
-                    (call-process
-                     (git-commit-executable) nil (current-buffer) nil
-                     "config" "core.commentchar")
-                    (unless (bobp)
-                      (goto-char (point-min))
-                      (buffer-substring (point) (line-end-position))))
+                    (and (zerop
+                          (call-process
+                           (git-commit-executable) nil (list t nil) nil
+                           "config" "core.commentchar"))
+                         (not (bobp))
+                         (progn
+                           (goto-char (point-min))
+                           (buffer-substring (point) (line-end-position)))))
                   "#"))
   (setq-local comment-start-skip (format "^%s+[\s\t]*" comment-start))
   (setq-local comment-end-skip "\n")
