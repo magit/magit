@@ -576,6 +576,9 @@ call function WASHER with ARGS as its sole argument."
 
 ;;; Git Version
 
+(defconst magit--git-version-regexp
+  "\\`git version \\([0-9]+\\(\\.[0-9]+\\)\\{1,2\\}\\)")
+
 (defvar magit--remotes-using-recent-git nil)
 
 (defun magit-git-version (&optional raw)
@@ -593,6 +596,18 @@ call function WASHER with ARGS as its sole argument."
   "Return t if `magit-git-version's value is smaller than N."
   (version< (magit-git-version) n))
 
+(defun magit--safe-git-version ()
+  "Return the Git version used for `default-directory' or an error message."
+  (magit--with-temp-process-buffer
+    (let* ((magit-git-global-arguments nil)
+           (status (magit-process-git t "version"))
+           (output (buffer-string)))
+      (cond ((not (zerop status)) output)
+            ((save-match-data
+               (and (string-match magit--git-version-regexp output)
+                    (match-string 1 output))))
+            (t output)))))
+
 (defun magit-debug-git-executable ()
   "Display a buffer with information about `magit-git-executable'.
 Also include information about `magit-remote-git-executable'.
@@ -607,10 +622,7 @@ See info node `(magit)Debugging Tools' for more information."
              (format "magit-git-executable: %S" magit-git-executable)
              (and (not (file-name-absolute-p magit-git-executable))
                   (format " [%S]" (executable-find magit-git-executable)))
-             (format " (%s)\n"
-                     (let* ((errmsg nil)
-                            (magit-git-debug (lambda (err) (setq errmsg err))))
-                       (or (magit-git-version t) errmsg)))))
+             (format " (%s)\n" (magit--safe-git-version))))
     (insert (format "exec-path: %S\n" exec-path))
     (--when-let (cl-set-difference
                  (-filter #'file-exists-p (remq nil (parse-colon-path
@@ -625,10 +637,7 @@ See info node `(magit)Debugging Tools' for more information."
                        execdir t (concat
                                   "\\`git" (regexp-opt exec-suffixes) "\\'")))
           (insert (format "    %s (%s)\n" exec
-                          (let* ((magit-git-executable exec)
-                                 (errmsg nil)
-                                 (magit-git-debug (lambda (err) (setq errmsg err))))
-                            (or (magit-git-version t) errmsg)))))))))
+                          (magit--safe-git-version))))))))
 
 ;;; Variables
 

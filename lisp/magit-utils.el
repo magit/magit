@@ -40,6 +40,9 @@
 
 ;;; Code:
 
+(defconst magit--minimal-git "2.2.0")
+(defconst magit--minimal-emacs "25.1")
+
 (require 'cl-lib)
 (require 'dash)
 (require 'eieio)

@@ -65,9 +65,6 @@
 (require 'package nil t) ; used in `magit-version'
 (require 'with-editor)
 
-(defconst magit--minimal-git "2.2.0")
-(defconst magit--minimal-emacs "25.1")
-
 ;;; Faces
 
 (defface magit-header-line
@@ -587,12 +584,7 @@ and Emacs to it."
                                              (locate-library "magit.el" t))
                                             (lm-header "Package-Version"))))))
                              "")
-                         (or (let ((magit-git-debug
-                                    (lambda (err)
-                                      (display-warning '(magit git)
-                                                       err :error))))
-                               (magit-git-version t))
-                             "(unknown)")
+                         (magit--safe-git-version)
                          emacs-version
                          system-type)
                  print-dest))
