@@ -1476,7 +1476,8 @@ configured remote is an url, or the named branch does not exist,
 then return nil.  I.e. return the name of an existing local or
 remote-tracking branch.  The returned string is colorized
 according to the branch type."
-  (magit--with-refresh-cache (list 'magit-get-upstream-branch branch)
+  (magit--with-refresh-cache
+      (list default-directory 'magit-get-upstream-branch branch)
     (when-let ((branch (or branch (magit-get-current-branch)))
                (upstream (magit-ref-abbrev (concat branch "@{upstream}"))))
       (magit--propertize-face
@@ -1546,7 +1547,8 @@ according to the branch type."
     (magit--propertize-face remote 'magit-branch-remote)))
 
 (defun magit-get-push-branch (&optional branch verify)
-  (magit--with-refresh-cache (list 'magit-get-push-branch branch verify)
+  (magit--with-refresh-cache
+      (list default-directory 'magit-get-push-branch branch verify)
     (when-let ((branch (or branch (setq branch (magit-get-current-branch))))
                (remote (magit-get-push-remote branch))
                (target (concat remote "/" branch)))
