@@ -866,7 +866,7 @@ Save current message first."
 (defun git-commit-self-ident ()
   (list (or (getenv "GIT_AUTHOR_NAME")
             (getenv "GIT_COMMITTER_NAME")
-            (ignore-errors
+            (with-demoted-errors "Error running 'git config user.name': %S"
               (car (process-lines
                     (git-commit-executable) "config" "user.name")))
             user-full-name
@@ -874,7 +874,7 @@ Save current message first."
         (or (getenv "GIT_AUTHOR_EMAIL")
             (getenv "GIT_COMMITTER_EMAIL")
             (getenv "EMAIL")
-            (ignore-errors
+            (with-demoted-errors "Error running 'git config user.email': %S"
               (car (process-lines
                     (git-commit-executable) "config" "user.email")))
             (read-string "Email: "))))
