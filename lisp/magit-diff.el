@@ -2053,15 +2053,9 @@ Staging and applying changes is documented in info node
                (remove "--literal-pathspecs" magit-git-global-arguments)))
     ;; As of Git 2.19.0, we need to generate diffs with
     ;; --ita-visible-in-index so that `magit-stage' can work with
-    ;; intent-to-add files (see #4026).  Cache the result for each
-    ;; repo to avoid a `git version' call for every diff insertion.
+    ;; intent-to-add files (see #4026).
     (when (and (not (equal cmd "merge-tree"))
-               (pcase (magit-repository-local-get 'diff-ita-kludge-p 'unset)
-                 (`unset
-                  (let ((val (magit-git-version>= "2.19.0")))
-                    (magit-repository-local-set 'diff-ita-kludge-p val)
-                    val))
-                 (val val)))
+               (magit-git-version>= "2.19.0"))
       (push "--ita-visible-in-index" args))
     (setq args (magit-diff--maybe-add-stat-arguments args))
     (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)
