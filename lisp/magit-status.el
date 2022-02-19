@@ -333,28 +333,6 @@ init file: (global-set-key (kbd \"C-x g\") 'magit-status-quick)."
       (magit-display-buffer buffer)
     (call-interactively #'magit-status)))
 
-(defun magit--tramp-asserts (directory)
-  (when-let ((remote (file-remote-p directory)))
-    (unless (member remote magit--remotes-using-recent-git)
-      (if-let ((version (let ((default-directory directory))
-                          (magit-git-version))))
-          (if (magit--version>= version magit--minimal-git)
-              (push remote magit--remotes-using-recent-git)
-            (display-warning 'magit (format "\
-Magit requires Git >= %s, but on %s the version is %s.
-
-If multiple Git versions are installed on the host, then the
-problem might be that TRAMP uses the wrong executable.
-
-Check the value of `magit-remote-git-executable' and consult
-the info node `(tramp)Remote programs'.
-" magit--minimal-git remote version) :error))
-        (display-warning 'magit (format "\
-Magit cannot find Git on %s.
-
-Check the value of `magit-remote-git-executable' and consult
-the info node `(tramp)Remote programs'." remote) :error)))))
-
 ;;; Mode
 
 (defvar magit-status-mode-map
@@ -440,7 +418,8 @@ Type \\[magit-commit] to create a commit.
 (defun magit-status-setup-buffer (&optional directory)
   (unless directory
     (setq directory default-directory))
-  (magit--tramp-asserts directory)
+  (when (file-remote-p directory)
+    (magit-git-version-assert))
   (let* ((default-directory directory)
          (d (magit-diff--get-value 'magit-status-mode
                                    magit-status-use-buffer-arguments))

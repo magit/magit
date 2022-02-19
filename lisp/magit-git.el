@@ -579,14 +579,7 @@ call function WASHER with ARGS as its sole argument."
 (defconst magit--git-version-regexp
   "\\`git version \\([0-9]+\\(\\.[0-9]+\\)\\{1,2\\}\\)")
 
-(defvar magit--remotes-using-recent-git nil)
-
-(defun magit-git-version (&optional raw)
-  "Return the installed Git version."
-  (--when-let (let (magit-git-global-arguments)
-                (ignore-errors (substring (magit-git-string "version") 12)))
-    (if raw it (and (string-match "\\`\\([0-9]+\\(\\.[0-9]+\\)\\{1,2\\}\\)" it)
-                    (match-string 1 it)))))
+(defvar magit--host-git-version-cache nil)
 
 (defun magit-git-version>= (n)
   "Return t if `magit-git-version's value is greater than or equal to N."
@@ -595,6 +588,71 @@ call function WASHER with ARGS as its sole argument."
 (defun magit-git-version< (n)
   "Return t if `magit-git-version's value is smaller than N."
   (version< (magit-git-version) n))
+
+(defun magit-git-version ()
+  "Return the Git version used for `default-directory'.
+Raise an error if Git cannot be found, if it exits with a
+non-zero status, or the output does not have the expected
+format."
+  (magit--with-refresh-cache default-directory
+    (let ((host (file-remote-p default-directory)))
+      (or (cdr (assoc host magit--host-git-version-cache))
+          (magit--with-temp-process-buffer
+            ;; Unset global arguments for ancient Git versions.
+            (let* ((magit-git-global-arguments nil)
+                   (status (magit-process-git t "version"))
+                   (output (buffer-string)))
+              (cond
+               ((not (zerop status))
+                (display-warning
+                 'magit
+                 (format "%S\n\nRunning \"%s --version\" failed with output:\n\n%s"
+                         (if host
+                             (format "Magit cannot find Git on host %S.\n
+Check the value of `magit-remote-git-executable' using
+`magit-debug-git-executable' and consult the info node
+`(tramp)Remote programs'." host)
+                           "Magit cannot find Git.\n
+Check the values of `magit-git-executable' and `exec-path'
+using `magit-debug-git-executable'.")
+                         (magit-git-executable)
+                         output)))
+               ((save-match-data
+                  (and (string-match magit--git-version-regexp output)
+                       (let ((version (match-string 1 output)))
+                         (push (cons host version)
+                               magit--host-git-version-cache)
+                         version))))
+               (t (error "Unexpected \"%s --version\" output: %S"
+                         (magit-git-executable)
+                         output)))))))))
+
+(defun magit-git-version-assert (&optional minimal who)
+  "Assert that the used Git version is greater than or equal to MINIMAL.
+If optional MINIMAL is nil, compare with `magit--minimal-git'
+instead.  Optional WHO if non-nil specifies what functionality
+needs at least MINIMAL, otherwise it defaults to \"Magit\"."
+  (when (magit-git-version< (or minimal magit--minimal-git))
+    (let* ((host (file-remote-p default-directory))
+           (msg (format-spec
+                 (cond (host "\
+%w requires Git %m or greater, but on %h the version is %m.
+
+If multiple Git versions are installed on the host, then the
+problem might be that TRAMP uses the wrong executable.
+
+Check the value of `magit-remote-git-executable' and consult
+the info node `(tramp)Remote programs'.\n")
+                       (t "\
+%w requires Git %m or greater, but you are using %v.
+
+If you have multiple Git versions installed, then check the
+values of `magit-remote-git-executable' and `exec-path'.\n"))
+                 `((?w . ,(or who "Magit"))
+                   (?m . ,(or minimal magit--minimal-git))
+                   (?v . ,(magit-git-version))
+                   (?h . ,host)))))
+      (display-warning 'magit msg :error))))
 
 (defun magit--safe-git-version ()
   "Return the Git version used for `default-directory' or an error message."

@@ -610,22 +610,7 @@ https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
 https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
   ;; Git isn't required while building Magit.
   (cl-eval-when (load eval)
-    (when (magit-git-version< magit--minimal-git)
-      (display-warning 'magit (format "\
-Magit requires Git >= %s, you are using %s.
-
-If this comes as a surprise to you, because you do actually have
-a newer version installed, then that probably means that the
-older version happens to appear earlier on the `$PATH'.  If you
-always start Emacs from a shell, then that can be fixed in the
-shell's init file.  If you start Emacs by clicking on an icon,
-or using some sort of application launcher, then you probably
-have to adjust the environment as seen by graphical interface.
-For X11 something like ~/.xinitrc should work.
-
-If you use Tramp to work inside remote Git repositories, then you
-have to make sure a suitable Git is used on the remote machines
-too.\n" magit--minimal-git (magit-git-version)) :error)))
+    (magit-git-version-assert))
   (when (version< emacs-version magit--minimal-emacs)
     (display-warning 'magit (format "\
 Magit requires Emacs >= %s, you are using %s.
