@@ -574,6 +574,10 @@ call function WASHER with ARGS as its sole argument."
         (magit-cancel-section))
       (magit-maybe-make-margin-overlay))))
 
+;;; Git Version
+
+(defvar magit--remotes-using-recent-git nil)
+
 (defun magit-git-version (&optional raw)
   "Return the installed Git version."
   (--when-let (let (magit-git-global-arguments)

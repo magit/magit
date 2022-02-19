@@ -333,8 +333,6 @@ init file: (global-set-key (kbd \"C-x g\") 'magit-status-quick)."
       (magit-display-buffer buffer)
     (call-interactively #'magit-status)))
 
-(defvar magit--remotes-using-recent-git nil)
-
 (defun magit--tramp-asserts (directory)
   (when-let ((remote (file-remote-p directory)))
     (unless (member remote magit--remotes-using-recent-git)

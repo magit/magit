@@ -1424,15 +1424,17 @@ Unless specified, REPOSITORY is the current buffer's repository."
 (defun magit-zap-caches (&optional all)
   "Zap caches for the current repository.
 
-Remove the repository's entry from `magit-repository-local-cache'
-and set `magit-section-visibility-cache' to nil in all of the
-repository's Magit buffers.
+Remove the repository's entry from `magit-repository-local-cache',
+remove the host's entry from `magit--remotes-using-recent-git', set
+`magit-section-visibility-cache' to nil for all Magit buffers of
+the repository and set `magit--libgit-available-p' to `unknown'.
 
 With a prefix argument or if optional ALL is non-nil, discard the
 mentioned caches completely."
   (interactive)
   (cond (all
          (setq magit-repository-local-cache nil)
+         (setq magit--remotes-using-recent-git nil)
          (dolist (buffer (buffer-list))
            (with-current-buffer buffer
              (when (derived-mode-p 'magit-mode)
@@ -1442,7 +1444,10 @@ mentioned caches completely."
            (setq magit-repository-local-cache
                  (cl-delete default-directory
                             magit-repository-local-cache
-                            :key #'car :test #'equal)))
+                            :key #'car :test #'equal))
+           (setq magit--remotes-using-recent-git
+                 (delete (file-remote-p default-directory)
+                         magit--remotes-using-recent-git)))
          (dolist (buffer (magit-mode-get-buffers))
            (with-current-buffer buffer
              (setq magit-section-visibility-cache nil)))))
