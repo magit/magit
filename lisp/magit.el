@@ -605,45 +605,6 @@ and Emacs to it."
         (message "Cannot determine Magit's version %S" debug)))
     magit-version))
 
-;;; Debugging Tools
-
-(defun magit-debug-git-executable ()
-  "Display a buffer with information about `magit-git-executable'.
-Also include information about `magit-remote-git-executable'.
-See info node `(magit)Debugging Tools' for more information."
-  (interactive)
-  (with-current-buffer (get-buffer-create "*magit-git-debug*")
-    (pop-to-buffer (current-buffer))
-    (erase-buffer)
-    (insert (format "magit-remote-git-executable: %S\n"
-                    magit-remote-git-executable))
-    (insert (concat
-             (format "magit-git-executable: %S" magit-git-executable)
-             (and (not (file-name-absolute-p magit-git-executable))
-                  (format " [%S]" (executable-find magit-git-executable)))
-             (format " (%s)\n"
-                     (let* ((errmsg nil)
-                            (magit-git-debug (lambda (err) (setq errmsg err))))
-                       (or (magit-git-version t) errmsg)))))
-    (insert (format "exec-path: %S\n" exec-path))
-    (--when-let (cl-set-difference
-                 (-filter #'file-exists-p (remq nil (parse-colon-path
-                                                     (getenv "PATH"))))
-                 (-filter #'file-exists-p (remq nil exec-path))
-                 :test #'file-equal-p)
-      (insert (format "  entries in PATH, but not in exec-path: %S\n" it)))
-    (dolist (execdir exec-path)
-      (insert (format "  %s (%s)\n" execdir (car (file-attributes execdir))))
-      (when (file-directory-p execdir)
-        (dolist (exec (directory-files
-                       execdir t (concat
-                                  "\\`git" (regexp-opt exec-suffixes) "\\'")))
-          (insert (format "    %s (%s)\n" exec
-                          (let* ((magit-git-executable exec)
-                                 (errmsg nil)
-                                 (magit-git-debug (lambda (err) (setq errmsg err))))
-                            (or (magit-git-version t) errmsg)))))))))
-
 ;;; Startup Asserts
 
 (defun magit-startup-asserts ()
