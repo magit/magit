@@ -535,24 +535,24 @@ If you prefer the old behaviors, then set this to t."
 (defface magit-diff-hunk-heading
   `((((class color) (background light))
      ,@(and (>= emacs-major-version 27) '(:extend t))
-     :background "grey80"
-     :foreground "grey30")
+     :background "grey90"
+     :foreground "grey20")
     (((class color) (background dark))
      ,@(and (>= emacs-major-version 27) '(:extend t))
      :background "grey25"
-     :foreground "grey70"))
+     :foreground "grey95"))
   "Face for diff hunk headings."
   :group 'magit-faces)
 
 (defface magit-diff-hunk-heading-highlight
   `((((class color) (background light))
      ,@(and (>= emacs-major-version 27) '(:extend t))
-     :background "grey75"
-     :foreground "grey30")
+     :background "grey80"
+     :foreground "grey20")
     (((class color) (background dark))
      ,@(and (>= emacs-major-version 27) '(:extend t))
      :background "grey35"
-     :foreground "grey70"))
+     :foreground "grey95"))
   "Face for current diff hunk headings."
   :group 'magit-faces)
 
