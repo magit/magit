@@ -93,7 +93,7 @@ push-remote."
   (pcase-let ((`(,branch ,remote)
                (magit--select-push-remote "pull from there")))
     (run-hooks 'magit-credential-hook)
-    (magit-run-git-async "pull" args remote branch)))
+    (magit-run-git-with-editor "pull" args remote branch)))
 
 (defun magit-pull--pushbranch-description ()
   ;; Also used by `magit-rebase-onto-pushremote'.

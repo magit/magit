@@ -48,3 +48,6 @@
 
 - ~magit-discard~ didn't properly handle conflicts resulting from a
   file being renamed on both sides.  #4225
+
+- Since v3.0.0, ~magit-pull-from-pushremote~ has failed on
+  non-fast-forward merges.  #4604
