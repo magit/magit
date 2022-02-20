@@ -137,7 +137,7 @@ non-nil, means to invert the resulting sort."
                        (boolean :tag "Flip order"))))
 
 ;;; List Repositories
-;;;; Command
+;;;; List Commands
 ;;;###autoload
 (defun magit-list-repositories ()
   "Display a list of repositories.
@@ -147,6 +147,15 @@ repositories are displayed."
   (interactive)
   (magit-repolist-setup (default-value 'magit-repolist-columns)))
 
+;;;; Mode Commands
+
+(defun magit-repolist-status (&optional _button)
+  "Show the status for the repository at point."
+  (interactive)
+  (--if-let (tabulated-list-get-id)
+      (magit-status-setup-buffer (expand-file-name it))
+    (user-error "There is no repository at point")))
+
 ;;;; Mode
 
 (defvar magit-repolist-mode-map
@@ -155,13 +164,6 @@ repositories are displayed."
     (define-key map (kbd "C-m") 'magit-repolist-status)
     map)
   "Local keymap for Magit-Repolist mode buffers.")
-
-(defun magit-repolist-status (&optional _button)
-  "Show the status for the repository at point."
-  (interactive)
-  (--if-let (tabulated-list-get-id)
-      (magit-status-setup-buffer (expand-file-name it))
-    (user-error "There is no repository at point")))
 
 (define-derived-mode magit-repolist-mode tabulated-list-mode "Repos"
   "Major mode for browsing a list of Git repositories."
