@@ -156,12 +156,105 @@ repositories are displayed."
       (magit-status-setup-buffer (expand-file-name it))
     (user-error "There is no repository at point")))
 
+(defun magit-repolist-mark ()
+  "Mark a repository and move to the next line."
+  (interactive)
+  (magit-repolist--ensure-padding)
+  (tabulated-list-put-tag "*" t))
+
+(defun magit-repolist-unmark ()
+  "Unmark a repository and move to the next line."
+  (interactive)
+  (tabulated-list-put-tag " " t))
+
+(defun magit-repolist-fetch (repos)
+  "Fetch all marked or listed repositories."
+  (interactive (list (magit-repolist--get-repos ?*)))
+  (run-hooks 'magit-credential-hook)
+  (magit-repolist--mapc (apply-partially #'magit-run-git "remote" "update")
+                        repos "Fetching in %s..."))
+
+(defun magit-repolist-find-file-other-frame (repos file)
+  "Find a file in all marked or listed repositories."
+  (interactive (list (magit-repolist--get-repos ?*)
+                     (read-string "Find file in repositories: ")))
+  (magit-repolist--mapc (apply-partially #'find-file-other-frame file) repos))
+
+(defun magit-repolist--ensure-padding ()
+  "Set `tabulated-list-padding' to 2, unless that is already non-zero."
+  (when (zerop tabulated-list-padding)
+    (setq tabulated-list-padding 2)
+    (tabulated-list-init-header)
+    (tabulated-list-print t)))
+
+(defun magit-repolist--get-repos (&optional char)
+  "Return marked repositories or `all' if none are marked.
+If optional CHAR is non-nil, then only return repositories
+marked with that character.  If no repositories are marked
+then ask whether to act on all repositories instead."
+  (or (magit-repolist--marked-repos char)
+      (if (magit-confirm 'repolist-all
+            "Nothing selected.  Act on ALL displayed repositories")
+          'all
+        (user-error "Abort"))))
+
+(defun magit-repolist--marked-repos (&optional char)
+  "Return marked repositories.
+If optional CHAR is non-nil, then only return repositories
+marked with that character."
+  (let (c list)
+    (save-excursion
+      (goto-char (point-min))
+      (while (not (eobp))
+        (setq c (char-after))
+        (unless (eq c ?\s)
+          (if char
+              (when (eq c char)
+                (push (tabulated-list-get-id) list))
+            (push (cons c (tabulated-list-get-id)) list)))
+        (forward-line)))
+    list))
+
+(defun magit-repolist--mapc (fn repos &optional msg)
+  "Apply FN to each directory in REPOS for side effects only.
+If REPOS is the symbol `all', then call FN for all displayed
+repositories.  When FN is called, `default-directory' is bound to
+the top-level directory of the current repository.  If optional
+MSG is non-nil then that is displayed around each call to FN.
+If it contains \"%s\" then the directory is substituted for that."
+  (when (eq repos 'all)
+    (setq repos nil)
+    (save-excursion
+      (goto-char (point-min))
+      (while (not (eobp))
+        (push (tabulated-list-get-id) repos)
+        (forward-line)))
+    (setq repos (nreverse repos)))
+  (let ((base default-directory)
+        (len (length repos))
+        (i 0))
+    (mapc (lambda (repo)
+            (let ((default-directory
+                   (file-name-as-directory (expand-file-name repo base))))
+              (if msg
+                  (let ((msg (concat (format "(%s/%s) " (cl-incf i) len)
+                                     (format msg default-directory))))
+                    (message msg)
+                    (funcall fn)
+                    (message (concat msg "done")))
+                (funcall fn))))
+          repos)))
+
 ;;;; Mode
 
 (defvar magit-repolist-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map (kbd "C-m") 'magit-repolist-status)
+    (define-key map (kbd "m")   'magit-repolist-mark)
+    (define-key map (kbd "u")   'magit-repolist-unmark)
+    (define-key map (kbd "f")   'magit-repolist-fetch)
+    (define-key map (kbd "5")   'magit-repolist-find-file-other-frame)
     map)
   "Local keymap for Magit-Repolist mode buffers.")
 

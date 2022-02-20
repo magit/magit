@@ -3108,6 +3108,7 @@ and set @code{:pad-right} to 0.  @code{+} is substituted for numbers higher
 than 9.
 @end defopt
 
+@noindent
 The following functions can be added to the above option:
 
 @defun magit-repolist-column-ident
@@ -3177,6 +3178,40 @@ but not its upstream.
 This function inserts the number of commits in the current branch
 but not its push branch.
 @end defun
+
+@noindent
+The following commands are available in repolist buffers:
+
+@table @asis
+@item @kbd{@key{RET}} (@code{magit-repolist-status})
+@kindex RET
+@findex magit-repolist-status
+This command shows the status for the repository at point.
+
+@item @kbd{m} (@code{magit-repolist-mark})
+@kindex m
+@findex magit-repolist-mark
+This command marks the repository at point.
+
+@item @kbd{u} (@code{magit-repolist-unmark})
+@kindex u
+@findex magit-repolist-unmark
+This command unmarks the repository at point.
+
+@item @kbd{f} (@code{magit-repolist-fetch})
+@kindex f
+@findex magit-repolist-fetch
+This command fetches all marked repositories.  If no repositories
+are marked, then it offers to fetch all displayed repositories.
+
+@item @kbd{5} (@code{magit-repolist-find-file-other-frame})
+@kindex 5
+@findex magit-repolist-find-file-other-frame
+This command reads a relative file-name (without completion) and
+opens the respective file in each marked repository in a new frame.
+If no repositories are marked, then it offers to do this for all
+displayed repositories.
+@end table
 
 @node Logging
 @section Logging

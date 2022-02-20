@@ -2494,6 +2494,7 @@ buffers.
   and set ~:pad-right~ to 0.  ~+~ is substituted for numbers higher
   than 9.
 
+#+texinfo: @noindent
 The following functions can be added to the above option:
 
 - Function: magit-repolist-column-ident ::
@@ -2558,6 +2559,33 @@ The following functions can be added to the above option:
 
   This function inserts the number of commits in the current branch
   but not its push branch.
+
+#+texinfo: @noindent
+The following commands are available in repolist buffers:
+
+- Key: RET (magit-repolist-status) ::
+
+  This command shows the status for the repository at point.
+
+- Key: m (magit-repolist-mark) ::
+
+  This command marks the repository at point.
+
+- Key: u (magit-repolist-unmark) ::
+
+  This command unmarks the repository at point.
+
+- Key: f (magit-repolist-fetch) ::
+
+  This command fetches all marked repositories.  If no repositories
+  are marked, then it offers to fetch all displayed repositories.
+
+- Key: 5 (magit-repolist-find-file-other-frame) ::
+
+  This command reads a relative file-name (without completion) and
+  opens the respective file in each marked repository in a new frame.
+  If no repositories are marked, then it offers to do this for all
+  displayed repositories.
 
 ** Logging
 
