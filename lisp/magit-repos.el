@@ -275,10 +275,11 @@ If it contains \"%s\" then the directory is substituted for that."
   (with-current-buffer (get-buffer-create "*Magit Repositories*")
     (magit-repolist-mode)
     (setq-local magit-repolist-columns columns)
+    (magit-repolist-setup-1)
     (magit-repolist-refresh)
     (switch-to-buffer (current-buffer))))
 
-(defun magit-repolist-refresh ()
+(defun magit-repolist-setup-1 ()
   (unless tabulated-list-sort-key
     (setq tabulated-list-sort-key
           (pcase-let ((`(,column . ,flip) magit-repolist-sort-key))
@@ -289,7 +290,9 @@ If it contains \"%s\" then the directory is substituted for that."
         (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
                            (nconc (list title width t)
                                   (-flatten props)))
-                         magit-repolist-columns)))
+                         magit-repolist-columns))))
+
+(defun magit-repolist-refresh ()
   (setq tabulated-list-entries
         (mapcar (pcase-lambda (`(,id . ,path))
                   (let ((default-directory path))
