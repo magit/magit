@@ -1026,10 +1026,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 \\{magit-log-mode-map}"
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer)
-  (setq imenu-prev-index-position-function
-        'magit-imenu--log-prev-index-position-function)
-  (setq imenu-extract-index-name-function
-        'magit-imenu--log-extract-index-name-function))
+  (setq magit--imenu-item-types 'commit))
 
 (put 'magit-log-mode 'magit-log-default-arguments
      '("--graph" "-n256" "--decorate"))
@@ -1700,8 +1697,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 \\{magit-cherry-mode-map}"
   :group 'magit-log
   (hack-dir-local-variables-non-file-buffer)
-  (setq imenu-create-index-function
-        'magit-imenu--cherry-create-index-function))
+  (setq magit--imenu-group-types 'cherries))
 
 (defun magit-cherry-setup-buffer (head upstream)
   (magit-setup-buffer #'magit-cherry-mode nil

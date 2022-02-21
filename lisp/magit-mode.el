@@ -528,6 +528,7 @@ Magit is documented in info node `(magit)'."
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
   (setq-local revert-buffer-function 'magit-refresh-buffer)
   (setq-local bookmark-make-record-function 'magit--make-bookmark)
+  (setq-local imenu-create-index-function 'magit--imenu-create-index)
   (setq-local isearch-filter-predicate 'magit-section--open-temporarily))
 
 ;;; Local Variables
@@ -579,6 +580,9 @@ your mode instead of adding an entry to this variable.")
 
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
+
+(defvar-local magit--imenu-group-types nil)
+(defvar-local magit--imenu-item-types nil)
 
 ;;; Setup Buffer
 
@@ -1453,6 +1457,51 @@ mentioned caches completely."
            (with-current-buffer buffer
              (setq magit-section-visibility-cache nil)))))
   (setq magit--libgit-available-p 'unknown))
+
+;;; Imenu Support
+
+(defun magit--imenu-create-index ()
+  ;; If `which-function-mode' is active, then the create-index
+  ;; function is called at the time the major-mode is being enabled.
+  ;; Modes that derive from `magit-mode' have not populated the buffer
+  ;; at that time yet, so we have to abort.
+  (and magit-root-section
+       (or magit--imenu-group-types
+           magit--imenu-item-types)
+       (let ((index
+              (mapcan
+               (lambda (section)
+                 (cond
+                  (magit--imenu-group-types
+                   (and (magit-section-match magit--imenu-group-types section)
+                        (when-let ((children (oref section children)))
+                          `((,(magit--imenu-index-name section)
+                             ,@(mapcar (lambda (s)
+                                         (cons (magit--imenu-index-name s)
+                                               (oref s start)))
+                                       children))))))
+                  (magit--imenu-item-types
+                   (and (magit-section-match magit--imenu-item-types section)
+                        `((,(magit--imenu-index-name section)
+                           . ,(oref section start)))))))
+               (oref magit-root-section children))))
+         (if (and magit--imenu-group-types (symbolp magit--imenu-group-types))
+             (cdar index)
+           index))))
+
+(defun magit--imenu-index-name (section)
+  (let ((heading (buffer-substring-no-properties
+                  (oref section start)
+                  (1- (or (oref section content)
+                          (oref section end))))))
+    (save-match-data
+      (cond
+       ((and (magit-section-match [commit logbuf] section)
+             (string-match "[^ ]+\\([ *|]*\\).+" heading))
+        (replace-match " " t t heading 1))
+       ((string-match " ([0-9]+)\\'" heading)
+        (substring heading 0 (match-beginning 0)))
+       (t heading)))))
 
 ;;; Utilities
 

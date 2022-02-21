@@ -301,8 +301,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 \\{magit-refs-mode-map}"
   :group 'magit-refs
   (hack-dir-local-variables-non-file-buffer)
-  (setq imenu-create-index-function
-        #'magit-imenu--refs-create-index-function))
+  (setq magit--imenu-group-types '(local remote tags)))
 
 (defun magit-refs-setup-buffer (ref args)
   (magit-setup-buffer #'magit-refs-mode nil

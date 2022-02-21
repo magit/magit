@@ -1879,10 +1879,7 @@ Staging and applying changes is documented in info node
 \\{magit-diff-mode-map}"
   :group 'magit-diff
   (hack-dir-local-variables-non-file-buffer)
-  (setq imenu-prev-index-position-function
-        'magit-imenu--diff-prev-index-position-function)
-  (setq imenu-extract-index-name-function
-        'magit-imenu--diff-extract-index-name-function))
+  (setq magit--imenu-item-types 'file))
 
 (put 'magit-diff-mode 'magit-diff-default-arguments
      '("--stat" "--no-ext-diff"))

@@ -31,141 +31,10 @@
 ;; a programming major mode).  Selecting an item from this list moves
 ;; point to this item.
 
-;; magit-imenu.el adds Imenu support to every major mode in Magit.
-
 ;;; Code:
 
 (require 'magit)
 (require 'git-rebase)
-
-;;; Core
-
-(defun magit-imenu--index-function (entry-types menu-types)
-  "Return an alist of imenu entries in current buffer.
-
-ENTRY-TYPES is a list of section types to be selected through
-`imenu'.
-
-MENU-TYPES is a list of section types containing elements of
-ENTRY-TYPES.  Elements of MENU-TYPES are used to categorize
-elements of ENTRY-TYPES.
-
-This function is used as a helper for functions set as
-`imenu-create-index-function'."
-  ;; If `which-function-mode' is active, then the create-index
-  ;; function is called at the time the major-mode is being enabled.
-  ;; Modes that derive from `magit-mode' have not populated the buffer
-  ;; at that time yet, so we have to abort.
-  (when-let ((section (magit-current-section))
-             (entries (make-hash-table :test 'equal)))
-    (goto-char (point-max))
-    (unless (oref section parent)
-      (forward-line -1))
-    (while (magit-section--backward-find
-            (lambda ()
-              (let* ((section (magit-current-section))
-                     (type (oref section type))
-                     (parent (oref section parent))
-                     (parent-type (oref parent type)))
-                (and (memq type entry-types)
-                     (memq parent-type menu-types)))))
-      (let* ((section (magit-current-section))
-             (name (buffer-substring-no-properties
-                    (line-beginning-position)
-                    (line-end-position)))
-             (parent (oref section parent))
-             (parent-title (buffer-substring-no-properties
-                            (oref parent start)
-                            (1- (oref parent content)))))
-        (when (string-match " ([0-9]*)\\'" parent-title)
-          (setq parent-title (substring parent-title 0 (match-beginning 0))))
-        (puthash parent-title
-                 (cons (cons name (point))
-                       (gethash parent-title entries (list)))
-                 entries)))
-    (mapcar (lambda (menu-title)
-              (cons menu-title (gethash menu-title entries)))
-            (hash-table-keys entries))))
-
-;;; Log mode
-
-;;;###autoload
-(defun magit-imenu--log-prev-index-position-function ()
-  "Move point to previous line in current buffer.
-This function is used as a value for
-`imenu-prev-index-position-function'."
-  (magit-section--backward-find
-   (lambda ()
-     (-contains-p '(commit stash)
-                  (oref (magit-current-section) type)))))
-
-;;;###autoload
-(defun magit-imenu--log-extract-index-name-function ()
-  "Return imenu name for line at point.
-This function is used as a value for
-`imenu-extract-index-name-function'.  Point should be at the
-beginning of the line."
-  (save-match-data
-    (looking-at "\\([^ ]+\\)[ *|]+\\(.+\\)$")
-    (format "%s: %s"
-            (match-string-no-properties 1)
-            (match-string-no-properties 2))))
-
-;;; Diff mode
-
-;;;###autoload
-(defun magit-imenu--diff-prev-index-position-function ()
-  "Move point to previous file line in current buffer.
-This function is used as a value for
-`imenu-prev-index-position-function'."
-  (magit-section--backward-find
-   (lambda ()
-     (let ((section (magit-current-section)))
-       (and (magit-file-section-p section)
-            (not (equal (oref (oref section parent) type)
-                        'diffstat)))))))
-
-;;;###autoload
-(defun magit-imenu--diff-extract-index-name-function ()
-  "Return imenu name for line at point.
-This function is used as a value for
-`imenu-extract-index-name-function'.  Point should be at the
-beginning of the line."
-  (buffer-substring-no-properties (line-beginning-position)
-                                  (line-end-position)))
-
-;;; Status mode
-
-;;;###autoload
-(defun magit-imenu--status-create-index-function ()
-  "Return an alist of all imenu entries in current buffer.
-This function is used as a value for
-`imenu-create-index-function'."
-  (magit-imenu--index-function
-   '(file commit stash pullreq issue)
-   '(unpushed unstaged unpulled untracked staged stashes pullreqs issues)))
-
-;;; Refs mode
-
-;;;###autoload
-(defun magit-imenu--refs-create-index-function ()
-  "Return an alist of all imenu entries in current buffer.
-This function is used as a value for
-`imenu-create-index-function'."
-  (magit-imenu--index-function
-   '(branch commit tag)
-   '(local remote tags)))
-
-;;; Cherry mode
-
-;;;###autoload
-(defun magit-imenu--cherry-create-index-function ()
-  "Return an alist of all imenu entries in current buffer.
-This function is used as a value for
-`imenu-create-index-function'."
-  (magit-imenu--index-function
-   '(commit)
-   '(cherries)))
 
 ;;; Submodule list mode
 
@@ -205,26 +74,6 @@ beginning of the line."
     (format "%s (%s)"
             (elt entry 0)
             (elt entry (1- (length entry))))))
-
-;;; Process mode
-
-;;;###autoload
-(defun magit-imenu--process-prev-index-position-function ()
-  "Move point to previous process in magit-process buffer.
-This function is used as a value for
-`imenu-prev-index-position-function'."
-  (magit-section--backward-find
-   (lambda ()
-     (eq (oref (magit-current-section) type) 'process))))
-
-;;;###autoload
-(defun magit-imenu--process-extract-index-name-function ()
-  "Return imenu name for line at point.
-This function is used as a value for
-`imenu-extract-index-name-function'.  Point should be at the
-beginning of the line."
-  (buffer-substring-no-properties (line-beginning-position)
-                                  (line-end-position)))
 
 ;;; Rebase mode
 
