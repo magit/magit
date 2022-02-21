@@ -3094,18 +3094,25 @@ This option controls what columns are displayed by the command
 
 Each element has the form @code{(HEADER WIDTH FORMAT PROPS)}.
 
-HEADER is the string displayed in the header.  WIDTH is the width of
-the column.  FORMAT is a function that is called with one argument,
-the repository identification (usually its basename), and with
-@code{default-directory} bound to the toplevel of its working tree.  It
-has to return a string to be inserted or nil.  PROPS is an alist
-that supports the keys @code{:right-align} and @code{:pad-right}.
+HEADER is the string displayed in the header.  WIDTH is the width
+of the column.  FORMAT is a function that is called with one
+argument, the repository identification (usually its basename),
+and with @code{default-directory} bound to the toplevel of its working
+tree.  It has to return a string to be inserted or nil.  PROPS is
+an alist that supports the keys @code{:right-align}, @code{:pad-right} and
+@code{:sort}.
+
+The @code{:sort} function has a weird interface described in the
+docstring of @code{tabulated-list--get-sort}.  Alternatively @code{<} and
+@code{magit-repolist-version<} can be used as those functions are
+automatically replaced with functions that satisfy the interface.
+Set @code{:sort} to @code{nil} to inhibit sorting; if unspecifed, then the
+column is sortable using the default sorter.
 
 You may wish to display a range of numeric columns using just one
 character per column and without any padding between columns, in
-which case you should use an appropriate HEADER, set WIDTH to 1,
-and set @code{:pad-right} to 0.  @code{+} is substituted for numbers higher
-than 9.
+which case you should use an appropriat HEADER, set WIDTH to 1,
+and set @code{:pad-right} to 9. @code{+} is substituted for numbers higher than 9.
 @end defopt
 
 @noindent
@@ -8582,12 +8589,25 @@ This option controls what columns are displayed by the command
 
 Each element has the form @code{(HEADER WIDTH FORMAT PROPS)}.
 
-HEADER is the string displayed in the header.  WIDTH is the width of
-the column.  FORMAT is a function that is called with one argument,
-the repository identification (usually its basename), and with
-@code{default-directory} bound to the toplevel of its working tree.  It
-has to return a string to be inserted or nil.  PROPS is an alist
-that supports the keys @code{:right-align} and @code{:pad-right}.
+HEADER is the string displayed in the header.  WIDTH is the width
+of the column.  FORMAT is a function that is called with one
+argument, the repository identification (usually its basename),
+and with @code{default-directory} bound to the toplevel of its working
+tree.  It has to return a string to be inserted or nil.  PROPS is
+an alist that supports the keys @code{:right-align}, @code{:pad-right} and
+@code{:sort}.
+
+The @code{:sort} function has a weird interface described in the
+docstring of @code{tabulated-list--get-sort}.  Alternatively @code{<} and
+@code{magit-repolist-version<} can be used as those functions are
+automatically replaced with functions that satisfy the interface.
+Set @code{:sort} to @code{nil} to inhibit sorting; if unspecifed, then the
+column is sortable using the default sorter.
+
+You may wish to display a range of numeric columns using just one
+character per column and without any padding between columns, in
+which case you should use an appropriat HEADER, set WIDTH to 1,
+and set @code{:pad-right} to 9. @code{+} is substituted for numbers higher than 9.
 @end defopt
 
 @node Submodule Transient

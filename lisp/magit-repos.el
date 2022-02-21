@@ -69,13 +69,16 @@ This option controls which repositories are being listed by
 
 (defcustom magit-repolist-columns
   '(("Name"    25 magit-repolist-column-ident nil)
-    ("Version" 25 magit-repolist-column-version nil)
+    ("Version" 25 magit-repolist-column-version
+     ((:sort magit-repolist-version<)))
     ("B<U"      3 magit-repolist-column-unpulled-from-upstream
-     ((:right-align t)
-      (:help-echo "Upstream changes not in branch")))
+     (;; (:help-echo "Upstream changes not in branch")
+      (:right-align t)
+      (:sort <)))
     ("B>U"      3 magit-repolist-column-unpushed-to-upstream
-     ((:right-align t)
-      (:help-echo "Local changes not in upstream")))
+     (;; (:help-echo "Local changes not in upstream")
+      (:right-align t)
+      (:sort <)))
     ("Path"    99 magit-repolist-column-path nil))
   "List of columns displayed by `magit-list-repositories'.
 
@@ -86,9 +89,15 @@ of the column.  FORMAT is a function that is called with one
 argument, the repository identification (usually its basename),
 and with `default-directory' bound to the toplevel of its working
 tree.  It has to return a string to be inserted or nil.  PROPS is
-an alist that supports the keys `:right-align' and `:pad-right'.
-Some entries also use `:help-echo', but `tabulated-list' does not
-actually support that yet.
+an alist that supports the keys `:right-align', `:pad-right' and
+`:sort'.
+
+The `:sort' function has a weird interface described in the
+docstring of `tabulated-list--get-sort'.  Alternatively `<' and
+`magit-repolist-version<' can be used as those functions are
+automatically replaced with functions that satisfy the interface.
+Set `:sort' to nil to inhibit sorting; if unspecifed, then the
+column is sortable using the default sorter.
 
 You may wish to display a range of numeric columns using just one
 character per column and without any padding between columns, in
@@ -105,6 +114,7 @@ than 9."
                                  (list (choice :tag "Property"
                                                (const :right-align)
                                                (const :pad-right)
+                                               (const :sort)
                                                (symbol))
                                        (sexp   :tag "Value"))))))
 
@@ -287,10 +297,23 @@ If it contains \"%s\" then the directory is substituted for that."
                       (caar magit-repolist-columns))
                   flip))))
   (setq tabulated-list-format
-        (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
-                           (nconc (list title width t)
-                                  (-flatten props)))
-                         magit-repolist-columns))))
+        (vconcat (-map-indexed
+                  (lambda (idx column)
+                    (pcase-let* ((`(,title ,width ,_fn ,props) column)
+                                 (sort-set (assoc :sort props))
+                                 (sort-fn (cadr sort-set)))
+                      (nconc (list title width
+                                   (cond ((eq sort-fn '<)
+                                          (magit-repolist-make-sorter
+                                           sort-fn #'string-to-number idx))
+                                         ((eq sort-fn 'magit-repolist-version<)
+                                          (magit-repolist-make-sorter
+                                           sort-fn #'identity idx))
+                                         (sort-fn sort-fn)
+                                         (sort-set nil)
+                                         (t t)))
+                             (-flatten props))))
+                  magit-repolist-columns))))
 
 (defun magit-repolist-refresh ()
   (setq tabulated-list-entries
@@ -315,6 +338,18 @@ If it contains \"%s\" then the directory is substituted for that."
   (message "Listing repositories...done"))
 
 ;;;; Columns
+
+(defun magit-repolist-make-sorter (sort-predicate convert-cell column-idx)
+  "Return a function suitable as a sorter for tabulated lists.
+See `tabulated-list--get-sorter'.  Given a more reasonable API
+this would not be necessary and one could just use SORT-PREDICATE
+directly.  CONVERT-CELL can be used to turn the cell value, which
+is always a string back into e.g. a number.  COLUMN-IDX has to be
+the index of the column that uses the returned sorter function."
+  (lambda (a b)
+    (funcall sort-predicate
+             (funcall convert-cell (aref (cadr a) column-idx))
+             (funcall convert-cell (aref (cadr b) column-idx)))))
 
 (defun magit-repolist-column-ident (spec)
   "Insert the identification of the repository.
@@ -356,6 +391,15 @@ Usually this is just its basename."
         (when (and v (string-match "\\`[^0-9]+" v))
           (magit--put-face 0 (match-end 0) 'shadow v))
         v))))
+
+(defun magit-repolist-version< (a b)
+  (save-match-data
+    (let ((re "[0-9]+\\(\\.[0-9]*\\)*"))
+      (setq a (and (string-match re a) (match-string 0 a)))
+      (setq b (and (string-match re b) (match-string 0 b)))
+      (cond ((and a b) (version< a b))
+            (b nil)
+            (t t)))))
 
 (defun magit-repolist-column-branch (_)
   "Insert the current branch."

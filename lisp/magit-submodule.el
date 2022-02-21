@@ -66,14 +66,27 @@ is inserted.  If it is nil, then all sections listed in
 
 (defcustom magit-submodule-list-columns
   '(("Path"     25 magit-modulelist-column-path   nil)
-    ("Version"  25 magit-repolist-column-version  nil)
+    ("Version"  25 magit-repolist-column-version
+     ((:sort magit-repolist-version<)))
     ("Branch"   20 magit-repolist-column-branch   nil)
-    ("B<U" 3 magit-repolist-column-unpulled-from-upstream   ((:right-align t)))
-    ("B>U" 3 magit-repolist-column-unpushed-to-upstream     ((:right-align t)))
-    ("B<P" 3 magit-repolist-column-unpulled-from-pushremote ((:right-align t)))
-    ("B>P" 3 magit-repolist-column-unpushed-to-pushremote   ((:right-align t)))
-    ("B"   3 magit-repolist-column-branches                 ((:right-align t)))
-    ("S"   3 magit-repolist-column-stashes                  ((:right-align t))))
+    ("B<U" 3 magit-repolist-column-unpulled-from-upstream
+     ((:right-align t)
+      (:sort <)))
+    ("B>U" 3 magit-repolist-column-unpushed-to-upstream
+     ((:right-align t)
+      (:sort <)))
+    ("B<P" 3 magit-repolist-column-unpulled-from-pushremote
+     ((:right-align t)
+      (:sort <)))
+    ("B>P" 3 magit-repolist-column-unpushed-to-pushremote
+     ((:right-align t)
+      (:sort <)))
+    ("B"   3 magit-repolist-column-branches
+     ((:right-align t)
+      (:sort <)))
+    ("S"   3 magit-repolist-column-stashes
+     ((:right-align t)
+      (:sort <))))
   "List of columns displayed by `magit-list-submodules'.
 
 Each element has the form (HEADER WIDTH FORMAT PROPS).
@@ -83,7 +96,15 @@ of the column.  FORMAT is a function that is called with one
 argument, the repository identification (usually its basename),
 and with `default-directory' bound to the toplevel of its working
 tree.  It has to return a string to be inserted or nil.  PROPS is
-an alist that supports the keys `:right-align' and `:pad-right'.
+an alist that supports the keys `:right-align', `:pad-right' and
+`:sort'.
+
+The `:sort' function has a weird interface described in the
+docstring of `tabulated-list--get-sort'.  Alternatively `<' and
+`magit-repolist-version<' can be used as those functions are
+automatically replaced with functions that satisfy the interface.
+Set `:sort' to nil to inhibit sorting; if unspecifed, then the
+column is sortable using the default sorter.
 
 You may wish to display a range of numeric columns using just one
 character per column and without any padding between columns, in
@@ -100,6 +121,7 @@ than 9."
                                  (list (choice :tag "Property"
                                                (const :right-align)
                                                (const :pad-right)
+                                               (const :sort)
                                                (symbol))
                                        (sexp   :tag "Value"))))))
 

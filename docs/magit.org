@@ -2481,18 +2481,25 @@ buffers.
 
   Each element has the form ~(HEADER WIDTH FORMAT PROPS)~.
 
-  HEADER is the string displayed in the header.  WIDTH is the width of
-  the column.  FORMAT is a function that is called with one argument,
-  the repository identification (usually its basename), and with
-  ~default-directory~ bound to the toplevel of its working tree.  It
-  has to return a string to be inserted or nil.  PROPS is an alist
-  that supports the keys ~:right-align~ and ~:pad-right~.
+  HEADER is the string displayed in the header.  WIDTH is the width
+  of the column.  FORMAT is a function that is called with one
+  argument, the repository identification (usually its basename),
+  and with ~default-directory~ bound to the toplevel of its working
+  tree.  It has to return a string to be inserted or nil.  PROPS is
+  an alist that supports the keys ~:right-align~, ~:pad-right~ and
+  ~:sort~.
+
+  The ~:sort~ function has a weird interface described in the
+  docstring of ~tabulated-list--get-sort~.  Alternatively ~<~ and
+  ~magit-repolist-version<~ can be used as those functions are
+  automatically replaced with functions that satisfy the interface.
+  Set ~:sort~ to ~nil~ to inhibit sorting; if unspecifed, then the
+  column is sortable using the default sorter.
 
   You may wish to display a range of numeric columns using just one
   character per column and without any padding between columns, in
-  which case you should use an appropriate HEADER, set WIDTH to 1,
-  and set ~:pad-right~ to 0.  ~+~ is substituted for numbers higher
-  than 9.
+  which case you should use an appropriat HEADER, set WIDTH to 1,
+  and set ~:pad-right~ to 9. ~+~ is substituted for numbers higher than 9.
 
 #+texinfo: @noindent
 The following functions can be added to the above option:
@@ -6864,12 +6871,25 @@ the super-repository by adding ~magit-insert-modules~ to the hook
 
   Each element has the form ~(HEADER WIDTH FORMAT PROPS)~.
 
-  HEADER is the string displayed in the header.  WIDTH is the width of
-  the column.  FORMAT is a function that is called with one argument,
-  the repository identification (usually its basename), and with
-  ~default-directory~ bound to the toplevel of its working tree.  It
-  has to return a string to be inserted or nil.  PROPS is an alist
-  that supports the keys ~:right-align~ and ~:pad-right~.
+  HEADER is the string displayed in the header.  WIDTH is the width
+  of the column.  FORMAT is a function that is called with one
+  argument, the repository identification (usually its basename),
+  and with ~default-directory~ bound to the toplevel of its working
+  tree.  It has to return a string to be inserted or nil.  PROPS is
+  an alist that supports the keys ~:right-align~, ~:pad-right~ and
+  ~:sort~.
+
+  The ~:sort~ function has a weird interface described in the
+  docstring of ~tabulated-list--get-sort~.  Alternatively ~<~ and
+  ~magit-repolist-version<~ can be used as those functions are
+  automatically replaced with functions that satisfy the interface.
+  Set ~:sort~ to ~nil~ to inhibit sorting; if unspecifed, then the
+  column is sortable using the default sorter.
+
+  You may wish to display a range of numeric columns using just one
+  character per column and without any padding between columns, in
+  which case you should use an appropriat HEADER, set WIDTH to 1,
+  and set ~:pad-right~ to 9. ~+~ is substituted for numbers higher than 9.
 
 *** Submodule Transient
 
