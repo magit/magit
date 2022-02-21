@@ -41,17 +41,15 @@
 ;;;###autoload
 (defun magit-imenu--submodule-prev-index-position-function ()
   "Move point to previous line in magit-submodule-list buffer.
-This function is used as a value for
-`imenu-prev-index-position-function'."
+Used as a value for `imenu-prev-index-position-function'."
   (unless (bobp)
     (forward-line -1)))
 
 ;;;###autoload
 (defun magit-imenu--submodule-extract-index-name-function ()
   "Return imenu name for line at point.
-This function is used as a value for
-`imenu-extract-index-name-function'.  Point should be at the
-beginning of the line."
+Point should be at the beginning of the line.  This function
+is used as a value for `imenu-extract-index-name-function'."
   (elt (tabulated-list-get-entry) 0))
 
 ;;; Repolist mode
@@ -59,17 +57,15 @@ beginning of the line."
 ;;;###autoload
 (defun magit-imenu--repolist-prev-index-position-function ()
   "Move point to previous line in magit-repolist buffer.
-This function is used as a value for
-`imenu-prev-index-position-function'."
+Used as a value for `imenu-prev-index-position-function'."
   (unless (bobp)
     (forward-line -1)))
 
 ;;;###autoload
 (defun magit-imenu--repolist-extract-index-name-function ()
   "Return imenu name for line at point.
-This function is used as a value for
-`imenu-extract-index-name-function'.  Point should be at the
-beginning of the line."
+Point should be at the beginning of the line.  This function
+is used as a value for `imenu-extract-index-name-function'."
   (let ((entry (tabulated-list-get-entry)))
     (format "%s (%s)"
             (elt entry 0)
@@ -80,8 +76,7 @@ beginning of the line."
 ;;;###autoload
 (defun magit-imenu--rebase-prev-index-position-function ()
   "Move point to previous commit in git-rebase buffer.
-This function is used as a value for
-`imenu-prev-index-position-function'."
+Used as a value for `imenu-prev-index-position-function'."
   (catch 'found
     (while (not (bobp))
       (git-rebase-backward-line)
@@ -91,9 +86,8 @@ This function is used as a value for
 ;;;###autoload
 (defun magit-imenu--rebase-extract-index-name-function ()
   "Return imenu name for line at point.
-This function is used as a value for
-`imenu-extract-index-name-function'.  Point should be at the
-beginning of the line."
+Point should be at the beginning of the line.  This function
+is used as a value for `imenu-extract-index-name-function'."
   (buffer-substring-no-properties (line-beginning-position)
                                   (line-end-position)))
 
