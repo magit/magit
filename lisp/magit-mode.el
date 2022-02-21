@@ -1473,7 +1473,11 @@ mentioned caches completely."
                (lambda (section)
                  (cond
                   (magit--imenu-group-types
-                   (and (magit-section-match magit--imenu-group-types section)
+                   (and (if (eq (car-safe magit--imenu-group-types) 'not)
+                            (not (magit-section-match
+                                  (cdr magit--imenu-group-types)
+                                  section))
+                          (magit-section-match magit--imenu-group-types section))
                         (when-let ((children (oref section children)))
                           `((,(magit--imenu-index-name section)
                              ,@(mapcar (lambda (s)

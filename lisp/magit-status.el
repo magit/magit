@@ -406,8 +406,7 @@ Type \\[magit-commit] to create a commit.
 \\{magit-status-mode-map}"
   :group 'magit-status
   (hack-dir-local-variables-non-file-buffer)
-  (setq magit--imenu-group-types
-        '(unpushed unstaged unpulled untracked staged stashes pullreqs issues)))
+  (setq magit--imenu-group-types '(not branch commit)))
 
 (put 'magit-status-mode 'magit-diff-default-arguments
      '("--no-ext-diff"))
