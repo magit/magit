@@ -377,6 +377,7 @@ current branch or `HEAD' as the start-point."
 
 (defvar magit-stashes-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-visit-thing]  'magit-stash-list)
     (define-key map [remap magit-delete-thing] 'magit-stash-clear)
     map)
   "Keymap for `stashes' section.")
