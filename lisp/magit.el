@@ -660,7 +660,6 @@ For X11 something like ~/.xinitrc should work.\n"
     (require 'magit-sparse-checkout)
     (require 'magit-extras)
     (require 'git-rebase)
-    (require 'magit-imenu)
     (require 'magit-bookmark)))
 
 (with-eval-after-load 'bookmark

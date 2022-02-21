@@ -828,6 +828,24 @@ By default, this is the same except for the \"pick\" command."
 
 (add-to-list 'with-editor-file-name-history-exclude git-rebase-filename-regexp)
 
+;;; Imenu Support
+
+(defun magit-imenu--rebase-prev-index-position-function ()
+  "Move point to previous commit in git-rebase buffer.
+Used as a value for `imenu-prev-index-position-function'."
+  (catch 'found
+    (while (not (bobp))
+      (git-rebase-backward-line)
+      (when (git-rebase-line-p)
+        (throw 'found t)))))
+
+(defun magit-imenu--rebase-extract-index-name-function ()
+  "Return imenu name for line at point.
+Point should be at the beginning of the line.  This function
+is used as a value for `imenu-extract-index-name-function'."
+  (buffer-substring-no-properties (line-beginning-position)
+                                  (line-end-position)))
+
 ;;; _
 (provide 'git-rebase)
 ;;; git-rebase.el ends here
