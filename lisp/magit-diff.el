@@ -2554,6 +2554,10 @@ or a ref which is not a branch, then it inserts nothing."
             (fill-region (point) (line-end-position))))
         (when magit-revision-use-hash-sections
           (save-excursion
+            ;; Start after beg to prevent a (commit text) section from
+            ;; starting at the same point as the (commit-message)
+            ;; section.
+            (goto-char (1+ beg))
             (while (not (eobp))
               (re-search-forward "\\_<" nil 'move)
               (let ((beg (point)))
