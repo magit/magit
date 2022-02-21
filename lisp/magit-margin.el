@@ -88,7 +88,7 @@ does not carry to other options."
           (`age 'age-abbreviated)
           (`age-abbreviated
            (let ((default (cadr (symbol-value (magit-margin-option)))))
-             (if (stringp default) default "%Y-%m-%d %H:%M ")))
+             (if (stringp default) default magit-log-margin-date-time-format)))
           (_ 'age)))
   (magit-set-buffer-margin nil t))
 
@@ -174,6 +174,12 @@ does not carry to other options."
 
 ;;; Custom Support
 
+(defcustom magit-log-margin-date-time-format "%Y-%m-%d %H:%M "
+  "Format of the author or committer date in `magit-log-mode' buffers"
+  :group 'magit-log
+  :group 'magit-margin
+  :type 'string)
+
 (defun magit-margin-set-variable (mode symbol value)
   (set-default symbol value)
   (message "Updating margins in %s buffers..." mode)
@@ -187,7 +193,7 @@ does not carry to other options."
 (defconst magit-log-margin--custom-type
   '(list (boolean :tag "Show margin initially")
          (choice  :tag "Show committer"
-                  (string :tag "date using time-format" "%Y-%m-%d %H:%M ")
+                  (string :tag "date using time-format" magit-log-margin-date-time-format)
                   (const  :tag "date's age" age)
                   (const  :tag "date's age (abbreviated)" age-abbreviated))
          (const   :tag "Calculate width using magit-log-margin-width"
