@@ -31,7 +31,7 @@
 
 ;;; Code:
 
-(require 'magit-section)
+(require 'magit-base)
 (require 'magit-git)
 
 (require 'format-spec)

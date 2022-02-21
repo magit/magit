@@ -269,8 +269,8 @@ General Public License for more details.
 
 # IMPORTANT: Also update ORG_ARGS and ORG_EVAL in the Makefile.
 # Local Variables:
-# eval: (require 'magit-utils nil t)
-# eval: (require 'ol-man      nil t)
+# eval: (require 'magit-base nil t)
+# eval: (require 'ol-man nil t)
 # indent-tabs-mode: nil
 # org-src-preserve-indentation: nil
 # End:

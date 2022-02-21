@@ -115,9 +115,9 @@
 (require 'seq)
 (require 'subr-x)
 
+(require 'magit-base nil t)
 (require 'magit-git nil t)
 (require 'magit-mode nil t)
-(require 'magit-utils nil t)
 
 (require 'log-edit)
 (require 'ring)
@@ -135,7 +135,7 @@
 (defvar font-lock-beg)
 (defvar font-lock-end)
 
-(declare-function magit-completing-read "magit-utils"
+(declare-function magit-completing-read "magit-base"
                   (prompt collection &optional predicate require-match
                           initial-input hist def fallback))
 (declare-function magit-expand-git-file-name "magit-git" (filename))
@@ -210,7 +210,7 @@ The major mode configured here is turned on by the minor mode
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
   :type 'hook
-  :get (and (featurep 'magit-utils) 'magit-hook-custom-get)
+  :get (and (featurep 'magit-base) 'magit-hook-custom-get)
   :options '(git-commit-save-message
              git-commit-setup-changelog-support
              magit-generate-changelog
@@ -240,7 +240,7 @@ This hook is only run if `magit' is available.
 Also see `magit-post-commit-hook'."
   :group 'git-commit
   :type 'hook
-  :get (and (featurep 'magit-utils) 'magit-hook-custom-get))
+  :get (and (featurep 'magit-base) 'magit-hook-custom-get))
 
 (defcustom git-commit-finish-query-functions
   '(git-commit-check-style-conventions)

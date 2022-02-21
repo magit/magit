@@ -32,7 +32,7 @@
 
 ;;; Code:
 
-(require 'magit-section)
+(require 'magit-base)
 (require 'magit-transient)
 (require 'magit-mode)
 

@@ -165,7 +165,7 @@ release-manuals: $(PUBLISH_TARGETS)
 
 # Lisp ###############################################################
 
-# When making changes here, then also adjust the copy in magit-utils.el.
+# When making changes here, then also adjust the copy in magit-base.el.
 define ORG_MAN_EXPORT
 (advice-add 'org-man-export :around 'org-man-export--magit-gitman)
 (defun org-man-export--magit-gitman (fn link description format)

@@ -29,8 +29,7 @@
 
 ;;; Code:
 
-(require 'magit-utils)
-(require 'magit-section)
+(require 'magit-base)
 
 ;; From `magit-branch'.
 (defvar magit-branch-prefer-remote-upstream)

@@ -50,9 +50,8 @@ PDFFILES  = $(addsuffix .pdf,$(filter-out git-commit,$(PACKAGES)))
 EPUBFILES = $(addsuffix .epub,$(filter-out git-commit,$(PACKAGES)))
 
 ELS  = git-commit.el
-ELS += magit-transient.el
-ELS += magit-utils.el
 ELS += magit-section.el
+ELS += magit-base.el
 ifeq "$(BUILD_MAGIT_LIBGIT)" "true"
 ELS += magit-libgit.el
 endif
@@ -60,6 +59,7 @@ ELS += magit-git.el
 ELS += magit-mode.el
 ELS += magit-margin.el
 ELS += magit-process.el
+ELS += magit-transient.el
 ELS += magit-autorevert.el
 ELS += magit-core.el
 ELS += magit-diff.el

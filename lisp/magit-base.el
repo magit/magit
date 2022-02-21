@@ -1,4 +1,4 @@
-;;; magit-utils.el --- various utilities  -*- lexical-binding: t; coding: utf-8 -*-
+;;; magit-base.el --- early birds   -*- lexical-binding: t; coding: utf-8 -*-
 
 ;; Copyright (C) 2010-2022  The Magit Project Contributors
 ;;
@@ -28,15 +28,10 @@
 
 ;;; Commentary:
 
-;; This library defines several utility functions used by several
-;; other libraries which cannot depend on one another (because
-;; circular dependencies are not good).  Luckily most (all) of these
-;; functions have very little (nothing) to do with Git, so we not only
-;; have to do this, it even makes sense.
-
-;; Unfortunately there are also some options which are used by several
-;; libraries which cannot depend on one another, they are defined here
-;; too.
+;; This library defines utility functions, options and other things that
+;; have to be available early on because they are used by several other
+;; libraries, which cannot depend on one another, because that would lead
+;; to circular dependencies.
 
 ;;; Code:
 
@@ -1230,5 +1225,5 @@ Like `message', except that `message-log-max' is bound to nil."
          ,@body))))
 
 ;;; _
-(provide 'magit-utils)
-;;; magit-utils.el ends here
+(provide 'magit-base)
+;;; magit-base.el ends here
