@@ -1503,6 +1503,12 @@ mentioned caches completely."
        ((and (magit-section-match [commit logbuf] section)
              (string-match "[^ ]+\\([ *|]*\\).+" heading))
         (replace-match " " t t heading 1))
+       ((magit-section-match
+         '([branch local branchbuf] [tag tags branchbuf]) section)
+        (oref section value))
+       ((magit-section-match [branch remote branchbuf] section)
+        (concat (oref (oref section parent) value) "/"
+                (oref section value)))
        ((string-match " ([0-9]+)\\'" heading)
         (substring heading 0 (match-beginning 0)))
        (t heading)))))
