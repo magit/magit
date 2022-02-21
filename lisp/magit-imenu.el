@@ -50,7 +50,7 @@ Used as a value for `imenu-prev-index-position-function'."
   "Return imenu name for line at point.
 Point should be at the beginning of the line.  This function
 is used as a value for `imenu-extract-index-name-function'."
-  (elt (tabulated-list-get-entry) 0))
+  (car (tabulated-list-get-entry)))
 
 ;;; Repolist mode
 
@@ -68,8 +68,8 @@ Point should be at the beginning of the line.  This function
 is used as a value for `imenu-extract-index-name-function'."
   (let ((entry (tabulated-list-get-entry)))
     (format "%s (%s)"
-            (elt entry 0)
-            (elt entry (1- (length entry))))))
+            (car entry)
+            (car (last entry)))))
 
 ;;; Rebase mode
 
