@@ -833,29 +833,6 @@ and `:slant'."
     (setq magit-buffer-diff-files files)
     (magit-refresh)))
 
-;;; Section Classes
-
-(defclass magit-file-section (magit-section)
-  ((keymap :initform 'magit-file-section-map)
-   (source :initform nil)
-   (header :initform nil)))
-
-(defclass magit-module-section (magit-file-section)
-  ((keymap :initform 'magit-hunk-section-map)))
-
-(defclass magit-hunk-section (magit-section)
-  ((keymap      :initform 'magit-hunk-section-map)
-   (refined     :initform nil)
-   (combined    :initform nil)
-   (from-range  :initform nil)
-   (from-ranges :initform nil)
-   (to-range    :initform nil)
-   (about       :initform nil)))
-
-(setf (alist-get 'hunk   magit--section-type-alist) 'magit-hunk-section)
-(setf (alist-get 'module magit--section-type-alist) 'magit-module-section)
-(setf (alist-get 'file   magit--section-type-alist) 'magit-file-section)
-
 ;;; Commands
 ;;;; Prefix Commands
 

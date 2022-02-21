@@ -46,6 +46,8 @@
 
 (require 'crm)
 
+(require 'magit-section)
+
 (eval-when-compile (require 'ido))
 (declare-function Info-get-token "info" (pos start all &optional errorstring))
 
@@ -434,6 +436,29 @@ and delay of your graphical environment or operating system."
   :type '(choice (const :tag "view info manual" info)
                  (const :tag "view manpage using `man'" man)
                  (const :tag "view manpage using `woman'" woman)))
+
+;;; Section Classes
+
+(defclass magit-file-section (magit-section)
+  ((keymap :initform 'magit-file-section-map)
+   (source :initform nil)
+   (header :initform nil)))
+
+(defclass magit-module-section (magit-file-section)
+  ((keymap :initform 'magit-hunk-section-map)))
+
+(defclass magit-hunk-section (magit-section)
+  ((keymap      :initform 'magit-hunk-section-map)
+   (refined     :initform nil)
+   (combined    :initform nil)
+   (from-range  :initform nil)
+   (from-ranges :initform nil)
+   (to-range    :initform nil)
+   (about       :initform nil)))
+
+(setf (alist-get 'file   magit--section-type-alist) 'magit-file-section)
+(setf (alist-get 'module magit--section-type-alist) 'magit-module-section)
+(setf (alist-get 'hunk   magit--section-type-alist) 'magit-hunk-section)
 
 ;;; User Input
 
