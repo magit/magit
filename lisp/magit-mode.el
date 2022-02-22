@@ -1203,6 +1203,31 @@ if you so desire."
 
 (defvar-local magit-inhibit-refresh-save nil)
 
+(defun magit-save-repository-buffers--changes-to-ignore ()
+  (let* ((topdir (magit-rev-parse-safe "--show-toplevel"))
+         (modified-repo-buffer-files
+          (-keep (lambda (buffer)
+                   (when (and topdir
+                              (buffer-live-p buffer)
+                              (buffer-modified-p buffer)
+                              (not (buffer-base-buffer buffer))
+                              (buffer-file-name buffer)
+                              (with-current-buffer buffer
+                                (equal (magit-rev-parse-safe "--show-toplevel") topdir)))
+                     (file-truename (buffer-file-name buffer))))
+                 (buffer-list)))
+         (modified-ignored-buffer-files
+          (when topdir
+            (let ((check-ignore-args (-concat (list "ls-files"
+                                       "--other"
+                                       "--ignored"
+                                       "--exclude-standard"
+                                       "--full-name"
+                                       "-z")
+                                 modified-repo-buffer-files)))
+              (apply #'magit-git-items check-ignore-args)))))
+    (-map #'file-truename modified-ignored-buffer-files)))
+
 (defun magit-save-repository-buffers (&optional arg)
   "Save file-visiting buffers belonging to the current repository.
 After any buffer where `buffer-save-without-query' is non-nil
@@ -1211,7 +1236,8 @@ buffer which visits a file in the current repository.  Optional
 argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
   (when-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
-    (let ((remote (file-remote-p default-directory))
+    (let ((changed-ignores (magit-save-repository-buffers--changes-to-ignore))
+          (remote (file-remote-p default-directory))
           (save-some-buffers-action-alist
            `((?Y (lambda (buffer)
                    (with-current-buffer buffer
@@ -1236,6 +1262,8 @@ argument (the prefix) non-nil means save all with no questions."
                   ;; repositories, due to the required network access.
                   ;; - Check whether the file is inside the repository.
                   (equal (magit-rev-parse-safe "--show-toplevel") topdir)
+                  ;; - Don't query for ignored files
+                  (not (member (file-truename buffer-file-name) changed-ignores))
                   ;; - Check whether the file is actually writable.
                   (file-writable-p buffer-file-name)))))))
 
