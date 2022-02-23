@@ -44,6 +44,8 @@
 
 (eval-when-compile (require 'benchmark))
 
+(defvar magit-section-highlight-force-update)
+
 ;;; Hooks
 
 (defvar magit-section-movement-hook nil
@@ -609,7 +611,7 @@ With a prefix argument also expand it." heading)
           (oset section content (point-marker))
           (funcall washer)
           (oset section end (point-marker)))))
-    (magit-section-update-highlight t)))
+    (setq magit-section-highlight-force-update t)))
 
 (defun magit-section-hide (section)
   "Hide the body of the current section."
@@ -1251,6 +1253,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 
 (defvar-local magit-section-pre-command-region-p nil)
 (defvar-local magit-section-pre-command-section nil)
+(defvar-local magit-section-highlight-force-update nil)
 (defvar-local magit-section-highlight-overlays nil)
 (defvar-local magit-section-highlighted-sections nil)
 (defvar-local magit-section-unhighlight-sections nil)
@@ -1260,11 +1263,12 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
   (setq magit-section-pre-command-section (magit-current-section)))
 
 (defun magit-section-deactivate-mark ()
-  (magit-section-update-highlight t))
+  (setq magit-section-highlight-force-update t))
 
 (defun magit-section-update-highlight (&optional force)
   (let ((section (magit-current-section)))
     (when (or force
+              magit-section-highlight-force-update
               (cond ; `xor' wasn't added until 27.1.
                ((not magit-section-pre-command-region-p) (region-active-p))
                ((not (region-active-p)) magit-section-pre-command-region-p))
@@ -1284,6 +1288,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
           (run-hook-with-args-until-success
            'magit-section-unhighlight-hook s selection))
         (restore-buffer-modified-p nil)))
+    (setq magit-section-highlight-force-update nil)
     (magit-section-maybe-paint-visibility-ellipses)))
 
 (defun magit-section-highlight (section selection)
