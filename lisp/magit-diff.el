@@ -3021,7 +3021,8 @@ are highlighted."
 
 (defun magit-diff-highlight-file (section &optional selection)
   (magit-diff-highlight-heading section selection)
-  (unless (oref section hidden)
+  (when (or (not (oref section hidden))
+            (cl-typep section 'magit-module-section))
     (dolist (child (oref section children))
       (magit-diff-highlight-recursive child selection))))
 
