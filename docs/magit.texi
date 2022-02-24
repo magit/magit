@@ -7195,9 +7195,12 @@ The following colors are used:
 @itemize
 @item
 Commits that use the same forground color as the @code{default} face have
-not been applied yet.  (This used to claim that they are yellow, but
-when using the default theme, that wasn't true.  However some themes
-may use yellow in an effort to follow the previously listed color.)
+not been applied yet.
+
+@item
+Yellow commits have some special relationship to the commit rebase
+stopped at.  This is used for the words "join", "goal", "same" and
+"work" (see below).
 
 @item
 Gray commits have already been applied.
