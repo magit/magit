@@ -5844,7 +5844,10 @@ shown in different colors to indicate the status of the commits.
 
 The following colors are used:
 
-- Yellow commits have not been applied yet.
+- Commits that use the same forground color as the ~default~ face have
+  not been applied yet.  (This used to claim that they are yellow, but
+  when using the default theme, that wasn't true.  However some themes
+  may use yellow in an effort to follow the previously listed color.)
 
 - Gray commits have already been applied.
 
