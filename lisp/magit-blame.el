@@ -543,17 +543,21 @@ modes is toggled, then this mode also gets toggled automatically.
     (save-excursion
       (save-restriction
         (widen)
-        (goto-char (point-min))
-        (forward-line (1- (oref chunk final-line)))
-        (let ((beg (point))
-              (end (save-excursion
-                     (forward-line (oref chunk num-lines))
-                     (point))))
+        (let* ((line (oref chunk final-line))
+               (beg (magit-blame--line-beginning-position line))
+               (end (magit-blame--line-beginning-position
+                     (+ line (oref chunk num-lines)))))
           (magit-blame--remove-overlays beg end)
           (when magit-blame--make-margin-overlays
             (magit-blame--make-margin-overlays chunk revinfo beg end))
           (magit-blame--make-heading-overlay chunk revinfo beg end)
           (magit-blame--make-highlight-overlay chunk beg))))))
+
+(defun magit-blame--line-beginning-position (line)
+  (save-excursion
+    (goto-char (point-min))
+    (forward-line (1- line))
+    (point)))
 
 (defun magit-blame--make-margin-overlays (chunk revinfo _beg end)
   (save-excursion
