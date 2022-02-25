@@ -42,17 +42,16 @@
 (defcustom magit-blame-styles
   '((headings
      (heading-format   . "%-20a %C %s\n"))
-    (margin
-     (margin-format    . (" %s%f" " %C %a" " %H"))
-     (margin-width     . 42)
-     (margin-face      . magit-blame-margin)
-     (margin-body-face . (magit-blame-dimmed)))
     (highlight
      (highlight-face   . magit-blame-highlight))
     (lines
      (show-lines       . t)
      (show-message     . t)))
   "List of styles used to visualize blame information.
+
+The style used in the current buffer can be cycled from the blame
+popup.  Blame commands (except `magit-blame-echo') use the first
+style as the initial style when beginning to blame in a buffer.
 
 Each entry has the form (IDENT (KEY . VALUE)...).  IDENT has
 to be a symbol uniquely identifying the style.  The following
@@ -76,7 +75,8 @@ KEYs are recognized:
     This can also be a list of formats used for the lines at
     the same positions within the chunk.  If the chunk has
     more lines than formats are specified, then the last is
-    repeated.
+    repeated.  WARNING: Adding this key affects performance;
+    see the note at the end of this docstring.
  `margin-width'
     Width of the margin, provided `margin-format' is non-nil.
  `margin-face'
@@ -108,9 +108,22 @@ that is displayed in the margin is made at least `margin-width'
 characters wide, which may be desirable if the used face sets
 the background color.
 
-The style used in the current buffer can be cycled from the blame
-popup.  Blame commands (except `magit-blame-echo') use the first
-style as the initial style when beginning to blame in a buffer."
+Blame information is displayed using overlays.  Such extensive
+use of overlays is known to slow down even basic operations, such
+as moving the cursor. To reduce the number of overlays the margin
+style had to be removed from the default value of this option.
+
+Note that the margin overlays are created even if another style
+is currently active.  This can only be prevented by not even
+defining a style that uses the margin.  If you want to use this
+style anyway, you can restore this definition, which used to be
+part of the default value:
+
+  (margin
+   (margin-format    . (\" %s%f\" \" %C %a\" \" %H\"))
+   (margin-width     . 42)
+   (margin-face      . magit-blame-margin)
+   (margin-body-face . (magit-blame-dimmed)))"
   :package-version '(magit . "2.13.0")
   :group 'magit-blame
   :type 'string)
@@ -302,6 +315,7 @@ in `magit-blame-read-only-mode-map' instead.")
 (defvar-local magit-blame-separator nil)
 (defvar-local magit-blame-previous-chunk nil)
 
+(defvar-local magit-blame--make-margin-overlays nil)
 (defvar-local magit-blame--style nil)
 
 (defsubst magit-blame--style-get (key)
@@ -333,6 +347,10 @@ in `magit-blame-read-only-mode-map' instead.")
          (setq magit-blame-separator (magit-blame--format-separator))
          (unless magit-blame--style
            (setq magit-blame--style (car magit-blame-styles)))
+         (setq magit-blame--make-margin-overlays
+               (and (cl-find-if (lambda (style)
+                                  (assq 'margin-format (cdr style)))
+                                magit-blame-styles)))
          (magit-blame--update-margin))
         (t
          (when (process-live-p magit-blame-process)
@@ -532,9 +550,10 @@ modes is toggled, then this mode also gets toggled automatically.
                      (forward-line (oref chunk num-lines))
                      (point))))
           (magit-blame--remove-overlays beg end)
-          (magit-blame--make-margin-overlays chunk revinfo beg end)
+          (when magit-blame--make-margin-overlays
+            (magit-blame--make-margin-overlays chunk revinfo beg end))
           (magit-blame--make-heading-overlay chunk revinfo beg end)
-          (magit-blame--make-highlight-overlay   chunk beg))))))
+          (magit-blame--make-highlight-overlay chunk beg))))))
 
 (defun magit-blame--make-margin-overlays (chunk revinfo _beg end)
   (save-excursion
