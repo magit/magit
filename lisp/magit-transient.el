@@ -39,7 +39,8 @@
 ;;; Classes
 
 (defclass magit--git-variable (transient-variable)
-  ((scope       :initarg :scope)))
+  ((scope       :initarg :scope)
+   (global      :initarg :global      :initform nil)))
 
 (defclass magit--git-variable:choices (magit--git-variable)
   ((choices     :initarg :choices)
@@ -61,13 +62,14 @@
 
 (cl-defmethod transient-init-value ((obj magit--git-variable))
   (let ((variable (format (oref obj variable)
-                          (oref obj scope))))
+                          (oref obj scope)))
+        (arg (if (oref obj global) "--global" "--local")))
     (oset obj variable variable)
     (oset obj value
           (cond ((oref obj multi-value)
-                 (magit-get-all variable))
+                 (magit-get-all arg variable))
                 (t
-                 (magit-git-string "config" "--local" variable))))))
+                 (magit-get arg variable))))))
 
 ;;;; Read
 
@@ -108,11 +110,12 @@
 ;;;; Set
 
 (cl-defmethod transient-infix-set ((obj magit--git-variable) value)
-  (let ((variable (oref obj variable)))
+  (let ((variable (oref obj variable))
+        (arg (if (oref obj global) "--global" "--local")))
     (oset obj value value)
     (if (oref obj multi-value)
-        (magit-set-all value variable)
-      (magit-set value variable))
+        (magit-set-all value arg variable)
+      (magit-set value arg variable))
     (magit-refresh)
     (unless (or value transient--prefix)
       (message "Unset %s" variable))))
