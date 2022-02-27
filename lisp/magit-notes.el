@@ -84,12 +84,14 @@
 (transient-define-infix magit-global-core.notesRef ()
   :class 'magit--git-variable
   :variable "core.notesRef"
+  :global t
   :reader 'magit-notes-read-ref
   :prompt "Set global core.notesRef")
 
 (transient-define-infix magit-global-notes.displayRef ()
   :class 'magit--git-variable
   :variable "notes.displayRef"
+  :global t
   :multi-value t
   :reader 'magit-notes-read-refs
   :prompt "Set global notes.displayRef")
