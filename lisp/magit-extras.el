@@ -47,25 +47,8 @@
   "Additional functionality for Magit."
   :group 'magit-extensions)
 
-;;; External Tools
-
-(defcustom magit-gitk-executable
-  (or (and (eq system-type 'windows-nt)
-           (let ((exe (magit-git-string
-                       "-c" "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
-                       "X" "gitk.exe")))
-             (and exe (file-executable-p exe) exe)))
-      (executable-find "gitk") "gitk")
-  "The Gitk executable."
-  :group 'magit-extras
-  :set-after '(magit-git-executable)
-  :type 'string)
-
-;;;###autoload
-(defun magit-run-git-gui ()
-  "Run `git gui' for the current git repository."
-  (interactive)
-  (magit-with-toplevel (magit-process-git 0 "gui")))
+;;; Git Tools
+;;;; Git-Gui
 
 ;;;###autoload
 (defun magit-run-git-gui-blame (commit filename &optional linenum)
@@ -91,6 +74,26 @@ blame to center around the line point is on."
                        (and linenum (list (format "--line=%d" linenum)))
                        commit
                        filename)))
+
+;;;; Gitk
+
+(defcustom magit-gitk-executable
+  (or (and (eq system-type 'windows-nt)
+           (let ((exe (magit-git-string
+                       "-c" "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
+                       "X" "gitk.exe")))
+             (and exe (file-executable-p exe) exe)))
+      (executable-find "gitk") "gitk")
+  "The Gitk executable."
+  :group 'magit-extras
+  :set-after '(magit-git-executable)
+  :type 'string)
+
+;;;###autoload
+(defun magit-run-git-gui ()
+  "Run `git gui' for the current git repository."
+  (interactive)
+  (magit-with-toplevel (magit-process-git 0 "gui")))
 
 ;;;###autoload
 (defun magit-run-gitk ()
