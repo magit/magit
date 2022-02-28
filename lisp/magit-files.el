@@ -501,6 +501,15 @@ Git, then fallback to using `delete-file'."
 (defun magit-read-tracked-file (prompt)
   (magit-read-file prompt t))
 
+(defun magit-read-unmerged-file (&optional prompt)
+  (let ((current  (magit-current-file))
+        (unmerged (magit-unmerged-files)))
+    (unless unmerged
+      (user-error "There are no unresolved conflicts"))
+    (magit-completing-read (or prompt "Resolve file")
+                           unmerged nil t nil nil
+                           (car (member current unmerged)))))
+
 (defun magit-read-file-choice (prompt files &optional error default)
   "Read file from FILES.
 
