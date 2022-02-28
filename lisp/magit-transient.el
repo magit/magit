@@ -47,6 +47,9 @@
    (fallback    :initarg :fallback    :initform nil)
    (default     :initarg :default     :initform nil)))
 
+(defclass magit--git-variable:boolean (magit--git-variable:choices)
+  ((choices     :initarg :choices     :initform '("true" "false"))))
+
 (defclass magit--git-variable:urls (magit--git-variable)
   ((seturl-arg  :initarg :seturl-arg  :initform nil)))
 
@@ -70,6 +73,13 @@
                  (magit-get-all arg variable))
                 (t
                  (magit-get arg variable))))))
+
+(cl-defmethod transient-init-value ((obj magit--git-variable:boolean))
+  (let ((variable (format (oref obj variable)
+                          (oref obj scope)))
+        (arg (if (oref obj global) "--global" "--local")))
+    (oset obj variable variable)
+    (oset obj value (if (magit-get-boolean arg variable) "true" "false"))))
 
 ;;;; Read
 
