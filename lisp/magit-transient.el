@@ -74,11 +74,13 @@
 ;;;; Read
 
 (cl-defmethod transient-infix-read :around ((obj magit--git-variable:urls))
-  (mapcar (lambda (url)
-            (if (string-prefix-p "~" url)
-                (expand-file-name url)
-              url))
-          (cl-call-next-method obj)))
+  (transient--with-emergency-exit
+    (transient--with-suspended-override
+     (mapcar (lambda (url)
+               (if (string-prefix-p "~" url)
+                   (expand-file-name url)
+                 url))
+             (cl-call-next-method obj)))))
 
 (cl-defmethod transient-infix-read ((obj magit--git-variable:choices))
   (let ((choices (oref obj choices)))
