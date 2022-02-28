@@ -731,10 +731,13 @@ See info node `(magit)Debugging Tools' for more information."
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of the Git variable specified by KEYS.
 Also see `magit-git-config-p'."
-  (let ((key (mapconcat 'identity keys ".")))
+  (let ((arg (and (or (null (car keys))
+                      (string-prefix-p "--" (car keys)))
+                  (pop keys)))
+        (key (mapconcat 'identity keys ".")))
     (equal (if magit--refresh-cache
                (car (last (magit-config-get-from-cached-list key)))
-             (magit-git-str "config" "--bool" key))
+             (magit-git-str "config" arg "--bool" key))
            "true")))
 
 (defun magit-set (value &rest keys)
