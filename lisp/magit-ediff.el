@@ -118,7 +118,8 @@ tree at the time of stashing."
   ["Ediff"
    [("E" "Dwim"          magit-ediff-dwim)
     ("s" "Stage"         magit-ediff-stage)
-    ("m" "Resolve"       magit-ediff-resolve)]
+    ("m" "Resolve"       magit-ediff-resolve)
+    ("t" "Resolve using mergetool" magit-git-mergetool)]
    [("u" "Show unstaged" magit-ediff-show-unstaged)
     ("i" "Show staged"   magit-ediff-show-staged)
     ("w" "Show worktree" magit-ediff-show-working-tree)]

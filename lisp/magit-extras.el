@@ -48,6 +48,86 @@
   :group 'magit-extensions)
 
 ;;; Git Tools
+;;;; Git-Mergetool
+
+;;;###autoload (autoload 'magit-git-mergetool "magit-extras" nil t)
+(transient-define-prefix magit-git-mergetool (file args &optional transient)
+  "Resolve conflicts in FILE using \"git mergetool --gui\".
+With a prefix argument allow changing ARGS using a transient
+popup."
+  :man-page "git-mergetool"
+  ["Settings"
+   ("-t" magit-git-mergetool:--tool)
+   ("=t" magit-merge.guitool)
+   ("=T" magit-merge.tool)
+   ("-r" magit-mergetool.hideResolved)
+   ("-b" magit-mergetool.keepBackup)
+   ("-k" magit-mergetool.keepTemporaries)
+   ("-w" magit-mergetool.writeToTemp)]
+  ["Actions"
+   (" m" "Invoke mergetool" magit-git-mergetool)]
+  (interactive
+   (if (and (not (eq transient-current-prefix 'magit-git-mergetool))
+            current-prefix-arg)
+       (list nil nil t)
+     (list (magit-read-unmerged-file "Resolve")
+           (transient-args 'magit-git-mergetool))))
+  (if transient
+      (transient-setup 'magit-git-mergetool)
+    (magit-run-git-async "mergetool" "--gui" args "--" file)))
+
+(transient-define-infix magit-git-mergetool:--tool ()
+  :description "Override mergetool"
+  :class 'transient-option
+  :shortarg "-t"
+  :argument "--tool="
+  :reader 'magit--read-mergetool)
+
+(transient-define-infix magit-merge.guitool ()
+  :class 'magit--git-variable
+  :variable "merge.guitool"
+  :global t
+  :reader 'magit--read-mergetool)
+
+(transient-define-infix magit-merge.tool ()
+  :class 'magit--git-variable
+  :variable "merge.tool"
+  :global t
+  :reader 'magit--read-mergetool)
+
+(defun magit--read-mergetool (prompt _initial-input history)
+  (let ((choices nil)
+        (lines (cdr (magit-git-lines "mergetool" "--tool-help"))))
+    (while (string-prefix-p "\t\t" (car lines))
+      (push (substring (pop lines) 2) choices))
+    (setq choices (nreverse choices))
+    (magit-completing-read (or prompt "Select mergetool")
+                           choices nil t nil history)))
+
+(transient-define-infix magit-mergetool.hideResolved ()
+  :class 'magit--git-variable:boolean
+  :variable "mergetool.hideResolved"
+  :default "false"
+  :global t)
+
+(transient-define-infix magit-mergetool.keepBackup ()
+  :class 'magit--git-variable:boolean
+  :variable "mergetool.keepBackup"
+  :default "true"
+  :global t)
+
+(transient-define-infix magit-mergetool.keepTemporaries ()
+  :class 'magit--git-variable:boolean
+  :variable "mergetool.keepTemporaries"
+  :default "false"
+  :global t)
+
+(transient-define-infix magit-mergetool.writeToTemp ()
+  :class 'magit--git-variable:boolean
+  :variable "mergetool.writeToTemp"
+  :default "false"
+  :global t)
+
 ;;;; Git-Gui
 
 ;;;###autoload

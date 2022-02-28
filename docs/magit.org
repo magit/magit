@@ -1922,6 +1922,13 @@ These suffix commands start external gui tools.
 
   This command runs ~git gui~ in the current repository.
 
+- Key: ! m (magit-git-mergetool) ::
+
+  This command runs =git mergetool --gui= in the current repository.
+
+  With a prefix argument this acts as a transient prefix command,
+  allowing the user to select the mergetool and change some settings.
+
 *** Git Executable
 
 When Magit calls Git, then it may do so using the absolute path to the
@@ -3476,6 +3483,15 @@ information on how to use Ediff itself, see info:ediff.
   In the rare event that you want to manually resolve all conflicts,
   including those already resolved by Git, use
   ~ediff-merge-revisions-with-ancestor~.
+
+- Key: E t (magit-git-mergetool) ::
+
+  This command does not actually use Ediff.  While it serves the same
+  purpose as =magit-ediff-resolve=, it uses =git mergetool --gui= to
+  resolve conflicts.
+
+  With a prefix argument this acts as a transient prefix command,
+  allowing the user to select the mergetool and change some settings.
 
 - Key: E s (magit-ediff-stage) ::
 

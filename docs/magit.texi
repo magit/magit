@@ -2474,6 +2474,14 @@ This command runs @code{gitk --branches} in the current repository.
 @kindex ! g
 @findex magit-run-git-gui
 This command runs @code{git gui} in the current repository.
+
+@item @kbd{! m} (@code{magit-git-mergetool})
+@kindex ! m
+@findex magit-git-mergetool
+This command runs @samp{git mergetool --gui} in the current repository.
+
+With a prefix argument this acts as a transient prefix command,
+allowing the user to select the mergetool and change some settings.
 @end table
 
 @node Git Executable
@@ -4343,6 +4351,16 @@ buffer.
 In the rare event that you want to manually resolve all conflicts,
 including those already resolved by Git, use
 @code{ediff-merge-revisions-with-ancestor}.
+
+@item @kbd{E t} (@code{magit-git-mergetool})
+@kindex E t
+@findex magit-git-mergetool
+This command does not actually use Ediff.  While it serves the same
+purpose as @samp{magit-ediff-resolve}, it uses @samp{git mergetool --gui} to
+resolve conflicts.
+
+With a prefix argument this acts as a transient prefix command,
+allowing the user to select the mergetool and change some settings.
 
 @item @kbd{E s} (@code{magit-ediff-stage})
 @kindex E s

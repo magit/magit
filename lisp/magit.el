@@ -403,7 +403,8 @@ This affects `magit-git-command', `magit-git-command-topdir',
     ("k" "gitk"                 magit-run-gitk)
     ("a" "gitk --all"           magit-run-gitk-all)
     ("b" "gitk --branches"      magit-run-gitk-branches)
-    ("g" "git gui"              magit-run-git-gui)]])
+    ("g" "git gui"              magit-run-git-gui)
+    ("m" "git mergetool --gui"  magit-git-mergetool)]])
 
 ;;;###autoload
 (defun magit-git-command (command)
