@@ -607,6 +607,7 @@ These sections can be expanded to show the respective commits."
                       (propertize module
                                   'font-lock-face 'magit-diff-file-heading)
                       ":")
+                    (oset sec range range)
                     (magit-git-wash
                         (apply-partially 'magit-log-wash-log 'module)
                       "-c" "push.default=current" "log" "--oneline" range)

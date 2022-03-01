@@ -448,7 +448,8 @@ and delay of your graphical environment or operating system."
    (header :initform nil)))
 
 (defclass magit-module-section (magit-file-section)
-  ((keymap :initform 'magit-hunk-section-map)))
+  ((keymap :initform 'magit-hunk-section-map)
+   (range  :initform nil)))
 
 (defclass magit-hunk-section (magit-section)
   ((keymap      :initform 'magit-hunk-section-map)
