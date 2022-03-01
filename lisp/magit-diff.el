@@ -1028,13 +1028,12 @@ and `:slant'."
            ;; File was deleted by us and modified by them.  Show the latter.
            (magit-diff-unmerged args (list file))
          (magit-diff-staged nil args files))))
+    (`(stash . ,value) (magit-stash-show value args))
     (`(commit . ,value)
      (magit-diff-range (format "%s^..%s" value value) args files))
-    (`(stash  . ,value) (magit-stash-show value args))
     ((and range (pred stringp))
      (magit-diff-range range args files))
-    (_
-     (call-interactively #'magit-diff-range))))
+    (_ (call-interactively #'magit-diff-range))))
 
 (defun magit-diff--dwim ()
   "Return information for performing DWIM diff.
