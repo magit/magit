@@ -31,6 +31,8 @@
 
 (require 'magit-base)
 
+(require 'format-spec)
+
 ;; From `magit-branch'.
 (defvar magit-branch-prefer-remote-upstream)
 (defvar magit-published-branches)
