@@ -95,8 +95,8 @@
   "Resume the current cherry-pick or revert sequence."
   (interactive)
   (if (magit-sequencer-in-progress-p)
-      (if (magit-anything-unstaged-p t)
-          (user-error "Cannot continue due to unstaged changes")
+      (if (magit-anything-unmerged-p)
+          (user-error "Cannot continue due to unresolved conflicts")
         (magit-run-git-sequencer
          (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--continue"))
     (user-error "No cherry-pick or revert in progress")))

@@ -24,6 +24,10 @@
   default) to support partial cloning, a feature that is available as
   of Git v2.17.  #4102
 
+- A cherry pick or revert can now be continued when there are unstaged
+  changes as long as there are no unresolved conflicts, a behavior
+  that more closely matches the command line behavior.  #4615
+
 ** Fixes since v3.3.0
 
 - Automatic saving of file-visiting buffers was broken inside remote
