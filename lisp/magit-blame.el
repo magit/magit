@@ -594,7 +594,9 @@ modes is toggled, then this mode also gets toggled automatically.
     (magit-blame--update-heading-overlay ov)))
 
 (defun magit-blame--make-highlight-overlay (chunk beg)
-  (let ((ov (make-overlay beg (1+ (line-end-position)))))
+  (let ((ov (make-overlay beg (save-excursion
+                                (goto-char beg)
+                                (1+ (line-end-position))))))
     (overlay-put ov 'magit-blame-chunk chunk)
     (overlay-put ov 'magit-blame-highlight t)
     (magit-blame--update-highlight-overlay ov)))
