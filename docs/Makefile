@@ -80,8 +80,6 @@ clean:
 	@printf "Cleaning docs/*...\n"
 	@$(RMDIR) dir $(INFOPAGES) $(HTMLFILES) $(HTMLDIRS) $(PDFFILES)
 	@$(RMDIR) $(EPUBFILES) $(EPUBTRASH)
-
-clean-stats:
 	@$(RMDIR) $(GENSTATS_DIR)
 
 ## Release management ################################################
@@ -99,10 +97,6 @@ texi:
 	@$(EMACSBIN) $(ORG_ARGS) magit-section.org $(ORG_EVAL)
 	@printf "\n" >> magit-section.texi
 	@rm -f magit-section.texi~
-
-stats:
-	@printf "Generating statistics\n"
-	@gitstats $(GITSTATS_ARGS) $(TOP) $(GITSTATS_DIR)
 
 authors: AUTHORS.md
 
@@ -124,14 +118,6 @@ CFRONT_PATHS    = $(PKG).html $(PKG).pdf $(PKG)/*
 comma := ,
 empty :=
 space := $(empty) $(empty)
-
-publish-stats: stats
-	@printf "Uploading statistics...\n"
-	@aws s3 sync $(GITSTATS_DIR) $(S3_BUCKET)/stats/
-	@printf "Uploaded to $(PUBLISH_URL)/stats/\n"
-	@printf "Generating CDN invalidation\n"
-	@aws cloudfront create-invalidation \
-	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
 
 publish: $(PUBLISH_TARGETS)
 	@printf "Uploading manuals... $(PUBLISH_TARGETS)\n"
@@ -162,6 +148,20 @@ release: $(PUBLISH_TARGETS)
 	@printf "Generating CDN invalidation\n"
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(RELEASE_PATH),$(CFRONT_PATHS)))" > /dev/null
+
+# Statistics #########################################################
+
+stats:
+	@printf "Generating statistics\n"
+	@$(GITSTATS) $(GITSTATS_ARGS) $(TOP) $(GITSTATS_DIR)
+
+stats-upload:
+	@printf "Uploading statistics...\n"
+	@aws s3 sync $(GITSTATS_DIR) $(S3_BUCKET)/stats/$(PKG)
+	@printf "Uploaded to $(S3_BUCKET)/stats/$(PKG)\n"
+	@printf "Generating CDN invalidation\n"
+	@aws cloudfront create-invalidation \
+	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
 
 # Lisp ###############################################################
 

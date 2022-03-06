@@ -58,14 +58,14 @@ help:
 	$(info ==================)
 	$(info )
 	$(info make texi             - regenerate texi from org)
-	$(info make stats            - regenerate statistics)
 	$(info make authors          - regenerate AUTHORS.md)
-	$(info make publish-stats    - publish statistics)
 	$(info make publish          - publish snapshot manuals)
 	$(info make release          - publish release manuals)
 	$(info make dist             - create tarballs)
 	$(info make bump-versions    - bump versions for release)
 	$(info make bump-snapshots   - bump versions after release)
+	$(info make stats            - regenerate statistics)
+	$(info make stats-upload     - publish statistics)
 	@printf "\n"
 
 ## Build #############################################################
@@ -149,17 +149,11 @@ clean-stats:
 texi:
 	@$(MAKE) -C docs texi
 
-stats:
-	@$(MAKE) -C docs stats
-
 authors:
 	@$(MAKE) -C docs authors
 	@git commit --gpg-sign -m "AUTHORS.md: Update list of contributors" \
 	-o -- docs/AUTHORS.md
 	@git show --pretty= -p HEAD
-
-publish-stats:
-	@$(MAKE) -C docs publish-stats
 
 publish:
 	@$(MAKE) -C docs publish
@@ -349,3 +343,12 @@ bump-snapshots:
         $$set_package_requires_melpa)"
 	@git commit -a --gpg-sign -m "Reset Package-Requires for Melpa"
 	@git show --pretty= -p HEAD
+
+## Statistics ########################################################
+
+stats:
+	@$(MAKE) -C docs stats
+
+stats-upload:
+	@$(MAKE) -C docs stats-upload
+
