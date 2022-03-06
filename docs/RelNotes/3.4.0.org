@@ -55,3 +55,7 @@
 
 - Since v3.0.0, ~magit-pull-from-pushremote~ has failed on
   non-fast-forward merges.  #4604
+
+- A regression from v3.2.0 broke visiting a file when that file has a
+  mode change and point is on the file or the mode change section.
+  #4623

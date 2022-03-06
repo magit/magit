@@ -1665,8 +1665,7 @@ the Magit-Status buffer for DIRECTORY."
        section
        ;; Currently the `hunk' type is also abused for file
        ;; mode changes, which we are not interested in here.
-       ;; Such sections have no value.
-       (oref section value)
+       (not (equal (oref section value) '(chmod)))
        section))))
 
 (defun magit-diff-visit--goto-from-p (section in-worktree)
