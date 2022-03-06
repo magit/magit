@@ -133,7 +133,7 @@ publish-stats: stats
 	@aws cloudfront create-invalidation \
 	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
 
-publish-manuals: $(PUBLISH_TARGETS)
+publish: $(PUBLISH_TARGETS)
 	@printf "Uploading manuals... $(PUBLISH_TARGETS)\n"
 	@aws s3 cp $(PKG).html $(PUBLISH_TARGET)
 	@aws s3 cp $(PKG).pdf  $(PUBLISH_TARGET)
@@ -147,7 +147,7 @@ publish-manuals: $(PUBLISH_TARGETS)
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(PUBLISH_PATH),$(CFRONT_PATHS)))" > /dev/null
 
-release-manuals: $(PUBLISH_TARGETS)
+release: $(PUBLISH_TARGETS)
 	@printf "Uploading release manuals...\n"
 	@aws s3 cp $(PKG).html $(RELEASE_TARGET)
 	@aws s3 cp $(PKG).pdf  $(RELEASE_TARGET)
