@@ -86,10 +86,12 @@ Contributors
 - Boruch Baum <boruch_baum@gmx.com>
 - Bradley Wright <brad@intranation.com>
 - Brandon W Maister <quodlibetor@gmail.com>
+- Brennan Vincent <brennan@umanwizard.com>
 - Brian Leung <leungbk@mailfence.com>
 - Brian Warner <warner@lothar.com>
 - Bryan Shell <bryan.shell@orbitz.com>
 - Buster Copley <buster@buster.me.uk>
+- Cameron Chaparro <cameron.chaparro@zadentech.com>
 - Carl Lieberman <liebermancarl@gmail.com>
 - Chillar Anand <anand21nanda@gmail.com>
 - Chris Bernard <cebernard@gmail.com>
@@ -118,6 +120,7 @@ Contributors
 - Daniel Mai <daniel@danielmai.net>
 - Daniel Martín <mardani29@yahoo.es>
 - Daniel Nagy <danielnagy@posteo.de>
+- Dan Kessler <kesslerd@umich.edu>
 - Dan LaManna <dan.lamanna@gmail.com>
 - Danny Zhu <dzhu@dzhu.us>
 - Dato Simó <dato@net.com.org.es>
@@ -151,12 +154,14 @@ Contributors
 - Fritz Stelzer <brotzeitmacher@gmail.com>
 - Geoff Shannon <geoffpshannon@gmail.com>
 - George Kadianakis <desnacked@gmail.com>
+- Géza Herman <geza.herman@gmail.com>
 - Graham Clark <grclark@gmail.com>
 - Graham Dobbins <gdobbins@protonmail.com>
 - Greg A. Woods <woods@planix.com>
 - Greg Lucas <greg@glucas.net>
 - Gregory Heytings <ghe@sdf.org>
 - Greg Sexton <gregsexton@gmail.com>
+- Greg Steuck <gsteuck@groq.com>
 - Guillaume Martres <smarter@ubuntu.com>
 - Hannu Koivisto <azure@iki.fi>
 - Hans-Peter Deifel <hpdeifel@gmx.de>
@@ -324,9 +329,11 @@ Contributors
 - Sergey Pashinin <sergey@pashinin.com>
 - Sergey Vinokurov <serg.foo@gmail.com>
 - Servilio Afre Puentes <afrepues@mcmaster.ca>
+- Shuguang Sun <shuguang79@qq.com>
 - Siavash Askari Nasr <siavash.askari.nasr@gmail.com>
 - Silent Sphere <silentsphere110@gmail.com>
 - Simon Pintarelli <simon.pintarelli@cscs.ch>
+- Stefan Kangas <stefan@marxist.se>
 - Štěpán Němec <stepnem@gmail.com>
 - Steven Chow <steve@myfreestuffapp.com>
 - Steven E. Harris <seh@panix.com>
@@ -361,6 +368,7 @@ Contributors
 - Tunc Uzlu <bb2020@users.noreply.github.com>
 - Vineet Naik <vineet@helpshift.com>
 - Vitaly Ostashov <hotosho@yandex-team.ru>
+- Vladimir Ivanov <ivvl82@gmail.com>
 - Vladimir Panteleev <git@thecybershadow.net>
 - Vladimir Sedach <vas@oneofus.la>
 - Wei Huang <weih@opera.com>
