@@ -366,7 +366,7 @@ Magit-Section is documented in info node `(magit-section)'."
   (make-local-variable 'text-property-default-nonsticky)
   (push (cons 'keymap t) text-property-default-nonsticky)
   (add-hook 'pre-command-hook #'magit-section-pre-command-hook nil t)
-  (add-hook 'post-command-hook #'magit-section-update-highlight t t)
+  (add-hook 'post-command-hook #'magit-section-post-command-hook t t)
   (add-hook 'deactivate-mark-hook #'magit-section-deactivate-mark t t)
   (setq-local redisplay-highlight-region-function
               'magit-section--highlight-region)
@@ -1261,6 +1261,10 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 (defun magit-section-pre-command-hook ()
   (setq magit-section-pre-command-region-p (region-active-p))
   (setq magit-section-pre-command-section (magit-current-section)))
+
+(defun magit-section-post-command-hook ()
+  (unless (memq this-command '(magit-refresh magit-refresh-all))
+    (magit-section-update-highlight)))
 
 (defun magit-section-deactivate-mark ()
   (setq magit-section-highlight-force-update t))
