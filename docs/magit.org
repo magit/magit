@@ -6444,7 +6444,7 @@ These variables can be set from the transient prefix command
 
 - Variable: remote.NAME.pushurl ::
 
-  This variable specifies the url used for fetching from the remote
+  This variable specifies the url used for pushing to the remote
   named NAME.  If it is not specified, then ~remote.NAME.url~ is used
   instead.  It can have multiple values.
 

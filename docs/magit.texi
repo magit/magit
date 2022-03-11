@@ -7979,7 +7979,7 @@ have multiple values.
 @end defvar
 
 @defvar remote.NAME.pushurl
-This variable specifies the url used for fetching from the remote
+This variable specifies the url used for pushing to the remote
 named NAME@.  If it is not specified, then @code{remote.NAME.url} is used
 instead.  It can have multiple values.
 @end defvar
