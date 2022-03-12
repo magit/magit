@@ -1,7 +1,7 @@
 ---
 title: 
 name: 🪳 Report a bug
-about: Report a defect.
+about: Report a defect. Do not use this for support requests and feature suggestions.
 ---
 
 Please do not ignore these instructions.
