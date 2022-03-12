@@ -2,7 +2,7 @@ blank_issues_enabled: false
 contact_links:
   - name: "💡 Suggest a feature"
     url: https://github.com/magit/magit/discussions
-    about: Use the "Ideas" category to suggest features.
+    about: Start a discussion suggest an improvement or a new feature.
   - name: "🆘 Ask the community for support"
     url: https://www.reddit.com/r/emacs
     about: Please also consider supporting others.
