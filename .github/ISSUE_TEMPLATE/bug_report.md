@@ -1,6 +1,6 @@
 ---
 title: 
-name: Bug report
+name: 🪳 Report a bug
 about: Report a defect.
 ---
 
