@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: "Suggest a feature"
+    url: https://github.com/magit/magit/discussions
+    about: Use the "Ideas" category to suggest features.
   - name: "SUPPORT ☛ The Discussions feature of this repository"
     url: https://github.com/magit/magit/discussions
     about: Please search, ask and answer questions here.
