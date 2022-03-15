@@ -603,12 +603,18 @@ and Emacs to it."
 (defun magit-startup-asserts ()
   (when-let ((val (getenv "GIT_DIR")))
     (setenv "GIT_DIR")
-    (message "Magit unset $GIT_DIR (was %S).  See \
-https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
+    (message
+     "Magit unset $GIT_DIR (was %S).  See %s" val
+     ;; Note: Pass URL as argument rather than embedding in the format
+     ;; string to prevent the single quote from being rendered
+     ;; according to `text-quoting-style'.
+     "https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike"))
   (when-let ((val (getenv "GIT_WORK_TREE")))
     (setenv "GIT_WORK_TREE")
-    (message "Magit unset $GIT_WORK_TREE (was %S).  See \
-https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike" val))
+    (message
+     "Magit unset $GIT_WORK_TREE (was %S).  See %s" val
+     ;; See comment above.
+     "https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike"))
   ;; Git isn't required while building Magit.
   (cl-eval-when (load eval)
     (magit-git-version-assert))
