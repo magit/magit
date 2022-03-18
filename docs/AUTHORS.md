@@ -69,6 +69,7 @@ Contributors
 - Andrey Smirnov <andrew.smirnov@gmail.com>
 - Andriy Kmit' <dev@madand.net>
 - Andy Sawyer <git@pureabstract.org>
+- Angel de Vicente <angel.de.vicente@iac.es>
 - Aria Edmonds <aria@ar1as.space>
 - Arialdo Martini <arialdomartini@gmail.com>
 - Arnau Roig Ninerola <arnau.ninerola@outlook.com>
