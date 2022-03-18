@@ -616,7 +616,7 @@ and Emacs to it."
      ;; See comment above.
      "https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike"))
   ;; Git isn't required while building Magit.
-  (cl-eval-when (load eval)
+  (unless byte-compile-current-file
     (magit-git-version-assert))
   (when (version< emacs-version magit--minimal-emacs)
     (display-warning 'magit (format "\
@@ -672,10 +672,11 @@ For X11 something like ~/.xinitrc should work.\n"
 (with-eval-after-load 'bookmark
   (require 'magit-bookmark))
 
-(if after-init-time
-    (progn (magit-startup-asserts)
-           (magit-version))
-  (add-hook 'after-init-hook #'magit-startup-asserts t)
-  (add-hook 'after-init-hook #'magit-version t))
+(unless byte-compile-current-file
+  (if after-init-time
+      (progn (magit-startup-asserts)
+             (magit-version))
+    (add-hook 'after-init-hook #'magit-startup-asserts t)
+    (add-hook 'after-init-hook #'magit-version t)))
 
 ;;; magit.el ends here
