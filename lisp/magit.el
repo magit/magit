@@ -276,7 +276,7 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
 
 ;;;###autoload
 (progn
-  (defun magit-maybe-define-global-key-bindings ()
+  (defun magit-maybe-define-global-key-bindings (&optional force)
     (when magit-define-global-key-bindings
       (let ((map (current-global-map)))
         (dolist (elt '(("C-x g"   . magit-status)
@@ -284,8 +284,9 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
                        ("C-c M-g" . magit-file-dispatch)))
           (let ((key (kbd (car elt)))
                 (def (cdr elt)))
-            (unless (or (lookup-key map key)
-                        (where-is-internal def (make-sparse-keymap) t))
+            (when (or force
+                      (not (or (lookup-key map key)
+                               (where-is-internal def (make-sparse-keymap) t))))
               (define-key map key def)))))))
   (if after-init-time
       (magit-maybe-define-global-key-bindings)
