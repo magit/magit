@@ -522,7 +522,7 @@ This discards all changes made since the sequence started."
    (7 magit-merge:--strategy)
    (7 magit-merge:--strategy-option)
    (7 "=X" magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
-   (7 "-f" "Forge rebase"           ("-f" "--force-rebase"))
+   (7 "-f" "Force rebase"           ("-f" "--force-rebase"))
    ("-d" "Use author date as committer date" "--committer-date-is-author-date")
    ("-t" "Use current time as author date"   "--ignore-date")
    ("-a" "Autosquash"               "--autosquash")
