@@ -271,13 +271,23 @@ range)."
   "Read file in REVB, return it and the corresponding file in REVA.
 When FILEB is non-nil, use this as REVB's file instead of
 prompting for it."
-  (unless fileB
-    (setq fileB (magit-read-file-choice
-                 (format "File to compare between %s and %s"
-                         revA (or revB "the working tree"))
-                 (magit-changed-files revA revB)
-                 (format "No changed files between %s and %s"
-                         revA (or revB "the working tree")))))
+  (unless (and fileB (member fileB (magit-revision-files revB)))
+    (setq fileB
+          (or (and fileB
+                   magit-buffer-log-files
+                   (derived-mode-p 'magit-log-mode)
+                   (member "--follow" magit-buffer-log-args)
+                   (cdr (assoc fileB
+                               (magit-renamed-files
+                                revB
+                                (oref (car (oref magit-root-section children))
+                                      value)))))
+              (magit-read-file-choice
+               (format "File to compare between %s and %s"
+                       revA (or revB "the working tree"))
+               (magit-changed-files revA revB)
+               (format "No changed files between %s and %s"
+                       revA (or revB "the working tree"))))))
   (list (or (car (member fileB (magit-revision-files revA)))
             (cdr (assoc fileB (magit-renamed-files revB revA)))
             (magit-read-file-choice
