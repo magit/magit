@@ -323,6 +323,13 @@ but that ship has sailed, thus this option."
 
 (defvar symbol-overlay-inhibit-map)
 
+(defvar magit-section-heading-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap used in the heading line of all expandable sections.
+This keymap is used in addition to the section-specifi keymap,
+if any.")
+
 (defvar magit-section-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
@@ -1132,6 +1139,7 @@ anything this time around.
                      (put-text-property (point) next 'magit-section ,s)
                      (when map
                        (put-text-property (point) next 'keymap map)))
+                   (magit-section-maybe-add-heading-map ,s)
                    (goto-char next)))))
            (if (eq ,s magit-root-section)
                (let ((magit-section-cache-visibility nil))
@@ -1208,6 +1216,7 @@ is explicitly expanded."
            (oset ,s washer
                  (lambda ()
                    (funcall ,f)
+                   (magit-section-maybe-remove-heading-map ,s)
                    (magit-section-maybe-remove-visibility-indicator ,s)))
          (funcall ,f)))))
 
@@ -1233,7 +1242,29 @@ is explicitly expanded."
           (oset 1st-header content (oref (car header-sections) start))
           (oset 1st-header end (oref (car (last header-sections)) end))
           (dolist (sub-header header-sections)
-            (oset sub-header parent 1st-header)))))))
+            (oset sub-header parent 1st-header))
+          (magit-section-maybe-add-heading-map 1st-header))))))
+
+(defun magit-section-maybe-add-heading-map (section)
+  (when (magit-section-content-p section)
+    (let ((start (oref section start))
+          (map (oref section keymap)))
+      (when (symbolp map)
+        (setq map (symbol-value map)))
+      (put-text-property
+       start
+       (save-excursion
+         (goto-char start)
+         (line-end-position))
+       'keymap (if map
+                   (make-composed-keymap
+                    (list map magit-section-heading-map))
+                 magit-section-heading-map)))))
+
+(defun magit-section-maybe-remove-heading-map (section)
+  (with-slots (start content end keymap) section
+    (when (= content end)
+      (put-text-property start end 'keymap keymap))))
 
 (defun magit-insert-child-count (section)
   "Modify SECTION's heading to contain number of child sections.
