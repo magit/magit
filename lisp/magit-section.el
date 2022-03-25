@@ -401,22 +401,24 @@ never modify it.")
   "Return an unique identifier for SECTION.
 The return value has the form ((TYPE . VALUE)...)."
   (with-slots (type value parent) section
-    (cons (cons type
-                (cond ((eieio-object-p value)
-                       (magit-section-ident-value value))
-                      ((not (memq type '(unpulled unpushed))) value)
-                      ((string-match-p "@{upstream}" value) value)
-                      ;; Unfortunately Git chokes on "@{push}" when
-                      ;; the value of `push.default' does not allow a
-                      ;; 1:1 mapping.  Arbitrary commands may consult
-                      ;; the section value so we cannot use "@{push}".
-                      ;; But `unpushed' and `unpulled' sections should
-                      ;; keep their identity when switching branches
-                      ;; so we have to use another value here.
-                      ((string-match-p "\\`\\.\\." value) "..@{push}")
-                      (t "@{push}..")))
+    (cons (cons type (magit-section-ident-value-1 value type))
           (and parent
                (magit-section-ident parent)))))
+
+(defun magit-section-ident-value-1 (value type)
+  (cond ((eieio-object-p value)
+         (magit-section-ident-value value))
+        ((not (memq type '(unpulled unpushed))) value)
+        ((string-match-p "@{upstream}" value) value)
+        ;; Unfortunately Git chokes on "@{push}" when
+        ;; the value of `push.default' does not allow a
+        ;; 1:1 mapping.  Arbitrary commands may consult
+        ;; the section value so we cannot use "@{push}".
+        ;; But `unpushed' and `unpulled' sections should
+        ;; keep their identity when switching branches
+        ;; so we have to use another value here.
+        ((string-match-p "\\`\\.\\." value) "..@{push}")
+        (t "@{push}..")))
 
 (cl-defgeneric magit-section-ident-value (value)
   "Return a constant representation of VALUE.
@@ -441,12 +443,13 @@ instead of in the one whose root `magit-root-section' is."
               (oref section type))
       (while (and ident
                   (pcase-let* ((`(,type . ,value) (car ident))
-                               (value (magit-section-ident-value value)))
+                               (value (magit-section-ident-value-1 value type)))
                     (setq section
                           (cl-find-if (lambda (section)
                                         (and (eq (oref section type) type)
-                                             (equal (magit-section-ident-value
-                                                     (oref section value))
+                                             (equal (magit-section-ident-value-1
+                                                     (oref section value)
+                                                     (oref section type))
                                                     value)))
                                       (oref section children)))))
         (pop ident))
