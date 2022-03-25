@@ -248,6 +248,16 @@ but that ship has sailed, thus this option."
   :group 'magit-section
   :type 'boolean)
 
+(defcustom magit-section-show-context-menu-for-emacs<28 nil
+  "Whether `mouse-3' shows a context menu for Emacs < 28.
+
+This has to be set before loading `magit-section' or it has
+no effect.  This also has no effect for Emacs >= 28, where
+`context-menu-mode' should be enabled instead."
+  :package-version '(magit-section . "3.4.0")
+  :group 'magit-section
+  :type 'boolean)
+
 ;;; Faces
 
 (defgroup magit-section-faces nil
@@ -336,6 +346,17 @@ if any.")
 (defvar magit-section-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
+    (when (and magit-section-show-context-menu-for-emacs<28
+               (< emacs-major-version 28))
+      (define-key map [mouse-3] nil)
+      (define-key
+       map [down-mouse-3]
+       `( menu-item "" ,(make-sparse-keymap)
+          :filter ,(lambda (_)
+                     (let ((menu (make-sparse-keymap)))
+                       (context-menu-local menu last-input-event)
+                       (magit-section-context-menu menu last-input-event)
+                       menu)))))
     (define-key map [left-fringe mouse-1] 'magit-mouse-toggle-section)
     (define-key map [left-fringe mouse-2] 'magit-mouse-toggle-section)
     (define-key map (kbd "TAB") 'magit-section-toggle)
@@ -385,6 +406,8 @@ Magit-Section is documented in info node `(magit-section)'."
               'magit-section--highlight-region)
   (setq-local redisplay-unhighlight-region-function
               'magit-section--unhighlight-region)
+  (when (fboundp 'magit-section-context-menu)
+    (add-hook 'context-menu-functions 'magit-section-context-menu 10 t))
   (when magit-section-disable-line-numbers
     (when (bound-and-true-p global-linum-mode)
       (linum-mode -1))
@@ -479,6 +502,84 @@ The return value has the form (TYPE...)."
 (defvar magit-insert-section--current nil "For internal use only.")
 (defvar magit-insert-section--parent  nil "For internal use only.")
 (defvar magit-insert-section--oldroot nil "For internal use only.")
+
+;;; Menu
+
+(defun magit-section-context-menu (menu click)
+  "Populate MENU with Magit-Section commands at CLICK."
+  (mouse-set-point click)
+  (magit-section-update-highlight t)
+  (when-let ((section (magit-section-at)))
+    (when (magit-section-content-p section)
+      (define-key-after menu [magit-section-toggle]
+        `(menu-item
+          ,(if (oref section hidden) "Expand section" "Collapse section")
+          magit-section-toggle))
+      (unless (oref section hidden)
+        (when-let ((children (oref section children)))
+          (when (seq-some #'magit-section-content-p children)
+            (when (seq-some (lambda (c) (oref c hidden)) children)
+              (define-key-after menu [magit-section-show-children]
+                `(menu-item "Expand children"
+                            magit-section-show-children)))
+            (when (seq-some (lambda (c) (not (oref c hidden))) children)
+              (define-key-after menu [magit-section-hide-children]
+                `(menu-item "Collapse children"
+                            magit-section-hide-children))))))
+      (define-key-after menu [separator-magit-1] menu-bar-separator))
+    (define-key-after menu [magit-describe-section]
+      `(menu-item "Describe section" magit-describe-section))
+    (when-let ((map (oref section keymap)))
+      (define-key-after menu [separator-magit-2] menu-bar-separator)
+      (when (symbolp map)
+        (setq map (symbol-value map)))
+      (map-keymap (lambda (key binding)
+                    (when (consp binding)
+                      (define-key-after menu (vector key)
+                        (copy-sequence binding))))
+                  (menu-bar-keymap map))))
+  menu)
+
+(defun magit-menu-set (keymap key def desc &optional props after)
+  "In KEYMAP, define KEY and a menu entry for DEF.
+
+Add the menu item (menu-item DESC DEF . PROPS) at the end of
+KEYMAP, or if optional AFTER is non-nil, then after that.
+
+Because it is so common, and would otherwise result in overlong
+lines or else unsightly line wrapping, a definition [remap CMD]
+can be written as just [CMD].  As a result KEY might have to be
+a string when otherwise a vector would have worked."
+  (declare (indent defun))
+  (when (vectorp key)
+    ;; Expand the short-hand.
+    (unless (eq (aref key 0) 'remap)
+      (setq key (vconcat [remap] key)))
+    ;; The default binding is RET, but in my configuration it
+    ;; is <return>.  In that case the displayed binding would
+    ;; be <CMD> instead of <return>, for unknown reasons. The
+    ;; same does not happen for similar events, such as <tab>.
+    (when (and (equal key [remap magit-visit-thing])
+               (boundp 'magit-mode-map)
+               (ignore-errors (eq (lookup-key magit-mode-map [return])
+                                  'magit-visit-thing)))
+      (setq key [return]))
+    ;; `define-key-after' cannot deal with [remap CMD],
+    ;; so we have to add the key binding separately.
+    (define-key keymap key def)
+    (unless (symbolp def)
+      (error "When KEY is a remapping, then DEF must be a symbol: %s" def))
+    (setq key (vector def)))
+  (define-key-after keymap key
+    `(menu-item ,desc ,def ,@props)
+    after))
+
+(advice-add 'context-menu-region :around
+            (lambda (fn menu click)
+              "Disable in `magit-section-mode' buffers."
+              (if (derived-mode-p 'magit-section-mode)
+                  menu
+                (funcall fn menu click))))
 
 ;;; Commands
 ;;;; Movement

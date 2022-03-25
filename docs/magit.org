@@ -368,6 +368,9 @@ In file visiting buffers ~C-c M-g~ brings up a similar menu featuring
 commands that act on just the visited file, see [[*Commands for Buffers
 Visiting Files]].
 
+Magit also provides a context menu and other mouse commands, see
+[[*Mouse Support]].
+
 It is not necessary that you do so now, but if you stick with Magit,
 then it is highly recommended that you read the next section too.
 
@@ -1782,6 +1785,16 @@ will also have to install the ~ido-completing-read+~ package and use
   values include any key accepted by the ~--sort~ flag of ~git
   for-each-ref~.  By default, refs are sorted alphabetically by their
   full name (e.g., "refs/heads/master").
+
+** Mouse Support
+
+Double clicking on a section heading toggles the visibility of its
+body, if any.  Likewise clicking in the left fringe toggles the
+visibility of the appropriate section.
+
+A context menu is provided but has to be enabled explicitly.  In Emacs
+28 and greater, enable the global mode ~context-menu-mode~.  If you use an
+older Emacs release, set ~magit-section-show-context-menu-for-emacs<28~.
 
 ** Running Git
 *** Viewing Git Output

@@ -104,6 +104,7 @@ Interface Concepts
 * Transient Commands::
 * Transient Arguments and Buffer Variables::
 * Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
+* Mouse Support::
 * Running Git::
 
 Modes and Buffers
@@ -702,6 +703,9 @@ non-Magit buffers.  The global binding is @code{C-x M-g}.
 In file visiting buffers @code{C-c M-g} brings up a similar menu featuring
 commands that act on just the visited file, see @ref{Commands for Buffers Visiting Files}.
 
+Magit also provides a context menu and other mouse commands, see
+@ref{Mouse Support}.
+
 It is not necessary that you do so now, but if you stick with Magit,
 then it is highly recommended that you read the next section too.
 
@@ -714,6 +718,7 @@ then it is highly recommended that you read the next section too.
 * Transient Commands::
 * Transient Arguments and Buffer Variables::
 * Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
+* Mouse Support::
 * Running Git::
 @end menu
 
@@ -2303,6 +2308,17 @@ values include any key accepted by the @code{--sort} flag of @code{git
   for-each-ref}.  By default, refs are sorted alphabetically by their
 full name (e.g., "refs/heads/master").
 @end defopt
+
+@node Mouse Support
+@section Mouse Support
+
+Double clicking on a section heading toggles the visibility of its
+body, if any.  Likewise clicking in the left fringe toggles the
+visibility of the appropriate section.
+
+A context menu is provided but has to be enabled explicitly.  In Emacs
+28 and greater, enable the global mode @code{context-menu-mode}.  If you use an
+older Emacs release, set @code{magit-section-show-context-menu-for-emacs<28}.
 
 @node Running Git
 @section Running Git
