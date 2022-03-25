@@ -344,7 +344,8 @@ but that ship has sailed, thus this option."
     (define-key map (kbd "M-2") 'magit-section-show-level-2-all)
     (define-key map (kbd "M-3") 'magit-section-show-level-3-all)
     (define-key map (kbd "M-4") 'magit-section-show-level-4-all)
-    map))
+    map)
+  "Parent keymap for all keymaps of modes derived from `magit-section-mode'.")
 
 (define-derived-mode magit-section-mode special-mode "Magit-Sections"
   "Parent major mode from which major modes with Magit-like sections inherit.
