@@ -462,53 +462,62 @@ which visits the thing at point using `browse-url'."
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
+  ;; Similar to `magit-dispatch' but exclude:
+  ;; - commands that are available from context menus:
+  ;;   apply, reverse, discard, stage, unstage,
+  ;;   cherry-pick, revert, reset,
+  ;;   describe-section
+  ;; - commands that are available from submenus:
+  ;;   git-command, ediff-dwim
+  ;; - and: refresh-all, status-jump, status-quick.
   '("Magit"
-    ["Refresh" magit-refresh t]
-    ["Refresh all" magit-refresh-all t]
+    "---" "Inspect"
+    ["     Bisect..."             magit-bisect t]
+    ["     Cherries..."           magit-cherry t]
+    ["     Diff..."               magit-diff t]
+    ["     Ediff..."              magit-ediff t]
+    ["     Log..."                magit-log t]
+    ["     References..."         magit-show-refs t]
+    "---" "Manipulate"
+    ["     Commit..."             magit-commit t]
+    ["     Stash..."              magit-stash t]
+    ["     Tag..."                magit-tag t]
     "---"
-    ["Stage" magit-stage t]
-    ["Stage modified" magit-stage-modified t]
-    ["Unstage" magit-unstage t]
-    ["Reset index" magit-reset-index t]
-    ["Commit" magit-commit t]
-    ["Add log entry" magit-commit-add-log t]
-    ["Tag" magit-tag-create t]
+    ["     Branch..."             magit-branch t]
+    ["     Remote..."             magit-remote t]
     "---"
-    ["Diff working tree" magit-diff-working-tree t]
-    ["Diff" magit-diff t]
-    ("Log"
-     ["Log" magit-log-other t]
-     ["Reflog" magit-reflog-other t]
-     ["Extended..." magit-log t])
+    ["     Merge..."              magit-merge t]
+    ["     Rebase..."             magit-rebase t]
+    "---" "Transfer"
+    ["     Fetch..."              magit-fetch t]
+    ["     Pull..."               magit-pull t]
+    ["     Push..."               magit-push t]
+    "---" "Setup"
+    ["     Clone..."              magit-clone t]
+    ["     Ignore..."             magit-gitignore t]
+    ["     Init..."               magit-init t]
     "---"
-    ["Cherry pick" magit-cherry-pick t]
-    ["Revert commit" magit-revert t]
+    ("Advanced"
+     ["Run..."                    magit-run t]
+     "---"
+     ["Apply patches..."          magit-am t]
+     ["Format patches..."         magit-patch t]
+     "---"
+     ["Note..."                   magit-notes t]
+     "---"
+     ["Submodule..."              magit-submodule t]
+     ["Subtree..."                magit-subtree t]
+     ["Worktree..."               magit-worktree t])
     "---"
-    ["Ignore at toplevel" magit-gitignore-in-topdir t]
-    ["Ignore in subdirectory" magit-gitignore-in-subdir t]
-    ["Discard" magit-discard t]
-    ["Reset head and index" magit-reset-mixed t]
-    ["Stash" magit-stash-both t]
-    ["Snapshot" magit-snapshot-both t]
+    ["Show command dispatcher..." magit-dispatch t]
+    ["Show manual"                magit-help t]
+    ["Show another buffer"        magit-display-repository-buffer t]
     "---"
-    ["Branch..." magit-checkout t]
-    ["Merge" magit-merge t]
-    ["Ediff resolve" magit-ediff-resolve t]
-    ["Rebase..." magit-rebase t]
-    "---"
-    ["Push" magit-push t]
-    ["Pull" magit-pull-branch t]
-    ["Remote update" magit-fetch-all t]
-    ("Submodule"
-     ["Submodule update" magit-submodule-update t]
-     ["Submodule update and init" magit-submodule-setup t]
-     ["Submodule init" magit-submodule-init t]
-     ["Submodule sync" magit-submodule-sync t])
-    "---"
-    ("Extensions")
-    "---"
-    ["Display Git output" magit-process-buffer t]
-    ["Quit Magit" magit-mode-bury-buffer t]))
+    ("Change buffer arguments"
+     ["Diff arguments"            magit-diff-refresh t]
+     ["Log arguments"             magit-log-refresh t])
+    ["Refresh buffer"             magit-refresh t]
+    ["Bury buffer"                magit-mode-bury-buffer t]))
 
 ;;; Mode
 
