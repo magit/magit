@@ -1760,6 +1760,15 @@ keymap is the parent of their keymaps.")
     map)
   "Keymap for `unpulled' sections.")
 
+(cl-defmethod magit-section-ident-value ((section magit-unpulled-section))
+  "\"..@{push}\" cannot be used as the value because that is
+ambigious if `push.default' does not allow a 1:1 mapping, and
+many commands would fail because of that.  But here that does
+not matter and we need an unique value so we use that string
+in the pushremote case."
+  (let ((value (oref section value)))
+    (if (equal value "..@{upstream}") value "..@{push}")))
+
 (magit-define-section-jumper magit-jump-to-unpulled-from-upstream
   "Unpulled from @{upstream}" unpulled "..@{upstream}")
 
@@ -1795,6 +1804,15 @@ keymap is the parent of their keymaps.")
     (set-keymap-parent map magit-log-section-map)
     map)
   "Keymap for `unpushed' sections.")
+
+(cl-defmethod magit-section-ident-value ((section magit-unpushed-section))
+  "\"..@{push}\" cannot be used as the value because that is
+ambigious if `push.default' does not allow a 1:1 mapping, and
+many commands would fail because of that.  But here that does
+not matter and we need an unique value so we use that string
+in the pushremote case."
+  (let ((value (oref section value)))
+    (if (equal value "@{upstream}..") value "@{push}..")))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-upstream
   "Unpushed to @{upstream}" unpushed "@{upstream}..")

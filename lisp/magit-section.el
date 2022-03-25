@@ -400,37 +400,36 @@ never modify it.")
 (defun magit-section-ident (section)
   "Return an unique identifier for SECTION.
 The return value has the form ((TYPE . VALUE)...)."
-  (with-slots (type value parent) section
-    (cons (cons type (magit-section-ident-value-1 value type))
-          (and parent
-               (magit-section-ident parent)))))
+  (cons (cons (oref section type)
+              (magit-section-ident-value section))
+        (when-let ((parent (oref section parent)))
+          (magit-section-ident parent))))
 
-(defun magit-section-ident-value-1 (value type)
-  (cond ((eieio-object-p value)
-         (magit-section-ident-value value))
-        ((not (memq type '(unpulled unpushed))) value)
-        ((string-match-p "@{upstream}" value) value)
-        ;; Unfortunately Git chokes on "@{push}" when
-        ;; the value of `push.default' does not allow a
-        ;; 1:1 mapping.  Arbitrary commands may consult
-        ;; the section value so we cannot use "@{push}".
-        ;; But `unpushed' and `unpulled' sections should
-        ;; keep their identity when switching branches
-        ;; so we have to use another value here.
-        ((string-match-p "\\`\\.\\." value) "..@{push}")
-        (t "@{push}..")))
+(cl-defgeneric magit-section-ident-value (object)
+  "Return OBJECT's value, making it constant and unique if necessary.
 
-(cl-defgeneric magit-section-ident-value (value)
-  "Return a constant representation of VALUE.
-VALUE is the value of a `magit-section' object.  If that is an
-object itself, then that is not suitable to be used to identify
-the section because two objects may represent the same thing but
-not be equal.  If possible a method should be added for such
-objects, which returns a value that is equal.  Otherwise the
-catch-all method is used, which just returns the argument
-itself.")
+This is used to correlate different incarnations of the same
+section, see `magit-section-ident' and `magit-get-section'.
 
-(cl-defmethod magit-section-ident-value (arg) arg)
+Sections whose values that are not constant and/or unique should
+implement a method that return a value that can be used for this
+purpose.")
+
+(cl-defmethod magit-section-ident-value ((section magit-section))
+  "Return the value unless it is an object.
+
+Different object incarnations representing the same value then to
+not be equal, so call this generic function on the object itself
+to determine a constant value."
+  (let ((value (oref section value)))
+    (if (eieio-object-p value)
+        (magit-section-ident-value value)
+      value)))
+
+(cl-defmethod magit-section-ident-value ((object eieio-default-superclass))
+  "Simply return the object itself.  That likely isn't
+good enough, so you need to implement your own method."
+  object)
 
 (defun magit-get-section (ident &optional root)
   "Return the section identified by IDENT.
@@ -442,16 +441,14 @@ instead of in the one whose root `magit-root-section' is."
     (when (eq (car (pop ident))
               (oref section type))
       (while (and ident
-                  (pcase-let* ((`(,type . ,value) (car ident))
-                               (value (magit-section-ident-value-1 value type)))
+                  (pcase-let ((`(,type . ,value) (car ident)))
                     (setq section
-                          (cl-find-if (lambda (section)
-                                        (and (eq (oref section type) type)
-                                             (equal (magit-section-ident-value-1
-                                                     (oref section value)
-                                                     (oref section type))
-                                                    value)))
-                                      (oref section children)))))
+                          (cl-find-if
+                           (lambda (section)
+                             (and (eq (oref section type) type)
+                                  (equal (magit-section-ident-value section)
+                                         value)))
+                           (oref section children)))))
         (pop ident))
       section)))
 
