@@ -193,12 +193,16 @@ buffer is reached.  FUNCTION has to move point forward or return
 @chapter Core Functions
 
 @defun magit-current-section
-Return the section at point.
+Return the section at point or where the context menu was invoked.
+When using the context menu, return the section that the user
+clicked on, provided the current buffer is the buffer in which
+the click occured.  Otherwise return the section at point.
 @end defun
 
 @table @asis
 @item Function magit-section-at &optional position
-Return the section at POSITION, defaulting to point.
+Return the section at POSITION, defaulting to point.  Default to
+point even when the context menu is used.
 @end table
 
 @defun magit-section-ident section
@@ -233,6 +237,31 @@ The return value has the form @code{(TYPE...)}.
 @defun magit-section-content-p section
 Return non-nil if SECTION has content or an unused washer function.
 @end defun
+
+The next two functions are replacements for the Emacs functions that
+have the same name except for the @code{magit-} prefix.  Like
+@code{magit-current-section} they do not act on point, the cursors position,
+but on the position where the user clicked to invoke the context menu.
+
+If your package provides a context menu and some of its commands act
+on the "thing at point", even if just as a default, then use the
+prefixed functions to teach them to instead use the click location
+when appropriate.
+
+@table @asis
+@item Function magit-point
+Return point or the position where the context menu was invoked.
+When using the context menu, return the position the user clicked
+on, provided the current buffer is the buffer in which the click
+occured.  Otherwise return the same value as @code{point}.
+
+@item Function magit-thing-at-point thing &optional no-properties
+Return the THING at point or where the context menu was invoked.
+When using the context menu, return the thing the user clicked
+on, provided the current buffer is the buffer in which the click
+occured.  Otherwise return the same value as @code{thing-at-point}.
+For the meaning of THING and NO-PROPERTIES see that function.
+@end table
 
 @node Matching Functions
 @chapter Matching Functions

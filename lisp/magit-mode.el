@@ -1098,7 +1098,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                        (lambda (window)
                          (with-selected-window window
                            (with-current-buffer buffer
-                             (when-let ((section (magit-current-section)))
+                             (when-let ((section (magit-section-at)))
                                `(( ,window
                                    ,section
                                    ,@(magit-refresh-get-relative-position)))))))
@@ -1135,16 +1135,17 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 
 (defun magit-refresh-get-relative-position ()
   (when-let ((section (magit-current-section)))
-    (let ((start (oref section start)))
-      (list (- (line-number-at-pos (point))
+    (let ((start (oref section start))
+          (point (magit-point)))
+      (list (- (line-number-at-pos point)
                (line-number-at-pos start))
-            (- (point) (line-beginning-position))
+            (- point (line-beginning-position))
             (and (magit-hunk-section-p section)
                  (region-active-p)
                  (progn (goto-char (line-beginning-position))
                         (when  (looking-at "^[-+]") (forward-line))
                         (while (looking-at "^[ @]") (forward-line))
-                        (let ((beg (point)))
+                        (let ((beg point))
                           (cond ((looking-at "^[-+]")
                                  (forward-line)
                                  (while (looking-at "^[-+]") (forward-line))

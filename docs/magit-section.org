@@ -149,11 +149,15 @@ source for suitable examples before asking me for help.  Thanks!
 
 - Function: magit-current-section ::
 
-  Return the section at point.
+  Return the section at point or where the context menu was invoked.
+  When using the context menu, return the section that the user
+  clicked on, provided the current buffer is the buffer in which
+  the click occured.  Otherwise return the section at point.
 
 - Function magit-section-at &optional position ::
 
-  Return the section at POSITION, defaulting to point.
+  Return the section at POSITION, defaulting to point.  Default to
+  point even when the context menu is used.
 
 - Function: magit-section-ident section ::
 
@@ -187,6 +191,31 @@ source for suitable examples before asking me for help.  Thanks!
 - Function: magit-section-content-p section ::
 
   Return non-nil if SECTION has content or an unused washer function.
+
+The next two functions are replacements for the Emacs functions that
+have the same name except for the ~magit-~ prefix.  Like
+~magit-current-section~ they do not act on point, the cursors position,
+but on the position where the user clicked to invoke the context menu.
+
+If your package provides a context menu and some of its commands act
+on the "thing at point", even if just as a default, then use the
+prefixed functions to teach them to instead use the click location
+when appropriate.
+
+- Function magit-point ::
+
+  Return point or the position where the context menu was invoked.
+  When using the context menu, return the position the user clicked
+  on, provided the current buffer is the buffer in which the click
+  occured.  Otherwise return the same value as ~point~.
+
+- Function magit-thing-at-point thing &optional no-properties ::
+
+  Return the THING at point or where the context menu was invoked.
+  When using the context menu, return the thing the user clicked
+  on, provided the current buffer is the buffer in which the click
+  occured.  Otherwise return the same value as ~thing-at-point~.
+  For the meaning of THING and NO-PROPERTIES see that function.
 
 * Matching Functions
 

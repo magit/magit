@@ -429,9 +429,39 @@ of this variable is set by `magit-insert-section' and you should
 never modify it.")
 (put 'magit-root-section 'permanent-local t)
 
+(defvar-local magit--context-menu-section nil "For internal use only.")
+
+(defvar magit--context-menu-buffer nil "For internal use only.")
+
+(defun magit-point ()
+  "Return point or the position where the context menu was invoked.
+When using the context menu, return the position the user clicked
+on, provided the current buffer is the buffer in which the click
+occured.  Otherwise return the same value as `point'."
+  (if magit--context-menu-section
+      (magit-menu-position)
+    (point)))
+
+(defun magit-thing-at-point (thing &optional no-properties)
+  "Return the THING at point or where the context menu was invoked.
+When using the context menu, return the thing the user clicked
+on, provided the current buffer is the buffer in which the click
+occured.  Otherwise return the same value as `thing-at-point'.
+For the meaning of THING and NO-PROPERTIES see that function."
+  (if-let ((pos (magit-menu-position)))
+      (save-excursion
+        (goto-char pos)
+        (thing-at-point thing no-properties))
+    (thing-at-point thing no-properties)))
+
 (defun magit-current-section ()
-  "Return the section at point."
-  (or (magit-section-at) magit-root-section))
+  "Return the section at point or where the context menu was invoked.
+When using the context menu, return the section that the user
+clicked on, provided the current buffer is the buffer in which
+the click occured.  Otherwise return the section at point."
+  (or magit--context-menu-section
+      (magit-section-at)
+      magit-root-section))
 
 (defun magit-section-at (&optional position)
   "Return the section at POSITION, defaulting to point."
@@ -510,9 +540,14 @@ The return value has the form (TYPE...)."
 
 (defun magit-section-context-menu (menu click)
   "Populate MENU with Magit-Section commands at CLICK."
-  (mouse-set-point click)
-  (magit-section-update-highlight t)
-  (when-let ((section (magit-section-at)))
+  (when-let ((section (save-excursion
+                        (unless (region-active-p)
+                          (mouse-set-point click))
+                        (magit-section-at))))
+    (unless (region-active-p)
+      (setq magit--context-menu-buffer (current-buffer))
+      (setq magit--context-menu-section section)
+      (magit-section-update-highlight t))
     (when (magit-section-content-p section)
       (define-key-after menu [magit-section-toggle]
         `(menu-item
@@ -582,8 +617,38 @@ the expression (magit-menu-format-desc DESC) for that.  See
   (when (and (stringp desc) (string-match-p "%[tTvsmMx]" desc))
     (setq desc (list 'magit-menu-format-desc desc)))
   (define-key-after keymap key
-    `(menu-item ,desc ,def ,@props)
+    `( menu-item ,desc ,def ,@props
+       ;; Without this, the keys for point would be shown instead
+       ;; of the relevant ones from where the click occured.
+       ,@(and (not (region-active-p))
+              (list :keys
+                    (lambda ()
+                      (or (ignore-errors
+                            (save-excursion
+                              (goto-char (magit-menu-position))
+                              (key-description (where-is-internal def nil t))))
+                          "")))))
     after))
+
+(defun magit-menu-position ()
+  "Return the position where the context-menu was invoked.
+If the current command wasn't invoked using the context-menu,
+then return nil."
+  (and magit--context-menu-section
+       (ignore-errors
+         (posn-point (event-start (aref (this-command-keys-vector) 0))))))
+
+(defun magit-menu-highlight-point-section ()
+  (setq magit-section-highlight-force-update t)
+  (if (eq (current-buffer) magit--context-menu-buffer)
+      (setq magit--context-menu-section nil)
+    (if-let ((window (get-buffer-window magit--context-menu-buffer)))
+        (with-selected-window window
+          (setq magit--context-menu-section nil)
+          (magit-section-update-highlight))
+      (with-current-buffer magit--context-menu-buffer
+        (setq magit--context-menu-section nil))))
+  (setq magit--context-menu-buffer nil))
 
 (defvar magit--plural-append-es '(branch))
 
@@ -1477,12 +1542,29 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 (defvar-local magit-section-unhighlight-sections nil)
 
 (defun magit-section-pre-command-hook ()
+  (when (and (not (bound-and-true-p transient--prefix))
+             (or magit--context-menu-buffer
+                 magit--context-menu-section)
+             (not (eq (ignore-errors
+                        (event-basic-type (aref (this-command-keys) 0)))
+                      'mouse-3)))
+    ;; This is the earliest opportunity to clean up after an aborted
+    ;; context-menu because that neither causes the command that created
+    ;; the menu to abort nor some abortion hook to be run.  It is not
+    ;; possible to update highlighting before the first command invoked
+    ;; after the menu is aborted.  Here we can only make sure it is
+    ;; updated afterwards.
+    (magit-menu-highlight-point-section))
   (setq magit-section-pre-command-region-p (region-active-p))
   (setq magit-section-pre-command-section (magit-current-section)))
 
 (defun magit-section-post-command-hook ()
-  (unless (memq this-command '(magit-refresh magit-refresh-all))
-    (magit-section-update-highlight)))
+  (unless (bound-and-true-p transient--prefix)
+    (when (or magit--context-menu-buffer
+              magit--context-menu-section)
+      (magit-menu-highlight-point-section))
+    (unless (memq this-command '(magit-refresh magit-refresh-all))
+      (magit-section-update-highlight))))
 
 (defun magit-section-deactivate-mark ()
   (setq magit-section-highlight-force-update t))

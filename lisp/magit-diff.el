@@ -1296,7 +1296,7 @@ for a revision."
   (interactive
    (pcase-let* ((mcommit (magit-section-value-if 'module-commit))
                 (atpoint (or mcommit
-                             (thing-at-point 'git-revision t)
+                             (magit-thing-at-point 'git-revision t)
                              (magit-branch-or-commit-at-point)))
                 (`(,args ,files) (magit-show-commit--arguments)))
      (list (or (and (not current-prefix-arg) atpoint)
@@ -1677,7 +1677,7 @@ the Magit-Status buffer for DIRECTORY."
   (and magit-diff-visit-previous-blob
        (not in-worktree)
        (not (oref section combined))
-       (not (< (point) (oref section content)))
+       (not (< (magit-point) (oref section content)))
        (= (char-after (line-beginning-position)) ?-)))
 
 (defvar magit-diff-visit-jump-to-change t)
@@ -1703,7 +1703,7 @@ the Magit-Status buffer for DIRECTORY."
            offset)))))
 
 (defun magit-diff-hunk-column (section goto-from)
-  (if (or (< (point)
+  (if (or (< (magit-point)
              (oref section content))
           (and (not goto-from)
                (= (char-after (line-beginning-position)) ?-)))
@@ -3346,7 +3346,7 @@ last (visual) lines of the region."
   "Return non-nil if point is inside the body of a hunk."
   (and (magit-section-match 'hunk)
        (when-let ((content (oref (magit-current-section) content)))
-         (> (point) content))))
+         (> (magit-point) content))))
 
 ;;; Diff Extract
 

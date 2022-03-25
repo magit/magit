@@ -1457,13 +1457,13 @@ to, or to some other symbolic-ref that points to the same ref."
 
 (defun magit--painted-branch-at-point (&optional type)
   (or (and (not (eq type 'remote))
-           (memq (get-text-property (point) 'font-lock-face)
+           (memq (get-text-property (magit-point) 'font-lock-face)
                  (list 'magit-branch-local
                        'magit-branch-current))
-           (when-let ((branch (thing-at-point 'git-revision t)))
+           (when-let ((branch (magit-thing-at-point 'git-revision t)))
              (cdr (magit-split-branch-name branch))))
       (and (not (eq type 'local))
-           (memq (get-text-property (point) 'font-lock-face)
+           (memq (get-text-property (magit-point) 'font-lock-face)
                  (list 'magit-branch-remote
                        'magit-branch-remote-head))
            (thing-at-point 'git-revision t))))
@@ -1486,7 +1486,7 @@ to, or to some other symbolic-ref that points to the same ref."
 
 (defun magit-commit-at-point ()
   (or (magit-section-value-if 'commit)
-      (thing-at-point 'git-revision t)
+      (magit-thing-at-point 'git-revision t)
       (when-let ((chunk (magit-current-blame-chunk 'addition t)))
         (oref chunk orig-rev))
       (and (derived-mode-p 'magit-stash-mode
@@ -1506,7 +1506,7 @@ to, or to some other symbolic-ref that points to the same ref."
                            (forge--pullreq-branch (oref it value))))
                      (magit-ref-p (format "refs/pullreqs/%s"
                                           (oref (oref it value) number))))))
-      (thing-at-point 'git-revision t)
+      (magit-thing-at-point 'git-revision t)
       (when-let ((chunk (magit-current-blame-chunk 'addition t)))
         (oref chunk orig-rev))
       (and magit-buffer-file-name
