@@ -439,10 +439,13 @@ and delay of your graphical environment or operating system."
 
 ;;; Section Classes
 
-(defclass magit-commit-section (magit-section)
-  ())
+(defclass magit-commit-section (magit-section) ())
 
-(defclass magit-file-section (magit-section)
+(setf (alist-get 'commit magit--section-type-alist) 'magit-commit-section)
+
+(defclass magit-diff-section (magit-section) () :abstract t)
+
+(defclass magit-file-section (magit-diff-section)
   ((keymap :initform 'magit-file-section-map)
    (source :initform nil)
    (header :initform nil)))
@@ -451,7 +454,7 @@ and delay of your graphical environment or operating system."
   ((keymap :initform 'magit-module-section-map)
    (range  :initform nil)))
 
-(defclass magit-hunk-section (magit-section)
+(defclass magit-hunk-section (magit-diff-section)
   ((keymap      :initform 'magit-hunk-section-map)
    (refined     :initform nil)
    (combined    :initform nil)
@@ -460,10 +463,18 @@ and delay of your graphical environment or operating system."
    (to-range    :initform nil)
    (about       :initform nil)))
 
-(setf (alist-get 'commit magit--section-type-alist) 'magit-commit-section)
 (setf (alist-get 'file   magit--section-type-alist) 'magit-file-section)
 (setf (alist-get 'module magit--section-type-alist) 'magit-module-section)
 (setf (alist-get 'hunk   magit--section-type-alist) 'magit-hunk-section)
+
+(defclass magit-log-section (magit-section) () :abstract t)
+(defclass magit-unpulled-section (magit-log-section) ())
+(defclass magit-unpushed-section (magit-log-section) ())
+(defclass magit-unmerged-section (magit-log-section) ())
+
+(setf (alist-get 'unpulled magit--section-type-alist) 'magit-unpulled-section)
+(setf (alist-get 'unpushed magit--section-type-alist) 'magit-unpushed-section)
+(setf (alist-get 'unmerged magit--section-type-alist) 'magit-unmerged-section)
 
 ;;; User Input
 

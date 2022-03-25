@@ -1942,7 +1942,9 @@ Staging and applying changes is documented in info node
                 (list 'unstaged magit-buffer-typearg)))
          (and magit-buffer-diff-files (cons "--" magit-buffer-diff-files))))
 
-(defvar magit-diff-section-base-map
+(define-obsolete-variable-alias 'magit-diff-section-base-map
+  'magit-diff-section-map "Magit-Section 3.4.0")
+(defvar magit-diff-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-j")            'magit-diff-visit-worktree-file)
     (define-key map (kbd "C-<return>")     'magit-diff-visit-worktree-file)
@@ -1961,7 +1963,10 @@ Staging and applying changes is documented in info node
     (define-key map (kbd "C-c C-t") 'magit-diff-trace-definition)
     (define-key map (kbd "C-c C-e") 'magit-diff-edit-hunk-commit)
     map)
-  "Parent of `magit-{hunk,file}-section-map'.")
+  "Keymap for diff sections.
+The classes `magit-file-section' and `magit-hunk-section' derive
+from the abstract `magit-diff-section' class.  Accordingly this
+keymap is the parent of their keymaps.")
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
@@ -2814,9 +2819,8 @@ It the SECTION has a different type, then do nothing."
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing]  'magit-diff-unstaged)
+    (define-key map [remap magit-stage-file]   'magit-stage)
     (define-key map [remap magit-delete-thing] 'magit-discard)
-    (define-key map "s" 'magit-stage)
-    (define-key map "u" 'magit-unstage)
     map)
   "Keymap for the `unstaged' section.")
 
@@ -2833,10 +2837,9 @@ It the SECTION has a different type, then do nothing."
 (defvar magit-staged-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing]      'magit-diff-staged)
+    (define-key map [remap magit-unstage-file]     'magit-unstage)
     (define-key map [remap magit-delete-thing]     'magit-discard)
     (define-key map [remap magit-revert-no-commit] 'magit-reverse)
-    (define-key map "s" 'magit-stage)
-    (define-key map "u" 'magit-unstage)
     map)
   "Keymap for the `staged' section.")
 

@@ -715,8 +715,8 @@ remote in alphabetic order."
 
 (defvar magit-untracked-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-stage-file]   'magit-stage)
     (define-key map [remap magit-delete-thing] 'magit-discard)
-    (define-key map "s" 'magit-stage)
     map)
   "Keymap for the `untracked' section.")
 

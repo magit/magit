@@ -294,7 +294,7 @@ then also remove the respective remote branch."
 
 (defvar magit-unmerged-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-diff-dwim)
+    (set-keymap-parent map magit-log-section-map)
     map)
   "Keymap for `unmerged' sections.")
 

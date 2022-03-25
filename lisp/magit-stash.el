@@ -386,8 +386,8 @@ current branch or `HEAD' as the start-point."
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing]  'magit-stash-show)
     (define-key map [remap magit-delete-thing] 'magit-stash-drop)
-    (define-key map "a"  'magit-stash-apply)
-    (define-key map "A"  'magit-stash-pop)
+    (define-key map [remap magit-cherry-apply] 'magit-stash-apply)
+    (define-key map [remap magit-cherry-pick]  'magit-stash-pop)
     map)
   "Keymap for `stash' sections.")
 

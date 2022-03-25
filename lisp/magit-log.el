@@ -1142,13 +1142,12 @@ Do not add this to a hook variable."
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing] 'magit-show-commit)
-    (define-key map "a" 'magit-cherry-apply)
     map)
   "Keymap for `commit' sections.")
 
 (defvar magit-module-commit-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-show-commit)
+    (set-keymap-parent map magit-commit-section-map)
     map)
   "Keymap for `module-commit' sections.")
 
@@ -1746,9 +1745,18 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 ;;; Log Sections
 ;;;; Standard Log Sections
 
-(defvar magit-unpulled-section-map
+(defvar magit-log-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-visit-thing] 'magit-diff-dwim)
+    map)
+  "Keymap for log sections.
+The classes `magit-{unpulled,unpushed,unmerged}-section' derive
+from the abstract `magit-log-section' class.  Accordingly this
+keymap is the parent of their keymaps.")
+
+(defvar magit-unpulled-section-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-log-section-map)
     map)
   "Keymap for `unpulled' sections.")
 
@@ -1784,7 +1792,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-diff-dwim)
+    (set-keymap-parent map magit-log-section-map)
     map)
   "Keymap for `unpushed' sections.")
 
