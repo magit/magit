@@ -315,7 +315,7 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
     ("F" "Pull"           magit-pull)
     ;; g                  ↓
     ;; G                → magit-refresh-all
-    ("h" "Help"           magit-help)
+    ("h" "Help"           magit-info)
     ("H" "Section info"   magit-describe-section :if-derived magit-mode)]
    [("i" "Ignore"         magit-gitignore)
     ("I" "Init"           magit-init)
@@ -372,12 +372,6 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
     ("<return>" "visit thing at point"     magit-visit-thing)]
    [("C-x m"    "show all key bindings"    describe-mode)
     ("C-x i"    "show Info manual"         magit-info)]])
-
-;;;###autoload
-(defun magit-info ()
-  "Show Magit's Info manual."
-  (interactive)
-  (info "magit"))
 
 ;;; Git Popup
 

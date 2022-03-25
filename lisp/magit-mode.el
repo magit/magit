@@ -449,7 +449,8 @@ which visits the thing at point using `browse-url'."
   (interactive)
   (user-error "There is no thing at point that could be browsed"))
 
-(defun magit-help ()
+;;;###autoload
+(defun magit-info ()
   "Visit the Magit manual."
   (interactive)
   (info "magit"))
