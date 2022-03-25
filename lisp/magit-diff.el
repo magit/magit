@@ -1117,37 +1117,42 @@ If no DWIM context is found, nil is returned."
         ((string-match "\\.\\."    range) (replace-match "..." nil nil range))
         (t range)))
 
+(defun magit-diff--region-range (&optional interactive mbase)
+  (when-let ((commits (magit-region-values '(commit branch) t)))
+    (let ((revA (car (last commits)))
+          (revB (car commits)))
+      (when interactive
+        (deactivate-mark))
+      (if mbase
+          (let ((base (magit-git-string "merge-base" revA revB)))
+            (cond
+             ((string= (magit-rev-parse revA) base)
+              (format "%s..%s" revA revB))
+             ((string= (magit-rev-parse revB) base)
+              (format "%s..%s" revB revA))
+             (interactive
+              (let ((main (magit-completing-read "View changes along"
+                                                 (list revA revB)
+                                                 nil t nil nil revB)))
+                (format "%s...%s"
+                        (if (string= main revB) revA revB) main)))
+             (t "%s...%s" revA revB)))
+        (format "%s..%s" revA revB)))))
+
 (defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
   "Read range or revision with special diff range treatment.
 If MBASE is non-nil, prompt for which rev to place at the end of
 a \"revA...revB\" range.  Otherwise, always construct
 \"revA..revB\" range."
-  (--if-let (magit-region-values '(commit branch) t)
-      (let ((revA (car (last it)))
-            (revB (car it)))
-        (deactivate-mark)
-        (if mbase
-            (let ((base (magit-git-string "merge-base" revA revB)))
-              (cond
-               ((string= (magit-rev-parse revA) base)
-                (format "%s..%s" revA revB))
-               ((string= (magit-rev-parse revB) base)
-                (format "%s..%s" revB revA))
-               (t
-                (let ((main (magit-completing-read "View changes along"
-                                                   (list revA revB)
-                                                   nil t nil nil revB)))
-                  (format "%s...%s"
-                          (if (string= main revB) revA revB) main)))))
-          (format "%s..%s" revA revB)))
-    (magit-read-range prompt
-                      (or (pcase (magit-diff--dwim)
-                            (`(commit . ,value)
-                             (format "%s^..%s" value value))
-                            ((and range (pred stringp))
-                             range))
-                          secondary-default
-                          (magit-get-current-branch)))))
+  (or (magit-diff--region-range t mbase)
+      (magit-read-range prompt
+                        (or (pcase (magit-diff--dwim)
+                              (`(commit . ,value)
+                               (format "%s^..%s" value value))
+                              ((and range (pred stringp))
+                               range))
+                            secondary-default
+                            (magit-get-current-branch)))))
 
 ;;;###autoload
 (defun magit-diff-range (rev-or-range &optional args files)
