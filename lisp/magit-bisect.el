@@ -224,7 +224,7 @@ bisect run'."
          (magit-process-sentinel process event)
          (when (buffer-live-p (process-buffer process))
            (with-current-buffer (process-buffer process)
-             (when-let ((section (get-text-property (point) 'magit-section))
+             (when-let ((section (magit-section-at))
                         (output (buffer-substring-no-properties
                                  (oref section content)
                                  (oref section end))))

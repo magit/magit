@@ -395,7 +395,11 @@ never modify it.")
 
 (defun magit-current-section ()
   "Return the section at point."
-  (or (get-text-property (point) 'magit-section) magit-root-section))
+  (or (magit-section-at) magit-root-section))
+
+(defun magit-section-at (&optional position)
+  "Return the section at POSITION, defaulting to point."
+  (get-text-property (or position (point)) 'magit-section))
 
 (defun magit-section-ident (section)
   "Return an unique identifier for SECTION.
@@ -1118,7 +1122,7 @@ anything this time around.
                  (let ((next (or (next-single-property-change
                                   (point) 'magit-section)
                                  end)))
-                   (unless (get-text-property (point) 'magit-section)
+                   (unless (magit-section-at)
                      (put-text-property (point) next 'magit-section ,s)
                      (when map
                        (put-text-property (point) next 'keymap map)))
@@ -1625,8 +1629,8 @@ forms CONDITION can take."
   (when (region-active-p)
     (let* ((rbeg (region-beginning))
            (rend (region-end))
-           (sbeg (get-text-property rbeg 'magit-section))
-           (send (get-text-property rend 'magit-section)))
+           (sbeg (magit-section-at rbeg))
+           (send (magit-section-at rend)))
       (when (and send
                  (not (eq send magit-root-section))
                  (not (and multiple (eq send sbeg))))
@@ -1663,8 +1667,8 @@ current section."
 If optional SECTION is nil, use the current section."
   (and (region-active-p)
        (or section (setq section (magit-current-section)))
-       (let ((beg (get-text-property (region-beginning) 'magit-section)))
-         (and (eq beg (get-text-property   (region-end) 'magit-section))
+       (let ((beg (magit-section-at (region-beginning))))
+         (and (eq beg (magit-section-at (region-end)))
               (eq beg section)))
        (not (or (magit-section-position-in-heading-p section (region-beginning))
                 (magit-section-position-in-heading-p section (region-end))))

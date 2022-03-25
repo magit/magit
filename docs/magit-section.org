@@ -151,6 +151,10 @@ source for suitable examples before asking me for help.  Thanks!
 
   Return the section at point.
 
+- Function magit-section-at &optional position ::
+
+  Return the section at POSITION, defaulting to point.
+
 - Function: magit-section-ident section ::
 
   Return an unique identifier for SECTION. The return value has the

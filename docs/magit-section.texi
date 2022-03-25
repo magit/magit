@@ -196,6 +196,11 @@ buffer is reached.  FUNCTION has to move point forward or return
 Return the section at point.
 @end defun
 
+@table @asis
+@item Function magit-section-at &optional position
+Return the section at POSITION, defaulting to point.
+@end table
+
 @defun magit-section-ident section
 Return an unique identifier for SECTION@. The return value has the
 form @code{((TYPE . VALUE)...)}.
