@@ -305,7 +305,7 @@ but that ship has sailed, thus this option."
 (defvar magit--section-type-alist nil)
 
 (defclass magit-section ()
-  ((keymap   :initform nil :allocation :class)
+  ((keymap   :initform nil)
    (type     :initform nil :initarg :type)
    (value    :initform nil :initarg :value)
    (start    :initform nil :initarg :start)
@@ -1142,14 +1142,16 @@ anything this time around.
            (magit-insert-child-count ,s)
            (set-marker-insertion-type (oref ,s start) t)
            (let* ((end (oset ,s end (point-marker)))
-                  (class-map (oref-default ,s keymap))
+                  (class-map (oref ,s keymap))
                   (magit-map (intern (format "magit-%s-section-map"
                                              (oref ,s type))))
                   (forge-map (intern (format "forge-%s-section-map"
                                              (oref ,s type))))
-                  (map (or (and         class-map  (symbol-value class-map))
-                           (and (boundp magit-map) (symbol-value magit-map))
-                           (and (boundp forge-map) (symbol-value forge-map)))))
+                  (map (and class-map (symbol-value class-map))))
+             (unless map
+               (setq map (or (and (boundp magit-map) (symbol-value magit-map))
+                             (and (boundp forge-map) (symbol-value forge-map))))
+               (oset ,s keymap map))
              (save-excursion
                (goto-char (oref ,s start))
                (while (< (point) end)
