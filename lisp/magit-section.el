@@ -325,6 +325,9 @@ but that ship has sailed, thus this option."
 
 (defvar magit-section-heading-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [double-down-mouse-1] 'ignore)
+    (define-key map [double-mouse-1] 'magit-mouse-toggle-section)
+    (define-key map [double-mouse-2] 'magit-mouse-toggle-section)
     map)
   "Keymap used in the heading line of all expandable sections.
 This keymap is used in addition to the section-specifi keymap,
@@ -333,6 +336,8 @@ if any.")
 (defvar magit-section-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
+    (define-key map [left-fringe mouse-1] 'magit-mouse-toggle-section)
+    (define-key map [left-fringe mouse-2] 'magit-mouse-toggle-section)
     (define-key map (kbd "TAB") 'magit-section-toggle)
     (define-key map [C-tab]     'magit-section-cycle)
     (define-key map [M-tab]     'magit-section-cycle)
@@ -801,6 +806,22 @@ Sections at higher levels are hidden."
   "Show all sections up to fourth level."
   (interactive)
   (magit-section-show-level -4))
+
+(defun magit-mouse-toggle-section (event)
+  "Toggle visibility of the clicked section.
+Clicks outside either the section heading or the left fringe are
+silently ignored."
+  (interactive "e")
+  (let* ((pos (event-start event))
+         (section (magit-section-at (posn-point pos))))
+    (if (eq (posn-area pos) 'left-fringe)
+        (when section
+          (while (not (magit-section-content-p section))
+            (setq section (oref section parent)))
+          (unless (eq section magit-root-section)
+            (goto-char (oref section start))
+            (magit-section-toggle section)))
+      (magit-section-toggle section))))
 
 ;;;; Auxiliary
 
