@@ -505,6 +505,9 @@ The return value has the form (TYPE...)."
 
 ;;; Menu
 
+(defvar magit-menu-common-value nil "See function `magit-menu-common-value'.")
+(defvar magit-menu--desc-values nil "For internal use only.")
+
 (defun magit-section-context-menu (menu click)
   "Populate MENU with Magit-Section commands at CLICK."
   (mouse-set-point click)
@@ -533,6 +536,8 @@ The return value has the form (TYPE...)."
       (define-key-after menu [separator-magit-2] menu-bar-separator)
       (when (symbolp map)
         (setq map (symbol-value map)))
+      (setq magit-menu-common-value (magit-menu-common-value section))
+      (setq magit-menu--desc-values (magit-menu--desc-values section))
       (map-keymap (lambda (key binding)
                     (when (consp binding)
                       (define-key-after menu (vector key)
@@ -549,7 +554,11 @@ KEYMAP, or if optional AFTER is non-nil, then after that.
 Because it is so common, and would otherwise result in overlong
 lines or else unsightly line wrapping, a definition [remap CMD]
 can be written as just [CMD].  As a result KEY might have to be
-a string when otherwise a vector would have worked."
+a string when otherwise a vector would have worked.
+
+If DESC is a string that contains a support %-spec, substitute
+the expression (magit-menu-format-desc DESC) for that.  See
+`magit-menu-format-desc'."
   (declare (indent defun))
   (when (vectorp key)
     ;; Expand the short-hand.
@@ -570,9 +579,54 @@ a string when otherwise a vector would have worked."
     (unless (symbolp def)
       (error "When KEY is a remapping, then DEF must be a symbol: %s" def))
     (setq key (vector def)))
+  (when (and (stringp desc) (string-match-p "%[tTvsmMx]" desc))
+    (setq desc (list 'magit-menu-format-desc desc)))
   (define-key-after keymap key
     `(menu-item ,desc ,def ,@props)
     after))
+
+(defvar magit--plural-append-es '(branch))
+
+(cl-defgeneric magit-menu-common-value (_section)
+  "Return some value to be used by multiple menu items.
+This function is called by `magit-section-context-menu', which
+stores the value in `magit-menu-common-value'.  Individual menu
+items can use it, e.g., in the expression used to set their
+description."
+  nil)
+
+(defun magit-menu--desc-values (section)
+  (let ((type (oref section type))
+        (value (oref section value))
+        (multiple (magit-region-sections nil t)))
+    (list type
+          value
+          (format "%s %s" type value)
+          (and multiple (length multiple))
+          (if (memq type magit--plural-append-es) "es" "s"))))
+
+(defun magit-menu-format-desc (format)
+  "Format a string based on FORMAT and menu section or selection.
+The following %-specs are allowed:
+%t means \"TYPE\".
+%T means \"TYPE\", or \"TYPEs\" if multiple sections are selected.
+%v means \"VALUE\".
+%s means \"TYPE VALUE\".
+%m means \"TYPE VALUE\", or \"COUNT TYPEs\" if multiple sections
+   are selected.
+%M means \"VALUE\", or \"COUNT TYPEs\" if multiple sections are
+   selected.
+%x means the value of `magit-menu-common-value'."
+  (pcase-let* ((`(,type ,value ,single ,count ,suffix) magit-menu--desc-values)
+               (multiple (and count (format "%s %s%s" count type suffix))))
+    (format-spec format
+                 `((?t . ,type)
+                   (?T . ,(format "%s%s" type (if count suffix "")))
+                   (?v . ,value)
+                   (?s . ,single)
+                   (?m . ,(or multiple single))
+                   (?M . ,(or multiple value))
+                   (?x . ,(format "%s" magit-menu-common-value))))))
 
 (advice-add 'context-menu-region :around
             (lambda (fn menu click)
