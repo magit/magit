@@ -101,11 +101,10 @@ tree at the time of stashing."
   :group 'magit-ediff
   :type 'boolean)
 
-(defcustom magit-ediff-use-indirect-buffers nil
-  "Whether to use indirect buffers."
-  :package-version '(magit . "3.1.0")
-  :group 'magit-ediff
-  :type 'boolean)
+(defvar magit-ediff-use-indirect-buffers nil
+  "Whether to use indirect buffers.
+Ediff already does a lot of buffer and file shuffling and I
+recommend you do not further complicate that by enabling this.")
 
 ;;; Commands
 
