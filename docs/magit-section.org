@@ -184,6 +184,10 @@ source for suitable examples before asking me for help.  Thanks!
   Return the lineage of SECTION.
   The return value has the form ~(TYPE...)~.
 
+- Function: magit-section-content-p section ::
+
+  Return non-nil if SECTION has content or an unused washer function.
+
 * Matching Functions
 
 - Function: magit-section-match condition &optional (section (magit-current-section)) ::

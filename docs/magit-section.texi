@@ -230,6 +230,10 @@ Return the lineage of SECTION@.
 The return value has the form @code{(TYPE...)}.
 @end defun
 
+@defun magit-section-content-p section
+Return non-nil if SECTION has content or an unused washer function.
+@end defun
+
 @node Matching Functions
 @chapter Matching Functions
 

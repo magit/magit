@@ -722,6 +722,11 @@ hidden."
     (and (oref section content)
          (oref section hidden))))
 
+(defun magit-section-content-p (section)
+  "Return non-nil if SECTION has content or an unused washer function."
+  (with-slots (content end washer) section
+    (and content (or (not (= content end)) washer))))
+
 (defun magit-section-invisible-p (section)
   "Return t if the SECTION's body is invisible.
 When the body of an ancestor of SECTION is collapsed then
@@ -1445,45 +1450,43 @@ invisible."
     (magit-section-cache-visibility section)))
 
 (defun magit-section-maybe-update-visibility-indicator (section)
-  (when magit-section-visibility-indicator
-    (let ((beg (oref section start))
-          (cnt (oref section content))
-          (end (oref section end)))
-      (when (and cnt (or (not (= cnt end)) (oref section washer)))
-        (let ((eoh (save-excursion
-                     (goto-char beg)
-                     (line-end-position))))
-          (cond
-           ((symbolp (car-safe magit-section-visibility-indicator))
-            ;; It would make more sense to put the overlay only on the
-            ;; location we actually don't put it on, but then inserting
-            ;; before that location (while taking care not to mess with
-            ;; the overlay) would cause the fringe bitmap to disappear
-            ;; (but not other effects of the overlay).
-            (let ((ov (magit--overlay-at (1+ beg) 'magit-vis-indicator 'fringe)))
-              (unless ov
-                (setq ov (make-overlay (1+ beg) eoh))
-                (overlay-put ov 'evaporate t)
-                (overlay-put ov 'magit-vis-indicator 'fringe))
-              (overlay-put
-               ov 'before-string
-               (propertize "fringe" 'display
-                           (list 'left-fringe
-                                 (if (oref section hidden)
-                                     (car magit-section-visibility-indicator)
-                                   (cdr magit-section-visibility-indicator))
-                                 'fringe)))))
-           ((stringp (car-safe magit-section-visibility-indicator))
-            (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
-              (cond ((oref section hidden)
-                     (unless ov
-                       (setq ov (make-overlay (1- eoh) eoh))
-                       (overlay-put ov 'evaporate t)
-                       (overlay-put ov 'magit-vis-indicator 'eoh))
-                     (overlay-put ov 'after-string
-                                  (car magit-section-visibility-indicator)))
-                    (ov
-                     (delete-overlay ov)))))))))))
+  (when (and magit-section-visibility-indicator
+             (magit-section-content-p section))
+    (let* ((beg (oref section start))
+           (eoh (save-excursion
+                  (goto-char beg)
+                  (line-end-position))))
+      (cond
+       ((symbolp (car-safe magit-section-visibility-indicator))
+        ;; It would make more sense to put the overlay only on the
+        ;; location we actually don't put it on, but then inserting
+        ;; before that location (while taking care not to mess with
+        ;; the overlay) would cause the fringe bitmap to disappear
+        ;; (but not other effects of the overlay).
+        (let ((ov (magit--overlay-at (1+ beg) 'magit-vis-indicator 'fringe)))
+          (unless ov
+            (setq ov (make-overlay (1+ beg) eoh))
+            (overlay-put ov 'evaporate t)
+            (overlay-put ov 'magit-vis-indicator 'fringe))
+          (overlay-put
+           ov 'before-string
+           (propertize "fringe" 'display
+                       (list 'left-fringe
+                             (if (oref section hidden)
+                                 (car magit-section-visibility-indicator)
+                               (cdr magit-section-visibility-indicator))
+                             'fringe)))))
+       ((stringp (car-safe magit-section-visibility-indicator))
+        (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
+          (cond ((oref section hidden)
+                 (unless ov
+                   (setq ov (make-overlay (1- eoh) eoh))
+                   (overlay-put ov 'evaporate t)
+                   (overlay-put ov 'magit-vis-indicator 'eoh))
+                 (overlay-put ov 'after-string
+                              (car magit-section-visibility-indicator)))
+                (ov
+                 (delete-overlay ov)))))))))
 
 (defvar-local magit--ellipses-sections nil)
 
