@@ -35,6 +35,7 @@
 (require 'magit-diff)
 
 (declare-function magit-blob-visit "magit-files" (blob-or-file))
+(declare-function magit-cherry-apply "magit-sequence" (commit &optional args))
 (declare-function magit-insert-head-branch-header "magit-status"
                   (&optional branch))
 (declare-function magit-insert-upstream-branch-header "magit-status"
@@ -1139,9 +1140,22 @@ Do not add this to a hook variable."
         args)
       "--use-mailmap" "--no-prefix" revs "--" files)))
 
+(cl-defmethod magit-menu-common-value ((_section magit-commit-section))
+  (or (magit-diff--region-range)
+      (oref (magit-current-section) value)))
+
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-show-commit)
+    ;; The second remapping overrides the first but we still get two menu
+    ;; items, though only one of them will be available at any given time.
+    (magit-menu-set map [magit-visit-thing]
+      #'magit-diff-range   "Diff %x"
+      '(:visible (region-active-p)))
+    (magit-menu-set map [magit-visit-thing]
+      #'magit-show-commit  "Show commit %x"
+      '(:visible (not (region-active-p))))
+    (magit-menu-set map [magit-cherry-apply]
+      #'magit-cherry-apply "Apply %x")
     map)
   "Keymap for `commit' sections.")
 
@@ -1747,7 +1761,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 
 (defvar magit-log-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-diff-dwim)
+    (magit-menu-set map [magit-visit-thing] #'magit-diff-dwim "Visit diff")
     map)
   "Keymap for log sections.
 The classes `magit-{unpulled,unpushed,unmerged}-section' derive

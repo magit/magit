@@ -377,17 +377,17 @@ current branch or `HEAD' as the start-point."
 
 (defvar magit-stashes-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing]  'magit-stash-list)
-    (define-key map [remap magit-delete-thing] 'magit-stash-clear)
+    (magit-menu-set map [magit-visit-thing]  #'magit-stash-list  "List %t")
+    (magit-menu-set map [magit-delete-thing] #'magit-stash-clear "Clear %t")
     map)
   "Keymap for `stashes' section.")
 
 (defvar magit-stash-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing]  'magit-stash-show)
-    (define-key map [remap magit-delete-thing] 'magit-stash-drop)
-    (define-key map [remap magit-cherry-apply] 'magit-stash-apply)
-    (define-key map [remap magit-cherry-pick]  'magit-stash-pop)
+    (magit-menu-set map [magit-visit-thing]  #'magit-stash-show  "Visit %v")
+    (magit-menu-set map [magit-delete-thing] #'magit-stash-drop  "Delete %M")
+    (magit-menu-set map [magit-cherry-apply] #'magit-stash-apply "Apply %M")
+    (magit-menu-set map [magit-cherry-pick]  #'magit-stash-pop   "Pop %M")
     map)
   "Keymap for `stash' sections.")
 

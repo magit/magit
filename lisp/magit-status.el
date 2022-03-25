@@ -512,7 +512,8 @@ The sections are inserted by running the functions on the hook
 
 (defvar magit-error-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-process-buffer)
+    (magit-menu-set map [magit-visit-thing]
+      #'magit-process-buffer "Visit process output")
     map)
   "Keymap for `error' sections.")
 
@@ -715,8 +716,8 @@ remote in alphabetic order."
 
 (defvar magit-untracked-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-stage-file]   'magit-stage)
-    (define-key map [remap magit-delete-thing] 'magit-discard)
+    (magit-menu-set map [magit-stage-file]   #'magit-stage   "Stage files")
+    (magit-menu-set map [magit-delete-thing] #'magit-discard "Discard files")
     map)
   "Keymap for the `untracked' section.")
 

@@ -64,6 +64,14 @@
 (declare-function forge--pullreq-ref "forge-pullreq" (pullreq))
 ;; For `magit-diff-wash-diff'
 (declare-function ansi-color-apply-on-region "ansi-color")
+;; For keymaps and menus
+(declare-function magit-apply "magit-apply" (&rest args))
+(declare-function magit-stage "magit-apply" (&optional indent))
+(declare-function magit-unstage "magit-apply" ())
+(declare-function magit-discard "magit-apply" ())
+(declare-function magit-reverse "magit-apply" (&rest args))
+(declare-function magit-file-rename "magit-files" (file newname))
+(declare-function magit-file-untrack "magit-files" (files &optional force))
 
 (eval-when-compile
   (cl-pushnew 'orig-rev eieio--known-slot-names)
@@ -1947,21 +1955,41 @@ Staging and applying changes is documented in info node
                 (list 'unstaged magit-buffer-typearg)))
          (and magit-buffer-diff-files (cons "--" magit-buffer-diff-files))))
 
+(cl-defmethod magit-menu-common-value ((_section magit-diff-section))
+  (magit-diff-scope))
+
 (define-obsolete-variable-alias 'magit-diff-section-base-map
   'magit-diff-section-map "Magit-Section 3.4.0")
 (defvar magit-diff-section-map
   (let ((map (make-sparse-keymap)))
+    (magit-menu-set map [magit-cherry-apply]
+      #'magit-apply "Apply %x"
+      '(:enable (not (memq (magit-diff-type) '(unstaged staged)))))
+    (magit-menu-set map [magit-stage-file]
+      #'magit-stage "Stage %x"
+      '(:enable (eq (magit-diff-type) 'unstaged)))
+    (magit-menu-set map [magit-unstage-file]
+      #'magit-unstage "Unstage %x"
+      '(:enable (eq (magit-diff-type) 'staged)))
+    (magit-menu-set map [magit-delete-thing]
+      #'magit-discard "Discard %x"
+      '(:enable (not (memq (magit-diff-type) '(committed undefined)))))
+    (magit-menu-set map [magit-revert-no-commit]
+      #'magit-reverse "Reverse %x"
+      '(:enable (not (memq (magit-diff-type) '(untracked unstaged)))))
+    (magit-menu-set map [magit-visit-thing]
+      #'magit-diff-visit-file "Visit file")
+    (magit-menu-set map [magit-file-untrack]
+      #'magit-file-untrack "Untrack %x"
+      '(:enable (memq (magit-diff-scope) '(file files))))
+    (magit-menu-set map [magit-file-rename]
+      #'magit-file-rename "Rename file"
+      '(:enable (eq (magit-diff-scope) 'file)))
     (define-key map (kbd "C-j")            'magit-diff-visit-worktree-file)
     (define-key map (kbd "C-<return>")     'magit-diff-visit-worktree-file)
     (define-key map (kbd "C-x 4 <return>") 'magit-diff-visit-file-other-window)
     (define-key map (kbd "C-x 5 <return>") 'magit-diff-visit-file-other-frame)
-    (define-key map [remap magit-visit-thing]      'magit-diff-visit-file)
-    (define-key map [remap magit-delete-thing]     'magit-discard)
-    (define-key map [remap magit-revert-no-commit] 'magit-reverse)
-    (define-key map "a" 'magit-apply)
-    (define-key map "s" 'magit-stage)
-    (define-key map "u" 'magit-unstage)
-    (define-key map "&" 'magit-do-async-shell-command)
+    (define-key map "&"             'magit-do-async-shell-command)
     (define-key map "C"             'magit-commit-add-log)
     (define-key map (kbd "C-x a")   'magit-add-change-log-entry)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
@@ -2519,7 +2547,8 @@ or a ref which is not a branch, then it inserts nothing."
 
 (defvar magit-commit-message-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-show-commit)
+    (magit-menu-set map [magit-visit-thing] #'magit-show-commit "Visit %t"
+      '(:enable (magit-thing-at-point 'git-revision t)))
     map)
   "Keymap for `commit-message' sections.")
 
@@ -2823,9 +2852,9 @@ It the SECTION has a different type, then do nothing."
 
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing]  'magit-diff-unstaged)
-    (define-key map [remap magit-stage-file]   'magit-stage)
-    (define-key map [remap magit-delete-thing] 'magit-discard)
+    (magit-menu-set map [magit-visit-thing]  #'magit-diff-unstaged "Visit diff")
+    (magit-menu-set map [magit-stage-file]   #'magit-stage         "Stage all")
+    (magit-menu-set map [magit-delete-thing] #'magit-discard       "Discard all")
     map)
   "Keymap for the `unstaged' section.")
 
@@ -2841,10 +2870,10 @@ It the SECTION has a different type, then do nothing."
 
 (defvar magit-staged-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing]      'magit-diff-staged)
-    (define-key map [remap magit-unstage-file]     'magit-unstage)
-    (define-key map [remap magit-delete-thing]     'magit-discard)
-    (define-key map [remap magit-revert-no-commit] 'magit-reverse)
+    (magit-menu-set map [magit-visit-thing]  #'magit-diff-staged "Visit diff")
+    (magit-menu-set map [magit-unstage-file]     #'magit-unstage "Unstage all")
+    (magit-menu-set map [magit-delete-thing]     #'magit-discard "Discard all")
+    (magit-menu-set map [magit-revert-no-commit] #'magit-reverse "Reverse all")
     map)
   "Keymap for the `staged' section.")
 

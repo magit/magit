@@ -429,10 +429,12 @@ This command behaves just like `magit-show-commit', except if
 point is on a reference in a `magit-refs-mode' buffer (a buffer
 listing branches and tags), in which case the behavior may be
 different, but only if you have customized the option
-`magit-visit-ref-behavior' (which see)."
+`magit-visit-ref-behavior' (which see).  When invoked from a
+menu this command always behaves like `magit-show-commit'."
   (interactive)
   (if (and (derived-mode-p 'magit-refs-mode)
-           (magit-section-match '(branch tag)))
+           (magit-section-match '(branch tag))
+           (magit-menu-position))
       (let ((ref (oref (magit-current-section) value)))
         (cond (current-prefix-arg
                (cond ((memq 'focus-on-ref magit-visit-ref-behavior)
@@ -476,23 +478,23 @@ Branch %s already exists.
 
 (defvar magit-remote-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-delete-thing] 'magit-remote-remove)
-    (define-key map [remap magit-file-rename]  'magit-remote-rename)
+    (magit-menu-set map [magit-delete-thing] #'magit-remote-remove "Remove %m")
+    (magit-menu-set map [magit-file-rename]  #'magit-remote-rename "Rename %s")
     map)
   "Keymap for `remote' sections.")
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing]  'magit-visit-ref)
-    (define-key map [remap magit-delete-thing] 'magit-branch-delete)
-    (define-key map [remap magit-file-rename]  'magit-branch-rename)
+    (magit-menu-set map [magit-visit-thing]  #'magit-visit-ref     "Visit commit")
+    (magit-menu-set map [magit-delete-thing] #'magit-branch-delete "Delete %m")
+    (magit-menu-set map [magit-file-rename]  #'magit-branch-rename "Rename %s")
     map)
   "Keymap for `branch' sections.")
 
 (defvar magit-tag-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing]  'magit-visit-ref)
-    (define-key map [remap magit-delete-thing] 'magit-tag-delete)
+    (magit-menu-set map [magit-visit-thing]  #'magit-visit-ref  "Visit %s")
+    (magit-menu-set map [magit-delete-thing] #'magit-tag-delete "Delete %m")
     map)
   "Keymap for `tag' sections.")
 

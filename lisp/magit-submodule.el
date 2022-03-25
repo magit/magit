@@ -510,19 +510,25 @@ or, failing that, the abbreviated HEAD commit hash."
 
 (defvar magit-modules-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-list-submodules)
+    (magit-menu-set map [remap magit-visit-thing]
+      #'magit-list-submodules "List %t")
     map)
   "Keymap for `modules' sections.")
 
 (defvar magit-module-section-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-file-section-map)
     (define-key map (kbd "C-j") 'magit-submodule-visit)
     (define-key map [C-return]  'magit-submodule-visit)
-    (define-key map [remap magit-visit-thing]  'magit-submodule-visit)
-    (define-key map [remap magit-delete-thing] 'magit-submodule-unpopulate)
-    (define-key map "K" 'magit-file-untrack)
-    (define-key map "R" 'magit-file-rename)
+    (magit-menu-set map [magit-visit-thing]
+      #'magit-submodule-visit "Visit %s")
+    (magit-menu-set map [magit-stage-file]
+      #'magit-stage "Stage %T"
+      '(:visible (eq (magit-diff-type) 'unstaged)))
+    (magit-menu-set map [magit-unstage-file]
+      #'magit-unstage "Unstage %T"
+      '(:visible (eq (magit-diff-type) 'staged)))
+    (define-key-after map [separator-magit-submodule] menu-bar-separator)
+    (magit-menu-set map [magit-submodule] #'magit-submodule "Module commands...")
     map)
   "Keymap for `module' sections.")
 
