@@ -2,6 +2,7 @@
 title: 
 name: 🪳 Report a bug
 about: Report a defect. Do not use this for support requests and feature suggestions.
+note: Keep in sync with wiki/How-to-report-a-bug.md
 ---
 
 Please do not ignore these instructions.
