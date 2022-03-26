@@ -355,7 +355,9 @@ if any.")
        `( menu-item "" ,(make-sparse-keymap)
           :filter ,(lambda (_)
                      (let ((menu (make-sparse-keymap)))
-                       (context-menu-local menu last-input-event)
+                       (if (fboundp 'context-menu-local)
+                           (context-menu-local menu last-input-event)
+                         (magit--context-menu-local menu last-input-event))
                        (magit-section-context-menu menu last-input-event)
                        menu)))))
     (define-key map [left-fringe mouse-1] 'magit-mouse-toggle-section)
@@ -578,7 +580,9 @@ The return value has the form (TYPE...)."
                     (when (consp binding)
                       (define-key-after menu (vector key)
                         (copy-sequence binding))))
-                  (menu-bar-keymap map))))
+                  (if (fboundp 'menu-bar-keymap)
+                      (menu-bar-keymap map)
+                    (magit--menu-bar-keymap map)))))
   menu)
 
 (defun magit-menu-set (keymap key def desc &optional props after)
@@ -693,6 +697,28 @@ The following %-specs are allowed:
                    (?m . ,(or multiple single))
                    (?M . ,(or multiple value))
                    (?x . ,(format "%s" magit-menu-common-value))))))
+
+(defun magit--menu-bar-keymap (keymap)
+  "Backport of `menu-bar-keymap' for Emacs < 28.
+Slight trimmed down."
+  (let ((menu-bar nil))
+    (map-keymap (lambda (key binding)
+                  (push (cons key binding) menu-bar))
+                keymap)
+    (cons 'keymap (nreverse menu-bar))))
+
+(defun magit--context-menu-local (menu _click)
+  "Backport of `context-menu-local' for Emacs < 28."
+  (run-hooks 'activate-menubar-hook 'menu-bar-update-hook)
+  (define-key-after menu [separator-local] menu-bar-separator)
+  (let ((keymap (local-key-binding [menu-bar])))
+    (when keymap
+      (map-keymap (lambda (key binding)
+                    (when (consp binding)
+                      (define-key-after menu (vector key)
+                        (copy-sequence binding))))
+                  (magit--menu-bar-keymap keymap))))
+  menu)
 
 (advice-add 'context-menu-region :around
             (lambda (fn menu click)
