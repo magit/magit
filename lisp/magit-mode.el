@@ -1480,7 +1480,7 @@ mentioned caches completely."
        (or magit--imenu-group-types
            magit--imenu-item-types)
        (let ((index
-              (mapcan
+              (cl-mapcan
                (lambda (section)
                  (cond
                   (magit--imenu-group-types
