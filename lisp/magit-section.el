@@ -39,6 +39,7 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'eieio)
+(require 'format-spec)
 (require 'seq)
 (require 'subr-x)
 
