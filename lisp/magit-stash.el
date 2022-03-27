@@ -79,7 +79,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :group 'magit-stash
   :group 'magit-margin
   :type magit-log-margin--custom-type
-  :initialize 'magit-custom-initialize-reset
+  :initialize #'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-stashes-mode))
 
@@ -419,7 +419,7 @@ instead of \"Stashes:\"."
                 (backward-char)
                 (magit-log-format-margin autostash author date)))))
         (if verified
-            (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
+            (magit-git-wash (apply-partially #'magit-log-wash-log 'stash)
               "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)
           (insert ?\n)
           (save-excursion
@@ -448,7 +448,7 @@ instead of \"Stashes:\"."
     (magit-insert-heading (if (equal magit-buffer-refname "refs/stash")
                               "Stashes:"
                             (format "Stashes [%s]:" magit-buffer-refname)))
-    (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
+    (magit-git-wash (apply-partially #'magit-log-wash-log 'stash)
       "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" magit-buffer-refname)))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-stashes-mode))

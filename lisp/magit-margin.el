@@ -137,9 +137,9 @@ does not carry to other options."
             (magit-set-window-margin window)
             (if enable
                 (add-hook  'window-configuration-change-hook
-                           'magit-set-window-margin nil t)
+                           #'magit-set-window-margin nil t)
               (remove-hook 'window-configuration-change-hook
-                           'magit-set-window-margin t))))
+                           #'magit-set-window-margin t))))
         (when (and enable (or refresh magit-set-buffer-margin-refresh))
           (magit-refresh-buffer))))))
 

@@ -117,7 +117,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :group 'magit-log
   :group 'magit-margin
   :type magit-log-margin--custom-type
-  :initialize 'magit-custom-initialize-reset
+  :initialize #'magit-custom-initialize-reset
   :set (apply-partially #'magit-margin-set-variable 'magit-log-mode))
 
 (defcustom magit-log-margin-show-committer-date nil
@@ -145,7 +145,7 @@ This is useful if you use really long branch names."
   :group 'magit-log
   :type 'boolean)
 
-(defcustom magit-log-header-line-function 'magit-log-header-line-sentence
+(defcustom magit-log-header-line-function #'magit-log-header-line-sentence
   "Function used to generate text shown in header line of log buffers."
   :package-version '(magit . "2.12.0")
   :group 'magit-log
@@ -153,7 +153,7 @@ This is useful if you use really long branch names."
                  (function-item magit-log-header-line-sentence)
                  function))
 
-(defcustom magit-log-trace-definition-function 'magit-which-function
+(defcustom magit-log-trace-definition-function #'magit-which-function
   "Function used to determine the function at point.
 This is used by the command `magit-log-trace-definition'.
 You should prefer `magit-which-function' over `which-function'
@@ -249,7 +249,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :group 'magit-log
   :group 'magit-margin
   :type magit-log-margin--custom-type
-  :initialize 'magit-custom-initialize-reset
+  :initialize #'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-log-select-mode))
 
@@ -289,7 +289,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :group 'magit-log
   :group 'magit-margin
   :type magit-log-margin--custom-type
-  :initialize 'magit-custom-initialize-reset
+  :initialize #'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-cherry-mode))
 
@@ -545,28 +545,28 @@ the upstream isn't ahead of the current branch) show."
   ;; long argument ("--max-count").
   :shortarg "-n"
   :argument "-n"
-  :reader 'transient-read-number-N+)
+  :reader #'transient-read-number-N+)
 
 (transient-define-argument magit:--author ()
   :description "Limit to author"
   :class 'transient-option
   :key "-A"
   :argument "--author="
-  :reader 'magit-transient-read-person)
+  :reader #'magit-transient-read-person)
 
 (transient-define-argument magit-log:--since ()
   :description "Limit to commits since"
   :class 'transient-option
   :key "=s"
   :argument "--since="
-  :reader 'transient-read-date)
+  :reader #'transient-read-date)
 
 (transient-define-argument magit-log:--until ()
   :description "Limit to commits until"
   :class 'transient-option
   :key "=u"
   :argument "--until="
-  :reader 'transient-read-date)
+  :reader #'transient-read-date)
 
 (transient-define-argument magit-log:--*-order ()
   :description "Order commits by"
@@ -596,7 +596,7 @@ the upstream isn't ahead of the current branch) show."
   :description "Trace line evolution"
   :class 'transient-option
   :argument "-L"
-  :reader 'magit-read-file-trace)
+  :reader #'magit-read-file-trace)
 
 (defun magit-read-file-trace (&rest _ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
@@ -608,7 +608,7 @@ the upstream isn't ahead of the current branch) show."
 (defvar magit-log-read-revs-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map crm-local-completion-map)
-    (define-key map "\s" 'self-insert-command)
+    (define-key map "\s" #'self-insert-command)
     map))
 
 (defun magit-log-read-revs (&optional use-current)
@@ -761,7 +761,7 @@ restrict the log to the lines that the region touches."
                     beg end)
            (setq args (cons (format "-L%s,%s:%s" beg end file)
                             (cl-delete "-L" args :test
-                                       'string-prefix-p)))
+                                       #'string-prefix-p)))
            (setq file nil))
          args)
        (and file (list file))
@@ -795,7 +795,7 @@ restrict the log to the lines that the region touches."
                    "")
                  file)
          (cl-delete "-L" (car (magit-log-arguments))
-                    :test 'string-prefix-p))
+                    :test #'string-prefix-p))
    nil magit-log-buffer-file-locked))
 
 (defun magit-diff-trace-definition ()
@@ -998,14 +998,14 @@ of the current repository first; creating it if necessary."
 (defvar magit-log-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "C-c C-b") 'magit-go-backward)
-    (define-key map (kbd "C-c C-f") 'magit-go-forward)
-    (define-key map (kbd "C-c C-n") 'magit-log-move-to-parent)
-    (define-key map "j" 'magit-log-move-to-revision)
-    (define-key map "=" 'magit-log-toggle-commit-limit)
-    (define-key map "+" 'magit-log-double-commit-limit)
-    (define-key map "-" 'magit-log-half-commit-limit)
-    (define-key map "q" 'magit-log-bury-buffer)
+    (define-key map (kbd "C-c C-b") #'magit-go-backward)
+    (define-key map (kbd "C-c C-f") #'magit-go-forward)
+    (define-key map (kbd "C-c C-n") #'magit-log-move-to-parent)
+    (define-key map "j" #'magit-log-move-to-revision)
+    (define-key map "=" #'magit-log-toggle-commit-limit)
+    (define-key map "+" #'magit-log-double-commit-limit)
+    (define-key map "-" #'magit-log-half-commit-limit)
+    (define-key map "q" #'magit-log-bury-buffer)
     map)
   "Keymap for `magit-log-mode'.")
 
@@ -1101,7 +1101,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
           (and (member "--reverse" args)
                " in reverse")
           (and files (concat " touching "
-                             (mapconcat 'identity files " ")))
+                             (mapconcat #'identity files " ")))
           (--some (and (string-prefix-p "-L" it)
                        (concat " " it))
                   args)))
@@ -1227,7 +1227,7 @@ Do not add this to a hook variable."
 
 (defvar magit-log-count nil)
 
-(defvar magit-log-format-message-function 'magit-log-propertize-keywords)
+(defvar magit-log-format-message-function #'magit-log-propertize-keywords)
 
 (defun magit-log-wash-log (style args)
   (setq args (-flatten args))
@@ -1243,7 +1243,7 @@ Do not add this to a hook variable."
   (let ((magit-log-count 0))
     (when (looking-at "^\\.\\.\\.")
       (magit-delete-line))
-    (magit-wash-sequence (apply-partially 'magit-log-wash-rev style
+    (magit-wash-sequence (apply-partially #'magit-log-wash-rev style
                                           (magit-abbrev-length)))
     (if (derived-mode-p 'magit-log-mode 'magit-reflog-mode)
         (when (eq magit-log-count (magit-log-get-commit-limit))
@@ -1584,13 +1584,13 @@ The shortstat style is experimental and rather slow."
 (defvar magit-log-select-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
-    (define-key map (kbd "C-c C-b") 'undefined)
-    (define-key map (kbd "C-c C-f") 'undefined)
-    (define-key map (kbd ".")       'magit-log-select-pick)
-    (define-key map (kbd "e")       'magit-log-select-pick)
-    (define-key map (kbd "C-c C-c") 'magit-log-select-pick)
-    (define-key map (kbd "q")       'magit-log-select-quit)
-    (define-key map (kbd "C-c C-k") 'magit-log-select-quit)
+    (define-key map (kbd "C-c C-b") #'undefined)
+    (define-key map (kbd "C-c C-f") #'undefined)
+    (define-key map (kbd ".")       #'magit-log-select-pick)
+    (define-key map (kbd "e")       #'magit-log-select-pick)
+    (define-key map (kbd "C-c C-c") #'magit-log-select-pick)
+    (define-key map (kbd "q")       #'magit-log-select-quit)
+    (define-key map (kbd "C-c C-k") #'magit-log-select-quit)
     map)
   "Keymap for `magit-log-select-mode'.")
 
@@ -1692,8 +1692,8 @@ Call `magit-log-select-quit-function' if set."
 (defvar magit-cherry-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "q" 'magit-log-bury-buffer)
-    (define-key map "L" 'magit-margin-settings)
+    (define-key map "q" #'magit-log-bury-buffer)
+    (define-key map "L" #'magit-margin-settings)
     map)
   "Keymap for `magit-cherry-mode'.")
 
@@ -1751,7 +1751,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   "Insert commit sections into a `magit-cherry-mode' buffer."
   (magit-insert-section (cherries)
     (magit-insert-heading "Cherry commits:")
-    (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
+    (magit-git-wash (apply-partially #'magit-log-wash-log 'cherry)
       "cherry" "-v" "--abbrev"
       magit-buffer-upstream
       magit-buffer-refname)))
@@ -1918,7 +1918,7 @@ not shared with any local commit) with \"+\", and all others with
   (when (magit-git-success "rev-parse" "@{upstream}")
     (magit-insert-section (unpulled "..@{upstream}")
       (magit-insert-heading "Unpulled commits:")
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
+      (magit-git-wash (apply-partially #'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg)
         (magit-get-current-branch) "@{upstream}"))))
 
@@ -1931,7 +1931,7 @@ all others with \"-\"."
   (when (magit-git-success "rev-parse" "@{upstream}")
     (magit-insert-section (unpushed "@{upstream}..")
       (magit-insert-heading "Unpushed commits:")
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
+      (magit-git-wash (apply-partially #'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) "@{upstream}"))))
 
 ;;; _

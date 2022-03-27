@@ -309,20 +309,20 @@ refspec."
 
 (transient-define-infix magit-remote.<remote>.url ()
   :class 'magit--git-variable:urls
-  :scope 'magit--read-remote-scope
+  :scope #'magit--read-remote-scope
   :variable "remote.%s.url"
   :multi-value t
   :history-key 'magit-remote.<remote>.*url)
 
 (transient-define-infix magit-remote.<remote>.fetch ()
   :class 'magit--git-variable
-  :scope 'magit--read-remote-scope
+  :scope #'magit--read-remote-scope
   :variable "remote.%s.fetch"
   :multi-value t)
 
 (transient-define-infix magit-remote.<remote>.pushurl ()
   :class 'magit--git-variable:urls
-  :scope 'magit--read-remote-scope
+  :scope #'magit--read-remote-scope
   :variable "remote.%s.pushurl"
   :multi-value t
   :history-key 'magit-remote.<remote>.*url
@@ -330,12 +330,12 @@ refspec."
 
 (transient-define-infix magit-remote.<remote>.push ()
   :class 'magit--git-variable
-  :scope 'magit--read-remote-scope
+  :scope #'magit--read-remote-scope
   :variable "remote.%s.push")
 
 (transient-define-infix magit-remote.<remote>.tagopt ()
   :class 'magit--git-variable:choices
-  :scope 'magit--read-remote-scope
+  :scope #'magit--read-remote-scope
   :variable "remote.%s.tagOpt"
   :choices '("--no-tags" "--tags"))
 

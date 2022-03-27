@@ -185,7 +185,7 @@ and also setting this variable to t will lead to tears."
   ())
 
 (cl-defmethod transient-format-description ((obj magit--git-submodule-suffix))
-  (let ((value (delq nil (mapcar 'transient-infix-value transient--suffixes))))
+  (let ((value (delq nil (mapcar #'transient-infix-value transient--suffixes))))
     (replace-regexp-in-string
      "\\[--[^]]+\\]"
      (lambda (match)
@@ -482,7 +482,7 @@ or, failing that, the abbreviated HEAD commit hash."
   (magit-with-toplevel
     (let* ((modules (magit-list-module-paths))
            (path-format (format "%%-%is "
-                                (min (apply 'max (mapcar 'length modules))
+                                (min (apply #'max (mapcar #'length modules))
                                      (/ (window-width) 2))))
            (branch-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
       (dolist (module modules)
@@ -517,8 +517,8 @@ or, failing that, the abbreviated HEAD commit hash."
 
 (defvar magit-module-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-j") 'magit-submodule-visit)
-    (define-key map [C-return]  'magit-submodule-visit)
+    (define-key map (kbd "C-j") #'magit-submodule-visit)
+    (define-key map [C-return]  #'magit-submodule-visit)
     (magit-menu-set map [magit-visit-thing]
       #'magit-submodule-visit "Visit %s")
     (magit-menu-set map [magit-stage-file]
@@ -615,7 +615,7 @@ These sections can be expanded to show the respective commits."
                       ":")
                     (oset sec range range)
                     (magit-git-wash
-                        (apply-partially 'magit-log-wash-log 'module)
+                        (apply-partially #'magit-log-wash-log 'module)
                       "-c" "push.default=current" "log" "--oneline" range)
                     (when (> (point)
                              (oref sec content))
@@ -644,7 +644,7 @@ These sections can be expanded to show the respective commits."
   :group 'magit-repolist-mode
   (setq-local x-stretch-cursor nil)
   (setq tabulated-list-padding 0)
-  (add-hook 'tabulated-list-revert-hook 'magit-submodule-list-refresh nil t)
+  (add-hook 'tabulated-list-revert-hook #'magit-submodule-list-refresh nil t)
   (setq imenu-prev-index-position-function
         #'magit-imenu--submodule-prev-index-position-function)
   (setq imenu-extract-index-name-function

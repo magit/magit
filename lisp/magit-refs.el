@@ -130,7 +130,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :group 'magit-margin
   :safe (lambda (val) (memq val '(all branch nil)))
   :type magit-log-margin--custom-type
-  :initialize 'magit-custom-initialize-reset
+  :initialize #'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-refs-mode))
 
@@ -277,8 +277,8 @@ the outcome.
 (defvar magit-refs-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "C-y") 'magit-refs-set-show-commit-count)
-    (define-key map (kbd "L")   'magit-margin-settings)
+    (define-key map (kbd "C-y") #'magit-refs-set-show-commit-count)
+    (define-key map (kbd "L")   #'magit-margin-settings)
     map)
   "Keymap for `magit-refs-mode'.")
 
@@ -317,7 +317,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
            (mapconcat #'identity magit-buffer-arguments " ")))
   (magit-insert-section (branchbuf)
     (magit-run-section-hook 'magit-refs-sections-hook))
-  (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache))
+  (add-hook 'kill-buffer-hook #'magit-preserve-section-visibility-cache))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-refs-mode))
   (cons magit-buffer-upstream magit-buffer-arguments))
@@ -373,14 +373,14 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   :class 'transient-option
   :key "-c"
   :argument "--contains="
-  :reader 'magit-transient-read-revision)
+  :reader #'magit-transient-read-revision)
 
 (transient-define-argument magit-for-each-ref:--sort ()
   :description "Sort"
   :class 'transient-option
   :key "-s"
   :argument "--sort="
-  :reader 'magit-read-ref-sort)
+  :reader #'magit-read-ref-sort)
 
 (defun magit-read-ref-sort (prompt initial-input _history)
   (magit-completing-read prompt
@@ -512,7 +512,7 @@ line is inserted at all."
     (magit-insert-section (branchdesc branch t)
       (magit-insert-heading branch ": " (car desc))
       (when (cdr desc)
-        (insert (mapconcat 'identity (cdr desc) "\n"))
+        (insert (mapconcat #'identity (cdr desc) "\n"))
         (insert "\n\n")))))
 
 (defun magit-insert-tags ()
@@ -605,7 +605,7 @@ line is inserted at all."
     (magit-make-margin-overlay nil t)))
 
 (defun magit-refs--format-local-branches ()
-  (let ((lines (-keep 'magit-refs--format-local-branch
+  (let ((lines (-keep #'magit-refs--format-local-branch
                       (magit-git-lines
                        "for-each-ref"
                        (concat "--format=\
@@ -744,7 +744,7 @@ line is inserted at all."
   (magit-insert-section-body
     (let ((start (point))
           (magit-insert-section--current nil))
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
+      (magit-git-wash (apply-partially #'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) magit-buffer-upstream ref)
       (if (= (point) start)
           (message "No cherries for %s" ref)

@@ -174,7 +174,7 @@ Also see https://github.com/magit/magit/issues/4132."
   :shortarg "-S"
   :argument "--gpg-sign="
   :allow-empty t
-  :reader 'magit-read-gpg-signing-key)
+  :reader #'magit-read-gpg-signing-key)
 
 (defvar magit-gpg-secret-key-hist nil)
 
@@ -219,7 +219,7 @@ Also see https://github.com/magit/magit/issues/4132."
   :class 'transient-option
   :shortarg "-C"
   :argument "--reuse-message="
-  :reader 'magit-read-reuse-message
+  :reader #'magit-read-reuse-message
   :history-key 'magit-revision-history)
 
 (defun magit-read-reuse-message (prompt &optional default history)
@@ -417,7 +417,7 @@ depending on the value of option `magit-commit-squash-confirm'."
    ((and (magit-rebase-in-progress-p)
          (not (magit-anything-unstaged-p))
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
-    (setq this-command 'magit-rebase-continue)
+    (setq this-command #'magit-rebase-continue)
     (magit-run-git-sequencer "rebase" "--continue")
     nil)
    ((and (file-exists-p (magit-git-dir "MERGE_MSG"))
@@ -579,14 +579,14 @@ See `magit-commit-absorb' for an alternative implementation."
   :class 'transient-option
   :shortarg "-c"
   :argument "--context="
-  :reader 'transient-read-number-N0)
+  :reader #'transient-read-number-N0)
 
 (transient-define-argument magit-autofixup:--strict ()
   :description "Strictness"
   :class 'transient-option
   :shortarg "-s"
   :argument "--strict="
-  :reader 'transient-read-number-N0)
+  :reader #'transient-read-number-N0)
 
 ;;; Pending Diff
 
@@ -624,11 +624,11 @@ See `magit-commit-absorb' for an alternative implementation."
 
 ;; Mention `magit-diff-while-committing' because that's
 ;; always what I search for when I try to find this line.
-(add-hook 'server-switch-hook 'magit-commit-diff)
-(add-hook 'with-editor-filter-visit-hook 'magit-commit-diff)
+(add-hook 'server-switch-hook #'magit-commit-diff)
+(add-hook 'with-editor-filter-visit-hook #'magit-commit-diff)
 
 (add-to-list 'with-editor-server-window-alist
-             (cons git-commit-filename-regexp 'switch-to-buffer))
+             (cons git-commit-filename-regexp #'switch-to-buffer))
 
 ;;; Message Utilities
 
@@ -640,7 +640,7 @@ See `magit-commit-absorb' for an alternative implementation."
              (append (buffer-list (selected-frame))
                      (buffer-list)))))
 
-(defvar magit-commit-add-log-insert-function 'magit-commit-add-log-insert
+(defvar magit-commit-add-log-insert-function #'magit-commit-add-log-insert
   "Used by `magit-commit-add-log' to insert a single entry.")
 
 (defun magit-commit-add-log ()

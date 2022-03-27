@@ -175,12 +175,12 @@ full loading."
   :initialize (lambda (symbol exp)
                 (custom-initialize-default symbol exp)
                 (when global-git-commit-mode
-                  (add-hook 'find-file-hook 'git-commit-setup-check-buffer)))
+                  (add-hook 'find-file-hook #'git-commit-setup-check-buffer)))
   (if global-git-commit-mode
-      (add-hook  'find-file-hook 'git-commit-setup-check-buffer)
-    (remove-hook 'find-file-hook 'git-commit-setup-check-buffer)))
+      (add-hook  'find-file-hook #'git-commit-setup-check-buffer)
+    (remove-hook 'find-file-hook #'git-commit-setup-check-buffer)))
 
-(defcustom git-commit-major-mode 'text-mode
+(defcustom git-commit-major-mode #'text-mode
   "Major mode used to edit Git commit messages.
 The major mode configured here is turned on by the minor mode
 `git-commit-mode'."
@@ -210,7 +210,7 @@ The major mode configured here is turned on by the minor mode
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
   :type 'hook
-  :get (and (featurep 'magit-base) 'magit-hook-custom-get)
+  :get (and (featurep 'magit-base) #'magit-hook-custom-get)
   :options '(git-commit-save-message
              git-commit-setup-changelog-support
              magit-generate-changelog
@@ -240,7 +240,7 @@ This hook is only run if `magit' is available.
 Also see `magit-post-commit-hook'."
   :group 'git-commit
   :type 'hook
-  :get (and (featurep 'magit-base) 'magit-hook-custom-get))
+  :get (and (featurep 'magit-base) #'magit-hook-custom-get))
 
 (defcustom git-commit-finish-query-functions
   '(git-commit-check-style-conventions)
@@ -402,20 +402,20 @@ This is only used if Magit is available."
 
 (defvar git-commit-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-p")     'git-commit-prev-message)
-    (define-key map (kbd "M-n")     'git-commit-next-message)
-    (define-key map (kbd "C-c M-p") 'git-commit-search-message-backward)
-    (define-key map (kbd "C-c M-n") 'git-commit-search-message-forward)
-    (define-key map (kbd "C-c C-i") 'git-commit-insert-pseudo-header)
-    (define-key map (kbd "C-c C-a") 'git-commit-ack)
-    (define-key map (kbd "C-c M-i") 'git-commit-suggested)
-    (define-key map (kbd "C-c C-m") 'git-commit-modified)
-    (define-key map (kbd "C-c C-o") 'git-commit-cc)
-    (define-key map (kbd "C-c C-p") 'git-commit-reported)
-    (define-key map (kbd "C-c C-r") 'git-commit-review)
-    (define-key map (kbd "C-c C-s") 'git-commit-signoff)
-    (define-key map (kbd "C-c C-t") 'git-commit-test)
-    (define-key map (kbd "C-c M-s") 'git-commit-save-message)
+    (define-key map (kbd "M-p")     #'git-commit-prev-message)
+    (define-key map (kbd "M-n")     #'git-commit-next-message)
+    (define-key map (kbd "C-c M-p") #'git-commit-search-message-backward)
+    (define-key map (kbd "C-c M-n") #'git-commit-search-message-forward)
+    (define-key map (kbd "C-c C-i") #'git-commit-insert-pseudo-header)
+    (define-key map (kbd "C-c C-a") #'git-commit-ack)
+    (define-key map (kbd "C-c M-i") #'git-commit-suggested)
+    (define-key map (kbd "C-c C-m") #'git-commit-modified)
+    (define-key map (kbd "C-c C-o") #'git-commit-cc)
+    (define-key map (kbd "C-c C-p") #'git-commit-reported)
+    (define-key map (kbd "C-c C-r") #'git-commit-review)
+    (define-key map (kbd "C-c C-s") #'git-commit-signoff)
+    (define-key map (kbd "C-c C-t") #'git-commit-test)
+    (define-key map (kbd "C-c M-s") #'git-commit-save-message)
     map)
   "Key map used by `git-commit-mode'.")
 
@@ -467,7 +467,7 @@ This is only used if Magit is available."
        (string-match-p git-commit-filename-regexp buffer-file-name)
        (git-commit-setup-font-lock)))
 
-(add-hook 'after-change-major-mode-hook 'git-commit-setup-font-lock-in-buffer)
+(add-hook 'after-change-major-mode-hook #'git-commit-setup-font-lock-in-buffer)
 
 (defun git-commit-setup-check-buffer ()
   (and buffer-file-name
@@ -551,11 +551,11 @@ to recover older messages")
     ;; Maybe already enabled when using `shell-command' or an Emacs shell.
     (with-editor-mode 1))
   (add-hook 'with-editor-finish-query-functions
-            'git-commit-finish-query-functions nil t)
+            #'git-commit-finish-query-functions nil t)
   (add-hook 'with-editor-pre-finish-hook
-            'git-commit-save-message nil t)
+            #'git-commit-save-message nil t)
   (add-hook 'with-editor-pre-cancel-hook
-            'git-commit-save-message nil t)
+            #'git-commit-save-message nil t)
   (when (and (fboundp 'magit-rev-parse)
              (not (memq last-command
                         '(magit-sequencer-continue
@@ -565,13 +565,13 @@ to recover older messages")
                           magit-rebase-continue
                           magit-rebase-skip))))
     (add-hook 'with-editor-post-finish-hook
-              (apply-partially 'git-commit-run-post-finish-hook
+              (apply-partially #'git-commit-run-post-finish-hook
                                (magit-rev-parse "HEAD"))
               nil t)
     (when (fboundp 'magit-wip-maybe-add-commit-hook)
       (magit-wip-maybe-add-commit-hook)))
   (setq with-editor-cancel-message
-        'git-commit-cancel-message)
+        #'git-commit-cancel-message)
   (git-commit-mode 1)
   (git-commit-setup-font-lock)
   (git-commit-prepare-message-ring)
@@ -643,7 +643,7 @@ finally check current non-comment text."
   (require 'flyspell)
   (turn-on-flyspell)
   (setq flyspell-generic-check-word-predicate
-        'git-commit-flyspell-verify)
+        #'git-commit-flyspell-verify)
   (let ((end)
         (comment-start-regex (format "^\\(%s\\|$\\)" comment-start)))
     (save-excursion
@@ -887,7 +887,7 @@ Save current message first."
                   prompt
                   (sort (delete-dups
                          (magit-git-lines "log" "-n9999" "--format=%aN <%ae>"))
-                        'string<)
+                        #'string<)
                   nil nil nil 'git-commit-read-ident-history)))
         (save-match-data
           (if (string-match "\\`\\([^<]+\\) *<\\([^>]+\\)>\\'" str)

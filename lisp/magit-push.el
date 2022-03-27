@@ -83,8 +83,8 @@
 When the push-remote is not configured, then read the push-remote
 from the user, set it, and then push to it.  With a prefix
 argument the push-remote can be changed before pushed to it."
-  :if 'magit-get-current-branch
-  :description 'magit-push--pushbranch-description
+  :if #'magit-get-current-branch
+  :description #'magit-push--pushbranch-description
   (interactive (list (magit-push-arguments)))
   (pcase-let ((`(,branch ,remote ,changed)
                (magit--select-push-remote "push there")))
@@ -122,8 +122,8 @@ argument the push-remote can be changed before pushed to it."
 With a prefix argument or when the upstream is either not
 configured or unusable, then let the user first configure
 the upstream."
-  :if 'magit-get-current-branch
-  :description 'magit-push--upstream-description
+  :if #'magit-get-current-branch
+  :description #'magit-push--upstream-description
   (interactive (list (magit-push-arguments)))
   (let* ((branch (or (magit-get-current-branch)
                      (user-error "No branch is checked out")))
@@ -288,7 +288,7 @@ what this command will do.  For example:
 
   (transient-insert-suffix \\='magit-push \"p\"
     \\='(\"i\" magit-push-implicitly))"
-  :description 'magit-push-implicitly--desc
+  :description #'magit-push-implicitly--desc
   (interactive (list (magit-push-arguments)))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" "-v" args))

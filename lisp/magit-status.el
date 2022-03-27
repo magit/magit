@@ -171,7 +171,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :group 'magit-status
   :group 'magit-margin
   :type magit-log-margin--custom-type
-  :initialize 'magit-custom-initialize-reset
+  :initialize #'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-status-mode))
 
@@ -292,7 +292,7 @@ prefix arguments:
 (put 'magit-status 'interactive-only 'magit-status-setup-buffer)
 
 ;;;###autoload
-(defalias 'magit 'magit-status
+(defalias 'magit #'magit-status
   "An alias for `magit-status' for better discoverability.
 
 Instead of invoking this alias for `magit-status' using
@@ -338,8 +338,8 @@ init file: (global-set-key (kbd \"C-x g\") 'magit-status-quick)."
 (defvar magit-status-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "j" 'magit-status-jump)
-    (define-key map [remap dired-jump] 'magit-dired-jump)
+    (define-key map "j" #'magit-status-jump)
+    (define-key map [remap dired-jump] #'magit-dired-jump)
     map)
   "Keymap for `magit-status-mode'.")
 
@@ -460,7 +460,7 @@ status buffer is first created."
   (when (and magit-status-initial-section
              (derived-mode-p 'magit-status-mode))
     (add-hook 'magit-refresh-buffer-hook
-              'magit-status-goto-initial-section-1 nil t)))
+              #'magit-status-goto-initial-section-1 nil t)))
 
 (defun magit-status-goto-initial-section-1 ()
   "In a `magit-status-mode' buffer, jump `magit-status-initial-section'.
@@ -479,7 +479,7 @@ This function removes itself from `magit-refresh-buffer-hook'."
           (magit-section-hide section)
         (magit-section-show section))))
   (remove-hook 'magit-refresh-buffer-hook
-               'magit-status-goto-initial-section-1 t))
+               #'magit-status-goto-initial-section-1 t))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
   "When moving in the status buffer, update the revision buffer.

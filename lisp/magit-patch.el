@@ -163,7 +163,7 @@ which creates patches for all commits that are reachable from
   :key "C-m v  "
   :shortarg "-v"
   :argument "--reroll-count="
-  :reader 'transient-read-number-N+)
+  :reader #'transient-read-number-N+)
 
 (transient-define-argument magit-format-patch:--interdiff ()
   :description "Insert interdiff"
@@ -214,21 +214,21 @@ which creates patches for all commits that are reachable from
   :class 'transient-option
   :key "C-m C-f"
   :argument "--from="
-  :reader 'magit-transient-read-person)
+  :reader #'magit-transient-read-person)
 
 (transient-define-argument magit-format-patch:--to ()
   :description "To"
   :class 'transient-option
   :key "C-m C-t"
   :argument "--to="
-  :reader 'magit-transient-read-person)
+  :reader #'magit-transient-read-person)
 
 (transient-define-argument magit-format-patch:--cc ()
   :description "CC"
   :class 'transient-option
   :key "C-m C-c"
   :argument "--cc="
-  :reader 'magit-transient-read-person)
+  :reader #'magit-transient-read-person)
 
 (transient-define-argument magit-format-patch:--output-directory ()
   :description "Output directory"
@@ -236,7 +236,7 @@ which creates patches for all commits that are reachable from
   :key "C-m o  "
   :shortarg "-o"
   :argument "--output-directory="
-  :reader 'transient-read-existing-directory)
+  :reader #'transient-read-existing-directory)
 
 ;;;###autoload (autoload 'magit-patch-apply "magit-patch" nil t)
 (transient-define-prefix magit-patch-apply (file &rest args)

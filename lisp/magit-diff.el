@@ -64,6 +64,8 @@
 (declare-function forge--pullreq-ref "forge-pullreq" (pullreq))
 ;; For `magit-diff-wash-diff'
 (declare-function ansi-color-apply-on-region "ansi-color")
+;; For `magit-diff-wash-submodule'
+(declare-function magit-log-wash-log "magit-log" (style args))
 ;; For keymaps and menus
 (declare-function magit-apply "magit-apply" (&rest args))
 (declare-function magit-stage "magit-apply" (&optional indent))
@@ -72,6 +74,19 @@
 (declare-function magit-reverse "magit-apply" (&rest args))
 (declare-function magit-file-rename "magit-files" (file newname))
 (declare-function magit-file-untrack "magit-files" (files &optional force))
+(declare-function magit-commit-add-log "magit-commit" ())
+(declare-function magit-diff-trace-definition "magit-log" ())
+(declare-function magit-patch-save "magit-patch" (files &optional arg))
+(declare-function magit-do-async-shell-command "magit-extras" (file))
+(declare-function magit-add-change-log-entry "magit-extras"
+                  (&optional whoami file-name other-window))
+(declare-function magit-add-change-log-entry-other-window "magit-extras"
+                  (&optional whoami file-name))
+(declare-function magit-diff-edit-hunk-commit "magit-extras" (file))
+(declare-function magit-smerge-keep-current "magit-apply" ())
+(declare-function magit-smerge-keep-upper "magit-apply" ())
+(declare-function magit-smerge-keep-base "magit-apply" ())
+(declare-function magit-smerge-keep-lower "magit-apply" ())
 
 (eval-when-compile
   (cl-pushnew 'orig-rev eieio--known-slot-names)
@@ -934,7 +949,7 @@ and `:slant'."
   :key "--"
   :argument "--"
   :prompt "Limit to file(s): "
-  :reader 'magit-read-files
+  :reader #'magit-read-files
   :multi-value t)
 
 (defun magit-read-files (prompt initial-input history &optional list-fn)
@@ -948,28 +963,28 @@ and `:slant'."
   :description "Context lines"
   :class 'transient-option
   :argument "-U"
-  :reader 'transient-read-number-N0)
+  :reader #'transient-read-number-N0)
 
 (transient-define-argument magit-diff:-M ()
   :description "Detect renames"
   :class 'transient-option
   :argument "-M"
   :allow-empty t
-  :reader 'transient-read-number-N+)
+  :reader #'transient-read-number-N+)
 
 (transient-define-argument magit-diff:-C ()
   :description "Detect copies"
   :class 'transient-option
   :argument "-C"
   :allow-empty t
-  :reader 'transient-read-number-N+)
+  :reader #'transient-read-number-N+)
 
 (transient-define-argument magit-diff:--diff-algorithm ()
   :description "Diff algorithm"
   :class 'transient-option
   :key "-A"
   :argument "--diff-algorithm="
-  :reader 'magit-diff-select-algorithm)
+  :reader #'magit-diff-select-algorithm)
 
 (defun magit-diff-select-algorithm (&rest _ignore)
   (magit-read-char-case nil t
@@ -983,7 +998,7 @@ and `:slant'."
   :class 'transient-option
   :key "-i"
   :argument "--ignore-submodules="
-  :reader 'magit-diff-select-ignore-submodules)
+  :reader #'magit-diff-select-ignore-submodules)
 
 (defun magit-diff-select-ignore-submodules (&rest _ignored)
   (magit-read-char-case "Ignore submodules " t
@@ -996,7 +1011,7 @@ and `:slant'."
   :class 'transient-option
   :key "-m"
   :argument "--color-moved="
-  :reader 'magit-diff-select-color-moved-mode)
+  :reader #'magit-diff-select-color-moved-mode)
 
 (defun magit-diff-select-color-moved-mode (&rest _ignore)
   (magit-read-char-case "Color moved " t
@@ -1011,7 +1026,7 @@ and `:slant'."
   :class 'transient-option
   :key "=w"
   :argument "--color-moved-ws="
-  :reader 'magit-diff-select-color-moved-ws-mode)
+  :reader #'magit-diff-select-color-moved-ws-mode)
 
 (defun magit-diff-select-color-moved-ws-mode (&rest _ignore)
   (magit-read-char-case "Ignore whitespace " t
@@ -1244,7 +1259,7 @@ be committed."
         (magit-diff-while-amending args)))))
 
 (define-key git-commit-mode-map
-  (kbd "C-c C-d") 'magit-diff-while-committing)
+  (kbd "C-c C-d") #'magit-diff-while-committing)
 
 (defun magit-diff-while-amending (&optional args)
   (magit-diff-setup-buffer "HEAD^" "--cached" args nil))
@@ -1776,7 +1791,7 @@ current frame and contains information about that commit or
 stash, then instead scroll the buffer up.  If there is no
 commit or stash at point, then prompt for a commit."
   (interactive)
-  (magit-diff-show-or-scroll 'scroll-up))
+  (magit-diff-show-or-scroll #'scroll-up))
 
 (defun magit-diff-show-or-scroll-down ()
   "Update the commit or diff buffer for the thing at point.
@@ -1787,14 +1802,14 @@ current frame and contains information about that commit or
 stash, then instead scroll the buffer down.  If there is no
 commit or stash at point, then prompt for a commit."
   (interactive)
-  (magit-diff-show-or-scroll 'scroll-down))
+  (magit-diff-show-or-scroll #'scroll-down))
 
 (defun magit-diff-show-or-scroll (fn)
   (let (rev cmd buf win)
     (cond
      (magit-blame-mode
       (setq rev (oref (magit-current-blame-chunk) orig-rev))
-      (setq cmd 'magit-show-commit)
+      (setq cmd #'magit-show-commit)
       (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
      ((derived-mode-p 'git-rebase-mode)
       (with-slots (action-type target)
@@ -1802,21 +1817,21 @@ commit or stash at point, then prompt for a commit."
         (if (not (eq action-type 'commit))
             (user-error "No commit on this line")
           (setq rev target)
-          (setq cmd 'magit-show-commit)
+          (setq cmd #'magit-show-commit)
           (setq buf (magit-get-mode-buffer 'magit-revision-mode)))))
      (t
       (magit-section-case
         (branch
          (setq rev (magit-ref-maybe-qualify (oref it value)))
-         (setq cmd 'magit-show-commit)
+         (setq cmd #'magit-show-commit)
          (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
         (commit
          (setq rev (oref it value))
-         (setq cmd 'magit-show-commit)
+         (setq cmd #'magit-show-commit)
          (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
         (stash
          (setq rev (oref it value))
-         (setq cmd 'magit-stash-show)
+         (setq cmd #'magit-stash-show)
          (setq buf (magit-get-mode-buffer 'magit-stash-mode))))))
     (if rev
         (if (and buf
@@ -1833,7 +1848,7 @@ commit or stash at point, then prompt for a commit."
                               (`scroll-up   (point-min))
                               (`scroll-down (point-max)))))))
           (let ((magit-display-buffer-noselect t))
-            (if (eq cmd 'magit-show-commit)
+            (if (eq cmd #'magit-show-commit)
                 (apply #'magit-show-commit rev (magit-show-commit--arguments))
               (funcall cmd rev))))
       (call-interactively #'magit-show-commit))))
@@ -1862,24 +1877,24 @@ commit or stash at point, then prompt for a commit."
       (let ((children (--mapcat (oref it children) sections)))
         (cond ((and (--any-p (oref it hidden)   children)
                     (--any-p (oref it children) children))
-               (mapc 'magit-section-show-headings sections))
-              ((seq-some 'magit-section-hidden-body children)
-               (mapc 'magit-section-show-children sections))
+               (mapc #'magit-section-show-headings sections))
+              ((seq-some #'magit-section-hidden-body children)
+               (mapc #'magit-section-show-children sections))
               (t
-               (mapc 'magit-section-hide sections)))))))
+               (mapc #'magit-section-hide sections)))))))
 
 ;;; Diff Mode
 
 (defvar magit-diff-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "C-c C-d") 'magit-diff-while-committing)
-    (define-key map (kbd "C-c C-b") 'magit-go-backward)
-    (define-key map (kbd "C-c C-f") 'magit-go-forward)
-    (define-key map (kbd "SPC") 'scroll-up)
-    (define-key map (kbd "DEL") 'scroll-down)
-    (define-key map (kbd "j")   'magit-jump-to-diffstat-or-diff)
-    (define-key map [remap write-file] 'magit-patch-save)
+    (define-key map (kbd "C-c C-d") #'magit-diff-while-committing)
+    (define-key map (kbd "C-c C-b") #'magit-go-backward)
+    (define-key map (kbd "C-c C-f") #'magit-go-forward)
+    (define-key map (kbd "SPC")     #'scroll-up)
+    (define-key map (kbd "DEL")     #'scroll-down)
+    (define-key map (kbd "j")       #'magit-jump-to-diffstat-or-diff)
+    (define-key map [remap write-file] #'magit-patch-save)
     map)
   "Keymap for `magit-diff-mode'.")
 
@@ -1986,16 +2001,16 @@ Staging and applying changes is documented in info node
     (magit-menu-set map [magit-file-rename]
       #'magit-file-rename "Rename file"
       '(:enable (eq (magit-diff-scope) 'file)))
-    (define-key map (kbd "C-j")            'magit-diff-visit-worktree-file)
-    (define-key map (kbd "C-<return>")     'magit-diff-visit-worktree-file)
-    (define-key map (kbd "C-x 4 <return>") 'magit-diff-visit-file-other-window)
-    (define-key map (kbd "C-x 5 <return>") 'magit-diff-visit-file-other-frame)
-    (define-key map "&"             'magit-do-async-shell-command)
-    (define-key map "C"             'magit-commit-add-log)
-    (define-key map (kbd "C-x a")   'magit-add-change-log-entry)
-    (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
-    (define-key map (kbd "C-c C-t") 'magit-diff-trace-definition)
-    (define-key map (kbd "C-c C-e") 'magit-diff-edit-hunk-commit)
+    (define-key map (kbd "C-j")            #'magit-diff-visit-worktree-file)
+    (define-key map (kbd "C-<return>")     #'magit-diff-visit-worktree-file)
+    (define-key map (kbd "C-x 4 <return>") #'magit-diff-visit-file-other-window)
+    (define-key map (kbd "C-x 5 <return>") #'magit-diff-visit-file-other-frame)
+    (define-key map "&"             #'magit-do-async-shell-command)
+    (define-key map "C"             #'magit-commit-add-log)
+    (define-key map (kbd "C-x a")   #'magit-add-change-log-entry)
+    (define-key map (kbd "C-x 4 a") #'magit-add-change-log-entry-other-window)
+    (define-key map (kbd "C-c C-t") #'magit-diff-trace-definition)
+    (define-key map (kbd "C-c C-e") #'magit-diff-edit-hunk-commit)
     map)
   "Keymap for diff sections.
 The classes `magit-file-section' and `magit-hunk-section' derive
@@ -2012,10 +2027,10 @@ keymap is the parent of their keymaps.")
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-diff-section-base-map)
     (let ((m (make-sparse-keymap)))
-      (define-key m (kbd "RET") 'magit-smerge-keep-current)
-      (define-key m (kbd "u")   'magit-smerge-keep-upper)
-      (define-key m (kbd "b")   'magit-smerge-keep-base)
-      (define-key m (kbd "l")   'magit-smerge-keep-lower)
+      (define-key m (kbd "RET") #'magit-smerge-keep-current)
+      (define-key m (kbd "u")   #'magit-smerge-keep-upper)
+      (define-key m (kbd "b")   #'magit-smerge-keep-base)
+      (define-key m (kbd "l")   #'magit-smerge-keep-lower)
       (define-key map smerge-command-prefix m))
     map)
   "Keymap for `hunk' sections.")
@@ -2112,7 +2127,7 @@ keymap is the parent of their keymaps.")
     (magit-diff-wash-diffstat))
   (when (re-search-forward magit-diff-headline-re limit t)
     (goto-char (line-beginning-position))
-    (magit-wash-sequence (apply-partially 'magit-diff-wash-diff args))
+    (magit-wash-sequence (apply-partially #'magit-diff-wash-diff args))
     (insert ?\n)))
 
 (defun magit-jump-to-diffstat-or-diff ()
@@ -2388,7 +2403,7 @@ section or a child thereof."
             (let ((default-directory
                     (file-name-as-directory
                      (expand-file-name module (magit-toplevel)))))
-              (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
+              (magit-git-wash (apply-partially #'magit-log-wash-log 'module)
                 "log" "--oneline" "--left-right" range)
               (delete-char -1)))))
        ((and (looking-at "^Submodule \\([^ ]+\\) \\([^ ]+\\) (\\([^)]+\\))$")
@@ -2429,7 +2444,7 @@ section or a child thereof."
         (while (not (or (eobp) (looking-at "^[^-+\s\\]")))
           (forward-line))
         (oset section end (point))
-        (oset section washer 'magit-diff-paint-hunk)
+        (oset section washer #'magit-diff-paint-hunk)
         (oset section combined combined)
         (if combined
             (oset section from-ranges (butlast ranges))
@@ -2750,7 +2765,7 @@ or a ref which is not a branch, then it inserts nothing."
                             1))
                (gravatar-size (- size 2)))
           (ignore-errors ; service may be unreachable
-            (gravatar-retrieve email 'magit-insert-revision-gravatar-cb
+            (gravatar-retrieve email #'magit-insert-revision-gravatar-cb
                                (list gravatar-size rev
                                      (point-marker)
                                      align-to column))))))))
@@ -3001,8 +3016,8 @@ actually a `diff' but a `diffstat' section."
   (and (region-active-p)
        ;; TODO implement this from first principals
        ;; currently it's trial-and-error
-       (not (and (or (eq this-command 'mouse-drag-region)
-                     (eq last-command 'mouse-drag-region)
+       (not (and (or (eq this-command #'mouse-drag-region)
+                     (eq last-command #'mouse-drag-region)
                      ;; When another window was previously
                      ;; selected then the last-command is
                      ;; some byte-code function.
@@ -3055,7 +3070,7 @@ are highlighted."
   (let ((beg (oref section start))
         (cnt (oref section content))
         (end (oref section end)))
-    (when (or (eq this-command 'mouse-drag-region)
+    (when (or (eq this-command #'mouse-drag-region)
               (not selection))
       (unless (and (region-active-p)
                    (<= (region-beginning) beg))
@@ -3063,7 +3078,7 @@ are highlighted."
       (if (oref section hidden)
           (oset section washer #'ignore)
         (dolist (child (oref section children))
-          (when (or (eq this-command 'mouse-drag-region)
+          (when (or (eq this-command #'mouse-drag-region)
                     (not (and (region-active-p)
                               (<= (region-beginning)
                                   (oref child start)))))
@@ -3085,7 +3100,7 @@ are highlighted."
        (oref section end))
    (pcase (list (oref section type)
                 (and (member section selection)
-                     (not (eq this-command 'mouse-drag-region))))
+                     (not (eq this-command #'mouse-drag-region))))
      (`(file   t) 'magit-diff-file-heading-selection)
      (`(file nil) 'magit-diff-file-heading-highlight)
      (`(module   t) 'magit-diff-file-heading-selection)

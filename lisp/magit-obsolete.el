@@ -34,10 +34,10 @@
 ;;; Obsolete since v3.0.0
 
 (define-obsolete-function-alias 'magit-diff-visit-file-worktree
-  'magit-diff-visit-worktree-file "Magit 3.0.0")
+  #'magit-diff-visit-worktree-file "Magit 3.0.0")
 
 (define-obsolete-function-alias 'magit-status-internal
-  'magit-status-setup-buffer "Magit 3.0.0")
+  #'magit-status-setup-buffer "Magit 3.0.0")
 
 (define-obsolete-variable-alias 'magit-mode-setup-hook
   'magit-setup-buffer-hook "Magit 3.0.0")
@@ -46,10 +46,10 @@
   'magit-branch-direct-configure "Magit 3.0.0")
 
 (define-obsolete-function-alias 'magit-dispatch-popup
-  'magit-dispatch "Magit 3.0.0")
+  #'magit-dispatch "Magit 3.0.0")
 
 (define-obsolete-function-alias 'magit-repolist-column-dirty
-  'magit-repolist-column-flag "Magit 3.0.0")
+  #'magit-repolist-column-flag "Magit 3.0.0")
 
 (define-obsolete-variable-alias 'magit-disable-line-numbers
   'magit-section-disable-line-numbers "Magit 3.0.0")

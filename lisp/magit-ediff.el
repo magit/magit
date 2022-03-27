@@ -55,7 +55,7 @@ invoked using Magit."
   :package-version '(magit . "2.2.0")
   :group 'magit-ediff
   :type 'hook
-  :get 'magit-hook-custom-get
+  :get #'magit-hook-custom-get
   :options '(magit-ediff-cleanup-auxiliary-buffers
              magit-ediff-restore-previous-winconf))
 
@@ -353,16 +353,16 @@ mind at all, then it asks the user for a command to run."
               (call-interactively
                (magit-read-char-case
                    "Failed to read your mind; do you want to " t
-                 (?c "[c]ommit"  'magit-ediff-show-commit)
-                 (?r "[r]ange"   'magit-ediff-compare)
-                 (?s "[s]tage"   'magit-ediff-stage)
-                 (?v "resol[v]e" 'magit-ediff-resolve))))
-             ((eq command 'magit-ediff-compare)
-              (apply 'magit-ediff-compare revA revB
+                 (?c "[c]ommit"  #'magit-ediff-show-commit)
+                 (?r "[r]ange"   #'magit-ediff-compare)
+                 (?s "[s]tage"   #'magit-ediff-stage)
+                 (?v "resol[v]e" #'magit-ediff-resolve))))
+             ((eq command #'magit-ediff-compare)
+              (apply #'magit-ediff-compare revA revB
                      (magit-ediff-read-files revA revB file)))
-             ((eq command 'magit-ediff-show-commit)
+             ((eq command #'magit-ediff-show-commit)
               (magit-ediff-show-commit revB))
-             ((eq command 'magit-ediff-show-stash)
+             ((eq command #'magit-ediff-show-stash)
               (magit-ediff-show-stash revB))
              (file
               (funcall command file))

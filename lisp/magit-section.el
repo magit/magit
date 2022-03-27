@@ -336,9 +336,9 @@ no effect.  This also has no effect for Emacs >= 28, where
 
 (defvar magit-section-heading-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [double-down-mouse-1] 'ignore)
-    (define-key map [double-mouse-1] 'magit-mouse-toggle-section)
-    (define-key map [double-mouse-2] 'magit-mouse-toggle-section)
+    (define-key map [double-down-mouse-1] #'ignore)
+    (define-key map [double-mouse-1] #'magit-mouse-toggle-section)
+    (define-key map [double-mouse-2] #'magit-mouse-toggle-section)
     map)
   "Keymap used in the heading line of all expandable sections.
 This keymap is used in addition to the section-specifi keymap,
@@ -360,26 +360,26 @@ if any.")
                          (magit--context-menu-local menu last-input-event))
                        (magit-section-context-menu menu last-input-event)
                        menu)))))
-    (define-key map [left-fringe mouse-1] 'magit-mouse-toggle-section)
-    (define-key map [left-fringe mouse-2] 'magit-mouse-toggle-section)
-    (define-key map (kbd "TAB") 'magit-section-toggle)
-    (define-key map [C-tab]     'magit-section-cycle)
-    (define-key map [M-tab]     'magit-section-cycle)
+    (define-key map [left-fringe mouse-1] #'magit-mouse-toggle-section)
+    (define-key map [left-fringe mouse-2] #'magit-mouse-toggle-section)
+    (define-key map (kbd "TAB") #'magit-section-toggle)
+    (define-key map [C-tab]     #'magit-section-cycle)
+    (define-key map [M-tab]     #'magit-section-cycle)
     ;; [backtab] is the most portable binding for Shift+Tab.
-    (define-key map [backtab]   'magit-section-cycle-global)
-    (define-key map (kbd   "^") 'magit-section-up)
-    (define-key map (kbd   "p") 'magit-section-backward)
-    (define-key map (kbd   "n") 'magit-section-forward)
-    (define-key map (kbd "M-p") 'magit-section-backward-sibling)
-    (define-key map (kbd "M-n") 'magit-section-forward-sibling)
-    (define-key map (kbd   "1") 'magit-section-show-level-1)
-    (define-key map (kbd   "2") 'magit-section-show-level-2)
-    (define-key map (kbd   "3") 'magit-section-show-level-3)
-    (define-key map (kbd   "4") 'magit-section-show-level-4)
-    (define-key map (kbd "M-1") 'magit-section-show-level-1-all)
-    (define-key map (kbd "M-2") 'magit-section-show-level-2-all)
-    (define-key map (kbd "M-3") 'magit-section-show-level-3-all)
-    (define-key map (kbd "M-4") 'magit-section-show-level-4-all)
+    (define-key map [backtab]   #'magit-section-cycle-global)
+    (define-key map (kbd   "^") #'magit-section-up)
+    (define-key map (kbd   "p") #'magit-section-backward)
+    (define-key map (kbd   "n") #'magit-section-forward)
+    (define-key map (kbd "M-p") #'magit-section-backward-sibling)
+    (define-key map (kbd "M-n") #'magit-section-forward-sibling)
+    (define-key map (kbd   "1") #'magit-section-show-level-1)
+    (define-key map (kbd   "2") #'magit-section-show-level-2)
+    (define-key map (kbd   "3") #'magit-section-show-level-3)
+    (define-key map (kbd   "4") #'magit-section-show-level-4)
+    (define-key map (kbd "M-1") #'magit-section-show-level-1-all)
+    (define-key map (kbd "M-2") #'magit-section-show-level-2-all)
+    (define-key map (kbd "M-3") #'magit-section-show-level-3-all)
+    (define-key map (kbd "M-4") #'magit-section-show-level-4-all)
     map)
   "Parent keymap for all keymaps of modes derived from `magit-section-mode'.")
 
@@ -406,11 +406,11 @@ Magit-Section is documented in info node `(magit-section)'."
   (add-hook 'post-command-hook #'magit-section-post-command-hook t t)
   (add-hook 'deactivate-mark-hook #'magit-section-deactivate-mark t t)
   (setq-local redisplay-highlight-region-function
-              'magit-section--highlight-region)
+              #'magit-section--highlight-region)
   (setq-local redisplay-unhighlight-region-function
-              'magit-section--unhighlight-region)
+              #'magit-section--unhighlight-region)
   (when (fboundp 'magit-section-context-menu)
-    (add-hook 'context-menu-functions 'magit-section-context-menu 10 t))
+    (add-hook 'context-menu-functions #'magit-section-context-menu 10 t))
   (when magit-section-disable-line-numbers
     (when (bound-and-true-p global-linum-mode)
       (linum-mode -1))
@@ -932,7 +932,7 @@ children."
 (defun magit-section-hide-children (section)
   "Recursively hide the bodies of children of the current section."
   (interactive (list (magit-current-section)))
-  (mapc 'magit-section-hide (oref section children)))
+  (mapc #'magit-section-hide (oref section children)))
 
 (defun magit-section-show-headings (section)
   "Recursively show headings of children of the current section.
@@ -959,7 +959,7 @@ hidden."
       (cond ((and (--any-p (oref it hidden)   children)
                   (--any-p (oref it children) children))
              (magit-section-show-headings section))
-            ((seq-some 'magit-section-hidden-body children)
+            ((seq-some #'magit-section-hidden-body children)
              (magit-section-show-children section))
             (t
              (magit-section-hide section))))))
@@ -971,14 +971,14 @@ hidden."
     (cond ((and (--any-p (oref it hidden)   children)
                 (--any-p (oref it children) children))
            (magit-section-show-headings magit-root-section))
-          ((seq-some 'magit-section-hidden-body children)
+          ((seq-some #'magit-section-hidden-body children)
            (magit-section-show-children magit-root-section))
           (t
-           (mapc 'magit-section-hide children)))))
+           (mapc #'magit-section-hide children)))))
 
 (defun magit-section-hidden-body (section &optional pred)
   (--if-let (oref section children)
-      (funcall (or pred '-any-p) 'magit-section-hidden-body it)
+      (funcall (or pred #'-any-p) #'magit-section-hidden-body it)
     (and (oref section content)
          (oref section hidden))))
 
@@ -1884,7 +1884,7 @@ invisible."
     (funcall fn)))
 
 (advice-add 'isearch-clean-overlays :around
-            'isearch-clean-overlays@magit-mode)
+            #'isearch-clean-overlays@magit-mode)
 
 ;;; Utilities
 

@@ -61,7 +61,7 @@
 
 ;;; Options
 
-(defcustom magit-completing-read-function 'magit-builtin-completing-read
+(defcustom magit-completing-read-function #'magit-builtin-completing-read
   "Function to be called when requesting input from the user.
 
 If you have enabled `ivy-mode' or `helm-mode', then you don't
@@ -579,7 +579,7 @@ acts similarly to `completing-read', except for the following:
   (unless (or (bound-and-true-p helm-mode)
               (bound-and-true-p ivy-mode))
     (setq choices (magit--completion-table choices)))
-  (cl-letf (((symbol-function 'completion-pcm--all-completions)))
+  (cl-letf (((symbol-function #'completion-pcm--all-completions)))
     (when (< emacs-major-version 26)
       (fset 'completion-pcm--all-completions
             'magit-completion-pcm--all-completions))
@@ -613,7 +613,7 @@ into a list."
          (helm-crm-default-separator nil)
          (ivy-sort-matches-functions-alist nil)
          (input
-          (cl-letf (((symbol-function 'completion-pcm--all-completions)))
+          (cl-letf (((symbol-function #'completion-pcm--all-completions)))
             (when (< emacs-major-version 26)
               (fset 'completion-pcm--all-completions
                     'magit-completion-pcm--all-completions))
@@ -643,8 +643,8 @@ third-party completion frameworks."
        ;; that string.  Use a variable to pass along the raw user
        ;; input string. aa5f098ab
        (input nil)
-       (split-string (symbol-function 'split-string))
-       ((symbol-function 'split-string)
+       (split-string (symbol-function #'split-string))
+       ((symbol-function #'split-string)
         (lambda (string &optional separators omit-nulls trim)
           (when (and no-split
                      (equal separators crm-separator)
@@ -653,10 +653,10 @@ third-party completion frameworks."
           (funcall split-string string separators omit-nulls trim)))
        ;; In Emacs 25 this function has a bug, so we use a copy of the
        ;; version from Emacs 26. bef9c7aa3
-       ((symbol-function 'completion-pcm--all-completions)
+       ((symbol-function #'completion-pcm--all-completions)
         (if (< emacs-major-version 26)
             'magit-completion-pcm--all-completions
-          (symbol-function 'completion-pcm--all-completions)))
+          (symbol-function #'completion-pcm--all-completions)))
        ;; Prevent `BUILT-IN' completion from messing up our existing
        ;; order of the completion candidates. aa5f098ab
        (table (magit--completion-table table))
@@ -720,8 +720,8 @@ back to built-in `completing-read' for now." :error)
 (defvar magit-minibuffer-local-ns-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map minibuffer-local-map)
-    (define-key map "\s" 'magit-whitespace-disallowed)
-    (define-key map "\t" 'magit-whitespace-disallowed)
+    (define-key map "\s" #'magit-whitespace-disallowed)
+    (define-key map "\t" #'magit-whitespace-disallowed)
     map))
 
 (defun magit-whitespace-disallowed ()
@@ -1173,11 +1173,11 @@ or (last of all) the value of EXP."
 
 ;;;###autoload
 (advice-add 'Info-follow-nearest-node :around
-            'Info-follow-nearest-node--magit-gitman)
+            #'Info-follow-nearest-node--magit-gitman)
 
 ;; When making changes here, then also adjust the copy in docs/Makefile.
 ;;;###autoload
-(advice-add 'org-man-export :around 'org-man-export--magit-gitman)
+(advice-add 'org-man-export :around #'org-man-export--magit-gitman)
 ;;;###autoload
 (defun org-man-export--magit-gitman (fn link description format)
   (if (and (eq format 'texinfo)
@@ -1218,7 +1218,7 @@ See <https://github.com/raxod502/straight.el/issues/520>."
 
 (if (fboundp 'with-connection-local-variables)
     (defalias 'magit--with-connection-local-variables
-      'with-connection-local-variables)
+      #'with-connection-local-variables)
   (defmacro magit--with-connection-local-variables (&rest body)
     "Abridged `with-connection-local-variables' for pre Emacs 27 compatibility.
 Bind shell file name and switch for remote execution.

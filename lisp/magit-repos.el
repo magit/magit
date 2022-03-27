@@ -64,7 +64,7 @@ This option controls which repositories are being listed by
   :package-version '(magit . "2.9.0")
   :group 'magit-repolist
   :type 'hook
-  :get 'magit-hook-custom-get
+  :get #'magit-hook-custom-get
   :options '(hl-line-mode))
 
 (defcustom magit-repolist-columns
@@ -260,11 +260,11 @@ If it contains \"%s\" then the directory is substituted for that."
 (defvar magit-repolist-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map (kbd "C-m") 'magit-repolist-status)
-    (define-key map (kbd "m")   'magit-repolist-mark)
-    (define-key map (kbd "u")   'magit-repolist-unmark)
-    (define-key map (kbd "f")   'magit-repolist-fetch)
-    (define-key map (kbd "5")   'magit-repolist-find-file-other-frame)
+    (define-key map (kbd "C-m") #'magit-repolist-status)
+    (define-key map (kbd "m")   #'magit-repolist-mark)
+    (define-key map (kbd "u")   #'magit-repolist-unmark)
+    (define-key map (kbd "f")   #'magit-repolist-fetch)
+    (define-key map (kbd "5")   #'magit-repolist-find-file-other-frame)
     map)
   "Local keymap for Magit-Repolist mode buffers.")
 
@@ -272,11 +272,11 @@ If it contains \"%s\" then the directory is substituted for that."
   "Major mode for browsing a list of Git repositories."
   (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
-  (add-hook 'tabulated-list-revert-hook 'magit-repolist-refresh nil t)
+  (add-hook 'tabulated-list-revert-hook #'magit-repolist-refresh nil t)
   (setq imenu-prev-index-position-function
-        'magit-imenu--repolist-prev-index-position-function)
+        #'magit-imenu--repolist-prev-index-position-function)
   (setq imenu-extract-index-name-function
-        'magit-imenu--repolist-extract-index-name-function))
+        #'magit-imenu--repolist-extract-index-name-function))
 
 (defun magit-repolist-setup (columns)
   (unless magit-repository-directories
@@ -530,7 +530,7 @@ instead."
                                     directory-files-no-dot-files-regexp t)))))
 
 (defun magit-list-repos-uniquify (alist)
-  (let (result (dict (make-hash-table :test 'equal)))
+  (let (result (dict (make-hash-table :test #'equal)))
     (dolist (a (delete-dups alist))
       (puthash (car a) (cons (cdr a) (gethash (car a) dict)) dict))
     (maphash

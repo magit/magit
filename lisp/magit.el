@@ -290,7 +290,7 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
               (define-key map key def)))))))
   (if after-init-time
       (magit-maybe-define-global-key-bindings)
-    (add-hook 'after-init-hook 'magit-maybe-define-global-key-bindings t)))
+    (add-hook 'after-init-hook #'magit-maybe-define-global-key-bindings t)))
 
 ;;; Dispatch Popup
 
@@ -487,7 +487,7 @@ is run in the top-level directory of the current working tree."
 
 ;;; Version
 
-(defvar magit-version 'undefined
+(defvar magit-version #'undefined
   "The version of Magit that you're using.
 Use the function by the same name instead of this variable.")
 

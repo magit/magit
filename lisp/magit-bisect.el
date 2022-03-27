@@ -268,7 +268,7 @@ bisect run'."
   (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-view)
       (magit-insert-heading "Bisect Rest:")
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'bisect-vis)
+      (magit-git-wash (apply-partially #'magit-log-wash-log 'bisect-vis)
         "bisect" "visualize" "git" "log"
         "--format=%h%x00%D%x00%s" "--decorate=full"
         (and magit-bisect-show-graph "--graph")))))
@@ -295,7 +295,7 @@ bisect run'."
                                 'magit-section-secondary-heading))
             (magit-insert-heading)
             (magit-wash-sequence
-             (apply-partially 'magit-log-wash-rev 'bisect-log
+             (apply-partially #'magit-log-wash-rev 'bisect-log
                               (magit-abbrev-length)))
             (insert ?\n)))))
     (when (re-search-forward

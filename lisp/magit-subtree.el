@@ -71,7 +71,7 @@
   :class 'transient-option
   :shortarg "-P"
   :argument "--prefix="
-  :reader 'magit-subtree-read-prefix)
+  :reader #'magit-subtree-read-prefix)
 
 (defun magit-subtree-read-prefix (prompt &optional default _history)
   (let* ((insert-default-directory nil)
@@ -107,7 +107,7 @@
   :class 'transient-option
   :key "-o"
   :argument "--onto="
-  :reader 'magit-transient-read-revision)
+  :reader #'magit-transient-read-revision)
 
 (defun magit-subtree-prefix (transient prompt)
   (--if-let (--first (string-prefix-p "--prefix=" it)

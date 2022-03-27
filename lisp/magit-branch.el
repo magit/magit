@@ -605,7 +605,7 @@ defaulting to the branch at point."
           ;; If that is not the case, then this deletes the tracking branches.
           (set-process-sentinel
            magit-this-process
-           (apply-partially 'magit-delete-remote-branch-sentinel remote refs)))
+           (apply-partially #'magit-delete-remote-branch-sentinel remote refs)))
          (t
           (dolist (ref refs)
             (message "Delete %s (was %s)" ref
@@ -614,8 +614,8 @@ defaulting to the branch at point."
           (magit-refresh)))))
      ((> (length branches) 1)
       (setq branches (delete (magit-get-current-branch) branches))
-      (mapc 'magit-branch-maybe-delete-pr-remote branches)
-      (mapc 'magit-branch-unset-pushRemote branches)
+      (mapc #'magit-branch-maybe-delete-pr-remote branches)
+      (mapc #'magit-branch-unset-pushRemote branches)
       (magit-run-git "branch" (if force "-D" "-d") branches))
      (t ; And now for something completely different.
       (let* ((branch (car branches))
@@ -847,7 +847,7 @@ and also rename the respective reflog file."
   (interactive (list (oref transient-current-prefix scope)))
   (magit-run-git-with-editor "branch" "--edit-description" branch))
 
-(add-hook 'find-file-hook 'magit-branch-description-check-buffers)
+(add-hook 'find-file-hook #'magit-branch-description-check-buffers)
 
 (defun magit-branch-description-check-buffers ()
   (and buffer-file-name
@@ -896,7 +896,7 @@ and also rename the respective reflog file."
 
 (transient-define-infix magit-branch.<branch>.rebase ()
   :class 'magit--git-variable:choices
-  :scope 'magit--read-branch-scope
+  :scope #'magit--read-branch-scope
   :variable "branch.%s.rebase"
   :fallback "pull.rebase"
   :choices '("true" "false")
@@ -904,10 +904,10 @@ and also rename the respective reflog file."
 
 (transient-define-infix magit-branch.<branch>.pushRemote ()
   :class 'magit--git-variable:choices
-  :scope 'magit--read-branch-scope
+  :scope #'magit--read-branch-scope
   :variable "branch.%s.pushRemote"
   :fallback "remote.pushDefault"
-  :choices 'magit-list-remotes)
+  :choices #'magit-list-remotes)
 
 (transient-define-infix magit-pull.rebase ()
   :class 'magit--git-variable:choices
@@ -918,7 +918,7 @@ and also rename the respective reflog file."
 (transient-define-infix magit-remote.pushDefault ()
   :class 'magit--git-variable:choices
   :variable "remote.pushDefault"
-  :choices 'magit-list-remotes)
+  :choices #'magit-list-remotes)
 
 (transient-define-infix magit-branch.autoSetupMerge ()
   :class 'magit--git-variable:choices

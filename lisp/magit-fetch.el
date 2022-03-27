@@ -73,7 +73,7 @@
 With a prefix argument or when the push-remote is either not
 configured or unusable, then let the user first configure the
 push-remote."
-  :description 'magit-fetch--pushremote-description
+  :description #'magit-fetch--pushremote-description
   (interactive (list (magit-fetch-arguments)))
   (let ((remote (magit-get-push-remote)))
     (when (or current-prefix-arg

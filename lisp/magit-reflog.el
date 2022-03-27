@@ -68,7 +68,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :group 'magit-log
   :group 'magit-margin
   :type magit-log-margin--custom-type
-  :initialize 'magit-custom-initialize-reset
+  :initialize #'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-reflog-mode))
 
@@ -136,8 +136,8 @@ If `HEAD' is detached, then show the reflog for that instead."
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
-    (define-key map (kbd "C-c C-n") 'undefined)
-    (define-key map (kbd "L")       'magit-margin-settings)
+    (define-key map (kbd "C-c C-n") #'undefined)
+    (define-key map (kbd "L")       #'magit-margin-settings)
     map)
   "Keymap for `magit-reflog-mode'.")
 
@@ -168,7 +168,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (defun magit-reflog-refresh-buffer ()
   (magit-set-header-line-format (concat "Reflog for " magit-buffer-refname))
   (magit-insert-section (reflogbuf)
-    (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
+    (magit-git-wash (apply-partially #'magit-log-wash-log 'reflog)
       "reflog" "show" "--format=%h%x00%aN%x00%gd%x00%gs" "--date=raw"
       magit-buffer-log-args magit-buffer-refname "--")))
 

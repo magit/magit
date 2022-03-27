@@ -707,7 +707,7 @@ See info node `(magit)Debugging Tools' for more information."
      (replace-regexp-in-string "\\`[^.]+" #'downcase it t t)
      (replace-regexp-in-string "[^.]+\\'" #'downcase it t t))
    (magit--with-refresh-cache (cons (magit-toplevel) 'config)
-     (let ((configs (make-hash-table :test 'equal)))
+     (let ((configs (make-hash-table :test #'equal)))
        (dolist (conf (magit-git-items "config" "--list" "-z"))
          (let* ((nl-pos (cl-position ?\n conf))
                 (key (substring conf 0 nl-pos))
@@ -717,7 +717,7 @@ See info node `(magit)Debugging Tools' for more information."
 
 (defun magit-get (&rest keys)
   "Return the value of the Git variable specified by KEYS."
-  (car (last (apply 'magit-get-all keys))))
+  (car (last (apply #'magit-get-all keys))))
 
 (defun magit-get-all (&rest keys)
   "Return all values of the Git variable specified by KEYS."
@@ -725,7 +725,7 @@ See info node `(magit)Debugging Tools' for more information."
         (arg (and (or (null (car keys))
                       (string-prefix-p "--" (car keys)))
                   (pop keys)))
-        (key (mapconcat 'identity keys ".")))
+        (key (mapconcat #'identity keys ".")))
     (if (and magit--refresh-cache (not arg))
         (magit-config-get-from-cached-list key)
       (magit-git-items "config" arg "-z" "--get-all" key))))
@@ -736,7 +736,7 @@ Also see `magit-git-config-p'."
   (let ((arg (and (or (null (car keys))
                       (string-prefix-p "--" (car keys)))
                   (pop keys)))
-        (key (mapconcat 'identity keys ".")))
+        (key (mapconcat #'identity keys ".")))
     (equal (if magit--refresh-cache
                (car (last (magit-config-get-from-cached-list key)))
              (magit-git-str "config" arg "--bool" key))
@@ -747,7 +747,7 @@ Also see `magit-git-config-p'."
   (let ((arg (and (or (null (car keys))
                       (string-prefix-p "--" (car keys)))
                   (pop keys)))
-        (key (mapconcat 'identity keys ".")))
+        (key (mapconcat #'identity keys ".")))
     (if value
         (magit-git-success "config" arg key value)
       (magit-git-success "config" arg "--unset" key))
@@ -761,7 +761,7 @@ Also see `magit-git-config-p'."
   (let ((arg (and (or (null (car keys))
                       (string-prefix-p "--" (car keys)))
                   (pop keys)))
-        (var (mapconcat 'identity keys ".")))
+        (var (mapconcat #'identity keys ".")))
     (when (magit-get var)
       (magit-call-git "config" arg "--unset-all" var))
     (dolist (v values)
@@ -1219,8 +1219,8 @@ are considered."
   "Return t if there are any staged or unstaged changes.
 If optional FILES is non-nil, then only changes to those files
 are considered."
-  (or (apply 'magit-anything-staged-p   ignore-submodules files)
-      (apply 'magit-anything-unstaged-p ignore-submodules files)))
+  (or (apply #'magit-anything-staged-p   ignore-submodules files)
+      (apply #'magit-anything-unstaged-p ignore-submodules files)))
 
 (defun magit-anything-unmerged-p (&rest files)
   "Return t if there are any merge conflicts.
@@ -1282,9 +1282,9 @@ string \"true\", otherwise return nil."
   "Return full hash for REV if it names an existing commit."
   (magit-rev-verify (concat rev "^{commit}")))
 
-(defalias 'magit-rev-verify-commit 'magit-commit-p)
+(defalias 'magit-rev-verify-commit #'magit-commit-p)
 
-(defalias 'magit-rev-hash 'magit-commit-p)
+(defalias 'magit-rev-hash #'magit-commit-p)
 
 (defun magit-rev-equal (a b)
   "Return t if there are no differences between the commits A and B."
@@ -1358,7 +1358,7 @@ Git."
     (unless (string-match-p "[~^]" it) it)))
 
 (defun magit-get-shortname (rev)
-  (let* ((fn (apply-partially 'magit-rev-name rev))
+  (let* ((fn (apply-partially #'magit-rev-name rev))
          (name (or (funcall fn "refs/tags/*")
                    (funcall fn "refs/heads/*")
                    (funcall fn "refs/remotes/*"))))
@@ -2047,7 +2047,7 @@ exists in the current repository is considered its main branch."
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
 Return a list of two integers: (A>B B>A)."
-  (mapcar 'string-to-number
+  (mapcar #'string-to-number
           (split-string (magit-git-string "rev-list"
                                           "--count" "--left-right"
                                           (concat a "..." b))
@@ -2337,7 +2337,7 @@ and this option only controls what face is used.")
               (magit-rev-hash (match-string 3 range)))
     (magit-rev-hash range)))
 
-(put 'git-revision 'thing-at-point 'magit-thingatpt--git-revision)
+(put 'git-revision 'thing-at-point #'magit-thingatpt--git-revision)
 (defun magit-thingatpt--git-revision ()
   (--when-let
       (let ((c "\s\n\t~^:?*[\\"))

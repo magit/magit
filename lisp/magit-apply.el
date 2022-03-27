@@ -136,12 +136,12 @@ so causes the change to be applied to the index as well."
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
       (`(untracked ,(or `file `files))
-       (call-interactively 'magit-am))
+       (call-interactively #'magit-am))
       (`(,_ region) (magit-apply-region it args))
       (`(,_   hunk) (magit-apply-hunk   it args))
       (`(,_  hunks) (magit-apply-hunks  it args))
       (`(rebase-sequence file)
-       (call-interactively 'magit-patch-apply))
+       (call-interactively #'magit-patch-apply))
       (`(,_   file) (magit-apply-diff   it args))
       (`(,_  files) (magit-apply-diffs  it args)))))
 
@@ -307,7 +307,7 @@ at point, stage the file but not its content."
         (`(staged        ,_  ,_) (user-error "Already staged"))
         (`(committed     ,_  ,_) (user-error "Cannot stage committed changes"))
         (`(undefined     ,_  ,_) (user-error "Cannot stage this change")))
-    (call-interactively 'magit-stage-file)))
+    (call-interactively #'magit-stage-file)))
 
 ;;;###autoload
 (defun magit-stage-file (file)
@@ -492,7 +492,7 @@ of a side, then keep that side without prompting."
   (let ((file (magit-section-parent-value section)))
     (pcase (cddr (car (magit-file-status file)))
       (`(?U ?U) (magit-smerge-keep-current))
-      (_ (magit-discard-apply section 'magit-apply-hunk)))))
+      (_ (magit-discard-apply section #'magit-apply-hunk)))))
 
 (defun magit-discard-apply (section apply)
   (if (eq (magit-diff-type section) 'unstaged)
@@ -511,7 +511,7 @@ of a side, then keep that side without prompting."
   (magit-confirm 'discard (format "Discard %s hunks from %s"
                                   (length sections)
                                   (magit-section-parent-value (car sections))))
-  (magit-discard-apply-n sections 'magit-apply-hunks))
+  (magit-discard-apply-n sections #'magit-apply-hunks))
 
 (defun magit-discard-apply-n (sections apply)
   (let ((section (car sections)))
@@ -658,7 +658,7 @@ of a side, then keep that side without prompting."
         (cond ((= (length sections) 1)
                (magit-discard-apply (car sections) 'magit-apply-diff))
               (sections
-               (magit-discard-apply-n sections 'magit-apply-diffs)))
+               (magit-discard-apply-n sections #'magit-apply-diffs)))
         (when binaries
           (let ((modified (magit-unstaged-files t)))
             (setq binaries (--separate (member it modified) binaries)))
@@ -690,18 +690,18 @@ so causes the change to be applied to the index as well."
 
 (defun magit-reverse-region (section args)
   (magit-confirm 'reverse "Reverse region")
-  (magit-reverse-apply section 'magit-apply-region args))
+  (magit-reverse-apply section #'magit-apply-region args))
 
 (defun magit-reverse-hunk (section args)
   (magit-confirm 'reverse "Reverse hunk")
-  (magit-reverse-apply section 'magit-apply-hunk args))
+  (magit-reverse-apply section #'magit-apply-hunk args))
 
 (defun magit-reverse-hunks (sections args)
   (magit-confirm 'reverse
     (format "Reverse %s hunks from %s"
             (length sections)
             (magit-section-parent-value (car sections))))
-  (magit-reverse-apply sections 'magit-apply-hunks args))
+  (magit-reverse-apply sections #'magit-apply-hunks args))
 
 (defun magit-reverse-file (section args)
   (magit-reverse-files (list section) args))
@@ -719,9 +719,9 @@ so causes the change to be applied to the index as well."
                              sections))))
     (magit-confirm-files 'reverse (--map (oref it value) sections))
     (cond ((= (length sections) 1)
-           (magit-reverse-apply (car sections) 'magit-apply-diff args))
+           (magit-reverse-apply (car sections) #'magit-apply-diff args))
           (sections
-           (magit-reverse-apply sections 'magit-apply-diffs args)))
+           (magit-reverse-apply sections #'magit-apply-diffs args)))
     (when binaries
       (user-error "Cannot reverse binary files"))))
 
@@ -787,8 +787,8 @@ a separate commit.  A typical workflow would be:
           (condition-case nil
               (smerge-match-conflict)
             (error
-             (if (eq fn 'smerge-keep-current)
-                 (when (eq this-command 'magit-discard)
+             (if (eq fn #'smerge-keep-current)
+                 (when (eq this-command #'magit-discard)
                    (re-search-forward smerge-begin-re nil t)
                    (setq fn
                          (magit-read-char-case "Keep side: " t

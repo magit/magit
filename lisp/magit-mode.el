@@ -52,8 +52,9 @@
 (declare-function magit-hunk-section-p "magit-diff" (section) t)
 ;; For `magit-mode-setup-internal'
 (declare-function magit-status-goto-initial-section "magit-status" ())
-;; For `magit-mode' from `bookmark'
+;; For `magit-mode'
 (defvar bookmark-make-record-function)
+(declare-function magit--make-bookmark "magit-bookmark" ())
 
 ;;; Options
 
@@ -109,7 +110,7 @@ inside your function."
   :group 'magit-refresh
   :type 'hook)
 
-(defcustom magit-display-buffer-function 'magit-display-buffer-traditional
+(defcustom magit-display-buffer-function #'magit-display-buffer-traditional
   "The function used to display a Magit buffer.
 
 All Magit buffers (buffers whose major-modes derive from
@@ -130,7 +131,7 @@ which in turn uses the function specified here."
   :package-version '(magit . "2.3.0")
   :group 'magit-buffers
   :type 'hook
-  :get 'magit-hook-custom-get
+  :get #'magit-hook-custom-get
   :options '(magit-save-window-configuration))
 
 (defcustom magit-post-display-buffer-hook '(magit-maybe-set-dedicated)
@@ -138,11 +139,11 @@ which in turn uses the function specified here."
   :package-version '(magit . "2.3.0")
   :group 'magit-buffers
   :type 'hook
-  :get 'magit-hook-custom-get
+  :get #'magit-hook-custom-get
   :options '(magit-maybe-set-dedicated))
 
 (defcustom magit-generate-buffer-name-function
-  'magit-generate-buffer-name-default-function
+  #'magit-generate-buffer-name-default-function
   "The function used to generate the name for a Magit buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-buffers
@@ -197,7 +198,7 @@ support additional %-sequences."
   :group 'magit-buffers
   :type 'boolean)
 
-(defcustom magit-bury-buffer-function 'magit-mode-quit-window
+(defcustom magit-bury-buffer-function #'magit-mode-quit-window
   "The function used to bury or kill the current Magit buffer."
   :package-version '(magit . "3.2.0")
   :group 'magit-buffers
@@ -336,6 +337,7 @@ recommended value."
 (defvar magit-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-section-mode-map)
+    ;; Don't function-quote but make sure all commands are autoloaded.
     (define-key map [C-return]    'magit-visit-thing)
     (define-key map (kbd   "RET") 'magit-visit-thing)
     (define-key map (kbd "M-TAB") 'magit-dired-jump)
@@ -536,10 +538,10 @@ Magit is documented in info node `(magit)'."
   (hack-dir-local-variables-non-file-buffer)
   (face-remap-add-relative 'header-line 'magit-header-line)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
-  (setq-local revert-buffer-function 'magit-refresh-buffer)
-  (setq-local bookmark-make-record-function 'magit--make-bookmark)
-  (setq-local imenu-create-index-function 'magit--imenu-create-index)
-  (setq-local isearch-filter-predicate 'magit-section--open-temporarily))
+  (setq-local revert-buffer-function #'magit-refresh-buffer)
+  (setq-local bookmark-make-record-function #'magit--make-bookmark)
+  (setq-local imenu-create-index-function #'magit--imenu-create-index)
+  (setq-local isearch-filter-predicate #'magit-section--open-temporarily))
 
 ;;; Local Variables
 
@@ -620,7 +622,7 @@ your mode instead of adding an entry to this variable.")
     (with-current-buffer buffer
       (setq magit-previous-section section)
       (funcall mode)
-      (magit-xref-setup 'magit-setup-buffer-internal bindings)
+      (magit-xref-setup #'magit-setup-buffer-internal bindings)
       (pcase-dolist (`(,var ,val) bindings)
         (set (make-local-variable var) val))
       (when created
@@ -1171,7 +1173,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
       (with-current-buffer buffer
         (magit-refresh-buffer))))
   (setq magit-after-save-refresh-buffers nil)
-  (remove-hook 'post-command-hook 'magit-after-save-refresh-buffers))
+  (remove-hook 'post-command-hook #'magit-after-save-refresh-buffers))
 
 (defun magit-after-save-refresh-status ()
   "Refresh the status buffer of the current repository.
@@ -1190,7 +1192,7 @@ should obviously not add this function to that hook."
              (magit-inside-worktree-p t))
     (--when-let (ignore-errors (magit-get-mode-buffer 'magit-status-mode))
       (add-to-list 'magit-after-save-refresh-buffers it)
-      (add-hook 'post-command-hook 'magit-after-save-refresh-buffers))))
+      (add-hook 'post-command-hook #'magit-after-save-refresh-buffers))))
 
 (defun magit-maybe-save-repository-buffers ()
   "Maybe save file-visiting buffers belonging to the current repository.

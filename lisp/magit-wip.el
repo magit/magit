@@ -140,10 +140,10 @@ variant `magit-wip-after-save-mode'."
   :lighter magit-wip-after-save-local-mode-lighter
   (if magit-wip-after-save-local-mode
       (if (and buffer-file-name (magit-inside-worktree-p t))
-          (add-hook 'after-save-hook 'magit-wip-commit-buffer-file t t)
+          (add-hook 'after-save-hook #'magit-wip-commit-buffer-file t t)
         (setq magit-wip-after-save-local-mode nil)
         (user-error "Need a worktree and a file"))
-    (remove-hook 'after-save-hook 'magit-wip-commit-buffer-file t)))
+    (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file t)))
 
 (defun magit-wip-after-save-local-mode-turn-on ()
   (and buffer-file-name
@@ -224,8 +224,8 @@ command which is about to be called are committed."
   :lighter magit-wip-initial-backup-mode-lighter
   :global t
   (if magit-wip-initial-backup-mode
-      (add-hook  'before-save-hook 'magit-wip-commit-initial-backup)
-    (remove-hook 'before-save-hook 'magit-wip-commit-initial-backup)))
+      (add-hook  'before-save-hook #'magit-wip-commit-initial-backup)
+    (remove-hook 'before-save-hook #'magit-wip-commit-initial-backup)))
 
 (defun magit--any-wip-mode-enabled-p ()
   "Return non-nil if any global wip mode is enabled."
@@ -377,7 +377,7 @@ commit message."
 (defun magit-wip-maybe-add-commit-hook ()
   (when (and magit-wip-merge-branch
              (magit-wip-any-enabled-p))
-    (add-hook 'git-commit-post-finish-hook 'magit-wip-commit nil t)))
+    (add-hook 'git-commit-post-finish-hook #'magit-wip-commit nil t)))
 
 (defun magit-wip-any-enabled-p ()
   (or magit-wip-mode

@@ -81,19 +81,19 @@ popup."
   :class 'transient-option
   :shortarg "-t"
   :argument "--tool="
-  :reader 'magit--read-mergetool)
+  :reader #'magit--read-mergetool)
 
 (transient-define-infix magit-merge.guitool ()
   :class 'magit--git-variable
   :variable "merge.guitool"
   :global t
-  :reader 'magit--read-mergetool)
+  :reader #'magit--read-mergetool)
 
 (transient-define-infix magit-merge.tool ()
   :class 'magit--git-variable
   :variable "merge.tool"
   :global t
-  :reader 'magit--read-mergetool)
+  :reader #'magit--read-mergetool)
 
 (defun magit--read-mergetool (prompt _initial-input history)
   (let ((choices nil)
@@ -218,8 +218,8 @@ like pretty much every other keymap:
     (kbd \"C-x g\") \\='ido-enter-magit-status)"
   (interactive)
   (setq ido-exit 'fallback)
-  (setq ido-fallback 'magit-status)                ; for Emacs >= 26.2
-  (with-no-warnings (setq fallback 'magit-status)) ; for Emacs 25
+  (setq ido-fallback #'magit-status)                ; for Emacs >= 26.2
+  (with-no-warnings (setq fallback #'magit-status)) ; for Emacs 25
   (exit-minibuffer))
 
 ;;;###autoload
@@ -745,7 +745,7 @@ the minibuffer too."
     (user-error "Revision stack is empty")))
 
 (define-key git-commit-mode-map
-  (kbd "C-c C-w") 'magit-pop-revision-stack)
+  (kbd "C-c C-w") #'magit-pop-revision-stack)
 
 ;;;###autoload
 (defun magit-copy-section-value (arg)

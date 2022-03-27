@@ -261,7 +261,7 @@ defaults to nil) for any BUFFER."
       (auto-revert-set-timer))))
 
 (advice-add 'auto-revert-buffers :around
-            'auto-revert-buffers--buffer-list-filter)
+            #'auto-revert-buffers--buffer-list-filter)
 
 ;;; _
 (provide 'magit-autorevert)

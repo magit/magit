@@ -954,7 +954,7 @@ as argument."
     (apply fn name buffer program args)))
 
 (advice-add 'tramp-sh-handle-start-file-process :around
-            'tramp-sh-handle-start-file-process--magit-tramp-process-environment)
+            #'tramp-sh-handle-start-file-process--magit-tramp-process-environment)
 
 (defun tramp-sh-handle-process-file--magit-tramp-process-environment
     (fn program &optional infile destination display &rest args)
@@ -965,7 +965,7 @@ as argument."
     (apply fn program infile destination display args)))
 
 (advice-add 'tramp-sh-handle-process-file :around
-            'tramp-sh-handle-process-file--magit-tramp-process-environment)
+            #'tramp-sh-handle-process-file--magit-tramp-process-environment)
 
 (defvar magit-mode-line-process-map
   (let ((map (make-sparse-keymap)))

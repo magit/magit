@@ -87,8 +87,8 @@
 With a prefix argument or when the push-remote is either not
 configured or unusable, then let the user first configure the
 push-remote."
-  :if 'magit-get-current-branch
-  :description 'magit-pull--pushbranch-description
+  :if #'magit-get-current-branch
+  :description #'magit-pull--pushbranch-description
   (interactive (list (magit-pull-arguments)))
   (pcase-let ((`(,branch ,remote)
                (magit--select-push-remote "pull from there")))
@@ -117,8 +117,8 @@ push-remote."
 With a prefix argument or when the upstream is either not
 configured or unusable, then let the user first configure
 the upstream."
-  :if 'magit-get-current-branch
-  :description 'magit-pull--upstream-description
+  :if #'magit-get-current-branch
+  :description #'magit-pull--upstream-description
   (interactive (list (magit-pull-arguments)))
   (let* ((branch (or (magit-get-current-branch)
                      (user-error "No branch is checked out")))

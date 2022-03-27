@@ -154,7 +154,7 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
   (magit-get-revision-buffer rev file t))
 
 (defun magit-get-revision-buffer (rev file &optional create)
-  (funcall (if create 'get-buffer-create 'get-buffer)
+  (funcall (if create #'get-buffer-create #'get-buffer)
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
 
 (defun magit-revert-rev-file-buffer (_ignore-auto noconfirm)
@@ -326,12 +326,12 @@ to `magit-dispatch'."
 
 (defvar magit-blob-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "p" 'magit-blob-previous)
-    (define-key map "n" 'magit-blob-next)
-    (define-key map "b" 'magit-blame-addition)
-    (define-key map "r" 'magit-blame-removal)
-    (define-key map "f" 'magit-blame-reverse)
-    (define-key map "q" 'magit-kill-this-buffer)
+    (define-key map "p" #'magit-blob-previous)
+    (define-key map "n" #'magit-blob-next)
+    (define-key map "b" #'magit-blame-addition)
+    (define-key map "r" #'magit-blame-removal)
+    (define-key map "f" #'magit-blame-reverse)
+    (define-key map "q" #'magit-kill-this-buffer)
     map)
   "Keymap for `magit-blob-mode'.")
 

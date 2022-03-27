@@ -139,7 +139,7 @@ the name of the owner.  Also see `magit-clone-name-alist'."
    ("m" "mirror"             magit-clone-mirror)]
   (interactive (list (or magit-clone-always-transient current-prefix-arg)))
   (if transient
-      (transient-setup #'magit-clone)
+      (transient-setup 'magit-clone)
     (call-interactively #'magit-clone-regular)))
 
 (transient-define-argument magit-clone:--filter ()
@@ -147,7 +147,7 @@ the name of the owner.  Also see `magit-clone-name-alist'."
   :class 'transient-option
   :key "-f"
   :argument "--filter="
-  :reader 'magit-clone-read-filter)
+  :reader #'magit-clone-read-filter)
 
 (defun magit-clone-read-filter (prompt initial-input history)
   (magit-completing-read prompt

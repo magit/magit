@@ -166,7 +166,7 @@ and then turned on again when turning off the latter."
   :package-version '(magit . "2.13.0")
   :group 'magit-blame
   :type 'hook
-  :get 'magit-hook-custom-get
+  :get #'magit-hook-custom-get
   :options '(magit-blame-maybe-update-revision-buffer
              magit-blame-maybe-show-message))
 
@@ -285,21 +285,21 @@ in `magit-blame-read-only-mode-map' instead.")
 
 (defvar magit-blame-read-only-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-m") 'magit-show-commit)
-    (define-key map (kbd   "p") 'magit-blame-previous-chunk)
-    (define-key map (kbd   "P") 'magit-blame-previous-chunk-same-commit)
-    (define-key map (kbd   "n") 'magit-blame-next-chunk)
-    (define-key map (kbd   "N") 'magit-blame-next-chunk-same-commit)
-    (define-key map (kbd   "b") 'magit-blame-addition)
-    (define-key map (kbd   "r") 'magit-blame-removal)
-    (define-key map (kbd   "f") 'magit-blame-reverse)
-    (define-key map (kbd   "B") 'magit-blame)
-    (define-key map (kbd   "c") 'magit-blame-cycle-style)
-    (define-key map (kbd   "q") 'magit-blame-quit)
-    (define-key map (kbd "M-w") 'magit-blame-copy-hash)
-    (define-key map (kbd "SPC") 'magit-diff-show-or-scroll-up)
-    (define-key map (kbd "S-SPC") 'magit-diff-show-or-scroll-down)
-    (define-key map (kbd "DEL") 'magit-diff-show-or-scroll-down)
+    (define-key map (kbd "C-m")   #'magit-show-commit)
+    (define-key map (kbd   "p")   #'magit-blame-previous-chunk)
+    (define-key map (kbd   "P")   #'magit-blame-previous-chunk-same-commit)
+    (define-key map (kbd   "n")   #'magit-blame-next-chunk)
+    (define-key map (kbd   "N")   #'magit-blame-next-chunk-same-commit)
+    (define-key map (kbd   "b")   #'magit-blame-addition)
+    (define-key map (kbd   "r")   #'magit-blame-removal)
+    (define-key map (kbd   "f")   #'magit-blame-reverse)
+    (define-key map (kbd   "B")   #'magit-blame)
+    (define-key map (kbd   "c")   #'magit-blame-cycle-style)
+    (define-key map (kbd   "q")   #'magit-blame-quit)
+    (define-key map (kbd "M-w")   #'magit-blame-copy-hash)
+    (define-key map (kbd "SPC")   #'magit-diff-show-or-scroll-up)
+    (define-key map (kbd "S-SPC") #'magit-diff-show-or-scroll-down)
+    (define-key map (kbd "DEL")   #'magit-diff-show-or-scroll-down)
     map)
   "Keymap for `magit-blame-read-only-mode'.")
 
@@ -332,11 +332,11 @@ in `magit-blame-read-only-mode-map' instead.")
            (user-error
             (concat "Don't call `magit-blame-mode' directly; "
                     "instead use `magit-blame'")))
-         (add-hook 'after-save-hook     'magit-blame--refresh t t)
-         (add-hook 'post-command-hook   'magit-blame-goto-chunk-hook t t)
-         (add-hook 'before-revert-hook  'magit-blame--remove-overlays t t)
-         (add-hook 'after-revert-hook   'magit-blame--refresh t t)
-         (add-hook 'read-only-mode-hook 'magit-blame-toggle-read-only t t)
+         (add-hook 'after-save-hook     #'magit-blame--refresh t t)
+         (add-hook 'post-command-hook   #'magit-blame-goto-chunk-hook t t)
+         (add-hook 'before-revert-hook  #'magit-blame--remove-overlays t t)
+         (add-hook 'after-revert-hook   #'magit-blame--refresh t t)
+         (add-hook 'read-only-mode-hook #'magit-blame-toggle-read-only t t)
          (setq magit-blame-buffer-read-only buffer-read-only)
          (when (or magit-blame-read-only magit-buffer-file-name)
            (read-only-mode 1))
@@ -357,11 +357,11 @@ in `magit-blame-read-only-mode-map' instead.")
            (kill-process magit-blame-process)
            (while magit-blame-process
              (sit-for 0.01))) ; avoid racing the sentinel
-         (remove-hook 'after-save-hook     'magit-blame--refresh t)
-         (remove-hook 'post-command-hook   'magit-blame-goto-chunk-hook t)
-         (remove-hook 'before-revert-hook  'magit-blame--remove-overlays t)
-         (remove-hook 'after-revert-hook   'magit-blame--refresh t)
-         (remove-hook 'read-only-mode-hook 'magit-blame-toggle-read-only t)
+         (remove-hook 'after-save-hook     #'magit-blame--refresh t)
+         (remove-hook 'post-command-hook   #'magit-blame-goto-chunk-hook t)
+         (remove-hook 'before-revert-hook  #'magit-blame--remove-overlays t)
+         (remove-hook 'after-revert-hook   #'magit-blame--refresh t)
+         (remove-hook 'read-only-mode-hook #'magit-blame-toggle-read-only t)
          (unless magit-blame-buffer-read-only
            (read-only-mode -1))
          (magit-blame-read-only-mode -1)
@@ -429,17 +429,17 @@ modes is toggled, then this mode also gets toggled automatically.
      (list (line-number-at-pos (window-start))
            (line-number-at-pos (1- (window-end nil t)))))
     (set-process-sentinel magit-this-process
-                          'magit-blame-process-quickstart-sentinel)))
+                          #'magit-blame-process-quickstart-sentinel)))
 
 (defun magit-blame-run-process (revision file args &optional lines)
   (let ((process (magit-parse-git-async
                   "blame" "--incremental" args
                   (and lines (list "-L" (apply #'format "%s,%s" lines)))
                   revision "--" file)))
-    (set-process-filter   process 'magit-blame-process-filter)
-    (set-process-sentinel process 'magit-blame-process-sentinel)
+    (set-process-filter   process #'magit-blame-process-filter)
+    (set-process-sentinel process #'magit-blame-process-sentinel)
     (process-put process 'arguments (list revision file args))
-    (setq magit-blame-cache (make-hash-table :test 'equal))
+    (setq magit-blame-cache (make-hash-table :test #'equal))
     (setq magit-blame-process process)))
 
 (defun magit-blame-process-quickstart-sentinel (process event)
@@ -883,8 +883,8 @@ then also kill the buffer."
                       (not (= pos (if previous (point-min) (point-max))))
                       (setq pos (funcall
                                  (if previous
-                                     'previous-single-char-property-change
-                                   'next-single-char-property-change)
+                                     #'previous-single-char-property-change
+                                   #'next-single-char-property-change)
                                  pos 'magit-blame-chunk)))
             (--when-let (magit-blame--overlay-at pos)
               (when (equal (oref (magit-blame-chunk-at pos) orig-rev) rev)
@@ -897,7 +897,7 @@ then also kill the buffer."
 (defun magit-blame-previous-chunk-same-commit ()
   "Move to the previous chunk from the same commit."
   (interactive)
-  (magit-blame-next-chunk-same-commit 'previous-single-char-property-change))
+  (magit-blame-next-chunk-same-commit #'previous-single-char-property-change))
 
 (defun magit-blame-cycle-style ()
   "Change how blame information is visualized.
@@ -951,14 +951,14 @@ instead of the hash, like `kill-ring-save' would."
   :class 'transient-option
   :argument "-M"
   :allow-empty t
-  :reader 'transient-read-number-N+)
+  :reader #'transient-read-number-N+)
 
 (transient-define-argument magit-blame:-C ()
   :description "Detect lines moved or copied between files"
   :class 'transient-option
   :argument "-C"
   :allow-empty t
-  :reader 'transient-read-number-N+)
+  :reader #'transient-read-number-N+)
 
 ;;; Utilities
 

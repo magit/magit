@@ -71,21 +71,21 @@
 (transient-define-infix magit-core.notesRef ()
   :class 'magit--git-variable
   :variable "core.notesRef"
-  :reader 'magit-notes-read-ref
+  :reader #'magit-notes-read-ref
   :prompt "Set local core.notesRef")
 
 (transient-define-infix magit-notes.displayRef ()
   :class 'magit--git-variable
   :variable "notes.displayRef"
   :multi-value t
-  :reader 'magit-notes-read-refs
+  :reader #'magit-notes-read-refs
   :prompt "Set local notes.displayRef")
 
 (transient-define-infix magit-global-core.notesRef ()
   :class 'magit--git-variable
   :variable "core.notesRef"
   :global t
-  :reader 'magit-notes-read-ref
+  :reader #'magit-notes-read-ref
   :prompt "Set global core.notesRef")
 
 (transient-define-infix magit-global-notes.displayRef ()
@@ -93,7 +93,7 @@
   :variable "notes.displayRef"
   :global t
   :multi-value t
-  :reader 'magit-notes-read-refs
+  :reader #'magit-notes-read-refs
   :prompt "Set global notes.displayRef")
 
 (transient-define-argument magit-notes:--ref ()
@@ -101,7 +101,7 @@
   :class 'transient-option
   :key "-r"
   :argument "--ref="
-  :reader 'magit-notes-read-ref)
+  :reader #'magit-notes-read-ref)
 
 (transient-define-argument magit-notes:--strategy ()
   :description "Merge strategy"

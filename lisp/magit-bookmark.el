@@ -47,7 +47,7 @@ and the buffer-local values of the variables referenced in its
       ;; of `bookmark-make-record-function', which states that such
       ;; functions must do that.  See #4356.
       (let ((bookmark (cons nil (bookmark-make-record-default 'no-file))))
-        (bookmark-prop-set bookmark 'handler  'magit--handle-bookmark)
+        (bookmark-prop-set bookmark 'handler  #'magit--handle-bookmark)
         (bookmark-prop-set bookmark 'mode     major-mode)
         (bookmark-prop-set bookmark 'filename (magit-toplevel))
         (bookmark-prop-set bookmark 'defaults (list (magit-bookmark-name)))
