@@ -1777,14 +1777,9 @@ invisible."
                   (line-end-position))))
       (cond
        ((symbolp (car-safe magit-section-visibility-indicator))
-        ;; It would make more sense to put the overlay only on the
-        ;; location we actually don't put it on, but then inserting
-        ;; before that location (while taking care not to mess with
-        ;; the overlay) would cause the fringe bitmap to disappear
-        ;; (but not other effects of the overlay).
-        (let ((ov (magit--overlay-at (1+ beg) 'magit-vis-indicator 'fringe)))
+        (let ((ov (magit--overlay-at beg 'magit-vis-indicator 'fringe)))
           (unless ov
-            (setq ov (make-overlay (1+ beg) eoh))
+            (setq ov (make-overlay beg eoh nil t))
             (overlay-put ov 'evaporate t)
             (overlay-put ov 'magit-vis-indicator 'fringe))
           (overlay-put
