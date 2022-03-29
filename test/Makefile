@@ -9,6 +9,6 @@ test:
 	(ert-run-tests-batch-and-exit))"
 
 test-interactive:
-	@$(EMACSBIN) -Q $(LOAD_PATH) --eval "(progn\
+	@$(EMACS) -Q $(LOAD_PATH) --eval "(progn\
 	(load-file \"$(TOP)test/magit-tests.el\")\
 	(ert t))"

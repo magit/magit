@@ -91,10 +91,10 @@ ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo
 
 texi:
-	@$(EMACSBIN) $(ORG_ARGS) $(PKG).org $(ORG_EVAL)
+	@$(EMACS) $(ORG_ARGS) $(PKG).org $(ORG_EVAL)
 	@printf "\n" >> $(PKG).texi
 	@rm -f $(PKG).texi~
-	@$(EMACSBIN) $(ORG_ARGS) magit-section.org $(ORG_EVAL)
+	@$(EMACS) $(ORG_ARGS) magit-section.org $(ORG_EVAL)
 	@printf "\n" >> magit-section.texi
 	@rm -f magit-section.texi~
 

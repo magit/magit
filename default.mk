@@ -25,8 +25,8 @@ RMDIR    ?= rm -rf
 TAR      ?= tar
 SED      ?= sed
 
-EMACSBIN ?= emacs
-BATCH     = $(EMACSBIN) -Q --batch $(LOAD_PATH)
+EMACS    ?= emacs
+BATCH     = $(EMACS) -Q --batch $(LOAD_PATH)
 
 INSTALL_INFO     ?= $(shell command -v ginstall-info || printf install-info)
 MAKEINFO         ?= makeinfo
@@ -184,7 +184,7 @@ MAGIT_SECTION_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/magit-section-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
 
-SYSTYPE := $(shell $(EMACSBIN) -Q --batch --eval "(princ system-type)")
+SYSTYPE := $(shell $(EMACS) -Q --batch --eval "(princ system-type)")
 ifeq ($(SYSTYPE), windows-nt)
   CYGPATH := $(shell cygpath --version 2>/dev/null)
 endif

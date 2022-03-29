@@ -113,7 +113,7 @@ test-interactive:
 	@$(MAKE) -C test test-interactive
 
 emacs-Q: clean-lisp
-	@$(EMACSBIN) -Q $(LOAD_PATH) --debug-init --eval "(progn\
+	@$(EMACS) -Q $(LOAD_PATH) --debug-init --eval "(progn\
 	(setq debug-on-error t)\
 	(require 'magit)\
 	(global-set-key \"\\C-xg\" 'magit-status))"
