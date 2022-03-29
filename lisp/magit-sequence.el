@@ -357,7 +357,11 @@ the process manually."
 
 (defun magit-cherry-pick-in-progress-p ()
   ;; .git/sequencer/todo does not exist when there is only one commit left.
-  (file-exists-p (magit-git-dir "CHERRY_PICK_HEAD")))
+  (or (file-exists-p (magit-git-dir "CHERRY_PICK_HEAD"))
+      ;; And CHERRY_PICK_HEAD does not exist when a conflict happens
+      ;; while picking a series of commits with --no-commit.
+      (when-let ((line (magit-file-line (magit-git-dir "sequencer/todo"))))
+        (string-match-p "^pick" line))))
 
 ;;; Revert
 
@@ -409,7 +413,11 @@ without prompting."
 
 (defun magit-revert-in-progress-p ()
   ;; .git/sequencer/todo does not exist when there is only one commit left.
-  (file-exists-p (magit-git-dir "REVERT_HEAD")))
+  (or (file-exists-p (magit-git-dir "REVERT_HEAD"))
+      ;; And REVERT_HEAD does not exist when a conflict happens while
+      ;; reverting a series of commits with --no-commit.
+      (when-let ((line (magit-file-line (magit-git-dir "sequencer/todo"))))
+        (string-match-p "^revert" line))))
 
 ;;; Patch
 
