@@ -156,8 +156,7 @@ does not carry to other options."
       (save-excursion
         (forward-line -1)
         (magit-make-margin-overlay string))
-    ;; Don't put the overlay on the complete line to work around #1880.
-    (let ((o (make-overlay (1+ (line-beginning-position))
+    (let ((o (make-overlay (line-beginning-position)
                            (line-end-position)
                            nil t)))
       (overlay-put o 'evaporate t)
