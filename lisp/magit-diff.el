@@ -2161,11 +2161,11 @@ section or a child thereof."
                          'face '(italic bold)))))
           (forward-line))
         (setq end (point-marker)))
-        (magit-insert-section (signature magit-buffer-revision title)
-          (when title
-            (magit-insert-heading title))
-          (goto-char end)
-          (insert "\n")))))
+      (magit-insert-section (signature magit-buffer-revision title)
+        (when title
+          (magit-insert-heading title))
+        (goto-char end)
+        (insert "\n")))))
 
 (defun magit-diff-wash-diffstat ()
   (let (heading (beg (point)))
