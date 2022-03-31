@@ -619,7 +619,7 @@ Magit status buffer."
              (let ((process-connection-type nil)
                    (process-environment (magit-process-environment))
                    (default-process-coding-system
-                     (magit--process-coding-system)))
+                    (magit--process-coding-system)))
                (apply #'start-file-process "git" process-buf
                       (magit-git-executable) args))))
         (process-put process 'command-buf command-buf)

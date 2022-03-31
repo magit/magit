@@ -487,7 +487,7 @@ or, failing that, the abbreviated HEAD commit hash."
            (branch-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
       (dolist (module modules)
         (let ((default-directory
-                (expand-file-name (file-name-as-directory module))))
+               (expand-file-name (file-name-as-directory module))))
           (magit-insert-section (magit-module-section module t)
             (insert (propertize (format path-format module)
                                 'font-lock-face 'magit-diff-file-heading))
@@ -606,7 +606,7 @@ These sections can be expanded to show the respective commits."
           (dolist (module modules)
             (when (magit-module-worktree-p module)
               (let ((default-directory
-                      (expand-file-name (file-name-as-directory module))))
+                     (expand-file-name (file-name-as-directory module))))
                 (when (magit-file-accessible-directory-p default-directory)
                   (magit-insert-section sec (magit-module-section module t)
                     (magit-insert-heading
@@ -668,7 +668,7 @@ These sections can be expanded to show the respective commits."
   (setq tabulated-list-entries
         (-keep (lambda (module)
                  (let ((default-directory
-                         (expand-file-name (file-name-as-directory module))))
+                        (expand-file-name (file-name-as-directory module))))
                    (and (file-exists-p ".git")
                         (or (not magit-submodule-list-predicate)
                             (funcall magit-submodule-list-predicate module))

@@ -373,7 +373,7 @@ ignored) files."
                          start))
         (let* ((topdir (magit-toplevel))
                (url (let ((default-directory
-                            (file-name-as-directory (expand-file-name repo))))
+                           (file-name-as-directory (expand-file-name repo))))
                       (or (magit-get "remote" (magit-get-some-remote) "url")
                           (concat (file-name-as-directory ".") repo))))
                (package

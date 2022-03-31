@@ -917,7 +917,7 @@ and `:slant'."
    ("=g" "Show signature"                 "--show-signature"
     :if-derived magit-diff-mode)
    (5 "-R" "Reverse sides"                "-R"
-    :if-derived magit-diff-mode)
+      :if-derived magit-diff-mode)
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
   [["Refresh"
@@ -2401,8 +2401,8 @@ section or a child thereof."
                            " content"))
               ")")
             (let ((default-directory
-                    (file-name-as-directory
-                     (expand-file-name module (magit-toplevel)))))
+                   (file-name-as-directory
+                    (expand-file-name module (magit-toplevel)))))
               (magit-git-wash (apply-partially #'magit-log-wash-log 'module)
                 "log" "--oneline" "--left-right" range)
               (delete-char -1)))))
@@ -3230,7 +3230,7 @@ are highlighted."
               (cdr (--first (string-match-p (car it) default-directory)
                             (nreverse
                              (default-value
-                               'magit-diff-highlight-indentation))))))))
+                              'magit-diff-highlight-indentation))))))))
       (when (and magit-diff-highlight-trailing
                  (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
         (let ((ov (make-overlay (match-beginning 1) (match-end 1) nil t)))

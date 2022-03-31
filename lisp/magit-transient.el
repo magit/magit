@@ -209,10 +209,10 @@
                                         'transient-inactive-value
                                       'transient-value)))
                  (default
-                   (propertize (concat "default:" default)
-                               'face (if value
-                                         'transient-inactive-value
-                                       'transient-value))))))
+                  (propertize (concat "default:" default)
+                              'face (if value
+                                        'transient-inactive-value
+                                      'transient-value))))))
      (propertize "]" 'face 'transient-inactive-value))))
 
 ;;; _

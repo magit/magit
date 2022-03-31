@@ -367,7 +367,7 @@ Usually this is just its basename."
 ?\\'")
 
 (defvar magit-repolist-column-version-resume-regexp
-   "\\`Resume development\\'")
+  "\\`Resume development\\'")
 
 (defun magit-repolist-column-version (_)
   "Insert a description of the repository's `HEAD' revision."

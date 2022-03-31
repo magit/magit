@@ -455,10 +455,10 @@ is run in the top-level directory of the current working tree."
 
 (defun magit-read-shell-command (&optional toplevel initial-input)
   (let ((default-directory
-          (if (or toplevel current-prefix-arg)
-              (or (magit-toplevel)
-                  (magit--not-inside-repository-error))
-            default-directory)))
+         (if (or toplevel current-prefix-arg)
+             (or (magit-toplevel)
+                 (magit--not-inside-repository-error))
+           default-directory)))
     (read-shell-command (if magit-shell-command-verbose-prompt
                             (format "Async shell command in %s: "
                                     (abbreviate-file-name default-directory))

@@ -694,10 +694,10 @@ the minibuffer too."
   (interactive
    (if (or current-prefix-arg (not magit-revision-stack))
        (let ((default-directory
-               (or (and (not (= (prefix-numeric-value current-prefix-arg) 16))
-                        (or (magit-toplevel)
-                            (cadr (car magit-revision-stack))))
-                   (magit-read-repository))))
+              (or (and (not (= (prefix-numeric-value current-prefix-arg) 16))
+                       (or (magit-toplevel)
+                           (cadr (car magit-revision-stack))))
+                  (magit-read-repository))))
          (list (magit-read-branch-or-commit "Insert revision")
                default-directory))
      (push (caar magit-revision-stack) magit-revision-history)

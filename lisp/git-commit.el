@@ -531,15 +531,15 @@ to recover older messages")
   ;; Pretend that git-commit-mode is a major-mode,
   ;; so that directory-local settings can be used.
   (let ((default-directory
-          (or (and (not (file-exists-p ".dir-locals.el"))
-                   ;; When $GIT_DIR/.dir-locals.el doesn't exist,
-                   ;; fallback to $GIT_WORK_TREE/.dir-locals.el,
-                   ;; because the maintainer can use the latter
-                   ;; to enforce conventions, while s/he has no
-                   ;; control over the former.
-                   (fboundp 'magit-toplevel)  ; silence byte-compiler
-                   (magit-toplevel))
-              default-directory)))
+         (or (and (not (file-exists-p ".dir-locals.el"))
+                  ;; When $GIT_DIR/.dir-locals.el doesn't exist,
+                  ;; fallback to $GIT_WORK_TREE/.dir-locals.el,
+                  ;; because the maintainer can use the latter
+                  ;; to enforce conventions, while s/he has no
+                  ;; control over the former.
+                  (fboundp 'magit-toplevel)  ; silence byte-compiler
+                  (magit-toplevel))
+             default-directory)))
     (let ((buffer-file-name nil)         ; trick hack-dir-local-variables
           (major-mode 'git-commit-mode)) ; trick dir-locals-collect-variables
       (hack-dir-local-variables)
