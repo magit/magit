@@ -558,11 +558,11 @@ list returned by `magit-rebase-arguments'."
         "Type %p on a commit to reshelve it and the commits above it,"))
      (t
       (cl-flet ((adjust (time offset)
-                        (format-time-string
-                         "%F %T %z"
-                         (+ (floor time)
-                            (* offset 60)
-                            (- (car (decode-time time)))))))
+                  (format-time-string
+                   "%F %T %z"
+                   (+ (floor time)
+                      (* offset 60)
+                      (- (car (decode-time time)))))))
         (let* ((start (concat rev "^"))
                (range (concat start ".." current))
                (time-rev (adjust (float-time (string-to-number

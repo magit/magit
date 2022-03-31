@@ -666,14 +666,13 @@ arguments are for internal use only."
     (when (or this-tag next-tag)
       (magit-insert-section (tag (or this-tag next-tag))
         (insert (format "%-10s" (if both-tags "Tags: " "Tag: ")))
-        (cl-flet ((insert-count
-                   (tag count face)
-                   (insert (concat (propertize tag 'font-lock-face 'magit-tag)
-                                   (and (> count 0)
-                                        (format " (%s)"
-                                                (propertize
-                                                 (format "%s" count)
-                                                 'font-lock-face face)))))))
+        (cl-flet ((insert-count (tag count face)
+                    (insert (concat (propertize tag 'font-lock-face 'magit-tag)
+                                    (and (> count 0)
+                                         (format " (%s)"
+                                                 (propertize
+                                                  (format "%s" count)
+                                                  'font-lock-face face)))))))
           (when this-tag  (insert-count this-tag this-cnt 'magit-branch-local))
           (when both-tags (insert ", "))
           (when next-tag  (insert-count next-tag next-cnt 'magit-tag)))

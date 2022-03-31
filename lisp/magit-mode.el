@@ -866,18 +866,18 @@ If `selected' or t, then only consider buffers on the selected
 If a frame, then only consider buffers on that frame."
   (if-let ((topdir (magit-toplevel)))
       (cl-flet* ((b (buffer)
-                    (with-current-buffer buffer
-                      (and (eq major-mode mode)
-                           (equal magit--default-directory topdir)
-                           (if value
-                               (and magit-buffer-locked-p
-                                    (equal (magit-buffer-value) value))
-                             (not magit-buffer-locked-p))
-                           buffer)))
+                   (with-current-buffer buffer
+                     (and (eq major-mode mode)
+                          (equal magit--default-directory topdir)
+                          (if value
+                              (and magit-buffer-locked-p
+                                   (equal (magit-buffer-value) value))
+                            (not magit-buffer-locked-p))
+                          buffer)))
                  (w (window)
-                    (b (window-buffer window)))
+                   (b (window-buffer window)))
                  (f (frame)
-                    (seq-some #'w (window-list frame 'no-minibuf))))
+                   (seq-some #'w (window-list frame 'no-minibuf))))
         (pcase-exhaustive frame
           (`nil                   (seq-some #'b (buffer-list)))
           (`all                   (seq-some #'f (frame-list)))

@@ -679,19 +679,19 @@ modes is toggled, then this mode also gets toggled automatically.
            (magit--format-spec
             (propertize format 'font-lock-face face)
             (cl-flet* ((p0 (s f)
-                           (propertize s 'font-lock-face
-                                       (if face
-                                           (if (listp face)
-                                               face
-                                             (list f face))
-                                         f)))
+                         (propertize s 'font-lock-face
+                                     (if face
+                                         (if (listp face)
+                                             face
+                                           (list f face))
+                                       f)))
                        (p1 (k f)
-                           (p0 (cdr (assoc k revinfo)) f))
+                         (p0 (cdr (assoc k revinfo)) f))
                        (p2 (k1 k2 f)
-                           (p0 (magit-blame--format-time-string
-                                (cdr (assoc k1 revinfo))
-                                (cdr (assoc k2 revinfo)))
-                               f)))
+                         (p0 (magit-blame--format-time-string
+                              (cdr (assoc k1 revinfo))
+                              (cdr (assoc k2 revinfo)))
+                             f)))
               `((?H . ,(p0 rev         'magit-blame-hash))
                 (?s . ,(p1 "summary"   'magit-blame-summary))
                 (?a . ,(p1 "author"    'magit-blame-name))

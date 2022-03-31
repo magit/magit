@@ -1423,13 +1423,13 @@ toggle the file restriction in the repository's revision buffer
 instead."
   (interactive)
   (cl-flet ((toggle ()
-                    (if (or magit-buffer-diff-files
-                            magit-buffer-diff-files-suspended)
-                        (cl-rotatef magit-buffer-diff-files
-                                    magit-buffer-diff-files-suspended)
-                      (setq magit-buffer-diff-files
-                            (transient-infix-read 'magit:--)))
-                    (magit-refresh)))
+              (if (or magit-buffer-diff-files
+                      magit-buffer-diff-files-suspended)
+                  (cl-rotatef magit-buffer-diff-files
+                              magit-buffer-diff-files-suspended)
+                (setq magit-buffer-diff-files
+                      (transient-infix-read 'magit:--)))
+              (magit-refresh)))
     (cond
      ((derived-mode-p 'magit-log-mode
                       'magit-cherry-mode
@@ -3181,13 +3181,13 @@ are highlighted."
 (defun magit-diff-tab-width (file)
   (setq file (expand-file-name file))
   (cl-flet ((cache (value)
-                   (let ((elt (assoc file magit-diff--tab-width-cache)))
-                     (if elt
-                         (setcdr elt value)
-                       (setq magit-diff--tab-width-cache
-                             (cons (cons file value)
-                                   magit-diff--tab-width-cache))))
-                   value))
+              (let ((elt (assoc file magit-diff--tab-width-cache)))
+                (if elt
+                    (setcdr elt value)
+                  (setq magit-diff--tab-width-cache
+                        (cons (cons file value)
+                              magit-diff--tab-width-cache))))
+              value))
     (cond
      ((not magit-diff-adjust-tab-width)
       tab-width)
@@ -3270,10 +3270,10 @@ are highlighted."
                             (oref section end)
                             'diff-mode 'fine))))
     (cl-labels ((recurse (section)
-                         (if (magit-section-match 'hunk section)
-                             (magit-diff-update-hunk-refinement section)
-                           (dolist (child (oref section children))
-                             (recurse child)))))
+                  (if (magit-section-match 'hunk section)
+                      (magit-diff-update-hunk-refinement section)
+                    (dolist (child (oref section children))
+                      (recurse child)))))
       (recurse magit-root-section))))
 
 
@@ -3357,9 +3357,9 @@ last (visual) lines of the region."
                                       (point)))
              (color (face-background 'magit-diff-lines-boundary nil t)))
         (cl-flet ((ln (b e &rest face)
-                      (magit-diff--make-hunk-overlay
-                       b e 'font-lock-face face 'after-string
-                       (magit-diff--hunk-after-string face))))
+                    (magit-diff--make-hunk-overlay
+                     b e 'font-lock-face face 'after-string
+                     (magit-diff--hunk-after-string face))))
           (if (= beg end-bol)
               (ln beg beg-eol :overline color :underline color)
             (ln beg beg-eol :overline color)

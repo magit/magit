@@ -1024,15 +1024,15 @@ If STR is supplied, it replaces the `mode-line-process' text."
     (let ((repokey (magit-repository-local-repository)))
       ;; The following closure captures the repokey value, and is
       ;; added to `pre-command-hook'.
-      (cl-labels ((enable-magit-process-unset-mode-line
-                   () ;;; Remove ourself from the hook variable, so
-                      ;;; that we only run once.
-                   (remove-hook 'pre-command-hook
-                                #'enable-magit-process-unset-mode-line)
-                   ;; Clear the inhibit flag for the repository in
-                   ;; which we set it.
-                   (magit-repository-local-set
-                    'inhibit-magit-process-unset-mode-line nil repokey)))
+      (cl-labels ((enable-magit-process-unset-mode-line ()
+                    ;; Remove ourself from the hook variable, so
+                    ;; that we only run once.
+                    (remove-hook 'pre-command-hook
+                                 #'enable-magit-process-unset-mode-line)
+                    ;; Clear the inhibit flag for the repository in
+                    ;; which we set it.
+                    (magit-repository-local-set
+                     'inhibit-magit-process-unset-mode-line nil repokey)))
         ;; Set the inhibit flag until the next command is invoked.
         (magit-repository-local-set
          'inhibit-magit-process-unset-mode-line t repokey)
