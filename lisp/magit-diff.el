@@ -159,7 +159,7 @@ how we should do it.  However the overlay variant actually works
 better.  Also see https://github.com/magit/magit/issues/2758.
 
 Instead of, or in addition to, using delimiting horizontal lines,
-to emphasize the boundaries, you may which to emphasize the text
+to emphasize the boundaries, you may wish to emphasize the text
 itself, using `magit-diff-highlight-hunk-region-using-face'.
 
 In terminal frames it's not possible to draw lines as the overlay
