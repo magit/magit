@@ -274,9 +274,8 @@ If it contains \"%s\" then the directory is substituted for that."
   (setq tabulated-list-padding  0)
   (add-hook 'tabulated-list-revert-hook #'magit-repolist-refresh nil t)
   (setq imenu-prev-index-position-function
-        #'magit-imenu--repolist-prev-index-position-function)
-  (setq imenu-extract-index-name-function
-        #'magit-imenu--repolist-extract-index-name-function))
+        #'magit-repolist--imenu-prev-index-position)
+  (setq imenu-extract-index-name-function #'tabulated-list-get-id))
 
 (defun magit-repolist-setup (columns)
   (unless magit-repository-directories
@@ -336,6 +335,10 @@ If it contains \"%s\" then the directory is substituted for that."
   (tabulated-list-init-header)
   (tabulated-list-print t)
   (message "Listing repositories...done"))
+
+(defun magit-repolist--imenu-prev-index-position ()
+  (and (not (bobp))
+       (forward-line -1)))
 
 ;;;; Columns
 
@@ -468,23 +471,6 @@ which only lists the first one found."
        "+"
      (number-to-string n))
    (if (> n (or (cadr (assq :normal-count spec)) 0)) 'bold 'shadow)))
-
-;;;; Imenu Support
-
-(defun magit-imenu--repolist-prev-index-position-function ()
-  "Move point to previous line in magit-repolist buffer.
-Used as a value for `imenu-prev-index-position-function'."
-  (unless (bobp)
-    (forward-line -1)))
-
-(defun magit-imenu--repolist-extract-index-name-function ()
-  "Return imenu name for line at point.
-Point should be at the beginning of the line.  This function
-is used as a value for `imenu-extract-index-name-function'."
-  (let ((entry (tabulated-list-get-entry)))
-    (format "%s (%s)"
-            (car entry)
-            (car (last entry)))))
 
 ;;; Read Repository
 

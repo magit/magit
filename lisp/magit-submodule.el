@@ -646,9 +646,8 @@ These sections can be expanded to show the respective commits."
   (setq tabulated-list-padding 0)
   (add-hook 'tabulated-list-revert-hook #'magit-submodule-list-refresh nil t)
   (setq imenu-prev-index-position-function
-        #'magit-imenu--submodule-prev-index-position-function)
-  (setq imenu-extract-index-name-function
-        #'magit-imenu--submodule-extract-index-name-function))
+        #'magit-repolist--imenu-prev-index-position)
+  (setq imenu-extract-index-name-function #'tabulated-list-get-id))
 
 (defvar-local magit-submodule-list-predicate nil)
 
@@ -690,20 +689,6 @@ These sections can be expanded to show the respective commits."
 (defun magit-modulelist-column-path (spec)
   "Insert the relative path of the submodule."
   (cadr (assq :path spec)))
-
-;;;; Imenu Support
-
-(defun magit-imenu--submodule-prev-index-position-function ()
-  "Move point to previous line in magit-submodule-list buffer.
-Used as a value for `imenu-prev-index-position-function'."
-  (unless (bobp)
-    (forward-line -1)))
-
-(defun magit-imenu--submodule-extract-index-name-function ()
-  "Return imenu name for line at point.
-Point should be at the beginning of the line.  This function
-is used as a value for `imenu-extract-index-name-function'."
-  (car (tabulated-list-get-entry)))
 
 ;;; Utilities
 
