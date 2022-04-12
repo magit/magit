@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'magit)
+(require 'seq)
 
 (defvar x-stretch-cursor)
 
@@ -703,7 +704,7 @@ Used as a value for `imenu-prev-index-position-function'."
   "Return imenu name for line at point.
 Point should be at the beginning of the line.  This function
 is used as a value for `imenu-extract-index-name-function'."
-  (car (tabulated-list-get-entry)))
+  (seq-first (tabulated-list-get-entry)))
 
 ;;; Utilities
 
