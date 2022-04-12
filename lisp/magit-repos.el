@@ -32,6 +32,7 @@
 ;;; Code:
 
 (require 'magit-core)
+(require 'seq)
 
 (declare-function magit-status-setup-buffer "magit-status" (&optional directory))
 
@@ -483,8 +484,8 @@ Point should be at the beginning of the line.  This function
 is used as a value for `imenu-extract-index-name-function'."
   (let ((entry (tabulated-list-get-entry)))
     (format "%s (%s)"
-            (car entry)
-            (car (last entry)))))
+            (seq-first entry)
+            (seq-elt entry (1- (seq-length entry))))))
 
 ;;; Read Repository
 
