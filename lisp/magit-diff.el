@@ -2517,7 +2517,7 @@ Staging and applying changes is documented in info node
     "show" "-p" "--cc" "--format=" "--no-prefix"
     (and (member "--stat" magit-buffer-diff-args) "--numstat")
     magit-buffer-diff-args
-    (concat magit-buffer-revision "^{commit}")
+    (magit--rev-dereference magit-buffer-revision)
     "--" magit-buffer-diff-files))
 
 (defun magit-insert-revision-tag ()
@@ -2676,7 +2676,7 @@ or a ref which is not a branch, then it inserts nothing."
     (--when-let (magit-rev-format "%D" magit-buffer-revision "--decorate=full")
       (insert (magit-format-ref-labels it) ?\s))
     (insert (propertize
-             (magit-rev-parse (concat magit-buffer-revision "^{commit}"))
+             (magit-rev-parse (magit--rev-dereference magit-buffer-revision))
              'font-lock-face 'magit-hash))
     (magit-insert-heading)
     (let ((beg (point)))

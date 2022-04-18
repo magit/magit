@@ -1279,11 +1279,18 @@ string \"true\", otherwise return nil."
 
 (defun magit-commit-p (rev)
   "Return full hash for REV if it names an existing commit."
-  (magit-rev-verify (concat rev "^{commit}")))
+  (magit-rev-verify (magit--rev-dereference rev)))
 
 (defalias 'magit-rev-verify-commit #'magit-commit-p)
 
 (defalias 'magit-rev-hash #'magit-commit-p)
+
+(defun magit--rev-dereference (rev)
+  "Return a rev that forces Git to interpret REV as a commit.
+If REV has the form \":/TEXT\", instead return it as-is"
+  (if (string-match-p "^:/" rev)
+      rev
+    (concat rev "^{commit}")))
 
 (defun magit-rev-equal (a b)
   "Return t if there are no differences between the commits A and B."
@@ -2106,14 +2113,16 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-rev-format (format &optional rev args)
   (let ((str (magit-git-string "show" "--no-patch"
                                (concat "--format=" format) args
-                               (if rev (concat rev "^{commit}") "HEAD") "--")))
+                               (if rev (magit--rev-dereference rev) "HEAD")
+                               "--")))
     (unless (string-equal str "")
       str)))
 
 (defun magit-rev-insert-format (format &optional rev args)
   (magit-git-insert "show" "--no-patch"
                     (concat "--format=" format) args
-                    (if rev (concat rev "^{commit}") "HEAD") "--"))
+                    (if rev (magit--rev-dereference rev) "HEAD")
+                    "--"))
 
 (defun magit-format-rev-summary (rev)
   (when-let* ((str (magit-rev-format "%h %s" rev))) ;debbugs#31840
