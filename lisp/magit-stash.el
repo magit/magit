@@ -317,7 +317,7 @@ current branch or `HEAD' as the start-point."
                            (magit-stash-create message index worktree untracked))
         (if (eq keep 'worktree)
             (with-temp-buffer
-              (magit-git-insert "diff" "--cached")
+              (magit-git-insert "diff" "--cached" "--no-ext-diff")
               (magit-run-git-with-input
                "apply" "--reverse" "--cached" "--ignore-space-change" "-")
               (magit-run-git-with-input
