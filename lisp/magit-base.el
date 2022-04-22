@@ -1181,7 +1181,7 @@ or (last of all) the value of EXP."
 ;;;###autoload
 (defun org-man-export--magit-gitman (fn link description format)
   (if (and (eq format 'texinfo)
-           (string-match-p "\\`git" link))
+           (string-prefix-p "git" link))
       (replace-regexp-in-string "%s" link "
 @ifinfo
 @ref{%s,,,gitman,}.

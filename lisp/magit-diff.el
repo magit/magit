@@ -2331,7 +2331,7 @@ section or a child thereof."
                      (string-prefix-p "a/" orig)
                      (string-prefix-p "b/" file))
                 (and (derived-mode-p 'magit-log-mode)
-                     (--first (string-match-p "\\`-L" it)
+                     (--first (string-prefix-p "-L" it)
                               magit-buffer-log-args)))
         (setq file (substring file 2))
         (when orig

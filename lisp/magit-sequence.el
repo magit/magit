@@ -361,7 +361,7 @@ the process manually."
       ;; And CHERRY_PICK_HEAD does not exist when a conflict happens
       ;; while picking a series of commits with --no-commit.
       (when-let ((line (magit-file-line (magit-git-dir "sequencer/todo"))))
-        (string-match-p "^pick" line))))
+        (string-prefix-p "pick" line))))
 
 ;;; Revert
 
@@ -417,7 +417,7 @@ without prompting."
       ;; And REVERT_HEAD does not exist when a conflict happens while
       ;; reverting a series of commits with --no-commit.
       (when-let ((line (magit-file-line (magit-git-dir "sequencer/todo"))))
-        (string-match-p "^revert" line))))
+        (string-prefix-p "revert" line))))
 
 ;;; Patch
 

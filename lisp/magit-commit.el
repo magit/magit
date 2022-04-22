@@ -370,7 +370,7 @@ depending on the value of option `magit-commit-squash-confirm'."
                 (magit-call-git
                  "commit" "--no-gpg-sign"
                  (-remove-first
-                  (apply-partially #'string-match-p "\\`--gpg-sign=")
+                  (apply-partially #'string-prefix-p "--gpg-sign=")
                   args)))
             (magit-run-git-with-editor "commit" args))
           t) ; The commit was created; used by below lambda.

@@ -1927,17 +1927,17 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
   (--map (substring it 6) (magit-list-refnames "refs/notes")))
 
 (defun magit-remote-list-tags (remote)
-  (--keep (and (not (string-match-p "\\^{}$" it))
+  (--keep (and (not (string-suffix-p "^{}" it))
                (substring it 51))
           (magit-git-lines "ls-remote" "--tags" remote)))
 
 (defun magit-remote-list-branches (remote)
-  (--keep (and (not (string-match-p "\\^{}$" it))
+  (--keep (and (not (string-suffix-p "^{}" it))
                (substring it 52))
           (magit-git-lines "ls-remote" "--heads" remote)))
 
 (defun magit-remote-list-refs (remote)
-  (--keep (and (not (string-match-p "\\^{}$" it))
+  (--keep (and (not (string-suffix-p "^{}" it))
                (substring it 41))
           (magit-git-lines "ls-remote" remote)))
 
