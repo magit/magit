@@ -359,7 +359,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
      ((eq major-mode 'magit-refs-mode)
       (setq args magit-buffer-arguments))
      ((and (memq use-buffer-args '(always selected))
-           (when-let ((buffer (magit-get-mode-buffer
+           (when-let* ((buffer (magit-get-mode-buffer ;debbugs#31840
                                'magit-refs-mode nil
                                (eq use-buffer-args 'selected))))
              (setq args (buffer-local-value 'magit-buffer-arguments buffer))

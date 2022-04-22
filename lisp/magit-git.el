@@ -2119,9 +2119,9 @@ Return a list of two integers: (A>B B>A)."
                     (if rev (concat rev "^{commit}") "HEAD") "--"))
 
 (defun magit-format-rev-summary (rev)
-  (--when-let (magit-rev-format "%h %s" rev)
-    (magit--put-face 0 (string-match " " it) 'magit-hash it)
-    it))
+  (when-let* ((str (magit-rev-format "%h %s" rev))) ;debbugs#31840
+    (magit--put-face 0 (string-match " " str) 'magit-hash str)
+    str))
 
 (defvar magit-ref-namespaces
   '(("\\`HEAD\\'"                  . magit-head)
