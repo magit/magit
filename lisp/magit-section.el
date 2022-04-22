@@ -1754,13 +1754,10 @@ invisible."
 
 (cl-defun magit-section-cache-visibility
     (&optional (section magit-insert-section--current))
-  ;; Emacs 25's `alist-get' lacks TESTFN.
-  (let* ((id  (magit-section-ident section))
-         (elt (assoc id magit-section-visibility-cache))
-         (val (if (oref section hidden) 'hide 'show)))
-    (if elt
-        (setcdr elt val)
-      (push (cons id val) magit-section-visibility-cache))))
+  (setf (compat-alist-get (magit-section-ident section)
+                          magit-section-visibility-cache
+                          nil nil #'equal)
+        (if (oref section hidden) 'hide 'show)))
 
 (cl-defun magit-section-maybe-cache-visibility
     (&optional (section magit-insert-section--current))
