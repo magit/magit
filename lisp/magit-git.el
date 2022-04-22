@@ -926,7 +926,7 @@ returning the truename."
   "Git executable cannot be found (see https://magit.vc/goto/e6a78ed2)")
 
 (defun magit--assert-usable-git ()
-  (if (not (executable-find (magit-git-executable)))
+  (if (not (compat-executable-find (magit-git-executable) t))
       (signal 'magit-git-executable-not-found (magit-git-executable))
     (let ((magit-git-debug
            (lambda (err)
