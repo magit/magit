@@ -834,7 +834,7 @@ https://github.com/mhagger/git-when-merged."
     (if (zerop exit)
         (magit-log-setup-buffer (list (format "%s^1..%s" m m))
                                 args files nil commit)
-      (setq m (string-trim-left (substring m (string-match " " m))))
+      (setq m (string-trim m))
       (if (equal m "Commit is directly on this branch.")
           (let* ((from (concat commit "~10"))
                  (to (- (car (magit-rev-diff-count branch commit)) 10))
