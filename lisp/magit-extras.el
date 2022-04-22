@@ -722,13 +722,13 @@ the minibuffer too."
           (when pnt-format
             (when idx-format
               (setq pnt-format
-                    (replace-regexp-in-string "%N" idx pnt-format t t)))
+                    (string-replace "%N" idx pnt-format)))
             (magit-rev-insert-format pnt-format rev pnt-args)
             (backward-delete-char 1))
           (when eob-format
             (when idx-format
               (setq eob-format
-                    (replace-regexp-in-string "%N" idx eob-format t t)))
+                    (string-replace "%N" idx eob-format)))
             (save-excursion
               (goto-char (point-max))
               (skip-syntax-backward ">s-")

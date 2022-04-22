@@ -1747,10 +1747,10 @@ the name of a remote and REF is the ref local to the remote."
                              (src (match-string 2 line))
                              (dst (match-string 3 line)))
                          (and (string-match (format "\\`%s\\'"
-                                                    (replace-regexp-in-string
-                                                     "*" "\\(.+\\)" dst t t))
+                                                    (string-replace
+                                                     "*" "\\(.+\\)" dst))
                                             ref)
-                              (cons rmt (replace-regexp-in-string
+                              (cons rmt (string-replace
                                          "*" (match-string 1 ref) src))))))
                 (magit-git-lines "config" "--local" "--list")))))
 
@@ -2162,7 +2162,7 @@ and this option only controls what face is used.")
                                ((string-match re it) (concat "refs/remotes/" it))
                                (t                    (concat "refs/" it)))
                          (split-string
-                          (replace-regexp-in-string "tag: " "refs/tags/" string)
+                          (string-replace "tag: " "refs/tags/" string)
                           regexp t))))
         (setq names (split-string string regexp t)))
       (let (state head upstream tags branches remotes other combined)

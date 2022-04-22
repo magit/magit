@@ -782,7 +782,7 @@ restrict the log to the lines that the region touches."
   (magit-log-setup-buffer
    (list rev)
    (cons (format "-L:%s%s:%s"
-                 (replace-regexp-in-string ":" "\\:" (regexp-quote fn) nil t)
+                 (string-replace ":" "\\:" (regexp-quote fn))
                  (if (derived-mode-p 'lisp-mode 'emacs-lisp-mode)
                      ;; Git doesn't treat "-" the same way as
                      ;; "_", leading to false-positives such as

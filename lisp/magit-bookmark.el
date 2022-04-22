@@ -58,10 +58,9 @@ and the buffer-local values of the variables referenced in its
          (--keep (and (oref it hidden)
                       (cons (oref it type)
                             (if (derived-mode-p 'magit-stash-mode)
-                                (replace-regexp-in-string
-                                 (regexp-quote magit-buffer-revision)
-                                 magit-buffer-revision-hash
-                                 (oref it value))
+                                (string-replace magit-buffer-revision
+                                                magit-buffer-revision-hash
+                                                (oref it value))
                               (oref it value))))
                  (oref magit-root-section children)))
         bookmark)

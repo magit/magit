@@ -844,8 +844,9 @@ ACTION is a member of option `magit-slow-confirm'."
 
 (defun magit-confirm-make-prompt (action)
   (let ((prompt (symbol-name action)))
-    (replace-regexp-in-string
-     "-" " " (concat (upcase (substring prompt 0 1)) (substring prompt 1)))))
+    (string-replace "-" " "
+                    (concat (upcase (substring prompt 0 1))
+                            (substring prompt 1)))))
 
 (defun magit-read-number-string (prompt &optional default _history)
   "Like `read-number' but return value is a string.
@@ -1187,7 +1188,7 @@ or (last of all) the value of EXP."
 (defun org-man-export--magit-gitman (fn link description format)
   (if (and (eq format 'texinfo)
            (string-prefix-p "git" link))
-      (replace-regexp-in-string "%s" link "
+      (string-replace "%s" link "
 @ifinfo
 @ref{%s,,,gitman,}.
 @end ifinfo

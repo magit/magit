@@ -90,7 +90,7 @@ argument the push-remote can be changed before pushed to it."
                (magit--select-push-remote "push there")))
     (when changed
       (magit-confirm 'set-and-push
-        (replace-regexp-in-string
+        (string-replace
          "%" "%%"
          (format "Really use \"%s\" as push-remote and push \"%s\" there"
                  remote branch))))
@@ -152,7 +152,7 @@ the upstream."
           ;; is what the user wants to happen.
           (setq merge (concat "refs/heads/" merge)))
         (magit-confirm 'set-and-push
-          (replace-regexp-in-string
+          (string-replace
            "%" "%%"
            (format "Really use \"%s\" as upstream and push \"%s\" there"
                    upstream branch))))
