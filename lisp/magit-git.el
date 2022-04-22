@@ -1303,7 +1303,7 @@ string \"true\", otherwise return nil."
 (defun magit-rev-head-p (rev)
   (or (equal rev "HEAD")
       (and rev
-           (not (string-match-p "\\.\\." rev))
+           (not (string-search ".." rev))
            (equal (magit-rev-parse rev)
                   (magit-rev-parse "HEAD")))))
 
@@ -1904,7 +1904,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
   (let ((lines (magit-git-lines
                 "for-each-ref" (concat "--format=" format)
                 (or args (list "refs/heads" "refs/remotes" "refs/tags")))))
-    (if (string-match-p "\f" format)
+    (if (string-search "\f" format)
         (--map (split-string it "\f") lines)
       lines)))
 

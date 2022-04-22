@@ -106,7 +106,7 @@ which creates patches for all commits that are reachable from
                (concat (car (last revs)) "^.." (car revs))
              (let ((range (magit-read-range-or-commit
                            "Format range or commit")))
-               (if (string-match-p "\\.\\." range)
+               (if (string-search ".." range)
                    range
                  (format "%s~..%s" range range))))
            (let ((args (transient-args 'magit-patch-create)))

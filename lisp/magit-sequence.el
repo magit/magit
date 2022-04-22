@@ -334,7 +334,7 @@ the process manually."
 (defun magit--cherry-pick (commits args &optional revert)
   (let ((command (if revert "revert" "cherry-pick")))
     (when (stringp commits)
-      (setq commits (if (string-match-p "\\.\\." commits)
+      (setq commits (if (string-search ".." commits)
                         (split-string commits "\\.\\.")
                       (list commits))))
     (magit-run-git-sequencer

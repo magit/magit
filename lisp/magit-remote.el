@@ -269,7 +269,7 @@ refspec."
   (let ((refspecs (magit-get-all "remote" remote "fetch"))
         (standard (format "+refs/heads/*:refs/remotes/%s/*" remote)))
     (when (and (= (length refspecs) 1)
-               (not (string-match-p "\\*" (car refspecs)))
+               (not (string-search "*" (car refspecs)))
                (yes-or-no-p (format "Also replace refspec %s with %s? "
                                     (car refspecs)
                                     standard)))

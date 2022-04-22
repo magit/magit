@@ -1065,7 +1065,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                (count (and (= (length revs) 1)
                            (> limit 1024) ; otherwise it's fast enough
                            (setq revs (car revs))
-                           (not (string-match-p "\\.\\." revs))
+                           (not (string-search ".." revs))
                            (not (member revs '("--all" "--branches")))
                            (-none-p (lambda (arg)
                                       (--any-p (string-prefix-p it arg)
@@ -1088,7 +1088,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (defun magit-log-header-line-arguments (revs args files)
   "Return string describing some of the used arguments."
   (mapconcat (lambda (arg)
-               (if (string-match-p " " arg)
+               (if (string-search " " arg)
                    (prin1 arg)
                  arg))
              `("git" "log" ,@args ,@revs "--" ,@files)
@@ -1329,7 +1329,8 @@ Do not add this to a hook variable."
           (insert (format "%-2s " (1- magit-log-count)))
           (when refsub
             (insert (magit-reflog-format-subject
-                     (substring refsub 0 (if (string-match-p ":" refsub) -2 -1))))))
+                     (substring refsub 0
+                                (if (string-search ":" refsub) -2 -1))))))
         (when msg
           (insert (funcall magit-log-format-message-function hash msg)))
         (when (and refs magit-log-show-refname-after-summary)

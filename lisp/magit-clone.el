@@ -317,9 +317,9 @@ Then show the status buffer for the new repository."
   (format-spec
    magit-clone-url-format
    `((?h . ,host)
-     (?n . ,(if (string-match-p "/" repo)
+     (?n . ,(if (string-search "/" repo)
                 repo
-              (if (string-match-p "\\." user)
+              (if (string-search "." user)
                   (if-let ((user (magit-get user)))
                       (concat user "/" repo)
                     (user-error "Set %S or specify owner explicitly" user))
