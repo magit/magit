@@ -395,7 +395,7 @@ in HEAD as well as staged changes in the diff to check."
   (require 'add-log)   ; `change-log-insert-entries'.
   (unless (and (fboundp 'change-log-insert-entries)
                (fboundp 'diff-add-log-current-defuns))
-    (user-error "`magit-generate-changelog' requires Emacs 27 or better"))
+    (user-error "`magit-generate-changelog' requires Emacs 27 or greater"))
   (setq default-directory
         (if (and (file-regular-p "gitdir")
                  (not (magit-git-true "rev-parse" "--is-inside-work-tree"))
