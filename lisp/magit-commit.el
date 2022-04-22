@@ -267,10 +267,11 @@ to inverse the meaning of the prefix argument.  \n(git commit
                        magit-commit-extend-override-date)))
   (when (setq args (magit-commit-assert args))
     (magit-commit-amend-assert)
-    (let ((process-environment process-environment))
-      (unless override-date
-        (push (magit-rev-format "GIT_COMMITTER_DATE=%cD") process-environment))
-      (magit-run-git-with-editor "commit" "--amend" "--no-edit" args))))
+    (if override-date
+        (magit-run-git-with-editor "commit" "--amend" "--no-edit" args)
+      (with-environment-variables
+          (("GIT_COMMITTER_DATE" (magit-rev-format "%cD")))
+        (magit-run-git-with-editor "commit" "--amend" "--no-edit" args)))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -288,11 +289,12 @@ and ignore the option.
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
   (magit-commit-amend-assert)
-  (let ((process-environment process-environment))
-    (unless override-date
-      (push (magit-rev-format "GIT_COMMITTER_DATE=%cD") process-environment))
-    (cl-pushnew "--allow-empty" args :test #'equal)
-    (magit-run-git-with-editor "commit" "--amend" "--only" args)))
+  (cl-pushnew "--allow-empty" args :test #'equal)
+  (if override-date
+      (magit-run-git-with-editor "commit" "--amend" "--only" args)
+    (with-environment-variables
+        (("GIT_COMMITTER_DATE" (magit-rev-format "%cD")))
+      (magit-run-git-with-editor "commit" "--amend" "--only" args))))
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args)
@@ -467,8 +469,7 @@ is updated:
                         'magit--reshelve-history)
            update-author
            (magit-commit-arguments))))
-  (let ((process-environment process-environment))
-    (push (concat "GIT_COMMITTER_DATE=" date) process-environment)
+  (with-environment-variables (("GIT_COMMITTER_DATE" date))
     (magit-run-git "commit" "--amend" "--no-edit"
                    (and update-author (concat "--date=" date))
                    args)))

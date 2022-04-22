@@ -577,38 +577,38 @@ list returned by `magit-rebase-arguments'."
                        (float-time
                         (date-to-time
                          (read-string "Date for first commit: "
-                                      time-now 'magit--reshelve-history)))))
-                (process-environment process-environment))
-            (push "FILTER_BRANCH_SQUELCH_WARNING=1" process-environment)
-            (magit-with-toplevel
-              (magit-run-git-async
-               "filter-branch" "--force" "--env-filter"
-               (format
-                "case $GIT_COMMIT in %s\nesac"
-                (mapconcat
-                 (lambda (rev)
-                   (prog1 (concat
-                           (format "%s) " rev)
-                           (and (not magit-reshelve-since-committer-only)
-                                (format "export GIT_AUTHOR_DATE=\"%s\"; " date))
-                           (format "export GIT_COMMITTER_DATE=\"%s\";;" date))
-                     (cl-incf date 60)))
-                 (magit-git-lines "rev-list" "--reverse" range)
-                 " "))
-               (and keyid
-                    (list "--commit-filter"
-                          (format "git commit-tree --gpg-sign=%s \"$@\";"
-                                  keyid)))
-               range "--"))
-            (set-process-sentinel
-             magit-this-process
-             (lambda (process event)
-               (when (memq (process-status process) '(exit signal))
-                 (if (> (process-exit-status process) 0)
+                                      time-now 'magit--reshelve-history))))))
+            (with-environment-variables (("FILTER_BRANCH_SQUELCH_WARNING" "1"))
+              (magit-with-toplevel
+                (magit-run-git-async
+                 "filter-branch" "--force" "--env-filter"
+                 (format
+                  "case $GIT_COMMIT in %s\nesac"
+                  (mapconcat
+                   (lambda (rev)
+                     (prog1
+                         (concat
+                          (format "%s) " rev)
+                          (and (not magit-reshelve-since-committer-only)
+                               (format "export GIT_AUTHOR_DATE=\"%s\"; " date))
+                          (format "export GIT_COMMITTER_DATE=\"%s\";;" date))
+                       (cl-incf date 60)))
+                   (magit-git-lines "rev-list" "--reverse" range)
+                   " "))
+                 (and keyid
+                      (list "--commit-filter"
+                            (format "git commit-tree --gpg-sign=%s \"$@\";"
+                                    keyid)))
+                 range "--"))
+              (set-process-sentinel
+               magit-this-process
+               (lambda (process event)
+                 (when (memq (process-status process) '(exit signal))
+                   (if (> (process-exit-status process) 0)
+                       (magit-process-sentinel process event)
+                     (process-put process 'inhibit-refresh t)
                      (magit-process-sentinel process event)
-                   (process-put process 'inhibit-refresh t)
-                   (magit-process-sentinel process event)
-                   (magit-run-git "update-ref" "-d" backup))))))))))))
+                     (magit-run-git "update-ref" "-d" backup)))))))))))))
 
 ;;; Revision Stack
 

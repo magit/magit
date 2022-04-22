@@ -313,12 +313,11 @@ the process manually."
                    (magit-refresh)))
                 (t
                  (magit-git "checkout" src)
-                 (let ((process-environment process-environment))
-                   (push (format "%s=%s -i -ne '/^pick (%s)/ or print'"
-                                 "GIT_SEQUENCE_EDITOR"
-                                 magit-perl-executable
-                                 (mapconcat #'magit-rev-abbrev commits "|"))
-                         process-environment)
+                 (with-environment-variables
+                     (("GIT_SEQUENCE_EDITOR"
+                       (format "%s -i -ne '/^pick (%s)/ or print'"
+                               magit-perl-executable
+                               (mapconcat #'magit-rev-abbrev commits "|"))))
                    (magit-run-git-sequencer "rebase" "-i" keep))
                  (when checkout-dst
                    (set-process-sentinel
@@ -823,8 +822,7 @@ edit.  With a prefix argument the old message is reused as-is."
           (magit-commit-amend-assert
            (magit-file-line (magit-git-dir "rebase-merge/orig-head"))))
         (if noedit
-            (let ((process-environment process-environment))
-              (push "GIT_EDITOR=true" process-environment)
+            (with-environment-variables (("GIT_EDITOR" "true"))
               (magit-run-git-async (magit--rebase-resume-command) "--continue")
               (set-process-sentinel magit-this-process
                                     #'magit-sequencer-process-sentinel)

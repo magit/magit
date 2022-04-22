@@ -2275,9 +2275,7 @@ and this option only controls what face is used.")
                         (cons (concat "GIT_INDEX_FILE=" ,file)
                               magit-tramp-process-environment)))
                    ,@body)
-               (let ((process-environment
-                      (cons (concat "GIT_INDEX_FILE=" ,file)
-                            process-environment)))
+               (with-environment-variables (("GIT_INDEX_FILE" ,file))
                  ,@body)))
          (ignore-errors
            (delete-file (concat (file-remote-p default-directory) ,file)))))))
