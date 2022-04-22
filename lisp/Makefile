@@ -83,16 +83,17 @@ versionlib: $(PKG)-version.el
 
 $(PKG)-autoloads.el: $(ELS)
 	@printf " Creating $@\n"
-	@printf "%s" "$$LOADDEFS_TMPL" > $@
-	@$(BATCH) --eval "(progn\
-	(fset 'message (lambda (&rest _)))\
-	(setq make-backup-files nil)\
-	(setq vc-handled-backends nil)\
-	(setq default-directory (file-truename default-directory))\
-	(setq generated-autoload-file (expand-file-name \"$@\"))\
-	(setq find-file-visit-truename t)\
-	(update-directory-autoloads default-directory))"
-
+	@$(EMACS) -Q --batch -l autoload -l cl-lib --eval "\
+(let ((file (expand-file-name \"$@\"))\
+      (autoload-timestamps nil) \
+      (backup-inhibited t)\
+      (version-control 'never)\
+      (coding-system-for-write 'utf-8-emacs-unix))\
+  (write-region (autoload-rubric file \"package\" nil) nil file nil 'silent)\
+  (cl-letf (((symbol-function 'progress-reporter-do-update) (lambda (&rest _)))\
+            ((symbol-function 'progress-reporter-done) (lambda (_))))\
+    (let ((generated-autoload-file file))\
+      (update-directory-autoloads default-directory))))"
 $(PKG)-version.el:
 	@printf " Creating $@\n"
 	@printf "%s" "$$VERSIONLIB_TMPL" > $@
@@ -115,24 +116,6 @@ clean:
 	@$(RM) *.elc $(ELGS)
 
 ## Templates #########################################################
-
-define LOADDEFS_TMPL
-;;; $(PKG)-autoloads.el --- automatically extracted autoloads
-;;
-;;; Code:
-(add-to-list 'load-path (directory-file-name \
-(or (file-name-directory #$$) (car load-path))))
-
-;; Local Variables:
-;; version-control: never
-;; no-byte-compile: t
-;; no-update-autoloads: t
-;; End:
-;;; $(PKG)-autoloads.el ends here
-
-endef
-export LOADDEFS_TMPL
-#'
 
 define VERSIONLIB_TMPL
 ;;; $(PKG)-version.el --- the Magit version you are using
