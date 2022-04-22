@@ -1603,9 +1603,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
   (let ((section (magit-current-section)))
     (when (or force
               magit-section-highlight-force-update
-              (cond ; `xor' wasn't added until 27.1.
-               ((not magit-section-pre-command-region-p) (region-active-p))
-               ((not (region-active-p)) magit-section-pre-command-region-p))
+              (xor magit-section-pre-command-region-p (region-active-p))
               (not (eq magit-section-pre-command-section section)))
       (let ((inhibit-read-only t)
             (deactivate-mark nil)
