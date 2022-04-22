@@ -2785,11 +2785,10 @@ or a ref which is not a branch, then it inserts nothing."
                                (car-safe
                                 (get-text-property (point) 'display)))
                               'image)))
-            ;; `image-property' wasn't added until 26.1.
-            (setcdr image (plist-put (cdr image) :ascent 'center))
-            (setcdr image (plist-put (cdr image) :relief 1))
-            (setcdr image (plist-put (cdr image) :scale  1))
-            (setcdr image (plist-put (cdr image) :height size))
+            (setf (image-property image :ascent) 'center)
+            (setf (image-property image :relief) 1)
+            (setf (image-property image :scale)  1)
+            (setf (image-property image :height) size)
             (let ((top (list image '(slice 0.0 0.0 1.0 0.5)))
                   (bot (list image '(slice 0.0 0.5 1.0 1.0)))
                   (align `((space :align-to ,align-to))))
