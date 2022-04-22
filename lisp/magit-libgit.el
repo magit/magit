@@ -10,7 +10,7 @@
 
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
-;; Package-Requires: ((emacs "26.1") (libgit "0") (magit "3.3.0"))
+;; Package-Requires: ((emacs "26.1") (compat "28.1.0.4") (libgit "0") (magit "3.3.0"))
 ;; Package-Version: 3.3.0-git
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -44,6 +44,9 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'compat)
+(require 'compat-26)
+(require 'compat-27)
 (require 'dash)
 (require 'eieio)
 (require 'seq)

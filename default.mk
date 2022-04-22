@@ -111,6 +111,7 @@ VERSION ?= $(shell \
   git describe --tags --abbrev=0 --always | cut -c2-)
 TIMESTAMP = 20211004
 
+COMPAT_VERSION        = 28.1.0.4
 DASH_VERSION          = 2.19.1
 GIT_COMMIT_VERSION    = $(VERSION)
 LIBGIT_VERSION        = 0
@@ -120,6 +121,7 @@ MAGIT_SECTION_VERSION = $(VERSION)
 TRANSIENT_VERSION     = 0.3.6
 WITH_EDITOR_VERSION   = 3.0.5
 
+COMPAT_SNAPSHOT              = 28.1.0.4
 DASH_MELPA_SNAPSHOT          = 20210826
 GIT_COMMIT_MELPA_SNAPSHOT    = $(TIMESTAMP)
 LIBGIT_MELPA_SNAPSHOT        = 0
@@ -151,6 +153,13 @@ ifeq "$(wildcard $(USER_EMACS_DIR))" ""
 endif
 
 ELPA_DIR ?= $(USER_EMACS_DIR)/elpa
+
+COMPAT_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/compat-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(COMPAT_DIR)" ""
+  COMPAT_DIR = $(TOP)../compat
+endif
 
 DASH_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
@@ -197,6 +206,7 @@ LOAD_PATH = -L $(TOP)lisp
 # info node accordingly.  Also don't forget to "rgrep \b<pkg>\b".
 
 ifdef CYGPATH
+  LOAD_PATH += -L $(shell cygpath --mixed $(COMPAT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(LIBGIT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(TRANSIENT_DIR))
@@ -205,6 +215,7 @@ ifdef CYGPATH
     LOAD_PATH += -L $(shell cygpath --mixed $(MAGIT_SECTION_DIR))
   endif
 else
+  LOAD_PATH += -L $(COMPAT_DIR)
   LOAD_PATH += -L $(DASH_DIR)
   LOAD_PATH += -L $(LIBGIT_DIR)
   LOAD_PATH += -L $(TRANSIENT_DIR)
