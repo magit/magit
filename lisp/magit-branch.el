@@ -860,9 +860,9 @@ and also rename the respective reflog file."
   :class 'magit--git-branch:upstream)
 
 (cl-defmethod transient-init-value ((obj magit--git-branch:upstream))
-  (when-let ((branch (oref transient--prefix scope))
-             (remote (magit-get "branch" branch "remote"))
-             (merge  (magit-get "branch" branch "merge")))
+  (when-let* ((branch (oref transient--prefix scope))
+              (remote (magit-get "branch" branch "remote"))
+              (merge  (magit-get "branch" branch "merge")))
     (oset obj value (list remote merge))))
 
 (cl-defmethod transient-infix-read ((obj magit--git-branch:upstream))

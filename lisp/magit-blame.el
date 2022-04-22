@@ -963,9 +963,9 @@ instead of the hash, like `kill-ring-save' would."
 ;;; Utilities
 
 (defun magit-blame-maybe-update-revision-buffer ()
-  (when-let ((chunk  (magit-current-blame-chunk))
-             (commit (oref chunk orig-rev))
-             (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
+  (when-let* ((chunk  (magit-current-blame-chunk))
+              (commit (oref chunk orig-rev))
+              (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
     (if magit--update-revision-buffer
         (setq magit--update-revision-buffer (list commit buffer))
       (setq magit--update-revision-buffer (list commit buffer))

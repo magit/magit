@@ -224,10 +224,10 @@ bisect run'."
          (magit-process-sentinel process event)
          (when (buffer-live-p (process-buffer process))
            (with-current-buffer (process-buffer process)
-             (when-let ((section (magit-section-at))
-                        (output (buffer-substring-no-properties
-                                 (oref section content)
-                                 (oref section end))))
+             (when-let* ((section (magit-section-at))
+                         (output (buffer-substring-no-properties
+                                  (oref section content)
+                                  (oref section end))))
                (with-temp-file (magit-git-dir "BISECT_CMD_OUTPUT")
                  (insert output)))))
          (magit-refresh))

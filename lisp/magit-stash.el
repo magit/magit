@@ -463,8 +463,8 @@ If there is no stash buffer in the same frame, then do nothing."
     (magit--maybe-update-stash-buffer)))
 
 (defun magit--maybe-update-stash-buffer ()
-  (when-let ((stash  (magit-section-value-if 'stash))
-             (buffer (magit-get-mode-buffer 'magit-stash-mode nil t)))
+  (when-let* ((stash  (magit-section-value-if 'stash))
+              (buffer (magit-get-mode-buffer 'magit-stash-mode nil t)))
     (if magit--update-stash-buffer
         (setq magit--update-stash-buffer (list stash buffer))
       (setq magit--update-stash-buffer (list stash buffer))

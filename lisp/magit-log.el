@@ -1060,19 +1060,20 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (setq args (remove "--graph" args)))
     (unless (member "--graph" args)
       (setq args (remove "--color" args)))
-    (when-let ((limit (magit-log-get-commit-limit))
-               (limit (* 2 limit)) ; increase odds for complete graph
-               (count (and (= (length revs) 1)
-                           (> limit 1024) ; otherwise it's fast enough
-                           (setq revs (car revs))
-                           (not (string-search ".." revs))
-                           (not (member revs '("--all" "--branches")))
-                           (-none-p (lambda (arg)
-                                      (--any-p (string-prefix-p it arg)
-                                               magit-log-disable-graph-hack-args))
-                                    args)
-                           (magit-git-string "rev-list" "--count"
-                                             "--first-parent" args revs))))
+    (when-let* ((limit (magit-log-get-commit-limit))
+                (limit (* 2 limit)) ; increase odds for complete graph
+                (count (and (= (length revs) 1)
+                            (> limit 1024) ; otherwise it's fast enough
+                            (setq revs (car revs))
+                            (not (string-search ".." revs))
+                            (not (member revs '("--all" "--branches")))
+                            (-none-p (lambda (arg)
+                                       (--any-p
+                                        (string-prefix-p it arg)
+                                        magit-log-disable-graph-hack-args))
+                                     args)
+                            (magit-git-string "rev-list" "--count"
+                                              "--first-parent" args revs))))
       (setq revs (if (< (string-to-number count) limit)
                      revs
                    (format "%s~%s..%s" revs limit revs))))
@@ -1438,8 +1439,8 @@ If there is no revision buffer in the same frame, then do nothing."
 (add-hook 'magit-section-movement-hook #'magit-log-maybe-update-revision-buffer)
 
 (defun magit--maybe-update-revision-buffer ()
-  (when-let ((commit (magit-section-value-if 'commit))
-             (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
+  (when-let* ((commit (magit-section-value-if 'commit))
+              (buffer (magit-get-mode-buffer 'magit-revision-mode nil t)))
     (if magit--update-revision-buffer
         (setq magit--update-revision-buffer (list commit buffer))
       (setq magit--update-revision-buffer (list commit buffer))
@@ -1464,11 +1465,11 @@ If there is no blob buffer in the same frame, then do nothing."
     (magit--maybe-update-blob-buffer)))
 
 (defun magit--maybe-update-blob-buffer ()
-  (when-let ((commit (magit-section-value-if 'commit))
-             (buffer (--first (with-current-buffer it
-                                (eq revert-buffer-function
-                                    'magit-revert-rev-file-buffer))
-                              (mapcar #'window-buffer (window-list)))))
+  (when-let* ((commit (magit-section-value-if 'commit))
+              (buffer (--first (with-current-buffer it
+                                 (eq revert-buffer-function
+                                     'magit-revert-rev-file-buffer))
+                               (mapcar #'window-buffer (window-list)))))
     (if magit--update-blob-buffer
         (setq magit--update-blob-buffer (list commit buffer))
       (setq magit--update-blob-buffer (list commit buffer))

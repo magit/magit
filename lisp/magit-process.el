@@ -729,22 +729,22 @@ Magit status buffer."
   "Special sentinel used by `magit-run-git-sequencer'."
   (when (memq (process-status process) '(exit signal))
     (magit-process-sentinel process event)
-    (when-let ((process-buf (process-buffer process)))
-      (when (buffer-live-p process-buf)
-        (when-let ((status-buf (with-current-buffer process-buf
-                                 (magit-get-mode-buffer 'magit-status-mode))))
-          (with-current-buffer status-buf
-            (--when-let
-                (magit-get-section
-                 `((commit . ,(magit-rev-parse "HEAD"))
-                   (,(pcase (car (cadr (-split-at
-                                        (1+ (length magit-git-global-arguments))
-                                        (process-command process))))
-                       ((or "rebase" "am")   'rebase-sequence)
-                       ((or "cherry-pick" "revert") 'sequence)))
-                   (status)))
-              (goto-char (oref it start))
-              (magit-section-update-highlight))))))))
+    (when-let* ((process-buf (process-buffer process))
+                (- (buffer-live-p process-buf))
+                (status-buf (with-current-buffer process-buf
+                              (magit-get-mode-buffer 'magit-status-mode))))
+      (with-current-buffer status-buf
+        (--when-let
+            (magit-get-section
+             `((commit . ,(magit-rev-parse "HEAD"))
+               (,(pcase (car (cadr (-split-at
+                                    (1+ (length magit-git-global-arguments))
+                                    (process-command process))))
+                   ((or "rebase" "am")   'rebase-sequence)
+                   ((or "cherry-pick" "revert") 'sequence)))
+               (status)))
+          (goto-char (oref it start))
+          (magit-section-update-highlight))))))
 
 (defun magit-process-filter (proc string)
   "Default filter used by `magit-start-process'."

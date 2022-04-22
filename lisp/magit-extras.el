@@ -787,8 +787,8 @@ argument."
    ((use-region-p)
     (call-interactively #'copy-region-as-kill))
    (t
-    (when-let ((section (magit-current-section))
-               (value (oref section value)))
+    (when-let* ((section (magit-current-section))
+                (value (oref section value)))
       (magit-section-case
         ((branch commit module-commit tag)
          (let ((default-directory default-directory) ref)
