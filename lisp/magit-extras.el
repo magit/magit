@@ -264,9 +264,9 @@ is no file at point, then instead visit `default-directory'."
   (interactive "P")
   (if-let ((topdir (magit-toplevel default-directory)))
       (let ((args (car (magit-log-arguments)))
-            (files (dired-get-marked-files nil nil #'magit-file-tracked-p)))
-        (unless files
-          (user-error "No marked file is being tracked by Git"))
+            (files (compat-dired-get-marked-files
+                    nil nil #'magit-file-tracked-p nil
+                    "No marked file is being tracked by Git")))
         (when (and follow
                    (not (member "--follow" args))
                    (not (cdr files)))
@@ -287,10 +287,7 @@ for a repository."
   (interactive (list (or (magit-toplevel)
                          (magit-read-repository t))
                      current-prefix-arg))
-  ;; Note: The ERROR argument of `dired-get-marked-files' isn't
-  ;; available until Emacs 27.
-  (let ((files (or (dired-get-marked-files nil arg)
-                   (user-error "No files specified"))))
+  (let ((files (compat-dired-get-marked-files nil arg nil nil t)))
     (magit-status-setup-buffer repo)
     (magit-am-apply-patches files)))
 
