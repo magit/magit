@@ -189,7 +189,7 @@ Also see https://github.com/magit/magit/issues/4132."
                               (fpr (epg-sub-key-fingerprint key))
                               (id  (epg-sub-key-id key))
                               (author
-                               (when-let ((id-obj
+                               (and-let* ((id-obj
                                            (car (epg-key-user-id-list cert))))
                                  (let ((id-str (epg-user-id-string id-obj)))
                                    (if (stringp id-str)

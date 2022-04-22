@@ -587,7 +587,7 @@ your mode instead of adding an entry to this variable.")
 (make-obsolete-variable 'magit-buffer-lock-functions nil "Magit 3.0.0")
 
 (cl-defgeneric magit-buffer-value ()
-  (when-let ((fn (cdr (assq major-mode magit-buffer-lock-functions))))
+  (and-let* ((fn (cdr (assq major-mode magit-buffer-lock-functions))))
     (funcall fn (with-no-warnings magit-refresh-args))))
 
 (defvar-local magit-previous-section nil)
@@ -1100,7 +1100,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                        (lambda (window)
                          (with-selected-window window
                            (with-current-buffer buffer
-                             (when-let ((section (magit-section-at)))
+                             (and-let* ((section (magit-section-at)))
                                `(( ,window
                                    ,section
                                    ,@(magit-refresh-get-relative-position)))))))
@@ -1136,26 +1136,26 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                                             magit-refresh-start-time)))))))
 
 (defun magit-refresh-get-relative-position ()
-  (when-let ((section (magit-current-section)))
-    (let ((start (oref section start))
-          (point (magit-point)))
-      (list (- (line-number-at-pos point)
-               (line-number-at-pos start))
-            (- point (line-beginning-position))
-            (and (magit-hunk-section-p section)
-                 (region-active-p)
-                 (progn (goto-char (line-beginning-position))
-                        (when  (looking-at "^[-+]") (forward-line))
-                        (while (looking-at "^[ @]") (forward-line))
-                        (let ((beg point))
-                          (cond ((looking-at "^[-+]")
-                                 (forward-line)
-                                 (while (looking-at "^[-+]") (forward-line))
-                                 (while (looking-at "^ ")    (forward-line))
-                                 (forward-line -1)
-                                 (regexp-quote (buffer-substring-no-properties
-                                                beg (line-end-position))))
-                                (t t)))))))))
+  (and-let* ((section (magit-current-section))
+             (start (oref section start))
+             (point (magit-point)))
+    (list (- (line-number-at-pos point)
+             (line-number-at-pos start))
+          (- point (line-beginning-position))
+          (and (magit-hunk-section-p section)
+               (region-active-p)
+               (progn (goto-char (line-beginning-position))
+                      (when  (looking-at "^[-+]") (forward-line))
+                      (while (looking-at "^[ @]") (forward-line))
+                      (let ((beg point))
+                        (cond ((looking-at "^[-+]")
+                               (forward-line)
+                               (while (looking-at "^[-+]") (forward-line))
+                               (while (looking-at "^ ")    (forward-line))
+                               (forward-line -1)
+                               (regexp-quote (buffer-substring-no-properties
+                                              beg (line-end-position))))
+                              (t t))))))))
 
 ;;; Save File-Visiting Buffers
 
@@ -1389,7 +1389,7 @@ Return a (KEY . VALUE) cons cell.
 The KEY is matched using `equal'.
 
 Unless specified, REPOSITORY is the current buffer's repository."
-  (when-let ((cache (assoc (or repository
+  (and-let* ((cache (assoc (or repository
                                (magit-repository-local-repository))
                            magit-repository-local-cache)))
     (assoc key (cdr cache))))
@@ -1491,7 +1491,7 @@ mentioned caches completely."
                                   (cdr magit--imenu-group-types)
                                   section))
                           (magit-section-match magit--imenu-group-types section))
-                        (when-let ((children (oref section children)))
+                        (and-let* ((children (oref section children)))
                           `((,(magit--imenu-index-name section)
                              ,@(mapcar (lambda (s)
                                          (cons (magit--imenu-index-name s)

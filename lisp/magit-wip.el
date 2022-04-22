@@ -369,7 +369,7 @@ commit message."
 (defun magit--wip-ref (namespace &optional ref)
   (concat magit-wip-namespace namespace
           (or (and ref (string-prefix-p "refs/" ref) ref)
-              (when-let ((branch (and (not (equal ref "HEAD"))
+              (and-let* ((branch (and (not (equal ref "HEAD"))
                                       (or ref (magit-get-current-branch)))))
                 (concat "refs/heads/" branch))
               "HEAD")))
@@ -436,7 +436,7 @@ many \"branches\" of each wip ref are shown."
                           args files))
 
 (defun magit-wip-log-get-tips (wipref count)
-  (when-let ((reflog (magit-git-lines "reflog" wipref)))
+  (and-let* ((reflog (magit-git-lines "reflog" wipref)))
     (let (tips)
       (while (and reflog (> count 1))
         ;; "start autosaving ..." is the current message, but it used

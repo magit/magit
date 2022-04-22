@@ -875,7 +875,7 @@ from the user."
                       magit-process-password-prompt-regexps string)))
     (process-send-string
      process (magit-process-kill-on-abort process
-               (concat (or (when-let ((key (match-string 99 string)))
+               (concat (or (and-let* ((key (match-string 99 string)))
                              (run-hook-with-args-until-success
                               'magit-process-find-password-functions key))
                            (read-passwd prompt))

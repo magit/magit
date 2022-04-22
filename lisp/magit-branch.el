@@ -873,10 +873,10 @@ and also rename the respective reflog file."
 (cl-defmethod transient-infix-set ((obj magit--git-branch:upstream) refname)
   (magit-set-upstream-branch (oref transient--prefix scope) refname)
   (oset obj value
-        (let ((branch (oref transient--prefix scope)))
-          (when-let ((r (magit-get "branch" branch "remote"))
-                     (m (magit-get "branch" branch "merge")))
-            (list r m))))
+        (and-let* ((branch (oref transient--prefix scope))
+                   (r (magit-get "branch" branch "remote"))
+                   (m (magit-get "branch" branch "merge")))
+          (list r m)))
   (magit-refresh))
 
 (cl-defmethod transient-format ((obj magit--git-branch:upstream))

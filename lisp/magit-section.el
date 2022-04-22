@@ -478,7 +478,7 @@ the click occured.  Otherwise return the section at point."
 The return value has the form ((TYPE . VALUE)...)."
   (cons (cons (oref section type)
               (magit-section-ident-value section))
-        (when-let ((parent (oref section parent)))
+        (and-let* ((parent (oref section parent)))
           (magit-section-ident parent))))
 
 (cl-defgeneric magit-section-ident-value (object)
@@ -532,7 +532,7 @@ instead of in the one whose root `magit-root-section' is."
   "Return the lineage of SECTION.
 The return value has the form (TYPE...)."
   (cons (oref section type)
-        (when-let ((parent (oref section parent)))
+        (and-let* ((parent (oref section parent)))
           (magit-section-lineage parent))))
 
 (defvar magit-insert-section--current nil "For internal use only.")
@@ -995,8 +995,8 @@ hidden."
 When the body of an ancestor of SECTION is collapsed then
 SECTION's body (and heading) obviously cannot be visible."
   (or (oref section hidden)
-      (--when-let (oref section parent)
-        (magit-section-invisible-p it))))
+      (and-let* ((parent (oref section parent)))
+        (magit-section-invisible-p parent))))
 
 (defun magit-section-show-level (level)
   "Show surrounding sections up to LEVEL.
@@ -1093,12 +1093,12 @@ section lineage.  This command is intended for debugging purposes."
                      (if ident
                          (magit-section-ident section)
                        (apply #'vector (magit-section-lineage section)))
-                     (when-let ((m (oref section start)))
+                     (and-let* ((m (oref section start)))
                        (marker-position m))
                      (if-let ((m (oref section content)))
                          (format "[%s-]" (marker-position m))
                        "")
-                     (when-let ((m (oref section end)))
+                     (and-let* ((m (oref section end)))
                        (marker-position m)))))
     (if (called-interactively-p 'any)
         (message "%s" str)
@@ -1198,7 +1198,7 @@ of course you want to be that precise."
 (defun magit-section-match-2 (condition section)
   (if (eq (car condition) '*)
       (or (magit-section-match-2 (cdr condition) section)
-          (when-let ((parent (oref section parent)))
+          (and-let* ((parent (oref section parent)))
             (magit-section-match-2 condition parent)))
     (and (let ((c (car condition)))
            (if (class-p c)
@@ -1207,7 +1207,7 @@ of course you want to be that precise."
                  (cl-typep section class)
                (eq (oref section type) c))))
          (or (not (setq condition (cdr condition)))
-             (when-let ((parent (oref section parent)))
+             (and-let* ((parent (oref section parent)))
                (magit-section-match-2 condition parent))))))
 
 (defun magit-section-value-if (condition &optional section)
@@ -1219,7 +1219,7 @@ then return nil.  If the section does not match, then return
 nil.
 
 See `magit-section-match' for the forms CONDITION can take."
-  (when-let ((section (or section (magit-current-section))))
+  (and-let* ((section (or section (magit-current-section))))
     (and (magit-section-match condition section)
          (oref section value))))
 
@@ -1702,19 +1702,19 @@ invisible."
                        (point-min)))))))
 
 (defun magit-section-goto-successor-1 (section)
-  (or (--when-let (pcase (oref section type)
-                    (`staged 'unstaged)
-                    (`unstaged 'staged)
-                    (`unpushed 'unpulled)
-                    (`unpulled 'unpushed))
-        (magit-get-section `((,it) (status))))
-      (--when-let (car (magit-section-siblings section 'next))
-        (magit-get-section (magit-section-ident it)))
-      (--when-let (car (magit-section-siblings section 'prev))
-        (magit-get-section (magit-section-ident it)))
-      (--when-let (oref section parent)
-        (or (magit-get-section (magit-section-ident it))
-            (magit-section-goto-successor-1 it)))))
+  (or (and-let* ((alt (pcase (oref section type)
+                        (`staged 'unstaged)
+                        (`unstaged 'staged)
+                        (`unpushed 'unpulled)
+                        (`unpulled 'unpushed))))
+        (magit-get-section `((,alt) (status))))
+      (and-let* ((next (car (magit-section-siblings section 'next))))
+        (magit-get-section (magit-section-ident next)))
+      (and-let* ((prev (car (magit-section-siblings section 'prev))))
+        (magit-get-section (magit-section-ident prev)))
+      (and-let* ((parent (oref section parent)))
+        (or (magit-get-section (magit-section-ident parent))
+            (magit-section-goto-successor-1 parent)))))
 
 ;;; Region
 
@@ -1890,11 +1890,11 @@ invisible."
             (memq section (if sselection
                               selection
                             (setq selection (magit-region-sections))))
-            (--when-let (oref section parent)
-              (magit-section-selected-p it selection)))))
+            (and-let* ((parent (oref section parent)))
+              (magit-section-selected-p parent selection)))))
 
 (defun magit-section-parent-value (section)
-  (when-let ((parent (oref section parent)))
+  (and-let* ((parent (oref section parent)))
     (oref parent value)))
 
 (defun magit-section-siblings (section &optional direction)
@@ -1904,12 +1904,12 @@ If optional DIRECTION is `prev', then return siblings that come
 before SECTION.  If it is `next', then return siblings that come
 after SECTION.  For all other values, return all siblings
 excluding SECTION itself."
-  (when-let ((parent (oref section parent)))
-    (let ((siblings (oref parent children)))
-      (pcase direction
-        (`prev  (cdr (member section (reverse siblings))))
-        (`next  (cdr (member section siblings)))
-        (_      (remq section siblings))))))
+  (and-let* ((parent (oref section parent))
+             (siblings (oref parent children)))
+    (pcase direction
+      (`prev  (cdr (member section (reverse siblings))))
+      (`next  (cdr (member section siblings)))
+      (_      (remq section siblings)))))
 
 (defun magit-region-values (&optional condition multiple)
   "Return a list of the values of the selected sections.

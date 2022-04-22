@@ -146,7 +146,7 @@ then also remove the respective remote branch."
                   (or (magit-get-current-branch)
                       (magit-rev-parse "HEAD")))
           nil
-          (when-let ((upstream (magit-get-upstream-branch))
+          (and-let* ((upstream (magit-get-upstream-branch))
                      (upstream (cdr (magit-split-branch-name upstream))))
             (and (magit-branch-p upstream) upstream)))
          (magit-merge-arguments)))

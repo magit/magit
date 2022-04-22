@@ -167,16 +167,16 @@ Also see `magit-notes-merge'."
 ;;; Readers
 
 (defun magit-notes-read-ref (prompt _initial-input history)
-  (--when-let (magit-completing-read
-               prompt (magit-list-notes-refnames) nil nil
-               (--when-let (magit-get "core.notesRef")
-                 (if (string-prefix-p "refs/notes/" it)
-                     (substring it 11)
-                   it))
-               history)
-    (if (string-prefix-p "refs/" it)
-        it
-      (concat "refs/notes/" it))))
+  (and-let* ((ref (magit-completing-read
+                   prompt (magit-list-notes-refnames) nil nil
+                   (and-let* ((def (magit-get "core.notesRef")))
+                     (if (string-prefix-p "refs/notes/" def)
+                         (substring def 11)
+                       def))
+                   history)))
+    (if (string-prefix-p "refs/" ref)
+        ref
+      (concat "refs/notes/" ref))))
 
 (defun magit-notes-read-refs (prompt &optional _initial-input _history)
   (mapcar (lambda (ref)
@@ -195,9 +195,9 @@ Also see `magit-notes-merge'."
 
 (defun magit-notes-read-args (prompt)
   (list (magit-read-branch-or-commit prompt (magit-stash-at-point))
-        (--when-let (--first (string-match "^--ref=\\(.+\\)" it)
-                             (transient-args 'magit-notes))
-          (match-string 1 it))))
+        (and-let* ((str (--first (string-match "^--ref=\\(.+\\)" it)
+                                 (transient-args 'magit-notes))))
+          (match-string 1 str))))
 
 ;;; _
 (provide 'magit-notes)

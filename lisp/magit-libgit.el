@@ -61,7 +61,7 @@
 (defun magit-libgit-repo (&optional directory)
   "Return an object for the repository in DIRECTORY.
 If optional DIRECTORY is nil, then use `default-directory'."
-  (when-let ((default-directory
+  (and-let* ((default-directory
               (let ((magit-inhibit-libgit t))
                 (magit-gitdir directory))))
     (magit--with-refresh-cache

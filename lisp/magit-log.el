@@ -612,7 +612,7 @@ the upstream isn't ahead of the current branch) show."
     map))
 
 (defun magit-log-read-revs (&optional use-current)
-  (or (and use-current (--when-let (magit-get-current-branch) (list it)))
+  (or (and use-current (and-let* ((buf (magit-get-current-branch))) (list buf)))
       (let ((crm-separator "\\(\\.\\.\\.?\\|[, ]\\)")
             (crm-local-completion-map magit-log-read-revs-map))
         (split-string (magit-completing-read-multiple*
@@ -882,9 +882,9 @@ limit.  Otherwise set it to 256."
   (magit-refresh))
 
 (defun magit-log-get-commit-limit ()
-  (--when-let (--first (string-match "^-n\\([0-9]+\\)?$" it)
-                       magit-buffer-log-args)
-    (string-to-number (match-string 1 it))))
+  (and-let* ((str (--first (string-match "^-n\\([0-9]+\\)?$" it)
+                           magit-buffer-log-args)))
+    (string-to-number (match-string 1 str))))
 
 ;;;; Mode Commands
 
@@ -936,7 +936,7 @@ of the current repository first; creating it if necessary."
   (with-current-buffer
       (cond ((derived-mode-p 'magit-log-mode)
              (current-buffer))
-            ((when-let ((buf (magit-get-mode-buffer 'magit-log-mode)))
+            ((and-let* ((buf (magit-get-mode-buffer 'magit-log-mode)))
                (pop-to-buffer-same-window buf)))
             (t
              (apply #'magit-log-all-branches (magit-log-arguments))))

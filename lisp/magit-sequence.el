@@ -616,7 +616,7 @@ the upstream."
     (magit-git-rebase upstream args)))
 
 (defun magit-rebase--upstream-description ()
-  (when-let ((branch (magit-get-current-branch)))
+  (and-let* ((branch (magit-get-current-branch)))
     (or (magit-get-upstream-branch branch)
         (let ((remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge"))
@@ -999,8 +999,8 @@ status buffer (i.e. the reverse of how they will be applied)."
   (magit-sequence-insert-sequence
    (magit-file-line (magit-git-dir "rebase-merge/stopped-sha"))
    onto
-   (--when-let (magit-file-lines (magit-git-dir "rebase-merge/done"))
-     (cadr (split-string (car (last it)))))))
+   (and-let* ((lines (magit-file-lines (magit-git-dir "rebase-merge/done"))))
+     (cadr (split-string (car (last lines)))))))
 
 (defun magit-rebase-insert-apply-sequence (onto)
   (let ((rewritten

@@ -121,7 +121,7 @@ Rules that are defined in that file affect all local repositories."
           (delete-dups
            (--mapcat
             (cons (concat "/" it)
-                  (when-let ((ext (file-name-extension it)))
+                  (and-let* ((ext (file-name-extension it)))
                     (list (concat "/" (file-name-directory it) "*." ext)
                           (concat "*." ext))))
             (sort (nconc

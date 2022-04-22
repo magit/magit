@@ -1346,7 +1346,7 @@ for a revision."
               (magit-diff--goto-position file line col))))))))
 
 (defun magit-diff--locate-hunk (file line &optional parent)
-  (when-let ((diff (cl-find-if (lambda (section)
+  (and-let* ((diff (cl-find-if (lambda (section)
                                  (and (cl-typep section 'magit-file-section)
                                       (equal (oref section value) file)))
                                (oref (or parent magit-root-section) children))))
@@ -2116,7 +2116,7 @@ keymap is the parent of their keymaps.")
 
 (defun magit-diff-use-window-width-as-stat-width ()
   "Use the `window-width' as the value of `--stat-width'."
-  (when-let ((window (get-buffer-window (current-buffer) 'visible)))
+  (and-let* ((window (get-buffer-window (current-buffer) 'visible)))
     (list (format "--stat-width=%d" (window-width window)))))
 
 (defun magit-diff-wash-diffs (args &optional limit)
@@ -3390,7 +3390,7 @@ last (visual) lines of the region."
 (defun magit-diff-inside-hunk-body-p ()
   "Return non-nil if point is inside the body of a hunk."
   (and (magit-section-match 'hunk)
-       (when-let ((content (oref (magit-current-section) content)))
+       (and-let* ((content (oref (magit-current-section) content)))
          (> (magit-point) content))))
 
 ;;; Diff Extract

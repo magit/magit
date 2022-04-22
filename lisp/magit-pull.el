@@ -136,7 +136,7 @@ the upstream."
     (magit-run-git-with-editor "pull" args remote merge)))
 
 (defun magit-pull--upstream-description ()
-  (when-let ((branch (magit-get-current-branch)))
+  (and-let* ((branch (magit-get-current-branch)))
     (or (magit-get-upstream-branch branch)
         (let ((remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge"))

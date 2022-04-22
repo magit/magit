@@ -318,7 +318,7 @@ instance with all nil values is returned."
                              git-rebase-line-regexps)))
         (git-rebase-action
          :action-type    type
-         :action         (when-let ((action (match-string-no-properties 1)))
+         :action         (and-let* ((action (match-string-no-properties 1)))
                            (or (cdr (assoc action git-rebase-short-options))
                                action))
          :action-options (match-string-no-properties 2)
