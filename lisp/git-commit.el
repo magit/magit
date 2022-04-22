@@ -1,34 +1,40 @@
-;;; git-commit.el --- Edit Git commit messages  -*- lexical-binding: t; -*-
+;;; git-commit.el --- Edit Git commit messages  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2010-2022  The Magit Project Contributors
-;;
-;; You should have received a copy of the AUTHORS.md file which
-;; lists all contributors.  If not, see http://magit.vc/authors.
+;; Copyright (C) 2008-2022 The Magit Project Contributors
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
-;;      Sebastian Wiesner <lunaryorn@gmail.com>
-;;      Florian Ragwitz <rafl@debian.org>
-;;      Marius Vollmer <marius.vollmer@gmail.com>
+;;     Sebastian Wiesner <lunaryorn@gmail.com>
+;;     Florian Ragwitz <rafl@debian.org>
+;;     Marius Vollmer <marius.vollmer@gmail.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
-;; Package-Requires: ((emacs "25.1") (compat "28.1.0.4") (transient "0.3.6") (with-editor "3.0.5"))
+;; Keywords: git tools vc
+
 ;; Package-Version: 3.3.0-git
+;; Package-Requires: (
+;;     (emacs "25.1")
+;;     (compat "28.1.0.4")
+;;     (transient "0.3.6")
+;;     (with-editor "3.0.5"))
+
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
-;; This file is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
+;; Magit is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published
+;; by the Free Software Foundation, either version 3 of the License,
+;; or (at your option) any later version.
 ;;
-;; This file is distributed in the hope that it will be useful,
+;; Magit is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this file.  If not, see <http://www.gnu.org/licenses/>.
+;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
+
+;; You should have received a copy of the AUTHORS.md file, which
+;; lists all contributors.  If not, see https://magit.vc/authors.
 
 ;;; Commentary:
 
