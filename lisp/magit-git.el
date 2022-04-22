@@ -2117,8 +2117,7 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-format-rev-summary (rev)
   (--when-let (magit-rev-format "%h %s" rev)
-    (string-match " " it)
-    (magit--put-face 0 (match-beginning 0) 'magit-hash it)
+    (magit--put-face 0 (string-match " " it) 'magit-hash it)
     it))
 
 (defvar magit-ref-namespaces
