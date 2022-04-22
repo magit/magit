@@ -1036,7 +1036,9 @@ and https://github.com/magit/magit/issues/2295."
   (and (file-directory-p filename)
        (file-accessible-directory-p filename)))
 
-(when (magit--version>= emacs-version "25.1")
+(when (< emacs-major-version 27)
+  ;; Work around https://debbugs.gnu.org/cgi/bugreport.cgi?bug=21559.
+  ;; Fixed by cb55ccae8be946f1562d74718086a4c8c8308ee5 in Emacs 27.1.
   (with-eval-after-load 'vc-git
     (defun vc-git-conflicted-files (directory)
       "Return the list of files with conflicts in DIRECTORY."
