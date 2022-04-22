@@ -82,7 +82,7 @@ versionlib: $(PKG)-version.el
 	-f batch-byte-compile $<
 
 $(PKG)-autoloads.el: $(ELS)
-	@printf "Generating $@\n"
+	@printf " Creating $@\n"
 	@printf "%s" "$$LOADDEFS_TMPL" > $@
 	@$(BATCH) --eval "(progn\
 	(fset 'message (lambda (&rest _)))\
@@ -94,7 +94,7 @@ $(PKG)-autoloads.el: $(ELS)
 	(update-directory-autoloads default-directory))"
 
 $(PKG)-version.el:
-	@printf "Generating $@\n"
+	@printf " Creating $@\n"
 	@printf "%s" "$$VERSIONLIB_TMPL" > $@
 
 check-declare:
@@ -111,7 +111,7 @@ install: lisp versionlib
 ## Clean #############################################################
 
 clean:
-	@printf "Cleaning lisp/*...\n"
+	@printf " Cleaning lisp/*...\n"
 	@$(RM) *.elc $(ELGS)
 
 ## Templates #########################################################

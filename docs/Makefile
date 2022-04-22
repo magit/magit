@@ -77,7 +77,7 @@ install-info: info
 ## Clean #############################################################
 
 clean:
-	@printf "Cleaning docs/*...\n"
+	@printf " Cleaning docs/*...\n"
 	@$(RMDIR) dir $(INFOPAGES) $(HTMLFILES) $(HTMLDIRS) $(PDFFILES)
 	@$(RMDIR) $(EPUBFILES) $(EPUBTRASH)
 	@$(RMDIR) $(GENSTATS_DIR)
