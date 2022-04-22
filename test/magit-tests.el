@@ -1,4 +1,4 @@
-;;; magit-tests.el --- Tests for Magit
+;;; magit-tests.el --- Tests for Magit  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2008-2022 The Magit Project Contributors
 
