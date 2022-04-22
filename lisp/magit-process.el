@@ -40,9 +40,6 @@
 (require 'ansi-color)
 (require 'with-editor)
 
-(declare-function auth-source-search "auth-source"
-                  (&rest spec &key max require create delete &allow-other-keys))
-
 ;;; Options
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
@@ -838,7 +835,8 @@ be translated on the fly by doing this once
 
 [1]: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token."
   (require 'auth-source)
-  (and (string-match "\\`\\(.+\\)@\\([^@]+\\)\\'" key)
+  (and (fboundp 'auth-source-search)
+       (string-match "\\`\\(.+\\)@\\([^@]+\\)\\'" key)
        (let* ((user (match-string 1 key))
               (host (match-string 2 key))
               (secret

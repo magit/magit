@@ -31,12 +31,11 @@
 
 (require 'magit)
 
-(declare-function change-log-insert-entries "add-log" (changelogs))
-(declare-function diff-add-log-current-defuns "diff-mode" ())
+;; For `magit-do-async-shell-command'.
 (declare-function dired-read-shell-command "dired-aux" (prompt arg files))
 ;; For `magit-project-status'.
-(declare-function project-root "project" (project))
-(declare-function vc-git-command "vc-git" (buffer okstatus file-or-list &rest flags))
+(declare-function vc-git-command "vc-git"
+                  (buffer okstatus file-or-list &rest flags))
 
 (defvar ido-exit)
 (defvar ido-fallback)
@@ -226,7 +225,9 @@ like pretty much every other keymap:
 (defun magit-project-status ()
   "Run `magit-status' in the current project's root."
   (interactive)
-  (magit-status-setup-buffer (project-root (project-current t))))
+  (if (fboundp 'project-root)
+      (magit-status-setup-buffer (project-root (project-current t)))
+    (user-error "`magit-project-status' requires `project' 0.3.0 or greater")))
 
 (defvar magit-bind-magit-project-status t
   "Whether to bind \"m\" to `magit-project-status' in `project-prefix-map'.
@@ -390,31 +391,32 @@ in HEAD as well as staged changes in the diff to check."
   (require 'diff-mode) ; `diff-add-log-current-defuns'.
   (require 'vc-git)    ; `vc-git-diff'.
   (require 'add-log)   ; `change-log-insert-entries'.
-  (unless (and (fboundp 'change-log-insert-entries)
-               (fboundp 'diff-add-log-current-defuns))
-    (user-error "`magit-generate-changelog' requires Emacs 27 or greater"))
-  (setq default-directory
-        (if (and (file-regular-p "gitdir")
-                 (not (magit-git-true "rev-parse" "--is-inside-work-tree"))
-                 (magit-git-true "rev-parse" "--is-inside-git-dir"))
-            (file-name-directory (magit-file-line "gitdir"))
-          (magit-toplevel)))
-  (let ((rev1 (if amending "HEAD^1" "HEAD"))
-        (rev2 nil))
-    ;; Magit may have updated the files without notifying vc, but
-    ;; `diff-add-log-current-defuns' relies on vc being up-to-date.
-    (mapc #'vc-file-clearprops (magit-staged-files))
-    (change-log-insert-entries
-     (with-temp-buffer
-       (vc-git-command (current-buffer) 1 nil
-                       "diff-index" "--exit-code" "--patch"
-                       (and (magit-anything-staged-p) "--cached")
-                       rev1 "--")
-       ;; `diff-find-source-location' consults these vars.
-       (defvar diff-vc-revisions)
-       (setq-local diff-vc-revisions (list rev1 rev2))
-       (setq-local diff-vc-backend 'Git)
-       (diff-add-log-current-defuns)))))
+  (cond
+   ((and (fboundp 'change-log-insert-entries)
+         (fboundp 'diff-add-log-current-defuns))
+    (setq default-directory
+          (if (and (file-regular-p "gitdir")
+                   (not (magit-git-true "rev-parse" "--is-inside-work-tree"))
+                   (magit-git-true "rev-parse" "--is-inside-git-dir"))
+              (file-name-directory (magit-file-line "gitdir"))
+            (magit-toplevel)))
+    (let ((rev1 (if amending "HEAD^1" "HEAD"))
+          (rev2 nil))
+      ;; Magit may have updated the files without notifying vc, but
+      ;; `diff-add-log-current-defuns' relies on vc being up-to-date.
+      (mapc #'vc-file-clearprops (magit-staged-files))
+      (change-log-insert-entries
+       (with-temp-buffer
+         (vc-git-command (current-buffer) 1 nil
+                         "diff-index" "--exit-code" "--patch"
+                         (and (magit-anything-staged-p) "--cached")
+                         rev1 "--")
+         ;; `diff-find-source-location' consults these vars.
+         (defvar diff-vc-revisions)
+         (setq-local diff-vc-revisions (list rev1 rev2))
+         (setq-local diff-vc-backend 'Git)
+         (diff-add-log-current-defuns)))))
+   (t (user-error "`magit-generate-changelog' requires Emacs 27 or greater"))))
 
 ;;;###autoload
 (defun magit-add-change-log-entry (&optional whoami file-name other-window)

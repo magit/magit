@@ -41,8 +41,6 @@
 ;; For `magit-diff-popup'
 (declare-function magit-stash-show "magit-stash" (stash &optional args files))
 ;; For `magit-diff-visit-file'
-(declare-function dired-jump "dired" ; dired-x before 27.1
-                  (&optional other-window file-name))
 (declare-function magit-find-file-noselect "magit-files" (rev file))
 (declare-function magit-status-setup-buffer "magit-status" (&optional directory))
 ;; For `magit-diff-while-committing'
