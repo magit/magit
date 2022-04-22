@@ -521,7 +521,7 @@ instead."
       (puthash (car a) (cons (cdr a) (gethash (car a) dict)) dict))
     (maphash
      (lambda (key value)
-       (if (= (length value) 1)
+       (if (length= value 1)
            (push (cons key (car value)) result)
          (setq result
                (append result

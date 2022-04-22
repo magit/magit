@@ -2435,7 +2435,7 @@ section or a child thereof."
                                        (split-string (substring str 1) ",")))
                              (split-string (match-string 1))))
            (about    (match-string 2))
-           (combined (= (length ranges) 3))
+           (combined (length= ranges 3))
            (value    (cons about ranges)))
       (magit-delete-line)
       (magit-insert-section section (hunk value)

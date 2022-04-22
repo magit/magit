@@ -161,7 +161,7 @@ then show it in Dired instead."
   "Insert sections for all worktrees.
 If there is only one worktree, then insert nothing."
   (let ((worktrees (magit-list-worktrees)))
-    (when (> (length worktrees) 1)
+    (when (length> worktrees 1)
       (magit-insert-section (worktrees)
         (magit-insert-heading "Worktrees:")
         (let* ((cols

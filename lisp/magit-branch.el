@@ -554,7 +554,7 @@ defaulting to the branch at point."
   (interactive
    (let ((branches (magit-region-values 'branch t))
          (force current-prefix-arg))
-     (if (> (length branches) 1)
+     (if (length> branches 1)
          (magit-confirm t nil "Delete %i branches" nil branches)
        (setq branches
              (list (magit-read-branch-prefer-other
@@ -612,7 +612,7 @@ defaulting to the branch at point."
                      (magit-rev-parse "--short" ref))
             (magit-call-git "update-ref" "-d" ref))
           (magit-refresh)))))
-     ((> (length branches) 1)
+     ((length> branches 1)
       (setq branches (delete (magit-get-current-branch) branches))
       (mapc #'magit-branch-maybe-delete-pr-remote branches)
       (mapc #'magit-branch-unset-pushRemote branches)
@@ -673,7 +673,7 @@ defaulting to the branch at point."
                         (format "+refs/heads/%s:refs/remotes/%s/%s"
                                 merge remote merge))))))
           (when (member refspec refspecs)
-            (if (and (= (length refspecs) 1)
+            (if (and (length= refspecs 1)
                      (magit-confirm 'delete-pr-remote
                        (format "Also delete remote %s (%s)" remote
                                "no pull-request branch remains")

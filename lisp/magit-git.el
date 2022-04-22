@@ -1199,7 +1199,7 @@ Sorted from longest to shortest CYGWIN name."
 
 (defun magit-merge-commit-p (commit)
   "Return t if COMMIT is a merge commit."
-  (> (length (magit-commit-parents commit)) 1))
+  (length> (magit-commit-parents commit) 1))
 
 (defun magit-anything-staged-p (&optional ignore-submodules &rest files)
   "Return t if there are any staged changes.
@@ -1648,7 +1648,7 @@ according to the branch type."
 (defun magit-get-current-remote (&optional allow-unnamed)
   (or (magit-get-upstream-remote nil allow-unnamed)
       (and-let* ((remotes (magit-list-remotes))
-                 (remote (if (= (length remotes) 1)
+                 (remote (if (length= remotes 1)
                              (car remotes)
                            (magit-primary-remote))))
         (magit--propertize-face remote 'magit-branch-remote))))
@@ -2580,7 +2580,7 @@ out.  Only existing branches can be selected."
 
 (defun magit-read-remote (prompt &optional default use-only)
   (let ((remotes (magit-list-remotes)))
-    (if (and use-only (= (length remotes) 1))
+    (if (and use-only (length= remotes 1))
         (car remotes)
       (magit-completing-read prompt remotes
                              nil t nil nil
@@ -2619,7 +2619,7 @@ out.  Only existing branches can be selected."
           (setq modules (-filter predicate modules)))
         (unless modules
           (user-error "No modules satisfying %s selected" predicate))))
-    (if (> (length modules) 1)
+    (if (length> modules 1)
         (magit-confirm t nil (format "%s %%i modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
 

@@ -1051,7 +1051,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         (files magit-buffer-log-files))
     (magit-set-header-line-format
      (funcall magit-log-header-line-function revs args files))
-    (unless (= (length files) 1)
+    (unless (length= files 1)
       (setq args (remove "--follow" args)))
     (when (and (car magit-log-remove-graph-args)
                (--any-p (string-match-p
@@ -1062,7 +1062,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (setq args (remove "--color" args)))
     (when-let* ((limit (magit-log-get-commit-limit))
                 (limit (* 2 limit)) ; increase odds for complete graph
-                (count (and (= (length revs) 1)
+                (count (and (length= revs 1)
                             (> limit 1024) ; otherwise it's fast enough
                             (setq revs (car revs))
                             (not (string-search ".." revs))

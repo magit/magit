@@ -159,7 +159,7 @@ conflicts, including those already resolved by Git, use
 
 (defmacro magit-ediff-buffers (quit &rest spec)
   (declare (indent 1))
-  (let ((fn (if (= (length spec) 3) 'ediff-buffers3 'ediff-buffers))
+  (let ((fn (if (length= spec 3) 'ediff-buffers3 'ediff-buffers))
         (char ?@)
         get make kill)
     (pcase-dolist (`(,g ,m) spec)

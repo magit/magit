@@ -655,7 +655,7 @@ of a side, then keep that side without prompting."
           (setq sections
                 (--remove (member (oref it value) binaries)
                           sections)))
-        (cond ((= (length sections) 1)
+        (cond ((length= sections 1)
                (magit-discard-apply (car sections) 'magit-apply-diff))
               (sections
                (magit-discard-apply-n sections #'magit-apply-diffs)))
@@ -718,7 +718,7 @@ so causes the change to be applied to the index as well."
                  (--separate (member (oref it value) bs)
                              sections))))
     (magit-confirm-files 'reverse (--map (oref it value) sections))
-    (cond ((= (length sections) 1)
+    (cond ((length= sections 1)
            (magit-reverse-apply (car sections) #'magit-apply-diff args))
           (sections
            (magit-reverse-apply sections #'magit-apply-diffs args)))

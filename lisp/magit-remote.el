@@ -205,7 +205,7 @@ the now stale refspecs.  Other stale branches are not removed."
                 (magit-call-git "remote" "rm" remote))
             (?a "or [a]abort"
                 (user-error "Abort")))
-        (if (if (= (length stale) 1)
+        (if (if (length= stale 1)
                 (pcase-let ((`(,refspec . ,refs) (car stale)))
                   (magit-confirm 'prune-stale-refspecs
                     (format "Prune stale refspec %s and branch %%s" refspec)
@@ -268,7 +268,7 @@ refspec."
                          (magit-read-remote "Delete remote"))))
   (let ((refspecs (magit-get-all "remote" remote "fetch"))
         (standard (format "+refs/heads/*:refs/remotes/%s/*" remote)))
-    (when (and (= (length refspecs) 1)
+    (when (and (length= refspecs 1)
                (not (string-search "*" (car refspecs)))
                (yes-or-no-p (format "Also replace refspec %s with %s? "
                                     (car refspecs)
