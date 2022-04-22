@@ -523,9 +523,9 @@ the upstream isn't ahead of the current branch) show."
   (cond
    ((not (eq transient-current-command 'magit-log-refresh))
     (pcase major-mode
-      (`magit-reflog-mode
+      ('magit-reflog-mode
        (user-error "Cannot change log arguments in reflog buffers"))
-      (`magit-cherry-mode
+      ('magit-cherry-mode
        (user-error "Cannot change log arguments in cherry buffers")))
     (transient-setup 'magit-log-refresh))
    (t
@@ -1264,13 +1264,13 @@ Do not add this to a hook variable."
   (when (derived-mode-p 'magit-log-mode 'magit-reflog-mode)
     (cl-incf magit-log-count))
   (looking-at (pcase style
-                (`log        magit-log-heading-re)
-                (`cherry     magit-log-cherry-re)
-                (`module     magit-log-module-re)
-                (`reflog     magit-log-reflog-re)
-                (`stash      magit-log-stash-re)
-                (`bisect-vis magit-log-bisect-vis-re)
-                (`bisect-log magit-log-bisect-log-re)))
+                ('log        magit-log-heading-re)
+                ('cherry     magit-log-cherry-re)
+                ('module     magit-log-module-re)
+                ('reflog     magit-log-reflog-re)
+                ('stash      magit-log-stash-re)
+                ('bisect-vis magit-log-bisect-vis-re)
+                ('bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry _ refsub side) nil
     (setq msg (substring-no-properties msg))
@@ -1289,9 +1289,9 @@ Do not add this to a hook variable."
         (cl-return-from magit-log-wash-rev t))
       (magit-insert-section section (commit hash)
         (pcase style
-          (`stash      (oset section type 'stash))
-          (`module     (oset section type 'module-commit))
-          (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
+          ('stash      (oset section type 'stash))
+          ('module     (oset section type 'module-commit))
+          ('bisect-log (setq hash (magit-rev-parse "--short" hash))))
         (setq hash (propertize hash 'font-lock-face
                                (pcase (and gpg (aref gpg 0))
                                  (?G 'magit-signature-good)

@@ -879,10 +879,10 @@ If a frame, then only consider buffers on that frame."
                  (f (frame)
                    (seq-some #'w (window-list frame 'no-minibuf))))
         (pcase-exhaustive frame
-          (`nil                   (seq-some #'b (buffer-list)))
-          (`all                   (seq-some #'f (frame-list)))
-          (`visible               (seq-some #'f (visible-frame-list)))
-          ((or `selected `t)      (seq-some #'w (window-list (selected-frame))))
+          ('nil                   (seq-some #'b (buffer-list)))
+          ('all                   (seq-some #'f (frame-list)))
+          ('visible               (seq-some #'f (visible-frame-list)))
+          ((or 'selected 't)      (seq-some #'w (window-list (selected-frame))))
           ((guard (framep frame)) (seq-some #'w (window-list frame)))))
     (magit--not-inside-repository-error)))
 

@@ -646,8 +646,8 @@ Like `undo' but works in read-only buffers."
                   (and (eq action-type 'commit)
                        target))
           (pcase scroll
-            (`up   (magit-diff-show-or-scroll-up))
-            (`down (magit-diff-show-or-scroll-down))
+            ('up   (magit-diff-show-or-scroll-up))
+            ('down (magit-diff-show-or-scroll-down))
             (_     (apply #'magit-show-commit it
                           (magit-diff-arguments 'magit-revision-mode))))
         (ding)))))

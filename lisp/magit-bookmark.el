@@ -119,10 +119,10 @@ with the variables' values as arguments, which were recorded by
 (cl-defmethod magit-bookmark-name (&context (major-mode magit-diff-mode))
   (format "magit-diff(%s%s)"
           (pcase (magit-diff-type)
-            (`staged "staged")
-            (`unstaged "unstaged")
-            (`committed magit-buffer-range)
-            (`undefined
+            ('staged "staged")
+            ('unstaged "unstaged")
+            ('committed magit-buffer-range)
+            ('undefined
              (delq nil (list magit-buffer-typearg magit-buffer-range-hashed))))
           (if magit-buffer-diff-files
               (concat " -- " (mapconcat #'identity magit-buffer-diff-files " "))

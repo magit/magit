@@ -114,7 +114,7 @@ has to be used to view and change remote related variables."
   (if (pcase (list magit-remote-add-set-remote.pushDefault
                    (magit-get "remote.pushDefault"))
         (`(,(pred stringp) ,_) t)
-        ((or `(ask ,_) `(ask-if-unset nil))
+        ((or `(ask ,_) '(ask-if-unset nil))
          (y-or-n-p (format "Set `remote.pushDefault' to \"%s\"? " remote))))
       (progn (magit-call-git "remote" "add" args remote url)
              (setf (magit-get "remote.pushDefault") remote)

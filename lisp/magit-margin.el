@@ -88,8 +88,8 @@ does not carry to other options."
   ;; This is only suitable for commit margins (there are not others).
   (setf (cadr magit-buffer-margin)
         (pcase (cadr magit-buffer-margin)
-          (`age 'age-abbreviated)
-          (`age-abbreviated
+          ('age 'age-abbreviated)
+          ('age-abbreviated
            (let ((default (or magit-margin-default-time-format
                               (cadr (symbol-value (magit-margin-option))))))
              (if (stringp default) default "%Y-%m-%d %H:%M ")))
@@ -112,14 +112,14 @@ does not carry to other options."
 
 (defun magit-margin-option ()
   (pcase major-mode
-    (`magit-cherry-mode     'magit-cherry-margin)
-    (`magit-log-mode        'magit-log-margin)
-    (`magit-log-select-mode 'magit-log-select-margin)
-    (`magit-reflog-mode     'magit-reflog-margin)
-    (`magit-refs-mode       'magit-refs-margin)
-    (`magit-stashes-mode    'magit-stashes-margin)
-    (`magit-status-mode     'magit-status-margin)
-    (`forge-notifications-mode 'magit-status-margin)))
+    ('magit-cherry-mode     'magit-cherry-margin)
+    ('magit-log-mode        'magit-log-margin)
+    ('magit-log-select-mode 'magit-log-select-margin)
+    ('magit-reflog-mode     'magit-reflog-margin)
+    ('magit-refs-mode       'magit-refs-margin)
+    ('magit-stashes-mode    'magit-stashes-margin)
+    ('magit-status-mode     'magit-status-margin)
+    ('forge-notifications-mode 'magit-status-margin)))
 
 (defun magit-set-buffer-margin (&optional reset refresh)
   (when-let ((option (magit-margin-option)))

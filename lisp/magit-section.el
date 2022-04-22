@@ -1703,10 +1703,10 @@ invisible."
 
 (defun magit-section-goto-successor-1 (section)
   (or (and-let* ((alt (pcase (oref section type)
-                        (`staged 'unstaged)
-                        (`unstaged 'staged)
-                        (`unpushed 'unpulled)
-                        (`unpulled 'unpushed))))
+                        ('staged 'unstaged)
+                        ('unstaged 'staged)
+                        ('unpushed 'unpulled)
+                        ('unpulled 'unpushed))))
         (magit-get-section `((,alt) (status))))
       (and-let* ((next (car (magit-section-siblings section 'next))))
         (magit-get-section (magit-section-ident next)))
@@ -1904,8 +1904,8 @@ excluding SECTION itself."
   (and-let* ((parent (oref section parent))
              (siblings (oref parent children)))
     (pcase direction
-      (`prev  (cdr (member section (reverse siblings))))
-      (`next  (cdr (member section siblings)))
+      ('prev  (cdr (member section (reverse siblings))))
+      ('next  (cdr (member section siblings)))
       (_      (remq section siblings)))))
 
 (defun magit-region-values (&optional condition multiple)

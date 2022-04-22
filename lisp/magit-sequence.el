@@ -186,8 +186,8 @@ This discards all changes made since the sequence started."
     (let ((reachable (magit-rev-ancestor-p (car commits) current))
           (msg "Cannot %s cherries that %s reachable from HEAD"))
       (pcase (list away reachable)
-        (`(nil t) (user-error msg verb "are"))
-        (`(t nil) (user-error msg verb "are not"))))
+        ('(nil t) (user-error msg verb "are"))
+        ('(t nil) (user-error msg verb "are not"))))
     `(,commits
       ,@(funcall fn commits)
       ,(transient-args 'magit-cherry-pick))))
@@ -979,13 +979,13 @@ status buffer (i.e. the reverse of how they will be applied)."
   (dolist (line (magit-rebase--todo))
     (with-slots (action-type action action-options target) line
       (pcase action-type
-        (`commit
+        ('commit
          (magit-sequence-insert-commit action target 'magit-sequence-pick))
         ((or (or `exec `label)
              (and `merge (guard (not action-options))))
          (insert (propertize action 'font-lock-face 'magit-sequence-onto) "\s"
                  (propertize target 'font-lock-face 'git-rebase-label) "\n"))
-        (`merge
+        ('merge
          (if-let ((hash (and (string-match "-[cC] \\([^ ]+\\)" action-options)
                              (match-string 1 action-options))))
              (magit-insert-section (commit hash)

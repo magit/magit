@@ -1056,9 +1056,9 @@ and `:slant'."
               (expand-file-name
                (file-name-as-directory (magit-section-parent-value section)))))
       (pcase (magit-diff--dwim)
-        (`unmerged (magit-diff-unmerged args files))
-        (`unstaged (magit-diff-unstaged args files))
-        (`staged
+        ('unmerged (magit-diff-unmerged args files))
+        ('unstaged (magit-diff-unstaged args files))
+        ('staged
          (let ((file (magit-file-at-point)))
            (if (and file (equal (cddr (car (magit-file-status file))) '(?D ?U)))
                ;; File was deleted by us and modified by them.  Show the latter.
@@ -1844,8 +1844,8 @@ commit or stash at point, then prompt for a commit."
                   (funcall fn)
                 (error
                  (goto-char (pcase fn
-                              (`scroll-up   (point-min))
-                              (`scroll-down (point-max)))))))
+                              ('scroll-up   (point-min))
+                              ('scroll-down (point-max)))))))
           (let ((magit-display-buffer-noselect t))
             (if (eq cmd #'magit-show-commit)
                 (apply #'magit-show-commit rev (magit-show-commit--arguments))
@@ -2228,13 +2228,13 @@ section or a child thereof."
           (insert (propertize
                    (format "unmerged   %s%s" file
                            (pcase (cddr (car (magit-file-status file)))
-                             (`(?D ?D) " (both deleted)")
-                             (`(?D ?U) " (deleted by us)")
-                             (`(?U ?D) " (deleted by them)")
-                             (`(?A ?A) " (both added)")
-                             (`(?A ?U) " (added by us)")
-                             (`(?U ?A) " (added by them)")
-                             (`(?U ?U) "")))
+                             ('(?D ?D) " (both deleted)")
+                             ('(?D ?U) " (deleted by us)")
+                             ('(?U ?D) " (deleted by them)")
+                             ('(?A ?A) " (both added)")
+                             ('(?A ?U) " (added by us)")
+                             ('(?U ?A) " (added by them)")
+                             ('(?U ?U) "")))
                    'font-lock-face 'magit-diff-file-heading))
           (insert ?\n))))
     t)
@@ -2600,18 +2600,18 @@ or a ref which is not a branch, then it inserts nothing."
                 (when (> (point) beg)
                   (let ((text (buffer-substring-no-properties beg (point))))
                     (when (pcase magit-revision-use-hash-sections
-                            (`quickest ; false negatives and positives
+                            ('quickest ; false negatives and positives
                              (and (>= (length text) 7)
                                   (string-match-p "[0-9]" text)
                                   (string-match-p "[a-z]" text)))
-                            (`quicker  ; false negatives (number-less hashes)
+                            ('quicker  ; false negatives (number-less hashes)
                              (and (>= (length text) 7)
                                   (string-match-p "[0-9]" text)
                                   (magit-commit-p text)))
-                            (`quick    ; false negatives (short hashes)
+                            ('quick    ; false negatives (short hashes)
                              (and (>= (length text) 7)
                                   (magit-commit-p text)))
-                            (`slow
+                            ('slow
                              (magit-commit-p text)))
                       (put-text-property beg (point)
                                          'font-lock-face 'magit-hash)
@@ -2741,9 +2741,9 @@ or a ref which is not a branch, then it inserts nothing."
     (require 'gravatar)
     (pcase-let ((`(,author . ,committer)
                  (pcase magit-revision-show-gravatars
-                   (`t '("^Author:     " . "^Commit:     "))
-                   (`author '("^Author:     " . nil))
-                   (`committer '(nil . "^Commit:     "))
+                   ('t '("^Author:     " . "^Commit:     "))
+                   ('author '("^Author:     " . nil))
+                   ('committer '(nil . "^Commit:     "))
                    (_ magit-revision-show-gravatars))))
       (--when-let (and author (magit-rev-format "%aE" rev))
         (magit-insert-revision-gravatar beg rev it author))
@@ -2949,13 +2949,13 @@ Do not confuse this with `magit-diff-scope' (which see)."
              (if (memq stype '(staged unstaged tracked untracked))
                  stype
                (pcase stype
-                 ((or `file `module)
+                 ((or 'file 'module)
                   (let* ((parent (oref it parent))
                          (type   (oref parent type)))
                     (if (memq type '(file module))
                         (magit-diff-type parent)
                       type)))
-                 (`hunk (thread-first it
+                 ('hunk (thread-first it
                           (oref parent)
                           (oref parent)
                           (oref type)))))))
@@ -3002,13 +3002,13 @@ actually a `diff' but a `diffstat' section."
                    ssection)
         (`(hunk nil   t  ,_)
          (if (magit-section-internal-region-p section) 'region 'hunk))
-        (`(hunk   t   t nil) 'hunks)
+        ('(hunk   t   t nil) 'hunks)
         (`(hunk  ,_  ,_  ,_) 'hunk)
-        (`(file   t   t nil) 'files)
+        ('(file   t   t nil) 'files)
         (`(file  ,_  ,_  ,_) 'file)
-        (`(module   t   t nil) 'files)
+        ('(module   t   t nil) 'files)
         (`(module  ,_  ,_  ,_) 'file)
-        (`(,(or `staged `unstaged `untracked) nil ,_ ,_) 'list)))))
+        (`(,(or 'staged 'unstaged 'untracked) nil ,_ ,_) 'list)))))
 
 (defun magit-diff-use-hunk-region-p ()
   (and (region-active-p)
@@ -3058,9 +3058,9 @@ are highlighted."
 
 (defun magit-diff-highlight-recursive (section &optional selection)
   (pcase (magit-diff-scope section)
-    (`list (magit-diff-highlight-list section selection))
-    (`file (magit-diff-highlight-file section selection))
-    (`hunk (magit-diff-highlight-heading section selection)
+    ('list (magit-diff-highlight-list section selection))
+    ('file (magit-diff-highlight-file section selection))
+    ('hunk (magit-diff-highlight-heading section selection)
            (magit-diff-paint-hunk section selection t))
     (_     (magit-section-highlight section nil))))
 
@@ -3099,12 +3099,12 @@ are highlighted."
    (pcase (list (oref section type)
                 (and (member section selection)
                      (not (eq this-command #'mouse-drag-region))))
-     (`(file   t) 'magit-diff-file-heading-selection)
-     (`(file nil) 'magit-diff-file-heading-highlight)
-     (`(module   t) 'magit-diff-file-heading-selection)
-     (`(module nil) 'magit-diff-file-heading-highlight)
-     (`(hunk   t) 'magit-diff-hunk-heading-selection)
-     (`(hunk nil) 'magit-diff-hunk-heading-highlight))))
+     ('(file     t) 'magit-diff-file-heading-selection)
+     ('(file   nil) 'magit-diff-file-heading-highlight)
+     ('(module   t) 'magit-diff-file-heading-selection)
+     ('(module nil) 'magit-diff-file-heading-highlight)
+     ('(hunk     t) 'magit-diff-hunk-heading-selection)
+     ('(hunk   nil) 'magit-diff-hunk-heading-highlight))))
 
 ;;; Hunk Paint
 
@@ -3150,13 +3150,13 @@ are highlighted."
              (cond
               ((looking-at "^\\+\\+?\\([<=|>]\\)\\{7\\}")
                (setq stage (pcase (list (match-string 1) highlight)
-                             (`("<" nil) 'magit-diff-our)
-                             (`("<"   t) 'magit-diff-our-highlight)
-                             (`("|" nil) 'magit-diff-base)
-                             (`("|"   t) 'magit-diff-base-highlight)
-                             (`("=" nil) 'magit-diff-their)
-                             (`("="   t) 'magit-diff-their-highlight)
-                             (`(">" nil) nil)))
+                             ('("<" nil) 'magit-diff-our)
+                             ('("<"   t) 'magit-diff-our-highlight)
+                             ('("|" nil) 'magit-diff-base)
+                             ('("|"   t) 'magit-diff-base-highlight)
+                             ('("=" nil) 'magit-diff-their)
+                             ('("="   t) 'magit-diff-their-highlight)
+                             ('(">" nil) nil)))
                'magit-diff-conflict-heading)
               ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
                (magit-diff-paint-tab merging tab-width)
@@ -3251,7 +3251,7 @@ are highlighted."
         (pcase (list magit-diff-refine-hunk
                      (oref section refined)
                      (eq section (magit-current-section)))
-          ((or `(all nil ,_) `(t nil t))
+          ((or `(all nil ,_) '(t nil t))
            (oset section refined t)
            (save-excursion
              (goto-char (oref section start))
@@ -3262,7 +3262,7 @@ are highlighted."
                      ;; Avoid fsyncing many small temp files
                      (write-region-inhibit-fsync t))
                  (diff-refine-hunk)))))
-          ((or `(nil t ,_) `(t t nil))
+          ((or `(nil t ,_) '(t t nil))
            (oset section refined nil)
            (remove-overlays (oref section start)
                             (oref section end)

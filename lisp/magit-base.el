@@ -1168,10 +1168,10 @@ or (last of all) the value of EXP."
                "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
     (if (and node (string-match "^(gitman)\\(.+\\)" node))
         (pcase magit-view-git-manual-method
-          (`info  (funcall fn fork))
-          (`man   (require 'man)
+          ('info  (funcall fn fork))
+          ('man   (require 'man)
                   (man (match-string 1 node)))
-          (`woman (require 'woman)
+          ('woman (require 'woman)
                   (woman (match-string 1 node)))
           (_
            (user-error "Invalid value for `magit-view-git-manual-method'")))

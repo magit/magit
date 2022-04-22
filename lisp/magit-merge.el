@@ -255,9 +255,9 @@ then also remove the respective remote branch."
             (user-error "Quit")))))
   (pcase (cons arg (cddr (car (magit-file-status file))))
     ((or `("--ours"   ?D ,_)
-         `("--ours"   ?U ?A)
+         '("--ours"   ?U ?A)
          `("--theirs" ,_ ?D)
-         `("--theirs" ?A ?U))
+         '("--theirs" ?A ?U))
      (magit-run-git "rm" "--" file))
     (_ (if (equal arg "--merge")
            ;; This fails if the file was deleted on one
