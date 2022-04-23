@@ -28,7 +28,7 @@ jobs:
     - name: Checkout compat
       uses: actions/checkout@v2
       with:
-        repository: https://git.sr.ht/~pkal/compat
+        repository: emacsmirror/compat
         path: compat
     - name: Checkout dash
       uses: actions/checkout@v2
