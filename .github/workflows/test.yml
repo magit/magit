@@ -50,6 +50,8 @@ jobs:
       with:
         repository: magit/magit
         path: magit
+    - name: Build compat
+      run: make -C compat compile
     - name: Build magit
       run: make -C magit all
     - name: Test magit
