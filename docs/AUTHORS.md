@@ -39,6 +39,7 @@ Contributors
 ------------
 
 - Aaron Culich <aculich@gmail.com>
+- Aaron L. Zeng <me@bcc32.com>
 - Aaron Madlon-Kay <aaron@madlon-kay.com>
 - Abdo Roig-Maranges <abdo.roig@gmail.com>
 - Adam Benanti <0entropy@protonmail.com>
@@ -197,6 +198,7 @@ Contributors
 - Jon Vanderwijk <jonathn@github.com>
 - Jordan Galby <gravemind2a@gmail.com>
 - Jordan Greenberg <jordan@softwareslave.com>
+- Jorge Israel Peña <jorge.israel.p@gmail.com>
 - Josh Elsasser <jelsasser@appneta.com>
 - Josiah Schwab <jschwab@gmail.com>
 - Julien Danjou <julien@danjou.info>
