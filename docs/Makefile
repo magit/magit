@@ -104,7 +104,7 @@ AUTHORS.md:
 	@printf "Generating AUTHORS.md..."
 	@test -e $(TOP).git \
 	&& (printf "$$AUTHORS_HEADER\n" > $@ \
-	&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
+	&& git log --pretty=format:'- %aN' | sort -u >> $@ \
 	&& printf "done\n" ; ) \
 	|| printf "FAILED (non-fatal)\n"
 
@@ -205,28 +205,28 @@ Names below are sorted alphabetically.
 Author
 ------
 
-- Marius Vollmer <marius.vollmer@gmail.com>
+- Marius Vollmer
 
 Maintainer
 ----------
 
-- Jonas Bernoulli <jonas@bernoul.li>
+- Jonas Bernoulli
 
 Developers
 ----------
 
-- Kyle Meyer <kyle@kyleam.com>
-- Noam Postavsky <npostavs@users.sourceforge.net>
+- Kyle Meyer
+- Noam Postavsky
 
 Retired Maintainers and Developers
 ----------------------------------
 
-- Nicolas Dudebout <nicolas.dudebout@gatech.edu>
-- Peter J. Weisberg <pj@irregularexpressions.net>
-- Pieter Praet <pieter@praet.org>
-- Phil Jackson <phil@shellarchive.co.uk>
-- Rémi Vanicat <vanicat@debian.org>
-- Yann Hodique <yann.hodique@gmail.com>
+- Nicolas Dudebout
+- Peter J. Weisberg
+- Pieter Praet
+- Phil Jackson
+- Rémi Vanicat
+- Yann Hodique
 
 Contributors
 ------------
