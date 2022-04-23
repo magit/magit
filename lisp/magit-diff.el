@@ -943,7 +943,7 @@ and `:slant'."
   :class 'transient-files
   :key "--"
   :argument "--"
-  :prompt "Limit to file(s): "
+  :prompt "Limit to file,s: "
   :reader #'magit-read-files
   :multi-value t)
 
