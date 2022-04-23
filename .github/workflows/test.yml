@@ -25,6 +25,11 @@ jobs:
       uses: purcell/setup-emacs@master
       with:
         version: ${{ matrix.emacs_version }}
+    - name: Checkout compat
+      uses: actions/checkout@v2
+      with:
+        repository: https://git.sr.ht/~pkal/compat
+        path: compat
     - name: Checkout dash
       uses: actions/checkout@v2
       with:
