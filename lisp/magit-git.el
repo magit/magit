@@ -2348,9 +2348,10 @@ and this option only controls what face is used.")
                              (re-search-forward (format "\\=[^%s]*" c) nil t))))
                   (bounds-of-thing-at-point 'git-revision))))
              (string (buffer-substring-no-properties (car bounds) (cdr bounds))))
-    (and (>= (length string) 7)
-         (string-match-p "[a-z]" string)
-         (magit-commit-p string)
+    (and (or (and (>= (length string) 7)
+                  (string-match-p "[a-z]" string)
+                  (magit-commit-p string))
+             (magit-ref-p string))
          string)))
 
 ;;; Completion
