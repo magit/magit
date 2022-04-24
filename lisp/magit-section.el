@@ -554,8 +554,20 @@ The return value has the form (TYPE...)."
                         (magit-section-at))))
     (unless (region-active-p)
       (setq magit--context-menu-buffer (current-buffer))
-      (setq magit--context-menu-section section)
-      (magit-section-update-highlight t))
+      (if-let ((branch (save-excursion
+                         (mouse-set-point click)
+                         (and (magit-section-match 'commit)
+                              (magit--painted-branch-at-point)))))
+          (let ((dummy (magit-section :type 'branch :value branch)))
+            (dolist (slot '(start content hidden parent children))
+              (when (slot-boundp section slot)
+                (setf (eieio-oref dummy slot)
+                      (eieio-oref section slot))))
+            (oset dummy keymap magit-branch-section-map)
+            (setq section dummy)
+            (setq magit--context-menu-section section))
+        (setq magit--context-menu-section section)
+        (magit-section-update-highlight t)))
     (when (magit-section-content-p section)
       (define-key-after menu [magit-section-toggle]
         `(menu-item
