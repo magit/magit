@@ -116,6 +116,16 @@ Also see https://github.com/magit/magit/issues/4132."
   :group 'magit-commands
   :type 'boolean)
 
+(defcustom magit-openpgp-default-signing-key nil
+  "Fingerprint of your default Openpgp key used for signing.
+If the specified primary key has signing capacity then it is used
+as the value of the `--gpg-sign' argument without prompting, even
+when other such keys exist.  To be able to select another key you
+must then use a prefix argument."
+  :package-version '(magit . "3.4.0")
+  :group 'magit-commands
+  :type 'string)
+
 (defvar magit-post-commit-hook-commands
   '(magit-commit-extend
     magit-commit-fixup
@@ -176,7 +186,7 @@ Also see https://github.com/magit/magit/issues/4132."
 (defvar magit-gpg-secret-key-hist nil)
 
 (defun magit-read-gpg-secret-key
-    (prompt &optional initial-input history predicate)
+    (prompt &optional initial-input history predicate default)
   (require 'epa)
   (let* ((keys (cl-mapcan
                 (lambda (cert)
@@ -198,8 +208,11 @@ Also see https://github.com/magit/magit/issues/4132."
                                               (propertize id 'face 'highlight)
                                               " " author))))))
                 (epg-list-keys (epg-make-context epa-protocol) nil t)))
-         (choice (completing-read prompt keys nil nil nil
-                                  history nil initial-input)))
+         (choice (or (and (not current-prefix-arg)
+                          (or (and (length= keys 1) (car keys))
+                              (and default (car (member default keys)))))
+                     (completing-read prompt keys nil nil nil
+                                      history nil initial-input))))
     (set-text-properties 0 (length choice) nil choice)
     choice))
 
@@ -209,7 +222,8 @@ Also see https://github.com/magit/magit/issues/4132."
    (lambda (cert)
      (cl-some (lambda (key)
                 (memq 'sign (epg-sub-key-capability key)))
-              (epg-key-sub-key-list cert)))))
+              (epg-key-sub-key-list cert)))
+   magit-openpgp-default-signing-key))
 
 (transient-define-argument magit-commit:--reuse-message ()
   :description "Reuse commit message"
