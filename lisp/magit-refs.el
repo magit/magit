@@ -495,6 +495,20 @@ Branch %s already exists.
     map)
   "Keymap for `tag' sections.")
 
+(defun magit--painted-branch-as-menu-section (section)
+  (and-let* ((branch (and (magit-section-match 'commit)
+                          (magit--painted-branch-at-point))))
+    (let ((dummy (magit-section :type 'branch :value branch)))
+      (oset dummy keymap magit-branch-section-map)
+      (dolist (slot '(start content hidden parent children))
+        (when (slot-boundp section slot)
+          (setf (eieio-oref dummy slot)
+                (eieio-oref section slot))))
+      dummy)))
+
+(add-hook 'magit-menu-alternative-section-hook
+          #'magit--painted-branch-as-menu-section)
+
 (defun magit-insert-branch-description ()
   "Insert header containing the description of the current branch.
 Insert a header line with the name and description of the
