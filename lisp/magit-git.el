@@ -1287,10 +1287,10 @@ string \"true\", otherwise return nil."
 
 (defun magit--rev-dereference (rev)
   "Return a rev that forces Git to interpret REV as a commit.
-If REV has the form \":/TEXT\", instead return it as-is"
-  (if (string-match-p "^:/" rev)
-      rev
-    (concat rev "^{commit}")))
+If REV is nil or has the form \":/TEXT\", return REV itself."
+  (cond ((not rev) nil)
+        ((string-match-p "^:/" rev) rev)
+        (t (concat rev "^{commit}"))))
 
 (defun magit-rev-equal (a b)
   "Return t if there are no differences between the commits A and B."
