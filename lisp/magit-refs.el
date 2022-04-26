@@ -431,7 +431,7 @@ menu this command always behaves like `magit-show-commit'."
   (interactive)
   (if (and (derived-mode-p 'magit-refs-mode)
            (magit-section-match '(branch tag))
-           (magit-menu-position))
+           (not (magit-menu-position)))
       (let ((ref (oref (magit-current-section) value)))
         (cond (current-prefix-arg
                (cond ((memq 'focus-on-ref magit-visit-ref-behavior)
