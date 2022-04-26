@@ -1034,6 +1034,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (setq magit-section-highlight-overlays nil)
         (setq magit-section-highlighted-sections nil)
         (setq magit-section-unhighlight-sections nil)
+        ;; TODO ensure buffer/window is current
         (let ((inhibit-read-only t))
           (erase-buffer)
           (save-excursion
