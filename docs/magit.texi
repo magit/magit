@@ -5938,7 +5938,6 @@ to setup the buffer, except for the key bindings.  All other setup
 happens in the function @code{git-commit-setup}, which among other things runs
 the hook @code{git-commit-setup-hook}.
 
-
 @defopt git-commit-setup-hook
 Hook run at the end of @code{git-commit-setup}.
 @end defopt
@@ -5982,7 +5981,7 @@ Hyperlink bug references in the buffer.
 Show usage information in the echo area.
 @end defun
 
-@defopt git-commit-setup-hook
+@defopt git-commit-post-finish-hook
 Hook run after the user finished writing a commit message.
 
 This hook is only run after pressing @code{C-c C-c} in a buffer used to
