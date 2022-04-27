@@ -142,6 +142,8 @@ endif
 
 ## Load-Path #########################################################
 
+# Remember to also update magit-emacs-Q-command!
+
 ifndef LOAD_PATH
 
 USER_EMACS_DIR = $(HOME)/.emacs.d

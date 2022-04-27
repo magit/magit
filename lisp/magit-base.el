@@ -876,6 +876,7 @@ See info node `(magit)Debugging Tools' for more information."
                           ((not (equal lib "libgit"))
                            (error "Cannot find mandatory dependency %s" lib)))))
                      '(;; Like `LOAD_PATH' in `default.mk'.
+                       "compat"
                        "dash"
                        "libgit"
                        "transient"
