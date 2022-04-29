@@ -20,7 +20,7 @@
 ;; Package-Version: 3.3.0-git
 ;; Package-Requires: (
 ;;     (emacs "25.1")
-;;     (compat "28.1.0.4")
+;;     (compat "28.1.1.0")
 ;;     (dash "2.19.1")
 ;;     (git-commit "3.3.0")
 ;;     (magit-section "3.3.0")
