@@ -1,4 +1,4 @@
-;;; magit-libgit.el --- Libgit functionality  -*- lexical-binding:t -*-
+;;; magit-libgit.el --- (POC) Teach Magit to use Libgit2  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2008-2022 The Magit Project Contributors
 
