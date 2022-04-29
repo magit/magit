@@ -137,7 +137,8 @@ Also see https://github.com/magit/magit/issues/4132."
     ("e" "Extend"         magit-commit-extend)
     ("w" "Reword"         magit-commit-reword)
     ("a" "Amend"          magit-commit-amend)
-    (6 "n" "Reshelve"     magit-commit-reshelve)]
+    (6 "n" "Reshelve"     magit-commit-reshelve)
+    (6 "N" "Finalize"     magit-commit-finalize)]
    ["Edit"
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
@@ -425,6 +426,29 @@ is updated:
     (magit-run-git "commit" "--amend" "--no-edit"
                    (and update-author (concat "--date=" date))
                    args)))
+
+;;;###autoload
+(defun magit-commit-finalize (&optional claim)
+  "Change the author, committer and signature dates of `HEAD' to now.
+
+If you are not the author, then this command does not change the
+author date, except with a prefix argument CLAIM, in which case
+not only the author date but also the author name are changed.
+
+The commit is always signed.  If the option `--gpg-sign' is set
+in the commit popup, then use its value.  Otherwise, if non-nil,
+use `magit-openpgp-default-signing-key', else use `--gpg-sign'
+without a value."
+  (interactive)
+  (magit-run-git-async
+   "commit" "--amend" "--no-edit"
+   (if-let ((key (or (transient-arg-value "--gpg-sign="
+                                          (magit-commit-arguments))
+                     magit-openpgp-default-signing-key)))
+       (concat "--gpg-sign=" key)
+     "--gpg-sign")
+   (and (or claim (magit-rev-author-p "HEAD"))
+        "--reset-author")))
 
 ;;;###autoload
 (defun magit-commit-absorb-modules (phase commit)
