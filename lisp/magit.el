@@ -6,9 +6,9 @@
 ;;     Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 ;;     Kyle Meyer <kyle@kyleam.com>
-;;     Noam Postavsky <npostavs@users.sourceforge.net>
 ;; Former-Maintainers:
 ;;     Nicolas Dudebout <nicolas.dudebout@gatech.edu>
+;;     Noam Postavsky <npostavs@users.sourceforge.net>
 ;;     Peter J. Weisberg <pj@irregularexpressions.net>
 ;;     Phil Jackson <phil@shellarchive.co.uk>
 ;;     Rémi Vanicat <vanicat@debian.org>

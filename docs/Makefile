@@ -191,45 +191,36 @@ export ORG_MAN_EXPORT
 # Templates ##########################################################
 
 define AUTHORS_HEADER
-Authors
-=======
-
 The following people have contributed to Magit, including the
 libraries `git-commit.el`, `magit-popup.el`, and `with-editor.el`
 which are distributed as separate Elpa packages.
 
-For statistics see https://magit.vc/stats/authors.html.
+For statistics see https://magit.vc/stats/magit/authors.html.
 
-Names below are sorted alphabetically.
-
-Author
-------
+Authors
+-------
 
 - Marius Vollmer
-
-Maintainer
-----------
-
 - Jonas Bernoulli
 
-Developers
-----------
+Active Maintainers
+------------------
 
+- Jonas Bernoulli
 - Kyle Meyer
-- Noam Postavsky
 
-Retired Maintainers and Developers
-----------------------------------
+Former Maintainers
+------------------
 
 - Nicolas Dudebout
+- Noam Postavsky
 - Peter J. Weisberg
-- Pieter Praet
 - Phil Jackson
 - Rémi Vanicat
 - Yann Hodique
 
-Contributors
-------------
+All Contributors
+----------------
 
 endef
 export AUTHORS_HEADER

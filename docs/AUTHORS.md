@@ -1,42 +1,33 @@
-Authors
-=======
-
 The following people have contributed to Magit, including the
 libraries `git-commit.el`, `magit-popup.el`, and `with-editor.el`
 which are distributed as separate Elpa packages.
 
-For statistics see https://magit.vc/stats/authors.html.
+For statistics see https://magit.vc/stats/magit/authors.html.
 
-Names below are sorted alphabetically.
-
-Author
-------
+Authors
+-------
 
 - Marius Vollmer
-
-Maintainer
-----------
-
 - Jonas Bernoulli
 
-Developers
-----------
+Active Maintainers
+------------------
 
+- Jonas Bernoulli
 - Kyle Meyer
-- Noam Postavsky
 
-Retired Maintainers and Developers
-----------------------------------
+Former Maintainers
+------------------
 
 - Nicolas Dudebout
+- Noam Postavsky
 - Peter J. Weisberg
-- Pieter Praet
 - Phil Jackson
 - Rémi Vanicat
 - Yann Hodique
 
-Contributors
-------------
+All Contributors
+----------------
 
 - Aaron Culich
 - Aaron L. Zeng
@@ -177,6 +168,7 @@ Contributors
 - Ivan Brennan
 - Jan Tatarik
 - Jasper St. Pierre
+- Jean-Louis Giordano
 - Jeff Bellegarde
 - Jeff Dairiki
 - Jeremy Meng
@@ -310,6 +302,7 @@ Contributors
 - René Stadler
 - Richard Kim
 - Robert Boone
+- Robert Irelan
 - Robin Green
 - Roey Darwish Dror
 - Roger Crew
