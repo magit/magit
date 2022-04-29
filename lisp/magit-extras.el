@@ -610,6 +610,17 @@ list returned by `magit-rebase-arguments'."
                      (magit-process-sentinel process event)
                      (magit-run-git "update-ref" "-d" backup)))))))))))))
 
+;;;###autoload
+(defun magit-sign-since ()
+  "Sign and reshelve new commits on top of the upstream branch.
+Also update author, committer and signature dates."
+  (interactive)
+  (unless (magit-get-current-branch)
+    (user-error "No branch is checked out"))
+  (if-let ((upstream (magit-get-upstream-branch)))
+      (magit-git-rebase upstream (list "--ignore-date" "--gpg-sign"))
+    (user-error "Upstream isn't set")))
+
 ;;; Revision Stack
 
 (defvar magit-revision-stack nil)
