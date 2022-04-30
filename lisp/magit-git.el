@@ -1142,10 +1142,10 @@ Sorted from longest to shortest CYGWIN name."
 (defun magit-expand-git-file-name (filename)
   (unless (file-name-absolute-p filename)
     (setq filename (expand-file-name filename)))
-  (-if-let ((cyg . win)
-            (cl-assoc filename magit-cygwin-mount-points
-                      :test (lambda (f cyg) (string-prefix-p cyg f))))
-      (concat win (substring filename (length cyg)))
+  (if-let ((cyg:win (cl-assoc filename magit-cygwin-mount-points
+                              :test (lambda (f cyg) (string-prefix-p cyg f)))))
+      (concat (cdr cyg:win)
+              (substring filename (length (car cyg:win))))
     filename))
 
 (defun magit-convert-filename-for-git (filename)
@@ -1155,10 +1155,10 @@ Sorted from longest to shortest CYGWIN name."
 2. If it's a remote filename, then remove the remote part.
 3. Deal with an `windows-nt' Emacs vs. Cygwin Git incompatibility."
   (if (file-name-absolute-p filename)
-      (-if-let ((cyg . win)
-                (cl-rassoc filename magit-cygwin-mount-points
-                           :test (lambda (f win) (string-prefix-p win f))))
-          (concat cyg (substring filename (length win)))
+      (if-let ((cyg:win (cl-rassoc filename magit-cygwin-mount-points
+                                   :test (lambda (f win) (string-prefix-p win f)))))
+          (concat (car cyg:win)
+                  (substring filename (length (cdr cyg:win))))
         (let ((expanded (expand-file-name filename)))
           (or (file-remote-p expanded 'localname)
               expanded)))
