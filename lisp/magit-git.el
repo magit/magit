@@ -700,9 +700,9 @@ See info node `(magit)Debugging Tools' for more information."
 (defun magit-config-get-from-cached-list (key)
   (gethash
    ;; `git config --list' downcases first and last components of the key.
-   (--> key
-     (replace-regexp-in-string "\\`[^.]+" #'downcase it t t)
-     (replace-regexp-in-string "[^.]+\\'" #'downcase it t t))
+   (let* ((key (replace-regexp-in-string "\\`[^.]+" #'downcase key t t))
+          (key (replace-regexp-in-string "[^.]+\\'" #'downcase key t t)))
+     key)
    (magit--with-refresh-cache (cons (magit-toplevel) 'config)
      (let ((configs (make-hash-table :test #'equal)))
        (dolist (conf (magit-git-items "config" "--list" "-z"))
