@@ -485,7 +485,7 @@ and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' for more information."
   (message "Running %s %s" (magit-git-executable)
-           (let ((m (mapconcat #'identity (-flatten args) " ")))
+           (let ((m (mapconcat #'identity (flatten-tree args) " ")))
              (remove-list-of-text-properties 0 (length m) '(face) m)
              m))
   (magit-start-git nil args))

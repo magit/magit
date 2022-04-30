@@ -354,7 +354,7 @@ to do the following.
 * Flatten ARGS, removing nil arguments.
 * Prepend `magit-git-global-arguments' to ARGS.
 * On w32 systems, encode to `w32-ansi-code-page'."
-  (setq args (append magit-git-global-arguments (-flatten args)))
+  (setq args (append magit-git-global-arguments (flatten-tree args)))
   (if (and (eq system-type 'windows-nt) (boundp 'w32-ansi-code-page))
       ;; On w32, the process arguments *must* be encoded in the
       ;; current code-page (see #3250).
@@ -429,7 +429,7 @@ still subject to major changes.  Also see `magit-git-string-p'."
 If there is no output, return nil.  If the output begins with a
 newline, return an empty string.  Like `magit-git-string' but
 ignore `magit-git-debug'."
-  (setq args (-flatten args))
+  (setq args (flatten-tree args))
   (magit--with-refresh-cache (cons default-directory args)
     (magit--with-temp-process-buffer
       (magit-process-git (list t nil) args)
@@ -439,7 +439,7 @@ ignore `magit-git-debug'."
 
 (defun magit-git-output (&rest args)
   "Execute Git with ARGS, returning its output."
-  (setq args (-flatten args))
+  (setq args (flatten-tree args))
   (magit--with-refresh-cache (cons default-directory args)
     (magit--with-temp-process-buffer
       (magit-process-git (list t nil) args)
@@ -521,7 +521,7 @@ add a section in the respective process buffer."
   "Execute Git with ARGS, returning the first line of its output.
 If there is no output, return nil.  If the output begins with a
 newline, return an empty string."
-  (setq args (-flatten args))
+  (setq args (flatten-tree args))
   (magit--with-refresh-cache (cons default-directory args)
     (magit--with-temp-process-buffer
       (apply #'magit-git-insert args)
@@ -557,7 +557,7 @@ the buffer to the inserted text, move to its beginning, and then
 call function WASHER with ARGS as its sole argument."
   (declare (indent 1))
   (let ((beg (point)))
-    (setq args (-flatten args))
+    (setq args (flatten-tree args))
     (magit-git-insert args)
     (if (= (point) beg)
         (magit-cancel-section)
@@ -2240,13 +2240,13 @@ and this option only controls what face is used.")
                 (setq upstream target)
                 (setq combined (delete target combined))))))
         (mapconcat #'identity
-                   (-flatten `(,state
-                               ,head
-                               ,upstream
-                               ,@(nreverse tags)
-                               ,@(nreverse combined)
-                               ,@(nreverse remotes)
-                               ,@other))
+                   (flatten-tree `(,state
+                                   ,head
+                                   ,upstream
+                                   ,@(nreverse tags)
+                                   ,@(nreverse combined)
+                                   ,@(nreverse remotes)
+                                   ,@other))
                    " ")))))
 
 (defun magit-object-type (object)

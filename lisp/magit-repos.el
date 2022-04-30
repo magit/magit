@@ -308,7 +308,7 @@ If it contains \"%s\" then the directory is substituted for that."
                                          (sort-fn sort-fn)
                                          (sort-set nil)
                                          (t t)))
-                             (-flatten props))))
+                             (flatten-tree props))))
                   magit-repolist-columns))))
 
 (defun magit-repolist-refresh ()

@@ -1228,7 +1228,7 @@ Do not add this to a hook variable."
 (defvar magit-log-format-message-function #'magit-log-propertize-keywords)
 
 (defun magit-log-wash-log (style args)
-  (setq args (-flatten args))
+  (setq args (flatten-tree args))
   (when (and (member "--graph" args)
              (member "--color" args))
     (let ((ansi-color-apply-face-function
