@@ -255,7 +255,10 @@ Also see option `magit-blame-styles'."
                                 (magit-blame-arguments))
                               "-L" line rev "--" file)
                              (goto-char (point-min))
-                             (car (magit-blame--parse-chunk type)))))
+                             (if (eobp)
+                                 (unless noerror
+                                   (error "Cannot get blame chunk at eob"))
+                               (car (magit-blame--parse-chunk type))))))
                    (noerror nil)
                    (t (error "Buffer does not visit a tracked file")))))))
 
