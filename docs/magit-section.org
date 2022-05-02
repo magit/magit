@@ -152,7 +152,7 @@ source for suitable examples before asking me for help.  Thanks!
   Return the section at point or where the context menu was invoked.
   When using the context menu, return the section that the user
   clicked on, provided the current buffer is the buffer in which
-  the click occured.  Otherwise return the section at point.
+  the click occurred.  Otherwise return the section at point.
 
 - Function magit-section-at &optional position ::
 
@@ -207,14 +207,14 @@ when appropriate.
   Return point or the position where the context menu was invoked.
   When using the context menu, return the position the user clicked
   on, provided the current buffer is the buffer in which the click
-  occured.  Otherwise return the same value as ~point~.
+  occurred.  Otherwise return the same value as ~point~.
 
 - Function magit-thing-at-point thing &optional no-properties ::
 
   Return the THING at point or where the context menu was invoked.
   When using the context menu, return the thing the user clicked
   on, provided the current buffer is the buffer in which the click
-  occured.  Otherwise return the same value as ~thing-at-point~.
+  occurred.  Otherwise return the same value as ~thing-at-point~.
   For the meaning of THING and NO-PROPERTIES see that function.
 
 * Matching Functions

@@ -445,7 +445,7 @@ never modify it.")
   "Return point or the position where the context menu was invoked.
 When using the context menu, return the position the user clicked
 on, provided the current buffer is the buffer in which the click
-occured.  Otherwise return the same value as `point'."
+occurred.  Otherwise return the same value as `point'."
   (if magit--context-menu-section
       (magit-menu-position)
     (point)))
@@ -454,7 +454,7 @@ occured.  Otherwise return the same value as `point'."
   "Return the THING at point or where the context menu was invoked.
 When using the context menu, return the thing the user clicked
 on, provided the current buffer is the buffer in which the click
-occured.  Otherwise return the same value as `thing-at-point'.
+occurred.  Otherwise return the same value as `thing-at-point'.
 For the meaning of THING and NO-PROPERTIES see that function."
   (if-let ((pos (magit-menu-position)))
       (save-excursion
@@ -466,7 +466,7 @@ For the meaning of THING and NO-PROPERTIES see that function."
   "Return the section at point or where the context menu was invoked.
 When using the context menu, return the section that the user
 clicked on, provided the current buffer is the buffer in which
-the click occured.  Otherwise return the section at point."
+the click occurred.  Otherwise return the section at point."
   (or magit--context-menu-section
       (magit-section-at)
       magit-root-section))
@@ -634,7 +634,7 @@ the expression (magit-menu-format-desc DESC) for that.  See
   (define-key-after keymap key
     `( menu-item ,desc ,def ,@props
        ;; Without this, the keys for point would be shown instead
-       ;; of the relevant ones from where the click occured.
+       ;; of the relevant ones from where the click occurred.
        ,@(and (not (region-active-p))
               (list :keys
                     (lambda ()
