@@ -1840,6 +1840,15 @@ sections are available.  There is one additional command.
   This is only intended for debugging purposes.  Do not enable this
   permanently, that would negatively affect performance.
 
+  This is only intended for debugging purposes.  Do not enable this
+  permanently, that would negatively affect performance.  Also note
+  that just because git exits with a non-zero exit status and prints
+  an error message that usually doesn't mean that it is an error as
+  far as Magit is concerned, which is another reason we usually hide
+  these error messages.  Whether some error message is relevant in
+  the context of some unexpected behavior has to be judged on a case
+  by case basis.
+
 - Variable: magit-process-extreme-logging ::
 
   This option controls whether ~magit-process-file~ logs to the
