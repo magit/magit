@@ -2388,6 +2388,9 @@ far as Magit is concerned, which is another reason we usually hide
 these error messages.  Whether some error message is relevant in
 the context of some unexpected behavior has to be judged on a case
 by case basis.
+
+The command @code{magit-toggle-git-debug} changes the value of this
+variable.
 @end defvar
 
 @defvar magit-process-extreme-logging
@@ -11088,6 +11091,30 @@ issue lays with Magit or something else.
 
 If you run Magit from its Git repository, then you should be able to
 use @code{make emacs-Q} instead of the output of this command.
+
+@item @kbd{M-x magit-toggle-verbose-refresh}
+@findex magit-toggle-verbose-refresh
+This command toggles whether additional git errors are reported.
+
+Magit basically calls git for one of these two reasons: for
+side-effects or to do something with its standard output.
+
+When git is run for side-effects then its output, including error
+messages, go into the process buffer which is shown when using @code{$}.
+
+When git's output is consumed in some way, then it would be too
+expensive to also insert it into this buffer, but when this
+option is non-nil and git returns with a non-zero exit status,
+then at least its standard error is inserted into this buffer.
+
+This is only intended for debugging purposes.  Do not enable this
+permanently, that would negatively affect performance.  Also note
+that just because git exits with a non-zero exit status and prints
+an error message that usually doesn't mean that it is an error as
+far as Magit is concerned, which is another reason we usually hide
+these error messages.  Whether some error message is relevant in
+the context of some unexpected behavior has to be judged on a case
+by case basis.
 
 @item @kbd{M-x magit-toggle-verbose-refresh}
 @findex magit-toggle-verbose-refresh

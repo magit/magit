@@ -284,7 +284,18 @@ these error messages.  Whether some error message is relevant in
 the context of some unexpected behavior has to be judged on a case
 by case basis.
 
+The command `magit-toggle-git-debug' changes the value of this
+variable.
+
 Also see `magit-process-extreme-logging'.")
+
+(defun magit-toggle-git-debug ()
+  "Toggle whether additional git errors are reported.
+See info node `(magit)Debugging Tools' for more information."
+  (interactive)
+  (setq magit-git-debug (not magit-git-debug))
+  (message "Additional reporting of Git errors %s"
+           (if magit-git-debug "enabled" "disabled")))
 
 (defvar magit--refresh-cache nil)
 
