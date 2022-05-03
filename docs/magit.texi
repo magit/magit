@@ -7239,7 +7239,7 @@ The following colors are used:
 
 @itemize
 @item
-Commits that use the same forground color as the @code{default} face have
+Commits that use the same foreground color as the @code{default} face have
 not been applied yet.
 
 @item

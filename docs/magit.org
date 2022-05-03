@@ -5884,7 +5884,7 @@ shown in different colors to indicate the status of the commits.
 
 The following colors are used:
 
-- Commits that use the same forground color as the ~default~ face have
+- Commits that use the same foreground color as the ~default~ face have
   not been applied yet.
 
 - Yellow commits have some special relationship to the commit rebase

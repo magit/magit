@@ -674,7 +674,7 @@ third-party completion frameworks."
                  (advice-member-p 'consult-completing-read-multiple
                                   'completing-read-multiple))
             ;; Our NO-SPLIT hack is not compatible with `CONSULT's
-            ;; implemenation so fall back to the original function.
+            ;; implementation so fall back to the original function.
             ;; #4437
             (unwind-protect
                 (progn
