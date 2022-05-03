@@ -2497,7 +2497,7 @@ Staging and applying changes is documented in info node
     (magit-buffer-diff-files-suspended nil)))
 
 (defun magit-revision-refresh-buffer ()
-  (setq magit-buffer-revision-hash (magit-rev-parse magit-buffer-revision))
+  (setq magit-buffer-revision-hash (magit-rev-hash magit-buffer-revision))
   (magit-set-header-line-format
    (concat (magit-object-type magit-buffer-revision-hash)
            " "  magit-buffer-revision
