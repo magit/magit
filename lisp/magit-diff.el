@@ -2161,6 +2161,7 @@ section or a child thereof."
         (when title
           (magit-insert-heading title))
         (goto-char end)
+        (set-marker end nil)
         (insert "\n")))))
 
 (defun magit-diff-wash-diffstat ()
