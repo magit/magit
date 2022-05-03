@@ -2118,7 +2118,7 @@ keymap is the parent of their keymaps.")
 (defun magit-diff-wash-diffs (args &optional limit)
   (run-hooks 'magit-diff-wash-diffs-hook)
   (when (member "--show-signature" args)
-    (magit-diff-wash-signature))
+    (magit-diff-wash-signature magit-buffer-revision-hash))
   (when (member "--stat" args)
     (magit-diff-wash-diffstat))
   (when (re-search-forward magit-diff-headline-re limit t)
@@ -2141,7 +2141,7 @@ section or a child thereof."
       (magit-section-goto it)
     (user-error "No diffstat in this buffer")))
 
-(defun magit-diff-wash-signature ()
+(defun magit-diff-wash-signature (object)
   (when (looking-at "^gpg: ")
     (let (title end)
       (save-excursion
@@ -2157,7 +2157,7 @@ section or a child thereof."
                          'face '(italic bold)))))
           (forward-line))
         (setq end (point-marker)))
-      (magit-insert-section (signature magit-buffer-revision title)
+      (magit-insert-section (signature object title)
         (when title
           (magit-insert-heading title))
         (goto-char end)
@@ -2548,13 +2548,27 @@ or a ref which is not a branch, then it inserts nothing."
         (insert (propertize heading 'font-lock-face
                             'magit-section-secondary-heading)))
       (magit-insert-heading)
+      (forward-line)
+      (magit-insert-section section (message)
+        (oset section heading-highlight-face
+              'magit-diff-revision-summary-highlight)
+        (let ((beg (point)))
+          (forward-line)
+          (magit--add-face-text-property
+           beg (point) 'magit-diff-revision-summary))
+        (magit-insert-heading)
+        (if (re-search-forward "-----BEGIN PGP SIGNATURE-----" nil t)
+            (goto-char (match-beginning 0))
+          (goto-char (point-max)))
+        (insert ?\n))
       (if (re-search-forward "-----BEGIN PGP SIGNATURE-----" nil t)
           (progn
             (let ((beg (match-beginning 0)))
-              (re-search-forward "-----END PGP SIGNATURE-----")
+              (re-search-forward "-----END PGP SIGNATURE-----\n")
               (delete-region beg (point)))
-            (insert ?\n)
-            (magit-process-git t "verify-tag" magit-buffer-revision))
+            (save-excursion
+              (magit-process-git t "verify-tag" magit-buffer-revision))
+            (magit-diff-wash-signature magit-buffer-revision))
         (goto-char (point-max)))
       (insert ?\n))))
 
