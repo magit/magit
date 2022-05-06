@@ -403,6 +403,9 @@ Type \\[magit-commit] to create a commit.
 \\{magit-status-mode-map}"
   :group 'magit-status
   (hack-dir-local-variables-non-file-buffer)
+  (when magit-status-initial-section
+    (add-hook 'magit-refresh-buffer-hook
+              #'magit-status-goto-initial-section nil t))
   (setq magit--imenu-group-types '(not branch commit)))
 
 (put 'magit-status-mode 'magit-diff-default-arguments
@@ -449,19 +452,7 @@ Type \\[magit-commit] to create a commit.
     (magit-run-section-hook 'magit-status-sections-hook)))
 
 (defun magit-status-goto-initial-section ()
-  "In a `magit-status-mode' buffer, jump `magit-status-initial-section'.
-Actually doing so is deferred until `magit-refresh-buffer-hook'
-runs `magit-status-goto-initial-section-1'.  That function then
-removes itself from the hook, so that this only happens when the
-status buffer is first created."
-  (when (and magit-status-initial-section
-             (derived-mode-p 'magit-status-mode))
-    (add-hook 'magit-refresh-buffer-hook
-              #'magit-status-goto-initial-section-1 nil t)))
-
-(defun magit-status-goto-initial-section-1 ()
-  "In a `magit-status-mode' buffer, jump `magit-status-initial-section'.
-This function removes itself from `magit-refresh-buffer-hook'."
+  "Jump to the section specified by `magit-status-initial-section'."
   (when-let ((section
               (--some (if (integerp it)
                           (nth (1- it)
@@ -476,7 +467,7 @@ This function removes itself from `magit-refresh-buffer-hook'."
           (magit-section-hide section)
         (magit-section-show section))))
   (remove-hook 'magit-refresh-buffer-hook
-               #'magit-status-goto-initial-section-1 t))
+               #'magit-status-goto-initial-section t))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
   "When moving in the status buffer, update the revision buffer.

@@ -43,8 +43,6 @@
 (declare-function magit-process-unset-mode-line-error-status "magit-process" ())
 ;; For `magit-refresh-get-relative-position'
 (declare-function magit-hunk-section-p "magit-diff" (section) t)
-;; For `magit-mode-setup-internal'
-(declare-function magit-status-goto-initial-section "magit-status" ())
 ;; For `magit-mode'
 (defvar bookmark-make-record-function)
 (declare-function magit--make-bookmark "magit-bookmark" ())
@@ -627,7 +625,6 @@ your mode instead of adding an entry to this variable.")
       (pcase-dolist (`(,var ,val) bindings)
         (set (make-local-variable var) val))
       (when created
-        (magit-status-goto-initial-section)
         (run-hooks 'magit-create-buffer-hook)))
     (magit-display-buffer buffer)
     (with-current-buffer buffer
@@ -665,7 +662,6 @@ locked to its value, which is derived from MODE and ARGS."
       (funcall mode)
       (magit-xref-setup 'magit-mode-setup-internal args)
       (when created
-        (magit-status-goto-initial-section)
         (run-hooks 'magit-create-buffer-hook)))
     (magit-display-buffer buffer)
     (with-current-buffer buffer
