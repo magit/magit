@@ -45,6 +45,8 @@
      (message "Error while loading `magit-libgit': %S" err)
      (message "That is not fatal.  The `libegit2' module just won't be used."))))
 
+;;; Options
+
 (defgroup magit nil
   "Controlling Git from Emacs."
   :link '(url-link "https://magit.vc")

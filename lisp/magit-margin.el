@@ -33,6 +33,8 @@
 (require 'magit-transient)
 (require 'magit-mode)
 
+;;; Options
+
 (defgroup magit-margin nil
   "Information Magit displays in the margin.
 

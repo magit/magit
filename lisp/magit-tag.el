@@ -31,6 +31,8 @@
 ;; For `magit-tag-delete'.
 (defvar helm-comp-read-use-marked)
 
+;;; Commands
+
 ;;;###autoload (autoload 'magit-tag "magit" nil t)
 (transient-define-prefix magit-tag ()
   "Create or delete a tag."
