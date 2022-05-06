@@ -172,13 +172,20 @@ like \"/path/to/foo-bar\"."
                     (string-match magit-release-commit-regexp
                                   (magit-rev-format "%s" ptag))
                     (user-error "Use `sisyphus-create-release' first")))
-          (tag (if ver
-                   (concat (and (string-match magit-release-tag-regexp ptag)
-                                (match-string 1 ptag))
-                           ver)
+          (tag (cond
+                ((not ptag)
+                 (read-string "Create first release tag: "
+                              (if (string-match-p "\\`[0-9]" ver)
+                                  (concat "v" ver)
+                                ver)))
+                (ver
+                 (concat (and (string-match magit-release-tag-regexp ptag)
+                              (match-string 1 ptag))
+                         ver))
+                (t
                  (read-string
                   (format "Create release tag (previous was %s): " ptag)
-                  ptag)))
+                  ptag))))
           (ver (and (string-match magit-release-tag-regexp tag)
                     (match-string 2 tag)))
           (args (magit-tag-arguments)))
