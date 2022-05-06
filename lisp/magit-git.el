@@ -59,9 +59,6 @@
 (defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
 
-;; From later in `magit-git'.
-(defvar magit-tramp-process-environment nil)
-
 ;; From `magit-blame'.
 (declare-function magit-current-blame-chunk "magit-blame"
                   (&optional type noerror))
@@ -2280,6 +2277,8 @@ and this option only controls what face is used.")
        (decode-coding-inserted-region
         (point-min) (point-max) buffer-file-name t nil nil t)
        ,@body)))
+
+(defvar magit-tramp-process-environment nil)
 
 (defmacro magit-with-temp-index (tree arg &rest body)
   (declare (indent 2) (debug (form form body)))
