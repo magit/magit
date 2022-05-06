@@ -1115,12 +1115,12 @@ setting `imenu--index-alist' to nil before calling that function."
 
 (defun magit-custom-initialize-reset (symbol exp)
   "Initialize SYMBOL based on EXP.
-Set the symbol, using `set-default' (unlike
-`custom-initialize-reset' which uses the `:set' function if any.)
-The value is either the symbol's current value
- (as obtained using the `:get' function), if any,
-or the value in the symbol's `saved-value' property if any,
-or (last of all) the value of EXP."
+Set the value of the variable SYMBOL, using `set-default'
+\(unlike `custom-initialize-reset', which uses the `:set'
+function if any).  The value is either the symbol's current
+value (as obtained using the `:get' function), if any, or
+the value in the symbol's `saved-value' property if any, or
+\(last of all) the value of EXP."
   (set-default-toplevel-value
    symbol
    (condition-case nil
