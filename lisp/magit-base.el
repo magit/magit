@@ -57,8 +57,6 @@
 (eval-when-compile (require 'which-func))
 (declare-function which-function "which-func" ())
 
-(defvar magit-wip-before-change-mode)
-
 ;;; Options
 
 (defcustom magit-completing-read-function #'magit-builtin-completing-read
