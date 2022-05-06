@@ -464,7 +464,7 @@ without requiring confirmation."
 (defvar magit-post-unstage-hook-commands
   '(magit-unstage magit-unstage-file magit-unstage-all))
 
-(defun magit-run-post-unstage-hook-commands ()
+(defun magit-run-post-unstage-hook ()
   (when (memq this-command magit-post-unstage-hook-commands)
     (magit-run-hook-with-benchmark 'magit-post-unstage-hook)))
 
