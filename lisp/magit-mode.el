@@ -91,7 +91,8 @@ inside your function."
   :options '(magit-maybe-save-repository-buffers))
 
 (defcustom magit-post-refresh-hook
-  '(magit-run-post-commit-hook
+  '(magit-auto-revert-buffers
+    magit-run-post-commit-hook
     magit-run-post-stage-hook
     magit-run-post-unstage-hook)
   "Hook run after refreshing in `magit-refresh'.
@@ -105,7 +106,8 @@ inside your function."
   :package-version '(magit . "2.4.0")
   :group 'magit-refresh
   :type 'hook
-  :options '(magit-run-post-commit-hook
+  :options '(magit-auto-revert-buffers
+             magit-run-post-commit-hook
              magit-run-post-stage-hook
              magit-run-post-unstage-hook))
 
@@ -1050,7 +1052,6 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                            (magit-get-mode-buffer 'magit-status-mode))
             (with-current-buffer it
               (magit-refresh-buffer)))
-          (magit-auto-revert-buffers)
           (magit-run-hook-with-benchmark 'magit-post-refresh-hook)
           (when magit-refresh-verbose
             (let* ((c (caar magit--refresh-cache))
@@ -1072,7 +1073,6 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (magit-run-hook-with-benchmark 'magit-pre-refresh-hook)
   (dolist (buffer (magit-mode-get-buffers))
     (with-current-buffer buffer (magit-refresh-buffer)))
-  (magit-auto-revert-buffers)
   (magit-run-hook-with-benchmark 'magit-post-refresh-hook))
 
 (defvar-local magit-refresh-start-time nil)
