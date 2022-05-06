@@ -59,10 +59,6 @@
 (defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
 
-;; From `magit-blame'.
-(declare-function magit-current-blame-chunk "magit-blame"
-                  (&optional type noerror))
-
 (eval-when-compile
   (cl-pushnew 'orig-rev eieio--known-slot-names)
   (cl-pushnew 'number eieio--known-slot-names))
@@ -1507,7 +1503,8 @@ to, or to some other symbolic-ref that points to the same ref."
 (defun magit-commit-at-point ()
   (or (magit-section-value-if 'commit)
       (magit-thing-at-point 'git-revision t)
-      (and-let* ((chunk (magit-current-blame-chunk 'addition t)))
+      (and-let* ((chunk (and (fboundp 'magit-current-blame-chunk)
+                             (magit-current-blame-chunk 'addition t))))
         (oref chunk orig-rev))
       (and (derived-mode-p 'magit-stash-mode
                            'magit-merge-preview-mode
@@ -1527,7 +1524,8 @@ to, or to some other symbolic-ref that points to the same ref."
                      (magit-ref-p (format "refs/pullreqs/%s"
                                           (oref (oref it value) number))))))
       (magit-thing-at-point 'git-revision t)
-      (and-let* ((chunk (magit-current-blame-chunk 'addition t)))
+      (and-let* ((chunk (and (fboundp 'magit-current-blame-chunk)
+                             (magit-current-blame-chunk 'addition t))))
         (oref chunk orig-rev))
       (and magit-buffer-file-name
            magit-buffer-refname)

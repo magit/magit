@@ -1803,7 +1803,8 @@ commit or stash at point, then prompt for a commit."
 (defun magit-diff-show-or-scroll (fn)
   (let (rev cmd buf win)
     (cond
-     (magit-blame-mode
+     ((and (bound-and-true-p magit-blame-mode)
+           (fboundp 'magit-current-blame-chunk))
       (setq rev (oref (magit-current-blame-chunk) orig-rev))
       (setq cmd #'magit-show-commit)
       (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
