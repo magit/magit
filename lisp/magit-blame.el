@@ -223,6 +223,20 @@ Also see option `magit-blame-styles'."
   "Face used for dates when blaming."
   :group 'magit-faces)
 
+;;; Variables
+
+(defvar-local magit-blame-buffer-read-only nil)
+(defvar-local magit-blame-cache nil)
+(defvar-local magit-blame-disabled-modes nil)
+(defvar-local magit-blame-process nil)
+(defvar-local magit-blame-recursive-p nil)
+(defvar-local magit-blame-type nil)
+(defvar-local magit-blame-separator nil)
+(defvar-local magit-blame-previous-chunk nil)
+
+(defvar-local magit-blame--make-margin-overlays nil)
+(defvar-local magit-blame--style nil)
+
 ;;; Chunks
 
 (defclass magit-blame-chunk ()
@@ -304,23 +318,6 @@ in `magit-blame-read-only-mode-map' instead.")
   "Keymap for `magit-blame-read-only-mode'.")
 
 ;;; Modes
-;;;; Variables
-
-(defvar-local magit-blame-buffer-read-only nil)
-(defvar-local magit-blame-cache nil)
-(defvar-local magit-blame-disabled-modes nil)
-(defvar-local magit-blame-process nil)
-(defvar-local magit-blame-recursive-p nil)
-(defvar-local magit-blame-type nil)
-(defvar-local magit-blame-separator nil)
-(defvar-local magit-blame-previous-chunk nil)
-
-(defvar-local magit-blame--make-margin-overlays nil)
-(defvar-local magit-blame--style nil)
-
-(defsubst magit-blame--style-get (key)
-  (cdr (assoc key (cdr magit-blame--style))))
-
 ;;;; Base Mode
 
 (define-minor-mode magit-blame-mode
@@ -537,6 +534,9 @@ modes is toggled, then this mode also gets toggled automatically.
     (user-error "Buffer being blamed has been killed")))
 
 ;;; Display
+
+(defsubst magit-blame--style-get (key)
+  (cdr (assoc key (cdr magit-blame--style))))
 
 (defun magit-blame--make-overlays (buf chunk revinfo)
   (with-current-buffer buf
