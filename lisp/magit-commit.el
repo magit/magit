@@ -126,13 +126,6 @@ must then use a prefix argument."
   :group 'magit-commands
   :type 'string)
 
-(defvar magit-post-commit-hook-commands
-  '(magit-commit-extend
-    magit-commit-fixup
-    magit-commit-augment
-    magit-commit-instant-fixup
-    magit-commit-instant-squash))
-
 ;;; Popup
 
 ;;;###autoload (autoload 'magit-commit "magit-commit" nil t)
@@ -599,6 +592,18 @@ See `magit-commit-absorb' for an alternative implementation."
   :shortarg "-s"
   :argument "--strict="
   :reader #'transient-read-number-N0)
+
+(defvar magit-post-commit-hook-commands
+  '(magit-commit-extend
+    magit-commit-fixup
+    magit-commit-augment
+    magit-commit-instant-fixup
+    magit-commit-instant-squash))
+
+(defun magit-run-post-commit-hook ()
+  (when (and (not this-command)
+             (memq last-command magit-post-commit-hook-commands))
+    (run-hooks 'magit-post-commit-hook)))
 
 ;;; Pending Diff
 

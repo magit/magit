@@ -37,10 +37,6 @@
 
 ;; For `magit-display-buffer-fullcolumn-most-v1' from `git-commit'
 (defvar git-commit-mode)
-;; For `magit-refresh'
-(defvar magit-post-commit-hook-commands)
-(defvar magit-post-stage-hook-commands)
-(defvar magit-post-unstage-hook-commands)
 ;; For `magit-refresh' and `magit-refresh-all'
 (declare-function magit-auto-revert-buffers "magit-autorevert" ())
 ;; For `magit-refresh-buffer'
@@ -94,7 +90,10 @@ inside your function."
   :type 'hook
   :options '(magit-maybe-save-repository-buffers))
 
-(defcustom magit-post-refresh-hook nil
+(defcustom magit-post-refresh-hook
+  '(magit-run-post-commit-hook
+    magit-run-post-stage-hook
+    magit-run-post-unstage-hook)
   "Hook run after refreshing in `magit-refresh'.
 
 This hook, or `magit-pre-refresh-hook', should be used
@@ -105,7 +104,10 @@ To run a function with a particular buffer current, use
 inside your function."
   :package-version '(magit . "2.4.0")
   :group 'magit-refresh
-  :type 'hook)
+  :type 'hook
+  :options '(magit-run-post-commit-hook
+             magit-run-post-stage-hook
+             magit-run-post-unstage-hook))
 
 (defcustom magit-display-buffer-function #'magit-display-buffer-traditional
   "The function used to display a Magit buffer.
@@ -1049,14 +1051,6 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
             (with-current-buffer it
               (magit-refresh-buffer)))
           (magit-auto-revert-buffers)
-          (cond
-           ((and (not this-command)
-                 (memq last-command magit-post-commit-hook-commands))
-            (magit-run-hook-with-benchmark 'magit-post-commit-hook))
-           ((memq this-command magit-post-stage-hook-commands)
-            (magit-run-hook-with-benchmark 'magit-post-stage-hook))
-           ((memq this-command magit-post-unstage-hook-commands)
-            (magit-run-hook-with-benchmark 'magit-post-unstage-hook)))
           (magit-run-hook-with-benchmark 'magit-post-refresh-hook)
           (when magit-refresh-verbose
             (let* ((c (caar magit--refresh-cache))

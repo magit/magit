@@ -106,9 +106,6 @@ is a member of `magit-post-stage-hook-commands'."
   :group 'magit-commands
   :type 'hook)
 
-(defvar magit-post-stage-hook-commands
-  '(magit-stage magit-stage-file magit-stage-modified))
-
 (defcustom magit-post-unstage-hook nil
   "Hook run after unstaging changes.
 This hook is run by `magit-refresh' if `this-command'
@@ -116,9 +113,6 @@ is a member of `magit-post-unstage-hook-commands'."
   :package-version '(magit . "2.90.0")
   :group 'magit-commands
   :type 'hook)
-
-(defvar magit-post-unstage-hook-commands
-  '(magit-unstage magit-unstage-file magit-unstage-all))
 
 ;;; Commands
 ;;;; Apply
@@ -389,6 +383,13 @@ ignored) files."
                 (borg--maybe-absorb-gitdir package)))))))
     (magit-wip-commit-after-apply files " after stage")))
 
+(defvar magit-post-stage-hook-commands
+  '(magit-stage magit-stage-file magit-stage-modified))
+
+(defun magit-run-post-stage-hook ()
+  (when (memq this-command magit-post-stage-hook-commands)
+    (magit-run-hook-with-benchmark 'magit-post-stage-hook)))
+
 ;;;; Unstage
 
 (defun magit-unstage ()
@@ -459,6 +460,13 @@ without requiring confirmation."
   (magit-wip-commit-before-change nil " before unstage")
   (magit-run-git "reset" "HEAD" "--" magit-buffer-diff-files)
   (magit-wip-commit-after-apply nil " after unstage"))
+
+(defvar magit-post-unstage-hook-commands
+  '(magit-unstage magit-unstage-file magit-unstage-all))
+
+(defun magit-run-post-unstage-hook-commands ()
+  (when (memq this-command magit-post-unstage-hook-commands)
+    (magit-run-hook-with-benchmark 'magit-post-unstage-hook)))
 
 ;;;; Discard
 
