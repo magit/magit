@@ -50,8 +50,6 @@
 
 (eval-when-compile (require 'benchmark))
 
-(defvar magit-section-highlight-force-update)
-
 ;;; Hooks
 
 (defvar magit-section-movement-hook nil
@@ -263,6 +261,15 @@ no effect.  This also has no effect for Emacs >= 28, where
   :package-version '(magit-section . "3.4.0")
   :group 'magit-section
   :type 'boolean)
+
+;;; Variables
+
+(defvar-local magit-section-pre-command-region-p nil)
+(defvar-local magit-section-pre-command-section nil)
+(defvar-local magit-section-highlight-force-update nil)
+(defvar-local magit-section-highlight-overlays nil)
+(defvar-local magit-section-highlighted-sections nil)
+(defvar-local magit-section-unhighlight-sections nil)
 
 ;;; Faces
 
@@ -1570,13 +1577,6 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (delete-char 1)))))
 
 ;;; Highlight
-
-(defvar-local magit-section-pre-command-region-p nil)
-(defvar-local magit-section-pre-command-section nil)
-(defvar-local magit-section-highlight-force-update nil)
-(defvar-local magit-section-highlight-overlays nil)
-(defvar-local magit-section-highlighted-sections nil)
-(defvar-local magit-section-unhighlight-sections nil)
 
 (defun magit-section-pre-command-hook ()
   (when (and (not (bound-and-true-p transient--prefix))
