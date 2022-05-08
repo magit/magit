@@ -179,7 +179,8 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
           (after-change-major-mode-hook
            (remq 'global-diff-hl-mode-enable-in-buffers
                  after-change-major-mode-hook)))
-      (normal-mode t))
+      (delay-mode-hooks
+        (normal-mode t)))
     (setq buffer-read-only t)
     (set-buffer-modified-p nil)
     (goto-char (point-min))))
