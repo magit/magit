@@ -152,7 +152,7 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
 
 (defun magit-get-revision-buffer (rev file &optional create)
   (funcall (if create #'get-buffer-create #'get-buffer)
-           (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
+           (format "%s:%s" (subst-char-in-string ?/ ?_ rev) file)))
 
 (defun magit-revert-rev-file-buffer (_ignore-auto noconfirm)
   (when (or noconfirm
@@ -175,12 +175,12 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
                             (concat ":" file)
                           (concat magit-buffer-refname ":" file)))
       (setq buffer-file-coding-system last-coding-system-used))
-    (let ((buffer-file-name magit-buffer-file-name)
+    (let ((delay-mode-hooks t)
           (after-change-major-mode-hook
            (remq 'global-diff-hl-mode-enable-in-buffers
                  after-change-major-mode-hook)))
       (delay-mode-hooks
-        (normal-mode t)))
+        (set-auto-mode)))
     (setq buffer-read-only t)
     (set-buffer-modified-p nil)
     (goto-char (point-min))))
