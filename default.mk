@@ -28,6 +28,8 @@ SED      ?= sed
 EMACS    ?= emacs
 BATCH     = $(EMACS) -Q --batch $(LOAD_PATH)
 
+LISP_EXTRA_TARGETS ?= check-declare
+
 INSTALL_INFO     ?= $(shell command -v ginstall-info || printf install-info)
 MAKEINFO         ?= makeinfo
 MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
