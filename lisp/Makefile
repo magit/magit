@@ -94,6 +94,7 @@ $(PKG)-autoloads.el: $(ELS)
             ((symbol-function 'progress-reporter-done) (lambda (_))))\
     (let ((generated-autoload-file file))\
       (update-directory-autoloads default-directory))))"
+
 $(PKG)-version.el:
 	@printf " Creating $@\n"
 	@printf "%s" "$$VERSIONLIB_TMPL" > $@
