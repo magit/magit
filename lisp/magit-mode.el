@@ -1134,7 +1134,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                (progn (goto-char (line-beginning-position))
                       (when  (looking-at "^[-+]") (forward-line))
                       (while (looking-at "^[ @]") (forward-line))
-                      (let ((beg point))
+                      (let ((beg (point)))
                         (cond ((looking-at "^[-+]")
                                (forward-line)
                                (while (looking-at "^[-+]") (forward-line))
