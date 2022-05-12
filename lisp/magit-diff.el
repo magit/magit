@@ -2428,10 +2428,16 @@ section or a child thereof."
 (defun magit-diff-wash-hunk ()
   (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
     (let* ((heading  (match-string 0))
-           (ranges   (mapcar (lambda (str)
+           (ranges   (mapcar
+                      (lambda (str)
+                        (let ((range
                                (mapcar #'string-to-number
-                                       (split-string (substring str 1) ",")))
-                             (split-string (match-string 1))))
+                                       (split-string (substring str 1) ","))))
+                          ;; A single line is +1 rather than +1,1.
+                          (if (length= range 1)
+                              (nconc range (list 1))
+                            range)))
+                      (split-string (match-string 1))))
            (about    (match-string 2))
            (combined (length= ranges 3))
            (value    (cons about ranges)))
