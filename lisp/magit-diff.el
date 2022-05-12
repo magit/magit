@@ -1325,18 +1325,19 @@ for a revision."
            (and mcommit
                 (magit-section-parent-value (magit-current-section))))))
   (require 'magit)
-  (let ((file (magit-file-relative-name)))
+  (let* ((file (magit-file-relative-name))
+         (ln (and file (line-number-at-pos))))
     (magit-with-toplevel
       (when module
         (setq default-directory
               (expand-file-name (file-name-as-directory module))))
       (unless (magit-commit-p rev)
         (user-error "%s is not a commit" rev))
+      (when file
+        (save-buffer))
       (let ((buf (magit-revision-setup-buffer rev args files)))
         (when file
-          (save-buffer)
-          (let ((line (magit-diff-visit--offset file (list "-R" rev)
-                                                (line-number-at-pos)))
+          (let ((line (magit-diff-visit--offset file (list "-R" rev) ln))
                 (col (current-column)))
             (with-current-buffer buf
               (magit-diff--goto-position file line col))))))))
