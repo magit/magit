@@ -604,8 +604,7 @@ your mode instead of adding an entry to this variable.")
          (section (and buffer (magit-current-section)))
          (created (not buffer)))
     (unless buffer
-      (setq buffer (magit-with-toplevel
-                     (magit-generate-new-buffer mode value))))
+      (setq buffer (magit-generate-new-buffer mode value)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
       (funcall mode)
@@ -641,8 +640,7 @@ locked to its value, which is derived from MODE and ARGS."
          (section (and buffer (magit-current-section)))
          (created (not buffer)))
     (unless buffer
-      (setq buffer (magit-with-toplevel
-                     (magit-generate-new-buffer mode value))))
+      (setq buffer (magit-generate-new-buffer mode value)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
       (with-no-warnings
@@ -887,8 +885,9 @@ If a frame, then only consider buffers on that frame."
                          (window-list (unless (eq frame t) frame)))
                (buffer-list)))))
 
-(defun magit-generate-new-buffer (mode &optional value)
-  (let* ((name (funcall magit-generate-buffer-name-function mode value))
+(defun magit-generate-new-buffer (mode &optional value directory)
+  (let* ((default-directory (or directory (magit--toplevel-safe)))
+         (name (funcall magit-generate-buffer-name-function mode value))
          (buffer (generate-new-buffer name)))
     (with-current-buffer buffer
       (setq magit--default-directory default-directory)

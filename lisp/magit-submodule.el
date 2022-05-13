@@ -651,8 +651,7 @@ These sections can be expanded to show the respective commits."
 (defun magit-submodule-list-setup (columns &optional predicate)
   (magit-display-buffer
    (or (magit-get-mode-buffer 'magit-submodule-list-mode)
-       (magit-with-toplevel
-         (magit-generate-new-buffer 'magit-submodule-list-mode))))
+       (magit-generate-new-buffer 'magit-submodule-list-mode)))
   (magit-submodule-list-mode)
   (setq-local magit-repolist-columns columns)
   (setq-local magit-repolist-sort-key magit-submodule-list-sort-key)
