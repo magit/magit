@@ -783,9 +783,10 @@ By default, this is the same except for the \"pick\" command."
                   nil t))
         (goto-char (line-beginning-position))
         (pcase-dolist (`(,cmd . ,desc) git-rebase-command-descriptions)
-          (insert (format "%s %-8s %s\n"
+          (insert (format "%s %s %s\n"
                           comment-start
-                          (substitute-command-keys (format "\\[%s]" cmd))
+                          (string-pad
+                           (substitute-command-keys (format "\\[%s]" cmd)) 8)
                           desc)))
         (while (re-search-forward (concat git-rebase-comment-re
                                           "\\(  ?\\)\\([^\n,],\\) "
@@ -797,13 +798,16 @@ By default, this is the same except for the \"pick\" command."
                                (1+ (line-end-position)))
               (replace-match " " t t nil 1)
               (replace-match
-               (format
-                "%-8s"
-                (mapconcat #'key-description
+               (string-pad
+                (mapconcat (lambda (key)
+                             (save-match-data
+                               (substitute-command-keys
+                                (format "\\`%s'" (key-description key)))))
                            (cl-remove-if (lambda (key) (eq (elt key 0) 'menu-bar))
                                          (reverse (where-is-internal
                                                    cmd git-rebase-mode-map)))
-                           ", "))
+                           ", ")
+                8)
                t t nil 2))))))))
 
 (add-hook 'git-rebase-mode-hook #'git-rebase-mode-show-keybindings t)
