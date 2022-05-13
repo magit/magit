@@ -1146,10 +1146,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 
 ;;; Save File-Visiting Buffers
 
-(defvar disable-magit-save-buffers nil)
+(defvar magit--disable-save-buffers nil)
 
 (defun magit-pre-command-hook ()
-  (setq disable-magit-save-buffers nil))
+  (setq magit--disable-save-buffers nil))
 (add-hook 'pre-command-hook #'magit-pre-command-hook)
 
 (defvar magit-after-save-refresh-buffers nil)
@@ -1175,7 +1175,7 @@ Note that refreshing a Magit buffer is done by re-creating its
 contents from scratch, which can be slow in large repositories.
 If you are not satisfied with Magit's performance, then you
 should obviously not add this function to that hook."
-  (when (and (not disable-magit-save-buffers)
+  (when (and (not magit--disable-save-buffers)
              (magit-inside-worktree-p t))
     (--when-let (ignore-errors (magit-get-mode-buffer 'magit-status-mode))
       (add-to-list 'magit-after-save-refresh-buffers it)
@@ -1187,8 +1187,8 @@ Do so if `magit-save-repository-buffers' is non-nil.  You should
 not remove this from any hooks, instead set that variable to nil
 if you so desire."
   (when (and magit-save-repository-buffers
-             (not disable-magit-save-buffers))
-    (setq disable-magit-save-buffers t)
+             (not magit--disable-save-buffers))
+    (setq magit--disable-save-buffers t)
     (let ((msg (current-message)))
       (magit-save-repository-buffers
        (eq magit-save-repository-buffers 'dontask))

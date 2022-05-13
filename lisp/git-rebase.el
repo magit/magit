@@ -636,7 +636,7 @@ Like `undo' but works in read-only buffers."
     (undo arg)))
 
 (defun git-rebase--show-commit (&optional scroll)
-  (let ((disable-magit-save-buffers t))
+  (let ((magit--disable-save-buffers t))
     (save-excursion
       (goto-char (line-beginning-position))
       (--if-let (with-slots (action-type target) (git-rebase-current-line)
